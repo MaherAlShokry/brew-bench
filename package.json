@@ -1,0 +1,18 @@
+{
+  "name": "brew-bench",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A coffee field guide and dial-in tool",
+  "type": "module",
+  "scripts": {
+    "build": "python3 tools/build.py",
+    "build:artifact": "python3 tools/build.py --artifact",
+    "map": "node tools/gen-map.mjs",
+    "serve": "python3 -m http.server 8080"
+  },
+  "devDependencies": {
+    "d3-geo": "^3.1.0",
+    "topojson-client": "^3.1.0",
+    "world-atlas": "^2.0.2"
+  }
+}
