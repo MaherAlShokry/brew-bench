@@ -4,7 +4,12 @@ const clamp=(v,a=0,b=10)=>Math.max(a,Math.min(b,v));
 // Width of a string in a given CSS font, for sizing SVG labels.
 const textW=(()=>{const c=document.createElement('canvas').getContext('2d');return(t,font)=>{c.font=font;return c.measureText(t).width}})();
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-function load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
+// Saved data can be from an older version or damaged, so only accept the shape we expect.
+function load(k,d){let v;try{const t=localStorage.getItem(k);v=t?JSON.parse(t):d}catch(e){return d}
+  if(Array.isArray(d))return Array.isArray(v)?v.filter(x=>x&&typeof x==='object'&&!Array.isArray(x)):d;
+  if(d===null||typeof d==='object')return v&&typeof v==='object'&&!Array.isArray(v)?v:d;return v}
+const num=(v,d,a=-Infinity,b=Infinity)=>{v=+v;return Number.isFinite(v)?Math.min(b,Math.max(a,v)):d};
+const oneOf=(v,list,d)=>list.includes(v)?v:d;
 function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 const MQ=q=>!!(window.matchMedia&&window.matchMedia(q).matches);const RM=()=>MQ('(prefers-reduced-motion: reduce)');
 let toastT;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600)}
@@ -24,8 +29,9 @@ function roundG(g,v){const G=GRINDERS[g];return Math.round(clamp(v,G.min,G.max))
 const canGrind=(g,b)=>BREWERS[b].base[g]!=null;
 let BASE=load('bb-base3',null);
 function defBase(){const o={zp6:{},kultra:{}};for(const k in BREWERS){o.zp6[k]=BREWERS[k].base.zp6;o.kultra[k]=BREWERS[k].base.kultra}return o}
+if(BASE&&!['zp6','kultra'].every(g=>BASE[g]&&typeof BASE[g]==='object'))BASE=null;
 if(!BASE||!BASE.zp6){BASE=defBase();const old=load('bb-base2',null);if(old&&old.zp6)for(const g of['zp6','kultra'])for(const k in old[g])if(BASE[g][k]!==undefined&&old[g][k]!=null)BASE[g][k]=old[g][k]}
-for(const k in BREWERS)for(const g of['zp6','kultra'])if(BASE[g][k]===undefined)BASE[g][k]=BREWERS[k].base[g];
+for(const k in BREWERS)for(const g of['zp6','kultra'])if(BASE[g][k]===undefined||(BASE[g][k]!==null&&!Number.isFinite(BASE[g][k])))BASE[g][k]=BREWERS[k].base[g];
 function base(g,b){const v=BASE[g][b];return v==null?BREWERS[b].base[g]:v}
 function settingFor(g,b,off){const bb=base(g,b);return bb==null?null:roundG(g,bb-off*GRINDERS[g].step)}
 function gLabel(g,v){return GRINDERS[g].name+' '+dial(g,v)}
@@ -45,7 +51,9 @@ const originName=k=>(ALLO()[k]||{}).name||k;
 
 /* ================= STATE ================= */
 let S=Object.assign({grinder:'zp6',setting:56,brewer:'v60',temp:93,ratio:15,bloom:45,agit:'med',roast:'light',process:'washed',variety:'caturra',rec:null},load('bb-state',{}));
-if(!vById(S.variety))S.variety='caturra';if(!BREWERS[S.brewer]||!BREWERS[S.brewer].model)S.brewer='v60';if(!PROCESSES[S.process])S.process='washed';
+S.grinder=oneOf(S.grinder,['zp6','kultra'],'zp6');S.agit=oneOf(S.agit,['low','med','high'],'med');S.roast=oneOf(S.roast,['light','medium','dark'],'light');
+S.setting=num(S.setting,56);S.temp=num(S.temp,93);S.ratio=num(S.ratio,15);S.bloom=num(S.bloom,45);if(S.rec!=null&&!RECIPES[S.rec])S.rec=null;
+if(typeof S.variety!=='string'||!vById(S.variety))S.variety='caturra';if(!BREWERS[S.brewer]||!BREWERS[S.brewer].model)S.brewer='v60';if(!PROCESSES[S.process])S.process='washed';
 if(S.grinder==='kultra'&&S.setting<30&&S.setting>5&&S.setting%1)S.setting=Math.round(S.setting*10);
 if(!canGrind(S.grinder,S.brewer))S.grinder='kultra';S.setting=roundG(S.grinder,S.setting);
 let LOG=load('bb-log',[]);
@@ -284,13 +292,18 @@ function openTimer(idx,p){
     :'<p class="now">This one is by eye rather than the clock.</p>')+
    '<ol id="tm-list">'+ev.map((e,i)=>'<li data-i="'+i+'">'+esc(e.s)+'</li>').join('')+'</ol></div>';
   const d=$('timer');if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}
-  $('tm-x').onclick=()=>{if(TM.iv)clearInterval(TM.iv);d.close()};
-  if(total){$('tm-go').onclick=()=>{if(!TM.ctx){try{TM.ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}TM.run=!TM.run;$('tm-go').textContent=TM.run?'Pause':'Resume';
+  $('tm-x').onclick=()=>d.close();
+  // However the timer is closed (X, back, Escape, backdrop), stop it and let the screen sleep again.
+  d.onclose=()=>{if(TM&&TM.iv)clearInterval(TM.iv);if(TM)TM.run=false;wake(false)};
+  if(total){$('tm-go').onclick=()=>{if(!TM.ctx){try{TM.ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}TM.run=!TM.run;$('tm-go').textContent=TM.run?'Pause':'Resume';wake(TM.run);
       if(TM.run){TM.t0=performance.now()-TM.el*1000;TM.iv=setInterval(tick,200);tick()}else clearInterval(TM.iv)};
-    $('tm-reset').onclick=()=>{clearInterval(TM.iv);TM.run=false;TM.el=0;TM.lastIdx=-1;$('tm-go').textContent='Start';paint()};paint()}
+    $('tm-reset').onclick=()=>{clearInterval(TM.iv);TM.run=false;wake(false);TM.el=0;TM.lastIdx=-1;$('tm-go').textContent='Start';paint()};paint()}
 }
+// Keep the screen on while a brew timer runs (where the browser supports it).
+let WL=null;function wake(on){try{if(on&&!WL&&navigator.wakeLock)navigator.wakeLock.request('screen').then(l=>{WL=l;l.addEventListener('release',()=>{WL=null})}).catch(()=>{});else if(!on&&WL){WL.release();WL=null}}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&TM&&TM.run)wake(true)});
 function beep(){if(!TM.ctx)return;try{const o=TM.ctx.createOscillator(),g=TM.ctx.createGain();o.frequency.value=880;g.gain.setValueAtTime(.001,TM.ctx.currentTime);g.gain.exponentialRampToValueAtTime(.25,TM.ctx.currentTime+.02);g.gain.exponentialRampToValueAtTime(.001,TM.ctx.currentTime+.35);o.connect(g).connect(TM.ctx.destination);o.start();o.stop(TM.ctx.currentTime+.4)}catch(e){}if(navigator.vibrate)navigator.vibrate(120)}
-function tick(){TM.el=(performance.now()-TM.t0)/1000;if(TM.el>=TM.total){TM.el=TM.total;clearInterval(TM.iv);TM.run=false;$('tm-go').textContent='Start';paint();$('tm-now').textContent='Done. Enjoy your cup.';beep();beans(26);return}paint()}
+function tick(){TM.el=(performance.now()-TM.t0)/1000;if(TM.el>=TM.total){TM.el=TM.total;clearInterval(TM.iv);TM.run=false;wake(false);$('tm-go').textContent='Start';paint();$('tm-now').textContent='Done. Enjoy your cup.';beep();beans(26);return}paint()}
 function paint(){const el=TM.el,m=Math.floor(el/60),s=Math.floor(el%60);$('tm-big').textContent=m+':'+String(s).padStart(2,'0');
   $('tm-arc').setAttribute('stroke-dashoffset',(603*(1-el/TM.total)).toFixed(1));
   let cur=-1;TM.ev.forEach((e,i)=>{if(e.t>=0&&e.t<=el)cur=i});
@@ -306,6 +319,9 @@ function showTab(id,fromHistory){document.querySelectorAll('.tab').forEach(x=>x.
   // Each tab gets a history entry, so the back button (browser or Android) returns to the last tab.
   if(!fromHistory&&location.hash!=='#'+id)try{history.pushState(null,'','#'+id)}catch(e){}syncShell(id)}
 try{history.scrollRestoration='manual'}catch(e){}
+// Lock the page behind any open dialog or sheet so it can't scroll underneath.
+{const sync=()=>document.documentElement.classList.toggle('locked',!!document.querySelector('dialog[open]'));
+  const mo=new MutationObserver(sync);document.querySelectorAll('dialog').forEach(d=>{mo.observe(d,{attributes:true,attributeFilter:['open']});d.addEventListener('close',sync)})}
 // An open dialog also gets a history entry, so back closes it instead of leaving the tab.
 {const sm=HTMLDialogElement.prototype.showModal;HTMLDialogElement.prototype.showModal=function(){if(!this.open){try{history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}
   this.addEventListener('close',()=>{if(history.state&&history.state.dlg)history.back()},{once:true})}return sm.call(this)}}
@@ -571,7 +587,7 @@ function drawQuiz(){const el=$('quiz');
 }
 
 /* ================= GUIDE ================= */
-let CALC=load('bb-calc',{dose:18,ratio:15});
+let CALC=load('bb-calc',{dose:18,ratio:15});CALC.dose=num(CALC.dose,18,7,60);CALC.ratio=num(CALC.ratio,15,1,20);
 function renderCalc(){
   $('c-dose').value=CALC.dose;$('c-ratio').value=CALC.ratio;$('cv-dose').textContent=CALC.dose+'g';$('cv-ratio').textContent='1:'+CALC.ratio;
   const w=Math.round(CALC.dose*CALC.ratio);
@@ -604,7 +620,7 @@ function renderLog(){
   const cnt={};LOG.forEach(l=>{if(l.brewer)cnt[l.brewer]=(cnt[l.brewer]||0)+1});const fav=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];
   const best=rated.slice().sort((a,b)=>b.stars-a.stars)[0];
   $('l-stats').innerHTML=LOG.length?'<div><b>Brews logged</b><span>'+LOG.length+'</span></div><div><b>Average rating</b><span>'+avg+'</span><small>out of 5</small></div><div><b>Favourite brewer</b><span style="font-size:1rem">'+(fav?esc(BREWERS[fav[0]]?BREWERS[fav[0]].name:fav[0]):'-')+'</span></div><div><b>Top coffee</b><span style="font-size:1rem">'+(best?esc(best.coffee||'Untitled'):'-')+'</span></div>':'';
-  $('l-csv').hidden=!DL||!LOG.length;
+  $('l-csv').hidden=!LOG.length;
 }
 $('tolog').onclick=()=>{const r=compute(S);
   $('l-settings').value=gLabel(S.grinder,S.setting)+', '+BREWERS[S.brewer].name+', '+S.temp+'°C, 1:'+S.ratio+', '+BREWERS[S.brewer].bloom.label.toLowerCase()+' '+S.bloom+'s, '+PROCESSES[S.process].name+' '+vName(S.variety);
@@ -612,8 +628,8 @@ $('tolog').onclick=()=>{const r=compute(S);
 $('l-save').onclick=()=>{const e={date:new Date().toLocaleDateString(),coffee:$('l-coffee').value,settings:$('l-settings').value,stars:STAR,pred:$('l-pred').value,notes:$('l-notes').value,brewer:$('l-settings').dataset.brewer||''};
   if(!e.coffee&&!e.settings&&!e.notes){toast('Add a coffee name or some notes first');return}LOG.unshift(e);save('bb-log',LOG);['l-coffee','l-settings','l-pred','l-notes'].forEach(id=>$(id).value='');STAR=0;renderStars();renderLog();toast('Brew saved');beans(16)};
 $('l-list').onclick=e=>{const b=e.target.closest('[data-del]');if(!b)return;LOG.splice(+b.dataset.del,1);save('bb-log',LOG);renderLog();toast('Entry deleted')};
-$('l-csv').onclick=async()=>{if(!DL)return;const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const rows=[['Date','Coffee','Settings','Stars','Predicted','Notes']].concat(LOG.map(l=>[l.date,l.coffee,l.settings,l.stars,l.pred,l.notes]));
-  try{await DL.save({filename:'brew-log.csv',data:rows.map(r=>r.map(q).join(',')).join('\n')});toast('Saved')}catch(e){if(e&&e.code!=='declined')toast('Could not save the file')}};
+$('l-csv').onclick=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const rows=[['Date','Coffee','Settings','Stars','Predicted','Notes']].concat(LOG.map(l=>[l.date,l.coffee,l.settings,l.stars,l.pred,l.notes]));
+  saveFile('brew-log.csv',new Blob(['\ufeff'+rows.map(r=>r.map(q).join(',')).join('\r\n')],{type:'text/csv'}))};
 
 /* ================= SCAN ================= */
 let SC=Object.assign({origin:'colombia',process:'washed',variety:'pinkbourbon',roast:'light',date:'',brewer:'v60',grinder:'zp6',info:null},load('bb-scan',{}));
@@ -736,17 +752,28 @@ let SHDOC=null;
 function openShare(doc){SHDOC=doc;const pdfOK=!!(window.jspdf&&window.jspdf.jsPDF);
   $('sh-in').innerHTML='<div class="sheet"><div class="grab"></div><button class="vd-close" id="sh-x" aria-label="Close">\u2715</button><h2 id="sh-title" style="margin:0 40px 2px 0">Share</h2><p class="hint" style="margin:0">'+esc(doc.title)+'</p><div class="sheetlist">'+
    '<button type="button" data-sh="pdf">'+ico('file','#B5533C')+'<span>Save as PDF<small>'+(pdfOK?'A styled page to send or print':'Loading the PDF engine\u2026 try again in a moment')+'</small></span></button>'+
-   (navigator.share?'<button type="button" data-sh="native">'+ico('share','#6B8E4E')+'<span>Share with apps<small>Messages, WhatsApp, email and more</small></span></button>':'')+
+   (navigator.share||plugin('Share')?'<button type="button" data-sh="native">'+ico('share','#6B8E4E')+'<span>Share with apps<small>Messages, WhatsApp, email and more</small></span></button>':'')+
    '<button type="button" data-sh="copy">'+ico('copy','#C9964A')+'<span>Copy as text<small>Paste it anywhere</small></span></button>'+
    '<button type="button" data-sh="md">'+ico('text','#8A5A3B')+'<span>Save as a text file<small>Plain text you can edit</small></span></button></div></div>';
   const d=$('sharesheet');if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}$('sh-x').onclick=()=>d.close()}
 const fname=s=>String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,60)||'brew-bench';
-async function saveFile(name,data){if(DL){try{await DL.save({filename:name,data});toast('Saved');return true}catch(e){if(e&&e.code==='declined')return false;}}
+// Inside the Android app, downloads don't work, so files are written to the app's cache
+// and handed to Android's share sheet (save to Files or Drive, or send to another app).
+const NATIVE=!!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform());
+const plugin=n=>NATIVE&&Capacitor.Plugins?Capacitor.Plugins[n]:null;
+const toB64=blob=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(',')[1]);r.onerror=no;r.readAsDataURL(blob)});
+async function nativeShare(title,name,data,text){const fs=plugin('Filesystem'),sh=plugin('Share');if(!sh)return false;
+  if(name&&fs){const blob=data instanceof Blob?data:new Blob([data],{type:'text/plain'});
+    const {uri}=await fs.writeFile({path:name,data:await toB64(blob),directory:'CACHE'});await sh.share({title,files:[uri]})}
+  else await sh.share({title,text});return true}
+async function saveFile(name,data){if(NATIVE){try{if(await nativeShare(name,name,data))return true}catch(e){if(!/cancel/i.test(e&&e.message||''))toast('Could not save the file');return false}}
+  if(DL){try{await DL.save({filename:name,data});toast('Saved');return true}catch(e){if(e&&e.code==='declined')return false;}}
   try{const u=URL.createObjectURL(data instanceof Blob?data:new Blob([data]));const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);toast('Download started');return true}catch(e){toast('Saving files isn\u2019t available here');return false}}
 $('sharesheet').addEventListener('click',async e=>{const d=$('sharesheet');if(e.target===d){d.close();return}const b=e.target.closest('[data-sh]');if(!b||!SHDOC)return;const k=b.dataset.sh,doc=SHDOC,txt=docText(doc),base=fname(doc.file||doc.title);
   if(k==='pdf'){const blob=docPDF(doc);if(!blob){toast('The PDF engine is still loading. Try again in a second');return}d.close();await saveFile(base+'.pdf',blob)}
   if(k==='md'){d.close();await saveFile(base+'.txt',txt)}
   if(k==='copy'){let ok=false;try{await navigator.clipboard.writeText(txt);ok=true}catch(err){try{const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();ok=document.execCommand('copy');ta.remove()}catch(e2){}}d.close();toast(ok?'Copied to clipboard':'Copying isn\u2019t allowed here; try Save as a text file')}
+  if(k==='native'&&NATIVE){d.close();try{const blob=docPDF(doc);await nativeShare(doc.title,blob?base+'.pdf':null,blob,txt)}catch(err){if(!/cancel/i.test(err&&err.message||''))toast('Could not share')}return}
   if(k==='native'){try{const blob=docPDF(doc);const f=blob&&typeof File!=='undefined'?new File([blob],base+'.pdf',{type:'application/pdf'}):null;
       if(f&&navigator.canShare&&navigator.canShare({files:[f]}))await navigator.share({title:doc.title,files:[f]});else await navigator.share({title:doc.title,text:txt});d.close()}
     catch(err){if(!err||err.name!=='AbortError')toast('Sharing isn\u2019t allowed here; use Save as PDF instead')}}
@@ -797,7 +824,11 @@ syncThemeBtn();
 /* ================= INIT ================= */
 // Label each cell with its column heading so tables can stack into cards on phones.
 document.querySelectorAll('table.ref').forEach(t=>{const hs=[...t.querySelectorAll('thead th')].map(h=>h.textContent.trim());t.querySelectorAll('tbody tr').forEach(r=>[...r.children].forEach((c,i)=>{if(hs[i])c.dataset.label=hs[i]}))});
-buildGear();initDial();initPlan();render();renderPlan();renderRecipes();renderTech();renderProcesses();renderVarieties();buildMap();buildTree();startQuiz();renderCalc();renderTS();renderStars();renderLog();initScan();
+// If saved settings ever stop the app from starting, clear them (the brew log and scans are kept) and retry once.
+try{buildGear();initDial();initPlan();render();renderPlan();renderRecipes();renderTech();renderProcesses();renderVarieties();buildMap();buildTree();startQuiz();renderCalc();renderTS();renderStars();renderLog();initScan();}
+catch(err){let retried=false;try{retried=sessionStorage.getItem('bb-reset')==='1';sessionStorage.setItem('bb-reset','1')}catch(e){}
+  if(!retried){try{['bb-state','bb-plan','bb-scan','bb-calc','bb-base3'].forEach(k=>localStorage.removeItem(k))}catch(e){}location.reload()}throw err}
+try{sessionStorage.removeItem('bb-reset')}catch(e){}
 {const h=location.hash.slice(1);if(h&&$(h)&&$(h).tagName==='SECTION')showTab(h,true);else syncShell('dial')}
 if(window.claude&&window.claude.use){
   window.claude.use('sample').then(async s=>{SAMPLE=s;if(!s){$('scan-status').textContent='Reading labels needs this page open inside Claude. You can still fill in the details below.';return}
