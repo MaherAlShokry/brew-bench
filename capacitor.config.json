@@ -1,0 +1,8 @@
+{
+  "appId": "io.github.maheralshokry.brewbench",
+  "appName": "Brew Bench",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#FBF7F0"
+  }
+}

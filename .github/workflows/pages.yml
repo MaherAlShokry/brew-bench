@@ -1,14 +1,15 @@
 name: Deploy to GitHub Pages
 
+# Builds the site and publishes it to the gh-pages branch, which GitHub Pages
+# serves at https://maheralshokry.github.io/brew-bench/
+
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: pages
@@ -17,23 +18,17 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.x'
-      - name: Build index.html
-        run: python3 tools/build.py
-      - name: Collect site files
-        run: |
-          mkdir -p _site
-          cp -r index.html manifest.webmanifest sw.js icons _site/
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - name: Build site
+        run: python3 tools/build.py --site _site
+      - name: Publish to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: _site
-      - id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: _site
+          force_orphan: true
+          commit_message: Deploy site from ${{ github.sha }}
