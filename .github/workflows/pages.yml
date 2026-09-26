@@ -21,16 +21,12 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.x'
-      - name: Build index.html
-        run: python3 tools/build.py
-      - name: Collect site files
-        run: |
-          mkdir -p _site
-          cp -r index.html manifest.webmanifest sw.js icons _site/
+      - name: Build site
+        run: python3 tools/build.py --site _site
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

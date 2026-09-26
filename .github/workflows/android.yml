@@ -1,0 +1,75 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: ['**']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    env:
+      VERSION_NAME: 1.0.${{ github.run_number }}
+      HAS_KEY: ${{ secrets.BB_KEYSTORE_BASE64 != '' }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: npm ci
+      - name: Build the app's web files
+        run: python3 tools/build.py --app --site www
+      - name: Copy web files into the Android project
+        run: npx cap sync android
+
+      - name: Load signing key
+        if: env.HAS_KEY == 'true'
+        run: |
+          echo "${{ secrets.BB_KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/release.keystore"
+          echo "BB_KEYSTORE=$RUNNER_TEMP/release.keystore" >> "$GITHUB_ENV"
+      - name: Build APK
+        working-directory: android
+        env:
+          BB_KEYSTORE_PASSWORD: ${{ secrets.BB_KEYSTORE_PASSWORD }}
+          BB_KEY_ALIAS: ${{ secrets.BB_KEY_ALIAS }}
+          BB_KEY_PASSWORD: ${{ secrets.BB_KEY_PASSWORD }}
+        run: |
+          chmod +x gradlew
+          if [ "$HAS_KEY" = true ]; then TASK=assembleRelease; OUT=release/app-release.apk
+          else TASK=assembleDebug; OUT=debug/app-debug.apk; fi
+          ./gradlew "$TASK" -PversionCode=${{ github.run_number }} -PversionName="$VERSION_NAME" --no-daemon
+          cp "app/build/outputs/apk/$OUT" "$GITHUB_WORKSPACE/brew-bench.apk"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: brew-bench-apk
+          path: brew-bench.apk
+
+      - name: Publish release
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.VERSION_NAME }}
+          name: Brew Bench ${{ env.VERSION_NAME }}
+          body: |
+            Android app for The Brew Bench. Download **brew-bench.apk** on your phone and open it to install
+            (Android will ask you to allow installs from your browser the first time).
+          files: brew-bench.apk
+          make_latest: true

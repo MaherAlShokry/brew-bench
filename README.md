@@ -2,7 +2,8 @@
 
 A coffee field guide and dial-in tool that works like an app on your phone. Set your grinder, brewer and water and see roughly what lands in the cup before you pour. It also has recipes, a brew timer, and a guide to where coffee grows and where each variety came from.
 
-**Live site:** `https://<your-username>.github.io/brew-bench/` (after you enable GitHub Pages, see below)
+**Live site:** https://maheralshokry.github.io/brew-bench/ (share this link with anyone)  
+**Android app:** [download brew-bench.apk](https://github.com/MaherAlShokry/brew-bench/releases/latest/download/brew-bench.apk)
 
 ## Features
 
@@ -25,17 +26,33 @@ You can share anything as a styled PDF, send it to other apps, or copy it as tex
 
 ## Install on your phone
 
-1. Open the live site on your phone.
-2. **iPhone (Safari):** tap Share, then **Add to Home Screen**. **Android (Chrome):** tap ⋮, then **Install app** or **Add to Home screen**.
+**Android app (APK):** open the [latest APK](https://github.com/MaherAlShokry/brew-bench/releases/latest/download/brew-bench.apk) on your phone and tap it to install. The first time, Android asks you to allow installs from your browser or file manager. A new APK is built and published on the [Releases](https://github.com/MaherAlShokry/brew-bench/releases) page every time `main` changes.
+
+**Straight from the website:** open the live site, then:
+- **iPhone (Safari):** tap Share, then **Add to Home Screen**.
+- **Android (Chrome):** tap ⋮, then **Install app** or **Add to Home screen**.
 
 It opens full-screen like a native app and works offline after the first visit.
 
-## Publish it with GitHub Pages
+## Publishing
 
-1. Push this repository to GitHub (see *Getting it onto GitHub* below).
-2. In the repository, go to **Settings → Pages**.
-3. Under **Build and deployment → Source**, choose **GitHub Actions**.
-4. Push any change to `main` (or run the workflow from the **Actions** tab). The site builds and deploys automatically.
+Two GitHub Actions workflows run on every push to `main`:
+
+| Workflow | What it does |
+| --- | --- |
+| `pages.yml` | Builds the site and deploys it to GitHub Pages |
+| `android.yml` | Builds the APK and attaches it to a new release (on other branches it only builds, as a check) |
+
+**One-time setup for the website:** in the repository, go to **Settings → Pages**, and under **Build and deployment → Source** choose **GitHub Actions**. Then re-run the workflow from the **Actions** tab (or push any change).
+
+**Optional: a permanent signing key for the APK.** Without one, CI signs each APK with a throwaway debug key, so installing a newer version may ask you to uninstall the old one first. To sign every build with the same key, create one on your computer:
+
+```bash
+keytool -genkeypair -keystore brewbench.keystore -alias brewbench -keyalg RSA -keysize 2048 -validity 10000
+base64 -w0 brewbench.keystore   # macOS: base64 -i brewbench.keystore
+```
+
+Then add four secrets under **Settings → Secrets and variables → Actions**: `BB_KEYSTORE_BASE64` (the base64 output), `BB_KEYSTORE_PASSWORD`, `BB_KEY_ALIAS` (`brewbench`) and `BB_KEY_PASSWORD`. Keep the keystore file somewhere safe and never commit it.
 
 ## Project structure
 
@@ -44,8 +61,8 @@ brew-bench/
 ├── index.html                  Built site (generated; don't edit by hand)
 ├── manifest.webmanifest        App name, colours and icons for "Add to Home Screen"
 ├── sw.js                       Service worker for offline use
-├── icons/                      App icons
-├── src/
+├── icons/                      Website icons
+├── src/                        Source for the site (edit these)
 │   ├── template.html           Page layout and all styles
 │   ├── app.js                  All interactive logic
 │   └── data/
@@ -53,11 +70,17 @@ brew-bench/
 │       ├── brewing.js                     Brewers, recipes, processes, techniques, quiz
 │       └── world-map.json                 Pre-projected map geometry
 ├── tools/
-│   ├── build.py                Assembles src/ into index.html
+│   ├── build.py                Assembles src/ into index.html (and the app/site folders)
 │   └── gen-map.mjs             Regenerates world-map.json from Natural Earth data
-├── .github/workflows/pages.yml Build and deploy to GitHub Pages
-└── dist/                       Artifact build output (git-ignored)
+├── android/                    Android app project (Capacitor), wraps the site in an APK
+├── assets/icon-only.png        Source image for the Android launcher icons
+├── capacitor.config.json       App id, name and web folder for the Android app
+└── .github/workflows/
+    ├── pages.yml               Build and deploy the website to GitHub Pages
+    └── android.yml             Build the APK and publish it as a release
 ```
+
+Build output (`dist/`, `_site/`, `www/`) is git-ignored.
 
 ## Editing
 
@@ -77,17 +100,15 @@ node tools/gen-map.mjs
 
 `python3 tools/build.py --artifact` builds a single-file version (without the manifest or service worker) for hosting as a Claude artifact.
 
-## Getting it onto GitHub
-
-**Option A, no command line:** create a new empty repository on github.com named `brew-bench`, click **uploading an existing file**, and drag in everything from this folder, including the hidden `.github` folder.
-
-**Option B, with git:**
+To build the Android app yourself you need Node 22, JDK 21 and the Android SDK (Android Studio installs it):
 
 ```bash
-cd brew-bench
-git remote add origin https://github.com/<your-username>/brew-bench.git
-git push -u origin main
+npm install
+npm run build:app                    # builds www/ and copies it into android/
+cd android && ./gradlew assembleDebug   # APK lands in android/app/build/outputs/apk/debug/
 ```
+
+`npm run icons` regenerates the launcher icons from `assets/icon-only.png`.
 
 ## Notes on accuracy
 
