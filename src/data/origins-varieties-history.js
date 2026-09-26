@@ -376,7 +376,7 @@ const PTS={
  kona:{name:'Hawaii (Kona)',flag:'🌺',reg:'asia',subs:['Kona','Kaʻū','Maui','Kauaʻi'],alt:'150 to 900 m',harvest:'Aug to Jan',process:'Washed and natural',
   cup:'Smooth, buttery, mild fruit.',hist:'Coffee reached Hawaii in the 1820s. Kona, on the Big Island\u2019s volcanic slopes, is the famous name, with afternoon cloud cover shading the trees.',
   fact:'One of the few places coffee is grown commercially in the United States.',vars:['kona','typica']},
- reunion:{name:'Réunion (Île Bourbon)',flag:'🏝️',reg:'africa',subs:['Western highlands'],alt:'Varies',harvest:'Varies',process:'Washed and natural',
+ reunion:{name:'Réunion (Île Bourbon)',flag:'🇷🇪',reg:'africa',subs:['Western highlands'],alt:'Varies',harvest:'Varies',process:'Washed and natural',
   cup:'Bourbon Pointu: delicate, sweet, low caffeine.',hist:'The French island once called Île Bourbon. Seeds from Yemen planted here between 1715 and 1718 became the Bourbon variety, and a local mutation became Laurina, also called Bourbon Pointu.',
   fact:'A tiny island that named one of the two great branches of the Arabica family.',vars:['bourbon','laurina']}
 };

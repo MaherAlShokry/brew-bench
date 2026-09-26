@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <script>try{var t=localStorage.getItem("bb-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
-<meta name="theme-color" content="#FBF7F0">
+<meta name="theme-color" content="#FBF7F0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1F1814" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Brew Bench">
@@ -14,15 +15,15 @@
 <title>The Brew Bench: a coffee field guide</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Literata:opsz,wght@7..72,400;7..72,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Literata:opsz,wght@7..72,400;7..72,600&family=Noto+Color+Emoji&display=swap" rel="stylesheet">
 <style>
 :root{
   --paper:#FBF7F0; --surface:#FFFDF9; --surface2:#F3EADC; --ink:#3B2A20; --muted:#7A6656;
   --line:#E7DBC9; --cherry:#8A5A3B; --leaf:#6B8E4E; --honey:#C9964A;
   --ocean:#EDF2EA; --land:#E8DCC9; --belt:rgba(201,150,74,.10);
   --shadow:0 1px 0 rgba(92,64,40,.04),0 8px 24px rgba(92,64,40,.07);
-  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
-  --body:"Literata",Georgia,"Times New Roman",serif;
+  --display:"Bricolage Grotesque","Noto Color Emoji","Segoe UI",system-ui,sans-serif;
+  --body:"Literata","Noto Color Emoji",Georgia,"Times New Roman",serif;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
@@ -35,6 +36,7 @@
   --line:#45372D; --cherry:#D9A06B; --leaf:#A7C084; --honey:#E2B866;
   --ocean:#1B2420; --land:#3B2F27; --belt:rgba(226,184,102,.08); --shadow:none;}
 *,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none!important}
 html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px)}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6}
 h1,h2,h3,.tab,button,label,.num,.pill,.chip,summary{font-family:var(--display)}
@@ -73,6 +75,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visi
 .num{font-variant-numeric:tabular-nums;font-weight:800;font-size:1.05rem}
 .seg{display:flex;flex-wrap:wrap;gap:6px}
 .seg button{flex:1 1 auto;padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-size:.9rem;cursor:pointer}
+.seg.filters button{flex:0 0 auto}
 .seg button[aria-pressed="true"]{background:var(--cherry);color:var(--surface);border-color:var(--cherry)}
 select,input[type=search],input[type=number],textarea,.logform input{width:100%;padding:9px 10px;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-family:var(--body);font-size:.95rem}
 input[type=range]{width:100%;accent-color:var(--cherry);height:28px}
@@ -99,6 +102,14 @@ button.chip:hover{background:var(--line)}
 table.ref{border-collapse:collapse;width:100%;min-width:520px;font-size:.93rem}
 table.ref th{font-family:var(--display);text-align:left;font-weight:600;border-bottom:2px solid var(--ink);padding:8px}
 table.ref td{border-bottom:1px solid var(--line);padding:8px;vertical-align:top}
+@media (max-width:599px){
+  table.ref{min-width:0}
+  table.ref thead{display:none}
+  table.ref tr{display:block;padding:10px 0;border-bottom:1px solid var(--line)}
+  table.ref td{display:block;border:0;padding:2px 0}
+  table.ref td:first-child{font-family:var(--display);font-weight:600;color:var(--cherry)}
+  table.ref td[data-label]:not(:first-child)::before{content:attr(data-label);display:block;font-family:var(--display);font-size:.78rem;color:var(--muted);margin-top:4px}
+}
 ol.steps{padding-left:1.2rem;margin:.4rem 0}
 ol.steps li{margin:.2rem 0}
 
@@ -180,7 +191,8 @@ dialog#vd::backdrop{background:rgba(20,14,10,.55)}
 
 /* history */
 .treebox{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:auto;-webkit-overflow-scrolling:touch}
-#tree{display:block;min-width:1100px}
+#tree{display:block;width:100%;min-width:var(--tw,1100px);height:auto}
+@media (min-width:1000px){#tree{min-width:900px}}
 #tree .n{cursor:pointer}
 #tree .n rect{fill:var(--paper);stroke-width:1.6}
 #tree .tnote{font-family:var(--display);font-size:11px;font-style:italic;fill:var(--cherry)}
@@ -240,13 +252,16 @@ main section.on{animation:secin .35s ease both}
 .tcard .more{display:none;margin-top:.5rem}
 .tcard[aria-expanded="true"] .more{display:block}
 .tcard .cat{font-family:var(--display);font-size:.78rem;color:var(--muted)}
-.grindtrack{position:relative;height:46px;margin:30px 8px 8px;border-radius:999px;background:linear-gradient(90deg,var(--surface2),var(--line))}
-.grindtrack .gm{position:absolute;top:50%;width:18px;height:18px;border-radius:50%;border:2px solid var(--surface);transform:translate(-50%,-50%);cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.grindtrack{position:relative;height:calc(28px + var(--lanes,1) * 18px);margin:30px 8px 8px;border-radius:16px;background:linear-gradient(90deg,var(--surface2),var(--line))}
+.grindtrack .gm{position:absolute;top:calc(23px + var(--lane,0) * 18px);width:18px;height:18px;border-radius:50%;border:2px solid var(--surface);transform:translate(-50%,-50%);cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.2)}
 .grindtrack .gm:hover,.grindtrack .gm.on{transform:translate(-50%,-50%) scale(1.35);z-index:2}
 .grindtrack .scale{position:absolute;top:-22px;font-family:var(--display);font-size:.72rem;color:var(--muted);transform:translateX(-50%)}
 .gmlabel{font-family:var(--display);font-size:.9rem;min-height:1.4em;margin:0 8px 14px;color:var(--cherry);font-weight:600}
 #pmap{width:100%;height:auto;display:block}
 #pmap .pd{cursor:pointer;transition:r .15s}
+#pmap .ax{font-family:var(--display);font-size:12px;fill:var(--muted)}
+#pmap #pm-label{font-family:var(--display);font-size:13px;font-weight:600;fill:var(--cherry)}
+@media (max-width:599px){#pmap .ax{font-size:22px}#pmap #pm-label{font-size:24px}#pmap .pd{r:11}#pmap .pd:hover{r:13}}
 #pmap .pd:hover{r:9}
 .card.flash{animation:flash 1.2s ease}
 @keyframes flash{0%,100%{box-shadow:var(--shadow)}30%{box-shadow:0 0 0 4px var(--honey)}}
@@ -288,6 +303,7 @@ dialog#timer::backdrop{background:rgba(30,20,14,.6)}
 .sheetlist{display:grid;gap:8px;margin-top:10px}
 .sheetlist button{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:14px;border-radius:14px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-family:var(--display);font-size:1rem;cursor:pointer}
 .sheetlist button small{display:block;font-family:var(--body);color:var(--muted);font-size:.84rem}
+.sheetlist button .ic svg{width:21px;height:21px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .sheetlist button .ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex:none;color:var(--surface);font-size:1.1rem}
 dialog#navsheet,dialog#sharesheet{border:0;border-radius:22px;padding:0;max-width:460px;width:calc(100% - 24px);background:var(--surface);color:var(--ink)}
 dialog#navsheet::backdrop,dialog#sharesheet::backdrop{background:rgba(30,20,14,.5)}
@@ -453,7 +469,7 @@ dialog#navsheet::backdrop,dialog#sharesheet::backdrop{background:rgba(30,20,14,.
       <div class="field"><label for="p-variety">Variety</label><select id="p-variety"></select></div>
       <div class="field"><div class="lbl">Roast</div><div class="seg" id="p-roast"></div></div>
       <div class="field"><label for="p-age">Days since roast <span class="num" id="pv-age"></span></label><input type="range" id="p-age" min="3" max="60" step="1"></div>
-      <div class="field"><div class="lbl">I want</div><div class="seg" id="p-goal"></div></div>
+      <div class="field"><div class="lbl">I want</div><div class="seg filters" id="p-goal"></div></div>
     </div>
     <div class="stick"><div class="panel plan-out" id="p-out"></div></div>
   </div>
@@ -462,7 +478,7 @@ dialog#navsheet::backdrop,dialog#sharesheet::backdrop{background:rgba(30,20,14,.
 <!-- SCAN -->
 <section id="scan">
   <h2>Scan your beans</h2>
-  <p class="lede">Snap the bag or the roaster’s card. The details are read for you, matched to the guide, and turned into a brew plan for your gear.</p>
+  <p class="lede" id="scan-lede">Snap the bag or the roaster’s card. The details are read for you, matched to the guide, and turned into a brew plan for your gear.</p>
   <div class="bench">
     <div class="panel">
       <div id="scan-drop" class="drop">
@@ -482,10 +498,8 @@ dialog#navsheet::backdrop,dialog#sharesheet::backdrop{background:rgba(30,20,14,.
       <div class="field"><label for="s-variety">Variety</label><select id="s-variety"></select></div>
       <div class="field"><div class="lbl">Roast</div><div class="seg" id="s-roast"></div></div>
       <div class="field"><label for="s-date">Roast date</label><input type="date" id="s-date" class="dateinp"></div>
-      <div class="two">
-        <div class="field"><label for="s-brewer">Brew with</label><select id="s-brewer"></select></div>
-        <div class="field"><div class="lbl">Grinder</div><div class="seg" id="s-grinder"></div></div>
-      </div>
+      <div class="field"><label for="s-brewer">Brew with</label><select id="s-brewer"></select></div>
+      <div class="field"><div class="lbl">Grinder</div><div class="seg" id="s-grinder"></div></div>
     </div>
     <div class="stick"><div class="panel" id="scan-out"></div></div>
   </div>
@@ -497,7 +511,7 @@ dialog#navsheet::backdrop,dialog#sharesheet::backdrop{background:rgba(30,20,14,.
 <section id="tech">
   <h2>Techniques</h2>
   <p class="lede">Every move in the brewing toolbox, briefly. Tap a card for when to use it.</p>
-  <div class="vtools"><input type="search" id="tsearch" placeholder="Search techniques, e.g. bloom, bypass, espresso" aria-label="Search techniques"><div class="seg" id="tcat"></div></div>
+  <div class="vtools"><input type="search" id="tsearch" placeholder="Search, e.g. bloom, bypass" aria-label="Search techniques"><div class="seg filters" id="tcat"></div></div>
   <div class="grid" id="tgrid"></div>
 </section>
 
@@ -514,7 +528,7 @@ dialog#navsheet::backdrop,dialog#sharesheet::backdrop{background:rgba(30,20,14,.
   <p class="hint">Tap a marker to see the setting. These follow your calibration.</p>
   <div class="card" id="grindmap"></div>
   <h3 style="margin-top:1.6rem">Brewers</h3>
-  <div class="seg" id="gear-filter" style="margin-bottom:12px"></div>
+  <div class="seg filters" id="gear-filter" style="margin-bottom:12px"></div>
   <div class="grid" id="gear-brewers"></div>
   <h3 style="margin-top:1.6rem">Everything else</h3>
   <div class="grid" id="gear-acc"></div>
@@ -542,8 +556,8 @@ dialog#navsheet::backdrop,dialog#sharesheet::backdrop{background:rgba(30,20,14,.
   <h2>Varieties</h2>
   <p class="lede">Every variety, grouped by family. Tap one for its story, how it tastes and how to brew it.</p>
   <div class="vtools">
-    <input type="search" id="vsearch" placeholder="Search varieties, e.g. geisha, bourbon, kenya" aria-label="Search varieties">
-    <div class="seg" id="vfam"></div>
+    <input type="search" id="vsearch" placeholder="Search, e.g. geisha, bourbon" aria-label="Search varieties">
+    <div class="seg filters" id="vfam"></div>
   </div>
   <div id="vcompare"></div>
   <div class="grid" id="vgrid"></div>
@@ -574,7 +588,7 @@ dialog#navsheet::backdrop,dialog#sharesheet::backdrop{background:rgba(30,20,14,.
 <section id="recipes">
   <h2>Recipes</h2>
   <p class="lede">Grind settings follow your calibration. Tap a recipe to load it into the dial-in, or open it in the planner for a version tuned to your coffee.</p>
-  <div class="seg" id="rfilter" style="margin-bottom:16px"></div>
+  <div class="seg filters" id="rfilter" style="margin-bottom:16px"></div>
   <div class="grid" id="rgrid"></div>
 </section>
 
@@ -582,8 +596,8 @@ dialog#navsheet::backdrop,dialog#sharesheet::backdrop{background:rgba(30,20,14,.
 <section id="process">
   <h2>Processes</h2>
   <p class="lede">Process sets the direction. Clean coffees want help building sweetness; fruit-heavy coffees want restraint.</p>
-  <div class="card" style="margin-bottom:16px"><h3 style="margin-top:0">The process map</h3><p class="hint" style="margin-top:0">Left is clean, right is wild; top is bright, bottom is soft. Tap a dot.</p><svg id="pmap" viewBox="0 0 640 300" role="img" aria-label="Processes plotted by cleanliness and acidity"></svg></div>
-  <div class="seg" id="pcat" style="margin-bottom:14px"></div>
+  <div class="card" style="margin-bottom:16px"><h3 style="margin-top:0">The process map</h3><p class="hint" style="margin-top:0">Left is clean, right is wild; top is bright, bottom is soft. Tap a dot.</p><svg id="pmap" viewBox="0 -14 640 314" role="img" aria-label="Processes plotted by cleanliness and acidity"></svg></div>
+  <div class="seg filters" id="pcat" style="margin-bottom:14px"></div>
   <div class="grid" id="pgrid"></div>
 </section>
 
@@ -593,7 +607,7 @@ dialog#navsheet::backdrop,dialog#sharesheet::backdrop{background:rgba(30,20,14,.
     <div class="panel"><h2>Ratio calculator</h2>
       <div class="two"><div class="field"><label for="c-dose">Coffee <span class="num" id="cv-dose"></span></label><input type="range" id="c-dose" min="7" max="60" step="0.5"></div>
       <div class="field"><label for="c-ratio">Ratio <span class="num" id="cv-ratio"></span></label><input type="range" id="c-ratio" min="1" max="20" step="0.5"></div></div>
-      <div class="seg" id="c-pre"></div>
+      <div class="seg filters" id="c-pre"></div>
       <div class="specs" id="c-out"></div></div>
     <div class="panel"><h2>What does it taste like?</h2><p class="hint" style="margin-top:0">Pick what you taste. Fixes use your current dial-in settings.</p><div class="chips" id="ts-chips"></div><div id="ts-out"></div></div>
   </div>
