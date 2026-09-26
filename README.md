@@ -2,8 +2,14 @@
 
 A coffee field guide and dial-in tool that works like an app on your phone. Set your grinder, brewer and water and see roughly what lands in the cup before you pour. It also has recipes, a brew timer, and a guide to where coffee grows and where each variety came from.
 
-**Live site:** https://maheralshokry.github.io/brew-bench/ (share this link with anyone)  
-**Android app:** [download brew-bench.apk](https://github.com/MaherAlShokry/brew-bench/releases/latest/download/brew-bench.apk)
+## Links
+
+| | |
+| --- | --- |
+| 🌐 **Website** (share this with friends) | https://maheralshokry.github.io/brew-bench/ |
+| 📱 **Android app** (APK download) | https://github.com/MaherAlShokry/brew-bench/releases/latest/download/brew-bench.apk |
+
+Both update automatically whenever `main` changes.
 
 ## Features
 
@@ -40,10 +46,10 @@ Two GitHub Actions workflows run on every push to `main`:
 
 | Workflow | What it does |
 | --- | --- |
-| `pages.yml` | Builds the site and deploys it to GitHub Pages |
+| `pages.yml` | Builds the site and publishes it to the `gh-pages` branch, which GitHub Pages serves |
 | `android.yml` | Builds the APK and attaches it to a new release (on other branches it only builds, as a check) |
 
-**One-time setup for the website:** in the repository, go to **Settings → Pages**, and under **Build and deployment → Source** choose **GitHub Actions**. Then re-run the workflow from the **Actions** tab (or push any change).
+GitHub Pages is set to serve the `gh-pages` branch (**Settings → Pages**). Don't edit that branch by hand; it's rebuilt on every deploy.
 
 **Optional: a permanent signing key for the APK.** Without one, CI signs each APK with a throwaway debug key, so installing a newer version may ask you to uninstall the old one first. To sign every build with the same key, create one on your computer:
 
