@@ -8,14 +8,18 @@
     "build": "python3 tools/build.py",
     "build:artifact": "python3 tools/build.py --artifact",
     "build:app": "python3 tools/build.py --app --site www && npx cap sync android",
-    "icons": "capacitor-assets generate --android --iconBackgroundColor '#F3EADC' --iconBackgroundColorDark '#F3EADC'",
+    "icons": "capacitor-assets generate --android",
     "map": "node tools/gen-map.mjs",
-    "serve": "python3 -m http.server 8080"
+    "serve": "python3 -m http.server 8080",
+    "vendor": "node tools/vendor.mjs"
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "^8.5.2",
+    "@fontsource-variable/bricolage-grotesque": "^5.3.0",
+    "@fontsource-variable/literata": "^5.3.0",
     "d3-geo": "^3.1.0",
+    "jspdf": "^2.5.1",
     "topojson-client": "^3.1.0",
     "world-atlas": "^2.0.2"
   },

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- The Brew Bench: a cup of coffee resting on a park bench. -->
+  <rect width="512" height="512" fill="#F3EADC"/>
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- steam -->
+    <path d="M232 150c-14-16 14-26 0-44" fill="none" stroke="#C9964A" stroke-width="14"/>
+    <path d="M272 146c-14-16 14-26 0-44" fill="none" stroke="#C9964A" stroke-width="14"/>
+    <!-- bench back posts and slats -->
+    <path d="M136 206V318M376 206V318" stroke="#6E4429" stroke-width="18"/>
+    <rect x="104" y="198" width="304" height="24" rx="12" fill="#8A5A3B"/>
+    <rect x="104" y="236" width="304" height="24" rx="12" fill="#8A5A3B"/>
+    <!-- cup -->
+    <path d="M198 196h116l-9 78a30 30 0 0 1-30 26h-38a30 30 0 0 1-30-26z" fill="#FFFDF9"/>
+    <path d="M198 196h116l-3.4 30h-109.2z" fill="#6B3E24"/>
+    <path d="M198 196h116l-9 78a30 30 0 0 1-30 26h-38a30 30 0 0 1-30-26z" fill="none" stroke="#3B2A20" stroke-width="10"/>
+    <path d="M312 214h10a24 24 0 0 1 0 48h-15" fill="none" stroke="#3B2A20" stroke-width="10"/>
+    <!-- seat and legs -->
+    <rect x="84" y="300" width="344" height="28" rx="14" fill="#6E4429"/>
+    <path d="M124 328l-14 72M388 328l14 72" stroke="#6E4429" stroke-width="18"/>
+  </g>
+</svg>

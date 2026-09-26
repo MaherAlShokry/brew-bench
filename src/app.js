@@ -300,10 +300,17 @@ function paint(){const el=TM.el,m=Math.floor(el/60),s=Math.floor(el%60);$('tm-bi
   if(TM.el>0&&TM.el<TM.total)$('tm-now').textContent=(cur>=0?TM.ev[cur].s:'')+(next?' Next in '+Math.ceil(next.t-el)+'s.':'');}
 
 /* ================= TABS ================= */
-function showTab(id){document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x.dataset.t===id));
+function showTab(id,fromHistory){document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x.dataset.t===id));
   document.querySelectorAll('main section').forEach(s=>s.classList.toggle('on',s.id===id));window.scrollTo({top:0});
   const t=document.querySelector('.tab[data-t="'+id+'"]');if(t)t.scrollIntoView({block:'nearest',inline:'center'});
-  try{history.replaceState(null,'','#'+id)}catch(e){}syncShell(id)}
+  // Each tab gets a history entry, so the back button (browser or Android) returns to the last tab.
+  if(!fromHistory&&location.hash!=='#'+id)try{history.pushState(null,'','#'+id)}catch(e){}syncShell(id)}
+try{history.scrollRestoration='manual'}catch(e){}
+// An open dialog also gets a history entry, so back closes it instead of leaving the tab.
+{const sm=HTMLDialogElement.prototype.showModal;HTMLDialogElement.prototype.showModal=function(){if(!this.open){try{history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}
+  this.addEventListener('close',()=>{if(history.state&&history.state.dlg)history.back()},{once:true})}return sm.call(this)}}
+addEventListener('popstate',()=>{const open=[...document.querySelectorAll('dialog[open]')];if(open.length){open.forEach(d=>d.close());return}
+  const h=location.hash.slice(1),id=h&&$(h)&&$(h).tagName==='SECTION'?h:'dial';if(!$(id).classList.contains('on'))showTab(id,true)});
 document.querySelector('[role=tablist]').onclick=e=>{const t=e.target.closest('.tab');if(t)showTab(t.dataset.t)};
 
 /* ================= RECIPES ================= */
@@ -791,7 +798,7 @@ syncThemeBtn();
 // Label each cell with its column heading so tables can stack into cards on phones.
 document.querySelectorAll('table.ref').forEach(t=>{const hs=[...t.querySelectorAll('thead th')].map(h=>h.textContent.trim());t.querySelectorAll('tbody tr').forEach(r=>[...r.children].forEach((c,i)=>{if(hs[i])c.dataset.label=hs[i]}))});
 buildGear();initDial();initPlan();render();renderPlan();renderRecipes();renderTech();renderProcesses();renderVarieties();buildMap();buildTree();startQuiz();renderCalc();renderTS();renderStars();renderLog();initScan();
-{const h=location.hash.slice(1);if(h&&$(h)&&$(h).tagName==='SECTION')showTab(h);else syncShell('dial')}
+{const h=location.hash.slice(1);if(h&&$(h)&&$(h).tagName==='SECTION')showTab(h,true);else syncShell('dial')}
 if(window.claude&&window.claude.use){
   window.claude.use('sample').then(async s=>{SAMPLE=s;if(!s){$('scan-status').textContent='Reading labels needs this page open inside Claude. You can still fill in the details below.';return}
     try{const l=await s.limits();IMGS=!!(l&&l.images);if(IMGS)$('scan-file').accept=l.images.mediaTypes.join(',')}catch(e){IMGS=false}
