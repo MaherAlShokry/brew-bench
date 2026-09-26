@@ -118,7 +118,7 @@ cd android && ./gradlew assembleDebug   # APK lands in android/app/build/outputs
 
 `npm run icons` regenerates the Android launcher icons and splash screens from the PNGs in `assets/`, and `npm run vendor` refreshes the bundled fonts and jsPDF in `vendor/`.
 
-The logo, a cup of coffee on a bench, is drawn in `assets/logo.svg`. `assets/logo-foreground.svg` is the same drawing without its background, and `assets/logo-maskable.svg` has extra padding for Android's rounded icon masks.
+The logo, a cup of coffee on a bench seen side-on, is drawn in `assets/logo.svg`. `assets/logo-light.svg` is the mark for light backgrounds, `assets/logo-foreground.svg` is the mark without its background, and `assets/logo-maskable.svg` has extra padding for rounded icon masks.
 
 ## Notes on accuracy
 
