@@ -67,7 +67,8 @@ brew-bench/
 ├── index.html                  Built site (generated; don't edit by hand)
 ├── manifest.webmanifest        App name, colours and icons for "Add to Home Screen"
 ├── sw.js                       Service worker for offline use
-├── icons/                      Website icons
+├── icons/                      Website icons (rendered from assets/logo.svg)
+├── vendor/                     Bundled fonts and jsPDF, so the site and app work offline
 ├── src/                        Source for the site (edit these)
 │   ├── template.html           Page layout and all styles
 │   ├── app.js                  All interactive logic
@@ -77,9 +78,10 @@ brew-bench/
 │       └── world-map.json                 Pre-projected map geometry
 ├── tools/
 │   ├── build.py                Assembles src/ into index.html (and the app/site folders)
+│   ├── vendor.mjs              Refreshes vendor/ from node_modules
 │   └── gen-map.mjs             Regenerates world-map.json from Natural Earth data
 ├── android/                    Android app project (Capacitor), wraps the site in an APK
-├── assets/icon-only.png        Source image for the Android launcher icons
+├── assets/                     Logo (logo.svg) and the images the Android icons and splash screens are made from
 ├── capacitor.config.json       App id, name and web folder for the Android app
 └── .github/workflows/
     ├── pages.yml               Build and deploy the website to GitHub Pages
@@ -114,7 +116,9 @@ npm run build:app                    # builds www/ and copies it into android/
 cd android && ./gradlew assembleDebug   # APK lands in android/app/build/outputs/apk/debug/
 ```
 
-`npm run icons` regenerates the launcher icons from `assets/icon-only.png`.
+`npm run icons` regenerates the Android launcher icons and splash screens from the PNGs in `assets/`, and `npm run vendor` refreshes the bundled fonts and jsPDF in `vendor/`.
+
+The logo, a two-tone coffee bean split by its S-shaped crease, is drawn in `assets/logo.svg`. `assets/logo-light.svg` is the bean for light backgrounds, `assets/logo-foreground.svg` is the mark without its background, and `assets/logo-maskable.svg` has extra padding for rounded icon masks.
 
 ## Notes on accuracy
 
@@ -123,8 +127,8 @@ The cup-profile estimator is a model built from brewing rules of thumb, not a me
 ## Credits
 
 - Map geometry: [Natural Earth](https://www.naturalearthdata.com/) via [world-atlas](https://github.com/topojson/world-atlas), projected with [d3-geo](https://github.com/d3/d3-geo)
-- PDF export: [jsPDF](https://github.com/parallax/jsPDF) (MIT)
-- Fonts: [Bricolage Grotesque](https://fonts.google.com/specimen/Bricolage+Grotesque) and [Literata](https://fonts.google.com/specimen/Literata) (SIL Open Font License)
+- PDF export: [jsPDF](https://github.com/parallax/jsPDF) (MIT), bundled in `vendor/`
+- Fonts: [Bricolage Grotesque](https://fonts.google.com/specimen/Bricolage+Grotesque) and [Literata](https://fonts.google.com/specimen/Literata) (SIL Open Font License), bundled in `vendor/` via [Fontsource](https://fontsource.org/)
 
 ## Licence
 

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- The same bean for light backgrounds. -->
+  <g transform="rotate(-38 256 256)">
+    <clipPath id="bean"><ellipse cx="256" cy="256" rx="120" ry="166"/></clipPath>
+    <g clip-path="url(#bean)">
+      <rect x="100" y="80" width="320" height="360" fill="#8A5A3B"/>
+      <path d="M262 80c-50 50 50 126 0 176s50 126 0 184H440V80z" fill="#C9964A"/>
+      <path d="M262 80c-50 50 50 126 0 176s50 126 0 184" fill="none" stroke="#F3EADC" stroke-width="18"/>
+    </g>
+  </g>
+</svg>

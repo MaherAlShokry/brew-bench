@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <g transform="rotate(-38 256 256)">
+    <clipPath id="bean"><ellipse cx="256" cy="256" rx="120" ry="166"/></clipPath>
+    <g clip-path="url(#bean)">
+      <rect x="100" y="80" width="320" height="360" fill="#F6EBDD"/>
+      <path d="M262 80c-50 50 50 126 0 176s50 126 0 184H440V80z" fill="#E2B866"/>
+      <path d="M262 80c-50 50 50 126 0 176s50 126 0 184" fill="none" stroke="#5A3A26" stroke-width="18"/>
+    </g>
+  </g>
+</svg>

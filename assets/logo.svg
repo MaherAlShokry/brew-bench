@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- The Brew Bench: a two-tone coffee bean split by its S-shaped crease. -->
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#A86B42"/><stop offset="1" stop-color="#2E1F17"/></linearGradient></defs>
+  <rect width="512" height="512" fill="url(#g)"/>
+  <g transform="rotate(-38 256 256)">
+    <clipPath id="bean"><ellipse cx="256" cy="256" rx="120" ry="166"/></clipPath>
+    <g clip-path="url(#bean)">
+      <rect x="100" y="80" width="320" height="360" fill="#F6EBDD"/>
+      <path d="M262 80c-50 50 50 126 0 176s50 126 0 184H440V80z" fill="#E2B866"/>
+      <path d="M262 80c-50 50 50 126 0 176s50 126 0 184" fill="none" stroke="#5A3A26" stroke-width="18"/>
+    </g>
+  </g>
+</svg>

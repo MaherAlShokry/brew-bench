@@ -20,13 +20,21 @@ artifact, app = '--artifact' in args, '--app' in args
 site = pathlib.Path(args[args.index('--site') + 1]).resolve() if '--site' in args else None
 
 # Files served next to index.html. Keep in sync with the SHELL list in sw.js.
-SITE_FILES = ['manifest.webmanifest', 'sw.js', 'icons']
+SITE_FILES = ['manifest.webmanifest', 'sw.js', 'icons', 'vendor']
+GOOGLE_FONTS = '<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Literata:opsz,wght@7..72,400;7..72,600&family=Noto+Color+Emoji&display=swap" rel="stylesheet">'
+JSPDF_CDN = '<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>'
 
 page = (src / 'template.html').read_text(encoding='utf-8')
+assert GOOGLE_FONTS in page and JSPDF_CDN in page, 'font or jsPDF tag in template.html changed; update build.py'
 data = (src / 'data' / 'origins-varieties-history.js').read_text(encoding='utf-8') + '\n' + (src / 'data' / 'brewing.js').read_text(encoding='utf-8')
 out = page.replace('__MAP__', (src / 'data' / 'world-map.json').read_text(encoding='utf-8')) \
           .replace('__DATA__', data).replace('__APP__', (src / 'app.js').read_text(encoding='utf-8'))
 if not artifact:
+    # The website and app use the bundled copies in vendor/ so they work offline.
+    # Only the flag emoji font still comes from Google (Windows lacks flag emoji).
+    out = out.replace(GOOGLE_FONTS, '<link href="vendor/fonts.css" rel="stylesheet">\n'
+                      + ('' if app else '<link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">'), 1)
+    out = out.replace(JSPDF_CDN, '<script src="vendor/jspdf.umd.min.js" defer></script>', 1)
     pwa = '<link rel="manifest" href="manifest.webmanifest">\n'
     if not app:
         pwa += '<script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>\n'
