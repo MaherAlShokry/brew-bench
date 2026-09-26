@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <script>try{var t=localStorage.getItem("bb-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
-<meta name="theme-color" content="#FBF7F0">
+<meta name="theme-color" content="#FBF7F0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1F1814" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Brew Bench">
@@ -14,15 +15,15 @@
 <title>The Brew Bench: a coffee field guide</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Literata:opsz,wght@7..72,400;7..72,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Literata:opsz,wght@7..72,400;7..72,600&family=Noto+Color+Emoji&display=swap" rel="stylesheet">
 <style>
 :root{
   --paper:#FBF7F0; --surface:#FFFDF9; --surface2:#F3EADC; --ink:#3B2A20; --muted:#7A6656;
   --line:#E7DBC9; --cherry:#8A5A3B; --leaf:#6B8E4E; --honey:#C9964A;
   --ocean:#EDF2EA; --land:#E8DCC9; --belt:rgba(201,150,74,.10);
   --shadow:0 1px 0 rgba(92,64,40,.04),0 8px 24px rgba(92,64,40,.07);
-  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
-  --body:"Literata",Georgia,"Times New Roman",serif;
+  --display:"Bricolage Grotesque","Noto Color Emoji","Segoe UI",system-ui,sans-serif;
+  --body:"Literata","Noto Color Emoji",Georgia,"Times New Roman",serif;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
@@ -35,6 +36,7 @@
   --line:#45372D; --cherry:#D9A06B; --leaf:#A7C084; --honey:#E2B866;
   --ocean:#1B2420; --land:#3B2F27; --belt:rgba(226,184,102,.08); --shadow:none;}
 *,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none!important}
 html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px)}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6}
 h1,h2,h3,.tab,button,label,.num,.pill,.chip,summary{font-family:var(--display)}
@@ -73,6 +75,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visi
 .num{font-variant-numeric:tabular-nums;font-weight:800;font-size:1.05rem}
 .seg{display:flex;flex-wrap:wrap;gap:6px}
 .seg button{flex:1 1 auto;padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-size:.9rem;cursor:pointer}
+.seg.filters button{flex:0 0 auto}
 .seg button[aria-pressed="true"]{background:var(--cherry);color:var(--surface);border-color:var(--cherry)}
 select,input[type=search],input[type=number],textarea,.logform input{width:100%;padding:9px 10px;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-family:var(--body);font-size:.95rem}
 input[type=range]{width:100%;accent-color:var(--cherry);height:28px}
@@ -99,6 +102,14 @@ button.chip:hover{background:var(--line)}
 table.ref{border-collapse:collapse;width:100%;min-width:520px;font-size:.93rem}
 table.ref th{font-family:var(--display);text-align:left;font-weight:600;border-bottom:2px solid var(--ink);padding:8px}
 table.ref td{border-bottom:1px solid var(--line);padding:8px;vertical-align:top}
+@media (max-width:599px){
+  table.ref{min-width:0}
+  table.ref thead{display:none}
+  table.ref tr{display:block;padding:10px 0;border-bottom:1px solid var(--line)}
+  table.ref td{display:block;border:0;padding:2px 0}
+  table.ref td:first-child{font-family:var(--display);font-weight:600;color:var(--cherry)}
+  table.ref td[data-label]:not(:first-child)::before{content:attr(data-label);display:block;font-family:var(--display);font-size:.78rem;color:var(--muted);margin-top:4px}
+}
 ol.steps{padding-left:1.2rem;margin:.4rem 0}
 ol.steps li{margin:.2rem 0}
 
@@ -180,7 +191,8 @@ dialog#vd::backdrop{background:rgba(20,14,10,.55)}
 
 /* history */
 .treebox{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:auto;-webkit-overflow-scrolling:touch}
-#tree{display:block;min-width:1100px}
+#tree{display:block;width:100%;min-width:var(--tw,1100px);height:auto}
+@media (min-width:1000px){#tree{min-width:900px}}
 #tree .n{cursor:pointer}
 #tree .n rect{fill:var(--paper);stroke-width:1.6}
 #tree .tnote{font-family:var(--display);font-size:11px;font-style:italic;fill:var(--cherry)}
@@ -240,13 +252,16 @@ main section.on{animation:secin .35s ease both}
 .tcard .more{display:none;margin-top:.5rem}
 .tcard[aria-expanded="true"] .more{display:block}
 .tcard .cat{font-family:var(--display);font-size:.78rem;color:var(--muted)}
-.grindtrack{position:relative;height:46px;margin:30px 8px 8px;border-radius:999px;background:linear-gradient(90deg,var(--surface2),var(--line))}
-.grindtrack .gm{position:absolute;top:50%;width:18px;height:18px;border-radius:50%;border:2px solid var(--surface);transform:translate(-50%,-50%);cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.grindtrack{position:relative;height:calc(28px + var(--lanes,1) * 18px);margin:30px 8px 8px;border-radius:16px;background:linear-gradient(90deg,var(--surface2),var(--line))}
+.grindtrack .gm{position:absolute;top:calc(23px + var(--lane,0) * 18px);width:18px;height:18px;border-radius:50%;border:2px solid var(--surface);transform:translate(-50%,-50%);cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.2)}
 .grindtrack .gm:hover,.grindtrack .gm.on{transform:translate(-50%,-50%) scale(1.35);z-index:2}
 .grindtrack .scale{position:absolute;top:-22px;font-family:var(--display);font-size:.72rem;color:var(--muted);transform:translateX(-50%)}
 .gmlabel{font-family:var(--display);font-size:.9rem;min-height:1.4em;margin:0 8px 14px;color:var(--cherry);font-weight:600}
 #pmap{width:100%;height:auto;display:block}
 #pmap .pd{cursor:pointer;transition:r .15s}
+#pmap .ax{font-family:var(--display);font-size:12px;fill:var(--muted)}
+#pmap #pm-label{font-family:var(--display);font-size:13px;font-weight:600;fill:var(--cherry)}
+@media (max-width:599px){#pmap .ax{font-size:22px}#pmap #pm-label{font-size:24px}#pmap .pd{r:11}#pmap .pd:hover{r:13}}
 #pmap .pd:hover{r:9}
 .card.flash{animation:flash 1.2s ease}
 @keyframes flash{0%,100%{box-shadow:var(--shadow)}30%{box-shadow:0 0 0 4px var(--honey)}}
@@ -288,6 +303,7 @@ dialog#timer::backdrop{background:rgba(30,20,14,.6)}
 .sheetlist{display:grid;gap:8px;margin-top:10px}
 .sheetlist button{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:14px;border-radius:14px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-family:var(--display);font-size:1rem;cursor:pointer}
 .sheetlist button small{display:block;font-family:var(--body);color:var(--muted);font-size:.84rem}
+.sheetlist button .ic svg{width:21px;height:21px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .sheetlist button .ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex:none;color:var(--surface);font-size:1.1rem}
 dialog#navsheet,dialog#sharesheet{border:0;border-radius:22px;padding:0;max-width:460px;width:calc(100% - 24px);background:var(--surface);color:var(--ink)}
 dialog#navsheet::backdrop,dialog#sharesheet::backdrop{background:rgba(30,20,14,.5)}
@@ -456,7 +472,7 @@ dialog#navsheet::backdrop,dialog#sharesheet::backdrop{background:rgba(30,20,14,.
       <div class="field"><label for="p-variety">Variety</label><select id="p-variety"></select></div>
       <div class="field"><div class="lbl">Roast</div><div class="seg" id="p-roast"></div></div>
       <div class="field"><label for="p-age">Days since roast <span class="num" id="pv-age"></span></label><input type="range" id="p-age" min="3" max="60" step="1"></div>
-      <div class="field"><div class="lbl">I want</div><div class="seg" id="p-goal"></div></div>
+      <div class="field"><div class="lbl">I want</div><div class="seg filters" id="p-goal"></div></div>
     </div>
     <div class="stick"><div class="panel plan-out" id="p-out"></div></div>
   </div>
@@ -465,7 +481,7 @@ dialog#navsheet::backdrop,dialog#sharesheet::backdrop{background:rgba(30,20,14,.
 <!-- SCAN -->
 <section id="scan">
   <h2>Scan your beans</h2>
-  <p class="lede">Snap the bag or the roaster’s card. The details are read for you, matched to the guide, and turned into a brew plan for your gear.</p>
+  <p class="lede" id="scan-lede">Snap the bag or the roaster’s card. The details are read for you, matched to the guide, and turned into a brew plan for your gear.</p>
   <div class="bench">
     <div class="panel">
       <div id="scan-drop" class="drop">
@@ -485,10 +501,8 @@ dialog#navsheet::backdrop,dialog#sharesheet::backdrop{background:rgba(30,20,14,.
       <div class="field"><label for="s-variety">Variety</label><select id="s-variety"></select></div>
       <div class="field"><div class="lbl">Roast</div><div class="seg" id="s-roast"></div></div>
       <div class="field"><label for="s-date">Roast date</label><input type="date" id="s-date" class="dateinp"></div>
-      <div class="two">
-        <div class="field"><label for="s-brewer">Brew with</label><select id="s-brewer"></select></div>
-        <div class="field"><div class="lbl">Grinder</div><div class="seg" id="s-grinder"></div></div>
-      </div>
+      <div class="field"><label for="s-brewer">Brew with</label><select id="s-brewer"></select></div>
+      <div class="field"><div class="lbl">Grinder</div><div class="seg" id="s-grinder"></div></div>
     </div>
     <div class="stick"><div class="panel" id="scan-out"></div></div>
   </div>
@@ -500,7 +514,7 @@ dialog#navsheet::backdrop,dialog#sharesheet::backdrop{background:rgba(30,20,14,.
 <section id="tech">
   <h2>Techniques</h2>
   <p class="lede">Every move in the brewing toolbox, briefly. Tap a card for when to use it.</p>
-  <div class="vtools"><input type="search" id="tsearch" placeholder="Search techniques, e.g. bloom, bypass, espresso" aria-label="Search techniques"><div class="seg" id="tcat"></div></div>
+  <div class="vtools"><input type="search" id="tsearch" placeholder="Search, e.g. bloom, bypass" aria-label="Search techniques"><div class="seg filters" id="tcat"></div></div>
   <div class="grid" id="tgrid"></div>
 </section>
 
@@ -517,7 +531,7 @@ dialog#navsheet::backdrop,dialog#sharesheet::backdrop{background:rgba(30,20,14,.
   <p class="hint">Tap a marker to see the setting. These follow your calibration.</p>
   <div class="card" id="grindmap"></div>
   <h3 style="margin-top:1.6rem">Brewers</h3>
-  <div class="seg" id="gear-filter" style="margin-bottom:12px"></div>
+  <div class="seg filters" id="gear-filter" style="margin-bottom:12px"></div>
   <div class="grid" id="gear-brewers"></div>
   <h3 style="margin-top:1.6rem">Everything else</h3>
   <div class="grid" id="gear-acc"></div>
@@ -545,8 +559,8 @@ dialog#navsheet::backdrop,dialog#sharesheet::backdrop{background:rgba(30,20,14,.
   <h2>Varieties</h2>
   <p class="lede">Every variety, grouped by family. Tap one for its story, how it tastes and how to brew it.</p>
   <div class="vtools">
-    <input type="search" id="vsearch" placeholder="Search varieties, e.g. geisha, bourbon, kenya" aria-label="Search varieties">
-    <div class="seg" id="vfam"></div>
+    <input type="search" id="vsearch" placeholder="Search, e.g. geisha, bourbon" aria-label="Search varieties">
+    <div class="seg filters" id="vfam"></div>
   </div>
   <div id="vcompare"></div>
   <div class="grid" id="vgrid"></div>
@@ -577,7 +591,7 @@ dialog#navsheet::backdrop,dialog#sharesheet::backdrop{background:rgba(30,20,14,.
 <section id="recipes">
   <h2>Recipes</h2>
   <p class="lede">Grind settings follow your calibration. Tap a recipe to load it into the dial-in, or open it in the planner for a version tuned to your coffee.</p>
-  <div class="seg" id="rfilter" style="margin-bottom:16px"></div>
+  <div class="seg filters" id="rfilter" style="margin-bottom:16px"></div>
   <div class="grid" id="rgrid"></div>
 </section>
 
@@ -585,8 +599,8 @@ dialog#navsheet::backdrop,dialog#sharesheet::backdrop{background:rgba(30,20,14,.
 <section id="process">
   <h2>Processes</h2>
   <p class="lede">Process sets the direction. Clean coffees want help building sweetness; fruit-heavy coffees want restraint.</p>
-  <div class="card" style="margin-bottom:16px"><h3 style="margin-top:0">The process map</h3><p class="hint" style="margin-top:0">Left is clean, right is wild; top is bright, bottom is soft. Tap a dot.</p><svg id="pmap" viewBox="0 0 640 300" role="img" aria-label="Processes plotted by cleanliness and acidity"></svg></div>
-  <div class="seg" id="pcat" style="margin-bottom:14px"></div>
+  <div class="card" style="margin-bottom:16px"><h3 style="margin-top:0">The process map</h3><p class="hint" style="margin-top:0">Left is clean, right is wild; top is bright, bottom is soft. Tap a dot.</p><svg id="pmap" viewBox="0 -14 640 314" role="img" aria-label="Processes plotted by cleanliness and acidity"></svg></div>
+  <div class="seg filters" id="pcat" style="margin-bottom:14px"></div>
   <div class="grid" id="pgrid"></div>
 </section>
 
@@ -596,7 +610,7 @@ dialog#navsheet::backdrop,dialog#sharesheet::backdrop{background:rgba(30,20,14,.
     <div class="panel"><h2>Ratio calculator</h2>
       <div class="two"><div class="field"><label for="c-dose">Coffee <span class="num" id="cv-dose"></span></label><input type="range" id="c-dose" min="7" max="60" step="0.5"></div>
       <div class="field"><label for="c-ratio">Ratio <span class="num" id="cv-ratio"></span></label><input type="range" id="c-ratio" min="1" max="20" step="0.5"></div></div>
-      <div class="seg" id="c-pre"></div>
+      <div class="seg filters" id="c-pre"></div>
       <div class="specs" id="c-out"></div></div>
     <div class="panel"><h2>What does it taste like?</h2><p class="hint" style="margin-top:0">Pick what you taste. Fixes use your current dial-in settings.</p><div class="chips" id="ts-chips"></div><div id="ts-out"></div></div>
   </div>
@@ -1045,7 +1059,7 @@ const PTS={
  kona:{name:'Hawaii (Kona)',flag:'🌺',reg:'asia',subs:['Kona','Kaʻū','Maui','Kauaʻi'],alt:'150 to 900 m',harvest:'Aug to Jan',process:'Washed and natural',
   cup:'Smooth, buttery, mild fruit.',hist:'Coffee reached Hawaii in the 1820s. Kona, on the Big Island\u2019s volcanic slopes, is the famous name, with afternoon cloud cover shading the trees.',
   fact:'One of the few places coffee is grown commercially in the United States.',vars:['kona','typica']},
- reunion:{name:'Réunion (Île Bourbon)',flag:'🏝️',reg:'africa',subs:['Western highlands'],alt:'Varies',harvest:'Varies',process:'Washed and natural',
+ reunion:{name:'Réunion (Île Bourbon)',flag:'🇷🇪',reg:'africa',subs:['Western highlands'],alt:'Varies',harvest:'Varies',process:'Washed and natural',
   cup:'Bourbon Pointu: delicate, sweet, low caffeine.',hist:'The French island once called Île Bourbon. Seeds from Yemen planted here between 1715 and 1718 became the Bourbon variety, and a local mutation became Laurina, also called Bourbon Pointu.',
   fact:'A tiny island that named one of the two great branches of the Arabica family.',vars:['bourbon','laurina']}
 };
@@ -1363,6 +1377,8 @@ const QUIZ=[
 /* ================= UTIL ================= */
 const $=id=>document.getElementById(id);
 const clamp=(v,a=0,b=10)=>Math.max(a,Math.min(b,v));
+// Width of a string in a given CSS font, for sizing SVG labels.
+const textW=(()=>{const c=document.createElement('canvas').getContext('2d');return(t,font)=>{c.font=font;return c.measureText(t).width}})();
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
 function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
@@ -1445,7 +1461,7 @@ function drawCup(r){
   const R=88,pt=(i,v)=>{const a=-Math.PI/2+i*2*Math.PI/5;return[150+Math.cos(a)*R*v/10,150+Math.sin(a)*R*v/10]};
   let g='';for(const k of[2.5,5,7.5,10])g+='<polygon points="'+ax.map((_,i)=>pt(i,k).join(',')).join(' ')+'" fill="none" stroke="rgba(255,255,255,.18)"/>';
   g+=ax.map((_,i)=>{const p=pt(i,10);return'<line x1="150" y1="150" x2="'+p[0]+'" y2="'+p[1]+'" stroke="rgba(255,255,255,.18)"/>'}).join('');
-  const lab=ax.map((a,i)=>{const an=-Math.PI/2+i*2*Math.PI/5;return'<text x="'+(150+Math.cos(an)*132).toFixed(1)+'" y="'+(154+Math.sin(an)*132).toFixed(1)+'" text-anchor="middle" font-family="Bricolage Grotesque,system-ui,sans-serif" font-size="11" font-weight="600" fill="var(--ink)">'+a[0]+'</text>'}).join('');
+  const lab=ax.map((a,i)=>{const an=-Math.PI/2+i*2*Math.PI/5,hw=textW(a[0],'600 11px "Bricolage Grotesque",system-ui,sans-serif')/2+4;return'<text x="'+clamp(150+Math.cos(an)*132,hw,300-hw).toFixed(1)+'" y="'+(154+Math.sin(an)*132).toFixed(1)+'" text-anchor="middle" font-family="Bricolage Grotesque,system-ui,sans-serif" font-size="11" font-weight="600" fill="var(--ink)">'+a[0]+'</text>'}).join('');
   $('cup').innerHTML='<circle cx="150" cy="150" r="146" fill="var(--surface2)"/><circle cx="150" cy="150" r="116" fill="var(--paper)" stroke="var(--line)" stroke-width="2"/>'+
    '<circle cx="150" cy="150" r="104" fill="'+liquid(r.D)+'" style="transition:fill .4s ease"/><circle cx="150" cy="150" r="104" fill="none" stroke="rgba(255,235,200,.35)" stroke-width="3"/>'+g+
    '<polygon points="'+ax.map((a,i)=>pt(i,a[1]).join(',')).join(' ')+'" fill="rgba(255,245,225,.30)" stroke="#FFF3DD" stroke-width="2" stroke-linejoin="round"/>'+
@@ -1703,12 +1719,12 @@ function renderProcesses(){
   $('pgrid').innerHTML=Object.entries(PROCESSES).filter(([,p])=>PC==='all'||p.cat===PC).map(([k,p])=>'<article class="card" id="pc-'+k+'" style="border-top:5px solid '+PCOL[p.cat]+'"><span class="hint">'+PCAT[p.cat]+'</span><h3 style="margin-top:.2rem">'+esc(p.name)+'</h3>'+dirTag(p.dir)+'<p>'+esc(p.char)+'</p><p><b>Brewing it well.</b> '+esc(p.brew)+'</p><div class="chips">'+p.notes.map(n=>'<span class="chip">'+esc(n)+'</span>').join('')+'</div><button class="btn ghost" data-usep="'+k+'">Brew with this process</button></article>').join('');
   const W=640,H=300,px=f=>60+f/1.7*540,py=a=>150-a/1.6*120;
   let h='<rect x="60" y="20" width="540" height="250" rx="14" fill="var(--paper)"/><line x1="60" y1="150" x2="600" y2="150" stroke="var(--line)"/><line x1="330" y1="20" x2="330" y2="270" stroke="var(--line)"/>'+
-   '<text x="64" y="290" font-family="Bricolage Grotesque,system-ui" font-size="12" fill="var(--muted)">Clean</text><text x="596" y="290" text-anchor="end" font-family="Bricolage Grotesque,system-ui" font-size="12" fill="var(--muted)">Wild and fruity</text>'+
-   '<text x="50" y="30" text-anchor="end" font-family="Bricolage Grotesque,system-ui" font-size="12" fill="var(--muted)">Bright</text><text x="50" y="268" text-anchor="end" font-family="Bricolage Grotesque,system-ui" font-size="12" fill="var(--muted)">Soft</text>';
+   '<text class="ax" x="64" y="292">Clean</text><text class="ax" x="596" y="292" text-anchor="end">Wild and fruity</text>'+
+   '<text class="ax" x="70" y="40">Bright</text><text class="ax" x="70" y="260">Soft</text>';
   const used={};
   for(const [k,p] of Object.entries(PROCESSES)){if(PC!=='all'&&p.cat!==PC)continue;let x=px(p.funk),y=py(p.acid);const key=Math.round(x/10)+'_'+Math.round(y/10);used[key]=(used[key]||0)+1;x+=(used[key]-1)*9;
     h+='<g class="pdg" data-k="'+k+'"><circle class="pd" cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="7" fill="'+PCOL[p.cat]+'" stroke="var(--surface)" stroke-width="2"><title>'+esc(p.name)+'</title></circle></g>'}
-  h+='<text id="pm-label" x="330" y="14" text-anchor="middle" font-family="Bricolage Grotesque,system-ui" font-size="13" font-weight="600" fill="var(--cherry)"></text>';
+  h+='<text id="pm-label" x="330" y="8" text-anchor="middle"></text>';
   $('pmap').innerHTML=h;
 }
 $('pmap').onclick=e=>{const g=e.target.closest('.pdg');if(!g)return;const k=g.dataset.k;$('pm-label').textContent=PROCESSES[k].name;const c=$('pc-'+k);if(c){c.classList.remove('flash');void c.offsetWidth;c.classList.add('flash');c.scrollIntoView({behavior:RM()?'auto':'smooth',block:'center'})}};
@@ -1728,7 +1744,7 @@ const GEAR_A=[
  ['Distribution tools','A WDT needle tool breaks clumps; a spritz of water on the beans (RDT) cuts static in the grinder.'],
  ['Freshness','Most filter coffees taste best about one week to one month after roast; espresso often likes two weeks or more.']
 ];
-let GF='all';const TYCOL={};Object.values(BREWERS).forEach(b=>{if(!TYCOL[b.type])TYCOL[b.type]=['#8A5A3B','#6B8E4E','#C9964A','#B5533C','#4F8A74','#6E8FA8','#9A7390','#7B4F32'][Object.keys(TYCOL).length%8]});
+let GF='all';const TYCOL={};Object.values(BREWERS).forEach(b=>{if(!TYCOL[b.type])TYCOL[b.type]=['#8A5A3B','#6B8E4E','#C9964A','#B5533C','#4F8A74','#6E8FA8','#9A7390','#5B5F66'][Object.keys(TYCOL).length%8]});
 function buildGear(){
   $('gear-grinders').innerHTML=Object.entries(GEAR_G).map(([k,g])=>'<div class="card"><h3>'+g.full+'</h3><svg class="dialbig" id="gd-'+k+'" viewBox="0 0 160 160" aria-hidden="true"></svg>'+
    '<input type="range" min="'+GRINDERS[k].min+'" max="'+GRINDERS[k].max+'" step="1" value="'+g.start+'" data-gd="'+k+'" aria-label="'+g.full+' dial position"><p class="hint" id="gh-'+k+'" style="text-align:center"></p>'+
@@ -1750,9 +1766,12 @@ $('gear-brewers').onclick=e=>{const a=e.target.closest('[data-grec]'),d=e.target
   if(d){$('i-brewer').value=d.dataset.gdial;$('i-brewer').dispatchEvent(new Event('change'));showTab('dial')}};
 function renderGrindMap(){
   let h='';for(const g of['zp6','kultra']){const G=GRINDERS[g];const pos=c=>((c-G.min)/(G.max-G.min)*100).toFixed(2)+'%';
-    h+='<h3 style="margin:0">'+G.name+'</h3><div class="grindtrack" data-g="'+g+'">';
-    for(let c=Math.ceil(G.min/10)*10;c<=G.max;c+=G.per===90?10:10)h+='<span class="scale" style="left:'+pos(c)+'">'+dial(g,c)+'</span>';
-    for(const k in BREWERS){const v=base(g,k);if(v==null||BREWERS[k].base[g]==null)continue;h+='<button type="button" class="gm" data-k="'+k+'" data-g="'+g+'" style="left:'+pos(clamp(v,G.min,G.max))+';background:'+TYCOL[BREWERS[k].type]+'" aria-label="'+esc(BREWERS[k].name)+' '+dial(g,v)+'" title="'+esc(BREWERS[k].name)+'"></button>'}
+    // Markers closer than about one marker width go into separate lanes, so none hides another.
+    const ms=Object.keys(BREWERS).filter(k=>BREWERS[k].base[g]!=null&&base(g,k)!=null).map(k=>({k,v:base(g,k)})).sort((a,b)=>a.v-b.v);
+    const lanes=[],gap=(G.max-G.min)*0.06;for(const m of ms){let l=lanes.findIndex(x=>m.v-x>=gap);if(l<0){l=lanes.length;lanes.push(0)}lanes[l]=m.v;m.lane=l}
+    h+='<h3 style="margin:0">'+G.name+'</h3><div class="grindtrack" data-g="'+g+'" style="--lanes:'+Math.max(1,lanes.length)+'">';
+    for(let c=Math.ceil(G.min/10)*10;c<=G.max;c+=10)h+='<span class="scale" style="left:'+pos(c)+'">'+dial(g,c)+'</span>';
+    for(const {k,v,lane} of ms)h+='<button type="button" class="gm" data-k="'+k+'" data-g="'+g+'" style="--lane:'+lane+';left:'+pos(clamp(v,G.min,G.max))+';background:'+TYCOL[BREWERS[k].type]+'" aria-label="'+esc(BREWERS[k].name)+' '+dial(g,v)+'" title="'+esc(BREWERS[k].name)+'"></button>';
     h+='</div><div class="gmlabel" id="gml-'+g+'">Tap a marker</div>'}
   h+='<div class="chips">'+Object.entries(TYCOL).map(([t,c])=>'<span class="pill"><i style="background:'+c+'"></i>'+t+'</span>').join('')+'</div>';
   $('grindmap').innerHTML=h;
@@ -1792,7 +1811,7 @@ function renderVarieties(){
   const q=VQ.trim().toLowerCase();
   const list=V.filter(v=>(VF==='all'||v.fam===VF)&&(!q||(v.name+' '+(v.origin||'')+' '+v.notes.join(' ')+' '+(v.grown||[]).map(originName).join(' ')+' '+(v.subs||[]).map(s=>s.name).join(' ')).toLowerCase().includes(q)));
   $('vgrid').innerHTML=(list.length?list.map(v=>'<div class="card vcard" data-v="'+v.id+'" style="--c:'+FAM[v.fam].color+'" tabindex="0" role="button"><button type="button" class="addcmp" data-cmp="'+v.id+'" aria-pressed="'+CMP.includes(v.id)+'">'+(CMP.includes(v.id)?'Comparing':'+ Compare')+'</button><span class="fam">'+FAM[v.fam].name+'</span><h3>'+esc(v.name)+'</h3>'+
-    '<div class="meta">'+(v.origin?'<span>'+esc(v.origin.split(',')[0])+'</span>':'')+(v.year?'<span>'+esc(v.year)+'</span>':'')+(v.subs?'<span>'+v.subs.length+' types</span>':'')+'</div>'+
+    '<div class="meta">'+(v.origin?'<span>'+esc(v.origin.match(/^[^,(]*(\([^)]*\))?[^,]*/)[0])+'</span>':'')+(v.year?'<span>'+esc(v.year)+'</span>':'')+(v.subs?'<span>'+v.subs.length+' types</span>':'')+'</div>'+
     '<p>'+esc(v.cup)+'</p>'+dirTag(v.dir)+'</div>').join(''):'<p class="hint">No varieties match. Try a country, a family or a flavour.</p>');
   renderCompare();
 }
@@ -1880,13 +1899,19 @@ function selectOrigin(k,zoom){
 
 /* ================= HISTORY ================= */
 const SHORT={yemenia:'Yemeni landraces',liberica:'Liberica',ruiru:'Ruiru 11 / Batian',kent:'Kent',castillo:'Castillo',catuai:'Catuai',laurina:'Laurina',jackson:'Jackson / Mibirizi',centroamericano:'Centroamericano H1',eugenioides:'C. eugenioides',stenophylla:'C. stenophylla',arabica:'Coffea arabica',robusta:'C. canephora (Robusta)',landrace:'Ethiopian landraces',jarc:'JARC 74110 / 74112',geisha:'Geisha',bourbon:'Red Bourbon',kona:'Kona Typica'};
-function buildTree(){
-  const svg=$('tree');svg.setAttribute('viewBox','0 0 '+TREE.w+' '+TREE.h);svg.setAttribute('width',TREE.w);
-  const pos={};for(const [id,x,y] of TREE.nodes){const lab=SHORT[id]||VBY[id].name;pos[id]={x,y,w:Math.round(lab.length*6.6+24),lab}}
-  let h='';for(const [a,b] of TREE.edges){const p=pos[a],c=pos[b];const x1=p.x+p.w,y1=p.y+12,x2=c.x,y2=c.y+12,mx=(x1+x2)/2;h+='<path class="e" data-a="'+a+'" data-b="'+b+'" d="M'+x1+' '+y1+' C'+mx+' '+y1+' '+mx+' '+y2+' '+x2+' '+y2+'"/>'}
-  for(const id in (TREE.notes||{})){const p=pos[id];if(p)h+='<text class="tnote" x="'+(p.x+p.w+8)+'" y="'+(p.y+16)+'">'+esc(TREE.notes[id])+'</text>'}
-  for(const id in pos){const p=pos[id],c=FAM[VBY[id].fam].color;h+='<g class="n" data-id="'+id+'" tabindex="0" role="button" aria-label="'+esc(p.lab)+'"><rect x="'+p.x+'" y="'+p.y+'" width="'+p.w+'" height="24" rx="12" stroke="'+c+'"/><circle cx="'+(p.x+12)+'" cy="'+(p.y+12)+'" r="4" fill="'+c+'"/><text x="'+(p.x+21)+'" y="'+(p.y+16)+'">'+esc(p.lab)+'</text></g>'}
+function drawTree(){
+  const svg=$('tree');
+  const pos={};for(const [id,x,y] of TREE.nodes){const lab=SHORT[id]||VBY[id].name;pos[id]={x,y,w:Math.ceil(textW(lab,'12px "Bricolage Grotesque",system-ui,sans-serif'))+34,lab}}
+  let h='',W=0,H=0;for(const [a,b] of TREE.edges){const p=pos[a],c=pos[b];const x1=p.x+p.w,y1=p.y+12,x2=c.x,y2=c.y+12,mx=(x1+x2)/2;h+='<path class="e" data-a="'+a+'" data-b="'+b+'" d="M'+x1+' '+y1+' C'+mx+' '+y1+' '+mx+' '+y2+' '+x2+' '+y2+'"/>'}
+  for(const id in (TREE.notes||{})){const p=pos[id];if(!p)continue;const nx=p.x+p.w+8;W=Math.max(W,nx+textW(TREE.notes[id],'italic 11px "Bricolage Grotesque",system-ui,sans-serif'));h+='<text class="tnote" x="'+nx+'" y="'+(p.y+16)+'">'+esc(TREE.notes[id])+'</text>'}
+  for(const id in pos){const p=pos[id],c=FAM[VBY[id].fam].color;W=Math.max(W,p.x+p.w);H=Math.max(H,p.y+24);h+='<g class="n" data-id="'+id+'" tabindex="0" role="button" aria-label="'+esc(p.lab)+'"><rect x="'+p.x+'" y="'+p.y+'" width="'+p.w+'" height="24" rx="12" stroke="'+c+'"/><circle cx="'+(p.x+12)+'" cy="'+(p.y+12)+'" r="4" fill="'+c+'"/><text x="'+(p.x+21)+'" y="'+(p.y+16)+'">'+esc(p.lab)+'</text></g>'}
+  W=Math.ceil(W+20);H=Math.ceil(H+20);svg.setAttribute('viewBox','0 0 '+W+' '+H);svg.style.setProperty('--tw',W+'px');
   svg.innerHTML=h;
+}
+function buildTree(){
+  const svg=$('tree');drawTree();
+  // Pill widths are measured from the real font, so redraw once web fonts arrive.
+  if(document.fonts&&document.fonts.load)document.fonts.load('12px "Bricolage Grotesque"').then(drawTree,()=>{});
   const parents={};for(const [a,b] of TREE.edges)(parents[b]=parents[b]||[]).push(a);
   const focus=id=>{const anc=new Set([id]),st=[id];while(st.length){const n=st.pop();for(const p of parents[n]||[])if(!anc.has(p)){anc.add(p);st.push(p)}}
     svg.classList.add('focus');svg.querySelectorAll('.n').forEach(n=>n.classList.toggle('on',anc.has(n.dataset.id)));svg.querySelectorAll('path.e').forEach(e=>e.classList.toggle('on',anc.has(e.dataset.a)&&anc.has(e.dataset.b)))};
@@ -2079,10 +2104,10 @@ function scanDoc(p,c){const inf=SC.info||{};const o=ALLO()[SC.origin];const kv=[
 let SHDOC=null;
 function openShare(doc){SHDOC=doc;const pdfOK=!!(window.jspdf&&window.jspdf.jsPDF);
   $('sh-in').innerHTML='<div class="sheet"><div class="grab"></div><button class="vd-close" id="sh-x" aria-label="Close">\u2715</button><h2 id="sh-title" style="margin:0 40px 2px 0">Share</h2><p class="hint" style="margin:0">'+esc(doc.title)+'</p><div class="sheetlist">'+
-   '<button type="button" data-sh="pdf"><span class="ic" style="background:#B5533C">PDF</span><span>Save as PDF<small>'+(pdfOK?'A styled page to send or print':'Loading the PDF engine\u2026 try again in a moment')+'</small></span></button>'+
-   (navigator.share?'<button type="button" data-sh="native"><span class="ic" style="background:#6B8E4E">\u21e7</span><span>Share with apps<small>Messages, WhatsApp, email and more</small></span></button>':'')+
-   '<button type="button" data-sh="copy"><span class="ic" style="background:#C9964A">\u2398</span><span>Copy as text<small>Paste it anywhere</small></span></button>'+
-   '<button type="button" data-sh="md"><span class="ic" style="background:#8A5A3B">TXT</span><span>Save as a text file<small>Plain text you can edit</small></span></button></div></div>';
+   '<button type="button" data-sh="pdf">'+ico('file','#B5533C')+'<span>Save as PDF<small>'+(pdfOK?'A styled page to send or print':'Loading the PDF engine\u2026 try again in a moment')+'</small></span></button>'+
+   (navigator.share?'<button type="button" data-sh="native">'+ico('share','#6B8E4E')+'<span>Share with apps<small>Messages, WhatsApp, email and more</small></span></button>':'')+
+   '<button type="button" data-sh="copy">'+ico('copy','#C9964A')+'<span>Copy as text<small>Paste it anywhere</small></span></button>'+
+   '<button type="button" data-sh="md">'+ico('text','#8A5A3B')+'<span>Save as a text file<small>Plain text you can edit</small></span></button></div></div>';
   const d=$('sharesheet');if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}$('sh-x').onclick=()=>d.close()}
 const fname=s=>String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,60)||'brew-bench';
 async function saveFile(name,data){if(DL){try{await DL.save({filename:name,data});toast('Saved');return true}catch(e){if(e&&e.code==='declined')return false;}}
@@ -2097,17 +2122,28 @@ $('sharesheet').addEventListener('click',async e=>{const d=$('sharesheet');if(e.
 });
 
 /* ================= APP SHELL ================= */
+/* Line icons for the sheets, drawn to match the bottom navigation. */
+const ICO={globe:'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M3 12h18 M12 3c3 3.5 3 14.5 0 18 M12 3c-3 3.5-3 14.5 0 18',leaf:'M5 19c0-8 5-14 14-14c0 9-6 14-14 14z M5 19l8-8',
+  hourglass:'M7 3h10 M7 21h10 M8 3v3l4 6 4-6V3 M8 21v-3l4-6 4 6v3',flask:'M9 3h6 M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3 M7.5 15h9',drop:'M12 3c3 4 6 7.5 6 11a6 6 0 0 1-12 0c0-3.5 3-7 6-11z',
+  clipboard:'M9 3h6v3H9z M7 4.5H5V21h14V4.5h-2 M8 11h8 M8 15h8 M8 19h5',cog:'M12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6z M12 2v3 M12 19v3 M2 12h3 M19 12h3 M4.9 4.9L7 7 M17 17l2.1 2.1 M4.9 19.1L7 17 M17 7l2.1-2.1',
+  book:'M4 19V5a2 2 0 0 1 2-2h13v14H6a2 2 0 0 0-2 2a2 2 0 0 0 2 2h13 M8 7h7',pencil:'M4 20h4L19 9l-4-4L4 16z M13 7l4 4',moon:'M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z',
+  sun:'M12 8a4 4 0 1 0 0 8a4 4 0 1 0 0-8z M12 2v2 M12 20v2 M2 12h2 M20 12h2 M5 5l1.5 1.5 M17.5 17.5L19 19 M5 19l1.5-1.5 M17.5 6.5L19 5',download:'M12 4v11 M7 10l5 5 5-5 M5 20h14',
+  file:'M6 3h8l4 4v14H6z M14 3v4h4 M9 13h6 M9 17h4',share:'M12 15V3 M7 8l5-5 5 5 M5 12v8h14v-8',copy:'M9 9h11v11H9z M5 15H4V4h11v1',text:'M6 3h8l4 4v14H6z M14 3v4h4 M9 12h6 M12 12v6'};
+// True inside the Android app or when the site is already installed to the home screen.
+const installed=()=>!!window.Capacitor||MQ('(display-mode: standalone)')||navigator.standalone===true;
+const ico=(n,bg)=>'<span class="ic" style="background:'+bg+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+ICO[n]+'"/></svg></span>';
+
 const TABNAMES={dial:'Dial-in',planner:'Brew planner',scan:'Scan beans',gear:'Gear and dials',recipes:'Recipes',tech:'Techniques',process:'Processes',map:'Origins map',variety:'Varieties',history:'History',guide:'Guide',log:'Brew log'};
 const BNGROUP={dial:'dial',recipes:'recipes',scan:'scan',map:'explore',variety:'explore',history:'explore',process:'explore',tech:'explore',planner:'more',gear:'more',guide:'more',log:'more'};
 function syncShell(id){$('ab-title').textContent=TABNAMES[id]||'Brew Bench';document.body.className=document.body.className.replace(/\bt-\w+/g,'').trim()+' t-'+id;
   document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));
   const can=['dial','planner','scan','history','log','map','recipes'].includes(id);$('ab-share').hidden=!can}
-const SHEETS={explore:[['map','Origins map','50 origins on an interactive map','#4F8A74','\u25ce'],['variety','Varieties','44 varieties, stories and Geisha types','#B5533C','\u2766'],['history','History','Family tree, timeline and a quiz','#8A5A3B','\u231b'],['process','Processes','From washed to thermal shock','#D2A04A','\u2697'],['tech','Techniques','Every move in the brewing toolbox','#6B8E4E','\u270b']],
-  more:[['planner','Brew planner','A recipe tuned to your coffee','#8A5A3B','\u2692'],['gear','Gear and dials','Grinders, brewers and dial reading','#6E8FA8','\u2699'],['guide','Guide','Ratio calculator and troubleshooting','#C9964A','\u2139'],['log','Brew log','Your brews, ratings and exports','#6B8E4E','\u270e']]};
+const SHEETS={explore:[['map','Origins map','50 origins on an interactive map','#4F8A74','globe'],['variety','Varieties','44 varieties, stories and Geisha types','#B5533C','leaf'],['history','History','Family tree, timeline and a quiz','#8A5A3B','hourglass'],['process','Processes','From washed to thermal shock','#D2A04A','flask'],['tech','Techniques','Every move in the brewing toolbox','#6B8E4E','drop']],
+  more:[['planner','Brew planner','A recipe tuned to your coffee','#8A5A3B','clipboard'],['gear','Gear and dials','Grinders, brewers and dial reading','#6E8FA8','cog'],['guide','Guide','Ratio calculator and troubleshooting','#C9964A','book'],['log','Brew log','Your brews, ratings and exports','#6B8E4E','pencil']]};
 function openSheet(which){const items=SHEETS[which];
   $('ns-in').innerHTML='<div class="sheet"><div class="grab"></div><button class="vd-close" id="ns-x" aria-label="Close">\u2715</button><h2 id="ns-title" style="margin:0 40px 0 0">'+(which==='explore'?'Explore':'More')+'</h2><div class="sheetlist">'+
-   items.map(([k,n,d,c,ic])=>'<button type="button" data-go="'+k+'"><span class="ic" style="background:'+c+'">'+ic+'</span><span>'+n+'<small>'+d+'</small></span></button>').join('')+
-   (which==='more'?'<button type="button" data-theme="1"><span class="ic" style="background:#3B2A20">\u263e</span><span>'+(curTheme()==='dark'?'Switch to light theme':'Switch to dark theme')+'<small>Bright cream or cosy espresso</small></span></button><button type="button" data-install="1"><span class="ic" style="background:#9A7390">\u2913</span><span>Add to your home screen<small>Use it like an app</small></span></button>':'')+'</div><div id="ns-extra"></div></div>';
+   items.map(([k,n,d,c,ic])=>'<button type="button" data-go="'+k+'">'+ico(ic,c)+'<span>'+n+'<small>'+d+'</small></span></button>').join('')+
+   (which==='more'?'<button type="button" data-theme="1">'+ico(curTheme()==='dark'?'sun':'moon','#5B5F66')+'<span>'+(curTheme()==='dark'?'Switch to light theme':'Switch to dark theme')+'<small>Bright cream or cosy espresso</small></span></button>'+(installed()?'':'<button type="button" data-install="1">'+ico('download','#9A7390')+'<span>Add to your home screen<small>Use it like an app</small></span></button>'):'')+'</div><div id="ns-extra"></div></div>';
   const d=$('navsheet');if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}$('ns-x').onclick=()=>d.close()}
 $('navsheet').addEventListener('click',e=>{const d=$('navsheet');if(e.target===d){d.close();return}const g=e.target.closest('[data-go]');if(g){d.close();showTab(g.dataset.go);return}
   if(e.target.closest('[data-theme]')){$('themebtn').click();d.close();toast(curTheme()==='dark'?'Dark theme on':'Light theme on');return}
@@ -2120,12 +2156,16 @@ $('hist-share').onclick=()=>openShare(historyDoc());
 $('l-pdf').onclick=()=>openShare(logDoc());
 
 /* ================= THEME ================= */
-function curTheme(){return document.documentElement.getAttribute('data-theme')||'light'}
-function syncThemeBtn(){$('themebtn').textContent=curTheme()==='dark'?'Light':'Dark'}
+function curTheme(){return document.documentElement.getAttribute('data-theme')||(MQ('(prefers-color-scheme: dark)')?'dark':'light')}
+function syncThemeBtn(){const t=curTheme();$('themebtn').textContent=t==='dark'?'Light':'Dark';
+  // Once a theme is chosen by hand, the browser bar follows it rather than the system setting.
+  if(document.documentElement.hasAttribute('data-theme'))document.querySelectorAll('meta[name="theme-color"]').forEach(m=>m.content=t==='dark'?'#1F1814':'#FBF7F0')}
 $('themebtn').onclick=()=>{const n=curTheme()==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);try{localStorage.setItem('bb-theme',n)}catch(e){}syncThemeBtn()};
 syncThemeBtn();
 
 /* ================= INIT ================= */
+// Label each cell with its column heading so tables can stack into cards on phones.
+document.querySelectorAll('table.ref').forEach(t=>{const hs=[...t.querySelectorAll('thead th')].map(h=>h.textContent.trim());t.querySelectorAll('tbody tr').forEach(r=>[...r.children].forEach((c,i)=>{if(hs[i])c.dataset.label=hs[i]}))});
 buildGear();initDial();initPlan();render();renderPlan();renderRecipes();renderTech();renderProcesses();renderVarieties();buildMap();buildTree();startQuiz();renderCalc();renderTS();renderStars();renderLog();initScan();
 {const h=location.hash.slice(1);if(h&&$(h)&&$(h).tagName==='SECTION')showTab(h);else syncShell('dial')}
 if(window.claude&&window.claude.use){
@@ -2134,7 +2174,7 @@ if(window.claude&&window.claude.use){
     if(!IMGS){$('scan-pick').hidden=true;$('scan-drop').hidden=true;$('scan-textbox').open=true;$('scan-status').textContent='Photo reading isn\u2019t available here; paste the label text instead.'}
     $('scan-go').disabled=!SFILE||!IMGS}).catch(()=>{});
   window.claude.use('downloads').then(d=>{DL=d;renderLog()}).catch(()=>{});
-}else{$('scan-pick').hidden=true;$('scan-drop').hidden=true;$('scan-go').hidden=true;$('scan-textbox').hidden=true;$('scan-status').textContent='Automatic label reading works in the Claude-hosted version. Fill in the coffee details below to get a brew plan.'}
+}else{$('scan-pick').hidden=true;$('scan-drop').hidden=true;$('scan-go').hidden=true;$('scan-textbox').hidden=true;$('scan-status').hidden=true;$('scan-lede').textContent='Fill in the details from the bag or the roaster’s card. They are matched to the guide and turned into a brew plan for your gear.'}
 
 </script>
 </body>
