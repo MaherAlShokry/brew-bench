@@ -55,7 +55,8 @@ brew-bench/
 ├── tools/
 │   ├── build.py                Assembles src/ into index.html
 │   └── gen-map.mjs             Regenerates world-map.json from Natural Earth data
-└── .github/workflows/pages.yml Build and deploy to GitHub Pages
+├── .github/workflows/pages.yml Build and deploy to GitHub Pages
+└── dist/                       Artifact build output (git-ignored)
 ```
 
 ## Editing
