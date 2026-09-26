@@ -13,11 +13,10 @@ fs.mkdirSync(path.join(out, 'fonts'), {recursive: true});
 fs.copyFileSync(nm('jspdf/dist/jspdf.umd.min.js'), path.join(out, 'jspdf.umd.min.js'));
 fs.copyFileSync(nm('jspdf/LICENSE'), path.join(out, 'jspdf-LICENSE.txt'));
 
-// Latin and Latin Extended subsets of the variable fonts (weight + optical size),
+// Latin and Latin Extended subsets of the variable font (weight + optical size),
 // declared under the same family names the stylesheet already uses.
 const fonts = [
-  ['Bricolage Grotesque', '@fontsource-variable/bricolage-grotesque', 'bricolage-grotesque', '200 800'],
-  ['Literata', '@fontsource-variable/literata', 'literata', '200 900'],
+  ['Inter', '@fontsource-variable/inter', 'inter', '100 900'],
 ];
 const ranges = {
   'latin-ext': 'U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF',
@@ -34,4 +33,15 @@ for (const [family, pkg, base, weight] of fonts) {
   }
 }
 fs.writeFileSync(path.join(out, 'fonts.css'), css);
+
+// On-device label reading for the Scan tab (Tesseract.js, Apache-2.0), loaded only when someone scans.
+fs.mkdirSync(path.join(out, 'ocr'));
+for (const [from, to] of [
+  ['tesseract.js/dist/tesseract.min.js', 'tesseract.min.js'],
+  ['tesseract.js/dist/worker.min.js', 'worker.min.js'],
+  ['tesseract.js-core/tesseract-core-simd-lstm.wasm.js', 'tesseract-core-simd-lstm.wasm.js'],
+  ['tesseract.js-core/tesseract-core-lstm.wasm.js', 'tesseract-core-lstm.wasm.js'],
+  ['@tesseract.js-data/eng/4.0.0_best_int/eng.traineddata.gz', 'eng.traineddata.gz'],
+  ['tesseract.js/LICENSE.md', 'LICENSE.md'],
+]) fs.copyFileSync(nm(from), path.join(out, 'ocr', to));
 console.log('Wrote vendor/ (' + fs.readdirSync(path.join(out, 'fonts')).filter(f => f.endsWith('.woff2')).length + ' fonts, jsPDF)');

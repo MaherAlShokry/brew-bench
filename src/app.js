@@ -2,9 +2,14 @@
 const $=id=>document.getElementById(id);
 const clamp=(v,a=0,b=10)=>Math.max(a,Math.min(b,v));
 // Width of a string in a given CSS font, for sizing SVG labels.
-const textW=(()=>{const c=document.createElement('canvas').getContext('2d');return(t,font)=>{c.font=font;return c.measureText(t).width}})();
+const textW=(()=>{const c=document.createElement('canvas').getContext('2d');return(t,font)=>{c.font=font+' '+getComputedStyle(document.body).fontFamily;return c.measureText(t).width}})();
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-function load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
+// Saved data can be from an older version or damaged, so only accept the shape we expect.
+function load(k,d){let v;try{const t=localStorage.getItem(k);v=t?JSON.parse(t):d}catch(e){return d}
+  if(Array.isArray(d))return Array.isArray(v)?v.filter(x=>x&&typeof x==='object'&&!Array.isArray(x)):d;
+  if(d===null||typeof d==='object')return v&&typeof v==='object'&&!Array.isArray(v)?v:d;return v}
+const num=(v,d,a=-Infinity,b=Infinity)=>{v=+v;return Number.isFinite(v)?Math.min(b,Math.max(a,v)):d};
+const oneOf=(v,list,d)=>list.includes(v)?v:d;
 function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 const MQ=q=>!!(window.matchMedia&&window.matchMedia(q).matches);const RM=()=>MQ('(prefers-reduced-motion: reduce)');
 let toastT;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600)}
@@ -24,8 +29,9 @@ function roundG(g,v){const G=GRINDERS[g];return Math.round(clamp(v,G.min,G.max))
 const canGrind=(g,b)=>BREWERS[b].base[g]!=null;
 let BASE=load('bb-base3',null);
 function defBase(){const o={zp6:{},kultra:{}};for(const k in BREWERS){o.zp6[k]=BREWERS[k].base.zp6;o.kultra[k]=BREWERS[k].base.kultra}return o}
+if(BASE&&!['zp6','kultra'].every(g=>BASE[g]&&typeof BASE[g]==='object'))BASE=null;
 if(!BASE||!BASE.zp6){BASE=defBase();const old=load('bb-base2',null);if(old&&old.zp6)for(const g of['zp6','kultra'])for(const k in old[g])if(BASE[g][k]!==undefined&&old[g][k]!=null)BASE[g][k]=old[g][k]}
-for(const k in BREWERS)for(const g of['zp6','kultra'])if(BASE[g][k]===undefined)BASE[g][k]=BREWERS[k].base[g];
+for(const k in BREWERS)for(const g of['zp6','kultra'])if(BASE[g][k]===undefined||(BASE[g][k]!==null&&!Number.isFinite(BASE[g][k])))BASE[g][k]=BREWERS[k].base[g];
 function base(g,b){const v=BASE[g][b];return v==null?BREWERS[b].base[g]:v}
 function settingFor(g,b,off){const bb=base(g,b);return bb==null?null:roundG(g,bb-off*GRINDERS[g].step)}
 function gLabel(g,v){return GRINDERS[g].name+' '+dial(g,v)}
@@ -45,7 +51,9 @@ const originName=k=>(ALLO()[k]||{}).name||k;
 
 /* ================= STATE ================= */
 let S=Object.assign({grinder:'zp6',setting:56,brewer:'v60',temp:93,ratio:15,bloom:45,agit:'med',roast:'light',process:'washed',variety:'caturra',rec:null},load('bb-state',{}));
-if(!vById(S.variety))S.variety='caturra';if(!BREWERS[S.brewer]||!BREWERS[S.brewer].model)S.brewer='v60';if(!PROCESSES[S.process])S.process='washed';
+S.grinder=oneOf(S.grinder,['zp6','kultra'],'zp6');S.agit=oneOf(S.agit,['low','med','high'],'med');S.roast=oneOf(S.roast,['light','medium','dark'],'light');
+S.setting=num(S.setting,56);S.temp=num(S.temp,93);S.ratio=num(S.ratio,15);S.bloom=num(S.bloom,45);if(S.rec!=null&&!RECIPES[S.rec])S.rec=null;
+if(typeof S.variety!=='string'||!vById(S.variety))S.variety='caturra';if(!BREWERS[S.brewer]||!BREWERS[S.brewer].model)S.brewer='v60';if(!PROCESSES[S.process])S.process='washed';
 if(S.grinder==='kultra'&&S.setting<30&&S.setting>5&&S.setting%1)S.setting=Math.round(S.setting*10);
 if(!canGrind(S.grinder,S.brewer))S.grinder='kultra';S.setting=roundG(S.grinder,S.setting);
 let LOG=load('bb-log',[]);
@@ -85,7 +93,7 @@ function drawCup(r){
   const R=88,pt=(i,v)=>{const a=-Math.PI/2+i*2*Math.PI/5;return[150+Math.cos(a)*R*v/10,150+Math.sin(a)*R*v/10]};
   let g='';for(const k of[2.5,5,7.5,10])g+='<polygon points="'+ax.map((_,i)=>pt(i,k).join(',')).join(' ')+'" fill="none" stroke="rgba(255,255,255,.18)"/>';
   g+=ax.map((_,i)=>{const p=pt(i,10);return'<line x1="150" y1="150" x2="'+p[0]+'" y2="'+p[1]+'" stroke="rgba(255,255,255,.18)"/>'}).join('');
-  const lab=ax.map((a,i)=>{const an=-Math.PI/2+i*2*Math.PI/5,hw=textW(a[0],'600 11px "Bricolage Grotesque",system-ui,sans-serif')/2+4;return'<text x="'+clamp(150+Math.cos(an)*132,hw,300-hw).toFixed(1)+'" y="'+(154+Math.sin(an)*132).toFixed(1)+'" text-anchor="middle" font-family="Bricolage Grotesque,system-ui,sans-serif" font-size="11" font-weight="600" fill="var(--ink)">'+a[0]+'</text>'}).join('');
+  const lab=ax.map((a,i)=>{const an=-Math.PI/2+i*2*Math.PI/5,hw=textW(a[0],'600 11px')/2+4;return'<text x="'+clamp(150+Math.cos(an)*132,hw,300-hw).toFixed(1)+'" y="'+(154+Math.sin(an)*132).toFixed(1)+'" text-anchor="middle" font-size="11" font-weight="600" fill="var(--ink)">'+a[0]+'</text>'}).join('');
   $('cup').innerHTML='<circle cx="150" cy="150" r="146" fill="var(--surface2)"/><circle cx="150" cy="150" r="116" fill="var(--paper)" stroke="var(--line)" stroke-width="2"/>'+
    '<circle cx="150" cy="150" r="104" fill="'+liquid(r.D)+'" style="transition:fill .4s ease"/><circle cx="150" cy="150" r="104" fill="none" stroke="rgba(255,235,200,.35)" stroke-width="3"/>'+g+
    '<polygon points="'+ax.map((a,i)=>pt(i,a[1]).join(',')).join(' ')+'" fill="rgba(255,245,225,.30)" stroke="#FFF3DD" stroke-width="2" stroke-linejoin="round"/>'+
@@ -96,10 +104,10 @@ function drawDial(id,g,c){
   let h='<circle cx="80" cy="80" r="74" fill="var(--surface2)"/><circle cx="80" cy="80" r="52" fill="var(--paper)" stroke="var(--line)"/>';
   for(let i=0;i<G.per;i++){const a=-Math.PI/2+i/G.per*2*Math.PI,big=i%10===0,r1=big?60:65;const rub=g==='zp6'&&rot===0&&i<20;
     h+='<line x1="'+(80+Math.cos(a)*r1).toFixed(1)+'" y1="'+(80+Math.sin(a)*r1).toFixed(1)+'" x2="'+(80+Math.cos(a)*72).toFixed(1)+'" y2="'+(80+Math.sin(a)*72).toFixed(1)+'" stroke="'+(rub?'#C0503A':'var(--muted)')+'" stroke-width="'+(big?1.6:.7)+'" opacity="'+(big?1:.6)+'"/>'}
-  for(let n=0;n<nums;n++){const a=-Math.PI/2+n/nums*2*Math.PI;h+='<text x="'+(80+Math.cos(a)*45).toFixed(1)+'" y="'+(84+Math.sin(a)*45).toFixed(1)+'" text-anchor="middle" font-family="Bricolage Grotesque,system-ui,sans-serif" font-size="11" font-weight="600" fill="var(--ink)">'+n+'</text>'}
+  for(let n=0;n<nums;n++){const a=-Math.PI/2+n/nums*2*Math.PI;h+='<text x="'+(80+Math.cos(a)*45).toFixed(1)+'" y="'+(84+Math.sin(a)*45).toFixed(1)+'" text-anchor="middle" font-size="11" font-weight="600" fill="var(--ink)">'+n+'</text>'}
   const a=-Math.PI/2+rem/G.per*2*Math.PI;
   h+='<line x1="80" y1="80" x2="'+(80+Math.cos(a)*70).toFixed(1)+'" y2="'+(80+Math.sin(a)*70).toFixed(1)+'" stroke="var(--cherry)" stroke-width="3" stroke-linecap="round"/><circle cx="80" cy="80" r="17" fill="var(--cherry)"/>'+
-     '<text x="80" y="84" text-anchor="middle" font-family="Bricolage Grotesque,system-ui,sans-serif" font-size="11" font-weight="800" fill="var(--surface)">'+dial(g,c)+'</text>';
+     '<text x="80" y="84" text-anchor="middle" font-size="11" font-weight="800" fill="var(--surface)">'+dial(g,c)+'</text>';
   svg.innerHTML=h;
 }
 
@@ -279,18 +287,23 @@ function openTimer(idx,p){
   TM={idx,ev,total,el:0,run:false,iv:null,lastIdx:-1,ctx:null};
   const setLine=p?('<p class="hint">'+(p.set[p.grinder]!=null?gLabel(p.grinder,p.set[p.grinder])+', ':'')+p.temp+'°C, '+p.r.dose+'g : '+p.water+'g</p>'):'<p class="hint">'+r.dose+'g : '+r.water+'g, '+r.temp+'°C</p>';
   $('tm-in').innerHTML='<div class="tm"><button class="vd-close" id="tm-x" aria-label="Close timer">\u2715</button><h2 id="tm-title" style="margin:0 36px 0 0;text-align:left">'+esc(r.name)+'</h2><div style="text-align:left">'+setLine+'</div>'+
-   (total?'<svg class="ring" viewBox="0 0 220 220"><circle cx="110" cy="110" r="96" fill="none" stroke="var(--surface2)" stroke-width="14"/><circle id="tm-arc" cx="110" cy="110" r="96" fill="none" stroke="var(--cherry)" stroke-width="14" stroke-linecap="round" transform="rotate(-90 110 110)" stroke-dasharray="603" stroke-dashoffset="603"/><text id="tm-big" x="110" y="118" text-anchor="middle" font-family="Bricolage Grotesque,system-ui,sans-serif" font-size="40" font-weight="800" fill="var(--ink)">0:00</text></svg>'
+   (total?'<svg class="ring" viewBox="0 0 220 220"><circle cx="110" cy="110" r="96" fill="none" stroke="var(--surface2)" stroke-width="14"/><circle id="tm-arc" cx="110" cy="110" r="96" fill="none" stroke="var(--cherry)" stroke-width="14" stroke-linecap="round" transform="rotate(-90 110 110)" stroke-dasharray="603" stroke-dashoffset="603"/><text id="tm-big" x="110" y="118" text-anchor="middle" font-size="40" font-weight="800" fill="var(--ink)">0:00</text></svg>'
     +'<div class="now" id="tm-now">Get your gear ready, then press start.</div><div class="actions" style="justify-content:center"><button class="btn" id="tm-go">Start</button><button class="btn ghost" id="tm-reset">Reset</button></div>'
     :'<p class="now">This one is by eye rather than the clock.</p>')+
    '<ol id="tm-list">'+ev.map((e,i)=>'<li data-i="'+i+'">'+esc(e.s)+'</li>').join('')+'</ol></div>';
   const d=$('timer');if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}
-  $('tm-x').onclick=()=>{if(TM.iv)clearInterval(TM.iv);d.close()};
-  if(total){$('tm-go').onclick=()=>{if(!TM.ctx){try{TM.ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}TM.run=!TM.run;$('tm-go').textContent=TM.run?'Pause':'Resume';
+  $('tm-x').onclick=()=>d.close();
+  // However the timer is closed (X, back, Escape, backdrop), stop it and let the screen sleep again.
+  d.onclose=()=>{if(TM&&TM.iv)clearInterval(TM.iv);if(TM)TM.run=false;wake(false)};
+  if(total){$('tm-go').onclick=()=>{if(!TM.ctx){try{TM.ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}TM.run=!TM.run;$('tm-go').textContent=TM.run?'Pause':'Resume';wake(TM.run);
       if(TM.run){TM.t0=performance.now()-TM.el*1000;TM.iv=setInterval(tick,200);tick()}else clearInterval(TM.iv)};
-    $('tm-reset').onclick=()=>{clearInterval(TM.iv);TM.run=false;TM.el=0;TM.lastIdx=-1;$('tm-go').textContent='Start';paint()};paint()}
+    $('tm-reset').onclick=()=>{clearInterval(TM.iv);TM.run=false;wake(false);TM.el=0;TM.lastIdx=-1;$('tm-go').textContent='Start';paint()};paint()}
 }
+// Keep the screen on while a brew timer runs (where the browser supports it).
+let WL=null;function wake(on){try{if(on&&!WL&&navigator.wakeLock)navigator.wakeLock.request('screen').then(l=>{WL=l;l.addEventListener('release',()=>{WL=null})}).catch(()=>{});else if(!on&&WL){WL.release();WL=null}}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&TM&&TM.run)wake(true)});
 function beep(){if(!TM.ctx)return;try{const o=TM.ctx.createOscillator(),g=TM.ctx.createGain();o.frequency.value=880;g.gain.setValueAtTime(.001,TM.ctx.currentTime);g.gain.exponentialRampToValueAtTime(.25,TM.ctx.currentTime+.02);g.gain.exponentialRampToValueAtTime(.001,TM.ctx.currentTime+.35);o.connect(g).connect(TM.ctx.destination);o.start();o.stop(TM.ctx.currentTime+.4)}catch(e){}if(navigator.vibrate)navigator.vibrate(120)}
-function tick(){TM.el=(performance.now()-TM.t0)/1000;if(TM.el>=TM.total){TM.el=TM.total;clearInterval(TM.iv);TM.run=false;$('tm-go').textContent='Start';paint();$('tm-now').textContent='Done. Enjoy your cup.';beep();beans(26);return}paint()}
+function tick(){TM.el=(performance.now()-TM.t0)/1000;if(TM.el>=TM.total){TM.el=TM.total;clearInterval(TM.iv);TM.run=false;wake(false);$('tm-go').textContent='Start';paint();$('tm-now').textContent='Done. Enjoy your cup.';beep();beans(26);return}paint()}
 function paint(){const el=TM.el,m=Math.floor(el/60),s=Math.floor(el%60);$('tm-big').textContent=m+':'+String(s).padStart(2,'0');
   $('tm-arc').setAttribute('stroke-dashoffset',(603*(1-el/TM.total)).toFixed(1));
   let cur=-1;TM.ev.forEach((e,i)=>{if(e.t>=0&&e.t<=el)cur=i});
@@ -306,6 +319,9 @@ function showTab(id,fromHistory){document.querySelectorAll('.tab').forEach(x=>x.
   // Each tab gets a history entry, so the back button (browser or Android) returns to the last tab.
   if(!fromHistory&&location.hash!=='#'+id)try{history.pushState(null,'','#'+id)}catch(e){}syncShell(id)}
 try{history.scrollRestoration='manual'}catch(e){}
+// Lock the page behind any open dialog or sheet so it can't scroll underneath.
+{const sync=()=>document.documentElement.classList.toggle('locked',!!document.querySelector('dialog[open]'));
+  const mo=new MutationObserver(sync);document.querySelectorAll('dialog').forEach(d=>{mo.observe(d,{attributes:true,attributeFilter:['open']});d.addEventListener('close',sync)})}
 // An open dialog also gets a history entry, so back closes it instead of leaving the tab.
 {const sm=HTMLDialogElement.prototype.showModal;HTMLDialogElement.prototype.showModal=function(){if(!this.open){try{history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}
   this.addEventListener('close',()=>{if(history.state&&history.state.dlg)history.back()},{once:true})}return sm.call(this)}}
@@ -469,8 +485,8 @@ function buildMap(){
   let h='<rect x="-500" y="'+MAP.tropics[0]+'" width="2000" height="'+(MAP.tropics[1]-MAP.tropics[0])+'" fill="var(--belt)"/>'+
    '<line x1="-500" x2="1500" y1="'+MAP.tropics[0]+'" y2="'+MAP.tropics[0]+'" stroke="var(--honey)" stroke-dasharray="4 5" stroke-width=".8" opacity=".6"/>'+
    '<line x1="-500" x2="1500" y1="'+MAP.tropics[1]+'" y2="'+MAP.tropics[1]+'" stroke="var(--honey)" stroke-dasharray="4 5" stroke-width=".8" opacity=".6"/>'+
-   '<text x="14" y="'+(MAP.tropics[0]-6)+'" font-family="Bricolage Grotesque,system-ui,sans-serif" font-size="11" fill="var(--honey)">Tropic of Cancer</text>'+
-   '<text x="14" y="'+(MAP.tropics[1]+14)+'" font-family="Bricolage Grotesque,system-ui,sans-serif" font-size="11" fill="var(--honey)">Tropic of Capricorn</text>'+
+   '<text x="14" y="'+(MAP.tropics[0]-6)+'" font-size="11" fill="var(--honey)">Tropic of Cancer</text>'+
+   '<text x="14" y="'+(MAP.tropics[1]+14)+'" font-size="11" fill="var(--honey)">Tropic of Capricorn</text>'+
    '<path d="'+MAP.bg+'" fill="var(--land)" stroke="var(--ocean)" stroke-width=".4"/>';
   for(const k in MAP.c){const o=O[k];if(!o)continue;h+='<path class="o" data-k="'+k+'" data-r="'+o.reg+'" d="'+MAP.c[k]+'" fill="'+REG[o.reg].color+'"><title>'+esc(o.name)+'</title></path>'}
   const dots=Object.keys(O).map(k=>[k,MAP.cent[k]]).concat([['kona',MAP.pts.kona],['reunion',MAP.pts.reunion]]);
@@ -532,9 +548,9 @@ function selectOrigin(k,zoom){
 const SHORT={yemenia:'Yemeni landraces',liberica:'Liberica',ruiru:'Ruiru 11 / Batian',kent:'Kent',castillo:'Castillo',catuai:'Catuai',laurina:'Laurina',jackson:'Jackson / Mibirizi',centroamericano:'Centroamericano H1',eugenioides:'C. eugenioides',stenophylla:'C. stenophylla',arabica:'Coffea arabica',robusta:'C. canephora (Robusta)',landrace:'Ethiopian landraces',jarc:'JARC 74110 / 74112',geisha:'Geisha',bourbon:'Red Bourbon',kona:'Kona Typica'};
 function drawTree(){
   const svg=$('tree');
-  const pos={};for(const [id,x,y] of TREE.nodes){const lab=SHORT[id]||VBY[id].name;pos[id]={x,y,w:Math.ceil(textW(lab,'12px "Bricolage Grotesque",system-ui,sans-serif'))+34,lab}}
+  const pos={};for(const [id,x,y] of TREE.nodes){const lab=SHORT[id]||VBY[id].name;pos[id]={x,y,w:Math.ceil(textW(lab,'12px'))+34,lab}}
   let h='',W=0,H=0;for(const [a,b] of TREE.edges){const p=pos[a],c=pos[b];const x1=p.x+p.w,y1=p.y+12,x2=c.x,y2=c.y+12,mx=(x1+x2)/2;h+='<path class="e" data-a="'+a+'" data-b="'+b+'" d="M'+x1+' '+y1+' C'+mx+' '+y1+' '+mx+' '+y2+' '+x2+' '+y2+'"/>'}
-  for(const id in (TREE.notes||{})){const p=pos[id];if(!p)continue;const nx=p.x+p.w+8;W=Math.max(W,nx+textW(TREE.notes[id],'italic 11px "Bricolage Grotesque",system-ui,sans-serif'));h+='<text class="tnote" x="'+nx+'" y="'+(p.y+16)+'">'+esc(TREE.notes[id])+'</text>'}
+  for(const id in (TREE.notes||{})){const p=pos[id];if(!p)continue;const nx=p.x+p.w+8;W=Math.max(W,nx+textW(TREE.notes[id],'italic 11px'));h+='<text class="tnote" x="'+nx+'" y="'+(p.y+16)+'">'+esc(TREE.notes[id])+'</text>'}
   for(const id in pos){const p=pos[id],c=FAM[VBY[id].fam].color;W=Math.max(W,p.x+p.w);H=Math.max(H,p.y+24);h+='<g class="n" data-id="'+id+'" tabindex="0" role="button" aria-label="'+esc(p.lab)+'"><rect x="'+p.x+'" y="'+p.y+'" width="'+p.w+'" height="24" rx="12" stroke="'+c+'"/><circle cx="'+(p.x+12)+'" cy="'+(p.y+12)+'" r="4" fill="'+c+'"/><text x="'+(p.x+21)+'" y="'+(p.y+16)+'">'+esc(p.lab)+'</text></g>'}
   W=Math.ceil(W+20);H=Math.ceil(H+20);svg.setAttribute('viewBox','0 0 '+W+' '+H);svg.style.setProperty('--tw',W+'px');
   svg.innerHTML=h;
@@ -542,7 +558,7 @@ function drawTree(){
 function buildTree(){
   const svg=$('tree');drawTree();
   // Pill widths are measured from the real font, so redraw once web fonts arrive.
-  if(document.fonts&&document.fonts.load)document.fonts.load('12px "Bricolage Grotesque"').then(drawTree,()=>{});
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(drawTree,()=>{});
   const parents={};for(const [a,b] of TREE.edges)(parents[b]=parents[b]||[]).push(a);
   const focus=id=>{const anc=new Set([id]),st=[id];while(st.length){const n=st.pop();for(const p of parents[n]||[])if(!anc.has(p)){anc.add(p);st.push(p)}}
     svg.classList.add('focus');svg.querySelectorAll('.n').forEach(n=>n.classList.toggle('on',anc.has(n.dataset.id)));svg.querySelectorAll('path.e').forEach(e=>e.classList.toggle('on',anc.has(e.dataset.a)&&anc.has(e.dataset.b)))};
@@ -571,7 +587,7 @@ function drawQuiz(){const el=$('quiz');
 }
 
 /* ================= GUIDE ================= */
-let CALC=load('bb-calc',{dose:18,ratio:15});
+let CALC=load('bb-calc',{dose:18,ratio:15});CALC.dose=num(CALC.dose,18,7,60);CALC.ratio=num(CALC.ratio,15,1,20);
 function renderCalc(){
   $('c-dose').value=CALC.dose;$('c-ratio').value=CALC.ratio;$('cv-dose').textContent=CALC.dose+'g';$('cv-ratio').textContent='1:'+CALC.ratio;
   const w=Math.round(CALC.dose*CALC.ratio);
@@ -604,7 +620,7 @@ function renderLog(){
   const cnt={};LOG.forEach(l=>{if(l.brewer)cnt[l.brewer]=(cnt[l.brewer]||0)+1});const fav=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];
   const best=rated.slice().sort((a,b)=>b.stars-a.stars)[0];
   $('l-stats').innerHTML=LOG.length?'<div><b>Brews logged</b><span>'+LOG.length+'</span></div><div><b>Average rating</b><span>'+avg+'</span><small>out of 5</small></div><div><b>Favourite brewer</b><span style="font-size:1rem">'+(fav?esc(BREWERS[fav[0]]?BREWERS[fav[0]].name:fav[0]):'-')+'</span></div><div><b>Top coffee</b><span style="font-size:1rem">'+(best?esc(best.coffee||'Untitled'):'-')+'</span></div>':'';
-  $('l-csv').hidden=!DL||!LOG.length;
+  $('l-csv').hidden=!LOG.length;
 }
 $('tolog').onclick=()=>{const r=compute(S);
   $('l-settings').value=gLabel(S.grinder,S.setting)+', '+BREWERS[S.brewer].name+', '+S.temp+'°C, 1:'+S.ratio+', '+BREWERS[S.brewer].bloom.label.toLowerCase()+' '+S.bloom+'s, '+PROCESSES[S.process].name+' '+vName(S.variety);
@@ -612,8 +628,8 @@ $('tolog').onclick=()=>{const r=compute(S);
 $('l-save').onclick=()=>{const e={date:new Date().toLocaleDateString(),coffee:$('l-coffee').value,settings:$('l-settings').value,stars:STAR,pred:$('l-pred').value,notes:$('l-notes').value,brewer:$('l-settings').dataset.brewer||''};
   if(!e.coffee&&!e.settings&&!e.notes){toast('Add a coffee name or some notes first');return}LOG.unshift(e);save('bb-log',LOG);['l-coffee','l-settings','l-pred','l-notes'].forEach(id=>$(id).value='');STAR=0;renderStars();renderLog();toast('Brew saved');beans(16)};
 $('l-list').onclick=e=>{const b=e.target.closest('[data-del]');if(!b)return;LOG.splice(+b.dataset.del,1);save('bb-log',LOG);renderLog();toast('Entry deleted')};
-$('l-csv').onclick=async()=>{if(!DL)return;const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const rows=[['Date','Coffee','Settings','Stars','Predicted','Notes']].concat(LOG.map(l=>[l.date,l.coffee,l.settings,l.stars,l.pred,l.notes]));
-  try{await DL.save({filename:'brew-log.csv',data:rows.map(r=>r.map(q).join(',')).join('\n')});toast('Saved')}catch(e){if(e&&e.code!=='declined')toast('Could not save the file')}};
+$('l-csv').onclick=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const rows=[['Date','Coffee','Settings','Stars','Predicted','Notes']].concat(LOG.map(l=>[l.date,l.coffee,l.settings,l.stars,l.pred,l.notes]));
+  saveFile('brew-log.csv',new Blob(['\ufeff'+rows.map(r=>r.map(q).join(',')).join('\r\n')],{type:'text/csv'}))};
 
 /* ================= SCAN ================= */
 let SC=Object.assign({origin:'colombia',process:'washed',variety:'pinkbourbon',roast:'light',date:'',brewer:'v60',grinder:'zp6',info:null},load('bb-scan',{}));
@@ -625,8 +641,8 @@ function initScan(){
   $('s-brewer').innerHTML=brewerOptions(PBREWERS);
   for(const [id,key] of [['s-origin','origin'],['s-process','process'],['s-variety','variety'],['s-brewer','brewer'],['s-date','date']])$(id).onchange=e=>{SC[key]=e.target.value;if(key==='brewer'&&!canGrind(SC.grinder,SC.brewer))SC.grinder='kultra';renderScan()};
   $('scan-pick').onclick=()=>$('scan-file').click();$('scan-drop').onclick=()=>$('scan-file').click();
-  $('scan-file').onchange=e=>{const f=e.target.files[0];if(!f)return;SFILE=f;const u=URL.createObjectURL(f);$('scan-prev').src=u;$('scan-prev').hidden=false;$('scan-empty').hidden=true;$('scan-go').disabled=!SAMPLE||!IMGS;
-    $('scan-status').textContent=!SAMPLE?'Reading labels needs this page open inside Claude. You can still fill in the details below.':!IMGS?'Photo reading isn\u2019t available here; paste the label text instead.':'Ready. Tap "Read the label".'};
+  $('scan-file').onchange=e=>{const f=e.target.files[0];if(!f)return;SFILE=f;const u=URL.createObjectURL(f);$('scan-prev').src=u;$('scan-prev').hidden=false;$('scan-empty').hidden=true;$('scan-go').disabled=false;$('scan-status').hidden=false;
+    $('scan-status').textContent='Ready. Tap "Read the label".';runScan(true)};
   $('scan-go').onclick=()=>runScan(true);$('scan-text-go').onclick=()=>runScan(false);$('scan-stop').onclick=()=>SCTL&&SCTL.abort();
   $('scan-list').onclick=e=>{const b=e.target.closest('[data-scan]');if(b){const s=SCANS[+b.dataset.scan];Object.assign(SC,s.sc);SC.info=s.info;renderScan();window.scrollTo({top:0,behavior:RM()?'auto':'smooth'})}};
   renderScan();
@@ -642,7 +658,7 @@ function scanPrompt(extra){
    'Choose the closest key; for a blend of varieties pick the dominant one. If the roast date has no year, assume the most recent past date. Today is '+new Date().toISOString().slice(0,10)+'.'+(extra?'\n\nLabel text:\n'+extra.slice(0,4000):'');
 }
 async function runScan(useImg){
-  if(!SAMPLE){toast('Reading labels needs this page open inside Claude');return}
+  if(!SAMPLE||(useImg&&!IMGS))return runLocalScan(useImg);
   const txt=$('scan-text').value.trim();if(!useImg&&!txt){toast('Paste the label text first');return}if(useImg&&!SFILE){toast('Take or choose a photo first');return}
   SCTL=new AbortController();$('scan-stop').hidden=false;$('scan-go').disabled=true;$('scan-drop').classList.add('scanning');$('scan-status').textContent='Reading the label\u2026 this can take up to a minute.';
   try{
@@ -656,8 +672,93 @@ async function runScan(useImg){
     SC.info=j;$('scan-status').textContent='Done'+(j.confidence==='low'?'. Low confidence: check the details below.':'. Check the details below and adjust anything that looks off.');
     renderScan();saveScan();beans(18);toast('Label read');
   }catch(e){const c=e&&e.code;$('scan-status').textContent=c==='cancelled'?'Stopped.':c==='not_granted'||c==='sampling_disabled'?'Claude access for this page was declined, so fill in the details by hand.':c==='images_unavailable'?'Photo reading isn\u2019t available here; paste the label text instead.':c==='image_rejected'?'That image couldn\u2019t be read. Try a clearer, smaller photo.':c==='rate_limited'?'Too many requests right now. Try again in a little while.':c==='invalid_json'?'The label couldn\u2019t be turned into details. Try again or paste the text.':'Something went wrong reading the label. Try again.'}
-  finally{$('scan-stop').hidden=true;$('scan-go').disabled=!SFILE||!IMGS;$('scan-drop').classList.remove('scanning')}
+  finally{$('scan-stop').hidden=true;$('scan-go').disabled=!SFILE;$('scan-drop').classList.remove('scanning')}
 }
+/* ---------- Reading a label on the phone itself (no Claude needed) ---------- */
+// Text recognition runs in the browser with Tesseract.js (bundled in vendor/ocr, loaded only when needed).
+let OCR=null;
+function loadScript(src){return new Promise((ok,no)=>{const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=()=>no(new Error('Could not load '+src));document.head.appendChild(s)})}
+async function ocrWorker(onProgress){
+  if(!OCR)OCR=(async()=>{const base=new URL('vendor/ocr/',location.href).href;if(!window.Tesseract)await loadScript(base+'tesseract.min.js');
+    return Tesseract.createWorker('eng',1,{workerPath:base+'worker.min.js',corePath:base,langPath:base,gzip:true,workerBlobURL:false,
+      logger:m=>{if(OCR_PROGRESS&&m&&typeof m.progress==='number')OCR_PROGRESS(m.status,m.progress)}})})().catch(e=>{OCR=null;throw e});
+  OCR_PROGRESS=onProgress;return OCR}
+let OCR_PROGRESS=null;
+// Shrink big camera photos and boost contrast so text recognition is faster and more accurate.
+function prepImage(file){return new Promise((ok,no)=>{const img=new Image();img.onload=()=>{const k=Math.min(1,1800/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);
+  const x=c.getContext('2d');x.filter='grayscale(1) contrast(1.35)';x.drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(img.src);ok(c)};img.onerror=()=>no(new Error('image'));img.src=URL.createObjectURL(file)})}
+const fold=t=>String(t).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[’']/g,"'");
+const reEsc=t=>t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+// Find the longest alias that appears as a whole word or phrase.
+function findBest(text,entries){let best=null;for(const [alias,val] of entries){if(alias.length<3)continue;const m=new RegExp('(^|[^a-z0-9])'+reEsc(alias)+'($|[^a-z0-9])').exec(text);
+  if(m&&(!best||alias.length>best.alias.length))best={alias,val,at:m.index}}return best}
+// Every alias found, in label order; where matches overlap, the longer one wins ("pink bourbon" over "bourbon").
+function findAll(text,entries){const hits=[];for(const [alias,val] of entries){if(alias.length<3)continue;const re=new RegExp('(^|[^a-z0-9])('+reEsc(alias)+')(?=$|[^a-z0-9])','g');let m;
+    while(m=re.exec(text)){const at=m.index+m[1].length;hits.push({alias,val,at,end:at+alias.length})}}
+  hits.sort((a,b)=>a.at-b.at||b.alias.length-a.alias.length);const out=[];for(const h of hits){const o=out.find(x=>h.at<x.end&&x.at<h.end);if(!o)out.push(h);else if(h.alias.length>o.alias.length)out[out.indexOf(o)]=h}return out}
+let LEX=null;
+function lexicon(){if(LEX)return LEX;
+  const strip=n=>fold(n).replace(/\([^)]*\)/g,' ').replace(/["“”]/g,'').replace(/\s+/g,' ').trim();
+  const V_EXTRA={geisha:['geisha','gesha'],landrace:['heirloom','ethiopian landrace','ethiopian landraces','ethiopian heirloom','landrace'],jarc:['jarc','74110','74112','74158'],robusta:['robusta','canephora'],
+    liberica:['liberica','excelsa'],yemenia:['yemenia','yemeni landrace'],kent:['kent','s795','s 795'],laurina:['laurina','bourbon pointu'],catuai:['catuai','red catuai','yellow catuai'],
+    castillo:['castillo'],ruiru:['ruiru 11','ruiru','batian'],jackson:['jackson','mibirizi'],centroamericano:['centroamericano','h1'],bourbon:['bourbon','red bourbon'],kona:['kona typica']};
+  const vars=[];for(const v of V){if(v.id==='arabica')continue; /* "100% Arabica" on a bag says nothing about the variety */for(const a of (V_EXTRA[v.id]||[strip(v.name)]))vars.push([a,v.id])}
+  const P_EXTRA={washed:['washed','fully washed','wet process','wet processed'],doublewashed:['double washed','kenyan process','kenya process'],ecopulped:['eco pulped','eco-pulped','demucilaged'],
+    natural:['natural','dry process','dry processed','sun dried','sun-dried'],pulpednatural:['pulped natural'],wethulled:['wet hulled','wet-hulled','giling basah'],honey:['honey'],
+    whitehoney:['white honey','yellow honey'],redhoney:['red honey'],blackhoney:['black honey'],anaerobic:['anaerobic'],anaerobicnatural:['anaerobic natural'],anaerobicwashed:['anaerobic washed'],
+    carbonic:['carbonic maceration','carbonic'],lactic:['lactic'],yeast:['yeast'],koji:['koji'],extended:['extended fermentation'],thermalshock:['thermal shock'],mossto:['mossto'],
+    coferment:['co-ferment','co-fermented','coferment','cofermented','co ferment'],infused:['infused'],barrelaged:['barrel aged','barrel-aged'],monsooned:['monsooned'],aged:['aged green'],
+    swisswater:['swiss water'],sugarcane:['sugarcane','sugar cane','ethyl acetate','ea decaf'],co2decaf:['co2 decaf','co2 process'],mcdecaf:['methylene chloride']};
+  const procs=[];for(const k in PROCESSES)for(const a of (P_EXTRA[k]||[strip(PROCESSES[k].name)]))procs.push([a,k]);
+  const countries=[],regions=[];for(const [k,o] of Object.entries(ALLO())){const n=fold(o.name);const main=n.replace(/\(.*$/,'').trim();countries.push([main,k]);
+    const inner=(n.match(/\(([^)]*)\)/)||[])[1];if(inner)regions.push([inner.trim(),k]);for(const r of o.subs||[])for(const part of fold(r).replace(/\([^)]*\)/g,'').split(/[:,/]/))if(part.trim())regions.push([part.trim(),k])}
+  countries.push(['cote d\'ivoire','ivorycoast'],['ivory coast','ivorycoast'],['png','png'],['congo','drc'],['drc','drc'],['usa hawaii','hawaii']);
+  const notes=new Set();for(const v of V)(v.notes||[]).forEach(n=>notes.add(fold(n)));for(const k in PROCESSES)(PROCESSES[k].notes||[]).forEach(n=>notes.add(fold(n)));
+  ['chocolate','dark chocolate','milk chocolate','caramel','toffee','honey','brown sugar','molasses','vanilla','almond','hazelnut','walnut','peach','apricot','nectarine','plum','cherry','blackcurrant','blueberry','strawberry','raspberry','blackberry','grape','lemon','lime','orange','grapefruit','bergamot','mandarin','tangerine','pineapple','mango','papaya','passion fruit','lychee','guava','coconut','banana','apple','green apple','pear','jasmine','rose','hibiscus','lavender','floral','black tea','green tea','earl grey','cinnamon','clove','cardamom','nutmeg','tamarind','red wine','whisky','rum','cola','maple','date','fig','raisin','cacao','cocoa','nougat','marzipan','butterscotch','panela','sugarcane','melon','watermelon','kiwi','pomegranate','cranberry','rhubarb','sweet','juicy','bright','silky'].forEach(n=>notes.add(n));
+  return LEX={vars,procs,countries,regions,notes:[...notes].filter(n=>n.length>2)}}
+const MONTHS={jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,sept:9,oct:10,nov:11,dec:12};
+function findDate(raw){const t=fold(raw),now=new Date(),cands=[];
+  const add=(y,m,d,at)=>{y=+y;m=+m;d=+d;if(!y)y=now.getFullYear();else if(y<100)y+=2000;if(m<1||m>12||d<1||d>31)return;let dt=new Date(y,m-1,d);if(dt>now)dt=new Date(y-1,m-1,d); /* no year printed: assume the most recent one */
+    if(dt>now||now-dt>400*864e5)return;cands.push({iso:dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0'),at})};
+  let m;const r1=/(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/g;while(m=r1.exec(t))add(m[1],m[2],m[3],m.index);
+  const r2=/(\d{1,2})[/.\-](\d{1,2})[/.\-](\d{2,4})/g;while(m=r2.exec(t))add(m[3],m[2],m[1],m.index); /* day first, as on most bags */
+  const mon='(jan|feb|mar|apr|may|jun|jul|aug|sept|sep|oct|nov|dec)[a-z]*\\.?';
+  const r3=new RegExp('(\\d{1,2})(?:st|nd|rd|th)?\\s+'+mon+'(?:,?\\s+(\\d{2,4}))?','g');while(m=r3.exec(t))add(m[3]||0,MONTHS[m[2]],m[1],m.index);
+  const r4=new RegExp(mon+'\\s+(\\d{1,2})(?:st|nd|rd|th)?(?:,?\\s+(\\d{2,4}))?','g');while(m=r4.exec(t))add(m[3]||0,MONTHS[m[1]],m[2],m.index);
+  if(!cands.length)return null;const k=t.search(/roast/);if(k<0)return cands[0].iso;cands.sort((a,b)=>Math.abs(a.at-k)-Math.abs(b.at-k));return cands[0].iso}
+// Turn label text into the same fields the Claude reader returns.
+function parseLabel(raw){const L=lexicon(),t=' '+fold(raw).replace(/[|_~*]+/g,' ').replace(/[ \t]+/g,' ')+' ';const lines=String(raw).split(/\n+/).map(x=>x.trim()).filter(Boolean);const info={source:'phone'};let hits=0;
+  const c=findBest(t,L.countries),r=findBest(t,L.regions);if(c){info.origin_key=c.val;hits++}else if(r){info.origin_key=r.val;hits++}
+  if(r&&(!c||r.val===c.val))info.region=r.alias.replace(/\b\w/g,x=>x.toUpperCase());
+  const vs=findAll(t,L.vars);if(vs.length){info.variety_key=vs[0].val;info.varieties=[...new Set(vs.map(x=>VBY[x.val].name.replace(/\s*\(.*$/,'')))];hits++}
+  const pr=findBest(t,L.procs);if(pr){info.process_key=pr.val;info.process=PROCESSES[pr.val].name;hits++}
+  if(info.variety_key==='geisha'&&info.origin_key){const sub={panama:'panama',costarica:'costarica',colombia:'colombia',ethiopia:'ethiopia'}[info.origin_key];info.variety_key='geisha:'+(sub||'other')}
+  const rl=/\b(light|medium|dark)(?:[- ](?:roast|roasted))?\b/.exec(t);info.roast_level=rl?rl[1]:/\bfilter\b/.test(t)?'light':/\bespresso\b/.test(t)?'medium':null;
+  const d=findDate(raw);if(d){info.roast_date=d;hits++}
+  const al=/(\d{1,2}[.,]?\d{3})\s*(?:-|–|to)\s*(\d{1,2}[.,]?\d{3})\s*(?:m\b|mas\S?|meters|metres)|(\d{1,2}[.,]?\d{3})\s*(?:m\b|mas\S?|meters|metres)|(?:altitude|elevation)\s*:?\s*(\d{1,2}[.,]?\d{3})/.exec(t);if(al)info.altitude=(al[3]||al[4]||al[1]+' to '+al[2]).replace(/[.,]/g,',')+' m';
+  const nl=lines.find(x=>/(tasting )?notes?\s*[:\-]|tastes? like|flavou?rs?\s*[:\-]|in the cup\s*[:\-]/i.test(x));let notes=[];
+  if(nl)notes=nl.replace(/^.*?(?:notes?|tastes? like|flavou?rs?|in the cup)\s*[:\-]?\s*/i,'').split(/\s*(?:,|\/|&|\+|•|·|\band\b)\s*/i).map(x=>x.trim()).filter(x=>x.length>2&&x.length<30);
+  if(!notes.length){const seen=[];for(const n of L.notes){const m=new RegExp('(^|[^a-z])'+reEsc(n)+'($|[^a-z])').exec(t);if(m)seen.push([m.index,n])}notes=seen.sort((a,b)=>a[0]-b[0]).map(x=>x[1]).filter((n,i,a)=>!a.some((o,j)=>j!==i&&o.includes(n)&&o!==n)).slice(0,5)}
+  if(notes.length){info.tasting_notes=notes.slice(0,6).map(n=>n.replace(/^\w/,x=>x.toUpperCase()));hits++}
+  const farm=/\b(finca|hacienda|fazenda|sitio|estate|farm|washing station|cooperative|co-?op)\b[ :]*([a-z0-9' .-]{2,40})/i.exec(raw.replace(/\n/g,' ; '));
+  const prod=/\b(?:producer|produced by|grower|farmer)s?\s*[:\-]\s*([^\n;,]{2,40})/i.exec(raw);
+  if(prod)info.producer_or_farm=prod[1].trim();else if(farm)info.producer_or_farm=(/^(finca|hacienda|fazenda|sitio)$/i.test(farm[1])?farm[1]+' '+farm[2]:farm[2]+' '+farm[1]).replace(/\s+/g,' ').replace(/\s*[;.].*$/,'').trim().replace(/\b\w/g,x=>x.toUpperCase());
+  const title=lines.find(x=>x.length>=3&&x.length<=40&&/[a-z]/i.test(x)&&!/[:@]|www\.|\.com|\d{3,}|roast|notes?|process|variety|altitude|origin|net|weight|\bg\b/i.test(x));if(title)info.coffee_name=title.replace(/^[^a-z0-9]+/i,'').replace(/\s+/g,' ');
+  info.confidence=hits>=4?'high':hits>=2?'medium':'low';info.summary=hits?'Read on this phone. Check the details below and adjust anything that looks off.':'';
+  return info}
+function applyInfo(j){if(j.origin_key&&ALLO()[j.origin_key])SC.origin=j.origin_key;if(j.process_key&&PROCESSES[j.process_key])SC.process=j.process_key;
+  if(j.variety_key&&vById(j.variety_key))SC.variety=j.variety_key;if(['light','medium','dark'].includes(j.roast_level))SC.roast=j.roast_level;if(/^\d{4}-\d{2}-\d{2}$/.test(j.roast_date||''))SC.date=j.roast_date;SC.info=j}
+async function runLocalScan(useImg){
+  const txt=$('scan-text').value.trim();if(!useImg&&!txt){toast('Paste the label text first');return}if(useImg&&!SFILE){toast('Take or choose a photo first');return}
+  let cancelled=false;SCTL={abort:()=>{cancelled=true;$('scan-status').textContent='Stopped.'}};$('scan-stop').hidden=!useImg;$('scan-go').disabled=true;$('scan-drop').classList.add('scanning');
+  const st=$('scan-status');st.hidden=false;st.textContent=useImg?'Getting the text reader ready…':'Reading the text…';
+  try{let text=txt;
+    if(useImg){const w=await ocrWorker((status,p)=>{if(!cancelled)st.textContent=(/recogniz/.test(status)?'Reading the label… ':'Getting the text reader ready… ')+Math.round(p*100)+'%'});
+      const img=await prepImage(SFILE);const res=await w.recognize(img);if(cancelled)return;text=res.data.text||'';$('scan-text').value=text.trim()}
+    const j=parseLabel(text);if(!j.origin_key&&!j.variety_key&&!j.process_key&&!j.roast_date){st.textContent=useImg?'Couldn’t find coffee details in that photo. Try a closer, sharper shot of the label, or fill in the details below.':'No coffee details found in that text.';return}
+    applyInfo(j);st.textContent=(j.confidence==='low'?'Found a few details. ':'Label read. ')+'Check them below and adjust anything that looks off.';renderScan();saveScan();beans(18);toast('Label read')}
+  catch(e){st.textContent='The text reader couldn’t start. Check your connection the first time you scan, or fill in the details below.'}
+  finally{$('scan-stop').hidden=true;$('scan-go').disabled=!SFILE;$('scan-drop').classList.remove('scanning')}}
 function thumb(cb){if(!SFILE){cb('');return}const img=new Image();img.onload=()=>{const c=document.createElement('canvas'),s=160/Math.max(img.width,img.height);c.width=img.width*s;c.height=img.height*s;c.getContext('2d').drawImage(img,0,0,c.width,c.height);try{cb(c.toDataURL('image/jpeg',.7))}catch(e){cb('')}};img.onerror=()=>cb('');img.src=$('scan-prev').src}
 function saveScan(){thumb(t=>{SCANS.unshift({t,info:SC.info,sc:{origin:SC.origin,process:SC.process,variety:SC.variety,roast:SC.roast,date:SC.date},when:new Date().toLocaleDateString()});SCANS=SCANS.slice(0,12);save('bb-scans',SCANS);renderScanList()})}
 function renderScanList(){$('scan-list').innerHTML=SCANS.length?SCANS.map((s,i)=>'<button type="button" class="card vcard" data-scan="'+i+'" style="--c:var(--cherry)">'+(s.t?'<img src="'+s.t+'" alt="" style="width:100%;max-height:120px;object-fit:cover;border-radius:10px">':'')+'<h3 style="margin:.4rem 0 .1rem">'+esc((s.info&&(s.info.coffee_name||s.info.producer_or_farm))||originName(s.sc.origin))+'</h3><p class="hint" style="margin:0">'+esc(s.info&&s.info.roaster||'')+' '+esc(s.when)+'</p></button>').join(''):'<p class="hint">Scans you make appear here.</p>'}
@@ -733,20 +834,46 @@ function scanDoc(p,c){const inf=SC.info||{};const o=ALLO()[SC.origin];const kv=[
   const rd=recipeDoc(c.tech,p);return{title:inf.coffee_name||('Brew plan: '+o.name+' '+vName(SC.variety)),sub:'Bean profile and recommended brew',file:'bean-plan',blocks:[{h:'The coffee',kv}].concat(inf.summary?[{p:inf.summary}]:[]).concat([{h:'Recommended: '+RECIPES[c.tech].name,p:''}]).concat(rd.blocks.slice(1))}}
 
 let SHDOC=null;
+// Where people land from a shared message.
+const SITE_URL='https://maheralshokry.github.io/brew-bench/';
+const APPS=[['native','Share\u2026','#8E8E93','M12 15V3 M7 8l5-5 5 5 M5 12v8h14v-8'],
+  ['whatsapp','WhatsApp','#25D366','M5 19l1.2-3.6A7.5 7.5 0 1 1 9 18.2z M9.5 9.2c.2 2.3 2.8 5 5.3 5.3l1-1.3-1.8-.9-.8.8c-1-.4-1.9-1.3-2.3-2.3l.8-.8-.9-1.8z'],
+  ['telegram','Telegram','#2AABEE','M20 5L3.5 11.4l5 1.8L18 7l-7.6 7.4.3 4.6 2.8-3 3.8 2.8z'],
+  ['sms','Messages','#34C759','M4 5h16v11H9l-5 4z'],
+  ['email','Email','#0A84FF','M3 6h18v12H3z M3 7l9 6 9-6']];
+// Chat-friendly text: headings become *bold* (WhatsApp and Telegram both show it as bold).
+function shareText(doc){const t=docText(doc).trim().replace(/^#+\s*(.+)$/gm,'*$1*');return(t.length>1400?t.slice(0,1400).replace(/\s+\S*$/,'')+'\u2026':t)+'\n\n'+SITE_URL}
 function openShare(doc){SHDOC=doc;const pdfOK=!!(window.jspdf&&window.jspdf.jsPDF);
-  $('sh-in').innerHTML='<div class="sheet"><div class="grab"></div><button class="vd-close" id="sh-x" aria-label="Close">\u2715</button><h2 id="sh-title" style="margin:0 40px 2px 0">Share</h2><p class="hint" style="margin:0">'+esc(doc.title)+'</p><div class="sheetlist">'+
+  $('sh-in').innerHTML='<div class="sheet"><div class="grab"></div><button class="vd-close" id="sh-x" aria-label="Close">\u2715</button><h2 id="sh-title" style="margin:0 40px 2px 0">Share</h2><p class="hint" style="margin:0">'+esc(doc.title)+'</p>'+
+   '<div class="sharerow">'+APPS.map(([k,n,c,d])=>'<button type="button" data-sh="'+k+'"><span class="app" style="background:'+c+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+d+'"/></svg></span>'+n+'</button>').join('')+'</div>'+
+   '<div class="sheetlist">'+
    '<button type="button" data-sh="pdf">'+ico('file','#B5533C')+'<span>Save as PDF<small>'+(pdfOK?'A styled page to send or print':'Loading the PDF engine\u2026 try again in a moment')+'</small></span></button>'+
-   (navigator.share?'<button type="button" data-sh="native">'+ico('share','#6B8E4E')+'<span>Share with apps<small>Messages, WhatsApp, email and more</small></span></button>':'')+
    '<button type="button" data-sh="copy">'+ico('copy','#C9964A')+'<span>Copy as text<small>Paste it anywhere</small></span></button>'+
    '<button type="button" data-sh="md">'+ico('text','#8A5A3B')+'<span>Save as a text file<small>Plain text you can edit</small></span></button></div></div>';
   const d=$('sharesheet');if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}$('sh-x').onclick=()=>d.close()}
+// Open a messaging app with the text filled in. In the Android app, Capacitor hands these links to the system.
+function openLink(url){if(NATIVE||/^(mailto|sms):/.test(url))location.href=url;else window.open(url,'_blank','noopener')}
 const fname=s=>String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,60)||'brew-bench';
-async function saveFile(name,data){if(DL){try{await DL.save({filename:name,data});toast('Saved');return true}catch(e){if(e&&e.code==='declined')return false;}}
+// Inside the Android app, downloads don't work, so files are written to the app's cache
+// and handed to Android's share sheet (save to Files or Drive, or send to another app).
+const NATIVE=!!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform());
+const plugin=n=>NATIVE&&Capacitor.Plugins?Capacitor.Plugins[n]:null;
+const toB64=blob=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(',')[1]);r.onerror=no;r.readAsDataURL(blob)});
+async function nativeShare(title,name,data,text){const fs=plugin('Filesystem'),sh=plugin('Share');if(!sh)return false;
+  if(name&&fs){const blob=data instanceof Blob?data:new Blob([data],{type:'text/plain'});
+    const {uri}=await fs.writeFile({path:name,data:await toB64(blob),directory:'CACHE'});await sh.share({title,files:[uri]})}
+  else await sh.share({title,text});return true}
+async function saveFile(name,data){if(NATIVE){try{if(await nativeShare(name,name,data))return true}catch(e){if(!/cancel/i.test(e&&e.message||''))toast('Could not save the file');return false}}
+  if(DL){try{await DL.save({filename:name,data});toast('Saved');return true}catch(e){if(e&&e.code==='declined')return false;}}
   try{const u=URL.createObjectURL(data instanceof Blob?data:new Blob([data]));const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);toast('Download started');return true}catch(e){toast('Saving files isn\u2019t available here');return false}}
 $('sharesheet').addEventListener('click',async e=>{const d=$('sharesheet');if(e.target===d){d.close();return}const b=e.target.closest('[data-sh]');if(!b||!SHDOC)return;const k=b.dataset.sh,doc=SHDOC,txt=docText(doc),base=fname(doc.file||doc.title);
   if(k==='pdf'){const blob=docPDF(doc);if(!blob){toast('The PDF engine is still loading. Try again in a second');return}d.close();await saveFile(base+'.pdf',blob)}
   if(k==='md'){d.close();await saveFile(base+'.txt',txt)}
   if(k==='copy'){let ok=false;try{await navigator.clipboard.writeText(txt);ok=true}catch(err){try{const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();ok=document.execCommand('copy');ta.remove()}catch(e2){}}d.close();toast(ok?'Copied to clipboard':'Copying isn\u2019t allowed here; try Save as a text file')}
+  if(k==='whatsapp'||k==='telegram'||k==='sms'||k==='email'){const t=shareText(doc),e=encodeURIComponent;d.close();
+    openLink({whatsapp:'https://wa.me/?text='+e(t),telegram:'https://t.me/share/url?url='+e(SITE_URL)+'&text='+e(t.replace(SITE_URL,'').trim()),sms:'sms:?&body='+e(t),email:'mailto:?subject='+e(doc.title)+'&body='+e(t)}[k]);return}
+  if(k==='native'&&!navigator.share&&!NATIVE){let ok=false;try{await navigator.clipboard.writeText(shareText(doc));ok=true}catch(e){}d.close();toast(ok?'This browser has no share menu, so the text was copied':'Sharing isn\u2019t available here; use Copy as text');return}
+  if(k==='native'&&NATIVE){d.close();try{const blob=docPDF(doc);await nativeShare(doc.title,blob?base+'.pdf':null,blob,txt)}catch(err){if(!/cancel/i.test(err&&err.message||''))toast('Could not share')}return}
   if(k==='native'){try{const blob=docPDF(doc);const f=blob&&typeof File!=='undefined'?new File([blob],base+'.pdf',{type:'application/pdf'}):null;
       if(f&&navigator.canShare&&navigator.canShare({files:[f]}))await navigator.share({title:doc.title,files:[f]});else await navigator.share({title:doc.title,text:txt});d.close()}
     catch(err){if(!err||err.name!=='AbortError')toast('Sharing isn\u2019t allowed here; use Save as PDF instead')}}
@@ -774,10 +901,10 @@ const SHEETS={explore:[['map','Origins map','50 origins on an interactive map','
 function openSheet(which){const items=SHEETS[which];
   $('ns-in').innerHTML='<div class="sheet"><div class="grab"></div><button class="vd-close" id="ns-x" aria-label="Close">\u2715</button><h2 id="ns-title" style="margin:0 40px 0 0">'+(which==='explore'?'Explore':'More')+'</h2><div class="sheetlist">'+
    items.map(([k,n,d,c,ic])=>'<button type="button" data-go="'+k+'">'+ico(ic,c)+'<span>'+n+'<small>'+d+'</small></span></button>').join('')+
-   (which==='more'?'<button type="button" data-theme="1">'+ico(curTheme()==='dark'?'sun':'moon','#5B5F66')+'<span>'+(curTheme()==='dark'?'Switch to light theme':'Switch to dark theme')+'<small>Bright cream or cosy espresso</small></span></button>'+(installed()?'':'<button type="button" data-install="1">'+ico('download','#9A7390')+'<span>Add to your home screen<small>Use it like an app</small></span></button>'):'')+'</div><div id="ns-extra"></div></div>';
+   (which==='more'?'<button type="button" data-toggle-theme>'+ico(curTheme()==='dark'?'sun':'moon','#5B5F66')+'<span>'+(curTheme()==='dark'?'Switch to light theme':'Switch to dark theme')+'<small>Bright cream or cosy espresso</small></span></button>'+(installed()?'':'<button type="button" data-install="1">'+ico('download','#9A7390')+'<span>Add to your home screen<small>Use it like an app</small></span></button>'):'')+'</div><div id="ns-extra"></div></div>';
   const d=$('navsheet');if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}$('ns-x').onclick=()=>d.close()}
 $('navsheet').addEventListener('click',e=>{const d=$('navsheet');if(e.target===d){d.close();return}const g=e.target.closest('[data-go]');if(g){d.close();showTab(g.dataset.go);return}
-  if(e.target.closest('[data-theme]')){$('themebtn').click();d.close();toast(curTheme()==='dark'?'Dark theme on':'Light theme on');return}
+  if(e.target.closest('[data-toggle-theme]')){$('themebtn').click();d.close();toast(curTheme()==='dark'?'Dark theme on':'Light theme on');return}
   if(e.target.closest('[data-install]'))$('ns-extra').innerHTML='<div class="tip"><b>iPhone (Safari):</b> open this page\u2019s link in Safari, tap the Share button, then <b>Add to Home Screen</b>.<br><b>Android (Chrome):</b> open the link in Chrome, tap the \u22ee menu, then <b>Add to Home screen</b>.<br>Your calibration, log and scans stay saved on this phone.</div>'});
 document.querySelector('.bottomnav').onclick=e=>{const b=e.target.closest('[data-bn]');if(!b)return;const k=b.dataset.bn;if(k==='explore'||k==='more')openSheet(k);else showTab(k)};
 $('ab-share').onclick=()=>{const id=(document.querySelector('main section.on')||{}).id;
@@ -797,12 +924,15 @@ syncThemeBtn();
 /* ================= INIT ================= */
 // Label each cell with its column heading so tables can stack into cards on phones.
 document.querySelectorAll('table.ref').forEach(t=>{const hs=[...t.querySelectorAll('thead th')].map(h=>h.textContent.trim());t.querySelectorAll('tbody tr').forEach(r=>[...r.children].forEach((c,i)=>{if(hs[i])c.dataset.label=hs[i]}))});
-buildGear();initDial();initPlan();render();renderPlan();renderRecipes();renderTech();renderProcesses();renderVarieties();buildMap();buildTree();startQuiz();renderCalc();renderTS();renderStars();renderLog();initScan();
+// If saved settings ever stop the app from starting, clear them (the brew log and scans are kept) and retry once.
+try{buildGear();initDial();initPlan();render();renderPlan();renderRecipes();renderTech();renderProcesses();renderVarieties();buildMap();buildTree();startQuiz();renderCalc();renderTS();renderStars();renderLog();initScan();}
+catch(err){let retried=false;try{retried=sessionStorage.getItem('bb-reset')==='1';sessionStorage.setItem('bb-reset','1')}catch(e){}
+  if(!retried){try{['bb-state','bb-plan','bb-scan','bb-calc','bb-base3'].forEach(k=>localStorage.removeItem(k))}catch(e){}location.reload()}throw err}
+try{sessionStorage.removeItem('bb-reset')}catch(e){}
 {const h=location.hash.slice(1);if(h&&$(h)&&$(h).tagName==='SECTION')showTab(h,true);else syncShell('dial')}
 if(window.claude&&window.claude.use){
-  window.claude.use('sample').then(async s=>{SAMPLE=s;if(!s){$('scan-status').textContent='Reading labels needs this page open inside Claude. You can still fill in the details below.';return}
+  window.claude.use('sample').then(async s=>{SAMPLE=s;if(!s)return;
     try{const l=await s.limits();IMGS=!!(l&&l.images);if(IMGS)$('scan-file').accept=l.images.mediaTypes.join(',')}catch(e){IMGS=false}
-    if(!IMGS){$('scan-pick').hidden=true;$('scan-drop').hidden=true;$('scan-textbox').open=true;$('scan-status').textContent='Photo reading isn\u2019t available here; paste the label text instead.'}
-    $('scan-go').disabled=!SFILE||!IMGS}).catch(()=>{});
+    $('scan-go').disabled=!SFILE}).catch(()=>{});
   window.claude.use('downloads').then(d=>{DL=d;renderLog()}).catch(()=>{});
-}else{$('scan-pick').hidden=true;$('scan-drop').hidden=true;$('scan-go').hidden=true;$('scan-textbox').hidden=true;$('scan-status').hidden=true;$('scan-lede').textContent='Fill in the details from the bag or the roaster’s card. They are matched to the guide and turned into a brew plan for your gear.'}
+}else{$('scan-status').hidden=true;$('scan-lede').textContent='Take a photo of the bag or the roaster’s card. The text is read on your phone, matched to the guide and turned into a brew plan for your gear.'}

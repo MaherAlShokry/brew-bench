@@ -17,9 +17,9 @@ Both update automatically whenever `main` changes.
 | --- | --- |
 | **Dial-in** | Grind, temperature, ratio, bloom, agitation, roast, process and variety in, estimated cup profile out, with concrete fixes ("try ZP6 Special 5.3") |
 | **Brew planner** | Pick brewer, grinder, technique and coffee; get an adapted recipe with the reasoning behind every setting |
-| **Scan beans** | Fill in a bag's details (or, in the Claude-hosted version, photograph the label) for a full brew plan |
+| **Scan beans** | Photograph a bag's label: the text is read on your phone (offline) and matched to origins, varieties, processes and roast date for a full brew plan |
 | **Gear and dials** | 1Zpresso ZP6 Special and K-Ultra specs with live dials, 25 brewers, and a grind map showing where each brewer sits |
-| **Recipes** | 45 recipes, each credited, with settings for both grinders and a step-by-step brew timer |
+| **Recipes** | 59 recipes, each credited, with settings for both grinders and a step-by-step brew timer |
 | **Techniques** | 36 techniques from swirl blooms to turbo shots |
 | **Processes** | 29 processes from washed to thermal shock, plotted on a clean-to-wild map |
 | **Origins map** | 50 coffee origins on an interactive, colour-coded world map |
@@ -28,7 +28,7 @@ Both update automatically whenever `main` changes.
 | **Guide** | Ratio calculator and a taste-based troubleshooter |
 | **Log** | Rated brew log with stats and CSV export |
 
-You can share anything as a styled PDF, send it to other apps, or copy it as text. Everything you save (calibration, log, scans) stays in your own browser.
+You can share anything to WhatsApp, Telegram, Messages or email, through your phone's share menu, as a styled PDF, or as text. Everything you save (calibration, log, scans) stays in your own browser.
 
 ## Install on your phone
 
@@ -68,7 +68,7 @@ brew-bench/
 ├── manifest.webmanifest        App name, colours and icons for "Add to Home Screen"
 ├── sw.js                       Service worker for offline use
 ├── icons/                      Website icons (rendered from assets/logo.svg)
-├── vendor/                     Bundled fonts and jsPDF, so the site and app work offline
+├── vendor/                     Bundled font (Inter), jsPDF and the label reader (ocr/), so the site and app work offline
 ├── src/                        Source for the site (edit these)
 │   ├── template.html           Page layout and all styles
 │   ├── app.js                  All interactive logic
@@ -116,7 +116,7 @@ npm run build:app                    # builds www/ and copies it into android/
 cd android && ./gradlew assembleDebug   # APK lands in android/app/build/outputs/apk/debug/
 ```
 
-`npm run icons` regenerates the Android launcher icons and splash screens from the PNGs in `assets/`, and `npm run vendor` refreshes the bundled fonts and jsPDF in `vendor/`.
+`npm run icons` regenerates the Android launcher icons and splash screens from the PNGs in `assets/`, and `npm run vendor` refreshes the bundled font, jsPDF and label reader in `vendor/`.
 
 The logo, a two-tone coffee bean split by its S-shaped crease, is drawn in `assets/logo.svg`. `assets/logo-light.svg` is the bean for light backgrounds, `assets/logo-foreground.svg` is the mark without its background, and `assets/logo-maskable.svg` has extra padding for rounded icon masks.
 
@@ -128,7 +128,8 @@ The cup-profile estimator is a model built from brewing rules of thumb, not a me
 
 - Map geometry: [Natural Earth](https://www.naturalearthdata.com/) via [world-atlas](https://github.com/topojson/world-atlas), projected with [d3-geo](https://github.com/d3/d3-geo)
 - PDF export: [jsPDF](https://github.com/parallax/jsPDF) (MIT), bundled in `vendor/`
-- Fonts: [Bricolage Grotesque](https://fonts.google.com/specimen/Bricolage+Grotesque) and [Literata](https://fonts.google.com/specimen/Literata) (SIL Open Font License), bundled in `vendor/` via [Fontsource](https://fontsource.org/)
+- Label reading: [Tesseract.js](https://github.com/naptha/tesseract.js) (Apache-2.0), bundled in `vendor/ocr/`
+- Fonts: San Francisco (the system font) on Apple devices; [Inter](https://rsms.me/inter/) everywhere else (SIL Open Font License), bundled in `vendor/` via [Fontsource](https://fontsource.org/)
 
 ## Licence
 
