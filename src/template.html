@@ -15,7 +15,7 @@
 <title>The Brew Bench: a coffee field guide</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Literata:opsz,wght@7..72,400;7..72,600&family=Noto+Color+Emoji&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..800&family=Noto+Color+Emoji&display=swap" rel="stylesheet">
 <style>
 :root{
   /* Safe areas: the browser's env() values, or the ones the Android app injects, whichever is larger. */
@@ -25,8 +25,9 @@
   --line:#E7DBC9; --cherry:#8A5A3B; --leaf:#6B8E4E; --honey:#C9964A;
   --ocean:#EDF2EA; --land:#E8DCC9; --belt:rgba(201,150,74,.10);
   --shadow:0 1px 0 rgba(92,64,40,.04),0 8px 24px rgba(92,64,40,.07);
-  --display:"Bricolage Grotesque","Noto Color Emoji","Segoe UI",system-ui,sans-serif;
-  --body:"Literata","Noto Color Emoji",Georgia,"Times New Roman",serif;
+  /* San Francisco on Apple devices, Inter (bundled, very close to it) everywhere else. */
+  --display:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter",system-ui,"Segoe UI",Roboto,"Noto Color Emoji",sans-serif;
+  --body:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter",system-ui,"Segoe UI",Roboto,"Noto Color Emoji",sans-serif;
   box-sizing:border-box;
   padding-top:var(--sa-top); padding-bottom:var(--sa-bottom);
 }
@@ -361,6 +362,12 @@ dialog#navsheet::backdrop,dialog#sharesheet::backdrop{background:rgba(30,20,14,.
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
 /* ================= MODERN REFRESH ================= */
+body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-feature-settings:"cv11","ss01";letter-spacing:-.006em}
+h1{letter-spacing:-.035em;font-weight:800}
+h2{letter-spacing:-.022em;font-weight:700}
+h3{letter-spacing:-.012em;font-weight:600}
+svg text{font-family:var(--display)}
+.num,.stat b,.tm-big,#tm-big{font-variant-numeric:tabular-nums}
 :root{--r-lg:22px;--r-md:16px;--nav-bg:color-mix(in srgb,var(--surface) 93%,transparent);
   --shadow:0 1px 2px rgba(60,40,25,.05),0 10px 30px -12px rgba(60,40,25,.18);
   --float:0 12px 32px -10px rgba(40,25,15,.35),0 2px 6px rgba(40,25,15,.08)}
@@ -383,6 +390,12 @@ nav.tabs .wrap{pointer-events:auto;width:fit-content;max-width:calc(100% - 24px)
 .tab:hover{color:var(--ink);background:color-mix(in srgb,var(--surface2) 70%,transparent)}
 .tab[aria-selected="true"]{background:var(--cherry);color:var(--surface);border:0}
 
+/* Share sheet: a row of round app buttons, like the iPhone share sheet. */
+.sharerow{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin:16px -6px 6px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.sharerow button{background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:7px;padding:4px 0;font-family:var(--display);font-size:.74rem;color:var(--ink);cursor:pointer}
+.sharerow .app{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;box-shadow:0 4px 12px -6px rgba(0,0,0,.35);transition:transform .15s}
+.sharerow button:active .app{transform:scale(.92)}
+.sharerow svg{width:26px;height:26px;fill:none;stroke:#fff;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 /* Open dialogs and sheets lock the page behind them. */
 html.locked,html.locked body{overflow:hidden}
 dialog{overscroll-behavior:contain;overflow:auto}
@@ -530,9 +543,9 @@ dialog{overscroll-behavior:contain;overflow:auto}
       <div id="scan-drop" class="drop">
         <input type="file" id="scan-file" accept="image/*" capture="environment" hidden>
         <img id="scan-prev" alt="" hidden>
-        <div id="scan-empty"><div class="dropicon" aria-hidden="true">◎</div><b>Take a photo or choose one</b><p class="hint" style="margin:.2rem 0 0">A clear shot of the label works best.</p></div>
+        <div id="scan-empty"><div class="dropicon" aria-hidden="true">◎</div><b>Tap to scan a bag</b><p class="hint" style="margin:.2rem 0 0">A clear shot of the label works best.</p></div>
       </div>
-      <div class="actions"><button class="btn" id="scan-pick">Take or choose a photo</button><button class="btn ghost" id="scan-go" disabled>Read the label</button><button class="btn ghost" id="scan-stop" hidden>Stop</button></div>
+      <div class="actions"><button class="btn" id="scan-pick">Scan with camera</button><button class="btn ghost" id="scan-go" disabled>Read the label</button><button class="btn ghost" id="scan-stop" hidden>Stop</button></div>
       <p class="hint" id="scan-status" style="margin-top:10px"></p>
       <details class="cal" id="scan-textbox"><summary>Or paste the label text</summary>
         <textarea id="scan-text" rows="4" placeholder="e.g. Finca El Diviso, Huila, Colombia. Pink Bourbon. Anaerobic natural. 1,800 m. Notes: lychee, rose, mango. Roasted 12 Sep."></textarea>

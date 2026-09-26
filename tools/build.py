@@ -21,7 +21,7 @@ site = pathlib.Path(args[args.index('--site') + 1]).resolve() if '--site' in arg
 
 # Files served next to index.html. Keep in sync with the SHELL list in sw.js.
 SITE_FILES = ['manifest.webmanifest', 'sw.js', 'icons', 'vendor']
-GOOGLE_FONTS = '<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Literata:opsz,wght@7..72,400;7..72,600&family=Noto+Color+Emoji&display=swap" rel="stylesheet">'
+GOOGLE_FONTS = '<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..800&family=Noto+Color+Emoji&display=swap" rel="stylesheet">'
 JSPDF_CDN = '<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>'
 
 page = (src / 'template.html').read_text(encoding='utf-8')
