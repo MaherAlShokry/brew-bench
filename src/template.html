@@ -410,6 +410,13 @@ button,a,.tab,.chip,[role=button],input[type=range]{touch-action:manipulation}
 .mbig{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 12px;padding:14px;border-radius:var(--r-md,16px);background:color-mix(in srgb,var(--cherry) 10%,var(--surface));font-family:var(--display);text-align:center;margin:.4rem 0}
 .mbig b{font-size:1.35rem;font-variant-numeric:tabular-nums;white-space:nowrap}.mbig small{font-weight:500;color:var(--muted);font-size:.8rem}.mbig .eq{color:var(--muted);font-size:1.2rem}
 .mswap .chip{margin-bottom:6px}
+.gpick{display:grid;gap:6px;margin-top:8px}.gpick h4{margin:.8rem 0 .2rem;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.gpick button{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:11px 14px;border-radius:var(--r-sm,12px);border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;cursor:pointer}
+.gpick button b{display:block;font-weight:600}.gpick button small{color:var(--muted)}.gpick button span{flex:1;min-width:0}
+.gpick .tick{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:.8rem;color:#fff}
+.gpick button[aria-pressed="true"]{border-color:var(--cherry);background:color-mix(in srgb,var(--cherry) 9%,var(--surface))}
+.gpick button[aria-pressed="true"] .tick{background:var(--cherry);border-color:var(--cherry)}
+.gpick-search{width:100%;margin-top:4px}
 .linkbtn{background:none;border:0;padding:2px 0;font:inherit;font-weight:600;color:var(--cherry);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .equiv{margin:.5rem 0 0;line-height:1.5}
 .mswap{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:end}.mswap>*{min-width:0}.mswap select{width:100%}
@@ -625,7 +632,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   <div class="minires" id="minires"><div><b id="mr-v"></b><span id="mr-g"></span></div><div class="gauge mini" aria-hidden="true"><i id="mr-m"></i></div></div>
   <div class="bench">
     <div class="panel">
-      <div class="field"><div class="lbl">Grinder</div><div class="seg" id="g-grinder"></div></div>
+      <div class="field"><div class="lbl">Grinder <button type="button" class="linkbtn" data-gpick>Change grinders</button></div><div class="seg" id="g-grinder"></div></div>
       <div class="field"><label for="i-brewer">Brewer</label><select id="i-brewer"></select><div id="rec-chip" style="margin-top:6px"></div></div>
       <div class="field"><label for="i-grind">Grind <span><span class="num" id="v-grind"></span> <span class="hint" id="v-grindhint"></span></span></label><input type="range" id="i-grind"><div class="dialrow"><svg id="dialsvg" class="dialmini" viewBox="0 0 160 160" aria-hidden="true"></svg><p class="hint" style="margin:0">Dials read number.click. Tap <b>Gear and dials</b> for how each grinder works.</p></div><p class="hint equiv" id="v-equiv"></p></div>
       <div class="two">
@@ -666,7 +673,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   <div class="bench">
     <div class="panel">
       <div class="field"><label for="p-brewer">Brewer</label><select id="p-brewer"></select></div>
-      <div class="field"><div class="lbl">Grinder</div><div class="seg" id="p-grinder"></div></div>
+      <div class="field"><div class="lbl">Grinder <button type="button" class="linkbtn" data-gpick>Change grinders</button></div><div class="seg" id="p-grinder"></div></div>
       <div class="field"><label for="p-tech">Technique</label><select id="p-tech"></select></div>
       <div class="field"><label for="p-process">Process</label><select id="p-process"></select></div>
       <div class="field"><label for="p-variety">Variety</label><select id="p-variety"></select></div>

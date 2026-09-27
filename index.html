@@ -411,6 +411,13 @@ button,a,.tab,.chip,[role=button],input[type=range]{touch-action:manipulation}
 .mbig{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 12px;padding:14px;border-radius:var(--r-md,16px);background:color-mix(in srgb,var(--cherry) 10%,var(--surface));font-family:var(--display);text-align:center;margin:.4rem 0}
 .mbig b{font-size:1.35rem;font-variant-numeric:tabular-nums;white-space:nowrap}.mbig small{font-weight:500;color:var(--muted);font-size:.8rem}.mbig .eq{color:var(--muted);font-size:1.2rem}
 .mswap .chip{margin-bottom:6px}
+.gpick{display:grid;gap:6px;margin-top:8px}.gpick h4{margin:.8rem 0 .2rem;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.gpick button{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:11px 14px;border-radius:var(--r-sm,12px);border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;cursor:pointer}
+.gpick button b{display:block;font-weight:600}.gpick button small{color:var(--muted)}.gpick button span{flex:1;min-width:0}
+.gpick .tick{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:.8rem;color:#fff}
+.gpick button[aria-pressed="true"]{border-color:var(--cherry);background:color-mix(in srgb,var(--cherry) 9%,var(--surface))}
+.gpick button[aria-pressed="true"] .tick{background:var(--cherry);border-color:var(--cherry)}
+.gpick-search{width:100%;margin-top:4px}
 .linkbtn{background:none;border:0;padding:2px 0;font:inherit;font-weight:600;color:var(--cherry);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .equiv{margin:.5rem 0 0;line-height:1.5}
 .mswap{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:end}.mswap>*{min-width:0}.mswap select{width:100%}
@@ -629,7 +636,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   <div class="minires" id="minires"><div><b id="mr-v"></b><span id="mr-g"></span></div><div class="gauge mini" aria-hidden="true"><i id="mr-m"></i></div></div>
   <div class="bench">
     <div class="panel">
-      <div class="field"><div class="lbl">Grinder</div><div class="seg" id="g-grinder"></div></div>
+      <div class="field"><div class="lbl">Grinder <button type="button" class="linkbtn" data-gpick>Change grinders</button></div><div class="seg" id="g-grinder"></div></div>
       <div class="field"><label for="i-brewer">Brewer</label><select id="i-brewer"></select><div id="rec-chip" style="margin-top:6px"></div></div>
       <div class="field"><label for="i-grind">Grind <span><span class="num" id="v-grind"></span> <span class="hint" id="v-grindhint"></span></span></label><input type="range" id="i-grind"><div class="dialrow"><svg id="dialsvg" class="dialmini" viewBox="0 0 160 160" aria-hidden="true"></svg><p class="hint" style="margin:0">Dials read number.click. Tap <b>Gear and dials</b> for how each grinder works.</p></div><p class="hint equiv" id="v-equiv"></p></div>
       <div class="two">
@@ -670,7 +677,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   <div class="bench">
     <div class="panel">
       <div class="field"><label for="p-brewer">Brewer</label><select id="p-brewer"></select></div>
-      <div class="field"><div class="lbl">Grinder</div><div class="seg" id="p-grinder"></div></div>
+      <div class="field"><div class="lbl">Grinder <button type="button" class="linkbtn" data-gpick>Change grinders</button></div><div class="seg" id="p-grinder"></div></div>
       <div class="field"><label for="p-tech">Technique</label><select id="p-tech"></select></div>
       <div class="field"><label for="p-process">Process</label><select id="p-process"></select></div>
       <div class="field"><label for="p-variety">Variety</label><select id="p-variety"></select></div>
@@ -2313,6 +2320,23 @@ function renderGCompare(){if(!GCMP.length){$('gcmp').innerHTML='';return}
   $('gcmp-clear').onclick=()=>{GCMP=[];renderLibrary()}}
 function setMine(g,on,quiet){if(on&&!MYG.includes(g))MYG.push(g);if(!on){if(MYG.length<=1&&!quiet){toast('Keep at least one grinder');return}MYG=MYG.filter(x=>x!==g)}if(!MYG.length)MYG=['kultra'];save('bb-mygrinders',MYG);
   if(!quiet){grindersChanged();toast(on?gname(g)+' added to your grinders':gname(g)+' removed')}}
+// Pick which grinders you own from anywhere a grinder is chosen. The same list as "Your grinders" in Gear.
+function openGrinderPicker(){let q='';const d=$('vd');
+  const row=g=>{const G=GRINDERS[g],on=MYG.includes(g);return '<button type="button" data-gp="'+g+'" aria-pressed="'+on+'"><span><b>'+esc(G.full)+'</b><small>'+esc(G.brand||gtype(g))+(G.espresso?' · espresso capable':'')+'</small></span><i class="tick" aria-hidden="true">'+(on?'✓':'')+'</i></button>'};
+  const list=()=>{const m=g=>!q||(GRINDERS[g].full+' '+(GRINDERS[g].brand||'')).toLowerCase().includes(q);
+    return [['mine','Your grinders'],['manual','Manual'],['electric','Electric'],['custom','Your own']].map(([t,n])=>{
+      const ks=(t==='mine'?MYG.slice():Object.keys(GRINDERS).filter(g=>!MYG.includes(g)&&(t==='custom'?GRINDERS[g].custom:!GRINDERS[g].custom&&GRINDERS[g].type===t))).filter(m);
+      return ks.length?'<h4>'+n+'</h4>'+ks.map(row).join(''):''}).join('')||'<p class="hint">No grinder matches. Add your own in Gear.</p>'};
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Your grinders</span><h2 id="vd-title">Choose your grinders</h2>'+
+   '<p class="hint" style="margin:0">Tick the grinders you own. Settings across the app are shown for these.</p></div><div class="vd-body"><input class="gpick-search" id="gp-q" type="search" placeholder="Search grinders" aria-label="Search grinders"><div class="gpick" id="gp-list">'+list()+'</div>'+
+   '<div class="actions"><button type="button" class="btn" id="gp-done">Done</button></div></div>';
+  $('gp-q').oninput=e=>{q=e.target.value.trim().toLowerCase();$('gp-list').innerHTML=list()};
+  $('gp-list').onclick=e=>{const b=e.target.closest('[data-gp]');if(!b)return;const g=b.dataset.gp,on=!MYG.includes(g);
+    if(!on&&MYG.length<=1){toast('Keep at least one grinder');return}setMine(g,on,true);b.setAttribute('aria-pressed',on);b.querySelector('.tick').textContent=on?'✓':''};
+  const finish=()=>{d.removeEventListener('close',finish);grindersChanged()};d.addEventListener('close',finish);
+  $('gp-done').onclick=$('vd-x').onclick=()=>d.close();
+  if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}d.scrollTop=0}
+document.addEventListener('click',e=>{if(e.target.closest('[data-gpick]'))openGrinderPicker()});
 // Everything that shows grinder settings follows your grinders.
 function grindersChanged(){if(!MYG.includes(S.grinder)||!canGrind(S.grinder,S.brewer)){const g=MYG.find(x=>canGrind(x,S.brewer))||capable(S.brewer);S.setting=canGrind(S.grinder,S.brewer)?convertSetting(S,g,S.brewer):base(g,S.brewer);S.grinder=g}
   if(!MYG.includes(PL.grinder))PL.grinder=MYG.find(x=>canGrind(x,PL.brewer))||capable(PL.brewer);if(!MYG.includes(SC.grinder))SC.grinder=MYG.find(x=>canGrind(x,SC.brewer))||capable(SC.brewer);

@@ -677,6 +677,23 @@ function renderGCompare(){if(!GCMP.length){$('gcmp').innerHTML='';return}
   $('gcmp-clear').onclick=()=>{GCMP=[];renderLibrary()}}
 function setMine(g,on,quiet){if(on&&!MYG.includes(g))MYG.push(g);if(!on){if(MYG.length<=1&&!quiet){toast('Keep at least one grinder');return}MYG=MYG.filter(x=>x!==g)}if(!MYG.length)MYG=['kultra'];save('bb-mygrinders',MYG);
   if(!quiet){grindersChanged();toast(on?gname(g)+' added to your grinders':gname(g)+' removed')}}
+// Pick which grinders you own from anywhere a grinder is chosen. The same list as "Your grinders" in Gear.
+function openGrinderPicker(){let q='';const d=$('vd');
+  const row=g=>{const G=GRINDERS[g],on=MYG.includes(g);return '<button type="button" data-gp="'+g+'" aria-pressed="'+on+'"><span><b>'+esc(G.full)+'</b><small>'+esc(G.brand||gtype(g))+(G.espresso?' · espresso capable':'')+'</small></span><i class="tick" aria-hidden="true">'+(on?'✓':'')+'</i></button>'};
+  const list=()=>{const m=g=>!q||(GRINDERS[g].full+' '+(GRINDERS[g].brand||'')).toLowerCase().includes(q);
+    return [['mine','Your grinders'],['manual','Manual'],['electric','Electric'],['custom','Your own']].map(([t,n])=>{
+      const ks=(t==='mine'?MYG.slice():Object.keys(GRINDERS).filter(g=>!MYG.includes(g)&&(t==='custom'?GRINDERS[g].custom:!GRINDERS[g].custom&&GRINDERS[g].type===t))).filter(m);
+      return ks.length?'<h4>'+n+'</h4>'+ks.map(row).join(''):''}).join('')||'<p class="hint">No grinder matches. Add your own in Gear.</p>'};
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Your grinders</span><h2 id="vd-title">Choose your grinders</h2>'+
+   '<p class="hint" style="margin:0">Tick the grinders you own. Settings across the app are shown for these.</p></div><div class="vd-body"><input class="gpick-search" id="gp-q" type="search" placeholder="Search grinders" aria-label="Search grinders"><div class="gpick" id="gp-list">'+list()+'</div>'+
+   '<div class="actions"><button type="button" class="btn" id="gp-done">Done</button></div></div>';
+  $('gp-q').oninput=e=>{q=e.target.value.trim().toLowerCase();$('gp-list').innerHTML=list()};
+  $('gp-list').onclick=e=>{const b=e.target.closest('[data-gp]');if(!b)return;const g=b.dataset.gp,on=!MYG.includes(g);
+    if(!on&&MYG.length<=1){toast('Keep at least one grinder');return}setMine(g,on,true);b.setAttribute('aria-pressed',on);b.querySelector('.tick').textContent=on?'✓':''};
+  const finish=()=>{d.removeEventListener('close',finish);grindersChanged()};d.addEventListener('close',finish);
+  $('gp-done').onclick=$('vd-x').onclick=()=>d.close();
+  if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}d.scrollTop=0}
+document.addEventListener('click',e=>{if(e.target.closest('[data-gpick]'))openGrinderPicker()});
 // Everything that shows grinder settings follows your grinders.
 function grindersChanged(){if(!MYG.includes(S.grinder)||!canGrind(S.grinder,S.brewer)){const g=MYG.find(x=>canGrind(x,S.brewer))||capable(S.brewer);S.setting=canGrind(S.grinder,S.brewer)?convertSetting(S,g,S.brewer):base(g,S.brewer);S.grinder=g}
   if(!MYG.includes(PL.grinder))PL.grinder=MYG.find(x=>canGrind(x,PL.brewer))||capable(PL.brewer);if(!MYG.includes(SC.grinder))SC.grinder=MYG.find(x=>canGrind(x,SC.brewer))||capable(SC.brewer);
