@@ -240,15 +240,21 @@ function strength(st){const B=BREWERS[st.brewer];if(B.ratio.ref<5)return st.rati
 function mix(a,b,t){const p=x=>[1,3,5].map(i=>parseInt(x.slice(i,i+2),16));const A=p(a),B=p(b);return'rgb('+A.map((v,i)=>Math.round(v+(B[i]-v)*t)).join(',')+')'}
 function liquid(D){const x=clamp(D,-2,2);const st=['#D9B35A','#C98A3E','#7A4524','#4A2A18','#1E120B'];const pos=x+2;const i=Math.min(3,Math.floor(pos));return mix(st[i],st[i+1],pos-i)}
 function drawCup(r){
+  // Cup on a saucer, seen from above; the flavour radar floats on the coffee and the labels sit outside the saucer.
   const ax=[['Sweetness',r.sweet],['Acidity',r.acid],['Body',r.body],['Clarity',r.clarity],['Bitterness',r.bitter]];
-  const R=88,pt=(i,v)=>{const a=-Math.PI/2+i*2*Math.PI/5;return[150+Math.cos(a)*R*v/10,150+Math.sin(a)*R*v/10]};
-  let g='';for(const k of[2.5,5,7.5,10])g+='<polygon points="'+ax.map((_,i)=>pt(i,k).join(',')).join(' ')+'" fill="none" stroke="rgba(255,255,255,.18)"/>';
-  g+=ax.map((_,i)=>{const p=pt(i,10);return'<line x1="150" y1="150" x2="'+p[0]+'" y2="'+p[1]+'" stroke="rgba(255,255,255,.18)"/>'}).join('');
-  const lab=ax.map((a,i)=>{const an=-Math.PI/2+i*2*Math.PI/5,hw=textW(a[0],'600 11px')/2+4;return'<text x="'+clamp(150+Math.cos(an)*132,hw,300-hw).toFixed(1)+'" y="'+(154+Math.sin(an)*132).toFixed(1)+'" text-anchor="middle" font-size="11" font-weight="600" fill="var(--ink)">'+a[0]+'</text>'}).join('');
-  $('cup').innerHTML='<circle cx="150" cy="150" r="146" fill="var(--surface2)"/><circle cx="150" cy="150" r="116" fill="var(--paper)" stroke="var(--line)" stroke-width="2"/>'+
-   '<circle cx="150" cy="150" r="104" fill="'+liquid(r.D)+'" style="transition:fill .4s ease"/><circle cx="150" cy="150" r="104" fill="none" stroke="rgba(255,235,200,.35)" stroke-width="3"/>'+g+
-   '<polygon points="'+ax.map((a,i)=>pt(i,a[1]).join(',')).join(' ')+'" fill="rgba(255,245,225,.30)" stroke="#FFF3DD" stroke-width="2" stroke-linejoin="round"/>'+
-   ax.map((a,i)=>{const p=pt(i,a[1]);return'<circle cx="'+p[0]+'" cy="'+p[1]+'" r="3" fill="#FFF3DD"/>'}).join('')+lab;
+  const cx=200,cy=168,R=78,ang=i=>-Math.PI/2+i*2*Math.PI/5,pt=(i,v)=>[cx+Math.cos(ang(i))*R*v/10,cy+Math.sin(ang(i))*R*v/10];
+  const poly=v=>ax.map((a,i)=>pt(i,v==null?a[1]:v).map(n=>n.toFixed(1)).join(',')).join(' ');
+  let g='';for(const k of[2.5,5,7.5,10])g+='<polygon points="'+poly(k)+'" fill="none" stroke="rgba(255,255,255,'+(k===10?.3:.16)+')"/>';
+  g+=ax.map((_,i)=>{const p=pt(i,10);return'<line x1="'+cx+'" y1="'+cy+'" x2="'+p[0].toFixed(1)+'" y2="'+p[1].toFixed(1)+'" stroke="rgba(255,255,255,.16)"/>'}).join('');
+  // Top and bottom labels read on one line; the side labels stack the score under the name.
+  const lab=ax.map((a,i)=>{const an=ang(i),x=(cx+Math.cos(an)*140).toFixed(1),y=cy+Math.sin(an)*140,side=Math.abs(Math.cos(an))>0.6,
+      anchor=side?(Math.cos(an)>0?'start':'end'):'middle',v='<tspan font-weight="800" fill="var(--cherry)">'+a[1].toFixed(1)+'</tspan>',T=(yy,s)=>'<text x="'+x+'" y="'+yy.toFixed(1)+'" text-anchor="'+anchor+'" font-size="13" font-weight="600" fill="var(--ink)">'+s+'</text>';
+    return side?T(y-3,a[0])+T(y+14,v):T(y+(i===0?4:10),a[0]+'  '+v)}).join('');
+  $('cup').innerHTML='<circle cx="'+cx+'" cy="'+cy+'" r="126" fill="var(--surface2)"/><circle cx="'+cx+'" cy="'+cy+'" r="104" fill="var(--paper)" stroke="var(--line)" stroke-width="2"/>'+
+   '<circle cx="'+cx+'" cy="'+cy+'" r="94" fill="'+liquid(r.D)+'" style="transition:fill .4s ease"/><circle cx="'+cx+'" cy="'+cy+'" r="94" fill="none" stroke="rgba(255,235,200,.35)" stroke-width="3"/>'+g+
+   '<polygon points="'+poly()+'" fill="none" stroke="rgba(30,18,11,.35)" stroke-width="5" stroke-linejoin="round"/>'+
+   '<polygon points="'+poly()+'" fill="rgba(255,245,225,.32)" stroke="#FFF3DD" stroke-width="2.5" stroke-linejoin="round"/>'+
+   ax.map((a,i)=>{const p=pt(i,a[1]);return'<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="4" fill="#FFF3DD" stroke="rgba(30,18,11,.35)"/>'}).join('')+lab;
 }
 function drawDial(id,g,c){
   const G=GRINDERS[g],svg=$(id);if(!svg)return;c=Math.round(c);
