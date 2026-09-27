@@ -383,7 +383,7 @@ const PTS={
 
 /* ================= HISTORY ================= */
 const TIMELINE=[
- ['Deep past','Arabica is born','Two wild species, eugenioides and canephora, cross naturally in the highlands of today\u2019s Ethiopia and South Sudan, creating Coffea arabica. Estimates of when vary widely, from about ten thousand to hundreds of thousands of years ago.'],
+ ['Deep past','Arabica is born','Two wild species, eugenioides and canephora, cross naturally in the highlands of today\u2019s Ethiopia and South Sudan, creating Coffea arabica. A 2024 genome study dated this to at least 610,000 years ago, far older than earlier estimates.'],
  ['Legend','Kaldi and his goats','An Ethiopian goatherd notices his goats dancing after eating red cherries. It is a lovely story, but it first appears in writing in 1671, centuries after coffee drinking began.'],
  ['1400s','Yemen\u2019s Sufis brew it','The first reliable evidence of coffee as a drink comes from Sufi communities in Yemen, who used it to stay alert through night devotions. The port of Mocha becomes the coffee trade\u2019s hub.'],
  ['1500s','Coffeehouses spread','Coffee reaches Mecca, Cairo and Istanbul. The governor of Mecca bans it in 1511; the ban does not last. Istanbul\u2019s first coffeehouses open in the 1550s and become centres of conversation, chess and music.'],

@@ -1283,7 +1283,7 @@ const PTS={
 
 /* ================= HISTORY ================= */
 const TIMELINE=[
- ['Deep past','Arabica is born','Two wild species, eugenioides and canephora, cross naturally in the highlands of today\u2019s Ethiopia and South Sudan, creating Coffea arabica. Estimates of when vary widely, from about ten thousand to hundreds of thousands of years ago.'],
+ ['Deep past','Arabica is born','Two wild species, eugenioides and canephora, cross naturally in the highlands of today\u2019s Ethiopia and South Sudan, creating Coffea arabica. A 2024 genome study dated this to at least 610,000 years ago, far older than earlier estimates.'],
  ['Legend','Kaldi and his goats','An Ethiopian goatherd notices his goats dancing after eating red cherries. It is a lovely story, but it first appears in writing in 1671, centuries after coffee drinking began.'],
  ['1400s','Yemen\u2019s Sufis brew it','The first reliable evidence of coffee as a drink comes from Sufi communities in Yemen, who used it to stay alert through night devotions. The port of Mocha becomes the coffee trade\u2019s hub.'],
  ['1500s','Coffeehouses spread','Coffee reaches Mecca, Cairo and Istanbul. The governor of Mecca bans it in 1511; the ban does not last. Istanbul\u2019s first coffeehouses open in the 1550s and become centres of conversation, chess and music.'],
@@ -1378,13 +1378,13 @@ const BREWERS={
  siphon:br({name:'Siphon (vacuum)',type:'Immersion and pressure',body:0.8,clarity:0.6,base:{zp6:50,kultra:65},
   desc:'Two glass chambers: vapour pressure pushes water up to the coffee, then a vacuum pulls the brew down through a cloth or paper filter. The design dates back to the 1830s.',how:'Stable, hot immersion followed by a fast filtration.',best:'Clean, aromatic, theatrical brews.'}),
  espresso:br({name:'Espresso machine',type:'Espresso and stovetop',body:3,clarity:-0.4,base:{zp6:null,kultra:36},ratio:{ref:2,min:1,max:4,step:0.25,def:2,k:0.5},temp:{min:86,max:96,def:93},bloom:{min:0,max:15,def:5,label:'Pre-infusion'},
-  desc:'About 9 bars of pressure push hot water through a fine, packed bed in 20 to 35 seconds.',how:'Very fine grind and a short brew ratio. The ZP6 Special cannot grind fine enough; the K-Ultra can.',best:'Concentrated, syrupy shots and milk drinks.'}),
+  desc:'About 9 bars of pressure push hot water through a fine, packed bed in 20 to 35 seconds.',how:'Very fine grind and a short brew ratio. Needs an espresso-capable grinder: the ZP6 Special and other filter-only grinders cannot go fine enough.',best:'Concentrated, syrupy shots and milk drinks.'}),
  moka:br({name:'Moka pot',type:'Espresso and stovetop',model:false,body:2.2,clarity:-0.8,base:{zp6:32,kultra:43},
   desc:'The stovetop brewer introduced by Bialetti in 1933. Steam pressure from the bottom chamber pushes water up through the coffee.',how:'Fine-ish grind, no tamping. Heat control matters more than anything else.',best:'Strong, rich coffee without a machine.'}),
  phin:br({name:'Vietnamese phin',type:'Espresso and stovetop',body:1.8,clarity:-0.4,base:{zp6:36,kultra:48},ratio:{ref:7,min:4,max:12,step:0.5,def:7,k:0.2},temp:{min:90,max:100,def:96},
   desc:'A small metal filter with a press plate that sits on the cup.',how:'A slow gravity drip through a fine, lightly pressed bed. Traditionally used with Robusta and sweetened condensed milk.',best:'Strong, sweet iced coffee (cà phê sữa đá).'}),
  cezve:br({name:'Cezve (Turkish coffee)',type:'Boiled',model:false,body:2.6,clarity:-2,base:{zp6:null,kultra:10},
-  desc:'A small long-handled pot. The coffee is powder-fine and served unfiltered.',how:'Heat cold water, coffee and optional sugar slowly until the foam rises; never boil hard. Needs a powder grind at the very fine end of the K-Ultra; the ZP6 Special cannot reach it.',best:'Thick, intense, foamy coffee. Turkish coffee culture is on UNESCO\u2019s intangible heritage list.'}),
+  desc:'A small long-handled pot. The coffee is powder-fine and served unfiltered.',how:'Heat cold water, coffee and optional sugar slowly until the foam rises; never boil hard. Needs a powder grind at the very finest end of an espresso-capable grinder; filter grinders such as the ZP6 Special cannot reach it.',best:'Thick, intense, foamy coffee. Turkish coffee culture is on UNESCO\u2019s intangible heritage list.'}),
  dallah:br({name:'Dallah (Arabic coffee)',type:'Boiled',model:false,body:0.2,clarity:0.2,base:{zp6:60,kultra:77},
   desc:'The traditional Arabic coffee pot, used to brew lightly roasted coffee with cardamom and often saffron or clove.',how:'Simmer, let the grounds settle, then pour small servings into finjan cups. Styles vary by country.',best:'Qahwa, the coffee of hospitality. Arabic coffee is on UNESCO\u2019s intangible heritage list.'}),
  cold:br({name:'Cold brew and cold drip',type:'Cold',model:false,body:1.4,clarity:-0.2,base:{zp6:82,kultra:103},
@@ -1419,8 +1419,8 @@ const RECIPES=[
  {b:'neo',kind:'neo',name:'Yuma Kawano NEO recipe',by:'Yuma Kawano',off:0.6,temp:95,dose:14,water:235,why:'A pouring-technique recipe aimed at texture, density and sweetness. Medium-fine grind.',
   steps:['0:00 pour 35 to 40g, bloom.','0:30 pour to 120g while stirring the slurry with the stream.','1:05 pour to 180 to 185g.','1:35 pour to 235g.','2:30 let it drain.'],
   tip:'The stirring pour in stage two builds the body the NEO\u2019s fast flow would otherwise lose.'},
- {b:'origami',kind:'pulse',name:'Carlos Medina\u2019s Origami',by:'Carlos Medina, 2023 World Brewers Cup champion (ZP6 Special at 5.2)',off:0.4,temp:91,dose:15.5,water:250,why:'Five equal pours every 30 seconds. His winning cup was a natural Sidra, ground on a ZP6 Special.',
-  steps:['0:00 pour 50g.','0:30 pour to 100g.','1:00 pour to 150g.','1:30 pour to 200g.','2:00 pour to 250g.','3:00 let it drain.'],
+ {b:'origami',kind:'pulse',name:'Carlos Medina\u2019s Origami',by:'Carlos Medina, 2023 World Brewers Cup champion (ZP6 Special at 5.2)',off:0.4,temp:91,dose:15.5,water:250,why:'Five equal pours every 30 seconds, aiming to finish around 2:40. His winning coffee was a natural Sidra from Granja La Esperanza in Colombia, ground on a ZP6 Special and brewed with soft water (about 65 ppm).',
+  steps:['0:00 pour 50g.','0:30 pour to 100g.','1:00 pour to 150g.','1:30 pour to 200g.','2:00 pour to 250g.','2:40 drawdown should be finished.'],
   tip:'Even pours at even intervals make this very repeatable.'},
  {b:'origami',kind:'pulse',name:'Origami with wave filters',by:'Classic technique',off:0,temp:93,dose:18,water:290,why:'Wave papers turn the Origami into a flat-bottom brewer: sweeter and more forgiving.',
   steps:['0:00 pour 50g, bloom.','0:40 pour to 150g.','1:15 pour to 220g.','1:45 pour to 290g.','3:15 finished.'],tip:'Keep pours in the centre; the folds do the rest.'},
@@ -1431,7 +1431,7 @@ const RECIPES=[
   steps:['0:00 drip water drop by drop onto the centre until the bed swells.','0:45 pour a thin spiral to 120g.','1:30 pour to 220g.','2:15 pour to 300g.','3:30 finished.'],tip:'Use a very slow kettle stream; it is about patience.'},
  {b:'melitta',kind:'single',name:'Melitta everyday',by:'Classic technique',off:0,temp:94,dose:20,water:320,why:'The small outlet does the work, so the pour can be simple.',
   steps:['0:00 pour 50g, bloom.','0:40 pour steadily to 320g.','3:30 finished.'],tip:'Great with medium roasts.'},
- {b:'orea',kind:'pulse',name:'Martin Wölfl\u2019s Orea',by:'Martin Wölfl, 2024 World Brewers Cup champion',off:0.3,temp:93,dose:17,water:270,why:'Orea v4 with the fast bottom. His winning coffee was an anaerobic natural Gesha.',
+ {b:'orea',kind:'pulse',name:'Martin Wölfl\u2019s Orea',by:'Martin Wölfl, 2024 World Brewers Cup champion',off:0.3,temp:93,dose:17,water:270,why:'Orea v4 with the fast bottom and a fast flat filter. His winning coffee was an anaerobic natural Geisha from Finca Maya, Panama, processed by Lost Origin.',
   steps:['0:00 pour 60g, bloom.','0:40 pour 60g (to 120g).','1:20 pour 50g (to 170g).','2:00 pour 100g (to 270g).','3:00 let it drain.'],tip:'The fast bottom lets you grind fine without stalling.'},
  {b:'april',kind:'pulse',name:'Two-pour flat bottom',by:'Classic flat-bottom technique',off:0,temp:94,dose:15,water:250,why:'A short, even brew suited to the April Brewer\u2019s quick drawdown.',
   steps:['0:00 pour 100g, swirl.','0:45 pour to 250g in a steady centre pour.','2:30 finished.'],tip:'Big first pour, then one steady top-up.'},
@@ -1683,15 +1683,15 @@ const GRINDER_LIB={
   comandante:{name:'Comandante C40',full:'Comandante C40 MK4',type:'manual',brand:'Comandante',fmt:'num',unit:'clicks',sub:1,first:0,um:30,min:5,max:45,v60:25,k:55,body:0.3,clarity:0.4,espresso:false,
     burr:'39 mm "Nitro Blade" high-nitrogen steel conical burrs',adjust:'No numbers: count clicks from fully closed, about 30 microns per click',
     range:'AeroPress about 15 to 20 clicks, V60 about 22 to 28, French press about 30 to 35. Espresso needs a finer-step axle.',cup:'Clear yet sweet, very consistent.',use:'Pour-over and AeroPress; a classic travel grinder.'},
-  c3:{name:'Timemore C3',full:'Timemore Chestnut C3',type:'manual',brand:'Timemore',fmt:'num',unit:'clicks',sub:1,first:0,min:5,max:30,v60:16,k:60,body:0.4,clarity:-0.3,espresso:false,
+  c3:{name:'Timemore C3',full:'Timemore Chestnut C3',type:'manual',brand:'Timemore',fmt:'num',unit:'clicks',sub:1,first:0,min:6,max:32,v60:18,k:75,body:0.4,clarity:-0.3,espresso:false,
     burr:'38 mm S2C stainless steel conical burrs',adjust:'Count clicks from fully closed',
-    range:'AeroPress about 10 to 13 clicks, V60 about 14 to 18, French press about 22 to 25.',cup:'Sweet with fuller body; a little muddier than premium grinders.',use:'Budget pour-over and immersion.'},
+    range:'AeroPress about 13 to 17 clicks, V60 about 16 to 22, French press about 22 to 26. Stay above 6 clicks: finer can dull the burrs.',cup:'Sweet with fuller body; a little muddier than premium grinders.',use:'Budget pour-over and immersion.'},
   k6:{name:'Kingrinder K6',full:'Kingrinder K6',type:'manual',brand:'Kingrinder',fmt:'num',unit:'clicks',sub:1,first:0,um:16,min:15,max:200,v60:95,k:11,body:0.1,clarity:0.4,espresso:true,
     burr:'48 mm heptagonal conical steel burrs',adjust:'External dial, 60 clicks per turn, about 16 microns per click; count clicks from closed',
     range:'Espresso about 30 to 50 clicks, V60 about 85 to 105, French press about 130 to 150.',cup:'Clean and bright for the price.',use:'All-round value: espresso to French press.'},
-  ode2:{name:'Fellow Ode Gen 2',full:'Fellow Ode Brew Grinder Gen 2',type:'electric',brand:'Fellow',fmt:'num',sub:3,first:1,min:0,max:30,v60:9,k:40,body:-0.2,clarity:0.8,espresso:false,
+  ode2:{name:'Fellow Ode Gen 2',full:'Fellow Ode Brew Grinder Gen 2',type:'electric',brand:'Fellow',fmt:'num',sub:3,first:1,min:0,max:30,v60:12,k:45,body:-0.2,clarity:0.8,espresso:false,
     burr:'64 mm flat stainless steel "Gen 2" brew burrs',adjust:'Dial 1 to 11 with two steps between numbers (31 settings)',
-    range:'AeroPress about 2 to 3, V60 about 4 to 5, French press about 8 to 9. Not for espresso.',cup:'Very clear and separated: flat-burr filter clarity.',use:'Pour-over and batch brew.'},
+    range:'AeroPress about 3 to 5, V60 about 4 to 6, French press about 7 to 9. Not for espresso.',cup:'Very clear and separated: flat-burr filter clarity.',use:'Pour-over and batch brew.'},
   encore:{name:'Baratza Encore',full:'Baratza Encore',type:'electric',brand:'Baratza',fmt:'num',sub:1,first:1,min:0,max:39,v60:15,k:40,body:0.3,clarity:-0.5,espresso:false,
     burr:'40 mm conical steel burrs (M3)',adjust:'40 numbered settings',
     range:'AeroPress about 8 to 12, V60 about 14 to 18, French press about 28 to 32.',cup:'Fuller body, more fines; forgiving.',use:'Everyday drip, Chemex and French press.'},
@@ -1701,12 +1701,12 @@ const GRINDER_LIB={
   wilfa:{name:'Wilfa Uniform',full:'Wilfa Svart Uniform',type:'electric',brand:'Wilfa',fmt:'num',sub:1,first:1,min:0,max:40,v60:19,k:30,body:0,clarity:0.4,espresso:false,
     burr:'58 mm flat steel burrs',adjust:'41 numbered settings, weight-based dosing',
     range:'AeroPress about 10 to 14, V60 about 18 to 22, French press about 34 to 38.',cup:'Even grind with good clarity.',use:'Filter coffee in a home kitchen.'},
-  niche:{name:'Niche Zero',full:'Niche Zero',type:'electric',brand:'Niche',fmt:'num',sub:1,first:0,min:0,max:50,v60:40,k:22,body:0.8,clarity:-0.3,espresso:true,
+  niche:{name:'Niche Zero',full:'Niche Zero',type:'electric',brand:'Niche',fmt:'num',sub:1,first:0,min:0,max:50,v60:40,k:25,pts:[[0,300],[14,573],[40,1232],[50,1716]],body:0.8,clarity:-0.3,espresso:true,
     burr:'63 mm conical steel burrs, single dosing',adjust:'Stepless dial numbered 0 to 50',
-    range:'Espresso about 10 to 15, AeroPress about 25 to 30, V60 about 38 to 45.',cup:'Rich, syrupy body; classic conical sweetness.',use:'Espresso first, filter too.'},
-  df64:{name:'DF64',full:'Turin DF64 Gen 2',type:'electric',brand:'Turin',fmt:'num',sub:1,first:0,min:0,max:90,v60:55,k:14.6,body:0,clarity:0.6,espresso:true,
+    range:'Espresso about 10 to 20, AeroPress about 20 to 30, V60 about 35 to 45, French press 45 to 50.',cup:'Rich, syrupy body; classic conical sweetness.',use:'Espresso first, filter too.'},
+  df64:{name:'DF64',full:'Turin DF64 Gen 2',type:'electric',brand:'Turin',fmt:'num',sub:1,first:0,min:0,max:90,v60:52,k:18.8,body:0,clarity:0.6,espresso:true,
     burr:'64 mm flat steel burrs (stock Italmill); popular to upgrade',adjust:'Stepless dial numbered 0 to 90',
-    range:'Espresso about 10 to 20, V60 about 50 to 60, French press about 80 to 90.',cup:'Clear, flat-burr profile; depends on the burrs fitted.',use:'Single-dose espresso and filter.'},
+    range:'Espresso about 15 to 20, V60 about 45 to 65, French press about 75 to 90. Every DF64 is zeroed differently, so check yours.',cup:'Clear, flat-burr profile; depends on the burrs fitted.',use:'Single-dose espresso and filter.'},
   jmax:{name:'J-Max',full:'1Zpresso J-Max',type:'manual',brand:'1Zpresso',fmt:'rot',per:90,um:8.8,min:40,max:260,v60:164,k:8,body:0.6,clarity:0,espresso:true,
     burr:'48 mm conical steel burrs, espresso-focused',adjust:'External ring: 9 numbers per turn, 10 clicks per number, 90 clicks per rotation, about 8.8 microns per click',
     range:'Espresso roughly 0.7.0 to 1.0.0; filter roughly 1.6.0 to 2.2.0 (past one full turn).',cup:'Rich and textured; very fine steps for dialing espresso.',use:'Espresso first, filter too.'},
@@ -1731,12 +1731,12 @@ const GRINDER_LIB={
   cmdred:{name:'C40 + Red Clix',full:'Comandante C40 with Red Clix',type:'manual',brand:'Comandante',fmt:'num',unit:'clicks',sub:1,first:0,um:15,min:8,max:90,v60:50,k:27.5,body:0.3,clarity:0.4,espresso:true,
     burr:'39 mm "Nitro Blade" conical burrs',adjust:'Red Clix axle doubles the clicks: about 15 microns per click, counted from fully closed',
     range:'Espresso about 12 to 20 clicks, AeroPress about 30 to 40, V60 about 44 to 56.',cup:'The C40 cup with finer steps.',use:'When you want espresso and filter from a Comandante.'},
-  c2:{name:'Timemore C2',full:'Timemore Chestnut C2',type:'manual',brand:'Timemore',fmt:'num',unit:'clicks',sub:1,first:0,min:6,max:36,v60:18,k:70,body:0.4,clarity:-0.4,espresso:false,
+  c2:{name:'Timemore C2',full:'Timemore Chestnut C2',type:'manual',brand:'Timemore',fmt:'num',unit:'clicks',sub:1,first:0,min:6,max:36,v60:16,k:72,body:0.4,clarity:-0.4,espresso:false,
     burr:'38 mm stainless steel conical burrs',adjust:'Count clicks from fully closed',
-    range:'AeroPress about 11 to 14 clicks, V60 about 16 to 20, French press about 24 to 27.',cup:'Sweet and full, with more fines.',use:'Entry-level pour-over.'},
-  c3esp:{name:'C3 ESP Pro',full:'Timemore Chestnut C3 ESP Pro',type:'manual',brand:'Timemore',fmt:'num',unit:'clicks',sub:1,first:0,min:5,max:70,v60:34,k:30,body:0.4,clarity:-0.2,espresso:true,
-    burr:'38 mm S2C conical burrs with a finer-step axle',adjust:'Half-size clicks compared with the C3; count from fully closed',
-    range:'Espresso about 12 to 16 clicks, AeroPress about 24 to 28, V60 about 30 to 38.',cup:'Sweet and full.',use:'Budget espresso and filter.'},
+    range:'AeroPress about 10 to 14 clicks, V60 about 14 to 18, French press about 20 to 24.',cup:'Sweet and full, with more fines.',use:'Entry-level pour-over.'},
+  c3esp:{name:'C3 ESP Pro',full:'Timemore Chestnut C3 ESP Pro',type:'manual',brand:'Timemore',fmt:'rot',per:30,um:23.3,min:10,max:110,v60:56,k:21.3,body:0.4,clarity:-0.2,espresso:true,
+    burr:'38 mm S2C conical steel burrs',adjust:'External dial: 3 numbers per turn, 10 clicks per number, 30 clicks per rotation, about 23 microns per click; read as rotation.number.click',
+    range:'Espresso about 0.8 to 1.1 turns from zero (24 to 33 clicks, shown as 2.4 to 1.0.3); pour-over roughly 1.1.5 to 2.0.0.',cup:'Sweet and full.',use:'Budget espresso and filter.'},
   k4:{name:'Kingrinder K4',full:'Kingrinder K4',type:'manual',brand:'Kingrinder',fmt:'num',unit:'clicks',sub:1,first:0,um:16,min:15,max:200,v60:95,k:11,body:0.3,clarity:0.2,espresso:true,
     burr:'48 mm conical steel burrs',adjust:'External dial, 60 clicks per turn, about 16 microns per click; count clicks from closed',
     range:'Espresso about 30 to 50 clicks, V60 about 85 to 105, French press about 130 to 150.',cup:'Balanced, a little more body than the K6.',use:'All-round value.'},
@@ -1749,25 +1749,26 @@ const GRINDER_LIB={
   porlex:{name:'Porlex Mini II',full:'Porlex Mini II',type:'manual',brand:'Porlex',fmt:'num',unit:'clicks',sub:1,first:0,min:1,max:18,v60:9,k:120,body:0.5,clarity:-0.7,espresso:false,
     burr:'ceramic conical burrs',adjust:'Count clicks from fully closed',
     range:'AeroPress about 6 to 8 clicks, V60 about 8 to 10, French press about 12 to 14.',cup:'Full body with fines.',use:'Travel; fits inside an AeroPress.'},
-  opus:{name:'Fellow Opus',full:'Fellow Opus Conical Burr Grinder',type:'electric',brand:'Fellow',fmt:'num',sub:3,first:1,min:0,max:30,v60:15,k:47,body:0.6,clarity:-0.3,espresso:true,
-    burr:'40 mm conical steel burrs',adjust:'Dial 1 to 11 with two steps between numbers, plus an inner fine-tuning ring',
-    range:'Espresso about 1 to 2, AeroPress about 4 to 5, V60 about 6 to 7, French press about 9 to 10.',cup:'Balanced with some body.',use:'Espresso to cold brew on one grinder.'},
-  sgp:{name:'Breville Smart Grinder Pro',full:'Breville (Sage) Smart Grinder Pro',type:'electric',brand:'Breville',fmt:'num',sub:1,first:1,min:0,max:59,v60:37,k:22,body:0.4,clarity:-0.5,espresso:true,
-    burr:'40 mm conical steel burrs',adjust:'60 numbered settings with a timer',
-    range:'Espresso about 5 to 12, AeroPress about 25 to 30, V60 about 35 to 42, French press about 55 to 60.',cup:'Fuller body, some fines.',use:'Espresso machines and everyday brewing.'},
+  opus:{name:'Fellow Opus',full:'Fellow Opus Conical Burr Grinder',type:'electric',brand:'Fellow',fmt:'num',sub:4,first:1,min:0,max:40,v60:18,k:36,body:0.6,clarity:-0.3,espresso:true,
+    burr:'40 mm conical steel burrs',adjust:'Dial 1 to 11 with three marks between numbers (41 settings), plus an inner ring for finer espresso steps',
+    range:'Espresso about 1 to 2 (use the inner ring), AeroPress about 3.2 to 4.2, V60 about 4.3 to 6, French press about 8 to 10.',cup:'Balanced with some body.',use:'Espresso to cold brew on one grinder.'},
+  sgp:{name:'Breville Smart Grinder Pro',full:'Breville (Sage) Smart Grinder Pro',type:'electric',brand:'Breville',fmt:'num',sub:1,first:1,min:0,max:59,v60:23,k:24,pts:[[0,380],[11,573],[23,1232],[53,1716],[59,1810]],body:0.4,clarity:-0.5,espresso:true,
+    burr:'40 mm conical steel burrs',adjust:'60 numbered settings with a timer; the espresso settings are packed into the low numbers, so steps are not even',
+    range:'Espresso about 8 to 15, pour-over about 18 to 28, French press about 50 to 60.',cup:'Fuller body, some fines.',use:'Espresso machines and everyday brewing.'},
   oxo:{name:'OXO Conical Burr',full:'OXO Brew Conical Burr Grinder',type:'electric',brand:'OXO',fmt:'num',sub:1,first:1,min:0,max:14,v60:7,k:80,body:0.4,clarity:-0.6,espresso:false,
     burr:'40 mm conical steel burrs',adjust:'15 numbered settings',
     range:'AeroPress about 4 to 6, V60 about 7 to 9, French press about 12 to 15.',cup:'Full body, forgiving.',use:'Drip and French press.'},
-  ek43:{name:'Mahlkönig EK43',full:'Mahlkönig EK43',type:'electric',brand:'Mahlkönig',fmt:'num',sub:10,first:0,min:5,max:160,v60:90,k:8.8,body:-0.2,clarity:0.9,espresso:true,
+  ek43:{name:'Mahlkönig EK43',full:'Mahlkönig EK43',type:'electric',brand:'Mahlkönig',fmt:'num',sub:10,first:0,min:0,max:160,v60:80,k:8.8,body:-0.2,clarity:0.9,espresso:true,
     burr:'98 mm flat cast steel burrs',adjust:'Stepless dial numbered 0 to 16 (read to one decimal)',
-    range:'Espresso about 1 to 2, AeroPress about 6 to 8, V60 about 8.5 to 10, French press about 12 to 14.',cup:'The café standard for clarity and high extraction.',use:'Specialty cafés, competition pour-over.'}
+    range:'Dials vary by model and burr alignment. Roughly: espresso 0.3 to 1, AeroPress 5 to 7, V60 7.5 to 9, French press 12 to 14.',cup:'The café standard for clarity and high extraction.',use:'Specialty cafés, competition pour-over.'}
 };
 // Your own grinders, added in Gear (same fields; values in steps).
 let CUSTOM_G=load('bb-custom-grinders',{});
 for(const [id,g] of Object.entries(CUSTOM_G))if(!g||typeof g.name!=='string'||!Number.isFinite(g.v60)||!Number.isFinite(g.k)||g.k<=0)delete CUSTOM_G[id];
+for(const g of Object.values(CUSTOM_G))delete g.pts;
 const GRINDERS=Object.assign({},GRINDER_LIB,CUSTOM_G);
 // One recipe "step" is the same change in grind size on every grinder, so offsets carry over exactly.
-for(const G of Object.values(GRINDERS)){G.step=160/G.k;if(G.fmt==='num'){G.sub=G.sub||1;G.first=G.first||0}G.full=G.full||G.name}
+for(const G of Object.values(GRINDERS)){if(G.fmt==='num'){G.sub=G.sub||1;G.first=G.first||0}G.full=G.full||G.name}
 // The grinders you use; the app shows settings for these.
 let MYG=(()=>{try{const v=JSON.parse(localStorage.getItem('bb-mygrinders'));return Array.isArray(v)?v.filter(g=>typeof g==='string'&&GRINDERS[g]):[]}catch(e){return[]}})();if(!MYG.length)MYG=['zp6','kultra'];MYG=[...new Set(MYG)];
 const gname=g=>GRINDERS[g]?GRINDERS[g].name:g;
@@ -1786,8 +1787,14 @@ function roundG(g,v){const G=GRINDERS[g];return Math.round(clamp(v,G.min,G.max))
 // Where a brewer sits on the shared scale (from the tuned ZP6 / K-Ultra table).
 function brewSize(b){const bb=BREWERS[b].base;return bb.zp6!=null?bb.zp6*22:bb.kultra!=null?sizeOf('kultra',bb.kultra):null}
 const needsFine=b=>BREWERS[b].base.zp6==null;
-const sizeOf=(g,c)=>V60_SIZE+(c-GRINDERS[g].v60)*GRINDERS[g].k;
-const stepsFor=(g,size)=>GRINDERS[g].v60+(size-V60_SIZE)/GRINDERS[g].k;
+// Grinders with uneven dials list [steps, size] points instead, and are read piecewise.
+function interp(P,x,a,b){let i=1;while(i<P.length-1&&x>P[i][a])i++;const p=P[i-1],q=P[i];return p[b]+(x-p[a])*(q[b]-p[b])/(q[a]-p[a])}
+const sizeOf=(g,c)=>{const G=GRINDERS[g];return G.pts?interp(G.pts,c,0,1):V60_SIZE+(c-G.v60)*G.k};
+const stepsFor=(g,size)=>{const G=GRINDERS[g];return G.pts?interp(G.pts,size,1,0):G.v60+(size-V60_SIZE)/G.k};
+// Move a setting by a change in grind size (160 on the shared scale is one recipe step), unrounded.
+const shift=(g,c,ds)=>stepsFor(g,sizeOf(g,c)+ds);
+// How far a setting sits from another, in recipe steps (positive = finer).
+const stepsBetween=(g,from,c)=>(sizeOf(g,from)-sizeOf(g,c))/160;
 function defBase(g,b,raw){if(g==='zp6'||g==='kultra'&&needsFine(b))return BREWERS[b].base[g];const G=GRINDERS[g],E=brewSize(b);if(E==null||(needsFine(b)&&!G.espresso))return null;
   const s=stepsFor(g,E);return s<G.min-0.5||s>G.max+0.5?null:raw?clamp(s,G.min,G.max):Math.round(clamp(s,G.min,G.max))}
 let BASE=load('bb-base3',null);if(!BASE||typeof BASE!=='object')BASE={};
@@ -1801,7 +1808,7 @@ function baseX(g,b){const v=BASE[g]&&BASE[g][b];return v==null?defBase(g,b,true)
 const canGrind=(g,b)=>!!GRINDERS[g]&&base(g,b)!=null;
 // First of your grinders that can do this brewer (falls back to any grinder in the library).
 const capable=b=>MYG.find(g=>canGrind(g,b))||Object.keys(GRINDERS).find(g=>canGrind(g,b));
-function settingFor(g,b,off){const bb=baseX(g,b);return bb==null?null:roundG(g,bb-off*GRINDERS[g].step)}
+function settingFor(g,b,off){const bb=baseX(g,b);return bb==null?null:roundG(g,shift(g,bb,-off*160))}
 function gLabel(g,v){const G=GRINDERS[g];return G.name+' '+dial(g,v)+(G.unit==='clicks'?' clicks':'')}
 /* ================= YOUR RECIPES ================= */
 // Recipes you or your team create sit after the built-in ones in RECIPES, so the timer, dial-in and planner all work with them.
@@ -1842,7 +1849,7 @@ let LOG=load('bb-log',[]);
 function rBias(r){const B=BREWERS[r.b];return -(0.45*r.off+(r.temp-93)/3*0.35+(r.water/r.dose-B.ratio.ref)*B.ratio.k)}
 function compute(st){
   const G=GRINDERS[st.grinder],B=BREWERS[st.brewer],P=PROCESSES[st.process],Vp=vParams(st.variety);
-  const step=(base(st.grinder,st.brewer)-st.setting)/G.step;
+  const step=stepsBetween(st.grinder,baseX(st.grinder,st.brewer),st.setting);
   const agit={low:-0.25,med:0,high:0.25}[st.agit], roastE={light:0,medium:0.25,dark:0.6}[st.roast];
   const rec=st.rec!=null&&RECIPES[st.rec]&&RECIPES[st.rec].b===st.brewer?RECIPES[st.rec]:null;
   const E=0.45*step+(st.temp-93)/3*0.35+(st.bloom-B.bloom.def)/15*0.12+agit+(st.ratio-B.ratio.ref)*B.ratio.k+roastE+(rec?rBias(rec):0);
@@ -1906,7 +1913,7 @@ const grinderOpts=b=>MYG.map(g=>[g,gname(g),canGrind(g,b)?'':'Can\u2019t grind f
 function grinderSeg(id,b,get,set){const el=$(id);el.classList.toggle('filters',MYG.length>3);seg(id,grinderOpts(b),get,set)}
 
 /* ================= DIAL-IN ================= */
-function convertSetting(st,g2,b2){if(!canGrind(g2,b2)||!canGrind(st.grinder,st.brewer))return null;const step=(baseX(st.grinder,st.brewer)-st.setting)/GRINDERS[st.grinder].step;return roundG(g2,baseX(g2,b2)-step*GRINDERS[g2].step)}
+function convertSetting(st,g2,b2){if(!canGrind(g2,b2)||!canGrind(st.grinder,st.brewer))return null;const step=stepsBetween(st.grinder,baseX(st.grinder,st.brewer),st.setting);return roundG(g2,shift(g2,baseX(g2,b2),-step*160))}
 // Switching grinders back and forth converts from the setting you started on, so rounding never drifts.
 let SWAP=null;
 function swapGrinder(v){if(!SWAP||SWAP.b!==S.brewer||SWAP.out[S.grinder]!==S.setting)SWAP={b:S.brewer,src:{grinder:S.grinder,setting:S.setting,brewer:S.brewer},out:{[S.grinder]:S.setting}};
@@ -1926,7 +1933,7 @@ function render(){
   $('v-grind').textContent=dial(S.grinder,S.setting);drawDial('dialsvg',S.grinder,S.setting);
   const r=compute(S);
   $('v-equiv').innerHTML=equivLine(S.grinder,S.setting,S.brewer);
-  $('v-grindhint').textContent='('+S.setting+' clicks) '+(Math.abs(r.step)<0.15?'at your baseline':(r.step>0?'finer':'coarser')+' than baseline');
+  $('v-grindhint').textContent=(G.fmt==='rot'?'('+S.setting+' clicks) ':'')+(Math.abs(r.step)<0.15?'at your baseline':(r.step>0?'finer':'coarser')+' than baseline');
   const ti=$('i-temp');ti.min=B.temp.min;ti.max=B.temp.max;ti.value=S.temp;$('v-temp').textContent=S.temp+'°C';
   const ri=$('i-ratio');ri.min=B.ratio.min;ri.max=B.ratio.max;ri.step=B.ratio.step;ri.value=S.ratio;$('v-ratio').textContent='1:'+S.ratio;
   const bi=$('i-bloom');bi.min=B.bloom.min;bi.max=B.bloom.max;bi.step=B.bloom.max<=20?1:5;bi.value=S.bloom;$('v-bloom').textContent=S.bloom+'s';
@@ -1946,8 +1953,10 @@ function render(){
   if(P.funk>=1.2&&r.D>0.45)ch.push('harsh ferment');
   $('o-chips').innerHTML=[...new Set(ch)].map(c=>'<span class="chip">'+esc(c)+'</span>').join('');
   const tips=[];
-  if(Math.abs(r.D)>0.4){const t=roundG(S.grinder,S.setting+r.D/0.45*G.step);const diff=Math.abs(t-S.setting);const ta=clamp(Math.round(S.temp-r.D/0.35*3),B.temp.min,B.temp.max);
-    tips.push('To land in the sweet spot, try <b>'+gLabel(S.grinder,t)+'</b> ('+diff+' clicks '+(r.D>0?'coarser':'finer')+')'+(ta!==S.temp?', or keep the grind and move the water to <b>'+ta+'°C</b>.':'.'))}
+  if(Math.abs(r.D)>0.4){const t=roundG(S.grinder,shift(S.grinder,S.setting,r.D/0.45*160));const diff=Math.abs(t-S.setting);const ta=clamp(Math.round(S.temp-r.D/0.35*3),B.temp.min,B.temp.max);
+    const unit=(G.fmt==='rot'||G.unit==='clicks'?'click':'step')+(diff===1?'':'s'),way=r.D>0?'coarser':'finer';
+    if(diff)tips.push('To land in the sweet spot, try <b>'+gLabel(S.grinder,t)+'</b> ('+diff+' '+unit+' '+way+')'+(ta!==S.temp?', or keep the grind and move the water to <b>'+ta+'°C</b>.':'.'));
+    else tips.push('The '+esc(G.name)+' is at the '+(r.D>0?'coarse':'fine')+' end of its range here'+(ta!==S.temp?', so move the water to <b>'+ta+'°C</b> instead.':'. Try another grinder or brewer.'))}
   if(r.clarity<4&&r.body>6.5&&B.ratio.ref>10)tips.push('Body is crowding out detail. The ZP6 Special, V60, V60 NEO or Chemex will separate the flavours more.');
   if(r.body<3.5&&r.D>-0.45&&B.ratio.ref>10)tips.push('Balanced but light. The K-Ultra, an immersion brewer or a tighter ratio will add weight.');
   if(P.funk>=1.2&&S.temp>92)tips.push(P.name+' coffees get harsh with hot water. Try 88 to 91°C.');
@@ -2021,7 +2030,7 @@ function plan(c){
   const agv={low:-0.25,med:0,high:0.25}[agit], roastE={light:0,medium:0.25,dark:0.6}[c.roast];
   const rest=(temp-r.temp)/3*0.35+(bloom-B.bloom.def)/15*0.12+agv+(ratio-r.water/r.dose)*B.ratio.k+roastE-(P.t+Vp.t);
   const step=r.off+(Dt-rest)/0.45;
-  const set={};for(const g of new Set([...MYG,grinder]))set[g]=canGrind(g,r.b)?roundG(g,baseX(g,r.b)-step*GRINDERS[g].step):null;
+  const set={};for(const g of new Set([...MYG,grinder]))set[g]=canGrind(g,r.b)?roundG(g,shift(g,baseX(g,r.b),-step*160)):null;
   const water=Math.round(r.dose*ratio*10)/10;
   const st={grinder,setting:set[grinder],brewer:r.b,temp,ratio,bloom,agit,roast:c.roast,process:c.process,variety:c.variety,rec:c.tech};
   const tw=[],k=r.kind,gl=c.goal;
@@ -2183,7 +2192,7 @@ function openRecipeEditor(r,fresh){const isNew=!r||fresh;r=Object.assign({b:'v60
 $('r-new').onclick=()=>openRecipeEditor(null);
 // Save the current dial-in as a starting recipe.
 $('tosave').onclick=()=>{const B=BREWERS[S.brewer],dose=B.ratio.ref<5?18:B.ratio.ref<10?20:15,water=Math.round(dose*S.ratio),bloom=Math.round(dose*2.5);
-  const off=Math.round((base(S.grinder,S.brewer)-S.setting)/GRINDERS[S.grinder].step*10)/10;
+  const off=Math.round(stepsBetween(S.grinder,baseX(S.grinder,S.brewer),S.setting)*10)/10;
   openRecipeEditor({b:S.brewer,name:'My '+B.name+' recipe',dose,water,temp:S.temp,off,steps:['0:00 pour '+bloom+'g, bloom.','0:'+String(S.bloom).padStart(2,'0')+' pour to '+Math.round(water*0.6)+'g.','1:30 pour to '+water+'g.','3:00 finished.'],why:PROCESSES[S.process].name+' '+vName(S.variety)+', '+S.roast+' roast.'},true)};
 // Share links carry the recipe itself, so anyone can add it with one tap.
 const b64u={enc:o=>btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''),dec:s=>JSON.parse(decodeURIComponent(escape(atob(s.replace(/-/g,'+').replace(/_/g,'/')))))};
@@ -2260,7 +2269,7 @@ function grinderSelect(id,val,short){return '<select id="'+id+'">'+[['manual','M
 let MATCH={g:null,v:'',to:null};
 // A setting on grinder g as steps on grinder h. Measured from each grinder's V60 setting (yours, if you calibrated it),
 // so the Match tool, dial-in and recipes all agree.
-function matchSteps(g,c,h){const bg=baseX(g,'v60'),bh=baseX(h,'v60');return bg==null||bh==null?stepsFor(h,sizeOf(g,c)):bh+(c-bg)*GRINDERS[g].k/GRINDERS[h].k}
+function matchSteps(g,c,h){const bg=baseX(g,'v60'),bh=baseX(h,'v60');return bg==null||bh==null?stepsFor(h,sizeOf(g,c)):shift(h,bh,sizeOf(g,c)-sizeOf(g,bg))}
 function matchVal(g,c,h){const v=matchSteps(g,c,h),H=GRINDERS[h],size=sizeOf(g,c);return v>=H.min-0.5&&v<=H.max+0.5&&(size>=V60_SIZE*0.6||H.espresso)?roundG(h,v):null}
 function renderMatch(){if(!MATCH.g||!GRINDERS[MATCH.g])MATCH={g:MYG[0],v:dial(MYG[0],startFor(MYG[0])),to:null};
   if(!MATCH.to||!GRINDERS[MATCH.to]||MATCH.to===MATCH.g)MATCH.to=MYG.find(h=>h!==MATCH.g)||(MATCH.g==='kultra'?'zp6':'kultra');
@@ -2326,7 +2335,7 @@ function renderCustomForm(){
     if(v6==null){toast('Add your V60 setting, it anchors everything');return}if(mn==null||mx==null||mx<=mn){toast('Check the finest and coarsest settings');return}
     let k=30;if(rf!=null&&rf!==v6){const E=brewSize(rt);k=(E-V60_SIZE)/(rf-v6);if(!(k>0)){toast('That setting should be '+(rt==='frenchpress'?'coarser':'finer')+' than your V60 setting');return}}
     Object.assign(G,{min:mn,max:mx,v60:v6,k:Math.round(k*10)/10,espresso:rt==='espresso'&&rf!=null,range:'V60 '+$('cg-v60').value+(rf!=null?', '+BREWERS[rt].name+' '+$('cg-ref').value:'')});
-    const id='c'+Date.now().toString(36);CUSTOM_G[id]=G;save('bb-custom-grinders',CUSTOM_G);G.step=160/G.k;GRINDERS[id]=G;setMine(id,true,true);grindersChanged();
+    const id='c'+Date.now().toString(36);CUSTOM_G[id]=G;save('bb-custom-grinders',CUSTOM_G);GRINDERS[id]=G;setMine(id,true,true);grindersChanged();
     $('gcustom').open=false;toast(name+' added to your grinders');GLF='all';renderLibrary()}}
 function renderGearBrewers(){
   const types=[...new Set(Object.values(BREWERS).map(b=>b.type))];
@@ -2529,7 +2538,7 @@ function renderTS(sel){
   $('ts-chips').innerHTML=TS.map(t=>'<button class="chip" data-ts="'+t[0]+'" style="'+(sel===t[0]?'background:var(--cherry);color:var(--surface)':'')+'">'+t[1]+'</button>').join('');
   if(!sel){$('ts-out').innerHTML='';return}
   const t=TS.find(x=>x[0]===sel),G=GRINDERS[S.grinder],B=BREWERS[S.brewer];const dir=t[2]>0?1:-1;
-  const newG=roundG(S.grinder,S.setting+dir*Math.round(Math.abs(t[2])*G.step*0.6));
+  const newG=roundG(S.grinder,shift(S.grinder,S.setting,dir*Math.abs(t[2])*160*0.6));
   const newT=clamp(S.temp-dir*2,B.temp.min,B.temp.max);
   const extra={muddy:'Or move to the ZP6 Special or a paper-filter brewer for clarity.',stall:'Also pour more gently and swirl less.',harsh:'Also shorten the bloom and pour more gently.',hollow:'Or tighten the ratio by 1.',dry:'Also reduce agitation.'}[sel]||'';
   $('ts-out').innerHTML='<div class="tip"><b>'+t[3]+'</b><br>On your current '+esc(B.name)+': try <b>'+gLabel(S.grinder,newG)+'</b> ('+Math.abs(newG-S.setting)+' clicks '+(dir>0?'coarser':'finer')+'), or water at <b>'+newT+'°C</b>. '+extra+'</div><button class="btn ghost" id="ts-apply">Apply the grind change</button>';
