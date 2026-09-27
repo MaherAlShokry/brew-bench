@@ -509,7 +509,7 @@ function buildMap(){
   svg.onmousemove=e=>{const t=e.target.closest('[data-k]');const n=$('mapname');if(t){n.textContent=(ALLO()[t.dataset.k].flag||'')+' '+ALLO()[t.dataset.k].name;n.classList.add('show')}else n.classList.remove('show')};
   svg.onmouseleave=()=>$('mapname').classList.remove('show');
   const views=[['all','World'],['africa','Africa and Arabia'],['asia','Asia and Pacific'],['americas','The Americas']];
-  $('mapzoom').className='mapbar seg';
+  $('mapzoom').className='mapbar seg filters';
   $('mapzoom').innerHTML=views.map(([k,l])=>'<button type="button" data-z="'+k+'" aria-pressed="'+(k==='all')+'">'+l+'</button>').join('')+'<button type="button" data-z="rand">Surprise me</button>';
   $('mapzoom').onclick=e=>{const b=e.target.closest('[data-z]');if(!b)return;if(b.dataset.z==='rand'){const ks=Object.keys(ALLO());let k;do{k=ks[Math.floor(Math.random()*ks.length)]}while(k===SEL);selectOrigin(k,true)}else zoomTo(b.dataset.z)};
   $('legend').innerHTML=Object.entries(REG).map(([k,r])=>'<button type="button" data-hl="'+k+'" aria-pressed="false"><i style="background:'+r.color+'"></i>'+r.name+'</button>').join('');

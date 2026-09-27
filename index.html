@@ -400,7 +400,7 @@ nav.tabs .wrap{pointer-events:auto;width:fit-content;max-width:calc(100% - 24px)
 .sharerow svg{width:26px;height:26px;fill:none;stroke:#fff;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 button,a,.tab,.chip,[role=button],input[type=range]{touch-action:manipulation}
 /* Long lists: the browser skips layout and paint for cards that are off screen. */
-#rgrid>.card,#pgrid>.card,#tgrid>.card,#vgrid>.card,#gear-brewers>.card,#people>.card{content-visibility:auto;contain-intrinsic-size:auto 420px}
+#rgrid>.card,#pgrid>.card,#tgrid>.card,#vgrid>.card,#gear-brewers>.card,#people>.card{content-visibility:auto;contain-intrinsic-block-size:auto 420px}
 @media (max-width:759px){.appbar,nav.tabs .wrap{backdrop-filter:none;-webkit-backdrop-filter:none}.appbar{background:var(--paper)}}
 /* Shared log */
 .sharepanel h3{margin:0 0 .3rem}
@@ -431,6 +431,109 @@ dialog{overscroll-behavior:contain;overflow:auto}
   .bottomnav button:active svg{transform:scale(.9)}
   #toast{bottom:calc(var(--sa-bottom) + 96px)}
   .appbar{border-bottom-color:transparent;box-shadow:0 1px 0 color-mix(in srgb,var(--line) 60%,transparent)}
+}
+
+/* ================= DESIGN SYSTEM =================
+   One set of tokens for every component:
+   radius  --r-xl 28 (sheets, hero) · --r-lg 22 (panels, cards) · --r-md 16 (tiles, inputs) · --r-sm 12 (small tiles) · pill
+   depth   --e1 resting cards · --e2 floating bars · --e3 sheets and dialogs
+   All floating chrome (top bar, result strip, nav, toast) shares one frosted "glass" surface. */
+:root{--r-xl:28px;--r-lg:22px;--r-md:16px;--r-sm:12px;--r-pill:999px;--hair:color-mix(in srgb,var(--line) 75%,transparent);
+  --e1:0 1px 2px rgba(60,40,25,.04),0 6px 20px -10px rgba(60,40,25,.16);
+  --e2:0 10px 30px -10px rgba(40,25,15,.30),0 2px 6px rgba(40,25,15,.06);
+  --e3:0 24px 60px -20px rgba(30,18,10,.45);
+  --tonal:color-mix(in srgb,var(--cherry) 11%,var(--surface));--tonal-hover:color-mix(in srgb,var(--cherry) 18%,var(--surface));
+  --glass:color-mix(in srgb,var(--surface) 90%,transparent)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--e1:0 0 0 1px rgba(255,255,255,.04),0 8px 24px -12px rgba(0,0,0,.7);--e2:0 12px 32px -10px rgba(0,0,0,.75),0 0 0 1px rgba(255,255,255,.06);--e3:0 24px 60px -18px rgba(0,0,0,.85);--tonal:color-mix(in srgb,var(--cherry) 16%,var(--surface));--tonal-hover:color-mix(in srgb,var(--cherry) 24%,var(--surface))}}
+:root[data-theme="dark"]{--e1:0 0 0 1px rgba(255,255,255,.04),0 8px 24px -12px rgba(0,0,0,.7);--e2:0 12px 32px -10px rgba(0,0,0,.75),0 0 0 1px rgba(255,255,255,.06);--e3:0 24px 60px -18px rgba(0,0,0,.85);--tonal:color-mix(in srgb,var(--cherry) 16%,var(--surface));--tonal-hover:color-mix(in srgb,var(--cherry) 24%,var(--surface))}
+
+/* Surfaces */
+.panel,.card,.treebox,.mapbox,#vcompare>.card{border-radius:var(--r-lg);border:1px solid var(--hair);box-shadow:var(--e1);background:var(--surface)}
+.card{padding:18px}
+.specs div,.stats div,.sub,.drop,.cal,.minires-tile{border-radius:var(--r-md)}
+.specs div,.stats div{background:var(--surface2);border:0}
+.tip,.fact{border-left:0;border-radius:var(--r-md);background:color-mix(in srgb,var(--honey) 12%,var(--surface));padding:12px 14px}
+.fact{background:color-mix(in srgb,var(--cherry) 9%,var(--surface))}
+section>h2,section>.twocol h2{font-size:1.55rem}
+.vcard{border-top:4px solid var(--c)}
+.grid>*,.bench>*,.twocol>*{min-width:0}
+@media (hover:hover){.hovercard:hover,.vcard:hover{box-shadow:var(--e2)}}
+
+/* Inputs */
+select,input[type=search],input[type=number],input[type=date],input[type=text],input:not([type]),textarea,.logform input{border-radius:var(--r-md)!important;border:1px solid transparent;background:var(--surface2);min-height:46px;padding:10px 14px}
+textarea{min-height:84px}
+select:hover,input:hover,textarea:hover{border-color:var(--hair)}
+input[type=range]{accent-color:var(--cherry)}
+
+/* Buttons: filled primary, soft tonal secondary, both pills */
+.btn{border-radius:var(--r-pill);min-height:44px;padding:10px 18px;border:0}
+.btn.ghost{background:var(--tonal);color:var(--cherry);border:0;box-shadow:none}
+.btn.ghost:hover{background:var(--tonal-hover)}
+.btn:disabled{opacity:.5;cursor:default}
+
+/* Option toggles (grinder, roast, agitation): an iOS-style segmented control */
+.seg:not(.filters){background:var(--surface2);border-radius:var(--r-pill);padding:4px;gap:4px;flex-wrap:nowrap}
+.seg:not(.filters) button{flex:1 1 0;min-width:0;border:0;background:transparent;border-radius:var(--r-pill);color:var(--muted);font-weight:600;padding:8px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seg:not(.filters) button[aria-pressed="true"]{background:var(--surface);color:var(--cherry);box-shadow:0 1px 2px rgba(0,0,0,.08),0 4px 12px -6px rgba(60,40,25,.35)}
+.seg:not(.filters) button:disabled{opacity:.4}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .seg:not(.filters) button[aria-pressed="true"]{background:color-mix(in srgb,var(--cherry) 26%,var(--surface2));color:var(--ink)}}
+:root[data-theme="dark"] .seg:not(.filters) button[aria-pressed="true"]{background:color-mix(in srgb,var(--cherry) 26%,var(--surface2));color:var(--ink)}
+/* Filters: pill chips, the chosen one filled */
+.seg.filters{gap:8px}
+.seg.filters button{border:0;background:var(--surface2);border-radius:var(--r-pill);padding:8px 14px;color:var(--ink);font-weight:500}
+.seg.filters button[aria-pressed="true"]{background:var(--cherry);color:var(--surface);box-shadow:0 6px 14px -8px var(--cherry)}
+
+/* Map region buttons: filter chips across the bottom of the map card */
+.mapbar{border-top:1px solid var(--hair)}
+.mapbar.seg.filters button{flex:1 1 auto}
+/* Chips, pills, tags: one pill shape */
+.chip,.pill,.meta span,.vbtn,.addcmp,.dir{border-radius:var(--r-pill)}
+.chip{background:var(--surface2);border:0;padding:5px 12px}
+button.chip:hover{background:var(--tonal-hover)}
+.meta span{padding:4px 11px;border-radius:var(--r-pill)}
+
+/* Charts: rounded tracks */
+.gauge{border-radius:var(--r-pill);height:10px}.gauge i{border-radius:var(--r-pill);width:6px;height:22px;top:-6px;transform:translateX(-3px);box-shadow:0 0 0 2px var(--surface)}
+.bar .t,.cmpbar .t{height:8px;border-radius:var(--r-pill)}.bar .t b,.cmpbar .t b{border-radius:var(--r-pill)}
+.grindtrack{border-radius:var(--r-md)}
+
+/* Lists as cards */
+.logentry{background:var(--surface);border:1px solid var(--hair);border-radius:var(--r-md);padding:14px 16px;margin:0 0 10px;box-shadow:var(--e1)}
+.logentry p{margin:.4rem 0 0}
+.qopt{border-radius:var(--r-md);border:1px solid var(--hair);background:var(--surface);padding:12px 16px}
+.scroll{border-radius:var(--r-lg);border:1px solid var(--hair);background:var(--surface);box-shadow:var(--e1);padding:4px 16px;margin:10px 0 18px}
+table.ref th{border-bottom:1px solid var(--line)}
+table.ref tr:last-child td{border-bottom:0}
+
+/* Sheets and dialogs */
+dialog#vd,dialog#timer,dialog#navsheet,dialog#sharesheet{border-radius:var(--r-xl);box-shadow:var(--e3);border:1px solid var(--hair)}
+dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.sheetlist button{border-radius:var(--r-md);border:0;background:var(--surface2)}
+.sheetlist button .ic{border-radius:var(--r-sm)}
+.vd-close{background:var(--surface2)}
+
+/* Floating toast */
+#toast{background:color-mix(in srgb,var(--ink) 88%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:var(--e2);padding:11px 18px}
+
+/* Desktop: the hero becomes a rounded card, tabs float below it */
+@media (min-width:760px){
+  .herowrap{margin:14px 14px 0;border:1px solid var(--hair);border-radius:var(--r-xl);box-shadow:var(--e1);overflow:hidden}
+  .themebtn{border:0;background:var(--glass);box-shadow:var(--e1);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+}
+
+/* Phones: floating top bar and result strip, matching the floating nav */
+@media (max-width:759px){
+  .appbar{position:sticky;top:calc(var(--sa-top) + 8px);margin:calc(var(--sa-top) + 8px) 10px 0;padding:8px 8px 8px 14px;border-radius:var(--r-lg);background:var(--glass);border:1px solid var(--hair);box-shadow:var(--e2)}
+  @supports (backdrop-filter:blur(1px)){.appbar{backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4)}}
+  .ab-btn{border:0;background:var(--tonal);color:var(--cherry);padding:8px 16px;font-weight:600}
+  .herowrap{margin:10px 10px 0;border:1px solid var(--hair);border-radius:var(--r-xl);box-shadow:var(--e1);overflow:hidden}
+  .minires{top:calc(var(--sa-top) + 76px);margin:0 -4px 14px;padding:10px 14px;border:1px solid var(--hair);border-radius:var(--r-lg);background:var(--glass);box-shadow:var(--e2)}
+  @supports (backdrop-filter:blur(1px)){.minires{backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4)}}
+  .bottomnav{border-radius:var(--r-xl);background:var(--glass);box-shadow:var(--e2)}
+  .bottomnav button{border-radius:var(--r-lg)}
+  .card{padding:16px}
+  .panel{padding:16px}
+  html{scroll-padding-top:calc(var(--sa-top) + 90px)}
 }
 </style>
 <script src="vendor/jspdf.umd.min.js" defer></script>
@@ -2006,7 +2109,7 @@ function buildMap(){
   svg.onmousemove=e=>{const t=e.target.closest('[data-k]');const n=$('mapname');if(t){n.textContent=(ALLO()[t.dataset.k].flag||'')+' '+ALLO()[t.dataset.k].name;n.classList.add('show')}else n.classList.remove('show')};
   svg.onmouseleave=()=>$('mapname').classList.remove('show');
   const views=[['all','World'],['africa','Africa and Arabia'],['asia','Asia and Pacific'],['americas','The Americas']];
-  $('mapzoom').className='mapbar seg';
+  $('mapzoom').className='mapbar seg filters';
   $('mapzoom').innerHTML=views.map(([k,l])=>'<button type="button" data-z="'+k+'" aria-pressed="'+(k==='all')+'">'+l+'</button>').join('')+'<button type="button" data-z="rand">Surprise me</button>';
   $('mapzoom').onclick=e=>{const b=e.target.closest('[data-z]');if(!b)return;if(b.dataset.z==='rand'){const ks=Object.keys(ALLO());let k;do{k=ks[Math.floor(Math.random()*ks.length)]}while(k===SEL);selectOrigin(k,true)}else zoomTo(b.dataset.z)};
   $('legend').innerHTML=Object.entries(REG).map(([k,r])=>'<button type="button" data-hl="'+k+'" aria-pressed="false"><i style="background:'+r.color+'"></i>'+r.name+'</button>').join('');
