@@ -213,6 +213,15 @@ dialog#vd::backdrop{background:rgba(20,14,10,.55)}
 .timeline .when{font-family:var(--display);font-weight:800;color:var(--cherry);font-size:.95rem}
 .timeline h3{margin:.1rem 0 .2rem}
 .timeline p{margin:0}
+.js-anim .chtl li{opacity:1;transform:none}
+.chtl li{padding-bottom:22px}
+.chrow{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));margin-top:8px}.chrow>*{min-width:0}
+.chwin{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md,16px);padding:12px 14px;box-shadow:var(--e1)}
+.chwin.next{margin-top:8px;border-style:dashed;box-shadow:none}.chwin.next b{display:block;margin-top:6px;font-family:var(--display)}
+.chwin .pill{font-size:.72rem}.chname{display:flex;align-items:center;gap:8px;margin:8px 0 2px;font-family:var(--display);font-size:1.05rem}.chname .flag{font-size:1.25rem;line-height:1}
+.chwin p{margin:.2rem 0 0}.chcoffee{font-size:.9rem}.chbtn{margin-top:10px;width:100%}
+.chcomp h3{margin:.5rem 0 .2rem}.chcount{margin:.4rem 0 0;font-weight:700;color:var(--cherry);font-family:var(--display)}
+.chgear{margin:.2rem 0 .6rem;padding-left:1.1rem}.chgear li{margin:.15rem 0}
 .twocol{display:grid;gap:26px;grid-template-columns:1fr}
 @media (min-width:960px){.twocol{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}}
 
@@ -623,6 +632,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   <button class="tab" role="tab" data-t="map" aria-selected="false">Origins map</button>
   <button class="tab" role="tab" data-t="variety" aria-selected="false">Varieties</button>
   <button class="tab" role="tab" data-t="history" aria-selected="false">History</button>
+  <button class="tab" role="tab" data-t="champs" aria-selected="false">Championships</button>
   <button class="tab" role="tab" data-t="guide" aria-selected="false">Guide</button>
   <button class="tab" role="tab" data-t="log" aria-selected="false">Log</button>
 </div></nav>
@@ -655,7 +665,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
     </div>
     <div class="stick">
       <div class="panel">
-        <svg class="cup" id="cup" viewBox="0 0 400 336" role="img" aria-label="Estimated cup profile"></svg>
+        <svg class="cup" id="cup" viewBox="0 0 420 340" role="img" aria-label="Estimated cup profile"></svg>
         <div class="verdict"><h2 id="o-verdict"></h2><p id="o-summary"></p></div>
         <div class="gauge" aria-hidden="true"><i id="o-marker"></i></div>
         <div class="gscale"><span>Under</span><span>Sweet spot</span><span>Over</span></div>
@@ -787,6 +797,16 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 </section>
 
 <!-- HISTORY -->
+<section id="champs">
+  <h2>Coffee World Championships</h2>
+  <p class="lede">Every world champion in brewing and espresso: where they won, what they brewed, and the published winning recipes, converted to your grinders.</p>
+  <div class="seg filters" id="ch-filter" style="margin:12px 0"></div>
+  <div class="grid" id="ch-about"></div>
+  <h2 style="margin-top:1.6rem">Timeline</h2>
+  <p class="hint">Newest first. Tap a champion's button for their recipe and gear, and how to brew it with yours.</p>
+  <ol class="timeline chtl" id="ch-tl"></ol>
+</section>
+
 <section id="history">
   <h2>The story of coffee</h2>
   <p class="lede">From wild Ethiopian forests to a Sufi drink in Yemen to a global crop. Almost all Arabica outside Africa traces back to a handful of seeds, which is why genetic diversity, and Ethiopia, matter so much.</p>

@@ -176,6 +176,14 @@ function settingFor(g,b,off){const bb=baseX(g,b);return bb==null?null:roundG(g,s
 function gLabel(g,v){const G=GRINDERS[g];return G.name+' '+dial(g,v)+(G.unit==='clicks'?' clicks':'')}
 /* ================= YOUR RECIPES ================= */
 // Recipes you or your team create sit after the built-in ones in RECIPES, so the timer, dial-in and planner all work with them.
+// World championship recipes join the built-in ones, so the timer, dial-in and planner work with them.
+for(const ch of CHAMPS){const r=ch.rec;if(!r)continue;
+  if(r.same){const x=RECIPES.find(q=>q.name===r.same);if(x){x.champ=ch;ch.ri=RECIPES.indexOf(x);r.b=x.b;r.off=x.off}continue}
+  // The champion's own grinder and setting set the grind when they were published; otherwise the recipe's description does.
+  const g=r.grind&&r.grind.g;r.off=g&&GRINDERS[g]&&canGrind(g,r.b)?Math.round(stepsBetween(g,baseX(g,r.b),r.grind.c)*10)/10:(r.off||0);
+  if(!r.steps||!r.water)continue;
+  RECIPES.push({b:r.b,kind:r.kind||'other',name:ch.who+' ('+COMPS[ch.c].short+' '+ch.y+')',by:ch.who+', '+ch.y+' '+COMPS[ch.c].name+' champion',off:r.off,
+    temp:r.temp||BREWERS[r.b].temp.def,temp2:r.temp2,dose:r.dose,water:r.water,why:r.why,steps:r.steps,tip:r.alt||'',champ:ch});ch.ri=RECIPES.length-1}
 const BUILTIN_N=RECIPES.length,RKINDS=['pulse','single','imm','aero','esp','hybrid','46','other'];
 const str=(v,n)=>typeof v==='string'?v.trim().slice(0,n):'';
 // Recipes can arrive from links and other phones, so every field is checked.
@@ -242,16 +250,17 @@ function liquid(D){const x=clamp(D,-2,2);const st=['#D9B35A','#C98A3E','#7A4524'
 function drawCup(r){
   // Cup on a saucer, seen from above; the flavour radar floats on the coffee and the labels sit outside the saucer.
   const ax=[['Sweetness',r.sweet],['Acidity',r.acid],['Body',r.body],['Clarity',r.clarity],['Bitterness',r.bitter]];
-  const cx=200,cy=168,R=78,ang=i=>-Math.PI/2+i*2*Math.PI/5,pt=(i,v)=>[cx+Math.cos(ang(i))*R*v/10,cy+Math.sin(ang(i))*R*v/10];
+  const cx=210,cy=172,R=64,ang=i=>-Math.PI/2+i*2*Math.PI/5,pt=(i,v)=>[cx+Math.cos(ang(i))*R*v/10,cy+Math.sin(ang(i))*R*v/10];
   const poly=v=>ax.map((a,i)=>pt(i,v==null?a[1]:v).map(n=>n.toFixed(1)).join(',')).join(' ');
   let g='';for(const k of[2.5,5,7.5,10])g+='<polygon points="'+poly(k)+'" fill="none" stroke="rgba(255,255,255,'+(k===10?.3:.16)+')"/>';
   g+=ax.map((_,i)=>{const p=pt(i,10);return'<line x1="'+cx+'" y1="'+cy+'" x2="'+p[0].toFixed(1)+'" y2="'+p[1].toFixed(1)+'" stroke="rgba(255,255,255,.16)"/>'}).join('');
   // Top and bottom labels read on one line; the side labels stack the score under the name.
-  const lab=ax.map((a,i)=>{const an=ang(i),x=(cx+Math.cos(an)*140).toFixed(1),y=cy+Math.sin(an)*140,side=Math.abs(Math.cos(an))>0.6,
-      anchor=side?(Math.cos(an)>0?'start':'end'):'middle',v='<tspan font-weight="800" fill="var(--cherry)">'+a[1].toFixed(1)+'</tspan>',T=(yy,s)=>'<text x="'+x+'" y="'+yy.toFixed(1)+'" text-anchor="'+anchor+'" font-size="13" font-weight="600" fill="var(--ink)">'+s+'</text>';
-    return side?T(y-3,a[0])+T(y+14,v):T(y+(i===0?4:10),a[0]+'  '+v)}).join('');
-  $('cup').innerHTML='<circle cx="'+cx+'" cy="'+cy+'" r="126" fill="var(--surface2)"/><circle cx="'+cx+'" cy="'+cy+'" r="104" fill="var(--paper)" stroke="var(--line)" stroke-width="2"/>'+
-   '<circle cx="'+cx+'" cy="'+cy+'" r="94" fill="'+liquid(r.D)+'" style="transition:fill .4s ease"/><circle cx="'+cx+'" cy="'+cy+'" r="94" fill="none" stroke="rgba(255,235,200,.35)" stroke-width="3"/>'+g+
+  // Labels sit well outside the saucer: the top one centred, the sides stacked, the bottom two aligned away from the saucer.
+  const lab=ax.map((a,i)=>{const an=ang(i),x=(cx+Math.cos(an)*134).toFixed(1),y=cy+Math.sin(an)*134,side=Math.abs(Math.cos(an))>0.6,
+      anchor=i===0?'middle':Math.cos(an)>0?'start':'end',v='<tspan font-weight="800" fill="var(--cherry)">'+a[1].toFixed(1)+'</tspan>',T=(yy,s)=>'<text x="'+x+'" y="'+yy.toFixed(1)+'" text-anchor="'+anchor+'" font-size="14" font-weight="600" fill="var(--ink)">'+s+'</text>';
+    return side?T(y-3,a[0])+T(y+15,v):T(y+(i===0?-2:14),a[0]+'  '+v)}).join('');
+  $('cup').innerHTML='<circle cx="'+cx+'" cy="'+cy+'" r="106" fill="var(--surface2)"/><circle cx="'+cx+'" cy="'+cy+'" r="88" fill="var(--paper)" stroke="var(--line)" stroke-width="2"/>'+
+   '<circle cx="'+cx+'" cy="'+cy+'" r="79" fill="'+liquid(r.D)+'" style="transition:fill .4s ease"/><circle cx="'+cx+'" cy="'+cy+'" r="79" fill="none" stroke="rgba(255,235,200,.35)" stroke-width="3"/>'+g+
    '<polygon points="'+poly()+'" fill="none" stroke="rgba(30,18,11,.35)" stroke-width="5" stroke-linejoin="round"/>'+
    '<polygon points="'+poly()+'" fill="rgba(255,245,225,.32)" stroke="#FFF3DD" stroke-width="2.5" stroke-linejoin="round"/>'+
    ax.map((a,i)=>{const p=pt(i,a[1]);return'<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="4" fill="#FFF3DD" stroke="rgba(30,18,11,.35)"/>'}).join('')+lab;
@@ -493,7 +502,7 @@ function paint(){const el=TM.el,m=Math.floor(el/60),s=Math.floor(el%60);$('tm-bi
 
 /* ================= TABS ================= */
 // Heavy tabs are built the first time they are opened, which keeps startup quick.
-const LAZY={gear:buildGear,recipes:renderRecipes,tech:renderTech,process:renderProcesses,variety:renderVarieties,map:buildMap,history:()=>{buildTree();startQuiz()}},BUILT={};
+const LAZY={champs:renderChamps,gear:buildGear,recipes:renderRecipes,tech:renderTech,process:renderProcesses,variety:renderVarieties,map:buildMap,history:()=>{buildTree();startQuiz()}},BUILT={};
 function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove());if(LAZY[id]&&!BUILT[id]){BUILT[id]=1;LAZY[id]()}}
 function showTab(id,fromHistory){ensureTab(id);document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x.dataset.t===id));
   document.querySelectorAll('main section').forEach(s=>s.classList.toggle('on',s.id===id));window.scrollTo({top:0});
@@ -516,8 +525,8 @@ let RF='all';
 function renderRecipes(){
   const types=[...new Set(Object.values(BREWERS).map(b=>b.type))];
   if(RF==='mine'&&!CREC.length)RF='all';
-  seg('rfilter',[['all','All']].concat(CREC.length?[['mine','Yours & team']]:[],types.map(t=>[t,t])),()=>RF,v=>{RF=v;renderRecipes()});
-  const list=RECIPES.map((r,i)=>[r,i]).filter(([r])=>RF==='all'||(RF==='mine'?r.custom:BREWERS[r.b].type===RF)).sort((a,b)=>(b[0].custom?1:0)-(a[0].custom?1:0));
+  seg('rfilter',[['all','All']].concat(CREC.length?[['mine','Yours & team']]:[],[['champ','Champions']],types.map(t=>[t,t])),()=>RF,v=>{RF=v;renderRecipes()});
+  const list=RECIPES.map((r,i)=>[r,i]).filter(([r])=>RF==='all'||(RF==='mine'?r.custom:RF==='champ'?r.champ:BREWERS[r.b].type===RF)).sort((a,b)=>(b[0].custom?1:0)-(a[0].custom?1:0));
   $('rgrid').innerHTML=list.map(([r,i])=>{const B=BREWERS[r.b];const gs=MYG.map(g=>[g,settingFor(g,r.b,r.off)]);
    return '<article class="card'+(r.custom?' mine':'')+'">'+(r.custom?'<span class="pill ours">'+esc(r.author&&r.author!==ME?'From '+r.author:'Your recipe')+'</span>':'')+'<h3>'+esc(r.name)+'</h3>'+(r.by?'<p class="hint" style="margin-top:-.2rem">'+esc(r.by)+'</p>':'')+
    '<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span>':'')+'</div>'+
@@ -528,9 +537,10 @@ function renderRecipes(){
 $('rgrid').onclick=e=>{const ed=e.target.closest('[data-redit]');if(ed){openRecipeEditor(CREC.find(r=>r.id===ed.dataset.redit));return}
   const b=e.target.closest('[data-load],[data-plan],[data-timer],[data-rshare]');if(!b)return;if(b.dataset.rshare){openShare(recipeDoc(+b.dataset.rshare));return}
   if(b.dataset.timer){openTimer(+b.dataset.timer);return}
-  if(b.dataset.load){const i=+b.dataset.load,r=RECIPES[i],B=BREWERS[r.b];S.brewer=r.b;S.rec=i;if(!canGrind(S.grinder,r.b))S.grinder=capable(r.b);S.setting=settingFor(S.grinder,r.b,r.off);S.temp=clamp(r.temp,B.temp.min,B.temp.max);S.bloom=B.bloom.def;S.agit='med';
-    S.ratio=clamp(Math.round(r.water/r.dose/B.ratio.step)*B.ratio.step,B.ratio.min,B.ratio.max);render();showTab('dial');toast('Loaded '+r.name)}
-  else{const i=+b.dataset.plan,r=RECIPES[i];PL.brewer=r.b==='swi'?'sw':r.b;PL.tech=i;if(!canGrind(PL.grinder,PL.brewer))PL.grinder=capable(PL.brewer);renderPlan();showTab('planner')}};
+  if(b.dataset.load)loadRecipe(+b.dataset.load);else planRecipe(+b.dataset.plan)};
+function loadRecipe(i){const r=RECIPES[i],B=BREWERS[r.b];S.brewer=r.b;S.rec=i;if(!canGrind(S.grinder,r.b))S.grinder=capable(r.b);S.setting=settingFor(S.grinder,r.b,r.off);S.temp=clamp(r.temp,B.temp.min,B.temp.max);S.bloom=B.bloom.def;S.agit='med';
+  S.ratio=clamp(Math.round(r.water/r.dose/B.ratio.step)*B.ratio.step,B.ratio.min,B.ratio.max);render();showTab('dial');toast('Loaded '+r.name)}
+function planRecipe(i){const r=RECIPES[i];PL.brewer=r.b==='swi'?'sw':r.b;PL.tech=i;if(!canGrind(PL.grinder,PL.brewer))PL.grinder=capable(PL.brewer);renderPlan();showTab('planner')}
 
 /* ---------- Creating, editing and sharing recipes ---------- */
 function recipesChanged(){syncRecipes();if(S.rec!=null&&!RECIPES[S.rec])S.rec=null;if(BUILT.recipes)renderRecipes();renderPlan();render()}
@@ -1262,9 +1272,45 @@ $('sharesheet').addEventListener('click',async e=>{const d=$('sharesheet');if(e.
     catch(err){if(!err||err.name!=='AbortError')toast('Sharing isn\u2019t allowed here; use Save as PDF instead')}}
 });
 
+/* ================= WORLD CHAMPIONSHIPS ================= */
+let CHF='all';
+function renderChamps(){
+  seg('ch-filter',[['all','All']].concat(Object.entries(COMPS).map(([k,c])=>[k,c.short])),()=>CHF,v=>{CHF=v;renderChamps()});
+  $('ch-about').innerHTML=Object.entries(COMPS).filter(([k])=>CHF==='all'||CHF===k).map(([k,c])=>'<div class="card chcomp"><span class="pill"><i style="background:'+c.color+'"></i>Since '+c.since+'</span><h3>'+esc(c.name)+'</h3><p class="hint">'+esc(c.about)+'</p><p class="chcount">'+CHAMPS.filter(x=>x.c===k).length+' champions</p></div>').join('');
+  const years=[...new Set(CHAMPS.map(x=>x.y).concat(CH_GAPS.map(g=>g[0]),CH_NEXT.map(n=>n.y)))].sort((a,b)=>b-a),on=k=>CHF==='all'||CHF===k;
+  const card=ch=>{const C=COMPS[ch.c];return '<div class="chwin"><span class="pill"><i style="background:'+C.color+'"></i>'+C.short+'</span><div class="chname"><span class="flag" aria-hidden="true">'+(FLAGS[ch.from]||'')+'</span><b>'+esc(ch.who)+'</b></div>'+
+    '<p class="hint">'+esc(ch.from)+' · '+esc(ch.city)+'</p>'+(ch.coffee?'<p class="chcoffee">'+esc(ch.coffee)+'</p>':'')+(ch.note?'<p class="hint">'+esc(ch.note)+'</p>':'')+
+    (ch.rec?'<button type="button" class="btn ghost chbtn" data-champ="'+CHAMPS.indexOf(ch)+'">'+(ch.ri!=null?'Winner’s recipe':'What they used')+'</button>':'')+'</div>'};
+  $('ch-tl').innerHTML=years.map(y=>{const w=CHAMPS.filter(x=>x.y===y&&on(x.c)),n=CH_NEXT.filter(x=>x.y===y&&on(x.c)),gp=CH_GAPS.filter(g=>g[0]===y&&on(g[1]));
+    if(!w.length&&!n.length&&!gp.length)return'';
+    return '<li><span class="when">'+y+'</span>'+n.map(x=>'<div class="chwin next"><span class="pill"><i style="background:'+COMPS[x.c].color+'"></i>Coming up</span><b>'+esc(COMPS[x.c].name)+'</b><p class="hint">'+esc(x.city)+' · '+esc(x.when)+'</p></div>').join('')+
+      (w.length?'<div class="chrow">'+w.map(card).join('')+'</div>':'')+gp.map(g=>'<p class="hint">'+esc(g[2])+'</p>').join('')+'</li>'}).join('')}
+$('ch-tl').onclick=e=>{const b=e.target.closest('[data-champ]');if(b)openChamp(CHAMPS[+b.dataset.champ])};
+function openChamp(ch){const C=COMPS[ch.c],r=ch.rec,R=ch.ri!=null?RECIPES[ch.ri]:null,b=R?R.b:r.b,B=BREWERS[b],d=$('vd');
+  const dose=R?R.dose:r.dose,water=R?R.water:r.water,temp=R?R.temp:r.temp,temp2=R?R.temp2:r.temp2,steps=R?R.steps:r.steps,why=R?R.why:r.why,off=R?R.off:(r.off||0);
+  const g=r.grind&&r.grind.g&&GRINDERS[r.grind.g]?r.grind.g:null;
+  // Your grinders: the champion's exact grind when their grinder and setting were published, otherwise a starting point for this brewer.
+  const rows=MYG.map(h=>{const v=g?matchVal(g,r.grind.c,h):canGrind(h,b)?settingFor(h,b,off):null;
+    return '<div class="mrow mine"><span>'+esc(GRINDERS[h].name)+'</span><b>'+(v!=null?esc(dial(h,v))+(GRINDERS[h].unit==='clicks'?' <small>clicks</small>':''):'<small>can’t reach this grind</small>')+'</b></div>'}).join('');
+  const temps=temp?temp+'°C'+(temp2?' then '+temp2+'°C':''):'';
+  const gear=(r.gear||[]).concat(r.grind&&r.grind.label&&!/not published/i.test(r.grind.label)&&!(r.gear||[]).some(x=>r.grind.label.startsWith(x))?['Grind: '+r.grind.label]:[]);
+  d.querySelector('#vd-in').innerHTML='<div class="vd-head" style="--c:'+C.color+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:'+C.color+'"></i>'+esc(C.name)+' '+ch.y+'</span>'+
+   '<h2 id="vd-title">'+(FLAGS[ch.from]||'')+' '+esc(ch.who)+'</h2><div class="meta"><span>'+esc(ch.from)+'</span><span>'+esc(ch.city)+'</span></div></div><div class="vd-body">'+
+   (ch.coffee?'<p><b>The coffee.</b> '+esc(ch.coffee)+'</p>':'')+
+   '<h3>Gear they used</h3><ul class="chgear">'+gear.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>'+
+   '<h3>The recipe</h3><div class="meta">'+(dose&&water?'<span>'+dose+'g : '+water+'g</span>':dose?'<span>'+dose+'g coffee</span>':'')+(temps?'<span>'+temps+(r.tNote?' ('+esc(r.tNote)+')':'')+'</span>':'<span>Temperature not published</span>')+(r.time?'<span>'+esc(r.time)+'</span>':'')+'</div>'+
+   (why?'<p>'+esc(why)+'</p>':'')+(steps?'<ol class="steps">'+steps.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol>':'<p class="hint">The full step-by-step was not published.</p>')+
+   '<h3>Match it with your gear</h3><p class="hint" style="margin-top:0">'+(g?'Converted from the champion’s '+esc(r.grind.label)+'.':'The champion’s grind: '+esc(r.grind?r.grind.label:'not published')+'. These are starting points for a '+esc(B.name)+' on your grinders; adjust by taste.')+'</p>'+rows+
+   '<p class="hint">Brews as the <b>'+esc(B.name)+'</b> in this app.'+(r.alt?' '+esc(r.alt):'')+'</p>'+
+   '<div class="actions">'+(R?'<button type="button" class="btn" data-ca="timer">Start timer</button>':'')+(R&&B.model?'<button type="button" class="btn ghost" data-ca="load">Load into dial-in</button>':'')+
+   (R&&PBREWERS.includes(b==='swi'?'sw':b)?'<button type="button" class="btn ghost" data-ca="plan">Tune in planner</button>':'')+(g?'<button type="button" class="btn ghost" data-ca="match">All grinders</button>':'')+'</div></div>';
+  d.querySelector('.actions').onclick=e=>{const a=e.target.closest('[data-ca]');if(!a)return;const k=a.dataset.ca;d.close();
+    if(k==='timer')openTimer(ch.ri);else if(k==='load')loadRecipe(ch.ri);else if(k==='plan')planRecipe(ch.ri);else openMatch(g,r.grind.c)};
+  if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
+
 /* ================= APP SHELL ================= */
 /* Line icons for the sheets, drawn to match the bottom navigation. */
-const ICO={globe:'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M3 12h18 M12 3c3 3.5 3 14.5 0 18 M12 3c-3 3.5-3 14.5 0 18',leaf:'M5 19c0-8 5-14 14-14c0 9-6 14-14 14z M5 19l8-8',
+const ICO={trophy:'M8 4h8v5a4 4 0 0 1-8 0z M8 6H5a3 3 0 0 0 3 4 M16 6h3a3 3 0 0 1-3 4 M12 13v4 M8 21h8 M9 17h6',globe:'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M3 12h18 M12 3c3 3.5 3 14.5 0 18 M12 3c-3 3.5-3 14.5 0 18',leaf:'M5 19c0-8 5-14 14-14c0 9-6 14-14 14z M5 19l8-8',
   hourglass:'M7 3h10 M7 21h10 M8 3v3l4 6 4-6V3 M8 21v-3l4-6 4 6v3',flask:'M9 3h6 M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3 M7.5 15h9',drop:'M12 3c3 4 6 7.5 6 11a6 6 0 0 1-12 0c0-3.5 3-7 6-11z',
   clipboard:'M9 3h6v3H9z M7 4.5H5V21h14V4.5h-2 M8 11h8 M8 15h8 M8 19h5',cog:'M12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6z M12 2v3 M12 19v3 M2 12h3 M19 12h3 M4.9 4.9L7 7 M17 17l2.1 2.1 M4.9 19.1L7 17 M17 7l2.1-2.1',
   book:'M4 19V5a2 2 0 0 1 2-2h13v14H6a2 2 0 0 0-2 2a2 2 0 0 0 2 2h13 M8 7h7',pencil:'M4 20h4L19 9l-4-4L4 16z M13 7l4 4',moon:'M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z',
@@ -1274,12 +1320,12 @@ const ICO={globe:'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M3 12h18 M12 3c3 3.5 3 14
 const installed=()=>!!window.Capacitor||MQ('(display-mode: standalone)')||navigator.standalone===true;
 const ico=(n,bg)=>'<span class="ic" style="background:'+bg+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+ICO[n]+'"/></svg></span>';
 
-const TABNAMES={dial:'Dial-in',planner:'Brew planner',scan:'Scan beans',gear:'Gear and dials',recipes:'Recipes',tech:'Techniques',process:'Processes',map:'Origins map',variety:'Varieties',history:'History',guide:'Guide',log:'Brew log'};
-const BNGROUP={dial:'dial',recipes:'recipes',scan:'scan',map:'explore',variety:'explore',history:'explore',process:'explore',tech:'explore',planner:'more',gear:'more',guide:'more',log:'more'};
+const TABNAMES={champs:'World championships',dial:'Dial-in',planner:'Brew planner',scan:'Scan beans',gear:'Gear and dials',recipes:'Recipes',tech:'Techniques',process:'Processes',map:'Origins map',variety:'Varieties',history:'History',guide:'Guide',log:'Brew log'};
+const BNGROUP={champs:'explore',dial:'dial',recipes:'recipes',scan:'scan',map:'explore',variety:'explore',history:'explore',process:'explore',tech:'explore',planner:'more',gear:'more',guide:'more',log:'more'};
 function syncShell(id){$('ab-title').textContent=TABNAMES[id]||'Brew Bench';document.body.className=document.body.className.replace(/\bt-\w+/g,'').trim()+' t-'+id;
   document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));
   const can=['dial','planner','scan','history','log','map','recipes'].includes(id);$('ab-share').hidden=!can}
-const SHEETS={explore:[['map','Origins map','50 origins on an interactive map','#4F8A74','globe'],['variety','Varieties','44 varieties, stories and Geisha types','#B5533C','leaf'],['history','History','Family tree, timeline and a quiz','#8A5A3B','hourglass'],['process','Processes','From washed to thermal shock','#D2A04A','flask'],['tech','Techniques','Every move in the brewing toolbox','#6B8E4E','drop']],
+const SHEETS={explore:[['map','Origins map','50 origins on an interactive map','#4F8A74','globe'],['variety','Varieties','44 varieties, stories and Geisha types','#B5533C','leaf'],['history','History','Family tree, timeline and a quiz','#8A5A3B','hourglass'],['process','Processes','From washed to thermal shock','#D2A04A','flask'],['tech','Techniques','Every move in the brewing toolbox','#6B8E4E','drop'],['champs','World championships','Every champion, their recipes and gear','#C9964A','trophy']],
   more:[['planner','Brew planner','A recipe tuned to your coffee','#8A5A3B','clipboard'],['gear','Gear and dials','Grinders, brewers and dial reading','#6E8FA8','cog'],['guide','Guide','Ratio calculator and troubleshooting','#C9964A','book'],['log','Brew log','Your brews, ratings and exports','#6B8E4E','pencil']]};
 function openSheet(which){const items=SHEETS[which];
   $('ns-in').innerHTML='<div class="sheet"><div class="grab"></div><button class="vd-close" id="ns-x" aria-label="Close">\u2715</button><h2 id="ns-title" style="margin:0 40px 0 0">'+(which==='explore'?'Explore':'More')+'</h2><div class="sheetlist">'+
