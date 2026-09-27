@@ -25,7 +25,7 @@ Both update automatically whenever `main` changes.
 | **Origins map** | 50 coffee origins on an interactive, colour-coded world map |
 | **Varieties** | 44 varieties with stories, Geisha types and side-by-side comparison |
 | **History** | A clickable variety family tree, a timeline, key people and a quiz |
-| **World championships** | Every World Brewers Cup, World AeroPress and World Barista champion with the host city, their coffee and gear, and the published winning recipes. Each recipe converts the champion's grind to your grinders and opens in the timer, dial-in or planner |
+| **World championships** | Every World Brewers Cup, World AeroPress and World Barista champion on a timeline with a live countdown to the next final, filters by championship and brewer, and a recipe sheet for every champion: their coffee, gear and published recipe (or a marked starting point in the same style), adapted to the brewers and grinders you own |
 | **Guide** | Ratio calculator and a taste-based troubleshooter |
 | **Log** | Rated brew log with stats and CSV export, shared live with friends through a group code |
 

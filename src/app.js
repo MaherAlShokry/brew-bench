@@ -184,6 +184,8 @@ for(const ch of CHAMPS){const r=ch.rec;if(!r)continue;
   if(!r.steps||!r.water)continue;
   RECIPES.push({b:r.b,kind:r.kind||'other',name:ch.who+' ('+COMPS[ch.c].short+' '+ch.y+')',by:ch.who+', '+ch.y+' '+COMPS[ch.c].name+' champion',off:r.off,
     temp:r.temp||BREWERS[r.b].temp.def,temp2:r.temp2,dose:r.dose,water:r.water,why:r.why,steps:r.steps,tip:r.alt||'',champ:ch});ch.ri=RECIPES.length-1}
+// Where a champion's full recipe was not published, a similar recipe already in the app is the starting point.
+for(const ch of CHAMPS){const s=ch.rec&&ch.rec.start;if(s){const i=RECIPES.findIndex(q=>q.name===s);if(i>=0)ch.si=i}}
 const BUILTIN_N=RECIPES.length,RKINDS=['pulse','single','imm','aero','esp','hybrid','46','other'];
 const str=(v,n)=>typeof v==='string'?v.trim().slice(0,n):'';
 // Recipes can arrive from links and other phones, so every field is checked.
@@ -654,7 +656,7 @@ function matchVal(g,c,h){const v=matchSteps(g,c,h),H=GRINDERS[h],size=sizeOf(g,c
 function renderMatch(){if(!MATCH.g||!GRINDERS[MATCH.g])MATCH={g:MYG[0],v:dial(MYG[0],startFor(MYG[0])),to:null};
   if(!MATCH.to||!GRINDERS[MATCH.to]||MATCH.to===MATCH.g)MATCH.to=MYG.find(h=>h!==MATCH.g)||(MATCH.g==='kultra'?'zp6':'kultra');
   $('gmatch').innerHTML='<h3 style="margin-top:0">Match a grind size</h3><p class="hint" style="margin-top:0">Type a setting on one grinder to get the same grind on another. For 1Zpresso dials, type the dial (5.4) or clicks (54).</p>'+
-   '<div class="mswap"><div class="field"><label for="gm-from">From</label>'+grinderSelect('gm-from',MATCH.g,1)+'</div><button type="button" class="chip" id="gm-swap" aria-label="Swap grinders">⇄</button><div class="field"><label for="gm-to">To</label>'+grinderSelect('gm-to',MATCH.to,1)+'</div></div>'+
+   '<div class="mswap"><div class="field"><label for="gm-from">From</label>'+grinderSelect('gm-from',MATCH.g,1)+'</div><button type="button" class="gpick-btn mswapbtn" id="gm-swap" aria-label="Swap grinders" title="Swap grinders">'+SWAP_ICON+'</button><div class="field"><label for="gm-to">To</label>'+grinderSelect('gm-to',MATCH.to,1)+'</div></div>'+
    '<div class="field"><label for="gm-val">Setting on the '+esc(GRINDERS[MATCH.g].name)+'</label><input id="gm-val" inputmode="decimal" style="width:100%" value="'+esc(MATCH.v)+'"></div><div id="gm-out"></div>';
   $('gm-from').onchange=e=>{MATCH.g=e.target.value;MATCH.v=dial(MATCH.g,startFor(MATCH.g));renderMatch()};
   $('gm-to').onchange=e=>{MATCH.to=e.target.value;if(MATCH.to===MATCH.g){MATCH.g=MYG.find(h=>h!==MATCH.to)||'zp6';MATCH.v=dial(MATCH.g,startFor(MATCH.g))}renderMatch()};
@@ -737,7 +739,7 @@ function renderCustomForm(){
    '<div class="two"><div class="field"><label for="cg-type">Type</label><select id="cg-type"><option value="manual">Manual</option><option value="electric">Electric</option></select></div>'+
    '<div class="field"><label for="cg-fmt">How is it set?</label><select id="cg-fmt"><option value="clicks">Clicks from fully closed</option><option value="num1">Numbered dial (1, 2, 3)</option><option value="num10">Numbered dial with 10 steps (5.6)</option><option value="num3">Numbered dial with thirds (4, 4.1, 4.2)</option><option value="rot">1Zpresso-style ring (rotation.number.click)</option></select></div></div>'+
    '<div class="two"><div class="field"><label for="cg-min">Finest setting</label><input id="cg-min" inputmode="decimal" value="0"></div><div class="field"><label for="cg-max">Coarsest setting</label><input id="cg-max" inputmode="decimal" value="40"></div></div>'+
-   '<div class="two"><div class="field"><label for="cg-v60">Your V60 setting</label><input id="cg-v60" inputmode="decimal" placeholder="e.g. 24"></div>'+
+   '<div class="two stackm"><div class="field"><label for="cg-v60">Your V60 setting</label><input id="cg-v60" inputmode="decimal" placeholder="e.g. 24"></div>'+
    '<div class="field"><label for="cg-ref">And one more you know</label><div class="joinrow"><select id="cg-reft"><option value="espresso">Espresso</option><option value="aeropress">AeroPress</option><option value="frenchpress" selected>French press</option></select><input id="cg-ref" inputmode="decimal" placeholder="optional"></div></div></div>'+
    '<div class="field"><label for="cg-burr">Burrs (optional)</label><input id="cg-burr" maxlength="80" placeholder="e.g. 38 mm ceramic conical"></div>'+
    '<p class="hint">The V60 setting anchors it; the second setting tells the app how far apart the settings are. Without it, the app assumes a typical spacing.</p>'+
@@ -1331,10 +1333,10 @@ function renderChamps(){fetchEvents();
   $('ch-about').innerHTML=Object.entries(COMPS).filter(([k])=>CHF==='all'||CHF===k).map(([k,c])=>'<div class="card chcomp"><span class="pill"><i style="background:'+c.color+'"></i>Since '+c.since+'</span><h3>'+esc(c.name)+'</h3><p class="hint">'+esc(c.about)+'</p><p class="chcount">'+CHAMPS.filter(x=>x.c===k).length+' champions</p></div>').join('');
   const on=ch=>(CHF==='all'||ch.c===CHF)&&(CHB==='all'||(CHB==='mine'?MYB.includes(chBrewer(ch)):chDev(ch)===CHB));
   const years=[...new Set(CHAMPS.map(x=>x.y).concat(CH_GAPS.map(g=>g[0])))].sort((a,b)=>b-a);
-  const card=ch=>{const C=COMPS[ch.c],mine=MYB.includes(chBrewer(ch));return '<div class="chwin"><span class="pill"><i style="background:'+C.color+'"></i>'+C.short+'</span>'+(chDev(ch)?'<span class="pill chdev'+(mine?' ours':'')+'">'+esc(chDev(ch))+(mine?' ✓':'')+'</span>':'')+
+  const card=ch=>{const C=COMPS[ch.c],mine=MYB.includes(chBrewer(ch));return '<div class="chwin"><div class="chpills"><span class="pill"><i style="background:'+C.color+'"></i>'+C.short+'</span>'+(chDev(ch)&&ch.c==='wbrc'?'<span class="pill chdev">'+esc(chDev(ch))+'</span>':'')+(mine?'<span class="pill chdev ours">✓ You can brew this</span>':'')+'</div>'+
     '<div class="chname"><span class="flag" aria-hidden="true">'+(FLAGS[ch.from]||'')+'</span><b>'+esc(ch.who)+'</b></div>'+
     '<p class="hint">'+esc(ch.from)+' · '+esc(ch.city)+'</p>'+(ch.coffee?'<p class="chcoffee">'+esc(ch.coffee)+'</p>':'')+(ch.note?'<p class="hint">'+esc(ch.note)+'</p>':'')+
-    (ch.rec?'<button type="button" class="btn ghost chbtn" data-champ="'+CHAMPS.indexOf(ch)+'">'+(ch.ri!=null?'Winner’s recipe':'What they used')+'</button>':'')+'</div>'};
+    (ch.rec?'<button type="button" class="btn ghost chbtn" data-champ="'+CHAMPS.indexOf(ch)+'">Winner’s recipe</button>':'')+'</div>'};
   const html=years.map(y=>{const w=CHAMPS.filter(x=>x.y===y&&on(x)),gp=CHB==='all'?CH_GAPS.filter(g=>g[0]===y&&(CHF==='all'||g[1]===CHF)):[];
     if(!w.length&&!gp.length)return'';
     return '<li><span class="when">'+y+'</span>'+(w.length?'<div class="chrow">'+w.map(card).join('')+'</div>':'')+gp.map(g=>'<p class="hint">'+esc(g[2])+'</p>').join('')+'</li>'}).join('');
@@ -1344,12 +1346,16 @@ $('ch-tl').onclick=e=>{const b=e.target.closest('[data-champ]');if(b)openChamp(C
 const SUBS={'Cone dripper':['Cone dripper','Flat-bottom dripper','Valve and hybrid','Machine','Immersion and pressure'],'Flat-bottom dripper':['Flat-bottom dripper','Cone dripper','Valve and hybrid','Machine','Immersion and pressure'],
   'Valve and hybrid':['Valve and hybrid','Cone dripper','Flat-bottom dripper','Immersion and pressure']};
 const AERO_SUBS=['clever','swi','sw','swneo','frenchpress','siphon'];
-function adaptBrewer(b){if(!MYB.length||MYB.includes(b))return b;const B=BREWERS[b],own=MYB.filter(x=>BREWERS[x].type!=='Espresso and stovetop'&&BREWERS[x].type!=='Boiled'&&BREWERS[x].type!=='Cold');
+function adaptBrewer(b){if(!MYB.length||MYB.includes(b))return b;
+  if(b==='espresso')return['moka','aeropress','phin'].find(k=>MYB.includes(k))||null;const B=BREWERS[b],own=MYB.filter(x=>BREWERS[x].type!=='Espresso and stovetop'&&BREWERS[x].type!=='Boiled'&&BREWERS[x].type!=='Cold');
   if(!own.length)return null;
   if(b==='aeropress'){const x=AERO_SUBS.find(k=>own.includes(k));if(x)return x}
   const order=SUBS[B.type]||['Immersion and pressure','Valve and hybrid','Cone dripper','Flat-bottom dripper','Machine'];
   for(const ty of order){const x=own.find(k=>BREWERS[k].type===ty&&BREWERS[k].model!==false)||own.find(k=>BREWERS[k].type===ty);if(x)return x}return own[0]}
-function adaptNote(from,to,shift){if(from===to)return'';const F=BREWERS[from],T=BREWERS[to],way=shift>40?'a little coarser':shift<-40?'a little finer':'about the same';
+function adaptNote(from,to,shift){if(from===to)return'';
+  if(from==='espresso')return to==='moka'?'No espresso machine: a moka pot makes the closest strong, rich coffee. Use a fine grind, don’t tamp, and take it off the heat as soon as it starts to sputter.'
+    :to==='aeropress'?'No espresso machine: brew a short, strong AeroPress with a fine grind and about three times the dose in water. It won’t have crema, but it is close in strength.'
+    :'No espresso machine: brew a small, strong phin with a fine grind. It is close in strength, not in texture.';const F=BREWERS[from],T=BREWERS[to],way=shift>40?'a little coarser':shift<-40?'a little finer':'about the same';
   if(from==='aeropress'){if(['clever','sw','swi','swneo'].includes(to))return'Steep with the valve closed for the same time, then open it instead of pressing, and add the same bypass water afterwards.';
     if(to==='frenchpress')return'Steep for the same time, plunge gently and pour through a paper filter if you can, then add the same bypass water.';
     if(to==='siphon')return'Steep in the top chamber for the same time, then let it draw down, and add the same bypass water.';
@@ -1360,8 +1366,13 @@ function adaptNote(from,to,shift){if(from===to)return'';const F=BREWERS[from],T=
   if(F.type==='Cone dripper'&&T.type==='Flat-bottom dripper')return'Keep the same pours, aimed at the centre of the flat bed. The grind below is '+way+', to suit your brewer.';
   if(F.type==='Flat-bottom dripper'&&T.type==='Cone dripper')return'Keep the same pours, gently, so the cone drains evenly. The grind below is '+way+', to suit your brewer.';
   return'This brewer works quite differently, so treat the settings as a starting point and adjust by taste.'}
-function openChamp(ch){const C=COMPS[ch.c],r=ch.rec,R=ch.ri!=null?RECIPES[ch.ri]:null,b=R?R.b:r.b,d=$('vd');
-  const dose=R?R.dose:r.dose,water=R?R.water:r.water,temp=R?R.temp:r.temp,temp2=R?R.temp2:r.temp2,steps=R?R.steps:r.steps,why=R?R.why:r.why,off=R?R.off:(r.off||0);
+// Generic brewer names read in lower case mid-sentence ("your moka pot"); named products keep their capitals.
+const brewName=s=>{s=s.replace(/, (hybrid|full immersion)$/,'');return /^(Espresso machine|French press|Moka pot|Batch brewer|Cold brew|Siphon|Vietnamese phin|Dallah|Cezve)/.test(s)?s.charAt(0).toLowerCase()+s.slice(1):s};
+const art=s=>/^(UFO|U[a-z]|Eu)/.test(s)?'a':/^[AEIOU]/i.test(s)?'an':'a';
+// Grind descriptions start mid-sentence: "The champion's grind: about 700 microns".
+const lcGrind=s=>/^(About|Not|Medium|Coarse|Fine|Ground|Slightly|Sifted)\b/.test(s)?s.charAt(0).toLowerCase()+s.slice(1):s;
+function openChamp(ch){const C=COMPS[ch.c],r=ch.rec,R=ch.ri!=null?RECIPES[ch.ri]:null,St=!R&&ch.si!=null?RECIPES[ch.si]:null,U=R||St,ui=R?ch.ri:ch.si,b=R?R.b:r.b,d=$('vd');
+  const dose=R?R.dose:r.dose,water=R?R.water:r.water,temp=r.temp===null?null:R?R.temp:r.temp,temp2=r.temp===null?null:R?R.temp2:r.temp2,steps=R?R.steps:r.steps,why=R?R.why||r.why:r.why,off=R?R.off:St?St.off:(r.off||0);
   const g=r.grind&&r.grind.g&&GRINDERS[r.grind.g]?r.grind.g:null;
   // Your gear: the brewer you own that is closest to theirs, and your grinders set for it.
   const nb=adaptBrewer(b),useB=nb||b,sub=nb&&nb!==b,shift=(brewSize(useB)??0)-(brewSize(b)??0);
@@ -1369,27 +1380,30 @@ function openChamp(ch){const C=COMPS[ch.c],r=ch.rec,R=ch.ri!=null?RECIPES[ch.ri]
   const rows=MYG.map(h=>{const v=setOn(h);return '<div class="mrow mine"><span>'+esc(GRINDERS[h].name)+'</span><b>'+(v!=null?esc(dial(h,v))+(GRINDERS[h].unit==='clicks'?' <small>clicks</small>':''):'<small>can’t reach this grind</small>')+'</b></div>'}).join('');
   const temps=temp?temp+'°C'+(temp2?' then '+temp2+'°C':''):'';
   const gear=(r.gear||[]).concat(r.grind&&r.grind.label&&!/not published/i.test(r.grind.label)&&!(r.gear||[]).some(x=>r.grind.label.startsWith(x))?['Grind: '+r.grind.label]:[]);
-  const brewLine=!MYB.length?'<p class="hint">They brewed on a <b>'+esc(r.gear&&r.gear[0]||BREWERS[b].name)+'</b>. <button type="button" class="linkbtn" data-ca="gear">Tell the app which brewers you have</button> and the recipe adapts to them.</p>'
+  const theirs=brewName(chDev(ch)||BREWERS[b].name);
+  const brewLine=!MYB.length?'<p class="hint">They brewed on '+art(theirs)+' <b>'+esc(theirs)+'</b>. <button type="button" class="linkbtn" data-ca="gear">Tell the app which brewers you have</button> and the recipe adapts to them.</p>'
     :nb===null?'<p class="hint">None of your brewers suit this recipe. <button type="button" class="linkbtn" data-ca="gear">Edit your gear</button></p>'
-    :sub?'<p><b>Brew it on your '+esc(BREWERS[nb].name)+'</b> instead of their '+esc(r.gear&&r.gear[0]||BREWERS[b].name)+'. '+esc(adaptNote(b,nb,shift))+'</p>'
-    :'<p><b>You have the right brewer</b>: brew it on your '+esc(BREWERS[b].name)+(r.gear&&r.gear[0]&&!r.gear[0].startsWith(BREWERS[b].name)?' (they used a '+esc(r.gear[0])+')':'')+'.</p>';
-  const R2=R&&BREWERS[useB].model;
+    :sub?'<p><b>Brew it on your '+esc(brewName(BREWERS[nb].name))+'</b> instead of their '+esc(theirs)+'. '+esc(adaptNote(b,nb,shift))+'</p>'
+    :'<p><b>You have the right brewer</b>: brew it on your '+esc(brewName(BREWERS[b].name))+(chDev(ch)&&!BREWERS[b].name.includes(chDev(ch))&&chDev(ch)!=='Espresso machine'?' (they used '+art(chDev(ch))+' '+esc(chDev(ch))+')':'')+'.</p>';
+  const R2=U&&BREWERS[useB].model;
   d.querySelector('#vd-in').innerHTML='<div class="vd-head" style="--c:'+C.color+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:'+C.color+'"></i>'+esc(C.name)+' '+ch.y+'</span>'+
    '<h2 id="vd-title">'+(FLAGS[ch.from]||'')+' '+esc(ch.who)+'</h2><div class="meta"><span>'+esc(ch.from)+'</span><span>'+esc(ch.city)+'</span></div></div><div class="vd-body">'+
    (ch.coffee?'<p><b>The coffee.</b> '+esc(ch.coffee)+'</p>':'')+
-   '<h3>Gear they used</h3><ul class="chgear">'+gear.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>'+
+   '<h3>Gear they used</h3>'+(gear.length?'<ul class="chgear">'+gear.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'<p class="hint" style="margin-top:0">Not published.</p>')+
    '<h3>The recipe</h3><div class="meta">'+(dose&&water?'<span>'+dose+'g : '+water+'g</span>':dose?'<span>'+dose+'g coffee</span>':'')+(temps?'<span>'+temps+(r.tNote?' ('+esc(r.tNote)+')':'')+'</span>':'<span>Temperature not published</span>')+(r.time?'<span>'+esc(r.time)+'</span>':'')+'</div>'+
-   (why?'<p>'+esc(why)+'</p>':'')+(steps?'<ol class="steps">'+steps.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol>':'<p class="hint">The full step-by-step was not published.</p>')+
+   (why?'<p>'+esc(why)+'</p>':'')+(r.partial?'<p class="hint">'+esc(r.partial)+'</p>':'')+(steps?'<ol class="steps">'+steps.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol>'
+     :St?'<div class="chstart"><p class="hint" style="margin:0 0 .4rem">Start from a recipe in the same style: <b>'+esc(St.name)+'</b></p><div class="meta"><span>'+St.dose+'g : '+St.water+'g</span>'+(St.temp?'<span>'+St.temp+'°C</span>':'')+'</div><ol class="steps">'+St.steps.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol></div>'
+     :'<p class="hint">The full step-by-step was not published.</p>')+
    '<div class="ghead" style="margin-top:1.2rem"><h3 style="margin:0">Brew it with your gear</h3><button type="button" class="gpick-btn" data-ca="gear" aria-label="Edit your gear" title="Edit your gear">'+SWAP_ICON+'</button></div>'+brewLine+
-   '<p class="hint" style="margin:.2rem 0 .5rem">'+(g?'Grind converted from the champion’s '+esc(r.grind.label)+(sub?', then adjusted for your '+esc(BREWERS[nb].name):'')+'.':'The champion’s grind: '+esc(r.grind?r.grind.label:'not published')+'. These are starting points for '+(nb?'your '+esc(BREWERS[useB].name):'a '+esc(BREWERS[b].name))+'; adjust by taste.')+'</p>'+rows+
+   '<p class="hint" style="margin:.2rem 0 .5rem">'+(g?'Grind converted from the champion’s '+esc(r.grind.label)+(sub?', then adjusted for your '+esc(BREWERS[nb].name):'')+'.':'The champion’s grind: '+esc(r.grind&&r.grind.label?lcGrind(r.grind.label):'not published')+'. These are starting points for '+(nb&&MYB.length?'your '+esc(brewName(BREWERS[useB].name)):art(brewName(BREWERS[b].name))+' '+esc(brewName(BREWERS[b].name)))+'; adjust by taste.')+'</p>'+rows+
    (!sub&&r.alt?'<p class="hint">'+esc(r.alt)+'</p>':'')+
-   '<div class="actions">'+(R?'<button type="button" class="btn" data-ca="timer">Start timer</button>':'')+(R2?'<button type="button" class="btn ghost" data-ca="load">Load into dial-in</button>':'')+
-   (R&&!sub&&PBREWERS.includes(b==='swi'?'sw':b)?'<button type="button" class="btn ghost" data-ca="plan">Tune in planner</button>':'')+(g?'<button type="button" class="btn ghost" data-ca="match">All grinders</button>':'')+'</div></div>';
+   '<div class="actions">'+(U?'<button type="button" class="btn" data-ca="timer">Start timer</button>':'')+(R2?'<button type="button" class="btn ghost" data-ca="load">Load into dial-in</button>':'')+
+   (U&&!sub&&PBREWERS.includes(b==='swi'?'sw':b)?'<button type="button" class="btn ghost" data-ca="plan">Tune in planner</button>':'')+(g?'<button type="button" class="btn ghost" data-ca="match">All grinders</button>':'')+'</div></div>';
   d.querySelector('.vd-body').onclick=e=>{const a=e.target.closest('[data-ca]');if(!a)return;const k=a.dataset.ca;d.close();
     if(k==='gear'){setTimeout(()=>openGearPicker('brewers',()=>openChamp(ch)),0);return}
-    if(k==='timer')openTimer(ch.ri);else if(k==='plan')planRecipe(ch.ri);else if(k==='match')openMatch(g,r.grind.c);
-    else if(k==='load'){const B=BREWERS[useB],gr=MYG.find(h=>setOn(h)!=null)||S.grinder;S.brewer=useB;S.rec=useB===b?ch.ri:null;S.grinder=gr;S.setting=setOn(gr)??base(gr,useB);
-      S.temp=clamp(R.temp,B.temp.min,B.temp.max);S.bloom=B.bloom.def;S.agit='med';S.ratio=clamp(Math.round(R.water/R.dose/B.ratio.step)*B.ratio.step,B.ratio.min,B.ratio.max);render();showTab('dial');toast('Loaded '+ch.who+'’s recipe')}};
+    if(k==='timer')openTimer(ui);else if(k==='plan')planRecipe(ui);else if(k==='match')openMatch(g,r.grind.c);
+    else if(k==='load'){const B=BREWERS[useB],gr=MYG.find(h=>setOn(h)!=null)||S.grinder;S.brewer=useB;S.rec=useB===U.b?ui:null;S.grinder=gr;S.setting=setOn(gr)??base(gr,useB);
+      S.temp=clamp(U.temp,B.temp.min,B.temp.max);S.bloom=B.bloom.def;S.agit='med';S.ratio=clamp(Math.round(U.water/U.dose/B.ratio.step)*B.ratio.step,B.ratio.min,B.ratio.max);render();showTab('dial');toast('Loaded '+ch.who+'’s recipe')}};
   const hx=d.querySelector('.vd-head');hx.onclick=e=>{if(e.target.closest('#vd-x'))d.close()};
   if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}d.scrollTop=0}
 /* ================= APP SHELL ================= */
