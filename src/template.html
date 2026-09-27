@@ -401,6 +401,26 @@ button,a,.tab,.chip,[role=button],input[type=range]{touch-action:manipulation}
 /* Long lists: the browser skips layout and paint for cards that are off screen. */
 #rgrid>.card,#pgrid>.card,#tgrid>.card,#vgrid>.card,#gear-brewers>.card,#people>.card{content-visibility:auto;contain-intrinsic-block-size:auto 420px}
 @media (max-width:759px){.appbar,nav.tabs .wrap{backdrop-filter:none;-webkit-backdrop-filter:none}.appbar{background:var(--paper)}}
+/* Grinders: cards, match tool, library, comparison, custom form */
+.ghead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.matchrow{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:10px}.matchrow>*{min-width:0}.matchrow input,.matchrow select{width:100%}
+.gspec{margin-top:8px}.gspec summary{cursor:pointer;font-family:var(--display);font-weight:600;color:var(--cherry);font-size:.9rem;padding:4px 0}.gspec .spec{margin-top:6px}
+.mgroup{margin-top:10px}.mgroup h4{margin:0 0 6px;font-family:var(--display);font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.mrow{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:9px 12px;border-radius:var(--r-sm,12px);background:var(--surface2);margin-bottom:6px;font-family:var(--display)}
+.mrow b{font-variant-numeric:tabular-nums;white-space:nowrap}.mrow small{font-weight:500;color:var(--muted)}
+.mrow.mine{background:color-mix(in srgb,var(--cherry) 12%,var(--surface))}
+.libhead{font-family:var(--display);margin:18px 0 10px;font-size:1rem}
+.scroll-x{overflow-x:auto;margin:10px -4px 0}
+.gtable{border-collapse:collapse;width:100%;min-width:420px;font-size:.88rem}
+.gtable th,.gtable td{text-align:left;vertical-align:top;padding:8px;border-bottom:1px solid var(--line)}
+.gtable thead th{font-family:var(--display);color:var(--cherry)}.gtable tbody th{font-family:var(--display);font-weight:600;color:var(--muted);white-space:nowrap}
+#gcustom summary{cursor:pointer;list-style:none;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}#gcustom summary::-webkit-details-marker{display:none}
+.cform{margin-top:12px}
+/* Recipe editor and your recipes */
+.recform input:not([type=range]),.recform select,.recform textarea{width:100%}
+.recform .three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.recform .three input{min-width:0}
+.rangeends{display:flex;justify-content:space-between;font-family:var(--display);font-size:.74rem;color:var(--muted);margin-top:-2px}
+.pill.ours{background:color-mix(in srgb,var(--cherry) 14%,var(--surface));color:var(--cherry);margin-bottom:6px}
 /* Shared log */
 .sharepanel h3{margin:0 0 .3rem}
 .sharehead{display:flex;align-items:center;justify-content:space-between;gap:10px}
@@ -615,7 +635,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
       <details class="cal">
         <summary>Calibrate to your grinders</summary>
         <p class="hint">Enter, in clicks from zero, the setting that gives you a balanced cup on each brewer. The dial reading shows beside each box. Predictions and recipe grinds are measured from these.</p>
-        <table class="caltable"><thead><tr><th>Brewer</th><th>ZP6 Special</th><th>K-Ultra</th></tr></thead><tbody id="caltbody"></tbody></table>
+        <table class="caltable"><thead><tr id="calhead"><th>Brewer</th></tr></thead><tbody id="caltbody"></tbody></table>
         <div class="actions"><button class="btn ghost" id="calreset">Reset to defaults</button></div>
       </details>
     </div>
@@ -627,7 +647,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
         <div class="gscale"><span>Under</span><span>Sweet spot</span><span>Over</span></div>
         <div class="bars" id="o-bars"></div>
         <div class="notes"><h3 style="margin-top:0">Likely in the cup</h3><div class="chips" id="o-chips"></div><div id="o-tips"></div></div>
-        <div class="actions"><button class="btn" id="tolog">Log this brew</button><button class="btn ghost" id="dial-share">Share this brew</button></div>
+        <div class="actions"><button class="btn" id="tolog">Log this brew</button><button class="btn ghost" id="tosave">Save as recipe</button><button class="btn ghost" id="dial-share">Share this brew</button></div>
         <p class="disclaim">An estimate from brewing rules of thumb, not a measurement. Beans, water and freshness move things more than any model can. Taste wins.</p>
       </div>
     </div>
@@ -697,12 +717,22 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 <section id="gear">
   <h2>Gear and dials</h2>
   <p class="lede">What each tool does, how to read the grinder dials, and what to reach for.</p>
-  <h3>Grinders</h3>
-  <div class="grid" id="gear-grinders" style="grid-template-columns:repeat(auto-fill,minmax(320px,1fr))"></div>
-  <div class="card" style="margin-top:14px"><h3>Reading a 1Zpresso dial</h3>
-    <p>Both grinders use an external ring read as <b>rotation.number.click</b>. Close the burrs until they just touch: that is zero. Turning toward bigger numbers opens the burrs and grinds coarser. Most filter brewing stays inside the first rotation, so the rotation digit is usually dropped: <b>5.6</b> means number 5, click 6.</p>
+  <h3>Your grinders</h3>
+  <p class="hint" style="margin-top:0">Settings across the app are shown for these. Add or remove grinders in the library below.</p>
+  <div class="grid" id="gear-grinders" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))"></div>
+  <div class="card" id="gmatch" style="margin-top:14px"></div>
+  <div class="card" style="margin-top:14px"><h3>Why grinders need different numbers</h3>
+    <p>The 1Zpresso grinders use an external ring read as <b>rotation.number.click</b>. Close the burrs until they just touch: that is zero. Turning toward bigger numbers opens the burrs and grinds coarser. Most filter brewing stays inside the first rotation, so the rotation digit is usually dropped: <b>5.6</b> means number 5, click 6.</p>
     <p>The two dials are not interchangeable. The ZP6 Special has 9 numbers per turn (90 clicks, about 22 microns each); the K-Ultra has 10 (100 clicks, 20 microns each). The same number on both grinders is a different grind size, and different burr shapes mean even the same micron gap tastes different. Calibrate each one by taste.</p>
-    <p><b>Why a V60 is 5.6 on one and 7.2 on the other.</b> 56 ZP6 clicks is a gap of about 1.2 mm; 72 K-Ultra clicks is about 1.4 mm. The K-Ultra needs the wider gap because its all-round burrs make more fine particles, which slow the drawdown and pull more out of the coffee. The ZP6's filter burrs make very few fines, so it needs a tighter gap to reach the same flow and strength. The numbers also follow 1Zpresso's own ranges for each grinder (filter roughly 4.5 to 7.0 on the ZP6, 7.0 to 9.5 on the K-Ultra).</p></div>
+    <p><b>Why a V60 is 5.6 on one and 7.2 on the other.</b> 56 ZP6 clicks is a gap of about 1.2 mm; 72 K-Ultra clicks is about 1.4 mm. The K-Ultra needs the wider gap because its all-round burrs make more fine particles, which slow the drawdown and pull more out of the coffee. The ZP6's filter burrs make very few fines, so it needs a tighter gap to reach the same flow and strength. The numbers also follow 1Zpresso's own ranges for each grinder (filter roughly 4.5 to 7.0 on the ZP6, 7.0 to 9.5 on the K-Ultra).</p>    <p>Across brands the numbers mean even less: a Comandante counts clicks from closed, an Ode or Encore has a numbered dial, a Niche is stepless. The app places every grinder on one shared scale, anchored on its typical V60 setting, so it can suggest a starting point for any brewer and match a setting from one grinder to another. For grinders you haven't calibrated these are starting points from typical ranges: fine-tune by taste and save them under <b>Calibrate to your grinders</b> on the dial-in.</p>
+  </div>
+
+  <h3 style="margin-top:1.6rem">Grinder library</h3>
+  <p class="hint" style="margin-top:0">Manual and electric grinders with their burrs, dials and typical settings. Tap Compare on up to three to see them side by side.</p>
+  <div class="seg filters" id="glib-filter" style="margin-bottom:12px"></div>
+  <div id="gcmp"></div>
+  <div id="glib"></div>
+  <details class="card" id="gcustom" style="margin-top:14px"><summary><b>Add your own grinder</b> <span class="hint">not in the list? Set it up in a minute</span></summary><div id="gcustom-in"></div></details>
   <h3 style="margin-top:1.6rem">Where every brewer sits on your dials</h3>
   <p class="hint">Tap a marker to see the setting. These follow your calibration.</p>
   <div class="card" id="grindmap"></div>
@@ -767,6 +797,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 <section id="recipes">
   <h2>Recipes</h2>
   <p class="lede">Grind settings follow your calibration. Tap a recipe to load it into the dial-in, or open it in the planner for a version tuned to your coffee.</p>
+  <div class="actions" style="margin:0 0 12px"><button class="btn" id="r-new">+ New recipe</button></div>
   <div class="seg filters" id="rfilter" style="margin-bottom:16px"></div>
   <div class="grid" id="rgrid"></div>
 </section>

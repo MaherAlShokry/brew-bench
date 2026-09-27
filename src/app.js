@@ -27,22 +27,101 @@ function beans(n=10){if(RM())return;const el=document.activeElement,r=el&&el!==d
 const ns='http://www.w3.org/2000/svg';
 
 /* ================= GRINDERS ================= */
-const GRINDERS={
-  zp6:{name:'ZP6 Special',per:90,um:22,min:20,max:90,step:7.3,body:-0.4,clarity:1.2},
-  kultra:{name:'K-Ultra',per:100,um:20,min:5,max:110,step:8,body:0.7,clarity:-0.2}
+/* Every grinder maps its dial to one shared "effective size" scale, anchored on a V60:
+   size = 1232 + (steps - v60) * k, where v60 is the grinder's typical V60 setting (in steps) and k is
+   the effective size per step. Brewers sit on the same scale (from the calibrated ZP6 / K-Ultra table),
+   so any grinder can be placed for any brewer, and one grinder's setting can be matched on another.
+   fmt 'rot': 1Zpresso-style rotation.number.click ring (per clicks per rotation, 10 clicks per number).
+   fmt 'num': a plain dial: shown as first + steps/sub (sub 3 = thirds, like 4, 4.1, 4.2); unit 'clicks' counts from closed. */
+const V60_SIZE=56*22,ESP_SIZE=36*20*0.84;
+const GRINDER_LIB={
+  zp6:{name:'ZP6 Special',full:'1Zpresso ZP6 Special',type:'manual',brand:'1Zpresso',fmt:'rot',per:90,um:22,min:20,max:90,v60:56,k:22,step:7.3,body:-0.4,clarity:1.2,espresso:false,
+    burr:'48 mm hexagonal (six-sided) conical steel burrs, designed only for filter',adjust:'External ring: 9 numbers per turn, 10 clicks per number, 90 clicks per rotation, about 22 microns per click',
+    range:'Filter roughly 4.5 to 7.0 (45 to 70 clicks). Below about 2.0 the burrs rub, so no espresso or Turkish.',cup:'The fewest fines in the 1Zpresso range: very clean, separated, high-clarity cups.',use:'Washed coffees, Geisha and Ethiopian landraces, V60, NEO, Origami, Chemex.'},
+  kultra:{name:'K-Ultra',full:'1Zpresso K-Ultra',type:'manual',brand:'1Zpresso',fmt:'rot',per:100,um:20,min:5,max:110,v60:72,k:17,step:8,body:0.7,clarity:-0.2,espresso:true,
+    burr:'48 mm heptagonal (seven-sided) "K burr" conical steel burrs, an all-rounder',adjust:'External ring: 10 numbers per turn, 10 clicks per number, 100 clicks per rotation, 20 microns per click. Can go past one full turn.',
+    range:'Filter roughly 7.0 to 9.5 (70 to 95 clicks). Espresso around 2.5 to 4.5; French press and cold brew past one full turn.',cup:'More body and a rounder, more blended cup than the ZP6.',use:'Naturals and honeys, immersion, espresso, AeroPress, anything that tastes thin.'},
+  jxpro:{name:'JX-Pro',full:'1Zpresso JX-Pro',type:'manual',brand:'1Zpresso',fmt:'rot',per:40,um:12.5,min:20,max:160,v60:92,k:13,body:0.4,clarity:0,espresso:true,
+    burr:'48 mm conical steel burrs',adjust:'External ring: 4 numbers per turn, 10 clicks per number, 40 clicks per rotation, about 12.5 microns per click',
+    range:'Espresso about 1.0.0 to 1.2.0; filter about 2.0.0 to 2.8.0.',cup:'Balanced with medium body.',use:'Espresso at home plus everyday filter.'},
+  comandante:{name:'Comandante C40',full:'Comandante C40 MK4',type:'manual',brand:'Comandante',fmt:'num',unit:'clicks',sub:1,first:0,um:30,min:5,max:45,v60:25,k:55,body:0.3,clarity:0.4,espresso:false,
+    burr:'39 mm "Nitro Blade" high-nitrogen steel conical burrs',adjust:'No numbers: count clicks from fully closed, about 30 microns per click',
+    range:'AeroPress about 15 to 20 clicks, V60 about 22 to 28, French press about 30 to 35. Espresso needs a finer-step axle.',cup:'Clear yet sweet, very consistent.',use:'Pour-over and AeroPress; a classic travel grinder.'},
+  c3:{name:'Timemore C3',full:'Timemore Chestnut C3',type:'manual',brand:'Timemore',fmt:'num',unit:'clicks',sub:1,first:0,min:5,max:30,v60:16,k:60,body:0.4,clarity:-0.3,espresso:false,
+    burr:'38 mm S2C stainless steel conical burrs',adjust:'Count clicks from fully closed',
+    range:'AeroPress about 10 to 13 clicks, V60 about 14 to 18, French press about 22 to 25.',cup:'Sweet with fuller body; a little muddier than premium grinders.',use:'Budget pour-over and immersion.'},
+  k6:{name:'Kingrinder K6',full:'Kingrinder K6',type:'manual',brand:'Kingrinder',fmt:'num',unit:'clicks',sub:1,first:0,um:16,min:15,max:200,v60:95,k:11,body:0.1,clarity:0.4,espresso:true,
+    burr:'48 mm heptagonal conical steel burrs',adjust:'External dial, 60 clicks per turn, about 16 microns per click; count clicks from closed',
+    range:'Espresso about 30 to 50 clicks, V60 about 85 to 105, French press about 130 to 150.',cup:'Clean and bright for the price.',use:'All-round value: espresso to French press.'},
+  ode2:{name:'Fellow Ode Gen 2',full:'Fellow Ode Brew Grinder Gen 2',type:'electric',brand:'Fellow',fmt:'num',sub:3,first:1,min:0,max:30,v60:9,k:40,body:-0.2,clarity:0.8,espresso:false,
+    burr:'64 mm flat stainless steel "Gen 2" brew burrs',adjust:'Dial 1 to 11 with two steps between numbers (31 settings)',
+    range:'AeroPress about 2 to 3, V60 about 4 to 5, French press about 8 to 9. Not for espresso.',cup:'Very clear and separated: flat-burr filter clarity.',use:'Pour-over and batch brew.'},
+  encore:{name:'Baratza Encore',full:'Baratza Encore',type:'electric',brand:'Baratza',fmt:'num',sub:1,first:1,min:0,max:39,v60:15,k:40,body:0.3,clarity:-0.5,espresso:false,
+    burr:'40 mm conical steel burrs (M3)',adjust:'40 numbered settings',
+    range:'AeroPress about 8 to 12, V60 about 14 to 18, French press about 28 to 32.',cup:'Fuller body, more fines; forgiving.',use:'Everyday drip, Chemex and French press.'},
+  virtuoso:{name:'Baratza Virtuoso+',full:'Baratza Virtuoso+',type:'electric',brand:'Baratza',fmt:'num',sub:1,first:1,min:0,max:39,v60:15,k:40,body:0.2,clarity:-0.2,espresso:false,
+    burr:'40 mm conical steel burrs (M2)',adjust:'40 numbered settings with a digital timer',
+    range:'AeroPress about 8 to 12, V60 about 14 to 18, French press about 28 to 32.',cup:'Balanced, a step cleaner than the Encore.',use:'Pour-over, drip and immersion.'},
+  wilfa:{name:'Wilfa Uniform',full:'Wilfa Svart Uniform',type:'electric',brand:'Wilfa',fmt:'num',sub:1,first:1,min:0,max:40,v60:19,k:30,body:0,clarity:0.4,espresso:false,
+    burr:'58 mm flat steel burrs',adjust:'41 numbered settings, weight-based dosing',
+    range:'AeroPress about 10 to 14, V60 about 18 to 22, French press about 34 to 38.',cup:'Even grind with good clarity.',use:'Filter coffee in a home kitchen.'},
+  niche:{name:'Niche Zero',full:'Niche Zero',type:'electric',brand:'Niche',fmt:'num',sub:1,first:0,min:0,max:50,v60:40,k:22,body:0.8,clarity:-0.3,espresso:true,
+    burr:'63 mm conical steel burrs, single dosing',adjust:'Stepless dial numbered 0 to 50',
+    range:'Espresso about 10 to 15, AeroPress about 25 to 30, V60 about 38 to 45.',cup:'Rich, syrupy body; classic conical sweetness.',use:'Espresso first, filter too.'},
+  df64:{name:'DF64',full:'Turin DF64 Gen 2',type:'electric',brand:'Turin',fmt:'num',sub:1,first:0,min:0,max:90,v60:55,k:14.6,body:0,clarity:0.6,espresso:true,
+    burr:'64 mm flat steel burrs (stock Italmill); popular to upgrade',adjust:'Stepless dial numbered 0 to 90',
+    range:'Espresso about 10 to 20, V60 about 50 to 60, French press about 80 to 90.',cup:'Clear, flat-burr profile; depends on the burrs fitted.',use:'Single-dose espresso and filter.'}
 };
-function dial(g,c){const G=GRINDERS[g];c=Math.round(c);const r=Math.floor(c/G.per),rem=c%G.per;return (r>0?r+'.':'')+Math.floor(rem/10)+'.'+(rem%10)}
-function dialHint(g,c){const G=GRINDERS[g];c=Math.round(c);const r=Math.floor(c/G.per),rem=c%G.per;return (r?r+' rotation, ':'')+'number '+Math.floor(rem/10)+', click '+(rem%10)+' ('+c+' clicks)'}
+// Your own grinders, added in Gear (same fields; values in steps).
+let CUSTOM_G=load('bb-custom-grinders',{});
+for(const [id,g] of Object.entries(CUSTOM_G))if(!g||typeof g.name!=='string'||!Number.isFinite(g.v60)||!Number.isFinite(g.k)||g.k<=0)delete CUSTOM_G[id];
+const GRINDERS=Object.assign({},GRINDER_LIB,CUSTOM_G);
+for(const G of Object.values(GRINDERS)){if(!G.step)G.step=Math.max(1,160/G.k);if(G.fmt==='num'){G.sub=G.sub||1;G.first=G.first||0}G.full=G.full||G.name}
+// The grinders you use; the app shows settings for these.
+let MYG=(()=>{try{const v=JSON.parse(localStorage.getItem('bb-mygrinders'));return Array.isArray(v)?v.filter(g=>typeof g==='string'&&GRINDERS[g]):[]}catch(e){return[]}})();if(!MYG.length)MYG=['zp6','kultra'];MYG=[...new Set(MYG)];
+const gname=g=>GRINDERS[g]?GRINDERS[g].name:g;
+function dial(g,c){const G=GRINDERS[g];c=Math.round(c);
+  if(G.fmt==='rot'){const r=Math.floor(c/G.per),rem=c%G.per;return (r>0?r+'.':'')+Math.floor(rem/10)+'.'+(rem%10)}
+  if(G.sub>1){const n=Math.floor(c/G.sub)+G.first,r=c%G.sub;return G.sub===10?n+'.'+r:(r?n+'.'+r:String(n))}
+  return String(c+G.first)}
+function dialHint(g,c){const G=GRINDERS[g];c=Math.round(c);
+  if(G.fmt==='rot'){const r=Math.floor(c/G.per),rem=c%G.per;return (r?r+' rotation, ':'')+'number '+Math.floor(rem/10)+', click '+(rem%10)+' ('+c+' clicks)'}
+  return G.unit==='clicks'?c+' clicks from fully closed':'setting '+dial(g,c)}
+// Read a typed setting ("5.6", "1.2.4", "24", "4.1") back into steps.
+function parseDial(g,str){const G=GRINDERS[g],p=String(str).trim().split(/[.,]/).map(x=>parseInt(x,10));if(p.some(isNaN)||!p.length)return null;
+  if(G.fmt==='rot'){if(p.length===3)return p[0]*G.per+p[1]*10+p[2];if(p.length===2)return p[0]*10+p[1];return p[0]}
+  if(G.sub>1)return (p[0]-G.first)*G.sub+(p[1]||0);return p[0]-G.first}
 function roundG(g,v){const G=GRINDERS[g];return Math.round(clamp(v,G.min,G.max))}
-const canGrind=(g,b)=>BREWERS[b].base[g]!=null;
-let BASE=load('bb-base3',null);
-function defBase(){const o={zp6:{},kultra:{}};for(const k in BREWERS){o.zp6[k]=BREWERS[k].base.zp6;o.kultra[k]=BREWERS[k].base.kultra}return o}
-if(BASE&&!['zp6','kultra'].every(g=>BASE[g]&&typeof BASE[g]==='object'))BASE=null;
-if(!BASE||!BASE.zp6){BASE=defBase();const old=load('bb-base2',null);if(old&&old.zp6)for(const g of['zp6','kultra'])for(const k in old[g])if(BASE[g][k]!==undefined&&old[g][k]!=null)BASE[g][k]=old[g][k]}
-for(const k in BREWERS)for(const g of['zp6','kultra'])if(BASE[g][k]===undefined||(BASE[g][k]!==null&&!Number.isFinite(BASE[g][k])))BASE[g][k]=BREWERS[k].base[g];
-function base(g,b){const v=BASE[g][b];return v==null?BREWERS[b].base[g]:v}
+// Where a brewer sits on the shared scale (from the tuned ZP6 / K-Ultra table).
+function brewSize(b){const bb=BREWERS[b].base;return bb.zp6!=null?bb.zp6*22:bb.kultra!=null?bb.kultra*20*0.84:null}
+const needsFine=b=>BREWERS[b].base.zp6==null;
+const sizeOf=(g,c)=>V60_SIZE+(c-GRINDERS[g].v60)*GRINDERS[g].k;
+const stepsFor=(g,size)=>GRINDERS[g].v60+(size-V60_SIZE)/GRINDERS[g].k;
+function defBase(g,b){if(g==='zp6'||g==='kultra')return BREWERS[b].base[g];const G=GRINDERS[g],E=brewSize(b);if(E==null||(needsFine(b)&&!G.espresso))return null;
+  const s=stepsFor(g,E);return s<G.min-0.5||s>G.max+0.5?null:Math.round(clamp(s,G.min,G.max))}
+let BASE=load('bb-base3',null);if(!BASE||typeof BASE!=='object')BASE={};
+for(const g in BASE)if(!BASE[g]||typeof BASE[g]!=='object')delete BASE[g];
+if(!BASE.zp6){const old=load('bb-base2',null);if(old&&old.zp6)for(const g of['zp6','kultra'])if(old[g]&&typeof old[g]==='object'){BASE[g]={};for(const k in old[g])if(Number.isFinite(old[g][k]))BASE[g][k]=old[g][k]}}
+for(const g in BASE)for(const k in BASE[g])if(!BREWERS[k]||BASE[g][k]!==null&&!Number.isFinite(BASE[g][k]))delete BASE[g][k];
+// Your calibrated setting for a grinder on a brewer, or the estimate from the shared scale.
+function base(g,b){const v=BASE[g]&&BASE[g][b];return v==null?defBase(g,b):v}
+const canGrind=(g,b)=>!!GRINDERS[g]&&base(g,b)!=null;
+// First of your grinders that can do this brewer (falls back to any grinder in the library).
+const capable=b=>MYG.find(g=>canGrind(g,b))||Object.keys(GRINDERS).find(g=>canGrind(g,b));
 function settingFor(g,b,off){const bb=base(g,b);return bb==null?null:roundG(g,bb-off*GRINDERS[g].step)}
-function gLabel(g,v){return GRINDERS[g].name+' '+dial(g,v)}
+function gLabel(g,v){const G=GRINDERS[g];return G.name+' '+dial(g,v)+(G.unit==='clicks'?' clicks':'')}
+/* ================= YOUR RECIPES ================= */
+// Recipes you or your team create sit after the built-in ones in RECIPES, so the timer, dial-in and planner all work with them.
+const BUILTIN_N=RECIPES.length,RKINDS=['pulse','single','imm','aero','esp','hybrid','46','other'];
+const str=(v,n)=>typeof v==='string'?v.trim().slice(0,n):'';
+// Recipes can arrive from links and other phones, so every field is checked.
+function sanRec(r){if(!r||typeof r!=='object'||!BREWERS[r.b])return null;const name=str(r.name,60);if(!name)return null;
+  const steps=(Array.isArray(r.steps)?r.steps:[]).map(x=>str(x,160)).filter(Boolean).slice(0,20);
+  return{id:str(r.id,40)||('r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)),custom:true,b:r.b,kind:RKINDS.includes(r.kind)?r.kind:'other',name,by:str(r.by,60),author:str(r.author,30),
+    dose:num(r.dose,15,1,200),water:num(r.water,250,5,3000),temp:num(r.temp,93,0,100),off:num(r.off,0,-4,4),why:str(r.why,400),tip:str(r.tip,300),steps:steps.length?steps:['0:00 brew.'],ts:num(r.ts,Date.now())}}
+let CREC=load('bb-myrecipes',[]).map(sanRec).filter(Boolean);
+function syncRecipes(){RECIPES.length=BUILTIN_N;CREC.slice().sort((a,b)=>a.ts-b.ts).forEach(r=>RECIPES.push(r))}
+syncRecipes();
 const MODEL=Object.keys(BREWERS).filter(k=>BREWERS[k].model);
 function brewerOptions(list){const types=[...new Set(list.map(k=>BREWERS[k].type))];return types.map(t=>'<optgroup label="'+t+'">'+list.filter(k=>BREWERS[k].type===t).map(k=>'<option value="'+k+'">'+esc(BREWERS[k].name)+'</option>').join('')+'</optgroup>').join('')}
 
@@ -59,11 +138,11 @@ const originName=k=>(ALLO()[k]||{}).name||k;
 
 /* ================= STATE ================= */
 let S=Object.assign({grinder:'zp6',setting:56,brewer:'v60',temp:93,ratio:15,bloom:45,agit:'med',roast:'light',process:'washed',variety:'caturra',rec:null},load('bb-state',{}));
-S.grinder=oneOf(S.grinder,['zp6','kultra'],'zp6');S.agit=oneOf(S.agit,['low','med','high'],'med');S.roast=oneOf(S.roast,['light','medium','dark'],'light');
+S.grinder=oneOf(S.grinder,MYG,MYG[0]);S.agit=oneOf(S.agit,['low','med','high'],'med');S.roast=oneOf(S.roast,['light','medium','dark'],'light');
 S.setting=num(S.setting,56);S.temp=num(S.temp,93);S.ratio=num(S.ratio,15);S.bloom=num(S.bloom,45);if(S.rec!=null&&!RECIPES[S.rec])S.rec=null;
 if(typeof S.variety!=='string'||!vById(S.variety))S.variety='caturra';if(!BREWERS[S.brewer]||!BREWERS[S.brewer].model)S.brewer='v60';if(!PROCESSES[S.process])S.process='washed';
 if(S.grinder==='kultra'&&S.setting<30&&S.setting>5&&S.setting%1)S.setting=Math.round(S.setting*10);
-if(!canGrind(S.grinder,S.brewer))S.grinder='kultra';S.setting=roundG(S.grinder,S.setting);
+if(!canGrind(S.grinder,S.brewer))S.grinder=capable(S.brewer);S.setting=roundG(S.grinder,S.setting);
 let LOG=load('bb-log',[]);
 
 /* ================= MODEL ================= */
@@ -108,7 +187,14 @@ function drawCup(r){
    ax.map((a,i)=>{const p=pt(i,a[1]);return'<circle cx="'+p[0]+'" cy="'+p[1]+'" r="3" fill="#FFF3DD"/>'}).join('')+lab;
 }
 function drawDial(id,g,c){
-  const G=GRINDERS[g],svg=$(id);if(!svg)return;c=Math.round(c);const nums=G.per/10,rem=c%G.per,rot=Math.floor(c/G.per);
+  const G=GRINDERS[g],svg=$(id);if(!svg)return;c=Math.round(c);
+  if(G.fmt!=='rot'){// A 270-degree gauge from the grinder's finest to coarsest setting.
+    const t=(c-G.min)/Math.max(1,G.max-G.min),A=i=>(135+i*270)*Math.PI/180,P=(r,i)=>(80+Math.cos(A(i))*r).toFixed(1)+' '+(80+Math.sin(A(i))*r).toFixed(1);
+    let h='<circle cx="80" cy="80" r="74" fill="var(--surface2)"/><path d="M'+P(60,0)+' A60 60 0 1 1 '+P(60,1)+'" fill="none" stroke="var(--line)" stroke-width="8" stroke-linecap="round"/>';
+    h+='<path d="M'+P(60,0)+' A60 60 0 '+(t>2/3?1:0)+' 1 '+P(60,clamp(t,0.001,1))+'" fill="none" stroke="var(--cherry)" stroke-width="8" stroke-linecap="round"/>';
+    h+='<text x="80" y="78" text-anchor="middle" font-size="24" font-weight="800" fill="var(--ink)">'+dial(g,c)+'</text><text x="80" y="98" text-anchor="middle" font-size="10" fill="var(--muted)">'+(G.unit==='clicks'?'clicks':'setting')+'</text>'+
+      '<text x="'+(80+Math.cos(A(0))*60).toFixed(1)+'" y="'+(80+Math.sin(A(0))*60+18).toFixed(1)+'" text-anchor="middle" font-size="9" fill="var(--muted)">fine</text><text x="'+(80+Math.cos(A(1))*60).toFixed(1)+'" y="'+(80+Math.sin(A(1))*60+18).toFixed(1)+'" text-anchor="middle" font-size="9" fill="var(--muted)">coarse</text>';
+    svg.innerHTML=h;return}const nums=G.per/10,rem=c%G.per,rot=Math.floor(c/G.per);
   let h='<circle cx="80" cy="80" r="74" fill="var(--surface2)"/><circle cx="80" cy="80" r="52" fill="var(--paper)" stroke="var(--line)"/>';
   for(let i=0;i<G.per;i++){const a=-Math.PI/2+i/G.per*2*Math.PI,big=i%10===0,r1=big?60:65;const rub=g==='zp6'&&rot===0&&i<20;
     h+='<line x1="'+(80+Math.cos(a)*r1).toFixed(1)+'" y1="'+(80+Math.sin(a)*r1).toFixed(1)+'" x2="'+(80+Math.cos(a)*72).toFixed(1)+'" y2="'+(80+Math.sin(a)*72).toFixed(1)+'" stroke="'+(rub?'#C0503A':'var(--muted)')+'" stroke-width="'+(big?1.6:.7)+'" opacity="'+(big?1:.6)+'"/>'}
@@ -122,14 +208,16 @@ function drawDial(id,g,c){
 /* ================= SEGMENTS ================= */
 function seg(el,opts,get,set){$(el).innerHTML=opts.map(([v,l,dis])=>'<button type="button" data-v="'+v+'" aria-pressed="'+(get()===v)+'"'+(dis?' disabled title="'+esc(dis)+'"':'')+'>'+l+'</button>').join('');
   $(el).onclick=e=>{const b=e.target.closest('button');if(b&&!b.disabled)set(b.dataset.v)}}
-const grinderOpts=b=>[['zp6','ZP6 Special',canGrind('zp6',b)?'':'Too coarse for this brewer'],['kultra','K-Ultra',canGrind('kultra',b)?'':'Not suitable']];
+// Your grinders as a picker. With more than three they wrap as chips instead of a segmented control.
+const grinderOpts=b=>MYG.map(g=>[g,gname(g),canGrind(g,b)?'':'Can\u2019t grind for this brewer']);
+function grinderSeg(id,b,get,set){const el=$(id);el.classList.toggle('filters',MYG.length>3);seg(id,grinderOpts(b),get,set)}
 
 /* ================= DIAL-IN ================= */
 function convertSetting(st,g2,b2){if(!canGrind(g2,b2))return null;const step=(base(st.grinder,st.brewer)-st.setting)/GRINDERS[st.grinder].step;return roundG(g2,base(g2,b2)-step*GRINDERS[g2].step)}
 function fitRanges(){const B=BREWERS[S.brewer];S.ratio=clamp(S.ratio,B.ratio.min,B.ratio.max);S.temp=clamp(S.temp,B.temp.min,B.temp.max);S.bloom=clamp(S.bloom,B.bloom.min,B.bloom.max)}
 function render(){
   const G=GRINDERS[S.grinder],B=BREWERS[S.brewer];
-  seg('g-grinder',grinderOpts(S.brewer),()=>S.grinder,v=>{if(v!==S.grinder){S.setting=convertSetting(S,v,S.brewer);S.grinder=v}render()});
+  grinderSeg('g-grinder',(S.brewer),()=>S.grinder,v=>{if(v!==S.grinder){S.setting=convertSetting(S,v,S.brewer);S.grinder=v}render()});
   seg('g-agit',[['low','Gentle'],['med','Normal'],['high','Vigorous']],()=>S.agit,v=>{S.agit=v;render()});
   seg('g-roast',[['light','Light'],['medium','Medium'],['dark','Dark']],()=>S.roast,v=>{S.roast=v;render()});
   const gi=$('i-grind');gi.min=G.min;gi.max=G.max;gi.step=1;gi.value=S.setting;
@@ -168,7 +256,8 @@ function render(){
   save('bb-state',S);
 }
 function renderCal(){
-  $('caltbody').innerHTML=MODEL.map(k=>{const b=BREWERS[k];const cell=g=>b.base[g]==null?'<td class="hint">n/a</td>':'<td><input type="number" step="1" data-g="'+g+'" data-b="'+k+'" value="'+base(g,k)+'" aria-label="'+GRINDERS[g].name+' clicks, '+esc(b.name)+'"> <span class="hint">'+dial(g,base(g,k))+'</span></td>';return'<tr><td>'+esc(b.name)+'</td>'+cell('zp6')+cell('kultra')+'</tr>'}).join('');
+  $('caltbody').innerHTML=MODEL.map(k=>{const b=BREWERS[k];const cell=g=>!canGrind(g,k)?'<td class="hint">n/a</td>':'<td><input type="number" step="1" data-g="'+g+'" data-b="'+k+'" value="'+base(g,k)+'" aria-label="'+GRINDERS[g].name+' clicks, '+esc(b.name)+'"> <span class="hint">'+dial(g,base(g,k))+'</span></td>';return'<tr><td>'+esc(b.name)+'</td>'+MYG.map(cell).join('')+'</tr>'}).join('');
+  $('calhead').innerHTML='<th>Brewer</th>'+MYG.map(g=>'<th>'+esc(gname(g))+'</th>').join('');
 }
 function initDial(){
   $('i-brewer').innerHTML=brewerOptions(MODEL);
@@ -178,7 +267,7 @@ function initDial(){
   $('i-temp').oninput=e=>{S.temp=+e.target.value;soon(render)};
   $('i-ratio').oninput=e=>{S.ratio=+e.target.value;soon(render)};
   $('i-bloom').oninput=e=>{S.bloom=+e.target.value;soon(render)};
-  $('i-brewer').onchange=e=>{const nb=e.target.value;let g=S.grinder;if(!canGrind(g,nb)){g='kultra';toast('The ZP6 Special can\u2019t grind fine enough for this, switched to the K-Ultra')}
+  $('i-brewer').onchange=e=>{const nb=e.target.value;let g=S.grinder;if(!canGrind(g,nb)){g=capable(nb);toast(gname(S.grinder)+' can\u2019t grind for this brewer, switched to '+gname(g))}
     S.setting=canGrind(S.grinder,S.brewer)&&canGrind(g,nb)?convertSetting(S,g,nb):base(g,nb);S.grinder=g;S.brewer=nb;S.rec=null;
     const B=BREWERS[nb];if(S.ratio<B.ratio.min||S.ratio>B.ratio.max)S.ratio=B.ratio.def;if(S.bloom<B.bloom.min||S.bloom>B.bloom.max)S.bloom=B.bloom.def;fitRanges();render()};
   $('rec-chip').onclick=e=>{if(e.target.closest('[data-clear]')){S.rec=null;render()}};
@@ -186,12 +275,12 @@ function initDial(){
   $('i-variety').onchange=e=>{S.variety=e.target.value;render()};
   $('v-about').onclick=()=>openVariety(S.variety.split(':')[0]);
   renderCal();
-  $('caltbody').oninput=e=>{const i=e.target;if(!i.dataset.g)return;const v=parseFloat(i.value);if(isNaN(v))return;BASE[i.dataset.g][i.dataset.b]=Math.round(v);save('bb-base3',BASE);i.nextElementSibling.textContent=dial(i.dataset.g,v);render();renderRecipes();renderPlan();renderGrindMap()};
-  $('calreset').onclick=()=>{BASE=defBase();save('bb-base3',BASE);renderCal();render();renderRecipes();renderPlan();renderGrindMap();toast('Calibration reset')};
+  $('caltbody').oninput=e=>{const i=e.target;if(!i.dataset.g)return;const v=parseFloat(i.value);if(isNaN(v))return;(BASE[i.dataset.g]=BASE[i.dataset.g]||{})[i.dataset.b]=Math.round(v);save('bb-base3',BASE);i.nextElementSibling.textContent=dial(i.dataset.g,v);render();renderRecipes();renderPlan();renderGrindMap()};
+  $('calreset').onclick=()=>{BASE={};save('bb-base3',BASE);renderCal();render();renderRecipes();renderPlan();renderGrindMap();toast('Calibration reset')};
 }
 
 /* ================= PLANNER ================= */
-let PL=Object.assign({brewer:'v60',grinder:'zp6',tech:0,process:'washed',variety:'pinkbourbon',roast:'light',age:14,goal:'balance'},load('bb-plan',{}));
+let PL=Object.assign({brewer:'v60',grinder:'zp6',tech:0,process:'washed',variety:'pinkbourbon',roast:'light',age:14,goal:'balance'},load('bb-plan',{}));if(!MYG.includes(PL.grinder))PL.grinder=MYG[0];
 if(!vById(PL.variety))PL.variety='pinkbourbon';if(!PROCESSES[PL.process])PL.process='washed';
 const PBREWERS=MODEL.filter(k=>k!=='swi'&&RECIPES.some(r=>r.b===k||((k==='sw'||k==='swneo')&&r.b==='swi')));
 if(!PBREWERS.includes(PL.brewer))PL.brewer='v60';
@@ -199,7 +288,7 @@ function techList(b){const all=RECIPES.map((r,i)=>[r,i]);return all.filter(([r])
 function plan(c){
   const tl=techList(c.brewer);if(!tl.find(([,i])=>i===c.tech))c.tech=tl[0][1];
   const r=RECIPES[c.tech],B=BREWERS[r.b],P=PROCESSES[c.process],Vp=vParams(c.variety),Vv=vById(c.variety);
-  let grinder=c.grinder;if(!canGrind(grinder,r.b))grinder='kultra';
+  let grinder=GRINDERS[c.grinder]?c.grinder:MYG[0];if(!canGrind(grinder,r.b))grinder=capable(r.b);
   const why=[];let temp=r.temp;
   if(c.roast==='medium'&&temp>93){temp=93;why.push('Medium roast: water capped at 93°C so roasty notes don\u2019t turn bitter.')}
   if(c.roast==='dark'&&temp>90){temp=Math.max(B.temp.min,90);why.push('Dark roast: 90°C or below, because dark beans extract fast.')}
@@ -224,12 +313,12 @@ function plan(c){
   ratio=clamp(Math.round(ratio/st_)*st_,B.ratio.min,B.ratio.max);
   if(r.kind==='hedrick'&&c.roast!=='light')why.unshift('<b>Heads up:</b> this technique is built for light roasts.');
   if(r.temp2)why.unshift('Two temperatures: '+temp+'°C for the first stage, then about '+r.temp2+'°C as the steps say.');
-  if(grinder!==c.grinder)why.unshift('The ZP6 Special can\u2019t grind this fine, so settings are for the K-Ultra.');
+  if(grinder!==c.grinder)why.unshift(gname(c.grinder)+' can\u2019t grind for this brewer, so settings are for '+gname(grinder)+'.');
   const Dt={clarity:-0.3,balance:0,body:0.3}[c.goal];
   const agv={low:-0.25,med:0,high:0.25}[agit], roastE={light:0,medium:0.25,dark:0.6}[c.roast];
   const rest=(temp-r.temp)/3*0.35+(bloom-B.bloom.def)/15*0.12+agv+(ratio-r.water/r.dose)*B.ratio.k+roastE-(P.t+Vp.t);
   const step=r.off+(Dt-rest)/0.45;
-  const set={};for(const g of['zp6','kultra'])set[g]=canGrind(g,r.b)?roundG(g,base(g,r.b)-step*GRINDERS[g].step):null;
+  const set={};for(const g of new Set([...MYG,grinder]))set[g]=canGrind(g,r.b)?roundG(g,base(g,r.b)-step*GRINDERS[g].step):null;
   const water=Math.round(r.dose*ratio*10)/10;
   const st={grinder,setting:set[grinder],brewer:r.b,temp,ratio,bloom,agit,roast:c.roast,process:c.process,variety:c.variety,rec:c.tech};
   const tw=[],k=r.kind,gl=c.goal;
@@ -248,11 +337,11 @@ function plan(c){
 }
 function planHTML(p,c){
   const res=compute(p.st),[vt]=verdict(res.D),B=BREWERS[p.r.b];
-  const other=p.grinder==='zp6'?'kultra':'zp6';const agl={low:'Gentle',med:'Normal',high:'Vigorous'}[p.agit];
-  const gcell=g=>p.set[g]==null?'<div><b>'+GRINDERS[g].name+'</b><span>n/a</span><small>can\u2019t grind this fine</small></div>':'<div><b>'+GRINDERS[g].name+'</b><span>'+dial(g,p.set[g])+'</span><small>'+p.set[g]+' clicks from zero</small></div>';
+  const others=Object.keys(p.set).filter(g=>g!==p.grinder);const agl={low:'Gentle',med:'Normal',high:'Vigorous'}[p.agit];
+  const gcell=g=>p.set[g]==null?'<div><b>'+GRINDERS[g].name+'</b><span>n/a</span><small>can\u2019t grind this fine</small></div>':'<div><b>'+GRINDERS[g].name+'</b><span>'+dial(g,p.set[g])+'</span><small>'+esc(dialHint(g,p.set[g]))+'</small></div>';
   return '<p class="hint" style="margin:0">'+esc(B.name)+' with '+GRINDERS[p.grinder].name+'</p><h2>'+esc(p.r.name)+'</h2><p class="hint" style="margin-top:0">'+esc(p.r.by)+'</p>'+
    '<p>'+esc(PROCESSES[c.process].name)+' '+esc(vName(c.variety))+', '+c.roast+' roast. Predicted: <b>'+vt+'</b>.</p>'+
-   '<div class="specs">'+gcell(p.grinder)+gcell(other)+
+   '<div class="specs">'+gcell(p.grinder)+others.map(gcell).join('')+
     '<div><b>Water</b><span>'+p.temp+'°C</span>'+(p.r.temp2?'<small>then about '+p.r.temp2+'°C</small>':'')+'</div>'+
     '<div><b>Dose : water</b><span>'+p.r.dose+'g : '+p.water+'g</span><small>1:'+p.ratio+'</small></div>'+
     '<div><b>'+B.bloom.label+'</b><span>'+p.bloom+'s</span></div><div><b>Agitation</b><span>'+agl+'</span></div></div>'+
@@ -263,7 +352,7 @@ function planHTML(p,c){
 }
 function renderPlan(){
   $('p-brewer').value=PL.brewer;
-  seg('p-grinder',grinderOpts(PL.brewer),()=>PL.grinder,v=>{PL.grinder=v;renderPlan()});
+  grinderSeg('p-grinder',(PL.brewer),()=>PL.grinder,v=>{PL.grinder=v;renderPlan()});
   seg('p-roast',[['light','Light'],['medium','Medium'],['dark','Dark']],()=>PL.roast,v=>{PL.roast=v;renderPlan()});
   seg('p-goal',[['clarity','Clarity'],['balance','Balance'],['body','Sweetness and body']],()=>PL.goal,v=>{PL.goal=v;renderPlan()});
   const tl=techList(PL.brewer);if(!tl.find(([,i])=>i===PL.tech))PL.tech=tl[0][1];
@@ -278,7 +367,7 @@ function renderPlan(){
 }
 function initPlan(){
   $('p-brewer').innerHTML=brewerOptions(PBREWERS);
-  $('p-brewer').onchange=e=>{PL.brewer=e.target.value;PL.tech=techList(PL.brewer)[0][1];if(!canGrind(PL.grinder,PL.brewer))PL.grinder='kultra';renderPlan()};
+  $('p-brewer').onchange=e=>{PL.brewer=e.target.value;PL.tech=techList(PL.brewer)[0][1];if(!canGrind(PL.grinder,PL.brewer))PL.grinder=capable(PL.brewer);renderPlan()};
   $('p-tech').onchange=e=>{PL.tech=+e.target.value;renderPlan()};
   $('p-process').onchange=e=>{PL.process=e.target.value;renderPlan()};
   $('p-variety').onchange=e=>{PL.variety=e.target.value;renderPlan()};
@@ -344,20 +433,66 @@ document.querySelector('[role=tablist]').onclick=e=>{const t=e.target.closest('.
 let RF='all';
 function renderRecipes(){
   const types=[...new Set(Object.values(BREWERS).map(b=>b.type))];
-  seg('rfilter',[['all','All'],...types.map(t=>[t,t])],()=>RF,v=>{RF=v;renderRecipes()});
-  const list=RECIPES.map((r,i)=>[r,i]).filter(([r])=>RF==='all'||BREWERS[r.b].type===RF);
-  $('rgrid').innerHTML=list.map(([r,i])=>{const B=BREWERS[r.b];const z=settingFor('zp6',r.b,r.off),k=settingFor('kultra',r.b,r.off);
-   return '<article class="card"><h3>'+esc(r.name)+'</h3><p class="hint" style="margin-top:-.2rem">'+esc(r.by)+'</p>'+
+  if(RF==='mine'&&!CREC.length)RF='all';
+  seg('rfilter',[['all','All']].concat(CREC.length?[['mine','Yours & team']]:[],types.map(t=>[t,t])),()=>RF,v=>{RF=v;renderRecipes()});
+  const list=RECIPES.map((r,i)=>[r,i]).filter(([r])=>RF==='all'||(RF==='mine'?r.custom:BREWERS[r.b].type===RF)).sort((a,b)=>(b[0].custom?1:0)-(a[0].custom?1:0));
+  $('rgrid').innerHTML=list.map(([r,i])=>{const B=BREWERS[r.b];const gs=MYG.map(g=>[g,settingFor(g,r.b,r.off)]);
+   return '<article class="card'+(r.custom?' mine':'')+'">'+(r.custom?'<span class="pill ours">'+esc(r.author&&r.author!==ME?'From '+r.author:'Your recipe')+'</span>':'')+'<h3>'+esc(r.name)+'</h3>'+(r.by?'<p class="hint" style="margin-top:-.2rem">'+esc(r.by)+'</p>':'')+
    '<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span>':'')+'</div>'+
-   '<div class="meta">'+(z!=null?'<span>ZP6 Special '+dial('zp6',z)+'</span>':'<span>ZP6 Special: too coarse</span>')+(k!=null?'<span>K-Ultra '+dial('kultra',k)+'</span>':'')+'</div>'+
+   '<div class="meta">'+gs.map(([g,v])=>'<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>').join('')+'</div>'+
    '<p>'+esc(r.why)+'</p><ol class="steps">'+r.steps.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol><p class="hint">'+esc(r.tip)+'</p>'+
-   '<div class="actions"><button class="btn" data-timer="'+i+'">Start timer</button><button class="btn ghost" data-rshare="'+i+'">Share</button>'+(B.model?'<button class="btn ghost" data-load="'+i+'">Load into dial-in</button>':'')+(PBREWERS.includes(r.b==='swi'?'sw':r.b)?'<button class="btn ghost" data-plan="'+i+'">Tune in planner</button>':'')+'</div></article>'}).join('');
+   '<div class="actions"><button class="btn" data-timer="'+i+'">Start timer</button><button class="btn ghost" data-rshare="'+i+'">Share</button>'+(B.model?'<button class="btn ghost" data-load="'+i+'">Load into dial-in</button>':'')+(PBREWERS.includes(r.b==='swi'?'sw':r.b)?'<button class="btn ghost" data-plan="'+i+'">Tune in planner</button>':'')+(r.custom?'<button class="btn ghost" data-redit="'+esc(r.id)+'">Edit</button>':'')+'</div></article>'}).join('')||'<p class="hint">No recipes here yet.</p>';
 }
-$('rgrid').onclick=e=>{const b=e.target.closest('[data-load],[data-plan],[data-timer],[data-rshare]');if(!b)return;if(b.dataset.rshare){openShare(recipeDoc(+b.dataset.rshare));return}
+$('rgrid').onclick=e=>{const ed=e.target.closest('[data-redit]');if(ed){openRecipeEditor(CREC.find(r=>r.id===ed.dataset.redit));return}
+  const b=e.target.closest('[data-load],[data-plan],[data-timer],[data-rshare]');if(!b)return;if(b.dataset.rshare){openShare(recipeDoc(+b.dataset.rshare));return}
   if(b.dataset.timer){openTimer(+b.dataset.timer);return}
-  if(b.dataset.load){const i=+b.dataset.load,r=RECIPES[i],B=BREWERS[r.b];S.brewer=r.b;S.rec=i;if(!canGrind(S.grinder,r.b))S.grinder='kultra';S.setting=settingFor(S.grinder,r.b,r.off);S.temp=clamp(r.temp,B.temp.min,B.temp.max);S.bloom=B.bloom.def;S.agit='med';
+  if(b.dataset.load){const i=+b.dataset.load,r=RECIPES[i],B=BREWERS[r.b];S.brewer=r.b;S.rec=i;if(!canGrind(S.grinder,r.b))S.grinder=capable(r.b);S.setting=settingFor(S.grinder,r.b,r.off);S.temp=clamp(r.temp,B.temp.min,B.temp.max);S.bloom=B.bloom.def;S.agit='med';
     S.ratio=clamp(Math.round(r.water/r.dose/B.ratio.step)*B.ratio.step,B.ratio.min,B.ratio.max);render();showTab('dial');toast('Loaded '+r.name)}
-  else{const i=+b.dataset.plan,r=RECIPES[i];PL.brewer=r.b==='swi'?'sw':r.b;PL.tech=i;if(!canGrind(PL.grinder,PL.brewer))PL.grinder='kultra';renderPlan();showTab('planner')}};
+  else{const i=+b.dataset.plan,r=RECIPES[i];PL.brewer=r.b==='swi'?'sw':r.b;PL.tech=i;if(!canGrind(PL.grinder,PL.brewer))PL.grinder=capable(PL.brewer);renderPlan();showTab('planner')}};
+
+/* ---------- Creating, editing and sharing recipes ---------- */
+function recipesChanged(){syncRecipes();if(S.rec!=null&&!RECIPES[S.rec])S.rec=null;if(BUILT.recipes)renderRecipes();renderPlan();render()}
+function saveRecipe(r){const i=CREC.findIndex(x=>x.id===r.id);if(i>=0)CREC[i]=r;else CREC.push(r);save('bb-myrecipes',CREC);queue('put',r.id,r,'recipes');recipesChanged()}
+function deleteRecipe(r){CREC=CREC.filter(x=>x.id!==r.id);save('bb-myrecipes',CREC);queue('del',r.id,null,'recipes');recipesChanged()}
+// The editor: grind is set relative to each brewer's baseline, so it works on every grinder.
+function openRecipeEditor(r,fresh){const isNew=!r||fresh;r=Object.assign({b:'v60',name:'',by:'',dose:15,water:250,temp:93,off:0,steps:['0:00 pour 50g, bloom.','0:45 pour to 150g.','1:30 pour to 250g.','3:00 finished.'],why:'',tip:''},r||{});
+  const own=!r.author||r.author===ME;
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>'+(isNew?'New recipe':'Edit recipe')+'</span><h2 id="vd-title">'+(isNew?'Create a recipe':esc(r.name))+'</h2></div>'+
+   '<div class="vd-body recform"><div class="field"><label for="re-name">Name</label><input id="re-name" maxlength="60" value="'+esc(r.name)+'" placeholder="e.g. Saturday V60"></div>'+
+   '<div class="field"><label for="re-b">Brewer</label><select id="re-b">'+brewerOptions(Object.keys(BREWERS))+'</select></div>'+
+   '<div class="three"><div class="field"><label for="re-dose">Coffee (g)</label><input id="re-dose" type="number" inputmode="decimal" value="'+r.dose+'"></div><div class="field"><label for="re-water">Water (g)</label><input id="re-water" type="number" inputmode="decimal" value="'+r.water+'"></div><div class="field"><label for="re-temp">Water °C</label><input id="re-temp" type="number" inputmode="numeric" value="'+r.temp+'"></div></div>'+
+   '<div class="field"><label for="re-off">Grind <span class="hint" id="re-offl"></span></label><input id="re-off" type="range" min="-3" max="3" step="0.1" value="'+(-r.off)+'"><div class="rangeends"><span>Finer</span><span>Brewer baseline</span><span>Coarser</span></div><div class="meta" id="re-gs"></div></div>'+
+   '<div class="field"><label for="re-steps">Steps <span class="hint">one per line; start with a time like 0:45 so the timer can follow</span></label><textarea id="re-steps" rows="6">'+esc(r.steps.join('\n'))+'</textarea></div>'+
+   '<div class="field"><label for="re-why">Why it works <span class="hint">optional</span></label><textarea id="re-why" rows="2">'+esc(r.why)+'</textarea></div>'+
+   '<div class="field"><label for="re-tip">Tip <span class="hint">optional</span></label><input id="re-tip" maxlength="300" value="'+esc(r.tip)+'"></div>'+
+   '<div class="field"><label for="re-by">Credit <span class="hint">optional, e.g. based on Hoffmann</span></label><input id="re-by" maxlength="60" value="'+esc(r.by)+'"></div>'+
+   '<div class="actions"><button class="btn" id="re-save">'+(isNew?'Save recipe':'Save changes')+'</button>'+(!isNew?'<button class="btn ghost" id="re-del">Delete</button>':'')+'</div>'+
+   (GROUP&&SYNC_DB?'<p class="hint">Saved recipes are shared with your group ('+GROUP.code+').</p>':'<p class="hint">Share it from its card, or start a shared log in the Log tab to share all your recipes with your team.</p>')+'</div>';
+  $('re-b').value=r.b;
+  const gs=()=>{const off=-(+$('re-off').value),b=$('re-b').value;$('re-offl').textContent=off===0?'baseline':(Math.abs(off).toFixed(1)+(off>0?' steps finer':' steps coarser'));
+    $('re-gs').innerHTML=MYG.map(g=>{const v=settingFor(g,b,off);return '<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>'}).join('')};
+  $('re-off').oninput=gs;$('re-b').onchange=gs;gs();
+  $('re-save').onclick=()=>{const n=sanRec({id:isNew?undefined:r.id,b:$('re-b').value,name:$('re-name').value,by:$('re-by').value,author:isNew?(ME||''):r.author,dose:+$('re-dose').value,water:+$('re-water').value,temp:+$('re-temp').value,off:-(+$('re-off').value),
+      steps:$('re-steps').value.split('\n'),why:$('re-why').value,tip:$('re-tip').value,ts:isNew?Date.now():r.ts,kind:r.kind});
+    if(!n){toast('Give the recipe a name');$('re-name').focus();return}saveRecipe(n);$('vd').close();RF='mine';if(BUILT.recipes)renderRecipes();showTab('recipes');toast(isNew?'Recipe saved':'Recipe updated')};
+  if(!isNew)$('re-del').onclick=()=>{if(!confirm(own?'Delete this recipe?':'Delete '+r.author+'’s recipe for everyone?'))return;deleteRecipe(r);$('vd').close();toast('Recipe deleted')};
+  const d=$('vd');if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
+$('r-new').onclick=()=>openRecipeEditor(null);
+// Save the current dial-in as a starting recipe.
+$('tosave').onclick=()=>{const B=BREWERS[S.brewer],dose=B.ratio.ref<5?18:B.ratio.ref<10?20:15,water=Math.round(dose*S.ratio),bloom=Math.round(dose*2.5);
+  const off=Math.round((base(S.grinder,S.brewer)-S.setting)/GRINDERS[S.grinder].step*10)/10;
+  openRecipeEditor({b:S.brewer,name:'My '+B.name+' recipe',dose,water,temp:S.temp,off,steps:['0:00 pour '+bloom+'g, bloom.','0:'+String(S.bloom).padStart(2,'0')+' pour to '+Math.round(water*0.6)+'g.','1:30 pour to '+water+'g.','3:00 finished.'],why:PROCESSES[S.process].name+' '+vName(S.variety)+', '+S.roast+' roast.'},true)};
+// Share links carry the recipe itself, so anyone can add it with one tap.
+const b64u={enc:o=>btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''),dec:s=>JSON.parse(decodeURIComponent(escape(atob(s.replace(/-/g,'+').replace(/_/g,'/')))))};
+function recipeLink(r){const {id,custom,ts,...rest}=r;return SITE_URL+'#recipe='+b64u.enc(rest)}
+function importRecipe(code){let r;try{r=sanRec(b64u.dec(code))}catch(e){r=null}if(!r){toast('That recipe link looks broken');return}
+  r.id='r'+Date.now().toString(36);r.ts=Date.now();const B=BREWERS[r.b];
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Shared recipe'+(r.author?' from '+esc(r.author):'')+'</span><h2 id="vd-title">'+esc(r.name)+'</h2>'+
+   '<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C</span>':'')+'</div></div><div class="vd-body">'+(r.why?'<p>'+esc(r.why)+'</p>':'')+'<ol class="steps">'+r.steps.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol>'+(r.tip?'<p class="hint">'+esc(r.tip)+'</p>':'')+
+   '<div class="meta">'+MYG.map(g=>{const v=settingFor(g,r.b,r.off);return '<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>'}).join('')+'</div>'+
+   '<div class="actions"><button class="btn" id="imp-add">Add to my recipes</button><button class="btn ghost" id="imp-no">Not now</button></div></div>';
+  const d=$('vd');if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}d.scrollTop=0;$('vd-x').onclick=$('imp-no').onclick=()=>d.close();
+  $('imp-add').onclick=()=>{saveRecipe(r);d.close();RF='mine';showTab('recipes');toast('Added to your recipes')}}
 
 /* ================= TECHNIQUES ================= */
 let TC='all',TQ='';const TCOL={bloom:'#C9964A',pour:'#8A5A3B',bed:'#6B8E4E',structure:'#B5533C',temp:'#4F8A74',cold:'#6E8FA8',espresso:'#7B4F32',taste:'#9A7390'};
@@ -390,10 +525,6 @@ $('pmap').onmousemove=e=>{const g=e.target.closest('.pdg');if(g)$('pm-label').te
 $('pgrid').onclick=e=>{const b=e.target.closest('[data-usep]');if(b){S.process=b.dataset.usep;render();showTab('dial');toast('Process set to '+PROCESSES[S.process].name)}};
 
 /* ================= GEAR ================= */
-const GEAR_G={
- zp6:{full:'1Zpresso ZP6 Special',burr:'48 mm hexagonal (six-sided) conical steel burrs, designed only for filter',dial:'External ring: 9 numbers per turn, 10 clicks per number, 90 clicks per rotation, about 22 microns per click',range:'Filter roughly 4.5 to 7.0 (45 to 70 clicks). Below about 2.0 the burrs rub, so no espresso or Turkish.',cup:'The fewest fines in the 1Zpresso range: very clean, separated, high-clarity cups.',use:'Washed coffees, Geisha and Ethiopian landraces, V60, NEO, Origami, Chemex.',start:56},
- kultra:{full:'1Zpresso K-Ultra',burr:'48 mm heptagonal (seven-sided) "K burr" conical steel burrs, an all-rounder',dial:'External ring: 10 numbers per turn, 10 clicks per number, 100 clicks per rotation, 20 microns per click. Can go past one full turn.',range:'Filter roughly 7.0 to 9.5 (70 to 95 clicks). Espresso around 2.5 to 4.5; French press and cold brew past one full turn.',cup:'More body and a rounder, more blended cup than the ZP6.',use:'Naturals and honeys, immersion, espresso, AeroPress, anything that tastes thin.',start:72}
-};
 const GEAR_A=[
  ['Kettle','A gooseneck kettle with temperature control. For two-temperature recipes keep a small bottle of room-temperature water beside it.'],
  ['Scale','Weigh coffee and water every time, ideally 0.1 g with a built-in timer.'],
@@ -404,38 +535,110 @@ const GEAR_A=[
 ];
 let GF='all';const TYCOL={};Object.values(BREWERS).forEach(b=>{if(!TYCOL[b.type])TYCOL[b.type]=['#8A5A3B','#6B8E4E','#C9964A','#B5533C','#4F8A74','#6E8FA8','#9A7390','#5B5F66'][Object.keys(TYCOL).length%8]});
 function buildGear(){
-  $('gear-grinders').innerHTML=Object.entries(GEAR_G).map(([k,g])=>'<div class="card"><h3>'+g.full+'</h3><svg class="dialbig" id="gd-'+k+'" viewBox="0 0 160 160" aria-hidden="true"></svg>'+
-   '<input type="range" min="'+GRINDERS[k].min+'" max="'+GRINDERS[k].max+'" step="1" value="'+g.start+'" data-gd="'+k+'" aria-label="'+g.full+' dial position"><p class="hint" id="gh-'+k+'" style="text-align:center"></p>'+
-   '<dl class="spec"><dt>Burrs</dt><dd>'+g.burr+'</dd><dt>Dial</dt><dd>'+g.dial+'</dd><dt>Range</dt><dd>'+g.range+'</dd><dt>Cup</dt><dd>'+g.cup+'</dd><dt>Reach for it</dt><dd>'+g.use+'</dd></dl></div>').join('');
-  const upd=k=>{const c=+document.querySelector('[data-gd="'+k+'"]').value;drawDial('gd-'+k,k,c);$('gh-'+k).textContent=dialHint(k,c)};
-  $('gear-grinders').oninput=e=>{const k=e.target.dataset.gd;if(k)upd(k)};upd('zp6');upd('kultra');
+  renderMyGrinders();renderMatch();renderLibrary();renderCustomForm();
   $('gear-acc').innerHTML=GEAR_A.map(([n,d])=>'<div class="card hovercard"><h3>'+n+'</h3><p style="margin:0">'+d+'</p></div>').join('');
   renderGearBrewers();renderGrindMap();
 }
+const gtype=g=>GRINDERS[g].custom?'Your grinder':GRINDERS[g].type==='electric'?'Electric':'Manual';
+const startFor=g=>base(g,'v60')??Math.round((GRINDERS[g].min+GRINDERS[g].max)/2);
+function specList(g){const G=GRINDERS[g];return '<details class="gspec"><summary>Details</summary><dl class="spec">'+[['Burrs',G.burr],['Dial',G.adjust],['Range',G.range],['Cup',G.cup],['Reach for it',G.use]].filter(x=>x[1]).map(([k,v])=>'<dt>'+k+'</dt><dd>'+esc(v)+'</dd>').join('')+'</dl></details>'}
+function renderMyGrinders(){
+  $('gear-grinders').innerHTML=MYG.map(g=>{const G=GRINDERS[g];return '<div class="card"><div class="ghead"><div><span class="hint">'+gtype(g)+'</span><h3 style="margin:.1rem 0 0">'+esc(G.full)+'</h3></div>'+
+   (MYG.length>1?'<button type="button" class="chip" data-grm="'+g+'">Remove</button>':'')+'</div><svg class="dialbig" id="gd-'+g+'" viewBox="0 0 160 160" aria-hidden="true"></svg>'+
+   '<input type="range" min="'+G.min+'" max="'+G.max+'" step="1" value="'+startFor(g)+'" data-gd="'+g+'" aria-label="'+esc(G.name)+' dial position"><p class="hint" id="gh-'+g+'" style="text-align:center"></p>'+specList(g)+'</div>'}).join('');
+  const upd=g=>{const c=+document.querySelector('[data-gd="'+g+'"]').value;drawDial('gd-'+g,g,c);$('gh-'+g).textContent=dialHint(g,c)+nearestBrew(sizeOf(g,c))};
+  $('gear-grinders').oninput=e=>{const g=e.target.dataset.gd;if(g)upd(g)};MYG.forEach(upd);
+  $('gear-grinders').onclick=e=>{const b=e.target.closest('[data-grm]');if(b)setMine(b.dataset.grm,false)};
+}
+// "About a V60 grind": the brewer whose place on the shared scale is closest.
+function nearestBrew(size){let best=null,d=1e9;for(const k of MODEL){const E=brewSize(k);if(E!=null&&Math.abs(E-size)<d){d=Math.abs(E-size);best=k}}return best&&d<140?' · about a '+BREWERS[best].name+' grind':''}
+function grinderSelect(id,val){return '<select id="'+id+'">'+[['manual','Manual'],['electric','Electric'],['custom','Your grinders']].map(([t,l])=>{const ks=Object.keys(GRINDERS).filter(g=>t==='custom'?GRINDERS[g].custom:!GRINDERS[g].custom&&GRINDERS[g].type===t);
+  return ks.length?'<optgroup label="'+l+'">'+ks.map(g=>'<option value="'+g+'"'+(g===val?' selected':'')+'>'+esc(GRINDERS[g].full)+'</option>').join('')+'</optgroup>':''}).join('')+'</select>'}
+let MATCH={g:null,v:''};
+function renderMatch(){if(!MATCH.g||!GRINDERS[MATCH.g])MATCH={g:MYG[0],v:dial(MYG[0],startFor(MYG[0]))};
+  $('gmatch').innerHTML='<h3 style="margin-top:0">Match a grind size</h3><p class="hint" style="margin-top:0">Enter a setting on one grinder to see roughly the same grind on the others.</p>'+
+   '<div class="matchrow"><div class="field"><label for="gm-from">Grinder</label>'+grinderSelect('gm-from',MATCH.g)+'</div><div class="field"><label for="gm-val">Setting</label><input id="gm-val" inputmode="decimal" value="'+esc(MATCH.v)+'"></div></div><div id="gm-out"></div>';
+  $('gm-from').onchange=e=>{MATCH.g=e.target.value;MATCH.v=dial(MATCH.g,startFor(MATCH.g));renderMatch()};
+  $('gm-val').oninput=e=>{MATCH.v=e.target.value;soon(matchOut)};matchOut()}
+function matchOut(){const g=MATCH.g,c=parseDial(g,MATCH.v),G=GRINDERS[g];
+  if(c==null||c<G.min-2||c>G.max+2){$('gm-out').innerHTML='<p class="hint">Type a setting the '+esc(G.name)+' can reach ('+dial(g,G.min)+' to '+dial(g,G.max)+').</p>';return}
+  const size=sizeOf(g,c),row=h=>{const v=stepsFor(h,size),H=GRINDERS[h];const ok=v>=H.min-0.5&&v<=H.max+0.5&&(size>=V60_SIZE*0.6||H.espresso);
+    return '<div class="mrow'+(MYG.includes(h)?' mine':'')+'"><span>'+esc(H.name)+'</span><b>'+(ok?esc(dial(h,roundG(h,v)))+(H.unit==='clicks'?' <small>clicks</small>':''):'<small>out of range</small>')+'</b></div>'};
+  const others=Object.keys(GRINDERS).filter(h=>h!==g&&!MYG.includes(h));
+  $('gm-out').innerHTML='<p class="hint" style="margin:.2rem 0 .6rem">'+esc(dialHint(g,c))+nearestBrew(size)+'</p>'+
+   (MYG.filter(h=>h!==g).length?'<div class="mgroup"><h4>Your grinders</h4>'+MYG.filter(h=>h!==g).map(row).join('')+'</div>':'')+
+   ['manual','electric'].map(t=>{const ks=others.filter(h=>!GRINDERS[h].custom&&GRINDERS[h].type===t);return ks.length?'<div class="mgroup"><h4>'+(t==='manual'?'Manual':'Electric')+'</h4>'+ks.map(row).join('')+'</div>':''}).join('')+
+   '<p class="hint" style="margin-top:.6rem">Estimates from typical settings; burr shape changes the taste, so fine-tune by taste.</p>'}
+let GLF='all',GCMP=[];
+function renderLibrary(){
+  seg('glib-filter',[['all','All'],['manual','Manual'],['electric','Electric']].concat(Object.values(GRINDERS).some(G=>G.custom)?[['custom','Your grinders']]:[]),()=>GLF,v=>{GLF=v;renderLibrary()});
+  const groups=[['manual','Manual grinders'],['electric','Electric grinders'],['custom','Your own grinders']].filter(([t])=>GLF==='all'||GLF===t);
+  $('glib').innerHTML=groups.map(([t,title])=>{const ks=Object.keys(GRINDERS).filter(g=>t==='custom'?GRINDERS[g].custom:!GRINDERS[g].custom&&GRINDERS[g].type===t);if(!ks.length)return'';
+    return '<h4 class="libhead">'+title+'</h4><div class="grid">'+ks.map(g=>{const G=GRINDERS[g],mine=MYG.includes(g),v6=base(g,'v60'),ap=base(g,'aeropress'),fp=base(g,'frenchpress');
+      return '<div class="card"><div class="ghead"><div><span class="hint">'+esc(G.brand||gtype(g))+(G.espresso?' · espresso capable':'')+'</span><h3 style="margin:.1rem 0 0">'+esc(G.full)+'</h3></div>'+(G.custom?'<button type="button" class="chip" data-gdel="'+g+'">Delete</button>':'')+'</div>'+
+       '<div class="meta">'+[['V60',v6],['AeroPress',ap],['French press',fp]].map(([n,v])=>'<span>'+n+' '+(v!=null?esc(dial(g,v)):'n/a')+'</span>').join('')+'</div>'+specList(g)+
+       '<div class="actions"><button type="button" class="btn'+(mine?' ghost':'')+'" data-gmine="'+g+'">'+(mine?'✓ In your grinders':'Add to my grinders')+'</button><button type="button" class="btn ghost" data-gcmp="'+g+'" aria-pressed="'+GCMP.includes(g)+'">'+(GCMP.includes(g)?'✓ Comparing':'Compare')+'</button></div></div>'}).join('')+'</div>'}).join('');
+  renderGCompare()}
+$('glib').onclick=e=>{const m=e.target.closest('[data-gmine]'),c=e.target.closest('[data-gcmp]'),d=e.target.closest('[data-gdel]');
+  if(m){setMine(m.dataset.gmine,!MYG.includes(m.dataset.gmine));return}
+  if(c){const g=c.dataset.gcmp;if(GCMP.includes(g))GCMP=GCMP.filter(x=>x!==g);else{if(GCMP.length>=3){toast('Compare up to three at a time');return}GCMP.push(g)}renderLibrary();if(GCMP.length)$('gcmp').scrollIntoView({behavior:RM()?'auto':'smooth',block:'nearest'});return}
+  if(d&&confirm('Delete '+GRINDERS[d.dataset.gdel].name+'?')){const g=d.dataset.gdel;delete CUSTOM_G[g];save('bb-custom-grinders',CUSTOM_G);setMine(g,false,true);delete GRINDERS[g];GCMP=GCMP.filter(x=>x!==g);grindersChanged();toast('Grinder deleted')}};
+function renderGCompare(){if(!GCMP.length){$('gcmp').innerHTML='';return}
+  const rows=[['Type',g=>gtype(g)],['Burrs',g=>GRINDERS[g].burr||'–'],['Dial',g=>GRINDERS[g].adjust||'–'],['Microns per step',g=>GRINDERS[g].um?'about '+GRINDERS[g].um:'–'],['Espresso',g=>GRINDERS[g].espresso?'Yes':'No'],
+    ['Espresso setting',g=>{const v=base(g,'espresso');return v!=null?dial(g,v):'n/a'}],['AeroPress',g=>{const v=base(g,'aeropress');return v!=null?dial(g,v):'n/a'}],['V60',g=>{const v=base(g,'v60');return v!=null?dial(g,v):'n/a'}],['French press',g=>{const v=base(g,'frenchpress');return v!=null?dial(g,v):'n/a'}],['In the cup',g=>GRINDERS[g].cup||'–']];
+  $('gcmp').innerHTML='<div class="card cmpcard"><div class="ghead"><h3 style="margin:0">Side by side</h3><button type="button" class="chip" id="gcmp-clear">Clear</button></div><div class="scroll-x"><table class="gtable"><thead><tr><th></th>'+GCMP.map(g=>'<th>'+esc(GRINDERS[g].name)+'</th>').join('')+'</tr></thead><tbody>'+
+   rows.map(([n,f])=>'<tr><th>'+n+'</th>'+GCMP.map(g=>'<td>'+esc(f(g))+'</td>').join('')+'</tr>').join('')+'</tbody></table></div></div>';
+  $('gcmp-clear').onclick=()=>{GCMP=[];renderLibrary()}}
+function setMine(g,on,quiet){if(on&&!MYG.includes(g))MYG.push(g);if(!on){if(MYG.length<=1&&!quiet){toast('Keep at least one grinder');return}MYG=MYG.filter(x=>x!==g)}if(!MYG.length)MYG=['kultra'];save('bb-mygrinders',MYG);
+  if(!quiet){grindersChanged();toast(on?gname(g)+' added to your grinders':gname(g)+' removed')}}
+// Everything that shows grinder settings follows your grinders.
+function grindersChanged(){if(!MYG.includes(S.grinder)||!canGrind(S.grinder,S.brewer)){const g=MYG.find(x=>canGrind(x,S.brewer))||capable(S.brewer);S.setting=canGrind(S.grinder,S.brewer)?convertSetting(S,g,S.brewer):base(g,S.brewer);S.grinder=g}
+  if(!MYG.includes(PL.grinder))PL.grinder=MYG.find(x=>canGrind(x,PL.brewer))||capable(PL.brewer);if(!MYG.includes(SC.grinder))SC.grinder=MYG.find(x=>canGrind(x,SC.brewer))||capable(SC.brewer);
+  render();renderPlan();renderScan();renderCal();if(BUILT.recipes)renderRecipes();if(BUILT.gear){renderMyGrinders();renderMatch();renderLibrary();renderGearBrewers();renderGrindMap()}}
+function renderCustomForm(){
+  $('gcustom-in').innerHTML='<div class="cform"><div class="field"><label for="cg-name">Name</label><input id="cg-name" maxlength="40" placeholder="e.g. Hario Skerton Pro"></div>'+
+   '<div class="two"><div class="field"><label for="cg-type">Type</label><select id="cg-type"><option value="manual">Manual</option><option value="electric">Electric</option></select></div>'+
+   '<div class="field"><label for="cg-fmt">How is it set?</label><select id="cg-fmt"><option value="clicks">Clicks from fully closed</option><option value="num1">Numbered dial (1, 2, 3)</option><option value="num10">Numbered dial with 10 steps (5.6)</option><option value="num3">Numbered dial with thirds (4, 4.1, 4.2)</option><option value="rot">1Zpresso-style ring (rotation.number.click)</option></select></div></div>'+
+   '<div class="two"><div class="field"><label for="cg-min">Finest setting</label><input id="cg-min" inputmode="decimal" value="0"></div><div class="field"><label for="cg-max">Coarsest setting</label><input id="cg-max" inputmode="decimal" value="40"></div></div>'+
+   '<div class="two"><div class="field"><label for="cg-v60">Your V60 setting</label><input id="cg-v60" inputmode="decimal" placeholder="e.g. 24"></div>'+
+   '<div class="field"><label for="cg-ref">And one more you know</label><div class="joinrow"><select id="cg-reft"><option value="espresso">Espresso</option><option value="aeropress">AeroPress</option><option value="frenchpress" selected>French press</option></select><input id="cg-ref" inputmode="decimal" placeholder="optional"></div></div></div>'+
+   '<div class="field"><label for="cg-burr">Burrs (optional)</label><input id="cg-burr" maxlength="80" placeholder="e.g. 38 mm ceramic conical"></div>'+
+   '<p class="hint">The V60 setting anchors it; the second setting tells the app how far apart the settings are. Without it, the app assumes a typical spacing.</p>'+
+   '<div class="actions"><button type="button" class="btn" id="cg-save">Add grinder</button></div></div>';
+  $('cg-save').onclick=()=>{const name=$('cg-name').value.trim(),fmt=$('cg-fmt').value;if(!name){toast('Give the grinder a name');return}
+    const G={custom:true,name,full:name,type:$('cg-type').value,burr:$('cg-burr').value.trim(),adjust:{clicks:'Clicks counted from fully closed',num1:'Numbered dial',num10:'Numbered dial, 10 steps per number',num3:'Numbered dial with thirds',rot:'Ring read as rotation.number.click'}[fmt],
+      fmt:fmt==='rot'?'rot':'num',per:fmt==='rot'?100:undefined,sub:{num10:10,num3:3}[fmt]||1,first:0,unit:fmt==='clicks'?'clicks':undefined,body:0,clarity:0};
+    GRINDERS.__tmp=G;const P=id=>{const v=$(id).value.trim();return v===''?null:parseDial('__tmp',v)};
+    const mn=P('cg-min'),mx=P('cg-max'),v6=P('cg-v60'),rf=P('cg-ref'),rt=$('cg-reft').value;delete GRINDERS.__tmp;
+    if(v6==null){toast('Add your V60 setting, it anchors everything');return}if(mn==null||mx==null||mx<=mn){toast('Check the finest and coarsest settings');return}
+    let k=30;if(rf!=null&&rf!==v6){const E=brewSize(rt)??ESP_SIZE;k=(E-V60_SIZE)/(rf-v6);if(!(k>0)){toast('That setting should be '+(rt==='frenchpress'?'coarser':'finer')+' than your V60 setting');return}}
+    Object.assign(G,{min:mn,max:mx,v60:v6,k:Math.round(k*10)/10,espresso:rt==='espresso'&&rf!=null,range:'V60 '+$('cg-v60').value+(rf!=null?', '+BREWERS[rt].name+' '+$('cg-ref').value:'')});
+    const id='c'+Date.now().toString(36);CUSTOM_G[id]=G;save('bb-custom-grinders',CUSTOM_G);G.step=Math.max(1,160/G.k);GRINDERS[id]=G;setMine(id,true,true);grindersChanged();
+    $('gcustom').open=false;toast(name+' added to your grinders');GLF='all';renderLibrary()}}
 function renderGearBrewers(){
   const types=[...new Set(Object.values(BREWERS).map(b=>b.type))];
   seg('gear-filter',[['all','All'],...types.map(t=>[t,t])],()=>GF,v=>{GF=v;renderGearBrewers()});
   $('gear-brewers').innerHTML=Object.entries(BREWERS).filter(([,b])=>GF==='all'||b.type===GF).map(([k,b])=>'<div class="card hovercard" id="gb-'+k+'" style="border-top:5px solid '+TYCOL[b.type]+'"><span class="hint">'+b.type+'</span><h3 style="margin-top:.2rem">'+esc(b.name)+'</h3><p>'+esc(b.desc)+'</p><p><b>How it behaves.</b> '+esc(b.how)+'</p><p><b>Best for.</b> '+esc(b.best)+'</p>'+
-   '<div class="meta">'+(b.base.zp6!=null?'<span>ZP6 Special '+dial('zp6',base('zp6',k))+'</span>':'<span>ZP6 Special: too coarse</span>')+(b.base.kultra!=null?'<span>K-Ultra '+dial('kultra',base('kultra',k))+'</span>':'')+'</div>'+
+   '<div class="meta">'+MYG.map(g=>'<span>'+esc(canGrind(g,k)?gLabel(g,base(g,k)):gname(g)+': n/a')+'</span>').join('')+'</div>'+
    '<div class="actions">'+(RECIPES.some(r=>r.b===k)?'<button class="btn ghost" data-grec="'+k+'">See recipes</button>':'')+(b.model?'<button class="btn ghost" data-gdial="'+k+'">Dial it in</button>':'')+'</div></div>').join('');
 }
 $('gear-brewers').onclick=e=>{const a=e.target.closest('[data-grec]'),d=e.target.closest('[data-gdial]');
   if(a){RF=BREWERS[a.dataset.grec].type;renderRecipes();showTab('recipes')}
   if(d){$('i-brewer').value=d.dataset.gdial;$('i-brewer').dispatchEvent(new Event('change'));showTab('dial')}};
 function renderGrindMap(){
-  let h='';for(const g of['zp6','kultra']){const G=GRINDERS[g];const pos=c=>((c-G.min)/(G.max-G.min)*100).toFixed(2)+'%';
+  let h='';for(const g of MYG){const G=GRINDERS[g];const pos=c=>((c-G.min)/(G.max-G.min)*100).toFixed(2)+'%';
     // Markers closer than about one marker width go into separate lanes, so none hides another.
-    const ms=Object.keys(BREWERS).filter(k=>BREWERS[k].base[g]!=null&&base(g,k)!=null).map(k=>({k,v:base(g,k)})).sort((a,b)=>a.v-b.v);
+    const ms=Object.keys(BREWERS).filter(k=>canGrind(g,k)).map(k=>({k,v:base(g,k)})).sort((a,b)=>a.v-b.v);
     const lanes=[],gap=(G.max-G.min)*0.06;for(const m of ms){let l=lanes.findIndex(x=>m.v-x>=gap);if(l<0){l=lanes.length;lanes.push(0)}lanes[l]=m.v;m.lane=l}
-    h+='<h3 style="margin:0">'+G.name+'</h3><div class="grindtrack" data-g="'+g+'" style="--lanes:'+Math.max(1,lanes.length)+'">';
-    for(let c=Math.ceil(G.min/10)*10;c<=G.max;c+=10)h+='<span class="scale" style="left:'+pos(c)+'">'+dial(g,c)+'</span>';
+    h+='<h3 style="margin:0">'+esc(G.name)+'</h3><div class="grindtrack" data-g="'+g+'" style="--lanes:'+Math.max(1,lanes.length)+'">';
+    const tick=G.fmt==='rot'||G.sub===10?10:Math.max(1,Math.round((G.max-G.min)/8/(G.sub||1))*(G.sub||1));for(let c=Math.ceil(G.min/tick)*tick;c<=G.max;c+=tick)h+='<span class="scale" style="left:'+pos(c)+'">'+dial(g,c)+'</span>';
     for(const {k,v,lane} of ms)h+='<button type="button" class="gm" data-k="'+k+'" data-g="'+g+'" style="--lane:'+lane+';left:'+pos(clamp(v,G.min,G.max))+';background:'+TYCOL[BREWERS[k].type]+'" aria-label="'+esc(BREWERS[k].name)+' '+dial(g,v)+'" title="'+esc(BREWERS[k].name)+'"></button>';
     h+='</div><div class="gmlabel" id="gml-'+g+'">Tap a marker</div>'}
   h+='<div class="chips">'+Object.entries(TYCOL).map(([t,c])=>'<span class="pill"><i style="background:'+c+'"></i>'+t+'</span>').join('')+'</div>';
   $('grindmap').innerHTML=h;
 }
 $('grindmap').onclick=e=>{const m=e.target.closest('.gm');if(!m)return;const g=m.dataset.g,k=m.dataset.k;$('grindmap').querySelectorAll('.gm').forEach(x=>x.classList.toggle('on',x.dataset.k===k));
-  for(const gg of['zp6','kultra']){const v=base(gg,k);$('gml-'+gg).textContent=BREWERS[k].name+': '+(BREWERS[k].base[gg]==null?'not possible':dial(gg,v)+' ('+v+' clicks)')}};
+  for(const gg of MYG){const el=$('gml-'+gg);if(el)el.textContent=BREWERS[k].name+': '+(canGrind(gg,k)?gLabel(gg,base(gg,k)):'not possible')}};
 
 /* ================= VARIETY DIALOG ================= */
 function vbtn(id){const v=VBY[id];if(!v)return'';return'<button type="button" class="vbtn" data-v="'+id+'"><i style="background:'+FAM[v.fam].color+'"></i>'+esc(v.name)+'</button>'}
@@ -451,7 +654,7 @@ function openVariety(id){
    (v.subs?'<h3>Types of '+esc(v.name.split(' ')[0])+'</h3>'+v.subs.map(s=>'<details class="sub"><summary>'+esc(s.name)+'</summary><p>'+esc(s.story)+'</p><p><b>Cup:</b> '+esc(s.cup)+'</p><button class="btn ghost" data-use="'+v.id+':'+s.k+'">Brew this in the dial-in</button></details>').join(''):'')+
    (grown.length?'<h3>Where it grows</h3><div class="chips">'+grown.filter(k=>ALLO()[k]).map(k=>'<button class="chip" data-o="'+k+'">'+(ALLO()[k].flag||'')+' '+esc(originName(k))+'</button>').join('')+'</div>':'')+
    (v.id!=='arabica'?'<div class="actions"><button class="btn" data-use="'+v.id+'">Brew this in the dial-in</button><button class="btn ghost" data-plan-v="'+v.id+'">Plan a brew</button><button class="btn ghost" data-vshare="'+v.id+'">Share</button></div>':'')+'</div>';
-  const d=$('vd');if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}
+  const d=$('vd');if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}d.scrollTop=0;
   $('vd-x').onclick=()=>d.close();
 }
 $('vd').addEventListener('click',e=>{const d=$('vd');if(e.target===d){d.close();return}
@@ -640,24 +843,29 @@ const dbUrl=path=>SYNC_DB.replace(/\/+$/,'')+'/groups/'+GROUP.code+path+'.json';
 const newCode=()=>{const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let c='';const r=crypto.getRandomValues(new Uint8Array(8));r.forEach((x,i)=>{c+=A[x%A.length];if(i===3)c+='-'});return c};
 function setSync(st){SYNC_STATE=st;const el=$('sync-state');if(el){el.dataset.s=st;el.textContent={live:'Live',connecting:'Connecting…',offline:'Offline: changes will sync later',off:''}[st]||''}}
 async function flush(){if(!GROUP||!SYNC_DB||!navigator.onLine)return;while(PENDING.length){const op=PENDING[0];
-    try{const r=await fetch(dbUrl('/log/'+op.id),op.op==='del'?{method:'DELETE'}:{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(op.data)});if(!r.ok)throw new Error(r.status)}
+    try{const r=await fetch(dbUrl('/'+(op.col||'log')+'/'+op.id),op.op==='del'?{method:'DELETE'}:{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(op.data)});if(!r.ok)throw new Error(r.status)}
     catch(e){setSync('offline');return}PENDING.shift();save('bb-pending',PENDING)}}
-function queue(op,id,data){if(!GROUP||!SYNC_DB)return;PENDING=PENDING.filter(p=>p.id!==id);PENDING.push({op,id,data});save('bb-pending',PENDING);flush()}
-// Replace group entries with what the server has, keeping local changes that have not been sent yet.
-function applyRemote(entries){const pend=new Map(PENDING.map(p=>[p.id,p]));const out=[];
+// Shared data lives in collections under the group: 'log' (brews) and 'recipes'.
+function queue(op,id,data,col='log'){if(!GROUP||!SYNC_DB)return;PENDING=PENDING.filter(p=>!(p.id===id&&(p.col||'log')===col));PENDING.push({col,op,id,data});save('bb-pending',PENDING);flush()}
+// Replace a collection with what the server has, keeping local changes that have not been sent yet.
+function mergeRemote(col,entries){const pend=new Map(PENDING.filter(p=>(p.col||'log')===col).map(p=>[p.id,p]));const out=[];
   for(const [id,e] of Object.entries(entries||{})){if(!e||typeof e!=='object'||pend.get(id)&&pend.get(id).op==='del')continue;out.push(Object.assign({},e,{id}))}
-  for(const p of PENDING)if(p.op==='put'&&!out.some(e=>e.id===p.id))out.push(p.data);
-  LOG=out.sort((a,b)=>(b.ts||0)-(a.ts||0));save('bb-log',LOG);renderLog()}
+  for(const p of pend.values())if(p.op==='put'&&!out.some(e=>e.id===p.id))out.push(p.data);return out}
+function applyRemote(snap){LOG=mergeRemote('log',snap.log).sort((a,b)=>(b.ts||0)-(a.ts||0));save('bb-log',LOG);renderLog();
+  CREC=mergeRemote('recipes',snap.recipes).map(sanRec).filter(Boolean);save('bb-myrecipes',CREC);recipesChanged()}
 function startStream(){stopStream();if(!GROUP||!SYNC_DB||typeof EventSource==='undefined')return;setSync('connecting');
-  let snap={};const es=STREAM=new EventSource(dbUrl('/log'));
-  const onData=(ev,merge)=>{let m;try{m=JSON.parse(ev.data)}catch(e){return}if(!m)return;const path=m.path||'/';
-    if(path==='/'){snap=merge?Object.assign(snap,m.data||{}):(m.data||{})}else{const id=path.split('/')[1];if(path.split('/').length>2){snap[id]=Object.assign({},snap[id],{[path.split('/')[2]]:m.data})}else if(m.data===null)delete snap[id];else snap[id]=merge?Object.assign({},snap[id],m.data):m.data}
+  let snap={};const es=STREAM=new EventSource(dbUrl(''));
+  // Apply a streamed change at its path, e.g. "/log/abc" or "/recipes/xyz/name".
+  const onData=(ev,merge)=>{let m;try{m=JSON.parse(ev.data)}catch(e){return}if(!m)return;const segs=(m.path||'/').split('/').filter(Boolean);
+    if(!segs.length)snap=merge?Object.assign(snap,m.data||{}):(m.data||{});
+    else{let o=snap;for(const k of segs.slice(0,-1)){if(!o[k]||typeof o[k]!=='object')o[k]={};o=o[k]}const last=segs.at(-1);
+      if(m.data===null)delete o[last];else o[last]=merge&&o[last]&&typeof o[last]==='object'?Object.assign({},o[last],m.data):m.data}
     setSync('live');applyRemote(snap);flush()};
   es.addEventListener('put',e=>onData(e,false));es.addEventListener('patch',e=>onData(e,true));
   es.addEventListener('cancel',()=>{setSync('offline')});es.onerror=()=>setSync(navigator.onLine?'connecting':'offline')}
 function stopStream(){if(STREAM){STREAM.close();STREAM=null}}
 function joinGroup(code,name){ME=name.trim().slice(0,30);try{localStorage.setItem('bb-name',ME)}catch(e){}GROUP={code};save('bb-group',GROUP);
-  LOG.forEach(l=>{if(!l.by)l.by=ME;queue('put',l.id,l)});renderLog();startStream()}
+  LOG.forEach(l=>{if(!l.by)l.by=ME;queue('put',l.id,l)});CREC.forEach(r=>{if(!r.author)r.author=ME;queue('put',r.id,r,'recipes')});renderLog();startStream()}
 function leaveGroup(){stopStream();GROUP=null;PENDING=[];save('bb-group',null);save('bb-pending',[]);try{localStorage.removeItem('bb-group')}catch(e){}setSync('off');renderLog()}
 addEventListener('online',()=>{if(GROUP){flush();if(!STREAM)startStream()}});addEventListener('offline',()=>{if(GROUP)setSync('offline')});
 function inviteDoc(){const link=SITE_URL+'#join='+GROUP.code;return{title:'Join my brew log',sub:'Shared log code '+GROUP.code,file:'brew-log-invite',blocks:[{p:'Tap the link to see and add to our shared coffee log in The Brew Bench:'},{p:link},{p:'Or open the app, go to Log and enter the code '+GROUP.code+'.'}]}}
@@ -698,14 +906,14 @@ $('l-csv').onclick=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';cons
   saveFile('brew-log.csv',new Blob(['\ufeff'+rows.map(r=>r.map(q).join(',')).join('\r\n')],{type:'text/csv'}))};
 
 /* ================= SCAN ================= */
-let SC=Object.assign({origin:'colombia',process:'washed',variety:'pinkbourbon',roast:'light',date:'',brewer:'v60',grinder:'zp6',info:null},load('bb-scan',{}));
+let SC=Object.assign({origin:'colombia',process:'washed',variety:'pinkbourbon',roast:'light',date:'',brewer:'v60',grinder:'zp6',info:null},load('bb-scan',{}));if(!MYG.includes(SC.grinder))SC.grinder=MYG[0];
 if(!PROCESSES[SC.process])SC.process='washed';if(!vById(SC.variety))SC.variety='pinkbourbon';if(!ALLO()[SC.origin])SC.origin='colombia';if(!PBREWERS.includes(SC.brewer))SC.brewer='v60';
 let SCANS=load('bb-scans',[]),SAMPLE=null,IMGS=null,SFILE=null,SCTL=null;
 function daysSince(d){if(!d)return 14;const t=Date.parse(d);if(isNaN(t))return 14;return clamp(Math.round((Date.now()-t)/864e5),1,90)}
 function initScan(){
   $('s-origin').innerHTML=Object.entries(REG).map(([rk,r])=>'<optgroup label="'+r.name+'">'+Object.keys(ALLO()).filter(k=>ALLO()[k].reg===rk).sort((a,b)=>ALLO()[a].name.localeCompare(ALLO()[b].name)).map(k=>'<option value="'+k+'">'+esc(ALLO()[k].name)+'</option>').join('')+'</optgroup>').join('');
   $('s-brewer').innerHTML=brewerOptions(PBREWERS);
-  for(const [id,key] of [['s-origin','origin'],['s-process','process'],['s-variety','variety'],['s-brewer','brewer'],['s-date','date']])$(id).onchange=e=>{SC[key]=e.target.value;if(key==='brewer'&&!canGrind(SC.grinder,SC.brewer))SC.grinder='kultra';renderScan()};
+  for(const [id,key] of [['s-origin','origin'],['s-process','process'],['s-variety','variety'],['s-brewer','brewer'],['s-date','date']])$(id).onchange=e=>{SC[key]=e.target.value;if(key==='brewer'&&!canGrind(SC.grinder,SC.brewer))SC.grinder=capable(SC.brewer);renderScan()};
   $('scan-pick').onclick=()=>$('scan-file').click();$('scan-drop').onclick=()=>$('scan-file').click();
   $('scan-file').onchange=e=>{const f=e.target.files[0];if(!f)return;SFILE=f;const u=URL.createObjectURL(f);$('scan-prev').src=u;$('scan-prev').hidden=false;$('scan-empty').hidden=true;$('scan-go').disabled=false;$('scan-status').hidden=false;
     $('scan-status').textContent='Ready. Tap "Read the label".';runScan(true)};
@@ -831,7 +1039,7 @@ function renderScanList(){$('scan-list').innerHTML=SCANS.length?SCANS.map((s,i)=
 function renderScan(){
   $('s-origin').value=SC.origin;$('s-process').value=SC.process;$('s-variety').value=SC.variety;$('s-date').value=SC.date||'';$('s-brewer').value=SC.brewer;
   seg('s-roast',[['light','Light'],['medium','Medium'],['dark','Dark']],()=>SC.roast,v=>{SC.roast=v;renderScan()});
-  seg('s-grinder',grinderOpts(SC.brewer),()=>SC.grinder,v=>{SC.grinder=v;renderScan()});
+  grinderSeg('s-grinder',(SC.brewer),()=>SC.grinder,v=>{SC.grinder=v;renderScan()});
   const age=daysSince(SC.date);const c={brewer:SC.brewer,grinder:SC.grinder,tech:techList(SC.brewer)[0][1],process:SC.process,variety:SC.variety,roast:SC.roast,age,goal:'balance'};
   const P=PROCESSES[SC.process],Vp=vParams(SC.variety);
   const tl=techList(SC.brewer);const pref=tl.find(([r])=>P.funk>=1.2?(r.kind==='kh1'||r.kind==='imm'||r.kind==='kh2'):Vp.clarity>=0.8?(r.kind==='46'||r.kind==='neo'||r.kind==='pulse'):true);if(pref)c.tech=pref[1];
@@ -879,13 +1087,13 @@ function docPDF(doc){
   return pdf.output('blob');
 }
 
-function recipeDoc(i,p){const r=RECIPES[i],B=BREWERS[r.b];const z=p?p.set.zp6:settingFor('zp6',r.b,r.off),k=p?p.set.kultra:settingFor('kultra',r.b,r.off);
+function recipeDoc(i,p){const r=RECIPES[i],B=BREWERS[r.b];const extra=r.custom?[{h:'Add it to your app',p:recipeLink(r)}]:[];const gs=MYG.map(g=>[g,p&&p.set[g]!==undefined?p.set[g]:settingFor(g,r.b,r.off)]);
   const kv=[['Brewer',B.name],['Dose : water',r.dose+'g : '+(p?p.water:r.water)+'g'+(p?' (1:'+p.ratio+')':'')],['Water temperature',(p?p.temp:r.temp)?(p?p.temp:r.temp)+'°C'+(r.temp2?', then about '+r.temp2+'°C':''):'Cold or not applicable']];
-  if(z!=null)kv.push(['ZP6 Special',dial('zp6',z)+' ('+z+' clicks)']);if(k!=null)kv.push(['K-Ultra',dial('kultra',k)+' ('+k+' clicks)']);
+  for(const [g,v] of gs)if(v!=null)kv.push([gname(g),dial(g,v)+' ('+dialHint(g,v)+')']);
   if(p)kv.push([B.bloom.label,p.bloom+'s']);
-  const blocks=[{p:r.why},{h:'Settings',kv},{h:'Steps',num:true,list:r.steps},{h:'Tip',p:r.tip}];
+  const blocks=[{p:r.why},{h:'Settings',kv},{h:'Steps',num:true,list:r.steps},{h:'Tip',p:r.tip}].filter(x=>!('p' in x)||x.p);
   if(p&&p.tw.length)blocks.push({h:'Tuned for your coffee',p:p.tw.join(' ')});if(p&&p.why.length)blocks.push({h:'Why these settings',list:p.why.map(w=>w.replace(/<[^>]+>/g,''))});
-  return{title:r.name,sub:r.by+' | '+B.name,blocks,file:'recipe-'+r.name}}
+  blocks.push(...extra);return{title:r.name,sub:[r.by||(r.custom?(r.author?'By '+r.author:'Your recipe'):''),B.name].filter(Boolean).join(' | '),blocks,file:'recipe-'+r.name}}
 function dialDoc(){const r=compute(S),[vt,vs]=verdict(r.D),B=BREWERS[S.brewer];
   return{title:'My brew: '+vName(S.variety),sub:PROCESSES[S.process].name+' | '+S.roast+' roast | '+B.name,file:'my-brew',blocks:[
    {h:'Settings',kv:[['Grinder',gLabel(S.grinder,S.setting)+' ('+S.setting+' clicks)'],['Brewer',B.name],['Water',S.temp+'°C'],['Ratio','1:'+S.ratio],[B.bloom.label,S.bloom+'s'],['Agitation',{low:'Gentle',med:'Normal',high:'Vigorous'}[S.agit]]]},
@@ -995,7 +1203,8 @@ try{initDial();initPlan();render();renderPlan();renderCalc();renderTS();renderSt
 catch(err){let retried=false;try{retried=sessionStorage.getItem('bb-reset')==='1';sessionStorage.setItem('bb-reset','1')}catch(e){}
   if(!retried){try{['bb-state','bb-plan','bb-scan','bb-calc','bb-base3'].forEach(k=>localStorage.removeItem(k))}catch(e){}location.reload()}throw err}
 try{sessionStorage.removeItem('bb-reset')}catch(e){}
-{const h=location.hash.slice(1),j=/^join=([A-Za-z0-9-]{8,9})$/.exec(h);
+{const h=location.hash.slice(1),j=/^join=([A-Za-z0-9-]{8,9})$/.exec(h),rl=/^recipe=([A-Za-z0-9_-]+)$/.exec(h);
+  if(rl){try{history.replaceState(null,'','#recipes')}catch(e){}showTab('recipes',true);importRecipe(rl[1])}else
   if(j){JOIN_CODE=j[1].toUpperCase();try{history.replaceState(null,'','#log')}catch(e){}showTab('log',true);if(!GROUP)toast('Add your name and tap Join');else if(GROUP.code!==JOIN_CODE)toast('You are already in a shared log. Leave it first to join this one.');renderLog()}
   else if(h&&$(h)&&$(h).tagName==='SECTION')showTab(h,true);else syncShell('dial')}
 if(GROUP)startStream();

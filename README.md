@@ -18,8 +18,8 @@ Both update automatically whenever `main` changes.
 | **Dial-in** | Grind, temperature, ratio, bloom, agitation, roast, process and variety in, estimated cup profile out, with concrete fixes ("try ZP6 Special 5.3") |
 | **Brew planner** | Pick brewer, grinder, technique and coffee; get an adapted recipe with the reasoning behind every setting |
 | **Scan beans** | Photograph a bag's label: the text is read on your phone (offline) and matched to origins, varieties, processes and roast date for a full brew plan |
-| **Gear and dials** | 1Zpresso ZP6 Special and K-Ultra specs with live dials, 25 brewers, and a grind map showing where each brewer sits |
-| **Recipes** | 59 recipes, each credited, with settings for both grinders and a step-by-step brew timer |
+| **Gear and dials** | A library of 12 manual and electric grinders (1Zpresso, Comandante, Timemore, Kingrinder, Fellow, Baratza, Wilfa, Niche, DF64) with burrs, dials and typical settings; pick the grinders you own, add your own, compare them side by side and match a grind size from one grinder to another. Plus 25 brewers and a grind map |
+| **Recipes** | 59 recipes, each credited, with settings for your grinders and a step-by-step brew timer. Create your own (or save the dial-in as one) and share them by link or live with your team |
 | **Techniques** | 36 techniques from swirl blooms to turbo shots |
 | **Processes** | 29 processes from washed to thermal shock, plotted on a clean-to-wild map |
 | **Origins map** | 50 coffee origins on an interactive, colour-coded world map |
@@ -62,7 +62,7 @@ Then add four secrets under **Settings → Secrets and variables → Actions**: 
 
 ## Shared brew log (Firebase)
 
-Friends can log brews together: each person joins the same shared log (a code like `ABCD-2345`, or an invite link) and everyone's entries appear live on everyone's phone, with the name of whoever logged them. Entries made offline sync when the phone reconnects.
+Friends can log brews and share recipes together: each person joins the same shared log (a code like `ABCD-2345`, or an invite link) and everyone's entries and recipes appear live on everyone's phone, with the name of whoever added them. Entries made offline sync when the phone reconnects.
 
 The log is stored in a free [Firebase Realtime Database](https://firebase.google.com/docs/database). One-time setup:
 
@@ -83,6 +83,12 @@ The log is stored in a free [Firebase Realtime Database](https://firebase.google
           "$id": {
             ".write": "$code.matches(/^[A-Z0-9]{4}-[A-Z0-9]{4}$/)",
             ".validate": "newData.hasChildren(['id', 'ts'])"
+          }
+        },
+        "recipes": {
+          "$id": {
+            ".write": "$code.matches(/^[A-Z0-9]{4}-[A-Z0-9]{4}$/)",
+            ".validate": "newData.hasChildren(['id', 'name', 'b'])"
           }
         }
       }
