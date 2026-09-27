@@ -417,6 +417,8 @@ button,a,.tab,.chip,[role=button],input[type=range]{touch-action:manipulation}
 .gpick button[aria-pressed="true"]{border-color:var(--cherry);background:color-mix(in srgb,var(--cherry) 9%,var(--surface))}
 .gpick button[aria-pressed="true"] .tick{background:var(--cherry);border-color:var(--cherry)}
 .gpick-search{width:100%;margin-top:4px}
+.gpick-btn{display:inline-grid;place-items:center;width:34px;height:34px;margin:-6px 0;border-radius:50%;border:0;background:var(--tonal);color:var(--cherry);cursor:pointer;transition:background .15s,transform .15s}
+.gpick-btn:hover{background:var(--tonal-hover)}.gpick-btn:active{transform:scale(.92)}.gpick-btn:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
 .linkbtn{background:none;border:0;padding:2px 0;font:inherit;font-weight:600;color:var(--cherry);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .equiv{margin:.5rem 0 0;line-height:1.5}
 .mswap{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:end}.mswap>*{min-width:0}.mswap select{width:100%}
@@ -632,7 +634,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   <div class="minires" id="minires"><div><b id="mr-v"></b><span id="mr-g"></span></div><div class="gauge mini" aria-hidden="true"><i id="mr-m"></i></div></div>
   <div class="bench">
     <div class="panel">
-      <div class="field"><div class="lbl">Grinder <button type="button" class="linkbtn" data-gpick>Change grinders</button></div><div class="seg" id="g-grinder"></div></div>
+      <div class="field"><div class="lbl">Grinder <button type="button" class="gpick-btn" data-gpick aria-label="Change grinders" title="Change grinders"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l4 4-4 4"/><path d="M3 7h18"/><path d="M7 21l-4-4 4-4"/><path d="M21 17H3"/></svg></button></div><div class="seg" id="g-grinder"></div></div>
       <div class="field"><label for="i-brewer">Brewer</label><select id="i-brewer"></select><div id="rec-chip" style="margin-top:6px"></div></div>
       <div class="field"><label for="i-grind">Grind <span><span class="num" id="v-grind"></span> <span class="hint" id="v-grindhint"></span></span></label><input type="range" id="i-grind"><div class="dialrow"><svg id="dialsvg" class="dialmini" viewBox="0 0 160 160" aria-hidden="true"></svg><p class="hint" style="margin:0">Dials read number.click. Tap <b>Gear and dials</b> for how each grinder works.</p></div><p class="hint equiv" id="v-equiv"></p></div>
       <div class="two">
@@ -673,7 +675,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   <div class="bench">
     <div class="panel">
       <div class="field"><label for="p-brewer">Brewer</label><select id="p-brewer"></select></div>
-      <div class="field"><div class="lbl">Grinder <button type="button" class="linkbtn" data-gpick>Change grinders</button></div><div class="seg" id="p-grinder"></div></div>
+      <div class="field"><div class="lbl">Grinder <button type="button" class="gpick-btn" data-gpick aria-label="Change grinders" title="Change grinders"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l4 4-4 4"/><path d="M3 7h18"/><path d="M7 21l-4-4 4-4"/><path d="M21 17H3"/></svg></button></div><div class="seg" id="p-grinder"></div></div>
       <div class="field"><label for="p-tech">Technique</label><select id="p-tech"></select></div>
       <div class="field"><label for="p-process">Process</label><select id="p-process"></select></div>
       <div class="field"><label for="p-variety">Variety</label><select id="p-variety"></select></div>
