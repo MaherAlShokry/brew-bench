@@ -18,8 +18,8 @@ Both update automatically whenever `main` changes.
 | **Dial-in** | Grind, temperature, ratio, bloom, agitation, roast, process and variety in, estimated cup profile out, with concrete fixes ("try ZP6 Special 5.3") |
 | **Brew planner** | Pick brewer, grinder, technique and coffee; get an adapted recipe with the reasoning behind every setting |
 | **Scan beans** | Photograph a bag's label: the text is read on your phone (offline) and matched to origins, varieties, processes and roast date for a full brew plan |
-| **Gear and dials** | 1Zpresso ZP6 Special and K-Ultra specs with live dials, 25 brewers, and a grind map showing where each brewer sits |
-| **Recipes** | 59 recipes, each credited, with settings for both grinders and a step-by-step brew timer |
+| **Gear and dials** | A library of 30 manual and electric grinders (1Zpresso ZP6, K-Ultra, K-Max, J-Max, J-Ultra, JX, JX-Pro, X-Pro, X-Ultra, Q2; Comandante C40 and Red Clix; Timemore C2, C3, C3 ESP Pro; Kingrinder K4, K6; Hario; Porlex; Fellow Ode and Opus; Baratza; Breville; OXO; Wilfa; Niche; DF64; Mahlkönig EK43) with burrs, dials and typical settings. Every grinder sits on one shared grind scale, so you can match a setting from any grinder to any other (for example ZP6 5.4 = K-Ultra 7.0), and recipes and the dial-in keep the same grind when you switch grinders. Pick the grinders you own, add your own, compare them side by side. Plus 25 brewers and a grind map |
+| **Recipes** | 59 recipes, each credited, with settings for your grinders and a step-by-step brew timer. Create your own (or save the dial-in as one) and share them by link or live with your team |
 | **Techniques** | 36 techniques from swirl blooms to turbo shots |
 | **Processes** | 29 processes from washed to thermal shock, plotted on a clean-to-wild map |
 | **Origins map** | 50 coffee origins on an interactive, colour-coded world map |
@@ -62,7 +62,7 @@ Then add four secrets under **Settings → Secrets and variables → Actions**: 
 
 ## Shared brew log (Firebase)
 
-Friends can log brews together: each person joins the same shared log (a code like `ABCD-2345`, or an invite link) and everyone's entries appear live on everyone's phone, with the name of whoever logged them. Entries made offline sync when the phone reconnects.
+Friends can log brews and share recipes together: each person joins the same shared log (a code like `ABCD-2345`, or an invite link) and everyone's entries and recipes appear live on everyone's phone, with the name of whoever added them. Entries made offline sync when the phone reconnects.
 
 The log is stored in a free [Firebase Realtime Database](https://firebase.google.com/docs/database). One-time setup:
 
@@ -83,6 +83,12 @@ The log is stored in a free [Firebase Realtime Database](https://firebase.google
           "$id": {
             ".write": "$code.matches(/^[A-Z0-9]{4}-[A-Z0-9]{4}$/)",
             ".validate": "newData.hasChildren(['id', 'ts'])"
+          }
+        },
+        "recipes": {
+          "$id": {
+            ".write": "$code.matches(/^[A-Z0-9]{4}-[A-Z0-9]{4}$/)",
+            ".validate": "newData.hasChildren(['id', 'name', 'b'])"
           }
         }
       }
