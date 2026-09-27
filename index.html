@@ -214,6 +214,29 @@ dialog#vd::backdrop{background:rgba(20,14,10,.55)}
 .timeline .when{font-family:var(--display);font-weight:800;color:var(--cherry);font-size:.95rem}
 .timeline h3{margin:.1rem 0 .2rem}
 .timeline p{margin:0}
+.js-anim .chtl li{opacity:1;transform:none}
+.chtl li{padding-bottom:22px}
+.chrow{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));margin-top:8px}.chrow>*{min-width:0}
+.chwin{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md,16px);padding:12px 14px;box-shadow:var(--e1)}
+.chwin.next{margin-top:8px;border-style:dashed;box-shadow:none}.chwin.next b{display:block;margin-top:6px;font-family:var(--display)}
+.chwin .pill{font-size:.72rem}.chname{display:flex;align-items:center;gap:8px;margin:8px 0 2px;font-family:var(--display);font-size:1.05rem}.chname .flag{font-size:1.25rem;line-height:1}
+.chwin p{margin:.2rem 0 0}.chcoffee{font-size:.9rem}.chbtn{margin-top:10px;width:100%}
+.cd{position:relative;overflow:hidden;background:linear-gradient(135deg,color-mix(in srgb,var(--c) 16%,var(--surface)),var(--surface));border:1px solid color-mix(in srgb,var(--c) 35%,var(--line));border-radius:var(--r-lg,22px);padding:16px 18px;margin-top:14px;box-shadow:var(--e2)}
+.cd h3{margin:.5rem 0 .2rem;font-size:1.3rem}
+.cdclock{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+.cdclock>div{background:var(--surface);border-radius:var(--r-md,16px);padding:10px 4px;text-align:center;box-shadow:var(--e1)}
+.cdclock b{display:block;font-family:var(--display);font-size:1.9rem;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--c)}
+.cdclock small{color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em}
+.cdclock>div:last-child b{animation:cdpulse 1s ease-in-out infinite}
+@keyframes cdpulse{0%{transform:scale(1)}15%{transform:scale(1.08)}30%{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.cdclock>div:last-child b{animation:none}}
+.cdlive{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:10px;font-family:var(--display);font-weight:800;font-size:1.2rem;padding:10px;color:var(--c)}
+.cdlive i{width:12px;height:12px;border-radius:50%;background:#d9443a;animation:cdpulse 1.2s infinite}
+.cdnext{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));margin-top:10px}.cdnext>div{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md,16px);padding:10px 12px}
+.cdnext b{display:block;margin-top:6px;font-family:var(--display)}.cdnext small{color:var(--muted)}
+.pill.chdev{margin-left:6px;font-size:.72rem}.pill.chdev.ours{background:color-mix(in srgb,var(--leaf) 18%,var(--surface));color:var(--ink)}
+.chcomp h3{margin:.5rem 0 .2rem}.chcount{margin:.4rem 0 0;font-weight:700;color:var(--cherry);font-family:var(--display)}
+.chgear{margin:.2rem 0 .6rem;padding-left:1.1rem}.chgear li{margin:.15rem 0}
 .twocol{display:grid;gap:26px;grid-template-columns:1fr}
 @media (min-width:960px){.twocol{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}}
 
@@ -411,6 +434,15 @@ button,a,.tab,.chip,[role=button],input[type=range]{touch-action:manipulation}
 .mbig{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 12px;padding:14px;border-radius:var(--r-md,16px);background:color-mix(in srgb,var(--cherry) 10%,var(--surface));font-family:var(--display);text-align:center;margin:.4rem 0}
 .mbig b{font-size:1.35rem;font-variant-numeric:tabular-nums;white-space:nowrap}.mbig small{font-weight:500;color:var(--muted);font-size:.8rem}.mbig .eq{color:var(--muted);font-size:1.2rem}
 .mswap .chip{margin-bottom:6px}
+.gpick{display:grid;gap:6px;margin-top:8px}.gpick h4{margin:.8rem 0 .2rem;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.gpick button{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:11px 14px;border-radius:var(--r-sm,12px);border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;cursor:pointer}
+.gpick button b{display:block;font-weight:600}.gpick button small{color:var(--muted)}.gpick button span{flex:1;min-width:0}
+.gpick .tick{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:.8rem;color:#fff}
+.gpick button[aria-pressed="true"]{border-color:var(--cherry);background:color-mix(in srgb,var(--cherry) 9%,var(--surface))}
+.gpick button[aria-pressed="true"] .tick{background:var(--cherry);border-color:var(--cherry)}
+.gpick-search{width:100%;margin-top:4px}
+.gpick-btn{display:inline-grid;place-items:center;width:34px;height:34px;margin:-6px 0;border-radius:50%;border:0;background:var(--tonal);color:var(--cherry);cursor:pointer;transition:background .15s,transform .15s}
+.gpick-btn:hover{background:var(--tonal-hover)}.gpick-btn:active{transform:scale(.92)}.gpick-btn:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
 .linkbtn{background:none;border:0;padding:2px 0;font:inherit;font-weight:600;color:var(--cherry);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .equiv{margin:.5rem 0 0;line-height:1.5}
 .mswap{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:end}.mswap>*{min-width:0}.mswap select{width:100%}
@@ -618,6 +650,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   <button class="tab" role="tab" data-t="map" aria-selected="false">Origins map</button>
   <button class="tab" role="tab" data-t="variety" aria-selected="false">Varieties</button>
   <button class="tab" role="tab" data-t="history" aria-selected="false">History</button>
+  <button class="tab" role="tab" data-t="champs" aria-selected="false">Championships</button>
   <button class="tab" role="tab" data-t="guide" aria-selected="false">Guide</button>
   <button class="tab" role="tab" data-t="log" aria-selected="false">Log</button>
 </div></nav>
@@ -629,7 +662,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   <div class="minires" id="minires"><div><b id="mr-v"></b><span id="mr-g"></span></div><div class="gauge mini" aria-hidden="true"><i id="mr-m"></i></div></div>
   <div class="bench">
     <div class="panel">
-      <div class="field"><div class="lbl">Grinder</div><div class="seg" id="g-grinder"></div></div>
+      <div class="field"><div class="lbl">Grinder <button type="button" class="gpick-btn" data-gpick aria-label="Change grinders" title="Change grinders"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l4 4-4 4"/><path d="M3 7h18"/><path d="M7 21l-4-4 4-4"/><path d="M21 17H3"/></svg></button></div><div class="seg" id="g-grinder"></div></div>
       <div class="field"><label for="i-brewer">Brewer</label><select id="i-brewer"></select><div id="rec-chip" style="margin-top:6px"></div></div>
       <div class="field"><label for="i-grind">Grind <span><span class="num" id="v-grind"></span> <span class="hint" id="v-grindhint"></span></span></label><input type="range" id="i-grind"><div class="dialrow"><svg id="dialsvg" class="dialmini" viewBox="0 0 160 160" aria-hidden="true"></svg><p class="hint" style="margin:0">Dials read number.click. Tap <b>Gear and dials</b> for how each grinder works.</p></div><p class="hint equiv" id="v-equiv"></p></div>
       <div class="two">
@@ -650,7 +683,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
     </div>
     <div class="stick">
       <div class="panel">
-        <svg class="cup" id="cup" viewBox="0 0 300 300" role="img" aria-label="Estimated cup profile"></svg>
+        <svg class="cup" id="cup" viewBox="0 0 420 340" role="img" aria-label="Estimated cup profile"></svg>
         <div class="verdict"><h2 id="o-verdict"></h2><p id="o-summary"></p></div>
         <div class="gauge" aria-hidden="true"><i id="o-marker"></i></div>
         <div class="gscale"><span>Under</span><span>Sweet spot</span><span>Over</span></div>
@@ -670,7 +703,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   <div class="bench">
     <div class="panel">
       <div class="field"><label for="p-brewer">Brewer</label><select id="p-brewer"></select></div>
-      <div class="field"><div class="lbl">Grinder</div><div class="seg" id="p-grinder"></div></div>
+      <div class="field"><div class="lbl">Grinder <button type="button" class="gpick-btn" data-gpick aria-label="Change grinders" title="Change grinders"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l4 4-4 4"/><path d="M3 7h18"/><path d="M7 21l-4-4 4-4"/><path d="M21 17H3"/></svg></button></div><div class="seg" id="p-grinder"></div></div>
       <div class="field"><label for="p-tech">Technique</label><select id="p-tech"></select></div>
       <div class="field"><label for="p-process">Process</label><select id="p-process"></select></div>
       <div class="field"><label for="p-variety">Variety</label><select id="p-variety"></select></div>
@@ -729,6 +762,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   <h3>Your grinders</h3>
   <p class="hint" style="margin-top:0">Settings across the app are shown for these. Add or remove grinders in the library below.</p>
   <div class="grid" id="gear-grinders" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))"></div>
+  <div class="card" id="gear-mybrewers" style="margin-top:14px"></div>
   <div class="card" id="gmatch" style="margin-top:14px"></div>
   <div class="card" style="margin-top:14px"><h3>Why grinders need different numbers</h3>
     <p>The 1Zpresso grinders use an external ring read as <b>rotation.number.click</b>. Close the burrs until they just touch: that is zero. Turning toward bigger numbers opens the burrs and grinds coarser. Most filter brewing stays inside the first rotation, so the rotation digit is usually dropped: <b>5.6</b> means number 5, click 6.</p>
@@ -782,6 +816,18 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 </section>
 
 <!-- HISTORY -->
+<section id="champs">
+  <h2>Coffee World Championships</h2>
+  <p class="lede">Every world champion in brewing and espresso: where they won, what they brewed, and the published winning recipes, converted to your grinders.</p>
+  <div id="ch-next"></div>
+  <div class="seg filters" id="ch-filter" style="margin:14px 0 8px"></div>
+  <div class="seg filters" id="ch-brewer" style="margin:0 0 14px"></div>
+  <div class="grid" id="ch-about"></div>
+  <h2 style="margin-top:1.6rem">Timeline</h2>
+  <p class="hint">Newest first. Tap a champion's button for their recipe and gear, and how to brew it with yours.</p>
+  <ol class="timeline chtl" id="ch-tl"></ol>
+</section>
+
 <section id="history">
   <h2>The story of coffee</h2>
   <p class="lede">From wild Ethiopian forests to a Sufi drink in Yemen to a global crop. Almost all Arabica outside Africa traces back to a handful of seeds, which is why genetic diversity, and Ethiopia, matter so much.</p>
@@ -1634,6 +1680,204 @@ const QUIZ=[
  ['Which grinder setting did Carlos Medina use to win the 2023 World Brewers Cup?',['K-Ultra 7.5','ZP6 Special 5.2','Comandante 24','EK43 9'],1,'An Origami dripper with a ZP6 Special at 5.2.']
 ];
 
+/* ================= WORLD CHAMPIONSHIPS ================= */
+// Winners of the three world championships for brewing coffee, with the published winning recipes.
+// Only what the champions or the championship organisers published is recorded; missing details are left out, not guessed.
+const COMPS={
+ wbrc:{name:'World Brewers Cup',short:'Brewers Cup',color:'#B5533C',since:2011,
+  about:'Manual brewing. Each competitor brews a compulsory service with a coffee chosen by the organisers, then an open service with their own coffee, brewer and a ten-minute presentation.'},
+ wac:{name:'World AeroPress Championship',short:'AeroPress',color:'#4F8A74',since:2008,
+  about:'Started by friends in Oslo in 2008. Competitors brew in rounds of three, and judges point at their favourite cup without knowing who made it.'},
+ wbc:{name:'World Barista Championship',short:'Barista',color:'#8A5A3B',since:2000,
+  about:'The original. In fifteen minutes each barista serves espresso, milk drinks and a signature drink to a panel of judges.'}
+};
+const FLAGS={Norway:'🇳🇴',Denmark:'🇩🇰',Australia:'🇦🇺','United Kingdom':'🇬🇧',Ireland:'🇮🇪','United States':'🇺🇸','El Salvador':'🇸🇻',Guatemala:'🇬🇹',Japan:'🇯🇵',Taiwan:'🇹🇼',Poland:'🇵🇱','South Korea':'🇰🇷',
+ Colombia:'🇨🇴',Brazil:'🇧🇷',Indonesia:'🇮🇩',Greece:'🇬🇷',China:'🇨🇳',Switzerland:'🇨🇭',Chile:'🇨🇱',Austria:'🇦🇹',Malaysia:'🇲🇾',Belgium:'🇧🇪',Slovakia:'🇸🇰',Netherlands:'🇳🇱',Finland:'🇫🇮',Thailand:'🇹🇭',Romania:'🇷🇴'};
+// rec: the winning recipe. b is the closest brewer in the app, grind names the champion's grinder and setting when it was published
+// (g and c let the app match it on your grinders), off is a starting point from the recipe's grind description otherwise.
+// same: the recipe is already in the app under this name.
+const CHAMPS=[
+ // ---------- World Brewers Cup ----------
+ {c:'wbrc',y:2026,city:'Brussels, Belgium',who:'Nas Jaafar',dev:'UFO on a Switch',from:'Malaysia',coffee:'Panama Geisha from Finca Nuguo, anaerobic natural',note:'The first Malaysian champion.',
+  rec:{b:'sw',kind:'hybrid',dose:15,water:200,temp:null,time:'2:10',grind:{label:'About 700 microns, on the coarse side of medium, ground slowly to cut fines'},off:-0.3,
+   gear:['UFO Dripper V3 on a Hario Switch base','Pulp-and-lyocell paper filter','Bed levelled with a WDT tool','Water at 50 ppm, balanced calcium and magnesium'],
+   why:'A two-stage "resistance and flow" brew: open percolation first for clarity, then a closed immersion for sweetness and body.',
+   steps:['0:00 valve open: pour 100g in circles and let it drain freely.','Close the valve and pour the remaining 100g; let it steep.','Open the valve for a short final drain.','2:10 finished.'],
+   alt:'No UFO? Any cone on a Switch base works the same way; a Clever Dripper handles the immersion stage.'}},
+ {c:'wbrc',y:2025,city:'Jakarta, Indonesia',who:'George Jinyang Peng',dev:'SOLO dripper',from:'China',coffee:'Panama Geisha from the Mount Totumas Cloud Forest, 1,900 m, roasted three ways and blended',note:'A routine built around temperature.',
+  rec:{b:'v60',kind:'pulse',dose:15,water:210,temp:96,temp2:80,time:'1:45',grind:{g:'comandante',c:26.5,label:'Comandante C40 at 26 to 27 clicks (about 800 microns)'},
+   gear:['SOLO dripper','Sibarist FAST filter','Melodrip for the last pour','Water at 40 ppm'],
+   why:'Hot water first for aroma and acidity, then 80°C water for sweetness without bitterness.',
+   steps:['0:00 pour 30g at 96°C.','0:30 pour 90g at 96°C (to 120g).','1:10 pour 90g at 80°C through a Melodrip (to 210g).','1:45 finished.'],
+   alt:'No SOLO? A V60 or another fast cone is the closest; keep the two water temperatures.'}},
+ {c:'wbrc',y:2024,city:'Chicago, United States',who:'Martin Wölfl',dev:'Orea',from:'Austria',coffee:'Geisha from Finca Maya, Panama, anaerobic natural processed by Lost Origin',note:'The first champion to grind live on stage.',
+  rec:{same:'Martin Wölfl’s Orea',grind:{label:'Mazzer ZM at about 630 microns'},gear:['Orea v4 with the fast bottom','Sibarist FAST flat filter','Mazzer ZM grinder'],
+   alt:'No Orea? A Kalita Wave or April Brewer gives a similar flat bed; grind a touch coarser because they drain slower.'}},
+ {c:'wbrc',y:2023,city:'Athens, Greece',who:'Carlos Medina',dev:'Origami',from:'Chile',coffee:'Natural Sidra from Granja La Esperanza, Colombia',note:'The first Latin American champion.',
+  rec:{same:'Carlos Medina’s Origami',grind:{g:'zp6',c:52,label:'1Zpresso ZP6 Special at 5.2'},gear:['Origami Dripper (Air S)','1Zpresso ZP6 Special','Water at about 65 ppm, equal calcium and magnesium'],
+   alt:'No Origami? A V60 is the closest cone; keep the five equal pours.'}},
+ {c:'wbrc',y:2022,city:'Melbourne, Australia',who:'Shih Yuan (Sherry) Hsu',dev:'Not published',from:'Taiwan',coffee:'Natural Geisha roasted by Mikava',note:'',
+  rec:{b:'v60',kind:'pulse',dose:14,water:200,temp:95,temp2:70,grind:{label:'Medium'},gear:['Two water temperatures: 95°C and 70°C'],
+   why:'Published details are the dose, water and two temperatures; the full pour schedule was shown in her routine video.',steps:null}},
+ {c:'wbrc',y:2021,city:'Milan, Italy',who:'Matt Winton',dev:'V60',from:'Switzerland',coffee:'A blend of Catucai and Coffea eugenioides (only about 30% Arabica)',note:'',
+  rec:{b:'v60',kind:'pulse',dose:20,water:300,temp:93,temp2:88,grind:{label:'Medium'},off:0,gear:['Hario V60 (metal)','Two kettles: 93°C and 88°C','Balanced mineral water'],
+   why:'His published Five-Pour method: five equal pours, each added when the bed has almost drained. Pour a little higher than usual to agitate.',
+   steps:['0:00 pour 60g at 93°C, bloom.','0:30 pour 60g (to 120g).','When the bed nearly stops dripping, pour 60g at 88°C (to 180g).','Repeat: 60g (to 240g), then 60g (to 300g).'],
+   alt:'Any cone dripper works for this one.'}},
+ {c:'wbrc',y:2019,city:'Boston, United States',who:'Du Jianing',dev:'Origami',from:'China',coffee:'Ninety Plus Gesha Estate, roasted on an Ikawa sample roaster',note:'',
+  rec:{b:'origami',kind:'pulse',dose:16,water:240,temp:94,time:'1:40',grind:{label:'Ground twice: coarse first to remove chaff, then finer'},off:0,gear:['Origami Dripper'],
+   why:'A fast, even brew: 16g to 240g in about 1:40, yielding about 190g.',steps:['0:00 pour in pulses to 240g.','1:40 finished.'],
+   alt:'No Origami? A V60 is the closest cone.'}},
+ {c:'wbrc',y:2018,city:'Belo Horizonte, Brazil',who:'Emi Fukahori',dev:'Goat Story Gina',from:'Switzerland',coffee:'Laurina (Bourbon Pointu) from Daterra, Cerrado Mineiro, Brazil',note:'The first woman to win the World Brewers Cup.',
+  rec:{b:'sw',kind:'hybrid',dose:17,water:220,temp:80,temp2:95,time:'2:55',grind:{label:'Not published (Ditting 807 grinder)'},off:0,gear:['Goat Story Gina (immersion and drip with a valve)','Ditting 807 grinder','Water at 100 ppm'],
+   why:'Cool water first for sweetness, hot water through the middle to open the coffee, then cool water to finish clean.',
+   steps:['0:00 valve closed: pour 50g at 80°C and steep.','0:45 open the valve and pour 100g at 95°C over about a minute.','1:45 pour the last 70g at 80°C.','2:55 finished.'],
+   alt:'No Gina? A Hario Switch or Clever Dripper gives the same closed-then-open control.'}},
+ {c:'wbrc',y:2017,city:'Budapest, Hungary',who:'Chad Wang',dev:'V60',from:'Taiwan',coffee:'Panama Geisha',note:'',
+  rec:{b:'v60',kind:'pulse',dose:15,water:250,temp:92,time:'2:15',grind:{label:'Fine'},off:0.8,gear:['Ceramic Hario V60, not preheated'],
+   why:'A 1:16.7 ratio and full extraction: with a well-roasted Geisha he found it fine to extract the coffee completely.',
+   steps:['0:00 pour in your usual pulses to 250g.','2:15 finished.'],alt:'Any V60 works; he chose ceramic for its temperature stability.'}},
+ {c:'wbrc',y:2016,city:'Dublin, Ireland',who:'Tetsu Kasuya',dev:'V60',from:'Japan',coffee:'',note:'The 4:6 method became one of the most brewed recipes in the world.',
+  rec:{same:'Tetsu Kasuya 4:6',grind:{label:'Coarse'},gear:['Ceramic Hario V60'],alt:'Any cone dripper works; keep the five pours.'}},
+ {c:'wbrc',y:2015,city:'Gothenburg, Sweden',who:'Odd-Steinar Tøllefsen',dev:'V60',from:'Norway',coffee:'Natural Nekisse from Sidamo, Ethiopia',note:'',
+  rec:{b:'v60',kind:'pulse',dose:20,water:300,temp:92,time:'3:30',grind:{label:'Not published'},off:0,gear:['Hario V60','Soft Norwegian mineral water'],
+   why:'A classic V60 with a 45-second bloom.',steps:['0:00 bloom.','0:45 pour the rest in stages to 300g.','3:30 finished.']}},
+ {c:'wbrc',y:2014,city:'Rimini, Italy',who:'Stefanos Domatiotis',dev:'V60',from:'Greece',coffee:'Ninety Plus Gesha, Panama',note:'The first champion with a Ninety Plus coffee.',
+  rec:{b:'v60',grind:{label:'Not published'},gear:['Hario V60','Two kettles'],why:'A Geisha on a V60 with two kettles; the full recipe was not published.',steps:null}},
+ {c:'wbrc',y:2013,city:'Melbourne, Australia',who:'James McCarthy',dev:'Kalita Wave',from:'United States',coffee:'Hacienda La Esmeralda Geisha (Lino lot), roasted by Counter Culture',note:'',
+  rec:{b:'kalita',kind:'pulse',dose:24,water:380,temp:98,tNote:'just off the boil',time:'3:30',grind:{label:'Coarse, with the fines sifted out'},off:-0.8,
+   gear:['Kalita Wave','Three kettles, two of them flow-restricted'],why:'High flow for the first half, then slow kettles keeping a column of water above the bed.',
+   steps:['0:00 bloom; wait 45 seconds.','0:45 pour the first half quickly with a high-flow kettle.','Switch to the slow kettles and keep a column of water above the bed until 380g.','3:30 finished.'],
+   alt:'No Kalita? Any flat-bottom dripper works; a steady, slow pour matters more than three kettles.'}},
+ {c:'wbrc',y:2012,city:'Vienna, Austria',who:'Matt Perger',dev:'V60',from:'Australia',coffee:'Washed Gesha from Finca Santa Teresa, Panama, roasted by St ALi',note:'The first Australian champion.',
+  rec:{b:'v60',kind:'pulse',dose:11.8,water:200,temp:93,tNote:'not published',time:'2:30',grind:{label:'Sifted to remove fines'},off:0.5,gear:['Hario V60','Sieve for fines','Water at 110 ppm'],
+   why:'A small dose, fines sifted out, and 50g every 30 seconds; he aimed for about 23% extraction.',
+   steps:['0:00 pour 50g.','0:30 pour to 100g.','1:00 pour to 150g.','1:30 pour to 200g.','2:30 finished (2:30 to 2:35).']}},
+ {c:'wbrc',y:2011,city:'Maastricht, Netherlands',who:'Keith O’Sullivan',dev:'Chemex',from:'Ireland',coffee:'Bolivia Finca Bolinda, roasted by Has Bean',note:'A home brewer who beat the professionals, in the first World Brewers Cup.',
+  rec:{b:'chemex',grind:{label:'Not published'},gear:['Chemex'],why:'He brewed on a Chemex; the full recipe was not published.',steps:null}},
+ // ---------- World AeroPress Championship ----------
+ {c:'wac',y:2025,city:'Seoul, South Korea',who:'Némo Pop',dev:'AeroPress',from:'Australia',coffee:'Sidra from Finca La Carolina, Ecuador, roasted by Stereoscope',note:'',
+  rec:{b:'aeropress',kind:'aero',dose:18,water:null,temp:84,grind:{label:'Comandante Trailmaster X25 with Tigershark burrs at 31 clicks, fines sifted at 200 microns'},
+   gear:['AeroPress upright with the Flow Control cap','Two paper filters','Water at 125 ppm','Bypass water at 50°C'],why:'Published details are the dose, grind, water and position; see his video for the full steps.',steps:null}},
+ {c:'wac',y:2024,city:'Lisbon, Portugal',who:'George Stanica',dev:'AeroPress',from:'Romania',coffee:'Washed Ethiopian from Arsosala, Guji, roasted by Olisipo',note:'',
+  rec:{b:'aeropress',kind:'aero',dose:18,water:50,temp:96,grind:{g:'cmdred',c:58,label:'Comandante C40 with Red Clix at 58 clicks (about 870 microns)'},
+   gear:['AeroPress inverted','Aesir filter, rinsed','Melodrip','Water at 85 to 90 ppm plus 0 ppm water for the bypass'],
+   why:'A small, concentrated brew, then diluted with hot and room-temperature water.',
+   steps:['Inverted at the 4 mark. 0:00 pour about 50g through a Melodrip.','0:06 stir north-south-east-west for 10 seconds.','1:20 fit the cap and gently press out the air.','1:35 swirl, flip and press gently for 30 to 40 seconds (about 76 to 79g out).','Add hot water to 130 to 135g, then 20 to 30g of room-temperature 0 ppm water.']}},
+ {c:'wac',y:2023,city:'Melbourne, Australia',who:'Tay Wipvasutt',dev:'AeroPress',from:'Thailand',coffee:'Washed Kenya AB from Karindundu, Nyeri, roasted by Fieldwork',note:'',
+  rec:{b:'aeropress',kind:'aero',dose:18,water:100,temp:89,grind:{g:'zp6',c:65,label:'1Zpresso ZP6 Special at 65 clicks'},gear:['AeroPress inverted','One paper filter, rinsed','A chopstick for stirring'],
+   why:'Coffee added in two stages (16g, then 2g), a concentrated press, then a two-step bypass.',
+   steps:['0:00 add 16g of coffee and pour to 100g.','0:30 stir for 5 seconds.','0:45 add another 2g of coffee.','0:55 stir for 5 seconds, then press out the air and fit the cap.','1:35 flip and press for about 30 seconds (about 75g out).','Add room-temperature water to 115g, then hot water to about 155g.']}},
+ {c:'wac',y:2022,city:'Vancouver, Canada',who:'Jibbi Little',dev:'AeroPress',from:'Australia',coffee:'Natural Striped Red Bourbon from Finca Juan Martín, Colombia',note:'',
+  rec:{b:'aeropress',kind:'aero',dose:18,water:94,temp:92,grind:{label:'Ground twice: a Timemore very coarse to remove the chaff, then a Kinu at 4, fines sifted out'},off:0,
+   gear:['AeroPress Classic','Distilled water with a mineral packet'],why:'A strong concentrate, bypassed with 90°C water to about 150g.',
+   steps:['0:00 add 94g of water and stir gently 35 times.','1:20 fit the cap and press out the air.','1:30 flip and press for 30 seconds (about 58 to 64g out).','Top up with 90°C water to 150g.']}},
+ {c:'wac',y:2021,city:'Held remotely',who:'Tuomas Merikanto',dev:'AeroPress',from:'Finland',coffee:'',note:'The championship ran remotely during the pandemic.',
+  rec:{b:'aeropress',kind:'aero',dose:18,water:200,temp:80,grind:{label:'Macap Labo 70D at 7.0'},off:0,gear:['AeroPress inverted','Third Wave Water Formula 2'],
+   why:'Cool water and very gentle stirring for a balanced cup with no bypass.',
+   steps:['0:00 add 50g of 80°C water.','0:10 stir very gently 3 times back and forth.','0:15 pour to 200g.','0:50 stir gently 3 more times.','1:00 press out the air and fit the cap.','1:40 flip and press until 2:00.','2:00 swirl and decant.']}},
+ {c:'wac',y:2019,city:'London, United Kingdom',who:'Wendelien van Bunnik',dev:'AeroPress',from:'Netherlands',coffee:'',note:'',
+  rec:{b:'aeropress',kind:'aero',dose:30,water:100,temp:92,time:'1:00',grind:{label:'Coarse (7 out of 10)'},off:-1,gear:['AeroPress inverted','Aesir filter, rinsed','Spa Blauw water'],
+   why:'A big dose and little water: a one-minute concentrate, then diluted and cooled.',
+   steps:['0:00 pour 100g in 10 seconds.','0:10 stir firmly 20 times in 10 seconds.','0:20 fit the cap and press out the air.','0:40 flip and press.','Dilute to taste (her recipe used about 120g) and cool to about 60°C by stirring and decanting.']}},
+ {c:'wac',y:2018,city:'Sydney, Australia',who:'Carolina Ibarra Garay',dev:'AeroPress',from:'United States',coffee:'Mugaya AA, Kenya',note:'',
+  rec:{b:'aeropress',kind:'aero',dose:35,water:100,temp:85,grind:{label:'Mahlkönig EK43S (setting not published)'},off:0,gear:['AeroPress inverted','Paper filter'],
+   why:'A large dose steeped short, stirred hard, then diluted with hot and room-temperature water.',
+   steps:['0:00 pour 100g over 30 seconds.','0:30 stir vigorously for 30 seconds.','1:00 fit the cap, flip and press for 30 seconds.','Add 60g of 85°C water and 40g of room-temperature water.']}},
+ {c:'wac',y:2017,city:'Seoul, South Korea',who:'Paulina Miczka',dev:'AeroPress',from:'United Kingdom',coffee:'',note:'',
+  rec:{b:'aeropress',kind:'aero',dose:35,water:150,temp:null,grind:{label:'Not published'},off:0,gear:['AeroPress','One pre-wet paper filter'],
+   why:'A big dose, a short stir, a long gentle press, then diluted.',
+   steps:['0:00 add the coffee and 150g of water; stir for 20 seconds.','1:05 fit the plunger and start pressing.','1:35 stop pressing.','Add 150 to 200g of water.']}},
+ {c:'wac',y:2016,city:'Dublin, Ireland',who:'Filip Kucharczyk',dev:'AeroPress',from:'Poland',coffee:'',note:'',
+  rec:{b:'aeropress',kind:'aero',dose:35,water:150,temp:84,grind:{label:'Coarse'},off:-1.5,gear:['AeroPress inverted','Rinsed paper filter'],
+   why:'A big, coarse dose steeped briefly, then diluted to taste.',
+   steps:['0:00 pour 150g in 15 seconds.','0:15 stir until 0:35.','0:35 fit the cap.','1:00 flip, swirl and press.','Add 100 to 120g of water to taste.']}},
+ {c:'wac',y:2015,city:'Seattle, United States',who:'Lukáš Zahradník',dev:'AeroPress',from:'Slovakia',coffee:'',note:'',
+  rec:{b:'aeropress',kind:'aero',dose:20,water:230,temp:79,grind:{label:'Not published'},off:0,gear:['AeroPress inverted','Paper filter'],
+   why:'Cool water and a "turbulent wiggle" instead of a stir.',
+   steps:['0:00 pour 60g and wiggle the brewer for 15 seconds.','0:15 wait 30 seconds.','0:45 add the rest of the water to 230g and fit the cap.','Flip and press for 45 seconds.']}},
+ {c:'wac',y:2014,city:'Rimini, Italy',who:'Shuichi Sasaki',dev:'AeroPress',from:'Japan',coffee:'',note:'',
+  rec:{b:'aeropress',dose:16.5,water:250,temp:78,grind:{label:'Not published'},gear:['AeroPress upright','Paper filter','Soft mineral water'],why:'Published details are the dose, water, temperature and position.',steps:null}},
+ {c:'wac',y:2013,city:'Melbourne, Australia',who:'Jeff Verellen',dev:'AeroPress',from:'Belgium',coffee:'',note:'The first two-time champion.'},
+ {c:'wac',y:2012,city:'Portland, United States',who:'Charlene de Buysere',dev:'AeroPress',from:'Belgium',coffee:'',note:''},
+ {c:'wac',y:2011,city:'Milan, Italy',who:'Jeff Verellen',dev:'AeroPress',from:'Belgium',coffee:'',note:''},
+ {c:'wac',y:2010,city:'London, United Kingdom',who:'Marie Hagemeister',dev:'AeroPress',from:'Denmark',coffee:'',note:'The first woman to win.'},
+ {c:'wac',y:2009,city:'Oslo, Norway',who:'Łukasz Jura',dev:'AeroPress',from:'Poland',coffee:'',note:''},
+ {c:'wac',y:2008,city:'Oslo, Norway',who:'Anders Valde',dev:'AeroPress',from:'Norway',coffee:'',note:'The first championship: three competitors, with Tim Wendelboe judging.'},
+ // ---------- World Barista Championship ----------
+ {c:'wbc',y:2025,city:'Milan, Italy',who:'Jack Simpson',dev:'Espresso machine',from:'Australia',note:'Runner-up in 2024 and third in 2023 before winning.'},
+ {c:'wbc',y:2024,city:'Busan, South Korea',who:'Mikael Jasin',dev:'Espresso machine',from:'Indonesia',note:'The first Indonesian champion.'},
+ {c:'wbc',y:2023,city:'Athens, Greece',who:'Boram Um',dev:'Espresso machine',from:'Brazil',note:''},
+ {c:'wbc',y:2022,city:'Melbourne, Australia',who:'Anthony Douglas',dev:'Espresso machine',from:'Australia',note:''},
+ {c:'wbc',y:2021,city:'Milan, Italy',who:'Diego Campos',dev:'Espresso machine',from:'Colombia',note:''},
+ {c:'wbc',y:2019,city:'Boston, United States',who:'Jooyeon Jeon',dev:'Espresso machine',from:'South Korea',note:'The first Korean champion.'},
+ {c:'wbc',y:2018,city:'Amsterdam, Netherlands',who:'Agnieszka Rojewska',dev:'Espresso machine',from:'Poland',note:'The first woman to win the World Barista Championship.'},
+ {c:'wbc',y:2017,city:'Seoul, South Korea',who:'Dale Harris',dev:'Espresso machine',from:'United Kingdom',note:''},
+ {c:'wbc',y:2016,city:'Dublin, Ireland',who:'Berg Wu',dev:'Espresso machine',from:'Taiwan',note:''},
+ {c:'wbc',y:2015,city:'Seattle, United States',who:'Sasa Sestic',dev:'Espresso machine',from:'Australia',note:'Won with a carbonic-maceration coffee, which set off the fermentation boom.'},
+ {c:'wbc',y:2014,city:'Rimini, Italy',who:'Hidenori Izaki',dev:'Espresso machine',from:'Japan',note:'The first champion from Asia.'},
+ {c:'wbc',y:2013,city:'Melbourne, Australia',who:'Pete Licata',dev:'Espresso machine',from:'United States',note:''},
+ {c:'wbc',y:2012,city:'Vienna, Austria',who:'Raul Rodas',dev:'Espresso machine',from:'Guatemala',note:''},
+ {c:'wbc',y:2011,city:'Bogotá, Colombia',who:'Alejandro Méndez',dev:'Espresso machine',from:'El Salvador',note:''},
+ {c:'wbc',y:2010,city:'London, United Kingdom',who:'Michael Phillips',dev:'Espresso machine',from:'United States',note:''},
+ {c:'wbc',y:2009,city:'Atlanta, United States',who:'Gwilym Davies',dev:'Espresso machine',from:'United Kingdom',note:''},
+ {c:'wbc',y:2008,city:'Copenhagen, Denmark',who:'Stephen Morrissey',dev:'Espresso machine',from:'Ireland',note:''},
+ {c:'wbc',y:2007,city:'Tokyo, Japan',who:'James Hoffmann',dev:'Espresso machine',from:'United Kingdom',note:''},
+ {c:'wbc',y:2006,city:'Bern, Switzerland',who:'Klaus Thomsen',dev:'Espresso machine',from:'Denmark',note:''},
+ {c:'wbc',y:2005,city:'Seattle, United States',who:'Troels Overdal Poulsen',dev:'Espresso machine',from:'Denmark',note:''},
+ {c:'wbc',y:2004,city:'Trieste, Italy',who:'Tim Wendelboe',dev:'Espresso machine',from:'Norway',note:''},
+ {c:'wbc',y:2003,city:'Boston, United States',who:'Paul Bassett',dev:'Espresso machine',from:'Australia',note:''},
+ {c:'wbc',y:2002,city:'Oslo, Norway',who:'Fritz Storm',dev:'Espresso machine',from:'Denmark',note:''},
+ {c:'wbc',y:2001,city:'Miami, United States',who:'Martin Hildebrandt',dev:'Espresso machine',from:'Denmark',note:''},
+ {c:'wbc',y:2000,city:'Monte Carlo, Monaco',who:'Robert Thoresen',dev:'Espresso machine',from:'Norway',note:'The first World Barista Champion.'}
+];
+// Years with no world final.
+const CH_GAPS=[[2020,'wbrc','No World Brewers Cup: cancelled during the pandemic.'],[2020,'wbc','No World Barista Championship: cancelled during the pandemic.']];
+// Upcoming finals live in events.json at the site root, so they can be updated without a new app release.
+
+const EVENTS_DEFAULT={
+ "updated": "2026-09-27",
+ "events": [
+  {
+   "c": "wbc",
+   "y": 2026,
+   "start": "2026-10-22T09:00:00-05:00",
+   "end": "2026-10-25T20:00:00-05:00",
+   "city": "Panama City, Panama",
+   "venue": "Panama Convention Center",
+   "note": "The first World Barista Championship in Central America."
+  },
+  {
+   "c": "wac",
+   "y": 2026,
+   "start": "2026-12-06T10:00:00-06:00",
+   "end": "2026-12-06T20:00:00-06:00",
+   "city": "Mexico City, Mexico",
+   "venue": "Frontón Bucareli",
+   "note": ""
+  },
+  {
+   "c": "wbc",
+   "y": 2027,
+   "start": "2027-04-28T09:00:00+09:00",
+   "end": "2027-05-01T20:00:00+09:00",
+   "city": "Tokyo, Japan",
+   "venue": "Tokyo Big Sight",
+   "note": "Back in Tokyo for the first time since 2007."
+  },
+  {
+   "c": "wbrc",
+   "y": 2027,
+   "start": "2027-09-30T09:00:00-05:00",
+   "end": "2027-10-02T20:00:00-05:00",
+   "city": "Bogotá, Colombia",
+   "venue": "World of Coffee Bogotá",
+   "note": ""
+  }
+ ],
+ "champs": []
+}
+;
 /* ================= UTIL ================= */
 const $=id=>document.getElementById(id);
 // Coalesce redraws from sliders and typing into one per frame, so dragging stays smooth.
@@ -1812,6 +2056,14 @@ function settingFor(g,b,off){const bb=baseX(g,b);return bb==null?null:roundG(g,s
 function gLabel(g,v){const G=GRINDERS[g];return G.name+' '+dial(g,v)+(G.unit==='clicks'?' clicks':'')}
 /* ================= YOUR RECIPES ================= */
 // Recipes you or your team create sit after the built-in ones in RECIPES, so the timer, dial-in and planner all work with them.
+// World championship recipes join the built-in ones, so the timer, dial-in and planner work with them.
+for(const ch of CHAMPS){const r=ch.rec;if(!r)continue;
+  if(r.same){const x=RECIPES.find(q=>q.name===r.same);if(x){x.champ=ch;ch.ri=RECIPES.indexOf(x);r.b=x.b;r.off=x.off}continue}
+  // The champion's own grinder and setting set the grind when they were published; otherwise the recipe's description does.
+  const g=r.grind&&r.grind.g;r.off=g&&GRINDERS[g]&&canGrind(g,r.b)?Math.round(stepsBetween(g,baseX(g,r.b),r.grind.c)*10)/10:(r.off||0);
+  if(!r.steps||!r.water)continue;
+  RECIPES.push({b:r.b,kind:r.kind||'other',name:ch.who+' ('+COMPS[ch.c].short+' '+ch.y+')',by:ch.who+', '+ch.y+' '+COMPS[ch.c].name+' champion',off:r.off,
+    temp:r.temp||BREWERS[r.b].temp.def,temp2:r.temp2,dose:r.dose,water:r.water,why:r.why,steps:r.steps,tip:r.alt||'',champ:ch});ch.ri=RECIPES.length-1}
 const BUILTIN_N=RECIPES.length,RKINDS=['pulse','single','imm','aero','esp','hybrid','46','other'];
 const str=(v,n)=>typeof v==='string'?v.trim().slice(0,n):'';
 // Recipes can arrive from links and other phones, so every field is checked.
@@ -1876,15 +2128,22 @@ function strength(st){const B=BREWERS[st.brewer];if(B.ratio.ref<5)return st.rati
 function mix(a,b,t){const p=x=>[1,3,5].map(i=>parseInt(x.slice(i,i+2),16));const A=p(a),B=p(b);return'rgb('+A.map((v,i)=>Math.round(v+(B[i]-v)*t)).join(',')+')'}
 function liquid(D){const x=clamp(D,-2,2);const st=['#D9B35A','#C98A3E','#7A4524','#4A2A18','#1E120B'];const pos=x+2;const i=Math.min(3,Math.floor(pos));return mix(st[i],st[i+1],pos-i)}
 function drawCup(r){
+  // Cup on a saucer, seen from above; the flavour radar floats on the coffee and the labels sit outside the saucer.
   const ax=[['Sweetness',r.sweet],['Acidity',r.acid],['Body',r.body],['Clarity',r.clarity],['Bitterness',r.bitter]];
-  const R=88,pt=(i,v)=>{const a=-Math.PI/2+i*2*Math.PI/5;return[150+Math.cos(a)*R*v/10,150+Math.sin(a)*R*v/10]};
-  let g='';for(const k of[2.5,5,7.5,10])g+='<polygon points="'+ax.map((_,i)=>pt(i,k).join(',')).join(' ')+'" fill="none" stroke="rgba(255,255,255,.18)"/>';
-  g+=ax.map((_,i)=>{const p=pt(i,10);return'<line x1="150" y1="150" x2="'+p[0]+'" y2="'+p[1]+'" stroke="rgba(255,255,255,.18)"/>'}).join('');
-  const lab=ax.map((a,i)=>{const an=-Math.PI/2+i*2*Math.PI/5,hw=textW(a[0],'600 11px')/2+4;return'<text x="'+clamp(150+Math.cos(an)*132,hw,300-hw).toFixed(1)+'" y="'+(154+Math.sin(an)*132).toFixed(1)+'" text-anchor="middle" font-size="11" font-weight="600" fill="var(--ink)">'+a[0]+'</text>'}).join('');
-  $('cup').innerHTML='<circle cx="150" cy="150" r="146" fill="var(--surface2)"/><circle cx="150" cy="150" r="116" fill="var(--paper)" stroke="var(--line)" stroke-width="2"/>'+
-   '<circle cx="150" cy="150" r="104" fill="'+liquid(r.D)+'" style="transition:fill .4s ease"/><circle cx="150" cy="150" r="104" fill="none" stroke="rgba(255,235,200,.35)" stroke-width="3"/>'+g+
-   '<polygon points="'+ax.map((a,i)=>pt(i,a[1]).join(',')).join(' ')+'" fill="rgba(255,245,225,.30)" stroke="#FFF3DD" stroke-width="2" stroke-linejoin="round"/>'+
-   ax.map((a,i)=>{const p=pt(i,a[1]);return'<circle cx="'+p[0]+'" cy="'+p[1]+'" r="3" fill="#FFF3DD"/>'}).join('')+lab;
+  const cx=210,cy=172,R=64,ang=i=>-Math.PI/2+i*2*Math.PI/5,pt=(i,v)=>[cx+Math.cos(ang(i))*R*v/10,cy+Math.sin(ang(i))*R*v/10];
+  const poly=v=>ax.map((a,i)=>pt(i,v==null?a[1]:v).map(n=>n.toFixed(1)).join(',')).join(' ');
+  let g='';for(const k of[2.5,5,7.5,10])g+='<polygon points="'+poly(k)+'" fill="none" stroke="rgba(255,255,255,'+(k===10?.3:.16)+')"/>';
+  g+=ax.map((_,i)=>{const p=pt(i,10);return'<line x1="'+cx+'" y1="'+cy+'" x2="'+p[0].toFixed(1)+'" y2="'+p[1].toFixed(1)+'" stroke="rgba(255,255,255,.16)"/>'}).join('');
+  // Top and bottom labels read on one line; the side labels stack the score under the name.
+  // Labels sit well outside the saucer: the top one centred, the sides stacked, the bottom two aligned away from the saucer.
+  const lab=ax.map((a,i)=>{const an=ang(i),x=(cx+Math.cos(an)*134).toFixed(1),y=cy+Math.sin(an)*134,side=Math.abs(Math.cos(an))>0.6,
+      anchor=i===0?'middle':Math.cos(an)>0?'start':'end',v='<tspan font-weight="800" fill="var(--cherry)">'+a[1].toFixed(1)+'</tspan>',T=(yy,s)=>'<text x="'+x+'" y="'+yy.toFixed(1)+'" text-anchor="'+anchor+'" font-size="14" font-weight="600" fill="var(--ink)">'+s+'</text>';
+    return side?T(y-3,a[0])+T(y+15,v):T(y+(i===0?-2:14),a[0]+'  '+v)}).join('');
+  $('cup').innerHTML='<circle cx="'+cx+'" cy="'+cy+'" r="106" fill="var(--surface2)"/><circle cx="'+cx+'" cy="'+cy+'" r="88" fill="var(--paper)" stroke="var(--line)" stroke-width="2"/>'+
+   '<circle cx="'+cx+'" cy="'+cy+'" r="79" fill="'+liquid(r.D)+'" style="transition:fill .4s ease"/><circle cx="'+cx+'" cy="'+cy+'" r="79" fill="none" stroke="rgba(255,235,200,.35)" stroke-width="3"/>'+g+
+   '<polygon points="'+poly()+'" fill="none" stroke="rgba(30,18,11,.35)" stroke-width="5" stroke-linejoin="round"/>'+
+   '<polygon points="'+poly()+'" fill="rgba(255,245,225,.32)" stroke="#FFF3DD" stroke-width="2.5" stroke-linejoin="round"/>'+
+   ax.map((a,i)=>{const p=pt(i,a[1]);return'<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="4" fill="#FFF3DD" stroke="rgba(30,18,11,.35)"/>'}).join('')+lab;
 }
 function drawDial(id,g,c){
   const G=GRINDERS[g],svg=$(id);if(!svg)return;c=Math.round(c);
@@ -2123,7 +2382,7 @@ function paint(){const el=TM.el,m=Math.floor(el/60),s=Math.floor(el%60);$('tm-bi
 
 /* ================= TABS ================= */
 // Heavy tabs are built the first time they are opened, which keeps startup quick.
-const LAZY={gear:buildGear,recipes:renderRecipes,tech:renderTech,process:renderProcesses,variety:renderVarieties,map:buildMap,history:()=>{buildTree();startQuiz()}},BUILT={};
+const LAZY={champs:renderChamps,gear:buildGear,recipes:renderRecipes,tech:renderTech,process:renderProcesses,variety:renderVarieties,map:buildMap,history:()=>{buildTree();startQuiz()}},BUILT={};
 function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove());if(LAZY[id]&&!BUILT[id]){BUILT[id]=1;LAZY[id]()}}
 function showTab(id,fromHistory){ensureTab(id);document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x.dataset.t===id));
   document.querySelectorAll('main section').forEach(s=>s.classList.toggle('on',s.id===id));window.scrollTo({top:0});
@@ -2146,8 +2405,8 @@ let RF='all';
 function renderRecipes(){
   const types=[...new Set(Object.values(BREWERS).map(b=>b.type))];
   if(RF==='mine'&&!CREC.length)RF='all';
-  seg('rfilter',[['all','All']].concat(CREC.length?[['mine','Yours & team']]:[],types.map(t=>[t,t])),()=>RF,v=>{RF=v;renderRecipes()});
-  const list=RECIPES.map((r,i)=>[r,i]).filter(([r])=>RF==='all'||(RF==='mine'?r.custom:BREWERS[r.b].type===RF)).sort((a,b)=>(b[0].custom?1:0)-(a[0].custom?1:0));
+  seg('rfilter',[['all','All']].concat(CREC.length?[['mine','Yours & team']]:[],[['champ','Champions']],types.map(t=>[t,t])),()=>RF,v=>{RF=v;renderRecipes()});
+  const list=RECIPES.map((r,i)=>[r,i]).filter(([r])=>RF==='all'||(RF==='mine'?r.custom:RF==='champ'?r.champ:BREWERS[r.b].type===RF)).sort((a,b)=>(b[0].custom?1:0)-(a[0].custom?1:0));
   $('rgrid').innerHTML=list.map(([r,i])=>{const B=BREWERS[r.b];const gs=MYG.map(g=>[g,settingFor(g,r.b,r.off)]);
    return '<article class="card'+(r.custom?' mine':'')+'">'+(r.custom?'<span class="pill ours">'+esc(r.author&&r.author!==ME?'From '+r.author:'Your recipe')+'</span>':'')+'<h3>'+esc(r.name)+'</h3>'+(r.by?'<p class="hint" style="margin-top:-.2rem">'+esc(r.by)+'</p>':'')+
    '<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span>':'')+'</div>'+
@@ -2158,9 +2417,10 @@ function renderRecipes(){
 $('rgrid').onclick=e=>{const ed=e.target.closest('[data-redit]');if(ed){openRecipeEditor(CREC.find(r=>r.id===ed.dataset.redit));return}
   const b=e.target.closest('[data-load],[data-plan],[data-timer],[data-rshare]');if(!b)return;if(b.dataset.rshare){openShare(recipeDoc(+b.dataset.rshare));return}
   if(b.dataset.timer){openTimer(+b.dataset.timer);return}
-  if(b.dataset.load){const i=+b.dataset.load,r=RECIPES[i],B=BREWERS[r.b];S.brewer=r.b;S.rec=i;if(!canGrind(S.grinder,r.b))S.grinder=capable(r.b);S.setting=settingFor(S.grinder,r.b,r.off);S.temp=clamp(r.temp,B.temp.min,B.temp.max);S.bloom=B.bloom.def;S.agit='med';
-    S.ratio=clamp(Math.round(r.water/r.dose/B.ratio.step)*B.ratio.step,B.ratio.min,B.ratio.max);render();showTab('dial');toast('Loaded '+r.name)}
-  else{const i=+b.dataset.plan,r=RECIPES[i];PL.brewer=r.b==='swi'?'sw':r.b;PL.tech=i;if(!canGrind(PL.grinder,PL.brewer))PL.grinder=capable(PL.brewer);renderPlan();showTab('planner')}};
+  if(b.dataset.load)loadRecipe(+b.dataset.load);else planRecipe(+b.dataset.plan)};
+function loadRecipe(i){const r=RECIPES[i],B=BREWERS[r.b];S.brewer=r.b;S.rec=i;if(!canGrind(S.grinder,r.b))S.grinder=capable(r.b);S.setting=settingFor(S.grinder,r.b,r.off);S.temp=clamp(r.temp,B.temp.min,B.temp.max);S.bloom=B.bloom.def;S.agit='med';
+  S.ratio=clamp(Math.round(r.water/r.dose/B.ratio.step)*B.ratio.step,B.ratio.min,B.ratio.max);render();showTab('dial');toast('Loaded '+r.name)}
+function planRecipe(i){const r=RECIPES[i];PL.brewer=r.b==='swi'?'sw':r.b;PL.tech=i;if(!canGrind(PL.grinder,PL.brewer))PL.grinder=capable(PL.brewer);renderPlan();showTab('planner')}
 
 /* ---------- Creating, editing and sharing recipes ---------- */
 function recipesChanged(){syncRecipes();if(S.rec!=null&&!RECIPES[S.rec])S.rec=null;if(BUILT.recipes)renderRecipes();renderPlan();render()}
@@ -2247,7 +2507,7 @@ const GEAR_A=[
 ];
 let GF='all';const TYCOL={};Object.values(BREWERS).forEach(b=>{if(!TYCOL[b.type])TYCOL[b.type]=['#8A5A3B','#6B8E4E','#C9964A','#B5533C','#4F8A74','#6E8FA8','#9A7390','#5B5F66'][Object.keys(TYCOL).length%8]});
 function buildGear(){
-  renderMyGrinders();renderMatch();renderLibrary();renderCustomForm();
+  renderMyGrinders();renderMyBrewers();renderMatch();renderLibrary();renderCustomForm();
   $('gear-acc').innerHTML=GEAR_A.map(([n,d])=>'<div class="card hovercard"><h3>'+n+'</h3><p style="margin:0">'+d+'</p></div>').join('');
   renderGearBrewers();renderGrindMap();
 }
@@ -2313,6 +2573,41 @@ function renderGCompare(){if(!GCMP.length){$('gcmp').innerHTML='';return}
   $('gcmp-clear').onclick=()=>{GCMP=[];renderLibrary()}}
 function setMine(g,on,quiet){if(on&&!MYG.includes(g))MYG.push(g);if(!on){if(MYG.length<=1&&!quiet){toast('Keep at least one grinder');return}MYG=MYG.filter(x=>x!==g)}if(!MYG.length)MYG=['kultra'];save('bb-mygrinders',MYG);
   if(!quiet){grindersChanged();toast(on?gname(g)+' added to your grinders':gname(g)+' removed')}}
+// Pick which grinders you own from anywhere a grinder is chosen. The same list as "Your grinders" in Gear.
+const SWAP_ICON='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l4 4-4 4"/><path d="M3 7h18"/><path d="M7 21l-4-4 4-4"/><path d="M21 17H3"/></svg>';
+// The brewers you own. Empty means you haven't said yet, and recipes are shown as the champion brewed them.
+let MYB=(()=>{try{const v=JSON.parse(localStorage.getItem('bb-mybrewers'));return Array.isArray(v)?[...new Set(v.filter(b=>typeof b==='string'&&BREWERS[b]))]:[]}catch(e){return[]}})();
+function setMyBrewer(b,on){MYB=on?[...new Set([...MYB,b])]:MYB.filter(x=>x!==b);save('bb-mybrewers',MYB)}
+function openGearPicker(tab,after){let q='',T=tab==='brewers'?'brewers':'grinders';const d=$('vd');
+  const row=(k,on,title,sub)=>'<button type="button" data-gp="'+k+'" aria-pressed="'+on+'"><span><b>'+esc(title)+'</b><small>'+esc(sub)+'</small></span><i class="tick" aria-hidden="true">'+(on?'✓':'')+'</i></button>';
+  const grow=g=>{const G=GRINDERS[g];return row(g,MYG.includes(g),G.full,(G.brand||gtype(g))+(G.espresso?' · espresso capable':''))};
+  const brow=b=>row(b,MYB.includes(b),BREWERS[b].name,BREWERS[b].type);
+  const m=s=>!q||s.toLowerCase().includes(q);
+  const list=()=>{let h='';
+    if(T==='grinders')h=[['mine','Your grinders'],['manual','Manual'],['electric','Electric'],['custom','Your own']].map(([t,n])=>{
+      const ks=(t==='mine'?MYG.slice():Object.keys(GRINDERS).filter(g=>!MYG.includes(g)&&(t==='custom'?GRINDERS[g].custom:!GRINDERS[g].custom&&GRINDERS[g].type===t))).filter(g=>m(GRINDERS[g].full+' '+(GRINDERS[g].brand||'')));
+      return ks.length?'<h4>'+n+'</h4>'+ks.map(grow).join(''):''}).join('');
+    else{const ks=Object.keys(BREWERS).filter(b=>m(BREWERS[b].name+' '+BREWERS[b].type)),types=[...new Set(ks.map(b=>BREWERS[b].type))];
+      h=(MYB.filter(b=>ks.includes(b)).length?'<h4>Your brewers</h4>'+MYB.filter(b=>ks.includes(b)).map(brow).join(''):'')+types.map(ty=>{const r=ks.filter(b=>BREWERS[b].type===ty&&!MYB.includes(b));return r.length?'<h4>'+esc(ty)+'</h4>'+r.map(brow).join(''):''}).join('')}
+    return h||'<p class="hint">Nothing matches.</p>'};
+  const draw=()=>{$('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Your gear</span><h2 id="vd-title">What do you brew with?</h2>'+
+     '<p class="hint" style="margin:0">Tick what you own. Recipes, settings and championship recipes adapt to it.</p><div class="seg" id="gp-tab" style="margin-top:12px"></div></div><div class="vd-body"><input class="gpick-search" id="gp-q" type="search" placeholder="Search '+T+'" aria-label="Search '+T+'"><div class="gpick" id="gp-list">'+list()+'</div>'+
+     '<div class="actions"><button type="button" class="btn" id="gp-done">Done</button></div></div>';
+    seg('gp-tab',[['grinders','Grinders ('+MYG.length+')'],['brewers','Brewers ('+MYB.length+')']],()=>T,v=>{T=v;q='';draw()});
+    $('gp-q').oninput=e=>{q=e.target.value.trim().toLowerCase();$('gp-list').innerHTML=list()};
+    $('gp-list').onclick=e=>{const b=e.target.closest('[data-gp]');if(!b)return;const k=b.dataset.gp;let on;
+      if(T==='grinders'){on=!MYG.includes(k);if(!on&&MYG.length<=1){toast('Keep at least one grinder');return}setMine(k,on,true)}else{on=!MYB.includes(k);setMyBrewer(k,on)}
+      b.setAttribute('aria-pressed',on);b.querySelector('.tick').textContent=on?'✓':'';
+      const tb=document.querySelector('#gp-tab button[data-v="'+T+'"]');if(tb)tb.textContent=T==='grinders'?'Grinders ('+MYG.length+')':'Brewers ('+MYB.length+')'};
+    $('gp-done').onclick=$('vd-x').onclick=()=>d.close()};
+  draw();
+  const finish=()=>{d.removeEventListener('close',finish);grindersChanged();if(BUILT.champs)renderChamps();if(BUILT.gear)renderMyBrewers();if(after)setTimeout(after,0)};d.addEventListener('close',finish);
+  if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}d.scrollTop=0}
+const openGrinderPicker=()=>openGearPicker('grinders');
+function renderMyBrewers(){$('gear-mybrewers').innerHTML='<div class="ghead"><h3 style="margin:0">Your brewers</h3><button type="button" class="gpick-btn" data-gpick-b aria-label="Change brewers" title="Change brewers">'+SWAP_ICON+'</button></div>'+
+  (MYB.length?'<div class="meta">'+MYB.map(b=>'<span>'+esc(BREWERS[b].name)+'</span>').join('')+'</div>':'<p class="hint">Tell the app which brewers you own, and championship recipes adapt to them.</p>')}
+document.addEventListener('click',e=>{if(e.target.closest('[data-gpick-b]'))openGearPicker('brewers')});
+document.addEventListener('click',e=>{if(e.target.closest('[data-gpick]'))openGrinderPicker()});
 // Everything that shows grinder settings follows your grinders.
 function grindersChanged(){if(!MYG.includes(S.grinder)||!canGrind(S.grinder,S.brewer)){const g=MYG.find(x=>canGrind(x,S.brewer))||capable(S.brewer);S.setting=canGrind(S.grinder,S.brewer)?convertSetting(S,g,S.brewer):base(g,S.brewer);S.grinder=g}
   if(!MYG.includes(PL.grinder))PL.grinder=MYG.find(x=>canGrind(x,PL.brewer))||capable(PL.brewer);if(!MYG.includes(SC.grinder))SC.grinder=MYG.find(x=>canGrind(x,SC.brewer))||capable(SC.brewer);
@@ -2875,9 +3170,111 @@ $('sharesheet').addEventListener('click',async e=>{const d=$('sharesheet');if(e.
     catch(err){if(!err||err.name!=='AbortError')toast('Sharing isn\u2019t allowed here; use Save as PDF instead')}}
 });
 
+/* ================= WORLD CHAMPIONSHIPS ================= */
+let CHF='all',CHB='all';
+// Upcoming finals and new champions come from events.json on the website, so a yearly update reaches the app without a new release.
+const EVURL='https://maheralshokry.github.io/brew-bench/events.json';
+let EVENTS=[];
+function useEvents(src){const ok=e=>e&&COMPS[e.c]&&Number.isFinite(Date.parse(e.start))&&Number.isFinite(Date.parse(e.end))&&typeof e.city==='string';
+  EVENTS=(Array.isArray(src&&src.events)?src.events:[]).filter(ok).map(e=>({c:e.c,y:num(e.y,new Date(e.start).getFullYear()),start:Date.parse(e.start),end:Date.parse(e.end),city:str(e.city,80),venue:str(e.venue,80),note:str(e.note,160)})).sort((a,b)=>a.start-b.start);
+  for(const x of Array.isArray(src&&src.champs)?src.champs:[]){if(!x||!COMPS[x.c]||!Number.isFinite(+x.y)||typeof x.who!=='string'||CHAMPS.some(c=>c.c===x.c&&c.y===+x.y))continue;
+    CHAMPS.push({c:x.c,y:+x.y,city:str(x.city,80),who:str(x.who,60),from:str(x.from,40),dev:str(x.dev,40)||(x.c==='wac'?'AeroPress':x.c==='wbc'?'Espresso machine':''),coffee:str(x.coffee,160),note:str(x.note,160)})}}
+// Use the newer of the saved list and the one built into the app; fall back to the built-in one if the saved list is damaged.
+{const c=load('bb-events',null);useEvents(c&&String(c.updated||'')>=EVENTS_DEFAULT.updated?c:EVENTS_DEFAULT);if(!EVENTS.length)useEvents(EVENTS_DEFAULT)}
+let EVFETCH=false;
+function fetchEvents(){if(EVFETCH||!navigator.onLine)return;EVFETCH=true;
+  fetch(EVURL,{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.events)){save('bb-events',j);useEvents(j);if(BUILT.champs)renderChamps()}}).catch(()=>{})}
+const upcoming=()=>EVENTS.filter(e=>e.end>Date.now());
+// The countdown to the next final, ticking every second while the page is open.
+let CDT=null;
+function renderCountdown(){const ev=upcoming().filter(e=>CHF==='all'||e.c===CHF),box=$('ch-next');if(!ev.length){box.innerHTML='';return}
+  const [n,...rest]=ev,C=COMPS[n.c];
+  box.innerHTML='<div class="cd" style="--c:'+C.color+'"><span class="pill"><i style="background:'+C.color+'"></i>Next world final</span><h3>'+esc(C.name)+' '+n.y+'</h3>'+
+   '<p class="hint" style="margin:0">'+esc(n.city)+(n.venue?' · '+esc(n.venue):'')+' · '+new Date(n.start).toLocaleDateString(undefined,{day:'numeric',month:'long',year:'numeric'})+'</p>'+
+   '<div class="cdclock" id="cd-clock" aria-live="off"></div>'+(n.note?'<p class="hint" style="margin:.4rem 0 0">'+esc(n.note)+'</p>':'')+'</div>'+
+   (rest.length?'<div class="cdnext">'+rest.map(e=>'<div><span class="pill"><i style="background:'+COMPS[e.c].color+'"></i>'+COMPS[e.c].short+' '+e.y+'</span><b>'+esc(e.city)+'</b><small>'+new Date(e.start).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'})+' · in '+Math.max(0,Math.ceil((e.start-Date.now())/864e5))+' days</small></div>').join('')+'</div>':'');
+  const tick=()=>{const el=$('cd-clock');if(!el||!document.getElementById('champs').classList.contains('on')){clearInterval(CDT);CDT=null;return}
+    const now=Date.now();if(now>=n.end){clearInterval(CDT);CDT=null;renderCountdown();return}
+    if(now>=n.start){el.innerHTML='<div class="cdlive"><i></i>Happening now in '+esc(n.city.split(',')[0])+'</div>';return}
+    let s=Math.floor((n.start-now)/1e3);const d=Math.floor(s/86400);s%=86400;const h=Math.floor(s/3600);s%=3600;const m=Math.floor(s/60);s%=60;
+    el.innerHTML=[[d,'days'],[h,'hours'],[m,'min'],[s,'sec']].map(([v,l])=>'<div><b>'+String(v).padStart(l==='days'?1:2,'0')+'</b><small>'+l+'</small></div>').join('')};
+  tick();clearInterval(CDT);CDT=setInterval(tick,1000)}
+// Which brewer each champion used; espresso for the Barista Championship.
+const chDev=ch=>ch.dev&&ch.dev!=='Not published'?ch.dev:null;
+const chBrewer=ch=>ch.rec?(ch.ri!=null?RECIPES[ch.ri].b:ch.rec.b):null;
+function renderChamps(){fetchEvents();
+  seg('ch-filter',[['all','All']].concat(Object.entries(COMPS).map(([k,c])=>[k,c.short])),()=>CHF,v=>{CHF=v;CHB='all';renderChamps()});
+  const pool=CHAMPS.filter(x=>CHF==='all'||x.c===CHF),devs=[...new Set(pool.map(chDev).filter(Boolean))].sort((a,b)=>pool.filter(x=>chDev(x)===b).length-pool.filter(x=>chDev(x)===a).length);
+  if(CHB!=='all'&&CHB!=='mine'&&!devs.includes(CHB))CHB='all';
+  seg('ch-brewer',[['all','Any brewer']].concat(MYB.length?[['mine','With my brewers']]:[],devs.map(d=>[d,d])),()=>CHB,v=>{CHB=v;renderChamps()});
+  renderCountdown();
+  $('ch-about').innerHTML=Object.entries(COMPS).filter(([k])=>CHF==='all'||CHF===k).map(([k,c])=>'<div class="card chcomp"><span class="pill"><i style="background:'+c.color+'"></i>Since '+c.since+'</span><h3>'+esc(c.name)+'</h3><p class="hint">'+esc(c.about)+'</p><p class="chcount">'+CHAMPS.filter(x=>x.c===k).length+' champions</p></div>').join('');
+  const on=ch=>(CHF==='all'||ch.c===CHF)&&(CHB==='all'||(CHB==='mine'?MYB.includes(chBrewer(ch)):chDev(ch)===CHB));
+  const years=[...new Set(CHAMPS.map(x=>x.y).concat(CH_GAPS.map(g=>g[0])))].sort((a,b)=>b-a);
+  const card=ch=>{const C=COMPS[ch.c],mine=MYB.includes(chBrewer(ch));return '<div class="chwin"><span class="pill"><i style="background:'+C.color+'"></i>'+C.short+'</span>'+(chDev(ch)?'<span class="pill chdev'+(mine?' ours':'')+'">'+esc(chDev(ch))+(mine?' ✓':'')+'</span>':'')+
+    '<div class="chname"><span class="flag" aria-hidden="true">'+(FLAGS[ch.from]||'')+'</span><b>'+esc(ch.who)+'</b></div>'+
+    '<p class="hint">'+esc(ch.from)+' · '+esc(ch.city)+'</p>'+(ch.coffee?'<p class="chcoffee">'+esc(ch.coffee)+'</p>':'')+(ch.note?'<p class="hint">'+esc(ch.note)+'</p>':'')+
+    (ch.rec?'<button type="button" class="btn ghost chbtn" data-champ="'+CHAMPS.indexOf(ch)+'">'+(ch.ri!=null?'Winner’s recipe':'What they used')+'</button>':'')+'</div>'};
+  const html=years.map(y=>{const w=CHAMPS.filter(x=>x.y===y&&on(x)),gp=CHB==='all'?CH_GAPS.filter(g=>g[0]===y&&(CHF==='all'||g[1]===CHF)):[];
+    if(!w.length&&!gp.length)return'';
+    return '<li><span class="when">'+y+'</span>'+(w.length?'<div class="chrow">'+w.map(card).join('')+'</div>':'')+gp.map(g=>'<p class="hint">'+esc(g[2])+'</p>').join('')+'</li>'}).join('');
+  $('ch-tl').innerHTML=html||'<li><p class="hint">No champion brewed with this yet.'+(CHB==='mine'?' Add more brewers to your gear.':'')+'</p></li>'}
+$('ch-tl').onclick=e=>{const b=e.target.closest('[data-champ]');if(b)openChamp(CHAMPS[+b.dataset.champ])};
+// Brewers that can stand in for each other, closest first. AeroPress recipes adapt best to other paper-filtered immersion brewers.
+const SUBS={'Cone dripper':['Cone dripper','Flat-bottom dripper','Valve and hybrid','Machine','Immersion and pressure'],'Flat-bottom dripper':['Flat-bottom dripper','Cone dripper','Valve and hybrid','Machine','Immersion and pressure'],
+  'Valve and hybrid':['Valve and hybrid','Cone dripper','Flat-bottom dripper','Immersion and pressure']};
+const AERO_SUBS=['clever','swi','sw','swneo','frenchpress','siphon'];
+function adaptBrewer(b){if(!MYB.length||MYB.includes(b))return b;const B=BREWERS[b],own=MYB.filter(x=>BREWERS[x].type!=='Espresso and stovetop'&&BREWERS[x].type!=='Boiled'&&BREWERS[x].type!=='Cold');
+  if(!own.length)return null;
+  if(b==='aeropress'){const x=AERO_SUBS.find(k=>own.includes(k));if(x)return x}
+  const order=SUBS[B.type]||['Immersion and pressure','Valve and hybrid','Cone dripper','Flat-bottom dripper','Machine'];
+  for(const ty of order){const x=own.find(k=>BREWERS[k].type===ty&&BREWERS[k].model!==false)||own.find(k=>BREWERS[k].type===ty);if(x)return x}return own[0]}
+function adaptNote(from,to,shift){if(from===to)return'';const F=BREWERS[from],T=BREWERS[to],way=shift>40?'a little coarser':shift<-40?'a little finer':'about the same';
+  if(from==='aeropress'){if(['clever','sw','swi','swneo'].includes(to))return'Steep with the valve closed for the same time, then open it instead of pressing, and add the same bypass water afterwards.';
+    if(to==='frenchpress')return'Steep for the same time, plunge gently and pour through a paper filter if you can, then add the same bypass water.';
+    if(to==='siphon')return'Steep in the top chamber for the same time, then let it draw down, and add the same bypass water.';
+    return'Brew the same dose and water as a slow pour-over, then add the bypass water. Expect a lighter body than the pressed original.'}
+  if(F.type===T.type)return'Same style of brewer: follow the steps as written. The grind below is '+way+', to suit your brewer.';
+  if(T.type==='Valve and hybrid')return F.type==='Immersion and pressure'?'Steep with the valve closed, then open it to drain.':'Keep the valve open the whole time to brew it as a pour-over.';
+  if(F.type==='Valve and hybrid')return'No valve: where the recipe closes the valve, pour slowly and keep the water level high instead of steeping.';
+  if(F.type==='Cone dripper'&&T.type==='Flat-bottom dripper')return'Keep the same pours, aimed at the centre of the flat bed. The grind below is '+way+', to suit your brewer.';
+  if(F.type==='Flat-bottom dripper'&&T.type==='Cone dripper')return'Keep the same pours, gently, so the cone drains evenly. The grind below is '+way+', to suit your brewer.';
+  return'This brewer works quite differently, so treat the settings as a starting point and adjust by taste.'}
+function openChamp(ch){const C=COMPS[ch.c],r=ch.rec,R=ch.ri!=null?RECIPES[ch.ri]:null,b=R?R.b:r.b,d=$('vd');
+  const dose=R?R.dose:r.dose,water=R?R.water:r.water,temp=R?R.temp:r.temp,temp2=R?R.temp2:r.temp2,steps=R?R.steps:r.steps,why=R?R.why:r.why,off=R?R.off:(r.off||0);
+  const g=r.grind&&r.grind.g&&GRINDERS[r.grind.g]?r.grind.g:null;
+  // Your gear: the brewer you own that is closest to theirs, and your grinders set for it.
+  const nb=adaptBrewer(b),useB=nb||b,sub=nb&&nb!==b,shift=(brewSize(useB)??0)-(brewSize(b)??0);
+  const setOn=h=>{if(g){const v=stepsFor(h,sizeOf(g,r.grind.c)+shift),H=GRINDERS[h];return v>=H.min-0.5&&v<=H.max+0.5?roundG(h,v):null}return canGrind(h,useB)?settingFor(h,useB,off):null};
+  const rows=MYG.map(h=>{const v=setOn(h);return '<div class="mrow mine"><span>'+esc(GRINDERS[h].name)+'</span><b>'+(v!=null?esc(dial(h,v))+(GRINDERS[h].unit==='clicks'?' <small>clicks</small>':''):'<small>can’t reach this grind</small>')+'</b></div>'}).join('');
+  const temps=temp?temp+'°C'+(temp2?' then '+temp2+'°C':''):'';
+  const gear=(r.gear||[]).concat(r.grind&&r.grind.label&&!/not published/i.test(r.grind.label)&&!(r.gear||[]).some(x=>r.grind.label.startsWith(x))?['Grind: '+r.grind.label]:[]);
+  const brewLine=!MYB.length?'<p class="hint">They brewed on a <b>'+esc(r.gear&&r.gear[0]||BREWERS[b].name)+'</b>. <button type="button" class="linkbtn" data-ca="gear">Tell the app which brewers you have</button> and the recipe adapts to them.</p>'
+    :nb===null?'<p class="hint">None of your brewers suit this recipe. <button type="button" class="linkbtn" data-ca="gear">Edit your gear</button></p>'
+    :sub?'<p><b>Brew it on your '+esc(BREWERS[nb].name)+'</b> instead of their '+esc(r.gear&&r.gear[0]||BREWERS[b].name)+'. '+esc(adaptNote(b,nb,shift))+'</p>'
+    :'<p><b>You have the right brewer</b>: brew it on your '+esc(BREWERS[b].name)+(r.gear&&r.gear[0]&&!r.gear[0].startsWith(BREWERS[b].name)?' (they used a '+esc(r.gear[0])+')':'')+'.</p>';
+  const R2=R&&BREWERS[useB].model;
+  d.querySelector('#vd-in').innerHTML='<div class="vd-head" style="--c:'+C.color+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:'+C.color+'"></i>'+esc(C.name)+' '+ch.y+'</span>'+
+   '<h2 id="vd-title">'+(FLAGS[ch.from]||'')+' '+esc(ch.who)+'</h2><div class="meta"><span>'+esc(ch.from)+'</span><span>'+esc(ch.city)+'</span></div></div><div class="vd-body">'+
+   (ch.coffee?'<p><b>The coffee.</b> '+esc(ch.coffee)+'</p>':'')+
+   '<h3>Gear they used</h3><ul class="chgear">'+gear.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>'+
+   '<h3>The recipe</h3><div class="meta">'+(dose&&water?'<span>'+dose+'g : '+water+'g</span>':dose?'<span>'+dose+'g coffee</span>':'')+(temps?'<span>'+temps+(r.tNote?' ('+esc(r.tNote)+')':'')+'</span>':'<span>Temperature not published</span>')+(r.time?'<span>'+esc(r.time)+'</span>':'')+'</div>'+
+   (why?'<p>'+esc(why)+'</p>':'')+(steps?'<ol class="steps">'+steps.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol>':'<p class="hint">The full step-by-step was not published.</p>')+
+   '<div class="ghead" style="margin-top:1.2rem"><h3 style="margin:0">Brew it with your gear</h3><button type="button" class="gpick-btn" data-ca="gear" aria-label="Edit your gear" title="Edit your gear">'+SWAP_ICON+'</button></div>'+brewLine+
+   '<p class="hint" style="margin:.2rem 0 .5rem">'+(g?'Grind converted from the champion’s '+esc(r.grind.label)+(sub?', then adjusted for your '+esc(BREWERS[nb].name):'')+'.':'The champion’s grind: '+esc(r.grind?r.grind.label:'not published')+'. These are starting points for '+(nb?'your '+esc(BREWERS[useB].name):'a '+esc(BREWERS[b].name))+'; adjust by taste.')+'</p>'+rows+
+   (!sub&&r.alt?'<p class="hint">'+esc(r.alt)+'</p>':'')+
+   '<div class="actions">'+(R?'<button type="button" class="btn" data-ca="timer">Start timer</button>':'')+(R2?'<button type="button" class="btn ghost" data-ca="load">Load into dial-in</button>':'')+
+   (R&&!sub&&PBREWERS.includes(b==='swi'?'sw':b)?'<button type="button" class="btn ghost" data-ca="plan">Tune in planner</button>':'')+(g?'<button type="button" class="btn ghost" data-ca="match">All grinders</button>':'')+'</div></div>';
+  d.querySelector('.vd-body').onclick=e=>{const a=e.target.closest('[data-ca]');if(!a)return;const k=a.dataset.ca;d.close();
+    if(k==='gear'){setTimeout(()=>openGearPicker('brewers',()=>openChamp(ch)),0);return}
+    if(k==='timer')openTimer(ch.ri);else if(k==='plan')planRecipe(ch.ri);else if(k==='match')openMatch(g,r.grind.c);
+    else if(k==='load'){const B=BREWERS[useB],gr=MYG.find(h=>setOn(h)!=null)||S.grinder;S.brewer=useB;S.rec=useB===b?ch.ri:null;S.grinder=gr;S.setting=setOn(gr)??base(gr,useB);
+      S.temp=clamp(R.temp,B.temp.min,B.temp.max);S.bloom=B.bloom.def;S.agit='med';S.ratio=clamp(Math.round(R.water/R.dose/B.ratio.step)*B.ratio.step,B.ratio.min,B.ratio.max);render();showTab('dial');toast('Loaded '+ch.who+'’s recipe')}};
+  const hx=d.querySelector('.vd-head');hx.onclick=e=>{if(e.target.closest('#vd-x'))d.close()};
+  if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}d.scrollTop=0}
 /* ================= APP SHELL ================= */
 /* Line icons for the sheets, drawn to match the bottom navigation. */
-const ICO={globe:'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M3 12h18 M12 3c3 3.5 3 14.5 0 18 M12 3c-3 3.5-3 14.5 0 18',leaf:'M5 19c0-8 5-14 14-14c0 9-6 14-14 14z M5 19l8-8',
+const ICO={trophy:'M8 4h8v5a4 4 0 0 1-8 0z M8 6H5a3 3 0 0 0 3 4 M16 6h3a3 3 0 0 1-3 4 M12 13v4 M8 21h8 M9 17h6',globe:'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M3 12h18 M12 3c3 3.5 3 14.5 0 18 M12 3c-3 3.5-3 14.5 0 18',leaf:'M5 19c0-8 5-14 14-14c0 9-6 14-14 14z M5 19l8-8',
   hourglass:'M7 3h10 M7 21h10 M8 3v3l4 6 4-6V3 M8 21v-3l4-6 4 6v3',flask:'M9 3h6 M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3 M7.5 15h9',drop:'M12 3c3 4 6 7.5 6 11a6 6 0 0 1-12 0c0-3.5 3-7 6-11z',
   clipboard:'M9 3h6v3H9z M7 4.5H5V21h14V4.5h-2 M8 11h8 M8 15h8 M8 19h5',cog:'M12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6z M12 2v3 M12 19v3 M2 12h3 M19 12h3 M4.9 4.9L7 7 M17 17l2.1 2.1 M4.9 19.1L7 17 M17 7l2.1-2.1',
   book:'M4 19V5a2 2 0 0 1 2-2h13v14H6a2 2 0 0 0-2 2a2 2 0 0 0 2 2h13 M8 7h7',pencil:'M4 20h4L19 9l-4-4L4 16z M13 7l4 4',moon:'M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z',
@@ -2887,12 +3284,12 @@ const ICO={globe:'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M3 12h18 M12 3c3 3.5 3 14
 const installed=()=>!!window.Capacitor||MQ('(display-mode: standalone)')||navigator.standalone===true;
 const ico=(n,bg)=>'<span class="ic" style="background:'+bg+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+ICO[n]+'"/></svg></span>';
 
-const TABNAMES={dial:'Dial-in',planner:'Brew planner',scan:'Scan beans',gear:'Gear and dials',recipes:'Recipes',tech:'Techniques',process:'Processes',map:'Origins map',variety:'Varieties',history:'History',guide:'Guide',log:'Brew log'};
-const BNGROUP={dial:'dial',recipes:'recipes',scan:'scan',map:'explore',variety:'explore',history:'explore',process:'explore',tech:'explore',planner:'more',gear:'more',guide:'more',log:'more'};
+const TABNAMES={champs:'World championships',dial:'Dial-in',planner:'Brew planner',scan:'Scan beans',gear:'Gear and dials',recipes:'Recipes',tech:'Techniques',process:'Processes',map:'Origins map',variety:'Varieties',history:'History',guide:'Guide',log:'Brew log'};
+const BNGROUP={champs:'explore',dial:'dial',recipes:'recipes',scan:'scan',map:'explore',variety:'explore',history:'explore',process:'explore',tech:'explore',planner:'more',gear:'more',guide:'more',log:'more'};
 function syncShell(id){$('ab-title').textContent=TABNAMES[id]||'Brew Bench';document.body.className=document.body.className.replace(/\bt-\w+/g,'').trim()+' t-'+id;
   document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));
   const can=['dial','planner','scan','history','log','map','recipes'].includes(id);$('ab-share').hidden=!can}
-const SHEETS={explore:[['map','Origins map','50 origins on an interactive map','#4F8A74','globe'],['variety','Varieties','44 varieties, stories and Geisha types','#B5533C','leaf'],['history','History','Family tree, timeline and a quiz','#8A5A3B','hourglass'],['process','Processes','From washed to thermal shock','#D2A04A','flask'],['tech','Techniques','Every move in the brewing toolbox','#6B8E4E','drop']],
+const SHEETS={explore:[['map','Origins map','50 origins on an interactive map','#4F8A74','globe'],['variety','Varieties','44 varieties, stories and Geisha types','#B5533C','leaf'],['history','History','Family tree, timeline and a quiz','#8A5A3B','hourglass'],['process','Processes','From washed to thermal shock','#D2A04A','flask'],['tech','Techniques','Every move in the brewing toolbox','#6B8E4E','drop'],['champs','World championships','Every champion, their recipes and gear','#C9964A','trophy']],
   more:[['planner','Brew planner','A recipe tuned to your coffee','#8A5A3B','clipboard'],['gear','Gear and dials','Grinders, brewers and dial reading','#6E8FA8','cog'],['guide','Guide','Ratio calculator and troubleshooting','#C9964A','book'],['log','Brew log','Your brews, ratings and exports','#6B8E4E','pencil']]};
 function openSheet(which){const items=SHEETS[which];
   $('ns-in').innerHTML='<div class="sheet"><div class="grab"></div><button class="vd-close" id="ns-x" aria-label="Close">\u2715</button><h2 id="ns-title" style="margin:0 40px 0 0">'+(which==='explore'?'Explore':'More')+'</h2><div class="sheetlist">'+
