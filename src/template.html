@@ -403,11 +403,16 @@ button,a,.tab,.chip,[role=button],input[type=range]{touch-action:manipulation}
 @media (max-width:759px){.appbar,nav.tabs .wrap{backdrop-filter:none;-webkit-backdrop-filter:none}.appbar{background:var(--paper)}}
 /* Grinders: cards, match tool, library, comparison, custom form */
 .ghead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-.matchrow{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:10px}.matchrow>*{min-width:0}.matchrow input,.matchrow select{width:100%}
 .gspec{margin-top:8px}.gspec summary{cursor:pointer;font-family:var(--display);font-weight:600;color:var(--cherry);font-size:.9rem;padding:4px 0}.gspec .spec{margin-top:6px}
 .mgroup{margin-top:10px}.mgroup h4{margin:0 0 6px;font-family:var(--display);font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
 .mrow{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:9px 12px;border-radius:var(--r-sm,12px);background:var(--surface2);margin-bottom:6px;font-family:var(--display)}
 .mrow b{font-variant-numeric:tabular-nums;white-space:nowrap}.mrow small{font-weight:500;color:var(--muted)}
+.mbig{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 12px;padding:14px;border-radius:var(--r-md,16px);background:color-mix(in srgb,var(--cherry) 10%,var(--surface));font-family:var(--display);text-align:center;margin:.4rem 0}
+.mbig b{font-size:1.35rem;font-variant-numeric:tabular-nums;white-space:nowrap}.mbig small{font-weight:500;color:var(--muted);font-size:.8rem}.mbig .eq{color:var(--muted);font-size:1.2rem}
+.mswap .chip{margin-bottom:6px}
+.linkbtn{background:none;border:0;padding:2px 0;font:inherit;font-weight:600;color:var(--cherry);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.equiv{margin:.5rem 0 0;line-height:1.5}
+.mswap{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:end}.mswap>*{min-width:0}.mswap select{width:100%}
 .mrow.mine{background:color-mix(in srgb,var(--cherry) 12%,var(--surface))}
 .libhead{font-family:var(--display);margin:18px 0 10px;font-size:1rem}
 .scroll-x{overflow-x:auto;margin:10px -4px 0}
@@ -622,7 +627,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
     <div class="panel">
       <div class="field"><div class="lbl">Grinder</div><div class="seg" id="g-grinder"></div></div>
       <div class="field"><label for="i-brewer">Brewer</label><select id="i-brewer"></select><div id="rec-chip" style="margin-top:6px"></div></div>
-      <div class="field"><label for="i-grind">Grind <span><span class="num" id="v-grind"></span> <span class="hint" id="v-grindhint"></span></span></label><input type="range" id="i-grind"><div class="dialrow"><svg id="dialsvg" class="dialmini" viewBox="0 0 160 160" aria-hidden="true"></svg><p class="hint" style="margin:0">Dials read number.click. Tap <b>Gear and dials</b> for how each grinder works.</p></div></div>
+      <div class="field"><label for="i-grind">Grind <span><span class="num" id="v-grind"></span> <span class="hint" id="v-grindhint"></span></span></label><input type="range" id="i-grind"><div class="dialrow"><svg id="dialsvg" class="dialmini" viewBox="0 0 160 160" aria-hidden="true"></svg><p class="hint" style="margin:0">Dials read number.click. Tap <b>Gear and dials</b> for how each grinder works.</p></div><p class="hint equiv" id="v-equiv"></p></div>
       <div class="two">
         <div class="field"><label for="i-temp">Water <span class="num" id="v-temp"></span></label><input type="range" id="i-temp" min="85" max="100" step="1"></div>
         <div class="field"><label for="i-ratio">Ratio <span class="num" id="v-ratio"></span></label><input type="range" id="i-ratio" min="13" max="18" step="0.5"></div>

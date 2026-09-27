@@ -33,12 +33,12 @@ const ns='http://www.w3.org/2000/svg';
    so any grinder can be placed for any brewer, and one grinder's setting can be matched on another.
    fmt 'rot': 1Zpresso-style rotation.number.click ring (per clicks per rotation, 10 clicks per number).
    fmt 'num': a plain dial: shown as first + steps/sub (sub 3 = thirds, like 4, 4.1, 4.2); unit 'clicks' counts from closed. */
-const V60_SIZE=56*22,ESP_SIZE=36*20*0.84;
+const V60_SIZE=56*22;
 const GRINDER_LIB={
-  zp6:{name:'ZP6 Special',full:'1Zpresso ZP6 Special',type:'manual',brand:'1Zpresso',fmt:'rot',per:90,um:22,min:20,max:90,v60:56,k:22,step:7.3,body:-0.4,clarity:1.2,espresso:false,
+  zp6:{name:'ZP6 Special',full:'1Zpresso ZP6 Special',type:'manual',brand:'1Zpresso',fmt:'rot',per:90,um:22,min:20,max:90,v60:56,k:22,body:-0.4,clarity:1.2,espresso:false,
     burr:'48 mm hexagonal (six-sided) conical steel burrs, designed only for filter',adjust:'External ring: 9 numbers per turn, 10 clicks per number, 90 clicks per rotation, about 22 microns per click',
     range:'Filter roughly 4.5 to 7.0 (45 to 70 clicks). Below about 2.0 the burrs rub, so no espresso or Turkish.',cup:'The fewest fines in the 1Zpresso range: very clean, separated, high-clarity cups.',use:'Washed coffees, Geisha and Ethiopian landraces, V60, NEO, Origami, Chemex.'},
-  kultra:{name:'K-Ultra',full:'1Zpresso K-Ultra',type:'manual',brand:'1Zpresso',fmt:'rot',per:100,um:20,min:5,max:110,v60:72,k:17,step:8,body:0.7,clarity:-0.2,espresso:true,
+  kultra:{name:'K-Ultra',full:'1Zpresso K-Ultra',type:'manual',brand:'1Zpresso',fmt:'rot',per:100,um:20,min:5,max:130,v60:72,k:18.3,body:0.7,clarity:-0.2,espresso:true,
     burr:'48 mm heptagonal (seven-sided) "K burr" conical steel burrs, an all-rounder',adjust:'External ring: 10 numbers per turn, 10 clicks per number, 100 clicks per rotation, 20 microns per click. Can go past one full turn.',
     range:'Filter roughly 7.0 to 9.5 (70 to 95 clicks). Espresso around 2.5 to 4.5; French press and cold brew past one full turn.',cup:'More body and a rounder, more blended cup than the ZP6.',use:'Naturals and honeys, immersion, espresso, AeroPress, anything that tastes thin.'},
   jxpro:{name:'JX-Pro',full:'1Zpresso JX-Pro',type:'manual',brand:'1Zpresso',fmt:'rot',per:40,um:12.5,min:20,max:160,v60:92,k:13,body:0.4,clarity:0,espresso:true,
@@ -70,13 +70,68 @@ const GRINDER_LIB={
     range:'Espresso about 10 to 15, AeroPress about 25 to 30, V60 about 38 to 45.',cup:'Rich, syrupy body; classic conical sweetness.',use:'Espresso first, filter too.'},
   df64:{name:'DF64',full:'Turin DF64 Gen 2',type:'electric',brand:'Turin',fmt:'num',sub:1,first:0,min:0,max:90,v60:55,k:14.6,body:0,clarity:0.6,espresso:true,
     burr:'64 mm flat steel burrs (stock Italmill); popular to upgrade',adjust:'Stepless dial numbered 0 to 90',
-    range:'Espresso about 10 to 20, V60 about 50 to 60, French press about 80 to 90.',cup:'Clear, flat-burr profile; depends on the burrs fitted.',use:'Single-dose espresso and filter.'}
+    range:'Espresso about 10 to 20, V60 about 50 to 60, French press about 80 to 90.',cup:'Clear, flat-burr profile; depends on the burrs fitted.',use:'Single-dose espresso and filter.'},
+  jmax:{name:'J-Max',full:'1Zpresso J-Max',type:'manual',brand:'1Zpresso',fmt:'rot',per:90,um:8.8,min:40,max:260,v60:164,k:8,body:0.6,clarity:0,espresso:true,
+    burr:'48 mm conical steel burrs, espresso-focused',adjust:'External ring: 9 numbers per turn, 10 clicks per number, 90 clicks per rotation, about 8.8 microns per click',
+    range:'Espresso roughly 0.7.0 to 1.0.0; filter roughly 1.6.0 to 2.2.0 (past one full turn).',cup:'Rich and textured; very fine steps for dialing espresso.',use:'Espresso first, filter too.'},
+  jultra:{name:'J-Ultra',full:'1Zpresso J-Ultra',type:'manual',brand:'1Zpresso',fmt:'rot',per:100,um:8,min:40,max:280,v60:180,k:7.3,body:0.5,clarity:0.2,espresso:true,
+    burr:'48 mm heptagonal conical steel burrs (the K-Ultra shape, tuned for espresso)',adjust:'External ring: 10 numbers per turn, 10 clicks per number, 100 clicks per rotation, 8 microns per click',
+    range:'Espresso roughly 0.8.0 to 1.1.0; filter roughly 1.7.0 to 2.3.0.',cup:'Syrupy espresso, cleaner filter than the J-Max.',use:'Espresso and precise filter dialing.'},
+  jx:{name:'JX',full:'1Zpresso JX',type:'manual',brand:'1Zpresso',fmt:'rot',per:30,um:25,min:10,max:90,v60:50,k:26,body:0.4,clarity:0,espresso:false,
+    burr:'48 mm conical steel burrs',adjust:'Internal dial: 3 numbers per turn, 10 clicks per number, 30 clicks per rotation, about 25 microns per click',
+    range:'AeroPress roughly 1.1.0 to 1.2.0; V60 roughly 1.1.5 to 1.2.5; French press 2.0.0 and up.',cup:'Balanced with medium body.',use:'Everyday filter and AeroPress on a budget.'},
+  xpro:{name:'X-Pro',full:'1Zpresso X-Pro',type:'manual',brand:'1Zpresso',fmt:'rot',per:40,um:12.5,min:20,max:160,v60:92,k:13,body:0.4,clarity:0.1,espresso:true,
+    burr:'48 mm conical steel burrs',adjust:'External ring: 4 numbers per turn, 10 clicks per number, 40 clicks per rotation, about 12.5 microns per click',
+    range:'Espresso about 1.0.0 to 1.2.0; filter about 2.0.0 to 2.8.0.',cup:'Balanced with medium body; like the JX-Pro with a folding handle.',use:'Travel espresso and filter.'},
+  xultra:{name:'X-Ultra',full:'1Zpresso X-Ultra',type:'manual',brand:'1Zpresso',fmt:'rot',per:60,um:12.5,min:20,max:170,v60:95,k:12.4,body:0.5,clarity:0.2,espresso:true,
+    burr:'48 mm heptagonal conical steel burrs',adjust:'External ring: 6 numbers per turn, 10 clicks per number, 60 clicks per rotation, about 12.5 microns per click',
+    range:'Espresso roughly 0.4.0 to 1.0.0; filter roughly 1.3.0 to 1.5.0.',cup:'Sweet and full; the compact version of the K burr.',use:'All-rounder for travel.'},
+  kmax:{name:'K-Max / K-Plus',full:'1Zpresso K-Max, K-Plus and K-Pro',type:'manual',brand:'1Zpresso',fmt:'rot',per:90,um:22,min:10,max:120,v60:65,k:20,body:0.6,clarity:0,espresso:true,
+    burr:'48 mm "K burr" conical steel burrs',adjust:'External ring: 9 numbers per turn, 10 clicks per number, 90 clicks per rotation, about 22 microns per click',
+    range:'Espresso roughly 2.5 to 3.5; filter roughly 6.0 to 8.0; French press about 9.0 and up.',cup:'Full and sweet; the K-Ultra\'s older siblings.',use:'Filter with body, AeroPress, occasional espresso.'},
+  q2:{name:'Q2 / Q Air',full:'1Zpresso Q2 S and Q Air',type:'manual',brand:'1Zpresso',fmt:'rot',per:30,um:25,min:8,max:90,v60:48,k:26,body:0.5,clarity:-0.1,espresso:false,
+    burr:'38 mm heptagonal conical steel burrs',adjust:'Internal dial: 3 numbers per turn, 10 clicks per number, 30 clicks per rotation, about 25 microns per click',
+    range:'AeroPress roughly 1.0.0 to 1.2.0; V60 roughly 1.1.5 to 1.2.5; French press 2.0.0 and up.',cup:'Sweet and a little heavier than bigger burrs.',use:'Small travel grinder for filter.'},
+  cmdred:{name:'C40 + Red Clix',full:'Comandante C40 with Red Clix',type:'manual',brand:'Comandante',fmt:'num',unit:'clicks',sub:1,first:0,um:15,min:8,max:90,v60:50,k:27.5,body:0.3,clarity:0.4,espresso:true,
+    burr:'39 mm "Nitro Blade" conical burrs',adjust:'Red Clix axle doubles the clicks: about 15 microns per click, counted from fully closed',
+    range:'Espresso about 12 to 20 clicks, AeroPress about 30 to 40, V60 about 44 to 56.',cup:'The C40 cup with finer steps.',use:'When you want espresso and filter from a Comandante.'},
+  c2:{name:'Timemore C2',full:'Timemore Chestnut C2',type:'manual',brand:'Timemore',fmt:'num',unit:'clicks',sub:1,first:0,min:6,max:36,v60:18,k:70,body:0.4,clarity:-0.4,espresso:false,
+    burr:'38 mm stainless steel conical burrs',adjust:'Count clicks from fully closed',
+    range:'AeroPress about 11 to 14 clicks, V60 about 16 to 20, French press about 24 to 27.',cup:'Sweet and full, with more fines.',use:'Entry-level pour-over.'},
+  c3esp:{name:'C3 ESP Pro',full:'Timemore Chestnut C3 ESP Pro',type:'manual',brand:'Timemore',fmt:'num',unit:'clicks',sub:1,first:0,min:5,max:70,v60:34,k:30,body:0.4,clarity:-0.2,espresso:true,
+    burr:'38 mm S2C conical burrs with a finer-step axle',adjust:'Half-size clicks compared with the C3; count from fully closed',
+    range:'Espresso about 12 to 16 clicks, AeroPress about 24 to 28, V60 about 30 to 38.',cup:'Sweet and full.',use:'Budget espresso and filter.'},
+  k4:{name:'Kingrinder K4',full:'Kingrinder K4',type:'manual',brand:'Kingrinder',fmt:'num',unit:'clicks',sub:1,first:0,um:16,min:15,max:200,v60:95,k:11,body:0.3,clarity:0.2,espresso:true,
+    burr:'48 mm conical steel burrs',adjust:'External dial, 60 clicks per turn, about 16 microns per click; count clicks from closed',
+    range:'Espresso about 30 to 50 clicks, V60 about 85 to 105, French press about 130 to 150.',cup:'Balanced, a little more body than the K6.',use:'All-round value.'},
+  skerton:{name:'Hario Skerton Pro',full:'Hario Skerton Pro',type:'manual',brand:'Hario',fmt:'num',unit:'clicks',sub:1,first:0,min:1,max:18,v60:9,k:120,body:0.5,clarity:-0.8,espresso:false,
+    burr:'38 mm ceramic conical burrs',adjust:'Count clicks from fully closed; large steps',
+    range:'AeroPress about 6 to 7 clicks, V60 about 8 to 10, French press about 12 to 14.',cup:'Heavy body, muddier than steel burrs.',use:'Immersion and camping.'},
+  minimill:{name:'Hario Mini Mill Plus',full:'Hario Mini Mill Slim Plus',type:'manual',brand:'Hario',fmt:'num',unit:'clicks',sub:1,first:0,min:1,max:16,v60:9,k:110,body:0.5,clarity:-0.9,espresso:false,
+    burr:'ceramic conical burrs',adjust:'Count clicks from fully closed; large steps',
+    range:'AeroPress about 6 to 7 clicks, V60 about 8 to 10, French press about 12 to 14.',cup:'Full body with lots of fines.',use:'Travel and immersion.'},
+  porlex:{name:'Porlex Mini II',full:'Porlex Mini II',type:'manual',brand:'Porlex',fmt:'num',unit:'clicks',sub:1,first:0,min:1,max:18,v60:9,k:120,body:0.5,clarity:-0.7,espresso:false,
+    burr:'ceramic conical burrs',adjust:'Count clicks from fully closed',
+    range:'AeroPress about 6 to 8 clicks, V60 about 8 to 10, French press about 12 to 14.',cup:'Full body with fines.',use:'Travel; fits inside an AeroPress.'},
+  opus:{name:'Fellow Opus',full:'Fellow Opus Conical Burr Grinder',type:'electric',brand:'Fellow',fmt:'num',sub:3,first:1,min:0,max:30,v60:15,k:47,body:0.6,clarity:-0.3,espresso:true,
+    burr:'40 mm conical steel burrs',adjust:'Dial 1 to 11 with two steps between numbers, plus an inner fine-tuning ring',
+    range:'Espresso about 1 to 2, AeroPress about 4 to 5, V60 about 6 to 7, French press about 9 to 10.',cup:'Balanced with some body.',use:'Espresso to cold brew on one grinder.'},
+  sgp:{name:'Breville Smart Grinder Pro',full:'Breville (Sage) Smart Grinder Pro',type:'electric',brand:'Breville',fmt:'num',sub:1,first:1,min:0,max:59,v60:37,k:22,body:0.4,clarity:-0.5,espresso:true,
+    burr:'40 mm conical steel burrs',adjust:'60 numbered settings with a timer',
+    range:'Espresso about 5 to 12, AeroPress about 25 to 30, V60 about 35 to 42, French press about 55 to 60.',cup:'Fuller body, some fines.',use:'Espresso machines and everyday brewing.'},
+  oxo:{name:'OXO Conical Burr',full:'OXO Brew Conical Burr Grinder',type:'electric',brand:'OXO',fmt:'num',sub:1,first:1,min:0,max:14,v60:7,k:80,body:0.4,clarity:-0.6,espresso:false,
+    burr:'40 mm conical steel burrs',adjust:'15 numbered settings',
+    range:'AeroPress about 4 to 6, V60 about 7 to 9, French press about 12 to 15.',cup:'Full body, forgiving.',use:'Drip and French press.'},
+  ek43:{name:'Mahlkönig EK43',full:'Mahlkönig EK43',type:'electric',brand:'Mahlkönig',fmt:'num',sub:10,first:0,min:5,max:160,v60:90,k:8.8,body:-0.2,clarity:0.9,espresso:true,
+    burr:'98 mm flat cast steel burrs',adjust:'Stepless dial numbered 0 to 16 (read to one decimal)',
+    range:'Espresso about 1 to 2, AeroPress about 6 to 8, V60 about 8.5 to 10, French press about 12 to 14.',cup:'The café standard for clarity and high extraction.',use:'Specialty cafés, competition pour-over.'}
 };
 // Your own grinders, added in Gear (same fields; values in steps).
 let CUSTOM_G=load('bb-custom-grinders',{});
 for(const [id,g] of Object.entries(CUSTOM_G))if(!g||typeof g.name!=='string'||!Number.isFinite(g.v60)||!Number.isFinite(g.k)||g.k<=0)delete CUSTOM_G[id];
 const GRINDERS=Object.assign({},GRINDER_LIB,CUSTOM_G);
-for(const G of Object.values(GRINDERS)){if(!G.step)G.step=Math.max(1,160/G.k);if(G.fmt==='num'){G.sub=G.sub||1;G.first=G.first||0}G.full=G.full||G.name}
+// One recipe "step" is the same change in grind size on every grinder, so offsets carry over exactly.
+for(const G of Object.values(GRINDERS)){G.step=160/G.k;if(G.fmt==='num'){G.sub=G.sub||1;G.first=G.first||0}G.full=G.full||G.name}
 // The grinders you use; the app shows settings for these.
 let MYG=(()=>{try{const v=JSON.parse(localStorage.getItem('bb-mygrinders'));return Array.isArray(v)?v.filter(g=>typeof g==='string'&&GRINDERS[g]):[]}catch(e){return[]}})();if(!MYG.length)MYG=['zp6','kultra'];MYG=[...new Set(MYG)];
 const gname=g=>GRINDERS[g]?GRINDERS[g].name:g;
@@ -93,22 +148,24 @@ function parseDial(g,str){const G=GRINDERS[g],p=String(str).trim().split(/[.,]/)
   if(G.sub>1)return (p[0]-G.first)*G.sub+(p[1]||0);return p[0]-G.first}
 function roundG(g,v){const G=GRINDERS[g];return Math.round(clamp(v,G.min,G.max))}
 // Where a brewer sits on the shared scale (from the tuned ZP6 / K-Ultra table).
-function brewSize(b){const bb=BREWERS[b].base;return bb.zp6!=null?bb.zp6*22:bb.kultra!=null?bb.kultra*20*0.84:null}
+function brewSize(b){const bb=BREWERS[b].base;return bb.zp6!=null?bb.zp6*22:bb.kultra!=null?sizeOf('kultra',bb.kultra):null}
 const needsFine=b=>BREWERS[b].base.zp6==null;
 const sizeOf=(g,c)=>V60_SIZE+(c-GRINDERS[g].v60)*GRINDERS[g].k;
 const stepsFor=(g,size)=>GRINDERS[g].v60+(size-V60_SIZE)/GRINDERS[g].k;
-function defBase(g,b){if(g==='zp6'||g==='kultra')return BREWERS[b].base[g];const G=GRINDERS[g],E=brewSize(b);if(E==null||(needsFine(b)&&!G.espresso))return null;
-  const s=stepsFor(g,E);return s<G.min-0.5||s>G.max+0.5?null:Math.round(clamp(s,G.min,G.max))}
+function defBase(g,b,raw){if(g==='zp6'||g==='kultra'&&needsFine(b))return BREWERS[b].base[g];const G=GRINDERS[g],E=brewSize(b);if(E==null||(needsFine(b)&&!G.espresso))return null;
+  const s=stepsFor(g,E);return s<G.min-0.5||s>G.max+0.5?null:raw?clamp(s,G.min,G.max):Math.round(clamp(s,G.min,G.max))}
 let BASE=load('bb-base3',null);if(!BASE||typeof BASE!=='object')BASE={};
 for(const g in BASE)if(!BASE[g]||typeof BASE[g]!=='object')delete BASE[g];
 if(!BASE.zp6){const old=load('bb-base2',null);if(old&&old.zp6)for(const g of['zp6','kultra'])if(old[g]&&typeof old[g]==='object'){BASE[g]={};for(const k in old[g])if(Number.isFinite(old[g][k]))BASE[g][k]=old[g][k]}}
 for(const g in BASE)for(const k in BASE[g])if(!BREWERS[k]||BASE[g][k]!==null&&!Number.isFinite(BASE[g][k]))delete BASE[g][k];
 // Your calibrated setting for a grinder on a brewer, or the estimate from the shared scale.
 function base(g,b){const v=BASE[g]&&BASE[g][b];return v==null?defBase(g,b):v}
+// The same, unrounded: used when converting between grinders so the result lands on the nearest click.
+function baseX(g,b){const v=BASE[g]&&BASE[g][b];return v==null?defBase(g,b,true):v}
 const canGrind=(g,b)=>!!GRINDERS[g]&&base(g,b)!=null;
 // First of your grinders that can do this brewer (falls back to any grinder in the library).
 const capable=b=>MYG.find(g=>canGrind(g,b))||Object.keys(GRINDERS).find(g=>canGrind(g,b));
-function settingFor(g,b,off){const bb=base(g,b);return bb==null?null:roundG(g,bb-off*GRINDERS[g].step)}
+function settingFor(g,b,off){const bb=baseX(g,b);return bb==null?null:roundG(g,bb-off*GRINDERS[g].step)}
 function gLabel(g,v){const G=GRINDERS[g];return G.name+' '+dial(g,v)+(G.unit==='clicks'?' clicks':'')}
 /* ================= YOUR RECIPES ================= */
 // Recipes you or your team create sit after the built-in ones in RECIPES, so the timer, dial-in and planner all work with them.
@@ -213,16 +270,26 @@ const grinderOpts=b=>MYG.map(g=>[g,gname(g),canGrind(g,b)?'':'Can\u2019t grind f
 function grinderSeg(id,b,get,set){const el=$(id);el.classList.toggle('filters',MYG.length>3);seg(id,grinderOpts(b),get,set)}
 
 /* ================= DIAL-IN ================= */
-function convertSetting(st,g2,b2){if(!canGrind(g2,b2))return null;const step=(base(st.grinder,st.brewer)-st.setting)/GRINDERS[st.grinder].step;return roundG(g2,base(g2,b2)-step*GRINDERS[g2].step)}
+function convertSetting(st,g2,b2){if(!canGrind(g2,b2)||!canGrind(st.grinder,st.brewer))return null;const step=(baseX(st.grinder,st.brewer)-st.setting)/GRINDERS[st.grinder].step;return roundG(g2,baseX(g2,b2)-step*GRINDERS[g2].step)}
+// Switching grinders back and forth converts from the setting you started on, so rounding never drifts.
+let SWAP=null;
+function swapGrinder(v){if(!SWAP||SWAP.b!==S.brewer||SWAP.out[S.grinder]!==S.setting)SWAP={b:S.brewer,src:{grinder:S.grinder,setting:S.setting,brewer:S.brewer},out:{[S.grinder]:S.setting}};
+  if(SWAP.out[v]==null)SWAP.out[v]=convertSetting(SWAP.src,v,S.brewer);return SWAP.out[v]}
+// The same grind on your other grinders, for the dial-in and recipes.
+function equivLine(g,c,b){const o=MYG.filter(h=>h!==g&&canGrind(h,b)).map(h=>esc(gLabel(h,convertSetting({grinder:g,setting:c,brewer:b},h,b))));
+  return (o.length?'Same grind: '+o.join(' · ')+' · ':'')+'<button type="button" class="linkbtn" data-match="'+g+'|'+c+'">'+(o.length?'All grinders':'Same grind on other grinders')+' →</button>'}
+function openMatch(g,c){MATCH={g,v:dial(g,c)};showTab('gear');renderMatch();requestAnimationFrame(()=>$('gmatch').scrollIntoView({behavior:RM()?'auto':'smooth',block:'start'}))}
+document.addEventListener('click',e=>{const m=e.target.closest('[data-match]');if(m){const [g,c]=m.dataset.match.split('|');if(GRINDERS[g])openMatch(g,+c)}});
 function fitRanges(){const B=BREWERS[S.brewer];S.ratio=clamp(S.ratio,B.ratio.min,B.ratio.max);S.temp=clamp(S.temp,B.temp.min,B.temp.max);S.bloom=clamp(S.bloom,B.bloom.min,B.bloom.max)}
 function render(){
   const G=GRINDERS[S.grinder],B=BREWERS[S.brewer];
-  grinderSeg('g-grinder',(S.brewer),()=>S.grinder,v=>{if(v!==S.grinder){S.setting=convertSetting(S,v,S.brewer);S.grinder=v}render()});
+  grinderSeg('g-grinder',(S.brewer),()=>S.grinder,v=>{if(v!==S.grinder){S.setting=swapGrinder(v);S.grinder=v}render()});
   seg('g-agit',[['low','Gentle'],['med','Normal'],['high','Vigorous']],()=>S.agit,v=>{S.agit=v;render()});
   seg('g-roast',[['light','Light'],['medium','Medium'],['dark','Dark']],()=>S.roast,v=>{S.roast=v;render()});
   const gi=$('i-grind');gi.min=G.min;gi.max=G.max;gi.step=1;gi.value=S.setting;
   $('v-grind').textContent=dial(S.grinder,S.setting);drawDial('dialsvg',S.grinder,S.setting);
   const r=compute(S);
+  $('v-equiv').innerHTML=equivLine(S.grinder,S.setting,S.brewer);
   $('v-grindhint').textContent='('+S.setting+' clicks) '+(Math.abs(r.step)<0.15?'at your baseline':(r.step>0?'finer':'coarser')+' than baseline');
   const ti=$('i-temp');ti.min=B.temp.min;ti.max=B.temp.max;ti.value=S.temp;$('v-temp').textContent=S.temp+'°C';
   const ri=$('i-ratio');ri.min=B.ratio.min;ri.max=B.ratio.max;ri.step=B.ratio.step;ri.value=S.ratio;$('v-ratio').textContent='1:'+S.ratio;
@@ -318,7 +385,7 @@ function plan(c){
   const agv={low:-0.25,med:0,high:0.25}[agit], roastE={light:0,medium:0.25,dark:0.6}[c.roast];
   const rest=(temp-r.temp)/3*0.35+(bloom-B.bloom.def)/15*0.12+agv+(ratio-r.water/r.dose)*B.ratio.k+roastE-(P.t+Vp.t);
   const step=r.off+(Dt-rest)/0.45;
-  const set={};for(const g of new Set([...MYG,grinder]))set[g]=canGrind(g,r.b)?roundG(g,base(g,r.b)-step*GRINDERS[g].step):null;
+  const set={};for(const g of new Set([...MYG,grinder]))set[g]=canGrind(g,r.b)?roundG(g,baseX(g,r.b)-step*GRINDERS[g].step):null;
   const water=Math.round(r.dose*ratio*10)/10;
   const st={grinder,setting:set[grinder],brewer:r.b,temp,ratio,bloom,agit,roast:c.roast,process:c.process,variety:c.variety,rec:c.tech};
   const tw=[],k=r.kind,gl=c.goal;
@@ -552,22 +619,32 @@ function renderMyGrinders(){
 }
 // "About a V60 grind": the brewer whose place on the shared scale is closest.
 function nearestBrew(size){let best=null,d=1e9;for(const k of MODEL){const E=brewSize(k);if(E!=null&&Math.abs(E-size)<d){d=Math.abs(E-size);best=k}}return best&&d<140?' · about a '+BREWERS[best].name+' grind':''}
-function grinderSelect(id,val){return '<select id="'+id+'">'+[['manual','Manual'],['electric','Electric'],['custom','Your grinders']].map(([t,l])=>{const ks=Object.keys(GRINDERS).filter(g=>t==='custom'?GRINDERS[g].custom:!GRINDERS[g].custom&&GRINDERS[g].type===t);
-  return ks.length?'<optgroup label="'+l+'">'+ks.map(g=>'<option value="'+g+'"'+(g===val?' selected':'')+'>'+esc(GRINDERS[g].full)+'</option>').join('')+'</optgroup>':''}).join('')+'</select>'}
-let MATCH={g:null,v:''};
-function renderMatch(){if(!MATCH.g||!GRINDERS[MATCH.g])MATCH={g:MYG[0],v:dial(MYG[0],startFor(MYG[0]))};
-  $('gmatch').innerHTML='<h3 style="margin-top:0">Match a grind size</h3><p class="hint" style="margin-top:0">Enter a setting on one grinder to see roughly the same grind on the others.</p>'+
-   '<div class="matchrow"><div class="field"><label for="gm-from">Grinder</label>'+grinderSelect('gm-from',MATCH.g)+'</div><div class="field"><label for="gm-val">Setting</label><input id="gm-val" inputmode="decimal" value="'+esc(MATCH.v)+'"></div></div><div id="gm-out"></div>';
+function grinderSelect(id,val,short){return '<select id="'+id+'">'+[['manual','Manual'],['electric','Electric'],['custom','Your grinders']].map(([t,l])=>{const ks=Object.keys(GRINDERS).filter(g=>t==='custom'?GRINDERS[g].custom:!GRINDERS[g].custom&&GRINDERS[g].type===t);
+  return ks.length?'<optgroup label="'+l+'">'+ks.map(g=>'<option value="'+g+'"'+(g===val?' selected':'')+'>'+esc(GRINDERS[g][short?'name':'full'])+'</option>').join('')+'</optgroup>':''}).join('')+'</select>'}
+let MATCH={g:null,v:'',to:null};
+// A setting on grinder g as steps on grinder h. Measured from each grinder's V60 setting (yours, if you calibrated it),
+// so the Match tool, dial-in and recipes all agree.
+function matchSteps(g,c,h){const bg=baseX(g,'v60'),bh=baseX(h,'v60');return bg==null||bh==null?stepsFor(h,sizeOf(g,c)):bh+(c-bg)*GRINDERS[g].k/GRINDERS[h].k}
+function matchVal(g,c,h){const v=matchSteps(g,c,h),H=GRINDERS[h],size=sizeOf(g,c);return v>=H.min-0.5&&v<=H.max+0.5&&(size>=V60_SIZE*0.6||H.espresso)?roundG(h,v):null}
+function renderMatch(){if(!MATCH.g||!GRINDERS[MATCH.g])MATCH={g:MYG[0],v:dial(MYG[0],startFor(MYG[0])),to:null};
+  if(!MATCH.to||!GRINDERS[MATCH.to]||MATCH.to===MATCH.g)MATCH.to=MYG.find(h=>h!==MATCH.g)||(MATCH.g==='kultra'?'zp6':'kultra');
+  $('gmatch').innerHTML='<h3 style="margin-top:0">Match a grind size</h3><p class="hint" style="margin-top:0">Type a setting on one grinder to get the same grind on another. For 1Zpresso dials, type the dial (5.4) or clicks (54).</p>'+
+   '<div class="mswap"><div class="field"><label for="gm-from">From</label>'+grinderSelect('gm-from',MATCH.g,1)+'</div><button type="button" class="chip" id="gm-swap" aria-label="Swap grinders">⇄</button><div class="field"><label for="gm-to">To</label>'+grinderSelect('gm-to',MATCH.to,1)+'</div></div>'+
+   '<div class="field"><label for="gm-val">Setting on the '+esc(GRINDERS[MATCH.g].name)+'</label><input id="gm-val" inputmode="decimal" style="width:100%" value="'+esc(MATCH.v)+'"></div><div id="gm-out"></div>';
   $('gm-from').onchange=e=>{MATCH.g=e.target.value;MATCH.v=dial(MATCH.g,startFor(MATCH.g));renderMatch()};
+  $('gm-to').onchange=e=>{MATCH.to=e.target.value;if(MATCH.to===MATCH.g){MATCH.g=MYG.find(h=>h!==MATCH.to)||'zp6';MATCH.v=dial(MATCH.g,startFor(MATCH.g))}renderMatch()};
+  $('gm-swap').onclick=()=>{const c=parseDial(MATCH.g,MATCH.v),v=c==null?null:matchVal(MATCH.g,c,MATCH.to);[MATCH.g,MATCH.to]=[MATCH.to,MATCH.g];MATCH.v=dial(MATCH.g,v??startFor(MATCH.g));renderMatch()};
   $('gm-val').oninput=e=>{MATCH.v=e.target.value;soon(matchOut)};matchOut()}
 function matchOut(){const g=MATCH.g,c=parseDial(g,MATCH.v),G=GRINDERS[g];
   if(c==null||c<G.min-2||c>G.max+2){$('gm-out').innerHTML='<p class="hint">Type a setting the '+esc(G.name)+' can reach ('+dial(g,G.min)+' to '+dial(g,G.max)+').</p>';return}
-  const size=sizeOf(g,c),row=h=>{const v=stepsFor(h,size),H=GRINDERS[h];const ok=v>=H.min-0.5&&v<=H.max+0.5&&(size>=V60_SIZE*0.6||H.espresso);
-    return '<div class="mrow'+(MYG.includes(h)?' mine':'')+'"><span>'+esc(H.name)+'</span><b>'+(ok?esc(dial(h,roundG(h,v)))+(H.unit==='clicks'?' <small>clicks</small>':''):'<small>out of range</small>')+'</b></div>'};
-  const others=Object.keys(GRINDERS).filter(h=>h!==g&&!MYG.includes(h));
-  $('gm-out').innerHTML='<p class="hint" style="margin:.2rem 0 .6rem">'+esc(dialHint(g,c))+nearestBrew(size)+'</p>'+
-   (MYG.filter(h=>h!==g).length?'<div class="mgroup"><h4>Your grinders</h4>'+MYG.filter(h=>h!==g).map(row).join('')+'</div>':'')+
-   ['manual','electric'].map(t=>{const ks=others.filter(h=>!GRINDERS[h].custom&&GRINDERS[h].type===t);return ks.length?'<div class="mgroup"><h4>'+(t==='manual'?'Manual':'Electric')+'</h4>'+ks.map(row).join('')+'</div>':''}).join('')+
+  const size=sizeOf(g,c),lab=(h,v)=>esc(dial(h,v))+(GRINDERS[h].unit==='clicks'?' <small>clicks</small>':''),
+    row=h=>{const v=matchVal(g,c,h);return '<div class="mrow'+(MYG.includes(h)?' mine':'')+'"><span>'+esc(GRINDERS[h].name)+'</span><b>'+(v!=null?lab(h,v):'<small>out of range</small>')+'</b></div>'};
+  const to=MATCH.to,tv=matchVal(g,c,to),T=GRINDERS[to];
+  const others=Object.keys(GRINDERS).filter(h=>h!==g&&h!==to&&!MYG.includes(h));
+  $('gm-out').innerHTML='<div class="mbig"><span>'+esc(G.name)+' <b>'+lab(g,c)+'</b></span><span class="eq">=</span><span>'+esc(T.name)+' <b>'+(tv!=null?lab(to,tv):'out of range')+'</b></span></div>'+
+   '<p class="hint" style="margin:.2rem 0 .6rem">'+esc(dialHint(g,c))+(tv!=null?' → '+esc(dialHint(to,tv)):'')+nearestBrew(size)+'</p>'+
+   (MYG.filter(h=>h!==g&&h!==to).length?'<div class="mgroup"><h4>Your grinders</h4>'+MYG.filter(h=>h!==g&&h!==to).map(row).join('')+'</div>':'')+
+   [['manual','Manual'],['electric','Electric'],['custom','Your own']].map(([t,n])=>{const ks=others.filter(h=>t==='custom'?GRINDERS[h].custom:!GRINDERS[h].custom&&GRINDERS[h].type===t);return ks.length?'<div class="mgroup"><h4>'+n+'</h4>'+ks.map(row).join('')+'</div>':''}).join('')+
    '<p class="hint" style="margin-top:.6rem">Estimates from typical settings; burr shape changes the taste, so fine-tune by taste.</p>'}
 let GLF='all',GCMP=[];
 function renderLibrary(){
@@ -611,9 +688,9 @@ function renderCustomForm(){
     GRINDERS.__tmp=G;const P=id=>{const v=$(id).value.trim();return v===''?null:parseDial('__tmp',v)};
     const mn=P('cg-min'),mx=P('cg-max'),v6=P('cg-v60'),rf=P('cg-ref'),rt=$('cg-reft').value;delete GRINDERS.__tmp;
     if(v6==null){toast('Add your V60 setting, it anchors everything');return}if(mn==null||mx==null||mx<=mn){toast('Check the finest and coarsest settings');return}
-    let k=30;if(rf!=null&&rf!==v6){const E=brewSize(rt)??ESP_SIZE;k=(E-V60_SIZE)/(rf-v6);if(!(k>0)){toast('That setting should be '+(rt==='frenchpress'?'coarser':'finer')+' than your V60 setting');return}}
+    let k=30;if(rf!=null&&rf!==v6){const E=brewSize(rt);k=(E-V60_SIZE)/(rf-v6);if(!(k>0)){toast('That setting should be '+(rt==='frenchpress'?'coarser':'finer')+' than your V60 setting');return}}
     Object.assign(G,{min:mn,max:mx,v60:v6,k:Math.round(k*10)/10,espresso:rt==='espresso'&&rf!=null,range:'V60 '+$('cg-v60').value+(rf!=null?', '+BREWERS[rt].name+' '+$('cg-ref').value:'')});
-    const id='c'+Date.now().toString(36);CUSTOM_G[id]=G;save('bb-custom-grinders',CUSTOM_G);G.step=Math.max(1,160/G.k);GRINDERS[id]=G;setMine(id,true,true);grindersChanged();
+    const id='c'+Date.now().toString(36);CUSTOM_G[id]=G;save('bb-custom-grinders',CUSTOM_G);G.step=160/G.k;GRINDERS[id]=G;setMine(id,true,true);grindersChanged();
     $('gcustom').open=false;toast(name+' added to your grinders');GLF='all';renderLibrary()}}
 function renderGearBrewers(){
   const types=[...new Set(Object.values(BREWERS).map(b=>b.type))];
