@@ -89,10 +89,10 @@ select,input[type=search],input[type=number],textarea{border-radius:12px!importa
 .btn.ghost{background:transparent;color:var(--cherry)}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
-.chip{font-size:.84rem;padding:3px 10px;border-radius:999px;background:var(--surface2);border:0;color:var(--ink)}
+.chip{font-size:.84rem;line-height:1.35;padding:4px 11px;border-radius:999px;background:var(--surface2);border:0;color:var(--ink)}
 button.chip{cursor:pointer}
 button.chip:hover{background:var(--line)}
-.pill{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;font-weight:600;padding:2px 10px 2px 8px;border-radius:999px;background:var(--surface2)}
+.pill{white-space:nowrap;display:inline-flex;align-items:center;gap:6px;font-size:.8rem;font-weight:600;padding:2px 10px 2px 8px;border-radius:999px;background:var(--surface2)}
 .pill i{width:9px;height:9px;border-radius:50%;display:inline-block}
 .tip{background:var(--paper);border-left:3px solid var(--honey);padding:10px 12px;border-radius:0 8px 8px 0;margin:8px 0}
 .dir{font-family:var(--display);font-weight:600;font-size:.86rem;color:var(--leaf)}
@@ -101,7 +101,7 @@ button.chip:hover{background:var(--line)}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow)}
 .card h3{margin-top:0}
 .meta{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 10px}
-.meta span{font-family:var(--display);font-size:.8rem;padding:2px 8px;border-radius:6px;background:var(--surface2)}
+.meta span{font-family:var(--display);font-size:.8rem;padding:3px 9px;border-radius:8px;background:var(--surface2);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
 .scroll{overflow-x:auto}
 table.ref{border-collapse:collapse;width:100%;min-width:520px;font-size:.93rem}
 table.ref th{font-family:var(--display);text-align:left;font-weight:600;border-bottom:2px solid var(--ink);padding:8px}
@@ -229,7 +229,7 @@ dialog#vd::backdrop{background:rgba(20,14,10,.55)}
 .logform{display:grid;gap:10px;grid-template-columns:1fr 1fr}
 .logform .full{grid-column:1/-1}
 .logentry{border-bottom:1px solid var(--line);padding:12px 0}
-.logentry .x{float:right;background:none;border:0;color:var(--muted);cursor:pointer}
+.logentry .x{background:none;border:0;color:var(--muted);cursor:pointer;font-family:var(--display);font-size:.8rem;padding:4px}
 
 /* alive */
 main section.on{animation:secin .35s ease both}
@@ -239,7 +239,7 @@ main section.on{animation:secin .35s ease both}
 .btn:active{transform:scale(.97)}
 #toast{position:fixed;left:50%;bottom:calc(var(--sa-bottom) + 22px);transform:translate(-50%,30px);opacity:0;background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:999px;font-family:var(--display);font-size:.92rem;z-index:50;pointer-events:none;transition:opacity .25s,transform .25s;max-width:90vw;text-align:center}
 #toast.show{opacity:1;transform:translate(-50%,0)}
-.bean-fx{position:fixed;top:-30px;z-index:60;pointer-events:none;animation:fall 2.4s cubic-bezier(.3,.6,.4,1) forwards}
+.bean-fx{position:fixed;z-index:60;pointer-events:none;will-change:transform,opacity}
 @keyframes fall{to{transform:translateY(110vh) rotate(var(--r));opacity:.9}}
 .drop{border:2px dashed var(--line);border-radius:16px;min-height:180px;display:grid;place-items:center;text-align:center;padding:14px;cursor:pointer;background:var(--paper);overflow:hidden}
 .drop:hover{border-color:var(--cherry)}
@@ -269,8 +269,9 @@ main section.on{animation:secin .35s ease both}
 #pmap .pd:hover{r:9}
 .card.flash{animation:flash 1.2s ease}
 @keyframes flash{0%,100%{box-shadow:var(--shadow)}30%{box-shadow:0 0 0 4px var(--honey)}}
-.cmpbar{display:grid;grid-template-columns:80px repeat(var(--n),1fr);gap:6px 10px;align-items:center;font-family:var(--display);font-size:.86rem}
-.cmpbar .t{height:8px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.cmpbar{display:grid;grid-template-columns:74px repeat(var(--n),minmax(0,1fr));gap:6px 10px;align-items:center;font-family:var(--display);font-size:.86rem}
+.cmpbar .t{position:relative;height:8px;background:var(--surface2);border-radius:4px;margin-right:26px}
+.cmpbar .t i{position:absolute;left:calc(100% + 5px);top:50%;transform:translateY(-50%);font-style:normal;font-size:.72rem;color:var(--muted);font-variant-numeric:tabular-nums}
 .cmpbar .t b{display:block;height:100%;border-radius:4px}
 .addcmp{position:absolute;right:12px;top:12px;background:var(--surface2);border:0;border-radius:999px;padding:3px 10px;font-family:var(--display);font-size:.78rem;cursor:pointer;color:var(--ink)}
 .addcmp[aria-pressed="true"]{background:var(--cherry);color:var(--surface)}
@@ -396,10 +397,25 @@ nav.tabs .wrap{pointer-events:auto;width:fit-content;max-width:calc(100% - 24px)
 .sharerow .app{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;box-shadow:0 4px 12px -6px rgba(0,0,0,.35);transition:transform .15s}
 .sharerow button:active .app{transform:scale(.92)}
 .sharerow svg{width:26px;height:26px;fill:none;stroke:#fff;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+button,a,.tab,.chip,[role=button],input[type=range]{touch-action:manipulation}
+/* Long lists: the browser skips layout and paint for cards that are off screen. */
+#rgrid>.card,#pgrid>.card,#tgrid>.card,#vgrid>.card,#gear-brewers>.card,#people>.card{content-visibility:auto;contain-intrinsic-size:auto 420px}
+@media (max-width:759px){.appbar,nav.tabs .wrap{backdrop-filter:none;-webkit-backdrop-filter:none}.appbar{background:var(--paper)}}
+/* Shared log */
+.sharepanel h3{margin:0 0 .3rem}
+.sharehead{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sync{font-family:var(--display);font-size:.78rem;color:var(--muted);display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.sync::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.sync[data-s="live"]{color:var(--leaf)}.sync[data-s="live"]::before{background:var(--leaf);box-shadow:0 0 0 3px color-mix(in srgb,var(--leaf) 25%,transparent)}
+.sync[data-s="offline"]::before{background:var(--honey)}
+.code{font-family:var(--display);letter-spacing:.08em;font-variant-numeric:tabular-nums}
+.joinrow{display:flex;gap:8px}.joinrow input{flex:1;text-transform:uppercase;letter-spacing:.08em;font-family:var(--display)}.joinrow .btn{flex:0 0 auto}
+.lehead{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.lehead .x{margin-left:auto}
+.stars-sm{color:var(--honey);letter-spacing:1px;font-size:.9rem}.stars-sm span{color:var(--line)}
 /* Open dialogs and sheets lock the page behind them. */
 html.locked,html.locked body{overflow:hidden}
 dialog{overscroll-behavior:contain;overflow:auto}
-@media (prefers-reduced-motion:no-preference){dialog[open]{animation:dlg-in .22s ease-out}}
+@media (prefers-reduced-motion:no-preference){dialog[open]{animation:dlg-in .18s cubic-bezier(.2,.8,.2,1)}}
 @keyframes dlg-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 
 @media (max-width:759px){
@@ -582,7 +598,8 @@ dialog{overscroll-behavior:contain;overflow:auto}
   <div class="grid" id="gear-grinders" style="grid-template-columns:repeat(auto-fill,minmax(320px,1fr))"></div>
   <div class="card" style="margin-top:14px"><h3>Reading a 1Zpresso dial</h3>
     <p>Both grinders use an external ring read as <b>rotation.number.click</b>. Close the burrs until they just touch: that is zero. Turning toward bigger numbers opens the burrs and grinds coarser. Most filter brewing stays inside the first rotation, so the rotation digit is usually dropped: <b>5.6</b> means number 5, click 6.</p>
-    <p>The two dials are not interchangeable. The ZP6 Special has 9 numbers per turn (90 clicks, about 22 microns each); the K-Ultra has 10 (100 clicks, 20 microns each). The same number on both grinders is a different grind size, and different burr shapes mean even the same micron gap tastes different. Calibrate each one by taste.</p></div>
+    <p>The two dials are not interchangeable. The ZP6 Special has 9 numbers per turn (90 clicks, about 22 microns each); the K-Ultra has 10 (100 clicks, 20 microns each). The same number on both grinders is a different grind size, and different burr shapes mean even the same micron gap tastes different. Calibrate each one by taste.</p>
+    <p><b>Why a V60 is 5.6 on one and 7.2 on the other.</b> 56 ZP6 clicks is a gap of about 1.2 mm; 72 K-Ultra clicks is about 1.4 mm. The K-Ultra needs the wider gap because its all-round burrs make more fine particles, which slow the drawdown and pull more out of the coffee. The ZP6's filter burrs make very few fines, so it needs a tighter gap to reach the same flow and strength. The numbers also follow 1Zpresso's own ranges for each grinder (filter roughly 4.5 to 7.0 on the ZP6, 7.0 to 9.5 on the K-Ultra).</p></div>
   <h3 style="margin-top:1.6rem">Where every brewer sits on your dials</h3>
   <p class="hint">Tap a marker to see the setting. These follow your calibration.</p>
   <div class="card" id="grindmap"></div>
@@ -711,7 +728,8 @@ dialog{overscroll-behavior:contain;overflow:auto}
 <!-- LOG -->
 <section id="log">
   <h2>Brew log</h2>
-  <p class="lede">Saved in this browser only. "Log this brew" on the dial-in fills in the settings.</p>
+  <p class="lede">"Log this brew" on the dial-in fills in the settings. Share the log with friends to see each other’s brews.</p>
+  <div class="panel sharepanel" id="l-share" style="margin-bottom:14px"></div>
   <div class="panel" style="margin-bottom:18px">
     <div class="logform">
       <input id="l-coffee" placeholder="Coffee, e.g. Finca X Pink Bourbon" class="full" aria-label="Coffee">

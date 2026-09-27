@@ -26,7 +26,7 @@ Both update automatically whenever `main` changes.
 | **Varieties** | 44 varieties with stories, Geisha types and side-by-side comparison |
 | **History** | A clickable variety family tree, a timeline, key people and a quiz |
 | **Guide** | Ratio calculator and a taste-based troubleshooter |
-| **Log** | Rated brew log with stats and CSV export |
+| **Log** | Rated brew log with stats and CSV export, shared live with friends through a group code |
 
 You can share anything to WhatsApp, Telegram, Messages or email, through your phone's share menu, as a styled PDF, or as text. Everything you save (calibration, log, scans) stays in your own browser.
 
@@ -59,6 +59,39 @@ base64 -w0 brewbench.keystore   # macOS: base64 -i brewbench.keystore
 ```
 
 Then add four secrets under **Settings → Secrets and variables → Actions**: `BB_KEYSTORE_BASE64` (the base64 output), `BB_KEYSTORE_PASSWORD`, `BB_KEY_ALIAS` (`brewbench`) and `BB_KEY_PASSWORD`. Keep the keystore file somewhere safe and never commit it.
+
+## Shared brew log (Firebase)
+
+Friends can log brews together: each person joins the same shared log (a code like `ABCD-2345`, or an invite link) and everyone's entries appear live on everyone's phone, with the name of whoever logged them. Entries made offline sync when the phone reconnects.
+
+The log is stored in a free [Firebase Realtime Database](https://firebase.google.com/docs/database). One-time setup:
+
+1. Go to the [Firebase console](https://console.firebase.google.com/), click **Create a project** (Google Analytics can be off).
+2. In the project, open **Build → Realtime Database → Create database**, pick a location, and start in **locked mode**.
+3. Open the **Rules** tab, replace the rules with the ones below, and click **Publish**.
+4. Copy the database URL shown at the top (like `https://your-project-default-rtdb.firebaseio.com`) and put it in `FIREBASE_DB_URL` near the top of the shared-log section of `src/app.js`, then push.
+
+```json
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "groups": {
+      "$code": {
+        ".read": "$code.matches(/^[A-Z0-9]{4}-[A-Z0-9]{4}$/)",
+        "log": {
+          "$id": {
+            ".write": "$code.matches(/^[A-Z0-9]{4}-[A-Z0-9]{4}$/)",
+            ".validate": "newData.hasChildren(['id', 'ts'])"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+The rules stop anyone from listing groups; a group can only be read or written by someone who has its code (about a trillion possible codes). Anyone you give the code or invite link to can read, add and delete entries, so share it only with the people you brew with.
 
 ## Project structure
 

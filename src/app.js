@@ -1,5 +1,7 @@
 /* ================= UTIL ================= */
 const $=id=>document.getElementById(id);
+// Coalesce redraws from sliders and typing into one per frame, so dragging stays smooth.
+const SOON=new Map();function soon(fn){if(!SOON.has(fn))SOON.set(fn,requestAnimationFrame(()=>{SOON.delete(fn);fn()}))}
 const clamp=(v,a=0,b=10)=>Math.max(a,Math.min(b,v));
 // Width of a string in a given CSS font, for sizing SVG labels.
 const textW=(()=>{const c=document.createElement('canvas').getContext('2d');return(t,font)=>{c.font=font+' '+getComputedStyle(document.body).fontFamily;return c.measureText(t).width}})();
@@ -13,9 +15,15 @@ const oneOf=(v,list,d)=>list.includes(v)?v:d;
 function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 const MQ=q=>!!(window.matchMedia&&window.matchMedia(q).matches);const RM=()=>MQ('(prefers-reduced-motion: reduce)');
 let toastT;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600)}
-function beans(n=22){if(RM())return;for(let i=0;i<n;i++){const s=document.createElementNS('http://www.w3.org/2000/svg','svg');s.setAttribute('viewBox','-12 -8 24 16');s.setAttribute('width',14+Math.random()*10);s.classList.add('bean-fx');
-  s.innerHTML='<ellipse rx="11" ry="7" fill="'+(['#8A5A3B','#6B4028','#A0714F','#6B8E4E'][i%4])+'"/><path d="M-9 0 Q0 -3 9 0" stroke="#F3EADC" stroke-width="1.6" fill="none"/>';
-  s.style.left=(Math.random()*100)+'vw';s.style.animationDelay=(Math.random()*.6)+'s';s.style.setProperty('--r',(Math.random()*720-360)+'deg');document.body.appendChild(s);setTimeout(()=>s.remove(),3200)}}
+// A small, quick burst of beans from the button that was tapped (a celebration, not a curtain over the content).
+function beans(n=10){if(RM())return;const el=document.activeElement,r=el&&el!==document.body?el.getBoundingClientRect():null;
+  const x0=r?r.left+r.width/2:innerWidth/2,y0=r?r.top+r.height/2:innerHeight*.6;
+  for(let i=0;i<n;i++){const s=document.createElementNS('http://www.w3.org/2000/svg','svg');s.setAttribute('viewBox','-12 -8 24 16');s.setAttribute('width',12+Math.random()*6);s.classList.add('bean-fx');
+    s.innerHTML='<ellipse rx="11" ry="7" fill="'+(['#8A5A3B','#6B4028','#A0714F','#6B8E4E'][i%4])+'"/><path d="M-9 0 Q0 -3 9 0" stroke="#F3EADC" stroke-width="1.6" fill="none"/>';
+    s.style.left=x0+'px';s.style.top=y0+'px';document.body.appendChild(s);
+    const a=-Math.PI/2+(Math.random()-.5)*2.2,d=60+Math.random()*70,dx=Math.cos(a)*d,dy=Math.sin(a)*d;
+    s.animate([{transform:'translate(-50%,-50%) scale(.6)',opacity:1},{transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) rotate(${Math.random()*360-180}deg) scale(1)`,opacity:1,offset:.6},
+      {transform:`translate(calc(-50% + ${dx*1.15}px),calc(-50% + ${dy+40}px)) rotate(${Math.random()*360-180}deg) scale(.9)`,opacity:0}],{duration:800+Math.random()*200,easing:'cubic-bezier(.2,.7,.3,1)',fill:'forwards'}).onfinish=()=>s.remove()}}
 const ns='http://www.w3.org/2000/svg';
 
 /* ================= GRINDERS ================= */
@@ -166,10 +174,10 @@ function initDial(){
   $('i-brewer').innerHTML=brewerOptions(MODEL);
   for(const id of['i-process','p-process','s-process'])$(id).innerHTML=processOptions();
   for(const id of['i-variety','p-variety','s-variety'])$(id).innerHTML=varietyOptions();
-  $('i-grind').oninput=e=>{S.setting=+e.target.value;render()};
-  $('i-temp').oninput=e=>{S.temp=+e.target.value;render()};
-  $('i-ratio').oninput=e=>{S.ratio=+e.target.value;render()};
-  $('i-bloom').oninput=e=>{S.bloom=+e.target.value;render()};
+  $('i-grind').oninput=e=>{S.setting=+e.target.value;soon(render)};
+  $('i-temp').oninput=e=>{S.temp=+e.target.value;soon(render)};
+  $('i-ratio').oninput=e=>{S.ratio=+e.target.value;soon(render)};
+  $('i-bloom').oninput=e=>{S.bloom=+e.target.value;soon(render)};
   $('i-brewer').onchange=e=>{const nb=e.target.value;let g=S.grinder;if(!canGrind(g,nb)){g='kultra';toast('The ZP6 Special can\u2019t grind fine enough for this, switched to the K-Ultra')}
     S.setting=canGrind(S.grinder,S.brewer)&&canGrind(g,nb)?convertSetting(S,g,nb):base(g,nb);S.grinder=g;S.brewer=nb;S.rec=null;
     const B=BREWERS[nb];if(S.ratio<B.ratio.min||S.ratio>B.ratio.max)S.ratio=B.ratio.def;if(S.bloom<B.bloom.min||S.bloom>B.bloom.max)S.bloom=B.bloom.def;fitRanges();render()};
@@ -274,7 +282,7 @@ function initPlan(){
   $('p-tech').onchange=e=>{PL.tech=+e.target.value;renderPlan()};
   $('p-process').onchange=e=>{PL.process=e.target.value;renderPlan()};
   $('p-variety').onchange=e=>{PL.variety=e.target.value;renderPlan()};
-  $('p-age').oninput=e=>{PL.age=+e.target.value;renderPlan()};
+  $('p-age').oninput=e=>{PL.age=+e.target.value;soon(renderPlan)};
 }
 
 /* ================= BREW TIMER ================= */
@@ -313,7 +321,10 @@ function paint(){const el=TM.el,m=Math.floor(el/60),s=Math.floor(el%60);$('tm-bi
   if(TM.el>0&&TM.el<TM.total)$('tm-now').textContent=(cur>=0?TM.ev[cur].s:'')+(next?' Next in '+Math.ceil(next.t-el)+'s.':'');}
 
 /* ================= TABS ================= */
-function showTab(id,fromHistory){document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x.dataset.t===id));
+// Heavy tabs are built the first time they are opened, which keeps startup quick.
+const LAZY={gear:buildGear,recipes:renderRecipes,tech:renderTech,process:renderProcesses,variety:renderVarieties,map:buildMap,history:()=>{buildTree();startQuiz()}},BUILT={};
+function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove());if(LAZY[id]&&!BUILT[id]){BUILT[id]=1;LAZY[id]()}}
+function showTab(id,fromHistory){ensureTab(id);document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x.dataset.t===id));
   document.querySelectorAll('main section').forEach(s=>s.classList.toggle('on',s.id===id));window.scrollTo({top:0});
   const t=document.querySelector('.tab[data-t="'+id+'"]');if(t)t.scrollIntoView({block:'nearest',inline:'center'});
   // Each tab gets a history entry, so the back button (browser or Android) returns to the last tab.
@@ -356,7 +367,7 @@ function renderTech(){
   $('tgrid').innerHTML=list.length?list.map(t=>'<button type="button" class="card tcard hovercard" aria-expanded="false" style="--c:'+TCOL[t[0]]+'"><span class="cat">'+TCAT[t[0]]+'</span><h3 style="margin:.2rem 0">'+esc(t[1])+'</h3><p style="margin:0">'+esc(t[2])+'</p><p class="more"><b>Why and when.</b> '+esc(t[3])+'</p></button>').join(''):'<p class="hint">Nothing matches. Try a broader word.</p>';
 }
 $('tgrid').onclick=e=>{const c=e.target.closest('.tcard');if(c)c.setAttribute('aria-expanded',c.getAttribute('aria-expanded')!=='true')};
-$('tsearch').oninput=e=>{TQ=e.target.value;renderTech()};
+$('tsearch').oninput=e=>{TQ=e.target.value;soon(renderTech)};
 
 /* ================= PROCESSES ================= */
 let PC='all';const PCOL={classic:'#4F8A74',honey:'#D2A04A',ferment:'#B5533C',regional:'#8A5A3B',decaf:'#6E8FA8'};
@@ -433,7 +444,7 @@ function openVariety(id){
   const grown=v.grown||Object.keys(ALLO()).filter(k=>(ALLO()[k].vars||[]).includes(id));
   $('vd-in').innerHTML='<div class="vd-head" style="--c:'+f.color+'"><button class="vd-close" id="vd-x" aria-label="Close">\u2715</button>'+
    '<span class="pill"><i style="background:'+f.color+'"></i>'+f.name+'</span><h2 id="vd-title">'+esc(v.name)+'</h2>'+
-   '<div class="meta">'+(v.origin?'<span>'+esc(v.origin)+'</span>':'')+(v.year?'<span>'+esc(v.year)+'</span>':'')+'</div></div>'+
+   '<div class="meta">'+(v.origin?'<span>'+esc(v.origin)+'</span>':'')+(v.year?'<span title="'+esc(v.year)+'">'+esc(v.year)+'</span>':'')+'</div></div>'+
    '<div class="vd-body">'+(v.parents?'<p class="hint" style="margin-top:0"><b>Parentage:</b> '+esc(v.parents)+'</p>':'')+
    '<p>'+esc(v.story)+'</p><h3>In the cup</h3><p>'+esc(v.cup)+'</p><div class="chips">'+v.notes.map(n=>'<span class="chip">'+esc(n)+'</span>').join('')+'</div>'+
    '<h3>Brewing it '+dirTag(v.dir)+'</h3><p>'+esc(v.brew)+'</p>'+
@@ -458,7 +469,7 @@ function renderVarieties(){
   const q=VQ.trim().toLowerCase();
   const list=V.filter(v=>(VF==='all'||v.fam===VF)&&(!q||(v.name+' '+(v.origin||'')+' '+v.notes.join(' ')+' '+(v.grown||[]).map(originName).join(' ')+' '+(v.subs||[]).map(s=>s.name).join(' ')).toLowerCase().includes(q)));
   $('vgrid').innerHTML=(list.length?list.map(v=>'<div class="card vcard" data-v="'+v.id+'" style="--c:'+FAM[v.fam].color+'" tabindex="0" role="button"><button type="button" class="addcmp" data-cmp="'+v.id+'" aria-pressed="'+CMP.includes(v.id)+'">'+(CMP.includes(v.id)?'Comparing':'+ Compare')+'</button><span class="fam">'+FAM[v.fam].name+'</span><h3>'+esc(v.name)+'</h3>'+
-    '<div class="meta">'+(v.origin?'<span>'+esc(v.origin.match(/^[^,(]*(\([^)]*\))?[^,]*/)[0])+'</span>':'')+(v.year?'<span>'+esc(v.year)+'</span>':'')+(v.subs?'<span>'+v.subs.length+' types</span>':'')+'</div>'+
+    '<div class="meta">'+(v.origin?'<span title="'+esc(v.origin)+'">'+esc(v.origin.match(/^[^,(]*(\([^)]*\))?[^,]*/)[0])+'</span>':'')+(v.year?'<span>'+esc(v.year)+'</span>':'')+(v.subs?'<span>'+v.subs.length+' types</span>':'')+'</div>'+
     '<p>'+esc(v.cup)+'</p>'+dirTag(v.dir)+'</div>').join(''):'<p class="hint">No varieties match. Try a country, a family or a flavour.</p>');
   renderCompare();
 }
@@ -466,13 +477,13 @@ function renderCompare(){
   if(!CMP.length){$('vcompare').innerHTML='<div class="actions" style="margin:0 0 14px"><button class="btn ghost" id="vsurprise">Surprise me</button><span class="hint" style="align-self:center">Tap "+ Compare" on up to three varieties to see them side by side.</span></div>';$('vsurprise').onclick=()=>openVariety(V[Math.floor(Math.random()*V.length)].id);return}
   const vs=CMP.map(id=>VBY[id]);const m=vs.map(v=>vParams(v.id));const sc=x=>clamp((x+2)*2.5,0.3,10);
   const rows=[['Acidity','acid'],['Body','body'],['Sweetness','sweet'],['Clarity','clarity']];
-  $('vcompare').innerHTML='<div class="card" style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><h3 style="margin:0">Side by side</h3><button class="btn ghost" id="vclear">Clear</button></div>'+
-   '<div class="cmpbar" style="--n:'+vs.length+';margin-top:10px"><span></span>'+vs.map(v=>'<b style="color:'+FAM[v.fam].color+'">'+esc(v.name)+'</b>').join('')+
-   rows.map(([n,k])=>'<span>'+n+'</span>'+m.map((p,i)=>'<div class="t"><b style="width:'+(sc(p[k])*10)+'%;background:'+FAM[vs[i].fam].color+'"></b></div>').join('')).join('')+
+  $('vcompare').innerHTML='<div class="card" style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><h3 style="margin:0">Side by side</h3><button type="button" class="chip" id="vclear">Clear</button></div>'+
+   '<div class="cmpbar" style="--n:'+vs.length+';margin-top:10px"><span></span>'+vs.map(v=>'<b style="color:'+FAM[v.fam].color+'">'+esc(v.name.replace(/\s*\(.*$/,''))+'</b>').join('')+
+   rows.map(([n,k])=>'<span>'+n+'</span>'+m.map((p,i)=>'<div class="t" title="'+sc(p[k]).toFixed(1)+' / 10"><b style="width:'+(sc(p[k])*10)+'%;background:'+FAM[vs[i].fam].color+'"></b><i>'+sc(p[k]).toFixed(1)+'</i></div>').join('')).join('')+
    '<span>Grind</span>'+vs.map(v=>'<span>'+dirTag(v.dir)+'</span>').join('')+'<span>Family</span>'+vs.map(v=>'<span class="hint">'+FAM[v.fam].name+'</span>').join('')+'</div></div>';
   $('vclear').onclick=()=>{CMP=[];renderVarieties()};
 }
-$('vsearch').oninput=e=>{VQ=e.target.value;renderVarieties()};
+$('vsearch').oninput=e=>{VQ=e.target.value;soon(renderVarieties)};
 $('vgrid').onclick=e=>{const c=e.target.closest('[data-cmp]');if(c){e.stopPropagation();const id=c.dataset.cmp;if(CMP.includes(id))CMP=CMP.filter(x=>x!==id);else{if(CMP.length>=3){toast('Compare up to three at a time');return}CMP.push(id)}renderVarieties();return}
   const b=e.target.closest('[data-v]');if(b)openVariety(b.dataset.v)};
 $('vgrid').onkeydown=e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('.vcard')){e.preventDefault();openVariety(e.target.dataset.v)}};
@@ -595,8 +606,8 @@ function renderCalc(){
   $('c-out').innerHTML='<div><b>Water</b><span>'+w+'g</span><small>about '+w+' ml</small></div><div><b>In the cup</b><span>'+Math.round(CALC.ratio>4?w-CALC.dose*2:w-CALC.dose*0.1)+'g</span><small>after the grounds hold some back</small></div><div><b>Bloom water</b><span>'+Math.round(CALC.dose*2.5)+'g</span><small>about 2.5 times the dose</small></div><div><b>4:6 pours</b><span>'+Math.round(w/5)+'g</span><small>five equal pours</small></div>';
   save('bb-calc',CALC);
 }
-$('c-dose').oninput=e=>{CALC.dose=+e.target.value;CALC.pre=null;renderCalc()};
-$('c-ratio').oninput=e=>{CALC.ratio=+e.target.value;CALC.pre=null;renderCalc()};
+$('c-dose').oninput=e=>{CALC.dose=+e.target.value;CALC.pre=null;soon(renderCalc)};
+$('c-ratio').oninput=e=>{CALC.ratio=+e.target.value;CALC.pre=null;soon(renderCalc)};
 const TS=[['sour','Sour, sharp, thin',-1,'Under-extracted: the sweetness never made it out.'],['hollow','Weak and watery',-0.8,'Under-extracted or too much water.'],['flat','Flat, no acidity',0.6,'Slightly over-extracted or too hot.'],['bitter','Bitter',1,'Over-extracted or water too hot.'],['dry','Dry, papery, astringent',1.1,'Over-extracted, usually from fines or too much agitation.'],['muddy','Muddy, blurry',0.7,'Too fine for the process, or a grinder adding body.'],['harsh','Harsh or solvent-like',1,'An over-extracted ferment.'],['stall','Drawdown stalls',0.8,'Too fine, or too much agitation clogging the paper.']];
 function renderTS(sel){
   $('ts-chips').innerHTML=TS.map(t=>'<button class="chip" data-ts="'+t[0]+'" style="'+(sel===t[0]?'background:var(--cherry);color:var(--surface)':'')+'">'+t[1]+'</button>').join('');
@@ -614,20 +625,75 @@ $('ts-chips').onclick=e=>{const b=e.target.closest('[data-ts]');if(b)renderTS(b.
 let STAR=0,DL=null;
 function renderStars(){$('l-stars').innerHTML=[1,2,3,4,5].map(n=>'<button type="button" class="'+(n<=STAR?'on':'')+'" data-s="'+n+'" role="radio" aria-checked="'+(n===STAR)+'" aria-label="'+n+' stars">\u2605</button>').join('')}
 $('l-stars').onclick=e=>{const b=e.target.closest('[data-s]');if(b){STAR=+b.dataset.s;renderStars()}};
-function renderLog(){
-  $('l-list').innerHTML=LOG.length?LOG.map((l,i)=>'<div class="logentry"><button class="x" data-del="'+i+'" aria-label="Delete entry">Delete</button><b>'+esc(l.coffee||'Untitled')+'</b> <span class="hint">'+esc(l.date)+'</span> <span style="color:var(--honey)">'+'\u2605'.repeat(+l.stars||0)+'</span><div class="hint">'+esc(l.settings)+'</div>'+(l.pred?'<div class="hint">Predicted: '+esc(l.pred)+'</div>':'')+(l.notes?'<p>'+esc(l.notes)+'</p>':'')+'</div>').join(''):'<p class="hint">No brews logged yet. Dial one in, then tap "Log this brew".</p>';
-  const rated=LOG.filter(l=>+l.stars>0),avg=rated.length?(rated.reduce((a,l)=>a+ +l.stars,0)/rated.length).toFixed(1):'-';
+/* ---------- Shared log (Firebase Realtime Database over REST, no SDK) ---------- */
+// The Realtime Database URL of the Firebase project that holds shared logs (see README).
+// Empty means shared logs are switched off. A 'bb-syncdb' value in localStorage overrides it, for testing.
+const FIREBASE_DB_URL='';
+const SYNC_DB=(()=>{try{return localStorage.getItem('bb-syncdb')||''}catch(e){return''}})()||FIREBASE_DB_URL;
+let GROUP=load('bb-group',null);if(GROUP&&!(typeof GROUP.code==='string'&&/^[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(GROUP.code)))GROUP=null;
+let ME=(()=>{try{return localStorage.getItem('bb-name')||''}catch(e){return''}})();
+let PENDING=load('bb-pending',[]),STREAM=null,SYNC_STATE='off';
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+// Older entries had no id or timestamp; give them one so they can be shared.
+LOG.forEach(l=>{if(!l.id)l.id=uid();if(!l.ts){const t=Date.parse(l.date);l.ts=isNaN(t)?Date.now():t}});LOG.sort((a,b)=>b.ts-a.ts);save('bb-log',LOG);
+const dbUrl=path=>SYNC_DB.replace(/\/+$/,'')+'/groups/'+GROUP.code+path+'.json';
+const newCode=()=>{const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let c='';const r=crypto.getRandomValues(new Uint8Array(8));r.forEach((x,i)=>{c+=A[x%A.length];if(i===3)c+='-'});return c};
+function setSync(st){SYNC_STATE=st;const el=$('sync-state');if(el){el.dataset.s=st;el.textContent={live:'Live',connecting:'Connecting…',offline:'Offline: changes will sync later',off:''}[st]||''}}
+async function flush(){if(!GROUP||!SYNC_DB||!navigator.onLine)return;while(PENDING.length){const op=PENDING[0];
+    try{const r=await fetch(dbUrl('/log/'+op.id),op.op==='del'?{method:'DELETE'}:{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(op.data)});if(!r.ok)throw new Error(r.status)}
+    catch(e){setSync('offline');return}PENDING.shift();save('bb-pending',PENDING)}}
+function queue(op,id,data){if(!GROUP||!SYNC_DB)return;PENDING=PENDING.filter(p=>p.id!==id);PENDING.push({op,id,data});save('bb-pending',PENDING);flush()}
+// Replace group entries with what the server has, keeping local changes that have not been sent yet.
+function applyRemote(entries){const pend=new Map(PENDING.map(p=>[p.id,p]));const out=[];
+  for(const [id,e] of Object.entries(entries||{})){if(!e||typeof e!=='object'||pend.get(id)&&pend.get(id).op==='del')continue;out.push(Object.assign({},e,{id}))}
+  for(const p of PENDING)if(p.op==='put'&&!out.some(e=>e.id===p.id))out.push(p.data);
+  LOG=out.sort((a,b)=>(b.ts||0)-(a.ts||0));save('bb-log',LOG);renderLog()}
+function startStream(){stopStream();if(!GROUP||!SYNC_DB||typeof EventSource==='undefined')return;setSync('connecting');
+  let snap={};const es=STREAM=new EventSource(dbUrl('/log'));
+  const onData=(ev,merge)=>{let m;try{m=JSON.parse(ev.data)}catch(e){return}if(!m)return;const path=m.path||'/';
+    if(path==='/'){snap=merge?Object.assign(snap,m.data||{}):(m.data||{})}else{const id=path.split('/')[1];if(path.split('/').length>2){snap[id]=Object.assign({},snap[id],{[path.split('/')[2]]:m.data})}else if(m.data===null)delete snap[id];else snap[id]=merge?Object.assign({},snap[id],m.data):m.data}
+    setSync('live');applyRemote(snap);flush()};
+  es.addEventListener('put',e=>onData(e,false));es.addEventListener('patch',e=>onData(e,true));
+  es.addEventListener('cancel',()=>{setSync('offline')});es.onerror=()=>setSync(navigator.onLine?'connecting':'offline')}
+function stopStream(){if(STREAM){STREAM.close();STREAM=null}}
+function joinGroup(code,name){ME=name.trim().slice(0,30);try{localStorage.setItem('bb-name',ME)}catch(e){}GROUP={code};save('bb-group',GROUP);
+  LOG.forEach(l=>{if(!l.by)l.by=ME;queue('put',l.id,l)});renderLog();startStream()}
+function leaveGroup(){stopStream();GROUP=null;PENDING=[];save('bb-group',null);save('bb-pending',[]);try{localStorage.removeItem('bb-group')}catch(e){}setSync('off');renderLog()}
+addEventListener('online',()=>{if(GROUP){flush();if(!STREAM)startStream()}});addEventListener('offline',()=>{if(GROUP)setSync('offline')});
+function inviteDoc(){const link=SITE_URL+'#join='+GROUP.code;return{title:'Join my brew log',sub:'Shared log code '+GROUP.code,file:'brew-log-invite',blocks:[{p:'Tap the link to see and add to our shared coffee log in The Brew Bench:'},{p:link},{p:'Or open the app, go to Log and enter the code '+GROUP.code+'.'}]}}
+function renderShare(){const el=$('l-share');if(!el)return;
+  if(!SYNC_DB){el.innerHTML='<h3>Shared log</h3><p class="hint">Log brews together with friends and see each other’s entries live. This needs a one-time setup by whoever runs the app (see the README).</p>';return}
+  if(!GROUP){el.innerHTML='<h3>Shared log</h3><p class="hint" style="margin-top:0">Log brews together: everyone in the group sees each other’s entries on their own phone.</p>'+
+    '<div class="field"><label for="sh-name">Your name</label><input id="sh-name" maxlength="30" placeholder="e.g. Maher" value="'+esc(ME)+'"></div>'+
+    '<div class="actions"><button class="btn" id="sh-new">Start a shared log</button></div>'+
+    '<div class="field" style="margin-top:12px"><label for="sh-code">Or join with a code</label><div class="joinrow"><input id="sh-code" placeholder="ABCD-2345" maxlength="9" autocapitalize="characters" value="'+esc(JOIN_CODE||'')+'"><button class="btn ghost" id="sh-join">Join</button></div></div>';
+    const name=()=>{const n=$('sh-name').value.trim();if(!n){toast('Add your name first, so friends know who logged what');$('sh-name').focus()}return n};
+    $('sh-new').onclick=()=>{const n=name();if(n){joinGroup(newCode(),n);toast('Shared log started. Invite your friends.')}};
+    $('sh-join').onclick=()=>{const n=name();if(!n)return;const c=$('sh-code').value.toUpperCase().replace(/[^A-Z0-9]/g,'');if(c.length!==8){toast('Codes look like ABCD-2345');return}JOIN_CODE='';joinGroup(c.slice(0,4)+'-'+c.slice(4),n);toast('Joined the shared log')};return}
+  el.innerHTML='<div class="sharehead"><h3 style="margin:0">Shared log</h3><span class="sync" id="sync-state"></span></div><p class="hint" style="margin:.3rem 0 .8rem">You are <b>'+esc(ME||'Guest')+'</b>. Code <b class="code">'+GROUP.code+'</b></p>'+
+    '<div class="actions"><button class="btn" id="sh-invite">Invite friends</button><button class="btn ghost" id="sh-leave">Leave</button></div>';
+  $('sh-invite').onclick=()=>openShare(inviteDoc());
+  $('sh-leave').onclick=()=>{if(confirm('Leave the shared log? Your phone keeps a copy of the entries.'))leaveGroup()};setSync(SYNC_STATE==='off'?'connecting':SYNC_STATE)}
+let JOIN_CODE='';
+const fmtDate=l=>{const d=new Date(l.ts||Date.parse(l.date));return isNaN(d)?(l.date||''):d.toLocaleDateString(undefined,{day:'numeric',month:'short',year:d.getFullYear()===new Date().getFullYear()?undefined:'numeric'})};
+function renderLog(){renderShare();
+  $('l-list').innerHTML=LOG.length?LOG.map((l,i)=>'<div class="logentry"><div class="lehead"><b>'+esc(l.coffee||'Untitled')+'</b>'+(l.stars?'<span class="stars-sm" aria-label="'+l.stars+' stars">'+'★'.repeat(+l.stars||0)+'<span>'+'★'.repeat(5-(+l.stars||0))+'</span></span>':'')+'<button class="x" data-del="'+i+'" aria-label="Delete entry">Delete</button></div>'+
+    '<div class="hint">'+esc(fmtDate(l))+(l.by&&GROUP?' · '+esc(l.by===ME?'you':l.by):'')+'</div>'+(l.settings?'<div class="hint">'+esc(l.settings)+'</div>':'')+(l.pred?'<div class="hint">Predicted: '+esc(l.pred)+'</div>':'')+(l.notes?'<p>'+esc(l.notes)+'</p>':'')+'</div>').join(''):'<p class="hint">No brews logged yet. Dial one in, then tap "Log this brew".</p>';
+  const rated=LOG.filter(l=>+l.stars>0),avg=rated.length?(rated.reduce((a,l)=>a+ +l.stars,0)/rated.length).toFixed(1):'–';
   const cnt={};LOG.forEach(l=>{if(l.brewer)cnt[l.brewer]=(cnt[l.brewer]||0)+1});const fav=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];
-  const best=rated.slice().sort((a,b)=>b.stars-a.stars)[0];
-  $('l-stats').innerHTML=LOG.length?'<div><b>Brews logged</b><span>'+LOG.length+'</span></div><div><b>Average rating</b><span>'+avg+'</span><small>out of 5</small></div><div><b>Favourite brewer</b><span style="font-size:1rem">'+(fav?esc(BREWERS[fav[0]]?BREWERS[fav[0]].name:fav[0]):'-')+'</span></div><div><b>Top coffee</b><span style="font-size:1rem">'+(best?esc(best.coffee||'Untitled'):'-')+'</span></div>':'';
+  const best=rated.slice().sort((a,b)=>b.stars-a.stars||b.ts-a.ts)[0];
+  const stat=(k,v,small)=>'<div><b>'+k+'</b><span'+(String(v).length>6?' style="font-size:1rem"':'')+'>'+v+'</span>'+(small?'<small>'+small+'</small>':'')+'</div>';
+  $('l-stats').innerHTML=LOG.length?stat('Brews logged',LOG.length)+stat('Average rating',avg,rated.length?'out of 5':'no ratings yet')+(fav?stat('Favourite brewer',esc(BREWERS[fav[0]]?BREWERS[fav[0]].name:fav[0])):'')+(best?stat('Top coffee',esc(best.coffee||'Untitled')):''):'';
   $('l-csv').hidden=!LOG.length;
 }
 $('tolog').onclick=()=>{const r=compute(S);
   $('l-settings').value=gLabel(S.grinder,S.setting)+', '+BREWERS[S.brewer].name+', '+S.temp+'°C, 1:'+S.ratio+', '+BREWERS[S.brewer].bloom.label.toLowerCase()+' '+S.bloom+'s, '+PROCESSES[S.process].name+' '+vName(S.variety);
   $('l-pred').value=verdict(r.D)[0];$('l-settings').dataset.brewer=S.brewer;showTab('log');$('l-coffee').focus()};
-$('l-save').onclick=()=>{const e={date:new Date().toLocaleDateString(),coffee:$('l-coffee').value,settings:$('l-settings').value,stars:STAR,pred:$('l-pred').value,notes:$('l-notes').value,brewer:$('l-settings').dataset.brewer||''};
-  if(!e.coffee&&!e.settings&&!e.notes){toast('Add a coffee name or some notes first');return}LOG.unshift(e);save('bb-log',LOG);['l-coffee','l-settings','l-pred','l-notes'].forEach(id=>$(id).value='');STAR=0;renderStars();renderLog();toast('Brew saved');beans(16)};
-$('l-list').onclick=e=>{const b=e.target.closest('[data-del]');if(!b)return;LOG.splice(+b.dataset.del,1);save('bb-log',LOG);renderLog();toast('Entry deleted')};
+$('l-save').onclick=()=>{const e={id:uid(),ts:Date.now(),date:new Date().toLocaleDateString(),coffee:$('l-coffee').value.trim(),settings:$('l-settings').value.trim(),stars:STAR,pred:$('l-pred').value.trim(),notes:$('l-notes').value.trim(),brewer:$('l-settings').dataset.brewer||''};
+  if(GROUP)e.by=ME;
+  if(!e.coffee&&!e.settings&&!e.notes){toast('Add a coffee name or some notes first');return}LOG.unshift(e);save('bb-log',LOG);queue('put',e.id,e);['l-coffee','l-settings','l-pred','l-notes'].forEach(id=>$(id).value='');delete $('l-settings').dataset.brewer;STAR=0;renderStars();renderLog();toast(GROUP?'Brew saved and shared':'Brew saved');beans()};
+$('l-list').onclick=e=>{const b=e.target.closest('[data-del]');if(!b)return;const l=LOG[+b.dataset.del];if(!l)return;
+  if(GROUP&&l.by&&l.by!==ME&&!confirm('Delete '+l.by+'’s entry for everyone?'))return;LOG.splice(+b.dataset.del,1);save('bb-log',LOG);queue('del',l.id);renderLog();toast('Entry deleted')};
 $('l-csv').onclick=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const rows=[['Date','Coffee','Settings','Stars','Predicted','Notes']].concat(LOG.map(l=>[l.date,l.coffee,l.settings,l.stars,l.pred,l.notes]));
   saveFile('brew-log.csv',new Blob(['\ufeff'+rows.map(r=>r.map(q).join(',')).join('\r\n')],{type:'text/csv'}))};
 
@@ -670,7 +736,7 @@ async function runScan(useImg){
     if(['light','medium','dark'].includes(j.roast_level))SC.roast=j.roast_level;
     if(/^\d{4}-\d{2}-\d{2}$/.test(j.roast_date||''))SC.date=j.roast_date;
     SC.info=j;$('scan-status').textContent='Done'+(j.confidence==='low'?'. Low confidence: check the details below.':'. Check the details below and adjust anything that looks off.');
-    renderScan();saveScan();beans(18);toast('Label read');
+    renderScan();saveScan();toast('Label read');
   }catch(e){const c=e&&e.code;$('scan-status').textContent=c==='cancelled'?'Stopped.':c==='not_granted'||c==='sampling_disabled'?'Claude access for this page was declined, so fill in the details by hand.':c==='images_unavailable'?'Photo reading isn\u2019t available here; paste the label text instead.':c==='image_rejected'?'That image couldn\u2019t be read. Try a clearer, smaller photo.':c==='rate_limited'?'Too many requests right now. Try again in a little while.':c==='invalid_json'?'The label couldn\u2019t be turned into details. Try again or paste the text.':'Something went wrong reading the label. Try again.'}
   finally{$('scan-stop').hidden=true;$('scan-go').disabled=!SFILE;$('scan-drop').classList.remove('scanning')}
 }
@@ -756,7 +822,7 @@ async function runLocalScan(useImg){
     if(useImg){const w=await ocrWorker((status,p)=>{if(!cancelled)st.textContent=(/recogniz/.test(status)?'Reading the label… ':'Getting the text reader ready… ')+Math.round(p*100)+'%'});
       const img=await prepImage(SFILE);const res=await w.recognize(img);if(cancelled)return;text=res.data.text||'';$('scan-text').value=text.trim()}
     const j=parseLabel(text);if(!j.origin_key&&!j.variety_key&&!j.process_key&&!j.roast_date){st.textContent=useImg?'Couldn’t find coffee details in that photo. Try a closer, sharper shot of the label, or fill in the details below.':'No coffee details found in that text.';return}
-    applyInfo(j);st.textContent=(j.confidence==='low'?'Found a few details. ':'Label read. ')+'Check them below and adjust anything that looks off.';renderScan();saveScan();beans(18);toast('Label read')}
+    applyInfo(j);st.textContent=(j.confidence==='low'?'Found a few details. ':'Label read. ')+'Check them below and adjust anything that looks off.';renderScan();saveScan();toast('Label read')}
   catch(e){st.textContent='The text reader couldn’t start. Check your connection the first time you scan, or fill in the details below.'}
   finally{$('scan-stop').hidden=true;$('scan-go').disabled=!SFILE;$('scan-drop').classList.remove('scanning')}}
 function thumb(cb){if(!SFILE){cb('');return}const img=new Image();img.onload=()=>{const c=document.createElement('canvas'),s=160/Math.max(img.width,img.height);c.width=img.width*s;c.height=img.height*s;c.getContext('2d').drawImage(img,0,0,c.width,c.height);try{cb(c.toDataURL('image/jpeg',.7))}catch(e){cb('')}};img.onerror=()=>cb('');img.src=$('scan-prev').src}
@@ -842,7 +908,7 @@ const APPS=[['native','Share\u2026','#8E8E93','M12 15V3 M7 8l5-5 5 5 M5 12v8h14v
   ['sms','Messages','#34C759','M4 5h16v11H9l-5 4z'],
   ['email','Email','#0A84FF','M3 6h18v12H3z M3 7l9 6 9-6']];
 // Chat-friendly text: headings become *bold* (WhatsApp and Telegram both show it as bold).
-function shareText(doc){const t=docText(doc).trim().replace(/^#+\s*(.+)$/gm,'*$1*');return(t.length>1400?t.slice(0,1400).replace(/\s+\S*$/,'')+'\u2026':t)+'\n\n'+SITE_URL}
+function shareText(doc){const t=docText(doc).trim().replace(/^#+\s*(.+)$/gm,'*$1*');return(t.length>1400?t.slice(0,1400).replace(/\s+\S*$/,'')+'\u2026':t)+(t.includes(SITE_URL)?'':'\n\n'+SITE_URL)}
 function openShare(doc){SHDOC=doc;const pdfOK=!!(window.jspdf&&window.jspdf.jsPDF);
   $('sh-in').innerHTML='<div class="sheet"><div class="grab"></div><button class="vd-close" id="sh-x" aria-label="Close">\u2715</button><h2 id="sh-title" style="margin:0 40px 2px 0">Share</h2><p class="hint" style="margin:0">'+esc(doc.title)+'</p>'+
    '<div class="sharerow">'+APPS.map(([k,n,c,d])=>'<button type="button" data-sh="'+k+'"><span class="app" style="background:'+c+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+d+'"/></svg></span>'+n+'</button>').join('')+'</div>'+
@@ -925,11 +991,14 @@ syncThemeBtn();
 // Label each cell with its column heading so tables can stack into cards on phones.
 document.querySelectorAll('table.ref').forEach(t=>{const hs=[...t.querySelectorAll('thead th')].map(h=>h.textContent.trim());t.querySelectorAll('tbody tr').forEach(r=>[...r.children].forEach((c,i)=>{if(hs[i])c.dataset.label=hs[i]}))});
 // If saved settings ever stop the app from starting, clear them (the brew log and scans are kept) and retry once.
-try{buildGear();initDial();initPlan();render();renderPlan();renderRecipes();renderTech();renderProcesses();renderVarieties();buildMap();buildTree();startQuiz();renderCalc();renderTS();renderStars();renderLog();initScan();}
+try{initDial();initPlan();render();renderPlan();renderCalc();renderTS();renderStars();renderLog();initScan();}
 catch(err){let retried=false;try{retried=sessionStorage.getItem('bb-reset')==='1';sessionStorage.setItem('bb-reset','1')}catch(e){}
   if(!retried){try{['bb-state','bb-plan','bb-scan','bb-calc','bb-base3'].forEach(k=>localStorage.removeItem(k))}catch(e){}location.reload()}throw err}
 try{sessionStorage.removeItem('bb-reset')}catch(e){}
-{const h=location.hash.slice(1);if(h&&$(h)&&$(h).tagName==='SECTION')showTab(h,true);else syncShell('dial')}
+{const h=location.hash.slice(1),j=/^join=([A-Za-z0-9-]{8,9})$/.exec(h);
+  if(j){JOIN_CODE=j[1].toUpperCase();try{history.replaceState(null,'','#log')}catch(e){}showTab('log',true);if(!GROUP)toast('Add your name and tap Join');else if(GROUP.code!==JOIN_CODE)toast('You are already in a shared log. Leave it first to join this one.');renderLog()}
+  else if(h&&$(h)&&$(h).tagName==='SECTION')showTab(h,true);else syncShell('dial')}
+if(GROUP)startStream();
 if(window.claude&&window.claude.use){
   window.claude.use('sample').then(async s=>{SAMPLE=s;if(!s)return;
     try{const l=await s.limits();IMGS=!!(l&&l.images);if(IMGS)$('scan-file').accept=l.images.mediaTypes.join(',')}catch(e){IMGS=false}
