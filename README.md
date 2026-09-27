@@ -19,7 +19,7 @@ Both update automatically whenever `main` changes.
 | **Brew planner** | Pick brewer, grinder, technique and coffee; get an adapted recipe with the reasoning behind every setting |
 | **Scan beans** | Photograph a bag's label: the text is read on your phone (offline) and matched to origins, varieties, processes and roast date for a full brew plan |
 | **Gear and dials** | A library of 30 manual and electric grinders (1Zpresso ZP6, K-Ultra, K-Max, J-Max, J-Ultra, JX, JX-Pro, X-Pro, X-Ultra, Q2; Comandante C40 and Red Clix; Timemore C2, C3, C3 ESP Pro; Kingrinder K4, K6; Hario; Porlex; Fellow Ode and Opus; Baratza; Breville; OXO; Wilfa; Niche; DF64; Mahlkönig EK43) with burrs, dials and typical settings. Every grinder sits on one shared grind scale, so you can match a setting from any grinder to any other (for example ZP6 5.4 = K-Ultra 7.0), and recipes and the dial-in keep the same grind when you switch grinders. Pick the grinders you own, add your own, compare them side by side. Plus 25 brewers and a grind map |
-| **Recipes** | 80 recipes, including 21 world championship winners, each credited, with settings for your grinders and a step-by-step brew timer. Create your own (or save the dial-in as one) and share them by link or live with your team |
+| **Recipes** | 77 recipes, 21 of them from world champions, each credited, with settings for your grinders and a step-by-step brew timer. Create your own (or save the dial-in as one) and share them by link or live with your team |
 | **Techniques** | 36 techniques from swirl blooms to turbo shots |
 | **Processes** | 29 processes from washed to thermal shock, plotted on a clean-to-wild map |
 | **Origins map** | 50 coffee origins on an interactive, colour-coded world map |
