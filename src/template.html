@@ -297,6 +297,71 @@ main section.on{animation:secin .35s ease both}
 @media (max-width:599px){#pmap .ax{font-size:22px}#pmap #pm-label{font-size:24px}#pmap .pd{r:11}#pmap .pd:hover{r:13}}
 #pmap .pd:hover{r:9}
 .card.flash{animation:flash 1.2s ease}
+/* Coffee words */
+.wgroup{margin:0 0 22px}.wgroup>h3{display:flex;align-items:center;gap:8px;margin:0 0 10px}.wgroup>h3 i{width:12px;height:12px;border-radius:3px;display:inline-block;background:var(--c)}
+.wgrid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.wcard{text-align:left;font:inherit;color:inherit;cursor:pointer;border-left:4px solid var(--c);padding:14px 16px;display:block;width:100%}
+.wcard h4{margin:0;font-family:var(--display);font-size:1.02rem;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.wcard h4::after{content:"+";color:var(--muted);font-weight:500}.wcard.open h4::after{content:"\2212"}
+.wcard .wdef{margin:.35rem 0 0;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.wcard.open .wdef{display:block;color:var(--ink)}
+.wcard .wlinks{display:none;flex-wrap:wrap;gap:6px;margin-top:10px}.wcard.open .wlinks{display:flex}
+.wlinks .chip{font-size:.8rem}.wlinks .chip.p{background:color-mix(in srgb,var(--honey) 22%,var(--surface))}.wlinks .chip.v{background:color-mix(in srgb,var(--leaf) 20%,var(--surface))}
+.wempty{padding:20px 0}
+mark.wq{background:color-mix(in srgb,var(--honey) 40%,transparent);color:inherit;border-radius:3px;padding:0 1px}
+/* From seed to cup */
+.flowlegend{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.flow{--gap:34px;max-width:760px;margin:0 auto;position:relative}
+.fphase{position:relative;border-radius:20px;padding:34px 14px 14px;margin:0 0 var(--gap);background:color-mix(in srgb,var(--c) 7%,var(--surface));border:1px solid color-mix(in srgb,var(--c) 28%,var(--line))}
+.fphase>.fph{position:absolute;top:10px;left:16px;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--c)}
+.fphase+.fphase::before{content:"";position:absolute;left:50%;top:calc(-1 * var(--gap));height:var(--gap);border-left:2px dashed color-mix(in srgb,var(--c) 60%,var(--line))}
+.fsteps{display:grid;gap:18px}
+.fstep{position:relative;display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 14px;cursor:pointer;box-shadow:var(--shadow);transition:transform .15s ease,border-color .15s ease}
+.fstep:hover{transform:translateY(-2px);border-color:var(--c)}
+.fstep+.fstep::before,.fbranch+.fstep::before,.fstep+.fbranch::before{content:"";position:absolute;left:50%;top:-19px;height:18px;border-left:2px solid var(--c)}
+.fstep+.fstep::after,.fbranch+.fstep::after{content:"";position:absolute;left:calc(50% - 5px);top:-8px;border:5px solid transparent;border-top-color:var(--c)}
+.fstep .fico{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--c)}
+.fstep .fico svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.fstep b{display:block;font-family:var(--display);font-size:1rem}.fstep small{display:block;color:var(--muted);font-size:.84rem;margin-top:1px}
+.fstep .fn{margin-left:auto;flex:none;font-size:.75rem;font-weight:700;color:var(--muted);background:var(--surface2);border-radius:999px;padding:2px 8px}
+.fstep.side{border-style:dashed;background:transparent;box-shadow:none}
+.fstep.key{border-width:2px;border-color:var(--c)}
+/* Phones: the paths hang off a rail on the left, one per line. Wide screens: five across under a bar. */
+.fbranch{position:relative;display:grid;gap:8px;grid-template-columns:1fr;padding:2px 0 2px 26px}
+.fbranch::after{content:"";position:absolute;left:10px;top:-18px;bottom:28px;border-left:2px solid var(--c)}
+.fstep+.fbranch::before{display:none}
+.fbr{position:relative;display:flex;flex-direction:column;justify-content:flex-start;text-align:left;font:inherit;color:var(--ink);cursor:pointer;border:1px solid color-mix(in srgb,var(--c) 45%,var(--line));background:color-mix(in srgb,var(--c) 12%,var(--surface));border-radius:14px;padding:10px 12px}
+.fbr::before{content:"";position:absolute;left:-16px;top:50%;width:15px;border-top:2px solid var(--c)}
+.fbr b{display:block;font-size:.95rem}.fbr small{display:block;color:var(--muted);font-size:.78rem;line-height:1.35;margin-top:2px}.fbr em{display:block;font-style:normal;font-size:.78rem;font-weight:600;color:var(--c);margin-top:4px}
+@media (min-width:720px){.fstep+.fbranch::before{display:block;top:-19px;height:25px}.fbranch{grid-template-columns:repeat(5,minmax(0,1fr));padding:14px 0 4px}.fbranch::after{left:8%;right:8%;top:6px;bottom:auto;border-left:0;border-top:2px solid var(--c)}
+  .fbr::before{left:50%;top:-9px;width:0;height:8px;border-top:0;border-left:2px solid var(--c)}}
+.flowd .fbranch{padding-left:0}.flowd .fbranch::after,.flowd .fbr::before{display:none}
+.fbr .fbr-list{display:block;font-size:.76rem;line-height:1.35;color:var(--muted);margin-top:6px}
+.fbr .fbr-more{display:block;font-size:.76rem;font-weight:700;color:var(--ink);margin-top:6px}.fbr .fbr-more::after{content:" \25BE"}.fbr[aria-expanded="true"] .fbr-more::after{content:" \25B4"}
+.fbr[aria-expanded="true"]{border-color:var(--c);box-shadow:0 0 0 2px color-mix(in srgb,var(--c) 35%,transparent)}
+.fbranch{grid-auto-flow:row dense}
+.fbx{grid-column:1/-1;background:var(--surface);border:1px solid color-mix(in srgb,var(--c) 40%,var(--line));border-radius:16px;padding:12px;animation:secin .25s ease}
+.fbx-h{margin:0 0 10px}.fbx-h b{display:block;font-family:var(--display)}.fbx-h .hint{display:block;margin:2px 0 0;font-size:.82rem}
+.ptree{display:grid;gap:8px}
+.ptree.kids{margin-top:6px;padding-left:12px;border-left:2px solid color-mix(in srgb,var(--c) 45%,var(--line))}
+.pnode{border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.pnode.open{border-color:color-mix(in srgb,var(--c) 55%,var(--line))}
+.pn-h{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:0;padding:10px 12px;font:inherit;color:var(--ink);cursor:pointer}
+.pn-h>i{flex:none;width:10px;height:10px;border-radius:50%;background:var(--c)}
+.pn-t{flex:1;min-width:0}.pn-t b{display:block;font-size:.95rem}.pn-t small{display:block;color:var(--muted);font-size:.8rem;line-height:1.35;margin-top:1px}
+.pn-t em{display:inline-block;margin-top:5px;font-style:normal;font-size:.7rem;font-weight:700;color:var(--ink);background:color-mix(in srgb,var(--c) 20%,var(--surface));border-radius:999px;padding:2px 8px;white-space:nowrap}
+.pn-x{flex:none;width:18px;text-align:center;color:var(--muted);font-size:1.1rem;line-height:1}.pn-x::before{content:"+"}.pnode.open>.pn-h .pn-x::before{content:"\2212"}
+.pn-b{display:none;padding:0 12px 12px 32px}.pnode.open>.pn-h small.dup{display:none}
+.pn-b>p{font-size:.92rem;line-height:1.5}.pnode.open>.pn-b{display:block}
+.pn-b>p{margin:0 0 .5rem}.pn-b .chips{margin:0 0 8px}.pn-go{margin-top:2px;font-size:.88rem;padding:8px 14px}
+.pn-kh{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:.9rem 0 0!important}
+.pn-b .ptree.kids .pn-b{padding-left:12px}
+@media (max-width:560px){.fbx{padding:10px 8px}.pn-h{padding:10px;gap:8px}.pn-b{padding:0 10px 10px 10px}.ptree.kids{padding-left:8px}.fbranch{padding-left:22px}.fbranch::after{left:8px}.fbr::before{left:-14px;width:13px}}
+.fside{display:flex;flex-wrap:wrap;gap:6px;margin:-8px 0 0 14px}
+.fside+.fstep::before{content:"";position:absolute;left:50%;top:-19px;height:18px;border-left:2px solid var(--c)}
+.fside+.fstep::after{content:"";position:absolute;left:calc(50% - 5px);top:-8px;border:5px solid transparent;border-top-color:var(--c)}
+.flowd .fnotes{margin:.4rem 0 0;padding-left:1.1rem}.flowd .fnotes li{margin:.2rem 0}
+.flowd h3{margin:1.1rem 0 .4rem}
 @keyframes flash{0%,100%{box-shadow:var(--shadow)}30%{box-shadow:0 0 0 4px var(--honey)}}
 .cmpbar{display:grid;grid-template-columns:74px repeat(var(--n),minmax(0,1fr));gap:6px 10px;align-items:center;font-family:var(--display);font-size:.86rem}
 .cmpbar .t{position:relative;height:8px;background:var(--surface2);border-radius:4px;margin-right:26px}
@@ -657,6 +722,8 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   <button class="tab" role="tab" data-t="variety" aria-selected="false">Varieties</button>
   <button class="tab" role="tab" data-t="history" aria-selected="false">History</button>
   <button class="tab" role="tab" data-t="champs" aria-selected="false">Championships</button>
+  <button class="tab" role="tab" data-t="flow" aria-selected="false">Seed to cup</button>
+  <button class="tab" role="tab" data-t="words" aria-selected="false">Coffee words</button>
   <button class="tab" role="tab" data-t="guide" aria-selected="false">Guide</button>
   <button class="tab" role="tab" data-t="log" aria-selected="false">Log</button>
 </div></nav>
@@ -836,6 +903,26 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   <ol class="timeline chtl" id="ch-tl"></ol>
 </section>
 
+<!-- FROM SEED TO CUP -->
+<section id="flow">
+  <h2>From seed to cup</h2>
+  <p class="lede">Every step a coffee goes through, from a seed in a nursery to the cup in your hand. Tap any step to see what happens there and why it matters to the taste. The processing step splits into its paths; each one leads to the full process explanation.</p>
+  <div class="flowlegend" id="flowlegend"></div>
+  <div class="flow" id="flowchart"></div>
+</section>
+
+<!-- COFFEE WORDS -->
+<section id="words">
+  <h2>Coffee words</h2>
+  <p class="lede">A bank of the words you meet on bags, menus and in brewing guides, from co-fermentation to TDS. Search, or browse by topic; tap a word for links to the processes, varieties and techniques behind it.</p>
+  <div class="vtools">
+    <input type="search" id="wsearch" placeholder="Search, e.g. anaerobic, first crack, TDS" aria-label="Search coffee words">
+    <div class="seg filters scrollrow" id="wcat"></div>
+  </div>
+  <p class="hint" id="wcount" style="margin:0 0 10px"></p>
+  <div id="wlist"></div>
+</section>
+
 <section id="history">
   <h2>The story of coffee</h2>
   <p class="lede">From wild Ethiopian forests to a Sufi drink in Yemen to a global crop. Almost all Arabica outside Africa traces back to a handful of seeds, which is why genetic diversity, and Ethiopia, matter so much.</p>
@@ -868,7 +955,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 <!-- PROCESSES -->
 <section id="process">
   <h2>Processes</h2>
-  <p class="lede">Process sets the direction. Clean coffees want help building sweetness; fruit-heavy coffees want restraint.</p>
+  <p class="lede">Process sets the direction. Clean coffees want help building sweetness; fruit-heavy coffees want restraint. <button type="button" class="linkbtn" data-go-t="flow">See where processing fits, from seed to cup</button></p>
   <div class="card" style="margin-bottom:16px"><h3 style="margin-top:0">The process map</h3><p class="hint" style="margin-top:0">Left is clean, right is wild; top is bright, bottom is soft. Tap a dot.</p><svg id="pmap" viewBox="0 -14 640 314" role="img" aria-label="Processes plotted by cleanliness and acidity"></svg></div>
   <div class="seg filters scrollrow" id="pcat" style="margin-bottom:14px"></div>
   <div class="grid" id="pgrid"></div>
