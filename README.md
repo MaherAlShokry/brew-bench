@@ -26,6 +26,8 @@ Both update automatically whenever `main` changes.
 | **Varieties** | 44 varieties with stories, Geisha types and side-by-side comparison |
 | **History** | A clickable variety family tree, a timeline, key people and a quiz |
 | **World championships** | Every World Brewers Cup, World AeroPress and World Barista champion on a timeline with a live countdown to the next final, filters by championship and brewer, and a recipe sheet for every champion: their coffee, gear and published recipe (or a marked starting point in the same style), adapted to the brewers and grinders you own |
+| **From seed to cup** | A tappable flow diagram of how coffee is made, from nursery to cup in 16 steps across farm, mill, trade, roastery and kitchen; the processing step branches into its five paths, each leading to the full process explanation |
+| **Coffee words** | A searchable bank of 111 coffee terms in six topics (plant and farm, processing, green coffee and trade, roasting, brewing, tasting), each linked to the processes, varieties and sections behind it |
 | **Guide** | Ratio calculator and a taste-based troubleshooter |
 | **Log** | Rated brew log with stats and CSV export, shared live with friends through a group code |
 

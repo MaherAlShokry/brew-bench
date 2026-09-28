@@ -504,7 +504,7 @@ function paint(){const el=TM.el,m=Math.floor(el/60),s=Math.floor(el%60);$('tm-bi
 
 /* ================= TABS ================= */
 // Heavy tabs are built the first time they are opened, which keeps startup quick.
-const LAZY={champs:renderChamps,gear:buildGear,recipes:renderRecipes,tech:renderTech,process:renderProcesses,variety:renderVarieties,map:buildMap,history:()=>{buildTree();startQuiz()}},BUILT={};
+const LAZY={champs:renderChamps,words:renderWords,flow:renderFlow,gear:buildGear,recipes:renderRecipes,tech:renderTech,process:renderProcesses,variety:renderVarieties,map:buildMap,history:()=>{buildTree();startQuiz()}},BUILT={};
 function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove());if(LAZY[id]&&!BUILT[id]){BUILT[id]=1;LAZY[id]()}}
 let BACKING=false,PEND_TAB=null;
 function showTab(id,fromHistory){ensureTab(id);document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x.dataset.t===id));
@@ -623,6 +623,7 @@ function openRoute(h){let m;try{h=decodeURIComponent(h)}catch(e){}
   if((m=/^recipe=([A-Za-z0-9_-]+)$/.exec(h))){goTab('recipes');importRecipe(m[1]);return true}
   if((m=/^r=([a-z0-9-]+)$/.exec(h))){goTab('recipes');const i=RECIPES.findIndex((r,k)=>k<BUILTIN_N&&slug(r.name)===m[1]);if(i>=0)openRecipe(i);else toast('That recipe isn\u2019t in this version of the app');return true}
   if((m=/^c=([a-z]+)-(\d{4})$/.exec(h))){goTab('champs');const ch=CHAMPS.find(x=>x.c===m[1]&&x.y===+m[2]);if(ch&&ch.rec)openChamp(ch);return true}
+  if((m=/^k=([a-z0-9-]+)$/.exec(h))){const g=GLOSSARY.find(x=>slug(x[0])===m[1]);goTab('words');if(g)openWord(g[0]);return true}
   if((m=/^v=([\w-]+)$/.exec(h))){goTab('variety');if(VBY[m[1]])openVariety(m[1]);return true}
   if((m=/^o=([\w-]+)$/.exec(h))){goTab('map');if(ALLO()[m[1]])selectOrigin(m[1],true);return true}
   if((m=/^brew=([A-Za-z0-9_-]+)$/.exec(h))){openBrewLink(m[1]);return true}
@@ -664,6 +665,7 @@ function renderProcesses(){
   h+='<text id="pm-label" x="330" y="8" text-anchor="middle"></text>';
   $('pmap').innerHTML=h;
 }
+document.querySelector('#process .lede').onclick=e=>{goLink(e)};
 $('pmap').onclick=e=>{const g=e.target.closest('.pdg');if(!g)return;const k=g.dataset.k;$('pm-label').textContent=PROCESSES[k].name;const c=$('pc-'+k);if(c){c.classList.remove('flash');void c.offsetWidth;c.classList.add('flash');c.scrollIntoView({behavior:RM()?'auto':'smooth',block:'center'})}};
 $('pmap').onmousemove=e=>{const g=e.target.closest('.pdg');if(g)$('pm-label').textContent=PROCESSES[g.dataset.k].name};
 $('pgrid').onclick=e=>{const b=e.target.closest('[data-usep]');if(b){S.process=b.dataset.usep;render();showTab('dial');toast('Process set to '+PROCESSES[S.process].name)}};
@@ -1487,6 +1489,71 @@ function openChamp(ch){const C=COMPS[ch.c],r=ch.rec,R=ch.ri!=null?RECIPES[ch.ri]
       S.temp=clamp(U.temp,B.temp.min,B.temp.max);S.bloom=B.bloom.def;S.agit='med';S.ratio=clamp(Math.round(U.water/U.dose/B.ratio.step)*B.ratio.step,B.ratio.min,B.ratio.max);render();showTab('dial');toast('Loaded '+ch.who+'’s recipe')}};
   const hx=d.querySelector('.vd-head');hx.onclick=e=>{if(e.target.closest('#vd-x'))d.close()};
   if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}d.scrollTop=0}
+/* ================= COFFEE WORDS ================= */
+let WC='all',WQ='';
+const GBY=Object.fromEntries(GLOSSARY.map(g=>[g[0],g]));
+// A link from a word or a flow step: a process, a variety, another word or a section.
+function linkChip(l,label){const i=l.indexOf(':'),k=l.slice(0,i),v=l.slice(i+1);
+  if(k==='p')return PROCESSES[v]?'<button type="button" class="chip p" data-go-p="'+v+'">'+esc(label||'Process: '+PROCESSES[v].name.replace(/\s*\(.*$/,''))+'</button>':'';
+  if(k==='v')return VBY[v]?'<button type="button" class="chip v" data-go-v="'+v+'">'+esc(label||'Variety: '+VBY[v].name)+'</button>':'';
+  if(k==='k')return GBY[v]?'<button type="button" class="chip" data-go-k="'+esc(v)+'">'+esc(label||v)+'</button>':'';
+  if(k==='tab')return TABNAMES[v]?'<button type="button" class="chip" data-go-t="'+v+'">'+esc(label||TABNAMES[v])+' →</button>':'';return ''}
+function goLink(e){const b=e.target.closest('[data-go-p],[data-go-v],[data-go-k],[data-go-t]');if(!b)return false;const d=$('vd');
+  if(b.dataset.goV){openVariety(b.dataset.goV);return true}
+  if(d.open)d.close();if(b.dataset.goP)openProcess(b.dataset.goP);else if(b.dataset.goK)openWord(b.dataset.goK);else showTab(b.dataset.goT);return true}
+function openProcess(k){if(!PROCESSES[k])return;showTab('process');if(PC!=='all'&&PROCESSES[k].cat!==PC){PC='all';renderProcesses()}
+  requestAnimationFrame(()=>{const c=$('pc-'+k);if(!c)return;flashTo(c)})}
+// Scroll to a card and flash it. Cards further up can still change size as they render, so check again once the page settles.
+function flashTo(c){c.classList.remove('flash');void c.offsetWidth;c.classList.add('flash');c.scrollIntoView({block:'center'});setTimeout(()=>{const r=c.getBoundingClientRect();if(r.top<0||r.bottom>innerHeight)c.scrollIntoView({block:'center'})},400)}
+function renderWords(){
+  seg('wcat',[['all','All']].concat(Object.entries(GCAT).map(([k,[n]])=>[k,n])),()=>WC,v=>{WC=v;renderWords()});
+  const q=WQ.trim(),fq=fold(q),list=GLOSSARY.filter(g=>(WC==='all'||g[1]===WC)&&(!fq||fold(g[0]+' '+g[2]).includes(fq)));
+  const mark=t=>{const h=esc(t);if(!q)return h;const re=new RegExp('('+reEsc(esc(q))+')','ig');return h.replace(re,'<mark class="wq">$1</mark>')};
+  $('wcount').textContent=list.length===GLOSSARY.length?GLOSSARY.length+' words':list.length+' of '+GLOSSARY.length+' words';
+  $('wlist').innerHTML=list.length?Object.entries(GCAT).map(([k,[n,c]])=>{const g=list.filter(x=>x[1]===k);if(!g.length)return '';
+    return '<div class="wgroup" style="--c:'+c+'"><h3><i></i>'+esc(n)+'</h3><div class="wgrid">'+g.map(([t,,d,l])=>
+      '<article class="card wcard" style="--c:'+c+'" data-w="'+esc(t)+'" tabindex="0" role="button" aria-expanded="false"><h4><span>'+mark(t)+'</span></h4><p class="wdef">'+mark(d)+'</p>'+
+      (l.length?'<div class="wlinks">'+l.map(x=>linkChip(x)).join('')+'</div>':'')+'</article>').join('')+'</div></div>'}).join('')
+    :'<p class="hint wempty">No words match. Try a shorter search, or pick All.</p>'}
+const toggleWord=c=>{const o=!c.classList.contains('open');c.classList.toggle('open',o);c.setAttribute('aria-expanded',o)};
+$('wlist').onclick=e=>{if(goLink(e))return;const c=e.target.closest('.wcard');if(c)toggleWord(c)};
+$('wlist').onkeydown=e=>{if((e.key==='Enter'||e.key===' ')&&e.target.classList.contains('wcard')){e.preventDefault();toggleWord(e.target)}};
+$('wsearch').oninput=e=>{WQ=e.target.value;soon(renderWords)};
+// Open the Coffee words section on one word, expanded.
+function openWord(t){const g=GBY[t];if(!g)return;showTab('words');WC='all';WQ='';$('wsearch').value='';renderWords();
+  requestAnimationFrame(()=>{const c=[...document.querySelectorAll('#wlist .wcard')].find(x=>x.dataset.w===t);if(!c)return;c.classList.add('open');c.setAttribute('aria-expanded','true');
+    flashTo(c)})}
+function wordsDoc(){return{link:SITE_URL+'#words',title:'Coffee words',sub:GLOSSARY.length+' terms, from farm to cup',file:'coffee-words',blocks:Object.entries(GCAT).map(([k,[n]])=>({h:n,list:GLOSSARY.filter(g=>g[1]===k).map(g=>g[0]+': '+g[2])}))}}
+
+/* ================= FROM SEED TO CUP ================= */
+const FBY=Object.fromEntries(FLOW.map(f=>[f.id,f]));
+const FNUM={};{let n=0;for(const f of FLOW)if(!f.side)FNUM[f.id]=++n}
+const fIcon=n=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+(FICO[n]||ICO[n])+'"/></svg>';
+function renderFlow(){
+  $('flowlegend').innerHTML=Object.values(FLOW_PHASES).map(([n,c])=>'<span class="pill"><i style="background:'+c+'"></i>'+esc(n)+'</span>').join('');
+  $('flowchart').innerHTML=Object.entries(FLOW_PHASES).map(([ph,[pn,c]])=>'<div class="fphase" style="--c:'+c+'"><span class="fph">'+esc(pn)+'</span><div class="fsteps">'+
+    FLOW.filter(f=>f.ph===ph).map(f=>'<button type="button" class="fstep'+(f.side?' side':'')+(f.branch?' key':'')+'" data-f="'+f.id+'"><span class="fico">'+fIcon(f.icon)+'</span><span><b>'+esc(f.t)+'</b><small>'+esc(f.s)+'</small></span><span class="fn">'+(f.side?'Optional':FNUM[f.id])+'</span></button>'+
+      (f.branch?'<div class="fbranch" role="group" aria-label="Processing paths">'+FLOW_BRANCH.map((b,i)=>'<button type="button" class="fbr" data-fb="'+i+'"><b>'+esc(b.t)+'</b><small>'+esc(b.s)+'</small><em>'+esc(b.d)+'</em></button>').join('')+'</div>':'')).join('')+
+    '</div></div>').join('')}
+$('flowchart').onclick=e=>{const b=e.target.closest('[data-fb]');if(b){openFlowBranch(+b.dataset.fb);return}const f=e.target.closest('[data-f]');if(f)openFlowStep(f.dataset.f)};
+function flowSheet(c,pill,title,sub,body){const d=$('vd');
+  d.querySelector('#vd-in').innerHTML='<div class="vd-head" style="--c:'+c+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:'+c+'"></i>'+esc(pill)+'</span><h2 id="vd-title">'+esc(title)+'</h2>'+(sub?'<p class="hint" style="margin:0">'+esc(sub)+'</p>':'')+'</div><div class="vd-body flowd">'+body+'</div>';
+  d.querySelector('.vd-body').onclick=e=>{if(goLink(e))return;const n=e.target.closest('[data-fnav]');if(n)openFlowStep(n.dataset.fnav);const b=e.target.closest('[data-fb]');if(b)openFlowBranch(+b.dataset.fb)};
+  $('vd-x').onclick=()=>d.close();if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}d.scrollTop=0}
+function openFlowStep(id){const f=FBY[id];if(!f)return;const [pn,c]=FLOW_PHASES[f.ph],i=FLOW.indexOf(f),prev=FLOW[i-1],next=FLOW[i+1];
+  const chips=(f.k||[]).map(t=>linkChip('k:'+t)).join(''),go=(f.go||[]).map(([l,lab])=>linkChip(l,lab)).join('');
+  flowSheet(c,pn+(f.side?' · optional':' · step '+FNUM[f.id]+' of '+Object.keys(FNUM).length),f.t,f.s,'<p>'+esc(f.d)+'</p>'+
+    (f.n?'<ul class="fnotes">'+f.n.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'')+
+    (f.branch?'<h3>The paths</h3><div class="fbranch" style="--c:'+c+'">'+FLOW_BRANCH.map((b,j)=>'<button type="button" class="fbr" data-fb="'+j+'"><b>'+esc(b.t)+'</b><small>'+esc(b.s)+'</small><em>'+esc(b.d)+'</em></button>').join('')+'</div>':'')+
+    (go?'<h3>'+(f.side?'The methods':'Go further')+'</h3><div class="chips">'+go+'</div>':'')+
+    (chips?'<h3>Words to know</h3><div class="chips">'+chips+'</div>':'')+
+    '<div class="actions">'+(prev?'<button type="button" class="btn ghost" data-fnav="'+prev.id+'">← '+esc(prev.t)+'</button>':'')+(next?'<button type="button" class="btn" data-fnav="'+next.id+'">'+esc(next.t)+' →</button>':'')+'</div>')}
+function openFlowBranch(i){const b=FLOW_BRANCH[i],c=FLOW_PHASES.mill[1];
+  flowSheet(c,'Processing path',b.t,b.s,'<p><b>In the cup:</b> '+esc(b.d.toLowerCase())+'.</p><h3>'+(b.p.length>1?'The processes on this path':'The process')+'</h3><div class="grid" style="grid-template-columns:1fr;gap:8px">'+
+    b.p.filter(k=>PROCESSES[k]).map(k=>{const P=PROCESSES[k];return '<button type="button" class="card fbr" style="--c:'+PCOL[P.cat]+'" data-go-p="'+k+'"><b>'+esc(P.name)+'</b><small>'+esc(P.char.split(/(?<=\.)\s/)[0])+'</small><em>Read how it works →</em></button>'}).join('')+'</div>'+
+    '<div class="actions"><button type="button" class="btn ghost" data-fnav="process">← Processing</button><button type="button" class="btn" data-fnav="dry">Drying →</button></div>')}
+function flowDoc(){return{link:SITE_URL+'#flow',title:'From seed to cup',sub:'How coffee is made, step by step',file:'seed-to-cup',blocks:FLOW.map(f=>({h:(f.side?'Optional: ':FNUM[f.id]+'. ')+f.t,p:f.d+(f.branch?' Paths: '+FLOW_BRANCH.map(b=>b.t+' ('+b.d.toLowerCase()+')').join(', ')+'.':'')}))}}
+
 /* ================= APP SHELL ================= */
 /* Line icons for the sheets, drawn to match the bottom navigation. */
 const ICO={trophy:'M8 4h8v5a4 4 0 0 1-8 0z M8 6H5a3 3 0 0 0 3 4 M16 6h3a3 3 0 0 1-3 4 M12 13v4 M8 21h8 M9 17h6',globe:'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M3 12h18 M12 3c3 3.5 3 14.5 0 18 M12 3c-3 3.5-3 14.5 0 18',leaf:'M5 19c0-8 5-14 14-14c0 9-6 14-14 14z M5 19l8-8',
@@ -1499,12 +1566,12 @@ const ICO={trophy:'M8 4h8v5a4 4 0 0 1-8 0z M8 6H5a3 3 0 0 0 3 4 M16 6h3a3 3 0 0 
 const installed=()=>!!window.Capacitor||MQ('(display-mode: standalone)')||navigator.standalone===true;
 const ico=(n,bg)=>'<span class="ic" style="background:'+bg+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+ICO[n]+'"/></svg></span>';
 
-const TABNAMES={champs:'World championships',dial:'Dial-in',planner:'Brew planner',scan:'Scan beans',gear:'Gear and dials',recipes:'Recipes',tech:'Techniques',process:'Processes',map:'Origins map',variety:'Varieties',history:'History',guide:'Guide',log:'Brew log'};
-const BNGROUP={champs:'explore',dial:'dial',recipes:'recipes',scan:'scan',map:'explore',variety:'explore',history:'explore',process:'explore',tech:'explore',planner:'more',gear:'more',guide:'more',log:'more'};
+const TABNAMES={champs:'World championships',words:'Coffee words',flow:'From seed to cup',dial:'Dial-in',planner:'Brew planner',scan:'Scan beans',gear:'Gear and dials',recipes:'Recipes',tech:'Techniques',process:'Processes',map:'Origins map',variety:'Varieties',history:'History',guide:'Guide',log:'Brew log'};
+const BNGROUP={champs:'explore',words:'explore',flow:'explore',dial:'dial',recipes:'recipes',scan:'scan',map:'explore',variety:'explore',history:'explore',process:'explore',tech:'explore',planner:'more',gear:'more',guide:'more',log:'more'};
 function syncShell(id){$('ab-title').textContent=TABNAMES[id]||'Brew Bench';document.body.className=document.body.className.replace(/\bt-\w+/g,'').trim()+' t-'+id;
   document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));
-  const can=['dial','planner','scan','history','log','map','recipes'].includes(id);$('ab-share').hidden=!can}
-const SHEETS={explore:[['map','Origins map','50 origins on an interactive map','#4F8A74','globe'],['variety','Varieties','44 varieties, stories and Geisha types','#B5533C','leaf'],['history','History','Family tree, timeline and a quiz','#8A5A3B','hourglass'],['process','Processes','From washed to thermal shock','#D2A04A','flask'],['tech','Techniques','Every move in the brewing toolbox','#6B8E4E','drop'],['champs','World championships','Every champion, their recipes and gear','#C9964A','trophy']],
+  const can=['dial','planner','scan','history','log','map','recipes','words','flow'].includes(id);$('ab-share').hidden=!can}
+const SHEETS={explore:[['map','Origins map','50 origins on an interactive map','#4F8A74','globe'],['variety','Varieties','44 varieties, stories and Geisha types','#B5533C','leaf'],['history','History','Family tree, timeline and a quiz','#8A5A3B','hourglass'],['process','Processes','From washed to thermal shock','#D2A04A','flask'],['tech','Techniques','Every move in the brewing toolbox','#6B8E4E','drop'],['champs','World championships','Every champion, their recipes and gear','#C9964A','trophy'],['flow','From seed to cup','How coffee is made, step by step','#6E8FA8','leaf'],['words','Coffee words','A bank of '+GLOSSARY.length+' coffee terms','#9A7390','book']],
   more:[['planner','Brew planner','A recipe tuned to your coffee','#8A5A3B','clipboard'],['gear','Gear and dials','Grinders, brewers and dial reading','#6E8FA8','cog'],['guide','Guide','Ratio calculator and troubleshooting','#C9964A','book'],['log','Brew log','Your brews, ratings and exports','#6B8E4E','pencil']]};
 function openSheet(which){const items=SHEETS[which];
   $('ns-in').innerHTML='<div class="sheet"><div class="grab"></div><button class="vd-close" id="ns-x" aria-label="Close">\u2715</button><h2 id="ns-title" style="margin:0 40px 0 0">'+(which==='explore'?'Explore':'More')+'</h2><div class="sheetlist">'+
@@ -1516,7 +1583,7 @@ $('navsheet').addEventListener('click',e=>{const d=$('navsheet');if(e.target===d
   if(e.target.closest('[data-install]'))$('ns-extra').innerHTML='<div class="tip"><b>iPhone (Safari):</b> open this page\u2019s link in Safari, tap the Share button, then <b>Add to Home Screen</b>.<br><b>Android (Chrome):</b> open the link in Chrome, tap the \u22ee menu, then <b>Add to Home screen</b>.<br>Your calibration, log and scans stay saved on this phone.</div>'});
 document.querySelector('.bottomnav').onclick=e=>{const b=e.target.closest('[data-bn]');if(!b)return;const k=b.dataset.bn;if(k==='explore'||k==='more')openSheet(k);else showTab(k)};
 $('ab-share').onclick=()=>{const id=(document.querySelector('main section.on')||{}).id;
-  if(id==='dial')openShare(dialDoc());else if(id==='planner')openShare(recipeDoc(PL.tech,plan(Object.assign({},PL)),PL));else if(id==='scan')$('sc-share').click();else if(id==='history')openShare(historyDoc());else if(id==='log')openShare(logDoc());else if(id==='map'){if(SEL)openShare(originDoc(SEL));else toast('Pick an origin first')}else if(id==='recipes')toast('Tap Share on any recipe card')};
+  if(id==='dial')openShare(dialDoc());else if(id==='planner')openShare(recipeDoc(PL.tech,plan(Object.assign({},PL)),PL));else if(id==='scan')$('sc-share').click();else if(id==='history')openShare(historyDoc());else if(id==='log')openShare(logDoc());else if(id==='map'){if(SEL)openShare(originDoc(SEL));else toast('Pick an origin first')}else if(id==='recipes')toast('Tap Share on any recipe card');else if(id==='words')openShare(wordsDoc());else if(id==='flow')openShare(flowDoc())};
 $('dial-share').onclick=()=>openShare(dialDoc());
 $('hist-share').onclick=()=>openShare(historyDoc());
 $('l-pdf').onclick=()=>openShare(logDoc());
