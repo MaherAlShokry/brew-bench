@@ -29,7 +29,7 @@ Both update automatically whenever `main` changes.
 | **Guide** | Ratio calculator and a taste-based troubleshooter |
 | **Log** | Rated brew log with stats and CSV export, shared live with friends through a group code |
 
-You can share anything to WhatsApp, Telegram, Messages or email, through your phone's share menu, as a styled PDF, or as text. Everything you save (calibration, log, scans) stays in your own browser.
+You can share anything to WhatsApp, Telegram, Messages or email, through your phone's share menu, as a styled PDF, or as text. Every share carries a link that opens the same thing in the app: a recipe, a champion's recipe, your dial-in or brew plan (with the grind converted to the other person's grinders), a variety or an origin. Everything you save (calibration, log, scans) stays in your own browser.
 
 ## Install on your phone
 
