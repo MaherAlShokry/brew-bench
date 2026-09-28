@@ -80,6 +80,9 @@ button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visi
 .seg{display:flex;flex-wrap:wrap;gap:6px}
 .seg button{flex:1 1 auto;padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-size:.9rem;cursor:pointer}
 .seg.filters button{flex:0 0 auto}
+/* Long filter rows scroll sideways on one line instead of wrapping into a tall block. */
+.seg.scrollrow{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin-left:-4px;margin-right:-4px;padding:4px 28px 4px 4px;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}
+.seg.scrollrow::-webkit-scrollbar{display:none}
 .seg button[aria-pressed="true"]{background:var(--cherry);color:var(--surface);border-color:var(--cherry)}
 select,input[type=search],input[type=number],textarea,.logform input{width:100%;padding:9px 10px;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-family:var(--body);font-size:.95rem}
 input[type=range]{width:100%;accent-color:var(--cherry);height:28px}
@@ -216,10 +219,10 @@ dialog#vd::backdrop{background:rgba(20,14,10,.55)}
 .js-anim .chtl li{opacity:1;transform:none}
 .chtl li{padding-bottom:22px}
 .chrow{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));margin-top:8px}.chrow>*{min-width:0}
-.chwin{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md,16px);padding:12px 14px;box-shadow:var(--e1)}
+.chwin{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md,16px);padding:12px 14px;box-shadow:var(--e1)}
 .chwin.next{margin-top:8px;border-style:dashed;box-shadow:none}.chwin.next b{display:block;margin-top:6px;font-family:var(--display)}
 .chwin .pill{font-size:.72rem}.chname{display:flex;align-items:center;gap:8px;margin:8px 0 2px;font-family:var(--display);font-size:1.05rem}.chname .flag{font-size:1.25rem;line-height:1}
-.chwin p{margin:.2rem 0 0}.chcoffee{font-size:.9rem}.chbtn{margin-top:10px;width:100%}
+.chwin p{margin:.2rem 0 0}.chcoffee{font-size:.9rem}.chbtn{margin-top:auto;width:100%}.chwin .chbtn{margin-top:auto}.chwin p:last-of-type{margin-bottom:10px}
 .cd{position:relative;overflow:hidden;background:linear-gradient(135deg,color-mix(in srgb,var(--c) 16%,var(--surface)),var(--surface));border:1px solid color-mix(in srgb,var(--c) 35%,var(--line));border-radius:var(--r-lg,22px);padding:16px 18px;margin-top:14px;box-shadow:var(--e2)}
 .cd h3{margin:.5rem 0 .2rem;font-size:1.3rem}
 .cdclock{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
@@ -233,8 +236,9 @@ dialog#vd::backdrop{background:rgba(20,14,10,.55)}
 .cdlive i{width:12px;height:12px;border-radius:50%;background:#d9443a;animation:cdpulse 1.2s infinite}
 .cdnext{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));margin-top:10px}.cdnext>div{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md,16px);padding:10px 12px}
 .cdnext b{display:block;margin-top:6px;font-family:var(--display)}.cdnext small{color:var(--muted)}
-.pill.chdev{margin-left:6px;font-size:.72rem}.pill.chdev.ours{background:color-mix(in srgb,var(--leaf) 18%,var(--surface));color:var(--ink)}
+.chpills{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.chpills .pill{font-size:.72rem;line-height:1.4;padding:3px 10px;margin:0}.pill.chdev.ours{background:color-mix(in srgb,var(--leaf) 18%,var(--surface));color:var(--ink)}
 .chcomp h3{margin:.5rem 0 .2rem}.chcount{margin:.4rem 0 0;font-weight:700;color:var(--cherry);font-family:var(--display)}
+.chstart{border-left:3px solid var(--line);padding:2px 0 2px 12px;margin:.4rem 0}
 .chgear{margin:.2rem 0 .6rem;padding-left:1.1rem}.chgear li{margin:.15rem 0}
 .twocol{display:grid;gap:26px;grid-template-columns:1fr}
 @media (min-width:960px){.twocol{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}}
@@ -432,7 +436,6 @@ button,a,.tab,.chip,[role=button],input[type=range]{touch-action:manipulation}
 .mrow b{font-variant-numeric:tabular-nums;white-space:nowrap}.mrow small{font-weight:500;color:var(--muted)}
 .mbig{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 12px;padding:14px;border-radius:var(--r-md,16px);background:color-mix(in srgb,var(--cherry) 10%,var(--surface));font-family:var(--display);text-align:center;margin:.4rem 0}
 .mbig b{font-size:1.35rem;font-variant-numeric:tabular-nums;white-space:nowrap}.mbig small{font-weight:500;color:var(--muted);font-size:.8rem}.mbig .eq{color:var(--muted);font-size:1.2rem}
-.mswap .chip{margin-bottom:6px}
 .gpick{display:grid;gap:6px;margin-top:8px}.gpick h4{margin:.8rem 0 .2rem;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .gpick button{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:11px 14px;border-radius:var(--r-sm,12px);border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;cursor:pointer}
 .gpick button b{display:block;font-weight:600}.gpick button small{color:var(--muted)}.gpick button span{flex:1;min-width:0}
@@ -444,7 +447,9 @@ button,a,.tab,.chip,[role=button],input[type=range]{touch-action:manipulation}
 .gpick-btn:hover{background:var(--tonal-hover)}.gpick-btn:active{transform:scale(.92)}.gpick-btn:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
 .linkbtn{background:none;border:0;padding:2px 0;font:inherit;font-weight:600;color:var(--cherry);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .equiv{margin:.5rem 0 0;line-height:1.5}
-.mswap{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:end}.mswap>*{min-width:0}.mswap select{width:100%}
+.mswap{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:end}.mswap>*{min-width:0}.mswap select{width:100%;padding-left:12px;padding-right:26px}
+.mswap .field{margin-bottom:0}.gpick-btn.mswapbtn{width:46px;height:46px;margin:0}.mswap+.field{margin-top:14px}
+@media (max-width:560px){.mswap{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"from swap" "to swap";row-gap:10px;align-items:center}.mswap>.field:first-child{grid-area:from}.mswap>.field:last-child{grid-area:to}.mswap>.mswapbtn{grid-area:swap;transform:rotate(90deg)}}
 .mrow.mine{background:color-mix(in srgb,var(--cherry) 12%,var(--surface))}
 .libhead{font-family:var(--display);margin:18px 0 10px;font-size:1rem}
 .scroll-x{overflow-x:auto;margin:10px -4px 0}
@@ -453,6 +458,9 @@ button,a,.tab,.chip,[role=button],input[type=range]{touch-action:manipulation}
 .gtable thead th{font-family:var(--display);color:var(--cherry)}.gtable tbody th{font-family:var(--display);font-weight:600;color:var(--muted);white-space:nowrap}
 #gcustom summary{cursor:pointer;list-style:none;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}#gcustom summary::-webkit-details-marker{display:none}
 .cform{margin-top:12px}
+.cform input,.cform select{width:100%;min-width:0;box-sizing:border-box}.cform .two>*{min-width:0}
+.cform .joinrow select{flex:0 0 42%;width:42%}.cform .joinrow input{flex:1;text-transform:none;letter-spacing:normal;font-family:inherit}
+@media (max-width:560px){.cform .stackm{grid-template-columns:1fr}}
 /* Recipe editor and your recipes */
 .recform input:not([type=range]),.recform select,.recform textarea{width:100%}
 .recform .three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.recform .three input{min-width:0}
@@ -747,7 +755,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 <section id="tech">
   <h2>Techniques</h2>
   <p class="lede">Every move in the brewing toolbox, briefly. Tap a card for when to use it.</p>
-  <div class="vtools"><input type="search" id="tsearch" placeholder="Search, e.g. bloom, bypass" aria-label="Search techniques"><div class="seg filters" id="tcat"></div></div>
+  <div class="vtools"><input type="search" id="tsearch" placeholder="Search, e.g. bloom, bypass" aria-label="Search techniques"><div class="seg filters scrollrow" id="tcat"></div></div>
   <div class="grid" id="tgrid"></div>
 </section>
 
@@ -768,15 +776,15 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 
   <h3 style="margin-top:1.6rem">Grinder library</h3>
   <p class="hint" style="margin-top:0">Manual and electric grinders with their burrs, dials and typical settings. Tap Compare on up to three to see them side by side.</p>
-  <div class="seg filters" id="glib-filter" style="margin-bottom:12px"></div>
+  <div class="seg filters scrollrow" id="glib-filter" style="margin-bottom:12px"></div>
   <div id="gcmp"></div>
   <div id="glib"></div>
-  <details class="card" id="gcustom" style="margin-top:14px"><summary><b>Add your own grinder</b> <span class="hint">not in the list? Set it up in a minute</span></summary><div id="gcustom-in"></div></details>
+  <details class="card" id="gcustom" style="margin-top:14px"><summary><b>Add your own grinder</b> <span class="hint">Not in the list? Set it up in a minute</span></summary><div id="gcustom-in"></div></details>
   <h3 style="margin-top:1.6rem">Where every brewer sits on your dials</h3>
   <p class="hint">Tap a marker to see the setting. These follow your calibration.</p>
   <div class="card" id="grindmap"></div>
   <h3 style="margin-top:1.6rem">Brewers</h3>
-  <div class="seg filters" id="gear-filter" style="margin-bottom:12px"></div>
+  <div class="seg filters scrollrow" id="gear-filter" style="margin-bottom:12px"></div>
   <div class="grid" id="gear-brewers"></div>
   <h3 style="margin-top:1.6rem">Everything else</h3>
   <div class="grid" id="gear-acc"></div>
@@ -805,7 +813,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   <p class="lede">Every variety, grouped by family. Tap one for its story, how it tastes and how to brew it.</p>
   <div class="vtools">
     <input type="search" id="vsearch" placeholder="Search, e.g. geisha, bourbon" aria-label="Search varieties">
-    <div class="seg filters" id="vfam"></div>
+    <div class="seg filters scrollrow" id="vfam"></div>
   </div>
   <div id="vcompare"></div>
   <div class="grid" id="vgrid"></div>
@@ -816,8 +824,8 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   <h2>Coffee World Championships</h2>
   <p class="lede">Every world champion in brewing and espresso: where they won, what they brewed, and the published winning recipes, converted to your grinders.</p>
   <div id="ch-next"></div>
-  <div class="seg filters" id="ch-filter" style="margin:14px 0 8px"></div>
-  <div class="seg filters" id="ch-brewer" style="margin:0 0 14px"></div>
+  <div class="seg filters scrollrow" id="ch-filter" style="margin:14px 0 8px"></div>
+  <div class="seg filters scrollrow" id="ch-brewer" style="margin:0 0 14px"></div>
   <div class="grid" id="ch-about"></div>
   <h2 style="margin-top:1.6rem">Timeline</h2>
   <p class="hint">Newest first. Tap a champion's button for their recipe and gear, and how to brew it with yours.</p>
@@ -849,7 +857,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   <h2>Recipes</h2>
   <p class="lede">Grind settings follow your calibration. Tap a recipe to load it into the dial-in, or open it in the planner for a version tuned to your coffee.</p>
   <div class="actions" style="margin:0 0 12px"><button class="btn" id="r-new">+ New recipe</button></div>
-  <div class="seg filters" id="rfilter" style="margin-bottom:16px"></div>
+  <div class="seg filters scrollrow" id="rfilter" style="margin-bottom:16px"></div>
   <div class="grid" id="rgrid"></div>
 </section>
 
@@ -858,7 +866,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   <h2>Processes</h2>
   <p class="lede">Process sets the direction. Clean coffees want help building sweetness; fruit-heavy coffees want restraint.</p>
   <div class="card" style="margin-bottom:16px"><h3 style="margin-top:0">The process map</h3><p class="hint" style="margin-top:0">Left is clean, right is wild; top is bright, bottom is soft. Tap a dot.</p><svg id="pmap" viewBox="0 -14 640 314" role="img" aria-label="Processes plotted by cleanliness and acidity"></svg></div>
-  <div class="seg filters" id="pcat" style="margin-bottom:14px"></div>
+  <div class="seg filters scrollrow" id="pcat" style="margin-bottom:14px"></div>
   <div class="grid" id="pgrid"></div>
 </section>
 
@@ -868,7 +876,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
     <div class="panel"><h2>Ratio calculator</h2>
       <div class="two"><div class="field"><label for="c-dose">Coffee <span class="num" id="cv-dose"></span></label><input type="range" id="c-dose" min="7" max="60" step="0.5"></div>
       <div class="field"><label for="c-ratio">Ratio <span class="num" id="cv-ratio"></span></label><input type="range" id="c-ratio" min="1" max="20" step="0.5"></div></div>
-      <div class="seg filters" id="c-pre"></div>
+      <div class="seg filters scrollrow" id="c-pre"></div>
       <div class="specs" id="c-out"></div></div>
     <div class="panel"><h2>What does it taste like?</h2><p class="hint" style="margin-top:0">Pick what you taste. Fixes use your current dial-in settings.</p><div class="chips" id="ts-chips"></div><div id="ts-out"></div></div>
   </div>

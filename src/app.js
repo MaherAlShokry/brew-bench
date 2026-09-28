@@ -184,6 +184,8 @@ for(const ch of CHAMPS){const r=ch.rec;if(!r)continue;
   if(!r.steps||!r.water)continue;
   RECIPES.push({b:r.b,kind:r.kind||'other',name:ch.who+' ('+COMPS[ch.c].short+' '+ch.y+')',by:ch.who+', '+ch.y+' '+COMPS[ch.c].name+' champion',off:r.off,
     temp:r.temp||BREWERS[r.b].temp.def,temp2:r.temp2,dose:r.dose,water:r.water,why:r.why,steps:r.steps,tip:r.alt||'',champ:ch});ch.ri=RECIPES.length-1}
+// Where a champion's full recipe was not published, a similar recipe already in the app is the starting point.
+for(const ch of CHAMPS){const s=ch.rec&&ch.rec.start;if(s){const i=RECIPES.findIndex(q=>q.name===s);if(i>=0)ch.si=i}}
 const BUILTIN_N=RECIPES.length,RKINDS=['pulse','single','imm','aero','esp','hybrid','46','other'];
 const str=(v,n)=>typeof v==='string'?v.trim().slice(0,n):'';
 // Recipes can arrive from links and other phones, so every field is checked.
@@ -452,7 +454,7 @@ function renderPlan(){
   const p=plan(PL);
   $('p-out').innerHTML=planHTML(p,PL)+'<div class="actions"><button class="btn" id="p-load">Open in dial-in</button><button class="btn ghost" id="p-timer">Start brew timer</button><button class="btn ghost" id="p-share">Share</button><button class="btn ghost" id="p-var">About '+esc(vById(PL.variety).name)+'</button></div>';
   $('p-load').onclick=()=>{Object.assign(S,p.st);render();showTab('dial');toast('Loaded into the dial-in')};
-  $('p-timer').onclick=()=>openTimer(PL.tech,p);$('p-share').onclick=()=>openShare(recipeDoc(PL.tech,p));
+  $('p-timer').onclick=()=>openTimer(PL.tech,p);$('p-share').onclick=()=>openShare(recipeDoc(PL.tech,p,PL));
   $('p-var').onclick=()=>openVariety(PL.variety.split(':')[0]);
   save('bb-plan',PL);
 }
@@ -504,40 +506,56 @@ function paint(){const el=TM.el,m=Math.floor(el/60),s=Math.floor(el%60);$('tm-bi
 // Heavy tabs are built the first time they are opened, which keeps startup quick.
 const LAZY={champs:renderChamps,gear:buildGear,recipes:renderRecipes,tech:renderTech,process:renderProcesses,variety:renderVarieties,map:buildMap,history:()=>{buildTree();startQuiz()}},BUILT={};
 function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove());if(LAZY[id]&&!BUILT[id]){BUILT[id]=1;LAZY[id]()}}
+let BACKING=false,PEND_TAB=null;
 function showTab(id,fromHistory){ensureTab(id);document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x.dataset.t===id));
   document.querySelectorAll('main section').forEach(s=>s.classList.toggle('on',s.id===id));window.scrollTo({top:0});
   const t=document.querySelector('.tab[data-t="'+id+'"]');if(t)t.scrollIntoView({block:'nearest',inline:'center'});
   // Each tab gets a history entry, so the back button (browser or Android) returns to the last tab.
-  if(!fromHistory&&location.hash!=='#'+id)try{history.pushState(null,'','#'+id)}catch(e){}syncShell(id)}
+  if(!fromHistory&&location.hash!=='#'+id){if(BACKING)PEND_TAB=id;else try{history.pushState(null,'','#'+id)}catch(e){}}syncShell(id)}
 try{history.scrollRestoration='manual'}catch(e){}
 // Lock the page behind any open dialog or sheet so it can't scroll underneath.
 {const sync=()=>document.documentElement.classList.toggle('locked',!!document.querySelector('dialog[open]'));
   const mo=new MutationObserver(sync);document.querySelectorAll('dialog').forEach(d=>{mo.observe(d,{attributes:true,attributeFilter:['open']});d.addEventListener('close',sync)})}
 // An open dialog also gets a history entry, so back closes it instead of leaving the tab.
-{const sm=HTMLDialogElement.prototype.showModal;HTMLDialogElement.prototype.showModal=function(){if(!this.open){try{history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}
-  this.addEventListener('close',()=>{if(history.state&&history.state.dlg)history.back()},{once:true})}return sm.call(this)}}
-addEventListener('popstate',()=>{const open=[...document.querySelectorAll('dialog[open]')];if(open.length){open.forEach(d=>d.close());return}
-  const h=location.hash.slice(1),id=h&&$(h)&&$(h).tagName==='SECTION'?h:'dial';if(!$(id).classList.contains('on'))showTab(id,true)});
+// When one sheet closes and another opens straight away (Share inside a sheet, Start timer from a recipe), the step back
+// for the closed one is still on its way; it must not close the new sheet, which then gets its own entry.
+// Back closes only the sheet on top (the share sheet over a recipe returns to the recipe).
+const DSTACK=[];
+{const sm=HTMLDialogElement.prototype.showModal;HTMLDialogElement.prototype.showModal=function(){if(!this.open){if(!BACKING)try{history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}DSTACK.push(this);
+  this.addEventListener('close',()=>{const i=DSTACK.indexOf(this);if(i>=0)DSTACK.splice(i,1);if(this.dataset.popped){delete this.dataset.popped;return}
+    if(!BACKING&&history.state&&history.state.dlg){BACKING=true;history.back()}},{once:true})}return sm.call(this)}}
+addEventListener('popstate',()=>{const open=[...document.querySelectorAll('dialog[open]')];
+  if(BACKING){BACKING=false;try{if(PEND_TAB&&location.hash!=='#'+PEND_TAB)history.pushState(null,'','#'+PEND_TAB);if(open.length)history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}PEND_TAB=null;return}
+  if(open.length){const top=DSTACK.filter(d=>d.open).pop();if(top){top.dataset.popped=1;top.close()}else open.forEach(d=>d.close());return}
+  const h=location.hash.slice(1);if(openRoute(h))return;const id=h&&$(h)&&$(h).tagName==='SECTION'?h:'dial';if(!$(id).classList.contains('on'))showTab(id,true)});
 document.querySelector('[role=tablist]').onclick=e=>{const t=e.target.closest('.tab');if(t)showTab(t.dataset.t)};
 
 /* ================= RECIPES ================= */
+// A recipe's details and buttons, used on its card and when it opens from a shared link.
+function recipeBody(r,i){const B=BREWERS[r.b];const gs=MYG.map(g=>[g,settingFor(g,r.b,r.off)]);
+  return '<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span>':'')+'</div>'+
+   '<div class="meta">'+gs.map(([g,v])=>'<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>').join('')+'</div>'+
+   (r.why?'<p>'+esc(r.why)+'</p>':'')+'<ol class="steps">'+r.steps.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol>'+(r.tip?'<p class="hint">'+esc(r.tip)+'</p>':'')+
+   '<div class="actions"><button class="btn" data-timer="'+i+'">Start timer</button><button class="btn ghost" data-rshare="'+i+'">Share</button>'+(B.model?'<button class="btn ghost" data-load="'+i+'">Load into dial-in</button>':'')+(PBREWERS.includes(r.b==='swi'?'sw':r.b)?'<button class="btn ghost" data-plan="'+i+'">Tune in planner</button>':'')+(r.custom?'<button class="btn ghost" data-redit="'+esc(r.id)+'">Edit</button>':'')+'</div>'}
 let RF='all';
 function renderRecipes(){
   const types=[...new Set(Object.values(BREWERS).map(b=>b.type))];
   if(RF==='mine'&&!CREC.length)RF='all';
   seg('rfilter',[['all','All']].concat(CREC.length?[['mine','Yours & team']]:[],[['champ','Champions']],types.map(t=>[t,t])),()=>RF,v=>{RF=v;renderRecipes()});
   const list=RECIPES.map((r,i)=>[r,i]).filter(([r])=>RF==='all'||(RF==='mine'?r.custom:RF==='champ'?r.champ:BREWERS[r.b].type===RF)).sort((a,b)=>(b[0].custom?1:0)-(a[0].custom?1:0));
-  $('rgrid').innerHTML=list.map(([r,i])=>{const B=BREWERS[r.b];const gs=MYG.map(g=>[g,settingFor(g,r.b,r.off)]);
-   return '<article class="card'+(r.custom?' mine':'')+'">'+(r.custom?'<span class="pill ours">'+esc(r.author&&r.author!==ME?'From '+r.author:'Your recipe')+'</span>':'')+'<h3>'+esc(r.name)+'</h3>'+(r.by?'<p class="hint" style="margin-top:-.2rem">'+esc(r.by)+'</p>':'')+
-   '<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span>':'')+'</div>'+
-   '<div class="meta">'+gs.map(([g,v])=>'<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>').join('')+'</div>'+
-   '<p>'+esc(r.why)+'</p><ol class="steps">'+r.steps.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol><p class="hint">'+esc(r.tip)+'</p>'+
-   '<div class="actions"><button class="btn" data-timer="'+i+'">Start timer</button><button class="btn ghost" data-rshare="'+i+'">Share</button>'+(B.model?'<button class="btn ghost" data-load="'+i+'">Load into dial-in</button>':'')+(PBREWERS.includes(r.b==='swi'?'sw':r.b)?'<button class="btn ghost" data-plan="'+i+'">Tune in planner</button>':'')+(r.custom?'<button class="btn ghost" data-redit="'+esc(r.id)+'">Edit</button>':'')+'</div></article>'}).join('')||'<p class="hint">No recipes here yet.</p>';
+  $('rgrid').innerHTML=list.map(([r,i])=>'<article class="card'+(r.custom?' mine':'')+'">'+(r.custom?'<span class="pill ours">'+esc(r.author&&r.author!==ME?'From '+r.author:'Your recipe')+'</span>':'')+'<h3>'+esc(r.name)+'</h3>'+(r.by?'<p class="hint" style="margin-top:-.2rem">'+esc(r.by)+'</p>':'')+recipeBody(r,i)+'</article>').join('')||'<p class="hint">No recipes here yet.</p>';
 }
-$('rgrid').onclick=e=>{const ed=e.target.closest('[data-redit]');if(ed){openRecipeEditor(CREC.find(r=>r.id===ed.dataset.redit));return}
-  const b=e.target.closest('[data-load],[data-plan],[data-timer],[data-rshare]');if(!b)return;if(b.dataset.rshare){openShare(recipeDoc(+b.dataset.rshare));return}
-  if(b.dataset.timer){openTimer(+b.dataset.timer);return}
-  if(b.dataset.load)loadRecipe(+b.dataset.load);else planRecipe(+b.dataset.plan)};
+function recipeAct(e){const ed=e.target.closest('[data-redit]');if(ed){openRecipeEditor(CREC.find(r=>r.id===ed.dataset.redit));return true}
+  const b=e.target.closest('[data-load],[data-plan],[data-timer],[data-rshare]');if(!b)return false;if(b.dataset.rshare){openShare(recipeDoc(+b.dataset.rshare));return true}
+  if(b.dataset.timer){openTimer(+b.dataset.timer);return true}
+  if(b.dataset.load)loadRecipe(+b.dataset.load);else planRecipe(+b.dataset.plan);return true}
+$('rgrid').onclick=recipeAct;
+// A recipe opened from a shared link.
+function openRecipe(i){const r=RECIPES[i],B=BREWERS[r.b],d=$('vd');
+  d.querySelector('#vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">\u2715</button><span class="pill"><i style="background:var(--cherry)"></i>'+esc(r.custom?(r.author?'From '+r.author:'Your recipe'):'Recipe')+'</span><h2 id="vd-title">'+esc(r.name)+'</h2>'+(r.by?'<p class="hint" style="margin:0">'+esc(r.by)+'</p>':'')+'</div>'+
+   '<div class="vd-body">'+recipeBody(r,i)+'</div>';
+  d.querySelector('.vd-body').onclick=e=>{if(!e.target.closest('[data-load],[data-plan],[data-timer],[data-rshare],[data-redit]'))return;const sh=e.target.closest('[data-rshare]');if(!sh)d.close();recipeAct(e)};
+  $('vd-x').onclick=()=>d.close();if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}d.scrollTop=0}
 function loadRecipe(i){const r=RECIPES[i],B=BREWERS[r.b];S.brewer=r.b;S.rec=i;if(!canGrind(S.grinder,r.b))S.grinder=capable(r.b);S.setting=settingFor(S.grinder,r.b,r.off);S.temp=clamp(r.temp,B.temp.min,B.temp.max);S.bloom=B.bloom.def;S.agit='med';
   S.ratio=clamp(Math.round(r.water/r.dose/B.ratio.step)*B.ratio.step,B.ratio.min,B.ratio.max);render();showTab('dial');toast('Loaded '+r.name)}
 function planRecipe(i){const r=RECIPES[i];PL.brewer=r.b==='swi'?'sw':r.b;PL.tech=i;if(!canGrind(PL.grinder,PL.brewer))PL.grinder=capable(PL.brewer);renderPlan();showTab('planner')}
@@ -577,6 +595,40 @@ $('tosave').onclick=()=>{const B=BREWERS[S.brewer],dose=B.ratio.ref<5?18:B.ratio
 // Share links carry the recipe itself, so anyone can add it with one tap.
 const b64u={enc:o=>btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''),dec:s=>JSON.parse(decodeURIComponent(escape(atob(s.replace(/-/g,'+').replace(/_/g,'/')))))};
 function recipeLink(r){const {id,custom,ts,...rest}=r;return SITE_URL+'#recipe='+b64u.enc(rest)}
+/* Every share carries a link that opens the same thing in the app on the other phone. */
+const slug=s=>String(s).toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+const chKey=ch=>ch.c+'-'+ch.y;
+function recipeHref(i){const r=RECIPES[i];return r.custom?recipeLink(r):r.champ?SITE_URL+'#c='+chKey(r.champ):SITE_URL+'#r='+slug(r.name)}
+// A brew from the dial-in: the grind travels as steps from the brewer's baseline, so it lands right on any grinder.
+function brewHref(){const off=Math.round(stepsBetween(S.grinder,baseX(S.grinder,S.brewer),S.setting)*10)/10;
+  return SITE_URL+'#brew='+b64u.enc({b:S.brewer,g:S.grinder,c:S.setting,off,t:S.temp,r:S.ratio,bl:S.bloom,a:S.agit,ro:S.roast,p:S.process,v:S.variety})}
+function planHref(c){const r=RECIPES[c.tech];if(r&&r.custom)return recipeLink(r);
+  return SITE_URL+'#plan='+b64u.enc({b:c.brewer,t:r?slug(r.name):'',p:c.process,v:c.variety,ro:c.roast,age:c.age,goal:c.goal})}
+const ROASTS=['light','medium','dark'];
+function goTab(id){try{history.replaceState(null,'','#'+id)}catch(e){}showTab(id,true)}
+function openBrewLink(code){let x;try{x=b64u.dec(code)}catch(e){}goTab('dial');
+  if(!x||!BREWERS[x.b]||!BREWERS[x.b].model){toast('That brew link looks broken');return}
+  const b=x.b,g=MYG.includes(x.g)&&canGrind(x.g,b)?x.g:canGrind(S.grinder,b)?S.grinder:capable(b);
+  S.brewer=b;S.grinder=g;S.setting=g===x.g&&Number.isFinite(+x.c)?roundG(g,+x.c):roundG(g,shift(g,baseX(g,b),-num(x.off,0,-6,6)*160));
+  S.temp=num(x.t,S.temp);S.ratio=num(x.r,S.ratio);S.bloom=num(x.bl,S.bloom);fitRanges();S.rec=null;
+  if(['low','med','high'].includes(x.a))S.agit=x.a;if(ROASTS.includes(x.ro))S.roast=x.ro;if(PROCESSES[x.p])S.process=x.p;if(typeof x.v==='string'&&vById(x.v))S.variety=x.v;
+  render();toast('Opened the shared brew'+(g!==x.g&&GRINDERS[x.g]?', converted to your '+gname(g):''))}
+function openPlanLink(code){let x;try{x=b64u.dec(code)}catch(e){}
+  if(x&&PBREWERS.includes(x.b)){PL.brewer=x.b;const t=techList(x.b).find(([r])=>slug(r.name)===x.t);PL.tech=t?t[1]:techList(x.b)[0][1];
+    if(!canGrind(PL.grinder,PL.brewer))PL.grinder=capable(PL.brewer);if(PROCESSES[x.p])PL.process=x.p;if(typeof x.v==='string'&&vById(x.v))PL.variety=x.v;
+    if(ROASTS.includes(x.ro))PL.roast=x.ro;PL.age=Math.round(num(x.age,PL.age,0,90));if(['clarity','balance','body'].includes(x.goal))PL.goal=x.goal;renderPlan();goTab('planner');toast('Opened the shared brew plan')}
+  else{goTab('planner');toast('That plan link looks broken')}}
+// Opens whatever a link points at. Returns false for plain tab links.
+function openRoute(h){let m;try{h=decodeURIComponent(h)}catch(e){}
+  if((m=/^recipe=([A-Za-z0-9_-]+)$/.exec(h))){goTab('recipes');importRecipe(m[1]);return true}
+  if((m=/^r=([a-z0-9-]+)$/.exec(h))){goTab('recipes');const i=RECIPES.findIndex((r,k)=>k<BUILTIN_N&&slug(r.name)===m[1]);if(i>=0)openRecipe(i);else toast('That recipe isn\u2019t in this version of the app');return true}
+  if((m=/^c=([a-z]+)-(\d{4})$/.exec(h))){goTab('champs');const ch=CHAMPS.find(x=>x.c===m[1]&&x.y===+m[2]);if(ch&&ch.rec)openChamp(ch);return true}
+  if((m=/^v=([\w-]+)$/.exec(h))){goTab('variety');if(VBY[m[1]])openVariety(m[1]);return true}
+  if((m=/^o=([\w-]+)$/.exec(h))){goTab('map');if(ALLO()[m[1]])selectOrigin(m[1],true);return true}
+  if((m=/^brew=([A-Za-z0-9_-]+)$/.exec(h))){openBrewLink(m[1]);return true}
+  if((m=/^plan=([A-Za-z0-9_-]+)$/.exec(h))){openPlanLink(m[1]);return true}
+  if((m=/^join=([A-Za-z0-9-]{8,9})$/.exec(h))){JOIN_CODE=m[1].toUpperCase();goTab('log');if(!GROUP)toast('Add your name and tap Join');else if(GROUP.code!==JOIN_CODE)toast('You are already in a shared log. Leave it first to join this one.');renderLog();return true}
+  return false}
 function importRecipe(code){let r;try{r=sanRec(b64u.dec(code))}catch(e){r=null}if(!r){toast('That recipe link looks broken');return}
   r.id='r'+Date.now().toString(36);r.ts=Date.now();const B=BREWERS[r.b];
   $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Shared recipe'+(r.author?' from '+esc(r.author):'')+'</span><h2 id="vd-title">'+esc(r.name)+'</h2>'+
@@ -654,7 +706,7 @@ function matchVal(g,c,h){const v=matchSteps(g,c,h),H=GRINDERS[h],size=sizeOf(g,c
 function renderMatch(){if(!MATCH.g||!GRINDERS[MATCH.g])MATCH={g:MYG[0],v:dial(MYG[0],startFor(MYG[0])),to:null};
   if(!MATCH.to||!GRINDERS[MATCH.to]||MATCH.to===MATCH.g)MATCH.to=MYG.find(h=>h!==MATCH.g)||(MATCH.g==='kultra'?'zp6':'kultra');
   $('gmatch').innerHTML='<h3 style="margin-top:0">Match a grind size</h3><p class="hint" style="margin-top:0">Type a setting on one grinder to get the same grind on another. For 1Zpresso dials, type the dial (5.4) or clicks (54).</p>'+
-   '<div class="mswap"><div class="field"><label for="gm-from">From</label>'+grinderSelect('gm-from',MATCH.g,1)+'</div><button type="button" class="chip" id="gm-swap" aria-label="Swap grinders">⇄</button><div class="field"><label for="gm-to">To</label>'+grinderSelect('gm-to',MATCH.to,1)+'</div></div>'+
+   '<div class="mswap"><div class="field"><label for="gm-from">From</label>'+grinderSelect('gm-from',MATCH.g,1)+'</div><button type="button" class="gpick-btn mswapbtn" id="gm-swap" aria-label="Swap grinders" title="Swap grinders">'+SWAP_ICON+'</button><div class="field"><label for="gm-to">To</label>'+grinderSelect('gm-to',MATCH.to,1)+'</div></div>'+
    '<div class="field"><label for="gm-val">Setting on the '+esc(GRINDERS[MATCH.g].name)+'</label><input id="gm-val" inputmode="decimal" style="width:100%" value="'+esc(MATCH.v)+'"></div><div id="gm-out"></div>';
   $('gm-from').onchange=e=>{MATCH.g=e.target.value;MATCH.v=dial(MATCH.g,startFor(MATCH.g));renderMatch()};
   $('gm-to').onchange=e=>{MATCH.to=e.target.value;if(MATCH.to===MATCH.g){MATCH.g=MYG.find(h=>h!==MATCH.to)||'zp6';MATCH.v=dial(MATCH.g,startFor(MATCH.g))}renderMatch()};
@@ -737,7 +789,7 @@ function renderCustomForm(){
    '<div class="two"><div class="field"><label for="cg-type">Type</label><select id="cg-type"><option value="manual">Manual</option><option value="electric">Electric</option></select></div>'+
    '<div class="field"><label for="cg-fmt">How is it set?</label><select id="cg-fmt"><option value="clicks">Clicks from fully closed</option><option value="num1">Numbered dial (1, 2, 3)</option><option value="num10">Numbered dial with 10 steps (5.6)</option><option value="num3">Numbered dial with thirds (4, 4.1, 4.2)</option><option value="rot">1Zpresso-style ring (rotation.number.click)</option></select></div></div>'+
    '<div class="two"><div class="field"><label for="cg-min">Finest setting</label><input id="cg-min" inputmode="decimal" value="0"></div><div class="field"><label for="cg-max">Coarsest setting</label><input id="cg-max" inputmode="decimal" value="40"></div></div>'+
-   '<div class="two"><div class="field"><label for="cg-v60">Your V60 setting</label><input id="cg-v60" inputmode="decimal" placeholder="e.g. 24"></div>'+
+   '<div class="two stackm"><div class="field"><label for="cg-v60">Your V60 setting</label><input id="cg-v60" inputmode="decimal" placeholder="e.g. 24"></div>'+
    '<div class="field"><label for="cg-ref">And one more you know</label><div class="joinrow"><select id="cg-reft"><option value="espresso">Espresso</option><option value="aeropress">AeroPress</option><option value="frenchpress" selected>French press</option></select><input id="cg-ref" inputmode="decimal" placeholder="optional"></div></div></div>'+
    '<div class="field"><label for="cg-burr">Burrs (optional)</label><input id="cg-burr" maxlength="80" placeholder="e.g. 38 mm ceramic conical"></div>'+
    '<p class="hint">The V60 setting anchors it; the second setting tells the app how far apart the settings are. Without it, the app assumes a typical spacing.</p>'+
@@ -1005,7 +1057,7 @@ function joinGroup(code,name){ME=name.trim().slice(0,30);try{localStorage.setIte
   LOG.forEach(l=>{if(!l.by)l.by=ME;queue('put',l.id,l)});CREC.forEach(r=>{if(!r.author)r.author=ME;queue('put',r.id,r,'recipes')});renderLog();startStream()}
 function leaveGroup(){stopStream();GROUP=null;PENDING=[];save('bb-group',null);save('bb-pending',[]);try{localStorage.removeItem('bb-group')}catch(e){}setSync('off');renderLog()}
 addEventListener('online',()=>{if(GROUP){flush();if(!STREAM)startStream()}});addEventListener('offline',()=>{if(GROUP)setSync('offline')});
-function inviteDoc(){const link=SITE_URL+'#join='+GROUP.code;return{title:'Join my brew log',sub:'Shared log code '+GROUP.code,file:'brew-log-invite',blocks:[{p:'Tap the link to see and add to our shared coffee log in The Brew Bench:'},{p:link},{p:'Or open the app, go to Log and enter the code '+GROUP.code+'.'}]}}
+function inviteDoc(){const link=SITE_URL+'#join='+GROUP.code;return{link,title:'Join my brew log',sub:'Shared log code '+GROUP.code,file:'brew-log-invite',blocks:[{p:'Tap the link to see and add to our shared coffee log in The Brew Bench:'},{p:link},{p:'Or open the app, go to Log and enter the code '+GROUP.code+'.'}]}}
 function renderShare(){const el=$('l-share');if(!el)return;
   if(!SYNC_DB){el.innerHTML='<h3>Shared log</h3><p class="hint">Log brews together with friends and see each other’s entries live. This needs a one-time setup by whoever runs the app (see the README).</p>';return}
   if(!GROUP){el.innerHTML='<h3>Shared log</h3><p class="hint" style="margin-top:0">Log brews together: everyone in the group sees each other’s entries on their own phone.</p>'+
@@ -1087,16 +1139,29 @@ async function runScan(useImg){
 }
 /* ---------- Reading a label on the phone itself (no Claude needed) ---------- */
 // Text recognition runs in the browser with Tesseract.js (bundled in vendor/ocr, loaded only when needed).
-let OCR=null;
+let OCR=null,OCR_PROGRESS=null,OCR_PLAIN=false;
 function loadScript(src){return new Promise((ok,no)=>{const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=()=>no(new Error('Could not load '+src));document.head.appendChild(s)})}
-async function ocrWorker(onProgress){
-  if(!OCR)OCR=(async()=>{const base=new URL('vendor/ocr/',location.href).href;if(!window.Tesseract)await loadScript(base+'tesseract.min.js');
-    return Tesseract.createWorker('eng',1,{workerPath:base+'worker.min.js',corePath:base,langPath:base,gzip:true,workerBlobURL:false,
-      logger:m=>{if(OCR_PROGRESS&&m&&typeof m.progress==='number')OCR_PROGRESS(m.status,m.progress)}})})().catch(e=>{OCR=null;throw e});
-  OCR_PROGRESS=onProgress;return OCR}
-let OCR_PROGRESS=null;
+// Phones that can't run the faster (SIMD) reader get the plain one.
+const SIMD_OK=(()=>{try{return WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,0,0,1,5,1,96,0,1,123,3,2,1,0,10,10,1,8,0,65,0,253,15,253,98,11]))}catch(e){return false}})();
+const withTimeout=(pr,ms,code)=>new Promise((ok,no)=>{const t=setTimeout(()=>no(Object.assign(new Error(code),{code})),ms);pr.then(v=>{clearTimeout(t);ok(v)},e=>{clearTimeout(t);no(e)})});
+// Download a file with visible progress. The copy lands in the browser cache, so the reader picks it up from there.
+async function fetchProgress(url,onBytes){const res=await withTimeout(fetch(url),30000,'stalled');if(!res.ok)throw Object.assign(new Error('download'),{code:'download'});
+  const total=res.headers.get('content-encoding')?0:+res.headers.get('content-length')||0; /* compressed in transit: the length isn't the file size */if(!res.body||!res.body.getReader){await res.arrayBuffer();onBytes(total,total);return}
+  const rd=res.body.getReader();let got=0;for(;;){const {done,value}=await withTimeout(rd.read(),30000,'stalled');if(done)break;got+=value.length;onBytes(got,total)}}
+async function ocrWorker(onProgress){OCR_PROGRESS=onProgress;
+  if(!OCR)OCR=(async()=>{const base=new URL('vendor/ocr/',location.href).href,core=base+(SIMD_OK&&!OCR_PLAIN?'tesseract-core-simd-lstm.wasm.js':'tesseract-core-lstm.wasm.js');
+    if(!window.Tesseract)await loadScript(base+'tesseract.min.js');
+    // First use downloads about 7 MB; show it in megabytes so it never looks stuck.
+    const files=[core,base+'eng.traineddata.gz'],done=[0,0],size=[3.94e6,2.95e6];
+    await Promise.all(files.map((u,k)=>fetchProgress(u,(g,t)=>{done[k]=g;size[k]=Math.max(t||size[k],g);const G=done[0]+done[1],T=size[0]+size[1];OCR_PROGRESS&&OCR_PROGRESS('download',Math.min(1,G/T),G,T)})));
+    OCR_PROGRESS&&OCR_PROGRESS('start',0);
+    return withTimeout(Tesseract.createWorker('eng',1,{workerPath:base+'worker.min.js',corePath:core,langPath:base,gzip:true,workerBlobURL:false,
+      errorHandler:()=>{},logger:m=>{if(OCR_PROGRESS&&m&&typeof m.progress==='number')OCR_PROGRESS(m.status,m.progress)}}),40000,'start')})()
+    // If the fast reader doesn't start on this phone, try the plain one once before giving up.
+    .catch(e=>{OCR=null;if(e&&e.code==='start'&&SIMD_OK&&!OCR_PLAIN){OCR_PLAIN=true;return ocrWorker(OCR_PROGRESS)}throw e});
+  return OCR}
 // Shrink big camera photos and boost contrast so text recognition is faster and more accurate.
-function prepImage(file){return new Promise((ok,no)=>{const img=new Image();img.onload=()=>{const k=Math.min(1,1800/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);
+function prepImage(file){return new Promise((ok,no)=>{const img=new Image();img.onload=()=>{const k=Math.min(1,2400/Math.max(img.width,img.height)); /* big enough that small print on a label stays readable */const c=document.createElement('canvas');c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);
   const x=c.getContext('2d');x.filter='grayscale(1) contrast(1.35)';x.drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(img.src);ok(c)};img.onerror=()=>no(new Error('image'));img.src=URL.createObjectURL(file)})}
 const fold=t=>String(t).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[’']/g,"'");
 const reEsc=t=>t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
@@ -1161,15 +1226,21 @@ function applyInfo(j){if(j.origin_key&&ALLO()[j.origin_key])SC.origin=j.origin_k
   if(j.variety_key&&vById(j.variety_key))SC.variety=j.variety_key;if(['light','medium','dark'].includes(j.roast_level))SC.roast=j.roast_level;if(/^\d{4}-\d{2}-\d{2}$/.test(j.roast_date||''))SC.date=j.roast_date;SC.info=j}
 async function runLocalScan(useImg){
   const txt=$('scan-text').value.trim();if(!useImg&&!txt){toast('Paste the label text first');return}if(useImg&&!SFILE){toast('Take or choose a photo first');return}
-  let cancelled=false;SCTL={abort:()=>{cancelled=true;$('scan-status').textContent='Stopped.'}};$('scan-stop').hidden=!useImg;$('scan-go').disabled=true;$('scan-drop').classList.add('scanning');
-  const st=$('scan-status');st.hidden=false;st.textContent=useImg?'Getting the text reader ready…':'Reading the text…';
+  const st=$('scan-status'),mb=b=>(b/1e6).toFixed(1);let stop;const stopped=new Promise((_,no)=>{stop=()=>no(Object.assign(new Error('cancelled'),{code:'cancelled'}))});stopped.catch(()=>{});
+  SCTL={abort:()=>stop()};$('scan-stop').hidden=!useImg;$('scan-go').disabled=true;$('scan-drop').classList.add('scanning');
+  st.hidden=false;st.textContent=useImg?'Getting the text reader ready…':'Reading the text…';
   try{let text=txt;
-    if(useImg){const w=await ocrWorker((status,p)=>{if(!cancelled)st.textContent=(/recogniz/.test(status)?'Reading the label… ':'Getting the text reader ready… ')+Math.round(p*100)+'%'});
-      const img=await prepImage(SFILE);const res=await w.recognize(img);if(cancelled)return;text=res.data.text||'';$('scan-text').value=text.trim()}
-    const j=parseLabel(text);if(!j.origin_key&&!j.variety_key&&!j.process_key&&!j.roast_date){st.textContent=useImg?'Couldn’t find coffee details in that photo. Try a closer, sharper shot of the label, or fill in the details below.':'No coffee details found in that text.';return}
+    if(useImg){const w=await Promise.race([ocrWorker((status,p,g,t)=>{if(SCTL.done)return;st.textContent=status==='download'?'Downloading the text reader (first time only)… '+mb(g)+' of '+mb(t)+' MB'
+          :/recogniz/.test(status)?'Reading the label… '+Math.round(p*100)+'%':'Starting the text reader…'}),stopped]);
+      const img=await prepImage(SFILE);const res=await Promise.race([withTimeout(w.recognize(img),120000,'slow'),stopped]);text=res.data.text||'';$('scan-text').value=text.trim()}
+    const j=parseLabel(text);if(!j.origin_key&&!j.variety_key&&!j.process_key&&!j.roast_date){st.textContent=useImg?'Couldn’t find coffee details in that photo. Try again with the label filling most of the photo, in sharp focus, or fill in the details below.':'No coffee details found in that text.';return}
     applyInfo(j);st.textContent=(j.confidence==='low'?'Found a few details. ':'Label read. ')+'Check them below and adjust anything that looks off.';renderScan();saveScan();toast('Label read')}
-  catch(e){st.textContent='The text reader couldn’t start. Check your connection the first time you scan, or fill in the details below.'}
-  finally{$('scan-stop').hidden=true;$('scan-go').disabled=!SFILE;$('scan-drop').classList.remove('scanning')}}
+  catch(e){const c=e&&e.code;st.textContent=c==='cancelled'?'Stopped.'
+      :c==='download'||c==='stalled'||!navigator.onLine?'The text reader couldn’t download. It needs a connection the first time only; try again on Wi-Fi, or fill in the details below.'
+      :c==='start'?'The text reader didn’t start on this phone. Paste the label text below, or fill in the details by hand.'
+      :c==='slow'?'Reading took too long. Try a closer photo of just the label, or fill in the details below.'
+      :'The text reader couldn’t start. Try again, or fill in the details below.'}
+  finally{if(SCTL)SCTL.done=true;$('scan-stop').hidden=true;$('scan-go').disabled=!SFILE;$('scan-drop').classList.remove('scanning')}}
 function thumb(cb){if(!SFILE){cb('');return}const img=new Image();img.onload=()=>{const c=document.createElement('canvas'),s=160/Math.max(img.width,img.height);c.width=img.width*s;c.height=img.height*s;c.getContext('2d').drawImage(img,0,0,c.width,c.height);try{cb(c.toDataURL('image/jpeg',.7))}catch(e){cb('')}};img.onerror=()=>cb('');img.src=$('scan-prev').src}
 function saveScan(){thumb(t=>{SCANS.unshift({t,info:SC.info,sc:{origin:SC.origin,process:SC.process,variety:SC.variety,roast:SC.roast,date:SC.date},when:new Date().toLocaleDateString()});SCANS=SCANS.slice(0,12);save('bb-scans',SCANS);renderScanList()})}
 function renderScanList(){$('scan-list').innerHTML=SCANS.length?SCANS.map((s,i)=>'<button type="button" class="card vcard" data-scan="'+i+'" style="--c:var(--cherry)">'+(s.t?'<img src="'+s.t+'" alt="" style="width:100%;max-height:120px;object-fit:cover;border-radius:10px">':'')+'<h3 style="margin:.4rem 0 .1rem">'+esc((s.info&&(s.info.coffee_name||s.info.producer_or_farm))||originName(s.sc.origin))+'</h3><p class="hint" style="margin:0">'+esc(s.info&&s.info.roaster||'')+' '+esc(s.when)+'</p></button>').join(''):'<p class="hint">Scans you make appear here.</p>'}
@@ -1195,9 +1266,9 @@ function renderScan(){
 
 /* ================= SHARE ================= */
 function pdfSafe(s){return String(s??'').replace(/[\u2018\u2019]/g,"'").replace(/[\u201C\u201D]/g,'"').replace(/[\u2013\u2014]/g,'-').replace(/\u2026/g,'...').replace(/\u2082/g,'2').replace(/\u2605/g,'*').replace(/\u2022/g,'\u00b7').replace(/[^\x09\x0A\x0D\x20-\x7E\u00A0-\u00FF]/g,'').replace(/\s+$/,'')}
-function docText(doc){let t='# '+doc.title+'\n';if(doc.sub)t+=doc.sub+'\n';t+='\n';
+function docText(doc,noLink){let t='# '+doc.title+'\n';if(doc.sub)t+=doc.sub+'\n';t+='\n';
   for(const b of doc.blocks){if(b.h)t+='## '+b.h+'\n';if(b.p)t+=b.p+'\n';if(b.kv)t+=b.kv.map(([k,v])=>'- '+k+': '+v).join('\n')+'\n';if(b.list)t+=b.list.map((x,i)=>(b.num?(i+1)+'. ':'- ')+x).join('\n')+'\n';t+='\n'}
-  return t+'Made with The Brew Bench\n'}
+  return t+(doc.link&&!noLink&&!t.includes(doc.link)?'Open it in The Brew Bench: '+doc.link+'\n':'Made with The Brew Bench\n')}
 function docPDF(doc){
   const J=(window.jspdf||{}).jsPDF;if(!J)return null;
   const pdf=new J({unit:'pt',format:'a4'});const W=595,H=842,M=48,CW=W-2*M;let y=0;
@@ -1212,7 +1283,8 @@ function docPDF(doc){
   y=148;
   const para=(txt,size=10.5,col=ink,bold=false,indent=0)=>{pdf.setFont('helvetica',bold?'bold':'normal');pdf.setFontSize(size);pdf.setTextColor(...col);
     const lines=pdf.splitTextToSize(pdfSafe(txt),CW-indent);for(const l of lines){need(size*1.45);pdf.text(l,M+indent,y);y+=size*1.45}};
-  for(const b of doc.blocks){
+  const linked=doc.link&&!doc.blocks.some(b=>b.p===doc.link)?[{h:'Open it in The Brew Bench',p:doc.link}]:[];
+  for(const b of doc.blocks.concat(linked)){
     if(b.h){need(34);y+=6;pdf.setFont('helvetica','bold');pdf.setFontSize(13);pdf.setTextColor(...brown);pdf.text(pdfSafe(b.h),M,y);y+=6;pdf.setDrawColor(...cream);pdf.setLineWidth(1);pdf.line(M,y,M+CW,y);y+=14}
     if(b.p){para(b.p);y+=4}
     if(b.kv){for(const [k,v] of b.kv){pdf.setFont('helvetica','bold');pdf.setFontSize(10);const kl=pdfSafe(k);const lines=pdf.splitTextToSize(pdfSafe(v),CW-130);need(lines.length*14+4);
@@ -1224,25 +1296,25 @@ function docPDF(doc){
   return pdf.output('blob');
 }
 
-function recipeDoc(i,p){const r=RECIPES[i],B=BREWERS[r.b];const extra=r.custom?[{h:'Add it to your app',p:recipeLink(r)}]:[];const gs=MYG.map(g=>[g,p&&p.set[g]!==undefined?p.set[g]:settingFor(g,r.b,r.off)]);
+function recipeDoc(i,p,c){const r=RECIPES[i],B=BREWERS[r.b];const gs=MYG.map(g=>[g,p&&p.set[g]!==undefined?p.set[g]:settingFor(g,r.b,r.off)]);
   const kv=[['Brewer',B.name],['Dose : water',r.dose+'g : '+(p?p.water:r.water)+'g'+(p?' (1:'+p.ratio+')':'')],['Water temperature',(p?p.temp:r.temp)?(p?p.temp:r.temp)+'°C'+(r.temp2?', then about '+r.temp2+'°C':''):'Cold or not applicable']];
-  for(const [g,v] of gs)if(v!=null)kv.push([gname(g),dial(g,v)+' ('+dialHint(g,v)+')']);
+  for(const [g,v] of gs)if(v!=null)kv.push([gname(g),dial(g,v)+', '+dialHint(g,v)]);
   if(p)kv.push([B.bloom.label,p.bloom+'s']);
   const blocks=[{p:r.why},{h:'Settings',kv},{h:'Steps',num:true,list:r.steps},{h:'Tip',p:r.tip}].filter(x=>!('p' in x)||x.p);
   if(p&&p.tw.length)blocks.push({h:'Tuned for your coffee',p:p.tw.join(' ')});if(p&&p.why.length)blocks.push({h:'Why these settings',list:p.why.map(w=>w.replace(/<[^>]+>/g,''))});
-  blocks.push(...extra);return{title:r.name,sub:[r.by||(r.custom?(r.author?'By '+r.author:'Your recipe'):''),B.name].filter(Boolean).join(' | '),blocks,file:'recipe-'+r.name}}
+  return{link:c?planHref(c):recipeHref(i),title:r.name,sub:[r.by||(r.custom?(r.author?'By '+r.author:'Your recipe'):''),B.name].filter(Boolean).join(' | '),blocks,file:'recipe-'+r.name}}
 function dialDoc(){const r=compute(S),[vt,vs]=verdict(r.D),B=BREWERS[S.brewer];
-  return{title:'My brew: '+vName(S.variety),sub:PROCESSES[S.process].name+' | '+S.roast+' roast | '+B.name,file:'my-brew',blocks:[
+  return{link:brewHref(),title:'My brew: '+vName(S.variety),sub:PROCESSES[S.process].name+' | '+S.roast+' roast | '+B.name,file:'my-brew',blocks:[
    {h:'Settings',kv:[['Grinder',gLabel(S.grinder,S.setting)+' ('+S.setting+' clicks)'],['Brewer',B.name],['Water',S.temp+'°C'],['Ratio','1:'+S.ratio],[B.bloom.label,S.bloom+'s'],['Agitation',{low:'Gentle',med:'Normal',high:'Vigorous'}[S.agit]]]},
    {h:'Predicted cup',p:vt+'. '+vs},{kv:[['Sweetness',r.sweet.toFixed(1)+' / 10'],['Acidity',r.acid.toFixed(1)+' / 10'],['Body',r.body.toFixed(1)+' / 10'],['Clarity',r.clarity.toFixed(1)+' / 10'],['Bitterness',r.bitter.toFixed(1)+' / 10']]}]}}
 function varietyDoc(id){const v=VBY[id];const b=[{kv:[['Family',FAM[v.fam].name],['Origin',v.origin||'-'],['Year',v.year||'-'],['Parentage',v.parents||'-']]},{h:'Story',p:v.story},{h:'In the cup',p:v.cup+' ('+v.notes.join(', ')+')'},{h:'How to brew it',p:v.brew}];
-  if(v.subs)b.push({h:'Types',list:v.subs.map(s=>s.name+': '+s.cup)});return{title:v.name,sub:'Variety guide',blocks:b,file:'variety-'+v.name}}
-function originDoc(k){const o=ALLO()[k];return{title:o.name,sub:'Coffee origin | '+REG[o.reg].name,file:'origin-'+o.name,blocks:[{kv:[['Regions',o.subs.join(', ')],['Altitude',o.alt],['Harvest',o.harvest],['Processing',o.process]]},{h:'In the cup',p:o.cup},{h:'Story',p:o.hist},{h:'Varieties grown here',list:o.vars.map(v=>VBY[v]?VBY[v].name:v)},{h:'Did you know?',p:o.fact}]}}
-function historyDoc(){return{title:'The story of coffee',sub:'From Ethiopian forests to your cup',file:'coffee-history',blocks:[{h:'Timeline',list:TIMELINE.map(([w,t,d])=>w+' - '+t+': '+d)},{h:'People who spread coffee',list:PEOPLE.map(([n,r,d])=>n+' ('+r+'): '+d)}]}}
+  if(v.subs)b.push({h:'Types',list:v.subs.map(s=>s.name+': '+s.cup)});return{link:SITE_URL+'#v='+id,title:v.name,sub:'Variety guide',blocks:b,file:'variety-'+v.name}}
+function originDoc(k){const o=ALLO()[k];return{link:SITE_URL+'#o='+k,title:o.name,sub:'Coffee origin | '+REG[o.reg].name,file:'origin-'+o.name,blocks:[{kv:[['Regions',o.subs.join(', ')],['Altitude',o.alt],['Harvest',o.harvest],['Processing',o.process]]},{h:'In the cup',p:o.cup},{h:'Story',p:o.hist},{h:'Varieties grown here',list:o.vars.map(v=>VBY[v]?VBY[v].name:v)},{h:'Did you know?',p:o.fact}]}}
+function historyDoc(){return{link:SITE_URL+'#history',title:'The story of coffee',sub:'From Ethiopian forests to your cup',file:'coffee-history',blocks:[{h:'Timeline',list:TIMELINE.map(([w,t,d])=>w+' - '+t+': '+d)},{h:'People who spread coffee',list:PEOPLE.map(([n,r,d])=>n+' ('+r+'): '+d)}]}}
 function logDoc(){return{title:'My brew log',sub:LOG.length+' brews',file:'brew-log',blocks:LOG.length?LOG.map(l=>({h:(l.coffee||'Untitled')+' - '+l.date,kv:[['Rating',l.stars?l.stars+' / 5':'-'],['Settings',l.settings||'-'],['Predicted',l.pred||'-'],['Notes',l.notes||'-']]})):[{p:'No brews logged yet.'}]}}
 function scanDoc(p,c){const inf=SC.info||{};const o=ALLO()[SC.origin];const kv=[['Origin',o.name],['Variety',vName(SC.variety)],['Process',PROCESSES[SC.process].name],['Roast',SC.roast],['Days off roast',String(daysSince(SC.date))]];
   if(inf.roaster)kv.unshift(['Roaster',inf.roaster]);if(inf.producer_or_farm)kv.push(['Producer or farm',inf.producer_or_farm]);if(inf.altitude)kv.push(['Altitude',inf.altitude]);if((inf.tasting_notes||[]).length)kv.push(['Tasting notes',inf.tasting_notes.join(', ')]);
-  const rd=recipeDoc(c.tech,p);return{title:inf.coffee_name||('Brew plan: '+o.name+' '+vName(SC.variety)),sub:'Bean profile and recommended brew',file:'bean-plan',blocks:[{h:'The coffee',kv}].concat(inf.summary?[{p:inf.summary}]:[]).concat([{h:'Recommended: '+RECIPES[c.tech].name,p:''}]).concat(rd.blocks.slice(1))}}
+  const rd=recipeDoc(c.tech,p,c);return{link:rd.link,title:inf.coffee_name||('Brew plan: '+o.name+' '+vName(SC.variety)),sub:'Bean profile and recommended brew',file:'bean-plan',blocks:[{h:'The coffee',kv}].concat(inf.summary?[{p:inf.summary}]:[]).concat([{h:'Recommended: '+RECIPES[c.tech].name,p:''}]).concat(rd.blocks.slice(1))}}
 
 let SHDOC=null;
 // Where people land from a shared message.
@@ -1253,7 +1325,9 @@ const APPS=[['native','Share\u2026','#8E8E93','M12 15V3 M7 8l5-5 5 5 M5 12v8h14v
   ['sms','Messages','#34C759','M4 5h16v11H9l-5 4z'],
   ['email','Email','#0A84FF','M3 6h18v12H3z M3 7l9 6 9-6']];
 // Chat-friendly text: headings become *bold* (WhatsApp and Telegram both show it as bold).
-function shareText(doc){const t=docText(doc).trim().replace(/^#+\s*(.+)$/gm,'*$1*');return(t.length>1400?t.slice(0,1400).replace(/\s+\S*$/,'')+'\u2026':t)+(t.includes(SITE_URL)?'':'\n\n'+SITE_URL)}
+// The link goes last and is never cut, so the other phone can always open it.
+function shareText(doc){const link=doc.link||SITE_URL,t=docText(doc,true).replace(/\nMade with The Brew Bench\n$/,'').trim().replace(/^#+\s*(.+)$/gm,'*$1*');
+  return(t.length>1400?t.slice(0,1400).replace(/\s+\S*$/,'')+'\u2026':t)+(t.includes(link)?'':'\n\nOpen it in The Brew Bench:\n'+link)}
 function openShare(doc){SHDOC=doc;const pdfOK=!!(window.jspdf&&window.jspdf.jsPDF);
   $('sh-in').innerHTML='<div class="sheet"><div class="grab"></div><button class="vd-close" id="sh-x" aria-label="Close">\u2715</button><h2 id="sh-title" style="margin:0 40px 2px 0">Share</h2><p class="hint" style="margin:0">'+esc(doc.title)+'</p>'+
    '<div class="sharerow">'+APPS.map(([k,n,c,d])=>'<button type="button" data-sh="'+k+'"><span class="app" style="background:'+c+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+d+'"/></svg></span>'+n+'</button>').join('')+'</div>'+
@@ -1282,7 +1356,7 @@ $('sharesheet').addEventListener('click',async e=>{const d=$('sharesheet');if(e.
   if(k==='md'){d.close();await saveFile(base+'.txt',txt)}
   if(k==='copy'){let ok=false;try{await navigator.clipboard.writeText(txt);ok=true}catch(err){try{const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();ok=document.execCommand('copy');ta.remove()}catch(e2){}}d.close();toast(ok?'Copied to clipboard':'Copying isn\u2019t allowed here; try Save as a text file')}
   if(k==='whatsapp'||k==='telegram'||k==='sms'||k==='email'){const t=shareText(doc),e=encodeURIComponent;d.close();
-    openLink({whatsapp:'https://wa.me/?text='+e(t),telegram:'https://t.me/share/url?url='+e(SITE_URL)+'&text='+e(t.replace(SITE_URL,'').trim()),sms:'sms:?&body='+e(t),email:'mailto:?subject='+e(doc.title)+'&body='+e(t)}[k]);return}
+    openLink({whatsapp:'https://wa.me/?text='+e(t),telegram:'https://t.me/share/url?url='+e(doc.link||SITE_URL)+'&text='+e(t.replace(doc.link||SITE_URL,'').replace(/\n*Open it in The Brew Bench:\s*$/,'').trim()),sms:'sms:?&body='+e(t),email:'mailto:?subject='+e(doc.title)+'&body='+e(t)}[k]);return}
   if(k==='native'&&!navigator.share&&!NATIVE){let ok=false;try{await navigator.clipboard.writeText(shareText(doc));ok=true}catch(e){}d.close();toast(ok?'This browser has no share menu, so the text was copied':'Sharing isn\u2019t available here; use Copy as text');return}
   if(k==='native'&&NATIVE){d.close();try{const blob=docPDF(doc);await nativeShare(doc.title,blob?base+'.pdf':null,blob,txt)}catch(err){if(!/cancel/i.test(err&&err.message||''))toast('Could not share')}return}
   if(k==='native'){try{const blob=docPDF(doc);const f=blob&&typeof File!=='undefined'?new File([blob],base+'.pdf',{type:'application/pdf'}):null;
@@ -1331,10 +1405,10 @@ function renderChamps(){fetchEvents();
   $('ch-about').innerHTML=Object.entries(COMPS).filter(([k])=>CHF==='all'||CHF===k).map(([k,c])=>'<div class="card chcomp"><span class="pill"><i style="background:'+c.color+'"></i>Since '+c.since+'</span><h3>'+esc(c.name)+'</h3><p class="hint">'+esc(c.about)+'</p><p class="chcount">'+CHAMPS.filter(x=>x.c===k).length+' champions</p></div>').join('');
   const on=ch=>(CHF==='all'||ch.c===CHF)&&(CHB==='all'||(CHB==='mine'?MYB.includes(chBrewer(ch)):chDev(ch)===CHB));
   const years=[...new Set(CHAMPS.map(x=>x.y).concat(CH_GAPS.map(g=>g[0])))].sort((a,b)=>b-a);
-  const card=ch=>{const C=COMPS[ch.c],mine=MYB.includes(chBrewer(ch));return '<div class="chwin"><span class="pill"><i style="background:'+C.color+'"></i>'+C.short+'</span>'+(chDev(ch)?'<span class="pill chdev'+(mine?' ours':'')+'">'+esc(chDev(ch))+(mine?' ✓':'')+'</span>':'')+
+  const card=ch=>{const C=COMPS[ch.c],mine=MYB.includes(chBrewer(ch));return '<div class="chwin"><div class="chpills"><span class="pill"><i style="background:'+C.color+'"></i>'+C.short+'</span>'+(chDev(ch)&&ch.c==='wbrc'?'<span class="pill chdev">'+esc(chDev(ch))+'</span>':'')+(mine?'<span class="pill chdev ours">✓ You can brew this</span>':'')+'</div>'+
     '<div class="chname"><span class="flag" aria-hidden="true">'+(FLAGS[ch.from]||'')+'</span><b>'+esc(ch.who)+'</b></div>'+
     '<p class="hint">'+esc(ch.from)+' · '+esc(ch.city)+'</p>'+(ch.coffee?'<p class="chcoffee">'+esc(ch.coffee)+'</p>':'')+(ch.note?'<p class="hint">'+esc(ch.note)+'</p>':'')+
-    (ch.rec?'<button type="button" class="btn ghost chbtn" data-champ="'+CHAMPS.indexOf(ch)+'">'+(ch.ri!=null?'Winner’s recipe':'What they used')+'</button>':'')+'</div>'};
+    (ch.rec?'<button type="button" class="btn ghost chbtn" data-champ="'+CHAMPS.indexOf(ch)+'">Winner’s recipe</button>':'')+'</div>'};
   const html=years.map(y=>{const w=CHAMPS.filter(x=>x.y===y&&on(x)),gp=CHB==='all'?CH_GAPS.filter(g=>g[0]===y&&(CHF==='all'||g[1]===CHF)):[];
     if(!w.length&&!gp.length)return'';
     return '<li><span class="when">'+y+'</span>'+(w.length?'<div class="chrow">'+w.map(card).join('')+'</div>':'')+gp.map(g=>'<p class="hint">'+esc(g[2])+'</p>').join('')+'</li>'}).join('');
@@ -1344,12 +1418,16 @@ $('ch-tl').onclick=e=>{const b=e.target.closest('[data-champ]');if(b)openChamp(C
 const SUBS={'Cone dripper':['Cone dripper','Flat-bottom dripper','Valve and hybrid','Machine','Immersion and pressure'],'Flat-bottom dripper':['Flat-bottom dripper','Cone dripper','Valve and hybrid','Machine','Immersion and pressure'],
   'Valve and hybrid':['Valve and hybrid','Cone dripper','Flat-bottom dripper','Immersion and pressure']};
 const AERO_SUBS=['clever','swi','sw','swneo','frenchpress','siphon'];
-function adaptBrewer(b){if(!MYB.length||MYB.includes(b))return b;const B=BREWERS[b],own=MYB.filter(x=>BREWERS[x].type!=='Espresso and stovetop'&&BREWERS[x].type!=='Boiled'&&BREWERS[x].type!=='Cold');
+function adaptBrewer(b){if(!MYB.length||MYB.includes(b))return b;
+  if(b==='espresso')return['moka','aeropress','phin'].find(k=>MYB.includes(k))||null;const B=BREWERS[b],own=MYB.filter(x=>BREWERS[x].type!=='Espresso and stovetop'&&BREWERS[x].type!=='Boiled'&&BREWERS[x].type!=='Cold');
   if(!own.length)return null;
   if(b==='aeropress'){const x=AERO_SUBS.find(k=>own.includes(k));if(x)return x}
   const order=SUBS[B.type]||['Immersion and pressure','Valve and hybrid','Cone dripper','Flat-bottom dripper','Machine'];
   for(const ty of order){const x=own.find(k=>BREWERS[k].type===ty&&BREWERS[k].model!==false)||own.find(k=>BREWERS[k].type===ty);if(x)return x}return own[0]}
-function adaptNote(from,to,shift){if(from===to)return'';const F=BREWERS[from],T=BREWERS[to],way=shift>40?'a little coarser':shift<-40?'a little finer':'about the same';
+function adaptNote(from,to,shift){if(from===to)return'';
+  if(from==='espresso')return to==='moka'?'No espresso machine: a moka pot makes the closest strong, rich coffee. Use a fine grind, don’t tamp, and take it off the heat as soon as it starts to sputter.'
+    :to==='aeropress'?'No espresso machine: brew a short, strong AeroPress with a fine grind and about three times the dose in water. It won’t have crema, but it is close in strength.'
+    :'No espresso machine: brew a small, strong phin with a fine grind. It is close in strength, not in texture.';const F=BREWERS[from],T=BREWERS[to],way=shift>40?'a little coarser':shift<-40?'a little finer':'about the same';
   if(from==='aeropress'){if(['clever','sw','swi','swneo'].includes(to))return'Steep with the valve closed for the same time, then open it instead of pressing, and add the same bypass water afterwards.';
     if(to==='frenchpress')return'Steep for the same time, plunge gently and pour through a paper filter if you can, then add the same bypass water.';
     if(to==='siphon')return'Steep in the top chamber for the same time, then let it draw down, and add the same bypass water.';
@@ -1360,8 +1438,20 @@ function adaptNote(from,to,shift){if(from===to)return'';const F=BREWERS[from],T=
   if(F.type==='Cone dripper'&&T.type==='Flat-bottom dripper')return'Keep the same pours, aimed at the centre of the flat bed. The grind below is '+way+', to suit your brewer.';
   if(F.type==='Flat-bottom dripper'&&T.type==='Cone dripper')return'Keep the same pours, gently, so the cone drains evenly. The grind below is '+way+', to suit your brewer.';
   return'This brewer works quite differently, so treat the settings as a starting point and adjust by taste.'}
-function openChamp(ch){const C=COMPS[ch.c],r=ch.rec,R=ch.ri!=null?RECIPES[ch.ri]:null,b=R?R.b:r.b,d=$('vd');
-  const dose=R?R.dose:r.dose,water=R?R.water:r.water,temp=R?R.temp:r.temp,temp2=R?R.temp2:r.temp2,steps=R?R.steps:r.steps,why=R?R.why:r.why,off=R?R.off:(r.off||0);
+// Generic brewer names read in lower case mid-sentence ("your moka pot"); named products keep their capitals.
+const brewName=s=>{s=s.replace(/, (hybrid|full immersion)$/,'');return /^(Espresso machine|French press|Moka pot|Batch brewer|Cold brew|Siphon|Vietnamese phin|Dallah|Cezve)/.test(s)?s.charAt(0).toLowerCase()+s.slice(1):s};
+const art=s=>/^(UFO|U[a-z]|Eu)/.test(s)?'a':/^[AEIOU]/i.test(s)?'an':'a';
+// Grind descriptions start mid-sentence: "The champion's grind: about 700 microns".
+const lcGrind=s=>/^(About|Not|Medium|Coarse|Fine|Ground|Slightly|Sifted)\b/.test(s)?s.charAt(0).toLowerCase()+s.slice(1):s;
+function champDoc(ch){const C=COMPS[ch.c],r=ch.rec,R=ch.ri!=null?RECIPES[ch.ri]:null,St=!R&&ch.si!=null?RECIPES[ch.si]:null;
+  const dose=R?R.dose:r.dose,water=R?R.water:r.water,temp=r.temp===null?null:R?R.temp:r.temp,temp2=r.temp===null?null:R?R.temp2:r.temp2,steps=R?R.steps:r.steps,why=R?R.why||r.why:r.why;
+  const kv=[['Brewer',chDev(ch)||BREWERS[R?R.b:r.b].name]];if(dose)kv.push(['Dose : water',dose+'g'+(water?' : '+water+'g':'')]);kv.push(['Water temperature',temp?temp+'°C'+(temp2?', then '+temp2+'°C':''):'Not published']);
+  if(r.grind&&r.grind.label&&!/not published/i.test(r.grind.label))kv.push(['Grind',r.grind.label]);
+  return{link:SITE_URL+'#c='+chKey(ch),title:ch.who+': '+C.name+' '+ch.y,sub:[ch.from,ch.city].filter(Boolean).join(' | '),file:'champion-'+ch.who,blocks:[
+    ch.coffee&&{h:'The coffee',p:ch.coffee},(r.gear||[]).length&&{h:'Gear they used',list:r.gear},{h:'The recipe',kv},why&&{p:why},r.partial&&{p:r.partial},
+    steps?{h:'Steps',num:true,list:steps}:St?{h:'Starting recipe: '+St.name,num:true,list:St.steps}:{p:'The full step-by-step was not published.'}].filter(Boolean)}}
+function openChamp(ch){const C=COMPS[ch.c],r=ch.rec,R=ch.ri!=null?RECIPES[ch.ri]:null,St=!R&&ch.si!=null?RECIPES[ch.si]:null,U=R||St,ui=R?ch.ri:ch.si,b=R?R.b:r.b,d=$('vd');
+  const dose=R?R.dose:r.dose,water=R?R.water:r.water,temp=r.temp===null?null:R?R.temp:r.temp,temp2=r.temp===null?null:R?R.temp2:r.temp2,steps=R?R.steps:r.steps,why=R?R.why||r.why:r.why,off=R?R.off:St?St.off:(r.off||0);
   const g=r.grind&&r.grind.g&&GRINDERS[r.grind.g]?r.grind.g:null;
   // Your gear: the brewer you own that is closest to theirs, and your grinders set for it.
   const nb=adaptBrewer(b),useB=nb||b,sub=nb&&nb!==b,shift=(brewSize(useB)??0)-(brewSize(b)??0);
@@ -1369,27 +1459,30 @@ function openChamp(ch){const C=COMPS[ch.c],r=ch.rec,R=ch.ri!=null?RECIPES[ch.ri]
   const rows=MYG.map(h=>{const v=setOn(h);return '<div class="mrow mine"><span>'+esc(GRINDERS[h].name)+'</span><b>'+(v!=null?esc(dial(h,v))+(GRINDERS[h].unit==='clicks'?' <small>clicks</small>':''):'<small>can’t reach this grind</small>')+'</b></div>'}).join('');
   const temps=temp?temp+'°C'+(temp2?' then '+temp2+'°C':''):'';
   const gear=(r.gear||[]).concat(r.grind&&r.grind.label&&!/not published/i.test(r.grind.label)&&!(r.gear||[]).some(x=>r.grind.label.startsWith(x))?['Grind: '+r.grind.label]:[]);
-  const brewLine=!MYB.length?'<p class="hint">They brewed on a <b>'+esc(r.gear&&r.gear[0]||BREWERS[b].name)+'</b>. <button type="button" class="linkbtn" data-ca="gear">Tell the app which brewers you have</button> and the recipe adapts to them.</p>'
+  const theirs=brewName(chDev(ch)||BREWERS[b].name);
+  const brewLine=!MYB.length?'<p class="hint">They brewed on '+art(theirs)+' <b>'+esc(theirs)+'</b>. <button type="button" class="linkbtn" data-ca="gear">Tell the app which brewers you have</button> and the recipe adapts to them.</p>'
     :nb===null?'<p class="hint">None of your brewers suit this recipe. <button type="button" class="linkbtn" data-ca="gear">Edit your gear</button></p>'
-    :sub?'<p><b>Brew it on your '+esc(BREWERS[nb].name)+'</b> instead of their '+esc(r.gear&&r.gear[0]||BREWERS[b].name)+'. '+esc(adaptNote(b,nb,shift))+'</p>'
-    :'<p><b>You have the right brewer</b>: brew it on your '+esc(BREWERS[b].name)+(r.gear&&r.gear[0]&&!r.gear[0].startsWith(BREWERS[b].name)?' (they used a '+esc(r.gear[0])+')':'')+'.</p>';
-  const R2=R&&BREWERS[useB].model;
+    :sub?'<p><b>Brew it on your '+esc(brewName(BREWERS[nb].name))+'</b> instead of their '+esc(theirs)+'. '+esc(adaptNote(b,nb,shift))+'</p>'
+    :'<p><b>You have the right brewer</b>: brew it on your '+esc(brewName(BREWERS[b].name))+(chDev(ch)&&!BREWERS[b].name.includes(chDev(ch))&&chDev(ch)!=='Espresso machine'?' (they used '+art(chDev(ch))+' '+esc(chDev(ch))+')':'')+'.</p>';
+  const R2=U&&BREWERS[useB].model;
   d.querySelector('#vd-in').innerHTML='<div class="vd-head" style="--c:'+C.color+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:'+C.color+'"></i>'+esc(C.name)+' '+ch.y+'</span>'+
    '<h2 id="vd-title">'+(FLAGS[ch.from]||'')+' '+esc(ch.who)+'</h2><div class="meta"><span>'+esc(ch.from)+'</span><span>'+esc(ch.city)+'</span></div></div><div class="vd-body">'+
    (ch.coffee?'<p><b>The coffee.</b> '+esc(ch.coffee)+'</p>':'')+
-   '<h3>Gear they used</h3><ul class="chgear">'+gear.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>'+
+   '<h3>Gear they used</h3>'+(gear.length?'<ul class="chgear">'+gear.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'<p class="hint" style="margin-top:0">Not published.</p>')+
    '<h3>The recipe</h3><div class="meta">'+(dose&&water?'<span>'+dose+'g : '+water+'g</span>':dose?'<span>'+dose+'g coffee</span>':'')+(temps?'<span>'+temps+(r.tNote?' ('+esc(r.tNote)+')':'')+'</span>':'<span>Temperature not published</span>')+(r.time?'<span>'+esc(r.time)+'</span>':'')+'</div>'+
-   (why?'<p>'+esc(why)+'</p>':'')+(steps?'<ol class="steps">'+steps.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol>':'<p class="hint">The full step-by-step was not published.</p>')+
+   (why?'<p>'+esc(why)+'</p>':'')+(r.partial?'<p class="hint">'+esc(r.partial)+'</p>':'')+(steps?'<ol class="steps">'+steps.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol>'
+     :St?'<div class="chstart"><p class="hint" style="margin:0 0 .4rem">Start from a recipe in the same style: <b>'+esc(St.name)+'</b></p><div class="meta"><span>'+St.dose+'g : '+St.water+'g</span>'+(St.temp?'<span>'+St.temp+'°C</span>':'')+'</div><ol class="steps">'+St.steps.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol></div>'
+     :'<p class="hint">The full step-by-step was not published.</p>')+
    '<div class="ghead" style="margin-top:1.2rem"><h3 style="margin:0">Brew it with your gear</h3><button type="button" class="gpick-btn" data-ca="gear" aria-label="Edit your gear" title="Edit your gear">'+SWAP_ICON+'</button></div>'+brewLine+
-   '<p class="hint" style="margin:.2rem 0 .5rem">'+(g?'Grind converted from the champion’s '+esc(r.grind.label)+(sub?', then adjusted for your '+esc(BREWERS[nb].name):'')+'.':'The champion’s grind: '+esc(r.grind?r.grind.label:'not published')+'. These are starting points for '+(nb?'your '+esc(BREWERS[useB].name):'a '+esc(BREWERS[b].name))+'; adjust by taste.')+'</p>'+rows+
+   '<p class="hint" style="margin:.2rem 0 .5rem">'+(g?'Grind converted from the champion’s '+esc(r.grind.label)+(sub?', then adjusted for your '+esc(BREWERS[nb].name):'')+'.':'The champion’s grind: '+esc(r.grind&&r.grind.label?lcGrind(r.grind.label):'not published')+'. These are starting points for '+(nb&&MYB.length?'your '+esc(brewName(BREWERS[useB].name)):art(brewName(BREWERS[b].name))+' '+esc(brewName(BREWERS[b].name)))+'; adjust by taste.')+'</p>'+rows+
    (!sub&&r.alt?'<p class="hint">'+esc(r.alt)+'</p>':'')+
-   '<div class="actions">'+(R?'<button type="button" class="btn" data-ca="timer">Start timer</button>':'')+(R2?'<button type="button" class="btn ghost" data-ca="load">Load into dial-in</button>':'')+
-   (R&&!sub&&PBREWERS.includes(b==='swi'?'sw':b)?'<button type="button" class="btn ghost" data-ca="plan">Tune in planner</button>':'')+(g?'<button type="button" class="btn ghost" data-ca="match">All grinders</button>':'')+'</div></div>';
-  d.querySelector('.vd-body').onclick=e=>{const a=e.target.closest('[data-ca]');if(!a)return;const k=a.dataset.ca;d.close();
+   '<div class="actions">'+(U?'<button type="button" class="btn" data-ca="timer">Start timer</button>':'')+(R2?'<button type="button" class="btn ghost" data-ca="load">Load into dial-in</button>':'')+
+   (U&&!sub&&PBREWERS.includes(b==='swi'?'sw':b)?'<button type="button" class="btn ghost" data-ca="plan">Tune in planner</button>':'')+(g?'<button type="button" class="btn ghost" data-ca="match">All grinders</button>':'')+'<button type="button" class="btn ghost" data-ca="share">Share</button></div></div>';
+  d.querySelector('.vd-body').onclick=e=>{const a=e.target.closest('[data-ca]');if(!a)return;const k=a.dataset.ca;if(k==='share'){openShare(champDoc(ch));return}d.close();
     if(k==='gear'){setTimeout(()=>openGearPicker('brewers',()=>openChamp(ch)),0);return}
-    if(k==='timer')openTimer(ch.ri);else if(k==='plan')planRecipe(ch.ri);else if(k==='match')openMatch(g,r.grind.c);
-    else if(k==='load'){const B=BREWERS[useB],gr=MYG.find(h=>setOn(h)!=null)||S.grinder;S.brewer=useB;S.rec=useB===b?ch.ri:null;S.grinder=gr;S.setting=setOn(gr)??base(gr,useB);
-      S.temp=clamp(R.temp,B.temp.min,B.temp.max);S.bloom=B.bloom.def;S.agit='med';S.ratio=clamp(Math.round(R.water/R.dose/B.ratio.step)*B.ratio.step,B.ratio.min,B.ratio.max);render();showTab('dial');toast('Loaded '+ch.who+'’s recipe')}};
+    if(k==='timer')openTimer(ui);else if(k==='plan')planRecipe(ui);else if(k==='match')openMatch(g,r.grind.c);
+    else if(k==='load'){const B=BREWERS[useB],gr=MYG.find(h=>setOn(h)!=null)||S.grinder;S.brewer=useB;S.rec=useB===U.b?ui:null;S.grinder=gr;S.setting=setOn(gr)??base(gr,useB);
+      S.temp=clamp(U.temp,B.temp.min,B.temp.max);S.bloom=B.bloom.def;S.agit='med';S.ratio=clamp(Math.round(U.water/U.dose/B.ratio.step)*B.ratio.step,B.ratio.min,B.ratio.max);render();showTab('dial');toast('Loaded '+ch.who+'’s recipe')}};
   const hx=d.querySelector('.vd-head');hx.onclick=e=>{if(e.target.closest('#vd-x'))d.close()};
   if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}d.scrollTop=0}
 /* ================= APP SHELL ================= */
@@ -1421,7 +1514,7 @@ $('navsheet').addEventListener('click',e=>{const d=$('navsheet');if(e.target===d
   if(e.target.closest('[data-install]'))$('ns-extra').innerHTML='<div class="tip"><b>iPhone (Safari):</b> open this page\u2019s link in Safari, tap the Share button, then <b>Add to Home Screen</b>.<br><b>Android (Chrome):</b> open the link in Chrome, tap the \u22ee menu, then <b>Add to Home screen</b>.<br>Your calibration, log and scans stay saved on this phone.</div>'});
 document.querySelector('.bottomnav').onclick=e=>{const b=e.target.closest('[data-bn]');if(!b)return;const k=b.dataset.bn;if(k==='explore'||k==='more')openSheet(k);else showTab(k)};
 $('ab-share').onclick=()=>{const id=(document.querySelector('main section.on')||{}).id;
-  if(id==='dial')openShare(dialDoc());else if(id==='planner')openShare(recipeDoc(PL.tech,plan(Object.assign({},PL))));else if(id==='scan')$('sc-share').click();else if(id==='history')openShare(historyDoc());else if(id==='log')openShare(logDoc());else if(id==='map'){if(SEL)openShare(originDoc(SEL));else toast('Pick an origin first')}else if(id==='recipes')toast('Tap Share on any recipe card')};
+  if(id==='dial')openShare(dialDoc());else if(id==='planner')openShare(recipeDoc(PL.tech,plan(Object.assign({},PL)),PL));else if(id==='scan')$('sc-share').click();else if(id==='history')openShare(historyDoc());else if(id==='log')openShare(logDoc());else if(id==='map'){if(SEL)openShare(originDoc(SEL));else toast('Pick an origin first')}else if(id==='recipes')toast('Tap Share on any recipe card')};
 $('dial-share').onclick=()=>openShare(dialDoc());
 $('hist-share').onclick=()=>openShare(historyDoc());
 $('l-pdf').onclick=()=>openShare(logDoc());
@@ -1442,10 +1535,7 @@ try{initDial();initPlan();render();renderPlan();renderCalc();renderTS();renderSt
 catch(err){let retried=false;try{retried=sessionStorage.getItem('bb-reset')==='1';sessionStorage.setItem('bb-reset','1')}catch(e){}
   if(!retried){try{['bb-state','bb-plan','bb-scan','bb-calc','bb-base3'].forEach(k=>localStorage.removeItem(k))}catch(e){}location.reload()}throw err}
 try{sessionStorage.removeItem('bb-reset')}catch(e){}
-{const h=location.hash.slice(1),j=/^join=([A-Za-z0-9-]{8,9})$/.exec(h),rl=/^recipe=([A-Za-z0-9_-]+)$/.exec(h);
-  if(rl){try{history.replaceState(null,'','#recipes')}catch(e){}showTab('recipes',true);importRecipe(rl[1])}else
-  if(j){JOIN_CODE=j[1].toUpperCase();try{history.replaceState(null,'','#log')}catch(e){}showTab('log',true);if(!GROUP)toast('Add your name and tap Join');else if(GROUP.code!==JOIN_CODE)toast('You are already in a shared log. Leave it first to join this one.');renderLog()}
-  else if(h&&$(h)&&$(h).tagName==='SECTION')showTab(h,true);else syncShell('dial')}
+{const h=location.hash.slice(1);if(!openRoute(h)){if(h&&$(h)&&$(h).tagName==='SECTION')showTab(h,true);else syncShell('dial')}}
 if(GROUP)startStream();
 if(window.claude&&window.claude.use){
   window.claude.use('sample').then(async s=>{SAMPLE=s;if(!s)return;

@@ -25,11 +25,11 @@ Both update automatically whenever `main` changes.
 | **Origins map** | 50 coffee origins on an interactive, colour-coded world map |
 | **Varieties** | 44 varieties with stories, Geisha types and side-by-side comparison |
 | **History** | A clickable variety family tree, a timeline, key people and a quiz |
-| **World championships** | Every World Brewers Cup, World AeroPress and World Barista champion with the host city, their coffee and gear, and the published winning recipes. Each recipe converts the champion's grind to your grinders and opens in the timer, dial-in or planner |
+| **World championships** | Every World Brewers Cup, World AeroPress and World Barista champion on a timeline with a live countdown to the next final, filters by championship and brewer, and a recipe sheet for every champion: their coffee, gear and published recipe (or a marked starting point in the same style), adapted to the brewers and grinders you own |
 | **Guide** | Ratio calculator and a taste-based troubleshooter |
 | **Log** | Rated brew log with stats and CSV export, shared live with friends through a group code |
 
-You can share anything to WhatsApp, Telegram, Messages or email, through your phone's share menu, as a styled PDF, or as text. Everything you save (calibration, log, scans) stays in your own browser.
+You can share anything to WhatsApp, Telegram, Messages or email, through your phone's share menu, as a styled PDF, or as text. Every share carries a link that opens the same thing in the app: a recipe, a champion's recipe, your dial-in or brew plan (with the grind converted to the other person's grinders), a variety or an origin. Everything you save (calibration, log, scans) stays in your own browser.
 
 ## Install on your phone
 
