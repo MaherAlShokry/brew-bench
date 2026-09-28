@@ -1533,25 +1533,45 @@ function renderFlow(){
   $('flowlegend').innerHTML=Object.values(FLOW_PHASES).map(([n,c])=>'<span class="pill"><i style="background:'+c+'"></i>'+esc(n)+'</span>').join('');
   $('flowchart').innerHTML=Object.entries(FLOW_PHASES).map(([ph,[pn,c]])=>'<div class="fphase" style="--c:'+c+'"><span class="fph">'+esc(pn)+'</span><div class="fsteps">'+
     FLOW.filter(f=>f.ph===ph).map(f=>'<button type="button" class="fstep'+(f.side?' side':'')+(f.branch?' key':'')+'" data-f="'+f.id+'"><span class="fico">'+fIcon(f.icon)+'</span><span><b>'+esc(f.t)+'</b><small>'+esc(f.s)+'</small></span><span class="fn">'+(f.side?'Optional':FNUM[f.id])+'</span></button>'+
-      (f.branch?'<div class="fbranch" role="group" aria-label="Processing paths">'+FLOW_BRANCH.map((b,i)=>'<button type="button" class="fbr" data-fb="'+i+'"><b>'+esc(b.t)+'</b><small>'+esc(b.s)+'</small><em>'+esc(b.d)+'</em></button>').join('')+'</div>':'')).join('')+
+      (f.branch?'<div class="fbranch" role="group" aria-label="Processing paths">'+FLOW_BRANCH.map((b,i)=>fbrHTML(b,i)).join('')+'</div>':'')+
+      (f.tree?'<div class="fside" style="--c:'+c+'">'+treeKeys(f.tree).map(k=>'<button type="button" class="chip" data-go-p="'+k+'">'+esc(PROCESSES[k].name.replace(/\s*\(.*$/,''))+'</button>').join('')+'</div>':'')).join('')+
     '</div></div>').join('')}
-$('flowchart').onclick=e=>{const b=e.target.closest('[data-fb]');if(b){openFlowBranch(+b.dataset.fb);return}const f=e.target.closest('[data-f]');if(f)openFlowStep(f.dataset.f)};
+$('flowchart').onclick=e=>{if(goLink(e)||togglePnode(e))return;const b=e.target.closest('[data-fb]');if(b){toggleBranch(b);return}const f=e.target.closest('[data-f]');if(f)openFlowStep(f.dataset.f)};
+// A path card: its name, steps, taste, and the processes on it.
+function fbrHTML(b,i){const ks=treeKeys(b.tree),nm=k=>PROCESSES[k].name.replace(/\s*\(.*$/,'');
+  return '<button type="button" class="fbr" data-fb="'+i+'" aria-expanded="false"><b>'+esc(b.t)+'</b><small>'+esc(b.s)+'</small><em>'+esc(b.d)+'</em>'+
+    '<span class="fbr-list">'+esc(ks.slice(0,3).map(nm).join(', '))+(ks.length>3?' + '+(ks.length-3)+' more':'')+'</span><span class="fbr-more">'+(ks.length>1?'Explore '+ks.length+' processes':'Explore it')+'</span></button>'}
+// The processes on a path, as a tree: a process opens to show its description and its variations.
+function ptreeHTML(nodes,depth){return '<div class="ptree'+(depth?' kids':'')+'">'+nodes.map(n=>{const P=n.p&&PROCESSES[n.p];if(n.p&&!P)return '';
+  const name=P?P.name:n.g,sub=n.r||(P?P.char.split(/(?<=\.)\s/)[0]:n.s),c=P?PCOL[P.cat]:'var(--muted)',kn=n.kids?n.kids.length:0;
+  return '<div class="pnode" style="--c:'+c+'"><button type="button" class="pn-h" aria-expanded="false"><i aria-hidden="true"></i><span class="pn-t"><b>'+esc(name)+'</b><small'+(n.r?'':' class="dup"')+'>'+esc(sub)+'</small>'+(kn?'<em>'+kn+(kn===1?' variation':' variations')+' inside</em>':'')+'</span>'+
+    '<span class="pn-x" aria-hidden="true"></span></button><div class="pn-b">'+
+    (P?'<p>'+esc(P.char)+'</p>'+(P.notes&&P.notes.length?'<div class="chips">'+P.notes.map(x=>'<span class="chip">'+esc(x)+'</span>').join('')+'</div>':'')+
+       '<button type="button" class="btn ghost pn-go" data-go-p="'+n.p+'">How it works and how to brew it \u2192</button>':'<p>'+esc(n.d||n.s||'')+'</p>')+
+    (kn?'<p class="pn-kh">'+(P?'Variations of '+esc(P.name.replace(/\s*\(.*$/,'').toLowerCase().replace(/^co2/,'CO2')):'In this group')+'</p>'+ptreeHTML(n.kids,depth+1):'')+'</div></div>'}).join('')+'</div>'}
+function togglePnode(e){const h=e.target.closest('.pn-h');if(!h)return false;const n=h.parentElement,o=!n.classList.contains('open');n.classList.toggle('open',o);h.setAttribute('aria-expanded',o);return true}
+// Tapping a path opens its tree right under it (and closes any other).
+function toggleBranch(btn){const i=+btn.dataset.fb,box=btn.parentElement,cur=box.querySelector('.fbx'),same=cur&&+cur.dataset.fb===i;
+  if(cur)cur.remove();box.querySelectorAll('.fbr').forEach(b=>b.setAttribute('aria-expanded','false'));if(same)return;
+  const b=FLOW_BRANCH[i],el=document.createElement('div');el.className='fbx';el.dataset.fb=i;
+  el.innerHTML='<div class="fbx-h"><b>The '+esc(b.t.toLowerCase())+' path</b><span class="hint">Tap a process to learn more; those with variations open to show them.</span></div>'+ptreeHTML(b.tree,0);
+  btn.after(el);btn.setAttribute('aria-expanded','true');const r=el.getBoundingClientRect();if(r.bottom>innerHeight)el.scrollIntoView({block:'nearest',behavior:RM()?'auto':'smooth'})}
 function flowSheet(c,pill,title,sub,body){const d=$('vd');
   d.querySelector('#vd-in').innerHTML='<div class="vd-head" style="--c:'+c+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:'+c+'"></i>'+esc(pill)+'</span><h2 id="vd-title">'+esc(title)+'</h2>'+(sub?'<p class="hint" style="margin:0">'+esc(sub)+'</p>':'')+'</div><div class="vd-body flowd">'+body+'</div>';
-  d.querySelector('.vd-body').onclick=e=>{if(goLink(e))return;const n=e.target.closest('[data-fnav]');if(n)openFlowStep(n.dataset.fnav);const b=e.target.closest('[data-fb]');if(b)openFlowBranch(+b.dataset.fb)};
+  d.querySelector('.vd-body').onclick=e=>{if(goLink(e)||togglePnode(e))return;const n=e.target.closest('[data-fnav]');if(n)openFlowStep(n.dataset.fnav);const b=e.target.closest('[data-fb]');if(b)openFlowBranch(+b.dataset.fb)};
   $('vd-x').onclick=()=>d.close();if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}d.scrollTop=0}
 function openFlowStep(id){const f=FBY[id];if(!f)return;const [pn,c]=FLOW_PHASES[f.ph],i=FLOW.indexOf(f),prev=FLOW[i-1],next=FLOW[i+1];
   const chips=(f.k||[]).map(t=>linkChip('k:'+t)).join(''),go=(f.go||[]).map(([l,lab])=>linkChip(l,lab)).join('');
   flowSheet(c,pn+(f.side?' · optional':' · step '+FNUM[f.id]+' of '+Object.keys(FNUM).length),f.t,f.s,'<p>'+esc(f.d)+'</p>'+
     (f.n?'<ul class="fnotes">'+f.n.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'')+
-    (f.branch?'<h3>The paths</h3><div class="fbranch" style="--c:'+c+'">'+FLOW_BRANCH.map((b,j)=>'<button type="button" class="fbr" data-fb="'+j+'"><b>'+esc(b.t)+'</b><small>'+esc(b.s)+'</small><em>'+esc(b.d)+'</em></button>').join('')+'</div>':'')+
-    (go?'<h3>'+(f.side?'The methods':'Go further')+'</h3><div class="chips">'+go+'</div>':'')+
+    (f.branch?'<h3>The paths</h3><div class="fbranch" style="--c:'+c+'">'+FLOW_BRANCH.map((b,j)=>fbrHTML(b,j)).join('')+'</div>':'')+
+    (f.tree?'<h3>The methods</h3>'+ptreeHTML(f.tree,0):'')+
+    (go?'<h3>Go further</h3><div class="chips">'+go+'</div>':'')+
     (chips?'<h3>Words to know</h3><div class="chips">'+chips+'</div>':'')+
     '<div class="actions">'+(prev?'<button type="button" class="btn ghost" data-fnav="'+prev.id+'">← '+esc(prev.t)+'</button>':'')+(next?'<button type="button" class="btn" data-fnav="'+next.id+'">'+esc(next.t)+' →</button>':'')+'</div>')}
 function openFlowBranch(i){const b=FLOW_BRANCH[i],c=FLOW_PHASES.mill[1];
-  flowSheet(c,'Processing path',b.t,b.s,'<p><b>In the cup:</b> '+esc(b.d.toLowerCase())+'.</p><h3>'+(b.p.length>1?'The processes on this path':'The process')+'</h3><div class="grid" style="grid-template-columns:1fr;gap:8px">'+
-    b.p.filter(k=>PROCESSES[k]).map(k=>{const P=PROCESSES[k];return '<button type="button" class="card fbr" style="--c:'+PCOL[P.cat]+'" data-go-p="'+k+'"><b>'+esc(P.name)+'</b><small>'+esc(P.char.split(/(?<=\.)\s/)[0])+'</small><em>Read how it works →</em></button>'}).join('')+'</div>'+
-    '<div class="actions"><button type="button" class="btn ghost" data-fnav="process">← Processing</button><button type="button" class="btn" data-fnav="dry">Drying →</button></div>')}
+  flowSheet(c,'Processing path',b.t,b.s,'<p><b>In the cup:</b> '+esc(b.d.toLowerCase())+'.</p><h3>'+(treeKeys(b.tree).length>1?'The processes on this path':'The process')+'</h3><p class="hint" style="margin-top:0">Tap a process to learn more; those with variations open to show them.</p>'+ptreeHTML(b.tree,0)+
+    '<div class="actions"><button type="button" class="btn ghost" data-fnav="process">\u2190 Processing</button><button type="button" class="btn" data-fnav="dry">Drying \u2192</button></div>')}
 function flowDoc(){return{link:SITE_URL+'#flow',title:'From seed to cup',sub:'How coffee is made, step by step',file:'seed-to-cup',blocks:FLOW.map(f=>({h:(f.side?'Optional: ':FNUM[f.id]+'. ')+f.t,p:f.d+(f.branch?' Paths: '+FLOW_BRANCH.map(b=>b.t+' ('+b.d.toLowerCase()+')').join(', ')+'.':'')}))}}
 
 /* ================= APP SHELL ================= */

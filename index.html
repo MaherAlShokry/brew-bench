@@ -337,6 +337,30 @@ mark.wq{background:color-mix(in srgb,var(--honey) 40%,transparent);color:inherit
 @media (min-width:720px){.fstep+.fbranch::before{display:block;top:-19px;height:25px}.fbranch{grid-template-columns:repeat(5,minmax(0,1fr));padding:14px 0 4px}.fbranch::after{left:8%;right:8%;top:6px;bottom:auto;border-left:0;border-top:2px solid var(--c)}
   .fbr::before{left:50%;top:-9px;width:0;height:8px;border-top:0;border-left:2px solid var(--c)}}
 .flowd .fbranch{padding-left:0}.flowd .fbranch::after,.flowd .fbr::before{display:none}
+.fbr .fbr-list{display:block;font-size:.76rem;line-height:1.35;color:var(--muted);margin-top:6px}
+.fbr .fbr-more{display:block;font-size:.76rem;font-weight:700;color:var(--ink);margin-top:6px}.fbr .fbr-more::after{content:" \25BE"}.fbr[aria-expanded="true"] .fbr-more::after{content:" \25B4"}
+.fbr[aria-expanded="true"]{border-color:var(--c);box-shadow:0 0 0 2px color-mix(in srgb,var(--c) 35%,transparent)}
+.fbranch{grid-auto-flow:row dense}
+.fbx{grid-column:1/-1;background:var(--surface);border:1px solid color-mix(in srgb,var(--c) 40%,var(--line));border-radius:16px;padding:12px;animation:secin .25s ease}
+.fbx-h{margin:0 0 10px}.fbx-h b{display:block;font-family:var(--display)}.fbx-h .hint{display:block;margin:2px 0 0;font-size:.82rem}
+.ptree{display:grid;gap:8px}
+.ptree.kids{margin-top:6px;padding-left:12px;border-left:2px solid color-mix(in srgb,var(--c) 45%,var(--line))}
+.pnode{border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.pnode.open{border-color:color-mix(in srgb,var(--c) 55%,var(--line))}
+.pn-h{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:0;padding:10px 12px;font:inherit;color:var(--ink);cursor:pointer}
+.pn-h>i{flex:none;width:10px;height:10px;border-radius:50%;background:var(--c)}
+.pn-t{flex:1;min-width:0}.pn-t b{display:block;font-size:.95rem}.pn-t small{display:block;color:var(--muted);font-size:.8rem;line-height:1.35;margin-top:1px}
+.pn-t em{display:inline-block;margin-top:5px;font-style:normal;font-size:.7rem;font-weight:700;color:var(--ink);background:color-mix(in srgb,var(--c) 20%,var(--surface));border-radius:999px;padding:2px 8px;white-space:nowrap}
+.pn-x{flex:none;width:18px;text-align:center;color:var(--muted);font-size:1.1rem;line-height:1}.pn-x::before{content:"+"}.pnode.open>.pn-h .pn-x::before{content:"\2212"}
+.pn-b{display:none;padding:0 12px 12px 32px}.pnode.open>.pn-h small.dup{display:none}
+.pn-b>p{font-size:.92rem;line-height:1.5}.pnode.open>.pn-b{display:block}
+.pn-b>p{margin:0 0 .5rem}.pn-b .chips{margin:0 0 8px}.pn-go{margin-top:2px;font-size:.88rem;padding:8px 14px}
+.pn-kh{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:.9rem 0 0!important}
+.pn-b .ptree.kids .pn-b{padding-left:12px}
+@media (max-width:560px){.fbx{padding:10px 8px}.pn-h{padding:10px;gap:8px}.pn-b{padding:0 10px 10px 10px}.ptree.kids{padding-left:8px}.fbranch{padding-left:22px}.fbranch::after{left:8px}.fbr::before{left:-14px;width:13px}}
+.fside{display:flex;flex-wrap:wrap;gap:6px;margin:-8px 0 0 14px}
+.fside+.fstep::before{content:"";position:absolute;left:50%;top:-19px;height:18px;border-left:2px solid var(--c)}
+.fside+.fstep::after{content:"";position:absolute;left:calc(50% - 5px);top:-8px;border:5px solid transparent;border-top-color:var(--c)}
 .flowd .fnotes{margin:.4rem 0 0;padding-left:1.1rem}.flowd .fnotes li{margin:.2rem 0}
 .flowd h3{margin:1.1rem 0 .4rem}
 @keyframes flash{0%,100%{box-shadow:var(--shadow)}30%{box-shadow:0 0 0 4px var(--honey)}}
@@ -2073,7 +2097,8 @@ const FLOW=[
   {id:'dry',ph:'mill',icon:'sun',t:'Drying',s:'Down to 10 to 12% moisture',d:'On raised beds, patios or in mechanical dryers, the coffee dries over one to four weeks. Slow, even drying keeps it sweet and stable; uneven drying brings mould or flat, woody flavours.',n:['Naturals take longest: the whole fruit is still on','Turned often so it dries evenly'],k:['Drying','Raised beds','Moisture content','Water activity']},
   {id:'rest',ph:'mill',icon:'hourglass',t:'Resting in parchment',s:'Reposo',d:'Dried coffee rests in its parchment for weeks, sometimes months, so moisture evens out through the bean before milling.',k:['Reposo','Parchment']},
   {id:'mill',ph:'mill',icon:'cog',t:'Dry milling',s:'Hulling and polishing',d:'Machines remove the parchment, or the dried husk of a natural, then polish off most of the silverskin. What comes out is green coffee.',k:['Hulling','Silverskin','Green coffee']},
-  {id:'decaf',ph:'mill',icon:'flask',t:'Decaffeination (optional)',s:'Before roasting',d:'If a coffee is to be decaf, the caffeine comes out now, while the beans are still green: with water, sugarcane-derived ethyl acetate, CO₂ or a solvent.',side:true,go:[['p:swisswater','Swiss Water'],['p:sugarcane','Sugarcane (EA)'],['p:co2decaf','CO₂'],['p:mcdecaf','Solvent']]},
+  {id:'age',ph:'mill',icon:'hourglass',t:'Ageing (optional)',s:'Monsooned, barrel-aged, aged green',d:'A few coffees are changed after drying and milling rather than during processing: left in monsoon winds, rested in spirit barrels or simply stored for years. All of them lower acidity and add woody, spicy or boozy notes.',side:true,tree:[{p:'monsooned',r:'India: beans swell and pale in the humid monsoon winds'},{p:'barrelaged',r:'Rested in used whisky, rum or wine barrels'},{p:'aged',r:'Stored for years, traditionally in Indonesia'}]},
+  {id:'decaf',ph:'mill',icon:'flask',t:'Decaffeination (optional)',s:'Before roasting',d:'If a coffee is to be decaf, the caffeine comes out now, while the beans are still green: with water, sugarcane-derived ethyl acetate, CO₂ or a solvent.',side:true,tree:[{p:'swisswater',r:'Water and carbon filters, no chemicals'},{p:'sugarcane',r:'Ethyl acetate made from sugarcane'},{p:'co2decaf',r:'Pressurised carbon dioxide'},{p:'mcdecaf',r:'The traditional European solvent method'}]},
   {id:'grade',ph:'trade',icon:'clipboard',t:'Grading and sorting',s:'Size, density, defects',d:'Beans are sorted by size through screens, by density on gravity tables, and for defects by optical sorters and by hand. The grade sets the price.',k:['Screen size','Density','Defects','Kenya AA','SHB and SHG','Grade 1']},
   {id:'cup1',ph:'trade',icon:'cup',t:'Cupping and buying',s:'Tasted before it’s sold',d:'Samples are roasted and cupped by exporters, importers and roasters. Scores, stories and price decide where the coffee goes.',k:['Cupping','Q grader','Specialty coffee','C price','Direct trade','Fair Trade']},
   {id:'ship',ph:'trade',icon:'ship',t:'Shipping',s:'Green coffee travels',d:'Green coffee is packed in jute sacks, usually with a hermetic liner, and shipped by container. The trip can take weeks; heat and humidity are the risks.',k:['Hermetic bags','Crop year']},
@@ -2090,14 +2115,25 @@ const FICO={sprout:'M12 21v-8 M12 13c0-4-3-6-7-6c0 4 3 6 7 6z M12 11c0-3.5 2.5-6
   flame:'M12 3c1 4 5 5.5 5 10a5 5 0 0 1-10 0c0-2.5 1.5-4 2.5-5c.5 2 1.5 3 2.5 3c0-3-1-5.5 0-8z',
   cup:'M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z M16 11h1.5a2.5 2.5 0 0 1 0 5H15 M9 3c-1 1.5 1 2.5 0 4 M12.5 3c-1 1.5 1 2.5 0 4',
   ship:'M3 16l2 4h14l2-4z M5 16v-6h14v6 M9 10V6h6v4'};
-// The processing paths shown as branches under Processing.
+// The processing paths shown as branches under Processing. Each has a tree: a process can hold its variations,
+// and a group (g) gathers related processes. r says how a process relates to the one above it.
 const FLOW_BRANCH=[
-  {t:'Washed',s:'Pulp off, ferment, wash, dry',d:'Clean and bright',p:['washed','doublewashed','ecopulped']},
-  {t:'Honey',s:'Pulp off, dry with mucilage on',d:'Sweet and round',p:['honey','whitehoney','redhoney','blackhoney','pulpednatural']},
-  {t:'Natural',s:'Dry the whole cherry',d:'Fruity and heavy',p:['natural']},
-  {t:'Wet-hulled',s:'Hull while still wet',d:'Earthy and low acid',p:['wethulled']},
-  {t:'Fermentation-led',s:'Sealed tanks, starters, added ingredients',d:'Intense and experimental',p:['anaerobic','anaerobicnatural','anaerobicwashed','carbonic','lactic','yeast','koji','extended','thermalshock','mossto','coferment','infused']}
+  {t:'Washed',s:'Pulp off, ferment, wash, dry',d:'Clean and bright',tree:[
+    {p:'washed',kids:[{p:'doublewashed',r:'A second soak and wash after the first ferment, as in Kenya'},{p:'ecopulped',r:'The mucilage is scrubbed off by machine instead of fermented off'},{p:'anaerobicwashed',r:'The ferment happens in a sealed, oxygen-free tank'}]}]},
+  {t:'Honey',s:'Pulp off, dry with mucilage on',d:'Sweet and round',tree:[
+    {p:'honey',kids:[{p:'whitehoney',r:'Least mucilage left on, fastest drying'},{p:'redhoney',r:'More mucilage, slower drying'},{p:'blackhoney',r:'Most mucilage, slowest drying, often shaded'},{p:'pulpednatural',r:'Brazil’s version of the honey process'}]}]},
+  {t:'Natural',s:'Dry the whole cherry',d:'Fruity and heavy',tree:[
+    {p:'natural',kids:[{p:'anaerobicnatural',r:'Whole cherries sealed and fermented before drying'},{p:'carbonic',r:'Whole cherries fermented under CO₂ before drying'}]}]},
+  {t:'Wet-hulled',s:'Hull while still wet',d:'Earthy and low acid',tree:[{p:'wethulled'}]},
+  {t:'Fermentation-led',s:'Sealed tanks, starters, added ingredients',d:'Intense and experimental',tree:[
+    {p:'anaerobic',kids:[{p:'anaerobicnatural',r:'Sealed as whole cherries, then dried as a natural'},{p:'anaerobicwashed',r:'Pulped, sealed, then washed'},{p:'carbonic',r:'The sealed tank is flushed with carbon dioxide'},{p:'lactic',r:'Conditions steered towards lactic acid bacteria'}]},
+    {p:'extended',r:'Days instead of hours, in cherry or in tanks'},
+    {g:'Starter cultures',s:'Adding chosen microbes to steer the ferment',d:'Instead of relying on the wild yeasts and bacteria on the fruit, the producer adds a culture, much as a baker uses a starter. The result is more control and a more repeatable cup.',kids:[{p:'yeast',r:'Selected wine or beer yeasts'},{p:'koji',r:'The mould behind sake and miso'},{p:'mossto',r:'Juice from an earlier fermentation starts the next'}]},
+    {p:'thermalshock',r:'A finishing rinse, hot then cold, after a long ferment'},
+    {g:'Added ingredients',s:'Fruit, spices or flavour in the process',d:'The most debated corner of speciality coffee. Co-fermented coffees are fermented with something else; infused coffees have flavour added. Good roasters say what went in.',kids:[{p:'coferment',r:'Fermented together with fruit, spices or cultures'},{p:'infused',r:'Flavour added to the beans'}]}]}
 ];
+// Every process key in a tree, once each.
+const treeKeys=t=>[...new Set(t.flatMap(n=>(n.p?[n.p]:[]).concat(n.kids?treeKeys(n.kids):[])))];
 
 const EVENTS_DEFAULT={
  "updated": "2026-09-27",
@@ -3677,25 +3713,45 @@ function renderFlow(){
   $('flowlegend').innerHTML=Object.values(FLOW_PHASES).map(([n,c])=>'<span class="pill"><i style="background:'+c+'"></i>'+esc(n)+'</span>').join('');
   $('flowchart').innerHTML=Object.entries(FLOW_PHASES).map(([ph,[pn,c]])=>'<div class="fphase" style="--c:'+c+'"><span class="fph">'+esc(pn)+'</span><div class="fsteps">'+
     FLOW.filter(f=>f.ph===ph).map(f=>'<button type="button" class="fstep'+(f.side?' side':'')+(f.branch?' key':'')+'" data-f="'+f.id+'"><span class="fico">'+fIcon(f.icon)+'</span><span><b>'+esc(f.t)+'</b><small>'+esc(f.s)+'</small></span><span class="fn">'+(f.side?'Optional':FNUM[f.id])+'</span></button>'+
-      (f.branch?'<div class="fbranch" role="group" aria-label="Processing paths">'+FLOW_BRANCH.map((b,i)=>'<button type="button" class="fbr" data-fb="'+i+'"><b>'+esc(b.t)+'</b><small>'+esc(b.s)+'</small><em>'+esc(b.d)+'</em></button>').join('')+'</div>':'')).join('')+
+      (f.branch?'<div class="fbranch" role="group" aria-label="Processing paths">'+FLOW_BRANCH.map((b,i)=>fbrHTML(b,i)).join('')+'</div>':'')+
+      (f.tree?'<div class="fside" style="--c:'+c+'">'+treeKeys(f.tree).map(k=>'<button type="button" class="chip" data-go-p="'+k+'">'+esc(PROCESSES[k].name.replace(/\s*\(.*$/,''))+'</button>').join('')+'</div>':'')).join('')+
     '</div></div>').join('')}
-$('flowchart').onclick=e=>{const b=e.target.closest('[data-fb]');if(b){openFlowBranch(+b.dataset.fb);return}const f=e.target.closest('[data-f]');if(f)openFlowStep(f.dataset.f)};
+$('flowchart').onclick=e=>{if(goLink(e)||togglePnode(e))return;const b=e.target.closest('[data-fb]');if(b){toggleBranch(b);return}const f=e.target.closest('[data-f]');if(f)openFlowStep(f.dataset.f)};
+// A path card: its name, steps, taste, and the processes on it.
+function fbrHTML(b,i){const ks=treeKeys(b.tree),nm=k=>PROCESSES[k].name.replace(/\s*\(.*$/,'');
+  return '<button type="button" class="fbr" data-fb="'+i+'" aria-expanded="false"><b>'+esc(b.t)+'</b><small>'+esc(b.s)+'</small><em>'+esc(b.d)+'</em>'+
+    '<span class="fbr-list">'+esc(ks.slice(0,3).map(nm).join(', '))+(ks.length>3?' + '+(ks.length-3)+' more':'')+'</span><span class="fbr-more">'+(ks.length>1?'Explore '+ks.length+' processes':'Explore it')+'</span></button>'}
+// The processes on a path, as a tree: a process opens to show its description and its variations.
+function ptreeHTML(nodes,depth){return '<div class="ptree'+(depth?' kids':'')+'">'+nodes.map(n=>{const P=n.p&&PROCESSES[n.p];if(n.p&&!P)return '';
+  const name=P?P.name:n.g,sub=n.r||(P?P.char.split(/(?<=\.)\s/)[0]:n.s),c=P?PCOL[P.cat]:'var(--muted)',kn=n.kids?n.kids.length:0;
+  return '<div class="pnode" style="--c:'+c+'"><button type="button" class="pn-h" aria-expanded="false"><i aria-hidden="true"></i><span class="pn-t"><b>'+esc(name)+'</b><small'+(n.r?'':' class="dup"')+'>'+esc(sub)+'</small>'+(kn?'<em>'+kn+(kn===1?' variation':' variations')+' inside</em>':'')+'</span>'+
+    '<span class="pn-x" aria-hidden="true"></span></button><div class="pn-b">'+
+    (P?'<p>'+esc(P.char)+'</p>'+(P.notes&&P.notes.length?'<div class="chips">'+P.notes.map(x=>'<span class="chip">'+esc(x)+'</span>').join('')+'</div>':'')+
+       '<button type="button" class="btn ghost pn-go" data-go-p="'+n.p+'">How it works and how to brew it \u2192</button>':'<p>'+esc(n.d||n.s||'')+'</p>')+
+    (kn?'<p class="pn-kh">'+(P?'Variations of '+esc(P.name.replace(/\s*\(.*$/,'').toLowerCase().replace(/^co2/,'CO2')):'In this group')+'</p>'+ptreeHTML(n.kids,depth+1):'')+'</div></div>'}).join('')+'</div>'}
+function togglePnode(e){const h=e.target.closest('.pn-h');if(!h)return false;const n=h.parentElement,o=!n.classList.contains('open');n.classList.toggle('open',o);h.setAttribute('aria-expanded',o);return true}
+// Tapping a path opens its tree right under it (and closes any other).
+function toggleBranch(btn){const i=+btn.dataset.fb,box=btn.parentElement,cur=box.querySelector('.fbx'),same=cur&&+cur.dataset.fb===i;
+  if(cur)cur.remove();box.querySelectorAll('.fbr').forEach(b=>b.setAttribute('aria-expanded','false'));if(same)return;
+  const b=FLOW_BRANCH[i],el=document.createElement('div');el.className='fbx';el.dataset.fb=i;
+  el.innerHTML='<div class="fbx-h"><b>The '+esc(b.t.toLowerCase())+' path</b><span class="hint">Tap a process to learn more; those with variations open to show them.</span></div>'+ptreeHTML(b.tree,0);
+  btn.after(el);btn.setAttribute('aria-expanded','true');const r=el.getBoundingClientRect();if(r.bottom>innerHeight)el.scrollIntoView({block:'nearest',behavior:RM()?'auto':'smooth'})}
 function flowSheet(c,pill,title,sub,body){const d=$('vd');
   d.querySelector('#vd-in').innerHTML='<div class="vd-head" style="--c:'+c+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:'+c+'"></i>'+esc(pill)+'</span><h2 id="vd-title">'+esc(title)+'</h2>'+(sub?'<p class="hint" style="margin:0">'+esc(sub)+'</p>':'')+'</div><div class="vd-body flowd">'+body+'</div>';
-  d.querySelector('.vd-body').onclick=e=>{if(goLink(e))return;const n=e.target.closest('[data-fnav]');if(n)openFlowStep(n.dataset.fnav);const b=e.target.closest('[data-fb]');if(b)openFlowBranch(+b.dataset.fb)};
+  d.querySelector('.vd-body').onclick=e=>{if(goLink(e)||togglePnode(e))return;const n=e.target.closest('[data-fnav]');if(n)openFlowStep(n.dataset.fnav);const b=e.target.closest('[data-fb]');if(b)openFlowBranch(+b.dataset.fb)};
   $('vd-x').onclick=()=>d.close();if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}d.scrollTop=0}
 function openFlowStep(id){const f=FBY[id];if(!f)return;const [pn,c]=FLOW_PHASES[f.ph],i=FLOW.indexOf(f),prev=FLOW[i-1],next=FLOW[i+1];
   const chips=(f.k||[]).map(t=>linkChip('k:'+t)).join(''),go=(f.go||[]).map(([l,lab])=>linkChip(l,lab)).join('');
   flowSheet(c,pn+(f.side?' · optional':' · step '+FNUM[f.id]+' of '+Object.keys(FNUM).length),f.t,f.s,'<p>'+esc(f.d)+'</p>'+
     (f.n?'<ul class="fnotes">'+f.n.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'')+
-    (f.branch?'<h3>The paths</h3><div class="fbranch" style="--c:'+c+'">'+FLOW_BRANCH.map((b,j)=>'<button type="button" class="fbr" data-fb="'+j+'"><b>'+esc(b.t)+'</b><small>'+esc(b.s)+'</small><em>'+esc(b.d)+'</em></button>').join('')+'</div>':'')+
-    (go?'<h3>'+(f.side?'The methods':'Go further')+'</h3><div class="chips">'+go+'</div>':'')+
+    (f.branch?'<h3>The paths</h3><div class="fbranch" style="--c:'+c+'">'+FLOW_BRANCH.map((b,j)=>fbrHTML(b,j)).join('')+'</div>':'')+
+    (f.tree?'<h3>The methods</h3>'+ptreeHTML(f.tree,0):'')+
+    (go?'<h3>Go further</h3><div class="chips">'+go+'</div>':'')+
     (chips?'<h3>Words to know</h3><div class="chips">'+chips+'</div>':'')+
     '<div class="actions">'+(prev?'<button type="button" class="btn ghost" data-fnav="'+prev.id+'">← '+esc(prev.t)+'</button>':'')+(next?'<button type="button" class="btn" data-fnav="'+next.id+'">'+esc(next.t)+' →</button>':'')+'</div>')}
 function openFlowBranch(i){const b=FLOW_BRANCH[i],c=FLOW_PHASES.mill[1];
-  flowSheet(c,'Processing path',b.t,b.s,'<p><b>In the cup:</b> '+esc(b.d.toLowerCase())+'.</p><h3>'+(b.p.length>1?'The processes on this path':'The process')+'</h3><div class="grid" style="grid-template-columns:1fr;gap:8px">'+
-    b.p.filter(k=>PROCESSES[k]).map(k=>{const P=PROCESSES[k];return '<button type="button" class="card fbr" style="--c:'+PCOL[P.cat]+'" data-go-p="'+k+'"><b>'+esc(P.name)+'</b><small>'+esc(P.char.split(/(?<=\.)\s/)[0])+'</small><em>Read how it works →</em></button>'}).join('')+'</div>'+
-    '<div class="actions"><button type="button" class="btn ghost" data-fnav="process">← Processing</button><button type="button" class="btn" data-fnav="dry">Drying →</button></div>')}
+  flowSheet(c,'Processing path',b.t,b.s,'<p><b>In the cup:</b> '+esc(b.d.toLowerCase())+'.</p><h3>'+(treeKeys(b.tree).length>1?'The processes on this path':'The process')+'</h3><p class="hint" style="margin-top:0">Tap a process to learn more; those with variations open to show them.</p>'+ptreeHTML(b.tree,0)+
+    '<div class="actions"><button type="button" class="btn ghost" data-fnav="process">\u2190 Processing</button><button type="button" class="btn" data-fnav="dry">Drying \u2192</button></div>')}
 function flowDoc(){return{link:SITE_URL+'#flow',title:'From seed to cup',sub:'How coffee is made, step by step',file:'seed-to-cup',blocks:FLOW.map(f=>({h:(f.side?'Optional: ':FNUM[f.id]+'. ')+f.t,p:f.d+(f.branch?' Paths: '+FLOW_BRANCH.map(b=>b.t+' ('+b.d.toLowerCase()+')').join(', ')+'.':'')}))}}
 
 /* ================= APP SHELL ================= */

@@ -133,7 +133,8 @@ const FLOW=[
   {id:'dry',ph:'mill',icon:'sun',t:'Drying',s:'Down to 10 to 12% moisture',d:'On raised beds, patios or in mechanical dryers, the coffee dries over one to four weeks. Slow, even drying keeps it sweet and stable; uneven drying brings mould or flat, woody flavours.',n:['Naturals take longest: the whole fruit is still on','Turned often so it dries evenly'],k:['Drying','Raised beds','Moisture content','Water activity']},
   {id:'rest',ph:'mill',icon:'hourglass',t:'Resting in parchment',s:'Reposo',d:'Dried coffee rests in its parchment for weeks, sometimes months, so moisture evens out through the bean before milling.',k:['Reposo','Parchment']},
   {id:'mill',ph:'mill',icon:'cog',t:'Dry milling',s:'Hulling and polishing',d:'Machines remove the parchment, or the dried husk of a natural, then polish off most of the silverskin. What comes out is green coffee.',k:['Hulling','Silverskin','Green coffee']},
-  {id:'decaf',ph:'mill',icon:'flask',t:'Decaffeination (optional)',s:'Before roasting',d:'If a coffee is to be decaf, the caffeine comes out now, while the beans are still green: with water, sugarcane-derived ethyl acetate, CO₂ or a solvent.',side:true,go:[['p:swisswater','Swiss Water'],['p:sugarcane','Sugarcane (EA)'],['p:co2decaf','CO₂'],['p:mcdecaf','Solvent']]},
+  {id:'age',ph:'mill',icon:'hourglass',t:'Ageing (optional)',s:'Monsooned, barrel-aged, aged green',d:'A few coffees are changed after drying and milling rather than during processing: left in monsoon winds, rested in spirit barrels or simply stored for years. All of them lower acidity and add woody, spicy or boozy notes.',side:true,tree:[{p:'monsooned',r:'India: beans swell and pale in the humid monsoon winds'},{p:'barrelaged',r:'Rested in used whisky, rum or wine barrels'},{p:'aged',r:'Stored for years, traditionally in Indonesia'}]},
+  {id:'decaf',ph:'mill',icon:'flask',t:'Decaffeination (optional)',s:'Before roasting',d:'If a coffee is to be decaf, the caffeine comes out now, while the beans are still green: with water, sugarcane-derived ethyl acetate, CO₂ or a solvent.',side:true,tree:[{p:'swisswater',r:'Water and carbon filters, no chemicals'},{p:'sugarcane',r:'Ethyl acetate made from sugarcane'},{p:'co2decaf',r:'Pressurised carbon dioxide'},{p:'mcdecaf',r:'The traditional European solvent method'}]},
   {id:'grade',ph:'trade',icon:'clipboard',t:'Grading and sorting',s:'Size, density, defects',d:'Beans are sorted by size through screens, by density on gravity tables, and for defects by optical sorters and by hand. The grade sets the price.',k:['Screen size','Density','Defects','Kenya AA','SHB and SHG','Grade 1']},
   {id:'cup1',ph:'trade',icon:'cup',t:'Cupping and buying',s:'Tasted before it’s sold',d:'Samples are roasted and cupped by exporters, importers and roasters. Scores, stories and price decide where the coffee goes.',k:['Cupping','Q grader','Specialty coffee','C price','Direct trade','Fair Trade']},
   {id:'ship',ph:'trade',icon:'ship',t:'Shipping',s:'Green coffee travels',d:'Green coffee is packed in jute sacks, usually with a hermetic liner, and shipped by container. The trip can take weeks; heat and humidity are the risks.',k:['Hermetic bags','Crop year']},
@@ -150,11 +151,22 @@ const FICO={sprout:'M12 21v-8 M12 13c0-4-3-6-7-6c0 4 3 6 7 6z M12 11c0-3.5 2.5-6
   flame:'M12 3c1 4 5 5.5 5 10a5 5 0 0 1-10 0c0-2.5 1.5-4 2.5-5c.5 2 1.5 3 2.5 3c0-3-1-5.5 0-8z',
   cup:'M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z M16 11h1.5a2.5 2.5 0 0 1 0 5H15 M9 3c-1 1.5 1 2.5 0 4 M12.5 3c-1 1.5 1 2.5 0 4',
   ship:'M3 16l2 4h14l2-4z M5 16v-6h14v6 M9 10V6h6v4'};
-// The processing paths shown as branches under Processing.
+// The processing paths shown as branches under Processing. Each has a tree: a process can hold its variations,
+// and a group (g) gathers related processes. r says how a process relates to the one above it.
 const FLOW_BRANCH=[
-  {t:'Washed',s:'Pulp off, ferment, wash, dry',d:'Clean and bright',p:['washed','doublewashed','ecopulped']},
-  {t:'Honey',s:'Pulp off, dry with mucilage on',d:'Sweet and round',p:['honey','whitehoney','redhoney','blackhoney','pulpednatural']},
-  {t:'Natural',s:'Dry the whole cherry',d:'Fruity and heavy',p:['natural']},
-  {t:'Wet-hulled',s:'Hull while still wet',d:'Earthy and low acid',p:['wethulled']},
-  {t:'Fermentation-led',s:'Sealed tanks, starters, added ingredients',d:'Intense and experimental',p:['anaerobic','anaerobicnatural','anaerobicwashed','carbonic','lactic','yeast','koji','extended','thermalshock','mossto','coferment','infused']}
+  {t:'Washed',s:'Pulp off, ferment, wash, dry',d:'Clean and bright',tree:[
+    {p:'washed',kids:[{p:'doublewashed',r:'A second soak and wash after the first ferment, as in Kenya'},{p:'ecopulped',r:'The mucilage is scrubbed off by machine instead of fermented off'},{p:'anaerobicwashed',r:'The ferment happens in a sealed, oxygen-free tank'}]}]},
+  {t:'Honey',s:'Pulp off, dry with mucilage on',d:'Sweet and round',tree:[
+    {p:'honey',kids:[{p:'whitehoney',r:'Least mucilage left on, fastest drying'},{p:'redhoney',r:'More mucilage, slower drying'},{p:'blackhoney',r:'Most mucilage, slowest drying, often shaded'},{p:'pulpednatural',r:'Brazil’s version of the honey process'}]}]},
+  {t:'Natural',s:'Dry the whole cherry',d:'Fruity and heavy',tree:[
+    {p:'natural',kids:[{p:'anaerobicnatural',r:'Whole cherries sealed and fermented before drying'},{p:'carbonic',r:'Whole cherries fermented under CO₂ before drying'}]}]},
+  {t:'Wet-hulled',s:'Hull while still wet',d:'Earthy and low acid',tree:[{p:'wethulled'}]},
+  {t:'Fermentation-led',s:'Sealed tanks, starters, added ingredients',d:'Intense and experimental',tree:[
+    {p:'anaerobic',kids:[{p:'anaerobicnatural',r:'Sealed as whole cherries, then dried as a natural'},{p:'anaerobicwashed',r:'Pulped, sealed, then washed'},{p:'carbonic',r:'The sealed tank is flushed with carbon dioxide'},{p:'lactic',r:'Conditions steered towards lactic acid bacteria'}]},
+    {p:'extended',r:'Days instead of hours, in cherry or in tanks'},
+    {g:'Starter cultures',s:'Adding chosen microbes to steer the ferment',d:'Instead of relying on the wild yeasts and bacteria on the fruit, the producer adds a culture, much as a baker uses a starter. The result is more control and a more repeatable cup.',kids:[{p:'yeast',r:'Selected wine or beer yeasts'},{p:'koji',r:'The mould behind sake and miso'},{p:'mossto',r:'Juice from an earlier fermentation starts the next'}]},
+    {p:'thermalshock',r:'A finishing rinse, hot then cold, after a long ferment'},
+    {g:'Added ingredients',s:'Fruit, spices or flavour in the process',d:'The most debated corner of speciality coffee. Co-fermented coffees are fermented with something else; infused coffees have flavour added. Good roasters say what went in.',kids:[{p:'coferment',r:'Fermented together with fruit, spices or cultures'},{p:'infused',r:'Flavour added to the beans'}]}]}
 ];
+// Every process key in a tree, once each.
+const treeKeys=t=>[...new Set(t.flatMap(n=>(n.p?[n.p]:[]).concat(n.kids?treeKeys(n.kids):[])))];
