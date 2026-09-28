@@ -29,6 +29,13 @@
         </provider>
     </application>
 
+    <!-- Android 11+ hides other apps unless declared: without this the camera can't be found and "Scan with camera" opens the file picker -->
+    <queries>
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
+        </intent>
+    </queries>
+
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />

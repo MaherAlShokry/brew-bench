@@ -1103,9 +1103,11 @@ function initScan(){
   $('s-origin').innerHTML=Object.entries(REG).map(([rk,r])=>'<optgroup label="'+r.name+'">'+Object.keys(ALLO()).filter(k=>ALLO()[k].reg===rk).sort((a,b)=>ALLO()[a].name.localeCompare(ALLO()[b].name)).map(k=>'<option value="'+k+'">'+esc(ALLO()[k].name)+'</option>').join('')+'</optgroup>').join('');
   $('s-brewer').innerHTML=brewerOptions(PBREWERS);
   for(const [id,key] of [['s-origin','origin'],['s-process','process'],['s-variety','variety'],['s-brewer','brewer'],['s-date','date']])$(id).onchange=e=>{SC[key]=e.target.value;if(key==='brewer'&&!canGrind(SC.grinder,SC.brewer))SC.grinder=capable(SC.brewer);renderScan()};
-  $('scan-pick').onclick=()=>$('scan-file').click();$('scan-drop').onclick=()=>$('scan-file').click();
-  $('scan-file').onchange=e=>{const f=e.target.files[0];if(!f)return;SFILE=f;const u=URL.createObjectURL(f);$('scan-prev').src=u;$('scan-prev').hidden=false;$('scan-empty').hidden=true;$('scan-go').disabled=false;$('scan-status').hidden=false;
-    $('scan-status').textContent='Ready. Tap "Read the label".';runScan(true)};
+  // Two ways in: the camera straight away, or a photo already on the phone. Typing or pasting the text is below.
+  $('scan-pick').onclick=()=>$('scan-cam').click();$('scan-choose').onclick=()=>$('scan-file').click();
+  $('scan-drop').onclick=e=>{if(e.target.tagName!=='INPUT')$('scan-cam').click()}; /* the hidden inputs sit inside the box, so their clicks bubble up to it */
+  $('scan-cam').onchange=$('scan-file').onchange=e=>{const f=e.target.files[0];e.target.value='';if(!f)return;SFILE=f;if($('scan-prev').src.startsWith('blob:'))URL.revokeObjectURL($('scan-prev').src);
+    $('scan-prev').src=URL.createObjectURL(f);$('scan-prev').hidden=false;$('scan-empty').hidden=true;$('scan-go').disabled=false;$('scan-again').hidden=false;$('scan-status').hidden=false;runScan(true)};
   $('scan-go').onclick=()=>runScan(true);$('scan-text-go').onclick=()=>runScan(false);$('scan-stop').onclick=()=>SCTL&&SCTL.abort();
   $('scan-list').onclick=e=>{const b=e.target.closest('[data-scan]');if(b){const s=SCANS[+b.dataset.scan];Object.assign(SC,s.sc);SC.info=s.info;renderScan();window.scrollTo({top:0,behavior:RM()?'auto':'smooth'})}};
   renderScan();
@@ -1539,7 +1541,7 @@ try{sessionStorage.removeItem('bb-reset')}catch(e){}
 if(GROUP)startStream();
 if(window.claude&&window.claude.use){
   window.claude.use('sample').then(async s=>{SAMPLE=s;if(!s)return;
-    try{const l=await s.limits();IMGS=!!(l&&l.images);if(IMGS)$('scan-file').accept=l.images.mediaTypes.join(',')}catch(e){IMGS=false}
+    try{const l=await s.limits();IMGS=!!(l&&l.images);if(IMGS)$('scan-file').accept=$('scan-cam').accept=l.images.mediaTypes.join(',')}catch(e){IMGS=false}
     $('scan-go').disabled=!SFILE}).catch(()=>{});
   window.claude.use('downloads').then(d=>{DL=d;renderLog()}).catch(()=>{});
 }else{$('scan-status').hidden=true;$('scan-lede').textContent='Take a photo of the bag or the roaster’s card. The text is read on your phone, matched to the guide and turned into a brew plan for your gear.'}
