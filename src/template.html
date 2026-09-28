@@ -266,6 +266,9 @@ main section.on{animation:secin .35s ease both}
 .card,.vbtn,.chip,.btn{transition:transform .18s ease,box-shadow .18s ease,background .18s ease,border-color .18s ease}
 .vcard:hover,.hovercard:hover{transform:translateY(-3px)}
 .btn:active{transform:scale(.97)}
+button.chip,.seg button,.fstep,.fbr,.pn-h,.wcard,.ab-back{transition:transform .12s ease}
+button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.ab-back:active{transform:scale(.97)}
+#ts-chips .chip[aria-pressed="true"]{background:var(--cherry);color:var(--surface)}
 #toast{position:fixed;left:50%;bottom:calc(var(--sa-bottom) + 22px);transform:translate(-50%,30px);opacity:0;background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:999px;font-family:var(--display);font-size:.92rem;z-index:50;pointer-events:none;transition:opacity .25s,transform .25s;max-width:90vw;text-align:center}
 #toast.show{opacity:1;transform:translate(-50%,0)}
 .bean-fx{position:fixed;z-index:60;pointer-events:none;will-change:transform,opacity}
@@ -297,6 +300,7 @@ main section.on{animation:secin .35s ease both}
 @media (max-width:599px){#pmap .ax{font-size:22px}#pmap #pm-label{font-size:24px}#pmap .pd{r:11}#pmap .pd:hover{r:13}}
 #pmap .pd:hover{r:9}
 .card.flash{animation:flash 1.2s ease}
+.ts-range{display:block;margin-top:8px;font-size:.86rem;color:var(--muted)}
 /* Coffee words */
 .wgroup{margin:0 0 22px}.wgroup>h3{display:flex;align-items:center;gap:8px;margin:0 0 10px}.wgroup>h3 i{width:12px;height:12px;border-radius:3px;display:inline-block;background:var(--c)}
 .wgrid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
@@ -413,7 +417,8 @@ dialog#navsheet::backdrop,dialog#sharesheet::backdrop{background:rgba(30,20,14,.
   nav.tabs{display:none}
   .appbar{display:flex;position:sticky;top:0;z-index:20;align-items:center;justify-content:space-between;gap:10px;padding:calc(var(--sa-top) + 10px) 16px 10px;background:color-mix(in srgb,var(--paper) 90%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
   :root{padding-top:0}
-  .ab-brand{display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:800;font-size:1.15rem;color:var(--ink)}
+  .ab-back{flex:none;display:grid;place-items:center;width:38px;height:38px;margin:-4px 0 -4px -6px;border:0;border-radius:50%;background:var(--surface2);color:var(--cherry);cursor:pointer;animation:secin .2s ease}.ab-back[hidden]{display:none}
+  .ab-brand{flex:1;min-width:0;display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:800;font-size:1.15rem;color:var(--ink)}
   .ab-btn{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-family:var(--display);font-size:.88rem;color:var(--cherry);cursor:pointer}
   .herowrap{display:none}
   body.t-dial .herowrap{display:block}
@@ -519,6 +524,14 @@ button,a,.tab,.chip,[role=button],input[type=range]{touch-action:manipulation}
 @media (max-width:560px){.mswap{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"from swap" "to swap";row-gap:10px;align-items:center}.mswap>.field:first-child{grid-area:from}.mswap>.field:last-child{grid-area:to}.mswap>.mswapbtn{grid-area:swap;transform:rotate(90deg)}}
 .mrow.mine{background:color-mix(in srgb,var(--cherry) 12%,var(--surface))}
 .libhead{font-family:var(--display);margin:18px 0 10px;font-size:1rem}
+.gi{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:7px;background:var(--gc,var(--surface2));color:#fff;flex:none}.gi svg{width:17px;height:17px}
+.gpick button span.gi{flex:none;width:34px;height:34px;border-radius:10px}.gpick button span.gi svg{width:22px;height:22px}
+.gi.manual{--gc:#8A5A3B}.gi.electric{--gc:#4F8A74}.gi.custom{--gc:#9A7390}
+#glib-filter button{display:inline-flex;align-items:center;gap:6px}#glib-filter .gi{width:20px;height:20px;border-radius:6px}#glib-filter .gi svg{width:14px;height:14px}
+.gtype{display:flex;align-items:center;gap:10px;margin:22px 0 6px}.gtype h4{margin:0;font-family:var(--display);font-size:1.15rem}.gtype .gi{width:36px;height:36px;border-radius:10px}.gtype .gi svg{width:24px;height:24px}.gtype small{color:var(--muted)}
+.gbrand{display:flex;align-items:baseline;gap:8px;margin:16px 0 8px;font-weight:700;font-size:.95rem}.gbrand small{font-weight:600;color:var(--muted);font-size:.78rem}
+.gcard{display:flex;flex-direction:column}.gcard .gtop{display:flex;align-items:center;gap:8px}.gcard .gtop .hint{margin:0;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gcard .actions{margin-top:auto;padding-top:12px}.gcard .actions .btn{flex:1 1 auto;padding:9px 12px;font-size:.9rem}.gcard .mine-tag{margin-left:auto;font-size:.72rem;font-weight:700;color:var(--leaf);background:color-mix(in srgb,var(--leaf) 16%,var(--surface));border-radius:999px;padding:2px 9px}
 .scroll-x{overflow-x:auto;margin:10px -4px 0}
 .gtable{border-collapse:collapse;width:100%;min-width:420px;font-size:.88rem}
 .gtable th,.gtable td{text-align:left;vertical-align:top;padding:8px;border-bottom:1px solid var(--line)}
@@ -670,7 +683,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
 <body>
-<header class="appbar" id="appbar"><div class="ab-brand"><svg viewBox="80 80 352 352" width="24" height="24" aria-hidden="true"><g transform="rotate(-38 256 256)"><clipPath id="abBean"><ellipse cx="256" cy="256" rx="120" ry="166"/></clipPath><g clip-path="url(#abBean)"><rect x="100" y="80" width="320" height="360" fill="var(--cherry)"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184H440V80z" fill="var(--honey)"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184" fill="none" stroke="var(--paper)" stroke-width="22"/></g></g></svg><span id="ab-title">Dial-in</span></div><button type="button" class="ab-btn" id="ab-share" aria-label="Share">Share</button></header>
+<header class="appbar" id="appbar"><button type="button" class="ab-back" id="ab-back" aria-label="Back" hidden><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="ab-brand"><svg viewBox="80 80 352 352" width="24" height="24" aria-hidden="true"><g transform="rotate(-38 256 256)"><clipPath id="abBean"><ellipse cx="256" cy="256" rx="120" ry="166"/></clipPath><g clip-path="url(#abBean)"><rect x="100" y="80" width="320" height="360" fill="var(--cherry)"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184H440V80z" fill="var(--honey)"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184" fill="none" stroke="var(--paper)" stroke-width="22"/></g></g></svg><span id="ab-title">Dial-in</span></div><button type="button" class="ab-btn" id="ab-share" aria-label="Share">Share</button></header>
 <div class="herowrap"><button type="button" class="themebtn" id="themebtn" aria-label="Switch theme">Dark</button>
 <header class="hero wrap">
   <div>
@@ -842,12 +855,12 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   <div class="card" style="margin-top:14px"><h3>Why grinders need different numbers</h3>
     <p>The 1Zpresso grinders use an external ring read as <b>rotation.number.click</b>. Close the burrs until they just touch: that is zero. Turning toward bigger numbers opens the burrs and grinds coarser. Most filter brewing stays inside the first rotation, so the rotation digit is usually dropped: <b>5.6</b> means number 5, click 6.</p>
     <p>The two dials are not interchangeable. The ZP6 Special has 9 numbers per turn (90 clicks, about 22 microns each); the K-Ultra has 10 (100 clicks, 20 microns each). The same number on both grinders is a different grind size, and different burr shapes mean even the same micron gap tastes different. Calibrate each one by taste.</p>
-    <p><b>Why a V60 is 5.6 on one and 7.2 on the other.</b> 56 ZP6 clicks is a gap of about 1.2 mm; 72 K-Ultra clicks is about 1.4 mm. The K-Ultra needs the wider gap because its all-round burrs make more fine particles, which slow the drawdown and pull more out of the coffee. The ZP6's filter burrs make very few fines, so it needs a tighter gap to reach the same flow and strength. The numbers also follow 1Zpresso's own ranges for each grinder (filter roughly 4.5 to 7.0 on the ZP6, 7.0 to 9.5 on the K-Ultra).</p>    <p>Across brands the numbers mean even less: a Comandante counts clicks from closed, an Ode or Encore has a numbered dial, a Niche is stepless. The app places every grinder on one shared scale, anchored on its typical V60 setting, so it can suggest a starting point for any brewer and match a setting from one grinder to another. For grinders you haven't calibrated these are starting points from typical ranges: fine-tune by taste and save them under <b>Calibrate to your grinders</b> on the dial-in.</p>
+    <p><b>Why a V60 is 5.6 on one and 8.0 on the other.</b> 56 ZP6 clicks is a gap of about 1.2 mm; 80 K-Ultra clicks is about 1.6 mm. The K-Ultra needs the wider gap because its all-round burrs make more fine particles, which slow the drawdown and pull more out of the coffee. The ZP6's filter burrs make very few fines, so it needs a tighter gap to reach the same flow and strength. The numbers also follow 1Zpresso's own ranges for each grinder (filter roughly 4.5 to 7.0 on the ZP6, 7.0 to 9.5 on the K-Ultra).</p>    <p>Across brands the numbers mean even less: a Comandante counts clicks from closed, an Ode or Encore has a numbered dial, a Niche is stepless. The app places every grinder on one shared scale, anchored on its typical V60 setting, so it can suggest a starting point for any brewer and match a setting from one grinder to another. For grinders you haven't calibrated these are starting points from typical ranges: fine-tune by taste and save them under <b>Calibrate to your grinders</b> on the dial-in.</p>
   </div>
 
   <h3 style="margin-top:1.6rem">Grinder library</h3>
-  <p class="hint" style="margin-top:0">Manual and electric grinders with their burrs, dials and typical settings. Tap Compare on up to three to see them side by side.</p>
-  <div class="seg filters scrollrow" id="glib-filter" style="margin-bottom:12px"></div>
+  <p class="hint" style="margin-top:0">Manual and electric grinders by brand, with their burrs, dials and typical settings. Tap Compare on up to three to see them side by side.</p>
+  <div class="vtools"><input type="search" id="glib-search" placeholder="Search, e.g. Timemore, K-Ultra, flat burrs" aria-label="Search grinders"><div class="seg filters scrollrow" id="glib-filter"></div></div>
   <div id="gcmp"></div>
   <div id="glib"></div>
   <details class="card" id="gcustom" style="margin-top:14px"><summary><b>Add your own grinder</b> <span class="hint">Not in the list? Set it up in a minute</span></summary><div id="gcustom-in"></div></details>
@@ -969,7 +982,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
       <div class="field"><label for="c-ratio">Ratio <span class="num" id="cv-ratio"></span></label><input type="range" id="c-ratio" min="1" max="20" step="0.5"></div></div>
       <div class="seg filters scrollrow" id="c-pre"></div>
       <div class="specs" id="c-out"></div></div>
-    <div class="panel"><h2>What does it taste like?</h2><p class="hint" style="margin-top:0">Pick what you taste. Fixes use your current dial-in settings.</p><div class="chips" id="ts-chips"></div><div id="ts-out"></div></div>
+    <div class="panel"><h2>What does it taste like?</h2><p class="hint" style="margin-top:0">Pick what you taste. Fixes start from your current dial-in and stay inside the usual range for your brewer.</p><div class="chips" id="ts-chips"></div><div id="ts-out"></div></div>
   </div>
   <h2>The bloom</h2>
   <p>The bloom degasses CO2, wets every particle evenly so later pours don't channel, and starts extraction early. Its length is a real variable.</p>
