@@ -91,6 +91,8 @@ select,input[type=search],input[type=number],textarea{border-radius:12px!importa
 .btn{padding:10px 16px;border-radius:999px;border:1px solid var(--cherry);background:var(--cherry);color:var(--surface);font-size:.92rem;cursor:pointer}
 .btn.ghost{background:transparent;color:var(--cherry)}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.actions.two-up>.btn{flex:1 1 0;min-width:0;padding-left:10px;padding-right:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.actions.two-up+.actions.two-up{margin-top:8px}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
 .chip{font-size:.84rem;line-height:1.35;padding:4px 11px;border-radius:999px;background:var(--surface2);border:0;color:var(--ink)}
 button.chip{cursor:pointer}
@@ -726,13 +728,15 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   <div class="bench">
     <div class="panel">
       <div id="scan-drop" class="drop">
-        <input type="file" id="scan-file" accept="image/*" capture="environment" hidden>
+        <input type="file" id="scan-cam" accept="image/*" capture="environment" hidden>
+        <input type="file" id="scan-file" accept="image/*" hidden>
         <img id="scan-prev" alt="" hidden>
         <div id="scan-empty"><div class="dropicon" aria-hidden="true">◎</div><b>Tap to scan a bag</b><p class="hint" style="margin:.2rem 0 0">A clear shot of the label works best.</p></div>
       </div>
-      <div class="actions"><button class="btn" id="scan-pick">Scan with camera</button><button class="btn ghost" id="scan-go" disabled>Read the label</button><button class="btn ghost" id="scan-stop" hidden>Stop</button></div>
+      <div class="actions two-up"><button class="btn" id="scan-pick">Take a photo</button><button class="btn ghost" id="scan-choose">Choose a photo</button></div>
+      <div class="actions two-up" id="scan-again" hidden><button class="btn ghost" id="scan-go" disabled>Read the label again</button><button class="btn ghost" id="scan-stop" hidden>Stop</button></div>
       <p class="hint" id="scan-status" style="margin-top:10px"></p>
-      <details class="cal" id="scan-textbox"><summary>Or paste the label text</summary>
+      <details class="cal" id="scan-textbox"><summary>Or type or paste the label text</summary>
         <textarea id="scan-text" rows="4" placeholder="e.g. Finca El Diviso, Huila, Colombia. Pink Bourbon. Anaerobic natural. 1,800 m. Notes: lychee, rose, mango. Roasted 12 Sep."></textarea>
         <div class="actions"><button class="btn ghost" id="scan-text-go">Read this text</button></div>
       </details>

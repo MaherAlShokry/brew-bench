@@ -92,6 +92,8 @@ select,input[type=search],input[type=number],textarea{border-radius:12px!importa
 .btn{padding:10px 16px;border-radius:999px;border:1px solid var(--cherry);background:var(--cherry);color:var(--surface);font-size:.92rem;cursor:pointer}
 .btn.ghost{background:transparent;color:var(--cherry)}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.actions.two-up>.btn{flex:1 1 0;min-width:0;padding-left:10px;padding-right:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.actions.two-up+.actions.two-up{margin-top:8px}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
 .chip{font-size:.84rem;line-height:1.35;padding:4px 11px;border-radius:999px;background:var(--surface2);border:0;color:var(--ink)}
 button.chip{cursor:pointer}
@@ -730,13 +732,15 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   <div class="bench">
     <div class="panel">
       <div id="scan-drop" class="drop">
-        <input type="file" id="scan-file" accept="image/*" capture="environment" hidden>
+        <input type="file" id="scan-cam" accept="image/*" capture="environment" hidden>
+        <input type="file" id="scan-file" accept="image/*" hidden>
         <img id="scan-prev" alt="" hidden>
         <div id="scan-empty"><div class="dropicon" aria-hidden="true">◎</div><b>Tap to scan a bag</b><p class="hint" style="margin:.2rem 0 0">A clear shot of the label works best.</p></div>
       </div>
-      <div class="actions"><button class="btn" id="scan-pick">Scan with camera</button><button class="btn ghost" id="scan-go" disabled>Read the label</button><button class="btn ghost" id="scan-stop" hidden>Stop</button></div>
+      <div class="actions two-up"><button class="btn" id="scan-pick">Take a photo</button><button class="btn ghost" id="scan-choose">Choose a photo</button></div>
+      <div class="actions two-up" id="scan-again" hidden><button class="btn ghost" id="scan-go" disabled>Read the label again</button><button class="btn ghost" id="scan-stop" hidden>Stop</button></div>
       <p class="hint" id="scan-status" style="margin-top:10px"></p>
-      <details class="cal" id="scan-textbox"><summary>Or paste the label text</summary>
+      <details class="cal" id="scan-textbox"><summary>Or type or paste the label text</summary>
         <textarea id="scan-text" rows="4" placeholder="e.g. Finca El Diviso, Huila, Colombia. Pink Bourbon. Anaerobic natural. 1,800 m. Notes: lychee, rose, mango. Roasted 12 Sep."></textarea>
         <div class="actions"><button class="btn ghost" id="scan-text-go">Read this text</button></div>
       </details>
@@ -3019,9 +3023,11 @@ function initScan(){
   $('s-origin').innerHTML=Object.entries(REG).map(([rk,r])=>'<optgroup label="'+r.name+'">'+Object.keys(ALLO()).filter(k=>ALLO()[k].reg===rk).sort((a,b)=>ALLO()[a].name.localeCompare(ALLO()[b].name)).map(k=>'<option value="'+k+'">'+esc(ALLO()[k].name)+'</option>').join('')+'</optgroup>').join('');
   $('s-brewer').innerHTML=brewerOptions(PBREWERS);
   for(const [id,key] of [['s-origin','origin'],['s-process','process'],['s-variety','variety'],['s-brewer','brewer'],['s-date','date']])$(id).onchange=e=>{SC[key]=e.target.value;if(key==='brewer'&&!canGrind(SC.grinder,SC.brewer))SC.grinder=capable(SC.brewer);renderScan()};
-  $('scan-pick').onclick=()=>$('scan-file').click();$('scan-drop').onclick=()=>$('scan-file').click();
-  $('scan-file').onchange=e=>{const f=e.target.files[0];if(!f)return;SFILE=f;const u=URL.createObjectURL(f);$('scan-prev').src=u;$('scan-prev').hidden=false;$('scan-empty').hidden=true;$('scan-go').disabled=false;$('scan-status').hidden=false;
-    $('scan-status').textContent='Ready. Tap "Read the label".';runScan(true)};
+  // Two ways in: the camera straight away, or a photo already on the phone. Typing or pasting the text is below.
+  $('scan-pick').onclick=()=>$('scan-cam').click();$('scan-choose').onclick=()=>$('scan-file').click();
+  $('scan-drop').onclick=e=>{if(e.target.tagName!=='INPUT')$('scan-cam').click()}; /* the hidden inputs sit inside the box, so their clicks bubble up to it */
+  $('scan-cam').onchange=$('scan-file').onchange=e=>{const f=e.target.files[0];e.target.value='';if(!f)return;SFILE=f;if($('scan-prev').src.startsWith('blob:'))URL.revokeObjectURL($('scan-prev').src);
+    $('scan-prev').src=URL.createObjectURL(f);$('scan-prev').hidden=false;$('scan-empty').hidden=true;$('scan-go').disabled=false;$('scan-again').hidden=false;$('scan-status').hidden=false;runScan(true)};
   $('scan-go').onclick=()=>runScan(true);$('scan-text-go').onclick=()=>runScan(false);$('scan-stop').onclick=()=>SCTL&&SCTL.abort();
   $('scan-list').onclick=e=>{const b=e.target.closest('[data-scan]');if(b){const s=SCANS[+b.dataset.scan];Object.assign(SC,s.sc);SC.info=s.info;renderScan();window.scrollTo({top:0,behavior:RM()?'auto':'smooth'})}};
   renderScan();
@@ -3455,7 +3461,7 @@ try{sessionStorage.removeItem('bb-reset')}catch(e){}
 if(GROUP)startStream();
 if(window.claude&&window.claude.use){
   window.claude.use('sample').then(async s=>{SAMPLE=s;if(!s)return;
-    try{const l=await s.limits();IMGS=!!(l&&l.images);if(IMGS)$('scan-file').accept=l.images.mediaTypes.join(',')}catch(e){IMGS=false}
+    try{const l=await s.limits();IMGS=!!(l&&l.images);if(IMGS)$('scan-file').accept=$('scan-cam').accept=l.images.mediaTypes.join(',')}catch(e){IMGS=false}
     $('scan-go').disabled=!SFILE}).catch(()=>{});
   window.claude.use('downloads').then(d=>{DL=d;renderLog()}).catch(()=>{});
 }else{$('scan-status').hidden=true;$('scan-lede').textContent='Take a photo of the bag or the roaster’s card. The text is read on your phone, matched to the guide and turned into a brew plan for your gear.'}
