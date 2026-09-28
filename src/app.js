@@ -1139,16 +1139,29 @@ async function runScan(useImg){
 }
 /* ---------- Reading a label on the phone itself (no Claude needed) ---------- */
 // Text recognition runs in the browser with Tesseract.js (bundled in vendor/ocr, loaded only when needed).
-let OCR=null;
+let OCR=null,OCR_PROGRESS=null,OCR_PLAIN=false;
 function loadScript(src){return new Promise((ok,no)=>{const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=()=>no(new Error('Could not load '+src));document.head.appendChild(s)})}
-async function ocrWorker(onProgress){
-  if(!OCR)OCR=(async()=>{const base=new URL('vendor/ocr/',location.href).href;if(!window.Tesseract)await loadScript(base+'tesseract.min.js');
-    return Tesseract.createWorker('eng',1,{workerPath:base+'worker.min.js',corePath:base,langPath:base,gzip:true,workerBlobURL:false,
-      logger:m=>{if(OCR_PROGRESS&&m&&typeof m.progress==='number')OCR_PROGRESS(m.status,m.progress)}})})().catch(e=>{OCR=null;throw e});
-  OCR_PROGRESS=onProgress;return OCR}
-let OCR_PROGRESS=null;
+// Phones that can't run the faster (SIMD) reader get the plain one.
+const SIMD_OK=(()=>{try{return WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,0,0,1,5,1,96,0,1,123,3,2,1,0,10,10,1,8,0,65,0,253,15,253,98,11]))}catch(e){return false}})();
+const withTimeout=(pr,ms,code)=>new Promise((ok,no)=>{const t=setTimeout(()=>no(Object.assign(new Error(code),{code})),ms);pr.then(v=>{clearTimeout(t);ok(v)},e=>{clearTimeout(t);no(e)})});
+// Download a file with visible progress. The copy lands in the browser cache, so the reader picks it up from there.
+async function fetchProgress(url,onBytes){const res=await withTimeout(fetch(url),30000,'stalled');if(!res.ok)throw Object.assign(new Error('download'),{code:'download'});
+  const total=res.headers.get('content-encoding')?0:+res.headers.get('content-length')||0; /* compressed in transit: the length isn't the file size */if(!res.body||!res.body.getReader){await res.arrayBuffer();onBytes(total,total);return}
+  const rd=res.body.getReader();let got=0;for(;;){const {done,value}=await withTimeout(rd.read(),30000,'stalled');if(done)break;got+=value.length;onBytes(got,total)}}
+async function ocrWorker(onProgress){OCR_PROGRESS=onProgress;
+  if(!OCR)OCR=(async()=>{const base=new URL('vendor/ocr/',location.href).href,core=base+(SIMD_OK&&!OCR_PLAIN?'tesseract-core-simd-lstm.wasm.js':'tesseract-core-lstm.wasm.js');
+    if(!window.Tesseract)await loadScript(base+'tesseract.min.js');
+    // First use downloads about 7 MB; show it in megabytes so it never looks stuck.
+    const files=[core,base+'eng.traineddata.gz'],done=[0,0],size=[3.94e6,2.95e6];
+    await Promise.all(files.map((u,k)=>fetchProgress(u,(g,t)=>{done[k]=g;size[k]=Math.max(t||size[k],g);const G=done[0]+done[1],T=size[0]+size[1];OCR_PROGRESS&&OCR_PROGRESS('download',Math.min(1,G/T),G,T)})));
+    OCR_PROGRESS&&OCR_PROGRESS('start',0);
+    return withTimeout(Tesseract.createWorker('eng',1,{workerPath:base+'worker.min.js',corePath:core,langPath:base,gzip:true,workerBlobURL:false,
+      errorHandler:()=>{},logger:m=>{if(OCR_PROGRESS&&m&&typeof m.progress==='number')OCR_PROGRESS(m.status,m.progress)}}),40000,'start')})()
+    // If the fast reader doesn't start on this phone, try the plain one once before giving up.
+    .catch(e=>{OCR=null;if(e&&e.code==='start'&&SIMD_OK&&!OCR_PLAIN){OCR_PLAIN=true;return ocrWorker(OCR_PROGRESS)}throw e});
+  return OCR}
 // Shrink big camera photos and boost contrast so text recognition is faster and more accurate.
-function prepImage(file){return new Promise((ok,no)=>{const img=new Image();img.onload=()=>{const k=Math.min(1,1800/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);
+function prepImage(file){return new Promise((ok,no)=>{const img=new Image();img.onload=()=>{const k=Math.min(1,2400/Math.max(img.width,img.height)); /* big enough that small print on a label stays readable */const c=document.createElement('canvas');c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);
   const x=c.getContext('2d');x.filter='grayscale(1) contrast(1.35)';x.drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(img.src);ok(c)};img.onerror=()=>no(new Error('image'));img.src=URL.createObjectURL(file)})}
 const fold=t=>String(t).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[’']/g,"'");
 const reEsc=t=>t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
@@ -1213,15 +1226,21 @@ function applyInfo(j){if(j.origin_key&&ALLO()[j.origin_key])SC.origin=j.origin_k
   if(j.variety_key&&vById(j.variety_key))SC.variety=j.variety_key;if(['light','medium','dark'].includes(j.roast_level))SC.roast=j.roast_level;if(/^\d{4}-\d{2}-\d{2}$/.test(j.roast_date||''))SC.date=j.roast_date;SC.info=j}
 async function runLocalScan(useImg){
   const txt=$('scan-text').value.trim();if(!useImg&&!txt){toast('Paste the label text first');return}if(useImg&&!SFILE){toast('Take or choose a photo first');return}
-  let cancelled=false;SCTL={abort:()=>{cancelled=true;$('scan-status').textContent='Stopped.'}};$('scan-stop').hidden=!useImg;$('scan-go').disabled=true;$('scan-drop').classList.add('scanning');
-  const st=$('scan-status');st.hidden=false;st.textContent=useImg?'Getting the text reader ready…':'Reading the text…';
+  const st=$('scan-status'),mb=b=>(b/1e6).toFixed(1);let stop;const stopped=new Promise((_,no)=>{stop=()=>no(Object.assign(new Error('cancelled'),{code:'cancelled'}))});stopped.catch(()=>{});
+  SCTL={abort:()=>stop()};$('scan-stop').hidden=!useImg;$('scan-go').disabled=true;$('scan-drop').classList.add('scanning');
+  st.hidden=false;st.textContent=useImg?'Getting the text reader ready…':'Reading the text…';
   try{let text=txt;
-    if(useImg){const w=await ocrWorker((status,p)=>{if(!cancelled)st.textContent=(/recogniz/.test(status)?'Reading the label… ':'Getting the text reader ready… ')+Math.round(p*100)+'%'});
-      const img=await prepImage(SFILE);const res=await w.recognize(img);if(cancelled)return;text=res.data.text||'';$('scan-text').value=text.trim()}
-    const j=parseLabel(text);if(!j.origin_key&&!j.variety_key&&!j.process_key&&!j.roast_date){st.textContent=useImg?'Couldn’t find coffee details in that photo. Try a closer, sharper shot of the label, or fill in the details below.':'No coffee details found in that text.';return}
+    if(useImg){const w=await Promise.race([ocrWorker((status,p,g,t)=>{if(SCTL.done)return;st.textContent=status==='download'?'Downloading the text reader (first time only)… '+mb(g)+' of '+mb(t)+' MB'
+          :/recogniz/.test(status)?'Reading the label… '+Math.round(p*100)+'%':'Starting the text reader…'}),stopped]);
+      const img=await prepImage(SFILE);const res=await Promise.race([withTimeout(w.recognize(img),120000,'slow'),stopped]);text=res.data.text||'';$('scan-text').value=text.trim()}
+    const j=parseLabel(text);if(!j.origin_key&&!j.variety_key&&!j.process_key&&!j.roast_date){st.textContent=useImg?'Couldn’t find coffee details in that photo. Try again with the label filling most of the photo, in sharp focus, or fill in the details below.':'No coffee details found in that text.';return}
     applyInfo(j);st.textContent=(j.confidence==='low'?'Found a few details. ':'Label read. ')+'Check them below and adjust anything that looks off.';renderScan();saveScan();toast('Label read')}
-  catch(e){st.textContent='The text reader couldn’t start. Check your connection the first time you scan, or fill in the details below.'}
-  finally{$('scan-stop').hidden=true;$('scan-go').disabled=!SFILE;$('scan-drop').classList.remove('scanning')}}
+  catch(e){const c=e&&e.code;st.textContent=c==='cancelled'?'Stopped.'
+      :c==='download'||c==='stalled'||!navigator.onLine?'The text reader couldn’t download. It needs a connection the first time only; try again on Wi-Fi, or fill in the details below.'
+      :c==='start'?'The text reader didn’t start on this phone. Paste the label text below, or fill in the details by hand.'
+      :c==='slow'?'Reading took too long. Try a closer photo of just the label, or fill in the details below.'
+      :'The text reader couldn’t start. Try again, or fill in the details below.'}
+  finally{if(SCTL)SCTL.done=true;$('scan-stop').hidden=true;$('scan-go').disabled=!SFILE;$('scan-drop').classList.remove('scanning')}}
 function thumb(cb){if(!SFILE){cb('');return}const img=new Image();img.onload=()=>{const c=document.createElement('canvas'),s=160/Math.max(img.width,img.height);c.width=img.width*s;c.height=img.height*s;c.getContext('2d').drawImage(img,0,0,c.width,c.height);try{cb(c.toDataURL('image/jpeg',.7))}catch(e){cb('')}};img.onerror=()=>cb('');img.src=$('scan-prev').src}
 function saveScan(){thumb(t=>{SCANS.unshift({t,info:SC.info,sc:{origin:SC.origin,process:SC.process,variety:SC.variety,roast:SC.roast,date:SC.date},when:new Date().toLocaleDateString()});SCANS=SCANS.slice(0,12);save('bb-scans',SCANS);renderScanList()})}
 function renderScanList(){$('scan-list').innerHTML=SCANS.length?SCANS.map((s,i)=>'<button type="button" class="card vcard" data-scan="'+i+'" style="--c:var(--cherry)">'+(s.t?'<img src="'+s.t+'" alt="" style="width:100%;max-height:120px;object-fit:cover;border-radius:10px">':'')+'<h3 style="margin:.4rem 0 .1rem">'+esc((s.info&&(s.info.coffee_name||s.info.producer_or_farm))||originName(s.sc.origin))+'</h3><p class="hint" style="margin:0">'+esc(s.info&&s.info.roaster||'')+' '+esc(s.when)+'</p></button>').join(''):'<p class="hint">Scans you make appear here.</p>'}
