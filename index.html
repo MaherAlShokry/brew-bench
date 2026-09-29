@@ -4053,6 +4053,13 @@ $('ab-share').onclick=()=>{const id=(document.querySelector('main section.on')||
   if(id==='dial')openShare(dialDoc());else if(id==='planner')openShare(recipeDoc(PL.tech,plan(Object.assign({},PL)),PL));else if(id==='scan')$('sc-share').click();else if(id==='history')openShare(historyDoc());else if(id==='log')openShare(logDoc());else if(id==='map'){if(SEL)openShare(originDoc(SEL));else toast('Pick an origin first')}else if(id==='recipes')toast('Tap Share on any recipe card');else if(id==='words')openShare(wordsDoc());else if(id==='flow')openShare(flowDoc())};
 $('dial-share').onclick=()=>openShare(dialDoc());
 $('ab-back').onclick=()=>history.back();
+// The Android back gesture asks here first: close the top sheet, or step back a screen. False means there is nothing
+// left to go back to, so the app goes to the background like any other.
+window.bbBack=()=>{const d=[...document.querySelectorAll('dialog[open]')].pop();
+  if(d){if(history.state&&history.state.dlg)history.back();else d.close();return true}
+  if(NAVD>0){history.back();return true}
+  if(!document.getElementById('dial').classList.contains('on')){showTab('dial');NAVD=0;syncShell('dial');return true}
+  return false};
 $('hist-share').onclick=()=>openShare(historyDoc());
 $('l-pdf').onclick=()=>openShare(logDoc());
 
