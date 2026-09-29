@@ -230,12 +230,14 @@ let LOG=load('bb-log',[]);
 
 /* ================= MODEL ================= */
 function rBias(r){const B=BREWERS[r.b];return -(0.45*r.off+(r.temp-93)/3*0.35+(r.water/r.dose-B.ratio.ref)*B.ratio.k)}
+// A longer bloom extracts a little more, with diminishing returns past 75 s (a 3-minute bloom is not four times a 45 s one).
+const bloomE=(b,B)=>{const d=b-B.bloom.def,over=Math.max(0,b-75);return (d-over*0.75)/15*0.12};
 function compute(st){
   const G=GRINDERS[st.grinder],B=BREWERS[st.brewer],P=PROCESSES[st.process],Vp=vParams(st.variety);
   const step=stepsBetween(st.grinder,baseX(st.grinder,st.brewer),st.setting);
   const agit={low:-0.25,med:0,high:0.25}[st.agit], roastE={light:0,medium:0.25,dark:0.6}[st.roast];
   const rec=st.rec!=null&&RECIPES[st.rec]&&RECIPES[st.rec].b===st.brewer?RECIPES[st.rec]:null;
-  const E=0.45*step+(st.temp-93)/3*0.35+(st.bloom-B.bloom.def)/15*0.12+agit+(st.ratio-B.ratio.ref)*B.ratio.k+roastE+(rec?rBias(rec):0);
+  const E=0.45*step+(st.temp-93)/3*0.35+bloomE(st.bloom,B)+agit+(st.ratio-B.ratio.ref)*B.ratio.k+roastE+(rec?rBias(rec):0);
   const D=E-(P.t+Vp.t);
   const roastAcid={light:1,medium:0,dark:-2}[st.roast], roastBit={light:0,medium:0.6,dark:2}[st.roast];
   const strengthTerm=B.ratio.ref>10?(B.ratio.ref-st.ratio)*0.5:(B.ratio.ref-st.ratio)*1.2;
@@ -423,7 +425,7 @@ function plan(c){
   if(grinder!==c.grinder)why.unshift(gname(c.grinder)+' can\u2019t grind for this brewer, so settings are for '+gname(grinder)+'.');
   const Dt={clarity:-0.3,balance:0,body:0.3}[c.goal];
   const agv={low:-0.25,med:0,high:0.25}[agit], roastE={light:0,medium:0.25,dark:0.6}[c.roast];
-  const rest=(temp-r.temp)/3*0.35+(bloom-B.bloom.def)/15*0.12+agv+(ratio-r.water/r.dose)*B.ratio.k+roastE-(P.t+Vp.t);
+  const rest=(temp-r.temp)/3*0.35+bloomE(bloom,B)+agv+(ratio-r.water/r.dose)*B.ratio.k+roastE-(P.t+Vp.t);
   const step=r.off+(Dt-rest)/0.45;
   const set={};for(const g of new Set([...MYG,grinder]))set[g]=canGrind(g,r.b)?roundG(g,shift(g,baseX(g,r.b),-step*160)):null;
   const water=Math.round(r.dose*ratio*10)/10;
@@ -484,37 +486,62 @@ function initPlan(){
 /* ================= BREW TIMER ================= */
 let TM=null;
 function parseSteps(steps){let last=-1;return steps.map(s=>{const m=s.match(/(\d+):(\d\d)/);let t=m?(+m[1]*60+ +m[2]):null;if(t==null)t=last;else last=t;return{t,s}})}
+const capS=t=>t.charAt(0).toUpperCase()+t.slice(1),stepTxt=s=>capS(s.replace(/^\s*\d+:\d\d\s*/,''));
+const mmss=t=>Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0');
+// The pour in a step, for the big target: "pour 60g (to 120g)" → to 120 g, +60 g; "pour to 250g" → to 250 g.
+function pourOf(txt){const to=/\bto\s+(\d{2,4})\s?g\b/i.exec(txt),add=/\bpour(?:ing)?\s+(\d{2,4})\s?g\b/i.exec(txt);return to?{to:+to[1],add:add?+add[1]:null}:add?{to:null,add:+add[1]}:null}
 function openTimer(idx,p){noteRecent(RECIPES[idx]);
   const r=RECIPES[idx];const ev=parseSteps(r.steps);const timed=ev.filter(e=>e.t>=0);
   const total=timed.length?Math.max(...timed.map(e=>e.t))+(/finish|drain|finished|serve/i.test(r.steps[r.steps.length-1])?0:30):0;
   if(TM&&TM.iv)clearInterval(TM.iv);
-  TM={idx,ev,total,el:0,run:false,iv:null,lastIdx:-1,ctx:null};
-  const setLine=p?('<p class="hint">'+(p.set[p.grinder]!=null?gLabel(p.grinder,p.set[p.grinder])+', ':'')+p.temp+'°C, '+p.r.dose+'g : '+p.water+'g</p>'):'<p class="hint">'+r.dose+'g : '+r.water+'g, '+r.temp+'°C</p>';
-  $('tm-in').innerHTML='<div class="tm"><button class="vd-close" id="tm-x" aria-label="Close timer">\u2715</button><h2 id="tm-title" style="margin:0 36px 0 0;text-align:left">'+esc(r.name)+'</h2><div style="text-align:left">'+setLine+'</div>'+
-   (total?'<svg class="ring" viewBox="0 0 220 220"><circle cx="110" cy="110" r="96" fill="none" stroke="var(--surface2)" stroke-width="14"/><circle id="tm-arc" cx="110" cy="110" r="96" fill="none" stroke="var(--cherry)" stroke-width="14" stroke-linecap="round" transform="rotate(-90 110 110)" stroke-dasharray="603" stroke-dashoffset="603"/><text id="tm-big" x="110" y="118" text-anchor="middle" font-size="40" font-weight="800" fill="var(--ink)">0:00</text></svg>'
-    +'<div class="now" id="tm-now">Get your gear ready, then press start.</div><div class="actions" style="justify-content:center"><button class="btn" id="tm-go">Start</button><button class="btn ghost" id="tm-reset">Reset</button></div>'
-    :'<p class="now">This one is by eye rather than the clock.</p>')+
-   '<ol id="tm-list">'+ev.map((e,i)=>'<li data-i="'+i+'">'+esc(e.s)+'</li>').join('')+'</ol></div>';
-  const d=$('timer');if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}
+  TM={idx,p,ev,total,el:0,run:false,iv:null,lastIdx:-1,lastWarn:-1,ctx:null};
+  const g=p?p.grinder:(MYG.find(x=>settingFor(x,r.b,r.off)!=null)),gv=p?p.set[p.grinder]:g?settingFor(g,r.b,r.off):null;
+  const meta=[(p?p.r.dose:r.dose)+'g : '+(p?p.water:r.water)+'g',(p?p.temp:r.temp)?(p?p.temp:r.temp)+'°C':'',gv!=null?gLabel(g,gv):''].filter(Boolean);
+  // Tick marks on the ring where each timed step starts.
+  const C=2*Math.PI*96,ticks=total?timed.filter(e=>e.t>0&&e.t<total).map(e=>{const a=e.t/total*2*Math.PI-Math.PI/2;return '<line x1="'+(110+86*Math.cos(a)).toFixed(1)+'" y1="'+(110+86*Math.sin(a)).toFixed(1)+'" x2="'+(110+106*Math.cos(a)).toFixed(1)+'" y2="'+(110+106*Math.sin(a)).toFixed(1)+'" class="tm-tick"/>'}).join(''):'';
+  const I=d=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+d+'"/></svg>';
+  $('tm-in').innerHTML='<div class="tm2"><div class="tm-top"><button class="tm-ic" id="tm-x" aria-label="Close timer">'+I('M6 6l12 12M18 6L6 18')+'</button><div class="tm-head"><h2 id="tm-title">'+esc(r.name)+'</h2><div class="tm-meta">'+meta.map(m=>'<span>'+esc(m)+'</span>').join('')+'</div></div></div>'+
+   (total?'<div class="tm-ringwrap"><svg class="tm-ring" viewBox="0 0 220 220"><defs><linearGradient id="tmg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--honey)"/><stop offset="1" stop-color="var(--cherry)"/></linearGradient></defs><circle cx="110" cy="110" r="96" class="tm-track"/><circle id="tm-arc" cx="110" cy="110" r="96" class="tm-arc" transform="rotate(-90 110 110)" stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+C.toFixed(1)+'"/>'+ticks+'</svg>'+
+      '<div class="tm-center"><div id="tm-big">0:00</div><div class="tm-of">of '+mmss(total)+'</div></div></div>'+
+      '<div class="tm-now" id="tm-card"><div class="tm-step" id="tm-step">Ready when you are</div><div class="tm-target" id="tm-target"></div><div class="tm-text" id="tm-now">Get your gear ready, then press start.</div><div class="tm-bar"><i id="tm-barfill"></i></div><div class="tm-next" id="tm-next"></div></div>'+
+      '<div class="tm-ctl"><button class="tm-ic big" id="tm-reset" aria-label="Reset">'+I('M4 12a8 8 0 1 0 2.3-5.6M4 4v5h5')+'</button><button class="tm-play" id="tm-go" aria-label="Start">'+I('M8 5v14l11-7z')+'</button><button class="tm-ic big" id="tm-skip" aria-label="Next step">'+I('M6 5l9 7-9 7z M18 5v14')+'</button></div>'
+    :'<p class="tm-text" style="text-align:center">This one is by eye rather than the clock.</p>')+
+   '<details class="tm-all"'+(total?'':' open')+'><summary>All steps ('+ev.length+')</summary><ol id="tm-list">'+ev.map((e,i)=>'<li data-i="'+i+'">'+(e.t>=0?'<b>'+mmss(e.t)+'</b>':'')+'<span>'+esc(stepTxt(e.s))+'</span></li>').join('')+'</ol></details></div>';
+  const d=$('timer');if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}d.scrollTop=0;
   $('tm-x').onclick=()=>d.close();
   // However the timer is closed (X, back, Escape, backdrop), stop it and let the screen sleep again.
   d.onclose=()=>{if(TM&&TM.iv)clearInterval(TM.iv);if(TM)TM.run=false;wake(false)};
-  if(total){$('tm-go').onclick=()=>{if(!TM.ctx){try{TM.ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}TM.run=!TM.run;$('tm-go').textContent=TM.run?'Pause':'Resume';wake(TM.run);
+  if(total){$('tm-go').onclick=()=>{if(TM.el>=TM.total){TM.el=0;TM.lastIdx=-1}if(!TM.ctx){try{TM.ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}TM.run=!TM.run;setPlay();wake(TM.run);
       if(TM.run){TM.t0=performance.now()-TM.el*1000;TM.iv=setInterval(tick,200);tick()}else clearInterval(TM.iv)};
-    $('tm-reset').onclick=()=>{clearInterval(TM.iv);TM.run=false;wake(false);TM.el=0;TM.lastIdx=-1;$('tm-go').textContent='Start';paint()};paint()}
+    $('tm-reset').onclick=()=>{clearInterval(TM.iv);TM.run=false;wake(false);TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;setPlay();paint()};
+    // Skip jumps to the next step's time (handy when you pour faster than the recipe).
+    $('tm-skip').onclick=()=>{const n=TM.ev.find(e=>e.t>TM.el+0.5);if(!n)return;TM.el=n.t;if(TM.run)TM.t0=performance.now()-TM.el*1000;paint()};paint()}
 }
+function setPlay(){const b=$('tm-go');b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+(TM.run?'M7 5h4v14H7z M13 5h4v14h-4z':'M8 5v14l11-7z')+'"/></svg>';b.setAttribute('aria-label',TM.run?'Pause':TM.el>0?'Resume':'Start');b.classList.toggle('on',TM.run)}
 // Keep the screen on while a brew timer runs (where the browser supports it).
 let WL=null;function wake(on){try{if(on&&!WL&&navigator.wakeLock)navigator.wakeLock.request('screen').then(l=>{WL=l;l.addEventListener('release',()=>{WL=null})}).catch(()=>{});else if(!on&&WL){WL.release();WL=null}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&TM&&TM.run)wake(true)});
-function beep(){if(!TM.ctx)return;try{const o=TM.ctx.createOscillator(),g=TM.ctx.createGain();o.frequency.value=880;g.gain.setValueAtTime(.001,TM.ctx.currentTime);g.gain.exponentialRampToValueAtTime(.25,TM.ctx.currentTime+.02);g.gain.exponentialRampToValueAtTime(.001,TM.ctx.currentTime+.35);o.connect(g).connect(TM.ctx.destination);o.start();o.stop(TM.ctx.currentTime+.4)}catch(e){}if(navigator.vibrate)navigator.vibrate(120)}
-function tick(){TM.el=(performance.now()-TM.t0)/1000;if(TM.el>=TM.total){TM.el=TM.total;clearInterval(TM.iv);TM.run=false;wake(false);$('tm-go').textContent='Start';paint();$('tm-now').textContent='Done. Enjoy your cup.';beep();beans(26);return}paint()}
-function paint(){const el=TM.el,m=Math.floor(el/60),s=Math.floor(el%60);$('tm-big').textContent=m+':'+String(s).padStart(2,'0');
-  $('tm-arc').setAttribute('stroke-dashoffset',(603*(1-el/TM.total)).toFixed(1));
+function beep(soft){if(!TM.ctx)return;try{const o=TM.ctx.createOscillator(),g=TM.ctx.createGain();o.frequency.value=soft?660:880;g.gain.setValueAtTime(.001,TM.ctx.currentTime);g.gain.exponentialRampToValueAtTime(.25,TM.ctx.currentTime+.02);g.gain.exponentialRampToValueAtTime(.001,TM.ctx.currentTime+.35);o.connect(g).connect(TM.ctx.destination);o.start();o.stop(TM.ctx.currentTime+.4)}catch(e){}if(navigator.vibrate)navigator.vibrate(120)}
+function tick(){TM.el=(performance.now()-TM.t0)/1000;if(TM.el>=TM.total){TM.el=TM.total;clearInterval(TM.iv);TM.run=false;wake(false);setPlay();paint();done();beep();beans(26);return}paint()}
+function done(){const r=RECIPES[TM.idx];$('tm-step').textContent='Done';$('tm-target').innerHTML='';$('tm-now').textContent='Enjoy your cup.';$('tm-next').innerHTML='<div class="tm-done"><button class="btn" id="tm-log">Log this brew</button><button class="btn ghost" id="tm-again">Brew again</button></div>';
+  $('tm-log').onclick=()=>{const p=TM.p,B=BREWERS[r.b];$('timer').close();setTimeout(()=>{showTab('log');$('l-settings').value=r.name+', '+(p?p.r.dose:r.dose)+'g : '+(p?p.water:r.water)+'g'+((p?p.temp:r.temp)?', '+(p?p.temp:r.temp)+'°C':'');$('l-settings').dataset.brewer=r.b;$('l-coffee').focus()},250)};
+  $('tm-again').onclick=()=>{TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;paint();$('tm-go').click()}}
+function paint(){const el=TM.el,C=2*Math.PI*96;$('tm-big').textContent=mmss(el);
+  $('tm-arc').setAttribute('stroke-dashoffset',(C*(1-el/TM.total)).toFixed(1));
   let cur=-1;TM.ev.forEach((e,i)=>{if(e.t>=0&&e.t<=el)cur=i});
   if(cur!==TM.lastIdx&&TM.run&&cur>=0){beep();TM.lastIdx=cur}
-  const next=TM.ev.find(e=>e.t>el);
+  const ni=TM.ev.findIndex(e=>e.t>el),next=ni>=0?TM.ev[ni]:null,left=next?next.t-el:TM.total-el;
+  // Three soft beeps before the next step, so you can get the kettle ready.
+  if(TM.run&&next&&left<=3&&left>0){const w=Math.ceil(left);if(TM.lastWarn!==ni*10+w){TM.lastWarn=ni*10+w;beep(true)}}
   $('tm-list').querySelectorAll('li').forEach((li,i)=>{li.className=i<cur?'done':i===cur?'cur':''});
-  if(TM.el>0&&TM.el<TM.total)$('tm-now').textContent=(cur>=0?TM.ev[cur].s:'')+(next?' Next in '+Math.ceil(next.t-el)+'s.':'');}
+  const nTimed=TM.ev.filter(e=>e.t>=0).length,stepNo=cur>=0?TM.ev.slice(0,cur+1).filter(e=>e.t>=0).length:0;
+  if(el>0&&el<TM.total||TM.run){const txt=cur>=0?TM.ev[cur].s.replace(/^\s*\d+:\d\d\s*/,''):'Get ready.',pr=cur>=0?pourOf(TM.ev[cur].s):null;
+    $('tm-step').textContent=cur>=0?'Step '+stepNo+' of '+nTimed:'Starting';$('tm-now').textContent=txt.charAt(0).toUpperCase()+txt.slice(1);
+    $('tm-target').innerHTML=pr?(pr.to?'<b>'+pr.to+'</b><small> g on the scale</small>'+(pr.add?'<em>+'+pr.add+' g</em>':''):'<b>+'+pr.add+'</b><small> g</small>'):'';
+    const from=cur>=0?TM.ev[cur].t:0,span=(next?next.t:TM.total)-from;$('tm-barfill').style.width=(span>0?Math.min(100,(el-from)/span*100):100)+'%';
+    $('tm-next').innerHTML=next?'<span>Next in <b>'+Math.ceil(left)+'s</b></span><span class="tm-nx">'+esc(stepTxt(next.s))+'</span>':'<span>Finishing in <b>'+Math.ceil(left)+'s</b></span>';
+    $('tm-card').classList.toggle('warn',!!(TM.run&&next&&left<=3))}
+  else if(el===0){$('tm-step').textContent='Ready when you are';$('tm-target').innerHTML='';$('tm-now').textContent='Get your gear ready, then press start.';$('tm-barfill').style.width='0';$('tm-next').innerHTML=TM.ev[0]?'<span class="tm-nx">First: '+esc(stepTxt(TM.ev[0].s))+'</span>':''}}
 
 /* ================= TABS ================= */
 // Heavy tabs are built the first time they are opened, which keeps startup quick.
@@ -658,7 +685,7 @@ $('r-new').onclick=()=>openRecipeEditor(null);
 // Save the current dial-in as a starting recipe.
 $('tosave').onclick=()=>{const B=BREWERS[S.brewer],dose=B.ratio.ref<5?18:B.ratio.ref<10?20:15,water=Math.round(dose*S.ratio),bloom=Math.round(dose*2.5);
   const off=Math.round(stepsBetween(S.grinder,baseX(S.grinder,S.brewer),S.setting)*10)/10;
-  openRecipeEditor({b:S.brewer,name:'My '+B.name+' recipe',dose,water,temp:S.temp,off,steps:['0:00 pour '+bloom+'g, bloom.','0:'+String(S.bloom).padStart(2,'0')+' pour to '+Math.round(water*0.6)+'g.','1:30 pour to '+water+'g.','3:00 finished.'],why:PROCESSES[S.process].name+' '+vName(S.variety)+', '+S.roast+' roast.'},true)};
+  openRecipeEditor({b:S.brewer,name:'My '+B.name+' recipe',dose,water,temp:S.temp,off,steps:['0:00 pour '+bloom+'g, bloom.',mmss(S.bloom)+' pour to '+Math.round(water*0.6)+'g.',mmss(Math.max(90,S.bloom+45))+' pour to '+water+'g.',mmss(Math.max(180,S.bloom+135))+' finished.'],why:PROCESSES[S.process].name+' '+vName(S.variety)+', '+S.roast+' roast.'},true)};
 // Share links carry the recipe itself, so anyone can add it with one tap.
 const b64u={enc:o=>btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''),dec:s=>JSON.parse(decodeURIComponent(escape(atob(s.replace(/-/g,'+').replace(/_/g,'/')))))};
 function recipeLink(r){const {id,custom,ts,...rest}=r;return SITE_URL+'#recipe='+b64u.enc(rest)}
@@ -1188,7 +1215,7 @@ $('l-csv').onclick=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';cons
   saveFile('brew-log.csv',new Blob(['\ufeff'+rows.map(r=>r.map(q).join(',')).join('\r\n')],{type:'text/csv'}))};
 
 /* ================= SCAN ================= */
-let SC=Object.assign({origin:'colombia',process:'washed',variety:'pinkbourbon',roast:'light',date:'',brewer:'v60',grinder:'zp6',info:null},load('bb-scan',{}));if(!MYG.includes(SC.grinder))SC.grinder=MYG[0];
+let SC=Object.assign({origin:'colombia',process:'washed',variety:'pinkbourbon',roast:'light',date:'',brewer:'v60',grinder:'zp6',info:null,name:'',roaster:''},load('bb-scan',{}));SC.name=str(SC.name,60);SC.roaster=str(SC.roaster,50);if(!MYG.includes(SC.grinder))SC.grinder=MYG[0];
 if(!PROCESSES[SC.process])SC.process='washed';if(!vById(SC.variety))SC.variety='pinkbourbon';if(!ALLO()[SC.origin])SC.origin='colombia';if(!PBREWERS.includes(SC.brewer))SC.brewer='v60';
 let SCANS=load('bb-scans',[]),SAMPLE=null,IMGS=null,SFILE=null,SCTL=null;
 function daysSince(d){if(!d)return 14;const t=Date.parse(d);if(isNaN(t))return 14;return clamp(Math.round((Date.now()-t)/864e5),1,90)}
@@ -1201,7 +1228,9 @@ function initScan(){
   $('scan-drop').onclick=e=>{if(e.target.tagName!=='INPUT')openCamera()}; /* the hidden inputs sit inside the box, so their clicks bubble up to it */
   $('scan-cam').onchange=$('scan-file').onchange=e=>{const f=e.target.files[0];e.target.value='';if(f)usePhoto(f)};
   $('scan-go').onclick=()=>runScan(true);$('scan-text-go').onclick=()=>runScan(false);$('scan-stop').onclick=()=>SCTL&&SCTL.abort();
-  $('scan-list').onclick=e=>{const b=e.target.closest('[data-scan]');if(b){const s=SCANS[+b.dataset.scan];Object.assign(SC,s.sc);SC.info=s.info;renderScan();window.scrollTo({top:0,behavior:RM()?'auto':'smooth'})}};
+  // Name and roastery: typed fixes show at once and update the saved scan they belong to.
+  for(const [id,key,n] of [['s-name','name',60],['s-roaster','roaster',50]])$(id).oninput=e=>{SC[key]=str(e.target.value,n);const i=SCANS.findIndex(x=>x.id&&x.id===SC.id);if(i>=0){SCANS[i].sc[key]=SC[key];save('bb-scans',SCANS);renderScanList()}save('bb-scan',Object.assign({},SC));soon(renderScanHead)};
+  $('scan-list').onclick=e=>{const b=e.target.closest('[data-scan]');if(b){const s=SCANS[+b.dataset.scan];Object.assign(SC,{name:'',roaster:''},s.sc);SC.id=s.id;SC.info=s.info;if(typeof s.sc.name!=='string'&&s.info&&plausibleName(s.info.coffee_name))SC.name=niceName(s.info.coffee_name);if(typeof s.sc.roaster!=='string')SC.roaster=scRoaster(s)&&niceName(scRoaster(s));renderScan();window.scrollTo({top:0,behavior:RM()?'auto':'smooth'})}};
   renderScan();
 }
 function scanPrompt(extra){
@@ -1226,6 +1255,7 @@ async function runScan(useImg){
     if(j.variety_key&&VBY[j.variety_key])SC.variety=j.variety_key;
     if(['light','medium','dark'].includes(j.roast_level))SC.roast=j.roast_level;
     if(/^\d{4}-\d{2}-\d{2}$/.test(j.roast_date||''))SC.date=j.roast_date;
+    SC.name=plausibleName(j.coffee_name)?niceName(j.coffee_name).slice(0,60):'';SC.roaster=plausibleName(j.roaster)?niceName(j.roaster).slice(0,50):'';
     SC.info=j;$('scan-status').textContent='Done'+(j.confidence==='low'?'. Low confidence: check the details below.':'. Check the details below and adjust anything that looks off.');
     renderScan();saveScan();toast('Label read');
   }catch(e){const c=e&&e.code;$('scan-status').textContent=c==='cancelled'?'Stopped.':c==='not_granted'||c==='sampling_disabled'?'Claude access for this page was declined, so fill in the details by hand.':c==='images_unavailable'?'Photo reading isn\u2019t available here; paste the label text instead.':c==='image_rejected'?'That image couldn\u2019t be read. Try a clearer, smaller photo.':c==='rate_limited'?'Too many requests right now. Try again in a little while.':c==='invalid_json'?'The label couldn\u2019t be turned into details. Try again or paste the text.':'Something went wrong reading the label. Try again.'}
@@ -1297,6 +1327,12 @@ function findDate(raw){const t=fold(raw),now=new Date(),cands=[];
   const r4=new RegExp(mon+'\\s+(\\d{1,2})(?:st|nd|rd|th)?(?:,?\\s+(\\d{2,4}))?','g');while(m=r4.exec(t))add(m[3]||0,MONTHS[m[1]],m[2],m.index);
   if(!cands.length)return null;const k=t.search(/roast/);if(k<0)return cands[0].iso;cands.sort((a,b)=>Math.abs(a.at-k)-Math.abs(b.at-k));return cands[0].iso}
 // Turn label text into the same fields the Claude reader returns.
+// OCR turns specks and logos into fragments like "i 2 ob". A real name has mostly letters and at least one proper word.
+const cleanLine=x=>String(x||'').replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}).]+$/gu,'').replace(/\s+/g,' ').trim()
+const niceName=x=>{x=cleanLine(x);return /\p{Ll}/u.test(x)?x:x.toLowerCase().replace(/(^|[\s\-'’.&(])(\p{L})/gu,(m,a,c)=>a+c.toUpperCase())};
+const scRoaster=x=>x.sc&&typeof x.sc.roaster==='string'?x.sc.roaster:(x.info&&x.info.roaster)||'';
+function plausibleName(x){x=cleanLine(x);if(x.length<3||x.length>60)return false;const chars=x.replace(/\s/g,''),letters=(chars.match(/\p{L}/gu)||[]).length,words=x.split(' ');
+  return letters/chars.length>=0.75&&words.some(w=>(w.match(/\p{L}/gu)||[]).length>=3)&&words.filter(w=>w.replace(/\W/g,'').length<=2).length<=Math.floor(words.length/2)}
 function parseLabel(raw){const L=lexicon(),t=' '+fold(raw).replace(/[|_~*]+/g,' ').replace(/[ \t]+/g,' ')+' ';const lines=String(raw).split(/\n+/).map(x=>x.trim()).filter(Boolean);const info={source:'phone'};let hits=0;
   const c=findBest(t,L.countries),r=findBest(t,L.regions);if(c){info.origin_key=c.val;hits++}else if(r){info.origin_key=r.val;hits++}
   if(r&&(!c||r.val===c.val))info.region=r.alias.replace(/\b\w/g,x=>x.toUpperCase());
@@ -1313,11 +1349,13 @@ function parseLabel(raw){const L=lexicon(),t=' '+fold(raw).replace(/[|_~*]+/g,' 
   const farm=/\b(finca|hacienda|fazenda|sitio|estate|farm|washing station|cooperative|co-?op)\b[ :]*([a-z0-9' .-]{2,40})/i.exec(raw.replace(/\n/g,' ; '));
   const prod=/\b(?:producer|produced by|grower|farmer)s?\s*[:\-]\s*([^\n;,]{2,40})/i.exec(raw);
   if(prod)info.producer_or_farm=prod[1].trim();else if(farm)info.producer_or_farm=(/^(finca|hacienda|fazenda|sitio)$/i.test(farm[1])?farm[1]+' '+farm[2]:farm[2]+' '+farm[1]).replace(/\s+/g,' ').replace(/\s*[;.].*$/,'').trim().replace(/\b\w/g,x=>x.toUpperCase());
-  const title=lines.find(x=>x.length>=3&&x.length<=40&&/[a-z]/i.test(x)&&!/[:@]|www\.|\.com|\d{3,}|roast|notes?|process|variety|altitude|origin|net|weight|\bg\b/i.test(x));if(title)info.coffee_name=title.replace(/^[^a-z0-9]+/i,'').replace(/\s+/g,' ');
+  // The roastery: a line naming one ("Northbound Roasters", "Windrose Coffee Roastery"), but not "Roasted on 18 Sep".
+  const rline=lines.map(cleanLine).find(x=>/\b(roasters?|roastery|roastworks|roasting( co(mpany)?)?|coffee co\.?|kaffeer[oö]sterei|torrefazione)\b/i.test(x)&&!/roast(ed)?\s*(on|date|level|profile)|light|medium|dark/i.test(x)&&plausibleName(x));if(rline)info.roaster=rline;
+  const title=lines.map(cleanLine).find(x=>x!==rl&&x.length<=40&&plausibleName(x)&&!/[:@]|www\.|\.com|\d{3,}|roast|notes?|process|variety|altitude|origin|net|weight|\bg\b|arabica|specialty|grade/i.test(x));if(title)info.coffee_name=title;
   info.confidence=hits>=4?'high':hits>=2?'medium':'low';info.summary=hits?'Read on this phone. Check the details below and adjust anything that looks off.':'';
   return info}
 function applyInfo(j){if(j.origin_key&&ALLO()[j.origin_key])SC.origin=j.origin_key;if(j.process_key&&PROCESSES[j.process_key])SC.process=j.process_key;
-  if(j.variety_key&&vById(j.variety_key))SC.variety=j.variety_key;if(['light','medium','dark'].includes(j.roast_level))SC.roast=j.roast_level;if(/^\d{4}-\d{2}-\d{2}$/.test(j.roast_date||''))SC.date=j.roast_date;SC.info=j}
+  if(j.variety_key&&vById(j.variety_key))SC.variety=j.variety_key;if(['light','medium','dark'].includes(j.roast_level))SC.roast=j.roast_level;if(/^\d{4}-\d{2}-\d{2}$/.test(j.roast_date||''))SC.date=j.roast_date;SC.name=plausibleName(j.coffee_name)?niceName(j.coffee_name).slice(0,60):'';SC.roaster=plausibleName(j.roaster)?niceName(j.roaster).slice(0,50):'';SC.info=j}
 async function runLocalScan(useImg){
   const txt=$('scan-text').value.trim();if(!useImg&&!txt){toast('Paste the label text first');return}if(useImg&&!SFILE){toast('Take or choose a photo first');return}
   const st=$('scan-status'),mb=b=>(b/1e6).toFixed(1);let stop;const stopped=new Promise((_,no)=>{stop=()=>no(Object.assign(new Error('cancelled'),{code:'cancelled'}))});stopped.catch(()=>{});
@@ -1359,8 +1397,14 @@ async function openCamera(){
     if(!blob){const c=document.createElement('canvas');c.width=v.videoWidth;c.height=v.videoHeight;c.getContext('2d').drawImage(v,0,0);blob=await new Promise(r=>c.toBlob(r,'image/jpeg',0.92))}
     d.close();if(blob)usePhoto(new File([blob],'label.jpg',{type:blob.type||'image/jpeg'}));else toast('Couldn’t take the photo. Try again.')}}
 function thumb(cb){if(!SFILE){cb('');return}const img=new Image();img.onload=()=>{const c=document.createElement('canvas'),s=160/Math.max(img.width,img.height);c.width=img.width*s;c.height=img.height*s;c.getContext('2d').drawImage(img,0,0,c.width,c.height);try{cb(c.toDataURL('image/jpeg',.7))}catch(e){cb('')}};img.onerror=()=>cb('');img.src=$('scan-prev').src}
-function saveScan(){thumb(t=>{SCANS.unshift({t,info:SC.info,sc:{origin:SC.origin,process:SC.process,variety:SC.variety,roast:SC.roast,date:SC.date},when:new Date().toLocaleDateString()});SCANS=SCANS.slice(0,12);save('bb-scans',SCANS);renderScanList()})}
-function renderScanList(){$('scan-list').innerHTML=SCANS.length?SCANS.map((s,i)=>'<button type="button" class="card vcard" data-scan="'+i+'" style="--c:var(--cherry)">'+(s.t?'<img src="'+s.t+'" alt="" style="width:100%;max-height:120px;object-fit:cover;border-radius:10px">':'')+'<h3 style="margin:.4rem 0 .1rem">'+esc((s.info&&(s.info.coffee_name||s.info.producer_or_farm))||originName(s.sc.origin))+'</h3><p class="hint" style="margin:0">'+esc(s.info&&s.info.roaster||'')+' '+esc(s.when)+'</p></button>').join(''):'<p class="hint">Scans you make appear here.</p>'}
+function saveScan(){SC.id='s'+Date.now().toString(36);thumb(t=>{SCANS.unshift({id:SC.id,t,info:SC.info,sc:{origin:SC.origin,process:SC.process,variety:SC.variety,roast:SC.roast,date:SC.date,name:SC.name,roaster:SC.roaster},when:new Date().toLocaleDateString()});SCANS=SCANS.slice(0,12);save('bb-scans',SCANS);renderScanList()})}
+function renderScanList(){$('scan-list').innerHTML=SCANS.length?SCANS.map((s,i)=>'<button type="button" class="card vcard" data-scan="'+i+'" style="--c:var(--cherry)">'+(s.t?'<img src="'+s.t+'" alt="" style="width:100%;max-height:120px;object-fit:cover;border-radius:10px">':'')+'<h3 style="margin:.4rem 0 .1rem">'+esc(scanTitle(s.sc,s.info))+'</h3><p class="hint" style="margin:0">'+esc([scRoaster(s),s.when].filter(Boolean).join(' · '))+'</p></button>').join(''):'<p class="hint">Scans you make appear here.</p>'}
+// What to call the coffee: its name if we have a real one, else origin and variety ("Colombia Pink Bourbon").
+function scanTitle(sc,inf){const n=sc.name||(inf&&plausibleName(inf.coffee_name)?niceName(inf.coffee_name):'')||(inf&&inf.producer_or_farm)||'';return n||(originName(sc.origin)+' '+vName(sc.variety))}
+// The roastery gets its own spotlight card, with how many of their coffees you've scanned.
+function renderScanHead(){const h=$('scan-head');if(!h)return;const r=SC.roaster,n=r?SCANS.filter(x=>scRoaster(x).toLowerCase()===r.toLowerCase()).length:0;
+  h.innerHTML='<h2 style="margin-bottom:.2rem">'+esc(scanTitle(SC,SC.info))+'</h2>'+(SC.name?'<p class="scan-sub">'+esc(originName(SC.origin)+' · '+vName(SC.variety))+'</p>':'')+
+    (r?'<div class="roastery"><span class="ri"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 10h13v4a6 6 0 0 1-6 6h-1a6 6 0 0 1-6-6z M18 11h1.5a2.5 2.5 0 0 1 0 5H17 M9 3c-1 1.5 1 2.5 0 4 M13 3c-1 1.5 1 2.5 0 4"/></svg></span><div><small>Roasted by</small><b>'+esc(r)+'</b>'+(n>1?'<small>'+n+' of their coffees in your scans</small>':'')+'</div></div>':'<p class="hint" style="margin:.2rem 0 .6rem">Add the roastery below to give them credit.</p>')}
 function renderScan(){
   $('s-origin').value=SC.origin;$('s-process').value=SC.process;$('s-variety').value=SC.variety;$('s-date').value=SC.date||'';$('s-brewer').value=SC.brewer;
   seg('s-roast',[['light','Light'],['medium','Medium'],['dark','Dark']],()=>SC.roast,v=>{SC.roast=v;renderScan()});
@@ -1369,11 +1413,13 @@ function renderScan(){
   const P=PROCESSES[SC.process],Vp=vParams(SC.variety);
   const tl=techList(SC.brewer);const pref=tl.find(([r])=>P.funk>=1.2?(r.kind==='kh1'||r.kind==='imm'||r.kind==='kh2'):Vp.clarity>=0.8?(r.kind==='46'||r.kind==='neo'||r.kind==='pulse'):true);if(pref)c.tech=pref[1];
   const p=plan(c);const o=ALLO()[SC.origin],inf=SC.info;
-  const kv=inf?[['Roaster',inf.roaster],['Coffee',inf.coffee_name],['Producer or farm',inf.producer_or_farm],['Region',inf.region],['Altitude',inf.altitude],['Varieties',(inf.varieties||[]).join(', ')],['Process',inf.process],['Notes',(inf.tasting_notes||[]).join(', ')]].filter(x=>x[1]):[];
-  $('scan-out').innerHTML=(inf?'<h2 style="margin-bottom:.2rem">'+esc(inf.coffee_name||inf.producer_or_farm||'Your coffee')+'</h2>'+(inf.summary?'<p>'+esc(inf.summary)+'</p>':'')+(kv.length?'<dl class="kv">'+kv.map(([k,v])=>'<dt>'+k+'</dt><dd>'+esc(v)+'</dd>').join('')+'</dl>':''):'<h2 style="margin-bottom:.2rem">Your coffee</h2><p class="hint">Scan a bag or fill in the details to get a plan.</p>')+
+  const kv=inf?[['Producer or farm',inf.producer_or_farm],['Region',inf.region],['Altitude',inf.altitude],['Varieties',(inf.varieties||[]).join(', ')],['Process',inf.process],['Notes',(inf.tasting_notes||[]).join(', ')]].filter(x=>x[1]):[];
+  $('s-name').value=SC.name||'';$('s-roaster').value=SC.roaster||'';$('s-roasters').innerHTML=[...new Set(SCANS.map(scRoaster).filter(Boolean))].map(r=>'<option value="'+esc(r)+'">').join('');
+  $('scan-out').innerHTML='<div id="scan-head"></div>'+(inf?(inf.summary?'<p class="hint">'+esc(inf.summary)+'</p>':'')+(kv.length?'<dl class="kv">'+kv.map(([k,v])=>'<dt>'+k+'</dt><dd>'+esc(v)+'</dd>').join('')+'</dl>':''):'<p class="hint">Scan a bag or fill in the details to get a plan.</p>')+
    '<div class="chips"><button class="chip" data-o="'+SC.origin+'">'+(o.flag||'')+' '+esc(o.name)+'</button>'+vbtn(SC.variety.split(':')[0])+'<span class="chip">'+esc(P.name)+'</span><span class="chip">'+age+' days off roast</span></div>'+
    '<h3>Recommended brew</h3>'+planHTML(p,c)+
    '<div class="actions"><button class="btn" id="sc-dial">Open in dial-in</button><button class="btn ghost" id="sc-plan">Fine-tune in planner</button><button class="btn ghost" id="sc-timer">Start brew timer</button><button class="btn ghost" id="sc-share">Share</button></div>';
+  renderScanHead();
   $('scan-out').querySelector('[data-o]').onclick=()=>{showTab('map');selectOrigin(SC.origin,true)};
   $('sc-dial').onclick=()=>{Object.assign(S,p.st);render();showTab('dial');toast('Loaded into the dial-in')};
   $('sc-plan').onclick=()=>{Object.assign(PL,c);renderPlan();showTab('planner')};
@@ -1429,9 +1475,9 @@ function varietyDoc(id){const v=VBY[id];const b=[{kv:[['Family',FAM[v.fam].name]
 function originDoc(k){const o=ALLO()[k];return{link:SITE_URL+'#o='+k,title:o.name,sub:'Coffee origin | '+REG[o.reg].name,file:'origin-'+o.name,blocks:[{kv:[['Regions',o.subs.join(', ')],['Altitude',o.alt],['Harvest',o.harvest],['Processing',o.process]]},{h:'In the cup',p:o.cup},{h:'Story',p:o.hist},{h:'Varieties grown here',list:o.vars.map(v=>VBY[v]?VBY[v].name:v)},{h:'Did you know?',p:o.fact}]}}
 function historyDoc(){return{link:SITE_URL+'#history',title:'The story of coffee',sub:'From Ethiopian forests to your cup',file:'coffee-history',blocks:[{h:'Timeline',list:TIMELINE.map(([w,t,d])=>w+' - '+t+': '+d)},{h:'People who spread coffee',list:PEOPLE.map(([n,r,d])=>n+' ('+r+'): '+d)}]}}
 function logDoc(){return{title:'My brew log',sub:LOG.length+' brews',file:'brew-log',blocks:LOG.length?LOG.map(l=>({h:(l.coffee||'Untitled')+' - '+l.date,kv:[['Rating',l.stars?l.stars+' / 5':'-'],['Settings',l.settings||'-'],['Predicted',l.pred||'-'],['Notes',l.notes||'-']]})):[{p:'No brews logged yet.'}]}}
-function scanDoc(p,c){const inf=SC.info||{};const o=ALLO()[SC.origin];const kv=[['Origin',o.name],['Variety',vName(SC.variety)],['Process',PROCESSES[SC.process].name],['Roast',SC.roast],['Days off roast',String(daysSince(SC.date))]];
-  if(inf.roaster)kv.unshift(['Roaster',inf.roaster]);if(inf.producer_or_farm)kv.push(['Producer or farm',inf.producer_or_farm]);if(inf.altitude)kv.push(['Altitude',inf.altitude]);if((inf.tasting_notes||[]).length)kv.push(['Tasting notes',inf.tasting_notes.join(', ')]);
-  const rd=recipeDoc(c.tech,p,c);return{link:rd.link,title:inf.coffee_name||('Brew plan: '+o.name+' '+vName(SC.variety)),sub:'Bean profile and recommended brew',file:'bean-plan',blocks:[{h:'The coffee',kv}].concat(inf.summary?[{p:inf.summary}]:[]).concat([{h:'Recommended: '+RECIPES[c.tech].name,p:''}]).concat(rd.blocks.slice(1))}}
+function scanDoc(p,c){const inf=SC.info||{};const o=ALLO()[SC.origin];const kv=[...(SC.roaster?[['Roastery',SC.roaster]]:[]),['Origin',o.name],['Variety',vName(SC.variety)],['Process',PROCESSES[SC.process].name],['Roast',SC.roast],['Days off roast',String(daysSince(SC.date))]];
+  if(inf.producer_or_farm)kv.push(['Producer or farm',inf.producer_or_farm]);if(inf.altitude)kv.push(['Altitude',inf.altitude]);if((inf.tasting_notes||[]).length)kv.push(['Tasting notes',inf.tasting_notes.join(', ')]);
+  const rd=recipeDoc(c.tech,p,c);return{link:rd.link,title:scanTitle(SC,SC.info),sub:'Bean profile and recommended brew',file:'bean-plan',blocks:[{h:'The coffee',kv}].concat(inf.summary?[{p:inf.summary}]:[]).concat([{h:'Recommended: '+RECIPES[c.tech].name,p:''}]).concat(rd.blocks.slice(1))}}
 
 let SHDOC=null;
 // Where people land from a shared message.
