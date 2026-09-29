@@ -484,7 +484,7 @@ function initPlan(){
 /* ================= BREW TIMER ================= */
 let TM=null;
 function parseSteps(steps){let last=-1;return steps.map(s=>{const m=s.match(/(\d+):(\d\d)/);let t=m?(+m[1]*60+ +m[2]):null;if(t==null)t=last;else last=t;return{t,s}})}
-function openTimer(idx,p){
+function openTimer(idx,p){noteRecent(RECIPES[idx]);
   const r=RECIPES[idx];const ev=parseSteps(r.steps);const timed=ev.filter(e=>e.t>=0);
   const total=timed.length?Math.max(...timed.map(e=>e.t))+(/finish|drain|finished|serve/i.test(r.steps[r.steps.length-1])?0:30):0;
   if(TM&&TM.iv)clearInterval(TM.iv);
@@ -547,18 +547,70 @@ document.querySelector('[role=tablist]').onclick=e=>{const t=e.target.closest('.
 
 /* ================= RECIPES ================= */
 // A recipe's details and buttons, used on its card and when it opens from a shared link.
-function recipeBody(r,i){const B=BREWERS[r.b];const gs=MYG.map(g=>[g,settingFor(g,r.b,r.off)]);
+function recipeBody(r,i,compact){const B=BREWERS[r.b];const gs=MYG.map(g=>[g,settingFor(g,r.b,r.off)]);
   return '<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span>':'')+'</div>'+
    '<div class="meta">'+gs.map(([g,v])=>'<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>').join('')+'</div>'+
-   (r.why?'<p>'+esc(r.why)+'</p>':'')+'<ol class="steps">'+r.steps.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol>'+(r.tip?'<p class="hint">'+esc(r.tip)+'</p>':'')+
+   (r.why?'<p>'+esc(r.why)+'</p>':'')+(compact?'<details class="rsteps"><summary>Steps ('+r.steps.length+')</summary>':'')+'<ol class="steps">'+r.steps.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol>'+(r.tip?'<p class="hint">'+esc(r.tip)+'</p>':'')+(compact?'</details>':'')+
    '<div class="actions"><button class="btn" data-timer="'+i+'">Start timer</button><button class="btn ghost" data-rshare="'+i+'">Share</button>'+(B.model?'<button class="btn ghost" data-load="'+i+'">Load into dial-in</button>':'')+(PBREWERS.includes(r.b==='swi'?'sw':r.b)?'<button class="btn ghost" data-plan="'+i+'">Tune in planner</button>':'')+(r.custom?'<button class="btn ghost" data-redit="'+esc(r.id)+'">Edit</button>':'')+'</div>'}
-let RF='all';
+let RF='all',RQ='';
+/* Favorites and recent brews, kept on this phone. A recipe's key survives app updates: its name for built-in
+   recipes, its id for yours. */
+const rkey=r=>r.custom?'c:'+r.id:'r:'+slug(r.name);
+// Lists of recipe keys (plain strings), which load() would drop as it only keeps saved objects.
+const loadKeys=k=>{try{const v=JSON.parse(localStorage.getItem(k)||'[]');return Array.isArray(v)?v.filter(x=>typeof x==='string'&&x.length<120):[]}catch(e){return[]}};
+let FAVS=new Set(loadKeys('bb-favs'));
+let RECENT=loadKeys('bb-recent').slice(0,8);
+const rByKey=k=>RECIPES.findIndex(r=>rkey(r)===k);
+const favCount=()=>RECIPES.filter(r=>FAVS.has(rkey(r))).length;
+const HEART='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-9-8.6C1.6 8.4 3.4 5 6.7 5c2 0 3.3 1.2 4.3 2.6C12 6.2 13.3 5 15.3 5c3.3 0 5.1 3.4 3.7 6.4C19 15.6 12 20 12 20z"/></svg>';
+const favBtn=r=>{const k=rkey(r),on=FAVS.has(k);return '<button type="button" class="favbtn" data-fav="'+esc(k)+'" aria-pressed="'+on+'" aria-label="'+(on?'Remove from favorites':'Add to favorites')+'">'+HEART+'</button>'};
+function toggleFav(k){if(FAVS.has(k))FAVS.delete(k);else FAVS.add(k);save('bb-favs',[...FAVS]);const on=FAVS.has(k);
+  document.querySelectorAll('[data-fav]').forEach(b=>{if(b.dataset.fav===k){b.setAttribute('aria-pressed',on);b.setAttribute('aria-label',on?'Remove from favorites':'Add to favorites')}});
+  toast(on?'Added to favorites':'Removed from favorites');if(BUILT.recipes){renderRHome();if(RF==='fav')renderRecipes()}}
+// Hearts work anywhere (cards, recipe sheets, champion sheets) without triggering the card underneath.
+document.addEventListener('click',e=>{const b=e.target.closest('[data-fav]');if(b){e.stopPropagation();e.preventDefault();toggleFav(b.dataset.fav)}},true);
+function noteRecent(r){if(!r)return;const k=rkey(r);RECENT=[k,...RECENT.filter(x=>x!==k)].slice(0,8);save('bb-recent',RECENT);if(BUILT.recipes)renderRHome()}
+// Cup types: a quick way into the recipes by the kind of coffee you want.
+const ICED=r=>BREWERS[r.b].type==='Cold'||/\b(iced|cold|flash)\b|đá/i.test(r.name);
+const CI=p=>'<svg viewBox="0 0 64 64" aria-hidden="true"><path d="'+p+'"/></svg>';
+const CUPS=[
+  ['pour','Pour-over','Clean, bright, layered','linear-gradient(135deg,#D8A15A,#8A5A3B)',r=>['Cone dripper','Flat-bottom dripper','Machine'].includes(BREWERS[r.b].type)&&!ICED(r),CI('M16 14h32L36 34H28z M26 34h12 M32 38v4 M20 44h24l-3 12H23z M44 46h4a4 4 0 0 1 0 8h-5')],
+  ['imm','Immersion','Presses, switches, siphons','linear-gradient(135deg,#9C7A5B,#4F3A2A)',r=>(BREWERS[r.b].type==='Valve and hybrid'||['frenchpress','siphon'].includes(r.b))&&!ICED(r),CI('M20 16h24v38H20z M20 16h-3 M44 22h5a3 3 0 0 1 3 3v16a3 3 0 0 1-3 3h-5 M32 8v8 M26 8h12 M22 28h20')],
+  ['aero','AeroPress','Quick, punchy, travel-ready','linear-gradient(135deg,#7FA7A0,#3F6E66)',r=>r.b==='aeropress'&&!ICED(r),CI('M24 8h16v8H24z M22 16h20v26H22z M26 42h12v6H26z M18 50h28v6H18z M28 24h8')],
+  ['esp','Espresso-like','Strong and concentrated','linear-gradient(135deg,#B0704A,#5B2E1A)',r=>['Espresso and stovetop','Boiled'].includes(BREWERS[r.b].type)&&!ICED(r),CI('M18 30h24v8a12 12 0 0 1-24 0z M42 32h4a4 4 0 0 1 0 8h-5 M12 52h40 M26 12c-2 3 2 5 0 8 M34 12c-2 3 2 5 0 8')],
+  ['iced','Iced and cold','Flash brews and cold brews','linear-gradient(135deg,#8EB6D0,#4C7390)',ICED,CI('M18 14h28l-4 42H22z M24 26h7v7h-7z M33 32h7v7h-7z M27 40h7v7h-7z M40 8l-6 16')],
+  ['champ','Championships','Recipes that won world titles','linear-gradient(135deg,#E2B866,#9A6A1E)',r=>!!r.champ,CI('M22 10h20v14a10 10 0 0 1-20 0z M22 14h-7a6 6 0 0 0 7 10 M42 14h7a6 6 0 0 1-7 10 M32 34v10 M24 54h16 M26 44h12v10H26z')]];
+const CUPBY=Object.fromEntries(CUPS.map(c=>[c[0],c]));
+function renderRHome(){const QI=(c,p)=>'<span class="qi" style="background:'+c+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+p+'"/></svg></span>';
+  const again=RECENT.map(rByKey).filter(i=>i>=0).slice(0,6);
+  $('rhome').innerHTML='<h3 class="rh">Quick links</h3><div class="qlinks">'+
+    '<button type="button" data-q="surprise">'+QI('#2F80ED','M5 5h14v14H5z M9 9h.01 M15 9h.01 M12 12h.01 M9 15h.01 M15 15h.01')+'<span><b>Surprise me</b><small>Pick a random recipe</small></span></button>'+
+    '<button type="button" data-q="mine">'+QI('#F2A33A','M4 20h4L19 9l-4-4L4 16z M13 7l4 4')+'<span><b>Your recipes</b><small>'+(CREC.length?'Yours and your team’s':'Create your own recipe')+'</small></span>'+(CREC.length?'<span class="qn">'+CREC.length+'</span>':'')+'</button>'+
+    '<button type="button" data-q="fav">'+QI('#E0445A','M12 20s-7-4.4-9-8.6C1.6 8.4 3.4 5 6.7 5c2 0 3.3 1.2 4.3 2.6C12 6.2 13.3 5 15.3 5c3.3 0 5.1 3.4 3.7 6.4C19 15.6 12 20 12 20z')+'<span><b>Favorites</b><small>'+(favCount()?'Your go-to recipes':'Tap the heart on any recipe')+'</small></span>'+(favCount()?'<span class="qn">'+favCount()+'</span>':'')+'</button></div>'+
+    (again.length?'<h3 class="rh">Brew again</h3><div class="again">'+again.map(i=>'<button type="button" data-again="'+i+'"><b>'+esc(RECIPES[i].name)+'</b><small>'+esc(BREWERS[RECIPES[i].b].name)+'</small></button>').join('')+'</div>':'')+
+    '<h3 class="rh">Cup types</h3><div class="cups">'+CUPS.map(([k,n,d,g,f,ic])=>'<button type="button" class="cupcard" data-cup="'+k+'" aria-pressed="'+(RF==='cup:'+k)+'"><span class="cupart" style="--g:'+g+'">'+ic+'</span><b>'+esc(n)+'<span class="cc">'+RECIPES.filter(f).length+'</span></b><small>'+esc(d)+'</small></button>').join('')+'</div>'}
+function showRecipeList(){renderRecipes();renderRHome();requestAnimationFrame(()=>$('rall').scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'}))}
+$('rhome').onclick=e=>{const q=e.target.closest('[data-q]'),a=e.target.closest('[data-again]'),c=e.target.closest('[data-cup]');
+  if(a){openRecipe(+a.dataset.again);return}
+  if(c){const k='cup:'+c.dataset.cup;RF=RF===k?'all':k;RQ='';$('rsearch').value='';showRecipeList();return}
+  if(!q)return;const k=q.dataset.q;
+  if(k==='surprise'){const pool=RECIPES.map((r,i)=>i);openRecipe(pool[Math.floor(Math.random()*pool.length)]);return}
+  if(k==='mine'){if(!CREC.length){openRecipeEditor(null);return}RF='mine'}
+  if(k==='fav'){if(!favCount()){toast('Tap the heart on any recipe to save it here');return}RF='fav'}
+  RQ='';$('rsearch').value='';showRecipeList()};
+$('rsearch').oninput=e=>{RQ=e.target.value;if(RQ.trim()&&RF!=='all'){RF='all';renderRHome()}soon(renderRecipes)}; // a search looks through every recipe
+const RF_NAME=()=>RF==='all'?'All recipes':RF==='fav'?'Favorites':RF==='mine'?'Yours and your team’s':RF==='champ'?'Champions':RF.startsWith('cup:')?CUPBY[RF.slice(4)][1]:RF;
 function renderRecipes(){
   const types=[...new Set(Object.values(BREWERS).map(b=>b.type))];
-  if(RF==='mine'&&!CREC.length)RF='all';
-  seg('rfilter',[['all','All']].concat(CREC.length?[['mine','Yours & team']]:[],[['champ','Champions']],types.map(t=>[t,t])),()=>RF,v=>{RF=v;renderRecipes()});
-  const list=RECIPES.map((r,i)=>[r,i]).filter(([r])=>RF==='all'||(RF==='mine'?r.custom:RF==='champ'?r.champ:BREWERS[r.b].type===RF)).sort((a,b)=>(b[0].custom?1:0)-(a[0].custom?1:0));
-  $('rgrid').innerHTML=list.map(([r,i])=>'<article class="card'+(r.custom?' mine':'')+'">'+(r.custom?'<span class="pill ours">'+esc(r.author&&r.author!==ME?'From '+r.author:'Your recipe')+'</span>':'')+'<h3>'+esc(r.name)+'</h3>'+(r.by?'<p class="hint" style="margin-top:-.2rem">'+esc(r.by)+'</p>':'')+recipeBody(r,i)+'</article>').join('')||'<p class="hint">No recipes here yet.</p>';
+  if(RF==='mine'&&!CREC.length)RF='all';if(RF==='fav'&&!favCount())RF='all';
+  const cup=RF.startsWith('cup:')?CUPBY[RF.slice(4)]:null;
+  seg('rfilter',[['all','All']].concat(cup?[[RF,cup[1]]]:[],favCount()?[['fav','♥ Favorites']]:[],CREC.length?[['mine','Yours & team']]:[],[['champ','Champions']],types.map(t=>[t,t])),()=>RF,v=>{RF=v;renderRecipes();renderRHome()});
+  const q=fold(RQ.trim());
+  const list=RECIPES.map((r,i)=>[r,i]).filter(([r])=>(RF==='all'||(RF==='mine'?r.custom:RF==='champ'?r.champ:RF==='fav'?FAVS.has(rkey(r)):cup?cup[4](r):BREWERS[r.b].type===RF))&&(!q||fold([r.name,r.by,r.why,BREWERS[r.b].name].join(' ')).includes(q)))
+    .sort((a,b)=>(b[0].custom?1:0)-(a[0].custom?1:0));
+  $('rall').textContent=RF_NAME()+' · '+list.length;
+  $('rgrid').innerHTML=list.map(([r,i])=>'<article class="card'+(r.custom?' mine':'')+'">'+favBtn(r)+(r.custom?'<span class="pill ours">'+esc(r.author&&r.author!==ME?'From '+r.author:'Your recipe')+'</span>':'')+'<h3>'+esc(r.name)+'</h3>'+(r.by?'<p class="hint" style="margin-top:-.2rem">'+esc(r.by)+'</p>':'')+recipeBody(r,i,true)+'</article>').join('')||'<p class="hint">No recipes match. Try a shorter search, or pick All.</p>';
+  if(!$('rhome').innerHTML)renderRHome();
 }
 function recipeAct(e){const ed=e.target.closest('[data-redit]');if(ed){openRecipeEditor(CREC.find(r=>r.id===ed.dataset.redit));return true}
   const b=e.target.closest('[data-load],[data-plan],[data-timer],[data-rshare]');if(!b)return false;if(b.dataset.rshare){openShare(recipeDoc(+b.dataset.rshare));return true}
@@ -567,7 +619,7 @@ function recipeAct(e){const ed=e.target.closest('[data-redit]');if(ed){openRecip
 $('rgrid').onclick=recipeAct;
 // A recipe opened from a shared link.
 function openRecipe(i){const r=RECIPES[i],B=BREWERS[r.b],d=$('vd');
-  d.querySelector('#vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">\u2715</button><span class="pill"><i style="background:var(--cherry)"></i>'+esc(r.custom?(r.author?'From '+r.author:'Your recipe'):'Recipe')+'</span><h2 id="vd-title">'+esc(r.name)+'</h2>'+(r.by?'<p class="hint" style="margin:0">'+esc(r.by)+'</p>':'')+'</div>'+
+  d.querySelector('#vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">\u2715</button>'+favBtn(r)+'<span class="pill"><i style="background:var(--cherry)"></i>'+esc(r.custom?(r.author?'From '+r.author:'Your recipe'):'Recipe')+'</span><h2 id="vd-title">'+esc(r.name)+'</h2>'+(r.by?'<p class="hint" style="margin:0">'+esc(r.by)+'</p>':'')+'</div>'+
    '<div class="vd-body">'+recipeBody(r,i)+'</div>';
   d.querySelector('.vd-body').onclick=e=>{if(!e.target.closest('[data-load],[data-plan],[data-timer],[data-rshare],[data-redit]'))return;const sh=e.target.closest('[data-rshare]');if(!sh)d.close();recipeAct(e)};
   $('vd-x').onclick=()=>d.close();if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}d.scrollTop=0}
@@ -576,7 +628,7 @@ function loadRecipe(i){const r=RECIPES[i],B=BREWERS[r.b];S.brewer=r.b;S.rec=i;if
 function planRecipe(i){const r=RECIPES[i];PL.brewer=r.b==='swi'?'sw':r.b;PL.tech=i;if(!canGrind(PL.grinder,PL.brewer))PL.grinder=capable(PL.brewer);renderPlan();showTab('planner')}
 
 /* ---------- Creating, editing and sharing recipes ---------- */
-function recipesChanged(){syncRecipes();if(S.rec!=null&&!RECIPES[S.rec])S.rec=null;if(BUILT.recipes)renderRecipes();renderPlan();render()}
+function recipesChanged(){syncRecipes();if(S.rec!=null&&!RECIPES[S.rec])S.rec=null;if(BUILT.recipes){renderRecipes();renderRHome()}renderPlan();render()}
 function saveRecipe(r){const i=CREC.findIndex(x=>x.id===r.id);if(i>=0)CREC[i]=r;else CREC.push(r);save('bb-myrecipes',CREC);queue('put',r.id,r,'recipes');recipesChanged()}
 function deleteRecipe(r){CREC=CREC.filter(x=>x.id!==r.id);save('bb-myrecipes',CREC);queue('del',r.id,null,'recipes');recipesChanged()}
 // The editor: grind is set relative to each brewer's baseline, so it works on every grinder.
@@ -1145,10 +1197,9 @@ function initScan(){
   $('s-brewer').innerHTML=brewerOptions(PBREWERS);
   for(const [id,key] of [['s-origin','origin'],['s-process','process'],['s-variety','variety'],['s-brewer','brewer'],['s-date','date']])$(id).onchange=e=>{SC[key]=e.target.value;if(key==='brewer'&&!canGrind(SC.grinder,SC.brewer))SC.grinder=capable(SC.brewer);renderScan()};
   // Two ways in: the camera straight away, or a photo already on the phone. Typing or pasting the text is below.
-  $('scan-pick').onclick=()=>$('scan-cam').click();$('scan-choose').onclick=()=>$('scan-file').click();
-  $('scan-drop').onclick=e=>{if(e.target.tagName!=='INPUT')$('scan-cam').click()}; /* the hidden inputs sit inside the box, so their clicks bubble up to it */
-  $('scan-cam').onchange=$('scan-file').onchange=e=>{const f=e.target.files[0];e.target.value='';if(!f)return;SFILE=f;if($('scan-prev').src.startsWith('blob:'))URL.revokeObjectURL($('scan-prev').src);
-    $('scan-prev').src=URL.createObjectURL(f);$('scan-prev').hidden=false;$('scan-empty').hidden=true;$('scan-go').disabled=false;$('scan-again').hidden=false;$('scan-status').hidden=false;runScan(true)};
+  $('scan-pick').onclick=()=>openCamera();$('scan-choose').onclick=()=>$('scan-file').click();
+  $('scan-drop').onclick=e=>{if(e.target.tagName!=='INPUT')openCamera()}; /* the hidden inputs sit inside the box, so their clicks bubble up to it */
+  $('scan-cam').onchange=$('scan-file').onchange=e=>{const f=e.target.files[0];e.target.value='';if(f)usePhoto(f)};
   $('scan-go').onclick=()=>runScan(true);$('scan-text-go').onclick=()=>runScan(false);$('scan-stop').onclick=()=>SCTL&&SCTL.abort();
   $('scan-list').onclick=e=>{const b=e.target.closest('[data-scan]');if(b){const s=SCANS[+b.dataset.scan];Object.assign(SC,s.sc);SC.info=s.info;renderScan();window.scrollTo({top:0,behavior:RM()?'auto':'smooth'})}};
   renderScan();
@@ -1284,6 +1335,29 @@ async function runLocalScan(useImg){
       :c==='slow'?'Reading took too long. Try a closer photo of just the label, or fill in the details below.'
       :'The text reader couldn’t start. Try again, or fill in the details below.'}
   finally{if(SCTL)SCTL.done=true;$('scan-stop').hidden=true;$('scan-go').disabled=!SFILE;$('scan-drop').classList.remove('scanning')}}
+function usePhoto(f){SFILE=f;if($('scan-prev').src.startsWith('blob:'))URL.revokeObjectURL($('scan-prev').src);
+  $('scan-prev').src=URL.createObjectURL(f);$('scan-prev').hidden=false;$('scan-empty').hidden=true;$('scan-go').disabled=false;$('scan-again').hidden=false;$('scan-status').hidden=false;runScan(true)}
+/* In-app camera. Some phones answer a file input's "use the camera" request with the gallery anyway, so the
+   camera runs inside the app: a live viewfinder with a frame for the label and a shutter. If the camera can't
+   start (no permission, no camera), the phone's own picker opens instead. */
+let CAM=null;
+async function openCamera(){
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){$('scan-cam').click();return}
+  const d=$('vd');
+  d.querySelector('#vd-in').innerHTML='<div class="cam"><div class="cam-view"><video id="cam-v" playsinline muted autoplay></video><div class="cam-frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>'+
+    '<p class="cam-tip">Fill the frame with the label, hold steady</p><p class="cam-msg" id="cam-msg">Starting the camera…</p></div>'+
+    '<div class="cam-bar"><button type="button" class="cam-side" id="cam-x" aria-label="Close camera">✕</button><button type="button" class="cam-shutter" id="cam-shot" aria-label="Take photo" disabled></button><button type="button" class="cam-side" id="cam-lib" aria-label="Choose from photos"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v14H4z M4 16l5-5 4 4 3-3 4 4"/><circle cx="15.5" cy="9" r="1.5"/></svg></button></div></div>';
+  d.classList.add('camdlg');if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}
+  const stop=()=>{if(CAM){CAM.getTracks().forEach(t=>t.stop());CAM=null}d.classList.remove('camdlg')};d.addEventListener('close',stop,{once:true});
+  $('cam-x').onclick=()=>d.close();$('cam-lib').onclick=()=>{d.close();$('scan-file').click()};
+  try{CAM=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:2560},height:{ideal:1920}}});
+    if(!d.open){stop();return}const v=$('cam-v');v.srcObject=CAM;await v.play().catch(()=>{});$('cam-msg').hidden=true;$('cam-shot').disabled=false}
+  catch(e){stop();d.close();toast(e&&e.name==='NotAllowedError'?'Camera access was declined, so your photos open instead':'The camera couldn’t start, so the phone’s picker opens instead');setTimeout(()=>$('scan-cam').click(),300);return}
+  $('cam-shot').onclick=async()=>{const v=$('cam-v'),b=$('cam-shot');b.disabled=true;let blob=null;
+    // A full-resolution still where the phone supports it, otherwise the current video frame.
+    try{if(window.ImageCapture&&CAM)blob=await new ImageCapture(CAM.getVideoTracks()[0]).takePhoto()}catch(e){blob=null}
+    if(!blob){const c=document.createElement('canvas');c.width=v.videoWidth;c.height=v.videoHeight;c.getContext('2d').drawImage(v,0,0);blob=await new Promise(r=>c.toBlob(r,'image/jpeg',0.92))}
+    d.close();if(blob)usePhoto(new File([blob],'label.jpg',{type:blob.type||'image/jpeg'}));else toast('Couldn’t take the photo. Try again.')}}
 function thumb(cb){if(!SFILE){cb('');return}const img=new Image();img.onload=()=>{const c=document.createElement('canvas'),s=160/Math.max(img.width,img.height);c.width=img.width*s;c.height=img.height*s;c.getContext('2d').drawImage(img,0,0,c.width,c.height);try{cb(c.toDataURL('image/jpeg',.7))}catch(e){cb('')}};img.onerror=()=>cb('');img.src=$('scan-prev').src}
 function saveScan(){thumb(t=>{SCANS.unshift({t,info:SC.info,sc:{origin:SC.origin,process:SC.process,variety:SC.variety,roast:SC.roast,date:SC.date},when:new Date().toLocaleDateString()});SCANS=SCANS.slice(0,12);save('bb-scans',SCANS);renderScanList()})}
 function renderScanList(){$('scan-list').innerHTML=SCANS.length?SCANS.map((s,i)=>'<button type="button" class="card vcard" data-scan="'+i+'" style="--c:var(--cherry)">'+(s.t?'<img src="'+s.t+'" alt="" style="width:100%;max-height:120px;object-fit:cover;border-radius:10px">':'')+'<h3 style="margin:.4rem 0 .1rem">'+esc((s.info&&(s.info.coffee_name||s.info.producer_or_farm))||originName(s.sc.origin))+'</h3><p class="hint" style="margin:0">'+esc(s.info&&s.info.roaster||'')+' '+esc(s.when)+'</p></button>').join(''):'<p class="hint">Scans you make appear here.</p>'}
@@ -1508,7 +1582,7 @@ function openChamp(ch){const C=COMPS[ch.c],r=ch.rec,R=ch.ri!=null?RECIPES[ch.ri]
     :sub?'<p><b>Brew it on your '+esc(brewName(BREWERS[nb].name))+'</b> instead of their '+esc(theirs)+'. '+esc(adaptNote(b,nb,shift))+'</p>'
     :'<p><b>You have the right brewer</b>: brew it on your '+esc(brewName(BREWERS[b].name))+(chDev(ch)&&!BREWERS[b].name.includes(chDev(ch))&&chDev(ch)!=='Espresso machine'?' (they used '+art(chDev(ch))+' '+esc(chDev(ch))+')':'')+'.</p>';
   const R2=U&&BREWERS[useB].model;
-  d.querySelector('#vd-in').innerHTML='<div class="vd-head" style="--c:'+C.color+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:'+C.color+'"></i>'+esc(C.name)+' '+ch.y+'</span>'+
+  d.querySelector('#vd-in').innerHTML='<div class="vd-head" style="--c:'+C.color+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button>'+(R?favBtn(R):'')+'<span class="pill"><i style="background:'+C.color+'"></i>'+esc(C.name)+' '+ch.y+'</span>'+
    '<h2 id="vd-title">'+(FLAGS[ch.from]||'')+' '+esc(ch.who)+'</h2><div class="meta"><span>'+esc(ch.from)+'</span><span>'+esc(ch.city)+'</span></div></div><div class="vd-body">'+
    (ch.coffee?'<p><b>The coffee.</b> '+esc(ch.coffee)+'</p>':'')+
    '<h3>Gear they used</h3>'+(gear.length?'<ul class="chgear">'+gear.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'<p class="hint" style="margin-top:0">Not published.</p>')+
