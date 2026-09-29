@@ -2981,7 +2981,8 @@ function recipeAct(e){const ed=e.target.closest('[data-redit]');if(ed){openRecip
   const b=e.target.closest('[data-load],[data-plan],[data-timer],[data-rshare]');if(!b)return false;if(b.dataset.rshare){openShare(recipeDoc(+b.dataset.rshare));return true}
   if(b.dataset.timer){openTimer(+b.dataset.timer);return true}
   if(b.dataset.load)loadRecipe(+b.dataset.load);else planRecipe(+b.dataset.plan);return true}
-$('rgrid').onclick=recipeAct;
+// Wrapped: a handler property that returns false cancels the tap, which kept "Steps" from opening.
+$('rgrid').onclick=e=>{recipeAct(e)};
 // A recipe opened from a shared link.
 function openRecipe(i){const r=RECIPES[i],B=BREWERS[r.b],d=$('vd');
   d.querySelector('#vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">\u2715</button>'+favBtn(r)+'<span class="pill"><i style="background:var(--cherry)"></i>'+esc(r.custom?(r.author?'From '+r.author:'Your recipe'):'Recipe')+'</span><h2 id="vd-title">'+esc(r.name)+'</h2>'+(r.by?'<p class="hint" style="margin:0">'+esc(r.by)+'</p>':'')+'</div>'+
