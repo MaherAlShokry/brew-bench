@@ -1,5 +1,5 @@
 /* ================= BREWERS ================= */
-const RF_={ref:15.5,min:13,max:18,step:0.5,def:15,k:0.15}, TF_={min:85,max:100,def:93}, BF_={min:20,max:75,def:45,label:'Bloom'};
+const RF_={ref:15.5,min:13,max:18,step:0.5,def:15,k:0.15}, TF_={min:85,max:100,def:93}, BF_={min:20,max:180,def:45,label:'Bloom'};
 function br(o){return Object.assign({model:true,ratio:RF_,temp:TF_,bloom:BF_},o)}
 const BREWERS={
  v60:br({name:'Hario V60',type:'Cone dripper',body:0,clarity:0.8,base:{zp6:56,kultra:80},

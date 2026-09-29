@@ -300,6 +300,45 @@ button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.a
 @media (max-width:599px){#pmap .ax{font-size:22px}#pmap #pm-label{font-size:24px}#pmap .pd{r:11}#pmap .pd:hover{r:13}}
 #pmap .pd:hover{r:9}
 .card.flash{animation:flash 1.2s ease}
+.roastery{display:flex;align-items:center;gap:12px;margin:10px 0 12px;padding:12px 14px;border-radius:16px;background:color-mix(in srgb,var(--honey) 14%,var(--surface));border:1px solid color-mix(in srgb,var(--honey) 35%,var(--line))}
+.roastery .ri{flex:none;width:40px;height:40px;border-radius:12px;background:var(--cherry);color:var(--surface);display:grid;place-items:center}.roastery .ri svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.roastery small{display:block;color:var(--muted);font-size:.78rem}.roastery b{display:block;font-family:var(--display);font-size:1.05rem}
+.scan-sub{margin:-.1rem 0 .4rem;color:var(--muted)}
+/* Brew timer */
+.tm2{display:flex;flex-direction:column;gap:14px;padding:calc(var(--sa-top) + 14px) 18px calc(var(--sa-bottom) + 18px);min-height:100%}
+.tm-top{display:flex;align-items:flex-start;gap:12px}
+.tm-head{flex:1;min-width:0}.tm-head h2{margin:2px 0 6px;font-size:1.25rem;line-height:1.25}
+.tm-meta{display:flex;flex-wrap:wrap;gap:6px}.tm-meta span{font-size:.8rem;font-weight:600;background:var(--surface2);border-radius:999px;padding:3px 10px;color:var(--ink)}
+.tm-ic{flex:none;width:42px;height:42px;border-radius:50%;border:0;background:var(--surface2);color:var(--ink);display:grid;place-items:center;cursor:pointer;transition:transform .12s}
+.tm-ic svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}.tm-ic:active{transform:scale(.9)}
+.tm-ic.big{width:56px;height:56px}.tm-ic.big svg{width:24px;height:24px}#tm-skip svg{fill:currentColor;stroke-width:1.5}
+.tm-ringwrap{position:relative;width:min(72vw,300px);aspect-ratio:1;margin:4px auto 0}
+.tm-ring{width:100%;height:100%;display:block}
+.tm-track{fill:none;stroke:var(--surface2);stroke-width:12}
+.tm-arc{fill:none;stroke:url(#tmg);stroke-width:12;stroke-linecap:round;transition:stroke-dashoffset .25s linear}
+.tm-tick{stroke:var(--surface);stroke-width:3;stroke-linecap:round}
+.tm-center{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+#tm-big{font-family:var(--display);font-weight:800;font-size:clamp(3rem,15vw,4.4rem);line-height:1;letter-spacing:-.02em;color:var(--ink)}
+.tm-of{color:var(--muted);font-size:.9rem;margin-top:6px}
+.tm-now{background:var(--surface2);border-radius:20px;padding:16px 18px;transition:box-shadow .2s,background .2s}
+.tm-now.warn{box-shadow:0 0 0 3px var(--honey);background:color-mix(in srgb,var(--honey) 14%,var(--surface2))}
+.tm-step{font-size:.74rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--cherry)}
+.tm-target{display:flex;align-items:baseline;gap:4px;margin-top:4px}.tm-target:empty{display:none}
+.tm-target b{font-family:var(--display);font-size:2.4rem;line-height:1.05;font-variant-numeric:tabular-nums}.tm-target small{color:var(--muted);font-size:.9rem}
+.tm-target em{margin-left:auto;font-style:normal;font-weight:700;color:var(--leaf);background:color-mix(in srgb,var(--leaf) 16%,transparent);border-radius:999px;padding:3px 10px;font-size:.9rem}
+.tm-text{font-size:1.08rem;line-height:1.4;margin-top:6px}
+.tm-bar{height:6px;border-radius:999px;background:color-mix(in srgb,var(--ink) 10%,transparent);margin:12px 0 8px;overflow:hidden}.tm-bar i{display:block;height:100%;width:0;background:var(--cherry);border-radius:inherit;transition:width .25s linear}
+.tm-next{display:flex;flex-direction:column;gap:2px;font-size:.88rem;color:var(--muted)}.tm-next b{color:var(--ink);font-variant-numeric:tabular-nums}.tm-nx{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tm-done{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}.tm-done .btn{flex:1 1 auto}
+.tm-ctl{display:flex;align-items:center;justify-content:center;gap:26px;margin-top:2px}
+.tm-play{width:84px;height:84px;border-radius:50%;border:0;background:var(--cherry);color:var(--surface);display:grid;place-items:center;cursor:pointer;box-shadow:0 10px 26px color-mix(in srgb,var(--cherry) 40%,transparent);transition:transform .12s}
+.tm-play svg{width:34px;height:34px;fill:currentColor}.tm-play:active{transform:scale(.93)}
+.tm-all{border-top:1px solid var(--line);padding-top:10px}.tm-all summary{cursor:pointer;font-weight:600;color:var(--cherry)}
+#tm-list{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}
+#tm-list li{display:flex;gap:10px;align-items:baseline;padding:8px 10px;border-radius:12px;color:var(--muted)}
+#tm-list li b{flex:none;min-width:40px;font-variant-numeric:tabular-nums;color:var(--ink)}
+#tm-list li.cur{background:color-mix(in srgb,var(--cherry) 12%,var(--surface));color:var(--ink);font-weight:600}#tm-list li.done{opacity:.55;text-decoration:line-through}
+@media (max-width:759px){html dialog#timer{margin:0;width:100%;max-width:100%;height:100%;max-height:100%;border-radius:0;border:0}}
 /* Recipes home: quick links and cup types */
 .rhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 0 10px}.rhead .rh{margin:0}.rhead .btn{flex:none;padding:8px 14px;font-size:.88rem}
 .rsteps{margin:.2rem 0 .4rem}.rsteps summary{cursor:pointer;font-weight:600;color:var(--cherry);padding:4px 0}.rsteps[open] summary{margin-bottom:.2rem}
@@ -581,7 +620,7 @@ button,a,.tab,.chip,[role=button],input[type=range]{touch-action:manipulation}
 .cform{margin-top:12px}
 .cform input,.cform select{width:100%;min-width:0;box-sizing:border-box}.cform .two>*{min-width:0}
 .cform .joinrow select{flex:0 0 42%;width:42%}.cform .joinrow input{flex:1;text-transform:none;letter-spacing:normal;font-family:inherit}
-@media (max-width:560px){.cform .stackm{grid-template-columns:1fr}}
+@media (max-width:560px){.cform .stackm,.panel .stackm{grid-template-columns:1fr;gap:0}}
 /* Recipe editor and your recipes */
 .recform input:not([type=range]),.recform select,.recform textarea{width:100%}
 .recform .three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.recform .three input{min-width:0}
@@ -796,7 +835,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
         <div class="field"><label for="i-temp">Water <span class="num" id="v-temp"></span></label><input type="range" id="i-temp" min="85" max="100" step="1"></div>
         <div class="field"><label for="i-ratio">Ratio <span class="num" id="v-ratio"></span></label><input type="range" id="i-ratio" min="13" max="18" step="0.5"></div>
       </div>
-      <div class="field"><label for="i-bloom">Bloom <span class="num" id="v-bloom"></span></label><input type="range" id="i-bloom" min="20" max="75" step="5"></div>
+      <div class="field"><label for="i-bloom">Bloom <span class="num" id="v-bloom"></span></label><input type="range" id="i-bloom" min="20" max="180" step="5"></div>
       <div class="field"><div class="lbl">Agitation <span class="hint">pour force, swirls, stirs</span></div><div class="seg" id="g-agit"></div></div>
       <div class="field"><div class="lbl">Roast</div><div class="seg" id="g-roast"></div></div>
       <div class="field"><label for="i-process">Process</label><select id="i-process"></select></div>
@@ -862,6 +901,8 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
         <div class="actions"><button class="btn ghost" id="scan-text-go">Read this text</button></div>
       </details>
       <h3>Coffee details</h3>
+      <div class="two stackm"><div class="field"><label for="s-name">Coffee name</label><input id="s-name" style="width:100%" maxlength="60" placeholder="e.g. Luis Aníbal Calderón" autocomplete="off"></div>
+        <div class="field"><label for="s-roaster">Roastery</label><input id="s-roaster" style="width:100%" maxlength="50" list="s-roasters" placeholder="e.g. Windrose" autocomplete="off"><datalist id="s-roasters"></datalist></div></div>
       <div class="field"><label for="s-origin">Origin</label><select id="s-origin"></select></div>
       <div class="field"><label for="s-process">Process</label><select id="s-process"></select></div>
       <div class="field"><label for="s-variety">Variety</label><select id="s-variety"></select></div>
