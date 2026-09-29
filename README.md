@@ -35,7 +35,7 @@ You can share anything to WhatsApp, Telegram, Messages or email, through your ph
 
 ## Install on your phone
 
-**Android app (APK):** open the [latest APK](https://github.com/MaherAlShokry/brew-bench/releases/latest/download/brew-bench.apk) on your phone and tap it to install. The first time, Android asks you to allow installs from your browser or file manager. A new APK is built and published on the [Releases](https://github.com/MaherAlShokry/brew-bench/releases) page every time `main` changes. In the app, the phone's back gesture closes the open sheet or steps back a screen, and only leaves the app from the Brew home.
+**Android app (APK):** open the [latest APK](https://github.com/MaherAlShokry/brew-bench/releases/latest/download/brew-bench.apk) on your phone and tap it to install. The first time, Android asks you to allow installs from your browser or file manager. A new APK is built and published on the [Releases](https://github.com/MaherAlShokry/brew-bench/releases) page every time `main` changes. In the app, sheets and menus slide up and away, screens slide the way you are going, and the phone's back gesture closes the open sheet or steps back a screen, and only leaves the app from the Brew home.
 
 **Straight from the website:** open the live site, then:
 - **iPhone (Safari):** tap Share, then **Add to Home Screen**.

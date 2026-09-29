@@ -518,7 +518,7 @@ function openTimer(idx,p){noteRecent(RECIPES[idx]);
       '<div class="tm-ctl"><button class="tm-ic big" id="tm-reset" aria-label="Reset">'+I('M4 12a8 8 0 1 0 2.3-5.6M4 4v5h5')+'</button><button class="tm-play" id="tm-go" aria-label="Start">'+I('M8 5v14l11-7z')+'</button><button class="tm-ic big" id="tm-skip" aria-label="Next step">'+I('M6 5l9 7-9 7z M18 5v14')+'</button></div>'
     :'<p class="tm-text" style="text-align:center">This one is by eye rather than the clock.</p>')+
    '<details class="tm-all"'+(total?'':' open')+'><summary>All steps ('+ev.length+')</summary><ol id="tm-list">'+ev.map((e,i)=>'<li data-i="'+i+'">'+(e.t>=0?'<b>'+mmss(e.t)+'</b>':'')+'<span>'+esc(stepTxt(e.s))+'</span></li>').join('')+'</ol></details></div>';
-  const d=$('timer');if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}d.scrollTop=0;
+  const d=$('timer');showDlg(d);d.scrollTop=0;
   $('tm-x').onclick=()=>d.close();
   // However the timer is closed (X, back, Escape, backdrop), stop it and let the screen sleep again.
   d.onclose=()=>{if(TM&&TM.iv)clearInterval(TM.iv);if(TM)TM.run=false;wake(false)};
@@ -560,7 +560,12 @@ const LAZY={champs:renderChamps,words:renderWords,flow:renderFlow,gear:buildGear
 function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove());if(LAZY[id]&&!BUILT[id]){BUILT[id]=1;LAZY[id]()}}
 // NAVD counts tab changes you can step back through, so the app bar can offer a back button.
 let BACKING=false,PEND_TAB=null,NAVD=0;
-function showTab(id,fromHistory){ensureTab(id);document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x.dataset.t===id));
+// Screens slide in the way you are going: deeper or to a tab on the right from the right, back or left from the left.
+const BNORD=['dial','recipes','scan','explore','more'];
+function showTab(id,fromHistory){ensureTab(id);const cur=document.querySelector('main section.on');
+  if(cur&&cur.id!==id){const a=BNORD.indexOf(BNGROUP[cur.id]),b=BNORD.indexOf(BNGROUP[id]);const back=a!==b&&a>=0&&b>=0?b<a:!!fromHistory;
+    document.body.classList.toggle('nav-back',back)}
+  document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x.dataset.t===id));
   document.querySelectorAll('main section').forEach(s=>s.classList.toggle('on',s.id===id));window.scrollTo({top:0});
   const t=document.querySelector('.tab[data-t="'+id+'"]');if(t)t.scrollIntoView({block:'nearest',inline:'center'});
   // Each tab gets a history entry, so the back button (browser or Android) returns to the last tab.
@@ -577,9 +582,17 @@ const DSTACK=[];
 {const sm=HTMLDialogElement.prototype.showModal;HTMLDialogElement.prototype.showModal=function(){if(!this.open){if(!BACKING)try{history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}DSTACK.push(this);
   this.addEventListener('close',()=>{const i=DSTACK.indexOf(this);if(i>=0)DSTACK.splice(i,1);if(this.dataset.popped){delete this.dataset.popped;return}
     if(!BACKING&&history.state&&history.state.dlg){BACKING=true;history.back()}},{once:true})}return sm.call(this)}}
-addEventListener('popstate',()=>{const open=[...document.querySelectorAll('dialog[open]')];
+// Sheets slide away before they close (the CSS animates .closing), so nothing vanishes abruptly.
+{const cl=HTMLDialogElement.prototype.close;HTMLDialogElement.prototype.close=function(v){if(!this.open||this.classList.contains('closing'))return;
+  if(RM()||document.hidden)return cl.call(this,v);this.classList.add('closing');
+  const done=()=>{clearTimeout(t);this.removeEventListener('animationend',end);if(!this.classList.contains('closing'))return;this.classList.remove('closing');cl.call(this,v)},
+    end=e=>{if(e.target===this)done()},t=setTimeout(done,380);this.addEventListener('animationend',end)}}
+document.addEventListener('cancel',e=>{if(e.target.tagName==='DIALOG'){e.preventDefault();e.target.close()}},true);
+// Open a dialog; reopening one that is sliding away just keeps it.
+function showDlg(d){if(d.classList.contains('closing')){d.classList.remove('closing');return}if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}}
+addEventListener('popstate',()=>{const open=[...document.querySelectorAll('dialog[open]:not(.closing)')];
   if(BACKING){BACKING=false;try{if(PEND_TAB&&location.hash!=='#'+PEND_TAB)history.pushState(null,'','#'+PEND_TAB);if(open.length)history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}PEND_TAB=null;return}
-  if(open.length){const top=DSTACK.filter(d=>d.open).pop();if(top){top.dataset.popped=1;top.close()}else open.forEach(d=>d.close());return}
+  if(open.length){const top=DSTACK.filter(d=>d.open&&!d.classList.contains('closing')).pop();if(top){top.dataset.popped=1;top.close()}else open.forEach(d=>d.close());return}
   const h=location.hash.slice(1);if(openRoute(h))return;const id=h&&$(h)&&$(h).tagName==='SECTION'?h:'dial';if(!$(id).classList.contains('on')){NAVD=Math.max(0,NAVD-1);showTab(id,true)}});
 document.querySelector('[role=tablist]').onclick=e=>{const t=e.target.closest('.tab');if(t)showTab(t.dataset.t)};
 
@@ -660,7 +673,7 @@ function openRecipe(i){const r=RECIPES[i],B=BREWERS[r.b],d=$('vd');
   d.querySelector('#vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">\u2715</button>'+favBtn(r)+'<span class="pill"><i style="background:var(--cherry)"></i>'+esc(r.custom?(r.author?'From '+r.author:'Your recipe'):'Recipe')+'</span><h2 id="vd-title">'+esc(r.name)+'</h2>'+(r.by?'<p class="hint" style="margin:0">'+esc(r.by)+'</p>':'')+'</div>'+
    '<div class="vd-body">'+recipeBody(r,i)+'</div>';
   d.querySelector('.vd-body').onclick=e=>{if(!e.target.closest('[data-load],[data-plan],[data-timer],[data-rshare],[data-redit]'))return;const sh=e.target.closest('[data-rshare]');if(!sh)d.close();recipeAct(e)};
-  $('vd-x').onclick=()=>d.close();if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}d.scrollTop=0}
+  $('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
 function loadRecipe(i){const r=RECIPES[i],B=BREWERS[r.b];S.brewer=r.b;S.rec=i;if(!canGrind(S.grinder,r.b))S.grinder=capable(r.b);S.setting=settingFor(S.grinder,r.b,r.off);S.temp=clamp(r.temp,B.temp.min,B.temp.max);S.bloom=B.bloom.def;S.agit='med';
   S.ratio=clamp(Math.round(r.water/r.dose/B.ratio.step)*B.ratio.step,B.ratio.min,B.ratio.max);render();showTab('dial');toast('Loaded '+r.name)}
 function planRecipe(i){const r=RECIPES[i];PL.brewer=r.b==='swi'?'sw':r.b;PL.tech=i;if(!canGrind(PL.grinder,PL.brewer))PL.grinder=capable(PL.brewer);renderPlan();showTab('planner')}
@@ -691,7 +704,7 @@ function openRecipeEditor(r,fresh){const isNew=!r||fresh;r=Object.assign({b:'v60
       steps:$('re-steps').value.split('\n'),why:$('re-why').value,tip:$('re-tip').value,ts:isNew?Date.now():r.ts,kind:r.kind});
     if(!n){toast('Give the recipe a name');$('re-name').focus();return}saveRecipe(n);$('vd').close();RF='mine';if(BUILT.recipes)renderRecipes();showTab('recipes');toast(isNew?'Recipe saved':'Recipe updated')};
   if(!isNew)$('re-del').onclick=()=>{if(!confirm(own?'Delete this recipe?':'Delete '+r.author+'’s recipe for everyone?'))return;deleteRecipe(r);$('vd').close();toast('Recipe deleted')};
-  const d=$('vd');if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
+  const d=$('vd');showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
 $('r-new').onclick=()=>openRecipeEditor(null);
 // Save the current dial-in as a starting recipe.
 $('tosave').onclick=()=>{const B=BREWERS[S.brewer],dose=B.ratio.ref<5?18:B.ratio.ref<10?20:15,water=Math.round(dose*S.ratio),bloom=Math.round(dose*2.5);
@@ -741,7 +754,7 @@ function importRecipe(code){let r;try{r=sanRec(b64u.dec(code))}catch(e){r=null}i
    '<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C</span>':'')+'</div></div><div class="vd-body">'+(r.why?'<p>'+esc(r.why)+'</p>':'')+'<ol class="steps">'+r.steps.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol>'+(r.tip?'<p class="hint">'+esc(r.tip)+'</p>':'')+
    '<div class="meta">'+MYG.map(g=>{const v=settingFor(g,r.b,r.off);return '<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>'}).join('')+'</div>'+
    '<div class="actions"><button class="btn" id="imp-add">Add to my recipes</button><button class="btn ghost" id="imp-no">Not now</button></div></div>';
-  const d=$('vd');if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}d.scrollTop=0;$('vd-x').onclick=$('imp-no').onclick=()=>d.close();
+  const d=$('vd');showDlg(d);d.scrollTop=0;$('vd-x').onclick=$('imp-no').onclick=()=>d.close();
   $('imp-add').onclick=()=>{saveRecipe(r);d.close();RF='mine';showTab('recipes');toast('Added to your recipes')}}
 
 /* ================= TECHNIQUES ================= */
@@ -897,7 +910,7 @@ function openGearPicker(tab,after){let q='',T=tab==='brewers'?'brewers':'grinder
     $('gp-done').onclick=$('vd-x').onclick=()=>d.close()};
   draw();
   const finish=()=>{d.removeEventListener('close',finish);grindersChanged();if(BUILT.champs)renderChamps();if(BUILT.gear)renderMyBrewers();if(after)setTimeout(after,0)};d.addEventListener('close',finish);
-  if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}d.scrollTop=0}
+  showDlg(d);d.scrollTop=0}
 const openGrinderPicker=()=>openGearPicker('grinders');
 function renderMyBrewers(){$('gear-mybrewers').innerHTML='<div class="ghead"><h3 style="margin:0">Your brewers</h3><button type="button" class="gpick-btn" data-gpick-b aria-label="Change brewers" title="Change brewers">'+SWAP_ICON+'</button></div>'+
   (MYB.length?'<div class="meta">'+MYB.map(b=>'<span>'+esc(BREWERS[b].name)+'</span>').join('')+'</div>':'<p class="hint">Tell the app which brewers you own, and championship recipes adapt to them.</p>')}
@@ -966,7 +979,7 @@ function openVariety(id){
    (v.subs?'<h3>Types of '+esc(v.name.split(' ')[0])+'</h3>'+v.subs.map(s=>'<details class="sub"><summary>'+esc(s.name)+'</summary><p>'+esc(s.story)+'</p><p><b>Cup:</b> '+esc(s.cup)+'</p><button class="btn ghost" data-use="'+v.id+':'+s.k+'">Brew this in the dial-in</button></details>').join(''):'')+
    (grown.length?'<h3>Where it grows</h3><div class="chips">'+grown.filter(k=>ALLO()[k]).map(k=>'<button class="chip" data-o="'+k+'">'+(ALLO()[k].flag||'')+' '+esc(originName(k))+'</button>').join('')+'</div>':'')+
    (v.id!=='arabica'?'<div class="actions"><button class="btn" data-use="'+v.id+'">Brew this in the dial-in</button><button class="btn ghost" data-plan-v="'+v.id+'">Plan a brew</button><button class="btn ghost" data-vshare="'+v.id+'">Share</button></div>':'')+'</div>';
-  const d=$('vd');if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}d.scrollTop=0;
+  const d=$('vd');showDlg(d);d.scrollTop=0;
   $('vd-x').onclick=()=>d.close();
 }
 $('vd').addEventListener('click',e=>{const d=$('vd');if(e.target===d){d.close();return}
@@ -1397,7 +1410,7 @@ async function openCamera(){
   d.querySelector('#vd-in').innerHTML='<div class="cam"><div class="cam-view"><video id="cam-v" playsinline muted autoplay></video><div class="cam-frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>'+
     '<p class="cam-tip">Fill the frame with the label, hold steady</p><p class="cam-msg" id="cam-msg">Starting the camera…</p></div>'+
     '<div class="cam-bar"><button type="button" class="cam-side" id="cam-x" aria-label="Close camera">✕</button><button type="button" class="cam-shutter" id="cam-shot" aria-label="Take photo" disabled></button><button type="button" class="cam-side" id="cam-lib" aria-label="Choose from photos"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v14H4z M4 16l5-5 4 4 3-3 4 4"/><circle cx="15.5" cy="9" r="1.5"/></svg></button></div></div>';
-  d.classList.add('camdlg');if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}
+  d.classList.add('camdlg');showDlg(d)
   const stop=()=>{if(CAM){CAM.getTracks().forEach(t=>t.stop());CAM=null}d.classList.remove('camdlg')};d.addEventListener('close',stop,{once:true});
   $('cam-x').onclick=()=>d.close();$('cam-lib').onclick=()=>{d.close();$('scan-file').click()};
   try{CAM=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:2560},height:{ideal:1920}}});
@@ -1510,7 +1523,7 @@ function openShare(doc){SHDOC=doc;const pdfOK=!!(window.jspdf&&window.jspdf.jsPD
    '<button type="button" data-sh="pdf">'+ico('file','#B5533C')+'<span>Save as PDF<small>'+(pdfOK?'A styled page to send or print':'Loading the PDF engine\u2026 try again in a moment')+'</small></span></button>'+
    '<button type="button" data-sh="copy">'+ico('copy','#C9964A')+'<span>Copy as text<small>Paste it anywhere</small></span></button>'+
    '<button type="button" data-sh="md">'+ico('text','#8A5A3B')+'<span>Save as a text file<small>Plain text you can edit</small></span></button></div></div>';
-  const d=$('sharesheet');if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}$('sh-x').onclick=()=>d.close()}
+  const d=$('sharesheet');showDlg(d);$('sh-x').onclick=()=>d.close()}
 // Open a messaging app with the text filled in. In the Android app, Capacitor hands these links to the system.
 function openLink(url){if(NATIVE||/^(mailto|sms):/.test(url))location.href=url;else window.open(url,'_blank','noopener')}
 const fname=s=>String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,60)||'brew-bench';
@@ -1659,7 +1672,7 @@ function openChamp(ch){const C=COMPS[ch.c],r=ch.rec,R=ch.ri!=null?RECIPES[ch.ri]
     else if(k==='load'){const B=BREWERS[useB],gr=MYG.find(h=>setOn(h)!=null)||S.grinder;S.brewer=useB;S.rec=useB===U.b?ui:null;S.grinder=gr;S.setting=setOn(gr)??base(gr,useB);
       S.temp=clamp(U.temp,B.temp.min,B.temp.max);S.bloom=B.bloom.def;S.agit='med';S.ratio=clamp(Math.round(U.water/U.dose/B.ratio.step)*B.ratio.step,B.ratio.min,B.ratio.max);render();showTab('dial');toast('Loaded '+ch.who+'’s recipe')}};
   const hx=d.querySelector('.vd-head');hx.onclick=e=>{if(e.target.closest('#vd-x'))d.close()};
-  if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}d.scrollTop=0}
+  showDlg(d);d.scrollTop=0}
 /* ================= COFFEE WORDS ================= */
 let WC='all',WQ='';
 const GBY=Object.fromEntries(GLOSSARY.map(g=>[g[0],g]));
@@ -1730,7 +1743,7 @@ function toggleBranch(btn){const i=+btn.dataset.fb,box=btn.parentElement,cur=box
 function flowSheet(c,pill,title,sub,body){const d=$('vd');
   d.querySelector('#vd-in').innerHTML='<div class="vd-head" style="--c:'+c+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:'+c+'"></i>'+esc(pill)+'</span><h2 id="vd-title">'+esc(title)+'</h2>'+(sub?'<p class="hint" style="margin:0">'+esc(sub)+'</p>':'')+'</div><div class="vd-body flowd">'+body+'</div>';
   d.querySelector('.vd-body').onclick=e=>{if(goLink(e)||togglePnode(e))return;const n=e.target.closest('[data-fnav]');if(n)openFlowStep(n.dataset.fnav);const b=e.target.closest('[data-fb]');if(b)openFlowBranch(+b.dataset.fb)};
-  $('vd-x').onclick=()=>d.close();if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}d.scrollTop=0}
+  $('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
 function openFlowStep(id){const f=FBY[id];if(!f)return;const [pn,c]=FLOW_PHASES[f.ph],i=FLOW.indexOf(f),prev=FLOW[i-1],next=FLOW[i+1];
   const chips=(f.k||[]).map(t=>linkChip('k:'+t)).join(''),go=(f.go||[]).map(([l,lab])=>linkChip(l,lab)).join('');
   flowSheet(c,pn+(f.side?' · optional':' · step '+FNUM[f.id]+' of '+Object.keys(FNUM).length),f.t,f.s,'<p>'+esc(f.d)+'</p>'+
@@ -1760,18 +1773,24 @@ const ico=(n,bg)=>'<span class="ic" style="background:'+bg+'"><svg viewBox="0 0 
 const TABNAMES={champs:'World championships',words:'Coffee words',flow:'From seed to cup',dial:'Dial-in',planner:'Brew planner',scan:'Scan beans',gear:'Gear and dials',recipes:'Recipes',tech:'Techniques',process:'Processes',map:'Origins map',variety:'Varieties',history:'History',guide:'Guide',log:'Brew log'};
 const BNGROUP={champs:'explore',words:'explore',flow:'explore',dial:'dial',recipes:'recipes',scan:'scan',map:'explore',variety:'explore',history:'explore',process:'explore',tech:'explore',planner:'more',gear:'more',guide:'more',log:'more'};
 function syncShell(id){$('ab-title').textContent=TABNAMES[id]||'Brew Bench';$('ab-back').hidden=NAVD<1;document.body.className=document.body.className.replace(/\bt-\w+/g,'').trim()+' t-'+id;
-  document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));
+  document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));movePill();
   const can=['dial','planner','scan','history','log','map','recipes','words','flow'].includes(id);$('ab-share').hidden=!can}
 const SHEETS={explore:[['map','Origins map','50 origins on an interactive map','#4F8A74','globe'],['variety','Varieties','44 varieties, stories and Geisha types','#B5533C','leaf'],['history','History','Family tree, timeline and a quiz','#8A5A3B','hourglass'],['process','Processes','From washed to thermal shock','#D2A04A','flask'],['tech','Techniques','Every move in the brewing toolbox','#6B8E4E','drop'],['champs','World championships','Every champion, their recipes and gear','#C9964A','trophy'],['flow','From seed to cup','How coffee is made, step by step','#6E8FA8','leaf'],['words','Coffee words','A bank of '+GLOSSARY.length+' coffee terms','#9A7390','book']],
   more:[['planner','Brew planner','A recipe tuned to your coffee','#8A5A3B','clipboard'],['gear','Gear and dials','Grinders, brewers and dial reading','#6E8FA8','cog'],['guide','Guide','Ratio calculator and troubleshooting','#C9964A','book'],['log','Brew log','Your brews, ratings and exports','#6B8E4E','pencil']]};
 function openSheet(which){const items=SHEETS[which];
   $('ns-in').innerHTML='<div class="sheet"><div class="grab"></div><button class="vd-close" id="ns-x" aria-label="Close">\u2715</button><h2 id="ns-title" style="margin:0 40px 0 0">'+(which==='explore'?'Explore':'More')+'</h2><div class="sheetlist">'+
-   items.map(([k,n,d,c,ic])=>'<button type="button" data-go="'+k+'">'+ico(ic,c)+'<span>'+n+'<small>'+d+'</small></span></button>').join('')+
-   (which==='more'?'<button type="button" data-toggle-theme>'+ico(curTheme()==='dark'?'sun':'moon','#5B5F66')+'<span>'+(curTheme()==='dark'?'Switch to light theme':'Switch to dark theme')+'<small>Bright cream or cosy espresso</small></span></button>'+(installed()?'':'<button type="button" data-install="1">'+ico('download','#9A7390')+'<span>Add to your home screen<small>Use it like an app</small></span></button>'):'')+'</div><div id="ns-extra"></div></div>';
-  const d=$('navsheet');if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}$('ns-x').onclick=()=>d.close()}
+   items.map(([k,n,d,c,ic],i)=>'<button type="button" data-go="'+k+'" style="--i:'+i+'">'+ico(ic,c)+'<span>'+n+'<small>'+d+'</small></span></button>').join('')+
+   (which==='more'?'<button type="button" data-toggle-theme style="--i:'+items.length+'">'+ico(curTheme()==='dark'?'sun':'moon','#5B5F66')+'<span>'+(curTheme()==='dark'?'Switch to light theme':'Switch to dark theme')+'<small>Bright cream or cosy espresso</small></span></button>'+(installed()?'':'<button type="button" data-install="1" style="--i:'+(items.length+1)+'">'+ico('download','#9A7390')+'<span>Add to your home screen<small>Use it like an app</small></span></button>'):'')+'</div><div id="ns-extra"></div></div>';
+  const d=$('navsheet');showDlg(d);$('ns-x').onclick=()=>d.close()}
 $('navsheet').addEventListener('click',e=>{const d=$('navsheet');if(e.target===d){d.close();return}const g=e.target.closest('[data-go]');if(g){d.close();showTab(g.dataset.go);return}
   if(e.target.closest('[data-toggle-theme]')){$('themebtn').click();d.close();toast(curTheme()==='dark'?'Dark theme on':'Light theme on');return}
   if(e.target.closest('[data-install]'))$('ns-extra').innerHTML='<div class="tip"><b>iPhone (Safari):</b> open this page\u2019s link in Safari, tap the Share button, then <b>Add to Home Screen</b>.<br><b>Android (Chrome):</b> open the link in Chrome, tap the \u22ee menu, then <b>Add to Home screen</b>.<br>Your calibration, log and scans stay saved on this phone.</div>'});
+// The highlight behind the current nav button glides to the next one.
+function movePill(){const nav=document.querySelector('.bottomnav'),pill=nav&&nav.querySelector('.bn-pill'),b=nav&&nav.querySelector('[aria-current="true"]');if(!pill)return;
+  if(!b||!nav.offsetWidth){pill.style.opacity=0;return}const first=pill.style.opacity!=='1';if(first)pill.style.transition='none';
+  pill.style.opacity=1;pill.style.width=b.offsetWidth+'px';pill.style.transform='translateX('+b.offsetLeft+'px)';if(first){void pill.offsetWidth;pill.style.transition=''}}
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(movePill);
+addEventListener('resize',()=>soon(movePill));
 document.querySelector('.bottomnav').onclick=e=>{const b=e.target.closest('[data-bn]');if(!b)return;const k=b.dataset.bn;if(k==='explore'||k==='more')openSheet(k);else showTab(k)};
 $('ab-share').onclick=()=>{const id=(document.querySelector('main section.on')||{}).id;
   if(id==='dial')openShare(dialDoc());else if(id==='planner')openShare(recipeDoc(PL.tech,plan(Object.assign({},PL)),PL));else if(id==='scan')$('sc-share').click();else if(id==='history')openShare(historyDoc());else if(id==='log')openShare(logDoc());else if(id==='map'){if(SEL)openShare(originDoc(SEL));else toast('Pick an origin first')}else if(id==='recipes')toast('Tap Share on any recipe card');else if(id==='words')openShare(wordsDoc());else if(id==='flow')openShare(flowDoc())};
@@ -1779,7 +1798,7 @@ $('dial-share').onclick=()=>openShare(dialDoc());
 $('ab-back').onclick=()=>history.back();
 // The Android back gesture asks here first: close the top sheet, or step back a screen. False means there is nothing
 // left to go back to, so the app goes to the background like any other.
-window.bbBack=()=>{const d=[...document.querySelectorAll('dialog[open]')].pop();
+window.bbBack=()=>{const d=[...document.querySelectorAll('dialog[open]:not(.closing)')].pop();
   if(d){if(history.state&&history.state.dlg)history.back();else d.close();return true}
   if(NAVD>0){history.back();return true}
   if(!document.getElementById('dial').classList.contains('on')){showTab('dial');NAVD=0;syncShell('dial');return true}

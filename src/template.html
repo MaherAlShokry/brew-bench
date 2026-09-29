@@ -261,8 +261,6 @@ dialog#vd::backdrop{background:rgba(20,14,10,.55)}
 .logentry .x{background:none;border:0;color:var(--muted);cursor:pointer;font-family:var(--display);font-size:.8rem;padding:4px}
 
 /* alive */
-main section.on{animation:secin .35s ease both}
-@keyframes secin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .card,.vbtn,.chip,.btn{transition:transform .18s ease,box-shadow .18s ease,background .18s ease,border-color .18s ease}
 .vcard:hover,.hovercard:hover{transform:translateY(-3px)}
 .btn:active{transform:scale(.97)}
@@ -640,8 +638,48 @@ button,a,.tab,.chip,[role=button],input[type=range]{touch-action:manipulation}
 /* Open dialogs and sheets lock the page behind them. */
 html.locked,html.locked body{overflow:hidden}
 dialog{overscroll-behavior:contain;overflow:auto}
-@media (prefers-reduced-motion:no-preference){dialog[open]{animation:dlg-in .18s cubic-bezier(.2,.8,.2,1)}}
-@keyframes dlg-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+/* Motion: sheets rise and settle, then slide away; the backdrop fades; screens slide the way you are going. */
+:root{--ease-sheet:cubic-bezier(.32,.72,0,1);--ease-spring:cubic-bezier(.34,1.4,.5,1);--ease-out:cubic-bezier(.2,.8,.2,1)}
+@media (prefers-reduced-motion:no-preference){
+  dialog[open]{animation:dlg-in .3s var(--ease-out) both}
+  dialog[open]::backdrop{animation:bd-in .3s ease both}
+  dialog.closing{animation:dlg-out .2s cubic-bezier(.4,0,1,1) both;pointer-events:none}
+  dialog.closing::backdrop{animation:bd-out .24s ease both}
+  .sheetlist button{animation:item-in .42s var(--ease-out) both;animation-delay:calc(70ms + var(--i,0) * 32ms)}
+  main section.on{animation:sec-fwd .34s var(--ease-out) both}
+  body.nav-back main section.on{animation-name:sec-back}
+  .bottomnav button[aria-current="true"] svg{animation:bn-pop .42s var(--ease-spring)}
+  .bn-pill{transition:transform .42s var(--ease-spring),width .42s var(--ease-spring),opacity .2s}
+  .appbar #ab-title{animation:title-in .3s var(--ease-out)}
+}
+@media (prefers-reduced-motion:no-preference) and (max-width:759px){
+  dialog#vd[open],dialog#navsheet[open],dialog#sharesheet[open]{animation:sheet-up .44s var(--ease-sheet) both}
+  dialog#vd.closing,dialog#navsheet.closing,dialog#sharesheet.closing{animation:sheet-down .26s cubic-bezier(.4,0,1,1) both}
+  html dialog#timer[open]{animation:sheet-up .46s var(--ease-sheet) both}
+  html dialog#timer.closing{animation:sheet-down .28s cubic-bezier(.4,0,1,1) both}
+}
+@keyframes dlg-in{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes dlg-out{to{opacity:0;transform:translateY(10px) scale(.97)}}
+@keyframes sheet-up{from{transform:translateY(100%)}to{transform:none}}
+@keyframes sheet-down{from{transform:none}to{transform:translateY(100%)}}
+@keyframes bd-in{from{opacity:0}to{opacity:1}}
+@keyframes bd-out{from{opacity:1}to{opacity:0}}
+@keyframes item-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes sec-fwd{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+@keyframes sec-back{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:none}}
+@keyframes bn-pop{0%{transform:scale(.8)}55%{transform:scale(1.14) translateY(-1px)}100%{transform:translateY(-1px)}}
+@keyframes title-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+/* The nav highlight is one pill that moves between buttons. */
+.bn-pill{display:none}
+@media (max-width:759px){
+  .bn-pill{display:block;position:absolute;left:0;top:6px;bottom:6px;width:0;opacity:0;border-radius:var(--r-lg,20px);background:color-mix(in srgb,var(--cherry) 14%,transparent);z-index:0;pointer-events:none}
+  .bottomnav button{position:relative;z-index:1}
+  .bottomnav button[aria-current="true"]{background:transparent!important}
+}
+/* Taps: anything you can press gives a little under your finger. */
+.card[data-r],.card[data-v],.vcard,.hovercard,.gcard,.sheetlist button,.qlinks button,.mrow,.rcard,.tile,.fstep,.pnode,.linkchip,.bottomnav button{transition:transform .16s var(--ease-out),background-color .2s,box-shadow .2s;-webkit-tap-highlight-color:transparent}
+.card[data-r]:active,.card[data-v]:active,.vcard:active,.hovercard:active,.sheetlist button:active,.mrow:active,.rcard:active,.tile:active,.linkchip:active,.bottomnav button:active{transform:scale(.97)}
+.sheetlist button:active{background:color-mix(in srgb,var(--cherry) 8%,var(--surface2))}
 
 @media (max-width:759px){
   body{padding-bottom:calc(104px + var(--sa-bottom))}
@@ -1126,7 +1164,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 </section>
 </main>
 
-<nav class="bottomnav" aria-label="Main"><button type="button" data-bn="dial"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10h9v4.5a4.5 4.5 0 0 1-4.5 4.5h0A4.5 4.5 0 0 1 7 14.5z M16 11.5h1.5a2 2 0 0 1 0 4H16 M10 3.5c0 1.5 1.5 1.5 1.5 3 M13.5 3.5c0 1.5 1.5 1.5 1.5 3"/></svg><span>Brew</span></button><button type="button" data-bn="recipes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H18v15H6.5A1.5 1.5 0 0 0 5 19.5z M5 19.5A1.5 1.5 0 0 0 6.5 21H18v-3 M9 7.5h5 M9 11h5"/></svg><span>Recipes</span></button><button type="button" data-bn="scan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V6a2 2 0 0 1 2-2h2 M16 4h2a2 2 0 0 1 2 2v2 M20 16v2a2 2 0 0 1-2 2h-2 M8 20H6a2 2 0 0 1-2-2v-2 M12 8.5c2 0 3.5 1.6 3.5 3.5S14 15.5 12 15.5 8.5 14 8.5 12 10 8.5 12 8.5z M10.3 13.7c1.2-.6 2.2-2.2 3.4-3.4"/></svg><span>Scan</span></button><button type="button" data-bn="explore"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M15.5 8.5l-2 5-5 2 2-5z"/></svg><span>Explore</span></button><button type="button" data-bn="more"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h5v5H5z M14 5h5v5h-5z M5 14h5v5H5z M14 14h5v5h-5z"/></svg><span>More</span></button></nav>
+<nav class="bottomnav" aria-label="Main"><span class="bn-pill" aria-hidden="true"></span><button type="button" data-bn="dial"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10h9v4.5a4.5 4.5 0 0 1-4.5 4.5h0A4.5 4.5 0 0 1 7 14.5z M16 11.5h1.5a2 2 0 0 1 0 4H16 M10 3.5c0 1.5 1.5 1.5 1.5 3 M13.5 3.5c0 1.5 1.5 1.5 1.5 3"/></svg><span>Brew</span></button><button type="button" data-bn="recipes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H18v15H6.5A1.5 1.5 0 0 0 5 19.5z M5 19.5A1.5 1.5 0 0 0 6.5 21H18v-3 M9 7.5h5 M9 11h5"/></svg><span>Recipes</span></button><button type="button" data-bn="scan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V6a2 2 0 0 1 2-2h2 M16 4h2a2 2 0 0 1 2 2v2 M20 16v2a2 2 0 0 1-2 2h-2 M8 20H6a2 2 0 0 1-2-2v-2 M12 8.5c2 0 3.5 1.6 3.5 3.5S14 15.5 12 15.5 8.5 14 8.5 12 10 8.5 12 8.5z M10.3 13.7c1.2-.6 2.2-2.2 3.4-3.4"/></svg><span>Scan</span></button><button type="button" data-bn="explore"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M15.5 8.5l-2 5-5 2 2-5z"/></svg><span>Explore</span></button><button type="button" data-bn="more"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h5v5H5z M14 5h5v5h-5z M5 14h5v5H5z M14 14h5v5h-5z"/></svg><span>More</span></button></nav>
 <dialog id="navsheet" aria-labelledby="ns-title"><div id="ns-in"></div></dialog>
 <dialog id="sharesheet" aria-labelledby="sh-title"><div id="sh-in"></div></dialog>
 <dialog id="vd" aria-labelledby="vd-title"><div id="vd-in"></div></dialog>
