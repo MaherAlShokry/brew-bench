@@ -585,6 +585,7 @@ button,a,.tab,.chip,[role=button],input[type=range]{touch-action:manipulation}
 .ghead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
 .gspec{margin-top:8px}.gspec summary{cursor:pointer;font-family:var(--display);font-weight:600;color:var(--cherry);font-size:.9rem;padding:4px 0}.gspec .spec{margin-top:6px}
 .mgroup{margin-top:10px}.mgroup h4{margin:0 0 6px;font-family:var(--display);font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.warnbox{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:.2rem 0 .8rem;padding:10px 12px;border-radius:14px;background:color-mix(in srgb,var(--cherry) 10%,transparent);border:1px solid color-mix(in srgb,var(--cherry) 30%,transparent);font-size:.9rem}
 .mrow{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:9px 12px;border-radius:var(--r-sm,12px);background:var(--surface2);margin-bottom:6px;font-family:var(--display)}
 .mrow b{font-variant-numeric:tabular-nums;white-space:nowrap}.mrow small{font-weight:500;color:var(--muted)}
 .mbig{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 12px;padding:14px;border-radius:var(--r-md,16px);background:color-mix(in srgb,var(--cherry) 10%,var(--surface));font-family:var(--display);text-align:center;margin:.4rem 0}
@@ -905,8 +906,8 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
         <div class="actions"><button class="btn ghost" id="scan-text-go">Read this text</button></div>
       </details>
       <h3>Coffee details</h3>
-      <div class="two stackm"><div class="field"><label for="s-name">Coffee name</label><input id="s-name" maxlength="60" placeholder="e.g. Luis Aníbal Calderón" autocomplete="off"></div>
-        <div class="field"><label for="s-roaster">Roastery</label><input id="s-roaster" maxlength="50" list="s-roasters" placeholder="e.g. Windrose" autocomplete="off"><datalist id="s-roasters"></datalist></div></div>
+      <div class="two stackm"><div class="field"><label for="s-name">Coffee name</label><input id="s-name" style="width:100%" maxlength="60" placeholder="e.g. Luis Aníbal Calderón" autocomplete="off"></div>
+        <div class="field"><label for="s-roaster">Roastery</label><input id="s-roaster" style="width:100%" maxlength="50" list="s-roasters" placeholder="e.g. Windrose" autocomplete="off"><datalist id="s-roasters"></datalist></div></div>
       <div class="field"><label for="s-origin">Origin</label><select id="s-origin"></select></div>
       <div class="field"><label for="s-process">Process</label><select id="s-process"></select></div>
       <div class="field"><label for="s-variety">Variety</label><select id="s-variety"></select></div>
@@ -2447,10 +2448,21 @@ let BASE=load('bb-base3',null);if(!BASE||typeof BASE!=='object')BASE={};
 for(const g in BASE)if(!BASE[g]||typeof BASE[g]!=='object')delete BASE[g];
 if(!BASE.zp6){const old=load('bb-base2',null);if(old&&old.zp6)for(const g of['zp6','kultra'])if(old[g]&&typeof old[g]==='object'){BASE[g]={};for(const k in old[g])if(Number.isFinite(old[g][k]))BASE[g][k]=old[g][k]}}
 for(const g in BASE)for(const k in BASE[g])if(!BREWERS[k]||BASE[g][k]!==null&&!Number.isFinite(BASE[g][k]))delete BASE[g][k];
+// The first version saved its whole default table as soon as you touched calibration, so those old defaults
+// looked like your own settings and held back later corrections. A table that is mostly old defaults drops them.
+{const OLD={zp6:{v60:56,neo:53,origami:55,kono:55,melitta:56,chemex:64,kalita:54,orea:52,april:54,pulsar:66,tricolate:42,sw:60,swneo:57,swi:66,clever:62,aeropress:44,frenchpress:78,siphon:50,moka:32,phin:36,dallah:60,cold:82,batch:58},
+  kultra:{v60:72,neo:69,origami:71,kono:71,melitta:72,chemex:84,kalita:64,orea:68,april:70,pulsar:88,tricolate:58,sw:76,swneo:73,swi:86,clever:80,aeropress:62,frenchpress:102,siphon:66,espresso:36,moka:46,phin:52,cezve:10,dallah:78,cold:106,batch:76}};
+  let ch=false;for(const g in OLD){const B=BASE[g];if(!B)continue;const ks=Object.keys(B);if(ks.length>=10&&ks.filter(k=>B[k]===OLD[g][k]||B[k]==null).length>=ks.length*0.7){for(const k of ks)if(B[k]===OLD[g][k]||B[k]==null)delete B[k];ch=true}}
+  if(ch)save('bb-base3',BASE)}
+// Calibrating a grinder on one brewer tells us how far your grinder sits from the published scale, so every other
+// brewer moves by the same grind size (averaged when you calibrated several). Cached; cleared when BASE changes.
+let GOFF={};
+function goff(g){if(g in GOFF)return GOFF[g];let t=0,n=0;const B=BASE[g]||{};for(const b in B){const d=defBase(g,b,true);if(B[b]!=null&&d!=null){t+=sizeOf(g,B[b])-sizeOf(g,d);n++}}return GOFF[g]=n?t/n:0}
+function calX(g,b){const d=defBase(g,b,true);if(d==null)return null;const o=goff(g);if(!o)return d;const G=GRINDERS[g];return clamp(stepsFor(g,sizeOf(g,d)+o),G.min,G.max)}
 // Your calibrated setting for a grinder on a brewer, or the estimate from the shared scale.
-function base(g,b){const v=BASE[g]&&BASE[g][b];return v==null?defBase(g,b):v}
+function base(g,b){const v=BASE[g]&&BASE[g][b];if(v!=null)return v;const x=calX(g,b);return x==null?null:Math.round(x)}
 // The same, unrounded: used when converting between grinders so the result lands on the nearest click.
-function baseX(g,b){const v=BASE[g]&&BASE[g][b];return v==null?defBase(g,b,true):v}
+function baseX(g,b){const v=BASE[g]&&BASE[g][b];return v==null?calX(g,b):v}
 const canGrind=(g,b)=>!!GRINDERS[g]&&base(g,b)!=null;
 // First of your grinders that can do this brewer (falls back to any grinder in the library).
 const capable=b=>MYG.find(g=>canGrind(g,b))||Object.keys(GRINDERS).find(g=>canGrind(g,b));
@@ -2660,8 +2672,8 @@ function initDial(){
   $('i-variety').onchange=e=>{S.variety=e.target.value;render()};
   $('v-about').onclick=()=>openVariety(S.variety.split(':')[0]);
   renderCal();
-  $('caltbody').oninput=e=>{const i=e.target;if(!i.dataset.g)return;const v=parseFloat(i.value);if(isNaN(v))return;(BASE[i.dataset.g]=BASE[i.dataset.g]||{})[i.dataset.b]=Math.round(v);save('bb-base3',BASE);i.nextElementSibling.textContent=dial(i.dataset.g,v);render();renderRecipes();renderPlan();renderGrindMap()};
-  $('calreset').onclick=()=>{BASE={};save('bb-base3',BASE);renderCal();render();renderRecipes();renderPlan();renderGrindMap();toast('Calibration reset')};
+  $('caltbody').oninput=e=>{const i=e.target;if(!i.dataset.g)return;const v=parseFloat(i.value);if(isNaN(v))return;(BASE[i.dataset.g]=BASE[i.dataset.g]||{})[i.dataset.b]=Math.round(v);(GOFF={},save('bb-base3',BASE));i.nextElementSibling.textContent=dial(i.dataset.g,v);render();renderRecipes();renderPlan();renderGrindMap()};
+  $('calreset').onclick=()=>{BASE={};(GOFF={},save('bb-base3',BASE));renderCal();render();renderRecipes();renderPlan();renderGrindMap();if(BUILT.gear)renderMatch();toast('Calibration reset')};
 }
 
 /* ================= PLANNER ================= */
@@ -3062,7 +3074,7 @@ function renderMyGrinders(){
   $('gear-grinders').innerHTML=MYG.map(g=>{const G=GRINDERS[g];return '<div class="card"><div class="ghead"><div><span class="hint">'+gtype(g)+'</span><h3 style="margin:.1rem 0 0">'+esc(G.full)+'</h3></div>'+
    (MYG.length>1?'<button type="button" class="chip" data-grm="'+g+'">Remove</button>':'')+'</div><svg class="dialbig" id="gd-'+g+'" viewBox="0 0 160 160" aria-hidden="true"></svg>'+
    '<input type="range" min="'+G.min+'" max="'+G.max+'" step="1" value="'+startFor(g)+'" data-gd="'+g+'" aria-label="'+esc(G.name)+' dial position"><p class="hint" id="gh-'+g+'" style="text-align:center"></p>'+specList(g)+'</div>'}).join('');
-  const upd=g=>{const c=+document.querySelector('[data-gd="'+g+'"]').value;drawDial('gd-'+g,g,c);$('gh-'+g).textContent=dialHint(g,c)+nearestBrew(sizeOf(g,c))};
+  const upd=g=>{const c=+document.querySelector('[data-gd="'+g+'"]').value;drawDial('gd-'+g,g,c);$('gh-'+g).textContent=dialHint(g,c)+nearestBrew(sizeOf(g,c)-goff(g))};
   $('gear-grinders').oninput=e=>{const g=e.target.dataset.gd;if(g)upd(g)};MYG.forEach(upd);
   $('gear-grinders').onclick=e=>{const b=e.target.closest('[data-grm]');if(b)setMine(b.dataset.grm,false)};
 }
@@ -3071,9 +3083,9 @@ function nearestBrew(size){let best=null,d=1e9;for(const k of MODEL){const E=bre
 function grinderSelect(id,val,short){return '<select id="'+id+'">'+[['manual','Manual'],['electric','Electric'],['custom','Your grinders']].map(([t,l])=>{const ks=Object.keys(GRINDERS).filter(g=>t==='custom'?GRINDERS[g].custom:!GRINDERS[g].custom&&GRINDERS[g].type===t);
   return ks.length?'<optgroup label="'+l+'">'+ks.map(g=>'<option value="'+g+'"'+(g===val?' selected':'')+'>'+esc(GRINDERS[g][short?'name':'full'])+'</option>').join('')+'</optgroup>':''}).join('')+'</select>'}
 let MATCH={g:null,v:'',to:null};
-// A setting on grinder g as steps on grinder h. Measured from each grinder's V60 setting (yours, if you calibrated it),
+// A setting on grinder g as steps on grinder h: the same grind size, allowing for your calibration of either grinder,
 // so the Match tool, dial-in and recipes all agree.
-function matchSteps(g,c,h){const bg=baseX(g,'v60'),bh=baseX(h,'v60');return bg==null||bh==null?stepsFor(h,sizeOf(g,c)):shift(h,bh,sizeOf(g,c)-sizeOf(g,bg))}
+const matchSteps=(g,c,h)=>stepsFor(h,sizeOf(g,c)-goff(g)+goff(h));
 function matchVal(g,c,h){const v=matchSteps(g,c,h),H=GRINDERS[h],size=sizeOf(g,c);return v>=H.min-0.5&&v<=H.max+0.5&&(size>=V60_SIZE*0.6||H.espresso)?roundG(h,v):null}
 function renderMatch(){if(!MATCH.g||!GRINDERS[MATCH.g])MATCH={g:MYG[0],v:dial(MYG[0],startFor(MYG[0])),to:null};
   if(!MATCH.to||!GRINDERS[MATCH.to]||MATCH.to===MATCH.g)MATCH.to=MYG.find(h=>h!==MATCH.g)||(MATCH.g==='kultra'?'zp6':'kultra');
@@ -3091,10 +3103,15 @@ function matchOut(){const g=MATCH.g,c=parseDial(g,MATCH.v),G=GRINDERS[g];
   const to=MATCH.to,tv=matchVal(g,c,to),T=GRINDERS[to];
   const others=Object.keys(GRINDERS).filter(h=>h!==g&&h!==to&&!MYG.includes(h));
   $('gm-out').innerHTML='<div class="mbig"><span>'+esc(G.name)+' <b>'+lab(g,c)+'</b></span><span class="eq">=</span><span>'+esc(T.name)+' <b>'+(tv!=null?lab(to,tv):'out of range')+'</b></span></div>'+
-   '<p class="hint" style="margin:.2rem 0 .6rem">'+esc(dialHint(g,c))+(tv!=null?' → '+esc(dialHint(to,tv)):'')+nearestBrew(size)+'</p>'+
+   '<p class="hint" style="margin:.2rem 0 .6rem">'+esc(dialHint(g,c))+(tv!=null?' → '+esc(dialHint(to,tv)):'')+nearestBrew(size-goff(g))+'</p>'+calNote([g,to])+
    (MYG.filter(h=>h!==g&&h!==to).length?'<div class="mgroup"><h4>Your grinders</h4>'+MYG.filter(h=>h!==g&&h!==to).map(row).join('')+'</div>':'')+
    [['manual','Manual'],['electric','Electric'],['custom','Your own']].map(([t,n])=>{const ks=others.filter(h=>t==='custom'?GRINDERS[h].custom:!GRINDERS[h].custom&&GRINDERS[h].type===t);return ks.length?'<div class="mgroup"><h4>'+n+'</h4>'+ks.map(row).join('')+'</div>':''}).join('')+
    '<p class="hint" style="margin-top:.6rem">Estimates from typical settings; burr shape changes the taste, so fine-tune by taste.</p>'}
+// Says when your calibration moves a grinder away from the published scale, so a surprising number has a reason.
+function calNote(gs){const t=gs.filter(g=>Math.abs(goff(g))>=GRINDERS[g].k*0.5||GRINDERS[g].pts&&Math.abs(goff(g))>=10).map(g=>{const d=Math.round(stepsFor(g,sizeOf(g,GRINDERS[g].v60)+goff(g))-GRINDERS[g].v60),n=Math.abs(d);
+    return esc(GRINDERS[g].name)+' is set '+n+' '+(GRINDERS[g].unit==='clicks'||GRINDERS[g].fmt==='rot'?'click':'step')+(n===1?'':'s')+' '+(d>0?'coarser':'finer')});
+  return t.length?'<div class="warnbox"><p style="margin:0">Your calibration is included: '+t.join(', ')+' than the published settings, on every brewer.</p><button type="button" class="chip" data-calreset>Use published settings</button></div>':''}
+document.addEventListener('click',e=>{if(e.target.closest('[data-calreset]'))$('calreset').click()});
 let GLF='all',GCMP=[],GLQ='';
 // Line icons for grinder types: a hand grinder with its crank, and a plug-in (electric) bolt.
 const GICO={manual:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10h10l-1.2 10H8.2z M5.5 20.5h13 M12 10V6.5 M12 6.5h6.5 M18.5 6.5v2"/><circle cx="18.5" cy="10" r="1.6"/></svg>',
