@@ -638,6 +638,47 @@ button,a,.tab,.chip,[role=button],input[type=range]{touch-action:manipulation}
 /* Open dialogs and sheets lock the page behind them. */
 html.locked,html.locked body{overflow:hidden}
 dialog{overscroll-behavior:contain;overflow:auto}
+/* Flavour wheel */
+.fw-layout{display:grid;gap:18px;align-items:start}
+@media (min-width:900px){.fw-layout{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}.fw-side{position:sticky;top:90px}}
+#fw-q{width:100%;margin-bottom:8px}
+.fw-res{margin-bottom:6px}.fw-res:empty{display:none}
+.fw-box{max-width:620px;margin:0 auto;aspect-ratio:1;touch-action:manipulation}
+.fwheel{width:100%;height:100%;display:block;overflow:visible;font-family:var(--display);user-select:none;-webkit-user-select:none}
+.fwheel path{stroke:var(--paper);stroke-width:1.4;cursor:pointer;transition:fill-opacity .25s}
+.fwheel path:focus{outline:none}.fwheel path:focus-visible{stroke:var(--ink);stroke-width:2.5}
+.fwheel path.on{stroke:var(--ink);stroke-width:2.6;paint-order:stroke}
+.fwheel .fw-fill path{pointer-events:none;stroke-width:1}
+.fwheel text{text-anchor:middle;dominant-baseline:central;pointer-events:none;font-weight:500}
+.fwheel .fw-mid{cursor:pointer}.fwheel .fw-mid circle{stroke:var(--paper);stroke-width:2;transition:fill .3s}
+.fwheel .fw-mt{font-weight:700}.fwheel .fw-ms{font-size:11px}
+.fw-cats{justify-content:center;margin-top:10px}
+.chip i.dot,.fw-crumb i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.chip small{color:var(--muted);margin-left:4px}
+.fw-crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-bottom:6px}.fw-sep{color:var(--muted)}
+.fw-name{display:flex;align-items:center;gap:10px;margin:.3rem 0}.fw-name i{width:16px;height:16px;border-radius:5px;flex:none}
+.fw-sub{font-family:var(--display);font-weight:600;font-size:.85rem;color:var(--muted);margin:.8rem 0 .3rem}
+.fw-how{padding-left:1.2rem;margin:.2rem 0 .6rem}.fw-how li{margin:.35rem 0}
+/* Tasting notes on brews */
+.fl-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.fl-add{flex:0 0 auto!important;display:inline-flex;align-items:center;gap:8px}
+.fl-add svg,.fl-edit svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.flchip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:var(--surface2);font-size:.85rem}
+.flchip i{width:9px;height:9px;border-radius:50%;flex:none}.flchip b{font-weight:500}.flchip .lv{color:var(--muted);letter-spacing:-1px;font-size:.7rem}
+.fl-entry{display:flex;gap:12px;align-items:flex-start;margin-top:8px}
+.fl-mini{width:84px;height:84px;flex:none;border:0;padding:0;background:none;cursor:pointer;border-radius:50%}
+.fl-mini .fwheel path{cursor:pointer;stroke-width:2}
+.fl-entry .chips{flex:1}
+.fl-pick .fw-box{max-width:460px}
+.fl-sel{display:grid;gap:6px;margin:10px 0}
+.fl-selrow{display:flex;align-items:center;gap:8px;padding:6px 8px 6px 12px;border-radius:14px;background:var(--surface2)}
+.fl-selrow i{width:10px;height:10px;border-radius:50%;flex:none}.fl-selrow span{flex:1;min-width:0}
+.fl-lv{display:flex;gap:2px}.fl-lv button{border:0;background:transparent;color:var(--muted);font:600 .75rem var(--display);padding:6px 8px;border-radius:10px;cursor:pointer}
+.fl-lv button[aria-pressed="true"]{background:var(--surface);color:var(--cherry);box-shadow:var(--e1)}
+.fl-selrow .x{border:0;background:none;color:var(--muted);font-size:1rem;padding:6px;cursor:pointer}
+.palate{display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:center;margin-bottom:14px}
+.palate .fl-mini{width:120px;height:120px}
+.palate h3{margin:0 0 4px}
 /* Motion: sheets rise and settle, then slide away; the backdrop fades; screens slide the way you are going. */
 :root{--ease-sheet:cubic-bezier(.32,.72,0,1);--ease-spring:cubic-bezier(.34,1.4,.5,1);--ease-out:cubic-bezier(.2,.8,.2,1)}
 @media (prefers-reduced-motion:no-preference){
@@ -855,6 +896,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   <button class="tab" role="tab" data-t="champs" aria-selected="false">Championships</button>
   <button class="tab" role="tab" data-t="flow" aria-selected="false">Seed to cup</button>
   <button class="tab" role="tab" data-t="words" aria-selected="false">Coffee words</button>
+  <button class="tab" role="tab" data-t="wheel" aria-selected="false">Flavour wheel</button>
   <button class="tab" role="tab" data-t="guide" aria-selected="false">Guide</button>
   <button class="tab" role="tab" data-t="log" aria-selected="false">Log</button>
 </div></nav>
@@ -1056,6 +1098,25 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   <div id="wlist"></div>
 </section>
 
+<!-- FLAVOUR WHEEL -->
+<section id="wheel">
+  <h2>Flavour wheel</h2>
+  <p class="lede">Every word tasters use for coffee, from the broad family in the middle to the exact note at the edge. Tap a colour to open it up, and a note to see what it tastes like and where it comes from.</p>
+  <div class="fw-layout">
+    <div class="fw-main">
+      <input type="search" id="fw-q" placeholder="Find a note, e.g. blueberry, caramel" aria-label="Find a flavour note">
+      <div class="chips fw-res" id="fw-res"></div>
+      <div class="fw-box" id="fw-box"></div>
+      <div class="chips fw-cats" id="fw-cats"></div>
+    </div>
+    <div class="fw-side">
+      <div class="card fw-info" id="fw-info" aria-live="polite"></div>
+      <div class="actions"><button type="button" class="btn" id="fw-dl">Download the wheel</button><button type="button" class="btn ghost" id="fw-log">Note what you tasted</button></div>
+      <p class="hint">Tasting words from the Coffee Taster’s Flavor Wheel by the SCA and World Coffee Research, drawn in our own design.</p>
+    </div>
+  </div>
+</section>
+
 <section id="history">
   <h2>The story of coffee</h2>
   <p class="lede">From wild Ethiopian forests to a Sufi drink in Yemen to a global crop. Almost all Arabica outside Africa traces back to a handful of seeds, which is why genetic diversity, and Ethiopia, matter so much.</p>
@@ -1155,10 +1216,12 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
       <div class="stars" id="l-stars" role="radiogroup" aria-label="Rating"></div>
       <input id="l-pred" placeholder="Predicted" aria-label="Predicted profile">
       <textarea id="l-notes" rows="2" placeholder="How it actually tasted" class="full" aria-label="Tasting notes"></textarea>
+      <div class="full fl-row"><button type="button" class="btn ghost fl-add" id="l-fl"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l7.8 4.5M12 12l-7.8 4.5"/></svg><span>Add flavour notes</span></button><div class="chips" id="l-flchips"></div></div>
     </div>
     <div class="actions"><button class="btn" id="l-save">Save entry</button></div>
   </div>
   <div class="specs" id="l-stats"></div>
+  <div class="panel palate" id="l-palate" hidden></div>
   <div class="actions" style="margin-bottom:10px"><button class="btn ghost" id="l-pdf">Share log as PDF</button><button class="btn ghost" id="l-csv" hidden>Download log as CSV</button></div>
   <div id="l-list"></div>
 </section>

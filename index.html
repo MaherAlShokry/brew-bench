@@ -639,6 +639,47 @@ button,a,.tab,.chip,[role=button],input[type=range]{touch-action:manipulation}
 /* Open dialogs and sheets lock the page behind them. */
 html.locked,html.locked body{overflow:hidden}
 dialog{overscroll-behavior:contain;overflow:auto}
+/* Flavour wheel */
+.fw-layout{display:grid;gap:18px;align-items:start}
+@media (min-width:900px){.fw-layout{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}.fw-side{position:sticky;top:90px}}
+#fw-q{width:100%;margin-bottom:8px}
+.fw-res{margin-bottom:6px}.fw-res:empty{display:none}
+.fw-box{max-width:620px;margin:0 auto;aspect-ratio:1;touch-action:manipulation}
+.fwheel{width:100%;height:100%;display:block;overflow:visible;font-family:var(--display);user-select:none;-webkit-user-select:none}
+.fwheel path{stroke:var(--paper);stroke-width:1.4;cursor:pointer;transition:fill-opacity .25s}
+.fwheel path:focus{outline:none}.fwheel path:focus-visible{stroke:var(--ink);stroke-width:2.5}
+.fwheel path.on{stroke:var(--ink);stroke-width:2.6;paint-order:stroke}
+.fwheel .fw-fill path{pointer-events:none;stroke-width:1}
+.fwheel text{text-anchor:middle;dominant-baseline:central;pointer-events:none;font-weight:500}
+.fwheel .fw-mid{cursor:pointer}.fwheel .fw-mid circle{stroke:var(--paper);stroke-width:2;transition:fill .3s}
+.fwheel .fw-mt{font-weight:700}.fwheel .fw-ms{font-size:11px}
+.fw-cats{justify-content:center;margin-top:10px}
+.chip i.dot,.fw-crumb i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.chip small{color:var(--muted);margin-left:4px}
+.fw-crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-bottom:6px}.fw-sep{color:var(--muted)}
+.fw-name{display:flex;align-items:center;gap:10px;margin:.3rem 0}.fw-name i{width:16px;height:16px;border-radius:5px;flex:none}
+.fw-sub{font-family:var(--display);font-weight:600;font-size:.85rem;color:var(--muted);margin:.8rem 0 .3rem}
+.fw-how{padding-left:1.2rem;margin:.2rem 0 .6rem}.fw-how li{margin:.35rem 0}
+/* Tasting notes on brews */
+.fl-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.fl-add{flex:0 0 auto!important;display:inline-flex;align-items:center;gap:8px}
+.fl-add svg,.fl-edit svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.flchip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:var(--surface2);font-size:.85rem}
+.flchip i{width:9px;height:9px;border-radius:50%;flex:none}.flchip b{font-weight:500}.flchip .lv{color:var(--muted);letter-spacing:-1px;font-size:.7rem}
+.fl-entry{display:flex;gap:12px;align-items:flex-start;margin-top:8px}
+.fl-mini{width:84px;height:84px;flex:none;border:0;padding:0;background:none;cursor:pointer;border-radius:50%}
+.fl-mini .fwheel path{cursor:pointer;stroke-width:2}
+.fl-entry .chips{flex:1}
+.fl-pick .fw-box{max-width:460px}
+.fl-sel{display:grid;gap:6px;margin:10px 0}
+.fl-selrow{display:flex;align-items:center;gap:8px;padding:6px 8px 6px 12px;border-radius:14px;background:var(--surface2)}
+.fl-selrow i{width:10px;height:10px;border-radius:50%;flex:none}.fl-selrow span{flex:1;min-width:0}
+.fl-lv{display:flex;gap:2px}.fl-lv button{border:0;background:transparent;color:var(--muted);font:600 .75rem var(--display);padding:6px 8px;border-radius:10px;cursor:pointer}
+.fl-lv button[aria-pressed="true"]{background:var(--surface);color:var(--cherry);box-shadow:var(--e1)}
+.fl-selrow .x{border:0;background:none;color:var(--muted);font-size:1rem;padding:6px;cursor:pointer}
+.palate{display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:center;margin-bottom:14px}
+.palate .fl-mini{width:120px;height:120px}
+.palate h3{margin:0 0 4px}
 /* Motion: sheets rise and settle, then slide away; the backdrop fades; screens slide the way you are going. */
 :root{--ease-sheet:cubic-bezier(.32,.72,0,1);--ease-spring:cubic-bezier(.34,1.4,.5,1);--ease-out:cubic-bezier(.2,.8,.2,1)}
 @media (prefers-reduced-motion:no-preference){
@@ -859,6 +900,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   <button class="tab" role="tab" data-t="champs" aria-selected="false">Championships</button>
   <button class="tab" role="tab" data-t="flow" aria-selected="false">Seed to cup</button>
   <button class="tab" role="tab" data-t="words" aria-selected="false">Coffee words</button>
+  <button class="tab" role="tab" data-t="wheel" aria-selected="false">Flavour wheel</button>
   <button class="tab" role="tab" data-t="guide" aria-selected="false">Guide</button>
   <button class="tab" role="tab" data-t="log" aria-selected="false">Log</button>
 </div></nav>
@@ -1060,6 +1102,25 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   <div id="wlist"></div>
 </section>
 
+<!-- FLAVOUR WHEEL -->
+<section id="wheel">
+  <h2>Flavour wheel</h2>
+  <p class="lede">Every word tasters use for coffee, from the broad family in the middle to the exact note at the edge. Tap a colour to open it up, and a note to see what it tastes like and where it comes from.</p>
+  <div class="fw-layout">
+    <div class="fw-main">
+      <input type="search" id="fw-q" placeholder="Find a note, e.g. blueberry, caramel" aria-label="Find a flavour note">
+      <div class="chips fw-res" id="fw-res"></div>
+      <div class="fw-box" id="fw-box"></div>
+      <div class="chips fw-cats" id="fw-cats"></div>
+    </div>
+    <div class="fw-side">
+      <div class="card fw-info" id="fw-info" aria-live="polite"></div>
+      <div class="actions"><button type="button" class="btn" id="fw-dl">Download the wheel</button><button type="button" class="btn ghost" id="fw-log">Note what you tasted</button></div>
+      <p class="hint">Tasting words from the Coffee Taster’s Flavor Wheel by the SCA and World Coffee Research, drawn in our own design.</p>
+    </div>
+  </div>
+</section>
+
 <section id="history">
   <h2>The story of coffee</h2>
   <p class="lede">From wild Ethiopian forests to a Sufi drink in Yemen to a global crop. Almost all Arabica outside Africa traces back to a handful of seeds, which is why genetic diversity, and Ethiopia, matter so much.</p>
@@ -1159,10 +1220,12 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
       <div class="stars" id="l-stars" role="radiogroup" aria-label="Rating"></div>
       <input id="l-pred" placeholder="Predicted" aria-label="Predicted profile">
       <textarea id="l-notes" rows="2" placeholder="How it actually tasted" class="full" aria-label="Tasting notes"></textarea>
+      <div class="full fl-row"><button type="button" class="btn ghost fl-add" id="l-fl"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l7.8 4.5M12 12l-7.8 4.5"/></svg><span>Add flavour notes</span></button><div class="chips" id="l-flchips"></div></div>
     </div>
     <div class="actions"><button class="btn" id="l-save">Save entry</button></div>
   </div>
   <div class="specs" id="l-stats"></div>
+  <div class="panel palate" id="l-palate" hidden></div>
   <div class="actions" style="margin-bottom:10px"><button class="btn ghost" id="l-pdf">Share log as PDF</button><button class="btn ghost" id="l-csv" hidden>Download log as CSV</button></div>
   <div id="l-list"></div>
 </section>
@@ -2216,7 +2279,7 @@ const GLOSSARY=[
   ['Balance','taste','How acidity, sweetness, body and bitterness sit together. Nothing sticks out; everything has a place.',['k:Acidity','k:Body']],
   ['Aftertaste','taste','The flavours that stay after you swallow: long and sweet is good; short, dry or bitter is not.',[]],
   ['Fragrance and aroma','taste','Fragrance is the smell of dry grounds; aroma is the smell once water hits them.',['k:Cupping']],
-  ['Flavour wheel','taste','A chart of tasting words, from general in the middle (fruity) to specific at the edge (blackberry). The best-known is by the SCA and World Coffee Research, based on a sensory lexicon.',['k:Cupping']],
+  ['Flavour wheel','taste','A chart of tasting words, from general in the middle (fruity) to specific at the edge (blackberry). The best-known is by the SCA and World Coffee Research, based on a sensory lexicon.',['tab:wheel','k:Cupping']],
   ['Ferment and boozy','taste','Winey, rum-like or overripe flavours from long or anaerobic fermentation. Loved by some, a defect to others, and a matter of degree.',['k:Anaerobic fermentation','p:natural']]
 ];
 
@@ -2269,6 +2332,124 @@ const FLOW_BRANCH=[
 // Every process key in a tree, once each.
 const treeKeys=t=>[...new Set(t.flatMap(n=>(n.p?[n.p]:[]).concat(n.kids?treeKeys(n.kids):[])))];
 
+/* ================= FLAVOUR WHEEL ================= */
+// The tasting words of the Coffee Taster's Flavor Wheel (SCA and World Coffee Research, from the WCR Sensory Lexicon),
+// drawn in the app's own colours. General in the middle, specific at the edge, clockwise from the top.
+// A category or group is {n, d, k:[...]}; a note is [name, what it tastes like and where you meet it, links].
+// Links: 'p:key' a process, 'v:id' a variety, 'k:Term' a coffee word.
+const FWHEEL=[
+ {n:'Fruity',c:'#C4473F',d:'Fresh, ripe fruit. The signature of light roasts, high altitude and careful processing.',k:[
+  {n:'Berry',d:'Dark, juicy and sweet-tart. Classic in natural Ethiopians and Kenyans.',k:[
+   ['Blackberry','Deep, jammy and slightly tannic. Common in Kenyan SL28 and SL34.',['v:sl28','p:doublewashed']],
+   ['Raspberry','Bright, tart and fragrant red berry. Found in light-roasted washed and honey coffees.',['p:honey']],
+   ['Blueberry','Sweet, perfumed and jammy. The famous note of natural-processed Ethiopians.',['p:natural','v:landrace']],
+   ['Strawberry','Soft, sweet red fruit, sometimes like strawberry candy. Often in naturals and anaerobics.',['p:natural','p:anaerobic']]]},
+  {n:'Dried fruit',d:'Concentrated, cooked sweetness. Comes with very ripe cherries, naturals and darker roasts.',k:[
+   ['Raisin','Dark, sticky sweetness. Natural process and ripe fruit push it forward.',['p:natural']],
+   ['Prune','Heavy, dark dried fruit. Common in fuller natural coffees and medium-dark roasts.',['p:natural']]]},
+  {n:'Other fruit',d:'Tree fruit and tropical fruit: the sweet middle of many speciality coffees.',k:[
+   ['Coconut','Creamy, nutty tropical note. Shows up in some anaerobic and Central American lots.',['p:anaerobic']],
+   ['Cherry','Red cherry, from fresh to cola-like. Common in Central and South American coffees.',['v:bourbon']],
+   ['Pomegranate','Tart, juicy and tannic red fruit. Typical of bright Kenyan and Rwandan coffees.',['v:sl28']],
+   ['Pineapple','Sweet-sour tropical fruit. Often in anaerobic and carbonic-maceration coffees.',['p:carbonic','p:anaerobic']],
+   ['Grape','Juicy, winey sweetness. Common in Kenyans and in naturals.',['p:natural']],
+   ['Apple','Crisp malic acidity, like a fresh green or red apple. Classic in washed Central Americans.',['p:washed','v:caturra']],
+   ['Peach','Soft, floral stone fruit. Typical of Geisha and washed Ethiopians.',['v:geisha','p:washed']],
+   ['Pear','Delicate, sweet and juicy. Common in clean washed coffees.',['p:washed']]]},
+  {n:'Citrus fruit',d:'Bright, zesty acidity. Mostly citric acid, at its clearest in light, washed coffees.',k:[
+   ['Grapefruit','Tart and a little bitter. Kenyans and some Ethiopians.',['p:doublewashed']],
+   ['Orange','Sweet citrus, from juice to marmalade. Common in washed Latin American coffees.',['p:washed']],
+   ['Lemon','Sharp, clean citrus. Washed Ethiopians, especially Yirgacheffe.',['p:washed','v:landrace']],
+   ['Lime','Zesty and green. Some washed East African and Colombian coffees.',['p:washed']]]}]},
+ {n:'Sour/Fermented',c:'#D3A043',d:'Sourness and fermentation. Pleasant and winey in balance, a defect when it dominates.',k:[
+  {n:'Sour',d:'Acids you taste on their own. Fine in small amounts; too much means under-extraction or a defect.',k:[
+   ['Sour aromatics','A sharp, sour smell, often from over-fermented or under-extracted coffee.',['k:Acidity']],
+   ['Acetic acid','Vinegar-like. A little adds sparkle; a lot is a fermentation defect.',['k:Fermentation']],
+   ['Butyric acid','Like parmesan or sour milk. Almost always a fermentation defect.',['k:Defects']],
+   ['Isovaleric acid','Sweaty, cheesy and sour. A sign of over-fermentation.',['k:Defects']],
+   ['Citric acid','Clean citrus sourness, the main acid in bright washed coffees.',['k:Acidity']],
+   ['Malic acid','Green-apple sourness. Common in high-grown Central American coffees.',['k:Acidity']]]},
+  {n:'Alcohol/Fermented',d:'Boozy, winey and ripe. Typical of naturals and experimental fermentations.',k:[
+   ['Winey','Like red wine: fruity, a little tannic. Naturals and long fermentations.',['p:natural','k:Ferment and boozy']],
+   ['Whiskey','Boozy and oaky. Barrel-aged and some anaerobic coffees.',['p:barrelaged']],
+   ['Fermented','Funky, yeasty and ripe. Anaerobic, yeast and co-fermented coffees lean this way.',['p:anaerobic','k:Fermentation']],
+   ['Overripe','Fruit past its best, close to rotting. Too-ripe cherries or uneven drying.',['k:Selective picking']]]}]},
+ {n:'Green/Vegetative',c:'#678C4C',d:'Plant and vegetable notes. Usually from under-ripe cherries, under-roasting or under-extraction.',k:[
+  ['Olive oil','Smooth, slightly green and oily. Some naturals and lighter roasts.',[]],
+  ['Raw','Like raw beans or nuts. Very light or underdeveloped roasts.',['k:Underdeveloped']],
+  {n:'Green/Vegetative',d:'Fresh or cooked green plants. A hint is lively; a lot reads as unripe.',k:[
+   ['Under-ripe','Green, astringent and sharp. Unripe cherries in the lot.',['k:Selective picking']],
+   ['Peapod','Green, sweet and beany. A classic sign of underdeveloped roasts.',['k:Underdeveloped']],
+   ['Fresh','Fresh-cut green, like crushed leaves. Light roasts.',[]],
+   ['Dark green','Cooked greens, like spinach. Under-roasting or old green coffee.',[]],
+   ['Vegetative','Vegetable-like, from celery to cooked veg. Underdeveloped roasts.',['k:Underdeveloped']],
+   ['Hay-like','Dry grass and straw. Old or poorly stored green coffee.',['k:Crop year']],
+   ['Herb-like','Fresh herbs like basil or mint. Some Ethiopians and Kenyans.',[]]]},
+  ['Beany','Raw bean, like a pulse. Roasts that did not develop enough.',['k:Development time']]]},
+ {n:'Other',c:'#6C8DA0',d:'Papery, musty and chemical notes. Mostly defects from storage, roasting or water.',k:[
+  {n:'Papery/Musty',d:'Stale, damp and dusty. Usually from storage, packaging or the filter.',k:[
+   ['Stale','Flat and dull. Coffee roasted too long ago or ground too early.',['k:Resting']],
+   ['Cardboard','Wet cardboard. Old coffee, or an unrinsed paper filter.',[]],
+   ['Papery','Like paper. Unrinsed filters and stale coffee.',[]],
+   ['Woody','Dry wood. Old green coffee or past-crop beans.',['k:Crop year']],
+   ['Moldy/Damp','Damp cellar. Coffee that got wet in storage.',['k:Moisture content']],
+   ['Musty/Dusty','Dusty attic. Old or badly stored coffee.',['k:Hermetic bags']],
+   ['Musty/Earthy','Damp earth. Wet-hulled Indonesian coffees and monsooned coffee.',['p:wethulled','p:monsooned']],
+   ['Animalic','Leathery, farmyard. Some heavy naturals and wet-hulled coffees.',['p:wethulled']],
+   ['Meaty/Brothy','Savoury, like stock. Rare; heavy fermentation or old coffee.',[]],
+   ['Phenolic','Like disinfectant or plasters. A serious defect, often from chlorinated water.',['k:Defects']]]},
+  {n:'Chemical',d:'Tastes that do not belong in the cup. Usually a defect or contamination.',k:[
+   ['Bitter','A harsh, lingering bitterness. Over-extraction or very dark roasts.',['k:Extraction yield']],
+   ['Salty','Salty, often with a flat finish. Hard water or over-extraction.',['k:Water hardness']],
+   ['Medicinal','Like cough syrup or iodine. A defect, sometimes from processing.',['k:Defects']],
+   ['Petroleum','Like diesel. Contamination in transport or storage.',['k:Defects']],
+   ['Skunky','Pungent, like a skunk. A defect from spoiled cherries.',['k:Defects']],
+   ['Rubber','Burnt rubber. Common in Robusta and very dark roasts.',['v:robusta']]]}]},
+ {n:'Roasted',c:'#8B5A3C',d:'Flavours made by the roast itself. Grow stronger the darker the roast.',k:[
+  ['Pipe tobacco','Sweet, aromatic tobacco. Medium-dark roasts and aged coffees.',['p:aged']],
+  ['Tobacco','Dry tobacco leaf. Darker roasts and some Indonesian coffees.',[]],
+  {n:'Burnt',d:'Carbonised, smoky notes from dark roasting. Pleasant when light, harsh when strong.',k:[
+   ['Acrid','Sharp, burnt and stinging. Scorched or very dark roasts.',['k:Light, medium and dark roast']],
+   ['Ashy','Like an ashtray. Very dark roasts.',['k:Second crack']],
+   ['Smoky','Wood smoke. Dark roasts.',['k:Second crack']],
+   ['Brown roast','Classic roasted coffee and toast. Medium to dark roasts.',['k:Maillard reaction']]]},
+  {n:'Cereal',d:'Grainy, toasty sweetness from the early stages of roasting.',k:[
+   ['Grain','Toasted grain or bread crust. Lighter roasts.',['k:Maillard reaction']],
+   ['Malt','Malted barley, sweet and toasty. Common in Brazilian and medium roasts.',['p:pulpednatural']]]}]},
+ {n:'Spices',c:'#9A4655',d:'Warm and pungent spice. From the variety, the origin or the roast.',k:[
+  ['Pungent','Sharp and spicy in the nose. Some Indonesian coffees.',[]],
+  ['Pepper','Black pepper heat. Some Ethiopians, Rwandans and darker roasts.',[]],
+  {n:'Brown spice',d:'Baking spices. Often in Central Americans and medium roasts.',k:[
+   ['Anise','Liquorice-like sweetness. Some Ethiopian and Yemeni coffees.',['v:yemenia']],
+   ['Nutmeg','Warm and woody spice. Medium roasts.',[]],
+   ['Cinnamon','Sweet, warm spice. Central Americans and some co-fermented coffees.',['p:coferment']],
+   ['Clove','Warm, numbing spice. Some Indonesian and Indian coffees.',['p:monsooned']]]}]},
+ {n:'Nutty/Cocoa',c:'#7B5842',d:'Nuts and chocolate. The comforting base of medium roasts and many Brazilian and Central American coffees.',k:[
+  {n:'Nutty',d:'Roasted nuts. Brazilian and pulped natural coffees, and medium roasts.',k:[
+   ['Peanuts','Roasted peanut. Brazilian coffees and darker roasts.',['p:pulpednatural']],
+   ['Hazelnut','Sweet, toasty nut. Central Americans and medium roasts.',[]],
+   ['Almond','Delicate, sweet nut, like marzipan. Lighter roasts and washed coffees.',['p:washed']]]},
+  {n:'Cocoa',d:'Chocolate, from milk to dark. Builds with the roast and with body.',k:[
+   ['Chocolate','Milk chocolate sweetness. Brazilians, Colombians and medium roasts.',['k:Body']],
+   ['Dark chocolate','Bittersweet cocoa. Fuller coffees and darker roasts.',['k:Light, medium and dark roast']]]}]},
+ {n:'Sweet',c:'#D07B3D',d:'Sugar, caramel and vanilla. The sweetness of ripe fruit and good roasting.',k:[
+  {n:'Brown sugar',d:'Cooked sugars, made as the roast caramelises.',k:[
+   ['Molasses','Dark, slightly bitter sugar. Fuller and darker coffees.',['k:Caramelisation']],
+   ['Maple syrup','Woody, rich syrup. Honey and pulped natural coffees.',['p:honey']],
+   ['Caramelized','Caramel and toffee. Medium roasts.',['k:Caramelisation']],
+   ['Honey','Floral, rounded sweetness. Honey-process and many washed coffees.',['p:honey']]]},
+  ['Vanilla','Creamy vanilla. Some Ethiopian and Central American coffees.',[]],
+  ['Vanillin','Sweet, synthetic-leaning vanilla. Often in co-fermented or infused coffees.',['p:infused']],
+  ['Overall sweet','General sweetness without a specific note. A sign of ripe fruit and good extraction.',['k:Sweetness']],
+  ['Sweet aromatics','Sweet-smelling, like candy or cake. Aroma more than taste.',['k:Fragrance and aroma']]]},
+ {n:'Floral',c:'#B4688F',d:'Flowers and tea. Delicate notes that need light roasting and careful brewing.',k:[
+  ['Black tea','Tea-like body and gentle tannin. Washed Ethiopians and Kenyans.',['p:washed']],
+  {n:'Floral',d:'Fragrant flowers. Geisha and washed Ethiopians are the classic examples.',k:[
+   ['Chamomile','Gentle, herbal and honeyed. Some Ethiopian and Colombian coffees.',[]],
+   ['Rose','Rose petal and rose water. Some Ethiopians and anaerobic lots.',['p:anaerobic']],
+   ['Jasmine','Perfumed white flowers. The hallmark of Geisha and washed Ethiopians.',['v:geisha','p:washed']]]}]}
+];
+
 const EVENTS_DEFAULT={
  "updated": "2026-09-27",
  "events": [
@@ -2312,6 +2493,202 @@ const EVENTS_DEFAULT={
  "champs": []
 }
 ;
+/* ================= FLAVOUR WHEEL ================= */
+// Every word on the wheel becomes a node with an id ("fruity.berry.blueberry"), a depth, a colour and its share of the
+// circle (each note gets the same slice, so a group is as wide as its notes). One layout function places the slices and
+// their labels for any zoom; the SVG on screen and the canvas for downloads both draw from it.
+const FW=(()=>{const all=[],byId={},slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  const hex=c=>[1,3,5].map(i=>parseInt(c.slice(i,i+2),16)),toHex=a=>'#'+a.map(v=>Math.round(Math.max(0,Math.min(255,v))).toString(16).padStart(2,'0')).join('');
+  const tint=(c,to,t)=>{const A=hex(c),B=hex(to);return toHex(A.map((v,i)=>v+(B[i]-v)*t))};
+  const count=x=>Array.isArray(x)?1:x.k.reduce((s,k)=>s+count(k),0),total=FWHEEL.reduce((s,c)=>s+count(c),0);let at=0;
+  function walk(x,parent,i){const arr=Array.isArray(x),n={n:arr?x[0]:x.n,d:arr?x[1]:x.d,l:arr?(x[2]||[]):[],parent,depth:parent?parent.depth+1:0,kids:[],leaf:arr};
+    n.id=(parent?parent.id+'.':'')+slug(n.n);n.cat=parent?parent.cat:n;
+    n.c=!parent?x.c:arr?tint(n.cat.c,'#FFFFFF',[0.2,0.34,0.1,0.42][i%4]):tint(n.cat.c,i%2?'#000000':'#FFFFFF',i%2?0.12:0.14);
+    n.a0=at/total;if(!arr)x.k.forEach((k,j)=>n.kids.push(walk(k,n,j)));else at++;n.a1=at/total;all.push(n);byId[n.id]=n;return n}
+  const roots=FWHEEL.map((c,i)=>walk(c,null,i));
+  const lum=c=>{const [r,g,b]=hex(c).map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*r+.7152*g+.0722*b};
+  all.forEach(n=>{n.ink=lum(n.c)>.42?'#2A1D14':'#FFFDF9';n.path=[];for(let p=n;p;p=p.parent)n.path.unshift(p)});
+  return {all,byId,roots,leaves:all.filter(n=>n.leaf),tint}})();
+const TAU=Math.PI*2,FW_HOLE=0.2;
+// Ring radii for a zoom depth z (0 at the top, 1 inside a family, 2 inside a group): the opened part folds into the
+// middle and what is inside it shares the rest of the wheel.
+function fwRing(n,z,R){const L=3-z,k=n.depth-z,f=x=>R*(FW_HOLE+(1-FW_HOLE)*Math.max(0,Math.min(L,x))/L);return[f(k),n.leaf?(k+1>0?R:f(k+1)):f(k+1)]}
+// Where a slice sits for a zoom (the view is the part of the circle, 0 to 1, that fills the wheel).
+function fwSector(s0,s1,ri,ro){const p=(a,r)=>(r*Math.sin(a)).toFixed(2)+','+(-r*Math.cos(a)).toFixed(2);if(s1-s0<1e-4)return'';
+  if(s1-s0>=TAU-1e-6)return'M0,'+(-ro)+'A'+ro+','+ro+' 0 1 1 0,'+ro+'A'+ro+','+ro+' 0 1 1 0,'+(-ro)+'ZM0,'+(-ri)+'A'+ri+','+ri+' 0 1 0 0,'+ri+'A'+ri+','+ri+' 0 1 0 0,'+(-ri)+'Z';
+  const L=s1-s0>Math.PI?1:0;return'M'+p(s0,ro)+'A'+ro+','+ro+' 0 '+L+' 1 '+p(s1,ro)+'L'+p(s1,ri)+'A'+ri+','+ri+' 0 '+L+' 0 '+p(s0,ri)+'Z'}
+// A label inside a slice: along the radius when the slice is narrow, across it when wide; never upside down.
+// Names with a slash ("Sour/Fermented") may break onto two lines when that lets them be larger.
+function fwLabel(text,s0,s1,ri,ro,base,minFs,bold){const span=s1-s0,rm=(ri+ro)/2,cw=bold?.6:.56;if(span<1e-3)return null;
+  const opts=[[text]];const k=text.indexOf('/');if(k>0)opts.push([text.slice(0,k+1),text.slice(k+1)]);let best=null;
+  for(const lines of opts){const len=Math.max(...lines.map(l=>l.length)),h=lines.length*1.12;
+    if(span>=TAU-1e-6){const fs=Math.min(base,(ro-ri)*.5/h,(TAU*rm*.3)/(len*cw));if(!best||fs>best.fs)best={x:0,y:-rm,rot:0,fs,lines};continue}
+    const fsR=Math.min(base,(ro-ri-8)/(len*cw),span*rm*.8/h),fsT=span<Math.PI*.9?Math.min(base,(span*rm-6)/(len*cw),(ro-ri)*.55/h):0;
+    const tang=fsT>=fsR*1.05,fs=(tang?fsT:fsR)*(lines.length>1?.97:1);if(best&&fs<=best.fs)continue;
+    const m=(s0+s1)/2,deg=m*180/Math.PI;best={x:rm*Math.sin(m),y:-rm*Math.cos(m),rot:tang?(deg>90&&deg<270?deg+180:deg):(deg>180?deg+90:deg-90),fs,lines}}
+  return best&&best.fs>=minFs?best:null}
+// In a profile, the notes you tasted take more of the circle (more for stronger ones), so the cup reads at a glance.
+function fwAngles(sel){const w=n=>n.leaf?(sel.has(n.id)?4+3*sel.get(n.id):1):n.kids.reduce((t,k)=>t+w(k),0),out={},tot=FW.roots.reduce((t,c)=>t+w(c),0);let at=0;
+  const walk=n=>{const a0=at/tot;if(n.leaf)at+=w(n);else n.kids.forEach(walk);out[n.id]=[a0,at/tot]};FW.roots.forEach(walk);return out}
+// Every slice, label and (for profiles) intensity fill, for a view, radius and mode.
+// mode 'explore' and 'pick' colour everything; 'profile' fades notes you did not taste and fills the ones you did by intensity.
+function fwLayout(view,R,o){const out=[],w=view.a1-view.a0,ang=x=>Math.max(0,Math.min(1,(x-view.a0)/w))*TAU,sel=o.sel||new Map(),has=sel.size>0;
+  const hot=new Set();sel.forEach((v,id)=>{const n=FW.byId[id];if(n)n.path.forEach(p=>hot.add(p.id))});const A=o.mode==='profile'&&has?fwAngles(sel):null;
+  for(const n of FW.all){const s0=ang(A?A[n.id][0]:n.a0),s1=ang(A?A[n.id][1]:n.a1);if(s1-s0<1e-4)continue;
+    const [ri,ro]=fwRing(n,view.z||0,R);if(ro-ri<.5)continue;let op=1,fill=null;
+    if(o.mode==='profile'){op=hot.has(n.id)?(n.leaf?.2:1):.13;if(n.leaf&&sel.has(n.id))fill=fwSector(s0,s1,ri,ri+(ro-ri)*Math.min(3,sel.get(n.id))/3)}
+    else if(o.mode==='pick'&&has)op=sel.has(n.id)?1:hot.has(n.id)?.92:.42;
+    const base=R*(n.depth===0?.075:n.depth===1?.064:.058)*(1+.35*(view.z||0));
+    let lab=o.labels===false?null:fwLabel(n.n,s0,s1,ri,ro,base,o.minFs||0,n.depth===0);
+    if(lab&&o.mode==='profile'&&!hot.has(n.id))lab=n.depth<2&&!n.leaf?lab:null;
+    out.push({n,d:fwSector(s0,s1,ri,ro),fill,op,lab,on:sel.has(n.id)})}
+  return out}
+// Label colour and strength: in a profile, notes you tasted are read on their fill (or in ink when the fill is short).
+function fwInk(it,o,INK){if(o.mode!=='profile')return[it.n.ink,1];const v=o.sel&&o.sel.get(it.n.id);if(v)return[v>=2?it.n.ink:INK,1];
+  return[it.op<1&&!it.n.leaf?INK:it.n.ink,it.op<.5?.55:1]}
+const FW_EASE=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+// An interactive wheel in a container. Explore: tap a group to open it, a note to read about it. Pick: tap notes to add
+// or remove them. Profile: shows what you tasted. Tap the middle to step back out.
+function makeWheel(box,o){const R=300,NS='http://www.w3.org/2000/svg',api={view:{a0:0,a1:1,z:0},focus:null,selected:null,sel:o.sel||new Map()};let raf=0;
+  box.innerHTML='<svg class="fwheel" viewBox="-306 -306 612 612" role="group" aria-label="'+esc(o.label||'Coffee flavour wheel')+'"><g class="fw-seg"></g><g class="fw-fill"></g><g class="fw-lab" aria-hidden="true"></g>'+
+    '<g class="fw-mid" role="button" tabindex="0" aria-label="Step back out"><circle r="'+(R*FW_HOLE-3)+'"></circle><text class="fw-mt" y="-4"></text><text class="fw-ms" y="16"></text></g></svg>';
+  const svg=box.firstChild,gS=svg.children[0],gF=svg.children[1],gL=svg.children[2],mid=svg.children[3],els={};
+  const minFs=()=>{const w=svg.getBoundingClientRect().width||600;return Math.min(13,7.6*612/w)};
+  function draw(){const items=fwLayout(api.view,R,{mode:o.mode,sel:api.sel,labels:o.labels,minFs:minFs()});const seen=new Set();
+    for(const it of items){const id=it.n.id;seen.add(id);let e=els[id];
+      if(!e){e=els[id]={p:document.createElementNS(NS,'path'),t:document.createElementNS(NS,'text'),f:document.createElementNS(NS,'path')};
+        e.p.dataset.id=id;e.p.setAttribute('fill',it.n.c);if(o.mode!=='profile'){e.p.setAttribute('tabindex','0');e.p.setAttribute('role','button')}e.p.setAttribute('aria-label',it.n.path.map(x=>x.n).join(', '));
+        e.f.setAttribute('fill',it.n.c);e.f.dataset.id=id;e.t.setAttribute('fill',it.n.ink);if(it.n.depth===0)e.t.setAttribute('font-weight','700');gS.appendChild(e.p);gF.appendChild(e.f);gL.appendChild(e.t)}
+      e.p.setAttribute('d',it.d);e.p.style.display='';e.p.setAttribute('fill-opacity',it.op);e.p.classList.toggle('on',o.mode==='pick'&&it.on||api.selected===id);
+      if(it.fill){e.f.setAttribute('d',it.fill);e.f.style.display=''}else e.f.style.display='none';
+      if(it.lab){const L=it.lab,key=L.lines.join('|');if(e.t.dataset.k!==key){e.t.dataset.k=key;e.t.textContent='';L.lines.forEach((ln,j)=>{const ts=document.createElementNS(NS,'tspan');ts.setAttribute('x',0);ts.setAttribute('dy',j?'1.12em':((1-L.lines.length)*.56)+'em');ts.textContent=ln;e.t.appendChild(ts)})}e.t.style.display='';e.t.setAttribute('font-size',L.fs.toFixed(1));e.t.setAttribute('transform','translate('+L.x.toFixed(1)+' '+L.y.toFixed(1)+') rotate('+L.rot.toFixed(1)+')');
+        const [ic,io]=fwInk(it,{mode:o.mode,sel:api.sel},'var(--ink)');e.t.setAttribute('fill',ic);e.t.setAttribute('fill-opacity',io);e.t.setAttribute('font-weight',it.n.depth===0||(o.mode==='profile'&&it.on)?'700':'500')}else e.t.style.display='none'}
+    for(const id in els)if(!seen.has(id)){els[id].p.style.display='none';els[id].t.style.display='none';els[id].f.style.display='none'}
+    const f=api.focus&&FW.byId[api.focus];mid.querySelector('circle').setAttribute('fill',f?f.c:'var(--surface2)');
+    const mt=mid.querySelector('.fw-mt'),ms=mid.querySelector('.fw-ms');mt.setAttribute('fill',f?f.ink:'var(--ink)');ms.setAttribute('fill',f?f.ink:'var(--muted)');
+    const title=f?f.n:(o.center||'Flavour wheel'),k=title.indexOf('/'),lines=k>0?[title.slice(0,k+1),title.slice(k+1)]:[title];if(mt.dataset.t!==title){mt.dataset.t=title;mt.textContent='';lines.forEach((ln,j)=>{const ts=document.createElementNS(NS,'tspan');ts.setAttribute('x',0);ts.setAttribute('dy',j?'1.1em':((1-lines.length)*.55)+'em');ts.textContent=ln;mt.appendChild(ts)})}mt.setAttribute('font-size',Math.min(17,100/Math.max(6,...lines.map(l=>l.length))*1.7).toFixed(1));ms.setAttribute('y',lines.length>1?24:16);
+    ms.textContent=f?'← back':(o.hint||'tap a colour');mid.classList.toggle('back',!!f)}
+  api.zoom=(id,instant)=>{const n=id&&FW.byId[id];api.focus=n&&!n.leaf?id:null;const rg=api.focus?(o.mode==='profile'&&api.sel.size?fwAngles(api.sel)[id]:[n.a0,n.a1]):null,t=rg?{a0:rg[0],a1:rg[1],z:n.depth+1}:{a0:0,a1:1,z:0},f={...api.view};
+    cancelAnimationFrame(raf);if(instant||RM()){api.view=t;draw();return}const t0=performance.now(),D=520;
+    const step=now=>{const k=FW_EASE(Math.min(1,(now-t0)/D));api.view={a0:f.a0+(t.a0-f.a0)*k,a1:f.a1+(t.a1-f.a1)*k,z:f.z+(t.z-f.z)*k};draw();if(k<1)raf=requestAnimationFrame(step)};raf=requestAnimationFrame(step)};
+  api.back=()=>{const f=api.focus&&FW.byId[api.focus];api.zoom(f&&f.parent?f.parent.id:null)};
+  api.redraw=draw;
+  const hit=id=>{const n=FW.byId[id];if(!n)return;
+    if(o.mode==='pick'){if(!n.leaf){api.zoom(api.focus===id?(n.parent&&n.parent.id):id);return}
+      if(api.sel.has(id))api.sel.delete(id);else api.sel.set(id,2);draw();o.onChange&&o.onChange(api.sel,id);return}
+    if(o.mode==='profile'){if(!n.leaf)api.zoom(api.focus===id?(n.parent&&n.parent.id):id);return}
+    if(!n.leaf&&api.focus!==id)api.zoom(id);else if(!n.leaf)api.zoom(n.parent&&n.parent.id);
+    api.selected=id;draw();o.onSelect&&o.onSelect(n)};
+  svg.addEventListener('click',e=>{if(e.target.closest('.fw-mid')){if(api.focus)api.back();return}const p=e.target.closest('[data-id]');if(p)hit(p.dataset.id)});
+  svg.addEventListener('keydown',e=>{if(e.key!=='Enter'&&e.key!==' ')return;const p=e.target.closest('[data-id],.fw-mid');if(!p)return;e.preventDefault();p.dispatchEvent(new MouseEvent('click',{bubbles:true}))});
+  draw();new ResizeObserver(()=>draw()).observe(box);return api}
+
+/* Downloads: the wheel as a poster image in the app's design. */
+function fwCanvas(o){const W=1600,H=2600,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+  const font=getComputedStyle(document.body).fontFamily,PAPER='#F7F1E6',INK='#2A1D14',MUTED='#7A6656',CHERRY='#8A5A3B';
+  x.fillStyle=PAPER;x.fillRect(0,0,W,H);
+  // Header
+  x.fillStyle=CHERRY;x.font='600 30px '+font;x.textBaseline='alphabetic';x.fillText('THE BREW BENCH',96,118);
+  x.fillStyle=INK;x.font='800 76px '+font;x.fillText(o.title,96,200);
+  if(o.sub){x.fillStyle=MUTED;x.font='400 34px '+font;x.fillText(o.sub,96,252)}
+  // Wheel
+  const R=640,cx=W/2,cy=300+R+10;x.save();x.translate(cx,cy);
+  const items=fwLayout({a0:0,a1:1,z:0},R,{mode:o.mode||'explore',sel:o.sel,minFs:13});
+  for(const it of items){const p=new Path2D(it.d);x.globalAlpha=it.op;x.fillStyle=it.n.c;x.fill(p);x.globalAlpha=1;x.lineWidth=3;x.strokeStyle=PAPER;x.stroke(p);
+    if(it.fill){x.fillStyle=it.n.c;x.fill(new Path2D(it.fill));x.stroke(new Path2D(it.fill))}}
+  x.textAlign='center';x.textBaseline='middle';
+  for(const it of items){const L=it.lab;if(!L)continue;x.save();x.translate(L.x,L.y);x.rotate(L.rot*Math.PI/180);
+    x.font=(it.n.depth===0||o.mode==='profile'&&it.on?'700 ':'500 ')+L.fs.toFixed(1)+'px '+font;const [ic,io]=fwInk(it,o,INK);x.fillStyle=ic;x.globalAlpha=io;L.lines.forEach((ln,j)=>x.fillText(ln,0,1+(j-(L.lines.length-1)/2)*L.fs*1.12));x.restore()}
+  x.globalAlpha=1;x.beginPath();x.arc(0,0,R*FW_HOLE-4,0,TAU);x.fillStyle='#FFFDF9';x.fill();
+  x.fillStyle=INK;x.font='700 34px '+font;x.fillText(o.center||'Flavour',0,-14);x.fillStyle=MUTED;x.font='400 26px '+font;x.fillText(o.centerSub||'wheel',0,24);x.restore();
+  // Notes you tasted, with intensity dots
+  let y=cy+R+(o.notes&&o.notes.length?90:10);x.textAlign='left';x.textBaseline='middle';
+  if(o.notes&&o.notes.length){let px=96;x.font='600 30px '+font;
+    for(const [id,v] of o.notes){const n=FW.byId[id];if(!n)continue;const label=n.n+' '+'●'.repeat(v)+'○'.repeat(3-v),w=x.measureText(label).width+76;
+      if(px+w>W-96){px=96;y+=66;if(y>H-260)break}
+      x.fillStyle=FW.tint(n.c,'#FFFFFF',.78);x.beginPath();x.roundRect(px,y-26,w,52,26);x.fill();x.fillStyle=n.c;x.beginPath();x.arc(px+28,y,11,0,TAU);x.fill();
+      x.fillStyle=INK;x.fillText(label,px+50,y+1);px+=w+14}y+=40}
+  // Footer, then trim the page to what was drawn.
+  const end=y+80;x.fillStyle=MUTED;x.font='400 24px '+font;x.textAlign='center';
+  x.fillText('Tasting words from the Coffee Taster’s Flavor Wheel by the SCA and World Coffee Research.',W/2,end);
+  x.fillText('Designed in The Brew Bench · '+SITE_URL.replace(/^https?:\/\//,'').replace(/\/$/,''),W/2,end+38);
+  const out=document.createElement('canvas');out.width=W;out.height=end+96;out.getContext('2d').drawImage(c,0,0);
+  return new Promise(res=>out.toBlob(res,'image/png'))}
+// Share the image where the phone can (WhatsApp, Photos and so on), otherwise download it.
+async function fwExport(o,file){if(document.fonts&&document.fonts.ready)await document.fonts.ready;const blob=await fwCanvas(o);if(!blob){toast('Could not make the image');return}
+  const f=new File([blob],file+'.png',{type:'image/png'});
+  if(!NATIVE&&navigator.canShare&&matchMedia('(pointer:coarse)').matches){try{if(navigator.canShare({files:[f]})){await navigator.share({files:[f],title:o.title});return}}catch(e){if(e&&e.name==='AbortError')return}}
+  saveFile(file+'.png',blob)}
+
+/* The Flavour wheel page in Explore. */
+let FWX=null;
+function fwInfo(n){const el=$('fw-info');if(!n){el.innerHTML='<h3 style="margin-top:0">How to taste with the wheel</h3><ol class="fw-how"><li><b>Start in the middle.</b> Is it fruity, sweet, nutty, roasted? Pick the broad family first.</li><li><b>Work outwards.</b> Tap the colour to open it, then look for the closer match: berry, then blueberry.</li><li><b>Trust your first word.</b> If you can’t name it exactly, the group is a good answer.</li></ol><p class="hint" style="margin-bottom:0">Tap any colour on the wheel, or search for a note.</p>';return}
+  const crumbs=n.path.map((p,i)=>'<button type="button" class="chip fw-crumb" data-fz="'+p.id+'"><i style="background:'+p.c+'"></i>'+esc(p.n)+'</button>'+(i<n.path.length-1?'<span class="fw-sep">›</span>':'')).join('');
+  const kids=n.kids.length?'<p class="fw-sub">Inside '+esc(n.n)+'</p><div class="chips">'+n.kids.map(k=>'<button type="button" class="chip" data-fz="'+k.id+'"><i class="dot" style="background:'+k.c+'"></i>'+esc(k.n)+'</button>').join('')+'</div>':'';
+  const links=(n.l||[]).map(l=>linkChip(l)).filter(Boolean).join('');
+  el.innerHTML='<div class="fw-crumbs">'+crumbs+'</div><h3 class="fw-name"><i style="background:'+n.c+'"></i>'+esc(n.n)+'</h3><p>'+esc(n.d)+'</p>'+kids+(links?'<p class="fw-sub">Read more</p><div class="chips">'+links+'</div>':'')}
+// Open a note or group from a chip, the search or a link: zoom to where it lives and show it.
+function fwGo(id){const n=FW.byId[id];if(!n||!FWX)return;FWX.zoom(n.leaf?(n.parent&&n.parent.id):id);FWX.selected=id;FWX.redraw();fwInfo(n);
+  if(matchMedia('(max-width:759px)').matches)$('fw-box').scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'})}
+function renderWheelTab(){
+  FWX=makeWheel($('fw-box'),{mode:'explore',onSelect:n=>fwInfo(n)});fwInfo(null);
+  $('fw-cats').innerHTML=FW.roots.map(c=>'<button type="button" class="chip" data-fz="'+c.id+'"><i class="dot" style="background:'+c.c+'"></i>'+esc(c.n)+'</button>').join('');
+  const res=$('fw-res'),find=()=>{const q=fold($('fw-q').value.trim());if(!q){res.innerHTML='';return}
+    const hits=FW.all.filter(n=>fold(n.n).includes(q)).sort((a,b)=>(fold(a.n).startsWith(q)?0:1)-(fold(b.n).startsWith(q)?0:1)||b.depth-a.depth).slice(0,8);
+    res.innerHTML=hits.length?hits.map(n=>'<button type="button" class="chip" data-fz="'+n.id+'"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+(n.parent?' <small>'+esc(n.parent.n)+'</small>':'')+'</button>').join(''):'<p class="hint" style="margin:0">No note by that name. Try a shorter word.</p>'};
+  $('fw-q').oninput=()=>soon(find);$('fw-q').onkeydown=e=>{if(e.key==='Enter'){const b=res.querySelector('[data-fz]');if(b){b.click();$('fw-q').blur()}}};
+  $('wheel').addEventListener('click',e=>{if(goLink(e))return;const z=e.target.closest('[data-fz]');if(z)fwGo(z.dataset.fz)});
+  $('fw-dl').onclick=()=>fwExport({title:'Coffee flavour wheel',sub:FW.leaves.length+' tasting notes, from the middle out'},'brew-bench-flavour-wheel');
+  $('fw-log').onclick=()=>{showTab('log');openNotesPicker()}}
+function wheelDoc(){return{link:SITE_URL+'#wheel',title:'Coffee flavour wheel',sub:FW.leaves.length+' tasting notes',file:'flavour-wheel',
+  blocks:FW.roots.map(c=>({h:c.n,p:c.d,list:c.kids.map(k=>k.n+(k.kids.length?': '+k.kids.map(x=>x.n).join(', '):''))})).concat([{p:'Tasting words from the Coffee Taster’s Flavor Wheel by the SCA and World Coffee Research.'}])}}
+
+/* Tasting notes on brews. A brew keeps fl: [[note id, 1 light | 2 medium | 3 strong], ...]. */
+const FL_LV=['','Light','Medium','Strong'];
+// Notes can arrive from friends' phones, so keep only real notes with a sensible strength.
+function flOf(l){return Array.isArray(l&&l.fl)?l.fl.filter(x=>Array.isArray(x)&&FW.byId[x[0]]&&FW.byId[x[0]].leaf).map(([id,v])=>[id,Math.max(1,Math.min(3,Math.round(+v)||2))]).slice(0,40):[]}
+const flMap=fl=>new Map(fl);
+const flChips=fl=>fl.map(([id,v])=>{const n=FW.byId[id];return'<span class="flchip" title="'+FL_LV[v]+'"><i style="background:'+n.c+'"></i><b>'+esc(n.n)+'</b><span class="lv" aria-label="'+FL_LV[v]+'">'+'●'.repeat(v)+'○'.repeat(3-v)+'</span></span>'}).join('');
+const flText=fl=>fl.map(([id,v])=>FW.byId[id].n+(v!==2?' ('+FL_LV[v].toLowerCase()+')':'')).join(', ');
+// A small, still wheel for lists: what you tasted is filled in, the rest stays faint.
+function fwStatic(fl){const items=fwLayout({a0:0,a1:1,z:0},300,{mode:'profile',sel:flMap(fl),labels:false});
+  return'<svg class="fwheel" viewBox="-306 -306 612 612" aria-hidden="true">'+items.map(it=>'<path d="'+it.d+'" fill="'+it.n.c+'" fill-opacity="'+it.op+'"/>'+(it.fill?'<path d="'+it.fill+'" fill="'+it.n.c+'"/>':'')).join('')+'<circle r="57" fill="var(--surface2)" stroke="var(--paper)" stroke-width="2"/></svg>'}
+// The notes picker: tap families to open them and notes to add them; set how strong each one was.
+function openNotesPicker(entry){const d=$('vd'),sel=flMap(entry?flOf(entry):LFL.slice());
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:#C4473F"><button class="vd-close" id="vd-x" aria-label="Done">✕</button><span class="pill"><i style="background:#C4473F"></i>Tasting notes</span>'+
+    '<h2 id="vd-title">'+(entry&&entry.coffee?esc(entry.coffee):'What did you taste?')+'</h2><p class="hint" style="margin:0">Start in the middle: tap a family to open it, then tap the notes you taste. Tap a note again to remove it.</p></div>'+
+    '<div class="vd-body fl-pick"><input type="search" id="fl-q" placeholder="Find a note, e.g. jasmine" aria-label="Find a flavour note" style="width:100%"><div class="chips fw-res" id="fl-res"></div>'+
+    '<div class="fw-box" id="fl-box"></div><div class="fl-sel" id="fl-sel"></div><div class="actions"><button type="button" class="btn" id="fl-done">Done</button><button type="button" class="btn ghost" id="fl-clear">Clear all</button></div></div>';
+  const list=()=>{$('fl-sel').innerHTML=sel.size?[...sel].map(([id,v])=>{const n=FW.byId[id];return'<div class="fl-selrow"><i style="background:'+n.c+'"></i><span><b>'+esc(n.n)+'</b> <small class="hint">'+esc(n.parent?n.parent.n:'')+'</small></span>'+
+      '<div class="fl-lv" role="group" aria-label="How strong">'+[1,2,3].map(k=>'<button type="button" data-lv="'+k+'" data-id="'+id+'" aria-pressed="'+(v===k)+'">'+FL_LV[k]+'</button>').join('')+'</div><button type="button" class="x" data-rm="'+id+'" aria-label="Remove '+esc(n.n)+'">✕</button></div>'}).join(''):'<p class="hint" style="margin:0">No notes yet.</p>'};
+  const W=makeWheel($('fl-box'),{mode:'pick',sel,center:'Your cup',hint:sel.size?'tap to add':'tap a colour',label:'Flavour wheel: tap the notes you taste',onChange:()=>list()});list();
+  const res=$('fl-res');$('fl-q').oninput=()=>{const q=fold($('fl-q').value.trim());res.innerHTML=q?FW.all.filter(n=>fold(n.n).includes(q)).slice(0,8).map(n=>'<button type="button" class="chip" data-fa="'+n.id+'"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+(n.parent?' <small>'+esc(n.parent.n)+'</small>':'')+'</button>').join(''):''};
+  d.querySelector('.vd-body').onclick=e=>{const a=e.target.closest('[data-fa]'),lv=e.target.closest('[data-lv]'),rm=e.target.closest('[data-rm]');
+    if(a){const n=FW.byId[a.dataset.fa];if(n.leaf){if(!sel.has(n.id))sel.set(n.id,2);W.zoom(n.parent&&n.parent.id)}else W.zoom(n.id);W.redraw();list();$('fl-q').value='';res.innerHTML='';return}
+    if(lv){sel.set(lv.dataset.id,+lv.dataset.lv);list();W.redraw();return}
+    if(rm){sel.delete(rm.dataset.rm);list();W.redraw();return}
+    if(e.target.closest('#fl-clear')){if(!sel.size||confirm('Remove all the notes?')){sel.clear();list();W.redraw()}return}
+    if(e.target.closest('#fl-done'))d.close()};
+  $('vd-x').onclick=()=>d.close();
+  // Whatever you leave the sheet with (Done, the cross or back) is kept.
+  d.addEventListener('close',()=>{const fl=[...sel];if(entry){entry.fl=fl;save('bb-log',LOG);queue('put',entry.id,entry);renderLog();toast(fl.length?'Flavour notes saved':'Flavour notes removed')}else{LFL=fl;renderFlForm()}},{once:true});
+  showDlg(d);d.scrollTop=0}
+// A brew's flavour profile, large: zoom into a family to read it, download it as an image.
+function openProfile(title,sub,fl,entry){const d=$('vd');
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:#C4473F"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:#C4473F"></i>Flavour profile</span>'+
+    '<h2 id="vd-title">'+esc(title)+'</h2>'+(sub?'<p class="hint" style="margin:0">'+esc(sub)+'</p>':'')+'</div><div class="vd-body"><div class="fw-box" id="fp-box" style="max-width:460px"></div>'+
+    '<div class="chips" style="margin-top:12px">'+flChips(fl)+'</div><div class="actions"><button type="button" class="btn" id="fp-dl">Download image</button>'+(entry?'<button type="button" class="btn ghost" id="fp-edit">Edit notes</button>':'')+'</div></div>';
+  makeWheel($('fp-box'),{mode:'profile',sel:flMap(fl),center:'Profile',hint:'tap a family',label:'Flavour profile of '+title});
+  $('vd-x').onclick=()=>d.close();
+  $('fp-dl').onclick=()=>fwExport({title,sub,mode:'profile',sel:flMap(fl),notes:fl,center:'Flavour',centerSub:'profile'},fname(title)+'-flavour-profile');
+  if(entry)$('fp-edit').onclick=()=>{d.close();setTimeout(()=>openNotesPicker(entry),320)};
+  showDlg(d);d.scrollTop=0}
+// Your palate: every note across your brews, the strength adding up.
+function palate(){const sc=new Map();let n=0;for(const l of LOG){const fl=flOf(l);if(!fl.length)continue;n++;fl.forEach(([id,v])=>sc.set(id,(sc.get(id)||0)+v))}
+  if(!n)return null;const max=Math.max(...sc.values()),fl=[...sc].sort((a,b)=>b[1]-a[1]).map(([id,v])=>[id,Math.max(1,Math.ceil(3*v/max))]);
+  const cats=new Map();sc.forEach((v,id)=>{const c=FW.byId[id].cat.n;cats.set(c,(cats.get(c)||0)+v)});
+  return{n,fl,top:[...cats].sort((a,b)=>b[1]-a[1]).slice(0,2).map(c=>c[0].toLowerCase())}}
+
 /* ================= UTIL ================= */
 const $=id=>document.getElementById(id);
 // Coalesce redraws from sliders and typing into one per frame, so dragging stays smooth.
@@ -2551,7 +2928,7 @@ if(S.grinder==='kultra'&&S.setting<30&&S.setting>5&&S.setting%1)S.setting=Math.r
 if(!MYG.includes(S.grinder)||!canGrind(S.grinder,S.brewer)){const g=MYG.find(x=>canGrind(x,S.brewer))||capable(S.brewer);
   S.setting=GRINDERS[S.grinder]&&canGrind(S.grinder,S.brewer)&&canGrind(g,S.brewer)?convertSetting(S,g,S.brewer):base(g,S.brewer);S.grinder=g}
 S.setting=roundG(S.grinder,S.setting);
-let LOG=load('bb-log',[]);
+let LOG=load('bb-log',[]),LFL=[];
 
 /* ================= MODEL ================= */
 function rBias(r){const B=BREWERS[r.b];return -(0.45*r.off+(r.temp-93)/3*0.35+(r.water/r.dose-B.ratio.ref)*B.ratio.k)}
@@ -2870,7 +3247,7 @@ function paint(){const el=TM.el,C=2*Math.PI*96;$('tm-big').textContent=mmss(el);
 
 /* ================= TABS ================= */
 // Heavy tabs are built the first time they are opened, which keeps startup quick.
-const LAZY={champs:renderChamps,words:renderWords,flow:renderFlow,gear:buildGear,recipes:renderRecipes,tech:renderTech,process:renderProcesses,variety:renderVarieties,map:buildMap,history:()=>{buildTree();startQuiz()}},BUILT={};
+const LAZY={champs:renderChamps,words:renderWords,wheel:renderWheelTab,flow:renderFlow,gear:buildGear,recipes:renderRecipes,tech:renderTech,process:renderProcesses,variety:renderVarieties,map:buildMap,history:()=>{buildTree();startQuiz()}},BUILT={};
 function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove());if(LAZY[id]&&!BUILT[id]){BUILT[id]=1;LAZY[id]()}}
 // NAVD counts tab changes you can step back through, so the app bar can offer a back button.
 let BACKING=false,PEND_TAB=null,NAVD=0;
@@ -3535,7 +3912,8 @@ let JOIN_CODE='';
 const fmtDate=l=>{const d=new Date(l.ts||Date.parse(l.date));return isNaN(d)?(l.date||''):d.toLocaleDateString(undefined,{day:'numeric',month:'short',year:d.getFullYear()===new Date().getFullYear()?undefined:'numeric'})};
 function renderLog(){renderShare();
   $('l-list').innerHTML=LOG.length?LOG.map((l,i)=>'<div class="logentry"><div class="lehead"><b>'+esc(l.coffee||'Untitled')+'</b>'+(l.stars?'<span class="stars-sm" aria-label="'+l.stars+' stars">'+'★'.repeat(+l.stars||0)+'<span>'+'★'.repeat(5-(+l.stars||0))+'</span></span>':'')+'<button class="x" data-del="'+i+'" aria-label="Delete entry">Delete</button></div>'+
-    '<div class="hint">'+esc(fmtDate(l))+(l.by&&GROUP?' · '+esc(l.by===ME?'you':l.by):'')+'</div>'+(l.settings?'<div class="hint">'+esc(l.settings)+'</div>':'')+(l.pred?'<div class="hint">Predicted: '+esc(l.pred)+'</div>':'')+(l.notes?'<p>'+esc(l.notes)+'</p>':'')+'</div>').join(''):'<p class="hint">No brews logged yet. Dial one in, then tap "Log this brew".</p>';
+    '<div class="hint">'+esc(fmtDate(l))+(l.by&&GROUP?' · '+esc(l.by===ME?'you':l.by):'')+'</div>'+(l.settings?'<div class="hint">'+esc(l.settings)+'</div>':'')+(l.pred?'<div class="hint">Predicted: '+esc(l.pred)+'</div>':'')+(l.notes?'<p>'+esc(l.notes)+'</p>':'')+flEntry(l,i)+'</div>').join(''):'<p class="hint">No brews logged yet. Dial one in, then tap "Log this brew".</p>';
+  renderPalate();
   const rated=LOG.filter(l=>+l.stars>0),avg=rated.length?(rated.reduce((a,l)=>a+ +l.stars,0)/rated.length).toFixed(1):'–';
   const cnt={};LOG.forEach(l=>{if(l.brewer)cnt[l.brewer]=(cnt[l.brewer]||0)+1});const fav=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];
   const best=rated.slice().sort((a,b)=>b.stars-a.stars||b.ts-a.ts)[0];
@@ -3543,15 +3921,26 @@ function renderLog(){renderShare();
   $('l-stats').innerHTML=LOG.length?stat('Brews logged',LOG.length)+stat('Average rating',avg,rated.length?'out of 5':'no ratings yet')+(fav?stat('Favourite brewer',esc(BREWERS[fav[0]]?BREWERS[fav[0]].name:fav[0])):'')+(best?stat('Top coffee',esc(best.coffee||'Untitled')):''):'';
   $('l-csv').hidden=!LOG.length;
 }
+// Flavour notes: a little profile wheel on each brew, and the notes as chips.
+function flEntry(l,i){const fl=flOf(l);if(!fl.length)return'<button type="button" class="linkbtn fl-edit" data-fledit="'+i+'">+ Add flavour notes</button>';
+  return'<div class="fl-entry"><button type="button" class="fl-mini" data-flview="'+i+'" aria-label="Open the flavour profile">'+fwStatic(fl)+'</button><div><div class="chips" style="margin:0 0 4px">'+flChips(fl)+'</div><button type="button" class="linkbtn" data-fledit="'+i+'">Edit notes</button></div></div>'}
+function renderFlForm(){$('l-flchips').innerHTML=flChips(LFL);$('l-fl').querySelector('span').textContent=LFL.length?'Edit flavour notes':'Add flavour notes'}
+function renderPalate(){const el=$('l-palate'),P=palate();el.hidden=!P;if(!P)return;
+  el.innerHTML='<button type="button" class="fl-mini" id="pal-open" aria-label="Open your palate">'+fwStatic(P.fl)+'</button><div><h3>Your palate</h3><p class="hint" style="margin:0 0 6px">From '+P.n+(P.n===1?' brew':' brews')+' with flavour notes. You notice '+P.top.join(' and ')+' the most.</p><div class="chips" style="margin:0">'+flChips(P.fl.slice(0,6))+'</div></div>';
+  $('pal-open').onclick=()=>openProfile('Your palate','From '+P.n+(P.n===1?' brew':' brews'),P.fl)}
+$('l-fl').onclick=()=>openNotesPicker();
 $('tolog').onclick=()=>{const r=compute(S);
   $('l-settings').value=gLabel(S.grinder,S.setting)+', '+BREWERS[S.brewer].name+', '+S.temp+'°C, 1:'+S.ratio+', '+BREWERS[S.brewer].bloom.label.toLowerCase()+' '+S.bloom+'s, '+PROCESSES[S.process].name+' '+vName(S.variety);
   $('l-pred').value=verdict(r.D)[0];$('l-settings').dataset.brewer=S.brewer;showTab('log');$('l-coffee').focus()};
-$('l-save').onclick=()=>{const e={id:uid(),ts:Date.now(),date:new Date().toLocaleDateString(),coffee:$('l-coffee').value.trim(),settings:$('l-settings').value.trim(),stars:STAR,pred:$('l-pred').value.trim(),notes:$('l-notes').value.trim(),brewer:$('l-settings').dataset.brewer||''};
+$('l-save').onclick=()=>{const e={id:uid(),ts:Date.now(),date:new Date().toLocaleDateString(),coffee:$('l-coffee').value.trim(),settings:$('l-settings').value.trim(),stars:STAR,pred:$('l-pred').value.trim(),notes:$('l-notes').value.trim(),brewer:$('l-settings').dataset.brewer||''};if(LFL.length)e.fl=LFL.slice();
   if(GROUP)e.by=ME;
-  if(!e.coffee&&!e.settings&&!e.notes){toast('Add a coffee name or some notes first');return}LOG.unshift(e);save('bb-log',LOG);queue('put',e.id,e);['l-coffee','l-settings','l-pred','l-notes'].forEach(id=>$(id).value='');delete $('l-settings').dataset.brewer;STAR=0;renderStars();renderLog();toast(GROUP?'Brew saved and shared':'Brew saved');beans()};
-$('l-list').onclick=e=>{const b=e.target.closest('[data-del]');if(!b)return;const l=LOG[+b.dataset.del];if(!l)return;
+  if(!e.coffee&&!e.settings&&!e.notes&&!LFL.length){toast('Add a coffee name or some notes first');return}LOG.unshift(e);save('bb-log',LOG);queue('put',e.id,e);['l-coffee','l-settings','l-pred','l-notes'].forEach(id=>$(id).value='');delete $('l-settings').dataset.brewer;STAR=0;LFL=[];renderFlForm();renderStars();renderLog();toast(GROUP?'Brew saved and shared':'Brew saved');beans()};
+$('l-list').onclick=e=>{const fe=e.target.closest('[data-fledit]'),fv=e.target.closest('[data-flview]');
+  if(fe){const l=LOG[+fe.dataset.fledit];if(l)openNotesPicker(l);return}
+  if(fv){const l=LOG[+fv.dataset.flview];if(l)openProfile(l.coffee||'Untitled',[fmtDate(l),l.stars?l.stars+' of 5 stars':'',l.settings].filter(Boolean).join(' \u00B7 '),flOf(l),l);return}
+  const b=e.target.closest('[data-del]');if(!b)return;const l=LOG[+b.dataset.del];if(!l)return;
   if(GROUP&&l.by&&l.by!==ME&&!confirm('Delete '+l.by+'’s entry for everyone?'))return;LOG.splice(+b.dataset.del,1);save('bb-log',LOG);queue('del',l.id);renderLog();toast('Entry deleted')};
-$('l-csv').onclick=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const rows=[['Date','Coffee','Settings','Stars','Predicted','Notes']].concat(LOG.map(l=>[l.date,l.coffee,l.settings,l.stars,l.pred,l.notes]));
+$('l-csv').onclick=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const rows=[['Date','Coffee','Settings','Stars','Predicted','Notes','Flavour notes']].concat(LOG.map(l=>[l.date,l.coffee,l.settings,l.stars,l.pred,l.notes,flText(flOf(l))]));
   saveFile('brew-log.csv',new Blob(['\ufeff'+rows.map(r=>r.map(q).join(',')).join('\r\n')],{type:'text/csv'}))};
 
 /* ================= SCAN ================= */
@@ -3814,7 +4203,7 @@ function varietyDoc(id){const v=VBY[id];const b=[{kv:[['Family',FAM[v.fam].name]
   if(v.subs)b.push({h:'Types',list:v.subs.map(s=>s.name+': '+s.cup)});return{link:SITE_URL+'#v='+id,title:v.name,sub:'Variety guide',blocks:b,file:'variety-'+v.name}}
 function originDoc(k){const o=ALLO()[k];return{link:SITE_URL+'#o='+k,title:o.name,sub:'Coffee origin | '+REG[o.reg].name,file:'origin-'+o.name,blocks:[{kv:[['Regions',o.subs.join(', ')],['Altitude',o.alt],['Harvest',o.harvest],['Processing',o.process]]},{h:'In the cup',p:o.cup},{h:'Story',p:o.hist},{h:'Varieties grown here',list:o.vars.map(v=>VBY[v]?VBY[v].name:v)},{h:'Did you know?',p:o.fact}]}}
 function historyDoc(){return{link:SITE_URL+'#history',title:'The story of coffee',sub:'From Ethiopian forests to your cup',file:'coffee-history',blocks:[{h:'Timeline',list:TIMELINE.map(([w,t,d])=>w+' - '+t+': '+d)},{h:'People who spread coffee',list:PEOPLE.map(([n,r,d])=>n+' ('+r+'): '+d)}]}}
-function logDoc(){return{title:'My brew log',sub:LOG.length+' brews',file:'brew-log',blocks:LOG.length?LOG.map(l=>({h:(l.coffee||'Untitled')+' - '+l.date,kv:[['Rating',l.stars?l.stars+' / 5':'-'],['Settings',l.settings||'-'],['Predicted',l.pred||'-'],['Notes',l.notes||'-']]})):[{p:'No brews logged yet.'}]}}
+function logDoc(){return{title:'My brew log',sub:LOG.length+' brews',file:'brew-log',blocks:LOG.length?LOG.map(l=>({h:(l.coffee||'Untitled')+' - '+l.date,kv:[['Rating',l.stars?l.stars+' / 5':'-'],['Settings',l.settings||'-'],['Predicted',l.pred||'-'],['Notes',l.notes||'-']].concat(flOf(l).length?[['Flavour notes',flText(flOf(l))]]:[])})):[{p:'No brews logged yet.'}]}}
 function scanDoc(p,c){const inf=SC.info||{};const o=ALLO()[SC.origin];const kv=[...(SC.roaster?[['Roastery',SC.roaster]]:[]),['Origin',o.name],['Variety',vName(SC.variety)],['Process',PROCESSES[SC.process].name],['Roast',SC.roast],['Days off roast',String(daysSince(SC.date))]];
   if(inf.producer_or_farm)kv.push(['Producer or farm',inf.producer_or_farm]);if(inf.altitude)kv.push(['Altitude',inf.altitude]);if((inf.tasting_notes||[]).length)kv.push(['Tasting notes',inf.tasting_notes.join(', ')]);
   const rd=recipeDoc(c.tech,p,c);return{link:rd.link,title:scanTitle(SC,SC.info),sub:'Bean profile and recommended brew',file:'bean-plan',blocks:[{h:'The coffee',kv}].concat(inf.summary?[{p:inf.summary}]:[]).concat([{h:'Recommended: '+RECIPES[c.tech].name,p:''}]).concat(rd.blocks.slice(1))}}
@@ -4075,7 +4464,7 @@ function flowDoc(){return{link:SITE_URL+'#flow',title:'From seed to cup',sub:'Ho
 
 /* ================= APP SHELL ================= */
 /* Line icons for the sheets, drawn to match the bottom navigation. */
-const ICO={trophy:'M8 4h8v5a4 4 0 0 1-8 0z M8 6H5a3 3 0 0 0 3 4 M16 6h3a3 3 0 0 1-3 4 M12 13v4 M8 21h8 M9 17h6',globe:'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M3 12h18 M12 3c3 3.5 3 14.5 0 18 M12 3c-3 3.5-3 14.5 0 18',leaf:'M5 19c0-8 5-14 14-14c0 9-6 14-14 14z M5 19l8-8',
+const ICO={wheel:'M21 12a9 9 0 1 1-18 0a9 9 0 1 1 18 0z M12 3v9l7.8 4.5 M12 12l-7.8 4.5',trophy:'M8 4h8v5a4 4 0 0 1-8 0z M8 6H5a3 3 0 0 0 3 4 M16 6h3a3 3 0 0 1-3 4 M12 13v4 M8 21h8 M9 17h6',globe:'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M3 12h18 M12 3c3 3.5 3 14.5 0 18 M12 3c-3 3.5-3 14.5 0 18',leaf:'M5 19c0-8 5-14 14-14c0 9-6 14-14 14z M5 19l8-8',
   hourglass:'M7 3h10 M7 21h10 M8 3v3l4 6 4-6V3 M8 21v-3l4-6 4 6v3',flask:'M9 3h6 M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3 M7.5 15h9',drop:'M12 3c3 4 6 7.5 6 11a6 6 0 0 1-12 0c0-3.5 3-7 6-11z',
   clipboard:'M9 3h6v3H9z M7 4.5H5V21h14V4.5h-2 M8 11h8 M8 15h8 M8 19h5',cog:'M12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6z M12 2v3 M12 19v3 M2 12h3 M19 12h3 M4.9 4.9L7 7 M17 17l2.1 2.1 M4.9 19.1L7 17 M17 7l2.1-2.1',
   book:'M4 19V5a2 2 0 0 1 2-2h13v14H6a2 2 0 0 0-2 2a2 2 0 0 0 2 2h13 M8 7h7',pencil:'M4 20h4L19 9l-4-4L4 16z M13 7l4 4',moon:'M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z',
@@ -4085,12 +4474,12 @@ const ICO={trophy:'M8 4h8v5a4 4 0 0 1-8 0z M8 6H5a3 3 0 0 0 3 4 M16 6h3a3 3 0 0 
 const installed=()=>!!window.Capacitor||MQ('(display-mode: standalone)')||navigator.standalone===true;
 const ico=(n,bg)=>'<span class="ic" style="background:'+bg+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+ICO[n]+'"/></svg></span>';
 
-const TABNAMES={champs:'World championships',words:'Coffee words',flow:'From seed to cup',dial:'Dial-in',planner:'Brew planner',scan:'Scan beans',gear:'Gear and dials',recipes:'Recipes',tech:'Techniques',process:'Processes',map:'Origins map',variety:'Varieties',history:'History',guide:'Guide',log:'Brew log'};
-const BNGROUP={champs:'explore',words:'explore',flow:'explore',dial:'dial',recipes:'recipes',scan:'scan',map:'explore',variety:'explore',history:'explore',process:'explore',tech:'explore',planner:'more',gear:'more',guide:'more',log:'more'};
+const TABNAMES={champs:'World championships',words:'Coffee words',wheel:'Flavour wheel',flow:'From seed to cup',dial:'Dial-in',planner:'Brew planner',scan:'Scan beans',gear:'Gear and dials',recipes:'Recipes',tech:'Techniques',process:'Processes',map:'Origins map',variety:'Varieties',history:'History',guide:'Guide',log:'Brew log'};
+const BNGROUP={champs:'explore',words:'explore',wheel:'explore',flow:'explore',dial:'dial',recipes:'recipes',scan:'scan',map:'explore',variety:'explore',history:'explore',process:'explore',tech:'explore',planner:'more',gear:'more',guide:'more',log:'more'};
 function syncShell(id){$('ab-title').textContent=TABNAMES[id]||'Brew Bench';$('ab-back').hidden=NAVD<1;document.body.className=document.body.className.replace(/\bt-\w+/g,'').trim()+' t-'+id;
   document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));movePill();
-  const can=['dial','planner','scan','history','log','map','recipes','words','flow'].includes(id);$('ab-share').hidden=!can}
-const SHEETS={explore:[['map','Origins map','50 origins on an interactive map','#4F8A74','globe'],['variety','Varieties','44 varieties, stories and Geisha types','#B5533C','leaf'],['history','History','Family tree, timeline and a quiz','#8A5A3B','hourglass'],['process','Processes','From washed to thermal shock','#D2A04A','flask'],['tech','Techniques','Every move in the brewing toolbox','#6B8E4E','drop'],['champs','World championships','Every champion, their recipes and gear','#C9964A','trophy'],['flow','From seed to cup','How coffee is made, step by step','#6E8FA8','leaf'],['words','Coffee words','A bank of '+GLOSSARY.length+' coffee terms','#9A7390','book']],
+  const can=['dial','planner','scan','history','log','map','recipes','words','flow','wheel'].includes(id);$('ab-share').hidden=!can}
+const SHEETS={explore:[['map','Origins map','50 origins on an interactive map','#4F8A74','globe'],['variety','Varieties','44 varieties, stories and Geisha types','#B5533C','leaf'],['history','History','Family tree, timeline and a quiz','#8A5A3B','hourglass'],['process','Processes','From washed to thermal shock','#D2A04A','flask'],['tech','Techniques','Every move in the brewing toolbox','#6B8E4E','drop'],['champs','World championships','Every champion, their recipes and gear','#C9964A','trophy'],['flow','From seed to cup','How coffee is made, step by step','#6E8FA8','leaf'],['words','Coffee words','A bank of '+GLOSSARY.length+' coffee terms','#9A7390','book'],['wheel','Flavour wheel','Name what you taste, then save it with your brews','#C4473F','wheel']],
   more:[['planner','Brew planner','A recipe tuned to your coffee','#8A5A3B','clipboard'],['gear','Gear and dials','Grinders, brewers and dial reading','#6E8FA8','cog'],['guide','Guide','Ratio calculator and troubleshooting','#C9964A','book'],['log','Brew log','Your brews, ratings and exports','#6B8E4E','pencil']]};
 function openSheet(which){const items=SHEETS[which];
   $('ns-in').innerHTML='<div class="sheet"><div class="grab"></div><button class="vd-close" id="ns-x" aria-label="Close">\u2715</button><h2 id="ns-title" style="margin:0 40px 0 0">'+(which==='explore'?'Explore':'More')+'</h2><div class="sheetlist">'+
@@ -4108,7 +4497,7 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(movePill);
 addEventListener('resize',()=>soon(movePill));
 document.querySelector('.bottomnav').onclick=e=>{const b=e.target.closest('[data-bn]');if(!b)return;const k=b.dataset.bn;if(k==='explore'||k==='more')openSheet(k);else showTab(k)};
 $('ab-share').onclick=()=>{const id=(document.querySelector('main section.on')||{}).id;
-  if(id==='dial')openShare(dialDoc());else if(id==='planner')openShare(recipeDoc(PL.tech,plan(Object.assign({},PL)),PL));else if(id==='scan')$('sc-share').click();else if(id==='history')openShare(historyDoc());else if(id==='log')openShare(logDoc());else if(id==='map'){if(SEL)openShare(originDoc(SEL));else toast('Pick an origin first')}else if(id==='recipes')toast('Tap Share on any recipe card');else if(id==='words')openShare(wordsDoc());else if(id==='flow')openShare(flowDoc())};
+  if(id==='dial')openShare(dialDoc());else if(id==='planner')openShare(recipeDoc(PL.tech,plan(Object.assign({},PL)),PL));else if(id==='scan')$('sc-share').click();else if(id==='history')openShare(historyDoc());else if(id==='log')openShare(logDoc());else if(id==='map'){if(SEL)openShare(originDoc(SEL));else toast('Pick an origin first')}else if(id==='recipes')toast('Tap Share on any recipe card');else if(id==='words')openShare(wordsDoc());else if(id==='flow')openShare(flowDoc());else if(id==='wheel')openShare(wheelDoc())};
 $('dial-share').onclick=()=>openShare(dialDoc());
 $('ab-back').onclick=()=>history.back();
 // The Android back gesture asks here first: close the top sheet, or step back a screen. False means there is nothing

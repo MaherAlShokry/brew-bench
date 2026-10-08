@@ -118,7 +118,7 @@ const GLOSSARY=[
   ['Balance','taste','How acidity, sweetness, body and bitterness sit together. Nothing sticks out; everything has a place.',['k:Acidity','k:Body']],
   ['Aftertaste','taste','The flavours that stay after you swallow: long and sweet is good; short, dry or bitter is not.',[]],
   ['Fragrance and aroma','taste','Fragrance is the smell of dry grounds; aroma is the smell once water hits them.',['k:Cupping']],
-  ['Flavour wheel','taste','A chart of tasting words, from general in the middle (fruity) to specific at the edge (blackberry). The best-known is by the SCA and World Coffee Research, based on a sensory lexicon.',['k:Cupping']],
+  ['Flavour wheel','taste','A chart of tasting words, from general in the middle (fruity) to specific at the edge (blackberry). The best-known is by the SCA and World Coffee Research, based on a sensory lexicon.',['tab:wheel','k:Cupping']],
   ['Ferment and boozy','taste','Winey, rum-like or overripe flavours from long or anaerobic fermentation. Loved by some, a defect to others, and a matter of degree.',['k:Anaerobic fermentation','p:natural']]
 ];
 
@@ -170,3 +170,121 @@ const FLOW_BRANCH=[
 ];
 // Every process key in a tree, once each.
 const treeKeys=t=>[...new Set(t.flatMap(n=>(n.p?[n.p]:[]).concat(n.kids?treeKeys(n.kids):[])))];
+
+/* ================= FLAVOUR WHEEL ================= */
+// The tasting words of the Coffee Taster's Flavor Wheel (SCA and World Coffee Research, from the WCR Sensory Lexicon),
+// drawn in the app's own colours. General in the middle, specific at the edge, clockwise from the top.
+// A category or group is {n, d, k:[...]}; a note is [name, what it tastes like and where you meet it, links].
+// Links: 'p:key' a process, 'v:id' a variety, 'k:Term' a coffee word.
+const FWHEEL=[
+ {n:'Fruity',c:'#C4473F',d:'Fresh, ripe fruit. The signature of light roasts, high altitude and careful processing.',k:[
+  {n:'Berry',d:'Dark, juicy and sweet-tart. Classic in natural Ethiopians and Kenyans.',k:[
+   ['Blackberry','Deep, jammy and slightly tannic. Common in Kenyan SL28 and SL34.',['v:sl28','p:doublewashed']],
+   ['Raspberry','Bright, tart and fragrant red berry. Found in light-roasted washed and honey coffees.',['p:honey']],
+   ['Blueberry','Sweet, perfumed and jammy. The famous note of natural-processed Ethiopians.',['p:natural','v:landrace']],
+   ['Strawberry','Soft, sweet red fruit, sometimes like strawberry candy. Often in naturals and anaerobics.',['p:natural','p:anaerobic']]]},
+  {n:'Dried fruit',d:'Concentrated, cooked sweetness. Comes with very ripe cherries, naturals and darker roasts.',k:[
+   ['Raisin','Dark, sticky sweetness. Natural process and ripe fruit push it forward.',['p:natural']],
+   ['Prune','Heavy, dark dried fruit. Common in fuller natural coffees and medium-dark roasts.',['p:natural']]]},
+  {n:'Other fruit',d:'Tree fruit and tropical fruit: the sweet middle of many speciality coffees.',k:[
+   ['Coconut','Creamy, nutty tropical note. Shows up in some anaerobic and Central American lots.',['p:anaerobic']],
+   ['Cherry','Red cherry, from fresh to cola-like. Common in Central and South American coffees.',['v:bourbon']],
+   ['Pomegranate','Tart, juicy and tannic red fruit. Typical of bright Kenyan and Rwandan coffees.',['v:sl28']],
+   ['Pineapple','Sweet-sour tropical fruit. Often in anaerobic and carbonic-maceration coffees.',['p:carbonic','p:anaerobic']],
+   ['Grape','Juicy, winey sweetness. Common in Kenyans and in naturals.',['p:natural']],
+   ['Apple','Crisp malic acidity, like a fresh green or red apple. Classic in washed Central Americans.',['p:washed','v:caturra']],
+   ['Peach','Soft, floral stone fruit. Typical of Geisha and washed Ethiopians.',['v:geisha','p:washed']],
+   ['Pear','Delicate, sweet and juicy. Common in clean washed coffees.',['p:washed']]]},
+  {n:'Citrus fruit',d:'Bright, zesty acidity. Mostly citric acid, at its clearest in light, washed coffees.',k:[
+   ['Grapefruit','Tart and a little bitter. Kenyans and some Ethiopians.',['p:doublewashed']],
+   ['Orange','Sweet citrus, from juice to marmalade. Common in washed Latin American coffees.',['p:washed']],
+   ['Lemon','Sharp, clean citrus. Washed Ethiopians, especially Yirgacheffe.',['p:washed','v:landrace']],
+   ['Lime','Zesty and green. Some washed East African and Colombian coffees.',['p:washed']]]}]},
+ {n:'Sour/Fermented',c:'#D3A043',d:'Sourness and fermentation. Pleasant and winey in balance, a defect when it dominates.',k:[
+  {n:'Sour',d:'Acids you taste on their own. Fine in small amounts; too much means under-extraction or a defect.',k:[
+   ['Sour aromatics','A sharp, sour smell, often from over-fermented or under-extracted coffee.',['k:Acidity']],
+   ['Acetic acid','Vinegar-like. A little adds sparkle; a lot is a fermentation defect.',['k:Fermentation']],
+   ['Butyric acid','Like parmesan or sour milk. Almost always a fermentation defect.',['k:Defects']],
+   ['Isovaleric acid','Sweaty, cheesy and sour. A sign of over-fermentation.',['k:Defects']],
+   ['Citric acid','Clean citrus sourness, the main acid in bright washed coffees.',['k:Acidity']],
+   ['Malic acid','Green-apple sourness. Common in high-grown Central American coffees.',['k:Acidity']]]},
+  {n:'Alcohol/Fermented',d:'Boozy, winey and ripe. Typical of naturals and experimental fermentations.',k:[
+   ['Winey','Like red wine: fruity, a little tannic. Naturals and long fermentations.',['p:natural','k:Ferment and boozy']],
+   ['Whiskey','Boozy and oaky. Barrel-aged and some anaerobic coffees.',['p:barrelaged']],
+   ['Fermented','Funky, yeasty and ripe. Anaerobic, yeast and co-fermented coffees lean this way.',['p:anaerobic','k:Fermentation']],
+   ['Overripe','Fruit past its best, close to rotting. Too-ripe cherries or uneven drying.',['k:Selective picking']]]}]},
+ {n:'Green/Vegetative',c:'#678C4C',d:'Plant and vegetable notes. Usually from under-ripe cherries, under-roasting or under-extraction.',k:[
+  ['Olive oil','Smooth, slightly green and oily. Some naturals and lighter roasts.',[]],
+  ['Raw','Like raw beans or nuts. Very light or underdeveloped roasts.',['k:Underdeveloped']],
+  {n:'Green/Vegetative',d:'Fresh or cooked green plants. A hint is lively; a lot reads as unripe.',k:[
+   ['Under-ripe','Green, astringent and sharp. Unripe cherries in the lot.',['k:Selective picking']],
+   ['Peapod','Green, sweet and beany. A classic sign of underdeveloped roasts.',['k:Underdeveloped']],
+   ['Fresh','Fresh-cut green, like crushed leaves. Light roasts.',[]],
+   ['Dark green','Cooked greens, like spinach. Under-roasting or old green coffee.',[]],
+   ['Vegetative','Vegetable-like, from celery to cooked veg. Underdeveloped roasts.',['k:Underdeveloped']],
+   ['Hay-like','Dry grass and straw. Old or poorly stored green coffee.',['k:Crop year']],
+   ['Herb-like','Fresh herbs like basil or mint. Some Ethiopians and Kenyans.',[]]]},
+  ['Beany','Raw bean, like a pulse. Roasts that did not develop enough.',['k:Development time']]]},
+ {n:'Other',c:'#6C8DA0',d:'Papery, musty and chemical notes. Mostly defects from storage, roasting or water.',k:[
+  {n:'Papery/Musty',d:'Stale, damp and dusty. Usually from storage, packaging or the filter.',k:[
+   ['Stale','Flat and dull. Coffee roasted too long ago or ground too early.',['k:Resting']],
+   ['Cardboard','Wet cardboard. Old coffee, or an unrinsed paper filter.',[]],
+   ['Papery','Like paper. Unrinsed filters and stale coffee.',[]],
+   ['Woody','Dry wood. Old green coffee or past-crop beans.',['k:Crop year']],
+   ['Moldy/Damp','Damp cellar. Coffee that got wet in storage.',['k:Moisture content']],
+   ['Musty/Dusty','Dusty attic. Old or badly stored coffee.',['k:Hermetic bags']],
+   ['Musty/Earthy','Damp earth. Wet-hulled Indonesian coffees and monsooned coffee.',['p:wethulled','p:monsooned']],
+   ['Animalic','Leathery, farmyard. Some heavy naturals and wet-hulled coffees.',['p:wethulled']],
+   ['Meaty/Brothy','Savoury, like stock. Rare; heavy fermentation or old coffee.',[]],
+   ['Phenolic','Like disinfectant or plasters. A serious defect, often from chlorinated water.',['k:Defects']]]},
+  {n:'Chemical',d:'Tastes that do not belong in the cup. Usually a defect or contamination.',k:[
+   ['Bitter','A harsh, lingering bitterness. Over-extraction or very dark roasts.',['k:Extraction yield']],
+   ['Salty','Salty, often with a flat finish. Hard water or over-extraction.',['k:Water hardness']],
+   ['Medicinal','Like cough syrup or iodine. A defect, sometimes from processing.',['k:Defects']],
+   ['Petroleum','Like diesel. Contamination in transport or storage.',['k:Defects']],
+   ['Skunky','Pungent, like a skunk. A defect from spoiled cherries.',['k:Defects']],
+   ['Rubber','Burnt rubber. Common in Robusta and very dark roasts.',['v:robusta']]]}]},
+ {n:'Roasted',c:'#8B5A3C',d:'Flavours made by the roast itself. Grow stronger the darker the roast.',k:[
+  ['Pipe tobacco','Sweet, aromatic tobacco. Medium-dark roasts and aged coffees.',['p:aged']],
+  ['Tobacco','Dry tobacco leaf. Darker roasts and some Indonesian coffees.',[]],
+  {n:'Burnt',d:'Carbonised, smoky notes from dark roasting. Pleasant when light, harsh when strong.',k:[
+   ['Acrid','Sharp, burnt and stinging. Scorched or very dark roasts.',['k:Light, medium and dark roast']],
+   ['Ashy','Like an ashtray. Very dark roasts.',['k:Second crack']],
+   ['Smoky','Wood smoke. Dark roasts.',['k:Second crack']],
+   ['Brown roast','Classic roasted coffee and toast. Medium to dark roasts.',['k:Maillard reaction']]]},
+  {n:'Cereal',d:'Grainy, toasty sweetness from the early stages of roasting.',k:[
+   ['Grain','Toasted grain or bread crust. Lighter roasts.',['k:Maillard reaction']],
+   ['Malt','Malted barley, sweet and toasty. Common in Brazilian and medium roasts.',['p:pulpednatural']]]}]},
+ {n:'Spices',c:'#9A4655',d:'Warm and pungent spice. From the variety, the origin or the roast.',k:[
+  ['Pungent','Sharp and spicy in the nose. Some Indonesian coffees.',[]],
+  ['Pepper','Black pepper heat. Some Ethiopians, Rwandans and darker roasts.',[]],
+  {n:'Brown spice',d:'Baking spices. Often in Central Americans and medium roasts.',k:[
+   ['Anise','Liquorice-like sweetness. Some Ethiopian and Yemeni coffees.',['v:yemenia']],
+   ['Nutmeg','Warm and woody spice. Medium roasts.',[]],
+   ['Cinnamon','Sweet, warm spice. Central Americans and some co-fermented coffees.',['p:coferment']],
+   ['Clove','Warm, numbing spice. Some Indonesian and Indian coffees.',['p:monsooned']]]}]},
+ {n:'Nutty/Cocoa',c:'#7B5842',d:'Nuts and chocolate. The comforting base of medium roasts and many Brazilian and Central American coffees.',k:[
+  {n:'Nutty',d:'Roasted nuts. Brazilian and pulped natural coffees, and medium roasts.',k:[
+   ['Peanuts','Roasted peanut. Brazilian coffees and darker roasts.',['p:pulpednatural']],
+   ['Hazelnut','Sweet, toasty nut. Central Americans and medium roasts.',[]],
+   ['Almond','Delicate, sweet nut, like marzipan. Lighter roasts and washed coffees.',['p:washed']]]},
+  {n:'Cocoa',d:'Chocolate, from milk to dark. Builds with the roast and with body.',k:[
+   ['Chocolate','Milk chocolate sweetness. Brazilians, Colombians and medium roasts.',['k:Body']],
+   ['Dark chocolate','Bittersweet cocoa. Fuller coffees and darker roasts.',['k:Light, medium and dark roast']]]}]},
+ {n:'Sweet',c:'#D07B3D',d:'Sugar, caramel and vanilla. The sweetness of ripe fruit and good roasting.',k:[
+  {n:'Brown sugar',d:'Cooked sugars, made as the roast caramelises.',k:[
+   ['Molasses','Dark, slightly bitter sugar. Fuller and darker coffees.',['k:Caramelisation']],
+   ['Maple syrup','Woody, rich syrup. Honey and pulped natural coffees.',['p:honey']],
+   ['Caramelized','Caramel and toffee. Medium roasts.',['k:Caramelisation']],
+   ['Honey','Floral, rounded sweetness. Honey-process and many washed coffees.',['p:honey']]]},
+  ['Vanilla','Creamy vanilla. Some Ethiopian and Central American coffees.',[]],
+  ['Vanillin','Sweet, synthetic-leaning vanilla. Often in co-fermented or infused coffees.',['p:infused']],
+  ['Overall sweet','General sweetness without a specific note. A sign of ripe fruit and good extraction.',['k:Sweetness']],
+  ['Sweet aromatics','Sweet-smelling, like candy or cake. Aroma more than taste.',['k:Fragrance and aroma']]]},
+ {n:'Floral',c:'#B4688F',d:'Flowers and tea. Delicate notes that need light roasting and careful brewing.',k:[
+  ['Black tea','Tea-like body and gentle tannin. Washed Ethiopians and Kenyans.',['p:washed']],
+  {n:'Floral',d:'Fragrant flowers. Geisha and washed Ethiopians are the classic examples.',k:[
+   ['Chamomile','Gentle, herbal and honeyed. Some Ethiopian and Colombian coffees.',[]],
+   ['Rose','Rose petal and rose water. Some Ethiopians and anaerobic lots.',['p:anaerobic']],
+   ['Jasmine','Perfumed white flowers. The hallmark of Geisha and washed Ethiopians.',['v:geisha','p:washed']]]}]}
+];
