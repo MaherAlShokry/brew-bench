@@ -110,6 +110,18 @@ const GRINDER_LIB={
   k4:{name:'Kingrinder K4',full:'Kingrinder K4',type:'manual',brand:'Kingrinder',fmt:'num',unit:'clicks',sub:1,first:0,um:16,min:15,max:200,v60:95,k:11,body:0.3,clarity:0.2,espresso:true,
     burr:'48 mm conical steel burrs',adjust:'External dial, 60 clicks per turn, about 16 microns per click; count clicks from closed',
     range:'Espresso about 30 to 50 clicks, V60 about 85 to 105, French press about 130 to 150.',cup:'Balanced, a little more body than the K6.',use:'All-round value.'},
+  k2:{name:'Kingrinder K0 / K1 / K2',full:'Kingrinder K0, K1 and K2',type:'manual',brand:'Kingrinder',fmt:'num',unit:'clicks',sub:1,first:0,um:18,min:10,max:160,v60:75,k:16.4,body:0.3,clarity:0.1,espresso:true,
+    burr:'38 mm conical steel burrs (K0 and K1) and 48 mm (K2)',adjust:'Internal dial under the burr: 40 clicks per turn, about 18 microns per click; count clicks from closed',
+    range:'Espresso about 20 to 35 clicks (K1 and K2), AeroPress about 50 to 70, V60 about 55 to 95, French press about 100 to 120.',cup:'Balanced with medium body; good value.',use:'Budget all-round hand grinding. The K0 is the pour-over model.'},
+  c5esp:{name:'Timemore C5 ESP Pro',full:'Timemore Chestnut C5 ESP Pro',type:'manual',brand:'Timemore',fmt:'num',unit:'clicks',sub:1,first:0,um:15,min:8,max:130,v60:66,k:18.7,body:0.3,clarity:0.2,espresso:true,
+    burr:'Conical steel burrs, tuned for espresso and filter',adjust:'External dial: 50 clicks per turn, about 15 microns per click; count clicks from closed',
+    range:'Espresso about 20 to 35 clicks, V60 about 48 to 84 (66 is a good start: finer for light roasts, coarser for dark), French press about 90 and up.',cup:'Sweet and clean for the price.',use:'Espresso and pour-over from one hand grinder.'},
+  c5pro:{name:'Timemore C5 Pro',full:'Timemore Chestnut C5 Pro',type:'manual',brand:'Timemore',fmt:'num',unit:'clicks',sub:1,first:0,um:31,min:3,max:30,v60:12,k:60,body:0.4,clarity:0,espresso:false,
+    burr:'Conical steel burrs, tuned for filter',adjust:'External dial: 48 clicks per turn, about 31 microns per click; count clicks from closed',
+    range:'AeroPress about 8 to 11 clicks, pour-over about 10 to 14, French press about 18 to 22. Not for espresso (the C5 ESP Pro is).',cup:'Sweet with medium body.',use:'Everyday pour-over with big, easy steps.'},
+  x25:{name:'Comandante X25',full:'Comandante X25 Trailmaster',type:'manual',brand:'Comandante',fmt:'num',unit:'clicks',sub:1,first:0,um:28,min:3,max:38,v60:20,k:62,body:0.3,clarity:0.3,espresso:false,
+    burr:'Compact conical "Nitro Blade" steel burrs',adjust:'No numbers: count clicks from fully closed, about 25 to 30 microns per click',
+    range:'AeroPress about 12 to 16 clicks, V60 about 15 to 25, French press about 27 to 33.',cup:'The Comandante cup in a smaller, lighter body.',use:'Travel and camping pour-over.'},
   skerton:{name:'Hario Skerton Pro',full:'Hario Skerton Pro',type:'manual',brand:'Hario',fmt:'num',unit:'clicks',sub:1,first:0,min:1,max:18,v60:9,k:120,body:0.5,clarity:-0.8,espresso:false,
     burr:'38 mm ceramic conical burrs',adjust:'Count clicks from fully closed; large steps',
     range:'AeroPress about 6 to 7 clicks, V60 about 8 to 10, French press about 12 to 14.',cup:'Heavy body, muddier than steel burrs.',use:'Immersion and camping.'},
@@ -1429,11 +1441,57 @@ function parseLabel(raw){const L=lexicon(),t=' '+fold(raw).replace(/[|_~*]+/g,' 
   const farm=/\b(finca|hacienda|fazenda|sitio|estate|farm|washing station|cooperative|co-?op)\b[ :]*([a-z0-9' .-]{2,40})/i.exec(raw.replace(/\n/g,' ; '));
   const prod=/\b(?:producer|produced by|grower|farmer)s?\s*[:\-]\s*([^\n;,]{2,40})/i.exec(raw);
   if(prod)info.producer_or_farm=prod[1].trim();else if(farm)info.producer_or_farm=(/^(finca|hacienda|fazenda|sitio)$/i.test(farm[1])?farm[1]+' '+farm[2]:farm[2]+' '+farm[1]).replace(/\s+/g,' ').replace(/\s*[;.].*$/,'').trim().replace(/\b\w/g,x=>x.toUpperCase());
-  // The roastery: a line naming one ("Northbound Roasters", "Windrose Coffee Roastery"), but not "Roasted on 18 Sep".
-  const rline=lines.map(cleanLine).find(x=>/\b(roasters?|roastery|roastworks|roasting( co(mpany)?)?|coffee co\.?|kaffeer[oö]sterei|torrefazione)\b/i.test(x)&&!/roast(ed)?\s*(on|date|level|profile)|light|medium|dark/i.test(x)&&plausibleName(x));if(rline)info.roaster=rline;
-  const title=lines.map(cleanLine).find(x=>x!==rl&&x.length<=40&&plausibleName(x)&&!/[:@]|www\.|\.com|\d{3,}|roast|notes?|process|variety|altitude|origin|net|weight|\bg\b|arabica|specialty|grade/i.test(x));if(title)info.coffee_name=title;
+  // The roastery, wherever it sits on the bag: a known roaster, "Roasted by …", a line naming one, or their web address.
+  const ro=findRoaster(lines,t);if(ro)info.roaster=ro.name;
+  const same=x=>ro&&ro.line&&fold(x).replace(/[^a-z0-9]/g,'')===fold(ro.line).replace(/[^a-z0-9]/g,'');
+  const bare=x=>{const r=fold(x).replace(/\b(specialty|speciality|single origin|coffee|cafe|beans?)\b/g,' ').replace(/\s+/g,' ').trim();return !r||L.countries.some(([c])=>c===r)};
+  // Two columns often come back as one line ("Huye Mountain Roasted by"), so the roaster's part is cut off first.
+  const title=lines.map(x=>cleanLine(x.replace(/\s+(?:roasted|tostado|torrado)\s+(?:by|por)\b.*$/i,''))).find(x=>!same(x)&&!bare(x)&&x.length<=40&&plausibleName(x)&&!/[:@]|www\.|\.com|\d{3,}|roast|notes?|process|variety|altitude|origin|net|weight|\bg\b|arabica|specialty|grade/i.test(x)&&!(ro&&(fold(x).includes(fold(ro.name))||fold(ro.name).replace(/[^a-z0-9]/g,'').includes(fold(x).replace(/[^a-z0-9]/g,'')))));if(title)info.coffee_name=title;
   info.confidence=hits>=4?'high':hits>=2?'medium':'low';info.summary=hits?'Read on this phone. Check the details below and adjust anything that looks off.':'';
   return info}
+// Finding the roastery. Bags put it anywhere (top, bottom, on the back, only in the web address), so every line is
+// scored and the strongest clue wins.
+const RO_WORD='roasters?|roastery|roastworks|roasting(?: co(?:mpany)?)?|coffee roasting|micro ?roastery|coffee lab|coffee co\\.?|coffee company|coffee works|coffeeworks|coffee collective|kaffee(?:r[oö]sterei)?|kaffebrenneri(?:et)?|kafferosteri(?:et)?|kaffer[oø]steri(?:et)?|r[oö]sterei|torrefazione|torref[ae]c[cç][aã]o|torr[eé]facteur|tostadores?|tostaduria|brulerie';
+let ROLEX=null;
+function roLexicon(){if(ROLEX)return ROLEX;ROLEX=[];for(const e of (typeof ROASTERS!=='undefined'?ROASTERS:[])){const [name,...al]=e.split('|');
+    for(const a of [name,...al]){const f=fold(a).replace(/&/g,' and ').replace(/[^a-z0-9%]+/g,' ').trim();if(f.replace(/[^a-z]/g,'').length>=3)ROLEX.push({name,f,c:f.replace(/[^a-z0-9%]/g,'')})}}
+  ROLEX.sort((a,b)=>b.c.length-a.c.length);return ROLEX}
+// Turn a web address or handle into a name: "onyxcoffeelab.com" → "Onyx Coffee Lab", "@sey.coffee" → "Sey Coffee".
+const RO_PARTS=['coffeeroasters','roasters','roastery','roaster','roasting','roastworks','coffee','kaffee','kaffe','cafe','caffe','lab','company','co','collective','works','house','espresso','beans','brewers','the'];
+function nameFromHandle(h){h=fold(h).replace(/^(https?:\/\/)?(www\.)?/,'').replace(/^@/,'');const m=/^([a-z0-9][a-z0-9_.\-]{1,40}?)(?:\.(com|co|net|org|coffee|cafe|shop|store|io|[a-z]{2}))?(?:\.[a-z]{2})?(?:\/.*)?$/.exec(h);if(!m)return'';
+  let base=m[1].replace(/[_.\-]+/g,' ').trim();if(m[2]==='coffee'||m[2]==='cafe')base+=' '+m[2];
+  // Split run-together words from the end: "onyxcoffeelab" → onyx coffee lab.
+  const words=[];for(const w of base.split(' ')){let core=w,tail=[];let hit=true;while(hit&&core.length>3){hit=false;for(const p of RO_PARTS){if(core.length>p.length+2&&core.endsWith(p)){tail.unshift(p==='coffeeroasters'?'coffee roasters':p);core=core.slice(0,-p.length);hit=true;break}}}words.push(core,...tail)}
+  const out=words.join(' ').replace(/\s+/g,' ').trim();if(!/[a-z]{3}/.test(out)||/^(gmail|hotmail|outlook|yahoo|icloud|instagram|facebook|shopify|google|amazon|info|hello|shop|order|orders|www)$/.test(out.split(' ')[0]))return'';
+  return out.replace(/\b\w/g,x=>x.toUpperCase()).replace(/\bCo\b/,'Co.')}
+function findRoaster(lines,t){const clean=lines.map(cleanLine),L=lexicon(),cands=[];const add=(name,score,line)=>{name=cleanLine(name).replace(/\s+/g,' ').replace(/\s+(?:in|en|em|from|since|est\.?)\s+[\p{L}\d .'-]*$/iu,'');if(name&&(score>=100||plausibleName(name)))cands.push({name,score,line:line||''})};
+  // A label word that says something about the coffee, not about who roasted it.
+  const coffeeWord=x=>{const f=' '+fold(x)+' ';return /roast(ed)?\s*(on|date|level|profile)|\b(light|medium|dark|omni|filter|espresso)\s*roast|best before|net\s*w|weight|\bnotes?\b|\bprocess|\bvariet|\baltitude|\bmasl\b|\bfarm\b|\bfinca\b|single origin|specialty coffee|100 ?%|arabica/.test(f)||!!findBest(f,L.countries)||!!findBest(f,L.procs)};
+  // 1. A roaster we know by name, anywhere in the text or run together in a web address.
+  const flat=t.replace(/&/g,' and ').replace(/[^a-z0-9%]+/g,' '),words=flat.split(' ').filter(w=>w.length>=6);
+  for(const r of roLexicon()){const hit=new RegExp('(^| )'+reEsc(r.f)+'( |$)').test(flat)||(r.c.length>=6&&words.some(w=>w.startsWith(r.c)));if(hit){const ln=clean.find(x=>fold(x).replace(/&/g,'and').replace(/[^a-z0-9%]/g,'').includes(r.c));add(r.name,100+r.c.length,ln);break}}
+  // 2. "Roasted by Kawa", "Tostado por Café Pergamino", "Roaster: Rumble".
+  const by=/\b(?:roasted|hand[- ]roasted|lovingly roasted|freshly roasted|roasted with care|tostado|torrado|ger[oö]stet|torrefatto|torrefie)(?:\s+(?:in|en|em)\s+[\p{L} .'-]{2,30}?)?\s+(?:by|por|von|da|par)\s*:?\s*([^\n,;|•·]{2,45})/iu,lab=/^\s*(?:roaster|roastery|roasted by|tostador|torrefador|r[oö]ster(?:ei)?)\s*[:\-–]\s*(.{2,45})$/i;
+  lines.forEach((l,i)=>{let m=by.exec(l);if(m){const v=cleanLine(m[1]);if(v.length>=3&&!coffeeWord(v))add(v,90,l);else if(clean[i+1]&&!coffeeWord(clean[i+1]))add(clean[i+1],85,lines[i+1])}
+    else if(/\b(?:roasted|tostado|torrado)\s+(?:by|por)\s*:?\s*$/i.test(l)&&clean[i+1])add(clean[i+1],88,lines[i+1]);
+    if(m=lab.exec(l))add(m[1],90,l)});
+  // 3. A line that names a roastery ("Northbound Coffee Roasters", "Kafferosteriet Koppi"). A line with only the
+  //    word ("COFFEE ROASTERS" under a logo) takes the name from the line above.
+  const kw=new RegExp('\\b('+RO_WORD+')\\b','i'),only=new RegExp('^(?:(?:specialty|speciality|craft|small batch|independent|artisan|coffee|&|and|the)\\s+)*(?:'+RO_WORD+')(?:\\s+(?:&|and)\\s+(?:caf[eé]|coffee|bar|bakery))?(?:\\s+(?:since|est\\.?|established)\\s*\\d{4})?$','i');
+  clean.forEach((x,i)=>{const f=fold(x);if(!kw.test(f)||/roast(ed)?\s*(on|date|level|profile)|\b(light|medium|dark|omni|filter|espresso)\s*roast/.test(f))return;
+    if(only.test(f)){const p=clean[i-1];if(p&&p.length<=30&&plausibleName(p)&&!coffeeWord(p)&&!kw.test(fold(p)))add(p+' '+x,80,lines[i-1]);else if(clean[i+1]&&clean[i+1].length<=30&&!coffeeWord(clean[i+1])&&!kw.test(fold(clean[i+1]))&&/^\p{Lu}/u.test(clean[i+1]))add(clean[i+1]+' '+x,70,lines[i+1]);return}
+    if(!coffeeWord(x.replace(kw,' ')))add(x.replace(/\s*(?:[-–|•·]|est\.?|since).*$/i,''),78,lines[i])});
+  // 4. The web address, email or handle: "www.onyxcoffeelab.com", "hello@kurasu.kyoto", "@seycoffee". If a line spells
+  //    the same name out, that line is used as written.
+  const hs=String(lines.join(' ')).match(/(?:www\.|https?:\/\/)[\w.\-]+\.[a-z]{2,}|[\w.\-]+@[\w\-]+(?:\.[\w\-]+)+|@[a-z0-9_.]{3,30}|\b[a-z0-9\-]{4,}\.(?:com|coffee|cafe|co|shop)\b/gi)||[];
+  for(const h of hs){const dom=h.includes('@')&&!h.startsWith('@')?h.split('@')[1]:h,n=nameFromHandle(dom);if(!n)continue;const c=fold(n).replace(/[^a-z0-9]/g,'');
+    const ln=clean.find((x,i)=>{const k=fold(x).replace(/[^a-z0-9]/g,'');return k.length>=4&&(k===c||c.startsWith(k)&&k.length>=c.length*.5)&&!/[@.]/.test(lines[i])});
+    if(ln&&plausibleName(ln)&&!coffeeWord(ln))add(ln,75,ln);else if(!coffeeWord(n))add(n,h.startsWith('@')?50:60,'')}
+  // 5. A short line ending in "Coffee" ("Kawa Coffee", "Rumble Coffee") that is not about the beans themselves.
+  clean.forEach((x,i)=>{if(/^[\p{L}&'.\- ]{2,30}\s(coffee|caf[eé]|caff[eè])$/iu.test(x)&&!coffeeWord(x)&&!findBest(' '+fold(x)+' ',L.vars)&&x.split(' ').length<=4)add(x,40,lines[i])});
+  if(!cands.length)return null;cands.sort((a,b)=>b.score-a.score);const best=cands[0];
+  // Names in capitals come back in normal case; a known roaster keeps its own spelling.
+  return{name:best.score>=100?best.name:niceName(best.name).replace(/\s+/g,' ').slice(0,50),line:best.line}}
 function applyInfo(j){if(j.origin_key&&ALLO()[j.origin_key])SC.origin=j.origin_key;if(j.process_key&&PROCESSES[j.process_key])SC.process=j.process_key;
   if(j.variety_key&&vById(j.variety_key))SC.variety=j.variety_key;if(['light','medium','dark'].includes(j.roast_level))SC.roast=j.roast_level;if(/^\d{4}-\d{2}-\d{2}$/.test(j.roast_date||''))SC.date=j.roast_date;SC.name=plausibleName(j.coffee_name)?niceName(j.coffee_name).slice(0,60):'';SC.roaster=plausibleName(j.roaster)?niceName(j.roaster).slice(0,50):'';SC.info=j}
 async function runLocalScan(useImg){
