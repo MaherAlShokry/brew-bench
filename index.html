@@ -24,6 +24,7 @@
   --sa-bottom:max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px));
   --paper:#FBF7F0; --surface:#FFFDF9; --surface2:#F3EADC; --ink:#3B2A20; --muted:#7A6656;
   --line:#E7DBC9; --cherry:#8A5A3B; --leaf:#6B8E4E; --honey:#C9964A;
+  --cherry-ink:#6E4328; --leaf-ink:#4B6B34; --honey-ink:#8A621F;
   --ocean:#EDF2EA; --land:#E8DCC9; --belt:rgba(201,150,74,.10);
   --shadow:0 1px 0 rgba(92,64,40,.04),0 8px 24px rgba(92,64,40,.07);
   /* San Francisco on Apple devices, Inter (bundled, very close to it) everywhere else. */
@@ -35,10 +36,12 @@
 @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
   --paper:#1F1814; --surface:#2A211B; --surface2:#362A22; --ink:#F3EADF; --muted:#C2B09E;
   --line:#45372D; --cherry:#D9A06B; --leaf:#A7C084; --honey:#E2B866;
+  --cherry-ink:#D9A06B; --leaf-ink:#A7C084; --honey-ink:#E2B866;
   --ocean:#1B2420; --land:#3B2F27; --belt:rgba(226,184,102,.08); --shadow:none;}}
 :root[data-theme="dark"]{
   --paper:#1F1814; --surface:#2A211B; --surface2:#362A22; --ink:#F3EADF; --muted:#C2B09E;
   --line:#45372D; --cherry:#D9A06B; --leaf:#A7C084; --honey:#E2B866;
+  --cherry-ink:#D9A06B; --leaf-ink:#A7C084; --honey-ink:#E2B866;
   --ocean:#1B2420; --land:#3B2F27; --belt:rgba(226,184,102,.08); --shadow:none;}
 *,*::before,*::after{box-sizing:inherit}
 [hidden]{display:none!important}
@@ -618,7 +621,7 @@ button,a,.tab,.chip,[role=button],input[type=range]{touch-action:manipulation}
 #gcustom summary{cursor:pointer;list-style:none;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}#gcustom summary::-webkit-details-marker{display:none}
 .cform{margin-top:12px}
 .cform input,.cform select{width:100%;min-width:0;box-sizing:border-box}.cform .two>*{min-width:0}
-.cform .joinrow select{flex:0 0 42%;width:42%}.cform .joinrow input{flex:1;text-transform:none;letter-spacing:normal;font-family:inherit}
+.cform .joinrow .selw{flex:0 0 42%;width:42%}.cform .joinrow .selw>select{width:100%;flex:none}.cform .joinrow select{flex:0 0 42%;width:42%}.cform .joinrow input{flex:1;text-transform:none;letter-spacing:normal;font-family:inherit}
 @media (max-width:560px){.cform .stackm,.panel .stackm{grid-template-columns:1fr;gap:0}}
 /* Recipe editor and your recipes */
 .recform input:not([type=range]),.recform select,.recform textarea{width:100%}
@@ -639,12 +642,48 @@ button,a,.tab,.chip,[role=button],input[type=range]{touch-action:manipulation}
 /* Open dialogs and sheets lock the page behind them. */
 html.locked,html.locked body{overflow:hidden}
 dialog{overscroll-behavior:contain;overflow:auto}
+/* Dropdowns: the field shows our own arrow; the list opens in #selsheet. */
+.selw{display:block;position:relative;min-width:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.selw>select{width:100%;pointer-events:none;-webkit-appearance:none;appearance:none;padding-right:40px!important;text-overflow:ellipsis;cursor:pointer}
+.selw::after{content:"";position:absolute;right:15px;top:50%;width:12px;height:12px;margin-top:-6px;background:var(--muted);pointer-events:none;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 4.2l4 4 4-4' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 4.2l4 4 4-4' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;transition:transform .2s}
+.selw:hover>select{border-color:var(--hair)}
+.selw:active>select{transform:scale(.99)}
+dialog#selsheet{border:0;padding:0;background:var(--surface);color:var(--ink);overflow:auto;overscroll-behavior:contain}
+dialog#selsheet::backdrop{background:rgba(25,16,10,.42)}
+dialog#selsheet.pop{position:fixed;margin:0;border-radius:var(--r-lg,18px);box-shadow:var(--e3);border:1px solid var(--hair)}
+dialog#selsheet.pop::backdrop{background:transparent;backdrop-filter:none;-webkit-backdrop-filter:none}
+dialog#selsheet.pop .grab,dialog#selsheet.pop .selhead{display:none}
+.selhead{position:sticky;top:0;z-index:1;display:flex;align-items:center;gap:10px;padding:10px 16px 8px;background:var(--surface)}
+.selhead .grab{position:absolute;left:50%;top:6px;transform:translateX(-50%)}
+.selhead h3{margin:10px 0 0;flex:1;font-size:1.05rem}
+.selhead .vd-close{position:static;margin-top:8px}
+#sel-in:focus{outline:none}
+#sel-q{display:block;width:calc(100% - 24px);margin:4px 12px 6px}
+.sellist{padding:4px 8px 12px}
+.selgrp h4{margin:10px 10px 4px;font:600 .74rem var(--display);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.selopt{display:flex;align-items:center;gap:10px;width:100%;min-height:46px;padding:10px 12px;border:0;border-radius:var(--r-md,12px);background:none;color:var(--ink);font:500 1rem var(--body);text-align:left;cursor:pointer;transition:background-color .15s}
+.selopt span{flex:1;min-width:0}
+.selopt i{font-style:normal;color:var(--cherry);font-weight:700;opacity:0}
+.selopt[aria-selected="true"]{background:color-mix(in srgb,var(--cherry) 12%,transparent);color:var(--cherry);font-weight:600}
+.selopt[aria-selected="true"] i{opacity:1}
+.selopt:hover,.selopt:focus-visible{background:var(--surface2);outline:none}
+.selopt[aria-selected="true"]:hover{background:color-mix(in srgb,var(--cherry) 16%,transparent)}
+.selopt:disabled{opacity:.45;cursor:default}
+.selnone{padding:0 20px 16px}
+dialog#selsheet.pop .sellist{padding:6px}
+dialog#selsheet.pop .selopt{min-height:40px;padding:8px 12px;font-size:.95rem}
+@media (max-width:759px){dialog#selsheet{margin:auto 0 0;width:100%;max-width:100%;max-height:78vh;border-radius:24px 24px 0 0}}
+@media (prefers-reduced-motion:no-preference) and (max-width:759px){dialog#selsheet[open]{animation:sheet-up .4s var(--ease-sheet) both}dialog#selsheet.closing{animation:sheet-down .24s cubic-bezier(.4,0,1,1) both}}
+@media (prefers-reduced-motion:no-preference){dialog#selsheet.pop[open]{animation:pop-in .18s var(--ease-out) both;transform-origin:top center}dialog#selsheet.pop.closing{animation:dlg-out .14s ease-in both}}
+@keyframes pop-in{from{opacity:0;transform:translateY(-6px) scale(.98)}to{opacity:1;transform:none}}
 /* Flavour wheel */
 .fw-layout{display:grid;gap:18px;align-items:start}
 @media (min-width:900px){.fw-layout{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}.fw-side{position:sticky;top:90px}}
 #fw-q{width:100%;margin-bottom:8px}
 .fw-res{margin-bottom:6px}.fw-res:empty{display:none}
-.fw-box{max-width:620px;margin:0 auto;aspect-ratio:1;touch-action:manipulation}
+.fw-box{max-width:620px;margin:0 auto;aspect-ratio:1;touch-action:manipulation;overflow:clip}
 .fwheel{width:100%;height:100%;display:block;overflow:visible;font-family:var(--display);user-select:none;-webkit-user-select:none}
 .fwheel path{stroke:var(--paper);stroke-width:1.4;cursor:pointer;transition:fill-opacity .25s}
 .fwheel path:focus{outline:none}.fwheel path:focus-visible{stroke:var(--ink);stroke-width:2.5}
@@ -660,6 +699,14 @@ dialog{overscroll-behavior:contain;overflow:auto}
 .fw-name{display:flex;align-items:center;gap:10px;margin:.3rem 0}.fw-name i{width:16px;height:16px;border-radius:5px;flex:none}
 .fw-sub{font-family:var(--display);font-weight:600;font-size:.85rem;color:var(--muted);margin:.8rem 0 .3rem}
 .fw-how{padding-left:1.2rem;margin:.2rem 0 .6rem}.fw-how li{margin:.35rem 0}
+.fw-name small{font:500 .8rem var(--body);color:var(--muted);margin-left:auto}
+.fw-add{margin-top:4px}
+.fw-cats .chip small{margin-left:6px;color:var(--muted)}
+.fwbar{display:flex;height:10px;border-radius:99px;overflow:hidden;gap:2px;margin:10px 0 6px}.fwbar span{min-width:3px}
+.fwbar-key{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:.8rem;color:var(--muted);margin-bottom:6px}.fwbar-key i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
+@media (hover:hover){.fwheel path[role=button]:hover{filter:brightness(1.08) saturate(1.06)}}
+@media (prefers-reduced-motion:no-preference){.fw-box .fwheel{animation:fw-in .7s var(--ease-out) both}}
+@keyframes fw-in{from{opacity:0;transform:scale(.86) rotate(-24deg)}to{opacity:1;transform:none}}
 /* Tasting notes on brews */
 .fl-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
 .fl-add{flex:0 0 auto!important;display:inline-flex;align-items:center;gap:8px}
@@ -839,6 +886,19 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   .panel{padding:16px}
   html{scroll-padding-top:calc(var(--sa-top) + 90px)}
 }
+/* Review fixes: readable accent text, visible empty stars, and touch targets of at least ~40px. */
+.btn.ghost,.btn.ghost:hover,.selopt[aria-selected="true"],.linkbtn{color:var(--cherry-ink)}
+.dir{color:var(--leaf-ink)}
+.fbr em{color:var(--honey-ink)!important}
+.fphase>.fph{color:color-mix(in srgb,var(--c) 55%,var(--ink))}
+.cdclock b{color:color-mix(in srgb,var(--c) 68%,var(--ink))}
+.gcard .mine-tag{color:var(--leaf-ink)}
+.stars button{color:color-mix(in srgb,var(--muted) 82%,var(--surface));min-width:40px;min-height:40px;padding:0}
+.linkbtn,button.hint,.legend button{position:relative}
+.linkbtn::after,button.hint::after{content:"";position:absolute;inset:-9px -4px}
+.addcmp::after{content:"";position:absolute;inset:-10px -6px}
+.grindtrack .gm::after{content:"";position:absolute;inset:-9px;border-radius:50%}
+@media (pointer:coarse){button.chip,.vbtn,.legend button{min-height:36px}.legend button::after{content:"";position:absolute;inset:-6px 0}}
 </style>
 <script src="vendor/jspdf.umd.min.js" defer></script>
 <link rel="manifest" href="manifest.webmanifest">
@@ -1105,7 +1165,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 <!-- FLAVOUR WHEEL -->
 <section id="wheel">
   <h2>Flavour wheel</h2>
-  <p class="lede">Every word tasters use for coffee, from the broad family in the middle to the exact note at the edge. Tap a colour to open it up, and a note to see what it tastes like and where it comes from.</p>
+  <p class="lede">Every word tasters use for coffee, from the broad family in the middle to the exact note at the edge: 121 notes in 9 families. Tap a colour to open it up, and a note to see what it tastes like and where it comes from.</p>
   <div class="fw-layout">
     <div class="fw-main">
       <input type="search" id="fw-q" placeholder="Find a note, e.g. blueberry, caramel" aria-label="Find a flavour note">
@@ -1116,7 +1176,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
     <div class="fw-side">
       <div class="card fw-info" id="fw-info" aria-live="polite"></div>
       <div class="actions"><button type="button" class="btn" id="fw-dl">Download the wheel</button><button type="button" class="btn ghost" id="fw-log">Note what you tasted</button></div>
-      <p class="hint">Tasting words from the Coffee Taster’s Flavor Wheel by the SCA and World Coffee Research, drawn in our own design.</p>
+      <p class="hint">Built on the Coffee Taster’s Flavor Wheel by the SCA and World Coffee Research, drawn in our own design, with more speciality notes so every group has notes of its own.</p>
     </div>
   </div>
 </section>
@@ -1236,6 +1296,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 <dialog id="sharesheet" aria-labelledby="sh-title"><div id="sh-in"></div></dialog>
 <dialog id="vd" aria-labelledby="vd-title"><div id="vd-in"></div></dialog>
 <dialog id="timer" aria-labelledby="tm-title"><div id="tm-in"></div></dialog>
+<dialog id="selsheet" aria-labelledby="sel-title"><div id="sel-in"></div></dialog>
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -2333,8 +2394,11 @@ const FLOW_BRANCH=[
 const treeKeys=t=>[...new Set(t.flatMap(n=>(n.p?[n.p]:[]).concat(n.kids?treeKeys(n.kids):[])))];
 
 /* ================= FLAVOUR WHEEL ================= */
+// Notes saved before a lone word became a group point to where it lives now.
+const FW_ALIAS={'floral.black-tea':'floral.tea-like.black-tea','green-vegetative.olive-oil':'green-vegetative.raw-and-beany.olive-oil','green-vegetative.raw':'green-vegetative.raw-and-beany.raw','green-vegetative.beany':'green-vegetative.raw-and-beany.beany','roasted.pipe-tobacco':'roasted.tobacco.pipe-tobacco','roasted.tobacco':'roasted.tobacco.tobacco','spices.pungent':'spices.peppery.pungent','spices.pepper':'spices.peppery.pepper','sweet.vanilla':'sweet.creamy.vanilla','sweet.vanillin':'sweet.creamy.vanillin','sweet.overall-sweet':'sweet.candy.overall-sweet','sweet.sweet-aromatics':'sweet.candy.sweet-aromatics'};
 // The tasting words of the Coffee Taster's Flavor Wheel (SCA and World Coffee Research, from the WCR Sensory Lexicon),
-// drawn in the app's own colours. General in the middle, specific at the edge, clockwise from the top.
+// drawn in the app's own colours, with more speciality notes so every group has notes of its own.
+// General in the middle, specific at the edge, clockwise from the top.
 // A category or group is {n, d, k:[...]}; a note is [name, what it tastes like and where you meet it, links].
 // Links: 'p:key' a process, 'v:id' a variety, 'k:Term' a coffee word.
 const FWHEEL=[
@@ -2343,10 +2407,14 @@ const FWHEEL=[
    ['Blackberry','Deep, jammy and slightly tannic. Common in Kenyan SL28 and SL34.',['v:sl28','p:doublewashed']],
    ['Raspberry','Bright, tart and fragrant red berry. Found in light-roasted washed and honey coffees.',['p:honey']],
    ['Blueberry','Sweet, perfumed and jammy. The famous note of natural-processed Ethiopians.',['p:natural','v:landrace']],
-   ['Strawberry','Soft, sweet red fruit, sometimes like strawberry candy. Often in naturals and anaerobics.',['p:natural','p:anaerobic']]]},
+   ['Strawberry','Soft, sweet red fruit, sometimes like strawberry candy. Often in naturals and anaerobics.',['p:natural','p:anaerobic']],
+   ['Blackcurrant','Dark, tart and a little savoury, like cassis. A Kenyan classic.',['v:sl28']],
+   ['Cranberry','Sharp, tart red berry. Bright washed East African coffees.',['p:doublewashed']]]},
   {n:'Dried fruit',d:'Concentrated, cooked sweetness. Comes with very ripe cherries, naturals and darker roasts.',k:[
    ['Raisin','Dark, sticky sweetness. Natural process and ripe fruit push it forward.',['p:natural']],
-   ['Prune','Heavy, dark dried fruit. Common in fuller natural coffees and medium-dark roasts.',['p:natural']]]},
+   ['Prune','Heavy, dark dried fruit. Common in fuller natural coffees and medium-dark roasts.',['p:natural']],
+   ['Fig','Rich, seedy and jammy. Ripe naturals and medium roasts.',['p:natural']],
+   ['Date','Deep, sticky sweetness. Naturals and medium-dark roasts.',['p:natural']]]},
   {n:'Other fruit',d:'Tree fruit and tropical fruit: the sweet middle of many speciality coffees.',k:[
    ['Coconut','Creamy, nutty tropical note. Shows up in some anaerobic and Central American lots.',['p:anaerobic']],
    ['Cherry','Red cherry, from fresh to cola-like. Common in Central and South American coffees.',['v:bourbon']],
@@ -2355,12 +2423,20 @@ const FWHEEL=[
    ['Grape','Juicy, winey sweetness. Common in Kenyans and in naturals.',['p:natural']],
    ['Apple','Crisp malic acidity, like a fresh green or red apple. Classic in washed Central Americans.',['p:washed','v:caturra']],
    ['Peach','Soft, floral stone fruit. Typical of Geisha and washed Ethiopians.',['v:geisha','p:washed']],
-   ['Pear','Delicate, sweet and juicy. Common in clean washed coffees.',['p:washed']]]},
+   ['Pear','Delicate, sweet and juicy. Common in clean washed coffees.',['p:washed']],
+   ['Apricot','Soft, tangy stone fruit. Washed Ethiopians and Central Americans.',['p:washed']],
+   ['Plum','Dark, juicy stone fruit. Naturals and fuller washed coffees.',['p:natural']],
+   ['Mango','Ripe, lush tropical fruit. Naturals and anaerobic coffees.',['p:anaerobic']],
+   ['Passion fruit','Tart, tropical and aromatic. Anaerobic and some Kenyan coffees.',['p:anaerobic']],
+   ['Lychee','Floral, juicy tropical fruit. Some Geisha and anaerobic lots.',['v:geisha']],
+   ['Melon','Light, juicy and fresh. Some washed Ethiopians and honeys.',['p:honey']]]},
   {n:'Citrus fruit',d:'Bright, zesty acidity. Mostly citric acid, at its clearest in light, washed coffees.',k:[
    ['Grapefruit','Tart and a little bitter. Kenyans and some Ethiopians.',['p:doublewashed']],
    ['Orange','Sweet citrus, from juice to marmalade. Common in washed Latin American coffees.',['p:washed']],
    ['Lemon','Sharp, clean citrus. Washed Ethiopians, especially Yirgacheffe.',['p:washed','v:landrace']],
-   ['Lime','Zesty and green. Some washed East African and Colombian coffees.',['p:washed']]]}]},
+   ['Lime','Zesty and green. Some washed East African and Colombian coffees.',['p:washed']],
+   ['Mandarin','Sweet, soft citrus. Washed Central and South American coffees.',['p:washed']],
+   ['Bergamot','Floral, perfumed citrus, as in Earl Grey. Geisha and washed Ethiopians.',['v:geisha']]]}]},
  {n:'Sour/Fermented',c:'#D3A043',d:'Sourness and fermentation. Pleasant and winey in balance, a defect when it dominates.',k:[
   {n:'Sour',d:'Acids you taste on their own. Fine in small amounts; too much means under-extraction or a defect.',k:[
    ['Sour aromatics','A sharp, sour smell, often from over-fermented or under-extracted coffee.',['k:Acidity']],
@@ -2373,10 +2449,13 @@ const FWHEEL=[
    ['Winey','Like red wine: fruity, a little tannic. Naturals and long fermentations.',['p:natural','k:Ferment and boozy']],
    ['Whiskey','Boozy and oaky. Barrel-aged and some anaerobic coffees.',['p:barrelaged']],
    ['Fermented','Funky, yeasty and ripe. Anaerobic, yeast and co-fermented coffees lean this way.',['p:anaerobic','k:Fermentation']],
-   ['Overripe','Fruit past its best, close to rotting. Too-ripe cherries or uneven drying.',['k:Selective picking']]]}]},
+   ['Overripe','Fruit past its best, close to rotting. Too-ripe cherries or uneven drying.',['k:Selective picking']],
+   ['Rum','Dark, sweet and boozy. Anaerobic and rum-barrel-aged coffees.',['p:anaerobic','p:barrelaged']]]}]},
  {n:'Green/Vegetative',c:'#678C4C',d:'Plant and vegetable notes. Usually from under-ripe cherries, under-roasting or under-extraction.',k:[
-  ['Olive oil','Smooth, slightly green and oily. Some naturals and lighter roasts.',[]],
-  ['Raw','Like raw beans or nuts. Very light or underdeveloped roasts.',['k:Underdeveloped']],
+  {n:'Raw and beany',d:'Raw, oily and bean-like. Usually a sign of a light or underdeveloped roast.',k:[
+   ['Olive oil','Smooth, slightly green and oily. Some naturals and lighter roasts.',[]],
+   ['Raw','Like raw beans or nuts. Very light or underdeveloped roasts.',['k:Underdeveloped']],
+   ['Beany','Raw bean, like a pulse. Roasts that did not develop enough.',['k:Development time']]]},
   {n:'Green/Vegetative',d:'Fresh or cooked green plants. A hint is lively; a lot reads as unripe.',k:[
    ['Under-ripe','Green, astringent and sharp. Unripe cherries in the lot.',['k:Selective picking']],
    ['Peapod','Green, sweet and beany. A classic sign of underdeveloped roasts.',['k:Underdeveloped']],
@@ -2384,8 +2463,7 @@ const FWHEEL=[
    ['Dark green','Cooked greens, like spinach. Under-roasting or old green coffee.',[]],
    ['Vegetative','Vegetable-like, from celery to cooked veg. Underdeveloped roasts.',['k:Underdeveloped']],
    ['Hay-like','Dry grass and straw. Old or poorly stored green coffee.',['k:Crop year']],
-   ['Herb-like','Fresh herbs like basil or mint. Some Ethiopians and Kenyans.',[]]]},
-  ['Beany','Raw bean, like a pulse. Roasts that did not develop enough.',['k:Development time']]]},
+   ['Herb-like','Fresh herbs like basil or mint. Some Ethiopians and Kenyans.',[]]]}]},
  {n:'Other',c:'#6C8DA0',d:'Papery, musty and chemical notes. Mostly defects from storage, roasting or water.',k:[
   {n:'Papery/Musty',d:'Stale, damp and dusty. Usually from storage, packaging or the filter.',k:[
    ['Stale','Flat and dull. Coffee roasted too long ago or ground too early.',['k:Resting']],
@@ -2406,8 +2484,10 @@ const FWHEEL=[
    ['Skunky','Pungent, like a skunk. A defect from spoiled cherries.',['k:Defects']],
    ['Rubber','Burnt rubber. Common in Robusta and very dark roasts.',['v:robusta']]]}]},
  {n:'Roasted',c:'#8B5A3C',d:'Flavours made by the roast itself. Grow stronger the darker the roast.',k:[
-  ['Pipe tobacco','Sweet, aromatic tobacco. Medium-dark roasts and aged coffees.',['p:aged']],
-  ['Tobacco','Dry tobacco leaf. Darker roasts and some Indonesian coffees.',[]],
+  {n:'Tobacco',d:'Dry, aromatic leaf. Medium-dark roasts, aged coffees and some Indonesians.',k:[
+   ['Pipe tobacco','Sweet, aromatic tobacco. Medium-dark roasts and aged coffees.',['p:aged']],
+   ['Tobacco','Dry tobacco leaf. Darker roasts and some Indonesian coffees.',[]],
+   ['Cigar box','Cedar and dry tobacco. Aged and darker-roasted coffees.',['p:aged']]]},
   {n:'Burnt',d:'Carbonised, smoky notes from dark roasting. Pleasant when light, harsh when strong.',k:[
    ['Acrid','Sharp, burnt and stinging. Scorched or very dark roasts.',['k:Light, medium and dark roast']],
    ['Ashy','Like an ashtray. Very dark roasts.',['k:Second crack']],
@@ -2415,39 +2495,65 @@ const FWHEEL=[
    ['Brown roast','Classic roasted coffee and toast. Medium to dark roasts.',['k:Maillard reaction']]]},
   {n:'Cereal',d:'Grainy, toasty sweetness from the early stages of roasting.',k:[
    ['Grain','Toasted grain or bread crust. Lighter roasts.',['k:Maillard reaction']],
-   ['Malt','Malted barley, sweet and toasty. Common in Brazilian and medium roasts.',['p:pulpednatural']]]}]},
+   ['Malt','Malted barley, sweet and toasty. Common in Brazilian and medium roasts.',['p:pulpednatural']],
+   ['Toast','Toasted bread. Medium roasts.',['k:Maillard reaction']],
+   ['Biscuit','Sweet, buttery baked dough. Brazilians and medium roasts.',['p:pulpednatural']]]}]},
  {n:'Spices',c:'#9A4655',d:'Warm and pungent spice. From the variety, the origin or the roast.',k:[
-  ['Pungent','Sharp and spicy in the nose. Some Indonesian coffees.',[]],
-  ['Pepper','Black pepper heat. Some Ethiopians, Rwandans and darker roasts.',[]],
+  {n:'Peppery',d:'Sharp, hot spice that tingles on the tongue.',k:[
+   ['Pungent','Sharp and spicy in the nose. Some Indonesian coffees.',[]],
+   ['Pepper','Black pepper heat. Some Ethiopians, Rwandans and darker roasts.',[]],
+   ['Pink peppercorn','Fruity, gentle pepper. Some Rwandan, Burundian and Ethiopian coffees.',[]],
+   ['Ginger','Warm, zesty heat. Some Kenyan and co-fermented coffees.',['p:coferment']]]},
   {n:'Brown spice',d:'Baking spices. Often in Central Americans and medium roasts.',k:[
    ['Anise','Liquorice-like sweetness. Some Ethiopian and Yemeni coffees.',['v:yemenia']],
    ['Nutmeg','Warm and woody spice. Medium roasts.',[]],
    ['Cinnamon','Sweet, warm spice. Central Americans and some co-fermented coffees.',['p:coferment']],
-   ['Clove','Warm, numbing spice. Some Indonesian and Indian coffees.',['p:monsooned']]]}]},
+   ['Clove','Warm, numbing spice. Some Indonesian and Indian coffees.',['p:monsooned']],
+   ['Cardamom','Fragrant, cool and resinous. The spice in Arabic coffee, and a note in some Yemeni lots.',['v:yemenia']]]}]},
  {n:'Nutty/Cocoa',c:'#7B5842',d:'Nuts and chocolate. The comforting base of medium roasts and many Brazilian and Central American coffees.',k:[
   {n:'Nutty',d:'Roasted nuts. Brazilian and pulped natural coffees, and medium roasts.',k:[
    ['Peanuts','Roasted peanut. Brazilian coffees and darker roasts.',['p:pulpednatural']],
    ['Hazelnut','Sweet, toasty nut. Central Americans and medium roasts.',[]],
-   ['Almond','Delicate, sweet nut, like marzipan. Lighter roasts and washed coffees.',['p:washed']]]},
+   ['Almond','Delicate, sweet nut, like marzipan. Lighter roasts and washed coffees.',['p:washed']],
+   ['Walnut','Woody, slightly bitter nut. Medium-dark roasts.',[]],
+   ['Pecan','Sweet, buttery nut. Central Americans and medium roasts.',[]],
+   ['Macadamia','Creamy, rich nut. Some Brazilian and Hawaiian coffees.',['v:kona']]]},
   {n:'Cocoa',d:'Chocolate, from milk to dark. Builds with the roast and with body.',k:[
-   ['Chocolate','Milk chocolate sweetness. Brazilians, Colombians and medium roasts.',['k:Body']],
-   ['Dark chocolate','Bittersweet cocoa. Fuller coffees and darker roasts.',['k:Light, medium and dark roast']]]}]},
+   ['Milk chocolate','Creamy, sweet chocolate. Brazilians, Colombians and medium roasts.',['k:Body']],
+   ['Chocolate','Classic chocolate: sweet with a little bitterness. Medium roasts.',['k:Body']],
+   ['Dark chocolate','Bittersweet cocoa. Fuller coffees and darker roasts.',['k:Light, medium and dark roast']],
+   ['Cocoa nib','Bitter, roasty raw cocoa. Darker roasts and fuller coffees.',[]]]}]},
  {n:'Sweet',c:'#D07B3D',d:'Sugar, caramel and vanilla. The sweetness of ripe fruit and good roasting.',k:[
   {n:'Brown sugar',d:'Cooked sugars, made as the roast caramelises.',k:[
    ['Molasses','Dark, slightly bitter sugar. Fuller and darker coffees.',['k:Caramelisation']],
    ['Maple syrup','Woody, rich syrup. Honey and pulped natural coffees.',['p:honey']],
    ['Caramelized','Caramel and toffee. Medium roasts.',['k:Caramelisation']],
-   ['Honey','Floral, rounded sweetness. Honey-process and many washed coffees.',['p:honey']]]},
-  ['Vanilla','Creamy vanilla. Some Ethiopian and Central American coffees.',[]],
-  ['Vanillin','Sweet, synthetic-leaning vanilla. Often in co-fermented or infused coffees.',['p:infused']],
-  ['Overall sweet','General sweetness without a specific note. A sign of ripe fruit and good extraction.',['k:Sweetness']],
-  ['Sweet aromatics','Sweet-smelling, like candy or cake. Aroma more than taste.',['k:Fragrance and aroma']]]},
+   ['Honey','Floral, rounded sweetness. Honey-process and many washed coffees.',['p:honey']],
+   ['Toffee','Buttery cooked sugar. Medium roasts.',['k:Caramelisation']],
+   ['Panela','Raw cane sugar, a little earthy. Colombian and Central American coffees.',[]]]},
+  {n:'Creamy',d:'Creamy, round sweetness.',k:[
+   ['Vanilla','Creamy vanilla. Some Ethiopian and Central American coffees.',[]],
+   ['Vanillin','Sweet, synthetic-leaning vanilla. Often in co-fermented or infused coffees.',['p:infused']],
+   ['Custard','Eggy, creamy vanilla sweetness. Rich naturals and honeys.',['p:honey']]]},
+  {n:'Candy',d:'Sugary, sweet-shop sweetness, from general to very specific.',k:[
+   ['Overall sweet','General sweetness without a specific note. A sign of ripe fruit and good extraction.',['k:Sweetness']],
+   ['Sweet aromatics','Sweet-smelling, like candy or cake. Aroma more than taste.',['k:Fragrance and aroma']],
+   ['Cotton candy','Light, airy spun sugar. Some washed and honey coffees.',['p:honey']],
+   ['Bubblegum','Fruity, pink candy. Anaerobic and carbonic-maceration coffees.',['p:carbonic']]]}]},
  {n:'Floral',c:'#B4688F',d:'Flowers and tea. Delicate notes that need light roasting and careful brewing.',k:[
-  ['Black tea','Tea-like body and gentle tannin. Washed Ethiopians and Kenyans.',['p:washed']],
+  {n:'Tea-like',d:'Tea flavours and a light, tea-like body. Washed Ethiopians, Kenyans and Geisha.',k:[
+   ['Black tea','Tea-like body and gentle tannin. Washed Ethiopians and Kenyans.',['p:washed']],
+   ['Earl Grey','Black tea with bergamot: floral citrus. Washed Ethiopians and some Geisha.',['v:geisha']],
+   ['Green tea','Fresh, grassy and gently astringent. Light, washed coffees.',['p:washed']],
+   ['Oolong','Toasty-floral tea with a honeyed finish. Some Geisha and washed Panamas.',['v:geisha']]]},
   {n:'Floral',d:'Fragrant flowers. Geisha and washed Ethiopians are the classic examples.',k:[
    ['Chamomile','Gentle, herbal and honeyed. Some Ethiopian and Colombian coffees.',[]],
    ['Rose','Rose petal and rose water. Some Ethiopians and anaerobic lots.',['p:anaerobic']],
-   ['Jasmine','Perfumed white flowers. The hallmark of Geisha and washed Ethiopians.',['v:geisha','p:washed']]]}]}
+   ['Jasmine','Perfumed white flowers. The hallmark of Geisha and washed Ethiopians.',['v:geisha','p:washed']],
+   ['Orange blossom','Sweet, perfumed citrus flower. Washed Ethiopians and Geisha.',['v:geisha']],
+   ['Elderflower','Delicate, sweet and floral. Light washed coffees.',['p:washed']],
+   ['Lavender','Herbal and floral. Rare; some Ethiopian and anaerobic coffees.',[]],
+   ['Hibiscus','Tart, floral and red, like hibiscus tea. Kenyan and some natural coffees.',['p:natural']]]}]}
 ];
 
 const EVENTS_DEFAULT={
@@ -2508,11 +2614,14 @@ const FW=(()=>{const all=[],byId={},slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/
   const roots=FWHEEL.map((c,i)=>walk(c,null,i));
   const lum=c=>{const [r,g,b]=hex(c).map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*r+.7152*g+.0722*b};
   all.forEach(n=>{n.ink=lum(n.c)>.42?'#2A1D14':'#FFFDF9';n.path=[];for(let p=n;p;p=p.parent)n.path.unshift(p)});
-  return {all,byId,roots,leaves:all.filter(n=>n.leaf),tint}})();
-const TAU=Math.PI*2,FW_HOLE=0.2;
+  const cnt=n=>n.leaf?1:n.kids.reduce((t,k)=>t+cnt(k),0);
+  return {all,byId,roots,leaves:all.filter(n=>n.leaf),tint,count:cnt}})();
+const TAU=Math.PI*2,FW_HOLE=0.2,FW_CREDIT='Built on the Coffee Taster\u2019s Flavor Wheel by the SCA and World Coffee Research, with more speciality notes.';
 // Ring radii for a zoom depth z (0 at the top, 1 inside a family, 2 inside a group): the opened part folds into the
-// middle and what is inside it shares the rest of the wheel.
-function fwRing(n,z,R){const L=3-z,k=n.depth-z,f=x=>R*(FW_HOLE+(1-FW_HOLE)*Math.max(0,Math.min(L,x))/L);return[f(k),n.leaf?(k+1>0?R:f(k+1)):f(k+1)]}
+// middle and what is inside it shares the rest of the wheel. lw is how much room the notes ring gets (0 to 1): on a
+// phone, the top level shows families and groups only, each with room for its name, and the notes grow in as you open one.
+function fwRing(n,z,R,lw){const W=[1,1,1.25*(lw==null?1:lw)],C=x=>W.reduce((t,w,l)=>t+w*Math.max(0,Math.min(1,x-l)),0),c0=C(z),span=C(3)-c0;
+  const r=x=>R*(FW_HOLE+(1-FW_HOLE)*(x<=z||span<=0?0:Math.min(1,(C(x)-c0)/span)));return[r(n.depth),n.leaf?r(3):r(n.depth+1)]}
 // Where a slice sits for a zoom (the view is the part of the circle, 0 to 1, that fills the wheel).
 function fwSector(s0,s1,ri,ro){const p=(a,r)=>(r*Math.sin(a)).toFixed(2)+','+(-r*Math.cos(a)).toFixed(2);if(s1-s0<1e-4)return'';
   if(s1-s0>=TAU-1e-6)return'M0,'+(-ro)+'A'+ro+','+ro+' 0 1 1 0,'+ro+'A'+ro+','+ro+' 0 1 1 0,'+(-ro)+'ZM0,'+(-ri)+'A'+ri+','+ri+' 0 1 0 0,'+ri+'A'+ri+','+ri+' 0 1 0 0,'+(-ri)+'Z';
@@ -2534,8 +2643,9 @@ function fwAngles(sel){const w=n=>n.leaf?(sel.has(n.id)?4+3*sel.get(n.id):1):n.k
 // mode 'explore' and 'pick' colour everything; 'profile' fades notes you did not taste and fills the ones you did by intensity.
 function fwLayout(view,R,o){const out=[],w=view.a1-view.a0,ang=x=>Math.max(0,Math.min(1,(x-view.a0)/w))*TAU,sel=o.sel||new Map(),has=sel.size>0;
   const hot=new Set();sel.forEach((v,id)=>{const n=FW.byId[id];if(n)n.path.forEach(p=>hot.add(p.id))});const A=o.mode==='profile'&&has?fwAngles(sel):null;
+  const lw=o.narrow&&o.mode!=='profile'?Math.max(0,Math.min(1,view.z||0)):1;
   for(const n of FW.all){const s0=ang(A?A[n.id][0]:n.a0),s1=ang(A?A[n.id][1]:n.a1);if(s1-s0<1e-4)continue;
-    const [ri,ro]=fwRing(n,view.z||0,R);if(ro-ri<.5)continue;let op=1,fill=null;
+    const [ri,ro]=fwRing(n,view.z||0,R,lw);if(ro-ri<.5)continue;let op=1,fill=null;
     if(o.mode==='profile'){op=hot.has(n.id)?(n.leaf?.2:1):.13;if(n.leaf&&sel.has(n.id))fill=fwSector(s0,s1,ri,ri+(ro-ri)*Math.min(3,sel.get(n.id))/3)}
     else if(o.mode==='pick'&&has)op=sel.has(n.id)?1:hot.has(n.id)?.92:.42;
     const base=R*(n.depth===0?.075:n.depth===1?.064:.058)*(1+.35*(view.z||0));
@@ -2554,7 +2664,7 @@ function makeWheel(box,o){const R=300,NS='http://www.w3.org/2000/svg',api={view:
     '<g class="fw-mid" role="button" tabindex="0" aria-label="Step back out"><circle r="'+(R*FW_HOLE-3)+'"></circle><text class="fw-mt" y="-4"></text><text class="fw-ms" y="16"></text></g></svg>';
   const svg=box.firstChild,gS=svg.children[0],gF=svg.children[1],gL=svg.children[2],mid=svg.children[3],els={};
   const minFs=()=>{const w=svg.getBoundingClientRect().width||600;return Math.min(13,7.6*612/w)};
-  function draw(){const items=fwLayout(api.view,R,{mode:o.mode,sel:api.sel,labels:o.labels,minFs:minFs()});const seen=new Set();
+  function draw(){const w=svg.getBoundingClientRect().width||600,items=fwLayout(api.view,R,{mode:o.mode,sel:api.sel,labels:o.labels,minFs:minFs(),narrow:w<560});const seen=new Set();
     for(const it of items){const id=it.n.id;seen.add(id);let e=els[id];
       if(!e){e=els[id]={p:document.createElementNS(NS,'path'),t:document.createElementNS(NS,'text'),f:document.createElementNS(NS,'path')};
         e.p.dataset.id=id;e.p.setAttribute('fill',it.n.c);if(o.mode!=='profile'){e.p.setAttribute('tabindex','0');e.p.setAttribute('role','button')}e.p.setAttribute('aria-label',it.n.path.map(x=>x.n).join(', '));
@@ -2567,7 +2677,7 @@ function makeWheel(box,o){const R=300,NS='http://www.w3.org/2000/svg',api={view:
     const f=api.focus&&FW.byId[api.focus];mid.querySelector('circle').setAttribute('fill',f?f.c:'var(--surface2)');
     const mt=mid.querySelector('.fw-mt'),ms=mid.querySelector('.fw-ms');mt.setAttribute('fill',f?f.ink:'var(--ink)');ms.setAttribute('fill',f?f.ink:'var(--muted)');
     const title=f?f.n:(o.center||'Flavour wheel'),k=title.indexOf('/'),lines=k>0?[title.slice(0,k+1),title.slice(k+1)]:[title];if(mt.dataset.t!==title){mt.dataset.t=title;mt.textContent='';lines.forEach((ln,j)=>{const ts=document.createElementNS(NS,'tspan');ts.setAttribute('x',0);ts.setAttribute('dy',j?'1.1em':((1-lines.length)*.55)+'em');ts.textContent=ln;mt.appendChild(ts)})}mt.setAttribute('font-size',Math.min(17,100/Math.max(6,...lines.map(l=>l.length))*1.7).toFixed(1));ms.setAttribute('y',lines.length>1?24:16);
-    ms.textContent=f?'← back':(o.hint||'tap a colour');mid.classList.toggle('back',!!f)}
+    ms.textContent=f?FW.count(f)+' notes · back':(o.hint||FW.leaves.length+' notes');mid.classList.toggle('back',!!f)}
   api.zoom=(id,instant)=>{const n=id&&FW.byId[id];api.focus=n&&!n.leaf?id:null;const rg=api.focus?(o.mode==='profile'&&api.sel.size?fwAngles(api.sel)[id]:[n.a0,n.a1]):null,t=rg?{a0:rg[0],a1:rg[1],z:n.depth+1}:{a0:0,a1:1,z:0},f={...api.view};
     cancelAnimationFrame(raf);if(instant||RM()){api.view=t;draw();return}const t0=performance.now(),D=520;
     const step=now=>{const k=FW_EASE(Math.min(1,(now-t0)/D));api.view={a0:f.a0+(t.a0-f.a0)*k,a1:f.a1+(t.a1-f.a1)*k,z:f.z+(t.z-f.z)*k};draw();if(k<1)raf=requestAnimationFrame(step)};raf=requestAnimationFrame(step)};
@@ -2607,10 +2717,12 @@ function fwCanvas(o){const W=1600,H=2600,c=document.createElement('canvas');c.wi
     for(const [id,v] of o.notes){const n=FW.byId[id];if(!n)continue;const label=n.n+' '+'●'.repeat(v)+'○'.repeat(3-v),w=x.measureText(label).width+76;
       if(px+w>W-96){px=96;y+=66;if(y>H-260)break}
       x.fillStyle=FW.tint(n.c,'#FFFFFF',.78);x.beginPath();x.roundRect(px,y-26,w,52,26);x.fill();x.fillStyle=n.c;x.beginPath();x.arc(px+28,y,11,0,TAU);x.fill();
-      x.fillStyle=INK;x.fillText(label,px+50,y+1);px+=w+14}y+=40}
+      x.fillStyle=INK;x.fillText(label,px+50,y+1);px+=w+14}y+=70;
+    const f=flFamilies(o.notes);let bx=96;const bw=W-192;f.forEach(([c,p])=>{x.fillStyle=c.c;x.fillRect(bx,y,bw*p,22);bx+=bw*p});y+=56;x.font='500 26px '+font;let kx=96;
+    f.slice(0,5).forEach(([c,p])=>{const t=c.n+' '+Math.round(p*100)+'%';x.fillStyle=c.c;x.beginPath();x.arc(kx+9,y,9,0,TAU);x.fill();x.fillStyle=MUTED;x.fillText(t,kx+26,y+1);kx+=x.measureText(t).width+60});y+=20}
   // Footer, then trim the page to what was drawn.
   const end=y+80;x.fillStyle=MUTED;x.font='400 24px '+font;x.textAlign='center';
-  x.fillText('Tasting words from the Coffee Taster’s Flavor Wheel by the SCA and World Coffee Research.',W/2,end);
+  x.fillText(FW_CREDIT,W/2,end);
   x.fillText('Designed in The Brew Bench · '+SITE_URL.replace(/^https?:\/\//,'').replace(/\/$/,''),W/2,end+38);
   const out=document.createElement('canvas');out.width=W;out.height=end+96;out.getContext('2d').drawImage(c,0,0);
   return new Promise(res=>out.toBlob(res,'image/png'))}
@@ -2626,27 +2738,34 @@ function fwInfo(n){const el=$('fw-info');if(!n){el.innerHTML='<h3 style="margin-
   const crumbs=n.path.map((p,i)=>'<button type="button" class="chip fw-crumb" data-fz="'+p.id+'"><i style="background:'+p.c+'"></i>'+esc(p.n)+'</button>'+(i<n.path.length-1?'<span class="fw-sep">›</span>':'')).join('');
   const kids=n.kids.length?'<p class="fw-sub">Inside '+esc(n.n)+'</p><div class="chips">'+n.kids.map(k=>'<button type="button" class="chip" data-fz="'+k.id+'"><i class="dot" style="background:'+k.c+'"></i>'+esc(k.n)+'</button>').join('')+'</div>':'';
   const links=(n.l||[]).map(l=>linkChip(l)).filter(Boolean).join('');
-  el.innerHTML='<div class="fw-crumbs">'+crumbs+'</div><h3 class="fw-name"><i style="background:'+n.c+'"></i>'+esc(n.n)+'</h3><p>'+esc(n.d)+'</p>'+kids+(links?'<p class="fw-sub">Read more</p><div class="chips">'+links+'</div>':'')}
+  // Your own brews with this note (or anything inside this group), newest first.
+  const ids=new Set(n.leaf?[n.id]:FW.all.filter(x=>x.leaf&&x.path.includes(n)).map(x=>x.id)),mine=LOG.filter(l=>flOf(l).some(([id])=>ids.has(id)));
+  const yours=n.leaf?'<p class="fw-sub">In your brews</p>'+(mine.length?'<p style="margin:0 0 6px">'+mine.length+(mine.length===1?' brew: ':' brews: ')+mine.slice(0,3).map(l=>'<b>'+esc(l.coffee||'Untitled')+'</b>').join(', ')+(mine.length>3?' and more':'')+'</p>':'<p class="hint" style="margin:0 0 6px">Not in your log yet.</p>')+
+    '<button type="button" class="btn ghost fw-add" data-fadd="'+n.id+'">'+(LFL.some(([id])=>id===n.id)?'\u2713 In your next brew':'+ Add to my next brew')+'</button>':(mine.length?'<p class="hint" style="margin:.6rem 0 0">In '+mine.length+(mine.length===1?' of your brews.':' of your brews.')+'</p>':'');
+  el.innerHTML='<div class="fw-crumbs">'+crumbs+'</div><h3 class="fw-name"><i style="background:'+n.c+'"></i>'+esc(n.n)+(n.leaf?'':'<small>'+FW.count(n)+' notes</small>')+'</h3><p>'+esc(n.d)+'</p>'+kids+(links?'<p class="fw-sub">Read more</p><div class="chips">'+links+'</div>':'')+yours}
 // Open a note or group from a chip, the search or a link: zoom to where it lives and show it.
 function fwGo(id){const n=FW.byId[id];if(!n||!FWX)return;FWX.zoom(n.leaf?(n.parent&&n.parent.id):id);FWX.selected=id;FWX.redraw();fwInfo(n);
   if(matchMedia('(max-width:759px)').matches)$('fw-box').scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'})}
 function renderWheelTab(){
   FWX=makeWheel($('fw-box'),{mode:'explore',onSelect:n=>fwInfo(n)});fwInfo(null);
-  $('fw-cats').innerHTML=FW.roots.map(c=>'<button type="button" class="chip" data-fz="'+c.id+'"><i class="dot" style="background:'+c.c+'"></i>'+esc(c.n)+'</button>').join('');
+  $('fw-cats').innerHTML=FW.roots.map(c=>'<button type="button" class="chip" data-fz="'+c.id+'"><i class="dot" style="background:'+c.c+'"></i>'+esc(c.n)+'<small>'+FW.count(c)+'</small></button>').join('');
   const res=$('fw-res'),find=()=>{const q=fold($('fw-q').value.trim());if(!q){res.innerHTML='';return}
     const hits=FW.all.filter(n=>fold(n.n).includes(q)).sort((a,b)=>(fold(a.n).startsWith(q)?0:1)-(fold(b.n).startsWith(q)?0:1)||b.depth-a.depth).slice(0,8);
     res.innerHTML=hits.length?hits.map(n=>'<button type="button" class="chip" data-fz="'+n.id+'"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+(n.parent?' <small>'+esc(n.parent.n)+'</small>':'')+'</button>').join(''):'<p class="hint" style="margin:0">No note by that name. Try a shorter word.</p>'};
   $('fw-q').oninput=()=>soon(find);$('fw-q').onkeydown=e=>{if(e.key==='Enter'){const b=res.querySelector('[data-fz]');if(b){b.click();$('fw-q').blur()}}};
-  $('wheel').addEventListener('click',e=>{if(goLink(e))return;const z=e.target.closest('[data-fz]');if(z)fwGo(z.dataset.fz)});
-  $('fw-dl').onclick=()=>fwExport({title:'Coffee flavour wheel',sub:FW.leaves.length+' tasting notes, from the middle out'},'brew-bench-flavour-wheel');
+  $('wheel').addEventListener('click',e=>{if(goLink(e))return;const a=e.target.closest('[data-fadd]');
+    if(a){const id=a.dataset.fadd;if(!LFL.some(([x])=>x===id)){LFL.push([id,2]);renderFlForm()}a.textContent='\u2713 In your next brew';toast(FW.byId[id].n+' added to your next brew');return}
+    const z=e.target.closest('[data-fz]');if(z)fwGo(z.dataset.fz)});
+  $('fw-dl').onclick=()=>fwExport({title:'Coffee flavour wheel',sub:FW.leaves.length+' tasting notes in '+FW.roots.length+' families, from the middle out'},'brew-bench-flavour-wheel');
   $('fw-log').onclick=()=>{showTab('log');openNotesPicker()}}
 function wheelDoc(){return{link:SITE_URL+'#wheel',title:'Coffee flavour wheel',sub:FW.leaves.length+' tasting notes',file:'flavour-wheel',
-  blocks:FW.roots.map(c=>({h:c.n,p:c.d,list:c.kids.map(k=>k.n+(k.kids.length?': '+k.kids.map(x=>x.n).join(', '):''))})).concat([{p:'Tasting words from the Coffee Taster’s Flavor Wheel by the SCA and World Coffee Research.'}])}}
+  blocks:FW.roots.map(c=>({h:c.n,p:c.d,list:c.kids.map(k=>k.n+(k.kids.length?': '+k.kids.map(x=>x.n).join(', '):''))})).concat([{p:FW_CREDIT}])}}
 
 /* Tasting notes on brews. A brew keeps fl: [[note id, 1 light | 2 medium | 3 strong], ...]. */
 const FL_LV=['','Light','Medium','Strong'];
 // Notes can arrive from friends' phones, so keep only real notes with a sensible strength.
-function flOf(l){return Array.isArray(l&&l.fl)?l.fl.filter(x=>Array.isArray(x)&&FW.byId[x[0]]&&FW.byId[x[0]].leaf).map(([id,v])=>[id,Math.max(1,Math.min(3,Math.round(+v)||2))]).slice(0,40):[]}
+function flOf(l){if(!Array.isArray(l&&l.fl))return[];const seen=new Set();
+  return l.fl.filter(x=>Array.isArray(x)).map(([id,v])=>[FW_ALIAS[id]||id,v]).filter(([id])=>FW.byId[id]&&FW.byId[id].leaf&&!seen.has(id)&&seen.add(id)).map(([id,v])=>[id,Math.max(1,Math.min(3,Math.round(+v)||2))]).slice(0,40)}
 const flMap=fl=>new Map(fl);
 const flChips=fl=>fl.map(([id,v])=>{const n=FW.byId[id];return'<span class="flchip" title="'+FL_LV[v]+'"><i style="background:'+n.c+'"></i><b>'+esc(n.n)+'</b><span class="lv" aria-label="'+FL_LV[v]+'">'+'●'.repeat(v)+'○'.repeat(3-v)+'</span></span>'}).join('');
 const flText=fl=>fl.map(([id,v])=>FW.byId[id].n+(v!==2?' ('+FL_LV[v].toLowerCase()+')':'')).join(', ');
@@ -2677,12 +2796,17 @@ function openNotesPicker(entry){const d=$('vd'),sel=flMap(entry?flOf(entry):LFL.
 function openProfile(title,sub,fl,entry){const d=$('vd');
   $('vd-in').innerHTML='<div class="vd-head" style="--c:#C4473F"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:#C4473F"></i>Flavour profile</span>'+
     '<h2 id="vd-title">'+esc(title)+'</h2>'+(sub?'<p class="hint" style="margin:0">'+esc(sub)+'</p>':'')+'</div><div class="vd-body"><div class="fw-box" id="fp-box" style="max-width:460px"></div>'+
-    '<div class="chips" style="margin-top:12px">'+flChips(fl)+'</div><div class="actions"><button type="button" class="btn" id="fp-dl">Download image</button>'+(entry?'<button type="button" class="btn ghost" id="fp-edit">Edit notes</button>':'')+'</div></div>';
+    flBar(fl)+'<div class="chips" style="margin-top:12px">'+flChips(fl)+'</div><div class="actions"><button type="button" class="btn" id="fp-dl">Download image</button>'+(entry?'<button type="button" class="btn ghost" id="fp-edit">Edit notes</button>':'')+'</div></div>';
   makeWheel($('fp-box'),{mode:'profile',sel:flMap(fl),center:'Profile',hint:'tap a family',label:'Flavour profile of '+title});
   $('vd-x').onclick=()=>d.close();
   $('fp-dl').onclick=()=>fwExport({title,sub,mode:'profile',sel:flMap(fl),notes:fl,center:'Flavour',centerSub:'profile'},fname(title)+'-flavour-profile');
   if(entry)$('fp-edit').onclick=()=>{d.close();setTimeout(()=>openNotesPicker(entry),320)};
   showDlg(d);d.scrollTop=0}
+// How a set of notes splits across the families, by strength: [[family, share 0-1], ...], largest first.
+function flFamilies(fl){const t=new Map();let all=0;for(const [id,v] of fl){const c=FW.byId[id].cat;t.set(c,(t.get(c)||0)+v);all+=v}return[...t].sort((a,b)=>b[1]-a[1]).map(([c,v])=>[c,v/all])}
+function flBar(fl){const f=flFamilies(fl);if(!f.length)return'';
+  return'<div class="fwbar" role="img" aria-label="'+esc(f.map(([c,p])=>Math.round(p*100)+'% '+c.n.toLowerCase()).join(', '))+'">'+f.map(([c,p])=>'<span style="flex:'+p+';background:'+c.c+'" title="'+esc(c.n)+' '+Math.round(p*100)+'%"></span>').join('')+'</div>'+
+    '<div class="fwbar-key">'+f.slice(0,4).map(([c,p])=>'<span><i style="background:'+c.c+'"></i>'+esc(c.n)+' '+Math.round(p*100)+'%</span>').join('')+'</div>'}
 // Your palate: every note across your brews, the strength adding up.
 function palate(){const sc=new Map();let n=0;for(const l of LOG){const fl=flOf(l);if(!fl.length)continue;n++;fl.forEach(([id,v])=>sc.set(id,(sc.get(id)||0)+v))}
   if(!n)return null;const max=Math.max(...sc.values()),fl=[...sc].sort((a,b)=>b[1]-a[1]).map(([id,v])=>[id,Math.max(1,Math.ceil(3*v/max))]);
@@ -3926,7 +4050,7 @@ function flEntry(l,i){const fl=flOf(l);if(!fl.length)return'<button type="button
   return'<div class="fl-entry"><button type="button" class="fl-mini" data-flview="'+i+'" aria-label="Open the flavour profile">'+fwStatic(fl)+'</button><div><div class="chips" style="margin:0 0 4px">'+flChips(fl)+'</div><button type="button" class="linkbtn" data-fledit="'+i+'">Edit notes</button></div></div>'}
 function renderFlForm(){$('l-flchips').innerHTML=flChips(LFL);$('l-fl').querySelector('span').textContent=LFL.length?'Edit flavour notes':'Add flavour notes'}
 function renderPalate(){const el=$('l-palate'),P=palate();el.hidden=!P;if(!P)return;
-  el.innerHTML='<button type="button" class="fl-mini" id="pal-open" aria-label="Open your palate">'+fwStatic(P.fl)+'</button><div><h3>Your palate</h3><p class="hint" style="margin:0 0 6px">From '+P.n+(P.n===1?' brew':' brews')+' with flavour notes. You notice '+P.top.join(' and ')+' the most.</p><div class="chips" style="margin:0">'+flChips(P.fl.slice(0,6))+'</div></div>';
+  el.innerHTML='<button type="button" class="fl-mini" id="pal-open" aria-label="Open your palate">'+fwStatic(P.fl)+'</button><div><h3>Your palate</h3><p class="hint" style="margin:0 0 6px">From '+P.n+(P.n===1?' brew':' brews')+' with flavour notes. You notice '+P.top.join(' and ')+' the most.</p>'+flBar(P.fl)+'<div class="chips" style="margin:0">'+flChips(P.fl.slice(0,6))+'</div></div>';
   $('pal-open').onclick=()=>openProfile('Your palate','From '+P.n+(P.n===1?' brew':' brews'),P.fl)}
 $('l-fl').onclick=()=>openNotesPicker();
 $('tolog').onclick=()=>{const r=compute(S);
@@ -4534,6 +4658,47 @@ if(window.claude&&window.claude.use){
     $('scan-go').disabled=!SFILE}).catch(()=>{});
   window.claude.use('downloads').then(d=>{DL=d;renderLog()}).catch(()=>{});
 }else{$('scan-status').hidden=true;$('scan-lede').textContent='Take a photo of the bag or the roaster’s card. The text is read on your phone, matched to the guide and turned into a brew plan for your gear.'}
+
+/* ================= DROPDOWNS ================= */
+// Every <select> keeps doing its job (value, change events, labels), but its list opens in the app's own design: a sheet
+// that slides up on phones and a card under the field on larger screens, with groups, a tick on the current choice and
+// search for long lists. Each select sits in a wrapper that takes the tap, so the phone's own picker never appears.
+const SEL_SEARCH_AT=12;
+function selLabel(s){const l=s.id&&document.querySelector('label[for="'+s.id+'"]');
+  return(l?l.textContent:s.getAttribute('aria-label')||'Choose').replace(/\s+/g,' ').trim()}
+function enhanceSelect(s){if(s.dataset.ui||s.multiple||s.size>1||s.closest('#selsheet'))return;s.dataset.ui=1;
+  const w=document.createElement('span');w.className='selw';s.parentNode.insertBefore(w,s);w.appendChild(s);
+  s.tabIndex=0;
+  w.addEventListener('click',e=>{if(s.disabled)return;e.preventDefault();openSelect(s)});
+  s.addEventListener('keydown',e=>{if(['Enter',' ','ArrowDown','ArrowUp'].includes(e.key)||(e.altKey&&e.key==='ArrowDown')){e.preventDefault();openSelect(s)}});
+  // Some browsers still open their list on mouse down; stop it here.
+  s.addEventListener('mousedown',e=>{e.preventDefault();s.focus()})}
+function openSelect(s){const d=$('selsheet'),opts=[...s.options],long=opts.length>=SEL_SEARCH_AT,cur=s.value;
+  const row=o=>'<button type="button" role="option" class="selopt" data-v="'+esc(o.value)+'" aria-selected="'+(o.value===cur&&o.selected)+'"'+(o.disabled?' disabled':'')+'><span>'+esc(o.textContent)+'</span><i aria-hidden="true">✓</i></button>';
+  let body='';for(const k of s.children){if(k.tagName==='OPTGROUP'){const kids=[...k.children].filter(o=>o.tagName==='OPTION');if(kids.length)body+='<div class="selgrp" role="group" aria-label="'+esc(k.label)+'"><h4>'+esc(k.label)+'</h4>'+kids.map(row).join('')+'</div>'}else if(k.tagName==='OPTION')body+=row(k)}
+  $('sel-in').innerHTML='<div class="selhead"><div class="grab"></div><h3 id="sel-title">'+esc(selLabel(s))+'</h3><button type="button" class="vd-close" id="sel-x" aria-label="Close">✕</button></div>'+
+    (long?'<input type="search" id="sel-q" placeholder="Search" aria-label="Search the list" autocomplete="off">':'')+'<div class="sellist" role="listbox" aria-labelledby="sel-title">'+body+'</div><p class="hint selnone" hidden>Nothing matches.</p>';
+  const narrow=matchMedia('(max-width:759px)').matches;d.classList.toggle('pop',!narrow);
+  if(!narrow){const r=s.getBoundingClientRect(),W=Math.max(r.width,260),below=innerHeight-r.bottom,up=below<320&&r.top>below;
+    Object.assign(d.style,{left:Math.min(Math.max(8,r.left),innerWidth-W-8)+'px',width:W+'px',top:up?'auto':(r.bottom+6)+'px',bottom:up?(innerHeight-r.top+6)+'px':'auto',maxHeight:Math.max(220,(up?r.top:below)-24)+'px'})}
+  else Object.assign(d.style,{left:'',width:'',top:'',bottom:'',maxHeight:''});
+  const pick=v=>{if(s.value!==v){s.value=v;s.dispatchEvent(new Event('input',{bubbles:true}));s.dispatchEvent(new Event('change',{bubbles:true}))}d.close();setTimeout(()=>s.focus({preventScroll:true}),0)};
+  d.querySelector('.sellist').onclick=e=>{const b=e.target.closest('.selopt');if(b&&!b.disabled)pick(b.dataset.v)};
+  $('sel-x').onclick=()=>d.close();
+  const q=$('sel-q');if(q)q.oninput=()=>{const t=fold(q.value.trim());let n=0;d.querySelectorAll('.selopt').forEach(b=>{const hit=!t||fold(b.textContent).includes(t);b.hidden=!hit;if(hit)n++});
+    d.querySelectorAll('.selgrp').forEach(g=>g.hidden=![...g.querySelectorAll('.selopt')].some(b=>!b.hidden));d.querySelector('.selnone').hidden=n>0};
+  // Arrow keys move through the choices; typing jumps to the search.
+  d.onkeydown=e=>{const all=[...d.querySelectorAll('.selopt:not([hidden]):not([disabled])')],i=all.indexOf(document.activeElement);
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();const n=all[Math.max(0,Math.min(all.length-1,i<0?0:i+(e.key==='ArrowDown'?1:-1)))];if(n)n.focus()}
+    else if(e.key==='Enter'&&document.activeElement===q){const f=all[0];if(f){e.preventDefault();pick(f.dataset.v)}}
+    else if(q&&e.key.length===1&&document.activeElement!==q&&!e.ctrlKey&&!e.metaKey){q.focus()}};
+  showDlg(d);const on=d.querySelector('.selopt[aria-selected="true"]')||d.querySelector('.selopt');
+  if(on)on.scrollIntoView({block:'center'});
+  // Keyboard users land on the current choice; on a phone nothing gets a focus ring until you use it.
+  if(on&&!narrow)on.focus({preventScroll:true});else{const c=$('sel-in');c.tabIndex=-1;c.focus({preventScroll:true})}}
+// Selects already on the page, and any drawn later.
+document.querySelectorAll('select').forEach(enhanceSelect);
+new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.nodeType===1){if(n.tagName==='SELECT')enhanceSelect(n);else n.querySelectorAll&&n.querySelectorAll('select').forEach(enhanceSelect)}}).observe(document.body,{childList:true,subtree:true});
 
 </script>
 </body>
