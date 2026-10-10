@@ -659,6 +659,14 @@ dialog{overscroll-behavior:contain;overflow:auto}
 .fw-name{display:flex;align-items:center;gap:10px;margin:.3rem 0}.fw-name i{width:16px;height:16px;border-radius:5px;flex:none}
 .fw-sub{font-family:var(--display);font-weight:600;font-size:.85rem;color:var(--muted);margin:.8rem 0 .3rem}
 .fw-how{padding-left:1.2rem;margin:.2rem 0 .6rem}.fw-how li{margin:.35rem 0}
+.fw-name small{font:500 .8rem var(--body);color:var(--muted);margin-left:auto}
+.fw-add{margin-top:4px}
+.fw-cats .chip small{margin-left:6px;color:var(--muted)}
+.fwbar{display:flex;height:10px;border-radius:99px;overflow:hidden;gap:2px;margin:10px 0 6px}.fwbar span{min-width:3px}
+.fwbar-key{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:.8rem;color:var(--muted);margin-bottom:6px}.fwbar-key i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
+@media (hover:hover){.fwheel path[role=button]:hover{filter:brightness(1.08) saturate(1.06)}}
+@media (prefers-reduced-motion:no-preference){.fw-box .fwheel{animation:fw-in .7s var(--ease-out) both}}
+@keyframes fw-in{from{opacity:0;transform:scale(.86) rotate(-24deg)}to{opacity:1;transform:none}}
 /* Tasting notes on brews */
 .fl-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
 .fl-add{flex:0 0 auto!important;display:inline-flex;align-items:center;gap:8px}
@@ -1101,7 +1109,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 <!-- FLAVOUR WHEEL -->
 <section id="wheel">
   <h2>Flavour wheel</h2>
-  <p class="lede">Every word tasters use for coffee, from the broad family in the middle to the exact note at the edge. Tap a colour to open it up, and a note to see what it tastes like and where it comes from.</p>
+  <p class="lede">Every word tasters use for coffee, from the broad family in the middle to the exact note at the edge: 121 notes in 9 families. Tap a colour to open it up, and a note to see what it tastes like and where it comes from.</p>
   <div class="fw-layout">
     <div class="fw-main">
       <input type="search" id="fw-q" placeholder="Find a note, e.g. blueberry, caramel" aria-label="Find a flavour note">
@@ -1112,7 +1120,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
     <div class="fw-side">
       <div class="card fw-info" id="fw-info" aria-live="polite"></div>
       <div class="actions"><button type="button" class="btn" id="fw-dl">Download the wheel</button><button type="button" class="btn ghost" id="fw-log">Note what you tasted</button></div>
-      <p class="hint">Tasting words from the Coffee Taster’s Flavor Wheel by the SCA and World Coffee Research, drawn in our own design.</p>
+      <p class="hint">Built on the Coffee Taster’s Flavor Wheel by the SCA and World Coffee Research, drawn in our own design, with more speciality notes so every group has notes of its own.</p>
     </div>
   </div>
 </section>

@@ -13,11 +13,14 @@ const FW=(()=>{const all=[],byId={},slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/
   const roots=FWHEEL.map((c,i)=>walk(c,null,i));
   const lum=c=>{const [r,g,b]=hex(c).map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*r+.7152*g+.0722*b};
   all.forEach(n=>{n.ink=lum(n.c)>.42?'#2A1D14':'#FFFDF9';n.path=[];for(let p=n;p;p=p.parent)n.path.unshift(p)});
-  return {all,byId,roots,leaves:all.filter(n=>n.leaf),tint}})();
-const TAU=Math.PI*2,FW_HOLE=0.2;
+  const cnt=n=>n.leaf?1:n.kids.reduce((t,k)=>t+cnt(k),0);
+  return {all,byId,roots,leaves:all.filter(n=>n.leaf),tint,count:cnt}})();
+const TAU=Math.PI*2,FW_HOLE=0.2,FW_CREDIT='Built on the Coffee Taster\u2019s Flavor Wheel by the SCA and World Coffee Research, with more speciality notes.';
 // Ring radii for a zoom depth z (0 at the top, 1 inside a family, 2 inside a group): the opened part folds into the
-// middle and what is inside it shares the rest of the wheel.
-function fwRing(n,z,R){const L=3-z,k=n.depth-z,f=x=>R*(FW_HOLE+(1-FW_HOLE)*Math.max(0,Math.min(L,x))/L);return[f(k),n.leaf?(k+1>0?R:f(k+1)):f(k+1)]}
+// middle and what is inside it shares the rest of the wheel. lw is how much room the notes ring gets (0 to 1): on a
+// phone, the top level shows families and groups only, each with room for its name, and the notes grow in as you open one.
+function fwRing(n,z,R,lw){const W=[1,1,1.25*(lw==null?1:lw)],C=x=>W.reduce((t,w,l)=>t+w*Math.max(0,Math.min(1,x-l)),0),c0=C(z),span=C(3)-c0;
+  const r=x=>R*(FW_HOLE+(1-FW_HOLE)*(x<=z||span<=0?0:Math.min(1,(C(x)-c0)/span)));return[r(n.depth),n.leaf?r(3):r(n.depth+1)]}
 // Where a slice sits for a zoom (the view is the part of the circle, 0 to 1, that fills the wheel).
 function fwSector(s0,s1,ri,ro){const p=(a,r)=>(r*Math.sin(a)).toFixed(2)+','+(-r*Math.cos(a)).toFixed(2);if(s1-s0<1e-4)return'';
   if(s1-s0>=TAU-1e-6)return'M0,'+(-ro)+'A'+ro+','+ro+' 0 1 1 0,'+ro+'A'+ro+','+ro+' 0 1 1 0,'+(-ro)+'ZM0,'+(-ri)+'A'+ri+','+ri+' 0 1 0 0,'+ri+'A'+ri+','+ri+' 0 1 0 0,'+(-ri)+'Z';
@@ -39,8 +42,9 @@ function fwAngles(sel){const w=n=>n.leaf?(sel.has(n.id)?4+3*sel.get(n.id):1):n.k
 // mode 'explore' and 'pick' colour everything; 'profile' fades notes you did not taste and fills the ones you did by intensity.
 function fwLayout(view,R,o){const out=[],w=view.a1-view.a0,ang=x=>Math.max(0,Math.min(1,(x-view.a0)/w))*TAU,sel=o.sel||new Map(),has=sel.size>0;
   const hot=new Set();sel.forEach((v,id)=>{const n=FW.byId[id];if(n)n.path.forEach(p=>hot.add(p.id))});const A=o.mode==='profile'&&has?fwAngles(sel):null;
+  const lw=o.narrow&&o.mode!=='profile'?Math.max(0,Math.min(1,view.z||0)):1;
   for(const n of FW.all){const s0=ang(A?A[n.id][0]:n.a0),s1=ang(A?A[n.id][1]:n.a1);if(s1-s0<1e-4)continue;
-    const [ri,ro]=fwRing(n,view.z||0,R);if(ro-ri<.5)continue;let op=1,fill=null;
+    const [ri,ro]=fwRing(n,view.z||0,R,lw);if(ro-ri<.5)continue;let op=1,fill=null;
     if(o.mode==='profile'){op=hot.has(n.id)?(n.leaf?.2:1):.13;if(n.leaf&&sel.has(n.id))fill=fwSector(s0,s1,ri,ri+(ro-ri)*Math.min(3,sel.get(n.id))/3)}
     else if(o.mode==='pick'&&has)op=sel.has(n.id)?1:hot.has(n.id)?.92:.42;
     const base=R*(n.depth===0?.075:n.depth===1?.064:.058)*(1+.35*(view.z||0));
@@ -59,7 +63,7 @@ function makeWheel(box,o){const R=300,NS='http://www.w3.org/2000/svg',api={view:
     '<g class="fw-mid" role="button" tabindex="0" aria-label="Step back out"><circle r="'+(R*FW_HOLE-3)+'"></circle><text class="fw-mt" y="-4"></text><text class="fw-ms" y="16"></text></g></svg>';
   const svg=box.firstChild,gS=svg.children[0],gF=svg.children[1],gL=svg.children[2],mid=svg.children[3],els={};
   const minFs=()=>{const w=svg.getBoundingClientRect().width||600;return Math.min(13,7.6*612/w)};
-  function draw(){const items=fwLayout(api.view,R,{mode:o.mode,sel:api.sel,labels:o.labels,minFs:minFs()});const seen=new Set();
+  function draw(){const w=svg.getBoundingClientRect().width||600,items=fwLayout(api.view,R,{mode:o.mode,sel:api.sel,labels:o.labels,minFs:minFs(),narrow:w<560});const seen=new Set();
     for(const it of items){const id=it.n.id;seen.add(id);let e=els[id];
       if(!e){e=els[id]={p:document.createElementNS(NS,'path'),t:document.createElementNS(NS,'text'),f:document.createElementNS(NS,'path')};
         e.p.dataset.id=id;e.p.setAttribute('fill',it.n.c);if(o.mode!=='profile'){e.p.setAttribute('tabindex','0');e.p.setAttribute('role','button')}e.p.setAttribute('aria-label',it.n.path.map(x=>x.n).join(', '));
@@ -72,7 +76,7 @@ function makeWheel(box,o){const R=300,NS='http://www.w3.org/2000/svg',api={view:
     const f=api.focus&&FW.byId[api.focus];mid.querySelector('circle').setAttribute('fill',f?f.c:'var(--surface2)');
     const mt=mid.querySelector('.fw-mt'),ms=mid.querySelector('.fw-ms');mt.setAttribute('fill',f?f.ink:'var(--ink)');ms.setAttribute('fill',f?f.ink:'var(--muted)');
     const title=f?f.n:(o.center||'Flavour wheel'),k=title.indexOf('/'),lines=k>0?[title.slice(0,k+1),title.slice(k+1)]:[title];if(mt.dataset.t!==title){mt.dataset.t=title;mt.textContent='';lines.forEach((ln,j)=>{const ts=document.createElementNS(NS,'tspan');ts.setAttribute('x',0);ts.setAttribute('dy',j?'1.1em':((1-lines.length)*.55)+'em');ts.textContent=ln;mt.appendChild(ts)})}mt.setAttribute('font-size',Math.min(17,100/Math.max(6,...lines.map(l=>l.length))*1.7).toFixed(1));ms.setAttribute('y',lines.length>1?24:16);
-    ms.textContent=f?'← back':(o.hint||'tap a colour');mid.classList.toggle('back',!!f)}
+    ms.textContent=f?FW.count(f)+' notes · back':(o.hint||FW.leaves.length+' notes');mid.classList.toggle('back',!!f)}
   api.zoom=(id,instant)=>{const n=id&&FW.byId[id];api.focus=n&&!n.leaf?id:null;const rg=api.focus?(o.mode==='profile'&&api.sel.size?fwAngles(api.sel)[id]:[n.a0,n.a1]):null,t=rg?{a0:rg[0],a1:rg[1],z:n.depth+1}:{a0:0,a1:1,z:0},f={...api.view};
     cancelAnimationFrame(raf);if(instant||RM()){api.view=t;draw();return}const t0=performance.now(),D=520;
     const step=now=>{const k=FW_EASE(Math.min(1,(now-t0)/D));api.view={a0:f.a0+(t.a0-f.a0)*k,a1:f.a1+(t.a1-f.a1)*k,z:f.z+(t.z-f.z)*k};draw();if(k<1)raf=requestAnimationFrame(step)};raf=requestAnimationFrame(step)};
@@ -112,10 +116,12 @@ function fwCanvas(o){const W=1600,H=2600,c=document.createElement('canvas');c.wi
     for(const [id,v] of o.notes){const n=FW.byId[id];if(!n)continue;const label=n.n+' '+'●'.repeat(v)+'○'.repeat(3-v),w=x.measureText(label).width+76;
       if(px+w>W-96){px=96;y+=66;if(y>H-260)break}
       x.fillStyle=FW.tint(n.c,'#FFFFFF',.78);x.beginPath();x.roundRect(px,y-26,w,52,26);x.fill();x.fillStyle=n.c;x.beginPath();x.arc(px+28,y,11,0,TAU);x.fill();
-      x.fillStyle=INK;x.fillText(label,px+50,y+1);px+=w+14}y+=40}
+      x.fillStyle=INK;x.fillText(label,px+50,y+1);px+=w+14}y+=70;
+    const f=flFamilies(o.notes);let bx=96;const bw=W-192;f.forEach(([c,p])=>{x.fillStyle=c.c;x.fillRect(bx,y,bw*p,22);bx+=bw*p});y+=56;x.font='500 26px '+font;let kx=96;
+    f.slice(0,5).forEach(([c,p])=>{const t=c.n+' '+Math.round(p*100)+'%';x.fillStyle=c.c;x.beginPath();x.arc(kx+9,y,9,0,TAU);x.fill();x.fillStyle=MUTED;x.fillText(t,kx+26,y+1);kx+=x.measureText(t).width+60});y+=20}
   // Footer, then trim the page to what was drawn.
   const end=y+80;x.fillStyle=MUTED;x.font='400 24px '+font;x.textAlign='center';
-  x.fillText('Tasting words from the Coffee Taster’s Flavor Wheel by the SCA and World Coffee Research.',W/2,end);
+  x.fillText(FW_CREDIT,W/2,end);
   x.fillText('Designed in The Brew Bench · '+SITE_URL.replace(/^https?:\/\//,'').replace(/\/$/,''),W/2,end+38);
   const out=document.createElement('canvas');out.width=W;out.height=end+96;out.getContext('2d').drawImage(c,0,0);
   return new Promise(res=>out.toBlob(res,'image/png'))}
@@ -131,27 +137,34 @@ function fwInfo(n){const el=$('fw-info');if(!n){el.innerHTML='<h3 style="margin-
   const crumbs=n.path.map((p,i)=>'<button type="button" class="chip fw-crumb" data-fz="'+p.id+'"><i style="background:'+p.c+'"></i>'+esc(p.n)+'</button>'+(i<n.path.length-1?'<span class="fw-sep">›</span>':'')).join('');
   const kids=n.kids.length?'<p class="fw-sub">Inside '+esc(n.n)+'</p><div class="chips">'+n.kids.map(k=>'<button type="button" class="chip" data-fz="'+k.id+'"><i class="dot" style="background:'+k.c+'"></i>'+esc(k.n)+'</button>').join('')+'</div>':'';
   const links=(n.l||[]).map(l=>linkChip(l)).filter(Boolean).join('');
-  el.innerHTML='<div class="fw-crumbs">'+crumbs+'</div><h3 class="fw-name"><i style="background:'+n.c+'"></i>'+esc(n.n)+'</h3><p>'+esc(n.d)+'</p>'+kids+(links?'<p class="fw-sub">Read more</p><div class="chips">'+links+'</div>':'')}
+  // Your own brews with this note (or anything inside this group), newest first.
+  const ids=new Set(n.leaf?[n.id]:FW.all.filter(x=>x.leaf&&x.path.includes(n)).map(x=>x.id)),mine=LOG.filter(l=>flOf(l).some(([id])=>ids.has(id)));
+  const yours=n.leaf?'<p class="fw-sub">In your brews</p>'+(mine.length?'<p style="margin:0 0 6px">'+mine.length+(mine.length===1?' brew: ':' brews: ')+mine.slice(0,3).map(l=>'<b>'+esc(l.coffee||'Untitled')+'</b>').join(', ')+(mine.length>3?' and more':'')+'</p>':'<p class="hint" style="margin:0 0 6px">Not in your log yet.</p>')+
+    '<button type="button" class="btn ghost fw-add" data-fadd="'+n.id+'">'+(LFL.some(([id])=>id===n.id)?'\u2713 In your next brew':'+ Add to my next brew')+'</button>':(mine.length?'<p class="hint" style="margin:.6rem 0 0">In '+mine.length+(mine.length===1?' of your brews.':' of your brews.')+'</p>':'');
+  el.innerHTML='<div class="fw-crumbs">'+crumbs+'</div><h3 class="fw-name"><i style="background:'+n.c+'"></i>'+esc(n.n)+(n.leaf?'':'<small>'+FW.count(n)+' notes</small>')+'</h3><p>'+esc(n.d)+'</p>'+kids+(links?'<p class="fw-sub">Read more</p><div class="chips">'+links+'</div>':'')+yours}
 // Open a note or group from a chip, the search or a link: zoom to where it lives and show it.
 function fwGo(id){const n=FW.byId[id];if(!n||!FWX)return;FWX.zoom(n.leaf?(n.parent&&n.parent.id):id);FWX.selected=id;FWX.redraw();fwInfo(n);
   if(matchMedia('(max-width:759px)').matches)$('fw-box').scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'})}
 function renderWheelTab(){
   FWX=makeWheel($('fw-box'),{mode:'explore',onSelect:n=>fwInfo(n)});fwInfo(null);
-  $('fw-cats').innerHTML=FW.roots.map(c=>'<button type="button" class="chip" data-fz="'+c.id+'"><i class="dot" style="background:'+c.c+'"></i>'+esc(c.n)+'</button>').join('');
+  $('fw-cats').innerHTML=FW.roots.map(c=>'<button type="button" class="chip" data-fz="'+c.id+'"><i class="dot" style="background:'+c.c+'"></i>'+esc(c.n)+'<small>'+FW.count(c)+'</small></button>').join('');
   const res=$('fw-res'),find=()=>{const q=fold($('fw-q').value.trim());if(!q){res.innerHTML='';return}
     const hits=FW.all.filter(n=>fold(n.n).includes(q)).sort((a,b)=>(fold(a.n).startsWith(q)?0:1)-(fold(b.n).startsWith(q)?0:1)||b.depth-a.depth).slice(0,8);
     res.innerHTML=hits.length?hits.map(n=>'<button type="button" class="chip" data-fz="'+n.id+'"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+(n.parent?' <small>'+esc(n.parent.n)+'</small>':'')+'</button>').join(''):'<p class="hint" style="margin:0">No note by that name. Try a shorter word.</p>'};
   $('fw-q').oninput=()=>soon(find);$('fw-q').onkeydown=e=>{if(e.key==='Enter'){const b=res.querySelector('[data-fz]');if(b){b.click();$('fw-q').blur()}}};
-  $('wheel').addEventListener('click',e=>{if(goLink(e))return;const z=e.target.closest('[data-fz]');if(z)fwGo(z.dataset.fz)});
-  $('fw-dl').onclick=()=>fwExport({title:'Coffee flavour wheel',sub:FW.leaves.length+' tasting notes, from the middle out'},'brew-bench-flavour-wheel');
+  $('wheel').addEventListener('click',e=>{if(goLink(e))return;const a=e.target.closest('[data-fadd]');
+    if(a){const id=a.dataset.fadd;if(!LFL.some(([x])=>x===id)){LFL.push([id,2]);renderFlForm()}a.textContent='\u2713 In your next brew';toast(FW.byId[id].n+' added to your next brew');return}
+    const z=e.target.closest('[data-fz]');if(z)fwGo(z.dataset.fz)});
+  $('fw-dl').onclick=()=>fwExport({title:'Coffee flavour wheel',sub:FW.leaves.length+' tasting notes in '+FW.roots.length+' families, from the middle out'},'brew-bench-flavour-wheel');
   $('fw-log').onclick=()=>{showTab('log');openNotesPicker()}}
 function wheelDoc(){return{link:SITE_URL+'#wheel',title:'Coffee flavour wheel',sub:FW.leaves.length+' tasting notes',file:'flavour-wheel',
-  blocks:FW.roots.map(c=>({h:c.n,p:c.d,list:c.kids.map(k=>k.n+(k.kids.length?': '+k.kids.map(x=>x.n).join(', '):''))})).concat([{p:'Tasting words from the Coffee Taster’s Flavor Wheel by the SCA and World Coffee Research.'}])}}
+  blocks:FW.roots.map(c=>({h:c.n,p:c.d,list:c.kids.map(k=>k.n+(k.kids.length?': '+k.kids.map(x=>x.n).join(', '):''))})).concat([{p:FW_CREDIT}])}}
 
 /* Tasting notes on brews. A brew keeps fl: [[note id, 1 light | 2 medium | 3 strong], ...]. */
 const FL_LV=['','Light','Medium','Strong'];
 // Notes can arrive from friends' phones, so keep only real notes with a sensible strength.
-function flOf(l){return Array.isArray(l&&l.fl)?l.fl.filter(x=>Array.isArray(x)&&FW.byId[x[0]]&&FW.byId[x[0]].leaf).map(([id,v])=>[id,Math.max(1,Math.min(3,Math.round(+v)||2))]).slice(0,40):[]}
+function flOf(l){if(!Array.isArray(l&&l.fl))return[];const seen=new Set();
+  return l.fl.filter(x=>Array.isArray(x)).map(([id,v])=>[FW_ALIAS[id]||id,v]).filter(([id])=>FW.byId[id]&&FW.byId[id].leaf&&!seen.has(id)&&seen.add(id)).map(([id,v])=>[id,Math.max(1,Math.min(3,Math.round(+v)||2))]).slice(0,40)}
 const flMap=fl=>new Map(fl);
 const flChips=fl=>fl.map(([id,v])=>{const n=FW.byId[id];return'<span class="flchip" title="'+FL_LV[v]+'"><i style="background:'+n.c+'"></i><b>'+esc(n.n)+'</b><span class="lv" aria-label="'+FL_LV[v]+'">'+'●'.repeat(v)+'○'.repeat(3-v)+'</span></span>'}).join('');
 const flText=fl=>fl.map(([id,v])=>FW.byId[id].n+(v!==2?' ('+FL_LV[v].toLowerCase()+')':'')).join(', ');
@@ -182,12 +195,17 @@ function openNotesPicker(entry){const d=$('vd'),sel=flMap(entry?flOf(entry):LFL.
 function openProfile(title,sub,fl,entry){const d=$('vd');
   $('vd-in').innerHTML='<div class="vd-head" style="--c:#C4473F"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:#C4473F"></i>Flavour profile</span>'+
     '<h2 id="vd-title">'+esc(title)+'</h2>'+(sub?'<p class="hint" style="margin:0">'+esc(sub)+'</p>':'')+'</div><div class="vd-body"><div class="fw-box" id="fp-box" style="max-width:460px"></div>'+
-    '<div class="chips" style="margin-top:12px">'+flChips(fl)+'</div><div class="actions"><button type="button" class="btn" id="fp-dl">Download image</button>'+(entry?'<button type="button" class="btn ghost" id="fp-edit">Edit notes</button>':'')+'</div></div>';
+    flBar(fl)+'<div class="chips" style="margin-top:12px">'+flChips(fl)+'</div><div class="actions"><button type="button" class="btn" id="fp-dl">Download image</button>'+(entry?'<button type="button" class="btn ghost" id="fp-edit">Edit notes</button>':'')+'</div></div>';
   makeWheel($('fp-box'),{mode:'profile',sel:flMap(fl),center:'Profile',hint:'tap a family',label:'Flavour profile of '+title});
   $('vd-x').onclick=()=>d.close();
   $('fp-dl').onclick=()=>fwExport({title,sub,mode:'profile',sel:flMap(fl),notes:fl,center:'Flavour',centerSub:'profile'},fname(title)+'-flavour-profile');
   if(entry)$('fp-edit').onclick=()=>{d.close();setTimeout(()=>openNotesPicker(entry),320)};
   showDlg(d);d.scrollTop=0}
+// How a set of notes splits across the families, by strength: [[family, share 0-1], ...], largest first.
+function flFamilies(fl){const t=new Map();let all=0;for(const [id,v] of fl){const c=FW.byId[id].cat;t.set(c,(t.get(c)||0)+v);all+=v}return[...t].sort((a,b)=>b[1]-a[1]).map(([c,v])=>[c,v/all])}
+function flBar(fl){const f=flFamilies(fl);if(!f.length)return'';
+  return'<div class="fwbar" role="img" aria-label="'+esc(f.map(([c,p])=>Math.round(p*100)+'% '+c.n.toLowerCase()).join(', '))+'">'+f.map(([c,p])=>'<span style="flex:'+p+';background:'+c.c+'" title="'+esc(c.n)+' '+Math.round(p*100)+'%"></span>').join('')+'</div>'+
+    '<div class="fwbar-key">'+f.slice(0,4).map(([c,p])=>'<span><i style="background:'+c.c+'"></i>'+esc(c.n)+' '+Math.round(p*100)+'%</span>').join('')+'</div>'}
 // Your palate: every note across your brews, the strength adding up.
 function palate(){const sc=new Map();let n=0;for(const l of LOG){const fl=flOf(l);if(!fl.length)continue;n++;fl.forEach(([id,v])=>sc.set(id,(sc.get(id)||0)+v))}
   if(!n)return null;const max=Math.max(...sc.values()),fl=[...sc].sort((a,b)=>b[1]-a[1]).map(([id,v])=>[id,Math.max(1,Math.ceil(3*v/max))]);

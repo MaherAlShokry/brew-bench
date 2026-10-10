@@ -1235,7 +1235,7 @@ function flEntry(l,i){const fl=flOf(l);if(!fl.length)return'<button type="button
   return'<div class="fl-entry"><button type="button" class="fl-mini" data-flview="'+i+'" aria-label="Open the flavour profile">'+fwStatic(fl)+'</button><div><div class="chips" style="margin:0 0 4px">'+flChips(fl)+'</div><button type="button" class="linkbtn" data-fledit="'+i+'">Edit notes</button></div></div>'}
 function renderFlForm(){$('l-flchips').innerHTML=flChips(LFL);$('l-fl').querySelector('span').textContent=LFL.length?'Edit flavour notes':'Add flavour notes'}
 function renderPalate(){const el=$('l-palate'),P=palate();el.hidden=!P;if(!P)return;
-  el.innerHTML='<button type="button" class="fl-mini" id="pal-open" aria-label="Open your palate">'+fwStatic(P.fl)+'</button><div><h3>Your palate</h3><p class="hint" style="margin:0 0 6px">From '+P.n+(P.n===1?' brew':' brews')+' with flavour notes. You notice '+P.top.join(' and ')+' the most.</p><div class="chips" style="margin:0">'+flChips(P.fl.slice(0,6))+'</div></div>';
+  el.innerHTML='<button type="button" class="fl-mini" id="pal-open" aria-label="Open your palate">'+fwStatic(P.fl)+'</button><div><h3>Your palate</h3><p class="hint" style="margin:0 0 6px">From '+P.n+(P.n===1?' brew':' brews')+' with flavour notes. You notice '+P.top.join(' and ')+' the most.</p>'+flBar(P.fl)+'<div class="chips" style="margin:0">'+flChips(P.fl.slice(0,6))+'</div></div>';
   $('pal-open').onclick=()=>openProfile('Your palate','From '+P.n+(P.n===1?' brew':' brews'),P.fl)}
 $('l-fl').onclick=()=>openNotesPicker();
 $('tolog').onclick=()=>{const r=compute(S);
