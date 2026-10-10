@@ -661,7 +661,13 @@ dialog#selsheet.pop .grab,dialog#selsheet.pop .selhead{display:none}
 #sel-in:focus{outline:none}
 #sel-q{display:block;width:calc(100% - 24px);margin:4px 12px 6px}
 .sellist{padding:4px 8px 12px}
-.selgrp h4{margin:10px 10px 4px;font:600 .74rem var(--display);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.selgrp+.selgrp{margin-top:10px;padding-top:10px;border-top:1px solid var(--hair,var(--line))}
+.selgrp h4{display:flex;align-items:center;gap:8px;margin:4px 4px 6px;padding:7px 10px 7px 12px;border-radius:10px;position:relative;
+  background:color-mix(in srgb,var(--cherry) 9%,var(--surface));color:var(--cherry-ink);font:700 .76rem var(--display);text-transform:uppercase;letter-spacing:.07em}
+.selgrp h4::before{content:"";width:4px;align-self:stretch;margin:-2px 0;border-radius:3px;background:var(--cherry)}
+.selgrp h4 span{flex:1}
+.selgrp h4 small{font:600 .72rem var(--body);letter-spacing:0;text-transform:none;color:var(--cherry-ink);background:var(--surface);border-radius:99px;padding:1px 8px;opacity:.85}
+dialog#selsheet.pop .selgrp h4{margin:2px 2px 4px;padding:6px 10px}
 .selopt{display:flex;align-items:center;gap:10px;width:100%;min-height:46px;padding:10px 12px;border:0;border-radius:var(--r-md,12px);background:none;color:var(--ink);font:500 1rem var(--body);text-align:left;cursor:pointer;transition:background-color .15s}
 .selopt span{flex:1;min-width:0}
 .selopt i{font-style:normal;color:var(--cherry);font-weight:700;opacity:0}

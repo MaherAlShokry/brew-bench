@@ -662,7 +662,13 @@ dialog#selsheet.pop .grab,dialog#selsheet.pop .selhead{display:none}
 #sel-in:focus{outline:none}
 #sel-q{display:block;width:calc(100% - 24px);margin:4px 12px 6px}
 .sellist{padding:4px 8px 12px}
-.selgrp h4{margin:10px 10px 4px;font:600 .74rem var(--display);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.selgrp+.selgrp{margin-top:10px;padding-top:10px;border-top:1px solid var(--hair,var(--line))}
+.selgrp h4{display:flex;align-items:center;gap:8px;margin:4px 4px 6px;padding:7px 10px 7px 12px;border-radius:10px;position:relative;
+  background:color-mix(in srgb,var(--cherry) 9%,var(--surface));color:var(--cherry-ink);font:700 .76rem var(--display);text-transform:uppercase;letter-spacing:.07em}
+.selgrp h4::before{content:"";width:4px;align-self:stretch;margin:-2px 0;border-radius:3px;background:var(--cherry)}
+.selgrp h4 span{flex:1}
+.selgrp h4 small{font:600 .72rem var(--body);letter-spacing:0;text-transform:none;color:var(--cherry-ink);background:var(--surface);border-radius:99px;padding:1px 8px;opacity:.85}
+dialog#selsheet.pop .selgrp h4{margin:2px 2px 4px;padding:6px 10px}
 .selopt{display:flex;align-items:center;gap:10px;width:100%;min-height:46px;padding:10px 12px;border:0;border-radius:var(--r-md,12px);background:none;color:var(--ink);font:500 1rem var(--body);text-align:left;cursor:pointer;transition:background-color .15s}
 .selopt span{flex:1;min-width:0}
 .selopt i{font-style:normal;color:var(--cherry);font-weight:700;opacity:0}
@@ -4137,14 +4143,37 @@ async function ocrWorker(onProgress){OCR_PROGRESS=onProgress;
     // If the fast reader doesn't start on this phone, try the plain one once before giving up.
     .catch(e=>{OCR=null;if(e&&e.code==='start'&&SIMD_OK&&!OCR_PLAIN){OCR_PLAIN=true;return ocrWorker(OCR_PROGRESS)}throw e});
   return OCR}
-// Shrink big camera photos and boost contrast so text recognition is faster and more accurate.
-function prepImage(file){return new Promise((ok,no)=>{const img=new Image();img.onload=()=>{const k=Math.min(1,2400/Math.max(img.width,img.height)); /* big enough that small print on a label stays readable */const c=document.createElement('canvas');c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);
-  const x=c.getContext('2d');x.filter='grayscale(1) contrast(1.35)';x.drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(img.src);ok(c)};img.onerror=()=>no(new Error('image'));img.src=URL.createObjectURL(file)})}
+// Load a photo once; it is prepared (and turned, if needed) from this.
+function loadImage(file){return new Promise((ok,no)=>{const img=new Image();img.onload=()=>{URL.revokeObjectURL(img.src);ok(img)};img.onerror=()=>no(new Error('image'));img.src=URL.createObjectURL(file)})}
+// Grey, with the contrast stretched between the darkest and lightest 2% so faded print and shadows read cleanly.
+// Light text on a dark label is flipped to dark on light, which the reader handles far better. rot turns the photo
+// (for bags shot sideways); max is the long side in pixels, big enough that small print stays readable.
+function prepCanvas(img,rot=0,max=2000){const k=Math.min(1,max/Math.max(img.width,img.height)),w=Math.round(img.width*k),h=Math.round(img.height*k),side=rot%180!==0;
+  const c=document.createElement('canvas');c.width=side?h:w;c.height=side?w:h;const x=c.getContext('2d');x.filter='grayscale(1)';
+  x.translate(c.width/2,c.height/2);x.rotate(rot*Math.PI/180);x.drawImage(img,-w/2,-h/2,w,h);x.setTransform(1,0,0,1,0,0);x.filter='none';
+  const d=x.getImageData(0,0,c.width,c.height),px=d.data,hist=new Uint32Array(256),N=px.length/4;for(let q=0;q<px.length;q+=4)hist[px[q]]++;
+  let a=0,lo=0,hi=255;for(let t=0;t<256;t++){a+=hist[t];if(a>N*.02){lo=t;break}}a=0;for(let t=255;t>=0;t--){a+=hist[t];if(a>N*.02){hi=t;break}}
+  const mid=(lo+hi)/2;let dark=0;for(let t=0;t<mid;t++)dark+=hist[t];const inv=dark>N*.5,span=Math.max(1,hi-lo);
+  for(let q=0;q<px.length;q+=4){let v=(px[q]-lo)*255/span;v=v<0?0:v>255?255:v;if(inv)v=255-v;px[q]=px[q+1]=px[q+2]=v}x.putImageData(d,0,0);return c}
+async function prepImage(file){return prepCanvas(await loadImage(file))}
+// How useful a reading is: coffee details found count most, then the reader's own confidence.
+const readScore=(info,conf)=>(info.origin_key?30:0)+(info.variety_key?25:0)+(info.process_key?25:0)+(info.roast_date?10:0)+((info.tasting_notes||[]).length?10:0)+(conf||0)/2;
+// Read a label photo. If the first pass finds nothing (often a bag shot sideways or upside down), try the photo
+// turned, quickly at a smaller size, and read the best way round properly.
+async function readLabelImage(w,file,onStatus){const img=await loadImage(file);
+  const read=async c=>{const r=await w.recognize(c),text=r.data.text||'',info=parseLabel(text);return{text,info,score:readScore(info,r.data.confidence)}};
+  let best=await read(prepCanvas(img,0));best.rot=0;
+  if(!best.info.origin_key&&!best.info.variety_key&&!best.info.process_key){
+    for(const rot of [90,270,180]){onStatus&&onStatus(rot);const r=await read(prepCanvas(img,rot,1300));if(r.score>best.score+8){r.rot=rot;best=r}}
+    if(best.rot){const r=await read(prepCanvas(img,best.rot));if(r.score>=best.score){r.rot=best.rot;best=r}}}
+  return best}
 const fold=t=>String(t).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[’']/g,"'");
 const reEsc=t=>t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 // Find the longest alias that appears as a whole word or phrase.
 function findBest(text,entries){let best=null;for(const [alias,val] of entries){if(alias.length<3)continue;const m=new RegExp('(^|[^a-z0-9])'+reEsc(alias)+'($|[^a-z0-9])').exec(text);
   if(m&&(!best||alias.length>best.alias.length))best={alias,val,at:m.index}}return best}
+// The country named first on the label (a blend lists its main origin first).
+function findFirst(text,entries){const all=findAll(text,entries);return all.length?all[0]:null}
 // Every alias found, in label order; where matches overlap, the longer one wins ("pink bourbon" over "bourbon").
 function findAll(text,entries){const hits=[];for(const [alias,val] of entries){if(alias.length<3)continue;const re=new RegExp('(^|[^a-z0-9])('+reEsc(alias)+')(?=$|[^a-z0-9])','g');let m;
     while(m=re.exec(text)){const at=m.index+m[1].length;hits.push({alias,val,at,end:at+alias.length})}}
@@ -4154,11 +4183,12 @@ function lexicon(){if(LEX)return LEX;
   const strip=n=>fold(n).replace(/\([^)]*\)/g,' ').replace(/["“”]/g,'').replace(/\s+/g,' ').trim();
   const V_EXTRA={geisha:['geisha','gesha'],landrace:['heirloom','ethiopian landrace','ethiopian landraces','ethiopian heirloom','landrace'],jarc:['jarc','74110','74112','74158'],robusta:['robusta','canephora'],
     liberica:['liberica','excelsa'],yemenia:['yemenia','yemeni landrace'],kent:['kent','s795','s 795'],laurina:['laurina','bourbon pointu'],catuai:['catuai','red catuai','yellow catuai'],
-    castillo:['castillo'],ruiru:['ruiru 11','ruiru','batian'],jackson:['jackson','mibirizi'],centroamericano:['centroamericano','h1'],bourbon:['bourbon','red bourbon'],kona:['kona typica']};
+    castillo:['castillo'],ruiru:['ruiru 11','ruiru','batian'],jackson:['jackson','mibirizi'],centroamericano:['centroamericano','h1'],bourbon:['bourbon','red bourbon','borbon','bourbon rojo','bourbon vermelho'],kona:['kona typica'],
+    sl28:['sl28','sl 28','sl-28'],sl34:['sl34','sl 34','sl-34'],pinkbourbon:['pink bourbon','bourbon rosado','borbon rosado'],yellowbourbon:['yellow bourbon','bourbon amarelo','bourbon amarillo'],caturra:['caturra'],catuai:['catuai','red catuai','yellow catuai','catuai amarelo','catuai vermelho']};
   const vars=[];for(const v of V){if(v.id==='arabica')continue; /* "100% Arabica" on a bag says nothing about the variety */for(const a of (V_EXTRA[v.id]||[strip(v.name)]))vars.push([a,v.id])}
-  const P_EXTRA={washed:['washed','fully washed','wet process','wet processed'],doublewashed:['double washed','kenyan process','kenya process'],ecopulped:['eco pulped','eco-pulped','demucilaged'],
-    natural:['natural','dry process','dry processed','sun dried','sun-dried'],pulpednatural:['pulped natural'],wethulled:['wet hulled','wet-hulled','giling basah'],honey:['honey'],
-    whitehoney:['white honey','yellow honey'],redhoney:['red honey'],blackhoney:['black honey'],anaerobic:['anaerobic'],anaerobicnatural:['anaerobic natural'],anaerobicwashed:['anaerobic washed'],
+  const P_EXTRA={washed:['washed','fully washed','wet process','wet processed','lavado','lavada','lave'],doublewashed:['double washed','kenyan process','kenya process'],ecopulped:['eco pulped','eco-pulped','demucilaged'],
+    natural:['natural','dry process','dry processed','sun dried','sun-dried','natural seco','secado al sol'],pulpednatural:['pulped natural','cereja descascada','descascado'],wethulled:['wet hulled','wet-hulled','giling basah'],honey:['honey','miel','honey process'],
+    whitehoney:['white honey','yellow honey','miel amarilla','miel blanca'],redhoney:['red honey','miel roja'],blackhoney:['black honey','miel negra'],anaerobic:['anaerobic','anaerobico','anaerobica','anaerobio'],anaerobicnatural:['anaerobic natural','natural anaerobico','natural anaerobic'],anaerobicwashed:['anaerobic washed','lavado anaerobico'],
     carbonic:['carbonic maceration','carbonic'],lactic:['lactic'],yeast:['yeast'],koji:['koji'],extended:['extended fermentation'],thermalshock:['thermal shock'],mossto:['mossto'],
     coferment:['co-ferment','co-fermented','coferment','cofermented','co ferment'],infused:['infused'],barrelaged:['barrel aged','barrel-aged'],monsooned:['monsooned'],aged:['aged green'],
     swisswater:['swiss water'],sugarcane:['sugarcane','sugar cane','ethyl acetate','ea decaf'],co2decaf:['co2 decaf','co2 process'],mcdecaf:['methylene chloride']};
@@ -4178,7 +4208,7 @@ function findDate(raw){const t=fold(raw),now=new Date(),cands=[];
   const mon='(jan|feb|mar|apr|may|jun|jul|aug|sept|sep|oct|nov|dec)[a-z]*\\.?';
   const r3=new RegExp('(\\d{1,2})(?:st|nd|rd|th)?\\s+'+mon+'(?:,?\\s+(\\d{2,4}))?','g');while(m=r3.exec(t))add(m[3]||0,MONTHS[m[2]],m[1],m.index);
   const r4=new RegExp(mon+'\\s+(\\d{1,2})(?:st|nd|rd|th)?(?:,?\\s+(\\d{2,4}))?','g');while(m=r4.exec(t))add(m[3]||0,MONTHS[m[1]],m[2],m.index);
-  if(!cands.length)return null;const k=t.search(/roast/);if(k<0)return cands[0].iso;cands.sort((a,b)=>Math.abs(a.at-k)-Math.abs(b.at-k));return cands[0].iso}
+  if(!cands.length)return null;const k=t.search(/roast|tostad|torrad|tueste/);if(k<0)return cands[0].iso;cands.sort((a,b)=>Math.abs(a.at-k)-Math.abs(b.at-k));return cands[0].iso}
 // Turn label text into the same fields the Claude reader returns.
 // OCR turns specks and logos into fragments like "i 2 ob". A real name has mostly letters and at least one proper word.
 const cleanLine=x=>String(x||'').replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}).]+$/gu,'').replace(/\s+/g,' ').trim()
@@ -4186,17 +4216,35 @@ const niceName=x=>{x=cleanLine(x);return /\p{Ll}/u.test(x)?x:x.toLowerCase().rep
 const scRoaster=x=>x.sc&&typeof x.sc.roaster==='string'?x.sc.roaster:(x.info&&x.info.roaster)||'';
 function plausibleName(x){x=cleanLine(x);if(x.length<3||x.length>60)return false;const chars=x.replace(/\s/g,''),letters=(chars.match(/\p{L}/gu)||[]).length,words=x.split(' ');
   return letters/chars.length>=0.75&&words.some(w=>(w.match(/\p{L}/gu)||[]).length>=3)&&words.filter(w=>w.replace(/\W/g,'').length<=2).length<=Math.floor(words.length/2)}
+// Headings bags use for each detail, in English, Spanish and Portuguese ("Process: Washed", "PROCESO Lavado").
+const KEYS={origin:'origin|origen|origem|country|pais|region|region de origen',variety:'varietals?|variet(?:y|ies)|variedad(?:es)?|variedades?|cultivars?',process:'process(?:ing)?|proceso|processo|beneficio|metodo',
+  notes:'tasting notes|notes? de cata|notas? de cata|cup notes|cup profile|flavou?r notes|flavou?r profile|flavou?rs?|notes?|notas?|cup|profile|perfil|sabores|tastes? like|taste|in the cup|descriptors',altitude:'altitude|elevation|altura|altitud'};
+function keyed(lines,key){const re=new RegExp('^\\s*(?:'+KEYS[key]+')\\b\\s*[:\\-–.]?\\s*(.+)$','i');for(const l of lines){const m=re.exec(fold(l));if(m&&m[1].trim().length>1)return{line:l,val:' '+m[1].trim()+' '}}return null}
+// Close spellings for words the reader got slightly wrong ("Colombra", "Ethiopla"): one letter off, two for long words.
+function lev(a,b){if(Math.abs(a.length-b.length)>2)return 9;const d=[...Array(b.length+1).keys()];for(let i=1;i<=a.length;i++){let p=d[0];d[0]=i;for(let j=1;j<=b.length;j++){const t=d[j];d[j]=Math.min(d[j]+1,d[j-1]+1,p+(a[i-1]===b[j-1]?0:1));p=t}}return d[b.length]}
+function findFuzzy(text,entries){const words=[...new Set(text.match(/[a-z]{5,}/g)||[])];let best=null;
+  for(const [alias,val] of entries){if(alias.length<6||/[^a-z]/.test(alias))continue;const lim=alias.length>=9?2:1;for(const w of words){if(w===alias)continue;const d=lev(w,alias);if(d<=lim&&(!best||d<best.d||(d===best.d&&alias.length>best.alias.length)))best={alias,val,d}}}return best}
+// Spanish and Portuguese tasting words, shown in English.
+const NOTE_EN={durazno:'peach',melocoton:'peach',pessego:'peach',mandarina:'mandarin',naranja:'orange',laranja:'orange',limon:'lemon',limao:'lemon',fresa:'strawberry',morango:'strawberry',cereza:'cherry',cereja:'cherry',
+  frambuesa:'raspberry',mora:'blackberry',uva:'grape',manzana:'apple',maca:'apple',pera:'pear',pina:'pineapple',abacaxi:'pineapple',mango:'mango',maracuya:'passion fruit',maracuja:'passion fruit',
+  caramelo:'caramel',chocolate:'chocolate',cacao:'cacao',miel:'honey',mel:'honey',panela:'panela',vainilla:'vanilla',baunilha:'vanilla',canela:'cinnamon',avellana:'hazelnut',almendra:'almond',nuez:'walnut',
+  jazmin:'jasmine',jasmim:'jasmine',floral:'floral','frutos rojos':'red fruits','frutas vermelhas':'red fruits',te:'tea','te negro':'black tea'};
 function parseLabel(raw){const L=lexicon(),t=' '+fold(raw).replace(/[|_~*]+/g,' ').replace(/[ \t]+/g,' ')+' ';const lines=String(raw).split(/\n+/).map(x=>x.trim()).filter(Boolean);const info={source:'phone'};let hits=0;
-  const c=findBest(t,L.countries),r=findBest(t,L.regions);if(c){info.origin_key=c.val;hits++}else if(r){info.origin_key=r.val;hits++}
+  const kO=keyed(lines,'origin'),kV=keyed(lines,'variety'),kP=keyed(lines,'process'),kN=keyed(lines,'notes');
+  // A tasting note like "honey" must not decide the process, so the notes line is left out when looking for one.
+  const noNotes=kN?t.replace(fold(kN.line),' '):t;
+  const c=(kO&&findFirst(kO.val,L.countries))||findFirst(t,L.countries)||findFuzzy(t,L.countries),r=findBest(t,L.regions);if(c){info.origin_key=c.val;hits++}else if(r){info.origin_key=r.val;hits++}
   if(r&&(!c||r.val===c.val))info.region=r.alias.replace(/\b\w/g,x=>x.toUpperCase());
-  const vs=findAll(t,L.vars);if(vs.length){info.variety_key=vs[0].val;info.varieties=[...new Set(vs.map(x=>VBY[x.val].name.replace(/\s*\(.*$/,'')))];hits++}
-  const pr=findBest(t,L.procs);if(pr){info.process_key=pr.val;info.process=PROCESSES[pr.val].name;hits++}
+  let vs=kV?findAll(kV.val,L.vars):[];if(!vs.length)vs=findAll(t,L.vars);if(!vs.length){const f=findFuzzy(t,L.vars);if(f)vs=[f]}if(vs.length){info.variety_key=vs[0].val;info.varieties=[...new Set(vs.map(x=>VBY[x.val].name.replace(/\s*\(.*$/,'')))];hits++}
+  const pr=(kP&&findBest(kP.val,L.procs))||findBest(noNotes,L.procs)||findFuzzy(noNotes,L.procs)||(kN?null:findBest(t,L.procs));if(pr){info.process_key=pr.val;info.process=PROCESSES[pr.val].name;hits++}
   if(info.variety_key==='geisha'&&info.origin_key){const sub={panama:'panama',costarica:'costarica',colombia:'colombia',ethiopia:'ethiopia'}[info.origin_key];info.variety_key='geisha:'+(sub||'other')}
   const rl=/\b(light|medium|dark)(?:[- ](?:roast|roasted))?\b/.exec(t);info.roast_level=rl?rl[1]:/\bfilter\b/.test(t)?'light':/\bespresso\b/.test(t)?'medium':null;
   const d=findDate(raw);if(d){info.roast_date=d;hits++}
-  const al=/(\d{1,2}[.,]?\d{3})\s*(?:-|–|to)\s*(\d{1,2}[.,]?\d{3})\s*(?:m\b|mas\S?|meters|metres)|(\d{1,2}[.,]?\d{3})\s*(?:m\b|mas\S?|meters|metres)|(?:altitude|elevation)\s*:?\s*(\d{1,2}[.,]?\d{3})/.exec(t);if(al)info.altitude=(al[3]||al[4]||al[1]+' to '+al[2]).replace(/[.,]/g,',')+' m';
-  const nl=lines.find(x=>/(tasting )?notes?\s*[:\-]|tastes? like|flavou?rs?\s*[:\-]|in the cup\s*[:\-]/i.test(x));let notes=[];
-  if(nl)notes=nl.replace(/^.*?(?:notes?|tastes? like|flavou?rs?|in the cup)\s*[:\-]?\s*/i,'').split(/\s*(?:,|\/|&|\+|•|·|\band\b)\s*/i).map(x=>x.trim()).filter(x=>x.length>2&&x.length<30);
+  const al=/(\d{1,2}[.,]?\d{3})\s*(?:-|–|—|to|a)\s*(\d{1,2}[.,]?\d{3})\s*(?:m\b|mas\S?|m\.?s\.?n\.?m\.?|msnm|meters|metres|metros)|(\d{1,2}[.,]?\d{3})\s*(?:m\b|mas\S?|m\.?s\.?n\.?m\.?|msnm|meters|metres|metros)|(?:altitude|elevation|altura|altitud)\s*:?\s*(\d{1,2}[.,]?\d{3})/.exec(t);if(al)info.altitude=(al[3]||al[4]||al[1]+' to '+al[2]).replace(/[.,]/g,',')+' m';
+  let notes=[];
+  // Notes from their own line, each word checked against known notes so small misreads are fixed ("Panels" → panela).
+  if(kN)notes=kN.val.split(/\s*(?:,|\/|&|\+|•|·|;|\band\b|\by\b|\be\b)\s*/i).map(x=>x.replace(/[^a-z\s'-]/g,'').trim()).filter(x=>x.length>2&&x.length<30)
+    .map(n=>{if(NOTE_EN[n])return NOTE_EN[n];if(L.notes.includes(n))return n;let b=null,bd=9;for(const k of L.notes){if(k.length<5)continue;const d=lev(n,k);if(d<bd){bd=d;b=k}}return b&&bd<=(n.length>=8?2:1)?b:n});
   if(!notes.length){const seen=[];for(const n of L.notes){const m=new RegExp('(^|[^a-z])'+reEsc(n)+'($|[^a-z])').exec(t);if(m)seen.push([m.index,n])}notes=seen.sort((a,b)=>a[0]-b[0]).map(x=>x[1]).filter((n,i,a)=>!a.some((o,j)=>j!==i&&o.includes(n)&&o!==n)).slice(0,5)}
   if(notes.length){info.tasting_notes=notes.slice(0,6).map(n=>n.replace(/^\w/,x=>x.toUpperCase()));hits++}
   const farm=/\b(finca|hacienda|fazenda|sitio|estate|farm|washing station|cooperative|co-?op)\b[ :]*([a-z0-9' .-]{2,40})/i.exec(raw.replace(/\n/g,' ; '));
@@ -4214,18 +4262,25 @@ async function runLocalScan(useImg){
   const st=$('scan-status'),mb=b=>(b/1e6).toFixed(1);let stop;const stopped=new Promise((_,no)=>{stop=()=>no(Object.assign(new Error('cancelled'),{code:'cancelled'}))});stopped.catch(()=>{});
   SCTL={abort:()=>stop()};$('scan-stop').hidden=!useImg;$('scan-go').disabled=true;$('scan-drop').classList.add('scanning');
   st.hidden=false;st.textContent=useImg?'Getting the text reader ready…':'Reading the text…';
-  try{let text=txt;
+  try{let text=txt,rot=0;
     if(useImg){const w=await Promise.race([ocrWorker((status,p,g,t)=>{if(SCTL.done)return;st.textContent=status==='download'?'Downloading the text reader (first time only)… '+mb(g)+' of '+mb(t)+' MB'
           :/recogniz/.test(status)?'Reading the label… '+Math.round(p*100)+'%':'Starting the text reader…'}),stopped]);
-      const img=await prepImage(SFILE);const res=await Promise.race([withTimeout(w.recognize(img),120000,'slow'),stopped]);text=res.data.text||'';$('scan-text').value=text.trim()}
+      const res=await Promise.race([withTimeout(readLabelImage(w,SFILE,()=>{if(!SCTL.done)st.textContent='Trying the photo the other way round…'}),180000,'slow'),stopped]);text=res.text;rot=res.rot||0;$('scan-text').value=text.trim()}
     const j=parseLabel(text);if(!j.origin_key&&!j.variety_key&&!j.process_key&&!j.roast_date){st.textContent=useImg?'Couldn’t find coffee details in that photo. Try again with the label filling most of the photo, in sharp focus, or fill in the details below.':'No coffee details found in that text.';return}
-    applyInfo(j);st.textContent=(j.confidence==='low'?'Found a few details. ':'Label read. ')+'Check them below and adjust anything that looks off.';renderScan();saveScan();toast('Label read')}
+    if(rot)await uprightPreview(rot);
+    applyInfo(j);const found=[j.origin_key&&ALLO()[j.origin_key].name,j.process_key&&PROCESSES[j.process_key].name,j.variety_key&&vName(j.variety_key),j.roast_date&&'roasted '+fmtDate({date:j.roast_date})].filter(Boolean);
+    st.textContent=(j.confidence==='low'?'Found a few details: ':'Label read: ')+found.join(' · ')+'. Your brew plan is below; adjust anything that looks off.';renderScan();saveScan();toast('Label read');
+    // Show the result: it sits below the form, out of sight on a phone.
+    setTimeout(()=>{const h=$('scan-head');if(h)scrollTo({top:h.getBoundingClientRect().top+scrollY-90,behavior:RM()?'auto':'smooth'})},250)}
   catch(e){const c=e&&e.code;st.textContent=c==='cancelled'?'Stopped.'
       :c==='download'||c==='stalled'||!navigator.onLine?'The text reader couldn’t download. It needs a connection the first time only; try again on Wi-Fi, or fill in the details below.'
       :c==='start'?'The text reader didn’t start on this phone. Paste the label text below, or fill in the details by hand.'
       :c==='slow'?'Reading took too long. Try a closer photo of just the label, or fill in the details below.'
       :'The text reader couldn’t start. Try again, or fill in the details below.'}
   finally{if(SCTL)SCTL.done=true;$('scan-stop').hidden=true;$('scan-go').disabled=!SFILE;$('scan-drop').classList.remove('scanning')}}
+// After a sideways photo is read, show it the right way up (the saved thumbnail follows the preview).
+async function uprightPreview(rot){try{const img=await loadImage(SFILE),k=Math.min(1,1200/Math.max(img.width,img.height)),w=img.width*k,h=img.height*k,c=document.createElement('canvas'),side=rot%180!==0;
+  c.width=side?h:w;c.height=side?w:h;const x=c.getContext('2d');x.translate(c.width/2,c.height/2);x.rotate(rot*Math.PI/180);x.drawImage(img,-w/2,-h/2,w,h);$('scan-prev').src=c.toDataURL('image/jpeg',.85)}catch(e){}}
 function usePhoto(f){SFILE=f;if($('scan-prev').src.startsWith('blob:'))URL.revokeObjectURL($('scan-prev').src);
   $('scan-prev').src=URL.createObjectURL(f);$('scan-prev').hidden=false;$('scan-empty').hidden=true;$('scan-go').disabled=false;$('scan-again').hidden=false;$('scan-status').hidden=false;runScan(true)}
 /* In-app camera. Some phones answer a file input's "use the camera" request with the gallery anyway, so the
@@ -4242,7 +4297,9 @@ async function openCamera(){
   const stop=()=>{if(CAM){CAM.getTracks().forEach(t=>t.stop());CAM=null}d.classList.remove('camdlg')};d.addEventListener('close',stop,{once:true});
   $('cam-x').onclick=()=>d.close();$('cam-lib').onclick=()=>{d.close();$('scan-file').click()};
   try{CAM=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:2560},height:{ideal:1920}}});
-    if(!d.open){stop();return}const v=$('cam-v');v.srcObject=CAM;await v.play().catch(()=>{});$('cam-msg').hidden=true;$('cam-shot').disabled=false}
+    if(!d.open){stop();return}const v=$('cam-v');v.srcObject=CAM;await v.play().catch(()=>{});$('cam-msg').hidden=true;$('cam-shot').disabled=false;
+    // Keep refocusing as the phone moves, so small print on the label comes out sharp.
+    try{const tr=CAM.getVideoTracks()[0],cap=tr.getCapabilities?tr.getCapabilities():{};if((cap.focusMode||[]).includes('continuous'))await tr.applyConstraints({advanced:[{focusMode:'continuous'}]})}catch(e){}}
   catch(e){stop();d.close();toast(e&&e.name==='NotAllowedError'?'Camera access was declined, so your photos open instead':'The camera couldn’t start, so the phone’s picker opens instead');setTimeout(()=>$('scan-cam').click(),300);return}
   $('cam-shot').onclick=async()=>{const v=$('cam-v'),b=$('cam-shot');b.disabled=true;let blob=null;
     // A full-resolution still where the phone supports it, otherwise the current video frame.
@@ -4675,7 +4732,7 @@ function enhanceSelect(s){if(s.dataset.ui||s.multiple||s.size>1||s.closest('#sel
   s.addEventListener('mousedown',e=>{e.preventDefault();s.focus()})}
 function openSelect(s){const d=$('selsheet'),opts=[...s.options],long=opts.length>=SEL_SEARCH_AT,cur=s.value;
   const row=o=>'<button type="button" role="option" class="selopt" data-v="'+esc(o.value)+'" aria-selected="'+(o.value===cur&&o.selected)+'"'+(o.disabled?' disabled':'')+'><span>'+esc(o.textContent)+'</span><i aria-hidden="true">✓</i></button>';
-  let body='';for(const k of s.children){if(k.tagName==='OPTGROUP'){const kids=[...k.children].filter(o=>o.tagName==='OPTION');if(kids.length)body+='<div class="selgrp" role="group" aria-label="'+esc(k.label)+'"><h4>'+esc(k.label)+'</h4>'+kids.map(row).join('')+'</div>'}else if(k.tagName==='OPTION')body+=row(k)}
+  let body='';for(const k of s.children){if(k.tagName==='OPTGROUP'){const kids=[...k.children].filter(o=>o.tagName==='OPTION');if(kids.length)body+='<div class="selgrp" role="group" aria-label="'+esc(k.label)+'"><h4><span>'+esc(k.label)+'</span><small>'+kids.length+'</small></h4>'+kids.map(row).join('')+'</div>'}else if(k.tagName==='OPTION')body+=row(k)}
   $('sel-in').innerHTML='<div class="selhead"><div class="grab"></div><h3 id="sel-title">'+esc(selLabel(s))+'</h3><button type="button" class="vd-close" id="sel-x" aria-label="Close">✕</button></div>'+
     (long?'<input type="search" id="sel-q" placeholder="Search" aria-label="Search the list" autocomplete="off">':'')+'<div class="sellist" role="listbox" aria-labelledby="sel-title">'+body+'</div><p class="hint selnone" hidden>Nothing matches.</p>';
   const narrow=matchMedia('(max-width:759px)').matches;d.classList.toggle('pop',!narrow);
