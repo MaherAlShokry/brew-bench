@@ -24,6 +24,7 @@
   --sa-bottom:max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px));
   --paper:#FBF7F0; --surface:#FFFDF9; --surface2:#F3EADC; --ink:#3B2A20; --muted:#7A6656;
   --line:#E7DBC9; --cherry:#8A5A3B; --leaf:#6B8E4E; --honey:#C9964A;
+  --cherry-ink:#6E4328; --leaf-ink:#4B6B34; --honey-ink:#8A621F;
   --ocean:#EDF2EA; --land:#E8DCC9; --belt:rgba(201,150,74,.10);
   --shadow:0 1px 0 rgba(92,64,40,.04),0 8px 24px rgba(92,64,40,.07);
   /* San Francisco on Apple devices, Inter (bundled, very close to it) everywhere else. */
@@ -35,10 +36,12 @@
 @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
   --paper:#1F1814; --surface:#2A211B; --surface2:#362A22; --ink:#F3EADF; --muted:#C2B09E;
   --line:#45372D; --cherry:#D9A06B; --leaf:#A7C084; --honey:#E2B866;
+  --cherry-ink:#D9A06B; --leaf-ink:#A7C084; --honey-ink:#E2B866;
   --ocean:#1B2420; --land:#3B2F27; --belt:rgba(226,184,102,.08); --shadow:none;}}
 :root[data-theme="dark"]{
   --paper:#1F1814; --surface:#2A211B; --surface2:#362A22; --ink:#F3EADF; --muted:#C2B09E;
   --line:#45372D; --cherry:#D9A06B; --leaf:#A7C084; --honey:#E2B866;
+  --cherry-ink:#D9A06B; --leaf-ink:#A7C084; --honey-ink:#E2B866;
   --ocean:#1B2420; --land:#3B2F27; --belt:rgba(226,184,102,.08); --shadow:none;}
 *,*::before,*::after{box-sizing:inherit}
 [hidden]{display:none!important}
@@ -618,7 +621,7 @@ button,a,.tab,.chip,[role=button],input[type=range]{touch-action:manipulation}
 #gcustom summary{cursor:pointer;list-style:none;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}#gcustom summary::-webkit-details-marker{display:none}
 .cform{margin-top:12px}
 .cform input,.cform select{width:100%;min-width:0;box-sizing:border-box}.cform .two>*{min-width:0}
-.cform .joinrow select{flex:0 0 42%;width:42%}.cform .joinrow input{flex:1;text-transform:none;letter-spacing:normal;font-family:inherit}
+.cform .joinrow .selw{flex:0 0 42%;width:42%}.cform .joinrow .selw>select{width:100%;flex:none}.cform .joinrow select{flex:0 0 42%;width:42%}.cform .joinrow input{flex:1;text-transform:none;letter-spacing:normal;font-family:inherit}
 @media (max-width:560px){.cform .stackm,.panel .stackm{grid-template-columns:1fr;gap:0}}
 /* Recipe editor and your recipes */
 .recform input:not([type=range]),.recform select,.recform textarea{width:100%}
@@ -639,12 +642,48 @@ button,a,.tab,.chip,[role=button],input[type=range]{touch-action:manipulation}
 /* Open dialogs and sheets lock the page behind them. */
 html.locked,html.locked body{overflow:hidden}
 dialog{overscroll-behavior:contain;overflow:auto}
+/* Dropdowns: the field shows our own arrow; the list opens in #selsheet. */
+.selw{display:block;position:relative;min-width:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.selw>select{width:100%;pointer-events:none;-webkit-appearance:none;appearance:none;padding-right:40px!important;text-overflow:ellipsis;cursor:pointer}
+.selw::after{content:"";position:absolute;right:15px;top:50%;width:12px;height:12px;margin-top:-6px;background:var(--muted);pointer-events:none;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 4.2l4 4 4-4' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 4.2l4 4 4-4' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;transition:transform .2s}
+.selw:hover>select{border-color:var(--hair)}
+.selw:active>select{transform:scale(.99)}
+dialog#selsheet{border:0;padding:0;background:var(--surface);color:var(--ink);overflow:auto;overscroll-behavior:contain}
+dialog#selsheet::backdrop{background:rgba(25,16,10,.42)}
+dialog#selsheet.pop{position:fixed;margin:0;border-radius:var(--r-lg,18px);box-shadow:var(--e3);border:1px solid var(--hair)}
+dialog#selsheet.pop::backdrop{background:transparent;backdrop-filter:none;-webkit-backdrop-filter:none}
+dialog#selsheet.pop .grab,dialog#selsheet.pop .selhead{display:none}
+.selhead{position:sticky;top:0;z-index:1;display:flex;align-items:center;gap:10px;padding:10px 16px 8px;background:var(--surface)}
+.selhead .grab{position:absolute;left:50%;top:6px;transform:translateX(-50%)}
+.selhead h3{margin:10px 0 0;flex:1;font-size:1.05rem}
+.selhead .vd-close{position:static;margin-top:8px}
+#sel-in:focus{outline:none}
+#sel-q{display:block;width:calc(100% - 24px);margin:4px 12px 6px}
+.sellist{padding:4px 8px 12px}
+.selgrp h4{margin:10px 10px 4px;font:600 .74rem var(--display);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.selopt{display:flex;align-items:center;gap:10px;width:100%;min-height:46px;padding:10px 12px;border:0;border-radius:var(--r-md,12px);background:none;color:var(--ink);font:500 1rem var(--body);text-align:left;cursor:pointer;transition:background-color .15s}
+.selopt span{flex:1;min-width:0}
+.selopt i{font-style:normal;color:var(--cherry);font-weight:700;opacity:0}
+.selopt[aria-selected="true"]{background:color-mix(in srgb,var(--cherry) 12%,transparent);color:var(--cherry);font-weight:600}
+.selopt[aria-selected="true"] i{opacity:1}
+.selopt:hover,.selopt:focus-visible{background:var(--surface2);outline:none}
+.selopt[aria-selected="true"]:hover{background:color-mix(in srgb,var(--cherry) 16%,transparent)}
+.selopt:disabled{opacity:.45;cursor:default}
+.selnone{padding:0 20px 16px}
+dialog#selsheet.pop .sellist{padding:6px}
+dialog#selsheet.pop .selopt{min-height:40px;padding:8px 12px;font-size:.95rem}
+@media (max-width:759px){dialog#selsheet{margin:auto 0 0;width:100%;max-width:100%;max-height:78vh;border-radius:24px 24px 0 0}}
+@media (prefers-reduced-motion:no-preference) and (max-width:759px){dialog#selsheet[open]{animation:sheet-up .4s var(--ease-sheet) both}dialog#selsheet.closing{animation:sheet-down .24s cubic-bezier(.4,0,1,1) both}}
+@media (prefers-reduced-motion:no-preference){dialog#selsheet.pop[open]{animation:pop-in .18s var(--ease-out) both;transform-origin:top center}dialog#selsheet.pop.closing{animation:dlg-out .14s ease-in both}}
+@keyframes pop-in{from{opacity:0;transform:translateY(-6px) scale(.98)}to{opacity:1;transform:none}}
 /* Flavour wheel */
 .fw-layout{display:grid;gap:18px;align-items:start}
 @media (min-width:900px){.fw-layout{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}.fw-side{position:sticky;top:90px}}
 #fw-q{width:100%;margin-bottom:8px}
 .fw-res{margin-bottom:6px}.fw-res:empty{display:none}
-.fw-box{max-width:620px;margin:0 auto;aspect-ratio:1;touch-action:manipulation}
+.fw-box{max-width:620px;margin:0 auto;aspect-ratio:1;touch-action:manipulation;overflow:clip}
 .fwheel{width:100%;height:100%;display:block;overflow:visible;font-family:var(--display);user-select:none;-webkit-user-select:none}
 .fwheel path{stroke:var(--paper);stroke-width:1.4;cursor:pointer;transition:fill-opacity .25s}
 .fwheel path:focus{outline:none}.fwheel path:focus-visible{stroke:var(--ink);stroke-width:2.5}
@@ -847,6 +886,19 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   .panel{padding:16px}
   html{scroll-padding-top:calc(var(--sa-top) + 90px)}
 }
+/* Review fixes: readable accent text, visible empty stars, and touch targets of at least ~40px. */
+.btn.ghost,.btn.ghost:hover,.selopt[aria-selected="true"],.linkbtn{color:var(--cherry-ink)}
+.dir{color:var(--leaf-ink)}
+.fbr em{color:var(--honey-ink)!important}
+.fphase>.fph{color:color-mix(in srgb,var(--c) 55%,var(--ink))}
+.cdclock b{color:color-mix(in srgb,var(--c) 68%,var(--ink))}
+.gcard .mine-tag{color:var(--leaf-ink)}
+.stars button{color:color-mix(in srgb,var(--muted) 62%,var(--surface));min-width:40px;min-height:40px;padding:0}
+.linkbtn,button.hint,.legend button{position:relative}
+.linkbtn::after,button.hint::after{content:"";position:absolute;inset:-9px -4px}
+.addcmp::after{content:"";position:absolute;inset:-10px -6px}
+.grindtrack .gm::after{content:"";position:absolute;inset:-9px;border-radius:50%}
+@media (pointer:coarse){button.chip,.vbtn,.legend button{min-height:36px}.legend button::after{content:"";position:absolute;inset:-6px 0}}
 </style>
 <script src="vendor/jspdf.umd.min.js" defer></script>
 <link rel="manifest" href="manifest.webmanifest">
@@ -1244,6 +1296,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 <dialog id="sharesheet" aria-labelledby="sh-title"><div id="sh-in"></div></dialog>
 <dialog id="vd" aria-labelledby="vd-title"><div id="vd-in"></div></dialog>
 <dialog id="timer" aria-labelledby="tm-title"><div id="tm-in"></div></dialog>
+<dialog id="selsheet" aria-labelledby="sel-title"><div id="sel-in"></div></dialog>
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -4605,6 +4658,47 @@ if(window.claude&&window.claude.use){
     $('scan-go').disabled=!SFILE}).catch(()=>{});
   window.claude.use('downloads').then(d=>{DL=d;renderLog()}).catch(()=>{});
 }else{$('scan-status').hidden=true;$('scan-lede').textContent='Take a photo of the bag or the roaster’s card. The text is read on your phone, matched to the guide and turned into a brew plan for your gear.'}
+
+/* ================= DROPDOWNS ================= */
+// Every <select> keeps doing its job (value, change events, labels), but its list opens in the app's own design: a sheet
+// that slides up on phones and a card under the field on larger screens, with groups, a tick on the current choice and
+// search for long lists. Each select sits in a wrapper that takes the tap, so the phone's own picker never appears.
+const SEL_SEARCH_AT=12;
+function selLabel(s){const l=s.id&&document.querySelector('label[for="'+s.id+'"]');
+  return(l?l.textContent:s.getAttribute('aria-label')||'Choose').replace(/\s+/g,' ').trim()}
+function enhanceSelect(s){if(s.dataset.ui||s.multiple||s.size>1||s.closest('#selsheet'))return;s.dataset.ui=1;
+  const w=document.createElement('span');w.className='selw';s.parentNode.insertBefore(w,s);w.appendChild(s);
+  s.tabIndex=0;
+  w.addEventListener('click',e=>{if(s.disabled)return;e.preventDefault();openSelect(s)});
+  s.addEventListener('keydown',e=>{if(['Enter',' ','ArrowDown','ArrowUp'].includes(e.key)||(e.altKey&&e.key==='ArrowDown')){e.preventDefault();openSelect(s)}});
+  // Some browsers still open their list on mouse down; stop it here.
+  s.addEventListener('mousedown',e=>{e.preventDefault();s.focus()})}
+function openSelect(s){const d=$('selsheet'),opts=[...s.options],long=opts.length>=SEL_SEARCH_AT,cur=s.value;
+  const row=o=>'<button type="button" role="option" class="selopt" data-v="'+esc(o.value)+'" aria-selected="'+(o.value===cur&&o.selected)+'"'+(o.disabled?' disabled':'')+'><span>'+esc(o.textContent)+'</span><i aria-hidden="true">✓</i></button>';
+  let body='';for(const k of s.children){if(k.tagName==='OPTGROUP'){const kids=[...k.children].filter(o=>o.tagName==='OPTION');if(kids.length)body+='<div class="selgrp" role="group" aria-label="'+esc(k.label)+'"><h4>'+esc(k.label)+'</h4>'+kids.map(row).join('')+'</div>'}else if(k.tagName==='OPTION')body+=row(k)}
+  $('sel-in').innerHTML='<div class="selhead"><div class="grab"></div><h3 id="sel-title">'+esc(selLabel(s))+'</h3><button type="button" class="vd-close" id="sel-x" aria-label="Close">✕</button></div>'+
+    (long?'<input type="search" id="sel-q" placeholder="Search" aria-label="Search the list" autocomplete="off">':'')+'<div class="sellist" role="listbox" aria-labelledby="sel-title">'+body+'</div><p class="hint selnone" hidden>Nothing matches.</p>';
+  const narrow=matchMedia('(max-width:759px)').matches;d.classList.toggle('pop',!narrow);
+  if(!narrow){const r=s.getBoundingClientRect(),W=Math.max(r.width,260),below=innerHeight-r.bottom,up=below<320&&r.top>below;
+    Object.assign(d.style,{left:Math.min(Math.max(8,r.left),innerWidth-W-8)+'px',width:W+'px',top:up?'auto':(r.bottom+6)+'px',bottom:up?(innerHeight-r.top+6)+'px':'auto',maxHeight:Math.max(220,(up?r.top:below)-24)+'px'})}
+  else Object.assign(d.style,{left:'',width:'',top:'',bottom:'',maxHeight:''});
+  const pick=v=>{if(s.value!==v){s.value=v;s.dispatchEvent(new Event('input',{bubbles:true}));s.dispatchEvent(new Event('change',{bubbles:true}))}d.close();setTimeout(()=>s.focus({preventScroll:true}),0)};
+  d.querySelector('.sellist').onclick=e=>{const b=e.target.closest('.selopt');if(b&&!b.disabled)pick(b.dataset.v)};
+  $('sel-x').onclick=()=>d.close();
+  const q=$('sel-q');if(q)q.oninput=()=>{const t=fold(q.value.trim());let n=0;d.querySelectorAll('.selopt').forEach(b=>{const hit=!t||fold(b.textContent).includes(t);b.hidden=!hit;if(hit)n++});
+    d.querySelectorAll('.selgrp').forEach(g=>g.hidden=![...g.querySelectorAll('.selopt')].some(b=>!b.hidden));d.querySelector('.selnone').hidden=n>0};
+  // Arrow keys move through the choices; typing jumps to the search.
+  d.onkeydown=e=>{const all=[...d.querySelectorAll('.selopt:not([hidden]):not([disabled])')],i=all.indexOf(document.activeElement);
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();const n=all[Math.max(0,Math.min(all.length-1,i<0?0:i+(e.key==='ArrowDown'?1:-1)))];if(n)n.focus()}
+    else if(e.key==='Enter'&&document.activeElement===q){const f=all[0];if(f){e.preventDefault();pick(f.dataset.v)}}
+    else if(q&&e.key.length===1&&document.activeElement!==q&&!e.ctrlKey&&!e.metaKey){q.focus()}};
+  showDlg(d);const on=d.querySelector('.selopt[aria-selected="true"]')||d.querySelector('.selopt');
+  if(on)on.scrollIntoView({block:'center'});
+  // Keyboard users land on the current choice; on a phone nothing gets a focus ring until you use it.
+  if(on&&!narrow)on.focus({preventScroll:true});else{const c=$('sel-in');c.tabIndex=-1;c.focus({preventScroll:true})}}
+// Selects already on the page, and any drawn later.
+document.querySelectorAll('select').forEach(enhanceSelect);
+new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.nodeType===1){if(n.tagName==='SELECT')enhanceSelect(n);else n.querySelectorAll&&n.querySelectorAll('select').forEach(enhanceSelect)}}).observe(document.body,{childList:true,subtree:true});
 
 </script>
 </body>
