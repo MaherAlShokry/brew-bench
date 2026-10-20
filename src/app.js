@@ -468,16 +468,17 @@ const BSHORT={v60:'V60',neo:'NEO',sw:'glass Switch',swneo:'Switch NEO'};
 function techList(b){const all=RECIPES.map((r,i)=>[r,i]);return all.filter(([r])=>r.b===b).concat(all.filter(([r])=>r.b!==b&&sameFam(r.b,b)),all.filter(([r])=>(b==='sw'||b==='swneo')&&r.b==='swi'))}
 /* Target cup profiles. Each moves the predicted extraction (Dt), the ratio (in brewer steps), the agitation and, for
    Brighter, the water a degree cooler. Recipes that publish their own levers (Kasuya's 4:6) are rebuilt with them. */
-// Each target nudges extraction (Dt), ratio (steps on the brewer's scale), temperature and agitation.
+// Each target nudges extraction (Dt), ratio (steps on the brewer's scale), water temperature (dT, °C), bloom or steep
+// time (dB, seconds on the usual 20 to 180s bloom; scaled for brewers with a shorter one) and agitation.
 // lt: which way the technique tweaks lean (a lighter, b heavier). f46/n46: how the 4:6 splits its pours.
 const GSPEC={
- balance:{n:'Balanced',d:'The recipe as written, tuned only for this coffee.',Dt:0,dr:0,dT:0},
- sweet:{n:'Sweeter',d:'Slightly fuller extraction, enough for caramel sweetness without bitterness.',Dt:0.15,dr:0,dT:0,lt:'b',f46:'sweet',n46:3,why:'Sweeter: aims for slightly fuller extraction, enough to reach the sweet, caramelised compounds without tipping into bitterness; the grind is set to land there.'},
- bright:{n:'Brighter',d:'Livelier acidity: a touch cooler and lighter, with gentle pours.',Dt:-0.15,dr:0,dT:-1,ag:'low',lt:'a',f46:'bright',n46:3,why:'Brighter: a little cooler and gentle pours, aiming for slightly lighter extraction so the acidity stays lively; the grind is set to land there.'},
- clean:{n:'Clearer',d:'Each flavour distinct and well defined: a longer ratio and gentle pours.',Dt:-0.3,dr:1,dT:0,ag:'low',lt:'a',n46:2,why:'Clearer: a slightly longer ratio and gentle pours for a lighter, more separated cup.'},
- tea:{n:'Tea-like',d:'Light, silky and delicate, like a good tea: longer, a little cooler, very gentle.',Dt:-0.25,dr:2,dT:-1,ag:'low',lt:'a',n46:2,why:'Tea-like: a longer ratio, slightly cooler water and very gentle pours for a light, silky, delicate cup.'},
- body:{n:'More body',d:'Heavier, syrupy texture: a tighter ratio and more agitation.',Dt:0.3,dr:-1,dT:0,ag:'up',lt:'b',n46:4,why:'More body: a slightly tighter ratio and more agitation for weight and texture.'},
- strong:{n:'Stronger',d:'More coffee in every sip: a tighter ratio, same balance of flavour.',Dt:0.05,dr:-2,dT:0,lt:'b',n46:3,why:'Stronger: a tighter ratio for more concentration; extraction stays where the recipe puts it.'}};
+ balance:{n:'Balanced',d:'The recipe as written, tuned only for this coffee.',Dt:0,dr:0,dT:0,dB:0},
+ sweet:{n:'Sweeter',d:'Fuller extraction for caramel sweetness: a little hotter and a longer bloom.',Dt:0.15,dr:0,dT:1,dB:10,lt:'b',f46:'sweet',n46:3,why:'Sweeter: slightly fuller extraction, enough to reach the caramelised sugars without bitterness: a little hotter, a longer bloom.'},
+ bright:{n:'Brighter',d:'Livelier acidity: cooler water, a shorter bloom and gentle pours.',Dt:-0.15,dr:0,dT:-2,dB:-10,ag:'low',lt:'a',f46:'bright',n46:3,why:'Brighter: slightly lighter extraction keeps the acidity lively: cooler water, a shorter bloom and gentle pours.'},
+ clean:{n:'Clearer',d:'Each flavour distinct: a longer ratio, a degree cooler and gentle pours.',Dt:-0.3,dr:1,dT:-1,dB:5,ag:'low',lt:'a',n46:2,why:'Clearer: a longer ratio, a degree cooler and gentle pours, with an even bloom, for a lighter, more separated cup.'},
+ tea:{n:'Tea-like',d:'Light, silky and delicate, like a good tea: longer ratio, cooler, short bloom, very gentle.',Dt:-0.25,dr:2,dT:-2,dB:-5,ag:'low',lt:'a',n46:2,why:'Tea-like: a longer ratio, cooler water, a shorter bloom and very gentle pours for a light, silky, delicate cup.'},
+ body:{n:'More body',d:'Heavier, syrupy texture: hotter, a longer bloom, a tighter ratio and more agitation.',Dt:0.3,dr:-1,dT:1,dB:15,ag:'up',lt:'b',n46:4,why:'More body: a tighter ratio, a little hotter, a longer bloom and more agitation for weight and texture.'},
+ strong:{n:'Stronger',d:'More coffee in every sip: a tighter ratio, a little hotter, same balance of flavour.',Dt:0.05,dr:-2,dT:1,dB:5,lt:'b',n46:3,why:'Stronger: a tighter ratio for more concentration, a degree hotter and a slightly longer bloom so the stronger brew still extracts fully.'}};
 const GOALS=Object.keys(GSPEC).map(k=>[k,GSPEC[k].n]);
 const GOALN=Object.fromEntries(GOALS);
 const goalOf=g=>g==='clarity'?'clean':GOALN[g]?g:'balance';
@@ -522,10 +523,13 @@ function plan(c){
   else if(c.age<=7)why.push('Very fresh beans: expect more crema and gushing; let them rest a few more days if shots are erratic.');
   let agit='med';if(Vp.clarity>=0.8||P.funk>=1.2){agit='low';why.push('Gentle pours: agitation mutes delicate aromatics and exaggerates ferment.')}
   let ratio=r.water/r.dose;const st_=B.ratio.step,G=GSPEC[c.goal],m=c.goal==='balance'?0:AMTS[c.amt].m;
-  const dr=G.dr?Math.sign(G.dr)*Math.max(1,Math.round(Math.abs(G.dr)*m+(m>1?0.4:0))):0,dT=G.dT?Math.sign(G.dT)*Math.max(1,Math.round(Math.abs(G.dT)*m)):0;
-  ratio+=dr*st_;temp=clamp(temp+dT,B.temp.min,B.temp.max);
+  const dr=G.dr?Math.sign(G.dr)*Math.max(1,Math.round(Math.abs(G.dr)*m+(m>1?0.4:0))):0,dT=G.dT?Math.sign(G.dT)*Math.max(1,Math.round(Math.abs(G.dT)*m+(m>1?0.4:0))):0;
+  const span=B.bloom.max-B.bloom.min,bs=span>=60?5:1,dB=G.dB?Math.sign(G.dB)*Math.max(bs,Math.round(Math.abs(G.dB)*m*Math.min(1,span/160)/bs)*bs):0;
+  const t0=temp,b0=bloom;ratio+=dr*st_;temp=clamp(temp+dT,B.temp.min,B.temp.max);bloom=clamp(bloom+dB,B.bloom.min,B.bloom.max);
   if(G.ag==='low')agit='low';else if(G.ag==='up')agit=agit==='low'||m<1?'med':'high';
-  if(G.why)why.push(G.why+(c.amt==='low'?' Applied lightly.':c.amt==='high'?' Pushed further.':''));
+  // Say exactly what the target moved, on top of what the coffee itself called for.
+  const sg=v=>(v>0?'+':'\u2212')+Math.abs(v),moved=[temp!==t0&&'water '+sg(temp-t0)+'°C ('+temp+'°C)',bloom!==b0&&B.bloom.label.toLowerCase()+' '+sg(bloom-b0)+'s ('+bloom+'s)',dr&&'ratio '+(dr>0?'longer':'tighter')].filter(Boolean);
+  if(G.why)why.push(G.why+(c.amt==='low'?' Applied lightly.':c.amt==='high'?' Pushed further.':'')+(moved.length?' For this target: '+moved.join(', ')+'.':''));
   const lo_=Math.min(B.ratio.min,r.water/r.dose),hi_=Math.max(B.ratio.max,r.water/r.dose);
   // As written, the recipe's own ratio is kept exactly; a target that moves it lands on the brewer's steps.
   ratio=dr?clamp(Math.round(ratio/st_)*st_,lo_,hi_):clamp(ratio,lo_,hi_);ratio=Math.round(ratio*100)/100;
