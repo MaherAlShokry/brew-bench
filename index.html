@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>try{var t=localStorage.getItem("bb-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script>try{var t=localStorage.getItem("bb-theme"),d=document.documentElement;if(t)d.setAttribute("data-theme",t);var u=JSON.parse(localStorage.getItem("bb-ui")||"{}");if(u&&typeof u==="object"){if(u.accent)d.setAttribute("data-accent",u.accent);if(u.text)d.setAttribute("data-text",u.text);if(u.motion)d.setAttribute("data-motion",u.motion)}}catch(e){}</script>
 <meta name="theme-color" content="#FBF7F0" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1F1814" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -46,7 +46,7 @@
 *,*::before,*::after{box-sizing:inherit}
 [hidden]{display:none!important}
 html{scroll-padding-top:calc(var(--sa-top) + 64px)}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:1rem;line-height:1.6}
 h1,h2,h3,.tab,button,label,.num,.pill,.chip,summary{font-family:var(--display)}
 h1{font-size:clamp(2.2rem,7vw,3.8rem);line-height:.95;font-weight:800;letter-spacing:-.025em;margin:0}
 h2{font-size:1.6rem;line-height:1.15;margin:0 0 .6rem;font-weight:800;letter-spacing:-.01em}
@@ -982,6 +982,54 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 
 /* The map's region buttons are easier to tap on phones. */
 @media (max-width:759px){.mapbar.seg.filters button{min-height:34px}}
+
+/* Coffee colour themes: the accent, with the soft surfaces and lines tinted to match. */
+:root[data-accent="espresso"]{--cherry:#5E3B2A;--cherry-ink:#4A2C1E}
+:root[data-accent="espresso"][data-theme="dark"]{--cherry:#C99A7A;--cherry-ink:#C99A7A}
+@media (prefers-color-scheme:dark){:root[data-accent="espresso"]:not([data-theme="light"]){--cherry:#C99A7A;--cherry-ink:#C99A7A}}
+:root[data-accent="cascara"]{--cherry:#A3392E;--cherry-ink:#86291F}
+:root[data-accent="cascara"][data-theme="dark"]{--cherry:#EE8F80;--cherry-ink:#EE8F80}
+@media (prefers-color-scheme:dark){:root[data-accent="cascara"]:not([data-theme="light"]){--cherry:#EE8F80;--cherry-ink:#EE8F80}}
+:root[data-accent="leaf"]{--cherry:#4F7A45;--cherry-ink:#3C5F34}
+:root[data-accent="leaf"][data-theme="dark"]{--cherry:#9DC68B;--cherry-ink:#9DC68B}
+@media (prefers-color-scheme:dark){:root[data-accent="leaf"]:not([data-theme="light"]){--cherry:#9DC68B;--cherry-ink:#9DC68B}}
+:root[data-accent="coldbrew"]{--cherry:#2E5C7A;--cherry-ink:#234A63}
+:root[data-accent="coldbrew"][data-theme="dark"]{--cherry:#8FBCDA;--cherry-ink:#8FBCDA}
+@media (prefers-color-scheme:dark){:root[data-accent="coldbrew"]:not([data-theme="light"]){--cherry:#8FBCDA;--cherry-ink:#8FBCDA}}
+:root[data-accent="honey"]{--cherry:#A8741C;--cherry-ink:#7E560F}
+:root[data-accent="honey"][data-theme="dark"]{--cherry:#E9BC63;--cherry-ink:#E9BC63}
+@media (prefers-color-scheme:dark){:root[data-accent="honey"]:not([data-theme="light"]){--cherry:#E9BC63;--cherry-ink:#E9BC63}}
+:root[data-accent="kenya"]{--cherry:#7B2D4E;--cherry-ink:#62213D}
+:root[data-accent="kenya"][data-theme="dark"]{--cherry:#E08AAE;--cherry-ink:#E08AAE}
+@media (prefers-color-scheme:dark){:root[data-accent="kenya"]:not([data-theme="light"]){--cherry:#E08AAE;--cherry-ink:#E08AAE}}
+:root[data-accent="geisha"]{--cherry:#76588C;--cherry-ink:#5E4471}
+:root[data-accent="geisha"][data-theme="dark"]{--cherry:#C6A9DD;--cherry-ink:#C6A9DD}
+@media (prefers-color-scheme:dark){:root[data-accent="geisha"]:not([data-theme="light"]){--cherry:#C6A9DD;--cherry-ink:#C6A9DD}}
+:root[data-accent]:not([data-accent="classic"]){--surface2:color-mix(in srgb,var(--cherry) 11%,var(--surface));--line:color-mix(in srgb,var(--cherry) 17%,var(--surface))}
+/* Text size and motion. */
+:root[data-text="s"]{font-size:15px}:root[data-text="l"]{font-size:17.5px}:root[data-text="xl"]{font-size:19px}
+:root[data-motion="reduced"] *,:root[data-motion="reduced"] *::before,:root[data-motion="reduced"] *::after{animation:none!important;transition:none!important}
+/* Settings page. */
+.setgroup{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+.setrow{padding:14px 16px}.setrow+.setrow{border-top:1px solid var(--line)}
+.setrow>.sl{display:flex;align-items:center;gap:12px;margin-bottom:10px}.setrow>.sl:last-child{margin-bottom:0}
+.setrow .ic{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;flex:none}.setrow .ic svg{width:20px;height:20px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.setrow .mt{flex:1;min-width:0}.setrow .mt b{display:block;font-weight:600}.setrow .mt small{display:block;color:var(--muted);font-size:.84rem;line-height:1.35}
+.setrow .seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr}
+.swatches{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.swatch{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 6px;border-radius:14px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:600 .8rem var(--display);cursor:pointer;text-align:center}
+.swatch i{width:34px;height:34px;border-radius:50%;box-shadow:inset 0 0 0 3px rgba(255,255,255,.35)}.swatch[aria-pressed="true"]{outline:3px solid var(--cherry);outline-offset:1px}
+.logos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}@media (min-width:600px){.logos{grid-template-columns:repeat(6,minmax(0,1fr))}}
+.logopick{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border-radius:14px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:600 .76rem var(--display);cursor:pointer}
+.logopick svg{width:34px;height:34px}.logopick[aria-pressed="true"]{outline:3px solid var(--cherry);outline-offset:1px}
+.namerow{display:flex;gap:8px}.namerow input{flex:1;min-width:0}
+.namechips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.setbtns{display:flex;flex-wrap:wrap;gap:8px}.setnote{font-size:.82rem;color:var(--muted);margin:.5rem 0 0}
+#ab-logo{display:inline-flex}#ab-logo svg{width:24px;height:24px}
+
+/* One heading scale everywhere: the page title (h2), section headings inside a page (h3.sec), card and panel titles. */
+h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;margin:2rem 0 .7rem}
+.panel>h2:not(#o-verdict),.panel .vd-head h2,#info>h2,.drecipe>h2,.plan-out h2,#scan-out h2{font-size:1.3rem;line-height:1.2}
 </style>
 <script src="vendor/jspdf.umd.min.js" defer></script>
 <link rel="manifest" href="manifest.webmanifest">
@@ -989,11 +1037,11 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 </head>
 <body>
-<header class="appbar" id="appbar"><button type="button" class="ab-back" id="ab-back" aria-label="Back" hidden><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="ab-brand"><svg viewBox="80 80 352 352" width="24" height="24" aria-hidden="true"><g transform="rotate(-38 256 256)"><clipPath id="abBean"><ellipse cx="256" cy="256" rx="120" ry="166"/></clipPath><g clip-path="url(#abBean)"><rect x="100" y="80" width="320" height="360" fill="var(--cherry)"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184H440V80z" fill="var(--honey)"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184" fill="none" stroke="var(--paper)" stroke-width="22"/></g></g></svg><span id="ab-title">Dial-in</span></div><button type="button" class="ab-btn" id="ab-share" aria-label="Share">Share</button></header>
+<header class="appbar" id="appbar"><button type="button" class="ab-back" id="ab-back" aria-label="Back" hidden><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="ab-brand"><span id="ab-logo"><svg viewBox="80 80 352 352" width="24" height="24" aria-hidden="true"><g transform="rotate(-38 256 256)"><clipPath id="abBean"><ellipse cx="256" cy="256" rx="120" ry="166"/></clipPath><g clip-path="url(#abBean)"><rect x="100" y="80" width="320" height="360" fill="var(--cherry)"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184H440V80z" fill="var(--honey)"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184" fill="none" stroke="var(--paper)" stroke-width="22"/></g></g></svg></span><span id="ab-title">Dial-in</span></div><button type="button" class="ab-btn" id="ab-share" aria-label="Share">Share</button></header>
 <div class="herowrap"><button type="button" class="themebtn" id="themebtn" aria-label="Switch theme">Dark</button>
 <header class="hero wrap">
   <div>
-    <h1>The Brew Bench</h1>
+    <h1 id="hero-name">The Brew Bench</h1>
     <p>A coffee field guide and dial-in tool. Explore where coffee grows and where each variety came from, then brew it well.</p>
   </div>
   <svg class="hero-art" viewBox="0 0 320 260" role="img" aria-label="Illustration of a gooseneck kettle pouring into a pour-over dripper">
@@ -1210,7 +1258,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   <div class="seg filters scrollrow" id="ch-filter" style="margin:14px 0 8px"></div>
   <div class="seg filters scrollrow" id="ch-brewer" style="margin:0 0 14px"></div>
   <div class="grid" id="ch-about"></div>
-  <h2 style="margin-top:1.6rem">Timeline</h2>
+  <h3 class="sec">Timeline</h3>
   <p class="hint">Newest first. Tap a champion's button for their recipe and gear, and how to brew it with yours.</p>
   <ol class="timeline chtl" id="ch-tl"></ol>
 </section>
@@ -1267,10 +1315,10 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   <div class="grid" id="species"></div>
 
   <div class="twocol" style="margin-top:2rem">
-    <div><h2>Timeline</h2><div class="actions" style="margin-top:0"><button class="btn ghost" id="hist-share">Share the story of coffee</button></div><ol class="timeline" id="timeline"></ol></div>
-    <div><h2>People who spread coffee</h2><div class="grid" id="people" style="grid-template-columns:1fr"></div></div>
+    <div><h3 class="sec" style="margin-top:0">Timeline</h3><div class="actions" style="margin-top:0"><button class="btn ghost" id="hist-share">Share the story of coffee</button></div><ol class="timeline" id="timeline"></ol></div>
+    <div><h3 class="sec" style="margin-top:0">People who spread coffee</h3><div class="grid" id="people" style="grid-template-columns:1fr"></div></div>
   </div>
-  <h2 style="margin-top:2rem">Test yourself</h2>
+  <h3 class="sec">Test yourself</h3>
   <div class="panel" id="quiz"></div>
 </section>
 
@@ -1296,6 +1344,8 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 
 <!-- GUIDE -->
 <section id="guide">
+  <h2>Guide</h2>
+  <p class="lede">Ratios, fixes for what you taste, and the levers that move extraction.</p>
   <div class="twocol" style="margin-bottom:2rem">
     <div class="panel"><h2>Ratio calculator</h2>
       <div class="two"><div class="field"><label for="c-dose">Coffee <span class="num" id="cv-dose"></span></label><input type="range" id="c-dose" min="7" max="60" step="0.5"></div>
@@ -1304,7 +1354,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
       <div class="specs" id="c-out"></div></div>
     <div class="panel"><h2>What does it taste like?</h2><p class="hint" style="margin-top:0">Pick what you taste. Fixes start from your current dial-in and stay inside the usual range for your brewer.</p><div class="chips" id="ts-chips"></div><div id="ts-out"></div></div>
   </div>
-  <h2>The bloom</h2>
+  <h3 class="sec">The bloom</h3>
   <p>The bloom degasses CO2, wets every particle evenly so later pours don't channel, and starts extraction early. Its length is a real variable.</p>
   <div class="scroll"><table class="ref"><thead><tr><th>Bloom</th><th>Effect</th><th>Best for</th></tr></thead><tbody>
     <tr><td>~30s</td><td>Often incomplete degassing on fresh beans. Uneven flow, thinner and brighter cup.</td><td>Older beans, darker roasts, loud anaerobics</td></tr>
@@ -1312,14 +1362,14 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
     <tr><td>~60s</td><td>Real extraction during the bloom. More body and sweetness, some risk of bitterness and temperature drop.</td><td>Very fresh, light, dense roasts</td></tr>
   </tbody></table></div>
   <p class="tip">The fresher and lighter the roast, the longer the bloom can go.</p>
-  <h2 style="margin-top:2rem">Extraction levers</h2>
+  <h3 class="sec">Extraction levers</h3>
   <div class="grid">
     <div class="card"><h3>More extraction</h3><p>Finer grind (biggest lever), hotter water, longer contact, more agitation, more water per gram.</p></div>
     <div class="card"><h3>Less extraction</h3><p>Coarser grind, cooler water, gentler pours, fewer pulses, faster drawdown.</p></div>
     <div class="card"><h3>Coarse and hot</h3><p>Cleaner cup. Fewer fines, less muddiness and astringency, while heat still pulls sweetness. The classic light-roast approach, and a natural fit for the ZP6.</p></div>
     <div class="card"><h3>Fine and cool</h3><p>More intensity and acidity from the surface, but fines can still over-extract and turn drying. The K-Ultra's extra body makes this easier to live with.</p></div>
   </div>
-  <h2 style="margin-top:2rem">Grinders and brewers</h2>
+  <h3 class="sec">Grinders and brewers</h3>
   <div class="scroll"><table class="ref"><thead><tr><th></th><th>Cup signature</th><th>Reach for it when</th></tr></thead><tbody>
     <tr><td><b>1Zpresso ZP6 Special</b></td><td>Clarity, separation, clean aromatics</td><td>The coffee is about aroma: washed, Geisha, landraces</td></tr>
     <tr><td><b>1Zpresso K-Ultra</b></td><td>Rounder, more body, more blended</td><td>You want body, or a coffee tastes flat</td></tr>
@@ -1329,7 +1379,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
     <tr><td><b>Hario Switch + V60 NEO</b></td><td>Valve control with the NEO's fast, even drawdown</td><td>You want hybrid recipes with a cleaner finish</td></tr>
     <tr><td><b>Kalita Wave</b></td><td>Self-regulating, consistent</td><td>You want the same good cup every day</td></tr>
   </tbody></table></div>
-  <h2 style="margin-top:2rem">Troubleshoot</h2>
+  <h3 class="sec">Troubleshoot</h3>
   <div class="scroll"><table class="ref"><thead><tr><th>Tastes like</th><th>Likely cause</th><th>Try</th></tr></thead><tbody>
     <tr><td>Sour, thin, hollow</td><td>Under-extracted</td><td>Finer, hotter, longer bloom</td></tr>
     <tr><td>Drying, astringent, papery</td><td>Over-extracted</td><td>Coarser, cooler, gentler pours</td></tr>
@@ -1370,15 +1420,15 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   <div id="explore-in"></div>
 </section>
 
-<!-- MORE -->
-<section id="more">
-  <h2>More</h2>
-  <p class="lede">Your gear, your brews and how the app looks.</p>
-  <div id="more-in"></div>
+<!-- SETTINGS -->
+<section id="settings">
+  <h2>Settings</h2>
+  <p class="lede">Make the app yours: its look, its name, your tools and your data.</p>
+  <div id="settings-in"></div>
 </section>
 </main>
 
-<nav class="bottomnav" aria-label="Main"><span class="bn-pill" aria-hidden="true"></span><button type="button" data-bn="dial"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10h9v4.5a4.5 4.5 0 0 1-4.5 4.5h0A4.5 4.5 0 0 1 7 14.5z M16 11.5h1.5a2 2 0 0 1 0 4H16 M10 3.5c0 1.5 1.5 1.5 1.5 3 M13.5 3.5c0 1.5 1.5 1.5 1.5 3"/></svg><span>Brew</span></button><button type="button" data-bn="recipes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H18v15H6.5A1.5 1.5 0 0 0 5 19.5z M5 19.5A1.5 1.5 0 0 0 6.5 21H18v-3 M9 7.5h5 M9 11h5"/></svg><span>Recipes</span></button><button type="button" data-bn="scan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V6a2 2 0 0 1 2-2h2 M16 4h2a2 2 0 0 1 2 2v2 M20 16v2a2 2 0 0 1-2 2h-2 M8 20H6a2 2 0 0 1-2-2v-2 M12 8.5c2 0 3.5 1.6 3.5 3.5S14 15.5 12 15.5 8.5 14 8.5 12 10 8.5 12 8.5z M10.3 13.7c1.2-.6 2.2-2.2 3.4-3.4"/></svg><span>Scan</span></button><button type="button" data-bn="explore"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M15.5 8.5l-2 5-5 2 2-5z"/></svg><span>Explore</span></button><button type="button" data-bn="more"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h5v5H5z M14 5h5v5h-5z M5 14h5v5H5z M14 14h5v5h-5z"/></svg><span>More</span></button></nav>
+<nav class="bottomnav" aria-label="Main"><span class="bn-pill" aria-hidden="true"></span><button type="button" data-bn="dial"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10h9v4.5a4.5 4.5 0 0 1-4.5 4.5h0A4.5 4.5 0 0 1 7 14.5z M16 11.5h1.5a2 2 0 0 1 0 4H16 M10 3.5c0 1.5 1.5 1.5 1.5 3 M13.5 3.5c0 1.5 1.5 1.5 1.5 3"/></svg><span>Brew</span></button><button type="button" data-bn="recipes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H18v15H6.5A1.5 1.5 0 0 0 5 19.5z M5 19.5A1.5 1.5 0 0 0 6.5 21H18v-3 M9 7.5h5 M9 11h5"/></svg><span>Recipes</span></button><button type="button" data-bn="scan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V6a2 2 0 0 1 2-2h2 M16 4h2a2 2 0 0 1 2 2v2 M20 16v2a2 2 0 0 1-2 2h-2 M8 20H6a2 2 0 0 1-2-2v-2 M12 8.5c2 0 3.5 1.6 3.5 3.5S14 15.5 12 15.5 8.5 14 8.5 12 10 8.5 12 8.5z M10.3 13.7c1.2-.6 2.2-2.2 3.4-3.4"/></svg><span>Scan</span></button><button type="button" data-bn="explore"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M15.5 8.5l-2 5-5 2 2-5z"/></svg><span>Explore</span></button><button type="button" data-bn="settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6z M12 2.5v2.5 M12 19v2.5 M2.5 12H5 M19 12h2.5 M5.3 5.3l1.8 1.8 M16.9 16.9l1.8 1.8 M5.3 18.7l1.8-1.8 M16.9 7.1l1.8-1.8"/></svg><span>Settings</span></button></nav>
 <dialog id="sharesheet" aria-labelledby="sh-title"><div id="sh-in"></div></dialog>
 <dialog id="vd" aria-labelledby="vd-title"><div id="vd-in"></div></dialog>
 <dialog id="timer" aria-labelledby="tm-title"><div id="tm-in"></div></dialog>
@@ -2974,7 +3024,7 @@ function load(k,d){let v;try{const t=localStorage.getItem(k);v=t?JSON.parse(t):d
 const num=(v,d,a=-Infinity,b=Infinity)=>{v=+v;return Number.isFinite(v)?Math.min(b,Math.max(a,v)):d};
 const oneOf=(v,list,d)=>list.includes(v)?v:d;
 function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
-const MQ=q=>!!(window.matchMedia&&window.matchMedia(q).matches);const RM=()=>MQ('(prefers-reduced-motion: reduce)');
+const MQ=q=>!!(window.matchMedia&&window.matchMedia(q).matches);const RM=()=>MQ('(prefers-reduced-motion: reduce)')||document.documentElement.getAttribute('data-motion')==='reduced';
 let toastT;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600)}
 // A small, quick burst of beans from the button that was tapped (a celebration, not a curtain over the content).
 function beans(n=10){if(RM())return;const el=document.activeElement,r=el&&el!==document.body?el.getBoundingClientRect():null;
@@ -3573,12 +3623,12 @@ function paint(){const el=TM.el,C=2*Math.PI*96;$('tm-big').textContent=mmss(el);
 // Heavy tabs are built the first time they are opened, which keeps startup quick.
 const LAZY={champs:renderChamps,words:renderWords,wheel:renderWheelTab,flow:renderFlow,gear:buildGear,recipes:renderRecipes,tech:renderTech,process:renderProcesses,variety:renderVarieties,map:buildMap,history:()=>{buildTree();startQuiz()}},BUILT={};
 // Explore and More re-render each visit: the word of the day, your counts and the theme can change.
-const ALWAYS={explore:()=>renderExplore(),more:()=>renderMore()};
+const ALWAYS={explore:()=>renderExplore(),settings:()=>renderSettings()};
 function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove());if(LAZY[id]&&!BUILT[id]){BUILT[id]=1;LAZY[id]()}if(ALWAYS[id])ALWAYS[id]()}
 // NAVD counts tab changes you can step back through, so the app bar can offer a back button.
 let BACKING=false,PEND_TAB=null,NAVD=0;
 // Screens slide in the way you are going: deeper or to a tab on the right from the right, back or left from the left.
-const BNORD=['dial','recipes','scan','explore','more'];
+const BNORD=['dial','recipes','scan','explore','settings'];
 function showTab(id,fromHistory){ensureTab(id);const cur=document.querySelector('main section.on');
   if(cur&&cur.id!==id){const a=BNORD.indexOf(BNGROUP[cur.id]),b=BNORD.indexOf(BNGROUP[id]);const back=a!==b&&a>=0&&b>=0?b<a:!!fromHistory;
     document.body.classList.toggle('nav-back',back)}
@@ -3610,7 +3660,7 @@ function showDlg(d){if(d.classList.contains('closing')){d.classList.remove('clos
 addEventListener('popstate',()=>{const open=[...document.querySelectorAll('dialog[open]:not(.closing)')];
   if(BACKING){BACKING=false;try{if(PEND_TAB&&location.hash!=='#'+PEND_TAB)history.pushState(null,'','#'+PEND_TAB);if(open.length)history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}PEND_TAB=null;return}
   if(open.length){const top=DSTACK.filter(d=>d.open&&!d.classList.contains('closing')).pop();if(top){top.dataset.popped=1;top.close()}else open.forEach(d=>d.close());return}
-  const h=location.hash.slice(1);if(openRoute(h))return;const id=h&&$(h)&&$(h).tagName==='SECTION'?h:'dial';if(!$(id).classList.contains('on')){NAVD=Math.max(0,NAVD-1);showTab(id,true)}});
+  let h=location.hash.slice(1);if(h==='more')h='settings';if(openRoute(h))return;const id=h&&$(h)&&$(h).tagName==='SECTION'?h:'dial';if(!$(id).classList.contains('on')){NAVD=Math.max(0,NAVD-1);showTab(id,true)}});
 document.querySelector('[role=tablist]').onclick=e=>{const t=e.target.closest('.tab');if(t)showTab(t.dataset.t)};
 
 /* ================= RECIPES ================= */
@@ -4984,8 +5034,8 @@ const ICO={wheel:'M21 12a9 9 0 1 1-18 0a9 9 0 1 1 18 0z M12 3v9l7.8 4.5 M12 12l-
 const installed=()=>!!window.Capacitor||MQ('(display-mode: standalone)')||navigator.standalone===true;
 const ico=(n,bg)=>'<span class="ic" style="background:'+bg+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+ICO[n]+'"/></svg></span>';
 
-const TABNAMES={explore:'Explore',more:'More',champs:'World championships',words:'Coffee words',wheel:'Flavour wheel',flow:'From seed to cup',dial:'Dial-in',scan:'Scan beans',gear:'Gear and dials',recipes:'Recipes',tech:'Techniques',process:'Processes',map:'Origins map',variety:'Varieties',history:'History',guide:'Guide',log:'Brew log'};
-const BNGROUP={explore:'explore',more:'more',champs:'explore',words:'explore',wheel:'explore',flow:'explore',dial:'dial',recipes:'recipes',scan:'scan',map:'explore',variety:'explore',history:'explore',process:'explore',tech:'explore',gear:'more',guide:'more',log:'more'};
+const TABNAMES={explore:'Explore',settings:'Settings',champs:'World championships',words:'Coffee words',wheel:'Flavour wheel',flow:'From seed to cup',dial:'Dial-in',scan:'Scan beans',gear:'Gear and dials',recipes:'Recipes',tech:'Techniques',process:'Processes',map:'Origins map',variety:'Varieties',history:'History',guide:'Guide',log:'Brew log'};
+const BNGROUP={explore:'explore',settings:'settings',champs:'explore',words:'explore',wheel:'explore',flow:'explore',dial:'dial',recipes:'recipes',scan:'scan',map:'explore',variety:'explore',history:'explore',process:'explore',tech:'explore',gear:'settings',guide:'settings',log:'settings'};
 function syncShell(id){$('ab-title').textContent=TABNAMES[id]||'Brew Bench';$('ab-back').hidden=NAVD<1;document.body.className=document.body.className.replace(/\bt-\w+/g,'').trim()+' t-'+id;
   document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));movePill();
   const can=['dial','scan','history','log','map','recipes','words','flow','wheel'].includes(id);$('ab-share').hidden=!can}
@@ -4993,23 +5043,83 @@ const SHEETS={explore:[['map','Origins map','50 origins on an interactive map','
   more:[['gear','Gear and dials','Grinders, brewers and dial reading','#6E8FA8','cog'],['guide','Guide','Ratio calculator and troubleshooting','#C9964A','book'],['log','Brew log','Your brews, ratings and exports','#6B8E4E','pencil']]};
 /* Explore and More are pages, like Brew, Recipes and Scan: tiles grouped by what they're for. */
 const HUB={explore:[['Where coffee comes from',['map','variety','process','flow']],['How to brew and taste',['tech','wheel','words']],['The people and the story',['history','champs']]],
-  more:[['Your tools',['gear','guide','log']]]};
+  settings:[['Your tools',['gear','guide','log']]]};
 const hubItem=k=>[...SHEETS.explore,...SHEETS.more].find(x=>x[0]===k);
 const hubCount=k=>({map:Object.keys(ALLO()).length,variety:V.length,process:Object.keys(PROCESSES).length,tech:TECH.length,words:GLOSSARY.length,champs:CHAMPS.length,gear:MYG.length+' grinder'+(MYG.length===1?'':'s'),log:LOG.length?LOG.length+' brew'+(LOG.length===1?'':'s'):0})[k];
 const hubCard=k=>{const [,n,d,c,ic]=hubItem(k),cnt=hubCount(k);return '<button type="button" class="hubcard" data-go="'+k+'">'+ico(ic,c)+(cnt?'<span class="hn">'+cnt+'</span>':'')+'<b>'+n+'</b><small>'+d+'</small></button>'};
 function renderExplore(){const day=Math.floor(Date.now()/864e5),w=GLOSSARY[day%GLOSSARY.length];
   $('explore-in').innerHTML='<button type="button" class="wotd" data-word="'+esc(w[0])+'"><small>Word of the day</small><b>'+esc(w[0])+'</b><span>'+esc(w[2])+'</span></button>'+
     HUB.explore.map(([h,ks])=>'<h3 class="rh">'+h+'</h3><div class="hubgrid">'+ks.map(hubCard).join('')+'</div>').join('')}
-function renderMore(){const t=document.documentElement.getAttribute('data-theme')||'auto';
-  $('more-in').innerHTML=HUB.more.map(([h,ks])=>'<h3 class="rh">'+h+'</h3><div class="hubgrid">'+ks.map(hubCard).join('')+'</div>').join('')+
-    '<h3 class="rh">Settings</h3><div class="morelist"><div class="mtheme">'+ico(curTheme()==='dark'?'moon':'sun','#5B5F66')+'<span class="mt"><b>Appearance</b><small>Bright cream, cosy espresso, or follow your phone</small></span><div class="seg" id="m-theme"></div></div>'+
-    (installed()?'':'<button type="button" data-install>'+ico('download','#9A7390')+'<span class="mt"><b>Add to your home screen</b><small>Use it like an app, offline too</small></span></button><div class="moretip" id="m-install" hidden><b>iPhone (Safari):</b> tap the Share button, then <b>Add to Home Screen</b>.<br><b>Android (Chrome):</b> tap the ⋮ menu, then <b>Add to Home screen</b>.</div>')+'</div>'+
-    '<h3 class="rh">About</h3><div class="morelist"><div>'+ico('book','#8A5A3B')+'<span class="mt"><b>The Brew Bench</b><small>A coffee field guide and dial-in tool. Your calibration, recipes, scans and brew log stay saved on this device.</small></span></div></div>';
-  seg('m-theme',[['light','Light'],['dark','Dark'],['auto','Auto']],()=>t,v=>{if(v==='auto'){document.documentElement.removeAttribute('data-theme');try{localStorage.removeItem('bb-theme')}catch(e){}}
-    else{document.documentElement.setAttribute('data-theme',v);try{localStorage.setItem('bb-theme',v)}catch(e){}}syncThemeBtn();renderMore()})}
-for(const id of ['explore-in','more-in'])$(id).addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g){showTab(g.dataset.go);return}
-  const w=e.target.closest('[data-word]');if(w){openWord(w.dataset.word);return}
-  if(e.target.closest('[data-install]')){const m=$('m-install');m.hidden=!m.hidden}});
+/* ---------- Settings: the app's look, name and your data ---------- */
+let UI=Object.assign({accent:'classic',logo:'bean',name:'',text:'m',motion:'full',start:'dial'},load('bb-ui',{}));
+const ACCENTS=[['classic','House roast','#8A5A3B'],['espresso','Espresso','#5E3B2A'],['cascara','Cascara','#A3392E'],['kenya','Kenya','#7B2D4E'],['honey','Honey','#A8741C'],['leaf','Coffee leaf','#4F7A45'],['coldbrew','Cold brew','#2E5C7A'],['geisha','Geisha','#76588C']];
+if(!ACCENTS.some(a=>a[0]===UI.accent))UI.accent='classic';
+const LOGOS={bean:['Bean',null],
+  cup:['Cup','<path d="M4 9h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z" fill="var(--cherry)"/><path d="M16 10.5h1.5a2.5 2.5 0 0 1 0 5H16" fill="none" stroke="var(--cherry)" stroke-width="2"/><path d="M8 2.5c-1.2 1.6 1.2 2.6 0 4.5M12 2.5c-1.2 1.6 1.2 2.6 0 4.5" stroke="var(--honey)" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M3 21h14" stroke="var(--honey)" stroke-width="1.8" stroke-linecap="round"/>'],
+  dripper:['Dripper','<path d="M3.5 5h17l-6.5 9h-4z" fill="var(--cherry)"/><path d="M9 14h6v2.2H9z" fill="var(--honey)"/><path d="M6 17.5h12v1.5a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 6 19z" fill="var(--cherry)" opacity=".85"/><path d="M12 2v2" stroke="var(--honey)" stroke-width="1.8" stroke-linecap="round"/>'],
+  cherry:['Cherry','<circle cx="8.5" cy="15.5" r="5" fill="var(--cherry)"/><circle cx="16" cy="14" r="4.5" fill="var(--cherry)" opacity=".75"/><path d="M8.5 10.5c.5-3.5 3-6 7-7.5M16 9.5c0-2.5.3-4.5-.5-6.5" stroke="var(--leaf)" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M15.5 3c2.5-1 5-.3 6 1.5-2.5 1-5 .5-6-1.5z" fill="var(--leaf)"/>'],
+  moka:['Moka pot','<path d="M8 3h8l1.2 7H6.8z" fill="var(--honey)"/><path d="M6.8 11.5h10.4L15.6 21H8.4z" fill="var(--cherry)"/><path d="M17 5h2.5L18 9.5" stroke="var(--cherry)" stroke-width="1.8" fill="none" stroke-linejoin="round"/><path d="M11 1.8h2" stroke="var(--cherry)" stroke-width="1.8" stroke-linecap="round"/>'],
+  kettle:['Kettle','<path d="M5 10h10v8a2.5 2.5 0 0 1-2.5 2.5h-5A2.5 2.5 0 0 1 5 18z" fill="var(--cherry)"/><path d="M15 13c3.2 0 4-4.5 6.5-6.5" stroke="var(--cherry)" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M7.5 6.5h5L14 10H6z" fill="var(--honey)"/><path d="M10 4.5v2" stroke="var(--honey)" stroke-width="1.8" stroke-linecap="round"/>']};
+if(!LOGOS[UI.logo])UI.logo='bean';UI.name=str(UI.name,40);if(!['s','m','l','xl'].includes(UI.text))UI.text='m';if(!['full','reduced'].includes(UI.motion))UI.motion='full';if(!['dial','recipes','scan','explore'].includes(UI.start))UI.start='dial';
+const BEAN_SVG=$('ab-logo').innerHTML;
+const logoSVG=(k,sz)=>k==='bean'?BEAN_SVG.replace(/width="24" height="24"/,'width="'+sz+'" height="'+sz+'"'):'<svg viewBox="0 0 24 24" width="'+sz+'" height="'+sz+'" aria-hidden="true">'+LOGOS[k][1]+'</svg>';
+const NAME_IDEAS=['Home Café','The Slow Bar','Morning Pour','First Crack','The Bloom Room','Bean There'];
+// The browser tab icon follows the chosen logo and colours.
+function setFavicon(){try{const cs=getComputedStyle(document.documentElement),col=v=>cs.getPropertyValue(v).trim()||'#8A5A3B';
+  const svg=logoSVG(UI.logo,64).replace('<svg ','<svg xmlns="http://www.w3.org/2000/svg" ').replace(/var\((--[a-z-]+)\)/g,(m,v)=>col(v));
+  const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');x.fillStyle=col('--paper');x.beginPath();x.arc(32,32,32,0,7);x.fill();x.drawImage(img,6,6,52,52);
+    let l=document.querySelector('link[rel="icon"]');if(!l){l=document.createElement('link');l.rel='icon';document.head.appendChild(l)}l.href=c.toDataURL('image/png')};
+  img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)}catch(e){}}
+function applyUI(){const d=document.documentElement;d.setAttribute('data-accent',UI.accent);d.setAttribute('data-text',UI.text);d.setAttribute('data-motion',UI.motion);
+  $('ab-logo').innerHTML=logoSVG(UI.logo,24);$('hero-name').textContent=UI.name||'The Brew Bench';document.title=(UI.name?UI.name+' · ':'')+'The Brew Bench';
+  const t=curTheme();document.querySelectorAll('meta[name="theme-color"]').forEach(m=>{if(d.hasAttribute('data-theme'))m.content=t==='dark'?'#1F1814':'#FBF7F0'});setFavicon()}
+function saveUI(){save('bb-ui',UI);applyUI()}
+/* Your data: everything the app saves on this device, in one file you can keep or move to another phone. */
+const DATA_SKIP=['bb-reset','bb-pending'];
+function dataKeys(){const k=[];try{for(let i=0;i<localStorage.length;i++){const n=localStorage.key(i);if(n&&n.startsWith('bb-')&&!DATA_SKIP.includes(n))k.push(n)}}catch(e){}return k.sort()}
+function dataSummary(){const n=k=>{let v=null;try{v=JSON.parse(localStorage.getItem(k)||'null')}catch(e){}return Array.isArray(v)?v.length:v&&typeof v==='object'?Object.keys(v).length:0};
+  return [[n('bb-myrecipes'),'recipe'],[n('bb-log'),'brew'],[n('bb-scans'),'scan'],[n('bb-favs'),'favourite']].filter(x=>x[0]).map(([c,w])=>c+' '+w+(c===1?'':'s')).join(', ')||'Nothing saved yet besides your settings'}
+async function exportData(){const data={};for(const k of dataKeys()){try{data[k]=localStorage.getItem(k)}catch(e){}}
+  const d=new Date(),day=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  const blob=new Blob([JSON.stringify({app:'brew-bench',kind:'backup',version:1,exported:d.toISOString(),data},null,1)],{type:'application/json'});
+  await saveFile('brew-bench-backup-'+day+'.json',blob)}
+function importData(file){if(!file)return;if(file.size>8e6){toast('That file is too big to be a Brew Bench backup');return}
+  const rd=new FileReader();rd.onload=()=>{let j;try{j=JSON.parse(rd.result)}catch(e){toast('That file isn’t a Brew Bench backup');return}
+    if(!j||j.app!=='brew-bench'||!j.data||typeof j.data!=='object'){toast('That file isn’t a Brew Bench backup');return}
+    const ent=Object.entries(j.data).filter(([k,v])=>/^bb-[a-z0-9-]{1,40}$/.test(k)&&typeof v==='string'&&!DATA_SKIP.includes(k));if(!ent.length){toast('That backup is empty');return}
+    const when=j.exported?new Date(j.exported).toLocaleDateString():'an earlier date';
+    if(!confirm('Replace the data on this device with the backup from '+when+'? Your current recipes, log, scans and settings here will be overwritten.'))return;
+    try{for(const k of dataKeys())localStorage.removeItem(k);for(const [k,v] of ent)localStorage.setItem(k,v)}catch(e){toast('Couldn’t restore the backup: storage is full or blocked');return}
+    toast('Backup restored');setTimeout(()=>location.reload(),600)};
+  rd.onerror=()=>toast('Couldn’t read that file');rd.readAsText(file)}
+function renderSettings(){const t=document.documentElement.getAttribute('data-theme')||'auto';
+  const row=(icon,bg,title,sub,body)=>'<div class="setrow"><div class="sl">'+ico(icon,bg)+'<span class="mt"><b>'+title+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</span></div>'+(body||'')+'</div>';
+  $('settings-in').innerHTML='<h3 class="rh">Appearance</h3><div class="setgroup">'+
+    row(curTheme()==='dark'?'moon':'sun','#5B5F66','Light or dark','Bright cream, cosy espresso, or follow your phone','<div class="seg" id="st-mode"></div>')+
+    row('drop','var(--cherry)','Colour','Coffee-inspired themes for buttons, highlights and charts','<div class="swatches">'+ACCENTS.map(([k,n,c])=>'<button type="button" class="swatch" data-accent="'+k+'" aria-pressed="'+(UI.accent===k)+'"><i style="background:'+c+'"></i>'+n+'</button>').join('')+'</div>')+
+    row('leaf','#6B8E4E','App logo','Shown in the top bar and the browser tab','<div class="logos">'+Object.entries(LOGOS).map(([k,[n]])=>'<button type="button" class="logopick" data-logo="'+k+'" aria-pressed="'+(UI.logo===k)+'">'+logoSVG(k,34)+n+'</button>').join('')+'</div><p class="setnote">The icon on your phone’s home screen stays the bean.</p>')+
+    row('book','#9A7390','Your café’s name','Shown on the Brew page instead of “The Brew Bench”','<div class="namerow"><input type="text" id="st-name" maxlength="40" placeholder="The Brew Bench" value="'+esc(UI.name)+'" aria-label="Your café’s name"></div><div class="namechips">'+NAME_IDEAS.map(n=>'<button type="button" class="chip" data-name="'+esc(n)+'">'+esc(n)+'</button>').join('')+(UI.name?'<button type="button" class="chip" data-name="">Reset</button>':'')+'</div>')+
+    row('text','#C9964A','Text size','','<div class="seg" id="st-text"></div>')+
+    row('wheel','#6E8FA8','Motion','Animations between pages and sheets','<div class="seg" id="st-motion"></div>')+
+    row('globe','#4F8A74','Open the app on','The page you see first','<div class="seg" id="st-start"></div>')+'</div>'+
+   HUB.settings.map(([h,ks])=>'<h3 class="rh">'+h+'</h3><div class="hubgrid">'+ks.map(hubCard).join('')+'</div>').join('')+
+   '<h3 class="rh">Your data</h3><div class="setgroup">'+row('download','#8A5A3B','Back up and restore','Everything you’ve saved stays on this device: '+esc(dataSummary())+'. Save it as a file to keep it safe or move it to another phone.',
+     '<div class="setbtns"><button type="button" class="btn" id="st-export">Export my data</button><button type="button" class="btn ghost" id="st-import">Import a backup</button><input type="file" id="st-file" accept="application/json,.json" hidden></div>')+'</div>'+
+   (installed()?'':'<h3 class="rh">Install</h3><div class="setgroup">'+row('download','#9A7390','Add to your home screen','Use it like an app, offline too','<p class="setnote" style="margin:0"><b>iPhone (Safari):</b> tap the Share button, then <b>Add to Home Screen</b>.<br><b>Android (Chrome):</b> tap the ⋮ menu, then <b>Add to Home screen</b>.</p>')+'</div>')+
+   '<h3 class="rh">About</h3><div class="setgroup">'+row('book','#8A5A3B','The Brew Bench','A coffee field guide and dial-in tool. Your calibration, recipes, scans and brew log stay saved on this device.')+'</div>';
+  seg('st-mode',[['light','Light'],['dark','Dark'],['auto','Auto']],()=>t,v=>{if(v==='auto'){document.documentElement.removeAttribute('data-theme');try{localStorage.removeItem('bb-theme')}catch(e){}}
+    else{document.documentElement.setAttribute('data-theme',v);try{localStorage.setItem('bb-theme',v)}catch(e){}}syncThemeBtn();applyUI();renderSettings()});
+  seg('st-text',[['s','Small'],['m','Standard'],['l','Large'],['xl','Larger']],()=>UI.text,v=>{UI.text=v;saveUI();renderSettings()});
+  seg('st-motion',[['full','Full'],['reduced','Reduced']],()=>UI.motion,v=>{UI.motion=v;saveUI();renderSettings()});
+  seg('st-start',[['dial','Brew'],['recipes','Recipes'],['scan','Scan'],['explore','Explore']],()=>UI.start,v=>{UI.start=v;saveUI();renderSettings();toast('The app will open on '+TABNAMES[v])})}
+$('settings-in').addEventListener('click',e=>{const a=e.target.closest('.swatch[data-accent]');if(a){UI.accent=a.dataset.accent;saveUI();renderSettings();return}
+  const l=e.target.closest('.logopick[data-logo]');if(l){UI.logo=l.dataset.logo;saveUI();renderSettings();return}
+  const n=e.target.closest('.chip[data-name]');if(n){UI.name=n.dataset.name;saveUI();renderSettings();return}
+  if(e.target.closest('#st-export')){exportData();return}if(e.target.closest('#st-import')){$('st-file').click();return}});
+$('settings-in').addEventListener('change',e=>{if(e.target.id==='st-file'){importData(e.target.files[0]);e.target.value=''}});
+$('settings-in').addEventListener('input',e=>{if(e.target.id==='st-name'){UI.name=str(e.target.value,40);save('bb-ui',UI);applyUI()}});
+for(const id of ['explore-in','settings-in'])$(id).addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g){showTab(g.dataset.go);return}
+  const w=e.target.closest('[data-word]');if(w)openWord(w.dataset.word)});
 // Older code and links may still ask for the sheets; they are pages now.
 const openSheet=which=>showTab(which);
 // The highlight behind the current nav button glides to the next one.
@@ -5049,7 +5159,8 @@ try{initDial();render();renderCalc();renderTS();renderStars();renderLog();initSc
 catch(err){let retried=false;try{retried=sessionStorage.getItem('bb-reset')==='1';sessionStorage.setItem('bb-reset','1')}catch(e){}
   if(!retried){try{['bb-state','bb-plan','bb-scan','bb-calc','bb-base3'].forEach(k=>localStorage.removeItem(k))}catch(e){}location.reload()}throw err}
 try{sessionStorage.removeItem('bb-reset')}catch(e){}
-{const h=location.hash.slice(1);if(!openRoute(h)){if(h&&$(h)&&$(h).tagName==='SECTION')showTab(h,true);else syncShell('dial')}}
+applyUI();
+{let h=location.hash.slice(1);if(h==='more')h='settings';if(!openRoute(h)){if(h&&$(h)&&$(h).tagName==='SECTION')showTab(h,true);else if(!h&&UI.start!=='dial'&&$(UI.start))showTab(UI.start,true);else syncShell('dial')}}
 if(GROUP)startStream();
 if(window.claude&&window.claude.use){
   window.claude.use('sample').then(async s=>{SAMPLE=s;if(!s)return;

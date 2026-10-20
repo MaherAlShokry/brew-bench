@@ -13,7 +13,7 @@ Both update automatically whenever `main` changes.
 
 ## Features
 
-On a phone the app has five tabs: **Brew** (the dial-in), **Recipes**, **Scan**, **Explore** (origins, varieties, processes, seed to cup, techniques, the flavour wheel, coffee words, history and championships, with a word of the day) and **More** (gear, the guide, your brew log, appearance and adding the app to your home screen). On a computer every section sits in the tab bar.
+On a phone the app has five tabs: **Brew** (the dial-in), **Recipes**, **Scan**, **Explore** (origins, varieties, processes, seed to cup, techniques, the flavour wheel, coffee words, history and championships, with a word of the day) and **Settings** (make it yours: light or dark, eight coffee colour themes from House roast to Cascara, Kenya and Geisha, six logos for the top bar and browser tab, your café's name on the Brew page, text size, motion and which page the app opens on; then your tools, and **Export my data / Import a backup**, a single file with everything you've saved, to keep safe or move to another phone). On a computer every section sits in the tab bar.
 
 | Section | What it does |
 | --- | --- |

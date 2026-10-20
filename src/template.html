@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>try{var t=localStorage.getItem("bb-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script>try{var t=localStorage.getItem("bb-theme"),d=document.documentElement;if(t)d.setAttribute("data-theme",t);var u=JSON.parse(localStorage.getItem("bb-ui")||"{}");if(u&&typeof u==="object"){if(u.accent)d.setAttribute("data-accent",u.accent);if(u.text)d.setAttribute("data-text",u.text);if(u.motion)d.setAttribute("data-motion",u.motion)}}catch(e){}</script>
 <meta name="theme-color" content="#FBF7F0" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1F1814" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -45,7 +45,7 @@
 *,*::before,*::after{box-sizing:inherit}
 [hidden]{display:none!important}
 html{scroll-padding-top:calc(var(--sa-top) + 64px)}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:1rem;line-height:1.6}
 h1,h2,h3,.tab,button,label,.num,.pill,.chip,summary{font-family:var(--display)}
 h1{font-size:clamp(2.2rem,7vw,3.8rem);line-height:.95;font-weight:800;letter-spacing:-.025em;margin:0}
 h2{font-size:1.6rem;line-height:1.15;margin:0 0 .6rem;font-weight:800;letter-spacing:-.01em}
@@ -981,15 +981,63 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 
 /* The map's region buttons are easier to tap on phones. */
 @media (max-width:759px){.mapbar.seg.filters button{min-height:34px}}
+
+/* Coffee colour themes: the accent, with the soft surfaces and lines tinted to match. */
+:root[data-accent="espresso"]{--cherry:#5E3B2A;--cherry-ink:#4A2C1E}
+:root[data-accent="espresso"][data-theme="dark"]{--cherry:#C99A7A;--cherry-ink:#C99A7A}
+@media (prefers-color-scheme:dark){:root[data-accent="espresso"]:not([data-theme="light"]){--cherry:#C99A7A;--cherry-ink:#C99A7A}}
+:root[data-accent="cascara"]{--cherry:#A3392E;--cherry-ink:#86291F}
+:root[data-accent="cascara"][data-theme="dark"]{--cherry:#EE8F80;--cherry-ink:#EE8F80}
+@media (prefers-color-scheme:dark){:root[data-accent="cascara"]:not([data-theme="light"]){--cherry:#EE8F80;--cherry-ink:#EE8F80}}
+:root[data-accent="leaf"]{--cherry:#4F7A45;--cherry-ink:#3C5F34}
+:root[data-accent="leaf"][data-theme="dark"]{--cherry:#9DC68B;--cherry-ink:#9DC68B}
+@media (prefers-color-scheme:dark){:root[data-accent="leaf"]:not([data-theme="light"]){--cherry:#9DC68B;--cherry-ink:#9DC68B}}
+:root[data-accent="coldbrew"]{--cherry:#2E5C7A;--cherry-ink:#234A63}
+:root[data-accent="coldbrew"][data-theme="dark"]{--cherry:#8FBCDA;--cherry-ink:#8FBCDA}
+@media (prefers-color-scheme:dark){:root[data-accent="coldbrew"]:not([data-theme="light"]){--cherry:#8FBCDA;--cherry-ink:#8FBCDA}}
+:root[data-accent="honey"]{--cherry:#A8741C;--cherry-ink:#7E560F}
+:root[data-accent="honey"][data-theme="dark"]{--cherry:#E9BC63;--cherry-ink:#E9BC63}
+@media (prefers-color-scheme:dark){:root[data-accent="honey"]:not([data-theme="light"]){--cherry:#E9BC63;--cherry-ink:#E9BC63}}
+:root[data-accent="kenya"]{--cherry:#7B2D4E;--cherry-ink:#62213D}
+:root[data-accent="kenya"][data-theme="dark"]{--cherry:#E08AAE;--cherry-ink:#E08AAE}
+@media (prefers-color-scheme:dark){:root[data-accent="kenya"]:not([data-theme="light"]){--cherry:#E08AAE;--cherry-ink:#E08AAE}}
+:root[data-accent="geisha"]{--cherry:#76588C;--cherry-ink:#5E4471}
+:root[data-accent="geisha"][data-theme="dark"]{--cherry:#C6A9DD;--cherry-ink:#C6A9DD}
+@media (prefers-color-scheme:dark){:root[data-accent="geisha"]:not([data-theme="light"]){--cherry:#C6A9DD;--cherry-ink:#C6A9DD}}
+:root[data-accent]:not([data-accent="classic"]){--surface2:color-mix(in srgb,var(--cherry) 11%,var(--surface));--line:color-mix(in srgb,var(--cherry) 17%,var(--surface))}
+/* Text size and motion. */
+:root[data-text="s"]{font-size:15px}:root[data-text="l"]{font-size:17.5px}:root[data-text="xl"]{font-size:19px}
+:root[data-motion="reduced"] *,:root[data-motion="reduced"] *::before,:root[data-motion="reduced"] *::after{animation:none!important;transition:none!important}
+/* Settings page. */
+.setgroup{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+.setrow{padding:14px 16px}.setrow+.setrow{border-top:1px solid var(--line)}
+.setrow>.sl{display:flex;align-items:center;gap:12px;margin-bottom:10px}.setrow>.sl:last-child{margin-bottom:0}
+.setrow .ic{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;flex:none}.setrow .ic svg{width:20px;height:20px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.setrow .mt{flex:1;min-width:0}.setrow .mt b{display:block;font-weight:600}.setrow .mt small{display:block;color:var(--muted);font-size:.84rem;line-height:1.35}
+.setrow .seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr}
+.swatches{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.swatch{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 6px;border-radius:14px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:600 .8rem var(--display);cursor:pointer;text-align:center}
+.swatch i{width:34px;height:34px;border-radius:50%;box-shadow:inset 0 0 0 3px rgba(255,255,255,.35)}.swatch[aria-pressed="true"]{outline:3px solid var(--cherry);outline-offset:1px}
+.logos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}@media (min-width:600px){.logos{grid-template-columns:repeat(6,minmax(0,1fr))}}
+.logopick{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border-radius:14px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:600 .76rem var(--display);cursor:pointer}
+.logopick svg{width:34px;height:34px}.logopick[aria-pressed="true"]{outline:3px solid var(--cherry);outline-offset:1px}
+.namerow{display:flex;gap:8px}.namerow input{flex:1;min-width:0}
+.namechips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.setbtns{display:flex;flex-wrap:wrap;gap:8px}.setnote{font-size:.82rem;color:var(--muted);margin:.5rem 0 0}
+#ab-logo{display:inline-flex}#ab-logo svg{width:24px;height:24px}
+
+/* One heading scale everywhere: the page title (h2), section headings inside a page (h3.sec), card and panel titles. */
+h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;margin:2rem 0 .7rem}
+.panel>h2:not(#o-verdict),.panel .vd-head h2,#info>h2,.drecipe>h2,.plan-out h2,#scan-out h2{font-size:1.3rem;line-height:1.2}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
 <body>
-<header class="appbar" id="appbar"><button type="button" class="ab-back" id="ab-back" aria-label="Back" hidden><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="ab-brand"><svg viewBox="80 80 352 352" width="24" height="24" aria-hidden="true"><g transform="rotate(-38 256 256)"><clipPath id="abBean"><ellipse cx="256" cy="256" rx="120" ry="166"/></clipPath><g clip-path="url(#abBean)"><rect x="100" y="80" width="320" height="360" fill="var(--cherry)"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184H440V80z" fill="var(--honey)"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184" fill="none" stroke="var(--paper)" stroke-width="22"/></g></g></svg><span id="ab-title">Dial-in</span></div><button type="button" class="ab-btn" id="ab-share" aria-label="Share">Share</button></header>
+<header class="appbar" id="appbar"><button type="button" class="ab-back" id="ab-back" aria-label="Back" hidden><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="ab-brand"><span id="ab-logo"><svg viewBox="80 80 352 352" width="24" height="24" aria-hidden="true"><g transform="rotate(-38 256 256)"><clipPath id="abBean"><ellipse cx="256" cy="256" rx="120" ry="166"/></clipPath><g clip-path="url(#abBean)"><rect x="100" y="80" width="320" height="360" fill="var(--cherry)"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184H440V80z" fill="var(--honey)"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184" fill="none" stroke="var(--paper)" stroke-width="22"/></g></g></svg></span><span id="ab-title">Dial-in</span></div><button type="button" class="ab-btn" id="ab-share" aria-label="Share">Share</button></header>
 <div class="herowrap"><button type="button" class="themebtn" id="themebtn" aria-label="Switch theme">Dark</button>
 <header class="hero wrap">
   <div>
-    <h1>The Brew Bench</h1>
+    <h1 id="hero-name">The Brew Bench</h1>
     <p>A coffee field guide and dial-in tool. Explore where coffee grows and where each variety came from, then brew it well.</p>
   </div>
   <svg class="hero-art" viewBox="0 0 320 260" role="img" aria-label="Illustration of a gooseneck kettle pouring into a pour-over dripper">
@@ -1206,7 +1254,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   <div class="seg filters scrollrow" id="ch-filter" style="margin:14px 0 8px"></div>
   <div class="seg filters scrollrow" id="ch-brewer" style="margin:0 0 14px"></div>
   <div class="grid" id="ch-about"></div>
-  <h2 style="margin-top:1.6rem">Timeline</h2>
+  <h3 class="sec">Timeline</h3>
   <p class="hint">Newest first. Tap a champion's button for their recipe and gear, and how to brew it with yours.</p>
   <ol class="timeline chtl" id="ch-tl"></ol>
 </section>
@@ -1263,10 +1311,10 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   <div class="grid" id="species"></div>
 
   <div class="twocol" style="margin-top:2rem">
-    <div><h2>Timeline</h2><div class="actions" style="margin-top:0"><button class="btn ghost" id="hist-share">Share the story of coffee</button></div><ol class="timeline" id="timeline"></ol></div>
-    <div><h2>People who spread coffee</h2><div class="grid" id="people" style="grid-template-columns:1fr"></div></div>
+    <div><h3 class="sec" style="margin-top:0">Timeline</h3><div class="actions" style="margin-top:0"><button class="btn ghost" id="hist-share">Share the story of coffee</button></div><ol class="timeline" id="timeline"></ol></div>
+    <div><h3 class="sec" style="margin-top:0">People who spread coffee</h3><div class="grid" id="people" style="grid-template-columns:1fr"></div></div>
   </div>
-  <h2 style="margin-top:2rem">Test yourself</h2>
+  <h3 class="sec">Test yourself</h3>
   <div class="panel" id="quiz"></div>
 </section>
 
@@ -1292,6 +1340,8 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 
 <!-- GUIDE -->
 <section id="guide">
+  <h2>Guide</h2>
+  <p class="lede">Ratios, fixes for what you taste, and the levers that move extraction.</p>
   <div class="twocol" style="margin-bottom:2rem">
     <div class="panel"><h2>Ratio calculator</h2>
       <div class="two"><div class="field"><label for="c-dose">Coffee <span class="num" id="cv-dose"></span></label><input type="range" id="c-dose" min="7" max="60" step="0.5"></div>
@@ -1300,7 +1350,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
       <div class="specs" id="c-out"></div></div>
     <div class="panel"><h2>What does it taste like?</h2><p class="hint" style="margin-top:0">Pick what you taste. Fixes start from your current dial-in and stay inside the usual range for your brewer.</p><div class="chips" id="ts-chips"></div><div id="ts-out"></div></div>
   </div>
-  <h2>The bloom</h2>
+  <h3 class="sec">The bloom</h3>
   <p>The bloom degasses CO2, wets every particle evenly so later pours don't channel, and starts extraction early. Its length is a real variable.</p>
   <div class="scroll"><table class="ref"><thead><tr><th>Bloom</th><th>Effect</th><th>Best for</th></tr></thead><tbody>
     <tr><td>~30s</td><td>Often incomplete degassing on fresh beans. Uneven flow, thinner and brighter cup.</td><td>Older beans, darker roasts, loud anaerobics</td></tr>
@@ -1308,14 +1358,14 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
     <tr><td>~60s</td><td>Real extraction during the bloom. More body and sweetness, some risk of bitterness and temperature drop.</td><td>Very fresh, light, dense roasts</td></tr>
   </tbody></table></div>
   <p class="tip">The fresher and lighter the roast, the longer the bloom can go.</p>
-  <h2 style="margin-top:2rem">Extraction levers</h2>
+  <h3 class="sec">Extraction levers</h3>
   <div class="grid">
     <div class="card"><h3>More extraction</h3><p>Finer grind (biggest lever), hotter water, longer contact, more agitation, more water per gram.</p></div>
     <div class="card"><h3>Less extraction</h3><p>Coarser grind, cooler water, gentler pours, fewer pulses, faster drawdown.</p></div>
     <div class="card"><h3>Coarse and hot</h3><p>Cleaner cup. Fewer fines, less muddiness and astringency, while heat still pulls sweetness. The classic light-roast approach, and a natural fit for the ZP6.</p></div>
     <div class="card"><h3>Fine and cool</h3><p>More intensity and acidity from the surface, but fines can still over-extract and turn drying. The K-Ultra's extra body makes this easier to live with.</p></div>
   </div>
-  <h2 style="margin-top:2rem">Grinders and brewers</h2>
+  <h3 class="sec">Grinders and brewers</h3>
   <div class="scroll"><table class="ref"><thead><tr><th></th><th>Cup signature</th><th>Reach for it when</th></tr></thead><tbody>
     <tr><td><b>1Zpresso ZP6 Special</b></td><td>Clarity, separation, clean aromatics</td><td>The coffee is about aroma: washed, Geisha, landraces</td></tr>
     <tr><td><b>1Zpresso K-Ultra</b></td><td>Rounder, more body, more blended</td><td>You want body, or a coffee tastes flat</td></tr>
@@ -1325,7 +1375,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
     <tr><td><b>Hario Switch + V60 NEO</b></td><td>Valve control with the NEO's fast, even drawdown</td><td>You want hybrid recipes with a cleaner finish</td></tr>
     <tr><td><b>Kalita Wave</b></td><td>Self-regulating, consistent</td><td>You want the same good cup every day</td></tr>
   </tbody></table></div>
-  <h2 style="margin-top:2rem">Troubleshoot</h2>
+  <h3 class="sec">Troubleshoot</h3>
   <div class="scroll"><table class="ref"><thead><tr><th>Tastes like</th><th>Likely cause</th><th>Try</th></tr></thead><tbody>
     <tr><td>Sour, thin, hollow</td><td>Under-extracted</td><td>Finer, hotter, longer bloom</td></tr>
     <tr><td>Drying, astringent, papery</td><td>Over-extracted</td><td>Coarser, cooler, gentler pours</td></tr>
@@ -1366,15 +1416,15 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   <div id="explore-in"></div>
 </section>
 
-<!-- MORE -->
-<section id="more">
-  <h2>More</h2>
-  <p class="lede">Your gear, your brews and how the app looks.</p>
-  <div id="more-in"></div>
+<!-- SETTINGS -->
+<section id="settings">
+  <h2>Settings</h2>
+  <p class="lede">Make the app yours: its look, its name, your tools and your data.</p>
+  <div id="settings-in"></div>
 </section>
 </main>
 
-<nav class="bottomnav" aria-label="Main"><span class="bn-pill" aria-hidden="true"></span><button type="button" data-bn="dial"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10h9v4.5a4.5 4.5 0 0 1-4.5 4.5h0A4.5 4.5 0 0 1 7 14.5z M16 11.5h1.5a2 2 0 0 1 0 4H16 M10 3.5c0 1.5 1.5 1.5 1.5 3 M13.5 3.5c0 1.5 1.5 1.5 1.5 3"/></svg><span>Brew</span></button><button type="button" data-bn="recipes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H18v15H6.5A1.5 1.5 0 0 0 5 19.5z M5 19.5A1.5 1.5 0 0 0 6.5 21H18v-3 M9 7.5h5 M9 11h5"/></svg><span>Recipes</span></button><button type="button" data-bn="scan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V6a2 2 0 0 1 2-2h2 M16 4h2a2 2 0 0 1 2 2v2 M20 16v2a2 2 0 0 1-2 2h-2 M8 20H6a2 2 0 0 1-2-2v-2 M12 8.5c2 0 3.5 1.6 3.5 3.5S14 15.5 12 15.5 8.5 14 8.5 12 10 8.5 12 8.5z M10.3 13.7c1.2-.6 2.2-2.2 3.4-3.4"/></svg><span>Scan</span></button><button type="button" data-bn="explore"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M15.5 8.5l-2 5-5 2 2-5z"/></svg><span>Explore</span></button><button type="button" data-bn="more"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h5v5H5z M14 5h5v5h-5z M5 14h5v5H5z M14 14h5v5h-5z"/></svg><span>More</span></button></nav>
+<nav class="bottomnav" aria-label="Main"><span class="bn-pill" aria-hidden="true"></span><button type="button" data-bn="dial"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10h9v4.5a4.5 4.5 0 0 1-4.5 4.5h0A4.5 4.5 0 0 1 7 14.5z M16 11.5h1.5a2 2 0 0 1 0 4H16 M10 3.5c0 1.5 1.5 1.5 1.5 3 M13.5 3.5c0 1.5 1.5 1.5 1.5 3"/></svg><span>Brew</span></button><button type="button" data-bn="recipes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H18v15H6.5A1.5 1.5 0 0 0 5 19.5z M5 19.5A1.5 1.5 0 0 0 6.5 21H18v-3 M9 7.5h5 M9 11h5"/></svg><span>Recipes</span></button><button type="button" data-bn="scan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V6a2 2 0 0 1 2-2h2 M16 4h2a2 2 0 0 1 2 2v2 M20 16v2a2 2 0 0 1-2 2h-2 M8 20H6a2 2 0 0 1-2-2v-2 M12 8.5c2 0 3.5 1.6 3.5 3.5S14 15.5 12 15.5 8.5 14 8.5 12 10 8.5 12 8.5z M10.3 13.7c1.2-.6 2.2-2.2 3.4-3.4"/></svg><span>Scan</span></button><button type="button" data-bn="explore"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M15.5 8.5l-2 5-5 2 2-5z"/></svg><span>Explore</span></button><button type="button" data-bn="settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6z M12 2.5v2.5 M12 19v2.5 M2.5 12H5 M19 12h2.5 M5.3 5.3l1.8 1.8 M16.9 16.9l1.8 1.8 M5.3 18.7l1.8-1.8 M16.9 7.1l1.8-1.8"/></svg><span>Settings</span></button></nav>
 <dialog id="sharesheet" aria-labelledby="sh-title"><div id="sh-in"></div></dialog>
 <dialog id="vd" aria-labelledby="vd-title"><div id="vd-in"></div></dialog>
 <dialog id="timer" aria-labelledby="tm-title"><div id="tm-in"></div></dialog>
