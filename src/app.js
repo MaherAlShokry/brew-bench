@@ -354,7 +354,12 @@ function render(){
   const bi=$('i-bloom');bi.min=B.bloom.min;bi.max=B.bloom.max;bi.step=B.bloom.max<=20?1:5;bi.value=S.bloom;$('v-bloom').textContent=S.bloom+'s';
   $('i-bloom').previousElementSibling.firstChild.textContent=B.bloom.label+' ';
   const rc=S.rec!=null&&RECIPES[S.rec]&&RECIPES[S.rec].b===S.brewer?RECIPES[S.rec]:null;
-  $('rec-chip').innerHTML=rc?'<span class="chip">Recipe: '+esc(rc.name)+(rc.temp2?', then '+rc.temp2+'°C':'')+' <button type="button" data-clear style="background:none;border:0;cursor:pointer;color:inherit" aria-label="Clear recipe">\u2715</button></span>':'';
+  // The loaded recipe stays one tap away: its steps open under the chip, and the timer starts with this dial-in's grind and water.
+  const rkey=rc?S.rec+'|'+S.ratio:'';if($('rec-chip').dataset.k!==rkey){const was=$('rec-chip').querySelector('details');const open=!!(was&&was.open&&rc&&$('rec-chip').dataset.k.split('|')[0]===String(S.rec));$('rec-chip').dataset.k=rkey;
+    const rr=rc&&Math.round(rc.water/rc.dose*2)/2,diff=rc&&Math.abs(rr-S.ratio)>=0.5;
+    $('rec-chip').innerHTML=rc?'<span class="chip">Recipe: '+esc(rc.name)+(rc.temp2?', then '+rc.temp2+'°C':'')+' <button type="button" data-clear style="background:none;border:0;cursor:pointer;color:inherit" aria-label="Clear recipe">\u2715</button></span>'+
+      '<details class="rsteps dsteps"'+(open?' open':'')+'><summary>Steps ('+rc.steps.length+')</summary><p class="hint" style="margin:.1rem 0 .4rem">'+rc.dose+'g coffee : '+rc.water+'g water'+(diff?'. Your ratio is 1:'+S.ratio+', so pour to about '+Math.round(rc.dose*S.ratio)+'g in total.':'')+'</p><ol class="steps">'+rc.steps.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol>'+(rc.tip?'<p class="hint">'+esc(rc.tip)+'</p>':'')+
+      '<div class="actions dsact"><button type="button" class="btn" data-dtimer>Start brew timer</button><button type="button" class="btn ghost" data-dfull>Full recipe</button></div></details>':''}
   $('i-brewer').value=S.brewer;$('i-process').value=S.process;$('i-variety').value=S.variety;
   const [vt,vs]=verdict(r.D);$('o-verdict').textContent=vt;$('mr-v').textContent=vt;$('mr-g').textContent=gLabel(S.grinder,S.setting)+', '+S.temp+'°C, 1:'+S.ratio;$('mr-m').style.left=((clamp(r.D,-2.5,2.5)+2.5)/5*100)+'%';$('o-summary').textContent=vs+' '+strength(S)+'.';
   $('o-marker').style.left=((clamp(r.D,-2.5,2.5)+2.5)/5*100)+'%';
@@ -402,7 +407,8 @@ function initDial(){
   $('i-brewer').onchange=e=>{const nb=e.target.value;let g=S.grinder;if(!canGrind(g,nb)){g=capable(nb);toast(gname(S.grinder)+' can\u2019t grind for this brewer, switched to '+gname(g))}
     S.setting=canGrind(S.grinder,S.brewer)&&canGrind(g,nb)?convertSetting(S,g,nb):base(g,nb);S.grinder=g;S.brewer=nb;S.rec=null;
     const B=BREWERS[nb];if(S.ratio<B.ratio.min||S.ratio>B.ratio.max)S.ratio=B.ratio.def;if(S.bloom<B.bloom.min||S.bloom>B.bloom.max)S.bloom=B.bloom.def;fitRanges();render()};
-  $('rec-chip').onclick=e=>{if(e.target.closest('[data-clear]')){S.rec=null;render()}};
+  $('rec-chip').onclick=e=>{if(e.target.closest('[data-clear]')){S.rec=null;render();return}const r=RECIPES[S.rec];if(S.rec==null||!r)return;
+    if(e.target.closest('[data-dtimer]'))openTimer(S.rec,{grinder:S.grinder,set:{[S.grinder]:S.setting},r:{dose:r.dose},water:r.water,temp:S.temp});else if(e.target.closest('[data-dfull]'))openRecipe(S.rec)};
   $('i-process').onchange=e=>{S.process=e.target.value;render()};
   $('i-variety').onchange=e=>{S.variety=e.target.value;render()};
   $('v-about').onclick=()=>openVariety(S.variety.split(':')[0]);
@@ -1344,9 +1350,19 @@ function prepCanvas(img,rot=0,max=2000){const k=Math.min(1,max/Math.max(img.widt
   x.translate(c.width/2,c.height/2);x.rotate(rot*Math.PI/180);x.drawImage(img,-w/2,-h/2,w,h);x.setTransform(1,0,0,1,0,0);x.filter='none';
   const d=x.getImageData(0,0,c.width,c.height),px=d.data,hist=new Uint32Array(256),N=px.length/4;for(let q=0;q<px.length;q+=4)hist[px[q]]++;
   let a=0,lo=0,hi=255;for(let t=0;t<256;t++){a+=hist[t];if(a>N*.02){lo=t;break}}a=0;for(let t=255;t>=0;t--){a+=hist[t];if(a>N*.02){hi=t;break}}
-  const mid=(lo+hi)/2;let dark=0;for(let t=0;t<mid;t++)dark+=hist[t];const inv=dark>N*.5,span=Math.max(1,hi-lo);
+  // Light text on a dark label is flipped to dark on light. Judge that from the middle of the photo, where the label
+  // is, so a dark table or bag around a white sticker doesn't flip it.
+  const mid=(lo+hi)/2,W=c.width,H=c.height;let dark=0,n=0;for(let y=Math.round(H*.25);y<H*.75;y+=2)for(let i=Math.round(W*.25);i<W*.75;i+=2){n++;if(px[(y*W+i)*4]<mid)dark++}
+  const inv=dark>n*.5,span=Math.max(1,hi-lo);
   for(let q=0;q<px.length;q+=4){let v=(px[q]-lo)*255/span;v=v<0?0:v>255?255:v;if(inv)v=255-v;px[q]=px[q+1]=px[q+2]=v}x.putImageData(d,0,0);return c}
 async function prepImage(file){return prepCanvas(await loadImage(file))}
+// Uneven light (glare, a shadow across the bag): compare each pixel with its own neighbourhood instead of the whole
+// photo, so text under a bright patch keeps its contrast. Works on a canvas prepared above (dark text on light).
+function evenLight(c){const x=c.getContext('2d'),W=c.width,H=c.height,d=x.getImageData(0,0,W,H),px=d.data,I=new Float64Array((W+1)*(H+1)),r=Math.max(12,Math.round(Math.min(W,H)/28));
+  for(let y=0;y<H;y++){let row=0;for(let i=0;i<W;i++){row+=px[(y*W+i)*4];I[(y+1)*(W+1)+i+1]=I[y*(W+1)+i+1]+row}}
+  for(let y=0;y<H;y++){const y0=Math.max(0,y-r),y1=Math.min(H,y+r+1);for(let i=0;i<W;i++){const x0=Math.max(0,i-r),x1=Math.min(W,i+r+1),n=(y1-y0)*(x1-x0),
+    m=(I[y1*(W+1)+x1]-I[y0*(W+1)+x1]-I[y1*(W+1)+x0]+I[y0*(W+1)+x0])/n,q=(y*W+i)*4,v=px[q]<m*.86&&m-px[q]>10?0:255;px[q]=px[q+1]=px[q+2]=v}}
+  x.putImageData(d,0,0);return c}
 // How useful a reading is: coffee details found count most, then the reader's own confidence.
 const readScore=(info,conf)=>(info.origin_key?30:0)+(info.variety_key?25:0)+(info.process_key?25:0)+(info.roast_date?10:0)+((info.tasting_notes||[]).length?10:0)+(conf||0)/2;
 // Read a label photo. If the first pass finds nothing (often a bag shot sideways or upside down), try the photo
@@ -1354,6 +1370,17 @@ const readScore=(info,conf)=>(info.origin_key?30:0)+(info.variety_key?25:0)+(inf
 async function readLabelImage(w,file,onStatus){const img=await loadImage(file);
   const read=async c=>{const r=await w.recognize(c),text=r.data.text||'',info=parseLabel(text);return{text,info,score:readScore(info,r.data.confidence)}};
   let best=await read(prepCanvas(img,0));best.rot=0;
+  const gaps=i=>!i.origin_key+!i.variety_key+!i.process_key;
+  // Something read but details missing: try again with the light evened out, and as scattered text (labels laid out
+  // in boxes and columns), then read everything found together.
+  // (Many bags never name the variety, so only a missing origin or process sends it round again.)
+  if((!best.info.origin_key||!best.info.process_key)&&gaps(best.info)<3){onStatus&&onStatus('more');
+    const texts=[best.text];for(const [canvas,psm] of [[evenLight(prepCanvas(img,0)),'3'],[prepCanvas(img,0),'11']]){try{if(psm!=='3')await w.setParameters({tessedit_pageseg_mode:psm});const r=await w.recognize(canvas);texts.push(r.data.text||'')}catch(e){}finally{if(psm!=='3')try{await w.setParameters({tessedit_pageseg_mode:'3'})}catch(e){}}}
+    const both=texts.join('\n'),info=parseLabel(both),sc=readScore(info,0);if(gaps(info)<gaps(best.info)||sc>best.score){const keep=best;best={text:both,info,score:sc,rot:0};
+      // Keep the clean first reading's name and roaster when it had them.
+      if(keep.info.coffee_name)best.info.coffee_name=keep.info.coffee_name;if(keep.info.roaster)best.info.roaster=keep.info.roaster;
+      // …unless the evened-out reading saw more of the same name ("Nyamas" under glare, "Nyamasheke" after).
+      const ev=parseLabel(texts[1]||'').coffee_name,kn=keep.info.coffee_name;if(ev&&(!kn||(fold(ev).startsWith(fold(kn).slice(0,4))&&ev.length>kn.length)))best.info.coffee_name=ev}}
   if(!best.info.origin_key&&!best.info.variety_key&&!best.info.process_key){
     for(const rot of [90,270,180]){onStatus&&onStatus(rot);const r=await read(prepCanvas(img,rot,1300));if(r.score>best.score+8){r.rot=rot;best=r}}
     if(best.rot){const r=await read(prepCanvas(img,best.rot));if(r.score>=best.score){r.rot=best.rot;best=r}}}
@@ -1502,7 +1529,7 @@ async function runLocalScan(useImg){
   try{let text=txt,rot=0;
     if(useImg){const w=await Promise.race([ocrWorker((status,p,g,t)=>{if(SCTL.done)return;st.textContent=status==='download'?'Downloading the text reader (first time only)… '+mb(g)+' of '+mb(t)+' MB'
           :/recogniz/.test(status)?'Reading the label… '+Math.round(p*100)+'%':'Starting the text reader…'}),stopped]);
-      const res=await Promise.race([withTimeout(readLabelImage(w,SFILE,()=>{if(!SCTL.done)st.textContent='Trying the photo the other way round…'}),180000,'slow'),stopped]);text=res.text;rot=res.rot||0;$('scan-text').value=text.trim()}
+      const res=await Promise.race([withTimeout(readLabelImage(w,SFILE,k=>{if(!SCTL.done)st.textContent=k==='more'?'Looking closer for the rest of the details…':'Trying the photo the other way round…'}),180000,'slow'),stopped]);text=res.text;rot=res.rot||0;$('scan-text').value=text.trim()}
     const j=parseLabel(text);if(!j.origin_key&&!j.variety_key&&!j.process_key&&!j.roast_date){st.textContent=useImg?'Couldn’t find coffee details in that photo. Try again with the label filling most of the photo, in sharp focus, or fill in the details below.':'No coffee details found in that text.';return}
     if(rot)await uprightPreview(rot);
     applyInfo(j);const found=[j.origin_key&&ALLO()[j.origin_key].name,j.process_key&&PROCESSES[j.process_key].name,j.variety_key&&vName(j.variety_key),j.roast_date&&'roasted '+fmtDate({date:j.roast_date})].filter(Boolean);
