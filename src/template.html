@@ -248,7 +248,7 @@ dialog#vd::backdrop{background:rgba(20,14,10,.55)}
 .twocol{display:grid;gap:26px;grid-template-columns:1fr}
 @media (min-width:960px){.twocol{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}}
 
-/* planner */
+/* brew plan (Scan) */
 .plan-out h2{margin-bottom:.2rem}
 .specs{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin:12px 0}
 .specs div{background:var(--paper);border-radius:10px;padding:10px}
@@ -342,7 +342,7 @@ button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.a
 @media (max-width:759px){html dialog#timer{margin:0;width:100%;max-width:100%;height:100%;max-height:100%;border-radius:0;border:0}}
 /* Recipes home: quick links and cup types */
 .rhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 0 10px}.rhead .rh{margin:0}.rhead .btn{flex:none;padding:8px 14px;font-size:.88rem}
-.rsteps{margin:.2rem 0 .4rem}.dsteps{margin-top:8px;padding:2px 12px 10px;border-radius:14px;background:var(--surface2)}.dsteps summary{padding:8px 0 4px}.dsteps .steps{margin:.2rem 0 .4rem;padding-left:1.2rem}.dsteps .steps li{margin:.25rem 0}.dsact{margin-top:.5rem;flex-wrap:wrap;gap:8px}.rsteps summary{cursor:pointer;font-weight:600;color:var(--cherry);padding:4px 0}.rsteps[open] summary{margin-bottom:.2rem}
+.rsteps{margin:.2rem 0 .4rem}.rsteps summary{cursor:pointer;font-weight:600;color:var(--cherry);padding:4px 0}.rsteps[open] summary{margin-bottom:.2rem}
 .rh{margin:22px 0 10px;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-family:var(--body);font-weight:700}
 .qlinks{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow)}
 .qlinks button{display:flex;align-items:center;gap:14px;width:100%;padding:13px 16px;border:0;background:none;color:var(--ink);font:inherit;text-align:left;cursor:pointer}
@@ -946,18 +946,11 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 .steps.tl .t{position:absolute;left:0;top:0;width:52px;text-align:center;font:700 .78rem var(--body);font-variant-numeric:tabular-nums;color:var(--cherry);background:color-mix(in srgb,var(--cherry) 12%,var(--surface));border-radius:99px;padding:3px 0}
 .steps.tl .t.dot{width:12px;height:12px;left:20px;top:6px;padding:0;background:var(--line)}
 
-/* Your brew: dose and ratio steppers on a recipe. */
-.rscale{border:1px solid color-mix(in srgb,var(--cherry) 30%,var(--line));background:color-mix(in srgb,var(--cherry) 5%,var(--surface));border-radius:16px;padding:10px 12px 12px;margin:.4rem 0 .7rem}
-.rs-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:8px}.rs-h b{font-family:var(--display)}.rs-h small{color:var(--muted);font-size:.78rem;text-align:right}
-.rs-reset{border:0;background:none;color:var(--cherry);font:600 .82rem var(--body);cursor:pointer;padding:4px 0}
-.rs-row{display:grid;grid-template-columns:1.25fr 1.1fr .8fr;gap:8px;align-items:end}.rs-f small{display:block;color:var(--muted);font-size:.74rem;margin-bottom:3px}
+/* Steppers (the dial-in's coffee dose). */
 .stepper{display:flex;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;height:40px}
 .stepper button{flex:none;width:34px;height:100%;border:0;background:none;color:var(--cherry);font:600 1.2rem var(--body);cursor:pointer}.stepper button:active{background:var(--surface2)}
 .stepper input,.stepper output{flex:1;min-width:0;width:100%;text-align:center;border:0;background:none;padding:0;font:700 .98rem var(--display);color:var(--ink);font-variant-numeric:tabular-nums;-moz-appearance:textfield}
 .stepper input::-webkit-inner-spin-button,.stepper input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}.stepper span{font-size:.82rem;color:var(--muted);margin-right:2px}
-.rs-w b{display:flex;align-items:center;justify-content:center;height:40px;border-radius:12px;background:var(--surface2);font:700 .98rem var(--display);font-variant-numeric:tabular-nums}
-.rs-note{margin:.5rem 0 0;font-size:.8rem}
-.rr-you{color:var(--cherry);font-weight:700}
 
 /* Dial-in with a recipe: dose, target cup and the adapted steps. */
 .recbox{margin:-4px 0 18px;padding:12px 14px 10px;border-radius:16px;background:color-mix(in srgb,var(--cherry) 5%,var(--surface));border:1px solid color-mix(in srgb,var(--cherry) 25%,var(--line))}
@@ -985,6 +978,9 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 .morelist>*+*{border-top:1px solid var(--line)}.morelist>button{cursor:pointer}.morelist .ic{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;flex:none}.morelist .ic svg{width:20px;height:20px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .morelist .mt{flex:1;min-width:0}.morelist .mt b{display:block;font-weight:600}.morelist .mt small{display:block;color:var(--muted);font-size:.84rem}
 .morelist .mtheme{flex-wrap:wrap}.morelist .mtheme .seg{flex:1 1 100%;display:grid;grid-template-columns:repeat(3,1fr)}.moretip{padding:0 16px 14px!important;border-top:0!important;display:block!important;font-size:.88rem;color:var(--muted)}
+
+/* The map's region buttons are easier to tap on phones. */
+@media (max-width:759px){.mapbar.seg.filters button{min-height:34px}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
@@ -1126,7 +1122,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
       <div class="field"><div class="lbl">Roast</div><div class="seg" id="s-roast"></div></div>
       <div class="field"><label for="s-date">Roast date</label><input type="date" id="s-date" class="dateinp"></div>
       <div class="field"><label for="s-brewer">Brew with</label><select id="s-brewer"></select></div>
-      <div class="field"><div class="lbl">Grinder</div><div class="seg" id="s-grinder"></div></div>
+      <div class="field"><div class="lbl">Grinder <button type="button" class="gpick-btn" data-gpick aria-label="Change grinders" title="Change grinders"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l4 4-4 4"/><path d="M3 7h18"/><path d="M7 21l-4-4 4-4"/><path d="M21 17H3"/></svg></button></div><div class="seg" id="s-grinder"></div></div>
     </div>
     <div class="stick"><div class="panel" id="scan-out"></div></div>
   </div>
