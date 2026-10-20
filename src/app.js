@@ -354,7 +354,12 @@ function render(){
   const bi=$('i-bloom');bi.min=B.bloom.min;bi.max=B.bloom.max;bi.step=B.bloom.max<=20?1:5;bi.value=S.bloom;$('v-bloom').textContent=S.bloom+'s';
   $('i-bloom').previousElementSibling.firstChild.textContent=B.bloom.label+' ';
   const rc=S.rec!=null&&RECIPES[S.rec]&&RECIPES[S.rec].b===S.brewer?RECIPES[S.rec]:null;
-  $('rec-chip').innerHTML=rc?'<span class="chip">Recipe: '+esc(rc.name)+(rc.temp2?', then '+rc.temp2+'°C':'')+' <button type="button" data-clear style="background:none;border:0;cursor:pointer;color:inherit" aria-label="Clear recipe">\u2715</button></span>':'';
+  // The loaded recipe stays one tap away: its steps open under the chip, and the timer starts with this dial-in's grind and water.
+  const rsc=rc&&scaled(rc),rkey=rc?S.rec+'|'+S.ratio+'|'+rsc.dose+'|'+rsc.water:'';if($('rec-chip').dataset.k!==rkey){const was=$('rec-chip').querySelector('details');const open=!!(was&&was.open&&rc&&$('rec-chip').dataset.k.split('|')[0]===String(S.rec));$('rec-chip').dataset.k=rkey;
+    const rr=rc&&Math.round(rsc.water/rsc.dose*2)/2,diff=rc&&Math.abs(rr-S.ratio)>=0.5;
+    $('rec-chip').innerHTML=rc?'<span class="chip">Recipe: '+esc(rc.name)+(rc.temp2?', then '+rc.temp2+'°C':'')+' <button type="button" data-clear style="background:none;border:0;cursor:pointer;color:inherit" aria-label="Clear recipe">\u2715</button></span>'+
+      '<details class="rsteps dsteps"'+(open?' open':'')+'><summary>Steps ('+rc.steps.length+')</summary><p class="hint" style="margin:.1rem 0 .4rem">'+rsc.dose+'g coffee : '+rsc.water+'g water'+(rsc.on?' (your brew)':'')+(diff?'. Your ratio is 1:'+S.ratio+', so pour to about '+Math.round(rsc.dose*S.ratio)+'g in total.':'')+'</p><ol class="steps">'+rsc.steps.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol>'+(rc.tip?'<p class="hint">'+esc(rc.tip)+'</p>':'')+
+      '<div class="actions dsact"><button type="button" class="btn" data-dtimer>Start brew timer</button><button type="button" class="btn ghost" data-dfull>Full recipe</button></div></details>':''}
   $('i-brewer').value=S.brewer;$('i-process').value=S.process;$('i-variety').value=S.variety;
   const [vt,vs]=verdict(r.D);$('o-verdict').textContent=vt;$('mr-v').textContent=vt;$('mr-g').textContent=gLabel(S.grinder,S.setting)+', '+S.temp+'°C, 1:'+S.ratio;$('mr-m').style.left=((clamp(r.D,-2.5,2.5)+2.5)/5*100)+'%';$('o-summary').textContent=vs+' '+strength(S)+'.';
   $('o-marker').style.left=((clamp(r.D,-2.5,2.5)+2.5)/5*100)+'%';
@@ -402,7 +407,8 @@ function initDial(){
   $('i-brewer').onchange=e=>{const nb=e.target.value;let g=S.grinder;if(!canGrind(g,nb)){g=capable(nb);toast(gname(S.grinder)+' can\u2019t grind for this brewer, switched to '+gname(g))}
     S.setting=canGrind(S.grinder,S.brewer)&&canGrind(g,nb)?convertSetting(S,g,nb):base(g,nb);S.grinder=g;S.brewer=nb;S.rec=null;
     const B=BREWERS[nb];if(S.ratio<B.ratio.min||S.ratio>B.ratio.max)S.ratio=B.ratio.def;if(S.bloom<B.bloom.min||S.bloom>B.bloom.max)S.bloom=B.bloom.def;fitRanges();render()};
-  $('rec-chip').onclick=e=>{if(e.target.closest('[data-clear]')){S.rec=null;render()}};
+  $('rec-chip').onclick=e=>{if(e.target.closest('[data-clear]')){S.rec=null;render();return}const r=RECIPES[S.rec];if(S.rec==null||!r)return;
+    if(e.target.closest('[data-dtimer]')){const sc=scaled(r);openTimer(S.rec,{grinder:S.grinder,set:{[S.grinder]:S.setting},r:{dose:sc.dose},water:sc.water,temp:S.temp})}else if(e.target.closest('[data-dfull]'))openRecipe(S.rec)};
   $('i-process').onchange=e=>{S.process=e.target.value;render()};
   $('i-variety').onchange=e=>{S.variety=e.target.value;render()};
   $('v-about').onclick=()=>openVariety(S.variety.split(':')[0]);
@@ -477,7 +483,7 @@ function planHTML(p,c){
     '<div><b>Water</b><span>'+p.temp+'°C</span>'+(p.r.temp2?'<small>then about '+p.r.temp2+'°C</small>':'')+'</div>'+
     '<div><b>Dose : water</b><span>'+p.r.dose+'g : '+p.water+'g</span><small>1:'+p.ratio+'</small></div>'+
     '<div><b>'+B.bloom.label+'</b><span>'+p.bloom+'s</span></div><div><b>Agitation</b><span>'+agl+'</span></div></div>'+
-   '<h3>Steps</h3><ol class="steps">'+p.r.steps.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol>'+
+   '<h3>Steps</h3><ol class="steps">'+scaleSteps(p.r,p.r.dose,p.water).map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol>'+
    (p.tw.length?'<div class="tip">'+p.tw.join(' ')+'</div>':'')+
    '<h3>Why these settings</h3><ul class="why">'+(p.why.length?p.why.map(w=>'<li>'+w+'</li>').join(''):'<li>The recipe already suits this coffee.</li>')+
    '<li>Grind starts from the recipe\u2019s setting on your calibration, then moves to land the predicted extraction on your goal.</li></ul>';
@@ -514,10 +520,12 @@ const mmss=t=>Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0');
 // The pour in a step, for the big target: "pour 60g (to 120g)" → to 120 g, +60 g; "pour to 250g" → to 250 g.
 function pourOf(txt){const to=/\bto\s+(\d{2,4})\s?g\b/i.exec(txt),add=/\bpour(?:ing)?\s+(\d{2,4})\s?g\b/i.exec(txt);return to?{to:+to[1],add:add?+add[1]:null}:add?{to:null,add:+add[1]}:null}
 function openTimer(idx,p){noteRecent(RECIPES[idx]);
-  const r=RECIPES[idx];const ev=parseSteps(r.steps);const timed=ev.filter(e=>e.t>=0);
+  // The steps follow the dose and water being brewed: yours from the recipe sheet, or the planner's.
+  const r0=RECIPES[idx],sc=scaled(r0),dose=p&&p.r&&p.r.dose||sc.dose,water=p&&p.water||sc.water;
+  const r=Object.assign({},r0,{dose,water,steps:p?scaleSteps(r0,dose,water):sc.steps,off:sc.off});const ev=parseSteps(r.steps);const timed=ev.filter(e=>e.t>=0);
   const total=timed.length?Math.max(...timed.map(e=>e.t))+(/finish|drain|finished|serve/i.test(r.steps[r.steps.length-1])?0:30):0;
   if(TM&&TM.iv)clearInterval(TM.iv);
-  TM={idx,p,ev,total,el:0,run:false,iv:null,lastIdx:-1,lastWarn:-1,ctx:null};
+  TM={idx,r,p,ev,total,el:0,run:false,iv:null,lastIdx:-1,lastWarn:-1,ctx:null};
   const g=p?p.grinder:(MYG.find(x=>settingFor(x,r.b,r.off)!=null)),gv=p?p.set[p.grinder]:g?settingFor(g,r.b,r.off):null;
   const meta=[(p?p.r.dose:r.dose)+'g : '+(p?p.water:r.water)+'g',(p?p.temp:r.temp)?(p?p.temp:r.temp)+'°C':'',gv!=null?gLabel(g,gv):''].filter(Boolean);
   // Tick marks on the ring where each timed step starts.
@@ -546,7 +554,7 @@ let WL=null;function wake(on){try{if(on&&!WL&&navigator.wakeLock)navigator.wakeL
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&TM&&TM.run)wake(true)});
 function beep(soft){if(!TM.ctx)return;try{const o=TM.ctx.createOscillator(),g=TM.ctx.createGain();o.frequency.value=soft?660:880;g.gain.setValueAtTime(.001,TM.ctx.currentTime);g.gain.exponentialRampToValueAtTime(.25,TM.ctx.currentTime+.02);g.gain.exponentialRampToValueAtTime(.001,TM.ctx.currentTime+.35);o.connect(g).connect(TM.ctx.destination);o.start();o.stop(TM.ctx.currentTime+.4)}catch(e){}if(navigator.vibrate)navigator.vibrate(120)}
 function tick(){TM.el=(performance.now()-TM.t0)/1000;if(TM.el>=TM.total){TM.el=TM.total;clearInterval(TM.iv);TM.run=false;wake(false);setPlay();paint();done();beep();beans(26);return}paint()}
-function done(){const r=RECIPES[TM.idx];$('tm-step').textContent='Done';$('tm-target').innerHTML='';$('tm-now').textContent='Enjoy your cup.';$('tm-next').innerHTML='<div class="tm-done"><button class="btn" id="tm-log">Log this brew</button><button class="btn ghost" id="tm-again">Brew again</button></div>';
+function done(){const r=TM.r||RECIPES[TM.idx];$('tm-step').textContent='Done';$('tm-target').innerHTML='';$('tm-now').textContent='Enjoy your cup.';$('tm-next').innerHTML='<div class="tm-done"><button class="btn" id="tm-log">Log this brew</button><button class="btn ghost" id="tm-again">Brew again</button></div>';
   $('tm-log').onclick=()=>{const p=TM.p,B=BREWERS[r.b];$('timer').close();setTimeout(()=>{showTab('log');$('l-settings').value=r.name+', '+(p?p.r.dose:r.dose)+'g : '+(p?p.water:r.water)+'g'+((p?p.temp:r.temp)?', '+(p?p.temp:r.temp)+'°C':'');$('l-settings').dataset.brewer=r.b;$('l-coffee').focus()},250)};
   $('tm-again').onclick=()=>{TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;paint();$('tm-go').click()}}
 function paint(){const el=TM.el,C=2*Math.PI*96;$('tm-big').textContent=mmss(el);
@@ -610,10 +618,33 @@ document.querySelector('[role=tablist]').onclick=e=>{const t=e.target.closest('.
 
 /* ================= RECIPES ================= */
 // A recipe's details and buttons, used on its card and when it opens from a shared link.
-function recipeBody(r,i,compact){const B=BREWERS[r.b];const gs=MYG.map(g=>[g,settingFor(g,r.b,r.off)]);
-  return '<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span>':'')+'</div>'+
+/* Your brew: any recipe can be made with your own dose and ratio (remembered per recipe). Every weight in the steps
+   follows: water by the water change, the coffee dose by the dose change. Step times stay as written. A smaller bed in
+   a dripper drains faster, so the grind moves a little finer for it (and coarser for a bigger one). */
+let RSCALE=load('bb-rscale',{});if(!RSCALE||typeof RSCALE!=='object'||Array.isArray(RSCALE))RSCALE={};
+const gfmt=v=>v>=10?String(Math.round(v)):String(Math.round(v*10)/10);
+function scaleSteps(r,dose,water){if(dose===r.dose&&water===r.water)return r.steps;const fd=dose/r.dose,fw=water/r.water;
+  return r.steps.map(x=>x.replace(/(\d+(?:\.\d+)?)(\s?)(g|ml)\b/gi,(m,n,sp,u)=>{const v=+n;return gfmt(v*(Math.abs(v-r.dose)<1e-6&&r.dose!==r.water?fd:fw))+sp+u}))}
+function scaled(r){const s=RSCALE[rkey(r)];if(!s||!(s.dose>0)||!(s.ratio>0))return{dose:r.dose,water:r.water,steps:r.steps,off:r.off,adj:0,ratio:r.water/r.dose,on:false};
+  const dose=s.dose,water=+gfmt(dose*s.ratio),f=dose/r.dose,perc=['Cone dripper','Flat-bottom dripper'].includes(BREWERS[r.b].type);
+  const adj=perc?Math.max(-1,Math.min(1,Math.round(-0.6*Math.log2(f)*10)/10)):0;
+  return{dose,water,steps:scaleSteps(r,dose,water),off:r.off+adj,adj,ratio:s.ratio,on:true}}
+const rr1=v=>Math.round(v*10)/10;
+function yourBrew(r,sc){const B=BREWERS[r.b];
+  return '<div class="rscale"><div class="rs-h"><b>Your brew</b>'+(sc.on?'<button type="button" class="rs-reset" data-rsreset>Reset to '+r.dose+'g</button>':'<small>Change the dose or ratio; every pour follows</small>')+'</div>'+
+   '<div class="rs-row"><div class="rs-f"><small>Coffee</small><div class="stepper"><button type="button" data-rs="dose:-1" aria-label="Less coffee">−</button><input id="rs-dose" type="number" inputmode="decimal" min="3" max="120" step="0.5" value="'+sc.dose+'" aria-label="Coffee in grams"><span>g</span><button type="button" data-rs="dose:1" aria-label="More coffee">+</button></div></div>'+
+   '<div class="rs-f"><small>Ratio</small><div class="stepper"><button type="button" data-rs="ratio:-1" aria-label="Stronger (less water)">−</button><output>1:'+rr1(sc.ratio)+'</output><button type="button" data-rs="ratio:1" aria-label="Weaker (more water)">+</button></div></div>'+
+   '<div class="rs-f rs-w"><small>Water</small><b>'+sc.water+'g</b></div></div>'+
+   (sc.on&&sc.adj?'<p class="hint rs-note">Grind set '+(sc.adj>0?'a little finer for the smaller':'a little coarser for the bigger')+' bed (below). Step times stay the same; pour weights are scaled.</p>':sc.on?'<p class="hint rs-note">Pour weights are scaled to your brew; step times stay the same.</p>':'')+'</div>'}
+// Steps as a timeline: the time each one starts in a badge, the instruction beside it.
+const stepList=steps=>'<ol class="steps tl">'+steps.map(x=>{const m=/^\s*(\d+:\d\d)\s*/.exec(x);return '<li>'+(m?'<span class="t">'+m[1]+'</span>'+esc(capS(x.slice(m[0].length))):'<span class="t dot"></span>'+esc(x))+'</li>'}).join('')+'</ol>';
+function recipeBody(r,i,compact){const B=BREWERS[r.b],sc=compact?{dose:r.dose,water:r.water,steps:r.steps,off:r.off,ratio:r.water/r.dose}:scaled(r);const gs=MYG.map(g=>[g,settingFor(g,r.b,sc.off)]);
+  const m=rmeta(r);
+  return (compact?'<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span>':'')+'</div>'
+     :'<p class="hint" style="margin:0 0 .2rem">'+esc(B.name)+' · '+esc(B.type)+'</p>'+yourBrew(r,sc)+'<div class="rstats">'+
+       '<div><b>'+(r.temp?r.temp+'°C':'–')+'</b><small>'+(r.temp2?'Then '+r.temp2+'°C':'Water')+'</small></div><div><b>'+(m.time!=null?mmss(m.time):'By eye')+'</b><small>Total time</small></div><div><b>'+m.level+'</b><small>'+m.pours+' pour'+(m.pours===1?'':'s')+'</small></div></div>')+
    '<div class="meta">'+gs.map(([g,v])=>'<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>').join('')+'</div>'+
-   (r.why?'<p>'+esc(r.why)+'</p>':'')+(compact?'<details class="rsteps"><summary>Steps ('+r.steps.length+')</summary>':'')+'<ol class="steps">'+r.steps.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol>'+(r.tip?'<p class="hint">'+esc(r.tip)+'</p>':'')+(compact?'</details>':'')+
+   (r.why?'<p>'+esc(r.why)+'</p>':'')+(compact?'<details class="rsteps"><summary>Steps ('+r.steps.length+')</summary>':'')+stepList(sc.steps)+(r.tip?'<p class="hint">'+esc(r.tip)+'</p>':'')+(compact?'</details>':'')+
    '<div class="actions"><button class="btn" data-timer="'+i+'">Start timer</button><button class="btn ghost" data-rshare="'+i+'">Share</button>'+(B.model?'<button class="btn ghost" data-load="'+i+'">Load into dial-in</button>':'')+(PBREWERS.includes(r.b==='swi'?'sw':r.b)?'<button class="btn ghost" data-plan="'+i+'">Tune in planner</button>':'')+(r.custom?'<button class="btn ghost" data-redit="'+esc(r.id)+'">Edit</button>':'')+'</div>'}
 let RF='all',RQ='';
 /* Favorites and recent brews, kept on this phone. A recipe's key survives app updates: its name for built-in
@@ -644,51 +675,101 @@ const CUPS=[
   ['iced','Iced and cold','Flash brews and cold brews','linear-gradient(135deg,#8EB6D0,#4C7390)',ICED,CI('M18 14h28l-4 42H22z M24 26h7v7h-7z M33 32h7v7h-7z M27 40h7v7h-7z M40 8l-6 16')],
   ['champ','Championships','Recipes that won world titles','linear-gradient(135deg,#E2B866,#9A6A1E)',r=>!!r.champ,CI('M22 10h20v14a10 10 0 0 1-20 0z M22 14h-7a6 6 0 0 0 7 10 M42 14h7a6 6 0 0 1-7 10 M32 34v10 M24 54h16 M26 44h12v10H26z')]];
 const CUPBY=Object.fromEntries(CUPS.map(c=>[c[0],c]));
+/* What a recipe asks of you, worked out from its steps: how long it takes, how many pours, and how hard it is. */
+const RMETA=new Map();
+function rmeta(r){let m=RMETA.get(r);if(m)return m;const ts=parseSteps(r.steps).map(e=>e.t).filter(t=>t>=0),time=ts.length&&Math.max(...ts)>0?Math.max(...ts):null,
+    pours=r.steps.filter(s=>/\bpour|\badd\b/i.test(s)).length,k=r.kind,type=BREWERS[r.b].type;
+  const level=r.temp2||['hedrick','kh1','kh2','esp'].includes(k)||pours>=7?'Advanced':pours<=2||['single','imm'].includes(k)||['Valve and hybrid','Immersion and pressure'].includes(type)?'Easy':'Medium';
+  const ratio=r.dose&&r.water?'1:'+(Math.round(r.water/r.dose*10)/10):'';
+  m={time,pours,level,ratio};RMETA.set(r,m);return m}
+const POUR=r=>['Cone dripper','Flat-bottom dripper'].includes(BREWERS[r.b].type)&&!ICED(r);
+// Collections: ready-made shelves that cut across brewers.
+const COLS=[
+  ['start','Start here','Forgiving pour-overs with few steps','#5E8B6F',r=>POUR(r)&&rmeta(r).level==='Easy'],
+  ['quick','Under 3 minutes','When you need coffee now','#C27A3A',r=>{const t=rmeta(r).time;return t!=null&&t<=180&&!ICED(r)&&!['esp'].includes(r.kind)}],
+  ['one','One pour','Bloom, pour once, done','#3F7C93',r=>POUR(r)&&rmeta(r).pours<=2],
+  ['small','One small cup','15g of coffee or less','#9C6B8E',r=>r.dose<=15&&r.water>=150],
+  ['big','For sharing','450g of water or more','#7A6A3A',r=>r.water>=450],
+  ['adv','Advanced','Two temperatures, fine control','#8E4A3A',r=>rmeta(r).level==='Advanced']];
+const COLBY=Object.fromEntries(COLS.map(c=>[c[0],c]));
+// Brewers that have recipes, in the guide's order, for the brewer shelf and the grouped list.
+const RBREWERS=()=>Object.keys(BREWERS).filter(k=>RECIPES.some(r=>r.b===k));
+const BT_ICON={'Cone dripper':'M5 5h14l-5 9h-4z M10 14h4 M12 14v3 M7 19h10','Flat-bottom dripper':'M5 5h14l-3 8H8z M8 13h8 M12 13v4 M7 19h10','Valve and hybrid':'M6 4h12l-4 8h-4z M10 12h4v3h-4z M7 19h10 M12 15v4',
+  'Immersion and pressure':'M7 5h10v14H7z M7 5H5 M12 2v3 M9 10h6','Espresso and stovetop':'M6 10h10v3a5 5 0 0 1-10 0z M16 11h2a2 2 0 0 1 0 4h-2 M4 20h14 M9 4c-1 1.5 1 2.5 0 4 M13 4c-1 1.5 1 2.5 0 4',
+  'Boiled':'M5 10h10l-1 8H6z M15 12l5-3 M8 6c-1 1 1 2 0 3','Cold':'M6 4h12l-2 16H8z M9 9h3v3H9z M12 13h3v3h-3z','Machine':'M5 3h14v6H5z M7 9v8h10V9 M9 13h6 M6 21h12'};
+const bIcon=t=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+(BT_ICON[t]||BT_ICON['Cone dripper'])+'"/></svg>';
 function renderRHome(){const QI=(c,p)=>'<span class="qi" style="background:'+c+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+p+'"/></svg></span>';
   const again=RECENT.map(rByKey).filter(i=>i>=0).slice(0,6);
-  $('rhome').innerHTML='<h3 class="rh">Quick links</h3><div class="qlinks">'+
+  $('rhome').innerHTML='<div class="qlinks">'+
     '<button type="button" data-q="surprise">'+QI('#2F80ED','M5 5h14v14H5z M9 9h.01 M15 9h.01 M12 12h.01 M9 15h.01 M15 15h.01')+'<span><b>Surprise me</b><small>Pick a random recipe</small></span></button>'+
     '<button type="button" data-q="mine">'+QI('#F2A33A','M4 20h4L19 9l-4-4L4 16z M13 7l4 4')+'<span><b>Your recipes</b><small>'+(CREC.length?'Yours and your team’s':'Create your own recipe')+'</small></span>'+(CREC.length?'<span class="qn">'+CREC.length+'</span>':'')+'</button>'+
     '<button type="button" data-q="fav">'+QI('#E0445A','M12 20s-7-4.4-9-8.6C1.6 8.4 3.4 5 6.7 5c2 0 3.3 1.2 4.3 2.6C12 6.2 13.3 5 15.3 5c3.3 0 5.1 3.4 3.7 6.4C19 15.6 12 20 12 20z')+'<span><b>Favorites</b><small>'+(favCount()?'Your go-to recipes':'Tap the heart on any recipe')+'</small></span>'+(favCount()?'<span class="qn">'+favCount()+'</span>':'')+'</button></div>'+
     (again.length?'<h3 class="rh">Brew again</h3><div class="again">'+again.map(i=>'<button type="button" data-again="'+i+'"><b>'+esc(RECIPES[i].name)+'</b><small>'+esc(BREWERS[RECIPES[i].b].name)+'</small></button>').join('')+'</div>':'')+
+    '<h3 class="rh">By brewer</h3><div class="bshelf">'+RBREWERS().map(k=>{const B=BREWERS[k],n=RECIPES.filter(r=>r.b===k).length;
+      return '<button type="button" data-rb="'+k+'" aria-pressed="'+(RF==='b:'+k)+'"><span class="bi">'+bIcon(B.type)+'</span><b>'+esc(B.name.replace(/\s*\(.*\)$/,''))+'</b><small>'+n+' recipe'+(n>1?'s':'')+'</small></button>'}).join('')+'</div>'+
+    '<h3 class="rh">Collections</h3><div class="colshelf">'+COLS.map(([k,n,d,c,f])=>'<button type="button" data-col="'+k+'" aria-pressed="'+(RF==='col:'+k)+'" style="--cc:'+c+'"><b>'+esc(n)+'</b><small>'+esc(d)+'</small><span class="cn">'+RECIPES.filter(f).length+'</span></button>').join('')+'</div>'+
     '<h3 class="rh">Cup types</h3><div class="cups">'+CUPS.map(([k,n,d,g,f,ic])=>'<button type="button" class="cupcard" data-cup="'+k+'" aria-pressed="'+(RF==='cup:'+k)+'"><span class="cupart" style="--g:'+g+'">'+ic+'</span><b>'+esc(n)+'<span class="cc">'+RECIPES.filter(f).length+'</span></b><small>'+esc(d)+'</small></button>').join('')+'</div>'}
 function showRecipeList(){renderRecipes();renderRHome();requestAnimationFrame(()=>$('rall').scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'}))}
-$('rhome').onclick=e=>{const q=e.target.closest('[data-q]'),a=e.target.closest('[data-again]'),c=e.target.closest('[data-cup]');
+$('rhome').onclick=e=>{const q=e.target.closest('[data-q]'),a=e.target.closest('[data-again]'),c=e.target.closest('[data-cup]'),bb=e.target.closest('[data-rb]'),co=e.target.closest('[data-col]');
   if(a){openRecipe(+a.dataset.again);return}
-  if(c){const k='cup:'+c.dataset.cup;RF=RF===k?'all':k;RQ='';$('rsearch').value='';showRecipeList();return}
+  const pick=k=>{RF=RF===k?'all':k;RQ='';$('rsearch').value='';showRecipeList()};
+  if(c){pick('cup:'+c.dataset.cup);return}if(bb){pick('b:'+bb.dataset.rb);return}if(co){pick('col:'+co.dataset.col);return}
   if(!q)return;const k=q.dataset.q;
   if(k==='surprise'){const pool=RECIPES.map((r,i)=>i);openRecipe(pool[Math.floor(Math.random()*pool.length)]);return}
   if(k==='mine'){if(!CREC.length){openRecipeEditor(null);return}RF='mine'}
   if(k==='fav'){if(!favCount()){toast('Tap the heart on any recipe to save it here');return}RF='fav'}
   RQ='';$('rsearch').value='';showRecipeList()};
 $('rsearch').oninput=e=>{RQ=e.target.value;if(RQ.trim()&&RF!=='all'){RF='all';renderRHome()}soon(renderRecipes)}; // a search looks through every recipe
-const RF_NAME=()=>RF==='all'?'All recipes':RF==='fav'?'Favorites':RF==='mine'?'Yours and your team’s':RF==='champ'?'Champions':RF.startsWith('cup:')?CUPBY[RF.slice(4)][1]:RF;
+let RSORT=(()=>{try{return localStorage.getItem('bb-rsort')||'brewer'}catch(e){return'brewer'}})();
+const RF_NAME=()=>RF==='all'?'All recipes':RF==='fav'?'Favorites':RF==='mine'?'Yours and your team’s':RF==='champ'?'Champions':RF.startsWith('cup:')?CUPBY[RF.slice(4)][1]
+  :RF.startsWith('b:')&&BREWERS[RF.slice(2)]?BREWERS[RF.slice(2)].name:RF.startsWith('col:')&&COLBY[RF.slice(4)]?COLBY[RF.slice(4)][1]:'All recipes';
+// One recipe as a compact row: what it is, who it's from, the numbers that matter, and a play button for the timer.
+function rrow(r,i){const m=rmeta(r),sc=scaled(r),lv={Easy:'e',Medium:'i',Advanced:'a'}[m.level];
+  return '<article class="rrow'+(r.custom?' mine':'')+'"><button type="button" class="rr-open" data-open="'+i+'"><span class="rr-t"><b>'+esc(r.name)+'</b>'+(r.champ?'<span class="rr-tag champ">Champion</span>':'')+(r.custom?'<span class="rr-tag ours">'+esc(r.author&&r.author!==ME?'From '+r.author:'Yours')+'</span>':'')+'</span>'+
+    (r.by?'<small class="rr-by">'+esc(r.by)+'</small>':'')+'<span class="rr-m"><span>'+(sc.on?'<b class="rr-you" title="Your brew">'+sc.dose+'g · '+sc.water+'g</b>':r.dose+'g · '+r.water+'g')+'</span>'+(sc.on?'<span>1:'+rr1(sc.ratio)+'</span>':m.ratio?'<span>'+m.ratio+'</span>':'')+(m.time!=null?'<span>'+mmss(m.time)+'</span>':'')+(r.temp?'<span>'+r.temp+'°C</span>':'')+'<span class="lv lv-'+lv+'">'+m.level+'</span></span></button>'+
+    '<div class="rr-side">'+favBtn(r)+'<button type="button" class="rr-play" data-timer="'+i+'" aria-label="Start the timer for '+esc(r.name)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button></div></article>'}
 function renderRecipes(){
-  const types=[...new Set(Object.values(BREWERS).map(b=>b.type))];
-  if(RF==='mine'&&!CREC.length)RF='all';if(RF==='fav'&&!favCount())RF='all';
-  const cup=RF.startsWith('cup:')?CUPBY[RF.slice(4)]:null;
-  seg('rfilter',[['all','All']].concat(cup?[[RF,cup[1]]]:[],favCount()?[['fav','♥ Favorites']]:[],CREC.length?[['mine','Yours & team']]:[],[['champ','Champions']],types.map(t=>[t,t])),()=>RF,v=>{RF=v;renderRecipes();renderRHome()});
+  if(RF==='mine'&&!CREC.length)RF='all';if(RF==='fav'&&!favCount())RF='all';if((RF.startsWith('b:')&&!BREWERS[RF.slice(2)])||(RF.startsWith('col:')&&!COLBY[RF.slice(4)])||(RF.startsWith('cup:')&&!CUPBY[RF.slice(4)]))RF='all';
+  const cup=RF.startsWith('cup:')?CUPBY[RF.slice(4)]:null,col=RF.startsWith('col:')?COLBY[RF.slice(4)]:null,rb=RF.startsWith('b:')?RF.slice(2):null,extra=cup||col||rb;
+  seg('rfilter',[['all','All']].concat(extra?[[RF,esc(RF_NAME())+' ✕']]:[],favCount()?[['fav','♥ Favorites']]:[],CREC.length?[['mine','Yours & team']]:[],[['champ','Champions']]),()=>RF,v=>{RF=v===RF&&extra?'all':v;renderRecipes();renderRHome()});
   const q=fold(RQ.trim());
-  const list=RECIPES.map((r,i)=>[r,i]).filter(([r])=>(RF==='all'||(RF==='mine'?r.custom:RF==='champ'?r.champ:RF==='fav'?FAVS.has(rkey(r)):cup?cup[4](r):BREWERS[r.b].type===RF))&&(!q||fold([r.name,r.by,r.why,BREWERS[r.b].name].join(' ')).includes(q)))
-    .sort((a,b)=>(b[0].custom?1:0)-(a[0].custom?1:0));
+  let list=RECIPES.map((r,i)=>[r,i]).filter(([r])=>(RF==='all'||(RF==='mine'?r.custom:RF==='champ'?r.champ:RF==='fav'?FAVS.has(rkey(r)):cup?cup[4](r):col?col[4](r):rb?r.b===rb:true))&&(!q||fold([r.name,r.by,r.why,BREWERS[r.b].name,BREWERS[r.b].type].join(' ')).includes(q)));
+  const by=(a,b)=>(b[0].custom?1:0)-(a[0].custom?1:0);
+  if(RSORT==='quick')list.sort((a,b)=>(rmeta(a[0]).time??1e9)-(rmeta(b[0]).time??1e9));else if(RSORT==='az')list.sort((a,b)=>a[0].name.localeCompare(b[0].name));else list.sort(by);
   $('rall').textContent=RF_NAME()+' · '+list.length;
-  $('rgrid').innerHTML=list.map(([r,i])=>'<article class="card'+(r.custom?' mine':'')+'">'+favBtn(r)+(r.custom?'<span class="pill ours">'+esc(r.author&&r.author!==ME?'From '+r.author:'Your recipe')+'</span>':'')+'<h3>'+esc(r.name)+'</h3>'+(r.by?'<p class="hint" style="margin-top:-.2rem">'+esc(r.by)+'</p>':'')+recipeBody(r,i,true)+'</article>').join('')||'<p class="hint">No recipes match. Try a shorter search, or pick All.</p>';
+  $('rsort').value=RSORT;
+  let html='';
+  if(RSORT==='brewer'&&!rb){const order=Object.keys(BREWERS);const groups=new Map();for(const x of list){const k=x[0].b;if(!groups.has(k))groups.set(k,[]);groups.get(k).push(x)}
+    for(const k of [...groups.keys()].sort((a,b)=>order.indexOf(a)-order.indexOf(b))){const g=groups.get(k),B=BREWERS[k];
+      html+='<div class="rgrp"><h4><span class="bi">'+bIcon(B.type)+'</span><span>'+esc(B.name)+'</span><small>'+g.length+'</small></h4>'+g.map(([r,i])=>rrow(r,i)).join('')+'</div>'}}
+  else html='<div class="rgrp">'+list.map(([r,i])=>rrow(r,i)).join('')+'</div>';
+  $('rgrid').innerHTML=list.length?html:'<p class="hint">No recipes match. Try a shorter search, or pick All.</p>';
   if(!$('rhome').innerHTML)renderRHome();
 }
+$('rsort').onchange=e=>{RSORT=e.target.value;try{localStorage.setItem('bb-rsort',RSORT)}catch(x){}renderRecipes()};
 function recipeAct(e){const ed=e.target.closest('[data-redit]');if(ed){openRecipeEditor(CREC.find(r=>r.id===ed.dataset.redit));return true}
   const b=e.target.closest('[data-load],[data-plan],[data-timer],[data-rshare]');if(!b)return false;if(b.dataset.rshare){openShare(recipeDoc(+b.dataset.rshare));return true}
   if(b.dataset.timer){openTimer(+b.dataset.timer);return true}
   if(b.dataset.load)loadRecipe(+b.dataset.load);else planRecipe(+b.dataset.plan);return true}
 // Wrapped: a handler property that returns false cancels the tap, which kept "Steps" from opening.
-$('rgrid').onclick=e=>{recipeAct(e)};
+$('rgrid').onclick=e=>{const o=e.target.closest('[data-open]');if(o){openRecipe(+o.dataset.open);return}recipeAct(e)};
 // A recipe opened from a shared link.
 function openRecipe(i){const r=RECIPES[i],B=BREWERS[r.b],d=$('vd');
   d.querySelector('#vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">\u2715</button>'+favBtn(r)+'<span class="pill"><i style="background:var(--cherry)"></i>'+esc(r.custom?(r.author?'From '+r.author:'Your recipe'):'Recipe')+'</span><h2 id="vd-title">'+esc(r.name)+'</h2>'+(r.by?'<p class="hint" style="margin:0">'+esc(r.by)+'</p>':'')+'</div>'+
    '<div class="vd-body">'+recipeBody(r,i)+'</div>';
-  d.querySelector('.vd-body').onclick=e=>{if(!e.target.closest('[data-load],[data-plan],[data-timer],[data-rshare],[data-redit]'))return;const sh=e.target.closest('[data-rshare]');if(!sh)d.close();recipeAct(e)};
+  const body=d.querySelector('.vd-body'),k=rkey(r),B0=BREWERS[r.b],r0=r.water/r.dose;
+  const setScale=(dose,ratio)=>{dose=Math.max(3,Math.min(120,Math.round(dose*2)/2));const lo=Math.min(B0.ratio.min,r0),hi=Math.max(B0.ratio.max,r0);ratio=Math.max(lo,Math.min(hi,ratio));
+    if(Math.abs(dose-r.dose)<1e-6&&Math.abs(ratio-r0)<1e-6)delete RSCALE[k];else RSCALE[k]={dose,ratio};save('bb-rscale',RSCALE);
+    const y=d.scrollTop,f=document.activeElement&&document.activeElement.id;body.innerHTML=recipeBody(r,i);d.scrollTop=y;if(f==='rs-dose'){const x=$('rs-dose');x.focus();x.setSelectionRange&&0}
+    if(S.rec===i)render();if(BUILT.recipes)soon(renderRecipes)};
+  body.onclick=e=>{const rs=e.target.closest('[data-rs]');if(rs){const sc=scaled(r),[what,dir]=rs.dataset.rs.split(':'),st=B0.ratio.step||0.5;
+      if(what==='dose')setScale(sc.dose+(+dir)*(sc.dose<10?0.5:1),sc.ratio);else setScale(sc.dose,Math.round((sc.ratio+(+dir)*st)/st)*st);return}
+    if(e.target.closest('[data-rsreset]')){delete RSCALE[k];save('bb-rscale',RSCALE);const y=d.scrollTop;body.innerHTML=recipeBody(r,i);d.scrollTop=y;if(S.rec===i)render();if(BUILT.recipes)soon(renderRecipes);return}
+    if(!e.target.closest('[data-load],[data-plan],[data-timer],[data-rshare],[data-redit]'))return;const sh=e.target.closest('[data-rshare]');if(!sh)d.close();recipeAct(e)};
+  body.onchange=e=>{if(e.target.id==='rs-dose'){const v=parseFloat(e.target.value);if(v>0)setScale(v,scaled(r).ratio);else e.target.value=scaled(r).dose}};
   $('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
-function loadRecipe(i){const r=RECIPES[i],B=BREWERS[r.b];S.brewer=r.b;S.rec=i;if(!canGrind(S.grinder,r.b))S.grinder=capable(r.b);S.setting=settingFor(S.grinder,r.b,r.off);S.temp=clamp(r.temp,B.temp.min,B.temp.max);S.bloom=B.bloom.def;S.agit='med';
-  S.ratio=clamp(Math.round(r.water/r.dose/B.ratio.step)*B.ratio.step,B.ratio.min,B.ratio.max);render();showTab('dial');toast('Loaded '+r.name)}
+function loadRecipe(i){const r=RECIPES[i],B=BREWERS[r.b],sc=scaled(r);S.brewer=r.b;S.rec=i;if(!canGrind(S.grinder,r.b))S.grinder=capable(r.b);S.setting=settingFor(S.grinder,r.b,sc.off);S.temp=clamp(r.temp,B.temp.min,B.temp.max);S.bloom=B.bloom.def;S.agit='med';
+  S.ratio=clamp(Math.round(sc.water/sc.dose/B.ratio.step)*B.ratio.step,B.ratio.min,B.ratio.max);render();showTab('dial');toast('Loaded '+r.name+(sc.on?', '+sc.dose+'g':''))}
 function planRecipe(i){const r=RECIPES[i];PL.brewer=r.b==='swi'?'sw':r.b;PL.tech=i;if(!canGrind(PL.grinder,PL.brewer))PL.grinder=capable(PL.brewer);renderPlan();showTab('planner')}
 
 /* ---------- Creating, editing and sharing recipes ---------- */
@@ -961,7 +1042,7 @@ function renderGearBrewers(){
    '<div class="actions">'+(RECIPES.some(r=>r.b===k)?'<button class="btn ghost" data-grec="'+k+'">See recipes</button>':'')+(b.model?'<button class="btn ghost" data-gdial="'+k+'">Dial it in</button>':'')+'</div></div>').join('');
 }
 $('gear-brewers').onclick=e=>{const a=e.target.closest('[data-grec]'),d=e.target.closest('[data-gdial]');
-  if(a){RF=BREWERS[a.dataset.grec].type;renderRecipes();showTab('recipes')}
+  if(a){RF='b:'+a.dataset.grec;RQ='';$('rsearch').value='';showTab('recipes');showRecipeList()}
   if(d){$('i-brewer').value=d.dataset.gdial;$('i-brewer').dispatchEvent(new Event('change'));showTab('dial')}};
 function renderGrindMap(){
   let h='';for(const g of MYG){const G=GRINDERS[g];const pos=c=>((c-G.min)/(G.max-G.min)*100).toFixed(2)+'%';
@@ -1344,9 +1425,19 @@ function prepCanvas(img,rot=0,max=2000){const k=Math.min(1,max/Math.max(img.widt
   x.translate(c.width/2,c.height/2);x.rotate(rot*Math.PI/180);x.drawImage(img,-w/2,-h/2,w,h);x.setTransform(1,0,0,1,0,0);x.filter='none';
   const d=x.getImageData(0,0,c.width,c.height),px=d.data,hist=new Uint32Array(256),N=px.length/4;for(let q=0;q<px.length;q+=4)hist[px[q]]++;
   let a=0,lo=0,hi=255;for(let t=0;t<256;t++){a+=hist[t];if(a>N*.02){lo=t;break}}a=0;for(let t=255;t>=0;t--){a+=hist[t];if(a>N*.02){hi=t;break}}
-  const mid=(lo+hi)/2;let dark=0;for(let t=0;t<mid;t++)dark+=hist[t];const inv=dark>N*.5,span=Math.max(1,hi-lo);
+  // Light text on a dark label is flipped to dark on light. Judge that from the middle of the photo, where the label
+  // is, so a dark table or bag around a white sticker doesn't flip it.
+  const mid=(lo+hi)/2,W=c.width,H=c.height;let dark=0,n=0;for(let y=Math.round(H*.25);y<H*.75;y+=2)for(let i=Math.round(W*.25);i<W*.75;i+=2){n++;if(px[(y*W+i)*4]<mid)dark++}
+  const inv=dark>n*.5,span=Math.max(1,hi-lo);
   for(let q=0;q<px.length;q+=4){let v=(px[q]-lo)*255/span;v=v<0?0:v>255?255:v;if(inv)v=255-v;px[q]=px[q+1]=px[q+2]=v}x.putImageData(d,0,0);return c}
 async function prepImage(file){return prepCanvas(await loadImage(file))}
+// Uneven light (glare, a shadow across the bag): compare each pixel with its own neighbourhood instead of the whole
+// photo, so text under a bright patch keeps its contrast. Works on a canvas prepared above (dark text on light).
+function evenLight(c){const x=c.getContext('2d'),W=c.width,H=c.height,d=x.getImageData(0,0,W,H),px=d.data,I=new Float64Array((W+1)*(H+1)),r=Math.max(12,Math.round(Math.min(W,H)/28));
+  for(let y=0;y<H;y++){let row=0;for(let i=0;i<W;i++){row+=px[(y*W+i)*4];I[(y+1)*(W+1)+i+1]=I[y*(W+1)+i+1]+row}}
+  for(let y=0;y<H;y++){const y0=Math.max(0,y-r),y1=Math.min(H,y+r+1);for(let i=0;i<W;i++){const x0=Math.max(0,i-r),x1=Math.min(W,i+r+1),n=(y1-y0)*(x1-x0),
+    m=(I[y1*(W+1)+x1]-I[y0*(W+1)+x1]-I[y1*(W+1)+x0]+I[y0*(W+1)+x0])/n,q=(y*W+i)*4,v=px[q]<m*.86&&m-px[q]>10?0:255;px[q]=px[q+1]=px[q+2]=v}}
+  x.putImageData(d,0,0);return c}
 // How useful a reading is: coffee details found count most, then the reader's own confidence.
 const readScore=(info,conf)=>(info.origin_key?30:0)+(info.variety_key?25:0)+(info.process_key?25:0)+(info.roast_date?10:0)+((info.tasting_notes||[]).length?10:0)+(conf||0)/2;
 // Read a label photo. If the first pass finds nothing (often a bag shot sideways or upside down), try the photo
@@ -1354,6 +1445,17 @@ const readScore=(info,conf)=>(info.origin_key?30:0)+(info.variety_key?25:0)+(inf
 async function readLabelImage(w,file,onStatus){const img=await loadImage(file);
   const read=async c=>{const r=await w.recognize(c),text=r.data.text||'',info=parseLabel(text);return{text,info,score:readScore(info,r.data.confidence)}};
   let best=await read(prepCanvas(img,0));best.rot=0;
+  const gaps=i=>!i.origin_key+!i.variety_key+!i.process_key;
+  // Something read but details missing: try again with the light evened out, and as scattered text (labels laid out
+  // in boxes and columns), then read everything found together.
+  // (Many bags never name the variety, so only a missing origin or process sends it round again.)
+  if((!best.info.origin_key||!best.info.process_key)&&gaps(best.info)<3){onStatus&&onStatus('more');
+    const texts=[best.text];for(const [canvas,psm] of [[evenLight(prepCanvas(img,0)),'3'],[prepCanvas(img,0),'11']]){try{if(psm!=='3')await w.setParameters({tessedit_pageseg_mode:psm});const r=await w.recognize(canvas);texts.push(r.data.text||'')}catch(e){}finally{if(psm!=='3')try{await w.setParameters({tessedit_pageseg_mode:'3'})}catch(e){}}}
+    const both=texts.join('\n'),info=parseLabel(both),sc=readScore(info,0);if(gaps(info)<gaps(best.info)||sc>best.score){const keep=best;best={text:both,info,score:sc,rot:0};
+      // Keep the clean first reading's name and roaster when it had them.
+      if(keep.info.coffee_name)best.info.coffee_name=keep.info.coffee_name;if(keep.info.roaster)best.info.roaster=keep.info.roaster;
+      // …unless the evened-out reading saw more of the same name ("Nyamas" under glare, "Nyamasheke" after).
+      const ev=parseLabel(texts[1]||'').coffee_name,kn=keep.info.coffee_name;if(ev&&(!kn||(fold(ev).startsWith(fold(kn).slice(0,4))&&ev.length>kn.length)))best.info.coffee_name=ev}}
   if(!best.info.origin_key&&!best.info.variety_key&&!best.info.process_key){
     for(const rot of [90,270,180]){onStatus&&onStatus(rot);const r=await read(prepCanvas(img,rot,1300));if(r.score>best.score+8){r.rot=rot;best=r}}
     if(best.rot){const r=await read(prepCanvas(img,best.rot));if(r.score>=best.score){r.rot=best.rot;best=r}}}
@@ -1502,7 +1604,7 @@ async function runLocalScan(useImg){
   try{let text=txt,rot=0;
     if(useImg){const w=await Promise.race([ocrWorker((status,p,g,t)=>{if(SCTL.done)return;st.textContent=status==='download'?'Downloading the text reader (first time only)… '+mb(g)+' of '+mb(t)+' MB'
           :/recogniz/.test(status)?'Reading the label… '+Math.round(p*100)+'%':'Starting the text reader…'}),stopped]);
-      const res=await Promise.race([withTimeout(readLabelImage(w,SFILE,()=>{if(!SCTL.done)st.textContent='Trying the photo the other way round…'}),180000,'slow'),stopped]);text=res.text;rot=res.rot||0;$('scan-text').value=text.trim()}
+      const res=await Promise.race([withTimeout(readLabelImage(w,SFILE,k=>{if(!SCTL.done)st.textContent=k==='more'?'Looking closer for the rest of the details…':'Trying the photo the other way round…'}),180000,'slow'),stopped]);text=res.text;rot=res.rot||0;$('scan-text').value=text.trim()}
     const j=parseLabel(text);if(!j.origin_key&&!j.variety_key&&!j.process_key&&!j.roast_date){st.textContent=useImg?'Couldn’t find coffee details in that photo. Try again with the label filling most of the photo, in sharp focus, or fill in the details below.':'No coffee details found in that text.';return}
     if(rot)await uprightPreview(rot);
     applyInfo(j);const found=[j.origin_key&&ALLO()[j.origin_key].name,j.process_key&&PROCESSES[j.process_key].name,j.variety_key&&vName(j.variety_key),j.roast_date&&'roasted '+fmtDate({date:j.roast_date})].filter(Boolean);
