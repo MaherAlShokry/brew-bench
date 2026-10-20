@@ -344,7 +344,7 @@ function openMatch(g,c){MATCH={g,v:dial(g,c)};showTab('gear');renderMatch();requ
 document.addEventListener('click',e=>{const m=e.target.closest('[data-match]');if(m){const [g,c]=m.dataset.match.split('|');if(GRINDERS[g])openMatch(g,+c)}});
 function fitRanges(){const B=BREWERS[S.brewer];S.ratio=clamp(S.ratio,B.ratio.min,B.ratio.max);S.temp=clamp(S.temp,B.temp.min,B.temp.max);S.bloom=clamp(S.bloom,B.bloom.min,B.bloom.max)}
 /* ---------- Dial-in with a recipe ----------
-   Pick a recipe, your dose and the cup you're after: the brew planner tunes grind, water, ratio, bloom and agitation
+   Pick a recipe, your dose and the cup you're after: the brew plan tunes grind, water, ratio, bloom and agitation
    for the coffee in front of you, and the steps are rebuilt for your dose and target. Move any slider yourself and the
    dial-in keeps your setting (with a Re-tune button to go back to the tuned one). */
 const dialRec=()=>S.rec!=null&&RECIPES[S.rec]&&(RECIPES[S.rec].b===S.brewer||(RECIPES[S.rec].b==='swi'&&(S.brewer==='sw'||S.brewer==='swneo')))?RECIPES[S.rec]:null;
@@ -375,7 +375,9 @@ function renderDialRecipe(){const tl=techList(S.brewer),r=dialRec();
 function dialTimer(){const dp=dialPlan();if(!dp)return;openTimer(S.rec,{grinder:S.grinder,set:{[S.grinder]:S.setting},r:{dose:S.dose},water:dp.water,temp:S.temp,steps:dp.steps})}
 function render(){
   const G=GRINDERS[S.grinder],B=BREWERS[S.brewer];
-  grinderSeg('g-grinder',(S.brewer),()=>S.grinder,v=>{if(v!==S.grinder){S.setting=swapGrinder(v);S.grinder=v}render()});
+  grinderSeg('g-grinder',(S.brewer),()=>S.grinder,v=>{if(v!==S.grinder){const was=isTuned();S.setting=swapGrinder(v);S.grinder=v;
+    // Same grind on another grinder is not a change of yours, so a tuned brew stays tuned.
+    if(was)S.tuned=Object.assign({},S.tuned,{grinder:S.grinder,setting:S.setting})}render()});
   seg('g-agit',[['low','Gentle'],['med','Normal'],['high','Vigorous']],()=>S.agit,v=>{S.agit=v;render()});
   seg('g-roast',[['light','Light'],['medium','Medium'],['dark','Dark']],()=>S.roast,v=>{S.roast=v;retuneIfAuto()});
   const gi=$('i-grind');gi.min=G.min;gi.max=G.max;gi.step=1;gi.value=S.setting;
@@ -451,7 +453,7 @@ function initDial(){
   $('calreset').onclick=()=>{BASE={};(BOFF={},save('bb-base3',BASE));renderCal();render();renderRecipes();renderGrindMap();if(BUILT.gear)renderMatch();toast('Calibration reset')};
 }
 
-/* ================= PLANNER ================= */
+/* ================= BREW PLAN (used by the dial-in and Scan) ================= */
 const PBREWERS=MODEL.filter(k=>k!=='swi'&&RECIPES.some(r=>r.b===k||((k==='sw'||k==='swneo')&&r.b==='swi')));
 function techList(b){const all=RECIPES.map((r,i)=>[r,i]);return all.filter(([r])=>r.b===b).concat(all.filter(([r])=>(b==='sw'||b==='swneo')&&r.b==='swi'))}
 /* Target cup profiles. Each moves the predicted extraction (Dt), the ratio (in brewer steps), the agitation and, for
@@ -539,7 +541,7 @@ function planHTML(p,c){
     '<div><b>Water</b><span>'+p.temp+'°C</span>'+(p.r.temp2?'<small>then about '+p.r.temp2+'°C</small>':'')+'</div>'+
     '<div><b>Dose : water</b><span>'+p.r.dose+'g : '+p.water+'g</span><small>1:'+p.ratio+'</small></div>'+
     '<div><b>'+B.bloom.label+'</b><span>'+p.bloom+'s</span></div><div><b>Agitation</b><span>'+agl+'</span></div></div>'+
-   '<h3>Steps</h3><ol class="steps">'+scaleSteps(p.r,p.r.dose,p.water).map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol>'+
+   '<h3>Steps</h3>'+stepList(p.steps)+
    (p.tw.length?'<div class="tip">'+p.tw.join(' ')+'</div>':'')+
    '<h3>Why these settings</h3><ul class="why">'+(p.why.length?p.why.map(w=>'<li>'+w+'</li>').join(''):'<li>The recipe already suits this coffee.</li>')+
    '<li>Grind starts from the recipe\u2019s setting on your calibration, then moves to land the predicted extraction on your goal.</li></ul>';
@@ -748,9 +750,9 @@ let RSORT=(()=>{try{return localStorage.getItem('bb-rsort')||'brewer'}catch(e){r
 const RF_NAME=()=>RF==='all'?'All recipes':RF==='fav'?'Favorites':RF==='mine'?'Yours and your team’s':RF==='champ'?'Champions':RF.startsWith('cup:')?CUPBY[RF.slice(4)][1]
   :RF.startsWith('b:')&&BREWERS[RF.slice(2)]?BREWERS[RF.slice(2)].name:RF.startsWith('col:')&&COLBY[RF.slice(4)]?COLBY[RF.slice(4)][1]:'All recipes';
 // One recipe as a compact row: what it is, who it's from, the numbers that matter, and a play button for the timer.
-function rrow(r,i){const m=rmeta(r),sc=scaled(r),lv={Easy:'e',Medium:'i',Advanced:'a'}[m.level];
+function rrow(r,i){const m=rmeta(r),lv={Easy:'e',Medium:'i',Advanced:'a'}[m.level];
   return '<article class="rrow'+(r.custom?' mine':'')+'"><button type="button" class="rr-open" data-open="'+i+'"><span class="rr-t"><b>'+esc(r.name)+'</b>'+(r.champ?'<span class="rr-tag champ">Champion</span>':'')+(r.custom?'<span class="rr-tag ours">'+esc(r.author&&r.author!==ME?'From '+r.author:'Yours')+'</span>':'')+'</span>'+
-    (r.by?'<small class="rr-by">'+esc(r.by)+'</small>':'')+'<span class="rr-m"><span>'+(sc.on?'<b class="rr-you" title="Your brew">'+sc.dose+'g · '+sc.water+'g</b>':r.dose+'g · '+r.water+'g')+'</span>'+(sc.on?'<span>1:'+rr1(sc.ratio)+'</span>':m.ratio?'<span>'+m.ratio+'</span>':'')+(m.time!=null?'<span>'+mmss(m.time)+'</span>':'')+(r.temp?'<span>'+r.temp+'°C</span>':'')+'<span class="lv lv-'+lv+'">'+m.level+'</span></span></button>'+
+    (r.by?'<small class="rr-by">'+esc(r.by)+'</small>':'')+'<span class="rr-m"><span>'+r.dose+'g · '+r.water+'g</span>'+(m.ratio?'<span>'+m.ratio+'</span>':'')+(m.time!=null?'<span>'+mmss(m.time)+'</span>':'')+(r.temp?'<span>'+r.temp+'°C</span>':'')+'<span class="lv lv-'+lv+'">'+m.level+'</span></span></button>'+
     '<div class="rr-side">'+favBtn(r)+'<button type="button" class="rr-play" data-timer="'+i+'" aria-label="Start the timer for '+esc(r.name)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button></div></article>'}
 function renderRecipes(){
   if(RF==='mine'&&!CREC.length)RF='all';if(RF==='fav'&&!favCount())RF='all';if((RF.startsWith('b:')&&!BREWERS[RF.slice(2)])||(RF.startsWith('col:')&&!COLBY[RF.slice(4)])||(RF.startsWith('cup:')&&!CUPBY[RF.slice(4)]))RF='all';
@@ -788,7 +790,8 @@ function loadRecipe(i){const r=RECIPES[i];if(!r||!BREWERS[r.b].model)return;S.br
 const planRecipe=loadRecipe;
 
 /* ---------- Creating, editing and sharing recipes ---------- */
-function recipesChanged(){syncRecipes();if(S.rec!=null&&!RECIPES[S.rec])S.rec=null;if(BUILT.recipes){renderRecipes();renderRHome()}render()}
+// Team recipes come and go, which moves the ones after them; the dial-in keeps the same recipe by its key.
+function recipesChanged(){const k=S.rec!=null&&RECIPES[S.rec]?rkey(RECIPES[S.rec]):null;syncRecipes();S.rec=k?(i=>i>=0?i:null)(rByKey(k)):null;if(S.rec==null)S.tuned=null;if(BUILT.recipes){renderRecipes();renderRHome()}render()}
 function saveRecipe(r){const i=CREC.findIndex(x=>x.id===r.id);if(i>=0)CREC[i]=r;else CREC.push(r);save('bb-myrecipes',CREC);queue('put',r.id,r,'recipes');recipesChanged()}
 function deleteRecipe(r){CREC=CREC.filter(x=>x.id!==r.id);save('bb-myrecipes',CREC);queue('del',r.id,null,'recipes');recipesChanged()}
 // The editor: grind is set relative to each brewer's baseline, so it works on every grinder.
@@ -816,7 +819,11 @@ function openRecipeEditor(r,fresh){const isNew=!r||fresh;r=Object.assign({b:'v60
   const d=$('vd');showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
 $('r-new').onclick=()=>openRecipeEditor(null);
 // Save the current dial-in as a starting recipe.
-$('tosave').onclick=()=>{const B=BREWERS[S.brewer],dose=B.ratio.ref<5?18:B.ratio.ref<10?20:15,water=Math.round(dose*S.ratio),bloom=Math.round(dose*2.5);
+$('tosave').onclick=()=>{const dp=dialPlan();
+  if(dp){const off=Math.round(stepsBetween(S.grinder,baseX(S.grinder,S.brewer),S.setting)*10)/10;
+    openRecipeEditor({b:S.brewer,name:'My '+dp.r.name+(S.goal!=='balance'?' ('+GOALN[S.goal].toLowerCase()+')':''),by:'Adapted from '+(dp.r.by||dp.r.name),dose:S.dose,water:dp.water,temp:S.temp,off,steps:dp.steps.slice(),
+      why:GOALN[S.goal]+' cup for '+PROCESSES[S.process].name.toLowerCase()+' '+vName(S.variety)+', '+S.roast+' roast.',tip:dp.r.tip||''},true);return}
+  const B=BREWERS[S.brewer],dose=B.ratio.ref<5?18:B.ratio.ref<10?20:15,water=Math.round(dose*S.ratio),bloom=Math.round(dose*2.5);
   const off=Math.round(stepsBetween(S.grinder,baseX(S.grinder,S.brewer),S.setting)*10)/10;
   openRecipeEditor({b:S.brewer,name:'My '+B.name+' recipe',dose,water,temp:S.temp,off,steps:['0:00 pour '+bloom+'g, bloom.',mmss(S.bloom)+' pour to '+Math.round(water*0.6)+'g.',mmss(Math.max(90,S.bloom+45))+' pour to '+water+'g.',mmss(Math.max(180,S.bloom+135))+' finished.'],why:PROCESSES[S.process].name+' '+vName(S.variety)+', '+S.roast+' roast.'},true)};
 // Share links carry the recipe itself, so anyone can add it with one tap.
@@ -1348,8 +1355,8 @@ function renderPalate(){const el=$('l-palate'),P=palate();el.hidden=!P;if(!P)ret
   el.innerHTML='<button type="button" class="fl-mini" id="pal-open" aria-label="Open your palate">'+fwStatic(P.fl)+'</button><div><h3>Your palate</h3><p class="hint" style="margin:0 0 6px">From '+P.n+(P.n===1?' brew':' brews')+' with flavour notes. You notice '+P.top.join(' and ')+' the most.</p>'+flBar(P.fl)+'<div class="chips" style="margin:0">'+flChips(P.fl.slice(0,6))+'</div></div>';
   $('pal-open').onclick=()=>openProfile('Your palate','From '+P.n+(P.n===1?' brew':' brews'),P.fl)}
 $('l-fl').onclick=()=>openNotesPicker();
-$('tolog').onclick=()=>{const r=compute(S);
-  $('l-settings').value=gLabel(S.grinder,S.setting)+', '+BREWERS[S.brewer].name+', '+S.temp+'°C, 1:'+S.ratio+', '+BREWERS[S.brewer].bloom.label.toLowerCase()+' '+S.bloom+'s, '+PROCESSES[S.process].name+' '+vName(S.variety);
+$('tolog').onclick=()=>{const r=compute(S),dp=dialPlan();
+  $('l-settings').value=(dp?dp.r.name+(S.goal!=='balance'?' ('+GOALN[S.goal].toLowerCase()+')':'')+', '+S.dose+'g : '+dp.water+'g, ':'')+gLabel(S.grinder,S.setting)+', '+BREWERS[S.brewer].name+', '+S.temp+'°C, 1:'+rr1(S.ratio)+', '+BREWERS[S.brewer].bloom.label.toLowerCase()+' '+S.bloom+'s, '+PROCESSES[S.process].name+' '+vName(S.variety);
   $('l-pred').value=verdict(r.D)[0];$('l-settings').dataset.brewer=S.brewer;showTab('log');$('l-coffee').focus()};
 $('l-save').onclick=()=>{const e={id:uid(),ts:Date.now(),date:new Date().toLocaleDateString(),coffee:$('l-coffee').value.trim(),settings:$('l-settings').value.trim(),stars:STAR,pred:$('l-pred').value.trim(),notes:$('l-notes').value.trim(),brewer:$('l-settings').dataset.brewer||''};if(LFL.length)e.fl=LFL.slice();
   if(GROUP)e.by=ME;
@@ -1460,14 +1467,15 @@ const readScore=(info,conf)=>(info.origin_key?30:0)+(info.variety_key?25:0)+(inf
 // Read a label photo. If the first pass finds nothing (often a bag shot sideways or upside down), try the photo
 // turned, quickly at a smaller size, and read the best way round properly.
 async function readLabelImage(w,file,onStatus){const img=await loadImage(file);
-  const read=async c=>{const r=await w.recognize(c),text=r.data.text||'',info=parseLabel(text);return{text,info,score:readScore(info,r.data.confidence)}};
+  const read=async c=>{const r=await w.recognize(c),text=r.data.text||'',info=parseLabel(text);return{text,info,conf:r.data.confidence||0,score:readScore(info,r.data.confidence)}};
   let best=await read(prepCanvas(img,0));best.rot=0;
   const gaps=i=>!i.origin_key+!i.variety_key+!i.process_key;
   // Something read but details missing: try again with the light evened out, and as scattered text (labels laid out
   // in boxes and columns), then read everything found together.
-  // (Many bags never name the variety, so only a missing origin or process sends it round again.)
-  if((!best.info.origin_key||!best.info.process_key)&&gaps(best.info)<3){onStatus&&onStatus('more');
-    const texts=[best.text];for(const [canvas,psm] of [[evenLight(prepCanvas(img,0)),'3'],[prepCanvas(img,0),'11']]){try{if(psm!=='3')await w.setParameters({tessedit_pageseg_mode:psm});const r=await w.recognize(canvas);texts.push(r.data.text||'')}catch(e){}finally{if(psm!=='3')try{await w.setParameters({tessedit_pageseg_mode:'3'})}catch(e){}}}
+  // A missing origin or process gets both extra readings. A missing variety (many bags never name one) gets only the
+  // evened-out one, the cheap fix for glare washing out part of a line.
+  if(gaps(best.info)&&gaps(best.info)<3){onStatus&&onStatus('more');const core=!best.info.origin_key||!best.info.process_key;
+    const texts=[best.text];for(const [canvas,psm] of [[evenLight(prepCanvas(img,0)),'3'],...(core?[[prepCanvas(img,0),'11']]:[])]){try{if(psm!=='3')await w.setParameters({tessedit_pageseg_mode:psm});const r=await w.recognize(canvas);texts.push(r.data.text||'')}catch(e){}finally{if(psm!=='3')try{await w.setParameters({tessedit_pageseg_mode:'3'})}catch(e){}}}
     const both=texts.join('\n'),info=parseLabel(both),sc=readScore(info,0);if(gaps(info)<gaps(best.info)||sc>best.score){const keep=best;best={text:both,info,score:sc,rot:0};
       // Keep the clean first reading's name and roaster when it had them.
       if(keep.info.coffee_name)best.info.coffee_name=keep.info.coffee_name;if(keep.info.roaster)best.info.roaster=keep.info.roaster;
@@ -2015,8 +2023,8 @@ const ICO={wheel:'M21 12a9 9 0 1 1-18 0a9 9 0 1 1 18 0z M12 3v9l7.8 4.5 M12 12l-
 const installed=()=>!!window.Capacitor||MQ('(display-mode: standalone)')||navigator.standalone===true;
 const ico=(n,bg)=>'<span class="ic" style="background:'+bg+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+ICO[n]+'"/></svg></span>';
 
-const TABNAMES={explore:'Explore',more:'More',champs:'World championships',words:'Coffee words',wheel:'Flavour wheel',flow:'From seed to cup',dial:'Dial-in',planner:'Brew planner',scan:'Scan beans',gear:'Gear and dials',recipes:'Recipes',tech:'Techniques',process:'Processes',map:'Origins map',variety:'Varieties',history:'History',guide:'Guide',log:'Brew log'};
-const BNGROUP={explore:'explore',more:'more',champs:'explore',words:'explore',wheel:'explore',flow:'explore',dial:'dial',recipes:'recipes',scan:'scan',map:'explore',variety:'explore',history:'explore',process:'explore',tech:'explore',planner:'more',gear:'more',guide:'more',log:'more'};
+const TABNAMES={explore:'Explore',more:'More',champs:'World championships',words:'Coffee words',wheel:'Flavour wheel',flow:'From seed to cup',dial:'Dial-in',scan:'Scan beans',gear:'Gear and dials',recipes:'Recipes',tech:'Techniques',process:'Processes',map:'Origins map',variety:'Varieties',history:'History',guide:'Guide',log:'Brew log'};
+const BNGROUP={explore:'explore',more:'more',champs:'explore',words:'explore',wheel:'explore',flow:'explore',dial:'dial',recipes:'recipes',scan:'scan',map:'explore',variety:'explore',history:'explore',process:'explore',tech:'explore',gear:'more',guide:'more',log:'more'};
 function syncShell(id){$('ab-title').textContent=TABNAMES[id]||'Brew Bench';$('ab-back').hidden=NAVD<1;document.body.className=document.body.className.replace(/\bt-\w+/g,'').trim()+' t-'+id;
   document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));movePill();
   const can=['dial','scan','history','log','map','recipes','words','flow','wheel'].includes(id);$('ab-share').hidden=!can}
@@ -2051,7 +2059,7 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(movePill);
 addEventListener('resize',()=>soon(movePill));
 document.querySelector('.bottomnav').onclick=e=>{const b=e.target.closest('[data-bn]');if(b)showTab(b.dataset.bn)};
 $('ab-share').onclick=()=>{const id=(document.querySelector('main section.on')||{}).id;
-  if(id==='dial')openShare(dialDoc());else if(id==='scan')$('sc-share').click();else if(id==='history')openShare(historyDoc());else if(id==='log')openShare(logDoc());else if(id==='map'){if(SEL)openShare(originDoc(SEL));else toast('Pick an origin first')}else if(id==='recipes')toast('Tap Share on any recipe card');else if(id==='words')openShare(wordsDoc());else if(id==='flow')openShare(flowDoc());else if(id==='wheel')openShare(wheelDoc())};
+  if(id==='dial')openShare(dialDoc());else if(id==='scan')$('sc-share').click();else if(id==='history')openShare(historyDoc());else if(id==='log')openShare(logDoc());else if(id==='map'){if(SEL)openShare(originDoc(SEL));else toast('Pick an origin first')}else if(id==='recipes')toast('Open a recipe, then tap Share');else if(id==='words')openShare(wordsDoc());else if(id==='flow')openShare(flowDoc());else if(id==='wheel')openShare(wheelDoc())};
 $('dial-share').onclick=()=>openShare(dialDoc());
 $('ab-back').onclick=()=>history.back();
 // The Android back gesture asks here first: close the top sheet, or step back a screen. False means there is nothing
