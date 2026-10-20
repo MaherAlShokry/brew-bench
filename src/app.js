@@ -1420,7 +1420,11 @@ $('l-csv').onclick=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';cons
 /* ================= SCAN ================= */
 let SC=Object.assign({origin:'colombia',process:'washed',variety:'pinkbourbon',roast:'light',date:'',brewer:'v60',grinder:'zp6',info:null,name:'',roaster:''},load('bb-scan',{}));SC.name=str(SC.name,60);SC.roaster=str(SC.roaster,50);if(!MYG.includes(SC.grinder))SC.grinder=MYG[0];
 if(!PROCESSES[SC.process])SC.process='washed';if(!vById(SC.variety))SC.variety='pinkbourbon';if(!ALLO()[SC.origin])SC.origin='colombia';if(!PBREWERS.includes(SC.brewer))SC.brewer='v60';
-let SCANS=load('bb-scans',[]),SAMPLE=null,IMGS=null,SFILE=null,SCTL=null;
+// Saved scans come from storage, a backup or another device: keep only well-formed ones, with known keys.
+const okScan=x=>{if(!x||typeof x!=='object'||!x.sc||typeof x.sc!=='object')return null;const c=x.sc;
+  if(!PROCESSES[c.process])c.process='washed';if(!vById(c.variety))c.variety='pinkbourbon';if(!ALLO()[c.origin])c.origin='colombia';if(!['light','medium','dark'].includes(c.roast))c.roast='light';
+  for(const k of ['name','roaster','date'])if(typeof c[k]!=='string')c[k]='';if(x.info&&typeof x.info!=='object')x.info=null;return x};
+let SCANS=load('bb-scans',[]).map(okScan).filter(Boolean),SAMPLE=null,IMGS=null,SFILE=null,SCTL=null;
 function daysSince(d){if(!d)return 14;const t=Date.parse(d);if(isNaN(t))return 14;return clamp(Math.round((Date.now()-t)/864e5),1,90)}
 function initScan(){
   $('s-origin').innerHTML=Object.entries(REG).map(([rk,r])=>'<optgroup label="'+r.name+'">'+Object.keys(ALLO()).filter(k=>ALLO()[k].reg===rk).sort((a,b)=>ALLO()[a].name.localeCompare(ALLO()[b].name)).map(k=>'<option value="'+k+'">'+esc(ALLO()[k].name)+'</option>').join('')+'</optgroup>').join('');
@@ -1491,12 +1495,14 @@ async function ocrWorker(onProgress){OCR_PROGRESS=onProgress;
 function loadImage(file){return new Promise((ok,no)=>{const img=new Image();img.onload=()=>{URL.revokeObjectURL(img.src);ok(img)};img.onerror=()=>no(new Error('image'));img.src=URL.createObjectURL(file)})}
 // Grey, with the contrast stretched between the darkest and lightest 2% so faded print and shadows read cleanly.
 // Light text on a dark label is flipped to dark on light, which the reader handles far better. rot turns the photo
-// (for bags shot sideways); max is the long side in pixels, big enough that small print stays readable.
-function prepCanvas(img,rot=0,max=2000){const k=Math.min(1,max/Math.max(img.width,img.height)),w=Math.round(img.width*k),h=Math.round(img.height*k),side=rot%180!==0;
+// (for bags shot sideways); max is the long side in pixels, big enough that small print stays readable (a small
+// photo is enlarged up to twice its size to get there).
+function prepCanvas(img,rot=0,max=2000){const k=Math.min(2,max/Math.max(img.width,img.height)),w=Math.round(img.width*k),h=Math.round(img.height*k),side=rot%180!==0;
   const c=document.createElement('canvas');c.width=side?h:w;c.height=side?w:h;const x=c.getContext('2d');x.filter='grayscale(1)';
   x.translate(c.width/2,c.height/2);x.rotate(rot*Math.PI/180);x.drawImage(img,-w/2,-h/2,w,h);x.setTransform(1,0,0,1,0,0);x.filter='none';
   const d=x.getImageData(0,0,c.width,c.height),px=d.data,hist=new Uint32Array(256),N=px.length/4;for(let q=0;q<px.length;q+=4)hist[px[q]]++;
-  let a=0,lo=0,hi=255;for(let t=0;t<256;t++){a+=hist[t];if(a>N*.02){lo=t;break}}a=0;for(let t=255;t>=0;t--){a+=hist[t];if(a>N*.02){hi=t;break}}
+  // Only the brightest 0.3% is clipped: on a dark bag the light text itself is a tiny share of the photo.
+  let a=0,lo=0,hi=255;for(let t=0;t<256;t++){a+=hist[t];if(a>N*.02){lo=t;break}}a=0;for(let t=255;t>=0;t--){a+=hist[t];if(a>N*.003){hi=t;break}}
   // Light text on a dark label is flipped to dark on light. Judge that from the middle of the photo, where the label
   // is, so a dark table or bag around a white sticker doesn't flip it.
   const mid=(lo+hi)/2,W=c.width,H=c.height;let dark=0,n=0;for(let y=Math.round(H*.25);y<H*.75;y+=2)for(let i=Math.round(W*.25);i<W*.75;i+=2){n++;if(px[(y*W+i)*4]<mid)dark++}
@@ -1514,24 +1520,46 @@ function evenLight(c){const x=c.getContext('2d'),W=c.width,H=c.height,d=x.getIma
 const readScore=(info,conf)=>(info.origin_key?30:0)+(info.variety_key?25:0)+(info.process_key?25:0)+(info.roast_date?10:0)+((info.tasting_notes||[]).length?10:0)+(conf||0)/2;
 // Read a label photo. If the first pass finds nothing (often a bag shot sideways or upside down), try the photo
 // turned, quickly at a smaller size, and read the best way round properly.
+// Each line the reader found, with its size and place as a share of the photo's width, so readings at different
+// sizes can be merged and the biggest type (usually the coffee's name) picked out.
+const ocrLines=(r,c)=>(r.data.lines||[]).map(l=>({t:(l.text||'').trim(),x:l.bbox.x0/c.width,y:l.bbox.y0/c.width,h:(l.bbox.y1-l.bbox.y0)/c.width,conf:l.confidence||0})).filter(l=>l.t);
+// Big headline type is often missed at full size (each letter is too large for the reader), so the photo is also read
+// small. Lines only the small reading saw are added in their place.
+function mergeLines(a,b){const have=fold(a.map(l=>l.t).join(' ')).replace(/[^a-z0-9]/g,'');const out=a.slice();
+  for(const l of b){const k=fold(l.t).replace(/[^a-z0-9]/g,'');// Skip it when a line in the same place already reads the same (a letter or two apart). Two columns read as one
+    // line ("H PROCESS: Washed") don't count, so the headline the small reading saw cleanly is kept.
+    const dup=o=>{const ok=fold(o.t).replace(/[^a-z0-9]/g,'');return Math.abs(o.y-l.y)<l.h*.5&&Math.abs(o.x-l.x)<l.h&&(ok.includes(k.slice(0,Math.ceil(k.length/2)))||ok.includes(k.slice(-Math.ceil(k.length/2))))};
+    if(k.length>=3&&l.conf>=55&&!have.includes(k)&&!out.some(dup))out.push(l)}
+  return out.sort((p,q)=>p.y-q.y||p.x-q.x)}
+// The reader's own page layout setting (one block of text), put back after any special reading.
+const PSM_DEF='6';
 async function readLabelImage(w,file,onStatus){const img=await loadImage(file);
-  const read=async c=>{const r=await w.recognize(c),text=r.data.text||'',info=parseLabel(text);return{text,info,conf:r.data.confidence||0,score:readScore(info,r.data.confidence)}};
-  let best=await read(prepCanvas(img,0));best.rot=0;
+  const read=async c=>{const r=await w.recognize(c),text=r.data.text||'',info=parseLabel(text);return{text,info,conf:r.data.confidence||0,score:readScore(info,r.data.confidence),lines:ocrLines(r,c)}};
+  // Full size for the small print, then small for the headlines.
+  const readBoth=async rot=>{const A=await read(prepCanvas(img,rot));let B=null;
+    // Read as scattered text, so a headline beside a column of details comes back on its own.
+    try{await w.setParameters({tessedit_pageseg_mode:'11'});B=await read(prepCanvas(img,rot,900))}catch(e){}finally{try{await w.setParameters({tessedit_pageseg_mode:PSM_DEF})}catch(e){}}
+    if(!B)return A;const lines=mergeLines(A.lines,B.lines);
+    // For picking the name, every confident line counts, even one the full-size reading also saw (it may have garbled it).
+    const geo=A.lines.concat(B.lines.filter(l=>l.conf>=55&&l.t.length>=3)).sort((p,q)=>p.y-q.y||p.x-q.x);if(lines.length===A.lines.length)return Object.assign(A,{geo});
+    // The details are read from the full-size text; the extra lines go after it, mostly to supply the name.
+    const text=A.text+'\n'+lines.filter(l=>!A.lines.includes(l)).map(l=>l.t).join('\n'),info=parseLabel(text,geo);return{text,info,conf:A.conf,score:readScore(info,A.conf),lines,geo}};
+  let best=await readBoth(0);best.rot=0;if(best.geo)best.info=parseLabel(best.text,best.geo);
   const gaps=i=>!i.origin_key+!i.variety_key+!i.process_key;
   // Something read but details missing: try again with the light evened out, and as scattered text (labels laid out
   // in boxes and columns), then read everything found together.
   // A missing origin or process gets both extra readings. A missing variety (many bags never name one) gets only the
   // evened-out one, the cheap fix for glare washing out part of a line.
   if(gaps(best.info)&&gaps(best.info)<3){onStatus&&onStatus('more');const core=!best.info.origin_key||!best.info.process_key;
-    const texts=[best.text];for(const [canvas,psm] of [[evenLight(prepCanvas(img,0)),'3'],...(core?[[prepCanvas(img,0),'11']]:[])]){try{if(psm!=='3')await w.setParameters({tessedit_pageseg_mode:psm});const r=await w.recognize(canvas);texts.push(r.data.text||'')}catch(e){}finally{if(psm!=='3')try{await w.setParameters({tessedit_pageseg_mode:'3'})}catch(e){}}}
-    const both=texts.join('\n'),info=parseLabel(both),sc=readScore(info,0);if(gaps(info)<gaps(best.info)||sc>best.score){const keep=best;best={text:both,info,score:sc,rot:0};
+    const texts=[best.text];for(const [canvas,psm] of [[evenLight(prepCanvas(img,0)),PSM_DEF],...(core?[[prepCanvas(img,0),'11']]:[])]){try{if(psm!==PSM_DEF)await w.setParameters({tessedit_pageseg_mode:psm});const r=await w.recognize(canvas);texts.push(r.data.text||'')}catch(e){}finally{if(psm!==PSM_DEF)try{await w.setParameters({tessedit_pageseg_mode:PSM_DEF})}catch(e){}}}
+    const both=texts.join('\n'),info=parseLabel(both,best.geo),sc=readScore(info,0);if(gaps(info)<gaps(best.info)||sc>best.score){const keep=best;best={text:both,info,score:sc,rot:0};
       // Keep the clean first reading's name and roaster when it had them.
       if(keep.info.coffee_name)best.info.coffee_name=keep.info.coffee_name;if(keep.info.roaster)best.info.roaster=keep.info.roaster;
       // …unless the evened-out reading saw more of the same name ("Nyamas" under glare, "Nyamasheke" after).
       const ev=parseLabel(texts[1]||'').coffee_name,kn=keep.info.coffee_name;if(ev&&(!kn||(fold(ev).startsWith(fold(kn).slice(0,4))&&ev.length>kn.length)))best.info.coffee_name=ev}}
   if(!best.info.origin_key&&!best.info.variety_key&&!best.info.process_key){
     for(const rot of [90,270,180]){onStatus&&onStatus(rot);const r=await read(prepCanvas(img,rot,1300));if(r.score>best.score+8){r.rot=rot;best=r}}
-    if(best.rot){const r=await read(prepCanvas(img,best.rot));if(r.score>=best.score){r.rot=best.rot;best=r}}}
+    if(best.rot){const r=await readBoth(best.rot);if(r.score>=best.score){r.rot=best.rot;best=r}}}
   return best}
 const fold=t=>String(t).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[’']/g,"'");
 const reEsc=t=>t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
@@ -1567,9 +1595,16 @@ function lexicon(){if(LEX)return LEX;
   return LEX={vars,procs,countries,regions,notes:[...notes].filter(n=>n.length>2)}}
 const MONTHS={jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,sept:9,oct:10,nov:11,dec:12};
 function findDate(raw){const t=fold(raw),now=new Date(),cands=[];
-  const add=(y,m,d,at)=>{y=+y;m=+m;d=+d;if(!y)y=now.getFullYear();else if(y<100)y+=2000;if(m<1||m>12||d<1||d>31)return;let dt=new Date(y,m-1,d);if(dt>now)dt=new Date(y-1,m-1,d); /* no year printed: assume the most recent one */
+  // A best-before or expiry date is never the roast date.
+  const exp=at=>/\b(best\s*before|best\s*by|use\s*by|expir\w*|exp\.?|bb|consumir antes|vence)\W{0,3}$/.test(t.slice(Math.max(0,at-22),at).trim());
+  const add=(y,m,d,at)=>{const yr=!!+y;y=+y;m=+m;d=+d;if(exp(at))return;if(!y)y=now.getFullYear();else if(y<100)y+=2000;if(m<1||m>12||d<1||d>31)return;let dt=new Date(y,m-1,d);if(dt>now&&!yr)dt=new Date(y-1,m-1,d); /* no year printed: assume the most recent one */
     if(dt>now||now-dt>400*864e5)return;cands.push({iso:dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0'),at})};
-  let m;const r1=/(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/g;while(m=r1.exec(t))add(m[1],m[2],m[3],m.index);
+  // The reader often takes a 0 for a 6, 8 or 9 ("2626-99-39" for 2026-09-30): an impossible date is tried with those
+  // digits put back to 0, and kept only if that makes a real, recent date.
+  const zeroes=v=>{const out=[v],idx=[...v].map((c,i)=>/[689]/.test(c)?i:-1).filter(i=>i>=0);for(let mask=1;mask<1<<idx.length&&mask<64;mask++){let w=[...v];idx.forEach((i,b)=>{if(mask>>b&1)w[i]='0'});out.push(w.join(''))}return out};
+  const addFix=(y,mo,d,at)=>{const n=cands.length;add(y,mo,d,at);if(cands.length>n)return;
+    for(const Y of zeroes(String(y)))for(const M of zeroes(String(mo)))for(const D of zeroes(String(d))){add(Y,M,D,at);if(cands.length>n)return}};
+  let m;const r1=/(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/g;while(m=r1.exec(t))addFix(m[1],m[2],m[3],m.index);
   const r2=/(\d{1,2})[/.\-](\d{1,2})[/.\-](\d{2,4})/g;while(m=r2.exec(t))add(m[3],m[2],m[1],m.index); /* day first, as on most bags */
   const mon='(jan|feb|mar|apr|may|jun|jul|aug|sept|sep|oct|nov|dec)[a-z]*\\.?';
   const r3=new RegExp('(\\d{1,2})(?:st|nd|rd|th)?\\s+'+mon+'(?:,?\\s+(\\d{2,4}))?','g');while(m=r3.exec(t))add(m[3]||0,MONTHS[m[2]],m[1],m.index);
@@ -1595,7 +1630,7 @@ const NOTE_EN={durazno:'peach',melocoton:'peach',pessego:'peach',mandarina:'mand
   frambuesa:'raspberry',mora:'blackberry',uva:'grape',manzana:'apple',maca:'apple',pera:'pear',pina:'pineapple',abacaxi:'pineapple',mango:'mango',maracuya:'passion fruit',maracuja:'passion fruit',
   caramelo:'caramel',chocolate:'chocolate',cacao:'cacao',miel:'honey',mel:'honey',panela:'panela',vainilla:'vanilla',baunilha:'vanilla',canela:'cinnamon',avellana:'hazelnut',almendra:'almond',nuez:'walnut',
   jazmin:'jasmine',jasmim:'jasmine',floral:'floral','frutos rojos':'red fruits','frutas vermelhas':'red fruits',te:'tea','te negro':'black tea'};
-function parseLabel(raw){const L=lexicon(),t=' '+fold(raw).replace(/[|_~*]+/g,' ').replace(/[ \t]+/g,' ')+' ';const lines=String(raw).split(/\n+/).map(x=>x.trim()).filter(Boolean);const info={source:'phone'};let hits=0;
+function parseLabel(raw,geo){const L=lexicon(),t=' '+fold(raw).replace(/[|_~*]+/g,' ').replace(/[ \t]+/g,' ')+' ';const lines=String(raw).split(/\n+/).map(x=>x.trim()).filter(Boolean);const info={source:'phone'};let hits=0;
   const kO=keyed(lines,'origin'),kV=keyed(lines,'variety'),kP=keyed(lines,'process'),kN=keyed(lines,'notes');
   // A tasting note like "honey" must not decide the process, so the notes line is left out when looking for one.
   const noNotes=kN?t.replace(fold(kN.line),' '):t;
@@ -1617,11 +1652,26 @@ function parseLabel(raw){const L=lexicon(),t=' '+fold(raw).replace(/[|_~*]+/g,' 
   const prod=/\b(?:producer|produced by|grower|farmer)s?\s*[:\-]\s*([^\n;,]{2,40})/i.exec(raw);
   if(prod)info.producer_or_farm=prod[1].trim();else if(farm)info.producer_or_farm=(/^(finca|hacienda|fazenda|sitio)$/i.test(farm[1])?farm[1]+' '+farm[2]:farm[2]+' '+farm[1]).replace(/\s+/g,' ').replace(/\s*[;.].*$/,'').trim().replace(/\b\w/g,x=>x.toUpperCase());
   // The roastery, wherever it sits on the bag: a known roaster, "Roasted by …", a line naming one, or their web address.
-  const ro=findRoaster(lines,t);if(ro)info.roaster=ro.name;
+  const ro=findRoaster(lines,t,geo);if(ro)info.roaster=ro.name;
   const same=x=>ro&&ro.line&&fold(x).replace(/[^a-z0-9]/g,'')===fold(ro.line).replace(/[^a-z0-9]/g,'');
   const bare=x=>{const r=fold(x).replace(/\b(specialty|speciality|single origin|coffee|cafe|beans?)\b/g,' ').replace(/\s+/g,' ').trim();return !r||L.countries.some(([c])=>c===r)};
   // Two columns often come back as one line ("Huye Mountain Roasted by"), so the roaster's part is cut off first.
-  const title=lines.map(x=>cleanLine(x.replace(/\s+(?:roasted|tostado|torrado)\s+(?:by|por)\b.*$/i,''))).find(x=>!same(x)&&!bare(x)&&x.length<=40&&plausibleName(x)&&!/[:@]|www\.|\.com|\d{3,}|roast|notes?|process|variety|altitude|origin|net|weight|\bg\b|arabica|specialty|grade/i.test(x)&&!(ro&&(fold(x).includes(fold(ro.name))||fold(ro.name).replace(/[^a-z0-9]/g,'').includes(fold(x).replace(/[^a-z0-9]/g,'')))));if(title)info.coffee_name=title;
+  const cut=x=>cleanLine(x.replace(/\s+(?:roasted|tostado|torrado)\s+(?:by|por)\b.*$/i,''));
+  const isTitle=x=>!same(x)&&!bare(x)&&x.length<=40&&plausibleName(x)&&!/[:@]|www\.|\.com|\d{3,}|roast|notes?|process|variety|altitude|origin|net|weight|\bg\b|arabica|specialty|grade/i.test(x)&&!(ro&&(fold(x).includes(fold(ro.name))||fold(ro.name).replace(/[^a-z0-9]/g,'').includes(fold(x).replace(/[^a-z0-9]/g,''))));
+  let title=lines.map(cut).find(isTitle);
+  // With line sizes, the name is the biggest type on the bag, not the first line: bags open with taglines and logos.
+  // A name set over two lines ("Huye / Mountain") is joined back up.
+  if(geo&&geo.length>2){const key=x=>fold(cleanLine(x)).replace(/[^a-z0-9]/g,''),hs=geo.map(g=>g.h).sort((a,b)=>a-b),med=hs[hs.length>>1];
+    const cand=geo.map((g,k)=>({g,k,x:cut(g.t)})).filter(c=>isTitle(c.x)&&c.g.conf>=65);
+    let big=cand.sort((a,b)=>b.g.h-a.g.h)[0];
+    // The scattered reading can split a headline ("Finca" | "La Joya"): use the whole line read at the same place.
+    if(big){const whole=cand.filter(c=>Math.abs(c.g.y-big.g.y)<big.g.h*.6&&Math.abs(c.g.h-big.g.h)<big.g.h*.35&&c.g.conf>=big.g.conf-10&&key(c.x).includes(key(big.x))).sort((a,b)=>b.x.length-a.x.length)[0];if(whole)big=whole}
+    if(big&&big.g.h>=med*1.1){let name=big.x;const nx=geo.find((g,k)=>k!==big.k&&g.y-big.g.y>big.g.h*.6&&Math.abs(g.x-big.g.x)<big.g.h*2&&Math.abs(g.h-big.g.h)<big.g.h*.3&&g.y-big.g.y<big.g.h*1.9&&isTitle(cut(g.t)));
+      if(nx&&key(nx.t)!==key(name)&&(name+' '+cut(nx.t)).length<=40)name+=' '+cut(nx.t);
+      title=name}
+    // No roastery found from any clue: the small line at the very top of the bag is usually its logo.
+    if(!ro){const top=geo.find(g=>g.conf>=60);const x=top&&cleanLine(top.t);if(x&&x.length<=30&&!/\d/.test(x)&&plausibleName(x)&&!bare(x)&&!(title&&key(x)===key(title))&&key(x)!==key(big?big.x:'')&&!findBest(' '+fold(x)+' ',L.countries)&&!findBest(' '+fold(x)+' ',L.procs)&&!/\b(specialty|single origin|whole bean|filter|espresso|limited|no\.?|lot)\b/i.test(x)&&top.h<(big?big.g.h:1))info.roaster=niceName(x)}}
+  if(title)info.coffee_name=title;
   info.confidence=hits>=4?'high':hits>=2?'medium':'low';info.summary=hits?'Read on this phone. Check the details below and adjust anything that looks off.':'';
   return info}
 // Finding the roastery. Bags put it anywhere (top, bottom, on the back, only in the web address), so every line is
@@ -1639,23 +1689,28 @@ function nameFromHandle(h){h=fold(h).replace(/^(https?:\/\/)?(www\.)?/,'').repla
   const words=[];for(const w of base.split(' ')){let core=w,tail=[];let hit=true;while(hit&&core.length>3){hit=false;for(const p of RO_PARTS){if(core.length>p.length+2&&core.endsWith(p)){tail.unshift(p==='coffeeroasters'?'coffee roasters':p);core=core.slice(0,-p.length);hit=true;break}}}words.push(core,...tail)}
   const out=words.join(' ').replace(/\s+/g,' ').trim();if(!/[a-z]{3}/.test(out)||/^(gmail|hotmail|outlook|yahoo|icloud|instagram|facebook|shopify|google|amazon|info|hello|shop|order|orders|www)$/.test(out.split(' ')[0]))return'';
   return out.replace(/\b\w/g,x=>x.toUpperCase()).replace(/\bCo\b/,'Co.')}
-function findRoaster(lines,t){const clean=lines.map(cleanLine),L=lexicon(),cands=[];const add=(name,score,line)=>{name=cleanLine(name).replace(/\s+/g,' ').replace(/\s+(?:in|en|em|from|since|est\.?)\s+[\p{L}\d .'-]*$/iu,'');if(name&&(score>=100||plausibleName(name)))cands.push({name,score,line:line||''})};
+function findRoaster(lines,t,geo){const clean=lines.map(cleanLine),L=lexicon(),cands=[];const add=(name,score,line)=>{name=cleanLine(name).replace(/\s+/g,' ').replace(/\s+(?:in|en|em|from|since|est\.?)\s+[\p{L}\d .'-]*$/iu,'');if(name&&(score>=100||plausibleName(name)))cands.push({name,score,line:line||''})};
   // A label word that says something about the coffee, not about who roasted it.
-  const coffeeWord=x=>{const f=' '+fold(x)+' ';return /roast(ed)?\s*(on|date|level|profile)|\b(light|medium|dark|omni|filter|espresso)\s*roast|best before|net\s*w|weight|\bnotes?\b|\bprocess|\bvariet|\baltitude|\bmasl\b|\bfarm\b|\bfinca\b|single origin|specialty coffee|100 ?%|arabica/.test(f)||!!findBest(f,L.countries)||!!findBest(f,L.procs)};
+  const coffeeWord=x=>{const f=' '+fold(x)+' ';return /roast(ed)?\s*(on|date|level|profile)|\b(light|medium|dark|omni|filter|espresso)\s*roast|best before|net\s*w|weight|\bnotes?\b|\bprocess|\bvariet|\baltitude\s*[:\d]|\bmasl\b|\bfarm\b|\bfinca\b|single origin|specialty coffee|100 ?%|arabica/.test(f)||!!findBest(f,L.countries)||!!findBest(f,L.procs)};
   // 1. A roaster we know by name, anywhere in the text or run together in a web address.
-  const flat=t.replace(/&/g,' and ').replace(/[^a-z0-9%]+/g,' '),words=flat.split(' ').filter(w=>w.length>=6);
+  const flat=t.replace(/&/g,' and ').replace(/[^a-z0-9%]+/g,' ').replace(/ +/g,' '),words=flat.split(' ').filter(w=>w.length>=6);
   for(const r of roLexicon()){const hit=new RegExp('(^| )'+reEsc(r.f)+'( |$)').test(flat)||(r.c.length>=6&&words.some(w=>w.startsWith(r.c)));if(hit){const ln=clean.find(x=>fold(x).replace(/&/g,'and').replace(/[^a-z0-9%]/g,'').includes(r.c));add(r.name,100+r.c.length,ln);break}}
   // 2. "Roasted by Kawa", "Tostado por Café Pergamino", "Roaster: Rumble".
   const by=/\b(?:roasted|hand[- ]roasted|lovingly roasted|freshly roasted|roasted with care|tostado|torrado|ger[oö]stet|torrefatto|torrefie)(?:\s+(?:in|en|em)\s+[\p{L} .'-]{2,30}?)?\s+(?:by|por|von|da|par)\s*:?\s*([^\n,;|•·]{2,45})/iu,lab=/^\s*(?:roaster|roastery|roasted by|tostador|torrefador|r[oö]ster(?:ei)?)\s*[:\-–]\s*(.{2,45})$/i;
   lines.forEach((l,i)=>{let m=by.exec(l);if(m){const v=cleanLine(m[1]);if(v.length>=3&&!coffeeWord(v))add(v,90,l);else if(clean[i+1]&&!coffeeWord(clean[i+1]))add(clean[i+1],85,lines[i+1])}
-    else if(/\b(?:roasted|tostado|torrado)\s+(?:by|por)\s*:?\s*$/i.test(l)&&clean[i+1])add(clean[i+1],88,lines[i+1]);
+    else if(/\b(?:roasted|tostado|torrado)\s+(?:by|por)\s*:?\s*$/i.test(l)){
+      // The name sits under "Roasted by", which in a side column may not be the next line of text read.
+      const k=fold(clean[i]).replace(/[^a-z]/g,''),g=geo&&geo.find(x=>fold(x.t).replace(/[^a-z]/g,'').endsWith(k.slice(-8))),
+        below=g&&geo.filter(x=>x!==g&&x.y>g.y&&x.y-g.y<g.h*3&&Math.abs(x.x-g.x)<g.h*3&&!coffeeWord(x.t)).sort((a,b)=>a.y-b.y)[0];
+      if(below)add(cleanLine(below.t),88,below.t);else if(clean[i+1])add(clean[i+1],88,lines[i+1])}
     if(m=lab.exec(l))add(m[1],90,l)});
   // 3. A line that names a roastery ("Northbound Coffee Roasters", "Kafferosteriet Koppi"). A line with only the
   //    word ("COFFEE ROASTERS" under a logo) takes the name from the line above.
   const kw=new RegExp('\\b('+RO_WORD+')\\b','i'),only=new RegExp('^(?:(?:specialty|speciality|craft|small batch|independent|artisan|coffee|&|and|the)\\s+)*(?:'+RO_WORD+')(?:\\s+(?:&|and)\\s+(?:caf[eé]|coffee|bar|bakery))?(?:\\s+(?:since|est\\.?|established)\\s*\\d{4})?$','i');
   clean.forEach((x,i)=>{const f=fold(x);if(!kw.test(f)||/roast(ed)?\s*(on|date|level|profile)|\b(light|medium|dark|omni|filter|espresso)\s*roast/.test(f))return;
     if(only.test(f)){const p=clean[i-1];if(p&&p.length<=30&&plausibleName(p)&&!coffeeWord(p)&&!kw.test(fold(p)))add(p+' '+x,80,lines[i-1]);else if(clean[i+1]&&clean[i+1].length<=30&&!coffeeWord(clean[i+1])&&!kw.test(fold(clean[i+1]))&&/^\p{Lu}/u.test(clean[i+1]))add(clean[i+1]+' '+x,70,lines[i+1]);return}
-    if(!coffeeWord(x.replace(kw,' ')))add(x.replace(/\s*(?:[-–|•·]|est\.?|since).*$/i,''),78,lines[i])});
+    // A sentence that mentions roasting ("…within 6 weeks of roasting.") is copy, not a name.
+    if(x.split(' ').length<=6&&!/[.!?]\s+\p{L}/u.test(x)&&!coffeeWord(x.replace(kw,' ')))add(x.replace(/\s*(?:[-–|•·]|\best\b\.?|\bsince\b).*$/i,''),78,lines[i])});
   // 4. The web address, email or handle: "www.onyxcoffeelab.com", "hello@kurasu.kyoto", "@seycoffee". If a line spells
   //    the same name out, that line is used as written.
   const hs=String(lines.join(' ')).match(/(?:www\.|https?:\/\/)[\w.\-]+\.[a-z]{2,}|[\w.\-]+@[\w\-]+(?:\.[\w\-]+)+|@[a-z0-9_.]{3,30}|\b[a-z0-9\-]{4,}\.(?:com|coffee|cafe|co|shop)\b/gi)||[];
@@ -1668,17 +1723,19 @@ function findRoaster(lines,t){const clean=lines.map(cleanLine),L=lexicon(),cands
   // Names in capitals come back in normal case; a known roaster keeps its own spelling.
   return{name:best.score>=100?best.name:niceName(best.name).replace(/\s+/g,' ').slice(0,50),line:best.line}}
 function applyInfo(j){if(j.origin_key&&ALLO()[j.origin_key])SC.origin=j.origin_key;if(j.process_key&&PROCESSES[j.process_key])SC.process=j.process_key;
-  if(j.variety_key&&vById(j.variety_key))SC.variety=j.variety_key;if(['light','medium','dark'].includes(j.roast_level))SC.roast=j.roast_level;if(/^\d{4}-\d{2}-\d{2}$/.test(j.roast_date||''))SC.date=j.roast_date;SC.name=plausibleName(j.coffee_name)?niceName(j.coffee_name).slice(0,60):'';SC.roaster=plausibleName(j.roaster)?niceName(j.roaster).slice(0,50):'';SC.info=j}
+  // A label that names no variety gets plain arabica (neutral in the plan), not whatever the last bag was.
+  SC.variety=j.variety_key&&vById(j.variety_key)?j.variety_key:'arabica';if(['light','medium','dark'].includes(j.roast_level))SC.roast=j.roast_level;if(/^\d{4}-\d{2}-\d{2}$/.test(j.roast_date||''))SC.date=j.roast_date;SC.name=plausibleName(j.coffee_name)?niceName(j.coffee_name).slice(0,60):'';SC.roaster=plausibleName(j.roaster)?niceName(j.roaster).slice(0,50):'';SC.info=j}
 async function runLocalScan(useImg){
   const txt=$('scan-text').value.trim();if(!useImg&&!txt){toast('Paste the label text first');return}if(useImg&&!SFILE){toast('Take or choose a photo first');return}
   const st=$('scan-status'),mb=b=>(b/1e6).toFixed(1);let stop;const stopped=new Promise((_,no)=>{stop=()=>no(Object.assign(new Error('cancelled'),{code:'cancelled'}))});stopped.catch(()=>{});
   SCTL={abort:()=>stop()};$('scan-stop').hidden=!useImg;$('scan-go').disabled=true;$('scan-drop').classList.add('scanning');
   st.hidden=false;st.textContent=useImg?'Getting the text reader ready…':'Reading the text…';
-  try{let text=txt,rot=0;
+  try{let text=txt,rot=0,j=null;
     if(useImg){const w=await Promise.race([ocrWorker((status,p,g,t)=>{if(SCTL.done)return;st.textContent=status==='download'?'Downloading the text reader (first time only)… '+mb(g)+' of '+mb(t)+' MB'
           :/recogniz/.test(status)?'Reading the label… '+Math.round(p*100)+'%':'Starting the text reader…'}),stopped]);
-      const res=await Promise.race([withTimeout(readLabelImage(w,SFILE,k=>{if(!SCTL.done)st.textContent=k==='more'?'Looking closer for the rest of the details…':'Trying the photo the other way round…'}),180000,'slow'),stopped]);text=res.text;rot=res.rot||0;$('scan-text').value=text.trim()}
-    const j=parseLabel(text);if(!j.origin_key&&!j.variety_key&&!j.process_key&&!j.roast_date){st.textContent=useImg?'Couldn’t find coffee details in that photo. Try again with the label filling most of the photo, in sharp focus, or fill in the details below.':'No coffee details found in that text.';return}
+      const res=await Promise.race([withTimeout(readLabelImage(w,SFILE,k=>{if(!SCTL.done)st.textContent=k==='more'?'Looking closer for the rest of the details…':'Trying the photo the other way round…'}),180000,'slow'),stopped]);text=res.text;rot=res.rot||0;j=res.info;$('scan-text').value=text.trim()}
+    // A photo's reading already chose the name and roastery from the type sizes; pasted text is read here.
+    if(!j)j=parseLabel(text);if(!j.origin_key&&!j.variety_key&&!j.process_key&&!j.roast_date){st.textContent=useImg?'Couldn’t find coffee details in that photo. Try again with the label filling most of the photo, in sharp focus, or fill in the details below.':'No coffee details found in that text.';return}
     if(rot)await uprightPreview(rot);
     applyInfo(j);const found=[j.origin_key&&ALLO()[j.origin_key].name,j.process_key&&PROCESSES[j.process_key].name,j.variety_key&&vName(j.variety_key),j.roast_date&&'roasted '+fmtDate({date:j.roast_date})].filter(Boolean);
     st.textContent=(j.confidence==='low'?'Found a few details: ':'Label read: ')+found.join(' · ')+'. Your brew plan is below; adjust anything that looks off.';renderScan();saveScan();toast('Label read');
@@ -1722,10 +1779,10 @@ function thumb(cb){if(!SFILE){cb('');return}const img=new Image();img.onload=()=
 function saveScan(){SC.id='s'+Date.now().toString(36);thumb(t=>{SCANS.unshift({id:SC.id,t,info:SC.info,sc:{origin:SC.origin,process:SC.process,variety:SC.variety,roast:SC.roast,date:SC.date,name:SC.name,roaster:SC.roaster},when:new Date().toLocaleDateString()});SCANS=SCANS.slice(0,12);save('bb-scans',SCANS);renderScanList()})}
 function renderScanList(){$('scan-list').innerHTML=SCANS.length?SCANS.map((s,i)=>'<button type="button" class="card vcard" data-scan="'+i+'" style="--c:var(--cherry)">'+(s.t?'<img src="'+s.t+'" alt="" style="width:100%;max-height:120px;object-fit:cover;border-radius:10px">':'')+'<h3 style="margin:.4rem 0 .1rem">'+esc(scanTitle(s.sc,s.info))+'</h3><p class="hint" style="margin:0">'+esc([scRoaster(s),s.when].filter(Boolean).join(' · '))+'</p></button>').join(''):'<p class="hint">Scans you make appear here.</p>'}
 // What to call the coffee: its name if we have a real one, else origin and variety ("Colombia Pink Bourbon").
-function scanTitle(sc,inf){const n=sc.name||(inf&&plausibleName(inf.coffee_name)?niceName(inf.coffee_name):'')||(inf&&inf.producer_or_farm)||'';return n||(originName(sc.origin)+' '+vName(sc.variety))}
+function scanTitle(sc,inf){const n=sc.name||(inf&&plausibleName(inf.coffee_name)?niceName(inf.coffee_name):'')||(inf&&inf.producer_or_farm)||'';return n||(originName(sc.origin)+(sc.variety!=='arabica'?' '+vName(sc.variety):' coffee'))}
 // The roastery gets its own spotlight card, with how many of their coffees you've scanned.
 function renderScanHead(){const h=$('scan-head');if(!h)return;const r=SC.roaster,n=r?SCANS.filter(x=>scRoaster(x).toLowerCase()===r.toLowerCase()).length:0;
-  h.innerHTML='<h2 style="margin-bottom:.2rem">'+esc(scanTitle(SC,SC.info))+'</h2>'+(SC.name?'<p class="scan-sub">'+esc(originName(SC.origin)+' · '+vName(SC.variety))+'</p>':'')+
+  h.innerHTML='<h2 style="margin-bottom:.2rem">'+esc(scanTitle(SC,SC.info))+'</h2>'+(SC.name?'<p class="scan-sub">'+esc(originName(SC.origin)+(SC.variety!=='arabica'?' · '+vName(SC.variety):''))+'</p>':'')+
     (r?'<div class="roastery"><span class="ri"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 10h13v4a6 6 0 0 1-6 6h-1a6 6 0 0 1-6-6z M18 11h1.5a2.5 2.5 0 0 1 0 5H17 M9 3c-1 1.5 1 2.5 0 4 M13 3c-1 1.5 1 2.5 0 4"/></svg></span><div><small>Roasted by</small><b>'+esc(r)+'</b>'+(n>1?'<small>'+n+' of their coffees in your scans</small>':'')+'</div></div>':'<p class="hint" style="margin:.2rem 0 .6rem">Add the roastery below to give them credit.</p>')}
 function renderScan(){
   $('s-origin').value=SC.origin;$('s-process').value=SC.process;$('s-variety').value=SC.variety;$('s-date').value=SC.date||'';$('s-brewer').value=SC.brewer;
