@@ -1021,8 +1021,6 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 .logos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}@media (min-width:600px){.logos{grid-template-columns:repeat(6,minmax(0,1fr))}}
 .logopick{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border-radius:14px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:600 .76rem var(--display);cursor:pointer}
 .logopick svg{width:34px;height:34px}.logopick[aria-pressed="true"]{outline:3px solid var(--cherry);outline-offset:1px}
-.namerow{display:flex;gap:8px}.namerow input{flex:1;min-width:0}
-.namechips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .setbtns{display:flex;flex-wrap:wrap;gap:8px}.setnote{font-size:.82rem;color:var(--muted);margin:.5rem 0 0}
 #ab-logo{display:inline-flex}#ab-logo svg{width:24px;height:24px}
 
@@ -1037,7 +1035,7 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
 <div class="herowrap"><button type="button" class="themebtn" id="themebtn" aria-label="Switch theme">Dark</button>
 <header class="hero wrap">
   <div>
-    <h1 id="hero-name">The Brew Bench</h1>
+    <h1>The Brew Bench</h1>
     <p>A coffee field guide and dial-in tool. Explore where coffee grows and where each variety came from, then brew it well.</p>
   </div>
   <svg class="hero-art" viewBox="0 0 320 260" role="img" aria-label="Illustration of a gooseneck kettle pouring into a pour-over dripper">
@@ -1419,7 +1417,7 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
 <!-- SETTINGS -->
 <section id="settings">
   <h2>Settings</h2>
-  <p class="lede">Make the app yours: its look, its name, your tools and your data.</p>
+  <p class="lede">Make the app yours: its look, your tools and your data.</p>
   <div id="settings-in"></div>
 </section>
 </main>

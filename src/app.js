@@ -2040,7 +2040,7 @@ function renderExplore(){const day=Math.floor(Date.now()/864e5),w=GLOSSARY[day%G
   $('explore-in').innerHTML='<button type="button" class="wotd" data-word="'+esc(w[0])+'"><small>Word of the day</small><b>'+esc(w[0])+'</b><span>'+esc(w[2])+'</span></button>'+
     HUB.explore.map(([h,ks])=>'<h3 class="rh">'+h+'</h3><div class="hubgrid">'+ks.map(hubCard).join('')+'</div>').join('')}
 /* ---------- Settings: the app's look, name and your data ---------- */
-let UI=Object.assign({accent:'classic',logo:'bean',name:'',text:'m',motion:'full',start:'dial'},load('bb-ui',{}));
+let UI=Object.assign({accent:'classic',logo:'bean',text:'m',motion:'full',start:'dial'},load('bb-ui',{}));
 const ACCENTS=[['classic','House roast','#8A5A3B'],['espresso','Espresso','#5E3B2A'],['cascara','Cascara','#A3392E'],['kenya','Kenya','#7B2D4E'],['honey','Honey','#A8741C'],['leaf','Coffee leaf','#4F7A45'],['coldbrew','Cold brew','#2E5C7A'],['geisha','Geisha','#76588C']];
 if(!ACCENTS.some(a=>a[0]===UI.accent))UI.accent='classic';
 const LOGOS={bean:['Bean',null],
@@ -2049,10 +2049,9 @@ const LOGOS={bean:['Bean',null],
   cherry:['Cherry','<circle cx="8.5" cy="15.5" r="5" fill="var(--cherry)"/><circle cx="16" cy="14" r="4.5" fill="var(--cherry)" opacity=".75"/><path d="M8.5 10.5c.5-3.5 3-6 7-7.5M16 9.5c0-2.5.3-4.5-.5-6.5" stroke="var(--leaf)" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M15.5 3c2.5-1 5-.3 6 1.5-2.5 1-5 .5-6-1.5z" fill="var(--leaf)"/>'],
   moka:['Moka pot','<path d="M8 3h8l1.2 7H6.8z" fill="var(--honey)"/><path d="M6.8 11.5h10.4L15.6 21H8.4z" fill="var(--cherry)"/><path d="M17 5h2.5L18 9.5" stroke="var(--cherry)" stroke-width="1.8" fill="none" stroke-linejoin="round"/><path d="M11 1.8h2" stroke="var(--cherry)" stroke-width="1.8" stroke-linecap="round"/>'],
   kettle:['Kettle','<path d="M5 10h10v8a2.5 2.5 0 0 1-2.5 2.5h-5A2.5 2.5 0 0 1 5 18z" fill="var(--cherry)"/><path d="M15 13c3.2 0 4-4.5 6.5-6.5" stroke="var(--cherry)" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M7.5 6.5h5L14 10H6z" fill="var(--honey)"/><path d="M10 4.5v2" stroke="var(--honey)" stroke-width="1.8" stroke-linecap="round"/>']};
-if(!LOGOS[UI.logo])UI.logo='bean';UI.name=str(UI.name,40);if(!['s','m','l','xl'].includes(UI.text))UI.text='m';if(!['full','reduced'].includes(UI.motion))UI.motion='full';if(!['dial','recipes','scan','explore'].includes(UI.start))UI.start='dial';
+if(!LOGOS[UI.logo])UI.logo='bean';delete UI.name;if(!['s','m','l','xl'].includes(UI.text))UI.text='m';if(!['full','reduced'].includes(UI.motion))UI.motion='full';if(!['dial','recipes','scan','explore'].includes(UI.start))UI.start='dial';
 const BEAN_SVG=$('ab-logo').innerHTML;
 const logoSVG=(k,sz)=>k==='bean'?BEAN_SVG.replace(/width="24" height="24"/,'width="'+sz+'" height="'+sz+'"'):'<svg viewBox="0 0 24 24" width="'+sz+'" height="'+sz+'" aria-hidden="true">'+LOGOS[k][1]+'</svg>';
-const NAME_IDEAS=['Home Café','The Slow Bar','Morning Pour','First Crack','The Bloom Room','Bean There'];
 // The browser tab icon follows the chosen logo and colours.
 function setFavicon(){try{const cs=getComputedStyle(document.documentElement),col=v=>cs.getPropertyValue(v).trim()||'#8A5A3B';
   const svg=logoSVG(UI.logo,64).replace('<svg ','<svg xmlns="http://www.w3.org/2000/svg" ').replace(/var\((--[a-z-]+)\)/g,(m,v)=>col(v));
@@ -2060,7 +2059,7 @@ function setFavicon(){try{const cs=getComputedStyle(document.documentElement),co
     let l=document.querySelector('link[rel="icon"]');if(!l){l=document.createElement('link');l.rel='icon';document.head.appendChild(l)}l.href=c.toDataURL('image/png')};
   img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)}catch(e){}}
 function applyUI(){const d=document.documentElement;d.setAttribute('data-accent',UI.accent);d.setAttribute('data-text',UI.text);d.setAttribute('data-motion',UI.motion);
-  $('ab-logo').innerHTML=logoSVG(UI.logo,24);$('hero-name').textContent=UI.name||'The Brew Bench';document.title=(UI.name?UI.name+' · ':'')+'The Brew Bench';
+  $('ab-logo').innerHTML=logoSVG(UI.logo,24);
   const t=curTheme();document.querySelectorAll('meta[name="theme-color"]').forEach(m=>{if(d.hasAttribute('data-theme'))m.content=t==='dark'?'#1F1814':'#FBF7F0'});setFavicon()}
 function saveUI(){save('bb-ui',UI);applyUI()}
 /* Your data: everything the app saves on this device, in one file you can keep or move to another phone. */
@@ -2087,7 +2086,6 @@ function renderSettings(){const t=document.documentElement.getAttribute('data-th
     row(curTheme()==='dark'?'moon':'sun','#5B5F66','Light or dark','Bright cream, cosy espresso, or follow your phone','<div class="seg" id="st-mode"></div>')+
     row('drop','var(--cherry)','Colour','Coffee-inspired themes for buttons, highlights and charts','<div class="swatches">'+ACCENTS.map(([k,n,c])=>'<button type="button" class="swatch" data-accent="'+k+'" aria-pressed="'+(UI.accent===k)+'"><i style="background:'+c+'"></i>'+n+'</button>').join('')+'</div>')+
     row('leaf','#6B8E4E','App logo','Shown in the top bar and the browser tab','<div class="logos">'+Object.entries(LOGOS).map(([k,[n]])=>'<button type="button" class="logopick" data-logo="'+k+'" aria-pressed="'+(UI.logo===k)+'">'+logoSVG(k,34)+n+'</button>').join('')+'</div><p class="setnote">The icon on your phone’s home screen stays the bean.</p>')+
-    row('book','#9A7390','Your café’s name','Shown on the Brew page instead of “The Brew Bench”','<div class="namerow"><input type="text" id="st-name" maxlength="40" placeholder="The Brew Bench" value="'+esc(UI.name)+'" aria-label="Your café’s name"></div><div class="namechips">'+NAME_IDEAS.map(n=>'<button type="button" class="chip" data-name="'+esc(n)+'">'+esc(n)+'</button>').join('')+(UI.name?'<button type="button" class="chip" data-name="">Reset</button>':'')+'</div>')+
     row('text','#C9964A','Text size','','<div class="seg" id="st-text"></div>')+
     row('wheel','#6E8FA8','Motion','Animations between pages and sheets','<div class="seg" id="st-motion"></div>')+
     row('globe','#4F8A74','Open the app on','The page you see first','<div class="seg" id="st-start"></div>')+'</div>'+
@@ -2103,10 +2101,8 @@ function renderSettings(){const t=document.documentElement.getAttribute('data-th
   seg('st-start',[['dial','Brew'],['recipes','Recipes'],['scan','Scan'],['explore','Explore']],()=>UI.start,v=>{UI.start=v;saveUI();renderSettings();toast('The app will open on '+TABNAMES[v])})}
 $('settings-in').addEventListener('click',e=>{const a=e.target.closest('.swatch[data-accent]');if(a){UI.accent=a.dataset.accent;saveUI();renderSettings();return}
   const l=e.target.closest('.logopick[data-logo]');if(l){UI.logo=l.dataset.logo;saveUI();renderSettings();return}
-  const n=e.target.closest('.chip[data-name]');if(n){UI.name=n.dataset.name;saveUI();renderSettings();return}
   if(e.target.closest('#st-export')){exportData();return}if(e.target.closest('#st-import')){$('st-file').click();return}});
 $('settings-in').addEventListener('change',e=>{if(e.target.id==='st-file'){importData(e.target.files[0]);e.target.value=''}});
-$('settings-in').addEventListener('input',e=>{if(e.target.id==='st-name'){UI.name=str(e.target.value,40);save('bb-ui',UI);applyUI()}});
 for(const id of ['explore-in','settings-in'])$(id).addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g){showTab(g.dataset.go);return}
   const w=e.target.closest('[data-word]');if(w)openWord(w.dataset.word)});
 // Older code and links may still ask for the sheets; they are pages now.
