@@ -969,6 +969,22 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 .drecipe .dr-meta span{font-size:.8rem;border-radius:99px;padding:3px 10px;background:var(--surface2)}.drecipe .dr-meta .gl{background:color-mix(in srgb,var(--cherry) 15%,var(--surface));color:var(--cherry);font-weight:700}
 .drecipe .why li{margin:.25rem 0}.dr-cols{display:grid;gap:4px 28px}@media (min-width:900px){.dr-cols{grid-template-columns:1.1fr 1fr}}
 .mr-play{flex:none;width:36px;height:36px;border-radius:50%;border:0;display:grid;place-items:center;background:var(--cherry);color:#fff;cursor:pointer;margin-left:8px}.mr-play svg{width:16px;height:16px;fill:currentColor;margin-left:2px}
+
+/* Explore and More pages: tiles grouped under small headings. */
+.hubgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (min-width:760px){.hubgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}@media (min-width:1100px){.hubgrid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.hubcard{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:14px 14px 16px;border-radius:18px;border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow);color:var(--ink);font:inherit;text-align:left;cursor:pointer;min-height:132px}
+.hubcard:active{transform:scale(.98)}
+.hubcard .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none;margin-bottom:4px}.hubcard .ic svg{width:22px;height:22px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.hubcard b{font-family:var(--display);font-size:1rem;line-height:1.2}.hubcard small{color:var(--muted);font-size:.82rem;line-height:1.35}
+.hubcard .hn{position:absolute;top:14px;right:14px;font-size:.74rem;font-weight:700;color:var(--muted);background:var(--surface2);border-radius:99px;padding:2px 8px}
+.wotd{display:block;width:100%;text-align:left;border:0;border-radius:20px;padding:16px 18px;margin:4px 0 6px;color:#fff;cursor:pointer;font:inherit;background:linear-gradient(135deg,#9A7390,#5E4057)}
+.wotd small{display:block;font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;opacity:.85;font-weight:700}.wotd b{display:block;font-family:var(--display);font-size:1.3rem;margin:4px 0}.wotd span{display:block;font-size:.9rem;line-height:1.45;opacity:.95;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.morelist{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+.morelist>div,.morelist>button{display:flex;align-items:center;gap:12px;width:100%;padding:14px 16px;border:0;background:none;color:var(--ink);font:inherit;text-align:left}
+.morelist>*+*{border-top:1px solid var(--line)}.morelist>button{cursor:pointer}.morelist .ic{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;flex:none}.morelist .ic svg{width:20px;height:20px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.morelist .mt{flex:1;min-width:0}.morelist .mt b{display:block;font-weight:600}.morelist .mt small{display:block;color:var(--muted);font-size:.84rem}
+.morelist .mtheme{flex-wrap:wrap}.morelist .mtheme .seg{flex:1 1 100%;display:grid;grid-template-columns:repeat(3,1fr)}.moretip{padding:0 16px 14px!important;border-top:0!important;display:block!important;font-size:.88rem;color:var(--muted)}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
@@ -1347,10 +1363,22 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
   <div class="actions" style="margin-bottom:10px"><button class="btn ghost" id="l-pdf">Share log as PDF</button><button class="btn ghost" id="l-csv" hidden>Download log as CSV</button></div>
   <div id="l-list"></div>
 </section>
+<!-- EXPLORE (the phone's Explore tab) -->
+<section id="explore">
+  <h2>Explore</h2>
+  <p class="lede">Where coffee comes from, how it's made and brewed, and the people who shaped it.</p>
+  <div id="explore-in"></div>
+</section>
+
+<!-- MORE -->
+<section id="more">
+  <h2>More</h2>
+  <p class="lede">Your gear, your brews and how the app looks.</p>
+  <div id="more-in"></div>
+</section>
 </main>
 
 <nav class="bottomnav" aria-label="Main"><span class="bn-pill" aria-hidden="true"></span><button type="button" data-bn="dial"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10h9v4.5a4.5 4.5 0 0 1-4.5 4.5h0A4.5 4.5 0 0 1 7 14.5z M16 11.5h1.5a2 2 0 0 1 0 4H16 M10 3.5c0 1.5 1.5 1.5 1.5 3 M13.5 3.5c0 1.5 1.5 1.5 1.5 3"/></svg><span>Brew</span></button><button type="button" data-bn="recipes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H18v15H6.5A1.5 1.5 0 0 0 5 19.5z M5 19.5A1.5 1.5 0 0 0 6.5 21H18v-3 M9 7.5h5 M9 11h5"/></svg><span>Recipes</span></button><button type="button" data-bn="scan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V6a2 2 0 0 1 2-2h2 M16 4h2a2 2 0 0 1 2 2v2 M20 16v2a2 2 0 0 1-2 2h-2 M8 20H6a2 2 0 0 1-2-2v-2 M12 8.5c2 0 3.5 1.6 3.5 3.5S14 15.5 12 15.5 8.5 14 8.5 12 10 8.5 12 8.5z M10.3 13.7c1.2-.6 2.2-2.2 3.4-3.4"/></svg><span>Scan</span></button><button type="button" data-bn="explore"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M15.5 8.5l-2 5-5 2 2-5z"/></svg><span>Explore</span></button><button type="button" data-bn="more"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h5v5H5z M14 5h5v5h-5z M5 14h5v5H5z M14 14h5v5h-5z"/></svg><span>More</span></button></nav>
-<dialog id="navsheet" aria-labelledby="ns-title"><div id="ns-in"></div></dialog>
 <dialog id="sharesheet" aria-labelledby="sh-title"><div id="sh-in"></div></dialog>
 <dialog id="vd" aria-labelledby="vd-title"><div id="vd-in"></div></dialog>
 <dialog id="timer" aria-labelledby="tm-title"><div id="tm-in"></div></dialog>
