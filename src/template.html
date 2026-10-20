@@ -202,19 +202,40 @@ dialog#vd::backdrop{background:rgba(20,14,10,.55)}
 .sub p{margin:.4rem 0}
 
 /* history */
-.treebox{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:auto;-webkit-overflow-scrolling:touch}
+.treebox{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.treewrap{position:relative}
+.treewrap::before,.treewrap::after{content:"";position:absolute;top:1px;bottom:1px;width:28px;z-index:1;pointer-events:none;transition:opacity .2s}
+.treewrap::before{left:1px;border-radius:18px 0 0 18px;background:linear-gradient(90deg,var(--surface),transparent)}
+.treewrap::after{right:1px;border-radius:0 18px 18px 0;background:linear-gradient(-90deg,var(--surface),transparent)}
+.treewrap:has(.at-start)::before,.treewrap:has(.at-end)::after{opacity:0}
+.treehint{display:flex;align-items:center;gap:6px;margin:.4rem 2px 0;font-size:.8rem;color:var(--muted)}
+@media (min-width:1000px){.treehint{display:none}}
 #tree{display:block;width:100%;min-width:var(--tw,1100px);height:auto}
 @media (min-width:1000px){#tree{min-width:900px}}
-#tree .n{cursor:pointer}
-#tree .n rect{fill:var(--paper);stroke-width:1.6}
-#tree .tnote{font-family:var(--display);font-size:11px;font-style:italic;fill:var(--cherry)}
+#tree .band{fill:transparent}
+#tree .band.alt{fill:color-mix(in srgb,var(--ink) 3.5%,transparent)}
+#tree .th circle{fill:color-mix(in srgb,var(--cherry) 16%,var(--surface));stroke:color-mix(in srgb,var(--cherry) 45%,transparent);stroke-width:1}
+#tree .th text{font-family:var(--display);font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;fill:var(--muted)}
+#tree .th .thn{font-size:10.5px;letter-spacing:0;text-anchor:middle;fill:var(--cherry-ink)}
+#tree .n{cursor:pointer;outline:none}
+#tree .n rect{fill:color-mix(in srgb,var(--c) 13%,var(--surface));stroke:color-mix(in srgb,var(--c) 70%,var(--surface));stroke-width:1.3;transition:fill .2s,stroke-width .2s}
+#tree .n.big rect{fill:color-mix(in srgb,var(--c) 22%,var(--surface));stroke-width:2;filter:drop-shadow(0 3px 8px color-mix(in srgb,var(--c) 35%,transparent))}
+#tree .n .bean{fill:var(--c)}
+#tree .n .crease{fill:none;stroke:color-mix(in srgb,var(--surface) 85%,transparent);stroke-width:1.1;stroke-linecap:round}
 #tree .n text{font-family:var(--display);font-size:12px;fill:var(--ink)}
-#tree .n:hover rect{fill:var(--surface2)}
-#tree path.e{fill:none;stroke:var(--line);stroke-width:1.4;transition:stroke .2s,opacity .2s}
-#tree.focus path.e{opacity:.25}
-#tree.focus path.e.on{opacity:1;stroke:var(--ink);stroke-width:2}
-#tree.focus .n{opacity:.35}
+#tree .n.big text{font-size:13.5px;font-weight:600}
+#tree .n:hover rect,#tree .n:focus-visible rect{fill:color-mix(in srgb,var(--c) 26%,var(--surface));stroke-width:2}
+#tree .n:focus-visible rect{stroke:var(--ink)}
+#tree .tnote rect{fill:color-mix(in srgb,var(--cherry) 9%,var(--surface));stroke:color-mix(in srgb,var(--cherry) 35%,transparent);stroke-dasharray:3 3}
+#tree .tnote text{font-family:var(--display);font-size:11px;font-style:italic;fill:var(--cherry-ink)}
+#tree path.e{fill:none;stroke-width:1.7;opacity:.55;stroke-linecap:round;stroke-dasharray:1;transition:opacity .2s,stroke-width .2s;animation:tdraw 1s cubic-bezier(.3,.6,.3,1) both;animation-delay:calc(var(--i) * 14ms)}
+@keyframes tdraw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+#tree.focus path.e{opacity:.12}
+#tree.focus path.e.on{opacity:1;stroke-width:2.6}
+#tree.focus .n,#tree.focus .tnote{opacity:.3;transition:opacity .2s}
 #tree.focus .n.on{opacity:1}
+.tleg i{background:var(--c);width:10px;height:7px;transform:rotate(-35deg)}
+.tleg.dna{font-style:italic;color:var(--cherry-ink)}
 .timeline{list-style:none;margin:10px 0 0;padding:0 0 0 22px;border-left:2px solid var(--line)}
 .timeline li{position:relative;padding:0 0 18px 14px}
 .timeline li::before{content:"";position:absolute;left:-29px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:3px solid var(--cherry)}
@@ -956,7 +977,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 .recbox{margin:-4px 0 18px;padding:12px 14px 10px;border-radius:16px;background:color-mix(in srgb,var(--cherry) 5%,var(--surface));border:1px solid color-mix(in srgb,var(--cherry) 25%,var(--line))}
 .dose-row{display:grid;grid-template-columns:1.4fr 1fr;gap:10px;align-items:end}.dose-row .lbl{margin-bottom:4px}
 .dose-w{display:flex;align-items:center;justify-content:center;height:40px;border-radius:12px;background:var(--surface2);font:700 1rem var(--display);font-variant-numeric:tabular-nums}
-.goalseg{margin-top:6px}.tuneline{margin:.6rem 0 0;font-size:.82rem}.tuneline .linkbtn{margin-left:4px}
+.goalseg{margin-top:6px}.gdesc{margin:.5rem 0 0;font-size:.85rem}.amtrow{margin-top:12px}.amtrow[hidden]{display:none}.amtrow .seg{margin-top:6px}.tuneline{margin:.6rem 0 0;font-size:.82rem}.tuneline .linkbtn{margin-left:4px}
 .dsub{margin:22px 0 10px;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-family:var(--body);font-weight:700}
 .drecipe{margin-top:18px}.drecipe h2{margin:.1rem 0 .1rem}.drecipe .dr-meta{display:flex;flex-wrap:wrap;gap:6px;margin:.5rem 0 .8rem}
 .drecipe .dr-meta span{font-size:.8rem;border-radius:99px;padding:3px 10px;background:var(--surface2)}.drecipe .dr-meta .gl{background:color-mix(in srgb,var(--cherry) 15%,var(--surface));color:var(--cherry);font-weight:700}
@@ -1102,7 +1123,7 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
       <div class="recbox" id="d-recbox" hidden>
         <div class="dose-row"><div><div class="lbl">Coffee</div><div class="stepper"><button type="button" id="d-dminus" aria-label="Less coffee">−</button><input id="i-dose" type="number" inputmode="decimal" min="3" max="120" step="0.5" aria-label="Coffee in grams"><span>g</span><button type="button" id="d-dplus" aria-label="More coffee">+</button></div></div>
           <div><div class="lbl">Water</div><b class="dose-w" id="v-water"></b></div></div>
-        <div class="lbl" style="margin-top:12px">Target cup <span class="hint">the recipe adapts to it</span></div><div class="seg filters goalseg" id="g-goal"></div>
+        <div class="lbl" style="margin-top:12px">Target cup <span class="hint">the recipe adapts to it</span></div><div class="seg filters goalseg" id="g-goal"></div><p class="hint gdesc" id="g-gdesc"></p><div class="amtrow" id="g-amtrow"><span class="lbl">How much</span><div class="seg" id="g-amt"></div></div>
         <p class="hint tuneline" id="d-tuned"></p>
       </div>
       <div class="field"><label for="i-grind">Grind <span><span class="num" id="v-grind"></span> <span class="hint" id="v-grindhint"></span></span></label><input type="range" id="i-grind"><div class="dialrow"><svg id="dialsvg" class="dialmini" viewBox="0 0 160 160" aria-hidden="true"></svg><p class="hint" style="margin:0">Dials read number.click. Tap <b>Gear and dials</b> for how each grinder works.</p></div><p class="hint equiv" id="v-equiv"></p></div>
@@ -1300,9 +1321,9 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
   <h2>The story of coffee</h2>
   <p class="lede">From wild Ethiopian forests to a Sufi drink in Yemen to a global crop. Almost all Arabica outside Africa traces back to a handful of seeds, which is why genetic diversity, and Ethiopia, matter so much.</p>
   <h3>The coffee family tree</h3>
-  <p class="hint">Tap any variety to trace its ancestors and read its story. Scroll sideways on a phone. Families follow genetics, not names: Pink Bourbon sits with the Ethiopian landraces because DNA tests show that is where it comes from.</p>
+  <p class="hint">Tap any variety to trace its ancestors and read its story. Families follow genetics, not names: Pink Bourbon sits with the Ethiopian landraces because DNA tests show that is where it comes from.</p>
   <div class="legend" id="treelegend"></div>
-  <div class="treebox"><svg id="tree" role="img" aria-label="Coffee variety family tree"></svg></div>
+  <div class="treewrap"><div class="treebox"><svg id="tree" role="img" aria-label="Coffee variety family tree"></svg></div></div><p class="treehint" aria-hidden="true">Drag sideways to follow the family across seven generations →</p>
 
   <h3 style="margin-top:2rem">The coffee species</h3>
   <p class="hint">More than 130 species of Coffea exist. These are the ones that matter in your cup.</p>
