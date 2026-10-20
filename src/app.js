@@ -474,14 +474,10 @@ const GSPEC={
  balance:{n:'Balanced',d:'The recipe as written, tuned only for this coffee.',Dt:0,dr:0,dT:0},
  sweet:{n:'Sweeter',d:'Slightly fuller extraction, enough for caramel sweetness without bitterness.',Dt:0.15,dr:0,dT:0,lt:'b',f46:'sweet',n46:3,why:'Sweeter: aims for slightly fuller extraction, enough to reach the sweet, caramelised compounds without tipping into bitterness; the grind is set to land there.'},
  bright:{n:'Brighter',d:'Livelier acidity: a touch cooler and lighter, with gentle pours.',Dt:-0.15,dr:0,dT:-1,ag:'low',lt:'a',f46:'bright',n46:3,why:'Brighter: a little cooler and gentle pours, aiming for slightly lighter extraction so the acidity stays lively; the grind is set to land there.'},
- juicy:{n:'Juicy & fruity',d:'Ripe fruit up front: gentle pours, a hair lighter, acidity kept juicy.',Dt:-0.08,dr:0,dT:0,ag:'low',lt:'a',f46:'bright',n46:3,why:'Juicy: gentle pours and a hair lighter extraction keep the fruit esters vivid without sharpness.'},
- floral:{n:'Floral & delicate',d:'Tea-like and aromatic: cooler water, a longer ratio, very gentle pours.',Dt:-0.22,dr:1,dT:-2,ag:'low',lt:'a',n46:2,why:'Floral: cooler water and a longer ratio protect volatile aromatics; very gentle pours keep the cup delicate.'},
- clean:{n:'Cleaner',d:'More separation between flavours: a longer ratio and gentle pours.',Dt:-0.3,dr:1,dT:0,ag:'low',lt:'a',n46:2,why:'Cleaner: a slightly longer ratio and gentle pours for a lighter, more separated cup.'},
- round:{n:'Rounder, less acidic',d:'Softer acidity: a touch hotter and fuller, so sweetness balances the acids.',Dt:0.18,dr:0,dT:1,lt:'b',f46:'sweet',n46:3,why:'Rounder: a touch hotter and fuller extraction so sweetness and bitterness balance the acidity.'},
- choc:{n:'Chocolatey & rich',d:'Cocoa and caramel depth: fuller extraction, a tighter ratio, more agitation.',Dt:0.25,dr:-1,dT:1,ag:'up',lt:'b',f46:'sweet',n46:4,why:'Chocolatey: fuller extraction, a slightly tighter ratio and more agitation pull out cocoa and caramel notes.'},
+ clean:{n:'Clearer',d:'Each flavour distinct and well defined: a longer ratio and gentle pours.',Dt:-0.3,dr:1,dT:0,ag:'low',lt:'a',n46:2,why:'Clearer: a slightly longer ratio and gentle pours for a lighter, more separated cup.'},
+ tea:{n:'Tea-like',d:'Light, silky and delicate, like a good tea: longer, a little cooler, very gentle.',Dt:-0.25,dr:2,dT:-1,ag:'low',lt:'a',n46:2,why:'Tea-like: a longer ratio, slightly cooler water and very gentle pours for a light, silky, delicate cup.'},
  body:{n:'More body',d:'Heavier, syrupy texture: a tighter ratio and more agitation.',Dt:0.3,dr:-1,dT:0,ag:'up',lt:'b',n46:4,why:'More body: a slightly tighter ratio and more agitation for weight and texture.'},
- strong:{n:'Stronger',d:'More coffee in every sip: a tighter ratio, same balance of flavour.',Dt:0.05,dr:-2,dT:0,lt:'b',n46:3,why:'Stronger: a tighter ratio for more concentration; extraction stays where the recipe puts it.'},
- mild:{n:'Lighter & milder',d:'An easy, gentle cup: a longer ratio, same balance of flavour.',Dt:-0.05,dr:2,dT:0,lt:'a',n46:3,why:'Milder: a longer ratio for a lighter, easy-drinking cup; extraction stays where the recipe puts it.'}};
+ strong:{n:'Stronger',d:'More coffee in every sip: a tighter ratio, same balance of flavour.',Dt:0.05,dr:-2,dT:0,lt:'b',n46:3,why:'Stronger: a tighter ratio for more concentration; extraction stays where the recipe puts it.'}};
 const GOALS=Object.keys(GSPEC).map(k=>[k,GSPEC[k].n]);
 const GOALN=Object.fromEntries(GOALS);
 const goalOf=g=>g==='clarity'?'clean':GOALN[g]?g:'balance';
@@ -497,6 +493,7 @@ function steps46(dose,water,goal){const G=GSPEC[goal]||{},f=water*0.4,a=G.f46===
   pours.forEach((w,k)=>{tot+=w;out.push(mmss(t)+' pour '+gfmt(w)+'g'+(k?' (to '+gfmt(tot)+'g)':'')+'.');t+=k<1?45:k<2?45:gap});
   out.push(mmss(t-gap+(n===3?30:gap))+' remove the dripper.');return out}
 function planSteps(r,dose,water,goal){
+  goal=goalOf(goal);
   if(r.kind==='46'&&goal!=='balance'){const G=GSPEC[goal],st=steps46(dose,water,goal),f=water*0.4,n=G.n46||3,ch=[];
     if(G.f46){const a=G.f46==='sweet'?f/3:f*2/3;ch.push('First two pours '+gfmt(a)+'g then '+gfmt(f-a)+'g (instead of equal): '+(G.f46==='sweet'?'a smaller first pour is sweeter.':'a bigger first pour is brighter.'))}
     if(n!==3)ch.push('The last 60% in '+n+' pours instead of 3: '+(n<3?'lighter and cleaner.':'stronger, with more body.'));
