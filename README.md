@@ -13,6 +13,8 @@ Both update automatically whenever `main` changes.
 
 ## Features
 
+On a phone the app has five tabs: **Brew** (the dial-in), **Recipes**, **Scan**, **Explore** (origins, varieties, processes, seed to cup, techniques, the flavour wheel, coffee words, history and championships, with a word of the day) and **More** (gear, the guide, your brew log, appearance and adding the app to your home screen). On a computer every section sits in the tab bar.
+
 | Section | What it does |
 | --- | --- |
 | **Dial-in** | Where you brew. Pick a recipe (or dial in freely), your coffee dose and the cup you want (Balanced, Sweeter, Brighter, More body, Cleaner), plus the coffee in front of you (roast, process, variety, days since roast). Grind, water, ratio, bloom and agitation are tuned for it, the steps are rebuilt for your dose and target (Kasuya's 4:6 is restructured with his own levers: the first-pour split for sweetness against acidity, the number of later pours for strength), and every change is explained. Move any slider yourself and it stays, with a Re-tune button. The estimated cup profile updates live with concrete fixes ("try ZP6 Special 5.3"), and the brew timer follows your adapted steps |

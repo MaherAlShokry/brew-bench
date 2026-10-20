@@ -609,7 +609,9 @@ function paint(){const el=TM.el,C=2*Math.PI*96;$('tm-big').textContent=mmss(el);
 /* ================= TABS ================= */
 // Heavy tabs are built the first time they are opened, which keeps startup quick.
 const LAZY={champs:renderChamps,words:renderWords,wheel:renderWheelTab,flow:renderFlow,gear:buildGear,recipes:renderRecipes,tech:renderTech,process:renderProcesses,variety:renderVarieties,map:buildMap,history:()=>{buildTree();startQuiz()}},BUILT={};
-function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove());if(LAZY[id]&&!BUILT[id]){BUILT[id]=1;LAZY[id]()}}
+// Explore and More re-render each visit: the word of the day, your counts and the theme can change.
+const ALWAYS={explore:()=>renderExplore(),more:()=>renderMore()};
+function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove());if(LAZY[id]&&!BUILT[id]){BUILT[id]=1;LAZY[id]()}if(ALWAYS[id])ALWAYS[id]()}
 // NAVD counts tab changes you can step back through, so the app bar can offer a back button.
 let BACKING=false,PEND_TAB=null,NAVD=0;
 // Screens slide in the way you are going: deeper or to a tab on the right from the right, back or left from the left.
@@ -2013,28 +2015,41 @@ const ICO={wheel:'M21 12a9 9 0 1 1-18 0a9 9 0 1 1 18 0z M12 3v9l7.8 4.5 M12 12l-
 const installed=()=>!!window.Capacitor||MQ('(display-mode: standalone)')||navigator.standalone===true;
 const ico=(n,bg)=>'<span class="ic" style="background:'+bg+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+ICO[n]+'"/></svg></span>';
 
-const TABNAMES={champs:'World championships',words:'Coffee words',wheel:'Flavour wheel',flow:'From seed to cup',dial:'Dial-in',planner:'Brew planner',scan:'Scan beans',gear:'Gear and dials',recipes:'Recipes',tech:'Techniques',process:'Processes',map:'Origins map',variety:'Varieties',history:'History',guide:'Guide',log:'Brew log'};
-const BNGROUP={champs:'explore',words:'explore',wheel:'explore',flow:'explore',dial:'dial',recipes:'recipes',scan:'scan',map:'explore',variety:'explore',history:'explore',process:'explore',tech:'explore',planner:'more',gear:'more',guide:'more',log:'more'};
+const TABNAMES={explore:'Explore',more:'More',champs:'World championships',words:'Coffee words',wheel:'Flavour wheel',flow:'From seed to cup',dial:'Dial-in',planner:'Brew planner',scan:'Scan beans',gear:'Gear and dials',recipes:'Recipes',tech:'Techniques',process:'Processes',map:'Origins map',variety:'Varieties',history:'History',guide:'Guide',log:'Brew log'};
+const BNGROUP={explore:'explore',more:'more',champs:'explore',words:'explore',wheel:'explore',flow:'explore',dial:'dial',recipes:'recipes',scan:'scan',map:'explore',variety:'explore',history:'explore',process:'explore',tech:'explore',planner:'more',gear:'more',guide:'more',log:'more'};
 function syncShell(id){$('ab-title').textContent=TABNAMES[id]||'Brew Bench';$('ab-back').hidden=NAVD<1;document.body.className=document.body.className.replace(/\bt-\w+/g,'').trim()+' t-'+id;
   document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));movePill();
   const can=['dial','scan','history','log','map','recipes','words','flow','wheel'].includes(id);$('ab-share').hidden=!can}
 const SHEETS={explore:[['map','Origins map','50 origins on an interactive map','#4F8A74','globe'],['variety','Varieties','44 varieties, stories and Geisha types','#B5533C','leaf'],['history','History','Family tree, timeline and a quiz','#8A5A3B','hourglass'],['process','Processes','From washed to thermal shock','#D2A04A','flask'],['tech','Techniques','Every move in the brewing toolbox','#6B8E4E','drop'],['champs','World championships','Every champion, their recipes and gear','#C9964A','trophy'],['flow','From seed to cup','How coffee is made, step by step','#6E8FA8','leaf'],['words','Coffee words','A bank of '+GLOSSARY.length+' coffee terms','#9A7390','book'],['wheel','Flavour wheel','Name what you taste, then save it with your brews','#C4473F','wheel']],
   more:[['gear','Gear and dials','Grinders, brewers and dial reading','#6E8FA8','cog'],['guide','Guide','Ratio calculator and troubleshooting','#C9964A','book'],['log','Brew log','Your brews, ratings and exports','#6B8E4E','pencil']]};
-function openSheet(which){const items=SHEETS[which];
-  $('ns-in').innerHTML='<div class="sheet"><div class="grab"></div><button class="vd-close" id="ns-x" aria-label="Close">\u2715</button><h2 id="ns-title" style="margin:0 40px 0 0">'+(which==='explore'?'Explore':'More')+'</h2><div class="sheetlist">'+
-   items.map(([k,n,d,c,ic],i)=>'<button type="button" data-go="'+k+'" style="--i:'+i+'">'+ico(ic,c)+'<span>'+n+'<small>'+d+'</small></span></button>').join('')+
-   (which==='more'?'<button type="button" data-toggle-theme style="--i:'+items.length+'">'+ico(curTheme()==='dark'?'sun':'moon','#5B5F66')+'<span>'+(curTheme()==='dark'?'Switch to light theme':'Switch to dark theme')+'<small>Bright cream or cosy espresso</small></span></button>'+(installed()?'':'<button type="button" data-install="1" style="--i:'+(items.length+1)+'">'+ico('download','#9A7390')+'<span>Add to your home screen<small>Use it like an app</small></span></button>'):'')+'</div><div id="ns-extra"></div></div>';
-  const d=$('navsheet');showDlg(d);$('ns-x').onclick=()=>d.close()}
-$('navsheet').addEventListener('click',e=>{const d=$('navsheet');if(e.target===d){d.close();return}const g=e.target.closest('[data-go]');if(g){d.close();showTab(g.dataset.go);return}
-  if(e.target.closest('[data-toggle-theme]')){$('themebtn').click();d.close();toast(curTheme()==='dark'?'Dark theme on':'Light theme on');return}
-  if(e.target.closest('[data-install]'))$('ns-extra').innerHTML='<div class="tip"><b>iPhone (Safari):</b> open this page\u2019s link in Safari, tap the Share button, then <b>Add to Home Screen</b>.<br><b>Android (Chrome):</b> open the link in Chrome, tap the \u22ee menu, then <b>Add to Home screen</b>.<br>Your calibration, log and scans stay saved on this phone.</div>'});
+/* Explore and More are pages, like Brew, Recipes and Scan: tiles grouped by what they're for. */
+const HUB={explore:[['Where coffee comes from',['map','variety','process','flow']],['How to brew and taste',['tech','wheel','words']],['The people and the story',['history','champs']]],
+  more:[['Your tools',['gear','guide','log']]]};
+const hubItem=k=>[...SHEETS.explore,...SHEETS.more].find(x=>x[0]===k);
+const hubCount=k=>({map:Object.keys(ALLO()).length,variety:V.length,process:Object.keys(PROCESSES).length,tech:TECH.length,words:GLOSSARY.length,champs:CHAMPS.length,gear:MYG.length+' grinder'+(MYG.length===1?'':'s'),log:LOG.length?LOG.length+' brew'+(LOG.length===1?'':'s'):0})[k];
+const hubCard=k=>{const [,n,d,c,ic]=hubItem(k),cnt=hubCount(k);return '<button type="button" class="hubcard" data-go="'+k+'">'+ico(ic,c)+(cnt?'<span class="hn">'+cnt+'</span>':'')+'<b>'+n+'</b><small>'+d+'</small></button>'};
+function renderExplore(){const day=Math.floor(Date.now()/864e5),w=GLOSSARY[day%GLOSSARY.length];
+  $('explore-in').innerHTML='<button type="button" class="wotd" data-word="'+esc(w[0])+'"><small>Word of the day</small><b>'+esc(w[0])+'</b><span>'+esc(w[2])+'</span></button>'+
+    HUB.explore.map(([h,ks])=>'<h3 class="rh">'+h+'</h3><div class="hubgrid">'+ks.map(hubCard).join('')+'</div>').join('')}
+function renderMore(){const t=document.documentElement.getAttribute('data-theme')||'auto';
+  $('more-in').innerHTML=HUB.more.map(([h,ks])=>'<h3 class="rh">'+h+'</h3><div class="hubgrid">'+ks.map(hubCard).join('')+'</div>').join('')+
+    '<h3 class="rh">Settings</h3><div class="morelist"><div class="mtheme">'+ico(curTheme()==='dark'?'moon':'sun','#5B5F66')+'<span class="mt"><b>Appearance</b><small>Bright cream, cosy espresso, or follow your phone</small></span><div class="seg" id="m-theme"></div></div>'+
+    (installed()?'':'<button type="button" data-install>'+ico('download','#9A7390')+'<span class="mt"><b>Add to your home screen</b><small>Use it like an app, offline too</small></span></button><div class="moretip" id="m-install" hidden><b>iPhone (Safari):</b> tap the Share button, then <b>Add to Home Screen</b>.<br><b>Android (Chrome):</b> tap the ⋮ menu, then <b>Add to Home screen</b>.</div>')+'</div>'+
+    '<h3 class="rh">About</h3><div class="morelist"><div>'+ico('book','#8A5A3B')+'<span class="mt"><b>The Brew Bench</b><small>A coffee field guide and dial-in tool. Your calibration, recipes, scans and brew log stay saved on this device.</small></span></div></div>';
+  seg('m-theme',[['light','Light'],['dark','Dark'],['auto','Auto']],()=>t,v=>{if(v==='auto'){document.documentElement.removeAttribute('data-theme');try{localStorage.removeItem('bb-theme')}catch(e){}}
+    else{document.documentElement.setAttribute('data-theme',v);try{localStorage.setItem('bb-theme',v)}catch(e){}}syncThemeBtn();renderMore()})}
+for(const id of ['explore-in','more-in'])$(id).addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g){showTab(g.dataset.go);return}
+  const w=e.target.closest('[data-word]');if(w){openWord(w.dataset.word);return}
+  if(e.target.closest('[data-install]')){const m=$('m-install');m.hidden=!m.hidden}});
+// Older code and links may still ask for the sheets; they are pages now.
+const openSheet=which=>showTab(which);
 // The highlight behind the current nav button glides to the next one.
 function movePill(){const nav=document.querySelector('.bottomnav'),pill=nav&&nav.querySelector('.bn-pill'),b=nav&&nav.querySelector('[aria-current="true"]');if(!pill)return;
   if(!b||!nav.offsetWidth){pill.style.opacity=0;return}const first=pill.style.opacity!=='1';if(first)pill.style.transition='none';
   pill.style.opacity=1;pill.style.width=b.offsetWidth+'px';pill.style.transform='translateX('+b.offsetLeft+'px)';if(first){void pill.offsetWidth;pill.style.transition=''}}
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(movePill);
 addEventListener('resize',()=>soon(movePill));
-document.querySelector('.bottomnav').onclick=e=>{const b=e.target.closest('[data-bn]');if(!b)return;const k=b.dataset.bn;if(k==='explore'||k==='more')openSheet(k);else showTab(k)};
+document.querySelector('.bottomnav').onclick=e=>{const b=e.target.closest('[data-bn]');if(b)showTab(b.dataset.bn)};
 $('ab-share').onclick=()=>{const id=(document.querySelector('main section.on')||{}).id;
   if(id==='dial')openShare(dialDoc());else if(id==='scan')$('sc-share').click();else if(id==='history')openShare(historyDoc());else if(id==='log')openShare(logDoc());else if(id==='map'){if(SEL)openShare(originDoc(SEL));else toast('Pick an origin first')}else if(id==='recipes')toast('Tap Share on any recipe card');else if(id==='words')openShare(wordsDoc());else if(id==='flow')openShare(flowDoc());else if(id==='wheel')openShare(wheelDoc())};
 $('dial-share').onclick=()=>openShare(dialDoc());
