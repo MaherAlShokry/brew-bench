@@ -355,10 +355,10 @@ function render(){
   $('i-bloom').previousElementSibling.firstChild.textContent=B.bloom.label+' ';
   const rc=S.rec!=null&&RECIPES[S.rec]&&RECIPES[S.rec].b===S.brewer?RECIPES[S.rec]:null;
   // The loaded recipe stays one tap away: its steps open under the chip, and the timer starts with this dial-in's grind and water.
-  const rkey=rc?S.rec+'|'+S.ratio:'';if($('rec-chip').dataset.k!==rkey){const was=$('rec-chip').querySelector('details');const open=!!(was&&was.open&&rc&&$('rec-chip').dataset.k.split('|')[0]===String(S.rec));$('rec-chip').dataset.k=rkey;
-    const rr=rc&&Math.round(rc.water/rc.dose*2)/2,diff=rc&&Math.abs(rr-S.ratio)>=0.5;
+  const rsc=rc&&scaled(rc),rkey=rc?S.rec+'|'+S.ratio+'|'+rsc.dose+'|'+rsc.water:'';if($('rec-chip').dataset.k!==rkey){const was=$('rec-chip').querySelector('details');const open=!!(was&&was.open&&rc&&$('rec-chip').dataset.k.split('|')[0]===String(S.rec));$('rec-chip').dataset.k=rkey;
+    const rr=rc&&Math.round(rsc.water/rsc.dose*2)/2,diff=rc&&Math.abs(rr-S.ratio)>=0.5;
     $('rec-chip').innerHTML=rc?'<span class="chip">Recipe: '+esc(rc.name)+(rc.temp2?', then '+rc.temp2+'°C':'')+' <button type="button" data-clear style="background:none;border:0;cursor:pointer;color:inherit" aria-label="Clear recipe">\u2715</button></span>'+
-      '<details class="rsteps dsteps"'+(open?' open':'')+'><summary>Steps ('+rc.steps.length+')</summary><p class="hint" style="margin:.1rem 0 .4rem">'+rc.dose+'g coffee : '+rc.water+'g water'+(diff?'. Your ratio is 1:'+S.ratio+', so pour to about '+Math.round(rc.dose*S.ratio)+'g in total.':'')+'</p><ol class="steps">'+rc.steps.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol>'+(rc.tip?'<p class="hint">'+esc(rc.tip)+'</p>':'')+
+      '<details class="rsteps dsteps"'+(open?' open':'')+'><summary>Steps ('+rc.steps.length+')</summary><p class="hint" style="margin:.1rem 0 .4rem">'+rsc.dose+'g coffee : '+rsc.water+'g water'+(rsc.on?' (your brew)':'')+(diff?'. Your ratio is 1:'+S.ratio+', so pour to about '+Math.round(rsc.dose*S.ratio)+'g in total.':'')+'</p><ol class="steps">'+rsc.steps.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol>'+(rc.tip?'<p class="hint">'+esc(rc.tip)+'</p>':'')+
       '<div class="actions dsact"><button type="button" class="btn" data-dtimer>Start brew timer</button><button type="button" class="btn ghost" data-dfull>Full recipe</button></div></details>':''}
   $('i-brewer').value=S.brewer;$('i-process').value=S.process;$('i-variety').value=S.variety;
   const [vt,vs]=verdict(r.D);$('o-verdict').textContent=vt;$('mr-v').textContent=vt;$('mr-g').textContent=gLabel(S.grinder,S.setting)+', '+S.temp+'°C, 1:'+S.ratio;$('mr-m').style.left=((clamp(r.D,-2.5,2.5)+2.5)/5*100)+'%';$('o-summary').textContent=vs+' '+strength(S)+'.';
@@ -408,7 +408,7 @@ function initDial(){
     S.setting=canGrind(S.grinder,S.brewer)&&canGrind(g,nb)?convertSetting(S,g,nb):base(g,nb);S.grinder=g;S.brewer=nb;S.rec=null;
     const B=BREWERS[nb];if(S.ratio<B.ratio.min||S.ratio>B.ratio.max)S.ratio=B.ratio.def;if(S.bloom<B.bloom.min||S.bloom>B.bloom.max)S.bloom=B.bloom.def;fitRanges();render()};
   $('rec-chip').onclick=e=>{if(e.target.closest('[data-clear]')){S.rec=null;render();return}const r=RECIPES[S.rec];if(S.rec==null||!r)return;
-    if(e.target.closest('[data-dtimer]'))openTimer(S.rec,{grinder:S.grinder,set:{[S.grinder]:S.setting},r:{dose:r.dose},water:r.water,temp:S.temp});else if(e.target.closest('[data-dfull]'))openRecipe(S.rec)};
+    if(e.target.closest('[data-dtimer]')){const sc=scaled(r);openTimer(S.rec,{grinder:S.grinder,set:{[S.grinder]:S.setting},r:{dose:sc.dose},water:sc.water,temp:S.temp})}else if(e.target.closest('[data-dfull]'))openRecipe(S.rec)};
   $('i-process').onchange=e=>{S.process=e.target.value;render()};
   $('i-variety').onchange=e=>{S.variety=e.target.value;render()};
   $('v-about').onclick=()=>openVariety(S.variety.split(':')[0]);
@@ -483,7 +483,7 @@ function planHTML(p,c){
     '<div><b>Water</b><span>'+p.temp+'°C</span>'+(p.r.temp2?'<small>then about '+p.r.temp2+'°C</small>':'')+'</div>'+
     '<div><b>Dose : water</b><span>'+p.r.dose+'g : '+p.water+'g</span><small>1:'+p.ratio+'</small></div>'+
     '<div><b>'+B.bloom.label+'</b><span>'+p.bloom+'s</span></div><div><b>Agitation</b><span>'+agl+'</span></div></div>'+
-   '<h3>Steps</h3><ol class="steps">'+p.r.steps.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol>'+
+   '<h3>Steps</h3><ol class="steps">'+scaleSteps(p.r,p.r.dose,p.water).map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol>'+
    (p.tw.length?'<div class="tip">'+p.tw.join(' ')+'</div>':'')+
    '<h3>Why these settings</h3><ul class="why">'+(p.why.length?p.why.map(w=>'<li>'+w+'</li>').join(''):'<li>The recipe already suits this coffee.</li>')+
    '<li>Grind starts from the recipe\u2019s setting on your calibration, then moves to land the predicted extraction on your goal.</li></ul>';
@@ -520,10 +520,12 @@ const mmss=t=>Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0');
 // The pour in a step, for the big target: "pour 60g (to 120g)" → to 120 g, +60 g; "pour to 250g" → to 250 g.
 function pourOf(txt){const to=/\bto\s+(\d{2,4})\s?g\b/i.exec(txt),add=/\bpour(?:ing)?\s+(\d{2,4})\s?g\b/i.exec(txt);return to?{to:+to[1],add:add?+add[1]:null}:add?{to:null,add:+add[1]}:null}
 function openTimer(idx,p){noteRecent(RECIPES[idx]);
-  const r=RECIPES[idx];const ev=parseSteps(r.steps);const timed=ev.filter(e=>e.t>=0);
+  // The steps follow the dose and water being brewed: yours from the recipe sheet, or the planner's.
+  const r0=RECIPES[idx],sc=scaled(r0),dose=p&&p.r&&p.r.dose||sc.dose,water=p&&p.water||sc.water;
+  const r=Object.assign({},r0,{dose,water,steps:p?scaleSteps(r0,dose,water):sc.steps,off:sc.off});const ev=parseSteps(r.steps);const timed=ev.filter(e=>e.t>=0);
   const total=timed.length?Math.max(...timed.map(e=>e.t))+(/finish|drain|finished|serve/i.test(r.steps[r.steps.length-1])?0:30):0;
   if(TM&&TM.iv)clearInterval(TM.iv);
-  TM={idx,p,ev,total,el:0,run:false,iv:null,lastIdx:-1,lastWarn:-1,ctx:null};
+  TM={idx,r,p,ev,total,el:0,run:false,iv:null,lastIdx:-1,lastWarn:-1,ctx:null};
   const g=p?p.grinder:(MYG.find(x=>settingFor(x,r.b,r.off)!=null)),gv=p?p.set[p.grinder]:g?settingFor(g,r.b,r.off):null;
   const meta=[(p?p.r.dose:r.dose)+'g : '+(p?p.water:r.water)+'g',(p?p.temp:r.temp)?(p?p.temp:r.temp)+'°C':'',gv!=null?gLabel(g,gv):''].filter(Boolean);
   // Tick marks on the ring where each timed step starts.
@@ -552,7 +554,7 @@ let WL=null;function wake(on){try{if(on&&!WL&&navigator.wakeLock)navigator.wakeL
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&TM&&TM.run)wake(true)});
 function beep(soft){if(!TM.ctx)return;try{const o=TM.ctx.createOscillator(),g=TM.ctx.createGain();o.frequency.value=soft?660:880;g.gain.setValueAtTime(.001,TM.ctx.currentTime);g.gain.exponentialRampToValueAtTime(.25,TM.ctx.currentTime+.02);g.gain.exponentialRampToValueAtTime(.001,TM.ctx.currentTime+.35);o.connect(g).connect(TM.ctx.destination);o.start();o.stop(TM.ctx.currentTime+.4)}catch(e){}if(navigator.vibrate)navigator.vibrate(120)}
 function tick(){TM.el=(performance.now()-TM.t0)/1000;if(TM.el>=TM.total){TM.el=TM.total;clearInterval(TM.iv);TM.run=false;wake(false);setPlay();paint();done();beep();beans(26);return}paint()}
-function done(){const r=RECIPES[TM.idx];$('tm-step').textContent='Done';$('tm-target').innerHTML='';$('tm-now').textContent='Enjoy your cup.';$('tm-next').innerHTML='<div class="tm-done"><button class="btn" id="tm-log">Log this brew</button><button class="btn ghost" id="tm-again">Brew again</button></div>';
+function done(){const r=TM.r||RECIPES[TM.idx];$('tm-step').textContent='Done';$('tm-target').innerHTML='';$('tm-now').textContent='Enjoy your cup.';$('tm-next').innerHTML='<div class="tm-done"><button class="btn" id="tm-log">Log this brew</button><button class="btn ghost" id="tm-again">Brew again</button></div>';
   $('tm-log').onclick=()=>{const p=TM.p,B=BREWERS[r.b];$('timer').close();setTimeout(()=>{showTab('log');$('l-settings').value=r.name+', '+(p?p.r.dose:r.dose)+'g : '+(p?p.water:r.water)+'g'+((p?p.temp:r.temp)?', '+(p?p.temp:r.temp)+'°C':'');$('l-settings').dataset.brewer=r.b;$('l-coffee').focus()},250)};
   $('tm-again').onclick=()=>{TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;paint();$('tm-go').click()}}
 function paint(){const el=TM.el,C=2*Math.PI*96;$('tm-big').textContent=mmss(el);
@@ -616,15 +618,33 @@ document.querySelector('[role=tablist]').onclick=e=>{const t=e.target.closest('.
 
 /* ================= RECIPES ================= */
 // A recipe's details and buttons, used on its card and when it opens from a shared link.
+/* Your brew: any recipe can be made with your own dose and ratio (remembered per recipe). Every weight in the steps
+   follows: water by the water change, the coffee dose by the dose change. Step times stay as written. A smaller bed in
+   a dripper drains faster, so the grind moves a little finer for it (and coarser for a bigger one). */
+let RSCALE=load('bb-rscale',{});if(!RSCALE||typeof RSCALE!=='object'||Array.isArray(RSCALE))RSCALE={};
+const gfmt=v=>v>=10?String(Math.round(v)):String(Math.round(v*10)/10);
+function scaleSteps(r,dose,water){if(dose===r.dose&&water===r.water)return r.steps;const fd=dose/r.dose,fw=water/r.water;
+  return r.steps.map(x=>x.replace(/(\d+(?:\.\d+)?)(\s?)(g|ml)\b/gi,(m,n,sp,u)=>{const v=+n;return gfmt(v*(Math.abs(v-r.dose)<1e-6&&r.dose!==r.water?fd:fw))+sp+u}))}
+function scaled(r){const s=RSCALE[rkey(r)];if(!s||!(s.dose>0)||!(s.ratio>0))return{dose:r.dose,water:r.water,steps:r.steps,off:r.off,adj:0,ratio:r.water/r.dose,on:false};
+  const dose=s.dose,water=+gfmt(dose*s.ratio),f=dose/r.dose,perc=['Cone dripper','Flat-bottom dripper'].includes(BREWERS[r.b].type);
+  const adj=perc?Math.max(-1,Math.min(1,Math.round(-0.6*Math.log2(f)*10)/10)):0;
+  return{dose,water,steps:scaleSteps(r,dose,water),off:r.off+adj,adj,ratio:s.ratio,on:true}}
+const rr1=v=>Math.round(v*10)/10;
+function yourBrew(r,sc){const B=BREWERS[r.b];
+  return '<div class="rscale"><div class="rs-h"><b>Your brew</b>'+(sc.on?'<button type="button" class="rs-reset" data-rsreset>Reset to '+r.dose+'g</button>':'<small>Change the dose or ratio; every pour follows</small>')+'</div>'+
+   '<div class="rs-row"><div class="rs-f"><small>Coffee</small><div class="stepper"><button type="button" data-rs="dose:-1" aria-label="Less coffee">−</button><input id="rs-dose" type="number" inputmode="decimal" min="3" max="120" step="0.5" value="'+sc.dose+'" aria-label="Coffee in grams"><span>g</span><button type="button" data-rs="dose:1" aria-label="More coffee">+</button></div></div>'+
+   '<div class="rs-f"><small>Ratio</small><div class="stepper"><button type="button" data-rs="ratio:-1" aria-label="Stronger (less water)">−</button><output>1:'+rr1(sc.ratio)+'</output><button type="button" data-rs="ratio:1" aria-label="Weaker (more water)">+</button></div></div>'+
+   '<div class="rs-f rs-w"><small>Water</small><b>'+sc.water+'g</b></div></div>'+
+   (sc.on&&sc.adj?'<p class="hint rs-note">Grind set '+(sc.adj>0?'a little finer for the smaller':'a little coarser for the bigger')+' bed (below). Step times stay the same; pour weights are scaled.</p>':sc.on?'<p class="hint rs-note">Pour weights are scaled to your brew; step times stay the same.</p>':'')+'</div>'}
 // Steps as a timeline: the time each one starts in a badge, the instruction beside it.
 const stepList=steps=>'<ol class="steps tl">'+steps.map(x=>{const m=/^\s*(\d+:\d\d)\s*/.exec(x);return '<li>'+(m?'<span class="t">'+m[1]+'</span>'+esc(capS(x.slice(m[0].length))):'<span class="t dot"></span>'+esc(x))+'</li>'}).join('')+'</ol>';
-function recipeBody(r,i,compact){const B=BREWERS[r.b];const gs=MYG.map(g=>[g,settingFor(g,r.b,r.off)]);
+function recipeBody(r,i,compact){const B=BREWERS[r.b],sc=compact?{dose:r.dose,water:r.water,steps:r.steps,off:r.off,ratio:r.water/r.dose}:scaled(r);const gs=MYG.map(g=>[g,settingFor(g,r.b,sc.off)]);
   const m=rmeta(r);
   return (compact?'<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span>':'')+'</div>'
-     :'<p class="hint" style="margin:0 0 .2rem">'+esc(B.name)+' · '+esc(B.type)+'</p><div class="rstats"><div><b>'+r.dose+'g</b><small>Coffee</small></div><div><b>'+r.water+'g</b><small>Water</small></div><div><b>'+(m.ratio||'–')+'</b><small>Ratio</small></div>'+
+     :'<p class="hint" style="margin:0 0 .2rem">'+esc(B.name)+' · '+esc(B.type)+'</p>'+yourBrew(r,sc)+'<div class="rstats">'+
        '<div><b>'+(r.temp?r.temp+'°C':'–')+'</b><small>'+(r.temp2?'Then '+r.temp2+'°C':'Water')+'</small></div><div><b>'+(m.time!=null?mmss(m.time):'By eye')+'</b><small>Total time</small></div><div><b>'+m.level+'</b><small>'+m.pours+' pour'+(m.pours===1?'':'s')+'</small></div></div>')+
    '<div class="meta">'+gs.map(([g,v])=>'<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>').join('')+'</div>'+
-   (r.why?'<p>'+esc(r.why)+'</p>':'')+(compact?'<details class="rsteps"><summary>Steps ('+r.steps.length+')</summary>':'')+stepList(r.steps)+(r.tip?'<p class="hint">'+esc(r.tip)+'</p>':'')+(compact?'</details>':'')+
+   (r.why?'<p>'+esc(r.why)+'</p>':'')+(compact?'<details class="rsteps"><summary>Steps ('+r.steps.length+')</summary>':'')+stepList(sc.steps)+(r.tip?'<p class="hint">'+esc(r.tip)+'</p>':'')+(compact?'</details>':'')+
    '<div class="actions"><button class="btn" data-timer="'+i+'">Start timer</button><button class="btn ghost" data-rshare="'+i+'">Share</button>'+(B.model?'<button class="btn ghost" data-load="'+i+'">Load into dial-in</button>':'')+(PBREWERS.includes(r.b==='swi'?'sw':r.b)?'<button class="btn ghost" data-plan="'+i+'">Tune in planner</button>':'')+(r.custom?'<button class="btn ghost" data-redit="'+esc(r.id)+'">Edit</button>':'')+'</div>'}
 let RF='all',RQ='';
 /* Favorites and recent brews, kept on this phone. A recipe's key survives app updates: its name for built-in
@@ -704,9 +724,9 @@ let RSORT=(()=>{try{return localStorage.getItem('bb-rsort')||'brewer'}catch(e){r
 const RF_NAME=()=>RF==='all'?'All recipes':RF==='fav'?'Favorites':RF==='mine'?'Yours and your team’s':RF==='champ'?'Champions':RF.startsWith('cup:')?CUPBY[RF.slice(4)][1]
   :RF.startsWith('b:')&&BREWERS[RF.slice(2)]?BREWERS[RF.slice(2)].name:RF.startsWith('col:')&&COLBY[RF.slice(4)]?COLBY[RF.slice(4)][1]:'All recipes';
 // One recipe as a compact row: what it is, who it's from, the numbers that matter, and a play button for the timer.
-function rrow(r,i){const m=rmeta(r),lv={Easy:'e',Medium:'i',Advanced:'a'}[m.level];
+function rrow(r,i){const m=rmeta(r),sc=scaled(r),lv={Easy:'e',Medium:'i',Advanced:'a'}[m.level];
   return '<article class="rrow'+(r.custom?' mine':'')+'"><button type="button" class="rr-open" data-open="'+i+'"><span class="rr-t"><b>'+esc(r.name)+'</b>'+(r.champ?'<span class="rr-tag champ">Champion</span>':'')+(r.custom?'<span class="rr-tag ours">'+esc(r.author&&r.author!==ME?'From '+r.author:'Yours')+'</span>':'')+'</span>'+
-    (r.by?'<small class="rr-by">'+esc(r.by)+'</small>':'')+'<span class="rr-m"><span>'+r.dose+'g · '+r.water+'g</span>'+(m.ratio?'<span>'+m.ratio+'</span>':'')+(m.time!=null?'<span>'+mmss(m.time)+'</span>':'')+(r.temp?'<span>'+r.temp+'°C</span>':'')+'<span class="lv lv-'+lv+'">'+m.level+'</span></span></button>'+
+    (r.by?'<small class="rr-by">'+esc(r.by)+'</small>':'')+'<span class="rr-m"><span>'+(sc.on?'<b class="rr-you" title="Your brew">'+sc.dose+'g · '+sc.water+'g</b>':r.dose+'g · '+r.water+'g')+'</span>'+(sc.on?'<span>1:'+rr1(sc.ratio)+'</span>':m.ratio?'<span>'+m.ratio+'</span>':'')+(m.time!=null?'<span>'+mmss(m.time)+'</span>':'')+(r.temp?'<span>'+r.temp+'°C</span>':'')+'<span class="lv lv-'+lv+'">'+m.level+'</span></span></button>'+
     '<div class="rr-side">'+favBtn(r)+'<button type="button" class="rr-play" data-timer="'+i+'" aria-label="Start the timer for '+esc(r.name)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button></div></article>'}
 function renderRecipes(){
   if(RF==='mine'&&!CREC.length)RF='all';if(RF==='fav'&&!favCount())RF='all';if((RF.startsWith('b:')&&!BREWERS[RF.slice(2)])||(RF.startsWith('col:')&&!COLBY[RF.slice(4)])||(RF.startsWith('cup:')&&!CUPBY[RF.slice(4)]))RF='all';
@@ -737,10 +757,19 @@ $('rgrid').onclick=e=>{const o=e.target.closest('[data-open]');if(o){openRecipe(
 function openRecipe(i){const r=RECIPES[i],B=BREWERS[r.b],d=$('vd');
   d.querySelector('#vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">\u2715</button>'+favBtn(r)+'<span class="pill"><i style="background:var(--cherry)"></i>'+esc(r.custom?(r.author?'From '+r.author:'Your recipe'):'Recipe')+'</span><h2 id="vd-title">'+esc(r.name)+'</h2>'+(r.by?'<p class="hint" style="margin:0">'+esc(r.by)+'</p>':'')+'</div>'+
    '<div class="vd-body">'+recipeBody(r,i)+'</div>';
-  d.querySelector('.vd-body').onclick=e=>{if(!e.target.closest('[data-load],[data-plan],[data-timer],[data-rshare],[data-redit]'))return;const sh=e.target.closest('[data-rshare]');if(!sh)d.close();recipeAct(e)};
+  const body=d.querySelector('.vd-body'),k=rkey(r),B0=BREWERS[r.b],r0=r.water/r.dose;
+  const setScale=(dose,ratio)=>{dose=Math.max(3,Math.min(120,Math.round(dose*2)/2));const lo=Math.min(B0.ratio.min,r0),hi=Math.max(B0.ratio.max,r0);ratio=Math.max(lo,Math.min(hi,ratio));
+    if(Math.abs(dose-r.dose)<1e-6&&Math.abs(ratio-r0)<1e-6)delete RSCALE[k];else RSCALE[k]={dose,ratio};save('bb-rscale',RSCALE);
+    const y=d.scrollTop,f=document.activeElement&&document.activeElement.id;body.innerHTML=recipeBody(r,i);d.scrollTop=y;if(f==='rs-dose'){const x=$('rs-dose');x.focus();x.setSelectionRange&&0}
+    if(S.rec===i)render();if(BUILT.recipes)soon(renderRecipes)};
+  body.onclick=e=>{const rs=e.target.closest('[data-rs]');if(rs){const sc=scaled(r),[what,dir]=rs.dataset.rs.split(':'),st=B0.ratio.step||0.5;
+      if(what==='dose')setScale(sc.dose+(+dir)*(sc.dose<10?0.5:1),sc.ratio);else setScale(sc.dose,Math.round((sc.ratio+(+dir)*st)/st)*st);return}
+    if(e.target.closest('[data-rsreset]')){delete RSCALE[k];save('bb-rscale',RSCALE);const y=d.scrollTop;body.innerHTML=recipeBody(r,i);d.scrollTop=y;if(S.rec===i)render();if(BUILT.recipes)soon(renderRecipes);return}
+    if(!e.target.closest('[data-load],[data-plan],[data-timer],[data-rshare],[data-redit]'))return;const sh=e.target.closest('[data-rshare]');if(!sh)d.close();recipeAct(e)};
+  body.onchange=e=>{if(e.target.id==='rs-dose'){const v=parseFloat(e.target.value);if(v>0)setScale(v,scaled(r).ratio);else e.target.value=scaled(r).dose}};
   $('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
-function loadRecipe(i){const r=RECIPES[i],B=BREWERS[r.b];S.brewer=r.b;S.rec=i;if(!canGrind(S.grinder,r.b))S.grinder=capable(r.b);S.setting=settingFor(S.grinder,r.b,r.off);S.temp=clamp(r.temp,B.temp.min,B.temp.max);S.bloom=B.bloom.def;S.agit='med';
-  S.ratio=clamp(Math.round(r.water/r.dose/B.ratio.step)*B.ratio.step,B.ratio.min,B.ratio.max);render();showTab('dial');toast('Loaded '+r.name)}
+function loadRecipe(i){const r=RECIPES[i],B=BREWERS[r.b],sc=scaled(r);S.brewer=r.b;S.rec=i;if(!canGrind(S.grinder,r.b))S.grinder=capable(r.b);S.setting=settingFor(S.grinder,r.b,sc.off);S.temp=clamp(r.temp,B.temp.min,B.temp.max);S.bloom=B.bloom.def;S.agit='med';
+  S.ratio=clamp(Math.round(sc.water/sc.dose/B.ratio.step)*B.ratio.step,B.ratio.min,B.ratio.max);render();showTab('dial');toast('Loaded '+r.name+(sc.on?', '+sc.dose+'g':''))}
 function planRecipe(i){const r=RECIPES[i];PL.brewer=r.b==='swi'?'sw':r.b;PL.tech=i;if(!canGrind(PL.grinder,PL.brewer))PL.grinder=capable(PL.brewer);renderPlan();showTab('planner')}
 
 /* ---------- Creating, editing and sharing recipes ---------- */
