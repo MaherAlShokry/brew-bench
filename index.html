@@ -3733,7 +3733,7 @@ function recipeBody(r,i,compact){const B=BREWERS[r.b],sc=compact?{dose:r.dose,wa
    '<div class="meta">'+gs.map(([g,v])=>'<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>').join('')+'</div>'+
    (r.why?'<p>'+esc(r.why)+'</p>':'')+(compact?'<details class="rsteps"><summary>Steps ('+r.steps.length+')</summary>':'')+stepList(sc.steps)+(r.tip?'<p class="hint">'+esc(r.tip)+'</p>':'')+(compact?'</details>':'')+
    '<div class="actions">'+(B.model?'<button class="btn" data-load="'+i+'">Brew in the dial-in</button><button class="btn ghost" data-timer="'+i+'">Start timer</button>':'<button class="btn" data-timer="'+i+'">Start timer</button>')+'<button class="btn ghost" data-rshare="'+i+'">Share</button>'+(r.custom?'<button class="btn ghost" data-redit="'+esc(r.id)+'">Edit</button>':'')+'</div>'}
-let RF='all',RQ='';
+let RF='all',RQ='',RLIST=[];
 /* Favorites and recent brews, kept on this phone. A recipe's key survives app updates: its name for built-in
    recipes, its id for yours. */
 const rkey=r=>r.custom?'c:'+r.id:'r:'+slug(r.name);
@@ -3825,7 +3825,7 @@ function renderRecipes(){
   let list=RECIPES.map((r,i)=>[r,i]).filter(([r])=>(RF==='all'||(RF==='mine'?r.custom:RF==='champ'?r.champ:RF==='fav'?FAVS.has(rkey(r)):cup?cup[4](r):col?col[4](r):rb?RFAM(r.b)===RFAM(rb):true))&&(!q||fold([r.name,r.by,r.why,BREWERS[r.b].name,BREWERS[r.b].type].join(' ')).includes(q)));
   const by=(a,b)=>(b[0].custom?1:0)-(a[0].custom?1:0);
   if(RSORT==='quick')list.sort((a,b)=>(rmeta(a[0]).time??1e9)-(rmeta(b[0]).time??1e9));else if(RSORT==='az')list.sort((a,b)=>a[0].name.localeCompare(b[0].name));else list.sort(by);
-  $('rall').textContent=RF_NAME()+' · '+list.length;
+  RLIST=list;updShare();$('rall').textContent=RF_NAME()+' · '+list.length;
   $('rsort').value=RSORT;
   let html='';
   if(RSORT==='brewer'&&!rb){const order=Object.keys(BREWERS);const groups=new Map();for(const x of list){const k=RFAM(x[0].b);if(!groups.has(k))groups.set(k,[]);groups.get(k).push(x)}
@@ -3895,6 +3895,15 @@ function recipeLink(r){const {id,custom,ts,...rest}=r;return SITE_URL+'#recipe='
 /* Every share carries a link that opens the same thing in the app on the other phone. */
 const slug=s=>String(s).toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const chKey=ch=>ch.c+'-'+ch.y;
+// The recipes in view (a brewer, a collection or a search) as one shareable list: the essentials of each, with a link.
+const rListed=()=>(RF!=='all'||RQ.trim())&&RLIST.length>0;
+function recipesDoc(){const max=30,list=RLIST.slice(0,max),title=RQ.trim()?'Recipes: \u201c'+RQ.trim()+'\u201d':RF_NAME();
+  const blocks=list.map(([r,i])=>{const B=BREWERS[r.b],kv=[['Brewer',B.name],['Dose : water',r.dose+'g : '+r.water+'g (1:'+rr1(r.water/r.dose)+')']];
+    if(r.temp)kv.push(['Water',r.temp+'°C'+(r.temp2?', then about '+r.temp2+'°C':'')]);
+    for(const g of MYG){const v=settingFor(g,r.b,r.off);if(v!=null)kv.push([gname(g),dial(g,v)])}
+    kv.push(['Steps and details',recipeHref(i)]);return{h:r.name+(r.by?' ('+r.by+')':''),kv}});
+  if(RLIST.length>max)blocks.push({p:'And '+(RLIST.length-max)+' more in The Brew Bench.'});
+  return{title,sub:RLIST.length+' recipe'+(RLIST.length>1?'s':''),blocks,link:SITE_URL+'#recipes',file:'recipes-'+title}}
 function recipeHref(i){const r=RECIPES[i];return r.custom?recipeLink(r):r.champ?SITE_URL+'#c='+chKey(r.champ):SITE_URL+'#r='+slug(r.name)}
 // A brew from the dial-in: the grind travels as steps from the brewer's baseline, so it lands right on any grinder.
 function brewHref(){const off=Math.round(stepsBetween(S.grinder,baseX(S.grinder,S.brewer),S.setting)*10)/10;
@@ -4250,7 +4259,7 @@ function emptyInfo(){
 }
 $('info').onclick=e=>{const s=e.target.closest('[data-oshare]');if(s){openShare(originDoc(s.dataset.oshare));return}const b=e.target.closest('[data-o]');if(b)selectOrigin(b.dataset.o,true)};
 function selectOrigin(k,zoom){
-  const o=ALLO()[k];if(!o)return;SEL=k;
+  const o=ALLO()[k];if(!o)return;SEL=k;updShare();
   document.querySelectorAll('#worldmap .o,#worldmap .dot').forEach(p=>p.classList.toggle('sel',p.dataset.k===k));
   if(zoom)zoomTo(k==='kona'?'all':regionOf(k));
   const r=REG[o.reg];
@@ -5166,7 +5175,10 @@ const TABNAMES={explore:'Explore',settings:'Settings',champs:'World championship
 const BNGROUP={explore:'explore',settings:'settings',champs:'explore',words:'explore',wheel:'explore',flow:'explore',dial:'dial',recipes:'recipes',scan:'scan',map:'explore',variety:'explore',history:'explore',process:'explore',tech:'explore',gear:'settings',guide:'settings',log:'settings'};
 function syncShell(id){$('ab-title').textContent=TABNAMES[id]||'Brew Bench';$('ab-back').hidden=NAVD<1;document.body.className=document.body.className.replace(/\bt-\w+/g,'').trim()+' t-'+id;
   document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));movePill();
-  const can=['dial','scan','history','log','map','recipes','words','flow','wheel'].includes(id);$('ab-share').hidden=!can}
+  updShare(id)}
+// The app bar's Share only shows when the page has something to share: a picked origin on the map, a list of recipes.
+function updShare(id){id=id||(document.querySelector('main section.on')||{}).id;
+  $('ab-share').hidden=!(['dial','scan','history','log','words','flow','wheel'].includes(id)||(id==='map'&&(()=>{try{return !!SEL}catch(e){return false}})())||(id==='recipes'&&rListed()))}
 const SHEETS={explore:[['map','Origins map','50 origins on an interactive map','#4F8A74','globe'],['variety','Varieties','44 varieties, stories and Geisha types','#B5533C','leaf'],['history','History','Family tree, timeline and a quiz','#8A5A3B','hourglass'],['process','Processes','From washed to thermal shock','#D2A04A','flask'],['tech','Techniques','Every move in the brewing toolbox','#6B8E4E','drop'],['champs','World championships','Every champion, their recipes and gear','#C9964A','trophy'],['flow','From seed to cup','How coffee is made, step by step','#6E8FA8','leaf'],['words','Coffee words','A bank of '+GLOSSARY.length+' coffee terms','#9A7390','book'],['wheel','Flavour wheel','Name what you taste, then save it with your brews','#C4473F','wheel']],
   more:[['gear','Gear and dials','Grinders, brewers and dial reading','#6E8FA8','cog'],['guide','Guide','Ratio calculator and troubleshooting','#C9964A','book'],['log','Brew log','Your brews, ratings and exports','#6B8E4E','pencil']]};
 /* Explore and More are pages, like Brew, Recipes and Scan: tiles grouped by what they're for. */
@@ -5254,7 +5266,7 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(movePill);
 addEventListener('resize',()=>soon(movePill));
 document.querySelector('.bottomnav').onclick=e=>{const b=e.target.closest('[data-bn]');if(b)showTab(b.dataset.bn)};
 $('ab-share').onclick=()=>{const id=(document.querySelector('main section.on')||{}).id;
-  if(id==='dial')openShare(dialDoc());else if(id==='scan')$('sc-share').click();else if(id==='history')openShare(historyDoc());else if(id==='log')openShare(logDoc());else if(id==='map'){if(SEL)openShare(originDoc(SEL));else toast('Pick an origin first')}else if(id==='recipes')toast('Open a recipe, then tap Share');else if(id==='words')openShare(wordsDoc());else if(id==='flow')openShare(flowDoc());else if(id==='wheel')openShare(wheelDoc())};
+  if(id==='dial')openShare(dialDoc());else if(id==='scan')$('sc-share').click();else if(id==='history')openShare(historyDoc());else if(id==='log')openShare(logDoc());else if(id==='map'){if(SEL)openShare(originDoc(SEL));else toast('Pick an origin first')}else if(id==='recipes'&&rListed())openShare(recipesDoc());else if(id==='words')openShare(wordsDoc());else if(id==='flow')openShare(flowDoc());else if(id==='wheel')openShare(wheelDoc())};
 $('dial-share').onclick=()=>openShare(dialDoc());
 $('ab-back').onclick=()=>history.back();
 // The Android back gesture asks here first: close the top sheet, or step back a screen. False means there is nothing
