@@ -1409,9 +1409,19 @@ function renderShare(){const el=$('l-share');if(!el)return;
   $('sh-leave').onclick=()=>{if(confirm('Leave the shared log? Your phone keeps a copy of the entries.'))leaveGroup()};setSync(SYNC_STATE==='off'?'connecting':SYNC_STATE)}
 let JOIN_CODE='';
 const fmtDate=l=>{const d=new Date(l.ts||Date.parse(l.date));return isNaN(d)?(l.date||''):d.toLocaleDateString(undefined,{day:'numeric',month:'short',year:d.getFullYear()===new Date().getFullYear()?undefined:'numeric'})};
+// Editing a brew: it goes back into the form above, which saves over it. In a shared log only your own brews.
+let LEDIT=null;
+const canEdit=l=>!GROUP||!l.by||l.by===ME;
+const LFIELDS=['l-coffee','l-settings','l-pred','l-notes'];
+function editBrew(l){LEDIT=l.id;$('l-coffee').value=l.coffee||'';$('l-settings').value=l.settings||'';$('l-pred').value=l.pred||'';$('l-notes').value=l.notes||'';
+  $('l-settings').dataset.brewer=l.brewer||'';STAR=+l.stars||0;LFL=flOf(l).map(x=>Array.isArray(x)?x.slice():x);renderStars();renderFlForm();
+  $('l-editing').hidden=false;$('l-editing').textContent='Editing \u201c'+(l.coffee||'Untitled')+'\u201d from '+fmtDate(l);$('l-save').textContent='Update entry';$('l-cancel').hidden=false;
+  $('l-form').scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'});$('l-coffee').focus({preventScroll:true})}
+function endEdit(){LEDIT=null;LFIELDS.forEach(id=>$(id).value='');delete $('l-settings').dataset.brewer;STAR=0;LFL=[];renderStars();renderFlForm();
+  $('l-editing').hidden=true;$('l-save').textContent='Save entry';$('l-cancel').hidden=true}
 function renderLog(){renderShare();
-  $('l-list').innerHTML=LOG.length?LOG.map((l,i)=>'<div class="logentry"><div class="lehead"><b>'+esc(l.coffee||'Untitled')+'</b>'+(l.stars?'<span class="stars-sm" aria-label="'+l.stars+' stars">'+'★'.repeat(+l.stars||0)+'<span>'+'★'.repeat(5-(+l.stars||0))+'</span></span>':'')+'<button class="x" data-del="'+i+'" aria-label="Delete entry">Delete</button></div>'+
-    '<div class="hint">'+esc(fmtDate(l))+(l.by&&GROUP?' · '+esc(l.by===ME?'you':l.by):'')+'</div>'+(l.settings?'<div class="hint">'+esc(l.settings)+'</div>':'')+(l.pred?'<div class="hint">Predicted: '+esc(l.pred)+'</div>':'')+(l.notes?'<p>'+esc(l.notes)+'</p>':'')+flEntry(l,i)+'</div>').join(''):'<p class="hint">No brews logged yet. Dial one in, then tap "Log this brew".</p>';
+  $('l-list').innerHTML=LOG.length?LOG.map((l,i)=>'<div class="logentry"><div class="lehead"><b>'+esc(l.coffee||'Untitled')+'</b>'+(l.stars?'<span class="stars-sm" aria-label="'+l.stars+' stars">'+'★'.repeat(+l.stars||0)+'<span>'+'★'.repeat(5-(+l.stars||0))+'</span></span>':'')+(canEdit(l)?'<button class="x" data-edit="'+i+'" aria-label="Edit entry">Edit</button>':'')+'<button class="x" data-del="'+i+'" aria-label="Delete entry">Delete</button></div>'+
+    '<div class="hint">'+esc(fmtDate(l))+(l.edited?' \u00B7 edited':'')+(l.by&&GROUP?' · '+esc(l.by===ME?'you':l.by):'')+'</div>'+(l.settings?'<div class="hint">'+esc(l.settings)+'</div>':'')+(l.pred?'<div class="hint">Predicted: '+esc(l.pred)+'</div>':'')+(l.notes?'<p>'+esc(l.notes)+'</p>':'')+flEntry(l,i)+'</div>').join(''):'<p class="hint">No brews logged yet. Dial one in, then tap "Log this brew".</p>';
   renderPalate();
   const rated=LOG.filter(l=>+l.stars>0),avg=rated.length?(rated.reduce((a,l)=>a+ +l.stars,0)/rated.length).toFixed(1):'–';
   const cnt={};LOG.forEach(l=>{if(l.brewer)cnt[l.brewer]=(cnt[l.brewer]||0)+1});const fav=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];
@@ -1428,18 +1438,26 @@ function renderPalate(){const el=$('l-palate'),P=palate();el.hidden=!P;if(!P)ret
   el.innerHTML='<button type="button" class="fl-mini" id="pal-open" aria-label="Open your palate">'+fwStatic(P.fl)+'</button><div><h3>Your palate</h3><p class="hint" style="margin:0 0 6px">From '+P.n+(P.n===1?' brew':' brews')+' with flavour notes. You notice '+P.top.join(' and ')+' the most.</p>'+flBar(P.fl)+'<div class="chips" style="margin:0">'+flChips(P.fl.slice(0,6))+'</div></div>';
   $('pal-open').onclick=()=>openProfile('Your palate','From '+P.n+(P.n===1?' brew':' brews'),P.fl)}
 $('l-fl').onclick=()=>openNotesPicker();
-$('tolog').onclick=()=>{const r=compute(S),dp=dialPlan();
+$('tolog').onclick=()=>{const r=compute(S),dp=dialPlan();if(LEDIT)endEdit();
   $('l-settings').value=(dp?dp.r.name+(S.goal!=='balance'?' ('+goalLabel(S.goal,S.amt).toLowerCase()+')':'')+', '+S.dose+'g : '+dp.water+'g, ':'')+gLabel(S.grinder,S.setting)+', '+BREWERS[S.brewer].name+', '+S.temp+'°C, 1:'+rr1(S.ratio)+', '+BREWERS[S.brewer].bloom.label.toLowerCase()+' '+S.bloom+'s, '+PROCESSES[S.process].name+' '+vName(S.variety);
   $('l-pred').value=verdict(r.D)[0];$('l-settings').dataset.brewer=S.brewer;showTab('log');$('l-coffee').focus()};
-$('l-save').onclick=()=>{const e={id:uid(),ts:Date.now(),date:new Date().toLocaleDateString(),coffee:$('l-coffee').value.trim(),settings:$('l-settings').value.trim(),stars:STAR,pred:$('l-pred').value.trim(),notes:$('l-notes').value.trim(),brewer:$('l-settings').dataset.brewer||''};if(LFL.length)e.fl=LFL.slice();
+$('l-cancel').onclick=()=>endEdit();
+$('l-save').onclick=()=>{const k=LEDIT?LOG.findIndex(x=>x.id===LEDIT):-1;
+  if(k>=0){const o=LOG[k],u=Object.assign({},o,{coffee:$('l-coffee').value.trim(),settings:$('l-settings').value.trim(),stars:STAR,pred:$('l-pred').value.trim(),notes:$('l-notes').value.trim(),brewer:$('l-settings').dataset.brewer||o.brewer||'',edited:Date.now()});
+    if(LFL.length)u.fl=LFL.slice();else delete u.fl;
+    if(!u.coffee&&!u.settings&&!u.notes&&!LFL.length){toast('Add a coffee name or some notes first');return}
+    LOG[k]=u;save('bb-log',LOG);queue('put',u.id,u);endEdit();renderLog();toast(GROUP?'Brew updated and shared':'Brew updated');return}
+  if(LEDIT)endEdit();
+  const e={id:uid(),ts:Date.now(),date:new Date().toLocaleDateString(),coffee:$('l-coffee').value.trim(),settings:$('l-settings').value.trim(),stars:STAR,pred:$('l-pred').value.trim(),notes:$('l-notes').value.trim(),brewer:$('l-settings').dataset.brewer||''};if(LFL.length)e.fl=LFL.slice();
   if(GROUP)e.by=ME;
   if(!e.coffee&&!e.settings&&!e.notes&&!LFL.length){toast('Add a coffee name or some notes first');return}LOG.unshift(e);save('bb-log',LOG);queue('put',e.id,e);['l-coffee','l-settings','l-pred','l-notes'].forEach(id=>$(id).value='');delete $('l-settings').dataset.brewer;STAR=0;LFL=[];renderFlForm();renderStars();renderLog();toast(GROUP?'Brew saved and shared':'Brew saved');beans()};
-$('l-list').onclick=e=>{const fe=e.target.closest('[data-fledit]'),fv=e.target.closest('[data-flview]');
+$('l-list').onclick=e=>{const fe=e.target.closest('[data-fledit]'),fv=e.target.closest('[data-flview]'),ed=e.target.closest('[data-edit]');
+  if(ed){const l=LOG[+ed.dataset.edit];if(l&&canEdit(l))editBrew(l);return}
   if(fe){const l=LOG[+fe.dataset.fledit];if(l)openNotesPicker(l);return}
   if(fv){const l=LOG[+fv.dataset.flview];if(l)openProfile(l.coffee||'Untitled',[fmtDate(l),l.stars?l.stars+' of 5 stars':'',l.settings].filter(Boolean).join(' \u00B7 '),flOf(l),l);return}
   const b=e.target.closest('[data-del]');if(!b)return;const l=LOG[+b.dataset.del];if(!l)return;
   // One tap on Delete shouldn't lose a brew and its notes: ask first, as recipes do.
-  if(!confirm(GROUP&&l.by&&l.by!==ME?'Delete '+l.by+'’s entry for everyone?':'Delete \u201c'+(l.coffee||'Untitled')+'\u201d from your log?'))return;LOG.splice(+b.dataset.del,1);save('bb-log',LOG);queue('del',l.id);renderLog();toast('Entry deleted')};
+  if(!confirm(GROUP&&l.by&&l.by!==ME?'Delete '+l.by+'’s entry for everyone?':'Delete \u201c'+(l.coffee||'Untitled')+'\u201d from your log?'))return;if(LEDIT===l.id)endEdit();LOG.splice(+b.dataset.del,1);save('bb-log',LOG);queue('del',l.id);renderLog();toast('Entry deleted')};
 $('l-csv').onclick=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const rows=[['Date','Coffee','Settings','Stars','Predicted','Notes','Flavour notes']].concat(LOG.map(l=>[l.date,l.coffee,l.settings,l.stars,l.pred,l.notes,flText(flOf(l))]));
   saveFile('brew-log.csv',new Blob(['\ufeff'+rows.map(r=>r.map(q).join(',')).join('\r\n')],{type:'text/csv'}))};
 
