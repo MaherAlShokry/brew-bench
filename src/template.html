@@ -977,7 +977,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 .recbox{margin:-4px 0 18px;padding:12px 14px 10px;border-radius:16px;background:color-mix(in srgb,var(--cherry) 5%,var(--surface));border:1px solid color-mix(in srgb,var(--cherry) 25%,var(--line))}
 .dose-row{display:grid;grid-template-columns:1.4fr 1fr;gap:10px;align-items:end}.dose-row .lbl{margin-bottom:4px}
 .dose-w{display:flex;align-items:center;justify-content:center;height:40px;border-radius:12px;background:var(--surface2);font:700 1rem var(--display);font-variant-numeric:tabular-nums}
-.goalseg{margin-top:6px}.gdesc{margin:.5rem 0 0;font-size:.85rem}.amtrow{margin-top:12px}.amtrow[hidden]{display:none}.amtrow .seg{margin-top:6px}.tuneline{margin:.6rem 0 0;font-size:.82rem}.tuneline .linkbtn{margin-left:4px}
+.l-editing{margin:0 0 10px;font-weight:600;color:var(--cherry-ink)}.goalseg{margin-top:6px}.gdesc{margin:.5rem 0 0;font-size:.85rem}.amtrow{margin-top:12px}.amtrow[hidden]{display:none}.amtrow .seg{margin-top:6px}.tuneline{margin:.6rem 0 0;font-size:.82rem}.tuneline .linkbtn{margin-left:4px}
 .dsub{margin:22px 0 10px;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-family:var(--body);font-weight:700}
 .drecipe{margin-top:18px}.drecipe h2{margin:.1rem 0 .1rem}.drecipe .dr-meta{display:flex;flex-wrap:wrap;gap:6px;margin:.5rem 0 .8rem}
 .drecipe .dr-meta span{font-size:.8rem;border-radius:99px;padding:3px 10px;background:var(--surface2)}.drecipe .dr-meta .gl{background:color-mix(in srgb,var(--cherry) 15%,var(--surface));color:var(--cherry);font-weight:700}
@@ -1107,7 +1107,7 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
   <button class="tab" role="tab" data-t="words" aria-selected="false">Coffee words</button>
   <button class="tab" role="tab" data-t="wheel" aria-selected="false">Flavour wheel</button>
   <button class="tab" role="tab" data-t="guide" aria-selected="false">Guide</button>
-  <button class="tab" role="tab" data-t="log" aria-selected="false">Log</button>
+  <button class="tab" role="tab" data-t="log" aria-selected="false">Log</button><button class="tab" role="tab" data-t="settings" aria-selected="false">Settings</button>
 </div></nav>
 
 <main class="wrap">
@@ -1410,9 +1410,10 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
 <!-- LOG -->
 <section id="log">
   <h2>Brew log</h2>
-  <p class="lede">"Log this brew" on the dial-in fills in the settings. Share the log with friends to see each other’s brews.</p>
+  <p class="lede">"Log this brew" on the dial-in fills in the settings. Rate each cup, note what you tasted, and share your log when you like.</p>
   <div class="panel sharepanel" id="l-share" style="margin-bottom:14px"></div>
-  <div class="panel" style="margin-bottom:18px">
+  <div class="panel" id="l-form" style="margin-bottom:18px">
+    <p class="hint l-editing" id="l-editing" hidden></p>
     <div class="logform">
       <input id="l-coffee" placeholder="Coffee, e.g. Finca X Pink Bourbon" class="full" aria-label="Coffee">
       <input id="l-settings" placeholder="Settings" class="full" aria-label="Settings">
@@ -1421,7 +1422,7 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
       <textarea id="l-notes" rows="2" placeholder="How it actually tasted" class="full" aria-label="Tasting notes"></textarea>
       <div class="full fl-row"><button type="button" class="btn ghost fl-add" id="l-fl"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l7.8 4.5M12 12l-7.8 4.5"/></svg><span>Add flavour notes</span></button><div class="chips" id="l-flchips"></div></div>
     </div>
-    <div class="actions"><button class="btn" id="l-save">Save entry</button></div>
+    <div class="actions"><button class="btn" id="l-save">Save entry</button><button class="btn ghost" id="l-cancel" hidden>Cancel</button></div>
   </div>
   <div class="specs" id="l-stats"></div>
   <div class="panel palate" id="l-palate" hidden></div>
