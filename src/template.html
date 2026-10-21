@@ -977,7 +977,18 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 .recbox{margin:-4px 0 18px;padding:12px 14px 10px;border-radius:16px;background:color-mix(in srgb,var(--cherry) 5%,var(--surface));border:1px solid color-mix(in srgb,var(--cherry) 25%,var(--line))}
 .dose-row{display:grid;grid-template-columns:1.4fr 1fr;gap:10px;align-items:end}.dose-row .lbl{margin-bottom:4px}
 .dose-w{display:flex;align-items:center;justify-content:center;height:40px;border-radius:12px;background:var(--surface2);font:700 1rem var(--display);font-variant-numeric:tabular-nums}
+.kit{display:grid;gap:14px;margin-bottom:14px}.kit-row+.kit-row{border-top:1px solid var(--line);padding-top:14px}
+.kit-h{display:flex;align-items:center;gap:10px}.kit-h>div{flex:1;min-width:0}.kit-h small{display:block;color:var(--muted);font-size:.8rem}
+.kit-h .kit-ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--cherry) 14%,var(--surface));color:var(--cherry-ink);flex:none}
+.kit-h .kit-ic svg{width:20px;height:20px}.kit-h .btn{padding:7px 14px;font-size:.85rem;flex:none}
+.kit-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.kit-chips .chip{cursor:pointer}.kit-chips .hint{margin:0}
+.jumpnav{margin:0 0 10px}.quicktools{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:4px 0 18px}
+.qtool{display:flex;flex-direction:column;align-items:flex-start;gap:8px;text-align:left;padding:12px;border-radius:16px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;font:inherit;box-shadow:var(--shadow)}
+.qtool .ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex:none}.qtool .ic svg{width:19px;height:19px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.qtool b{display:block;font-size:.92rem}.qtool small{display:block;color:var(--muted);font-size:.76rem;margin-top:2px}.qtool:active{transform:scale(.98)}.gsec{scroll-margin-top:96px}#gear-dialpick:empty{display:none}#gear-dialpick{margin-bottom:10px}
+@media (max-width:899px){#gear-grinders>.card:not(.on){display:none}}@media (min-width:900px){#gear-dialpick{display:none}}
 .l-editing{margin:0 0 10px;font-weight:600;color:var(--cherry-ink)}.goalseg{margin-top:6px}.gdesc{margin:.5rem 0 0;font-size:.85rem}.amtrow{margin-top:12px}.amtrow[hidden]{display:none}.amtrow .seg{margin-top:6px}.tuneline{margin:.6rem 0 0;font-size:.82rem}.tuneline .linkbtn{margin-left:4px}
+.dsub .hint{text-transform:none;letter-spacing:0;font-weight:400;margin-left:4px}
 .dsub{margin:22px 0 10px;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-family:var(--body);font-weight:700}
 .drecipe{margin-top:18px}.drecipe h2{margin:.1rem 0 .1rem}.drecipe .dr-meta{display:flex;flex-wrap:wrap;gap:6px;margin:.5rem 0 .8rem}
 .drecipe .dr-meta span{font-size:.8rem;border-radius:99px;padding:3px 10px;background:var(--surface2)}.drecipe .dr-meta .gl{background:color-mix(in srgb,var(--cherry) 15%,var(--surface));color:var(--cherry);font-weight:700}
@@ -1119,6 +1130,12 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
     <div class="panel">
       <div class="field"><div class="lbl">Grinder <button type="button" class="gpick-btn" data-gpick aria-label="Change grinders" title="Change grinders"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l4 4-4 4"/><path d="M3 7h18"/><path d="M7 21l-4-4 4-4"/><path d="M21 17H3"/></svg></button></div><div class="seg" id="g-grinder"></div></div>
       <div class="field"><label for="i-brewer">Brewer</label><select id="i-brewer"></select></div>
+      <h3 class="dsub">Your coffee</h3>
+      <div class="field"><div class="lbl">Roast</div><div class="seg" id="g-roast"></div></div>
+      <div class="field"><label for="i-process">Process</label><select id="i-process"></select></div>
+      <div class="field"><label for="i-variety">Variety <button type="button" class="hint" id="v-about" style="background:none;border:0;cursor:pointer;text-decoration:underline">about this variety</button></label><select id="i-variety"></select></div>
+      <div class="field"><label for="i-age">Days since roast <span class="num" id="v-age"></span></label><input type="range" id="i-age" min="3" max="60" step="1"></div>
+      <h3 class="dsub">Recipe and target</h3>
       <div class="field"><label for="i-rec">Recipe <span class="hint" id="v-rec"></span></label><select id="i-rec"></select></div>
       <div class="recbox" id="d-recbox" hidden>
         <div class="dose-row"><div><div class="lbl">Coffee</div><div class="stepper"><button type="button" id="d-dminus" aria-label="Less coffee">−</button><input id="i-dose" type="number" inputmode="decimal" min="3" max="120" step="0.5" aria-label="Coffee in grams"><span>g</span><button type="button" id="d-dplus" aria-label="More coffee">+</button></div></div>
@@ -1126,6 +1143,7 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
         <div class="lbl" style="margin-top:12px">Target cup <span class="hint">the recipe adapts to it</span></div><div class="seg filters goalseg" id="g-goal"></div><p class="hint gdesc" id="g-gdesc"></p><div class="amtrow" id="g-amtrow"><span class="lbl">How much</span><div class="seg" id="g-amt"></div></div>
         <p class="hint tuneline" id="d-tuned"></p>
       </div>
+      <h3 class="dsub">Settings <span class="hint">tuned for you, adjust by taste</span></h3>
       <div class="field"><label for="i-grind">Grind <span><span class="num" id="v-grind"></span> <span class="hint" id="v-grindhint"></span></span></label><input type="range" id="i-grind"><div class="dialrow"><svg id="dialsvg" class="dialmini" viewBox="0 0 160 160" aria-hidden="true"></svg><p class="hint" style="margin:0">Dials read number.click. Tap <b>Gear and dials</b> for how each grinder works.</p></div><p class="hint equiv" id="v-equiv"></p></div>
       <div class="two">
         <div class="field"><label for="i-temp">Water <span class="num" id="v-temp"></span></label><input type="range" id="i-temp" min="85" max="100" step="1"></div>
@@ -1133,11 +1151,6 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
       </div>
       <div class="field"><label for="i-bloom">Bloom <span class="num" id="v-bloom"></span></label><input type="range" id="i-bloom" min="20" max="180" step="5"></div>
       <div class="field"><div class="lbl">Agitation <span class="hint">pour force, swirls, stirs</span></div><div class="seg" id="g-agit"></div></div>
-      <h3 class="dsub">Your coffee</h3>
-      <div class="field"><div class="lbl">Roast</div><div class="seg" id="g-roast"></div></div>
-      <div class="field"><label for="i-process">Process</label><select id="i-process"></select></div>
-      <div class="field"><label for="i-variety">Variety <button type="button" class="hint" id="v-about" style="background:none;border:0;cursor:pointer;text-decoration:underline">about this variety</button></label><select id="i-variety"></select></div>
-      <div class="field"><label for="i-age">Days since roast <span class="num" id="v-age"></span></label><input type="range" id="i-age" min="3" max="60" step="1"></div>
       <details class="cal">
         <summary>Calibrate to your grinders</summary>
         <p class="hint">Enter, in clicks from zero, the setting that gives you a balanced cup on each brewer. The dial reading shows beside each box. Predictions and recipe grinds are measured from these.</p>
@@ -1208,31 +1221,35 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
 <!-- GEAR -->
 <section id="gear">
   <h2>Gear and dials</h2>
-  <p class="lede">What each tool does, how to read the grinder dials, and what to reach for.</p>
-  <h3>Your grinders</h3>
-  <p class="hint" style="margin-top:0">Settings across the app are shown for these. Add or remove grinders in the library below.</p>
-  <div class="grid" id="gear-grinders" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))"></div>
-  <div class="card" id="gear-mybrewers" style="margin-top:14px"></div>
-  <div class="card" id="gmatch" style="margin-top:14px"></div>
-  <div class="card" style="margin-top:14px"><h3>Why grinders need different numbers</h3>
+  <p class="lede">Your grinders and brewers, how to read the dials, and what to reach for.</p>
+  <div class="card kit" id="gear-kit"></div>
+  <div class="seg filters scrollrow jumpnav" id="gear-nav" role="navigation" aria-label="On this page">
+    <button type="button" data-jump="g-dials">Read a dial</button><button type="button" data-jump="gmatch">Match a grind</button><button type="button" data-jump="g-map">Grind map</button><button type="button" data-jump="g-brew">Brewers</button><button type="button" data-jump="g-lib">Grinder library</button><button type="button" data-jump="g-acc">Accessories</button>
+  </div>
+  <h3 id="g-dials" class="gsec">Read your dials</h3>
+  <p class="hint" style="margin-top:0">Drag the slider to see what a setting means and which brew it suits.</p>
+  <div class="seg" id="gear-dialpick"></div>
+  <div class="grid gdials" id="gear-grinders" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))"></div>
+  <div class="card gsec" id="gmatch" style="margin-top:14px"></div>
+  <details class="card" style="margin-top:14px"><summary><b>Why grinders need different numbers</b> <span class="hint">How the dials work</span></summary>
     <p>The 1Zpresso grinders use an external ring read as <b>rotation.number.click</b>. Close the burrs until they just touch: that is zero. Turning toward bigger numbers opens the burrs and grinds coarser. Most filter brewing stays inside the first rotation, so the rotation digit is usually dropped: <b>5.6</b> means number 5, click 6.</p>
     <p>The two dials are not interchangeable. The ZP6 Special has 9 numbers per turn (90 clicks, about 22 microns each); the K-Ultra has 10 (100 clicks, 20 microns each). The same number on both grinders is a different grind size, and different burr shapes mean even the same micron gap tastes different. Calibrate each one by taste.</p>
     <p><b>Why a V60 is 5.6 on one and 8.0 on the other.</b> 56 ZP6 clicks is a gap of about 1.2 mm; 80 K-Ultra clicks is about 1.6 mm. The K-Ultra needs the wider gap because its all-round burrs make more fine particles, which slow the drawdown and pull more out of the coffee. The ZP6's filter burrs make very few fines, so it needs a tighter gap to reach the same flow and strength. The numbers also follow 1Zpresso's own ranges for each grinder (filter roughly 4.5 to 7.0 on the ZP6, 7.0 to 9.5 on the K-Ultra).</p>    <p>Across brands the numbers mean even less: a Comandante counts clicks from closed, an Ode or Encore has a numbered dial, a Niche is stepless. The app places every grinder on one shared scale, anchored on its typical V60 setting, so it can suggest a starting point for any brewer and match a setting from one grinder to another. For grinders you haven't calibrated these are starting points from typical ranges: fine-tune by taste and save them under <b>Calibrate to your grinders</b> on the dial-in.</p>
-  </div>
+  </details>
 
-  <h3 style="margin-top:1.6rem">Grinder library</h3>
+  <h3 style="margin-top:1.6rem" id="g-map" class="gsec">Where every brewer sits on your dials</h3>
+  <p class="hint">Tap a marker to see the setting. These follow your calibration.</p>
+  <div class="card" id="grindmap"></div>
+  <h3 style="margin-top:1.6rem" id="g-brew" class="gsec">Brewers</h3>
+  <div class="seg filters scrollrow" id="gear-filter" style="margin-bottom:12px"></div>
+  <div class="grid" id="gear-brewers"></div>
+  <h3 style="margin-top:1.6rem" id="g-lib" class="gsec">Grinder library</h3>
   <p class="hint" style="margin-top:0">Manual and electric grinders by brand, with their burrs, dials and typical settings. Tap Compare on up to three to see them side by side.</p>
   <div class="vtools"><input type="search" id="glib-search" placeholder="Search, e.g. Timemore, K-Ultra, flat burrs" aria-label="Search grinders"><div class="seg filters scrollrow" id="glib-filter"></div></div>
   <div id="gcmp"></div>
   <div id="glib"></div>
   <details class="card" id="gcustom" style="margin-top:14px"><summary><b>Add your own grinder</b> <span class="hint">Not in the list? Set it up in a minute</span></summary><div id="gcustom-in"></div></details>
-  <h3 style="margin-top:1.6rem">Where every brewer sits on your dials</h3>
-  <p class="hint">Tap a marker to see the setting. These follow your calibration.</p>
-  <div class="card" id="grindmap"></div>
-  <h3 style="margin-top:1.6rem">Brewers</h3>
-  <div class="seg filters scrollrow" id="gear-filter" style="margin-bottom:12px"></div>
-  <div class="grid" id="gear-brewers"></div>
-  <h3 style="margin-top:1.6rem">Everything else</h3>
+  <h3 style="margin-top:1.6rem" id="g-acc" class="gsec">Everything else</h3>
   <div class="grid" id="gear-acc"></div>
 </section>
 

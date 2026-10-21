@@ -978,13 +978,13 @@ function buildGear(){
 const gtype=g=>GRINDERS[g].custom?'Your grinder':GRINDERS[g].type==='electric'?'Electric':'Manual';
 const startFor=g=>base(g,'v60')??Math.round((GRINDERS[g].min+GRINDERS[g].max)/2);
 function specList(g){const G=GRINDERS[g];return '<details class="gspec"><summary>Details</summary><dl class="spec">'+[['Burrs',G.burr],['Dial',G.adjust],['Range',G.range],['Cup',G.cup],['Reach for it',G.use]].filter(x=>x[1]).map(([k,v])=>'<dt>'+k+'</dt><dd>'+esc(v)+'</dd>').join('')+'</dl></details>'}
-function renderMyGrinders(){
-  $('gear-grinders').innerHTML=MYG.map(g=>{const G=GRINDERS[g];return '<div class="card"><div class="ghead"><div><span class="hint">'+gtype(g)+'</span><h3 style="margin:.1rem 0 0">'+esc(G.full)+'</h3></div>'+
-   (MYG.length>1?'<button type="button" class="chip" data-grm="'+g+'">Remove</button>':'')+'</div><svg class="dialbig" id="gd-'+g+'" viewBox="0 0 160 160" aria-hidden="true"></svg>'+
+let GDIAL=null;
+function renderMyGrinders(){if(!MYG.includes(GDIAL))GDIAL=MYG[0];
+  seg('gear-dialpick',MYG.length>1?MYG.map(g=>[g,esc(gname(g))]):[],()=>GDIAL,v=>{GDIAL=v;renderMyGrinders()});
+  $('gear-grinders').innerHTML=MYG.map(g=>{const G=GRINDERS[g];return '<div class="card'+(g===GDIAL?' on':'')+'" data-g="'+g+'"><div class="ghead"><div><span class="hint">'+gtype(g)+'</span><h3 style="margin:.1rem 0 0">'+esc(G.full)+'</h3></div></div><svg class="dialbig" id="gd-'+g+'" viewBox="0 0 160 160" aria-hidden="true"></svg>'+
    '<input type="range" min="'+G.min+'" max="'+G.max+'" step="1" value="'+startFor(g)+'" data-gd="'+g+'" aria-label="'+esc(G.name)+' dial position"><p class="hint" id="gh-'+g+'" style="text-align:center"></p>'+specList(g)+'</div>'}).join('');
   const upd=g=>{const c=+document.querySelector('[data-gd="'+g+'"]').value;drawDial('gd-'+g,g,c);$('gh-'+g).textContent=dialHint(g,c)+nearestBrew(sizeOf(g,c))};
   $('gear-grinders').oninput=e=>{const g=e.target.dataset.gd;if(g)upd(g)};MYG.forEach(upd);
-  $('gear-grinders').onclick=e=>{const b=e.target.closest('[data-grm]');if(b)setMine(b.dataset.grm,false)};
 }
 // "About a V60 grind": the brewer whose place on the shared scale is closest.
 function nearestBrew(size){let best=null,d=1e9;for(const k of MODEL){const E=brewSize(k);if(E!=null&&Math.abs(E-size)<d){d=Math.abs(E-size);best=k}}return best&&d<140?' · about a '+BREWERS[best].name+' grind':''}
@@ -1084,14 +1084,25 @@ function openGearPicker(tab,after){let q='',T=tab==='brewers'?'brewers':'grinder
   const finish=()=>{d.removeEventListener('close',finish);grindersChanged();if(BUILT.champs)renderChamps();if(BUILT.gear)renderMyBrewers();if(after)setTimeout(after,0)};d.addEventListener('close',finish);
   showDlg(d);d.scrollTop=0}
 const openGrinderPicker=()=>openGearPicker('grinders');
-function renderMyBrewers(){$('gear-mybrewers').innerHTML='<div class="ghead"><h3 style="margin:0">Your brewers</h3><button type="button" class="gpick-btn" data-gpick-b aria-label="Change brewers" title="Change brewers">'+SWAP_ICON+'</button></div>'+
-  (MYB.length?'<div class="meta">'+MYB.map(b=>'<span>'+esc(BREWERS[b].name)+'</span>').join('')+'</div>':'<p class="hint">Tell the app which brewers you own, and championship recipes adapt to them.</p><div class="actions"><button type="button" class="btn ghost" data-gpick-b>Choose your brewers</button></div>')}
+// Your kit: the grinders and brewers you own, at the top of Gear, each with a button to change them.
+const KIT_IC={g:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10l-1 5H8z"/><path d="M8 9h8v6a4 4 0 0 1-8 0z"/><path d="M12 19v2"/><path d="M17 6h3"/></svg>',
+  b:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16l-6 8v4h-4v-4z"/><path d="M8 21h8"/></svg>'};
+function renderMyBrewers(){const el=$('gear-kit');if(!el)return;
+  const row=(ic,title,sub,btn,attr,chips)=>'<div class="kit-row"><div class="kit-h"><span class="kit-ic">'+ic+'</span><div><b>'+title+'</b><small>'+sub+'</small></div><button type="button" class="btn ghost" '+attr+'>'+btn+'</button></div><div class="kit-chips">'+chips+'</div></div>';
+  el.innerHTML='<h3 style="margin:0">Your kit</h3>'+
+    row(KIT_IC.g,'Grinders','Settings everywhere are shown for these','Add or change','data-gpick',MYG.map(g=>'<button type="button" class="chip" data-kitg="'+g+'">'+esc(gname(g))+'</button>').join(''))+
+    row(KIT_IC.b,'Brewers','Recipes and champion brews adapt to these',MYB.length?'Add or change':'Choose','data-gpick-b',MYB.length?MYB.map(b=>'<button type="button" class="chip" data-kitb="'+b+'">'+esc(BREWERS[b].name)+'</button>').join(''):'<p class="hint">None picked yet. Choose the brewers you own so recipes fit your kit.</p>');
+  el.onclick=e=>{const g=e.target.closest('[data-kitg]'),b=e.target.closest('[data-kitb]');
+    if(g){GDIAL=g.dataset.kitg;renderMyGrinders();$('g-dials').scrollIntoView({behavior:RM()?'auto':'smooth',block:'start'})}
+    if(b){GF='all';renderGearBrewers();const c=$('gb-'+b.dataset.kitb);if(c){c.style.scrollMarginTop='16px';c.scrollIntoView({block:'start'});
+      // Cards further down are laid out only when near the screen, so settle once they are, then land exactly.
+      requestAnimationFrame(()=>requestAnimationFrame(()=>c.scrollIntoView({block:'start'})));c.classList.add('flash');setTimeout(()=>c.classList.remove('flash'),1400)}}}}
 document.addEventListener('click',e=>{if(e.target.closest('[data-gpick-b]'))openGearPicker('brewers')});
 document.addEventListener('click',e=>{if(e.target.closest('[data-gpick]'))openGrinderPicker()});
 // Everything that shows grinder settings follows your grinders.
 function grindersChanged(){if(!MYG.includes(S.grinder)||!canGrind(S.grinder,S.brewer)){const g=MYG.find(x=>canGrind(x,S.brewer))||capable(S.brewer);S.setting=canGrind(S.grinder,S.brewer)?convertSetting(S,g,S.brewer):base(g,S.brewer);S.grinder=g}
   if(!MYG.includes(SC.grinder))SC.grinder=MYG.find(x=>canGrind(x,SC.brewer))||capable(SC.brewer);
-  render();renderScan();renderCal();if(BUILT.recipes)renderRecipes();if(BUILT.gear){renderMyGrinders();renderMatch();renderLibrary();renderGearBrewers();renderGrindMap()}}
+  render();renderScan();renderCal();if(BUILT.recipes)renderRecipes();if(BUILT.gear){renderMyGrinders();renderMyBrewers();renderMatch();renderLibrary();renderGearBrewers();renderGrindMap()}}
 function renderCustomForm(){
   $('gcustom-in').innerHTML='<div class="cform"><div class="field"><label for="cg-name">Name</label><input id="cg-name" maxlength="40" placeholder="e.g. Hario Skerton Pro"></div>'+
    '<div class="two"><div class="field"><label for="cg-type">Type</label><select id="cg-type"><option value="manual">Manual</option><option value="electric">Electric</option></select></div>'+
@@ -2187,6 +2198,17 @@ const SHEETS={explore:[['map','Origins map',Object.keys(ALLO()).length+' origins
 /* Explore and More are pages, like Brew, Recipes and Scan: tiles grouped by what they're for. */
 const HUB={explore:[['Where coffee comes from',['map','variety','process','flow']],['How to brew and taste',['tech','wheel','words']],['The people and the story',['history','champs']]],
   settings:[['Your tools',['gear','guide','log']]]};
+// "On this page": buttons that jump to a section of a long page. A target is an element id, or (with @) the start of a
+// heading's text, found when tapped so pages that re-render their headings keep working.
+const JUMPS={history:[['@The coffee family tree','Family tree'],['@The coffee species','Species'],['@Timeline','Timeline'],['@People who','People'],['@Test yourself','Quiz']],
+  guide:[['@Ratio calculator','Ratio calculator'],['@What does it taste like','Fix the taste'],['@The bloom','Bloom'],['@Extraction levers','Extraction'],['@Grinders and brewers','Grinders and brewers'],['@Troubleshoot','Troubleshoot']],
+  champs:[['ch-next','Next finals'],['ch-about','The competitions'],['@Timeline','Every champion']],
+  scan:[['@Coffee details','Coffee details'],['@Recommended brew','Brew plan'],['@Recent scans','Recent scans']]};
+for(const [sec,items] of Object.entries(JUMPS)){const s=$(sec);if(!s)continue;const at=s.querySelector('.lede')||s.querySelector('h2');
+  at.insertAdjacentHTML('afterend','<div class="seg filters scrollrow jumpnav" role="navigation" aria-label="On this page">'+items.map(([t,n])=>'<button type="button" data-jump="'+esc(t)+'">'+esc(n)+'</button>').join('')+'</div>')}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-jump]');if(!b)return;const t=b.dataset.jump,sec=b.closest('section');
+  const el=t[0]==='@'?[...sec.querySelectorAll('h2,h3')].find(h=>h.offsetParent&&h.textContent.trim().startsWith(t.slice(1))):$(t);
+  if(!el){toast('Nothing to show there yet');return}el.style.scrollMarginTop='96px';el.scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'})});
 const hubItem=k=>[...SHEETS.explore,...SHEETS.more].find(x=>x[0]===k);
 const hubCount=k=>({map:Object.keys(ALLO()).length,variety:V.length,process:Object.keys(PROCESSES).length,tech:TECH.length,words:GLOSSARY.length,champs:CHAMPS.length,gear:MYG.length+' grinder'+(MYG.length===1?'':'s'),log:LOG.length?LOG.length+' brew'+(LOG.length===1?'':'s'):0})[k];
 const hubCard=k=>{const [,n,d,c,ic]=hubItem(k),cnt=hubCount(k);return '<button type="button" class="hubcard" data-go="'+k+'">'+ico(ic,c)+(cnt?'<span class="hn">'+cnt+'</span>':'')+'<b>'+n+'</b><small>'+d+'</small></button>'};
@@ -2237,14 +2259,16 @@ function importData(file){if(!file)return;if(file.size>8e6){toast('That file is 
   rd.onerror=()=>toast('Couldn’t read that file');rd.readAsText(file)}
 function renderSettings(){const t=document.documentElement.getAttribute('data-theme')||'auto';
   const row=(icon,bg,title,sub,body)=>'<div class="setrow"><div class="sl">'+ico(icon,bg)+'<span class="mt"><b>'+title+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</span></div>'+(body||'')+'</div>';
-  $('settings-in').innerHTML='<h3 class="rh">Appearance</h3><div class="setgroup">'+
+  const qt=(k,n,d)=>'<button type="button" class="qtool" data-go="'+k+'">'+ico(hubItem(k)[4],hubItem(k)[3])+'<span><b>'+n+'</b><small>'+d+'</small></span></button>';
+  $('settings-in').innerHTML='<div class="quicktools">'+qt('gear','Gear and dials',MYG.length+' grinder'+(MYG.length>1?'s':'')+(MYB.length?', '+MYB.length+' brewer'+(MYB.length>1?'s':''):''))+qt('log','Brew log',LOG.length?LOG.length+' brew'+(LOG.length>1?'s':''):'Rate and keep your brews')+qt('guide','Guide','Ratios and fixes')+'</div>'+
+    '<h3 class="rh">Appearance</h3><div class="setgroup">'+
     row(curTheme()==='dark'?'moon':'sun','#5B5F66','Light or dark','Bright cream, cosy espresso, or follow your phone','<div class="seg" id="st-mode"></div>')+
     row('drop','var(--cherry)','Colour','Coffee-inspired themes for buttons, highlights and charts','<div class="swatches">'+ACCENTS.map(([k,n,c])=>'<button type="button" class="swatch" data-accent="'+k+'" aria-pressed="'+(UI.accent===k)+'"><i style="background:'+c+'"></i>'+n+'</button>').join('')+'</div>')+
     row('leaf','#6B8E4E','App logo','Shown in the top bar and the browser tab','<div class="logos">'+Object.entries(LOGOS).map(([k,[n]])=>'<button type="button" class="logopick" data-logo="'+k+'" aria-pressed="'+(UI.logo===k)+'">'+logoSVG(k,34)+n+'</button>').join('')+'</div><p class="setnote">The icon on your phone’s home screen stays the bean.</p>')+
     row('text','#C9964A','Text size','','<div class="seg" id="st-text"></div>')+
     row('wheel','#6E8FA8','Motion','Animations between pages and sheets','<div class="seg" id="st-motion"></div>')+
     row('globe','#4F8A74','Open the app on','The page you see first','<div class="seg" id="st-start"></div>')+'</div>'+
-   HUB.settings.map(([h,ks])=>'<h3 class="rh">'+h+'</h3><div class="hubgrid">'+ks.map(hubCard).join('')+'</div>').join('')+
+   /* Gear, Guide and the Log are the buttons at the top. */
    '<h3 class="rh">Your data</h3><div class="setgroup">'+row('download','#8A5A3B','Back up and restore','Everything you’ve saved stays on this device: '+esc(dataSummary())+'. Save it as a file to keep it safe or move it to another phone.',
      '<div class="setbtns"><button type="button" class="btn" id="st-export">Export my data</button><button type="button" class="btn ghost" id="st-import">Import a backup</button><input type="file" id="st-file" accept="application/json,.json" hidden></div>')+'</div>'+
    (installed()?'':'<h3 class="rh">Install</h3><div class="setgroup">'+row('download','#9A7390','Add to your home screen','Use it like an app, offline too','<p class="setnote" style="margin:0"><b>iPhone (Safari):</b> tap the Share button, then <b>Add to Home Screen</b>.<br><b>Android (Chrome):</b> tap the ⋮ menu, then <b>Add to Home screen</b>.</p>')+'</div>')+
