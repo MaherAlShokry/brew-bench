@@ -1111,7 +1111,7 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
   <button class="tab" role="tab" data-t="words" aria-selected="false">Coffee words</button>
   <button class="tab" role="tab" data-t="wheel" aria-selected="false">Flavour wheel</button>
   <button class="tab" role="tab" data-t="guide" aria-selected="false">Guide</button>
-  <button class="tab" role="tab" data-t="log" aria-selected="false">Log</button>
+  <button class="tab" role="tab" data-t="log" aria-selected="false">Log</button><button class="tab" role="tab" data-t="settings" aria-selected="false">Settings</button>
 </div></nav>
 
 <main class="wrap">
@@ -1414,7 +1414,7 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
 <!-- LOG -->
 <section id="log">
   <h2>Brew log</h2>
-  <p class="lede">"Log this brew" on the dial-in fills in the settings. Share the log with friends to see each other’s brews.</p>
+  <p class="lede">"Log this brew" on the dial-in fills in the settings. Rate each cup, note what you tasted, and share your log when you like.</p>
   <div class="panel sharepanel" id="l-share" style="margin-bottom:14px"></div>
   <div class="panel" style="margin-bottom:18px">
     <div class="logform">
@@ -3718,8 +3718,13 @@ document.querySelector('[role=tablist]').onclick=e=>{const t=e.target.closest('.
 const gfmt=v=>v>=10?String(Math.round(v)):String(Math.round(v*10)/10);
 // Every weight in a recipe's steps scaled to another dose and water: water amounts by the water change, the coffee
 // dose by the dose change. Step times stay as written.
+// Amounts in the steps follow your dose and water. A range ("150 to 200g") scales at both ends; an amount of coffee
+// ("16g of coffee", or the recipe's dose itself) follows the dose, everything else the water; a rate per litre stays.
 function scaleSteps(r,dose,water){if(dose===r.dose&&water===r.water)return r.steps;const fd=dose/r.dose,fw=water/r.water;
-  return r.steps.map(x=>x.replace(/(\d+(?:\.\d+)?)(\s?)(g|ml)\b/gi,(m,n,sp,u)=>{const v=+n;return gfmt(v*(Math.abs(v-r.dose)<1e-6&&r.dose!==r.water?fd:fw))+sp+u}))}
+  return r.steps.map(x=>x.replace(/(\d+(?:\.\d+)?)(?:(\s*(?:to|-|\u2013)\s*)(\d+(?:\.\d+)?))?(\s?)(g|ml)\b/gi,(m,a,mid,b,sp,u,at,str)=>{
+    const after=str.slice(at+m.length,at+m.length+30);if(/^\s*(?:of\s+)?(?:\w+\s+)?(?:per|a|\/)\s*(?:litre|liter|l)\b/i.test(after))return m;
+    const coffee=/^\s*(?:of\s+)?(?:ground\s+|fresh\s+)?(?:coffee|grounds)\b/i.test(after)||(!b&&Math.abs(+a-r.dose)<1e-6&&r.dose!==r.water&&!/^\s*(?:of\s+)?(?:\w+\s+)?water/i.test(after));
+    const f=coffee?fd:fw;return gfmt(+a*f)+(b?mid+gfmt(+b*f):'')+sp+u}))}
 // A recipe as written (sizing to your dose happens in the dial-in).
 const scaled=r=>({dose:r.dose,water:r.water,steps:r.steps,off:r.off,adj:0,ratio:r.water/r.dose,on:false});
 const rr1=v=>Math.round(v*10)/10;
@@ -3734,6 +3739,8 @@ function recipeBody(r,i,compact){const B=BREWERS[r.b],sc=compact?{dose:r.dose,wa
    (r.why?'<p>'+esc(r.why)+'</p>':'')+(compact?'<details class="rsteps"><summary>Steps ('+r.steps.length+')</summary>':'')+stepList(sc.steps)+(r.tip?'<p class="hint">'+esc(r.tip)+'</p>':'')+(compact?'</details>':'')+
    '<div class="actions">'+(B.model?'<button class="btn" data-load="'+i+'">Brew in the dial-in</button><button class="btn ghost" data-timer="'+i+'">Start timer</button>':'<button class="btn" data-timer="'+i+'">Start timer</button>')+'<button class="btn ghost" data-rshare="'+i+'">Share</button>'+(r.custom?'<button class="btn ghost" data-redit="'+esc(r.id)+'">Edit</button>':'')+'</div>'}
 let RF='all',RQ='',RLIST=[];
+// Shared logs (and so team recipes) only exist when a sync server is set up; SYNC_DB is defined further down.
+const TEAM=()=>{try{return !!SYNC_DB}catch(e){return false}};
 /* Favorites and recent brews, kept on this phone. A recipe's key survives app updates: its name for built-in
    recipes, its id for yours. */
 const rkey=r=>r.custom?'c:'+r.id:'r:'+slug(r.name);
@@ -3791,7 +3798,7 @@ function renderRHome(){const QI=(c,p)=>'<span class="qi" style="background:'+c+'
   const again=RECENT.map(rByKey).filter(i=>i>=0).slice(0,6);
   $('rhome').innerHTML='<div class="qlinks">'+
     '<button type="button" data-q="surprise">'+QI('#2F80ED','M5 5h14v14H5z M9 9h.01 M15 9h.01 M12 12h.01 M9 15h.01 M15 15h.01')+'<span><b>Surprise me</b><small>Pick a random recipe</small></span></button>'+
-    '<button type="button" data-q="mine">'+QI('#F2A33A','M4 20h4L19 9l-4-4L4 16z M13 7l4 4')+'<span><b>Your recipes</b><small>'+(CREC.length?'Yours and your team’s':'Create your own recipe')+'</small></span>'+(CREC.length?'<span class="qn">'+CREC.length+'</span>':'')+'</button>'+
+    '<button type="button" data-q="mine">'+QI('#F2A33A','M4 20h4L19 9l-4-4L4 16z M13 7l4 4')+'<span><b>Your recipes</b><small>'+(CREC.length?(TEAM()?'Yours and your team’s':'Recipes you saved'):'Create your own recipe')+'</small></span>'+(CREC.length?'<span class="qn">'+CREC.length+'</span>':'')+'</button>'+
     '<button type="button" data-q="fav">'+QI('#E0445A','M12 20s-7-4.4-9-8.6C1.6 8.4 3.4 5 6.7 5c2 0 3.3 1.2 4.3 2.6C12 6.2 13.3 5 15.3 5c3.3 0 5.1 3.4 3.7 6.4C19 15.6 12 20 12 20z')+'<span><b>Favorites</b><small>'+(favCount()?'Your go-to recipes':'Tap the heart on any recipe')+'</small></span>'+(favCount()?'<span class="qn">'+favCount()+'</span>':'')+'</button></div>'+
     (again.length?'<h3 class="rh">Brew again</h3><div class="again">'+again.map(i=>'<button type="button" data-again="'+i+'"><b>'+esc(RECIPES[i].name)+'</b><small>'+esc(BREWERS[RECIPES[i].b].name)+'</small></button>').join('')+'</div>':'')+
     '<h3 class="rh">By brewer</h3><div class="bshelf">'+RBREWERS().map(k=>{const B=BREWERS[k],n=RECIPES.filter(r=>RFAM(r.b)===k).length;
@@ -3810,7 +3817,7 @@ $('rhome').onclick=e=>{const q=e.target.closest('[data-q]'),a=e.target.closest('
   RQ='';$('rsearch').value='';showRecipeList()};
 $('rsearch').oninput=e=>{RQ=e.target.value;if(RQ.trim()&&RF!=='all'){RF='all';renderRHome()}soon(renderRecipes)}; // a search looks through every recipe
 let RSORT=(()=>{try{return localStorage.getItem('bb-rsort')||'brewer'}catch(e){return'brewer'}})();
-const RF_NAME=()=>RF==='all'?'All recipes':RF==='fav'?'Favorites':RF==='mine'?'Yours and your team’s':RF==='champ'?'Champions':RF.startsWith('cup:')?CUPBY[RF.slice(4)][1]
+const RF_NAME=()=>RF==='all'?'All recipes':RF==='fav'?'Favorites':RF==='mine'?(TEAM()?'Yours and your team’s':'Your recipes'):RF==='champ'?'Champions':RF.startsWith('cup:')?CUPBY[RF.slice(4)][1]
   :RF.startsWith('b:')&&BREWERS[RF.slice(2)]?famName(RFAM(RF.slice(2))):RF.startsWith('col:')&&COLBY[RF.slice(4)]?COLBY[RF.slice(4)][1]:'All recipes';
 // One recipe as a compact row: what it is, who it's from, the numbers that matter, and a play button for the timer.
 function rrow(r,i){const m=rmeta(r),lv={Easy:'e',Medium:'i',Advanced:'a'}[m.level];
@@ -3820,7 +3827,7 @@ function rrow(r,i){const m=rmeta(r),lv={Easy:'e',Medium:'i',Advanced:'a'}[m.leve
 function renderRecipes(){
   if(RF==='mine'&&!CREC.length)RF='all';if(RF==='fav'&&!favCount())RF='all';if((RF.startsWith('b:')&&!BREWERS[RF.slice(2)])||(RF.startsWith('col:')&&!COLBY[RF.slice(4)])||(RF.startsWith('cup:')&&!CUPBY[RF.slice(4)]))RF='all';
   const cup=RF.startsWith('cup:')?CUPBY[RF.slice(4)]:null,col=RF.startsWith('col:')?COLBY[RF.slice(4)]:null,rb=RF.startsWith('b:')?RF.slice(2):null,extra=cup||col||rb;
-  seg('rfilter',[['all','All']].concat(extra?[[RF,esc(RF_NAME())+' ✕']]:[],favCount()?[['fav','♥ Favorites']]:[],CREC.length?[['mine','Yours & team']]:[],[['champ','Champions']]),()=>RF,v=>{RF=v===RF&&extra?'all':v;renderRecipes();renderRHome()});
+  seg('rfilter',[['all','All']].concat(extra?[[RF,esc(RF_NAME())+' ✕']]:[],favCount()?[['fav','♥ Favorites']]:[],CREC.length?[['mine',TEAM()?'Yours & team':'Yours']]:[],[['champ','Champions']]),()=>RF,v=>{RF=v===RF&&extra?'all':v;renderRecipes();renderRHome()});
   const q=fold(RQ.trim());
   let list=RECIPES.map((r,i)=>[r,i]).filter(([r])=>(RF==='all'||(RF==='mine'?r.custom:RF==='champ'?r.champ:RF==='fav'?FAVS.has(rkey(r)):cup?cup[4](r):col?col[4](r):rb?RFAM(r.b)===RFAM(rb):true))&&(!q||fold([r.name,r.by,r.why,BREWERS[r.b].name,BREWERS[r.b].type].join(' ')).includes(q)));
   const by=(a,b)=>(b[0].custom?1:0)-(a[0].custom?1:0);
@@ -3870,7 +3877,7 @@ function openRecipeEditor(r,fresh){const isNew=!r||fresh;r=Object.assign({b:'v60
    '<div class="field"><label for="re-tip">Tip <span class="hint">optional</span></label><input id="re-tip" maxlength="300" value="'+esc(r.tip)+'"></div>'+
    '<div class="field"><label for="re-by">Credit <span class="hint">optional, e.g. based on Hoffmann</span></label><input id="re-by" maxlength="60" value="'+esc(r.by)+'"></div>'+
    '<div class="actions"><button class="btn" id="re-save">'+(isNew?'Save recipe':'Save changes')+'</button>'+(!isNew?'<button class="btn ghost" id="re-del">Delete</button>':'')+'</div>'+
-   (GROUP&&SYNC_DB?'<p class="hint">Saved recipes are shared with your group ('+GROUP.code+').</p>':'<p class="hint">Share it from its card, or start a shared log in the Log tab to share all your recipes with your team.</p>')+'</div>';
+   (GROUP&&SYNC_DB?'<p class="hint">Saved recipes are shared with your group ('+GROUP.code+').</p>':'<p class="hint">Share it from its card'+(SYNC_DB?', or start a shared log in the Log tab to share all your recipes with your team':'')+'.</p>')+'</div>';
   $('re-b').value=r.b;
   const gs=()=>{const off=-(+$('re-off').value),b=$('re-b').value;$('re-offl').textContent=off===0?'baseline':(Math.abs(off).toFixed(1)+(off>0?' steps finer':' steps coarser'));
     $('re-gs').innerHTML=MYG.map(g=>{const v=settingFor(g,b,off);return '<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>'}).join('')};
@@ -3924,20 +3931,24 @@ function openBrewLink(code){let x;try{x=b64u.dec(code)}catch(e){}goTab('dial');
   render();toast('Opened the shared brew'+(g!==x.g&&GRINDERS[x.g]?', converted to your '+gname(g):''))}
 function openPlanLink(code){let x;try{x=b64u.dec(code)}catch(e){}goTab('dial');
   if(!x||!PBREWERS.includes(x.b)){toast('That brew link looks broken');return}
-  const t=techList(x.b).find(([r])=>slug(r.name)===x.t)||techList(x.b)[0];S.brewer=t[0].b;S.rec=t[1];
+  // The sender's brewer stays, even when the recipe was written for its family twin (a NEO recipe on a V60).
+  const t=techList(x.b).find(([r])=>slug(r.name)===x.t)||techList(x.b)[0];S.brewer=sameFam(t[0].b,x.b)?x.b:t[0].b;S.rec=t[1];
   if(PROCESSES[x.p])S.process=x.p;if(typeof x.v==='string'&&vById(x.v))S.variety=x.v;if(ROASTS.includes(x.ro))S.roast=x.ro;S.age=Math.round(num(x.age,S.age,0,90));S.goal=goalOf(x.goal);S.amt=amtOf(x.am);S.dose=num(x.d,t[0].dose,3,120);
   if(!canGrind(S.grinder,S.brewer))S.grinder=capable(S.brewer);tune('Opened the shared brew')}
 // Opens whatever a link points at. Returns false for plain tab links.
 function openRoute(h){let m;try{h=decodeURIComponent(h)}catch(e){}
+  const gone=()=>toast('That link points to something that isn\u2019t in this version of the app');
   if((m=/^recipe=([A-Za-z0-9_-]+)$/.exec(h))){goTab('recipes');importRecipe(m[1]);return true}
   if((m=/^r=([a-z0-9-]+)$/.exec(h))){goTab('recipes');const i=RECIPES.findIndex((r,k)=>k<BUILTIN_N&&slug(r.name)===m[1]);if(i>=0)openRecipe(i);else toast('That recipe isn\u2019t in this version of the app');return true}
-  if((m=/^c=([a-z]+)-(\d{4})$/.exec(h))){goTab('champs');const ch=CHAMPS.find(x=>x.c===m[1]&&x.y===+m[2]);if(ch&&ch.rec)openChamp(ch);return true}
-  if((m=/^k=([a-z0-9-]+)$/.exec(h))){const g=GLOSSARY.find(x=>slug(x[0])===m[1]);goTab('words');if(g)openWord(g[0]);return true}
-  if((m=/^v=([\w-]+)$/.exec(h))){goTab('variety');if(VBY[m[1]])openVariety(m[1]);return true}
-  if((m=/^o=([\w-]+)$/.exec(h))){goTab('map');if(ALLO()[m[1]])selectOrigin(m[1],true);return true}
+  if((m=/^c=([a-z]+)-(\d{4})$/.exec(h))){goTab('champs');const ch=CHAMPS.find(x=>x.c===m[1]&&x.y===+m[2]);if(ch&&ch.rec)openChamp(ch);else if(!ch)gone();return true}
+  if((m=/^k=([a-z0-9-]+)$/.exec(h))){const g=GLOSSARY.find(x=>slug(x[0])===m[1]);goTab('words');if(g)openWord(g[0]);else gone();return true}
+  if((m=/^v=([\w-]+)$/.exec(h))){goTab('variety');if(VBY[m[1]])openVariety(m[1]);else gone();return true}
+  if((m=/^o=([\w-]+)$/.exec(h))){goTab('map');if(ALLO()[m[1]])selectOrigin(m[1],true);else gone();return true}
   if((m=/^brew=([A-Za-z0-9_-]+)$/.exec(h))){openBrewLink(m[1]);return true}
   if((m=/^plan=([A-Za-z0-9_-]+)$/.exec(h))){openPlanLink(m[1]);return true}
-  if((m=/^join=([A-Za-z0-9-]{8,9})$/.exec(h))){JOIN_CODE=m[1].toUpperCase();goTab('log');if(!GROUP)toast('Add your name and tap Join');else if(GROUP.code!==JOIN_CODE)toast('You are already in a shared log. Leave it first to join this one.');renderLog();return true}
+  if((m=/^join=([A-Za-z0-9-]{8,9})$/.exec(h))){JOIN_CODE=m[1].toUpperCase();goTab('log');if(!SYNC_DB)toast('Shared logs aren\u2019t switched on in this version of the app');else if(!GROUP)toast('Add your name and tap Join');else if(GROUP.code!==JOIN_CODE)toast('You are already in a shared log. Leave it first to join this one.');renderLog();return true}
+  // A shared link that got cut off or mangled on the way (chat apps sometimes do this) still says so.
+  if(/^(recipe|brew|plan|join|[rcvok])=/.test(h))toast('That link looks broken or incomplete. Ask for it to be sent again.');
   return false}
 function importRecipe(code){let r;try{r=sanRec(b64u.dec(code))}catch(e){r=null}if(!r){toast('That recipe link looks broken');return}
   r.id='r'+Date.now().toString(36);r.ts=Date.now();const B=BREWERS[r.b];
@@ -4104,7 +4115,7 @@ function openGearPicker(tab,after){let q='',T=tab==='brewers'?'brewers':'grinder
   showDlg(d);d.scrollTop=0}
 const openGrinderPicker=()=>openGearPicker('grinders');
 function renderMyBrewers(){$('gear-mybrewers').innerHTML='<div class="ghead"><h3 style="margin:0">Your brewers</h3><button type="button" class="gpick-btn" data-gpick-b aria-label="Change brewers" title="Change brewers">'+SWAP_ICON+'</button></div>'+
-  (MYB.length?'<div class="meta">'+MYB.map(b=>'<span>'+esc(BREWERS[b].name)+'</span>').join('')+'</div>':'<p class="hint">Tell the app which brewers you own, and championship recipes adapt to them.</p>')}
+  (MYB.length?'<div class="meta">'+MYB.map(b=>'<span>'+esc(BREWERS[b].name)+'</span>').join('')+'</div>':'<p class="hint">Tell the app which brewers you own, and championship recipes adapt to them.</p><div class="actions"><button type="button" class="btn ghost" data-gpick-b>Choose your brewers</button></div>')}
 document.addEventListener('click',e=>{if(e.target.closest('[data-gpick-b]'))openGearPicker('brewers')});
 document.addEventListener('click',e=>{if(e.target.closest('[data-gpick]'))openGrinderPicker()});
 // Everything that shows grinder settings follows your grinders.
@@ -4117,7 +4128,7 @@ function renderCustomForm(){
    '<div class="field"><label for="cg-fmt">How is it set?</label><select id="cg-fmt"><option value="clicks">Clicks from fully closed</option><option value="num1">Numbered dial (1, 2, 3)</option><option value="num10">Numbered dial with 10 steps (5.6)</option><option value="num3">Numbered dial with thirds (4, 4.1, 4.2)</option><option value="rot">1Zpresso-style ring (rotation.number.click)</option></select></div></div>'+
    '<div class="two"><div class="field"><label for="cg-min">Finest setting</label><input id="cg-min" inputmode="decimal" value="0"></div><div class="field"><label for="cg-max">Coarsest setting</label><input id="cg-max" inputmode="decimal" value="40"></div></div>'+
    '<div class="two stackm"><div class="field"><label for="cg-v60">Your V60 setting</label><input id="cg-v60" inputmode="decimal" placeholder="e.g. 24"></div>'+
-   '<div class="field"><label for="cg-ref">And one more you know</label><div class="joinrow"><select id="cg-reft"><option value="espresso">Espresso</option><option value="aeropress">AeroPress</option><option value="frenchpress" selected>French press</option></select><input id="cg-ref" inputmode="decimal" placeholder="optional"></div></div></div>'+
+   '<div class="field"><label for="cg-ref">And one more you know</label><div class="joinrow"><select id="cg-reft" aria-label="Brewer for this setting"><option value="espresso">Espresso</option><option value="aeropress">AeroPress</option><option value="frenchpress" selected>French press</option></select><input id="cg-ref" inputmode="decimal" placeholder="optional"></div></div></div>'+
    '<div class="field"><label for="cg-burr">Burrs (optional)</label><input id="cg-burr" maxlength="80" placeholder="e.g. 38 mm ceramic conical"></div>'+
    '<p class="hint">The V60 setting anchors it; the second setting tells the app how far apart the settings are. Without it, the app assumes a typical spacing.</p>'+
    '<div class="actions"><button type="button" class="btn" id="cg-save">Add grinder</button></div></div>';
@@ -4413,7 +4424,8 @@ function leaveGroup(){stopStream();GROUP=null;PENDING=[];save('bb-group',null);s
 addEventListener('online',()=>{if(GROUP){flush();if(!STREAM)startStream()}});addEventListener('offline',()=>{if(GROUP)setSync('offline')});
 function inviteDoc(){const link=SITE_URL+'#join='+GROUP.code;return{link,title:'Join my brew log',sub:'Shared log code '+GROUP.code,file:'brew-log-invite',blocks:[{p:'Tap the link to see and add to our shared coffee log in The Brew Bench:'},{p:link},{p:'Or open the app, go to Log and enter the code '+GROUP.code+'.'}]}}
 function renderShare(){const el=$('l-share');if(!el)return;
-  if(!SYNC_DB){el.innerHTML='<h3>Shared log</h3><p class="hint">Log brews together with friends and see each other’s entries live. This needs a one-time setup by whoever runs the app (see the README).</p>';return}
+  // No sync server set up for this copy of the app: there is nothing to join, so the card stays out of the way.
+  el.hidden=!SYNC_DB;if(!SYNC_DB){el.innerHTML='';return}
   if(!GROUP){el.innerHTML='<h3>Shared log</h3><p class="hint" style="margin-top:0">Log brews together: everyone in the group sees each other’s entries on their own phone.</p>'+
     '<div class="field"><label for="sh-name">Your name</label><input id="sh-name" maxlength="30" placeholder="e.g. Maher" value="'+esc(ME)+'"></div>'+
     '<div class="actions"><button class="btn" id="sh-new">Start a shared log</button></div>'+
@@ -4456,17 +4468,20 @@ $('l-list').onclick=e=>{const fe=e.target.closest('[data-fledit]'),fv=e.target.c
   if(fe){const l=LOG[+fe.dataset.fledit];if(l)openNotesPicker(l);return}
   if(fv){const l=LOG[+fv.dataset.flview];if(l)openProfile(l.coffee||'Untitled',[fmtDate(l),l.stars?l.stars+' of 5 stars':'',l.settings].filter(Boolean).join(' \u00B7 '),flOf(l),l);return}
   const b=e.target.closest('[data-del]');if(!b)return;const l=LOG[+b.dataset.del];if(!l)return;
-  if(GROUP&&l.by&&l.by!==ME&&!confirm('Delete '+l.by+'’s entry for everyone?'))return;LOG.splice(+b.dataset.del,1);save('bb-log',LOG);queue('del',l.id);renderLog();toast('Entry deleted')};
+  // One tap on Delete shouldn't lose a brew and its notes: ask first, as recipes do.
+  if(!confirm(GROUP&&l.by&&l.by!==ME?'Delete '+l.by+'’s entry for everyone?':'Delete \u201c'+(l.coffee||'Untitled')+'\u201d from your log?'))return;LOG.splice(+b.dataset.del,1);save('bb-log',LOG);queue('del',l.id);renderLog();toast('Entry deleted')};
 $('l-csv').onclick=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const rows=[['Date','Coffee','Settings','Stars','Predicted','Notes','Flavour notes']].concat(LOG.map(l=>[l.date,l.coffee,l.settings,l.stars,l.pred,l.notes,flText(flOf(l))]));
   saveFile('brew-log.csv',new Blob(['\ufeff'+rows.map(r=>r.map(q).join(',')).join('\r\n')],{type:'text/csv'}))};
 
 /* ================= SCAN ================= */
 let SC=Object.assign({origin:'colombia',process:'washed',variety:'pinkbourbon',roast:'light',date:'',brewer:'v60',grinder:'zp6',info:null,name:'',roaster:''},load('bb-scan',{}));SC.name=str(SC.name,60);SC.roaster=str(SC.roaster,50);if(!MYG.includes(SC.grinder))SC.grinder=MYG[0];
-if(!PROCESSES[SC.process])SC.process='washed';if(!vById(SC.variety))SC.variety='pinkbourbon';if(!ALLO()[SC.origin])SC.origin='colombia';if(!PBREWERS.includes(SC.brewer))SC.brewer='v60';
+if(!PROCESSES[SC.process])SC.process='washed';if(!vById(SC.variety))SC.variety='pinkbourbon';if(!['light','medium','dark'].includes(SC.roast))SC.roast='light';if(!/^\d{4}-\d{2}-\d{2}$/.test(SC.date||''))SC.date='';if(!ALLO()[SC.origin])SC.origin='colombia';if(!PBREWERS.includes(SC.brewer))SC.brewer='v60';
 // Saved scans come from storage, a backup or another device: keep only well-formed ones, with known keys.
 const okScan=x=>{if(!x||typeof x!=='object'||!x.sc||typeof x.sc!=='object')return null;const c=x.sc;
   if(!PROCESSES[c.process])c.process='washed';if(!vById(c.variety))c.variety='pinkbourbon';if(!ALLO()[c.origin])c.origin='colombia';if(!['light','medium','dark'].includes(c.roast))c.roast='light';
-  for(const k of ['name','roaster','date'])if(typeof c[k]!=='string')c[k]='';if(x.info&&typeof x.info!=='object')x.info=null;return x};
+  for(const k of ['name','roaster','date'])if(typeof c[k]!=='string')c[k]='';
+  // The thumbnail goes into an <img>: only an inline picture is allowed.
+  if(typeof x.t!=='string'||!/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(x.t))x.t='';if(x.info&&typeof x.info!=='object')x.info=null;return x};
 let SCANS=load('bb-scans',[]).map(okScan).filter(Boolean),SAMPLE=null,IMGS=null,SFILE=null,SCTL=null;
 function daysSince(d){if(!d)return 14;const t=Date.parse(d);if(isNaN(t))return 14;return clamp(Math.round((Date.now()-t)/864e5),1,90)}
 function initScan(){
@@ -4843,7 +4858,7 @@ function renderScan(){
    '<div class="actions"><button class="btn" id="sc-dial">Brew it in the dial-in</button><button class="btn ghost" id="sc-timer">Start brew timer</button><button class="btn ghost" id="sc-share">Share</button></div>';
   renderScanHead();
   $('scan-out').querySelector('[data-o]').onclick=()=>{showTab('map');selectOrigin(SC.origin,true)};
-  $('sc-dial').onclick=()=>{Object.assign(S,{brewer:p.r.b,rec:c.tech,process:c.process,variety:c.variety,roast:c.roast,age:c.age,goal:c.goal,amt:c.amt||'mid',dose:p.r.dose,grinder:c.grinder});showTab('dial');tune('Tuned for this coffee')};
+  $('sc-dial').onclick=()=>{Object.assign(S,{brewer:p.st.brewer,rec:c.tech,process:c.process,variety:c.variety,roast:c.roast,age:c.age,goal:c.goal,amt:c.amt||'mid',dose:p.r.dose,grinder:p.grinder});showTab('dial');tune('Tuned for this coffee')};
   $('sc-timer').onclick=()=>openTimer(c.tech,p);$('sc-share').onclick=()=>openShare(scanDoc(p,c));
   const cp=Object.assign({},SC);save('bb-scan',cp);renderScanList();
 }
@@ -5179,7 +5194,7 @@ function syncShell(id){$('ab-title').textContent=TABNAMES[id]||'Brew Bench';$('a
 // The app bar's Share only shows when the page has something to share: a picked origin on the map, a list of recipes.
 function updShare(id){id=id||(document.querySelector('main section.on')||{}).id;
   $('ab-share').hidden=!(['dial','scan','history','log','words','flow','wheel'].includes(id)||(id==='map'&&(()=>{try{return !!SEL}catch(e){return false}})())||(id==='recipes'&&rListed()))}
-const SHEETS={explore:[['map','Origins map','50 origins on an interactive map','#4F8A74','globe'],['variety','Varieties','44 varieties, stories and Geisha types','#B5533C','leaf'],['history','History','Family tree, timeline and a quiz','#8A5A3B','hourglass'],['process','Processes','From washed to thermal shock','#D2A04A','flask'],['tech','Techniques','Every move in the brewing toolbox','#6B8E4E','drop'],['champs','World championships','Every champion, their recipes and gear','#C9964A','trophy'],['flow','From seed to cup','How coffee is made, step by step','#6E8FA8','leaf'],['words','Coffee words','A bank of '+GLOSSARY.length+' coffee terms','#9A7390','book'],['wheel','Flavour wheel','Name what you taste, then save it with your brews','#C4473F','wheel']],
+const SHEETS={explore:[['map','Origins map',Object.keys(ALLO()).length+' origins on an interactive map','#4F8A74','globe'],['variety','Varieties',V.length+' varieties, stories and Geisha types','#B5533C','leaf'],['history','History','Family tree, timeline and a quiz','#8A5A3B','hourglass'],['process','Processes','From washed to thermal shock','#D2A04A','flask'],['tech','Techniques','Every move in the brewing toolbox','#6B8E4E','drop'],['champs','World championships','Every champion, their recipes and gear','#C9964A','trophy'],['flow','From seed to cup','How coffee is made, step by step','#6E8FA8','leaf'],['words','Coffee words','A bank of '+GLOSSARY.length+' coffee terms','#9A7390','book'],['wheel','Flavour wheel','Name what you taste, then save it with your brews','#C4473F','wheel']],
   more:[['gear','Gear and dials','Grinders, brewers and dial reading','#6E8FA8','cog'],['guide','Guide','Ratio calculator and troubleshooting','#C9964A','book'],['log','Brew log','Your brews, ratings and exports','#6B8E4E','pencil']]};
 /* Explore and More are pages, like Brew, Recipes and Scan: tiles grouped by what they're for. */
 const HUB={explore:[['Where coffee comes from',['map','variety','process','flow']],['How to brew and taste',['tech','wheel','words']],['The people and the story',['history','champs']]],
@@ -5202,7 +5217,8 @@ const LOGOS={bean:['Bean',null],
   kettle:['Kettle','<path d="M5 10h10v8a2.5 2.5 0 0 1-2.5 2.5h-5A2.5 2.5 0 0 1 5 18z" fill="var(--cherry)"/><path d="M15 13c3.2 0 4-4.5 6.5-6.5" stroke="var(--cherry)" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M7.5 6.5h5L14 10H6z" fill="var(--honey)"/><path d="M10 4.5v2" stroke="var(--honey)" stroke-width="1.8" stroke-linecap="round"/>']};
 if(!LOGOS[UI.logo])UI.logo='bean';delete UI.name;if(!['s','m','l','xl'].includes(UI.text))UI.text='m';if(!['full','reduced'].includes(UI.motion))UI.motion='full';if(!['dial','recipes','scan','explore'].includes(UI.start))UI.start='dial';
 const BEAN_SVG=$('ab-logo').innerHTML;
-const logoSVG=(k,sz)=>k==='bean'?BEAN_SVG.replace(/width="24" height="24"/,'width="'+sz+'" height="'+sz+'"'):'<svg viewBox="0 0 24 24" width="'+sz+'" height="'+sz+'" aria-hidden="true">'+LOGOS[k][1]+'</svg>';
+// Each copy of the bean gets its own clip id: two elements with one id can draw the wrong (or no) bean.
+const logoSVG=(k,sz)=>k==='bean'?BEAN_SVG.replace(/width="24" height="24"/,'width="'+sz+'" height="'+sz+'"').replace(/abBean/g,sz===24?'abBean':'abBean'+sz):'<svg viewBox="0 0 24 24" width="'+sz+'" height="'+sz+'" aria-hidden="true">'+LOGOS[k][1]+'</svg>';
 // The browser tab icon follows the chosen logo and colours.
 function setFavicon(){try{const cs=getComputedStyle(document.documentElement),col=v=>cs.getPropertyValue(v).trim()||'#8A5A3B';
   const svg=logoSVG(UI.logo,64).replace('<svg ','<svg xmlns="http://www.w3.org/2000/svg" ').replace(/var\((--[a-z-]+)\)/g,(m,v)=>col(v));
