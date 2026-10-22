@@ -92,9 +92,9 @@ const GRINDER_LIB={
   q2:{name:'Q2 / Q Air',full:'1Zpresso Q2 S and Q Air',type:'manual',brand:'1Zpresso',fmt:'rot',per:30,um:25,min:8,max:90,v60:48,k:26,body:0.5,clarity:-0.1,espresso:false,
     burr:'38 mm heptagonal conical steel burrs',adjust:'Internal dial: 3 numbers per turn, 10 clicks per number, 30 clicks per rotation, about 25 microns per click',
     range:'AeroPress roughly 1.0.0 to 1.2.0; V60 roughly 1.1.5 to 1.2.5; French press 2.0.0 and up.',cup:'Sweet and a little heavier than bigger burrs.',use:'Small travel grinder for filter.'},
-  cmdred:{name:'C40 + Red Clix',full:'Comandante C40 with Red Clix',type:'manual',brand:'Comandante',fmt:'num',unit:'clicks',sub:1,first:0,um:15,min:8,max:90,v60:50,k:27.5,body:0.3,clarity:0.4,espresso:true,
+  cmdred:{name:'C40 + Red Clix',full:'Comandante C40 with Red Clix',type:'manual',brand:'Comandante',fmt:'num',unit:'clicks',sub:1,first:0,um:15,min:8,max:90,v60:50,k:27.5,pts:[[8,450],[16,573],[36,968],[50,1232],[66,1716],[90,2400]],body:0.3,clarity:0.4,espresso:true,
     burr:'39 mm "Nitro Blade" conical burrs',adjust:'Red Clix axle doubles the clicks: about 15 microns per click, counted from fully closed',
-    range:'Espresso about 12 to 20 clicks, AeroPress about 30 to 40, V60 about 44 to 56.',cup:'The C40 cup with finer steps.',use:'When you want espresso and filter from a Comandante.'},
+    range:'Espresso about 12 to 20 clicks, AeroPress about 30 to 40, V60 about 44 to 56, French press about 60 to 70.',cup:'The C40 cup with finer steps.',use:'When you want espresso and filter from a Comandante.'},
   c2:{name:'Timemore C2',full:'Timemore Chestnut C2',type:'manual',brand:'Timemore',fmt:'num',unit:'clicks',sub:1,first:0,min:3,max:36,v60:19,k:50,body:0.4,clarity:-0.4,espresso:false,
     burr:'38 mm stainless steel conical burrs',adjust:'Count clicks from fully closed. Stay above 3 clicks: finer can dull the burrs.',
     range:'AeroPress about 14 to 18 clicks, V60 about 18 to 22, French press about 26 to 30.',cup:'Sweet and full, with more fines.',use:'Entry-level pour-over.'},
@@ -134,9 +134,9 @@ const GRINDER_LIB={
   opus:{name:'Fellow Opus',full:'Fellow Opus Conical Burr Grinder',type:'electric',brand:'Fellow',fmt:'num',sub:4,first:1,min:0,max:40,v60:18,k:36,body:0.6,clarity:-0.3,espresso:true,
     burr:'40 mm conical steel burrs',adjust:'Dial 1 to 11 with three marks between numbers (41 settings), plus an inner ring for finer espresso steps',
     range:'Espresso about 1 to 2 (use the inner ring), AeroPress about 3.2 to 4.2, V60 about 4.3 to 6, French press about 8 to 10.',cup:'Balanced with some body.',use:'Espresso to cold brew on one grinder.'},
-  sgp:{name:'Breville Smart Grinder Pro',full:'Breville (Sage) Smart Grinder Pro',type:'electric',brand:'Breville',fmt:'num',sub:1,first:1,min:0,max:59,v60:23,k:24,pts:[[0,380],[11,573],[23,1232],[53,1716],[59,1810]],body:0.4,clarity:-0.5,espresso:true,
+  sgp:{name:'Breville Smart Grinder Pro',full:'Breville (Sage) Smart Grinder Pro',type:'electric',brand:'Breville',fmt:'num',sub:1,first:1,min:0,max:59,v60:23,k:24,pts:[[0,380],[11,573],[23,1232],[29,1408],[53,1716],[59,1810]],body:0.4,clarity:-0.5,espresso:true,
     burr:'40 mm conical steel burrs',adjust:'60 numbered settings with a timer; the espresso settings are packed into the low numbers, so steps are not even',
-    range:'Espresso about 8 to 15, pour-over about 18 to 28, French press about 50 to 60.',cup:'Fuller body, some fines.',use:'Espresso machines and everyday brewing.'},
+    range:'Espresso about 8 to 15, pour-over about 18 to 30 (V60 near 24, Chemex near 30), French press about 50 to 60.',cup:'Fuller body, some fines.',use:'Espresso machines and everyday brewing.'},
   oxo:{name:'OXO Conical Burr',full:'OXO Brew Conical Burr Grinder',type:'electric',brand:'OXO',fmt:'num',sub:1,first:1,min:0,max:14,v60:7,k:80,body:0.4,clarity:-0.6,espresso:false,
     burr:'40 mm conical steel burrs',adjust:'15 numbered settings',
     range:'AeroPress about 4 to 6, V60 about 7 to 9, French press about 12 to 15.',cup:'Full body, forgiving.',use:'Drip and French press.'},
@@ -254,9 +254,14 @@ let LOG=load('bb-log',[]),LFL=[];
 
 /* ================= MODEL ================= */
 // The recipe's own settings sit at its brewer's sweet spot; a cold or out-of-range temperature counts as the brewer's nearest one.
-function rBias(r){const B=BREWERS[r.b];return -(0.45*r.off+(clamp(r.temp||B.temp.def,B.temp.min,B.temp.max)-93)/3*0.35+(r.water/r.dose-B.ratio.ref)*B.ratio.k)}
+/* How much each lever moves extraction (D = 0 is the sweet spot's centre, ±0.45 its edges).
+   KG: one recipe step of grind (160 on the shared size scale, about 7 ZP6 clicks or 160 microns).
+   KT: one degree of water. Grind is the bigger lever: in brewing studies a 5 °C change moves extraction about as much as
+   a few clicks, so 1 °C is worth roughly one ZP6 click. Temperatures count from the brewer's own default. */
+const KG=0.45,KT=0.2/3;
+function rBias(r){const B=BREWERS[r.b];return -(KG*r.off+(clamp(r.temp||B.temp.def,B.temp.min,B.temp.max)-B.temp.def)*KT+(r.water/r.dose-B.ratio.ref)*B.ratio.k)}
 // A longer bloom extracts a little more, with diminishing returns past 75 s (a 3-minute bloom is not four times a 45 s one).
-const bloomE=(b,B)=>{const d=b-B.bloom.def,over=Math.max(0,b-75);return (d-over*0.75)/15*0.12};
+const bloomE=(b,B)=>{const d=b-B.bloom.def,over=Math.max(0,b-75);return (d-over*0.75)/15*0.09};
 function compute(st){
   const G=GRINDERS[st.grinder],B=BREWERS[st.brewer],P=PROCESSES[st.process],Vp=vParams(st.variety);
   const step=stepsBetween(st.grinder,baseX(st.grinder,st.brewer),st.setting);
@@ -264,7 +269,7 @@ function compute(st){
   const rec=st.rec!=null&&RECIPES[st.rec]&&sameFam(RECIPES[st.rec].b,st.brewer)?RECIPES[st.rec]:null;
   // A smaller dose than the recipe's drains faster through a dripper, so the same grind extracts a little less.
   const dadj=rec&&st.dose>0&&['Cone dripper','Flat-bottom dripper'].includes(B.type)?clamp(Math.round(-0.6*Math.log2(st.dose/rec.dose)*10)/10,-1,1):0;
-  const E=0.45*(step-dadj)+(st.temp-93)/3*0.35+bloomE(st.bloom,B)+agit+(st.ratio-B.ratio.ref)*B.ratio.k+roastE+(rec?rBias(rec):0);
+  const E=KG*(step-dadj)+(st.temp-B.temp.def)*KT+bloomE(st.bloom,B)+agit+(st.ratio-B.ratio.ref)*B.ratio.k+roastE+(rec?rBias(rec):0);
   const D=E-(P.t+Vp.t);
   const roastAcid={light:1,medium:0,dark:-2}[st.roast], roastBit={light:0,medium:0.6,dark:2}[st.roast];
   const strengthTerm=B.ratio.ref>10?(B.ratio.ref-st.ratio)*0.5:(B.ratio.ref-st.ratio)*1.2;
@@ -354,14 +359,19 @@ const isTuned=()=>!!S.tuned&&TUNED_KEYS.every(k=>S.tuned[k]===S[k]);
 // How true the current settings are to the chosen target cup. Each target is planned for this coffee, recipe and dose;
 // the target whose planned cup sits nearest the cup the current settings make is what you're actually brewing.
 // share: how much closer the chosen target is than the next nearest (1 = right on it, under 0.5 = another is closer).
-// Beyond this distance from the target's own settings it counts as drifting, however the others compare.
-const FIT_R=2.2,FIT_HONEY='#C9964A',FIT_ROAST='#A8432F';
+// FIT_R: how far your settings can move from the target's own cup and still make it; FIT_OFF: past this, and nearer
+// another target's cup, you are brewing that other cup.
+const FIT_R=2.2,FIT_OFF=4.5,FIT_HONEY='#C9964A',FIT_ROAST='#A8432F';
 function cupFit(){if(!dialRec())return null;const B=BREWERS[S.brewer];
   const feats=st=>{const c=compute(st);return [c.D/0.15,c.acid/0.4,c.body/0.4,c.clarity/0.4,-st.ratio/B.ratio.step*0.6,c.sweet/0.4]};
   const cur=feats(S),d={};
   for(const [g] of GOALS){const p=plan(Object.assign(dialCtx(),{goal:g,amt:g===S.goal?S.amt:'mid'}));d[g]=Math.hypot(...feats(Object.assign({},S,p.st)).map((x,i)=>x-cur[i]))}
   const near=GOALS.map(x=>x[0]).filter(g=>g!==S.goal).sort((a,b)=>d[a]-d[b])[0],share=d[near]/((d[S.goal]+d[near])||1);
-  return {state:share<0.5?'off':share<0.56||d[S.goal]>FIT_R?'drift':'on',share,near,dSel:d[S.goal]}}
+  const ds=d[S.goal],state=ds<=FIT_R?'on':share<0.5&&ds>FIT_OFF?'off':'drift';
+  // One score for the colour, the marker and the percentage: 1 at the target's own settings, 0.56 at the edge of
+  // "on target", 0.5 at the point where another cup takes over.
+  const score=state==='on'?0.56+0.44*(1-ds/FIT_R):state==='drift'?0.5+0.06*clamp((FIT_OFF-ds)/(FIT_OFF-FIT_R),0,1):Math.min(share,0.499);
+  return {state,share,score,near,dSel:ds}}
 function renderFit(){const el=$('g-fit'),f=cupFit();
   document.querySelectorAll('#g-goal button').forEach(b=>{b.classList.remove('fit-near','fit-lean');b.style.removeProperty('--fitc')});
   if(!el)return f;el.hidden=!f;if(!f)return f;
@@ -370,11 +380,11 @@ function renderFit(){const el=$('g-fit'),f=cupFit();
   const me=CUPW[S.goal],nw=CUPW[f.near],nn=GOALN[f.near],cur=document.querySelector('#g-goal button[data-v="'+S.goal+'"]'),nb=document.querySelector('#g-goal button[data-v="'+f.near+'"]');
   // The chosen pebble keeps its fill and gets a border that follows the fit, in coffee tones: the theme colour on target, through caramel as the
   // cup drifts, to roast red once another target is closer. It blends smoothly as the settings move.
-  const t=f.share,col=t>=0.56?'color-mix(in srgb,var(--cherry) '+Math.round(Math.min(1,(t-0.56)/0.3)*100)+'%,'+FIT_HONEY+')'
+  const t=f.score,col=t>=0.56?'color-mix(in srgb,var(--cherry) '+Math.round(Math.min(1,(t-0.56)/0.3)*100)+'%,'+FIT_HONEY+')'
     :t>=0.5?'color-mix(in srgb,'+FIT_HONEY+' '+Math.round((t-0.5)/0.06*100)+'%,'+FIT_ROAST+')':FIT_ROAST;
   if(cur&&f.state!=='on')cur.style.setProperty('--fitc',col);if(nb&&f.state!=='on')nb.classList.add(f.state==='off'?'fit-near':'fit-lean')
   el.style.setProperty('--fc',col);
-  const pct=Math.round(f.share*100),title=f.state==='on'?'On target':f.state==='drift'?'Drifting':'Closer to '+nn;
+  const pct=Math.round(f.score*100),title=f.state==='on'?'On target':f.state==='drift'?'Drifting':'Closer to '+nn;
   const txt=f.state==='on'?'Your settings still make a '+me+' cup.'
     :f.state==='drift'?'Your changes are pulling away from a '+me+' cup. A little further and it turns '+nw+'.'
     :'Your settings now make a '+nw+' cup, not a '+me+' one.';
@@ -445,9 +455,10 @@ function render(){
   const tips=[];
   {const bx=baseX(S.grinder,S.brewer),off=bx==null?0:stepsBetween(S.grinder,bx,S.setting);
     if(Math.abs(off)>2.5)tips.push('<b>'+esc(gLabel(S.grinder,S.setting))+' is much '+(off>0?'finer':'coarser')+' than '+art(brewName(B.name))+' '+esc(brewName(B.name))+' usually needs.</b> Most brews start around '+esc(dial(S.grinder,Math.round(bx)))+'. <button type="button" class="linkbtn" data-reset-grind>Reset to '+esc(dial(S.grinder,Math.round(bx)))+'</button>')}
-  if(Math.abs(r.D)>0.4){const bx0=baseX(S.grinder,S.brewer);let t=roundG(S.grinder,shift(S.grinder,S.setting,r.D/0.45*160));
+  if(Math.abs(r.D)>0.45){const bx0=baseX(S.grinder,S.brewer);let t=roundG(S.grinder,shift(S.grinder,S.setting,r.D/KG*160));
     // Stay inside the brewer's usual window (about 1.5 recipe steps either side of its baseline); the water temperature does the rest.
-    if(bx0!=null){const lo=roundG(S.grinder,shift(S.grinder,bx0,-240)),hi=roundG(S.grinder,shift(S.grinder,bx0,240));t=r.D>0?Math.min(t,Math.max(hi,S.setting)):Math.max(t,Math.min(lo,S.setting))}const diff=Math.abs(t-S.setting);const ta=clamp(Math.round(S.temp-r.D/0.35*3),B.temp.min,B.temp.max);
+    if(bx0!=null){const lo=roundG(S.grinder,shift(S.grinder,bx0,-240)),hi=roundG(S.grinder,shift(S.grinder,bx0,240));t=r.D>0?Math.min(t,Math.max(hi,S.setting)):Math.max(t,Math.min(lo,S.setting))}const diff=Math.abs(t-S.setting);// Water alone is offered only when a few degrees will do it; past that the grind is the right lever.
+    const dTa=-r.D/KT,ta=Math.abs(dTa)<=6?clamp(Math.round(S.temp+dTa),B.temp.min,B.temp.max):S.temp;
     const unit=(G.fmt==='rot'||G.unit==='clicks'?'click':'step')+(diff===1?'':'s'),way=r.D>0?'coarser':'finer';
     if(diff)tips.push('To land in the sweet spot, try <b>'+gLabel(S.grinder,t)+'</b> ('+diff+' '+unit+' '+way+')'+(ta!==S.temp?', or keep the grind and move the water to <b>'+ta+'°C</b>.':'.'));
     else tips.push('The '+esc(G.name)+' is at the '+(r.D>0?'coarse':'fine')+' end of its range here'+(ta!==S.temp?', so move the water to <b>'+ta+'°C</b> instead.':'. Try another grinder or brewer.'))}
@@ -581,8 +592,8 @@ function plan(c){
   const dadj=perc?clamp(Math.round(-0.6*Math.log2(f_)*10)/10,-1,1):0;
   if(dadj)why.push((dadj>0?'A smaller':'A bigger')+' dose than the recipe\u2019s '+r.dose+'g: grind a little '+(dadj>0?'finer':'coarser')+', because '+(dadj>0?'a shallower bed drains faster.':'a deeper bed drains slower.'));
   const agv={low:-0.25,med:0,high:0.25}[agit], roastE={light:0,medium:0.25,dark:0.6}[c.roast];
-  const rest=(temp-clamp(r.temp||B.temp.def,B.temp.min,B.temp.max))/3*0.35+bloomE(bloom,B)+agv+(ratio-r.water/r.dose)*B.ratio.k+roastE-(P.t+Vp.t);
-  const step=r.off+dadj+(Dt-rest)/0.45;
+  const rest=(temp-clamp(r.temp||B.temp.def,B.temp.min,B.temp.max))*KT+bloomE(bloom,B)+agv+(ratio-r.water/r.dose)*B.ratio.k+roastE-(P.t+Vp.t);
+  const step=r.off+dadj+(Dt-rest)/KG;
   const set={};for(const g of new Set([...MYG,grinder]))set[g]=canGrind(g,bb)?roundG(g,shift(g,baseX(g,bb),-step*160)):null;
   const water=+gfmt(dose*ratio);
   const st={grinder,setting:set[grinder],brewer:bb,temp,ratio,bloom,agit,roast:c.roast,process:c.process,variety:c.variety,rec:c.tech};
@@ -681,7 +692,7 @@ function paint(){const el=TM.el,C=2*Math.PI*96;$('tm-big').textContent=mmss(el);
 // Heavy tabs are built the first time they are opened, which keeps startup quick.
 const LAZY={champs:renderChamps,words:renderWords,wheel:renderWheelTab,flow:renderFlow,gear:buildGear,recipes:renderRecipes,tech:renderTech,process:renderProcesses,variety:renderVarieties,map:buildMap,history:()=>{buildTree();startQuiz()}},BUILT={};
 // Explore and More re-render each visit: the word of the day, your counts and the theme can change.
-const ALWAYS={explore:()=>renderExplore(),settings:()=>renderSettings()};
+const ALWAYS={explore:()=>renderExplore(),settings:()=>renderSettings(),beans:()=>{if(window.BEANS_OK)renderBeans()}};
 function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove());if(LAZY[id]&&!BUILT[id]){BUILT[id]=1;LAZY[id]()}if(ALWAYS[id])ALWAYS[id]()}
 // NAVD counts tab changes you can step back through, so the app bar can offer a back button.
 let BACKING=false,PEND_TAB=null,NAVD=0;
@@ -1907,9 +1918,12 @@ function renderScan(){
   $('scan-out').innerHTML='<div id="scan-head"></div>'+(inf?(inf.summary?'<p class="hint">'+esc(inf.summary)+'</p>':'')+(kv.length?'<dl class="kv">'+kv.map(([k,v])=>'<dt>'+k+'</dt><dd>'+esc(v)+'</dd>').join('')+'</dl>':''):'<p class="hint">Scan a bag or fill in the details to get a plan.</p>')+
    '<div class="chips"><button class="chip" data-o="'+SC.origin+'">'+(o.flag||'')+' '+esc(o.name)+'</button>'+vbtn(SC.variety.split(':')[0])+'<span class="chip">'+esc(P.name)+'</span><span class="chip">'+age+' days off roast</span></div>'+
    '<h3>Recommended brew</h3>'+planHTML(p,c)+
-   '<div class="actions"><button class="btn" id="sc-dial">Brew it in the dial-in</button><button class="btn ghost" id="sc-timer">Start brew timer</button><button class="btn ghost" id="sc-share">Share</button></div>';
+   '<div class="actions"><button class="btn" id="sc-dial">Brew it in the dial-in</button><button class="btn ghost" id="sc-gallery">Add to the bean gallery</button><button class="btn ghost" id="sc-timer">Start brew timer</button><button class="btn ghost" id="sc-share">Share</button></div>';
   renderScanHead();
   $('scan-out').querySelector('[data-o]').onclick=()=>{showTab('map');selectOrigin(SC.origin,true)};
+  $('sc-gallery').onclick=async()=>{let photo=null;if(SFILE&&$('scan-prev').src)try{photo=await shrinkPhoto($('scan-prev').src,900)}catch(e){}
+    openBeanEditor(null,{name:SC.name||(inf&&plausibleName(inf.coffee_name)?niceName(inf.coffee_name):''),roaster:SC.roaster,origin:SC.origin,process:SC.process,variety:SC.variety,roast:SC.roast,roastDate:SC.date||'',
+      flavours:inf&&Array.isArray(inf.tasting_notes)?inf.tasting_notes.join(', ').slice(0,160):'',photo})};
   $('sc-dial').onclick=()=>{Object.assign(S,{brewer:p.st.brewer,rec:c.tech,process:c.process,variety:c.variety,roast:c.roast,age:c.age,goal:c.goal,amt:c.amt||'mid',dose:p.r.dose,grinder:p.grinder});showTab('dial');tune('Tuned for this coffee')};
   $('sc-timer').onclick=()=>openTimer(c.tech,p);$('sc-share').onclick=()=>openShare(scanDoc(p,c));
   const cp=Object.assign({},SC);save('bb-scan',cp);renderScanList();
@@ -2238,8 +2252,8 @@ const ICO={wheel:'M21 12a9 9 0 1 1-18 0a9 9 0 1 1 18 0z M12 3v9l7.8 4.5 M12 12l-
 const installed=()=>!!window.Capacitor||MQ('(display-mode: standalone)')||navigator.standalone===true;
 const ico=(n,bg)=>'<span class="ic" style="background:'+bg+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+ICO[n]+'"/></svg></span>';
 
-const TABNAMES={explore:'Explore',settings:'Settings',champs:'World championships',words:'Coffee words',wheel:'Flavour wheel',flow:'From seed to cup',dial:'Dial-in',scan:'Scan beans',gear:'Gear and dials',recipes:'Recipes',tech:'Techniques',process:'Processes',map:'Origins map',variety:'Varieties',history:'History',guide:'Guide',log:'Brew log'};
-const BNGROUP={explore:'explore',settings:'settings',champs:'explore',words:'explore',wheel:'explore',flow:'explore',dial:'dial',recipes:'recipes',scan:'scan',map:'explore',variety:'explore',history:'explore',process:'explore',tech:'explore',gear:'settings',guide:'settings',log:'settings'};
+const TABNAMES={explore:'Explore',settings:'Settings',champs:'World championships',words:'Coffee words',wheel:'Flavour wheel',flow:'From seed to cup',dial:'Dial-in',scan:'Scan beans',gear:'Gear and dials',recipes:'Recipes',tech:'Techniques',process:'Processes',map:'Origins map',variety:'Varieties',history:'History',guide:'Guide',log:'Brew log',beans:'Bean gallery'};
+const BNGROUP={explore:'explore',settings:'settings',champs:'explore',words:'explore',wheel:'explore',flow:'explore',dial:'dial',recipes:'recipes',scan:'scan',map:'explore',variety:'explore',history:'explore',process:'explore',tech:'explore',gear:'settings',guide:'settings',log:'settings',beans:'scan'};
 function syncShell(id){$('ab-title').textContent=TABNAMES[id]||'Brew Bench';$('ab-back').hidden=NAVD<1;document.body.className=document.body.className.replace(/\bt-\w+/g,'').trim()+' t-'+id;
   document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));movePill();
   updShare(id)}
@@ -2296,19 +2310,22 @@ function saveUI(){save('bb-ui',UI);applyUI()}
 const DATA_SKIP=['bb-reset','bb-pending'];
 function dataKeys(){const k=[];try{for(let i=0;i<localStorage.length;i++){const n=localStorage.key(i);if(n&&n.startsWith('bb-')&&!DATA_SKIP.includes(n))k.push(n)}}catch(e){}return k.sort()}
 function dataSummary(){const n=k=>{let v=null;try{v=JSON.parse(localStorage.getItem(k)||'null')}catch(e){}return Array.isArray(v)?v.length:v&&typeof v==='object'?Object.keys(v).length:0};
-  return [[n('bb-myrecipes'),'recipe'],[n('bb-log'),'brew'],[n('bb-scans'),'scan'],[n('bb-favs'),'favourite']].filter(x=>x[0]).map(([c,w])=>c+' '+w+(c===1?'':'s')).join(', ')||'Nothing saved yet besides your settings'}
+  return [[n('bb-myrecipes'),'recipe'],[n('bb-log'),'brew'],[n('bb-beans'),'gallery coffee'],[n('bb-scans'),'scan'],[n('bb-favs'),'favourite']].filter(x=>x[0]).map(([c,w])=>c+' '+w+(c===1?'':'s')).join(', ')||'Nothing saved yet besides your settings'}
 async function exportData(){const data={};for(const k of dataKeys()){try{data[k]=localStorage.getItem(k)}catch(e){}}
   const d=new Date(),day=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-  const blob=new Blob([JSON.stringify({app:'brew-bench',kind:'backup',version:1,exported:d.toISOString(),data},null,1)],{type:'application/json'});
+  // Gallery photos live outside localStorage, so they travel in the backup alongside it.
+  const images=await BIMG.all();
+  const blob=new Blob([JSON.stringify({app:'brew-bench',kind:'backup',version:2,exported:d.toISOString(),data,images},null,1)],{type:'application/json'});
   await saveFile('brew-bench-backup-'+day+'.json',blob)}
-function importData(file){if(!file)return;if(file.size>8e6){toast('That file is too big to be a Brew Bench backup');return}
+function importData(file){if(!file)return;if(file.size>80e6){toast('That file is too big to be a Brew Bench backup');return}
   const rd=new FileReader();rd.onload=()=>{let j;try{j=JSON.parse(rd.result)}catch(e){toast('That file isn’t a Brew Bench backup');return}
     if(!j||j.app!=='brew-bench'||!j.data||typeof j.data!=='object'){toast('That file isn’t a Brew Bench backup');return}
     const ent=Object.entries(j.data).filter(([k,v])=>/^bb-[a-z0-9-]{1,40}$/.test(k)&&typeof v==='string'&&!DATA_SKIP.includes(k));if(!ent.length){toast('That backup is empty');return}
     const when=j.exported?new Date(j.exported).toLocaleDateString():'an earlier date';
     if(!confirm('Replace the data on this device with the backup from '+when+'? Your current recipes, log, scans and settings here will be overwritten.'))return;
     try{for(const k of dataKeys())localStorage.removeItem(k);for(const [k,v] of ent)localStorage.setItem(k,v)}catch(e){toast('Couldn’t restore the backup: storage is full or blocked');return}
-    toast('Backup restored');setTimeout(()=>location.reload(),600)};
+    const imgs=j.images&&typeof j.images==='object'?Object.entries(j.images).filter(([k,v])=>/^[a-z0-9]{4,24}$/.test(k)&&typeof v==='string'&&v.startsWith('data:image/')):[];
+    (async()=>{await BIMG.clear();for(const [k,v] of imgs)await BIMG.put(k,v);toast('Backup restored');setTimeout(()=>location.reload(),600)})()};
   rd.onerror=()=>toast('Couldn’t read that file');rd.readAsText(file)}
 function renderSettings(){const t=document.documentElement.getAttribute('data-theme')||'auto';
   const row=(icon,bg,title,sub,body)=>'<div class="setrow"><div class="sl">'+ico(icon,bg)+'<span class="mt"><b>'+title+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</span></div>'+(body||'')+'</div>';
