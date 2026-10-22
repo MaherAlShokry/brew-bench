@@ -351,6 +351,43 @@ const dialRec=()=>S.rec!=null&&RECIPES[S.rec]&&(sameFam(RECIPES[S.rec].b,S.brewe
 const dialCtx=()=>({brewer:S.brewer,grinder:S.grinder,tech:S.rec,process:S.process,variety:S.variety,roast:S.roast,age:S.age,goal:S.goal,amt:S.amt,dose:S.dose});
 const TUNED_KEYS=['grinder','setting','temp','ratio','bloom','agit'];
 const isTuned=()=>!!S.tuned&&TUNED_KEYS.every(k=>S.tuned[k]===S[k]);
+// How true the current settings are to the chosen target cup. Each target is planned for this coffee, recipe and dose;
+// the target whose planned cup sits nearest the cup the current settings make is what you're actually brewing.
+// share: how much closer the chosen target is than the next nearest (1 = right on it, under 0.5 = another is closer).
+// Beyond this distance from the target's own settings it counts as drifting, however the others compare.
+const FIT_R=2.2,FIT_HONEY='#C9964A',FIT_ROAST='#A8432F';
+function cupFit(){if(!dialRec())return null;const B=BREWERS[S.brewer];
+  const feats=st=>{const c=compute(st);return [c.D/0.15,c.acid/0.4,c.body/0.4,c.clarity/0.4,-st.ratio/B.ratio.step*0.6,c.sweet/0.4]};
+  const cur=feats(S),d={};
+  for(const [g] of GOALS){const p=plan(Object.assign(dialCtx(),{goal:g,amt:g===S.goal?S.amt:'mid'}));d[g]=Math.hypot(...feats(Object.assign({},S,p.st)).map((x,i)=>x-cur[i]))}
+  const near=GOALS.map(x=>x[0]).filter(g=>g!==S.goal).sort((a,b)=>d[a]-d[b])[0],share=d[near]/((d[S.goal]+d[near])||1);
+  return {state:share<0.5?'off':share<0.56||d[S.goal]>FIT_R?'drift':'on',share,near,dSel:d[S.goal]}}
+function renderFit(){const el=$('g-fit'),f=cupFit();
+  document.querySelectorAll('#g-goal button').forEach(b=>{b.classList.remove('fit-near','fit-lean');b.style.removeProperty('--fitc')});
+  if(!el)return f;el.hidden=!f;if(!f)return f;
+  // How each target's cup is described in a sentence.
+  const CUPW={balance:'balanced',sweet:'sweeter',bright:'brighter',clean:'clearer',tea:'tea-like',body:'fuller-bodied',strong:'stronger'};
+  const me=CUPW[S.goal],nw=CUPW[f.near],nn=GOALN[f.near],cur=document.querySelector('#g-goal button[data-v="'+S.goal+'"]'),nb=document.querySelector('#g-goal button[data-v="'+f.near+'"]');
+  // The chosen pebble keeps its fill and gets a border that follows the fit, in coffee tones: the theme colour on target, through caramel as the
+  // cup drifts, to roast red once another target is closer. It blends smoothly as the settings move.
+  const t=f.share,col=t>=0.56?'color-mix(in srgb,var(--cherry) '+Math.round(Math.min(1,(t-0.56)/0.3)*100)+'%,'+FIT_HONEY+')'
+    :t>=0.5?'color-mix(in srgb,'+FIT_HONEY+' '+Math.round((t-0.5)/0.06*100)+'%,'+FIT_ROAST+')':FIT_ROAST;
+  if(cur&&f.state!=='on')cur.style.setProperty('--fitc',col);if(nb&&f.state!=='on')nb.classList.add(f.state==='off'?'fit-near':'fit-lean')
+  el.style.setProperty('--fc',col);
+  const pct=Math.round(f.share*100),title=f.state==='on'?'On target':f.state==='drift'?'Drifting':'Now closer to '+nn;
+  const txt=f.state==='on'?'Your settings still make a '+me+' cup.'
+    :f.state==='drift'?'Your changes are pulling away from a '+me+' cup. A little further and it turns '+nw+'.'
+    :'Your settings now make a '+nw+' cup, not a '+me+' one.';
+  el.className='fit fit-'+f.state;
+  // The marker sits on three even zones (another cup · drifting · on target), so it lines up with the scale labels.
+  const pos=Math.max(2,Math.min(98,t<0.5?(t-0.35)/0.15*33:t<0.56?33+(t-0.5)/0.06*33:66+(t-0.56)/0.44*34));
+  const icon=f.state==='on'?'M5 9h12v4a6 6 0 0 1-6 6h0a6 6 0 0 1-6-6z M17 10h1.5a2.5 2.5 0 0 1 0 5H17 M9 3c-1 1.5 1 2.5 0 4 M13 3c-1 1.5 1 2.5 0 4'
+    :f.state==='drift'?'M12 3v10 M12 17v.5 M4.5 20h15L12 4z':'M4 8h14 M15 5l3 3-3 3 M20 16H6 M9 13l-3 3 3 3';
+  el.innerHTML='<div class="fit-head"><span class="fit-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+icon+'"/></svg></span><div class="fit-tx"><b>'+esc(title)+'</b><small>'+esc(txt)+'</small></div>'+
+    '<div class="fit-pct"><b>'+pct+'%</b><small>'+esc(me)+'</small></div></div>'+
+    '<div class="gauge fit-g" role="meter" aria-label="How close to '+esc(GOALN[S.goal])+'" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+pct+'"><i style="left:'+pos.toFixed(1)+'%"></i></div>'+
+    '<div class="gscale"><span>Another cup</span><span>Drifting</span><span>On target</span></div>'+
+    (f.state==='on'?'':'<div class="actions fit-act"><button type="button" class="btn ghost" data-retune>Re-tune for '+esc(GOALN[S.goal])+'</button>'+(f.state==='off'?'<button type="button" class="btn ghost" data-fitgo="'+f.near+'">Switch to '+esc(nn)+'</button>':'')+'</div>');return f}
 function tune(msg){if(!dialRec())return;const p=plan(dialCtx());Object.assign(S,p.st);{const B=BREWERS[S.brewer];S.temp=clamp(S.temp,B.temp.min,B.temp.max);S.bloom=clamp(S.bloom,B.bloom.min,B.bloom.max)}S.tuned=Object.fromEntries(TUNED_KEYS.map(k=>[k,S[k]]));render();if(msg)toast(msg)}
 // Inputs that change the plan re-tune while you haven't moved the sliders yourself.
 function retuneIfAuto(msg){if(dialRec()&&(isTuned()||!S.tuned))tune(msg);else render()}
@@ -363,9 +400,10 @@ function renderDialRecipe(){const tl=techList(S.brewer),r=dialRec();
   if(!r){$('d-recipe').hidden=true;$('d-recipe').innerHTML='';return}
   const dp=dialPlan(),p=dp.p,tuned=isTuned();
   if(document.activeElement!==$('i-dose'))$('i-dose').value=S.dose;$('v-water').textContent=dp.water+'g';
-  seg('g-goal',GOALS,()=>S.goal,v=>{S.goal=v;tune(v==='balance'?'Back to the recipe as written':'Tuned for a '+GOALN[v].toLowerCase()+' cup')});
+  seg('g-goal',GOALS,()=>S.goal,v=>{S.goal=v;tune()});
   $('g-amtrow').hidden=S.goal==='balance';$('g-gdesc').textContent=GSPEC[S.goal].d;
-  seg('g-amt',Object.keys(AMTS).map(k=>[k,AMTS[k].n]),()=>S.amt,v=>{S.amt=v;tune(goalLabel(S.goal,v))});
+  seg('g-amt',Object.keys(AMTS).map(k=>[k,AMTS[k].n]),()=>S.amt,v=>{S.amt=v;tune()});
+  {const f=renderFit();$('d-tuned').hidden=!!f&&f.state!=='on'}
   $('d-tuned').innerHTML=tuned?'Grind, water, ratio, '+BREWERS[S.brewer].bloom.label.toLowerCase()+' and agitation are tuned for this coffee and target.':'You’ve adjusted the settings yourself. <button type="button" class="linkbtn" data-retune>Re-tune</button>';
   const notes=[...dp.changes,...p.tw,...p.why];
   $('d-recipe').hidden=false;
@@ -443,7 +481,7 @@ function initDial(){
   const setDose=v=>{v=Math.round(clamp(v,3,120)*2)/2;if(v===S.dose){$('i-dose').value=v;return}S.dose=v;retuneIfAuto()};
   $('d-dminus').onclick=()=>setDose(S.dose-(S.dose<=10?0.5:1));$('d-dplus').onclick=()=>setDose(S.dose+(S.dose<10?0.5:1));
   $('i-dose').onchange=e=>{const v=parseFloat(e.target.value);if(v>0)setDose(v);else e.target.value=S.dose};
-  $('d-recbox').onclick=e=>{if(e.target.closest('[data-retune]'))tune('Re-tuned for this coffee and target')};
+  $('d-recbox').onclick=e=>{if(e.target.closest('[data-retune]'))tune('Re-tuned for this coffee and target');const g=e.target.closest('[data-fitgo]');if(g){S.goal=g.dataset.fitgo;tune()}};
   $('d-recipe').onclick=e=>{if(e.target.closest('[data-dtimer]'))dialTimer();else if(e.target.closest('[data-dfull]'))openRecipe(S.rec);else if(e.target.closest('[data-dshare]'))openShare(dialDoc())};
   $('mr-play').onclick=dialTimer;
   $('i-age').oninput=e=>{S.age=+e.target.value;$('v-age').textContent=S.age+' days';clearTimeout($('i-age')._t);$('i-age')._t=setTimeout(()=>retuneIfAuto(),250)};
@@ -1533,20 +1571,31 @@ function loadScript(src){return new Promise((ok,no)=>{const s=document.createEle
 const SIMD_OK=(()=>{try{return WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,0,0,1,5,1,96,0,1,123,3,2,1,0,10,10,1,8,0,65,0,253,15,253,98,11]))}catch(e){return false}})();
 const withTimeout=(pr,ms,code)=>new Promise((ok,no)=>{const t=setTimeout(()=>no(Object.assign(new Error(code),{code})),ms);pr.then(v=>{clearTimeout(t);ok(v)},e=>{clearTimeout(t);no(e)})});
 // Download a file with visible progress. The copy lands in the browser cache, so the reader picks it up from there.
-async function fetchProgress(url,onBytes){const res=await withTimeout(fetch(url),30000,'stalled');if(!res.ok)throw Object.assign(new Error('download'),{code:'download'});
+async function fetchProgress(url,onBytes){const res=await withTimeout(fetch(url),30000,'stalled');if(!res.ok)throw Object.assign(new Error('download'),{code:'download',detail:url.split('/').pop()+' answered '+res.status});
   const total=res.headers.get('content-encoding')?0:+res.headers.get('content-length')||0; /* compressed in transit: the length isn't the file size */if(!res.body||!res.body.getReader){await res.arrayBuffer();onBytes(total,total);return}
   const rd=res.body.getReader();let got=0;for(;;){const {done,value}=await withTimeout(rd.read(),30000,'stalled');if(done)break;got+=value.length;onBytes(got,total)}}
+// What went wrong at each attempt, shown in small print under the message so a screenshot says why.
+let OCR_LOG=[];const errText=e=>((e&&e.code?e.code+': ':'')+(e&&(e.detail||e.message)||String(e))).slice(0,140);
+// The same reader, published online, for when the copy bundled with the app won't load on a phone.
+const OCR_CDN={js:'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/',core:'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.1/',lang:'https://cdn.jsdelivr.net/npm/@tesseract.js-data/eng@1.0.0/4.0.0_best_int/',blob:true};
+async function startOcr(src){const core=src.core+(SIMD_OK&&!OCR_PLAIN?'tesseract-core-simd-lstm.wasm.js':'tesseract-core-lstm.wasm.js');
+  if(!window.Tesseract)await loadScript(src.js+'tesseract.min.js');
+  // Fetching the two big files first only shows progress in megabytes (and fills the cache). The reader loads them
+  // itself either way, so a hiccup here is noted, not fatal.
+  const files=[core,src.lang+'eng.traineddata.gz'],done=[0,0],size=[3.94e6,2.95e6];
+  try{await Promise.all(files.map((u,k)=>fetchProgress(u,(g,t)=>{done[k]=g;size[k]=Math.max(t||size[k],g);const G=done[0]+done[1],T=size[0]+size[1];OCR_PROGRESS&&OCR_PROGRESS('download',Math.min(1,G/T),G,T)})))}
+  catch(e){OCR_LOG.push('progress '+errText(e))}
+  OCR_PROGRESS&&OCR_PROGRESS('start',0);
+  return withTimeout(Tesseract.createWorker('eng',1,{workerPath:src.js+'worker.min.js',corePath:core,langPath:src.lang,gzip:true,workerBlobURL:!!src.blob,
+    errorHandler:()=>{},logger:m=>{if(OCR_PROGRESS&&m&&typeof m.progress==='number')OCR_PROGRESS(m.status,m.progress)}}),40000,'start')}
 async function ocrWorker(onProgress){OCR_PROGRESS=onProgress;
-  if(!OCR)OCR=(async()=>{const base=new URL('vendor/ocr/',location.href).href,core=base+(SIMD_OK&&!OCR_PLAIN?'tesseract-core-simd-lstm.wasm.js':'tesseract-core-lstm.wasm.js');
-    if(!window.Tesseract)await loadScript(base+'tesseract.min.js');
-    // First use downloads about 7 MB; show it in megabytes so it never looks stuck.
-    const files=[core,base+'eng.traineddata.gz'],done=[0,0],size=[3.94e6,2.95e6];
-    await Promise.all(files.map((u,k)=>fetchProgress(u,(g,t)=>{done[k]=g;size[k]=Math.max(t||size[k],g);const G=done[0]+done[1],T=size[0]+size[1];OCR_PROGRESS&&OCR_PROGRESS('download',Math.min(1,G/T),G,T)})));
-    OCR_PROGRESS&&OCR_PROGRESS('start',0);
-    return withTimeout(Tesseract.createWorker('eng',1,{workerPath:base+'worker.min.js',corePath:core,langPath:base,gzip:true,workerBlobURL:false,
-      errorHandler:()=>{},logger:m=>{if(OCR_PROGRESS&&m&&typeof m.progress==='number')OCR_PROGRESS(m.status,m.progress)}}),40000,'start')})()
-    // If the fast reader doesn't start on this phone, try the plain one once before giving up.
-    .catch(e=>{OCR=null;if(e&&e.code==='start'&&SIMD_OK&&!OCR_PLAIN){OCR_PLAIN=true;return ocrWorker(OCR_PROGRESS)}throw e});
+  if(!OCR){OCR_LOG=[];OCR=(async()=>{const base=new URL('vendor/ocr/',location.href).href,local={js:base,core:base,lang:base};
+    try{return await startOcr(local)}catch(e){OCR_LOG.push('built-in '+errText(e));
+      // Phones that can't run the faster (SIMD) reader get the plain one.
+      if(SIMD_OK&&!OCR_PLAIN){OCR_PLAIN=true;try{return await startOcr(local)}catch(e2){OCR_LOG.push('plain '+errText(e2))}}
+      // Last, the online copy (needs a connection).
+      if(navigator.onLine!==false){OCR_PLAIN=false;try{return await startOcr(OCR_CDN)}catch(e3){OCR_LOG.push('online '+errText(e3))}}
+      throw e}})().catch(e=>{OCR=null;throw e})}
   return OCR}
 // Load a photo once; it is prepared (and turned, if needed) from this.
 function loadImage(file){return new Promise((ok,no)=>{const img=new Image();img.onload=()=>{URL.revokeObjectURL(img.src);ok(img)};img.onerror=()=>no(new Error('image'));img.src=URL.createObjectURL(file)})}
@@ -1753,9 +1802,10 @@ function findRoaster(lines,t,geo){const clean=lines.map(cleanLine),L=lexicon(),c
   const flat=t.replace(/&/g,' and ').replace(/[^a-z0-9%]+/g,' ').replace(/ +/g,' '),words=flat.split(' ').filter(w=>w.length>=6);
   for(const r of roLexicon()){const hit=new RegExp('(^| )'+reEsc(r.f)+'( |$)').test(flat)||(r.c.length>=6&&words.some(w=>w.startsWith(r.c)));if(hit){const ln=clean.find(x=>fold(x).replace(/&/g,'and').replace(/[^a-z0-9%]/g,'').includes(r.c));add(r.name,100+r.c.length,ln);break}}
   // 2. "Roasted by Kawa", "Tostado por Café Pergamino", "Roaster: Rumble".
-  const by=/\b(?:roasted|hand[- ]roasted|lovingly roasted|freshly roasted|roasted with care|tostado|torrado|ger[oö]stet|torrefatto|torrefie)(?:\s+(?:in|en|em)\s+[\p{L} .'-]{2,30}?)?\s+(?:by|por|von|da|par)\s*:?\s*([^\n,;|•·]{2,45})/iu,lab=/^\s*(?:roaster|roastery|roasted by|tostador|torrefador|r[oö]ster(?:ei)?)\s*[:\-–]\s*(.{2,45})$/i;
-  lines.forEach((l,i)=>{let m=by.exec(l);if(m){const v=cleanLine(m[1]);if(v.length>=3&&!coffeeWord(v))add(v,90,l);else if(clean[i+1]&&!coffeeWord(clean[i+1]))add(clean[i+1],85,lines[i+1])}
-    else if(/\b(?:roasted|tostado|torrado)\s+(?:by|por)\s*:?\s*$/i.test(l)){
+  const by=/\b(?:roasted|hand[- ]roasted|lovingly roasted|freshly roasted|roasted with care|(?:coffee\s+)?(?:sourced|imported|selected|curated|presented)|tostado|torrado|ger[oö]stet|torrefatto|torrefie)(?:\s+(?:in|en|em)\s+[\p{L} .'-]{2,30}?)?\s+(?:by|por|von|da|par)\s*:?\s*([^\n,;|•·]{2,45})/iu,lab=/^\s*(?:roaster|roastery|roasted by|tostador|torrefador|r[oö]ster(?:ei)?)\s*[:\-–]\s*(.{2,45})$/i;
+  // "Roasted by" outranks "sourced" or "imported by" (an importer, or a roaster's own sourcing line) when a bag has both.
+  lines.forEach((l,i)=>{let m=by.exec(l);if(m){const v=cleanLine(m[1]),sc=/sourced|imported|selected|curated|presented/i.test(m[0])?86:90;if(v.length>=3&&!coffeeWord(v))add(v,sc,l);else if(clean[i+1]&&!coffeeWord(clean[i+1]))add(clean[i+1],85,lines[i+1])}
+    else if(/\b(?:roasted|sourced|imported|selected|curated|tostado|torrado)\s+(?:by|por)\s*:?\s*$/i.test(l)){
       // The name sits under "Roasted by", which in a side column may not be the next line of text read.
       const k=fold(clean[i]).replace(/[^a-z]/g,''),g=geo&&geo.find(x=>fold(x.t).replace(/[^a-z]/g,'').endsWith(k.slice(-8))),
         below=g&&geo.filter(x=>x!==g&&x.y>g.y&&x.y-g.y<g.h*3&&Math.abs(x.x-g.x)<g.h*3&&!coffeeWord(x.t)).sort((a,b)=>a.y-b.y)[0];
@@ -1799,10 +1849,13 @@ async function runLocalScan(useImg){
     // Show the result: it sits below the form, out of sight on a phone.
     setTimeout(()=>{const h=$('scan-head');if(h)scrollTo({top:h.getBoundingClientRect().top+scrollY-90,behavior:RM()?'auto':'smooth'})},250)}
   catch(e){const c=e&&e.code;st.textContent=c==='cancelled'?'Stopped.'
-      :c==='download'||c==='stalled'||!navigator.onLine?'The text reader couldn’t download. It needs a connection the first time only; try again on Wi-Fi, or fill in the details below.'
+      :(c==='download'||c==='stalled'||!navigator.onLine)&&!NATIVE?'The text reader couldn’t download. It needs a connection the first time only; try again on Wi-Fi, or fill in the details below.'
+      :c==='download'||c==='stalled'?'The text reader didn’t load on this phone. Check you’re online and try again, or paste the label text below.'
       :c==='start'?'The text reader didn’t start on this phone. Paste the label text below, or fill in the details by hand.'
       :c==='slow'?'Reading took too long. Try a closer photo of just the label, or fill in the details below.'
-      :'The text reader couldn’t start. Try again, or fill in the details below.'}
+      :'The text reader couldn’t start. Try again, or fill in the details below.';
+    // The technical reason, small, so a screenshot of this message shows what failed.
+    if(c!=='cancelled'&&OCR_LOG.length)st.insertAdjacentHTML('beforeend','<small class="scan-why">Details: '+esc(OCR_LOG.join(' · '))+'</small>')}
   finally{if(SCTL)SCTL.done=true;$('scan-stop').hidden=true;$('scan-go').disabled=!SFILE;$('scan-drop').classList.remove('scanning')}}
 // After a sideways photo is read, show it the right way up (the saved thumbnail follows the preview).
 async function uprightPreview(rot){try{const img=await loadImage(SFILE),k=Math.min(1,1200/Math.max(img.width,img.height)),w=img.width*k,h=img.height*k,c=document.createElement('canvas'),side=rot%180!==0;
