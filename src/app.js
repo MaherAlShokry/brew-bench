@@ -368,11 +368,11 @@ function renderFit(){const el=$('g-fit'),f=cupFit();
   // How each target's cup is described in a sentence.
   const CUPW={balance:'balanced',sweet:'sweeter',bright:'brighter',clean:'clearer',tea:'tea-like',body:'fuller-bodied',strong:'stronger'};
   const me=CUPW[S.goal],nw=CUPW[f.near],nn=GOALN[f.near],cur=document.querySelector('#g-goal button[data-v="'+S.goal+'"]'),nb=document.querySelector('#g-goal button[data-v="'+f.near+'"]');
-  // The chosen pebble's colour follows the fit, in coffee tones: the theme colour on target, through caramel as the
+  // The chosen pebble keeps its fill and gets a border that follows the fit, in coffee tones: the theme colour on target, through caramel as the
   // cup drifts, to roast red once another target is closer. It blends smoothly as the settings move.
   const t=f.share,col=t>=0.56?'color-mix(in srgb,var(--cherry) '+Math.round(Math.min(1,(t-0.56)/0.3)*100)+'%,'+FIT_HONEY+')'
     :t>=0.5?'color-mix(in srgb,'+FIT_HONEY+' '+Math.round((t-0.5)/0.06*100)+'%,'+FIT_ROAST+')':FIT_ROAST;
-  if(cur)cur.style.setProperty('--fitc',col);if(nb&&f.state!=='on')nb.classList.add(f.state==='off'?'fit-near':'fit-lean')
+  if(cur&&f.state!=='on')cur.style.setProperty('--fitc',col);if(nb&&f.state!=='on')nb.classList.add(f.state==='off'?'fit-near':'fit-lean')
   el.style.setProperty('--fc',col);
   const pct=Math.round(f.share*100),title=f.state==='on'?'On target':f.state==='drift'?'Drifting':'Now closer to '+nn;
   const txt=f.state==='on'?'Your settings still make a '+me+' cup.'
