@@ -374,7 +374,7 @@ function renderFit(){const el=$('g-fit'),f=cupFit();
     :t>=0.5?'color-mix(in srgb,'+FIT_HONEY+' '+Math.round((t-0.5)/0.06*100)+'%,'+FIT_ROAST+')':FIT_ROAST;
   if(cur&&f.state!=='on')cur.style.setProperty('--fitc',col);if(nb&&f.state!=='on')nb.classList.add(f.state==='off'?'fit-near':'fit-lean')
   el.style.setProperty('--fc',col);
-  const pct=Math.round(f.share*100),title=f.state==='on'?'On target':f.state==='drift'?'Drifting':'Now closer to '+nn;
+  const pct=Math.round(f.share*100),title=f.state==='on'?'On target':f.state==='drift'?'Drifting':'Closer to '+nn;
   const txt=f.state==='on'?'Your settings still make a '+me+' cup.'
     :f.state==='drift'?'Your changes are pulling away from a '+me+' cup. A little further and it turns '+nw+'.'
     :'Your settings now make a '+nw+' cup, not a '+me+' one.';
@@ -383,11 +383,11 @@ function renderFit(){const el=$('g-fit'),f=cupFit();
   const pos=Math.max(2,Math.min(98,t<0.5?(t-0.35)/0.15*33:t<0.56?33+(t-0.5)/0.06*33:66+(t-0.56)/0.44*34));
   const icon=f.state==='on'?'M5 9h12v4a6 6 0 0 1-6 6h0a6 6 0 0 1-6-6z M17 10h1.5a2.5 2.5 0 0 1 0 5H17 M9 3c-1 1.5 1 2.5 0 4 M13 3c-1 1.5 1 2.5 0 4'
     :f.state==='drift'?'M12 3v10 M12 17v.5 M4.5 20h15L12 4z':'M4 8h14 M15 5l3 3-3 3 M20 16H6 M9 13l-3 3 3 3';
-  el.innerHTML='<div class="fit-head"><span class="fit-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+icon+'"/></svg></span><div class="fit-tx"><b>'+esc(title)+'</b><small>'+esc(txt)+'</small></div>'+
-    '<div class="fit-pct"><b>'+pct+'%</b><small>'+esc(me)+'</small></div></div>'+
+  el.innerHTML='<div class="fit-head"><span class="fit-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+icon+'"/></svg></span><b>'+esc(title)+'</b>'+
+    '<span class="fit-pct" title="How '+esc(me)+' the cup still is">'+pct+'% '+esc(me)+'</span></div><p>'+esc(txt)+'</p>'+
     '<div class="gauge fit-g" role="meter" aria-label="How close to '+esc(GOALN[S.goal])+'" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+pct+'"><i style="left:'+pos.toFixed(1)+'%"></i></div>'+
     '<div class="gscale"><span>Another cup</span><span>Drifting</span><span>On target</span></div>'+
-    (f.state==='on'?'':'<div class="actions fit-act"><button type="button" class="btn ghost" data-retune>Re-tune for '+esc(GOALN[S.goal])+'</button>'+(f.state==='off'?'<button type="button" class="btn ghost" data-fitgo="'+f.near+'">Switch to '+esc(nn)+'</button>':'')+'</div>');return f}
+    (f.state==='on'?'':'<div class="fit-act"><button type="button" class="btn ghost" data-retune>Re-tune for '+esc(GOALN[S.goal])+'</button>'+(f.state==='off'?'<button type="button" class="btn ghost" data-fitgo="'+f.near+'">Switch to '+esc(nn)+'</button>':'')+'</div>');return f}
 function tune(msg){if(!dialRec())return;const p=plan(dialCtx());Object.assign(S,p.st);{const B=BREWERS[S.brewer];S.temp=clamp(S.temp,B.temp.min,B.temp.max);S.bloom=clamp(S.bloom,B.bloom.min,B.bloom.max)}S.tuned=Object.fromEntries(TUNED_KEYS.map(k=>[k,S[k]]));render();if(msg)toast(msg)}
 // Inputs that change the plan re-tune while you haven't moved the sliders yourself.
 function retuneIfAuto(msg){if(dialRec()&&(isTuned()||!S.tuned))tune(msg);else render()}
