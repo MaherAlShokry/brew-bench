@@ -598,7 +598,11 @@ nav.tabs .wrap{pointer-events:auto;width:fit-content;max-width:calc(100% - 24px)
 .sharerow .app{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;box-shadow:0 4px 12px -6px rgba(0,0,0,.35);transition:transform .15s}
 .sharerow button:active .app{transform:scale(.92)}
 .sharerow svg{width:26px;height:26px;fill:none;stroke:#fff;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-button,a,.tab,.chip,[role=button],input[type=range]{touch-action:manipulation}
+button,a,.tab,.chip,[role=button]{touch-action:manipulation}
+/* On touch screens a slider moves only when you grab its thumb and drag sideways; a swipe that starts on
+   the track, or goes up and down, scrolls the page instead of changing the setting. */
+input[type=range]{touch-action:pan-y}
+@media (pointer:coarse){input[type=range]{pointer-events:none}input[type=range]::-webkit-slider-thumb{pointer-events:auto}input[type=range]::-moz-range-thumb{pointer-events:auto}}
 /* Long lists: the browser skips layout and paint for cards that are off screen. */
 #rgrid>.card,#pgrid>.card,#tgrid>.card,#vgrid>.card,#gear-brewers>.card,#people>.card{content-visibility:auto;contain-intrinsic-block-size:auto 420px}
 @media (max-width:759px){.appbar,nav.tabs .wrap{backdrop-filter:none;-webkit-backdrop-filter:none}.appbar{background:var(--paper)}}
@@ -983,16 +987,17 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 .kit-h .kit-ic svg{width:20px;height:20px}.kit-h .btn{padding:7px 14px;font-size:.85rem;flex:none}
 .kit-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.kit-chips .chip{cursor:pointer}.kit-chips .hint{margin:0}
 .jumpnav{margin:0 0 10px}
-.fit{--fc:var(--cherry);margin-top:14px;padding:12px 14px 6px;border-radius:var(--r-lg);border:1px solid var(--hair);background:var(--surface);box-shadow:var(--e1);transition:border-color .3s}
-.fit-head{display:flex;align-items:center;gap:12px}
-.fit-ic{width:40px;height:40px;border-radius:50%;flex:none;display:grid;place-items:center;background:var(--fc);box-shadow:0 4px 12px color-mix(in srgb,var(--fc) 35%,transparent);transition:background .3s}
-.fit-ic svg{width:22px;height:22px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.fit-tx{flex:1;min-width:0}.fit-tx b{display:block;font-family:var(--display);font-size:1rem;color:color-mix(in srgb,var(--fc) 80%,var(--ink));transition:color .3s}
-.fit-tx small{display:block;font-size:.8rem;color:var(--muted);line-height:1.35;margin-top:2px}
-.fit-pct{text-align:right;flex:none}.fit-pct b{display:block;font-family:var(--display);font-size:1.35rem;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}.fit-pct small{font-size:.7rem;color:var(--muted)}
+.fit{--fc:var(--cherry);margin-top:14px;padding:12px 14px 12px;border-radius:var(--r-lg);border:1px solid color-mix(in srgb,var(--fc) 30%,var(--hair));background:color-mix(in srgb,var(--fc) 6%,var(--surface));transition:border-color .3s,background .3s}
+.fit-head{display:flex;align-items:center;gap:10px;min-width:0}
+.fit-ic{width:30px;height:30px;border-radius:50%;flex:none;display:grid;place-items:center;background:var(--fc);box-shadow:0 3px 10px color-mix(in srgb,var(--fc) 35%,transparent);transition:background .3s}
+.fit-ic svg{width:17px;height:17px;fill:none;stroke:#FFFDF9;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fit-head b{flex:1;min-width:0;font-family:var(--display);font-size:1rem;line-height:1.2;color:color-mix(in srgb,var(--fc) 80%,var(--ink));transition:color .3s}
+.fit-pct{flex:none;font-size:.74rem;font-weight:600;padding:3px 9px;border-radius:var(--r-pill);background:color-mix(in srgb,var(--fc) 14%,var(--surface2));color:color-mix(in srgb,var(--fc) 70%,var(--ink));font-variant-numeric:tabular-nums;white-space:nowrap}
+.fit>p{margin:8px 0 0;font-size:.84rem;line-height:1.4;color:var(--muted)}
 .fit .gauge.fit-g{margin:14px 4px 6px;background:linear-gradient(90deg,#A8432F 0%,#B9603A 22%,#C9964A 40%,#C9964A 58%,color-mix(in srgb,var(--cherry) 70%,#C9964A) 72%,var(--cherry) 100%)}
-.fit .gscale{margin-bottom:8px}.fit .gscale span:nth-child(2){transform:translateX(4%)}
-.fit-act{margin:4px 0 8px}.fit-act .btn{padding:8px 14px;font-size:.86rem}
+.fit .gscale{margin-bottom:0;font-size:.72rem}
+.fit-act{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:8px;margin-top:12px}
+.fit-act .btn{min-height:40px;padding:6px 10px;font-size:.82rem;line-height:1.2;flex:none;white-space:normal}
 #g-goal button[aria-pressed="true"]{background:var(--cherry);border-color:var(--cherry);color:#FFFDF9}
 #g-goal button[aria-pressed="true"][style*="--fitc"]{border-color:var(--fitc);box-shadow:inset 0 0 0 2px var(--fitc),inset 0 0 0 3.5px color-mix(in srgb,#FFFDF9 75%,transparent)}
 #g-goal button{transition:background .3s,border-color .3s,box-shadow .3s,color .3s}
