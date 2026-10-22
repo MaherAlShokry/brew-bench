@@ -1107,15 +1107,22 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
 .bglass{position:absolute;z-index:3;top:10px;right:10px;display:inline-flex;align-items:center;gap:4px;padding:4px 9px 4px 7px;border-radius:var(--r-pill);font-family:var(--display);font-weight:800;font-size:.82rem;color:#FFF8EE;
   background:rgba(30,18,11,.38);backdrop-filter:blur(10px) saturate(1.4);-webkit-backdrop-filter:blur(10px) saturate(1.4);box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
 .bglass svg{width:14px;height:14px}.bglass .bo{fill:#E2B866}.bglass .bc{fill:none;stroke:rgba(60,35,20,.6);stroke-width:1.6}
-/* Scan page doorway */
-.bg-promo{position:relative;display:flex;align-items:center;gap:14px;width:100%;min-height:96px;margin:4px 0 18px;padding:16px 18px;border-radius:var(--r-lg);border:0;overflow:hidden;font:inherit;text-align:left;cursor:pointer;color:#FFF8EE;
-  background:radial-gradient(120% 140% at 100% 0%,color-mix(in srgb,var(--honey) 70%,transparent),transparent 55%),linear-gradient(135deg,#5E3B2A,#2A1A12);box-shadow:var(--shadow);transition:transform .2s var(--ease-out)}
-.bg-promo:active{transform:scale(.98)}
-.bgp-tx{flex:1;min-width:0;position:relative;z-index:1}.bgp-k{display:block;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;opacity:.75}
-.bgp-tx b{display:block;font-family:var(--display);font-size:1.25rem;margin:2px 0}.bgp-tx small:last-child{display:block;font-size:.84rem;opacity:.85}
-.bgp-pics{position:relative;flex:none;width:96px;height:72px}
-.bgp-pics .bpic{position:absolute;width:52px;height:68px;border-radius:12px;top:2px;box-shadow:0 8px 18px -6px rgba(0,0,0,.55),0 0 0 2px rgba(255,248,236,.85)}
-.bgp-pics .bpic:nth-child(1){right:0;transform:rotate(9deg);z-index:3}.bgp-pics .bpic:nth-child(2){right:22px;transform:rotate(-2deg);z-index:2}.bgp-pics .bpic:nth-child(3){right:44px;transform:rotate(-12deg);z-index:1}
+/* Beans page: the two ways a coffee comes in */
+.bean-acts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:2px 0 14px}
+.bact{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:14px 14px 15px;border-radius:var(--r-lg);border:1px solid var(--hair);background:var(--surface);box-shadow:var(--shadow);font:inherit;color:var(--ink);text-align:left;cursor:pointer;transition:transform .2s var(--ease-out)}
+.bact:active{transform:scale(.97)}@media (hover:hover){.bact:hover{transform:translateY(-2px)}}
+.bact-ic{display:grid;place-items:center;width:42px;height:42px;border-radius:14px;margin-bottom:6px;background:var(--c);box-shadow:0 6px 14px -6px var(--c)}
+.bact-ic svg{width:22px;height:22px;fill:none;stroke:#FFF8EE;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.bact-scan{--c:#4F8A74}.bact-add{--c:#C9964A}
+.bact b{font-family:var(--display);font-size:1.02rem}.bact small{font-size:.8rem;color:var(--muted);line-height:1.3}
+/* Recent scans: a strip at the foot of the Beans page */
+#beans-scans{margin-top:8px}
+.scanstrip{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 10px;margin:0 -2px;scrollbar-width:none;scroll-snap-type:x mandatory}.scanstrip::-webkit-scrollbar{display:none}
+.scard{flex:0 0 140px;scroll-snap-align:start;display:flex;flex-direction:column;gap:3px;padding:0 0 10px;border-radius:var(--r-md);overflow:hidden;border:1px solid var(--hair);background:var(--surface);box-shadow:var(--shadow);font:inherit;color:var(--ink);text-align:left;cursor:pointer}
+.scard-pic{display:block;aspect-ratio:4/3;background:linear-gradient(150deg,color-mix(in srgb,var(--honey) 40%,var(--surface2)),var(--surface2));margin-bottom:5px}
+.scard-pic img{width:100%;height:100%;object-fit:cover;display:block}
+.scard b{font-family:var(--display);font-size:.88rem;line-height:1.25;padding:0 10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.scard small{font-size:.72rem;color:var(--muted);padding:0 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* The hero: your coffee journal at a glance, with a fan of your latest bags. */
 .bg-hero{position:relative;display:flex;align-items:center;gap:10px;padding:22px 18px 20px 22px;border-radius:var(--r-xl,28px);overflow:hidden;color:#FFF8EE;margin-bottom:18px;
   background:radial-gradient(90% 120% at 100% 0%,color-mix(in srgb,var(--honey) 75%,transparent),transparent 60%),radial-gradient(70% 90% at 0% 100%,color-mix(in srgb,var(--cherry) 80%,transparent),transparent 70%),linear-gradient(140deg,#4A2E20,#21140D);box-shadow:var(--shadow)}
@@ -1127,10 +1134,6 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
 .bgh-stats{display:flex;gap:16px;margin-top:14px;flex-wrap:wrap}.bgh-stats span{display:flex;flex-direction:column;font-size:.72rem;opacity:.8}
 .bgh-stats b{display:flex;align-items:center;gap:3px;font-family:var(--display);font-size:1.2rem;opacity:1;color:#FFF8EE;font-variant-numeric:tabular-nums}
 .bgh-stats b svg{width:15px;height:15px}.bgh-stats .bo{fill:#E2B866}.bgh-stats .bc{fill:none;stroke:#4A2E20;stroke-width:1.6}
-.bgh-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
-.bgh-add,.bgh-scan{display:inline-flex;align-items:center;gap:6px;min-height:42px;padding:8px 16px;border-radius:var(--r-pill);border:0;font:inherit;font-weight:700;font-size:.9rem;cursor:pointer;transition:transform .15s var(--ease-out)}
-.bgh-add{background:#FFF8EE;color:#4A2E20;box-shadow:0 6px 16px -6px rgba(0,0,0,.5)}.bgh-scan{background:rgba(255,248,236,.14);color:#FFF8EE;box-shadow:inset 0 0 0 1px rgba(255,248,236,.3)}
-.bgh-add:active,.bgh-scan:active{transform:scale(.95)}.bgh-add svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round}
 .bgh-fan{position:relative;z-index:1;flex:none;width:118px;height:150px}
 .bgh-fan .bpic{position:absolute;width:76px;height:102px;top:22px;border-radius:14px;box-shadow:0 14px 26px -10px rgba(0,0,0,.7),0 0 0 2px rgba(255,248,236,.9);transition:transform .5s var(--ease-spring)}
 .bgh-fan .bpic:nth-child(1){right:4px;transform:rotate(10deg) translateY(6px);z-index:3}.bgh-fan .bpic:nth-child(2){right:22px;transform:rotate(-2deg) translateY(-12px);z-index:2}.bgh-fan .bpic:nth-child(3){right:40px;transform:rotate(-14deg) translateY(8px);z-index:1}
@@ -1262,8 +1265,8 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
 
 <nav class="tabs" aria-label="Sections"><div class="wrap" role="tablist">
   <button class="tab" role="tab" data-t="dial" aria-selected="true">Dial-in</button>
+  <button class="tab" role="tab" data-t="beans" aria-selected="false">Beans</button>
   <button class="tab" role="tab" data-t="scan" aria-selected="false">Scan beans</button>
-  <button class="tab" role="tab" data-t="beans" aria-selected="false">Bean gallery</button>
   <button class="tab" role="tab" data-t="gear" aria-selected="false">Gear and dials</button>
   <button class="tab" role="tab" data-t="recipes" aria-selected="false">Recipes</button>
   <button class="tab" role="tab" data-t="tech" aria-selected="false">Techniques</button>
@@ -1336,7 +1339,6 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
 <section id="scan">
   <h2>Scan your beans</h2>
   <p class="lede" id="scan-lede">Snap the bag or the roaster’s card. The details are read for you, matched to the guide, and turned into a brew plan for your gear.</p>
-  <button type="button" class="bg-promo" id="bg-promo"></button>
   <div class="bench">
     <div class="panel">
       <div id="scan-drop" class="drop">
@@ -1365,15 +1367,14 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
     </div>
     <div class="stick"><div class="panel" id="scan-out"></div></div>
   </div>
-  <h3 style="margin-top:1.6rem">Recent scans</h3>
-  <div class="grid" id="scan-list"></div>
 </section>
 
-<!-- BEAN GALLERY (under Scan on phones) -->
+<!-- BEANS: your own coffee. Scan a bag, keep every coffee you've had, crown your favourites. -->
 <section id="beans">
-  <h2>Bean gallery</h2>
-  <p class="lede">Every coffee you’ve enjoyed, with its photo and your rating in beans. Crown your top 3 each year and keep them as your history.</p>
+  <h2>Beans</h2>
+  <p class="lede">Scan a bag for a brew plan, keep every coffee you’ve had with your rating in beans, and crown your favourites each year.</p>
   <div id="beans-in"></div>
+  <div id="beans-scans"><h3 class="rh">Recent scans</h3><div class="scanstrip" id="scan-list"></div></div>
 </section>
 
 <!-- TECHNIQUES -->
@@ -1627,7 +1628,7 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
 </section>
 </main>
 
-<nav class="bottomnav" aria-label="Main"><span class="bn-pill" aria-hidden="true"></span><button type="button" data-bn="dial"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10h9v4.5a4.5 4.5 0 0 1-4.5 4.5h0A4.5 4.5 0 0 1 7 14.5z M16 11.5h1.5a2 2 0 0 1 0 4H16 M10 3.5c0 1.5 1.5 1.5 1.5 3 M13.5 3.5c0 1.5 1.5 1.5 1.5 3"/></svg><span>Brew</span></button><button type="button" data-bn="recipes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H18v15H6.5A1.5 1.5 0 0 0 5 19.5z M5 19.5A1.5 1.5 0 0 0 6.5 21H18v-3 M9 7.5h5 M9 11h5"/></svg><span>Recipes</span></button><button type="button" data-bn="scan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V6a2 2 0 0 1 2-2h2 M16 4h2a2 2 0 0 1 2 2v2 M20 16v2a2 2 0 0 1-2 2h-2 M8 20H6a2 2 0 0 1-2-2v-2 M12 8.5c2 0 3.5 1.6 3.5 3.5S14 15.5 12 15.5 8.5 14 8.5 12 10 8.5 12 8.5z M10.3 13.7c1.2-.6 2.2-2.2 3.4-3.4"/></svg><span>Scan</span></button><button type="button" data-bn="explore"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M15.5 8.5l-2 5-5 2 2-5z"/></svg><span>Explore</span></button><button type="button" data-bn="settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6z M12 2.5v2.5 M12 19v2.5 M2.5 12H5 M19 12h2.5 M5.3 5.3l1.8 1.8 M16.9 16.9l1.8 1.8 M5.3 18.7l1.8-1.8 M16.9 7.1l1.8-1.8"/></svg><span>Settings</span></button></nav>
+<nav class="bottomnav" aria-label="Main"><span class="bn-pill" aria-hidden="true"></span><button type="button" data-bn="dial"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10h9v4.5a4.5 4.5 0 0 1-4.5 4.5h0A4.5 4.5 0 0 1 7 14.5z M16 11.5h1.5a2 2 0 0 1 0 4H16 M10 3.5c0 1.5 1.5 1.5 1.5 3 M13.5 3.5c0 1.5 1.5 1.5 1.5 3"/></svg><span>Brew</span></button><button type="button" data-bn="recipes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H18v15H6.5A1.5 1.5 0 0 0 5 19.5z M5 19.5A1.5 1.5 0 0 0 6.5 21H18v-3 M9 7.5h5 M9 11h5"/></svg><span>Recipes</span></button><button type="button" data-bn="beans"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2c4.6 0 7.2 4 7.2 8.8s-2.6 8.8-7.2 8.8-7.2-4-7.2-8.8 2.6-8.8 7.2-8.8z M13.4 3.6c-2.6 2.6-.6 5.6-1.6 8.4s1.6 5.8-.4 8.4" transform="rotate(32 12 12)"/></svg><span>Beans</span></button><button type="button" data-bn="explore"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M15.5 8.5l-2 5-5 2 2-5z"/></svg><span>Explore</span></button><button type="button" data-bn="settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6z M12 2.5v2.5 M12 19v2.5 M2.5 12H5 M19 12h2.5 M5.3 5.3l1.8 1.8 M16.9 16.9l1.8 1.8 M5.3 18.7l1.8-1.8 M16.9 7.1l1.8-1.8"/></svg><span>Settings</span></button></nav>
 <dialog id="sharesheet" aria-labelledby="sh-title"><div id="sh-in"></div></dialog>
 <dialog id="vd" aria-labelledby="vd-title"><div id="vd-in"></div></dialog>
 <dialog id="timer" aria-labelledby="tm-title"><div id="tm-in"></div></dialog>

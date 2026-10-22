@@ -697,7 +697,7 @@ function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove
 // NAVD counts tab changes you can step back through, so the app bar can offer a back button.
 let BACKING=false,PEND_TAB=null,NAVD=0;
 // Screens slide in the way you are going: deeper or to a tab on the right from the right, back or left from the left.
-const BNORD=['dial','recipes','scan','explore','settings'];
+const BNORD=['dial','recipes','beans','explore','settings'];
 function showTab(id,fromHistory){ensureTab(id);const cur=document.querySelector('main section.on');
   if(cur&&cur.id!==id){const a=BNORD.indexOf(BNGROUP[cur.id]),b=BNORD.indexOf(BNGROUP[id]);const back=a!==b&&a>=0&&b>=0?b<a:!!fromHistory;
     document.body.classList.toggle('nav-back',back)}
@@ -1543,7 +1543,7 @@ function initScan(){
   $('scan-go').onclick=()=>runScan(true);$('scan-text-go').onclick=()=>runScan(false);$('scan-stop').onclick=()=>SCTL&&SCTL.abort();
   // Name and roastery: typed fixes show at once and update the saved scan they belong to.
   for(const [id,key,n] of [['s-name','name',60],['s-roaster','roaster',50]])$(id).oninput=e=>{SC[key]=str(e.target.value,n);const i=SCANS.findIndex(x=>x.id&&x.id===SC.id);if(i>=0){SCANS[i].sc[key]=SC[key];save('bb-scans',SCANS);renderScanList()}save('bb-scan',Object.assign({},SC));soon(renderScanHead)};
-  $('scan-list').onclick=e=>{const b=e.target.closest('[data-scan]');if(b){const s=SCANS[+b.dataset.scan];Object.assign(SC,{name:'',roaster:''},s.sc);SC.id=s.id;SC.info=s.info;if(typeof s.sc.name!=='string'&&s.info&&plausibleName(s.info.coffee_name))SC.name=niceName(s.info.coffee_name);if(typeof s.sc.roaster!=='string')SC.roaster=scRoaster(s)&&niceName(scRoaster(s));renderScan();window.scrollTo({top:0,behavior:RM()?'auto':'smooth'})}};
+  $('scan-list').onclick=e=>{const b=e.target.closest('[data-scan]');if(b){const s=SCANS[+b.dataset.scan];Object.assign(SC,{name:'',roaster:''},s.sc);SC.id=s.id;SC.info=s.info;if(typeof s.sc.name!=='string'&&s.info&&plausibleName(s.info.coffee_name))SC.name=niceName(s.info.coffee_name);if(typeof s.sc.roaster!=='string')SC.roaster=scRoaster(s)&&niceName(scRoaster(s));renderScan();showTab('scan')}};
   renderScan();
 }
 function scanPrompt(extra){
@@ -1898,7 +1898,8 @@ async function openCamera(){
     d.close();if(blob)usePhoto(new File([blob],'label.jpg',{type:blob.type||'image/jpeg'}));else toast('Couldn’t take the photo. Try again.')}}
 function thumb(cb){if(!SFILE){cb('');return}const img=new Image();img.onload=()=>{const c=document.createElement('canvas'),s=160/Math.max(img.width,img.height);c.width=img.width*s;c.height=img.height*s;c.getContext('2d').drawImage(img,0,0,c.width,c.height);try{cb(c.toDataURL('image/jpeg',.7))}catch(e){cb('')}};img.onerror=()=>cb('');img.src=$('scan-prev').src}
 function saveScan(){SC.id='s'+Date.now().toString(36);thumb(t=>{SCANS.unshift({id:SC.id,t,info:SC.info,sc:{origin:SC.origin,process:SC.process,variety:SC.variety,roast:SC.roast,date:SC.date,name:SC.name,roaster:SC.roaster},when:new Date().toLocaleDateString()});SCANS=SCANS.slice(0,12);save('bb-scans',SCANS);renderScanList()})}
-function renderScanList(){$('scan-list').innerHTML=SCANS.length?SCANS.map((s,i)=>'<button type="button" class="card vcard" data-scan="'+i+'" style="--c:var(--cherry)">'+(s.t?'<img src="'+s.t+'" alt="" style="width:100%;max-height:120px;object-fit:cover;border-radius:10px">':'')+'<h3 style="margin:.4rem 0 .1rem">'+esc(scanTitle(s.sc,s.info))+'</h3><p class="hint" style="margin:0">'+esc([scRoaster(s),s.when].filter(Boolean).join(' · '))+'</p></button>').join(''):'<p class="hint">Scans you make appear here.</p>'}
+// Recent scans sit at the foot of the Beans page as a strip; tapping one reopens it on the Scan page.
+function renderScanList(){const w=$('beans-scans');if(w)w.hidden=!SCANS.length;$('scan-list').innerHTML=SCANS.map((s,i)=>'<button type="button" class="scard" data-scan="'+i+'"><span class="scard-pic">'+(s.t?'<img src="'+s.t+'" alt="">':'')+'</span><b>'+esc(scanTitle(s.sc,s.info))+'</b><small>'+esc([scRoaster(s),s.when].filter(Boolean).join(' · '))+'</small></button>').join('')}
 // What to call the coffee: its name if we have a real one, else origin and variety ("Colombia Pink Bourbon").
 function scanTitle(sc,inf){const n=sc.name||(inf&&plausibleName(inf.coffee_name)?niceName(inf.coffee_name):'')||(inf&&inf.producer_or_farm)||'';return n||(originName(sc.origin)+(sc.variety!=='arabica'?' '+vName(sc.variety):' coffee'))}
 // The roastery gets its own spotlight card, with how many of their coffees you've scanned.
@@ -2252,8 +2253,8 @@ const ICO={wheel:'M21 12a9 9 0 1 1-18 0a9 9 0 1 1 18 0z M12 3v9l7.8 4.5 M12 12l-
 const installed=()=>!!window.Capacitor||MQ('(display-mode: standalone)')||navigator.standalone===true;
 const ico=(n,bg)=>'<span class="ic" style="background:'+bg+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+ICO[n]+'"/></svg></span>';
 
-const TABNAMES={explore:'Explore',settings:'Settings',champs:'World championships',words:'Coffee words',wheel:'Flavour wheel',flow:'From seed to cup',dial:'Dial-in',scan:'Scan beans',gear:'Gear and dials',recipes:'Recipes',tech:'Techniques',process:'Processes',map:'Origins map',variety:'Varieties',history:'History',guide:'Guide',log:'Brew log',beans:'Bean gallery'};
-const BNGROUP={explore:'explore',settings:'settings',champs:'explore',words:'explore',wheel:'explore',flow:'explore',dial:'dial',recipes:'recipes',scan:'scan',map:'explore',variety:'explore',history:'explore',process:'explore',tech:'explore',gear:'settings',guide:'settings',log:'settings',beans:'scan'};
+const TABNAMES={explore:'Explore',settings:'Settings',champs:'World championships',words:'Coffee words',wheel:'Flavour wheel',flow:'From seed to cup',dial:'Dial-in',scan:'Scan beans',gear:'Gear and dials',recipes:'Recipes',tech:'Techniques',process:'Processes',map:'Origins map',variety:'Varieties',history:'History',guide:'Guide',log:'Brew log',beans:'Beans'};
+const BNGROUP={explore:'explore',settings:'settings',champs:'explore',words:'explore',wheel:'explore',flow:'explore',dial:'dial',recipes:'recipes',scan:'beans',map:'explore',variety:'explore',history:'explore',process:'explore',tech:'explore',gear:'settings',guide:'settings',log:'settings',beans:'beans'};
 function syncShell(id){$('ab-title').textContent=TABNAMES[id]||'Brew Bench';$('ab-back').hidden=NAVD<1;document.body.className=document.body.className.replace(/\bt-\w+/g,'').trim()+' t-'+id;
   document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));movePill();
   updShare(id)}
@@ -2270,7 +2271,7 @@ const HUB={explore:[['Where coffee comes from',['map','variety','process','flow'
 const JUMPS={history:[['@The coffee family tree','Family tree'],['@The coffee species','Species'],['@Timeline','Timeline'],['@People who','People'],['@Test yourself','Quiz']],
   guide:[['@Ratio calculator','Ratio calculator'],['@What does it taste like','Fix the taste'],['@The bloom','Bloom'],['@Extraction levers','Extraction'],['@Grinders and brewers','Grinders and brewers'],['@Troubleshoot','Troubleshoot']],
   champs:[['ch-next','Next finals'],['ch-about','The competitions'],['@Timeline','Every champion']],
-  scan:[['@Coffee details','Coffee details'],['@Recommended brew','Brew plan'],['@Recent scans','Recent scans']]};
+  scan:[['@Coffee details','Coffee details'],['@Recommended brew','Brew plan']]};
 for(const [sec,items] of Object.entries(JUMPS)){const s=$(sec);if(!s)continue;const at=s.querySelector('.lede')||s.querySelector('h2');
   at.insertAdjacentHTML('afterend','<div class="seg filters scrollrow jumpnav" role="navigation" aria-label="On this page">'+items.map(([t,n])=>'<button type="button" data-jump="'+esc(t)+'">'+esc(n)+'</button>').join('')+'</div>')}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-jump]');if(!b)return;const t=b.dataset.jump,sec=b.closest('section');
@@ -2292,7 +2293,7 @@ const LOGOS={bean:['Bean',null],
   cherry:['Cherry','<circle cx="8.5" cy="15.5" r="5" fill="var(--cherry)"/><circle cx="16" cy="14" r="4.5" fill="var(--cherry)" opacity=".75"/><path d="M8.5 10.5c.5-3.5 3-6 7-7.5M16 9.5c0-2.5.3-4.5-.5-6.5" stroke="var(--leaf)" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M15.5 3c2.5-1 5-.3 6 1.5-2.5 1-5 .5-6-1.5z" fill="var(--leaf)"/>'],
   moka:['Moka pot','<path d="M8 3h8l1.2 7H6.8z" fill="var(--honey)"/><path d="M6.8 11.5h10.4L15.6 21H8.4z" fill="var(--cherry)"/><path d="M17 5h2.5L18 9.5" stroke="var(--cherry)" stroke-width="1.8" fill="none" stroke-linejoin="round"/><path d="M11 1.8h2" stroke="var(--cherry)" stroke-width="1.8" stroke-linecap="round"/>'],
   kettle:['Kettle','<path d="M5 10h10v8a2.5 2.5 0 0 1-2.5 2.5h-5A2.5 2.5 0 0 1 5 18z" fill="var(--cherry)"/><path d="M15 13c3.2 0 4-4.5 6.5-6.5" stroke="var(--cherry)" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M7.5 6.5h5L14 10H6z" fill="var(--honey)"/><path d="M10 4.5v2" stroke="var(--honey)" stroke-width="1.8" stroke-linecap="round"/>']};
-if(!LOGOS[UI.logo])UI.logo='bean';delete UI.name;if(!['s','m','l','xl'].includes(UI.text))UI.text='m';if(!['full','reduced'].includes(UI.motion))UI.motion='full';if(!['dial','recipes','scan','explore'].includes(UI.start))UI.start='dial';
+if(!LOGOS[UI.logo])UI.logo='bean';delete UI.name;if(!['s','m','l','xl'].includes(UI.text))UI.text='m';if(!['full','reduced'].includes(UI.motion))UI.motion='full';if(UI.start==='scan')UI.start='beans';if(!['dial','recipes','beans','explore'].includes(UI.start))UI.start='dial';
 const BEAN_SVG=$('ab-logo').innerHTML;
 // Each copy of the bean gets its own clip id: two elements with one id can draw the wrong (or no) bean.
 const logoSVG=(k,sz)=>k==='bean'?BEAN_SVG.replace(/width="24" height="24"/,'width="'+sz+'" height="'+sz+'"').replace(/abBean/g,sz===24?'abBean':'abBean'+sz):'<svg viewBox="0 0 24 24" width="'+sz+'" height="'+sz+'" aria-hidden="true">'+LOGOS[k][1]+'</svg>';
@@ -2347,7 +2348,7 @@ function renderSettings(){const t=document.documentElement.getAttribute('data-th
     else{document.documentElement.setAttribute('data-theme',v);try{localStorage.setItem('bb-theme',v)}catch(e){}}syncThemeBtn();applyUI();renderSettings()});
   seg('st-text',[['s','Small'],['m','Standard'],['l','Large'],['xl','Larger']],()=>UI.text,v=>{UI.text=v;saveUI();renderSettings()});
   seg('st-motion',[['full','Full'],['reduced','Reduced']],()=>UI.motion,v=>{UI.motion=v;saveUI();renderSettings()});
-  seg('st-start',[['dial','Brew'],['recipes','Recipes'],['scan','Scan'],['explore','Explore']],()=>UI.start,v=>{UI.start=v;saveUI();renderSettings();toast('The app will open on '+TABNAMES[v])})}
+  seg('st-start',[['dial','Brew'],['recipes','Recipes'],['beans','Beans'],['explore','Explore']],()=>UI.start,v=>{UI.start=v;saveUI();renderSettings();toast('The app will open on '+TABNAMES[v])})}
 $('settings-in').addEventListener('click',e=>{const a=e.target.closest('.swatch[data-accent]');if(a){UI.accent=a.dataset.accent;saveUI();renderSettings();return}
   const l=e.target.closest('.logopick[data-logo]');if(l){UI.logo=l.dataset.logo;saveUI();renderSettings();return}
   if(e.target.closest('#st-export')){exportData();return}if(e.target.closest('#st-import')){$('st-file').click();return}});

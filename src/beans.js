@@ -1,6 +1,6 @@
 /* ================= BEAN GALLERY ================= */
 // Every coffee you've had, with a photo and a rating in beans. Each year you can crown a top 3, and past years stay
-// as your history. The gallery lives under Scan: scanning is how most beans arrive.
+// as your history. It is the Beans tab, with Scan as a page inside it: scanning is how most beans arrive.
 
 // Photos are too big for localStorage, so they live in IndexedDB, keyed by the bean's id. A small cache keeps
 // scrolling the gallery from reading the same photo twice.
@@ -108,11 +108,13 @@ function renderBeans(){const el=$('beans-in');if(!el)return;const years=beanYear
     thisYear=BEANS.filter(b=>beanYear(b)===cy).length,last=[...BEANS].sort((a,b)=>b.tried.localeCompare(a.tried)||b.ts-a.ts).slice(0,3);
   const hist=Object.keys(TOP3).map(Number).filter(y=>y!==BPOD&&TOP3[y].ids.length).sort((a,b)=>b-a);
   const N=BEANS.length;
-  el.innerHTML='<div class="bg-hero"><div class="bgh-tx"><span class="bgh-k">Your coffee journal</span>'+
+  el.innerHTML='<div class="bean-acts"><button type="button" class="bact bact-scan" id="bg-scan"><span class="bact-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V6a2 2 0 0 1 2-2h2 M16 4h2a2 2 0 0 1 2 2v2 M20 16v2a2 2 0 0 1-2 2h-2 M8 20H6a2 2 0 0 1-2-2v-2 M12 8.5c2 0 3.5 1.6 3.5 3.5S14 15.5 12 15.5 8.5 14 8.5 12 10 8.5 12 8.5z"/></svg></span><b>Scan a bag</b><small>Read the label, get a brew plan</small></button>'+
+    '<button type="button" class="bact bact-add" id="bg-add"><span class="bact-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span><b>Add a coffee</b><small>Rate a bag you’ve had</small></button></div>'+
+    '<div class="bg-hero"><div class="bgh-tx"><span class="bgh-k">Your coffee journal</span>'+
       (N?'<h3>'+N+' coffee'+(N===1?'':'s')+(origins?'<br><em>from '+origins+' origin'+(origins===1?'':'s')+'</em>':'')+'</h3>'+
         '<div class="bgh-stats"><span><b>'+roasters+'</b>'+(roasters===1?'roastery':'roasteries')+'</span><span><b>'+(avg?avg.toFixed(1):'–')+beanSVG+'</b>average</span><span><b>'+thisYear+'</b>in '+cy+'</span></div>'
-        :'<h3>Start your<br><em>bean gallery</em></h3><p>Keep every coffee you love: a photo of the bag, where it’s from and your rating in beans.</p>')+
-      '<div class="bgh-acts"><button type="button" class="bgh-add" id="bg-add"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add a coffee</button>'+(N?'':'<button type="button" class="bgh-scan" id="bg-scan">Scan a bag</button>')+'</div></div>'+
+        :'<h3>Start your<br><em>coffee journal</em></h3><p>Scan a bag or add one by hand: its photo, where it’s from and your rating in beans.</p>')+
+      '</div>'+
     '<div class="bgh-fan" aria-hidden="true">'+(last.length?last.map(b=>beanPic(b)).join(''):'<span class="bpic"><span class="bph">'+beanSVG+'</span></span>')+'</div></div>'+
     '<div class="crown">'+podiumHTML(BPOD,years)+'</div>'+
     (hist.length?'<h3 class="rh">Your top 3 history</h3><div class="t3hist">'+hist.map(y=>{const t=TOP3[y];return '<button type="button" class="t3tile" data-py="'+y+'"><span class="t3y">'+y+'</span><span class="t3av">'+
@@ -122,20 +124,13 @@ function renderBeans(){const el=$('beans-in');if(!el)return;const years=beanYear
       '<div id="bg-grid">'+bgGridHTML(beanList())+'</div>':'');
   if(N){seg('bg-sort',[['recent','Recent'],['rated','Top rated'],['roaster','Roastery'],['origin','Origin']],()=>BSORT,v=>{BSORT=v;renderBeans()});
     if(years.length>1)seg('bg-year',[['all','All years'],...years.map(y=>[String(y),String(y)])],()=>BYEAR,v=>{BYEAR=v;renderBeans()})}
-  hydrateImgs(el);renderBeanPromo()}
+  hydrateImgs(el)}
 function bgGridHTML(list){let n=0;return list.length?beanGroups(list).map(([h,l])=>(h?'<div class="bg-gh"><b>'+esc(h)+'</b><span>'+l.length+'</span></div>':'')+'<div class="bgrid">'+l.map(b=>beanCard(b,n++)).join('')+'</div>').join(''):'<p class="hint">No coffees match that search.</p>'}
 $('beans-in').addEventListener('input',e=>{if(e.target.id!=='bg-q')return;BQ=e.target.value;const g=$('bg-grid');g.innerHTML=bgGridHTML(beanList());hydrateImgs(g)});
-$('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-add')){openBeanEditor();return}if(e.target.closest('#bg-scan')){showTab('scan');return}
+$('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-add')){openBeanEditor();return}if(e.target.closest('#bg-scan')){showTab('scan');openCamera();return}
   const py=e.target.closest('[data-py]');if(py){BPOD=+py.dataset.py;renderBeans();if(py.classList.contains('t3tile'))$('beans-in').querySelector('.crown').scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'});return}
   const t=e.target.closest('[data-top3]');if(t){openTop3(+t.dataset.top3);return}
   const b=e.target.closest('[data-bean]');if(b)openBean(b.dataset.bean)});
-// The gallery's doorway on the Scan page: a fan of your latest bags and this year's top 3.
-function renderBeanPromo(){const el=$('bg-promo');if(!el)return;const cy=new Date().getFullYear(),t=TOP3[cy],last=[...BEANS].sort((a,b)=>b.tried.localeCompare(a.tried)||b.ts-a.ts).slice(0,3);
-  el.innerHTML='<span class="bgp-tx"><small class="bgp-k">Your coffee journal</small><b>Bean gallery</b><small>'+
-    (BEANS.length?BEANS.length+' coffee'+(BEANS.length===1?'':'s')+(t&&t.ids.length?' · top 3 of '+cy+' crowned':' · crown your top 3 of '+cy):'Keep every coffee you love, rated in beans')+'</small></span>'+
-    '<span class="bgp-pics">'+(last.length?last.map(b=>beanPic(b,'sm')).join(''):'<span class="bpic sm"><span class="bph">'+beanSVG+'</span></span>')+'</span>';
-  hydrateImgs(el)}
-$('bg-promo').onclick=()=>showTab('beans');
 
 /* ---------- One coffee ---------- */
 function beanLogStats(b){const n=b.name.toLowerCase();if(n.length<3)return null;const l=LOG.filter(x=>(x.coffee||'').toLowerCase().includes(n));if(!l.length)return null;
@@ -221,4 +216,4 @@ function openTop3(y){const d=$('vd'),pool=BEANS.filter(b=>beanYear(b)===y).sort(
     saveTop3();d.close();BPOD=y;renderBeans();toast(pick.length?'Top 3 of '+y+' saved':'Top 3 of '+y+' cleared')};
   draw();showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
 // The app may have opened on the gallery before this part loaded.
-window.BEANS_OK=1;renderBeanPromo();if($('beans').classList.contains('on'))renderBeans();
+window.BEANS_OK=1;if($('beans').classList.contains('on'))renderBeans();
