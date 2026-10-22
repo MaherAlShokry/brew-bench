@@ -983,7 +983,16 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 .kit-h .kit-ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--cherry) 14%,var(--surface));color:var(--cherry-ink);flex:none}
 .kit-h .kit-ic svg{width:20px;height:20px}.kit-h .btn{padding:7px 14px;font-size:.85rem;flex:none}
 .kit-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.kit-chips .chip{cursor:pointer}.kit-chips .hint{margin:0}
-.jumpnav{margin:0 0 10px}.scan-why{display:block;margin-top:6px;font-size:.72rem;opacity:.75;word-break:break-word}.quicktools{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:4px 0 18px}
+.jumpnav{margin:0 0 10px}
+.fit{--fc:var(--cherry);margin-top:12px;padding:10px 12px;border-radius:14px;border:1px solid color-mix(in srgb,var(--fc) 45%,transparent);background:color-mix(in srgb,var(--fc) 10%,var(--surface));transition:background .25s,border-color .25s}
+.fit-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.fit-top b{color:color-mix(in srgb,var(--fc) 75%,var(--ink))}.fit-top span{font-size:.78rem;color:var(--muted);white-space:nowrap}
+.fit-bar{position:relative;height:8px;border-radius:99px;margin:8px 0 6px;background:linear-gradient(90deg,#A8432F 0 50%,#C9964A 50% 56%,var(--cherry) 86%);opacity:.9}
+.fit-bar i{position:absolute;top:-4px;width:6px;height:16px;border-radius:3px;background:var(--ink);border:2px solid var(--surface);transform:translateX(-3px);transition:left .25s}
+.fit-t{position:absolute;top:-2px;width:1px;height:12px;background:color-mix(in srgb,var(--surface) 70%,transparent)}
+.fit p{margin:0}.fit-act{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.fit-act .btn{padding:7px 12px;font-size:.84rem}
+#g-goal button[aria-pressed="true"]{background:var(--fitc,var(--cherry));border-color:var(--fitc,var(--cherry));color:#FFFDF9;transition:background .3s,border-color .3s}
+#g-goal button.fit-near{background:color-mix(in srgb,#A8432F 20%,var(--surface2));color:var(--ink);position:relative}
+#g-goal button[data-fittag]::after{content:attr(data-fittag);position:absolute;top:-9px;right:6px;font-size:.62rem;font-weight:700;letter-spacing:.03em;padding:1px 6px;border-radius:99px;background:#A8432F;color:#FFFDF9}.scan-why{display:block;margin-top:6px;font-size:.72rem;opacity:.75;word-break:break-word}.quicktools{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:4px 0 18px}
 .qtool{display:flex;flex-direction:column;align-items:flex-start;gap:8px;text-align:left;padding:12px;border-radius:16px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;font:inherit;box-shadow:var(--shadow)}
 .qtool .ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex:none}.qtool .ic svg{width:19px;height:19px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .qtool b{display:block;font-size:.92rem}.qtool small{display:block;color:var(--muted);font-size:.76rem;margin-top:2px}.qtool:active{transform:scale(.98)}.gsec{scroll-margin-top:96px}#gear-dialpick:empty{display:none}#gear-dialpick{margin-bottom:10px}
@@ -1144,7 +1153,7 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
       <div class="recbox" id="d-recbox" hidden>
         <div class="dose-row"><div><div class="lbl">Coffee</div><div class="stepper"><button type="button" id="d-dminus" aria-label="Less coffee">−</button><input id="i-dose" type="number" inputmode="decimal" min="3" max="120" step="0.5" aria-label="Coffee in grams"><span>g</span><button type="button" id="d-dplus" aria-label="More coffee">+</button></div></div>
           <div><div class="lbl">Water</div><b class="dose-w" id="v-water"></b></div></div>
-        <div class="lbl" style="margin-top:12px">Target cup <span class="hint">the recipe adapts to it</span></div><div class="seg filters goalseg" id="g-goal"></div><p class="hint gdesc" id="g-gdesc"></p><div class="amtrow" id="g-amtrow"><span class="lbl">How much</span><div class="seg" id="g-amt"></div></div>
+        <div class="lbl" style="margin-top:12px">Target cup <span class="hint">the recipe adapts to it</span></div><div class="seg filters goalseg" id="g-goal"></div><p class="hint gdesc" id="g-gdesc"></p><div class="amtrow" id="g-amtrow"><span class="lbl">How much</span><div class="seg" id="g-amt"></div></div><div class="fit" id="g-fit" hidden aria-live="polite"></div>
         <p class="hint tuneline" id="d-tuned"></p>
       </div>
       <h3 class="dsub">Settings <span class="hint">tuned for you, adjust by taste</span></h3>
@@ -3399,6 +3408,37 @@ const dialRec=()=>S.rec!=null&&RECIPES[S.rec]&&(sameFam(RECIPES[S.rec].b,S.brewe
 const dialCtx=()=>({brewer:S.brewer,grinder:S.grinder,tech:S.rec,process:S.process,variety:S.variety,roast:S.roast,age:S.age,goal:S.goal,amt:S.amt,dose:S.dose});
 const TUNED_KEYS=['grinder','setting','temp','ratio','bloom','agit'];
 const isTuned=()=>!!S.tuned&&TUNED_KEYS.every(k=>S.tuned[k]===S[k]);
+// How true the current settings are to the chosen target cup. Each target is planned for this coffee, recipe and dose;
+// the target whose planned cup sits nearest the cup the current settings make is what you're actually brewing.
+// share: how much closer the chosen target is than the next nearest (1 = right on it, under 0.5 = another is closer).
+// Beyond this distance from the target's own settings it counts as drifting, however the others compare.
+const FIT_R=2.2,FIT_HONEY='#C9964A',FIT_ROAST='#A8432F';
+function cupFit(){if(!dialRec())return null;const B=BREWERS[S.brewer];
+  const feats=st=>{const c=compute(st);return [c.D/0.15,c.acid/0.4,c.body/0.4,c.clarity/0.4,-st.ratio/B.ratio.step*0.6,c.sweet/0.4]};
+  const cur=feats(S),d={};
+  for(const [g] of GOALS){const p=plan(Object.assign(dialCtx(),{goal:g,amt:g===S.goal?S.amt:'mid'}));d[g]=Math.hypot(...feats(Object.assign({},S,p.st)).map((x,i)=>x-cur[i]))}
+  const near=GOALS.map(x=>x[0]).filter(g=>g!==S.goal).sort((a,b)=>d[a]-d[b])[0],share=d[near]/((d[S.goal]+d[near])||1);
+  return {state:share<0.5?'off':share<0.56||d[S.goal]>FIT_R?'drift':'on',share,near,dSel:d[S.goal]}}
+function renderFit(){const el=$('g-fit'),f=cupFit();
+  document.querySelectorAll('#g-goal button').forEach(b=>{b.classList.remove('fit-near');b.removeAttribute('data-fittag');b.style.removeProperty('--fitc')});
+  if(!el)return f;el.hidden=!f;if(!f)return f;
+  // How each target's cup is described in a sentence.
+  const CUPW={balance:'balanced',sweet:'sweeter',bright:'brighter',clean:'clearer',tea:'tea-like',body:'fuller-bodied',strong:'stronger'};
+  const me=CUPW[S.goal],nw=CUPW[f.near],nn=GOALN[f.near],cur=document.querySelector('#g-goal button[data-v="'+S.goal+'"]'),nb=document.querySelector('#g-goal button[data-v="'+f.near+'"]');
+  // The chosen pebble's colour follows the fit, in coffee tones: the theme colour on target, through caramel as the
+  // cup drifts, to roast red once another target is closer. It blends smoothly as the settings move.
+  const t=f.share,col=t>=0.56?'color-mix(in srgb,var(--cherry) '+Math.round(Math.min(1,(t-0.56)/0.3)*100)+'%,'+FIT_HONEY+')'
+    :t>=0.5?'color-mix(in srgb,'+FIT_HONEY+' '+Math.round((t-0.5)/0.06*100)+'%,'+FIT_ROAST+')':FIT_ROAST;
+  if(cur)cur.style.setProperty('--fitc',col);if(nb&&f.state==='off'){nb.classList.add('fit-near');nb.dataset.fittag='your cup'}
+  el.style.setProperty('--fc',col);
+  const pct=Math.round(f.share*100),title=f.state==='on'?'On target':f.state==='drift'?'Drifting':'Now closer to '+nn;
+  const txt=f.state==='on'?'Your settings still make a '+me+' cup.'
+    :f.state==='drift'?'Your changes are pulling away from a '+me+' cup. A little further and it turns '+nw+'.'
+    :'Your settings now make a '+nw+' cup, not a '+me+' one.';
+  el.className='fit fit-'+f.state;
+  el.innerHTML='<div class="fit-top"><b>'+esc(title)+'</b><span>'+pct+'% '+esc(me)+'</span></div>'+
+    '<div class="fit-bar" role="meter" aria-label="How close to '+esc(GOALN[S.goal])+'" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+pct+'"><i style="left:'+pct+'%"></i><span class="fit-t" style="left:50%"></span><span class="fit-t" style="left:56%"></span></div>'+
+    '<p class="hint">'+esc(txt)+'</p>'+(f.state==='on'?'':'<div class="fit-act"><button type="button" class="btn ghost" data-retune>Re-tune for '+esc(GOALN[S.goal])+'</button>'+(f.state==='off'?'<button type="button" class="btn ghost" data-fitgo="'+f.near+'">Switch to '+esc(nn)+'</button>':'')+'</div>');return f}
 function tune(msg){if(!dialRec())return;const p=plan(dialCtx());Object.assign(S,p.st);{const B=BREWERS[S.brewer];S.temp=clamp(S.temp,B.temp.min,B.temp.max);S.bloom=clamp(S.bloom,B.bloom.min,B.bloom.max)}S.tuned=Object.fromEntries(TUNED_KEYS.map(k=>[k,S[k]]));render();if(msg)toast(msg)}
 // Inputs that change the plan re-tune while you haven't moved the sliders yourself.
 function retuneIfAuto(msg){if(dialRec()&&(isTuned()||!S.tuned))tune(msg);else render()}
@@ -3411,9 +3451,10 @@ function renderDialRecipe(){const tl=techList(S.brewer),r=dialRec();
   if(!r){$('d-recipe').hidden=true;$('d-recipe').innerHTML='';return}
   const dp=dialPlan(),p=dp.p,tuned=isTuned();
   if(document.activeElement!==$('i-dose'))$('i-dose').value=S.dose;$('v-water').textContent=dp.water+'g';
-  seg('g-goal',GOALS,()=>S.goal,v=>{S.goal=v;tune(v==='balance'?'Back to the recipe as written':'Tuned for a '+GOALN[v].toLowerCase()+' cup')});
+  seg('g-goal',GOALS,()=>S.goal,v=>{S.goal=v;tune()});
   $('g-amtrow').hidden=S.goal==='balance';$('g-gdesc').textContent=GSPEC[S.goal].d;
-  seg('g-amt',Object.keys(AMTS).map(k=>[k,AMTS[k].n]),()=>S.amt,v=>{S.amt=v;tune(goalLabel(S.goal,v))});
+  seg('g-amt',Object.keys(AMTS).map(k=>[k,AMTS[k].n]),()=>S.amt,v=>{S.amt=v;tune()});
+  {const f=renderFit();$('d-tuned').hidden=!!f&&f.state!=='on'}
   $('d-tuned').innerHTML=tuned?'Grind, water, ratio, '+BREWERS[S.brewer].bloom.label.toLowerCase()+' and agitation are tuned for this coffee and target.':'You’ve adjusted the settings yourself. <button type="button" class="linkbtn" data-retune>Re-tune</button>';
   const notes=[...dp.changes,...p.tw,...p.why];
   $('d-recipe').hidden=false;
@@ -3491,7 +3532,7 @@ function initDial(){
   const setDose=v=>{v=Math.round(clamp(v,3,120)*2)/2;if(v===S.dose){$('i-dose').value=v;return}S.dose=v;retuneIfAuto()};
   $('d-dminus').onclick=()=>setDose(S.dose-(S.dose<=10?0.5:1));$('d-dplus').onclick=()=>setDose(S.dose+(S.dose<10?0.5:1));
   $('i-dose').onchange=e=>{const v=parseFloat(e.target.value);if(v>0)setDose(v);else e.target.value=S.dose};
-  $('d-recbox').onclick=e=>{if(e.target.closest('[data-retune]'))tune('Re-tuned for this coffee and target')};
+  $('d-recbox').onclick=e=>{if(e.target.closest('[data-retune]'))tune('Re-tuned for this coffee and target');const g=e.target.closest('[data-fitgo]');if(g){S.goal=g.dataset.fitgo;tune()}};
   $('d-recipe').onclick=e=>{if(e.target.closest('[data-dtimer]'))dialTimer();else if(e.target.closest('[data-dfull]'))openRecipe(S.rec);else if(e.target.closest('[data-dshare]'))openShare(dialDoc())};
   $('mr-play').onclick=dialTimer;
   $('i-age').oninput=e=>{S.age=+e.target.value;$('v-age').textContent=S.age+' days';clearTimeout($('i-age')._t);$('i-age')._t=setTimeout(()=>retuneIfAuto(),250)};

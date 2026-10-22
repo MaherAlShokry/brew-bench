@@ -351,6 +351,37 @@ const dialRec=()=>S.rec!=null&&RECIPES[S.rec]&&(sameFam(RECIPES[S.rec].b,S.brewe
 const dialCtx=()=>({brewer:S.brewer,grinder:S.grinder,tech:S.rec,process:S.process,variety:S.variety,roast:S.roast,age:S.age,goal:S.goal,amt:S.amt,dose:S.dose});
 const TUNED_KEYS=['grinder','setting','temp','ratio','bloom','agit'];
 const isTuned=()=>!!S.tuned&&TUNED_KEYS.every(k=>S.tuned[k]===S[k]);
+// How true the current settings are to the chosen target cup. Each target is planned for this coffee, recipe and dose;
+// the target whose planned cup sits nearest the cup the current settings make is what you're actually brewing.
+// share: how much closer the chosen target is than the next nearest (1 = right on it, under 0.5 = another is closer).
+// Beyond this distance from the target's own settings it counts as drifting, however the others compare.
+const FIT_R=2.2,FIT_HONEY='#C9964A',FIT_ROAST='#A8432F';
+function cupFit(){if(!dialRec())return null;const B=BREWERS[S.brewer];
+  const feats=st=>{const c=compute(st);return [c.D/0.15,c.acid/0.4,c.body/0.4,c.clarity/0.4,-st.ratio/B.ratio.step*0.6,c.sweet/0.4]};
+  const cur=feats(S),d={};
+  for(const [g] of GOALS){const p=plan(Object.assign(dialCtx(),{goal:g,amt:g===S.goal?S.amt:'mid'}));d[g]=Math.hypot(...feats(Object.assign({},S,p.st)).map((x,i)=>x-cur[i]))}
+  const near=GOALS.map(x=>x[0]).filter(g=>g!==S.goal).sort((a,b)=>d[a]-d[b])[0],share=d[near]/((d[S.goal]+d[near])||1);
+  return {state:share<0.5?'off':share<0.56||d[S.goal]>FIT_R?'drift':'on',share,near,dSel:d[S.goal]}}
+function renderFit(){const el=$('g-fit'),f=cupFit();
+  document.querySelectorAll('#g-goal button').forEach(b=>{b.classList.remove('fit-near');b.removeAttribute('data-fittag');b.style.removeProperty('--fitc')});
+  if(!el)return f;el.hidden=!f;if(!f)return f;
+  // How each target's cup is described in a sentence.
+  const CUPW={balance:'balanced',sweet:'sweeter',bright:'brighter',clean:'clearer',tea:'tea-like',body:'fuller-bodied',strong:'stronger'};
+  const me=CUPW[S.goal],nw=CUPW[f.near],nn=GOALN[f.near],cur=document.querySelector('#g-goal button[data-v="'+S.goal+'"]'),nb=document.querySelector('#g-goal button[data-v="'+f.near+'"]');
+  // The chosen pebble's colour follows the fit, in coffee tones: the theme colour on target, through caramel as the
+  // cup drifts, to roast red once another target is closer. It blends smoothly as the settings move.
+  const t=f.share,col=t>=0.56?'color-mix(in srgb,var(--cherry) '+Math.round(Math.min(1,(t-0.56)/0.3)*100)+'%,'+FIT_HONEY+')'
+    :t>=0.5?'color-mix(in srgb,'+FIT_HONEY+' '+Math.round((t-0.5)/0.06*100)+'%,'+FIT_ROAST+')':FIT_ROAST;
+  if(cur)cur.style.setProperty('--fitc',col);if(nb&&f.state==='off'){nb.classList.add('fit-near');nb.dataset.fittag='your cup'}
+  el.style.setProperty('--fc',col);
+  const pct=Math.round(f.share*100),title=f.state==='on'?'On target':f.state==='drift'?'Drifting':'Now closer to '+nn;
+  const txt=f.state==='on'?'Your settings still make a '+me+' cup.'
+    :f.state==='drift'?'Your changes are pulling away from a '+me+' cup. A little further and it turns '+nw+'.'
+    :'Your settings now make a '+nw+' cup, not a '+me+' one.';
+  el.className='fit fit-'+f.state;
+  el.innerHTML='<div class="fit-top"><b>'+esc(title)+'</b><span>'+pct+'% '+esc(me)+'</span></div>'+
+    '<div class="fit-bar" role="meter" aria-label="How close to '+esc(GOALN[S.goal])+'" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+pct+'"><i style="left:'+pct+'%"></i><span class="fit-t" style="left:50%"></span><span class="fit-t" style="left:56%"></span></div>'+
+    '<p class="hint">'+esc(txt)+'</p>'+(f.state==='on'?'':'<div class="fit-act"><button type="button" class="btn ghost" data-retune>Re-tune for '+esc(GOALN[S.goal])+'</button>'+(f.state==='off'?'<button type="button" class="btn ghost" data-fitgo="'+f.near+'">Switch to '+esc(nn)+'</button>':'')+'</div>');return f}
 function tune(msg){if(!dialRec())return;const p=plan(dialCtx());Object.assign(S,p.st);{const B=BREWERS[S.brewer];S.temp=clamp(S.temp,B.temp.min,B.temp.max);S.bloom=clamp(S.bloom,B.bloom.min,B.bloom.max)}S.tuned=Object.fromEntries(TUNED_KEYS.map(k=>[k,S[k]]));render();if(msg)toast(msg)}
 // Inputs that change the plan re-tune while you haven't moved the sliders yourself.
 function retuneIfAuto(msg){if(dialRec()&&(isTuned()||!S.tuned))tune(msg);else render()}
@@ -363,9 +394,10 @@ function renderDialRecipe(){const tl=techList(S.brewer),r=dialRec();
   if(!r){$('d-recipe').hidden=true;$('d-recipe').innerHTML='';return}
   const dp=dialPlan(),p=dp.p,tuned=isTuned();
   if(document.activeElement!==$('i-dose'))$('i-dose').value=S.dose;$('v-water').textContent=dp.water+'g';
-  seg('g-goal',GOALS,()=>S.goal,v=>{S.goal=v;tune(v==='balance'?'Back to the recipe as written':'Tuned for a '+GOALN[v].toLowerCase()+' cup')});
+  seg('g-goal',GOALS,()=>S.goal,v=>{S.goal=v;tune()});
   $('g-amtrow').hidden=S.goal==='balance';$('g-gdesc').textContent=GSPEC[S.goal].d;
-  seg('g-amt',Object.keys(AMTS).map(k=>[k,AMTS[k].n]),()=>S.amt,v=>{S.amt=v;tune(goalLabel(S.goal,v))});
+  seg('g-amt',Object.keys(AMTS).map(k=>[k,AMTS[k].n]),()=>S.amt,v=>{S.amt=v;tune()});
+  {const f=renderFit();$('d-tuned').hidden=!!f&&f.state!=='on'}
   $('d-tuned').innerHTML=tuned?'Grind, water, ratio, '+BREWERS[S.brewer].bloom.label.toLowerCase()+' and agitation are tuned for this coffee and target.':'You’ve adjusted the settings yourself. <button type="button" class="linkbtn" data-retune>Re-tune</button>';
   const notes=[...dp.changes,...p.tw,...p.why];
   $('d-recipe').hidden=false;
@@ -443,7 +475,7 @@ function initDial(){
   const setDose=v=>{v=Math.round(clamp(v,3,120)*2)/2;if(v===S.dose){$('i-dose').value=v;return}S.dose=v;retuneIfAuto()};
   $('d-dminus').onclick=()=>setDose(S.dose-(S.dose<=10?0.5:1));$('d-dplus').onclick=()=>setDose(S.dose+(S.dose<10?0.5:1));
   $('i-dose').onchange=e=>{const v=parseFloat(e.target.value);if(v>0)setDose(v);else e.target.value=S.dose};
-  $('d-recbox').onclick=e=>{if(e.target.closest('[data-retune]'))tune('Re-tuned for this coffee and target')};
+  $('d-recbox').onclick=e=>{if(e.target.closest('[data-retune]'))tune('Re-tuned for this coffee and target');const g=e.target.closest('[data-fitgo]');if(g){S.goal=g.dataset.fitgo;tune()}};
   $('d-recipe').onclick=e=>{if(e.target.closest('[data-dtimer]'))dialTimer();else if(e.target.closest('[data-dfull]'))openRecipe(S.rec);else if(e.target.closest('[data-dshare]'))openShare(dialDoc())};
   $('mr-play').onclick=dialTimer;
   $('i-age').oninput=e=>{S.age=+e.target.value;$('v-age').textContent=S.age+' days';clearTimeout($('i-age')._t);$('i-age')._t=setTimeout(()=>retuneIfAuto(),250)};
