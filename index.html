@@ -995,12 +995,12 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 .fit .gscale{margin-bottom:8px}.fit .gscale span:nth-child(2){transform:translateX(4%)}
 .fit-act{margin:4px 0 8px}.fit-act .btn{padding:8px 14px;font-size:.86rem}
 #g-goal button[aria-pressed="true"]{background:var(--cherry);border-color:var(--cherry);color:#FFFDF9}
-#g-goal button[aria-pressed="true"][style*="--fitc"]{border-color:var(--fitc);box-shadow:0 0 0 2px var(--surface),0 0 0 4.5px var(--fitc)}
+#g-goal button[aria-pressed="true"][style*="--fitc"]{border-color:var(--fitc);box-shadow:inset 0 0 0 2px var(--fitc),inset 0 0 0 3.5px color-mix(in srgb,#FFFDF9 75%,transparent)}
 #g-goal button{transition:background .3s,border-color .3s,box-shadow .3s,color .3s}
 #g-goal button.fit-lean{background:color-mix(in srgb,#C9964A 22%,var(--surface2));border-color:color-mix(in srgb,#C9964A 55%,transparent)}
 #g-goal button.fit-near{background:color-mix(in srgb,#C9964A 34%,var(--surface2));border-color:#C9964A;color:var(--ink);animation:fitglow 2.4s ease-in-out infinite}
-@keyframes fitglow{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,#C9964A 0%,transparent)}50%{box-shadow:0 0 0 5px color-mix(in srgb,#C9964A 28%,transparent),0 4px 14px color-mix(in srgb,#C9964A 35%,transparent)}}
-@media (prefers-reduced-motion:reduce){#g-goal button.fit-near{animation:none;box-shadow:0 0 0 3px color-mix(in srgb,#C9964A 35%,transparent)}}
+@keyframes fitglow{0%,100%{box-shadow:inset 0 0 0 0 color-mix(in srgb,#C9964A 0%,transparent)}50%{box-shadow:inset 0 0 0 2px #C9964A,inset 0 0 12px color-mix(in srgb,#C9964A 55%,transparent)}}
+@media (prefers-reduced-motion:reduce){#g-goal button.fit-near{animation:none;box-shadow:inset 0 0 0 2px #C9964A}}
 .scan-why{display:block;margin-top:6px;font-size:.72rem;opacity:.75;word-break:break-word}.quicktools{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:4px 0 18px}
 .qtool{display:flex;flex-direction:column;align-items:flex-start;gap:8px;text-align:left;padding:12px;border-radius:16px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;font:inherit;box-shadow:var(--shadow)}
 .qtool .ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex:none}.qtool .ic svg{width:19px;height:19px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
