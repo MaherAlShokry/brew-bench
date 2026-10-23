@@ -6047,34 +6047,150 @@ function bcCup(x,r,cx,cy,R){const ax=[['Sweet',r.sweet],['Acidity',r.acid],['Bod
 // Chips that wrap onto new rows; each can carry its own colour dot (flavour notes keep their wheel colours).
 function bcChips(x,items,y){const W=BC.W,P=BC.PAD;let px=P;x.font='500 27px '+BC.F;
   for(const it of items){const t=typeof it==='string'?it:it.t,dot=typeof it==='string'?null:it.c,w=x.measureText(t).width+48+(dot?26:0);if(px+w>W-P){px=P;y+=70}
-    bcRound(x,px,y,w,56,28);x.fillStyle='rgba(255,246,232,.05)';x.fill();x.strokeStyle='rgba(226,184,102,.38)';x.lineWidth=1.5;x.stroke();
+    bcRound(x,px,y,w,56,28);x.fillStyle='rgba(255,246,232,.05)';x.fill();x.strokeStyle=bcA(.38);x.lineWidth=1.5;x.stroke();
     if(dot){x.beginPath();x.arc(px+30,y+28,9,0,TAU);x.fillStyle=dot;x.fill()}x.fillStyle=BC.CREAM;x.textBaseline='alphabetic';x.fillText(t,px+24+(dot?26:0),y+38);px+=w+12}
   return y+56}
 const bcLoad=src=>new Promise(ok=>{if(!src){ok(null);return}const i=new Image();i.onload=()=>ok(i);i.onerror=()=>ok(null);i.src=src});
+/* ---------- Origin identity ---------- */
+// A card takes the look of its coffee's origin: a palette and a faint pattern drawn from the place's own craft, a
+// woven band along the top and a passport-style stamp. Origins without their own look use their region's.
+const OT={
+  house:   {bg:['#2B1A11','#1A100A','#0E0805'],glow:'#E2B866',acc:'#E2B866',acc2:'#A8432F',motif:null},
+  yemen:   {bg:['#2B1612','#180B09','#0D0605'],glow:'#E08A3C',acc:'#E9B661',acc2:'#3E6E8E',motif:'arches',note:'Tower houses of Sana’a'},
+  ethiopia:{bg:['#17231A','#0D150F','#070B08'],glow:'#E3B23C',acc:'#EBC66B',acc2:'#C4473A',motif:'tibeb',note:'Tibeb weave'},
+  kenya:   {bg:['#2A1110','#160909','#0B0505'],glow:'#C8402A',acc:'#EBA93F',acc2:'#3576B8',motif:'beads',note:'Maasai beadwork'},
+  tanzania:{bg:['#1D1A2C','#100E19','#08070D'],glow:'#E5893A',acc:'#F2B65C',acc2:'#3FA6AE',motif:'kili',note:'Kilimanjaro'},
+  rwanda:  {bg:['#1E1914','#110E0B','#090706'],glow:'#C9A15A',acc:'#E9C47E',acc2:'#F3EADC',motif:'imigongo',note:'Imigongo'},
+  burundi: {bg:['#16201A','#0C120E','#060907'],glow:'#5FA36F',acc:'#E6C27A',acc2:'#C24A3A',motif:'imigongo',note:'Imigongo'},
+  uganda:  {bg:['#2A1A10','#170E08','#0C0704'],glow:'#C98A3E',acc:'#E2B06A',acc2:'#8C3B22',motif:'bark',note:'Bark cloth'},
+  drc:     {bg:['#221A12','#130E09','#0A0705'],glow:'#C68F4E',acc:'#E3BC7A',acc2:'#7A2F1E',motif:'kuba',note:'Kuba cloth'},
+  colombia:{bg:['#122017','#09120C','#050906'],glow:'#F2C14E',acc:'#F2C94C',acc2:'#D2553A',motif:'mochila',note:'Wayuu mochila'},
+  brazil:  {bg:['#0F2320','#081311','#040A09'],glow:'#3FB68B',acc:'#F2D16B',acc2:'#2BA37A',motif:'waves',note:'Copacabana waves'},
+  peru:    {bg:['#2A1220','#160911','#0B0508'],glow:'#C2407A',acc:'#EDB24F',acc2:'#D45087',motif:'chakana',note:'Andean chakana'},
+  bolivia: {bg:['#26141C','#140A0F','#0A0507'],glow:'#B0475E',acc:'#EBB352',acc2:'#3D8C7A',motif:'chakana',note:'Andean chakana'},
+  panama:  {bg:['#2A1018','#15070C','#0A0406'],glow:'#E0485E',acc:'#F4B860',acc2:'#3BAFA0',motif:'mola',note:'Guna mola'},
+  guatemala:{bg:['#151A2D','#0A0D18','#05060C'],glow:'#7B5EA7',acc:'#EAB24E',acc2:'#3FA7A0',motif:'huipil',note:'Huipil weave'},
+  elsalvador:{bg:['#141C2A','#0A0F17','#05070C'],glow:'#3E78B8',acc:'#E8B65A',acc2:'#D0573F',motif:'huipil',note:'Woven textiles'},
+  mexico:  {bg:['#161A32','#0B0D1B','#05060D'],glow:'#2F6DB5',acc:'#F2C14E',acc2:'#E05A47',motif:'talavera',note:'Talavera tile'},
+  indonesia:{bg:['#2A1A0E','#160E07','#0B0703'],glow:'#C98A3E',acc:'#E6BA6E',acc2:'#7A3B1E',motif:'kawung',note:'Kawung batik'},
+  timor:   {bg:['#251410','#140A08','#0A0504'],glow:'#B5533C',acc:'#E9B867',acc2:'#3B6E5A',motif:'kawung',note:'Tais weave'},
+  china:   {bg:['#142019','#0A120D','#050906'],glow:'#7FB069',acc:'#E3C276',acc2:'#B84A3A',motif:'terraces',note:'Yunnan terraces'},
+  vietnam: {bg:['#13201A','#0A120E','#050907'],glow:'#6FAF7A',acc:'#E9C46A',acc2:'#C0392B',motif:'terraces',note:'Rice terraces'},
+  thailand:{bg:['#1C1828','#0F0D16','#07060B'],glow:'#B07AC9',acc:'#E9BE5E',acc2:'#4FA38A',motif:'terraces',note:'Northern highlands'},
+  myanmar: {bg:['#221A10','#130E08','#0A0704'],glow:'#D4A040',acc:'#EAC265',acc2:'#A8432F',motif:'terraces',note:'Shan highlands'},
+  india:   {bg:['#2A1416','#160A0B','#0B0506'],glow:'#E07A3A',acc:'#F0B95A',acc2:'#2E8A7A',motif:'paisley',note:'Paisley'},
+  png:     {bg:['#24160E','#140C07','#0A0603'],glow:'#C0703A',acc:'#E6B46A',acc2:'#7A2E1E',motif:'tapa',note:'Tapa cloth'},
+  kona:    {bg:['#0F1F26','#081216','#04090B'],glow:'#3E9FC0',acc:'#F0C46A',acc2:'#3FB68B',motif:'waves',note:'Kona coast'},
+  reunion: {bg:['#10202A','#081218','#04090C'],glow:'#3FA0C8',acc:'#F2C66B',acc2:'#E0604A',motif:'waves',note:'Île Bourbon'},
+  jamaica: {bg:['#11201A','#09120E','#040907'],glow:'#3FA66B',acc:'#F2C94C',acc2:'#2E6FA8',motif:'contour',note:'Blue Mountains'}};
+// Volcano and highland origins share contour lines, in their own colours.
+for(const [k,glow,acc,acc2,note] of [['costarica','#3FA66B','#E9C46A','#C0503A','Volcanic highlands'],['honduras','#3E78B8','#E8BE60','#5FA36F','Mountain contours'],['nicaragua','#4F8FB0','#E6BF64','#C05A3A','Volcanic highlands'],
+  ['ecuador','#D9A440','#EAC060','#3E78B8','Andean volcanoes'],['malawi','#3E8FB0','#E6BA62','#C0503A','Lake Malawi']])OT[k]={bg:['#13201C','#0A120F','#050908'],glow,acc,acc2,motif:'contour',note};
+const OT_REG={africa:'kenya',arabia:'yemen',asia:'indonesia',central:'guatemala',south:'colombia'};
+function originTheme(k){const o=k&&ALLO()[k];if(!o)return null;return Object.assign({key:k,name:o.name,sub:(o.subs||[])[0]||''},OT[k]||OT[OT_REG[o.reg]]||OT.house)}
+const hexA=(h,a)=>{const n=parseInt(h.slice(1),16);return 'rgba('+(n>>16&255)+','+(n>>8&255)+','+(n&255)+','+a+')'};
+const bcA=a=>hexA(BC.HONEY,a);
+// Patterns, drawn faint over the whole background and fading down the card. f(x,W,H,T) strokes or fills in T's colours.
+const MOTIF={
+  // Sana'a tower-house windows: arched frames with a round qamariya above.
+  arches(x,W,H,T){x.lineWidth=2;for(let r=0;r*230<H;r++)for(let c=-1;c*190<W+190;c++){const cx=c*190+(r%2?95:0)+40,cy=r*230+40;
+      x.strokeStyle=hexA(T.acc,.075*fadeY(cy));x.beginPath();x.moveTo(cx-38,cy+120);x.lineTo(cx-38,cy+38);x.arc(cx,cy+38,38,Math.PI,0);x.lineTo(cx+38,cy+120);x.closePath();x.stroke();
+      x.beginPath();x.arc(cx,cy-24,16,0,TAU);x.stroke();x.beginPath();x.moveTo(cx,cy+2);x.lineTo(cx,cy+120);x.moveTo(cx-38,cy+70);x.lineTo(cx+38,cy+70);x.stroke()}},
+  // Ethiopian tibeb: woven bands of diamonds and crosses.
+  tibeb(x,W,H,T){for(let y=60;y<H;y+=180){x.fillStyle=hexA(T.acc,.06*fadeY(y));for(let c=0;c<W;c+=48){x.beginPath();x.moveTo(c+24,y-16);x.lineTo(c+40,y);x.lineTo(c+24,y+16);x.lineTo(c+8,y);x.closePath();x.fill()}
+      x.fillStyle=hexA(T.acc2,.06*fadeY(y));x.fillRect(0,y+26,W,3);x.fillRect(0,y-29,W,3)}},
+  // Maasai beadwork: rows of beads curving like a collar.
+  beads(x,W,H,T){const cols=[T.acc,T.acc2,'#F3EADC'];for(let r=0;r<16;r++){const R=260+r*70;for(let a=0;a<TAU;a+=10/R){const px=W*0.85+Math.cos(a)*R,py=-80+Math.sin(a)*R;if(py<0||py>H||px<0||px>W)continue;
+      x.fillStyle=hexA(cols[(r+Math.floor(a*R/40))%3],.08*fadeY(py));x.beginPath();x.arc(px,py,5,0,TAU);x.fill()}}},
+  // Kilimanjaro: ridge lines with a snow cap, then a field of dots.
+  kili(x,W,H,T){for(let i=0;i<7;i++){x.strokeStyle=hexA(i?T.acc:'#F3EADC',.08);x.lineWidth=2;x.beginPath();const b=360+i*26;x.moveTo(0,b+120);x.lineTo(W*0.3,b+40);x.lineTo(W*0.5,b-120+i*14);x.lineTo(W*0.58,b-110+i*14);x.lineTo(W*0.75,b+10);x.lineTo(W,b+90);x.stroke()}
+    for(let y=700;y<H;y+=46)for(let c=(y/46)%2*23;c<W;c+=46){x.fillStyle=hexA(T.acc2,.05*fadeY(y));x.beginPath();x.arc(c,y,3,0,TAU);x.fill()}},
+  // Rwandan imigongo: nested zigzag diamonds.
+  imigongo(x,W,H,T){x.lineWidth=3;for(let r=0;r*200<H+200;r++)for(let c=0;c*200<W+200;c++){const cx=c*200+(r%2?100:0),cy=r*200;
+      for(let k=1;k<=4;k++){x.strokeStyle=hexA(k%2?T.acc:T.acc2,.06*fadeY(cy));const s=k*22;x.beginPath();x.moveTo(cx,cy-s);x.lineTo(cx+s,cy);x.lineTo(cx,cy+s);x.lineTo(cx-s,cy);x.closePath();x.stroke()}}},
+  // Ugandan bark cloth: fine fibrous lines.
+  bark(x,W,H,T){x.lineWidth=1.2;for(let y=0;y<H;y+=9){x.strokeStyle=hexA(T.acc,.05*fadeY(y));x.beginPath();x.moveTo(0,y);for(let c=0;c<=W;c+=60)x.lineTo(c,y+Math.sin(c*0.02+y*0.07)*4);x.stroke()}},
+  // Kuba cloth: interlocking squares.
+  kuba(x,W,H,T){x.lineWidth=3;for(let r=0;r*120<H;r++)for(let c=0;c*120<W+120;c++){const X=c*120+(r%2?60:0),Y=r*120;x.strokeStyle=hexA((r+c)%2?T.acc:T.acc2,.06*fadeY(Y));
+      x.save();x.translate(X,Y);x.rotate(Math.PI/4);x.strokeRect(-34,-34,68,68);x.strokeRect(-18,-18,36,36);x.restore()}},
+  // Wayuu mochila: rows of stepped diamonds.
+  mochila(x,W,H,T){for(let y=80;y<H;y+=150)for(let c=0;c<W+80;c+=80){const step=10,cols=[T.acc,T.acc2];x.fillStyle=hexA(cols[(c/80)%2],.07*fadeY(y));
+      for(let i=0;i<4;i++){x.fillRect(c-i*step,y-30+i*step,step*(2*i+1),step);x.fillRect(c-i*step,y+30-i*step,step*(2*i+1),step)}}},
+  // Copacabana: long sinuous waves.
+  waves(x,W,H,T){x.lineWidth=16;for(let y=0;y<H;y+=64){x.strokeStyle=hexA(y%128?T.acc2:T.acc,.05*fadeY(y));x.beginPath();for(let c=-20;c<=W+20;c+=20){const yy=y+Math.sin(c/90+y/50)*22;c<0?x.moveTo(c,yy):x.lineTo(c,yy)}x.stroke()}},
+  // The Andean chakana: stepped crosses.
+  chakana(x,W,H,T){for(let r=0;r*200<H;r++)for(let c=0;c*200<W+200;c++){const X=c*200+(r%2?100:0),Y=r*200+60,s=14;x.fillStyle=hexA((r+c)%2?T.acc:T.acc2,.07*fadeY(Y));
+      x.fillRect(X-s*3,Y-s,s*6,s*2);x.fillRect(X-s,Y-s*3,s*2,s*6);x.fillRect(X-s*2,Y-s*2,s*4,s*4);x.fillStyle=BC.BG2||'#000';x.fillRect(X-s*0.6,Y-s*0.6,s*1.2,s*1.2)}},
+  // The Guna mola: layered, offset outlines.
+  mola(x,W,H,T){x.lineWidth=9;for(let k=0;k<9;k++){x.strokeStyle=hexA(k%2?T.acc2:T.acc,.06);x.beginPath();x.ellipse(W*0.82,180,140+k*48,90+k*36,0.3,0,TAU);x.stroke()}
+    for(let y=900;y<H;y+=120){x.strokeStyle=hexA(T.acc2,.05*fadeY(y));x.lineWidth=8;x.beginPath();for(let c=0;c<=W;c+=60)x.lineTo(c,y+((c/60)%2?28:-28));x.stroke()}},
+  // Huipil: bright zigzag rows.
+  huipil(x,W,H,T){x.lineWidth=5;for(let y=60;y<H;y+=90){x.strokeStyle=hexA((y/90)%2?T.acc:T.acc2,.07*fadeY(y));x.beginPath();for(let c=0;c<=W;c+=36)x.lineTo(c,y+((c/36)%2?18:-18));x.stroke()}},
+  // Talavera: tiles with four-petal rosettes.
+  talavera(x,W,H,T){for(let r=0;r*150<H;r++)for(let c=0;c*150<W+150;c++){const X=c*150+75,Y=r*150+75,a=.07*fadeY(Y);x.strokeStyle=hexA(T.acc2,a);x.lineWidth=2;x.strokeRect(X-75,Y-75,150,150);
+      x.fillStyle=hexA(T.acc,a);for(let p=0;p<4;p++){x.beginPath();x.ellipse(X+Math.cos(p*Math.PI/2)*26,Y+Math.sin(p*Math.PI/2)*26,22,11,p*Math.PI/2,0,TAU);x.fill()}x.beginPath();x.arc(X,Y,9,0,TAU);x.fill()}},
+  // Kawung batik: four ovals around a point.
+  kawung(x,W,H,T){for(let r=0;r*110<H;r++)for(let c=0;c*110<W+110;c++){const X=c*110,Y=r*110;x.fillStyle=hexA((r+c)%2?T.acc:T.acc2,.06*fadeY(Y));
+      for(let p=0;p<4;p++){x.beginPath();x.ellipse(X+Math.cos(p*Math.PI/2+Math.PI/4)*30,Y+Math.sin(p*Math.PI/2+Math.PI/4)*30,26,14,p*Math.PI/2+Math.PI/4,0,TAU);x.fill()}}},
+  // Rice terraces: stacked curving contours.
+  terraces(x,W,H,T){x.lineWidth=3;for(let i=0;i<60;i++){const y=40+i*42;x.strokeStyle=hexA(i%3?T.acc:T.acc2,.07*fadeY(y));x.beginPath();for(let c=0;c<=W;c+=20)x.lineTo(c,y+Math.sin(c/180+i*0.5)*30+Math.sin(c/60)*4);x.stroke()}},
+  // Paisley: tear-drop boteh.
+  paisley(x,W,H,T){for(let r=0;r*170<H;r++)for(let c=0;c*170<W+170;c++){const X=c*170+(r%2?85:0),Y=r*170+60;x.save();x.translate(X,Y);x.rotate(r%2?0.6:-0.6);x.strokeStyle=hexA((r+c)%2?T.acc:T.acc2,.08*fadeY(Y));x.lineWidth=2.5;
+      x.beginPath();x.moveTo(0,-40);x.bezierCurveTo(40,-30,40,30,0,36);x.bezierCurveTo(-30,30,-30,0,0,0);x.bezierCurveTo(10,-10,10,-30,0,-40);x.stroke();x.restore()}},
+  // Tapa: rows of triangles.
+  tapa(x,W,H,T){for(let y=40;y<H;y+=80){x.fillStyle=hexA((y/80)%2?T.acc:T.acc2,.06*fadeY(y));for(let c=0;c<W;c+=40){x.beginPath();x.moveTo(c,y+20);x.lineTo(c+20,y-14);x.lineTo(c+40,y+20);x.closePath();x.fill()}}},
+  // Volcano contours.
+  contour(x,W,H,T){x.lineWidth=2;for(let k=0;k<22;k++){x.strokeStyle=hexA(k%4?T.acc:T.acc2,.075);x.beginPath();for(let a=0;a<=TAU+0.01;a+=0.05){const r=40+k*42+Math.sin(a*3+k)*12+Math.cos(a*5)*8;const px=W*0.8+Math.cos(a)*r*1.2,py=140+Math.sin(a)*r*0.8;a?x.lineTo(px,py):x.moveTo(px,py)}x.stroke()}}};
+// MK scales every pattern: faint over the page, strong in the hero band at the top.
+let MK=1;const fadeY=y=>MK*Math.max(0.35,1-y/2200);
+// The band along the top: the pattern's colours as a woven strip.
+function bcBand(x,W,T){const cols=[T.acc,T.acc2,T.glow];const h=14;for(let c=0,i=0;c<W;c+=28,i++){x.fillStyle=hexA(cols[i%3],.85);x.fillRect(c,0,28,h)}
+  x.fillStyle=hexA('#000000',.25);for(let c=0;c<W;c+=28){x.beginPath();x.moveTo(c,h);x.lineTo(c+14,0);x.lineTo(c+28,h);x.closePath();x.fill()}}
+// A passport-style stamp: the country on the arc, a growing region beneath, the bean in the middle.
+function bcStamp(x,cx,cy,T){const R=92;x.save();x.translate(cx,cy);x.rotate(-0.16);
+  x.strokeStyle=hexA(T.acc,.85);x.lineWidth=3;x.beginPath();x.arc(0,0,R,0,TAU);x.stroke();x.lineWidth=1.5;x.beginPath();x.arc(0,0,R-12,0,TAU);x.stroke();
+  // Letters set along the ring: reading left to right over the top, and left to right along the bottom.
+  const arcText=(t,r,top)=>{t=t.toUpperCase();x.font='800 '+(t.length>12?16:19)+'px '+BC.F;x.letterSpacing='0px';x.fillStyle=hexA(T.acc,.95);x.textAlign='center';x.textBaseline='middle';
+    const ws=[...t].map(ch=>x.measureText(ch).width+4),tot=ws.reduce((a,w)=>a+w,0)/r;let a=top?-Math.PI/2-tot/2:Math.PI/2+tot/2;
+    [...t].forEach((ch,i)=>{const h=ws[i]/2/r;a+=top?h:-h;x.save();x.rotate(a);x.translate(r,0);x.rotate(top?Math.PI/2:-Math.PI/2);x.fillText(ch,0,0);x.restore();a+=top?h:-h})};
+  arcText(T.name.replace(/ \(.*\)$/,''),R-28,true);if(T.sub)arcText(T.sub,R-28,false);
+  bcBean(x,0,0,40,hexA(T.acc,.95),T.bg[0]);x.fillStyle=hexA(T.acc,.95);for(const s of [-1,1]){x.beginPath();x.arc(s*(R-28),0,3,0,TAU);x.fill()}x.restore();x.textAlign='left';x.textBaseline='alphabetic'}
+
 /* Draw a card. m: {kicker, date, photo (an image), title, by, sub, rating {kind,v,word}, pills [[text,main]], tiles [[label,value]],
    grind {g,c,line}, cup {r,vt,vs}, text [{label,body}], steps [], expect {label,items,bar}, quote {label,text}, footer} */
 function bcDraw(m){const W=BC.W,P=BC.PAD,IW=W-2*P,c=document.createElement('canvas');c.width=W;c.height=4400;const x=c.getContext('2d');
   BC.F=getComputedStyle(document.body).fontFamily;
-  // Background: deep espresso, a soft honey glow, a faint bean watermark and a very fine grain.
-  const bg=x.createLinearGradient(0,0,0,c.height);bg.addColorStop(0,'#2B1A11');bg.addColorStop(0.45,'#1A100A');bg.addColorStop(1,'#0E0805');x.fillStyle=bg;x.fillRect(0,0,W,c.height);
-  const gl=x.createRadialGradient(W*0.95,-60,10,W*0.95,-60,W*1.05);gl.addColorStop(0,'rgba(226,184,102,.30)');gl.addColorStop(1,'rgba(226,184,102,0)');x.fillStyle=gl;x.fillRect(0,0,W,1300);
+  // The origin's look (or the house espresso and honey): its accent colours are used throughout the card.
+  const T=m.theme||OT.house;BC.HONEY=T.acc;BC.BG1=T.bg[0];BC.BG2=T.bg[1];
+  // Background: the palette's deep tones, a soft glow, the origin's pattern, a faint bean watermark and a very fine grain.
+  const bg=x.createLinearGradient(0,0,0,c.height);bg.addColorStop(0,T.bg[0]);bg.addColorStop(0.45,T.bg[1]);bg.addColorStop(1,T.bg[2]);x.fillStyle=bg;x.fillRect(0,0,W,c.height);
+  const gl=x.createRadialGradient(W*0.95,-60,10,W*0.95,-60,W*1.05);gl.addColorStop(0,hexA(T.glow,.30));gl.addColorStop(1,hexA(T.glow,0));x.fillStyle=gl;x.fillRect(0,0,W,1300);
+  if(T.motif&&MOTIF[T.motif]){x.save();MK=1;MOTIF[T.motif](x,W,c.height,T);x.restore();
+    // The hero band: the pattern bold across the top, fading into the card.
+    x.save();x.beginPath();x.rect(0,0,W,470);x.clip();MK=5.5;MOTIF[T.motif](x,W,470,T);MK=1;x.restore();
+    const fd=x.createLinearGradient(0,0,0,470);fd.addColorStop(0,hexA(T.bg[0],.35));fd.addColorStop(0.3,hexA(T.bg[0],.15));fd.addColorStop(0.62,hexA(T.bg[0],.6));fd.addColorStop(1,hexA(T.bg[0],1));x.fillStyle=fd;x.fillRect(0,0,W,471)}
   const gl2=x.createRadialGradient(-120,1100,10,-120,1100,760);gl2.addColorStop(0,'rgba(168,67,47,.18)');gl2.addColorStop(1,'rgba(168,67,47,0)');x.fillStyle=gl2;x.fillRect(0,0,W,2000);
-  x.save();x.globalAlpha=0.05;bcBean(x,W-150,250,420,BC.HONEY,'#2B1A11');x.restore();
+  if(!T.motif){x.save();x.globalAlpha=0.05;bcBean(x,W-150,250,420,BC.HONEY,T.bg[0]);x.restore()}
   x.fillStyle='rgba(255,255,255,.022)';for(let gy=0;gy<c.height;gy+=7)for(let gx=(gy/7)%2*3.5;gx<W;gx+=7)x.fillRect(gx,gy,1,1);
-  x.textBaseline='alphabetic';x.textAlign='left';
+  x.textBaseline='alphabetic';x.textAlign='left';if(T.motif)bcBand(x,W,T);
   // Header: the mark and kicker, the date, then a fine rule.
   let y=100;bcBean(x,P+16,y-9,32,BC.HONEY);bcLabel(x,m.kicker||'The Brew Bench',P+44,y);
   x.textAlign='right';x.font='500 22px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(m.date||new Date().toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}),W-P,y);x.textAlign='left';
-  y+=30;const rl=x.createLinearGradient(P,0,W-P,0);rl.addColorStop(0,'rgba(226,184,102,.55)');rl.addColorStop(1,'rgba(226,184,102,0)');x.fillStyle=rl;x.fillRect(P,y,IW,1.5);
+  y+=30;const rl=x.createLinearGradient(P,0,W-P,0);rl.addColorStop(0,bcA(.55));rl.addColorStop(1,bcA(0));x.fillStyle=rl;x.fillRect(P,y,IW,1.5);
   // A photo of the bag, framed like a print.
   if(m.photo){y+=36;const ph=m.photo,bh=Math.round(IW*0.72);x.save();bcRound(x,P,y,IW,bh,30);x.clip();
     const s=Math.max(IW/ph.width,bh/ph.height),dw=ph.width*s,dh=ph.height*s;x.drawImage(ph,P+(IW-dw)/2,y+(bh-dh)/2,dw,dh);
     const sh=x.createLinearGradient(0,y+bh*0.6,0,y+bh);sh.addColorStop(0,'rgba(14,8,5,0)');sh.addColorStop(1,'rgba(14,8,5,.5)');x.fillStyle=sh;x.fillRect(P,y,IW,bh);x.restore();
-    bcRound(x,P,y,IW,bh,30);x.lineWidth=1.5;x.strokeStyle='rgba(226,184,102,.45)';x.stroke();y+=bh}
+    bcRound(x,P,y,IW,bh,30);x.lineWidth=1.5;x.strokeStyle=bcA(.45);x.stroke();
+    // The origin's stamp, set on the photo's corner like a sticker on the bag.
+    if(T.key){x.beginPath();x.arc(W-P-110,y+bh-104,100,0,TAU);x.fillStyle=hexA(T.bg[1],.82);x.fill();bcStamp(x,W-P-110,y+bh-104,T)}y+=bh}
   // Title and credit
+  // The origin's stamp sits top right, so the title wraps short of it.
+  const stamp=T.key&&!m.photo,TW=stamp?IW-220:IW;if(stamp)bcStamp(x,W-P-96,y+126,T);
   y+=104;x.font='800 76px '+BC.F;x.fillStyle=BC.CREAM;x.letterSpacing='-1px';
-  for(const l of bcWrap(x,m.title,IW,2)){x.fillText(l,P,y);y+=84}x.letterSpacing='0px';
-  if(m.by){x.font='italic 500 28px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(bcWrap(x,m.by,IW,1)[0],P,y-34);y+=10}
+  for(const l of bcWrap(x,m.title,TW,2)){x.fillText(l,P,y);y+=84}x.letterSpacing='0px';
+  if(m.by){x.font='italic 500 28px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(bcWrap(x,m.by,TW,1)[0],P,y-34);y+=10}
+  if(stamp)y=Math.max(y,230+126+70);
   if(m.sub){x.font='600 32px '+BC.F;x.fillStyle=BC.HONEY;x.fillText(bcWrap(x,m.sub,IW,1)[0],P,y+4);y+=56}
   // Rating, large, with its word.
   if(m.rating&&m.rating.v){y+=6;bcRating(x,m.rating.kind,m.rating.v,P,y+24,46);const rv=String(m.rating.v).replace('.5','½'),rx=P+5*46*1.18+14;
@@ -6082,7 +6198,7 @@ function bcDraw(m){const W=BC.W,P=BC.PAD,IW=W-2*P,c=document.createElement('canv
     if(m.rating.word){const vw=x.measureText(rv).width;x.font='500 28px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(m.rating.word,rx+vw+18,y+37)}y+=74}
   // Pills: outlined, the first (the target cup) in honey.
   if(m.pills&&m.pills.length){let px=P;y+=4;for(const [t,main] of m.pills){x.font='600 24px '+BC.F;const w=x.measureText(t).width+40;if(px+w>W-P){px=P;y+=60}
-      bcRound(x,px,y,w,48,24);if(main){x.fillStyle='rgba(226,184,102,.16)';x.fill()}x.lineWidth=1.5;x.strokeStyle=main?'rgba(226,184,102,.7)':'rgba(255,246,232,.22)';x.stroke();
+      bcRound(x,px,y,w,48,24);if(main){x.fillStyle=bcA(.16);x.fill()}x.lineWidth=1.5;x.strokeStyle=main?bcA(.7):'rgba(255,246,232,.22)';x.stroke();
       x.fillStyle=main?BC.HONEY:'rgba(255,246,232,.85)';x.fillText(t,px+20,y+32);px+=w+10}y+=78}else y+=20;
   // The spec sheet: the coffee on one row, the numbers on the next, in one panel divided by fine lines.
   const specRows=[m.coffee,m.tiles].filter(r=>r&&r.length);
@@ -6117,9 +6233,9 @@ function bcDraw(m){const W=BC.W,P=BC.PAD,IW=W-2*P,c=document.createElement('canv
     const tx=P+108,tw=W-P-tx-10,show=steps.slice(0,10);x.font='500 30px '+BC.F;
     const rows=show.map(s=>{const mm=/^(\d+:\d\d)\s*(.*)$/.exec(s);return{t:mm?mm[1]:'',d:bcCap(mm?mm[2]:s)}}).map(o=>({...o,lines:bcWrap(x,o.d,tw,2)}));
     const top=y+18;let yy=y;const ys=rows.map(o=>{const r0=yy;yy+=30+o.lines.length*40;return r0});
-    x.fillStyle='rgba(226,184,102,.28)';x.fillRect(P+86,top+22,1.5,Math.max(0,ys[ys.length-1]-y+4));
+    x.fillStyle=bcA(.28);x.fillRect(P+86,top+22,1.5,Math.max(0,ys[ys.length-1]-y+4));
     rows.forEach((o,i)=>{const ry=ys[i];x.font='700 26px '+BC.F;x.fillStyle=BC.HONEY;x.fillText(o.t||'·',P,ry+50);
-      x.beginPath();x.arc(P+86.75,ry+41,7,0,TAU);x.fillStyle='#1A100A';x.fill();x.lineWidth=2;x.strokeStyle=BC.HONEY;x.stroke();
+      x.beginPath();x.arc(P+86.75,ry+41,7,0,TAU);x.fillStyle=BC.BG2;x.fill();x.lineWidth=2;x.strokeStyle=BC.HONEY;x.stroke();
       x.font='500 30px '+BC.F;x.fillStyle=BC.CREAM;o.lines.forEach((l,j)=>x.fillText(l,tx,ry+51+j*40))});
     y=yy+10;if(steps.length>show.length){x.font='500 23px '+BC.F;x.fillStyle=BC.MUTED;x.fillText('+ '+(steps.length-show.length)+' more in the app',tx,y+10);y+=36}}
   // Notes: expected or tasted, with the flavour families as one bar in the wheel's colours
@@ -6127,10 +6243,10 @@ function bcDraw(m){const W=BC.W,P=BC.PAD,IW=W-2*P,c=document.createElement('canv
     if(m.expect.bar&&m.expect.bar.length){y+=24;let bx=P;x.save();bcRound(x,P,y,IW,12,6);x.clip();m.expect.bar.forEach(([cc,p])=>{x.fillStyle=cc.c;x.fillRect(bx,y,IW*p+1,12);bx+=IW*p});x.restore();y+=12}}
   // Your own words
   if(m.quote&&m.quote.text){y+=48;x.font='italic 500 33px '+BC.F;const lines=bcWrap(x,m.quote.text,IW-60,6),h=66+lines.length*46;
-    x.font='800 132px Georgia,serif';x.fillStyle='rgba(226,184,102,.2)';x.fillText('“',P-10,y+96);
+    x.font='800 132px Georgia,serif';x.fillStyle=bcA(.2);x.fillText('“',P-10,y+96);
     bcLabel(x,m.quote.label,P+64,y+26);x.font='italic 500 33px '+BC.F;x.fillStyle=BC.CREAM;lines.forEach((l,j)=>x.fillText(l,P+64,y+76+j*46));y+=h}
   // Footer: centred mark and line, the link beneath.
-  y+=70;const fr=x.createLinearGradient(P,0,W-P,0);fr.addColorStop(0,'rgba(226,184,102,0)');fr.addColorStop(.5,'rgba(226,184,102,.45)');fr.addColorStop(1,'rgba(226,184,102,0)');x.fillStyle=fr;x.fillRect(P,y,IW,1.5);
+  y+=70;const fr=x.createLinearGradient(P,0,W-P,0);fr.addColorStop(0,bcA(0));fr.addColorStop(.5,bcA(.45));fr.addColorStop(1,bcA(0));x.fillStyle=fr;x.fillRect(P,y,IW,1.5);
   y+=64;x.font='700 26px '+BC.F;const ft=m.footer||'Brewed with The Brew Bench',fw=x.measureText(ft).width;bcBean(x,W/2-fw/2-22,y-9,28,BC.HONEY);
   x.fillStyle=BC.CREAM;x.textAlign='left';x.fillText(ft,W/2-fw/2+6,y);
   y+=40;x.textAlign='center';x.font='500 22px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(SITE_URL.replace(/^https?:\/\//,'').replace(/\/$/,''),W/2,y);x.textAlign='left';
@@ -6146,7 +6262,7 @@ const AGITW={low:'Gentle',med:'Steady',high:'Lively'};
 // The coffee as labelled tiles: the beans' name (when picked) next to the variety, process and roast.
 const bcCoffee=(bean,v,p,ro)=>[...(bean?[['Beans',bean.name]]:[]),['Variety',v?vName(v):''],['Process',p&&PROCESSES[p]?PROCESSES[p].name:''],['Roast',ro?bcCap(ro):'']];
 function brewCard(){const r=compute(S),[vt,vs]=verdict(r.D),B=BREWERS[S.brewer],dp=dialPlan(),water=dp?dp.water:+gfmt(S.dose*S.ratio);
-  return bcBlob({title:dp?dp.r.name:'My '+brewName(B.name)+' brew',by:dp&&dp.r.by,coffee:bcCoffee(S.bean,S.variety,S.process,S.roast),
+  return bcBlob({theme:originTheme(S.bean&&S.bean.origin),title:dp?dp.r.name:'My '+brewName(B.name)+' brew',by:dp&&dp.r.by,coffee:bcCoffee(S.bean,S.variety,S.process,S.roast),
     pills:[...(dp?[[goalLabel(S.goal,S.amt)+' cup',1]]:[]),[B.name],...(S.age?[[S.age+' days off roast']]:[])],
     tiles:[['Coffee',gfmt(S.dose)+' g'],['Water',gfmt(water)+' g'],['Temp',S.temp+'°C'],['Ratio','1:'+rr1(S.ratio)]],
     grind:{g:S.grinder,c:S.setting,line:BREWERS[S.brewer].bloom.label+' '+S.bloom+' s  ·  '+AGITW[S.agit]+' pours'},cup:{r,vt,vs},steps:dp?dp.steps:[],expect:{label:'Expect',items:cupNotes(S,r).slice(0,8)}})}
@@ -6164,7 +6280,7 @@ function okSnap(s){if(!s||typeof s!=='object')return null;const n=(v,a,b)=>typeo
   return o.b?o:null}
 // A brew from the log: what you rated and tasted, with the brew itself when it was logged from the dial-in.
 function logCard(l){const s=okSnap(l.snap),fl=flOf(l).filter(([id])=>FW.byId[id]),B=s&&BREWERS[s.b],stars=clamp(Math.round(+l.stars||0),0,5);
-  const m={kicker:'From my brew log',date:fmtDate(l),title:l.coffee||(s&&s.rec)||'A brew',by:s&&s.rec&&l.coffee?s.rec+(s.by?' · '+s.by:''):s&&s.by,
+  const m={theme:originTheme(s&&s.bean&&s.bean.origin),kicker:'From my brew log',date:fmtDate(l),title:l.coffee||(s&&s.rec)||'A brew',by:s&&s.rec&&l.coffee?s.rec+(s.by?' · '+s.by:''):s&&s.by,
     coffee:s&&s.v?bcCoffee(s.bean&&s.bean.name!==l.coffee?s.bean:null,s.v,s.p,s.ro):null,
     rating:stars?{kind:'stars',v:stars,word:['','Not for me','Okay','Good','Great','Outstanding'][stars]}:null,
     pills:[...(s&&s.goal?[[s.goal+' cup',1]]:[]),...(B?[[B.name]]:[]),...(l.by&&GROUP?[['Brewed by '+(l.by===ME?'me':l.by)]]:[])],
@@ -6179,7 +6295,7 @@ function logCard(l){const s=okSnap(l.snap),fl=flOf(l).filter(([id])=>FW.byId[id]
 // A coffee from the gallery: the bag, your rating in beans, where it is from and what you tasted.
 async function beanCard(b){const P=b.process&&PROCESSES[b.process],rk=beanRank(b),fmt=s=>s?new Date(s+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'–';
   const photo=b.img?await bcLoad(await BIMG.get(b.id)):null;
-  return bcBlob({kicker:'From my bean gallery',date:fmt(b.tried),photo,title:beanTitle(b),by:b.roaster,
+  return bcBlob({theme:originTheme(b.origin),kicker:'From my bean gallery',date:fmt(b.tried),photo,title:beanTitle(b),by:b.roaster,
     sub:[b.variety?vName(b.variety):'',P?P.name:'',b.roast?bcCap(b.roast)+' roast':''].filter(Boolean).join('  ·  '),
     rating:b.rating?{kind:'beans',v:b.rating,word:rateWord(b.rating)}:null,
     pills:rk?[['#'+rk+' · '+MEDALN[rk]+' of '+beanYear(b),1]]:[],
