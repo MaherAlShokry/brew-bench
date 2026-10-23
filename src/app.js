@@ -1486,7 +1486,7 @@ function editBrew(l){LEDIT=l.id;$('l-coffee').value=l.coffee||'';$('l-settings')
 function endEdit(){LEDIT=null;LFIELDS.forEach(id=>$(id).value='');delete $('l-settings').dataset.brewer;STAR=0;LFL=[];renderStars();renderFlForm();
   $('l-editing').hidden=true;$('l-save').textContent='Save entry';$('l-cancel').hidden=true}
 function renderLog(){renderShare();
-  $('l-list').innerHTML=LOG.length?LOG.map((l,i)=>'<div class="logentry"><div class="lehead"><b>'+esc(l.coffee||'Untitled')+'</b>'+(l.stars?'<span class="stars-sm" aria-label="'+l.stars+' stars">'+'★'.repeat(+l.stars||0)+'<span>'+'★'.repeat(5-(+l.stars||0))+'</span></span>':'')+(canEdit(l)?'<button class="x" data-edit="'+i+'" aria-label="Edit entry">Edit</button>':'')+'<button class="x" data-del="'+i+'" aria-label="Delete entry">Delete</button></div>'+
+  $('l-list').innerHTML=LOG.length?LOG.map((l,i)=>'<div class="logentry"><div class="lehead"><b>'+esc(l.coffee||'Untitled')+'</b>'+(l.stars?'<span class="stars-sm" aria-label="'+l.stars+' stars">'+'★'.repeat(+l.stars||0)+'<span>'+'★'.repeat(5-(+l.stars||0))+'</span></span>':'')+'<button class="x" data-lshare="'+i+'" aria-label="Share this brew as a card">Share</button>'+(canEdit(l)?'<button class="x" data-edit="'+i+'" aria-label="Edit entry">Edit</button>':'')+'<button class="x" data-del="'+i+'" aria-label="Delete entry">Delete</button></div>'+
     '<div class="hint">'+esc(fmtDate(l))+(l.edited?' \u00B7 edited':'')+(l.by&&GROUP?' · '+esc(l.by===ME?'you':l.by):'')+'</div>'+(l.settings?'<div class="hint">'+esc(l.settings)+'</div>':'')+(l.pred?'<div class="hint">Predicted: '+esc(l.pred)+'</div>':'')+(l.notes?'<p>'+esc(l.notes)+'</p>':'')+flEntry(l,i)+'</div>').join(''):'<p class="hint">No brews logged yet. Dial one in, then tap "Log this brew".</p>';
   renderPalate();
   const rated=LOG.filter(l=>+l.stars>0),avg=rated.length?(rated.reduce((a,l)=>a+ +l.stars,0)/rated.length).toFixed(1):'–';
@@ -1506,7 +1506,9 @@ function renderPalate(){const el=$('l-palate'),P=palate();el.hidden=!P;if(!P)ret
 $('l-fl').onclick=()=>openNotesPicker();
 $('tolog').onclick=()=>{const r=compute(S),dp=dialPlan();if(LEDIT)endEdit();
   $('l-settings').value=(dp?dp.r.name+(S.goal!=='balance'?' ('+goalLabel(S.goal,S.amt).toLowerCase()+')':'')+', '+S.dose+'g : '+dp.water+'g, ':'')+gLabel(S.grinder,S.setting)+', '+BREWERS[S.brewer].name+', '+S.temp+'°C, 1:'+rr1(S.ratio)+', '+BREWERS[S.brewer].bloom.label.toLowerCase()+' '+S.bloom+'s, '+PROCESSES[S.process].name+' '+vName(S.variety);
-  $('l-pred').value=verdict(r.D)[0];$('l-settings').dataset.brewer=S.brewer;showTab('log');$('l-coffee').focus()};
+  $('l-pred').value=verdict(r.D)[0];$('l-settings').dataset.brewer=S.brewer;LSNAP=brewSnap();showTab('log');$('l-coffee').focus()};
+// The brew as it was on the dial-in, kept with the entry so its card can show the dial, the cup and the pours.
+let LSNAP=null;
 $('l-cancel').onclick=()=>endEdit();
 $('l-save').onclick=()=>{const k=LEDIT?LOG.findIndex(x=>x.id===LEDIT):-1;
   if(k>=0){const o=LOG[k],u=Object.assign({},o,{coffee:$('l-coffee').value.trim(),settings:$('l-settings').value.trim(),stars:STAR,pred:$('l-pred').value.trim(),notes:$('l-notes').value.trim(),brewer:$('l-settings').dataset.brewer||o.brewer||'',edited:Date.now()});
@@ -1514,10 +1516,11 @@ $('l-save').onclick=()=>{const k=LEDIT?LOG.findIndex(x=>x.id===LEDIT):-1;
     if(!u.coffee&&!u.settings&&!u.notes&&!LFL.length){toast('Add a coffee name or some notes first');return}
     LOG[k]=u;save('bb-log',LOG);queue('put',u.id,u);endEdit();renderLog();toast(GROUP?'Brew updated and shared':'Brew updated');return}
   if(LEDIT)endEdit();
-  const e={id:uid(),ts:Date.now(),date:new Date().toLocaleDateString(),coffee:$('l-coffee').value.trim(),settings:$('l-settings').value.trim(),stars:STAR,pred:$('l-pred').value.trim(),notes:$('l-notes').value.trim(),brewer:$('l-settings').dataset.brewer||''};if(LFL.length)e.fl=LFL.slice();
+  const e={id:uid(),ts:Date.now(),date:new Date().toLocaleDateString(),coffee:$('l-coffee').value.trim(),settings:$('l-settings').value.trim(),stars:STAR,pred:$('l-pred').value.trim(),notes:$('l-notes').value.trim(),brewer:$('l-settings').dataset.brewer||''};if(LFL.length)e.fl=LFL.slice();if(LSNAP)e.snap=LSNAP;LSNAP=null;
   if(GROUP)e.by=ME;
   if(!e.coffee&&!e.settings&&!e.notes&&!LFL.length){toast('Add a coffee name or some notes first');return}LOG.unshift(e);save('bb-log',LOG);queue('put',e.id,e);['l-coffee','l-settings','l-pred','l-notes'].forEach(id=>$(id).value='');delete $('l-settings').dataset.brewer;STAR=0;LFL=[];renderFlForm();renderStars();renderLog();toast(GROUP?'Brew saved and shared':'Brew saved');beans()};
-$('l-list').onclick=e=>{const fe=e.target.closest('[data-fledit]'),fv=e.target.closest('[data-flview]'),ed=e.target.closest('[data-edit]');
+$('l-list').onclick=e=>{const ls=e.target.closest('[data-lshare]');if(ls){const l=LOG[+ls.dataset.lshare];if(l)openShare(logEntryDoc(l));return}
+  const fe=e.target.closest('[data-fledit]'),fv=e.target.closest('[data-flview]'),ed=e.target.closest('[data-edit]');
   if(ed){const l=LOG[+ed.dataset.edit];if(l&&canEdit(l))editBrew(l);return}
   if(fe){const l=LOG[+fe.dataset.fledit];if(l)openNotesPicker(l);return}
   if(fv){const l=LOG[+fv.dataset.flview];if(l)openProfile(l.coffee||'Untitled',[fmtDate(l),l.stars?l.stars+' of 5 stars':'',l.settings].filter(Boolean).join(' \u00B7 '),flOf(l),l);return}
@@ -1994,6 +1997,11 @@ function varietyDoc(id){const v=VBY[id];const b=[{kv:[['Family',FAM[v.fam].name]
   if(v.subs)b.push({h:'Types',list:v.subs.map(s=>s.name+': '+s.cup)});return{link:SITE_URL+'#v='+id,title:v.name,sub:'Variety guide',blocks:b,file:'variety-'+v.name}}
 function originDoc(k){const o=ALLO()[k];return{link:SITE_URL+'#o='+k,title:o.name,sub:'Coffee origin | '+REG[o.reg].name,file:'origin-'+o.name,blocks:[{kv:[['Regions',o.subs.join(', ')],['Altitude',o.alt],['Harvest',o.harvest],['Processing',o.process]]},{h:'In the cup',p:o.cup},{h:'Story',p:o.hist},{h:'Varieties grown here',list:o.vars.map(v=>VBY[v]?VBY[v].name:v)},{h:'Did you know?',p:o.fact}]}}
 function historyDoc(){return{link:SITE_URL+'#history',title:'The story of coffee',sub:'From Ethiopian forests to your cup',file:'coffee-history',blocks:[{h:'Timeline',list:TIMELINE.map(([w,t,d])=>w+' - '+t+': '+d)},{h:'People who spread coffee',list:PEOPLE.map(([n,r,d])=>n+' ('+r+'): '+d)}]}}
+// One logged brew, as text and as a card.
+function logEntryDoc(l){const fl=flOf(l).filter(([id])=>FW.byId[id]);
+  return{title:l.coffee||'A brew',sub:fmtDate(l)+(l.stars?' | '+l.stars+' / 5':''),file:'brew-'+(l.coffee||'log'),
+    blocks:[{kv:[['Settings',l.settings||'-'],['Predicted',l.pred||'-']]},...(fl.length?[{h:'What I tasted',p:fl.map(([id])=>FW.byId[id].n).join(', ')}]:[]),...(l.notes?[{h:'Notes',p:l.notes}]:[])],
+    card:()=>logCard(l),cardName:'brew-card',cardSub:'This brew as one image: your rating, '+(l.snap?'the settings with the grind dial, the predicted cup, the pours, ':'the settings, ')+'what you tasted and your notes.'}}
 function logDoc(){return{title:'My brew log',sub:LOG.length+' brews',file:'brew-log',blocks:LOG.length?LOG.map(l=>({h:(l.coffee||'Untitled')+' - '+l.date,kv:[['Rating',l.stars?l.stars+' / 5':'-'],['Settings',l.settings||'-'],['Predicted',l.pred||'-'],['Notes',l.notes||'-']].concat(flOf(l).length?[['Flavour notes',flText(flOf(l))]]:[])})):[{p:'No brews logged yet.'}]}}
 function scanDoc(p,c){const inf=SC.info||{};const o=ALLO()[SC.origin];const kv=[...(SC.roaster?[['Roastery',SC.roaster]]:[]),['Origin',o.name],['Variety',vName(SC.variety)],['Process',PROCESSES[SC.process].name],['Roast',SC.roast],['Days off roast',String(daysSince(SC.date))]];
   if(inf.producer_or_farm)kv.push(['Producer or farm',inf.producer_or_farm]);if(inf.altitude)kv.push(['Altitude',inf.altitude]);if((inf.tasting_notes||[]).length)kv.push(['Tasting notes',inf.tasting_notes.join(', ')]);
@@ -2015,7 +2023,7 @@ function openShare(doc){SHDOC=doc;const pdfOK=!!(window.jspdf&&window.jspdf.jsPD
   $('sh-in').innerHTML='<div class="sheet"><div class="grab"></div><button class="vd-close" id="sh-x" aria-label="Close">\u2715</button><h2 id="sh-title" style="margin:0 40px 2px 0">Share</h2><p class="hint" style="margin:0">'+esc(doc.title)+'</p>'+
    // A brew can also go out as a designed image card: shown first, with a preview drawn as the sheet opens.
    (doc.card?'<div class="shcard"><button type="button" class="shcard-pv" data-sh="img" aria-label="Share the brew card image"><span class="shcard-ph">Drawing your brew card…</span></button>'+
-     '<div class="shcard-tx"><b>Brew card</b><small>One image with everything: recipe, numbers, grind dial, the predicted cup and every pour.</small>'+
+     '<div class="shcard-tx"><b>'+esc(doc.cardTitle||'Brew card')+'</b><small>'+esc(doc.cardSub||'One image with everything: recipe, numbers, grind dial, the predicted cup and every pour.')+'</small>'+
      '<div class="shcard-act"><button type="button" class="btn" data-sh="img">Share image</button><button type="button" class="btn ghost" data-sh="imgsave">Save</button></div></div></div>':'')+
    '<div class="sharerow">'+APPS.map(([k,n,c,d])=>'<button type="button" data-sh="'+k+'"><span class="app" style="background:'+c+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+d+'"/></svg></span>'+n+'</button>').join('')+'</div>'+
    '<div class="sheetlist">'+
@@ -2040,7 +2048,11 @@ async function nativeShare(title,name,data,text){const fs=plugin('Filesystem'),s
   else await sh.share({title,text});return true}
 async function saveFile(name,data){if(NATIVE){try{if(await nativeShare(name,name,data))return true}catch(e){if(!/cancel/i.test(e&&e.message||''))toast('Could not save the file');return false}}
   if(DL){try{await DL.save({filename:name,data});toast('Saved');return true}catch(e){if(e&&e.code==='declined')return false;}}
-  try{const u=URL.createObjectURL(data instanceof Blob?data:new Blob([data]));const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);toast('Download started');return true}catch(e){toast('Saving files isn\u2019t available here');return false}}
+  // Phone browsers hand downloads to a download manager that can't always read a blob link (Chrome on Android
+  // reports "Download failed"), so phones get a self-contained data link; elsewhere the blob link lives a minute.
+  try{const blob=data instanceof Blob?data:new Blob([data]),phone=matchMedia('(pointer:coarse)').matches&&blob.size<20e6;
+    const u=phone?await new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=no;r.readAsDataURL(blob)}):URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();if(!phone)setTimeout(()=>URL.revokeObjectURL(u),60000);toast('Download started');return true}catch(e){toast('Saving files isn\u2019t available here');return false}}
 $('sharesheet').addEventListener('click',async e=>{const d=$('sharesheet');if(e.target===d){d.close();return}const b=e.target.closest('[data-sh]');if(!b||!SHDOC)return;const k=b.dataset.sh,doc=SHDOC,txt=docText(doc),base=fname(doc.file||doc.title);
   if(k==='img'||k==='imgsave'){const bl=SHCARD||await doc.card();if(!bl){toast('Couldn’t draw the card');return}d.close();await shareCard(bl,fname(doc.cardName||base),doc.title,k==='imgsave');return}
   if(k==='pdf'){const blob=docPDF(doc);if(!blob){toast('The PDF engine is still loading. Try again in a second');return}d.close();await saveFile(base+'.pdf',blob)}
