@@ -1257,13 +1257,14 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .tshelf>b{flex:none;font-family:var(--display);font-size:1rem}.tshelf>b small{opacity:.65;font-size:.8em}
 /* The cabinet: dark wood and glass, a ledge under every coffee */
 .cab-h{margin-top:22px}
-/* The cabinet: the page's own colour, with a light oak ledge under each row of coffees. */
-.cabinet{position:relative}
-.cabinet .bgrid{row-gap:22px}
-.cslot{position:relative;padding-bottom:14px}.cslot>.bcard{display:block;width:100%}
-.cslot::after{content:"";position:absolute;left:-6px;right:-6px;bottom:0;height:5px;border-radius:3px;background:linear-gradient(180deg,#E3CDAE,#CDAF88);box-shadow:0 4px 8px -4px rgba(90,60,30,.35)}
-[data-theme="dark"] .cslot::after{background:linear-gradient(180deg,#6B5440,#54402F)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cslot::after{background:linear-gradient(180deg,#6B5440,#54402F)}}
+/* The cabinet: plain photo tiles, the name and roastery beneath in the page's own text. */
+.cabinet{position:relative}.cabinet .bgrid{row-gap:18px}
+.cslot{position:relative;min-width:0}.cslot>.bcard{display:block;width:100%}
+.cabinet .bcard{aspect-ratio:auto;background:none;box-shadow:none;overflow:visible;color:var(--ink)}
+.cabinet .bcard>.bpic{position:relative;inset:auto;aspect-ratio:4/5;border-radius:var(--r-lg);box-shadow:var(--shadow)}
+.cabinet .bcard::after{display:none}
+.cabinet .bc-body{position:static;padding:8px 2px 0}.cabinet .bc-body b{text-shadow:none}.cabinet .bc-body small{opacity:1;color:var(--muted)}
+@media (hover:hover){.cabinet .bcard:hover{box-shadow:none}}
 /* ---------- The diary ---------- */
 .diary-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:18px 16px;border-radius:var(--r-xl,28px);color:var(--ink);margin-bottom:6px;background:linear-gradient(160deg,color-mix(in srgb,var(--honey) 14%,var(--surface)),var(--surface));box-shadow:inset 0 0 0 1px var(--hair)}
 .diary-h .crown-k{color:var(--honey-ink)}
