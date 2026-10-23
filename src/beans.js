@@ -196,7 +196,7 @@ function openBean(id){const b=beanById(id);if(!b)return;const d=$('vd'),rk=beanR
   hydrateImgs($('vd-in'));
   $('bd-edit').onclick=()=>openBeanEditor(b);
   $('bd-share').onclick=()=>{d.close();openShare(beanDoc(b))};
-  $('bd-brew').onclick=()=>{if(b.process)S.process=b.process;if(b.variety)S.variety=b.variety;if(b.roast)S.roast=b.roast;if(b.roastDate)S.age=daysSince(b.roastDate);d.close();showTab('dial');
+  $('bd-brew').onclick=()=>{useBean(b);d.close();showTab('dial');
     if(!dialRec()){const t=techList(S.brewer)[0];if(t)S.rec=t[1]}if(dialRec())tune('Tuned for '+beanTitle(b));else{render();toast('Set up for '+beanTitle(b))}};
   $('bd-del').onclick=()=>{const inTop=inAnyTop(b.id);
     if(!confirm('Remove “'+beanTitle(b)+'” from your gallery?'+(inTop?' It stays in your top 3 history.':'')))return;
@@ -206,6 +206,17 @@ function beanDoc(b){const P=b.process&&PROCESSES[b.process];
   return{title:beanTitle(b),sub:(b.roaster?b.roaster+' | ':'')+'Rated '+(b.rating||'–')+' of 5',file:'coffee-'+beanTitle(b),
     card:()=>beanCard(b),cardName:'coffee-card',cardTitle:'Coffee card',cardSub:'This coffee as one image: the bag, your rating in beans, where it’s from and what you tasted.',
     blocks:[{kv:[['Origin',b.origin?originName(b.origin):'-'],['Process',P?P.name:'-'],['Variety',b.variety?vName(b.variety):'-'],['Roast',b.roast||'-']]},...(b.flavours?[{h:'Tasting notes',p:b.flavours}]:[]),...(b.notes?[{h:'Notes',p:b.notes}]:[])]}}
+
+// Brewing a gallery coffee: the dial-in takes its process, variety, roast and age, and remembers which coffee it is.
+function useBean(b){S.bean=okSBean({name:beanTitle(b),roaster:b.roaster,origin:b.origin,id:b.id});if(b.process)S.process=b.process;if(b.variety)S.variety=b.variety;if(b.roast)S.roast=b.roast;if(b.roastDate)S.age=daysSince(b.roastDate)}
+// Pick the beans for the dial-in from the gallery, most recent first.
+function openBeanPick(){const d=$('vd'),list=[...BEANS].sort((a,c)=>c.tried.localeCompare(a.tried)||c.ts-a.ts);
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Your beans</span><h2 id="vd-title">Which coffee are you brewing?</h2><p class="vd-sub">Its process, variety and roast tune the recipe, and it shows on your brew cards.</p></div>'+
+    '<div class="vd-body"><div class="t3list">'+list.map(b=>'<button type="button" class="t3opt'+(S.bean&&S.bean.id===b.id?' on':'')+'" data-usebean="'+b.id+'" style="--m:var(--cherry)">'+beanPic(b,'xs')+'<span class="t3o-tx"><b>'+esc(beanTitle(b))+'</b><small>'+esc([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '))+'</small>'+beanRow(b.rating,'sm')+'</span></button>').join('')+'</div></div>';
+  hydrateImgs($('vd-in'));$('vd-in').querySelector('.t3list').onclick=e=>{const o=e.target.closest('[data-usebean]');if(!o)return;const b=beanById(o.dataset.usebean);if(!b)return;useBean(b);d.close();
+    if(dialRec())tune('Brewing '+beanTitle(b));else{render();toast('Brewing '+beanTitle(b))}};
+  showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
+document.addEventListener('click',e=>{if(e.target.closest('#d-bean [data-dbpick]')){openBeanPick();return}if(e.target.closest('#d-bean [data-dbclear]')){S.bean=null;render()}});
 
 /* ---------- Adding and editing ---------- */
 // pre: details to start from (a scan); its photo comes as a data URL in pre.photo.
@@ -275,4 +286,4 @@ function openTop3(y,start){const d=$('vd'),pool=BEANS.filter(b=>beanYear(b)===y)
     saveTop3();d.close();BPOD=y;BVIEW='top3';renderBeans();toast(slots.some(Boolean)?'Top 3 of '+y+' saved':'Top 3 of '+y+' cleared')};
   draw();showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
 // The app may have opened on the Beans page before this part loaded.
-window.BEANS_OK=1;if($('beans').classList.contains('on'))renderBeans();
+window.BEANS_OK=1;renderDBean();if($('beans').classList.contains('on'))renderBeans();

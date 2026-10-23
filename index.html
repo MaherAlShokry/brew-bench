@@ -1244,6 +1244,13 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .t3o-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.t3o-tx b{font-family:var(--display);font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.t3o-tx small{font-size:.78rem;color:var(--muted)}
 .t3o-r{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:800;color:#2C1B12;border:2px solid var(--line)}
 .t3opt.on .t3o-r{background:linear-gradient(135deg,color-mix(in srgb,var(--m) 45%,#fff),var(--m));border-color:var(--m)}
+/* Dial-in: the beans you're brewing */
+.dbean{display:flex;align-items:center;gap:12px;padding:8px 8px 8px 8px;border-radius:var(--r-md);background:var(--surface2)}
+.dbean .bpic{width:46px;height:58px;border-radius:12px;flex:none}
+.dbean-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;padding:0;border:0;background:none;font:inherit;color:var(--ink);text-align:left;cursor:pointer}
+.dbean-tx b{font-family:var(--display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dbean-tx small{font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dbean-x{flex:none;width:36px;height:36px;border-radius:50%;border:0;background:var(--surface);color:var(--muted);cursor:pointer}
+.dbean-pick{display:inline-flex;align-items:center;gap:8px}.dbean-pick svg{width:20px;height:20px}.dbean-pick .bo{fill:var(--cherry)}.dbean-pick .bc{fill:none;stroke:var(--surface);stroke-width:1.6}
 /* Brew card in the share sheet */
 .cardview{display:block;width:100%;max-width:420px;margin:4px auto 12px;border-radius:18px;box-shadow:0 18px 40px -16px rgba(0,0,0,.6);-webkit-touch-callout:default;user-select:auto}
 .shcard{display:flex;gap:14px;align-items:center;margin:14px 0 4px;padding:12px;border-radius:var(--r-lg);background:linear-gradient(135deg,#2E1C12,#140C07);color:#FFF6E8}
@@ -1329,6 +1336,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
       <div class="field"><div class="lbl">Grinder <button type="button" class="gpick-btn" data-gpick aria-label="Change grinders" title="Change grinders"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l4 4-4 4"/><path d="M3 7h18"/><path d="M7 21l-4-4 4-4"/><path d="M21 17H3"/></svg></button></div><div class="seg" id="g-grinder"></div></div>
       <div class="field"><label for="i-brewer">Brewer</label><select id="i-brewer"></select></div>
       <h3 class="dsub">Your coffee</h3>
+      <div class="field"><div class="lbl">Beans</div><div id="d-bean"></div></div>
       <div class="field"><div class="lbl">Roast</div><div class="seg" id="g-roast"></div></div>
       <div class="field"><label for="i-process">Process</label><select id="i-process"></select></div>
       <div class="field"><label for="i-variety">Variety <button type="button" class="hint" id="v-about" style="background:none;border:0;cursor:pointer;text-decoration:underline">about this variety</button></label><select id="i-variety"></select></div>
@@ -3489,6 +3497,9 @@ const originName=k=>(ALLO()[k]||{}).name||k;
 /* ================= STATE ================= */
 let S=Object.assign({grinder:'zp6',setting:56,brewer:'v60',temp:93,ratio:15,bloom:45,agit:'med',roast:'light',process:'washed',variety:'caturra',rec:null,dose:15,goal:'balance',amt:'mid',age:14,tuned:null},load('bb-state',{}));
 S.agit=oneOf(S.agit,['low','med','high'],'med');S.roast=oneOf(S.roast,['light','medium','dark'],'light');
+// The beans you're brewing: a coffee from your gallery or a scan, so shared cards can say which coffee it was.
+const okSBean=b=>{if(!b||typeof b!=='object')return null;const id=/^[a-z0-9]{4,24}$/,o={name:str(b.name,60),roaster:str(b.roaster,50),origin:ALLO()[b.origin]?b.origin:'',id:id.test(b.id)?b.id:'',scan:id.test(b.scan)?b.scan:''};return o.name?o:null};
+S.bean=okSBean(S.bean);
 S.setting=num(S.setting,56);S.temp=num(S.temp,93);S.ratio=num(S.ratio,15);S.bloom=num(S.bloom,45);if(S.rec!=null&&!RECIPES[S.rec])S.rec=null;
 S.dose=num(S.dose,15,3,120);S.age=Math.round(num(S.age,14,0,90));if(!S.tuned||typeof S.tuned!=='object')S.tuned=null;
 if(typeof S.variety!=='string'||!vById(S.variety))S.variety='caturra';if(!BREWERS[S.brewer]||!BREWERS[S.brewer].model)S.brewer='v60';if(!PROCESSES[S.process])S.process='washed';
@@ -3675,6 +3686,12 @@ function renderDialRecipe(){const tl=techList(S.brewer),r=dialRec();
     '<div><h3 style="margin-top:0">What changed and why</h3><ul class="why">'+(notes.length?notes.map(w=>'<li>'+w+'</li>').join(''):'<li>The recipe as written suits this coffee.</li>')+'</ul></div></div>'+
     '<div class="actions"><button type="button" class="btn" data-dtimer>Start brew timer</button><button type="button" class="btn ghost" data-dfull>Original recipe</button><button type="button" class="btn ghost" data-dshare>Share</button></div>'}
 function dialTimer(){const dp=dialPlan();if(!dp)return;openTimer(S.rec,{grinder:S.grinder,set:{[S.grinder]:S.setting},r:{dose:S.dose},water:dp.water,temp:S.temp,steps:dp.steps})}
+// The Beans row under Your coffee: the coffee you picked, or a way to pick one from the gallery.
+function renderDBean(){const el=$('d-bean');if(!el||!window.BEANS_OK)return;const b=S.bean,gb=b&&b.id&&beanById(b.id);
+  if(b){el.innerHTML='<div class="dbean">'+(gb?beanPic(gb,'xs'):'<span class="bpic xs" style="--rc:'+regCol(b.origin)+'"><span class="bph">'+beanSVG+'</span></span>')+
+      '<button type="button" class="dbean-tx" data-dbpick><b>'+esc(b.name)+'</b><small>'+esc([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · ')||'Tap to change')+'</small></button>'+
+      '<button type="button" class="dbean-x" data-dbclear aria-label="Clear the beans">✕</button></div>';hydrateImgs(el)}
+  else el.innerHTML=BEANS.length?'<button type="button" class="btn ghost dbean-pick" data-dbpick>'+beanSVG+'Pick from your bean gallery</button>':'<p class="hint" style="margin:0">Add coffees under Beans (or scan a bag) and they show here and on your shared brew cards.</p>'}
 function render(){
   const G=GRINDERS[S.grinder],B=BREWERS[S.brewer];
   grinderSeg('g-grinder',(S.brewer),()=>S.grinder,v=>{if(v!==S.grinder){const was=isTuned();S.setting=swapGrinder(v);S.grinder=v;
@@ -3691,7 +3708,7 @@ function render(){
   const ri=$('i-ratio');ri.min=Math.min(B.ratio.min,S.ratio);ri.max=Math.max(B.ratio.max,S.ratio);ri.step=B.ratio.step;ri.value=S.ratio;$('v-ratio').textContent='1:'+rr1(S.ratio);
   const bi=$('i-bloom');bi.min=B.bloom.min;bi.max=B.bloom.max;bi.step=B.bloom.max<=20?1:5;bi.value=S.bloom;$('v-bloom').textContent=S.bloom+'s';
   $('i-bloom').previousElementSibling.firstChild.textContent=B.bloom.label+' ';
-  renderDialRecipe();
+  renderDialRecipe();renderDBean();
   $('i-brewer').value=S.brewer;$('i-process').value=S.process;$('i-variety').value=S.variety;$('i-age').value=S.age;$('v-age').textContent=S.age+' days';
   const [vt,vs]=verdict(r.D);$('o-verdict').textContent=vt;$('mr-v').textContent=vt;$('mr-g').textContent=gLabel(S.grinder,S.setting)+', '+S.temp+'°C, 1:'+rr1(S.ratio);$('mr-m').style.left=((clamp(r.D,-2.5,2.5)+2.5)/5*100)+'%';$('o-summary').textContent=vs+' '+strength(S)+'.';
   $('o-marker').style.left=((clamp(r.D,-2.5,2.5)+2.5)/5*100)+'%';
@@ -5187,7 +5204,7 @@ function renderScan(){
     if(!photo&&SC.id){photo=await BIMG.get(SC.id);if(!photo){const x=SCANS.find(q=>q.id===SC.id);photo=x&&x.t||null}}
     openBeanEditor(null,{name:SC.name||(inf&&plausibleName(inf.coffee_name)?niceName(inf.coffee_name):''),roaster:SC.roaster,origin:SC.origin,process:SC.process,variety:SC.variety,roast:SC.roast,roastDate:SC.date||'',
       flavours:inf&&Array.isArray(inf.tasting_notes)?inf.tasting_notes.join(', ').slice(0,160):'',photo,scan:SC.id||''})};
-  $('sc-dial').onclick=()=>{Object.assign(S,{brewer:p.st.brewer,rec:c.tech,process:c.process,variety:c.variety,roast:c.roast,age:c.age,goal:c.goal,amt:c.amt||'mid',dose:p.r.dose,grinder:p.grinder});showTab('dial');tune('Tuned for this coffee')};
+  $('sc-dial').onclick=()=>{S.bean=okSBean({name:SC.name||scanTitle(SC,SC.info),roaster:SC.roaster,origin:SC.origin,scan:SC.id||''});Object.assign(S,{brewer:p.st.brewer,rec:c.tech,process:c.process,variety:c.variety,roast:c.roast,age:c.age,goal:c.goal,amt:c.amt||'mid',dose:p.r.dose,grinder:p.grinder});showTab('dial');tune('Tuned for this coffee')};
   $('sc-timer').onclick=()=>openTimer(c.tech,p);$('sc-share').onclick=()=>openShare(scanDoc(p,c));
   const cp=Object.assign({},SC);save('bb-scan',cp);renderScanList();
 }
@@ -5883,7 +5900,7 @@ function openBean(id){const b=beanById(id);if(!b)return;const d=$('vd'),rk=beanR
   hydrateImgs($('vd-in'));
   $('bd-edit').onclick=()=>openBeanEditor(b);
   $('bd-share').onclick=()=>{d.close();openShare(beanDoc(b))};
-  $('bd-brew').onclick=()=>{if(b.process)S.process=b.process;if(b.variety)S.variety=b.variety;if(b.roast)S.roast=b.roast;if(b.roastDate)S.age=daysSince(b.roastDate);d.close();showTab('dial');
+  $('bd-brew').onclick=()=>{useBean(b);d.close();showTab('dial');
     if(!dialRec()){const t=techList(S.brewer)[0];if(t)S.rec=t[1]}if(dialRec())tune('Tuned for '+beanTitle(b));else{render();toast('Set up for '+beanTitle(b))}};
   $('bd-del').onclick=()=>{const inTop=inAnyTop(b.id);
     if(!confirm('Remove “'+beanTitle(b)+'” from your gallery?'+(inTop?' It stays in your top 3 history.':'')))return;
@@ -5893,6 +5910,17 @@ function beanDoc(b){const P=b.process&&PROCESSES[b.process];
   return{title:beanTitle(b),sub:(b.roaster?b.roaster+' | ':'')+'Rated '+(b.rating||'–')+' of 5',file:'coffee-'+beanTitle(b),
     card:()=>beanCard(b),cardName:'coffee-card',cardTitle:'Coffee card',cardSub:'This coffee as one image: the bag, your rating in beans, where it’s from and what you tasted.',
     blocks:[{kv:[['Origin',b.origin?originName(b.origin):'-'],['Process',P?P.name:'-'],['Variety',b.variety?vName(b.variety):'-'],['Roast',b.roast||'-']]},...(b.flavours?[{h:'Tasting notes',p:b.flavours}]:[]),...(b.notes?[{h:'Notes',p:b.notes}]:[])]}}
+
+// Brewing a gallery coffee: the dial-in takes its process, variety, roast and age, and remembers which coffee it is.
+function useBean(b){S.bean=okSBean({name:beanTitle(b),roaster:b.roaster,origin:b.origin,id:b.id});if(b.process)S.process=b.process;if(b.variety)S.variety=b.variety;if(b.roast)S.roast=b.roast;if(b.roastDate)S.age=daysSince(b.roastDate)}
+// Pick the beans for the dial-in from the gallery, most recent first.
+function openBeanPick(){const d=$('vd'),list=[...BEANS].sort((a,c)=>c.tried.localeCompare(a.tried)||c.ts-a.ts);
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Your beans</span><h2 id="vd-title">Which coffee are you brewing?</h2><p class="vd-sub">Its process, variety and roast tune the recipe, and it shows on your brew cards.</p></div>'+
+    '<div class="vd-body"><div class="t3list">'+list.map(b=>'<button type="button" class="t3opt'+(S.bean&&S.bean.id===b.id?' on':'')+'" data-usebean="'+b.id+'" style="--m:var(--cherry)">'+beanPic(b,'xs')+'<span class="t3o-tx"><b>'+esc(beanTitle(b))+'</b><small>'+esc([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '))+'</small>'+beanRow(b.rating,'sm')+'</span></button>').join('')+'</div></div>';
+  hydrateImgs($('vd-in'));$('vd-in').querySelector('.t3list').onclick=e=>{const o=e.target.closest('[data-usebean]');if(!o)return;const b=beanById(o.dataset.usebean);if(!b)return;useBean(b);d.close();
+    if(dialRec())tune('Brewing '+beanTitle(b));else{render();toast('Brewing '+beanTitle(b))}};
+  showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
+document.addEventListener('click',e=>{if(e.target.closest('#d-bean [data-dbpick]')){openBeanPick();return}if(e.target.closest('#d-bean [data-dbclear]')){S.bean=null;render()}});
 
 /* ---------- Adding and editing ---------- */
 // pre: details to start from (a scan); its photo comes as a data URL in pre.photo.
@@ -5962,7 +5990,7 @@ function openTop3(y,start){const d=$('vd'),pool=BEANS.filter(b=>beanYear(b)===y)
     saveTop3();d.close();BPOD=y;BVIEW='top3';renderBeans();toast(slots.some(Boolean)?'Top 3 of '+y+' saved':'Top 3 of '+y+' cleared')};
   draw();showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
 // The app may have opened on the Beans page before this part loaded.
-window.BEANS_OK=1;if($('beans').classList.contains('on'))renderBeans();
+window.BEANS_OK=1;renderDBean();if($('beans').classList.contains('on'))renderBeans();
 
 /* ================= BREW CARDS ================= */
 // A brew, a logged brew or a gallery coffee as one designed image to share. Drawn on a canvas in the app's espresso and
@@ -6051,6 +6079,19 @@ function bcDraw(m){const W=BC.W,P=BC.PAD,c=document.createElement('canvas');c.wi
   // Pills
   if(m.pills&&m.pills.length){let px=P;for(const [t,main] of m.pills){x.font='700 26px '+BC.F;const w=x.measureText(t).width+44;if(px+w>W-P){px=P;y+=66}bcRound(x,px,y,w,54,27);
       x.fillStyle=main?BC.HONEY:BC.FAINT;x.fill();if(!main){x.strokeStyle=BC.LINE;x.lineWidth=2;x.stroke()}x.fillStyle=main?BC.BG1:BC.CREAM;x.fillText(t,px+22,y+36);px+=w+12}y+=90}
+  // The beans: the bag (or a tile in the origin's colour), the coffee, its roastery and what it is.
+  if(m.bean){const bn=m.bean,ph=bn.photo,pw=168,X=P+28+pw+30,w=W-P-X-30;x.font='800 46px '+BC.F;
+    // As tall as its lines need, and at least tall enough for the bag.
+    const nl=bcWrap(x,bn.name,w,2).length,h=Math.max(268,64+nl*52+(bn.roaster?44:0)+[bn.line,bn.line2].filter(Boolean).length*36+(bn.rating?48:0)+22);bcCard(x,P,y,W-2*P,h,30);
+    x.save();bcRound(x,P+28,y+28,pw,h-56,22);x.clip();
+    if(ph){const sc=Math.max(pw/ph.width,(h-56)/ph.height);x.drawImage(ph,P+28+(pw-ph.width*sc)/2,y+28+(h-56-ph.height*sc)/2,ph.width*sc,ph.height*sc)}
+    else{const g=x.createLinearGradient(P,y,P+pw,y+h);g.addColorStop(0,bn.col||BC.CARAMEL);g.addColorStop(1,'#2A170D');x.fillStyle=g;x.fillRect(P+28,y+28,pw,h-56);bcBean(x,P+28+pw/2,y+h/2,88,'rgba(255,246,232,.22)','rgba(255,246,232,.4)')}
+    x.restore();bcRound(x,P+28,y+28,pw,h-56,22);x.lineWidth=2.5;x.strokeStyle='rgba(226,184,102,.55)';x.stroke();
+    bcLabel(x,'The beans',X,y+64);x.font='800 46px '+BC.F;x.fillStyle=BC.CREAM;let yy=y+118;for(const l of bcWrap(x,bn.name,w,2)){x.fillText(l,X,yy);yy+=52}
+    if(bn.roaster){x.font='600 30px '+BC.F;x.fillStyle=BC.HONEY;x.fillText(bcWrap(x,bn.roaster,w,1)[0],X,yy);yy+=44}
+    x.font='500 26px '+BC.F;x.fillStyle=BC.MUTED;for(const ln of [bn.line,bn.line2].filter(Boolean)){x.fillText(bcWrap(x,ln,w,1)[0],X,yy);yy+=36}
+    if(bn.rating){bcRating(x,'beans',bn.rating,X,yy+8,30);x.font='700 24px '+BC.F;x.fillStyle=BC.CREAM;x.fillText(String(bn.rating).replace('.5','½'),X+5*30*1.18+10,yy+17)}
+    y+=h+22}
   // Number tiles
   if(m.tiles&&m.tiles.length){const n=m.tiles.length,gap=16,tw=(W-2*P-gap*(n-1))/n;
     m.tiles.forEach(([k,v],i)=>{const X=P+i*(tw+gap);bcCard(x,X,y,tw,150,26);bcLabel(x,k,X+22,y+44,BC.MUTED);x.font='800 '+(n>3?46:40)+'px '+BC.F;x.fillStyle=BC.CREAM;x.fillText(bcWrap(x,v,tw-40,1)[0],X+22,y+112)});y+=150+22}
@@ -6101,28 +6142,34 @@ const bcBlob=async m=>{if(document.fonts&&document.fonts.ready)await document.fo
 
 /* ---------- What each card shows ---------- */
 const AGITW={low:'Gentle',med:'Steady',high:'Lively'};
+// The beans panel: a picked coffee (with its photo and rating when it's in the gallery), else what the coffee is.
+async function bcBean4(bean,v,p,ro,age){const gb=bean&&bean.id&&window.BEANS_OK?beanById(bean.id):null,origin=bean&&bean.origin||gb&&gb.origin||'';
+  const photo=gb&&gb.img?await bcLoad(await BIMG.get(gb.id)):bean&&bean.scan&&window.BEANS_OK?await bcLoad(await BIMG.get(bean.scan)):null;
+  return{photo,col:origin?regCol(origin):null,name:bean?bean.name:vName(v),roaster:bean&&bean.roaster||'',
+    line:[origin?originName(origin):'',p&&PROCESSES[p]?PROCESSES[p].name:'',bean&&v?vName(v):''].filter(Boolean).join('  ·  '),
+    line2:[ro?bcCap(ro)+' roast':'',age?age+' days off roast':''].filter(Boolean).join('  ·  '),rating:gb&&gb.rating||0}}
 // The brew on the dial-in now.
-function brewCard(){const r=compute(S),[vt,vs]=verdict(r.D),B=BREWERS[S.brewer],dp=dialPlan(),Pr=PROCESSES[S.process],water=dp?dp.water:+gfmt(S.dose*S.ratio);
-  return bcBlob({title:dp?dp.r.name:'My '+brewName(B.name)+' brew',by:dp&&dp.r.by,sub:[vName(S.variety),Pr.name,bcCap(S.roast)+' roast'].join('  ·  '),
-    pills:[...(dp?[[goalLabel(S.goal,S.amt)+' cup',1]]:[]),[B.name],...(S.age?[[S.age+' days off roast']]:[])],
+async function brewCard(){const r=compute(S),[vt,vs]=verdict(r.D),B=BREWERS[S.brewer],dp=dialPlan(),water=dp?dp.water:+gfmt(S.dose*S.ratio);
+  return bcBlob({title:dp?dp.r.name:'My '+brewName(B.name)+' brew',by:dp&&dp.r.by,bean:await bcBean4(S.bean,S.variety,S.process,S.roast,S.age),
+    pills:[...(dp?[[goalLabel(S.goal,S.amt)+' cup',1]]:[]),[B.name]],
     tiles:[['Coffee',gfmt(S.dose)+' g'],['Water',gfmt(water)+' g'],['Temp',S.temp+'°C'],['Ratio','1:'+rr1(S.ratio)]],
     grind:{g:S.grinder,c:S.setting,line:BREWERS[S.brewer].bloom.label+' '+S.bloom+' s  ·  '+AGITW[S.agit]+' pours'},cup:{r,vt,vs},steps:dp?dp.steps:[],expect:{label:'Expect',items:cupNotes(S,r).slice(0,8)}})}
 // What Log this brew keeps, so the log's card can show the dial, the cup and the pours later.
 function brewSnap(){const r=compute(S),dp=dialPlan();
   return{g:S.grinder,c:S.setting,b:S.brewer,t:S.temp,ra:S.ratio,bl:S.bloom,ag:S.agit,dose:S.dose,water:dp?dp.water:+gfmt(S.dose*S.ratio),v:S.variety,p:S.process,ro:S.roast,
-    rec:dp?dp.r.name:'',by:dp&&dp.r.by||'',goal:dp?goalLabel(S.goal,S.amt):'',steps:dp?dp.steps.slice(0,14):[],
+    bean:S.bean?Object.assign({},S.bean):null,age:S.age,rec:dp?dp.r.name:'',by:dp&&dp.r.by||'',goal:dp?goalLabel(S.goal,S.amt):'',steps:dp?dp.steps.slice(0,14):[],
     r:{D:+r.D.toFixed(3),sweet:+r.sweet.toFixed(2),acid:+r.acid.toFixed(2),body:+r.body.toFixed(2),clarity:+r.clarity.toFixed(2),bitter:+r.bitter.toFixed(2)}}}
 // A snapshot can come from another phone in a shared log, so every field is checked before it is drawn.
 function okSnap(s){if(!s||typeof s!=='object')return null;const n=(v,a,b)=>typeof v==='number'&&isFinite(v)?clamp(v,a,b):null,r=s.r||{};
   const o={g:GRINDERS[s.g]?s.g:null,c:n(s.c,0,400),b:BREWERS[s.b]?s.b:null,t:n(s.t,0,100),ra:n(s.ra,0.5,30),bl:n(s.bl,0,600),ag:AGITW[s.ag]?s.ag:'med',dose:n(s.dose,1,200),water:n(s.water,1,3000),
-    v:typeof s.v==='string'&&VBY[s.v.split(':')[0]]?s.v:null,p:PROCESSES[s.p]?s.p:null,ro:['light','medium','dark'].includes(s.ro)?s.ro:null,rec:str(s.rec,80),by:str(s.by,80),goal:str(s.goal,40),
+    v:typeof s.v==='string'&&VBY[s.v.split(':')[0]]?s.v:null,p:PROCESSES[s.p]?s.p:null,ro:['light','medium','dark'].includes(s.ro)?s.ro:null,bean:okSBean(s.bean),age:n(s.age,0,400),rec:str(s.rec,80),by:str(s.by,80),goal:str(s.goal,40),
     steps:(Array.isArray(s.steps)?s.steps:[]).filter(t=>typeof t==='string').map(t=>t.slice(0,160)).slice(0,14),
     r:['D','sweet','acid','body','clarity','bitter'].every(k=>typeof r[k]==='number'&&isFinite(r[k]))?{D:clamp(r.D,-5,5),sweet:clamp(r.sweet,0,10),acid:clamp(r.acid,0,10),body:clamp(r.body,0,10),clarity:clamp(r.clarity,0,10),bitter:clamp(r.bitter,0,10)}:null};
   return o.b?o:null}
 // A brew from the log: what you rated and tasted, with the brew itself when it was logged from the dial-in.
-function logCard(l){const s=okSnap(l.snap),fl=flOf(l).filter(([id])=>FW.byId[id]),B=s&&BREWERS[s.b],stars=clamp(Math.round(+l.stars||0),0,5);
+async function logCard(l){const s=okSnap(l.snap),fl=flOf(l).filter(([id])=>FW.byId[id]),B=s&&BREWERS[s.b],stars=clamp(Math.round(+l.stars||0),0,5);
   const m={kicker:'From my brew log',date:fmtDate(l),title:l.coffee||(s&&s.rec)||'A brew',by:s&&s.rec&&l.coffee?s.rec+(s.by?' · '+s.by:''):s&&s.by,
-    sub:s&&s.v?[vName(s.v),s.p&&PROCESSES[s.p].name,s.ro&&bcCap(s.ro)+' roast'].filter(Boolean).join('  ·  '):'',
+    bean:s&&(s.bean||s.v)?await bcBean4(s.bean,s.v,s.p,s.ro,s.age):null,
     rating:stars?{kind:'stars',v:stars,word:['','Not for me','Okay','Good','Great','Outstanding'][stars]}:null,
     pills:[...(s&&s.goal?[[s.goal+' cup',1]]:[]),...(B?[[B.name]]:[]),...(l.by&&GROUP?[['Brewed by '+(l.by===ME?'me':l.by)]]:[])],
     footer:'Logged with The Brew Bench'};
