@@ -6004,7 +6004,8 @@ function bcWrap(x,t,w,max){const words=String(t).split(/\s+/).filter(Boolean);co
   if(out.length<max&&cur)out.push(cur);
   if(out.length===max&&words.join(' ')!==out.join(' ')){let l=out[max-1];while(l&&x.measureText(l+'…').width>w)l=l.slice(0,-1);out[max-1]=l.replace(/\s+$/,'')+'…'}
   return out}
-function bcCard(x,X,Y,w,h,r){bcRound(x,X,Y,w,h,r||28);x.fillStyle=BC.FAINT;x.fill();x.lineWidth=2;x.strokeStyle=BC.LINE;x.stroke()}
+// A panel: a soft gradient pane with a fine edge.
+function bcPane(x,X,Y,w,h,r){bcRound(x,X,Y,w,h,r||28);const g=x.createLinearGradient(0,Y,0,Y+h);g.addColorStop(0,'rgba(255,246,232,.085)');g.addColorStop(1,'rgba(255,246,232,.035)');x.fillStyle=g;x.fill();x.lineWidth=1.5;x.strokeStyle='rgba(255,246,232,.13)';x.stroke()}
 function bcLabel(x,t,X,Y,col){x.font='700 22px '+BC.F;x.fillStyle=col||BC.HONEY;x.letterSpacing='3px';x.fillText(t.toUpperCase(),X,Y);x.letterSpacing='0px'}
 const bcCap=t=>t?t.charAt(0).toUpperCase()+t.slice(1):t;
 // The app's bean mark.
@@ -6044,90 +6045,97 @@ function bcCup(x,r,cx,cy,R){const ax=[['Sweet',r.sweet],['Acidity',r.acid],['Bod
     x.fillStyle=BC.MUTED;x.fillText(a[0],lx,ly-12);x.fillStyle=BC.CREAM;x.font='800 26px '+BC.F;x.fillText(a[1].toFixed(1),lx,ly+16);x.font='600 22px '+BC.F});
   x.restore()}
 // Chips that wrap onto new rows; each can carry its own colour dot (flavour notes keep their wheel colours).
-function bcChips(x,items,y){const W=BC.W,P=BC.PAD;let px=P;x.font='600 28px '+BC.F;
+function bcChips(x,items,y){const W=BC.W,P=BC.PAD;let px=P;x.font='500 27px '+BC.F;
   for(const it of items){const t=typeof it==='string'?it:it.t,dot=typeof it==='string'?null:it.c,w=x.measureText(t).width+48+(dot?26:0);if(px+w>W-P){px=P;y+=70}
-    bcRound(x,px,y,w,56,28);x.fillStyle='rgba(226,184,102,.14)';x.fill();x.strokeStyle='rgba(226,184,102,.4)';x.lineWidth=2;x.stroke();
+    bcRound(x,px,y,w,56,28);x.fillStyle='rgba(255,246,232,.05)';x.fill();x.strokeStyle='rgba(226,184,102,.38)';x.lineWidth=1.5;x.stroke();
     if(dot){x.beginPath();x.arc(px+30,y+28,9,0,TAU);x.fillStyle=dot;x.fill()}x.fillStyle=BC.CREAM;x.textBaseline='alphabetic';x.fillText(t,px+24+(dot?26:0),y+38);px+=w+12}
   return y+56}
 const bcLoad=src=>new Promise(ok=>{if(!src){ok(null);return}const i=new Image();i.onload=()=>ok(i);i.onerror=()=>ok(null);i.src=src});
 /* Draw a card. m: {kicker, date, photo (an image), title, by, sub, rating {kind,v,word}, pills [[text,main]], tiles [[label,value]],
    grind {g,c,line}, cup {r,vt,vs}, text [{label,body}], steps [], expect {label,items,bar}, quote {label,text}, footer} */
-function bcDraw(m){const W=BC.W,P=BC.PAD,c=document.createElement('canvas');c.width=W;c.height=4200;const x=c.getContext('2d');
+function bcDraw(m){const W=BC.W,P=BC.PAD,IW=W-2*P,c=document.createElement('canvas');c.width=W;c.height=4400;const x=c.getContext('2d');
   BC.F=getComputedStyle(document.body).fontFamily;
-  // Background: espresso with a honey glow and a fine grain.
-  const bg=x.createLinearGradient(0,0,0,c.height);bg.addColorStop(0,BC.BG1);bg.addColorStop(0.6,BC.BG2);x.fillStyle=bg;x.fillRect(0,0,W,c.height);
-  const gl=x.createRadialGradient(W*0.92,-40,10,W*0.92,-40,W*0.95);gl.addColorStop(0,'rgba(226,184,102,.42)');gl.addColorStop(1,'rgba(226,184,102,0)');x.fillStyle=gl;x.fillRect(0,0,W,1200);
-  const gl2=x.createRadialGradient(-80,900,10,-80,900,700);gl2.addColorStop(0,'rgba(168,67,47,.30)');gl2.addColorStop(1,'rgba(168,67,47,0)');x.fillStyle=gl2;x.fillRect(0,0,W,1800);
-  x.fillStyle='rgba(255,255,255,.035)';for(let gy=0;gy<c.height;gy+=9)for(let gx=(gy/9)%2*4.5;gx<W;gx+=9)x.fillRect(gx,gy,1.2,1.2);
+  // Background: deep espresso, a soft honey glow, a faint bean watermark and a very fine grain.
+  const bg=x.createLinearGradient(0,0,0,c.height);bg.addColorStop(0,'#2B1A11');bg.addColorStop(0.45,'#1A100A');bg.addColorStop(1,'#0E0805');x.fillStyle=bg;x.fillRect(0,0,W,c.height);
+  const gl=x.createRadialGradient(W*0.95,-60,10,W*0.95,-60,W*1.05);gl.addColorStop(0,'rgba(226,184,102,.30)');gl.addColorStop(1,'rgba(226,184,102,0)');x.fillStyle=gl;x.fillRect(0,0,W,1300);
+  const gl2=x.createRadialGradient(-120,1100,10,-120,1100,760);gl2.addColorStop(0,'rgba(168,67,47,.18)');gl2.addColorStop(1,'rgba(168,67,47,0)');x.fillStyle=gl2;x.fillRect(0,0,W,2000);
+  x.save();x.globalAlpha=0.05;bcBean(x,W-150,250,420,BC.HONEY,'#2B1A11');x.restore();
+  x.fillStyle='rgba(255,255,255,.022)';for(let gy=0;gy<c.height;gy+=7)for(let gx=(gy/7)%2*3.5;gx<W;gx+=7)x.fillRect(gx,gy,1,1);
   x.textBaseline='alphabetic';x.textAlign='left';
-  // Header
-  let y=104;bcBean(x,P+20,y-12,40,BC.HONEY);bcLabel(x,m.kicker||'The Brew Bench',P+56,y-2);
-  x.textAlign='right';x.font='500 24px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(m.date||new Date().toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}),W-P,y-2);x.textAlign='left';
+  // Header: the mark and kicker, the date, then a fine rule.
+  let y=100;bcBean(x,P+16,y-9,32,BC.HONEY);bcLabel(x,m.kicker||'The Brew Bench',P+44,y);
+  x.textAlign='right';x.font='500 22px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(m.date||new Date().toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}),W-P,y);x.textAlign='left';
+  y+=30;const rl=x.createLinearGradient(P,0,W-P,0);rl.addColorStop(0,'rgba(226,184,102,.55)');rl.addColorStop(1,'rgba(226,184,102,0)');x.fillStyle=rl;x.fillRect(P,y,IW,1.5);
   // A photo of the bag, framed like a print.
-  if(m.photo){y+=44;const ph=m.photo,bw=W-2*P,bh=Math.round(bw*0.72);x.save();bcRound(x,P,y,bw,bh,34);x.clip();
-    const s=Math.max(bw/ph.width,bh/ph.height),dw=ph.width*s,dh=ph.height*s;x.drawImage(ph,P+(bw-dw)/2,y+(bh-dh)/2,dw,dh);
-    const sh=x.createLinearGradient(0,y+bh*0.55,0,y+bh);sh.addColorStop(0,'rgba(18,11,7,0)');sh.addColorStop(1,'rgba(18,11,7,.55)');x.fillStyle=sh;x.fillRect(P,y,bw,bh);x.restore();
-    bcRound(x,P,y,bw,bh,34);x.lineWidth=3;x.strokeStyle='rgba(226,184,102,.5)';x.stroke();y+=bh+20}
-  y+=92;x.font='800 72px '+BC.F;x.fillStyle=BC.CREAM;
-  for(const l of bcWrap(x,m.title,W-2*P,2)){x.fillText(l,P,y);y+=82}
-  if(m.by){x.font='500 28px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(bcWrap(x,m.by,W-2*P,1)[0],P,y-30);y+=14}
-  if(m.sub){x.font='600 34px '+BC.F;x.fillStyle=BC.HONEY;x.fillText(bcWrap(x,m.sub,W-2*P,1)[0],P,y+8);y+=60}else y+=10;
+  if(m.photo){y+=36;const ph=m.photo,bh=Math.round(IW*0.72);x.save();bcRound(x,P,y,IW,bh,30);x.clip();
+    const s=Math.max(IW/ph.width,bh/ph.height),dw=ph.width*s,dh=ph.height*s;x.drawImage(ph,P+(IW-dw)/2,y+(bh-dh)/2,dw,dh);
+    const sh=x.createLinearGradient(0,y+bh*0.6,0,y+bh);sh.addColorStop(0,'rgba(14,8,5,0)');sh.addColorStop(1,'rgba(14,8,5,.5)');x.fillStyle=sh;x.fillRect(P,y,IW,bh);x.restore();
+    bcRound(x,P,y,IW,bh,30);x.lineWidth=1.5;x.strokeStyle='rgba(226,184,102,.45)';x.stroke();y+=bh}
+  // Title and credit
+  y+=104;x.font='800 76px '+BC.F;x.fillStyle=BC.CREAM;x.letterSpacing='-1px';
+  for(const l of bcWrap(x,m.title,IW,2)){x.fillText(l,P,y);y+=84}x.letterSpacing='0px';
+  if(m.by){x.font='italic 500 28px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(bcWrap(x,m.by,IW,1)[0],P,y-34);y+=10}
+  if(m.sub){x.font='600 32px '+BC.F;x.fillStyle=BC.HONEY;x.fillText(bcWrap(x,m.sub,IW,1)[0],P,y+4);y+=56}
   // Rating, large, with its word.
-  if(m.rating&&m.rating.v){y+=8;bcRating(x,m.rating.kind,m.rating.v,P,y+26,52);const rv=String(m.rating.v).replace('.5','½'),rx=P+5*52*1.18+16;
-    x.font='800 40px '+BC.F;x.fillStyle=BC.CREAM;x.fillText(rv,rx,y+40);
-    if(m.rating.word){const vw=x.measureText(rv).width;x.font='600 30px '+BC.F;x.fillStyle=BC.MUTED;x.fillText('· '+m.rating.word,rx+vw+14,y+40)}y+=82}
-  // Pills
-  if(m.pills&&m.pills.length){let px=P;for(const [t,main] of m.pills){x.font='700 26px '+BC.F;const w=x.measureText(t).width+44;if(px+w>W-P){px=P;y+=66}bcRound(x,px,y,w,54,27);
-      x.fillStyle=main?BC.HONEY:BC.FAINT;x.fill();if(!main){x.strokeStyle=BC.LINE;x.lineWidth=2;x.stroke()}x.fillStyle=main?BC.BG1:BC.CREAM;x.fillText(t,px+22,y+36);px+=w+12}y+=90}
-  // The coffee, clearly labelled: variety, process and roast. Values wrap to two lines rather than being cut.
-  if(m.coffee&&m.coffee.length){const n=m.coffee.length,gap=16,tw=(W-2*P-gap*(n-1))/n,fs=n>3?30:34;x.font='800 '+fs+'px '+BC.F;
-    const rows=m.coffee.map(([k,v])=>[k,bcWrap(x,v||'–',tw-40,2)]),h=Math.max(...rows.map(r=>r[1].length))>1?184:146;
-    rows.forEach(([k,ls],i)=>{const X=P+i*(tw+gap);bcCard(x,X,y,tw,h,26);bcLabel(x,k,X+22,y+44,BC.HONEY);x.font='800 '+fs+'px '+BC.F;x.fillStyle=BC.CREAM;ls.forEach((l,j)=>x.fillText(l,X+22,y+98+j*40))});y+=h+16}
-  // Number tiles
-  if(m.tiles&&m.tiles.length){const n=m.tiles.length,gap=16,tw=(W-2*P-gap*(n-1))/n;
-    m.tiles.forEach(([k,v],i)=>{const X=P+i*(tw+gap);bcCard(x,X,y,tw,150,26);bcLabel(x,k,X+22,y+44,BC.MUTED);x.font='800 '+(n>3?46:40)+'px '+BC.F;x.fillStyle=BC.CREAM;x.fillText(bcWrap(x,v,tw-40,1)[0],X+22,y+112)});y+=150+22}
+  if(m.rating&&m.rating.v){y+=6;bcRating(x,m.rating.kind,m.rating.v,P,y+24,46);const rv=String(m.rating.v).replace('.5','½'),rx=P+5*46*1.18+14;
+    x.font='800 38px '+BC.F;x.fillStyle=BC.CREAM;x.fillText(rv,rx,y+37);
+    if(m.rating.word){const vw=x.measureText(rv).width;x.font='500 28px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(m.rating.word,rx+vw+18,y+37)}y+=74}
+  // Pills: outlined, the first (the target cup) in honey.
+  if(m.pills&&m.pills.length){let px=P;y+=4;for(const [t,main] of m.pills){x.font='600 24px '+BC.F;const w=x.measureText(t).width+40;if(px+w>W-P){px=P;y+=60}
+      bcRound(x,px,y,w,48,24);if(main){x.fillStyle='rgba(226,184,102,.16)';x.fill()}x.lineWidth=1.5;x.strokeStyle=main?'rgba(226,184,102,.7)':'rgba(255,246,232,.22)';x.stroke();
+      x.fillStyle=main?BC.HONEY:'rgba(255,246,232,.85)';x.fillText(t,px+20,y+32);px+=w+10}y+=78}else y+=20;
+  // The spec sheet: the coffee on one row, the numbers on the next, in one panel divided by fine lines.
+  const specRows=[m.coffee,m.tiles].filter(r=>r&&r.length);
+  if(specRows.length){const rows=specRows.map((r,ri)=>{const n=r.length,cw=IW/n,big=r===m.tiles,fs=big?(n>3?44:38):(n>3?28:32);x.font='700 '+fs+'px '+BC.F;
+      const cells=r.map(([k,v])=>[k,bcWrap(x,v||'–',cw-44,2)]),lines=Math.max(...cells.map(cc=>cc[1].length));return{n,cw,fs,cells,big,h:big?136:(lines>1?150:118)}});
+    const H=rows.reduce((a,r)=>a+r.h,0);bcPane(x,P,y,IW,H,28);let ry=y;
+    rows.forEach((r,ri)=>{if(ri){x.fillStyle='rgba(255,246,232,.10)';x.fillRect(P+24,ry,IW-48,1.5)}
+      r.cells.forEach(([k,ls],i)=>{const X=P+i*r.cw;if(i){x.fillStyle='rgba(255,246,232,.09)';x.fillRect(X,ry+22,1.5,r.h-44)}
+        bcLabel(x,k,X+24,ry+44,r.big?BC.MUTED:BC.HONEY);x.font='700 '+r.fs+'px '+BC.F;x.fillStyle=BC.CREAM;ls.forEach((l,j)=>x.fillText(l,X+24,ry+(r.big?100:90)+j*(r.fs+8)))});ry+=r.h});
+    y+=H+20}
   // Grind, with the dial drawn at the setting
-  if(m.grind&&GRINDERS[m.grind.g]){const G=GRINDERS[m.grind.g],h=290,st=m.grind.c;bcCard(x,P,y,W-2*P,h,30);bcDial(x,m.grind.g,st,P+150,y+h/2,112);const X=P+300;
-    bcLabel(x,'Grind',X,y+66);x.font='800 92px '+BC.F;x.fillStyle=BC.CREAM;const dv=dial(m.grind.g,st);x.fillText(dv,X,y+160);
-    const sw=x.measureText(dv).width;x.font='600 30px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(G.fmt==='rot'?Math.round(st)+' clicks':G.unit==='clicks'?'clicks':'',X+sw+16,y+160);
-    x.font='600 30px '+BC.F;x.fillStyle=BC.CREAM;x.fillText(bcWrap(x,G.name,W-P-X-30,1)[0],X,y+206);
-    if(m.grind.line){x.font='500 26px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(bcWrap(x,m.grind.line,W-P-X-30,1)[0],X,y+246)}y+=h+22}
+  if(m.grind&&GRINDERS[m.grind.g]){const G=GRINDERS[m.grind.g],h=280,st=m.grind.c;bcPane(x,P,y,IW,h,28);bcDial(x,m.grind.g,st,P+146,y+h/2,108);const X=P+292;
+    bcLabel(x,'Grind',X,y+64);x.font='800 88px '+BC.F;x.fillStyle=BC.CREAM;const dv=dial(m.grind.g,st);x.fillText(dv,X,y+154);
+    const sw=x.measureText(dv).width;x.font='500 28px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(G.fmt==='rot'?Math.round(st)+' clicks':G.unit==='clicks'?'clicks':'',X+sw+16,y+154);
+    x.font='600 30px '+BC.F;x.fillStyle=BC.CREAM;x.fillText(bcWrap(x,G.name,W-P-X-30,1)[0],X,y+200);
+    if(m.grind.line){x.font='500 25px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(bcWrap(x,m.grind.line,W-P-X-30,1)[0],X,y+240)}y+=h+20}
   // The predicted cup
-  if(m.cup){const r=m.cup.r,h=440;bcCard(x,P,y,W-2*P,h,30);bcCup(x,r,P+196,y+h/2+6,102);const X=P+478,w=W-P-X-36;
-    bcLabel(x,'Predicted cup',X,y+70);x.font='800 46px '+BC.F;x.fillStyle=BC.CREAM;let yy=y+128;for(const l of bcWrap(x,m.cup.vt,w,2)){x.fillText(l,X,yy);yy+=54}
-    x.font='500 26px '+BC.F;x.fillStyle=BC.MUTED;for(const l of bcWrap(x,m.cup.vs,w,4)){x.fillText(l,X,yy);yy+=36}
-    const gy=y+h-86,gw=w;const gg=x.createLinearGradient(X,0,X+gw,0);gg.addColorStop(0,'#D9B35A');gg.addColorStop(.25,'#C98A3E');gg.addColorStop(.5,'#7A4524');gg.addColorStop(.75,'#4A2A18');gg.addColorStop(1,'#1E120B');
-    bcRound(x,X,gy,gw,16,8);x.fillStyle=gg;x.fill();x.strokeStyle=BC.LINE;x.lineWidth=1.5;x.stroke();
-    const mx=X+(clamp(r.D,-2.5,2.5)+2.5)/5*gw;bcRound(x,mx-5,gy-12,10,40,5);x.fillStyle=BC.CREAM;x.fill();
-    x.font='500 20px '+BC.F;x.fillStyle=BC.MUTED;x.textAlign='left';x.fillText('Under',X,gy+52);x.textAlign='center';x.fillText('Sweet spot',X+gw/2,gy+52);x.textAlign='right';x.fillText('Over',X+gw,gy+52);x.textAlign='left';y+=h+22}
+  if(m.cup){const r=m.cup.r,h=430;bcPane(x,P,y,IW,h,28);bcCup(x,r,P+196,y+h/2+6,100);const X=P+478,w=W-P-X-36;
+    bcLabel(x,'Predicted cup',X,y+68);x.font='800 44px '+BC.F;x.fillStyle=BC.CREAM;let yy=y+124;for(const l of bcWrap(x,m.cup.vt,w,2)){x.fillText(l,X,yy);yy+=52}
+    x.font='500 25px '+BC.F;x.fillStyle=BC.MUTED;for(const l of bcWrap(x,m.cup.vs,w,4)){x.fillText(l,X,yy);yy+=35}
+    const gy=y+h-84,gw=w;const gg=x.createLinearGradient(X,0,X+gw,0);gg.addColorStop(0,'#D9B35A');gg.addColorStop(.25,'#C98A3E');gg.addColorStop(.5,'#7A4524');gg.addColorStop(.75,'#4A2A18');gg.addColorStop(1,'#1E120B');
+    bcRound(x,X,gy,gw,12,6);x.fillStyle=gg;x.fill();x.strokeStyle='rgba(255,246,232,.14)';x.lineWidth=1;x.stroke();
+    const mx=X+(clamp(r.D,-2.5,2.5)+2.5)/5*gw;bcRound(x,mx-4,gy-11,8,34,4);x.fillStyle=BC.CREAM;x.fill();
+    x.font='500 19px '+BC.F;x.fillStyle=BC.MUTED;x.textAlign='left';x.fillText('Under',X,gy+48);x.textAlign='center';x.fillText('Sweet spot',X+gw/2,gy+48);x.textAlign='right';x.fillText('Over',X+gw,gy+48);x.textAlign='left';y+=h+20}
   // Text blocks (settings written as text, for log entries from before brews were kept in full)
-  for(const tb of m.text||[]){if(!tb.body)continue;x.font='500 30px '+BC.F;const lines=bcWrap(x,tb.body,W-2*P-56,6),h=88+lines.length*42;bcCard(x,P,y,W-2*P,h,28);
-    bcLabel(x,tb.label,P+28,y+50);x.font='500 30px '+BC.F;x.fillStyle=BC.CREAM;lines.forEach((l,j)=>x.fillText(l,P+28,y+98+j*42));y+=h+22}
-  // Every pour, on a timeline
+  for(const tb of m.text||[]){if(!tb.body)continue;x.font='500 29px '+BC.F;const lines=bcWrap(x,tb.body,IW-56,6),h=86+lines.length*40;bcPane(x,P,y,IW,h,28);
+    bcLabel(x,tb.label,P+28,y+48);x.font='500 29px '+BC.F;x.fillStyle=BC.CREAM;lines.forEach((l,j)=>x.fillText(l,P+28,y+94+j*40));y+=h+20}
+  // Every pour: the times in a honey column, a fine line linking the steps.
   const steps=m.steps||[];
-  if(steps.length){y+=30;bcLabel(x,'The pours',P,y);
-    // The last timed step is when the brew ends.
-    const last=[...steps].reverse().map(t=>/^(\d+:\d\d)/.exec(t)).find(Boolean);if(last){x.font='600 24px '+BC.F;x.fillStyle=BC.MUTED;x.textAlign='right';x.fillText('Done by '+last[1],W-P,y);x.textAlign='left'}y+=30;
-    const tl=P+70,tw=W-P-tl-40,show=steps.slice(0,10);x.font='500 30px '+BC.F;
-    const rows=show.map(s=>{const mm=/^(\d+:\d\d)\s*(.*)$/.exec(s);return{t:mm?mm[1]:'',d:bcCap(mm?mm[2]:s)}}).map(o=>({...o,lines:bcWrap(x,o.d,tw-40,2)}));
-    rows.forEach((o,i)=>{const rh=28+o.lines.length*40;
-      if(i<rows.length-1){x.beginPath();x.moveTo(P+40,y+44);x.lineTo(P+40,y+rh+30);x.strokeStyle=BC.LINE;x.lineWidth=3;x.stroke()}
-      x.beginPath();x.arc(P+40,y+36,o.t?26:10,0,TAU);x.fillStyle=o.t?'rgba(226,184,102,.16)':BC.HONEY;x.fill();if(o.t){x.lineWidth=2.5;x.strokeStyle=BC.HONEY;x.stroke();
-        x.font='700 '+(o.t.length>4?17:19)+'px '+BC.F;x.fillStyle=BC.HONEY;x.textAlign='center';x.fillText(o.t,P+40,y+43);x.textAlign='left'}
-      x.font='500 30px '+BC.F;x.fillStyle=BC.CREAM;o.lines.forEach((l,j)=>x.fillText(l,tl+16,y+46+j*40));y+=rh+14});
-    if(steps.length>show.length){x.font='500 24px '+BC.F;x.fillStyle=BC.MUTED;x.fillText('+ '+(steps.length-show.length)+' more in the app',tl+16,y+10);y+=40}}
+  if(steps.length){y+=40;bcLabel(x,'The pours',P,y);
+    const last=[...steps].reverse().map(t=>/^(\d+:\d\d)/.exec(t)).find(Boolean);if(last){x.font='500 22px '+BC.F;x.fillStyle=BC.MUTED;x.textAlign='right';x.fillText('Done by '+last[1],W-P,y);x.textAlign='left'}y+=22;
+    const tx=P+108,tw=W-P-tx-10,show=steps.slice(0,10);x.font='500 30px '+BC.F;
+    const rows=show.map(s=>{const mm=/^(\d+:\d\d)\s*(.*)$/.exec(s);return{t:mm?mm[1]:'',d:bcCap(mm?mm[2]:s)}}).map(o=>({...o,lines:bcWrap(x,o.d,tw,2)}));
+    const top=y+18;let yy=y;const ys=rows.map(o=>{const r0=yy;yy+=30+o.lines.length*40;return r0});
+    x.fillStyle='rgba(226,184,102,.28)';x.fillRect(P+86,top+22,1.5,Math.max(0,ys[ys.length-1]-y+4));
+    rows.forEach((o,i)=>{const ry=ys[i];x.font='700 26px '+BC.F;x.fillStyle=BC.HONEY;x.fillText(o.t||'·',P,ry+50);
+      x.beginPath();x.arc(P+86.75,ry+41,7,0,TAU);x.fillStyle='#1A100A';x.fill();x.lineWidth=2;x.strokeStyle=BC.HONEY;x.stroke();
+      x.font='500 30px '+BC.F;x.fillStyle=BC.CREAM;o.lines.forEach((l,j)=>x.fillText(l,tx,ry+51+j*40))});
+    y=yy+10;if(steps.length>show.length){x.font='500 23px '+BC.F;x.fillStyle=BC.MUTED;x.fillText('+ '+(steps.length-show.length)+' more in the app',tx,y+10);y+=36}}
   // Notes: expected or tasted, with the flavour families as one bar in the wheel's colours
-  if(m.expect&&m.expect.items.length){y+=34;bcLabel(x,m.expect.label,P,y);y+=24;y=bcChips(x,m.expect.items.slice(0,10),y);
-    if(m.expect.bar&&m.expect.bar.length){y+=26;let bx=P;const bw=W-2*P;x.save();bcRound(x,P,y,bw,18,9);x.clip();m.expect.bar.forEach(([cc,p])=>{x.fillStyle=cc.c;x.fillRect(bx,y,bw*p+1,18);bx+=bw*p});x.restore();y+=18}}
+  if(m.expect&&m.expect.items.length){y+=44;bcLabel(x,m.expect.label,P,y);y+=24;y=bcChips(x,m.expect.items.slice(0,10),y);
+    if(m.expect.bar&&m.expect.bar.length){y+=24;let bx=P;x.save();bcRound(x,P,y,IW,12,6);x.clip();m.expect.bar.forEach(([cc,p])=>{x.fillStyle=cc.c;x.fillRect(bx,y,IW*p+1,12);bx+=IW*p});x.restore();y+=12}}
   // Your own words
-  if(m.quote&&m.quote.text){y+=40;x.font='italic 500 34px '+BC.F;const lines=bcWrap(x,m.quote.text,W-2*P-60,6),h=70+lines.length*48;
-    bcRound(x,P,y,6,h,3);x.fillStyle=BC.HONEY;x.fill();bcLabel(x,m.quote.label,P+34,y+30);x.font='italic 500 34px '+BC.F;x.fillStyle=BC.CREAM;lines.forEach((l,j)=>x.fillText(l,P+34,y+82+j*48));y+=h}
-  // Footer
-  y+=64;x.beginPath();x.moveTo(P,y);x.lineTo(W-P,y);x.strokeStyle=BC.LINE;x.lineWidth=2;x.stroke();y+=58;
-  bcBean(x,P+16,y-10,30,BC.HONEY);x.font='700 26px '+BC.F;x.fillStyle=BC.CREAM;x.fillText(m.footer||'Brewed with The Brew Bench',P+44,y);
-  x.textAlign='right';x.font='500 24px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(SITE_URL.replace(/^https?:\/\//,'').replace(/\/$/,''),W-P,y);x.textAlign='left';
+  if(m.quote&&m.quote.text){y+=48;x.font='italic 500 33px '+BC.F;const lines=bcWrap(x,m.quote.text,IW-60,6),h=66+lines.length*46;
+    x.font='800 132px Georgia,serif';x.fillStyle='rgba(226,184,102,.2)';x.fillText('“',P-10,y+96);
+    bcLabel(x,m.quote.label,P+64,y+26);x.font='italic 500 33px '+BC.F;x.fillStyle=BC.CREAM;lines.forEach((l,j)=>x.fillText(l,P+64,y+76+j*46));y+=h}
+  // Footer: centred mark and line, the link beneath.
+  y+=70;const fr=x.createLinearGradient(P,0,W-P,0);fr.addColorStop(0,'rgba(226,184,102,0)');fr.addColorStop(.5,'rgba(226,184,102,.45)');fr.addColorStop(1,'rgba(226,184,102,0)');x.fillStyle=fr;x.fillRect(P,y,IW,1.5);
+  y+=64;x.font='700 26px '+BC.F;const ft=m.footer||'Brewed with The Brew Bench',fw=x.measureText(ft).width;bcBean(x,W/2-fw/2-22,y-9,28,BC.HONEY);
+  x.fillStyle=BC.CREAM;x.textAlign='left';x.fillText(ft,W/2-fw/2+6,y);
+  y+=40;x.textAlign='center';x.font='500 22px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(SITE_URL.replace(/^https?:\/\//,'').replace(/\/$/,''),W/2,y);x.textAlign='left';
   // Trim to what was drawn.
-  const H=Math.round(y+64),out=document.createElement('canvas');out.width=W;out.height=H;out.getContext('2d').drawImage(c,0,0);
+  const H=Math.round(y+70),out=document.createElement('canvas');out.width=W;out.height=H;out.getContext('2d').drawImage(c,0,0);
   return out}
 const bcBlob=async m=>{if(document.fonts&&document.fonts.ready)await document.fonts.ready;const cv=bcDraw(m);return new Promise(res=>cv.toBlob(res,'image/jpeg',0.92))};
 
