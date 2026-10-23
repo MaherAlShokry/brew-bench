@@ -92,9 +92,10 @@ const OT={
 // Volcano and highland origins share contour lines, in their own colours.
 for(const [k,glow,acc,acc2,note] of [['costarica','#3FA66B','#E9C46A','#C0503A','Volcanic highlands'],['honduras','#3E78B8','#E8BE60','#5FA36F','Mountain contours'],['nicaragua','#4F8FB0','#E6BF64','#C05A3A','Volcanic highlands'],
   ['ecuador','#D9A440','#EAC060','#3E78B8','Andean volcanoes'],['malawi','#3E8FB0','#E6BA62','#C0503A','Lake Malawi']])OT[k]={bg:['#13201C','#0A120F','#050908'],glow,acc,acc2,motif:'contour',note};
+// Origins without a look of their own, including every country off the map, take their region's.
 const OT_REG={africa:'kenya',arabia:'yemen',asia:'indonesia',central:'guatemala',south:'colombia'};
 // The stamp's region is the short name of the first growing area ("Jazan (Khawlan…)" becomes "Jazan").
-function originTheme(k){const o=k&&ALLO()[k];if(!o)return null;const sub=String((o.subs||[])[0]||'').replace(/\s*\(.*$/,'').replace(/\s*[,/:].*$/,'').trim();
+function originTheme(k){const o=k&&oInfo(k);if(!o)return null;const sub=String((o.subs||[])[0]||'').replace(/\s*\(.*$/,'').replace(/\s*[,/:].*$/,'').trim();
   return Object.assign({key:k,name:o.name.replace(/ \(.*\)$/,''),sub},OT[k]||OT[OT_REG[o.reg]]||OT.house)}
 const hexA=(h,a)=>{const n=parseInt(h.slice(1),16);return 'rgba('+(n>>16&255)+','+(n>>8&255)+','+(n&255)+','+a+')'};
 const bcA=a=>hexA(BC.HONEY,a);
@@ -153,6 +154,7 @@ const MOTIF={
 Object.assign(OT,{
   southsudan:{bg:['#22140F','#130B08','#0A0504'],glow:'#C0503A',acc:'#EBB04F',acc2:'#3A7CB8',motif:'beads',note:'Dinka beadwork'},
   saudi:     {bg:['#2A1310','#160A08','#0B0504'],glow:'#C24A30',acc:'#EBB75E',acc2:'#F3EADC',motif:'sadu',note:'Al Sadu weave'},
+  oman:      {bg:['#102221','#091514','#050B0B'],glow:'#D9A54A',acc:'#E8C47C',acc2:'#C8423A',motif:'forts',note:'Fort battlements'},
   philippines:{bg:['#1E1A10','#110E08','#090704'],glow:'#C9A040',acc:'#EAC462',acc2:'#3E8F86',motif:'banig',note:'Banig mat'},
   laos:      {bg:['#13201B','#0A120F','#050907'],glow:'#5FA37F',acc:'#E6C06A',acc2:'#B0473A',motif:'contour',note:'Bolaven Plateau'},
   srilanka:  {bg:['#2A1218','#16090D','#0B0507'],glow:'#D8607A',acc:'#EFBE5E',acc2:'#3FA08A',motif:'lotus',note:'Kandyan lotus'},
@@ -171,6 +173,11 @@ Object.assign(OT,{
   madagascar:{bg:['#1E1410','#110B08','#090604'],glow:'#C9703E',acc:'#EBB863',acc2:'#3F8F7A',motif:'kente',note:'Lamba weave'}});
 Object.assign(MOTIF,{
   // Al Sadu: bands of triangles and diamonds between stripes.
+  // Omani fort walls (Nizwa, Bahla): rows of pointed battlements with a round tower and its arched window.
+  forts(x,W,H,T){x.lineWidth=2;for(let r=0,y=120;y<H;r++,y+=260){const a=.08*fadeY(y);x.strokeStyle=hexA(T.acc,a);
+      x.beginPath();x.moveTo(0,y);for(let c=0;c<W;c+=40){x.lineTo(c+8,y);x.lineTo(c+20,y-22);x.lineTo(c+32,y);x.lineTo(c+40,y)}x.stroke();
+      for(let c=r%2?210:60;c<W+60;c+=300){x.beginPath();x.moveTo(c-40,y+110);x.lineTo(c-40,y-30);for(let i=-40;i<40;i+=20){x.lineTo(i+c+10,y-52);x.lineTo(i+c+20,y-30)}x.lineTo(c+40,y+110);x.stroke();
+        x.fillStyle=hexA(T.acc2,a*1.2);x.beginPath();x.moveTo(c-11,y+40);x.lineTo(c-11,y+6);x.arc(c,y+6,11,Math.PI,0);x.lineTo(c+11,y+40);x.closePath();x.fill()}}},
   sadu(x,W,H,T){for(let y=50;y<H;y+=170){const a=.07*fadeY(y);x.fillStyle=hexA(T.acc,a);x.fillRect(0,y-34,W,4);x.fillRect(0,y+30,W,4);
       for(let c=0;c<W;c+=60){x.fillStyle=hexA(T.acc2,a);x.beginPath();x.moveTo(c,y+26);x.lineTo(c+30,y-26);x.lineTo(c+60,y+26);x.closePath();x.fill();x.fillStyle=hexA(T.acc,a);x.beginPath();x.moveTo(c+30,y-8);x.lineTo(c+40,y+4);x.lineTo(c+30,y+16);x.lineTo(c+20,y+4);x.closePath();x.fill()}}},
   // Banig: a diagonal mat weave.
@@ -197,10 +204,12 @@ function bcBand(x,W,T){const cols=[T.acc,T.acc2,T.glow];const h=14;for(let c=0,i
   x.fillStyle=hexA('#000000',.25);for(let c=0;c<W;c+=28){x.beginPath();x.moveTo(c,h);x.lineTo(c+14,0);x.lineTo(c+28,h);x.closePath();x.fill()}}
 // A passport-style stamp: the country on the arc, a growing region beneath, the bean in the middle.
 // Shorter forms for names too long for the stamp's ring, tried after the full name. ':sub' entries are for the region.
-const STAMP_SHORT={dominican:'Dominican Rep.',png:'Papua N.G.','jamaica:sub':'Blue Mtns','laos:sub':'Bolaven','cuba:sub':'S. Maestra'};
+const STAMP_SHORT={dominican:'Dominican Rep.',png:'Papua N.G.','jamaica:sub':'Blue Mtns','laos:sub':'Bolaven','cuba:sub':'S. Maestra',
+  car:'C. African Rep.',congo:'Rep. of Congo',eqguinea:'Eq. Guinea',saotome:'São Tomé',uae:'UAE',trinidad:'Trinidad',solomon:'Solomon Is.'};
 const STAMP_ARC=2.5,STAMP_MIN=15;
 // The names to try: the full name, a set short form, then the name with its last words dropped.
-function stampNames(t,short){const w=t.split(' '),out=[t];if(short)out.push(short);for(let n=w.length-1;n>0;n--)out.push(w.slice(0,n).join(' '));return out}
+// A shortened name never ends on a small word ("São Tomé and").
+function stampNames(t,short){const w=t.split(' '),out=[t];if(short)out.push(short);for(let n=w.length-1;n>0;n--)if(!/^(and|of|the|de|da|del)$/i.test(w[n-1]))out.push(w.slice(0,n).join(' '));return out}
 // The first name that fits the arc at the largest size and spacing; failing that, the shortest name, squeezed to fit.
 function stampFit(x,names,r){let f;
   for(const t0 of names){const t=t0.toUpperCase();for(let sz=19;sz>=STAMP_MIN;sz--)for(const sp of [4,3,2]){
