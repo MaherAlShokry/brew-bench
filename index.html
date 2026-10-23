@@ -1229,13 +1229,13 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .bd-rate{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:6px 0 8px}
 .bd-v{font-size:.98rem!important;font-weight:700!important}
 /* ---------- From your cabinet: one coffee a day ---------- */
-.cday{display:flex;align-items:center;gap:14px;width:100%;text-align:left;border:0;border-radius:20px;padding:12px 16px 12px 12px;margin:4px 0 14px;cursor:pointer;font:inherit;color:#FFF8EE;
-  background:radial-gradient(120% 140% at 100% 0%,rgba(226,184,102,.28),transparent 55%),linear-gradient(135deg,#3B2518,#1C110B);box-shadow:var(--shadow);transition:transform .2s var(--ease-out)}
+.cday{display:flex;align-items:center;gap:14px;width:100%;text-align:left;border:0;border-radius:20px;padding:12px 16px 12px 12px;margin:4px 0 14px;cursor:pointer;font:inherit;color:var(--ink);
+  background:linear-gradient(135deg,color-mix(in srgb,var(--honey) 16%,var(--surface)),var(--surface));box-shadow:var(--shadow),inset 0 0 0 1px var(--hair);transition:transform .2s var(--ease-out)}
 .cday:active{transform:scale(.98)}
-.cday .bpic{flex:none;width:62px;height:78px;border-radius:14px;box-shadow:0 0 0 2px rgba(255,248,236,.85),0 10px 18px -8px rgba(0,0,0,.6);transform:rotate(-4deg)}
-.cd-tx{min-width:0}.cd-tx small{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:#F0C987}
-.cd-tx b{display:block;font-family:var(--display);font-size:1.08rem;line-height:1.25;margin:3px 0 2px}.cd-tx span{display:block;font-size:.86rem;line-height:1.4;color:rgba(255,248,238,.84)}
-.cday.k-peak small,.cday.k-fade small,.cday.k-low small{color:#9FD0A0}.cday.k-fade small,.cday.k-low small{color:#F3B37A}
+.cday .bpic{flex:none;width:58px;height:72px;border-radius:12px;box-shadow:0 8px 16px -8px rgba(60,35,20,.45);transform:rotate(-3deg)}
+.cd-tx{min-width:0}.cd-tx small{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--honey-ink,var(--cherry))}
+.cd-tx b{display:block;font-family:var(--display);font-size:1.05rem;line-height:1.25;margin:3px 0 2px}.cd-tx span{display:block;font-size:.86rem;line-height:1.4;color:var(--muted)}
+.cday.k-peak small{color:var(--leaf-ink,#2F6B36)}.cday.k-fade small,.cday.k-low small{color:var(--cherry)}
 /* ---------- On the shelf ---------- */
 .shelf-h{display:flex;align-items:baseline;gap:8px;margin:2px 2px 10px}.shelf-h b{font-family:var(--display);font-size:1.15rem}.shelf-h span{font-size:.8rem;color:var(--muted)}
 .shelf{display:flex;gap:12px;overflow-x:auto;padding:2px 2px 8px;margin:0 -2px 8px;scroll-snap-type:x proximity;scrollbar-width:none}.shelf::-webkit-scrollbar{display:none}
@@ -1251,23 +1251,24 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .bagm{display:block;height:6px;border-radius:3px;background:var(--surface2);overflow:hidden}.bagm i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#8A5A3B,#C9964A)}
 .shelf-empty{margin:0 2px 14px;padding:12px 14px;border-radius:var(--r-md);border:1.5px dashed var(--line);font-size:.86rem;color:var(--muted)}
 /* The trophies along the top of the cabinet */
-.tshelf{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;margin:4px 0 4px;border-radius:var(--r-md);border:0;font:inherit;cursor:pointer;text-align:left;color:#FFF3DD;
+.tshelf{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;margin:4px 0 4px;border-radius:var(--r-md);border:0;font:inherit;cursor:pointer;text-align:left;color:var(--ink);background:var(--surface2)}
   background:linear-gradient(180deg,#5A3A26,#3E2718);box-shadow:inset 0 1px 0 rgba(255,236,200,.18),0 6px 14px -8px rgba(0,0,0,.6)}
-.ts-k{flex:none;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;font-weight:800;color:#F0C987}
+.ts-k{flex:none;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;font-weight:800;color:var(--muted)}
 .ts-row{flex:1;min-width:0;display:flex;gap:4px;overflow:hidden;font-size:1.25rem;line-height:1}.ts-row i{font-style:normal;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}.ts-row em{font-size:.82rem;font-style:normal;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tshelf>b{flex:none;font-family:var(--display);font-size:1rem}.tshelf>b small{opacity:.65;font-size:.8em}
 /* The cabinet: dark wood and glass, a ledge under every coffee */
 .cab-h{margin-top:22px}
-.cabinet{position:relative;padding:6px 14px 16px;border-radius:24px;background:linear-gradient(180deg,#2B1A11,#1D120B);box-shadow:inset 0 0 0 1.5px rgba(255,226,180,.08),inset 0 18px 30px -20px rgba(255,220,160,.18),var(--shadow)}
-.cabinet::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(115deg,rgba(255,255,255,.06) 0 12%,transparent 30%)}
-.cabinet .bg-gh{margin:16px 2px 10px}.cabinet .bg-gh b{color:#FFF3DD}.cabinet .bg-gh span{background:rgba(255,243,221,.12);color:rgba(255,243,221,.8)}
+/* The cabinet: the page's own colour, with a light oak ledge under each row of coffees. */
+.cabinet{position:relative}
 .cabinet .bgrid{row-gap:22px}
 .cslot{position:relative;padding-bottom:14px}.cslot>.bcard{display:block;width:100%}
-.cslot::after{content:"";position:absolute;left:-7px;right:-7px;bottom:0;height:11px;border-radius:2px;background:linear-gradient(180deg,#9A6A45,#6B4529 55%,#4A2F1C);box-shadow:0 8px 12px -6px rgba(0,0,0,.7)}
-.cabinet .hint{color:rgba(255,243,221,.75)}
+.cslot::after{content:"";position:absolute;left:-6px;right:-6px;bottom:0;height:5px;border-radius:3px;background:linear-gradient(180deg,#E3CDAE,#CDAF88);box-shadow:0 4px 8px -4px rgba(90,60,30,.35)}
+[data-theme="dark"] .cslot::after{background:linear-gradient(180deg,#6B5440,#54402F)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cslot::after{background:linear-gradient(180deg,#6B5440,#54402F)}}
 /* ---------- The diary ---------- */
-.diary-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:18px 16px;border-radius:var(--r-xl,28px);color:#FFF8EE;margin-bottom:6px;background:radial-gradient(120% 120% at 0% 0%,rgba(226,184,102,.22),transparent 55%),linear-gradient(160deg,#3A2417,#1A100A)}
-.diary-h h3{margin:4px 0 0;font-family:var(--display);font-size:1.35rem;color:#FFF8EE}.diary-h h3 em{font-style:normal;color:#F0C987;font-size:.85em}.diary-h p{margin:8px 0 0;font-size:.88rem;color:rgba(255,248,238,.8);max-width:36ch}
+.diary-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:18px 16px;border-radius:var(--r-xl,28px);color:var(--ink);margin-bottom:6px;background:linear-gradient(160deg,color-mix(in srgb,var(--honey) 14%,var(--surface)),var(--surface));box-shadow:inset 0 0 0 1px var(--hair)}
+.diary-h .crown-k{color:var(--honey-ink)}
+.diary-h h3{margin:4px 0 0;font-family:var(--display);font-size:1.35rem;color:var(--ink)}.diary-h h3 em{font-style:normal;color:var(--muted);font-size:.85em}.diary-h p{margin:8px 0 0;font-size:.88rem;color:var(--muted);max-width:36ch}
 .dy-m{margin:20px 2px 8px;font-family:var(--display);font-size:1rem;color:var(--muted)}
 .tline{list-style:none;margin:0;padding:0 0 0 6px;position:relative}
 .tline::before{content:"";position:absolute;left:21px;top:8px;bottom:8px;width:2px;border-radius:1px;background:var(--line)}
