@@ -280,6 +280,11 @@ function compute(st){
     clarity:clamp(5.4-0.7*step+G.clarity+B.clarity-P.funk+Vp.clarity-Math.max(0,D)*0.9),
     bitter:clamp(0.8+Math.max(0,D)*2.4+roastBit+Math.max(0,st.temp-96)*0.3)};
 }
+// What the cup should taste of: the variety's and process's notes, shifted by how far the extraction lands from the sweet spot.
+function cupNotes(st,r){const P=PROCESSES[st.process],Vv=vById(st.variety);let ch=[...Vv.notes.slice(0,3),...P.notes];
+  if(r.D<-1.2)ch=['sour','grassy','thin',Vv.notes[0]];else if(r.D<-0.45)ch=['bright',...ch.slice(0,4)];
+  else if(r.D>1.2)ch=['drying','bitter cocoa','papery','muted'];else if(r.D>0.45)ch=['syrupy','brown sugar',...Vv.notes.slice(0,2)];
+  if(P.funk>=1.2&&r.D>0.45)ch.push('harsh ferment');return [...new Set(ch)]}
 function verdict(D){
   if(D<-1.2)return['Under-extracted','Sour, thin and hollow. The flavours feel unfinished.'];
   if(D<-0.45)return['Bright and light','Lively and clear, a touch lean. Some sweetness left in the bean.'];
@@ -446,12 +451,8 @@ function render(){
   $('o-bars').innerHTML=[['Sweetness',r.sweet],['Acidity',r.acid],['Body',r.body],['Clarity',r.clarity],['Bitterness',r.bitter,'bitter']]
     .map(([n,v,c])=>'<div class="bar '+(c||'')+'"><span>'+n+'</span><div class="t"><b style="width:'+(v*10)+'%"></b></div><span class="num" style="font-size:.9rem">'+v.toFixed(1)+'</span></div>').join('');
   drawCup(r);
-  const P=PROCESSES[S.process],Vv=vById(S.variety);
-  let ch=[...Vv.notes.slice(0,3),...P.notes];
-  if(r.D<-1.2)ch=['sour','grassy','thin',Vv.notes[0]];else if(r.D<-0.45)ch=['bright',...ch.slice(0,4)];
-  else if(r.D>1.2)ch=['drying','bitter cocoa','papery','muted'];else if(r.D>0.45)ch=['syrupy','brown sugar',...Vv.notes.slice(0,2)];
-  if(P.funk>=1.2&&r.D>0.45)ch.push('harsh ferment');
-  $('o-chips').innerHTML=[...new Set(ch)].map(c=>'<span class="chip">'+esc(c)+'</span>').join('');
+  const P=PROCESSES[S.process];
+  $('o-chips').innerHTML=cupNotes(S,r).map(c=>'<span class="chip">'+esc(c)+'</span>').join('');
   const tips=[];
   {const bx=baseX(S.grinder,S.brewer),off=bx==null?0:stepsBetween(S.grinder,bx,S.setting);
     if(Math.abs(off)>2.5)tips.push('<b>'+esc(gLabel(S.grinder,S.setting))+' is much '+(off>0?'finer':'coarser')+' than '+art(brewName(B.name))+' '+esc(brewName(B.name))+' usually needs.</b> Most brews start around '+esc(dial(S.grinder,Math.round(bx)))+'. <button type="button" class="linkbtn" data-reset-grind>Reset to '+esc(dial(S.grinder,Math.round(bx)))+'</button>')}
@@ -1986,6 +1987,8 @@ function dialDoc(){const r=compute(S),[vt,vs]=verdict(r.D),B=BREWERS[S.brewer],d
    {h:'Predicted cup',p:vt+'. '+vs},{kv:[['Sweetness',r.sweet.toFixed(1)+' / 10'],['Acidity',r.acid.toFixed(1)+' / 10'],['Body',r.body.toFixed(1)+' / 10'],['Clarity',r.clarity.toFixed(1)+' / 10'],['Bitterness',r.bitter.toFixed(1)+' / 10']]}]};
   if(dp){doc.title=dp.r.name+': '+vName(S.variety);doc.blocks.unshift({h:'Recipe',kv:[['Recipe',dp.r.name+(dp.r.by?' ('+dp.r.by+')':'')],['Target cup',goalLabel(S.goal,S.amt)],['Dose : water',S.dose+'g : '+dp.water+'g']]});
     doc.blocks.splice(2,0,{h:'Steps',num:true,list:dp.steps},{h:'What changed and why',list:[...dp.changes,...dp.p.tw,...dp.p.why].map(w=>w.replace(/<[^>]+>/g,''))})}
+  // The share sheet offers this brew as a designed card image too.
+  doc.card=brewCard;doc.cardName='brew-card';
   return doc}
 function varietyDoc(id){const v=VBY[id];const b=[{kv:[['Family',FAM[v.fam].name],['Origin',v.origin||'-'],['Year',v.year||'-'],['Parentage',v.parents||'-']]},{h:'Story',p:v.story},{h:'In the cup',p:v.cup+' ('+v.notes.join(', ')+')'},{h:'How to brew it',p:v.brew}];
   if(v.subs)b.push({h:'Types',list:v.subs.map(s=>s.name+': '+s.cup)});return{link:SITE_URL+'#v='+id,title:v.name,sub:'Variety guide',blocks:b,file:'variety-'+v.name}}
@@ -2010,12 +2013,19 @@ function shareText(doc){const link=doc.link||SITE_URL,t=docText(doc,true).replac
   return(t.length>1400?t.slice(0,1400).replace(/\s+\S*$/,'')+'\u2026':t)+(t.includes(link)?'':'\n\nOpen it in The Brew Bench:\n'+link)}
 function openShare(doc){SHDOC=doc;const pdfOK=!!(window.jspdf&&window.jspdf.jsPDF);
   $('sh-in').innerHTML='<div class="sheet"><div class="grab"></div><button class="vd-close" id="sh-x" aria-label="Close">\u2715</button><h2 id="sh-title" style="margin:0 40px 2px 0">Share</h2><p class="hint" style="margin:0">'+esc(doc.title)+'</p>'+
+   // A brew can also go out as a designed image card: shown first, with a preview drawn as the sheet opens.
+   (doc.card?'<div class="shcard"><button type="button" class="shcard-pv" data-sh="img" aria-label="Share the brew card image"><span class="shcard-ph">Drawing your brew card…</span></button>'+
+     '<div class="shcard-tx"><b>Brew card</b><small>One image with everything: recipe, numbers, grind dial, the predicted cup and every pour.</small>'+
+     '<div class="shcard-act"><button type="button" class="btn" data-sh="img">Share image</button><button type="button" class="btn ghost" data-sh="imgsave">Save</button></div></div></div>':'')+
    '<div class="sharerow">'+APPS.map(([k,n,c,d])=>'<button type="button" data-sh="'+k+'"><span class="app" style="background:'+c+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+d+'"/></svg></span>'+n+'</button>').join('')+'</div>'+
    '<div class="sheetlist">'+
    '<button type="button" data-sh="pdf">'+ico('file','#B5533C')+'<span>Save as PDF<small>'+(pdfOK?'A styled page to send or print':'Loading the PDF engine\u2026 try again in a moment')+'</small></span></button>'+
    '<button type="button" data-sh="copy">'+ico('copy','#C9964A')+'<span>Copy as text<small>Paste it anywhere</small></span></button>'+
    '<button type="button" data-sh="md">'+ico('text','#8A5A3B')+'<span>Save as a text file<small>Plain text you can edit</small></span></button></div></div>';
-  const d=$('sharesheet');showDlg(d);$('sh-x').onclick=()=>d.close()}
+  const d=$('sharesheet');showDlg(d);$('sh-x').onclick=()=>d.close();
+  if(doc.card){SHCARD=null;const want=doc;doc.card().then(bl=>{if(SHDOC!==want||!bl)return;SHCARD=bl;const pv=d.querySelector('.shcard-pv');if(!pv)return;
+    const u=URL.createObjectURL(bl);pv.innerHTML='<img src="'+u+'" alt="Your brew card">';pv.querySelector('img').onload=()=>setTimeout(()=>URL.revokeObjectURL(u),1000)}).catch(()=>{const ph=d.querySelector('.shcard-ph');if(ph)ph.textContent='Couldn’t draw the card'})}}
+let SHCARD=null;
 // Open a messaging app with the text filled in. In the Android app, Capacitor hands these links to the system.
 function openLink(url){if(NATIVE||/^(mailto|sms):/.test(url))location.href=url;else window.open(url,'_blank','noopener')}
 const fname=s=>String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,60)||'brew-bench';
@@ -2032,6 +2042,7 @@ async function saveFile(name,data){if(NATIVE){try{if(await nativeShare(name,name
   if(DL){try{await DL.save({filename:name,data});toast('Saved');return true}catch(e){if(e&&e.code==='declined')return false;}}
   try{const u=URL.createObjectURL(data instanceof Blob?data:new Blob([data]));const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);toast('Download started');return true}catch(e){toast('Saving files isn\u2019t available here');return false}}
 $('sharesheet').addEventListener('click',async e=>{const d=$('sharesheet');if(e.target===d){d.close();return}const b=e.target.closest('[data-sh]');if(!b||!SHDOC)return;const k=b.dataset.sh,doc=SHDOC,txt=docText(doc),base=fname(doc.file||doc.title);
+  if(k==='img'||k==='imgsave'){const bl=SHCARD||await doc.card();if(!bl){toast('Couldn’t draw the card');return}d.close();await shareCard(bl,fname(doc.cardName||base),doc.title,k==='imgsave');return}
   if(k==='pdf'){const blob=docPDF(doc);if(!blob){toast('The PDF engine is still loading. Try again in a second');return}d.close();await saveFile(base+'.pdf',blob)}
   if(k==='md'){d.close();await saveFile(base+'.txt',txt)}
   if(k==='copy'){let ok=false;try{await navigator.clipboard.writeText(txt);ok=true}catch(err){try{const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();ok=document.execCommand('copy');ta.remove()}catch(e2){}}d.close();toast(ok?'Copied to clipboard':'Copying isn\u2019t allowed here; try Save as a text file')}

@@ -34,7 +34,7 @@ On a phone the app has five tabs: **Brew** (the dial-in), **Recipes**, **Beans**
 | **Guide** | Ratio calculator and a taste-based troubleshooter |
 | **Log** | Rated brew log with stats and CSV export, shared live with friends through a group code. Note what you tasted on the flavour wheel (light, medium or strong): each brew keeps a profile wheel you can open and download as an image, and “Your palate” sums up the notes across all your brews |
 
-You can share anything to WhatsApp, Telegram, Messages or email, through your phone's share menu, as a styled PDF, or as text. Every share carries a link that opens the same thing in the app: a recipe, a champion's recipe, your dial-in or brew plan (with the grind converted to the other person's grinders), a variety or an origin. Everything you save (calibration, log, scans) stays in your own browser.
+A brew also shares as a designed **brew card** image (recipe, numbers, the grinder's dial at your setting, the predicted cup, every pour and the notes to expect), ready for WhatsApp or an Instagram story. You can share anything to WhatsApp, Telegram, Messages or email, through your phone's share menu, as a styled PDF, or as text. Every share carries a link that opens the same thing in the app: a recipe, a champion's recipe, your dial-in or brew plan (with the grind converted to the other person's grinders), a variety or an origin. Everything you save (calibration, log, scans) stays in your own browser.
 
 ## Install on your phone
 
@@ -118,6 +118,7 @@ brew-bench/
 │   ├── template.html           Page layout and all styles
 │   ├── app.js                  All interactive logic
 │   ├── beans.js                The bean gallery and yearly top 3
+│   ├── brewcard.js             The shareable brew card image
 │   └── data/
 │       ├── origins-varieties-history.js   Origins, varieties, family tree, timeline
 │       ├── brewing.js                     Brewers, recipes, processes, techniques, quiz
