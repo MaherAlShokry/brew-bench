@@ -205,11 +205,6 @@ function beanList(){const q=BQ.trim().toLowerCase();
 function beanGroups(l){if(BSORT==='rated')return [['',l]];const g=new Map();
   for(const b of l){const k=BSORT==='recent'?String(beanYear(b)):BSORT==='roaster'?(b.roaster||'Roastery not set'):(b.origin?flagOf(b.origin)+' '+originName(b.origin):'Origin not set');if(!g.has(k))g.set(k,[]);g.get(k).push(b)}
   return [...g]}
-// A photo card: the bag fills it, the name sits on a soft shade at the bottom, the rating on a glass pill.
-function beanCard(b,i){const rk=beanRank(b),proc=b.process?PROCESSES[b.process].name:'',fresh=!BSEEN.has(b.id);BSEEN.add(b.id);
-  return '<button type="button" class="bcard'+(fresh?' enter':'')+'" data-bean="'+b.id+'" style="--i:'+Math.min(i||0,10)+'">'+beanPic(b)+
-    (rk?'<span class="bmedal" style="--m:'+MEDAL[rk]+'" title="'+MEDALN[rk]+', top 3 of '+beanYear(b)+'">'+CROWN+rk+'</span>':'')+glassRate(b.rating)+
-    '<span class="bc-body"><b>'+esc(beanTitle(b))+'</b><small>'+esc([b.roaster,b.origin?flagOf(b.origin)+' '+originName(b.origin):'',proc].filter(Boolean).join(' · ')||' ')+'</small></span></button>'}
 const beanYears=()=>[...new Set([...BEANS.map(beanYear),...Object.keys(TOP3).filter(y=>t3has(TOP3[y])).map(Number)])].sort((a,b)=>b-a);
 const t3name=(t,id)=>{const b=beanById(id),s=(t.snap||[]).find(x=>x.id===id)||{};return b?beanTitle(b):s.name||'A coffee'};
 // The year's top 3 as a showcase: three tall photo cards, the winner raised in the middle with a gold sheen.
@@ -234,7 +229,7 @@ addEventListener('resize',setAbBottom);
 // The page: a compact hero with the two ways in, then one of three views (your coffees, the top 3, your scans).
 function renderBeans(){const el=$('beans-in');if(!el)return;setAbBottom();
   if(!el.firstChild)el.innerHTML='<div id="bg-hero"></div><div id="bg-day"></div><div class="seg bviews scrollrow" id="bg-views" role="group" aria-label="Show"></div>'+
-    '<div class="bview" id="bv-coffees" aria-label="Your cabinet"></div><div class="bview" id="bv-diary" aria-label="Your coffee diary"></div><div class="bview" id="bv-passport" aria-label="Your coffee passport"></div>'+
+    '<div class="bview" id="bv-coffees" aria-label="Your coffees"></div><div class="bview" id="bv-diary" aria-label="Your coffee diary"></div><div class="bview" id="bv-passport" aria-label="Your coffee passport"></div>'+
     '<div class="bview" id="bv-top3" aria-label="Top 3"></div><div class="bview" id="bv-scans" aria-label="Your scans"></div>';
   $('bg-day').innerHTML=cabinetDayHTML();hydrateImgs($('bg-day'));
   renderBeanHero();renderBeanViews();renderCoffees();renderDiaryView();renderPassport();renderTop3View();renderBeanScans()}
@@ -251,12 +246,12 @@ function renderBeanHero(){const cy=new Date().getFullYear(),N=BEANS.length,rated
   hydrateImgs(h)}
 function renderBeanViews(){const cy=new Date().getFullYear();
   const cnt=n=>n?' <i>'+(n>999?'999+':n)+'</i>':'';
-  seg('bg-views',[['coffees','Cabinet'+cnt(BEANS.length)],['diary','Diary'],['passport','Passport'],['top3','Top 3'],['scans','Scans'+cnt(SCANS.length)]],()=>BVIEW,v=>{if(v===BVIEW)return;BVIEW=v;renderBeanViews()});
+  seg('bg-views',[['coffees','Coffees'+cnt(BEANS.length)],['diary','Diary'],['passport','Passport'],['top3','Top 3'],['scans','Scans'+cnt(SCANS.length)]],()=>BVIEW,v=>{if(v===BVIEW)return;BVIEW=v;renderBeanViews()});
   if(BVIEW==='passport')renderPassport();
   for(const v of ['coffees','diary','passport','top3','scans']){const p=$('bv-'+v),on=v===BVIEW;if(p.hidden===!on)continue;p.hidden=!on;if(on&&!RM()){p.classList.remove('bv-in');void p.offsetWidth;p.classList.add('bv-in')}}}
 function renderCoffees(){const p=$('bv-coffees'),years=beanYears();if(BYEAR!=='all'&&!years.includes(+BYEAR))BYEAR='all';
   if(!BEANS.length){p.innerHTML='<div class="bg-empty">'+beanSVG+'<b>No coffees yet</b><p>Scan a bag or add one by hand. Your earlier scans are under <button type="button" class="linkbtn" data-view="scans">Scans</button>, ready to add.</p></div>';return}
-  p.innerHTML=shelfHTML()+trophyRowHTML()+'<h3 class="rh cab-h">The cabinet</h3><div class="bg-tools"><input type="search" id="bg-q" placeholder="Search coffees, roasters, origins, notes" aria-label="Search your coffees" value="'+esc(BQ)+'">'+
+  p.innerHTML=shelfHTML()+trophyRowHTML()+'<h3 class="rh cab-h">All your coffees</h3><div class="bg-tools"><input type="search" id="bg-q" placeholder="Search coffees, roasters, origins, notes" aria-label="Search your coffees" value="'+esc(BQ)+'">'+
     '<div class="seg filters scrollrow" id="bg-sort" role="group" aria-label="Sort"></div>'+(years.length>1?'<div class="seg filters scrollrow" id="bg-year" role="group" aria-label="Show year"></div>':'')+'</div><div id="bg-grid"></div>';
   seg('bg-sort',[['recent','Recent'],['rated','Top rated'],['roaster','Roastery'],['origin','Origin']],()=>BSORT,v=>{BSORT=v;renderBeanSort()});
   if(years.length>1)seg('bg-year',[['all','All years'],...years.map(y=>[String(y),String(y)])],()=>BYEAR,v=>{BYEAR=v;renderBeanSort()});
@@ -264,16 +259,22 @@ function renderCoffees(){const p=$('bv-coffees'),years=beanYears();if(BYEAR!=='a
 // Sorting and filtering redraw only the cards and the chips' state, so the page doesn't jump.
 function renderBeanSort(){for(const [id,v] of [['bg-sort',BSORT],['bg-year',BYEAR]]){const s=$(id);if(s)s.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v))}renderGrid()}
 function renderGrid(){const g=$('bg-grid');if(!g)return;const list=beanList();let n=0;
-  // Each coffee stands on a shelf: the slots' ledges meet across a row, so every row reads as one shelf of the cabinet.
-  g.className=list.length?'cabinet':'';
-  g.innerHTML=list.length?beanGroups(list).map(([h,l])=>(h?'<div class="bg-gh"><b>'+esc(h)+'</b><span>'+l.length+'</span></div>':'')+'<div class="bgrid">'+l.map(b=>'<div class="cslot">'+beanCard(b,n++)+'</div>').join('')+'</div>').join(''):'<p class="hint">No coffees match that search.</p>';
+  g.innerHTML=list.length?beanGroups(list).map(([h,l])=>(h?'<div class="bg-gh"><b>'+esc(h)+'</b><span>'+l.length+'</span></div>':'')+'<div class="clist">'+l.map(b=>coffeeRow(b,false,n++)).join('')+'</div>').join(''):'<p class="hint">No coffees match that search.</p>';
   hydrateImgs(g)}
+// One coffee as a row: the bag, its name, where it's from, and your rating. Bags you're drinking now (now=true) also
+// show how fresh they are and what's left.
+function coffeeRow(b,now,i){const rk=beanRank(b),f=now&&fresh(b),g=now?gramsLeft(b):null,c=now?cupsLeft(b):null,isNew=!BSEEN.has(b.id);BSEEN.add(b.id);
+  const meta=[b.roaster,b.origin?flagOf(b.origin)+' '+originName(b.origin):'',!now&&b.process?PROCESSES[b.process].name:''].filter(Boolean).join(' · ');
+  return '<button type="button" class="crow'+(isNew?' enter':'')+'" data-bean="'+b.id+'" style="--i:'+Math.min(i||0,12)+'">'+beanPic(b,'rw')+
+    '<span class="cr-tx"><b>'+esc(beanTitle(b))+'</b>'+(meta?'<small>'+esc(meta)+'</small>':'')+
+      (now&&(f||g!=null)?'<span class="cr-now">'+(f?freshPill(f):'')+(g!=null?'<small>'+(g?g+' g left'+(c!=null?' · '+c+' cup'+(c===1?'':'s'):''):'Bag empty')+'</small>':'')+'</span>':'')+'</span>'+
+    '<span class="cr-end">'+(rk?'<span class="cr-medal" style="--m:'+MEDAL[rk]+'" title="'+MEDALN[rk]+', top 3 of '+beanYear(b)+'">'+CROWN+'</span>':'')+
+      (b.rating?'<span class="cr-rate">'+beanSVG+String(b.rating).replace('.5','½')+'</span>':'')+'</span></button>'}
 // The bags you're drinking now, each with its freshness and what's left.
 function shelfHTML(){const sh=BEANS.filter(b=>b.shelf).sort((a,b)=>b.tried.localeCompare(a.tried)||b.ts-a.ts);
-  return '<div class="shelf-h"><b>On the shelf</b><span>'+(sh.length?sh.length+' open bag'+(sh.length===1?'':'s'):'')+'</span></div>'+
-    (sh.length?'<div class="shelf scrollrow">'+sh.map(b=>{const f=fresh(b);return '<button type="button" class="scard" data-bean="'+b.id+'">'+beanPic(b,'sc')+
-      '<span class="sc-tx"><b>'+esc(beanTitle(b))+'</b><small>'+esc(b.roaster||(b.origin?originName(b.origin):'')||' ')+'</small>'+(f?freshPill(f):'')+bagLine(b)+'</span></button>'}).join('')+'</div>'
-     :'<p class="shelf-empty">The bags you’re drinking now sit here, with how fresh they are and what’s left. Put a coffee on the shelf from its page.</p>')}
+  return '<div class="shelf-h"><b>Drinking now</b><span>'+(sh.length?sh.length+' open bag'+(sh.length===1?'':'s'):'')+'</span></div>'+
+    (sh.length?'<div class="clist now">'+sh.map((b,i)=>coffeeRow(b,true,i)).join('')+'</div>'
+     :'<p class="shelf-empty">The bags you’re drinking now show here, with how fresh they are and what’s left. Mark a coffee as “Drinking it” from its page.</p>')}
 // The trophies you've earned, along the top of the cabinet.
 function trophyRowHTML(){const got=TROPHIES.filter(t=>TGOT&&TGOT[t[0]]);
   return '<button type="button" class="tshelf" data-view="passport" aria-label="Trophies: '+got.length+' of '+TROPHIES.length+'. Open your passport"><span class="ts-k">Trophies</span><span class="ts-row">'+
