@@ -6088,8 +6088,8 @@ for(const [k,glow,acc,acc2,note] of [['costarica','#3FA66B','#E9C46A','#C0503A',
   ['ecuador','#D9A440','#EAC060','#3E78B8','Andean volcanoes'],['malawi','#3E8FB0','#E6BA62','#C0503A','Lake Malawi']])OT[k]={bg:['#13201C','#0A120F','#050908'],glow,acc,acc2,motif:'contour',note};
 const OT_REG={africa:'kenya',arabia:'yemen',asia:'indonesia',central:'guatemala',south:'colombia'};
 // The stamp's region is the short name of the first growing area ("Jazan (Khawlan…)" becomes "Jazan").
-function originTheme(k){const o=k&&ALLO()[k];if(!o)return null;const sub=String((o.subs||[])[0]||'').replace(/\s*\(.*$/,'').replace(/\s*[,/].*$/,'').trim();
-  return Object.assign({key:k,name:o.name,sub:sub.length>16?sub.split(' ')[0]:sub},OT[k]||OT[OT_REG[o.reg]]||OT.house)}
+function originTheme(k){const o=k&&ALLO()[k];if(!o)return null;const sub=String((o.subs||[])[0]||'').replace(/\s*\(.*$/,'').replace(/\s*[,/:].*$/,'').trim();
+  return Object.assign({key:k,name:o.name.replace(/ \(.*\)$/,''),sub},OT[k]||OT[OT_REG[o.reg]]||OT.house)}
 const hexA=(h,a)=>{const n=parseInt(h.slice(1),16);return 'rgba('+(n>>16&255)+','+(n>>8&255)+','+(n&255)+','+a+')'};
 const bcA=a=>hexA(BC.HONEY,a);
 // Patterns, drawn faint over the whole background and fading down the card. f(x,W,H,T) strokes or fills in T's colours.
@@ -6190,13 +6190,26 @@ let MK=1;const fadeY=y=>MK*Math.max(0.35,1-y/2200);
 function bcBand(x,W,T){const cols=[T.acc,T.acc2,T.glow];const h=14;for(let c=0,i=0;c<W;c+=28,i++){x.fillStyle=hexA(cols[i%3],.85);x.fillRect(c,0,28,h)}
   x.fillStyle=hexA('#000000',.25);for(let c=0;c<W;c+=28){x.beginPath();x.moveTo(c,h);x.lineTo(c+14,0);x.lineTo(c+28,h);x.closePath();x.fill()}}
 // A passport-style stamp: the country on the arc, a growing region beneath, the bean in the middle.
+// Shorter forms for names too long for the stamp's ring, tried after the full name. ':sub' entries are for the region.
+const STAMP_SHORT={dominican:'Dominican Rep.',png:'Papua N.G.','jamaica:sub':'Blue Mtns','laos:sub':'Bolaven','cuba:sub':'S. Maestra'};
+const STAMP_ARC=2.5,STAMP_MIN=15;
+// The names to try: the full name, a set short form, then the name with its last words dropped.
+function stampNames(t,short){const w=t.split(' '),out=[t];if(short)out.push(short);for(let n=w.length-1;n>0;n--)out.push(w.slice(0,n).join(' '));return out}
+// The first name that fits the arc at the largest size and spacing; failing that, the shortest name, squeezed to fit.
+function stampFit(x,names,r){let f;
+  for(const t0 of names){const t=t0.toUpperCase();for(let sz=19;sz>=STAMP_MIN;sz--)for(const sp of [4,3,2]){
+    x.font='800 '+sz+'px '+BC.F;x.letterSpacing='0px';const a=[...t].reduce((s,ch)=>s+x.measureText(ch).width+sp,0)/r;
+    f={t,font:x.font,sp,a};if(a<=STAMP_ARC)return f}}
+  const n=f.t.length;f.sp-=(f.a-STAMP_ARC)*r/n;f.a=STAMP_ARC;return f}
 function bcStamp(x,cx,cy,T){const R=92;x.save();x.translate(cx,cy);x.rotate(-0.16);
   x.strokeStyle=hexA(T.acc,.85);x.lineWidth=3;x.beginPath();x.arc(0,0,R,0,TAU);x.stroke();x.lineWidth=1.5;x.beginPath();x.arc(0,0,R-12,0,TAU);x.stroke();
-  // Letters set along the ring: reading left to right over the top, and left to right along the bottom.
-  const arcText=(t,r,top)=>{t=t.toUpperCase();x.font='800 '+(t.length>12?16:19)+'px '+BC.F;x.letterSpacing='0px';x.fillStyle=hexA(T.acc,.95);x.textAlign='center';x.textBaseline='middle';
-    const ws=[...t].map(ch=>x.measureText(ch).width+4),tot=ws.reduce((a,w)=>a+w,0)/r;let a=top?-Math.PI/2-tot/2:Math.PI/2+tot/2;
-    [...t].forEach((ch,i)=>{const h=ws[i]/2/r;a+=top?h:-h;x.save();x.rotate(a);x.translate(r,0);x.rotate(top?Math.PI/2:-Math.PI/2);x.fillText(ch,0,0);x.restore();a+=top?h:-h})};
-  arcText(T.name.replace(/ \(.*\)$/,''),R-28,true);if(T.sub)arcText(T.sub,R-28,false);
+  // Letters set along the ring: reading left to right over the top, and left to right along the bottom. Each name is fitted to
+  // its half of the ring, clear of the side dots: smaller type and tighter spacing first, then a shorter form of the name.
+  const r=R-28,fit=t=>stampFit(x,t,r);
+  const arcText=(f,top)=>{x.font=f.font;x.fillStyle=hexA(T.acc,.95);x.textAlign='center';x.textBaseline='middle';
+    const ws=[...f.t].map(ch=>x.measureText(ch).width+f.sp);let a=top?-Math.PI/2-f.a/2:Math.PI/2+f.a/2;
+    [...f.t].forEach((ch,i)=>{const h=ws[i]/2/r;a+=top?h:-h;x.save();x.rotate(a);x.translate(r,0);x.rotate(top?Math.PI/2:-Math.PI/2);x.fillText(ch,0,0);x.restore();a+=top?h:-h})};
+  arcText(fit(stampNames(T.name,STAMP_SHORT[T.key])),true);if(T.sub)arcText(fit(stampNames(T.sub,STAMP_SHORT[T.key+':sub'])),false);
   bcBean(x,0,0,40,hexA(T.acc,.95),T.bg[0]);x.fillStyle=hexA(T.acc,.95);for(const s of [-1,1]){x.beginPath();x.arc(s*(R-28),0,3,0,TAU);x.fill()}x.restore();x.textAlign='left';x.textBaseline='alphabetic'}
 
 /* Draw a card. m: {kicker, date, photo (an image), title, by, sub, rating {kind,v,word}, pills [[text,main]], tiles [[label,value]],
