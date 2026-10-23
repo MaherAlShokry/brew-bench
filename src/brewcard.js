@@ -41,7 +41,8 @@ function bcDial(x,g,c,cx,cy,R){const G=GRINDERS[g];c=Math.round(c);x.save();
   x.beginPath();x.arc(cx,cy,R*0.32,0,TAU);x.fillStyle=BC.HONEY;x.fill();
   x.fillStyle=BC.BG1;x.font='800 '+Math.round(R*0.2)+'px '+BC.F;x.textAlign='center';x.textBaseline='middle';x.fillText(dial(g,c),cx,cy+1);x.restore()}
 // The predicted cup seen from above, with the flavour radar floating on the coffee (as on the dial-in).
-function bcCup(x,r,cx,cy,R){const ax=[['Sweet',r.sweet],['Acidity',r.acid],['Body',r.body],['Clarity',r.clarity],['Bitter',r.bitter]],ang=i=>-Math.PI/2+i*TAU/5;
+// L and Rt: the left and right edges the labels must stay inside (the panel on one side, the text on the other).
+function bcCup(x,r,cx,cy,R,L,Rt){const ax=[['Sweet',r.sweet],['Acidity',r.acid],['Body',r.body],['Clarity',r.clarity],['Bitter',r.bitter]],ang=i=>-Math.PI/2+i*TAU/5;
   x.save();x.beginPath();x.arc(cx,cy,R*1.3,0,TAU);x.fillStyle=bcI(.07);x.fill();
   x.beginPath();x.arc(cx,cy,R*1.1,0,TAU);x.fillStyle='#F3EADC';x.fill();
   x.beginPath();x.arc(cx,cy,R,0,TAU);x.fillStyle=liquid(r.D);x.fill();x.lineWidth=4;x.strokeStyle='rgba(255,235,200,.35)';x.stroke();
@@ -50,8 +51,11 @@ function bcCup(x,r,cx,cy,R){const ax=[['Sweet',r.sweet],['Acidity',r.acid],['Bod
   x.beginPath();ax.forEach((a,i)=>{const p=pt(i,a[1]);i?x.lineTo(...p):x.moveTo(...p)});x.closePath();x.fillStyle='rgba(255,245,225,.34)';x.fill();x.strokeStyle='#FFF3DD';x.lineWidth=4;x.lineJoin='round';x.stroke();
   ax.forEach((a,i)=>{const p=pt(i,a[1]);x.beginPath();x.arc(p[0],p[1],6,0,TAU);x.fillStyle='#FFF3DD';x.fill()});
   x.font='600 22px '+BC.F;x.textBaseline='middle';
-  ax.forEach((a,i)=>{const an=ang(i),lx=cx+Math.cos(an)*R*1.55,ly=cy+Math.sin(an)*R*1.48;x.textAlign=Math.abs(Math.cos(an))<0.3?'center':Math.cos(an)>0?'left':'right';
-    x.fillStyle=BC.MUTED;x.fillText(a[0],lx,ly-12);x.fillStyle=BC.INK;x.font='800 26px '+BC.F;x.fillText(a[1].toFixed(1),lx,ly+16);x.font='600 22px '+BC.F});
+  ax.forEach((a,i)=>{const an=ang(i),al=Math.abs(Math.cos(an))<0.3?'center':Math.cos(an)>0?'left':'right',ly=cy+Math.sin(an)*R*1.48;let lx=cx+Math.cos(an)*R*1.5;
+    // Each label is kept inside the panel: measured, then nudged in if it would cross an edge.
+    x.font='600 22px '+BC.F;const w1=x.measureText(a[0]).width;x.font='800 26px '+BC.F;const w=Math.max(w1,x.measureText(a[1].toFixed(1)).width);
+    if(L!=null){const lo=al==='right'?lx-w:al==='center'?lx-w/2:lx,hi=lo+w;if(lo<L)lx+=L-lo;if(Rt!=null&&hi>Rt)lx-=hi-Rt}
+    x.textAlign=al;x.font='600 22px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(a[0],lx,ly-12);x.fillStyle=BC.INK;x.font='800 26px '+BC.F;x.fillText(a[1].toFixed(1),lx,ly+16);x.font='600 22px '+BC.F});
   x.restore()}
 // Chips that wrap onto new rows; each can carry its own colour dot (flavour notes keep their wheel colours).
 function bcChips(x,items,y){const W=BC.W,P=BC.PAD;let px=P;x.font='500 27px '+BC.F;
@@ -344,7 +348,7 @@ function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
     x.font='600 30px '+BC.F;x.fillStyle=BC.INK;x.fillText(bcWrap(x,G.name,W-P-X-30,1)[0],X,y+200);
     if(m.grind.line){x.font='500 25px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(bcWrap(x,m.grind.line,W-P-X-30,1)[0],X,y+240)}y+=h+20}
   // The predicted cup
-  if(m.cup){const r=m.cup.r,h=430;bcPane(x,P,y,IW,h,28);bcCup(x,r,P+196,y+h/2+6,100);const X=P+478,w=W-P-X-36;
+  if(m.cup){const r=m.cup.r,h=430,X=P+478,w=W-P-X-36;bcPane(x,P,y,IW,h,28);bcCup(x,r,P+212,y+h/2+6,100,P+24,X-20);
     bcLabel(x,'Predicted cup',X,y+68);x.font='800 44px '+BC.F;x.fillStyle=BC.INK;let yy=y+124;for(const l of bcWrap(x,m.cup.vt,w,2)){x.fillText(l,X,yy);yy+=52}
     x.font='500 25px '+BC.F;x.fillStyle=BC.MUTED;for(const l of bcWrap(x,m.cup.vs,w,4)){x.fillText(l,X,yy);yy+=35}
     const gy=y+h-84,gw=w;const gg=x.createLinearGradient(X,0,X+gw,0);gg.addColorStop(0,'#D9B35A');gg.addColorStop(.25,'#C98A3E');gg.addColorStop(.5,'#7A4524');gg.addColorStop(.75,'#4A2A18');gg.addColorStop(1,'#1E120B');
@@ -371,7 +375,7 @@ function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
     if(m.expect.bar&&m.expect.bar.length){y+=24;let bx=P;x.save();bcRound(x,P,y,IW,12,6);x.clip();m.expect.bar.forEach(([cc,p])=>{x.fillStyle=cc.c;x.fillRect(bx,y,IW*p+1,12);bx+=IW*p});x.restore();y+=12}}
   // Your own words
   if(m.quote&&m.quote.text){y+=48;x.font='italic 500 33px '+BC.F;const lines=bcWrap(x,m.quote.text,IW-60,6),h=66+lines.length*46;
-    x.font='800 132px Georgia,serif';x.fillStyle=bcA(.2);x.fillText('“',P-10,y+96);
+    x.font='800 132px Georgia,serif';x.fillStyle=bcA(.2);x.fillText('“',P,y+96);
     bcLabel(x,m.quote.label,P+64,y+26);x.font='italic 500 33px '+BC.F;x.fillStyle=BC.INK;lines.forEach((l,j)=>x.fillText(l,P+64,y+76+j*46));y+=h}
   // Footer: centred mark and line, the link beneath.
   y+=70;const fr=x.createLinearGradient(P,0,W-P,0);fr.addColorStop(0,bcA(0));fr.addColorStop(.5,bcA(.45));fr.addColorStop(1,bcA(0));x.fillStyle=fr;x.fillRect(P,y,IW,1.5);
@@ -426,7 +430,7 @@ async function beanCardImg(b){const P=b.process&&PROCESSES[b.process],rk=beanRan
   return bcBlob({theme:originTheme(b.origin),kicker:'From my bean gallery',date:fmt(b.tried),photo,title:beanTitle(b),by:b.roaster,
     sub:[b.variety?vName(b.variety):'',P?P.name:'',b.roast?bcCap(b.roast)+' roast':''].filter(Boolean).join('  ·  '),
     rating:b.rating?{kind:'beans',v:b.rating,word:rateWord(b.rating)}:null,
-    pills:rk?[['#'+rk+' · '+MEDALN[rk]+' of '+beanYear(b),1]]:[],
+    pills:rk?[[rk<=3?'#'+rk+' · '+MEDALN[rk]+' of '+beanYear(b):'#'+rk+' of '+beanYear(b),1]]:beanMention(b)?[['Honourable mention · '+beanYear(b),1]]:[],
     tiles:[['Origin',b.origin?originName(b.origin):'–'],['Roasted',fmt(b.roastDate)],['Tried',fmt(b.tried)]],
     expect:b.flavours?{label:'Tasting notes',items:b.flavours.split(/\s*[,;·]\s*/).filter(Boolean)}:null,
     quote:b.notes?{label:'My notes',text:b.notes}:null,footer:'From my bean gallery'})}
