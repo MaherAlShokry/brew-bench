@@ -313,12 +313,13 @@ function renderPassport(){const p=$('bv-passport');if(!p||BVIEW!=='passport')ret
   for(const b of BEANS)if(b.origin)(by[b.origin]=by[b.origin]||[]).push(b);
   const first=k=>by[k].map(b=>b.tried).sort()[0],got=Object.keys(by).sort((a,b)=>first(a).localeCompare(first(b)));
   const mon=iso=>new Date(iso+'T12:00').toLocaleDateString(undefined,{month:'short',year:'numeric'});
-  const regs=Object.entries(REG).map(([rk,r])=>{const all=Object.keys(ALLO()).filter(k=>ALLO()[k].reg===rk),have=got.filter(k=>(oInfo(k)||{}).reg===rk).length;
+  const regs=Object.entries(REG).map(([rk,r])=>{const all=Object.keys(ALLO()).filter(k=>ALLO()[k].reg===rk),have=got.filter(k=>ALLO()[k]&&ALLO()[k].reg===rk).length;
     return '<span class="pp-reg"><small>'+esc(r.name.replace(' and Caribbean','').replace(' and Pacific',''))+'</small><span class="pp-rb"><i style="width:'+Math.min(100,have/all.length*100).toFixed(0)+'%;background:'+r.color+'"></i></span><b>'+have+'</b></span>'}).join('');
   // A few origins still to collect, different each day.
   const todo=Object.keys(ALLO()).filter(k=>!by[k]),seed=Math.floor(Date.now()/864e5),next=[];for(let i=0;i<Math.min(6,todo.length);i++)next.push(todo[(seed*7+i*11)%todo.length]);
-  const T=TGOT||{},earned=TROPHIES.filter(t=>T[t[0]]).length;
-  p.innerHTML='<div class="passport"><div class="pp-h"><span class="pp-k">Coffee passport</span><h3>'+got.length+' <em>of '+total+' origins</em></h3><div class="pp-regs">'+regs+'</div></div>'+
+  // The count is of the map's origins; countries off the map still get a stamp, counted on their own.
+  const onMap=got.filter(k=>ALLO()[k]).length,T=TGOT||{},earned=TROPHIES.filter(t=>T[t[0]]).length;
+  p.innerHTML='<div class="passport"><div class="pp-h"><span class="pp-k">Coffee passport</span><h3>'+onMap+' <em>of '+total+' origins'+(got.length>onMap?' · +'+(got.length-onMap)+' more':'')+'</em></h3><div class="pp-regs">'+regs+'</div></div>'+
     (got.length?'<div class="pp-grid">'+got.map((k,i)=>'<button type="button" class="pp-st" data-ppo="'+k+'" style="--r:'+(((i*37)%15)-7)+'deg"><img alt="" src="'+stampURL(k)+'"><b>'+esc(originName(k))+'</b><small>'+by[k].length+' bag'+(by[k].length===1?'':'s')+' · since '+mon(first(k))+'</small></button>').join('')+'</div>'
       :'<p class="pp-empty">Your first stamp arrives with your first coffee.</p>')+
     (next.length?'<div class="pp-next"><b>Still to discover</b><div class="chips">'+[...new Set(next)].map(k=>'<button type="button" class="chip" data-o="'+k+'">'+(ALLO()[k].flag||'')+' '+esc(originName(k))+'</button>').join('')+'</div></div>':'')+'</div>'+
@@ -476,7 +477,7 @@ function openTop3(y,start){const d=$('vd'),pool=BEANS.filter(b=>beanYear(b)===y)
       '<span class="t3s-pic">'+(b?beanPic(b,'xs'):'<span class="t3s-n">'+(i+1)+'</span>')+'</span><span class="t3s-tx"><small>'+MEDALN[i+1]+'</small><b>'+(b?esc(beanTitle(b)):'Open')+'</b></span></button>'+(b?'<button type="button" class="t3s-x" data-unset="'+i+'" aria-label="Clear '+MEDALN[i+1]+'">✕</button>':'')+'</div>'}).join('');
     $('t3-list').innerHTML=pool.map(b=>{const r=slots.indexOf(b.id)+1;return '<button type="button" class="t3opt'+(r?' on':'')+'" data-t3="'+b.id+'" aria-pressed="'+!!r+'" style="--m:'+(MEDAL[r]||'var(--line)')+'">'+beanPic(b,'xs')+
       '<span class="t3o-tx"><b>'+esc(beanTitle(b))+'</b><small>'+esc(b.roaster||'')+'</small>'+beanRow(b.rating,'sm')+'</span><span class="t3o-r">'+(r?r:'')+'</span></button>'}).join('');
-    $('t3-msg').innerHTML='Choose your <b style="color:'+MEDAL[act+1]+'">'+MEDALN[act+1].toLowerCase()+'</b> coffee'+(slots[act]?', or tap it again to clear the place.':'.');
+    $('t3-msg').innerHTML='Choose your <b style="color:color-mix(in srgb,'+MEDAL[act+1]+' 55%,var(--ink))">'+MEDALN[act+1].toLowerCase()+'</b> coffee'+(slots[act]?', or tap it again to clear the place.':'.');
     hydrateImgs($('t3-slots'));hydrateImgs($('t3-list'))};
   $('vd-in').innerHTML='<div class="vd-head" style="--c:'+MEDAL[1]+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:'+MEDAL[1]+'"></i>Top 3 of '+y+'</span><h2 id="vd-title">Crown your favourites</h2>'+
     '<div class="t3slots" id="t3-slots"></div><p class="vd-sub" id="t3-msg"></p></div>'+

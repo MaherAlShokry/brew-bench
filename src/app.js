@@ -720,7 +720,11 @@ function paint(){const el=TM.el,C=2*Math.PI*96;$('tm-big').textContent=mmss(el);
 // Heavy tabs are built the first time they are opened, which keeps startup quick.
 const LAZY={champs:renderChamps,words:renderWords,wheel:renderWheelTab,flow:renderFlow,gear:buildGear,recipes:renderRecipes,tech:renderTech,process:renderProcesses,variety:renderVarieties,map:buildMap,history:()=>{buildTree();startQuiz()}},BUILT={};
 // Explore and More re-render each visit: the word of the day, your counts and the theme can change.
-const ALWAYS={explore:()=>renderExplore(),settings:()=>renderSettings(),beans:()=>{if(window.BEANS_OK)renderBeans()}};
+const ALWAYS={explore:()=>renderExplore(),settings:()=>renderSettings(),beans:()=>{if(window.BEANS_OK)renderBeans()},
+  // The Beans row on the dial-in follows the gallery: a coffee added, renamed or removed shows on the next visit.
+  dial:()=>{if(window.BEANS_OK)renderDBean()},
+  // The countdown stops ticking when you leave the page; coming back starts it again.
+  champs:()=>{if(BUILT.champs)renderCountdown()}};
 function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove());if(LAZY[id]&&!BUILT[id]){BUILT[id]=1;LAZY[id]()}if(ALWAYS[id])ALWAYS[id]()}
 // NAVD counts tab changes you can step back through, so the app bar can offer a back button.
 let BACKING=false,PEND_TAB=null,NAVD=0;
@@ -729,9 +733,9 @@ const BNORD=['dial','recipes','beans','explore','settings'];
 function showTab(id,fromHistory){ensureTab(id);const cur=document.querySelector('main section.on');
   if(cur&&cur.id!==id){const a=BNORD.indexOf(BNGROUP[cur.id]),b=BNORD.indexOf(BNGROUP[id]);const back=a!==b&&a>=0&&b>=0?b<a:!!fromHistory;
     document.body.classList.toggle('nav-back',back)}
-  document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x.dataset.t===id));
+  // A page inside a section (the map, the log…) lights up that section's tab.
+  document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x.dataset.t===(BNGROUP[id]||id)));
   document.querySelectorAll('main section').forEach(s=>s.classList.toggle('on',s.id===id));window.scrollTo({top:0});
-  const t=document.querySelector('.tab[data-t="'+id+'"]');if(t)t.scrollIntoView({block:'nearest',inline:'center'});
   // Each tab gets a history entry, so the back button (browser or Android) returns to the last tab.
   if(!fromHistory&&location.hash!=='#'+id){NAVD++;if(BACKING)PEND_TAB=id;else try{history.pushState(null,'','#'+id)}catch(e){}}syncShell(id)}
 try{history.scrollRestoration='manual'}catch(e){}
@@ -2119,7 +2123,9 @@ let CHF='all',CHB='all';
 const EVURL='https://maheralshokry.github.io/brew-bench/events.json';
 let EVENTS=[];
 function useEvents(src){const ok=e=>e&&COMPS[e.c]&&Number.isFinite(Date.parse(e.start))&&Number.isFinite(Date.parse(e.end))&&typeof e.city==='string';
-  EVENTS=(Array.isArray(src&&src.events)?src.events:[]).filter(ok).map(e=>({c:e.c,y:num(e.y,new Date(e.start).getFullYear()),start:Date.parse(e.start),end:Date.parse(e.end),city:str(e.city,80),venue:str(e.venue,80),note:str(e.note,160)})).sort((a,b)=>a.start-b.start);
+  EVENTS=(Array.isArray(src&&src.events)?src.events:[]).filter(ok).map(e=>({c:e.c,y:num(e.y,new Date(e.start).getFullYear()),start:Date.parse(e.start),end:Date.parse(e.end),
+    // The days at the venue, as written (a final ending at 8 pm in Panama is already the next day in Muscat).
+    sd:String(e.start).slice(0,10),ed:String(e.end).slice(0,10),city:str(e.city,80),venue:str(e.venue,80),note:str(e.note,160)})).sort((a,b)=>a.start-b.start);
   for(const x of Array.isArray(src&&src.champs)?src.champs:[]){if(!x||!COMPS[x.c]||!Number.isFinite(+x.y)||typeof x.who!=='string'||CHAMPS.some(c=>c.c===x.c&&c.y===+x.y))continue;
     CHAMPS.push({c:x.c,y:+x.y,city:str(x.city,80),who:str(x.who,60),from:str(x.from,40),dev:str(x.dev,40)||(x.c==='wac'?'AeroPress':x.c==='wbc'?'Espresso machine':''),coffee:str(x.coffee,160),note:str(x.note,160)})}}
 // Use the newer of the saved list and the one built into the app; fall back to the built-in one if the saved list is damaged.
@@ -2131,12 +2137,15 @@ const upcoming=()=>EVENTS.filter(e=>e.end>Date.now());
 // The countdown to the next final, ticking every second while the page is open.
 let CDT=null;
 function renderCountdown(){const ev=upcoming().filter(e=>CHF==='all'||e.c===CHF),box=$('ch-next');if(!ev.length){box.innerHTML='';return}
-  const [n,...rest]=ev,C=COMPS[n.c];
-  box.innerHTML='<div class="cd" style="--c:'+C.color+'"><span class="pill"><i style="background:'+C.color+'"></i>Next world final</span><h3>'+esc(C.name)+' '+n.y+'</h3>'+
-   '<p class="hint" style="margin:0">'+esc(n.city)+(n.venue?' · '+esc(n.venue):'')+' · '+new Date(n.start).toLocaleDateString(undefined,{day:'numeric',month:'long',year:'numeric'})+'</p>'+
+  const [n,...rest]=ev,C=COMPS[n.c],live=Date.now()>=n.start,day=d=>new Date(d+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'long',year:'numeric'});
+  // A final already under way says so, with the days it runs.
+  const when=n.sd===n.ed?day(n.sd):day(n.sd)+' to '+day(n.ed);
+  box.innerHTML='<div class="cd" style="--c:'+C.color+'"><span class="pill"><i style="background:'+C.color+'"></i>'+(live?'World final happening now':'Next world final')+'</span><h3>'+esc(C.name)+' '+n.y+'</h3>'+
+   '<p class="hint" style="margin:0">'+esc(n.city)+(n.venue?' · '+esc(n.venue):'')+' · '+when+'</p>'+
    '<div class="cdclock" id="cd-clock" aria-live="off"></div>'+(n.note?'<p class="hint" style="margin:.4rem 0 0">'+esc(n.note)+'</p>':'')+'</div>'+
-   (rest.length?'<div class="cdnext">'+rest.map(e=>'<div><span class="pill"><i style="background:'+COMPS[e.c].color+'"></i>'+COMPS[e.c].short+' '+e.y+'</span><b>'+esc(e.city)+'</b><small>'+new Date(e.start).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'})+' · in '+Math.max(0,Math.ceil((e.start-Date.now())/864e5))+' days</small></div>').join('')+'</div>':'');
-  const tick=()=>{const el=$('cd-clock');if(!el||!document.getElementById('champs').classList.contains('on')){clearInterval(CDT);CDT=null;return}
+   (rest.length?'<div class="cdnext">'+rest.map(e=>'<div><span class="pill"><i style="background:'+COMPS[e.c].color+'"></i>'+COMPS[e.c].short+' '+e.y+'</span><b>'+esc(e.city)+'</b><small>'+new Date(e.sd+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'})+' · in '+Math.max(0,Math.ceil((e.start-Date.now())/864e5))+' days</small></div>').join('')+'</div>':'');
+  // The clock is drawn at once, even while the page is still opening; it stops ticking once you leave the page.
+  let first=true;const tick=()=>{const el=$('cd-clock');if(!el||(!first&&!document.getElementById('champs').classList.contains('on'))){clearInterval(CDT);CDT=null;return}first=false;
     const now=Date.now();if(now>=n.end){clearInterval(CDT);CDT=null;renderCountdown();return}
     if(now>=n.start){el.innerHTML='<div class="cdlive"><i></i>Happening now in '+esc(n.city.split(',')[0])+'</div>';return}
     let s=Math.floor((n.start-now)/1e3);const d=Math.floor(s/86400);s%=86400;const h=Math.floor(s/3600);s%=3600;const m=Math.floor(s/60);s%=60;
