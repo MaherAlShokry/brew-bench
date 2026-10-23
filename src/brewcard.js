@@ -2,7 +2,10 @@
 // A brew, a logged brew or a gallery coffee as one designed image to share. Drawn on a canvas in the app's espresso and
 // honey colours, 1080 px wide (a phone story) and as tall as the content needs. One renderer draws every kind of card
 // from a plain description (a "model"): the dial-in, the log and the gallery each build their own.
-const BC={W:1080,PAD:72,BG1:'#2E1C12',BG2:'#120B07',CREAM:'#FFF6E8',MUTED:'rgba(255,246,232,.72)',FAINT:'rgba(255,246,232,.10)',LINE:'rgba(255,246,232,.16)',HONEY:'#E2B866',CARAMEL:'#C9964A',ROAST:'#A8432F'};
+// The colours are set per card by its style (see cardStyle): INK is the text, MUTED the quieter text, PANE and CHIP the
+// backings that text sits on. Dark is the default; a light card swaps them all.
+const BC={W:1080,PAD:72,BG1:'#2E1C12',BG2:'#120B07',INK:'#FFF8EE',MUTED:'rgba(255,248,238,.8)',LINE:'rgba(255,248,238,.16)',HONEY:'#E2B866',LIGHT:false,PANE:'rgba(18,11,7,.9)',CHIP:'rgba(46,28,18,.86)'};
+const bcI=a=>hexA(BC.INK,a);
 function bcRound(x,X,Y,w,h,r){x.beginPath();x.roundRect(X,Y,w,h,r)}
 // Lines of text that fit a width, at most `max` lines (the last one ends with an ellipsis if cut).
 function bcWrap(x,t,w,max){const words=String(t).split(/\s+/).filter(Boolean);const out=[];let cur='';
@@ -11,7 +14,7 @@ function bcWrap(x,t,w,max){const words=String(t).split(/\s+/).filter(Boolean);co
   if(out.length===max&&words.join(' ')!==out.join(' ')){let l=out[max-1];while(l&&x.measureText(l+'…').width>w)l=l.slice(0,-1);out[max-1]=l.replace(/\s+$/,'')+'…'}
   return out}
 // A panel: a soft gradient pane with a fine edge.
-function bcPane(x,X,Y,w,h,r){bcRound(x,X,Y,w,h,r||28);x.fillStyle=hexA(BC.BG2||'#1A100A',.9);x.fill();const g=x.createLinearGradient(0,Y,0,Y+h);g.addColorStop(0,'rgba(255,246,232,.085)');g.addColorStop(1,'rgba(255,246,232,.035)');x.fillStyle=g;x.fill();x.lineWidth=1.5;x.strokeStyle='rgba(255,246,232,.13)';x.stroke()}
+function bcPane(x,X,Y,w,h,r){bcRound(x,X,Y,w,h,r||28);x.fillStyle=BC.PANE;x.fill();const g=x.createLinearGradient(0,Y,0,Y+h);g.addColorStop(0,bcI(.085));g.addColorStop(1,bcI(.035));x.fillStyle=g;x.fill();x.lineWidth=1.5;x.strokeStyle=bcI(.13);x.stroke()}
 function bcLabel(x,t,X,Y,col){x.font='700 22px '+BC.F;x.fillStyle=col||BC.HONEY;x.letterSpacing='3px';x.fillText(t.toUpperCase(),X,Y);x.letterSpacing='0px'}
 const bcCap=t=>t?t.charAt(0).toUpperCase()+t.slice(1):t;
 // The app's bean mark.
@@ -19,19 +22,19 @@ function bcBean(x,cx,cy,s,col,crease){x.save();x.translate(cx,cy);x.rotate(-38*M
   x.beginPath();x.moveTo(s*0.02,-s*0.5);x.bezierCurveTo(-s*0.16,-s*0.2,s*0.16,0,s*0.0,s*0.18);x.bezierCurveTo(-s*0.1,s*0.32,s*0.06,s*0.42,s*0.02,s*0.5);x.lineWidth=s*0.07;x.strokeStyle=crease||BC.BG1;x.stroke();x.restore()}
 // A rating as stars (the log) or coffee beans (the gallery), halves allowed for beans.
 function bcRating(x,kind,v,X,Y,s){for(let i=1;i<=5;i++){const cx=X+(i-1)*s*1.18+s/2,f=v>=i?1:v>=i-0.5?0.5:0;
-    if(kind==='beans'){bcBean(x,cx,Y,s,'rgba(255,246,232,.16)','rgba(255,246,232,.22)');if(f){x.save();x.beginPath();x.rect(cx-s/2,Y-s/2,s*f,s);x.clip();bcBean(x,cx,Y,s,BC.HONEY);x.restore()}}
-    else{x.save();x.translate(cx,Y);x.beginPath();for(let k=0;k<10;k++){const r=k%2?s*0.22:s*0.5,a=-Math.PI/2+k*Math.PI/5;x.lineTo(Math.cos(a)*r,Math.sin(a)*r)}x.closePath();x.fillStyle=f?BC.HONEY:'rgba(255,246,232,.16)';x.fill();x.restore()}}}
+    if(kind==='beans'){bcBean(x,cx,Y,s,bcI(.16),bcI(.22));if(f){x.save();x.beginPath();x.rect(cx-s/2,Y-s/2,s*f,s);x.clip();bcBean(x,cx,Y,s,BC.HONEY);x.restore()}}
+    else{x.save();x.translate(cx,Y);x.beginPath();for(let k=0;k<10;k++){const r=k%2?s*0.22:s*0.5,a=-Math.PI/2+k*Math.PI/5;x.lineTo(Math.cos(a)*r,Math.sin(a)*r)}x.closePath();x.fillStyle=f?BC.HONEY:bcI(.16);x.fill();x.restore()}}}
 // The grinder's dial at the setting: a numbered ring for rotation dials, an arc from fine to coarse for the rest.
 function bcDial(x,g,c,cx,cy,R){const G=GRINDERS[g];c=Math.round(c);x.save();
-  x.beginPath();x.arc(cx,cy,R,0,TAU);x.fillStyle='rgba(255,246,232,.06)';x.fill();x.lineWidth=2;x.strokeStyle=BC.LINE;x.stroke();
+  x.beginPath();x.arc(cx,cy,R,0,TAU);x.fillStyle=bcI(.06);x.fill();x.lineWidth=2;x.strokeStyle=BC.LINE;x.stroke();
   if(G.fmt==='rot'){const rem=c%G.per,nums=G.per/10;
     for(let i=0;i<G.per;i++){const a=-Math.PI/2+i/G.per*TAU,big=i%10===0,r1=big?R*0.8:R*0.87;x.beginPath();x.moveTo(cx+Math.cos(a)*r1,cy+Math.sin(a)*r1);x.lineTo(cx+Math.cos(a)*R*0.95,cy+Math.sin(a)*R*0.95);
-      x.strokeStyle=big?BC.CREAM:'rgba(255,246,232,.35)';x.lineWidth=big?3:1.4;x.stroke()}
+      x.strokeStyle=big?BC.INK:bcI(.35);x.lineWidth=big?3:1.4;x.stroke()}
     x.font='600 '+Math.round(R*0.16)+'px '+BC.F;x.fillStyle=BC.MUTED;x.textAlign='center';x.textBaseline='middle';
     for(let n=0;n<nums;n++){const a=-Math.PI/2+n/nums*TAU;x.fillText(String(n),cx+Math.cos(a)*R*0.62,cy+Math.sin(a)*R*0.62)}
     const a=-Math.PI/2+rem/G.per*TAU;x.beginPath();x.moveTo(cx,cy);x.lineTo(cx+Math.cos(a)*R*0.9,cy+Math.sin(a)*R*0.9);x.lineCap='round';x.lineWidth=7;x.strokeStyle=BC.HONEY;x.stroke()}
   else{const t=clamp((c-G.min)/Math.max(1,G.max-G.min),0,1),A=i=>(135+i*270)*Math.PI/180;
-    x.lineCap='round';x.lineWidth=16;x.beginPath();x.arc(cx,cy,R*0.78,A(0),A(1));x.strokeStyle='rgba(255,246,232,.14)';x.stroke();
+    x.lineCap='round';x.lineWidth=16;x.beginPath();x.arc(cx,cy,R*0.78,A(0),A(1));x.strokeStyle=bcI(.14);x.stroke();
     x.beginPath();x.arc(cx,cy,R*0.78,A(0),A(Math.max(0.002,t)));x.strokeStyle=BC.HONEY;x.stroke();
     x.font='500 '+Math.round(R*0.13)+'px '+BC.F;x.fillStyle=BC.MUTED;x.textAlign='center';x.textBaseline='middle';
     x.fillText('fine',cx+Math.cos(A(0))*R*0.78,cy+Math.sin(A(0))*R*0.78+R*0.22);x.fillText('coarse',cx+Math.cos(A(1))*R*0.78,cy+Math.sin(A(1))*R*0.78+R*0.22)}
@@ -39,7 +42,7 @@ function bcDial(x,g,c,cx,cy,R){const G=GRINDERS[g];c=Math.round(c);x.save();
   x.fillStyle=BC.BG1;x.font='800 '+Math.round(R*0.2)+'px '+BC.F;x.textAlign='center';x.textBaseline='middle';x.fillText(dial(g,c),cx,cy+1);x.restore()}
 // The predicted cup seen from above, with the flavour radar floating on the coffee (as on the dial-in).
 function bcCup(x,r,cx,cy,R){const ax=[['Sweet',r.sweet],['Acidity',r.acid],['Body',r.body],['Clarity',r.clarity],['Bitter',r.bitter]],ang=i=>-Math.PI/2+i*TAU/5;
-  x.save();x.beginPath();x.arc(cx,cy,R*1.3,0,TAU);x.fillStyle='rgba(255,246,232,.07)';x.fill();
+  x.save();x.beginPath();x.arc(cx,cy,R*1.3,0,TAU);x.fillStyle=bcI(.07);x.fill();
   x.beginPath();x.arc(cx,cy,R*1.1,0,TAU);x.fillStyle='#F3EADC';x.fill();
   x.beginPath();x.arc(cx,cy,R,0,TAU);x.fillStyle=liquid(r.D);x.fill();x.lineWidth=4;x.strokeStyle='rgba(255,235,200,.35)';x.stroke();
   const pt=(i,v)=>[cx+Math.cos(ang(i))*R*0.92*v/10,cy+Math.sin(ang(i))*R*0.92*v/10];
@@ -48,13 +51,13 @@ function bcCup(x,r,cx,cy,R){const ax=[['Sweet',r.sweet],['Acidity',r.acid],['Bod
   ax.forEach((a,i)=>{const p=pt(i,a[1]);x.beginPath();x.arc(p[0],p[1],6,0,TAU);x.fillStyle='#FFF3DD';x.fill()});
   x.font='600 22px '+BC.F;x.textBaseline='middle';
   ax.forEach((a,i)=>{const an=ang(i),lx=cx+Math.cos(an)*R*1.55,ly=cy+Math.sin(an)*R*1.48;x.textAlign=Math.abs(Math.cos(an))<0.3?'center':Math.cos(an)>0?'left':'right';
-    x.fillStyle=BC.MUTED;x.fillText(a[0],lx,ly-12);x.fillStyle=BC.CREAM;x.font='800 26px '+BC.F;x.fillText(a[1].toFixed(1),lx,ly+16);x.font='600 22px '+BC.F});
+    x.fillStyle=BC.MUTED;x.fillText(a[0],lx,ly-12);x.fillStyle=BC.INK;x.font='800 26px '+BC.F;x.fillText(a[1].toFixed(1),lx,ly+16);x.font='600 22px '+BC.F});
   x.restore()}
 // Chips that wrap onto new rows; each can carry its own colour dot (flavour notes keep their wheel colours).
 function bcChips(x,items,y){const W=BC.W,P=BC.PAD;let px=P;x.font='500 27px '+BC.F;
   for(const it of items){const t=typeof it==='string'?it:it.t,dot=typeof it==='string'?null:it.c,w=x.measureText(t).width+48+(dot?26:0);if(px+w>W-P){px=P;y+=70}
-    bcRound(x,px,y,w,56,28);x.fillStyle=hexA(BC.BG1,.86);x.fill();x.fillStyle='rgba(255,246,232,.05)';x.fill();x.strokeStyle=bcA(.38);x.lineWidth=1.5;x.stroke();
-    if(dot){x.beginPath();x.arc(px+30,y+28,9,0,TAU);x.fillStyle=dot;x.fill()}x.fillStyle=BC.CREAM;x.textBaseline='alphabetic';x.fillText(t,px+24+(dot?26:0),y+38);px+=w+12}
+    bcRound(x,px,y,w,56,28);x.fillStyle=BC.CHIP;x.fill();x.fillStyle=bcI(.05);x.fill();x.strokeStyle=bcA(.38);x.lineWidth=1.5;x.stroke();
+    if(dot){x.beginPath();x.arc(px+30,y+28,9,0,TAU);x.fillStyle=dot;x.fill()}x.fillStyle=BC.INK;x.textBaseline='alphabetic';x.fillText(t,px+24+(dot?26:0),y+38);px+=w+12}
   return y+56}
 const bcLoad=src=>new Promise(ok=>{if(!src){ok(null);return}const i=new Image();i.onload=()=>ok(i);i.onerror=()=>ok(null);i.src=src});
 /* ---------- Origin identity ---------- */
@@ -99,6 +102,44 @@ function originTheme(k){const o=k&&oInfo(k);if(!o)return null;const sub=String((
   return Object.assign({key:k,name:o.name.replace(/ \(.*\)$/,''),sub},OT[k]||OT[OT_REG[o.reg]]||OT.house)}
 const hexA=(h,a)=>{const n=parseInt(h.slice(1),16);return 'rgba('+(n>>16&255)+','+(n>>8&255)+','+(n&255)+','+a+')'};
 const bcA=a=>hexA(BC.HONEY,a);
+/* ---------- Card styles ---------- */
+// You choose each card's look when you share it: Dark or Light, in the origin's own colours or one of the app's coffee
+// colours. The origin's pattern and stamp stay in every style. Text colours are worked out against the card's own
+// backgrounds, so every style keeps at least 4.5:1 contrast (the accent is stepped lighter or darker until it does).
+const rgbOf=h=>{const n=parseInt(h.slice(1),16);return[n>>16&255,n>>8&255,n&255]};
+const hexOf=c=>'#'+c.map(v=>Math.round(clamp(v,0,255)).toString(16).padStart(2,'0')).join('');
+const mixHex=(a,b,t)=>{const A=rgbOf(a),B=rgbOf(b);return hexOf(A.map((v,i)=>v+(B[i]-v)*t))};
+const relLum=h=>{const f=v=>{v/=255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4)};const [r,g,b]=rgbOf(h);return 0.2126*f(r)+0.7152*f(g)+0.0722*f(b)};
+const cRatio=(a,b)=>{const A=relLum(a),B=relLum(b);return(Math.max(A,B)+0.05)/(Math.min(A,B)+0.05)};
+// Step a colour towards `to` (white or black) until it reaches `ratio` against every background in `bgs`.
+const ensureC=(c,bgs,ratio,to)=>{for(let i=0;i<40&&bgs.some(bg=>cRatio(c,bg)<ratio);i++)c=mixHex(c,to,0.07);return c};
+// What a translucent colour looks like over a background (to measure text on panels and chips).
+const over=(fg,a,bg)=>mixHex(bg,fg,a);
+let CARD_STYLE=(v=>({mode:v&&v.mode==='light'?'light':'dark',col:v&&typeof v.col==='string'?v.col:'origin'}))(load('bb-cardstyle',null));
+const saveCardStyle=()=>save('bb-cardstyle',CARD_STYLE);
+// The colour options: the origin's own, then the app's coffee colours (Settings > Colour).
+const cardCols=()=>[['origin','Origin'],...ACCENTS.map(([k,n])=>[k,n])];
+// A palette from one colour: deep tones for dark, tinted paper for light.
+function palFrom(base,light){return light?{bg:[mixHex(base,'#FBF5EC',.86),mixHex(base,'#FBF5EC',.91),mixHex(base,'#FBF5EC',.94)],glow:mixHex(base,'#FFFFFF',.35),acc:base,acc2:mixHex(base,'#FFFFFF',.2)}
+  :{bg:[mixHex(base,'#000000',.66),mixHex(base,'#000000',.8),mixHex(base,'#000000',.9)],glow:mixHex(base,'#FFFFFF',.25),acc:mixHex(base,'#FFE9C2',.62),acc2:mixHex(base,'#FFFFFF',.15)}}
+// The card's theme in the chosen style. T is the origin's (or the house) theme; its pattern, stamp and names are kept.
+function cardStyle(T,st){const light=st&&st.mode==='light',acc=ACCENTS.find(a=>a[0]===(st&&st.col));
+  let pal=acc?palFrom(acc[2],light):{bg:T.bg.slice(),glow:T.glow,acc:T.acc,acc2:T.acc2};
+  // The origin's own colours on paper: its deep tone tints the paper and its accents are deepened.
+  if(!acc&&light){const bg=[mixHex(T.bg[0],'#FBF5EC',.84),mixHex(T.bg[0],'#FBF5EC',.9),mixHex(T.bg[0],'#FBF5EC',.94)];
+    // On paper the origin's gold would turn muddy once deepened, so the accent is whichever of its colours reads best as it
+    // is (Kenya's red, Yemen's blue), among the ones with real colour in them.
+    const sat=h=>{const c=rgbOf(h);return(Math.max(...c)-Math.min(...c))/255},cands=[T.glow,T.acc2,T.acc].filter(c=>sat(c)>.3);
+    const pick=(cands.length?cands:[T.acc]).sort((a,b)=>cRatio(b,bg[0])-cRatio(a,bg[0]))[0];
+    pal={bg,glow:T.glow,acc:pick,acc2:pick===T.acc2?T.acc:T.acc2}}
+  const ink=light?'#22160E':'#FFF8EE',to=light?'#000000':'#FFFFFF';
+  // Text sits on the page, on panels and on chips: the accent must read on all of them.
+  const pane=light?over('#FFFFFF',.8,pal.bg[1]):over(pal.bg[1],.9,pal.bg[1]),chip=light?over('#FFFFFF',.86,pal.bg[0]):over(pal.bg[0],.86,pal.bg[0]);
+  const bgs=[...pal.bg,pane,chip],accT=ensureC(pal.acc,bgs,light?5:6,light?'#1A0E08':to);
+  Object.assign(BC,{LIGHT:light,INK:ink,MUTED:hexA(ink,light?.78:.8),LINE:hexA(ink,.16),HONEY:accT,BG1:pal.bg[0],BG2:pal.bg[1],
+    PANE:light?'rgba(255,255,255,.8)':hexA(pal.bg[1],.9),CHIP:light?'rgba(255,255,255,.86)':hexA(pal.bg[0],.86)});
+  // The pattern is drawn in the accents: on paper they are deepened so the pattern still shows.
+  return Object.assign({},T,{bg:pal.bg,glow:pal.glow,acc:accT,acc2:light?ensureC(pal.acc2,[pal.bg[1]],2.2,to):pal.acc2})}
 // Patterns, drawn faint over the whole background and fading down the card. f(x,W,H,T) strokes or fills in T's colours.
 const MOTIF={
   // Sana'a tower-house windows: arched frames with a round qamariya above.
@@ -232,24 +273,33 @@ function bcStamp(x,cx,cy,T){const R=92;x.save();x.translate(cx,cy);x.rotate(-0.1
 function bcDraw(m){const W=BC.W,P=BC.PAD,IW=W-2*P,c=document.createElement('canvas');c.width=W;c.height=4400;const x=c.getContext('2d');
   BC.F=getComputedStyle(document.body).fontFamily;
   // The origin's look (or the house espresso and honey): its accent colours are used throughout the card.
-  const T=m.theme||OT.house;BC.HONEY=T.acc;BC.BG1=T.bg[0];BC.BG2=T.bg[1];
+  const T=cardStyle(m.theme||OT.house,m.style||CARD_STYLE);
   bcBG(x,W,c.height,T);
   x.textBaseline='alphabetic';x.textAlign='left';if(T.motif)bcBand(x,W,T);
+  bcCheck(x,W,T);
   return bcBody(x,c,m,T)}
 // The background: the palette's deep tones, a soft glow, the origin's pattern (bold in the hero band, faint below), a faint
 // bean watermark and a very fine grain. Text never sits on it directly where it is busy: see bcBody.
 function bcBG(x,W,H,T){const c={height:H};
   const bg=x.createLinearGradient(0,0,0,c.height);bg.addColorStop(0,T.bg[0]);bg.addColorStop(0.45,T.bg[1]);bg.addColorStop(1,T.bg[2]);x.fillStyle=bg;x.fillRect(0,0,W,c.height);
   const gl=x.createRadialGradient(W*0.95,-60,10,W*0.95,-60,W*1.05);gl.addColorStop(0,hexA(T.glow,.30));gl.addColorStop(1,hexA(T.glow,0));x.fillStyle=gl;x.fillRect(0,0,W,1300);
-  if(T.motif&&MOTIF[T.motif]){x.save();MK=1;MOTIF[T.motif](x,W,c.height,T);x.restore();
+  // On paper a pattern needs more ink to show as much as it does on a dark card.
+  const MP=BC.LIGHT?1.7:1;
+  if(T.motif&&MOTIF[T.motif]){x.save();MK=MP;MOTIF[T.motif](x,W,c.height,T);x.restore();
     // The hero band: the pattern bold across the top, fading into the card.
-    x.save();x.beginPath();x.rect(0,0,W,470);x.clip();MK=5.5;MOTIF[T.motif](x,W,470,T);MK=1;x.restore();
-    const fd=x.createLinearGradient(0,0,0,470);fd.addColorStop(0,hexA(T.bg[0],.8));fd.addColorStop(0.2,hexA(T.bg[0],.72));fd.addColorStop(0.32,hexA(T.bg[0],.18));fd.addColorStop(0.62,hexA(T.bg[0],.6));fd.addColorStop(1,hexA(T.bg[0],1));x.fillStyle=fd;x.fillRect(0,0,W,471)}
-  const gl2=x.createRadialGradient(-120,1100,10,-120,1100,760);gl2.addColorStop(0,'rgba(168,67,47,.18)');gl2.addColorStop(1,'rgba(168,67,47,0)');x.fillStyle=gl2;x.fillRect(0,0,W,2000);
+    x.save();x.beginPath();x.rect(0,0,W,470);x.clip();MK=5.5*MP;MOTIF[T.motif](x,W,470,T);MK=1;x.restore();
+    const fd=x.createLinearGradient(0,0,0,470),hf=BC.LIGHT?[.94,.9]:[.8,.72];fd.addColorStop(0,hexA(T.bg[0],hf[0]));fd.addColorStop(0.2,hexA(T.bg[0],hf[1]));fd.addColorStop(0.32,hexA(T.bg[0],.18));fd.addColorStop(0.62,hexA(T.bg[0],.6));fd.addColorStop(1,hexA(T.bg[0],1));x.fillStyle=fd;x.fillRect(0,0,W,471)}
+  const gl2=x.createRadialGradient(-120,1100,10,-120,1100,760);gl2.addColorStop(0,hexA(T.acc2,BC.LIGHT?.08:.16));gl2.addColorStop(1,hexA(T.acc2,0));x.fillStyle=gl2;x.fillRect(0,0,W,2000);
   if(!T.motif){x.save();x.globalAlpha=0.05;bcBean(x,W-150,250,420,BC.HONEY,T.bg[0]);x.restore()}
-  x.fillStyle='rgba(255,255,255,.022)';for(let gy=0;gy<c.height;gy+=7)for(let gx=(gy/7)%2*3.5;gx<W;gx+=7)x.fillRect(gx,gy,1,1);
+  x.fillStyle=BC.LIGHT?'rgba(60,36,20,.03)':'rgba(255,255,255,.022)';for(let gy=0;gy<c.height;gy+=7)for(let gx=(gy/7)%2*3.5;gx<W;gx+=7)x.fillRect(gx,gy,1,1);
   // A soft shade on the left of the hero band, where the title and credit sit.
-  if(T.motif){const sc=x.createLinearGradient(0,0,W*0.75,0);sc.addColorStop(0,hexA(T.bg[0],.55));sc.addColorStop(1,hexA(T.bg[0],0));x.fillStyle=sc;x.fillRect(0,130,W,320)}}
+  if(T.motif){const sc=x.createLinearGradient(0,0,W*0.75,0);sc.addColorStop(0,hexA(T.bg[0],.62));sc.addColorStop(1,hexA(T.bg[0],0));x.fillStyle=sc;x.fillRect(0,130,W,320)}}
+// The card checks itself: the accent is measured against the background actually drawn under the header, the title and
+// the body (glow and pattern included), and stepped further from it if any of them falls short.
+function bcCheck(x,W,T){const P=BC.PAD,worst=(y0,y1,x0,x1)=>{const d=x.getImageData(x0,y0,x1-x0,y1-y0).data,L=[];for(let i=0;i<d.length;i+=4*7)L.push(hexOf([d[i],d[i+1],d[i+2]]));
+    L.sort((a,b)=>relLum(a)-relLum(b));return L[Math.floor(L.length*(BC.LIGHT?0.03:0.97))]};
+  const zs=[worst(70,112,P,W-P),worst(150,330,P,W-300),worst(330,470,P,W-P),worst(900,2400,P,W-P)];
+  BC.HONEY=T.acc=ensureC(BC.HONEY,zs,BC.LIGHT?4.8:5.2,BC.LIGHT?'#1A0E08':'#FFFFFF')}
 function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
   // Header: the mark and kicker, the date, then a fine rule.
   let y=100;bcBean(x,P+16,y-9,32,BC.HONEY);bcLabel(x,m.kicker||'The Brew Bench',P+44,y);
@@ -265,45 +315,45 @@ function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
   // Title and credit
   // The origin's stamp sits top right, so the title wraps short of it.
   const stamp=T.key&&!m.photo,TW=stamp?IW-220:IW;if(stamp)bcStamp(x,W-P-96,y+126,T);
-  y+=104;x.font='800 76px '+BC.F;x.fillStyle=BC.CREAM;x.letterSpacing='-1px';x.shadowColor='rgba(0,0,0,.45)';x.shadowBlur=18;
+  y+=104;x.font='800 76px '+BC.F;x.fillStyle=BC.INK;x.letterSpacing='-1px';x.shadowColor=BC.LIGHT?'rgba(255,255,255,.75)':'rgba(0,0,0,.5)';x.shadowBlur=18;
   for(const l of bcWrap(x,m.title,TW,2)){x.fillText(l,P,y);y+=84}x.letterSpacing='0px';x.shadowBlur=0;x.shadowColor='transparent';
   if(m.by){x.font='italic 500 28px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(bcWrap(x,m.by,TW,1)[0],P,y-34);y+=10}
   if(stamp)y=Math.max(y,230+126+70);
   if(m.sub){x.font='600 32px '+BC.F;x.fillStyle=BC.HONEY;x.fillText(bcWrap(x,m.sub,IW,1)[0],P,y+4);y+=56}
   // Rating, large, with its word.
   if(m.rating&&m.rating.v){y+=6;bcRating(x,m.rating.kind,m.rating.v,P,y+24,46);const rv=String(m.rating.v).replace('.5','½'),rx=P+5*46*1.18+14;
-    x.font='800 38px '+BC.F;x.fillStyle=BC.CREAM;x.fillText(rv,rx,y+37);
+    x.font='800 38px '+BC.F;x.fillStyle=BC.INK;x.fillText(rv,rx,y+37);
     if(m.rating.word){const vw=x.measureText(rv).width;x.font='500 28px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(m.rating.word,rx+vw+18,y+37)}y+=74}
   // Pills: outlined, the first (the target cup) in honey.
   if(m.pills&&m.pills.length){let px=P;y+=4;for(const [t,main] of m.pills){x.font='600 24px '+BC.F;const w=x.measureText(t).width+40;if(px+w>W-P){px=P;y+=60}
-      bcRound(x,px,y,w,48,24);x.fillStyle=hexA(BC.BG1,.86);x.fill();if(main){x.fillStyle=bcA(.16);x.fill()}x.lineWidth=1.5;x.strokeStyle=main?bcA(.7):'rgba(255,246,232,.22)';x.stroke();
-      x.fillStyle=main?BC.HONEY:'rgba(255,246,232,.85)';x.fillText(t,px+20,y+32);px+=w+10}y+=78}else y+=20;
+      bcRound(x,px,y,w,48,24);x.fillStyle=BC.CHIP;x.fill();if(main){x.fillStyle=bcA(.16);x.fill()}x.lineWidth=1.5;x.strokeStyle=main?bcA(.7):bcI(.22);x.stroke();
+      x.fillStyle=main?BC.HONEY:bcI(.85);x.fillText(t,px+20,y+32);px+=w+10}y+=78}else y+=20;
   // The spec sheet: the coffee on one row, the numbers on the next, in one panel divided by fine lines.
   const specRows=[m.coffee,m.tiles].filter(r=>r&&r.length);
   if(specRows.length){const rows=specRows.map((r,ri)=>{const n=r.length,cw=IW/n,big=r===m.tiles,fs=big?(n>3?44:38):(n>3?28:32);x.font='700 '+fs+'px '+BC.F;
       const cells=r.map(([k,v])=>[k,bcWrap(x,v||'–',cw-44,2)]),lines=Math.max(...cells.map(cc=>cc[1].length));return{n,cw,fs,cells,big,h:big?136:(lines>1?150:118)}});
     const H=rows.reduce((a,r)=>a+r.h,0);bcPane(x,P,y,IW,H,28);let ry=y;
-    rows.forEach((r,ri)=>{if(ri){x.fillStyle='rgba(255,246,232,.10)';x.fillRect(P+24,ry,IW-48,1.5)}
-      r.cells.forEach(([k,ls],i)=>{const X=P+i*r.cw;if(i){x.fillStyle='rgba(255,246,232,.09)';x.fillRect(X,ry+22,1.5,r.h-44)}
-        bcLabel(x,k,X+24,ry+44,r.big?BC.MUTED:BC.HONEY);x.font='700 '+r.fs+'px '+BC.F;x.fillStyle=BC.CREAM;ls.forEach((l,j)=>x.fillText(l,X+24,ry+(r.big?100:90)+j*(r.fs+8)))});ry+=r.h});
+    rows.forEach((r,ri)=>{if(ri){x.fillStyle=bcI(.10);x.fillRect(P+24,ry,IW-48,1.5)}
+      r.cells.forEach(([k,ls],i)=>{const X=P+i*r.cw;if(i){x.fillStyle=bcI(.09);x.fillRect(X,ry+22,1.5,r.h-44)}
+        bcLabel(x,k,X+24,ry+44,r.big?BC.MUTED:BC.HONEY);x.font='700 '+r.fs+'px '+BC.F;x.fillStyle=BC.INK;ls.forEach((l,j)=>x.fillText(l,X+24,ry+(r.big?100:90)+j*(r.fs+8)))});ry+=r.h});
     y+=H+20}
   // Grind, with the dial drawn at the setting
   if(m.grind&&GRINDERS[m.grind.g]){const G=GRINDERS[m.grind.g],h=280,st=m.grind.c;bcPane(x,P,y,IW,h,28);bcDial(x,m.grind.g,st,P+146,y+h/2,108);const X=P+292;
-    bcLabel(x,'Grind',X,y+64);x.font='800 88px '+BC.F;x.fillStyle=BC.CREAM;const dv=dial(m.grind.g,st);x.fillText(dv,X,y+154);
+    bcLabel(x,'Grind',X,y+64);x.font='800 88px '+BC.F;x.fillStyle=BC.INK;const dv=dial(m.grind.g,st);x.fillText(dv,X,y+154);
     const sw=x.measureText(dv).width;x.font='500 28px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(G.fmt==='rot'?Math.round(st)+' clicks':G.unit==='clicks'?'clicks':'',X+sw+16,y+154);
-    x.font='600 30px '+BC.F;x.fillStyle=BC.CREAM;x.fillText(bcWrap(x,G.name,W-P-X-30,1)[0],X,y+200);
+    x.font='600 30px '+BC.F;x.fillStyle=BC.INK;x.fillText(bcWrap(x,G.name,W-P-X-30,1)[0],X,y+200);
     if(m.grind.line){x.font='500 25px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(bcWrap(x,m.grind.line,W-P-X-30,1)[0],X,y+240)}y+=h+20}
   // The predicted cup
   if(m.cup){const r=m.cup.r,h=430;bcPane(x,P,y,IW,h,28);bcCup(x,r,P+196,y+h/2+6,100);const X=P+478,w=W-P-X-36;
-    bcLabel(x,'Predicted cup',X,y+68);x.font='800 44px '+BC.F;x.fillStyle=BC.CREAM;let yy=y+124;for(const l of bcWrap(x,m.cup.vt,w,2)){x.fillText(l,X,yy);yy+=52}
+    bcLabel(x,'Predicted cup',X,y+68);x.font='800 44px '+BC.F;x.fillStyle=BC.INK;let yy=y+124;for(const l of bcWrap(x,m.cup.vt,w,2)){x.fillText(l,X,yy);yy+=52}
     x.font='500 25px '+BC.F;x.fillStyle=BC.MUTED;for(const l of bcWrap(x,m.cup.vs,w,4)){x.fillText(l,X,yy);yy+=35}
     const gy=y+h-84,gw=w;const gg=x.createLinearGradient(X,0,X+gw,0);gg.addColorStop(0,'#D9B35A');gg.addColorStop(.25,'#C98A3E');gg.addColorStop(.5,'#7A4524');gg.addColorStop(.75,'#4A2A18');gg.addColorStop(1,'#1E120B');
-    bcRound(x,X,gy,gw,12,6);x.fillStyle=gg;x.fill();x.strokeStyle='rgba(255,246,232,.14)';x.lineWidth=1;x.stroke();
-    const mx=X+(clamp(r.D,-2.5,2.5)+2.5)/5*gw;bcRound(x,mx-4,gy-11,8,34,4);x.fillStyle=BC.CREAM;x.fill();
+    bcRound(x,X,gy,gw,12,6);x.fillStyle=gg;x.fill();x.strokeStyle=bcI(.14);x.lineWidth=1;x.stroke();
+    const mx=X+(clamp(r.D,-2.5,2.5)+2.5)/5*gw;bcRound(x,mx-4,gy-11,8,34,4);x.fillStyle=BC.INK;x.fill();
     x.font='500 19px '+BC.F;x.fillStyle=BC.MUTED;x.textAlign='left';x.fillText('Under',X,gy+48);x.textAlign='center';x.fillText('Sweet spot',X+gw/2,gy+48);x.textAlign='right';x.fillText('Over',X+gw,gy+48);x.textAlign='left';y+=h+20}
   // Text blocks (settings written as text, for log entries from before brews were kept in full)
   for(const tb of m.text||[]){if(!tb.body)continue;x.font='500 29px '+BC.F;const lines=bcWrap(x,tb.body,IW-56,6),h=86+lines.length*40;bcPane(x,P,y,IW,h,28);
-    bcLabel(x,tb.label,P+28,y+48);x.font='500 29px '+BC.F;x.fillStyle=BC.CREAM;lines.forEach((l,j)=>x.fillText(l,P+28,y+94+j*40));y+=h+20}
+    bcLabel(x,tb.label,P+28,y+48);x.font='500 29px '+BC.F;x.fillStyle=BC.INK;lines.forEach((l,j)=>x.fillText(l,P+28,y+94+j*40));y+=h+20}
   // Every pour: the times in a honey column, a fine line linking the steps.
   const steps=m.steps||[];
   if(steps.length){y+=40;bcLabel(x,'The pours',P,y);
@@ -314,7 +364,7 @@ function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
     x.fillStyle=bcA(.28);x.fillRect(P+86,top+22,1.5,Math.max(0,ys[ys.length-1]-y+4));
     rows.forEach((o,i)=>{const ry=ys[i];x.font='700 26px '+BC.F;x.fillStyle=BC.HONEY;x.fillText(o.t||'·',P,ry+50);
       x.beginPath();x.arc(P+86.75,ry+41,7,0,TAU);x.fillStyle=BC.BG2;x.fill();x.lineWidth=2;x.strokeStyle=BC.HONEY;x.stroke();
-      x.font='500 30px '+BC.F;x.fillStyle=BC.CREAM;o.lines.forEach((l,j)=>x.fillText(l,tx,ry+51+j*40))});
+      x.font='500 30px '+BC.F;x.fillStyle=BC.INK;o.lines.forEach((l,j)=>x.fillText(l,tx,ry+51+j*40))});
     y=yy+10;if(steps.length>show.length){x.font='500 23px '+BC.F;x.fillStyle=BC.MUTED;x.fillText('+ '+(steps.length-show.length)+' more in the app',tx,y+10);y+=36}}
   // Notes: expected or tasted, with the flavour families as one bar in the wheel's colours
   if(m.expect&&m.expect.items.length){y+=44;bcLabel(x,m.expect.label,P,y);y+=24;y=bcChips(x,m.expect.items.slice(0,10),y);
@@ -322,11 +372,11 @@ function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
   // Your own words
   if(m.quote&&m.quote.text){y+=48;x.font='italic 500 33px '+BC.F;const lines=bcWrap(x,m.quote.text,IW-60,6),h=66+lines.length*46;
     x.font='800 132px Georgia,serif';x.fillStyle=bcA(.2);x.fillText('“',P-10,y+96);
-    bcLabel(x,m.quote.label,P+64,y+26);x.font='italic 500 33px '+BC.F;x.fillStyle=BC.CREAM;lines.forEach((l,j)=>x.fillText(l,P+64,y+76+j*46));y+=h}
+    bcLabel(x,m.quote.label,P+64,y+26);x.font='italic 500 33px '+BC.F;x.fillStyle=BC.INK;lines.forEach((l,j)=>x.fillText(l,P+64,y+76+j*46));y+=h}
   // Footer: centred mark and line, the link beneath.
   y+=70;const fr=x.createLinearGradient(P,0,W-P,0);fr.addColorStop(0,bcA(0));fr.addColorStop(.5,bcA(.45));fr.addColorStop(1,bcA(0));x.fillStyle=fr;x.fillRect(P,y,IW,1.5);
   y+=64;x.font='700 26px '+BC.F;const ft=m.footer||'Brewed with The Brew Bench',fw=x.measureText(ft).width;bcBean(x,W/2-fw/2-22,y-9,28,BC.HONEY);
-  x.fillStyle=BC.CREAM;x.textAlign='left';x.fillText(ft,W/2-fw/2+6,y);
+  x.fillStyle=BC.INK;x.textAlign='left';x.fillText(ft,W/2-fw/2+6,y);
   y+=40;x.textAlign='center';x.font='500 22px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(SITE_URL.replace(/^https?:\/\//,'').replace(/\/$/,''),W/2,y);x.textAlign='left';
   // Trim to what was drawn.
   const H=Math.round(y+70),out=document.createElement('canvas');out.width=W;out.height=H;out.getContext('2d').drawImage(c,0,0);
@@ -371,7 +421,7 @@ function logCard(l){const s=okSnap(l.snap),fl=flOf(l).filter(([id])=>FW.byId[id]
   if(l.notes)m.quote={label:'My notes',text:l.notes};
   return bcBlob(m)}
 // A coffee from the gallery: the bag, your rating in beans, where it is from and what you tasted.
-async function beanCard(b){const P=b.process&&PROCESSES[b.process],rk=beanRank(b),fmt=s=>s?new Date(s+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'–';
+async function beanCardImg(b){const P=b.process&&PROCESSES[b.process],rk=beanRank(b),fmt=s=>s?new Date(s+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'–';
   const photo=b.img?await bcLoad(await BIMG.get(b.id)):null;
   return bcBlob({theme:originTheme(b.origin),kicker:'From my bean gallery',date:fmt(b.tried),photo,title:beanTitle(b),by:b.roaster,
     sub:[b.variety?vName(b.variety):'',P?P.name:'',b.roast?bcCap(b.roast)+' roast':''].filter(Boolean).join('  ·  '),

@@ -418,7 +418,15 @@ function renderFit(){const el=$('g-fit'),f=cupFit();
 function tune(msg){if(!dialRec())return;const p=plan(dialCtx());Object.assign(S,p.st);{const B=BREWERS[S.brewer];S.temp=clamp(S.temp,B.temp.min,B.temp.max);S.bloom=clamp(S.bloom,B.bloom.min,B.bloom.max)}S.tuned=Object.fromEntries(TUNED_KEYS.map(k=>[k,S[k]]));render();if(msg)toast(msg)}
 // Inputs that change the plan re-tune while you haven't moved the sliders yourself.
 function retuneIfAuto(msg){if(dialRec()&&(isTuned()||!S.tuned))tune(msg);else render()}
-function dialPlan(){const r=dialRec();if(!r)return null;const p=plan(dialCtx()),water=+gfmt(S.dose*S.ratio),ps=planSteps(r,S.dose,water,S.goal);return{r,p,water,steps:ps.steps,changes:ps.changes}}
+function dialPlan(){const r=dialRec();if(!r)return null;const p=plan(dialCtx()),water=+gfmt(S.dose*S.ratio),ps=planSteps(r,S.dose,water,S.goal),bl=BREWERS[S.brewer].bloom.label==='Bloom'?bloomShift(ps.steps,S.bloom):{steps:ps.steps};
+  return{r,p,water,steps:bl.steps,changes:bl.note?[...ps.changes,bl.note]:ps.changes}}
+// Your bloom sets the second pour: the recipe's own bloom is the time from its first step (at 0:00) to its second, and
+// every step after the first moves by the difference, so the steps, the timer and the brew card follow what you set.
+// Only when that second step is a pour 25 to 90 s in: a stir, a press or the end of a steep isn't the end of a bloom.
+function bloomShift(steps,bloom){const t=s=>{const m=/^(\d+):(\d\d)\b/.exec(s);return m?+m[1]*60+ +m[2]:null},fmt=v=>Math.floor(v/60)+':'+String(v%60).padStart(2,'0');
+  const t1=t(steps[1]||'');if(!(bloom>0)||steps.length<2||t(steps[0])!==0||t1==null||t1<25||t1>90||!/^\d+:\d\d\s+(pour|add|open the valve)/i.test(steps[1]))return{steps};const d=Math.round(bloom)-t(steps[1]);if(!d)return{steps};
+  return{steps:steps.map((s,i)=>{const v=t(s);return i&&v!=null?s.replace(/^\d+:\d\d/,fmt(Math.max(0,v+d))):s}),
+    note:'Bloom '+Math.round(bloom)+' s (the recipe says '+t(steps[1])+' s): the next pours move '+Math.abs(d)+' s '+(d>0?'later':'earlier')+'.'}}
 function renderDialRecipe(){const tl=techList(S.brewer),r=dialRec();
   const opts='<option value="">No recipe: dial in freely</option>'+tl.map(([x,i])=>'<option value="'+i+'">'+esc(x.name)+(x.b!==S.brewer&&sameFam(x.b,S.brewer)?' (for the '+BSHORT[x.b]+')':'')+(x.champ?' (champion)':'')+'</option>').join('');
   if($('i-rec').dataset.k!==S.brewer+'|'+tl.length){$('i-rec').innerHTML=opts;$('i-rec').dataset.k=S.brewer+'|'+tl.length}
@@ -1524,7 +1532,9 @@ function renderPalate(){const el=$('l-palate'),P=palate();el.hidden=!P;if(!P)ret
 $('l-fl').onclick=()=>openNotesPicker();
 $('tolog').onclick=()=>{const r=compute(S),dp=dialPlan();if(LEDIT)endEdit();
   $('l-settings').value=(dp?dp.r.name+(S.goal!=='balance'?' ('+goalLabel(S.goal,S.amt).toLowerCase()+')':'')+', '+S.dose+'g : '+dp.water+'g, ':'')+gLabel(S.grinder,S.setting)+', '+BREWERS[S.brewer].name+', '+S.temp+'°C, 1:'+rr1(S.ratio)+', '+BREWERS[S.brewer].bloom.label.toLowerCase()+' '+S.bloom+'s, '+PROCESSES[S.process].name+' '+vName(S.variety);
-  $('l-pred').value=verdict(r.D)[0];$('l-settings').dataset.brewer=S.brewer;LSNAP=brewSnap();showTab('log');$('l-coffee').focus()};
+  $('l-pred').value=verdict(r.D)[0];$('l-settings').dataset.brewer=S.brewer;LSNAP=brewSnap();
+  // The coffee picked on the dial-in names the entry, and the brew comes off its bag.
+  if(S.bean&&!$('l-coffee').value.trim())$('l-coffee').value=S.bean.name;showTab('log');$('l-coffee').focus()};
 // The brew as it was on the dial-in, kept with the entry so its card can show the dial, the cup and the pours.
 let LSNAP=null;
 $('l-cancel').onclick=()=>endEdit();
@@ -2013,7 +2023,7 @@ function dialDoc(){const r=compute(S),[vt,vs]=verdict(r.D),B=BREWERS[S.brewer],d
   if(dp){doc.title=dp.r.name+': '+vName(S.variety);doc.blocks.unshift({h:'Recipe',kv:[['Recipe',dp.r.name+(dp.r.by?' ('+dp.r.by+')':'')],['Target cup',goalLabel(S.goal,S.amt)],['Dose : water',S.dose+'g : '+dp.water+'g']]});
     doc.blocks.splice(2,0,{h:'Steps',num:true,list:dp.steps},{h:'What changed and why',list:[...dp.changes,...dp.p.tw,...dp.p.why].map(w=>w.replace(/<[^>]+>/g,''))})}
   // The share sheet offers this brew as a designed card image too.
-  doc.card=brewCard;doc.cardName='brew-card';
+  doc.card=brewCard;doc.cardName='brew-card';doc.cardTheme=()=>originTheme(S.bean&&S.bean.origin);
   return doc}
 function varietyDoc(id){const v=VBY[id];const b=[{kv:[['Family',FAM[v.fam].name],['Origin',v.origin||'-'],['Year',v.year||'-'],['Parentage',v.parents||'-']]},{h:'Story',p:v.story},{h:'In the cup',p:v.cup+' ('+v.notes.join(', ')+')'},{h:'How to brew it',p:v.brew}];
   if(v.subs)b.push({h:'Types',list:v.subs.map(s=>s.name+': '+s.cup)});return{link:SITE_URL+'#v='+id,title:v.name,sub:'Variety guide',blocks:b,file:'variety-'+v.name}}
@@ -2023,7 +2033,7 @@ function historyDoc(){return{link:SITE_URL+'#history',title:'The story of coffee
 function logEntryDoc(l){const fl=flOf(l).filter(([id])=>FW.byId[id]);
   return{title:l.coffee||'A brew',sub:fmtDate(l)+(l.stars?' | '+l.stars+' / 5':''),file:'brew-'+(l.coffee||'log'),
     blocks:[{kv:[['Settings',l.settings||'-'],['Predicted',l.pred||'-']]},...(fl.length?[{h:'What I tasted',p:fl.map(([id])=>FW.byId[id].n).join(', ')}]:[]),...(l.notes?[{h:'Notes',p:l.notes}]:[])],
-    card:()=>logCard(l),cardName:'brew-card',cardSub:'This brew as one image: your rating, '+(l.snap?'the settings with the grind dial, the predicted cup, the pours, ':'the settings, ')+'what you tasted and your notes.'}}
+    card:()=>logCard(l),cardTheme:()=>{const s=okSnap(l.snap);return originTheme(s&&s.bean&&s.bean.origin)},cardName:'brew-card',cardSub:'This brew as one image: your rating, '+(l.snap?'the settings with the grind dial, the predicted cup, the pours, ':'the settings, ')+'what you tasted and your notes.'}}
 function logDoc(){return{title:'My brew log',sub:LOG.length+' brews',file:'brew-log',blocks:LOG.length?LOG.map(l=>({h:(l.coffee||'Untitled')+' - '+l.date,kv:[['Rating',l.stars?l.stars+' / 5':'-'],['Settings',l.settings||'-'],['Predicted',l.pred||'-'],['Notes',l.notes||'-']].concat(flOf(l).length?[['Flavour notes',flText(flOf(l))]]:[])})):[{p:'No brews logged yet.'}]}}
 function scanDoc(p,c){const inf=SC.info||{};const kv=[...(SC.roaster?[['Roastery',SC.roaster]]:[]),['Origin',SC.origin?originName(SC.origin):'Not sure'],['Variety',vName(SC.variety)],['Process',PROCESSES[SC.process].name],['Roast',SC.roast],['Days off roast',String(daysSince(SC.date))]];
   if(inf.producer_or_farm)kv.push(['Producer or farm',inf.producer_or_farm]);if(inf.altitude)kv.push(['Altitude',inf.altitude]);if((inf.tasting_notes||[]).length)kv.push(['Tasting notes',inf.tasting_notes.join(', ')]);
@@ -2046,16 +2056,27 @@ function openShare(doc){SHDOC=doc;const pdfOK=!!(window.jspdf&&window.jspdf.jsPD
    // A brew can also go out as a designed image card: shown first, with a preview drawn as the sheet opens.
    (doc.card?'<div class="shcard"><button type="button" class="shcard-pv" data-sh="img" aria-label="Share the brew card image"><span class="shcard-ph">Drawing your brew card…</span></button>'+
      '<div class="shcard-tx"><b>'+esc(doc.cardTitle||'Brew card')+'</b><small>'+esc(doc.cardSub||'One image with everything: recipe, numbers, grind dial, the predicted cup and every pour.')+'</small>'+
-     '<div class="shcard-act"><button type="button" class="btn" data-sh="img">Share image</button><button type="button" class="btn ghost" data-sh="imgsave">Save</button></div></div></div>':'')+
+     '<div class="shcard-act"><button type="button" class="btn" data-sh="img">Share image</button><button type="button" class="btn ghost" data-sh="imgsave">Save</button></div></div>'+
+     // The card's look is yours to choose each time: Dark or Light, in the origin's colours or one of the coffee colours.
+     '<div class="shstyle"><div class="shmode" role="group" aria-label="Card style">'+[['dark','Dark'],['light','Light']].map(([k,n])=>'<button type="button" data-shmode="'+k+'" aria-pressed="'+(CARD_STYLE.mode===k)+'">'+n+'</button>').join('')+'</div>'+
+     '<div class="shcols" role="group" aria-label="Card colours">'+shSwatches(doc)+'</div></div></div>':'')+
    '<div class="sharerow">'+APPS.map(([k,n,c,d])=>'<button type="button" data-sh="'+k+'"><span class="app" style="background:'+c+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+d+'"/></svg></span>'+n+'</button>').join('')+'</div>'+
    '<div class="sheetlist">'+
    '<button type="button" data-sh="pdf">'+ico('file','#B5533C')+'<span>Save as PDF<small>'+(pdfOK?'A styled page to send or print':'Loading the PDF engine\u2026 try again in a moment')+'</small></span></button>'+
    '<button type="button" data-sh="copy">'+ico('copy','#C9964A')+'<span>Copy as text<small>Paste it anywhere</small></span></button>'+
    '<button type="button" data-sh="md">'+ico('text','#8A5A3B')+'<span>Save as a text file<small>Plain text you can edit</small></span></button></div></div>';
   const d=$('sharesheet');showDlg(d);$('sh-x').onclick=()=>d.close();
-  if(doc.card){SHCARD=null;const want=doc;doc.card().then(bl=>{if(SHDOC!==want||!bl)return;SHCARD=bl;const pv=d.querySelector('.shcard-pv');if(!pv)return;
-    const u=URL.createObjectURL(bl);pv.innerHTML='<img src="'+u+'" alt="Your brew card">';pv.querySelector('img').onload=()=>setTimeout(()=>URL.revokeObjectURL(u),1000)}).catch(()=>{const ph=d.querySelector('.shcard-ph');if(ph)ph.textContent='Couldn’t draw the card'})}}
-let SHCARD=null;
+  if(doc.card)drawShCard()}
+let SHCARD=null,SHN=0;
+// The preview, redrawn whenever the style changes; an older drawing that finishes late is dropped.
+function drawShCard(){const d=$('sharesheet'),doc=SHDOC,n=++SHN;SHCARD=null;const pv=d.querySelector('.shcard-pv');if(pv)pv.classList.add('busy');
+  doc.card().then(bl=>{if(SHDOC!==doc||n!==SHN||!bl)return;SHCARD=bl;const pv=d.querySelector('.shcard-pv');if(!pv)return;pv.classList.remove('busy');
+    const u=URL.createObjectURL(bl);pv.innerHTML='<img src="'+u+'" alt="Your brew card">';pv.querySelector('img').onload=()=>setTimeout(()=>URL.revokeObjectURL(u),1000)}).catch(()=>{const ph=d.querySelector('.shcard-ph');if(ph)ph.textContent='Couldn’t draw the card'})}
+// One swatch per colour, painted in what the card would use: its background and its accent.
+function shSwatches(doc){const T=(doc.cardTheme&&doc.cardTheme())||OT.house,keep=Object.assign({},BC);
+  const h=cardCols().map(([k,n])=>{const t=cardStyle(T,{mode:CARD_STYLE.mode,col:k}),lab=k==='origin'?(T.key?(flagOf(T.key)+' '+T.name):'House'):n;
+    return '<button type="button" class="shsw" data-shcol="'+k+'" aria-pressed="'+(CARD_STYLE.col===k)+'" aria-label="'+esc(lab)+' colours"><i style="background:linear-gradient(135deg,'+t.bg[0]+' 0 55%,'+t.acc+' 55%)"></i><span>'+esc(lab)+'</span></button>'}).join('');
+  Object.assign(BC,keep);return h}
 // Open a messaging app with the text filled in. In the Android app, Capacitor hands these links to the system.
 function openLink(url){if(NATIVE||/^(mailto|sms):/.test(url))location.href=url;else window.open(url,'_blank','noopener')}
 const fname=s=>String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,60)||'brew-bench';
@@ -2075,7 +2096,10 @@ async function saveFile(name,data){if(NATIVE){try{if(await nativeShare(name,name
   try{const blob=data instanceof Blob?data:new Blob([data]),phone=matchMedia('(pointer:coarse)').matches&&blob.size<20e6;
     const u=phone?await new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=no;r.readAsDataURL(blob)}):URL.createObjectURL(blob);
     const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();if(!phone)setTimeout(()=>URL.revokeObjectURL(u),60000);toast('Download started');return true}catch(e){toast('Saving files isn\u2019t available here');return false}}
-$('sharesheet').addEventListener('click',async e=>{const d=$('sharesheet');if(e.target===d){d.close();return}const b=e.target.closest('[data-sh]');if(!b||!SHDOC)return;const k=b.dataset.sh,doc=SHDOC,txt=docText(doc),base=fname(doc.file||doc.title);
+$('sharesheet').addEventListener('click',async e=>{const d=$('sharesheet');if(e.target===d){d.close();return}
+  const sm=e.target.closest('[data-shmode],[data-shcol]');if(sm&&SHDOC){if(sm.dataset.shmode)CARD_STYLE.mode=sm.dataset.shmode;else CARD_STYLE.col=sm.dataset.shcol;saveCardStyle();
+    d.querySelectorAll('[data-shmode]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.shmode===CARD_STYLE.mode));const sc=d.querySelector('.shcols');if(sc)sc.innerHTML=shSwatches(SHDOC);drawShCard();return}
+  const b=e.target.closest('[data-sh]');if(!b||!SHDOC)return;const k=b.dataset.sh,doc=SHDOC,txt=docText(doc),base=fname(doc.file||doc.title);
   if(k==='img'||k==='imgsave'){const bl=SHCARD||await doc.card();if(!bl){toast('Couldn’t draw the card');return}d.close();await shareCard(bl,fname(doc.cardName||base),doc.title,k==='imgsave');return}
   if(k==='pdf'){const blob=docPDF(doc);if(!blob){toast('The PDF engine is still loading. Try again in a second');return}d.close();await saveFile(base+'.pdf',blob)}
   if(k==='md'){d.close();await saveFile(base+'.txt',txt)}
@@ -2337,8 +2361,8 @@ const hubItem=k=>[...SHEETS.explore,...SHEETS.more].find(x=>x[0]===k);
 const hubCount=k=>({map:Object.keys(ALLO()).length,variety:V.length,process:Object.keys(PROCESSES).length,tech:TECH.length,words:GLOSSARY.length,champs:CHAMPS.length,gear:MYG.length+' grinder'+(MYG.length===1?'':'s'),log:LOG.length?LOG.length+' brew'+(LOG.length===1?'':'s'):0})[k];
 const hubCard=k=>{const [,n,d,c,ic]=hubItem(k),cnt=hubCount(k);return '<button type="button" class="hubcard" data-go="'+k+'">'+ico(ic,c)+(cnt?'<span class="hn">'+cnt+'</span>':'')+'<b>'+n+'</b><small>'+d+'</small></button>'};
 function renderExplore(){const day=Math.floor(Date.now()/864e5),w=GLOSSARY[day%GLOSSARY.length];
-  $('explore-in').innerHTML='<button type="button" class="wotd" data-word="'+esc(w[0])+'"><small>Word of the day</small><b>'+esc(w[0])+'</b><span>'+esc(w[2])+'</span></button>'+
-    HUB.explore.map(([h,ks])=>'<h3 class="rh">'+h+'</h3><div class="hubgrid">'+ks.map(hubCard).join('')+'</div>').join('')}
+  $('explore-in').innerHTML='<button type="button" class="wotd" data-word="'+esc(w[0])+'"><small>Word of the day</small><b>'+esc(w[0])+'</b><span>'+esc(w[2])+'</span></button>'+(window.BEANS_OK?cabinetDayHTML():'')+
+    HUB.explore.map(([h,ks])=>'<h3 class="rh">'+h+'</h3><div class="hubgrid">'+ks.map(hubCard).join('')+'</div>').join('');if(window.BEANS_OK)hydrateImgs($('explore-in'))}
 /* ---------- Settings: the app's look, name and your data ---------- */
 let UI=Object.assign({accent:'classic',logo:'bean',text:'m',motion:'full',start:'dial'},load('bb-ui',{}));
 const ACCENTS=[['classic','House roast','#8A5A3B'],['espresso','Espresso','#5E3B2A'],['cascara','Cascara','#A3392E'],['kenya','Kenya','#7B2D4E'],['honey','Honey','#A8741C'],['leaf','Coffee leaf','#4F7A45'],['coldbrew','Cold brew','#2E5C7A'],['geisha','Geisha','#76588C']];
@@ -2395,6 +2419,10 @@ function renderSettings(){const t=document.documentElement.getAttribute('data-th
     row('text','#C9964A','Text size','','<div class="seg" id="st-text"></div>')+
     row('wheel','#6E8FA8','Motion','Animations between pages and sheets','<div class="seg" id="st-motion"></div>')+
     row('globe','#4F8A74','Open the app on','The page you see first','<div class="seg" id="st-start"></div>')+'</div>'+
+   // The coffee of the day: always on the Beans and Explore pages; in the Android app, also as a notification.
+   '<h3 class="rh">Reminders</h3><div class="setgroup">'+row('hourglass','#8A5A3B','Coffee of the day','A coffee from your cabinet each day: a bag at its peak or running low, one from this day in an earlier year, or a memory from your diary.',
+     window.BEANS_OK&&LN()?'<div class="setbtns"><div class="seg" id="st-remind"></div><input type="time" id="st-rtime" class="dateinp" value="'+REMIND.t+'" aria-label="Reminder time"'+(REMIND.on?'':' disabled')+'></div>'
+       :'<p class="setnote" style="margin:0">It’s at the top of Beans and Explore each day. In the Android app it can also arrive as a notification at the time you choose.</p>')+'</div>'+
    /* Gear, Guide and the Log are the buttons at the top. */
    '<h3 class="rh">Your data</h3><div class="setgroup">'+row('download','#8A5A3B','Back up and restore','Everything you’ve saved stays on this device: '+esc(dataSummary())+'. Save it as a file to keep it safe or move it to another phone.',
      '<div class="setbtns"><button type="button" class="btn" id="st-export">Export my data</button><button type="button" class="btn ghost" id="st-import">Import a backup</button><input type="file" id="st-file" accept="application/json,.json" hidden></div>')+'</div>'+
@@ -2404,12 +2432,15 @@ function renderSettings(){const t=document.documentElement.getAttribute('data-th
     else{document.documentElement.setAttribute('data-theme',v);try{localStorage.setItem('bb-theme',v)}catch(e){}}syncThemeBtn();applyUI();renderSettings()});
   seg('st-text',[['s','Small'],['m','Standard'],['l','Large'],['xl','Larger']],()=>UI.text,v=>{UI.text=v;saveUI();renderSettings()});
   seg('st-motion',[['full','Full'],['reduced','Reduced']],()=>UI.motion,v=>{UI.motion=v;saveUI();renderSettings()});
+  if($('st-remind')){seg('st-remind',[['0','Off'],['1','Every day']],()=>REMIND.on?'1':'0',async v=>{await setReminder(v==='1');renderSettings()});
+    $('st-rtime').onchange=async e=>{if(/^\d\d:\d\d$/.test(e.target.value)){REMIND.t=e.target.value;save('bb-remind',REMIND);await scheduleReminders();toast('Your coffee of the day arrives at '+REMIND.t)}}}
   seg('st-start',[['dial','Brew'],['recipes','Recipes'],['beans','Beans'],['explore','Explore']],()=>UI.start,v=>{UI.start=v;saveUI();renderSettings();toast('The app will open on '+TABNAMES[v])})}
 $('settings-in').addEventListener('click',e=>{const a=e.target.closest('.swatch[data-accent]');if(a){UI.accent=a.dataset.accent;saveUI();renderSettings();return}
   const l=e.target.closest('.logopick[data-logo]');if(l){UI.logo=l.dataset.logo;saveUI();renderSettings();return}
   if(e.target.closest('#st-export')){exportData();return}if(e.target.closest('#st-import')){$('st-file').click();return}});
 $('settings-in').addEventListener('change',e=>{if(e.target.id==='st-file'){importData(e.target.files[0]);e.target.value=''}});
 for(const id of ['explore-in','settings-in'])$(id).addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g){showTab(g.dataset.go);return}
+  const cb=e.target.closest('.cday[data-bean]');if(cb){openBean(cb.dataset.bean);return}
   const w=e.target.closest('[data-word]');if(w)openWord(w.dataset.word)});
 // Older code and links may still ask for the sheets; they are pages now.
 const openSheet=which=>showTab(which);
