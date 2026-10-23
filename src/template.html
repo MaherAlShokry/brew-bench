@@ -1243,6 +1243,13 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .t3o-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.t3o-tx b{font-family:var(--display);font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.t3o-tx small{font-size:.78rem;color:var(--muted)}
 .t3o-r{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:800;color:#2C1B12;border:2px solid var(--line)}
 .t3opt.on .t3o-r{background:linear-gradient(135deg,color-mix(in srgb,var(--m) 45%,#fff),var(--m));border-color:var(--m)}
+/* Dial-in: the beans you're brewing */
+.dbean{display:flex;align-items:center;gap:12px;padding:8px 8px 8px 8px;border-radius:var(--r-md);background:var(--surface2)}
+.dbean .bpic{width:46px;height:58px;border-radius:12px;flex:none}
+.dbean-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;padding:0;border:0;background:none;font:inherit;color:var(--ink);text-align:left;cursor:pointer}
+.dbean-tx b{font-family:var(--display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dbean-tx small{font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dbean-x{flex:none;width:36px;height:36px;border-radius:50%;border:0;background:var(--surface);color:var(--muted);cursor:pointer}
+.dbean-pick{display:inline-flex;align-items:center;gap:8px}.dbean-pick svg{width:20px;height:20px}.dbean-pick .bo{fill:var(--cherry)}.dbean-pick .bc{fill:none;stroke:var(--surface);stroke-width:1.6}
 /* Brew card in the share sheet */
 .cardview{display:block;width:100%;max-width:420px;margin:4px auto 12px;border-radius:18px;box-shadow:0 18px 40px -16px rgba(0,0,0,.6);-webkit-touch-callout:default;user-select:auto}
 .shcard{display:flex;gap:14px;align-items:center;margin:14px 0 4px;padding:12px;border-radius:var(--r-lg);background:linear-gradient(135deg,#2E1C12,#140C07);color:#FFF6E8}
@@ -1325,6 +1332,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
       <div class="field"><div class="lbl">Grinder <button type="button" class="gpick-btn" data-gpick aria-label="Change grinders" title="Change grinders"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l4 4-4 4"/><path d="M3 7h18"/><path d="M7 21l-4-4 4-4"/><path d="M21 17H3"/></svg></button></div><div class="seg" id="g-grinder"></div></div>
       <div class="field"><label for="i-brewer">Brewer</label><select id="i-brewer"></select></div>
       <h3 class="dsub">Your coffee</h3>
+      <div class="field"><div class="lbl">Beans</div><div id="d-bean"></div></div>
       <div class="field"><div class="lbl">Roast</div><div class="seg" id="g-roast"></div></div>
       <div class="field"><label for="i-process">Process</label><select id="i-process"></select></div>
       <div class="field"><label for="i-variety">Variety <button type="button" class="hint" id="v-about" style="background:none;border:0;cursor:pointer;text-decoration:underline">about this variety</button></label><select id="i-variety"></select></div>

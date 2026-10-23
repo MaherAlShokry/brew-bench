@@ -307,6 +307,10 @@ const O={
   cup:'Dried fruit, spice, cocoa, wild and winey, much like Yemen.',
   hist:'Coffee grows on mountain terraces in the Jazan region near the Yemeni border, where families have farmed the local Khawlani coffee for centuries. The country is now investing heavily to expand production.',
   fact:'The knowledge and practices of growing Khawlani coffee were added to UNESCO\u2019s intangible heritage list in 2022.',vars:['yemenia']}
+ ,oman:{name:'Oman',flag:'🇴🇲',reg:'arabia',hub:true,subs:['Dhofar','Jabal Shams'],alt:'Mountain slopes and monsoon hills',harvest:'Young farms, first small harvests',process:'Natural, sun-dried',
+  cup:'Expect the Arabian profile: dried fruit, spice and cocoa.',
+  hist:'Oman is far better known for drinking coffee than growing it: qahwa, brewed light with cardamom and served with dates, is central to Omani hospitality. Growing it is new. A government Arabica project began in 2024 across Salalah, Taqah and Mirbat in Dhofar, where the summer khareef monsoon greens the hills, and the country\u2019s first coffee farm opened on Jabal Shams with Yemeni Udaini seedlings.',
+  fact:'Omani coffee, served with dates as a sign of welcome, was added to UNESCO\u2019s intangible heritage list in 2015 as part of Arabic coffee.',vars:['yemenia']}
  ,philippines:{name:'Philippines',flag:'🇵🇭',reg:'asia',subs:['Batangas (Barako)','Cavite','Benguet','Sagada','Mt Apo, Mindanao'],alt:'Sea level to 1,700 m',harvest:'Nov to Mar',process:'Natural and washed',
   cup:'Barako Liberica: smoky, jackfruit, bold. Highland Arabica: sweet, cocoa, citrus.',
   hist:'Coffee is said to have arrived with a Spanish friar in the 1700s. By the late 1800s the Philippines was one of the world\u2019s leading exporters, until leaf rust and pests collapsed the industry. Today it is one of the few places where Liberica is a proud local tradition.',
@@ -379,6 +383,26 @@ const PTS={
  reunion:{name:'Réunion (Île Bourbon)',flag:'🇷🇪',reg:'africa',subs:['Western highlands'],alt:'Varies',harvest:'Varies',process:'Washed and natural',
   cup:'Bourbon Pointu: delicate, sweet, low caffeine.',hist:'The French island once called Île Bourbon. Seeds from Yemen planted here between 1715 and 1718 became the Bourbon variety, and a local mutation became Laurina, also called Bourbon Pointu.',
   fact:'A tiny island that named one of the two great branches of the Arabica family.',vars:['bourbon','laurina']}
+};
+// Coffee countries that aren't on the map. A coffee from one is picked and scanned like any origin, and its brew card
+// takes its region's look. hub: a country with far more roasters than farms, so a label naming it is usually saying
+// where the coffee was roasted. The label reader only takes it from an "Origin:" line.
+const XO={
+ angola:{name:'Angola',flag:'🇦🇴',reg:'africa'},benin:{name:'Benin',flag:'🇧🇯',reg:'africa'},car:{name:'Central African Republic',flag:'🇨🇫',reg:'africa'},
+ comoros:{name:'Comoros',flag:'🇰🇲',reg:'africa'},congo:{name:'Republic of the Congo',flag:'🇨🇬',reg:'africa'},eqguinea:{name:'Equatorial Guinea',flag:'🇬🇶',reg:'africa'},
+ gabon:{name:'Gabon',flag:'🇬🇦',reg:'africa'},ghana:{name:'Ghana',flag:'🇬🇭',reg:'africa'},guinea:{name:'Guinea',flag:'🇬🇳',reg:'africa',subs:['Fouta Djallon']},
+ liberia:{name:'Liberia',flag:'🇱🇷',reg:'africa'},mauritius:{name:'Mauritius',flag:'🇲🇺',reg:'africa'},mozambique:{name:'Mozambique',flag:'🇲🇿',reg:'africa',subs:['Gorongosa']},
+ nigeria:{name:'Nigeria',flag:'🇳🇬',reg:'africa'},saotome:{name:'São Tomé and Príncipe',flag:'🇸🇹',reg:'africa'},sthelena:{name:'Saint Helena',flag:'🇸🇭',reg:'africa'},
+ southafrica:{name:'South Africa',flag:'🇿🇦',reg:'africa',hub:true},togo:{name:'Togo',flag:'🇹🇬',reg:'africa'},
+ uae:{name:'United Arab Emirates',flag:'🇦🇪',reg:'arabia',hub:true},
+ australia:{name:'Australia',flag:'🇦🇺',reg:'asia',subs:['Queensland'],hub:true},bangladesh:{name:'Bangladesh',flag:'🇧🇩',reg:'asia'},bhutan:{name:'Bhutan',flag:'🇧🇹',reg:'asia'},
+ cambodia:{name:'Cambodia',flag:'🇰🇭',reg:'asia',subs:['Mondulkiri']},fiji:{name:'Fiji',flag:'🇫🇯',reg:'asia'},japan:{name:'Japan',flag:'🇯🇵',reg:'asia',subs:['Okinawa'],hub:true},
+ malaysia:{name:'Malaysia',flag:'🇲🇾',reg:'asia',subs:['Sabah']},newcaledonia:{name:'New Caledonia',flag:'🇳🇨',reg:'asia'},samoa:{name:'Samoa',flag:'🇼🇸',reg:'asia'},
+ solomon:{name:'Solomon Islands',flag:'🇸🇧',reg:'asia'},tonga:{name:'Tonga',flag:'🇹🇴',reg:'asia'},vanuatu:{name:'Vanuatu',flag:'🇻🇺',reg:'asia',subs:['Tanna']},
+ belize:{name:'Belize',flag:'🇧🇿',reg:'central'},guadeloupe:{name:'Guadeloupe',flag:'🇬🇵',reg:'central'},martinique:{name:'Martinique',flag:'🇲🇶',reg:'central'},
+ trinidad:{name:'Trinidad and Tobago',flag:'🇹🇹',reg:'central'},
+ argentina:{name:'Argentina',flag:'🇦🇷',reg:'south'},frguiana:{name:'French Guiana',flag:'🇬🇫',reg:'south'},guyana:{name:'Guyana',flag:'🇬🇾',reg:'south'},
+ paraguay:{name:'Paraguay',flag:'🇵🇾',reg:'south'},suriname:{name:'Suriname',flag:'🇸🇷',reg:'south'}
 };
 
 /* ================= HISTORY ================= */

@@ -7,7 +7,7 @@ const W=1000,H=520;
 const proj=geoNaturalEarth1().fitExtent([[6,6],[W-6,H-6]],{type:'FeatureCollection',features:all});
 // simplify precision
 const path=geoPath(proj).digits(1);
-const want={"231":"ethiopia","887":"yemen","404":"kenya","646":"rwanda","108":"burundi","834":"tanzania","800":"uganda","180":"drc","454":"malawi","170":"colombia","076":"brazil","604":"peru","068":"bolivia","218":"ecuador","591":"panama","188":"costarica","320":"guatemala","222":"elsalvador","340":"honduras","558":"nicaragua","484":"mexico","388":"jamaica","360":"indonesia","156":"china","356":"india","704":"vietnam","598":"png","764":"thailand","104":"myanmar","626":"timor","682":"saudi","608":"philippines","418":"laos","144":"srilanka","524":"nepal","158":"taiwan","192":"cuba","214":"dominican","332":"haiti","630":"puertorico","862":"venezuela","894":"zambia","716":"zimbabwe","120":"cameroon","384":"ivorycoast","694":"sierraleone","450":"madagascar","728":"southsudan"};
+const want={"231":"ethiopia","887":"yemen","404":"kenya","646":"rwanda","108":"burundi","834":"tanzania","800":"uganda","180":"drc","454":"malawi","170":"colombia","076":"brazil","604":"peru","068":"bolivia","218":"ecuador","591":"panama","188":"costarica","320":"guatemala","222":"elsalvador","340":"honduras","558":"nicaragua","484":"mexico","388":"jamaica","360":"indonesia","156":"china","356":"india","704":"vietnam","598":"png","764":"thailand","104":"myanmar","626":"timor","682":"saudi","608":"philippines","418":"laos","144":"srilanka","524":"nepal","158":"taiwan","192":"cuba","214":"dominican","332":"haiti","630":"puertorico","862":"venezuela","894":"zambia","716":"zimbabwe","120":"cameroon","384":"ivorycoast","694":"sierraleone","450":"madagascar","728":"southsudan","512":"oman"};
 const out={bg:[],c:{},cent:{},bbox:{}};
 let missing=Object.keys(want).filter(id=>!all.find(f=>f.id===id));
 console.error('missing',missing);
@@ -26,7 +26,7 @@ out.cent.indonesia=proj([113,-1.5]).map(v=>+v.toFixed(1));
 out.cent.china=out.pts.yunnan;
 out.bg=out.bg.join('');
 fs.writeFileSync('src/data/world-map.json',JSON.stringify(out));
-console.error('size',fs.statSync('map.json').size, 'W',W,'H',H);
+console.error('size',fs.statSync('src/data/world-map.json').size, 'W',W,'H',H);
 const t1=proj([0,23.44])[1], t2=proj([0,-23.44])[1];
 const o=JSON.parse(fs.readFileSync('src/data/world-map.json'));o.tropics=[+t1.toFixed(1),+t2.toFixed(1)];
 fs.writeFileSync('src/data/world-map.json',JSON.stringify(o));console.error(o.tropics,o.pts,o.cent.china,o.bbox.elsalvador,o.bbox.rwanda);
