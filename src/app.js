@@ -418,7 +418,15 @@ function renderFit(){const el=$('g-fit'),f=cupFit();
 function tune(msg){if(!dialRec())return;const p=plan(dialCtx());Object.assign(S,p.st);{const B=BREWERS[S.brewer];S.temp=clamp(S.temp,B.temp.min,B.temp.max);S.bloom=clamp(S.bloom,B.bloom.min,B.bloom.max)}S.tuned=Object.fromEntries(TUNED_KEYS.map(k=>[k,S[k]]));render();if(msg)toast(msg)}
 // Inputs that change the plan re-tune while you haven't moved the sliders yourself.
 function retuneIfAuto(msg){if(dialRec()&&(isTuned()||!S.tuned))tune(msg);else render()}
-function dialPlan(){const r=dialRec();if(!r)return null;const p=plan(dialCtx()),water=+gfmt(S.dose*S.ratio),ps=planSteps(r,S.dose,water,S.goal);return{r,p,water,steps:ps.steps,changes:ps.changes}}
+function dialPlan(){const r=dialRec();if(!r)return null;const p=plan(dialCtx()),water=+gfmt(S.dose*S.ratio),ps=planSteps(r,S.dose,water,S.goal),bl=BREWERS[S.brewer].bloom.label==='Bloom'?bloomShift(ps.steps,S.bloom):{steps:ps.steps};
+  return{r,p,water,steps:bl.steps,changes:bl.note?[...ps.changes,bl.note]:ps.changes}}
+// Your bloom sets the second pour: the recipe's own bloom is the time from its first step (at 0:00) to its second, and
+// every step after the first moves by the difference, so the steps, the timer and the brew card follow what you set.
+// Only when that second step is a pour 25 to 90 s in: a stir, a press or the end of a steep isn't the end of a bloom.
+function bloomShift(steps,bloom){const t=s=>{const m=/^(\d+):(\d\d)\b/.exec(s);return m?+m[1]*60+ +m[2]:null},fmt=v=>Math.floor(v/60)+':'+String(v%60).padStart(2,'0');
+  const t1=t(steps[1]||'');if(!(bloom>0)||steps.length<2||t(steps[0])!==0||t1==null||t1<25||t1>90||!/^\d+:\d\d\s+(pour|add|open the valve)/i.test(steps[1]))return{steps};const d=Math.round(bloom)-t(steps[1]);if(!d)return{steps};
+  return{steps:steps.map((s,i)=>{const v=t(s);return i&&v!=null?s.replace(/^\d+:\d\d/,fmt(Math.max(0,v+d))):s}),
+    note:'Bloom '+Math.round(bloom)+' s (the recipe says '+t(steps[1])+' s): the next pours move '+Math.abs(d)+' s '+(d>0?'later':'earlier')+'.'}}
 function renderDialRecipe(){const tl=techList(S.brewer),r=dialRec();
   const opts='<option value="">No recipe: dial in freely</option>'+tl.map(([x,i])=>'<option value="'+i+'">'+esc(x.name)+(x.b!==S.brewer&&sameFam(x.b,S.brewer)?' (for the '+BSHORT[x.b]+')':'')+(x.champ?' (champion)':'')+'</option>').join('');
   if($('i-rec').dataset.k!==S.brewer+'|'+tl.length){$('i-rec').innerHTML=opts;$('i-rec').dataset.k=S.brewer+'|'+tl.length}
