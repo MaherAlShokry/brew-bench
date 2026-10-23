@@ -70,9 +70,12 @@ function shrinkPhoto(src,max){return new Promise((ok,no)=>{const img=new Image()
 const fileURL=f=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=()=>no(r.error);r.readAsDataURL(f)});
 // Fill in the photos once the cards are on the page. Photos already read show at once, with no fade, so sorting and
 // searching don't flicker.
-function hydrateImgs(root){root.querySelectorAll('[data-bimg]').forEach(el=>{const id=el.dataset.bimg;el.removeAttribute('data-bimg');
+// Photos not yet read load as they come near the screen, so a long gallery (or a view you haven't opened) costs nothing.
+function loadImg(el){const id=el.dataset.bimg;if(!id)return;el.removeAttribute('data-bimg');
   const put=(u,now)=>{const i=new Image();i.alt='';i.decoding='async';i.src=u;if(now){i.className='now';el.classList.add('has');el.prepend(i)}else i.onload=()=>{el.classList.add('has');el.prepend(i)}};
-  const c=BIMG.peek(id);if(c){put(c,true);return}BIMG.get(id).then(u=>{if(u)put(u,false)})})}
+  const c=BIMG.peek(id);if(c){put(c,true);return}BIMG.get(id).then(u=>{if(u)put(u,false)})}
+const BIO='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){BIO.unobserve(e.target);loadImg(e.target)}}),{rootMargin:'400px 0px'}):null;
+function hydrateImgs(root){root.querySelectorAll('[data-bimg]').forEach(el=>{if(BIMG.peek(el.dataset.bimg)||!BIO||root.closest&&root.closest('dialog'))loadImg(el);else BIO.observe(el)})}
 // The photo area: a placeholder in the origin's flag and coffee tones until the photo loads (or when there isn't one).
 // Without a photo, a coffee gets a tile in its origin region's colour (the map's colours) with a large bean.
 const regCol=k=>{const o=ALLO()[k];return o&&REG[o.reg]?REG[o.reg].color:'var(--cherry)'};
@@ -113,10 +116,13 @@ function podiumHTML(y,years){const t=TOP3[y],n=BEANS.filter(b=>beanYear(b)===y).
     (has?'':'<p class="crown-empty">'+(n?'Tap a place to crown a coffee of '+y+'. Your picks stay in your history after the year ends.':'Add the coffees you drink in '+y+', then crown your favourites here.')+'</p>')}
 const SCAN_ICO='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V6a2 2 0 0 1 2-2h2 M16 4h2a2 2 0 0 1 2 2v2 M20 16v2a2 2 0 0 1-2 2h-2 M8 20H6a2 2 0 0 1-2-2v-2 M12 8.5c2 0 3.5 1.6 3.5 3.5S14 15.5 12 15.5 8.5 14 8.5 12 10 8.5 12 8.5z"/></svg>',
   PLUS_ICO='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
+// The view switch sticks just under the app bar, whose height follows the text size.
+function setAbBottom(){const a=$('appbar');if(!a)return;const top=parseFloat(getComputedStyle(a).top)||0;document.documentElement.style.setProperty('--ab-b',Math.round(top+a.offsetHeight)+'px')}
+addEventListener('resize',setAbBottom);
 // The page: a compact hero with the two ways in, then one of three views (your coffees, the top 3, your scans).
-function renderBeans(){const el=$('beans-in');if(!el)return;
-  if(!el.firstChild)el.innerHTML='<div id="bg-hero"></div><div class="seg bviews" id="bg-views" role="tablist" aria-label="Show"></div>'+
-    '<div class="bview" id="bv-coffees" role="tabpanel"></div><div class="bview" id="bv-top3" role="tabpanel"></div><div class="bview" id="bv-scans" role="tabpanel"></div>';
+function renderBeans(){const el=$('beans-in');if(!el)return;setAbBottom();
+  if(!el.firstChild)el.innerHTML='<div id="bg-hero"></div><div class="seg bviews" id="bg-views" role="group" aria-label="Show"></div>'+
+    '<div class="bview" id="bv-coffees" aria-label="Your coffees"></div><div class="bview" id="bv-top3" aria-label="Top 3"></div><div class="bview" id="bv-scans" aria-label="Your scans"></div>';
   renderBeanHero();renderBeanViews();renderCoffees();renderTop3View();renderBeanScans()}
 function renderBeanHero(){const cy=new Date().getFullYear(),N=BEANS.length,rated=BEANS.filter(b=>b.rating),avg=rated.length?rated.reduce((s,b)=>s+b.rating,0)/rated.length:0,
     roasters=new Set(BEANS.map(b=>b.roaster.toLowerCase()).filter(Boolean)).size,origins=new Set(BEANS.map(b=>b.origin).filter(Boolean)).size,
@@ -130,8 +136,8 @@ function renderBeanHero(){const cy=new Date().getFullYear(),N=BEANS.length,rated
     '<div class="bgh-acts"><button type="button" class="bgh-btn main" id="bg-scan">'+SCAN_ICO+'Scan a bag</button><button type="button" class="bgh-btn" id="bg-add">'+PLUS_ICO+'Add a coffee</button></div>';
   hydrateImgs(h)}
 function renderBeanViews(){const cy=new Date().getFullYear();
-  seg('bg-views',[['coffees','Coffees'+(BEANS.length?' <i>'+BEANS.length+'</i>':'')],['top3','Top 3'],['scans','Scans'+(SCANS.length?' <i>'+SCANS.length+'</i>':'')]],()=>BVIEW,v=>{if(v===BVIEW)return;BVIEW=v;renderBeanViews()});
-  $('bg-views').querySelectorAll('button').forEach(b=>{b.setAttribute('role','tab');b.setAttribute('aria-selected',b.dataset.v===BVIEW)});
+  const cnt=n=>n?' <i>'+(n>999?'999+':n)+'</i>':'';
+  seg('bg-views',[['coffees','Coffees'+cnt(BEANS.length)],['top3','Top 3'],['scans','Scans'+cnt(SCANS.length)]],()=>BVIEW,v=>{if(v===BVIEW)return;BVIEW=v;renderBeanViews()});
   for(const v of ['coffees','top3','scans']){const p=$('bv-'+v),on=v===BVIEW;if(p.hidden===!on)continue;p.hidden=!on;if(on&&!RM()){p.classList.remove('bv-in');void p.offsetWidth;p.classList.add('bv-in')}}}
 function renderCoffees(){const p=$('bv-coffees'),years=beanYears();if(BYEAR!=='all'&&!years.includes(+BYEAR))BYEAR='all';
   if(!BEANS.length){p.innerHTML='<div class="bg-empty">'+beanSVG+'<b>No coffees yet</b><p>Scan a bag or add one by hand. Your earlier scans are under <button type="button" class="linkbtn" data-view="scans">Scans</button>, ready to add.</p></div>';return}
@@ -161,9 +167,9 @@ function renderBeanScans(){const p=$('bv-scans');if(!p)return;
       (b?'<button type="button" class="srow-in" data-bean="'+b.id+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>In gallery</button>':'<button type="button" class="srow-add" data-scanadd="'+i+'">'+PLUS_ICO+'Add to gallery</button>')+'</div>'}).join('')+'</div>'
      :'<p class="hint" style="margin-top:14px">Bags you scan appear here, ready to add to your gallery.</p>')}
 // A saved scan opens the gallery editor with its details and photo (the full photo when kept, else its thumbnail).
-async function addScanToGallery(i){const s=SCANS[i];if(!s)return;const inf=s.info,photo=await BIMG.get(s.id)||s.t||null;
+async function addScanToGallery(i){const s=SCANS[i];if(!s)return;const inf=s.info,full=await BIMG.get(s.id),photo=full||s.t||null;
   openBeanEditor(null,{name:scanTitle(s.sc,inf),roaster:scRoaster(s)||'',origin:s.sc.origin,process:s.sc.process,variety:s.sc.variety,roast:s.sc.roast,roastDate:s.sc.date||'',
-    flavours:inf&&Array.isArray(inf.tasting_notes)?inf.tasting_notes.join(', ').slice(0,160):'',photo,scan:s.id})}
+    flavours:inf&&Array.isArray(inf.tasting_notes)?inf.tasting_notes.join(', ').slice(0,160):'',photo,scan:s.id,lowres:!full&&!!s.t})}
 $('beans-in').addEventListener('input',e=>{if(e.target.id!=='bg-q')return;BQ=e.target.value;renderGrid()});
 $('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-add')){openBeanEditor();return}if(e.target.closest('#bg-scan,#bg-scan2')){showTab('scan');openCamera();return}
   const v=e.target.closest('[data-view]');if(v){BVIEW=v.dataset.view;renderBeanViews();return}
@@ -227,19 +233,23 @@ function openBeanEditor(b,pre){const isNew=!b;const B=Object.assign({name:'',roa
   beanRateInput('be-rate',()=>rating,v=>rating=v);
   const showPhoto=u=>{const p=$('be-photo');p.classList.toggle('has',!!u);p.querySelector('img')?.remove();if(u){const i=new Image();i.alt='Photo of the coffee';i.src=u;p.prepend(i)}
     let rm=$('be-rm');if(u&&!rm){p.insertAdjacentHTML('beforeend','<button type="button" class="be-rm" id="be-rm" aria-label="Remove the photo">✕</button>');$('be-rm').onclick=e=>{e.stopPropagation();photo=null;photoChanged=true;showPhoto(null)}}else if(!u&&rm)rm.remove()};
-  if(pre&&pre.photo){photo=pre.photo;photoChanged=true;showPhoto(photo)}else if(B.img&&b)BIMG.get(b.id).then(u=>{if(u&&!photoChanged){photo=u;showPhoto(u)}});
-  const take=async f=>{if(!f)return;try{photo=await shrinkPhoto(await fileURL(f),900);photoChanged=true;showPhoto(photo)}catch(e){toast('Couldn’t open that photo')}};
+  if(pre&&pre.photo){photo=pre.photo;photoChanged=true;showPhoto(photo);
+    // Scans from before photos were kept only have a small thumbnail.
+    if(pre.lowres)$('be-photo').insertAdjacentHTML('afterend','<p class="hint be-low">This older scan kept only a small photo. Take or choose a new one for a sharper card.</p>')}else if(B.img&&b)BIMG.get(b.id).then(u=>{if(u&&!photoChanged){photo=u;showPhoto(u)}});
+  const take=async f=>{if(!f)return;try{photo=await shrinkPhoto(await fileURL(f),900);photoChanged=true;showPhoto(photo);document.querySelector('.be-low')?.remove()}catch(e){toast('Couldn’t open that photo')}};
   $('be-cam').onclick=()=>$('be-camf').click();$('be-pick').onclick=$('be-photo').onclick=e=>{if(e.target.closest('#be-rm'))return;$('be-file').click()};
   $('be-camf').onchange=$('be-file').onchange=e=>{const f=e.target.files[0];e.target.value='';take(f)};
   $('be-cancel').onclick=()=>d.close();
   $('be-save').onclick=async()=>{const n=okBean({id:b?b.id:uid().replace(/[^a-z0-9]/g,'').slice(0,20),name:$('be-name').value,roaster:$('be-roaster').value,origin:$('be-origin').value,process:$('be-process').value,variety:$('be-variety').value,
       roast:B.roast,roastDate:$('be-rdate').value,tried:$('be-tried').value||todayISO(),rating,flavours:$('be-fl').value,notes:$('be-notes').value,img:photoChanged?!!photo:B.img,scan:B.scan||'',ts:b?b.ts:Date.now()});
     if(!n.name&&!n.origin&&!photo){toast('Add a name, an origin or a photo first');$('be-name').focus();return}
-    if(photoChanged){if(photo){if(!await BIMG.put(n.id,photo)){n.img=false;toast('The photo couldn’t be saved on this device')}}else if(!inAnyTop(n.id))BIMG.del(n.id)}
+    let note='';if(photoChanged){if(photo){if(!await BIMG.put(n.id,photo)){n.img=false;note=', but the photo couldn’t be saved on this device'}}else if(!inAnyTop(n.id))BIMG.del(n.id)}
+    // Moved to another year: it leaves the old year's top 3, where it no longer belongs.
+    if(b&&beanYear(b)!==beanYear(n)){const t=TOP3[beanYear(b)],k=t?t.ids.indexOf(n.id):-1;if(k>=0){t.ids[k]='';t.snap=(t.snap||[]).filter(x=>x.id!==n.id);if(!t3has(t))delete TOP3[beanYear(b)];note+='. It left the top 3 of '+beanYear(b)}}
     const i=BEANS.findIndex(x=>x.id===n.id);if(i>=0)BEANS[i]=n;else BEANS.unshift(n);if(!saveBeans())return;
     // A crowned coffee keeps its podium snapshot up to date.
     for(const t of Object.values(TOP3)){const s=(t.snap||[]).find(x=>x.id===n.id);if(s)Object.assign(s,{name:beanTitle(n),roaster:n.roaster,origin:n.origin,rating:n.rating})}saveTop3();
-    d.close();if(isNew)BVIEW='coffees';if(!$('beans').classList.contains('on'))showTab('beans');renderBeans();toast(isNew?'Added to your gallery':'Saved')};
+    d.close();if(isNew)BVIEW='coffees';if(!$('beans').classList.contains('on'))showTab('beans');renderBeans();toast((isNew?'Added to your gallery':'Saved')+note)};
   showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
 
 /* ---------- Top 3 of the year ---------- */
