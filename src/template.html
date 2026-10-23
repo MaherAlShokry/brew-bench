@@ -1243,6 +1243,14 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .t3o-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.t3o-tx b{font-family:var(--display);font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.t3o-tx small{font-size:.78rem;color:var(--muted)}
 .t3o-r{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:800;color:#2C1B12;border:2px solid var(--line)}
 .t3opt.on .t3o-r{background:linear-gradient(135deg,color-mix(in srgb,var(--m) 45%,#fff),var(--m));border-color:var(--m)}
+/* Brew card in the share sheet */
+.shcard{display:flex;gap:14px;align-items:center;margin:14px 0 4px;padding:12px;border-radius:var(--r-lg);background:linear-gradient(135deg,#2E1C12,#140C07);color:#FFF6E8}
+.shcard-pv{flex:none;width:96px;aspect-ratio:9/16;border-radius:14px;overflow:hidden;border:0;padding:0;cursor:pointer;background:rgba(255,246,232,.08);box-shadow:0 10px 24px -10px rgba(0,0,0,.7),0 0 0 1.5px rgba(226,184,102,.5);transform:rotate(-3deg);transition:transform .25s var(--ease-spring)}
+.shcard-pv:active{transform:rotate(-3deg) scale(.95)}.shcard-pv img{width:100%;height:100%;object-fit:cover;object-position:top;display:block;animation:bfade .35s ease}
+.shcard-ph{display:grid;place-items:center;height:100%;padding:8px;font-size:.68rem;text-align:center;color:rgba(255,246,232,.6)}
+.shcard-tx{flex:1;min-width:0}.shcard-tx b{display:block;font-family:var(--display);font-size:1.08rem;color:#F0C987}.shcard-tx small{display:block;font-size:.8rem;line-height:1.35;color:rgba(255,246,232,.75);margin-top:2px}
+.shcard-act{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.shcard-act .btn{min-height:40px;padding:8px 14px;flex:1 1 auto}
+.shcard-act .btn:not(.ghost){background:#F0C987;border-color:#F0C987;color:#2E1C12}.shcard-act .btn.ghost{color:#FFF6E8;border-color:rgba(255,246,232,.35);background:transparent}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
