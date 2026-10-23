@@ -720,7 +720,7 @@ function paint(){const el=TM.el,C=2*Math.PI*96;$('tm-big').textContent=mmss(el);
 // Heavy tabs are built the first time they are opened, which keeps startup quick.
 const LAZY={champs:renderChamps,words:renderWords,wheel:renderWheelTab,flow:renderFlow,gear:buildGear,recipes:renderRecipes,tech:renderTech,process:renderProcesses,variety:renderVarieties,map:buildMap,history:()=>{buildTree();startQuiz()}},BUILT={};
 // Explore and More re-render each visit: the word of the day, your counts and the theme can change.
-const ALWAYS={explore:()=>renderExplore(),settings:()=>renderSettings(),beans:()=>{if(window.BEANS_OK)renderBeans()},
+const ALWAYS={explore:()=>renderExplore(),settings:()=>renderSettings(),beans:()=>{if(window.BEANS_OK)renderBeansIfChanged()},
   // The Beans row on the dial-in follows the gallery: a coffee added, renamed or removed shows on the next visit.
   dial:()=>{if(window.BEANS_OK)renderDBean()},
   // The countdown stops ticking when you leave the page; coming back starts it again.
