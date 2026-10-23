@@ -1118,6 +1118,8 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
 .bgh-btn{white-space:nowrap}.bgh-k{white-space:nowrap}
 /* Coffees · Top 3 · Scans */
 .seg.bviews{margin:0 0 14px}
+/* Five views: each tab keeps its full name and the row scrolls sideways when they don't all fit. */
+.seg.bviews.scrollrow button{flex:0 0 auto;min-width:auto;padding-left:14px;padding-right:14px;overflow:visible;text-overflow:clip}
 @media (max-width:759px){.seg.bviews{position:sticky;top:calc(var(--ab-b,64px) + 6px);z-index:5;box-shadow:0 8px 20px -14px rgba(40,24,14,.35)}}
 .seg.bviews button{flex:1 1 auto;min-width:0;white-space:nowrap;padding-left:8px;padding-right:8px}.seg.bviews i{font-style:normal;font-size:.72rem;font-weight:700;margin-left:4px;padding:0 6px;border-radius:var(--r-pill);background:color-mix(in srgb,currentColor 14%,transparent)}
 .bview.bv-in{animation:bvin .28s var(--ease-out)}@keyframes bvin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
@@ -1226,6 +1228,99 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .bd-hero .bglass{top:12px;right:12px;font-size:.95rem;padding:6px 12px 6px 9px}.bd-hero .bglass svg{width:17px;height:17px}
 .bd-rate{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:6px 0 8px}
 .bd-v{font-size:.98rem!important;font-weight:700!important}
+/* ---------- From your cabinet: one coffee a day ---------- */
+.cday{display:flex;align-items:center;gap:14px;width:100%;text-align:left;border:0;border-radius:20px;padding:12px 16px 12px 12px;margin:4px 0 14px;cursor:pointer;font:inherit;color:#FFF8EE;
+  background:radial-gradient(120% 140% at 100% 0%,rgba(226,184,102,.28),transparent 55%),linear-gradient(135deg,#3B2518,#1C110B);box-shadow:var(--shadow);transition:transform .2s var(--ease-out)}
+.cday:active{transform:scale(.98)}
+.cday .bpic{flex:none;width:62px;height:78px;border-radius:14px;box-shadow:0 0 0 2px rgba(255,248,236,.85),0 10px 18px -8px rgba(0,0,0,.6);transform:rotate(-4deg)}
+.cd-tx{min-width:0}.cd-tx small{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:#F0C987}
+.cd-tx b{display:block;font-family:var(--display);font-size:1.08rem;line-height:1.25;margin:3px 0 2px}.cd-tx span{display:block;font-size:.86rem;line-height:1.4;color:rgba(255,248,238,.84)}
+.cday.k-peak small,.cday.k-fade small,.cday.k-low small{color:#9FD0A0}.cday.k-fade small,.cday.k-low small{color:#F3B37A}
+/* ---------- On the shelf ---------- */
+.shelf-h{display:flex;align-items:baseline;gap:8px;margin:2px 2px 10px}.shelf-h b{font-family:var(--display);font-size:1.15rem}.shelf-h span{font-size:.8rem;color:var(--muted)}
+.shelf{display:flex;gap:12px;overflow-x:auto;padding:2px 2px 8px;margin:0 -2px 8px;scroll-snap-type:x proximity;scrollbar-width:none}.shelf::-webkit-scrollbar{display:none}
+.scard{flex:none;width:min(78vw,300px);display:flex;gap:12px;align-items:stretch;padding:10px;border-radius:var(--r-lg);border:1.5px solid var(--hair);background:var(--surface);font:inherit;color:var(--ink);text-align:left;cursor:pointer;scroll-snap-align:start;box-shadow:var(--shadow)}
+.scard:active{transform:scale(.98)}.scard .bpic{flex:none;width:78px;height:100px;border-radius:12px}
+.sc-tx{display:flex;flex-direction:column;gap:5px;min-width:0;flex:1}.sc-tx b{font-family:var(--display);font-size:1rem;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sc-tx>small{font-size:.78rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fpill{align-self:flex-start;font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:var(--r-pill);background:var(--surface2);color:var(--ink)}
+.fpill.f-peak{background:color-mix(in srgb,#4F8A54 18%,var(--surface));color:color-mix(in srgb,#2F6B36 80%,var(--ink))}
+.fpill.f-good{background:color-mix(in srgb,#C9964A 18%,var(--surface));color:color-mix(in srgb,#7A5418 80%,var(--ink))}
+.fpill.f-fade{background:color-mix(in srgb,#A8432F 16%,var(--surface));color:color-mix(in srgb,#8A3222 80%,var(--ink))}
+.bagl{display:flex;flex-direction:column;gap:4px;margin-top:auto}.bagl small{font-size:.76rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.bagm{display:block;height:6px;border-radius:3px;background:var(--surface2);overflow:hidden}.bagm i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#8A5A3B,#C9964A)}
+.shelf-empty{margin:0 2px 14px;padding:12px 14px;border-radius:var(--r-md);border:1.5px dashed var(--line);font-size:.86rem;color:var(--muted)}
+/* The trophies along the top of the cabinet */
+.tshelf{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;margin:4px 0 4px;border-radius:var(--r-md);border:0;font:inherit;cursor:pointer;text-align:left;color:#FFF3DD;
+  background:linear-gradient(180deg,#5A3A26,#3E2718);box-shadow:inset 0 1px 0 rgba(255,236,200,.18),0 6px 14px -8px rgba(0,0,0,.6)}
+.ts-k{flex:none;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;font-weight:800;color:#F0C987}
+.ts-row{flex:1;min-width:0;display:flex;gap:4px;overflow:hidden;font-size:1.25rem;line-height:1}.ts-row i{font-style:normal;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}.ts-row em{font-size:.82rem;font-style:normal;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tshelf>b{flex:none;font-family:var(--display);font-size:1rem}.tshelf>b small{opacity:.65;font-size:.8em}
+/* The cabinet: dark wood and glass, a ledge under every coffee */
+.cab-h{margin-top:22px}
+.cabinet{position:relative;padding:6px 14px 16px;border-radius:24px;background:linear-gradient(180deg,#2B1A11,#1D120B);box-shadow:inset 0 0 0 1.5px rgba(255,226,180,.08),inset 0 18px 30px -20px rgba(255,220,160,.18),var(--shadow)}
+.cabinet::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(115deg,rgba(255,255,255,.06) 0 12%,transparent 30%)}
+.cabinet .bg-gh{margin:16px 2px 10px}.cabinet .bg-gh b{color:#FFF3DD}.cabinet .bg-gh span{background:rgba(255,243,221,.12);color:rgba(255,243,221,.8)}
+.cabinet .bgrid{row-gap:22px}
+.cslot{position:relative;padding-bottom:14px}.cslot>.bcard{display:block;width:100%}
+.cslot::after{content:"";position:absolute;left:-7px;right:-7px;bottom:0;height:11px;border-radius:2px;background:linear-gradient(180deg,#9A6A45,#6B4529 55%,#4A2F1C);box-shadow:0 8px 12px -6px rgba(0,0,0,.7)}
+.cabinet .hint{color:rgba(255,243,221,.75)}
+/* ---------- The diary ---------- */
+.diary-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:18px 16px;border-radius:var(--r-xl,28px);color:#FFF8EE;margin-bottom:6px;background:radial-gradient(120% 120% at 0% 0%,rgba(226,184,102,.22),transparent 55%),linear-gradient(160deg,#3A2417,#1A100A)}
+.diary-h h3{margin:4px 0 0;font-family:var(--display);font-size:1.35rem;color:#FFF8EE}.diary-h h3 em{font-style:normal;color:#F0C987;font-size:.85em}.diary-h p{margin:8px 0 0;font-size:.88rem;color:rgba(255,248,238,.8);max-width:36ch}
+.dy-m{margin:20px 2px 8px;font-family:var(--display);font-size:1rem;color:var(--muted)}
+.tline{list-style:none;margin:0;padding:0 0 0 6px;position:relative}
+.tline::before{content:"";position:absolute;left:21px;top:8px;bottom:8px;width:2px;border-radius:1px;background:var(--line)}
+.tl-e{position:relative;display:flex;gap:12px;padding:6px 0}
+.tl-ic{position:relative;z-index:1;flex:none;width:32px;height:32px;display:grid;place-items:center;border-radius:50%;background:var(--surface);box-shadow:0 0 0 2px var(--line);font-size:.95rem}
+.tl-e.k-best .tl-ic{box-shadow:0 0 0 2px #C9964A}.tl-e.k-last .tl-ic{box-shadow:0 0 0 2px #8A5A3B}.tl-e.k-opened .tl-ic{box-shadow:0 0 0 2px #4F8A74}
+.tl-b{flex:1;min-width:0;padding:8px 12px 10px;border-radius:var(--r-md);background:var(--surface);box-shadow:var(--shadow)}
+.tl-h{display:flex;align-items:baseline;gap:8px}.tl-h b{font-size:.92rem}.tl-h time{font-size:.76rem;color:var(--muted);margin-left:auto;white-space:nowrap}
+.tl-x{flex:none;border:0;background:none;color:var(--muted);font-size:.8rem;padding:4px 6px;margin:-4px -6px -4px 0;cursor:pointer;border-radius:8px}.tl-x:hover{color:var(--cherry)}
+.tl-b p{margin:4px 0 0;font-size:.9rem;line-height:1.45;white-space:pre-wrap}.tl-b .tl-meta{font-size:.8rem;color:var(--muted)}
+.tl-bean{display:flex;align-items:center;gap:8px;border:0;background:none;padding:0;margin:0 0 6px;font:inherit;color:var(--ink);cursor:pointer;text-align:left}
+.tl-bean .bpic{flex:none;width:26px;height:32px;border-radius:7px}.tl-bean b{font-size:.82rem;font-family:var(--display)}
+/* A coffee's page: the bag now, buying again, writing */
+.bd-shelf{margin:6px 0 14px;padding:14px;border-radius:var(--r-lg);background:var(--surface2)}
+.bd-fh{display:flex;align-items:baseline;justify-content:space-between;gap:8px}.bd-fh b{font-family:var(--display);font-size:1.05rem}.bd-fh span{font-size:.82rem;color:var(--muted)}
+.bd-f p{margin:8px 0 0;font-size:.88rem;line-height:1.45}
+.fbar{position:relative;display:flex;height:10px;margin:10px 0 4px;border-radius:5px;overflow:visible}
+.fbar i{display:block;height:100%}.fbar .fz1{width:6.7%;background:#B8AFA6;border-radius:5px 0 0 5px}.fbar .fz2{width:28.3%;background:#5E9A63}.fbar .fz3{width:40%;background:#C9964A}.fbar .fz4{flex:1;background:#A8432F;border-radius:0 5px 5px 0;opacity:.75}
+.fbar b{position:absolute;top:50%;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:var(--surface);box-shadow:0 0 0 3px var(--ink),0 3px 8px rgba(0,0,0,.3)}
+.bd-bag{margin-top:12px}.bd-bag .bagm{height:8px}.bd-bag .bagl small{font-size:.86rem;color:var(--ink);font-weight:600}
+.bd-bagb{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.bd-bagb .chip{cursor:pointer;padding:7px 13px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line)}
+.bd-done{width:100%;margin-top:12px}
+.bd-again{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:14px 0 6px;font-weight:600;font-size:.92rem}
+.dwrite{padding:12px;border-radius:var(--r-lg);background:var(--surface2);margin-bottom:12px}
+.dmoms{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -12px 10px;padding:0 12px}.dmoms::-webkit-scrollbar{display:none}
+.dmoms button{flex:none;display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--r-pill);border:0;font:inherit;font-size:.82rem;font-weight:600;cursor:pointer;background:var(--surface);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
+.dmoms button[aria-pressed="true"]{background:var(--cherry);color:#fff;box-shadow:none}
+.dwrite textarea{width:100%;box-sizing:border-box;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r-md);padding:10px 12px}
+.bd-again .seg{flex:none}.bd-again .seg button{flex:none;min-width:64px}
+.dw-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}.dw-row input{flex:1 1 140px;min-width:0}.dw-row .btn{flex:1 1 auto}
+/* ---------- The passport ---------- */
+.passport{position:relative;padding:18px 14px 16px;border-radius:24px;color:#2A1A10;margin-bottom:8px;
+  background:repeating-linear-gradient(0deg,transparent 0 27px,rgba(90,60,30,.06) 27px 28px),radial-gradient(120% 90% at 50% 0%,#FBF3E4,#EFE1C8);box-shadow:inset 0 0 0 1.5px rgba(120,80,40,.18),var(--shadow)}
+.pp-k{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:#7A4A26}
+.pp-h h3{margin:4px 0 0;font-family:var(--display);font-size:1.45rem;color:#2A1A10}.pp-h h3 em{font-style:normal;font-size:.7em;color:#6B4A30}
+.pp-regs{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px 14px;margin-top:12px}
+.pp-reg{display:grid;grid-template-columns:1fr auto;align-items:center;gap:3px 10px}.pp-reg small{grid-column:1;grid-row:1;font-size:.74rem;color:#5A3E2A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pp-reg .pp-rb{grid-column:1;grid-row:2}.pp-reg b{grid-column:2;grid-row:1/3;font-family:var(--display);font-size:1.05rem;color:#2A1A10}.pp-rb{display:block;height:5px;border-radius:3px;background:rgba(90,60,30,.12);overflow:hidden}.pp-rb i{display:block;height:100%}
+.pp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:10px 6px;margin-top:16px}
+.pp-st{display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:none;padding:4px 2px;font:inherit;color:#2A1A10;cursor:pointer;text-align:center}
+.pp-st img{width:92px;height:92px;transform:rotate(var(--r));mix-blend-mode:multiply;opacity:.92;transition:transform .3s var(--ease-spring)}.pp-st:hover img,.pp-st:focus-visible img{transform:rotate(0) scale(1.06)}
+.pp-st b{font-size:.82rem;font-family:var(--display);line-height:1.2}.pp-st small{font-size:.7rem;color:#5A3E2A;line-height:1.25}
+.pp-empty{margin:16px 0 4px;font-size:.9rem;color:#5A3E2A}
+.pp-next{margin-top:14px;padding-top:12px;border-top:1px dashed rgba(90,60,30,.25)}.pp-next b{display:block;font-size:.82rem;margin-bottom:6px;color:#5A3E2A}
+.pp-next .chip{cursor:pointer;background:rgba(255,255,255,.65);color:#2A1A10;box-shadow:inset 0 0 0 1px rgba(90,60,30,.18)}
+/* ---------- Trophies ---------- */
+.trophies{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px}
+.tro{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--r-md);background:var(--surface);box-shadow:var(--shadow)}
+.tro-ic{flex:none;width:44px;height:44px;display:grid;place-items:center;border-radius:50%;font-size:1.35rem;background:var(--surface2);filter:grayscale(1);opacity:.55}
+.tro.on .tro-ic{filter:none;opacity:1;background:radial-gradient(circle at 35% 30%,#FFF1C9,#E2B866 60%,#B07D35);box-shadow:0 4px 10px -4px rgba(176,125,53,.8)}
+.tro-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.tro-tx b{font-size:.92rem}.tro-tx small{font-size:.78rem;color:var(--muted);line-height:1.3}
+.tro-p{display:block;height:5px;margin-top:4px;border-radius:3px;background:var(--surface2);overflow:hidden}.tro-p i{display:block;height:100%;background:var(--cherry);border-radius:3px}
+.tro-n{flex:none;font-size:.78rem;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
 .vd-sub{margin:.1rem 0 0;color:var(--muted)}
 .linkbtn.danger{display:block;margin:16px auto 0;color:#A8432F!important}
 /* Adding and editing */
@@ -1253,13 +1348,25 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .dbean-pick{display:inline-flex;align-items:center;gap:8px}.dbean-pick svg{width:20px;height:20px}.dbean-pick .bo{fill:var(--cherry)}.dbean-pick .bc{fill:none;stroke:var(--surface);stroke-width:1.6}
 /* Brew card in the share sheet */
 .cardview{display:block;width:100%;max-width:420px;margin:4px auto 12px;border-radius:18px;box-shadow:0 18px 40px -16px rgba(0,0,0,.6);-webkit-touch-callout:default;user-select:auto}
-.shcard{display:flex;gap:14px;align-items:center;margin:14px 0 4px;padding:12px;border-radius:var(--r-lg);background:linear-gradient(135deg,#2E1C12,#140C07);color:#FFF6E8}
+.shcard{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin:14px 0 4px;padding:12px;border-radius:var(--r-lg);background:linear-gradient(135deg,#2E1C12,#140C07);color:#FFF6E8}
 .shcard-pv{flex:none;width:96px;aspect-ratio:9/16;border-radius:14px;overflow:hidden;border:0;padding:0;cursor:pointer;background:rgba(255,246,232,.08);box-shadow:0 10px 24px -10px rgba(0,0,0,.7),0 0 0 1.5px rgba(226,184,102,.5);transform:rotate(-3deg);transition:transform .25s var(--ease-spring)}
 .shcard-pv:active{transform:rotate(-3deg) scale(.95)}.shcard-pv img{width:100%;height:100%;object-fit:cover;object-position:top;display:block;animation:bfade .35s ease}
 .shcard-ph{display:grid;place-items:center;height:100%;padding:8px;font-size:.68rem;text-align:center;color:rgba(255,246,232,.6)}
 .shcard-tx{flex:1;min-width:0}.shcard-tx b{display:block;font-family:var(--display);font-size:1.08rem;color:#F0C987}.shcard-tx small{display:block;font-size:.8rem;line-height:1.35;color:rgba(255,246,232,.75);margin-top:2px}
 .shcard-act{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.shcard-act .btn{min-height:40px;padding:8px 14px;flex:1 1 auto}
 .shcard-act .btn:not(.ghost){background:#F0C987;border-color:#F0C987;color:#2E1C12}.shcard-act .btn.ghost{color:#FFF6E8;border-color:rgba(255,246,232,.35);background:transparent}
+/* The card's style: Dark or Light, then its colours, each swatch painted in the card's background and accent. */
+.shstyle{flex-basis:100%;min-width:0;border-top:1px solid rgba(255,246,232,.14);padding-top:12px}
+.shmode{display:inline-flex;padding:3px;border-radius:999px;background:rgba(255,246,232,.08);margin-bottom:10px}
+.shmode button{border:0;background:none;color:rgba(255,246,232,.82);font:inherit;font-size:.84rem;font-weight:700;padding:7px 16px;border-radius:999px;min-height:36px;cursor:pointer}
+.shmode button[aria-pressed="true"]{background:#F0C987;color:#2E1C12}
+.shcols{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -12px;padding:2px 12px 4px;scroll-snap-type:x proximity}.shcols::-webkit-scrollbar{display:none}
+.shsw{flex:none;display:flex;flex-direction:column;align-items:center;gap:5px;width:64px;border:0;background:none;padding:0;color:rgba(255,246,232,.78);font:inherit;font-size:.68rem;line-height:1.2;cursor:pointer;scroll-snap-align:start}
+.shsw i{width:40px;height:40px;border-radius:50%;box-shadow:0 0 0 1.5px rgba(255,246,232,.25);transition:box-shadow .2s,transform .2s var(--ease-spring)}
+.shsw span{max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shsw[aria-pressed="true"]{color:#F0C987;font-weight:700}.shsw[aria-pressed="true"] i{box-shadow:0 0 0 2.5px #1A100A,0 0 0 4.5px #F0C987;transform:scale(1.05)}
+.shsw:focus-visible i,.shmode button:focus-visible{outline:2px solid #F0C987;outline-offset:2px}
+.shcard-pv.busy{position:relative}.shcard-pv.busy::after{content:'';position:absolute;inset:0;background:rgba(20,12,7,.45);animation:bfade .2s ease}
 </style>
 <script src="vendor/jspdf.umd.min.js" defer></script>
 <link rel="manifest" href="manifest.webmanifest">
@@ -4803,7 +4910,9 @@ function renderPalate(){const el=$('l-palate'),P=palate();el.hidden=!P;if(!P)ret
 $('l-fl').onclick=()=>openNotesPicker();
 $('tolog').onclick=()=>{const r=compute(S),dp=dialPlan();if(LEDIT)endEdit();
   $('l-settings').value=(dp?dp.r.name+(S.goal!=='balance'?' ('+goalLabel(S.goal,S.amt).toLowerCase()+')':'')+', '+S.dose+'g : '+dp.water+'g, ':'')+gLabel(S.grinder,S.setting)+', '+BREWERS[S.brewer].name+', '+S.temp+'°C, 1:'+rr1(S.ratio)+', '+BREWERS[S.brewer].bloom.label.toLowerCase()+' '+S.bloom+'s, '+PROCESSES[S.process].name+' '+vName(S.variety);
-  $('l-pred').value=verdict(r.D)[0];$('l-settings').dataset.brewer=S.brewer;LSNAP=brewSnap();showTab('log');$('l-coffee').focus()};
+  $('l-pred').value=verdict(r.D)[0];$('l-settings').dataset.brewer=S.brewer;LSNAP=brewSnap();
+  // The coffee picked on the dial-in names the entry, and the brew comes off its bag.
+  if(S.bean&&!$('l-coffee').value.trim())$('l-coffee').value=S.bean.name;showTab('log');$('l-coffee').focus()};
 // The brew as it was on the dial-in, kept with the entry so its card can show the dial, the cup and the pours.
 let LSNAP=null;
 $('l-cancel').onclick=()=>endEdit();
@@ -5292,7 +5401,7 @@ function dialDoc(){const r=compute(S),[vt,vs]=verdict(r.D),B=BREWERS[S.brewer],d
   if(dp){doc.title=dp.r.name+': '+vName(S.variety);doc.blocks.unshift({h:'Recipe',kv:[['Recipe',dp.r.name+(dp.r.by?' ('+dp.r.by+')':'')],['Target cup',goalLabel(S.goal,S.amt)],['Dose : water',S.dose+'g : '+dp.water+'g']]});
     doc.blocks.splice(2,0,{h:'Steps',num:true,list:dp.steps},{h:'What changed and why',list:[...dp.changes,...dp.p.tw,...dp.p.why].map(w=>w.replace(/<[^>]+>/g,''))})}
   // The share sheet offers this brew as a designed card image too.
-  doc.card=brewCard;doc.cardName='brew-card';
+  doc.card=brewCard;doc.cardName='brew-card';doc.cardTheme=()=>originTheme(S.bean&&S.bean.origin);
   return doc}
 function varietyDoc(id){const v=VBY[id];const b=[{kv:[['Family',FAM[v.fam].name],['Origin',v.origin||'-'],['Year',v.year||'-'],['Parentage',v.parents||'-']]},{h:'Story',p:v.story},{h:'In the cup',p:v.cup+' ('+v.notes.join(', ')+')'},{h:'How to brew it',p:v.brew}];
   if(v.subs)b.push({h:'Types',list:v.subs.map(s=>s.name+': '+s.cup)});return{link:SITE_URL+'#v='+id,title:v.name,sub:'Variety guide',blocks:b,file:'variety-'+v.name}}
@@ -5302,7 +5411,7 @@ function historyDoc(){return{link:SITE_URL+'#history',title:'The story of coffee
 function logEntryDoc(l){const fl=flOf(l).filter(([id])=>FW.byId[id]);
   return{title:l.coffee||'A brew',sub:fmtDate(l)+(l.stars?' | '+l.stars+' / 5':''),file:'brew-'+(l.coffee||'log'),
     blocks:[{kv:[['Settings',l.settings||'-'],['Predicted',l.pred||'-']]},...(fl.length?[{h:'What I tasted',p:fl.map(([id])=>FW.byId[id].n).join(', ')}]:[]),...(l.notes?[{h:'Notes',p:l.notes}]:[])],
-    card:()=>logCard(l),cardName:'brew-card',cardSub:'This brew as one image: your rating, '+(l.snap?'the settings with the grind dial, the predicted cup, the pours, ':'the settings, ')+'what you tasted and your notes.'}}
+    card:()=>logCard(l),cardTheme:()=>{const s=okSnap(l.snap);return originTheme(s&&s.bean&&s.bean.origin)},cardName:'brew-card',cardSub:'This brew as one image: your rating, '+(l.snap?'the settings with the grind dial, the predicted cup, the pours, ':'the settings, ')+'what you tasted and your notes.'}}
 function logDoc(){return{title:'My brew log',sub:LOG.length+' brews',file:'brew-log',blocks:LOG.length?LOG.map(l=>({h:(l.coffee||'Untitled')+' - '+l.date,kv:[['Rating',l.stars?l.stars+' / 5':'-'],['Settings',l.settings||'-'],['Predicted',l.pred||'-'],['Notes',l.notes||'-']].concat(flOf(l).length?[['Flavour notes',flText(flOf(l))]]:[])})):[{p:'No brews logged yet.'}]}}
 function scanDoc(p,c){const inf=SC.info||{};const kv=[...(SC.roaster?[['Roastery',SC.roaster]]:[]),['Origin',SC.origin?originName(SC.origin):'Not sure'],['Variety',vName(SC.variety)],['Process',PROCESSES[SC.process].name],['Roast',SC.roast],['Days off roast',String(daysSince(SC.date))]];
   if(inf.producer_or_farm)kv.push(['Producer or farm',inf.producer_or_farm]);if(inf.altitude)kv.push(['Altitude',inf.altitude]);if((inf.tasting_notes||[]).length)kv.push(['Tasting notes',inf.tasting_notes.join(', ')]);
@@ -5325,16 +5434,27 @@ function openShare(doc){SHDOC=doc;const pdfOK=!!(window.jspdf&&window.jspdf.jsPD
    // A brew can also go out as a designed image card: shown first, with a preview drawn as the sheet opens.
    (doc.card?'<div class="shcard"><button type="button" class="shcard-pv" data-sh="img" aria-label="Share the brew card image"><span class="shcard-ph">Drawing your brew card…</span></button>'+
      '<div class="shcard-tx"><b>'+esc(doc.cardTitle||'Brew card')+'</b><small>'+esc(doc.cardSub||'One image with everything: recipe, numbers, grind dial, the predicted cup and every pour.')+'</small>'+
-     '<div class="shcard-act"><button type="button" class="btn" data-sh="img">Share image</button><button type="button" class="btn ghost" data-sh="imgsave">Save</button></div></div></div>':'')+
+     '<div class="shcard-act"><button type="button" class="btn" data-sh="img">Share image</button><button type="button" class="btn ghost" data-sh="imgsave">Save</button></div></div>'+
+     // The card's look is yours to choose each time: Dark or Light, in the origin's colours or one of the coffee colours.
+     '<div class="shstyle"><div class="shmode" role="group" aria-label="Card style">'+[['dark','Dark'],['light','Light']].map(([k,n])=>'<button type="button" data-shmode="'+k+'" aria-pressed="'+(CARD_STYLE.mode===k)+'">'+n+'</button>').join('')+'</div>'+
+     '<div class="shcols" role="group" aria-label="Card colours">'+shSwatches(doc)+'</div></div></div>':'')+
    '<div class="sharerow">'+APPS.map(([k,n,c,d])=>'<button type="button" data-sh="'+k+'"><span class="app" style="background:'+c+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+d+'"/></svg></span>'+n+'</button>').join('')+'</div>'+
    '<div class="sheetlist">'+
    '<button type="button" data-sh="pdf">'+ico('file','#B5533C')+'<span>Save as PDF<small>'+(pdfOK?'A styled page to send or print':'Loading the PDF engine\u2026 try again in a moment')+'</small></span></button>'+
    '<button type="button" data-sh="copy">'+ico('copy','#C9964A')+'<span>Copy as text<small>Paste it anywhere</small></span></button>'+
    '<button type="button" data-sh="md">'+ico('text','#8A5A3B')+'<span>Save as a text file<small>Plain text you can edit</small></span></button></div></div>';
   const d=$('sharesheet');showDlg(d);$('sh-x').onclick=()=>d.close();
-  if(doc.card){SHCARD=null;const want=doc;doc.card().then(bl=>{if(SHDOC!==want||!bl)return;SHCARD=bl;const pv=d.querySelector('.shcard-pv');if(!pv)return;
-    const u=URL.createObjectURL(bl);pv.innerHTML='<img src="'+u+'" alt="Your brew card">';pv.querySelector('img').onload=()=>setTimeout(()=>URL.revokeObjectURL(u),1000)}).catch(()=>{const ph=d.querySelector('.shcard-ph');if(ph)ph.textContent='Couldn’t draw the card'})}}
-let SHCARD=null;
+  if(doc.card)drawShCard()}
+let SHCARD=null,SHN=0;
+// The preview, redrawn whenever the style changes; an older drawing that finishes late is dropped.
+function drawShCard(){const d=$('sharesheet'),doc=SHDOC,n=++SHN;SHCARD=null;const pv=d.querySelector('.shcard-pv');if(pv)pv.classList.add('busy');
+  doc.card().then(bl=>{if(SHDOC!==doc||n!==SHN||!bl)return;SHCARD=bl;const pv=d.querySelector('.shcard-pv');if(!pv)return;pv.classList.remove('busy');
+    const u=URL.createObjectURL(bl);pv.innerHTML='<img src="'+u+'" alt="Your brew card">';pv.querySelector('img').onload=()=>setTimeout(()=>URL.revokeObjectURL(u),1000)}).catch(()=>{const ph=d.querySelector('.shcard-ph');if(ph)ph.textContent='Couldn’t draw the card'})}
+// One swatch per colour, painted in what the card would use: its background and its accent.
+function shSwatches(doc){const T=(doc.cardTheme&&doc.cardTheme())||OT.house,keep=Object.assign({},BC);
+  const h=cardCols().map(([k,n])=>{const t=cardStyle(T,{mode:CARD_STYLE.mode,col:k}),lab=k==='origin'?(T.key?(flagOf(T.key)+' '+T.name):'House'):n;
+    return '<button type="button" class="shsw" data-shcol="'+k+'" aria-pressed="'+(CARD_STYLE.col===k)+'" aria-label="'+esc(lab)+' colours"><i style="background:linear-gradient(135deg,'+t.bg[0]+' 0 55%,'+t.acc+' 55%)"></i><span>'+esc(lab)+'</span></button>'}).join('');
+  Object.assign(BC,keep);return h}
 // Open a messaging app with the text filled in. In the Android app, Capacitor hands these links to the system.
 function openLink(url){if(NATIVE||/^(mailto|sms):/.test(url))location.href=url;else window.open(url,'_blank','noopener')}
 const fname=s=>String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,60)||'brew-bench';
@@ -5354,7 +5474,10 @@ async function saveFile(name,data){if(NATIVE){try{if(await nativeShare(name,name
   try{const blob=data instanceof Blob?data:new Blob([data]),phone=matchMedia('(pointer:coarse)').matches&&blob.size<20e6;
     const u=phone?await new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=no;r.readAsDataURL(blob)}):URL.createObjectURL(blob);
     const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();if(!phone)setTimeout(()=>URL.revokeObjectURL(u),60000);toast('Download started');return true}catch(e){toast('Saving files isn\u2019t available here');return false}}
-$('sharesheet').addEventListener('click',async e=>{const d=$('sharesheet');if(e.target===d){d.close();return}const b=e.target.closest('[data-sh]');if(!b||!SHDOC)return;const k=b.dataset.sh,doc=SHDOC,txt=docText(doc),base=fname(doc.file||doc.title);
+$('sharesheet').addEventListener('click',async e=>{const d=$('sharesheet');if(e.target===d){d.close();return}
+  const sm=e.target.closest('[data-shmode],[data-shcol]');if(sm&&SHDOC){if(sm.dataset.shmode)CARD_STYLE.mode=sm.dataset.shmode;else CARD_STYLE.col=sm.dataset.shcol;saveCardStyle();
+    d.querySelectorAll('[data-shmode]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.shmode===CARD_STYLE.mode));const sc=d.querySelector('.shcols');if(sc)sc.innerHTML=shSwatches(SHDOC);drawShCard();return}
+  const b=e.target.closest('[data-sh]');if(!b||!SHDOC)return;const k=b.dataset.sh,doc=SHDOC,txt=docText(doc),base=fname(doc.file||doc.title);
   if(k==='img'||k==='imgsave'){const bl=SHCARD||await doc.card();if(!bl){toast('Couldn’t draw the card');return}d.close();await shareCard(bl,fname(doc.cardName||base),doc.title,k==='imgsave');return}
   if(k==='pdf'){const blob=docPDF(doc);if(!blob){toast('The PDF engine is still loading. Try again in a second');return}d.close();await saveFile(base+'.pdf',blob)}
   if(k==='md'){d.close();await saveFile(base+'.txt',txt)}
@@ -5616,8 +5739,8 @@ const hubItem=k=>[...SHEETS.explore,...SHEETS.more].find(x=>x[0]===k);
 const hubCount=k=>({map:Object.keys(ALLO()).length,variety:V.length,process:Object.keys(PROCESSES).length,tech:TECH.length,words:GLOSSARY.length,champs:CHAMPS.length,gear:MYG.length+' grinder'+(MYG.length===1?'':'s'),log:LOG.length?LOG.length+' brew'+(LOG.length===1?'':'s'):0})[k];
 const hubCard=k=>{const [,n,d,c,ic]=hubItem(k),cnt=hubCount(k);return '<button type="button" class="hubcard" data-go="'+k+'">'+ico(ic,c)+(cnt?'<span class="hn">'+cnt+'</span>':'')+'<b>'+n+'</b><small>'+d+'</small></button>'};
 function renderExplore(){const day=Math.floor(Date.now()/864e5),w=GLOSSARY[day%GLOSSARY.length];
-  $('explore-in').innerHTML='<button type="button" class="wotd" data-word="'+esc(w[0])+'"><small>Word of the day</small><b>'+esc(w[0])+'</b><span>'+esc(w[2])+'</span></button>'+
-    HUB.explore.map(([h,ks])=>'<h3 class="rh">'+h+'</h3><div class="hubgrid">'+ks.map(hubCard).join('')+'</div>').join('')}
+  $('explore-in').innerHTML='<button type="button" class="wotd" data-word="'+esc(w[0])+'"><small>Word of the day</small><b>'+esc(w[0])+'</b><span>'+esc(w[2])+'</span></button>'+(window.BEANS_OK?cabinetDayHTML():'')+
+    HUB.explore.map(([h,ks])=>'<h3 class="rh">'+h+'</h3><div class="hubgrid">'+ks.map(hubCard).join('')+'</div>').join('');if(window.BEANS_OK)hydrateImgs($('explore-in'))}
 /* ---------- Settings: the app's look, name and your data ---------- */
 let UI=Object.assign({accent:'classic',logo:'bean',text:'m',motion:'full',start:'dial'},load('bb-ui',{}));
 const ACCENTS=[['classic','House roast','#8A5A3B'],['espresso','Espresso','#5E3B2A'],['cascara','Cascara','#A3392E'],['kenya','Kenya','#7B2D4E'],['honey','Honey','#A8741C'],['leaf','Coffee leaf','#4F7A45'],['coldbrew','Cold brew','#2E5C7A'],['geisha','Geisha','#76588C']];
@@ -5674,6 +5797,10 @@ function renderSettings(){const t=document.documentElement.getAttribute('data-th
     row('text','#C9964A','Text size','','<div class="seg" id="st-text"></div>')+
     row('wheel','#6E8FA8','Motion','Animations between pages and sheets','<div class="seg" id="st-motion"></div>')+
     row('globe','#4F8A74','Open the app on','The page you see first','<div class="seg" id="st-start"></div>')+'</div>'+
+   // The coffee of the day: always on the Beans and Explore pages; in the Android app, also as a notification.
+   '<h3 class="rh">Reminders</h3><div class="setgroup">'+row('hourglass','#8A5A3B','Coffee of the day','A coffee from your cabinet each day: a bag at its peak or running low, one from this day in an earlier year, or a memory from your diary.',
+     window.BEANS_OK&&LN()?'<div class="setbtns"><div class="seg" id="st-remind"></div><input type="time" id="st-rtime" class="dateinp" value="'+REMIND.t+'" aria-label="Reminder time"'+(REMIND.on?'':' disabled')+'></div>'
+       :'<p class="setnote" style="margin:0">It’s at the top of Beans and Explore each day. In the Android app it can also arrive as a notification at the time you choose.</p>')+'</div>'+
    /* Gear, Guide and the Log are the buttons at the top. */
    '<h3 class="rh">Your data</h3><div class="setgroup">'+row('download','#8A5A3B','Back up and restore','Everything you’ve saved stays on this device: '+esc(dataSummary())+'. Save it as a file to keep it safe or move it to another phone.',
      '<div class="setbtns"><button type="button" class="btn" id="st-export">Export my data</button><button type="button" class="btn ghost" id="st-import">Import a backup</button><input type="file" id="st-file" accept="application/json,.json" hidden></div>')+'</div>'+
@@ -5683,12 +5810,15 @@ function renderSettings(){const t=document.documentElement.getAttribute('data-th
     else{document.documentElement.setAttribute('data-theme',v);try{localStorage.setItem('bb-theme',v)}catch(e){}}syncThemeBtn();applyUI();renderSettings()});
   seg('st-text',[['s','Small'],['m','Standard'],['l','Large'],['xl','Larger']],()=>UI.text,v=>{UI.text=v;saveUI();renderSettings()});
   seg('st-motion',[['full','Full'],['reduced','Reduced']],()=>UI.motion,v=>{UI.motion=v;saveUI();renderSettings()});
+  if($('st-remind')){seg('st-remind',[['0','Off'],['1','Every day']],()=>REMIND.on?'1':'0',async v=>{await setReminder(v==='1');renderSettings()});
+    $('st-rtime').onchange=async e=>{if(/^\d\d:\d\d$/.test(e.target.value)){REMIND.t=e.target.value;save('bb-remind',REMIND);await scheduleReminders();toast('Your coffee of the day arrives at '+REMIND.t)}}}
   seg('st-start',[['dial','Brew'],['recipes','Recipes'],['beans','Beans'],['explore','Explore']],()=>UI.start,v=>{UI.start=v;saveUI();renderSettings();toast('The app will open on '+TABNAMES[v])})}
 $('settings-in').addEventListener('click',e=>{const a=e.target.closest('.swatch[data-accent]');if(a){UI.accent=a.dataset.accent;saveUI();renderSettings();return}
   const l=e.target.closest('.logopick[data-logo]');if(l){UI.logo=l.dataset.logo;saveUI();renderSettings();return}
   if(e.target.closest('#st-export')){exportData();return}if(e.target.closest('#st-import')){$('st-file').click();return}});
 $('settings-in').addEventListener('change',e=>{if(e.target.id==='st-file'){importData(e.target.files[0]);e.target.value=''}});
 for(const id of ['explore-in','settings-in'])$(id).addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g){showTab(g.dataset.go);return}
+  const cb=e.target.closest('.cday[data-bean]');if(cb){openBean(cb.dataset.bean);return}
   const w=e.target.closest('[data-word]');if(w)openWord(w.dataset.word)});
 // Older code and links may still ask for the sheets; they are pages now.
 const openSheet=which=>showTab(which);
@@ -5760,12 +5890,26 @@ const ISO_D=/^\d{4}-\d{2}-\d{2}$/;
 const todayISO=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 // Saved beans are checked on the way in: a backup or an old version can't put anything odd on the page.
 const BID=/^[a-z0-9]{4,24}$/;
+// Days from an ISO date to today (negative for a date still to come).
+const daysAgo=iso=>Math.round((Date.parse(todayISO()+'T12:00')-Date.parse(iso+'T12:00'))/864e5);
+// Diary moments: what kind of entry it is, with its mark and a prompt to start from.
+const MOMENTS={opened:['Opened the bag','📦','First impressions: the smell of the bag, the dry grounds…'],note:['Note','✍️','What did you notice in the cup today?'],
+  dial:['Dialled in','🎯','The recipe and grind that finally clicked…'],best:['Best cup','🏆','What made this one special?'],shared:['Shared it','🤝','Who did you brew it for, and what did they think?'],
+  last:['Last cup','🏁','How it ended, and would you buy it again?']};
+const okEntry=e=>{if(!e||typeof e!=='object')return null;const k=MOMENTS[e.k]?e.k:'note',t=str(e.t,600);if(!t&&k==='note')return null;
+  return{id:typeof e.id==='string'&&BID.test(e.id)?e.id:uid().replace(/[^a-z0-9]/g,'').slice(0,20),d:ISO_D.test(e.d)?e.d:todayISO(),k,t}};
+const gramsOrNull=v=>v==null||v===''||!isFinite(+v)?null:Math.round(clamp(+v,0,5000));
 function okBean(b){if(!b||typeof b!=='object'||typeof b.id!=='string'||!BID.test(b.id))return null;
-  const r=Math.round(clamp(+b.rating||0,0,5)*2)/2;
+  const r=Math.round(clamp(+b.rating||0,0,5)*2)/2,tried=ISO_D.test(b.tried)?b.tried:todayISO();
   return{id:b.id,name:str(b.name,60),roaster:str(b.roaster,50),origin:okOrigin(b.origin),process:PROCESSES[b.process]?b.process:'',
     variety:VBY[String(b.variety||'').split(':')[0]]?String(b.variety):'',roast:['light','medium','dark'].includes(b.roast)?b.roast:'',
-    roastDate:ISO_D.test(b.roastDate)?b.roastDate:'',tried:ISO_D.test(b.tried)?b.tried:todayISO(),rating:r,flavours:str(b.flavours,160),notes:str(b.notes,600),
-    img:!!b.img,scan:typeof b.scan==='string'&&BID.test(b.scan)?b.scan:'',ts:+b.ts||Date.now()}}
+    roastDate:ISO_D.test(b.roastDate)?b.roastDate:'',tried,rating:r,flavours:str(b.flavours,160),notes:str(b.notes,600),
+    img:!!b.img,scan:typeof b.scan==='string'&&BID.test(b.scan)?b.scan:'',ts:+b.ts||Date.now(),
+    // On the shelf: a bag you're drinking now. Coffees saved before shelves existed are on it if tried in the last month.
+    shelf:typeof b.shelf==='boolean'?b.shelf:daysAgo(tried)<=30,
+    // The bag: its size, and what was left when you last said so (brews logged since then are taken off).
+    bag:gramsOrNull(b.bag)||0,left:gramsOrNull(b.left),leftAt:+b.leftAt||0,again:b.again==='yes'||b.again==='no'?b.again:'',
+    diary:(Array.isArray(b.diary)?b.diary:[]).map(okEntry).filter(Boolean).sort((x,y)=>y.d.localeCompare(x.d)).slice(0,80)}}
 let BEANS=load('bb-beans',[]);BEANS=Array.isArray(BEANS)?BEANS.map(okBean).filter(Boolean):[];
 // Top 3 per year: three places (gold, silver, bronze), each a bean id or '' while open, plus a snapshot so a podium
 // survives the bean being deleted later.
@@ -5776,7 +5920,7 @@ const t3has=t=>!!t&&t.ids.some(Boolean);
 let BQ='',BSORT='recent',BYEAR='all',BPOD=null,BVIEW='coffees';
 // Cards slide in the first time you see them, not every time the list is sorted or searched.
 const BSEEN=new Set();
-function saveBeans(){try{localStorage.setItem('bb-beans',JSON.stringify(BEANS));return true}catch(e){toast('Couldn’t save: this device’s storage is full');return false}}
+function saveBeans(){try{localStorage.setItem('bb-beans',JSON.stringify(BEANS));reschedule();return true}catch(e){toast('Couldn’t save: this device’s storage is full');return false}}
 const saveTop3=()=>save('bb-top3',TOP3);
 const beanYear=b=>+b.tried.slice(0,4);
 const beanById=id=>BEANS.find(b=>b.id===id);
@@ -5786,6 +5930,104 @@ const flagOf=k=>(oInfo(k)||{}).flag||'';
 const beanRank=b=>{const t=TOP3[beanYear(b)];return t?t.ids.indexOf(b.id)+1:0};
 const inAnyTop=id=>Object.values(TOP3).some(t=>t.ids.includes(id));
 const MEDAL=['','#C9964A','#A49C92','#A8673F'],MEDALN=['','Gold','Silver','Bronze'];
+
+/* ---------- On the shelf: freshness and what's left in the bag ---------- */
+// The brews you logged from the dial-in with this coffee picked (yours only, in a shared log).
+const beanBrews=b=>LOG.filter(l=>l&&l.snap&&l.snap.bean&&l.snap.bean.id===b.id&&(!l.by||l.by===ME));
+// Grams left: what you last said was left (or the full bag), less every brew logged since. null when the bag size isn't known.
+function gramsLeft(b){const base=b.left!=null?b.left:b.bag;if(!base&&b.left==null)return null;const since=b.left!=null?b.leftAt:b.ts;
+  return Math.max(0,Math.round(base-beanBrews(b).filter(l=>(+l.ts||0)>since).reduce((s,l)=>s+(+l.snap.dose||0),0)))}
+const beanDose=b=>{const d=beanBrews(b).map(l=>+l.snap.dose).filter(v=>v>0);return d.length?d.reduce((a,v)=>a+v,0)/d.length:(+S.dose||15)};
+const cupsLeft=b=>{const g=gramsLeft(b);return g==null?null:Math.floor(g/beanDose(b))};
+// Where a bag is in its life, from the roast date: resting (still degassing), at its peak, still lovely, then fading.
+const FRESH={rest:['Resting','Give it a few more days: fresh coffee is gassy and brews uneven.'],peak:['At its peak','Brew it now: these are its best weeks.'],
+  good:['Still lovely','Past its peak but still sweet. A touch finer if it tastes flat.'],fade:['Fading','Getting tired: grind finer and brew a little hotter to wake it up.']};
+function fresh(b){if(!b.roastDate)return null;const d=daysAgo(b.roastDate);if(d<0)return null;const k=d<4?'rest':d<=21?'peak':d<=45?'good':'fade';return{d,k,label:FRESH[k][0],tip:FRESH[k][1]}}
+// The freshness line: 0 to 60 days, its four stretches coloured, a marker on today.
+const freshBar=f=>'<span class="fbar" role="img" aria-label="Day '+f.d+' off roast: '+f.label+'"><i class="fz1"></i><i class="fz2"></i><i class="fz3"></i><i class="fz4"></i><b style="left:'+Math.min(100,f.d/60*100).toFixed(1)+'%"></b></span>';
+const freshPill=f=>'<span class="fpill f-'+f.k+'">'+f.label+' · day '+f.d+'</span>';
+const bagLine=b=>{const g=gramsLeft(b);if(g==null)return '';const c=cupsLeft(b),pct=b.bag?clamp(g/b.bag*100,0,100):null;
+  return '<span class="bagl">'+(pct!=null?'<span class="bagm"><i style="width:'+pct.toFixed(0)+'%"></i></span>':'')+'<small>'+(g?g+' g left'+(c!=null?' · about '+c+' cup'+(c===1?'':'s'):''):'Bag empty')+'</small></span>'};
+// Mark the bag's contents as they are now: brews logged after this are taken off again.
+function setLeft(b,g){b.left=gramsOrNull(g);b.leftAt=Date.now()}
+
+/* ---------- The diary ---------- */
+// A coffee's story: your entries and the brews you logged with it, newest first.
+function beanTimeline(b){const fmt=s=>new Date(s+'T12:00');
+  return [...b.diary.map(e=>({kind:'entry',d:e.d,t:fmt(e.d).getTime(),e})),
+    ...beanBrews(b).map(l=>({kind:'brew',d:'',t:+l.ts||0,l}))].sort((x,y)=>y.t-x.t)}
+const dfmt=t=>new Date(t).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'});
+function timelineHTML(items,withBean){if(!items.length)return '';
+  return '<ol class="tline">'+items.map(it=>{const b=it.bean,head=withBean&&b?'<button type="button" class="tl-bean" data-bean="'+b.id+'">'+beanPic(b,'xs')+'<b>'+esc(beanTitle(b))+'</b></button>':'';
+    if(it.kind==='entry'){const [n,ic]=MOMENTS[it.e.k];return '<li class="tl-e k-'+it.e.k+'"><span class="tl-ic" aria-hidden="true">'+ic+'</span><div class="tl-b">'+head+'<div class="tl-h"><b>'+n+'</b><time>'+dfmt(it.t)+'</time>'+
+      (withBean?'':'<button type="button" class="tl-x" data-deldiary="'+it.e.id+'" aria-label="Delete this entry">✕</button>')+'</div>'+(it.e.t?'<p>'+esc(it.e.t)+'</p>':'')+'</div></li>'}
+    const l=it.l,B=BREWERS[l.snap.b],st=+l.stars||0;
+    return '<li class="tl-e k-brew"><span class="tl-ic" aria-hidden="true">☕</span><div class="tl-b">'+head+'<div class="tl-h"><b>Brewed'+(B?' on '+esc(B.name):'')+'</b><time>'+dfmt(it.t)+'</time></div>'+
+      '<p class="tl-meta">'+[l.snap.dose?gfmt(l.snap.dose)+' g':'',l.snap.rec||'',st?'★'.repeat(st)+'☆'.repeat(5-st):''].filter(Boolean).map(esc).join(' · ')+'</p>'+(l.notes?'<p>'+esc(l.notes)+'</p>':'')+'</div></li>'}).join('')+'</ol>'}
+
+/* ---------- Trophies ---------- */
+// Earned from the cabinet as it is: each has a goal and counts towards it. The day one is first earned is kept.
+const WILD=['anaerobic','anaerobicnatural','anaerobicwashed','carbonic','lactic','yeast','koji','extended','thermalshock','mossto','coferment','infused','barrelaged'];
+function cabStats(){const o=new Set(BEANS.map(b=>b.origin).filter(Boolean));
+  return{n:BEANS.length,o,regs:new Set([...o].map(k=>(oInfo(k)||{}).reg).filter(Boolean)),procs:new Set(BEANS.map(b=>b.process).filter(Boolean)),
+    roasters:new Set(BEANS.map(b=>b.roaster.toLowerCase()).filter(Boolean)),diary:BEANS.reduce((a,b)=>a+b.diary.length,0),done:BEANS.filter(b=>!b.shelf).length,
+    crowned:Object.values(TOP3).some(t=>t.ids.every(Boolean)),perfect:BEANS.some(b=>b.rating===5),wild:BEANS.some(b=>WILD.includes(b.process)),
+    geisha:BEANS.some(b=>/^geisha/.test(b.variety)),arabia:BEANS.some(b=>['yemen','saudi','oman','uae'].includes(b.origin)),eth:o.has('ethiopia')}}
+const TROPHIES=[
+  ['first','First bag','Add your first coffee to the cabinet','☕',s=>[s.n,1]],['ten','Ten bags','Ten coffees in the cabinet','🛍️',s=>[s.n,10]],['fifty','The collector','Fifty coffees in the cabinet','🏛️',s=>[s.n,50]],
+  ['birth','Where it began','A coffee from Ethiopia, the birthplace of Arabica','🐐',s=>[+s.eth,1]],['mocha','The Mocha road','A coffee from the Arabian Peninsula','⛵',s=>[+s.arabia,1]],
+  ['pass5','Stamped passport','Coffees from five origins','🛂',s=>[s.o.size,5]],['pass15','Globetrotter','Coffees from fifteen origins','🌍',s=>[s.o.size,15]],['regions','All five regions','A coffee from every coffee region','🧭',s=>[s.regs.size,5]],
+  ['procs','Process explorer','Five different processes','🧪',s=>[s.procs.size,5]],['wild','Wild side','An anaerobic, carbonic or co-fermented coffee','🍷',s=>[+s.wild,1]],['geisha','Geisha club','A Geisha in the cabinet','🌸',s=>[+s.geisha,1]],
+  ['roasters','Roastery hopper','Coffees from five roasteries','🔥',s=>[s.roasters.size,5]],['diary','Diarist','Ten diary entries','📖',s=>[s.diary,10]],['done','Clean plate','Finish ten bags','🏁',s=>[s.done,10]],
+  ['perfect','Perfect five','Rate a coffee five beans','✨',s=>[+s.perfect,1]],['crowned','Crowned','A full top 3 for a year','👑',s=>[+s.crowned,1]]];
+let TGOT=load('bb-trophies',null);
+// New trophies are announced; the first time this runs, the ones already earned are noted quietly.
+function checkTrophies(){const st=cabStats(),first=!TGOT||typeof TGOT!=='object';if(first)TGOT={};const news=[];
+  for(const [id,n,,ic,f] of TROPHIES){const [h,need]=f(st);if(h>=need&&!TGOT[id]){TGOT[id]=todayISO();news.push(ic+' '+n)}}
+  save('bb-trophies',TGOT);if(!first&&news.length)setTimeout(()=>toast('Trophy unlocked: '+news.join(', ')),600)}
+
+/* ---------- From your cabinet: one coffee a day ---------- */
+// Like the word of the day: a coffee from your cabinet, chosen for the date. A bag that needs you comes first (just at
+// its peak, nearly empty, or fading), then one you tried on this day in an earlier year, then a memory from your diary
+// or a favourite worth another look.
+function cabinetDay(when){const day=when||new Date(),iso=day.getFullYear()+'-'+String(day.getMonth()+1).padStart(2,'0')+'-'+String(day.getDate()).padStart(2,'0');
+  const seed=Math.floor(Date.parse(iso+'T12:00')/864e5),pick=l=>l[((seed%l.length)+l.length)%l.length],at=t=>Math.round((Date.parse(iso+'T12:00')-Date.parse(t+'T12:00'))/864e5);
+  if(!BEANS.length)return null;const shelf=BEANS.filter(b=>b.shelf),need=[];
+  for(const b of shelf){const d=b.roastDate?at(b.roastDate):null,c=cupsLeft(b);
+    // Each nudge comes on a few days, not every day: the peak on days 4 and 5, fading once a week, running low every third day.
+    if(d!=null&&d>=4&&d<=5)need.push({b,k:'peak',title:beanTitle(b)+' is at its peak',text:'Day '+d+' off roast: its best weeks start now. Brew it today.'});
+    else if(c!=null&&c<=2&&seed%3===0)need.push({b,k:'low',title:c?'About '+c+' cup'+(c===1?'':'s')+' of '+beanTitle(b)+' left':beanTitle(b)+' is empty',text:c?'Make the last of it count, or note how it ended in its diary.':'Finish the bag in its page to move it into the cabinet.'});
+    else if(d!=null&&d>45&&d<=75&&(d-46)%7===0)need.push({b,k:'fade',title:beanTitle(b)+' is fading',text:'Day '+d+' off roast. Brew it soon: a little finer and hotter brings it back.'})}
+  if(need.length)return pick(need);
+  const md=iso.slice(5),ago=BEANS.filter(b=>b.tried.slice(5)===md&&b.tried<iso);
+  if(ago.length){const b=pick(ago),y=+iso.slice(0,4)-+b.tried.slice(0,4);return{b,k:'ago',title:(y===1?'A year':y+' years')+' ago today',text:'You tried '+beanTitle(b)+(b.roaster?' from '+b.roaster:'')+(b.rating?' and gave it '+String(b.rating).replace('.5','½')+' beans.':'.')}}
+  const mem=[];for(const b of BEANS)for(const e of b.diary)if(e.t&&at(e.d)>=14)mem.push({b,e});
+  const fav=BEANS.filter(b=>b.rating>=3.5);
+  if(mem.length&&(seed%2||!fav.length)){const {b,e}=pick(mem);return{b,k:'mem',title:'From your diary',text:'“'+(e.t.length>140?e.t.slice(0,137).replace(/\s+\S*$/,'')+'…':e.t)+'”  '+beanTitle(b)+', '+dfmt(Date.parse(e.d+'T12:00'))}}
+  const b=pick(fav.length?fav:BEANS);return{b,k:'fav',title:beanTitle(b),text:[b.roaster,b.origin?originName(b.origin):'',b.rating?String(b.rating).replace('.5','½')+' beans':''].filter(Boolean).join(' · ')+(b.flavours?'. You tasted '+b.flavours.split(/\s*[,;·]\s*/).slice(0,3).join(', ')+'.':'.')}}
+const DAYK={peak:'At its peak',low:'Running low',fade:'Brew it soon',ago:'On this day',mem:'A memory',fav:'From your cabinet'};
+/* ---------- The daily reminder on the phone ---------- */
+// In the Android app, the coffee of the day can also arrive as a notification at a time you choose. The next two weeks
+// are scheduled ahead, each with that day's coffee, and scheduled again whenever the app opens or the cabinet changes.
+let REMIND=(v=>({on:!!(v&&v.on),t:v&&/^\d\d:\d\d$/.test(v.t)?v.t:'09:00'}))(load('bb-remind',null));
+const LN=()=>plugin('LocalNotifications'),RIDS=[...Array(14)].map((_,i)=>7101+i);
+async function scheduleReminders(){const ln=LN();if(!ln)return false;
+  try{await ln.cancel({notifications:RIDS.map(id=>({id}))})}catch(e){}
+  if(!REMIND.on)return true;const [h,m]=REMIND.t.split(':').map(Number),now=new Date(),list=[];
+  for(let i=0;i<14;i++){const at=new Date(now.getFullYear(),now.getMonth(),now.getDate()+i,h,m);if(at<=now)continue;const c=cabinetDay(at);
+    list.push({id:RIDS[i],title:'☕ '+(c?DAYK[c.k]:'Time for a good cup'),body:c?(c.k==='fav'?c.title+': ':c.title+'. ')+c.text:'Add the bag you’re drinking to your cabinet and keep its story.',schedule:{at,allowWhileIdle:true},extra:c?{bean:c.b.id}:{}})}
+  try{if(list.length)await ln.schedule({notifications:list});return true}catch(e){return false}}
+let RST=0;function reschedule(){if(!REMIND.on||!LN())return;clearTimeout(RST);RST=setTimeout(scheduleReminders,1200)}
+// Turning it on asks Android for permission to notify, the first time.
+async function setReminder(on,t){const ln=LN();if(t)REMIND.t=t;
+  if(on&&!REMIND.on){if(!ln){toast('Phone reminders work in the Android app');return false}
+    try{let p=await ln.checkPermissions();if(p.display!=='granted')p=await ln.requestPermissions();if(p.display!=='granted'){toast('Allow notifications for Brew Bench in your phone’s settings first');return false}}catch(e){toast('Couldn’t turn on reminders');return false}}
+  REMIND.on=on;save('bb-remind',REMIND);await scheduleReminders();if(on)toast('Your coffee of the day arrives at '+REMIND.t);return true}
+// Tapping the notification opens that coffee.
+(()=>{const ln=LN();if(!ln)return;try{ln.addListener('localNotificationActionPerformed',a=>{const id=a&&a.notification&&a.notification.extra&&a.notification.extra.bean;if(id&&beanById(id)){showTab('beans');openBean(id)}})}catch(e){}
+  if(REMIND.on)setTimeout(scheduleReminders,3000)})();
+function cabinetDayHTML(){const c=cabinetDay();if(!c)return '';
+  return '<button type="button" class="cday k-'+c.k+'" data-bean="'+c.b.id+'">'+beanPic(c.b,'cd')+'<span class="cd-tx"><small>'+(c.k==='fav'?'From your cabinet':'From your cabinet · '+DAYK[c.k])+'</small><b>'+esc(c.title)+'</b><span>'+esc(c.text)+'</span></span></button>'}
 
 /* Ratings are drawn as coffee beans: a filled bean, half a bean, or an empty one. */
 const BEAN_G='<g transform="rotate(30 12 12)"><path class="bo" d="M12 2.6c4.1 0 6.6 4.3 6.6 9.4s-2.5 9.4-6.6 9.4-6.6-4.3-6.6-9.4 2.5-9.4 6.6-9.4z"/><path class="bc" d="M12.7 3.2c-2.4 2.6-.4 5.6-1.3 8.8s1.3 5.9-.6 8.8"/></g>';
@@ -5862,9 +6104,11 @@ function setAbBottom(){const a=$('appbar');if(!a)return;const top=parseFloat(get
 addEventListener('resize',setAbBottom);
 // The page: a compact hero with the two ways in, then one of three views (your coffees, the top 3, your scans).
 function renderBeans(){const el=$('beans-in');if(!el)return;setAbBottom();
-  if(!el.firstChild)el.innerHTML='<div id="bg-hero"></div><div class="seg bviews" id="bg-views" role="group" aria-label="Show"></div>'+
-    '<div class="bview" id="bv-coffees" aria-label="Your coffees"></div><div class="bview" id="bv-top3" aria-label="Top 3"></div><div class="bview" id="bv-scans" aria-label="Your scans"></div>';
-  renderBeanHero();renderBeanViews();renderCoffees();renderTop3View();renderBeanScans()}
+  if(!el.firstChild)el.innerHTML='<div id="bg-hero"></div><div id="bg-day"></div><div class="seg bviews scrollrow" id="bg-views" role="group" aria-label="Show"></div>'+
+    '<div class="bview" id="bv-coffees" aria-label="Your cabinet"></div><div class="bview" id="bv-diary" aria-label="Your coffee diary"></div><div class="bview" id="bv-passport" aria-label="Your coffee passport"></div>'+
+    '<div class="bview" id="bv-top3" aria-label="Top 3"></div><div class="bview" id="bv-scans" aria-label="Your scans"></div>';
+  $('bg-day').innerHTML=cabinetDayHTML();hydrateImgs($('bg-day'));
+  renderBeanHero();renderBeanViews();renderCoffees();renderDiaryView();renderPassport();renderTop3View();renderBeanScans()}
 function renderBeanHero(){const cy=new Date().getFullYear(),N=BEANS.length,rated=BEANS.filter(b=>b.rating),avg=rated.length?rated.reduce((s,b)=>s+b.rating,0)/rated.length:0,
     roasters=new Set(BEANS.map(b=>b.roaster.toLowerCase()).filter(Boolean)).size,origins=new Set(BEANS.map(b=>b.origin).filter(Boolean)).size,
     last=[...BEANS].sort((a,b)=>b.tried.localeCompare(a.tried)||b.ts-a.ts).slice(0,3);
@@ -5878,11 +6122,12 @@ function renderBeanHero(){const cy=new Date().getFullYear(),N=BEANS.length,rated
   hydrateImgs(h)}
 function renderBeanViews(){const cy=new Date().getFullYear();
   const cnt=n=>n?' <i>'+(n>999?'999+':n)+'</i>':'';
-  seg('bg-views',[['coffees','Coffees'+cnt(BEANS.length)],['top3','Top 3'],['scans','Scans'+cnt(SCANS.length)]],()=>BVIEW,v=>{if(v===BVIEW)return;BVIEW=v;renderBeanViews()});
-  for(const v of ['coffees','top3','scans']){const p=$('bv-'+v),on=v===BVIEW;if(p.hidden===!on)continue;p.hidden=!on;if(on&&!RM()){p.classList.remove('bv-in');void p.offsetWidth;p.classList.add('bv-in')}}}
+  seg('bg-views',[['coffees','Cabinet'+cnt(BEANS.length)],['diary','Diary'],['passport','Passport'],['top3','Top 3'],['scans','Scans'+cnt(SCANS.length)]],()=>BVIEW,v=>{if(v===BVIEW)return;BVIEW=v;renderBeanViews()});
+  if(BVIEW==='passport')renderPassport();
+  for(const v of ['coffees','diary','passport','top3','scans']){const p=$('bv-'+v),on=v===BVIEW;if(p.hidden===!on)continue;p.hidden=!on;if(on&&!RM()){p.classList.remove('bv-in');void p.offsetWidth;p.classList.add('bv-in')}}}
 function renderCoffees(){const p=$('bv-coffees'),years=beanYears();if(BYEAR!=='all'&&!years.includes(+BYEAR))BYEAR='all';
   if(!BEANS.length){p.innerHTML='<div class="bg-empty">'+beanSVG+'<b>No coffees yet</b><p>Scan a bag or add one by hand. Your earlier scans are under <button type="button" class="linkbtn" data-view="scans">Scans</button>, ready to add.</p></div>';return}
-  p.innerHTML='<div class="bg-tools"><input type="search" id="bg-q" placeholder="Search coffees, roasters, origins, notes" aria-label="Search your coffees" value="'+esc(BQ)+'">'+
+  p.innerHTML=shelfHTML()+trophyRowHTML()+'<h3 class="rh cab-h">The cabinet</h3><div class="bg-tools"><input type="search" id="bg-q" placeholder="Search coffees, roasters, origins, notes" aria-label="Search your coffees" value="'+esc(BQ)+'">'+
     '<div class="seg filters scrollrow" id="bg-sort" role="group" aria-label="Sort"></div>'+(years.length>1?'<div class="seg filters scrollrow" id="bg-year" role="group" aria-label="Show year"></div>':'')+'</div><div id="bg-grid"></div>';
   seg('bg-sort',[['recent','Recent'],['rated','Top rated'],['roaster','Roastery'],['origin','Origin']],()=>BSORT,v=>{BSORT=v;renderBeanSort()});
   if(years.length>1)seg('bg-year',[['all','All years'],...years.map(y=>[String(y),String(y)])],()=>BYEAR,v=>{BYEAR=v;renderBeanSort()});
@@ -5890,14 +6135,67 @@ function renderCoffees(){const p=$('bv-coffees'),years=beanYears();if(BYEAR!=='a
 // Sorting and filtering redraw only the cards and the chips' state, so the page doesn't jump.
 function renderBeanSort(){for(const [id,v] of [['bg-sort',BSORT],['bg-year',BYEAR]]){const s=$(id);if(s)s.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v))}renderGrid()}
 function renderGrid(){const g=$('bg-grid');if(!g)return;const list=beanList();let n=0;
-  g.innerHTML=list.length?beanGroups(list).map(([h,l])=>(h?'<div class="bg-gh"><b>'+esc(h)+'</b><span>'+l.length+'</span></div>':'')+'<div class="bgrid">'+l.map(b=>beanCard(b,n++)).join('')+'</div>').join(''):'<p class="hint">No coffees match that search.</p>';
+  // Each coffee stands on a shelf: the slots' ledges meet across a row, so every row reads as one shelf of the cabinet.
+  g.className=list.length?'cabinet':'';
+  g.innerHTML=list.length?beanGroups(list).map(([h,l])=>(h?'<div class="bg-gh"><b>'+esc(h)+'</b><span>'+l.length+'</span></div>':'')+'<div class="bgrid">'+l.map(b=>'<div class="cslot">'+beanCard(b,n++)+'</div>').join('')+'</div>').join(''):'<p class="hint">No coffees match that search.</p>';
   hydrateImgs(g)}
+// The bags you're drinking now, each with its freshness and what's left.
+function shelfHTML(){const sh=BEANS.filter(b=>b.shelf).sort((a,b)=>b.tried.localeCompare(a.tried)||b.ts-a.ts);
+  return '<div class="shelf-h"><b>On the shelf</b><span>'+(sh.length?sh.length+' open bag'+(sh.length===1?'':'s'):'')+'</span></div>'+
+    (sh.length?'<div class="shelf scrollrow">'+sh.map(b=>{const f=fresh(b);return '<button type="button" class="scard" data-bean="'+b.id+'">'+beanPic(b,'sc')+
+      '<span class="sc-tx"><b>'+esc(beanTitle(b))+'</b><small>'+esc(b.roaster||(b.origin?originName(b.origin):'')||' ')+'</small>'+(f?freshPill(f):'')+bagLine(b)+'</span></button>'}).join('')+'</div>'
+     :'<p class="shelf-empty">The bags you’re drinking now sit here, with how fresh they are and what’s left. Put a coffee on the shelf from its page.</p>')}
+// The trophies you've earned, along the top of the cabinet.
+function trophyRowHTML(){const got=TROPHIES.filter(t=>TGOT&&TGOT[t[0]]);
+  return '<button type="button" class="tshelf" data-view="passport" aria-label="Trophies: '+got.length+' of '+TROPHIES.length+'. Open your passport"><span class="ts-k">Trophies</span><span class="ts-row">'+
+    (got.length?got.map(t=>'<i title="'+esc(t[1])+'">'+t[3]+'</i>').join(''):'<em>Your first comes with your first coffee</em>')+'</span><b>'+got.length+'<small>/'+TROPHIES.length+'</small></b></button>'}
 function renderTop3View(){const p=$('bv-top3'),years=beanYears(),cy=new Date().getFullYear();if(BPOD==null||!(years.includes(BPOD)||BPOD===cy))BPOD=cy;
   const hist=Object.keys(TOP3).map(Number).filter(y=>y!==BPOD&&t3has(TOP3[y])).sort((a,b)=>b-a);
   p.innerHTML='<div class="crown">'+podiumHTML(BPOD,years)+'</div>'+
     (hist.length?'<h3 class="rh">Your top 3 history</h3><div class="t3hist">'+hist.map(y=>{const t=TOP3[y],ids=t.ids.filter(Boolean);return '<button type="button" class="t3tile" data-py="'+y+'"><span class="t3y">'+y+'</span><span class="t3av">'+
       ids.map(id=>{const b=beanById(id),s=(t.snap||[]).find(x=>x.id===id)||{};return beanPic(b||Object.assign({id,img:true,origin:''},s),'av')}).join('')+'</span><small>'+CROWN+esc(t3name(t,ids[0]))+'</small></button>'}).join('')+'</div>':'');
   hydrateImgs(p)}
+/* ---------- The diary: every coffee's story in one timeline ---------- */
+function renderDiaryView(){const p=$('bv-diary');if(!p)return;const items=[];
+  for(const b of BEANS)for(const it of beanTimeline(b))items.push(Object.assign(it,{bean:b}));items.sort((x,y)=>y.t-x.t);
+  const n=items.filter(i=>i.kind==='entry').length,months=new Map();
+  for(const it of items.slice(0,150)){const m=new Date(it.t).toLocaleDateString(undefined,{month:'long',year:'numeric'});if(!months.has(m))months.set(m,[]);months.get(m).push(it)}
+  p.innerHTML='<div class="diary-h"><div><span class="crown-k">Your coffee diary</span><h3>'+(n?n+' entr'+(n===1?'y':'ies')+' <em>· '+(items.length-n)+' brews</em>':'Every bag has a story')+'</h3>'+
+      '<p>'+(BEANS.length?'Opening a bag, the cup that clicked, the last one. Your logged brews join in on their own.':'Add a coffee to the cabinet, then keep its story here.')+'</p></div>'+
+      (BEANS.length?'<button type="button" class="crown-btn" id="dy-write">Write</button>':'')+'</div>'+
+    (items.length?[...months].map(([m,l])=>'<h4 class="dy-m">'+esc(m)+'</h4>'+timelineHTML(l,true)).join(''):'<div class="bg-empty">'+beanSVG+'<b>Nothing written yet</b><p>Open a coffee and tap <b>Write in its diary</b>, or log a brew with the coffee picked on the dial-in.</p></div>');
+  hydrateImgs(p)}
+// Write: choose the coffee (open bags first), then its page opens at the diary.
+function openDiaryPick(){const d=$('vd'),list=[...BEANS].sort((a,c)=>(c.shelf-a.shelf)||c.tried.localeCompare(a.tried));
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Your diary</span><h2 id="vd-title">Which coffee is this about?</h2></div>'+
+    '<div class="vd-body"><div class="t3list">'+list.map(b=>'<button type="button" class="t3opt" data-dypick="'+b.id+'" style="--m:var(--cherry)">'+beanPic(b,'xs')+'<span class="t3o-tx"><b>'+esc(beanTitle(b))+'</b><small>'+esc([b.shelf?'On the shelf':'',b.roaster].filter(Boolean).join(' · '))+'</small></span></button>').join('')+'</div></div>';
+  hydrateImgs($('vd-in'));$('vd-in').querySelector('.t3list').onclick=e=>{const o=e.target.closest('[data-dypick]');if(o)openBean(o.dataset.dypick,true)};
+  showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
+
+/* ---------- The passport: a stamp for every origin you've had ---------- */
+// Stamps are drawn once with the card's stamp, inked in the origin's colours as on a light card, and kept.
+const STAMPS=new Map();
+function stampURL(k){if(STAMPS.has(k))return STAMPS.get(k);let u='';
+  try{const c=document.createElement('canvas');c.width=c.height=240;const x=c.getContext('2d');BC.F=getComputedStyle(document.body).fontFamily;
+    bcStamp(x,120,120,cardStyle(originTheme(k),{mode:'light',col:'origin'}));u=c.toDataURL('image/png')}catch(e){}
+  if(u)STAMPS.set(k,u);return u}
+function renderPassport(){const p=$('bv-passport');if(!p||BVIEW!=='passport')return;const st=cabStats(),total=Object.keys(ALLO()).length,by={};
+  for(const b of BEANS)if(b.origin)(by[b.origin]=by[b.origin]||[]).push(b);
+  const first=k=>by[k].map(b=>b.tried).sort()[0],got=Object.keys(by).sort((a,b)=>first(a).localeCompare(first(b)));
+  const mon=iso=>new Date(iso+'T12:00').toLocaleDateString(undefined,{month:'short',year:'numeric'});
+  const regs=Object.entries(REG).map(([rk,r])=>{const all=Object.keys(ALLO()).filter(k=>ALLO()[k].reg===rk),have=got.filter(k=>(oInfo(k)||{}).reg===rk).length;
+    return '<span class="pp-reg"><small>'+esc(r.name.replace(' and Caribbean','').replace(' and Pacific',''))+'</small><span class="pp-rb"><i style="width:'+Math.min(100,have/all.length*100).toFixed(0)+'%;background:'+r.color+'"></i></span><b>'+have+'</b></span>'}).join('');
+  // A few origins still to collect, different each day.
+  const todo=Object.keys(ALLO()).filter(k=>!by[k]),seed=Math.floor(Date.now()/864e5),next=[];for(let i=0;i<Math.min(6,todo.length);i++)next.push(todo[(seed*7+i*11)%todo.length]);
+  const T=TGOT||{},earned=TROPHIES.filter(t=>T[t[0]]).length;
+  p.innerHTML='<div class="passport"><div class="pp-h"><span class="pp-k">Coffee passport</span><h3>'+got.length+' <em>of '+total+' origins</em></h3><div class="pp-regs">'+regs+'</div></div>'+
+    (got.length?'<div class="pp-grid">'+got.map((k,i)=>'<button type="button" class="pp-st" data-ppo="'+k+'" style="--r:'+(((i*37)%15)-7)+'deg"><img alt="" src="'+stampURL(k)+'"><b>'+esc(originName(k))+'</b><small>'+by[k].length+' bag'+(by[k].length===1?'':'s')+' · since '+mon(first(k))+'</small></button>').join('')+'</div>'
+      :'<p class="pp-empty">Your first stamp arrives with your first coffee.</p>')+
+    (next.length?'<div class="pp-next"><b>Still to discover</b><div class="chips">'+[...new Set(next)].map(k=>'<button type="button" class="chip" data-o="'+k+'">'+(ALLO()[k].flag||'')+' '+esc(originName(k))+'</button>').join('')+'</div></div>':'')+'</div>'+
+    '<h3 class="rh">Trophies <span class="hint">'+earned+' of '+TROPHIES.length+'</span></h3><div class="trophies">'+[...TROPHIES].sort((a,b)=>(!!T[b[0]])-(!!T[a[0]])).map(([id,n,desc,ic,f])=>{const [h,need]=f(st),on=!!T[id];
+      return '<div class="tro'+(on?' on':'')+'"><span class="tro-ic" aria-hidden="true">'+ic+'</span><span class="tro-tx"><b>'+n+'</b><small>'+(on?'Earned '+dfmt(Date.parse(T[id]+'T12:00')):esc(desc))+'</small>'+
+        (on?'':'<span class="tro-p" aria-label="'+Math.min(h,need)+' of '+need+'"><i style="width:'+Math.min(100,h/need*100).toFixed(0)+'%"></i></span>')+'</span>'+(on?'':'<span class="tro-n">'+Math.min(h,need)+'/'+need+'</span>')+'</div>'}).join('')+'</div>'}
+
 /* Your scans, each one a tap away from the gallery. A scan counts as added when a gallery coffee came from it or has
    the same name and roastery. */
 const scanBean=s=>{const n=scanTitle(s.sc,s.info).toLowerCase(),r=(scRoaster(s)||'').toLowerCase();return BEANS.find(b=>b.scan&&b.scan===s.id)||BEANS.find(b=>beanTitle(b).toLowerCase()===n&&(b.roaster||'').toLowerCase()===r)};
@@ -5913,7 +6211,10 @@ async function addScanToGallery(i){const s=SCANS[i];if(!s)return;const inf=s.inf
     flavours:inf&&Array.isArray(inf.tasting_notes)?inf.tasting_notes.join(', ').slice(0,160):'',photo,scan:s.id,lowres:!full&&!!s.t})}
 $('beans-in').addEventListener('input',e=>{if(e.target.id!=='bg-q')return;BQ=e.target.value;renderGrid()});
 $('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-add')){openBeanEditor();return}if(e.target.closest('#bg-scan,#bg-scan2')){showTab('scan');openCamera();return}
-  const v=e.target.closest('[data-view]');if(v){BVIEW=v.dataset.view;renderBeanViews();return}
+  const v=e.target.closest('[data-view]');if(v){BVIEW=v.dataset.view;renderBeanViews();if(v.classList.contains('tshelf'))$('bg-views').scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'});return}
+  if(e.target.closest('#dy-write')){openDiaryPick();return}
+  const po=e.target.closest('[data-ppo]');if(po){BQ=originName(po.dataset.ppo);BVIEW='coffees';renderBeanViews();renderCoffees();return}
+  const oo=e.target.closest('[data-o]');if(oo){showTab('map');selectOrigin(oo.dataset.o,true);return}
   const py=e.target.closest('[data-py]');if(py){BPOD=+py.dataset.py;renderTop3View();if(py.classList.contains('t3tile'))$('bv-top3').scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'});return}
   const t=e.target.closest('[data-top3]');if(t){openTop3(+t.dataset.top3,+(t.dataset.slot||0));return}
   const sa=e.target.closest('[data-scanadd]');if(sa){addScanToGallery(+sa.dataset.scanadd);return}
@@ -5923,29 +6224,55 @@ $('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-add')){openB
 /* ---------- One coffee ---------- */
 function beanLogStats(b){const n=b.name.toLowerCase();if(n.length<3)return null;const l=LOG.filter(x=>(x.coffee||'').toLowerCase().includes(n));if(!l.length)return null;
   const r=l.filter(x=>x.rating);return{n:l.length,avg:r.length?r.reduce((s,x)=>s+x.rating,0)/r.length:0}}
-function openBean(id){const b=beanById(id);if(!b)return;const d=$('vd'),rk=beanRank(b),P=b.process&&PROCESSES[b.process],ls=beanLogStats(b);
+// A coffee's page. write: open it at the diary, ready to write.
+function openBean(id,write){const b=beanById(id);if(!b)return;const d=$('vd'),rk=beanRank(b),P=b.process&&PROCESSES[b.process],ls=beanLogStats(b),f=b.shelf&&fresh(b);
   const fmt=s=>s?new Date(s+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'';
   const kv=[['Origin',b.origin?flagOf(b.origin)+' '+originName(b.origin):''],['Process',P?P.name:''],['Variety',b.variety?vName(b.variety):''],['Roast',b.roast?b.roast[0].toUpperCase()+b.roast.slice(1):''],['Roasted',fmt(b.roastDate)],['Tried',fmt(b.tried)]].filter(x=>x[1]);
-  $('vd-in').innerHTML='<div class="vd-head" style="--c:'+(rk?MEDAL[rk]:'var(--cherry)')+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:'+(rk?MEDAL[rk]:'var(--cherry)')+'"></i>'+(rk?MEDALN[rk]+' · top 3 of '+beanYear(b):'Bean gallery')+'</span><h2 id="vd-title">'+esc(beanTitle(b))+'</h2>'+(b.roaster?'<p class="vd-sub">'+esc(b.roaster)+'</p>':'')+'</div>'+
+  let mom='note';const g=gramsLeft(b),dose=Math.round(beanDose(b));
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:'+(rk?MEDAL[rk]:'var(--cherry)')+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:'+(rk?MEDAL[rk]:'var(--cherry)')+'"></i>'+(rk?MEDALN[rk]+' · top 3 of '+beanYear(b):b.shelf?'On the shelf':'In the cabinet')+'</span><h2 id="vd-title">'+esc(beanTitle(b))+'</h2>'+(b.roaster?'<p class="vd-sub">'+esc(b.roaster)+'</p>':'')+'</div>'+
     '<div class="vd-body"><div class="bd-hero">'+beanPic(b,'hero')+glassRate(b.rating)+'</div>'+'<div class="bd-rate">'+beanRow(b.rating,'big')+'<span>'+(b.rating?b.rating.toString().replace('.5','½')+' · ':'')+rateWord(b.rating)+'</span></div>'+
+    // The bag now: how fresh it is, what's left, and finishing it.
+    (b.shelf?'<div class="bd-shelf">'+(f?'<div class="bd-f"><div class="bd-fh"><b>'+f.label+'</b><span>Day '+f.d+' off roast</span></div>'+freshBar(f)+'<p>'+f.tip+'</p></div>':'<p class="hint" style="margin:0">Add the roast date to see how fresh it is.</p>')+
+      (g!=null?'<div class="bd-bag">'+bagLine(b)+'<div class="bd-bagb"><button type="button" class="chip" id="bd-cup">Brewed a cup · −'+dose+' g</button><button type="button" class="chip" id="bd-left">Set what’s left</button></div></div>'
+        :'<p class="hint" style="margin:8px 0 0">Add the bag size in Edit to see what’s left as you log brews.</p>')+
+      '<button type="button" class="btn ghost bd-done" id="bd-done">🏁 Finish the bag</button></div>'
+     :'<button type="button" class="linkbtn" id="bd-shelf">Put it back on the shelf</button>')+
     (kv.length?'<div class="specs">'+kv.map(([k,v])=>'<div><b>'+k+'</b><span class="bd-v">'+esc(v)+'</span></div>').join('')+'</div>':'')+
     (b.flavours?'<h3>Tasting notes</h3><div class="chips">'+b.flavours.split(/\s*[,;·]\s*/).filter(Boolean).map(f=>'<span class="chip">'+esc(f)+'</span>').join('')+'</div>':'')+
     (b.notes?'<h3>Your notes</h3><p>'+esc(b.notes)+'</p>':'')+
+    '<div class="bd-again"><span>Would you buy it again?</span><div class="seg" id="bd-again"></div></div>'+
     (ls?'<p class="hint">In your brew log: '+ls.n+' brew'+(ls.n===1?'':'s')+(ls.avg?', rated '+ls.avg.toFixed(1)+' on average':'')+'.</p>':'')+
     '<div class="actions"><button class="btn" id="bd-brew">Brew it in the dial-in</button><button class="btn ghost" id="bd-edit">Edit</button><button class="btn ghost" id="bd-share">Share</button></div>'+
+    // Its diary: a moment, a few words, the day.
+    '<h3 id="bd-dh">Diary</h3><div class="dwrite" id="bd-write"><div class="dmoms" role="group" aria-label="What kind of moment">'+Object.entries(MOMENTS).map(([k,[n,ic]])=>'<button type="button" data-mom="'+k+'" aria-pressed="'+(k===mom)+'"><span aria-hidden="true">'+ic+'</span>'+n+'</button>').join('')+'</div>'+
+      '<textarea id="bd-dt" rows="3" maxlength="600" aria-label="Diary entry" placeholder="'+esc(MOMENTS[mom][2])+'"></textarea><div class="dw-row"><input type="date" id="bd-dd" class="dateinp" value="'+todayISO()+'" aria-label="Date"><button type="button" class="btn" id="bd-dadd">Add to the diary</button></div></div>'+
+    '<div id="bd-tl">'+timelineHTML(beanTimeline(b),false)+'</div>'+
     '<button type="button" class="linkbtn danger" id="bd-del">Remove from the gallery</button></div>';
   hydrateImgs($('vd-in'));
+  const refresh=(msg)=>{saveBeans();checkTrophies();renderBeans();openBean(b.id);if(msg)toast(msg)};
   $('bd-edit').onclick=()=>openBeanEditor(b);
   $('bd-share').onclick=()=>{d.close();openShare(beanDoc(b))};
   $('bd-brew').onclick=()=>{useBean(b);d.close();showTab('dial');
     if(!dialRec()){const t=techList(S.brewer)[0];if(t)S.rec=t[1]}if(dialRec())tune('Tuned for '+beanTitle(b));else{render();toast('Set up for '+beanTitle(b))}};
+  // Tapping the chosen answer again clears it.
+  const again=()=>seg('bd-again',[['yes','Yes'],['no','No']],()=>b.again,v=>{b.again=b.again===v?'':v;saveBeans();again()});again();
+  if($('bd-cup'))$('bd-cup').onclick=()=>{setLeft(b,Math.max(0,(gramsLeft(b)||0)-dose));refresh('Marked a '+dose+' g cup')};
+  if($('bd-left'))$('bd-left').onclick=()=>{const v=prompt('How many grams are left in the bag?',String(gramsLeft(b)||''));if(v==null)return;const n=parseFloat(v);if(!isFinite(n)||n<0){toast('Enter the grams left, like 120');return}setLeft(b,n);refresh('Updated')};
+  if($('bd-done'))$('bd-done').onclick=()=>{b.shelf=false;if(!b.diary.some(e=>e.k==='last'))b.diary.unshift(okEntry({k:'last',d:todayISO(),t:''}));refresh('Finished: it’s in the cabinet now. Add how it ended in its diary')};
+  if($('bd-shelf'))$('bd-shelf').onclick=()=>{b.shelf=true;refresh('Back on the shelf')};
+  $('bd-write').onclick=e=>{const m=e.target.closest('[data-mom]');if(!m)return;mom=m.dataset.mom;$('bd-write').querySelectorAll('[data-mom]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.mom===mom));$('bd-dt').placeholder=MOMENTS[mom][2];$('bd-dt').focus()};
+  $('bd-dadd').onclick=()=>{const t=$('bd-dt').value.trim();if(!t&&mom==='note'){toast('Write a few words first');$('bd-dt').focus();return}
+    const en=okEntry({k:mom,d:$('bd-dd').value||todayISO(),t});b.diary.unshift(en);b.diary.sort((x,y)=>y.d.localeCompare(x.d));
+    if(mom==='last')b.shelf=false;if(mom==='opened'&&!b.shelf)b.shelf=true;refresh('Added to the diary');setTimeout(()=>{const h=$('bd-dh');if(h)h.scrollIntoView({block:'start'})},50)};
+  $('bd-tl').onclick=e=>{const x=e.target.closest('[data-deldiary]');if(!x||!confirm('Delete this diary entry?'))return;b.diary=b.diary.filter(en=>en.id!==x.dataset.deldiary);refresh('Entry deleted')};
   $('bd-del').onclick=()=>{const inTop=inAnyTop(b.id);
     if(!confirm('Remove “'+beanTitle(b)+'” from your gallery?'+(inTop?' It stays in your top 3 history.':'')))return;
     BEANS=BEANS.filter(x=>x.id!==b.id);saveBeans();if(!inTop)BIMG.del(b.id);d.close();renderBeans();toast('Removed from your gallery')};
-  showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
+  showDlg(d);$('vd-x').onclick=()=>d.close();
+  if(write)setTimeout(()=>{const h=$('bd-dh');if(h){h.scrollIntoView({block:'start'});$('bd-dt').focus({preventScroll:true})}},80);else d.scrollTop=0}
 function beanDoc(b){const P=b.process&&PROCESSES[b.process];
   return{title:beanTitle(b),sub:(b.roaster?b.roaster+' | ':'')+'Rated '+(b.rating||'–')+' of 5',file:'coffee-'+beanTitle(b),
-    card:()=>beanCard(b),cardName:'coffee-card',cardTitle:'Coffee card',cardSub:'This coffee as one image: the bag, your rating in beans, where it’s from and what you tasted.',
+    card:()=>beanCardImg(b),cardTheme:()=>originTheme(b.origin),cardName:'coffee-card',cardTitle:'Coffee card',cardSub:'This coffee as one image: the bag, your rating in beans, where it’s from and what you tasted.',
     blocks:[{kv:[['Origin',b.origin?originName(b.origin):'-'],['Process',P?P.name:'-'],['Variety',b.variety?vName(b.variety):'-'],['Roast',b.roast||'-']]},...(b.flavours?[{h:'Tasting notes',p:b.flavours}]:[]),...(b.notes?[{h:'Notes',p:b.notes}]:[])]}}
 
 // Brewing a gallery coffee: the dial-in takes its process, variety, roast and age, and remembers which coffee it is.
@@ -5961,7 +6288,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#d-bean [data-dbpick]
 
 /* ---------- Adding and editing ---------- */
 // pre: details to start from (a scan); its photo comes as a data URL in pre.photo.
-function openBeanEditor(b,pre){const isNew=!b;const B=Object.assign({name:'',roaster:'',origin:'',process:'',variety:'',roast:'',roastDate:'',tried:todayISO(),rating:0,flavours:'',notes:'',img:false},b||{},pre||{});
+function openBeanEditor(b,pre){const isNew=!b;const B=Object.assign({name:'',roaster:'',origin:'',process:'',variety:'',roast:'',roastDate:'',tried:todayISO(),rating:0,flavours:'',notes:'',img:false,shelf:true,bag:0},b||{},pre||{});
   let photo=null,photoChanged=false,rating=B.rating;const d=$('vd');
   const opt=(h,none)=>'<option value="">'+none+'</option>'+h;
   const roasters=[...new Set([...BEANS.map(x=>x.roaster),...SCANS.map(scRoaster)].filter(Boolean))].sort();
@@ -5977,6 +6304,8 @@ function openBeanEditor(b,pre){const isNew=!b;const B=Object.assign({name:'',roa
    '<div class="field"><label for="be-variety">Variety</label><select id="be-variety">'+opt(varietyOptions(),'Not sure')+'</select></div></div>'+
    '<div class="field"><div class="lbl">Roast</div><div class="seg" id="be-roast"></div></div>'+
    '<div class="two"><div class="field"><label for="be-rdate">Roasted on</label><input type="date" id="be-rdate" class="dateinp" value="'+B.roastDate+'"></div><div class="field"><label for="be-tried">Tried on</label><input type="date" id="be-tried" class="dateinp" value="'+B.tried+'"></div></div>'+
+   '<div class="two"><div class="field"><label for="be-bag">Bag size <span class="hint">grams</span></label><input id="be-bag" type="number" inputmode="numeric" min="0" max="5000" step="1" value="'+(B.bag||'')+'" placeholder="e.g. 250"></div>'+
+   '<div class="field"><div class="lbl">On the shelf</div><div class="seg" id="be-shelf"></div></div></div>'+
    '<div class="field"><label for="be-fl">Tasting notes <span class="hint">separate with commas</span></label><input id="be-fl" maxlength="160" value="'+esc(B.flavours)+'" placeholder="e.g. jasmine, peach, honey"></div>'+
    '<div class="field"><label for="be-notes">Your notes</label><textarea id="be-notes" rows="3" maxlength="600" placeholder="How you brewed it, what you loved, would you buy it again?">'+esc(B.notes)+'</textarea></div>'+
    '<div class="actions"><button class="btn" id="be-save">'+(isNew?'Add to the gallery':'Save changes')+'</button><button class="btn ghost" id="be-cancel">Cancel</button></div></div>';
@@ -5984,6 +6313,8 @@ function openBeanEditor(b,pre){const isNew=!b;const B=Object.assign({name:'',roa
   // Tapping the chosen roast again clears it: not every bag says.
   const roastSeg=()=>seg('be-roast',[['light','Light'],['medium','Medium'],['dark','Dark']],()=>B.roast,v=>{B.roast=B.roast===v?'':v;roastSeg()});roastSeg();
   beanRateInput('be-rate',()=>rating,v=>rating=v);
+  // On the shelf: a bag you're drinking now. Off it, the coffee is finished and lives in the cabinet.
+  const shelfSeg=()=>seg('be-shelf',[['1','Drinking it'],['0','Finished']],()=>B.shelf?'1':'0',v=>{B.shelf=v==='1';shelfSeg()});shelfSeg();
   const showPhoto=u=>{const p=$('be-photo');p.classList.toggle('has',!!u);p.querySelector('img')?.remove();if(u){const i=new Image();i.alt='Photo of the coffee';i.src=u;p.prepend(i)}
     let rm=$('be-rm');if(u&&!rm){p.insertAdjacentHTML('beforeend','<button type="button" class="be-rm" id="be-rm" aria-label="Remove the photo">✕</button>');$('be-rm').onclick=e=>{e.stopPropagation();photo=null;photoChanged=true;showPhoto(null)}}else if(!u&&rm)rm.remove()};
   if(pre&&pre.photo){photo=pre.photo;photoChanged=true;showPhoto(photo);
@@ -5994,7 +6325,8 @@ function openBeanEditor(b,pre){const isNew=!b;const B=Object.assign({name:'',roa
   $('be-camf').onchange=$('be-file').onchange=e=>{const f=e.target.files[0];e.target.value='';take(f)};
   $('be-cancel').onclick=()=>d.close();
   $('be-save').onclick=async()=>{const n=okBean({id:b?b.id:uid().replace(/[^a-z0-9]/g,'').slice(0,20),name:$('be-name').value,roaster:$('be-roaster').value,origin:$('be-origin').value,process:$('be-process').value,variety:$('be-variety').value,
-      roast:B.roast,roastDate:$('be-rdate').value,tried:$('be-tried').value||todayISO(),rating,flavours:$('be-fl').value,notes:$('be-notes').value,img:photoChanged?!!photo:B.img,scan:B.scan||'',ts:b?b.ts:Date.now()});
+      roast:B.roast,roastDate:$('be-rdate').value,tried:$('be-tried').value||todayISO(),rating,flavours:$('be-fl').value,notes:$('be-notes').value,img:photoChanged?!!photo:B.img,scan:B.scan||'',ts:b?b.ts:Date.now(),
+      shelf:B.shelf,bag:$('be-bag').value,left:b?b.left:null,leftAt:b?b.leftAt:0,again:b?b.again:'',diary:b?b.diary:[]});
     if(!n.name&&!n.origin&&!photo){toast('Add a name, an origin or a photo first');$('be-name').focus();return}
     let note='';if(photoChanged){if(photo){if(!await BIMG.put(n.id,photo)){n.img=false;note=', but the photo couldn’t be saved on this device'}}else if(!inAnyTop(n.id))BIMG.del(n.id)}
     // Moved to another year: it leaves the old year's top 3, where it no longer belongs.
@@ -6002,7 +6334,7 @@ function openBeanEditor(b,pre){const isNew=!b;const B=Object.assign({name:'',roa
     const i=BEANS.findIndex(x=>x.id===n.id);if(i>=0)BEANS[i]=n;else BEANS.unshift(n);if(!saveBeans())return;
     // A crowned coffee keeps its podium snapshot up to date.
     for(const t of Object.values(TOP3)){const s=(t.snap||[]).find(x=>x.id===n.id);if(s)Object.assign(s,{name:beanTitle(n),roaster:n.roaster,origin:n.origin,rating:n.rating})}saveTop3();
-    d.close();if(isNew)BVIEW='coffees';if(!$('beans').classList.contains('on'))showTab('beans');renderBeans();toast((isNew?'Added to your gallery':'Saved')+note)};
+    d.close();if(isNew)BVIEW='coffees';if(!$('beans').classList.contains('on'))showTab('beans');checkTrophies();renderBeans();toast((isNew?'Added to your gallery':'Saved')+note)};
   showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
 
 /* ---------- Top 3 of the year ---------- */
@@ -6024,16 +6356,19 @@ function openTop3(y,start){const d=$('vd'),pool=BEANS.filter(b=>beanYear(b)===y)
     if(at===act)slots[act]='';else{if(at>=0)slots[at]=slots[act];slots[act]=id;act=nextOpen(act)}draw()};
   $('t3-clear').onclick=()=>{slots=['','',''];act=0;draw()};
   $('t3-save').onclick=()=>{if(slots.some(Boolean))TOP3[y]={ids:slots.slice(),snap:slots.filter(Boolean).map(id=>{const b=beanById(id);return{id,name:beanTitle(b),roaster:b.roaster,origin:b.origin,rating:b.rating}}),at:Date.now()};else delete TOP3[y];
-    saveTop3();d.close();BPOD=y;BVIEW='top3';renderBeans();toast(slots.some(Boolean)?'Top 3 of '+y+' saved':'Top 3 of '+y+' cleared')};
+    saveTop3();d.close();BPOD=y;BVIEW='top3';checkTrophies();renderBeans();toast(slots.some(Boolean)?'Top 3 of '+y+' saved':'Top 3 of '+y+' cleared')};
   draw();showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
 // The app may have opened on the Beans page before this part loaded.
-window.BEANS_OK=1;renderDBean();if($('beans').classList.contains('on'))renderBeans();
+window.BEANS_OK=1;checkTrophies();renderDBean();if($('beans').classList.contains('on'))renderBeans();
 
 /* ================= BREW CARDS ================= */
 // A brew, a logged brew or a gallery coffee as one designed image to share. Drawn on a canvas in the app's espresso and
 // honey colours, 1080 px wide (a phone story) and as tall as the content needs. One renderer draws every kind of card
 // from a plain description (a "model"): the dial-in, the log and the gallery each build their own.
-const BC={W:1080,PAD:72,BG1:'#2E1C12',BG2:'#120B07',CREAM:'#FFF6E8',MUTED:'rgba(255,246,232,.72)',FAINT:'rgba(255,246,232,.10)',LINE:'rgba(255,246,232,.16)',HONEY:'#E2B866',CARAMEL:'#C9964A',ROAST:'#A8432F'};
+// The colours are set per card by its style (see cardStyle): INK is the text, MUTED the quieter text, PANE and CHIP the
+// backings that text sits on. Dark is the default; a light card swaps them all.
+const BC={W:1080,PAD:72,BG1:'#2E1C12',BG2:'#120B07',INK:'#FFF8EE',MUTED:'rgba(255,248,238,.8)',LINE:'rgba(255,248,238,.16)',HONEY:'#E2B866',LIGHT:false,PANE:'rgba(18,11,7,.9)',CHIP:'rgba(46,28,18,.86)'};
+const bcI=a=>hexA(BC.INK,a);
 function bcRound(x,X,Y,w,h,r){x.beginPath();x.roundRect(X,Y,w,h,r)}
 // Lines of text that fit a width, at most `max` lines (the last one ends with an ellipsis if cut).
 function bcWrap(x,t,w,max){const words=String(t).split(/\s+/).filter(Boolean);const out=[];let cur='';
@@ -6042,7 +6377,7 @@ function bcWrap(x,t,w,max){const words=String(t).split(/\s+/).filter(Boolean);co
   if(out.length===max&&words.join(' ')!==out.join(' ')){let l=out[max-1];while(l&&x.measureText(l+'…').width>w)l=l.slice(0,-1);out[max-1]=l.replace(/\s+$/,'')+'…'}
   return out}
 // A panel: a soft gradient pane with a fine edge.
-function bcPane(x,X,Y,w,h,r){bcRound(x,X,Y,w,h,r||28);x.fillStyle=hexA(BC.BG2||'#1A100A',.9);x.fill();const g=x.createLinearGradient(0,Y,0,Y+h);g.addColorStop(0,'rgba(255,246,232,.085)');g.addColorStop(1,'rgba(255,246,232,.035)');x.fillStyle=g;x.fill();x.lineWidth=1.5;x.strokeStyle='rgba(255,246,232,.13)';x.stroke()}
+function bcPane(x,X,Y,w,h,r){bcRound(x,X,Y,w,h,r||28);x.fillStyle=BC.PANE;x.fill();const g=x.createLinearGradient(0,Y,0,Y+h);g.addColorStop(0,bcI(.085));g.addColorStop(1,bcI(.035));x.fillStyle=g;x.fill();x.lineWidth=1.5;x.strokeStyle=bcI(.13);x.stroke()}
 function bcLabel(x,t,X,Y,col){x.font='700 22px '+BC.F;x.fillStyle=col||BC.HONEY;x.letterSpacing='3px';x.fillText(t.toUpperCase(),X,Y);x.letterSpacing='0px'}
 const bcCap=t=>t?t.charAt(0).toUpperCase()+t.slice(1):t;
 // The app's bean mark.
@@ -6050,19 +6385,19 @@ function bcBean(x,cx,cy,s,col,crease){x.save();x.translate(cx,cy);x.rotate(-38*M
   x.beginPath();x.moveTo(s*0.02,-s*0.5);x.bezierCurveTo(-s*0.16,-s*0.2,s*0.16,0,s*0.0,s*0.18);x.bezierCurveTo(-s*0.1,s*0.32,s*0.06,s*0.42,s*0.02,s*0.5);x.lineWidth=s*0.07;x.strokeStyle=crease||BC.BG1;x.stroke();x.restore()}
 // A rating as stars (the log) or coffee beans (the gallery), halves allowed for beans.
 function bcRating(x,kind,v,X,Y,s){for(let i=1;i<=5;i++){const cx=X+(i-1)*s*1.18+s/2,f=v>=i?1:v>=i-0.5?0.5:0;
-    if(kind==='beans'){bcBean(x,cx,Y,s,'rgba(255,246,232,.16)','rgba(255,246,232,.22)');if(f){x.save();x.beginPath();x.rect(cx-s/2,Y-s/2,s*f,s);x.clip();bcBean(x,cx,Y,s,BC.HONEY);x.restore()}}
-    else{x.save();x.translate(cx,Y);x.beginPath();for(let k=0;k<10;k++){const r=k%2?s*0.22:s*0.5,a=-Math.PI/2+k*Math.PI/5;x.lineTo(Math.cos(a)*r,Math.sin(a)*r)}x.closePath();x.fillStyle=f?BC.HONEY:'rgba(255,246,232,.16)';x.fill();x.restore()}}}
+    if(kind==='beans'){bcBean(x,cx,Y,s,bcI(.16),bcI(.22));if(f){x.save();x.beginPath();x.rect(cx-s/2,Y-s/2,s*f,s);x.clip();bcBean(x,cx,Y,s,BC.HONEY);x.restore()}}
+    else{x.save();x.translate(cx,Y);x.beginPath();for(let k=0;k<10;k++){const r=k%2?s*0.22:s*0.5,a=-Math.PI/2+k*Math.PI/5;x.lineTo(Math.cos(a)*r,Math.sin(a)*r)}x.closePath();x.fillStyle=f?BC.HONEY:bcI(.16);x.fill();x.restore()}}}
 // The grinder's dial at the setting: a numbered ring for rotation dials, an arc from fine to coarse for the rest.
 function bcDial(x,g,c,cx,cy,R){const G=GRINDERS[g];c=Math.round(c);x.save();
-  x.beginPath();x.arc(cx,cy,R,0,TAU);x.fillStyle='rgba(255,246,232,.06)';x.fill();x.lineWidth=2;x.strokeStyle=BC.LINE;x.stroke();
+  x.beginPath();x.arc(cx,cy,R,0,TAU);x.fillStyle=bcI(.06);x.fill();x.lineWidth=2;x.strokeStyle=BC.LINE;x.stroke();
   if(G.fmt==='rot'){const rem=c%G.per,nums=G.per/10;
     for(let i=0;i<G.per;i++){const a=-Math.PI/2+i/G.per*TAU,big=i%10===0,r1=big?R*0.8:R*0.87;x.beginPath();x.moveTo(cx+Math.cos(a)*r1,cy+Math.sin(a)*r1);x.lineTo(cx+Math.cos(a)*R*0.95,cy+Math.sin(a)*R*0.95);
-      x.strokeStyle=big?BC.CREAM:'rgba(255,246,232,.35)';x.lineWidth=big?3:1.4;x.stroke()}
+      x.strokeStyle=big?BC.INK:bcI(.35);x.lineWidth=big?3:1.4;x.stroke()}
     x.font='600 '+Math.round(R*0.16)+'px '+BC.F;x.fillStyle=BC.MUTED;x.textAlign='center';x.textBaseline='middle';
     for(let n=0;n<nums;n++){const a=-Math.PI/2+n/nums*TAU;x.fillText(String(n),cx+Math.cos(a)*R*0.62,cy+Math.sin(a)*R*0.62)}
     const a=-Math.PI/2+rem/G.per*TAU;x.beginPath();x.moveTo(cx,cy);x.lineTo(cx+Math.cos(a)*R*0.9,cy+Math.sin(a)*R*0.9);x.lineCap='round';x.lineWidth=7;x.strokeStyle=BC.HONEY;x.stroke()}
   else{const t=clamp((c-G.min)/Math.max(1,G.max-G.min),0,1),A=i=>(135+i*270)*Math.PI/180;
-    x.lineCap='round';x.lineWidth=16;x.beginPath();x.arc(cx,cy,R*0.78,A(0),A(1));x.strokeStyle='rgba(255,246,232,.14)';x.stroke();
+    x.lineCap='round';x.lineWidth=16;x.beginPath();x.arc(cx,cy,R*0.78,A(0),A(1));x.strokeStyle=bcI(.14);x.stroke();
     x.beginPath();x.arc(cx,cy,R*0.78,A(0),A(Math.max(0.002,t)));x.strokeStyle=BC.HONEY;x.stroke();
     x.font='500 '+Math.round(R*0.13)+'px '+BC.F;x.fillStyle=BC.MUTED;x.textAlign='center';x.textBaseline='middle';
     x.fillText('fine',cx+Math.cos(A(0))*R*0.78,cy+Math.sin(A(0))*R*0.78+R*0.22);x.fillText('coarse',cx+Math.cos(A(1))*R*0.78,cy+Math.sin(A(1))*R*0.78+R*0.22)}
@@ -6070,7 +6405,7 @@ function bcDial(x,g,c,cx,cy,R){const G=GRINDERS[g];c=Math.round(c);x.save();
   x.fillStyle=BC.BG1;x.font='800 '+Math.round(R*0.2)+'px '+BC.F;x.textAlign='center';x.textBaseline='middle';x.fillText(dial(g,c),cx,cy+1);x.restore()}
 // The predicted cup seen from above, with the flavour radar floating on the coffee (as on the dial-in).
 function bcCup(x,r,cx,cy,R){const ax=[['Sweet',r.sweet],['Acidity',r.acid],['Body',r.body],['Clarity',r.clarity],['Bitter',r.bitter]],ang=i=>-Math.PI/2+i*TAU/5;
-  x.save();x.beginPath();x.arc(cx,cy,R*1.3,0,TAU);x.fillStyle='rgba(255,246,232,.07)';x.fill();
+  x.save();x.beginPath();x.arc(cx,cy,R*1.3,0,TAU);x.fillStyle=bcI(.07);x.fill();
   x.beginPath();x.arc(cx,cy,R*1.1,0,TAU);x.fillStyle='#F3EADC';x.fill();
   x.beginPath();x.arc(cx,cy,R,0,TAU);x.fillStyle=liquid(r.D);x.fill();x.lineWidth=4;x.strokeStyle='rgba(255,235,200,.35)';x.stroke();
   const pt=(i,v)=>[cx+Math.cos(ang(i))*R*0.92*v/10,cy+Math.sin(ang(i))*R*0.92*v/10];
@@ -6079,13 +6414,13 @@ function bcCup(x,r,cx,cy,R){const ax=[['Sweet',r.sweet],['Acidity',r.acid],['Bod
   ax.forEach((a,i)=>{const p=pt(i,a[1]);x.beginPath();x.arc(p[0],p[1],6,0,TAU);x.fillStyle='#FFF3DD';x.fill()});
   x.font='600 22px '+BC.F;x.textBaseline='middle';
   ax.forEach((a,i)=>{const an=ang(i),lx=cx+Math.cos(an)*R*1.55,ly=cy+Math.sin(an)*R*1.48;x.textAlign=Math.abs(Math.cos(an))<0.3?'center':Math.cos(an)>0?'left':'right';
-    x.fillStyle=BC.MUTED;x.fillText(a[0],lx,ly-12);x.fillStyle=BC.CREAM;x.font='800 26px '+BC.F;x.fillText(a[1].toFixed(1),lx,ly+16);x.font='600 22px '+BC.F});
+    x.fillStyle=BC.MUTED;x.fillText(a[0],lx,ly-12);x.fillStyle=BC.INK;x.font='800 26px '+BC.F;x.fillText(a[1].toFixed(1),lx,ly+16);x.font='600 22px '+BC.F});
   x.restore()}
 // Chips that wrap onto new rows; each can carry its own colour dot (flavour notes keep their wheel colours).
 function bcChips(x,items,y){const W=BC.W,P=BC.PAD;let px=P;x.font='500 27px '+BC.F;
   for(const it of items){const t=typeof it==='string'?it:it.t,dot=typeof it==='string'?null:it.c,w=x.measureText(t).width+48+(dot?26:0);if(px+w>W-P){px=P;y+=70}
-    bcRound(x,px,y,w,56,28);x.fillStyle=hexA(BC.BG1,.86);x.fill();x.fillStyle='rgba(255,246,232,.05)';x.fill();x.strokeStyle=bcA(.38);x.lineWidth=1.5;x.stroke();
-    if(dot){x.beginPath();x.arc(px+30,y+28,9,0,TAU);x.fillStyle=dot;x.fill()}x.fillStyle=BC.CREAM;x.textBaseline='alphabetic';x.fillText(t,px+24+(dot?26:0),y+38);px+=w+12}
+    bcRound(x,px,y,w,56,28);x.fillStyle=BC.CHIP;x.fill();x.fillStyle=bcI(.05);x.fill();x.strokeStyle=bcA(.38);x.lineWidth=1.5;x.stroke();
+    if(dot){x.beginPath();x.arc(px+30,y+28,9,0,TAU);x.fillStyle=dot;x.fill()}x.fillStyle=BC.INK;x.textBaseline='alphabetic';x.fillText(t,px+24+(dot?26:0),y+38);px+=w+12}
   return y+56}
 const bcLoad=src=>new Promise(ok=>{if(!src){ok(null);return}const i=new Image();i.onload=()=>ok(i);i.onerror=()=>ok(null);i.src=src});
 /* ---------- Origin identity ---------- */
@@ -6130,6 +6465,44 @@ function originTheme(k){const o=k&&oInfo(k);if(!o)return null;const sub=String((
   return Object.assign({key:k,name:o.name.replace(/ \(.*\)$/,''),sub},OT[k]||OT[OT_REG[o.reg]]||OT.house)}
 const hexA=(h,a)=>{const n=parseInt(h.slice(1),16);return 'rgba('+(n>>16&255)+','+(n>>8&255)+','+(n&255)+','+a+')'};
 const bcA=a=>hexA(BC.HONEY,a);
+/* ---------- Card styles ---------- */
+// You choose each card's look when you share it: Dark or Light, in the origin's own colours or one of the app's coffee
+// colours. The origin's pattern and stamp stay in every style. Text colours are worked out against the card's own
+// backgrounds, so every style keeps at least 4.5:1 contrast (the accent is stepped lighter or darker until it does).
+const rgbOf=h=>{const n=parseInt(h.slice(1),16);return[n>>16&255,n>>8&255,n&255]};
+const hexOf=c=>'#'+c.map(v=>Math.round(clamp(v,0,255)).toString(16).padStart(2,'0')).join('');
+const mixHex=(a,b,t)=>{const A=rgbOf(a),B=rgbOf(b);return hexOf(A.map((v,i)=>v+(B[i]-v)*t))};
+const relLum=h=>{const f=v=>{v/=255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4)};const [r,g,b]=rgbOf(h);return 0.2126*f(r)+0.7152*f(g)+0.0722*f(b)};
+const cRatio=(a,b)=>{const A=relLum(a),B=relLum(b);return(Math.max(A,B)+0.05)/(Math.min(A,B)+0.05)};
+// Step a colour towards `to` (white or black) until it reaches `ratio` against every background in `bgs`.
+const ensureC=(c,bgs,ratio,to)=>{for(let i=0;i<40&&bgs.some(bg=>cRatio(c,bg)<ratio);i++)c=mixHex(c,to,0.07);return c};
+// What a translucent colour looks like over a background (to measure text on panels and chips).
+const over=(fg,a,bg)=>mixHex(bg,fg,a);
+let CARD_STYLE=(v=>({mode:v&&v.mode==='light'?'light':'dark',col:v&&typeof v.col==='string'?v.col:'origin'}))(load('bb-cardstyle',null));
+const saveCardStyle=()=>save('bb-cardstyle',CARD_STYLE);
+// The colour options: the origin's own, then the app's coffee colours (Settings > Colour).
+const cardCols=()=>[['origin','Origin'],...ACCENTS.map(([k,n])=>[k,n])];
+// A palette from one colour: deep tones for dark, tinted paper for light.
+function palFrom(base,light){return light?{bg:[mixHex(base,'#FBF5EC',.86),mixHex(base,'#FBF5EC',.91),mixHex(base,'#FBF5EC',.94)],glow:mixHex(base,'#FFFFFF',.35),acc:base,acc2:mixHex(base,'#FFFFFF',.2)}
+  :{bg:[mixHex(base,'#000000',.66),mixHex(base,'#000000',.8),mixHex(base,'#000000',.9)],glow:mixHex(base,'#FFFFFF',.25),acc:mixHex(base,'#FFE9C2',.62),acc2:mixHex(base,'#FFFFFF',.15)}}
+// The card's theme in the chosen style. T is the origin's (or the house) theme; its pattern, stamp and names are kept.
+function cardStyle(T,st){const light=st&&st.mode==='light',acc=ACCENTS.find(a=>a[0]===(st&&st.col));
+  let pal=acc?palFrom(acc[2],light):{bg:T.bg.slice(),glow:T.glow,acc:T.acc,acc2:T.acc2};
+  // The origin's own colours on paper: its deep tone tints the paper and its accents are deepened.
+  if(!acc&&light){const bg=[mixHex(T.bg[0],'#FBF5EC',.84),mixHex(T.bg[0],'#FBF5EC',.9),mixHex(T.bg[0],'#FBF5EC',.94)];
+    // On paper the origin's gold would turn muddy once deepened, so the accent is whichever of its colours reads best as it
+    // is (Kenya's red, Yemen's blue), among the ones with real colour in them.
+    const sat=h=>{const c=rgbOf(h);return(Math.max(...c)-Math.min(...c))/255},cands=[T.glow,T.acc2,T.acc].filter(c=>sat(c)>.3);
+    const pick=(cands.length?cands:[T.acc]).sort((a,b)=>cRatio(b,bg[0])-cRatio(a,bg[0]))[0];
+    pal={bg,glow:T.glow,acc:pick,acc2:pick===T.acc2?T.acc:T.acc2}}
+  const ink=light?'#22160E':'#FFF8EE',to=light?'#000000':'#FFFFFF';
+  // Text sits on the page, on panels and on chips: the accent must read on all of them.
+  const pane=light?over('#FFFFFF',.8,pal.bg[1]):over(pal.bg[1],.9,pal.bg[1]),chip=light?over('#FFFFFF',.86,pal.bg[0]):over(pal.bg[0],.86,pal.bg[0]);
+  const bgs=[...pal.bg,pane,chip],accT=ensureC(pal.acc,bgs,light?5:6,light?'#1A0E08':to);
+  Object.assign(BC,{LIGHT:light,INK:ink,MUTED:hexA(ink,light?.78:.8),LINE:hexA(ink,.16),HONEY:accT,BG1:pal.bg[0],BG2:pal.bg[1],
+    PANE:light?'rgba(255,255,255,.8)':hexA(pal.bg[1],.9),CHIP:light?'rgba(255,255,255,.86)':hexA(pal.bg[0],.86)});
+  // The pattern is drawn in the accents: on paper they are deepened so the pattern still shows.
+  return Object.assign({},T,{bg:pal.bg,glow:pal.glow,acc:accT,acc2:light?ensureC(pal.acc2,[pal.bg[1]],2.2,to):pal.acc2})}
 // Patterns, drawn faint over the whole background and fading down the card. f(x,W,H,T) strokes or fills in T's colours.
 const MOTIF={
   // Sana'a tower-house windows: arched frames with a round qamariya above.
@@ -6263,24 +6636,33 @@ function bcStamp(x,cx,cy,T){const R=92;x.save();x.translate(cx,cy);x.rotate(-0.1
 function bcDraw(m){const W=BC.W,P=BC.PAD,IW=W-2*P,c=document.createElement('canvas');c.width=W;c.height=4400;const x=c.getContext('2d');
   BC.F=getComputedStyle(document.body).fontFamily;
   // The origin's look (or the house espresso and honey): its accent colours are used throughout the card.
-  const T=m.theme||OT.house;BC.HONEY=T.acc;BC.BG1=T.bg[0];BC.BG2=T.bg[1];
+  const T=cardStyle(m.theme||OT.house,m.style||CARD_STYLE);
   bcBG(x,W,c.height,T);
   x.textBaseline='alphabetic';x.textAlign='left';if(T.motif)bcBand(x,W,T);
+  bcCheck(x,W,T);
   return bcBody(x,c,m,T)}
 // The background: the palette's deep tones, a soft glow, the origin's pattern (bold in the hero band, faint below), a faint
 // bean watermark and a very fine grain. Text never sits on it directly where it is busy: see bcBody.
 function bcBG(x,W,H,T){const c={height:H};
   const bg=x.createLinearGradient(0,0,0,c.height);bg.addColorStop(0,T.bg[0]);bg.addColorStop(0.45,T.bg[1]);bg.addColorStop(1,T.bg[2]);x.fillStyle=bg;x.fillRect(0,0,W,c.height);
   const gl=x.createRadialGradient(W*0.95,-60,10,W*0.95,-60,W*1.05);gl.addColorStop(0,hexA(T.glow,.30));gl.addColorStop(1,hexA(T.glow,0));x.fillStyle=gl;x.fillRect(0,0,W,1300);
-  if(T.motif&&MOTIF[T.motif]){x.save();MK=1;MOTIF[T.motif](x,W,c.height,T);x.restore();
+  // On paper a pattern needs more ink to show as much as it does on a dark card.
+  const MP=BC.LIGHT?1.7:1;
+  if(T.motif&&MOTIF[T.motif]){x.save();MK=MP;MOTIF[T.motif](x,W,c.height,T);x.restore();
     // The hero band: the pattern bold across the top, fading into the card.
-    x.save();x.beginPath();x.rect(0,0,W,470);x.clip();MK=5.5;MOTIF[T.motif](x,W,470,T);MK=1;x.restore();
-    const fd=x.createLinearGradient(0,0,0,470);fd.addColorStop(0,hexA(T.bg[0],.8));fd.addColorStop(0.2,hexA(T.bg[0],.72));fd.addColorStop(0.32,hexA(T.bg[0],.18));fd.addColorStop(0.62,hexA(T.bg[0],.6));fd.addColorStop(1,hexA(T.bg[0],1));x.fillStyle=fd;x.fillRect(0,0,W,471)}
-  const gl2=x.createRadialGradient(-120,1100,10,-120,1100,760);gl2.addColorStop(0,'rgba(168,67,47,.18)');gl2.addColorStop(1,'rgba(168,67,47,0)');x.fillStyle=gl2;x.fillRect(0,0,W,2000);
+    x.save();x.beginPath();x.rect(0,0,W,470);x.clip();MK=5.5*MP;MOTIF[T.motif](x,W,470,T);MK=1;x.restore();
+    const fd=x.createLinearGradient(0,0,0,470),hf=BC.LIGHT?[.94,.9]:[.8,.72];fd.addColorStop(0,hexA(T.bg[0],hf[0]));fd.addColorStop(0.2,hexA(T.bg[0],hf[1]));fd.addColorStop(0.32,hexA(T.bg[0],.18));fd.addColorStop(0.62,hexA(T.bg[0],.6));fd.addColorStop(1,hexA(T.bg[0],1));x.fillStyle=fd;x.fillRect(0,0,W,471)}
+  const gl2=x.createRadialGradient(-120,1100,10,-120,1100,760);gl2.addColorStop(0,hexA(T.acc2,BC.LIGHT?.08:.16));gl2.addColorStop(1,hexA(T.acc2,0));x.fillStyle=gl2;x.fillRect(0,0,W,2000);
   if(!T.motif){x.save();x.globalAlpha=0.05;bcBean(x,W-150,250,420,BC.HONEY,T.bg[0]);x.restore()}
-  x.fillStyle='rgba(255,255,255,.022)';for(let gy=0;gy<c.height;gy+=7)for(let gx=(gy/7)%2*3.5;gx<W;gx+=7)x.fillRect(gx,gy,1,1);
+  x.fillStyle=BC.LIGHT?'rgba(60,36,20,.03)':'rgba(255,255,255,.022)';for(let gy=0;gy<c.height;gy+=7)for(let gx=(gy/7)%2*3.5;gx<W;gx+=7)x.fillRect(gx,gy,1,1);
   // A soft shade on the left of the hero band, where the title and credit sit.
-  if(T.motif){const sc=x.createLinearGradient(0,0,W*0.75,0);sc.addColorStop(0,hexA(T.bg[0],.55));sc.addColorStop(1,hexA(T.bg[0],0));x.fillStyle=sc;x.fillRect(0,130,W,320)}}
+  if(T.motif){const sc=x.createLinearGradient(0,0,W*0.75,0);sc.addColorStop(0,hexA(T.bg[0],.62));sc.addColorStop(1,hexA(T.bg[0],0));x.fillStyle=sc;x.fillRect(0,130,W,320)}}
+// The card checks itself: the accent is measured against the background actually drawn under the header, the title and
+// the body (glow and pattern included), and stepped further from it if any of them falls short.
+function bcCheck(x,W,T){const P=BC.PAD,worst=(y0,y1,x0,x1)=>{const d=x.getImageData(x0,y0,x1-x0,y1-y0).data,L=[];for(let i=0;i<d.length;i+=4*7)L.push(hexOf([d[i],d[i+1],d[i+2]]));
+    L.sort((a,b)=>relLum(a)-relLum(b));return L[Math.floor(L.length*(BC.LIGHT?0.03:0.97))]};
+  const zs=[worst(70,112,P,W-P),worst(150,330,P,W-300),worst(330,470,P,W-P),worst(900,2400,P,W-P)];
+  BC.HONEY=T.acc=ensureC(BC.HONEY,zs,BC.LIGHT?4.8:5.2,BC.LIGHT?'#1A0E08':'#FFFFFF')}
 function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
   // Header: the mark and kicker, the date, then a fine rule.
   let y=100;bcBean(x,P+16,y-9,32,BC.HONEY);bcLabel(x,m.kicker||'The Brew Bench',P+44,y);
@@ -6296,45 +6678,45 @@ function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
   // Title and credit
   // The origin's stamp sits top right, so the title wraps short of it.
   const stamp=T.key&&!m.photo,TW=stamp?IW-220:IW;if(stamp)bcStamp(x,W-P-96,y+126,T);
-  y+=104;x.font='800 76px '+BC.F;x.fillStyle=BC.CREAM;x.letterSpacing='-1px';x.shadowColor='rgba(0,0,0,.45)';x.shadowBlur=18;
+  y+=104;x.font='800 76px '+BC.F;x.fillStyle=BC.INK;x.letterSpacing='-1px';x.shadowColor=BC.LIGHT?'rgba(255,255,255,.75)':'rgba(0,0,0,.5)';x.shadowBlur=18;
   for(const l of bcWrap(x,m.title,TW,2)){x.fillText(l,P,y);y+=84}x.letterSpacing='0px';x.shadowBlur=0;x.shadowColor='transparent';
   if(m.by){x.font='italic 500 28px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(bcWrap(x,m.by,TW,1)[0],P,y-34);y+=10}
   if(stamp)y=Math.max(y,230+126+70);
   if(m.sub){x.font='600 32px '+BC.F;x.fillStyle=BC.HONEY;x.fillText(bcWrap(x,m.sub,IW,1)[0],P,y+4);y+=56}
   // Rating, large, with its word.
   if(m.rating&&m.rating.v){y+=6;bcRating(x,m.rating.kind,m.rating.v,P,y+24,46);const rv=String(m.rating.v).replace('.5','½'),rx=P+5*46*1.18+14;
-    x.font='800 38px '+BC.F;x.fillStyle=BC.CREAM;x.fillText(rv,rx,y+37);
+    x.font='800 38px '+BC.F;x.fillStyle=BC.INK;x.fillText(rv,rx,y+37);
     if(m.rating.word){const vw=x.measureText(rv).width;x.font='500 28px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(m.rating.word,rx+vw+18,y+37)}y+=74}
   // Pills: outlined, the first (the target cup) in honey.
   if(m.pills&&m.pills.length){let px=P;y+=4;for(const [t,main] of m.pills){x.font='600 24px '+BC.F;const w=x.measureText(t).width+40;if(px+w>W-P){px=P;y+=60}
-      bcRound(x,px,y,w,48,24);x.fillStyle=hexA(BC.BG1,.86);x.fill();if(main){x.fillStyle=bcA(.16);x.fill()}x.lineWidth=1.5;x.strokeStyle=main?bcA(.7):'rgba(255,246,232,.22)';x.stroke();
-      x.fillStyle=main?BC.HONEY:'rgba(255,246,232,.85)';x.fillText(t,px+20,y+32);px+=w+10}y+=78}else y+=20;
+      bcRound(x,px,y,w,48,24);x.fillStyle=BC.CHIP;x.fill();if(main){x.fillStyle=bcA(.16);x.fill()}x.lineWidth=1.5;x.strokeStyle=main?bcA(.7):bcI(.22);x.stroke();
+      x.fillStyle=main?BC.HONEY:bcI(.85);x.fillText(t,px+20,y+32);px+=w+10}y+=78}else y+=20;
   // The spec sheet: the coffee on one row, the numbers on the next, in one panel divided by fine lines.
   const specRows=[m.coffee,m.tiles].filter(r=>r&&r.length);
   if(specRows.length){const rows=specRows.map((r,ri)=>{const n=r.length,cw=IW/n,big=r===m.tiles,fs=big?(n>3?44:38):(n>3?28:32);x.font='700 '+fs+'px '+BC.F;
       const cells=r.map(([k,v])=>[k,bcWrap(x,v||'–',cw-44,2)]),lines=Math.max(...cells.map(cc=>cc[1].length));return{n,cw,fs,cells,big,h:big?136:(lines>1?150:118)}});
     const H=rows.reduce((a,r)=>a+r.h,0);bcPane(x,P,y,IW,H,28);let ry=y;
-    rows.forEach((r,ri)=>{if(ri){x.fillStyle='rgba(255,246,232,.10)';x.fillRect(P+24,ry,IW-48,1.5)}
-      r.cells.forEach(([k,ls],i)=>{const X=P+i*r.cw;if(i){x.fillStyle='rgba(255,246,232,.09)';x.fillRect(X,ry+22,1.5,r.h-44)}
-        bcLabel(x,k,X+24,ry+44,r.big?BC.MUTED:BC.HONEY);x.font='700 '+r.fs+'px '+BC.F;x.fillStyle=BC.CREAM;ls.forEach((l,j)=>x.fillText(l,X+24,ry+(r.big?100:90)+j*(r.fs+8)))});ry+=r.h});
+    rows.forEach((r,ri)=>{if(ri){x.fillStyle=bcI(.10);x.fillRect(P+24,ry,IW-48,1.5)}
+      r.cells.forEach(([k,ls],i)=>{const X=P+i*r.cw;if(i){x.fillStyle=bcI(.09);x.fillRect(X,ry+22,1.5,r.h-44)}
+        bcLabel(x,k,X+24,ry+44,r.big?BC.MUTED:BC.HONEY);x.font='700 '+r.fs+'px '+BC.F;x.fillStyle=BC.INK;ls.forEach((l,j)=>x.fillText(l,X+24,ry+(r.big?100:90)+j*(r.fs+8)))});ry+=r.h});
     y+=H+20}
   // Grind, with the dial drawn at the setting
   if(m.grind&&GRINDERS[m.grind.g]){const G=GRINDERS[m.grind.g],h=280,st=m.grind.c;bcPane(x,P,y,IW,h,28);bcDial(x,m.grind.g,st,P+146,y+h/2,108);const X=P+292;
-    bcLabel(x,'Grind',X,y+64);x.font='800 88px '+BC.F;x.fillStyle=BC.CREAM;const dv=dial(m.grind.g,st);x.fillText(dv,X,y+154);
+    bcLabel(x,'Grind',X,y+64);x.font='800 88px '+BC.F;x.fillStyle=BC.INK;const dv=dial(m.grind.g,st);x.fillText(dv,X,y+154);
     const sw=x.measureText(dv).width;x.font='500 28px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(G.fmt==='rot'?Math.round(st)+' clicks':G.unit==='clicks'?'clicks':'',X+sw+16,y+154);
-    x.font='600 30px '+BC.F;x.fillStyle=BC.CREAM;x.fillText(bcWrap(x,G.name,W-P-X-30,1)[0],X,y+200);
+    x.font='600 30px '+BC.F;x.fillStyle=BC.INK;x.fillText(bcWrap(x,G.name,W-P-X-30,1)[0],X,y+200);
     if(m.grind.line){x.font='500 25px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(bcWrap(x,m.grind.line,W-P-X-30,1)[0],X,y+240)}y+=h+20}
   // The predicted cup
   if(m.cup){const r=m.cup.r,h=430;bcPane(x,P,y,IW,h,28);bcCup(x,r,P+196,y+h/2+6,100);const X=P+478,w=W-P-X-36;
-    bcLabel(x,'Predicted cup',X,y+68);x.font='800 44px '+BC.F;x.fillStyle=BC.CREAM;let yy=y+124;for(const l of bcWrap(x,m.cup.vt,w,2)){x.fillText(l,X,yy);yy+=52}
+    bcLabel(x,'Predicted cup',X,y+68);x.font='800 44px '+BC.F;x.fillStyle=BC.INK;let yy=y+124;for(const l of bcWrap(x,m.cup.vt,w,2)){x.fillText(l,X,yy);yy+=52}
     x.font='500 25px '+BC.F;x.fillStyle=BC.MUTED;for(const l of bcWrap(x,m.cup.vs,w,4)){x.fillText(l,X,yy);yy+=35}
     const gy=y+h-84,gw=w;const gg=x.createLinearGradient(X,0,X+gw,0);gg.addColorStop(0,'#D9B35A');gg.addColorStop(.25,'#C98A3E');gg.addColorStop(.5,'#7A4524');gg.addColorStop(.75,'#4A2A18');gg.addColorStop(1,'#1E120B');
-    bcRound(x,X,gy,gw,12,6);x.fillStyle=gg;x.fill();x.strokeStyle='rgba(255,246,232,.14)';x.lineWidth=1;x.stroke();
-    const mx=X+(clamp(r.D,-2.5,2.5)+2.5)/5*gw;bcRound(x,mx-4,gy-11,8,34,4);x.fillStyle=BC.CREAM;x.fill();
+    bcRound(x,X,gy,gw,12,6);x.fillStyle=gg;x.fill();x.strokeStyle=bcI(.14);x.lineWidth=1;x.stroke();
+    const mx=X+(clamp(r.D,-2.5,2.5)+2.5)/5*gw;bcRound(x,mx-4,gy-11,8,34,4);x.fillStyle=BC.INK;x.fill();
     x.font='500 19px '+BC.F;x.fillStyle=BC.MUTED;x.textAlign='left';x.fillText('Under',X,gy+48);x.textAlign='center';x.fillText('Sweet spot',X+gw/2,gy+48);x.textAlign='right';x.fillText('Over',X+gw,gy+48);x.textAlign='left';y+=h+20}
   // Text blocks (settings written as text, for log entries from before brews were kept in full)
   for(const tb of m.text||[]){if(!tb.body)continue;x.font='500 29px '+BC.F;const lines=bcWrap(x,tb.body,IW-56,6),h=86+lines.length*40;bcPane(x,P,y,IW,h,28);
-    bcLabel(x,tb.label,P+28,y+48);x.font='500 29px '+BC.F;x.fillStyle=BC.CREAM;lines.forEach((l,j)=>x.fillText(l,P+28,y+94+j*40));y+=h+20}
+    bcLabel(x,tb.label,P+28,y+48);x.font='500 29px '+BC.F;x.fillStyle=BC.INK;lines.forEach((l,j)=>x.fillText(l,P+28,y+94+j*40));y+=h+20}
   // Every pour: the times in a honey column, a fine line linking the steps.
   const steps=m.steps||[];
   if(steps.length){y+=40;bcLabel(x,'The pours',P,y);
@@ -6345,7 +6727,7 @@ function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
     x.fillStyle=bcA(.28);x.fillRect(P+86,top+22,1.5,Math.max(0,ys[ys.length-1]-y+4));
     rows.forEach((o,i)=>{const ry=ys[i];x.font='700 26px '+BC.F;x.fillStyle=BC.HONEY;x.fillText(o.t||'·',P,ry+50);
       x.beginPath();x.arc(P+86.75,ry+41,7,0,TAU);x.fillStyle=BC.BG2;x.fill();x.lineWidth=2;x.strokeStyle=BC.HONEY;x.stroke();
-      x.font='500 30px '+BC.F;x.fillStyle=BC.CREAM;o.lines.forEach((l,j)=>x.fillText(l,tx,ry+51+j*40))});
+      x.font='500 30px '+BC.F;x.fillStyle=BC.INK;o.lines.forEach((l,j)=>x.fillText(l,tx,ry+51+j*40))});
     y=yy+10;if(steps.length>show.length){x.font='500 23px '+BC.F;x.fillStyle=BC.MUTED;x.fillText('+ '+(steps.length-show.length)+' more in the app',tx,y+10);y+=36}}
   // Notes: expected or tasted, with the flavour families as one bar in the wheel's colours
   if(m.expect&&m.expect.items.length){y+=44;bcLabel(x,m.expect.label,P,y);y+=24;y=bcChips(x,m.expect.items.slice(0,10),y);
@@ -6353,11 +6735,11 @@ function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
   // Your own words
   if(m.quote&&m.quote.text){y+=48;x.font='italic 500 33px '+BC.F;const lines=bcWrap(x,m.quote.text,IW-60,6),h=66+lines.length*46;
     x.font='800 132px Georgia,serif';x.fillStyle=bcA(.2);x.fillText('“',P-10,y+96);
-    bcLabel(x,m.quote.label,P+64,y+26);x.font='italic 500 33px '+BC.F;x.fillStyle=BC.CREAM;lines.forEach((l,j)=>x.fillText(l,P+64,y+76+j*46));y+=h}
+    bcLabel(x,m.quote.label,P+64,y+26);x.font='italic 500 33px '+BC.F;x.fillStyle=BC.INK;lines.forEach((l,j)=>x.fillText(l,P+64,y+76+j*46));y+=h}
   // Footer: centred mark and line, the link beneath.
   y+=70;const fr=x.createLinearGradient(P,0,W-P,0);fr.addColorStop(0,bcA(0));fr.addColorStop(.5,bcA(.45));fr.addColorStop(1,bcA(0));x.fillStyle=fr;x.fillRect(P,y,IW,1.5);
   y+=64;x.font='700 26px '+BC.F;const ft=m.footer||'Brewed with The Brew Bench',fw=x.measureText(ft).width;bcBean(x,W/2-fw/2-22,y-9,28,BC.HONEY);
-  x.fillStyle=BC.CREAM;x.textAlign='left';x.fillText(ft,W/2-fw/2+6,y);
+  x.fillStyle=BC.INK;x.textAlign='left';x.fillText(ft,W/2-fw/2+6,y);
   y+=40;x.textAlign='center';x.font='500 22px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(SITE_URL.replace(/^https?:\/\//,'').replace(/\/$/,''),W/2,y);x.textAlign='left';
   // Trim to what was drawn.
   const H=Math.round(y+70),out=document.createElement('canvas');out.width=W;out.height=H;out.getContext('2d').drawImage(c,0,0);
@@ -6402,7 +6784,7 @@ function logCard(l){const s=okSnap(l.snap),fl=flOf(l).filter(([id])=>FW.byId[id]
   if(l.notes)m.quote={label:'My notes',text:l.notes};
   return bcBlob(m)}
 // A coffee from the gallery: the bag, your rating in beans, where it is from and what you tasted.
-async function beanCard(b){const P=b.process&&PROCESSES[b.process],rk=beanRank(b),fmt=s=>s?new Date(s+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'–';
+async function beanCardImg(b){const P=b.process&&PROCESSES[b.process],rk=beanRank(b),fmt=s=>s?new Date(s+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'–';
   const photo=b.img?await bcLoad(await BIMG.get(b.id)):null;
   return bcBlob({theme:originTheme(b.origin),kicker:'From my bean gallery',date:fmt(b.tried),photo,title:beanTitle(b),by:b.roaster,
     sub:[b.variety?vName(b.variety):'',P?P.name:'',b.roast?bcCap(b.roast)+' roast':''].filter(Boolean).join('  ·  '),
