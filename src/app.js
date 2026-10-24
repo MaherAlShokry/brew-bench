@@ -1810,14 +1810,18 @@ function parseLabel(raw,geo){const L=lexicon(),t=' '+fold(raw).replace(/[|_~*]+/
   const farm=/\b(finca|hacienda|fazenda|sitio|estate|farm|washing station|cooperative|co-?op)\b[ :]*([a-z0-9' .-]{2,40})/i.exec(raw.replace(/\n/g,' ; '));
   const prod=/\b(?:producer|produced by|grower|farmer)s?\s*[:\-]\s*([^\n;,]{2,40})/i.exec(raw);
   if(prod)info.producer_or_farm=prod[1].trim();else if(farm)info.producer_or_farm=(/^(finca|hacienda|fazenda|sitio)$/i.test(farm[1])?farm[1]+' '+farm[2]:farm[2]+' '+farm[1]).replace(/\s+/g,' ').replace(/\s*[;.].*$/,'').trim().replace(/\b\w/g,x=>x.toUpperCase());
+  // Shop badges and buttons on a screenshot of a web shop are never the coffee's name.
+  const BADGE=/^(limited( edition| release)?|new( arrival)?|sale|sold out|best ?sellers?|featured|exclusive|seasonal|in stock|out of stock|pre-?order|add to (cart|bag|basket)|buy now|shop now|subscribe|(coffee|product|bean) (information|info|details)|details|description|about (this|the) coffee|specifications?|overview)$/i;
   // The roastery, wherever it sits on the bag: a known roaster, "Roasted by …", a line naming one, or their web address.
   const ro=findRoaster(lines,t,geo);if(ro)info.roaster=ro.name;
   const same=x=>ro&&ro.line&&fold(x).replace(/[^a-z0-9]/g,'')===fold(ro.line).replace(/[^a-z0-9]/g,'');
   const bare=x=>{const r=fold(x).replace(/\b(specialty|speciality|single origin|coffee|cafe|beans?)\b/g,' ').replace(/\s+/g,' ').trim();return !r||L.countries.some(([c])=>c===r)};
   // Two columns often come back as one line ("Huye Mountain Roasted by"), so the roaster's part is cut off first.
   const cut=x=>cleanLine(x.replace(/\s+(?:roasted|tostado|torrado)\s+(?:by|por)\b.*$/i,''));
-  const isTitle=x=>!same(x)&&!bare(x)&&x.length<=40&&plausibleName(x)&&!/[:@]|www\.|\.com|\d{3,}|roast|notes?|process|variety|altitude|origin|net|weight|\bg\b|arabica|specialty|grade/i.test(x)&&!(ro&&(fold(x).includes(fold(ro.name))||fold(ro.name).replace(/[^a-z0-9]/g,'').includes(fold(x).replace(/[^a-z0-9]/g,''))));
-  let title=lines.map(cut).find(isTitle);
+  const isTitle=x=>!same(x)&&!bare(x)&&!BADGE.test(cleanLine(x))&&x.length<=40&&plausibleName(x)&&!/[:@]|www\.|\.com|\d{3,}|roast|notes?|process|variety|altitude|origin|net|weight|\bg\b|arabica|specialty|grade/i.test(x)&&!(ro&&(fold(x).includes(fold(ro.name))||fold(ro.name).replace(/[^a-z0-9]/g,'').includes(fold(x).replace(/[^a-z0-9]/g,''))));
+  // With line sizes known, a line the reader was unsure of (a logo or photo read as letters) is never the name.
+  const sure=x=>!geo||geo.some(g=>g.conf>=65&&fold(cut(g.t))===fold(x));
+  let title=lines.map(cut).find(x=>isTitle(x)&&sure(x));
   // With line sizes, the name is the biggest type on the bag, not the first line: bags open with taglines and logos.
   // A name set over two lines ("Huye / Mountain") is joined back up.
   if(geo&&geo.length>2){const key=x=>fold(cleanLine(x)).replace(/[^a-z0-9]/g,''),hs=geo.map(g=>g.h).sort((a,b)=>a-b),med=hs[hs.length>>1];
@@ -1830,6 +1834,8 @@ function parseLabel(raw,geo){const L=lexicon(),t=' '+fold(raw).replace(/[|_~*]+/
       title=name}
     // No roastery found from any clue: the small line at the very top of the bag is usually its logo.
     if(!ro){const top=geo.find(g=>g.conf>=60);const x=top&&cleanLine(top.t);if(x&&x.length<=30&&!/\d/.test(x)&&plausibleName(x)&&!bare(x)&&!(title&&key(x)===key(title))&&key(x)!==key(big?big.x:'')&&!findBest(' '+fold(x)+' ',L.countries)&&!findBest(' '+fold(x)+' ',L.procs)&&!/\b(specialty|single origin|whole bean|filter|espresso|limited|no\.?|lot)\b/i.test(x)&&top.h<(big?big.g.h:1))info.roaster=niceName(x)}}
+  // No name on the label (a shop page, a back label): the farm stands in for it.
+  if(!title&&info.producer_or_farm)title=info.producer_or_farm.replace(/\s+(farm|estate)$/i,'');
   if(title)info.coffee_name=title;
   info.confidence=hits>=4?'high':hits>=2?'medium':'low';info.summary=hits?'Read on this phone. Check the details below and adjust anything that looks off.':'';
   return info}

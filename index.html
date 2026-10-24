@@ -1256,6 +1256,8 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .fpill.f-peak{background:color-mix(in srgb,#4F8A54 18%,var(--surface));color:color-mix(in srgb,#2F6B36 80%,var(--ink))}
 .fpill.f-good{background:color-mix(in srgb,#C9964A 18%,var(--surface));color:color-mix(in srgb,#7A5418 80%,var(--ink))}
 .fpill.f-fade{background:color-mix(in srgb,#A8432F 16%,var(--surface));color:color-mix(in srgb,#8A3222 80%,var(--ink))}
+:root[data-theme="dark"] .fpill.f-peak{color:#A6DDAB}:root[data-theme="dark"] .fpill.f-good{color:#EBC583}:root[data-theme="dark"] .fpill.f-fade{color:#F5A08B}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .fpill.f-peak{color:#A6DDAB}:root:not([data-theme="light"]) .fpill.f-good{color:#EBC583}:root:not([data-theme="light"]) .fpill.f-fade{color:#F5A08B}}
 .bagl{display:flex;flex-direction:column;gap:4px;margin-top:auto}.bagl small{font-size:.76rem;color:var(--muted);font-variant-numeric:tabular-nums}
 .bagm{display:block;height:6px;border-radius:3px;background:var(--surface2);overflow:hidden}.bagm i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#8A5A3B,#C9964A)}
 .shelf-empty{margin:0 2px 14px;padding:12px 14px;border-radius:var(--r-md);border:1.5px dashed var(--line);font-size:.86rem;color:var(--muted)}
@@ -1541,7 +1543,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
         <div id="scan-empty"><div class="dropicon" aria-hidden="true">◎</div><b>Tap to scan a bag</b><p class="hint" style="margin:.2rem 0 0">A clear shot of the label works best.</p></div>
       </div>
       <div class="actions two-up"><button class="btn" id="scan-pick">Take a photo</button><button class="btn ghost" id="scan-choose">Choose a photo</button></div>
-      <div class="actions two-up" id="scan-again" hidden><button class="btn ghost" id="scan-go" disabled>Read the label again</button><button class="btn ghost" id="scan-stop" hidden>Stop</button></div>
+      <div class="actions two-up" id="scan-again" hidden><button class="btn ghost" id="scan-go" disabled>Read again</button><button class="btn ghost" id="scan-stop" hidden>Stop</button></div>
       <p class="hint" id="scan-status" style="margin-top:10px"></p>
       <details class="cal" id="scan-textbox"><summary>Or type or paste the label text</summary>
         <textarea id="scan-text" rows="4" placeholder="e.g. Finca El Diviso, Huila, Colombia. Pink Bourbon. Anaerobic natural. 1,800 m. Notes: lychee, rose, mango. Roasted 12 Sep."></textarea>
@@ -3200,7 +3202,7 @@ const ROASTERS=[
  // Asia and Oceania
  'Glitch Coffee|glitch coffee & roasters','Onibus Coffee','Leaves Coffee','Kurasu','Unlimited Coffee Roasters|unlimited coffee','Light Up Coffee','Maruyama Coffee','Switch Coffee Tokyo','Lilo Coffee Roasters|lilo coffee','Weekenders Coffee','Single O','Fritz Coffee Company|fritz coffee','Coffee Libre','Momos Coffee','Anthracite Coffee','Center Coffee','Namusairo','Seesaw Coffee','Simple Kaffa','% Arabica|arabica kyoto','Common Man Coffee Roasters|common man coffee','Nylon Coffee Roasters|nylon coffee','PPP Coffee','Tiong Hoe','Market Lane Coffee|market lane','Ona Coffee','Seven Seeds','Small Batch Roasting|small batch coffee','Axil Coffee Roasters|axil coffee','Code Black Coffee','Toby\'s Estate|tobys estate','Allpress Espresso|allpress','Coffee Supreme','Flight Coffee','Patricia Coffee Brewers','St Ali|st. ali','Industry Beans','Proud Mary','Rumble Coffee','Sample Coffee','Mecca Coffee','Artificer Coffee','Wide Open Road','Gridlock Coffee','Kokako','Ozone Coffee Roasters NZ','Eight Ounce Coffee','Nomadic Coffee','Blue Tokai','Subko','Third Wave Coffee',
  // Middle East and Africa
- 'Brew92|brew 92','Camel Step','Archers Coffee|archers','Elixir Bunn','Half Million','Barn\'s|barns cafe','Medd Café|medd cafe','Raw Coffee Company|raw coffee','Seven Fortunes Coffee Roasters|seven fortunes','Boon Coffee','Nightjar Coffee','Specialty Batch','Kava Coffee Roasters','Il Caffè di Roma','Coffee Architecture','Cupagahwa','Rumble Coffee Kuwait','Kayan Coffee','Fiveelephant','Golden Ratio Coffee','Bloom Coffee Roasters','Origin Roasters','Sumo Coffee','Coffee Island','Taf Coffee','Mi Kafe','Truth Coffee','Rosetta Roastery','Origin Coffee Roasting','Deluxe Coffeeworks','Bean There Coffee','Tomoca'
+ 'Spirit Hub|spirithub|spirit hub roastery','Brew92|brew 92','Camel Step','Archers Coffee|archers','Elixir Bunn','Half Million','Barn\'s|barns cafe','Medd Café|medd cafe','Raw Coffee Company|raw coffee','Seven Fortunes Coffee Roasters|seven fortunes','Boon Coffee','Nightjar Coffee','Specialty Batch','Kava Coffee Roasters','Il Caffè di Roma','Coffee Architecture','Cupagahwa','Rumble Coffee Kuwait','Kayan Coffee','Fiveelephant','Golden Ratio Coffee','Bloom Coffee Roasters','Origin Roasters','Sumo Coffee','Coffee Island','Taf Coffee','Mi Kafe','Truth Coffee','Rosetta Roastery','Origin Coffee Roasting','Deluxe Coffeeworks','Bean There Coffee','Tomoca'
 ];
 
 const EVENTS_DEFAULT={
@@ -5287,14 +5289,18 @@ function parseLabel(raw,geo){const L=lexicon(),t=' '+fold(raw).replace(/[|_~*]+/
   const farm=/\b(finca|hacienda|fazenda|sitio|estate|farm|washing station|cooperative|co-?op)\b[ :]*([a-z0-9' .-]{2,40})/i.exec(raw.replace(/\n/g,' ; '));
   const prod=/\b(?:producer|produced by|grower|farmer)s?\s*[:\-]\s*([^\n;,]{2,40})/i.exec(raw);
   if(prod)info.producer_or_farm=prod[1].trim();else if(farm)info.producer_or_farm=(/^(finca|hacienda|fazenda|sitio)$/i.test(farm[1])?farm[1]+' '+farm[2]:farm[2]+' '+farm[1]).replace(/\s+/g,' ').replace(/\s*[;.].*$/,'').trim().replace(/\b\w/g,x=>x.toUpperCase());
+  // Shop badges and buttons on a screenshot of a web shop are never the coffee's name.
+  const BADGE=/^(limited( edition| release)?|new( arrival)?|sale|sold out|best ?sellers?|featured|exclusive|seasonal|in stock|out of stock|pre-?order|add to (cart|bag|basket)|buy now|shop now|subscribe|(coffee|product|bean) (information|info|details)|details|description|about (this|the) coffee|specifications?|overview)$/i;
   // The roastery, wherever it sits on the bag: a known roaster, "Roasted by …", a line naming one, or their web address.
   const ro=findRoaster(lines,t,geo);if(ro)info.roaster=ro.name;
   const same=x=>ro&&ro.line&&fold(x).replace(/[^a-z0-9]/g,'')===fold(ro.line).replace(/[^a-z0-9]/g,'');
   const bare=x=>{const r=fold(x).replace(/\b(specialty|speciality|single origin|coffee|cafe|beans?)\b/g,' ').replace(/\s+/g,' ').trim();return !r||L.countries.some(([c])=>c===r)};
   // Two columns often come back as one line ("Huye Mountain Roasted by"), so the roaster's part is cut off first.
   const cut=x=>cleanLine(x.replace(/\s+(?:roasted|tostado|torrado)\s+(?:by|por)\b.*$/i,''));
-  const isTitle=x=>!same(x)&&!bare(x)&&x.length<=40&&plausibleName(x)&&!/[:@]|www\.|\.com|\d{3,}|roast|notes?|process|variety|altitude|origin|net|weight|\bg\b|arabica|specialty|grade/i.test(x)&&!(ro&&(fold(x).includes(fold(ro.name))||fold(ro.name).replace(/[^a-z0-9]/g,'').includes(fold(x).replace(/[^a-z0-9]/g,''))));
-  let title=lines.map(cut).find(isTitle);
+  const isTitle=x=>!same(x)&&!bare(x)&&!BADGE.test(cleanLine(x))&&x.length<=40&&plausibleName(x)&&!/[:@]|www\.|\.com|\d{3,}|roast|notes?|process|variety|altitude|origin|net|weight|\bg\b|arabica|specialty|grade/i.test(x)&&!(ro&&(fold(x).includes(fold(ro.name))||fold(ro.name).replace(/[^a-z0-9]/g,'').includes(fold(x).replace(/[^a-z0-9]/g,''))));
+  // With line sizes known, a line the reader was unsure of (a logo or photo read as letters) is never the name.
+  const sure=x=>!geo||geo.some(g=>g.conf>=65&&fold(cut(g.t))===fold(x));
+  let title=lines.map(cut).find(x=>isTitle(x)&&sure(x));
   // With line sizes, the name is the biggest type on the bag, not the first line: bags open with taglines and logos.
   // A name set over two lines ("Huye / Mountain") is joined back up.
   if(geo&&geo.length>2){const key=x=>fold(cleanLine(x)).replace(/[^a-z0-9]/g,''),hs=geo.map(g=>g.h).sort((a,b)=>a-b),med=hs[hs.length>>1];
@@ -5307,6 +5313,8 @@ function parseLabel(raw,geo){const L=lexicon(),t=' '+fold(raw).replace(/[|_~*]+/
       title=name}
     // No roastery found from any clue: the small line at the very top of the bag is usually its logo.
     if(!ro){const top=geo.find(g=>g.conf>=60);const x=top&&cleanLine(top.t);if(x&&x.length<=30&&!/\d/.test(x)&&plausibleName(x)&&!bare(x)&&!(title&&key(x)===key(title))&&key(x)!==key(big?big.x:'')&&!findBest(' '+fold(x)+' ',L.countries)&&!findBest(' '+fold(x)+' ',L.procs)&&!/\b(specialty|single origin|whole bean|filter|espresso|limited|no\.?|lot)\b/i.test(x)&&top.h<(big?big.g.h:1))info.roaster=niceName(x)}}
+  // No name on the label (a shop page, a back label): the farm stands in for it.
+  if(!title&&info.producer_or_farm)title=info.producer_or_farm.replace(/\s+(farm|estate)$/i,'');
   if(title)info.coffee_name=title;
   info.confidence=hits>=4?'high':hits>=2?'medium':'low';info.summary=hits?'Read on this phone. Check the details below and adjust anything that looks off.':'';
   return info}

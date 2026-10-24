@@ -1255,6 +1255,8 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .fpill.f-peak{background:color-mix(in srgb,#4F8A54 18%,var(--surface));color:color-mix(in srgb,#2F6B36 80%,var(--ink))}
 .fpill.f-good{background:color-mix(in srgb,#C9964A 18%,var(--surface));color:color-mix(in srgb,#7A5418 80%,var(--ink))}
 .fpill.f-fade{background:color-mix(in srgb,#A8432F 16%,var(--surface));color:color-mix(in srgb,#8A3222 80%,var(--ink))}
+:root[data-theme="dark"] .fpill.f-peak{color:#A6DDAB}:root[data-theme="dark"] .fpill.f-good{color:#EBC583}:root[data-theme="dark"] .fpill.f-fade{color:#F5A08B}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .fpill.f-peak{color:#A6DDAB}:root:not([data-theme="light"]) .fpill.f-good{color:#EBC583}:root:not([data-theme="light"]) .fpill.f-fade{color:#F5A08B}}
 .bagl{display:flex;flex-direction:column;gap:4px;margin-top:auto}.bagl small{font-size:.76rem;color:var(--muted);font-variant-numeric:tabular-nums}
 .bagm{display:block;height:6px;border-radius:3px;background:var(--surface2);overflow:hidden}.bagm i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#8A5A3B,#C9964A)}
 .shelf-empty{margin:0 2px 14px;padding:12px 14px;border-radius:var(--r-md);border:1.5px dashed var(--line);font-size:.86rem;color:var(--muted)}
@@ -1537,7 +1539,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
         <div id="scan-empty"><div class="dropicon" aria-hidden="true">◎</div><b>Tap to scan a bag</b><p class="hint" style="margin:.2rem 0 0">A clear shot of the label works best.</p></div>
       </div>
       <div class="actions two-up"><button class="btn" id="scan-pick">Take a photo</button><button class="btn ghost" id="scan-choose">Choose a photo</button></div>
-      <div class="actions two-up" id="scan-again" hidden><button class="btn ghost" id="scan-go" disabled>Read the label again</button><button class="btn ghost" id="scan-stop" hidden>Stop</button></div>
+      <div class="actions two-up" id="scan-again" hidden><button class="btn ghost" id="scan-go" disabled>Read again</button><button class="btn ghost" id="scan-stop" hidden>Stop</button></div>
       <p class="hint" id="scan-status" style="margin-top:10px"></p>
       <details class="cal" id="scan-textbox"><summary>Or type or paste the label text</summary>
         <textarea id="scan-text" rows="4" placeholder="e.g. Finca El Diviso, Huila, Colombia. Pink Bourbon. Anaerobic natural. 1,800 m. Notes: lychee, rose, mango. Roasted 12 Sep."></textarea>
