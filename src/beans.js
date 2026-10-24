@@ -155,7 +155,7 @@ function yearInCoffeeHTML(){const cy=new Date().getFullYear(),bs=BEANS.filter(b=
 
 /* ---------- Trophies ---------- */
 // Earned from the cabinet as it is: each has a goal and counts towards it. The day one is first earned is kept.
-const WILD=['anaerobic','anaerobicnatural','anaerobicwashed','carbonic','lactic','yeast','koji','extended','thermalshock','mossto','coferment','infused','barrelaged'];
+const WILD=['anaerobic','anaerobicnatural','anaerobicwashed','anaerobichoney','doubleanaerobic','carbonic','lactic','yeast','koji','extended','thermalshock','mossto','coferment','infused','barrelaged'];
 function cabStats(){const o=new Set(BEANS.map(b=>b.origin).filter(Boolean));
   return{n:BEANS.length,o,regs:new Set([...o].map(k=>(oInfo(k)||{}).reg).filter(Boolean)),procs:new Set(BEANS.map(b=>b.process).filter(Boolean)),
     roasters:new Set(BEANS.map(b=>b.roaster.toLowerCase()).filter(Boolean)),diary:BEANS.reduce((a,b)=>a+b.diary.length,0),done:BEANS.filter(b=>!b.shelf).length,
@@ -245,7 +245,7 @@ const fileURL=f=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(
 // Only the large photo on a coffee's page uses the full image; every list uses the small copy.
 function loadImg(el){const id=el.dataset.bimg;if(!id)return;el.removeAttribute('data-bimg');const big=el.classList.contains('hero');
   const put=(u,now)=>{const i=new Image();i.alt='';i.decoding='async';i.src=u;if(now){i.className='now';el.classList.add('has');el.prepend(i)}else i.onload=()=>{el.classList.add('has');el.prepend(i)}};
-  const c=big?BIMG.peek(id):BIMG.peekThumb(id);if(c){put(c,true);return}(big?BIMG.get(id):BIMG.thumb(id)).then(u=>{if(u)put(u,false)})}
+  const c=big?BIMG.peek(id):BIMG.peekThumb(id);if(c){put(c,true);return}(big?BIMG.get(id):BIMG.thumb(id)).then(u=>{if(u)put(u,false);else if(el.classList.contains('tl-pic'))(el.closest('.tl-ph,.otd-pic')||el).remove()})}
 const BIO='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){BIO.unobserve(e.target);loadImg(e.target)}}),{rootMargin:'400px 0px'}):null;
 function hydrateImgs(root){root.querySelectorAll('[data-bimg]').forEach(el=>{if(BIMG.peekThumb(el.dataset.bimg)||!BIO||root.closest&&root.closest('dialog'))loadImg(el);else BIO.observe(el)})}
 // The photo area: a placeholder in the origin's flag and coffee tones until the photo loads (or when there isn't one).

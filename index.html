@@ -1894,6 +1894,19 @@ const V=[
  story:'A long-bean variety from the mountains of Antioquia, discovered on small farms around Urrao. Genetic testing groups it with Ethiopian landraces, and it has become a Colombian competition and auction star.',
  cup:'Floral, peach, white grape, silky and clean.',brew:'Mid-coarse, 92 to 93°C, gentle.',dir:'coarser',notes:['floral','peach','white grape'],grown:['colombia']},
 
+{id:'aji',name:'Ají (Bourbon Ají)',fam:'landrace',origin:'Huila, Colombia',parents:'Unsettled: sold as a Bourbon; some roasters report testing that groups it with Ethiopian landraces',
+ story:'Made famous by Néstor Lasso’s Finca El Diviso in Bruselas, Huila, at around 1,750 to 1,900 m. It is named after the ají chilli: the cherries are long and red, and the pulp has a peppery smell. Bags call it Bourbon Ají, but some roasters say genetic testing puts it with the Ethiopian landraces, like Pink Bourbon and Chiroso, with no relation to Bourbon; others still describe it as a Bourbon selection. Until a published study settles it, treat the lineage as open. Mikael Jasin used an Ají from El Diviso in the milk and signature courses of his winning 2024 World Barista Championship routine.',
+ cup:'Tropical fruit, red berries, florals, a gentle spice; very sweet and juicy. Often sold as thermal-shock or anaerobic lots, so check the process.',brew:'Mid to slightly coarse, 92 to 93°C, gentle pours. Grind it like a floral landrace, not a heavy Bourbon.',dir:'coarser',notes:['tropical fruit','red berries','floral','spice'],m:{t:-0.2,acid:0.5,body:0.1,sweet:0.7,clarity:0.6},grown:['colombia']},
+{id:'ombligon',name:'Ombligón',fam:'landrace',origin:'Huila, Colombia',parents:'Unclear; often described as having Ethiopian landrace ancestry',
+ story:'A Huila variety named for the "navel" (ombligo) that sticks out at the bottom of its large cherries. Little is published about where it came from, and roasters disagree on its lineage, but it has become a favourite of Huila’s experimental producers and competition baristas.',
+ cup:'Heavy sweetness, tropical and red fruit, florals, a syrupy body.',brew:'Mid-coarse, 92 to 93°C. Gentle if it comes as an anaerobic lot.',dir:'coarser',notes:['tropical fruit','red fruit','syrupy'],m:{t:-0.2,acid:0.3,body:0.4,sweet:0.8,clarity:0.4},grown:['colombia']},
+{id:'typicamejorado',name:'Typica Mejorado',fam:'landrace',origin:'Ecuador',parents:'Sold as an improved Typica (Typica x Bourbon); some testing points to Ethiopian landrace ancestry',
+ story:'"Improved Typica", grown in Ecuador’s high valleys and now in Colombia. It was long described as a Typica and Bourbon cross selected for yield, but like Sidra it has turned up Ethiopian landrace signals in genetic testing, which would explain its floral, tea-like cup. Its identity is still debated.',
+ cup:'Florals, citrus, stone fruit, black tea; elegant and clean.',brew:'Mid-coarse, 92 to 93°C, gentle pours.',dir:'coarser',notes:['floral','citrus','black tea'],m:{t:-0.2,acid:0.6,body:-0.2,sweet:0.4,clarity:0.7},grown:['ecuador','colombia']},
+{id:'rumesudan',name:'Rume Sudan',fam:'landrace',origin:'Boma Plateau, South Sudan',year:'Collected 1940s',parents:'Wild Arabica',
+ story:'Wild Arabica collected on the Boma Plateau, at the edge of Arabica’s native range, and kept in research collections. It yields little and is rarely grown on its own, but breeders prized it for disease resistance and an exceptional cup: it is a parent of Kenya’s Ruiru 11 and of modern F1 hybrids. Tiny lots appear at auctions in Central and South America.',
+ cup:'Intensely floral and fruity, complex, bright.',brew:'Mid-coarse, 92 to 93°C. Treat it like a fine Ethiopian.',dir:'coarser',notes:['floral','complex','bright fruit'],m:{t:-0.3,acid:0.7,body:-0.3,sweet:0.4,clarity:0.8},grown:['southsudan','costarica','colombia']},
+
 /* yemen */
 {id:'yemenia',name:'Yemenia and Yemeni landraces',fam:'yemen',origin:'Yemen',parents:'Arabica populations carried from Ethiopia centuries ago',
  story:'Yemeni farmers grow local types known as Udaini, Dawairi, Tuffahi and Jaadi on ancient terraces. A genetic study published in 2021 identified a distinct group, named Yemenia, separate from known Ethiopian groups. Yemen\u2019s coffees are the ancestors of Typica and Bourbon, and so of most coffee grown outside Africa.',
@@ -1957,6 +1970,10 @@ const V=[
  story:'Bourbon-type selections that spread through Rwanda and Burundi in the 20th century. Most coffee from the two countries is one of these, broadly labelled "Red Bourbon".',
  cup:'Red fruit, black tea, florals, citrus.',brew:'Baseline to slightly coarse, 93°C.',dir:'baseline',notes:['red fruit','black tea','floral'],m:{t:0.05,acid:0.5,body:0.2,sweet:0.4,clarity:0.4},grown:['rwanda','burundi']},
 
+{id:'mokka',name:'Mokka (Moka)',fam:'bourbon',origin:'Yemen, then Réunion, Brazil and Hawaii',parents:'Bourbon group; a dwarf, small-bean selection',
+ story:'A dwarf plant with tiny, round, pea-like beans, named after the Yemeni port of Mocha. It is grown in small amounts, best known today as Maui Mokka in Hawaii and in Brazilian research collections. Its yields are low and the beans are so small that they roast unevenly next to other coffees.',
+ cup:'Chocolate, dried fruit, spice, a dense and winey cup.',brew:'Small, dense beans: slightly coarser than usual, 92°C.',dir:'coarser',notes:['chocolate','dried fruit','spice'],m:{t:-0.1,acid:-0.2,body:0.7,sweet:0.5,clarity:-0.1},grown:['kona','brazil']},
+
 /* crosses */
 {id:'mundonovo',name:'Mundo Novo',fam:'cross',origin:'São Paulo, Brazil',year:'1943',parents:'Natural cross: Sumatra Typica x Red Bourbon',
  story:'A vigorous natural cross found near the town of Mundo Novo. Tall and productive, it became a Brazilian workhorse and a parent of Catuai.',
@@ -1994,10 +2011,23 @@ const V=[
  story:'A Honduran rust-resistant variety that surprised the specialty world by placing well in Cup of Excellence competitions.',
  cup:'Tropical fruit, citrus, bright, sweet.',brew:'Baseline, 93°C.',dir:'baseline',notes:['tropical','citrus','bright'],m:{t:0.1,acid:0.5,body:0.2,sweet:0.3,clarity:0.2},grown:['honduras']},
 
+{id:'marsellesa',name:'Marsellesa',fam:'timor',origin:'Nicaragua, ECOM and CIRAD',year:'Released 2009',parents:'Villa Sarchi x Timor Hybrid 832/2 (a Sarchimor)',
+ story:'A rust-resistant Sarchimor selected by the trader ECOM with the French research centre CIRAD, and released in Nicaragua. It was chosen for cup quality as well as resistance, and it is one parent of the F1 hybrid Starmaya.',
+ cup:'Sweet, balanced, citrus and caramel; cleaner than most Catimors.',brew:'Baseline grind, 93°C.',dir:'baseline',notes:['caramel','citrus','balanced'],grown:['nicaragua','mexico','honduras']},
+{id:'obata',name:'Obatã',fam:'timor',origin:'Brazil, Instituto Agronômico de Campinas (IAC)',year:'Released 2000',parents:'Villa Sarchi x Timor Hybrid 832/2 (a Sarchimor)',
+ story:'A compact, rust-resistant Sarchimor from Brazil’s IAC, planted widely by farmers who wanted protection from leaf rust without giving up yield. A natural cross between Obatã and Yellow Catuaí gave rise to Arara.',
+ cup:'Sweet, chocolate, nuts, gentle acidity.',brew:'Baseline grind, 93°C.',dir:'baseline',notes:['chocolate','nutty','sweet'],grown:['brazil']},
+{id:'arara',name:'Arara',fam:'timor',origin:'Brazil, Fundação Procafé',year:'Registered 2012',parents:'Obatã x Yellow Catuaí (a natural cross)',
+ story:'A yellow-cherry variety from Brazil’s Fundação Procafé, found as a natural cross between Obatã and Yellow Catuaí. It resists leaf rust, yields well and has won Brazilian quality competitions, so it has spread quickly through Minas Gerais.',
+ cup:'Very sweet, tropical and yellow fruit, honey, a round body.',brew:'Baseline grind, 92 to 93°C.',dir:'baseline',notes:['yellow fruit','honey','sweet'],m:{t:0.05,acid:0.2,body:0.3,sweet:0.6,clarity:0.1},grown:['brazil']},
+
 /* f1 */
 {id:'centroamericano',name:'Centroamericano (H1)',fam:'f1',origin:'Central America (CIRAD, ECOM, WCR partners)',year:'2010',parents:'Sarchimor T5296 x Rume Sudan (a wild landrace from the Boma Plateau, in the Ethiopian landrace genetic group)',
  story:'A first-generation (F1) hybrid: crossing two distant parents gives vigour, high yields and rust resistance with a surprisingly elegant cup. Seeds do not breed true, so plants are multiplied by cloning.',
- cup:'Floral, citrus, sweet, clean.',brew:'Mid-coarse, 93°C.',dir:'baseline',notes:['floral','citrus','sweet'],grown:['nicaragua','honduras']}
+ cup:'Floral, citrus, sweet, clean.',brew:'Mid-coarse, 93°C.',dir:'baseline',notes:['floral','citrus','sweet'],grown:['nicaragua','honduras']},
+{id:'starmaya',name:'Starmaya',fam:'f1',origin:'Central America, ECOM and CIRAD',year:'2010s',parents:'Marsellesa x a male-sterile wild Ethiopian Arabica',
+ story:'The first F1 hybrid that can be grown from seed. Most F1 hybrids have to be cloned in a lab, which makes them expensive; Starmaya uses a male-sterile parent, so the cross can be made in an open field by pollinating insects. It brings hybrid vigour, rust tolerance and a fine cup to small farmers.',
+ cup:'Sweet, floral, citrus, clean.',brew:'Baseline to slightly coarse, 92 to 93°C.',dir:'baseline',notes:['floral','citrus','sweet'],grown:['nicaragua','honduras','costarica']}
 ];
 const VBY=Object.fromEntries(V.map(v=>[v.id,v]));
 
@@ -2049,11 +2079,11 @@ const O={
  colombia:{name:'Colombia',flag:'🇨🇴',reg:'south',subs:['Huila','Nariño','Cauca','Tolima','Antioquia','Santander','Quindío'],alt:'1,200 to 2,300 m',harvest:'Year-round: main crop and a mitaca fly crop, varying by region',process:'Mostly washed; a world centre for anaerobic and co-ferment experiments',
   cup:'Caramel, red fruit, citrus, balanced; experimental lots go tropical and boozy.',
   hist:'Jesuit missionaries are credited with bringing coffee in the 1700s. The Federación Nacional de Cafeteros, founded in 1927, built the Juan Valdez brand, and its research centre Cenicafé bred the Colombia, Castillo and Tabi varieties to fight rust. Huila is home to Pink Bourbon and Striped Bourbon.',
-  fact:'Because the country straddles the equator, somewhere in Colombia is almost always harvesting.',vars:['castillo','caturra','typica','pinkbourbon','stripedbourbon','geisha','chiroso','wushwush','tabi','sidra']},
+  fact:'Because the country straddles the equator, somewhere in Colombia is almost always harvesting.',vars:['castillo','caturra','typica','pinkbourbon','stripedbourbon','geisha','chiroso','wushwush','tabi','sidra','aji','ombligon','typicamejorado']},
  brazil:{name:'Brazil',flag:'🇧🇷',reg:'south',subs:['Sul de Minas','Cerrado Mineiro','Mogiana','Chapada Diamantina','Espírito Santo'],alt:'600 to 1,300 m',harvest:'May to Sep',process:'Natural and pulped natural',
   cup:'Nutty, chocolate, low acidity, full body; top lots add fruit.',
   hist:'Legend says Francisco de Melo Palheta smuggled seeds from French Guiana in 1727. By the 1800s Brazil was the world\u2019s largest producer, which it still is. It gave the world Caturra, Mundo Novo, Catuai, Yellow Bourbon and Maragogype, and the first Cup of Excellence in 1999.',
-  fact:'Espírito Santo grows conilon, Brazil\u2019s name for Robusta.',vars:['mundonovo','catuai','yellowbourbon','caturra','bourbon','maragogype','robusta']},
+  fact:'Espírito Santo grows conilon, Brazil\u2019s name for Robusta.',vars:['mundonovo','catuai','yellowbourbon','caturra','bourbon','maragogype','arara','obata','robusta']},
  peru:{name:'Peru',flag:'🇵🇪',reg:'south',subs:['Cajamarca','Amazonas','San Martín','Junín','Cusco','Puno'],alt:'1,200 to 2,200 m',harvest:'May to Sep',process:'Washed',
   cup:'Soft, sweet, cocoa, citrus, gentle acidity.',
   hist:'A large producer of organic and fair-trade coffee from smallholders in the Andes and upper Amazon. High-altitude lots from Cajamarca and Puno have become Cup of Excellence standouts.',
@@ -2065,7 +2095,7 @@ const O={
  ecuador:{name:'Ecuador',flag:'🇪🇨',reg:'south',subs:['Loja','Pichincha','Zamora-Chinchipe','Imbabura'],alt:'1,200 to 2,000 m',harvest:'May to Sep',process:'Washed and natural',
   cup:'Florals, stone fruit, tea, complex acidity in the Sidra lots.',
   hist:'Long a small, overlooked producer, Ecuador rose in specialty through competition lots, above all Sidra.',
-  fact:'Sidra has become a favourite variety of competition baristas.',vars:['sidra','typica','bourbon']},
+  fact:'Sidra has become a favourite variety of competition baristas.',vars:['sidra','typicamejorado','typica','bourbon']},
  panama:{name:'Panama',flag:'🇵🇦',reg:'central',subs:['Boquete','Volcán','Renacimiento'],alt:'1,200 to 2,000 m',harvest:'Dec to Mar',process:'Washed and natural',
   cup:'Jasmine, bergamot, peach, honey, silky tea-like body.',
   hist:'Geisha arrived in the 1960s for its rust tolerance and was largely forgotten until Hacienda La Esmeralda entered it in the 2004 Best of Panama competition. Since then the Best of Panama auction has regularly set world-record prices.',
@@ -2089,7 +2119,7 @@ const O={
  nicaragua:{name:'Nicaragua',flag:'🇳🇮',reg:'central',subs:['Jinotega','Matagalpa','Nueva Segovia'],alt:'1,000 to 1,800 m',harvest:'Nov to Mar',process:'Washed and natural',
   cup:'Chocolate, citrus, sweet, medium body.',
   hist:'A mountainous north grows most of the crop. Nicaragua is where Maracaturra was found and where newer F1 hybrids have been trialled.',
-  fact:'Nueva Segovia lots often top the country\u2019s Cup of Excellence.',vars:['maracaturra','caturra','java','centroamericano']},
+  fact:'Nueva Segovia lots often top the country\u2019s Cup of Excellence.',vars:['maracaturra','caturra','java','centroamericano','marsellesa','starmaya']},
  mexico:{name:'Mexico',flag:'🇲🇽',reg:'central',subs:['Chiapas','Oaxaca','Veracruz','Puebla','Guerrero'],alt:'900 to 1,800 m',harvest:'Nov to Mar',process:'Washed',
   cup:'Soft, cocoa, nutty, gentle citrus.',
   hist:'Coffee spread in Veracruz from the late 1700s. Many producers are Indigenous smallholders, and Mexico is one of the largest sources of certified organic coffee.',
@@ -2133,7 +2163,7 @@ const O={
  ,southsudan:{name:'South Sudan',flag:'🇸🇸',reg:'africa',subs:['Boma Plateau'],alt:'About 1,000 to 1,500 m',harvest:'Varies',process:'Natural and washed, very small volumes',
   cup:'Wild-grown lots: floral, citrus, delicate.',
   hist:'The Boma Plateau is one of the only places outside Ethiopia where Arabica grows wild, and it may be part of the species\u2019 original home. Commercial exports only began in the 2010s, in tiny amounts.',
-  fact:'Arabica\u2019s birthplace is often given as "Ethiopia", but its wild range crosses into South Sudan.',vars:['landrace']}
+  fact:'Arabica\u2019s birthplace is often given as "Ethiopia", but its wild range crosses into South Sudan.',vars:['landrace','rumesudan']}
  ,saudi:{name:'Saudi Arabia',flag:'🇸🇦',reg:'arabia',subs:['Jazan (Khawlani)','Al Baha','Asir'],alt:'1,000 to 2,000 m',harvest:'Autumn to winter',process:'Natural, sun-dried',
   cup:'Dried fruit, spice, cocoa, wild and winey, much like Yemen.',
   hist:'Coffee grows on mountain terraces in the Jazan region near the Yemeni border, where families have farmed the local Khawlani coffee for centuries. The country is now investing heavily to expand production.',
@@ -2210,7 +2240,7 @@ const O={
 const PTS={
  kona:{name:'Hawaii (Kona)',flag:'🌺',reg:'asia',subs:['Kona','Kaʻū','Maui','Kauaʻi'],alt:'150 to 900 m',harvest:'Aug to Jan',process:'Washed and natural',
   cup:'Smooth, buttery, mild fruit.',hist:'Coffee reached Hawaii in the 1820s. Kona, on the Big Island\u2019s volcanic slopes, is the famous name, with afternoon cloud cover shading the trees.',
-  fact:'One of the few places coffee is grown commercially in the United States.',vars:['kona','typica']},
+  fact:'One of the few places coffee is grown commercially in the United States.',vars:['kona','typica','mokka']},
  reunion:{name:'Réunion (Île Bourbon)',flag:'🇷🇪',reg:'africa',subs:['Western highlands'],alt:'Varies',harvest:'Varies',process:'Washed and natural',
   cup:'Bourbon Pointu: delicate, sweet, low caffeine.',hist:'The French island once called Île Bourbon. Seeds from Yemen planted here between 1715 and 1718 became the Bourbon variety, and a local mutation became Laurina, also called Bourbon Pointu.',
   fact:'A tiny island that named one of the two great branches of the Arabica family.',vars:['bourbon','laurina']}
@@ -2271,25 +2301,25 @@ const PEOPLE=[
 ];
 
 /* ================= TREE LAYOUT (x,y left-anchored) ================= */
-const TREE={w:1330,h:830,notes:{pinkbourbon:'DNA: Ethiopian landrace, not a Bourbon',sl34:'DNA: Typica group, not French Mission Bourbon',sidra:'DNA points toward Ethiopia; still debated'},nodes:[
+const TREE={w:1530,h:830,notes:{pinkbourbon:'DNA: Ethiopian landrace, not a Bourbon',sl34:'DNA: Typica group, not French Mission Bourbon',sidra:'DNA points toward Ethiopia; still debated'},nodes:[
  ['eugenioides',20,140],['robusta',20,560],['liberica',20,730],['stenophylla',20,780],
  ['arabica',210,330],
  ['landrace',395,120],['yemenia',395,370],['timorhybrid',395,610],
- ['geisha',590,20],['wushwush',590,54],['java',590,88],['jarc',590,122],['pinkbourbon',590,156],['sidra',590,190],['chiroso',590,224],
+ ['geisha',590,14],['wushwush',590,44],['java',590,74],['jarc',590,104],['pinkbourbon',590,134],['sidra',590,164],['chiroso',590,194],['aji',590,224],['ombligon',590,254],['typicamejorado',590,284],['rumesudan',395,250],
  ['typica',590,320],['bourbon',590,480],['sl34',790,228],
  ['bluemountain',790,262],['kona',790,296],['maragogype',790,330],['kent',790,364],['pache',790,398],
- ['yellowbourbon',790,440],['orangebourbon',790,474],['stripedbourbon',790,508],['laurina',790,542],['caturra',790,576],['villasarchi',790,610],['pacas',790,644],['frenchmission',790,678],['jackson',790,712],['sl28',790,746],
+ ['yellowbourbon',790,440],['orangebourbon',790,474],['stripedbourbon',790,508],['laurina',790,542],['caturra',790,576],['villasarchi',790,610],['pacas',790,644],['frenchmission',790,678],['jackson',790,712],['sl28',790,746],['mokka',790,780],
  ['mundonovo',990,360],['catuai',990,420],['pacamara',990,480],['maracaturra',990,540],['catimor',990,610],['sarchimor',990,660],
- ['castillo',1170,560],['tabi',1170,610],['ruiru',1170,690],['parainema',1170,740],['centroamericano',1170,790]
+ ['marsellesa',1170,410],['obata',1170,460],['castillo',1170,560],['arara',1340,460],['starmaya',1340,410],['tabi',1170,610],['ruiru',1170,690],['parainema',1170,740],['centroamericano',1170,790]
 ],edges:[
  ['eugenioides','arabica'],['robusta','arabica'],['arabica','landrace'],['arabica','yemenia'],['arabica','timorhybrid'],['robusta','timorhybrid'],
- ['landrace','geisha'],['landrace','wushwush'],['landrace','java'],['landrace','jarc'],['landrace','pinkbourbon'],['landrace','sidra'],['landrace','chiroso'],
+ ['landrace','geisha'],['landrace','wushwush'],['landrace','java'],['landrace','jarc'],['landrace','pinkbourbon'],['landrace','sidra'],['landrace','chiroso'],['landrace','aji'],['landrace','ombligon'],['landrace','typicamejorado'],['arabica','rumesudan'],
  ['yemenia','typica'],['yemenia','bourbon'],
  ['typica','bluemountain'],['typica','kona'],['typica','maragogype'],['typica','kent'],['typica','pache'],
- ['bourbon','yellowbourbon'],['bourbon','orangebourbon'],['bourbon','stripedbourbon'],['bourbon','laurina'],['bourbon','caturra'],['bourbon','villasarchi'],['bourbon','pacas'],['bourbon','frenchmission'],['bourbon','jackson'],['bourbon','sl28'],
+ ['bourbon','yellowbourbon'],['bourbon','orangebourbon'],['bourbon','stripedbourbon'],['bourbon','laurina'],['bourbon','caturra'],['bourbon','villasarchi'],['bourbon','pacas'],['bourbon','frenchmission'],['bourbon','jackson'],['bourbon','sl28'],['bourbon','mokka'],
  ['typica','mundonovo'],['bourbon','mundonovo'],['mundonovo','catuai'],['caturra','catuai'],['pacas','pacamara'],['maragogype','pacamara'],['maragogype','maracaturra'],['caturra','maracaturra'],
  ['caturra','catimor'],['timorhybrid','catimor'],['villasarchi','sarchimor'],['timorhybrid','sarchimor'],['typica','sl34'],['typica','yellowbourbon'],
- ['caturra','castillo'],['timorhybrid','castillo'],['timorhybrid','tabi'],['typica','tabi'],['bourbon','tabi'],['catimor','ruiru'],['sl28','ruiru'],['sarchimor','parainema'],['sarchimor','centroamericano'],['landrace','centroamericano']
+ ['caturra','castillo'],['timorhybrid','castillo'],['timorhybrid','tabi'],['typica','tabi'],['bourbon','tabi'],['catimor','ruiru'],['sl28','ruiru'],['sarchimor','parainema'],['sarchimor','centroamericano'],['villasarchi','marsellesa'],['timorhybrid','marsellesa'],['villasarchi','obata'],['timorhybrid','obata'],['obata','arara'],['catuai','arara'],['marsellesa','starmaya'],['landrace','centroamericano']
 ]};
 
 /* ================= BREWERS ================= */
@@ -2553,9 +2583,12 @@ const PROCESSES={
  whitehoney:pr({name:'White and yellow honey',cat:'honey',t:0.1,acid:0.6,body:0.1,sweet:0.2,funk:0.1,notes:['clean','honeyed'],dir:'baseline',char:'Little mucilage left and quick drying. Very close to washed, with a touch more sweetness.',brew:'Treat almost like washed.'}),
  redhoney:pr({name:'Red honey',cat:'honey',t:-0.05,acid:0.3,body:0.4,sweet:0.4,funk:0.3,notes:['red fruit','honey'],dir:'baseline',char:'More mucilage and slower, shaded drying. Fruitier and heavier.',brew:'Baseline, 92°C.'}),
  blackhoney:pr({name:'Black honey',cat:'honey',t:-0.25,acid:0,body:0.8,sweet:0.6,funk:0.5,notes:['dark fruit','molasses'],dir:'coarser',char:'Maximum mucilage, slow drying, often covered. Closest to a natural: dark fruit, syrupy.',brew:'Treat almost like a natural: coarser, 91 to 92°C.'}),
+ hydrohoney:pr({name:'Hydro honey',cat:'honey',t:-0.15,acid:0.4,body:0.4,sweet:0.7,funk:0.4,notes:['juicy','stone fruit','sweet'],dir:'baseline',char:'A hybrid that starts like a natural and ends like a honey. Whole cherries rest on shaded beds for about two days, ferment in tanks (often open first, then sealed), and are then pulped and dried with their mucilage on for around three to four weeks. Producers vary the timings; an older Colombian style instead rehydrates fully dried cherries in water before pulping. Expect a natural’s fruit with a honey’s cleaner finish.',brew:'Baseline to slightly coarse, 91 to 93°C. Coarsen a step if the fruit turns heavy.'}),
  anaerobic:pr({name:'Anaerobic',cat:'ferment',t:-0.6,acid:-0.2,body:1.2,sweet:0.5,funk:1.2,notes:['tropical','boozy','spice'],dir:'coarser',char:'Fermented in sealed, oxygen-free tanks. Intense ferment, tropical fruit, cinnamon and spice.',brew:'Coarsest and coolest, 88 to 91°C, a 30 to 35s bloom, minimal agitation.'}),
  anaerobicnatural:pr({name:'Anaerobic natural',cat:'ferment',t:-0.7,acid:-0.3,body:1.3,sweet:0.7,funk:1.4,notes:['candied fruit','boozy','winey'],dir:'coarser',char:'Whole cherries sealed and fermented, then dried as a natural. The loudest of the classic anaerobics.',brew:'Coarse and cool, 88 to 90°C, very gentle.'}),
  anaerobicwashed:pr({name:'Anaerobic washed',cat:'ferment',t:-0.35,acid:0.4,body:0.6,sweet:0.4,funk:0.8,notes:['tropical','clean ferment'],dir:'coarser',char:'Pulped beans fermented sealed, then washed. Ferment character with a cleaner finish.',brew:'Slightly coarse, 90 to 92°C.'}),
+ anaerobichoney:pr({name:'Anaerobic honey',cat:'ferment',t:-0.45,acid:0.1,body:0.9,sweet:0.7,funk:1,notes:['tropical','syrupy','honey'],dir:'coarser',char:'Pulped, fermented sealed with the mucilage still on, then dried as a honey. Sits between anaerobic washed and anaerobic natural: ferment-forward and very sweet.',brew:'Coarse, 90 to 91°C, gentle pours.'}),
+ doubleanaerobic:pr({name:'Double anaerobic',cat:'ferment',t:-0.7,acid:-0.1,body:1.2,sweet:0.7,funk:1.5,notes:['boozy','candied fruit','spice'],dir:'coarser',char:'Two sealed fermentations, usually first as whole cherries and then again after pulping, before drying. Among the most intense processes: liqueur-like, candied and spicy.',brew:'Coarsest and coolest, 88 to 90°C, minimal agitation, a longer ratio if it shouts.'}),
  carbonic:pr({name:'Carbonic maceration',cat:'ferment',t:-0.5,acid:0.2,body:0.8,sweet:0.6,funk:1,notes:['red wine','cinnamon','grape'],dir:'coarser',char:'Borrowed from winemaking: whole cherries fermented in tanks flushed with carbon dioxide. Brought to fame when Sasa Sestic won the 2015 World Barista Championship with it.',brew:'Coarse, 90 to 91°C, gentle.'}),
  lactic:pr({name:'Lactic',cat:'ferment',t:-0.3,acid:-0.2,body:0.8,sweet:0.5,funk:0.7,notes:['creamy','yoghurt','soft acidity'],dir:'coarser',char:'Anaerobic conditions that favour lactic acid bacteria. Creamy, round, soft yoghurt-like acidity.',brew:'Slightly coarse, 91 to 92°C.'}),
  yeast:pr({name:'Yeast inoculated',cat:'ferment',t:-0.2,acid:0.3,body:0.5,sweet:0.5,funk:0.5,notes:['clean fruit','floral'],dir:'baseline',char:'Selected wine or beer yeasts are added to steer the fermentation. Cleaner, more controlled fruit.',brew:'Baseline to slightly coarse, 92°C.'}),
@@ -2570,6 +2603,7 @@ const PROCESSES={
  aged:pr({name:'Aged green coffee',cat:'regional',t:-0.2,acid:-1,body:0.8,funk:0.6,notes:['woody','spice','cedar'],dir:'coarser',char:'Green coffee deliberately stored for years, traditionally Indonesian. Woody, spicy, low acidity.',brew:'Coarser, 90 to 92°C.'}),
  swisswater:pr({name:'Swiss Water decaf',cat:'decaf',t:-0.2,acid:-0.2,body:-0.2,notes:['soft','sweet'],dir:'coarser',char:'Caffeine removed with water and carbon filters, no added chemicals.',brew:'Decaf beans are more porous and extract fast: coarser and a bit cooler.'}),
  sugarcane:pr({name:'Sugarcane (EA) decaf',cat:'decaf',t:-0.2,acid:0,body:-0.1,sweet:0.2,notes:['sweet','fruity'],dir:'coarser',char:'Caffeine removed with ethyl acetate made from fermented sugarcane. Often keeps sweetness well.',brew:'Coarser and a bit cooler than the same coffee undecaffeinated.'}),
+ mountainwater:pr({name:'Mountain Water decaf',cat:'decaf',t:-0.2,acid:-0.1,body:-0.1,sweet:0.1,notes:['soft','sweet'],dir:'coarser',char:'Mexico’s water process, run by Descafeinadora Mexicana near Pico de Orizaba with glacier water. Like Swiss Water, no solvents: the caffeine is drawn out by water and filters.',brew:'Coarser and a bit cooler than the same coffee undecaffeinated.'}),
  co2decaf:pr({name:'CO\u2082 decaf',cat:'decaf',t:-0.2,acid:0,body:-0.1,notes:['clean','balanced'],dir:'coarser',char:'Caffeine removed with pressurised carbon dioxide, which is quite selective for caffeine.',brew:'Coarser and a bit cooler.'}),
  mcdecaf:pr({name:'Solvent decaf (methylene chloride)',cat:'decaf',t:-0.2,acid:-0.1,body:-0.1,notes:['mild'],dir:'coarser',char:'The traditional "European process". Solvent residues are removed by roasting; regulated limits apply.',brew:'Coarser and a bit cooler.'})
 };
@@ -2856,6 +2890,7 @@ const GLOSSARY=[
   ['Inoculation','process','Adding a chosen yeast or bacteria culture (a starter) to the fermentation, the way brewers and bakers do, for more control and a predictable profile.',['p:yeast','p:lactic','p:koji']],
   ['Lactic process','process','A fermentation steered towards lactic acid bacteria, giving creamy body and a yoghurt-like, rounded acidity.',['p:lactic']],
   ['Koji','process','Aspergillus oryzae, the mould behind sake, miso and soy sauce. Grown on coffee it breaks down starches and proteins and adds sweetness and savoury depth.',['p:koji']],
+  ['Hydro honey','process','A hybrid process: cherries rest whole like a natural, ferment in tanks, then are pulped and dried with their mucilage on like a honey. Fruit of a natural, finish of a honey.',['p:hydrohoney']],
   ['Thermal shock','process','Washing fermented coffee in hot water and then cold, to open the bean and lock in aromatics. Developed by Diego Bermúdez at Finca El Paraíso in Cauca, Colombia.',['p:thermalshock']],
   ['Mossto','process','The liquid drained from an earlier fermentation, fed back into a new batch as a starter so the same microbes and flavours carry on.',['p:mossto','k:Inoculation']],
   ['Washed process','process','Pulped, fermented to loosen the mucilage, washed clean, then dried. The cup shows the variety and origin most clearly: bright, clean and precise.',['p:washed','p:doublewashed']],
@@ -2973,12 +3008,12 @@ const FLOW_BRANCH=[
   {t:'Washed',s:'Pulp off, ferment, wash, dry',d:'Clean and bright',tree:[
     {p:'washed',kids:[{p:'doublewashed',r:'A second soak and wash after the first ferment, as in Kenya'},{p:'ecopulped',r:'The mucilage is scrubbed off by machine instead of fermented off'},{p:'anaerobicwashed',r:'The ferment happens in a sealed, oxygen-free tank'}]}]},
   {t:'Honey',s:'Pulp off, dry with mucilage on',d:'Sweet and round',tree:[
-    {p:'honey',kids:[{p:'whitehoney',r:'Least mucilage left on, fastest drying'},{p:'redhoney',r:'More mucilage, slower drying'},{p:'blackhoney',r:'Most mucilage, slowest drying, often shaded'},{p:'pulpednatural',r:'Brazil’s version of the honey process'}]}]},
+    {p:'honey',kids:[{p:'whitehoney',r:'Least mucilage left on, fastest drying'},{p:'redhoney',r:'More mucilage, slower drying'},{p:'blackhoney',r:'Most mucilage, slowest drying, often shaded'},{p:'hydrohoney',r:'Rested as cherries, fermented, then pulped and dried as a honey'},{p:'pulpednatural',r:'Brazil’s version of the honey process'}]}]},
   {t:'Natural',s:'Dry the whole cherry',d:'Fruity and heavy',tree:[
     {p:'natural',kids:[{p:'anaerobicnatural',r:'Whole cherries sealed and fermented before drying'},{p:'carbonic',r:'Whole cherries fermented under CO₂ before drying'}]}]},
   {t:'Wet-hulled',s:'Hull while still wet',d:'Earthy and low acid',tree:[{p:'wethulled'}]},
   {t:'Fermentation-led',s:'Sealed tanks, starters, added ingredients',d:'Intense and experimental',tree:[
-    {p:'anaerobic',kids:[{p:'anaerobicnatural',r:'Sealed as whole cherries, then dried as a natural'},{p:'anaerobicwashed',r:'Pulped, sealed, then washed'},{p:'carbonic',r:'The sealed tank is flushed with carbon dioxide'},{p:'lactic',r:'Conditions steered towards lactic acid bacteria'}]},
+    {p:'anaerobic',kids:[{p:'anaerobicnatural',r:'Sealed as whole cherries, then dried as a natural'},{p:'anaerobicwashed',r:'Pulped, sealed, then washed'},{p:'carbonic',r:'The sealed tank is flushed with carbon dioxide'},{p:'lactic',r:'Conditions steered towards lactic acid bacteria'},{p:'anaerobichoney',r:'Pulped, sealed with the mucilage on, dried as a honey'},{p:'doubleanaerobic',r:'Two sealed ferments, in cherry and after pulping'}]},
     {p:'extended',r:'Days instead of hours, in cherry or in tanks'},
     {g:'Starter cultures',s:'Adding chosen microbes to steer the ferment',d:'Instead of relying on the wild yeasts and bacteria on the fruit, the producer adds a culture, much as a baker uses a starter. The result is more control and a more repeatable cup.',kids:[{p:'yeast',r:'Selected wine or beer yeasts'},{p:'koji',r:'The mould behind sake and miso'},{p:'mossto',r:'Juice from an earlier fermentation starts the next'}]},
     {p:'thermalshock',r:'A finishing rinse, hot then cold, after a long ferment'},
@@ -5178,10 +5213,10 @@ function lexicon(){if(LEX)return LEX;
   const V_EXTRA={geisha:['geisha','gesha'],landrace:['heirloom','ethiopian landrace','ethiopian landraces','ethiopian heirloom','landrace'],jarc:['jarc','74110','74112','74158'],robusta:['robusta','canephora'],
     liberica:['liberica','excelsa'],yemenia:['yemenia','yemeni landrace'],kent:['kent','s795','s 795'],laurina:['laurina','bourbon pointu'],catuai:['catuai','red catuai','yellow catuai'],
     castillo:['castillo'],ruiru:['ruiru 11','ruiru','batian'],jackson:['jackson','mibirizi'],centroamericano:['centroamericano','h1'],bourbon:['bourbon','red bourbon','borbon','bourbon rojo','bourbon vermelho'],kona:['kona typica'],
-    sl28:['sl28','sl 28','sl-28'],sl34:['sl34','sl 34','sl-34'],pinkbourbon:['pink bourbon','bourbon rosado','borbon rosado'],yellowbourbon:['yellow bourbon','bourbon amarelo','bourbon amarillo'],caturra:['caturra'],catuai:['catuai','red catuai','yellow catuai','catuai amarelo','catuai vermelho']};
+    sl28:['sl28','sl 28','sl-28'],aji:['bourbon aji','aji bourbon','aji'],ombligon:['ombligon'],typicamejorado:['typica mejorado'],rumesudan:['rume sudan'],mokka:['mokka','maui mokka'],obata:['obata'],sl34:['sl34','sl 34','sl-34'],pinkbourbon:['pink bourbon','bourbon rosado','borbon rosado'],yellowbourbon:['yellow bourbon','bourbon amarelo','bourbon amarillo'],caturra:['caturra'],catuai:['catuai','red catuai','yellow catuai','catuai amarelo','catuai vermelho']};
   const vars=[];for(const v of V){if(v.id==='arabica')continue; /* "100% Arabica" on a bag says nothing about the variety */for(const a of (V_EXTRA[v.id]||[strip(v.name)]))vars.push([a,v.id])}
   const P_EXTRA={washed:['washed','fully washed','wet process','wet processed','lavado','lavada','lave'],doublewashed:['double washed','kenyan process','kenya process'],ecopulped:['eco pulped','eco-pulped','demucilaged'],
-    natural:['natural','dry process','dry processed','sun dried','sun-dried','natural seco','secado al sol'],pulpednatural:['pulped natural','cereja descascada','descascado'],wethulled:['wet hulled','wet-hulled','giling basah'],honey:['honey','miel','honey process'],
+    natural:['natural','dry process','dry processed','sun dried','sun-dried','natural seco','secado al sol'],pulpednatural:['pulped natural','cereja descascada','descascado'],wethulled:['wet hulled','wet-hulled','giling basah'],honey:['honey','miel','honey process'],hydrohoney:['hydro honey','hydro honey process','hydro-honey','hydrohoney'],anaerobichoney:['anaerobic honey','honey anaerobic','miel anaerobico'],doubleanaerobic:['double anaerobic','doble anaerobico','double anaerobico'],mountainwater:['mountain water'],
     whitehoney:['white honey','yellow honey','miel amarilla','miel blanca'],redhoney:['red honey','miel roja'],blackhoney:['black honey','miel negra'],anaerobic:['anaerobic','anaerobico','anaerobica','anaerobio'],anaerobicnatural:['anaerobic natural','natural anaerobico','natural anaerobic'],anaerobicwashed:['anaerobic washed','lavado anaerobico'],
     carbonic:['carbonic maceration','carbonic'],lactic:['lactic'],yeast:['yeast'],koji:['koji'],extended:['extended fermentation'],thermalshock:['thermal shock'],mossto:['mossto'],
     coferment:['co-ferment','co-fermented','coferment','cofermented','co ferment'],infused:['infused'],barrelaged:['barrel aged','barrel-aged'],monsooned:['monsooned'],aged:['aged green'],
@@ -5856,7 +5891,7 @@ function importData(file){if(!file)return;if(file.size>80e6){toast('That file is
     const when=j.exported?new Date(j.exported).toLocaleDateString():'an earlier date';
     if(!confirm('Replace the data on this device with the backup from '+when+'? Your current recipes, log, scans and settings here will be overwritten.'))return;
     try{for(const k of dataKeys())localStorage.removeItem(k);for(const [k,v] of ent)localStorage.setItem(k,v)}catch(e){toast('Couldn’t restore the backup: storage is full or blocked');return}
-    const imgs=j.images&&typeof j.images==='object'?Object.entries(j.images).filter(([k,v])=>/^[a-z0-9]{4,24}$/.test(k)&&typeof v==='string'&&v.startsWith('data:image/')):[];
+    const imgs=j.images&&typeof j.images==='object'?Object.entries(j.images).filter(([k,v])=>/^(dy:)?[a-z0-9]{4,24}$/.test(k)&&typeof v==='string'&&v.startsWith('data:image/')):[];
     (async()=>{await BIMG.clear();for(const [k,v] of imgs)await BIMG.put(k,v);toast('Backup restored');setTimeout(()=>location.reload(),600)})()};
   rd.onerror=()=>toast('Couldn’t read that file');rd.readAsText(file)}
 function renderSettings(){const t=document.documentElement.getAttribute('data-theme')||'auto';
@@ -6099,7 +6134,7 @@ function yearInCoffeeHTML(){const cy=new Date().getFullYear(),bs=BEANS.filter(b=
 
 /* ---------- Trophies ---------- */
 // Earned from the cabinet as it is: each has a goal and counts towards it. The day one is first earned is kept.
-const WILD=['anaerobic','anaerobicnatural','anaerobicwashed','carbonic','lactic','yeast','koji','extended','thermalshock','mossto','coferment','infused','barrelaged'];
+const WILD=['anaerobic','anaerobicnatural','anaerobicwashed','anaerobichoney','doubleanaerobic','carbonic','lactic','yeast','koji','extended','thermalshock','mossto','coferment','infused','barrelaged'];
 function cabStats(){const o=new Set(BEANS.map(b=>b.origin).filter(Boolean));
   return{n:BEANS.length,o,regs:new Set([...o].map(k=>(oInfo(k)||{}).reg).filter(Boolean)),procs:new Set(BEANS.map(b=>b.process).filter(Boolean)),
     roasters:new Set(BEANS.map(b=>b.roaster.toLowerCase()).filter(Boolean)),diary:BEANS.reduce((a,b)=>a+b.diary.length,0),done:BEANS.filter(b=>!b.shelf).length,
@@ -6189,7 +6224,7 @@ const fileURL=f=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(
 // Only the large photo on a coffee's page uses the full image; every list uses the small copy.
 function loadImg(el){const id=el.dataset.bimg;if(!id)return;el.removeAttribute('data-bimg');const big=el.classList.contains('hero');
   const put=(u,now)=>{const i=new Image();i.alt='';i.decoding='async';i.src=u;if(now){i.className='now';el.classList.add('has');el.prepend(i)}else i.onload=()=>{el.classList.add('has');el.prepend(i)}};
-  const c=big?BIMG.peek(id):BIMG.peekThumb(id);if(c){put(c,true);return}(big?BIMG.get(id):BIMG.thumb(id)).then(u=>{if(u)put(u,false)})}
+  const c=big?BIMG.peek(id):BIMG.peekThumb(id);if(c){put(c,true);return}(big?BIMG.get(id):BIMG.thumb(id)).then(u=>{if(u)put(u,false);else if(el.classList.contains('tl-pic'))(el.closest('.tl-ph,.otd-pic')||el).remove()})}
 const BIO='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){BIO.unobserve(e.target);loadImg(e.target)}}),{rootMargin:'400px 0px'}):null;
 function hydrateImgs(root){root.querySelectorAll('[data-bimg]').forEach(el=>{if(BIMG.peekThumb(el.dataset.bimg)||!BIO||root.closest&&root.closest('dialog'))loadImg(el);else BIO.observe(el)})}
 // The photo area: a placeholder in the origin's flag and coffee tones until the photo loads (or when there isn't one).

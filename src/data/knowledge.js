@@ -40,6 +40,7 @@ const GLOSSARY=[
   ['Inoculation','process','Adding a chosen yeast or bacteria culture (a starter) to the fermentation, the way brewers and bakers do, for more control and a predictable profile.',['p:yeast','p:lactic','p:koji']],
   ['Lactic process','process','A fermentation steered towards lactic acid bacteria, giving creamy body and a yoghurt-like, rounded acidity.',['p:lactic']],
   ['Koji','process','Aspergillus oryzae, the mould behind sake, miso and soy sauce. Grown on coffee it breaks down starches and proteins and adds sweetness and savoury depth.',['p:koji']],
+  ['Hydro honey','process','A hybrid process: cherries rest whole like a natural, ferment in tanks, then are pulped and dried with their mucilage on like a honey. Fruit of a natural, finish of a honey.',['p:hydrohoney']],
   ['Thermal shock','process','Washing fermented coffee in hot water and then cold, to open the bean and lock in aromatics. Developed by Diego Bermúdez at Finca El Paraíso in Cauca, Colombia.',['p:thermalshock']],
   ['Mossto','process','The liquid drained from an earlier fermentation, fed back into a new batch as a starter so the same microbes and flavours carry on.',['p:mossto','k:Inoculation']],
   ['Washed process','process','Pulped, fermented to loosen the mucilage, washed clean, then dried. The cup shows the variety and origin most clearly: bright, clean and precise.',['p:washed','p:doublewashed']],
@@ -157,12 +158,12 @@ const FLOW_BRANCH=[
   {t:'Washed',s:'Pulp off, ferment, wash, dry',d:'Clean and bright',tree:[
     {p:'washed',kids:[{p:'doublewashed',r:'A second soak and wash after the first ferment, as in Kenya'},{p:'ecopulped',r:'The mucilage is scrubbed off by machine instead of fermented off'},{p:'anaerobicwashed',r:'The ferment happens in a sealed, oxygen-free tank'}]}]},
   {t:'Honey',s:'Pulp off, dry with mucilage on',d:'Sweet and round',tree:[
-    {p:'honey',kids:[{p:'whitehoney',r:'Least mucilage left on, fastest drying'},{p:'redhoney',r:'More mucilage, slower drying'},{p:'blackhoney',r:'Most mucilage, slowest drying, often shaded'},{p:'pulpednatural',r:'Brazil’s version of the honey process'}]}]},
+    {p:'honey',kids:[{p:'whitehoney',r:'Least mucilage left on, fastest drying'},{p:'redhoney',r:'More mucilage, slower drying'},{p:'blackhoney',r:'Most mucilage, slowest drying, often shaded'},{p:'hydrohoney',r:'Rested as cherries, fermented, then pulped and dried as a honey'},{p:'pulpednatural',r:'Brazil’s version of the honey process'}]}]},
   {t:'Natural',s:'Dry the whole cherry',d:'Fruity and heavy',tree:[
     {p:'natural',kids:[{p:'anaerobicnatural',r:'Whole cherries sealed and fermented before drying'},{p:'carbonic',r:'Whole cherries fermented under CO₂ before drying'}]}]},
   {t:'Wet-hulled',s:'Hull while still wet',d:'Earthy and low acid',tree:[{p:'wethulled'}]},
   {t:'Fermentation-led',s:'Sealed tanks, starters, added ingredients',d:'Intense and experimental',tree:[
-    {p:'anaerobic',kids:[{p:'anaerobicnatural',r:'Sealed as whole cherries, then dried as a natural'},{p:'anaerobicwashed',r:'Pulped, sealed, then washed'},{p:'carbonic',r:'The sealed tank is flushed with carbon dioxide'},{p:'lactic',r:'Conditions steered towards lactic acid bacteria'}]},
+    {p:'anaerobic',kids:[{p:'anaerobicnatural',r:'Sealed as whole cherries, then dried as a natural'},{p:'anaerobicwashed',r:'Pulped, sealed, then washed'},{p:'carbonic',r:'The sealed tank is flushed with carbon dioxide'},{p:'lactic',r:'Conditions steered towards lactic acid bacteria'},{p:'anaerobichoney',r:'Pulped, sealed with the mucilage on, dried as a honey'},{p:'doubleanaerobic',r:'Two sealed ferments, in cherry and after pulping'}]},
     {p:'extended',r:'Days instead of hours, in cherry or in tanks'},
     {g:'Starter cultures',s:'Adding chosen microbes to steer the ferment',d:'Instead of relying on the wild yeasts and bacteria on the fruit, the producer adds a culture, much as a baker uses a starter. The result is more control and a more repeatable cup.',kids:[{p:'yeast',r:'Selected wine or beer yeasts'},{p:'koji',r:'The mould behind sake and miso'},{p:'mossto',r:'Juice from an earlier fermentation starts the next'}]},
     {p:'thermalshock',r:'A finishing rinse, hot then cold, after a long ferment'},
