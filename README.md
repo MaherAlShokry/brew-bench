@@ -106,6 +106,18 @@ The log is stored in a free [Firebase Realtime Database](https://firebase.google
         ".write": "auth != null && auth.uid === $uid",
         ".validate": "newData.hasChild('nick')"
       }
+    },
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "userimg": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
     }
   }
 }
@@ -115,18 +127,31 @@ The rules stop anyone from listing groups; a group can only be read or written b
 
 ## Your profile and signing in (Firebase Authentication)
 
-Settings opens with your profile: a nickname, your name, a few words about you, a photo or a symbol on a colour, how you like your coffee, your favourite brewer and origin, and where you brew, with your coffees, brews and origins counted beside it. Your nickname signs your shared brews and heads your Beans page. The profile is saved on the device straight away, no account needed.
+Your face sits in the top bar (on a computer, at the end of the tab bar); tap it for your profile: a nickname, your name, a few words about you, a photo or a symbol on a colour, a coffee role from how you like your coffee ("Florals chaser", "Ferment explorer"), your favourite origin and brewer, where you brew, and your coffees, brews, origins and trophies counted. Your nickname signs your shared brews and heads your Beans page. The profile is saved on the device straight away, no account needed.
 
-With accounts switched on, you can **sign in with email** (create an account, confirm it from the email, reset a forgotten password) **or Google** (on the website), and the profile follows you to every phone you sign in on. You can sign out, or delete your account and profile, from the profile. Your brews, coffees and recipes stay on the device as before; sign-in tokens are never written into backup files.
+With an account you can **sign in with email** (create an account, confirm it from the email, reset a forgotten password) **or Google** (on the website), and **everything syncs** between your phones and the website: your coffees with their diaries, brews, recipes, scans and photos, your Top 5, trophies and favourites, your gear and calibration, and the app's look. Each item is merged on its own, so a diary entry written on the website and a brew logged on the phone both survive. Changes go up a few seconds after you make them and come in when the app opens or you come back to it. You can sign out, or delete your account with everything synced to it, from the profile. Sign-in tokens are never written into backup files.
 
 One-time setup, in the same Firebase project as the shared log:
 
 1. In the [Firebase console](https://console.firebase.google.com/), open **Build → Authentication → Get started**. Under **Sign-in method**, turn on **Email/Password**, then **Google** (choose a support email). Open the Google provider again and copy the **Web client ID** under *Web SDK configuration*.
 2. Under **Authentication → Settings → Authorized domains**, add `maheralshokry.github.io`.
 3. Open **Project settings** (the gear) → **General**. Under *Your apps*, add a **Web app** if there isn't one, and copy its `apiKey`.
-4. In `src/profile.js`, fill in `FB_AUTH` near the top: `{apiKey:'…', googleClientId:'…'}`. Make sure `FIREBASE_DB_URL` in `src/app.js` is set too (see the shared log above) and that the database rules include the `profiles` part, so each account can read and write only its own profile. Then push.
+4. In `src/profile.js`, fill in `FB_AUTH` near the top: `{apiKey:'…', googleClientId:'…'}`. Make sure `FIREBASE_DB_URL` in `src/app.js` is set too (see the shared log above) and that the database rules include the `profiles` part, so each account can read and write only its own profile and data. Then push.
 
 The API key is meant to be public; the database rules and the authorized domains are what protect the data. Google's sign-in window can't open inside the Android app's web view, so the app signs in with email; Google sign-in works on the website.
+
+## Publishing on Google Play
+
+Everything for the store is in `store/`: the listing texts, the data safety and content rating answers (`store/listing.md`), the 512 px icon, the feature graphic and seven phone screenshots. The privacy policy and the account deletion page are served with the site at `privacy.html` and `delete-account.html`.
+
+1. **Upload key.** Add the four signing secrets (`BB_KEYSTORE_BASE64`, `BB_KEYSTORE_PASSWORD`, `BB_KEY_ALIAS`, `BB_KEY_PASSWORD`) under the repository's **Settings → Secrets and variables → Actions**. Every build of `main` then publishes a release-signed `brew-bench.apk` and the `brew-bench.aab` app bundle that Play takes. Keep the keystore file safe; with Play App Signing, Google can reset a lost upload key.
+2. **Developer account.** Create one at [play.google.com/console](https://play.google.com/console) (a one-time fee, and an identity check).
+3. **Create the app:** name *The Brew Bench*, app (not game), free.
+4. **App content:** privacy policy URL, app access (all features work without signing in), ads (none), content rating, target audience (13+), data safety and the account deletion URL, all answered in `store/listing.md`.
+5. **Store listing:** paste the texts and upload the graphics from `store/`.
+6. **Testing, then production.** Upload `brew-bench.aab` from the latest release to a **closed test**. New personal developer accounts must run a closed test with at least 12 testers for 14 days before they can apply for production. Then promote the release to production.
+
+Phones that installed an earlier `brew-bench.apk` signed with the old debug key must uninstall it once before installing a release-signed build (Android won't update across signing keys). Sign in first, or export a backup from Settings, so nothing is lost.
 
 ## Project structure
 
@@ -143,6 +168,7 @@ brew-bench/
 │   ├── beans.js                The bean cabinet, diary, passport, trophies and yearly top 5
 │   ├── brewcard.js             The shareable brew card image
 │   ├── profile.js              Your profile, and signing in with email or Google
+│   ├── sync.js                 Syncing everything you save with your account
 │   └── data/
 │       ├── origins-varieties-history.js   Origins, varieties, family tree, timeline
 │       ├── brewing.js                     Brewers, recipes, processes, techniques, quiz

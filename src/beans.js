@@ -203,7 +203,7 @@ async function scheduleReminders(){const ln=LN();if(!ln)return false;
   try{await ln.cancel({notifications:RIDS.map(id=>({id}))})}catch(e){}
   if(!REMIND.on)return true;const [h,m]=REMIND.t.split(':').map(Number),now=new Date(),list=[];
   for(let i=0;i<14;i++){const at=new Date(now.getFullYear(),now.getMonth(),now.getDate()+i,h,m);if(at<=now)continue;const c=cabinetDay(at);
-    list.push({id:RIDS[i],title:'☕ '+(c?DAYK[c.k]:'Time for a good cup'),body:c?(c.k==='fav'?c.title+': ':c.title+'. ')+c.text:'Add the bag you’re drinking to your cabinet and keep its story.',schedule:{at,allowWhileIdle:true},extra:c?{bean:c.b.id}:{}})}
+    list.push({id:RIDS[i],title:'☕ '+(c?DAYK[c.k]:'Time for a good cup'),body:c?(c.k==='fav'?c.title+': ':c.title+'. ')+c.text:'Add the bag you’re drinking to your cabinet and keep its story.',schedule:{at,allowWhileIdle:true},isExactNotification:false,extra:c?{bean:c.b.id}:{}})}
   try{if(list.length)await ln.schedule({notifications:list});return true}catch(e){return false}}
 let RST=0;function reschedule(){if(!REMIND.on||!LN())return;clearTimeout(RST);RST=setTimeout(scheduleReminders,1200)}
 // Turning it on asks Android for permission to notify, the first time.
@@ -449,7 +449,7 @@ async function addScanToGallery(i){const s=SCANS[i];if(!s)return;const inf=s.inf
   openBeanEditor(null,{name:scanTitle(s.sc,inf),roaster:scRoaster(s)||'',origin:s.sc.origin,process:s.sc.process,variety:s.sc.variety,roast:s.sc.roast,roastDate:s.sc.date||'',
     flavours:inf&&Array.isArray(inf.tasting_notes)?inf.tasting_notes.join(', ').slice(0,160):'',photo,scan:s.id,lowres:!full&&!!s.t})}
 $('beans-in').addEventListener('input',e=>{if(e.target.id!=='bg-q')return;BQ=e.target.value;renderGrid()});
-$('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-add')){openBeanEditor();return}if(e.target.closest('#bg-scan,#bg-scan2')){showTab('scan');openCamera();return}
+$('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-add')){openBeanEditor();return}if(e.target.closest('#bg-scan,#bg-scan2')){showTab('scan');scrollTo(0,0);return} /* the Scan page offers taking or choosing a photo */
   const v=e.target.closest('[data-view]');if(v){BVIEW=v.dataset.view;renderBeanViews();if(v.classList.contains('tshelf'))$('bg-views').scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'});return}
   const dyb=e.target.closest('[data-dyb]');if(dyb){if(dyb.dataset.dyb==='more')openDiaryPick();else setDyBean(dyb.dataset.dyb);return}
   if(e.target.closest('#dy-more')){DLIM+=60;renderDiaryList();return}

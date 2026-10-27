@@ -1417,7 +1417,12 @@ function renderCalc(){
   $('c-dose').value=CALC.dose;$('c-ratio').value=CALC.ratio;$('cv-dose').textContent=CALC.dose+'g';$('cv-ratio').textContent='1:'+CALC.ratio;
   const w=Math.round(CALC.dose*CALC.ratio);
   seg('c-pre',[['1','1 cup'],['2','2 cups'],['esp','Espresso'],['cold','Cold brew']],()=>CALC.pre,v=>{CALC.pre=v;Object.assign(CALC,{'1':{dose:15,ratio:16.5},'2':{dose:30,ratio:16.5},'esp':{dose:18,ratio:2},'cold':{dose:50,ratio:8}}[v]);renderCalc()});
-  $('c-out').innerHTML='<div><b>Water</b><span>'+w+'g</span><small>about '+w+' ml</small></div><div><b>In the cup</b><span>'+Math.round(CALC.ratio>4?w-CALC.dose*2:w-CALC.dose*0.1)+'g</span><small>after the grounds hold some back</small></div><div><b>Bloom water</b><span>'+Math.round(CALC.dose*2.5)+'g</span><small>about 2.5 times the dose</small></div><div><b>4:6 pours</b><span>'+Math.round(w/5)+'g</span><small>five equal pours</small></div>';
+  // Espresso ratios are written as the shot's weight in the cup, not the water that went through, so there is nothing to
+  // take off for the grounds. Elsewhere the grounds hold back about twice their weight. Blooms and 4:6 pours are for filter.
+  const cell=(k,v,n)=>'<div><b>'+k+'</b><span>'+v+'</span><small>'+n+'</small></div>';
+  $('c-out').innerHTML=CALC.ratio<=4?cell('Shot weight',w+'g','in the cup, from '+CALC.dose+'g of coffee')+cell('Shot time','25 to 30s','from the moment the pump starts')
+    :cell('Water',w+'g','about '+w+' ml')+cell('In the cup',Math.round(w-CALC.dose*2)+'g','after the grounds hold some back')+
+     (CALC.ratio<10?cell('Steep','12 to 18 hours','in the fridge, then filter. Dilute to taste'):cell('Bloom water',Math.round(CALC.dose*2.5)+'g','about 2.5 times the dose')+cell('4:6 pours',Math.round(w/5)+'g','five equal pours'));
   save('bb-calc',CALC);
 }
 $('c-dose').oninput=e=>{CALC.dose=+e.target.value;CALC.pre=null;soon(renderCalc)};
@@ -1428,7 +1433,7 @@ function renderTS(sel){
   if(!sel){$('ts-out').innerHTML='';return}
   const t=TS.find(x=>x[0]===sel),g=S.grinder,G=GRINDERS[g],B=BREWERS[S.brewer];const dir=t[2]>0?1:-1;
   const newT=clamp(S.temp-dir*2,B.temp.min,B.temp.max);
-  const extra={muddy:'Or move to the ZP6 Special or a paper-filter brewer for clarity.',stall:'Also pour more gently and swirl less.',harsh:'Also shorten the bloom and pour more gently.',hollow:'Or tighten the ratio by 1.',dry:'Also reduce agitation.'}[sel]||'';
+  const extra={muddy:S.grinder==='zp6'?'Or use a paper-filter brewer for more clarity.':'Or move to a clarity grinder like the ZP6 Special, or a paper-filter brewer.',stall:'Also pour more gently and swirl less.',harsh:'Also shorten the bloom and pour more gently.',hollow:'Or tighten the ratio by 1.',dry:'Also reduce agitation.'}[sel]||'';
   // Fixes start from your dial-in, but only if it sits in the brewer's normal window (about 1.5 recipe steps
   // either side of its baseline, e.g. ZP6 4.5 to 6.7 or K-Ultra 6.4 to 9.2 on a V60). Far outside it, reset first.
   const bx=baseX(g,S.brewer),off=bx==null?0:stepsBetween(g,bx,S.setting),at=(x,st)=>roundG(g,shift(g,bx,st*160)),lo=at(0,-1.5),hi=at(0,1.5),home=roundG(g,bx),unit=c=>(G.fmt==='rot'||G.unit==='clicks'?'click':'step')+(c===1?'':'s');
@@ -1680,7 +1685,13 @@ const readScore=(info,conf)=>(info.origin_key?30:0)+(info.variety_key?25:0)+(inf
 // turned, quickly at a smaller size, and read the best way round properly.
 // Each line the reader found, with its size and place as a share of the photo's width, so readings at different
 // sizes can be merged and the biggest type (usually the coffee's name) picked out.
-const ocrLines=(r,c)=>(r.data.lines||[]).map(l=>({t:(l.text||'').trim(),x:l.bbox.x0/c.width,y:l.bbox.y0/c.width,h:(l.bbox.y1-l.bbox.y0)/c.width,conf:l.confidence||0})).filter(l=>l.t);
+// On a tilted photo a long line's box is taller than its type, so the height is taken back by the slope of its
+// baseline: the name's lines then still match in size, whatever their length.
+const ocrLines=(r,c)=>(r.data.lines||[]).map(l=>{const b=l.bbox,bl=l.baseline,w=b.x1-b.x0,box=b.y1-b.y0,
+  ok=bl&&bl.x1-bl.x0>w*.5,sl=ok?Math.max(-.3,Math.min(.3,(bl.y1-bl.y0)/(bl.x1-bl.x0))):0,h=Math.max(box*.45,box-Math.abs(sl)*w),
+  // Its place is where it starts, at the left: lines of one column then line up even when one runs on much longer.
+  y=ok?Math.max(b.y0,Math.min(b.y1-h,bl.y0+(b.x0-bl.x0)*sl-h)):b.y0;
+  return{t:(l.text||'').trim(),x:b.x0/c.width,y:y/c.width,h:h/c.width,w:w/c.width,conf:l.confidence||0}}).filter(l=>l.t);
 // Big headline type is often missed at full size (each letter is too large for the reader), so the photo is also read
 // small. Lines only the small reading saw are added in their place.
 function mergeLines(a,b){const have=fold(a.map(l=>l.t).join(' ')).replace(/[^a-z0-9]/g,'');const out=a.slice();
@@ -1805,7 +1816,9 @@ const cleanLine=x=>String(x||'').replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}).]+$/gu,'
 const niceName=x=>{x=cleanLine(x);return /\p{Ll}/u.test(x)?x:x.toLowerCase().replace(/(^|[\s\-'’.&(])(\p{L})/gu,(m,a,c)=>a+c.toUpperCase())};
 const scRoaster=x=>x.sc&&typeof x.sc.roaster==='string'?x.sc.roaster:(x.info&&x.info.roaster)||'';
 function plausibleName(x){x=cleanLine(x);if(x.length<3||x.length>60)return false;const chars=x.replace(/\s/g,''),letters=(chars.match(/\p{L}/gu)||[]).length,words=x.split(' ');
-  return letters/chars.length>=0.75&&words.some(w=>(w.match(/\p{L}/gu)||[]).length>=3)&&words.filter(w=>w.replace(/\W/g,'').length<=2).length<=Math.floor(words.length/2)}
+    // Short words count against it, except the little words names are made of ("La Palma y El Tucán", "Finca de la Sierra").
+  return letters/chars.length>=0.75&&words.some(w=>(w.match(/\p{L}/gu)||[]).length>=3)&&words.filter(w=>w.replace(/\W/g,'').length<=2&&!NAME_SMALL.test(w)).length<=Math.floor(words.length/2)}
+const NAME_SMALL=/^(la|el|lo|le|y|e|de|da|do|di|du|del|of|no|nº|aa|ab|pb|st|sr|dr)$/i;
 // Headings bags use for each detail, in English, Spanish and Portuguese ("Process: Washed", "PROCESO Lavado").
 const KEYS={origin:'origin|origen|origem|country|pais|region|region de origen',variety:'varietals?|variet(?:y|ies)|variedad(?:es)?|variedades?|cultivars?',process:'process(?:ing)?|proceso|processo|beneficio|metodo',
   notes:'tasting notes|notes? de cata|notas? de cata|cup notes|cup profile|flavou?r notes|flavou?r profile|flavou?rs?|notes?|notas?|cup|profile|perfil|sabores|tastes? like|taste|in the cup|descriptors',altitude:'altitude|elevation|altura|altitud'};
@@ -1848,25 +1861,45 @@ function parseLabel(raw,geo){const L=lexicon(),t=(' '+fold(raw).replace(/[|_~*]+
   const bare=x=>{const r=fold(x).replace(/\b(specialty|speciality|single origin|coffee|cafe|beans?)\b/g,' ').replace(/\s+/g,' ').trim();return !r||L.countries.some(([c])=>c===r)};
   // Two columns often come back as one line ("Huye Mountain Roasted by"), so the roaster's part is cut off first.
   const cut=x=>cleanLine(x.replace(/\s+(?:roasted|tostado|torrado)\s+(?:by|por)\b.*$/i,''));
-  const isTitle=x=>!same(x)&&!bare(x)&&!BADGE.test(cleanLine(x))&&x.length<=40&&plausibleName(x)&&!/[:@]|www\.|\.com|\d{3,}|roast|notes?|process|variety|altitude|origin|net|weight|\bg\b|arabica|specialty|grade/i.test(x)&&!(ro&&(fold(x).includes(fold(ro.name))||fold(ro.name).replace(/[^a-z0-9]/g,'').includes(fold(x).replace(/[^a-z0-9]/g,''))));
+  const NOT_NAME=/[:@]|www\.|\.com|\d{3,}|\broast(ed|ing|ers?|ery)?\b|\bnotes?\b|\bprocess(ed|ing)?\b|\bvariet(y|al|als|ies)\b|\baltitude\b|\borigin\b|\bnet\b|\bweight\b|\bg\b|\barabica\b|\bspecialty\b|\bgrade\b/i;
+  const ofRoaster=x=>ro&&(fold(x).includes(fold(ro.name))||fold(ro.name).replace(/[^a-z0-9]/g,'').includes(fold(x).replace(/[^a-z0-9]/g,'')));
+  const isTitle=x=>!same(x)&&!bare(x)&&!BADGE.test(cleanLine(x))&&x.length<=60&&plausibleName(x)&&!NOT_NAME.test(x)&&!ofRoaster(x);
+  // The second or third line of a name can be short on its own ("Lot 12", "AA", "No. 4").
+  const isMore=x=>isTitle(x)||(/^(?:lot|no\.?|n[º°o]|#|batch)\s*\d{1,4}[a-z]?$|^(?:aa|ab|pb|aa\+?|[ivx]{1,4})$/i.test(cleanLine(x))&&!ofRoaster(x));
   // With line sizes known, a line the reader was unsure of (a logo or photo read as letters) is never the name.
   const sure=x=>!geo||geo.some(g=>g.conf>=65&&fold(cut(g.t))===fold(x));
   let title=lines.map(cut).find(x=>isTitle(x)&&sure(x));
   // With line sizes, the name is the biggest type on the bag, not the first line: bags open with taglines and logos.
   // A name set over two lines ("Huye / Mountain") is joined back up.
-  if(geo&&geo.length>2){const key=x=>fold(cleanLine(x)).replace(/[^a-z0-9]/g,''),hs=geo.map(g=>g.h).sort((a,b)=>a-b),med=hs[hs.length>>1];
+  if(geo&&geo.length>2){const key=x=>fold(cleanLine(x)).replace(/[^a-z0-9]/g,''),hs=[...new Map(geo.map(g=>[key(g.t),g.h])).values()].sort((a,b)=>a-b),med=hs[hs.length>>1];
     const cand=geo.map((g,k)=>({g,k,x:cut(g.t)})).filter(c=>isTitle(c.x)&&c.g.conf>=65);
     let big=cand.sort((a,b)=>b.g.h-a.g.h)[0];
     // The scattered reading can split a headline ("Finca" | "La Joya"): use the whole line read at the same place.
-    if(big){const whole=cand.filter(c=>Math.abs(c.g.y-big.g.y)<big.g.h*.6&&Math.abs(c.g.h-big.g.h)<big.g.h*.35&&c.g.conf>=big.g.conf-10&&key(c.x).includes(key(big.x))).sort((a,b)=>b.x.length-a.x.length)[0];if(whole)big=whole}
-    if(big&&big.g.h>=med*1.1){let name=big.x;const nx=geo.find((g,k)=>k!==big.k&&g.y-big.g.y>big.g.h*.6&&Math.abs(g.x-big.g.x)<big.g.h*2&&Math.abs(g.h-big.g.h)<big.g.h*.3&&g.y-big.g.y<big.g.h*1.9&&isTitle(cut(g.t)));
-      if(nx&&key(nx.t)!==key(name)&&(name+' '+cut(nx.t)).length<=40)name+=' '+cut(nx.t);
-      title=name}
+    // A shaky partial reading ("La Palmay E") gives way to the whole line read at the same place ("La Palma y El Tucan").
+    if(big){const bk=key(big.x),whole=cand.filter(c=>Math.abs(c.g.y-big.g.y)<big.g.h*1.2&&c.g.x<big.g.x+big.g.h&&big.g.x-c.g.x<big.g.h*(key(c.x).includes(bk)?40:1)&&c.g.conf>=Math.min(big.g.conf,80)-10&&(key(c.x).includes(bk)||bk.length>=6&&key(c.x).startsWith(bk.slice(0,-2)))).sort((a,b)=>b.x.length-a.x.length)[0];if(whole)big=whole}
+    // Two columns read as one line ("El Mirador Melbourne", the city from the roastery's column beside it) lose the
+    // other column's words: they were also read on their own, in line with the rest of that column.
+    const own=c=>{const bk=key(c.x);for(const o of geo){const ok=key(o.t);if(o.x>c.g.x+c.g.h*3&&Math.abs(o.y-c.g.y)<c.g.h*2&&ok.length>=3&&ok.length<bk.length&&bk.endsWith(ok)&&geo.some(p=>p!==o&&key(p.t)!==ok&&Math.abs(p.x-o.x)<o.h*2&&Math.abs(p.y-o.y)<o.h*4)){
+      const w=c.x.split(' ');let tail='';while(w.length>1&&key(tail).length<ok.length)tail=w.pop()+' '+tail;if(key(tail)===ok)return{...c,x:cleanLine(w.join(' '))}}}return c};
+    if(big)big=own(big);
+    // Two columns read as one line ("Hambela COFFEE", the roastery's logo beside the name) lose the roastery's word.
+    if(big&&ro){const rw=new Set(fold(ro.name).split(/[^a-z0-9]+/));const w=big.x.split(' ');while(w.length>1&&rw.has(fold(w[w.length-1]).replace(/[^a-z0-9]/g,''))&&w[w.length-1]===w[w.length-1].toUpperCase()&&w[0]!==w[0].toUpperCase())w.pop();big.x=w.join(' ')}
+    // A long name is set over two or three lines of the same type ("Doña Hermilda Pacamara / Natural Anaeróbico",
+    // "KIAMABARA / PEABERRY / LOT 12"), so lines just above and below in the same size and column are joined up.
+    if(big&&big.g.h>=med*1.1){let gap=0;const near=(a,b)=>Math.abs(b.x-a.x)<a.h*2&&Math.abs(b.h-a.h)<a.h*.3&&b.h>=med*1.1&&b.conf>=55,block=[big];
+      // The next line is the nearest row of text above or below. That row is often read twice, once cleanly and once
+      // with specks ("Pink Bourbon sos si"): if any reading of it is the same size, the surest reading is used.
+      const step=(from,dir)=>{const all=geo.map((g,k)=>({g,k,x:cut(g.t)})).filter(c=>{const d=(c.g.y-from.g.y)*dir;return d>from.g.h*.6&&d<from.g.h*2.3&&(!gap||Math.abs(d-gap)<gap*.4)&&Math.abs(c.g.x-from.g.x)<from.g.h*2&&c.g.conf>=55})
+          .sort((a,b)=>Math.abs(a.g.y-from.g.y)-Math.abs(b.g.y-from.g.y));if(!all.length)return null;const row=all.filter(c=>Math.abs(c.g.y-all[0].g.y)<from.g.h*.4);
+        return row.some(c=>near(from.g,c.g))?row.filter(c=>c.g.conf>=55&&!/,/.test(c.x)&&isMore(c.x)).sort((a,b)=>b.g.conf-a.g.conf)[0]||null:null};
+      for(const dir of [1,-1]){let at=big;while(block.length<3){let n=step(at,dir);if(n)n=own(n);if(!n||block.some(b=>key(b.x)===key(n.x)||key(b.x).includes(key(n.x))||key(n.x).includes(key(b.x)))||block.map(b=>b.x).join(' ').length+n.x.length>59)break;gap=gap||Math.abs(n.g.y-at.g.y);block[dir>0?'push':'unshift'](n);at=n}}
+      title=block.map(b=>b.x).join(' ')}
     // No roastery found from any clue: the small line at the very top of the bag is usually its logo.
     if(!ro){const top=geo.find(g=>g.conf>=60);const x=top&&cleanLine(top.t);if(x&&x.length<=30&&!/\d/.test(x)&&plausibleName(x)&&!bare(x)&&!(title&&key(x)===key(title))&&key(x)!==key(big?big.x:'')&&!findBest(' '+fold(x)+' ',L.countries)&&!findBest(' '+fold(x)+' ',L.procs)&&!/\b(specialty|single origin|whole bean|filter|espresso|limited|no\.?|lot)\b/i.test(x)&&top.h<(big?big.g.h:1))info.roaster=niceName(x)}}
   // No name on the label (a shop page, a back label): the farm stands in for it.
   if(!title&&info.producer_or_farm)title=info.producer_or_farm.replace(/\s+(farm|estate)$/i,'');
-  if(title)info.coffee_name=title;
+  // "El" before a capitalised word is often read as "gl" or "Bl" ("gl Paraiso").
+  if(title)info.coffee_name=title.replace(/(^| )(?:gl|Bl|E1|EI)(?= \p{Lu})/gu,'$1El');
   info.confidence=hits>=4?'high':hits>=2?'medium':'low';info.summary=hits?'Read on this phone. Check the details below and adjust anything that looks off.':'';
   return info}
 // Finding the roastery. Bags put it anywhere (top, bottom, on the back, only in the web address), so every line is
@@ -1904,7 +1937,12 @@ function findRoaster(lines,t,geo){const clean=lines.map(cleanLine),L=lexicon(),c
   //    word ("COFFEE ROASTERS" under a logo) takes the name from the line above.
   const kw=new RegExp('\\b('+RO_WORD+')\\b','i'),only=new RegExp('^(?:(?:specialty|speciality|craft|small batch|independent|artisan|coffee|&|and|the)\\s+)*(?:'+RO_WORD+')(?:\\s+(?:&|and)\\s+(?:caf[eé]|coffee|bar|bakery))?(?:\\s+(?:since|est\\.?|established)\\s*\\d{4})?$','i');
   clean.forEach((x,i)=>{const f=fold(x);if(!kw.test(f)||/roast(ed)?\s*(on|date|level|profile)|\b(light|medium|dark|omni|filter|espresso)\s*roast/.test(f))return;
-    if(only.test(f)){const p=clean[i-1];if(p&&p.length<=30&&plausibleName(p)&&!coffeeWord(p)&&!kw.test(fold(p)))add(p+' '+x,80,lines[i-1]);else if(clean[i+1]&&clean[i+1].length<=30&&!coffeeWord(clean[i+1])&&!kw.test(fold(clean[i+1]))&&/^\p{Lu}/u.test(clean[i+1]))add(clean[i+1]+' '+x,70,lines[i+1]);return}
+    if(only.test(f)){
+      // The logo above it may have been read on its own, out of order: with positions, the line just above is used.
+      const k=f.replace(/[^a-z]/g,''),g=geo&&geo.find(o=>fold(o.t).replace(/[^a-z]/g,'')===k),
+        up=g&&geo.filter(o=>o.y<g.y&&g.y-o.y<Math.max(o.h,g.h)*1.8&&Math.abs(o.x-g.x)<Math.max(o.h,g.h)*3&&o.conf>=60).sort((a,b)=>b.y-a.y)[0],u=up&&cleanLine(up.t);
+      if(u&&u.length<=30&&plausibleName(u)&&!coffeeWord(u)&&!kw.test(fold(u))){add(u+' '+x,82,up.t);return}
+      const p=clean[i-1];if(p&&p.length<=30&&plausibleName(p)&&!coffeeWord(p)&&!kw.test(fold(p)))add(p+' '+x,80,lines[i-1]);else if(clean[i+1]&&clean[i+1].length<=30&&!coffeeWord(clean[i+1])&&!kw.test(fold(clean[i+1]))&&/^\p{Lu}/u.test(clean[i+1]))add(clean[i+1]+' '+x,70,lines[i+1]);return}
     // A sentence that mentions roasting ("…within 6 weeks of roasting.") is copy, not a name.
     if(x.split(' ').length<=6&&!/[.!?]\s+\p{L}/u.test(x)&&!coffeeWord(x.replace(kw,' ')))add(x.replace(/\s*(?:[-–|•·]|\best\b\.?|\bsince\b).*$/i,''),78,lines[i])});
   // 4. The web address, email or handle: "www.onyxcoffeelab.com", "hello@kurasu.kyoto", "@seycoffee". If a line spells
@@ -2436,7 +2474,7 @@ function applyUI(){const d=document.documentElement;d.setAttribute('data-accent'
 function saveUI(){save('bb-ui',UI);applyUI()}
 /* Your data: everything the app saves on this device, in one file you can keep or move to another phone. */
 // Sign-in tokens never go into a backup file.
-const DATA_SKIP=['bb-reset','bb-pending','bb-account','bb-fbcfg'];
+const DATA_SKIP=['bb-reset','bb-pending','bb-account','bb-fbcfg','bb-syncshadow','bb-syncat','bb-syncdb'];
 function dataKeys(){const k=[];try{for(let i=0;i<localStorage.length;i++){const n=localStorage.key(i);if(n&&n.startsWith('bb-')&&!DATA_SKIP.includes(n))k.push(n)}}catch(e){}return k.sort()}
 function dataSummary(){const n=k=>{let v=null;try{v=JSON.parse(localStorage.getItem(k)||'null')}catch(e){}return Array.isArray(v)?v.length:v&&typeof v==='object'?Object.keys(v).length:0};
   return [[n('bb-myrecipes'),'recipe'],[n('bb-log'),'brew'],[n('bb-beans'),'gallery coffee'],[n('bb-scans'),'scan'],[n('bb-favs'),'favourite']].filter(x=>x[0]).map(([c,w])=>c+' '+w+(c===1?'':'s')).join(', ')||'Nothing saved yet besides your settings'}
@@ -2459,7 +2497,7 @@ function importData(file){if(!file)return;if(file.size>80e6){toast('That file is
 function renderSettings(){const t=document.documentElement.getAttribute('data-theme')||'auto';
   const row=(icon,bg,title,sub,body)=>'<div class="setrow"><div class="sl">'+ico(icon,bg)+'<span class="mt"><b>'+title+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</span></div>'+(body||'')+'</div>';
   const qt=(k,n,d)=>'<button type="button" class="qtool" data-go="'+k+'">'+ico(hubItem(k)[4],hubItem(k)[3])+'<span><b>'+n+'</b><small>'+d+'</small></span></button>';
-  $('settings-in').innerHTML=(window.PROFILE_OK?profileCardHTML():'')+'<div class="quicktools">'+qt('gear','Gear and dials',MYG.length+' grinder'+(MYG.length>1?'s':'')+(MYB.length?', '+MYB.length+' brewer'+(MYB.length>1?'s':''):''))+qt('log','Brew log',LOG.length?LOG.length+' brew'+(LOG.length>1?'s':''):'Rate and keep your brews')+qt('guide','Guide','Ratios and fixes')+'</div>'+
+  $('settings-in').innerHTML='<div class="quicktools">'+qt('gear','Gear and dials',MYG.length+' grinder'+(MYG.length>1?'s':'')+(MYB.length?', '+MYB.length+' brewer'+(MYB.length>1?'s':''):''))+qt('log','Brew log',LOG.length?LOG.length+' brew'+(LOG.length>1?'s':''):'Rate and keep your brews')+qt('guide','Guide','Ratios and fixes')+'</div>'+
     '<h3 class="rh">Appearance</h3><div class="setgroup">'+
     row(curTheme()==='dark'?'moon':'sun','#5B5F66','Light or dark','Bright cream, cosy espresso, or follow your phone','<div class="seg" id="st-mode"></div>')+
     row('drop','var(--cherry)','Colour','Coffee-inspired themes for buttons, highlights and charts','<div class="swatches">'+ACCENTS.map(([k,n,c])=>'<button type="button" class="swatch" data-accent="'+k+'" aria-pressed="'+(UI.accent===k)+'"><i style="background:'+c+'"></i>'+n+'</button>').join('')+'</div>')+
@@ -2475,7 +2513,7 @@ function renderSettings(){const t=document.documentElement.getAttribute('data-th
    '<h3 class="rh">Your data</h3><div class="setgroup">'+row('download','#8A5A3B','Back up and restore','Everything you’ve saved stays on this device: '+esc(dataSummary())+'. Save it as a file to keep it safe or move it to another phone.',
      '<div class="setbtns"><button type="button" class="btn" id="st-export">Export my data</button><button type="button" class="btn ghost" id="st-import">Import a backup</button><input type="file" id="st-file" accept="application/json,.json" hidden></div>')+'</div>'+
    (installed()?'':'<h3 class="rh">Install</h3><div class="setgroup">'+row('download','#9A7390','Add to your home screen','Use it like an app, offline too','<p class="setnote" style="margin:0"><b>iPhone (Safari):</b> tap the Share button, then <b>Add to Home Screen</b>.<br><b>Android (Chrome):</b> tap the ⋮ menu, then <b>Add to Home screen</b>.</p>')+'</div>')+
-   '<h3 class="rh">About</h3><div class="setgroup">'+row('book','#8A5A3B','The Brew Bench','A coffee field guide and dial-in tool. Your calibration, recipes, scans and brew log stay saved on this device.')+'</div>';
+   '<h3 class="rh">About</h3><div class="setgroup">'+row('book','#8A5A3B','The Brew Bench','A coffee field guide and dial-in tool. What you save stays on this device, or syncs with your account if you sign in.','<p class="setnote" style="margin:0"><a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a> · <a href="'+SITE_URL+'delete-account.html" target="_blank" rel="noopener">Delete your account</a></p>')+'</div>';
   seg('st-mode',[['light','Light'],['dark','Dark'],['auto','Auto']],()=>t,v=>{if(v==='auto'){document.documentElement.removeAttribute('data-theme');try{localStorage.removeItem('bb-theme')}catch(e){}}
     else{document.documentElement.setAttribute('data-theme',v);try{localStorage.setItem('bb-theme',v)}catch(e){}}syncThemeBtn();applyUI();renderSettings()});
   seg('st-text',[['s','Small'],['m','Standard'],['l','Large'],['xl','Larger']],()=>UI.text,v=>{UI.text=v;saveUI();renderSettings()});

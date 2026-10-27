@@ -20,7 +20,7 @@ artifact, app = '--artifact' in args, '--app' in args
 site = pathlib.Path(args[args.index('--site') + 1]).resolve() if '--site' in args else None
 
 # Files served next to index.html. Keep in sync with the SHELL list in sw.js.
-SITE_FILES = ['manifest.webmanifest', 'sw.js', 'icons', 'vendor', 'events.json']
+SITE_FILES = ['manifest.webmanifest', 'sw.js', 'icons', 'vendor', 'events.json', 'privacy.html', 'delete-account.html']
 GOOGLE_FONTS = '<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..800&family=Noto+Color+Emoji&display=swap" rel="stylesheet">'
 JSPDF_CDN = '<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>'
 
@@ -28,7 +28,7 @@ page = (src / 'template.html').read_text(encoding='utf-8')
 assert GOOGLE_FONTS in page and JSPDF_CDN in page, 'font or jsPDF tag in template.html changed; update build.py'
 data = (src / 'data' / 'origins-varieties-history.js').read_text(encoding='utf-8') + '\n' + (src / 'data' / 'brewing.js').read_text(encoding='utf-8') + '\n' + (src / 'data' / 'championships.js').read_text(encoding='utf-8') + '\n' + (src / 'data' / 'knowledge.js').read_text(encoding='utf-8') + '\nconst EVENTS_DEFAULT=' + (root / 'events.json').read_text(encoding='utf-8') + ';'
 out = page.replace('__MAP__', (src / 'data' / 'world-map.json').read_text(encoding='utf-8')) \
-          .replace('__DATA__', data).replace('__APP__', (src / 'wheel.js').read_text(encoding='utf-8') + '\n' + (src / 'app.js').read_text(encoding='utf-8') + '\n' + (src / 'beans.js').read_text(encoding='utf-8') + '\n' + (src / 'brewcard.js').read_text(encoding='utf-8') + '\n' + (src / 'select.js').read_text(encoding='utf-8') + '\n' + (src / 'profile.js').read_text(encoding='utf-8'))
+          .replace('__DATA__', data).replace('__APP__', (src / 'wheel.js').read_text(encoding='utf-8') + '\n' + (src / 'app.js').read_text(encoding='utf-8') + '\n' + (src / 'beans.js').read_text(encoding='utf-8') + '\n' + (src / 'brewcard.js').read_text(encoding='utf-8') + '\n' + (src / 'select.js').read_text(encoding='utf-8') + '\n' + (src / 'profile.js').read_text(encoding='utf-8') + '\n' + (src / 'sync.js').read_text(encoding='utf-8'))
 if not artifact:
     # The website and app use the bundled copies in vendor/ so they work offline.
     # Only the flag emoji font still comes from Google (Windows lacks flag emoji).

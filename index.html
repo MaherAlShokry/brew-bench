@@ -285,7 +285,7 @@ dialog#vd::backdrop{background:rgba(20,14,10,.55)}
 .logform{display:grid;gap:10px;grid-template-columns:1fr 1fr}
 .logform .full{grid-column:1/-1}
 .logentry{border-bottom:1px solid var(--line);padding:12px 0}
-.logentry .x{background:none;border:0;color:var(--muted);cursor:pointer;font-family:var(--display);font-size:.8rem;padding:4px}
+.logentry .x{background:none;border:0;color:var(--muted);cursor:pointer;font-family:var(--display);font-size:.8rem;padding:4px 6px;min-height:32px}
 
 /* alive */
 .card,.vbtn,.chip,.btn{transition:transform .18s ease,box-shadow .18s ease,background .18s ease,border-color .18s ease}
@@ -296,6 +296,9 @@ button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.a
 #ts-chips .chip[aria-pressed="true"]{background:var(--cherry);color:var(--surface)}
 #toast{position:fixed;left:50%;bottom:calc(var(--sa-bottom) + 22px);transform:translate(-50%,30px);opacity:0;background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:999px;font-family:var(--display);font-size:.92rem;z-index:50;pointer-events:none;transition:opacity .25s,transform .25s;max-width:90vw;text-align:center}
 #toast.show{opacity:1;transform:translate(-50%,0)}
+/* A long message wraps as a rounded card under a fixed width, never a circle. */
+#toast{width:max-content;max-width:min(92vw,440px);text-align:center;line-height:1.4}
+#toast:not(:empty){border-radius:22px}
 .bean-fx{position:fixed;z-index:60;pointer-events:none;will-change:transform,opacity}
 @keyframes fall{to{transform:translateY(110vh) rotate(var(--r));opacity:.9}}
 .drop{border:2px dashed var(--line);border-radius:16px;min-height:180px;display:grid;place-items:center;text-align:center;padding:14px;cursor:pointer;background:var(--paper);overflow:hidden}
@@ -476,7 +479,7 @@ mark.wq{background:color-mix(in srgb,var(--honey) 40%,transparent);color:inherit
 .cmpbar .t{position:relative;height:8px;background:var(--surface2);border-radius:4px;margin-right:26px}
 .cmpbar .t i{position:absolute;left:calc(100% + 5px);top:50%;transform:translateY(-50%);font-style:normal;font-size:.72rem;color:var(--muted);font-variant-numeric:tabular-nums}
 .cmpbar .t b{display:block;height:100%;border-radius:4px}
-.addcmp{position:absolute;right:12px;top:12px;background:var(--surface2);border:0;border-radius:999px;padding:3px 10px;font-family:var(--display);font-size:.78rem;cursor:pointer;color:var(--ink)}
+.addcmp{position:absolute;right:12px;top:10px;background:var(--surface2);border:0;border-radius:999px;padding:3px 10px;min-height:28px;font-family:var(--display);font-size:.78rem;cursor:pointer;color:var(--ink)}
 .addcmp[aria-pressed="true"]{background:var(--cherry);color:var(--surface)}
 .vcard{position:relative}
 .timeline li{opacity:1}
@@ -622,7 +625,7 @@ input[type=range]{touch-action:pan-y}
 .gpick{display:grid;gap:6px;margin-top:8px}.gpick h4{margin:.8rem 0 .2rem;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .gpick button{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:11px 14px;border-radius:var(--r-sm,12px);border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;cursor:pointer}
 .gpick button b{display:block;font-weight:600}.gpick button small{color:var(--muted)}.gpick button span{flex:1;min-width:0}
-.gpick .tick{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:.8rem;color:#fff}
+.gpick .tick{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:.8rem;color:var(--surface)}
 .gpick button[aria-pressed="true"]{border-color:var(--cherry);background:color-mix(in srgb,var(--cherry) 9%,var(--surface))}
 .gpick button[aria-pressed="true"] .tick{background:var(--cherry);border-color:var(--cherry)}
 .gpick-search{width:100%;margin-top:4px}
@@ -667,7 +670,7 @@ input[type=range]{touch-action:pan-y}
 .code{font-family:var(--display);letter-spacing:.08em;font-variant-numeric:tabular-nums}
 .joinrow{display:flex;gap:8px}.joinrow input{flex:1;text-transform:uppercase;letter-spacing:.08em;font-family:var(--display)}.joinrow .btn{flex:0 0 auto}
 .lehead{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.lehead .x{margin-left:auto}
-.stars-sm{color:var(--honey);letter-spacing:1px;font-size:.9rem}.stars-sm span{color:var(--line)}
+.stars-sm{color:var(--honey-ink);letter-spacing:1px;font-size:.9rem}.stars-sm span{color:color-mix(in srgb,var(--muted) 82%,var(--surface))}
 /* Open dialogs and sheets lock the page behind them. */
 html.locked,html.locked body{overflow:hidden}
 dialog{overscroll-behavior:contain;overflow:auto}
@@ -928,7 +931,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 .fphase>.fph{color:color-mix(in srgb,var(--c) 55%,var(--ink))}
 .cdclock b{color:color-mix(in srgb,var(--c) 68%,var(--ink))}
 .gcard .mine-tag{color:var(--leaf-ink)}
-.stars button{color:color-mix(in srgb,var(--muted) 82%,var(--surface));min-width:40px;min-height:40px;padding:0}
+.stars button{color:var(--muted);min-width:40px;min-height:40px;padding:0}
 .linkbtn,button.hint,.legend button{position:relative}
 .linkbtn::after,button.hint::after{content:"";position:absolute;inset:-9px -4px}
 .addcmp::after{content:"";position:absolute;inset:-10px -6px}
@@ -961,9 +964,9 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 .rr-tag{font-size:.7rem;font-weight:700;letter-spacing:.02em;border-radius:99px;padding:1px 8px}.rr-tag.neo{background:color-mix(in srgb,var(--cherry) 14%,var(--surface));color:var(--cherry-ink)}.rr-tag.champ{background:color-mix(in srgb,var(--honey) 30%,var(--surface));color:var(--ink)}.rr-tag.ours{background:color-mix(in srgb,var(--leaf) 25%,var(--surface));color:var(--ink)}
 .rr-by{color:var(--muted);font-size:.8rem;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rr-m{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:3px;font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
-.lv{font-weight:700;border-radius:6px;padding:0 6px}.lv-e{color:#2F7A4F;background:color-mix(in srgb,#2F7A4F 12%,transparent)}.lv-i{color:#9A6512;background:color-mix(in srgb,#C8891E 14%,transparent)}.lv-a{color:#A53A2A;background:color-mix(in srgb,#A53A2A 12%,transparent)}
+.lv{font-weight:700;border-radius:6px;padding:0 6px}.lv-e{color:#256B42;background:color-mix(in srgb,#2F7A4F 12%,transparent)}.lv-i{color:#85550C;background:color-mix(in srgb,#C8891E 14%,transparent)}.lv-a{color:#A53A2A;background:color-mix(in srgb,#A53A2A 12%,transparent)}
 .rr-side{flex:none;display:flex;align-items:center;gap:2px;padding-right:10px}.rr-side .favbtn{position:static}
-.rr-play{width:40px;height:40px;border-radius:50%;border:0;display:grid;place-items:center;background:var(--cherry);color:#fff;cursor:pointer}.rr-play svg{width:18px;height:18px;fill:currentColor;margin-left:2px}
+.rr-play{width:40px;height:40px;border-radius:50%;border:0;display:grid;place-items:center;background:var(--cherry);color:var(--surface);cursor:pointer}.rr-play svg{width:18px;height:18px;fill:currentColor;margin-left:2px}
 .rr-play:active{transform:scale(.92)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .lv-e{color:#7FCB9C}:root:not([data-theme="light"]) .lv-i{color:#E7B060}:root:not([data-theme="light"]) .lv-a{color:#F08F7E}}
 :root[data-theme="dark"] .lv-e{color:#7FCB9C}:root[data-theme="dark"] .lv-i{color:#E7B060}:root[data-theme="dark"] .lv-a{color:#F08F7E}
@@ -1024,7 +1027,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 .drecipe{margin-top:18px}.drecipe h2{margin:.1rem 0 .1rem}.drecipe .dr-meta{display:flex;flex-wrap:wrap;gap:6px;margin:.5rem 0 .8rem}
 .drecipe .dr-meta span{font-size:.8rem;border-radius:99px;padding:3px 10px;background:var(--surface2)}.drecipe .dr-meta .gl{background:color-mix(in srgb,var(--cherry) 15%,var(--surface));color:var(--cherry);font-weight:700}
 .drecipe .why li{margin:.25rem 0}.dr-cols{display:grid;gap:4px 28px}@media (min-width:900px){.dr-cols{grid-template-columns:1.1fr 1fr}}
-.mr-play{flex:none;width:36px;height:36px;border-radius:50%;border:0;display:grid;place-items:center;background:var(--cherry);color:#fff;cursor:pointer;margin-left:8px}.mr-play svg{width:16px;height:16px;fill:currentColor;margin-left:2px}
+.mr-play{flex:none;width:36px;height:36px;border-radius:50%;border:0;display:grid;place-items:center;background:var(--cherry);color:var(--surface);cursor:pointer;margin-left:8px}.mr-play svg{width:16px;height:16px;fill:currentColor;margin-left:2px}
 
 /* Explore and More pages: tiles grouped under small headings. */
 .hubgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
@@ -1089,6 +1092,56 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 .pc-acct{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 12px;margin-top:14px;font-size:.84rem;color:var(--muted)}.pc-acct b{color:var(--ink);overflow-wrap:anywhere}
 .pc-who{flex:1 1 200px;min-width:0}.pc-acct .btn{min-height:40px;padding:0 16px}
 .pcard .setbtns{margin-top:14px}
+/* The profile sheet and sign-in: a dark-roast hero in your colour, like the Beans page */
+.me-hero{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding:34px 20px 24px;color:#FFF8EE;overflow:hidden;
+  background:radial-gradient(90% 80% at 50% 0%,color-mix(in srgb,var(--c,var(--honey)) 70%,transparent),transparent 70%),radial-gradient(80% 90% at 100% 100%,color-mix(in srgb,var(--cherry) 55%,transparent),transparent 70%),linear-gradient(160deg,#4A2E20,#1E120C)}
+.me-hero::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.12;background-image:radial-gradient(rgba(255,255,255,.7) .6px,transparent .8px);background-size:5px 5px;mix-blend-mode:overlay}
+.me-hero>*{position:relative;z-index:1}
+.me-x{position:absolute!important;z-index:2!important;background:rgba(255,248,238,.14)!important;color:#FFF8EE!important}
+.me-edit{position:absolute!important;z-index:2!important;left:12px;top:12px;display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;border:0;border-radius:999px;background:rgba(255,248,238,.14);color:#FFF8EE;font:inherit;font-size:.85rem;font-weight:600;cursor:pointer}
+.me-edit svg,.me-ic svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.me-hero .pav{box-shadow:0 0 0 4px rgba(255,248,238,.9),0 10px 30px -8px rgba(0,0,0,.6);margin-bottom:10px}
+.me-k{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:#F0C987}
+.me-hero h2{margin:2px 0 0;font-family:var(--display);font-size:1.75rem;line-height:1.15;color:#FFF8EE;overflow-wrap:anywhere}
+.me-name{font-size:.92rem;opacity:.8}.me-since{margin-top:8px;font-size:.76rem;opacity:.65}
+.me-hero p{margin:6px 0 0;max-width:34ch;font-size:.92rem;line-height:1.5;opacity:.85}
+.me-cup{width:110px;height:auto;margin:-4px 0 6px}.me-steam path{animation:steam 3.2s ease-in-out infinite;opacity:.8}.me-steam path:nth-child(2){animation-delay:.6s}.me-steam path:nth-child(3){animation-delay:1.2s}
+@keyframes steam{0%{transform:translateY(4px);opacity:0}30%{opacity:.85}100%{transform:translateY(-8px);opacity:0}}
+[data-motion="reduced"] .me-steam path{animation:none;opacity:.7}@media (prefers-reduced-motion:reduce){.me-steam path{animation:none;opacity:.7}}
+.me-acts{display:flex;flex-direction:column;gap:8px;width:100%;max-width:320px;margin-top:16px}.me-acts .btn{width:100%}
+.me-main{background:#F3E3C8!important;color:#2A1A10!important}.me-ghost{background:rgba(255,248,238,.14)!important;color:#FFF8EE!important;border:0!important}
+.me-body{padding:18px 20px 22px;display:flex;flex-direction:column;gap:14px}
+.me-brief{position:relative;margin:0;padding:4px 4px 0 30px;font-family:var(--display);font-size:1.05rem;line-height:1.45;color:var(--ink);overflow-wrap:anywhere}
+.me-brief::before{content:"“";position:absolute;left:0;top:-10px;font-size:2.8rem;line-height:1;color:var(--c,var(--honey));opacity:.8}
+.me-add{padding:12px 14px;border-radius:14px;border:1.5px dashed var(--line);background:none;color:var(--muted);font:inherit;font-size:.88rem;text-align:left;cursor:pointer}
+.me-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.me-stats span{display:flex;flex-direction:column;align-items:center;padding:10px 4px;border-radius:14px;background:var(--surface2);font-size:.72rem;color:var(--muted)}
+.me-stats b{font-family:var(--display);font-size:1.3rem;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.2}
+.me-dna{display:grid;gap:8px}.me-dna>div{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;border:1px solid var(--line)}
+.me-dna i{flex:none;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--surface2);font-style:normal;font-size:1.2rem}.me-flag{font-size:1.3rem}
+.me-dna span{display:flex;flex-direction:column;min-width:0}.me-dna small{font-size:.72rem;color:var(--muted)}.me-dna b{font-size:.95rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.me-acct{border-radius:16px;background:var(--surface2);overflow:hidden}
+.me-row{display:flex;align-items:center;gap:12px;padding:12px 14px}.me-row+.me-row{border-top:1px solid var(--line)}
+.me-rt{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start}.me-rt b{font-size:.92rem}.me-rt small{font-size:.8rem;color:var(--muted);overflow-wrap:anywhere}
+.me-dot{flex:none;width:10px;height:10px;margin:0 3px;border-radius:50%;background:#5E9A63;box-shadow:0 0 0 4px color-mix(in srgb,#5E9A63 22%,transparent)}
+.me-ic{flex:none;display:grid;place-items:center;width:16px;color:var(--muted)}.me-syncrow.off .me-ic{color:#A8432F}
+.me-row .linkbtn{flex:none;min-height:40px}
+.me-cta{margin-top:2px}
+.me-cta b{font-family:var(--display);font-size:1.05rem}.me-cta ul{margin:8px 0 12px;padding:0;list-style:none;display:grid;gap:4px;font-size:.88rem;color:var(--muted)}
+.me-cta li::before{content:"";display:inline-block;width:6px;height:6px;margin-right:9px;border-radius:50%;background:var(--honey);vertical-align:middle}.me-cta .btn{width:100%}
+.me-fine,.au-fine{margin:0;text-align:center;font-size:.78rem;color:var(--muted)}.au-fine a,.setnote a{color:var(--cherry);font-weight:600}
+.au-hero{padding-bottom:20px}.au-hero .me-cup{width:96px}
+.au-perks{margin:0 0 16px;padding:0;list-style:none;display:grid;gap:8px}.au-perks li{display:flex;align-items:center;gap:10px;font-size:.9rem}
+.au-perks i{flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--surface2);font-style:normal}
+.au-forgot{display:block;margin:-6px 0 12px auto}.au-switch{margin:14px 0 6px;text-align:center;font-size:.9rem;color:var(--muted)}.au-note{text-align:center}
+.auth{padding-top:18px!important}
+dialog#vd:has(.me-hero){overflow-x:hidden}
+/* The face in the top bar (phones) and the tab bar (larger screens); it opens your profile. */
+.me-btn{flex:none;display:grid;place-items:center;width:40px;height:40px;margin:-4px -6px -4px 0;padding:0;border:0;border-radius:50%;background:none;cursor:pointer}
+.me-btn .pav{box-shadow:0 0 0 2px var(--surface),0 0 0 3.5px color-mix(in srgb,var(--c,#8A5A3B) 40%,transparent)}.me-btn .pav.none{box-shadow:inset 0 0 0 1.5px var(--line)}
+.me-btn:active .pav{transform:scale(.94)}.me-tab{width:38px;height:38px;margin:0 0 0 6px;align-self:center}
+.me-body .pcard{margin:4px 0 0;box-shadow:none}
+.pc-sync{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px 12px;margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--surface2);font-size:.8rem;color:var(--muted)}.pc-sync span{flex:1 1 200px}.pc-sync .linkbtn{min-height:36px}
 .pf-face{display:flex;align-items:center;gap:18px;margin:6px 0 18px}.pf-photo{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
 .pf-emoji{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:6px}
 .pf-emoji button{height:44px;border-radius:12px;border:0;background:var(--surface2);font-size:1.3rem;cursor:pointer;color:var(--ink);font-family:var(--display);font-weight:700}
@@ -1142,7 +1195,7 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
 .bpic.sm .bfl,.bpic.av .bfl,.bpic.hero .bfl{display:none}
 /* Glass rating pill on photos. */
 .bglass{position:absolute;z-index:3;top:10px;right:10px;display:inline-flex;align-items:center;gap:4px;padding:4px 9px 4px 7px;border-radius:var(--r-pill);font-family:var(--display);font-weight:800;font-size:.82rem;color:#FFF8EE;
-  background:rgba(30,18,11,.38);backdrop-filter:blur(10px) saturate(1.4);-webkit-backdrop-filter:blur(10px) saturate(1.4);box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+  background:rgba(30,18,11,.64);backdrop-filter:blur(10px) saturate(1.4);-webkit-backdrop-filter:blur(10px) saturate(1.4);box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
 .bglass svg{width:14px;height:14px}.bglass .bo{fill:#E2B866}.bglass .bc{fill:none;stroke:rgba(60,35,20,.6);stroke-width:1.6}
 /* Hero actions */
 .bgh-acts{position:relative;z-index:1;flex:1 0 100%;display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
@@ -1157,7 +1210,7 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
 /* Five views: each tab keeps its full name and the row scrolls sideways when they don't all fit. */
 .seg.bviews.scrollrow button{flex:0 0 auto;min-width:auto;padding-left:14px;padding-right:14px;overflow:visible;text-overflow:clip}
 @media (max-width:759px){.seg.bviews{position:sticky;top:calc(var(--ab-b,64px) + 6px);z-index:5;box-shadow:0 8px 20px -14px rgba(40,24,14,.35)}}
-.seg.bviews button{flex:1 1 auto;min-width:0;white-space:nowrap;padding-left:8px;padding-right:8px}.seg.bviews i{font-style:normal;font-size:.72rem;font-weight:700;margin-left:4px;padding:0 6px;border-radius:var(--r-pill);background:color-mix(in srgb,currentColor 14%,transparent)}
+.seg.bviews button{flex:1 1 auto;min-width:0;white-space:nowrap;padding-left:8px;padding-right:8px}.seg.bviews i{font-style:normal;font-size:.72rem;font-weight:700;margin-left:4px;padding:0 6px;border-radius:var(--r-pill);background:color-mix(in srgb,currentColor 14%,transparent)}.seg.bviews button:not([aria-pressed="true"]) i{color:var(--ink)}
 .bview.bv-in{animation:bvin .28s var(--ease-out)}@keyframes bvin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 /* Scans */
 .scan-cta{display:flex;align-items:center;gap:12px;padding:14px;border-radius:var(--r-lg);border:1px solid var(--hair);background:var(--surface);box-shadow:var(--shadow)}
@@ -1195,7 +1248,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .t3hm-i .bpic{width:54px;height:54px;border-radius:50%;box-shadow:0 0 0 2px rgba(226,184,102,.7)}.t3hm-i small{font-size:.7rem;line-height:1.2;max-width:64px;text-align:center;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .t3hm-e{margin:8px 0 0;font-size:.84rem;color:rgba(255,248,238,.65)}
 /* Places 4 and 5 and mentions in the list of coffees */
-.cr-medal.r45{font-family:var(--display);font-weight:800;font-size:.72rem;color:#2C1B12}.cr-medal.hm{background:color-mix(in srgb,var(--honey) 22%,var(--surface));color:var(--honey-ink);font-size:.78rem}
+.cr-medal.r45{font-family:var(--display);font-weight:800;font-size:.72rem;color:#2C1B12}.cr-medal.hm{background:color-mix(in srgb,var(--honey) 18%,var(--surface));color:var(--honey-ink);font-size:.78rem}
 .t3slot{position:relative;min-width:0;border-radius:var(--r-md);border:1.5px solid var(--hair);background:var(--surface2);transition:border-color .2s,background .2s}
 .t3slot.act{border-color:var(--m);background:color-mix(in srgb,var(--m) 14%,var(--surface))}
 .t3s-main{display:flex;flex-direction:column;align-items:center;gap:5px;width:100%;padding:10px 6px 9px;border:0;background:none;font:inherit;color:var(--ink);cursor:pointer;text-align:center}
@@ -1347,7 +1400,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .dwrite{padding:12px;border-radius:var(--r-lg);background:var(--surface2);margin-bottom:12px}
 .dmoms{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -12px 10px;padding:0 12px}.dmoms::-webkit-scrollbar{display:none}
 .dmoms button{flex:none;display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--r-pill);border:0;font:inherit;font-size:.82rem;font-weight:600;cursor:pointer;background:var(--surface);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
-.dmoms button[aria-pressed="true"]{background:var(--cherry);color:#fff;box-shadow:none}
+.dmoms button[aria-pressed="true"]{background:var(--cherry);color:var(--surface);box-shadow:none}
 .dwrite textarea{width:100%;box-sizing:border-box;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r-md);padding:10px 12px}
 .bd-again .seg{flex:none}.bd-again .seg button{flex:none;min-width:64px}
 .dw-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}.dw-row input{flex:1 1 140px;min-width:0}.dw-row .btn{flex:1 1 auto}
@@ -1456,7 +1509,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 </head>
 <body>
-<header class="appbar" id="appbar"><button type="button" class="ab-back" id="ab-back" aria-label="Back" hidden><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="ab-brand"><span id="ab-logo"><svg viewBox="80 80 352 352" width="24" height="24" aria-hidden="true"><g transform="rotate(-38 256 256)"><clipPath id="abBean"><ellipse cx="256" cy="256" rx="120" ry="166"/></clipPath><g clip-path="url(#abBean)"><rect x="100" y="80" width="320" height="360" fill="var(--cherry)"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184H440V80z" fill="var(--honey)"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184" fill="none" stroke="var(--paper)" stroke-width="22"/></g></g></svg></span><span id="ab-title">Dial-in</span></div><button type="button" class="ab-btn" id="ab-share" aria-label="Share">Share</button></header>
+<header class="appbar" id="appbar"><button type="button" class="ab-back" id="ab-back" aria-label="Back" hidden><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="ab-brand"><span id="ab-logo"><svg viewBox="80 80 352 352" width="24" height="24" aria-hidden="true"><g transform="rotate(-38 256 256)"><clipPath id="abBean"><ellipse cx="256" cy="256" rx="120" ry="166"/></clipPath><g clip-path="url(#abBean)"><rect x="100" y="80" width="320" height="360" fill="var(--cherry)"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184H440V80z" fill="var(--honey)"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184" fill="none" stroke="var(--paper)" stroke-width="22"/></g></g></svg></span><span id="ab-title">Dial-in</span></div><button type="button" class="ab-btn" id="ab-share" aria-label="Share">Share</button><button type="button" class="me-btn" id="ab-me" aria-label="Your profile"></button></header>
 <div class="herowrap"><button type="button" class="themebtn" id="themebtn" aria-label="Switch theme">Dark</button>
 <header class="hero wrap">
   <div>
@@ -1503,6 +1556,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
   <button class="tab" role="tab" data-t="beans" aria-selected="false">Beans</button>
   <button class="tab" role="tab" data-t="explore" aria-selected="false">Explore</button>
   <button class="tab" role="tab" data-t="settings" aria-selected="false">Settings</button>
+  <button type="button" class="me-btn me-tab" id="tab-me" aria-label="Your profile"></button>
 </div></nav>
 
 <main class="wrap">
@@ -4925,7 +4979,12 @@ function renderCalc(){
   $('c-dose').value=CALC.dose;$('c-ratio').value=CALC.ratio;$('cv-dose').textContent=CALC.dose+'g';$('cv-ratio').textContent='1:'+CALC.ratio;
   const w=Math.round(CALC.dose*CALC.ratio);
   seg('c-pre',[['1','1 cup'],['2','2 cups'],['esp','Espresso'],['cold','Cold brew']],()=>CALC.pre,v=>{CALC.pre=v;Object.assign(CALC,{'1':{dose:15,ratio:16.5},'2':{dose:30,ratio:16.5},'esp':{dose:18,ratio:2},'cold':{dose:50,ratio:8}}[v]);renderCalc()});
-  $('c-out').innerHTML='<div><b>Water</b><span>'+w+'g</span><small>about '+w+' ml</small></div><div><b>In the cup</b><span>'+Math.round(CALC.ratio>4?w-CALC.dose*2:w-CALC.dose*0.1)+'g</span><small>after the grounds hold some back</small></div><div><b>Bloom water</b><span>'+Math.round(CALC.dose*2.5)+'g</span><small>about 2.5 times the dose</small></div><div><b>4:6 pours</b><span>'+Math.round(w/5)+'g</span><small>five equal pours</small></div>';
+  // Espresso ratios are written as the shot's weight in the cup, not the water that went through, so there is nothing to
+  // take off for the grounds. Elsewhere the grounds hold back about twice their weight. Blooms and 4:6 pours are for filter.
+  const cell=(k,v,n)=>'<div><b>'+k+'</b><span>'+v+'</span><small>'+n+'</small></div>';
+  $('c-out').innerHTML=CALC.ratio<=4?cell('Shot weight',w+'g','in the cup, from '+CALC.dose+'g of coffee')+cell('Shot time','25 to 30s','from the moment the pump starts')
+    :cell('Water',w+'g','about '+w+' ml')+cell('In the cup',Math.round(w-CALC.dose*2)+'g','after the grounds hold some back')+
+     (CALC.ratio<10?cell('Steep','12 to 18 hours','in the fridge, then filter. Dilute to taste'):cell('Bloom water',Math.round(CALC.dose*2.5)+'g','about 2.5 times the dose')+cell('4:6 pours',Math.round(w/5)+'g','five equal pours'));
   save('bb-calc',CALC);
 }
 $('c-dose').oninput=e=>{CALC.dose=+e.target.value;CALC.pre=null;soon(renderCalc)};
@@ -4936,7 +4995,7 @@ function renderTS(sel){
   if(!sel){$('ts-out').innerHTML='';return}
   const t=TS.find(x=>x[0]===sel),g=S.grinder,G=GRINDERS[g],B=BREWERS[S.brewer];const dir=t[2]>0?1:-1;
   const newT=clamp(S.temp-dir*2,B.temp.min,B.temp.max);
-  const extra={muddy:'Or move to the ZP6 Special or a paper-filter brewer for clarity.',stall:'Also pour more gently and swirl less.',harsh:'Also shorten the bloom and pour more gently.',hollow:'Or tighten the ratio by 1.',dry:'Also reduce agitation.'}[sel]||'';
+  const extra={muddy:S.grinder==='zp6'?'Or use a paper-filter brewer for more clarity.':'Or move to a clarity grinder like the ZP6 Special, or a paper-filter brewer.',stall:'Also pour more gently and swirl less.',harsh:'Also shorten the bloom and pour more gently.',hollow:'Or tighten the ratio by 1.',dry:'Also reduce agitation.'}[sel]||'';
   // Fixes start from your dial-in, but only if it sits in the brewer's normal window (about 1.5 recipe steps
   // either side of its baseline, e.g. ZP6 4.5 to 6.7 or K-Ultra 6.4 to 9.2 on a V60). Far outside it, reset first.
   const bx=baseX(g,S.brewer),off=bx==null?0:stepsBetween(g,bx,S.setting),at=(x,st)=>roundG(g,shift(g,bx,st*160)),lo=at(0,-1.5),hi=at(0,1.5),home=roundG(g,bx),unit=c=>(G.fmt==='rot'||G.unit==='clicks'?'click':'step')+(c===1?'':'s');
@@ -5188,7 +5247,13 @@ const readScore=(info,conf)=>(info.origin_key?30:0)+(info.variety_key?25:0)+(inf
 // turned, quickly at a smaller size, and read the best way round properly.
 // Each line the reader found, with its size and place as a share of the photo's width, so readings at different
 // sizes can be merged and the biggest type (usually the coffee's name) picked out.
-const ocrLines=(r,c)=>(r.data.lines||[]).map(l=>({t:(l.text||'').trim(),x:l.bbox.x0/c.width,y:l.bbox.y0/c.width,h:(l.bbox.y1-l.bbox.y0)/c.width,conf:l.confidence||0})).filter(l=>l.t);
+// On a tilted photo a long line's box is taller than its type, so the height is taken back by the slope of its
+// baseline: the name's lines then still match in size, whatever their length.
+const ocrLines=(r,c)=>(r.data.lines||[]).map(l=>{const b=l.bbox,bl=l.baseline,w=b.x1-b.x0,box=b.y1-b.y0,
+  ok=bl&&bl.x1-bl.x0>w*.5,sl=ok?Math.max(-.3,Math.min(.3,(bl.y1-bl.y0)/(bl.x1-bl.x0))):0,h=Math.max(box*.45,box-Math.abs(sl)*w),
+  // Its place is where it starts, at the left: lines of one column then line up even when one runs on much longer.
+  y=ok?Math.max(b.y0,Math.min(b.y1-h,bl.y0+(b.x0-bl.x0)*sl-h)):b.y0;
+  return{t:(l.text||'').trim(),x:b.x0/c.width,y:y/c.width,h:h/c.width,w:w/c.width,conf:l.confidence||0}}).filter(l=>l.t);
 // Big headline type is often missed at full size (each letter is too large for the reader), so the photo is also read
 // small. Lines only the small reading saw are added in their place.
 function mergeLines(a,b){const have=fold(a.map(l=>l.t).join(' ')).replace(/[^a-z0-9]/g,'');const out=a.slice();
@@ -5313,7 +5378,9 @@ const cleanLine=x=>String(x||'').replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}).]+$/gu,'
 const niceName=x=>{x=cleanLine(x);return /\p{Ll}/u.test(x)?x:x.toLowerCase().replace(/(^|[\s\-'’.&(])(\p{L})/gu,(m,a,c)=>a+c.toUpperCase())};
 const scRoaster=x=>x.sc&&typeof x.sc.roaster==='string'?x.sc.roaster:(x.info&&x.info.roaster)||'';
 function plausibleName(x){x=cleanLine(x);if(x.length<3||x.length>60)return false;const chars=x.replace(/\s/g,''),letters=(chars.match(/\p{L}/gu)||[]).length,words=x.split(' ');
-  return letters/chars.length>=0.75&&words.some(w=>(w.match(/\p{L}/gu)||[]).length>=3)&&words.filter(w=>w.replace(/\W/g,'').length<=2).length<=Math.floor(words.length/2)}
+    // Short words count against it, except the little words names are made of ("La Palma y El Tucán", "Finca de la Sierra").
+  return letters/chars.length>=0.75&&words.some(w=>(w.match(/\p{L}/gu)||[]).length>=3)&&words.filter(w=>w.replace(/\W/g,'').length<=2&&!NAME_SMALL.test(w)).length<=Math.floor(words.length/2)}
+const NAME_SMALL=/^(la|el|lo|le|y|e|de|da|do|di|du|del|of|no|nº|aa|ab|pb|st|sr|dr)$/i;
 // Headings bags use for each detail, in English, Spanish and Portuguese ("Process: Washed", "PROCESO Lavado").
 const KEYS={origin:'origin|origen|origem|country|pais|region|region de origen',variety:'varietals?|variet(?:y|ies)|variedad(?:es)?|variedades?|cultivars?',process:'process(?:ing)?|proceso|processo|beneficio|metodo',
   notes:'tasting notes|notes? de cata|notas? de cata|cup notes|cup profile|flavou?r notes|flavou?r profile|flavou?rs?|notes?|notas?|cup|profile|perfil|sabores|tastes? like|taste|in the cup|descriptors',altitude:'altitude|elevation|altura|altitud'};
@@ -5356,25 +5423,45 @@ function parseLabel(raw,geo){const L=lexicon(),t=(' '+fold(raw).replace(/[|_~*]+
   const bare=x=>{const r=fold(x).replace(/\b(specialty|speciality|single origin|coffee|cafe|beans?)\b/g,' ').replace(/\s+/g,' ').trim();return !r||L.countries.some(([c])=>c===r)};
   // Two columns often come back as one line ("Huye Mountain Roasted by"), so the roaster's part is cut off first.
   const cut=x=>cleanLine(x.replace(/\s+(?:roasted|tostado|torrado)\s+(?:by|por)\b.*$/i,''));
-  const isTitle=x=>!same(x)&&!bare(x)&&!BADGE.test(cleanLine(x))&&x.length<=40&&plausibleName(x)&&!/[:@]|www\.|\.com|\d{3,}|roast|notes?|process|variety|altitude|origin|net|weight|\bg\b|arabica|specialty|grade/i.test(x)&&!(ro&&(fold(x).includes(fold(ro.name))||fold(ro.name).replace(/[^a-z0-9]/g,'').includes(fold(x).replace(/[^a-z0-9]/g,''))));
+  const NOT_NAME=/[:@]|www\.|\.com|\d{3,}|\broast(ed|ing|ers?|ery)?\b|\bnotes?\b|\bprocess(ed|ing)?\b|\bvariet(y|al|als|ies)\b|\baltitude\b|\borigin\b|\bnet\b|\bweight\b|\bg\b|\barabica\b|\bspecialty\b|\bgrade\b/i;
+  const ofRoaster=x=>ro&&(fold(x).includes(fold(ro.name))||fold(ro.name).replace(/[^a-z0-9]/g,'').includes(fold(x).replace(/[^a-z0-9]/g,'')));
+  const isTitle=x=>!same(x)&&!bare(x)&&!BADGE.test(cleanLine(x))&&x.length<=60&&plausibleName(x)&&!NOT_NAME.test(x)&&!ofRoaster(x);
+  // The second or third line of a name can be short on its own ("Lot 12", "AA", "No. 4").
+  const isMore=x=>isTitle(x)||(/^(?:lot|no\.?|n[º°o]|#|batch)\s*\d{1,4}[a-z]?$|^(?:aa|ab|pb|aa\+?|[ivx]{1,4})$/i.test(cleanLine(x))&&!ofRoaster(x));
   // With line sizes known, a line the reader was unsure of (a logo or photo read as letters) is never the name.
   const sure=x=>!geo||geo.some(g=>g.conf>=65&&fold(cut(g.t))===fold(x));
   let title=lines.map(cut).find(x=>isTitle(x)&&sure(x));
   // With line sizes, the name is the biggest type on the bag, not the first line: bags open with taglines and logos.
   // A name set over two lines ("Huye / Mountain") is joined back up.
-  if(geo&&geo.length>2){const key=x=>fold(cleanLine(x)).replace(/[^a-z0-9]/g,''),hs=geo.map(g=>g.h).sort((a,b)=>a-b),med=hs[hs.length>>1];
+  if(geo&&geo.length>2){const key=x=>fold(cleanLine(x)).replace(/[^a-z0-9]/g,''),hs=[...new Map(geo.map(g=>[key(g.t),g.h])).values()].sort((a,b)=>a-b),med=hs[hs.length>>1];
     const cand=geo.map((g,k)=>({g,k,x:cut(g.t)})).filter(c=>isTitle(c.x)&&c.g.conf>=65);
     let big=cand.sort((a,b)=>b.g.h-a.g.h)[0];
     // The scattered reading can split a headline ("Finca" | "La Joya"): use the whole line read at the same place.
-    if(big){const whole=cand.filter(c=>Math.abs(c.g.y-big.g.y)<big.g.h*.6&&Math.abs(c.g.h-big.g.h)<big.g.h*.35&&c.g.conf>=big.g.conf-10&&key(c.x).includes(key(big.x))).sort((a,b)=>b.x.length-a.x.length)[0];if(whole)big=whole}
-    if(big&&big.g.h>=med*1.1){let name=big.x;const nx=geo.find((g,k)=>k!==big.k&&g.y-big.g.y>big.g.h*.6&&Math.abs(g.x-big.g.x)<big.g.h*2&&Math.abs(g.h-big.g.h)<big.g.h*.3&&g.y-big.g.y<big.g.h*1.9&&isTitle(cut(g.t)));
-      if(nx&&key(nx.t)!==key(name)&&(name+' '+cut(nx.t)).length<=40)name+=' '+cut(nx.t);
-      title=name}
+    // A shaky partial reading ("La Palmay E") gives way to the whole line read at the same place ("La Palma y El Tucan").
+    if(big){const bk=key(big.x),whole=cand.filter(c=>Math.abs(c.g.y-big.g.y)<big.g.h*1.2&&c.g.x<big.g.x+big.g.h&&big.g.x-c.g.x<big.g.h*(key(c.x).includes(bk)?40:1)&&c.g.conf>=Math.min(big.g.conf,80)-10&&(key(c.x).includes(bk)||bk.length>=6&&key(c.x).startsWith(bk.slice(0,-2)))).sort((a,b)=>b.x.length-a.x.length)[0];if(whole)big=whole}
+    // Two columns read as one line ("El Mirador Melbourne", the city from the roastery's column beside it) lose the
+    // other column's words: they were also read on their own, in line with the rest of that column.
+    const own=c=>{const bk=key(c.x);for(const o of geo){const ok=key(o.t);if(o.x>c.g.x+c.g.h*3&&Math.abs(o.y-c.g.y)<c.g.h*2&&ok.length>=3&&ok.length<bk.length&&bk.endsWith(ok)&&geo.some(p=>p!==o&&key(p.t)!==ok&&Math.abs(p.x-o.x)<o.h*2&&Math.abs(p.y-o.y)<o.h*4)){
+      const w=c.x.split(' ');let tail='';while(w.length>1&&key(tail).length<ok.length)tail=w.pop()+' '+tail;if(key(tail)===ok)return{...c,x:cleanLine(w.join(' '))}}}return c};
+    if(big)big=own(big);
+    // Two columns read as one line ("Hambela COFFEE", the roastery's logo beside the name) lose the roastery's word.
+    if(big&&ro){const rw=new Set(fold(ro.name).split(/[^a-z0-9]+/));const w=big.x.split(' ');while(w.length>1&&rw.has(fold(w[w.length-1]).replace(/[^a-z0-9]/g,''))&&w[w.length-1]===w[w.length-1].toUpperCase()&&w[0]!==w[0].toUpperCase())w.pop();big.x=w.join(' ')}
+    // A long name is set over two or three lines of the same type ("Doña Hermilda Pacamara / Natural Anaeróbico",
+    // "KIAMABARA / PEABERRY / LOT 12"), so lines just above and below in the same size and column are joined up.
+    if(big&&big.g.h>=med*1.1){let gap=0;const near=(a,b)=>Math.abs(b.x-a.x)<a.h*2&&Math.abs(b.h-a.h)<a.h*.3&&b.h>=med*1.1&&b.conf>=55,block=[big];
+      // The next line is the nearest row of text above or below. That row is often read twice, once cleanly and once
+      // with specks ("Pink Bourbon sos si"): if any reading of it is the same size, the surest reading is used.
+      const step=(from,dir)=>{const all=geo.map((g,k)=>({g,k,x:cut(g.t)})).filter(c=>{const d=(c.g.y-from.g.y)*dir;return d>from.g.h*.6&&d<from.g.h*2.3&&(!gap||Math.abs(d-gap)<gap*.4)&&Math.abs(c.g.x-from.g.x)<from.g.h*2&&c.g.conf>=55})
+          .sort((a,b)=>Math.abs(a.g.y-from.g.y)-Math.abs(b.g.y-from.g.y));if(!all.length)return null;const row=all.filter(c=>Math.abs(c.g.y-all[0].g.y)<from.g.h*.4);
+        return row.some(c=>near(from.g,c.g))?row.filter(c=>c.g.conf>=55&&!/,/.test(c.x)&&isMore(c.x)).sort((a,b)=>b.g.conf-a.g.conf)[0]||null:null};
+      for(const dir of [1,-1]){let at=big;while(block.length<3){let n=step(at,dir);if(n)n=own(n);if(!n||block.some(b=>key(b.x)===key(n.x)||key(b.x).includes(key(n.x))||key(n.x).includes(key(b.x)))||block.map(b=>b.x).join(' ').length+n.x.length>59)break;gap=gap||Math.abs(n.g.y-at.g.y);block[dir>0?'push':'unshift'](n);at=n}}
+      title=block.map(b=>b.x).join(' ')}
     // No roastery found from any clue: the small line at the very top of the bag is usually its logo.
     if(!ro){const top=geo.find(g=>g.conf>=60);const x=top&&cleanLine(top.t);if(x&&x.length<=30&&!/\d/.test(x)&&plausibleName(x)&&!bare(x)&&!(title&&key(x)===key(title))&&key(x)!==key(big?big.x:'')&&!findBest(' '+fold(x)+' ',L.countries)&&!findBest(' '+fold(x)+' ',L.procs)&&!/\b(specialty|single origin|whole bean|filter|espresso|limited|no\.?|lot)\b/i.test(x)&&top.h<(big?big.g.h:1))info.roaster=niceName(x)}}
   // No name on the label (a shop page, a back label): the farm stands in for it.
   if(!title&&info.producer_or_farm)title=info.producer_or_farm.replace(/\s+(farm|estate)$/i,'');
-  if(title)info.coffee_name=title;
+  // "El" before a capitalised word is often read as "gl" or "Bl" ("gl Paraiso").
+  if(title)info.coffee_name=title.replace(/(^| )(?:gl|Bl|E1|EI)(?= \p{Lu})/gu,'$1El');
   info.confidence=hits>=4?'high':hits>=2?'medium':'low';info.summary=hits?'Read on this phone. Check the details below and adjust anything that looks off.':'';
   return info}
 // Finding the roastery. Bags put it anywhere (top, bottom, on the back, only in the web address), so every line is
@@ -5412,7 +5499,12 @@ function findRoaster(lines,t,geo){const clean=lines.map(cleanLine),L=lexicon(),c
   //    word ("COFFEE ROASTERS" under a logo) takes the name from the line above.
   const kw=new RegExp('\\b('+RO_WORD+')\\b','i'),only=new RegExp('^(?:(?:specialty|speciality|craft|small batch|independent|artisan|coffee|&|and|the)\\s+)*(?:'+RO_WORD+')(?:\\s+(?:&|and)\\s+(?:caf[eé]|coffee|bar|bakery))?(?:\\s+(?:since|est\\.?|established)\\s*\\d{4})?$','i');
   clean.forEach((x,i)=>{const f=fold(x);if(!kw.test(f)||/roast(ed)?\s*(on|date|level|profile)|\b(light|medium|dark|omni|filter|espresso)\s*roast/.test(f))return;
-    if(only.test(f)){const p=clean[i-1];if(p&&p.length<=30&&plausibleName(p)&&!coffeeWord(p)&&!kw.test(fold(p)))add(p+' '+x,80,lines[i-1]);else if(clean[i+1]&&clean[i+1].length<=30&&!coffeeWord(clean[i+1])&&!kw.test(fold(clean[i+1]))&&/^\p{Lu}/u.test(clean[i+1]))add(clean[i+1]+' '+x,70,lines[i+1]);return}
+    if(only.test(f)){
+      // The logo above it may have been read on its own, out of order: with positions, the line just above is used.
+      const k=f.replace(/[^a-z]/g,''),g=geo&&geo.find(o=>fold(o.t).replace(/[^a-z]/g,'')===k),
+        up=g&&geo.filter(o=>o.y<g.y&&g.y-o.y<Math.max(o.h,g.h)*1.8&&Math.abs(o.x-g.x)<Math.max(o.h,g.h)*3&&o.conf>=60).sort((a,b)=>b.y-a.y)[0],u=up&&cleanLine(up.t);
+      if(u&&u.length<=30&&plausibleName(u)&&!coffeeWord(u)&&!kw.test(fold(u))){add(u+' '+x,82,up.t);return}
+      const p=clean[i-1];if(p&&p.length<=30&&plausibleName(p)&&!coffeeWord(p)&&!kw.test(fold(p)))add(p+' '+x,80,lines[i-1]);else if(clean[i+1]&&clean[i+1].length<=30&&!coffeeWord(clean[i+1])&&!kw.test(fold(clean[i+1]))&&/^\p{Lu}/u.test(clean[i+1]))add(clean[i+1]+' '+x,70,lines[i+1]);return}
     // A sentence that mentions roasting ("…within 6 weeks of roasting.") is copy, not a name.
     if(x.split(' ').length<=6&&!/[.!?]\s+\p{L}/u.test(x)&&!coffeeWord(x.replace(kw,' ')))add(x.replace(/\s*(?:[-–|•·]|\best\b\.?|\bsince\b).*$/i,''),78,lines[i])});
   // 4. The web address, email or handle: "www.onyxcoffeelab.com", "hello@kurasu.kyoto", "@seycoffee". If a line spells
@@ -5944,7 +6036,7 @@ function applyUI(){const d=document.documentElement;d.setAttribute('data-accent'
 function saveUI(){save('bb-ui',UI);applyUI()}
 /* Your data: everything the app saves on this device, in one file you can keep or move to another phone. */
 // Sign-in tokens never go into a backup file.
-const DATA_SKIP=['bb-reset','bb-pending','bb-account','bb-fbcfg'];
+const DATA_SKIP=['bb-reset','bb-pending','bb-account','bb-fbcfg','bb-syncshadow','bb-syncat','bb-syncdb'];
 function dataKeys(){const k=[];try{for(let i=0;i<localStorage.length;i++){const n=localStorage.key(i);if(n&&n.startsWith('bb-')&&!DATA_SKIP.includes(n))k.push(n)}}catch(e){}return k.sort()}
 function dataSummary(){const n=k=>{let v=null;try{v=JSON.parse(localStorage.getItem(k)||'null')}catch(e){}return Array.isArray(v)?v.length:v&&typeof v==='object'?Object.keys(v).length:0};
   return [[n('bb-myrecipes'),'recipe'],[n('bb-log'),'brew'],[n('bb-beans'),'gallery coffee'],[n('bb-scans'),'scan'],[n('bb-favs'),'favourite']].filter(x=>x[0]).map(([c,w])=>c+' '+w+(c===1?'':'s')).join(', ')||'Nothing saved yet besides your settings'}
@@ -5967,7 +6059,7 @@ function importData(file){if(!file)return;if(file.size>80e6){toast('That file is
 function renderSettings(){const t=document.documentElement.getAttribute('data-theme')||'auto';
   const row=(icon,bg,title,sub,body)=>'<div class="setrow"><div class="sl">'+ico(icon,bg)+'<span class="mt"><b>'+title+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</span></div>'+(body||'')+'</div>';
   const qt=(k,n,d)=>'<button type="button" class="qtool" data-go="'+k+'">'+ico(hubItem(k)[4],hubItem(k)[3])+'<span><b>'+n+'</b><small>'+d+'</small></span></button>';
-  $('settings-in').innerHTML=(window.PROFILE_OK?profileCardHTML():'')+'<div class="quicktools">'+qt('gear','Gear and dials',MYG.length+' grinder'+(MYG.length>1?'s':'')+(MYB.length?', '+MYB.length+' brewer'+(MYB.length>1?'s':''):''))+qt('log','Brew log',LOG.length?LOG.length+' brew'+(LOG.length>1?'s':''):'Rate and keep your brews')+qt('guide','Guide','Ratios and fixes')+'</div>'+
+  $('settings-in').innerHTML='<div class="quicktools">'+qt('gear','Gear and dials',MYG.length+' grinder'+(MYG.length>1?'s':'')+(MYB.length?', '+MYB.length+' brewer'+(MYB.length>1?'s':''):''))+qt('log','Brew log',LOG.length?LOG.length+' brew'+(LOG.length>1?'s':''):'Rate and keep your brews')+qt('guide','Guide','Ratios and fixes')+'</div>'+
     '<h3 class="rh">Appearance</h3><div class="setgroup">'+
     row(curTheme()==='dark'?'moon':'sun','#5B5F66','Light or dark','Bright cream, cosy espresso, or follow your phone','<div class="seg" id="st-mode"></div>')+
     row('drop','var(--cherry)','Colour','Coffee-inspired themes for buttons, highlights and charts','<div class="swatches">'+ACCENTS.map(([k,n,c])=>'<button type="button" class="swatch" data-accent="'+k+'" aria-pressed="'+(UI.accent===k)+'"><i style="background:'+c+'"></i>'+n+'</button>').join('')+'</div>')+
@@ -5983,7 +6075,7 @@ function renderSettings(){const t=document.documentElement.getAttribute('data-th
    '<h3 class="rh">Your data</h3><div class="setgroup">'+row('download','#8A5A3B','Back up and restore','Everything you’ve saved stays on this device: '+esc(dataSummary())+'. Save it as a file to keep it safe or move it to another phone.',
      '<div class="setbtns"><button type="button" class="btn" id="st-export">Export my data</button><button type="button" class="btn ghost" id="st-import">Import a backup</button><input type="file" id="st-file" accept="application/json,.json" hidden></div>')+'</div>'+
    (installed()?'':'<h3 class="rh">Install</h3><div class="setgroup">'+row('download','#9A7390','Add to your home screen','Use it like an app, offline too','<p class="setnote" style="margin:0"><b>iPhone (Safari):</b> tap the Share button, then <b>Add to Home Screen</b>.<br><b>Android (Chrome):</b> tap the ⋮ menu, then <b>Add to Home screen</b>.</p>')+'</div>')+
-   '<h3 class="rh">About</h3><div class="setgroup">'+row('book','#8A5A3B','The Brew Bench','A coffee field guide and dial-in tool. Your calibration, recipes, scans and brew log stay saved on this device.')+'</div>';
+   '<h3 class="rh">About</h3><div class="setgroup">'+row('book','#8A5A3B','The Brew Bench','A coffee field guide and dial-in tool. What you save stays on this device, or syncs with your account if you sign in.','<p class="setnote" style="margin:0"><a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a> · <a href="'+SITE_URL+'delete-account.html" target="_blank" rel="noopener">Delete your account</a></p>')+'</div>';
   seg('st-mode',[['light','Light'],['dark','Dark'],['auto','Auto']],()=>t,v=>{if(v==='auto'){document.documentElement.removeAttribute('data-theme');try{localStorage.removeItem('bb-theme')}catch(e){}}
     else{document.documentElement.setAttribute('data-theme',v);try{localStorage.setItem('bb-theme',v)}catch(e){}}syncThemeBtn();applyUI();renderSettings()});
   seg('st-text',[['s','Small'],['m','Standard'],['l','Large'],['xl','Larger']],()=>UI.text,v=>{UI.text=v;saveUI();renderSettings()});
@@ -6252,7 +6344,7 @@ async function scheduleReminders(){const ln=LN();if(!ln)return false;
   try{await ln.cancel({notifications:RIDS.map(id=>({id}))})}catch(e){}
   if(!REMIND.on)return true;const [h,m]=REMIND.t.split(':').map(Number),now=new Date(),list=[];
   for(let i=0;i<14;i++){const at=new Date(now.getFullYear(),now.getMonth(),now.getDate()+i,h,m);if(at<=now)continue;const c=cabinetDay(at);
-    list.push({id:RIDS[i],title:'☕ '+(c?DAYK[c.k]:'Time for a good cup'),body:c?(c.k==='fav'?c.title+': ':c.title+'. ')+c.text:'Add the bag you’re drinking to your cabinet and keep its story.',schedule:{at,allowWhileIdle:true},extra:c?{bean:c.b.id}:{}})}
+    list.push({id:RIDS[i],title:'☕ '+(c?DAYK[c.k]:'Time for a good cup'),body:c?(c.k==='fav'?c.title+': ':c.title+'. ')+c.text:'Add the bag you’re drinking to your cabinet and keep its story.',schedule:{at,allowWhileIdle:true},isExactNotification:false,extra:c?{bean:c.b.id}:{}})}
   try{if(list.length)await ln.schedule({notifications:list});return true}catch(e){return false}}
 let RST=0;function reschedule(){if(!REMIND.on||!LN())return;clearTimeout(RST);RST=setTimeout(scheduleReminders,1200)}
 // Turning it on asks Android for permission to notify, the first time.
@@ -6498,7 +6590,7 @@ async function addScanToGallery(i){const s=SCANS[i];if(!s)return;const inf=s.inf
   openBeanEditor(null,{name:scanTitle(s.sc,inf),roaster:scRoaster(s)||'',origin:s.sc.origin,process:s.sc.process,variety:s.sc.variety,roast:s.sc.roast,roastDate:s.sc.date||'',
     flavours:inf&&Array.isArray(inf.tasting_notes)?inf.tasting_notes.join(', ').slice(0,160):'',photo,scan:s.id,lowres:!full&&!!s.t})}
 $('beans-in').addEventListener('input',e=>{if(e.target.id!=='bg-q')return;BQ=e.target.value;renderGrid()});
-$('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-add')){openBeanEditor();return}if(e.target.closest('#bg-scan,#bg-scan2')){showTab('scan');openCamera();return}
+$('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-add')){openBeanEditor();return}if(e.target.closest('#bg-scan,#bg-scan2')){showTab('scan');scrollTo(0,0);return} /* the Scan page offers taking or choosing a photo */
   const v=e.target.closest('[data-view]');if(v){BVIEW=v.dataset.view;renderBeanViews();if(v.classList.contains('tshelf'))$('bg-views').scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'});return}
   const dyb=e.target.closest('[data-dyb]');if(dyb){if(dyb.dataset.dyb==='more')openDiaryPick();else setDyBean(dyb.dataset.dyb);return}
   if(e.target.closest('#dy-more')){DLIM+=60;renderDiaryList();return}
@@ -7153,7 +7245,7 @@ new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.nod
 /* ================= YOUR PROFILE ================= */
 // Who's brewing: a nickname, a few words, a face and the coffee you love. It is saved on this device and, once you
 // sign in with email or Google (Firebase Authentication, over REST like the shared log), it follows you to your other
-// phones. Your brews, coffees and recipes stay on the device as before; the account carries the profile.
+// phones and the website; sync.js carries everything else you save.
 
 // Firebase settings for signing in (see README). Without an apiKey accounts are off and the profile stays on this device.
 // googleClientId is the Web client ID Firebase creates when Google sign-in is switched on. A 'bb-fbcfg' value in
@@ -7178,7 +7270,13 @@ let ACCT=load('bb-account',null);if(!(ACCT&&typeof ACCT.uid==='string'&&typeof A
 // The shared log signs your entries with your nickname unless you gave it another name.
 if(PROFILE&&!ME)ME=PROFILE.nick;
 function saveProfile(p){p.updated=Date.now();PROFILE=p;save('bb-profile',p);if(!ME||ME===p.nick)ME=p.nick;pushProfile();profileChanged()}
-function profileChanged(){if($('settings')&&$('settings').classList.contains('on'))renderSettings();if(window.BEANS_OK&&$('bg-hero'))renderBeanHero()}
+function profileChanged(){renderMe();const d=$('vd');if(d.open&&d.dataset.me&&!d.classList.contains('closing'))openMe(true);if(window.BEANS_OK&&$('bg-hero'))renderBeanHero()}
+// Your face in the top bar (phones) and at the end of the tab bar (larger screens). It opens your profile.
+function renderMe(){for(const id of ['ab-me','tab-me']){const b=$(id);if(!b)continue;b.innerHTML=avatarHTML(PROFILE,id==='ab-me'?32:30);
+  b.setAttribute('aria-label',PROFILE?'Your profile: '+PROFILE.nick:'Create your profile')}}
+function openMe(again){const d=$('vd');$('vd-in').innerHTML=meHTML();d.dataset.me=1;$('vd-x').onclick=()=>d.close();
+  if(!again){showDlg(d);d.scrollTop=0;d.addEventListener('close',()=>{delete d.dataset.me},{once:true})}}
+for(const id of ['ab-me','tab-me'])if($(id))$(id).onclick=()=>openMe();
 
 /* ---------- The face ---------- */
 const PERSON_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.8 19.5c.9-3.6 3.8-5.6 7.2-5.6s6.3 2 7.2 5.6"/></svg>';
@@ -7189,21 +7287,35 @@ function avatarHTML(p,size){if(!p)return '<span class="pav none" style="--s:'+si
 function squarePhoto(src,n){return new Promise((ok,no)=>{const img=new Image();img.onload=()=>{const s=Math.min(img.width,img.height),c=document.createElement('canvas');c.width=c.height=n;
   c.getContext('2d').drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,n,n);try{ok(c.toDataURL('image/jpeg',.82))}catch(e){no(e)}};img.onerror=()=>no(new Error('image'));img.src=src})}
 
-/* ---------- The card at the top of Settings ---------- */
-function profileStats(){const mine=LOG.filter(l=>l&&(!l.by||l.by===ME)).length,b=window.BEANS_OK?BEANS:[],o=new Set(b.map(x=>x.origin).filter(Boolean)).size;
-  return [[b.length,b.length===1?'coffee':'coffees'],[mine,mine===1?'brew':'brews'],[o,o===1?'origin':'origins']]}
-function acctLine(){if(ACCT)return '<span class="pc-who">'+(ACCT.provider==='google.com'?'Signed in with Google':'Signed in')+' as <b>'+esc(ACCT.email)+'</b>'+(ACCT.provider==='password'&&!ACCT.verified?' · <button type="button" class="linkbtn" id="pf-verify">confirm your email</button>':'')+'</span><button type="button" class="linkbtn" id="pf-out">Sign out</button>';
-  return AUTH_ON?'<span class="pc-who">Saved on this phone only. Sign in to keep it on all your phones.</span><button type="button" class="btn ghost" id="pf-signin">Sign in</button>':'<span class="pc-who">Saved on this phone.</span>'}
-function profileCardHTML(){const p=PROFILE;
-  if(!p)return '<div class="pcard empty"><div class="pc-top">'+avatarHTML(null,64)+'<div class="pc-tx"><h3>Make it yours</h3><small>A nickname, a few words about how you take your coffee, and a face.'+(AUTH_ON?' Sign in with email'+(GOOGLE_ON()?' or Google':'')+' to keep it on all your phones.':'')+'</small></div></div>'+
-    '<div class="setbtns"><button type="button" class="btn" id="pf-new">Create your profile</button>'+(AUTH_ON&&!ACCT?'<button type="button" class="btn ghost" id="pf-signin">I have an account</button>':'')+'</div></div>';
-  const chips=[p.style&&STYLES.find(x=>x[0]===p.style)[1],p.brewer&&BREWERS[p.brewer].name,p.origin&&flagOf(p.origin)+' '+originName(p.origin),p.city&&'📍 '+p.city].filter(Boolean);
-  return '<div class="pcard" style="--c:'+p.av.c+'"><div class="pc-top">'+avatarHTML(p,72)+'<div class="pc-tx"><h3>'+esc(p.nick)+'</h3>'+(p.name?'<small>'+esc(p.name)+'</small>':'')+'</div>'+
-      '<button type="button" class="btn ghost pc-edit" id="pf-edit">Edit</button></div>'+
-    (p.brief?'<p class="pc-brief">'+esc(p.brief)+'</p>':'')+(chips.length?'<div class="pc-chips">'+chips.map(c=>'<span>'+esc(c)+'</span>').join('')+'</div>':'')+
-    '<div class="pc-stats">'+profileStats().map(([n,l])=>'<span><b>'+n+'</b>'+l+'</span>').join('')+'<span><b>'+new Date(p.since).getFullYear()+'</b>brewing since</span></div>'+
-    '<div class="pc-acct">'+acctLine()+'</div></div>'}
-$('settings-in').addEventListener('click',e=>{if(e.target.closest('#pf-new,#pf-edit')){openProfileEditor();return}if(e.target.closest('#pf-signin')){openSignIn();return}
+/* ---------- The profile sheet ---------- */
+// A steaming cup, drawn in the app's cream and roast colours; the steam drifts unless motion is reduced.
+const CUP_SVG='<svg class="me-cup" viewBox="0 0 120 92" aria-hidden="true"><g class="me-steam" fill="none" stroke="#F3E3C8" stroke-width="3.2" stroke-linecap="round"><path d="M47 30c-6-8 6-12 0-21"/><path d="M60 27c-6-8 6-12 0-21"/><path d="M73 30c-6-8 6-12 0-21"/></g>'+
+  '<path d="M28 40h62v14a25 25 0 0 1-25 25h-12a25 25 0 0 1-25-25z" fill="#F3E3C8"/><path d="M89 46h6a9.5 9.5 0 0 1 0 19h-6" fill="none" stroke="#F3E3C8" stroke-width="5.5"/><ellipse cx="59" cy="41" rx="29" ry="4.2" fill="#5A3420"/><path d="M18 86h82" stroke="#F3E3C8" stroke-opacity=".45" stroke-width="3" stroke-linecap="round"/></svg>';
+const PEN_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4"/></svg>';
+const SYNC_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 0 1-14 5.3 M4 12a8 8 0 0 1 14-5.3 M18 3v4h-4 M6 21v-4h4"/></svg>';
+// Your coffee style, as a title under your name.
+const ROLE={bright:'Florals chaser',sweet:'Sweet-cup seeker',choc:'Comfort-cup brewer',wild:'Ferment explorer',espresso:'Espresso devotee',milk:'Milk-drink maker'};
+function profileStats(){const mine=LOG.filter(l=>l&&(!l.by||l.by===ME)).length,b=window.BEANS_OK?BEANS:[],o=new Set(b.map(x=>x.origin).filter(Boolean)).size,t=window.BEANS_OK&&TGOT?Object.keys(TGOT).length:0;
+  return [[b.length,b.length===1?'coffee':'coffees'],[mine,mine===1?'brew':'brews'],[o,o===1?'origin':'origins'],[t,t===1?'trophy':'trophies']]}
+// Who you're signed in as, and the sync; or, signed out, what an account brings.
+function accountHTML(){
+  if(ACCT)return '<div class="me-acct"><div class="me-row"><span class="me-dot" aria-hidden="true"></span><span class="me-rt"><b>'+(ACCT.provider==='google.com'?'Signed in with Google':'Signed in')+'</b><small>'+esc(ACCT.email)+'</small>'+
+      (ACCT.provider==='password'&&!ACCT.verified?'<button type="button" class="linkbtn" id="pf-verify">Confirm your email</button>':'')+'</span><button type="button" class="linkbtn" id="pf-out">Sign out</button></div>'+syncLine()+'</div>';
+  if(!AUTH_ON)return '<p class="me-fine">Saved on this device.</p>';
+  return '<div class="me-cta"><button type="button" class="btn" id="pf-signin">Sign in or create an account</button></div>'}
+function meHTML(){const p=PROFILE,x='<button class="vd-close me-x" id="vd-x" aria-label="Close">✕</button>';
+  if(!p)return '<div class="me-hero blank">'+x+CUP_SVG+'<span class="me-k">The Brew Bench</span><h2 id="vd-title">Who’s brewing?</h2>'+
+      '<p>A nickname, a face and a few words about the cups you love.</p><div class="me-acts"><button type="button" class="btn me-main" id="pf-new">Create your profile</button>'+
+      (AUTH_ON&&!ACCT?'<button type="button" class="btn me-ghost" id="pf-signin">I have an account</button>':'')+'</div></div>'+(ACCT?'<div class="me-body">'+accountHTML()+'</div>':'');
+  const dna=[p.origin&&['<span class="me-flag">'+flagOf(p.origin)+'</span>','Favourite origin',originName(p.origin)],p.brewer&&['☕','Favourite brewer',BREWERS[p.brewer].name],p.city&&['📍','Brews in',p.city]].filter(Boolean);
+  return '<div class="me-hero" style="--c:'+p.av.c+'">'+x+'<button type="button" class="me-edit" id="pf-edit">'+PEN_SVG+'Edit</button>'+avatarHTML(p,96)+
+      '<span class="me-k">'+esc(ROLE[p.style]||'Home brewer')+'</span><h2 id="vd-title">'+esc(p.nick)+'</h2>'+(p.name?'<small class="me-name">'+esc(p.name)+'</small>':'')+
+      '<span class="me-since">Brewing with us since '+new Date(p.since).toLocaleDateString(undefined,{month:'long',year:'numeric'})+'</span></div>'+
+    '<div class="me-body">'+(p.brief?'<blockquote class="me-brief">'+esc(p.brief)+'</blockquote>':'<button type="button" class="me-add" id="pf-edit2">Add a few words about how you take your coffee</button>')+
+      '<div class="me-stats">'+profileStats().map(([n,l])=>'<span><b>'+n+'</b>'+l+'</span>').join('')+'</div>'+
+      (dna.length?'<div class="me-dna">'+dna.map(([i,k,v])=>'<div><i aria-hidden="true">'+i+'</i><span><small>'+k+'</small><b>'+esc(v)+'</b></span></div>').join('')+'</div>'
+        :'<button type="button" class="me-add" id="pf-edit3">Add your favourite origin, brewer and where you brew</button>')+accountHTML()+'</div>'}
+$('vd').addEventListener('click',e=>{if(e.target.closest('#pf-new,#pf-edit,#pf-edit2,#pf-edit3')){delete $('vd').dataset.me;openProfileEditor();return}if(e.target.closest('#pf-signin')){delete $('vd').dataset.me;openSignIn();return}
   if(e.target.closest('#pf-out')){if(confirm('Sign out? Your profile stays on this phone.'))signOut();return}
   if(e.target.closest('#pf-verify')){sendVerify().then(()=>toast('We sent a link to '+ACCT.email+'. Open it to confirm your email.'),err=>toast(err.message));return}});
 
@@ -7237,7 +7349,7 @@ function openProfileEditor(){const d=$('vd'),isNew=!PROFILE,P=Object.assign({nic
     const p=okProfile(Object.assign({},P,{nick,name:$('pf-name').value,brief:$('pf-brief').value,city:$('pf-city').value,brewer:$('pf-brewer').value,origin:$('pf-origin').value}));
     saveProfile(p);d.close();toast(isNew?'Welcome, '+p.nick+'!':'Profile saved')};
   $('pf-cancel').onclick=()=>d.close();$('vd-x').onclick=()=>d.close();
-  if($('pf-del'))$('pf-del').onclick=async()=>{if(!confirm(ACCT?'Delete your account and profile? This can’t be undone. Your brews, coffees and recipes stay on this phone.':'Delete your profile from this phone?'))return;
+  if($('pf-del'))$('pf-del').onclick=async()=>{if(!confirm(ACCT?'Delete your account? Your profile and everything synced to it are removed from the server, and this can’t be undone. This phone keeps its own copy of your coffees, brews and recipes.':'Delete your profile from this phone?'))return;
     const had=!!ACCT;if(had){try{await deleteAccount()}catch(err){toast(err.message);return}}PROFILE=null;try{localStorage.removeItem('bb-profile')}catch(_){}d.close();profileChanged();toast(had?'Your account and profile are deleted':'Profile deleted')};
   showDlg(d);d.scrollTop=0}
 
@@ -7255,17 +7367,17 @@ function setAcct(j,provider){ACCT={uid:j.localId,email:j.email||'',provider,idTo
 // A fresh ID token, renewed with the refresh token when the old one has run out (they last an hour).
 async function idToken(){if(!ACCT)return null;if(ACCT.idToken&&Date.now()<ACCT.exp)return ACCT.idToken;let r;
   try{r=await fetch('https://securetoken.googleapis.com/v1/token?key='+encodeURIComponent(AUTHCFG.apiKey),{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'grant_type=refresh_token&refresh_token='+encodeURIComponent(ACCT.refresh)})}catch(e){return null}
-  if(!r.ok){if(r.status===400){signOut();toast('Your sign-in has expired. Sign in again to keep your profile in sync.')}return null}
+  if(!r.ok){if(r.status===400){signOut();toast('Your sign-in has expired. Sign in again.')}return null}
   const j=await r.json();Object.assign(ACCT,{idToken:j.id_token,refresh:j.refresh_token,exp:Date.now()+(+j.expires_in||3600)*1000-60000});save('bb-account',ACCT);return ACCT.idToken}
 async function sendVerify(){const t=await idToken();if(!t)throw new Error('Sign in again first.');await idt('sendOobCode',{requestType:'VERIFY_EMAIL',idToken:t})}
-function signOut(){ACCT=null;try{localStorage.removeItem('bb-account')}catch(e){}profileChanged()}
+function signOut(){syncForget();ACCT=null;try{localStorage.removeItem('bb-account')}catch(e){}profileChanged()}
 async function deleteAccount(){const t=await idToken();if(!t)throw new Error('Sign in again first.');
-  if(SYNC_DB)try{await fetch(profUrl(t),{method:'DELETE'})}catch(e){}await idt('delete',{idToken:t});signOut()}
+  if(SYNC_DB){try{await fetch(profUrl(t),{method:'DELETE'})}catch(e){}await syncWipe(t)}await idt('delete',{idToken:t});signOut()}
 // Once signed in: bring down the profile kept with the account, or keep the one made on this phone.
 async function afterSignIn(g){g=g||{};
   if(!PROFILE&&(g.name||g.photo)){const nick=str(g.first||String(g.name||'').split(' ')[0],30)||'Coffee lover';let photo='';if(g.photo)try{photo=await squarePhoto(await (await fetch(g.photo)).blob().then(fileURL),192)}catch(e){}
     PROFILE=okProfile({nick,name:g.name||'',photo,since:Date.now(),updated:0});if(PROFILE)save('bb-profile',PROFILE)}
-  await pullProfile();profileChanged()}
+  await pullProfile();profileChanged();syncNow()}
 
 /* ---------- The profile on the server (the shared log's database) ---------- */
 // Each account can read and write only its own profile; see the database rules in the README.
@@ -7281,16 +7393,19 @@ if(ACCT)setTimeout(()=>pullProfile().then(profileChanged),1500);
 /* ---------- The sign-in sheet ---------- */
 function openSignIn(mode){if(!AUTH_ON)return;const d=$('vd');let M=mode||'in';
   const draw=()=>{const up=M==='up',reset=M==='reset';
-    $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Your account</span><h2 id="vd-title">'+(reset?'Reset your password':up?'Create an account':'Sign in')+'</h2>'+
-      '<p class="vd-sub">'+(reset?'We’ll email you a link to choose a new password.':'Your profile goes with your account to every phone you sign in on. Your brews, coffees and recipes stay on this phone.')+'</p></div>'+
-     '<div class="vd-body beform auth">'+(reset?'':'<div class="seg" id="au-mode"></div>')+
+    $('vd-in').innerHTML='<div class="me-hero au-hero">'+'<button class="vd-close me-x" id="vd-x" aria-label="Close">✕</button>'+CUP_SVG+
+       '<span class="me-k">'+(reset?'It happens':up?'Join the bench':'Welcome back')+'</span><h2 id="vd-title">'+(reset?'Reset your password':up?'Create your account':'Sign in')+'</h2>'+
+       '<p>'+(reset?'We’ll email you a link to choose a new one.':up?'A free account for your profile, coffees, diary and brews.':'Pick up your bench where you left it.')+'</p></div>'+
+     '<div class="vd-body beform auth">'+
       (!reset&&GOOGLE_ON()?'<div class="au-google" id="au-google"></div><div class="au-or"><span>or with email</span></div>':'')+
-      '<form id="au-form" novalidate><div class="field"><label for="au-email">Email</label><input id="au-email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="120"></div>'+
+      '<form id="au-form" novalidate><div class="field"><label for="au-email">Email</label><input id="au-email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="you@example.com"></div>'+
       (reset?'':'<div class="field"><label for="au-pw">Password'+(up?' <span class="hint">at least 6 characters</span>':'')+'</label><div class="au-pw"><input id="au-pw" type="password" autocomplete="'+(up?'new-password':'current-password')+'" maxlength="100"><button type="button" class="linkbtn" id="au-show" aria-pressed="false">Show</button></div></div>')+
-      '<p class="au-err" id="au-err" role="alert" hidden></p><div class="actions"><button class="btn" id="au-go" type="submit">'+(reset?'Send the link':up?'Create account':'Sign in')+'</button></div></form>'+
-      (M==='in'?'<button type="button" class="linkbtn" id="au-forgot">Forgot your password?</button>':reset?'<button type="button" class="linkbtn" id="au-back">Back to sign in</button>':'')+
-      (NATIVE&&AUTHCFG.googleClientId?'<p class="hint">Signing in with Google works on the website. In the app, use your email.</p>':'')+'</div>';
-    if(!reset)seg('au-mode',[['in','Sign in'],['up','Create account']],()=>M,v=>{if(v!==M){M=v;draw()}});
+      (M==='in'?'<button type="button" class="linkbtn au-forgot" id="au-forgot">Forgot your password?</button>':'')+
+      '<p class="au-err" id="au-err" role="alert" hidden></p><div class="actions"><button class="btn" id="au-go" type="submit">'+(reset?'Send the link':up?'Create my account':'Sign in')+'</button></div></form>'+
+      '<p class="au-switch">'+(reset?'<button type="button" class="linkbtn" id="au-back">Back to sign in</button>':up?'Already have an account? <button type="button" class="linkbtn" id="au-to-in">Sign in</button>':'New to the bench? <button type="button" class="linkbtn" id="au-to-up">Create an account</button>')+'</p>'+
+      (NATIVE&&AUTHCFG.googleClientId?'<p class="hint au-note">Signing in with Google works on the website. In the app, use your email.</p>':'')+
+      '<p class="au-fine">We keep only what you save, and you can delete your account at any time. <a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a></p></div>';
+    for(const [id,m] of [['au-to-up','up'],['au-to-in','in']])if($(id))$(id).onclick=()=>{const v=$('au-email').value;M=m;draw();$('au-email').value=v;$('au-email').focus()};
     if($('au-google'))googleButton($('au-google'));
     const err=m=>{const e=$('au-err');e.textContent=m;e.hidden=!m};
     if($('au-show'))$('au-show').onclick=e=>{const on=$('au-pw').type==='password';$('au-pw').type=on?'text':'password';e.target.textContent=on?'Hide':'Show';e.target.setAttribute('aria-pressed',on)};
@@ -7317,6 +7432,103 @@ function googleButton(el){loadScript('https://accounts.google.com/gsi/client').t
   .catch(()=>{el.innerHTML='<p class="hint">Google sign-in couldn’t load. Check your connection, or use your email.</p>'})}
 // Pages drawn before this part of the app loaded pick the profile up now.
 window.PROFILE_OK=true;profileChanged();
+
+/* ================= SYNC ================= */
+// Signed in, what you keep follows your account to every phone and the website: your coffees with their diaries,
+// brews, recipes, scans and photos, your Top 5, trophies and favourites, your gear and calibration, and the app's look.
+// Each item is compared three ways: this device, the account, and how both looked at the last sync. So a coffee
+// edited on the phone and a brew logged on the website both survive; the same item changed in two places keeps this
+// device's version, except when a device joins the account for the first time, where the account's copy wins.
+// Changes made here go up a few seconds later. Changes from your other devices come in when the app opens or you
+// return to it; the page then reloads once to show them.
+// Layout in the database (each account reads and writes only its own, see the README):
+//   users/<uid>/data/col/<list>/<id>  {t, d: the item as JSON} or {t, del:1}
+//   users/<uid>/data/kv/<key>         {t, d: the stored text} or {t, del:1}
+//   users/<uid>/data/img/<key>        {t, s: a fingerprint of the photo} or {t, del:1}
+//   userimg/<uid>/<key>               the photo itself
+const SYNC_COLS=['bb-beans','bb-log','bb-scans','bb-myrecipes'];
+const SYNC_KEYS=['bb-top3','bb-trophies','bb-favs','bb-custom-grinders','bb-mygrinders','bb-mybrewers','bb-base3','bb-calc','bb-ui','bb-theme','bb-cardstyle','bb-group','bb-name'];
+const SYNC_ID=/^[A-Za-z0-9_:-]{1,40}$/;
+const fnv=s=>{let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)}return(h>>>0).toString(36)+'.'+s.length.toString(36)};
+// Photos are large: their fingerprint is taken from the length and both ends.
+const imgSig=v=>fnv(v.length+v.slice(0,4000)+v.slice(-4000));
+let SHADOW=load('bb-syncshadow',null),SYNC_AT=+load('bb-syncat',0)||0,SYNC_ERR='',SYNC_BUSY=false,SYNC_MORE=0,SYNC_T=null;
+const syncOn=()=>!!(window.PROFILE_OK&&ACCT&&SYNC_DB);
+const syncBase=()=>SYNC_DB.replace(/\/+$/,'');
+// The lists as stored, keyed by id. The brew log isn't synced while you're in a shared log (the group carries it),
+// and entries other people added to a shared log are never copied into your account.
+function localList(k){let a;try{a=JSON.parse(localStorage.getItem(k)||'[]')}catch(e){a=[]}if(!Array.isArray(a))a=[];const m=new Map();
+  for(const x of a)if(x&&typeof x.id==='string'&&SYNC_ID.test(x.id)&&!(k==='bb-log'&&x.by&&x.by!==ME))m.set(x.id,JSON.stringify(x));return{a,m}}
+// One item, three ways. Returns 'push', 'pull' or '' (nothing to do), and settles the shadow when both already agree.
+function syncMerge(H,sk,local,remoteText){const s=H[sk],lh=local==null?null:fnv(local),rh=remoteText==null?null:fnv(remoteText);
+  if(lh===rh){if(lh===null)delete H[sk];else H[sk]=lh;return ''}
+  const lc=lh!==(s===undefined?null:s),rc=rh!==(s===undefined?null:s);
+  return lc&&rc?(s===undefined?'pull':'push'):lc?'push':rc?'pull':''}
+// apply: also bring in other devices' changes (only when the page can reload safely). Returns true when it did.
+async function sync(apply){if(!syncOn())return false;if(SYNC_BUSY){SYNC_MORE=Math.max(SYNC_MORE,apply?2:1);return false}
+  SYNC_BUSY=true;let pulled=false;
+  try{const tok=await idToken();if(!tok)return false;const uid=encodeURIComponent(ACCT.uid),q='.json?auth='+encodeURIComponent(tok);
+    if(!SHADOW||SHADOW.uid!==ACCT.uid)SHADOW={uid:ACCT.uid,h:{}};const H=SHADOW.h,now=Date.now();
+    const res=await fetch(syncBase()+'/users/'+uid+'/data'+q);if(!res.ok)throw new Error('read '+res.status);const R=(await res.json())||{};
+    const up={},done=[],pulls=[];const txt=r=>r&&!r.del&&typeof r.d==='string'?r.d:null;
+    // Lists, item by item.
+    for(const k of SYNC_COLS){if(k==='bb-log'&&GROUP)continue;const L=localList(k),RC=(R.col&&R.col[k])||{},pre='c|'+k+'|';
+      const ids=new Set([...L.m.keys(),...Object.keys(RC).filter(i=>SYNC_ID.test(i)),...Object.keys(H).filter(x=>x.startsWith(pre)).map(x=>x.slice(pre.length))]);
+      const sets=new Map(),dels=new Set();
+      for(const id of ids){const l=L.m.has(id)?L.m.get(id):null,r=txt(RC[id]),a=syncMerge(H,pre+id,l,r);
+        if(a==='push'){up['col/'+k+'/'+id]=l==null?{t:now,del:1}:{t:now,d:l};done.push([pre+id,l])}
+        else if(a==='pull'&&apply){if(r==null)dels.add(id);else sets.set(id,r);done.push([pre+id,r])}}
+      if(sets.size||dels.size){const out=[];for(const x of L.a){const id=x&&x.id;if(dels.has(id))continue;if(sets.has(id)){out.push(JSON.parse(sets.get(id)));sets.delete(id)}else out.push(x)}
+        for(const v of sets.values())out.unshift(JSON.parse(v));pulls.push([k,JSON.stringify(out)])}}
+    // Settings, each as a whole.
+    for(const k of SYNC_KEYS){const l=localStorage.getItem(k),r=txt(R.kv&&R.kv[k]),a=syncMerge(H,'k|'+k,l,r);
+      if(a==='push'){up['kv/'+k]=l==null?{t:now,del:1}:{t:now,d:l};done.push(['k|'+k,l])}else if(a==='pull'&&apply){pulls.push([k,r]);done.push(['k|'+k,r])}}
+    // Photos: uploaded and fetched one by one, their fingerprints listed with the rest.
+    const imgs=await BIMG.all(),RI=R.img||{},keys=new Set([...Object.keys(imgs).filter(i=>SYNC_ID.test(i)),...Object.keys(RI).filter(i=>SYNC_ID.test(i)),...Object.keys(H).filter(x=>x.startsWith('i|')).map(x=>x.slice(2))]);
+    const imgUrl=k=>syncBase()+'/userimg/'+uid+'/'+encodeURIComponent(k)+q;
+    for(const k of keys){const l=typeof imgs[k]==='string'?imgSig(imgs[k]):null,r=RI[k]&&!RI[k].del?RI[k].s:null,a=syncMerge(H,'i|'+k,l,r);
+      if(a==='push'){const w=await fetch(imgUrl(k),l==null?{method:'DELETE'}:{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(imgs[k])});
+        if(!w.ok)throw new Error('photo '+w.status);up['img/'+k]=l==null?{t:now,del:1}:{t:now,s:l};done.push(['i|'+k,l])}
+      else if(a==='pull'&&apply){if(r==null)await BIMG.del(k);else{const g=await fetch(imgUrl(k));const v=g.ok?await g.json():null;if(typeof v!=='string'||!/^data:image\//.test(v))continue;await BIMG.put(k,v)}
+        pulled=true;done.push(['i|'+k,r])}}
+    if(Object.keys(up).length){const w=await fetch(syncBase()+'/users/'+uid+'/data'+q,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(up)});if(!w.ok)throw new Error('write '+w.status)}
+    for(const [k,v] of pulls){if(v==null)localStorage.removeItem(k);else localStorage.setItem(k,v);pulled=true}
+    for(const [sk,v] of done){if(v==null)delete H[sk];else H[sk]=fnv(v)}
+    save('bb-syncshadow',SHADOW);SYNC_AT=Date.now();save('bb-syncat',SYNC_AT);SYNC_ERR=''}
+  catch(e){SYNC_ERR=navigator.onLine===false?'offline':'error'}
+  finally{SYNC_BUSY=false;const more=SYNC_MORE;SYNC_MORE=0;if(more)setTimeout(()=>more===2?syncNow():sync(false),200)}
+  return pulled}
+// Safe to reload: no sheet open and nothing being typed.
+const syncSafe=()=>!document.querySelector('dialog[open]')&&!(document.activeElement&&/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName));
+// Bring everything in and show it. A page that has just reloaded for a sync only sends its own changes, so two devices
+// can never bounce reloads back and forth.
+async function syncNow(){if(!syncOn())return;let last=0;try{last=+sessionStorage.getItem('bb-syncreload')||0}catch(e){}
+  const since=Date.now()-last,apply=syncSafe()&&since>5000;const pulled=await sync(apply);
+  if(pulled){try{sessionStorage.setItem('bb-syncreload',String(Date.now()))}catch(e){}location.reload();return}
+  if(!apply){if(since<=5000)setTimeout(syncNow,5200-since);else SYNC_WAIT=true}if(window.PROFILE_OK)profileChanged()}
+let SYNC_WAIT=false;
+// Send this device's changes a few seconds after the last one.
+function syncSoon(){if(!syncOn())return;clearTimeout(SYNC_T);SYNC_T=setTimeout(()=>sync(false).then(()=>{if(window.PROFILE_OK)profileChanged()}),4000)}
+// Every saved change to a synced list or setting, and every photo saved or removed, sends it up.
+{const set=Storage.prototype.setItem,rm=Storage.prototype.removeItem,watch=k=>SYNC_COLS.includes(k)||SYNC_KEYS.includes(k);
+  Storage.prototype.setItem=function(k,v){set.call(this,k,v);if(this===window.localStorage&&watch(k))syncSoon()};
+  Storage.prototype.removeItem=function(k){rm.call(this,k);if(this===window.localStorage&&watch(k))syncSoon()}}
+{const put=BIMG.put,del=BIMG.del;BIMG.put=(k,v)=>put(k,v).then(r=>{syncSoon();return r});BIMG.del=k=>del(k).then(r=>{syncSoon();return r})}
+// Signing out or into another account starts the comparison afresh; deleting the account removes its data.
+function syncForget(){SHADOW=null;SYNC_AT=0;try{localStorage.removeItem('bb-syncshadow');localStorage.removeItem('bb-syncat')}catch(e){}}
+async function syncWipe(tok){const uid=encodeURIComponent(ACCT.uid),q='.json?auth='+encodeURIComponent(tok);
+  for(const p of ['/users/'+uid,'/userimg/'+uid])try{await fetch(syncBase()+p+q,{method:'DELETE'})}catch(e){}syncForget()}
+// When to sync: on opening, on coming back to the app, when back online, and when a sheet that held it up closes.
+if(syncOn())setTimeout(syncNow,900);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&syncOn()&&Date.now()-SYNC_AT>20000)syncNow()});
+addEventListener('online',()=>syncSoon());
+document.addEventListener('close',()=>{if(SYNC_WAIT){SYNC_WAIT=false;setTimeout(syncNow,500)}},true);
+try{if(Date.now()-(+sessionStorage.getItem('bb-syncreload')||0)<8000)setTimeout(()=>toast('Brought in changes from your other devices'),700)}catch(e){}
+// The line on the profile card.
+function syncLine(){if(!syncOn())return '';const ago=SYNC_AT?Math.round((Date.now()-SYNC_AT)/60000):-1;
+  const when=SYNC_ERR==='offline'?'Offline: changes go up when you’re back':SYNC_ERR?'Couldn’t sync just now':ago<0?'Not synced yet':ago<1?'Synced just now':'Synced '+(ago<60?ago+' min ago':Math.round(ago/60)+' h ago');
+  return '<div class="me-row me-syncrow'+(SYNC_ERR?' off':'')+'"><span class="me-ic" aria-hidden="true">'+SYNC_SVG+'</span><span class="me-rt"><b>'+when+'</b></span><button type="button" class="linkbtn" id="pf-sync">Sync now</button></div>'}
+$('vd').addEventListener('click',e=>{if(e.target.closest('#pf-sync')){e.target.textContent='Syncing…';syncNow()}});
 
 </script>
 </body>

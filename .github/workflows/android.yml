@@ -52,15 +52,20 @@ jobs:
           BB_KEY_PASSWORD: ${{ secrets.BB_KEY_PASSWORD }}
         run: |
           chmod +x gradlew
-          if [ "$HAS_KEY" = true ]; then TASK=assembleRelease; OUT=release/app-release.apk
-          else TASK=assembleDebug; OUT=debug/app-debug.apk; fi
-          ./gradlew "$TASK" -PversionCode=${{ github.run_number }} -PversionName="$VERSION_NAME" --no-daemon
+          if [ "$HAS_KEY" = true ]; then TASKS="assembleRelease bundleRelease"; OUT=release/app-release.apk
+          else TASKS=assembleDebug; OUT=debug/app-debug.apk; fi
+          ./gradlew $TASKS -PversionCode=${{ github.run_number }} -PversionName="$VERSION_NAME" --no-daemon
           cp "app/build/outputs/apk/$OUT" "$GITHUB_WORKSPACE/brew-bench.apk"
+          # The app bundle is what Google Play takes; it is only built when the upload key is set.
+          if [ "$HAS_KEY" = true ]; then cp app/build/outputs/bundle/release/app-release.aab "$GITHUB_WORKSPACE/brew-bench.aab"; fi
 
       - uses: actions/upload-artifact@v4
         with:
           name: brew-bench-apk
-          path: brew-bench.apk
+          path: |
+            brew-bench.apk
+            brew-bench.aab
+          if-no-files-found: ignore
 
       - name: Publish release
         if: github.ref == 'refs/heads/main'
@@ -71,5 +76,8 @@ jobs:
           body: |
             Android app for The Brew Bench. Download **brew-bench.apk** on your phone and open it to install
             (Android will ask you to allow installs from your browser the first time).
-          files: brew-bench.apk
+            **brew-bench.aab** is the same version for uploading to Google Play.
+          files: |
+            brew-bench.apk
+            brew-bench.aab
           make_latest: true
