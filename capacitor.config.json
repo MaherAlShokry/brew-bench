@@ -9,6 +9,15 @@
     "LocalNotifications": {
       "smallIcon": "ic_stat_bean",
       "iconColor": "#8A5A3B"
+    },
+    "SocialLogin": {
+      "providers": {
+        "google": true,
+        "facebook": false,
+        "apple": false,
+        "twitter": false
+      },
+      "logLevel": 1
     }
   }
 }

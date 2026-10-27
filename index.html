@@ -1135,6 +1135,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 .au-perks i{flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--surface2);font-style:normal}
 .au-forgot{display:block;margin:-6px 0 12px auto}.au-who{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px;padding:10px 14px;border-radius:999px;background:var(--surface2);font-weight:600;font-size:.92rem}.au-who span{min-width:0;overflow-wrap:anywhere}.au-who .linkbtn{flex:none}
 .au-bio{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:56px;text-align:left}.au-bio svg{flex:none;width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}.au-bio span{display:flex;flex-direction:column;line-height:1.25}.au-bio small{font-weight:500;opacity:.8;font-size:.8rem}
+.au-gbtn{display:inline-flex;align-items:center;justify-content:center;gap:12px;width:min(100%,360px);min-height:44px;padding:0 18px;border-radius:999px;border:1px solid #DADCE0;background:#fff;color:#1F1F1F;font:500 .95rem/1 inherit;font-family:inherit;cursor:pointer}.au-gbtn svg{width:20px;height:20px;flex:none}.au-gbtn:disabled{opacity:.6}
 .au-hint{margin:0 0 12px;font-size:.86rem;color:var(--muted)}.au-hero .pav{margin:0 auto 10px}.au-switch{margin:14px 0 6px;text-align:center;font-size:.9rem;color:var(--muted)}.au-note{text-align:center}
 .auth{padding-top:18px!important}
 dialog#vd:has(.me-hero){overflow-x:hidden}
@@ -7272,7 +7273,9 @@ const FB_AUTH={apiKey:'AIzaSyATeoG104Y_UEEsBK03z8Nq2qMBgKyI5Dk',googleClientId:'
 const AUTHCFG=(()=>{try{return Object.assign({},FB_AUTH,JSON.parse(localStorage.getItem('bb-fbcfg')||'{}'))}catch(e){return FB_AUTH}})();
 const AUTH_ON=!!AUTHCFG.apiKey;
 // Google's sign-in window doesn't open inside an app's web view, so the Android app signs in with email.
-const GOOGLE_ON=()=>AUTH_ON&&!!AUTHCFG.googleClientId&&!NATIVE;
+// On the website, Google's own button; in the Android app, Android's Google account sheet (the web button can't run in
+// an app's web view: Google blocks it there).
+const GOOGLE_ON=()=>AUTH_ON&&!!AUTHCFG.googleClientId&&(!NATIVE||!!plugin('SocialLogin'));
 
 const STYLES=[['bright','Light and bright'],['sweet','Sweet and balanced'],['choc','Chocolate and nuts'],['wild','Wild ferments'],['espresso','Espresso first'],['milk','Milk drinks']];
 const AV_EMOJI=['☕','🫘','🌱','🍒','🌸','🍋','🍫','🔥','⛰️','🫖','🐦','🌙'];
@@ -7411,7 +7414,7 @@ async function idToken(){if(!ACCT)return null;if(ACCT.idToken&&Date.now()<ACCT.e
   if(!r.ok){if(r.status===400){signOut();toast('Your sign-in has expired. Sign in again.')}return null}
   const j=await r.json();Object.assign(ACCT,{idToken:j.id_token,refresh:j.refresh_token,exp:Date.now()+(+j.expires_in||3600)*1000-60000});save('bb-account',ACCT);return ACCT.idToken}
 async function sendVerify(){const t=await idToken();if(!t)throw new Error('Sign in again first.');await idt('sendOobCode',{requestType:'VERIFY_EMAIL',idToken:t})}
-function signOut(){syncForget();ACCT=null;try{localStorage.removeItem('bb-account')}catch(e){}profileChanged()}
+function signOut(){if(NATIVE&&ACCT&&ACCT.provider==='google.com'&&plugin('SocialLogin'))plugin('SocialLogin').logout({provider:'google'}).catch(()=>{});syncForget();ACCT=null;try{localStorage.removeItem('bb-account')}catch(e){}profileChanged()}
 async function deleteAccount(){const t=await idToken();if(!t)throw new Error('Sign in again first.');
   if(SYNC_DB){try{await fetch(profUrl(t),{method:'DELETE'})}catch(e){}await syncWipe(t)}await idt('delete',{idToken:t});if(BIOM&&BIOM.email===ACCT.email)await bioOff();signOut()}
 /* ---------- Fingerprint or face sign-in (the Android app) ---------- */
@@ -7483,7 +7486,6 @@ function openSignIn(init){if(!AUTH_ON)return;init=init||{};const d=$('vd');delet
      '<div class="vd-body beform auth"><form id="au-form" novalidate>'+body+'<p class="au-err" id="au-err" role="alert"'+(note?'':' hidden')+'>'+esc(note)+'</p>'+
       (M==='bio'?'':'<div class="actions"><button class="btn" id="au-go" type="submit">'+{start:'Continue',pw:'Sign in',reset:'Send the link'}[M]+'</button></div>')+'</form>'+
       (M==='reset'?'<p class="au-switch"><button type="button" class="linkbtn" id="au-back">Back</button></p>':'')+
-      (M==='start'&&NATIVE&&AUTHCFG.googleClientId?'<p class="hint au-note">Signing in with Google works on the website. In the app, use your email.</p>':'')+
       '<p class="au-fine">We keep only what you save, and you can delete your account at any time. <a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a></p></div>';
     note='';
     if($('au-google'))googleButton($('au-google'),r=>{if(r.isNewUser)openProfileEditor({welcome:true});else d.close()});
@@ -7517,12 +7519,28 @@ function openSignIn(init){if(!AUTH_ON)return;init=init||{};const d=$('vd');delet
     const f=$('vd-in').querySelector(M==='start'?'#au-email':M==='bio'?'#au-yes':'#au-pw');if(f&&!matchMedia('(pointer:coarse)').matches)setTimeout(()=>f.focus(),60)};
   draw();showDlg(d);d.scrollTop=0}
 // Google's own button (Google Identity Services). Its ID token signs in to Firebase, and the name and photo start the profile.
-function googleButton(el,done){loadScript('https://accounts.google.com/gsi/client').then(()=>{
-    google.accounts.id.initialize({client_id:AUTHCFG.googleClientId,ux_mode:'popup',callback:async r=>{try{
-      const j=await idt('signInWithIdp',{postBody:'id_token='+encodeURIComponent(r.credential)+'&providerId=google.com',requestUri:location.origin,returnSecureToken:true,returnIdpCredential:true});
-      setAcct(j,'google.com');await afterSignIn({name:j.displayName||j.fullName,first:j.firstName,photo:j.photoUrl});
-      // A first sign-in with Google asks once how to be known; the name and photo from Google start it off.
-      if(done)done({isNewUser:!!j.isNewUser});else $('vd').close();if(!j.isNewUser)toast('Signed in with Google'+(PROFILE?' as '+PROFILE.nick:''))}catch(x){const e=$('au-err');if(e){e.textContent=x.message;e.hidden=false}}}});
+// Google's ID token signs in to Firebase, and the name and photo start the profile.
+async function googleSignedIn(idToken,done){
+  const j=await idt('signInWithIdp',{postBody:'id_token='+encodeURIComponent(idToken)+'&providerId=google.com',requestUri:location.origin,returnSecureToken:true,returnIdpCredential:true});
+  setAcct(j,'google.com');await afterSignIn({name:j.displayName||j.fullName,first:j.firstName,photo:j.photoUrl});
+  // A first sign-in with Google asks once how to be known; the name and photo from Google start it off.
+  if(done)done({isNewUser:!!j.isNewUser});else $('vd').close();if(!j.isNewUser)toast('Signed in with Google'+(PROFILE?' as '+PROFILE.nick:''))}
+const G_SVG='<svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.5l6.7-6.7C35.6 2.4 30.2 0 24 0 14.6 0 6.6 5.4 2.7 13.2l7.8 6C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4 7.1-10 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.8A14.5 14.5 0 0 1 9.5 24c0-1.7.3-3.3.9-4.8l-7.8-6A24 24 0 0 0 0 24c0 3.9.9 7.5 2.6 10.8l7.9-6z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6C6.6 42.6 14.6 48 24 48z"/></svg>';
+let G_READY=null;
+function googleButton(el,done){const err=m=>{const e=$('au-err');if(e){e.textContent=m;e.hidden=!m}};
+  if(NATIVE){
+    // Android's own Google account sheet, through the app's Google sign-in ID (see the README).
+    el.innerHTML='<button type="button" class="au-gbtn" id="au-gnative">'+G_SVG+'<span>Continue with Google</span></button>';
+    $('au-gnative').onclick=async()=>{const P=plugin('SocialLogin'),b=$('au-gnative');err('');b.disabled=true;let t=null;
+      try{G_READY=G_READY||P.initialize({google:{webClientId:AUTHCFG.googleClientId}}).catch(e=>{G_READY=null;throw e});await G_READY;
+        const r=await P.login({provider:'google',options:{}});t=r&&r.result&&r.result.idToken;if(!t)throw new Error('no ID token')}
+      catch(x){b.disabled=false;const m=String((x&&x.code||'')+' '+(x&&x.message||x));if(/cancel/i.test(m))return;
+        // Most often: this build's signing key isn't registered with Google yet (see the README).
+        err(navigator.onLine===false?'You’re offline. Connect and try again.':'Google sign-in isn’t ready in this version of the app yet. Use your email for now.');return}
+      try{await googleSignedIn(t,done)}catch(x){err(x.message)}finally{if($('au-gnative'))$('au-gnative').disabled=false}};
+    return}
+  loadScript('https://accounts.google.com/gsi/client').then(()=>{
+    google.accounts.id.initialize({client_id:AUTHCFG.googleClientId,ux_mode:'popup',callback:async r=>{try{await googleSignedIn(r.credential,done)}catch(x){err(x.message)}}});
     google.accounts.id.renderButton(el,{theme:curTheme()==='dark'?'filled_black':'outline',size:'large',shape:'pill',text:'continue_with',width:Math.min(360,el.clientWidth||320)})})
   .catch(()=>{el.innerHTML='<p class="hint">Google sign-in couldn’t load. Check your connection, or use your email.</p>'})}
 // Pages drawn before this part of the app loaded pick the profile up now.
