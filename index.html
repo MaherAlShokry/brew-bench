@@ -1133,7 +1133,9 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 .au-hero{padding-bottom:20px}.au-hero .me-cup{width:96px}
 .au-perks{margin:0 0 16px;padding:0;list-style:none;display:grid;gap:8px}.au-perks li{display:flex;align-items:center;gap:10px;font-size:.9rem}
 .au-perks i{flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--surface2);font-style:normal}
-.au-forgot{display:block;margin:-6px 0 12px auto}.au-switch{margin:14px 0 6px;text-align:center;font-size:.9rem;color:var(--muted)}.au-note{text-align:center}
+.au-forgot{display:block;margin:-6px 0 12px auto}.au-who{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px;padding:10px 14px;border-radius:999px;background:var(--surface2);font-weight:600;font-size:.92rem}.au-who span{min-width:0;overflow-wrap:anywhere}.au-who .linkbtn{flex:none}
+.au-bio{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:56px;text-align:left}.au-bio svg{flex:none;width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}.au-bio span{display:flex;flex-direction:column;line-height:1.25}.au-bio small{font-weight:500;opacity:.8;font-size:.8rem}
+.au-hint{margin:0 0 12px;font-size:.86rem;color:var(--muted)}.au-hero .pav{margin:0 auto 10px}.au-switch{margin:14px 0 6px;text-align:center;font-size:.9rem;color:var(--muted)}.au-note{text-align:center}
 .auth{padding-top:18px!important}
 dialog#vd:has(.me-hero){overflow-x:hidden}
 /* The face in the top bar (phones) and the tab bar (larger screens); it opens your profile. */
@@ -6036,7 +6038,7 @@ function applyUI(){const d=document.documentElement;d.setAttribute('data-accent'
 function saveUI(){save('bb-ui',UI);applyUI()}
 /* Your data: everything the app saves on this device, in one file you can keep or move to another phone. */
 // Sign-in tokens never go into a backup file.
-const DATA_SKIP=['bb-reset','bb-pending','bb-account','bb-fbcfg','bb-syncshadow','bb-syncat','bb-syncdb'];
+const DATA_SKIP=['bb-reset','bb-pending','bb-account','bb-fbcfg','bb-syncshadow','bb-syncat','bb-syncdb','bb-bio','bb-bio-no'];
 function dataKeys(){const k=[];try{for(let i=0;i<localStorage.length;i++){const n=localStorage.key(i);if(n&&n.startsWith('bb-')&&!DATA_SKIP.includes(n))k.push(n)}}catch(e){}return k.sort()}
 function dataSummary(){const n=k=>{let v=null;try{v=JSON.parse(localStorage.getItem(k)||'null')}catch(e){}return Array.isArray(v)?v.length:v&&typeof v==='object'?Object.keys(v).length:0};
   return [[n('bb-myrecipes'),'recipe'],[n('bb-log'),'brew'],[n('bb-beans'),'gallery coffee'],[n('bb-scans'),'scan'],[n('bb-favs'),'favourite']].filter(x=>x[0]).map(([c,w])=>c+' '+w+(c===1?'':'s')).join(', ')||'Nothing saved yet besides your settings'}
@@ -7308,6 +7310,7 @@ function squarePhoto(src,n){return new Promise((ok,no)=>{const img=new Image();i
 const CUP_SVG='<svg class="me-cup" viewBox="0 0 120 92" aria-hidden="true"><g class="me-steam" fill="none" stroke="#F3E3C8" stroke-width="3.2" stroke-linecap="round"><path d="M47 30c-6-8 6-12 0-21"/><path d="M60 27c-6-8 6-12 0-21"/><path d="M73 30c-6-8 6-12 0-21"/></g>'+
   '<path d="M28 40h62v14a25 25 0 0 1-25 25h-12a25 25 0 0 1-25-25z" fill="#F3E3C8"/><path d="M89 46h6a9.5 9.5 0 0 1 0 19h-6" fill="none" stroke="#F3E3C8" stroke-width="5.5"/><ellipse cx="59" cy="41" rx="29" ry="4.2" fill="#5A3420"/><path d="M18 86h82" stroke="#F3E3C8" stroke-opacity=".45" stroke-width="3" stroke-linecap="round"/></svg>';
 const PEN_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4"/></svg>';
+const FP_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10a5 5 0 0 1 10 0v2a9 9 0 0 1-1.5 5 M12 10v3a10 10 0 0 1-2.5 7 M9.5 10a2.5 2.5 0 0 1 5 0v2.5 M4.5 13.5V10a7.5 7.5 0 0 1 13-5.1 M20 10v1.5"/></svg>';
 const SYNC_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 0 1-14 5.3 M4 12a8 8 0 0 1 14-5.3 M18 3v4h-4 M6 21v-4h4"/></svg>';
 // Your coffee style, as a title under your name.
 const ROLE={bright:'Florals chaser',sweet:'Sweet-cup seeker',choc:'Comfort-cup brewer',wild:'Ferment explorer',espresso:'Espresso devotee',milk:'Milk-drink maker'};
@@ -7316,7 +7319,8 @@ function profileStats(){const mine=LOG.filter(l=>l&&(!l.by||l.by===ME)).length,b
 // Who you're signed in as, and the sync; or, signed out, what an account brings.
 function accountHTML(){
   if(ACCT)return '<div class="me-acct"><div class="me-row"><span class="me-dot" aria-hidden="true"></span><span class="me-rt"><b>'+(ACCT.provider==='google.com'?'Signed in with Google':'Signed in')+'</b><small>'+esc(ACCT.email)+'</small>'+
-      (ACCT.provider==='password'&&!ACCT.verified?'<button type="button" class="linkbtn" id="pf-verify">Confirm your email</button>':'')+'</span><button type="button" class="linkbtn" id="pf-out">Sign out</button></div>'+syncLine()+'</div>';
+      (ACCT.provider==='password'&&!ACCT.verified?'<button type="button" class="linkbtn" id="pf-verify">Confirm your email</button>':'')+'</span><button type="button" class="linkbtn" id="pf-out">Sign out</button></div>'+
+      (BIOM?'<div class="me-row"><span class="me-ic" aria-hidden="true">'+FP_SVG+'</span><span class="me-rt"><b>Sign in with your '+bioWord()+'</b><small>'+(BIOM.saved&&BIOM.email===ACCT.email?'On for this phone':'Off')+'</small></span><button type="button" class="linkbtn" id="pf-bio">'+(BIOM.saved&&BIOM.email===ACCT.email?'Turn off':'Turn on')+'</button></div>':'')+syncLine()+'</div>';
   if(!AUTH_ON)return '<p class="me-fine">Saved on this device.</p>';
   return '<div class="me-cta"><button type="button" class="btn" id="pf-signin">Sign in or create an account</button></div>'}
 function meHTML(){const p=PROFILE,x='<button class="vd-close me-x" id="vd-x" aria-label="Close">✕</button>';
@@ -7333,13 +7337,20 @@ function meHTML(){const p=PROFILE,x='<button class="vd-close me-x" id="vd-x" ari
         :'<button type="button" class="me-add" id="pf-edit3">Add your favourite origin, brewer and where you brew</button>')+accountHTML()+'</div>'}
 $('vd').addEventListener('click',e=>{if(e.target.closest('#pf-new,#pf-edit,#pf-edit2,#pf-edit3')){delete $('vd').dataset.me;openProfileEditor();return}if(e.target.closest('#pf-signin')){delete $('vd').dataset.me;openSignIn();return}
   if(e.target.closest('#pf-out')){if(confirm('Sign out? Your profile stays on this phone.'))signOut();return}
+  if(e.target.closest('#pf-bio')){const on=BIOM&&BIOM.saved&&BIOM.email===(ACCT&&ACCT.email),w=bioWord();(on?bioOff():bioOn()).then(()=>toast(on?w[0].toUpperCase()+w.slice(1)+' sign-in is off':'Next time, sign in with your '+bioWord()),err=>{if(err&&err.message&&!/cancel/i.test(err.message))toast(err.message)});return}
   if(e.target.closest('#pf-verify')){sendVerify().then(()=>toast('We sent a link to '+ACCT.email+'. Open it to confirm your email.'),err=>toast(err.message));return}});
 
 /* ---------- Editing the profile ---------- */
-function openProfileEditor(){const d=$('vd'),isNew=!PROFILE,P=Object.assign({nick:'',name:'',brief:'',city:'',style:'',brewer:'',origin:'',av:{e:'',c:AV_COL[0]},photo:'',since:Date.now()},PROFILE||{});P.av=Object.assign({},P.av);
+// opts.join {email,pw,known}: a new account, made together with the profile in one go.
+// opts.welcome: a first Google sign-in, with the profile Google's name and photo started.
+function openProfileEditor(opts){opts=opts||{};const J=opts.join,d=$('vd'),isNew=!PROFILE||!!J||!!opts.welcome,P=Object.assign({nick:'',name:'',brief:'',city:'',style:'',brewer:'',origin:'',av:{e:'',c:AV_COL[0]},photo:'',since:Date.now()},PROFILE||{});delete d.dataset.me;P.av=Object.assign({},P.av);
   const brewerOpts=Object.entries(BREWERS).sort((a,b)=>a[1].name.localeCompare(b[1].name)).map(([k,b])=>'<option value="'+k+'">'+esc(b.name)+'</option>').join('');
-  $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Your profile</span><h2 id="vd-title">'+(isNew?'Create your profile':'Edit your profile')+'</h2></div>'+
-   '<div class="vd-body beform pform"><div class="pf-face"><div id="pf-av"></div><div class="pf-photo"><button type="button" class="btn ghost" id="pf-pick">Use a photo</button><button type="button" class="linkbtn" id="pf-nophoto">Remove the photo</button><input type="file" id="pf-file" accept="image/*" hidden></div></div>'+
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>'+(J?'Join the bench':'Your profile')+'</span><h2 id="vd-title">'+(J?'Set up your account':opts.welcome?'Welcome! Set up your profile':isNew?'Create your profile':'Edit your profile')+'</h2>'+
+     (J||opts.welcome?'<p class="vd-sub">'+(J?'Choose a password, then make the profile yours. Only a nickname is needed; the rest can wait.':'We started it from your Google account. Change anything you like.')+'</p>':'')+'</div>'+
+   '<div class="vd-body beform pform auth">'+(J?'<div class="au-who"><span>'+esc(J.email)+'</span><button type="button" class="linkbtn" id="au-change">Change</button></div>'+
+     '<div class="field"><label for="au-pw">Password <span class="hint">at least 6 characters</span></label><div class="au-pw"><input id="au-pw" type="password" autocomplete="new-password" maxlength="100"><button type="button" class="linkbtn" id="au-show" aria-pressed="false">Show</button></div></div>'+
+     (J.known===null?'<p class="au-hint">Already have an account? <button type="button" class="linkbtn" id="au-again">Try your password again</button></p>':'')+'<p class="au-err" id="au-err" role="alert" hidden></p>':'')+
+   '<div class="pf-face"><div id="pf-av"></div><div class="pf-photo"><button type="button" class="btn ghost" id="pf-pick">Use a photo</button><button type="button" class="linkbtn" id="pf-nophoto">Remove the photo</button><input type="file" id="pf-file" accept="image/*" hidden></div></div>'+
    '<div class="field"><div class="lbl">Or a symbol</div><div class="pf-emoji" id="pf-emoji" role="group" aria-label="Symbol">'+['',...AV_EMOJI].map(e=>'<button type="button" data-e="'+e+'" aria-label="'+(e||'Your initials')+'">'+(e||'Aa')+'</button>').join('')+'</div></div>'+
    '<div class="field"><div class="lbl">Colour</div><div class="pf-cols" id="pf-cols" role="group" aria-label="Colour">'+AV_COL.map(c=>'<button type="button" data-c="'+c+'" style="--c:'+c+'" aria-label="Colour '+c+'"></button>').join('')+'</div></div>'+
    '<div class="two stackm"><div class="field"><label for="pf-nick">Nickname</label><input id="pf-nick" maxlength="30" autocomplete="nickname" placeholder="e.g. The V60 guy" value="'+esc(P.nick)+'"></div>'+
@@ -7349,7 +7360,8 @@ function openProfileEditor(){const d=$('vd'),isNew=!PROFILE,P=Object.assign({nic
    '<div class="two stackm"><div class="field"><label for="pf-brewer">Favourite brewer</label><select id="pf-brewer"><option value="">None yet</option>'+brewerOpts+'</select></div>'+
    '<div class="field"><label for="pf-origin">Favourite origin</label><select id="pf-origin"><option value="">None yet</option>'+originOptions()+'</select></div></div>'+
    '<div class="field"><label for="pf-city">Where you brew <span class="hint">optional</span></label><input id="pf-city" maxlength="40" autocomplete="address-level2" placeholder="e.g. Muscat" value="'+esc(P.city)+'"></div>'+
-   '<div class="actions"><button class="btn" id="pf-save">'+(isNew?'Create my profile':'Save')+'</button><button class="btn ghost" id="pf-cancel">Cancel</button></div>'+
+   '<div class="actions"><button class="btn" id="pf-save">'+(J?'Create my account':opts.welcome?'Done':isNew?'Create my profile':'Save')+'</button><button class="btn ghost" id="pf-cancel">'+(J?'Back':opts.welcome?'Later':'Cancel')+'</button></div>'+
+   (J?'<p class="au-fine">We keep only what you save, and you can delete your account at any time. <a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a></p>':'')+
    (isNew?'':'<button type="button" class="linkbtn danger" id="pf-del">'+(ACCT?'Delete my account and profile':'Delete my profile')+'</button>')+'</div>';
   $('pf-brewer').value=P.brewer;$('pf-origin').value=P.origin;
   const face=()=>{$('pf-av').innerHTML=avatarHTML(okProfile(Object.assign({},P,{nick:$('pf-nick').value.trim()||'?'})),96);$('pf-nophoto').hidden=!P.photo;
@@ -7361,10 +7373,23 @@ function openProfileEditor(){const d=$('vd'),isNew=!PROFILE,P=Object.assign({nic
   $('pf-cols').onclick=e=>{const b=e.target.closest('[data-c]');if(!b)return;P.av.c=b.dataset.c;face()};
   $('pf-pick').onclick=()=>$('pf-file').click();$('pf-nophoto').onclick=()=>{P.photo='';face()};
   $('pf-file').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{P.photo=await squarePhoto(await fileURL(f),192);face()}catch(_){toast('That photo couldn’t be read')}};
-  $('pf-save').onclick=()=>{const nick=$('pf-nick').value.trim();if(!nick){toast('Choose a nickname');$('pf-nick').focus();return}
+  const back=()=>openSignIn({M:'pw',email:J.email,known:J.known,pw:$('au-pw').value});
+  if(J){$('au-pw').value=J.pw||'';$('au-show').onclick=e=>{const on=$('au-pw').type==='password';$('au-pw').type=on?'text':'password';e.target.textContent=on?'Hide':'Show';e.target.setAttribute('aria-pressed',on)};
+    $('au-change').onclick=()=>openSignIn({email:J.email});if($('au-again'))$('au-again').onclick=back}
+  const err=m=>{const e=$('au-err');if(e){e.textContent=m;e.hidden=!m;if(m)e.scrollIntoView({block:'center',behavior:RM()?'auto':'smooth'})}else if(m)toast(m)};
+  $('pf-save').onclick=async()=>{const nick=$('pf-nick').value.trim(),pw=J?$('au-pw').value:'';err('');
+    if(J&&pw.length<6){err(AUTH_ERR.WEAK_PASSWORD);$('au-pw').focus();return}
+    if(!nick){err('Choose a nickname');$('pf-nick').focus();return}
     const p=okProfile(Object.assign({},P,{nick,name:$('pf-name').value,brief:$('pf-brief').value,city:$('pf-city').value,brewer:$('pf-brewer').value,origin:$('pf-origin').value}));
-    saveProfile(p);d.close();toast(isNew?'Welcome, '+p.nick+'!':'Profile saved')};
-  $('pf-cancel').onclick=()=>d.close();$('vd-x').onclick=()=>d.close();
+    if(!J){saveProfile(p);d.close();toast(opts.welcome?'Welcome to the bench, '+p.nick:isNew?'Welcome, '+p.nick+'!':'Profile saved');return}
+    // The account first, then the profile goes up with it. An email that already has an account goes back to its password.
+    const b=$('pf-save');b.disabled=true;b.textContent='Creating…';let j;
+    try{j=await idt('signUp',{email:J.email,password:pw,returnSecureToken:true})}
+    catch(x){b.disabled=false;b.textContent='Create my account';
+      if(/already an account/i.test(x.message)){openSignIn({M:'pw',email:J.email,known:true,note:'That password doesn’t match the account for this email. Try again, or reset it.'});return}err(x.message);return}
+    setAcct(j,'password');sendVerify().catch(()=>{});PROFILE=p;save('bb-profile',p);await afterSignIn();if(PROFILE)saveProfile(PROFILE);d.close();
+    toast('Welcome to the bench, '+nick+'. We sent a link to '+J.email+' to confirm it.')};
+  $('pf-cancel').onclick=()=>J?back():d.close();$('vd-x').onclick=()=>d.close();
   if($('pf-del'))$('pf-del').onclick=async()=>{if(!confirm(ACCT?'Delete your account? Your profile and everything synced to it are removed from the server, and this can’t be undone. This phone keeps its own copy of your coffees, brews and recipes.':'Delete your profile from this phone?'))return;
     const had=!!ACCT;if(had){try{await deleteAccount()}catch(err){toast(err.message);return}}PROFILE=null;try{localStorage.removeItem('bb-profile')}catch(_){}d.close();profileChanged();toast(had?'Your account and profile are deleted':'Profile deleted')};
   showDlg(d);d.scrollTop=0}
@@ -7388,7 +7413,37 @@ async function idToken(){if(!ACCT)return null;if(ACCT.idToken&&Date.now()<ACCT.e
 async function sendVerify(){const t=await idToken();if(!t)throw new Error('Sign in again first.');await idt('sendOobCode',{requestType:'VERIFY_EMAIL',idToken:t})}
 function signOut(){syncForget();ACCT=null;try{localStorage.removeItem('bb-account')}catch(e){}profileChanged()}
 async function deleteAccount(){const t=await idToken();if(!t)throw new Error('Sign in again first.');
-  if(SYNC_DB){try{await fetch(profUrl(t),{method:'DELETE'})}catch(e){}await syncWipe(t)}await idt('delete',{idToken:t});signOut()}
+  if(SYNC_DB){try{await fetch(profUrl(t),{method:'DELETE'})}catch(e){}await syncWipe(t)}await idt('delete',{idToken:t});if(BIOM&&BIOM.email===ACCT.email)await bioOff();signOut()}
+/* ---------- Fingerprint or face sign-in (the Android app) ---------- */
+// Turned on after a sign-in, it keeps the account's sign-in key (never the password) in the phone's keystore, and
+// hands it back only after a fingerprint or face check. Signing out keeps it, so the next sign-in is one touch;
+// turning it off or deleting the account removes it. bb-bio only notes which email it's for (it isn't backed up).
+const BIO_SRV='brew-bench.account';let BIOM=null;
+const bioPlug=()=>plugin('NativeBiometric');
+const bioWord=()=>BIOM&&BIOM.kind==='face'?'face':BIOM&&BIOM.kind==='fingerprint'?'fingerprint':'fingerprint or face';
+async function bioCheck(){const P=bioPlug();BIOM=null;if(!P||!AUTH_ON)return;
+  try{const a=await P.isAvailable();if(!a||!a.isAvailable)return;let saved=false;try{saved=!!(await P.isCredentialsSaved({server:BIO_SRV})).isSaved}catch(e){}
+    const mark=load('bb-bio',null);if(!saved&&mark)try{localStorage.removeItem('bb-bio')}catch(e){}
+    BIOM={kind:a.biometryType===3?'fingerprint':a.biometryType===4?'face':'any',email:saved&&mark&&mark.email||'',saved:saved&&!!mark}}catch(e){}}
+async function bioOn(){const P=bioPlug();if(!P||!ACCT)throw new Error('Sign in first.');
+  await P.verifyIdentity({title:'Turn on '+bioWord()+' sign-in',subtitle:ACCT.email,negativeButtonText:'Cancel',maxAttempts:3});
+  if(!(await idToken()))throw new Error('Sign in again first.');
+  await P.setCredentials({username:ACCT.email,password:ACCT.refresh,server:BIO_SRV});save('bb-bio',{email:ACCT.email});await bioCheck();profileChanged()}
+async function bioOff(){const P=bioPlug();if(P)try{await P.deleteCredentials({server:BIO_SRV})}catch(e){}try{localStorage.removeItem('bb-bio')}catch(e){}await bioCheck();profileChanged()}
+// The check, then the kept key is swapped for a fresh session, just as the app renews one every hour.
+async function bioSignIn(){const P=bioPlug();
+  try{await P.verifyIdentity({title:'Sign in to The Brew Bench',subtitle:BIOM.email,negativeButtonText:'Use my password',maxAttempts:3})}catch(e){return false}
+  const c=await P.getCredentials({server:BIO_SRV});let r;
+  try{r=await fetch('https://securetoken.googleapis.com/v1/token?key='+encodeURIComponent(AUTHCFG.apiKey),{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'grant_type=refresh_token&refresh_token='+encodeURIComponent(c.password)})}
+  catch(e){throw new Error('You’re offline. Connect and try again.')}
+  if(!r.ok){await bioOff();throw new Error('That saved sign-in has run out (the password may have changed). Sign in with your password, then turn '+bioWord()+' sign-in on again.')}
+  const j=await r.json();let u={};try{u=((await idt('lookup',{idToken:j.id_token})).users||[])[0]||{}}catch(e){}
+  const provs=(u.providerUserInfo||[]).map(x=>x.providerId);
+  setAcct({localId:j.user_id,email:u.email||c.username,idToken:j.id_token,refreshToken:j.refresh_token,expiresIn:j.expires_in,emailVerified:u.emailVerified},provs.includes('google.com')&&!provs.includes('password')?'google.com':'password');
+  if(ACCT.refresh!==c.password)try{await P.setCredentials({username:ACCT.email,password:ACCT.refresh,server:BIO_SRV})}catch(e){}
+  await afterSignIn();return true}
+bioCheck().then(()=>{if(BIOM)profileChanged()});
+
 // Once signed in: bring down the profile kept with the account, or keep the one made on this phone.
 async function afterSignIn(g){g=g||{};
   if(!PROFILE&&(g.name||g.photo)){const nick=str(g.first||String(g.name||'').split(' ')[0],30)||'Coffee lover';let photo='';if(g.photo)try{photo=await squarePhoto(await (await fetch(g.photo)).blob().then(fileURL),192)}catch(e){}
@@ -7407,43 +7462,67 @@ async function pullProfile(){if(!ACCT||!SYNC_DB)return;const t=await idToken();i
 if(ACCT)setTimeout(()=>pullProfile().then(profileChanged),1500);
 
 /* ---------- The sign-in sheet ---------- */
-function openSignIn(mode){if(!AUTH_ON)return;const d=$('vd');let M=mode||'in';
-  const draw=()=>{const up=M==='up',reset=M==='reset';
-    $('vd-in').innerHTML='<div class="me-hero au-hero">'+'<button class="vd-close me-x" id="vd-x" aria-label="Close">✕</button>'+CUP_SVG+
-       '<span class="me-k">'+(reset?'It happens':up?'Join the bench':'Welcome back')+'</span><h2 id="vd-title">'+(reset?'Reset your password':up?'Create your account':'Sign in')+'</h2>'+
-       '<p>'+(reset?'We’ll email you a link to choose a new one.':up?'A free account for your profile, coffees, diary and brews.':'Pick up your bench where you left it.')+'</p></div>'+
-     '<div class="vd-body beform auth">'+
-      (!reset&&GOOGLE_ON()?'<div class="au-google" id="au-google"></div><div class="au-or"><span>or with email</span></div>':'')+
-      '<form id="au-form" novalidate><div class="field"><label for="au-email">Email</label><input id="au-email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="you@example.com"></div>'+
-      (reset?'':'<div class="field"><label for="au-pw">Password'+(up?' <span class="hint">at least 6 characters</span>':'')+'</label><div class="au-pw"><input id="au-pw" type="password" autocomplete="'+(up?'new-password':'current-password')+'" maxlength="100"><button type="button" class="linkbtn" id="au-show" aria-pressed="false">Show</button></div></div>')+
-      (M==='in'?'<button type="button" class="linkbtn au-forgot" id="au-forgot">Forgot your password?</button>':'')+
-      '<p class="au-err" id="au-err" role="alert" hidden></p><div class="actions"><button class="btn" id="au-go" type="submit">'+(reset?'Send the link':up?'Create my account':'Sign in')+'</button></div></form>'+
-      '<p class="au-switch">'+(reset?'<button type="button" class="linkbtn" id="au-back">Back to sign in</button>':up?'Already have an account? <button type="button" class="linkbtn" id="au-to-in">Sign in</button>':'New to the bench? <button type="button" class="linkbtn" id="au-to-up">Create an account</button>')+'</p>'+
-      (NATIVE&&AUTHCFG.googleClientId?'<p class="hint au-note">Signing in with Google works on the website. In the app, use your email.</p>':'')+
+// One way in for everyone: Google, or an email first. A known email asks for its password; a new one sets up the
+// account (password, nickname, name) on the next screen. Firebase may hide whether an email has an account (its
+// email enumeration protection); then the password is tried first and, if nothing matches, the new-account screen
+// follows, where an email that does have an account is caught and sent back to try the password again.
+function openSignIn(init){if(!AUTH_ON)return;init=init||{};const d=$('vd');delete d.dataset.me;let M=init.M||'start',email=init.email||'',pw=init.pw||'',known=init.known===undefined?null:init.known,note=init.note||'';
+  const HEAD={start:['Your bench, your account','Sign in or join','One account for your profile, coffees, diary and brews.'],
+    pw:['Welcome back','Enter your password',''],bio:['One touch next time','Sign in with your fingerprint or face?',''],reset:['It happens','Reset your password','We’ll email you a link to choose a new one.']};
+  const pwField=(ac,hint)=>'<div class="field"><label for="au-pw">Password'+(hint?' <span class="hint">'+hint+'</span>':'')+'</label><div class="au-pw"><input id="au-pw" type="password" autocomplete="'+ac+'" maxlength="100"><button type="button" class="linkbtn" id="au-show" aria-pressed="false">Show</button></div></div>';
+  const who=()=>'<div class="au-who"><span>'+esc(email)+'</span><button type="button" class="linkbtn" id="au-change">Change</button></div>';
+  const draw=()=>{const h=HEAD[M];let body='';
+    if(M==='start')body=(BIOM&&BIOM.saved&&BIOM.email?'<button type="button" class="btn au-bio" id="au-bio">'+FP_SVG+'<span>Sign in with your '+bioWord()+'<small>'+esc(BIOM.email)+'</small></span></button><div class="au-or"><span>or</span></div>':'')+(GOOGLE_ON()?'<div class="au-google" id="au-google"></div><div class="au-or"><span>or with email</span></div>':'')+
+      '<div class="field"><label for="au-email">Email</label><input id="au-email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="you@example.com" value="'+esc(email)+'"></div>';
+    else if(M==='pw')body=who()+pwField('current-password')+'<button type="button" class="linkbtn au-forgot" id="au-forgot">Forgot your password?</button>'+
+      (known===null?'<p class="au-hint">New here? Enter the password you’d like and we’ll set up your account next.</p>':'');
+    else if(M==='reset')body=who();
+    else if(M==='bio')body='<p class="au-hint">Your password stays with you: the phone keeps only a sign-in key, unlocked by your '+bioWord()+'. You can turn it off from your profile.</p><div class="actions"><button type="button" class="btn" id="au-yes">Turn it on</button><button type="button" class="btn ghost" id="au-no">Not now</button></div>';
+    $('vd-in').innerHTML='<div class="me-hero au-hero"><button class="vd-close me-x" id="vd-x" aria-label="Close">✕</button>'+CUP_SVG+
+       '<span class="me-k">'+h[0]+'</span><h2 id="vd-title">'+h[1]+'</h2>'+(h[2]?'<p>'+h[2]+'</p>':'')+'</div>'+
+     '<div class="vd-body beform auth"><form id="au-form" novalidate>'+body+'<p class="au-err" id="au-err" role="alert"'+(note?'':' hidden')+'>'+esc(note)+'</p>'+
+      (M==='bio'?'':'<div class="actions"><button class="btn" id="au-go" type="submit">'+{start:'Continue',pw:'Sign in',reset:'Send the link'}[M]+'</button></div>')+'</form>'+
+      (M==='reset'?'<p class="au-switch"><button type="button" class="linkbtn" id="au-back">Back</button></p>':'')+
+      (M==='start'&&NATIVE&&AUTHCFG.googleClientId?'<p class="hint au-note">Signing in with Google works on the website. In the app, use your email.</p>':'')+
       '<p class="au-fine">We keep only what you save, and you can delete your account at any time. <a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a></p></div>';
-    for(const [id,m] of [['au-to-up','up'],['au-to-in','in']])if($(id))$(id).onclick=()=>{const v=$('au-email').value;M=m;draw();$('au-email').value=v;$('au-email').focus()};
-    if($('au-google'))googleButton($('au-google'));
+    note='';
+    if($('au-google'))googleButton($('au-google'),r=>{if(r.isNewUser)openProfileEditor({welcome:true});else d.close()});
     const err=m=>{const e=$('au-err');e.textContent=m;e.hidden=!m};
-    if($('au-show'))$('au-show').onclick=e=>{const on=$('au-pw').type==='password';$('au-pw').type=on?'text':'password';e.target.textContent=on?'Hide':'Show';e.target.setAttribute('aria-pressed',on)};
-    if($('au-forgot'))$('au-forgot').onclick=()=>{const v=$('au-email').value;M='reset';draw();$('au-email').value=v};
-    if($('au-back'))$('au-back').onclick=()=>{M='in';draw()};
-    $('au-form').onsubmit=async e=>{e.preventDefault();const email=$('au-email').value.trim(),pw=$('au-pw')?$('au-pw').value:'';err('');
-      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err(AUTH_ERR.INVALID_EMAIL);$('au-email').focus();return}
-      if(!reset&&(up?pw.length<6:!pw)){err(up?AUTH_ERR.WEAK_PASSWORD:AUTH_ERR.MISSING_PASSWORD);$('au-pw').focus();return}
-      const b=$('au-go');b.disabled=true;b.textContent=reset?'Sending…':up?'Creating…':'Signing in…';
-      try{if(reset){await idt('sendOobCode',{requestType:'PASSWORD_RESET',email});d.close();toast('Check '+email+' for a link to reset your password');return}
-        const j=await idt(up?'signUp':'signInWithPassword',{email,password:pw,returnSecureToken:true});setAcct(j,'password');
-        if(up)sendVerify().catch(()=>{});await afterSignIn();d.close();
-        toast(up?'Account created. We sent a link to '+email+' to confirm it.':'Signed in'+(PROFILE?' as '+PROFILE.nick:''));if(up&&!PROFILE)setTimeout(openProfileEditor,350)}
-      catch(x){err(x.message);b.disabled=false;b.textContent=reset?'Send the link':up?'Create account':'Sign in'}};
-    $('vd-x').onclick=()=>d.close()};
+    const go=m=>{if($('au-pw'))pw=$('au-pw').value;if(m==='new'){openProfileEditor({join:{email,pw,known}});return}M=m;draw()};
+    if($('au-change'))$('au-change').onclick=()=>{pw='';known=null;go('start')};
+    if($('au-forgot'))$('au-forgot').onclick=()=>go('reset');
+    if($('au-bio'))$('au-bio').onclick=async()=>{err('');try{if(await bioSignIn()){d.close();toast('Signed in'+(PROFILE?' as '+PROFILE.nick:''))}}catch(x){await bioCheck();note=x.message;draw()}};
+    if($('au-yes'))$('au-yes').onclick=async()=>{try{await bioOn();d.close();toast('Next time, sign in with your '+bioWord())}catch(x){if(!/cancel/i.test(x.message||''))err(x.message)}};
+    if($('au-no'))$('au-no').onclick=()=>{save('bb-bio-no',1);d.close()};
+    if($('au-back'))$('au-back').onclick=()=>go('pw');
+    if($('au-pw')){$('au-pw').value=pw;$('au-show').onclick=e=>{const on=$('au-pw').type==='password';$('au-pw').type=on?'text':'password';e.target.textContent=on?'Hide':'Show';e.target.setAttribute('aria-pressed',on)}}
+    const busy=(on,t)=>{const b=$('au-go');b.disabled=on;if(t)b.textContent=t};
+    $('au-form').onsubmit=async e=>{e.preventDefault();err('');const label=$('au-go').textContent;
+      try{if(M==='start'){email=$('au-email').value.trim();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err(AUTH_ERR.INVALID_EMAIL);$('au-email').focus();return}
+          busy(true,'Checking…');known=null;
+          // Firebase says whether the email has an account, unless its email enumeration protection hides it.
+          try{const j=await idt('createAuthUri',{identifier:email,continueUri:location.origin+'/'});if(typeof j.registered==='boolean')known=j.registered}catch(x){}
+          go(known===false?'new':'pw');return}
+        if(M==='reset'){busy(true,'Sending…');await idt('sendOobCode',{requestType:'PASSWORD_RESET',email});d.close();toast('Check '+email+' for a link to reset your password');return}
+        pw=$('au-pw').value;
+        if(M==='pw'){if(!pw){err(AUTH_ERR.MISSING_PASSWORD);$('au-pw').focus();return}busy(true,'Signing in…');
+          try{const j=await idt('signInWithPassword',{email,password:pw,returnSecureToken:true});setAcct(j,'password');await afterSignIn();
+            // In the app, offer one-touch sign-in once (or again when it's kept for another email).
+            if(BIOM&&!(BIOM.saved&&BIOM.email===email)&&!load('bb-bio-no',0)){M='bio';draw();return}
+            d.close();toast('Signed in'+(PROFILE?' as '+PROFILE.nick:''));return}
+          catch(x){if(known===null&&/match|no account/i.test(x.message)){if(pw.length>=6){go('new');return}throw new Error('That email and password don’t match. New here? Choose a password of at least 6 characters.')}throw x}}
+      }
+      catch(x){err(x.message);busy(false,label)}};
+    $('vd-x').onclick=()=>d.close();
+    const f=$('vd-in').querySelector(M==='start'?'#au-email':M==='bio'?'#au-yes':'#au-pw');if(f&&!matchMedia('(pointer:coarse)').matches)setTimeout(()=>f.focus(),60)};
   draw();showDlg(d);d.scrollTop=0}
 // Google's own button (Google Identity Services). Its ID token signs in to Firebase, and the name and photo start the profile.
-function googleButton(el){loadScript('https://accounts.google.com/gsi/client').then(()=>{
+function googleButton(el,done){loadScript('https://accounts.google.com/gsi/client').then(()=>{
     google.accounts.id.initialize({client_id:AUTHCFG.googleClientId,ux_mode:'popup',callback:async r=>{try{
       const j=await idt('signInWithIdp',{postBody:'id_token='+encodeURIComponent(r.credential)+'&providerId=google.com',requestUri:location.origin,returnSecureToken:true,returnIdpCredential:true});
-      setAcct(j,'google.com');await afterSignIn({name:j.displayName||j.fullName,first:j.firstName,photo:j.photoUrl});$('vd').close();
-      toast('Signed in with Google'+(PROFILE?' as '+PROFILE.nick:''))}catch(x){const e=$('au-err');if(e){e.textContent=x.message;e.hidden=false}}}});
+      setAcct(j,'google.com');await afterSignIn({name:j.displayName||j.fullName,first:j.firstName,photo:j.photoUrl});
+      // A first sign-in with Google asks once how to be known; the name and photo from Google start it off.
+      if(done)done({isNewUser:!!j.isNewUser});else $('vd').close();if(!j.isNewUser)toast('Signed in with Google'+(PROFILE?' as '+PROFILE.nick:''))}catch(x){const e=$('au-err');if(e){e.textContent=x.message;e.hidden=false}}}});
     google.accounts.id.renderButton(el,{theme:curTheme()==='dark'?'filled_black':'outline',size:'large',shape:'pill',text:'continue_with',width:Math.min(360,el.clientWidth||320)})})
   .catch(()=>{el.innerHTML='<p class="hint">Google sign-in couldn’t load. Check your connection, or use your email.</p>'})}
 // Pages drawn before this part of the app loaded pick the profile up now.
@@ -7485,7 +7564,7 @@ async function sync(apply){if(!syncOn())return false;if(SYNC_BUSY){SYNC_MORE=Mat
   SYNC_BUSY=true;let pulled=false;
   try{const tok=await idToken();if(!tok)return false;const uid=encodeURIComponent(ACCT.uid),q='.json?auth='+encodeURIComponent(tok);
     if(!SHADOW||SHADOW.uid!==ACCT.uid)SHADOW={uid:ACCT.uid,h:{}};const H=SHADOW.h,now=Date.now();
-    const res=await fetch(syncBase()+'/users/'+uid+'/data'+q);if(!res.ok)throw new Error('read '+res.status);const R=(await res.json())||{};
+    const res=await fetch(syncBase()+'/users/'+uid+'/data'+q);if(!res.ok)throw Object.assign(new Error('read'),{status:res.status});const R=(await res.json())||{};
     const up={},done=[],pulls=[];const txt=r=>r&&!r.del&&typeof r.d==='string'?r.d:null;
     // Lists, item by item.
     for(const k of SYNC_COLS){if(k==='bb-log'&&GROUP)continue;const L=localList(k),RC=(R.col&&R.col[k])||{},pre='c|'+k+'|';
@@ -7504,22 +7583,24 @@ async function sync(apply){if(!syncOn())return false;if(SYNC_BUSY){SYNC_MORE=Mat
     const imgUrl=k=>syncBase()+'/userimg/'+uid+'/'+encodeURIComponent(k)+q;
     for(const k of keys){const l=typeof imgs[k]==='string'?imgSig(imgs[k]):null,r=RI[k]&&!RI[k].del?RI[k].s:null,a=syncMerge(H,'i|'+k,l,r);
       if(a==='push'){const w=await fetch(imgUrl(k),l==null?{method:'DELETE'}:{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(imgs[k])});
-        if(!w.ok)throw new Error('photo '+w.status);up['img/'+k]=l==null?{t:now,del:1}:{t:now,s:l};done.push(['i|'+k,l])}
+        if(!w.ok)throw Object.assign(new Error('photo'),{status:w.status});up['img/'+k]=l==null?{t:now,del:1}:{t:now,s:l};done.push(['i|'+k,l])}
       else if(a==='pull'&&apply){if(r==null)await BIMG.del(k);else{const g=await fetch(imgUrl(k));const v=g.ok?await g.json():null;if(typeof v!=='string'||!/^data:image\//.test(v))continue;await BIMG.put(k,v)}
         pulled=true;done.push(['i|'+k,r])}}
-    if(Object.keys(up).length){const w=await fetch(syncBase()+'/users/'+uid+'/data'+q,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(up)});if(!w.ok)throw new Error('write '+w.status)}
+    if(Object.keys(up).length){const w=await fetch(syncBase()+'/users/'+uid+'/data'+q,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(up)});if(!w.ok)throw Object.assign(new Error('write'),{status:w.status})}
     for(const [k,v] of pulls){if(v==null)localStorage.removeItem(k);else localStorage.setItem(k,v);pulled=true}
     for(const [sk,v] of done){if(v==null)delete H[sk];else H[sk]=fnv(v)}
     save('bb-syncshadow',SHADOW);SYNC_AT=Date.now();save('bb-syncat',SYNC_AT);SYNC_ERR=''}
-  catch(e){SYNC_ERR=navigator.onLine===false?'offline':'error'}
+  // A refusal (401/403) means the database's rules don't let accounts keep their data yet (see the README).
+  catch(e){SYNC_ERR=navigator.onLine===false?'offline':e.status===401||e.status===403?'rules':'error'}
   finally{SYNC_BUSY=false;const more=SYNC_MORE;SYNC_MORE=0;if(more)setTimeout(()=>more===2?syncNow():sync(false),200)}
   return pulled}
 // Safe to reload: no sheet open and nothing being typed.
 const syncSafe=()=>!document.querySelector('dialog[open]')&&!(document.activeElement&&/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName));
 // Bring everything in and show it. A page that has just reloaded for a sync only sends its own changes, so two devices
 // can never bounce reloads back and forth.
-async function syncNow(){if(!syncOn())return;let last=0;try{last=+sessionStorage.getItem('bb-syncreload')||0}catch(e){}
-  const since=Date.now()-last,apply=syncSafe()&&since>5000;const pulled=await sync(apply);
+// Asked for with Sync now, it brings everything in straight away, even with the profile open.
+async function syncNow(force){if(!syncOn())return;let last=0;try{last=+sessionStorage.getItem('bb-syncreload')||0}catch(e){}
+  const since=Date.now()-last,apply=force===true||syncSafe()&&since>5000;const pulled=await sync(apply);
   if(pulled){try{sessionStorage.setItem('bb-syncreload',String(Date.now()))}catch(e){}location.reload();return}
   if(!apply){if(since<=5000)setTimeout(syncNow,5200-since);else SYNC_WAIT=true}if(window.PROFILE_OK)profileChanged()}
 let SYNC_WAIT=false;
@@ -7541,10 +7622,12 @@ addEventListener('online',()=>syncSoon());
 document.addEventListener('close',()=>{if(SYNC_WAIT){SYNC_WAIT=false;setTimeout(syncNow,500)}},true);
 try{if(Date.now()-(+sessionStorage.getItem('bb-syncreload')||0)<8000)setTimeout(()=>toast('Brought in changes from your other devices'),700)}catch(e){}
 // The line on the profile card.
-function syncLine(){if(!syncOn())return '';const ago=SYNC_AT?Math.round((Date.now()-SYNC_AT)/60000):-1;
-  const when=SYNC_ERR==='offline'?'Offline: changes go up when you’re back':SYNC_ERR?'Couldn’t sync just now':ago<0?'Not synced yet':ago<1?'Synced just now':'Synced '+(ago<60?ago+' min ago':Math.round(ago/60)+' h ago');
-  return '<div class="me-row me-syncrow'+(SYNC_ERR?' off':'')+'"><span class="me-ic" aria-hidden="true">'+SYNC_SVG+'</span><span class="me-rt"><b>'+when+'</b></span><button type="button" class="linkbtn" id="pf-sync">Sync now</button></div>'}
-$('vd').addEventListener('click',e=>{if(e.target.closest('#pf-sync')){e.target.textContent='Syncing…';syncNow()}});
+// Shown only when something is wrong: working sync needs no mention.
+function syncLine(){if(!syncOn()||!SYNC_ERR)return '';const ago=SYNC_AT?Math.round((Date.now()-SYNC_AT)/60000):-1;
+  const when=SYNC_ERR==='offline'?'Offline: changes go up when you’re back':SYNC_ERR==='rules'?'The database turned sync away':SYNC_ERR?'Couldn’t sync just now':ago<0?'Not synced yet':ago<1?'Synced just now':'Synced '+(ago<60?ago+' min ago':Math.round(ago/60)+' h ago');
+  return '<div class="me-row me-syncrow'+(SYNC_ERR?' off':'')+'"><span class="me-ic" aria-hidden="true">'+SYNC_SVG+'</span><span class="me-rt"><b>'+when+'</b>'+(SYNC_ERR==='rules'?'<small>Its rules don’t allow saving your data yet. Publish the rules from the README in the Firebase console.</small>':'')+'</span><button type="button" class="linkbtn" id="pf-sync">Sync now</button></div>'}
+$('vd').addEventListener('click',e=>{const b=e.target.closest('#pf-sync');if(!b||b.disabled)return;b.disabled=true;b.textContent='Syncing…';
+  syncNow(true).then(()=>toast(SYNC_ERR==='offline'?'You’re offline. Your changes go up when you’re back':SYNC_ERR==='rules'?'The database turned sync away: its rules need publishing':SYNC_ERR?'Couldn’t sync. Try again in a moment':'Everything’s in sync'))});
 
 </script>
 </body>
