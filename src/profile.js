@@ -76,10 +76,16 @@ $('vd').addEventListener('click',e=>{if(e.target.closest('#pf-new,#pf-edit,#pf-e
   if(e.target.closest('#pf-verify')){sendVerify().then(()=>toast('We sent a link to '+ACCT.email+'. Open it to confirm your email.'),err=>toast(err.message));return}});
 
 /* ---------- Editing the profile ---------- */
-function openProfileEditor(){const d=$('vd'),isNew=!PROFILE,P=Object.assign({nick:'',name:'',brief:'',city:'',style:'',brewer:'',origin:'',av:{e:'',c:AV_COL[0]},photo:'',since:Date.now()},PROFILE||{});P.av=Object.assign({},P.av);
+// opts.join {email,pw,known}: a new account, made together with the profile in one go.
+// opts.welcome: a first Google sign-in, with the profile Google's name and photo started.
+function openProfileEditor(opts){opts=opts||{};const J=opts.join,d=$('vd'),isNew=!PROFILE||!!J||!!opts.welcome,P=Object.assign({nick:'',name:'',brief:'',city:'',style:'',brewer:'',origin:'',av:{e:'',c:AV_COL[0]},photo:'',since:Date.now()},PROFILE||{});P.av=Object.assign({},P.av);
   const brewerOpts=Object.entries(BREWERS).sort((a,b)=>a[1].name.localeCompare(b[1].name)).map(([k,b])=>'<option value="'+k+'">'+esc(b.name)+'</option>').join('');
-  $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Your profile</span><h2 id="vd-title">'+(isNew?'Create your profile':'Edit your profile')+'</h2></div>'+
-   '<div class="vd-body beform pform"><div class="pf-face"><div id="pf-av"></div><div class="pf-photo"><button type="button" class="btn ghost" id="pf-pick">Use a photo</button><button type="button" class="linkbtn" id="pf-nophoto">Remove the photo</button><input type="file" id="pf-file" accept="image/*" hidden></div></div>'+
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>'+(J?'Join the bench':'Your profile')+'</span><h2 id="vd-title">'+(J?'Set up your account':opts.welcome?'Welcome! Set up your profile':isNew?'Create your profile':'Edit your profile')+'</h2>'+
+     (J||opts.welcome?'<p class="vd-sub">'+(J?'Choose a password, then make the profile yours. Only a nickname is needed; the rest can wait.':'We started it from your Google account. Change anything you like.')+'</p>':'')+'</div>'+
+   '<div class="vd-body beform pform auth">'+(J?'<div class="au-who"><span>'+esc(J.email)+'</span><button type="button" class="linkbtn" id="au-change">Change</button></div>'+
+     '<div class="field"><label for="au-pw">Password <span class="hint">at least 6 characters</span></label><div class="au-pw"><input id="au-pw" type="password" autocomplete="new-password" maxlength="100"><button type="button" class="linkbtn" id="au-show" aria-pressed="false">Show</button></div></div>'+
+     (J.known===null?'<p class="au-hint">Already have an account? <button type="button" class="linkbtn" id="au-again">Try your password again</button></p>':'')+'<p class="au-err" id="au-err" role="alert" hidden></p>':'')+
+   '<div class="pf-face"><div id="pf-av"></div><div class="pf-photo"><button type="button" class="btn ghost" id="pf-pick">Use a photo</button><button type="button" class="linkbtn" id="pf-nophoto">Remove the photo</button><input type="file" id="pf-file" accept="image/*" hidden></div></div>'+
    '<div class="field"><div class="lbl">Or a symbol</div><div class="pf-emoji" id="pf-emoji" role="group" aria-label="Symbol">'+['',...AV_EMOJI].map(e=>'<button type="button" data-e="'+e+'" aria-label="'+(e||'Your initials')+'">'+(e||'Aa')+'</button>').join('')+'</div></div>'+
    '<div class="field"><div class="lbl">Colour</div><div class="pf-cols" id="pf-cols" role="group" aria-label="Colour">'+AV_COL.map(c=>'<button type="button" data-c="'+c+'" style="--c:'+c+'" aria-label="Colour '+c+'"></button>').join('')+'</div></div>'+
    '<div class="two stackm"><div class="field"><label for="pf-nick">Nickname</label><input id="pf-nick" maxlength="30" autocomplete="nickname" placeholder="e.g. The V60 guy" value="'+esc(P.nick)+'"></div>'+
@@ -89,7 +95,8 @@ function openProfileEditor(){const d=$('vd'),isNew=!PROFILE,P=Object.assign({nic
    '<div class="two stackm"><div class="field"><label for="pf-brewer">Favourite brewer</label><select id="pf-brewer"><option value="">None yet</option>'+brewerOpts+'</select></div>'+
    '<div class="field"><label for="pf-origin">Favourite origin</label><select id="pf-origin"><option value="">None yet</option>'+originOptions()+'</select></div></div>'+
    '<div class="field"><label for="pf-city">Where you brew <span class="hint">optional</span></label><input id="pf-city" maxlength="40" autocomplete="address-level2" placeholder="e.g. Muscat" value="'+esc(P.city)+'"></div>'+
-   '<div class="actions"><button class="btn" id="pf-save">'+(isNew?'Create my profile':'Save')+'</button><button class="btn ghost" id="pf-cancel">Cancel</button></div>'+
+   '<div class="actions"><button class="btn" id="pf-save">'+(J?'Create my account':opts.welcome?'Done':isNew?'Create my profile':'Save')+'</button><button class="btn ghost" id="pf-cancel">'+(J?'Back':opts.welcome?'Later':'Cancel')+'</button></div>'+
+   (J?'<p class="au-fine">We keep only what you save, and you can delete your account at any time. <a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a></p>':'')+
    (isNew?'':'<button type="button" class="linkbtn danger" id="pf-del">'+(ACCT?'Delete my account and profile':'Delete my profile')+'</button>')+'</div>';
   $('pf-brewer').value=P.brewer;$('pf-origin').value=P.origin;
   const face=()=>{$('pf-av').innerHTML=avatarHTML(okProfile(Object.assign({},P,{nick:$('pf-nick').value.trim()||'?'})),96);$('pf-nophoto').hidden=!P.photo;
@@ -101,10 +108,23 @@ function openProfileEditor(){const d=$('vd'),isNew=!PROFILE,P=Object.assign({nic
   $('pf-cols').onclick=e=>{const b=e.target.closest('[data-c]');if(!b)return;P.av.c=b.dataset.c;face()};
   $('pf-pick').onclick=()=>$('pf-file').click();$('pf-nophoto').onclick=()=>{P.photo='';face()};
   $('pf-file').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{P.photo=await squarePhoto(await fileURL(f),192);face()}catch(_){toast('That photo couldn’t be read')}};
-  $('pf-save').onclick=()=>{const nick=$('pf-nick').value.trim();if(!nick){toast('Choose a nickname');$('pf-nick').focus();return}
+  const back=()=>openSignIn({M:'pw',email:J.email,known:J.known,pw:$('au-pw').value});
+  if(J){$('au-pw').value=J.pw||'';$('au-show').onclick=e=>{const on=$('au-pw').type==='password';$('au-pw').type=on?'text':'password';e.target.textContent=on?'Hide':'Show';e.target.setAttribute('aria-pressed',on)};
+    $('au-change').onclick=()=>openSignIn({email:J.email});if($('au-again'))$('au-again').onclick=back}
+  const err=m=>{const e=$('au-err');if(e){e.textContent=m;e.hidden=!m;if(m)e.scrollIntoView({block:'center',behavior:RM()?'auto':'smooth'})}else if(m)toast(m)};
+  $('pf-save').onclick=async()=>{const nick=$('pf-nick').value.trim(),pw=J?$('au-pw').value:'';err('');
+    if(J&&pw.length<6){err(AUTH_ERR.WEAK_PASSWORD);$('au-pw').focus();return}
+    if(!nick){err('Choose a nickname');$('pf-nick').focus();return}
     const p=okProfile(Object.assign({},P,{nick,name:$('pf-name').value,brief:$('pf-brief').value,city:$('pf-city').value,brewer:$('pf-brewer').value,origin:$('pf-origin').value}));
-    saveProfile(p);d.close();toast(isNew?'Welcome, '+p.nick+'!':'Profile saved')};
-  $('pf-cancel').onclick=()=>d.close();$('vd-x').onclick=()=>d.close();
+    if(!J){saveProfile(p);d.close();toast(opts.welcome?'Welcome to the bench, '+p.nick:isNew?'Welcome, '+p.nick+'!':'Profile saved');return}
+    // The account first, then the profile goes up with it. An email that already has an account goes back to its password.
+    const b=$('pf-save');b.disabled=true;b.textContent='Creating…';let j;
+    try{j=await idt('signUp',{email:J.email,password:pw,returnSecureToken:true})}
+    catch(x){b.disabled=false;b.textContent='Create my account';
+      if(/already an account/i.test(x.message)){openSignIn({M:'pw',email:J.email,known:true,note:'That password doesn’t match the account for this email. Try again, or reset it.'});return}err(x.message);return}
+    setAcct(j,'password');sendVerify().catch(()=>{});PROFILE=p;save('bb-profile',p);await afterSignIn();if(PROFILE)saveProfile(PROFILE);d.close();
+    toast('Welcome to the bench, '+nick+'. We sent a link to '+J.email+' to confirm it.')};
+  $('pf-cancel').onclick=()=>J?back():d.close();$('vd-x').onclick=()=>d.close();
   if($('pf-del'))$('pf-del').onclick=async()=>{if(!confirm(ACCT?'Delete your account? Your profile and everything synced to it are removed from the server, and this can’t be undone. This phone keeps its own copy of your coffees, brews and recipes.':'Delete your profile from this phone?'))return;
     const had=!!ACCT;if(had){try{await deleteAccount()}catch(err){toast(err.message);return}}PROFILE=null;try{localStorage.removeItem('bb-profile')}catch(_){}d.close();profileChanged();toast(had?'Your account and profile are deleted':'Profile deleted')};
   showDlg(d);d.scrollTop=0}
@@ -151,37 +171,30 @@ if(ACCT)setTimeout(()=>pullProfile().then(profileChanged),1500);
 // account (password, nickname, name) on the next screen. Firebase may hide whether an email has an account (its
 // email enumeration protection); then the password is tried first and, if nothing matches, the new-account screen
 // follows, where an email that does have an account is caught and sent back to try the password again.
-function openSignIn(){if(!AUTH_ON)return;const d=$('vd');let M='start',email='',pw='',known=null,note='';
+function openSignIn(init){if(!AUTH_ON)return;init=init||{};const d=$('vd');let M=init.M||'start',email=init.email||'',pw=init.pw||'',known=init.known===undefined?null:init.known,note=init.note||'';
   const HEAD={start:['Your bench, your account','Sign in or join','One account for your profile, coffees, diary and brews.'],
-    pw:['Welcome back','Enter your password',''],new:['Join the bench','Set up your account','Choose a password and how you’d like to be known.'],
-    reset:['It happens','Reset your password','We’ll email you a link to choose a new one.'],details:['Nice to meet you','How should we call you?','Your nickname signs your brews and heads your profile. You can change it any time.']};
+    pw:['Welcome back','Enter your password',''],reset:['It happens','Reset your password','We’ll email you a link to choose a new one.']};
   const pwField=(ac,hint)=>'<div class="field"><label for="au-pw">Password'+(hint?' <span class="hint">'+hint+'</span>':'')+'</label><div class="au-pw"><input id="au-pw" type="password" autocomplete="'+ac+'" maxlength="100"><button type="button" class="linkbtn" id="au-show" aria-pressed="false">Show</button></div></div>';
   const who=()=>'<div class="au-who"><span>'+esc(email)+'</span><button type="button" class="linkbtn" id="au-change">Change</button></div>';
-  const nameFields=p=>'<div class="field"><label for="au-nick">Nickname</label><input id="au-nick" maxlength="30" autocomplete="nickname" placeholder="The Coffee Custodian" value="'+esc(p&&p.nick||'')+'"></div>'+
-    '<div class="field"><label for="au-name">Your name <span class="hint">optional</span></label><input id="au-name" maxlength="60" autocomplete="name" value="'+esc(p&&p.name||'')+'"></div>';
   const draw=()=>{const h=HEAD[M];let body='';
     if(M==='start')body=(GOOGLE_ON()?'<div class="au-google" id="au-google"></div><div class="au-or"><span>or with email</span></div>':'')+
       '<div class="field"><label for="au-email">Email</label><input id="au-email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="you@example.com" value="'+esc(email)+'"></div>';
     else if(M==='pw')body=who()+pwField('current-password')+'<button type="button" class="linkbtn au-forgot" id="au-forgot">Forgot your password?</button>'+
       (known===null?'<p class="au-hint">New here? Enter the password you’d like and we’ll set up your account next.</p>':'');
-    else if(M==='new')body=who()+pwField('new-password','at least 6 characters')+nameFields(PROFILE)+
-      (known===null?'<p class="au-hint">Already have an account? <button type="button" class="linkbtn" id="au-again">Try your password again</button></p>':'');
     else if(M==='reset')body=who();
-    else if(M==='details')body=nameFields(PROFILE);
-    $('vd-in').innerHTML='<div class="me-hero au-hero"><button class="vd-close me-x" id="vd-x" aria-label="Close">✕</button>'+(M==='details'&&PROFILE?avatarHTML(PROFILE,84):CUP_SVG)+
+    $('vd-in').innerHTML='<div class="me-hero au-hero"><button class="vd-close me-x" id="vd-x" aria-label="Close">✕</button>'+CUP_SVG+
        '<span class="me-k">'+h[0]+'</span><h2 id="vd-title">'+h[1]+'</h2>'+(h[2]?'<p>'+h[2]+'</p>':'')+'</div>'+
      '<div class="vd-body beform auth"><form id="au-form" novalidate>'+body+'<p class="au-err" id="au-err" role="alert"'+(note?'':' hidden')+'>'+esc(note)+'</p>'+
-      '<div class="actions"><button class="btn" id="au-go" type="submit">'+{start:'Continue',pw:'Sign in',new:'Create my account',reset:'Send the link',details:'Done'}[M]+'</button></div></form>'+
+      '<div class="actions"><button class="btn" id="au-go" type="submit">'+{start:'Continue',pw:'Sign in',reset:'Send the link'}[M]+'</button></div></form>'+
       (M==='reset'?'<p class="au-switch"><button type="button" class="linkbtn" id="au-back">Back</button></p>':'')+
       (M==='start'&&NATIVE&&AUTHCFG.googleClientId?'<p class="hint au-note">Signing in with Google works on the website. In the app, use your email.</p>':'')+
-      (M==='details'?'':'<p class="au-fine">We keep only what you save, and you can delete your account at any time. <a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a></p>')+'</div>';
+      '<p class="au-fine">We keep only what you save, and you can delete your account at any time. <a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a></p></div>';
     note='';
-    if($('au-google'))googleButton($('au-google'),r=>{if(r.isNewUser){M='details';draw()}else d.close()});
-    const go=m=>{if($('au-pw'))pw=$('au-pw').value;M=m;draw()};
+    if($('au-google'))googleButton($('au-google'),r=>{if(r.isNewUser)openProfileEditor({welcome:true});else d.close()});
+    const go=m=>{if($('au-pw'))pw=$('au-pw').value;if(m==='new'){openProfileEditor({join:{email,pw,known}});return}M=m;draw()};
     if($('au-change'))$('au-change').onclick=()=>{pw='';known=null;go('start')};
     if($('au-forgot'))$('au-forgot').onclick=()=>go('reset');
     if($('au-back'))$('au-back').onclick=()=>go('pw');
-    if($('au-again'))$('au-again').onclick=()=>go('pw');
     if($('au-pw')){$('au-pw').value=pw;$('au-show').onclick=e=>{const on=$('au-pw').type==='password';$('au-pw').type=on?'text':'password';e.target.textContent=on?'Hide':'Show';e.target.setAttribute('aria-pressed',on)}}
     const err=m=>{const e=$('au-err');e.textContent=m;e.hidden=!m};
     const busy=(on,t)=>{const b=$('au-go');b.disabled=on;if(t)b.textContent=t};
@@ -192,22 +205,14 @@ function openSignIn(){if(!AUTH_ON)return;const d=$('vd');let M='start',email='',
           try{const j=await idt('createAuthUri',{identifier:email,continueUri:location.origin+'/'});if(typeof j.registered==='boolean')known=j.registered}catch(x){}
           go(known===false?'new':'pw');return}
         if(M==='reset'){busy(true,'Sending…');await idt('sendOobCode',{requestType:'PASSWORD_RESET',email});d.close();toast('Check '+email+' for a link to reset your password');return}
-        if(M==='details'){const nick=$('au-nick').value.trim();if(!nick){err('Choose a nickname.');$('au-nick').focus();return}
-          const P=okProfile(Object.assign({since:Date.now()},PROFILE||{},{nick,name:$('au-name').value.trim()}));if(P)saveProfile(P);d.close();toast('Welcome to the bench, '+nick);return}
         pw=$('au-pw').value;
         if(M==='pw'){if(!pw){err(AUTH_ERR.MISSING_PASSWORD);$('au-pw').focus();return}busy(true,'Signing in…');
           try{const j=await idt('signInWithPassword',{email,password:pw,returnSecureToken:true});setAcct(j,'password');await afterSignIn();d.close();toast('Signed in'+(PROFILE?' as '+PROFILE.nick:''));return}
-          catch(x){if(known===null&&/match|no account/i.test(x.message)){if(pw.length>=6){M='new';draw();return}throw new Error('That email and password don’t match. New here? Choose a password of at least 6 characters.')}throw x}}
-        if(M==='new'){const nick=$('au-nick').value.trim();if(pw.length<6){err(AUTH_ERR.WEAK_PASSWORD);$('au-pw').focus();return}if(!nick){err('Choose a nickname.');$('au-nick').focus();return}
-          busy(true,'Creating…');let j;
-          try{j=await idt('signUp',{email,password:pw,returnSecureToken:true})}
-          catch(x){if(/already an account/i.test(x.message)){known=true;note='That password doesn’t match the account for this email. Try again, or reset it.';pw='';M='pw';draw();return}throw x}
-          setAcct(j,'password');sendVerify().catch(()=>{});
-          const P=okProfile(Object.assign({since:Date.now()},PROFILE||{},{nick,name:$('au-name').value.trim()}));if(P){PROFILE=P;save('bb-profile',P)}
-          await afterSignIn();if(PROFILE)saveProfile(PROFILE);d.close();toast('Welcome to the bench, '+nick+'. We sent a link to '+email+' to confirm it.')}}
+          catch(x){if(known===null&&/match|no account/i.test(x.message)){if(pw.length>=6){go('new');return}throw new Error('That email and password don’t match. New here? Choose a password of at least 6 characters.')}throw x}}
+      }
       catch(x){err(x.message);busy(false,label)}};
     $('vd-x').onclick=()=>d.close();
-    const f=$('vd-in').querySelector(M==='start'?'#au-email':M==='details'?'#au-nick':'#au-pw');if(f&&!matchMedia('(pointer:coarse)').matches)setTimeout(()=>f.focus(),60)};
+    const f=$('vd-in').querySelector(M==='start'?'#au-email':'#au-pw');if(f&&!matchMedia('(pointer:coarse)').matches)setTimeout(()=>f.focus(),60)};
   draw();showDlg(d);d.scrollTop=0}
 // Google's own button (Google Identity Services). Its ID token signs in to Firebase, and the name and photo start the profile.
 function googleButton(el,done){loadScript('https://accounts.google.com/gsi/client').then(()=>{
