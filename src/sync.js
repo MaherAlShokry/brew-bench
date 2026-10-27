@@ -92,5 +92,5 @@ try{if(Date.now()-(+sessionStorage.getItem('bb-syncreload')||0)<8000)setTimeout(
 // The line on the profile card.
 function syncLine(){if(!syncOn())return '';const ago=SYNC_AT?Math.round((Date.now()-SYNC_AT)/60000):-1;
   const when=SYNC_ERR==='offline'?'Offline: changes go up when you’re back':SYNC_ERR?'Couldn’t sync just now':ago<0?'Not synced yet':ago<1?'Synced just now':'Synced '+(ago<60?ago+' min ago':Math.round(ago/60)+' h ago');
-  return '<div class="me-row me-syncrow'+(SYNC_ERR?' off':'')+'"><span class="me-ic" aria-hidden="true">'+SYNC_SVG+'</span><span class="me-rt"><b>'+when+'</b><small>Coffees, diary, brews, recipes and photos</small></span><button type="button" class="linkbtn" id="pf-sync">Sync now</button></div>'}
+  return '<div class="me-row me-syncrow'+(SYNC_ERR?' off':'')+'"><span class="me-ic" aria-hidden="true">'+SYNC_SVG+'</span><span class="me-rt"><b>'+when+'</b></span><button type="button" class="linkbtn" id="pf-sync">Sync now</button></div>'}
 $('vd').addEventListener('click',e=>{if(e.target.closest('#pf-sync')){e.target.textContent='Syncing…';syncNow()}});

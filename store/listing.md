@@ -47,9 +47,9 @@ EXPLORE COFFEE
 • 33 processes, from washed to hydro honey and thermal shock
 • The coffee flavour wheel, coffee words, history and championships
 
-YOUR BENCH, EVERYWHERE
+YOUR PROFILE
 • A profile with your nickname, photo and the coffee you love
-• Sign in with email to sync your coffees, diary, brews and photos between your phones and the website
+• Sign in with email or Google
 • Shared brew logs with friends
 • Light and dark, eight coffee colour themes
 
@@ -61,7 +61,7 @@ No ads. No tracking. Everything works offline, and your data stays on your phone
 |---|---|---|
 | App icon | icon-512.png | 512 × 512, 32-bit PNG |
 | Feature graphic | feature-graphic.png | 1024 × 500 |
-| Phone screenshots | screenshots/01–08 | 1080 × 1920, 8 images |
+| Phone screenshots | screenshots/01–07 | 1080 × 1920, 7 images |
 
 ## Data safety form
 
@@ -101,4 +101,4 @@ All features work without signing in. To review sign-in, the reviewer can create
 
 ## Release notes (first release)
 
-The Brew Bench on Google Play: dial in your coffee, scan bags, keep a diary for every coffee, and sync it all with the website.
+The Brew Bench on Google Play: dial in your coffee, scan bags, and keep a diary for every coffee.

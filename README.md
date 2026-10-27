@@ -142,7 +142,7 @@ The API key is meant to be public; the database rules and the authorized domains
 
 ## Publishing on Google Play
 
-Everything for the store is in `store/`: the listing texts, the data safety and content rating answers (`store/listing.md`), the 512 px icon, the feature graphic and eight phone screenshots. The privacy policy and the account deletion page are served with the site at `privacy.html` and `delete-account.html`.
+Everything for the store is in `store/`: the listing texts, the data safety and content rating answers (`store/listing.md`), the 512 px icon, the feature graphic and seven phone screenshots. The privacy policy and the account deletion page are served with the site at `privacy.html` and `delete-account.html`.
 
 1. **Upload key.** Add the four signing secrets (`BB_KEYSTORE_BASE64`, `BB_KEYSTORE_PASSWORD`, `BB_KEY_ALIAS`, `BB_KEY_PASSWORD`) under the repository's **Settings → Secrets and variables → Actions**. Every build of `main` then publishes a release-signed `brew-bench.apk` and the `brew-bench.aab` app bundle that Play takes. Keep the keystore file safe; with Play App Signing, Google can reset a lost upload key.
 2. **Developer account.** Create one at [play.google.com/console](https://play.google.com/console) (a one-time fee, and an identity check).

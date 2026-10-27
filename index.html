@@ -1126,10 +1126,10 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 .me-dot{flex:none;width:10px;height:10px;margin:0 3px;border-radius:50%;background:#5E9A63;box-shadow:0 0 0 4px color-mix(in srgb,#5E9A63 22%,transparent)}
 .me-ic{flex:none;display:grid;place-items:center;width:16px;color:var(--muted)}.me-syncrow.off .me-ic{color:#A8432F}
 .me-row .linkbtn{flex:none;min-height:40px}
-.me-cta{padding:16px;border-radius:16px;border:1.5px solid color-mix(in srgb,var(--honey) 45%,var(--line));background:color-mix(in srgb,var(--honey) 9%,var(--surface))}
+.me-cta{margin-top:2px}
 .me-cta b{font-family:var(--display);font-size:1.05rem}.me-cta ul{margin:8px 0 12px;padding:0;list-style:none;display:grid;gap:4px;font-size:.88rem;color:var(--muted)}
 .me-cta li::before{content:"";display:inline-block;width:6px;height:6px;margin-right:9px;border-radius:50%;background:var(--honey);vertical-align:middle}.me-cta .btn{width:100%}
-.me-fine,.au-fine{margin:0;text-align:center;font-size:.78rem;color:var(--muted)}
+.me-fine,.au-fine{margin:0;text-align:center;font-size:.78rem;color:var(--muted)}.au-fine a,.setnote a{color:var(--cherry);font-weight:600}
 .au-hero{padding-bottom:20px}.au-hero .me-cup{width:96px}
 .au-perks{margin:0 0 16px;padding:0;list-style:none;display:grid;gap:8px}.au-perks li{display:flex;align-items:center;gap:10px;font-size:.9rem}
 .au-perks i{flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--surface2);font-style:normal}
@@ -7264,8 +7264,7 @@ function accountHTML(){
   if(ACCT)return '<div class="me-acct"><div class="me-row"><span class="me-dot" aria-hidden="true"></span><span class="me-rt"><b>'+(ACCT.provider==='google.com'?'Signed in with Google':'Signed in')+'</b><small>'+esc(ACCT.email)+'</small>'+
       (ACCT.provider==='password'&&!ACCT.verified?'<button type="button" class="linkbtn" id="pf-verify">Confirm your email</button>':'')+'</span><button type="button" class="linkbtn" id="pf-out">Sign out</button></div>'+syncLine()+'</div>';
   if(!AUTH_ON)return '<p class="me-fine">Saved on this device.</p>';
-  return '<div class="me-cta"><b>Keep your bench everywhere</b><ul><li>Your profile on every phone</li><li>Coffees, diary, brews and photos in sync</li><li>The app and the website, one bench</li></ul>'+
-    '<button type="button" class="btn" id="pf-signin">Sign in or create an account</button></div>'}
+  return '<div class="me-cta"><button type="button" class="btn" id="pf-signin">Sign in or create an account</button></div>'}
 function meHTML(){const p=PROFILE,x='<button class="vd-close me-x" id="vd-x" aria-label="Close">✕</button>';
   if(!p)return '<div class="me-hero blank">'+x+CUP_SVG+'<span class="me-k">The Brew Bench</span><h2 id="vd-title">Who’s brewing?</h2>'+
       '<p>A nickname, a face and a few words about the cups you love.</p><div class="me-acts"><button type="button" class="btn me-main" id="pf-new">Create your profile</button>'+
@@ -7330,7 +7329,7 @@ function setAcct(j,provider){ACCT={uid:j.localId,email:j.email||'',provider,idTo
 // A fresh ID token, renewed with the refresh token when the old one has run out (they last an hour).
 async function idToken(){if(!ACCT)return null;if(ACCT.idToken&&Date.now()<ACCT.exp)return ACCT.idToken;let r;
   try{r=await fetch('https://securetoken.googleapis.com/v1/token?key='+encodeURIComponent(AUTHCFG.apiKey),{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'grant_type=refresh_token&refresh_token='+encodeURIComponent(ACCT.refresh)})}catch(e){return null}
-  if(!r.ok){if(r.status===400){signOut();toast('Your sign-in has expired. Sign in again to keep your profile in sync.')}return null}
+  if(!r.ok){if(r.status===400){signOut();toast('Your sign-in has expired. Sign in again.')}return null}
   const j=await r.json();Object.assign(ACCT,{idToken:j.id_token,refresh:j.refresh_token,exp:Date.now()+(+j.expires_in||3600)*1000-60000});save('bb-account',ACCT);return ACCT.idToken}
 async function sendVerify(){const t=await idToken();if(!t)throw new Error('Sign in again first.');await idt('sendOobCode',{requestType:'VERIFY_EMAIL',idToken:t})}
 function signOut(){syncForget();ACCT=null;try{localStorage.removeItem('bb-account')}catch(e){}profileChanged()}
@@ -7358,9 +7357,8 @@ function openSignIn(mode){if(!AUTH_ON)return;const d=$('vd');let M=mode||'in';
   const draw=()=>{const up=M==='up',reset=M==='reset';
     $('vd-in').innerHTML='<div class="me-hero au-hero">'+'<button class="vd-close me-x" id="vd-x" aria-label="Close">✕</button>'+CUP_SVG+
        '<span class="me-k">'+(reset?'It happens':up?'Join the bench':'Welcome back')+'</span><h2 id="vd-title">'+(reset?'Reset your password':up?'Create your account':'Sign in')+'</h2>'+
-       '<p>'+(reset?'We’ll email you a link to choose a new one.':up?'One account for your profile, coffees, diary, brews and photos, on every phone and the website.':'Pick up your bench where you left it: your coffees, diary and brews come with you.')+'</p></div>'+
+       '<p>'+(reset?'We’ll email you a link to choose a new one.':up?'A free account for your profile, coffees, diary and brews.':'Pick up your bench where you left it.')+'</p></div>'+
      '<div class="vd-body beform auth">'+
-      (up?'<ul class="au-perks"><li><i aria-hidden="true">👤</i>Your profile on every phone</li><li><i aria-hidden="true">🫘</i>Coffees, diary and brews in sync</li><li><i aria-hidden="true">🌐</i>The app and the website, one bench</li></ul>':'')+
       (!reset&&GOOGLE_ON()?'<div class="au-google" id="au-google"></div><div class="au-or"><span>or with email</span></div>':'')+
       '<form id="au-form" novalidate><div class="field"><label for="au-email">Email</label><input id="au-email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="you@example.com"></div>'+
       (reset?'':'<div class="field"><label for="au-pw">Password'+(up?' <span class="hint">at least 6 characters</span>':'')+'</label><div class="au-pw"><input id="au-pw" type="password" autocomplete="'+(up?'new-password':'current-password')+'" maxlength="100"><button type="button" class="linkbtn" id="au-show" aria-pressed="false">Show</button></div></div>')+
@@ -7491,7 +7489,7 @@ try{if(Date.now()-(+sessionStorage.getItem('bb-syncreload')||0)<8000)setTimeout(
 // The line on the profile card.
 function syncLine(){if(!syncOn())return '';const ago=SYNC_AT?Math.round((Date.now()-SYNC_AT)/60000):-1;
   const when=SYNC_ERR==='offline'?'Offline: changes go up when you’re back':SYNC_ERR?'Couldn’t sync just now':ago<0?'Not synced yet':ago<1?'Synced just now':'Synced '+(ago<60?ago+' min ago':Math.round(ago/60)+' h ago');
-  return '<div class="me-row me-syncrow'+(SYNC_ERR?' off':'')+'"><span class="me-ic" aria-hidden="true">'+SYNC_SVG+'</span><span class="me-rt"><b>'+when+'</b><small>Coffees, diary, brews, recipes and photos</small></span><button type="button" class="linkbtn" id="pf-sync">Sync now</button></div>'}
+  return '<div class="me-row me-syncrow'+(SYNC_ERR?' off':'')+'"><span class="me-ic" aria-hidden="true">'+SYNC_SVG+'</span><span class="me-rt"><b>'+when+'</b></span><button type="button" class="linkbtn" id="pf-sync">Sync now</button></div>'}
 $('vd').addEventListener('click',e=>{if(e.target.closest('#pf-sync')){e.target.textContent='Syncing…';syncNow()}});
 
 </script>
