@@ -6,7 +6,7 @@
 // Firebase settings for signing in (see README). Without an apiKey accounts are off and the profile stays on this device.
 // googleClientId is the Web client ID Firebase creates when Google sign-in is switched on. A 'bb-fbcfg' value in
 // localStorage overrides these, for testing.
-const FB_AUTH={apiKey:'',googleClientId:''};
+const FB_AUTH={apiKey:'AIzaSyATeoG104Y_UEEsBK03z8Nq2qMBgKyI5Dk',googleClientId:''};
 const AUTHCFG=(()=>{try{return Object.assign({},FB_AUTH,JSON.parse(localStorage.getItem('bb-fbcfg')||'{}'))}catch(e){return FB_AUTH}})();
 const AUTH_ON=!!AUTHCFG.apiKey;
 // Google's sign-in window doesn't open inside an app's web view, so the Android app signs in with email.
