@@ -1451,7 +1451,7 @@ $('l-stars').onclick=e=>{const b=e.target.closest('[data-s]');if(b){STAR=+b.data
 /* ---------- Shared log (Firebase Realtime Database over REST, no SDK) ---------- */
 // The Realtime Database URL of the Firebase project that holds shared logs (see README).
 // Empty means shared logs are switched off. A 'bb-syncdb' value in localStorage overrides it, for testing.
-const FIREBASE_DB_URL='';
+const FIREBASE_DB_URL='https://brew-bench-default-rtdb.europe-west1.firebasedatabase.app';
 const SYNC_DB=(()=>{try{return localStorage.getItem('bb-syncdb')||''}catch(e){return''}})()||FIREBASE_DB_URL;
 let GROUP=load('bb-group',null);if(GROUP&&!(typeof GROUP.code==='string'&&/^[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(GROUP.code)))GROUP=null;
 let ME=(()=>{try{return localStorage.getItem('bb-name')||''}catch(e){return''}})();
