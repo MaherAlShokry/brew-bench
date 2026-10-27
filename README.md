@@ -70,6 +70,7 @@ One-time setup:
    - **Firebase Authentication Admin**, so PR previews can sign in
    - **API Keys Viewer**
    - **Cloud Run Viewer**
+   - **Service Usage Consumer**, so the deploy can check that Hosting is on
 
    Open it, go to **Keys → Add key → Create new key → JSON**, and download the file.
 3. In GitHub, under **Settings → Secrets and variables → Actions**, add a secret named `FIREBASE_SERVICE_ACCOUNT_BREW_BENCH` and paste the whole JSON file as its value. Then delete the downloaded file.
