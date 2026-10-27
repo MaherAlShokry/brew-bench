@@ -20,7 +20,7 @@ artifact, app = '--artifact' in args, '--app' in args
 site = pathlib.Path(args[args.index('--site') + 1]).resolve() if '--site' in args else None
 
 # Files served next to index.html. Keep in sync with the SHELL list in sw.js.
-SITE_FILES = ['manifest.webmanifest', 'sw.js', 'icons', 'vendor', 'events.json']
+SITE_FILES = ['manifest.webmanifest', 'sw.js', 'icons', 'vendor', 'events.json', 'privacy.html', 'delete-account.html']
 GOOGLE_FONTS = '<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..800&family=Noto+Color+Emoji&display=swap" rel="stylesheet">'
 JSPDF_CDN = '<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>'
 

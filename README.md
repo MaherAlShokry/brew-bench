@@ -140,6 +140,19 @@ One-time setup, in the same Firebase project as the shared log:
 
 The API key is meant to be public; the database rules and the authorized domains are what protect the data. Google's sign-in window can't open inside the Android app's web view, so the app signs in with email; Google sign-in works on the website.
 
+## Publishing on Google Play
+
+Everything for the store is in `store/`: the listing texts, the data safety and content rating answers (`store/listing.md`), the 512 px icon, the feature graphic and eight phone screenshots. The privacy policy and the account deletion page are served with the site at `privacy.html` and `delete-account.html`.
+
+1. **Upload key.** Add the four signing secrets (`BB_KEYSTORE_BASE64`, `BB_KEYSTORE_PASSWORD`, `BB_KEY_ALIAS`, `BB_KEY_PASSWORD`) under the repository's **Settings → Secrets and variables → Actions**. Every build of `main` then publishes a release-signed `brew-bench.apk` and the `brew-bench.aab` app bundle that Play takes. Keep the keystore file safe; with Play App Signing, Google can reset a lost upload key.
+2. **Developer account.** Create one at [play.google.com/console](https://play.google.com/console) (a one-time fee, and an identity check).
+3. **Create the app:** name *The Brew Bench*, app (not game), free.
+4. **App content:** privacy policy URL, app access (all features work without signing in), ads (none), content rating, target audience (13+), data safety and the account deletion URL, all answered in `store/listing.md`.
+5. **Store listing:** paste the texts and upload the graphics from `store/`.
+6. **Testing, then production.** Upload `brew-bench.aab` from the latest release to a **closed test**. New personal developer accounts must run a closed test with at least 12 testers for 14 days before they can apply for production. Then promote the release to production.
+
+Phones that installed an earlier `brew-bench.apk` signed with the old debug key must uninstall it once before installing a release-signed build (Android won't update across signing keys). Sign in first, or export a backup from Settings, so nothing is lost.
+
 ## Project structure
 
 ```

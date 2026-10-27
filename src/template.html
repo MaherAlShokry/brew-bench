@@ -295,6 +295,9 @@ button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.a
 #ts-chips .chip[aria-pressed="true"]{background:var(--cherry);color:var(--surface)}
 #toast{position:fixed;left:50%;bottom:calc(var(--sa-bottom) + 22px);transform:translate(-50%,30px);opacity:0;background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:999px;font-family:var(--display);font-size:.92rem;z-index:50;pointer-events:none;transition:opacity .25s,transform .25s;max-width:90vw;text-align:center}
 #toast.show{opacity:1;transform:translate(-50%,0)}
+/* A long message wraps as a rounded card under a fixed width, never a circle. */
+#toast{width:max-content;max-width:min(92vw,440px);text-align:center;line-height:1.4}
+#toast:not(:empty){border-radius:22px}
 .bean-fx{position:fixed;z-index:60;pointer-events:none;will-change:transform,opacity}
 @keyframes fall{to{transform:translateY(110vh) rotate(var(--r));opacity:.9}}
 .drop{border:2px dashed var(--line);border-radius:16px;min-height:180px;display:grid;place-items:center;text-align:center;padding:14px;cursor:pointer;background:var(--paper);overflow:hidden}
