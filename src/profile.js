@@ -147,43 +147,75 @@ async function pullProfile(){if(!ACCT||!SYNC_DB)return;const t=await idToken();i
 if(ACCT)setTimeout(()=>pullProfile().then(profileChanged),1500);
 
 /* ---------- The sign-in sheet ---------- */
-function openSignIn(mode){if(!AUTH_ON)return;const d=$('vd');let M=mode||'in';
-  const draw=()=>{const up=M==='up',reset=M==='reset';
-    $('vd-in').innerHTML='<div class="me-hero au-hero">'+'<button class="vd-close me-x" id="vd-x" aria-label="Close">✕</button>'+CUP_SVG+
-       '<span class="me-k">'+(reset?'It happens':up?'Join the bench':'Welcome back')+'</span><h2 id="vd-title">'+(reset?'Reset your password':up?'Create your account':'Sign in')+'</h2>'+
-       '<p>'+(reset?'We’ll email you a link to choose a new one.':up?'A free account for your profile, coffees, diary and brews.':'Pick up your bench where you left it.')+'</p></div>'+
-     '<div class="vd-body beform auth">'+
-      (!reset&&GOOGLE_ON()?'<div class="au-google" id="au-google"></div><div class="au-or"><span>or with email</span></div>':'')+
-      '<form id="au-form" novalidate><div class="field"><label for="au-email">Email</label><input id="au-email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="you@example.com"></div>'+
-      (reset?'':'<div class="field"><label for="au-pw">Password'+(up?' <span class="hint">at least 6 characters</span>':'')+'</label><div class="au-pw"><input id="au-pw" type="password" autocomplete="'+(up?'new-password':'current-password')+'" maxlength="100"><button type="button" class="linkbtn" id="au-show" aria-pressed="false">Show</button></div></div>')+
-      (M==='in'?'<button type="button" class="linkbtn au-forgot" id="au-forgot">Forgot your password?</button>':'')+
-      '<p class="au-err" id="au-err" role="alert" hidden></p><div class="actions"><button class="btn" id="au-go" type="submit">'+(reset?'Send the link':up?'Create my account':'Sign in')+'</button></div></form>'+
-      '<p class="au-switch">'+(reset?'<button type="button" class="linkbtn" id="au-back">Back to sign in</button>':up?'Already have an account? <button type="button" class="linkbtn" id="au-to-in">Sign in</button>':'New to the bench? <button type="button" class="linkbtn" id="au-to-up">Create an account</button>')+'</p>'+
-      (NATIVE&&AUTHCFG.googleClientId?'<p class="hint au-note">Signing in with Google works on the website. In the app, use your email.</p>':'')+
-      '<p class="au-fine">We keep only what you save, and you can delete your account at any time. <a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a></p></div>';
-    for(const [id,m] of [['au-to-up','up'],['au-to-in','in']])if($(id))$(id).onclick=()=>{const v=$('au-email').value;M=m;draw();$('au-email').value=v;$('au-email').focus()};
-    if($('au-google'))googleButton($('au-google'));
+// One way in for everyone: Google, or an email first. A known email asks for its password; a new one sets up the
+// account (password, nickname, name) on the next screen. Firebase may hide whether an email has an account (its
+// email enumeration protection); then the password is tried first and, if nothing matches, the new-account screen
+// follows, where an email that does have an account is caught and sent back to try the password again.
+function openSignIn(){if(!AUTH_ON)return;const d=$('vd');let M='start',email='',pw='',known=null,note='';
+  const HEAD={start:['Your bench, your account','Sign in or join','One account for your profile, coffees, diary and brews.'],
+    pw:['Welcome back','Enter your password',''],new:['Join the bench','Set up your account','Choose a password and how you’d like to be known.'],
+    reset:['It happens','Reset your password','We’ll email you a link to choose a new one.'],details:['Nice to meet you','How should we call you?','Your nickname signs your brews and heads your profile. You can change it any time.']};
+  const pwField=(ac,hint)=>'<div class="field"><label for="au-pw">Password'+(hint?' <span class="hint">'+hint+'</span>':'')+'</label><div class="au-pw"><input id="au-pw" type="password" autocomplete="'+ac+'" maxlength="100"><button type="button" class="linkbtn" id="au-show" aria-pressed="false">Show</button></div></div>';
+  const who=()=>'<div class="au-who"><span>'+esc(email)+'</span><button type="button" class="linkbtn" id="au-change">Change</button></div>';
+  const nameFields=p=>'<div class="field"><label for="au-nick">Nickname</label><input id="au-nick" maxlength="30" autocomplete="nickname" placeholder="The Coffee Custodian" value="'+esc(p&&p.nick||'')+'"></div>'+
+    '<div class="field"><label for="au-name">Your name <span class="hint">optional</span></label><input id="au-name" maxlength="60" autocomplete="name" value="'+esc(p&&p.name||'')+'"></div>';
+  const draw=()=>{const h=HEAD[M];let body='';
+    if(M==='start')body=(GOOGLE_ON()?'<div class="au-google" id="au-google"></div><div class="au-or"><span>or with email</span></div>':'')+
+      '<div class="field"><label for="au-email">Email</label><input id="au-email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="you@example.com" value="'+esc(email)+'"></div>';
+    else if(M==='pw')body=who()+pwField('current-password')+'<button type="button" class="linkbtn au-forgot" id="au-forgot">Forgot your password?</button>'+
+      (known===null?'<p class="au-hint">New here? Enter the password you’d like and we’ll set up your account next.</p>':'');
+    else if(M==='new')body=who()+pwField('new-password','at least 6 characters')+nameFields(PROFILE)+
+      (known===null?'<p class="au-hint">Already have an account? <button type="button" class="linkbtn" id="au-again">Try your password again</button></p>':'');
+    else if(M==='reset')body=who();
+    else if(M==='details')body=nameFields(PROFILE);
+    $('vd-in').innerHTML='<div class="me-hero au-hero"><button class="vd-close me-x" id="vd-x" aria-label="Close">✕</button>'+(M==='details'&&PROFILE?avatarHTML(PROFILE,84):CUP_SVG)+
+       '<span class="me-k">'+h[0]+'</span><h2 id="vd-title">'+h[1]+'</h2>'+(h[2]?'<p>'+h[2]+'</p>':'')+'</div>'+
+     '<div class="vd-body beform auth"><form id="au-form" novalidate>'+body+'<p class="au-err" id="au-err" role="alert"'+(note?'':' hidden')+'>'+esc(note)+'</p>'+
+      '<div class="actions"><button class="btn" id="au-go" type="submit">'+{start:'Continue',pw:'Sign in',new:'Create my account',reset:'Send the link',details:'Done'}[M]+'</button></div></form>'+
+      (M==='reset'?'<p class="au-switch"><button type="button" class="linkbtn" id="au-back">Back</button></p>':'')+
+      (M==='start'&&NATIVE&&AUTHCFG.googleClientId?'<p class="hint au-note">Signing in with Google works on the website. In the app, use your email.</p>':'')+
+      (M==='details'?'':'<p class="au-fine">We keep only what you save, and you can delete your account at any time. <a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a></p>')+'</div>';
+    note='';
+    if($('au-google'))googleButton($('au-google'),r=>{if(r.isNewUser){M='details';draw()}else d.close()});
+    const go=m=>{if($('au-pw'))pw=$('au-pw').value;M=m;draw()};
+    if($('au-change'))$('au-change').onclick=()=>{pw='';known=null;go('start')};
+    if($('au-forgot'))$('au-forgot').onclick=()=>go('reset');
+    if($('au-back'))$('au-back').onclick=()=>go('pw');
+    if($('au-again'))$('au-again').onclick=()=>go('pw');
+    if($('au-pw')){$('au-pw').value=pw;$('au-show').onclick=e=>{const on=$('au-pw').type==='password';$('au-pw').type=on?'text':'password';e.target.textContent=on?'Hide':'Show';e.target.setAttribute('aria-pressed',on)}}
     const err=m=>{const e=$('au-err');e.textContent=m;e.hidden=!m};
-    if($('au-show'))$('au-show').onclick=e=>{const on=$('au-pw').type==='password';$('au-pw').type=on?'text':'password';e.target.textContent=on?'Hide':'Show';e.target.setAttribute('aria-pressed',on)};
-    if($('au-forgot'))$('au-forgot').onclick=()=>{const v=$('au-email').value;M='reset';draw();$('au-email').value=v};
-    if($('au-back'))$('au-back').onclick=()=>{M='in';draw()};
-    $('au-form').onsubmit=async e=>{e.preventDefault();const email=$('au-email').value.trim(),pw=$('au-pw')?$('au-pw').value:'';err('');
-      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err(AUTH_ERR.INVALID_EMAIL);$('au-email').focus();return}
-      if(!reset&&(up?pw.length<6:!pw)){err(up?AUTH_ERR.WEAK_PASSWORD:AUTH_ERR.MISSING_PASSWORD);$('au-pw').focus();return}
-      const b=$('au-go');b.disabled=true;b.textContent=reset?'Sending…':up?'Creating…':'Signing in…';
-      try{if(reset){await idt('sendOobCode',{requestType:'PASSWORD_RESET',email});d.close();toast('Check '+email+' for a link to reset your password');return}
-        const j=await idt(up?'signUp':'signInWithPassword',{email,password:pw,returnSecureToken:true});setAcct(j,'password');
-        if(up)sendVerify().catch(()=>{});await afterSignIn();d.close();
-        toast(up?'Account created. We sent a link to '+email+' to confirm it.':'Signed in'+(PROFILE?' as '+PROFILE.nick:''));if(up&&!PROFILE)setTimeout(openProfileEditor,350)}
-      catch(x){err(x.message);b.disabled=false;b.textContent=reset?'Send the link':up?'Create account':'Sign in'}};
-    $('vd-x').onclick=()=>d.close()};
+    const busy=(on,t)=>{const b=$('au-go');b.disabled=on;if(t)b.textContent=t};
+    $('au-form').onsubmit=async e=>{e.preventDefault();err('');const label=$('au-go').textContent;
+      try{if(M==='start'){email=$('au-email').value.trim();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err(AUTH_ERR.INVALID_EMAIL);$('au-email').focus();return}
+          busy(true,'Checking…');known=null;
+          // Firebase says whether the email has an account, unless its email enumeration protection hides it.
+          try{const j=await idt('createAuthUri',{identifier:email,continueUri:location.origin+'/'});if(typeof j.registered==='boolean')known=j.registered}catch(x){}
+          go(known===false?'new':'pw');return}
+        if(M==='reset'){busy(true,'Sending…');await idt('sendOobCode',{requestType:'PASSWORD_RESET',email});d.close();toast('Check '+email+' for a link to reset your password');return}
+        if(M==='details'){const nick=$('au-nick').value.trim();if(!nick){err('Choose a nickname.');$('au-nick').focus();return}
+          const P=okProfile(Object.assign({since:Date.now()},PROFILE||{},{nick,name:$('au-name').value.trim()}));if(P)saveProfile(P);d.close();toast('Welcome to the bench, '+nick);return}
+        pw=$('au-pw').value;
+        if(M==='pw'){if(!pw){err(AUTH_ERR.MISSING_PASSWORD);$('au-pw').focus();return}busy(true,'Signing in…');
+          try{const j=await idt('signInWithPassword',{email,password:pw,returnSecureToken:true});setAcct(j,'password');await afterSignIn();d.close();toast('Signed in'+(PROFILE?' as '+PROFILE.nick:''));return}
+          catch(x){if(known===null&&/match|no account/i.test(x.message)){if(pw.length>=6){M='new';draw();return}throw new Error('That email and password don’t match. New here? Choose a password of at least 6 characters.')}throw x}}
+        if(M==='new'){const nick=$('au-nick').value.trim();if(pw.length<6){err(AUTH_ERR.WEAK_PASSWORD);$('au-pw').focus();return}if(!nick){err('Choose a nickname.');$('au-nick').focus();return}
+          busy(true,'Creating…');let j;
+          try{j=await idt('signUp',{email,password:pw,returnSecureToken:true})}
+          catch(x){if(/already an account/i.test(x.message)){known=true;note='That password doesn’t match the account for this email. Try again, or reset it.';pw='';M='pw';draw();return}throw x}
+          setAcct(j,'password');sendVerify().catch(()=>{});
+          const P=okProfile(Object.assign({since:Date.now()},PROFILE||{},{nick,name:$('au-name').value.trim()}));if(P){PROFILE=P;save('bb-profile',P)}
+          await afterSignIn();if(PROFILE)saveProfile(PROFILE);d.close();toast('Welcome to the bench, '+nick+'. We sent a link to '+email+' to confirm it.')}}
+      catch(x){err(x.message);busy(false,label)}};
+    $('vd-x').onclick=()=>d.close();
+    const f=$('vd-in').querySelector(M==='start'?'#au-email':M==='details'?'#au-nick':'#au-pw');if(f&&!matchMedia('(pointer:coarse)').matches)setTimeout(()=>f.focus(),60)};
   draw();showDlg(d);d.scrollTop=0}
 // Google's own button (Google Identity Services). Its ID token signs in to Firebase, and the name and photo start the profile.
-function googleButton(el){loadScript('https://accounts.google.com/gsi/client').then(()=>{
+function googleButton(el,done){loadScript('https://accounts.google.com/gsi/client').then(()=>{
     google.accounts.id.initialize({client_id:AUTHCFG.googleClientId,ux_mode:'popup',callback:async r=>{try{
       const j=await idt('signInWithIdp',{postBody:'id_token='+encodeURIComponent(r.credential)+'&providerId=google.com',requestUri:location.origin,returnSecureToken:true,returnIdpCredential:true});
-      setAcct(j,'google.com');await afterSignIn({name:j.displayName||j.fullName,first:j.firstName,photo:j.photoUrl});$('vd').close();
-      toast('Signed in with Google'+(PROFILE?' as '+PROFILE.nick:''))}catch(x){const e=$('au-err');if(e){e.textContent=x.message;e.hidden=false}}}});
+      setAcct(j,'google.com');await afterSignIn({name:j.displayName||j.fullName,first:j.firstName,photo:j.photoUrl});
+      // A first sign-in with Google asks once how to be known; the name and photo from Google start it off.
+      if(done)done({isNewUser:!!j.isNewUser});else $('vd').close();if(!j.isNewUser)toast('Signed in with Google'+(PROFILE?' as '+PROFILE.nick:''))}catch(x){const e=$('au-err');if(e){e.textContent=x.message;e.hidden=false}}}});
     google.accounts.id.renderButton(el,{theme:curTheme()==='dark'?'filled_black':'outline',size:'large',shape:'pill',text:'continue_with',width:Math.min(360,el.clientWidth||320)})})
   .catch(()=>{el.innerHTML='<p class="hint">Google sign-in couldn’t load. Check your connection, or use your email.</p>'})}
 // Pages drawn before this part of the app loaded pick the profile up now.

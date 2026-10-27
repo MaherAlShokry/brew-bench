@@ -34,7 +34,7 @@ async function sync(apply){if(!syncOn())return false;if(SYNC_BUSY){SYNC_MORE=Mat
   SYNC_BUSY=true;let pulled=false;
   try{const tok=await idToken();if(!tok)return false;const uid=encodeURIComponent(ACCT.uid),q='.json?auth='+encodeURIComponent(tok);
     if(!SHADOW||SHADOW.uid!==ACCT.uid)SHADOW={uid:ACCT.uid,h:{}};const H=SHADOW.h,now=Date.now();
-    const res=await fetch(syncBase()+'/users/'+uid+'/data'+q);if(!res.ok)throw new Error('read '+res.status);const R=(await res.json())||{};
+    const res=await fetch(syncBase()+'/users/'+uid+'/data'+q);if(!res.ok)throw Object.assign(new Error('read'),{status:res.status});const R=(await res.json())||{};
     const up={},done=[],pulls=[];const txt=r=>r&&!r.del&&typeof r.d==='string'?r.d:null;
     // Lists, item by item.
     for(const k of SYNC_COLS){if(k==='bb-log'&&GROUP)continue;const L=localList(k),RC=(R.col&&R.col[k])||{},pre='c|'+k+'|';
@@ -53,22 +53,24 @@ async function sync(apply){if(!syncOn())return false;if(SYNC_BUSY){SYNC_MORE=Mat
     const imgUrl=k=>syncBase()+'/userimg/'+uid+'/'+encodeURIComponent(k)+q;
     for(const k of keys){const l=typeof imgs[k]==='string'?imgSig(imgs[k]):null,r=RI[k]&&!RI[k].del?RI[k].s:null,a=syncMerge(H,'i|'+k,l,r);
       if(a==='push'){const w=await fetch(imgUrl(k),l==null?{method:'DELETE'}:{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(imgs[k])});
-        if(!w.ok)throw new Error('photo '+w.status);up['img/'+k]=l==null?{t:now,del:1}:{t:now,s:l};done.push(['i|'+k,l])}
+        if(!w.ok)throw Object.assign(new Error('photo'),{status:w.status});up['img/'+k]=l==null?{t:now,del:1}:{t:now,s:l};done.push(['i|'+k,l])}
       else if(a==='pull'&&apply){if(r==null)await BIMG.del(k);else{const g=await fetch(imgUrl(k));const v=g.ok?await g.json():null;if(typeof v!=='string'||!/^data:image\//.test(v))continue;await BIMG.put(k,v)}
         pulled=true;done.push(['i|'+k,r])}}
-    if(Object.keys(up).length){const w=await fetch(syncBase()+'/users/'+uid+'/data'+q,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(up)});if(!w.ok)throw new Error('write '+w.status)}
+    if(Object.keys(up).length){const w=await fetch(syncBase()+'/users/'+uid+'/data'+q,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(up)});if(!w.ok)throw Object.assign(new Error('write'),{status:w.status})}
     for(const [k,v] of pulls){if(v==null)localStorage.removeItem(k);else localStorage.setItem(k,v);pulled=true}
     for(const [sk,v] of done){if(v==null)delete H[sk];else H[sk]=fnv(v)}
     save('bb-syncshadow',SHADOW);SYNC_AT=Date.now();save('bb-syncat',SYNC_AT);SYNC_ERR=''}
-  catch(e){SYNC_ERR=navigator.onLine===false?'offline':'error'}
+  // A refusal (401/403) means the database's rules don't let accounts keep their data yet (see the README).
+  catch(e){SYNC_ERR=navigator.onLine===false?'offline':e.status===401||e.status===403?'rules':'error'}
   finally{SYNC_BUSY=false;const more=SYNC_MORE;SYNC_MORE=0;if(more)setTimeout(()=>more===2?syncNow():sync(false),200)}
   return pulled}
 // Safe to reload: no sheet open and nothing being typed.
 const syncSafe=()=>!document.querySelector('dialog[open]')&&!(document.activeElement&&/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName));
 // Bring everything in and show it. A page that has just reloaded for a sync only sends its own changes, so two devices
 // can never bounce reloads back and forth.
-async function syncNow(){if(!syncOn())return;let last=0;try{last=+sessionStorage.getItem('bb-syncreload')||0}catch(e){}
-  const since=Date.now()-last,apply=syncSafe()&&since>5000;const pulled=await sync(apply);
+// Asked for with Sync now, it brings everything in straight away, even with the profile open.
+async function syncNow(force){if(!syncOn())return;let last=0;try{last=+sessionStorage.getItem('bb-syncreload')||0}catch(e){}
+  const since=Date.now()-last,apply=force===true||syncSafe()&&since>5000;const pulled=await sync(apply);
   if(pulled){try{sessionStorage.setItem('bb-syncreload',String(Date.now()))}catch(e){}location.reload();return}
   if(!apply){if(since<=5000)setTimeout(syncNow,5200-since);else SYNC_WAIT=true}if(window.PROFILE_OK)profileChanged()}
 let SYNC_WAIT=false;
@@ -91,6 +93,7 @@ document.addEventListener('close',()=>{if(SYNC_WAIT){SYNC_WAIT=false;setTimeout(
 try{if(Date.now()-(+sessionStorage.getItem('bb-syncreload')||0)<8000)setTimeout(()=>toast('Brought in changes from your other devices'),700)}catch(e){}
 // The line on the profile card.
 function syncLine(){if(!syncOn())return '';const ago=SYNC_AT?Math.round((Date.now()-SYNC_AT)/60000):-1;
-  const when=SYNC_ERR==='offline'?'Offline: changes go up when you’re back':SYNC_ERR?'Couldn’t sync just now':ago<0?'Not synced yet':ago<1?'Synced just now':'Synced '+(ago<60?ago+' min ago':Math.round(ago/60)+' h ago');
-  return '<div class="me-row me-syncrow'+(SYNC_ERR?' off':'')+'"><span class="me-ic" aria-hidden="true">'+SYNC_SVG+'</span><span class="me-rt"><b>'+when+'</b></span><button type="button" class="linkbtn" id="pf-sync">Sync now</button></div>'}
-$('vd').addEventListener('click',e=>{if(e.target.closest('#pf-sync')){e.target.textContent='Syncing…';syncNow()}});
+  const when=SYNC_ERR==='offline'?'Offline: changes go up when you’re back':SYNC_ERR==='rules'?'The database turned sync away':SYNC_ERR?'Couldn’t sync just now':ago<0?'Not synced yet':ago<1?'Synced just now':'Synced '+(ago<60?ago+' min ago':Math.round(ago/60)+' h ago');
+  return '<div class="me-row me-syncrow'+(SYNC_ERR?' off':'')+'"><span class="me-ic" aria-hidden="true">'+SYNC_SVG+'</span><span class="me-rt"><b>'+when+'</b>'+(SYNC_ERR==='rules'?'<small>Its rules don’t allow saving your data yet. Publish the rules from the README in the Firebase console.</small>':'')+'</span><button type="button" class="linkbtn" id="pf-sync">Sync now</button></div>'}
+$('vd').addEventListener('click',e=>{const b=e.target.closest('#pf-sync');if(!b||b.disabled)return;b.disabled=true;b.textContent='Syncing…';
+  syncNow(true).then(()=>toast(SYNC_ERR==='offline'?'You’re offline. Your changes go up when you’re back':SYNC_ERR==='rules'?'The database turned sync away: its rules need publishing':SYNC_ERR?'Couldn’t sync. Try again in a moment':'Everything’s in sync'))});
