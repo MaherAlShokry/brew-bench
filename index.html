@@ -5683,7 +5683,7 @@ function scanDoc(p,c){const inf=SC.info||{};const kv=[...(SC.roaster?[['Roastery
 
 let SHDOC=null;
 // Where people land from a shared message.
-const SITE_URL='https://maheralshokry.github.io/brew-bench/';
+const SITE_URL='https://brew-bench.web.app/';
 const APPS=[['native','Share\u2026','#8E8E93','M12 15V3 M7 8l5-5 5 5 M5 12v8h14v-8'],
   ['whatsapp','WhatsApp','#25D366','M5 19l1.2-3.6A7.5 7.5 0 1 1 9 18.2z M9.5 9.2c.2 2.3 2.8 5 5.3 5.3l1-1.3-1.8-.9-.8.8c-1-.4-1.9-1.3-2.3-2.3l.8-.8-.9-1.8z'],
   ['telegram','Telegram','#2AABEE','M20 5L3.5 11.4l5 1.8L18 7l-7.6 7.4.3 4.6 2.8-3 3.8 2.8z'],
@@ -5758,7 +5758,7 @@ $('sharesheet').addEventListener('click',async e=>{const d=$('sharesheet');if(e.
 /* ================= WORLD CHAMPIONSHIPS ================= */
 let CHF='all',CHB='all';
 // Upcoming finals and new champions come from events.json on the website, so a yearly update reaches the app without a new release.
-const EVURL='https://maheralshokry.github.io/brew-bench/events.json';
+const EVURL='https://brew-bench.web.app/events.json';
 let EVENTS=[];
 function useEvents(src){const ok=e=>e&&COMPS[e.c]&&Number.isFinite(Date.parse(e.start))&&Number.isFinite(Date.parse(e.end))&&typeof e.city==='string';
   EVENTS=(Array.isArray(src&&src.events)?src.events:[]).filter(ok).map(e=>({c:e.c,y:num(e.y,new Date(e.start).getFullYear()),start:Date.parse(e.start),end:Date.parse(e.end),
@@ -6046,16 +6046,32 @@ async function exportData(){const data={};for(const k of dataKeys()){try{data[k]
   const images=await BIMG.all();
   const blob=new Blob([JSON.stringify({app:'brew-bench',kind:'backup',version:2,exported:d.toISOString(),data,images},null,1)],{type:'application/json'});
   await saveFile('brew-bench-backup-'+day+'.json',blob)}
+// A backup's lists and photos, checked: only Brew Bench keys and photos, never the account or sync state.
+function backupParts(j){if(!j||j.app!=='brew-bench'||!j.data||typeof j.data!=='object')return null;
+  const ent=Object.entries(j.data).filter(([k,v])=>/^bb-[a-z0-9-]{1,40}$/.test(k)&&typeof v==='string'&&!DATA_SKIP.includes(k));
+  const imgs=j.images&&typeof j.images==='object'?Object.entries(j.images).filter(([k,v])=>/^(dy:)?[a-z0-9]{4,24}$/.test(k)&&typeof v==='string'&&v.startsWith('data:image/')):[];
+  return{ent,imgs}}
+async function applyBackup({ent,imgs}){for(const k of dataKeys())localStorage.removeItem(k);for(const [k,v] of ent)localStorage.setItem(k,v);await BIMG.clear();for(const [k,v] of imgs)await BIMG.put(k,v)}
 function importData(file){if(!file)return;if(file.size>80e6){toast('That file is too big to be a Brew Bench backup');return}
   const rd=new FileReader();rd.onload=()=>{let j;try{j=JSON.parse(rd.result)}catch(e){toast('That file isn’t a Brew Bench backup');return}
-    if(!j||j.app!=='brew-bench'||!j.data||typeof j.data!=='object'){toast('That file isn’t a Brew Bench backup');return}
-    const ent=Object.entries(j.data).filter(([k,v])=>/^bb-[a-z0-9-]{1,40}$/.test(k)&&typeof v==='string'&&!DATA_SKIP.includes(k));if(!ent.length){toast('That backup is empty');return}
+    const b=backupParts(j);if(!b){toast('That file isn’t a Brew Bench backup');return}if(!b.ent.length){toast('That backup is empty');return}
     const when=j.exported?new Date(j.exported).toLocaleDateString():'an earlier date';
     if(!confirm('Replace the data on this device with the backup from '+when+'? Your current recipes, log, scans and settings here will be overwritten.'))return;
-    try{for(const k of dataKeys())localStorage.removeItem(k);for(const [k,v] of ent)localStorage.setItem(k,v)}catch(e){toast('Couldn’t restore the backup: storage is full or blocked');return}
-    const imgs=j.images&&typeof j.images==='object'?Object.entries(j.images).filter(([k,v])=>/^(dy:)?[a-z0-9]{4,24}$/.test(k)&&typeof v==='string'&&v.startsWith('data:image/')):[];
-    (async()=>{await BIMG.clear();for(const [k,v] of imgs)await BIMG.put(k,v);toast('Backup restored');setTimeout(()=>location.reload(),600)})()};
+    applyBackup(b).then(()=>{toast('Backup restored');setTimeout(()=>location.reload(),600)},()=>toast('Couldn’t restore the backup: storage is full or blocked'))};
   rd.onerror=()=>toast('Couldn’t read that file');rd.readAsText(file)}
+// The website moved from GitHub Pages. The old address opens this one with #move and hands over what was saved
+// there (each address keeps its own storage). Only that page, and only into the tab it opened, can hand data over.
+const OLD_ORIGIN='https://maheralshokry.github.io';
+if(location.hash==='#move'&&window.opener&&!NATIVE&&location.origin!==OLD_ORIGIN){const from=window.opener;let got=false;
+  addEventListener('message',e=>{if(got||e.origin!==OLD_ORIGIN||e.source!==from||!e.data||e.data.kind!=='bb-move')return;got=true;
+    try{history.replaceState(null,'',location.pathname)}catch(_){}const b=backupParts(e.data.backup);
+    const has=['bb-beans','bb-log','bb-scans','bb-myrecipes'].some(k=>{try{const v=JSON.parse(localStorage.getItem(k)||'[]');return Array.isArray(v)&&v.length}catch(_){return false}});
+    if(!b||!b.ent.length){toast('Nothing to bring across');return}
+    if(has&&!confirm('Bring across what you saved at the old address? It replaces what is saved here.'))return;
+    applyBackup(b).then(()=>{try{from.postMessage({kind:'bb-moved'},OLD_ORIGIN)}catch(_){}try{sessionStorage.setItem('bb-movedin','1')}catch(_){}location.reload()},()=>toast('Couldn’t bring it across: storage is full or blocked'))});
+  // Say hello until the old page answers (it may still be gathering photos).
+  let n=0;const hi=()=>{if(got||n++>20)return;try{from.postMessage({kind:'bb-move-ready'},OLD_ORIGIN)}catch(_){}setTimeout(hi,500)};hi()}
+try{if(sessionStorage.getItem('bb-movedin')){sessionStorage.removeItem('bb-movedin');setTimeout(()=>toast('Your coffees, brews and settings are here'),700)}}catch(e){}
 function renderSettings(){const t=document.documentElement.getAttribute('data-theme')||'auto';
   const row=(icon,bg,title,sub,body)=>'<div class="setrow"><div class="sl">'+ico(icon,bg)+'<span class="mt"><b>'+title+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</span></div>'+(body||'')+'</div>';
   const qt=(k,n,d)=>'<button type="button" class="qtool" data-go="'+k+'">'+ico(hubItem(k)[4],hubItem(k)[3])+'<span><b>'+n+'</b><small>'+d+'</small></span></button>';

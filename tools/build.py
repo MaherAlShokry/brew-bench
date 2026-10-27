@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Build the site from src/.
 
-Usage: python3 tools/build.py [--artifact | --app] [--site DIR]
+Usage: python3 tools/build.py [--artifact | --app] [--site DIR] [--site-url URL]
+       python3 tools/build.py --moved DIR
 
   (no flags)   builds index.html (the website, with manifest and service worker)
   --artifact   builds dist/brew-bench-artifact.html, a single file for claude.ai
@@ -9,7 +10,12 @@ Usage: python3 tools/build.py [--artifact | --app] [--site DIR]
   --app        builds for the Android app: no service worker, since the app
                already ships every file inside the APK
   --site DIR   also copies everything the site needs into DIR, ready to deploy
-               (used by GitHub Pages and the Android build)
+               (used by the website deploy and the Android build)
+  --site-url   the address links and share cards point to, instead of the
+               Firebase Hosting one (used until Firebase Hosting is set up)
+  --moved DIR  builds the old GitHub Pages address after the move: a page that
+               forwards to the new address and carries saved data across, plus
+               the files older apps and the Play listing still fetch there
 """
 import sys, shutil, pathlib
 
@@ -18,6 +24,29 @@ src = root / 'src'
 args = sys.argv[1:]
 artifact, app = '--artifact' in args, '--app' in args
 site = pathlib.Path(args[args.index('--site') + 1]).resolve() if '--site' in args else None
+# The website's address. Old apps and the Play listing still use the old one, which keeps serving these files.
+NEW_URL, OLD_URL = 'https://brew-bench.web.app/', 'https://maheralshokry.github.io/brew-bench/'
+site_url = args[args.index('--site-url') + 1] if '--site-url' in args else NEW_URL
+assert site_url.startswith('https://') and site_url.endswith('/'), '--site-url must be https://… ending in /'
+host = lambda u: u.split('://', 1)[1].rstrip('/')
+def address(text, url=None):
+    url = url or site_url
+    return text.replace(NEW_URL, url).replace(host(NEW_URL), host(url))
+
+if '--moved' in args:
+    moved = pathlib.Path(args[args.index('--moved') + 1]).resolve()
+    if moved.exists():
+        shutil.rmtree(moved)
+    moved.mkdir(parents=True)
+    page = (src / 'moved.html').read_text(encoding='utf-8').replace('__NEWHOST__', host(NEW_URL)).replace('__NEW__', NEW_URL)
+    (moved / 'index.html').write_text(page, encoding='utf-8')
+    shutil.copy(src / 'moved-sw.js', moved / 'sw.js')
+    shutil.copytree(root / 'icons', moved / 'icons')
+    shutil.copy(root / 'events.json', moved / 'events.json')
+    for name in ('privacy.html', 'delete-account.html'):
+        (moved / name).write_text((root / name).read_text(encoding='utf-8'), encoding='utf-8')
+    print(f'Built the moved page in {moved.relative_to(root) if moved.is_relative_to(root) else moved}')
+    sys.exit(0)
 
 # Files served next to index.html. Keep in sync with the SHELL list in sw.js.
 SITE_FILES = ['manifest.webmanifest', 'sw.js', 'icons', 'vendor', 'events.json', 'privacy.html', 'delete-account.html']
@@ -49,8 +78,8 @@ elif app:
 else:
     target = root / 'index.html'
 target.parent.mkdir(parents=True, exist_ok=True)
-target.write_text(out, encoding='utf-8')
-print(f'Built {target.relative_to(root)} ({len(out)//1024} KB)')
+target.write_text(address(out), encoding='utf-8')
+print(f'Built {target.relative_to(root)} ({len(out)//1024} KB) for {site_url}')
 
 if site:
     if site.exists():
@@ -61,5 +90,8 @@ if site:
         if app and name == 'sw.js':
             continue
         p = root / name
-        (shutil.copytree if p.is_dir() else shutil.copy)(p, site / name)
+        if p.suffix == '.html':
+            (site / name).write_text(address(p.read_text(encoding='utf-8')), encoding='utf-8')
+        else:
+            (shutil.copytree if p.is_dir() else shutil.copy)(p, site / name)
     print(f'Copied site to {site.relative_to(root) if site.is_relative_to(root) else site}')

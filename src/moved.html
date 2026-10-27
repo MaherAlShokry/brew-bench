@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Brew Bench has moved</title>
+<meta name="robots" content="noindex">
+<link rel="canonical" href="__NEW__">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+/* Served at the old GitHub Pages address once the site lives on Firebase Hosting. Someone with nothing saved here
+   goes straight to the new address (shared links keep their #part). Someone with coffees saved here can carry them
+   across first, since each address keeps its own storage. */
+:root{--paper:#FBF7F0;--surface:#FFFDF9;--ink:#3B2A20;--muted:#7A6656;--line:#E7DBC9;--cherry:#8A5A3B;--onc:#FFFDF9;color-scheme:light dark}
+@media (prefers-color-scheme:dark){:root{--paper:#1F1814;--surface:#2A211B;--ink:#F3EADF;--muted:#C2B09E;--line:#43352B;--cherry:#D9A57E;--onc:#1F1814}}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:var(--paper);color:var(--ink);font:1rem/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:grid;place-items:center;padding:24px 16px}
+main{width:100%;max-width:440px;background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:28px 24px;box-shadow:0 10px 30px rgba(59,42,32,.12)}
+img{width:64px;height:64px;border-radius:16px;display:block;margin-bottom:14px}
+h1{font-size:1.45rem;line-height:1.25;margin:0 0 8px}
+p{margin:0 0 14px;color:var(--muted)}
+p b{color:var(--ink)}
+a{color:var(--cherry)}
+button,.btn{display:block;width:100%;min-height:48px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink);font-family:inherit;font-size:1rem;font-weight:600;line-height:1.2;cursor:pointer;margin-top:10px;text-align:center;text-decoration:none;padding:15px 18px}
+button.main{background:var(--cherry);border-color:var(--cherry);color:var(--onc)}
+button:disabled{opacity:.6;cursor:default}
+#st{min-height:1.6em;margin:14px 0 0;color:var(--ink)}
+</style>
+</head>
+<body>
+<main hidden id="m">
+  <img src="icons/icon-192.png" alt="">
+  <h1>The Brew Bench has moved</h1>
+  <p>It now lives at <a id="to" href="__NEW__"><b>__NEWHOST__</b></a>. Update your bookmark or reinstall it from there.</p>
+  <p>You have <b id="what">coffees saved</b> at this old address. Bring them across so they’re there when you arrive.</p>
+  <button type="button" class="main" id="move">Bring my coffees across</button>
+  <button type="button" id="dl">Download a backup instead</button>
+  <a class="btn" id="skip" href="__NEW__">Go without them</a>
+  <p id="st" role="status" aria-live="polite"></p>
+</main>
+<script>
+(function(){
+  var NEW='__NEW__',NEWO=new URL(NEW).origin,tail=location.search+location.hash,go=function(){location.replace(NEW+tail)};
+  // The old offline copy would keep showing the old app: remove it.
+  try{navigator.serviceWorker&&navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister()})})}catch(e){}
+  try{window.caches&&caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k)})})}catch(e){}
+  var SKIP=['bb-reset','bb-pending','bb-account','bb-fbcfg','bb-syncshadow','bb-syncat','bb-syncdb','bb-moved'],data={},count=function(k){try{var v=JSON.parse(localStorage.getItem(k)||'[]');return Array.isArray(v)?v.length:0}catch(e){return 0}};
+  try{if(localStorage.getItem('bb-moved'))return go();for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf('bb-')===0&&SKIP.indexOf(k)<0)data[k]=localStorage.getItem(k)}}catch(e){return go()}
+  var n={beans:count('bb-beans'),log:count('bb-log'),scans:count('bb-scans'),rec:count('bb-myrecipes')};
+  if(!n.beans&&!n.log&&!n.scans&&!n.rec)return go();
+  var parts=[];function say(c,w){if(c)parts.push(c+' '+w+(c===1?'':'s'))}say(n.beans,'coffee');say(n.log,'brew');say(n.scans,'scan');say(n.rec,'recipe');
+  document.getElementById('what').textContent=parts.join(', ');
+  document.getElementById('to').href=document.getElementById('skip').href=NEW+tail;
+  document.getElementById('m').hidden=false;
+  var st=document.getElementById('st'),mv=document.getElementById('move');
+  // Photos are kept apart from the rest, in the browser's database.
+  function photos(){return new Promise(function(ok){var out={};try{var r=indexedDB.open('bb-images',1);r.onupgradeneeded=function(){r.result.createObjectStore('img')};
+    r.onerror=function(){ok(out)};r.onsuccess=function(){var db=r.result;try{var s=db.transaction('img','readonly').objectStore('img'),c=s.openCursor();
+      c.onsuccess=function(){var x=c.result;if(!x){ok(out);return}if(/^(dy:)?[a-z0-9]{4,24}$/.test(x.key)&&typeof x.value==='string'&&x.value.indexOf('data:image/')===0)out[x.key]=x.value;x.continue()};c.onerror=function(){ok(out)}}catch(e){ok(out)}}}catch(e){ok(out)}})}
+  var backup=photos().then(function(images){return{app:'brew-bench',kind:'backup',version:2,exported:new Date().toISOString(),data:data,images:images}});
+  var win=null;
+  addEventListener('message',function(e){if(e.origin!==NEWO||!win||e.source!==win||!e.data)return;
+    if(e.data.kind==='bb-move-ready')backup.then(function(b){win.postMessage({kind:'bb-move',backup:b},NEWO)});
+    if(e.data.kind==='bb-moved'){try{localStorage.setItem('bb-moved','1')}catch(_){}st.textContent='All done. Your coffees are at the new address; you can close this tab.';mv.disabled=true}});
+  mv.onclick=function(){win=window.open(NEW+'#move','_blank');
+    st.textContent=win?'Opening the new address… Keep this tab open until it says done.':'Your browser blocked the new tab. Allow pop-ups for this page, or download a backup and import it from Settings at the new address.'};
+  document.getElementById('dl').onclick=function(){backup.then(function(b){var a=document.createElement('a'),d=new Date();
+    a.href=URL.createObjectURL(new Blob([JSON.stringify(b)],{type:'application/json'}));a.download='brew-bench-backup-'+d.toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();a.remove();
+    st.textContent='Backup saved. At the new address, open Settings → Import a backup and choose this file.'})};
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+name: Deploy the website
+
+# The website lives on Firebase Hosting at https://brew-bench.web.app/ once the
+# FIREBASE_SERVICE_ACCOUNT_BREW_BENCH secret is set (see the README). The old
+# GitHub Pages address, https://maheralshokry.github.io/brew-bench/, then shows
+# a page that forwards visitors and carries their saved data across, and keeps
+# serving events.json and the privacy pages for older apps and the Play listing.
+# Until the secret is set, GitHub Pages serves the whole site as before.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: write
+
+concurrency:
+  group: site-${{ github.event.pull_request.number || 'live' }}
+  cancel-in-progress: true
+
+jobs:
+  firebase:
+    runs-on: ubuntu-latest
+    env:
+      HAS_FB: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_BREW_BENCH != '' }}
+    outputs:
+      live: ${{ steps.done.outputs.live }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+      - name: Build site
+        run: python3 tools/build.py --site _site
+      - name: Deploy to Firebase Hosting
+        id: live
+        if: env.HAS_FB == 'true' && github.event_name != 'pull_request'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_BREW_BENCH }}
+          projectId: brew-bench
+          channelId: live
+      # A pull request gets its own preview address for 7 days, posted on the PR.
+      - name: Preview this pull request
+        if: env.HAS_FB == 'true' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_BREW_BENCH }}
+          projectId: brew-bench
+          expires: 7d
+      - id: done
+        if: steps.live.outcome == 'success'
+        run: echo "live=true" >> "$GITHUB_OUTPUT"
+
+  pages:
+    needs: firebase
+    if: always() && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+      - name: Build the GitHub Pages address
+        run: |
+          if [ "${{ needs.firebase.outputs.live }}" = true ]; then
+            python3 tools/build.py --moved _pages
+          else
+            python3 tools/build.py --site _pages --site-url https://maheralshokry.github.io/brew-bench/
+          fi
+      - name: Publish to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: _pages
+          force_orphan: true
+          commit_message: Deploy site from ${{ github.sha }}
