@@ -1089,6 +1089,50 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 .pc-acct{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 12px;margin-top:14px;font-size:.84rem;color:var(--muted)}.pc-acct b{color:var(--ink);overflow-wrap:anywhere}
 .pc-who{flex:1 1 200px;min-width:0}.pc-acct .btn{min-height:40px;padding:0 16px}
 .pcard .setbtns{margin-top:14px}
+/* The profile sheet and sign-in: a dark-roast hero in your colour, like the Beans page */
+.me-hero{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding:34px 20px 24px;color:#FFF8EE;overflow:hidden;
+  background:radial-gradient(90% 80% at 50% 0%,color-mix(in srgb,var(--c,var(--honey)) 70%,transparent),transparent 70%),radial-gradient(80% 90% at 100% 100%,color-mix(in srgb,var(--cherry) 55%,transparent),transparent 70%),linear-gradient(160deg,#4A2E20,#1E120C)}
+.me-hero::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.12;background-image:radial-gradient(rgba(255,255,255,.7) .6px,transparent .8px);background-size:5px 5px;mix-blend-mode:overlay}
+.me-hero>*{position:relative;z-index:1}
+.me-x{position:absolute!important;z-index:2!important;background:rgba(255,248,238,.14)!important;color:#FFF8EE!important}
+.me-edit{position:absolute!important;z-index:2!important;left:12px;top:12px;display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;border:0;border-radius:999px;background:rgba(255,248,238,.14);color:#FFF8EE;font:inherit;font-size:.85rem;font-weight:600;cursor:pointer}
+.me-edit svg,.me-ic svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.me-hero .pav{box-shadow:0 0 0 4px rgba(255,248,238,.9),0 10px 30px -8px rgba(0,0,0,.6);margin-bottom:10px}
+.me-k{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:#F0C987}
+.me-hero h2{margin:2px 0 0;font-family:var(--display);font-size:1.75rem;line-height:1.15;color:#FFF8EE;overflow-wrap:anywhere}
+.me-name{font-size:.92rem;opacity:.8}.me-since{margin-top:8px;font-size:.76rem;opacity:.65}
+.me-hero p{margin:6px 0 0;max-width:34ch;font-size:.92rem;line-height:1.5;opacity:.85}
+.me-cup{width:110px;height:auto;margin:-4px 0 6px}.me-steam path{animation:steam 3.2s ease-in-out infinite;opacity:.8}.me-steam path:nth-child(2){animation-delay:.6s}.me-steam path:nth-child(3){animation-delay:1.2s}
+@keyframes steam{0%{transform:translateY(4px);opacity:0}30%{opacity:.85}100%{transform:translateY(-8px);opacity:0}}
+[data-motion="reduced"] .me-steam path{animation:none;opacity:.7}@media (prefers-reduced-motion:reduce){.me-steam path{animation:none;opacity:.7}}
+.me-acts{display:flex;flex-direction:column;gap:8px;width:100%;max-width:320px;margin-top:16px}.me-acts .btn{width:100%}
+.me-main{background:#F3E3C8!important;color:#2A1A10!important}.me-ghost{background:rgba(255,248,238,.14)!important;color:#FFF8EE!important;border:0!important}
+.me-body{padding:18px 20px 22px;display:flex;flex-direction:column;gap:14px}
+.me-brief{position:relative;margin:0;padding:4px 4px 0 30px;font-family:var(--display);font-size:1.05rem;line-height:1.45;color:var(--ink);overflow-wrap:anywhere}
+.me-brief::before{content:"“";position:absolute;left:0;top:-10px;font-size:2.8rem;line-height:1;color:var(--c,var(--honey));opacity:.8}
+.me-add{padding:12px 14px;border-radius:14px;border:1.5px dashed var(--line);background:none;color:var(--muted);font:inherit;font-size:.88rem;text-align:left;cursor:pointer}
+.me-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.me-stats span{display:flex;flex-direction:column;align-items:center;padding:10px 4px;border-radius:14px;background:var(--surface2);font-size:.72rem;color:var(--muted)}
+.me-stats b{font-family:var(--display);font-size:1.3rem;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.2}
+.me-dna{display:grid;gap:8px}.me-dna>div{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;border:1px solid var(--line)}
+.me-dna i{flex:none;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--surface2);font-style:normal;font-size:1.2rem}.me-flag{font-size:1.3rem}
+.me-dna span{display:flex;flex-direction:column;min-width:0}.me-dna small{font-size:.72rem;color:var(--muted)}.me-dna b{font-size:.95rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.me-acct{border-radius:16px;background:var(--surface2);overflow:hidden}
+.me-row{display:flex;align-items:center;gap:12px;padding:12px 14px}.me-row+.me-row{border-top:1px solid var(--line)}
+.me-rt{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start}.me-rt b{font-size:.92rem}.me-rt small{font-size:.8rem;color:var(--muted);overflow-wrap:anywhere}
+.me-dot{flex:none;width:10px;height:10px;margin:0 3px;border-radius:50%;background:#5E9A63;box-shadow:0 0 0 4px color-mix(in srgb,#5E9A63 22%,transparent)}
+.me-ic{flex:none;display:grid;place-items:center;width:16px;color:var(--muted)}.me-syncrow.off .me-ic{color:#A8432F}
+.me-row .linkbtn{flex:none;min-height:40px}
+.me-cta{padding:16px;border-radius:16px;border:1.5px solid color-mix(in srgb,var(--honey) 45%,var(--line));background:color-mix(in srgb,var(--honey) 9%,var(--surface))}
+.me-cta b{font-family:var(--display);font-size:1.05rem}.me-cta ul{margin:8px 0 12px;padding:0;list-style:none;display:grid;gap:4px;font-size:.88rem;color:var(--muted)}
+.me-cta li::before{content:"";display:inline-block;width:6px;height:6px;margin-right:9px;border-radius:50%;background:var(--honey);vertical-align:middle}.me-cta .btn{width:100%}
+.me-fine,.au-fine{margin:0;text-align:center;font-size:.78rem;color:var(--muted)}
+.au-hero{padding-bottom:20px}.au-hero .me-cup{width:96px}
+.au-perks{margin:0 0 16px;padding:0;list-style:none;display:grid;gap:8px}.au-perks li{display:flex;align-items:center;gap:10px;font-size:.9rem}
+.au-perks i{flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--surface2);font-style:normal}
+.au-forgot{display:block;margin:-6px 0 12px auto}.au-switch{margin:14px 0 6px;text-align:center;font-size:.9rem;color:var(--muted)}.au-note{text-align:center}
+.auth{padding-top:18px!important}
+dialog#vd:has(.me-hero){overflow-x:hidden}
 /* The face in the top bar (phones) and the tab bar (larger screens); it opens your profile. */
 .me-btn{flex:none;display:grid;place-items:center;width:40px;height:40px;margin:-4px -6px -4px 0;padding:0;border:0;border-radius:50%;background:none;cursor:pointer}
 .me-btn .pav{box-shadow:0 0 0 2px var(--surface),0 0 0 3.5px color-mix(in srgb,var(--c,#8A5A3B) 40%,transparent)}.me-btn .pav.none{box-shadow:inset 0 0 0 1.5px var(--line)}
@@ -7189,9 +7233,8 @@ function profileChanged(){renderMe();const d=$('vd');if(d.open&&d.dataset.me&&!d
 // Your face in the top bar (phones) and at the end of the tab bar (larger screens). It opens your profile.
 function renderMe(){for(const id of ['ab-me','tab-me']){const b=$(id);if(!b)continue;b.innerHTML=avatarHTML(PROFILE,id==='ab-me'?32:30);
   b.setAttribute('aria-label',PROFILE?'Your profile: '+PROFILE.nick:'Create your profile')}}
-function openMe(again){const d=$('vd');
-  $('vd-in').innerHTML='<div class="vd-head" style="--c:'+(PROFILE?PROFILE.av.c:'var(--cherry)')+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><h2 id="vd-title">Your profile</h2></div><div class="vd-body me-body">'+profileCardHTML()+'</div>';
-  d.dataset.me=1;$('vd-x').onclick=()=>d.close();if(!again){showDlg(d);d.scrollTop=0;d.addEventListener('close',()=>{delete d.dataset.me},{once:true})}}
+function openMe(again){const d=$('vd');$('vd-in').innerHTML=meHTML();d.dataset.me=1;$('vd-x').onclick=()=>d.close();
+  if(!again){showDlg(d);d.scrollTop=0;d.addEventListener('close',()=>{delete d.dataset.me},{once:true})}}
 for(const id of ['ab-me','tab-me'])if($(id))$(id).onclick=()=>openMe();
 
 /* ---------- The face ---------- */
@@ -7203,22 +7246,36 @@ function avatarHTML(p,size){if(!p)return '<span class="pav none" style="--s:'+si
 function squarePhoto(src,n){return new Promise((ok,no)=>{const img=new Image();img.onload=()=>{const s=Math.min(img.width,img.height),c=document.createElement('canvas');c.width=c.height=n;
   c.getContext('2d').drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,n,n);try{ok(c.toDataURL('image/jpeg',.82))}catch(e){no(e)}};img.onerror=()=>no(new Error('image'));img.src=src})}
 
-/* ---------- The card at the top of Settings ---------- */
-function profileStats(){const mine=LOG.filter(l=>l&&(!l.by||l.by===ME)).length,b=window.BEANS_OK?BEANS:[],o=new Set(b.map(x=>x.origin).filter(Boolean)).size;
-  return [[b.length,b.length===1?'coffee':'coffees'],[mine,mine===1?'brew':'brews'],[o,o===1?'origin':'origins']]}
-function acctLine(){if(ACCT)return '<span class="pc-who">'+(ACCT.provider==='google.com'?'Signed in with Google':'Signed in')+' as <b>'+esc(ACCT.email)+'</b>'+(ACCT.provider==='password'&&!ACCT.verified?' · <button type="button" class="linkbtn" id="pf-verify">confirm your email</button>':'')+'</span><button type="button" class="linkbtn" id="pf-out">Sign out</button>';
-  return AUTH_ON?'<span class="pc-who">Saved on this phone only. Sign in to keep it, and everything you save, on all your phones and the website.</span><button type="button" class="btn ghost" id="pf-signin">Sign in</button>':'<span class="pc-who">Saved on this phone.</span>'}
-function profileCardHTML(){const p=PROFILE;
-  if(!p)return '<div class="pcard empty"><div class="pc-top">'+avatarHTML(null,64)+'<div class="pc-tx"><h3>Make it yours</h3><small>A nickname, a few words about how you take your coffee, and a face.'+(AUTH_ON?' Sign in with email'+(GOOGLE_ON()?' or Google':'')+' to keep it on all your phones.':'')+'</small></div></div>'+
-    '<div class="setbtns"><button type="button" class="btn" id="pf-new">Create your profile</button>'+(AUTH_ON&&!ACCT?'<button type="button" class="btn ghost" id="pf-signin">I have an account</button>':'')+'</div>'+
-    (ACCT?'<div class="pc-acct">'+acctLine()+'</div>'+syncLine():'')+'</div>';
-  const chips=[p.style&&STYLES.find(x=>x[0]===p.style)[1],p.brewer&&BREWERS[p.brewer].name,p.origin&&flagOf(p.origin)+' '+originName(p.origin),p.city&&'📍 '+p.city].filter(Boolean);
-  return '<div class="pcard" style="--c:'+p.av.c+'"><div class="pc-top">'+avatarHTML(p,72)+'<div class="pc-tx"><h3>'+esc(p.nick)+'</h3>'+(p.name?'<small>'+esc(p.name)+'</small>':'')+'</div>'+
-      '<button type="button" class="btn ghost pc-edit" id="pf-edit">Edit</button></div>'+
-    (p.brief?'<p class="pc-brief">'+esc(p.brief)+'</p>':'')+(chips.length?'<div class="pc-chips">'+chips.map(c=>'<span>'+esc(c)+'</span>').join('')+'</div>':'')+
-    '<div class="pc-stats">'+profileStats().map(([n,l])=>'<span><b>'+n+'</b>'+l+'</span>').join('')+'<span><b>'+new Date(p.since).getFullYear()+'</b>brewing since</span></div>'+
-    '<div class="pc-acct">'+acctLine()+'</div>'+(ACCT?syncLine():'')+'</div>'}
-$('vd').addEventListener('click',e=>{if(e.target.closest('#pf-new,#pf-edit')){delete $('vd').dataset.me;openProfileEditor();return}if(e.target.closest('#pf-signin')){delete $('vd').dataset.me;openSignIn();return}
+/* ---------- The profile sheet ---------- */
+// A steaming cup, drawn in the app's cream and roast colours; the steam drifts unless motion is reduced.
+const CUP_SVG='<svg class="me-cup" viewBox="0 0 120 92" aria-hidden="true"><g class="me-steam" fill="none" stroke="#F3E3C8" stroke-width="3.2" stroke-linecap="round"><path d="M47 30c-6-8 6-12 0-21"/><path d="M60 27c-6-8 6-12 0-21"/><path d="M73 30c-6-8 6-12 0-21"/></g>'+
+  '<path d="M28 40h62v14a25 25 0 0 1-25 25h-12a25 25 0 0 1-25-25z" fill="#F3E3C8"/><path d="M89 46h6a9.5 9.5 0 0 1 0 19h-6" fill="none" stroke="#F3E3C8" stroke-width="5.5"/><ellipse cx="59" cy="41" rx="29" ry="4.2" fill="#5A3420"/><path d="M18 86h82" stroke="#F3E3C8" stroke-opacity=".45" stroke-width="3" stroke-linecap="round"/></svg>';
+const PEN_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4"/></svg>';
+const SYNC_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 0 1-14 5.3 M4 12a8 8 0 0 1 14-5.3 M18 3v4h-4 M6 21v-4h4"/></svg>';
+// Your coffee style, as a title under your name.
+const ROLE={bright:'Florals chaser',sweet:'Sweet-cup seeker',choc:'Comfort-cup brewer',wild:'Ferment explorer',espresso:'Espresso devotee',milk:'Milk-drink maker'};
+function profileStats(){const mine=LOG.filter(l=>l&&(!l.by||l.by===ME)).length,b=window.BEANS_OK?BEANS:[],o=new Set(b.map(x=>x.origin).filter(Boolean)).size,t=window.BEANS_OK&&TGOT?Object.keys(TGOT).length:0;
+  return [[b.length,b.length===1?'coffee':'coffees'],[mine,mine===1?'brew':'brews'],[o,o===1?'origin':'origins'],[t,t===1?'trophy':'trophies']]}
+// Who you're signed in as, and the sync; or, signed out, what an account brings.
+function accountHTML(){
+  if(ACCT)return '<div class="me-acct"><div class="me-row"><span class="me-dot" aria-hidden="true"></span><span class="me-rt"><b>'+(ACCT.provider==='google.com'?'Signed in with Google':'Signed in')+'</b><small>'+esc(ACCT.email)+'</small>'+
+      (ACCT.provider==='password'&&!ACCT.verified?'<button type="button" class="linkbtn" id="pf-verify">Confirm your email</button>':'')+'</span><button type="button" class="linkbtn" id="pf-out">Sign out</button></div>'+syncLine()+'</div>';
+  if(!AUTH_ON)return '<p class="me-fine">Saved on this device.</p>';
+  return '<div class="me-cta"><b>Keep your bench everywhere</b><ul><li>Your profile on every phone</li><li>Coffees, diary, brews and photos in sync</li><li>The app and the website, one bench</li></ul>'+
+    '<button type="button" class="btn" id="pf-signin">Sign in or create an account</button></div>'}
+function meHTML(){const p=PROFILE,x='<button class="vd-close me-x" id="vd-x" aria-label="Close">✕</button>';
+  if(!p)return '<div class="me-hero blank">'+x+CUP_SVG+'<span class="me-k">The Brew Bench</span><h2 id="vd-title">Who’s brewing?</h2>'+
+      '<p>A nickname, a face and a few words about the cups you love.</p><div class="me-acts"><button type="button" class="btn me-main" id="pf-new">Create your profile</button>'+
+      (AUTH_ON&&!ACCT?'<button type="button" class="btn me-ghost" id="pf-signin">I have an account</button>':'')+'</div></div>'+(ACCT?'<div class="me-body">'+accountHTML()+'</div>':'');
+  const dna=[p.origin&&['<span class="me-flag">'+flagOf(p.origin)+'</span>','Favourite origin',originName(p.origin)],p.brewer&&['☕','Favourite brewer',BREWERS[p.brewer].name],p.city&&['📍','Brews in',p.city]].filter(Boolean);
+  return '<div class="me-hero" style="--c:'+p.av.c+'">'+x+'<button type="button" class="me-edit" id="pf-edit">'+PEN_SVG+'Edit</button>'+avatarHTML(p,96)+
+      '<span class="me-k">'+esc(ROLE[p.style]||'Home brewer')+'</span><h2 id="vd-title">'+esc(p.nick)+'</h2>'+(p.name?'<small class="me-name">'+esc(p.name)+'</small>':'')+
+      '<span class="me-since">Brewing with us since '+new Date(p.since).toLocaleDateString(undefined,{month:'long',year:'numeric'})+'</span></div>'+
+    '<div class="me-body">'+(p.brief?'<blockquote class="me-brief">'+esc(p.brief)+'</blockquote>':'<button type="button" class="me-add" id="pf-edit2">Add a few words about how you take your coffee</button>')+
+      '<div class="me-stats">'+profileStats().map(([n,l])=>'<span><b>'+n+'</b>'+l+'</span>').join('')+'</div>'+
+      (dna.length?'<div class="me-dna">'+dna.map(([i,k,v])=>'<div><i aria-hidden="true">'+i+'</i><span><small>'+k+'</small><b>'+esc(v)+'</b></span></div>').join('')+'</div>'
+        :'<button type="button" class="me-add" id="pf-edit3">Add your favourite origin, brewer and where you brew</button>')+accountHTML()+'</div>'}
+$('vd').addEventListener('click',e=>{if(e.target.closest('#pf-new,#pf-edit,#pf-edit2,#pf-edit3')){delete $('vd').dataset.me;openProfileEditor();return}if(e.target.closest('#pf-signin')){delete $('vd').dataset.me;openSignIn();return}
   if(e.target.closest('#pf-out')){if(confirm('Sign out? Your profile stays on this phone.'))signOut();return}
   if(e.target.closest('#pf-verify')){sendVerify().then(()=>toast('We sent a link to '+ACCT.email+'. Open it to confirm your email.'),err=>toast(err.message));return}});
 
@@ -7296,16 +7353,20 @@ if(ACCT)setTimeout(()=>pullProfile().then(profileChanged),1500);
 /* ---------- The sign-in sheet ---------- */
 function openSignIn(mode){if(!AUTH_ON)return;const d=$('vd');let M=mode||'in';
   const draw=()=>{const up=M==='up',reset=M==='reset';
-    $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Your account</span><h2 id="vd-title">'+(reset?'Reset your password':up?'Create an account':'Sign in')+'</h2>'+
-      '<p class="vd-sub">'+(reset?'We’ll email you a link to choose a new password.':'Your profile, coffees, diary, brews, recipes and photos go with your account to every phone you sign in on, and the website.')+'</p></div>'+
-     '<div class="vd-body beform auth">'+(reset?'':'<div class="seg" id="au-mode"></div>')+
+    $('vd-in').innerHTML='<div class="me-hero au-hero">'+'<button class="vd-close me-x" id="vd-x" aria-label="Close">✕</button>'+CUP_SVG+
+       '<span class="me-k">'+(reset?'It happens':up?'Join the bench':'Welcome back')+'</span><h2 id="vd-title">'+(reset?'Reset your password':up?'Create your account':'Sign in')+'</h2>'+
+       '<p>'+(reset?'We’ll email you a link to choose a new one.':up?'One account for your profile, coffees, diary, brews and photos, on every phone and the website.':'Pick up your bench where you left it: your coffees, diary and brews come with you.')+'</p></div>'+
+     '<div class="vd-body beform auth">'+
+      (up?'<ul class="au-perks"><li><i aria-hidden="true">👤</i>Your profile on every phone</li><li><i aria-hidden="true">🫘</i>Coffees, diary and brews in sync</li><li><i aria-hidden="true">🌐</i>The app and the website, one bench</li></ul>':'')+
       (!reset&&GOOGLE_ON()?'<div class="au-google" id="au-google"></div><div class="au-or"><span>or with email</span></div>':'')+
-      '<form id="au-form" novalidate><div class="field"><label for="au-email">Email</label><input id="au-email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="120"></div>'+
+      '<form id="au-form" novalidate><div class="field"><label for="au-email">Email</label><input id="au-email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="you@example.com"></div>'+
       (reset?'':'<div class="field"><label for="au-pw">Password'+(up?' <span class="hint">at least 6 characters</span>':'')+'</label><div class="au-pw"><input id="au-pw" type="password" autocomplete="'+(up?'new-password':'current-password')+'" maxlength="100"><button type="button" class="linkbtn" id="au-show" aria-pressed="false">Show</button></div></div>')+
-      '<p class="au-err" id="au-err" role="alert" hidden></p><div class="actions"><button class="btn" id="au-go" type="submit">'+(reset?'Send the link':up?'Create account':'Sign in')+'</button></div></form>'+
-      (M==='in'?'<button type="button" class="linkbtn" id="au-forgot">Forgot your password?</button>':reset?'<button type="button" class="linkbtn" id="au-back">Back to sign in</button>':'')+
-      (NATIVE&&AUTHCFG.googleClientId?'<p class="hint">Signing in with Google works on the website. In the app, use your email.</p>':'')+'</div>';
-    if(!reset)seg('au-mode',[['in','Sign in'],['up','Create account']],()=>M,v=>{if(v!==M){M=v;draw()}});
+      (M==='in'?'<button type="button" class="linkbtn au-forgot" id="au-forgot">Forgot your password?</button>':'')+
+      '<p class="au-err" id="au-err" role="alert" hidden></p><div class="actions"><button class="btn" id="au-go" type="submit">'+(reset?'Send the link':up?'Create my account':'Sign in')+'</button></div></form>'+
+      '<p class="au-switch">'+(reset?'<button type="button" class="linkbtn" id="au-back">Back to sign in</button>':up?'Already have an account? <button type="button" class="linkbtn" id="au-to-in">Sign in</button>':'New to the bench? <button type="button" class="linkbtn" id="au-to-up">Create an account</button>')+'</p>'+
+      (NATIVE&&AUTHCFG.googleClientId?'<p class="hint au-note">Signing in with Google works on the website. In the app, use your email.</p>':'')+
+      '<p class="au-fine">We keep only what you save, and you can delete your account at any time.</p></div>';
+    for(const [id,m] of [['au-to-up','up'],['au-to-in','in']])if($(id))$(id).onclick=()=>{const v=$('au-email').value;M=m;draw();$('au-email').value=v;$('au-email').focus()};
     if($('au-google'))googleButton($('au-google'));
     const err=m=>{const e=$('au-err');e.textContent=m;e.hidden=!m};
     if($('au-show'))$('au-show').onclick=e=>{const on=$('au-pw').type==='password';$('au-pw').type=on?'text':'password';e.target.textContent=on?'Hide':'Show';e.target.setAttribute('aria-pressed',on)};
@@ -7426,9 +7487,8 @@ document.addEventListener('close',()=>{if(SYNC_WAIT){SYNC_WAIT=false;setTimeout(
 try{if(Date.now()-(+sessionStorage.getItem('bb-syncreload')||0)<8000)setTimeout(()=>toast('Brought in changes from your other devices'),700)}catch(e){}
 // The line on the profile card.
 function syncLine(){if(!syncOn())return '';const ago=SYNC_AT?Math.round((Date.now()-SYNC_AT)/60000):-1;
-  return '<div class="pc-sync"><span>'+(SYNC_ERR==='offline'?'Offline: changes will sync when you’re back online':SYNC_ERR?'Couldn’t sync just now':
-    'Your coffees, diary, brews, recipes and photos sync with your account'+(ago<0?'':ago<1?' · synced just now':' · synced '+(ago<60?ago+' min ago':Math.round(ago/60)+' h ago')))+
-    '</span><button type="button" class="linkbtn" id="pf-sync">Sync now</button></div>'}
+  const when=SYNC_ERR==='offline'?'Offline: changes go up when you’re back':SYNC_ERR?'Couldn’t sync just now':ago<0?'Not synced yet':ago<1?'Synced just now':'Synced '+(ago<60?ago+' min ago':Math.round(ago/60)+' h ago');
+  return '<div class="me-row me-syncrow'+(SYNC_ERR?' off':'')+'"><span class="me-ic" aria-hidden="true">'+SYNC_SVG+'</span><span class="me-rt"><b>'+when+'</b><small>Coffees, diary, brews, recipes and photos</small></span><button type="button" class="linkbtn" id="pf-sync">Sync now</button></div>'}
 $('vd').addEventListener('click',e=>{if(e.target.closest('#pf-sync')){e.target.textContent='Syncing…';syncNow()}});
 
 </script>

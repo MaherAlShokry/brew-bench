@@ -1088,6 +1088,50 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 .pc-acct{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 12px;margin-top:14px;font-size:.84rem;color:var(--muted)}.pc-acct b{color:var(--ink);overflow-wrap:anywhere}
 .pc-who{flex:1 1 200px;min-width:0}.pc-acct .btn{min-height:40px;padding:0 16px}
 .pcard .setbtns{margin-top:14px}
+/* The profile sheet and sign-in: a dark-roast hero in your colour, like the Beans page */
+.me-hero{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding:34px 20px 24px;color:#FFF8EE;overflow:hidden;
+  background:radial-gradient(90% 80% at 50% 0%,color-mix(in srgb,var(--c,var(--honey)) 70%,transparent),transparent 70%),radial-gradient(80% 90% at 100% 100%,color-mix(in srgb,var(--cherry) 55%,transparent),transparent 70%),linear-gradient(160deg,#4A2E20,#1E120C)}
+.me-hero::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.12;background-image:radial-gradient(rgba(255,255,255,.7) .6px,transparent .8px);background-size:5px 5px;mix-blend-mode:overlay}
+.me-hero>*{position:relative;z-index:1}
+.me-x{position:absolute!important;z-index:2!important;background:rgba(255,248,238,.14)!important;color:#FFF8EE!important}
+.me-edit{position:absolute!important;z-index:2!important;left:12px;top:12px;display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;border:0;border-radius:999px;background:rgba(255,248,238,.14);color:#FFF8EE;font:inherit;font-size:.85rem;font-weight:600;cursor:pointer}
+.me-edit svg,.me-ic svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.me-hero .pav{box-shadow:0 0 0 4px rgba(255,248,238,.9),0 10px 30px -8px rgba(0,0,0,.6);margin-bottom:10px}
+.me-k{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:#F0C987}
+.me-hero h2{margin:2px 0 0;font-family:var(--display);font-size:1.75rem;line-height:1.15;color:#FFF8EE;overflow-wrap:anywhere}
+.me-name{font-size:.92rem;opacity:.8}.me-since{margin-top:8px;font-size:.76rem;opacity:.65}
+.me-hero p{margin:6px 0 0;max-width:34ch;font-size:.92rem;line-height:1.5;opacity:.85}
+.me-cup{width:110px;height:auto;margin:-4px 0 6px}.me-steam path{animation:steam 3.2s ease-in-out infinite;opacity:.8}.me-steam path:nth-child(2){animation-delay:.6s}.me-steam path:nth-child(3){animation-delay:1.2s}
+@keyframes steam{0%{transform:translateY(4px);opacity:0}30%{opacity:.85}100%{transform:translateY(-8px);opacity:0}}
+[data-motion="reduced"] .me-steam path{animation:none;opacity:.7}@media (prefers-reduced-motion:reduce){.me-steam path{animation:none;opacity:.7}}
+.me-acts{display:flex;flex-direction:column;gap:8px;width:100%;max-width:320px;margin-top:16px}.me-acts .btn{width:100%}
+.me-main{background:#F3E3C8!important;color:#2A1A10!important}.me-ghost{background:rgba(255,248,238,.14)!important;color:#FFF8EE!important;border:0!important}
+.me-body{padding:18px 20px 22px;display:flex;flex-direction:column;gap:14px}
+.me-brief{position:relative;margin:0;padding:4px 4px 0 30px;font-family:var(--display);font-size:1.05rem;line-height:1.45;color:var(--ink);overflow-wrap:anywhere}
+.me-brief::before{content:"“";position:absolute;left:0;top:-10px;font-size:2.8rem;line-height:1;color:var(--c,var(--honey));opacity:.8}
+.me-add{padding:12px 14px;border-radius:14px;border:1.5px dashed var(--line);background:none;color:var(--muted);font:inherit;font-size:.88rem;text-align:left;cursor:pointer}
+.me-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.me-stats span{display:flex;flex-direction:column;align-items:center;padding:10px 4px;border-radius:14px;background:var(--surface2);font-size:.72rem;color:var(--muted)}
+.me-stats b{font-family:var(--display);font-size:1.3rem;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.2}
+.me-dna{display:grid;gap:8px}.me-dna>div{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;border:1px solid var(--line)}
+.me-dna i{flex:none;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--surface2);font-style:normal;font-size:1.2rem}.me-flag{font-size:1.3rem}
+.me-dna span{display:flex;flex-direction:column;min-width:0}.me-dna small{font-size:.72rem;color:var(--muted)}.me-dna b{font-size:.95rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.me-acct{border-radius:16px;background:var(--surface2);overflow:hidden}
+.me-row{display:flex;align-items:center;gap:12px;padding:12px 14px}.me-row+.me-row{border-top:1px solid var(--line)}
+.me-rt{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start}.me-rt b{font-size:.92rem}.me-rt small{font-size:.8rem;color:var(--muted);overflow-wrap:anywhere}
+.me-dot{flex:none;width:10px;height:10px;margin:0 3px;border-radius:50%;background:#5E9A63;box-shadow:0 0 0 4px color-mix(in srgb,#5E9A63 22%,transparent)}
+.me-ic{flex:none;display:grid;place-items:center;width:16px;color:var(--muted)}.me-syncrow.off .me-ic{color:#A8432F}
+.me-row .linkbtn{flex:none;min-height:40px}
+.me-cta{padding:16px;border-radius:16px;border:1.5px solid color-mix(in srgb,var(--honey) 45%,var(--line));background:color-mix(in srgb,var(--honey) 9%,var(--surface))}
+.me-cta b{font-family:var(--display);font-size:1.05rem}.me-cta ul{margin:8px 0 12px;padding:0;list-style:none;display:grid;gap:4px;font-size:.88rem;color:var(--muted)}
+.me-cta li::before{content:"";display:inline-block;width:6px;height:6px;margin-right:9px;border-radius:50%;background:var(--honey);vertical-align:middle}.me-cta .btn{width:100%}
+.me-fine,.au-fine{margin:0;text-align:center;font-size:.78rem;color:var(--muted)}
+.au-hero{padding-bottom:20px}.au-hero .me-cup{width:96px}
+.au-perks{margin:0 0 16px;padding:0;list-style:none;display:grid;gap:8px}.au-perks li{display:flex;align-items:center;gap:10px;font-size:.9rem}
+.au-perks i{flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--surface2);font-style:normal}
+.au-forgot{display:block;margin:-6px 0 12px auto}.au-switch{margin:14px 0 6px;text-align:center;font-size:.9rem;color:var(--muted)}.au-note{text-align:center}
+.auth{padding-top:18px!important}
+dialog#vd:has(.me-hero){overflow-x:hidden}
 /* The face in the top bar (phones) and the tab bar (larger screens); it opens your profile. */
 .me-btn{flex:none;display:grid;place-items:center;width:40px;height:40px;margin:-4px -6px -4px 0;padding:0;border:0;border-radius:50%;background:none;cursor:pointer}
 .me-btn .pav{box-shadow:0 0 0 2px var(--surface),0 0 0 3.5px color-mix(in srgb,var(--c,#8A5A3B) 40%,transparent)}.me-btn .pav.none{box-shadow:inset 0 0 0 1.5px var(--line)}
