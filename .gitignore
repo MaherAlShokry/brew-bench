@@ -4,6 +4,8 @@ node_modules/
 # Build output
 dist/
 _site/
+_pages/
+.firebase/
 www/
 
 # OS / editor clutter

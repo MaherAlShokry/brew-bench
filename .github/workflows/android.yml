@@ -18,6 +18,7 @@ jobs:
     env:
       VERSION_NAME: 1.0.${{ github.run_number }}
       HAS_KEY: ${{ secrets.BB_KEYSTORE_BASE64 != '' }}
+      HAS_FB: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_BREW_BENCH != '' }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -34,8 +35,11 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+      # Shared links point to the website: Firebase Hosting once it is set up, GitHub Pages until then.
       - name: Build the app's web files
-        run: python3 tools/build.py --app --site www
+        run: |
+          if [ "$HAS_FB" = true ]; then python3 tools/build.py --app --site www
+          else python3 tools/build.py --app --site www --site-url https://maheralshokry.github.io/brew-bench/; fi
       - name: Copy web files into the Android project
         run: npx cap sync android
 

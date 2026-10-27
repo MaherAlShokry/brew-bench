@@ -6,7 +6,7 @@ A coffee field guide and dial-in tool that works like an app on your phone. Set 
 
 | | |
 | --- | --- |
-| 🌐 **Website** (share this with friends) | https://maheralshokry.github.io/brew-bench/ |
+| 🌐 **Website** (share this with friends) | https://brew-bench.web.app/ |
 | 📱 **Android app** (APK download) | https://github.com/MaherAlShokry/brew-bench/releases/latest/download/brew-bench.apk |
 
 Both update automatically whenever `main` changes.
@@ -53,10 +53,31 @@ Two GitHub Actions workflows run on every push to `main`:
 
 | Workflow | What it does |
 | --- | --- |
-| `pages.yml` | Builds the site and publishes it to the `gh-pages` branch, which GitHub Pages serves |
+| `site.yml` | Builds the site and deploys it to Firebase Hosting; each pull request also gets a preview address for 7 days |
 | `android.yml` | Builds the APK and attaches it to a new release (on other branches it only builds, as a check) |
 
-GitHub Pages is set to serve the `gh-pages` branch (**Settings → Pages**). Don't edit that branch by hand; it's rebuilt on every deploy.
+### Website hosting (Firebase Hosting)
+
+The website lives at **https://brew-bench.web.app/**, on Firebase Hosting in the same Firebase project as sign-in and sync. The old address, https://maheralshokry.github.io/brew-bench/, still works. It shows a page that sends visitors on to the new address, keeping any shared link. Someone with coffees saved at the old address can bring them across first, because each address keeps its own storage. Signed-in people also get everything back through sync. The old address also keeps serving `events.json` (older apps read it) and the privacy pages.
+
+Until the secret below is set, nothing changes: GitHub Pages serves the whole site at the old address, and links point there.
+
+One-time setup:
+
+1. In the [Firebase console](https://console.firebase.google.com/), open the project, then **Build → Hosting → Get started**. Click through the steps; there's nothing to install.
+2. Create a deploy key. In the [Google Cloud console](https://console.cloud.google.com/iam-admin/serviceaccounts?project=brew-bench), click **Create service account**. Name it `github-deploy` and give it these roles:
+   - **Firebase Hosting Admin**
+   - **Firebase Authentication Admin**, so PR previews can sign in
+   - **API Keys Viewer**
+   - **Cloud Run Viewer**
+
+   Open it, go to **Keys → Add key → Create new key → JSON**, and download the file.
+3. In GitHub, under **Settings → Secrets and variables → Actions**, add a secret named `FIREBASE_SERVICE_ACCOUNT_BREW_BENCH` and paste the whole JSON file as its value. Then delete the downloaded file.
+4. Under **Actions → Deploy the website → Run workflow**, run it once. It deploys to Firebase and switches the old address to the forwarding page.
+5. In the [Google Cloud credentials](https://console.cloud.google.com/apis/credentials?project=brew-bench), open the OAuth web client and add `https://brew-bench.web.app` under **Authorized JavaScript origins**, so Google sign-in works there. If you restricted the API key to websites, add `https://brew-bench.web.app/*` to it too.
+6. In the Play Console, change the privacy policy and account deletion links to the new address.
+
+GitHub Pages keeps serving the `gh-pages` branch (**Settings → Pages**). Don't edit that branch by hand; it's rebuilt on every deploy.
 
 **Optional: a permanent signing key for the APK.** Without one, CI signs each APK with a throwaway debug key, so installing a newer version may ask you to uninstall the old one first. To sign every build with the same key, create one on your computer:
 
@@ -134,7 +155,7 @@ With an account you can **sign in with email** (create an account, confirm it fr
 One-time setup, in the same Firebase project as the shared log:
 
 1. In the [Firebase console](https://console.firebase.google.com/), open **Build → Authentication → Get started**. Under **Sign-in method**, turn on **Email/Password**, then **Google** (choose a support email). Open the Google provider again and copy the **Web client ID** under *Web SDK configuration*.
-2. Under **Authentication → Settings → Authorized domains**, add `maheralshokry.github.io`.
+2. Under **Authentication → Settings → Authorized domains**, check that `brew-bench.web.app` is listed (Firebase adds it), and add `maheralshokry.github.io`.
 3. Open **Project settings** (the gear) → **General**. Under *Your apps*, add a **Web app** if there isn't one, and copy its `apiKey`.
 4. In `src/profile.js`, fill in `FB_AUTH` near the top: `{apiKey:'…', googleClientId:'…'}`. Make sure `FIREBASE_DB_URL` in `src/app.js` is set too (see the shared log above) and that the database rules include the `profiles` part, so each account can read and write only its own profile and data. Then push.
 
@@ -181,11 +202,11 @@ brew-bench/
 ├── assets/                     Logo (logo.svg) and the images the Android icons and splash screens are made from
 ├── capacitor.config.json       App id, name and web folder for the Android app
 └── .github/workflows/
-    ├── pages.yml               Build and deploy the website to GitHub Pages
+    ├── site.yml                Build and deploy the website to Firebase Hosting (and the old address)
     └── android.yml             Build the APK and publish it as a release
 ```
 
-Build output (`dist/`, `_site/`, `www/`) is git-ignored.
+Build output (`dist/`, `_site/`, `_pages/`, `www/`) is git-ignored. `firebase.json` holds the hosting settings, and `src/moved.html` is the page the old address shows.
 
 ## Editing
 

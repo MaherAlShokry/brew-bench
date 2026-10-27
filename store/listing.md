@@ -11,9 +11,9 @@ Everything to paste into Play Console. Graphics are in this folder.
 | Category | Food & Drink |
 | Tags | Coffee, Recipes, Food & drink guides |
 | Contact email | thehope99.ms@gmail.com |
-| Website | https://maheralshokry.github.io/brew-bench/ |
-| Privacy policy | https://maheralshokry.github.io/brew-bench/privacy.html |
-| Account deletion URL | https://maheralshokry.github.io/brew-bench/delete-account.html |
+| Website | https://brew-bench.web.app/ |
+| Privacy policy | https://brew-bench.web.app/privacy.html |
+| Account deletion URL | https://brew-bench.web.app/delete-account.html |
 | Price | Free |
 | Ads | No |
 

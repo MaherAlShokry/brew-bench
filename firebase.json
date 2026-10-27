@@ -1,0 +1,13 @@
+{
+  "hosting": {
+    "public": "_site",
+    "ignore": ["firebase.json", "**/.*"],
+    "headers": [
+      { "source": "**", "headers": [{ "key": "X-Content-Type-Options", "value": "nosniff" }] },
+      { "source": "/", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
+      { "source": "**/@(index.html|sw.js|manifest.webmanifest|privacy.html|delete-account.html)", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
+      { "source": "**/events.json", "headers": [{ "key": "Cache-Control", "value": "no-cache" }, { "key": "Access-Control-Allow-Origin", "value": "*" }] },
+      { "source": "**/@(icons|vendor)/**", "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }] }
+    ]
+  }
+}
