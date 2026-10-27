@@ -13,7 +13,7 @@ Both update automatically whenever `main` changes.
 
 ## Features
 
-On a phone the app has five tabs: **Brew** (the dial-in), **Recipes**, **Beans** (scan a bag, your bean gallery and yearly top 5), **Explore** (origins, varieties, processes, seed to cup, techniques, the flavour wheel, coffee words, history and championships, with a word of the day) and **Settings** (make it yours: light or dark, eight coffee colour themes from House roast to Cascara, Kenya and Geisha, six logos for the top bar and browser tab, text size, motion and which page the app opens on; then your tools, and **Export my data / Import a backup**, a single file with everything you've saved, to keep safe or move to another phone). On a computer every section sits in the tab bar.
+On a phone the app has five tabs: **Brew** (the dial-in), **Recipes**, **Beans** (scan a bag, your bean gallery and yearly top 5), **Explore** (origins, varieties, processes, seed to cup, techniques, the flavour wheel, coffee words, history and championships, with a word of the day) and **Settings** (your profile, with an optional account by email or Google; make it yours: light or dark, eight coffee colour themes from House roast to Cascara, Kenya and Geisha, six logos for the top bar and browser tab, text size, motion and which page the app opens on; then your tools, and **Export my data / Import a backup**, a single file with everything you've saved, to keep safe or move to another phone). On a computer every section sits in the tab bar.
 
 | Section | What it does |
 | --- | --- |
@@ -99,12 +99,34 @@ The log is stored in a free [Firebase Realtime Database](https://firebase.google
           }
         }
       }
+    },
+    "profiles": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChild('nick')"
+      }
     }
   }
 }
 ```
 
 The rules stop anyone from listing groups; a group can only be read or written by someone who has its code (about a trillion possible codes). Anyone you give the code or invite link to can read, add and delete entries, so share it only with the people you brew with.
+
+## Your profile and signing in (Firebase Authentication)
+
+Settings opens with your profile: a nickname, your name, a few words about you, a photo or a symbol on a colour, how you like your coffee, your favourite brewer and origin, and where you brew, with your coffees, brews and origins counted beside it. Your nickname signs your shared brews and heads your Beans page. The profile is saved on the device straight away, no account needed.
+
+With accounts switched on, you can **sign in with email** (create an account, confirm it from the email, reset a forgotten password) **or Google** (on the website), and the profile follows you to every phone you sign in on. You can sign out, or delete your account and profile, from the profile. Your brews, coffees and recipes stay on the device as before; sign-in tokens are never written into backup files.
+
+One-time setup, in the same Firebase project as the shared log:
+
+1. In the [Firebase console](https://console.firebase.google.com/), open **Build → Authentication → Get started**. Under **Sign-in method**, turn on **Email/Password**, then **Google** (choose a support email). Open the Google provider again and copy the **Web client ID** under *Web SDK configuration*.
+2. Under **Authentication → Settings → Authorized domains**, add `maheralshokry.github.io`.
+3. Open **Project settings** (the gear) → **General**. Under *Your apps*, add a **Web app** if there isn't one, and copy its `apiKey`.
+4. In `src/profile.js`, fill in `FB_AUTH` near the top: `{apiKey:'…', googleClientId:'…'}`. Make sure `FIREBASE_DB_URL` in `src/app.js` is set too (see the shared log above) and that the database rules include the `profiles` part, so each account can read and write only its own profile. Then push.
+
+The API key is meant to be public; the database rules and the authorized domains are what protect the data. Google's sign-in window can't open inside the Android app's web view, so the app signs in with email; Google sign-in works on the website.
 
 ## Project structure
 
@@ -120,6 +142,7 @@ brew-bench/
 │   ├── app.js                  All interactive logic
 │   ├── beans.js                The bean cabinet, diary, passport, trophies and yearly top 5
 │   ├── brewcard.js             The shareable brew card image
+│   ├── profile.js              Your profile, and signing in with email or Google
 │   └── data/
 │       ├── origins-varieties-history.js   Origins, varieties, family tree, timeline
 │       ├── brewing.js                     Brewers, recipes, processes, techniques, quiz

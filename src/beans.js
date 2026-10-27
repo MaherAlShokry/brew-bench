@@ -311,7 +311,7 @@ function renderBeanHero(){const cy=new Date().getFullYear(),N=BEANS.length,rated
     roasters=new Set(BEANS.map(b=>b.roaster.toLowerCase()).filter(Boolean)).size,origins=new Set(BEANS.map(b=>b.origin).filter(Boolean)).size,
     last=[...BEANS].sort((a,b)=>b.tried.localeCompare(a.tried)||b.ts-a.ts).slice(0,3);
   const h=$('bg-hero');h.className='bg-hero'+(N?'':' empty');
-  h.innerHTML='<div class="bgh-tx"><span class="bgh-k">Your coffee journal</span>'+
+  h.innerHTML='<div class="bgh-tx"><span class="bgh-k">'+(window.PROFILE_OK&&PROFILE?esc(PROFILE.nick)+'’s coffee journal':'Your coffee journal')+'</span>'+
       (N?'<h3>'+N+' coffee'+(N===1?'':'s')+(origins?' <em>· '+origins+' origin'+(origins===1?'':'s')+'</em>':'')+'</h3>'+
         '<div class="bgh-stats"><span><b>'+roasters+'</b>'+(roasters===1?'roastery':'roasteries')+'</span><span><b>'+(avg?avg.toFixed(1):'–')+beanSVG+'</b>average</span><span><b>'+BEANS.filter(b=>beanYear(b)===cy).length+'</b>in '+cy+'</span></div>'
         :'<h3>Start your <em>coffee journal</em></h3><p>Scan a bag or add one by hand, then rate it in beans.</p>')+
