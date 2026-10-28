@@ -2506,7 +2506,7 @@ function applyUI(){const d=document.documentElement;d.setAttribute('data-accent'
 function saveUI(){save('bb-ui',UI);applyUI()}
 /* Your data: everything the app saves on this device, in one file you can keep or move to another phone. */
 // Sign-in tokens never go into a backup file.
-const DATA_SKIP=['bb-reset','bb-pending','bb-account','bb-fbcfg','bb-syncshadow','bb-syncat','bb-syncdb','bb-bio','bb-bio-no'];
+const DATA_SKIP=['bb-reset','bb-pending','bb-account','bb-fbcfg','bb-syncshadow','bb-syncat','bb-syncdb','bb-bio','bb-bio-no','bb-upd'];
 function dataKeys(){const k=[];try{for(let i=0;i<localStorage.length;i++){const n=localStorage.key(i);if(n&&n.startsWith('bb-')&&!DATA_SKIP.includes(n))k.push(n)}}catch(e){}return k.sort()}
 function dataSummary(){const n=k=>{let v=null;try{v=JSON.parse(localStorage.getItem(k)||'null')}catch(e){}return Array.isArray(v)?v.length:v&&typeof v==='object'?Object.keys(v).length:0};
   return [[n('bb-myrecipes'),'recipe'],[n('bb-log'),'brew'],[n('bb-beans'),'gallery coffee'],[n('bb-scans'),'scan'],[n('bb-favs'),'favourite']].filter(x=>x[0]).map(([c,w])=>c+' '+w+(c===1?'':'s')).join(', ')||'Nothing saved yet besides your settings'}
@@ -2561,7 +2561,8 @@ function renderSettings(){const t=document.documentElement.getAttribute('data-th
    '<h3 class="rh">Your data</h3><div class="setgroup">'+row('download','#8A5A3B','Back up and restore','Everything you’ve saved stays on this device: '+esc(dataSummary())+'. Save it as a file to keep it safe or move it to another phone.',
      '<div class="setbtns"><button type="button" class="btn" id="st-export">Export my data</button><button type="button" class="btn ghost" id="st-import">Import a backup</button><input type="file" id="st-file" accept="application/json,.json" hidden></div>')+'</div>'+
    (installed()?'':'<h3 class="rh">Install</h3><div class="setgroup">'+row('download','#9A7390','Add to your home screen','Use it like an app, offline too','<p class="setnote" style="margin:0"><b>iPhone (Safari):</b> tap the Share button, then <b>Add to Home Screen</b>.<br><b>Android (Chrome):</b> tap the ⋮ menu, then <b>Add to Home screen</b>.</p>')+'</div>')+
-   '<h3 class="rh">About</h3><div class="setgroup">'+row('book','#8A5A3B','The Brew Bench','A coffee field guide and dial-in tool. What you save stays on this device, or syncs with your account if you sign in.','<p class="setnote" style="margin:0"><a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a> · <a href="'+SITE_URL+'delete-account.html" target="_blank" rel="noopener">Delete your account</a></p>')+'</div>';
+   '<h3 class="rh">About</h3><div class="setgroup">'+row('book','#8A5A3B','The Brew Bench','A coffee field guide and dial-in tool. What you save stays on this device, or syncs with your account if you sign in.','<p class="setnote" style="margin:0"><a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a> · <a href="'+SITE_URL+'delete-account.html" target="_blank" rel="noopener">Delete your account</a></p>')+
+     (appVersion()?row('download','#4F8A74','Version '+appVersion(),updNote(),'<button type="button" class="btn ghost" id="st-upd">Check for updates</button>'):'')+'</div>';
   seg('st-mode',[['light','Light'],['dark','Dark'],['auto','Auto']],()=>t,v=>{if(v==='auto'){document.documentElement.removeAttribute('data-theme');try{localStorage.removeItem('bb-theme')}catch(e){}}
     else{document.documentElement.setAttribute('data-theme',v);try{localStorage.setItem('bb-theme',v)}catch(e){}}syncThemeBtn();applyUI();renderSettings()});
   seg('st-text',[['s','Small'],['m','Standard'],['l','Large'],['xl','Larger']],()=>UI.text,v=>{UI.text=v;saveUI();renderSettings()});
@@ -2613,6 +2614,34 @@ function syncThemeBtn(){const t=curTheme();$('themebtn').textContent=t==='dark'?
   if(document.documentElement.hasAttribute('data-theme'))document.querySelectorAll('meta[name="theme-color"]').forEach(m=>m.content=t==='dark'?'#1F1814':'#FBF7F0')}
 $('themebtn').onclick=()=>{const n=curTheme()==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);try{localStorage.setItem('bb-theme',n)}catch(e){}syncThemeBtn()};
 syncThemeBtn();
+
+/* ================= APP UPDATES ================= */
+// The Android app installed from the download link can't update itself, so it looks for a newer release on GitHub
+// (when it opens, at most every 6 hours) and offers it. The website updates on its own, so this is the app only.
+const UPD_API='https://api.github.com/repos/MaherAlShokry/brew-bench/releases/latest',APK_URL='https://github.com/MaherAlShokry/brew-bench/releases/latest/download/brew-bench.apk';
+const appVersion=()=>NATIVE&&typeof APP_VERSION==='string'&&/^\d+(\.\d+)*$/.test(APP_VERSION)?APP_VERSION:'';
+const verNewer=(a,b)=>{const x=String(a).replace(/^v/,'').split('.').map(n=>+n||0),y=String(b).replace(/^v/,'').split('.').map(n=>+n||0);
+  for(let i=0;i<Math.max(x.length,y.length);i++){if((x[i]||0)!==(y[i]||0))return (x[i]||0)>(y[i]||0)}return false};
+let UPD=load('bb-upd',{});if(!UPD||typeof UPD!=='object')UPD={};
+const updLatest=()=>typeof UPD.latest==='string'&&/^v?\d+(\.\d+)*$/.test(UPD.latest)&&verNewer(UPD.latest,appVersion())?UPD.latest.replace(/^v/,''):'';
+function updNote(){const l=updLatest();return l?'Version '+l+' is ready to install.':UPD.at?'Up to date. Checked '+fmtAgo(UPD.at)+'.':'Updates are checked when the app opens.'}
+const fmtAgo=t=>{const m=Math.round((Date.now()-t)/60000);return m<1?'just now':m<60?m+' min ago':m<1440?Math.round(m/60)+' h ago':Math.round(m/1440)+' days ago'};
+async function checkUpdate(force){if(!appVersion()||navigator.onLine===false)return null;
+  if(!force&&UPD.at&&Date.now()-UPD.at<6*3600e3){showUpdate();return updLatest()}
+  try{const ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),8000);const r=await fetch(UPD_API,{headers:{Accept:'application/vnd.github+json'},signal:ctl.signal});clearTimeout(t);
+    if(!r.ok)return null;const j=await r.json();if(j&&typeof j.tag_name==='string')UPD.latest=j.tag_name;UPD.at=Date.now();save('bb-upd',UPD)}catch(e){return null}
+  showUpdate(force);return updLatest()}
+// A small card above the bottom bar. "Later" hides it until a newer version still, or for three days.
+function showUpdate(force){const l=updLatest(),old=$('updcard');if(!l||(!force&&UPD.later===l&&Date.now()-(UPD.laterAt||0)<3*864e5)){if(old)old.remove();return}
+  if(old)return;const c=document.createElement('div');c.id='updcard';c.className='updcard';c.setAttribute('role','status');
+  c.innerHTML='<span class="upd-ic" aria-hidden="true">'+ico('download','#4F8A74')+'</span><span class="upd-tx"><b>A new version is ready</b><small>Version '+esc(l)+' · you have '+esc(appVersion())+'</small></span>'+
+    '<button type="button" class="btn" id="upd-go">Update</button><button type="button" class="upd-x" id="upd-later" aria-label="Later">✕</button>';
+  document.body.appendChild(c);
+  $('upd-go').onclick=()=>{c.remove();toast('Downloading the new version. Open it when it finishes to install');openLink(APK_URL)};
+  $('upd-later').onclick=()=>{UPD.later=l;UPD.laterAt=Date.now();save('bb-upd',UPD);c.classList.add('out');setTimeout(()=>c.remove(),260)}}
+if(appVersion()){setTimeout(()=>checkUpdate(),4000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate()})}
+document.addEventListener('click',e=>{if(e.target.closest('#st-upd')){const b=e.target.closest('#st-upd');b.disabled=true;b.textContent='Checking…';
+  checkUpdate(true).then(l=>{if(l===null)toast('Couldn’t check just now. Try again when you’re online');else if(!l)toast('You have the latest version');renderSettings()})}});
 
 /* ================= INIT ================= */
 // Drawings that loop (the pour on the Dial-in page) pause while they're out of sight, so the phone isn't redrawing

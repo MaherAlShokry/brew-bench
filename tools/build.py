@@ -67,6 +67,12 @@ if not artifact:
     pwa = '<link rel="manifest" href="manifest.webmanifest">\n'
     if not app:
         pwa += '<script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>\n'
+    if app:
+        # The Android app knows its own version, to offer newer ones (see APP UPDATES in app.js).
+        import os, re
+        v = os.environ.get('VERSION_NAME', '')
+        if re.fullmatch(r'\d+(\.\d+)*', v):
+            pwa += '<script>const APP_VERSION="' + v + '"</script>\n'
     out = out.replace('</head>', pwa + '</head>', 1)
     out = out.replace('rel="apple-touch-icon" href="data:', 'rel="apple-touch-icon-legacy" href="data:', 1)
     out = out.replace('</head>', '<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">\n</head>', 1)
