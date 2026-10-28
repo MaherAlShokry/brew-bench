@@ -305,9 +305,10 @@ button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.a
 .drop img{max-width:100%;max-height:260px;border-radius:10px}
 .dropicon{font-size:2.2rem;color:var(--cherry);line-height:1}
 .dateinp{width:100%;padding:9px 10px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:12px;font-family:var(--body)}
-.scanning{position:relative}
-.scanning::after{content:"";position:absolute;left:0;right:0;height:3px;background:var(--honey);box-shadow:0 0 12px var(--honey);animation:scanline 1.4s ease-in-out infinite alternate;top:0}
-@keyframes scanline{to{top:calc(100% - 3px)}}
+.scanning{position:relative;overflow:hidden}
+.scanning::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(var(--honey),var(--honey)) 0 0/100% 3px no-repeat,linear-gradient(color-mix(in srgb,var(--honey) 35%,transparent),transparent) 0 3px/100% 12px no-repeat;animation:scanline 1.4s ease-in-out infinite alternate;will-change:transform}
+/* The line sweeps by moving the whole layer (transform), so the page isn't laid out again on every frame. */
+@keyframes scanline{from{transform:translateY(0)}to{transform:translateY(calc(100% - 3px))}}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.93rem;margin:10px 0}
 .kv dt{font-family:var(--display);color:var(--muted);font-weight:600}
 .kv dd{margin:0}
@@ -772,10 +773,7 @@ dialog#selsheet.pop .selopt{min-height:40px;padding:8px 12px;font-size:.95rem}
   dialog.closing{animation:dlg-out .2s cubic-bezier(.4,0,1,1) both;pointer-events:none}
   dialog.closing::backdrop{animation:bd-out .24s ease both}
   .sheetlist button{animation:item-in .42s var(--ease-out) both;animation-delay:calc(70ms + var(--i,0) * 32ms)}
-  main section.on{animation:sec-fwd .34s var(--ease-out) both}
-  body.nav-back main section.on{animation-name:sec-back}
-  .bottomnav button[aria-current="true"] svg{animation:bn-pop .42s var(--ease-spring)}
-  .bn-pill{transition:transform .42s var(--ease-spring),width .42s var(--ease-spring),opacity .2s}
+  .bottomnav button[aria-current="true"] svg{animation:bn-jelly .62s var(--spring) both;transform-origin:50% 80%}
   .appbar #ab-title{animation:title-in .3s var(--ease-out)}
 }
 @media (prefers-reduced-motion:no-preference) and (max-width:759px){
@@ -791,10 +789,57 @@ dialog#selsheet.pop .selopt{min-height:40px;padding:8px 12px;font-size:.95rem}
 @keyframes bd-in{from{opacity:0}to{opacity:1}}
 @keyframes bd-out{from{opacity:1}to{opacity:0}}
 @keyframes item-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-@keyframes sec-fwd{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
-@keyframes sec-back{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:none}}
-@keyframes bn-pop{0%{transform:scale(.8)}55%{transform:scale(1.14) translateY(-1px)}100%{transform:translateY(-1px)}}
+@keyframes bn-jelly{0%{transform:scale(1)}25%{transform:scale(1.28,.78)}45%{transform:scale(.88,1.16) translateY(-4px)}65%{transform:scale(1.06,.95) translateY(-1px)}100%{transform:translateY(-1px)}}
 @keyframes title-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+/* Navigation motion. Between bottom-bar sections the pages swing past each other sideways; into a page within a
+   section the new one rises and grows from behind, and back out it drops away. Both pages move at once where the
+   browser can (view transitions); the app bar and bottom bar hold still, the title slides, and the new page's
+   blocks arrive one after another. A spring curve gives each a small, soft overshoot. */
+:root{--spring:cubic-bezier(.34,1.45,.5,1)}
+@supports (animation-timing-function:linear(0,1)){:root{--spring:linear(0,.006,.025 2.8%,.101 6.1%,.539 18.9%,.721 25.3%,.849 31.5%,.937 38.1%,.968 41.8%,.991 45.7%,1.006 50.1%,1.015 55%,1.017 63.9%,1.001 85.9%,1)}}
+html.vt .appbar{view-transition-name:appbar}html.vt #ab-title{view-transition-name:abtitle}html.vt .bottomnav{view-transition-name:bnav}html.vt nav.tabs{view-transition-name:navtabs}
+::view-transition-group(appbar),::view-transition-group(bnav),::view-transition-group(navtabs),::view-transition-group(abtitle),::view-transition-group(root){animation:none}
+::view-transition-old(appbar),::view-transition-old(bnav),::view-transition-old(navtabs){display:none}
+::view-transition-new(appbar),::view-transition-new(bnav),::view-transition-new(navtabs){animation:none}
+::view-transition-old(abtitle),::view-transition-new(abtitle){inline-size:auto;block-size:auto}
+::view-transition-old(root){animation:vt-fade .26s ease-in both}::view-transition-new(root){animation:vt-fade .2s ease-out reverse both}
+html[data-nav=right]::view-transition-old(root){animation:vt-out-l .34s cubic-bezier(.4,0,.7,.2) both}
+html[data-nav=right]::view-transition-new(root){animation:vt-in-r .62s var(--spring) both,vt-show .18s ease-out both}
+html[data-nav=left]::view-transition-old(root){animation:vt-out-r .34s cubic-bezier(.4,0,.7,.2) both}
+html[data-nav=left]::view-transition-new(root){animation:vt-in-l .62s var(--spring) both,vt-show .18s ease-out both}
+html[data-nav=push]::view-transition-old(root){animation:vt-sink .36s cubic-bezier(.4,0,.6,1) both}
+html[data-nav=push]::view-transition-new(root){animation:vt-rise .6s var(--spring) both,vt-show .2s ease-out both}
+html[data-nav=pop]::view-transition-old(root){z-index:2;animation:vt-drop .32s cubic-bezier(.5,0,.75,0) both}
+html[data-nav=pop]::view-transition-new(root){animation:vt-surface .5s var(--spring) both,vt-show .22s ease-out both}
+html[data-nav=right]::view-transition-old(abtitle),html[data-nav=push]::view-transition-old(abtitle){animation:vt-t-out-l .13s ease-in both}
+html[data-nav=right]::view-transition-new(abtitle),html[data-nav=push]::view-transition-new(abtitle){animation:vt-t-in-r .5s var(--spring) .08s both,vt-show .2s ease-out .08s both}
+html[data-nav=left]::view-transition-old(abtitle),html[data-nav=pop]::view-transition-old(abtitle){animation:vt-t-out-r .13s ease-in both}
+html[data-nav=left]::view-transition-new(abtitle),html[data-nav=pop]::view-transition-new(abtitle){animation:vt-t-in-l .5s var(--spring) .08s both,vt-show .2s ease-out .08s both}
+@keyframes vt-fade{to{opacity:0}}@keyframes vt-show{from{opacity:0}}
+@keyframes vt-out-l{to{transform:translateX(-30%) scale(.94) rotate(-1.5deg);opacity:0}}
+@keyframes vt-out-r{to{transform:translateX(30%) scale(.94) rotate(1.5deg);opacity:0}}
+@keyframes vt-in-r{from{transform:translateX(62%) scale(.92) rotate(3deg)}}
+@keyframes vt-in-l{from{transform:translateX(-62%) scale(.92) rotate(-3deg)}}
+@keyframes vt-sink{to{transform:scale(.9);opacity:0}}
+@keyframes vt-rise{from{transform:translateY(16%) scale(.86);border-radius:36px}}
+@keyframes vt-drop{to{transform:translateY(22%) scale(.86);opacity:0;border-radius:36px}}
+@keyframes vt-surface{from{transform:scale(1.08)}}
+@keyframes vt-t-out-l{to{transform:translateX(-24px);opacity:0}}@keyframes vt-t-out-r{to{transform:translateX(24px);opacity:0}}
+@keyframes vt-t-in-r{from{transform:translateX(34px)}}@keyframes vt-t-in-l{from{transform:translateX(-34px)}}
+/* Where both pages can't move together (an action that jumps to a page, or older browsers) the new page alone
+   makes the same move. */
+@media (prefers-reduced-motion:no-preference){
+  html[data-nav=right] main section.nav-in{animation:sec-in-r .6s var(--spring) both,vt-show .2s ease-out both}
+  html[data-nav=left] main section.nav-in{animation:sec-in-l .6s var(--spring) both,vt-show .2s ease-out both}
+  html[data-nav=push] main section.nav-in{animation:vt-rise .56s var(--spring) both,vt-show .2s ease-out both}
+  html[data-nav=pop] main section.nav-in{animation:vt-surface .48s var(--spring) both,vt-show .22s ease-out both}
+  .cascade{animation:cascade-in .62s var(--spring) both;animation-delay:calc(70ms + var(--ci,0) * 42ms)}
+}
+/* While a page slides in from the side it mustn't make the screen scroll sideways. */
+main:has(> section.nav-in){overflow-x:clip}
+@keyframes sec-in-r{from{transform:translateX(26%) rotate(1.5deg)}}@keyframes sec-in-l{from{transform:translateX(-26%) rotate(-1.5deg)}}
+@keyframes cascade-in{from{opacity:0;transform:translateY(22px) scale(.96)}}
+:root[data-motion="reduced"]::view-transition-group(*),:root[data-motion="reduced"]::view-transition-old(*),:root[data-motion="reduced"]::view-transition-new(*){animation:none!important}
 /* The nav highlight is one pill that moves between buttons. */
 .bn-pill{display:none}
 @media (max-width:759px){
@@ -895,7 +940,7 @@ table.ref tr:last-child td{border-bottom:0}
 
 /* Sheets and dialogs */
 dialog#vd,dialog#timer,dialog#navsheet,dialog#sharesheet{border-radius:var(--r-xl);box-shadow:var(--e3);border:1px solid var(--hair)}
-dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+dialog::backdrop{background:rgba(25,16,10,.5)}
 .sheetlist button{border-radius:var(--r-md);border:0;background:var(--surface2)}
 .sheetlist button .ic{border-radius:var(--r-sm)}
 .vd-close{background:var(--surface2)}
@@ -1012,9 +1057,12 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 #g-goal button[aria-pressed="true"][style*="--fitc"]{border-color:var(--fitc);box-shadow:inset 0 0 0 2px var(--fitc),inset 0 0 0 3.5px color-mix(in srgb,#FFFDF9 75%,transparent)}
 #g-goal button{transition:background .3s,border-color .3s,box-shadow .3s,color .3s}
 #g-goal button.fit-lean{background:color-mix(in srgb,#C9964A 22%,var(--surface2));border-color:color-mix(in srgb,#C9964A 55%,transparent)}
-#g-goal button.fit-near{background:color-mix(in srgb,#C9964A 34%,var(--surface2));border-color:#C9964A;color:var(--ink);animation:fitglow 2.4s ease-in-out infinite}
-@keyframes fitglow{0%,100%{box-shadow:inset 0 0 0 0 color-mix(in srgb,#C9964A 0%,transparent)}50%{box-shadow:inset 0 0 0 2px #C9964A,inset 0 0 12px color-mix(in srgb,#C9964A 55%,transparent)}}
-@media (prefers-reduced-motion:reduce){#g-goal button.fit-near{animation:none;box-shadow:inset 0 0 0 2px #C9964A}}
+#g-goal button.fit-near{position:relative;background:color-mix(in srgb,#C9964A 34%,var(--surface2));border-color:#C9964A;color:var(--ink)}
+/* The glow is drawn once and only fades in and out, so the button isn't repainted on every frame. */
+#g-goal button.fit-near::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:inset 0 0 0 2px #C9964A,inset 0 0 12px color-mix(in srgb,#C9964A 55%,transparent);opacity:0;animation:fitglow 2.4s ease-in-out infinite}
+@keyframes fitglow{50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){#g-goal button.fit-near::after{animation:none;opacity:1}}
+.offscreen,.offscreen *{animation-play-state:paused!important}
 .scan-why{display:block;margin-top:6px;font-size:.72rem;opacity:.75;word-break:break-word}.quicktools{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:4px 0 18px}
 .qtool{display:flex;flex-direction:column;align-items:flex-start;gap:8px;text-align:left;padding:12px;border-radius:16px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;font:inherit;box-shadow:var(--shadow)}
 .qtool .ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex:none}.qtool .ic svg{width:19px;height:19px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
@@ -1092,8 +1140,10 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 .pc-who{flex:1 1 200px;min-width:0}.pc-acct .btn{min-height:40px;padding:0 16px}
 .pcard .setbtns{margin-top:14px}
 /* The profile sheet and sign-in: a dark-roast hero in your colour, like the Beans page */
-.me-hero{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding:34px 20px 24px;color:#FFF8EE;overflow:hidden;
-  background:radial-gradient(90% 80% at 50% 0%,color-mix(in srgb,var(--c,var(--honey)) 70%,transparent),transparent 70%),radial-gradient(80% 90% at 100% 100%,color-mix(in srgb,var(--cherry) 55%,transparent),transparent 70%),linear-gradient(160deg,#4A2E20,#1E120C)}
+.me-hero{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding:34px 20px 24px;color:#FFF8EE;overflow:hidden}
+/* The standard roast banner, tinted with your colour; other banners and photos replace it (see BANNERS). */
+.me-hero,.pf-cover,.pf-banners [data-b=""] i{background:radial-gradient(90% 80% at 50% 0%,color-mix(in srgb,var(--c,var(--honey)) 70%,transparent),transparent 70%),radial-gradient(80% 90% at 100% 100%,color-mix(in srgb,var(--cherry) 55%,transparent),transparent 70%),linear-gradient(160deg,#4A2E20,#1E120C)}
+.me-hero.banner{background-color:#1E120C}.me-hero.banner .me-k{text-shadow:0 1px 8px rgba(0,0,0,.45)}.me-hero.banner h2,.me-hero.banner .me-name,.me-hero.banner .me-since{text-shadow:0 1px 12px rgba(0,0,0,.5)}
 .me-hero::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.12;background-image:radial-gradient(rgba(255,255,255,.7) .6px,transparent .8px);background-size:5px 5px;mix-blend-mode:overlay}
 .me-hero>*{position:relative;z-index:1}
 .me-x{position:absolute!important;z-index:2!important;background:rgba(255,248,238,.14)!important;color:#FFF8EE!important}
@@ -1134,6 +1184,7 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 .au-perks i{flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--surface2);font-style:normal}
 .au-forgot{display:block;margin:-6px 0 12px auto}.au-who{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px;padding:10px 14px;border-radius:999px;background:var(--surface2);font-weight:600;font-size:.92rem}.au-who span{min-width:0;overflow-wrap:anywhere}.au-who .linkbtn{flex:none}
 .au-bio{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:56px;text-align:left}.au-bio svg{flex:none;width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}.au-bio span{display:flex;flex-direction:column;line-height:1.25}.au-bio small{font-weight:500;opacity:.8;font-size:.8rem}
+.au-gbtn{display:inline-flex;align-items:center;justify-content:center;gap:12px;width:min(100%,360px);min-height:44px;padding:0 18px;border-radius:999px;border:1px solid #DADCE0;background:#fff;color:#1F1F1F;font:500 .95rem/1 inherit;font-family:inherit;cursor:pointer}.au-gbtn svg{width:20px;height:20px;flex:none}.au-gbtn:disabled{opacity:.6}
 .au-hint{margin:0 0 12px;font-size:.86rem;color:var(--muted)}.au-hero .pav{margin:0 auto 10px}.au-switch{margin:14px 0 6px;text-align:center;font-size:.9rem;color:var(--muted)}.au-note{text-align:center}
 .auth{padding-top:18px!important}
 dialog#vd:has(.me-hero){overflow-x:hidden}
@@ -1143,7 +1194,15 @@ dialog#vd:has(.me-hero){overflow-x:hidden}
 .me-btn:active .pav{transform:scale(.94)}.me-tab{width:38px;height:38px;margin:0 0 0 6px;align-self:center}
 .me-body .pcard{margin:4px 0 0;box-shadow:none}
 .pc-sync{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px 12px;margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--surface2);font-size:.8rem;color:var(--muted)}.pc-sync span{flex:1 1 200px}.pc-sync .linkbtn{min-height:36px}
-.pf-face{display:flex;align-items:center;gap:18px;margin:6px 0 18px}.pf-photo{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.pf-cover{position:relative;display:grid;place-items:center;height:150px;margin:6px 0 10px;border-radius:20px;overflow:hidden;background-color:#1E120C}
+.pf-cover .pav{box-shadow:0 0 0 4px rgba(255,248,238,.9),0 10px 30px -8px rgba(0,0,0,.6)}
+.pf-photo{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px 14px;margin:0 0 18px}
+.pf-banners{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:10px 8px}
+.pf-banners button{display:flex;flex-direction:column;gap:5px;padding:0;border:0;background:none;color:var(--muted);font:500 .78rem/1.2 var(--body);cursor:pointer;text-align:center}
+.pf-banners i{display:block;height:46px;border-radius:12px;background-color:#1E120C;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);transition:box-shadow .15s}
+.pf-banners button[aria-pressed="true"]{color:var(--ink);font-weight:600}.pf-banners button[aria-pressed="true"] i{box-shadow:0 0 0 2px var(--surface),0 0 0 4.5px var(--cherry)}
+.pf-banners .pf-bphoto{display:grid;place-items:center;background:var(--surface2);color:var(--muted)}.pf-bphoto svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round}
+.pf-bpos{margin-top:12px}.pf-bpos label{display:block;font-size:.86rem;color:var(--muted);margin-bottom:4px}.pf-bpos input{width:100%}
 .pf-emoji{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:6px}
 .pf-emoji button{height:44px;border-radius:12px;border:0;background:var(--surface2);font-size:1.3rem;cursor:pointer;color:var(--ink);font-family:var(--display);font-weight:700}
 .pf-emoji button[aria-pressed="true"]{box-shadow:inset 0 0 0 2.5px var(--cherry);background:var(--surface)}
@@ -1910,8 +1969,10 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 <dialog id="selsheet" aria-labelledby="sel-title"><div id="sel-in"></div></dialog>
 <div id="toast" role="status" aria-live="polite"></div>
 
+<script type="application/json" id="map-json">__MAP__</script>
 <script>
-const MAP=__MAP__;
+// The world map (360 KB) is read only when the Map page first opens, not on every start.
+let MAP=null;const mapData=()=>MAP||(MAP=JSON.parse(document.getElementById('map-json').textContent));
 __DATA__
 __APP__
 </script>

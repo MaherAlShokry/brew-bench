@@ -160,7 +160,15 @@ One-time setup, in the same Firebase project as the shared log:
 3. Open **Project settings** (the gear) → **General**. Under *Your apps*, add a **Web app** if there isn't one, and copy its `apiKey`.
 4. In `src/profile.js`, fill in `FB_AUTH` near the top: `{apiKey:'…', googleClientId:'…'}`. Make sure `FIREBASE_DB_URL` in `src/app.js` is set too (see the shared log above) and that the database rules include the `profiles` part, so each account can read and write only its own profile and data. Then push.
 
-The API key is meant to be public; the database rules and the authorized domains are what protect the data. Google's sign-in window can't open inside the Android app's web view, so the app signs in with email; Google sign-in works on the website.
+**Google sign-in in the Android app.** Google doesn't allow its web sign-in inside an app's web view, so the app uses Android's own Google account sheet instead. Google only shows that sheet to an app whose signing key it knows. One-time setup:
+
+1. Add the four upload-key secrets (see *Publishing on Google Play*), so every build is signed with the same key.
+2. In the [Google Cloud credentials](https://console.cloud.google.com/apis/credentials?project=brew-bench), choose **Create credentials → OAuth client ID → Android**. Enter the package name `io.github.maheralshokry.brewbench` and the upload key's SHA-1 fingerprint (`keytool -list -v -keystore brew-bench-upload.jks`). Nothing needs copying back: the app signs in with the existing Web client ID.
+3. Once the app is on Google Play, Play re-signs it with its own key. Copy the **App signing key certificate** SHA-1 from Play Console → *Test and release → App integrity*, and add a second Android client with it.
+
+Until then the button explains that Google sign-in isn't ready in that version of the app, and email works as before.
+
+The API key is meant to be public; the database rules and the authorized domains are what protect the data. 
 
 ## Publishing on Google Play
 
