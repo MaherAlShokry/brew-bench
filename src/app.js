@@ -1286,7 +1286,7 @@ $('vgrid').onkeydown=e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('.v
 /* ================= MAP ================= */
 let SEL=null,VIEW=[0,0,1000,520],HL=null;
 const BIG=['brazil','china','india','indonesia','drc','mexico','peru','colombia','ethiopia','bolivia','tanzania','kenya','vietnam','myanmar','thailand','png','yemen','uganda','malawi','venezuela','zambia','zimbabwe','cameroon','ivorycoast','madagascar','southsudan','saudi','philippines','laos','nepal','cuba'];
-function buildMap(){
+function buildMap(){mapData();
   const svg=$('worldmap');
   let h='<rect x="-500" y="'+MAP.tropics[0]+'" width="2000" height="'+(MAP.tropics[1]-MAP.tropics[0])+'" fill="var(--belt)"/>'+
    '<line x1="-500" x2="1500" y1="'+MAP.tropics[0]+'" y2="'+MAP.tropics[0]+'" stroke="var(--honey)" stroke-dasharray="4 5" stroke-width=".8" opacity=".6"/>'+
@@ -1319,7 +1319,7 @@ function buildMap(){
 function regionOf(k){const r=ALLO()[k].reg;return r==='central'||r==='south'?'americas':r==='arabia'?'africa':r}
 function zoomTo(z){
   let box=[0,0,1000,520];
-  if(z!=='all'){const keys=Object.keys(MAP.bbox).filter(k=>O[k]&&regionOf(k)===z);
+  if(z!=='all'){mapData();const keys=Object.keys(MAP.bbox).filter(k=>O[k]&&regionOf(k)===z);
     let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;for(const k of keys){const b=MAP.bbox[k];x0=Math.min(x0,b[0][0]);y0=Math.min(y0,b[0][1]);x1=Math.max(x1,b[1][0]);y1=Math.max(y1,b[1][1])}
     if(z==='africa'){x1=Math.max(x1,MAP.pts.reunion[0]+10);y1=Math.max(y1,MAP.pts.reunion[1]+10)}
     const pad=24;x0-=pad;y0-=pad;x1+=pad;y1+=pad;let w=x1-x0,h=y1-y0;const ar=1000/520;
@@ -1391,7 +1391,7 @@ function buildTree(){
   svg.onclick=e=>{const n=e.target.closest('.n');if(!n){svg.classList.remove('focus');return}focus(n.dataset.id);openVariety(n.dataset.id)};
   svg.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){const n=e.target.closest('.n');if(n){e.preventDefault();focus(n.dataset.id);openVariety(n.dataset.id)}}};
   $('treelegend').innerHTML=Object.values(FAM).map(f=>'<span class="pill tleg" style="--c:'+f.color+'"><i></i>'+f.name+'</span>').join('')+'<span class="pill tleg dna">Notes in italics: where DNA overturned the old story</span>';
-  const box=svg.parentElement,edge=()=>{box.classList.toggle('at-start',box.scrollLeft<8);box.classList.toggle('at-end',box.scrollLeft+box.clientWidth>=box.scrollWidth-8)};box.onscroll=edge;edge();
+  const box=svg.parentElement,edge=()=>{box.classList.toggle('at-start',box.scrollLeft<8);box.classList.toggle('at-end',box.scrollLeft+box.clientWidth>=box.scrollWidth-8)};box.onscroll=edge;requestAnimationFrame(edge);
   $('species').innerHTML=['arabica','robusta','liberica','eugenioides','stenophylla'].map(id=>{const v=VBY[id];return'<button type="button" class="card vcard" data-v="'+id+'" style="--c:'+FAM.species.color+'"><span class="fam">'+esc(v.origin)+'</span><h3>'+esc(v.name)+'</h3><p>'+esc(v.cup)+'</p></button>'}).join('');
   $('species').onclick=e=>{const b=e.target.closest('[data-v]');if(b)openVariety(b.dataset.v)};
   $('timeline').innerHTML=TIMELINE.map(([w,t,d])=>'<li><span class="when">'+esc(w)+'</span><h3>'+esc(t)+'</h3><p>'+esc(d)+'</p></li>').join('');
@@ -2131,7 +2131,10 @@ const APPS=[['native','Share\u2026','#8E8E93','M12 15V3 M7 8l5-5 5 5 M5 12v8h14v
 // The link goes last and is never cut, so the other phone can always open it.
 function shareText(doc){const link=doc.link||SITE_URL,t=docText(doc,true).replace(/\nMade with The Brew Bench\n$/,'').trim().replace(/^#+\s*(.+)$/gm,'*$1*');
   return(t.length>1400?t.slice(0,1400).replace(/\s+\S*$/,'')+'\u2026':t)+(t.includes(link)?'':'\n\nOpen it in The Brew Bench:\n'+link)}
-function openShare(doc){SHDOC=doc;const pdfOK=!!(window.jspdf&&window.jspdf.jsPDF);
+// The PDF engine (360 KB) loads when a share sheet first opens, not on every start.
+let PDFP=null;
+const loadPDF=()=>window.jspdf&&window.jspdf.jsPDF?Promise.resolve():(PDFP=PDFP||loadScript(typeof JSPDF_SRC==='string'?JSPDF_SRC:'vendor/jspdf.umd.min.js').catch(e=>{PDFP=null;throw e}));
+function openShare(doc){SHDOC=doc;loadPDF().catch(()=>{});const pdfOK=true;
   $('sh-in').innerHTML='<div class="sheet"><div class="grab"></div><button class="vd-close" id="sh-x" aria-label="Close">\u2715</button><h2 id="sh-title" style="margin:0 40px 2px 0">Share</h2><p class="hint" style="margin:0">'+esc(doc.title)+'</p>'+
    // A brew can also go out as a designed image card: shown first, with a preview drawn as the sheet opens.
    (doc.card?'<div class="shcard"><button type="button" class="shcard-pv" data-sh="img" aria-label="Share the brew card image"><span class="shcard-ph">Drawing your brew card…</span></button>'+
@@ -2181,14 +2184,14 @@ $('sharesheet').addEventListener('click',async e=>{const d=$('sharesheet');if(e.
     d.querySelectorAll('[data-shmode]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.shmode===CARD_STYLE.mode));const sc=d.querySelector('.shcols');if(sc)sc.innerHTML=shSwatches(SHDOC);drawShCard();return}
   const b=e.target.closest('[data-sh]');if(!b||!SHDOC)return;const k=b.dataset.sh,doc=SHDOC,txt=docText(doc),base=fname(doc.file||doc.title);
   if(k==='img'||k==='imgsave'){const bl=SHCARD||await doc.card();if(!bl){toast('Couldn’t draw the card');return}d.close();await shareCard(bl,fname(doc.cardName||base),doc.title,k==='imgsave');return}
-  if(k==='pdf'){const blob=docPDF(doc);if(!blob){toast('The PDF engine is still loading. Try again in a second');return}d.close();await saveFile(base+'.pdf',blob)}
+  if(k==='pdf'){try{await loadPDF()}catch(e){toast('Couldn’t load the PDF maker. Check your connection and try again');return}const blob=docPDF(doc);if(!blob){toast('Couldn’t make the PDF. Try again');return}d.close();await saveFile(base+'.pdf',blob)}
   if(k==='md'){d.close();await saveFile(base+'.txt',txt)}
   if(k==='copy'){let ok=false;try{await navigator.clipboard.writeText(txt);ok=true}catch(err){try{const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();ok=document.execCommand('copy');ta.remove()}catch(e2){}}d.close();toast(ok?'Copied to clipboard':'Copying isn\u2019t allowed here; try Save as a text file')}
   if(k==='whatsapp'||k==='telegram'||k==='sms'||k==='email'){const t=shareText(doc),e=encodeURIComponent;d.close();
     openLink({whatsapp:'https://wa.me/?text='+e(t),telegram:'https://t.me/share/url?url='+e(doc.link||SITE_URL)+'&text='+e(t.replace(doc.link||SITE_URL,'').replace(/\n*Open it in The Brew Bench:\s*$/,'').trim()),sms:'sms:?&body='+e(t),email:'mailto:?subject='+e(doc.title)+'&body='+e(t)}[k]);return}
   if(k==='native'&&!navigator.share&&!NATIVE){let ok=false;try{await navigator.clipboard.writeText(shareText(doc));ok=true}catch(e){}d.close();toast(ok?'This browser has no share menu, so the text was copied':'Sharing isn\u2019t available here; use Copy as text');return}
-  if(k==='native'&&NATIVE){d.close();try{const blob=docPDF(doc);await nativeShare(doc.title,blob?base+'.pdf':null,blob,txt)}catch(err){if(!/cancel/i.test(err&&err.message||''))toast('Could not share')}return}
-  if(k==='native'){try{const blob=docPDF(doc);const f=blob&&typeof File!=='undefined'?new File([blob],base+'.pdf',{type:'application/pdf'}):null;
+  if(k==='native'&&NATIVE){d.close();await loadPDF().catch(()=>{});try{const blob=docPDF(doc);await nativeShare(doc.title,blob?base+'.pdf':null,blob,txt)}catch(err){if(!/cancel/i.test(err&&err.message||''))toast('Could not share')}return}
+  if(k==='native'){await loadPDF().catch(()=>{});try{const blob=docPDF(doc);const f=blob&&typeof File!=='undefined'?new File([blob],base+'.pdf',{type:'application/pdf'}):null;
       if(f&&navigator.canShare&&navigator.canShare({files:[f]}))await navigator.share({title:doc.title,files:[f]});else await navigator.share({title:doc.title,text:txt});d.close()}
     catch(err){if(!err||err.name!=='AbortError')toast('Sharing isn\u2019t allowed here; use Save as PDF instead')}}
 });
@@ -2421,7 +2424,7 @@ const ico=(n,bg)=>'<span class="ic" style="background:'+bg+'"><svg viewBox="0 0 
 const TABNAMES={explore:'Explore',settings:'Settings',champs:'World championships',words:'Coffee words',wheel:'Flavour wheel',flow:'From seed to cup',dial:'Dial-in',scan:'Scan beans',gear:'Gear and dials',recipes:'Recipes',tech:'Techniques',process:'Processes',map:'Origins map',variety:'Varieties',history:'History',guide:'Guide',log:'Brew log',beans:'Beans'};
 const BNGROUP={explore:'explore',settings:'settings',champs:'explore',words:'explore',wheel:'explore',flow:'explore',dial:'dial',recipes:'recipes',scan:'beans',map:'explore',variety:'explore',history:'explore',process:'explore',tech:'explore',gear:'settings',guide:'settings',log:'settings',beans:'beans'};
 function syncShell(id){$('ab-title').textContent=TABNAMES[id]||'Brew Bench';$('ab-back').hidden=NAVD<1;document.body.className=document.body.className.replace(/\bt-\w+/g,'').trim()+' t-'+id;
-  document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));movePill();
+  document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));requestAnimationFrame(movePill);
   updShare(id)}
 // The app bar's Share only shows when the page has something to share: a picked origin on the map, a list of recipes.
 function updShare(id){id=id||(document.querySelector('main section.on')||{}).id;
@@ -2470,7 +2473,7 @@ function setFavicon(){try{const cs=getComputedStyle(document.documentElement),co
   img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)}catch(e){}}
 function applyUI(){const d=document.documentElement;d.setAttribute('data-accent',UI.accent);d.setAttribute('data-text',UI.text);d.setAttribute('data-motion',UI.motion);
   $('ab-logo').innerHTML=logoSVG(UI.logo,24);
-  const t=curTheme();document.querySelectorAll('meta[name="theme-color"]').forEach(m=>{if(d.hasAttribute('data-theme'))m.content=t==='dark'?'#1F1814':'#FBF7F0'});setFavicon()}
+  const t=curTheme();document.querySelectorAll('meta[name="theme-color"]').forEach(m=>{if(d.hasAttribute('data-theme'))m.content=t==='dark'?'#1F1814':'#FBF7F0'});(window.requestIdleCallback||(f=>setTimeout(f,300)))(setFavicon)}
 function saveUI(){save('bb-ui',UI);applyUI()}
 /* Your data: everything the app saves on this device, in one file you can keep or move to another phone. */
 // Sign-in tokens never go into a backup file.
@@ -2576,6 +2579,10 @@ $('themebtn').onclick=()=>{const n=curTheme()==='dark'?'light':'dark';document.d
 syncThemeBtn();
 
 /* ================= INIT ================= */
+// Drawings that loop (the pour on the Dial-in page) pause while they're out of sight, so the phone isn't redrawing
+// something nobody can see.
+if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('offscreen',!e.isIntersecting)));
+  new Set([...document.querySelectorAll('.stream,.steam')].map(x=>x.closest('svg')).filter(Boolean)).forEach(x=>io.observe(x))}
 // Label each cell with its column heading so tables can stack into cards on phones.
 document.querySelectorAll('table.ref').forEach(t=>{const hs=[...t.querySelectorAll('thead th')].map(h=>h.textContent.trim());t.querySelectorAll('tbody tr').forEach(r=>[...r.children].forEach((c,i)=>{if(hs[i])c.dataset.label=hs[i]}))});
 // If saved settings ever stop the app from starting, clear them (the brew log and scans are kept) and retry once.

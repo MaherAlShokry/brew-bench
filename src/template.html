@@ -305,9 +305,10 @@ button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.a
 .drop img{max-width:100%;max-height:260px;border-radius:10px}
 .dropicon{font-size:2.2rem;color:var(--cherry);line-height:1}
 .dateinp{width:100%;padding:9px 10px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:12px;font-family:var(--body)}
-.scanning{position:relative}
-.scanning::after{content:"";position:absolute;left:0;right:0;height:3px;background:var(--honey);box-shadow:0 0 12px var(--honey);animation:scanline 1.4s ease-in-out infinite alternate;top:0}
-@keyframes scanline{to{top:calc(100% - 3px)}}
+.scanning{position:relative;overflow:hidden}
+.scanning::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(var(--honey),var(--honey)) 0 0/100% 3px no-repeat,linear-gradient(color-mix(in srgb,var(--honey) 35%,transparent),transparent) 0 3px/100% 12px no-repeat;animation:scanline 1.4s ease-in-out infinite alternate;will-change:transform}
+/* The line sweeps by moving the whole layer (transform), so the page isn't laid out again on every frame. */
+@keyframes scanline{from{transform:translateY(0)}to{transform:translateY(calc(100% - 3px))}}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.93rem;margin:10px 0}
 .kv dt{font-family:var(--display);color:var(--muted);font-weight:600}
 .kv dd{margin:0}
@@ -895,7 +896,7 @@ table.ref tr:last-child td{border-bottom:0}
 
 /* Sheets and dialogs */
 dialog#vd,dialog#timer,dialog#navsheet,dialog#sharesheet{border-radius:var(--r-xl);box-shadow:var(--e3);border:1px solid var(--hair)}
-dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+dialog::backdrop{background:rgba(25,16,10,.5)}
 .sheetlist button{border-radius:var(--r-md);border:0;background:var(--surface2)}
 .sheetlist button .ic{border-radius:var(--r-sm)}
 .vd-close{background:var(--surface2)}
@@ -1012,9 +1013,12 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 #g-goal button[aria-pressed="true"][style*="--fitc"]{border-color:var(--fitc);box-shadow:inset 0 0 0 2px var(--fitc),inset 0 0 0 3.5px color-mix(in srgb,#FFFDF9 75%,transparent)}
 #g-goal button{transition:background .3s,border-color .3s,box-shadow .3s,color .3s}
 #g-goal button.fit-lean{background:color-mix(in srgb,#C9964A 22%,var(--surface2));border-color:color-mix(in srgb,#C9964A 55%,transparent)}
-#g-goal button.fit-near{background:color-mix(in srgb,#C9964A 34%,var(--surface2));border-color:#C9964A;color:var(--ink);animation:fitglow 2.4s ease-in-out infinite}
-@keyframes fitglow{0%,100%{box-shadow:inset 0 0 0 0 color-mix(in srgb,#C9964A 0%,transparent)}50%{box-shadow:inset 0 0 0 2px #C9964A,inset 0 0 12px color-mix(in srgb,#C9964A 55%,transparent)}}
-@media (prefers-reduced-motion:reduce){#g-goal button.fit-near{animation:none;box-shadow:inset 0 0 0 2px #C9964A}}
+#g-goal button.fit-near{position:relative;background:color-mix(in srgb,#C9964A 34%,var(--surface2));border-color:#C9964A;color:var(--ink)}
+/* The glow is drawn once and only fades in and out, so the button isn't repainted on every frame. */
+#g-goal button.fit-near::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:inset 0 0 0 2px #C9964A,inset 0 0 12px color-mix(in srgb,#C9964A 55%,transparent);opacity:0;animation:fitglow 2.4s ease-in-out infinite}
+@keyframes fitglow{50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){#g-goal button.fit-near::after{animation:none;opacity:1}}
+.offscreen,.offscreen *{animation-play-state:paused!important}
 .scan-why{display:block;margin-top:6px;font-size:.72rem;opacity:.75;word-break:break-word}.quicktools{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:4px 0 18px}
 .qtool{display:flex;flex-direction:column;align-items:flex-start;gap:8px;text-align:left;padding:12px;border-radius:16px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;font:inherit;box-shadow:var(--shadow)}
 .qtool .ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex:none}.qtool .ic svg{width:19px;height:19px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
@@ -1092,8 +1096,10 @@ dialog::backdrop{background:rgba(25,16,10,.42);backdrop-filter:blur(3px);-webkit
 .pc-who{flex:1 1 200px;min-width:0}.pc-acct .btn{min-height:40px;padding:0 16px}
 .pcard .setbtns{margin-top:14px}
 /* The profile sheet and sign-in: a dark-roast hero in your colour, like the Beans page */
-.me-hero{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding:34px 20px 24px;color:#FFF8EE;overflow:hidden;
-  background:radial-gradient(90% 80% at 50% 0%,color-mix(in srgb,var(--c,var(--honey)) 70%,transparent),transparent 70%),radial-gradient(80% 90% at 100% 100%,color-mix(in srgb,var(--cherry) 55%,transparent),transparent 70%),linear-gradient(160deg,#4A2E20,#1E120C)}
+.me-hero{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding:34px 20px 24px;color:#FFF8EE;overflow:hidden}
+/* The standard roast banner, tinted with your colour; other banners and photos replace it (see BANNERS). */
+.me-hero,.pf-cover,.pf-banners [data-b=""] i{background:radial-gradient(90% 80% at 50% 0%,color-mix(in srgb,var(--c,var(--honey)) 70%,transparent),transparent 70%),radial-gradient(80% 90% at 100% 100%,color-mix(in srgb,var(--cherry) 55%,transparent),transparent 70%),linear-gradient(160deg,#4A2E20,#1E120C)}
+.me-hero.banner{background-color:#1E120C}.me-hero.banner .me-k{text-shadow:0 1px 8px rgba(0,0,0,.45)}.me-hero.banner h2,.me-hero.banner .me-name,.me-hero.banner .me-since{text-shadow:0 1px 12px rgba(0,0,0,.5)}
 .me-hero::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.12;background-image:radial-gradient(rgba(255,255,255,.7) .6px,transparent .8px);background-size:5px 5px;mix-blend-mode:overlay}
 .me-hero>*{position:relative;z-index:1}
 .me-x{position:absolute!important;z-index:2!important;background:rgba(255,248,238,.14)!important;color:#FFF8EE!important}
@@ -1144,7 +1150,15 @@ dialog#vd:has(.me-hero){overflow-x:hidden}
 .me-btn:active .pav{transform:scale(.94)}.me-tab{width:38px;height:38px;margin:0 0 0 6px;align-self:center}
 .me-body .pcard{margin:4px 0 0;box-shadow:none}
 .pc-sync{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px 12px;margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--surface2);font-size:.8rem;color:var(--muted)}.pc-sync span{flex:1 1 200px}.pc-sync .linkbtn{min-height:36px}
-.pf-face{display:flex;align-items:center;gap:18px;margin:6px 0 18px}.pf-photo{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.pf-cover{position:relative;display:grid;place-items:center;height:150px;margin:6px 0 10px;border-radius:20px;overflow:hidden;background-color:#1E120C}
+.pf-cover .pav{box-shadow:0 0 0 4px rgba(255,248,238,.9),0 10px 30px -8px rgba(0,0,0,.6)}
+.pf-photo{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px 14px;margin:0 0 18px}
+.pf-banners{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:10px 8px}
+.pf-banners button{display:flex;flex-direction:column;gap:5px;padding:0;border:0;background:none;color:var(--muted);font:500 .78rem/1.2 var(--body);cursor:pointer;text-align:center}
+.pf-banners i{display:block;height:46px;border-radius:12px;background-color:#1E120C;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);transition:box-shadow .15s}
+.pf-banners button[aria-pressed="true"]{color:var(--ink);font-weight:600}.pf-banners button[aria-pressed="true"] i{box-shadow:0 0 0 2px var(--surface),0 0 0 4.5px var(--cherry)}
+.pf-banners .pf-bphoto{display:grid;place-items:center;background:var(--surface2);color:var(--muted)}.pf-bphoto svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round}
+.pf-bpos{margin-top:12px}.pf-bpos label{display:block;font-size:.86rem;color:var(--muted);margin-bottom:4px}.pf-bpos input{width:100%}
 .pf-emoji{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:6px}
 .pf-emoji button{height:44px;border-radius:12px;border:0;background:var(--surface2);font-size:1.3rem;cursor:pointer;color:var(--ink);font-family:var(--display);font-weight:700}
 .pf-emoji button[aria-pressed="true"]{box-shadow:inset 0 0 0 2.5px var(--cherry);background:var(--surface)}
@@ -1911,8 +1925,10 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 <dialog id="selsheet" aria-labelledby="sel-title"><div id="sel-in"></div></dialog>
 <div id="toast" role="status" aria-live="polite"></div>
 
+<script type="application/json" id="map-json">__MAP__</script>
 <script>
-const MAP=__MAP__;
+// The world map (360 KB) is read only when the Map page first opens, not on every start.
+let MAP=null;const mapData=()=>MAP||(MAP=JSON.parse(document.getElementById('map-json').textContent));
 __DATA__
 __APP__
 </script>
