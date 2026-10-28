@@ -90,7 +90,6 @@ if(syncOn())setTimeout(syncNow,900);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&syncOn()&&Date.now()-SYNC_AT>20000)syncNow()});
 addEventListener('online',()=>syncSoon());
 document.addEventListener('close',()=>{if(SYNC_WAIT){SYNC_WAIT=false;setTimeout(syncNow,500)}},true);
-try{if(Date.now()-(+sessionStorage.getItem('bb-syncreload')||0)<8000)setTimeout(()=>toast('Brought in changes from your other devices'),700)}catch(e){}
 // The line on the profile card.
 // Shown only when something is wrong: working sync needs no mention.
 function syncLine(){if(!syncOn()||!SYNC_ERR)return '';const ago=SYNC_AT?Math.round((Date.now()-SYNC_AT)/60000):-1;
