@@ -577,6 +577,8 @@ function planSteps(r,dose,water,goal){
     if(n!==3)ch.push('The last 60% in '+n+' pours instead of 3: '+(n<3?'lighter and cleaner.':'stronger, with more body.'));
     return{steps:st,changes:ch}}
   return{steps:scaleSteps(r,dose,water),changes:[]}}
+// How far, in recipe grind steps (160 µm each), the coffee and the target may move a recipe's grind.
+const GRIND_SWAY=0.9;
 function plan(c){
   const tl=techList(c.brewer);if(!tl.find(([,i])=>i===c.tech))c.tech=tl[0][1];c.goal=goalOf(c.goal);c.amt=amtOf(c.amt);
   const r=RECIPES[c.tech],bb=sameFam(r.b,c.brewer)?c.brewer:r.b,B=BREWERS[bb],P=PROCESSES[c.process],Vp=vParams(c.variety),Vv=vById(c.variety);
@@ -621,7 +623,15 @@ function plan(c){
   if(dadj)why.push((dadj>0?'A smaller':'A bigger')+' dose than the recipe\u2019s '+r.dose+'g: grind a little '+(dadj>0?'finer':'coarser')+', because '+(dadj>0?'a shallower bed drains faster.':'a deeper bed drains slower.'));
   const agv={low:-0.25,med:0,high:0.25}[agit], roastE={light:0,medium:0.25,dark:0.6}[c.roast];
   const rest=(temp-clamp(r.temp||B.temp.def,B.temp.min,B.temp.max))*KT+bloomE(bloom,B)+agv+(ratio-r.water/r.dose)*B.ratio.k+roastE-(P.t+Vp.t);
-  const step=r.off+dadj+(Dt-rest)/KG;
+  let step=r.off+dadj+(Dt-rest)/KG;
+  // The coffee and the target move the grind only so far from the recipe (about 7 ZP6 clicks either way): a dark,
+  // fermented coffee brewed for clarity would otherwise stack its way to the coarsest setting. What's left is taken
+  // up by the water, up to 4°C cooler or warmer within the brewer's range, the way a barista would; anything beyond
+  // shows in the predicted cup.
+  const extra=step-r.off,lim=GRIND_SWAY;let held=false;
+  if(Math.abs(extra)>lim){const want=Math.sign(extra)*(Math.abs(extra)-lim),t1=clamp(Math.round(temp+want*KG/KT),Math.max(B.temp.min,temp-4),Math.min(B.temp.max,temp+4)),dt=t1-temp;
+    step=r.off+clamp(extra-dt*KT/KG,-lim,lim);held=true;
+    if(dt||Math.abs(extra)-lim>0.25)why.push('The grind stays within a few clicks of the recipe rather than going much '+(extra<0?'coarser':'finer')+(dt?'; the water is '+Math.abs(dt)+'°C '+(dt<0?'cooler':'warmer')+' ('+t1+'°C) instead.':'.'));temp=t1}
   const set={};for(const g of new Set([...MYG,grinder]))set[g]=canGrind(g,bb)?roundG(g,shift(g,baseX(g,bb),-step*160)):null;
   const water=+gfmt(dose*ratio);
   const st={grinder,setting:set[grinder],brewer:bb,temp,ratio,bloom,agit,roast:c.roast,process:c.process,variety:c.variety,rec:c.tech};
@@ -637,7 +647,7 @@ function plan(c){
   if(k==='aero')tw.push(pick('Use a paper filter and press gently.','Try a metal filter or a longer steep.','Press slowly and stop at the hiss.'));
   if(k==='esp')tw.push(pick('Stretch the ratio a little longer.','Pull a touch shorter and hotter.','Aim for 25 to 30 seconds.'));
   if(k==='single'||k==='hoff1'||k==='flash'||k==='pulsar')tw.push(pick('Pour a little faster and gentler.','Pour slower for more contact time.','Follow as written.'));
-  return {r,grinder,temp,bloom,agit,ratio,water,dose,set,st,why,tw:k==='46'?[]:tw.filter(t=>gl!=='balance'),steps:ps.steps,changes:ps.changes,goal:c.goal,amt:c.amt};
+  return {r,grinder,temp,bloom,agit,ratio,water,dose,set,st,why,held,tw:k==='46'?[]:tw.filter(t=>gl!=='balance'),steps:ps.steps,changes:ps.changes,goal:c.goal,amt:c.amt};
 }
 function planHTML(p,c){
   const res=compute(p.st),[vt]=verdict(res.D),B=BREWERS[p.r.b];
