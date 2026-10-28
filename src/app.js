@@ -730,14 +730,33 @@ function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove
 let BACKING=false,PEND_TAB=null,NAVD=0;
 // Screens slide in the way you are going: deeper or to a tab on the right from the right, back or left from the left.
 const BNORD=['dial','recipes','beans','explore','settings'];
-function showTab(id,fromHistory){ensureTab(id);const cur=document.querySelector('main section.on');
-  if(cur&&cur.id!==id){const a=BNORD.indexOf(BNGROUP[cur.id]),b=BNORD.indexOf(BNGROUP[id]);const back=a!==b&&a>=0&&b>=0?b<a:!!fromHistory;
-    document.body.classList.toggle('nav-back',back)}
-  // A page inside a section (the map, the log…) lights up that section's tab.
-  document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x.dataset.t===(BNGROUP[id]||id)));
-  document.querySelectorAll('main section').forEach(s=>s.classList.toggle('on',s.id===id));window.scrollTo({top:0});
+// Moving between pages. Four kinds of move, each with its own motion (see "Navigation motion" in the styles):
+// right / left between the bottom-bar sections, push into a page within a section, pop back out of it.
+// pure: a plain navigation tap (bottom bar, tabs, Explore tiles, back). Those animate both pages at once with a
+// view transition; any other move (an action that then scrolls to a card, say) switches at once, so code that
+// runs right after showTab finds the new page in place, and only the new page animates in.
+let NAV_READY=false;
+function showTab(id,fromHistory,pure){ensureTab(id);const cur=document.querySelector('main section.on');let kind='';
+  if(cur&&cur.id!==id){const a=BNORD.indexOf(BNGROUP[cur.id]),b=BNORD.indexOf(BNGROUP[id]);
+    kind=a!==b&&a>=0&&b>=0?(b<a?'left':'right'):fromHistory?'pop':'push';document.body.classList.toggle('nav-back',kind==='left'||kind==='pop')}
   // Each tab gets a history entry, so the back button (browser or Android) returns to the last tab.
-  if(!fromHistory&&location.hash!=='#'+id){NAVD++;if(BACKING)PEND_TAB=id;else try{history.pushState(null,'','#'+id)}catch(e){}}syncShell(id)}
+  if(!fromHistory&&location.hash!=='#'+id){NAVD++;if(BACKING)PEND_TAB=id;else try{history.pushState(null,'','#'+id)}catch(e){}}
+  const swap=vt=>{
+    // A page inside a section (the map, the log…) lights up that section's tab.
+    document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x.dataset.t===(BNGROUP[id]||id)));
+    document.querySelectorAll('main section').forEach(s=>s.classList.toggle('on',s.id===id));window.scrollTo({top:0});syncShell(id);
+    if(kind&&NAV_READY){const sec=$(id);if(!vt){sec.classList.remove('nav-in');void sec.offsetWidth;sec.classList.add('nav-in');clearTimeout(sec._nav);sec._nav=setTimeout(()=>sec.classList.remove('nav-in'),800)}cascadeIn(sec)}};
+  document.documentElement.dataset.nav=NAV_READY?kind:'';
+  if(kind&&pure&&NAV_READY&&document.startViewTransition&&!RM()&&!document.hidden&&!document.querySelector('dialog[open]')){
+    const h=document.documentElement;h.classList.add('vt');
+    try{document.startViewTransition(()=>swap(true)).finished.finally(()=>h.classList.remove('vt'))}catch(e){h.classList.remove('vt');swap()}}
+  else swap()}
+// The new page's first blocks arrive one after another, top to bottom: only those on screen, at most a dozen.
+function cascadeIn(sec){if(RM()||!sec)return;const vh=innerHeight,picked=[];
+  const pick=(el,depth)=>{for(const c of el.children){if(picked.length>=12)return;const r=c.getBoundingClientRect();if(!r.height||r.bottom<0)continue;if(r.top>vh)return;
+    if(depth<2&&r.height>vh*.55&&c.children.length>1)pick(c,depth+1);else picked.push(c)}};
+  pick(sec,0);picked.forEach((c,i)=>{c.style.setProperty('--ci',i);c.classList.remove('cascade');void c.offsetWidth;c.classList.add('cascade');
+    const done=e=>{if(e&&e.target!==c)return;c.classList.remove('cascade');c.removeEventListener('animationend',done)};c.addEventListener('animationend',done);setTimeout(done,1400)})}
 try{history.scrollRestoration='manual'}catch(e){}
 // Lock the page behind any open dialog or sheet so it can't scroll underneath.
 {const sync=()=>document.documentElement.classList.toggle('locked',!!document.querySelector('dialog[open]'));
@@ -761,8 +780,8 @@ function showDlg(d){if(d.classList.contains('closing')){d.classList.remove('clos
 addEventListener('popstate',()=>{const open=[...document.querySelectorAll('dialog[open]:not(.closing)')];
   if(BACKING){BACKING=false;try{if(PEND_TAB&&location.hash!=='#'+PEND_TAB)history.pushState(null,'','#'+PEND_TAB);if(open.length)history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}PEND_TAB=null;return}
   if(open.length){const top=DSTACK.filter(d=>d.open&&!d.classList.contains('closing')).pop();if(top){top.dataset.popped=1;top.close()}else open.forEach(d=>d.close());return}
-  let h=location.hash.slice(1);if(h==='more')h='settings';if(openRoute(h))return;const id=h&&$(h)&&$(h).tagName==='SECTION'?h:'dial';if(!$(id).classList.contains('on')){NAVD=Math.max(0,NAVD-1);showTab(id,true)}});
-document.querySelector('[role=tablist]').onclick=e=>{const t=e.target.closest('.tab');if(t)showTab(t.dataset.t)};
+  let h=location.hash.slice(1);if(h==='more')h='settings';if(openRoute(h))return;const id=h&&$(h)&&$(h).tagName==='SECTION'?h:'dial';if(!$(id).classList.contains('on')){NAVD=Math.max(0,NAVD-1);showTab(id,true,true)}});
+document.querySelector('[role=tablist]').onclick=e=>{const t=e.target.closest('.tab');if(t)showTab(t.dataset.t,false,true)};
 
 /* ================= RECIPES ================= */
 // A recipe's details and buttons, used on its card and when it opens from a shared link.
@@ -2335,7 +2354,7 @@ function linkChip(l,label){const i=l.indexOf(':'),k=l.slice(0,i),v=l.slice(i+1);
   if(k==='tab')return TABNAMES[v]?'<button type="button" class="chip" data-go-t="'+v+'">'+esc(label||TABNAMES[v])+' →</button>':'';return ''}
 function goLink(e){const b=e.target.closest('[data-go-p],[data-go-v],[data-go-k],[data-go-t]');if(!b)return false;const d=$('vd');
   if(b.dataset.goV){openVariety(b.dataset.goV);return true}
-  if(d.open)d.close();if(b.dataset.goP)openProcess(b.dataset.goP);else if(b.dataset.goK)openWord(b.dataset.goK);else showTab(b.dataset.goT);return true}
+  if(d.open)d.close();if(b.dataset.goP)openProcess(b.dataset.goP);else if(b.dataset.goK)openWord(b.dataset.goK);else showTab(b.dataset.goT,false,true);return true}
 function openProcess(k){if(!PROCESSES[k])return;showTab('process');if(PC!=='all'&&PROCESSES[k].cat!==PC){PC='all';renderProcesses()}
   requestAnimationFrame(()=>{const c=$('pc-'+k);if(!c)return;flashTo(c)})}
 // Scroll to a card and flash it. Cards further up can still change size as they render, so check again once the page settles.
@@ -2544,18 +2563,25 @@ $('settings-in').addEventListener('click',e=>{const a=e.target.closest('.swatch[
   const l=e.target.closest('.logopick[data-logo]');if(l){UI.logo=l.dataset.logo;saveUI();renderSettings();return}
   if(e.target.closest('#st-export')){exportData();return}if(e.target.closest('#st-import')){$('st-file').click();return}});
 $('settings-in').addEventListener('change',e=>{if(e.target.id==='st-file'){importData(e.target.files[0]);e.target.value=''}});
-for(const id of ['explore-in','settings-in'])$(id).addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g){showTab(g.dataset.go);return}
+for(const id of ['explore-in','settings-in'])$(id).addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g){showTab(g.dataset.go,false,true);return}
   const cb=e.target.closest('.cday[data-bean]');if(cb){openBean(cb.dataset.bean);return}
   const w=e.target.closest('[data-word]');if(w)openWord(w.dataset.word)});
 // Older code and links may still ask for the sheets; they are pages now.
 const openSheet=which=>showTab(which);
 // The highlight behind the current nav button glides to the next one.
+// The highlight under the current bottom-bar button moves like a drop of liquid: its leading edge reaches the new
+// button first and the rest follows, stretching and settling on the way.
+let PILL=null;
 function movePill(){const nav=document.querySelector('.bottomnav'),pill=nav&&nav.querySelector('.bn-pill'),b=nav&&nav.querySelector('[aria-current="true"]');if(!pill)return;
-  if(!b||!nav.offsetWidth){pill.style.opacity=0;return}const first=pill.style.opacity!=='1';if(first)pill.style.transition='none';
-  pill.style.opacity=1;pill.style.width=b.offsetWidth+'px';pill.style.transform='translateX('+b.offsetLeft+'px)';if(first){void pill.offsetWidth;pill.style.transition=''}}
+  if(!b||!nav.offsetWidth){pill.style.opacity=0;PILL=null;return}const x1=b.offsetLeft,w1=b.offsetWidth,from=PILL;PILL={x:x1,w:w1};
+  pill.style.transition='none';pill.style.opacity=1;pill.style.width=w1+'px';pill.style.transform='translateX('+x1+'px)';
+  if(!from||RM()||(from.x===x1&&from.w===w1)||!pill.animate)return;const right=x1>from.x,
+    mid=right?{x:from.x+(x1-from.x)*.3,r:x1+w1}:{x:x1,r:from.x+from.w-(from.x+from.w-x1-w1)*.3};
+  pill.animate([{transform:'translateX('+from.x+'px)',width:from.w+'px'},{offset:.42,transform:'translateX('+mid.x+'px) scaleY(.86)',width:(mid.r-mid.x)+'px'},
+    {offset:.78,transform:'translateX('+(x1+(right?3:-3))+'px) scaleY(1.04)',width:(w1-2)+'px'},{transform:'translateX('+x1+'px)',width:w1+'px'}],{duration:620,easing:'cubic-bezier(.3,.7,.25,1)'})}
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(movePill);
 addEventListener('resize',()=>soon(movePill));
-document.querySelector('.bottomnav').onclick=e=>{const b=e.target.closest('[data-bn]');if(b)showTab(b.dataset.bn)};
+document.querySelector('.bottomnav').onclick=e=>{const b=e.target.closest('[data-bn]');if(b)showTab(b.dataset.bn,false,true)};
 $('ab-share').onclick=()=>{const id=(document.querySelector('main section.on')||{}).id;
   if(id==='dial')openShare(dialDoc());else if(id==='scan')$('sc-share').click();else if(id==='history')openShare(historyDoc());else if(id==='log')openShare(logDoc());else if(id==='map'){if(SEL)openShare(originDoc(SEL));else toast('Pick an origin first')}else if(id==='recipes'&&rListed())openShare(recipesDoc());else if(id==='words')openShare(wordsDoc());else if(id==='flow')openShare(flowDoc());else if(id==='wheel')openShare(wheelDoc())};
 $('dial-share').onclick=()=>openShare(dialDoc());
@@ -2592,6 +2618,8 @@ catch(err){let retried=false;try{retried=sessionStorage.getItem('bb-reset')==='1
 try{sessionStorage.removeItem('bb-reset')}catch(e){}
 applyUI();
 {let h=location.hash.slice(1);if(h==='more')h='settings';if(!openRoute(h)){if(h&&$(h)&&$(h).tagName==='SECTION')showTab(h,true);else if(!h&&UI.start!=='dial'&&$(UI.start))showTab(UI.start,true);else syncShell('dial')}}
+// Moves animate only once the app has opened: the first page appears in place.
+requestAnimationFrame(()=>{NAV_READY=true});
 if(GROUP)startStream();
 if(window.claude&&window.claude.use){
   window.claude.use('sample').then(async s=>{SAMPLE=s;if(!s)return;

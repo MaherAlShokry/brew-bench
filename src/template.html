@@ -773,10 +773,7 @@ dialog#selsheet.pop .selopt{min-height:40px;padding:8px 12px;font-size:.95rem}
   dialog.closing{animation:dlg-out .2s cubic-bezier(.4,0,1,1) both;pointer-events:none}
   dialog.closing::backdrop{animation:bd-out .24s ease both}
   .sheetlist button{animation:item-in .42s var(--ease-out) both;animation-delay:calc(70ms + var(--i,0) * 32ms)}
-  main section.on{animation:sec-fwd .34s var(--ease-out) both}
-  body.nav-back main section.on{animation-name:sec-back}
-  .bottomnav button[aria-current="true"] svg{animation:bn-pop .42s var(--ease-spring)}
-  .bn-pill{transition:transform .42s var(--ease-spring),width .42s var(--ease-spring),opacity .2s}
+  .bottomnav button[aria-current="true"] svg{animation:bn-jelly .62s var(--spring) both;transform-origin:50% 80%}
   .appbar #ab-title{animation:title-in .3s var(--ease-out)}
 }
 @media (prefers-reduced-motion:no-preference) and (max-width:759px){
@@ -792,10 +789,57 @@ dialog#selsheet.pop .selopt{min-height:40px;padding:8px 12px;font-size:.95rem}
 @keyframes bd-in{from{opacity:0}to{opacity:1}}
 @keyframes bd-out{from{opacity:1}to{opacity:0}}
 @keyframes item-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-@keyframes sec-fwd{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
-@keyframes sec-back{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:none}}
-@keyframes bn-pop{0%{transform:scale(.8)}55%{transform:scale(1.14) translateY(-1px)}100%{transform:translateY(-1px)}}
+@keyframes bn-jelly{0%{transform:scale(1)}25%{transform:scale(1.28,.78)}45%{transform:scale(.88,1.16) translateY(-4px)}65%{transform:scale(1.06,.95) translateY(-1px)}100%{transform:translateY(-1px)}}
 @keyframes title-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+/* Navigation motion. Between bottom-bar sections the pages swing past each other sideways; into a page within a
+   section the new one rises and grows from behind, and back out it drops away. Both pages move at once where the
+   browser can (view transitions); the app bar and bottom bar hold still, the title slides, and the new page's
+   blocks arrive one after another. A spring curve gives each a small, soft overshoot. */
+:root{--spring:cubic-bezier(.34,1.45,.5,1)}
+@supports (animation-timing-function:linear(0,1)){:root{--spring:linear(0,.006,.025 2.8%,.101 6.1%,.539 18.9%,.721 25.3%,.849 31.5%,.937 38.1%,.968 41.8%,.991 45.7%,1.006 50.1%,1.015 55%,1.017 63.9%,1.001 85.9%,1)}}
+html.vt .appbar{view-transition-name:appbar}html.vt #ab-title{view-transition-name:abtitle}html.vt .bottomnav{view-transition-name:bnav}html.vt nav.tabs{view-transition-name:navtabs}
+::view-transition-group(appbar),::view-transition-group(bnav),::view-transition-group(navtabs),::view-transition-group(abtitle),::view-transition-group(root){animation:none}
+::view-transition-old(appbar),::view-transition-old(bnav),::view-transition-old(navtabs){display:none}
+::view-transition-new(appbar),::view-transition-new(bnav),::view-transition-new(navtabs){animation:none}
+::view-transition-old(abtitle),::view-transition-new(abtitle){inline-size:auto;block-size:auto}
+::view-transition-old(root){animation:vt-fade .26s ease-in both}::view-transition-new(root){animation:vt-fade .2s ease-out reverse both}
+html[data-nav=right]::view-transition-old(root){animation:vt-out-l .34s cubic-bezier(.4,0,.7,.2) both}
+html[data-nav=right]::view-transition-new(root){animation:vt-in-r .62s var(--spring) both,vt-show .18s ease-out both}
+html[data-nav=left]::view-transition-old(root){animation:vt-out-r .34s cubic-bezier(.4,0,.7,.2) both}
+html[data-nav=left]::view-transition-new(root){animation:vt-in-l .62s var(--spring) both,vt-show .18s ease-out both}
+html[data-nav=push]::view-transition-old(root){animation:vt-sink .36s cubic-bezier(.4,0,.6,1) both}
+html[data-nav=push]::view-transition-new(root){animation:vt-rise .6s var(--spring) both,vt-show .2s ease-out both}
+html[data-nav=pop]::view-transition-old(root){z-index:2;animation:vt-drop .32s cubic-bezier(.5,0,.75,0) both}
+html[data-nav=pop]::view-transition-new(root){animation:vt-surface .5s var(--spring) both,vt-show .22s ease-out both}
+html[data-nav=right]::view-transition-old(abtitle),html[data-nav=push]::view-transition-old(abtitle){animation:vt-t-out-l .13s ease-in both}
+html[data-nav=right]::view-transition-new(abtitle),html[data-nav=push]::view-transition-new(abtitle){animation:vt-t-in-r .5s var(--spring) .08s both,vt-show .2s ease-out .08s both}
+html[data-nav=left]::view-transition-old(abtitle),html[data-nav=pop]::view-transition-old(abtitle){animation:vt-t-out-r .13s ease-in both}
+html[data-nav=left]::view-transition-new(abtitle),html[data-nav=pop]::view-transition-new(abtitle){animation:vt-t-in-l .5s var(--spring) .08s both,vt-show .2s ease-out .08s both}
+@keyframes vt-fade{to{opacity:0}}@keyframes vt-show{from{opacity:0}}
+@keyframes vt-out-l{to{transform:translateX(-30%) scale(.94) rotate(-1.5deg);opacity:0}}
+@keyframes vt-out-r{to{transform:translateX(30%) scale(.94) rotate(1.5deg);opacity:0}}
+@keyframes vt-in-r{from{transform:translateX(62%) scale(.92) rotate(3deg)}}
+@keyframes vt-in-l{from{transform:translateX(-62%) scale(.92) rotate(-3deg)}}
+@keyframes vt-sink{to{transform:scale(.9);opacity:0}}
+@keyframes vt-rise{from{transform:translateY(16%) scale(.86);border-radius:36px}}
+@keyframes vt-drop{to{transform:translateY(22%) scale(.86);opacity:0;border-radius:36px}}
+@keyframes vt-surface{from{transform:scale(1.08)}}
+@keyframes vt-t-out-l{to{transform:translateX(-24px);opacity:0}}@keyframes vt-t-out-r{to{transform:translateX(24px);opacity:0}}
+@keyframes vt-t-in-r{from{transform:translateX(34px)}}@keyframes vt-t-in-l{from{transform:translateX(-34px)}}
+/* Where both pages can't move together (an action that jumps to a page, or older browsers) the new page alone
+   makes the same move. */
+@media (prefers-reduced-motion:no-preference){
+  html[data-nav=right] main section.nav-in{animation:sec-in-r .6s var(--spring) both,vt-show .2s ease-out both}
+  html[data-nav=left] main section.nav-in{animation:sec-in-l .6s var(--spring) both,vt-show .2s ease-out both}
+  html[data-nav=push] main section.nav-in{animation:vt-rise .56s var(--spring) both,vt-show .2s ease-out both}
+  html[data-nav=pop] main section.nav-in{animation:vt-surface .48s var(--spring) both,vt-show .22s ease-out both}
+  .cascade{animation:cascade-in .62s var(--spring) both;animation-delay:calc(70ms + var(--ci,0) * 42ms)}
+}
+/* While a page slides in from the side it mustn't make the screen scroll sideways. */
+main:has(> section.nav-in){overflow-x:clip}
+@keyframes sec-in-r{from{transform:translateX(26%) rotate(1.5deg)}}@keyframes sec-in-l{from{transform:translateX(-26%) rotate(-1.5deg)}}
+@keyframes cascade-in{from{opacity:0;transform:translateY(22px) scale(.96)}}
+:root[data-motion="reduced"]::view-transition-group(*),:root[data-motion="reduced"]::view-transition-old(*),:root[data-motion="reduced"]::view-transition-new(*){animation:none!important}
 /* The nav highlight is one pill that moves between buttons. */
 .bn-pill{display:none}
 @media (max-width:759px){
