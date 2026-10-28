@@ -735,6 +735,12 @@ const ALWAYS={explore:()=>renderExplore(),settings:()=>renderSettings(),beans:()
   dial:()=>{if(window.BEANS_OK)renderDBean()},
   // The countdown stops ticking when you leave the page; coming back starts it again.
   champs:()=>{if(BUILT.champs)renderCountdown()}};
+// Pages are built the first time they're opened. So that first tap isn't slow, the rest are built ahead, one per
+// idle moment, a few seconds after the app opens (never while it's in the background).
+function prebuildTabs(){const ids=['recipes','gear','variety','process','map','words','history','flow','wheel','champs','tech'].filter(k=>LAZY[k]);
+  const idle=window.requestIdleCallback?f=>requestIdleCallback(f,{timeout:4000}):f=>setTimeout(f,200);
+  const next=()=>{if(document.hidden){setTimeout(()=>idle(next),2000);return}const id=ids.find(k=>!BUILT[k]);if(!id)return;BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
+  setTimeout(()=>idle(next),2500)}
 function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove());if(LAZY[id]&&!BUILT[id]){BUILT[id]=1;LAZY[id]()}if(ALWAYS[id])ALWAYS[id]()}
 // NAVD counts tab changes you can step back through, so the app bar can offer a back button.
 let BACKING=false,PEND_TAB=null,NAVD=0;
@@ -2481,15 +2487,18 @@ function renderExplore(){const day=Math.floor(Date.now()/864e5),w=GLOSSARY[day%G
   $('explore-in').innerHTML='<button type="button" class="wotd" data-word="'+esc(w[0])+'"><small>Word of the day</small><b>'+esc(w[0])+'</b><span>'+esc(w[2])+'</span></button>'+(window.BEANS_OK?cabinetDayHTML():'')+
     HUB.explore.map(([h,ks])=>'<h3 class="rh">'+h+'</h3><div class="hubgrid">'+ks.map(hubCard).join('')+'</div>').join('');if(window.BEANS_OK)hydrateImgs($('explore-in'))}
 /* ---------- Settings: the app's look, name and your data ---------- */
-let UI=Object.assign({accent:'classic',logo:'bean',text:'m',motion:'full',start:'dial'},load('bb-ui',{}));
-const ACCENTS=[['classic','House roast','#8A5A3B'],['espresso','Espresso','#5E3B2A'],['cascara','Cascara','#A3392E'],['kenya','Kenya','#7B2D4E'],['honey','Honey','#A8741C'],['leaf','Coffee leaf','#4F7A45'],['coldbrew','Cold brew','#2E5C7A'],['geisha','Geisha','#76588C']];
+// Vibes: whole palettes, light and dark (their colours live in the styles; these are for the previews).
+const VIBES=[["roastery","Roastery","The house look: cream and roasted brown",{"paper":"#FBF7F0","surface":"#FFFDF9","surface2":"#F3EADC","ink":"#3B2A20","cherry":"#8A5A3B","honey":"#C9964A","leaf":"#6B8E4E"},{"paper":"#1F1814","surface":"#2A211B","surface2":"#362A22","ink":"#F3EADF","cherry":"#D9A06B","honey":"#E2B866","leaf":"#A7C084"}],["oat","Oat latte","Soft, milky and calm",{"paper":"#F6F0E8","surface":"#FFFCF7","surface2":"#EDE3D6","ink":"#3A3029","cherry":"#855735","honey":"#B98A3E","leaf":"#5F7F49"},{"paper":"#2F2A26","surface":"#3C3631","surface2":"#4A433D","ink":"#F5EFE8","cherry":"#E9C29E","honey":"#EDCB91","leaf":"#BCD1A6"}],["matcha","Matcha caf\u00e9","Fresh greens, easy on the eyes",{"paper":"#F1F5EB","surface":"#FCFEF8","surface2":"#E1E9D4","ink":"#24301D","cherry":"#3F6E2E","honey":"#9C7A26","leaf":"#4E7A3A"},{"paper":"#0D2216","surface":"#143020","surface2":"#1C3F2B","ink":"#E6F4E3","cherry":"#9FDB82","honey":"#E3CF7C","leaf":"#9FDB82"}],["blossom","Coffee blossom","Pink like the flowers on the tree",{"paper":"#FBF3F3","surface":"#FFFBFB","surface2":"#F4E0E2","ink":"#3D2328","cherry":"#A8324F","honey":"#B47E3A","leaf":"#5E8A5A"},{"paper":"#2A0D1D","surface":"#3A1429","surface2":"#4B1D36","ink":"#FCE9F0","cherry":"#FF93B6","honey":"#F3C98A","leaf":"#B4DDA8"}],["nordic","Nordic roast","Cool, light and minimal",{"paper":"#F3F6F8","surface":"#FFFFFF","surface2":"#E5EBF0","ink":"#1E2833","cherry":"#2C5A80","honey":"#9A7A3A","leaf":"#4F7C69"},{"paper":"#0A1A2E","surface":"#11253F","surface2":"#19324F","ink":"#E5EEF8","cherry":"#8FC4F2","honey":"#E3C68D","leaf":"#93D1B8"}],["desert","Desert mocha","Sand and terracotta, Yemen at dusk",{"paper":"#F8F0E3","surface":"#FFFAF1","surface2":"#EEDEC6","ink":"#3A2618","cherry":"#9A4522","honey":"#B87E25","leaf":"#6E7F3E"},{"paper":"#2E140A","surface":"#3E1D0F","surface2":"#4F2715","ink":"#FBE9D8","cherry":"#FFA06E","honey":"#F5C77A","leaf":"#CFD593"}],["neon","Neon espresso","Late-night caf\u00e9, a little loud",{"paper":"#F6F2FF","surface":"#FFFFFF","surface2":"#EBE3FF","ink":"#24183A","cherry":"#6A30D6","honey":"#C2357E","leaf":"#13896A"},{"paper":"#130A33","surface":"#1E1250","surface2":"#2A1B66","ink":"#F3EEFF","cherry":"#D0A5FF","honey":"#FF8BD0","leaf":"#5FF0BE"}],["caramel","Caramel pop","Warm, sweet and sunny",{"paper":"#FFF5EA","surface":"#FFFDF8","surface2":"#FBE4CC","ink":"#3B2412","cherry":"#9C4913","honey":"#B97A15","leaf":"#5E8040"},{"paper":"#2A1A06","surface":"#3A250B","surface2":"#4A3012","ink":"#FFF0DC","cherry":"#FFB061","honey":"#FFD27A","leaf":"#C3DA93"}],["pure","Pure","Crisp white by day, true black by night",{"paper":"#FFFFFF","surface":"#FFFFFF","surface2":"#F2F2F4","ink":"#0B0B0C","cherry":"#141416","honey":"#8A6A2C","leaf":"#2F7A45"},{"paper":"#000000","surface":"#0E0E10","surface2":"#1A1A1D","ink":"#FFFFFF","cherry":"#F4F4F5","honey":"#E3C17E","leaf":"#7FD08F"}],["black","Black coffee","White or pitch black, with a crema accent",{"paper":"#FFFFFF","surface":"#FFFFFF","surface2":"#F4F1EE","ink":"#121212","cherry":"#7A4A2C","honey":"#9A6B1F","leaf":"#4E7A3A"},{"paper":"#000000","surface":"#0F0D0C","surface2":"#1C1916","ink":"#FFFFFF","cherry":"#E2A877","honey":"#F0C477","leaf":"#A5CC86"}]];
+let UI=Object.assign({accent:'classic',vibe:'roastery',logo:'bean',text:'m',motion:'full',start:'dial'},load('bb-ui',{}));
+if(!VIBES.some(v=>v[0]===UI.vibe))UI.vibe='roastery';
+const ACCENTS=[['classic','Vibe’s own','#8A5A3B'],['espresso','Espresso','#5E3B2A'],['cascara','Cascara','#A3392E'],['kenya','Kenya','#7B2D4E'],['honey','Honey','#A8741C'],['leaf','Coffee leaf','#4F7A45'],['coldbrew','Cold brew','#2E5C7A'],['geisha','Geisha','#76588C']];
 if(!ACCENTS.some(a=>a[0]===UI.accent))UI.accent='classic';
-const LOGOS={bean:['Bean',null],
-  cup:['Cup','<path d="M4 9h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z" fill="var(--cherry)"/><path d="M16 10.5h1.5a2.5 2.5 0 0 1 0 5H16" fill="none" stroke="var(--cherry)" stroke-width="2"/><path d="M8 2.5c-1.2 1.6 1.2 2.6 0 4.5M12 2.5c-1.2 1.6 1.2 2.6 0 4.5" stroke="var(--honey)" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M3 21h14" stroke="var(--honey)" stroke-width="1.8" stroke-linecap="round"/>'],
-  dripper:['Dripper','<path d="M3.5 5h17l-6.5 9h-4z" fill="var(--cherry)"/><path d="M9 14h6v2.2H9z" fill="var(--honey)"/><path d="M6 17.5h12v1.5a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 6 19z" fill="var(--cherry)" opacity=".85"/><path d="M12 2v2" stroke="var(--honey)" stroke-width="1.8" stroke-linecap="round"/>'],
-  cherry:['Cherry','<circle cx="8.5" cy="15.5" r="5" fill="var(--cherry)"/><circle cx="16" cy="14" r="4.5" fill="var(--cherry)" opacity=".75"/><path d="M8.5 10.5c.5-3.5 3-6 7-7.5M16 9.5c0-2.5.3-4.5-.5-6.5" stroke="var(--leaf)" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M15.5 3c2.5-1 5-.3 6 1.5-2.5 1-5 .5-6-1.5z" fill="var(--leaf)"/>'],
-  moka:['Moka pot','<path d="M8 3h8l1.2 7H6.8z" fill="var(--honey)"/><path d="M6.8 11.5h10.4L15.6 21H8.4z" fill="var(--cherry)"/><path d="M17 5h2.5L18 9.5" stroke="var(--cherry)" stroke-width="1.8" fill="none" stroke-linejoin="round"/><path d="M11 1.8h2" stroke="var(--cherry)" stroke-width="1.8" stroke-linecap="round"/>'],
-  kettle:['Kettle','<path d="M5 10h10v8a2.5 2.5 0 0 1-2.5 2.5h-5A2.5 2.5 0 0 1 5 18z" fill="var(--cherry)"/><path d="M15 13c3.2 0 4-4.5 6.5-6.5" stroke="var(--cherry)" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M7.5 6.5h5L14 10H6z" fill="var(--honey)"/><path d="M10 4.5v2" stroke="var(--honey)" stroke-width="1.8" stroke-linecap="round"/>']};
+// The logos: the bean drawn in the top bar's own markup, the rest from data/logos.json (which also makes the Android
+// home-screen icons). Colours are the vibe's, so a logo follows your look.
+const logoParts=parts=>parts.map(p=>{const col='var(--'+(p.fill||p.stroke)+')',op=p.op!=null?' opacity="'+p.op+'"':'';
+  const paint=p.fill?'fill="'+col+'"':'fill="none" stroke="'+col+'" stroke-width="'+p.w+'" stroke-linecap="round" stroke-linejoin="round"';
+  return p.c?'<circle cx="'+p.c[0]+'" cy="'+p.c[1]+'" r="'+p.c[2]+'" '+paint+op+'/>':'<path d="'+p.d+'" '+paint+op+'/>'}).join('');
+const LOGOS=Object.assign({bean:['Bean',null]},Object.fromEntries(Object.entries(LOGO_DATA).filter(([k])=>k!=='_').map(([k,v])=>[k,[v.name,logoParts(v.parts)]])));
 if(!LOGOS[UI.logo])UI.logo='bean';delete UI.name;if(!['s','m','l','xl'].includes(UI.text))UI.text='m';if(!['full','reduced'].includes(UI.motion))UI.motion='full';if(UI.start==='scan')UI.start='beans';if(!['dial','recipes','beans','explore'].includes(UI.start))UI.start='dial';
 const BEAN_SVG=$('ab-logo').innerHTML;
 // Each copy of the bean gets its own clip id: two elements with one id can draw the wrong (or no) bean.
@@ -2500,9 +2509,11 @@ function setFavicon(){try{const cs=getComputedStyle(document.documentElement),co
   const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');x.fillStyle=col('--paper');x.beginPath();x.arc(32,32,32,0,7);x.fill();x.drawImage(img,6,6,52,52);
     let l=document.querySelector('link[rel="icon"]');if(!l){l=document.createElement('link');l.rel='icon';document.head.appendChild(l)}l.href=c.toDataURL('image/png')};
   img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)}catch(e){}}
-function applyUI(){const d=document.documentElement;d.setAttribute('data-accent',UI.accent);d.setAttribute('data-text',UI.text);d.setAttribute('data-motion',UI.motion);
+function applyUI(){const d=document.documentElement;d.setAttribute('data-accent',UI.accent);if(UI.vibe==='roastery')d.removeAttribute('data-vibe');else d.setAttribute('data-vibe',UI.vibe);d.setAttribute('data-text',UI.text);d.setAttribute('data-motion',UI.motion);
   $('ab-logo').innerHTML=logoSVG(UI.logo,24);
-  const t=curTheme();document.querySelectorAll('meta[name="theme-color"]').forEach(m=>{if(d.hasAttribute('data-theme'))m.content=t==='dark'?'#1F1814':'#FBF7F0'});(window.requestIdleCallback||(f=>setTimeout(f,300)))(setFavicon)}
+  // In the Android app the home-screen icon follows the logo; the app swaps it when you next leave it.
+  {const ai=plugin('AppIcon');if(ai)ai.set({name:UI.logo}).catch(()=>{})}
+  const pap=(VIBES.find(v=>v[0]===UI.vibe)||VIBES[0])[curTheme()==='dark'?4:3].paper;document.querySelectorAll('meta[name="theme-color"]').forEach(m=>{if(d.hasAttribute('data-theme')||UI.vibe!=='roastery')m.content=pap});(window.requestIdleCallback||(f=>setTimeout(f,300)))(setFavicon)}
 function saveUI(){save('bb-ui',UI);applyUI()}
 /* Your data: everything the app saves on this device, in one file you can keep or move to another phone. */
 // Sign-in tokens never go into a backup file.
@@ -2548,8 +2559,9 @@ function renderSettings(){const t=document.documentElement.getAttribute('data-th
   $('settings-in').innerHTML='<div class="quicktools">'+qt('gear','Gear and dials',MYG.length+' grinder'+(MYG.length>1?'s':'')+(MYB.length?', '+MYB.length+' brewer'+(MYB.length>1?'s':''):''))+qt('log','Brew log',LOG.length?LOG.length+' brew'+(LOG.length>1?'s':''):'Rate and keep your brews')+qt('guide','Guide','Ratios and fixes')+'</div>'+
     '<h3 class="rh">Appearance</h3><div class="setgroup">'+
     row(curTheme()==='dark'?'moon':'sun','#5B5F66','Light or dark','Bright cream, cosy espresso, or follow your phone','<div class="seg" id="st-mode"></div>')+
-    row('drop','var(--cherry)','Colour','Coffee-inspired themes for buttons, highlights and charts','<div class="swatches">'+ACCENTS.map(([k,n,c])=>'<button type="button" class="swatch" data-accent="'+k+'" aria-pressed="'+(UI.accent===k)+'"><i style="background:'+c+'"></i>'+n+'</button>').join('')+'</div>')+
-    row('leaf','#6B8E4E','App logo','Shown in the top bar and the browser tab','<div class="logos">'+Object.entries(LOGOS).map(([k,[n]])=>'<button type="button" class="logopick" data-logo="'+k+'" aria-pressed="'+(UI.logo===k)+'">'+logoSVG(k,34)+n+'</button>').join('')+'</div><p class="setnote">The icon on your phone’s home screen stays the bean.</p>')+
+    row('drop','var(--cherry)','Vibe','A whole look, in light and in dark','<div class="vibes">'+VIBES.map(([k,n,d,L,D])=>'<button type="button" class="vibe" data-vibe="'+k+'" aria-pressed="'+(UI.vibe===k)+'" style="--l-p:'+L.paper+';--l-s:'+L.surface+';--l-i:'+L.ink+';--l-c:'+L.cherry+';--l-h:'+L.honey+';--d-p:'+D.paper+';--d-s:'+D.surface+';--d-i:'+D.ink+';--d-c:'+D.cherry+';--d-h:'+D.honey+'"><span class="vb-pv" aria-hidden="true"><i class="vb-l"><u></u><s></s><em></em></i><i class="vb-d"><u></u><s></s><em></em></i></span><b>'+n+'</b><small>'+d+'</small></button>').join('')+'</div>')+
+    row('drop','var(--cherry)','Accent','Change just the highlight colour (Vibe’s own keeps the vibe’s)','<div class="swatches">'+ACCENTS.map(([k,n,c])=>'<button type="button" class="swatch" data-accent="'+k+'" aria-pressed="'+(UI.accent===k)+'"><i style="background:'+(k==='classic'?(VIBES.find(v=>v[0]===UI.vibe)||VIBES[0])[curTheme()==='dark'?4:3].cherry:c)+'"></i>'+n+'</button>').join('')+'</div>')+
+    row('leaf','#6B8E4E','App logo','In the top bar, the tab and on your home screen','<div class="logos">'+Object.entries(LOGOS).map(([k,[n]])=>'<button type="button" class="logopick" data-logo="'+k+'" aria-pressed="'+(UI.logo===k)+'"><span class="lg-tile">'+logoSVG(k,36)+'</span>'+n+'</button>').join('')+'</div><p class="setnote">'+(NATIVE&&plugin('AppIcon')?'Your home-screen icon changes to match a moment after you leave the app.':NATIVE?'The home-screen icon follows the logo from the next app update.':'The browser tab shows it too. In the Android app, the home-screen icon follows it.')+'</p>')+
     row('text','#C9964A','Text size','','<div class="seg" id="st-text"></div>')+
     row('wheel','#6E8FA8','Motion','Animations between pages and sheets','<div class="seg" id="st-motion"></div>')+
     row('globe','#4F8A74','Open the app on','The page you see first','<div class="seg" id="st-start"></div>')+'</div>'+
@@ -2570,7 +2582,7 @@ function renderSettings(){const t=document.documentElement.getAttribute('data-th
   if($('st-remind')){seg('st-remind',[['0','Off'],['1','Every day']],()=>REMIND.on?'1':'0',async v=>{await setReminder(v==='1');renderSettings()});
     $('st-rtime').onchange=async e=>{if(/^\d\d:\d\d$/.test(e.target.value)){REMIND.t=e.target.value;save('bb-remind',REMIND);await scheduleReminders();toast('Your coffee of the day arrives at '+REMIND.t)}}}
   seg('st-start',[['dial','Brew'],['recipes','Recipes'],['beans','Beans'],['explore','Explore']],()=>UI.start,v=>{UI.start=v;saveUI();renderSettings();toast('The app will open on '+TABNAMES[v])})}
-$('settings-in').addEventListener('click',e=>{const a=e.target.closest('.swatch[data-accent]');if(a){UI.accent=a.dataset.accent;saveUI();renderSettings();return}
+$('settings-in').addEventListener('click',e=>{const vb=e.target.closest('.vibe[data-vibe]');if(vb){UI.vibe=vb.dataset.vibe;UI.accent='classic';saveUI();renderSettings();toast((VIBES.find(v=>v[0]===UI.vibe)||[])[1]+' on');return}const a=e.target.closest('.swatch[data-accent]');if(a){UI.accent=a.dataset.accent;saveUI();renderSettings();return}
   const l=e.target.closest('.logopick[data-logo]');if(l){UI.logo=l.dataset.logo;saveUI();renderSettings();return}
   if(e.target.closest('#st-export')){exportData();return}if(e.target.closest('#st-import')){$('st-file').click();return}});
 $('settings-in').addEventListener('change',e=>{if(e.target.id==='st-file'){importData(e.target.files[0]);e.target.value=''}});
@@ -2659,6 +2671,7 @@ applyUI();
 {let h=location.hash.slice(1);if(h==='more')h='settings';if(!openRoute(h)){if(h&&$(h)&&$(h).tagName==='SECTION')showTab(h,true);else if(!h&&UI.start!=='dial'&&$(UI.start))showTab(UI.start,true);else syncShell('dial')}}
 // Moves animate only once the app has opened: the first page appears in place.
 requestAnimationFrame(()=>{NAV_READY=true});
+prebuildTabs();
 if(GROUP)startStream();
 if(window.claude&&window.claude.use){
   window.claude.use('sample').then(async s=>{SAMPLE=s;if(!s)return;
