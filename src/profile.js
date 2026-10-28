@@ -18,11 +18,27 @@ const STYLES=[['bright','Light and bright'],['sweet','Sweet and balanced'],['cho
 const AV_EMOJI=['☕','🫘','🌱','🍒','🌸','🍋','🍫','🔥','⛰️','🫖','🐦','🌙'];
 const AV_COL=['#8A5A3B','#A8432F','#C9964A','#4F8A74','#6E8FA8','#9A7390','#5B5F66','#2F2622'];
 const PHOTO_RE=/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/;
+// Banners behind your face on the profile: drawn ones in the app's coffee colours, or a photo of your own.
+const svgBg=(w,h,body)=>"url('data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'">'+body+'</svg>').replace(/'/g,'%27')+"')";
+const BEAN=(x,y,r)=>'<g transform="translate('+x+' '+y+') rotate('+r+')"><ellipse rx="7" ry="10"/><path d="M0-9c-3.5 5 3.5 13 0 18"/></g>';
+const BANNERS={
+  crema:{name:'Crema',bg:'radial-gradient(120% 90% at 20% 0%,#E2A867 0%,transparent 55%),linear-gradient(160deg,#B8743E,#5E3219 65%,#2A160C)'},
+  beans:{name:'Beans',bg:svgBg(72,72,'<g fill="none" stroke="#F3E3C8" stroke-opacity=".2" stroke-width="1.8">'+BEAN(18,20,-30)+BEAN(54,54,28)+BEAN(52,14,70)+BEAN(16,58,-80)+'</g>')+' 0 0/72px 72px,linear-gradient(160deg,#4A2E20,#1E120C)'},
+  farm:{name:'Farm',bg:'radial-gradient(90% 70% at 85% 10%,#A9C27A 0%,transparent 60%),linear-gradient(165deg,#5E7F45,#2E4426 60%,#18210F)'},
+  sunrise:{name:'Harvest sun',bg:'radial-gradient(60% 55% at 50% 78%,#FFD58A 0%,transparent 60%),linear-gradient(175deg,#7A3B26,#C2643A 55%,#F0A65A)'},
+  cherry:{name:'Cherries',bg:svgBg(80,80,'<g fill="#E0473B" fill-opacity=".55"><circle cx="20" cy="22" r="7"/><circle cx="31" cy="27" r="6"/><circle cx="60" cy="58" r="7"/><circle cx="50" cy="63" r="6"/></g><g fill="none" stroke="#9FC27A" stroke-opacity=".6" stroke-width="1.6"><path d="M20 15c2-6 8-9 14-8M31 21c1-5 2-9 3-14M60 51c2-6 8-9 14-8M50 57c0-5 2-9 4-14"/></g>')+' 0 0/80px 80px,linear-gradient(160deg,#7A1F1A,#3A0E0C)'},
+  night:{name:'Late night',bg:'radial-gradient(1.2px 1.2px at 12% 22%,#FFF8EE 98%,transparent),radial-gradient(1px 1px at 72% 14%,#FFF8EE 98%,transparent),radial-gradient(1.4px 1.4px at 38% 60%,#FFF8EE 98%,transparent),radial-gradient(1px 1px at 88% 66%,#FFF8EE 98%,transparent),radial-gradient(1.2px 1.2px at 58% 36%,#FFF8EE 98%,transparent),radial-gradient(60% 50% at 80% 0%,#4F5F8F 0%,transparent 70%),linear-gradient(165deg,#2B3352,#151827 65%,#0E0C14)'},
+  latte:{name:'Latte',bg:'radial-gradient(circle at 102% 50%,rgba(243,227,200,.5) 0 22px,transparent 23px 31px,rgba(243,227,200,.4) 32px 42px,transparent 43px 52px,rgba(243,227,200,.3) 53px 64px,transparent 65px 75px,rgba(243,227,200,.2) 76px 88px,transparent 89px),linear-gradient(160deg,#C8925F,#7A4A2A 70%,#4A2A18)'}};
+const okBanner=v=>typeof v==='string'&&(BANNERS.hasOwnProperty(v)||(v.length<300000&&PHOTO_RE.test(v)))?v:'';
+// The banner as a CSS background, darkened at the foot so your name stays readable on any picture. '' is the
+// standard roast, tinted with your colour.
+function bannerBg(p){const b=p&&p.banner;if(!b)return '';const shade='linear-gradient(180deg,rgba(18,10,6,.16),rgba(18,10,6,.62))';
+  return shade+','+(BANNERS[b]?BANNERS[b].bg:"url('"+b+"') 50% "+(p.bpos??50)+'%/cover no-repeat')}
 // Anything read back (from storage, a backup or the server) is checked field by field.
 function okProfile(p){if(!p||typeof p!=='object')return null;const s=(v,n)=>str(v,n).replace(/[\u0000-\u001f\u007f]/g,'');const nick=s(p.nick,30);if(!nick)return null;const av=p.av&&typeof p.av==='object'?p.av:{};
   return{nick,name:s(p.name,40),brief:s(p.brief,160),city:s(p.city,40),style:STYLES.some(x=>x[0]===p.style)?p.style:'',brewer:BREWERS[p.brewer]?p.brewer:'',
     origin:typeof p.origin==='string'&&oInfo(p.origin)?p.origin:'',av:{e:AV_EMOJI.includes(av.e)?av.e:'',c:AV_COL.includes(av.c)?av.c:AV_COL[0]},
-    photo:typeof p.photo==='string'&&p.photo.length<120000&&PHOTO_RE.test(p.photo)?p.photo:'',since:+p.since||Date.now(),updated:+p.updated||0}}
+    photo:typeof p.photo==='string'&&p.photo.length<120000&&PHOTO_RE.test(p.photo)?p.photo:'',banner:okBanner(p.banner),bpos:Math.max(0,Math.min(100,Math.round(+p.bpos)))||(+p.bpos===0?0:50),since:+p.since||Date.now(),updated:+p.updated||0}}
 let PROFILE=okProfile(load('bb-profile',null));
 let ACCT=load('bb-account',null);if(!(ACCT&&typeof ACCT.uid==='string'&&typeof ACCT.refresh==='string'))ACCT=null;
 // The shared log signs your entries with your nickname unless you gave it another name.
@@ -42,6 +58,12 @@ const initials=p=>p.nick.split(/\s+/).filter(Boolean).map(w=>[...w][0]).join('')
 function avatarHTML(p,size){if(!p)return '<span class="pav none" style="--s:'+size+'px">'+PERSON_SVG+'</span>';
   return '<span class="pav" style="--s:'+size+'px;--c:'+p.av.c+'">'+(p.photo?'<img src="'+p.photo+'" alt="">':p.av.e?'<i aria-hidden="true">'+p.av.e+'</i>':'<b aria-hidden="true">'+esc(initials(p))+'</b>')+'</span>'}
 // A square, centred copy of a photo, small enough to keep with the profile.
+// A banner photo: up to 1000 px wide and no taller than 3:4 of its width (cropped around the middle); the slider
+// then picks which part shows. Made smaller again if it would be too big to sync.
+function widePhoto(src){return new Promise((ok,no)=>{const img=new Image();img.onload=()=>{try{let out='';
+    for(const [W,q] of [[1000,.74],[800,.66],[640,.6]]){const w=Math.min(W,img.width),k=w/img.width,h=Math.min(Math.round(img.height*k),Math.round(w*.75)),c=document.createElement('canvas');c.width=w;c.height=h;
+      const sh=h/k;c.getContext('2d').drawImage(img,0,(img.height-sh)/2,img.width,sh,0,0,w,h);out=c.toDataURL('image/jpeg',q);if(out.length<290000)break}
+    out.length<300000?ok(out):no(new Error('big'))}catch(e){no(e)}};img.onerror=()=>no(new Error('image'));img.src=src})}
 function squarePhoto(src,n){return new Promise((ok,no)=>{const img=new Image();img.onload=()=>{const s=Math.min(img.width,img.height),c=document.createElement('canvas');c.width=c.height=n;
   c.getContext('2d').drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,n,n);try{ok(c.toDataURL('image/jpeg',.82))}catch(e){no(e)}};img.onerror=()=>no(new Error('image'));img.src=src})}
 
@@ -51,6 +73,7 @@ const CUP_SVG='<svg class="me-cup" viewBox="0 0 120 92" aria-hidden="true"><g cl
   '<path d="M28 40h62v14a25 25 0 0 1-25 25h-12a25 25 0 0 1-25-25z" fill="#F3E3C8"/><path d="M89 46h6a9.5 9.5 0 0 1 0 19h-6" fill="none" stroke="#F3E3C8" stroke-width="5.5"/><ellipse cx="59" cy="41" rx="29" ry="4.2" fill="#5A3420"/><path d="M18 86h82" stroke="#F3E3C8" stroke-opacity=".45" stroke-width="3" stroke-linecap="round"/></svg>';
 const PEN_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4"/></svg>';
 const FP_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10a5 5 0 0 1 10 0v2a9 9 0 0 1-1.5 5 M12 10v3a10 10 0 0 1-2.5 7 M9.5 10a2.5 2.5 0 0 1 5 0v2.5 M4.5 13.5V10a7.5 7.5 0 0 1 13-5.1 M20 10v1.5"/></svg>';
+const CAM_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l1.6-2.4h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.4" r="3.4"/></svg>';
 const SYNC_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 0 1-14 5.3 M4 12a8 8 0 0 1 14-5.3 M18 3v4h-4 M6 21v-4h4"/></svg>';
 // Your coffee style, as a title under your name.
 const ROLE={bright:'Florals chaser',sweet:'Sweet-cup seeker',choc:'Comfort-cup brewer',wild:'Ferment explorer',espresso:'Espresso devotee',milk:'Milk-drink maker'};
@@ -68,7 +91,8 @@ function meHTML(){const p=PROFILE,x='<button class="vd-close me-x" id="vd-x" ari
       '<p>A nickname, a face and a few words about the cups you love.</p><div class="me-acts"><button type="button" class="btn me-main" id="pf-new">Create your profile</button>'+
       (AUTH_ON&&!ACCT?'<button type="button" class="btn me-ghost" id="pf-signin">I have an account</button>':'')+'</div></div>'+(ACCT?'<div class="me-body">'+accountHTML()+'</div>':'');
   const dna=[p.origin&&['<span class="me-flag">'+flagOf(p.origin)+'</span>','Favourite origin',originName(p.origin)],p.brewer&&['☕','Favourite brewer',BREWERS[p.brewer].name],p.city&&['📍','Brews in',p.city]].filter(Boolean);
-  return '<div class="me-hero" style="--c:'+p.av.c+'">'+x+'<button type="button" class="me-edit" id="pf-edit">'+PEN_SVG+'Edit</button>'+avatarHTML(p,96)+
+  const bg=bannerBg(p);
+  return '<div class="me-hero'+(bg?' banner':'')+'" style="--c:'+p.av.c+(bg?';background:'+bg:'')+'">'+x+'<button type="button" class="me-edit" id="pf-edit">'+PEN_SVG+'Edit</button>'+avatarHTML(p,96)+
       '<span class="me-k">'+esc(ROLE[p.style]||'Home brewer')+'</span><h2 id="vd-title">'+esc(p.nick)+'</h2>'+(p.name?'<small class="me-name">'+esc(p.name)+'</small>':'')+
       '<span class="me-since">Brewing with us since '+new Date(p.since).toLocaleDateString(undefined,{month:'long',year:'numeric'})+'</span></div>'+
     '<div class="me-body">'+(p.brief?'<blockquote class="me-brief">'+esc(p.brief)+'</blockquote>':'<button type="button" class="me-add" id="pf-edit2">Add a few words about how you take your coffee</button>')+
@@ -90,9 +114,14 @@ function openProfileEditor(opts){opts=opts||{};const J=opts.join,d=$('vd'),isNew
    '<div class="vd-body beform pform auth">'+(J?'<div class="au-who"><span>'+esc(J.email)+'</span><button type="button" class="linkbtn" id="au-change">Change</button></div>'+
      '<div class="field"><label for="au-pw">Password <span class="hint">at least 6 characters</span></label><div class="au-pw"><input id="au-pw" type="password" autocomplete="new-password" maxlength="100"><button type="button" class="linkbtn" id="au-show" aria-pressed="false">Show</button></div></div>'+
      (J.known===null?'<p class="au-hint">Already have an account? <button type="button" class="linkbtn" id="au-again">Try your password again</button></p>':'')+'<p class="au-err" id="au-err" role="alert" hidden></p>':'')+
-   '<div class="pf-face"><div id="pf-av"></div><div class="pf-photo"><button type="button" class="btn ghost" id="pf-pick">Use a photo</button><button type="button" class="linkbtn" id="pf-nophoto">Remove the photo</button><input type="file" id="pf-file" accept="image/*" hidden></div></div>'+
+   '<div class="pf-cover" id="pf-cover"><div id="pf-av"></div></div>'+
+   '<div class="pf-photo"><button type="button" class="btn ghost" id="pf-pick">Use a photo</button><button type="button" class="linkbtn" id="pf-nophoto">Remove the photo</button><input type="file" id="pf-file" accept="image/*" hidden></div>'+
    '<div class="field"><div class="lbl">Or a symbol</div><div class="pf-emoji" id="pf-emoji" role="group" aria-label="Symbol">'+['',...AV_EMOJI].map(e=>'<button type="button" data-e="'+e+'" aria-label="'+(e||'Your initials')+'">'+(e||'Aa')+'</button>').join('')+'</div></div>'+
    '<div class="field"><div class="lbl">Colour</div><div class="pf-cols" id="pf-cols" role="group" aria-label="Colour">'+AV_COL.map(c=>'<button type="button" data-c="'+c+'" style="--c:'+c+'" aria-label="Colour '+c+'"></button>').join('')+'</div></div>'+
+   '<div class="field"><div class="lbl">Banner</div><div class="pf-banners" id="pf-banners" role="group" aria-label="Banner">'+
+     [['','Roast'],...Object.entries(BANNERS).map(([k,b])=>[k,b.name])].map(([k,n])=>'<button type="button" data-b="'+k+'" aria-label="'+n+'"><i style="'+(k?'background:'+BANNERS[k].bg:'')+'"></i><span>'+n+'</span></button>').join('')+
+     '<button type="button" data-b="photo" aria-label="Your own photo"><i class="pf-bphoto">'+CAM_SVG+'</i><span>Your photo</span></button></div>'+
+     '<div class="pf-bpos" id="pf-bposrow" hidden><label for="pf-bpos">Move the photo up or down</label><input type="range" id="pf-bpos" min="0" max="100" step="1"></div><input type="file" id="pf-bfile" accept="image/*" hidden></div>'+
    '<div class="two stackm"><div class="field"><label for="pf-nick">Nickname</label><input id="pf-nick" maxlength="30" autocomplete="nickname" placeholder="e.g. The V60 guy" value="'+esc(P.nick)+'"></div>'+
    '<div class="field"><label for="pf-name">Name <span class="hint">optional</span></label><input id="pf-name" maxlength="40" autocomplete="name" value="'+esc(P.name)+'"></div></div>'+
    '<div class="field"><label for="pf-brief">A few words about you <span class="hint" id="pf-count"></span></label><textarea id="pf-brief" rows="3" maxlength="160" placeholder="e.g. Chasing florals with a Switch and a ZP6. Washed Ethiopians forever.">'+esc(P.brief)+'</textarea></div>'+
@@ -105,12 +134,18 @@ function openProfileEditor(opts){opts=opts||{};const J=opts.join,d=$('vd'),isNew
    (isNew?'':'<button type="button" class="linkbtn danger" id="pf-del">'+(ACCT?'Delete my account and profile':'Delete my profile')+'</button>')+'</div>';
   $('pf-brewer').value=P.brewer;$('pf-origin').value=P.origin;
   const face=()=>{$('pf-av').innerHTML=avatarHTML(okProfile(Object.assign({},P,{nick:$('pf-nick').value.trim()||'?'})),96);$('pf-nophoto').hidden=!P.photo;
+    const cv=$('pf-cover'),own=!!P.banner&&!BANNERS[P.banner];cv.style.setProperty('--c',P.av.c);cv.style.background=bannerBg(P);
+    $('pf-banners').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.b==='photo'?own:b.dataset.b===P.banner));
+    $('pf-bposrow').hidden=!own;if(own)$('pf-bpos').value=P.bpos;
     $('pf-emoji').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',!P.photo&&b.dataset.e===P.av.e));$('pf-cols').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===P.av.c))};
   const count=()=>{$('pf-count').textContent=$('pf-brief').value.length+'/160'};
   const style=()=>seg('pf-style',STYLES,()=>P.style,v=>{P.style=P.style===v?'':v;style()});style();face();count();
   $('pf-nick').oninput=face;$('pf-brief').oninput=count;
   $('pf-emoji').onclick=e=>{const b=e.target.closest('[data-e]');if(!b)return;P.av.e=b.dataset.e;P.photo='';face()};
   $('pf-cols').onclick=e=>{const b=e.target.closest('[data-c]');if(!b)return;P.av.c=b.dataset.c;face()};
+  $('pf-banners').onclick=e=>{const b=e.target.closest('[data-b]');if(!b)return;if(b.dataset.b==='photo'){$('pf-bfile').click();return}P.banner=b.dataset.b;face()};
+  $('pf-bfile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{P.banner=await widePhoto(await fileURL(f));P.bpos=50;face()}catch(_){toast('That photo couldn’t be read')}};
+  $('pf-bpos').oninput=e=>{P.bpos=+e.target.value;$('pf-cover').style.background=bannerBg(P)};
   $('pf-pick').onclick=()=>$('pf-file').click();$('pf-nophoto').onclick=()=>{P.photo='';face()};
   $('pf-file').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{P.photo=await squarePhoto(await fileURL(f),192);face()}catch(_){toast('That photo couldn’t be read')}};
   const back=()=>openSignIn({M:'pw',email:J.email,known:J.known,pw:$('au-pw').value});
