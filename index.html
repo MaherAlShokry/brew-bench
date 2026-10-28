@@ -1307,7 +1307,7 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
 /* Hero actions */
 .bgh-acts{position:relative;z-index:1;flex:1 0 100%;display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
 .bgh-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:8px 14px;border-radius:var(--r-pill);border:0;font:inherit;font-weight:700;font-size:.86rem;cursor:pointer;color:#FFF8EE;background:rgba(255,248,236,.14);box-shadow:inset 0 0 0 1px rgba(255,248,236,.28);transition:transform .15s var(--ease-out)}
-.bgh-btn.main{background:#FFF8EE;color:#4A2E20;box-shadow:0 6px 16px -6px rgba(0,0,0,.5)}.bgh-btn:active{transform:scale(.95)}
+.bgh-btn.main{background:#FFF8EE;color:var(--hero-b);box-shadow:0 6px 16px -6px rgba(0,0,0,.5)}.bgh-btn:active{transform:scale(.95)}
 .bgh-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .bg-hero.empty .bgh-fan{opacity:.8}
 @media (max-width:360px){.bgh-fan{width:72px;height:100px}.bgh-fan .bpic{width:50px;height:68px}.bgh-stats{gap:10px}.bgh-btn{padding:8px 10px;font-size:.8rem}.bgh-btn svg{width:15px;height:15px}.bg-hero h3{font-size:1.2rem}}
@@ -1365,16 +1365,21 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .t3s-tx b{font-family:var(--display);font-size:.8rem;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .t3s-x{position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;border:0;background:var(--surface);color:var(--muted);font-size:.7rem;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.15)}
 /* The hero: your coffee journal at a glance, with a fan of your latest bags. */
+/* Its colours come from the vibe: a deep shade of the accent. Dark vibes have light accents, so they mix in less. */
+.bg-hero{--hm:52%;--hr:30%;--hh:55%}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .bg-hero{--hm:32%;--hr:20%;--hh:40%}:root[data-vibe="pure"]:not([data-theme="light"]) .bg-hero{--hm:16%;--hr:10%}}
+:root[data-theme="dark"] .bg-hero{--hm:32%;--hr:20%;--hh:40%}:root[data-vibe="pure"][data-theme="dark"] .bg-hero{--hm:16%;--hr:10%}
 .bg-hero{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:18px 14px 18px 20px;border-radius:var(--r-xl,28px);overflow:hidden;color:#FFF8EE;margin-bottom:18px;
-  background:radial-gradient(90% 120% at 100% 0%,color-mix(in srgb,var(--honey) 75%,transparent),transparent 60%),radial-gradient(70% 90% at 0% 100%,color-mix(in srgb,var(--cherry) 80%,transparent),transparent 70%),linear-gradient(140deg,#4A2E20,#21140D);box-shadow:var(--shadow)}
+  --hero-a:color-mix(in srgb,var(--cherry) var(--hm),#140C0A);--hero-b:color-mix(in srgb,var(--cherry) 18%,#0C0807);
+  background:radial-gradient(90% 120% at 100% 0%,color-mix(in srgb,var(--honey) var(--hh),transparent),transparent 60%),radial-gradient(70% 90% at 0% 100%,color-mix(in srgb,var(--cherry) var(--hr),transparent),transparent 70%),linear-gradient(140deg,var(--hero-a),var(--hero-b));box-shadow:var(--shadow)}
 .bg-hero::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.12;background-image:radial-gradient(rgba(255,255,255,.7) .6px,transparent .8px);background-size:5px 5px;mix-blend-mode:overlay}
 .bgh-tx{position:relative;z-index:1;flex:1;min-width:0}
 .bgh-k{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;opacity:.75}
-.bg-hero h3{margin:4px 0 0;font-family:var(--display);font-size:1.35rem;line-height:1.15;letter-spacing:-.01em;color:#FFF8EE}.bg-hero h3 em{font-style:normal;color:#F0C987}
+.bg-hero h3{margin:4px 0 0;font-family:var(--display);font-size:1.35rem;line-height:1.15;letter-spacing:-.01em;color:#FFF8EE}.bg-hero h3 em{font-style:normal;color:color-mix(in srgb,var(--honey) 55%,#FFF4DE)}
 .bg-hero p{margin:8px 0 0;font-size:.9rem;opacity:.85;max-width:30ch}
 .bgh-stats{display:flex;gap:14px;margin-top:10px;flex-wrap:wrap}.bgh-stats span{display:flex;flex-direction:column;font-size:.72rem;opacity:.8}
 .bgh-stats b{display:flex;align-items:center;gap:3px;font-family:var(--display);font-size:1.2rem;opacity:1;color:#FFF8EE;font-variant-numeric:tabular-nums}
-.bgh-stats b svg{width:15px;height:15px}.bgh-stats .bo{fill:#E2B866}.bgh-stats .bc{fill:none;stroke:#4A2E20;stroke-width:1.6}
+.bgh-stats b svg{width:15px;height:15px}.bgh-stats .bo{fill:color-mix(in srgb,var(--honey) 60%,#FFF4DE)}.bgh-stats .bc{fill:none;stroke:var(--hero-b);stroke-width:1.6}
 .bgh-fan{position:relative;z-index:1;flex:none;width:96px;height:124px;align-self:flex-start}
 .bgh-fan .bpic{position:absolute;width:62px;height:84px;top:14px;border-radius:14px;box-shadow:0 14px 26px -10px rgba(0,0,0,.7),0 0 0 2px rgba(255,248,236,.9);transition:transform .5s var(--ease-spring)}
 .bgh-fan .bpic:nth-child(1){right:2px;transform:rotate(10deg) translateY(6px);z-index:3}.bgh-fan .bpic:nth-child(2){right:18px;transform:rotate(-2deg) translateY(-8px);z-index:2}.bgh-fan .bpic:nth-child(3){right:34px;transform:rotate(-14deg) translateY(8px);z-index:1}
@@ -1449,6 +1454,12 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .fpill.f-peak{color:#A6DDAB}:root:not([data-theme="light"]) .fpill.f-good{color:#EBC583}:root:not([data-theme="light"]) .fpill.f-fade{color:#F5A08B}}
 .bagl{display:flex;flex-direction:column;gap:4px;margin-top:auto}.bagl small{font-size:.76rem;color:var(--muted);font-variant-numeric:tabular-nums}
 .bagm{display:block;height:6px;border-radius:3px;background:var(--surface2);overflow:hidden}.bagm i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#8A5A3B,#C9964A)}
+.bg-empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;margin:8px 0 18px;padding:28px 20px 24px;border-radius:var(--r-lg,22px);border:1.5px dashed var(--line);background:color-mix(in srgb,var(--cherry) 4%,var(--surface))}
+.bg-empty svg{width:72px;height:72px;padding:14px;margin-bottom:6px;border-radius:50%;background:color-mix(in srgb,var(--cherry) 14%,var(--surface));animation:bgfloat 4s ease-in-out infinite}
+.bg-empty .bo{fill:var(--cherry)}.bg-empty .bc{fill:none;stroke:var(--surface);stroke-width:1.6;stroke-linecap:round}
+.bg-empty b{font-family:var(--display);font-size:1.1rem}.bg-empty p{margin:0;max-width:36ch;font-size:.9rem;color:var(--muted)}
+@keyframes bgfloat{50%{transform:translateY(-4px) rotate(-6deg)}}
+@media (prefers-reduced-motion:reduce){.bg-empty svg{animation:none}}
 .shelf-empty{margin:0 2px 14px;padding:12px 14px;border-radius:var(--r-md);border:1.5px dashed var(--line);font-size:.86rem;color:var(--muted)}
 /* The trophies along the top of the cabinet */
 .tshelf{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;margin:4px 0 4px;border-radius:var(--r-md);border:0;font:inherit;cursor:pointer;text-align:left;color:var(--ink);background:var(--surface2)}
