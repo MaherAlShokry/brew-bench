@@ -55,7 +55,7 @@ JSPDF_CDN = '<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jsp
 
 page = (src / 'template.html').read_text(encoding='utf-8')
 assert GOOGLE_FONTS in page and JSPDF_CDN in page, 'font or jsPDF tag in template.html changed; update build.py'
-data = (src / 'data' / 'origins-varieties-history.js').read_text(encoding='utf-8') + '\n' + (src / 'data' / 'brewing.js').read_text(encoding='utf-8') + '\n' + (src / 'data' / 'championships.js').read_text(encoding='utf-8') + '\n' + (src / 'data' / 'knowledge.js').read_text(encoding='utf-8') + '\nconst EVENTS_DEFAULT=' + (root / 'events.json').read_text(encoding='utf-8') + ';'
+data = (src / 'data' / 'origins-varieties-history.js').read_text(encoding='utf-8') + '\n' + (src / 'data' / 'brewing.js').read_text(encoding='utf-8') + '\n' + (src / 'data' / 'championships.js').read_text(encoding='utf-8') + '\n' + (src / 'data' / 'knowledge.js').read_text(encoding='utf-8') + '\nconst EVENTS_DEFAULT=' + (root / 'events.json').read_text(encoding='utf-8') + ';' + '\nconst LOGO_DATA=' + (src / 'data' / 'logos.json').read_text(encoding='utf-8') + ';'
 out = page.replace('__MAP__', (src / 'data' / 'world-map.json').read_text(encoding='utf-8').replace('</', '<\\/')) \
           .replace('__DATA__', data).replace('__APP__', (src / 'wheel.js').read_text(encoding='utf-8') + '\n' + (src / 'app.js').read_text(encoding='utf-8') + '\n' + (src / 'beans.js').read_text(encoding='utf-8') + '\n' + (src / 'brewcard.js').read_text(encoding='utf-8') + '\n' + (src / 'select.js').read_text(encoding='utf-8') + '\n' + (src / 'profile.js').read_text(encoding='utf-8') + '\n' + (src / 'sync.js').read_text(encoding='utf-8'))
 if not artifact:
@@ -67,6 +67,12 @@ if not artifact:
     pwa = '<link rel="manifest" href="manifest.webmanifest">\n'
     if not app:
         pwa += '<script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>\n'
+    if app:
+        # The Android app knows its own version, to offer newer ones (see APP UPDATES in app.js).
+        import os, re
+        v = os.environ.get('VERSION_NAME', '')
+        if re.fullmatch(r'\d+(\.\d+)*', v):
+            pwa += '<script>const APP_VERSION="' + v + '"</script>\n'
     out = out.replace('</head>', pwa + '</head>', 1)
     out = out.replace('rel="apple-touch-icon" href="data:', 'rel="apple-touch-icon-legacy" href="data:', 1)
     out = out.replace('</head>', '<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">\n</head>', 1)

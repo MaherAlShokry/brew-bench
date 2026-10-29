@@ -39,7 +39,7 @@ A brew also shares as a designed **brew card** image, dressed in its origin's id
 
 ## Install on your phone
 
-**Android app (APK):** open the [latest APK](https://github.com/MaherAlShokry/brew-bench/releases/latest/download/brew-bench.apk) on your phone and tap it to install. The first time, Android asks you to allow installs from your browser or file manager. A new APK is built and published on the [Releases](https://github.com/MaherAlShokry/brew-bench/releases) page every time `main` changes. In the app, sheets and menus slide up and away, screens slide the way you are going, and the phone's back gesture closes the open sheet or steps back a screen, and only leaves the app from the Brew home.
+**Android app (APK):** open the [latest APK](https://github.com/MaherAlShokry/brew-bench/releases/latest/download/brew-bench.apk) on your phone and tap it to install. The first time, Android asks you to allow installs from your browser or file manager. A new APK is built and published on the [Releases](https://github.com/MaherAlShokry/brew-bench/releases) page every time `main` changes, and the app offers it: when it opens (at most every 6 hours) it checks the latest release and shows **A new version is ready** with an Update button, and **Settings → Version** has *Check for updates*. Once the app is on Google Play, Play updates it instead. In the app, sheets and menus slide up and away, screens slide the way you are going, and the phone's back gesture closes the open sheet or steps back a screen, and only leaves the app from the Brew home.
 
 **Straight from the website:** open the live site, then:
 - **iPhone (Safari):** tap Share, then **Add to Home Screen**.
@@ -206,7 +206,8 @@ brew-bench/
 ├── tools/
 │   ├── build.py                Assembles src/ into index.html (and the app/site folders)
 │   ├── vendor.mjs              Refreshes vendor/ from node_modules
-│   └── gen-map.mjs             Regenerates world-map.json from Natural Earth data
+│   ├── gen-map.mjs             Regenerates world-map.json from Natural Earth data
+│   └── gen-app-icons.py        Makes the Android home-screen icons from src/data/logos.json
 ├── android/                    Android app project (Capacitor), wraps the site in an APK
 ├── assets/                     Logo (logo.svg) and the images the Android icons and splash screens are made from
 ├── capacitor.config.json       App id, name and web folder for the Android app
@@ -246,6 +247,10 @@ cd android && ./gradlew assembleDebug   # APK lands in android/app/build/outputs
 `npm run icons` regenerates the Android launcher icons and splash screens from the PNGs in `assets/`, and `npm run vendor` refreshes the bundled font, jsPDF and label reader in `vendor/`.
 
 The logo, a two-tone coffee bean split by its S-shaped crease, is drawn in `assets/logo.svg`. `assets/logo-light.svg` is the bean for light backgrounds, `assets/logo-foreground.svg` is the mark without its background, and `assets/logo-maskable.svg` has extra padding for rounded icon masks.
+
+**Logo choices and the home-screen icon.** Settings → App logo offers the bean and seven more marks (espresso, latte art, dripper, cherries, moka pot, gooseneck, hand grinder). They're drawn once, in `src/data/logos.json` on a 24-unit grid with the vibe's colours, and used for the top bar and the browser tab. `python3 tools/gen-app-icons.py` turns the same file into the Android launcher icons (`res/drawable/ic_logo_*.xml`, adaptive icons in `res/mipmap-anydpi-v26/`, a fallback for Android 7 in `res/mipmap/`) and prints the `<activity-alias>` entries in `AndroidManifest.xml`. Each logo is one launcher entry and exactly one is on; `AppIconPlugin` (in the Android project) switches to the chosen one when the app goes to the background. When adding a logo, add it to `logos.json`, rerun the script, add its alias and its name to `AppIconPlugin.ICONS`.
+
+**Vibes.** Settings → Appearance → Vibe picks a whole palette for light and dark (Roastery, Oat latte, Matcha café, Coffee blossom, Nordic roast, Desert mocha, Neon espresso, Caramel pop, Pure, Black coffee). Each is a set of colour tokens on `:root[data-vibe=…]` in `src/template.html`; the text shades (`--*-ink`) are worked out so small text reads at 4.6:1 or better on every background. The accent swatches below it change only the highlight colour.
 
 ## Notes on accuracy
 
