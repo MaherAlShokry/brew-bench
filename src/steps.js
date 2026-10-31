@@ -27,15 +27,17 @@ function pourCurve(steps,water){const ev=parseSteps(steps),pts=[[0,0]];let lvl=0
   if(!any)return null;const last=ev.filter(e=>e.t>=0).pop();if(last)end=Math.max(end,last.t);pts.push([Math.max(end,pts[pts.length-1][0]),lvl]);
   return{pts,end:Math.max(end,1),top:Math.max(lvl,water||0,1),lvl}}
 // The curve as a small chart: the water rising pour by pour, a dot for each step coloured by its kind.
-function pourGraph(steps,water,opt){opt=opt||{};const c=pourCurve(steps,water);if(!c)return '';const W=320,H=opt.h||92,px=12,py=12,X=t=>px+t/c.end*(W-2*px),Y=g=>H-py-g/c.top*(H-2*py);
+// Each chart's gradient gets its own id: several can be on screen at once (the dial-in and an open recipe).
+let PGN=0;
+function pourGraph(steps,water,opt){opt=opt||{};const c=pourCurve(steps,water);if(!c)return '';const gid='pgf'+(++PGN);const W=320,H=opt.h||92,px=12,py=12,X=t=>px+t/c.end*(W-2*px),Y=g=>H-py-g/c.top*(H-2*py);
   const line=c.pts.map(([t,g],i)=>(i?'L':'M')+X(t).toFixed(1)+' '+Y(g).toFixed(1)).join(' '),area=line+' L'+X(c.pts[c.pts.length-1][0]).toFixed(1)+' '+(H-py)+' L'+X(0)+' '+(H-py)+'Z';
   const ev=parseSteps(steps).filter(e=>e.t>=0);let lvl=0;
   // A step's dot sits where it starts: a pour's at the level it pours from.
   const dots=ev.map(e=>{const y=lvl,p=pourOf(e.s);if(p){const to=p.to||(p.add?lvl+p.add:lvl);lvl=Math.max(lvl,to)}return '<circle class="pg-d k-'+stepKind(e.s)+'" cx="'+X(e.t).toFixed(1)+'" cy="'+Y(y).toFixed(1)+'" r="4"/>'}).join('');
   const goal=water&&Math.abs(c.lvl-water)>2?'<line class="pg-goal" x1="'+px+'" x2="'+(W-px)+'" y1="'+Y(water).toFixed(1)+'" y2="'+Y(water).toFixed(1)+'"/>':'';
   return '<figure class="pgraph"><svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Water over time: '+c.lvl+' g by '+mmss(c.end)+'">'+
-    '<defs><linearGradient id="pgf'+(opt.id||'')+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--cherry)" stop-opacity=".32"/><stop offset="1" stop-color="var(--cherry)" stop-opacity="0"/></linearGradient></defs>'+
-    goal+'<path class="pg-a" d="'+area+'" fill="url(#pgf'+(opt.id||'')+')"/><path class="pg-l" d="'+line+'"/>'+dots+'</svg>'+
+    '<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--cherry)" stop-opacity=".32"/><stop offset="1" stop-color="var(--cherry)" stop-opacity="0"/></linearGradient></defs>'+
+    goal+'<path class="pg-a" d="'+area+'" fill="url(#'+gid+')"/><path class="pg-l" d="'+line+'"/>'+dots+'</svg>'+
     '<figcaption><span>0:00</span><b>'+c.lvl+' g</b><span>'+mmss(c.end)+'</span></figcaption></figure>'}
 
 // The editor: one row per step on a rail, its time in a pill and what to do beside it, with a button for each kind of
@@ -52,7 +54,7 @@ function stepEditor(el,steps,o){o=Object.assign({water:250,dose:15},o);let rows=
       '<span class="se-ops"><button type="button" class="se-op" data-up="'+i+'" aria-label="Move step '+(i+1)+' up"'+(i?'':' disabled')+'><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>'+
       '<button type="button" class="se-op" data-del="'+i+'" aria-label="Remove step '+(i+1)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></span></li>'};
   const sum=()=>{const v=val(),c=pourCurve(v,o.water),last=rows.map(r=>secs(r.t)).filter(x=>x!=null),n=v.length;
-    el.querySelector('.se-graph').innerHTML=pourGraph(v,o.water,{id:'ed'});
+    el.querySelector('.se-graph').innerHTML=pourGraph(v,o.water);
     const msg=[n+' step'+(n===1?'':'s')];if(last.length)msg.push('ends at '+mmss(Math.max(...last)));
     if(c)msg.push(Math.abs(c.lvl-o.water)<=2?'pours reach the full '+o.water+' g':'pours reach '+c.lvl+' of '+o.water+' g');
     if(rows.some((r,i)=>early(i)))msg.push('a time is earlier than the step before it');
