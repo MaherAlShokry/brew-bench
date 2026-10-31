@@ -3,8 +3,9 @@
 // that slides up on phones and a card under the field on larger screens, with groups, a tick on the current choice and
 // search for long lists. Each select sits in a wrapper that takes the tap, so the phone's own picker never appears.
 const SEL_SEARCH_AT=12;
-function selLabel(s){const l=s.id&&document.querySelector('label[for="'+s.id+'"]');
-  return(l?l.textContent:s.getAttribute('aria-label')||'Choose').replace(/\s+/g,' ').trim()}
+// The label's own words, without any button inside it (Variety's "about this variety").
+function selLabel(s){const l=s.id&&document.querySelector('label[for="'+s.id+'"]');let t='';if(l)for(const n of l.childNodes)if(n.nodeType===3||!n.matches('button,a,.num,.hint'))t+=n.textContent;
+  return(l?t:s.getAttribute('aria-label')||'Choose').replace(/\s+/g,' ').trim()}
 function enhanceSelect(s){if(s.dataset.ui||s.multiple||s.size>1||s.closest('#selsheet'))return;s.dataset.ui=1;
   const w=document.createElement('span');w.className='selw';s.parentNode.insertBefore(w,s);w.appendChild(s);
   s.tabIndex=0;
