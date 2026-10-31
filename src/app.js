@@ -924,7 +924,7 @@ function renderRHome(){const QI=(c,p)=>'<span class="qi" style="background:'+c+'
   const again=RECENT.map(rByKey).filter(i=>i>=0).slice(0,6);
   $('rhome').innerHTML='<div class="qlinks">'+
     '<button type="button" data-q="surprise">'+QI('#2F80ED','M5 5h14v14H5z M9 9h.01 M15 9h.01 M12 12h.01 M9 15h.01 M15 15h.01')+'<span><b>Surprise me</b><small>'+(MYB.length?'A random recipe for your brewers':'Pick a random recipe')+'</small></span></button>'+
-    '<button type="button" data-q="mine">'+QI('#F2A33A','M4 20h4L19 9l-4-4L4 16z M13 7l4 4')+'<span><b>Your recipes</b><small>'+(CREC.length?(TEAM()?'Yours and your team’s':'Recipes you saved'):'Create your own recipe')+'</small></span>'+(CREC.length?'<span class="qn">'+CREC.length+'</span>':'')+'</button>'+
+    '<button type="button" data-q="mine">'+QI('#C8741F','M4 20h4L19 9l-4-4L4 16z M13 7l4 4')+'<span><b>Your recipes</b><small>'+(CREC.length?(TEAM()?'Yours and your team’s':'Recipes you saved'):'Create your own recipe')+'</small></span>'+(CREC.length?'<span class="qn">'+CREC.length+'</span>':'')+'</button>'+
     '<button type="button" data-q="fav">'+QI('#E0445A','M12 20s-7-4.4-9-8.6C1.6 8.4 3.4 5 6.7 5c2 0 3.3 1.2 4.3 2.6C12 6.2 13.3 5 15.3 5c3.3 0 5.1 3.4 3.7 6.4C19 15.6 12 20 12 20z')+'<span><b>Favorites</b><small>'+(favCount()?'Your go-to recipes':'Tap the heart on any recipe')+'</small></span>'+(favCount()?'<span class="qn">'+favCount()+'</span>':'')+'</button></div>'+
     (again.length?'<h3 class="rh">Brew again</h3><div class="again">'+again.map(i=>'<button type="button" data-again="'+i+'"><b>'+esc(RECIPES[i].name)+'</b><small>'+esc(BREWERS[RECIPES[i].b].name)+'</small></button>').join('')+'</div>':'')+
     '<h3 class="rh">By brewer</h3><div class="bshelf">'+RBREWERS().map(k=>{const B=BREWERS[k],n=RECIPES.filter(r=>RFAM(r.b)===k).length;
@@ -2507,7 +2507,8 @@ const ICO={wheel:'M21 12a9 9 0 1 1-18 0a9 9 0 1 1 18 0z M12 3v9l7.8 4.5 M12 12l-
   file:'M6 3h8l4 4v14H6z M14 3v4h4 M9 13h6 M9 17h4',share:'M12 15V3 M7 8l5-5 5 5 M5 12v8h14v-8',copy:'M9 9h11v11H9z M5 15H4V4h11v1',text:'M6 3h8l4 4v14H6z M14 3v4h4 M9 12h6 M12 12v6'};
 // True inside the Android app or when the site is already installed to the home screen.
 const installed=()=>!!window.Capacitor||MQ('(display-mode: standalone)')||navigator.standalone===true;
-const ico=(n,bg)=>'<span class="ic" style="background:'+bg+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+ICO[n]+'"/></svg></span>';
+// A tile in the vibe's own accent turns light in the dark vibes, so its icon takes the paper colour instead of white.
+const ico=(n,bg)=>'<span class="ic'+(/var\(--/.test(bg)?' on-accent':'')+'" style="background:'+bg+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+ICO[n]+'"/></svg></span>';
 
 const TABNAMES={explore:'Explore',settings:'Settings',champs:'World championships',words:'Coffee words',wheel:'Flavour wheel',flow:'From seed to cup',dial:'Dial-in',scan:'Scan beans',gear:'Gear and dials',recipes:'Recipes',tech:'Techniques',process:'Processes',map:'Origins map',variety:'Varieties',history:'History',guide:'Guide',log:'Brew log',beans:'Beans'};
 const BNGROUP={explore:'explore',settings:'settings',champs:'explore',words:'explore',wheel:'explore',flow:'explore',dial:'dial',recipes:'recipes',scan:'beans',map:'explore',variety:'explore',history:'explore',process:'explore',tech:'explore',gear:'settings',guide:'settings',log:'settings',beans:'beans'};
