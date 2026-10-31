@@ -2,12 +2,12 @@
 <!-- Made by tools/gen-app-icons.py from src/data/logos.json: edit that, not this. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
     <group android:translateX="27" android:translateY="27" android:scaleX="2.25" android:scaleY="2.25">
-        <path android:fillColor="#00000000" android:strokeColor="#8A5A3B" android:strokeAlpha="1" android:strokeWidth="1.6" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M12 7.4V4.2h7"/>
-        <path android:fillColor="#C9964A" android:fillAlpha="1" android:pathData="M17.700000000000003,5.6a1.9,1.9 0 1,0 3.8,0a1.9,1.9 0 1,0 -3.8,0z"/>
-        <path android:fillColor="#8A5A3B" android:fillAlpha="1" android:pathData="M10.8,4.2a1.2,1.2 0 1,0 2.4,0a1.2,1.2 0 1,0 -2.4,0z"/>
-        <path android:fillColor="#8A5A3B" android:fillAlpha="0.85" android:pathData="M7.2 7.2h9.6v1.8H7.2z"/>
-        <path android:fillColor="#8A5A3B" android:fillAlpha="1" android:pathData="M8 9h8v10.6a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2z"/>
-        <path android:fillColor="#C9964A" android:fillAlpha="1" android:pathData="M8 13.4h8v1.7H8z"/>
-        <path android:fillColor="#8A5A3B" android:fillAlpha="0.7" android:pathData="M9.6 21.6h4.8v1.2H9.6z"/>
+        <path android:fillColor="#00000000" android:strokeColor="#8A5A3B" android:strokeAlpha="1" android:strokeWidth="1.4" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M11 5V3.1l7.6-.9"/>
+        <path android:fillColor="#C9964A" android:fillAlpha="1" android:pathData="M17.599999999999998,2.6a1.8,1.8 0 1,0 3.6,0a1.8,1.8 0 1,0 -3.6,0z"/>
+        <path android:fillColor="#8A5A3B" android:fillAlpha="1" android:pathData="M7.4 5h7.2a.6.6 0 0 1 .6.6v1.8H6.8V5.6a.6.6 0 0 1 .6-.6z"/>
+        <path android:fillColor="#00000000" android:strokeColor="#C9964A" android:strokeAlpha="1" android:strokeWidth="0.5" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M8.4 5.6v1.2M9.6 5.6v1.2M10.8 5.6v1.2M12 5.6v1.2M13.2 5.6v1.2"/>
+        <path android:fillColor="#8A5A3B" android:fillAlpha="1" android:pathData="M7.6 7.8h6.8v9.4H7.6z"/>
+        <path android:fillColor="#00000000" android:strokeColor="#C9964A" android:strokeAlpha="0.9" android:strokeWidth="0.7" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M7.6 9.9h6.8M7.6 11.3h6.8M7.6 12.7h6.8M7.6 14.1h6.8"/>
+        <path android:fillColor="#8A5A3B" android:fillAlpha="0.8" android:pathData="M7.6 17.7h6.8v2.6a1.6 1.6 0 0 1-1.6 1.6H9.2a1.6 1.6 0 0 1-1.6-1.6z"/>
     </group>
 </vector>

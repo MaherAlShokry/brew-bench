@@ -245,7 +245,7 @@ dialog#vd::backdrop{background:rgba(20,14,10,.55)}
 .timeline .when{font-family:var(--display);font-weight:800;color:var(--cherry);font-size:.95rem}
 .timeline h3{margin:.1rem 0 .2rem}
 .timeline p{margin:0}
-.js-anim .chtl li{opacity:1;transform:none}
+.js-anim .timeline.chtl li{opacity:1;transform:none}
 .chtl li{padding-bottom:22px}
 .chrow{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));margin-top:8px}.chrow>*{min-width:0}
 .chwin{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md,16px);padding:12px 14px;box-shadow:var(--e1)}
@@ -3515,19 +3515,22 @@ const LOGO_DATA={
   {"d": "M7.4 10.6h9.2v1.5H7.4z", "fill": "cherry", "op": 0.7},
   {"d": "M6.7 12.1h10.6l-1.7 9.4H8.4z", "fill": "cherry"}]},
  "kettle": {"name": "Gooseneck", "parts": [
-  {"d": "M9.4 7.2h1.4v1.6H9.4z", "fill": "honey"},
-  {"d": "M6.8 8.8h6.6l1.1 2.2H5.7z", "fill": "honey"},
-  {"d": "M15.7 18c2.8.2 3.2-3.5 3.6-6.2.3-1.9.9-3.3 2.6-4.3", "stroke": "cherry", "w": 1.7},
-  {"d": "M4.5 12.4c-2.1.3-2.6 3.8-.3 4.6", "stroke": "cherry", "w": 1.7},
-  {"d": "M4.5 11h11.2v6.8a3.2 3.2 0 0 1-3.2 3.2H7.7a3.2 3.2 0 0 1-3.2-3.2z", "fill": "cherry"}]},
+  {"d": "M3.6 20.2h12.8a.9.9 0 0 1 0 1.8H3.6a.9.9 0 0 1 0-1.8z", "fill": "cherry", "op": 0.7},
+  {"d": "M15.2 17.6c2.3-.1 3-1.7 3.4-4.7.3-2.2.9-3.5 3.1-3.7", "stroke": "cherry", "w": 1.25},
+  {"d": "M21.7 9.2c.5.1.9.5 1 1.1", "stroke": "cherry", "w": 1.25},
+  {"d": "M5.4 10.6H2.9l.9 6.6h1.6", "stroke": "cherry", "w": 1.7},
+  {"d": "M5.2 9.8h10v8.4a1.6 1.6 0 0 1-1.6 1.6H6.8a1.6 1.6 0 0 1-1.6-1.6z", "fill": "cherry"},
+  {"d": "M4.8 8.4h10.8a.5.5 0 0 1 .5.5v.9H4.3v-.9a.5.5 0 0 1 .5-.5z", "fill": "honey"},
+  {"d": "M9.4 6.4h1.6v2H9.4z", "fill": "cherry"},
+  {"c": [10.2, 6.2, 1.1], "fill": "cherry"}]},
  "grinder": {"name": "Hand grinder", "parts": [
-  {"d": "M12 7.4V4.2h7", "stroke": "cherry", "w": 1.6},
-  {"c": [19.6, 5.6, 1.9], "fill": "honey"},
-  {"c": [12, 4.2, 1.2], "fill": "cherry"},
-  {"d": "M7.2 7.2h9.6v1.8H7.2z", "fill": "cherry", "op": 0.85},
-  {"d": "M8 9h8v10.6a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2z", "fill": "cherry"},
-  {"d": "M8 13.4h8v1.7H8z", "fill": "honey"},
-  {"d": "M9.6 21.6h4.8v1.2H9.6z", "fill": "cherry", "op": 0.7}]}
+  {"d": "M11 5V3.1l7.6-.9", "stroke": "cherry", "w": 1.4},
+  {"c": [19.4, 2.6, 1.8], "fill": "honey"},
+  {"d": "M7.4 5h7.2a.6.6 0 0 1 .6.6v1.8H6.8V5.6a.6.6 0 0 1 .6-.6z", "fill": "cherry"},
+  {"d": "M8.4 5.6v1.2M9.6 5.6v1.2M10.8 5.6v1.2M12 5.6v1.2M13.2 5.6v1.2", "stroke": "honey", "w": 0.5},
+  {"d": "M7.6 7.8h6.8v9.4H7.6z", "fill": "cherry"},
+  {"d": "M7.6 9.9h6.8M7.6 11.3h6.8M7.6 12.7h6.8M7.6 14.1h6.8", "stroke": "honey", "w": 0.7, "op": 0.9},
+  {"d": "M7.6 17.7h6.8v2.6a1.6 1.6 0 0 1-1.6 1.6H9.2a1.6 1.6 0 0 1-1.6-1.6z", "fill": "cherry", "op": 0.8}]}
 }
 ;
 /* ================= FLAVOUR WHEEL ================= */
@@ -4032,6 +4035,8 @@ for(const g in BASE)for(const k in BASE[g])if(!BREWERS[k]||BASE[g][k]!==null&&!N
   kultra:{v60:72,neo:69,origami:71,kono:71,melitta:72,chemex:84,kalita:64,orea:68,april:70,pulsar:88,tricolate:58,sw:76,swneo:73,swi:86,clever:80,aeropress:62,frenchpress:102,siphon:66,espresso:36,moka:46,phin:52,cezve:10,dallah:78,cold:106,batch:76}};
   let ch=false;for(const g in OLD){const B=BASE[g];if(!B)continue;const ks=Object.keys(B);if(ks.length>=10&&ks.filter(k=>B[k]===OLD[g][k]||B[k]==null).length>=ks.length*0.7){for(const k of ks)if(B[k]===OLD[g][k]||B[k]==null)delete B[k];ch=true}}
   if(ch)save('bb-base3',BASE)}
+// Once, on every device: back to the app's own calibration (asked for in October 2026). Your later changes stay.
+try{if(!localStorage.getItem('bb-calreset1')){BASE={};save('bb-base3',BASE);localStorage.setItem('bb-calreset1','1')}}catch(e){}
 // Calibrating a brewer on one grinder says how fine you like that brewer, so your other grinders follow it on that
 // brewer (the same grind size; averaged if you calibrated it on several). Cached; cleared when BASE changes.
 let BOFF={};
@@ -6408,7 +6413,7 @@ function applyUI(){const d=document.documentElement;d.setAttribute('data-accent'
 function saveUI(){save('bb-ui',UI);applyUI()}
 /* Your data: everything the app saves on this device, in one file you can keep or move to another phone. */
 // Sign-in tokens never go into a backup file.
-const DATA_SKIP=['bb-reset','bb-pending','bb-account','bb-fbcfg','bb-syncshadow','bb-syncat','bb-syncdb','bb-bio','bb-bio-no','bb-upd'];
+const DATA_SKIP=['bb-calreset1','bb-reset','bb-pending','bb-account','bb-fbcfg','bb-syncshadow','bb-syncat','bb-syncdb','bb-bio','bb-bio-no','bb-upd'];
 function dataKeys(){const k=[];try{for(let i=0;i<localStorage.length;i++){const n=localStorage.key(i);if(n&&n.startsWith('bb-')&&!DATA_SKIP.includes(n))k.push(n)}}catch(e){}return k.sort()}
 function dataSummary(){const n=k=>{let v=null;try{v=JSON.parse(localStorage.getItem(k)||'null')}catch(e){}return Array.isArray(v)?v.length:v&&typeof v==='object'?Object.keys(v).length:0};
   return [[n('bb-myrecipes'),'recipe'],[n('bb-log'),'brew'],[n('bb-beans'),'gallery coffee'],[n('bb-scans'),'scan'],[n('bb-favs'),'favourite']].filter(x=>x[0]).map(([c,w])=>c+' '+w+(c===1?'':'s')).join(', ')||'Nothing saved yet besides your settings'}
