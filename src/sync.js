@@ -86,7 +86,8 @@ function syncForget(){SHADOW=null;SYNC_AT=0;try{localStorage.removeItem('bb-sync
 async function syncWipe(tok){const uid=encodeURIComponent(ACCT.uid),q='.json?auth='+encodeURIComponent(tok);
   for(const p of ['/users/'+uid,'/userimg/'+uid])try{await fetch(syncBase()+p+q,{method:'DELETE'})}catch(e){}syncForget()}
 // When to sync: on opening, on coming back to the app, when back online, and when a sheet that held it up closes.
-if(syncOn())setTimeout(syncNow,900);
+// The first one waits until the app has settled (after the opening scene and the first page), in an idle moment.
+if(syncOn())setTimeout(()=>(window.requestIdleCallback||setTimeout)(()=>syncNow(),{timeout:1500}),2400);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&syncOn()&&Date.now()-SYNC_AT>20000)syncNow()});
 addEventListener('online',()=>syncSoon());
 document.addEventListener('close',()=>{if(SYNC_WAIT){SYNC_WAIT=false;setTimeout(syncNow,500)}},true);

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>try{var t=localStorage.getItem("bb-theme"),d=document.documentElement;if(t)d.setAttribute("data-theme",t);var u=JSON.parse(localStorage.getItem("bb-ui")||"{}");if(u&&typeof u==="object"){if(u.accent)d.setAttribute("data-accent",u.accent);if(u.vibe)d.setAttribute("data-vibe",u.vibe);if(u.text)d.setAttribute("data-text",u.text);if(u.motion)d.setAttribute("data-motion",u.motion)}}catch(e){}</script>
+<script>try{var t=localStorage.getItem("bb-theme"),d=document.documentElement;if(window.Capacitor)d.classList.add("app");if(t)d.setAttribute("data-theme",t);var u=JSON.parse(localStorage.getItem("bb-ui")||"{}");if(u&&typeof u==="object"){if(u.accent)d.setAttribute("data-accent",u.accent);if(u.vibe)d.setAttribute("data-vibe",u.vibe);if(u.text)d.setAttribute("data-text",u.text);if(u.motion)d.setAttribute("data-motion",u.motion)}}catch(e){}</script>
 <meta name="theme-color" content="#FBF7F0" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1F1814" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -664,6 +664,16 @@ input[type=range]{touch-action:pan-y}
 /* Recipe editor and your recipes */
 .recform input:not([type=range]),.recform select,.recform textarea{width:100%}
 .recform .three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.recform .three input{min-width:0}
+/* ================= THE ANDROID APP ================= */
+/* Android's WebView redraws frosted glass (backdrop-filter) on every frame anything scrolls or moves beneath it, and
+   blend modes force extra passes: smooth in Chrome, the lag you feel in the app. In the app the glass is solid. */
+html.app{--nav-bg:color-mix(in srgb,var(--surface) 97%,transparent);--glass:color-mix(in srgb,var(--surface) 96%,transparent)}
+html.app .appbar,html.app .bottomnav,html.app .minires,html.app nav.tabs,html.app nav.tabs .wrap,html.app #toast,html.app .themebtn,html.app .bglass,html.app dialog::backdrop{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+html.app .appbar{background:color-mix(in srgb,var(--paper) 97%,transparent)}html.app #toast{background:color-mix(in srgb,var(--ink) 96%,transparent)}html.app .bglass{background:rgba(30,18,11,.78)}
+html.app .bg-hero::after,html.app .me-hero::after,html.app .pp-st img{mix-blend-mode:normal}
+/* The kettle's pour and the steam on the Dial-in drawing, and the steam over the profile, play a few times and rest,
+   rather than redrawing for as long as they're on screen. */
+html.app .hero-art .stream{animation-iteration-count:4}html.app .hero-art .steam,html.app .me-steam path{animation-iteration-count:2}html.app .bg-hero::after,html.app .me-hero::after{opacity:.06}
 /* ================= OPENING SCENE ================= */
 #splash{display:none}
 .splashing #splash{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;overflow:hidden;background:var(--paper);color:var(--ink);touch-action:none}
@@ -1747,6 +1757,8 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 <script>try{var m=JSON.parse(localStorage.getItem("bb-ui")||"{}").motion,app=window.Capacitor||matchMedia("(display-mode: standalone)").matches||navigator.standalone,
   // In a browser tab: once per visit (not on every reload). Automated test browsers skip it unless a test asks for it.
   tab=!sessionStorage.getItem("bb-splashed")&&(!navigator.webdriver||localStorage.getItem("bb-splash-test"));
+  // Not when sync has just reloaded the page to bring in another device's changes: that should be quiet.
+  if(Date.now()-(+sessionStorage.getItem("bb-syncreload")||0)<10000)app=tab=false;
   if((app||tab)&&m!=="reduced"&&!matchMedia("(prefers-reduced-motion: reduce)").matches){document.documentElement.classList.add("splashing");if(!app)sessionStorage.setItem("bb-splashed","1")}}catch(e){}</script>
 <div id="splash" aria-hidden="true">
   <div class="sp-glow"></div>
