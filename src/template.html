@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>try{var t=localStorage.getItem("bb-theme"),d=document.documentElement;if(t)d.setAttribute("data-theme",t);var u=JSON.parse(localStorage.getItem("bb-ui")||"{}");if(u&&typeof u==="object"){if(u.accent)d.setAttribute("data-accent",u.accent);if(u.vibe)d.setAttribute("data-vibe",u.vibe);if(u.text)d.setAttribute("data-text",u.text);if(u.motion)d.setAttribute("data-motion",u.motion)}}catch(e){}</script>
+<script>try{var t=localStorage.getItem("bb-theme"),d=document.documentElement;if(window.Capacitor)d.classList.add("app");if(t)d.setAttribute("data-theme",t);var u=JSON.parse(localStorage.getItem("bb-ui")||"{}");if(u&&typeof u==="object"){if(u.accent)d.setAttribute("data-accent",u.accent);if(u.vibe)d.setAttribute("data-vibe",u.vibe);if(u.text)d.setAttribute("data-text",u.text);if(u.motion)d.setAttribute("data-motion",u.motion)}}catch(e){}</script>
 <meta name="theme-color" content="#FBF7F0" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1F1814" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -664,6 +664,74 @@ input[type=range]{touch-action:pan-y}
 /* Recipe editor and your recipes */
 .recform input:not([type=range]),.recform select,.recform textarea{width:100%}
 .recform .three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.recform .three input{min-width:0}
+/* ================= THE ANDROID APP ================= */
+/* Android's WebView redraws frosted glass (backdrop-filter) on every frame anything scrolls or moves beneath it, and
+   blend modes force extra passes: smooth in Chrome, the lag you feel in the app. In the app the glass is solid. */
+html.app{--nav-bg:color-mix(in srgb,var(--surface) 97%,transparent);--glass:color-mix(in srgb,var(--surface) 96%,transparent)}
+html.app .appbar,html.app .bottomnav,html.app .minires,html.app nav.tabs,html.app nav.tabs .wrap,html.app #toast,html.app .themebtn,html.app .bglass,html.app dialog::backdrop{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+html.app .appbar{background:color-mix(in srgb,var(--paper) 97%,transparent)}html.app #toast{background:color-mix(in srgb,var(--ink) 96%,transparent)}html.app .bglass{background:rgba(30,18,11,.78)}
+html.app .bg-hero::after,html.app .me-hero::after,html.app .pp-st img{mix-blend-mode:normal}
+/* The kettle's pour and the steam on the Dial-in drawing, and the steam over the profile, play a few times and rest,
+   rather than redrawing for as long as they're on screen. */
+html.app .hero-art .stream{animation-iteration-count:4}html.app .hero-art .steam,html.app .me-steam path{animation-iteration-count:2}html.app .bg-hero::after,html.app .me-hero::after{opacity:.06}
+/* ================= OPENING SCENE ================= */
+#splash{display:none}
+.splashing #splash{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;overflow:hidden;background:var(--paper);color:var(--ink);touch-action:none}
+.splashing body{overflow:hidden}
+.splashing #splash{animation:sp-bail .42s 4s ease-in forwards}@keyframes sp-bail{to{opacity:0;visibility:hidden}}
+.splashing #splash.out{animation:sp-out .42s cubic-bezier(.5,0,.75,0) both;pointer-events:none}
+#splash.out{animation:sp-out .42s cubic-bezier(.5,0,.75,0) both}
+@keyframes sp-out{to{opacity:0;transform:scale(1.06)}}
+.sp-glow{position:absolute;inset:-20%;background:radial-gradient(42% 32% at 50% 44%,color-mix(in srgb,var(--honey) 30%,transparent),transparent 70%);animation:sp-glow 1.8s ease-out both}
+@keyframes sp-glow{from{opacity:0;transform:scale(.7)}}
+.sp-beans{position:absolute;inset:0;width:100%;height:100%;opacity:.16}
+.spb{transform:translate(var(--x),var(--y)) rotate(var(--r));animation:sp-bean 1.9s cubic-bezier(.2,.8,.3,1) var(--d) both}
+@keyframes sp-bean{from{transform:translate(var(--x),calc(var(--y) + 70px)) rotate(calc(var(--r) - 50deg)) scale(.4);opacity:0}}
+.sp-stage{position:relative;display:flex;flex-direction:column;align-items:center;margin-top:-6vh}
+.sp-art{width:min(52vw,230px);height:auto;overflow:visible}
+.sp-shadow{fill:var(--ink);opacity:.08;transform-box:fill-box;transform-origin:center;animation:sp-shadow .5s .15s ease-out both}
+@keyframes sp-shadow{from{transform:scaleX(.3);opacity:0}}
+.sp-cup{transform-box:fill-box;transform-origin:50% 100%;animation:sp-cup .55s cubic-bezier(.3,1.5,.5,1) both}
+@keyframes sp-cup{from{transform:translateY(40px) scale(.8);opacity:0}}
+.sp-v60{animation:sp-v60 .6s .12s cubic-bezier(.3,1.4,.5,1) both,sp-lift .5s 1.2s cubic-bezier(.5,0,.7,.4) forwards}
+@keyframes sp-v60{from{transform:translateY(-70px);opacity:0}}@keyframes sp-lift{to{transform:translateY(-60px);opacity:0}}
+.sp-fill{animation:sp-fill .85s .5s cubic-bezier(.4,0,.2,1) both}
+@keyframes sp-fill{from{transform:translateY(78px)}}
+.sp-drops circle{animation:sp-drop .34s linear infinite both;opacity:0}
+.sp-drops circle:nth-child(1){animation-delay:.6s}.sp-drops circle:nth-child(2){animation-delay:.72s}.sp-drops circle:nth-child(3){animation-delay:.84s}
+@keyframes sp-drop{0%{transform:translateY(100px);opacity:1}100%{transform:translateY(150px);opacity:1}}
+.sp-drops{animation:sp-dropsoff .15s 1.15s both}@keyframes sp-dropsoff{to{opacity:0}}
+.sp-steam path{stroke-dasharray:1;stroke-dashoffset:1;opacity:.85;animation:sp-steam .9s ease-out both}
+.sp-steam path:nth-child(1){animation-delay:1.35s}.sp-steam path:nth-child(2){animation-delay:1.25s}.sp-steam path:nth-child(3){animation-delay:1.45s}
+@keyframes sp-steam{to{stroke-dashoffset:0;transform:translateY(-8px)}}
+.sp-logo{width:min(58vw,240px);height:auto;overflow:visible}
+.sp-logo .lp{transform-box:fill-box;transform-origin:50% 70%;animation:lp-in .55s cubic-bezier(.3,1.5,.5,1) calc(.1s + var(--i)*.07s) both}
+.sp-logo .lpd{stroke-dasharray:1;animation:lp-draw .7s ease-out calc(.15s + var(--i)*.07s) both}
+@keyframes lp-in{from{opacity:0;transform:translateY(2px) scale(.4)}}@keyframes lp-draw{from{stroke-dashoffset:1;opacity:0}to{stroke-dashoffset:0}}
+.sp-logo .spin{transform-origin:12px 12px;animation:sp-spin .8s cubic-bezier(.2,1.25,.4,1) .1s both}@keyframes sp-spin{from{transform:translateY(-14px) rotate(-200deg) scale(.4);opacity:0}}
+.sp-logo .green{animation:sp-gone .7s .75s ease-in-out forwards}
+.sp-logo .seam{stroke-dasharray:1;animation:lp-draw .5s 1.1s ease-out both}
+.sp-logo .spark{opacity:0;animation:sp-spark .5s 1.15s ease-out both}@keyframes sp-spark{0%{opacity:0}30%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy))}}
+.sp-logo .drop-in{opacity:0;animation:sp-dropin .35s var(--d) ease-in both}@keyframes sp-dropin{0%{opacity:0;transform:translateY(0)}15%{opacity:1}100%{opacity:0;transform:translateY(5.5px)}}
+.sp-logo .grounds{transform:translateY(7px);animation:sp-ground 1s .95s ease-out forwards}@keyframes sp-ground{to{transform:translateY(1.4px)}}
+.sp-logo .tilt{transform-origin:12px 19.5px;animation:sp-tilt 1.5s .55s cubic-bezier(.45,0,.3,1) both}@keyframes sp-tilt{0%,100%{transform:none}25%,72%{transform:rotate(-18deg)}}
+.sp-logo .svfill{transform:translateY(5.6px);animation:sp-svfill 1s 1.1s ease-out forwards}@keyframes sp-svfill{to{transform:translateY(2.6px)}}
+.sp-logo .vdrip{opacity:0;animation:sp-vdrip .3s var(--d) ease-in 3}@keyframes sp-vdrip{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(3px)}}
+.sp-logo .pour{stroke-dasharray:1;stroke-dashoffset:1;animation:sp-stream .3s .95s ease-in forwards,sp-gone .2s 1.55s forwards}
+.sp-logo .flame{transform-box:fill-box;transform-origin:50% 100%;animation:lp-in .3s .25s both,sp-flick .16s var(--d) ease-in-out infinite alternate}@keyframes sp-flick{to{transform:scaleY(.8) scaleX(1.08)}}
+.sp-logo .bloom{transform-origin:11.2px 12px;animation:sp-bloom .7s .8s cubic-bezier(.3,1.5,.5,1) both}@keyframes sp-bloom{from{transform:scale(.1);opacity:0}}
+.sp-logo .unripe{animation:sp-gone .8s .8s ease-in-out forwards}
+.sp-logo .sway{transform-origin:8.3px 11px;animation:sp-sway 1.1s .7s ease-in-out infinite alternate}@keyframes sp-sway{to{transform:rotate(-7deg)}}
+.sp-logo .stream{stroke-dasharray:1;stroke-dashoffset:1;animation:sp-stream .45s .35s ease-in forwards,sp-gone .3s 1.05s forwards}
+@keyframes sp-stream{to{stroke-dashoffset:0}}@keyframes sp-gone{to{opacity:0}}
+.sp-logo .puff{opacity:0;transform-box:fill-box;transform-origin:center;animation:sp-puff 1s var(--d) ease-out infinite}
+@keyframes sp-puff{0%{opacity:.85;transform:translate(0,0) scale(.4)}100%{opacity:0;transform:translate(-1.2px,-6px) scale(1.9)}}
+.sp-word{display:flex;flex-direction:column;align-items:center;margin-top:18px;font-family:var(--display);line-height:1.05;overflow:hidden;padding:2px 8px}
+.sp-word span{font-size:.95rem;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:var(--cherry-ink);animation:sp-up .6s .55s cubic-bezier(.2,1,.3,1) both}
+.sp-word b{font-size:clamp(2rem,9vw,2.8rem);font-weight:800;letter-spacing:-.02em;animation:sp-up .7s .65s cubic-bezier(.2,1,.3,1) both}
+@keyframes sp-up{from{transform:translateY(110%);opacity:0}}
+.sp-tag{margin:8px 0 0;font-size:.95rem;color:var(--muted);animation:sp-fade .6s 1s ease-out both}
+@keyframes sp-fade{from{opacity:0;transform:translateY(6px)}}
 /* The recipe editor: numbered cards, stepper tiles and a timeline for the steps. */
 .re2{display:flex;flex-direction:column;gap:14px}
 .re-card{background:var(--surface);border:1px solid color-mix(in srgb,var(--line) 80%,transparent);border-radius:20px;padding:14px 14px 4px;box-shadow:0 1px 0 color-mix(in srgb,var(--ink) 4%,transparent)}
@@ -1683,6 +1751,109 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
 <body>
+<!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
+     coffee drips and fills, the dripper lifts off as steam rises, and the name comes up; then it all lifts away.
+     About 2 s; a tap skips it. -->
+<script>try{var m=JSON.parse(localStorage.getItem("bb-ui")||"{}").motion,app=window.Capacitor||matchMedia("(display-mode: standalone)").matches||navigator.standalone,
+  // In a browser tab: once per visit (not on every reload). Automated test browsers skip it unless a test asks for it.
+  tab=!sessionStorage.getItem("bb-splashed")&&(!navigator.webdriver||localStorage.getItem("bb-splash-test"));
+  // Not when sync has just reloaded the page to bring in another device's changes: that should be quiet.
+  if(Date.now()-(+sessionStorage.getItem("bb-syncreload")||0)<10000)app=tab=false;
+  if((app||tab)&&m!=="reduced"&&!matchMedia("(prefers-reduced-motion: reduce)").matches){document.documentElement.classList.add("splashing");if(!app)sessionStorage.setItem("bb-splashed","1")}}catch(e){}</script>
+<div id="splash" aria-hidden="true">
+  <div class="sp-glow"></div>
+  <svg class="sp-beans" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice"><g fill="var(--cherry)">
+    <g class="spb" style="--x:52px;--y:120px;--r:-25deg;--d:0s"><ellipse rx="13" ry="18"/><path d="M-1-15c-6 9 5 17-1 30" stroke="var(--paper)" stroke-width="2.4" fill="none" stroke-linecap="round"/></g>
+    <g class="spb" style="--x:338px;--y:170px;--r:30deg;--d:.12s"><ellipse rx="11" ry="15"/><path d="M-1-12c-5 8 4 14-1 25" stroke="var(--paper)" stroke-width="2.2" fill="none" stroke-linecap="round"/></g>
+    <g class="spb" style="--x:70px;--y:590px;--r:40deg;--d:.2s"><ellipse rx="12" ry="17"/><path d="M-1-14c-6 9 5 16-1 28" stroke="var(--paper)" stroke-width="2.3" fill="none" stroke-linecap="round"/></g>
+    <g class="spb" style="--x:330px;--y:640px;--r:-35deg;--d:.06s"><ellipse rx="14" ry="19"/><path d="M-1-16c-6 10 5 18-1 32" stroke="var(--paper)" stroke-width="2.5" fill="none" stroke-linecap="round"/></g>
+    <g class="spb" style="--x:200px;--y:90px;--r:10deg;--d:.28s"><ellipse rx="8" ry="11"/><path d="M-1-9c-4 6 3 11-1 19" stroke="var(--paper)" stroke-width="1.8" fill="none" stroke-linecap="round"/></g>
+    <g class="spb" style="--x:360px;--y:420px;--r:60deg;--d:.18s"><ellipse rx="9" ry="12"/><path d="M-1-10c-4 7 3 12-1 21" stroke="var(--paper)" stroke-width="1.9" fill="none" stroke-linecap="round"/></g>
+    <g class="spb" style="--x:36px;--y:380px;--r:-60deg;--d:.24s"><ellipse rx="9" ry="12"/><path d="M-1-10c-4 7 3 12-1 21" stroke="var(--paper)" stroke-width="1.9" fill="none" stroke-linecap="round"/></g>
+  </g></svg>
+  <div class="sp-stage">
+    <svg class="sp-art" viewBox="0 0 200 230">
+      <defs><clipPath id="spCup"><path d="M52 132h96l-8 62a18 18 0 0 1-18 16H78a18 18 0 0 1-18-16z"/></clipPath></defs>
+      <ellipse class="sp-shadow" cx="100" cy="216" rx="62" ry="6"/>
+      <g class="sp-steam" fill="none" stroke="var(--honey)" stroke-width="5" stroke-linecap="round">
+        <path pathLength="1" d="M82 118c-10-12 10-20 0-34s8-20 2-30"/><path pathLength="1" d="M104 120c-10-14 12-22 0-38s8-22 2-32"/><path pathLength="1" d="M124 118c-9-12 9-19 0-32"/>
+      </g>
+      <g class="sp-cup">
+        <path d="M148 146h8a16 16 0 0 1 0 32h-12" fill="none" stroke="var(--cherry)" stroke-width="8"/>
+        <path d="M52 132h96l-8 62a18 18 0 0 1-18 16H78a18 18 0 0 1-18-16z" fill="var(--surface)" stroke="var(--cherry)" stroke-width="5" stroke-linejoin="round"/>
+        <g clip-path="url(#spCup)"><g class="sp-fill"><rect x="40" y="136" width="120" height="90" fill="#6B4226"/><rect x="40" y="136" width="120" height="7" fill="#C8955A"/></g></g>
+      </g>
+      <g class="sp-drops" fill="#6B4226"><circle cx="100" cy="0" r="3.4"/><circle cx="100" cy="0" r="3"/><circle cx="100" cy="0" r="3.4"/></g>
+      <g class="sp-v60">
+        <path d="M44 34h112l-36 58H80z" fill="var(--cherry)"/>
+        <path d="M66 42l22 44M100 42v44M134 42l-22 44" stroke="var(--paper)" stroke-width="3" stroke-linecap="round" opacity=".45"/>
+        <path d="M36 28h128v8H36z" fill="var(--honey)"/><path d="M88 92h24v8H88z" fill="var(--cherry)"/>
+        <path d="M156 40h10a8 8 0 0 1 0 16h-15" fill="none" stroke="var(--cherry)" stroke-width="6"/>
+      </g>
+    </svg>
+    <div class="sp-word"><span>The</span><b>Brew Bench</b></div>
+    <p class="sp-tag">Dial in. Brew well.</p>
+  </div>
+</div>
+<script>(function(){var h=document.documentElement,s=document.getElementById("splash");if(!h.classList.contains("splashing")){s.remove();return}
+  // Whatever the scene does, it always leaves: on a timer, on a tap, and (in CSS) after 4 s even if this script fails.
+  var done=false,end=function(){if(done)return;done=true;s.classList.add("out");setTimeout(function(){s.remove();h.classList.remove("splashing")},420)};
+  s.addEventListener("pointerdown",function(e){e.preventDefault();end()});setTimeout(end,2100);
+  try{(function(){
+  // The scene follows the chosen logo: the V60 pour for the dripper; for the others the logo builds itself piece by
+  // piece, then does what it does (the grinder's crank turns, the kettle pours, the moka puffs...).
+  var L=__SPLASH_LOGOS__,k="bean";try{k=JSON.parse(localStorage.getItem("bb-ui")||"{}").logo||"bean"}catch(e){}if(typeof k!=="string"||k!=="bean"&&!Object.prototype.hasOwnProperty.call(L,k))k="bean";
+  var TAG={bean:"Every bean has a story.",cup:"Pull a perfect shot.",latte:"Pour a little art.",dripper:"Dial in. Brew well.",cherry:"From cherry to cup.",moka:"Stovetop, done right.",kettle:"Pour with care.",grinder:"Grind fresh. Brew well."};
+  s.querySelector(".sp-tag").textContent=TAG[k];
+  // The drifting shapes behind: beans, drops, leaves or bubbles.
+  var G={drop:'<path d="M0-15c7 9 10 13 10 17a10 10 0 0 1-20 0c0-4 3-8 10-17z"/>',leaf:'<path d="M-13 0C-6-11 6-11 13 0 6 11-6 11-13 0z"/>',dot:'<circle r="11"/>'}[{kettle:"drop",dripper:"drop",cherry:"leaf",latte:"dot"}[k]];
+  if(G)s.querySelectorAll(".spb").forEach(function(b){b.innerHTML=G});if(k==="cherry")s.querySelector(".sp-beans g").setAttribute("fill","var(--leaf)");
+  if(k==="dripper")return;
+  var paint=function(p,c){c=c||"var(--"+(p.fill||p.stroke)+")";var o=p.op!=null?' opacity="'+p.op+'"':"";return p.fill?'fill="'+c+'"'+o:'fill="none" stroke="'+c+'" stroke-width="'+p.w+'" stroke-linecap="round" stroke-linejoin="round" pathLength="1"'+o},
+    shape=function(p,a){return p.c?'<circle cx="'+p.c[0]+'" cy="'+p.c[1]+'" r="'+p.c[2]+'"'+a+"/>":'<path d="'+p.d+'"'+a+"/>"},
+    part=function(p,i){return shape(p,' class="lp'+(p.stroke?" lpd":"")+'" style="--i:'+i+'" '+paint(p))},
+    P=k==="bean"?[]:L[k].parts,parts=P.map(part),body="",x="",vb="-2 -3 28 28",run=null;
+  if(k==="bean"){
+    // A green bean tumbles in and roasts brown; at first crack, little sparks fly off.
+    var bean=function(id,a,b,seam){return '<svg x="0" y="0" width="24" height="24" viewBox="80 80 352 352" overflow="visible"><g transform="rotate(-38 256 256)"><clipPath id="'+id+'"><ellipse cx="256" cy="256" rx="120" ry="166"/></clipPath><g clip-path="url(#'+id+')"><rect x="100" y="80" width="320" height="360" fill="'+a+'"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184H440V80z" fill="'+b+'"/><path'+(seam?' class="seam"':"")+' d="M262 80c-50 50 50 126 0 176s50 126 0 184" fill="none" stroke="var(--paper)" stroke-width="22" pathLength="1"/></g></g></svg>'};
+    body='<g class="spin">'+bean("spBean","var(--cherry)","var(--honey)",1)+'<g class="green">'+bean("spBeanG","#7FA05A","#A8C27A")+"</g></g>";
+    for(var i=0;i<8;i++){var a=i/8*6.283+.4,c=Math.cos(a),n=Math.sin(a);x+='<path class="spark" style="--dx:'+(c*4).toFixed(1)+'px;--dy:'+(n*4).toFixed(1)+'px" d="M'+(12+c*9).toFixed(1)+" "+(12+n*9).toFixed(1)+"l"+(c*2.2).toFixed(1)+" "+(n*2.2).toFixed(1)+'" stroke="var(--honey)" stroke-width=".9" stroke-linecap="round"/>'}}
+  else if(k==="grinder"){
+    // Beans drop in at the top, the crank goes round (behind the body and back in front), the catch cup fills.
+    var front=parts.slice(5,13).join("");body='<g class="crk lp" style="--i:7"></g>'+front+'<g class="cup">'+parts[13]+'<clipPath id="spGr"><path d="'+P[13].d+'"/></clipPath><g clip-path="url(#spGr)"><rect class="grounds" x="5" y="15.9" width="7" height="7" fill="var(--honey)" opacity=".75"/></g></g><g class="crk2 lp" style="--i:7"></g>';
+    for(var j=0;j<3;j++)x+='<ellipse class="drop-in" style="--d:'+(.55+j*.12).toFixed(2)+'s" cx="'+(7.6+j*.9).toFixed(1)+'" cy="-3" rx=".6" ry=".85" fill="var(--cherry)"/>';
+    run=function(svg){var b=svg.querySelector(".crk"),f=svg.querySelector(".crk2"),hx=8.55,R=10,t0=performance.now()+850,
+      draw=function(now){if(!svg.isConnected)return;var u=Math.max(0,Math.min(1,(now-t0)/1050)),e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2,a=e*Math.PI*2*2,c=Math.cos(a),z=Math.sin(a),
+        ax=hx+R*c,kx=hx+(R-3.3)*c,r=2.4*(1+.12*z),g='<path d="M'+hx+' 2.9H'+ax.toFixed(2)+'V11.6" fill="none" stroke="var(--cherry)" stroke-width="1" stroke-linejoin="round"/><path d="M'+ax.toFixed(2)+' 11.6v1.3" stroke="var(--cherry)" stroke-width="1.6"/><path d="M'+ax.toFixed(2)+" 12.2L"+(kx+1.6*Math.sign(c||1)).toFixed(2)+' 12.6v1.4L'+ax.toFixed(2)+' 14.4z" fill="var(--honey)"/><circle cx="'+kx.toFixed(2)+'" cy="13.3" r="'+r.toFixed(2)+'" fill="var(--honey)"/>';
+        (z<-.05?b:f).innerHTML=g;(z<-.05?f:b).innerHTML="";if(u<1)requestAnimationFrame(draw)};draw(t0)}}
+  else if(k==="kettle"){
+    // The kettle tips forward and pours over a V60 on its server: the stream fills the cone, coffee drips through
+    // and the server fills.
+    vb="-10 -3 36 28";body=parts[0]+'<g class="tilt">'+parts.slice(1).join("")+"</g>";
+    x='<g class="lp" style="--i:1"><clipPath id="spSv"><path d="M-7.3 17h7.4l-.5 4.7a1.4 1.4 0 0 1-1.4 1.2H-6.4a1.4 1.4 0 0 1-1.4-1.2z"/></clipPath>'+
+      '<path d="M-7.3 17h7.4l-.5 4.7a1.4 1.4 0 0 1-1.4 1.2H-6.4a1.4 1.4 0 0 1-1.4-1.2z" fill="var(--surface)" stroke="var(--cherry)" stroke-width=".5" stroke-linejoin="round"/>'+
+      '<g clip-path="url(#spSv)"><rect class="svfill" x="-8" y="17" width="9" height="6" fill="#6B4226"/></g>'+
+      '<path d="M.1 18h.8a1.3 1.3 0 0 1 0 2.6H-.2" fill="none" stroke="var(--cherry)" stroke-width=".6"/></g>'+
+      '<g class="lp" style="--i:2"><path d="M-8.2 11.6h8.8l-3.2 4.4h-2.4z" fill="var(--cherry)"/><path d="M-6.5 12.4l1.5 2.8M-3.8 12.3v2.9M-1.1 12.4l-1.5 2.8" stroke="var(--paper)" stroke-width=".4" stroke-linecap="round" opacity=".5"/>'+
+      '<path d="M-8.7 11.1h9.8v.6h-9.8z" fill="var(--honey)"/><path d="M-4.6 16h1.6v.9h-1.6z" fill="var(--cherry)"/></g>'+
+      '<path class="pour" d="M-3.6 9.6C-3.8 10.3-3.8 11-3.8 11.8" stroke="var(--honey)" stroke-width=".55" stroke-linecap="round" fill="none" pathLength="1"/>';
+    for(var m=0;m<3;m++)x+='<circle class="vdrip" cx="-3.8" cy="17.2" r=".32" fill="#6B4226" style="--d:'+(1.05+m*.16).toFixed(2)+'s"/>';
+    for(var m3=0;m3<3;m3++)x+='<circle class="puff late" cx="'+(-4.6+m3*.7).toFixed(1)+'" cy="10.6" r=".7" fill="var(--honey)" style="--d:'+(1.6+m3*.2).toFixed(2)+'s"/>'}
+  else if(k==="moka"){
+    // On the flame: it heats, then the coffee comes up and steam puffs from the spout.
+    body=parts.join("");for(var f=0;f<3;f++)x+='<path class="flame" style="--d:'+(f*.09).toFixed(2)+'s" d="M'+(9.6+f*2.4)+' 24.6c-1-.9-1.1-2.1 0-3.4.4 1 .9 1.3 1.1 2 .2-.6.1-1.1-.1-1.7 1 .9 1.1 2.2.2 3.1z" fill="'+(f===1?"var(--honey)":"#E07A3A")+'"/>';
+    for(var m2=0;m2<4;m2++)x+='<circle class="puff late" cx="18.6" cy="4.4" r="1" fill="var(--honey)" style="--d:'+(1.05+m2*.2).toFixed(2)+'s"/>'}
+  else if(k==="latte"){
+    // Milk pours into the middle and the heart blooms where it lands.
+    body=parts.slice(0,3).join("")+'<g class="bloom">'+parts.slice(3).join("")+"</g>";x='<path class="stream" d="M11.2-6V10" stroke="var(--paper)" stroke-width="1.3" stroke-linecap="round" pathLength="1" fill="none"/>'}
+  else if(k==="cherry"){
+    // The cherries ripen from green to red on a swaying stem.
+    body='<g class="sway">'+parts.slice(0,2).join("")+"</g>"+parts.slice(2).join("")+P.slice(2,4).map(function(p,i){return shape(p,' class="unripe" style="--i:'+(i+2)+'" fill="#8DB05E"')}).join("")}
+  else body=parts.join("");
+  if(k==="cup"){x='<path class="stream" d="M10.4-7V10" stroke="#6B4226" stroke-width=".9" stroke-linecap="round" pathLength="1" fill="none"/>';for(var q=0;q<3;q++)x+='<circle class="puff late" cx="10.4" cy="2.6" r="1" fill="var(--honey)" style="--d:'+(1.1+q*.22).toFixed(2)+'s"/>'}
+  s.querySelector(".sp-art").outerHTML='<svg class="sp-logo k-'+k+'" viewBox="'+vb+'" overflow="visible">'+x+body+"</svg>";
+  if(run)run(s.querySelector(".sp-logo"))
+  })()}catch(e){}})()</script>
 <header class="appbar" id="appbar"><button type="button" class="ab-back" id="ab-back" aria-label="Back" hidden><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="ab-brand"><span id="ab-logo"><svg viewBox="80 80 352 352" width="24" height="24" aria-hidden="true"><g transform="rotate(-38 256 256)"><clipPath id="abBean"><ellipse cx="256" cy="256" rx="120" ry="166"/></clipPath><g clip-path="url(#abBean)"><rect x="100" y="80" width="320" height="360" fill="var(--cherry)"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184H440V80z" fill="var(--honey)"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184" fill="none" stroke="var(--paper)" stroke-width="22"/></g></g></svg></span><span id="ab-title">Dial-in</span></div><button type="button" class="ab-btn" id="ab-share" aria-label="Share">Share</button><button type="button" class="me-btn" id="ab-me" aria-label="Your profile"></button></header>
 <div class="herowrap"><button type="button" class="themebtn" id="themebtn" aria-label="Switch theme">Dark</button>
 <header class="hero wrap">
