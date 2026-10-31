@@ -20,25 +20,37 @@ const SKNAME=k=>{const z=SK.find(x=>x[0]===k);return z?z[2]:'Note'};
 
 // How the water builds: [time, grams on the scale] at the start and end of each pour. Pours take about 10 s, or run
 // to the next step when that comes sooner. Null when the steps don't say how much is poured, or when.
-function pourCurve(steps,water){const ev=parseSteps(steps),pts=[[0,0]];let lvl=0,any=false,end=0;
-  ev.forEach((e,i)=>{if(e.t<0)return;end=Math.max(end,e.t);const p=pourOf(e.s);if(!p)return;const to=p.to||(p.add?lvl+p.add:null);if(to==null||to<=lvl)return;
-    const nx=ev.slice(i+1).find(x=>x.t>e.t),dur=Math.max(4,Math.min(nx?nx.t-e.t:12,Math.max(8,(to-lvl)/5)));
-    pts.push([e.t,lvl],[e.t+dur,to]);lvl=to;any=true;end=Math.max(end,e.t+dur)});
-  if(!any)return null;const last=ev.filter(e=>e.t>=0).pop();if(last)end=Math.max(end,last.t);pts.push([Math.max(end,pts[pts.length-1][0]),lvl]);
-  return{pts,end:Math.max(end,1),top:Math.max(lvl,water||0,1),lvl}}
+// Steps written without a time ("when the bed has drained, pour 60g") get one estimated from the recipe's own pace (its
+// usual gap between timed steps), and one step can hold several pours ("then 60g (to 240g), then 60g (to 300g)").
+// Estimated times are marked, so the chart's clock reads "~3:00".
+function pourCurve(steps,water){const pts=[[0,0]],dots=[];let lvl=0,any=false,t=0,est=false;
+  const own=steps.map(s=>{const m=/^\s*(\d+):(\d\d)/.exec(s)||/(?:^|[\s(])(\d+):(\d\d)(?![\d:])/.exec(s);return m?+m[1]*60+ +m[2]:null}),tt=own.filter(x=>x!=null),
+    gaps=tt.slice(1).map((x,i)=>x-tt[i]).filter(g=>g>0).sort((a,b)=>a-b),gap=gaps.length?gaps[gaps.length>>1]:35;
+  steps.forEach((s,i)=>{const x=String(s).replace(/^\s*\d+:\d\d\s*/,'');
+    // Every pour in the step: "to 240g" targets, or "pour 60g" amounts when there are none.
+    const tos=[...x.matchAll(/(?<!\d\s?)\b(?:to|until)\s+(\d{2,4})\s?g\b/gi)].map(m=>+m[1]),p=pourOf(x),pours=tos.length?tos.map(v=>({to:v})):p?[p]:[];
+    const untimed=own[i]==null&&i>0&&(pours.length||/\b(pour|repeat|add)\b/i.test(x));
+    if(own[i]!=null)t=Math.max(t,own[i]);else if(untimed){t+=gap;est=true}
+    let st=t;dots.push({t:st,g:lvl,k:stepKind(s),e:untimed});
+    pours.forEach((q,n)=>{const to=q.to||(q.add?lvl+q.add:null);if(to==null||to<=lvl)return;if(n){st+=gap;est=own[i]==null||est}
+      const next=own.slice(i+1).find(v=>v!=null&&v>st),dur=Math.max(4,Math.min(next!=null?next-st:12,Math.max(8,(to-lvl)/5),gap*.6));
+      pts.push([st,lvl],[st+dur,to]);lvl=to;any=true;t=Math.max(t,st)});
+    if(pours.length>1&&own[i]==null)t=st});
+  if(!any)return null;const end=Math.max(t,pts[pts.length-1][0]);pts.push([end,lvl]);
+  return{pts,dots,end:Math.max(end,1),top:Math.max(lvl,water||0,1),lvl,est}}
 // The curve as a small chart: the water rising pour by pour, a dot for each step coloured by its kind.
 // Each chart's gradient gets its own id: several can be on screen at once (the dial-in and an open recipe).
 let PGN=0;
 function pourGraph(steps,water,opt){opt=opt||{};const c=pourCurve(steps,water);if(!c)return '';const gid='pgf'+(++PGN);const W=320,H=opt.h||92,px=12,py=12,X=t=>px+t/c.end*(W-2*px),Y=g=>H-py-g/c.top*(H-2*py);
   const line=c.pts.map(([t,g],i)=>(i?'L':'M')+X(t).toFixed(1)+' '+Y(g).toFixed(1)).join(' '),area=line+' L'+X(c.pts[c.pts.length-1][0]).toFixed(1)+' '+(H-py)+' L'+X(0)+' '+(H-py)+'Z';
-  const ev=parseSteps(steps).filter(e=>e.t>=0);let lvl=0;
-  // A step's dot sits where it starts: a pour's at the level it pours from.
-  const dots=ev.map(e=>{const y=lvl,p=pourOf(e.s);if(p){const to=p.to||(p.add?lvl+p.add:lvl);lvl=Math.max(lvl,to)}return '<circle class="pg-d k-'+stepKind(e.s)+'" cx="'+X(e.t).toFixed(1)+'" cy="'+Y(y).toFixed(1)+'" r="4"/>'}).join('');
+  // A step's dot sits where it starts: a pour's at the level it pours from. Steps before the first time (rinse the paper)
+  // aren't on the clock.
+  const dots=c.dots.filter((d,i)=>i||/^\s*\d+:\d\d/.test(steps[0])).map(d=>'<circle class="pg-d k-'+d.k+'" cx="'+X(d.t).toFixed(1)+'" cy="'+Y(d.g).toFixed(1)+'" r="4"/>').join('');
   const goal=water&&Math.abs(c.lvl-water)>2?'<line class="pg-goal" x1="'+px+'" x2="'+(W-px)+'" y1="'+Y(water).toFixed(1)+'" y2="'+Y(water).toFixed(1)+'"/>':'';
   return '<figure class="pgraph"><svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Water over time: '+c.lvl+' g by '+mmss(c.end)+'">'+
     '<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--cherry)" stop-opacity=".32"/><stop offset="1" stop-color="var(--cherry)" stop-opacity="0"/></linearGradient></defs>'+
     goal+'<path class="pg-a" d="'+area+'" fill="url(#'+gid+')"/><path class="pg-l" d="'+line+'"/>'+dots+'</svg>'+
-    '<figcaption><span>0:00</span><b>'+c.lvl+' g</b><span>'+mmss(c.end)+'</span></figcaption></figure>'}
+    '<figcaption><span>0:00</span><b>'+c.lvl+' g</b><span>'+(c.est?'~':'')+mmss(c.end)+'</span></figcaption></figure>'}
 
 // The editor: one row per step on a rail, its time in a pill and what to do beside it, with a button for each kind of
 // move to add the next step. stepEditor(el, steps, {water, dose}) returns {value(), set(opts)}.
