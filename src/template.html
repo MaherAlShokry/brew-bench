@@ -237,7 +237,7 @@ dialog#vd::backdrop{background:rgba(20,14,10,.55)}
 #tree.focus .n,#tree.focus .tnote{opacity:.3;transition:opacity .2s}
 #tree.focus .n.on{opacity:1}
 .tleg i{background:var(--c);width:10px;height:7px;transform:rotate(-35deg)}
-.tleg.dna{font-style:italic;color:var(--cherry-ink)}
+.tleg.dna{font-style:italic;color:var(--cherry-ink);white-space:normal;max-width:100%}
 .timeline{list-style:none;margin:10px 0 0;padding:0 0 0 22px;border-left:2px solid var(--line)}
 .timeline li{position:relative;padding:0 0 18px 14px}
 .timeline li::before{content:"";position:absolute;left:-29px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:3px solid var(--cherry)}
@@ -785,7 +785,7 @@ html.app .hero-art .stream{animation-iteration-count:4}html.app .hero-art .steam
 .sync[data-s="live"]{color:var(--leaf)}.sync[data-s="live"]::before{background:var(--leaf);box-shadow:0 0 0 3px color-mix(in srgb,var(--leaf) 25%,transparent)}
 .sync[data-s="offline"]::before{background:var(--honey)}
 .code{font-family:var(--display);letter-spacing:.08em;font-variant-numeric:tabular-nums}
-.joinrow{display:flex;gap:8px}.joinrow input{flex:1;text-transform:uppercase;letter-spacing:.08em;font-family:var(--display)}.joinrow .btn{flex:0 0 auto}
+.joinrow{display:flex;gap:8px}.joinrow input{flex:1;min-width:0;text-transform:uppercase;letter-spacing:.08em;font-family:var(--display)}.joinrow .btn{flex:0 0 auto}
 .lehead{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.lehead .x{margin-left:auto}
 .stars-sm{color:var(--honey-ink);letter-spacing:1px;font-size:.9rem}.stars-sm span{color:color-mix(in srgb,var(--muted) 82%,var(--surface))}
 /* Open dialogs and sheets lock the page behind them. */
@@ -1749,6 +1749,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .shcard-pv.busy{position:relative}.shcard-pv.busy::after{content:'';position:absolute;inset:0;background:rgba(20,12,7,.45);animation:bfade .2s ease}
 .steps.tl .t.est{background:transparent;border:1px dashed color-mix(in srgb,var(--ink) 30%,transparent);opacity:.85}
 .ic.on-accent svg{stroke:var(--paper)!important}
+.av-note{grid-column:1/-1;margin:0;font-size:.8rem}.getapp a.btn{text-decoration:none;display:flex;justify-content:center;align-items:center;text-align:center}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>

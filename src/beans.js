@@ -603,4 +603,4 @@ function openTop3(y,start){const d=$('vd'),pool=BEANS.filter(b=>beanYear(b)===y)
     saveTop3();d.close();BPOD=y;BVIEW='top3';checkTrophies();renderBeans();toast(any?'Favourites of '+y+' saved':'Favourites of '+y+' cleared')};
   draw();showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
 // The app may have opened on the Beans page before this part loaded.
-window.BEANS_OK=1;checkTrophies();renderDBean();if($('beans').classList.contains('on'))renderBeans();
+window.BEANS_OK=1;checkTrophies();renderDBean();if($('beans').classList.contains('on'))renderBeans();if($('settings').classList.contains('on'))renderSettings();

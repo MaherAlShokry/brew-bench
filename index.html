@@ -238,7 +238,7 @@ dialog#vd::backdrop{background:rgba(20,14,10,.55)}
 #tree.focus .n,#tree.focus .tnote{opacity:.3;transition:opacity .2s}
 #tree.focus .n.on{opacity:1}
 .tleg i{background:var(--c);width:10px;height:7px;transform:rotate(-35deg)}
-.tleg.dna{font-style:italic;color:var(--cherry-ink)}
+.tleg.dna{font-style:italic;color:var(--cherry-ink);white-space:normal;max-width:100%}
 .timeline{list-style:none;margin:10px 0 0;padding:0 0 0 22px;border-left:2px solid var(--line)}
 .timeline li{position:relative;padding:0 0 18px 14px}
 .timeline li::before{content:"";position:absolute;left:-29px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:3px solid var(--cherry)}
@@ -786,7 +786,7 @@ html.app .hero-art .stream{animation-iteration-count:4}html.app .hero-art .steam
 .sync[data-s="live"]{color:var(--leaf)}.sync[data-s="live"]::before{background:var(--leaf);box-shadow:0 0 0 3px color-mix(in srgb,var(--leaf) 25%,transparent)}
 .sync[data-s="offline"]::before{background:var(--honey)}
 .code{font-family:var(--display);letter-spacing:.08em;font-variant-numeric:tabular-nums}
-.joinrow{display:flex;gap:8px}.joinrow input{flex:1;text-transform:uppercase;letter-spacing:.08em;font-family:var(--display)}.joinrow .btn{flex:0 0 auto}
+.joinrow{display:flex;gap:8px}.joinrow input{flex:1;min-width:0;text-transform:uppercase;letter-spacing:.08em;font-family:var(--display)}.joinrow .btn{flex:0 0 auto}
 .lehead{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.lehead .x{margin-left:auto}
 .stars-sm{color:var(--honey-ink);letter-spacing:1px;font-size:.9rem}.stars-sm span{color:color-mix(in srgb,var(--muted) 82%,var(--surface))}
 /* Open dialogs and sheets lock the page behind them. */
@@ -1750,6 +1750,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .shcard-pv.busy{position:relative}.shcard-pv.busy::after{content:'';position:absolute;inset:0;background:rgba(20,12,7,.45);animation:bfade .2s ease}
 .steps.tl .t.est{background:transparent;border:1px dashed color-mix(in srgb,var(--ink) 30%,transparent);opacity:.85}
 .ic.on-accent svg{stroke:var(--paper)!important}
+.av-note{grid-column:1/-1;margin:0;font-size:.8rem}.getapp a.btn{text-decoration:none;display:flex;justify-content:center;align-items:center;text-align:center}
 </style>
 <script>const JSPDF_SRC="vendor/jspdf.umd.min.js"</script>
 <link rel="manifest" href="manifest.webmanifest">
@@ -2832,6 +2833,9 @@ const RECIPES=[
  {b:'v60',kind:'46',name:'Tetsu Kasuya 4:6',by:'Tetsu Kasuya, 2016 World Brewers Cup champion',off:-0.4,temp:92,dose:20,water:300,why:'The most adjustable recipe. The first 40% of the water sets flavour balance, the last 60% sets strength. Coarse grind.',
   steps:['0:00 pour 60g.','0:45 pour 60g (to 120g).','1:30 pour 60g (to 180g).','2:15 pour 60g (to 240g).','3:00 pour 60g (to 300g).','3:30 remove the dripper.'],
   tip:'Sweeter: pour 1 smaller than pour 2 (50/70). Brighter: pour 1 larger (70/50). Stronger: split the last 180g into four pours; lighter: two pours.'},
+ {b:'v60',kind:'pulse',name:'Tetsu Kasuya 10-pour',by:'Tetsu Kasuya, 2016 World Brewers Cup champion',off:-3.2,temp:96,dose:20,water:300,why:'Ten small pours of 30g every 15 seconds, released for the tenth anniversary of his 2016 World Brewers Cup win. A super-coarse grind and very hot water, with the bed draining almost dry before each pour: full extraction without the bitterness of a fine grind.',
+  steps:['0:00 pour 30g at 96°C, bloom.','0:30 pour 30g (to 60g).','0:45 pour 30g (to 90g).','1:00 pour 30g (to 120g).','1:15 pour 30g (to 150g).','1:30 pour 30g (to 180g).','1:45 pour 30g (to 210g).','2:00 pour 30g (to 240g).','2:15 pour 30g (to 270g).','2:30 pour 30g (to 300g).','3:00 drawdown finishes, remove the dripper.'],
+  tip:'Pour each 30g gently in the centre in about 5 seconds, then let it drain. Super coarse means it, well past your usual V60 setting. If it runs past 3:30, go coarser.'},
  {b:'v60',kind:'hoff',name:'The Ultimate V60',by:'James Hoffmann',off:0.5,temp:96,dose:30,water:500,why:'Built for consistency: agitation early, then left alone. Hoffmann uses water as hot as possible for light roasts.',
   steps:['Rinse the paper, add coffee, make a well in the middle.','0:00 pour 60g, swirl to saturate, bloom.','0:45 pour to 300g by about 1:15.','1:15 pour more gently to 500g by about 1:45.','1:45 stir once each way, then a gentle swirl.','3:30 drawdown should be finished.'],
   tip:'The final swirl flattens the bed. A flat bed means even extraction.'},
@@ -2850,6 +2854,9 @@ const RECIPES=[
  {b:'neo',kind:'neo',name:'NEO split pour',by:'Built around the NEO\u2019s fast flow',off:0.3,temp:94,dose:15,water:240,why:'The NEO drains faster than the classic V60, so a single slow pour under-extracts. Split pours put contact time back.',
   steps:['0:00 pour 40g quickly, wetting every ground.','0:35 pour with a strong stream to 144g.','1:10 pour to 240g.','2:30 finished.'],
   tip:'The NEO handles a slightly finer grind than the V60 without stalling.'},
+ {b:'neo',kind:'neo',name:'Tetsu Kasuya 10-pour on the NEO',by:'Tetsu Kasuya, 2016 World Brewers Cup champion',off:-3.4,temp:96,dose:20,water:300,why:'Ten small pours of 30g every 15 seconds, released for the tenth anniversary of his 2016 World Brewers Cup win. A super-coarse grind and very hot water, with the bed draining almost dry before each pour: full extraction without the bitterness of a fine grind. Kasuya\u2019s own choice of dripper for it.',
+  steps:['0:00 pour 30g at 96°C, bloom.','0:30 pour 30g (to 60g).','0:45 pour 30g (to 90g).','1:00 pour 30g (to 120g).','1:15 pour 30g (to 150g).','1:30 pour 30g (to 180g).','1:45 pour 30g (to 210g).','2:00 pour 30g (to 240g).','2:15 pour 30g (to 270g).','2:30 pour 30g (to 300g).','3:00 drawdown finishes, remove the dripper.'],
+  tip:'The NEO\u2019s ribs spread each small pour evenly across the bed. Pour in the centre, about 5 seconds per pour, and let it drain before the next.'},
  {b:'neo',kind:'neo',name:'Yuma Kawano NEO recipe',by:'Yuma Kawano',off:0.6,temp:95,dose:14,water:235,why:'A pouring-technique recipe aimed at texture, density and sweetness. Medium-fine grind.',
   steps:['0:00 pour 35 to 40g, bloom.','0:30 pour to 120g while stirring the slurry with the stream.','1:05 pour to 180 to 185g.','1:35 pour to 235g.','2:30 let it drain.'],
   tip:'The stirring pour in stage two builds the body the NEO\u2019s fast flow would otherwise lose.'},
@@ -2926,7 +2933,7 @@ const RECIPES=[
  {b:'moka',kind:'other',name:'Moka pot, done right',by:'Classic technique',off:0,temp:100,dose:18,water:180,why:'Hot water in the base, no tamping and gentle heat avoid the burnt, metallic taste.',
   steps:['Fill the base with just-boiled water to below the valve.','Fill the basket level without tamping.','Assemble with a towel and put on medium-low heat, lid open.','When the coffee turns pale and starts to sputter, take it off the heat.','Cool the base under the tap to stop extraction.'],tip:'Remove it early rather than late.'},
  {b:'phin',kind:'other',name:'Cà phê sữa đá',by:'Vietnamese tradition',off:0,temp:96,dose:20,water:120,why:'Strong phin coffee over condensed milk and ice.',
-  steps:['Put 2 tbsp of sweetened condensed milk in a glass.','0:00 pour 20g of water to bloom.','0:30 fill the phin with hot water and cover.','5:00 dripping should finish in about 4 to 5 minutes.','Stir, pour over ice.'],tip:'Robusta or a Robusta blend is traditional.'},
+  steps:['Put 2 tbsp of sweetened condensed milk in a glass.','0:00 pour 20g of water to bloom.','0:30 fill the phin with hot water to 120g and cover.','5:00 dripping should finish in about 4 to 5 minutes.','Stir, pour over ice.'],tip:'Robusta or a Robusta blend is traditional.'},
  {b:'cezve',kind:'other',name:'Turkish coffee',by:'Tradition',off:0,temp:0,dose:7,water:70,why:'Powder-fine coffee heated slowly with cold water until it foams.',
   steps:['Add 70ml of cold water, 7g of powder-fine coffee and sugar to taste; stir.','Heat slowly on low.','Just before it boils, when the foam rises, pour a little foam into the cup.','Return briefly to rise again, then pour the rest.'],tip:'Never let it boil hard; the foam is the prize.'},
  {b:'dallah',kind:'other',name:'Arabic coffee (qahwa)',by:'Gulf tradition; styles vary by country',off:0,temp:100,dose:15,water:500,why:'Lightly roasted coffee simmered, spiced with cardamom and often saffron or clove.',
@@ -6553,6 +6560,7 @@ const ICO={wheel:'M21 12a9 9 0 1 1-18 0a9 9 0 1 1 18 0z M12 3v9l7.8 4.5 M12 12l-
   sun:'M12 8a4 4 0 1 0 0 8a4 4 0 1 0 0-8z M12 2v2 M12 20v2 M2 12h2 M20 12h2 M5 5l1.5 1.5 M17.5 17.5L19 19 M5 19l1.5-1.5 M17.5 6.5L19 5',download:'M12 4v11 M7 10l5 5 5-5 M5 20h14',
   file:'M6 3h8l4 4v14H6z M14 3v4h4 M9 13h6 M9 17h4',share:'M12 15V3 M7 8l5-5 5 5 M5 12v8h14v-8',copy:'M9 9h11v11H9z M5 15H4V4h11v1',text:'M6 3h8l4 4v14H6z M14 3v4h4 M9 12h6 M12 12v6'};
 // True inside the Android app or when the site is already installed to the home screen.
+const IOS=()=>/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 const installed=()=>!!window.Capacitor||MQ('(display-mode: standalone)')||navigator.standalone===true;
 // A tile in the vibe's own accent turns light in the dark vibes, so its icon takes the paper colour instead of white.
 const ico=(n,bg)=>'<span class="ic'+(/var\(--/.test(bg)?' on-accent':'')+'" style="background:'+bg+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+ICO[n]+'"/></svg></span>';
@@ -6661,6 +6669,9 @@ function renderSettings(){const t=document.documentElement.getAttribute('data-th
     // In the Android app: its version, whether a newer one is out, and a button to check now (the website updates itself).
     (appVersion()?'<div class="appver'+(updLatest()?' new':'')+'">'+ico('download','#4F8A74')+'<span class="av-tx"><b>Brew Bench '+esc(appVersion())+'</b><small>'+esc(updNote())+'</small></span>'+
       '<div class="av-btns">'+(updLatest()?'<button type="button" class="btn" id="st-updgo">Update to '+esc(updLatest())+'</button>':'')+'<button type="button" class="btn'+(updLatest()?' ghost':'')+'" id="st-upd">Check for updates</button></div></div>':'')+
+    // On the website (not iPhone, where there's no Android app to get): the Android app, one tap to download.
+    (!window.Capacitor&&!IOS()?'<div class="appver getapp">'+ico('download','#4F8A74')+'<span class="av-tx"><b>Get the Android app</b><small>The same Brew Bench, plus daily reminders. Sign in to bring your coffees and brews with you.</small></span>'+
+      '<div class="av-btns"><a class="btn" id="st-getapk" href="'+APK_URL+'" rel="noopener">Download for Android</a></div><p class="setnote av-note">Open the downloaded file to install it. Android may ask you to allow installs from your browser the first time.</p></div>':'')+
     '<h3 class="rh">Appearance</h3><div class="setgroup">'+
     row(curTheme()==='dark'?'moon':'sun','#5B5F66','Light or dark','Bright cream, cosy espresso, or follow your phone','<div class="seg" id="st-mode"></div>')+
     row('drop','var(--cherry)','Vibe','A whole look, in light and in dark','<div class="vibes">'+VIBES.map(([k,n,d,L,D])=>'<button type="button" class="vibe" data-vibe="'+k+'" aria-pressed="'+(UI.vibe===k)+'" style="--l-p:'+L.paper+';--l-s:'+L.surface+';--l-i:'+L.ink+';--l-c:'+L.cherry+';--l-h:'+L.honey+';--d-p:'+D.paper+';--d-s:'+D.surface+';--d-i:'+D.ink+';--d-c:'+D.cherry+';--d-h:'+D.honey+'"><span class="vb-pv" aria-hidden="true"><i class="vb-l"><u></u><s></s><em></em></i><i class="vb-d"><u></u><s></s><em></em></i></span><b>'+n+'</b><small>'+d+'</small></button>').join('')+'</div>')+
@@ -6674,7 +6685,7 @@ function renderSettings(){const t=document.documentElement.getAttribute('data-th
      window.BEANS_OK&&LN()?'<div class="setbtns"><div class="seg" id="st-remind"></div><input type="time" id="st-rtime" class="dateinp" value="'+REMIND.t+'" aria-label="Reminder time"'+(REMIND.on?'':' disabled')+'></div>'
        :'<p class="setnote" style="margin:0">It’s at the top of Beans and Explore each day. In the Android app it can also arrive as a notification at the time you choose.</p>')+
      row('book','#9A7390','Coffee fact of the day','Something worth knowing from Explore each day, in turn: a coffee word, a variety, an origin, a process, a brewing technique, a moment in history or a champion.',
-       typeof LN==='function'&&LN()?'<div class="setbtns"><div class="seg" id="st-learn"></div><input type="time" id="st-ltime" class="dateinp" value="'+LEARN.t+'" aria-label="Fact time"'+(LEARN.on?'':' disabled')+'></div>'
+       window.BEANS_OK&&LN()?'<div class="setbtns"><div class="seg" id="st-learn"></div><input type="time" id="st-ltime" class="dateinp" value="'+LEARN.t+'" aria-label="Fact time"'+(LEARN.on?'':' disabled')+'></div>'
          :'<p class="setnote" style="margin:0">Today’s is on the Explore page. In the Android app it can also arrive as a notification at the time you choose.</p>')+'</div>'+
    /* Gear, Guide and the Log are the buttons at the top. */
    '<h3 class="rh">Your data</h3><div class="setgroup">'+row('download','#8A5A3B','Back up and restore','Everything you’ve saved stays on this device: '+esc(dataSummary())+'. Save it as a file to keep it safe or move it to another phone.',
@@ -6788,17 +6799,17 @@ $('explore-in').addEventListener('click',e=>{const f=e.target.closest('[data-fac
 // In the Android app it can also arrive as a notification: the next two weeks are scheduled ahead, and again on opening.
 let LEARN=(v=>({on:!!(v&&v.on),t:v&&/^\d\d:\d\d$/.test(v.t)?v.t:'19:00'}))(load('bb-learn',null));
 const FIDS=[...Array(14)].map((_,i)=>7201+i);
-async function scheduleFacts(){const ln=typeof LN==='function'&&LN();if(!ln)return false;
+async function scheduleFacts(){const ln=window.BEANS_OK&&LN();if(!ln)return false;
   try{await ln.cancel({notifications:FIDS.map(id=>({id}))})}catch(e){}
   if(!LEARN.on)return true;const [h,m]=LEARN.t.split(':').map(Number),now=new Date(),list=[];
   for(let i=0;i<14;i++){const at=new Date(now.getFullYear(),now.getMonth(),now.getDate()+i,h,m);if(at<=now)continue;const day=Math.floor((at-at.getTimezoneOffset()*6e4)/864e5),f=factFor(day);
     list.push({id:FIDS[i],title:FACT_ICON[f.k]+' '+f.tag+': '+f.title,body:f.text,largeBody:f.text,schedule:{at,allowWhileIdle:true},isExactNotification:false,extra:{fact:f.go}})}
   try{if(list.length)await ln.schedule({notifications:list});return true}catch(e){return false}}
-async function setLearn(on){const ln=typeof LN==='function'&&LN();
+async function setLearn(on){const ln=window.BEANS_OK&&LN();
   if(on&&!LEARN.on){if(!ln){toast('Phone reminders work in the Android app');return false}
     try{let p=await ln.checkPermissions();if(p.display!=='granted')p=await ln.requestPermissions();if(p.display!=='granted'){toast('Allow notifications for Brew Bench in your phone’s settings first');return false}}catch(e){toast('Couldn’t turn on reminders');return false}}
   LEARN.on=on;save('bb-learn',LEARN);await scheduleFacts();if(on)toast('Your coffee fact arrives at '+LEARN.t);return true}
-setTimeout(()=>{const ln=typeof LN==='function'&&LN();if(!ln)return;
+setTimeout(()=>{const ln=window.BEANS_OK&&LN();if(!ln)return;
   try{ln.addListener('localNotificationActionPerformed',a=>{const g=a&&a.notification&&a.notification.extra&&a.notification.extra.fact;if(g)goFact(g)})}catch(e){}
   if(LEARN.on)scheduleFacts()},3200);
 
@@ -7439,7 +7450,7 @@ function openTop3(y,start){const d=$('vd'),pool=BEANS.filter(b=>beanYear(b)===y)
     saveTop3();d.close();BPOD=y;BVIEW='top3';checkTrophies();renderBeans();toast(any?'Favourites of '+y+' saved':'Favourites of '+y+' cleared')};
   draw();showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
 // The app may have opened on the Beans page before this part loaded.
-window.BEANS_OK=1;checkTrophies();renderDBean();if($('beans').classList.contains('on'))renderBeans();
+window.BEANS_OK=1;checkTrophies();renderDBean();if($('beans').classList.contains('on'))renderBeans();if($('settings').classList.contains('on'))renderSettings();
 
 /* ================= BREW CARDS ================= */
 // A brew, a logged brew or a gallery coffee as one designed image to share. Drawn on a canvas in the app's espresso and
