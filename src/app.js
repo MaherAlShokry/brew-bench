@@ -676,8 +676,8 @@ function parseSteps(steps){let last=-1;return steps.map(s=>{const m=s.match(/(\d
 const capS=t=>t.charAt(0).toUpperCase()+t.slice(1),stepTxt=s=>capS(s.replace(/^\s*\d+:\d\d\s*/,''));
 const mmss=t=>Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0');
 // The pour in a step, for the big target: "pour 60g (to 120g)" → to 120 g, +60 g; "pour to 250g" → to 250 g.
-// Also "until 374g", "add 210g", "pour the last 70g"; a range ("dilute with 100 to 150g") isn't a pour to its end.
-function pourOf(txt){const to=/(?<!\d\s?)\b(?:to|until)\s+(\d{2,4})\s?g\b/i.exec(txt),add=/\b(?:pour(?:ing)?|add)\s+(?:(?:the|another)\s+)?(?:(?:last|remaining|rest of the|final|first)\s+)?(\d{2,4})\s?g\b/i.exec(txt);return to?{to:+to[1],add:add?+add[1]:null}:add?{to:null,add:+add[1]}:null}
+// Also "until 374g", "add 210g", "pour the last 70g", "pour all 250g", "bloom with 50g"; a range ("dilute with 100 to 150g") isn't a pour to its end.
+function pourOf(txt){const to=/(?<!\d\s?)\b(?:to|until)\s+(\d{2,4})\s?g\b/i.exec(txt),add=/\b(?:pour(?:ing)?|add|bloom with)\s+(?:(?:the|another|all)\s+)?(?:(?:last|remaining|rest of the|final|first)\s+)?(\d{2,4})\s?g\b/i.exec(txt);return to?{to:+to[1],add:add?+add[1]:null}:add?{to:null,add:+add[1]}:null}
 function openTimer(idx,p){noteRecent(RECIPES[idx]);
   // The steps follow the dose and water being brewed (the dial-in and Scan pass their own).
   const r0=RECIPES[idx],sc=scaled(r0),dose=p&&p.r&&p.r.dose||sc.dose,water=p&&p.water||sc.water;
@@ -788,7 +788,9 @@ function showTab(id,fromHistory,pure){ensureTab(id);const cur=document.querySele
     // A page inside a section (the map, the log…) lights up that section's tab.
     document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x.dataset.t===(BNGROUP[id]||id)));
     document.querySelectorAll('main section').forEach(s=>s.classList.toggle('on',s.id===id));window.scrollTo({top:0});syncShell(id);
-    if(kind&&NAV_READY){const sec=$(id);if(!vt){sec.classList.remove('nav-in');void sec.offsetWidth;sec.classList.add('nav-in');clearTimeout(sec._nav);sec._nav=setTimeout(()=>sec.classList.remove('nav-in'),800);cascadeIn(sec)}}};
+    if(kind&&NAV_READY){const sec=$(id);if(!vt){sec.classList.remove('nav-in');void sec.offsetWidth;sec.classList.add('nav-in');clearTimeout(sec._nav);sec._nav=setTimeout(()=>sec.classList.remove('nav-in'),800);
+      // Between bottom-bar sections the page swings in as a whole; its blocks cascade only on the way in or out.
+      if(kind==='push'||kind==='pop')cascadeIn(sec)}}};
   document.documentElement.dataset.nav=NAV_READY?kind:'';
   // The bottom-bar highlight answers the tap at once, before the page itself changes.
   if(kind){document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));movePill()}
@@ -2607,6 +2609,9 @@ function renderSettings(){const t=document.documentElement.getAttribute('data-th
   const row=(icon,bg,title,sub,body)=>'<div class="setrow"><div class="sl">'+ico(icon,bg)+'<span class="mt"><b>'+title+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</span></div>'+(body||'')+'</div>';
   const qt=(k,n,d)=>'<button type="button" class="qtool" data-go="'+k+'">'+ico(hubItem(k)[4],hubItem(k)[3])+'<span><b>'+n+'</b><small>'+d+'</small></span></button>';
   $('settings-in').innerHTML='<div class="quicktools">'+qt('gear','Gear and dials',MYG.length+' grinder'+(MYG.length>1?'s':'')+(MYB.length?', '+MYB.length+' brewer'+(MYB.length>1?'s':''):''))+qt('log','Brew log',LOG.length?LOG.length+' brew'+(LOG.length>1?'s':''):'Rate and keep your brews')+qt('guide','Guide','Ratios and fixes')+'</div>'+
+    // In the Android app: its version, whether a newer one is out, and a button to check now (the website updates itself).
+    (appVersion()?'<div class="appver'+(updLatest()?' new':'')+'">'+ico('download','#4F8A74')+'<span class="av-tx"><b>Brew Bench '+esc(appVersion())+'</b><small>'+esc(updNote())+'</small></span>'+
+      '<div class="av-btns">'+(updLatest()?'<button type="button" class="btn" id="st-updgo">Update to '+esc(updLatest())+'</button>':'')+'<button type="button" class="btn'+(updLatest()?' ghost':'')+'" id="st-upd">Check for updates</button></div></div>':'')+
     '<h3 class="rh">Appearance</h3><div class="setgroup">'+
     row(curTheme()==='dark'?'moon':'sun','#5B5F66','Light or dark','Bright cream, cosy espresso, or follow your phone','<div class="seg" id="st-mode"></div>')+
     row('drop','var(--cherry)','Vibe','A whole look, in light and in dark','<div class="vibes">'+VIBES.map(([k,n,d,L,D])=>'<button type="button" class="vibe" data-vibe="'+k+'" aria-pressed="'+(UI.vibe===k)+'" style="--l-p:'+L.paper+';--l-s:'+L.surface+';--l-i:'+L.ink+';--l-c:'+L.cherry+';--l-h:'+L.honey+';--d-p:'+D.paper+';--d-s:'+D.surface+';--d-i:'+D.ink+';--d-c:'+D.cherry+';--d-h:'+D.honey+'"><span class="vb-pv" aria-hidden="true"><i class="vb-l"><u></u><s></s><em></em></i><i class="vb-d"><u></u><s></s><em></em></i></span><b>'+n+'</b><small>'+d+'</small></button>').join('')+'</div>')+
@@ -2624,7 +2629,7 @@ function renderSettings(){const t=document.documentElement.getAttribute('data-th
      '<div class="setbtns"><button type="button" class="btn" id="st-export">Export my data</button><button type="button" class="btn ghost" id="st-import">Import a backup</button><input type="file" id="st-file" accept="application/json,.json" hidden></div>')+'</div>'+
    (installed()?'':'<h3 class="rh">Install</h3><div class="setgroup">'+row('download','#9A7390','Add to your home screen','Use it like an app, offline too','<p class="setnote" style="margin:0"><b>iPhone (Safari):</b> tap the Share button, then <b>Add to Home Screen</b>.<br><b>Android (Chrome):</b> tap the ⋮ menu, then <b>Add to Home screen</b>.</p>')+'</div>')+
    '<h3 class="rh">About</h3><div class="setgroup">'+row('book','#8A5A3B','The Brew Bench','A coffee field guide and dial-in tool. What you save stays on this device, or syncs with your account if you sign in.','<p class="setnote" style="margin:0"><a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a> · <a href="'+SITE_URL+'delete-account.html" target="_blank" rel="noopener">Delete your account</a></p>')+
-     (appVersion()?row('download','#4F8A74','Version '+appVersion(),updNote(),'<button type="button" class="btn ghost" id="st-upd">Check for updates</button>'):'')+'</div>';
+     '</div>';
   seg('st-mode',[['light','Light'],['dark','Dark'],['auto','Auto']],()=>t,v=>{if(v==='auto'){document.documentElement.removeAttribute('data-theme');try{localStorage.removeItem('bb-theme')}catch(e){}}
     else{document.documentElement.setAttribute('data-theme',v);try{localStorage.setItem('bb-theme',v)}catch(e){}}syncThemeBtn();applyUI();renderSettings()});
   seg('st-text',[['s','Small'],['m','Standard'],['l','Large'],['xl','Larger']],()=>UI.text,v=>{UI.text=v;saveUI();renderSettings()});
@@ -2702,7 +2707,8 @@ function showUpdate(force){const l=updLatest(),old=$('updcard');if(!l||(!force&&
   $('upd-go').onclick=()=>{c.remove();toast('Downloading the new version. Open it when it finishes to install');openLink(APK_URL)};
   $('upd-later').onclick=()=>{UPD.later=l;UPD.laterAt=Date.now();save('bb-upd',UPD);c.classList.add('out');setTimeout(()=>c.remove(),260)}}
 if(appVersion()){setTimeout(()=>checkUpdate(),4000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate()})}
-document.addEventListener('click',e=>{if(e.target.closest('#st-upd')){const b=e.target.closest('#st-upd');b.disabled=true;b.textContent='Checking…';
+document.addEventListener('click',e=>{if(e.target.closest('#st-updgo')){toast('Downloading the new version. Open it when it finishes to install');openLink(APK_URL);return}
+  if(e.target.closest('#st-upd')){const b=e.target.closest('#st-upd');b.disabled=true;b.textContent='Checking…';
   checkUpdate(true).then(l=>{if(l===null)toast('Couldn’t check just now. Try again when you’re online');else if(!l)toast('You have the latest version');renderSettings()})}});
 
 /* ================= INIT ================= */
