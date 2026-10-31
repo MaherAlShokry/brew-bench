@@ -501,7 +501,8 @@ function render(){
   if(!tips.length)tips.push('Nothing to change on paper. Brew it, then adjust by taste.');
   $('o-tips').innerHTML=tips.map(t=>'<div class="tip">'+t+'</div>').join('');
   $('o-tips').onclick=e=>{if(e.target.closest('[data-reset-grind]')){S.setting=roundG(S.grinder,baseX(S.grinder,S.brewer));render();toast('Grind reset to '+dial(S.grinder,S.setting))}};
-  save('bb-state',S);
+  // The recipe is kept by its key too: its place in the list moves when recipes are added or folded together.
+  S.reck=S.rec!=null&&RECIPES[S.rec]?rkey(RECIPES[S.rec]):null;save('bb-state',S);
 }
 function renderCal(){
   $('caltbody').innerHTML=MODEL.filter(LISTED).map(k=>{const b=BREWERS[k];const cell=g=>!canGrind(g,k)?'<td class="hint">n/a</td>':'<td><input type="number" step="1" data-g="'+g+'" data-b="'+k+'" value="'+base(g,k)+'" aria-label="'+GRINDERS[g].name+' clicks, '+esc(b.name)+'"> <span class="hint">'+dial(g,base(g,k))+'</span></td>';return'<tr><td>'+esc(b.name)+'</td>'+MYG.map(cell).join('')+'</tr>'}).join('');
@@ -859,10 +860,15 @@ const TEAM=()=>{try{return !!SYNC_DB}catch(e){return false}};
    recipes, its id for yours. */
 const rkey=r=>r.custom?'c:'+r.id:'r:'+slug(r.name);
 // Lists of recipe keys (plain strings), which load() would drop as it only keeps saved objects.
-const loadKeys=k=>{try{const v=JSON.parse(localStorage.getItem(k)||'[]');return Array.isArray(v)?v.filter(x=>typeof x==='string'&&x.length<120):[]}catch(e){return[]}};
+// Recipes that were the same method in another profile, dose or ratio were folded into one (the dial-in sets those);
+// their old keys lead to the recipe they joined.
+const RALIAS={'r:4-6-sweeter':'r:tetsu-kasuya-4-6','r:4-6-lighter-and-cleaner':'r:tetsu-kasuya-4-6','r:4-6-fuller-body':'r:tetsu-kasuya-4-6','r:mugen-small-cup':'r:mugen-one-pour',
+  'r:kalita-for-darker-roasts':'r:kalita-pulse-pour','r:kalita-big-batch':'r:kalita-pulse-pour','r:ristretto':'r:classic-espresso-1-2','r:long-shot-allonge':'r:classic-espresso-1-2',
+  'r:two-cup-v60':'r:the-ultimate-v60','r:chemex-for-one':'r:classic-chemex','r:ready-to-drink-cold-brew':'r:cold-brew-concentrate'};
+const loadKeys=k=>{try{const v=JSON.parse(localStorage.getItem(k)||'[]');return Array.isArray(v)?[...new Set(v.filter(x=>typeof x==='string'&&x.length<120).map(x=>RALIAS[x]||x))]:[]}catch(e){return[]}};
 let FAVS=new Set(loadKeys('bb-favs'));
 let RECENT=loadKeys('bb-recent').slice(0,8);
-const rByKey=k=>RECIPES.findIndex(r=>rkey(r)===k);
+const rByKey=k=>{k=RALIAS[k]||k;return RECIPES.findIndex(r=>rkey(r)===k)};
 const favCount=()=>RECIPES.filter(r=>FAVS.has(rkey(r))).length;
 const HEART='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-9-8.6C1.6 8.4 3.4 5 6.7 5c2 0 3.3 1.2 4.3 2.6C12 6.2 13.3 5 15.3 5c3.3 0 5.1 3.4 3.7 6.4C19 15.6 12 20 12 20z"/></svg>';
 const favBtn=r=>{const k=rkey(r),on=FAVS.has(k);return '<button type="button" class="favbtn" data-fav="'+esc(k)+'" aria-pressed="'+on+'" aria-label="'+(on?'Remove from favorites':'Add to favorites')+'">'+HEART+'</button>'};
@@ -2704,6 +2710,13 @@ if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.fo
 // Label each cell with its column heading so tables can stack into cards on phones.
 document.querySelectorAll('table.ref').forEach(t=>{const hs=[...t.querySelectorAll('thead th')].map(h=>h.textContent.trim());t.querySelectorAll('tbody tr').forEach(r=>[...r.children].forEach((c,i)=>{if(hs[i])c.dataset.label=hs[i]}))});
 // If saved settings ever stop the app from starting, clear them (the brew log and scans are kept) and retry once.
+// The dial-in's recipe, by key. A state saved before keys were kept points at the list as it was then (76 built-in
+// recipes); the ones folded together lead to the recipe they joined.
+{const OLD_GONE={22:'r:mugen-small-cup',26:'r:kalita-for-darker-roasts',43:'r:ristretto',44:'r:long-shot-allonge',53:'r:4-6-sweeter',54:'r:4-6-lighter-and-cleaner',55:'r:4-6-fuller-body',59:'r:two-cup-v60',64:'r:chemex-for-one',65:'r:kalita-big-batch',73:'r:ready-to-drink-cold-brew'};
+  const st=load('bb-state',{});let i=null;
+  if(typeof st.reck==='string')i=rByKey(st.reck);
+  else if(Number.isInteger(st.rec)&&st.rec>=0)i=OLD_GONE[st.rec]?rByKey(OLD_GONE[st.rec]):st.rec-Object.keys(OLD_GONE).filter(k=>+k<st.rec).length;
+  if(st.rec!=null||st.reck){S.rec=i!=null&&i>=0&&RECIPES[i]?i:null;if(S.rec==null)S.tuned=null}}
 try{initDial();render();renderCalc();renderTS();renderStars();renderLog();initScan();}
 catch(err){let retried=false;try{retried=sessionStorage.getItem('bb-reset')==='1';sessionStorage.setItem('bb-reset','1')}catch(e){}
   if(!retried){try{['bb-state','bb-plan','bb-scan','bb-calc','bb-base3'].forEach(k=>localStorage.removeItem(k))}catch(e){}location.reload()}throw err}
