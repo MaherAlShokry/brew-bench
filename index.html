@@ -284,6 +284,8 @@ dialog#vd::backdrop{background:rgba(20,14,10,.55)}
 /* log */
 .logform{display:grid;gap:10px;grid-template-columns:1fr 1fr}
 .logform .full{grid-column:1/-1}
+.logform.re2{display:flex;grid-template-columns:none;gap:12px;margin-bottom:12px}.logform.re2 .re-card{padding-bottom:12px}.logform.re2 .field:last-child{margin-bottom:0}
+.l-rate{display:flex;justify-content:center;padding:4px 0 12px}.l-rate .stars button{font-size:2.3rem;padding:0 4px}
 .logentry{border-bottom:1px solid var(--line);padding:12px 0}
 .logentry .x{background:none;border:0;color:var(--muted);cursor:pointer;font-family:var(--display);font-size:.8rem;padding:4px 6px;min-height:32px}
 
@@ -359,6 +361,10 @@ button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.a
 .tm-bar{height:6px;border-radius:999px;background:color-mix(in srgb,var(--ink) 10%,transparent);margin:12px 0 8px;overflow:hidden}.tm-bar i{display:block;height:100%;width:0;background:var(--cherry);border-radius:inherit;transition:width .25s linear}
 .tm-next{display:flex;flex-direction:column;gap:2px;font-size:.88rem;color:var(--muted)}.tm-next b{color:var(--ink);font-variant-numeric:tabular-nums}.tm-nx{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tm-done{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}.tm-done .btn{flex:1 1 auto}
+.tm-draw{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);color:var(--ink)}
+.tm-dq{margin:0 0 8px;font-weight:600;font-size:.92rem}.tm-dq small{display:block;font-weight:400;color:var(--muted);font-size:.8rem}
+.tm-dseg{display:flex;flex-wrap:wrap;gap:6px}.tm-dseg button{flex:1 1 28%;min-height:40px;font-size:.82rem;white-space:nowrap;overflow:visible;text-overflow:clip;padding:8px 6px}
+.tm-dres p{margin:10px 0 6px;font-size:.9rem;white-space:normal}.tm-dres .btn{width:100%}
 .tm-ctl{display:flex;align-items:center;justify-content:center;gap:26px;margin-top:2px}
 .tm-play{width:84px;height:84px;border-radius:50%;border:0;background:var(--cherry);color:var(--surface);display:grid;place-items:center;cursor:pointer;box-shadow:0 10px 26px color-mix(in srgb,var(--cherry) 40%,transparent);transition:transform .12s}
 .tm-play svg{width:34px;height:34px;fill:currentColor}.tm-play:active{transform:scale(.93)}
@@ -659,6 +665,49 @@ input[type=range]{touch-action:pan-y}
 /* Recipe editor and your recipes */
 .recform input:not([type=range]),.recform select,.recform textarea{width:100%}
 .recform .three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.recform .three input{min-width:0}
+/* The recipe editor: numbered cards, stepper tiles and a timeline for the steps. */
+.re2{display:flex;flex-direction:column;gap:14px}
+.re-card{background:var(--surface);border:1px solid color-mix(in srgb,var(--line) 80%,transparent);border-radius:20px;padding:14px 14px 4px;box-shadow:0 1px 0 color-mix(in srgb,var(--ink) 4%,transparent)}
+.re-h{display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;margin:0 0 12px;font-family:var(--display);font-size:1.02rem}
+.re-h i{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;font-style:normal;font-size:.78rem;font-weight:700;background:var(--cherry);color:var(--paper)}
+.re-h small{flex-basis:100%;font:400 .8rem var(--body);color:var(--muted);padding-left:34px;margin-top:-2px}
+.re2 .field>.lab{display:block;font-size:.88rem;font-weight:600;margin-bottom:6px}
+.re-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.re-tile{background:color-mix(in srgb,var(--cherry) 5%,var(--paper));border-radius:16px;padding:10px 6px 8px;text-align:center}
+.re-tile label{display:block;font-size:.74rem;font-weight:600;color:var(--muted);margin-bottom:4px}
+.re-num{display:flex;align-items:baseline;justify-content:center;gap:2px}.re-pms{display:flex;justify-content:center;gap:10px;margin-top:6px}
+.recform .re-num input{width:4.2ch;min-width:0;border:0;background:none;padding:0;text-align:center;font:700 1.25rem var(--display);font-variant-numeric:tabular-nums;color:var(--ink);-moz-appearance:textfield}
+.re-num input::-webkit-inner-spin-button,.re-num input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.re-num span{font-size:.74rem;color:var(--muted);margin-right:2px}
+.re-pm{flex:none;width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:1rem;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0}
+.re-pm:active{transform:scale(.9)}
+.re-ratio{text-align:center;margin:10px 0 8px;font-size:.88rem;color:var(--muted)}.re-ratio b{color:var(--cherry-ink);font-variant-numeric:tabular-nums}
+@media (max-width:340px){.re-tiles{grid-template-columns:1fr}}
+/* Step kinds share one colour each, on the rail, the chips and the chart. */
+.k-bloom{--k:var(--honey)}.k-pour{--k:var(--cherry)}.k-swirl,.k-stir{--k:var(--leaf)}.k-valve,.k-press{--k:color-mix(in srgb,var(--cherry) 45%,var(--ink))}
+.k-steep,.k-prep,.k-note{--k:var(--muted)}.k-end{--k:var(--leaf)}.k-ice{--k:#5B8FB0}
+.pgraph{margin:0 0 10px;padding:8px 8px 4px;border-radius:16px;background:color-mix(in srgb,var(--cherry) 4%,var(--paper))}
+.pgraph svg{display:block;width:100%;height:auto;overflow:visible}
+.pg-l{fill:none;stroke:var(--cherry);stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round}
+.pg-goal{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 4}
+.pg-d{fill:var(--surface);stroke:var(--k,var(--cherry));stroke-width:2.4}
+.pgraph figcaption{display:flex;justify-content:space-between;align-items:baseline;font-size:.72rem;color:var(--muted);font-variant-numeric:tabular-nums;padding:2px 4px 0}.pgraph figcaption b{color:var(--ink);font-size:.82rem}
+.se-list{list-style:none;margin:0;padding:0;position:relative}
+.se-row{position:relative;display:grid;grid-template-columns:34px 62px minmax(0,1fr) auto;align-items:center;gap:8px;padding:5px 0}
+.se-row::before{content:"";position:absolute;left:16px;top:-6px;bottom:-6px;width:2px;background:var(--line);z-index:0}
+.se-row:first-child::before{top:50%}.se-row:last-child::before{bottom:50%}.se-row:only-child::before{display:none}
+.se-dot{position:relative;z-index:1;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--k) 16%,var(--surface));color:var(--k);box-shadow:0 0 0 3px var(--surface)}
+.se-dot svg,.se-chip svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.recform .se-t{width:100%;text-align:center;font:700 .86rem var(--body);font-variant-numeric:tabular-nums;color:var(--cherry-ink);background:color-mix(in srgb,var(--cherry) 10%,var(--surface));border:1px solid transparent;border-radius:999px;padding:8px 4px}
+.recform .se-t.bad{border-color:#C4473F;color:#B03A33}
+.recform .se-x{width:100%;border:0;border-bottom:1px dashed var(--line);border-radius:0;background:none;padding:8px 2px;font-size:.95rem}
+.recform .se-x:focus{outline:none;border-bottom:2px solid var(--k)}
+.se-ops{display:flex;gap:2px}.se-op{width:30px;height:30px;border-radius:50%;border:0;background:none;color:var(--muted);display:grid;place-items:center;cursor:pointer;padding:0}
+.se-op svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}.se-op:disabled{opacity:.3}.se-op:hover{background:var(--surface2,var(--line))}
+.se-add{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:12px 0 4px;margin:0 -2px}.se-add::-webkit-scrollbar{display:none}
+.se-chip{flex:none;display:inline-flex;align-items:center;gap:5px;padding:7px 12px 7px 9px;border-radius:999px;border:1px solid color-mix(in srgb,var(--k) 35%,var(--line));background:color-mix(in srgb,var(--k) 9%,var(--surface));color:var(--ink);font:600 .82rem var(--body);cursor:pointer}
+.se-chip svg{color:var(--k);width:16px;height:16px}.se-chip:active{transform:scale(.95)}
+.se-sum{margin:6px 0 10px;font-size:.8rem;color:var(--muted)}.se-sum.warn{color:var(--honey-ink)}
 .rangeends{display:flex;justify-content:space-between;font-family:var(--display);font-size:.74rem;color:var(--muted);margin-top:-2px}
 .pill.ours{background:color-mix(in srgb,var(--cherry) 14%,var(--surface));color:var(--cherry);margin-bottom:6px}
 /* Shared log */
@@ -1026,6 +1075,9 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .steps.tl li::before{content:"";position:absolute;left:25px;top:24px;bottom:0;width:2px;background:var(--line)}.steps.tl li:last-child::before{display:none}
 .steps.tl .t{position:absolute;left:0;top:0;width:52px;text-align:center;font:700 .78rem var(--body);font-variant-numeric:tabular-nums;color:var(--cherry);background:color-mix(in srgb,var(--cherry) 12%,var(--surface));border-radius:99px;padding:3px 0}
 .steps.tl .t.dot{width:12px;height:12px;left:20px;top:6px;padding:0;background:var(--line)}
+.steps.tl .tk{display:inline-grid;place-items:center;vertical-align:-4px;width:20px;height:20px;margin-right:6px;border-radius:50%;background:color-mix(in srgb,var(--k,var(--muted)) 16%,var(--surface));color:var(--k,var(--muted))}
+.steps.tl .tk svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.steps.tl li.k-pour .t,.steps.tl li.k-bloom .t{background:color-mix(in srgb,var(--k) 16%,var(--surface));color:color-mix(in srgb,var(--k) 75%,var(--ink))}
 
 /* Steppers (the dial-in's coffee dose). */
 .stepper{display:flex;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;height:40px}
@@ -1970,7 +2022,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
     <tr><td><b>Hario V60</b></td><td>Clarity, acidity, aroma</td><td>You want the most detail and don't mind technique</td></tr>
     <tr><td><b>Hario V60 NEO</b></td><td>V60 clarity with extra sweetness and body; fast flow</td><td>You want V60 cups with fewer stalls and less fuss</td></tr>
     <tr><td><b>Hario Switch</b></td><td>Immersion or hybrid; body plus clarity</td><td>You want sweetness and forgiveness</td></tr>
-    <tr><td><b>Hario Switch + V60 NEO</b></td><td>Valve control with the NEO's fast, even drawdown</td><td>You want hybrid recipes with a cleaner finish</td></tr>
+    <tr><td><b>NEO Switch</b></td><td>Valve control with the NEO's fast, even drawdown</td><td>You want hybrid recipes with a cleaner finish</td></tr>
     <tr><td><b>Kalita Wave</b></td><td>Self-regulating, consistent</td><td>You want the same good cup every day</td></tr>
   </tbody></table></div>
   <h3 class="sec">Troubleshoot</h3>
@@ -1993,13 +2045,16 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
   <div class="panel sharepanel" id="l-share" style="margin-bottom:14px"></div>
   <div class="panel" id="l-form" style="margin-bottom:18px">
     <p class="hint l-editing" id="l-editing" hidden></p>
-    <div class="logform">
-      <input id="l-coffee" placeholder="Coffee, e.g. Finca X Pink Bourbon" class="full" aria-label="Coffee">
-      <input id="l-settings" placeholder="Settings" class="full" aria-label="Settings">
-      <div class="stars" id="l-stars" role="radiogroup" aria-label="Rating"></div>
-      <input id="l-pred" placeholder="Predicted" aria-label="Predicted profile">
-      <textarea id="l-notes" rows="2" placeholder="How it actually tasted" class="full" aria-label="Tasting notes"></textarea>
-      <div class="full fl-row"><button type="button" class="btn ghost fl-add" id="l-fl"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l7.8 4.5M12 12l-7.8 4.5"/></svg><span>Add flavour notes</span></button><div class="chips" id="l-flchips"></div></div>
+    <div class="logform re2">
+      <div class="re-card"><h3 class="re-h"><i>1</i>The brew</h3>
+      <div class="field"><label for="l-coffee">Coffee</label><input id="l-coffee" placeholder="e.g. Finca X Pink Bourbon"></div>
+      <div class="field"><label for="l-settings">Settings <span class="hint">grind, dose and water, recipe</span></label><input id="l-settings" placeholder="e.g. Hoffmann V60, 15g : 250g"></div></div>
+      <div class="re-card"><h3 class="re-h"><i>2</i>How was it?</h3>
+      <div class="l-rate"><div class="stars" id="l-stars" role="radiogroup" aria-label="Rating"></div></div>
+      <div class="field"><label for="l-pred">Predicted <span class="hint">what the dial-in expected</span></label><input id="l-pred" placeholder="e.g. Sweet and balanced"></div></div>
+      <div class="re-card"><h3 class="re-h"><i>3</i>What you tasted</h3>
+      <div class="field"><label for="l-notes" class="sr">Tasting notes</label><textarea id="l-notes" rows="3" placeholder="How it actually tasted: sweet, bright, heavy, short…"></textarea></div>
+      <div class="fl-row"><button type="button" class="btn ghost fl-add" id="l-fl"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l7.8 4.5M12 12l-7.8 4.5"/></svg><span>Add flavour notes</span></button><div class="chips" id="l-flchips"></div></div></div>
     </div>
     <div class="actions"><button class="btn" id="l-save">Save entry</button><button class="btn ghost" id="l-cancel" hidden>Cancel</button></div>
   </div>
@@ -2543,11 +2598,11 @@ const BREWERS={
   desc:'A wedge-shaped dripper with one or more small holes. Melitta Bentz invented the paper coffee filter in 1908.',how:'The small outlet slows the drawdown, so it is forgiving of pouring style.',best:'Easy, consistent everyday cups.'}),
  chemex:br({name:'Chemex',type:'Cone dripper',body:-0.4,clarity:1.1,base:{zp6:64,kultra:89},ratio:Object.assign({},RF_,{def:16}),
   desc:'An hourglass glass carafe with thick bonded paper filters, designed by Peter Schlumbohm in 1941.',how:'The heavy paper removes most oils and fines and slows flow, so grind coarser than a V60.',best:'Very clean, light-bodied, tea-like cups; great for sharing.'}),
- deep27:br({name:'CAFEC Flower Dripper Deep 27',type:'Cone dripper',body:0.4,clarity:0.6,base:{zp6:54,kultra:77},
+ deep27:br({name:'CAFEC Deep 27',type:'Cone dripper',body:0.4,clarity:0.6,base:{zp6:54,kultra:77},
   desc:'A steep 27° cone (a V60 is 60°) in Tritan, with ten deep petal-shaped grooves and a 20mm outlet. Uses CAFEC Abaca+ Deep 27 papers; regular V60 papers do not fit the angle.',how:'The narrow, deep cone stacks even a single-cup dose into a tall bed, so water runs through more coffee and flow is slower and steadier. Grind a little finer than for a V60.',best:'Sweet, rounded one-cup brews from small doses.'}),
  cafec:br({name:'CAFEC Flower Dripper',type:'Cone dripper',body:0.2,clarity:0.7,base:{zp6:56,kultra:80},
   desc:'A 60° cone with deep petal-shaped grooves, made in ceramic (Arita) or Tritan, in one-cup and four-cup sizes. Takes CAFEC or V60-style cone papers.',how:'The petal grooves keep a wide air gap between paper and wall, so it drains freely like a V60 but less sensitive to how you pour.',best:'V60-style clarity with a little more forgiveness.'}),
- mugen:br({name:'Hario MUGEN (one pour)',type:'Cone dripper',body:0.6,clarity:0.4,base:{zp6:52,kultra:74},
+ mugen:br({name:'Hario MUGEN',type:'Cone dripper',body:0.6,clarity:0.4,base:{zp6:52,kultra:74},
   desc:'A V60-shaped cone with a spiral of small ridges instead of long ribs, built for brewing in one pour. Uses V60 papers.',how:'The ridges let the paper cling to the wall, so water drains through the bed slowly with no bypass. One slow pour does the work of several; grind finer than usual.',best:'Sweet, full cups with almost no technique.'}),
  beehouse:br({name:'Bee House',type:'Cone dripper',body:0.5,clarity:0.4,base:{zp6:56,kultra:80},
   desc:'A ceramic wedge dripper by Zero Japan with two small holes and a window to see the cup. Takes Melitta #2 papers.',how:'The two small outlets slow the drawdown, so it brews well with a simple pour, much like a Melitta.',best:'Easy, sweet everyday cups.'}),
@@ -2561,11 +2616,11 @@ const BREWERS={
   desc:'A flat-bottom, no-bypass brewer with a valve and a dispersion cap that showers water evenly.',how:'All water must pass through the bed, so it suits coarser grinds and larger doses. The valve allows immersion stages.',best:'Even extraction with coarse grinds; big-batch clarity.'}),
  tricolate:br({name:'Tricolate',type:'Flat-bottom dripper',body:0.4,clarity:0.9,base:{zp6:42,kultra:59},
   desc:'A no-bypass brewer without ribs, designed for fine grinds and a single pour.',how:'Water cannot run around the bed, so a fine grind and one pour give high, even extraction.',best:'Intense, clean cups from light roasts.'}),
- sw:br({name:'Hario Switch, hybrid',type:'Valve and hybrid',body:1,clarity:0.2,base:{zp6:60,kultra:84},
-  desc:'A V60-style cone on a base with a stainless steel ball valve.',how:'Closed means immersion, open means percolation, and you can change mid-brew.',best:'Sweetness, body and forgiveness; Kasuya\u2019s hybrids.'}),
- swneo:br({name:'Hario Switch + V60 NEO',type:'Valve and hybrid',body:0.8,clarity:0.4,base:{zp6:57,kultra:81},
-  desc:'The Switch valve base under a V60 NEO dripper (Hario also sells this as the Switch & Match NEO set).',how:'Valve control for immersion stages, then the NEO\u2019s fast, even drawdown. Grind a few clicks finer than with the glass Switch cone.',best:'Hybrid recipes with a cleaner finish.'}),
- swi:br({name:'Hario Switch, full immersion',type:'Valve and hybrid',body:1.8,clarity:-1.2,base:{zp6:66,kultra:91},
+ sw:br({name:'Hario Switch',type:'Valve and hybrid',body:1,clarity:0.2,base:{zp6:60,kultra:84},
+  desc:'A V60-style glass cone on a base with a stainless steel ball valve. Brew it two ways: as a hybrid, switching between steeping and dripping, or as a full immersion with the valve closed for the whole steep.',how:'Closed means immersion, open means percolation, and you can change mid-brew. Full immersion brews like a French press with a paper filter, so it takes a coarser grind.',best:'Sweetness, body and forgiveness; Kasuya\u2019s hybrids.'}),
+ swneo:br({name:'NEO Switch',type:'Valve and hybrid',body:0.8,clarity:0.4,base:{zp6:57,kultra:81},
+  desc:'The Switch valve base under a V60 NEO cone. Brew it as a hybrid, or close the valve for a full immersion.',how:'Valve control for immersion stages, then the NEO\u2019s fast, even drawdown. Grind a few clicks finer than with the glass Switch cone.',best:'Hybrid recipes with a cleaner finish.'}),
+ swi:br({of:'sw',method:'Full immersion',name:'Hario Switch, full immersion',type:'Valve and hybrid',body:1.8,clarity:-1.2,base:{zp6:66,kultra:91},
   desc:'The Switch used as a pure immersion brewer: valve closed for the whole steep.',how:'Like a French press with a paper filter.',best:'Big body with a clean finish.'}),
  clever:br({name:'Clever Dripper',type:'Valve and hybrid',body:1.5,clarity:-0.6,base:{zp6:62,kultra:87},
   desc:'An immersion dripper whose valve opens when you set it on a cup or server.',how:'Steep, then place it on the cup to drain. Adding water before coffee reduces clogging.',best:'Easy, sweet, full-bodied cups.'}),
@@ -2573,7 +2628,7 @@ const BREWERS={
   desc:'A plunger brewer invented by Alan Adler in 2005. Brew upright or inverted, with paper or metal filters.',how:'Immersion plus gentle pressure. Endlessly adjustable: fine or coarse, hot or cool, concentrate or full-strength.',best:'Travel, experimentation, clean yet rich cups.'}),
  frenchpress:br({name:'French press',type:'Immersion and pressure',body:2.2,clarity:-1.6,base:{zp6:78,kultra:104},ratio:{ref:16,min:12,max:18,step:0.5,def:16,k:0.15},
   desc:'A carafe with a metal mesh plunger. Full immersion, no paper.',how:'Oils and fine particles pass through, giving a heavy, textured cup. Grind coarse and pour gently to keep silt down.',best:'Body and richness; darker roasts and naturals.'}),
- siphon:br({name:'Siphon (vacuum)',type:'Immersion and pressure',body:0.8,clarity:0.6,base:{zp6:50,kultra:71},
+ siphon:br({name:'Siphon',type:'Immersion and pressure',body:0.8,clarity:0.6,base:{zp6:50,kultra:71},
   desc:'Two glass chambers: vapour pressure pushes water up to the coffee, then a vacuum pulls the brew down through a cloth or paper filter. The design dates back to the 1830s.',how:'Stable, hot immersion followed by a fast filtration.',best:'Clean, aromatic, theatrical brews.'}),
  espresso:br({name:'Espresso machine',type:'Espresso and stovetop',body:3,clarity:-0.4,base:{zp6:null,kultra:36},ratio:{ref:2,min:1,max:4,step:0.25,def:2,k:0.5},temp:{min:86,max:96,def:93},bloom:{min:0,max:15,def:5,label:'Pre-infusion'},
   desc:'About 9 bars of pressure push hot water through a fine, packed bed in 20 to 35 seconds.',how:'Very fine grind and a short brew ratio. Needs an espresso-capable grinder: the ZP6 Special and other filter-only grinders cannot go fine enough.',best:'Concentrated, syrupy shots and milk drinks.'}),
@@ -2581,13 +2636,13 @@ const BREWERS={
   desc:'The stovetop brewer introduced by Bialetti in 1933. Steam pressure from the bottom chamber pushes water up through the coffee.',how:'Fine-ish grind, no tamping. Heat control matters more than anything else.',best:'Strong, rich coffee without a machine.'}),
  phin:br({name:'Vietnamese phin',type:'Espresso and stovetop',body:1.8,clarity:-0.4,base:{zp6:36,kultra:51},ratio:{ref:7,min:4,max:12,step:0.5,def:7,k:0.2},temp:{min:90,max:100,def:96},
   desc:'A small metal filter with a press plate that sits on the cup.',how:'A slow gravity drip through a fine, lightly pressed bed. Traditionally used with Robusta and sweetened condensed milk.',best:'Strong, sweet iced coffee (cà phê sữa đá).'}),
- cezve:br({name:'Cezve (Turkish coffee)',type:'Boiled',model:false,body:2.6,clarity:-2,base:{zp6:null,kultra:10},
+ cezve:br({name:'Cezve',type:'Boiled',model:false,body:2.6,clarity:-2,base:{zp6:null,kultra:10},
   desc:'A small long-handled pot. The coffee is powder-fine and served unfiltered.',how:'Heat cold water, coffee and optional sugar slowly until the foam rises; never boil hard. Needs a powder grind at the very finest end of an espresso-capable grinder; filter grinders such as the ZP6 Special cannot reach it.',best:'Thick, intense, foamy coffee. Turkish coffee culture is on UNESCO\u2019s intangible heritage list.'}),
- dallah:br({name:'Dallah (Arabic coffee)',type:'Boiled',model:false,body:0.2,clarity:0.2,base:{zp6:60,kultra:84},
+ dallah:br({name:'Dallah',type:'Boiled',model:false,body:0.2,clarity:0.2,base:{zp6:60,kultra:84},
   desc:'The traditional Arabic coffee pot, used to brew lightly roasted coffee with cardamom and often saffron or clove.',how:'Simmer, let the grounds settle, then pour small servings into finjan cups. Styles vary by country.',best:'Qahwa, the coffee of hospitality. Arabic coffee is on UNESCO\u2019s intangible heritage list.'}),
- cold:br({name:'Cold brew and cold drip',type:'Cold',model:false,body:1.4,clarity:-0.2,base:{zp6:82,kultra:109},
+ cold:br({name:'Cold brew',type:'Cold',model:false,body:1.4,clarity:-0.2,base:{zp6:82,kultra:109},
   desc:'Cold or room-temperature water over many hours, either as a steep or as a slow drip tower.',how:'Time replaces heat. Low acidity, high sweetness, very smooth.',best:'Smooth iced coffee and concentrates.'}),
- batch:br({name:'Batch brewer (drip machine)',type:'Machine',body:0.4,clarity:0.5,base:{zp6:58,kultra:82},ratio:Object.assign({},RF_,{def:16.5}),temp:{min:90,max:96,def:94},
+ batch:br({name:'Batch brewer',type:'Machine',body:0.4,clarity:0.5,base:{zp6:58,kultra:82},ratio:Object.assign({},RF_,{def:16.5}),temp:{min:90,max:96,def:94},
   desc:'An automatic filter machine such as a Moccamaster. SCA-certified brewers hold water around 92 to 96°C.',how:'Consistent, hands-off pour-over at larger volumes. Grind a touch coarser for bigger batches.',best:'Good coffee for several people with no effort.'})
 };
 
@@ -2665,9 +2720,9 @@ const RECIPES=[
   tip:'If it runs long, go coarser rather than hotter.'},
  {b:'sw',kind:'hybrid',name:'Standard hybrid',by:'Classic Switch technique',off:0,temp:94,dose:20,water:300,why:'Immersion for extraction, then open for clarity.',
   steps:['Valve CLOSED. 0:00 pour 100g, swirl.','0:45 pour to 300g, one gentle swirl.','1:45 OPEN the valve.','3:00 finished.'],tip:'Open earlier for more clarity, later for more body.'},
- {b:'swi',kind:'imm',name:'Full immersion',by:'Classic Switch technique',off:0,temp:95,dose:18,water:300,why:'A clean French press. Works with the glass Switch cone or the NEO.',
+ {b:'swi',kind:'imm',name:'Full immersion',by:'Classic Switch technique',off:0,temp:95,dose:18,water:300,why:'A clean French press. Works with the Switch or the NEO Switch.',
   steps:['Valve CLOSED. 0:00 add all water, stir.','3:30 stir once and OPEN the valve.','4:30 finished.'],tip:'Great for naturals and anaerobics.'},
- {b:'swneo',kind:'swneo',name:'Switch + NEO: percolate, then immerse',by:'Built for the NEO on the Switch base',off:0.3,temp:93,dose:20,water:300,why:'NEO pour-over for clarity, then a closed-valve finish for body.',
+ {b:'swneo',kind:'swneo',name:'NEO Switch: percolate, then immerse',by:'Built for the NEO Switch',off:0.3,temp:93,dose:20,water:300,why:'NEO pour-over for clarity, then a closed-valve finish for body.',
   steps:['Valve OPEN. 0:00 pour 50g, bloom.','0:35 pour to 150g.','1:10 CLOSE the valve and pour to 300g.','2:00 OPEN the valve.','2:45 finished.'],tip:'Grind a few clicks finer than for the glass Switch cone.'},
  {b:'swneo',kind:'kh1',name:'Kasuya Hybrid on the NEO',by:'Tetsu Kasuya\u2019s method, on the NEO',off:-0.2,temp:90,temp2:70,dose:20,water:280,why:'The same 90°C then 70°C structure; the NEO\u2019s faster open-valve flow allows a slightly finer grind.',
   steps:['Valve OPEN. 0:00 pour 60g at 90°C.','0:30 pour to 120g. Cool the kettle to about 70°C.','1:15 CLOSE and pour to 280g.','1:45 OPEN and drain.','2:45 finished.'],tip:'Start 2 to 3 clicks finer than your glass-Switch setting.'},
@@ -3729,6 +3784,86 @@ function palate(){const sc=new Map();let n=0;for(const l of LOG){const fl=flOf(l
   const cats=new Map();sc.forEach((v,id)=>{const c=FW.byId[id].cat.n;cats.set(c,(cats.get(c)||0)+v)});
   return{n,fl,top:[...cats].sort((a,b)=>b[1]-a[1]).slice(0,2).map(c=>c[0].toLowerCase())}}
 
+/* ================= STEPS AS A TIMELINE ================= */
+// A recipe's steps stay plain strings ("0:45 pour to 150g."), so recipes, sharing and the timer are unchanged. These
+// read them as a timeline: what kind of move each step is, how the water builds over time, and an editor for them.
+const SK=[
+  ['bloom',/\bbloom/i,'Bloom','M12 3c3 4 6 7 6 11a6 6 0 0 1-12 0c0-4 3-7 6-11z M9 15a3 3 0 0 0 3 3'],
+  ['pour',/\bpour|\badd\b.*\bwater|\bfill\b|\btop (?:up|off)\b/i,'Pour','M5 7h9l-1 4h-7z M14 8l5-3 M9 11v2 M9 15v1 M9 18v1'],
+  ['swirl',/\bswirl|\brao\b|\bspin\b/i,'Swirl','M12 5a7 7 0 1 1-7 7 M5 12a4 4 0 1 0 4-4'],
+  ['stir',/\bstir|\bbreak the crust|\bagitat/i,'Stir','M15 3l-6 18 M7 14c2 2 8 2 10 0'],
+  ['valve',/\bvalve|\bswitch\b|\bon a cup|\bplace (?:it )?on\b/i,'Valve','M12 4v6 M8 10h8 M6 14h12v4H6z'],
+  ['press',/\bpress|\bplunge|\bflip\b|\binvert/i,'Press','M7 4h10 M12 4v9 M6 13h12 M8 17h8 M10 20h4'],
+  ['steep',/\bsteep|\bwait|\brest\b|\blet it\b(?!.*drain)/i,'Wait','M12 7v5l3 2 M12 3a9 9 0 1 1 0 18 9 9 0 0 1 0-18z'],
+  ['ice',/\bice\b/i,'Ice','M12 3v18 M4.5 7.5l15 9 M19.5 7.5l-15 9'],
+  ['prep',/\brinse|\bpreheat|\bwell in|\bgrind\b|\bweigh|\bheat\b/i,'Prep','M5 18h14 M7 18V9h10v9 M9 6c0-1 1-2 1-3 M13 6c0-1 1-2 1-3'],
+  ['end',/\bfinish|\bdrawdown|\bdrain|\bremove|\bserve|\bdone\b|\bdecant|\bpour (?:it )?into/i,'Finish','M5 12l4 4 10-10']];
+// End wins over pour ("pour into cups"), bloom over pour ("pour 50g, bloom").
+const stepKind=s=>{const x=String(s).replace(/^\s*\d+:\d\d\s*/,'');for(const k of ['bloom','end','swirl','stir','valve','press','ice'])if(SK.find(z=>z[0]===k)[1].test(x))return k;
+  for(const [k,re] of SK)if(re.test(x))return k;return 'note'};
+const SKICO=k=>{const z=SK.find(x=>x[0]===k);return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+(z?z[3]:'M6 12h12 M12 6v12')+'"/></svg>'};
+const SKNAME=k=>{const z=SK.find(x=>x[0]===k);return z?z[2]:'Note'};
+
+// How the water builds: [time, grams on the scale] at the start and end of each pour. Pours take about 10 s, or run
+// to the next step when that comes sooner. Null when the steps don't say how much is poured, or when.
+function pourCurve(steps,water){const ev=parseSteps(steps),pts=[[0,0]];let lvl=0,any=false,end=0;
+  ev.forEach((e,i)=>{if(e.t<0)return;end=Math.max(end,e.t);const p=pourOf(e.s);if(!p)return;const to=p.to||(p.add?lvl+p.add:null);if(to==null||to<=lvl)return;
+    const nx=ev.slice(i+1).find(x=>x.t>e.t),dur=Math.max(4,Math.min(nx?nx.t-e.t:12,Math.max(8,(to-lvl)/5)));
+    pts.push([e.t,lvl],[e.t+dur,to]);lvl=to;any=true;end=Math.max(end,e.t+dur)});
+  if(!any)return null;const last=ev.filter(e=>e.t>=0).pop();if(last)end=Math.max(end,last.t);pts.push([Math.max(end,pts[pts.length-1][0]),lvl]);
+  return{pts,end:Math.max(end,1),top:Math.max(lvl,water||0,1),lvl}}
+// The curve as a small chart: the water rising pour by pour, a dot for each step coloured by its kind.
+function pourGraph(steps,water,opt){opt=opt||{};const c=pourCurve(steps,water);if(!c)return '';const W=320,H=opt.h||92,px=12,py=12,X=t=>px+t/c.end*(W-2*px),Y=g=>H-py-g/c.top*(H-2*py);
+  const line=c.pts.map(([t,g],i)=>(i?'L':'M')+X(t).toFixed(1)+' '+Y(g).toFixed(1)).join(' '),area=line+' L'+X(c.pts[c.pts.length-1][0]).toFixed(1)+' '+(H-py)+' L'+X(0)+' '+(H-py)+'Z';
+  const ev=parseSteps(steps).filter(e=>e.t>=0);let lvl=0;
+  // A step's dot sits where it starts: a pour's at the level it pours from.
+  const dots=ev.map(e=>{const y=lvl,p=pourOf(e.s);if(p){const to=p.to||(p.add?lvl+p.add:lvl);lvl=Math.max(lvl,to)}return '<circle class="pg-d k-'+stepKind(e.s)+'" cx="'+X(e.t).toFixed(1)+'" cy="'+Y(y).toFixed(1)+'" r="4"/>'}).join('');
+  const goal=water&&Math.abs(c.lvl-water)>2?'<line class="pg-goal" x1="'+px+'" x2="'+(W-px)+'" y1="'+Y(water).toFixed(1)+'" y2="'+Y(water).toFixed(1)+'"/>':'';
+  return '<figure class="pgraph"><svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Water over time: '+c.lvl+' g by '+mmss(c.end)+'">'+
+    '<defs><linearGradient id="pgf'+(opt.id||'')+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--cherry)" stop-opacity=".32"/><stop offset="1" stop-color="var(--cherry)" stop-opacity="0"/></linearGradient></defs>'+
+    goal+'<path class="pg-a" d="'+area+'" fill="url(#pgf'+(opt.id||'')+')"/><path class="pg-l" d="'+line+'"/>'+dots+'</svg>'+
+    '<figcaption><span>0:00</span><b>'+c.lvl+' g</b><span>'+mmss(c.end)+'</span></figcaption></figure>'}
+
+// The editor: one row per step on a rail, its time in a pill and what to do beside it, with a button for each kind of
+// move to add the next step. stepEditor(el, steps, {water, dose}) returns {value(), set(opts)}.
+function stepEditor(el,steps,o){o=Object.assign({water:250,dose:15},o);let rows=(steps.length?steps:['0:00 ']).map(s=>{const m=/^\s*(\d+:\d\d)\s*/.exec(s);return{t:m?m[1]:'',x:m?s.slice(m[0].length):s}});
+  const ADD=[['bloom','Bloom'],['pour','Pour'],['swirl','Swirl'],['stir','Stir'],['steep','Wait'],['valve','Valve'],['press','Press'],['end','Finish']];
+  el.innerHTML='<div class="se"><div class="se-graph"></div><ol class="se-list"></ol><div class="se-add" role="group" aria-label="Add a step">'+ADD.map(([k,n])=>'<button type="button" class="se-chip k-'+k+'" data-add="'+k+'">'+SKICO(k)+'<span>'+n+'</span></button>').join('')+'</div><p class="se-sum" aria-live="polite"></p></div>';
+  const list=el.querySelector('.se-list'),secs=t=>{const m=/^(\d+):(\d\d)$/.exec(t);return m?+m[1]*60+ +m[2]:null};
+  const early=i=>!!(rows[i].t&&i&&rows.slice(0,i).some(p=>secs(p.t)!=null&&secs(p.t)>secs(rows[i].t))),val=()=>rows.map(r=>(r.t?r.t+' ':'')+r.x.trim()).filter(s=>s.trim());
+  const row=(r,i)=>{const k=stepKind(r.x),bad=early(i);
+    return '<li class="se-row k-'+k+'" data-i="'+i+'"><span class="se-dot" title="'+SKNAME(k)+'">'+SKICO(k)+'</span>'+
+      '<input class="se-t'+(bad?' bad':'')+'" value="'+esc(r.t)+'" placeholder="–:––" inputmode="numeric" maxlength="5" aria-label="Step '+(i+1)+' time">'+
+      '<input class="se-x" value="'+esc(r.x)+'" placeholder="What to do" aria-label="Step '+(i+1)+'">'+
+      '<span class="se-ops"><button type="button" class="se-op" data-up="'+i+'" aria-label="Move step '+(i+1)+' up"'+(i?'':' disabled')+'><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>'+
+      '<button type="button" class="se-op" data-del="'+i+'" aria-label="Remove step '+(i+1)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></span></li>'};
+  const sum=()=>{const v=val(),c=pourCurve(v,o.water),last=rows.map(r=>secs(r.t)).filter(x=>x!=null),n=v.length;
+    el.querySelector('.se-graph').innerHTML=pourGraph(v,o.water,{id:'ed'});
+    const msg=[n+' step'+(n===1?'':'s')];if(last.length)msg.push('ends at '+mmss(Math.max(...last)));
+    if(c)msg.push(Math.abs(c.lvl-o.water)<=2?'pours reach the full '+o.water+' g':'pours reach '+c.lvl+' of '+o.water+' g');
+    if(rows.some((r,i)=>early(i)))msg.push('a time is earlier than the step before it');
+    const p=el.querySelector('.se-sum');p.textContent=capS(msg.join(' · '));p.classList.toggle('warn',!!c&&Math.abs(c.lvl-o.water)>2||/earlier/.test(p.textContent))};
+  const draw=focus=>{list.innerHTML=rows.map(row).join('');sum();if(focus!=null){const f=list.querySelector('[data-i="'+focus+'"] .se-x');if(f){f.focus();f.setSelectionRange(f.value.length,f.value.length)}}};
+  // Typing keeps focus: only the edited row's icon and the chart change.
+  list.oninput=e=>{const li=e.target.closest('.se-row');if(!li)return;const r=rows[+li.dataset.i];
+    if(e.target.classList.contains('se-x')){r.x=e.target.value;const k=stepKind(r.x);li.className='se-row k-'+k;const d=li.querySelector('.se-dot');d.innerHTML=SKICO(k);d.title=SKNAME(k)}else r.t=e.target.value.trim();sum()};
+  // "45" reads as 0:45 and "130" as 1:30 once you leave the time.
+  list.addEventListener('focusout',e=>{if(!e.target.classList.contains('se-t'))return;const r=rows[+e.target.closest('.se-row').dataset.i],v=r.t.replace(/[^\d:]/g,'');
+    let t='';if(/^\d+:\d{1,2}$/.test(v)){const [m,s]=v.split(':');t=+m+':'+String(Math.min(59,+s)).padStart(2,'0')}else if(/^\d{1,4}$/.test(v)){const n=+v;t=v.length<=2?(n>=60?Math.floor(n/60)+':'+String(n%60).padStart(2,'0'):'0:'+String(n).padStart(2,'0')):Math.floor(n/100)+':'+String(Math.min(59,n%100)).padStart(2,'0')}
+    if(t!==r.t){r.t=t;e.target.value=t}list.querySelectorAll('.se-t').forEach((x,j)=>x.classList.toggle('bad',early(j)));sum()});
+  list.onclick=e=>{const u=e.target.closest('[data-up]'),d=e.target.closest('[data-del]');
+    if(u){const i=+u.dataset.up;[rows[i-1],rows[i]]=[rows[i],rows[i-1]];draw()}
+    if(d){rows.splice(+d.dataset.del,1);if(!rows.length)rows.push({t:'0:00',x:''});draw()}};
+  // A new step starts a little after the last one, with words to edit: the next pour aims at the rest of the water.
+  el.querySelector('.se-add').onclick=e=>{const b=e.target.closest('[data-add]');if(!b)return;const k=b.dataset.add,ts=rows.map(r=>secs(r.t)).filter(x=>x!=null),last=ts.length?Math.max(...ts):null;
+    const c=pourCurve(val(),o.water),lvl=c?c.lvl:0,gap={bloom:0,pour:last===0?40:30,swirl:10,stir:5,steep:30,valve:30,press:30,end:45}[k];
+    const t=last==null?0:last+gap,left=Math.max(0,o.water-lvl),valves=rows.filter(r=>/\bclose\b/i.test(r.x)).length-rows.filter(r=>/\bopen\b/i.test(r.x)).length;
+    const x={bloom:'pour '+Math.round(o.dose*2.5)+'g, bloom.',pour:left?'pour to '+(left>o.water*0.45?Math.round((lvl+left/2)/5)*5:o.water)+'g.':'pour slowly.',swirl:'swirl gently.',stir:'stir gently.',steep:'let it steep.',
+      valve:valves>0?'open the valve.':'close the valve.',press:'press slowly.',end:'finished.'}[k];
+    rows.push({t:k==='bloom'&&last==null?'0:00':mmss(t),x});draw(rows.length-1)};
+  draw();
+  return{value:val,set(n){Object.assign(o,n);sum()}}}
+
 /* ================= UTIL ================= */
 const $=id=>document.getElementById(id);
 // Coalesce redraws from sliders and typing into one per frame, so dragging stays smooth.
@@ -3923,7 +4058,8 @@ for(const g in BASE)for(const k in BASE[g])if(!BREWERS[k]||BASE[g][k]!==null&&!N
 // Calibrating a brewer on one grinder says how fine you like that brewer, so your other grinders follow it on that
 // brewer (the same grind size; averaged if you calibrated it on several). Cached; cleared when BASE changes.
 let BOFF={};
-function boff(b){if(b in BOFF)return BOFF[b];let t=0,n=0;for(const g in BASE){const v=BASE[g]&&BASE[g][b];if(v==null||!GRINDERS[g])continue;const d=defBase(g,b,true);if(d!=null){t+=sizeOf(g,v)-sizeOf(g,d);n++}}return BOFF[b]=n?t/n:0}
+// A brewer's other method (the Switch's full immersion) follows the brewer's calibration.
+function boff(b){if(b in BOFF)return BOFF[b];const cb=BREWERS[b].of||b;let t=0,n=0;for(const g in BASE){const v=BASE[g]&&BASE[g][cb];if(v==null||!GRINDERS[g])continue;const d=defBase(g,cb,true);if(d!=null){t+=sizeOf(g,v)-sizeOf(g,d);n++}}return BOFF[b]=n?t/n:0}
 function calX(g,b){const d=defBase(g,b,true);if(d==null)return null;const o=boff(b);if(!o)return d;const G=GRINDERS[g];return clamp(stepsFor(g,sizeOf(g,d)+o),G.min,G.max)}
 // Your calibrated setting for a grinder on a brewer, or the estimate from the shared scale.
 function base(g,b){const v=BASE[g]&&BASE[g][b];if(v!=null)return v;const x=calX(g,b);return x==null?null:Math.round(x)}
@@ -3957,6 +4093,8 @@ let CREC=load('bb-myrecipes',[]).map(sanRec).filter(Boolean);
 function syncRecipes(){RECIPES.length=BUILTIN_N;CREC.slice().sort((a,b)=>a.ts-b.ts).forEach(r=>RECIPES.push(r))}
 syncRecipes();
 const MODEL=Object.keys(BREWERS).filter(k=>BREWERS[k].model);
+// A method of another brewer (the Switch used as a full immersion) isn't listed as a brewer of its own.
+const LISTED=k=>!BREWERS[k].of,METHODS=k=>Object.keys(BREWERS).filter(x=>BREWERS[x].of===k);
 function brewerOptions(list){const types=[...new Set(list.map(k=>BREWERS[k].type))];return types.map(t=>'<optgroup label="'+t+'">'+list.filter(k=>BREWERS[k].type===t).map(k=>'<option value="'+k+'">'+esc(BREWERS[k].name)+'</option>').join('')+'</optgroup>').join('')}
 
 /* ================= VARIETY HELPERS ================= */
@@ -4175,10 +4313,10 @@ function renderDialRecipe(){const tl=techList(S.brewer),r=dialRec();
   $('d-recipe').hidden=false;
   $('d-recipe').innerHTML='<span class="pill"><i style="background:var(--cherry)"></i>Your recipe</span><h2>'+esc(r.name)+'</h2>'+(r.by?'<p class="hint" style="margin:0">'+esc(r.by)+'</p>':'')+
     '<div class="dr-meta"><span class="gl">'+esc(goalLabel(S.goal,S.amt))+'</span><span>'+S.dose+'g : '+dp.water+'g · 1:'+rr1(S.ratio)+'</span><span>'+S.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span><span>'+esc(gLabel(S.grinder,S.setting))+'</span><span>'+BREWERS[S.brewer].bloom.label+' '+S.bloom+'s</span></div>'+
-    '<div class="dr-cols"><div><h3 style="margin-top:0">Steps</h3>'+stepList(dp.steps)+(r.tip&&r.kind!=='46'?'<p class="hint">'+esc(r.tip)+'</p>':'')+'</div>'+
+    '<div class="dr-cols"><div><h3 style="margin-top:0">Steps</h3>'+pourGraph(dp.steps,dp.water)+stepList(dp.steps)+(r.tip&&r.kind!=='46'?'<p class="hint">'+esc(r.tip)+'</p>':'')+'</div>'+
     '<div><h3 style="margin-top:0">What changed and why</h3><ul class="why">'+(notes.length?notes.map(w=>'<li>'+w+'</li>').join(''):'<li>The recipe as written suits this coffee.</li>')+'</ul></div></div>'+
     '<div class="actions"><button type="button" class="btn" data-dtimer>Start brew timer</button><button type="button" class="btn ghost" data-dfull>Original recipe</button><button type="button" class="btn ghost" data-dshare>Share</button></div>'}
-function dialTimer(){const dp=dialPlan();if(!dp)return;openTimer(S.rec,{grinder:S.grinder,set:{[S.grinder]:S.setting},r:{dose:S.dose},water:dp.water,temp:S.temp,steps:dp.steps})}
+function dialTimer(){const dp=dialPlan();if(!dp)return;openTimer(S.rec,{brewer:S.brewer,grinder:S.grinder,set:{[S.grinder]:S.setting},r:{dose:S.dose},water:dp.water,temp:S.temp,steps:dp.steps})}
 // The Beans row under Your coffee: the coffee you picked, or a way to pick one from the gallery.
 function renderDBean(){const el=$('d-bean');if(!el||!window.BEANS_OK)return;const b=S.bean,gb=b&&b.id&&beanById(b.id);
   if(b){el.innerHTML='<div class="dbean">'+(gb?beanPic(gb,'xs'):'<span class="bpic xs" style="--rc:'+regCol(b.origin)+'"><span class="bph">'+beanSVG+'</span></span>')+
@@ -4232,7 +4370,7 @@ function render(){
   save('bb-state',S);
 }
 function renderCal(){
-  $('caltbody').innerHTML=MODEL.map(k=>{const b=BREWERS[k];const cell=g=>!canGrind(g,k)?'<td class="hint">n/a</td>':'<td><input type="number" step="1" data-g="'+g+'" data-b="'+k+'" value="'+base(g,k)+'" aria-label="'+GRINDERS[g].name+' clicks, '+esc(b.name)+'"> <span class="hint">'+dial(g,base(g,k))+'</span></td>';return'<tr><td>'+esc(b.name)+'</td>'+MYG.map(cell).join('')+'</tr>'}).join('');
+  $('caltbody').innerHTML=MODEL.filter(LISTED).map(k=>{const b=BREWERS[k];const cell=g=>!canGrind(g,k)?'<td class="hint">n/a</td>':'<td><input type="number" step="1" data-g="'+g+'" data-b="'+k+'" value="'+base(g,k)+'" aria-label="'+GRINDERS[g].name+' clicks, '+esc(b.name)+'"> <span class="hint">'+dial(g,base(g,k))+'</span></td>';return'<tr><td>'+esc(b.name)+'</td>'+MYG.map(cell).join('')+'</tr>'}).join('');
   $('calhead').innerHTML='<th>Brewer</th>'+MYG.map(g=>'<th>'+esc(gname(g))+'</th>').join('');
 }
 function initDial(){
@@ -4272,7 +4410,7 @@ const sameFam=(a,b)=>BFAM(a)===BFAM(b);
 let LASTSURP=-1;
 const RFAM=b=>b==='swi'?'sw':BFAM(b);
 const BTAG={neo:'NEO',swneo:'NEO',swi:'Immersion'};
-const BSHORT={v60:'V60',neo:'NEO',sw:'glass Switch',swneo:'Switch NEO'};
+const BSHORT={v60:'V60',neo:'NEO',sw:'Switch',swneo:'NEO Switch'};
 function techList(b){const all=RECIPES.map((r,i)=>[r,i]);return all.filter(([r])=>r.b===b).concat(all.filter(([r])=>r.b!==b&&sameFam(r.b,b)),all.filter(([r])=>(b==='sw'||b==='swneo')&&r.b==='swi'))}
 /* Target cup profiles. Each moves the predicted extraction (Dt), the ratio (in brewer steps), the agitation and, for
    Brighter, the water a degree cooler. Recipes that publish their own levers (Kasuya's 4:6) are rebuilt with them. */
@@ -4390,7 +4528,7 @@ function planHTML(p,c){
     '<div><b>Water</b><span>'+p.temp+'°C</span>'+(p.r.temp2?'<small>then about '+p.r.temp2+'°C</small>':'')+'</div>'+
     '<div><b>Dose : water</b><span>'+p.r.dose+'g : '+p.water+'g</span><small>1:'+p.ratio+'</small></div>'+
     '<div><b>'+B.bloom.label+'</b><span>'+p.bloom+'s</span></div><div><b>Agitation</b><span>'+agl+'</span></div></div>'+
-   '<h3>Steps</h3>'+stepList(p.steps)+
+   '<h3>Steps</h3>'+pourGraph(p.steps,p.water)+stepList(p.steps)+
    (p.tw.length?'<div class="tip">'+p.tw.join(' ')+'</div>':'')+
    '<h3>Why these settings</h3><ul class="why">'+(p.why.length?p.why.map(w=>'<li>'+w+'</li>').join(''):'<li>The recipe already suits this coffee.</li>')+
    '<li>Grind starts from the recipe\u2019s setting on your calibration, then moves to land the predicted extraction on your goal.</li></ul>';
@@ -4439,7 +4577,27 @@ function beep(soft){if(!TM.ctx)return;try{const o=TM.ctx.createOscillator(),g=TM
 function tick(){TM.el=(performance.now()-TM.t0)/1000;if(TM.el>=TM.total){TM.el=TM.total;clearInterval(TM.iv);TM.run=false;wake(false);setPlay();paint();done();beep();beans(26);return}paint()}
 function done(){const r=TM.r||RECIPES[TM.idx];$('tm-step').textContent='Done';$('tm-target').innerHTML='';$('tm-now').textContent='Enjoy your cup.';$('tm-next').innerHTML='<div class="tm-done"><button class="btn" id="tm-log">Log this brew</button><button class="btn ghost" id="tm-again">Brew again</button></div>';
   $('tm-log').onclick=()=>{const p=TM.p,B=BREWERS[r.b];$('timer').close();setTimeout(()=>{showTab('log');$('l-settings').value=r.name+', '+(p?p.r.dose:r.dose)+'g : '+(p?p.water:r.water)+'g'+((p?p.temp:r.temp)?', '+(p?p.temp:r.temp)+'°C':'');$('l-settings').dataset.brewer=r.b;$('l-coffee').focus()},250)};
-  $('tm-again').onclick=()=>{TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;paint();$('tm-go').click()}}
+  $('tm-again').onclick=()=>{TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;paint();$('tm-go').click()};drawCheck()}
+// How long the drawdown took is the most reliable grind signal there is: a dripper that finishes early wants a finer
+// grind, one that runs long a coarser one. About 35 s of drawdown is one recipe step of grind size (about 7 ZP6 clicks),
+// so the answer becomes an exact setting on your grinder, and you can keep it as your setting for this brewer.
+const DRAW_S=35;
+function drawCheck(){const p=TM.p,r=TM.r||RECIPES[TM.idx],b=(p&&(p.brewer||p.st&&p.st.brewer))||r.b,B=BREWERS[b];
+  if(!B||!['Cone dripper','Flat-bottom dripper'].includes(B.type))return;
+  const g=p&&p.grinder||MYG.find(x=>canGrind(x,b)),v=p&&p.set&&p.set[g]!=null?p.set[g]:g?settingFor(g,b,r.off||0):null;if(g==null||v==null)return;
+  const opts=[[-30,'30s early'],[-15,'15s early'],[0,'On time'],[15,'15s late'],[30,'30s late']];
+  const box=document.createElement('div');box.className='tm-draw';
+  box.innerHTML='<p class="tm-dq">When did the drawdown finish? <small>The recipe aims for '+mmss(TM.total)+'</small></p><div class="seg tm-dseg" role="group" aria-label="Drawdown timing">'+opts.map(([d,t])=>'<button type="button" data-dd="'+d+'" aria-pressed="false">'+t+'</button>').join('')+'</div><div class="tm-dres" aria-live="polite"></div>';
+  $('tm-next').appendChild(box);
+  box.querySelector('.tm-dseg').onclick=e=>{const bt=e.target.closest('[data-dd]');if(!bt)return;const dd=+bt.dataset.dd;
+    box.querySelectorAll('[data-dd]').forEach(x=>x.setAttribute('aria-pressed',x===bt));const out=box.querySelector('.tm-dres');
+    if(!dd){out.innerHTML='<p>Your grind is right for this brewer. Keep '+esc(gLabel(g,v))+'.</p>';return}
+    // Early means the bed was too open: finer (a smaller size). Late: coarser.
+    const ds=dd/DRAW_S*160,nv=roundG(g,shift(g,v,ds)),n=Math.abs(nv-v),G=GRINDERS[g];
+    if(!n){out.innerHTML='<p>That\u2019s less than one click on the '+esc(G.name)+'. Keep '+esc(gLabel(g,v))+' and pour a touch '+(dd<0?'slower':'faster')+'.</p>';return}
+    out.innerHTML='<p>Go <b>'+n+' click'+(n===1?'':'s')+' '+(dd<0?'finer':'coarser')+'</b> next time: <b>'+esc(gLabel(g,nv))+'</b>.</p><button type="button" class="btn ghost" id="tm-keep">Use this for my '+esc(BREWERS[B.of||b].name)+'</button>';
+    $('tm-keep').onclick=()=>{const cb=B.of||b,bx=baseX(g,cb);if(bx==null)return;(BASE[g]=BASE[g]||{})[cb]=roundG(g,shift(g,bx,ds));BOFF={};save('bb-base3',BASE);
+      render();renderCal();if(BUILT.recipes)renderRecipes();if(BUILT.gear){renderGrindMap();renderMatch()}$('tm-keep').disabled=true;$('tm-keep').textContent='Saved as your '+BREWERS[cb].name+' setting';toast('Your '+G.name+' setting for the '+BREWERS[cb].name+' is now '+dial(g,BASE[g][cb]))}}}
 function paint(){const el=TM.el,C=2*Math.PI*96;$('tm-big').textContent=mmss(el);
   $('tm-arc').setAttribute('stroke-dashoffset',(C*(1-el/TM.total)).toFixed(1));
   let cur=-1;TM.ev.forEach((e,i)=>{if(e.t>=0&&e.t<=el)cur=i});
@@ -4492,9 +4650,13 @@ function showTab(id,fromHistory,pure){ensureTab(id);const cur=document.querySele
     // A page inside a section (the map, the log…) lights up that section's tab.
     document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x.dataset.t===(BNGROUP[id]||id)));
     document.querySelectorAll('main section').forEach(s=>s.classList.toggle('on',s.id===id));window.scrollTo({top:0});syncShell(id);
-    if(kind&&NAV_READY){const sec=$(id);if(!vt){sec.classList.remove('nav-in');void sec.offsetWidth;sec.classList.add('nav-in');clearTimeout(sec._nav);sec._nav=setTimeout(()=>sec.classList.remove('nav-in'),800)}cascadeIn(sec)}};
+    if(kind&&NAV_READY){const sec=$(id);if(!vt){sec.classList.remove('nav-in');void sec.offsetWidth;sec.classList.add('nav-in');clearTimeout(sec._nav);sec._nav=setTimeout(()=>sec.classList.remove('nav-in'),800);cascadeIn(sec)}}};
   document.documentElement.dataset.nav=NAV_READY?kind:'';
-  if(kind&&pure&&NAV_READY&&document.startViewTransition&&!RM()&&!document.hidden&&!document.querySelector('dialog[open]')){
+  // The bottom-bar highlight answers the tap at once, before the page itself changes.
+  if(kind){document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));movePill()}
+  // Moving deeper or back uses a view transition (both pages move). Between bottom-bar sections only the new page
+  // swings in: capturing the whole old page first held each tap back by a frame or two on phones.
+  if((kind==='push'||kind==='pop')&&pure&&NAV_READY&&document.startViewTransition&&!RM()&&!document.hidden&&!document.querySelector('dialog[open]')){
     const h=document.documentElement;h.classList.add('vt');
     try{document.startViewTransition(()=>swap(true)).finished.finally(()=>h.classList.remove('vt'))}catch(e){h.classList.remove('vt');swap()}}
   else swap()}
@@ -4546,14 +4708,15 @@ function scaleSteps(r,dose,water){if(dose===r.dose&&water===r.water)return r.ste
 const scaled=r=>({dose:r.dose,water:r.water,steps:r.steps,off:r.off,adj:0,ratio:r.water/r.dose,on:false});
 const rr1=v=>Math.round(v*10)/10;
 // Steps as a timeline: the time each one starts in a badge, the instruction beside it.
-const stepList=steps=>'<ol class="steps tl">'+steps.map(x=>{const m=/^\s*(\d+:\d\d)\s*/.exec(x);return '<li>'+(m?'<span class="t">'+m[1]+'</span>'+esc(capS(x.slice(m[0].length))):'<span class="t dot"></span>'+esc(x))+'</li>'}).join('')+'</ol>';
+// Each step also shows what kind of move it is (pour, swirl, valve…) as a small coloured icon; see steps.js.
+const stepList=steps=>'<ol class="steps tl">'+steps.map(x=>{const m=/^\s*(\d+:\d\d)\s*/.exec(x),k=stepKind(x);return '<li class="k-'+k+'">'+(m?'<span class="t">'+m[1]+'</span>':'<span class="t dot"></span>')+'<i class="tk" title="'+SKNAME(k)+'">'+SKICO(k)+'</i>'+esc(capS(m?x.slice(m[0].length):x))+'</li>'}).join('')+'</ol>';
 function recipeBody(r,i,compact){const B=BREWERS[r.b],sc=compact?{dose:r.dose,water:r.water,steps:r.steps,off:r.off,ratio:r.water/r.dose}:scaled(r);const gs=MYG.map(g=>[g,settingFor(g,r.b,sc.off)]);
   const m=rmeta(r);
   return (compact?'<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span>':'')+'</div>'
      :'<p class="hint" style="margin:0 0 .2rem">'+esc(B.name)+' · '+esc(B.type)+'</p>'+'<div class="rstats"><div><b>'+r.dose+'g</b><small>Coffee</small></div><div><b>'+r.water+'g</b><small>Water</small></div><div><b>'+(m.ratio||'–')+'</b><small>Ratio</small></div>'+
        '<div><b>'+(r.temp?r.temp+'°C':'–')+'</b><small>'+(r.temp2?'Then '+r.temp2+'°C':'Water')+'</small></div><div><b>'+(m.time!=null?mmss(m.time):'By eye')+'</b><small>Total time</small></div><div><b>'+m.level+'</b><small>'+m.pours+' pour'+(m.pours===1?'':'s')+'</small></div></div>')+
    '<div class="meta">'+gs.map(([g,v])=>'<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>').join('')+'</div>'+
-   (r.why?'<p>'+esc(r.why)+'</p>':'')+(compact?'<details class="rsteps"><summary>Steps ('+r.steps.length+')</summary>':'')+stepList(sc.steps)+(r.tip?'<p class="hint">'+esc(r.tip)+'</p>':'')+(compact?'</details>':'')+
+   (r.why?'<p>'+esc(r.why)+'</p>':'')+(compact?'<details class="rsteps"><summary>Steps ('+r.steps.length+')</summary>':'')+(compact?'':pourGraph(sc.steps,sc.water))+stepList(sc.steps)+(r.tip?'<p class="hint">'+esc(r.tip)+'</p>':'')+(compact?'</details>':'')+
    '<div class="actions">'+(B.model?'<button class="btn" data-load="'+i+'">Brew in the dial-in</button><button class="btn ghost" data-timer="'+i+'">Start timer</button>':'<button class="btn" data-timer="'+i+'">Start timer</button>')+'<button class="btn ghost" data-rshare="'+i+'">Share</button>'+(r.custom?'<button class="btn ghost" data-redit="'+esc(r.id)+'">Edit</button>':'')+'</div>'}
 let RF='all',RQ='',RLIST=[];
 // Shared logs (and so team recipes) only exist when a sync server is set up; SYNC_DB is defined further down.
@@ -4606,7 +4769,7 @@ const COLBY=Object.fromEntries(COLS.map(c=>[c[0],c]));
 // Brewers that have recipes, in the guide's order, for the brewer shelf and the grouped list.
 const RBREWERS=()=>Object.keys(BREWERS).filter(k=>RFAM(k)===k&&RECIPES.some(r=>RFAM(r.b)===k));
 // A brewer family's name in the recipe library (the V60 and NEO share one shelf and one group).
-const famName=k=>k==='v60'?'Hario V60 and V60 NEO':k==='sw'?'Hario Switch and Switch NEO':BREWERS[k].name;
+const famName=k=>k==='v60'?'Hario V60 and V60 NEO':k==='sw'?'Hario Switch and NEO Switch':BREWERS[k].name;
 const BT_ICON={'Cone dripper':'M5 5h14l-5 9h-4z M10 14h4 M12 14v3 M7 19h10','Flat-bottom dripper':'M5 5h14l-3 8H8z M8 13h8 M12 13v4 M7 19h10','Valve and hybrid':'M6 4h12l-4 8h-4z M10 12h4v3h-4z M7 19h10 M12 15v4',
   'Immersion and pressure':'M7 5h10v14H7z M7 5H5 M12 2v3 M9 10h6','Espresso and stovetop':'M6 10h10v3a5 5 0 0 1-10 0z M16 11h2a2 2 0 0 1 0 4h-2 M4 20h14 M9 4c-1 1.5 1 2.5 0 4 M13 4c-1 1.5 1 2.5 0 4',
   'Boiled':'M5 10h10l-1 8H6z M15 12l5-3 M8 6c-1 1 1 2 0 3','Cold':'M6 4h12l-2 16H8z M9 9h3v3H9z M12 13h3v3h-3z','Machine':'M5 3h14v6H5z M7 9v8h10V9 M9 13h6 M6 21h12'};
@@ -4687,24 +4850,36 @@ function saveRecipe(r){const i=CREC.findIndex(x=>x.id===r.id);if(i>=0)CREC[i]=r;
 function deleteRecipe(r){CREC=CREC.filter(x=>x.id!==r.id);save('bb-myrecipes',CREC);queue('del',r.id,null,'recipes');recipesChanged()}
 // The editor: grind is set relative to each brewer's baseline, so it works on every grinder.
 function openRecipeEditor(r,fresh){const isNew=!r||fresh;r=Object.assign({b:'v60',name:'',by:'',dose:15,water:250,temp:93,off:0,steps:['0:00 pour 50g, bloom.','0:45 pour to 150g.','1:30 pour to 250g.','3:00 finished.'],why:'',tip:''},r||{});
-  const own=!r.author||r.author===ME;
+  const own=!r.author||r.author===ME,imm=!!BREWERS[r.b].of;
+  // A stepper tile: the number is still typed, the buttons nudge it.
+  const tile=(id,lab,unit,v,step)=>'<div class="re-tile"><label for="'+id+'">'+lab+'</label><div class="re-num"><input id="'+id+'" type="number" inputmode="decimal" value="'+v+'"><span>'+unit+'</span></div><div class="re-pms"><button type="button" class="re-pm" data-pm="'+id+'" data-d="-'+step+'" aria-label="Less '+lab.toLowerCase()+'">−</button><button type="button" class="re-pm" data-pm="'+id+'" data-d="'+step+'" aria-label="More '+lab.toLowerCase()+'">+</button></div></div>';
+  const card=(n,t,body,hint)=>'<div class="re-card"><h3 class="re-h"><i>'+n+'</i>'+t+(hint?'<small>'+hint+'</small>':'')+'</h3>'+body+'</div>';
   $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>'+(isNew?'New recipe':'Edit recipe')+'</span><h2 id="vd-title">'+(isNew?'Create a recipe':esc(r.name))+'</h2></div>'+
-   '<div class="vd-body recform"><div class="field"><label for="re-name">Name</label><input id="re-name" maxlength="60" value="'+esc(r.name)+'" placeholder="e.g. Saturday V60"></div>'+
-   '<div class="field"><label for="re-b">Brewer</label><select id="re-b">'+brewerOptions(Object.keys(BREWERS))+'</select></div>'+
-   '<div class="three"><div class="field"><label for="re-dose">Coffee (g)</label><input id="re-dose" type="number" inputmode="decimal" value="'+r.dose+'"></div><div class="field"><label for="re-water">Water (g)</label><input id="re-water" type="number" inputmode="decimal" value="'+r.water+'"></div><div class="field"><label for="re-temp">Water °C</label><input id="re-temp" type="number" inputmode="numeric" value="'+r.temp+'"></div></div>'+
-   '<div class="field"><label for="re-off">Grind <span class="hint" id="re-offl"></span></label><input id="re-off" type="range" min="-3" max="3" step="0.1" value="'+(-r.off)+'"><div class="rangeends"><span>Finer</span><span>Brewer baseline</span><span>Coarser</span></div><div class="meta" id="re-gs"></div></div>'+
-   '<div class="field"><label for="re-steps">Steps <span class="hint">one per line; start with a time like 0:45 so the timer can follow</span></label><textarea id="re-steps" rows="6">'+esc(r.steps.join('\n'))+'</textarea></div>'+
-   '<div class="field"><label for="re-why">Why it works <span class="hint">optional</span></label><textarea id="re-why" rows="2">'+esc(r.why)+'</textarea></div>'+
-   '<div class="field"><label for="re-tip">Tip <span class="hint">optional</span></label><input id="re-tip" maxlength="300" value="'+esc(r.tip)+'"></div>'+
-   '<div class="field"><label for="re-by">Credit <span class="hint">optional, e.g. based on Hoffmann</span></label><input id="re-by" maxlength="60" value="'+esc(r.by)+'"></div>'+
+   '<div class="vd-body recform re2">'+
+   card(1,'The basics','<div class="field"><label for="re-name">Name</label><input id="re-name" maxlength="60" value="'+esc(r.name)+'" placeholder="e.g. Saturday V60"></div>'+
+     '<div class="field"><label for="re-b">Brewer</label><select id="re-b">'+brewerOptions(Object.keys(BREWERS).filter(LISTED))+'</select></div>'+
+     '<div class="field" id="re-mw" hidden><span class="lab">Method</span><div class="seg" id="re-m" role="group" aria-label="Method"><button type="button" data-m="hy">Hybrid</button><button type="button" data-m="im">Full immersion</button></div></div>')+
+   card(2,'Coffee and water','<div class="re-tiles">'+tile('re-dose','Coffee','g',r.dose,0.5)+tile('re-water','Water','g',r.water,10)+tile('re-temp','Water temp','°C',r.temp,1)+'</div><p class="re-ratio" id="re-ratio"></p>')+
+   card(3,'Grind','<div class="field"><label for="re-off" class="sr">Grind</label><input id="re-off" type="range" min="-3" max="3" step="0.1" value="'+(-r.off)+'"><div class="rangeends"><span>Finer</span><span id="re-offl">Brewer baseline</span><span>Coarser</span></div><div class="meta" id="re-gs"></div></div>','relative to the brewer, so it works on any grinder')+
+   card(4,'Steps','<div id="re-steps"></div>','tap a kind of step to add it; times let the timer follow')+
+   card(5,'The story','<div class="field"><label for="re-why">Why it works <span class="hint">optional</span></label><textarea id="re-why" rows="2" placeholder="What this recipe does differently">'+esc(r.why)+'</textarea></div>'+
+     '<div class="field"><label for="re-tip">Tip <span class="hint">optional</span></label><input id="re-tip" maxlength="300" value="'+esc(r.tip)+'" placeholder="One thing to try next time"></div>'+
+     '<div class="field"><label for="re-by">Credit <span class="hint">optional</span></label><input id="re-by" maxlength="60" value="'+esc(r.by)+'" placeholder="e.g. Based on Hoffmann"></div>')+
    '<div class="actions"><button class="btn" id="re-save">'+(isNew?'Save recipe':'Save changes')+'</button>'+(!isNew?'<button class="btn ghost" id="re-del">Delete</button>':'')+'</div>'+
    (GROUP&&SYNC_DB?'<p class="hint">Saved recipes are shared with your group ('+GROUP.code+').</p>':'<p class="hint">Share it from its card'+(SYNC_DB?', or start a shared log in the Log tab to share all your recipes with your team':'')+'.</p>')+'</div>';
-  $('re-b').value=r.b;
-  const gs=()=>{const off=-(+$('re-off').value),b=$('re-b').value;$('re-offl').textContent=off===0?'baseline':(Math.abs(off).toFixed(1)+(off>0?' steps finer':' steps coarser'));
+  $('re-b').value=BREWERS[r.b].of||r.b;let method=imm?'im':'hy';
+  const SE=stepEditor($('re-steps'),r.steps,{water:r.water,dose:r.dose});
+  // The Switch and the NEO Switch brew as a hybrid or as a full immersion (its own grind baseline).
+  const bOf=()=>{const b=$('re-b').value;return method==='im'&&METHODS(b).length?METHODS(b)[0]:method==='im'&&b==='swneo'?'swi':b};
+  const meth=()=>{const b=$('re-b').value,has=METHODS(b).length>0||b==='swneo';$('re-mw').hidden=!has;$('re-m').querySelectorAll('[data-m]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.m===method))};
+  const gs=()=>{const off=-(+$('re-off').value),b=bOf();$('re-offl').textContent=off===0?'Brewer baseline':(Math.abs(off).toFixed(1)+(off>0?' steps finer':' steps coarser'));
     $('re-gs').innerHTML=MYG.map(g=>{const v=settingFor(g,b,off);return '<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>'}).join('')};
-  $('re-off').oninput=gs;$('re-b').onchange=gs;gs();
-  $('re-save').onclick=()=>{const n=sanRec({id:isNew?undefined:r.id,b:$('re-b').value,name:$('re-name').value,by:$('re-by').value,author:isNew?(ME||''):r.author,dose:+$('re-dose').value,water:+$('re-water').value,temp:+$('re-temp').value,off:-(+$('re-off').value),
-      steps:$('re-steps').value.split('\n'),why:$('re-why').value,tip:$('re-tip').value,ts:isNew?Date.now():r.ts,kind:r.kind});
+  const ratio=()=>{const d=+$('re-dose').value,w=+$('re-water').value;$('re-ratio').innerHTML=d>0&&w>0?'Ratio <b>1:'+rr1(w/d)+'</b>':'';SE.set({water:w>0?w:250,dose:d>0?d:15})};
+  $('re-off').oninput=gs;$('re-b').onchange=()=>{meth();gs()};$('re-m').onclick=e=>{const x=e.target.closest('[data-m]');if(!x)return;method=x.dataset.m;meth();gs()};meth();gs();ratio();
+  $('re-dose').oninput=$('re-water').oninput=ratio;
+  document.querySelectorAll('.re-pm').forEach(x=>x.onclick=()=>{const i=$(x.dataset.pm),v=(+i.value||0)+(+x.dataset.d);i.value=Math.max(0,Math.round(v*10)/10);i.dispatchEvent(new Event('input'))});
+  $('re-save').onclick=()=>{const n=sanRec({id:isNew?undefined:r.id,b:bOf(),name:$('re-name').value,by:$('re-by').value,author:isNew?(ME||''):r.author,dose:+$('re-dose').value,water:+$('re-water').value,temp:+$('re-temp').value,off:-(+$('re-off').value),
+      steps:SE.value(),why:$('re-why').value,tip:$('re-tip').value,ts:isNew?Date.now():r.ts,kind:r.kind});
     if(!n){toast('Give the recipe a name');$('re-name').focus();return}saveRecipe(n);$('vd').close();RF='mine';if(BUILT.recipes)renderRecipes();showTab('recipes');toast(isNew?'Recipe saved':'Recipe updated')};
   if(!isNew)$('re-del').onclick=()=>{if(!confirm(own?'Delete this recipe?':'Delete '+r.author+'’s recipe for everyone?'))return;deleteRecipe(r);$('vd').close();toast('Recipe deleted')};
   const d=$('vd');showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
@@ -4774,7 +4949,7 @@ function openRoute(h){let m;try{h=decodeURIComponent(h)}catch(e){}
 function importRecipe(code){let r;try{r=sanRec(b64u.dec(code))}catch(e){r=null}if(!r){toast('That recipe link looks broken');return}
   r.id='r'+Date.now().toString(36);r.ts=Date.now();const B=BREWERS[r.b];
   $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Shared recipe'+(r.author?' from '+esc(r.author):'')+'</span><h2 id="vd-title">'+esc(r.name)+'</h2>'+
-   '<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C</span>':'')+'</div></div><div class="vd-body">'+(r.why?'<p>'+esc(r.why)+'</p>':'')+'<ol class="steps">'+r.steps.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol>'+(r.tip?'<p class="hint">'+esc(r.tip)+'</p>':'')+
+   '<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C</span>':'')+'</div></div><div class="vd-body">'+(r.why?'<p>'+esc(r.why)+'</p>':'')+stepList(r.steps)+(r.tip?'<p class="hint">'+esc(r.tip)+'</p>':'')+
    '<div class="meta">'+MYG.map(g=>{const v=settingFor(g,r.b,r.off);return '<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>'}).join('')+'</div>'+
    '<div class="actions"><button class="btn" id="imp-add">Add to my recipes</button><button class="btn ghost" id="imp-no">Not now</button></div></div>';
   const d=$('vd');showDlg(d);d.scrollTop=0;$('vd-x').onclick=$('imp-no').onclick=()=>d.close();
@@ -4907,7 +5082,7 @@ function setMine(g,on,quiet){if(on&&!MYG.includes(g))MYG.push(g);if(!on){if(MYG.
 // Pick which grinders you own from anywhere a grinder is chosen. The same list as "Your grinders" in Gear.
 const SWAP_ICON='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l4 4-4 4"/><path d="M3 7h18"/><path d="M7 21l-4-4 4-4"/><path d="M21 17H3"/></svg>';
 // The brewers you own. Empty means you haven't said yet, and recipes are shown as the champion brewed them.
-let MYB=(()=>{try{const v=JSON.parse(localStorage.getItem('bb-mybrewers'));return Array.isArray(v)?[...new Set(v.filter(b=>typeof b==='string'&&BREWERS[b]))]:[]}catch(e){return[]}})();
+let MYB=(()=>{try{const v=JSON.parse(localStorage.getItem('bb-mybrewers'));return Array.isArray(v)?[...new Set(v.filter(b=>typeof b==='string'&&BREWERS[b]).map(b=>BREWERS[b].of||b))]:[]}catch(e){return[]}})();
 function setMyBrewer(b,on){MYB=on?[...new Set([...MYB,b])]:MYB.filter(x=>x!==b);save('bb-mybrewers',MYB)}
 function openGearPicker(tab,after){let q='',T=tab==='brewers'?'brewers':'grinders';const d=$('vd');
   const row=(k,on,title,sub,ic)=>'<button type="button" data-gp="'+k+'" aria-pressed="'+on+'">'+(ic||'')+'<span><b>'+esc(title)+'</b><small>'+esc(sub)+'</small></span><i class="tick" aria-hidden="true">'+(on?'✓':'')+'</i></button>';
@@ -4918,7 +5093,7 @@ function openGearPicker(tab,after){let q='',T=tab==='brewers'?'brewers':'grinder
     if(T==='grinders')h=[['mine','Your grinders'],['manual','Manual'],['electric','Electric'],['custom','Your own']].map(([t,n])=>{
       const ks=(t==='mine'?MYG.slice():Object.keys(GRINDERS).filter(g=>!MYG.includes(g)&&(t==='custom'?GRINDERS[g].custom:!GRINDERS[g].custom&&GRINDERS[g].type===t))).filter(g=>m(GRINDERS[g].full+' '+(GRINDERS[g].brand||'')));
       return ks.length?'<h4>'+n+'</h4>'+ks.map(grow).join(''):''}).join('');
-    else{const ks=Object.keys(BREWERS).filter(b=>m(BREWERS[b].name+' '+BREWERS[b].type)),types=[...new Set(ks.map(b=>BREWERS[b].type))];
+    else{const ks=Object.keys(BREWERS).filter(b=>LISTED(b)&&m(BREWERS[b].name+' '+BREWERS[b].type)),types=[...new Set(ks.map(b=>BREWERS[b].type))];
       h=(MYB.filter(b=>ks.includes(b)).length?'<h4>Your brewers</h4>'+MYB.filter(b=>ks.includes(b)).map(brow).join(''):'')+types.map(ty=>{const r=ks.filter(b=>BREWERS[b].type===ty&&!MYB.includes(b));return r.length?'<h4>'+esc(ty)+'</h4>'+r.map(brow).join(''):''}).join('')}
     return h||'<p class="hint">Nothing matches.</p>'};
   const draw=()=>{$('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Your gear</span><h2 id="vd-title">What do you brew with?</h2>'+
@@ -4977,9 +5152,10 @@ function renderCustomForm(){
 function renderGearBrewers(){
   const types=[...new Set(Object.values(BREWERS).map(b=>b.type))];
   seg('gear-filter',[['all','All'],...types.map(t=>[t,t])],()=>GF,v=>{GF=v;renderGearBrewers()});
-  $('gear-brewers').innerHTML=Object.entries(BREWERS).filter(([,b])=>GF==='all'||b.type===GF).map(([k,b])=>'<div class="card hovercard" id="gb-'+k+'" style="border-top:5px solid '+TYCOL[b.type]+'"><span class="hint">'+b.type+'</span><h3 style="margin-top:.2rem">'+esc(b.name)+'</h3><p>'+esc(b.desc)+'</p><p><b>How it behaves.</b> '+esc(b.how)+'</p><p><b>Best for.</b> '+esc(b.best)+'</p>'+
+  $('gear-brewers').innerHTML=Object.entries(BREWERS).filter(([k,b])=>LISTED(k)&&(GF==='all'||b.type===GF)).map(([k,b])=>'<div class="card hovercard" id="gb-'+k+'" style="border-top:5px solid '+TYCOL[b.type]+'"><span class="hint">'+b.type+'</span><h3 style="margin-top:.2rem">'+esc(b.name)+'</h3><p>'+esc(b.desc)+'</p><p><b>How it behaves.</b> '+esc(b.how)+'</p><p><b>Best for.</b> '+esc(b.best)+'</p>'+
    '<div class="meta">'+MYG.map(g=>'<span>'+esc(canGrind(g,k)?gLabel(g,base(g,k)):gname(g)+': n/a')+'</span>').join('')+'</div>'+
-   '<div class="actions">'+(RECIPES.some(r=>r.b===k)?'<button class="btn ghost" data-grec="'+k+'">See recipes</button>':'')+(b.model?'<button class="btn ghost" data-gdial="'+k+'">Dial it in</button>':'')+'</div></div>').join('');
+   METHODS(k).map(x=>'<p class="hint" style="margin:.5rem 0 .2rem">'+esc(BREWERS[x].method)+'</p><div class="meta">'+MYG.map(g=>'<span>'+esc(canGrind(g,x)?gLabel(g,base(g,x)):gname(g)+': n/a')+'</span>').join('')+'</div>').join('')+
+   '<div class="actions">'+(RECIPES.some(r=>RFAM(r.b)===RFAM(k))?'<button class="btn ghost" data-grec="'+k+'">See recipes</button>':'')+(b.model?'<button class="btn ghost" data-gdial="'+k+'">Dial it in</button>':'')+'</div></div>').join('');
 }
 $('gear-brewers').onclick=e=>{const a=e.target.closest('[data-grec]'),d=e.target.closest('[data-gdial]');
   if(a){RF='b:'+RFAM(a.dataset.grec);RQ='';$('rsearch').value='';showTab('recipes');showRecipeList()}
@@ -4987,7 +5163,7 @@ $('gear-brewers').onclick=e=>{const a=e.target.closest('[data-grec]'),d=e.target
 function renderGrindMap(){
   let h='';for(const g of MYG){const G=GRINDERS[g];const pos=c=>((c-G.min)/(G.max-G.min)*100).toFixed(2)+'%';
     // Markers closer than about one marker width go into separate lanes, so none hides another.
-    const ms=Object.keys(BREWERS).filter(k=>canGrind(g,k)).map(k=>({k,v:base(g,k)})).sort((a,b)=>a.v-b.v);
+    const ms=Object.keys(BREWERS).filter(k=>LISTED(k)&&canGrind(g,k)).map(k=>({k,v:base(g,k)})).sort((a,b)=>a.v-b.v);
     const lanes=[],gap=(G.max-G.min)*0.06;for(const m of ms){let l=lanes.findIndex(x=>m.v-x>=gap);if(l<0){l=lanes.length;lanes.push(0)}lanes[l]=m.v;m.lane=l}
     h+='<h3 style="margin:0">'+esc(G.name)+'</h3><div class="grindtrack" data-g="'+g+'" style="--lanes:'+Math.max(1,lanes.length)+'">';
     const tick=G.fmt==='rot'||G.sub===10?10:Math.max(1,Math.round((G.max-G.min)/8/(G.sub||1))*(G.sub||1));for(let c=Math.ceil(G.min/tick)*tick;c<=G.max;c+=tick)h+='<span class="scale" style="left:'+pos(c)+'">'+dial(g,c)+'</span>';
@@ -6073,8 +6249,8 @@ function openChamp(ch){const C=COMPS[ch.c],r=ch.rec,R=ch.ri!=null?RECIPES[ch.ri]
    (ch.coffee?'<p><b>The coffee.</b> '+esc(ch.coffee)+'</p>':'')+
    '<h3>Gear they used</h3>'+(gear.length?'<ul class="chgear">'+gear.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'<p class="hint" style="margin-top:0">Not published.</p>')+
    '<h3>The recipe</h3><div class="meta">'+(dose&&water?'<span>'+dose+'g : '+water+'g</span>':dose?'<span>'+dose+'g coffee</span>':'')+(temps?'<span>'+temps+(r.tNote?' ('+esc(r.tNote)+')':'')+'</span>':'<span>Temperature not published</span>')+(r.time?'<span>'+esc(r.time)+'</span>':'')+'</div>'+
-   (why?'<p>'+esc(why)+'</p>':'')+(r.partial?'<p class="hint">'+esc(r.partial)+'</p>':'')+(steps?'<ol class="steps">'+steps.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol>'
-     :St?'<div class="chstart"><p class="hint" style="margin:0 0 .4rem">Start from a recipe in the same style: <b>'+esc(St.name)+'</b></p><div class="meta"><span>'+St.dose+'g : '+St.water+'g</span>'+(St.temp?'<span>'+St.temp+'°C</span>':'')+'</div><ol class="steps">'+St.steps.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol></div>'
+   (why?'<p>'+esc(why)+'</p>':'')+(r.partial?'<p class="hint">'+esc(r.partial)+'</p>':'')+(steps?stepList(steps)
+     :St?'<div class="chstart"><p class="hint" style="margin:0 0 .4rem">Start from a recipe in the same style: <b>'+esc(St.name)+'</b></p><div class="meta"><span>'+St.dose+'g : '+St.water+'g</span>'+(St.temp?'<span>'+St.temp+'°C</span>':'')+'</div>'+stepList(St.steps)+'</div>'
      :'<p class="hint">The full step-by-step was not published.</p>')+
    '<div class="ghead" style="margin-top:1.2rem"><h3 style="margin:0">Brew it with your gear</h3><button type="button" class="gpick-btn" data-ca="gear" aria-label="Edit your gear" title="Edit your gear">'+SWAP_ICON+'</button></div>'+brewLine+
    '<p class="hint" style="margin:.2rem 0 .5rem">'+(g?'Grind converted from the champion’s '+esc(r.grind.label)+(sub?', then adjusted for your '+esc(BREWERS[nb].name):'')+'.':'The champion’s grind: '+esc(r.grind&&r.grind.label?lcGrind(r.grind.label):'not published')+'. These are starting points for '+(nb&&MYB.length?'your '+esc(brewName(BREWERS[useB].name)):art(brewName(BREWERS[b].name))+' '+esc(brewName(BREWERS[b].name)))+'; adjust by taste.')+'</p>'+rows+
@@ -7552,7 +7728,7 @@ function bannerBg(p){const b=p&&p.banner;if(!b)return '';const shade='linear-gra
   return shade+','+(BANNERS[b]?BANNERS[b].bg:"url('"+b+"') 50% "+(p.bpos??50)+'%/cover no-repeat')}
 // Anything read back (from storage, a backup or the server) is checked field by field.
 function okProfile(p){if(!p||typeof p!=='object')return null;const s=(v,n)=>str(v,n).replace(/[\u0000-\u001f\u007f]/g,'');const nick=s(p.nick,30);if(!nick)return null;const av=p.av&&typeof p.av==='object'?p.av:{};
-  return{nick,name:s(p.name,40),brief:s(p.brief,160),city:s(p.city,40),style:STYLES.some(x=>x[0]===p.style)?p.style:'',brewer:BREWERS[p.brewer]?p.brewer:'',
+  return{nick,name:s(p.name,40),brief:s(p.brief,160),city:s(p.city,40),style:STYLES.some(x=>x[0]===p.style)?p.style:'',brewer:BREWERS[p.brewer]?(BREWERS[p.brewer].of||p.brewer):'',
     origin:typeof p.origin==='string'&&oInfo(p.origin)?p.origin:'',av:{e:AV_EMOJI.includes(av.e)?av.e:'',c:AV_COL.includes(av.c)?av.c:AV_COL[0]},
     photo:typeof p.photo==='string'&&p.photo.length<120000&&PHOTO_RE.test(p.photo)?p.photo:'',banner:okBanner(p.banner),bpos:Math.max(0,Math.min(100,Math.round(+p.bpos)))||(+p.bpos===0?0:50),since:+p.since||Date.now(),updated:+p.updated||0}}
 let PROFILE=okProfile(load('bb-profile',null));
@@ -7624,7 +7800,7 @@ $('vd').addEventListener('click',e=>{if(e.target.closest('#pf-new,#pf-edit,#pf-e
 // opts.join {email,pw,known}: a new account, made together with the profile in one go.
 // opts.welcome: a first Google sign-in, with the profile Google's name and photo started.
 function openProfileEditor(opts){opts=opts||{};const J=opts.join,d=$('vd'),isNew=!PROFILE||!!J||!!opts.welcome,P=Object.assign({nick:'',name:'',brief:'',city:'',style:'',brewer:'',origin:'',av:{e:'',c:AV_COL[0]},photo:'',since:Date.now()},PROFILE||{});delete d.dataset.me;P.av=Object.assign({},P.av);
-  const brewerOpts=Object.entries(BREWERS).sort((a,b)=>a[1].name.localeCompare(b[1].name)).map(([k,b])=>'<option value="'+k+'">'+esc(b.name)+'</option>').join('');
+  const brewerOpts=Object.entries(BREWERS).filter(([k])=>LISTED(k)).sort((a,b)=>a[1].name.localeCompare(b[1].name)).map(([k,b])=>'<option value="'+k+'">'+esc(b.name)+'</option>').join('');
   $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>'+(J?'Join the bench':'Your profile')+'</span><h2 id="vd-title">'+(J?'Set up your account':opts.welcome?'Welcome! Set up your profile':isNew?'Create your profile':'Edit your profile')+'</h2>'+
      (J||opts.welcome?'<p class="vd-sub">'+(J?'Choose a password, then make the profile yours. Only a nickname is needed; the rest can wait.':'We started it from your Google account. Change anything you like.')+'</p>':'')+'</div>'+
    '<div class="vd-body beform pform auth">'+(J?'<div class="au-who"><span>'+esc(J.email)+'</span><button type="button" class="linkbtn" id="au-change">Change</button></div>'+

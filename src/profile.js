@@ -36,7 +36,7 @@ function bannerBg(p){const b=p&&p.banner;if(!b)return '';const shade='linear-gra
   return shade+','+(BANNERS[b]?BANNERS[b].bg:"url('"+b+"') 50% "+(p.bpos??50)+'%/cover no-repeat')}
 // Anything read back (from storage, a backup or the server) is checked field by field.
 function okProfile(p){if(!p||typeof p!=='object')return null;const s=(v,n)=>str(v,n).replace(/[\u0000-\u001f\u007f]/g,'');const nick=s(p.nick,30);if(!nick)return null;const av=p.av&&typeof p.av==='object'?p.av:{};
-  return{nick,name:s(p.name,40),brief:s(p.brief,160),city:s(p.city,40),style:STYLES.some(x=>x[0]===p.style)?p.style:'',brewer:BREWERS[p.brewer]?p.brewer:'',
+  return{nick,name:s(p.name,40),brief:s(p.brief,160),city:s(p.city,40),style:STYLES.some(x=>x[0]===p.style)?p.style:'',brewer:BREWERS[p.brewer]?(BREWERS[p.brewer].of||p.brewer):'',
     origin:typeof p.origin==='string'&&oInfo(p.origin)?p.origin:'',av:{e:AV_EMOJI.includes(av.e)?av.e:'',c:AV_COL.includes(av.c)?av.c:AV_COL[0]},
     photo:typeof p.photo==='string'&&p.photo.length<120000&&PHOTO_RE.test(p.photo)?p.photo:'',banner:okBanner(p.banner),bpos:Math.max(0,Math.min(100,Math.round(+p.bpos)))||(+p.bpos===0?0:50),since:+p.since||Date.now(),updated:+p.updated||0}}
 let PROFILE=okProfile(load('bb-profile',null));
@@ -108,7 +108,7 @@ $('vd').addEventListener('click',e=>{if(e.target.closest('#pf-new,#pf-edit,#pf-e
 // opts.join {email,pw,known}: a new account, made together with the profile in one go.
 // opts.welcome: a first Google sign-in, with the profile Google's name and photo started.
 function openProfileEditor(opts){opts=opts||{};const J=opts.join,d=$('vd'),isNew=!PROFILE||!!J||!!opts.welcome,P=Object.assign({nick:'',name:'',brief:'',city:'',style:'',brewer:'',origin:'',av:{e:'',c:AV_COL[0]},photo:'',since:Date.now()},PROFILE||{});delete d.dataset.me;P.av=Object.assign({},P.av);
-  const brewerOpts=Object.entries(BREWERS).sort((a,b)=>a[1].name.localeCompare(b[1].name)).map(([k,b])=>'<option value="'+k+'">'+esc(b.name)+'</option>').join('');
+  const brewerOpts=Object.entries(BREWERS).filter(([k])=>LISTED(k)).sort((a,b)=>a[1].name.localeCompare(b[1].name)).map(([k,b])=>'<option value="'+k+'">'+esc(b.name)+'</option>').join('');
   $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>'+(J?'Join the bench':'Your profile')+'</span><h2 id="vd-title">'+(J?'Set up your account':opts.welcome?'Welcome! Set up your profile':isNew?'Create your profile':'Edit your profile')+'</h2>'+
      (J||opts.welcome?'<p class="vd-sub">'+(J?'Choose a password, then make the profile yours. Only a nickname is needed; the rest can wait.':'We started it from your Google account. Change anything you like.')+'</p>':'')+'</div>'+
    '<div class="vd-body beform pform auth">'+(J?'<div class="au-who"><span>'+esc(J.email)+'</span><button type="button" class="linkbtn" id="au-change">Change</button></div>'+

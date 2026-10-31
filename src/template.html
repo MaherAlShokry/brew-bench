@@ -283,6 +283,8 @@ dialog#vd::backdrop{background:rgba(20,14,10,.55)}
 /* log */
 .logform{display:grid;gap:10px;grid-template-columns:1fr 1fr}
 .logform .full{grid-column:1/-1}
+.logform.re2{display:flex;grid-template-columns:none;gap:12px;margin-bottom:12px}.logform.re2 .re-card{padding-bottom:12px}.logform.re2 .field:last-child{margin-bottom:0}
+.l-rate{display:flex;justify-content:center;padding:4px 0 12px}.l-rate .stars button{font-size:2.3rem;padding:0 4px}
 .logentry{border-bottom:1px solid var(--line);padding:12px 0}
 .logentry .x{background:none;border:0;color:var(--muted);cursor:pointer;font-family:var(--display);font-size:.8rem;padding:4px 6px;min-height:32px}
 
@@ -358,6 +360,10 @@ button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.a
 .tm-bar{height:6px;border-radius:999px;background:color-mix(in srgb,var(--ink) 10%,transparent);margin:12px 0 8px;overflow:hidden}.tm-bar i{display:block;height:100%;width:0;background:var(--cherry);border-radius:inherit;transition:width .25s linear}
 .tm-next{display:flex;flex-direction:column;gap:2px;font-size:.88rem;color:var(--muted)}.tm-next b{color:var(--ink);font-variant-numeric:tabular-nums}.tm-nx{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tm-done{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}.tm-done .btn{flex:1 1 auto}
+.tm-draw{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);color:var(--ink)}
+.tm-dq{margin:0 0 8px;font-weight:600;font-size:.92rem}.tm-dq small{display:block;font-weight:400;color:var(--muted);font-size:.8rem}
+.tm-dseg{display:flex;flex-wrap:wrap;gap:6px}.tm-dseg button{flex:1 1 28%;min-height:40px;font-size:.82rem;white-space:nowrap;overflow:visible;text-overflow:clip;padding:8px 6px}
+.tm-dres p{margin:10px 0 6px;font-size:.9rem;white-space:normal}.tm-dres .btn{width:100%}
 .tm-ctl{display:flex;align-items:center;justify-content:center;gap:26px;margin-top:2px}
 .tm-play{width:84px;height:84px;border-radius:50%;border:0;background:var(--cherry);color:var(--surface);display:grid;place-items:center;cursor:pointer;box-shadow:0 10px 26px color-mix(in srgb,var(--cherry) 40%,transparent);transition:transform .12s}
 .tm-play svg{width:34px;height:34px;fill:currentColor}.tm-play:active{transform:scale(.93)}
@@ -658,6 +664,49 @@ input[type=range]{touch-action:pan-y}
 /* Recipe editor and your recipes */
 .recform input:not([type=range]),.recform select,.recform textarea{width:100%}
 .recform .three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.recform .three input{min-width:0}
+/* The recipe editor: numbered cards, stepper tiles and a timeline for the steps. */
+.re2{display:flex;flex-direction:column;gap:14px}
+.re-card{background:var(--surface);border:1px solid color-mix(in srgb,var(--line) 80%,transparent);border-radius:20px;padding:14px 14px 4px;box-shadow:0 1px 0 color-mix(in srgb,var(--ink) 4%,transparent)}
+.re-h{display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;margin:0 0 12px;font-family:var(--display);font-size:1.02rem}
+.re-h i{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;font-style:normal;font-size:.78rem;font-weight:700;background:var(--cherry);color:var(--paper)}
+.re-h small{flex-basis:100%;font:400 .8rem var(--body);color:var(--muted);padding-left:34px;margin-top:-2px}
+.re2 .field>.lab{display:block;font-size:.88rem;font-weight:600;margin-bottom:6px}
+.re-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.re-tile{background:color-mix(in srgb,var(--cherry) 5%,var(--paper));border-radius:16px;padding:10px 6px 8px;text-align:center}
+.re-tile label{display:block;font-size:.74rem;font-weight:600;color:var(--muted);margin-bottom:4px}
+.re-num{display:flex;align-items:baseline;justify-content:center;gap:2px}.re-pms{display:flex;justify-content:center;gap:10px;margin-top:6px}
+.recform .re-num input{width:4.2ch;min-width:0;border:0;background:none;padding:0;text-align:center;font:700 1.25rem var(--display);font-variant-numeric:tabular-nums;color:var(--ink);-moz-appearance:textfield}
+.re-num input::-webkit-inner-spin-button,.re-num input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.re-num span{font-size:.74rem;color:var(--muted);margin-right:2px}
+.re-pm{flex:none;width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:1rem;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0}
+.re-pm:active{transform:scale(.9)}
+.re-ratio{text-align:center;margin:10px 0 8px;font-size:.88rem;color:var(--muted)}.re-ratio b{color:var(--cherry-ink);font-variant-numeric:tabular-nums}
+@media (max-width:340px){.re-tiles{grid-template-columns:1fr}}
+/* Step kinds share one colour each, on the rail, the chips and the chart. */
+.k-bloom{--k:var(--honey)}.k-pour{--k:var(--cherry)}.k-swirl,.k-stir{--k:var(--leaf)}.k-valve,.k-press{--k:color-mix(in srgb,var(--cherry) 45%,var(--ink))}
+.k-steep,.k-prep,.k-note{--k:var(--muted)}.k-end{--k:var(--leaf)}.k-ice{--k:#5B8FB0}
+.pgraph{margin:0 0 10px;padding:8px 8px 4px;border-radius:16px;background:color-mix(in srgb,var(--cherry) 4%,var(--paper))}
+.pgraph svg{display:block;width:100%;height:auto;overflow:visible}
+.pg-l{fill:none;stroke:var(--cherry);stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round}
+.pg-goal{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 4}
+.pg-d{fill:var(--surface);stroke:var(--k,var(--cherry));stroke-width:2.4}
+.pgraph figcaption{display:flex;justify-content:space-between;align-items:baseline;font-size:.72rem;color:var(--muted);font-variant-numeric:tabular-nums;padding:2px 4px 0}.pgraph figcaption b{color:var(--ink);font-size:.82rem}
+.se-list{list-style:none;margin:0;padding:0;position:relative}
+.se-row{position:relative;display:grid;grid-template-columns:34px 62px minmax(0,1fr) auto;align-items:center;gap:8px;padding:5px 0}
+.se-row::before{content:"";position:absolute;left:16px;top:-6px;bottom:-6px;width:2px;background:var(--line);z-index:0}
+.se-row:first-child::before{top:50%}.se-row:last-child::before{bottom:50%}.se-row:only-child::before{display:none}
+.se-dot{position:relative;z-index:1;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--k) 16%,var(--surface));color:var(--k);box-shadow:0 0 0 3px var(--surface)}
+.se-dot svg,.se-chip svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.recform .se-t{width:100%;text-align:center;font:700 .86rem var(--body);font-variant-numeric:tabular-nums;color:var(--cherry-ink);background:color-mix(in srgb,var(--cherry) 10%,var(--surface));border:1px solid transparent;border-radius:999px;padding:8px 4px}
+.recform .se-t.bad{border-color:#C4473F;color:#B03A33}
+.recform .se-x{width:100%;border:0;border-bottom:1px dashed var(--line);border-radius:0;background:none;padding:8px 2px;font-size:.95rem}
+.recform .se-x:focus{outline:none;border-bottom:2px solid var(--k)}
+.se-ops{display:flex;gap:2px}.se-op{width:30px;height:30px;border-radius:50%;border:0;background:none;color:var(--muted);display:grid;place-items:center;cursor:pointer;padding:0}
+.se-op svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}.se-op:disabled{opacity:.3}.se-op:hover{background:var(--surface2,var(--line))}
+.se-add{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:12px 0 4px;margin:0 -2px}.se-add::-webkit-scrollbar{display:none}
+.se-chip{flex:none;display:inline-flex;align-items:center;gap:5px;padding:7px 12px 7px 9px;border-radius:999px;border:1px solid color-mix(in srgb,var(--k) 35%,var(--line));background:color-mix(in srgb,var(--k) 9%,var(--surface));color:var(--ink);font:600 .82rem var(--body);cursor:pointer}
+.se-chip svg{color:var(--k);width:16px;height:16px}.se-chip:active{transform:scale(.95)}
+.se-sum{margin:6px 0 10px;font-size:.8rem;color:var(--muted)}.se-sum.warn{color:var(--honey-ink)}
 .rangeends{display:flex;justify-content:space-between;font-family:var(--display);font-size:.74rem;color:var(--muted);margin-top:-2px}
 .pill.ours{background:color-mix(in srgb,var(--cherry) 14%,var(--surface));color:var(--cherry);margin-bottom:6px}
 /* Shared log */
@@ -1025,6 +1074,9 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .steps.tl li::before{content:"";position:absolute;left:25px;top:24px;bottom:0;width:2px;background:var(--line)}.steps.tl li:last-child::before{display:none}
 .steps.tl .t{position:absolute;left:0;top:0;width:52px;text-align:center;font:700 .78rem var(--body);font-variant-numeric:tabular-nums;color:var(--cherry);background:color-mix(in srgb,var(--cherry) 12%,var(--surface));border-radius:99px;padding:3px 0}
 .steps.tl .t.dot{width:12px;height:12px;left:20px;top:6px;padding:0;background:var(--line)}
+.steps.tl .tk{display:inline-grid;place-items:center;vertical-align:-4px;width:20px;height:20px;margin-right:6px;border-radius:50%;background:color-mix(in srgb,var(--k,var(--muted)) 16%,var(--surface));color:var(--k,var(--muted))}
+.steps.tl .tk svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.steps.tl li.k-pour .t,.steps.tl li.k-bloom .t{background:color-mix(in srgb,var(--k) 16%,var(--surface));color:color-mix(in srgb,var(--k) 75%,var(--ink))}
 
 /* Steppers (the dial-in's coffee dose). */
 .stepper{display:flex;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;height:40px}
@@ -1966,7 +2018,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
     <tr><td><b>Hario V60</b></td><td>Clarity, acidity, aroma</td><td>You want the most detail and don't mind technique</td></tr>
     <tr><td><b>Hario V60 NEO</b></td><td>V60 clarity with extra sweetness and body; fast flow</td><td>You want V60 cups with fewer stalls and less fuss</td></tr>
     <tr><td><b>Hario Switch</b></td><td>Immersion or hybrid; body plus clarity</td><td>You want sweetness and forgiveness</td></tr>
-    <tr><td><b>Hario Switch + V60 NEO</b></td><td>Valve control with the NEO's fast, even drawdown</td><td>You want hybrid recipes with a cleaner finish</td></tr>
+    <tr><td><b>NEO Switch</b></td><td>Valve control with the NEO's fast, even drawdown</td><td>You want hybrid recipes with a cleaner finish</td></tr>
     <tr><td><b>Kalita Wave</b></td><td>Self-regulating, consistent</td><td>You want the same good cup every day</td></tr>
   </tbody></table></div>
   <h3 class="sec">Troubleshoot</h3>
@@ -1989,13 +2041,16 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
   <div class="panel sharepanel" id="l-share" style="margin-bottom:14px"></div>
   <div class="panel" id="l-form" style="margin-bottom:18px">
     <p class="hint l-editing" id="l-editing" hidden></p>
-    <div class="logform">
-      <input id="l-coffee" placeholder="Coffee, e.g. Finca X Pink Bourbon" class="full" aria-label="Coffee">
-      <input id="l-settings" placeholder="Settings" class="full" aria-label="Settings">
-      <div class="stars" id="l-stars" role="radiogroup" aria-label="Rating"></div>
-      <input id="l-pred" placeholder="Predicted" aria-label="Predicted profile">
-      <textarea id="l-notes" rows="2" placeholder="How it actually tasted" class="full" aria-label="Tasting notes"></textarea>
-      <div class="full fl-row"><button type="button" class="btn ghost fl-add" id="l-fl"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l7.8 4.5M12 12l-7.8 4.5"/></svg><span>Add flavour notes</span></button><div class="chips" id="l-flchips"></div></div>
+    <div class="logform re2">
+      <div class="re-card"><h3 class="re-h"><i>1</i>The brew</h3>
+      <div class="field"><label for="l-coffee">Coffee</label><input id="l-coffee" placeholder="e.g. Finca X Pink Bourbon"></div>
+      <div class="field"><label for="l-settings">Settings <span class="hint">grind, dose and water, recipe</span></label><input id="l-settings" placeholder="e.g. Hoffmann V60, 15g : 250g"></div></div>
+      <div class="re-card"><h3 class="re-h"><i>2</i>How was it?</h3>
+      <div class="l-rate"><div class="stars" id="l-stars" role="radiogroup" aria-label="Rating"></div></div>
+      <div class="field"><label for="l-pred">Predicted <span class="hint">what the dial-in expected</span></label><input id="l-pred" placeholder="e.g. Sweet and balanced"></div></div>
+      <div class="re-card"><h3 class="re-h"><i>3</i>What you tasted</h3>
+      <div class="field"><label for="l-notes" class="sr">Tasting notes</label><textarea id="l-notes" rows="3" placeholder="How it actually tasted: sweet, bright, heavy, short…"></textarea></div>
+      <div class="fl-row"><button type="button" class="btn ghost fl-add" id="l-fl"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l7.8 4.5M12 12l-7.8 4.5"/></svg><span>Add flavour notes</span></button><div class="chips" id="l-flchips"></div></div></div>
     </div>
     <div class="actions"><button class="btn" id="l-save">Save entry</button><button class="btn ghost" id="l-cancel" hidden>Cancel</button></div>
   </div>
