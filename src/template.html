@@ -664,6 +664,40 @@ input[type=range]{touch-action:pan-y}
 /* Recipe editor and your recipes */
 .recform input:not([type=range]),.recform select,.recform textarea{width:100%}
 .recform .three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.recform .three input{min-width:0}
+/* ================= OPENING SCENE ================= */
+#splash{display:none}
+.splashing #splash{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;overflow:hidden;background:var(--paper);color:var(--ink);touch-action:none}
+.splashing body{overflow:hidden}
+#splash.out{animation:sp-out .42s cubic-bezier(.5,0,.75,0) both}
+@keyframes sp-out{to{opacity:0;transform:scale(1.06)}}
+.sp-glow{position:absolute;inset:-20%;background:radial-gradient(42% 32% at 50% 44%,color-mix(in srgb,var(--honey) 30%,transparent),transparent 70%);animation:sp-glow 1.8s ease-out both}
+@keyframes sp-glow{from{opacity:0;transform:scale(.7)}}
+.sp-beans{position:absolute;inset:0;width:100%;height:100%;opacity:.16}
+.spb{transform:translate(var(--x),var(--y)) rotate(var(--r));animation:sp-bean 1.9s cubic-bezier(.2,.8,.3,1) var(--d) both}
+@keyframes sp-bean{from{transform:translate(var(--x),calc(var(--y) + 70px)) rotate(calc(var(--r) - 50deg)) scale(.4);opacity:0}}
+.sp-stage{position:relative;display:flex;flex-direction:column;align-items:center;margin-top:-6vh}
+.sp-art{width:min(52vw,230px);height:auto;overflow:visible}
+.sp-shadow{fill:var(--ink);opacity:.08;transform-box:fill-box;transform-origin:center;animation:sp-shadow .5s .15s ease-out both}
+@keyframes sp-shadow{from{transform:scaleX(.3);opacity:0}}
+.sp-cup{transform-box:fill-box;transform-origin:50% 100%;animation:sp-cup .55s cubic-bezier(.3,1.5,.5,1) both}
+@keyframes sp-cup{from{transform:translateY(40px) scale(.8);opacity:0}}
+.sp-v60{animation:sp-v60 .6s .12s cubic-bezier(.3,1.4,.5,1) both,sp-lift .5s 1.2s cubic-bezier(.5,0,.7,.4) forwards}
+@keyframes sp-v60{from{transform:translateY(-70px);opacity:0}}@keyframes sp-lift{to{transform:translateY(-60px);opacity:0}}
+.sp-fill{animation:sp-fill .85s .5s cubic-bezier(.4,0,.2,1) both}
+@keyframes sp-fill{from{transform:translateY(78px)}}
+.sp-drops circle{animation:sp-drop .34s linear infinite both;opacity:0}
+.sp-drops circle:nth-child(1){animation-delay:.6s}.sp-drops circle:nth-child(2){animation-delay:.72s}.sp-drops circle:nth-child(3){animation-delay:.84s}
+@keyframes sp-drop{0%{transform:translateY(100px);opacity:1}100%{transform:translateY(150px);opacity:1}}
+.sp-drops{animation:sp-dropsoff .15s 1.15s both}@keyframes sp-dropsoff{to{opacity:0}}
+.sp-steam path{stroke-dasharray:1;stroke-dashoffset:1;opacity:.85;animation:sp-steam .9s ease-out both}
+.sp-steam path:nth-child(1){animation-delay:1.35s}.sp-steam path:nth-child(2){animation-delay:1.25s}.sp-steam path:nth-child(3){animation-delay:1.45s}
+@keyframes sp-steam{to{stroke-dashoffset:0;transform:translateY(-8px)}}
+.sp-word{display:flex;flex-direction:column;align-items:center;margin-top:18px;font-family:var(--display);line-height:1.05;overflow:hidden;padding:2px 8px}
+.sp-word span{font-size:.95rem;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:var(--cherry-ink);animation:sp-up .6s .55s cubic-bezier(.2,1,.3,1) both}
+.sp-word b{font-size:clamp(2rem,9vw,2.8rem);font-weight:800;letter-spacing:-.02em;animation:sp-up .7s .65s cubic-bezier(.2,1,.3,1) both}
+@keyframes sp-up{from{transform:translateY(110%);opacity:0}}
+.sp-tag{margin:8px 0 0;font-size:.95rem;color:var(--muted);animation:sp-fade .6s 1s ease-out both}
+@keyframes sp-fade{from{opacity:0;transform:translateY(6px)}}
 /* The recipe editor: numbered cards, stepper tiles and a timeline for the steps. */
 .re2{display:flex;flex-direction:column;gap:14px}
 .re-card{background:var(--surface);border:1px solid color-mix(in srgb,var(--line) 80%,transparent);border-radius:20px;padding:14px 14px 4px;box-shadow:0 1px 0 color-mix(in srgb,var(--ink) 4%,transparent)}
@@ -1683,6 +1717,48 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
 <body>
+<!-- The opening scene, in the Android app and the home-screen app (not in a browser tab): a V60 settles over a cup, the
+     coffee drips and fills, the dripper lifts off as steam rises, and the name comes up; then it all lifts away.
+     About 2 s; a tap skips it. -->
+<script>try{var m=JSON.parse(localStorage.getItem("bb-ui")||"{}").motion;if((window.Capacitor||matchMedia("(display-mode: standalone)").matches||navigator.standalone)&&m!=="reduced"&&!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("splashing")}catch(e){}</script>
+<div id="splash" aria-hidden="true">
+  <div class="sp-glow"></div>
+  <svg class="sp-beans" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice"><g fill="var(--cherry)">
+    <g class="spb" style="--x:52px;--y:120px;--r:-25deg;--d:0s"><ellipse rx="13" ry="18"/><path d="M-1-15c-6 9 5 17-1 30" stroke="var(--paper)" stroke-width="2.4" fill="none" stroke-linecap="round"/></g>
+    <g class="spb" style="--x:338px;--y:170px;--r:30deg;--d:.12s"><ellipse rx="11" ry="15"/><path d="M-1-12c-5 8 4 14-1 25" stroke="var(--paper)" stroke-width="2.2" fill="none" stroke-linecap="round"/></g>
+    <g class="spb" style="--x:70px;--y:590px;--r:40deg;--d:.2s"><ellipse rx="12" ry="17"/><path d="M-1-14c-6 9 5 16-1 28" stroke="var(--paper)" stroke-width="2.3" fill="none" stroke-linecap="round"/></g>
+    <g class="spb" style="--x:330px;--y:640px;--r:-35deg;--d:.06s"><ellipse rx="14" ry="19"/><path d="M-1-16c-6 10 5 18-1 32" stroke="var(--paper)" stroke-width="2.5" fill="none" stroke-linecap="round"/></g>
+    <g class="spb" style="--x:200px;--y:90px;--r:10deg;--d:.28s"><ellipse rx="8" ry="11"/><path d="M-1-9c-4 6 3 11-1 19" stroke="var(--paper)" stroke-width="1.8" fill="none" stroke-linecap="round"/></g>
+    <g class="spb" style="--x:360px;--y:420px;--r:60deg;--d:.18s"><ellipse rx="9" ry="12"/><path d="M-1-10c-4 7 3 12-1 21" stroke="var(--paper)" stroke-width="1.9" fill="none" stroke-linecap="round"/></g>
+    <g class="spb" style="--x:36px;--y:380px;--r:-60deg;--d:.24s"><ellipse rx="9" ry="12"/><path d="M-1-10c-4 7 3 12-1 21" stroke="var(--paper)" stroke-width="1.9" fill="none" stroke-linecap="round"/></g>
+  </g></svg>
+  <div class="sp-stage">
+    <svg class="sp-art" viewBox="0 0 200 230">
+      <defs><clipPath id="spCup"><path d="M52 132h96l-8 62a18 18 0 0 1-18 16H78a18 18 0 0 1-18-16z"/></clipPath></defs>
+      <ellipse class="sp-shadow" cx="100" cy="216" rx="62" ry="6"/>
+      <g class="sp-steam" fill="none" stroke="var(--honey)" stroke-width="5" stroke-linecap="round">
+        <path pathLength="1" d="M82 118c-10-12 10-20 0-34s8-20 2-30"/><path pathLength="1" d="M104 120c-10-14 12-22 0-38s8-22 2-32"/><path pathLength="1" d="M124 118c-9-12 9-19 0-32"/>
+      </g>
+      <g class="sp-cup">
+        <path d="M148 146h8a16 16 0 0 1 0 32h-12" fill="none" stroke="var(--cherry)" stroke-width="8"/>
+        <path d="M52 132h96l-8 62a18 18 0 0 1-18 16H78a18 18 0 0 1-18-16z" fill="var(--surface)" stroke="var(--cherry)" stroke-width="5" stroke-linejoin="round"/>
+        <g clip-path="url(#spCup)"><g class="sp-fill"><rect x="40" y="136" width="120" height="90" fill="#6B4226"/><rect x="40" y="136" width="120" height="7" fill="#C8955A"/></g></g>
+      </g>
+      <g class="sp-drops" fill="#6B4226"><circle cx="100" cy="0" r="3.4"/><circle cx="100" cy="0" r="3"/><circle cx="100" cy="0" r="3.4"/></g>
+      <g class="sp-v60">
+        <path d="M44 34h112l-36 58H80z" fill="var(--cherry)"/>
+        <path d="M66 42l22 44M100 42v44M134 42l-22 44" stroke="var(--paper)" stroke-width="3" stroke-linecap="round" opacity=".45"/>
+        <path d="M36 28h128v8H36z" fill="var(--honey)"/><path d="M88 92h24v8H88z" fill="var(--cherry)"/>
+        <path d="M156 40h10a8 8 0 0 1 0 16h-15" fill="none" stroke="var(--cherry)" stroke-width="6"/>
+      </g>
+    </svg>
+    <div class="sp-word"><span>The</span><b>Brew Bench</b></div>
+    <p class="sp-tag">Dial in. Brew well.</p>
+  </div>
+</div>
+<script>(function(){var h=document.documentElement,s=document.getElementById("splash");if(!h.classList.contains("splashing")){s.remove();return}
+  var done=false,end=function(){if(done)return;done=true;s.classList.add("out");setTimeout(function(){s.remove();h.classList.remove("splashing")},420)};
+  s.addEventListener("pointerdown",function(e){e.preventDefault();end()});setTimeout(end,2100)})()</script>
 <header class="appbar" id="appbar"><button type="button" class="ab-back" id="ab-back" aria-label="Back" hidden><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="ab-brand"><span id="ab-logo"><svg viewBox="80 80 352 352" width="24" height="24" aria-hidden="true"><g transform="rotate(-38 256 256)"><clipPath id="abBean"><ellipse cx="256" cy="256" rx="120" ry="166"/></clipPath><g clip-path="url(#abBean)"><rect x="100" y="80" width="320" height="360" fill="var(--cherry)"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184H440V80z" fill="var(--honey)"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184" fill="none" stroke="var(--paper)" stroke-width="22"/></g></g></svg></span><span id="ab-title">Dial-in</span></div><button type="button" class="ab-btn" id="ab-share" aria-label="Share">Share</button><button type="button" class="me-btn" id="ab-me" aria-label="Your profile"></button></header>
 <div class="herowrap"><button type="button" class="themebtn" id="themebtn" aria-label="Switch theme">Dark</button>
 <header class="hero wrap">
