@@ -766,7 +766,12 @@ const ALWAYS={explore:()=>renderExplore(),settings:()=>renderSettings(),beans:()
 // idle moment, a few seconds after the app opens (never while it's in the background).
 function prebuildTabs(){const ids=['recipes','gear','variety','process','map','words','history','flow','wheel','champs','tech'].filter(k=>LAZY[k]);
   const idle=window.requestIdleCallback?f=>requestIdleCallback(f,{timeout:4000}):f=>setTimeout(f,200);
-  const next=()=>{if(document.hidden){setTimeout(()=>idle(next),2000);return}const id=ids.find(k=>!BUILT[k]);if(!id)return;BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
+  // Beans comes first (it's opened most and has the most to draw). Each step waits while you're moving between tabs,
+  // so building ahead never competes with the page you just opened.
+  let beans=false;
+  const next=()=>{if(document.hidden){setTimeout(()=>idle(next),2000);return}if(performance.now()-NAV_AT<1500){setTimeout(()=>idle(next),900);return}
+    if(!beans&&window.BEANS_OK){beans=true;try{renderBeansIfChanged()}catch(e){}idle(next);return}
+    const id=ids.find(k=>!BUILT[k]);if(!id)return;BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
   setTimeout(()=>idle(next),2500)}
 function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove());if(LAZY[id]&&!BUILT[id]){BUILT[id]=1;LAZY[id]()}if(ALWAYS[id])ALWAYS[id]()}
 // NAVD counts tab changes you can step back through, so the app bar can offer a back button.
@@ -779,7 +784,8 @@ const BNORD=['dial','recipes','beans','explore','settings'];
 // view transition; any other move (an action that then scrolls to a card, say) switches at once, so code that
 // runs right after showTab finds the new page in place, and only the new page animates in.
 let NAV_READY=false;
-function showTab(id,fromHistory,pure){ensureTab(id);const cur=document.querySelector('main section.on');let kind='';
+let NAV_AT=-1e9;
+function showTab(id,fromHistory,pure){NAV_AT=performance.now();ensureTab(id);const cur=document.querySelector('main section.on');let kind='';
   if(cur&&cur.id!==id){const a=BNORD.indexOf(BNGROUP[cur.id]),b=BNORD.indexOf(BNGROUP[id]);
     kind=a!==b&&a>=0&&b>=0?(b<a?'left':'right'):fromHistory?'pop':'push';document.body.classList.toggle('nav-back',kind==='left'||kind==='pop')}
   // Each tab gets a history entry, so the back button (browser or Android) returns to the last tab.
@@ -2769,10 +2775,14 @@ document.querySelectorAll('table.ref').forEach(t=>{const hs=[...t.querySelectorA
 // If saved settings ever stop the app from starting, clear them (the brew log and scans are kept) and retry once.
 // The dial-in's recipe, by key. A state saved before keys were kept points at the list as it was then (76 built-in
 // recipes); the ones folded together lead to the recipe they joined.
-{const OLD_GONE={22:'r:mugen-small-cup',26:'r:kalita-for-darker-roasts',43:'r:ristretto',44:'r:long-shot-allonge',53:'r:4-6-sweeter',54:'r:4-6-lighter-and-cleaner',55:'r:4-6-fuller-body',59:'r:two-cup-v60',64:'r:chemex-for-one',65:'r:kalita-big-batch',73:'r:ready-to-drink-cold-brew'};
+{const ADDED_SINCE=new Set(['r:tetsu-kasuya-10-pour','r:tetsu-kasuya-10-pour-on-the-neo']);
+ const OLD_GONE={22:'r:mugen-small-cup',26:'r:kalita-for-darker-roasts',43:'r:ristretto',44:'r:long-shot-allonge',53:'r:4-6-sweeter',54:'r:4-6-lighter-and-cleaner',55:'r:4-6-fuller-body',59:'r:two-cup-v60',64:'r:chemex-for-one',65:'r:kalita-big-batch',73:'r:ready-to-drink-cold-brew'};
   const st=load('bb-state',{});let i=null;
   if(typeof st.reck==='string')i=rByKey(st.reck);
-  else if(Number.isInteger(st.rec)&&st.rec>=0)i=OLD_GONE[st.rec]?rByKey(OLD_GONE[st.rec]):st.rec-Object.keys(OLD_GONE).filter(k=>+k<st.rec).length;
+  else if(Number.isInteger(st.rec)&&st.rec>=0){
+    // Recipes added since then aren't in that old list (list each new built-in recipe's key in ADDED_SINCE), so count past them.
+    const j=st.rec-Object.keys(OLD_GONE).filter(k=>+k<st.rec).length,old=RECIPES.map((r,n)=>n).filter(n=>!ADDED_SINCE.has(rkey(RECIPES[n])));
+    i=OLD_GONE[st.rec]?rByKey(OLD_GONE[st.rec]):old[j]}
   if(st.rec!=null||st.reck){S.rec=i!=null&&i>=0&&RECIPES[i]?i:null;if(S.rec==null)S.tuned=null}}
 try{initDial();render();renderCalc();renderTS();renderStars();renderLog();initScan();}
 catch(err){let retried=false;try{retried=sessionStorage.getItem('bb-reset')==='1';sessionStorage.setItem('bb-reset','1')}catch(e){}

@@ -304,7 +304,12 @@ function renderBeans(){const el=$('beans-in');if(!el)return;BSIG=beansSig();setA
     '<div class="bview" id="bv-top3" aria-label="Top 3"></div><div class="bview" id="bv-scans" aria-label="Your scans"></div>';
   $('bg-day').innerHTML=cabinetDayHTML();hydrateImgs($('bg-day'));
   // Only the view on screen is drawn now; the others are drawn when you switch to them.
-  renderBeanHero();BDIRTY=new Set(Object.keys(BVIEWS));renderBeanViews()}
+  // The top shows at once; the long list follows a frame later, so the tab opens without a pause.
+  renderBeanHero();BDIRTY=new Set(Object.keys(BVIEWS));
+  if(!$('bv-'+BVIEW).firstChild&&!BVPEND){BVPEND=1;seg('bg-views',[['coffees','Coffees'],['diary','Diary'],['passport','Passport'],['top3','Top 5'],['scans','Scans']],()=>BVIEW,()=>{});
+    requestAnimationFrame(()=>setTimeout(()=>{BVPEND=0;renderBeanViews()},16))}
+  else if(!BVPEND)renderBeanViews()}
+let BVPEND=0;
 let BDIRTY=new Set();
 const BVIEWS={coffees:()=>renderCoffees(),diary:()=>renderDiaryView(),passport:()=>renderPassport(),top3:()=>renderTop3View(),scans:()=>renderBeanScans()};
 function renderBeanHero(){const cy=new Date().getFullYear(),N=BEANS.length,rated=BEANS.filter(b=>b.rating),avg=rated.length?rated.reduce((s,b)=>s+b.rating,0)/rated.length:0,
@@ -339,7 +344,7 @@ function renderGrid(){const g=$('bg-grid');if(!g)return;const list=beanList();le
   hydrateImgs(g)}
 // One coffee as a row: the bag, its name, where it's from, and your rating. Bags you're drinking now (now=true) also
 // show how fresh they are and what's left.
-function coffeeRow(b,now,i){const rk=beanRank(b),f=now&&fresh(b),g=now?gramsLeft(b):null,c=now?cupsLeft(b):null,isNew=!BSEEN.has(b.id);BSEEN.add(b.id);
+function coffeeRow(b,now,i){const rk=beanRank(b),f=now&&fresh(b),g=now?gramsLeft(b):null,c=now?cupsLeft(b):null,isNew=!BSEEN.has(b.id)&&(i||0)<12;BSEEN.add(b.id);
   const meta=[b.roaster,b.origin?flagOf(b.origin)+' '+originName(b.origin):'',!now&&b.process?PROCESSES[b.process].name:''].filter(Boolean).join(' · ');
   return '<button type="button" class="crow'+(isNew?' enter':'')+'" data-bean="'+b.id+'" style="--i:'+Math.min(i||0,12)+'">'+beanPic(b,'rw')+
     '<span class="cr-tx"><b>'+esc(beanTitle(b))+'</b>'+(meta?'<small>'+esc(meta)+'</small>':'')+(!now&&b.flavours?'<small class="cr-notes">'+esc(b.flavours.split(/\s*[,;·]\s*/).filter(Boolean).slice(0,3).join(' · '))+'</small>':'')+

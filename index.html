@@ -1413,7 +1413,7 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
 .beans-r{display:inline-flex;gap:3px;font-size:17px;line-height:1;vertical-align:middle}.beans-r.sm{font-size:12px}.beans-r.big{font-size:30px;gap:5px}
 .rb{position:relative;display:inline-block;width:1em;height:1em;flex:none}
 .rb>svg,.rbf svg{position:absolute;left:0;top:0;width:1em;height:1em}
-.rb>svg .bo{fill:color-mix(in srgb,var(--line) 45%,var(--surface2));stroke:color-mix(in srgb,var(--cherry) 30%,var(--line));stroke-width:1.2}.rb>svg .bc{fill:none;stroke:var(--line);stroke-width:1.6;stroke-linecap:round}
+.rb>svg .bo{fill:color-mix(in srgb,var(--line) 45%,var(--surface2));stroke:color-mix(in srgb,var(--cherry) 62%,var(--line));stroke-width:1.5}.rb>svg .bc{fill:none;stroke:color-mix(in srgb,var(--cherry) 45%,var(--line));stroke-width:1.6;stroke-linecap:round}
 .rbf{position:absolute;left:0;top:0;height:100%;overflow:hidden}
 .rbf svg .bo{fill:var(--cherry)}.rbf svg .bc{fill:none;stroke:color-mix(in srgb,var(--surface) 75%,var(--honey));stroke-width:1.6;stroke-linecap:round}
 .beanrate{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 14px;border-radius:var(--r-md);background:var(--surface2);cursor:pointer;width:max-content;max-width:100%;outline-offset:3px}
@@ -1751,6 +1751,8 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .steps.tl .t.est{background:transparent;border:1px dashed color-mix(in srgb,var(--ink) 30%,transparent);opacity:.85}
 .ic.on-accent svg{stroke:var(--paper)!important}
 .av-note{grid-column:1/-1;margin:0;font-size:.8rem}.getapp a.btn{text-decoration:none;display:flex;justify-content:center;align-items:center;text-align:center}
+/* A long coffee list: rows off screen skip layout and paint until you scroll near them (opening Beans was slow). */
+#bg-grid .crow,#bv-diary .tl-item{content-visibility:auto;contain-intrinsic-size:auto 76px}
 </style>
 <script>const JSPDF_SRC="vendor/jspdf.umd.min.js"</script>
 <link rel="manifest" href="manifest.webmanifest">
@@ -4820,7 +4822,12 @@ const ALWAYS={explore:()=>renderExplore(),settings:()=>renderSettings(),beans:()
 // idle moment, a few seconds after the app opens (never while it's in the background).
 function prebuildTabs(){const ids=['recipes','gear','variety','process','map','words','history','flow','wheel','champs','tech'].filter(k=>LAZY[k]);
   const idle=window.requestIdleCallback?f=>requestIdleCallback(f,{timeout:4000}):f=>setTimeout(f,200);
-  const next=()=>{if(document.hidden){setTimeout(()=>idle(next),2000);return}const id=ids.find(k=>!BUILT[k]);if(!id)return;BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
+  // Beans comes first (it's opened most and has the most to draw). Each step waits while you're moving between tabs,
+  // so building ahead never competes with the page you just opened.
+  let beans=false;
+  const next=()=>{if(document.hidden){setTimeout(()=>idle(next),2000);return}if(performance.now()-NAV_AT<1500){setTimeout(()=>idle(next),900);return}
+    if(!beans&&window.BEANS_OK){beans=true;try{renderBeansIfChanged()}catch(e){}idle(next);return}
+    const id=ids.find(k=>!BUILT[k]);if(!id)return;BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
   setTimeout(()=>idle(next),2500)}
 function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove());if(LAZY[id]&&!BUILT[id]){BUILT[id]=1;LAZY[id]()}if(ALWAYS[id])ALWAYS[id]()}
 // NAVD counts tab changes you can step back through, so the app bar can offer a back button.
@@ -4833,7 +4840,8 @@ const BNORD=['dial','recipes','beans','explore','settings'];
 // view transition; any other move (an action that then scrolls to a card, say) switches at once, so code that
 // runs right after showTab finds the new page in place, and only the new page animates in.
 let NAV_READY=false;
-function showTab(id,fromHistory,pure){ensureTab(id);const cur=document.querySelector('main section.on');let kind='';
+let NAV_AT=-1e9;
+function showTab(id,fromHistory,pure){NAV_AT=performance.now();ensureTab(id);const cur=document.querySelector('main section.on');let kind='';
   if(cur&&cur.id!==id){const a=BNORD.indexOf(BNGROUP[cur.id]),b=BNORD.indexOf(BNGROUP[id]);
     kind=a!==b&&a>=0&&b>=0?(b<a?'left':'right'):fromHistory?'pop':'push';document.body.classList.toggle('nav-back',kind==='left'||kind==='pop')}
   // Each tab gets a history entry, so the back button (browser or Android) returns to the last tab.
@@ -6823,10 +6831,14 @@ document.querySelectorAll('table.ref').forEach(t=>{const hs=[...t.querySelectorA
 // If saved settings ever stop the app from starting, clear them (the brew log and scans are kept) and retry once.
 // The dial-in's recipe, by key. A state saved before keys were kept points at the list as it was then (76 built-in
 // recipes); the ones folded together lead to the recipe they joined.
-{const OLD_GONE={22:'r:mugen-small-cup',26:'r:kalita-for-darker-roasts',43:'r:ristretto',44:'r:long-shot-allonge',53:'r:4-6-sweeter',54:'r:4-6-lighter-and-cleaner',55:'r:4-6-fuller-body',59:'r:two-cup-v60',64:'r:chemex-for-one',65:'r:kalita-big-batch',73:'r:ready-to-drink-cold-brew'};
+{const ADDED_SINCE=new Set(['r:tetsu-kasuya-10-pour','r:tetsu-kasuya-10-pour-on-the-neo']);
+ const OLD_GONE={22:'r:mugen-small-cup',26:'r:kalita-for-darker-roasts',43:'r:ristretto',44:'r:long-shot-allonge',53:'r:4-6-sweeter',54:'r:4-6-lighter-and-cleaner',55:'r:4-6-fuller-body',59:'r:two-cup-v60',64:'r:chemex-for-one',65:'r:kalita-big-batch',73:'r:ready-to-drink-cold-brew'};
   const st=load('bb-state',{});let i=null;
   if(typeof st.reck==='string')i=rByKey(st.reck);
-  else if(Number.isInteger(st.rec)&&st.rec>=0)i=OLD_GONE[st.rec]?rByKey(OLD_GONE[st.rec]):st.rec-Object.keys(OLD_GONE).filter(k=>+k<st.rec).length;
+  else if(Number.isInteger(st.rec)&&st.rec>=0){
+    // Recipes added since then aren't in that old list (list each new built-in recipe's key in ADDED_SINCE), so count past them.
+    const j=st.rec-Object.keys(OLD_GONE).filter(k=>+k<st.rec).length,old=RECIPES.map((r,n)=>n).filter(n=>!ADDED_SINCE.has(rkey(RECIPES[n])));
+    i=OLD_GONE[st.rec]?rByKey(OLD_GONE[st.rec]):old[j]}
   if(st.rec!=null||st.reck){S.rec=i!=null&&i>=0&&RECIPES[i]?i:null;if(S.rec==null)S.tuned=null}}
 try{initDial();render();renderCalc();renderTS();renderStars();renderLog();initScan();}
 catch(err){let retried=false;try{retried=sessionStorage.getItem('bb-reset')==='1';sessionStorage.setItem('bb-reset','1')}catch(e){}
@@ -7151,7 +7163,12 @@ function renderBeans(){const el=$('beans-in');if(!el)return;BSIG=beansSig();setA
     '<div class="bview" id="bv-top3" aria-label="Top 3"></div><div class="bview" id="bv-scans" aria-label="Your scans"></div>';
   $('bg-day').innerHTML=cabinetDayHTML();hydrateImgs($('bg-day'));
   // Only the view on screen is drawn now; the others are drawn when you switch to them.
-  renderBeanHero();BDIRTY=new Set(Object.keys(BVIEWS));renderBeanViews()}
+  // The top shows at once; the long list follows a frame later, so the tab opens without a pause.
+  renderBeanHero();BDIRTY=new Set(Object.keys(BVIEWS));
+  if(!$('bv-'+BVIEW).firstChild&&!BVPEND){BVPEND=1;seg('bg-views',[['coffees','Coffees'],['diary','Diary'],['passport','Passport'],['top3','Top 5'],['scans','Scans']],()=>BVIEW,()=>{});
+    requestAnimationFrame(()=>setTimeout(()=>{BVPEND=0;renderBeanViews()},16))}
+  else if(!BVPEND)renderBeanViews()}
+let BVPEND=0;
 let BDIRTY=new Set();
 const BVIEWS={coffees:()=>renderCoffees(),diary:()=>renderDiaryView(),passport:()=>renderPassport(),top3:()=>renderTop3View(),scans:()=>renderBeanScans()};
 function renderBeanHero(){const cy=new Date().getFullYear(),N=BEANS.length,rated=BEANS.filter(b=>b.rating),avg=rated.length?rated.reduce((s,b)=>s+b.rating,0)/rated.length:0,
@@ -7186,7 +7203,7 @@ function renderGrid(){const g=$('bg-grid');if(!g)return;const list=beanList();le
   hydrateImgs(g)}
 // One coffee as a row: the bag, its name, where it's from, and your rating. Bags you're drinking now (now=true) also
 // show how fresh they are and what's left.
-function coffeeRow(b,now,i){const rk=beanRank(b),f=now&&fresh(b),g=now?gramsLeft(b):null,c=now?cupsLeft(b):null,isNew=!BSEEN.has(b.id);BSEEN.add(b.id);
+function coffeeRow(b,now,i){const rk=beanRank(b),f=now&&fresh(b),g=now?gramsLeft(b):null,c=now?cupsLeft(b):null,isNew=!BSEEN.has(b.id)&&(i||0)<12;BSEEN.add(b.id);
   const meta=[b.roaster,b.origin?flagOf(b.origin)+' '+originName(b.origin):'',!now&&b.process?PROCESSES[b.process].name:''].filter(Boolean).join(' · ');
   return '<button type="button" class="crow'+(isNew?' enter':'')+'" data-bean="'+b.id+'" style="--i:'+Math.min(i||0,12)+'">'+beanPic(b,'rw')+
     '<span class="cr-tx"><b>'+esc(beanTitle(b))+'</b>'+(meta?'<small>'+esc(meta)+'</small>':'')+(!now&&b.flavours?'<small class="cr-notes">'+esc(b.flavours.split(/\s*[,;·]\s*/).filter(Boolean).slice(0,3).join(' · '))+'</small>':'')+
