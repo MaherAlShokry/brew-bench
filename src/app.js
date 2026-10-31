@@ -2627,7 +2627,7 @@ function renderSettings(){const t=document.documentElement.getAttribute('data-th
      window.BEANS_OK&&LN()?'<div class="setbtns"><div class="seg" id="st-remind"></div><input type="time" id="st-rtime" class="dateinp" value="'+REMIND.t+'" aria-label="Reminder time"'+(REMIND.on?'':' disabled')+'></div>'
        :'<p class="setnote" style="margin:0">It’s at the top of Beans and Explore each day. In the Android app it can also arrive as a notification at the time you choose.</p>')+
      row('book','#9A7390','Coffee fact of the day','Something worth knowing from Explore each day, in turn: a coffee word, a variety, an origin, a process, a brewing technique, a moment in history or a champion.',
-       typeof LN==='function'&&LN()?'<div class="setbtns"><div class="seg" id="st-learn"></div><input type="time" id="st-ltime" class="dateinp" value="'+LEARN.t+'" aria-label="Fact time"'+(LEARN.on?'':' disabled')+'></div>'
+       window.BEANS_OK&&LN()?'<div class="setbtns"><div class="seg" id="st-learn"></div><input type="time" id="st-ltime" class="dateinp" value="'+LEARN.t+'" aria-label="Fact time"'+(LEARN.on?'':' disabled')+'></div>'
          :'<p class="setnote" style="margin:0">Today’s is on the Explore page. In the Android app it can also arrive as a notification at the time you choose.</p>')+'</div>'+
    /* Gear, Guide and the Log are the buttons at the top. */
    '<h3 class="rh">Your data</h3><div class="setgroup">'+row('download','#8A5A3B','Back up and restore','Everything you’ve saved stays on this device: '+esc(dataSummary())+'. Save it as a file to keep it safe or move it to another phone.',
@@ -2741,17 +2741,17 @@ $('explore-in').addEventListener('click',e=>{const f=e.target.closest('[data-fac
 // In the Android app it can also arrive as a notification: the next two weeks are scheduled ahead, and again on opening.
 let LEARN=(v=>({on:!!(v&&v.on),t:v&&/^\d\d:\d\d$/.test(v.t)?v.t:'19:00'}))(load('bb-learn',null));
 const FIDS=[...Array(14)].map((_,i)=>7201+i);
-async function scheduleFacts(){const ln=typeof LN==='function'&&LN();if(!ln)return false;
+async function scheduleFacts(){const ln=window.BEANS_OK&&LN();if(!ln)return false;
   try{await ln.cancel({notifications:FIDS.map(id=>({id}))})}catch(e){}
   if(!LEARN.on)return true;const [h,m]=LEARN.t.split(':').map(Number),now=new Date(),list=[];
   for(let i=0;i<14;i++){const at=new Date(now.getFullYear(),now.getMonth(),now.getDate()+i,h,m);if(at<=now)continue;const day=Math.floor((at-at.getTimezoneOffset()*6e4)/864e5),f=factFor(day);
     list.push({id:FIDS[i],title:FACT_ICON[f.k]+' '+f.tag+': '+f.title,body:f.text,largeBody:f.text,schedule:{at,allowWhileIdle:true},isExactNotification:false,extra:{fact:f.go}})}
   try{if(list.length)await ln.schedule({notifications:list});return true}catch(e){return false}}
-async function setLearn(on){const ln=typeof LN==='function'&&LN();
+async function setLearn(on){const ln=window.BEANS_OK&&LN();
   if(on&&!LEARN.on){if(!ln){toast('Phone reminders work in the Android app');return false}
     try{let p=await ln.checkPermissions();if(p.display!=='granted')p=await ln.requestPermissions();if(p.display!=='granted'){toast('Allow notifications for Brew Bench in your phone’s settings first');return false}}catch(e){toast('Couldn’t turn on reminders');return false}}
   LEARN.on=on;save('bb-learn',LEARN);await scheduleFacts();if(on)toast('Your coffee fact arrives at '+LEARN.t);return true}
-setTimeout(()=>{const ln=typeof LN==='function'&&LN();if(!ln)return;
+setTimeout(()=>{const ln=window.BEANS_OK&&LN();if(!ln)return;
   try{ln.addListener('localNotificationActionPerformed',a=>{const g=a&&a.notification&&a.notification.extra&&a.notification.extra.fact;if(g)goFact(g)})}catch(e){}
   if(LEARN.on)scheduleFacts()},3200);
 
