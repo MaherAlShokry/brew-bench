@@ -1412,7 +1412,7 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
 .beans-r{display:inline-flex;gap:3px;font-size:17px;line-height:1;vertical-align:middle}.beans-r.sm{font-size:12px}.beans-r.big{font-size:30px;gap:5px}
 .rb{position:relative;display:inline-block;width:1em;height:1em;flex:none}
 .rb>svg,.rbf svg{position:absolute;left:0;top:0;width:1em;height:1em}
-.rb>svg .bo{fill:color-mix(in srgb,var(--line) 45%,var(--surface2));stroke:color-mix(in srgb,var(--cherry) 30%,var(--line));stroke-width:1.2}.rb>svg .bc{fill:none;stroke:var(--line);stroke-width:1.6;stroke-linecap:round}
+.rb>svg .bo{fill:color-mix(in srgb,var(--line) 45%,var(--surface2));stroke:color-mix(in srgb,var(--cherry) 62%,var(--line));stroke-width:1.5}.rb>svg .bc{fill:none;stroke:color-mix(in srgb,var(--cherry) 45%,var(--line));stroke-width:1.6;stroke-linecap:round}
 .rbf{position:absolute;left:0;top:0;height:100%;overflow:hidden}
 .rbf svg .bo{fill:var(--cherry)}.rbf svg .bc{fill:none;stroke:color-mix(in srgb,var(--surface) 75%,var(--honey));stroke-width:1.6;stroke-linecap:round}
 .beanrate{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 14px;border-radius:var(--r-md);background:var(--surface2);cursor:pointer;width:max-content;max-width:100%;outline-offset:3px}
@@ -1750,6 +1750,8 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .steps.tl .t.est{background:transparent;border:1px dashed color-mix(in srgb,var(--ink) 30%,transparent);opacity:.85}
 .ic.on-accent svg{stroke:var(--paper)!important}
 .av-note{grid-column:1/-1;margin:0;font-size:.8rem}.getapp a.btn{text-decoration:none;display:flex;justify-content:center;align-items:center;text-align:center}
+/* A long coffee list: rows off screen skip layout and paint until you scroll near them (opening Beans was slow). */
+#bg-grid .crow,#bv-diary .tl-item{content-visibility:auto;contain-intrinsic-size:auto 76px}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
