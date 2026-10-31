@@ -238,9 +238,16 @@ const SUBM={panama:{},costarica:{sweet:0.2,acid:-0.2,clarity:-0.1},colombia:{bod
 function vById(id){return VBY[String(id).split(':')[0]]}
 function vParams(id){const [b,s]=String(id).split(':');const v=VBY[b];const m=Object.assign({},FAM[v.fam].d,v.m||{});if(s&&SUBM[s])for(const k in SUBM[s])m[k]=(m[k]||0)+SUBM[s][k];return m}
 function vName(id){const [b,s]=String(id).split(':');const v=VBY[b];if(s&&v.subs){const x=v.subs.find(q=>q.k===s);if(x)return x.name}return v.name}
-function varietyOptions(){let h='';for(const f in FAM){const list=V.filter(v=>v.fam===f&&v.id!=='arabica');if(!list.length)continue;h+='<optgroup label="'+FAM[f].name+'">';
-  for(const v of list){h+='<option value="'+v.id+'">'+esc(v.name)+'</option>';if(v.subs)for(const s of v.subs)h+='<option value="'+v.id+':'+s.k+'">\u00a0\u00a0'+esc(s.name)+'</option>'}h+='</optgroup>'}return h}
-function processOptions(){return Object.entries(PCAT).map(([c,n])=>'<optgroup label="'+n+'">'+Object.entries(PROCESSES).filter(([,p])=>p.cat===c).map(([k,p])=>'<option value="'+k+'">'+esc(p.name)+'</option>').join('')+'</optgroup>').join('')}
+// The lists show each variety once, by its short name (no brackets), A to Z within its family. Where a variety tastes
+// different by region (Geisha), the Region field picks that profile; see effVariety.
+const shortName=n=>String(n).replace(/\s*\([^)]*\)/g,'').replace(/\s+/g,' ').trim();
+const byShort=(a,b)=>shortName(a).localeCompare(shortName(b));
+function varietyOptions(){let h='';for(const f in FAM){const list=V.filter(v=>v.fam===f&&v.id!=='arabica').sort((a,b)=>byShort(a.name,b.name));if(!list.length)continue;
+  h+='<optgroup label="'+FAM[f].name+'">'+list.map(v=>'<option value="'+v.id+'">'+esc(shortName(v.name))+'</option>').join('')+'</optgroup>'}return h}
+// A variety with regional profiles takes the one for the region (or "other origins"); without a region, the variety itself.
+function effVariety(base,region){const v=VBY[base];if(!v||!v.subs||!region)return base;const x=v.subs.find(q=>q.k===region)||v.subs.find(q=>q.k==='other');return x?base+':'+x.k:base}
+function regionOptions(){const O=ALLO();return '<option value="">Not sure</option>'+Object.keys(O).sort((a,b)=>O[a].name.localeCompare(O[b].name)).map(k=>'<option value="'+k+'">'+esc((O[k].flag?O[k].flag+' ':'')+O[k].name)+'</option>').join('')}
+function processOptions(){return Object.entries(PCAT).map(([c,n])=>'<optgroup label="'+n+'">'+Object.entries(PROCESSES).filter(([,p])=>p.cat===c).sort(([,a],[,b])=>byShort(a.name,b.name)).map(([k,p])=>'<option value="'+k+'">'+esc(shortName(p.name))+'</option>').join('')+'</optgroup>').join('')}
 const ALLO=()=>({...O,...PTS});
 // Any origin, on the map (ALLO) or off it (XO). A stored origin that is neither becomes '' ("not sure").
 const oInfo=k=>ALLO()[k]||XO[k]||null;
@@ -261,7 +268,7 @@ const okSBean=b=>{if(!b||typeof b!=='object')return null;const id=/^[a-z0-9]{4,2
 S.bean=okSBean(S.bean);
 S.setting=num(S.setting,56);S.temp=num(S.temp,93);S.ratio=num(S.ratio,15);S.bloom=num(S.bloom,45);if(S.rec!=null&&!RECIPES[S.rec])S.rec=null;
 S.dose=num(S.dose,15,3,120);S.age=Math.round(num(S.age,14,0,90));if(!S.tuned||typeof S.tuned!=='object')S.tuned=null;
-if(typeof S.variety!=='string'||!vById(S.variety))S.variety='caturra';if(!BREWERS[S.brewer]||!BREWERS[S.brewer].model)S.brewer='v60';if(!PROCESSES[S.process])S.process='washed';
+if(typeof S.variety!=='string'||!vById(S.variety))S.variety='caturra';S.region=okOrigin(S.region)||(S.variety.includes(':')?okOrigin(S.variety.split(':')[1]):'');if(!BREWERS[S.brewer]||!BREWERS[S.brewer].model)S.brewer='v60';if(!PROCESSES[S.process])S.process='washed';
 if(S.grinder==='kultra'&&S.setting<30&&S.setting>5&&S.setting%1)S.setting=Math.round(S.setting*10);
 // If the saved grinder is gone or can't do this brewer, move to one of yours and carry the grind across, never the raw click number.
 if(!MYG.includes(S.grinder)||!canGrind(S.grinder,S.brewer)){const g=MYG.find(x=>canGrind(x,S.brewer))||capable(S.brewer);
@@ -419,7 +426,8 @@ function renderFit(){const el=$('g-fit'),f=cupFit();
     '<span class="fit-pct" title="How '+esc(me)+' the cup still is">'+pct+'% '+esc(me)+'</span></div><p>'+esc(txt)+'</p>'+
     '<div class="gauge fit-g" role="meter" aria-label="How close to '+esc(GOALN[S.goal])+'" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+pct+'"><i style="left:'+pos.toFixed(1)+'%"></i></div>'+
     '<div class="gscale"><span>Another cup</span><span>Drifting</span><span>On target</span></div>'+
-    (f.state==='on'?'':'<div class="fit-act"><button type="button" class="btn ghost" data-retune>Re-tune for '+esc(GOALN[S.goal])+'</button>'+(f.state==='off'?'<button type="button" class="btn ghost" data-fitgo="'+f.near+'">Switch to '+esc(nn)+'</button>':'')+'</div>');return f}
+    // The card keeps one size whatever the state, so the page under your finger doesn't jump while you drag a slider.
+    (f.state==='on'?'<div class="fit-act fit-ok"><p>Adjust by taste: this card tells you if the cup starts to change.</p></div>':'<div class="fit-act"><button type="button" class="btn ghost" data-retune>Re-tune for '+esc(GOALN[S.goal])+'</button>'+(f.state==='off'?'<button type="button" class="btn ghost" data-fitgo="'+f.near+'">Switch to '+esc(nn)+'</button>':'')+'</div>');return f}
 function tune(msg){if(!dialRec())return;const p=plan(dialCtx());Object.assign(S,p.st);{const B=BREWERS[S.brewer];S.temp=clamp(S.temp,B.temp.min,B.temp.max);S.bloom=clamp(S.bloom,B.bloom.min,B.bloom.max)}S.tuned=Object.fromEntries(TUNED_KEYS.map(k=>[k,S[k]]));render();if(msg)toast(msg)}
 // Inputs that change the plan re-tune while you haven't moved the sliders yourself.
 function retuneIfAuto(msg){if(dialRec()&&(isTuned()||!S.tuned))tune(msg);else render()}
@@ -443,7 +451,7 @@ function renderDialRecipe(){const tl=techList(S.brewer),r=dialRec();
   seg('g-goal',GOALS,()=>S.goal,v=>{S.goal=v;tune()});
   $('g-amtrow').hidden=S.goal==='balance';$('g-gdesc').textContent=GSPEC[S.goal].d;
   seg('g-amt',Object.keys(AMTS).map(k=>[k,AMTS[k].n]),()=>S.amt,v=>{S.amt=v;tune()});
-  {const f=renderFit();$('d-tuned').hidden=!!f&&f.state!=='on'}
+  renderFit()
   $('d-tuned').innerHTML=tuned?'Grind, water, ratio, '+BREWERS[S.brewer].bloom.label.toLowerCase()+' and agitation are tuned for this coffee and target.':'You’ve adjusted the settings yourself. <button type="button" class="linkbtn" data-retune>Re-tune</button>';
   const notes=[...dp.changes,...p.tw,...p.why];
   $('d-recipe').hidden=false;
@@ -454,6 +462,17 @@ function renderDialRecipe(){const tl=techList(S.brewer),r=dialRec();
     '<div class="actions"><button type="button" class="btn" data-dtimer>Start brew timer</button><button type="button" class="btn ghost" data-dfull>Original recipe</button><button type="button" class="btn ghost" data-dshare>Share</button></div>'}
 function dialTimer(){const dp=dialPlan();if(!dp)return;openTimer(S.rec,{brewer:S.brewer,grinder:S.grinder,set:{[S.grinder]:S.setting},r:{dose:S.dose},water:dp.water,temp:S.temp,steps:dp.steps})}
 // The Beans row under Your coffee: the coffee you picked, or a way to pick one from the gallery.
+// The coffee you picked from your gallery drives the dial-in: its process, variety, roast and region follow the coffee
+// (edit the coffee and they follow), and the days since roast count up from its roast date each day. Anything you change
+// here yourself stays until the coffee's details change (or, for the days, until the next day).
+function beanSync(){const b=S.bean,gb=b&&b.id&&window.BEANS_OK&&beanById(b.id);if(!gb)return false;let ch=false;
+  const sig=[gb.process,gb.variety,gb.roast,gb.origin,gb.roastDate].join('|'),day=todayISO();
+  if(S.bsig!==sig){S.bsig=sig;ch=true;S.bday='';
+    if(PROCESSES[gb.process])S.process=gb.process;if(ROASTS.includes(gb.roast))S.roast=gb.roast;
+    if(okOrigin(gb.origin))S.region=gb.origin;if(gb.variety&&vById(gb.variety))S.variety=effVariety(String(gb.variety).split(':')[0],S.region);
+    S.bean=okSBean({name:beanTitle(gb),roaster:gb.roaster,origin:gb.origin,id:gb.id})||S.bean}
+  if(gb.roastDate&&S.bday!==day){S.bday=day;const a=clamp(ISO_D.test(gb.roastDate)?daysAgo(gb.roastDate):daysSince(gb.roastDate),3,60);if(a!==S.age){S.age=a;ch=true}}
+  return ch}
 function renderDBean(){const el=$('d-bean');if(!el||!window.BEANS_OK)return;const b=S.bean,gb=b&&b.id&&beanById(b.id);
   if(b){el.innerHTML='<div class="dbean">'+(gb?beanPic(gb,'xs'):'<span class="bpic xs" style="--rc:'+regCol(b.origin)+'"><span class="bph">'+beanSVG+'</span></span>')+
       '<button type="button" class="dbean-tx" data-dbpick><b>'+esc(b.name)+'</b><small>'+esc([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · ')||'Tap to change')+'</small></button>'+
@@ -476,7 +495,7 @@ function render(){
   const bi=$('i-bloom');bi.min=B.bloom.min;bi.max=B.bloom.max;bi.step=B.bloom.max<=20?1:5;bi.value=S.bloom;$('v-bloom').textContent=S.bloom+'s';
   $('i-bloom').previousElementSibling.firstChild.textContent=B.bloom.label+' ';
   renderDialRecipe();renderDBean();
-  $('i-brewer').value=S.brewer;$('i-process').value=S.process;$('i-variety').value=S.variety;$('i-age').value=S.age;$('v-age').textContent=S.age+' days';
+  $('i-brewer').value=S.brewer;$('i-process').value=S.process;$('i-variety').value=S.variety.split(':')[0];$('i-region').value=S.region;$('i-age').value=S.age;$('v-age').textContent=S.age+' days';
   const [vt,vs]=verdict(r.D);$('o-verdict').textContent=vt;$('mr-v').textContent=vt;$('mr-g').textContent=gLabel(S.grinder,S.setting)+', '+S.temp+'°C, 1:'+rr1(S.ratio);$('mr-m').style.left=((clamp(r.D,-2.5,2.5)+2.5)/5*100)+'%';$('o-summary').textContent=vs+' '+strength(S)+'.';
   $('o-marker').style.left=((clamp(r.D,-2.5,2.5)+2.5)/5*100)+'%';
   $('o-bars').innerHTML=[['Sweetness',r.sweet],['Acidity',r.acid],['Body',r.body],['Clarity',r.clarity],['Bitterness',r.bitter,'bitter']]
@@ -514,6 +533,7 @@ function initDial(){
   $('i-brewer').innerHTML=brewerOptions(MODEL);
   for(const id of['i-process','s-process'])$(id).innerHTML=processOptions();
   for(const id of['i-variety','s-variety'])$(id).innerHTML=varietyOptions();
+  $('i-region').innerHTML=regionOptions();
   $('i-grind').oninput=e=>{S.setting=+e.target.value;soon(render)};
   $('i-temp').oninput=e=>{S.temp=+e.target.value;soon(render)};
   $('i-ratio').oninput=e=>{S.ratio=+e.target.value;soon(render)};
@@ -530,7 +550,8 @@ function initDial(){
   $('mr-play').onclick=dialTimer;
   $('i-age').oninput=e=>{S.age=+e.target.value;$('v-age').textContent=S.age+' days';clearTimeout($('i-age')._t);$('i-age')._t=setTimeout(()=>retuneIfAuto(),250)};
   $('i-process').onchange=e=>{S.process=e.target.value;retuneIfAuto()};
-  $('i-variety').onchange=e=>{S.variety=e.target.value;retuneIfAuto()};
+  $('i-variety').onchange=e=>{S.variety=effVariety(e.target.value,S.region);retuneIfAuto()};
+  $('i-region').onchange=e=>{S.region=e.target.value;S.variety=effVariety(S.variety.split(':')[0],S.region);retuneIfAuto()};
   $('v-about').onclick=()=>openVariety(S.variety.split(':')[0]);
   renderCal();
   $('caltbody').oninput=e=>{const i=e.target;if(!i.dataset.g)return;const v=parseFloat(i.value);if(isNaN(v))return;(BASE[i.dataset.g]=BASE[i.dataset.g]||{})[i.dataset.b]=Math.round(v);(BOFF={},save('bb-base3',BASE));i.nextElementSibling.textContent=dial(i.dataset.g,v);render();renderRecipes();renderGrindMap()};
@@ -759,7 +780,7 @@ const LAZY={champs:renderChamps,words:renderWords,wheel:renderWheelTab,flow:rend
 // Explore and More re-render each visit: the word of the day, your counts and the theme can change.
 const ALWAYS={explore:()=>renderExplore(),settings:()=>renderSettings(),beans:()=>{if(window.BEANS_OK)renderBeansIfChanged()},
   // The Beans row on the dial-in follows the gallery: a coffee added, renamed or removed shows on the next visit.
-  dial:()=>{if(window.BEANS_OK)renderDBean()},
+  dial:()=>{if(window.BEANS_OK){if(beanSync())retuneIfAuto();renderDBean()}},
   // The countdown stops ticking when you leave the page; coming back starts it again.
   champs:()=>{if(BUILT.champs)renderCountdown()}};
 // Pages are built the first time they're opened. So that first tap isn't slow, the rest are built ahead, one per

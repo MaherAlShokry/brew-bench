@@ -1169,13 +1169,15 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .fit-head{display:flex;align-items:center;gap:10px;min-width:0}
 .fit-ic{width:30px;height:30px;border-radius:50%;flex:none;display:grid;place-items:center;background:var(--fc);box-shadow:0 3px 10px color-mix(in srgb,var(--fc) 35%,transparent);transition:background .3s}
 .fit-ic svg{width:17px;height:17px;fill:none;stroke:#FFFDF9;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.fit-head b{flex:1;min-width:0;font-family:var(--display);font-size:1rem;line-height:1.2;color:color-mix(in srgb,var(--fc) 80%,var(--ink));transition:color .3s}
+.fit-head b{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--display);font-size:1rem;line-height:1.2;color:color-mix(in srgb,var(--fc) 80%,var(--ink));transition:color .3s}
 .fit-pct{flex:none;font-size:.74rem;font-weight:600;padding:3px 9px;border-radius:var(--r-pill);background:color-mix(in srgb,var(--fc) 14%,var(--surface2));color:color-mix(in srgb,var(--fc) 70%,var(--ink));font-variant-numeric:tabular-nums;white-space:nowrap}
-.fit>p{margin:8px 0 0;font-size:.84rem;line-height:1.4;color:var(--muted)}
+.fit>p{margin:8px 0 0;font-size:.84rem;line-height:1.4;color:var(--muted);min-height:4.2em}
 .fit .gauge.fit-g{margin:14px 4px 6px;background:linear-gradient(90deg,#A8432F 0%,#B9603A 22%,#C9964A 40%,#C9964A 58%,color-mix(in srgb,var(--cherry) 70%,#C9964A) 72%,var(--cherry) 100%)}
 .fit .gscale{margin-bottom:0;font-size:.72rem}
-.fit-act{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:8px;margin-top:12px}
-.fit-act .btn{min-height:40px;padding:6px 10px;font-size:.82rem;line-height:1.2;flex:none;white-space:normal}
+.fit-act{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:8px;margin-top:12px;min-height:44px}
+.fit-ok{place-items:center}.fit-ok p{margin:0;font-size:.78rem;line-height:1.3;color:var(--muted);text-align:center}
+#d-tuned{min-height:3.5em}
+.fit-act .btn{min-height:44px;padding:6px 10px;font-size:.82rem;line-height:1.2;flex:none;white-space:normal}
 #g-goal button[aria-pressed="true"]{background:var(--cherry);border-color:var(--cherry);color:var(--paper)}
 #g-goal button[aria-pressed="true"][style*="--fitc"]{border-color:var(--fitc);box-shadow:inset 0 0 0 2px var(--fitc),inset 0 0 0 3.5px color-mix(in srgb,var(--paper) 75%,transparent)}
 #g-goal button{transition:background .3s,border-color .3s,box-shadow .3s,color .3s}
@@ -1923,6 +1925,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
       <div class="field"><div class="lbl">Roast</div><div class="seg" id="g-roast"></div></div>
       <div class="field"><label for="i-process">Process</label><select id="i-process"></select></div>
       <div class="field"><label for="i-variety">Variety <button type="button" class="hint" id="v-about" style="background:none;border:0;cursor:pointer;text-decoration:underline">about this variety</button></label><select id="i-variety"></select></div>
+      <div class="field"><label for="i-region">Region</label><select id="i-region"></select></div>
       <div class="field"><label for="i-age">Days since roast <span class="num" id="v-age"></span></label><input type="range" id="i-age" min="3" max="60" step="1"></div>
       <h3 class="dsub">Recipe and target</h3>
       <div class="field"><label for="i-rec">Recipe <span class="hint" id="v-rec"></span></label><select id="i-rec"></select></div>
