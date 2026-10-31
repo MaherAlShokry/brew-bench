@@ -25,6 +25,7 @@ On a phone the app has five tabs: **Brew** (the dial-in), **Recipes**, **Beans**
 | **Techniques** | 36 techniques from swirl blooms to turbo shots |
 | **Processes** | 33 processes from washed to hydro honey and thermal shock, plotted on a clean-to-wild map |
 | **Coffee of the day** | Like the word of the day: a coffee from your cabinet at the top of Beans and Explore, chosen for the date. A bag that needs you comes first (at its peak, running low, fading), then one you tried on this day in an earlier year, a memory from your diary or a favourite. In the Android app it can also arrive as a notification at a time you choose (Settings > Reminders). |
+| **Coffee fact of the day** | Explore shows the word of the day and, on the other days of the week, a fact from the rest of Explore: a variety's story, an origin's history, a process, a brewing technique, a moment in coffee history or a champion's recipe. Tap it to open the full page. In the Android app it can arrive as a notification at a time you choose (Settings > Reminders > Coffee fact of the day), and tapping the notification opens that page. |
 | **Origins map** | 51 coffee origins on an interactive, colour-coded world map |
 | **Varieties** | 53 varieties with stories (from Geisha and Pink Bourbon to Ají, Ombligón and Starmaya), Geisha types and side-by-side comparison |
 | **History** | A clickable variety family tree, a timeline, key people and a quiz |

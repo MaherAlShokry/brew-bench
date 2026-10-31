@@ -1176,8 +1176,8 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .fit .gscale{margin-bottom:0;font-size:.72rem}
 .fit-act{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:8px;margin-top:12px}
 .fit-act .btn{min-height:40px;padding:6px 10px;font-size:.82rem;line-height:1.2;flex:none;white-space:normal}
-#g-goal button[aria-pressed="true"]{background:var(--cherry);border-color:var(--cherry);color:#FFFDF9}
-#g-goal button[aria-pressed="true"][style*="--fitc"]{border-color:var(--fitc);box-shadow:inset 0 0 0 2px var(--fitc),inset 0 0 0 3.5px color-mix(in srgb,#FFFDF9 75%,transparent)}
+#g-goal button[aria-pressed="true"]{background:var(--cherry);border-color:var(--cherry);color:var(--paper)}
+#g-goal button[aria-pressed="true"][style*="--fitc"]{border-color:var(--fitc);box-shadow:inset 0 0 0 2px var(--fitc),inset 0 0 0 3.5px color-mix(in srgb,var(--paper) 75%,transparent)}
 #g-goal button{transition:background .3s,border-color .3s,box-shadow .3s,color .3s}
 #g-goal button.fit-lean{background:color-mix(in srgb,#C9964A 22%,var(--surface2));border-color:color-mix(in srgb,#C9964A 55%,transparent)}
 #g-goal button.fit-near{position:relative;background:color-mix(in srgb,#C9964A 34%,var(--surface2));border-color:#C9964A;color:var(--ink)}
@@ -1747,6 +1747,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .shsw[aria-pressed="true"]{color:#F0C987;font-weight:700}.shsw[aria-pressed="true"] i{box-shadow:0 0 0 2.5px #1A100A,0 0 0 4.5px #F0C987;transform:scale(1.05)}
 .shsw:focus-visible i,.shmode button:focus-visible{outline:2px solid #F0C987;outline-offset:2px}
 .shcard-pv.busy{position:relative}.shcard-pv.busy::after{content:'';position:absolute;inset:0;background:rgba(20,12,7,.45);animation:bfade .2s ease}
+.steps.tl .t.est{background:transparent;border:1px dashed color-mix(in srgb,var(--ink) 30%,transparent);opacity:.85}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>

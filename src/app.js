@@ -849,7 +849,8 @@ const scaled=r=>({dose:r.dose,water:r.water,steps:r.steps,off:r.off,adj:0,ratio:
 const rr1=v=>Math.round(v*10)/10;
 // Steps as a timeline: the time each one starts in a badge, the instruction beside it.
 // Each step also shows what kind of move it is (pour, swirl, valve…) as a small coloured icon; see steps.js.
-const stepList=steps=>'<ol class="steps tl">'+steps.map(x=>{const m=/^\s*(\d+:\d\d)\s*/.exec(x),k=stepKind(x);return '<li class="k-'+k+'">'+(m?'<span class="t">'+m[1]+'</span>':'<span class="t dot"></span>')+'<i class="tk" title="'+SKNAME(k)+'">'+SKICO(k)+'</i>'+esc(capS(m?x.slice(m[0].length):x))+'</li>'}).join('')+'</ol>';
+// An untimed pour shows the time the chart estimated for it ("~1:00"), so the list and the chart agree.
+const stepList=steps=>{const c=pourCurve(steps);return '<ol class="steps tl">'+steps.map((x,i)=>{const m=/^\s*(\d+:\d\d)\s*/.exec(x),k=stepKind(x),d=!m&&c&&c.dots[i];return '<li class="k-'+k+'">'+(m?'<span class="t">'+m[1]+'</span>':d&&d.e?'<span class="t est" title="Estimated from the recipe\'s pace">~'+mmss(d.t)+'</span>':'<span class="t dot"></span>')+'<i class="tk" title="'+SKNAME(k)+'">'+SKICO(k)+'</i>'+esc(capS(m?x.slice(m[0].length):x))+'</li>'}).join('')+'</ol>'};
 function recipeBody(r,i,compact){const B=BREWERS[r.b],sc=compact?{dose:r.dose,water:r.water,steps:r.steps,off:r.off,ratio:r.water/r.dose}:scaled(r);const gs=MYG.map(g=>[g,settingFor(g,r.b,sc.off)]);
   const m=rmeta(r);
   return (compact?'<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span>':'')+'</div>'
@@ -2536,7 +2537,7 @@ const hubItem=k=>[...SHEETS.explore,...SHEETS.more].find(x=>x[0]===k);
 const hubCount=k=>({map:Object.keys(ALLO()).length,variety:V.length,process:Object.keys(PROCESSES).length,tech:TECH.length,words:GLOSSARY.length,champs:CHAMPS.length,gear:MYG.length+' grinder'+(MYG.length===1?'':'s'),log:LOG.length?LOG.length+' brew'+(LOG.length===1?'':'s'):0})[k];
 const hubCard=k=>{const [,n,d,c,ic]=hubItem(k),cnt=hubCount(k);return '<button type="button" class="hubcard" data-go="'+k+'">'+ico(ic,c)+(cnt?'<span class="hn">'+cnt+'</span>':'')+'<b>'+n+'</b><small>'+d+'</small></button>'};
 function renderExplore(){const day=Math.floor(Date.now()/864e5),w=GLOSSARY[day%GLOSSARY.length];
-  $('explore-in').innerHTML='<button type="button" class="wotd" data-word="'+esc(w[0])+'"><small>Word of the day</small><b>'+esc(w[0])+'</b><span>'+esc(w[2])+'</span></button>'+(window.BEANS_OK?cabinetDayHTML():'')+
+  $('explore-in').innerHTML='<button type="button" class="wotd" data-word="'+esc(w[0])+'"><small>Word of the day</small><b>'+esc(w[0])+'</b><span>'+esc(w[2])+'</span></button>'+factCard(day)+(window.BEANS_OK?cabinetDayHTML():'')+
     HUB.explore.map(([h,ks])=>'<h3 class="rh">'+h+'</h3><div class="hubgrid">'+ks.map(hubCard).join('')+'</div>').join('');if(window.BEANS_OK)hydrateImgs($('explore-in'))}
 /* ---------- Settings: the app's look, name and your data ---------- */
 // Vibes: whole palettes, light and dark (their colours live in the styles; these are for the previews).
@@ -2623,7 +2624,10 @@ function renderSettings(){const t=document.documentElement.getAttribute('data-th
    // The coffee of the day: always on the Beans and Explore pages; in the Android app, also as a notification.
    '<h3 class="rh">Reminders</h3><div class="setgroup">'+row('hourglass','#8A5A3B','Coffee of the day','A coffee from your cabinet each day: a bag at its peak or running low, one from this day in an earlier year, or a memory from your diary.',
      window.BEANS_OK&&LN()?'<div class="setbtns"><div class="seg" id="st-remind"></div><input type="time" id="st-rtime" class="dateinp" value="'+REMIND.t+'" aria-label="Reminder time"'+(REMIND.on?'':' disabled')+'></div>'
-       :'<p class="setnote" style="margin:0">It’s at the top of Beans and Explore each day. In the Android app it can also arrive as a notification at the time you choose.</p>')+'</div>'+
+       :'<p class="setnote" style="margin:0">It’s at the top of Beans and Explore each day. In the Android app it can also arrive as a notification at the time you choose.</p>')+
+     row('book','#9A7390','Coffee fact of the day','Something worth knowing from Explore each day, in turn: a coffee word, a variety, an origin, a process, a brewing technique, a moment in history or a champion.',
+       typeof LN==='function'&&LN()?'<div class="setbtns"><div class="seg" id="st-learn"></div><input type="time" id="st-ltime" class="dateinp" value="'+LEARN.t+'" aria-label="Fact time"'+(LEARN.on?'':' disabled')+'></div>'
+         :'<p class="setnote" style="margin:0">Today’s is on the Explore page. In the Android app it can also arrive as a notification at the time you choose.</p>')+'</div>'+
    /* Gear, Guide and the Log are the buttons at the top. */
    '<h3 class="rh">Your data</h3><div class="setgroup">'+row('download','#8A5A3B','Back up and restore','Everything you’ve saved stays on this device: '+esc(dataSummary())+'. Save it as a file to keep it safe or move it to another phone.',
      '<div class="setbtns"><button type="button" class="btn" id="st-export">Export my data</button><button type="button" class="btn ghost" id="st-import">Import a backup</button><input type="file" id="st-file" accept="application/json,.json" hidden></div>')+'</div>'+
@@ -2636,6 +2640,8 @@ function renderSettings(){const t=document.documentElement.getAttribute('data-th
   seg('st-motion',[['full','Full'],['reduced','Reduced']],()=>UI.motion,v=>{UI.motion=v;saveUI();renderSettings()});
   if($('st-remind')){seg('st-remind',[['0','Off'],['1','Every day']],()=>REMIND.on?'1':'0',async v=>{await setReminder(v==='1');renderSettings()});
     $('st-rtime').onchange=async e=>{if(/^\d\d:\d\d$/.test(e.target.value)){REMIND.t=e.target.value;save('bb-remind',REMIND);await scheduleReminders();toast('Your coffee of the day arrives at '+REMIND.t)}}}
+  if($('st-learn')){seg('st-learn',[['0','Off'],['1','Every day']],()=>LEARN.on?'1':'0',async v=>{await setLearn(v==='1');renderSettings()});
+    $('st-ltime').onchange=async e=>{if(/^\d\d:\d\d$/.test(e.target.value)){LEARN.t=e.target.value;save('bb-learn',LEARN);await scheduleFacts();toast('Your coffee fact arrives at '+LEARN.t)}}}
   seg('st-start',[['dial','Brew'],['recipes','Recipes'],['beans','Beans'],['explore','Explore']],()=>UI.start,v=>{UI.start=v;saveUI();renderSettings();toast('The app will open on '+TABNAMES[v])})}
 $('settings-in').addEventListener('click',e=>{const vb=e.target.closest('.vibe[data-vibe]');if(vb){UI.vibe=vb.dataset.vibe;UI.accent='classic';saveUI();renderSettings();toast((VIBES.find(v=>v[0]===UI.vibe)||[])[1]+' on');return}const a=e.target.closest('.swatch[data-accent]');if(a){UI.accent=a.dataset.accent;saveUI();renderSettings();return}
   const l=e.target.closest('.logopick[data-logo]');if(l){UI.logo=l.dataset.logo;saveUI();renderSettings();return}
@@ -2710,6 +2716,43 @@ if(appVersion()){setTimeout(()=>checkUpdate(),4000);document.addEventListener('v
 document.addEventListener('click',e=>{if(e.target.closest('#st-updgo')){toast('Downloading the new version. Open it when it finishes to install');openLink(APK_URL);return}
   if(e.target.closest('#st-upd')){const b=e.target.closest('#st-upd');b.disabled=true;b.textContent='Checking…';
   checkUpdate(true).then(l=>{if(l===null)toast('Couldn’t check just now. Try again when you’re online');else if(!l)toast('You have the latest version');renderSettings()})}});
+
+/* ================= A COFFEE FACT A DAY ================= */
+// One thing worth knowing from Explore each day, taking the kinds in turn (a word, a variety, an origin, a process, a
+// technique, a moment in history, a champion) and a different one of each kind every time it comes round. The same day
+// gives the same fact, on the Explore page and in the notification.
+const FACT_KINDS=['word','variety','origin','process','tech','history','champ'],FACT_ICON={word:'📖',variety:'🌱',origin:'🗺️',process:'🧪',tech:'☕',history:'📜',champ:'🏆'};
+function factFor(day){const k=FACT_KINDS[((day%7)+7)%7],round=Math.floor(day/7),pick=n=>(Math.imul(round+1,2654435761)>>>0)%n;
+  const trim=(t,n)=>{t=String(t||'').replace(/\s+/g,' ').trim();if(t.length<=n)return t;const c=t.slice(0,n),i=c.lastIndexOf('. ');return i>n*.45?c.slice(0,i+1):c.slice(0,c.lastIndexOf(' '))+'…'};
+  if(k==='word'){const w=GLOSSARY[pick(GLOSSARY.length)];return{k,tag:'Coffee word',title:w[0],text:trim(w[2],230),go:{word:w[0]}}}
+  if(k==='variety'){const vs=V.filter(v=>v.story&&v.fam!=='species'),v=vs[pick(vs.length)];return{k,tag:'Variety',title:v.name,text:trim(v.story,230),go:{variety:v.id}}}
+  if(k==='origin'){const ks=Object.keys(O).filter(x=>O[x].hist),id=ks[pick(ks.length)],o=O[id];return{k,tag:'Origin',title:o.name,text:trim(o.hist,230),go:{origin:id}}}
+  if(k==='process'){const ks=Object.keys(PROCESSES),id=ks[pick(ks.length)],p=PROCESSES[id];return{k,tag:'Process',title:p.name,text:trim(p.char,230),go:{process:id}}}
+  if(k==='tech'){const t=TECH[pick(TECH.length)];return{k,tag:'Technique',title:t[1],text:trim(t[2]+' '+t[3],230),go:{tab:'tech'}}}
+  if(k==='history'){const t=TIMELINE[pick(TIMELINE.length)];return{k,tag:'From history',title:t[1],text:trim(t[0]+'. '+t[2],230),go:{tab:'history'}}}
+  const cs=CHAMPS.filter(c=>c.note),c=cs[pick(cs.length)];return{k:'champ',tag:'Champions',title:c.who+', '+COMPS[c.c].short+' '+c.y,text:trim(c.note+(c.coffee?' Brewed with '+c.coffee+'.':''),230),go:{champ:CHAMPS.indexOf(c)}}}
+// The Explore page shows it under the word of the day (on word days, the word of the day already is one).
+function factCard(day){const f=factFor(day);if(f.k==='word')return '';
+  return '<button type="button" class="wotd fact" data-fact="'+day+'"><small>Did you know · '+esc(f.tag)+'</small><b>'+esc(f.title)+'</b><span>'+esc(f.text)+'</span></button>'}
+function goFact(g){if(!g)return;if(g.word)openWord(g.word);else if(g.variety)openVariety(g.variety);else if(g.origin){goTab('map');selectOrigin(g.origin,true)}
+  else if(g.process)openProcess(g.process);else if(g.champ!=null&&CHAMPS[g.champ]){showTab('champs');openChamp(CHAMPS[g.champ])}else if(g.tab)showTab(g.tab)}
+$('explore-in').addEventListener('click',e=>{const f=e.target.closest('[data-fact]');if(f){e.stopPropagation();goFact(factFor(+f.dataset.fact).go)}},true);
+// In the Android app it can also arrive as a notification: the next two weeks are scheduled ahead, and again on opening.
+let LEARN=(v=>({on:!!(v&&v.on),t:v&&/^\d\d:\d\d$/.test(v.t)?v.t:'19:00'}))(load('bb-learn',null));
+const FIDS=[...Array(14)].map((_,i)=>7201+i);
+async function scheduleFacts(){const ln=typeof LN==='function'&&LN();if(!ln)return false;
+  try{await ln.cancel({notifications:FIDS.map(id=>({id}))})}catch(e){}
+  if(!LEARN.on)return true;const [h,m]=LEARN.t.split(':').map(Number),now=new Date(),list=[];
+  for(let i=0;i<14;i++){const at=new Date(now.getFullYear(),now.getMonth(),now.getDate()+i,h,m);if(at<=now)continue;const day=Math.floor((at-at.getTimezoneOffset()*6e4)/864e5),f=factFor(day);
+    list.push({id:FIDS[i],title:FACT_ICON[f.k]+' '+f.tag+': '+f.title,body:f.text,largeBody:f.text,schedule:{at,allowWhileIdle:true},isExactNotification:false,extra:{fact:f.go}})}
+  try{if(list.length)await ln.schedule({notifications:list});return true}catch(e){return false}}
+async function setLearn(on){const ln=typeof LN==='function'&&LN();
+  if(on&&!LEARN.on){if(!ln){toast('Phone reminders work in the Android app');return false}
+    try{let p=await ln.checkPermissions();if(p.display!=='granted')p=await ln.requestPermissions();if(p.display!=='granted'){toast('Allow notifications for Brew Bench in your phone’s settings first');return false}}catch(e){toast('Couldn’t turn on reminders');return false}}
+  LEARN.on=on;save('bb-learn',LEARN);await scheduleFacts();if(on)toast('Your coffee fact arrives at '+LEARN.t);return true}
+setTimeout(()=>{const ln=typeof LN==='function'&&LN();if(!ln)return;
+  try{ln.addListener('localNotificationActionPerformed',a=>{const g=a&&a.notification&&a.notification.extra&&a.notification.extra.fact;if(g)goFact(g)})}catch(e){}
+  if(LEARN.on)scheduleFacts()},3200);
 
 /* ================= INIT ================= */
 // Drawings that loop (the pour on the Dial-in page) pause while they're out of sight, so the phone isn't redrawing
