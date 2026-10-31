@@ -17,7 +17,7 @@ Usage: python3 tools/build.py [--artifact | --app] [--site DIR] [--site-url URL]
                forwards to the new address and carries saved data across, plus
                the files older apps and the Play listing still fetch there
 """
-import sys, shutil, pathlib
+import json, sys, shutil, pathlib
 
 root = pathlib.Path(__file__).resolve().parent.parent
 src = root / 'src'
@@ -57,7 +57,7 @@ page = (src / 'template.html').read_text(encoding='utf-8')
 assert GOOGLE_FONTS in page and JSPDF_CDN in page, 'font or jsPDF tag in template.html changed; update build.py'
 data = (src / 'data' / 'origins-varieties-history.js').read_text(encoding='utf-8') + '\n' + (src / 'data' / 'brewing.js').read_text(encoding='utf-8') + '\n' + (src / 'data' / 'championships.js').read_text(encoding='utf-8') + '\n' + (src / 'data' / 'knowledge.js').read_text(encoding='utf-8') + '\nconst EVENTS_DEFAULT=' + (root / 'events.json').read_text(encoding='utf-8') + ';' + '\nconst LOGO_DATA=' + (src / 'data' / 'logos.json').read_text(encoding='utf-8') + ';'
 out = page.replace('__MAP__', (src / 'data' / 'world-map.json').read_text(encoding='utf-8').replace('</', '<\\/')) \
-          .replace('__DATA__', data).replace('__APP__', (src / 'wheel.js').read_text(encoding='utf-8') + '\n' + (src / 'steps.js').read_text(encoding='utf-8') + '\n' + (src / 'app.js').read_text(encoding='utf-8') + '\n' + (src / 'beans.js').read_text(encoding='utf-8') + '\n' + (src / 'brewcard.js').read_text(encoding='utf-8') + '\n' + (src / 'select.js').read_text(encoding='utf-8') + '\n' + (src / 'profile.js').read_text(encoding='utf-8') + '\n' + (src / 'sync.js').read_text(encoding='utf-8'))
+          .replace('__SPLASH_LOGOS__', json.dumps({k: v for k, v in json.loads((src / 'data' / 'logos.json').read_text(encoding='utf-8')).items() if k != '_'}, separators=(',', ':'))).replace('__DATA__', data).replace('__APP__', (src / 'wheel.js').read_text(encoding='utf-8') + '\n' + (src / 'steps.js').read_text(encoding='utf-8') + '\n' + (src / 'app.js').read_text(encoding='utf-8') + '\n' + (src / 'beans.js').read_text(encoding='utf-8') + '\n' + (src / 'brewcard.js').read_text(encoding='utf-8') + '\n' + (src / 'select.js').read_text(encoding='utf-8') + '\n' + (src / 'profile.js').read_text(encoding='utf-8') + '\n' + (src / 'sync.js').read_text(encoding='utf-8'))
 if not artifact:
     # The website and app use the bundled copies in vendor/ so they work offline.
     # Only the flag emoji font still comes from Google (Windows lacks flag emoji).
