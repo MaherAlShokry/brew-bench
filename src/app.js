@@ -189,6 +189,8 @@ for(const g in BASE)for(const k in BASE[g])if(!BREWERS[k]||BASE[g][k]!==null&&!N
   kultra:{v60:72,neo:69,origami:71,kono:71,melitta:72,chemex:84,kalita:64,orea:68,april:70,pulsar:88,tricolate:58,sw:76,swneo:73,swi:86,clever:80,aeropress:62,frenchpress:102,siphon:66,espresso:36,moka:46,phin:52,cezve:10,dallah:78,cold:106,batch:76}};
   let ch=false;for(const g in OLD){const B=BASE[g];if(!B)continue;const ks=Object.keys(B);if(ks.length>=10&&ks.filter(k=>B[k]===OLD[g][k]||B[k]==null).length>=ks.length*0.7){for(const k of ks)if(B[k]===OLD[g][k]||B[k]==null)delete B[k];ch=true}}
   if(ch)save('bb-base3',BASE)}
+// Once, on every device: back to the app's own calibration (asked for in October 2026). Your later changes stay.
+try{if(!localStorage.getItem('bb-calreset1')){BASE={};save('bb-base3',BASE);localStorage.setItem('bb-calreset1','1')}}catch(e){}
 // Calibrating a brewer on one grinder says how fine you like that brewer, so your other grinders follow it on that
 // brewer (the same grind size; averaged if you calibrated it on several). Cached; cleared when BASE changes.
 let BOFF={};
@@ -2565,7 +2567,7 @@ function applyUI(){const d=document.documentElement;d.setAttribute('data-accent'
 function saveUI(){save('bb-ui',UI);applyUI()}
 /* Your data: everything the app saves on this device, in one file you can keep or move to another phone. */
 // Sign-in tokens never go into a backup file.
-const DATA_SKIP=['bb-reset','bb-pending','bb-account','bb-fbcfg','bb-syncshadow','bb-syncat','bb-syncdb','bb-bio','bb-bio-no','bb-upd'];
+const DATA_SKIP=['bb-calreset1','bb-reset','bb-pending','bb-account','bb-fbcfg','bb-syncshadow','bb-syncat','bb-syncdb','bb-bio','bb-bio-no','bb-upd'];
 function dataKeys(){const k=[];try{for(let i=0;i<localStorage.length;i++){const n=localStorage.key(i);if(n&&n.startsWith('bb-')&&!DATA_SKIP.includes(n))k.push(n)}}catch(e){}return k.sort()}
 function dataSummary(){const n=k=>{let v=null;try{v=JSON.parse(localStorage.getItem(k)||'null')}catch(e){}return Array.isArray(v)?v.length:v&&typeof v==='object'?Object.keys(v).length:0};
   return [[n('bb-myrecipes'),'recipe'],[n('bb-log'),'brew'],[n('bb-beans'),'gallery coffee'],[n('bb-scans'),'scan'],[n('bb-favs'),'favourite']].filter(x=>x[0]).map(([c,w])=>c+' '+w+(c===1?'':'s')).join(', ')||'Nothing saved yet besides your settings'}
