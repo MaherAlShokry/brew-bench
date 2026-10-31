@@ -1741,10 +1741,13 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
 <body>
-<!-- The opening scene, in the Android app and the home-screen app (not in a browser tab): a V60 settles over a cup, the
+<!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
      coffee drips and fills, the dripper lifts off as steam rises, and the name comes up; then it all lifts away.
      About 2 s; a tap skips it. -->
-<script>try{var m=JSON.parse(localStorage.getItem("bb-ui")||"{}").motion;if((window.Capacitor||matchMedia("(display-mode: standalone)").matches||navigator.standalone)&&m!=="reduced"&&!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("splashing")}catch(e){}</script>
+<script>try{var m=JSON.parse(localStorage.getItem("bb-ui")||"{}").motion,app=window.Capacitor||matchMedia("(display-mode: standalone)").matches||navigator.standalone,
+  // In a browser tab: once per visit (not on every reload). Automated test browsers skip it unless a test asks for it.
+  tab=!sessionStorage.getItem("bb-splashed")&&(!navigator.webdriver||localStorage.getItem("bb-splash-test"));
+  if((app||tab)&&m!=="reduced"&&!matchMedia("(prefers-reduced-motion: reduce)").matches){document.documentElement.classList.add("splashing");if(!app)sessionStorage.setItem("bb-splashed","1")}}catch(e){}</script>
 <div id="splash" aria-hidden="true">
   <div class="sp-glow"></div>
   <svg class="sp-beans" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice"><g fill="var(--cherry)">
