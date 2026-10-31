@@ -697,17 +697,20 @@ input[type=range]{touch-action:pan-y}
 .sp-logo .lp{transform-box:fill-box;transform-origin:50% 70%;animation:lp-in .55s cubic-bezier(.3,1.5,.5,1) calc(.1s + var(--i)*.07s) both}
 .sp-logo .lpd{stroke-dasharray:1;animation:lp-draw .7s ease-out calc(.15s + var(--i)*.07s) both}
 @keyframes lp-in{from{opacity:0;transform:translateY(2px) scale(.4)}}@keyframes lp-draw{from{stroke-dashoffset:1;opacity:0}to{stroke-dashoffset:0}}
-.sp-logo .spin{transform-origin:12px 12px;animation:sp-spin 1s cubic-bezier(.2,1.25,.4,1) .1s both}@keyframes sp-spin{from{transform:rotate(-280deg) scale(.15);opacity:0}}
-.sp-logo .seam{stroke-dasharray:1;animation:lp-draw .6s .7s ease-out both}
-.sp-logo .burst{opacity:0;animation:sp-burst 1s .55s cubic-bezier(.2,.8,.3,1) both}
-@keyframes sp-burst{0%{opacity:0;transform:translate(0,0) scale(.3)}25%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--r)) scale(1)}}
-.sp-logo .crank{transform-origin:8.5px 3px;animation:sp-crank .5s .8s ease-in-out 2}@keyframes sp-crank{50%{transform:scaleX(-1)}}
-.sp-logo .grnd{opacity:0;animation:sp-fall .7s var(--d) ease-in infinite}@keyframes sp-fall{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(4px)}}
-.sp-logo .swirl{transform-origin:11.2px 12px;animation:sp-swirl 1s .75s cubic-bezier(.2,1.1,.3,1) both}@keyframes sp-swirl{from{transform:rotate(-200deg) scale(.2);opacity:0}}
+.sp-logo .spin{transform-origin:12px 12px;animation:sp-spin .8s cubic-bezier(.2,1.25,.4,1) .1s both}@keyframes sp-spin{from{transform:translateY(-14px) rotate(-200deg) scale(.4);opacity:0}}
+.sp-logo .green{animation:sp-gone .7s .75s ease-in-out forwards}
+.sp-logo .seam{stroke-dasharray:1;animation:lp-draw .5s 1.1s ease-out both}
+.sp-logo .spark{opacity:0;animation:sp-spark .5s 1.15s ease-out both}@keyframes sp-spark{0%{opacity:0}30%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy))}}
+.sp-logo .drop-in{opacity:0;animation:sp-dropin .35s var(--d) ease-in both}@keyframes sp-dropin{0%{opacity:0;transform:translateY(0)}15%{opacity:1}100%{opacity:0;transform:translateY(5.5px)}}
+.sp-logo .grounds{transform:translateY(7px);animation:sp-ground 1s .95s ease-out forwards}@keyframes sp-ground{to{transform:translateY(1.4px)}}
+.sp-logo .tilt{transform-origin:12px 19.5px;animation:sp-tilt 1.5s .55s cubic-bezier(.45,0,.3,1) both}@keyframes sp-tilt{0%,100%{transform:none}25%,72%{transform:rotate(-18deg)}}
+.sp-logo .pour{stroke-dasharray:1;stroke-dashoffset:1;animation:sp-stream .3s .95s ease-in forwards,sp-gone .2s 1.55s forwards}
+.sp-logo .flame{transform-box:fill-box;transform-origin:50% 100%;animation:lp-in .3s .25s both,sp-flick .16s var(--d) ease-in-out infinite alternate}@keyframes sp-flick{to{transform:scaleY(.8) scaleX(1.08)}}
+.sp-logo .bloom{transform-origin:11.2px 12px;animation:sp-bloom .7s .8s cubic-bezier(.3,1.5,.5,1) both}@keyframes sp-bloom{from{transform:scale(.1);opacity:0}}
+.sp-logo .unripe{animation:sp-gone .8s .8s ease-in-out forwards}
 .sp-logo .sway{transform-origin:8.3px 11px;animation:sp-sway 1.1s .7s ease-in-out infinite alternate}@keyframes sp-sway{to{transform:rotate(-7deg)}}
 .sp-logo .stream{stroke-dasharray:1;stroke-dashoffset:1;animation:sp-stream .45s .35s ease-in forwards,sp-gone .3s 1.05s forwards}
 @keyframes sp-stream{to{stroke-dashoffset:0}}@keyframes sp-gone{to{opacity:0}}
-.sp-logo.k-kettle .stream{animation-delay:.9s,1.6s}
 .sp-logo .puff{opacity:0;transform-box:fill-box;transform-origin:center;animation:sp-puff 1s var(--d) ease-out infinite}
 @keyframes sp-puff{0%{opacity:.85;transform:translate(0,0) scale(.4)}100%{opacity:0;transform:translate(-1.2px,-6px) scale(1.9)}}
 .sp-word{display:flex;flex-direction:column;align-items:center;margin-top:18px;font-family:var(--display);line-height:1.05;overflow:hidden;padding:2px 8px}
@@ -1787,19 +1790,43 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
   var G={drop:'<path d="M0-15c7 9 10 13 10 17a10 10 0 0 1-20 0c0-4 3-8 10-17z"/>',leaf:'<path d="M-13 0C-6-11 6-11 13 0 6 11-6 11-13 0z"/>',dot:'<circle r="11"/>'}[{kettle:"drop",dripper:"drop",cherry:"leaf",latte:"dot"}[k]];
   if(G)s.querySelectorAll(".spb").forEach(function(b){b.innerHTML=G});if(k==="cherry")s.querySelector(".sp-beans g").setAttribute("fill","var(--leaf)");
   if(k==="dripper")return;
-  var paint=function(p){var c="var(--"+(p.fill||p.stroke)+")",o=p.op!=null?' opacity="'+p.op+'"':"";return p.fill?'fill="'+c+'"'+o:'fill="none" stroke="'+c+'" stroke-width="'+p.w+'" stroke-linecap="round" stroke-linejoin="round" pathLength="1"'+o},
-    part=function(p,i){var a=' class="lp'+(p.stroke?" lpd":"")+'" style="--i:'+i+'" '+paint(p);return p.c?"<circle cx="+'"'+p.c[0]+'" cy="'+p.c[1]+'" r="'+p.c[2]+'"'+a+"/>":'<path d="'+p.d+'"'+a+"/>"},
-    parts=k==="bean"?[]:L[k].parts.map(part),body="",x="";
-  if(k==="bean"){body='<g class="spin"><svg x="0" y="0" width="24" height="24" viewBox="80 80 352 352" overflow="visible"><g transform="rotate(-38 256 256)"><clipPath id="spBean"><ellipse cx="256" cy="256" rx="120" ry="166"/></clipPath><g clip-path="url(#spBean)"><rect x="100" y="80" width="320" height="360" fill="var(--cherry)"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184H440V80z" fill="var(--honey)"/><path class="seam" d="M262 80c-50 50 50 126 0 176s50 126 0 184" fill="none" stroke="var(--paper)" stroke-width="22" pathLength="1"/></g></g></svg></g>';
-    for(var i=0;i<8;i++){var a=i/8*6.283+.3;x+='<g class="burst" style="--dx:'+(Math.cos(a)*15).toFixed(1)+'px;--dy:'+(Math.sin(a)*15).toFixed(1)+'px;--r:'+(i*47)+'deg"><ellipse cx="12" cy="12" rx="1.1" ry="1.5" fill="var(--'+(i%2?"honey":"cherry")+')"/></g>'}}
-  else if(k==="grinder"){body='<g class="crank">'+parts.slice(0,5).join("")+"</g>"+parts.slice(5).join("");for(var j=0;j<9;j++)x+='<circle class="grnd" cx="'+(6.3+(j*1.7)%5.2).toFixed(1)+'" cy="23" r=".35" fill="var(--cherry)" style="--d:'+(1+j*.11).toFixed(2)+'s"/>'}
-  else if(k==="latte"){body=parts.slice(0,3).join("")+'<g class="swirl">'+parts.slice(3).join("")+"</g>";x='<path class="stream" d="M11.2-6V9" stroke="var(--paper)" stroke-width="1.3" stroke-linecap="round" pathLength="1" fill="none"/>'}
-  else if(k==="cherry"){body='<g class="sway">'+parts.slice(0,2).join("")+"</g>"+parts.slice(2).join("")}
+  var paint=function(p,c){c=c||"var(--"+(p.fill||p.stroke)+")";var o=p.op!=null?' opacity="'+p.op+'"':"";return p.fill?'fill="'+c+'"'+o:'fill="none" stroke="'+c+'" stroke-width="'+p.w+'" stroke-linecap="round" stroke-linejoin="round" pathLength="1"'+o},
+    shape=function(p,a){return p.c?'<circle cx="'+p.c[0]+'" cy="'+p.c[1]+'" r="'+p.c[2]+'"'+a+"/>":'<path d="'+p.d+'"'+a+"/>"},
+    part=function(p,i){return shape(p,' class="lp'+(p.stroke?" lpd":"")+'" style="--i:'+i+'" '+paint(p))},
+    P=k==="bean"?[]:L[k].parts,parts=P.map(part),body="",x="",vb="-2 -3 28 28",run=null;
+  if(k==="bean"){
+    // A green bean tumbles in and roasts brown; at first crack, little sparks fly off.
+    var bean=function(id,a,b,seam){return '<svg x="0" y="0" width="24" height="24" viewBox="80 80 352 352" overflow="visible"><g transform="rotate(-38 256 256)"><clipPath id="'+id+'"><ellipse cx="256" cy="256" rx="120" ry="166"/></clipPath><g clip-path="url(#'+id+')"><rect x="100" y="80" width="320" height="360" fill="'+a+'"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184H440V80z" fill="'+b+'"/><path'+(seam?' class="seam"':"")+' d="M262 80c-50 50 50 126 0 176s50 126 0 184" fill="none" stroke="var(--paper)" stroke-width="22" pathLength="1"/></g></g></svg>'};
+    body='<g class="spin">'+bean("spBean","var(--cherry)","var(--honey)",1)+'<g class="green">'+bean("spBeanG","#7FA05A","#A8C27A")+"</g></g>";
+    for(var i=0;i<8;i++){var a=i/8*6.283+.4,c=Math.cos(a),n=Math.sin(a);x+='<path class="spark" style="--dx:'+(c*4).toFixed(1)+'px;--dy:'+(n*4).toFixed(1)+'px" d="M'+(12+c*9).toFixed(1)+" "+(12+n*9).toFixed(1)+"l"+(c*2.2).toFixed(1)+" "+(n*2.2).toFixed(1)+'" stroke="var(--honey)" stroke-width=".9" stroke-linecap="round"/>'}}
+  else if(k==="grinder"){
+    // Beans drop in at the top, the crank goes round (behind the body and back in front), the catch cup fills.
+    var front=parts.slice(5,13).join("");body='<g class="crk lp" style="--i:7"></g>'+front+'<g class="cup">'+parts[13]+'<clipPath id="spGr"><path d="'+P[13].d+'"/></clipPath><g clip-path="url(#spGr)"><rect class="grounds" x="5" y="15.9" width="7" height="7" fill="var(--honey)" opacity=".75"/></g></g><g class="crk2 lp" style="--i:7"></g>';
+    for(var j=0;j<3;j++)x+='<ellipse class="drop-in" style="--d:'+(.55+j*.12).toFixed(2)+'s" cx="'+(7.6+j*.9).toFixed(1)+'" cy="-3" rx=".6" ry=".85" fill="var(--cherry)"/>';
+    run=function(svg){var b=svg.querySelector(".crk"),f=svg.querySelector(".crk2"),hx=8.55,R=10,t0=performance.now()+850,
+      draw=function(now){if(!svg.isConnected)return;var u=Math.max(0,Math.min(1,(now-t0)/1050)),e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2,a=e*Math.PI*2*2,c=Math.cos(a),z=Math.sin(a),
+        ax=hx+R*c,kx=hx+(R-3.3)*c,r=2.4*(1+.12*z),g='<path d="M'+hx+' 2.9H'+ax.toFixed(2)+'V11.6" fill="none" stroke="var(--cherry)" stroke-width="1" stroke-linejoin="round"/><path d="M'+ax.toFixed(2)+' 11.6v1.3" stroke="var(--cherry)" stroke-width="1.6"/><path d="M'+ax.toFixed(2)+" 12.2L"+(kx+1.6*Math.sign(c||1)).toFixed(2)+' 12.6v1.4L'+ax.toFixed(2)+' 14.4z" fill="var(--honey)"/><circle cx="'+kx.toFixed(2)+'" cy="13.3" r="'+r.toFixed(2)+'" fill="var(--honey)"/>';
+        (z<-.05?b:f).innerHTML=g;(z<-.05?f:b).innerHTML="";if(u<1)requestAnimationFrame(draw)};draw(t0)}}
+  else if(k==="kettle"){
+    // The kettle tips forward and pours a thin stream into a cup; steam rises from the cup.
+    vb="-10 -3 36 28";body=parts[0]+'<g class="tilt">'+parts.slice(1).join("")+"</g>";
+    x='<g class="mug lp" style="--i:1"><path d="M-7.6 17.4h6.4l-.6 4.2a1.2 1.2 0 0 1-1.2 1H-6.6a1.2 1.2 0 0 1-1.2-1z" fill="var(--cherry)" opacity=".9"/><path d="M-1.2 18.4h.7a1.1 1.1 0 0 1 0 2.2h-.9" fill="none" stroke="var(--cherry)" stroke-width=".7"/></g>'+
+      '<path class="pour" d="M-3.6 9.6C-4.2 12-4.4 14.6-4.4 17.4" stroke="var(--honey)" stroke-width=".55" stroke-linecap="round" fill="none" pathLength="1"/>';
+    for(var m=0;m<3;m++)x+='<circle class="puff late" cx="'+(-4.6+m*.6).toFixed(1)+'" cy="16.6" r=".7" fill="var(--honey)" style="--d:'+(1.55+m*.2).toFixed(2)+'s"/>'}
+  else if(k==="moka"){
+    // On the flame: it heats, then the coffee comes up and steam puffs from the spout.
+    body=parts.join("");for(var f=0;f<3;f++)x+='<path class="flame" style="--d:'+(f*.09).toFixed(2)+'s" d="M'+(9.6+f*2.4)+' 24.6c-1-.9-1.1-2.1 0-3.4.4 1 .9 1.3 1.1 2 .2-.6.1-1.1-.1-1.7 1 .9 1.1 2.2.2 3.1z" fill="'+(f===1?"var(--honey)":"#E07A3A")+'"/>';
+    for(var m2=0;m2<4;m2++)x+='<circle class="puff late" cx="18.6" cy="4.4" r="1" fill="var(--honey)" style="--d:'+(1.05+m2*.2).toFixed(2)+'s"/>'}
+  else if(k==="latte"){
+    // Milk pours into the middle and the heart blooms where it lands.
+    body=parts.slice(0,3).join("")+'<g class="bloom">'+parts.slice(3).join("")+"</g>";x='<path class="stream" d="M11.2-6V10" stroke="var(--paper)" stroke-width="1.3" stroke-linecap="round" pathLength="1" fill="none"/>'}
+  else if(k==="cherry"){
+    // The cherries ripen from green to red on a swaying stem.
+    body='<g class="sway">'+parts.slice(0,2).join("")+"</g>"+parts.slice(2).join("")+P.slice(2,4).map(function(p,i){return shape(p,' class="unripe" style="--i:'+(i+2)+'" fill="#8DB05E"')}).join("")}
   else body=parts.join("");
-  if(k==="cup")x='<path class="stream" d="M10.4-7V10" stroke="#6B4226" stroke-width=".9" stroke-linecap="round" pathLength="1" fill="none"/>';
-  if(k==="moka"||k==="kettle"||k==="cup"){var px=k==="moka"?18.6:k==="kettle"?11.2:10.4,py=k==="moka"?4.4:k==="kettle"?5:2.6;for(var m=0;m<4;m++)x+='<circle class="puff" cx="'+px+'" cy="'+py+'" r="1" fill="var(--honey)" style="--d:'+(1+m*.22).toFixed(2)+'s"/>'}
-  if(k==="kettle")x+='<path class="stream" d="M.5 5.3C.2 9 .5 14 .9 21" stroke="var(--honey)" stroke-width=".7" stroke-linecap="round" pathLength="1" fill="none"/>';
-  s.querySelector(".sp-art").outerHTML='<svg class="sp-logo k-'+k+'" viewBox="-2 -3 28 28" overflow="visible">'+x+body+"</svg>"
+  if(k==="cup"){x='<path class="stream" d="M10.4-7V10" stroke="#6B4226" stroke-width=".9" stroke-linecap="round" pathLength="1" fill="none"/>';for(var q=0;q<3;q++)x+='<circle class="puff late" cx="10.4" cy="2.6" r="1" fill="var(--honey)" style="--d:'+(1.1+q*.22).toFixed(2)+'s"/>'}
+  s.querySelector(".sp-art").outerHTML='<svg class="sp-logo k-'+k+'" viewBox="'+vb+'" overflow="visible">'+x+body+"</svg>";
+  if(run)run(s.querySelector(".sp-logo"))
   var done=false,end=function(){if(done)return;done=true;s.classList.add("out");setTimeout(function(){s.remove();h.classList.remove("splashing")},420)};
   s.addEventListener("pointerdown",function(e){e.preventDefault();end()});setTimeout(end,2100)})()</script>
 <header class="appbar" id="appbar"><button type="button" class="ab-back" id="ab-back" aria-label="Back" hidden><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="ab-brand"><span id="ab-logo"><svg viewBox="80 80 352 352" width="24" height="24" aria-hidden="true"><g transform="rotate(-38 256 256)"><clipPath id="abBean"><ellipse cx="256" cy="256" rx="120" ry="166"/></clipPath><g clip-path="url(#abBean)"><rect x="100" y="80" width="320" height="360" fill="var(--cherry)"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184H440V80z" fill="var(--honey)"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184" fill="none" stroke="var(--paper)" stroke-width="22"/></g></g></svg></span><span id="ab-title">Dial-in</span></div><button type="button" class="ab-btn" id="ab-share" aria-label="Share">Share</button><button type="button" class="me-btn" id="ab-me" aria-label="Your profile"></button></header>
