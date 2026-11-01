@@ -673,7 +673,7 @@ html.app .appbar{background:color-mix(in srgb,var(--paper) 97%,transparent)}html
 html.app .bg-hero::after,html.app .me-hero::after,html.app .pp-st img{mix-blend-mode:normal}
 /* The kettle's pour and the steam on the Dial-in drawing, and the steam over the profile, play a few times and rest,
    rather than redrawing for as long as they're on screen. */
-html.app .hero-art .stream{animation-iteration-count:4}html.app .hero-art .steam,html.app .me-steam path{animation-iteration-count:2}html.app .bg-hero::after,html.app .me-hero::after{opacity:.06}
+/* Decorations play a few times, then rest (website and app): an endless loop keeps the screen repainting. */.hero-art .stream{animation-iteration-count:4}.hero-art .steam,.me-steam path{animation-iteration-count:2}.deco-rest .hero-art .stream,.deco-rest .hero-art .steam,.deco-rest .me-steam path{animation:none}html.app .bg-hero::after,html.app .me-hero::after{opacity:.06}
 /* ================= OPENING SCENE ================= */
 #splash{display:none}
 .splashing #splash{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;overflow:hidden;background:var(--paper);color:var(--ink);touch-action:none}
@@ -1753,7 +1753,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .ic.on-accent svg{stroke:var(--paper)!important}
 .av-note{grid-column:1/-1;margin:0;font-size:.8rem}.getapp a.btn{text-decoration:none;display:flex;justify-content:center;align-items:center;text-align:center}
 /* A long coffee list: rows off screen skip layout and paint until you scroll near them (opening Beans was slow). */
-#bg-grid .crow,#bv-diary .tl-item{content-visibility:auto;contain-intrinsic-size:auto 76px}
+#bg-grid .crow,#bv-diary .tl-item,#log .logentry{content-visibility:auto;contain-intrinsic-size:auto 76px}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>

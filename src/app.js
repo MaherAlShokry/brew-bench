@@ -1624,7 +1624,9 @@ function renderShare(){const el=$('l-share');if(!el)return;
   $('sh-invite').onclick=()=>openShare(inviteDoc());
   $('sh-leave').onclick=()=>{if(confirm('Leave the shared log? Your phone keeps a copy of the entries.'))leaveGroup()};setSync(SYNC_STATE==='off'?'connecting':SYNC_STATE)}
 let JOIN_CODE='';
-const fmtDate=l=>{const d=new Date(l.ts||Date.parse(l.date));return isNaN(d)?(l.date||''):d.toLocaleDateString(undefined,{day:'numeric',month:'short',year:d.getFullYear()===new Date().getFullYear()?undefined:'numeric'})};
+// Two shared date formats: making a new one for every entry was the slowest part of drawing a long log.
+const FMT_D=new Intl.DateTimeFormat(undefined,{day:'numeric',month:'short'}),FMT_DY=new Intl.DateTimeFormat(undefined,{day:'numeric',month:'short',year:'numeric'});
+const fmtDate=l=>{const d=new Date(l.ts||Date.parse(l.date));return isNaN(d)?(l.date||''):(d.getFullYear()===new Date().getFullYear()?FMT_D:FMT_DY).format(d)};
 // Editing a brew: it goes back into the form above, which saves over it. In a shared log only your own brews.
 let LEDIT=null;
 const canEdit=l=>!GROUP||!l.by||l.by===ME;
@@ -2688,8 +2690,12 @@ const openSheet=which=>showTab(which);
 // The highlight under the current bottom-bar button moves like a drop of liquid: its leading edge reaches the new
 // button first and the rest follows, stretching and settling on the way.
 let PILL=null;
+// The tab buttons only move when the window is resized, so their positions are kept: reading them on every tab change
+// made the browser lay out the whole new page there and then, in the middle of the tap.
+const PILLPOS=new Map();addEventListener('resize',()=>PILLPOS.clear());
 function movePill(){const nav=document.querySelector('.bottomnav'),pill=nav&&nav.querySelector('.bn-pill'),b=nav&&nav.querySelector('[aria-current="true"]');if(!pill)return;
-  if(!b||!nav.offsetWidth){pill.style.opacity=0;PILL=null;return}const x1=b.offsetLeft,w1=b.offsetWidth,from=PILL;PILL={x:x1,w:w1};
+  let pos=b&&PILLPOS.get(b);if(b&&!pos){if(!nav.offsetWidth){pill.style.opacity=0;PILL=null;return}pos={x:b.offsetLeft,w:b.offsetWidth};if(pos.w)PILLPOS.set(b,pos)}
+  if(!b||!pos.w){pill.style.opacity=0;PILL=null;return}const x1=pos.x,w1=pos.w,from=PILL;PILL={x:x1,w:w1};
   pill.style.transition='none';pill.style.opacity=1;pill.style.width=w1+'px';pill.style.transform='translateX('+x1+'px)';
   if(!from||RM()||(from.x===x1&&from.w===w1)||!pill.animate)return;const right=x1>from.x,
     mid=right?{x:from.x+(x1-from.x)*.3,r:x1+w1}:{x:x1,r:from.x+from.w-(from.x+from.w-x1-w1)*.3};
@@ -2786,6 +2792,9 @@ setTimeout(()=>{const ln=window.BEANS_OK&&LN();if(!ln)return;
   try{ln.addListener('localNotificationActionPerformed',a=>{const g=a&&a.notification&&a.notification.extra&&a.notification.extra.fact;if(g)goFact(g)})}catch(e){}
   if(LEARN.on)scheduleFacts()},3200);
 
+// The pour and steam on the hero play once per launch. Coming back to a page would otherwise restart them (a hidden
+// element's animations start over when it shows again), keeping the phone busy for seconds on every visit.
+setTimeout(()=>document.documentElement.classList.add('deco-rest'),14000);
 /* ================= INIT ================= */
 // Drawings that loop (the pour on the Dial-in page) pause while they're out of sight, so the phone isn't redrawing
 // something nobody can see.
