@@ -1755,6 +1755,13 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .av-note{grid-column:1/-1;margin:0;font-size:.8rem}.getapp a.btn{text-decoration:none;display:flex;justify-content:center;align-items:center;text-align:center}
 /* A long coffee list: rows off screen skip layout and paint until you scroll near them (opening Beans was slow). */
 #bg-grid .crow,#bv-diary .tl-item,#log .logentry{content-visibility:auto;contain-intrinsic-size:auto 76px}
+.gs-lead{margin:-2px 2px 10px}.setgroup.gs{margin-bottom:12px}
+.gs .gs-all{width:132px;flex:none}.gs .stepper output{font-size:.95rem}
+.gs-each{border-top:1px solid var(--line);padding:0 14px}.gs-each>summary{cursor:pointer;padding:12px 0;font-weight:600;font-size:.9rem;color:var(--cherry-ink,var(--cherry))}
+.gs-each>summary i{font-style:normal;font-weight:600;font-size:.74rem;color:var(--muted);margin-left:6px}
+.gs-list{display:grid;gap:8px;padding-bottom:12px}.gs-row{display:flex;align-items:center;gap:10px;justify-content:space-between}
+.gs-n{min-width:0;font-size:.9rem;display:flex;flex-direction:column}.gs-n small{color:var(--muted);font-size:.74rem}.gs-row.own .gs-n{font-weight:600}
+.gs-row .stepper{width:132px;flex:none}.gs-each .actions{padding-bottom:12px}
 </style>
 <script>const JSPDF_SRC="vendor/jspdf.umd.min.js"</script>
 <link rel="manifest" href="manifest.webmanifest">
@@ -4263,10 +4270,14 @@ let BOFF={};
 // A brewer's other method (the Switch's full immersion) follows the brewer's calibration.
 function boff(b){if(b in BOFF)return BOFF[b];const cb=BREWERS[b].of||b;let t=0,n=0;for(const g in BASE){const v=BASE[g]&&BASE[g][cb];if(v==null||!GRINDERS[g])continue;const d=defBase(g,cb,true);if(d!=null){t+=sizeOf(g,v)-sizeOf(g,d);n++}}return BOFF[b]=n?t/n:0}
 function calX(g,b){const d=defBase(g,b,true);if(d==null)return null;const o=boff(b);if(!o)return d;const G=GRINDERS[g];return clamp(stepsFor(g,sizeOf(g,d)+o),G.min,G.max)}
+// A nudge for a whole grinder ("my K-Ultra runs 2 clicks finer"), set in Settings > Grind settings: it moves every
+// brewer on that grinder, on top of any brewer you've set yourself.
+let GOFF=load('bb-goff',{});if(!GOFF||typeof GOFF!=='object')GOFF={};for(const g in GOFF)if(!Number.isFinite(GOFF[g])||!GRINDER_LIB[g]&&!CUSTOM_G[g])delete GOFF[g];
+const gOff=g=>GOFF[g]||0;
 // Your calibrated setting for a grinder on a brewer, or the estimate from the shared scale.
-function base(g,b){const v=BASE[g]&&BASE[g][b];if(v!=null)return v;const x=calX(g,b);return x==null?null:Math.round(x)}
+function base(g,b){const v=BASE[g]&&BASE[g][b];if(v!=null)return roundG(g,v+gOff(g));const x=calX(g,b);return x==null?null:roundG(g,Math.round(x)+gOff(g))}
 // The same, unrounded: used when converting between grinders so the result lands on the nearest click.
-function baseX(g,b){const v=BASE[g]&&BASE[g][b];return v==null?calX(g,b):v}
+function baseX(g,b){const v=BASE[g]&&BASE[g][b],x=v==null?calX(g,b):v;return x==null?null:clamp(x+gOff(g),GRINDERS[g].min,GRINDERS[g].max)}
 const canGrind=(g,b)=>!!GRINDERS[g]&&base(g,b)!=null;
 // First of your grinders that can do this brewer (falls back to any grinder in the library).
 const capable=b=>MYG.find(g=>canGrind(g,b))||Object.keys(GRINDERS).find(g=>canGrind(g,b));
@@ -4621,8 +4632,8 @@ function initDial(){
   $('i-region').onchange=e=>{S.region=e.target.value;S.variety=effVariety(S.variety.split(':')[0],S.region);retuneIfAuto()};
   $('v-about').onclick=()=>openVariety(S.variety.split(':')[0]);
   renderCal();
-  $('caltbody').oninput=e=>{const i=e.target;if(!i.dataset.g)return;const v=parseFloat(i.value);if(isNaN(v))return;(BASE[i.dataset.g]=BASE[i.dataset.g]||{})[i.dataset.b]=Math.round(v);(BOFF={},save('bb-base3',BASE));i.nextElementSibling.textContent=dial(i.dataset.g,v);render();renderRecipes();renderGrindMap()};
-  $('calreset').onclick=()=>{BASE={};(BOFF={},save('bb-base3',BASE));renderCal();render();renderRecipes();renderGrindMap();if(BUILT.gear)renderMatch();toast('Calibration reset')};
+  $('caltbody').oninput=e=>{const i=e.target;if(!i.dataset.g)return;const v=parseFloat(i.value);if(isNaN(v))return;(BASE[i.dataset.g]=BASE[i.dataset.g]||{})[i.dataset.b]=Math.round(v)-gOff(i.dataset.g);(BOFF={},save('bb-base3',BASE));i.nextElementSibling.textContent=dial(i.dataset.g,v);render();renderRecipes();renderGrindMap()};
+  $('calreset').onclick=()=>{BASE={};GOFF={};save('bb-goff',GOFF);(BOFF={},save('bb-base3',BASE));renderCal();render();renderRecipes();renderGrindMap();if(BUILT.gear)renderMatch();toast('Calibration reset')};
 }
 
 /* ================= BREW PLAN (used by the dial-in and Scan) ================= */
@@ -6725,6 +6736,7 @@ function renderSettings(){const t=document.documentElement.getAttribute('data-th
     row('wheel','#6E8FA8','Motion','Animations between pages and sheets','<div class="seg" id="st-motion"></div>')+
     row('globe','#4F8A74','Open the app on','The page you see first','<div class="seg" id="st-start"></div>')+'</div>'+
    // The coffee of the day: always on the Beans and Explore pages; in the Android app, also as a notification.
+   '<h3 class="rh">Grind settings</h3><div id="st-grind"></div>'+
    '<h3 class="rh">Reminders</h3><div class="setgroup">'+row('hourglass','#8A5A3B','Coffee of the day','A coffee from your cabinet each day: a bag at its peak or running low, one from this day in an earlier year, or a memory from your diary.',
      window.BEANS_OK&&LN()?'<div class="setbtns"><div class="seg" id="st-remind"></div><input type="time" id="st-rtime" class="dateinp" value="'+REMIND.t+'" aria-label="Reminder time"'+(REMIND.on?'':' disabled')+'></div>'
        :'<p class="setnote" style="margin:0">It’s at the top of Beans and Explore each day. In the Android app it can also arrive as a notification at the time you choose.</p>')+
@@ -6737,6 +6749,7 @@ function renderSettings(){const t=document.documentElement.getAttribute('data-th
    (installed()?'':'<h3 class="rh">Install</h3><div class="setgroup">'+row('download','#9A7390','Add to your home screen','Use it like an app, offline too','<p class="setnote" style="margin:0"><b>iPhone (Safari):</b> tap the Share button, then <b>Add to Home Screen</b>.<br><b>Android (Chrome):</b> tap the ⋮ menu, then <b>Add to Home screen</b>.</p>')+'</div>')+
    '<h3 class="rh">About</h3><div class="setgroup">'+row('book','#8A5A3B','The Brew Bench','A coffee field guide and dial-in tool. What you save stays on this device, or syncs with your account if you sign in.','<p class="setnote" style="margin:0"><a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a> · <a href="'+SITE_URL+'delete-account.html" target="_blank" rel="noopener">Delete your account</a></p>')+
      '</div>';
+  renderGrindSet();
   seg('st-mode',[['light','Light'],['dark','Dark'],['auto','Auto']],()=>t,v=>{if(v==='auto'){document.documentElement.removeAttribute('data-theme');try{localStorage.removeItem('bb-theme')}catch(e){}}
     else{document.documentElement.setAttribute('data-theme',v);try{localStorage.setItem('bb-theme',v)}catch(e){}}syncThemeBtn();applyUI();renderSettings()});
   seg('st-text',[['s','Small'],['m','Standard'],['l','Large'],['xl','Larger']],()=>UI.text,v=>{UI.text=v;saveUI();renderSettings()});
@@ -6864,6 +6877,27 @@ setTimeout(()=>{const ln=window.BEANS_OK&&LN();if(!ln)return;
 // The pour and steam on the hero play once per launch. Coming back to a page would otherwise restart them (a hidden
 // element's animations start over when it shows again), keeping the phone busy for seconds on every visit.
 setTimeout(()=>document.documentElement.classList.add('deco-rest'),14000);
+// Settings > Grind settings: each of your grinders, with a nudge for all its recipes and a setting per brewer. Recipes,
+// the dial-in, the brew timer and grinder conversions all read from these.
+function grindChanged(){BOFF={};save('bb-base3',BASE);save('bb-goff',GOFF);retuneIfAuto();if(BUILT.recipes){renderRecipes();renderRHome()}
+  if(typeof renderGrindMap==='function'&&BUILT.process)try{renderGrindMap()}catch(e){}if(BUILT.gear)renderMatch();renderCal();renderGrindSet()}
+function renderGrindSet(){const el=$('st-grind');if(!el)return;const open=new Set([...el.querySelectorAll('details[open]')].map(d=>d.dataset.g));
+  const nudge=g=>{const n=gOff(g);return n?Math.abs(n)+' click'+(Math.abs(n)===1?'':'s')+' '+(n<0?'finer':'coarser'):'As the app sets them'};
+  el.innerHTML='<p class="setnote gs-lead">Your grinders’ settings for each brewer. Recipes, the dial-in and the timer all follow what you set here. Setting a brewer on one grinder moves your other grinders on that brewer to the same grind size, unless you set them too.</p>'+
+    MYG.filter(g=>GRINDERS[g]).map(g=>{const G=GRINDERS[g],bs=MODEL.filter(LISTED).filter(b=>canGrind(g,b)),mine=bs.filter(b=>BASE[g]&&BASE[g][b]!=null).length;
+      return '<div class="setgroup gs" data-g="'+g+'"><div class="setrow"><div class="sl">'+ico('wheel','#6E8FA8')+'<span class="mt"><b>'+esc(G.full||G.name)+'</b><small>All recipes: '+nudge(g)+'</small></span></div>'+
+        '<div class="stepper gs-all"><button type="button" data-gall="-1" aria-label="All recipes one click finer">−</button><output>'+(gOff(g)>0?'+':'')+gOff(g)+'</output><button type="button" data-gall="1" aria-label="All recipes one click coarser">+</button></div></div>'+
+        '<details class="gs-each" data-g="'+g+'"'+(open.has(g)?' open':'')+'><summary>Each brewer'+(mine?' <i>'+mine+' set by you</i>':'')+'</summary><div class="gs-list">'+
+        bs.map(b=>{const v=base(g,b),own=BASE[g]&&BASE[g][b]!=null;return '<div class="gs-row'+(own?' own':'')+'" data-b="'+b+'"><span class="gs-n">'+esc(BREWERS[b].name)+(own?'<small>Set by you <button type="button" class="linkbtn" data-gbreset>Reset</button></small>':'')+'</span>'+
+          '<div class="stepper"><button type="button" data-gb="-1" aria-label="'+esc(BREWERS[b].name)+': one click finer">−</button><output title="'+esc(dialHint(g,v))+'">'+esc(dial(g,v))+'</output><button type="button" data-gb="1" aria-label="'+esc(BREWERS[b].name)+': one click coarser">+</button></div></div>'}).join('')+
+        '</div>'+(mine||gOff(g)?'<div class="actions"><button type="button" class="btn ghost" data-greset>Back to the app’s settings for '+esc(G.name)+'</button></div>':'')+'</details></div>'}).join('')}
+document.addEventListener('click',e=>{const el=e.target.closest('#st-grind [data-gall],#st-grind [data-gb],#st-grind [data-gbreset],#st-grind [data-greset]');if(!el)return;
+  const g=el.closest('[data-g]').dataset.g,G=GRINDERS[g];
+  if(el.dataset.gall){GOFF[g]=clamp(gOff(g)+(+el.dataset.gall),-40,40);if(!GOFF[g])delete GOFF[g]}
+  else if(el.dataset.gb){const b=el.closest('[data-b]').dataset.b,now=base(g,b),nv=clamp(now+(+el.dataset.gb),G.min,G.max);(BASE[g]=BASE[g]||{})[b]=nv-gOff(g)}
+  else if(el.hasAttribute('data-gbreset')){const b=el.closest('[data-b]').dataset.b;if(BASE[g])delete BASE[g][b]}
+  else{delete BASE[g];delete GOFF[g];toast(G.name+' is back to the app’s settings')}
+  grindChanged()});
 /* ================= INIT ================= */
 // Drawings that loop (the pour on the Dial-in page) pause while they're out of sight, so the phone isn't redrawing
 // something nobody can see.
