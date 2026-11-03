@@ -2235,8 +2235,20 @@ function beanProfile(){const P=PROCESSES[SC.process],Vp=vParams(SC.variety),Vv=v
   if(body>.9)tips.push('Full-bodied: an immersion brewer (a Switch, Clever or French press) plays to its weight.');else if(clarity>.4)tips.push('Transparent: a cone dripper like the V60 shows off its layers best.');
   tips.push(age<=7?'Very fresh ('+age+' days off roast): give it a few more days to settle, or bloom a little longer.':age<=30?'In its best weeks ('+age+' days off roast).':'Past its peak ('+age+' days off roast): grind a little finer and brew a little hotter to bring it back.');
   return{head,meters,notes,from,tips}}
-function beanProfileHTML(){const b=beanProfile();const dots=n=>'<span class="bp-dots" aria-hidden="true">'+[1,2,3,4,5].map(i=>'<i'+(i<=n?' class="on"':'')+'></i>').join('')+'</span>';
-  return '<div class="bprof"><p class="bp-head">'+esc(b.head)+'</p><div class="bp-meters">'+b.meters.map(([k,n])=>'<div class="bp-m"><span>'+k+'</span>'+dots(n)+'</div>').join('')+'</div>'+
+// The cup profile: a cup seen from above, its crema drawn as the coffee's shape, and five beans per trait with a word for the level.
+const CUPT={Acidity:['acid',['Soft','Mild','Bright','Lively','Sparkling']],Sweetness:['sweet',['Dry','Light','Sweet','Rich','Honeyed']],Body:['body',['Tea-like','Light','Round','Full','Syrupy']],
+  Clarity:['clar',['Muddled','Soft','Clear','Clean','Crystal']],Ferment:['ferm',['Faint','Gentle','Fruity','Winey','Boozy']]};
+const CUP_BEAN='<svg viewBox="0 0 20 24" aria-hidden="true"><ellipse cx="10" cy="12" rx="7.2" ry="10" transform="rotate(18 10 12)"/><path d="M7.4 3.6c3.6 3.4-1.4 9.6 2.2 16.8" transform="rotate(18 10 12)"/></svg>';
+function cupShapeSVG(m){const n=m.length,c=60,R=40,pt=(i,r)=>{const a=-Math.PI/2+i*2*Math.PI/n;return [c+Math.cos(a)*r,c+Math.sin(a)*r]};
+  const poly=m.map(([,v],i)=>pt(i,R*(.18+.82*v/5)).map(x=>x.toFixed(1)).join(',')).join(' ');
+  const grid=[.45,.73,1].map(f=>'<polygon class="cs-g" points="'+m.map((_,i)=>pt(i,R*f).map(x=>x.toFixed(1)).join(',')).join(' ')+'"/>').join('');
+  return '<svg class="cupshape" viewBox="0 0 132 120" role="img" aria-label="The cup’s shape: '+m.map(([k,v])=>k.toLowerCase()+' '+v+' of 5').join(', ')+'">'+
+    '<ellipse class="cs-saucer" cx="60" cy="60" rx="58" ry="58"/><path class="cs-handle" d="M112 50c14 0 14 20 0 20"/><circle class="cs-rim" cx="60" cy="60" r="50"/><circle class="cs-coffee" cx="60" cy="60" r="45"/>'+grid+
+    '<polygon class="cs-crema" points="'+poly+'"/>'+m.map(([k,v],i)=>{const [x,y]=pt(i,R*(.18+.82*v/5));return '<circle class="cs-dot t-'+CUPT[k][0]+'" cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3.6"/>'}).join('')+'</svg>'}
+function beanProfileHTML(){const b=beanProfile();
+  const beans=(k,n)=>'<span class="cb-row t-'+CUPT[k][0]+'" aria-hidden="true">'+[1,2,3,4,5].map(i=>'<i'+(i<=n?' class="on"':'')+'>'+CUP_BEAN+'</i>').join('')+'</span>';
+  return '<div class="bprof"><p class="bp-head">'+esc(b.head)+'</p><div class="cupcard">'+cupShapeSVG(b.meters)+'<ul class="cuptraits">'+
+    b.meters.map(([k,n])=>'<li><b>'+k+'</b>'+beans(k,n)+'<em class="t-'+CUPT[k][0]+'">'+CUPT[k][1][n-1]+'</em><span class="sr">'+n+' of 5</span></li>').join('')+'</ul></div>'+
     (b.notes.length?'<h4 class="bp-h">In the cup</h4><div class="chips">'+b.notes.map(n=>'<span class="chip">'+esc(n)+'</span>').join('')+'</div>':'')+
     (b.from.length?'<h4 class="bp-h">Where it comes from</h4><dl class="bp-from">'+b.from.map(([k,v])=>'<dt>'+esc(k)+'</dt><dd>'+esc(v)+'</dd>').join('')+'</dl>':'')+
     '<h4 class="bp-h">How to brew it</h4><ul class="bp-tips">'+b.tips.map(t=>'<li>'+esc(t)+'</li>').join('')+'</ul>'+
