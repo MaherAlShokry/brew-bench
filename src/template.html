@@ -1799,6 +1799,13 @@ body.t-dial.dial-ready .herowrap{display:none}
 /* The year in coffee: even tiles. */
 .yic-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:12px 14px}
 .yic-row span{min-width:0}.yic-row b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:1.1rem}
+/* No clipping: the journal label wraps beside the bag picture, and the view tabs share the width. */
+.bgh-k{white-space:normal!important;display:block;line-height:1.4;padding-right:4px}
+.seg.bviews{overflow:visible!important;-webkit-mask-image:none!important;mask-image:none!important}
+.seg.bviews button{flex:1 1 0!important;min-width:0;padding-left:2px!important;padding-right:2px!important;font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seg.bviews button i{font-size:.66rem;padding:1px 5px;margin-left:2px}
+@media (max-width:350px){.gtabs button,.seg.bviews button{font-size:.74rem!important}.gtabs button{font-size:.68rem!important;letter-spacing:-.01em}}
+.gtabs{overflow:visible!important;-webkit-mask-image:none!important;mask-image:none!important}.gtabs button{flex:1 1 0!important;min-width:0;padding-left:2px!important;padding-right:2px!important;font-size:.82rem}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
@@ -2069,7 +2076,7 @@ body.t-dial.dial-ready .herowrap{display:none}
   <p class="lede">Your grinders and brewers, your grind settings, and how to read the dials.</p>
   <div class="card kit" id="gear-kit"></div>
   <div class="seg filters scrollrow gtabs" id="gear-tabs" role="tablist" aria-label="Gear and dials">
-    <button type="button" role="tab" data-gtab="set">Grind settings</button><button type="button" role="tab" data-gtab="dials">Dials</button><button type="button" role="tab" data-gtab="brew">Brewers</button><button type="button" role="tab" data-gtab="lib">Grinders</button><button type="button" role="tab" data-gtab="acc">More gear</button>
+    <button type="button" role="tab" data-gtab="set">Grind</button><button type="button" role="tab" data-gtab="dials">Dials</button><button type="button" role="tab" data-gtab="brew">Brewers</button><button type="button" role="tab" data-gtab="lib">Grinders</button><button type="button" role="tab" data-gtab="acc">More</button>
   </div>
   <div class="gpanel" data-gpanel="set" role="tabpanel">
     <div id="st-grind"></div>
