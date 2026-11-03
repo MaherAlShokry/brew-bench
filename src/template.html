@@ -389,7 +389,9 @@ button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.a
 @media (min-width:760px){.cups{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .cupcard{display:flex;flex-direction:column;border:0;padding:0;border-radius:18px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow);color:var(--ink);font:inherit;text-align:left;cursor:pointer;transition:transform .15s ease}
 .cupcard:active{transform:scale(.97)}.cupcard[aria-pressed="true"]{outline:3px solid var(--cherry);outline-offset:2px}
-.cupart{height:104px;display:grid;place-items:center;background:var(--g)}.cupart svg{width:64px;height:64px;fill:none;stroke:#fff;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;opacity:.95}
+.cupart{height:104px;display:grid;place-items:center;background:var(--g)}
+.cuptile{width:52px;height:52px;border-radius:15px;display:grid;place-items:center;background:rgba(255,255,255,.18);box-shadow:inset 0 0 0 1px rgba(255,255,255,.22)}
+.cuptile svg{width:36px;height:36px;fill:none;stroke:#FFFDF9;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 .cupcard b{display:block;padding:10px 14px 0;font-family:var(--display);font-size:1.02rem}.cupcard small{display:block;padding:2px 14px 12px;color:var(--muted);font-size:.84rem;line-height:1.35}
 .cupart{position:relative}
 .cupcard .cc{position:absolute;top:10px;right:10px;font-size:.74rem;font-weight:700;color:#fff;background:rgba(0,0,0,.28);border-radius:99px;padding:2px 9px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
@@ -1139,7 +1141,7 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .lv-e{color:#7FCB9C}:root:not([data-theme="light"]) .lv-i{color:#E7B060}:root:not([data-theme="light"]) .lv-a{color:#F08F7E}}
 :root[data-theme="dark"] .lv-e{color:#7FCB9C}:root[data-theme="dark"] .lv-i{color:#E7B060}:root[data-theme="dark"] .lv-a{color:#F08F7E}
 /* Cup types sit lower on the page now, so their cards are shorter. */
-#rhome .cupart{height:72px}#rhome .cupart svg{width:46px;height:46px}
+#rhome .cupart{height:76px}
 @media (min-width:1000px){#rgrid{columns:2;column-gap:16px}#rgrid .rgrp{break-inside:avoid;display:inline-block;width:100%;content-visibility:visible}}
 @media (min-width:760px){.bshelf button{width:128px}.colshelf button{width:200px}}
 /* A recipe at a glance, and its steps as a timeline. */
