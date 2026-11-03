@@ -611,19 +611,20 @@ function openBeanEditor(b,pre){const isNew=!b;const B=Object.assign({name:'',roa
    '<input type="file" id="be-camf" accept="image/*" capture="environment" hidden><input type="file" id="be-file" accept="image/*" hidden>'+
    '<div class="field"><div class="lbl">Your rating</div><div class="beanrate" id="be-rate"></div></div>'+
    '<div class="two stackm"><div class="field"><label for="be-name">Coffee name</label><input id="be-name" maxlength="60" value="'+esc(B.name)+'" placeholder="e.g. El Diviso Pink Bourbon" autocomplete="off"></div>'+
-   '<div class="field"><label for="be-roaster">Roastery</label><input id="be-roaster" maxlength="50" value="'+esc(B.roaster)+'" list="be-roasters" placeholder="e.g. Archers" autocomplete="off"><datalist id="be-roasters">'+roasters.map(r=>'<option value="'+esc(r)+'">').join('')+'</datalist></div></div>'+
+   '<div class="field"><label for="be-roaster">Roastery</label><div class="acw"><input id="be-roaster" maxlength="50" value="'+esc(B.roaster)+'" placeholder="e.g. Archers" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="be-rsug"><div class="acl" id="be-rsug" role="listbox" aria-label="Roasteries you’ve had" hidden></div></div></div></div>'+
    '<div class="two stackm"><div class="field"><label for="be-origin">Origin</label><select id="be-origin">'+opt(originOptions(),'Not sure')+'</select></div>'+
    '<div class="field"><label for="be-process">Process</label><select id="be-process">'+opt(processOptions(),'Not sure')+'</select></div></div>'+
    '<div class="field"><div class="lbl" id="be-vlbl">Variety</div><div class="bvars" id="be-vars" role="group" aria-labelledby="be-vlbl"></div>'+
    '<button type="button" class="bv-add" id="be-addv"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add another variety</button></div>'+
    '<div class="field"><div class="lbl">Roast</div><div class="seg" id="be-roast"></div></div>'+
    '<div class="two"><div class="field"><label for="be-rdate">Roasted on</label><input type="date" id="be-rdate" class="dateinp" value="'+B.roastDate+'"></div><div class="field"><label for="be-tried">Tried on</label><input type="date" id="be-tried" class="dateinp" value="'+B.tried+'"></div></div>'+
-   '<div class="two"><div class="field"><label for="be-bag">Bag size <span class="hint">grams</span></label><input id="be-bag" type="number" inputmode="numeric" min="0" max="5000" step="1" value="'+(B.bag||'')+'" placeholder="e.g. 250"></div>'+
+   '<div class="two bagrow"><div class="field"><label for="be-bag">Bag size <span class="hint">grams</span></label><input id="be-bag" type="number" inputmode="numeric" min="0" max="5000" step="1" value="'+(B.bag||'')+'" placeholder="e.g. 250"></div>'+
    '<div class="field"><div class="lbl">On the shelf</div><div class="seg" id="be-shelf"></div></div></div>'+
    '<div class="field"><label for="be-fl">Tasting notes <span class="hint">separate with commas</span></label><input id="be-fl" maxlength="160" value="'+esc(B.flavours)+'" placeholder="e.g. jasmine, peach, honey"></div>'+
    '<div class="field"><label for="be-notes">Your notes</label><textarea id="be-notes" rows="3" maxlength="600" placeholder="How you brewed it, what you loved, would you buy it again?">'+esc(B.notes)+'</textarea></div>'+
    '<div class="actions"><button class="btn" id="be-save">'+(isNew?'Add to the gallery':'Save changes')+'</button><button class="btn ghost" id="be-cancel">Cancel</button></div></div>';
   for(const [id,k] of [['be-origin','origin'],['be-process','process']])$(id).value=B[k];
+  autoList($('be-roaster'),$('be-rsug'),roasters);
   // Varieties: one picker to start; a blend or mixed lot adds more, up to four, each removable.
   const vOpts=opt(varietyOptions(),'Not sure');let VL=beanVars(B);if(!VL.length)VL=[''];
   const readVars=()=>{VL=[...$('be-vars').querySelectorAll('select')].map(x=>x.value)};

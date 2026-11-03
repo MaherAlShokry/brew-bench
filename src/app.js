@@ -2186,6 +2186,19 @@ function openSavedScan(i){const s=SCANS[i];if(!s)return;Object.assign(SC,{name:'
 // Scans are listed on the Beans page.
 function renderScanList(){if(window.BEANS_OK&&$('bv-scans')){renderBeanScans();renderBeanViews()}}
 // What to call the coffee: its name if we have a real one, else origin and variety ("Colombia Pink Bourbon").
+// Suggestions under a text box, drawn by the app (the phone's own list draws see-through over the form in some web views).
+function autoList(inp,box,all){if(inp.dataset.ac)return;inp.dataset.ac=1;let at=-1,l=[];
+  const close=()=>{box.hidden=true;at=-1;inp.setAttribute('aria-expanded','false');inp.removeAttribute('aria-activedescendant')};
+  const pick=v=>{inp.value=v;close();inp.dispatchEvent(new Event('input',{bubbles:true}))};
+  const hl=()=>box.querySelectorAll('[role=option]').forEach((o,i)=>{o.setAttribute('aria-selected',i===at);if(i===at){inp.setAttribute('aria-activedescendant',o.id);o.scrollIntoView({block:'nearest'})}});
+  const draw=()=>{const q=inp.value.trim().toLowerCase();l=(typeof all==='function'?all():all).filter(r=>r.toLowerCase()!==q&&(!q||r.toLowerCase().includes(q))).slice(0,6);at=-1;
+    if(!l.length||document.activeElement!==inp){close();return}
+    box.innerHTML=l.map((r,i)=>'<div role="option" class="aco" id="'+box.id+'-'+i+'" data-i="'+i+'" aria-selected="false">'+esc(r)+'</div>').join('');box.hidden=false;inp.setAttribute('aria-expanded','true')};
+  inp.addEventListener('focus',draw);inp.addEventListener('input',e=>{if(e.isTrusted)draw()});inp.addEventListener('blur',()=>setTimeout(close,120));
+  inp.addEventListener('keydown',e=>{if(box.hidden)return;if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();at=(at+(e.key==='ArrowDown'?1:-1)+l.length)%l.length;hl()}
+    else if(e.key==='Enter'&&at>=0){e.preventDefault();pick(l[at])}else if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close()}});
+  // pointerdown keeps the focus in the box, so the tap lands before the list closes.
+  box.addEventListener('pointerdown',e=>e.preventDefault());box.addEventListener('click',e=>{const o=e.target.closest('[data-i]');if(o)pick(l[+o.dataset.i])})}
 // The other varieties a label named, beside the one the scan settled on.
 function scanVars(sc,inf){const k=inf&&Array.isArray(inf.variety_keys)?inf.variety_keys:[],b=String(sc.variety||'').split(':')[0];return k.filter(v=>typeof v==='string'&&VBY[v]&&v!==b).slice(0,3)}
 function scanTitle(sc,inf){const n=sc.name||(inf&&plausibleName(inf.coffee_name)?niceName(inf.coffee_name):'')||(inf&&inf.producer_or_farm)||'';const o=sc.origin?originName(sc.origin):'',v=sc.variety!=='arabica'?vName(sc.variety):'';return n||(o&&v?o+' '+v:o?o+' coffee':v||'A coffee')}
@@ -2237,7 +2250,7 @@ function renderScan(){
   const tl=techList(SC.brewer);const pref=tl.find(([r])=>P.funk>=1.2?(r.kind==='kh1'||r.kind==='imm'||r.kind==='kh2'):Vp.clarity>=0.8?(r.kind==='46'||r.kind==='neo'||r.kind==='pulse'):true);if(pref)c.tech=pref[1];
   const p=plan(c);const o=oInfo(SC.origin),inf=SC.info;
   const kv=inf?[['Producer or farm',inf.producer_or_farm],['Region',inf.region],['Altitude',inf.altitude],['Varieties',(inf.varieties||[]).join(', ')],['Process',inf.process],['Notes',(inf.tasting_notes||[]).join(', ')]].filter(x=>x[1]):[];
-  $('s-name').value=SC.name||'';$('s-roaster').value=SC.roaster||'';$('s-roasters').innerHTML=[...new Set(SCANS.map(scRoaster).filter(Boolean))].map(r=>'<option value="'+esc(r)+'">').join('');
+  $('s-name').value=SC.name||'';$('s-roaster').value=SC.roaster||'';autoList($('s-roaster'),$('s-rsug'),()=>[...new Set([...SCANS.map(scRoaster),...(typeof BEANS!=='undefined'?BEANS:[]).map(x=>x.roaster)].filter(Boolean))].sort());
   $('scan-out').innerHTML='<div id="scan-head"></div>'+(inf?(inf.summary?'<p class="hint">'+esc(inf.summary)+'</p>':'')+(kv.length?'<dl class="kv">'+kv.map(([k,v])=>'<dt>'+k+'</dt><dd>'+esc(v)+'</dd>').join('')+'</dl>':''):'<p class="hint">Scan a bag or fill in the details to get a plan.</p>')+
    // Only an origin on the map opens its page; one off the map is a plain chip.
    '<div class="chips">'+(!o?'':ALLO()[SC.origin]?'<button class="chip" data-o="'+SC.origin+'">'+(o.flag||'')+' '+esc(o.name)+'</button>':'<span class="chip">'+(o.flag||'')+' '+esc(o.name)+'</span>')+vbtn(SC.variety.split(':')[0])+scanVars(SC,SC.info).map(vbtn).join('')+'<span class="chip">'+esc(P.name)+'</span><span class="chip">'+age+' days off roast</span></div>'+

@@ -1817,6 +1817,17 @@ body.t-dial.dial-ready .herowrap{display:none}
 .bvar-x svg,.bv-add svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
 .bv-add{margin-top:8px;display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:6px 14px;border-radius:var(--r-pill);border:1px dashed color-mix(in srgb,var(--cherry) 45%,var(--line));background:transparent;color:var(--cherry-ink);font:inherit;font-weight:600;font-size:.86rem;cursor:pointer}
 .bv-add[hidden]{display:none}
+/* The dialog header stays above anything that scrolls under it (the rating beans drew over it). */
+.vd-head{z-index:4}
+.bvar select{width:100%}
+@media (max-width:399px){.two.bagrow{grid-template-columns:1fr!important;display:grid}}
+.beform .seg button{min-width:0;white-space:nowrap;overflow:visible;text-overflow:clip;padding-left:6px;padding-right:6px}
+/* Suggestions under a text box: the app's own list, a solid card. */
+.acw{position:relative}
+.acl{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:6;max-height:236px;overflow-y:auto;padding:6px;border-radius:var(--r-md);background:var(--surface);border:1px solid var(--line);box-shadow:0 14px 34px -12px rgba(0,0,0,.45)}
+.acl[hidden]{display:none}
+.aco{padding:11px 12px;border-radius:10px;cursor:pointer;color:var(--ink);font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aco:hover,.aco[aria-selected="true"]{background:var(--surface2)}
 /* The welcome on Brew: a card like the others, with a greeting and the day's line of coffee wisdom. */
 .welcome{margin:0 0 12px;padding:16px 18px}
 .wl-top{display:flex;align-items:center;gap:12px}
@@ -2073,7 +2084,7 @@ body.t-dial.dial-ready .herowrap{display:none}
       </details>
       <h3>Coffee details</h3>
       <div class="two stackm"><div class="field"><label for="s-name">Coffee name</label><input id="s-name" style="width:100%" maxlength="60" placeholder="e.g. Luis Aníbal Calderón" autocomplete="off"></div>
-        <div class="field"><label for="s-roaster">Roastery</label><input id="s-roaster" style="width:100%" maxlength="50" list="s-roasters" placeholder="e.g. Windrose" autocomplete="off"><datalist id="s-roasters"></datalist></div></div>
+        <div class="field"><label for="s-roaster">Roastery</label><div class="acw"><input id="s-roaster" style="width:100%" maxlength="50" placeholder="e.g. Windrose" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="s-rsug"><div class="acl" id="s-rsug" role="listbox" aria-label="Roasteries you’ve had" hidden></div></div></div></div>
       <div class="field"><label for="s-origin">Origin</label><select id="s-origin"></select></div>
       <div class="field"><label for="s-process">Process</label><select id="s-process"></select></div>
       <div class="field"><label for="s-variety">Variety</label><select id="s-variety"></select></div>
@@ -6340,6 +6351,19 @@ function openSavedScan(i){const s=SCANS[i];if(!s)return;Object.assign(SC,{name:'
 // Scans are listed on the Beans page.
 function renderScanList(){if(window.BEANS_OK&&$('bv-scans')){renderBeanScans();renderBeanViews()}}
 // What to call the coffee: its name if we have a real one, else origin and variety ("Colombia Pink Bourbon").
+// Suggestions under a text box, drawn by the app (the phone's own list draws see-through over the form in some web views).
+function autoList(inp,box,all){if(inp.dataset.ac)return;inp.dataset.ac=1;let at=-1,l=[];
+  const close=()=>{box.hidden=true;at=-1;inp.setAttribute('aria-expanded','false');inp.removeAttribute('aria-activedescendant')};
+  const pick=v=>{inp.value=v;close();inp.dispatchEvent(new Event('input',{bubbles:true}))};
+  const hl=()=>box.querySelectorAll('[role=option]').forEach((o,i)=>{o.setAttribute('aria-selected',i===at);if(i===at){inp.setAttribute('aria-activedescendant',o.id);o.scrollIntoView({block:'nearest'})}});
+  const draw=()=>{const q=inp.value.trim().toLowerCase();l=(typeof all==='function'?all():all).filter(r=>r.toLowerCase()!==q&&(!q||r.toLowerCase().includes(q))).slice(0,6);at=-1;
+    if(!l.length||document.activeElement!==inp){close();return}
+    box.innerHTML=l.map((r,i)=>'<div role="option" class="aco" id="'+box.id+'-'+i+'" data-i="'+i+'" aria-selected="false">'+esc(r)+'</div>').join('');box.hidden=false;inp.setAttribute('aria-expanded','true')};
+  inp.addEventListener('focus',draw);inp.addEventListener('input',e=>{if(e.isTrusted)draw()});inp.addEventListener('blur',()=>setTimeout(close,120));
+  inp.addEventListener('keydown',e=>{if(box.hidden)return;if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();at=(at+(e.key==='ArrowDown'?1:-1)+l.length)%l.length;hl()}
+    else if(e.key==='Enter'&&at>=0){e.preventDefault();pick(l[at])}else if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close()}});
+  // pointerdown keeps the focus in the box, so the tap lands before the list closes.
+  box.addEventListener('pointerdown',e=>e.preventDefault());box.addEventListener('click',e=>{const o=e.target.closest('[data-i]');if(o)pick(l[+o.dataset.i])})}
 // The other varieties a label named, beside the one the scan settled on.
 function scanVars(sc,inf){const k=inf&&Array.isArray(inf.variety_keys)?inf.variety_keys:[],b=String(sc.variety||'').split(':')[0];return k.filter(v=>typeof v==='string'&&VBY[v]&&v!==b).slice(0,3)}
 function scanTitle(sc,inf){const n=sc.name||(inf&&plausibleName(inf.coffee_name)?niceName(inf.coffee_name):'')||(inf&&inf.producer_or_farm)||'';const o=sc.origin?originName(sc.origin):'',v=sc.variety!=='arabica'?vName(sc.variety):'';return n||(o&&v?o+' '+v:o?o+' coffee':v||'A coffee')}
@@ -6391,7 +6415,7 @@ function renderScan(){
   const tl=techList(SC.brewer);const pref=tl.find(([r])=>P.funk>=1.2?(r.kind==='kh1'||r.kind==='imm'||r.kind==='kh2'):Vp.clarity>=0.8?(r.kind==='46'||r.kind==='neo'||r.kind==='pulse'):true);if(pref)c.tech=pref[1];
   const p=plan(c);const o=oInfo(SC.origin),inf=SC.info;
   const kv=inf?[['Producer or farm',inf.producer_or_farm],['Region',inf.region],['Altitude',inf.altitude],['Varieties',(inf.varieties||[]).join(', ')],['Process',inf.process],['Notes',(inf.tasting_notes||[]).join(', ')]].filter(x=>x[1]):[];
-  $('s-name').value=SC.name||'';$('s-roaster').value=SC.roaster||'';$('s-roasters').innerHTML=[...new Set(SCANS.map(scRoaster).filter(Boolean))].map(r=>'<option value="'+esc(r)+'">').join('');
+  $('s-name').value=SC.name||'';$('s-roaster').value=SC.roaster||'';autoList($('s-roaster'),$('s-rsug'),()=>[...new Set([...SCANS.map(scRoaster),...(typeof BEANS!=='undefined'?BEANS:[]).map(x=>x.roaster)].filter(Boolean))].sort());
   $('scan-out').innerHTML='<div id="scan-head"></div>'+(inf?(inf.summary?'<p class="hint">'+esc(inf.summary)+'</p>':'')+(kv.length?'<dl class="kv">'+kv.map(([k,v])=>'<dt>'+k+'</dt><dd>'+esc(v)+'</dd>').join('')+'</dl>':''):'<p class="hint">Scan a bag or fill in the details to get a plan.</p>')+
    // Only an origin on the map opens its page; one off the map is a plain chip.
    '<div class="chips">'+(!o?'':ALLO()[SC.origin]?'<button class="chip" data-o="'+SC.origin+'">'+(o.flag||'')+' '+esc(o.name)+'</button>':'<span class="chip">'+(o.flag||'')+' '+esc(o.name)+'</span>')+vbtn(SC.variety.split(':')[0])+scanVars(SC,SC.info).map(vbtn).join('')+'<span class="chip">'+esc(P.name)+'</span><span class="chip">'+age+' days off roast</span></div>'+
@@ -7724,19 +7748,20 @@ function openBeanEditor(b,pre){const isNew=!b;const B=Object.assign({name:'',roa
    '<input type="file" id="be-camf" accept="image/*" capture="environment" hidden><input type="file" id="be-file" accept="image/*" hidden>'+
    '<div class="field"><div class="lbl">Your rating</div><div class="beanrate" id="be-rate"></div></div>'+
    '<div class="two stackm"><div class="field"><label for="be-name">Coffee name</label><input id="be-name" maxlength="60" value="'+esc(B.name)+'" placeholder="e.g. El Diviso Pink Bourbon" autocomplete="off"></div>'+
-   '<div class="field"><label for="be-roaster">Roastery</label><input id="be-roaster" maxlength="50" value="'+esc(B.roaster)+'" list="be-roasters" placeholder="e.g. Archers" autocomplete="off"><datalist id="be-roasters">'+roasters.map(r=>'<option value="'+esc(r)+'">').join('')+'</datalist></div></div>'+
+   '<div class="field"><label for="be-roaster">Roastery</label><div class="acw"><input id="be-roaster" maxlength="50" value="'+esc(B.roaster)+'" placeholder="e.g. Archers" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="be-rsug"><div class="acl" id="be-rsug" role="listbox" aria-label="Roasteries you’ve had" hidden></div></div></div></div>'+
    '<div class="two stackm"><div class="field"><label for="be-origin">Origin</label><select id="be-origin">'+opt(originOptions(),'Not sure')+'</select></div>'+
    '<div class="field"><label for="be-process">Process</label><select id="be-process">'+opt(processOptions(),'Not sure')+'</select></div></div>'+
    '<div class="field"><div class="lbl" id="be-vlbl">Variety</div><div class="bvars" id="be-vars" role="group" aria-labelledby="be-vlbl"></div>'+
    '<button type="button" class="bv-add" id="be-addv"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add another variety</button></div>'+
    '<div class="field"><div class="lbl">Roast</div><div class="seg" id="be-roast"></div></div>'+
    '<div class="two"><div class="field"><label for="be-rdate">Roasted on</label><input type="date" id="be-rdate" class="dateinp" value="'+B.roastDate+'"></div><div class="field"><label for="be-tried">Tried on</label><input type="date" id="be-tried" class="dateinp" value="'+B.tried+'"></div></div>'+
-   '<div class="two"><div class="field"><label for="be-bag">Bag size <span class="hint">grams</span></label><input id="be-bag" type="number" inputmode="numeric" min="0" max="5000" step="1" value="'+(B.bag||'')+'" placeholder="e.g. 250"></div>'+
+   '<div class="two bagrow"><div class="field"><label for="be-bag">Bag size <span class="hint">grams</span></label><input id="be-bag" type="number" inputmode="numeric" min="0" max="5000" step="1" value="'+(B.bag||'')+'" placeholder="e.g. 250"></div>'+
    '<div class="field"><div class="lbl">On the shelf</div><div class="seg" id="be-shelf"></div></div></div>'+
    '<div class="field"><label for="be-fl">Tasting notes <span class="hint">separate with commas</span></label><input id="be-fl" maxlength="160" value="'+esc(B.flavours)+'" placeholder="e.g. jasmine, peach, honey"></div>'+
    '<div class="field"><label for="be-notes">Your notes</label><textarea id="be-notes" rows="3" maxlength="600" placeholder="How you brewed it, what you loved, would you buy it again?">'+esc(B.notes)+'</textarea></div>'+
    '<div class="actions"><button class="btn" id="be-save">'+(isNew?'Add to the gallery':'Save changes')+'</button><button class="btn ghost" id="be-cancel">Cancel</button></div></div>';
   for(const [id,k] of [['be-origin','origin'],['be-process','process']])$(id).value=B[k];
+  autoList($('be-roaster'),$('be-rsug'),roasters);
   // Varieties: one picker to start; a blend or mixed lot adds more, up to four, each removable.
   const vOpts=opt(varietyOptions(),'Not sure');let VL=beanVars(B);if(!VL.length)VL=[''];
   const readVars=()=>{VL=[...$('be-vars').querySelectorAll('select')].map(x=>x.value)};

@@ -1816,6 +1816,17 @@ body.t-dial.dial-ready .herowrap{display:none}
 .bvar-x svg,.bv-add svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
 .bv-add{margin-top:8px;display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:6px 14px;border-radius:var(--r-pill);border:1px dashed color-mix(in srgb,var(--cherry) 45%,var(--line));background:transparent;color:var(--cherry-ink);font:inherit;font-weight:600;font-size:.86rem;cursor:pointer}
 .bv-add[hidden]{display:none}
+/* The dialog header stays above anything that scrolls under it (the rating beans drew over it). */
+.vd-head{z-index:4}
+.bvar select{width:100%}
+@media (max-width:399px){.two.bagrow{grid-template-columns:1fr!important;display:grid}}
+.beform .seg button{min-width:0;white-space:nowrap;overflow:visible;text-overflow:clip;padding-left:6px;padding-right:6px}
+/* Suggestions under a text box: the app's own list, a solid card. */
+.acw{position:relative}
+.acl{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:6;max-height:236px;overflow-y:auto;padding:6px;border-radius:var(--r-md);background:var(--surface);border:1px solid var(--line);box-shadow:0 14px 34px -12px rgba(0,0,0,.45)}
+.acl[hidden]{display:none}
+.aco{padding:11px 12px;border-radius:10px;cursor:pointer;color:var(--ink);font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aco:hover,.aco[aria-selected="true"]{background:var(--surface2)}
 /* The welcome on Brew: a card like the others, with a greeting and the day's line of coffee wisdom. */
 .welcome{margin:0 0 12px;padding:16px 18px}
 .wl-top{display:flex;align-items:center;gap:12px}
@@ -2069,7 +2080,7 @@ body.t-dial.dial-ready .herowrap{display:none}
       </details>
       <h3>Coffee details</h3>
       <div class="two stackm"><div class="field"><label for="s-name">Coffee name</label><input id="s-name" style="width:100%" maxlength="60" placeholder="e.g. Luis Aníbal Calderón" autocomplete="off"></div>
-        <div class="field"><label for="s-roaster">Roastery</label><input id="s-roaster" style="width:100%" maxlength="50" list="s-roasters" placeholder="e.g. Windrose" autocomplete="off"><datalist id="s-roasters"></datalist></div></div>
+        <div class="field"><label for="s-roaster">Roastery</label><div class="acw"><input id="s-roaster" style="width:100%" maxlength="50" placeholder="e.g. Windrose" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="s-rsug"><div class="acl" id="s-rsug" role="listbox" aria-label="Roasteries you’ve had" hidden></div></div></div></div>
       <div class="field"><label for="s-origin">Origin</label><select id="s-origin"></select></div>
       <div class="field"><label for="s-process">Process</label><select id="s-process"></select></div>
       <div class="field"><label for="s-variety">Variety</label><select id="s-variety"></select></div>
