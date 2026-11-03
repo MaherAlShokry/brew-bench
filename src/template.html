@@ -1815,6 +1815,13 @@ body.t-dial.dial-ready .herowrap{display:none}
 .wl-k{display:block;margin:14px 0 6px;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--muted)}
 .wl-q{margin:0;padding-left:12px;border-left:3px solid color-mix(in srgb,var(--cherry) 55%,transparent);font-size:.95rem;line-height:1.5;color:var(--ink)}
 .wl-by{display:block;margin-top:4px;font-size:.78rem;color:var(--muted)}
+.bprof{margin-top:6px}.bp-head{margin:0 0 12px;font:600 1.05rem/1.4 var(--display);color:var(--ink)}
+.bp-meters{display:grid;gap:8px;padding:12px 14px;border-radius:16px;background:var(--surface2)}
+.bp-m{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:.88rem}
+.bp-dots{display:inline-flex;gap:5px}.bp-dots i{width:22px;height:8px;border-radius:4px;background:color-mix(in srgb,var(--ink) 14%,transparent)}.bp-dots i.on{background:var(--cherry)}
+.bp-h{margin:16px 0 8px;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.bp-from{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-size:.9rem}.bp-from dt{font-weight:600;white-space:nowrap}.bp-from dd{margin:0;color:var(--muted)}
+.bp-tips{margin:0;padding-left:18px;display:grid;gap:6px;font-size:.92rem;line-height:1.45}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
@@ -2058,8 +2065,8 @@ body.t-dial.dial-ready .herowrap{display:none}
       <div class="field"><label for="s-variety">Variety</label><select id="s-variety"></select></div>
       <div class="field"><div class="lbl">Roast</div><div class="seg" id="s-roast"></div></div>
       <div class="field"><label for="s-date">Roast date</label><input type="date" id="s-date" class="dateinp"></div>
-      <div class="field"><label for="s-brewer">Brew with</label><select id="s-brewer"></select></div>
-      <div class="field"><div class="lbl">Grinder <button type="button" class="gpick-btn" data-gpick aria-label="Change grinders" title="Change grinders"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l4 4-4 4"/><path d="M3 7h18"/><path d="M7 21l-4-4 4-4"/><path d="M21 17H3"/></svg></button></div><div class="seg" id="s-grinder"></div></div>
+      <div class="field" hidden><label for="s-brewer">Brew with</label><select id="s-brewer"></select></div>
+      <div class="field" hidden><div class="lbl">Grinder <button type="button" class="gpick-btn" data-gpick aria-label="Change grinders" title="Change grinders"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l4 4-4 4"/><path d="M3 7h18"/><path d="M7 21l-4-4 4-4"/><path d="M21 17H3"/></svg></button></div><div class="seg" id="s-grinder"></div></div>
     </div>
     <div class="stick"><div class="panel" id="scan-out"></div></div>
   </div>

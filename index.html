@@ -1816,6 +1816,13 @@ body.t-dial.dial-ready .herowrap{display:none}
 .wl-k{display:block;margin:14px 0 6px;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--muted)}
 .wl-q{margin:0;padding-left:12px;border-left:3px solid color-mix(in srgb,var(--cherry) 55%,transparent);font-size:.95rem;line-height:1.5;color:var(--ink)}
 .wl-by{display:block;margin-top:4px;font-size:.78rem;color:var(--muted)}
+.bprof{margin-top:6px}.bp-head{margin:0 0 12px;font:600 1.05rem/1.4 var(--display);color:var(--ink)}
+.bp-meters{display:grid;gap:8px;padding:12px 14px;border-radius:16px;background:var(--surface2)}
+.bp-m{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:.88rem}
+.bp-dots{display:inline-flex;gap:5px}.bp-dots i{width:22px;height:8px;border-radius:4px;background:color-mix(in srgb,var(--ink) 14%,transparent)}.bp-dots i.on{background:var(--cherry)}
+.bp-h{margin:16px 0 8px;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.bp-from{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-size:.9rem}.bp-from dt{font-weight:600;white-space:nowrap}.bp-from dd{margin:0;color:var(--muted)}
+.bp-tips{margin:0;padding-left:18px;display:grid;gap:6px;font-size:.92rem;line-height:1.45}
 </style>
 <script>const JSPDF_SRC="vendor/jspdf.umd.min.js"</script>
 <link rel="manifest" href="manifest.webmanifest">
@@ -2062,8 +2069,8 @@ body.t-dial.dial-ready .herowrap{display:none}
       <div class="field"><label for="s-variety">Variety</label><select id="s-variety"></select></div>
       <div class="field"><div class="lbl">Roast</div><div class="seg" id="s-roast"></div></div>
       <div class="field"><label for="s-date">Roast date</label><input type="date" id="s-date" class="dateinp"></div>
-      <div class="field"><label for="s-brewer">Brew with</label><select id="s-brewer"></select></div>
-      <div class="field"><div class="lbl">Grinder <button type="button" class="gpick-btn" data-gpick aria-label="Change grinders" title="Change grinders"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l4 4-4 4"/><path d="M3 7h18"/><path d="M7 21l-4-4 4-4"/><path d="M21 17H3"/></svg></button></div><div class="seg" id="s-grinder"></div></div>
+      <div class="field" hidden><label for="s-brewer">Brew with</label><select id="s-brewer"></select></div>
+      <div class="field" hidden><div class="lbl">Grinder <button type="button" class="gpick-btn" data-gpick aria-label="Change grinders" title="Change grinders"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l4 4-4 4"/><path d="M3 7h18"/><path d="M7 21l-4-4 4-4"/><path d="M21 17H3"/></svg></button></div><div class="seg" id="s-grinder"></div></div>
     </div>
     <div class="stick"><div class="panel" id="scan-out"></div></div>
   </div>
@@ -6329,6 +6336,40 @@ function renderScanHead(){const h=$('scan-head');if(!h)return;const r=SC.roaster
   const ti=scanTitle(SC,SC.info),sub=[SC.origin&&originName(SC.origin),SC.variety!=='arabica'&&vName(SC.variety)].filter(Boolean).join(' · ');
   h.innerHTML='<h2 style="margin-bottom:.2rem">'+esc(ti)+'</h2>'+(SC.name&&sub&&sub!==ti?'<p class="scan-sub">'+esc(sub)+'</p>':'')+
     (r?'<div class="roastery"><span class="ri"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 10h13v4a6 6 0 0 1-6 6h-1a6 6 0 0 1-6-6z M18 11h1.5a2.5 2.5 0 0 1 0 5H17 M9 3c-1 1.5 1 2.5 0 4 M13 3c-1 1.5 1 2.5 0 4"/></svg></span><div><small>Roasted by</small><b>'+esc(r)+'</b>'+(n>1?'<small>'+n+' of their coffees in your scans</small>':'')+'</div></div>':'<p class="hint" style="margin:.2rem 0 .6rem">Add the roastery below to give them credit.</p>')}
+/* A scanned coffee's profile, in words: how it should taste, what its origin, variety and process bring, and how to
+   brew it well. No recipe, no grind numbers or temperatures: those come when you dial it in. */
+function beanProfile(){const P=PROCESSES[SC.process],Vp=vParams(SC.variety),Vv=vById(SC.variety)||{},o=oInfo(SC.origin),inf=SC.info||{},age=daysSince(SC.date),R=SC.roast;
+  const roast={light:{acid:.35,body:-.2,sweet:0},medium:{acid:0,body:.15,sweet:.15},dark:{acid:-.45,body:.45,sweet:-.1}}[R]||{acid:0,body:0,sweet:0};
+  const funk=+P.funk||0,acid=(+Vp.acid||0)+(+P.acid||0)+roast.acid,sweet=(+Vp.sweet||0)+(+P.sweet||0)+roast.sweet,body=(+Vp.body||0)+(+P.body||0)+roast.body,clarity=(+Vp.clarity||0)-funk*.35-Math.max(0,roast.body);
+  const lvl=x=>Math.max(1,Math.min(5,Math.round(3+x*1.6)));
+  const meters=[['Acidity',lvl(acid)],['Sweetness',lvl(sweet)],['Body',lvl(body)],['Clarity',lvl(clarity)]].concat(funk>=.4&&!/earth|cedar|spice|tobacco|herb|wood|musty|savoury/i.test(P.notes||'')&&P.cat!=='regional'?[['Ferment',Math.max(1,Math.min(5,Math.round(funk*3)))]]:[]);
+  // One line of character, from what stands out most.
+  // Earthy processes (wet-hulled, monsooned, aged) read by their own notes, not as fruit.
+  const earthy=/earth|cedar|spice|tobacco|herb|wood|musty|savoury/i.test(P.notes||'')||P.cat==='regional';
+  const a=acid>.5?'lively acidity':acid<-.2?'low acidity':'gentle acidity',sw=sweet>.8?'lots of sweetness':sweet>.3?'good sweetness':'',bd=body>.9?'a heavy, syrupy body':body>.3?'a round body':body<-.1?'a light, tea-like body':'a medium body';
+  const fk=earthy?'earthy, spicy depth':funk>=1.2?'loud fermented fruit':funk>=.6?'ripe fruit':'';
+  const parts=[fk,a,sw].filter(Boolean),list=parts.length>1?parts.slice(0,-1).join(', ')+' and '+parts[parts.length-1]:parts[0];
+  const head=list[0].toUpperCase()+list.slice(1)+', with '+bd+'.';
+  const notes=[...new Set([...(inf.tasting_notes||[]),...(Vv.notes||[]).slice(0,3),...String(P.notes||'').split(',').map(x=>x.trim()).filter(Boolean)].map(x=>String(x).toLowerCase()))].slice(0,7);
+  const first=t=>String(t||'').split(/(?<=\.)\s/)[0];
+  const from=[o&&o.cup?[(o.flag?o.flag+' ':'')+o.name,o.cup]:null,Vv.cup?[shortName(Vv.name||vName(SC.variety)),Vv.cup]:null,P.char?[shortName(P.name),first(P.char)]:null].filter(Boolean);
+  // How to brew it, in words.
+  const tips=[];
+  tips.push(R==='light'?'Light roast: hotter water and a little more time draw out its sweetness; underdone, it tastes sour.':R==='dark'?'Dark roast: cooler water and a coarser grind keep bitterness down; it extracts quickly.':'Medium roast: middle-of-the-road water and grind keep it balanced; it forgives a lot.');
+  if(earthy)tips.push('Earthy and heavy: a slightly coarser grind and a shorter brew keep it clean instead of muddy.');
+  else if(funk>=1.2)tips.push('Fermented and fruity: brew it gently and on the cool side, so the fruit stays juicy rather than boozy.');
+  else if(funk>=.6)tips.push('Fruity process: keep the pours gentle, and grind a touch coarser than for a washed coffee.');
+  else if(P.cat==='classic'&&/wash/i.test(P.name))tips.push('Washed and clean: a little more agitation and a cone dripper make the most of its clarity.');
+  if(Vp.clarity>=.8)tips.push(shortName(Vv.name||'This variety')+' is delicate: avoid hard stirring, which flattens the florals.');
+  if(body>.9)tips.push('Full-bodied: an immersion brewer (a Switch, Clever or French press) plays to its weight.');else if(clarity>.4)tips.push('Transparent: a cone dripper like the V60 shows off its layers best.');
+  tips.push(age<=7?'Very fresh ('+age+' days off roast): give it a few more days to settle, or bloom a little longer.':age<=30?'In its best weeks ('+age+' days off roast).':'Past its peak ('+age+' days off roast): grind a little finer and brew a little hotter to bring it back.');
+  return{head,meters,notes,from,tips}}
+function beanProfileHTML(){const b=beanProfile();const dots=n=>'<span class="bp-dots" aria-hidden="true">'+[1,2,3,4,5].map(i=>'<i'+(i<=n?' class="on"':'')+'></i>').join('')+'</span>';
+  return '<div class="bprof"><p class="bp-head">'+esc(b.head)+'</p><div class="bp-meters">'+b.meters.map(([k,n])=>'<div class="bp-m"><span>'+k+'</span>'+dots(n)+'</div>').join('')+'</div>'+
+    (b.notes.length?'<h4 class="bp-h">In the cup</h4><div class="chips">'+b.notes.map(n=>'<span class="chip">'+esc(n)+'</span>').join('')+'</div>':'')+
+    (b.from.length?'<h4 class="bp-h">Where it comes from</h4><dl class="bp-from">'+b.from.map(([k,v])=>'<dt>'+esc(k)+'</dt><dd>'+esc(v)+'</dd>').join('')+'</dl>':'')+
+    '<h4 class="bp-h">How to brew it</h4><ul class="bp-tips">'+b.tips.map(t=>'<li>'+esc(t)+'</li>').join('')+'</ul>'+
+    '<p class="hint" style="margin:10px 0 0">For exact grind and water settings on your gear, open it in the dial-in.</p></div>'}
 function renderScan(){
   $('s-origin').value=SC.origin;$('s-process').value=SC.process;$('s-variety').value=SC.variety;$('s-date').value=SC.date||'';$('s-brewer').value=SC.brewer;
   seg('s-roast',[['light','Light'],['medium','Medium'],['dark','Dark']],()=>SC.roast,v=>{SC.roast=v;renderScan()});
@@ -6342,8 +6383,8 @@ function renderScan(){
   $('scan-out').innerHTML='<div id="scan-head"></div>'+(inf?(inf.summary?'<p class="hint">'+esc(inf.summary)+'</p>':'')+(kv.length?'<dl class="kv">'+kv.map(([k,v])=>'<dt>'+k+'</dt><dd>'+esc(v)+'</dd>').join('')+'</dl>':''):'<p class="hint">Scan a bag or fill in the details to get a plan.</p>')+
    // Only an origin on the map opens its page; one off the map is a plain chip.
    '<div class="chips">'+(!o?'':ALLO()[SC.origin]?'<button class="chip" data-o="'+SC.origin+'">'+(o.flag||'')+' '+esc(o.name)+'</button>':'<span class="chip">'+(o.flag||'')+' '+esc(o.name)+'</span>')+vbtn(SC.variety.split(':')[0])+'<span class="chip">'+esc(P.name)+'</span><span class="chip">'+age+' days off roast</span></div>'+
-   '<h3>Recommended brew</h3>'+planHTML(p,c)+
-   '<div class="actions"><button class="btn" id="sc-dial">Brew it in the dial-in</button><button class="btn ghost" id="sc-gallery">Add to the bean gallery</button><button class="btn ghost" id="sc-timer">Start brew timer</button><button class="btn ghost" id="sc-share">Share</button></div>';
+   '<h3>Coffee profile</h3>'+beanProfileHTML()+
+   '<div class="actions"><button class="btn" id="sc-dial">Brew it in the dial-in</button><button class="btn ghost" id="sc-gallery">Add to the bean gallery</button><button class="btn ghost" id="sc-share">Share</button></div>';
   renderScanHead();
   const oc=$('scan-out').querySelector('[data-o]');if(oc)oc.onclick=()=>{showTab('map');selectOrigin(SC.origin,true)};
   $('sc-gallery').onclick=async()=>{let photo=null;if(SFILE&&$('scan-prev').src)try{photo=await shrinkPhoto($('scan-prev').src,900)}catch(e){}
@@ -6352,7 +6393,7 @@ function renderScan(){
     openBeanEditor(null,{name:SC.name||(inf&&plausibleName(inf.coffee_name)?niceName(inf.coffee_name):''),roaster:SC.roaster,origin:SC.origin,process:SC.process,variety:SC.variety,roast:SC.roast,roastDate:SC.date||'',
       flavours:inf&&Array.isArray(inf.tasting_notes)?inf.tasting_notes.join(', ').slice(0,160):'',photo,scan:SC.id||''})};
   $('sc-dial').onclick=()=>{S.bean=okSBean({name:SC.name||scanTitle(SC,SC.info),roaster:SC.roaster,origin:SC.origin,scan:SC.id||''});Object.assign(S,{brewer:p.st.brewer,rec:c.tech,process:c.process,variety:c.variety,roast:c.roast,age:c.age,goal:c.goal,amt:c.amt||'mid',dose:p.r.dose,grinder:p.grinder});showTab('dial');tune('Tuned for this coffee')};
-  $('sc-timer').onclick=()=>openTimer(c.tech,p);$('sc-share').onclick=()=>openShare(scanDoc(p,c));
+  $('sc-share').onclick=()=>openShare(scanDoc(p,c));
   const cp=Object.assign({},SC);save('bb-scan',cp);renderScanList();
 }
 
@@ -6416,7 +6457,7 @@ function logEntryDoc(l){const fl=flOf(l).filter(([id])=>FW.byId[id]);
 function logDoc(){return{title:'My brew log',sub:LOG.length+' brews',file:'brew-log',blocks:LOG.length?LOG.map(l=>({h:(l.coffee||'Untitled')+' - '+l.date,kv:[['Rating',l.stars?l.stars+' / 5':'-'],['Settings',l.settings||'-'],['Predicted',l.pred||'-'],['Notes',l.notes||'-']].concat(flOf(l).length?[['Flavour notes',flText(flOf(l))]]:[])})):[{p:'No brews logged yet.'}]}}
 function scanDoc(p,c){const inf=SC.info||{};const kv=[...(SC.roaster?[['Roastery',SC.roaster]]:[]),['Origin',SC.origin?originName(SC.origin):'Not sure'],['Variety',vName(SC.variety)],['Process',PROCESSES[SC.process].name],['Roast',SC.roast],['Days off roast',String(daysSince(SC.date))]];
   if(inf.producer_or_farm)kv.push(['Producer or farm',inf.producer_or_farm]);if(inf.altitude)kv.push(['Altitude',inf.altitude]);if((inf.tasting_notes||[]).length)kv.push(['Tasting notes',inf.tasting_notes.join(', ')]);
-  const rd=recipeDoc(c.tech,p,c);return{link:rd.link,title:scanTitle(SC,SC.info),sub:'Bean profile and recommended brew',file:'bean-plan',blocks:[{h:'The coffee',kv}].concat(inf.summary?[{p:inf.summary}]:[]).concat([{h:'Recommended: '+RECIPES[c.tech].name,p:''}]).concat(rd.blocks.slice(1))}}
+  const b=beanProfile(),rd=recipeDoc(c.tech,p,c);return{link:rd.link,title:scanTitle(SC,SC.info),sub:'Coffee profile',file:'bean-profile',blocks:[{h:'The coffee',kv}].concat(inf.summary?[{p:inf.summary}]:[]).concat([{h:'Profile',p:b.head},{h:'In the cup',p:b.notes.join(', ')},{h:'Where it comes from',kv:b.from},{h:'How to brew it',list:b.tips}])}}
 
 let SHDOC=null;
 // Where people land from a shared message.
@@ -6740,7 +6781,7 @@ const HUB={explore:[['Where coffee comes from',['map','variety','process','flow'
 const JUMPS={history:[['@The coffee family tree','Family tree'],['@The coffee species','Species'],['@Timeline','Timeline'],['@People who','People'],['@Test yourself','Quiz']],
   guide:[['@Ratio calculator','Ratio calculator'],['@What does it taste like','Fix the taste'],['@The bloom','Bloom'],['@Extraction levers','Extraction'],['@Grinders and brewers','Grinders and brewers'],['@Troubleshoot','Troubleshoot']],
   champs:[['ch-next','Next finals'],['ch-about','The competitions'],['@Timeline','Every champion']],
-  scan:[['@Coffee details','Coffee details'],['@Recommended brew','Brew plan']]};
+  scan:[['@Coffee details','Coffee details'],['@Coffee profile','Profile']]};
 for(const [sec,items] of Object.entries(JUMPS)){const s=$(sec);if(!s)continue;const at=s.querySelector('.lede')||s.querySelector('h2');
   at.insertAdjacentHTML('afterend','<div class="seg filters scrollrow jumpnav" role="navigation" aria-label="On this page">'+items.map(([t,n])=>'<button type="button" data-jump="'+esc(t)+'">'+esc(n)+'</button>').join('')+'</div>')}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-jump]');if(!b)return;const t=b.dataset.jump,sec=b.closest('section');
