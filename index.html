@@ -5875,7 +5875,12 @@ async function ocrWorker(onProgress){OCR_PROGRESS=onProgress;
       throw e}})().catch(e=>{OCR=null;throw e})}
   return OCR}
 // Load a photo once; it is prepared (and turned, if needed) from this.
-function loadImage(file){return new Promise((ok,no)=>{const img=new Image();img.onload=()=>{URL.revokeObjectURL(img.src);ok(img)};img.onerror=()=>no(new Error('image'));img.src=URL.createObjectURL(file)})}
+// A phone camera's photo (often 12 MP or more) is brought down to 2400 px on its long side once, here: still sharp
+// enough for small print, and light enough that reading it doesn't run a phone out of memory or time.
+function loadImage(file){return new Promise((ok,no)=>{const img=new Image();img.onload=()=>{URL.revokeObjectURL(img.src);const M=2400,k=Math.min(1,M/Math.max(img.width,img.height));if(k>=1){ok(img);return}
+  try{const c=document.createElement('canvas');c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);const x=c.getContext('2d');x.imageSmoothingQuality='high';x.drawImage(img,0,0,c.width,c.height);ok(c)}catch(e){ok(img)}};img.onerror=()=>no(new Error('image'));img.src=URL.createObjectURL(file)})}
+// Shut the text reader down, so a scan that was stopped or ran too long can't keep it busy for the next one.
+function resetOcr(){const o=OCR;OCR=null;if(o)o.then(w=>{try{w.terminate()}catch(e){}}).catch(()=>{})}
 // Grey, with the contrast stretched between the darkest and lightest 2% so faded print and shadows read cleanly.
 // Light text on a dark label is flipped to dark on light, which the reader handles far better. rot turns the photo
 // (for bags shot sideways); max is the long side in pixels, big enough that small print stays readable (a small
@@ -5947,6 +5952,8 @@ function textBox(img){const S=Math.min(1,640/Math.max(img.width,img.height)),W=M
   return{x:X0/S,y:Y0/S,w:(X1-X0)/S,h:(Y1-Y0)/S,vertical:cv(cols)>cv(rows)*1.25}}
 function cropTo(img,b){const c=document.createElement('canvas');c.width=Math.round(b.w);c.height=Math.round(b.h);c.getContext('2d').drawImage(img,b.x,b.y,b.w,b.h,0,0,c.width,c.height);return c}
 async function readLabelImage(w,file,onStatus){const photo=await loadImage(file);
+  // The extra readings below are optional: past this budget, the best reading so far is used.
+  const t0=performance.now(),budget=NATIVE?45000:70000,more=()=>performance.now()-t0<budget;
   // Read the writing, not the bag: crop to it when it fills well under half the photo.
   const tb=textBox(photo),small=tb&&tb.w*tb.h<photo.width*photo.height*.5;let img=small?cropTo(photo,tb):photo;
   const read=async c=>{const r=await w.recognize(c),text=r.data.text||'',info=parseLabel(text);return{text,info,conf:r.data.confidence||0,score:readScore(info,r.data.confidence),lines:ocrLines(r,c)}};
@@ -5967,7 +5974,7 @@ async function readLabelImage(w,file,onStatus){const photo=await loadImage(file)
   // in boxes and columns), then read everything found together.
   // A missing origin or process gets both extra readings. A missing variety (many bags never name one) gets only the
   // evened-out one, the cheap fix for glare washing out part of a line.
-  if(gaps(best.info)&&gaps(best.info)<3){onStatus&&onStatus('more');const core=!best.info.origin_key||!best.info.process_key;
+  if(gaps(best.info)&&gaps(best.info)<3&&more()){onStatus&&onStatus('more');const core=!best.info.origin_key||!best.info.process_key;
     const texts=[best.text];for(const [canvas,psm] of [[evenLight(prepCanvas(img,best.rot)),PSM_DEF],...(core?[[prepCanvas(img,best.rot),'11']]:[])]){try{if(psm!==PSM_DEF)await w.setParameters({tessedit_pageseg_mode:psm});const r=await w.recognize(canvas);texts.push(r.data.text||'')}catch(e){}finally{if(psm!==PSM_DEF)try{await w.setParameters({tessedit_pageseg_mode:PSM_DEF})}catch(e){}}}
     const both=texts.join('\n'),info=parseLabel(both,best.geo),sc=readScore(info,0);if(gaps(info)<gaps(best.info)||sc>best.score){const keep=best;best={text:both,info,score:sc,rot:keep.rot,geo:keep.geo};
       // Keep the clean first reading's name and roaster when it had them.
@@ -5975,10 +5982,10 @@ async function readLabelImage(w,file,onStatus){const photo=await loadImage(file)
       // …unless the evened-out reading saw more of the same name ("Nyamas" under glare, "Nyamasheke" after).
       const ev=parseLabel(texts[1]||'').coffee_name,kn=keep.info.coffee_name;if(ev&&(!kn||(fold(ev).startsWith(fold(kn).slice(0,4))&&ev.length>kn.length)))best.info.coffee_name=ev}}
   if(!best.info.origin_key&&!best.info.variety_key&&!best.info.process_key){
-    for(const rot of [90,270,180]){onStatus&&onStatus(rot);const r=await read(prepCanvas(img,rot,1300));if(r.score>best.score+8){r.rot=rot;best=r}}
-    if(best.rot){const r=await readBoth(best.rot);if(r.score>=best.score){r.rot=best.rot;best=r}}}
+    for(const rot of [90,270,180]){if(!more())break;onStatus&&onStatus(rot);const r=await read(prepCanvas(img,rot,1300));if(r.score>best.score+8){r.rot=rot;best=r}}
+    if(best.rot&&more()){const r=await readBoth(best.rot);if(r.score>=best.score){r.rot=best.rot;best=r}}}
   // The crop missed something (a roastery printed far from the label): read the whole photo too and keep the better.
-  if(small&&gaps(best.info)){img=photo;const r=await readBoth(best.rot||0);r.rot=best.rot||0;if(r.geo)r.info=parseLabel(r.text,r.geo);if(gaps(r.info)<gaps(best.info)||(gaps(r.info)===gaps(best.info)&&r.score>best.score))best=r}
+  if(small&&gaps(best.info)&&more()){img=photo;const r=await readBoth(best.rot||0);r.rot=best.rot||0;if(r.geo)r.info=parseLabel(r.text,r.geo);if(gaps(r.info)<gaps(best.info)||(gaps(r.info)===gaps(best.info)&&r.score>best.score))best=r}
   return best}
 const fold=t=>String(t).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[’']/g,"'");
 const reEsc=t=>t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
@@ -6184,10 +6191,14 @@ async function runLocalScan(useImg){
   const st=$('scan-status'),mb=b=>(b/1e6).toFixed(1);let stop;const stopped=new Promise((_,no)=>{stop=()=>no(Object.assign(new Error('cancelled'),{code:'cancelled'}))});stopped.catch(()=>{});
   SCTL={abort:()=>stop()};$('scan-stop').hidden=!useImg;$('scan-go').disabled=true;$('scan-drop').classList.add('scanning');
   st.hidden=false;st.textContent=useImg?'Getting the text reader ready…':'Reading the text…';
+  // A watchdog: if the reader makes no progress for 40 s (once it has started), stop rather than hang.
+  let tick=Date.now(),started=false;const dog=useImg?setInterval(()=>{if(started&&Date.now()-tick>40000){clearInterval(dog);stop2()}},2000):0;let stop2=()=>{};
+  const stalled=new Promise((_,no)=>{stop2=()=>no(Object.assign(new Error('slow'),{code:'slow'}))});stalled.catch(()=>{});
   try{let text=txt,rot=0,j=null;
-    if(useImg){const w=await Promise.race([ocrWorker((status,p,g,t)=>{if(SCTL.done)return;st.textContent=status==='download'?'Downloading the text reader (first time only)… '+mb(g)+' of '+mb(t)+' MB'
+    if(useImg){const w=await Promise.race([ocrWorker((status,p,g,t)=>{if(SCTL.done)return;tick=Date.now();st.textContent=status==='download'?'Downloading the text reader (first time only)… '+mb(g)+' of '+mb(t)+' MB'
           :/recogniz/.test(status)?'Reading the label… '+Math.round(p*100)+'%':'Starting the text reader…'}),stopped]);
-      const res=await Promise.race([withTimeout(readLabelImage(w,SFILE,k=>{if(!SCTL.done)st.textContent=k==='more'?'Looking closer for the rest of the details…':'Trying the photo the other way round…'}),180000,'slow'),stopped]);text=res.text;rot=res.rot||0;j=res.info;$('scan-text').value=text.trim()}
+      started=true;tick=Date.now();
+      const res=await Promise.race([withTimeout(readLabelImage(w,SFILE,k=>{tick=Date.now();if(!SCTL.done)st.textContent=k==='more'?'Looking closer for the rest of the details…':'Trying the photo the other way round…'}),120000,'slow'),stopped,stalled]);text=res.text;rot=res.rot||0;j=res.info;$('scan-text').value=text.trim()}
     // A photo's reading already chose the name and roastery from the type sizes; pasted text is read here.
     if(!j)j=parseLabel(text);if(!j.origin_key&&!j.variety_key&&!j.process_key&&!j.roast_date){st.textContent=useImg?'Couldn’t find coffee details in that photo. Try again with the label filling most of the photo, in sharp focus, or fill in the details below.':'No coffee details found in that text.';return}
     if(rot)await uprightPreview(rot);
@@ -6195,7 +6206,7 @@ async function runLocalScan(useImg){
     st.textContent=(j.confidence==='low'?'Found a few details: ':'Label read: ')+found.join(' · ')+'. Your brew plan is below; adjust anything that looks off.';renderScan();saveScan();toast('Label read');
     // Show the result: it sits below the form, out of sight on a phone.
     setTimeout(()=>{const h=$('scan-head');if(h)scrollTo({top:h.getBoundingClientRect().top+scrollY-90,behavior:RM()?'auto':'smooth'})},250)}
-  catch(e){const c=e&&e.code;st.textContent=c==='cancelled'?'Stopped.'
+  catch(e){const c=e&&e.code;if(useImg&&(c==='cancelled'||c==='slow'))resetOcr();st.textContent=c==='cancelled'?'Stopped.'
       :(c==='download'||c==='stalled'||!navigator.onLine)&&!NATIVE?'The text reader couldn’t download. It needs a connection the first time only; try again on Wi-Fi, or fill in the details below.'
       :c==='download'||c==='stalled'?'The text reader didn’t load on this phone. Check you’re online and try again, or paste the label text below.'
       :c==='start'?'The text reader didn’t start on this phone. Paste the label text below, or fill in the details by hand.'
@@ -6203,7 +6214,7 @@ async function runLocalScan(useImg){
       :'The text reader couldn’t start. Try again, or fill in the details below.';
     // The technical reason, small, so a screenshot of this message shows what failed.
     if(c!=='cancelled'&&OCR_LOG.length)st.insertAdjacentHTML('beforeend','<small class="scan-why">Details: '+esc(OCR_LOG.join(' · '))+'</small>')}
-  finally{if(SCTL)SCTL.done=true;$('scan-stop').hidden=true;$('scan-go').disabled=!SFILE;$('scan-drop').classList.remove('scanning')}}
+  finally{if(dog)clearInterval(dog);if(SCTL)SCTL.done=true;$('scan-stop').hidden=true;$('scan-go').disabled=!SFILE;$('scan-drop').classList.remove('scanning')}}
 // After a sideways photo is read, show it the right way up (the saved thumbnail follows the preview).
 async function uprightPreview(rot){try{const img=await loadImage(SFILE),k=Math.min(1,1200/Math.max(img.width,img.height)),w=img.width*k,h=img.height*k,c=document.createElement('canvas'),side=rot%180!==0;
   c.width=side?h:w;c.height=side?w:h;const x=c.getContext('2d');x.translate(c.width/2,c.height/2);x.rotate(rot*Math.PI/180);x.drawImage(img,-w/2,-h/2,w,h);$('scan-prev').src=c.toDataURL('image/jpeg',.85)}catch(e){}}
