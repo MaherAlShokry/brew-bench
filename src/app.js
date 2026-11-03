@@ -468,7 +468,7 @@ function renderDialRecipe(){const tl=techList(S.brewer),r=dialRec();
     '<div class="dr-meta"><span class="gl">'+esc(goalLabel(S.goal,S.amt))+'</span><span>'+S.dose+'g : '+dp.water+'g · 1:'+rr1(S.ratio)+'</span><span>'+S.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span><span>'+esc(gLabel(S.grinder,S.setting))+'</span><span>'+BREWERS[S.brewer].bloom.label+' '+S.bloom+'s</span></div>'+
     '<div class="dr-cols"><div><h3 style="margin-top:0">Steps</h3>'+pourGraph(dp.steps,dp.water)+stepList(dp.steps)+(r.tip&&r.kind!=='46'?'<p class="hint">'+esc(r.tip)+'</p>':'')+'</div>'+
     '<div><h3 style="margin-top:0">What changed and why</h3><ul class="why">'+(notes.length?notes.map(w=>'<li>'+w+'</li>').join(''):'<li>The recipe as written suits this coffee.</li>')+'</ul></div></div>'+
-    '<div class="actions"><button type="button" class="btn" data-dtimer>Start brew timer</button><button type="button" class="btn ghost" data-dfull>Original recipe</button><button type="button" class="btn ghost" data-dshare>Share</button></div>'}
+    '<div class="actions"><button type="button" class="btn" data-dtimer>Start brew timer</button><button type="button" class="btn ghost" data-dfull>Original recipe</button></div>'}
 function dialTimer(){const dp=dialPlan();if(!dp)return;openTimer(S.rec,{brewer:S.brewer,grinder:S.grinder,set:{[S.grinder]:S.setting},r:{dose:S.dose},water:dp.water,temp:S.temp,steps:dp.steps})}
 // The Beans row under Your coffee: the coffee you picked, or a way to pick one from the gallery.
 // The coffee you picked from your gallery drives the dial-in: its process, variety, roast and region follow the coffee
@@ -487,6 +487,18 @@ function renderDBean(){const el=$('d-bean');if(!el||!window.BEANS_OK)return;cons
       '<button type="button" class="dbean-tx" data-dbpick><b>'+esc(b.name)+'</b><small>'+esc([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · ')||'Tap to change')+'</small></button>'+
       '<button type="button" class="dbean-x" data-dbclear aria-label="Clear the beans">✕</button></div>';hydrateImgs(el)}
   else el.innerHTML=BEANS.length?'<button type="button" class="btn ghost dbean-pick" data-dbpick>'+beanSVG+'Pick from your bean gallery</button>':'<p class="hint" style="margin:0">Add coffees under Beans (or scan a bag) and they show here and on your shared brew cards.</p>'}
+// The four steps of the dial-in each fold to a line saying what's set. Which are open is remembered; at first, the
+// gear is folded (it's always set) and your coffee is folded once you've picked one from your gallery.
+let DSTEPS=load('bb-dsteps',null);
+function dialSteps(){const r=dialRec(),sb=S.bean;
+  const sum={gear:gname(S.grinder)+' · '+BREWERS[S.brewer].name,
+    coffee:[sb?sb.name:'',S.roast[0].toUpperCase()+S.roast.slice(1),shortName(PROCESSES[S.process].name),vName(S.variety)!=='Arabica'?shortName(vName(S.variety)):'',S.age+' days'].filter(Boolean).join(' · '),
+    recipe:r?r.name+' · '+(GOALN[S.goal]||'')+' · '+gfmt(S.dose)+'g':'No recipe: brewing freely',
+    tune:gLabel(S.grinder,S.setting)+' · '+S.temp+'°C · 1:'+(Math.round(S.ratio*10)/10)};
+  for(const k in sum){const el=$('ds-'+k);if(el)el.textContent=sum[k]}
+  document.body.classList.toggle('dial-ready',!!r)}
+function initSteps(){const def={gear:false,coffee:!S.bean,recipe:true,tune:true},st=Object.assign(def,DSTEPS||{});
+  document.querySelectorAll('#dial .dstep').forEach(d=>{d.open=!!st[d.dataset.step];d.addEventListener('toggle',()=>{DSTEPS=Object.assign({},def,DSTEPS||{},{[d.dataset.step]:d.open});save('bb-dsteps',DSTEPS)})})}
 function render(){
   const G=GRINDERS[S.grinder],B=BREWERS[S.brewer];
   grinderSeg('g-grinder',(S.brewer),()=>S.grinder,v=>{if(v!==S.grinder){const was=isTuned();S.setting=swapGrinder(v);S.grinder=v;
@@ -533,6 +545,7 @@ function render(){
   $('o-tips').onclick=e=>{if(e.target.closest('[data-reset-grind]')){S.setting=roundG(S.grinder,baseX(S.grinder,S.brewer));render();toast('Grind reset to '+dial(S.grinder,S.setting))}};
   // The recipe is kept by its key too: its place in the list moves when recipes are added or folded together.
   S.reck=S.rec!=null&&RECIPES[S.rec]?rkey(RECIPES[S.rec]):null;save('bb-state',S);
+  try{dialSteps()}catch(e){}
 }
 function renderCal(){
   $('caltbody').innerHTML=MODEL.filter(LISTED).map(k=>{const b=BREWERS[k];const cell=g=>!canGrind(g,k)?'<td class="hint">n/a</td>':'<td><input type="number" step="1" data-g="'+g+'" data-b="'+k+'" value="'+base(g,k)+'" aria-label="'+GRINDERS[g].name+' clicks, '+esc(b.name)+'"> <span class="hint">'+dial(g,base(g,k))+'</span></td>';return'<tr><td>'+esc(b.name)+'</td>'+MYG.map(cell).join('')+'</tr>'}).join('');
@@ -562,7 +575,7 @@ function initDial(){
   $('i-variety').onchange=e=>{S.variety=effVariety(e.target.value,S.region);retuneIfAuto()};
   $('i-region').onchange=e=>{S.region=e.target.value;S.variety=effVariety(S.variety.split(':')[0],S.region);retuneIfAuto()};
   $('v-about').onclick=()=>openVariety(S.variety.split(':')[0]);
-  renderCal();
+  renderCal();initSteps();
   $('caltbody').oninput=e=>{const i=e.target;if(!i.dataset.g)return;const v=parseFloat(i.value);if(isNaN(v))return;(BASE[i.dataset.g]=BASE[i.dataset.g]||{})[i.dataset.b]=Math.round(v)-gOff(i.dataset.g);(BOFF={},save('bb-base3',BASE));i.nextElementSibling.textContent=dial(i.dataset.g,v);render();renderRecipes();renderGrindMap()};
   $('calreset').onclick=()=>{BASE={};GOFF={};save('bb-goff',GOFF);(BOFF={},save('bb-base3',BASE));renderCal();render();renderRecipes();renderGrindMap();if(BUILT.gear)renderMatch();toast('Calibration reset')};
 }

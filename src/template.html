@@ -1764,6 +1764,19 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .gtabs{position:sticky;top:calc(var(--sa-top,0px) + 64px);z-index:5;margin:14px 0 6px;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:6px;border-radius:var(--r-pill)}
 .gpanel{padding-top:6px}.gpanel>.gsec:first-child,.gpanel>#st-grind:first-child{margin-top:8px}
 .gs-shortcut .btn{white-space:nowrap}
+/* The dial-in in four steps that fold to a one-line summary. */
+.dstep{border-bottom:1px solid var(--line);margin:0 -2px}.dstep:last-of-type{border-bottom:0}
+.dstep>summary{list-style:none;display:flex;align-items:center;gap:12px;padding:14px 2px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.dstep>summary::-webkit-details-marker{display:none}
+.dn{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font:700 .85rem var(--display);background:color-mix(in srgb,var(--cherry) 14%,var(--surface));color:var(--cherry-ink,var(--cherry))}
+.dstep[open] .dn{background:var(--cherry);color:var(--paper)}
+.dst{flex:1;min-width:0;display:flex;flex-direction:column}.dst b{font-family:var(--display);font-size:1.02rem}
+.dst small{color:var(--muted);font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dstep[open] .dst small{display:none}
+.dchev{flex:none;width:9px;height:9px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg) translateY(-3px);transition:transform .2s}
+.dstep[open] .dchev{transform:rotate(-135deg) translateY(-2px)}
+.dstep-in{padding:0 2px 16px}.dstep-in,.dstep-in *{box-sizing:border-box}.dstep-in>.field:first-child{margin-top:0}.dstep-lead{margin:0 0 10px}.dcal-link{margin:14px 0 0}
+body.t-dial.dial-ready .herowrap{display:none}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
@@ -1928,24 +1941,25 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
   <div class="minires" id="minires"><div><b id="mr-v"></b><span id="mr-g"></span></div><div class="gauge mini" aria-hidden="true"><i id="mr-m"></i></div><button type="button" class="mr-play" id="mr-play" hidden aria-label="Start the brew timer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button></div>
   <div class="bench">
     <div class="panel">
-      <div class="field"><div class="lbl">Grinder <button type="button" class="gpick-btn" data-gpick aria-label="Change grinders" title="Change grinders"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l4 4-4 4"/><path d="M3 7h18"/><path d="M7 21l-4-4 4-4"/><path d="M21 17H3"/></svg></button></div><div class="seg" id="g-grinder"></div></div>
+<details class="dstep" data-step="gear" open><summary><span class="dn">1</span><span class="dst"><b>Gear</b><small id="ds-gear"></small></span><span class="dchev" aria-hidden="true"></span></summary><div class="dstep-in">      <div class="field"><div class="lbl">Grinder <button type="button" class="gpick-btn" data-gpick aria-label="Change grinders" title="Change grinders"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l4 4-4 4"/><path d="M3 7h18"/><path d="M7 21l-4-4 4-4"/><path d="M21 17H3"/></svg></button></div><div class="seg" id="g-grinder"></div></div>
       <div class="field"><label for="i-brewer">Brewer</label><select id="i-brewer"></select></div>
-      <h3 class="dsub">Your coffee</h3>
-      <div class="field"><div class="lbl">Beans</div><div id="d-bean"></div></div>
+</div></details>
+<details class="dstep" data-step="coffee" open><summary><span class="dn">2</span><span class="dst"><b>Your coffee</b><small id="ds-coffee"></small></span><span class="dchev" aria-hidden="true"></span></summary><div class="dstep-in">      <div class="field"><div class="lbl">Beans</div><div id="d-bean"></div></div>
       <div class="field"><div class="lbl">Roast</div><div class="seg" id="g-roast"></div></div>
       <div class="field"><label for="i-process">Process</label><select id="i-process"></select></div>
       <div class="field"><label for="i-variety">Variety <button type="button" class="hint" id="v-about" style="background:none;border:0;cursor:pointer;text-decoration:underline">about this variety</button></label><select id="i-variety"></select></div>
       <div class="field"><label for="i-region">Region</label><select id="i-region"></select></div>
       <div class="field"><label for="i-age">Days since roast <span class="num" id="v-age"></span></label><input type="range" id="i-age" min="3" max="60" step="1"></div>
-      <h3 class="dsub">Recipe and target</h3>
-      <div class="field"><label for="i-rec">Recipe <span class="hint" id="v-rec"></span></label><select id="i-rec"></select></div>
+</div></details>
+<details class="dstep" data-step="recipe" open><summary><span class="dn">3</span><span class="dst"><b>Recipe and cup</b><small id="ds-recipe"></small></span><span class="dchev" aria-hidden="true"></span></summary><div class="dstep-in">      <div class="field"><label for="i-rec">Recipe <span class="hint" id="v-rec"></span></label><select id="i-rec"></select></div>
       <div class="recbox" id="d-recbox" hidden>
         <div class="dose-row"><div><div class="lbl">Coffee</div><div class="stepper"><button type="button" id="d-dminus" aria-label="Less coffee">−</button><input id="i-dose" type="number" inputmode="decimal" min="3" max="120" step="0.5" aria-label="Coffee in grams"><span>g</span><button type="button" id="d-dplus" aria-label="More coffee">+</button></div></div>
           <div><div class="lbl">Water</div><b class="dose-w" id="v-water"></b></div></div>
         <div class="lbl" style="margin-top:12px">Target cup <span class="hint">the recipe adapts to it</span></div><div class="seg filters goalseg" id="g-goal"></div><p class="hint gdesc" id="g-gdesc"></p><div class="amtrow" id="g-amtrow"><span class="lbl">How much</span><div class="seg" id="g-amt"></div></div><div class="fit" id="g-fit" hidden aria-live="polite"></div>
         <p class="hint tuneline" id="d-tuned"></p>
       </div>
-      <h3 class="dsub">Settings <span class="hint">tuned for you, adjust by taste</span></h3>
+</div></details>
+<details class="dstep" data-step="tune" open><summary><span class="dn">4</span><span class="dst"><b>Fine-tune</b><small id="ds-tune"></small></span><span class="dchev" aria-hidden="true"></span></summary><div class="dstep-in"><p class="hint dstep-lead">Tuned for your coffee and target. Adjust by taste.</p>
       <div class="field"><label for="i-grind">Grind <span><span class="num" id="v-grind"></span> <span class="hint" id="v-grindhint"></span></span></label><input type="range" id="i-grind"><div class="dialrow"><svg id="dialsvg" class="dialmini" viewBox="0 0 160 160" aria-hidden="true"></svg><p class="hint" style="margin:0">Dials read number.click. Tap <b>Gear and dials</b> for how each grinder works.</p></div><p class="hint equiv" id="v-equiv"></p></div>
       <div class="two">
         <div class="field"><label for="i-temp">Water <span class="num" id="v-temp"></span></label><input type="range" id="i-temp" min="85" max="100" step="1"></div>
@@ -1953,12 +1967,14 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
       </div>
       <div class="field"><label for="i-bloom">Bloom <span class="num" id="v-bloom"></span></label><input type="range" id="i-bloom" min="20" max="180" step="5"></div>
       <div class="field"><div class="lbl">Agitation <span class="hint">pour force, swirls, stirs</span></div><div class="seg" id="g-agit"></div></div>
-      <details class="cal">
+      <p class="hint dcal-link">Grinder runs finer or coarser than the app expects? <button type="button" class="linkbtn" data-gearto="set">Set it in Grind settings</button>.</p>
+      <div hidden>      <div class="cal">
         <summary>Calibrate to your grinders</summary>
         <p class="hint">Enter, in clicks from zero, the setting that gives you a balanced cup on each brewer. The dial reading shows beside each box. Predictions and recipe grinds are measured from these.</p>
         <table class="caltable"><thead><tr id="calhead"><th>Brewer</th></tr></thead><tbody id="caltbody"></tbody></table>
         <div class="actions"><button class="btn ghost" id="calreset">Reset to defaults</button></div>
-      </details>
+</div></div></div></details>
+
     </div>
     <div class="stick">
       <div class="panel">
@@ -1968,7 +1984,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
         <div class="gscale"><span>Under</span><span>Sweet spot</span><span>Over</span></div>
         <div class="bars" id="o-bars"></div>
         <div class="notes"><h3 style="margin-top:0">Likely in the cup</h3><div class="chips" id="o-chips"></div><div id="o-tips"></div></div>
-        <div class="actions"><button class="btn" id="tolog">Log this brew</button><button class="btn ghost" id="tosave">Save as recipe</button><button class="btn ghost" id="dial-share">Share this brew</button></div>
+        <div class="actions"><button class="btn" id="tolog">Log this brew</button><button class="btn ghost" id="tosave">Save as recipe</button><button class="btn ghost" id="dial-share" hidden>Share this brew</button></div>
         <p class="disclaim">An estimate from brewing rules of thumb, not a measurement. Beans, water and freshness move things more than any model can. Taste wins.</p>
       </div>
     </div>

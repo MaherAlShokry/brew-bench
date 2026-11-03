@@ -1765,6 +1765,19 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .gtabs{position:sticky;top:calc(var(--sa-top,0px) + 64px);z-index:5;margin:14px 0 6px;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:6px;border-radius:var(--r-pill)}
 .gpanel{padding-top:6px}.gpanel>.gsec:first-child,.gpanel>#st-grind:first-child{margin-top:8px}
 .gs-shortcut .btn{white-space:nowrap}
+/* The dial-in in four steps that fold to a one-line summary. */
+.dstep{border-bottom:1px solid var(--line);margin:0 -2px}.dstep:last-of-type{border-bottom:0}
+.dstep>summary{list-style:none;display:flex;align-items:center;gap:12px;padding:14px 2px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.dstep>summary::-webkit-details-marker{display:none}
+.dn{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font:700 .85rem var(--display);background:color-mix(in srgb,var(--cherry) 14%,var(--surface));color:var(--cherry-ink,var(--cherry))}
+.dstep[open] .dn{background:var(--cherry);color:var(--paper)}
+.dst{flex:1;min-width:0;display:flex;flex-direction:column}.dst b{font-family:var(--display);font-size:1.02rem}
+.dst small{color:var(--muted);font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dstep[open] .dst small{display:none}
+.dchev{flex:none;width:9px;height:9px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg) translateY(-3px);transition:transform .2s}
+.dstep[open] .dchev{transform:rotate(-135deg) translateY(-2px)}
+.dstep-in{padding:0 2px 16px}.dstep-in,.dstep-in *{box-sizing:border-box}.dstep-in>.field:first-child{margin-top:0}.dstep-lead{margin:0 0 10px}.dcal-link{margin:14px 0 0}
+body.t-dial.dial-ready .herowrap{display:none}
 </style>
 <script>const JSPDF_SRC="vendor/jspdf.umd.min.js"</script>
 <link rel="manifest" href="manifest.webmanifest">
@@ -1932,24 +1945,25 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
   <div class="minires" id="minires"><div><b id="mr-v"></b><span id="mr-g"></span></div><div class="gauge mini" aria-hidden="true"><i id="mr-m"></i></div><button type="button" class="mr-play" id="mr-play" hidden aria-label="Start the brew timer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button></div>
   <div class="bench">
     <div class="panel">
-      <div class="field"><div class="lbl">Grinder <button type="button" class="gpick-btn" data-gpick aria-label="Change grinders" title="Change grinders"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l4 4-4 4"/><path d="M3 7h18"/><path d="M7 21l-4-4 4-4"/><path d="M21 17H3"/></svg></button></div><div class="seg" id="g-grinder"></div></div>
+<details class="dstep" data-step="gear" open><summary><span class="dn">1</span><span class="dst"><b>Gear</b><small id="ds-gear"></small></span><span class="dchev" aria-hidden="true"></span></summary><div class="dstep-in">      <div class="field"><div class="lbl">Grinder <button type="button" class="gpick-btn" data-gpick aria-label="Change grinders" title="Change grinders"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l4 4-4 4"/><path d="M3 7h18"/><path d="M7 21l-4-4 4-4"/><path d="M21 17H3"/></svg></button></div><div class="seg" id="g-grinder"></div></div>
       <div class="field"><label for="i-brewer">Brewer</label><select id="i-brewer"></select></div>
-      <h3 class="dsub">Your coffee</h3>
-      <div class="field"><div class="lbl">Beans</div><div id="d-bean"></div></div>
+</div></details>
+<details class="dstep" data-step="coffee" open><summary><span class="dn">2</span><span class="dst"><b>Your coffee</b><small id="ds-coffee"></small></span><span class="dchev" aria-hidden="true"></span></summary><div class="dstep-in">      <div class="field"><div class="lbl">Beans</div><div id="d-bean"></div></div>
       <div class="field"><div class="lbl">Roast</div><div class="seg" id="g-roast"></div></div>
       <div class="field"><label for="i-process">Process</label><select id="i-process"></select></div>
       <div class="field"><label for="i-variety">Variety <button type="button" class="hint" id="v-about" style="background:none;border:0;cursor:pointer;text-decoration:underline">about this variety</button></label><select id="i-variety"></select></div>
       <div class="field"><label for="i-region">Region</label><select id="i-region"></select></div>
       <div class="field"><label for="i-age">Days since roast <span class="num" id="v-age"></span></label><input type="range" id="i-age" min="3" max="60" step="1"></div>
-      <h3 class="dsub">Recipe and target</h3>
-      <div class="field"><label for="i-rec">Recipe <span class="hint" id="v-rec"></span></label><select id="i-rec"></select></div>
+</div></details>
+<details class="dstep" data-step="recipe" open><summary><span class="dn">3</span><span class="dst"><b>Recipe and cup</b><small id="ds-recipe"></small></span><span class="dchev" aria-hidden="true"></span></summary><div class="dstep-in">      <div class="field"><label for="i-rec">Recipe <span class="hint" id="v-rec"></span></label><select id="i-rec"></select></div>
       <div class="recbox" id="d-recbox" hidden>
         <div class="dose-row"><div><div class="lbl">Coffee</div><div class="stepper"><button type="button" id="d-dminus" aria-label="Less coffee">−</button><input id="i-dose" type="number" inputmode="decimal" min="3" max="120" step="0.5" aria-label="Coffee in grams"><span>g</span><button type="button" id="d-dplus" aria-label="More coffee">+</button></div></div>
           <div><div class="lbl">Water</div><b class="dose-w" id="v-water"></b></div></div>
         <div class="lbl" style="margin-top:12px">Target cup <span class="hint">the recipe adapts to it</span></div><div class="seg filters goalseg" id="g-goal"></div><p class="hint gdesc" id="g-gdesc"></p><div class="amtrow" id="g-amtrow"><span class="lbl">How much</span><div class="seg" id="g-amt"></div></div><div class="fit" id="g-fit" hidden aria-live="polite"></div>
         <p class="hint tuneline" id="d-tuned"></p>
       </div>
-      <h3 class="dsub">Settings <span class="hint">tuned for you, adjust by taste</span></h3>
+</div></details>
+<details class="dstep" data-step="tune" open><summary><span class="dn">4</span><span class="dst"><b>Fine-tune</b><small id="ds-tune"></small></span><span class="dchev" aria-hidden="true"></span></summary><div class="dstep-in"><p class="hint dstep-lead">Tuned for your coffee and target. Adjust by taste.</p>
       <div class="field"><label for="i-grind">Grind <span><span class="num" id="v-grind"></span> <span class="hint" id="v-grindhint"></span></span></label><input type="range" id="i-grind"><div class="dialrow"><svg id="dialsvg" class="dialmini" viewBox="0 0 160 160" aria-hidden="true"></svg><p class="hint" style="margin:0">Dials read number.click. Tap <b>Gear and dials</b> for how each grinder works.</p></div><p class="hint equiv" id="v-equiv"></p></div>
       <div class="two">
         <div class="field"><label for="i-temp">Water <span class="num" id="v-temp"></span></label><input type="range" id="i-temp" min="85" max="100" step="1"></div>
@@ -1957,12 +1971,14 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
       </div>
       <div class="field"><label for="i-bloom">Bloom <span class="num" id="v-bloom"></span></label><input type="range" id="i-bloom" min="20" max="180" step="5"></div>
       <div class="field"><div class="lbl">Agitation <span class="hint">pour force, swirls, stirs</span></div><div class="seg" id="g-agit"></div></div>
-      <details class="cal">
+      <p class="hint dcal-link">Grinder runs finer or coarser than the app expects? <button type="button" class="linkbtn" data-gearto="set">Set it in Grind settings</button>.</p>
+      <div hidden>      <div class="cal">
         <summary>Calibrate to your grinders</summary>
         <p class="hint">Enter, in clicks from zero, the setting that gives you a balanced cup on each brewer. The dial reading shows beside each box. Predictions and recipe grinds are measured from these.</p>
         <table class="caltable"><thead><tr id="calhead"><th>Brewer</th></tr></thead><tbody id="caltbody"></tbody></table>
         <div class="actions"><button class="btn ghost" id="calreset">Reset to defaults</button></div>
-      </details>
+</div></div></div></details>
+
     </div>
     <div class="stick">
       <div class="panel">
@@ -1972,7 +1988,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
         <div class="gscale"><span>Under</span><span>Sweet spot</span><span>Over</span></div>
         <div class="bars" id="o-bars"></div>
         <div class="notes"><h3 style="margin-top:0">Likely in the cup</h3><div class="chips" id="o-chips"></div><div id="o-tips"></div></div>
-        <div class="actions"><button class="btn" id="tolog">Log this brew</button><button class="btn ghost" id="tosave">Save as recipe</button><button class="btn ghost" id="dial-share">Share this brew</button></div>
+        <div class="actions"><button class="btn" id="tolog">Log this brew</button><button class="btn ghost" id="tosave">Save as recipe</button><button class="btn ghost" id="dial-share" hidden>Share this brew</button></div>
         <p class="disclaim">An estimate from brewing rules of thumb, not a measurement. Beans, water and freshness move things more than any model can. Taste wins.</p>
       </div>
     </div>
@@ -4550,7 +4566,7 @@ function renderDialRecipe(){const tl=techList(S.brewer),r=dialRec();
     '<div class="dr-meta"><span class="gl">'+esc(goalLabel(S.goal,S.amt))+'</span><span>'+S.dose+'g : '+dp.water+'g · 1:'+rr1(S.ratio)+'</span><span>'+S.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span><span>'+esc(gLabel(S.grinder,S.setting))+'</span><span>'+BREWERS[S.brewer].bloom.label+' '+S.bloom+'s</span></div>'+
     '<div class="dr-cols"><div><h3 style="margin-top:0">Steps</h3>'+pourGraph(dp.steps,dp.water)+stepList(dp.steps)+(r.tip&&r.kind!=='46'?'<p class="hint">'+esc(r.tip)+'</p>':'')+'</div>'+
     '<div><h3 style="margin-top:0">What changed and why</h3><ul class="why">'+(notes.length?notes.map(w=>'<li>'+w+'</li>').join(''):'<li>The recipe as written suits this coffee.</li>')+'</ul></div></div>'+
-    '<div class="actions"><button type="button" class="btn" data-dtimer>Start brew timer</button><button type="button" class="btn ghost" data-dfull>Original recipe</button><button type="button" class="btn ghost" data-dshare>Share</button></div>'}
+    '<div class="actions"><button type="button" class="btn" data-dtimer>Start brew timer</button><button type="button" class="btn ghost" data-dfull>Original recipe</button></div>'}
 function dialTimer(){const dp=dialPlan();if(!dp)return;openTimer(S.rec,{brewer:S.brewer,grinder:S.grinder,set:{[S.grinder]:S.setting},r:{dose:S.dose},water:dp.water,temp:S.temp,steps:dp.steps})}
 // The Beans row under Your coffee: the coffee you picked, or a way to pick one from the gallery.
 // The coffee you picked from your gallery drives the dial-in: its process, variety, roast and region follow the coffee
@@ -4569,6 +4585,18 @@ function renderDBean(){const el=$('d-bean');if(!el||!window.BEANS_OK)return;cons
       '<button type="button" class="dbean-tx" data-dbpick><b>'+esc(b.name)+'</b><small>'+esc([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · ')||'Tap to change')+'</small></button>'+
       '<button type="button" class="dbean-x" data-dbclear aria-label="Clear the beans">✕</button></div>';hydrateImgs(el)}
   else el.innerHTML=BEANS.length?'<button type="button" class="btn ghost dbean-pick" data-dbpick>'+beanSVG+'Pick from your bean gallery</button>':'<p class="hint" style="margin:0">Add coffees under Beans (or scan a bag) and they show here and on your shared brew cards.</p>'}
+// The four steps of the dial-in each fold to a line saying what's set. Which are open is remembered; at first, the
+// gear is folded (it's always set) and your coffee is folded once you've picked one from your gallery.
+let DSTEPS=load('bb-dsteps',null);
+function dialSteps(){const r=dialRec(),sb=S.bean;
+  const sum={gear:gname(S.grinder)+' · '+BREWERS[S.brewer].name,
+    coffee:[sb?sb.name:'',S.roast[0].toUpperCase()+S.roast.slice(1),shortName(PROCESSES[S.process].name),vName(S.variety)!=='Arabica'?shortName(vName(S.variety)):'',S.age+' days'].filter(Boolean).join(' · '),
+    recipe:r?r.name+' · '+(GOALN[S.goal]||'')+' · '+gfmt(S.dose)+'g':'No recipe: brewing freely',
+    tune:gLabel(S.grinder,S.setting)+' · '+S.temp+'°C · 1:'+(Math.round(S.ratio*10)/10)};
+  for(const k in sum){const el=$('ds-'+k);if(el)el.textContent=sum[k]}
+  document.body.classList.toggle('dial-ready',!!r)}
+function initSteps(){const def={gear:false,coffee:!S.bean,recipe:true,tune:true},st=Object.assign(def,DSTEPS||{});
+  document.querySelectorAll('#dial .dstep').forEach(d=>{d.open=!!st[d.dataset.step];d.addEventListener('toggle',()=>{DSTEPS=Object.assign({},def,DSTEPS||{},{[d.dataset.step]:d.open});save('bb-dsteps',DSTEPS)})})}
 function render(){
   const G=GRINDERS[S.grinder],B=BREWERS[S.brewer];
   grinderSeg('g-grinder',(S.brewer),()=>S.grinder,v=>{if(v!==S.grinder){const was=isTuned();S.setting=swapGrinder(v);S.grinder=v;
@@ -4615,6 +4643,7 @@ function render(){
   $('o-tips').onclick=e=>{if(e.target.closest('[data-reset-grind]')){S.setting=roundG(S.grinder,baseX(S.grinder,S.brewer));render();toast('Grind reset to '+dial(S.grinder,S.setting))}};
   // The recipe is kept by its key too: its place in the list moves when recipes are added or folded together.
   S.reck=S.rec!=null&&RECIPES[S.rec]?rkey(RECIPES[S.rec]):null;save('bb-state',S);
+  try{dialSteps()}catch(e){}
 }
 function renderCal(){
   $('caltbody').innerHTML=MODEL.filter(LISTED).map(k=>{const b=BREWERS[k];const cell=g=>!canGrind(g,k)?'<td class="hint">n/a</td>':'<td><input type="number" step="1" data-g="'+g+'" data-b="'+k+'" value="'+base(g,k)+'" aria-label="'+GRINDERS[g].name+' clicks, '+esc(b.name)+'"> <span class="hint">'+dial(g,base(g,k))+'</span></td>';return'<tr><td>'+esc(b.name)+'</td>'+MYG.map(cell).join('')+'</tr>'}).join('');
@@ -4644,7 +4673,7 @@ function initDial(){
   $('i-variety').onchange=e=>{S.variety=effVariety(e.target.value,S.region);retuneIfAuto()};
   $('i-region').onchange=e=>{S.region=e.target.value;S.variety=effVariety(S.variety.split(':')[0],S.region);retuneIfAuto()};
   $('v-about').onclick=()=>openVariety(S.variety.split(':')[0]);
-  renderCal();
+  renderCal();initSteps();
   $('caltbody').oninput=e=>{const i=e.target;if(!i.dataset.g)return;const v=parseFloat(i.value);if(isNaN(v))return;(BASE[i.dataset.g]=BASE[i.dataset.g]||{})[i.dataset.b]=Math.round(v)-gOff(i.dataset.g);(BOFF={},save('bb-base3',BASE));i.nextElementSibling.textContent=dial(i.dataset.g,v);render();renderRecipes();renderGrindMap()};
   $('calreset').onclick=()=>{BASE={};GOFF={};save('bb-goff',GOFF);(BOFF={},save('bb-base3',BASE));renderCal();render();renderRecipes();renderGrindMap();if(BUILT.gear)renderMatch();toast('Calibration reset')};
 }
