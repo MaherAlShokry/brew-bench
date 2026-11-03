@@ -331,22 +331,17 @@ function strength(st){const B=BREWERS[st.brewer];if(B.ratio.ref<5)return st.rati
 function mix(a,b,t){const p=x=>[1,3,5].map(i=>parseInt(x.slice(i,i+2),16));const A=p(a),B=p(b);return'rgb('+A.map((v,i)=>Math.round(v+(B[i]-v)*t)).join(',')+')'}
 function liquid(D){const x=clamp(D,-2,2);const st=['#D9B35A','#C98A3E','#7A4524','#4A2A18','#1E120B'];const pos=x+2;const i=Math.min(3,Math.floor(pos));return mix(st[i],st[i+1],pos-i)}
 function drawCup(r){
-  // Cup on a saucer, seen from above; the flavour radar floats on the coffee and the labels sit outside the saucer.
-  const ax=[['Sweetness',r.sweet],['Acidity',r.acid],['Body',r.body],['Clarity',r.clarity],['Bitterness',r.bitter]];
-  const cx=210,cy=172,R=64,ang=i=>-Math.PI/2+i*2*Math.PI/5,pt=(i,v)=>[cx+Math.cos(ang(i))*R*v/10,cy+Math.sin(ang(i))*R*v/10];
-  const poly=v=>ax.map((a,i)=>pt(i,v==null?a[1]:v).map(n=>n.toFixed(1)).join(',')).join(' ');
-  let g='';for(const k of[2.5,5,7.5,10])g+='<polygon points="'+poly(k)+'" fill="none" stroke="rgba(255,255,255,'+(k===10?.3:.16)+')"/>';
-  g+=ax.map((_,i)=>{const p=pt(i,10);return'<line x1="'+cx+'" y1="'+cy+'" x2="'+p[0].toFixed(1)+'" y2="'+p[1].toFixed(1)+'" stroke="rgba(255,255,255,.16)"/>'}).join('');
-  // Top and bottom labels read on one line; the side labels stack the score under the name.
-  // Labels sit well outside the saucer: the top one centred, the sides stacked, the bottom two aligned away from the saucer.
-  const lab=ax.map((a,i)=>{const an=ang(i),x=(cx+Math.cos(an)*134).toFixed(1),y=cy+Math.sin(an)*134,side=Math.abs(Math.cos(an))>0.6,
-      anchor=i===0?'middle':Math.cos(an)>0?'start':'end',v='<tspan font-weight="800" fill="var(--cherry)">'+a[1].toFixed(1)+'</tspan>',T=(yy,s)=>'<text x="'+x+'" y="'+yy.toFixed(1)+'" text-anchor="'+anchor+'" font-size="14" font-weight="600" fill="var(--ink)">'+s+'</text>';
-    return side?T(y-3,a[0])+T(y+15,v):T(y+(i===0?-2:14),a[0]+'  '+v)}).join('');
-  $('cup').innerHTML='<circle cx="'+cx+'" cy="'+cy+'" r="106" fill="var(--surface2)"/><circle cx="'+cx+'" cy="'+cy+'" r="88" fill="var(--paper)" stroke="var(--line)" stroke-width="2"/>'+
-   '<circle cx="'+cx+'" cy="'+cy+'" r="79" fill="'+liquid(r.D)+'" style="transition:fill .4s ease"/><circle cx="'+cx+'" cy="'+cy+'" r="79" fill="none" stroke="rgba(255,235,200,.35)" stroke-width="3"/>'+g+
-   '<polygon points="'+poly()+'" fill="none" stroke="rgba(30,18,11,.35)" stroke-width="5" stroke-linejoin="round"/>'+
-   '<polygon points="'+poly()+'" fill="rgba(255,245,225,.32)" stroke="#FFF3DD" stroke-width="2.5" stroke-linejoin="round"/>'+
-   ax.map((a,i)=>{const p=pt(i,a[1]);return'<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="4" fill="#FFF3DD" stroke="rgba(30,18,11,.35)"/>'}).join('')+lab;
+  // The same cup as a scanned coffee's profile: seen from above, its coffee coloured by the extraction (pale when under,
+  // dark when over), the predicted cup drawn as crema on top, one dot per trait in its own colour. The scores sit below.
+  const ax=[['Sweetness',r.sweet,'sweet'],['Acidity',r.acid,'acid'],['Body',r.body,'body'],['Clarity',r.clarity,'clar'],['Bitterness',r.bitter,'bitt']];
+  const c=60,R=40,n=ax.length,pt=(i,v)=>{const a=-Math.PI/2+i*2*Math.PI/n,rr=R*(.12+.88*clamp(v,0,10)/10);return [c+Math.cos(a)*rr,c+Math.sin(a)*rr]};
+  const ring=f=>ax.map((_,i)=>{const a=-Math.PI/2+i*2*Math.PI/n;return (c+Math.cos(a)*R*f).toFixed(1)+','+(c+Math.sin(a)*R*f).toFixed(1)}).join(' ');
+  const poly=ax.map((a,i)=>pt(i,a[1]).map(x=>x.toFixed(1)).join(',')).join(' ');
+  $('cup').setAttribute('viewBox','0 0 132 120');
+  $('cup').setAttribute('aria-label','Estimated cup: '+ax.map(a=>a[0].toLowerCase()+' '+a[1].toFixed(1)+' of 10').join(', '));
+  $('cup').innerHTML='<ellipse class="cs-saucer" cx="60" cy="60" rx="58" ry="58"/><path class="cs-handle" d="M112 50c14 0 14 20 0 20"/><circle class="cs-rim" cx="60" cy="60" r="50"/>'+
+    '<circle cx="60" cy="60" r="45" fill="'+liquid(r.D)+'" style="transition:fill .4s ease"/>'+[.5,1].map(f=>'<polygon class="cs-g" points="'+ring(f)+'"/>').join('')+
+    '<polygon class="cs-crema" points="'+poly+'"/>'+ax.map((a,i)=>{const [x,y]=pt(i,a[1]);return '<circle class="cs-dot t-'+a[2]+'" cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3.6"/>'}).join('');
 }
 function drawDial(id,g,c){
   const G=GRINDERS[g],svg=$(id);if(!svg)return;c=Math.round(c);
@@ -519,8 +514,8 @@ function render(){
   $('i-brewer').value=S.brewer;$('i-process').value=S.process;$('i-variety').value=S.variety.split(':')[0];$('i-region').value=S.region;$('i-age').value=S.age;$('v-age').textContent=S.age+' days';
   const [vt,vs]=verdict(r.D);$('o-verdict').textContent=vt;$('mr-v').textContent=vt;$('mr-g').textContent=gLabel(S.grinder,S.setting)+', '+S.temp+'°C, 1:'+rr1(S.ratio);$('mr-m').style.left=((clamp(r.D,-2.5,2.5)+2.5)/5*100)+'%';$('o-summary').textContent=vs+' '+strength(S)+'.';
   $('o-marker').style.left=((clamp(r.D,-2.5,2.5)+2.5)/5*100)+'%';
-  $('o-bars').innerHTML=[['Sweetness',r.sweet],['Acidity',r.acid],['Body',r.body],['Clarity',r.clarity],['Bitterness',r.bitter,'bitter']]
-    .map(([n,v,c])=>'<div class="bar '+(c||'')+'"><span>'+n+'</span><div class="t"><b style="width:'+(v*10)+'%"></b></div><span class="num" style="font-size:.9rem">'+v.toFixed(1)+'</span></div>').join('');
+  $('o-bars').innerHTML=[['Sweetness',r.sweet,'sweet'],['Acidity',r.acid,'acid'],['Body',r.body,'body'],['Clarity',r.clarity,'clar'],['Bitterness',r.bitter,'bitt']]
+    .map(([n,v,c])=>'<div class="bar tbar t-'+c+(c==='bitt'?' bitter':'')+'"><i class="tdot" aria-hidden="true"></i><span>'+n+'</span><div class="t"><b style="width:'+(v*10)+'%"></b></div><span class="num">'+v.toFixed(1)+'</span></div>').join('');
   drawCup(r);
   const P=PROCESSES[S.process];
   $('o-chips').innerHTML=cupNotes(S,r).map(c=>'<span class="chip">'+esc(c)+'</span>').join('');
