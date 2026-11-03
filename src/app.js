@@ -2878,11 +2878,12 @@ const WISDOM=[['Grind fresh, brew slow, taste twice.'],['The best grinder is the
   ['Buna dabo naw: coffee is our bread.','Ethiopian saying']];
 function welcomeHTML(when){const d=when||new Date(),h=d.getHours(),t=h<5?'night':h<12?'morning':h<17?'day':h<22?'evening':'night';
   const hi={morning:['☀️','Good morning'],day:['☕','Good afternoon'],evening:['🌙','Good evening'],night:['✨','Late-night brew']}[t];
-  const nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick||ME||'',day=Math.floor((d.getTime()-d.getTimezoneOffset()*6e4)/864e5),i=((day+WOFF)%WISDOM.length+WISDOM.length)%WISDOM.length,[q,by]=WISDOM[i];
-  return{t,html:'<span class="wl-ic" aria-hidden="true">'+hi[0]+'</span><span class="wl-tx"><span class="wl-hi">'+hi[1]+(nick?', <em>'+esc(nick)+'</em>':'')+'</span><span class="wl-q">\u201c'+esc(q)+'\u201d'+(by?'<small class="wl-by">'+esc(by)+'</small>':'')+'</span></span>'}}
-let WOFF=0;
-function renderWelcome(bump){const el=$('welcome');if(!el)return;if(bump)WOFF++;const w=welcomeHTML();el.className='welcome t-'+w.t+(bump?' wl-in':'');el.innerHTML=w.html;el.setAttribute('aria-label',el.textContent.trim()+'. Tap for another line of coffee wisdom.')}
-$('welcome').onclick=()=>renderWelcome(true);renderWelcome();
+  // One line a day, the same all day.
+  const nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick||ME||'',day=Math.floor((d.getTime()-d.getTimezoneOffset()*6e4)/864e5),[q,by]=WISDOM[((day*7)%WISDOM.length+WISDOM.length)%WISDOM.length];
+  return{t,html:'<div class="wl-top"><span class="wl-ic" aria-hidden="true">'+hi[0]+'</span><div><h2 class="wl-hi">'+hi[1]+(nick?', <em>'+esc(nick)+'</em>':'')+'</h2><span class="wl-date">'+esc(d.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'}))+'</span></div></div>'+
+    '<span class="wl-k">Today\u2019s coffee wisdom</span><p class="wl-q">'+esc(q)+(by?'<small class="wl-by">'+esc(by)+'</small>':'')+'</p>'}}
+function renderWelcome(){const el=$('welcome');if(!el)return;const w=welcomeHTML();el.innerHTML=w.html}
+renderWelcome();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)renderWelcome()});
 /* ================= INIT ================= */
 // Drawings that loop (the pour on the Dial-in page) pause while they're out of sight, so the phone isn't redrawing
