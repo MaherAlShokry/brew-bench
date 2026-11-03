@@ -1209,8 +1209,6 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .hubcard .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none;margin-bottom:4px}.hubcard .ic svg{width:22px;height:22px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .hubcard b{font-family:var(--display);font-size:1rem;line-height:1.2}.hubcard small{color:var(--muted);font-size:.82rem;line-height:1.35}
 .hubcard .hn{position:absolute;top:14px;right:14px;font-size:.74rem;font-weight:700;color:var(--muted);background:var(--surface2);border-radius:99px;padding:2px 8px}
-.wotd{display:block;width:100%;text-align:left;border:0;border-radius:20px;padding:16px 18px;margin:4px 0 6px;color:#fff;cursor:pointer;font:inherit;background:linear-gradient(135deg,#9A7390,#5E4057)}
-.wotd small{display:block;font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;opacity:.85;font-weight:700}.wotd b{display:block;font-family:var(--display);font-size:1.3rem;margin:4px 0}.wotd span{display:block;font-size:.9rem;line-height:1.45;opacity:.95;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .morelist{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
 .morelist>div,.morelist>button{display:flex;align-items:center;gap:12px;width:100%;padding:14px 16px;border:0;background:none;color:var(--ink);font:inherit;text-align:left}
 .morelist>*+*{border-top:1px solid var(--line)}.morelist>button{cursor:pointer}.morelist .ic{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;flex:none}.morelist .ic svg{width:20px;height:20px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
@@ -1827,6 +1825,19 @@ body.t-dial.dial-ready .herowrap{display:none}
 .acl[hidden]{display:none}
 .aco{padding:11px 12px;border-radius:10px;cursor:pointer;color:var(--ink);font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .aco:hover,.aco[aria-selected="true"]{background:var(--surface2)}
+/* Explore's "Today in coffee": the panel the app uses everywhere, two rows with the hub tiles' icons. */
+.today{padding:14px 14px 6px;margin:4px 0 8px}
+.td-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:2px 4px 8px}
+.td-head h2{margin:0;font:700 1.08rem/1.2 var(--display);color:var(--ink)}.td-head span{font-size:.8rem;color:var(--muted);white-space:nowrap}
+.td-row{display:flex;align-items:flex-start;gap:12px;width:100%;padding:12px 4px;border:0;border-top:1px solid var(--line);background:none;color:var(--ink);font:inherit;text-align:left;cursor:pointer;border-radius:0}
+.td-row .ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex:none;margin-top:2px}
+.td-row .ic svg{width:20px;height:20px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.td-t{flex:1;min-width:0;display:grid;gap:2px}
+.td-t small{display:flex;align-items:center;gap:6px;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.td-t b{font:700 1.02rem/1.3 var(--display);color:var(--ink)}
+.td-t>span{font-size:.9rem;line-height:1.5;color:color-mix(in srgb,var(--ink) 78%,var(--muted))}
+.td-go{flex:none;width:18px;height:18px;margin-top:12px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.td-row:active{background:color-mix(in srgb,var(--ink) 4%,transparent)}
 /* The welcome on Brew: a card like the others, with a greeting and the day's line of coffee wisdom. */
 .welcome{margin:0 0 12px;padding:16px 18px}
 .wl-top{display:flex;align-items:center;gap:12px}

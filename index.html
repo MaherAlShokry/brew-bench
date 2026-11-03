@@ -1210,8 +1210,6 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .hubcard .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none;margin-bottom:4px}.hubcard .ic svg{width:22px;height:22px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .hubcard b{font-family:var(--display);font-size:1rem;line-height:1.2}.hubcard small{color:var(--muted);font-size:.82rem;line-height:1.35}
 .hubcard .hn{position:absolute;top:14px;right:14px;font-size:.74rem;font-weight:700;color:var(--muted);background:var(--surface2);border-radius:99px;padding:2px 8px}
-.wotd{display:block;width:100%;text-align:left;border:0;border-radius:20px;padding:16px 18px;margin:4px 0 6px;color:#fff;cursor:pointer;font:inherit;background:linear-gradient(135deg,#9A7390,#5E4057)}
-.wotd small{display:block;font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;opacity:.85;font-weight:700}.wotd b{display:block;font-family:var(--display);font-size:1.3rem;margin:4px 0}.wotd span{display:block;font-size:.9rem;line-height:1.45;opacity:.95;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .morelist{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
 .morelist>div,.morelist>button{display:flex;align-items:center;gap:12px;width:100%;padding:14px 16px;border:0;background:none;color:var(--ink);font:inherit;text-align:left}
 .morelist>*+*{border-top:1px solid var(--line)}.morelist>button{cursor:pointer}.morelist .ic{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;flex:none}.morelist .ic svg{width:20px;height:20px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
@@ -1828,6 +1826,19 @@ body.t-dial.dial-ready .herowrap{display:none}
 .acl[hidden]{display:none}
 .aco{padding:11px 12px;border-radius:10px;cursor:pointer;color:var(--ink);font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .aco:hover,.aco[aria-selected="true"]{background:var(--surface2)}
+/* Explore's "Today in coffee": the panel the app uses everywhere, two rows with the hub tiles' icons. */
+.today{padding:14px 14px 6px;margin:4px 0 8px}
+.td-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:2px 4px 8px}
+.td-head h2{margin:0;font:700 1.08rem/1.2 var(--display);color:var(--ink)}.td-head span{font-size:.8rem;color:var(--muted);white-space:nowrap}
+.td-row{display:flex;align-items:flex-start;gap:12px;width:100%;padding:12px 4px;border:0;border-top:1px solid var(--line);background:none;color:var(--ink);font:inherit;text-align:left;cursor:pointer;border-radius:0}
+.td-row .ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex:none;margin-top:2px}
+.td-row .ic svg{width:20px;height:20px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.td-t{flex:1;min-width:0;display:grid;gap:2px}
+.td-t small{display:flex;align-items:center;gap:6px;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.td-t b{font:700 1.02rem/1.3 var(--display);color:var(--ink)}
+.td-t>span{font-size:.9rem;line-height:1.5;color:color-mix(in srgb,var(--ink) 78%,var(--muted))}
+.td-go{flex:none;width:18px;height:18px;margin-top:12px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.td-row:active{background:color-mix(in srgb,var(--ink) 4%,transparent)}
 /* The welcome on Brew: a card like the others, with a greeting and the day's line of coffee wisdom. */
 .welcome{margin:0 0 12px;padding:16px 18px}
 .wl-top{display:flex;align-items:center;gap:12px}
@@ -6864,7 +6875,7 @@ const hubItem=k=>[...SHEETS.explore,...SHEETS.more].find(x=>x[0]===k);
 const hubCount=k=>({map:Object.keys(ALLO()).length,variety:V.length,process:Object.keys(PROCESSES).length,tech:TECH.length,words:GLOSSARY.length,champs:CHAMPS.length,gear:MYG.length+' grinder'+(MYG.length===1?'':'s'),log:LOG.length?LOG.length+' brew'+(LOG.length===1?'':'s'):0})[k];
 const hubCard=k=>{const [,n,d,c,ic]=hubItem(k),cnt=hubCount(k);return '<button type="button" class="hubcard" data-go="'+k+'">'+ico(ic,c)+(cnt?'<span class="hn">'+cnt+'</span>':'')+'<b>'+n+'</b><small>'+d+'</small></button>'};
 function renderExplore(){const day=Math.floor(Date.now()/864e5),w=GLOSSARY[day%GLOSSARY.length];
-  $('explore-in').innerHTML='<button type="button" class="wotd" data-word="'+esc(w[0])+'"><small>Word of the day</small><b>'+esc(w[0])+'</b><span>'+esc(w[2])+'</span></button>'+factCard(day)+(window.BEANS_OK?cabinetDayHTML():'')+
+  $('explore-in').innerHTML=todayCard(day,w)+(window.BEANS_OK?cabinetDayHTML():'')+
     HUB.explore.map(([h,ks])=>'<h3 class="rh">'+h+'</h3><div class="hubgrid">'+ks.map(hubCard).join('')+'</div>').join('');if(window.BEANS_OK)hydrateImgs($('explore-in'))}
 /* ---------- Settings: the app's look, name and your data ---------- */
 // Vibes: whole palettes, light and dark (their colours live in the styles; these are for the previews).
@@ -7066,9 +7077,17 @@ function factFor(day){const k=FACT_KINDS[((day%7)+7)%7],round=Math.floor(day/7),
   if(k==='tech'){const t=TECH[pick(TECH.length)];return{k,tag:'Technique',title:t[1],text:trim(t[2]+' '+t[3],230),go:{tab:'tech'}}}
   if(k==='history'){const t=TIMELINE[pick(TIMELINE.length)];return{k,tag:'From history',title:t[1],text:trim(t[0]+'. '+t[2],230),go:{tab:'history'}}}
   const cs=CHAMPS.filter(c=>c.note),c=cs[pick(cs.length)];return{k:'champ',tag:'Champions',title:c.who+', '+COMPS[c.c].short+' '+c.y,text:trim(c.note+(c.coffee?' Brewed with '+c.coffee+'.':''),230),go:{champ:CHAMPS.indexOf(c)}}}
-// The Explore page shows it under the word of the day (on word days, the word of the day already is one).
-function factCard(day){const f=factFor(day);if(f.k==='word')return '';
-  return '<button type="button" class="wotd fact" data-fact="'+day+'"><small>Did you know · '+esc(f.tag)+'</small><b>'+esc(f.title)+'</b><span>'+esc(f.text)+'</span></button>'}
+// The top of Explore: one "Today in coffee" card, in the same panel as the rest of the app, with the word of the day and
+// the day's fact (on word days, the word of the day already is one). Each reads in whole sentences and opens in full.
+const FACT_TILE={word:['book','#9A7390'],variety:['leaf','#B5533C'],origin:['globe','#4F8A74'],process:['flask','#D2A04A'],tech:['drop','#6B8E4E'],history:['hourglass','#8A5A3B'],champ:['trophy','#C9964A']};
+const sentences=(t,n)=>{t=String(t||'').replace(/\s+/g,' ').trim();if(t.length<=n)return t;const parts=t.match(/[^.!?]+[.!?]+(\s|$)/g)||[t];let o='';
+  for(const p of parts){if((o+p).trim().length>n)break;o+=p}o=o.trim();return o||t.slice(0,n).replace(/\s+\S*$/,'')+'…'};
+function todayCard(day,w){const f=factFor(day),chev='<svg class="td-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+  const row=(attr,tile,kick,title,text,year)=>'<button type="button" class="td-row" '+attr+'>'+ico(tile[0],tile[1])+'<span class="td-t"><small>'+kick+(year?' · '+year:'')+'</small><b>'+esc(title)+'</b><span>'+esc(text)+'</span></span>'+chev+'</button>';
+  let ft=f.text,yr='';const m=f.k==='history'&&/^(\d{3,4}s?)\.\s+/.exec(ft);if(m){yr=m[1];ft=ft.slice(m[0].length)}
+  return '<div class="today panel" role="region" aria-label="Today in coffee"><div class="td-head"><h2>Today in coffee</h2><span>'+esc(new Date().toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'short'}))+'</span></div>'+
+    row('data-word="'+esc(w[0])+'"',FACT_TILE.word,'Word of the day',w[0],sentences(w[2],150))+
+    (f.k==='word'?'':row('data-fact="'+day+'"',FACT_TILE[f.k]||FACT_TILE.word,esc(f.tag==='From history'?'From history':'Did you know · '+f.tag),f.title,sentences(ft,150),yr))+'</div>'}
 function goFact(g){if(!g)return;if(g.word)openWord(g.word);else if(g.variety)openVariety(g.variety);else if(g.origin){goTab('map');selectOrigin(g.origin,true)}
   else if(g.process)openProcess(g.process);else if(g.champ!=null&&CHAMPS[g.champ]){showTab('champs');openChamp(CHAMPS[g.champ])}else if(g.tab)showTab(g.tab)}
 $('explore-in').addEventListener('click',e=>{const f=e.target.closest('[data-fact]');if(f){e.stopPropagation();goFact(factFor(+f.dataset.fact).go)}},true);

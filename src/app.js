@@ -2677,7 +2677,7 @@ const hubItem=k=>[...SHEETS.explore,...SHEETS.more].find(x=>x[0]===k);
 const hubCount=k=>({map:Object.keys(ALLO()).length,variety:V.length,process:Object.keys(PROCESSES).length,tech:TECH.length,words:GLOSSARY.length,champs:CHAMPS.length,gear:MYG.length+' grinder'+(MYG.length===1?'':'s'),log:LOG.length?LOG.length+' brew'+(LOG.length===1?'':'s'):0})[k];
 const hubCard=k=>{const [,n,d,c,ic]=hubItem(k),cnt=hubCount(k);return '<button type="button" class="hubcard" data-go="'+k+'">'+ico(ic,c)+(cnt?'<span class="hn">'+cnt+'</span>':'')+'<b>'+n+'</b><small>'+d+'</small></button>'};
 function renderExplore(){const day=Math.floor(Date.now()/864e5),w=GLOSSARY[day%GLOSSARY.length];
-  $('explore-in').innerHTML='<button type="button" class="wotd" data-word="'+esc(w[0])+'"><small>Word of the day</small><b>'+esc(w[0])+'</b><span>'+esc(w[2])+'</span></button>'+factCard(day)+(window.BEANS_OK?cabinetDayHTML():'')+
+  $('explore-in').innerHTML=todayCard(day,w)+(window.BEANS_OK?cabinetDayHTML():'')+
     HUB.explore.map(([h,ks])=>'<h3 class="rh">'+h+'</h3><div class="hubgrid">'+ks.map(hubCard).join('')+'</div>').join('');if(window.BEANS_OK)hydrateImgs($('explore-in'))}
 /* ---------- Settings: the app's look, name and your data ---------- */
 // Vibes: whole palettes, light and dark (their colours live in the styles; these are for the previews).
@@ -2879,9 +2879,17 @@ function factFor(day){const k=FACT_KINDS[((day%7)+7)%7],round=Math.floor(day/7),
   if(k==='tech'){const t=TECH[pick(TECH.length)];return{k,tag:'Technique',title:t[1],text:trim(t[2]+' '+t[3],230),go:{tab:'tech'}}}
   if(k==='history'){const t=TIMELINE[pick(TIMELINE.length)];return{k,tag:'From history',title:t[1],text:trim(t[0]+'. '+t[2],230),go:{tab:'history'}}}
   const cs=CHAMPS.filter(c=>c.note),c=cs[pick(cs.length)];return{k:'champ',tag:'Champions',title:c.who+', '+COMPS[c.c].short+' '+c.y,text:trim(c.note+(c.coffee?' Brewed with '+c.coffee+'.':''),230),go:{champ:CHAMPS.indexOf(c)}}}
-// The Explore page shows it under the word of the day (on word days, the word of the day already is one).
-function factCard(day){const f=factFor(day);if(f.k==='word')return '';
-  return '<button type="button" class="wotd fact" data-fact="'+day+'"><small>Did you know · '+esc(f.tag)+'</small><b>'+esc(f.title)+'</b><span>'+esc(f.text)+'</span></button>'}
+// The top of Explore: one "Today in coffee" card, in the same panel as the rest of the app, with the word of the day and
+// the day's fact (on word days, the word of the day already is one). Each reads in whole sentences and opens in full.
+const FACT_TILE={word:['book','#9A7390'],variety:['leaf','#B5533C'],origin:['globe','#4F8A74'],process:['flask','#D2A04A'],tech:['drop','#6B8E4E'],history:['hourglass','#8A5A3B'],champ:['trophy','#C9964A']};
+const sentences=(t,n)=>{t=String(t||'').replace(/\s+/g,' ').trim();if(t.length<=n)return t;const parts=t.match(/[^.!?]+[.!?]+(\s|$)/g)||[t];let o='';
+  for(const p of parts){if((o+p).trim().length>n)break;o+=p}o=o.trim();return o||t.slice(0,n).replace(/\s+\S*$/,'')+'…'};
+function todayCard(day,w){const f=factFor(day),chev='<svg class="td-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+  const row=(attr,tile,kick,title,text,year)=>'<button type="button" class="td-row" '+attr+'>'+ico(tile[0],tile[1])+'<span class="td-t"><small>'+kick+(year?' · '+year:'')+'</small><b>'+esc(title)+'</b><span>'+esc(text)+'</span></span>'+chev+'</button>';
+  let ft=f.text,yr='';const m=f.k==='history'&&/^(\d{3,4}s?)\.\s+/.exec(ft);if(m){yr=m[1];ft=ft.slice(m[0].length)}
+  return '<div class="today panel" role="region" aria-label="Today in coffee"><div class="td-head"><h2>Today in coffee</h2><span>'+esc(new Date().toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'short'}))+'</span></div>'+
+    row('data-word="'+esc(w[0])+'"',FACT_TILE.word,'Word of the day',w[0],sentences(w[2],150))+
+    (f.k==='word'?'':row('data-fact="'+day+'"',FACT_TILE[f.k]||FACT_TILE.word,esc(f.tag==='From history'?'From history':'Did you know · '+f.tag),f.title,sentences(ft,150),yr))+'</div>'}
 function goFact(g){if(!g)return;if(g.word)openWord(g.word);else if(g.variety)openVariety(g.variety);else if(g.origin){goTab('map');selectOrigin(g.origin,true)}
   else if(g.process)openProcess(g.process);else if(g.champ!=null&&CHAMPS[g.champ]){showTab('champs');openChamp(CHAMPS[g.champ])}else if(g.tab)showTab(g.tab)}
 $('explore-in').addEventListener('click',e=>{const f=e.target.closest('[data-fact]');if(f){e.stopPropagation();goFact(factFor(+f.dataset.fact).go)}},true);
