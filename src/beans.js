@@ -541,58 +541,13 @@ $('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-add')){openB
 /* ---------- One coffee ---------- */
 function beanLogStats(b){const n=b.name.toLowerCase();if(n.length<3)return null;const l=LOG.filter(x=>(x.coffee||'').toLowerCase().includes(n));if(!l.length)return null;
   const r=l.filter(x=>x.rating);return{n:l.length,avg:r.length?r.reduce((s,x)=>s+x.rating,0)/r.length:0}}
-// Editing a bag's photo: crop it in a frame (drag to move, slider or pinch to zoom), turn it, and set its light and warmth.
-// Resolves with the new photo, or null when cancelled. The pixels are worked by hand, so it looks the same on every phone.
-function photoEditor(src){return new Promise(done=>{const img=new Image();img.onerror=()=>{toast('Couldn’t open that photo');done(null)};img.onload=()=>{
-  let d=$('pe');if(!d){d=document.createElement('dialog');d.id='pe';d.className='pe';d.setAttribute('aria-labelledby','pe-t');document.body.appendChild(d)}
-  const ST={rot:0,zoom:1,cx:null,cy:null,ar:4/3,b:0,c:0,w:0};const A0=Object.assign({},ST);
-  const ARS=[['4:3',4/3],['3:4',3/4],['Square',1]];
-  d.innerHTML='<div class="pe-top"><button type="button" class="pe-tx" id="pe-x">Cancel</button><h2 id="pe-t">Edit photo</h2><button type="button" class="pe-tx pe-ok" id="pe-ok">Done</button></div>'+
-    '<div class="pe-stage" id="pe-stage"><canvas id="pe-c" aria-label="Photo preview. Drag to move it in the frame."></canvas></div>'+
-    '<div class="pe-tools"><div class="pe-row"><div class="seg pe-ar" id="pe-ar" role="group" aria-label="Shape"></div>'+
-    '<button type="button" class="pe-ib" id="pe-rot" aria-label="Turn 90°" title="Turn 90°"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></button></div>'+
-    [['zoom','Zoom',1,3,.01],['b','Brightness',-50,50,1],['c','Contrast',-50,50,1],['w','Warmth',-50,50,1]].map(([k,l,mn,mx,st])=>'<label class="pe-sl"><span>'+l+'</span><input type="range" id="pe-'+k+'" min="'+mn+'" max="'+mx+'" step="'+st+'" value="'+ST[k]+'"><output id="pe-'+k+'-o"></output></label>').join('')+
-    '<button type="button" class="linkbtn pe-reset" id="pe-reset">Reset</button></div>';
-  const cv=$('pe-c'),ctx=cv.getContext('2d',{willReadFrequently:true});
-  const dims=()=>ST.rot%2?[img.height,img.width]:[img.width,img.height];
-  // Cover the frame at zoom 1, and never show past the photo's edge.
-  const view=(fw,fh)=>{const [iw,ih]=dims(),sc=Math.max(fw/iw,fh/ih)*ST.zoom,vw=fw/sc,vh=fh/sc;
-    if(ST.cx==null){ST.cx=iw/2;ST.cy=ih/2}ST.cx=clamp(ST.cx,vw/2,iw-vw/2);ST.cy=clamp(ST.cy,vh/2,ih-vh/2);return{sc,iw,ih}};
-  const paint=(c,x,fw,fh)=>{const {sc,iw,ih}=view(fw,fh);x.save();x.clearRect(0,0,fw,fh);x.translate(fw/2,fh/2);x.scale(sc,sc);x.translate(-ST.cx,-ST.cy);
-    x.translate(iw/2,ih/2);x.rotate(ST.rot*Math.PI/2);x.drawImage(img,-img.width/2,-img.height/2);x.restore();
-    if(ST.b||ST.c||ST.w){const im=x.getImageData(0,0,fw,fh),p=im.data,bo=ST.b*2.2,cf=(259*(ST.c*2.2+255))/(255*(259-ST.c*2.2)),wr=ST.w*.5;
-      for(let i=0;i<p.length;i+=4){p[i]=cf*(p[i]+bo+wr-128)+128;p[i+1]=cf*(p[i+1]+bo+wr*.25-128)+128;p[i+2]=cf*(p[i+2]+bo-wr-128)+128}x.putImageData(im,0,0)}};
-  let raf=0;const draw=()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;const box=$('pe-stage').getBoundingClientRect(),pad=24;
-    let fw=Math.max(80,box.width-pad*2),fh=fw/ST.ar;if(fh>box.height-pad*2){fh=Math.max(80,box.height-pad*2);fw=fh*ST.ar}
-    const dpr=Math.min(2,devicePixelRatio||1);cv.width=Math.round(fw*dpr);cv.height=Math.round(fh*dpr);cv.style.width=fw+'px';cv.style.height=fh+'px';
-    paint(cv,ctx,cv.width,cv.height)})};
-  const outs=()=>{for(const k of ['zoom','b','c','w']){const v=ST[k];$('pe-'+k).value=v;$('pe-'+k+'-o').textContent=k==='zoom'?Math.round(v*100)+'%':(v>0?'+':'')+v}};
-  const arSeg=()=>seg('pe-ar',ARS.map(([l])=>[l,l]),()=>ARS.find(a=>a[1]===ST.ar)[0],v=>{ST.ar=ARS.find(a=>a[0]===v)[1];arSeg();draw()});arSeg();outs();
-  for(const k of ['zoom','b','c','w'])$('pe-'+k).oninput=e=>{ST[k]=+e.target.value;outs();draw()};
-  $('pe-rot').onclick=()=>{const [iw,ih]=dims(),fx=ST.cx/iw,fy=ST.cy/ih;ST.rot=(ST.rot+1)%4;const [nw,nh]=dims();ST.cx=(1-fy)*nw;ST.cy=fx*nh;draw()};
-  $('pe-reset').onclick=()=>{Object.assign(ST,A0);arSeg();outs();draw()};
-  // Drag to move; two fingers to zoom.
-  const pts=new Map();let last=null,pinch=0;
-  cv.onpointerdown=e=>{cv.setPointerCapture(e.pointerId);pts.set(e.pointerId,[e.clientX,e.clientY]);last=[e.clientX,e.clientY];if(pts.size===2){const [a,b]=[...pts.values()];pinch=Math.hypot(a[0]-b[0],a[1]-b[1])}};
-  cv.onpointermove=e=>{if(!pts.has(e.pointerId))return;pts.set(e.pointerId,[e.clientX,e.clientY]);
-    if(pts.size===2){const [a,b]=[...pts.values()],dd=Math.hypot(a[0]-b[0],a[1]-b[1]);if(pinch){ST.zoom=clamp(ST.zoom*dd/pinch,1,3);outs()}pinch=dd;draw();return}
-    const r=cv.getBoundingClientRect(),{sc}=view(r.width,r.height);ST.cx-=(e.clientX-last[0])/sc;ST.cy-=(e.clientY-last[1])/sc;last=[e.clientX,e.clientY];draw()};
-  cv.onpointerup=cv.onpointercancel=e=>{pts.delete(e.pointerId);pinch=0;const p=[...pts.values()][0];if(p)last=p};
-  cv.onkeydown=e=>{const m={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];if(!m)return;e.preventDefault();const [iw]=dims();ST.cx+=m[0]*iw*.03;ST.cy+=m[1]*iw*.03;draw()};cv.tabIndex=0;
-  let gone=0;const fin=v=>{gone=1;removeEventListener('resize',draw);d.close();done(v)};
-  $('pe-x').onclick=()=>fin(null);d.oncancel=e=>{e.preventDefault();if(!gone)fin(null)};d.onkeydown=e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();if(!gone)fin(null)}};
-  $('pe-ok').onclick=()=>{const r=cv.getBoundingClientRect(),L=900,ow=ST.ar>=1?L:Math.round(L*ST.ar),oh=ST.ar>=1?Math.round(L/ST.ar):L;
-    // The saved photo keeps what the frame shows, at up to 900px on its long side.
-    const o=document.createElement('canvas');o.width=ow;o.height=oh;paint(o,o.getContext('2d'),ow,oh);
-    try{fin(o.toDataURL('image/jpeg',0.86))}catch(e){toast('Couldn’t save that photo');fin(null)}};
-  addEventListener('resize',draw);d.showModal();draw()};img.src=src})}
 // A coffee's page. write: open it at the diary, ready to write.
 function openBean(id,write){const b=beanById(id);if(!b)return;const d=$('vd'),rk=beanRank(b),P=b.process&&PROCESSES[b.process],ls=beanLogStats(b),f=b.shelf&&fresh(b);
   const fmt=s=>s?new Date(s+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'';
   const kv=[['Origin',b.origin?flagOf(b.origin)+' '+originName(b.origin):''],['Process',P?P.name:''],[b.vars?'Varieties':'Variety',b.variety?varsName(b):''],['Roast',b.roast?b.roast[0].toUpperCase()+b.roast.slice(1):''],['Roasted',fmt(b.roastDate)],['Tried',fmt(b.tried)]].filter(x=>x[1]);
   const st={mom:'note',ph:null};const g=gramsLeft(b),dose=Math.round(beanDose(b));
   $('vd-in').innerHTML='<div class="vd-head" style="--c:'+(rk?MEDAL[rk]:'var(--cherry)')+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:'+(rk?MEDAL[rk]:'var(--cherry)')+'"></i>'+(rk?placeLine(rk,beanYear(b)):beanMention(b)?'Honourable mention · '+beanYear(b):b.shelf?'Drinking now':'Your coffees')+'</span><h2 id="vd-title">'+esc(beanTitle(b))+'</h2>'+(b.roaster?'<p class="vd-sub">'+esc(b.roaster)+'</p>':'')+'</div>'+
-    '<div class="vd-body"><div class="bd-hero">'+beanPic(b,'hero')+glassRate(b.rating)+(b.img?'<button type="button" class="be-edph bd-edph" id="bd-edph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/></svg>Edit photo</button>':'')+'</div>'+'<div class="bd-rate">'+beanRow(b.rating,'big')+'<span>'+(b.rating?b.rating.toString().replace('.5','½')+' · ':'')+rateWord(b.rating)+'</span></div>'+
+    '<div class="vd-body"><div class="bd-hero">'+beanPic(b,'hero')+glassRate(b.rating)+'</div>'+'<div class="bd-rate">'+beanRow(b.rating,'big')+'<span>'+(b.rating?b.rating.toString().replace('.5','½')+' · ':'')+rateWord(b.rating)+'</span></div>'+
     // The bag now: how fresh it is, what's left, and finishing it.
     (b.shelf?'<div class="bd-shelf">'+(f?'<div class="bd-f"><div class="bd-fh"><b>'+f.label+'</b><span>Day '+f.d+' off roast</span></div>'+freshBar(f)+'<p>'+f.tip+'</p></div>':'<p class="hint" style="margin:0">Add the roast date to see how fresh it is.</p>')+
       (g!=null?'<div class="bd-bag">'+bagLine(b)+'<div class="bd-bagb"><button type="button" class="chip" id="bd-cup">Brewed a cup · −'+dose+' g</button><button type="button" class="chip" id="bd-left">Set what’s left</button></div></div>'
@@ -612,9 +567,6 @@ function openBean(id,write){const b=beanById(id);if(!b)return;const d=$('vd'),rk
   hydrateImgs($('vd-in'));
   const refresh=(msg)=>{saveBeans();checkTrophies();renderBeans();openBean(b.id);if(msg)toast(msg)};
   $('bd-edit').onclick=()=>openBeanEditor(b);
-  // Editing the photo from the coffee's page saves it at once.
-  if($('bd-edph'))$('bd-edph').onclick=async()=>{const u=await BIMG.get(b.id);if(!u){toast('Couldn’t open that photo');return}const n=await photoEditor(u);if(!n)return;
-    if(!await BIMG.put(b.id,n)){toast('The photo couldn’t be saved on this device');return}if(typeof syncSoon==='function')syncSoon();renderBeans();openBean(b.id);toast('Photo saved')};
   $('bd-share').onclick=()=>{d.close();openShare(beanDoc(b))};
   $('bd-brew').onclick=()=>{useBean(b);d.close();showTab('dial');
     if(!dialRec()){const t=techList(S.brewer)[0];if(t)S.rec=t[1]}if(dialRec())tune('Tuned for '+beanTitle(b));else{render();toast('Set up for '+beanTitle(b))}};
@@ -687,10 +639,7 @@ function openBeanEditor(b,pre){const isNew=!b;const B=Object.assign({name:'',roa
   // On the shelf: a bag you're drinking now. Off it, the coffee is finished and lives in the cabinet.
   const shelfSeg=()=>seg('be-shelf',[['1','Drinking it'],['0','Finished']],()=>B.shelf?'1':'0',v=>{B.shelf=v==='1';shelfSeg()});shelfSeg();
   const showPhoto=u=>{const p=$('be-photo');p.classList.toggle('has',!!u);p.querySelector('img')?.remove();if(u){const i=new Image();i.alt='Photo of the coffee';i.src=u;p.prepend(i)}
-    let rm=$('be-rm');if(u&&!rm){p.insertAdjacentHTML('beforeend','<button type="button" class="be-rm" id="be-rm" aria-label="Remove the photo">✕</button><button type="button" class="be-edph" id="be-edph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/></svg>Edit photo</button>');
-      $('be-rm').onclick=e=>{e.stopPropagation();photo=null;photoChanged=true;showPhoto(null)};
-      $('be-edph').onclick=async e=>{e.stopPropagation();const n=await photoEditor(photo);if(n){photo=n;photoChanged=true;showPhoto(n)}}}
-    else if(!u&&rm){rm.remove();$('be-edph')?.remove()}};
+    let rm=$('be-rm');if(u&&!rm){p.insertAdjacentHTML('beforeend','<button type="button" class="be-rm" id="be-rm" aria-label="Remove the photo">✕</button>');$('be-rm').onclick=e=>{e.stopPropagation();photo=null;photoChanged=true;showPhoto(null)}}else if(!u&&rm)rm.remove()};
   if(pre&&pre.photo){photo=pre.photo;photoChanged=true;showPhoto(photo);
     // Scans from before photos were kept only have a small thumbnail.
     if(pre.lowres)$('be-photo').insertAdjacentHTML('afterend','<p class="hint be-low">This older scan kept only a small photo. Take or choose a new one for a sharper card.</p>')}else if(B.img&&b)BIMG.get(b.id).then(u=>{if(u&&!photoChanged){photo=u;showPhoto(u)}});
