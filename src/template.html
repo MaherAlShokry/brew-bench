@@ -1777,6 +1777,28 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .dstep[open] .dchev{transform:rotate(-135deg) translateY(-2px)}
 .dstep-in{padding:0 2px 16px}.dstep-in,.dstep-in *{box-sizing:border-box}.dstep-in>.field:first-child{margin-top:0}.dstep-lead{margin:0 0 10px}.dcal-link{margin:14px 0 0}
 body.t-dial.dial-ready .herowrap{display:none}
+.season{margin:14px 0;padding:14px;border-radius:20px;background:linear-gradient(135deg,color-mix(in srgb,var(--honey) 16%,var(--surface)),var(--surface));border:1px solid color-mix(in srgb,var(--honey) 30%,var(--line))}
+.ssn-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.ssn{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid color-mix(in srgb,var(--line) 70%,transparent)}.ssn:first-of-type{border-top:0}
+.ssn-ic{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:1.25rem;background:var(--surface2)}.ssn.on .ssn-ic{background:radial-gradient(circle at 35% 30%,#FFF1C9,#E2B866 60%,#B07D35)}
+.ssn-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.ssn-tx b{font-family:var(--display);font-size:.95rem}.ssn-tx small{color:var(--muted);font-size:.8rem}
+.ssn-n{flex:none;text-align:right;font:700 .9rem var(--display);display:flex;flex-direction:column;align-items:flex-end}.ssn-n small{font:500 .72rem var(--body);color:var(--muted)}
+.ssn-next{margin:8px 0 0;font-size:.82rem;color:var(--muted)}.ssn-got{margin-bottom:6px}
+/* Coffee rows, cleaned up. */
+.crow{align-items:flex-start;gap:12px;padding:12px 14px 12px 12px}
+.crow .bpic,.clist.now .crow .bpic{width:52px;height:52px;border-radius:14px}
+.cr-top{display:flex;align-items:center;gap:8px;min-width:0}.cr-top b{flex:1;min-width:0;-webkit-line-clamp:1!important}
+.cr-top .cr-end{gap:6px}.cr-top .cr-medal{width:22px;height:22px}
+.cr-now{gap:4px 12px;margin-top:6px}.cr-left{font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.cr-fresh{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:600;color:var(--ink)}
+.cr-fresh i{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:none}
+.cr-fresh.f-peak i{background:#4F9A57}.cr-fresh.f-good i{background:#C9964A}.cr-fresh.f-fade i{background:#B5533C}.cr-fresh.f-rest i{background:#8FA3B8}
+.cr-bar{display:block;height:4px;border-radius:4px;background:color-mix(in srgb,var(--line) 70%,transparent);margin-top:8px;overflow:hidden}
+.cr-bar i{display:block;height:100%;border-radius:4px;background:color-mix(in srgb,var(--cherry) 70%,var(--honey))}
+.crow,.crow.now{contain-intrinsic-size:auto 80px}
+/* The year in coffee: even tiles. */
+.yic-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:12px 14px}
+.yic-row span{min-width:0}.yic-row b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:1.1rem}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
