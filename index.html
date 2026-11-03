@@ -1807,17 +1807,15 @@ body.t-dial.dial-ready .herowrap{display:none}
 .seg.bviews button i{font-size:.66rem;padding:1px 5px;margin-left:2px}
 @media (max-width:350px){.gtabs button,.seg.bviews button{font-size:.74rem!important}.gtabs button{font-size:.68rem!important;letter-spacing:-.01em}}
 .gtabs{overflow:visible!important;-webkit-mask-image:none!important;mask-image:none!important}.gtabs button{flex:1 1 0!important;min-width:0;padding-left:2px!important;padding-right:2px!important;font-size:.82rem}
-/* The welcome on Brew: a greeting by time of day, your nickname, and a line of coffee wisdom. */
-.welcome{position:relative;display:flex;align-items:center;gap:14px;width:100%;margin:0 0 12px;padding:16px 18px;border:0;border-radius:22px;text-align:left;font:inherit;cursor:pointer;overflow:hidden;color:#FFF8EE;
-  background:linear-gradient(135deg,var(--wa,#8A5A3B),var(--wb,#3B2417));box-shadow:0 10px 26px -16px rgba(40,24,14,.7);-webkit-tap-highlight-color:transparent}
-.welcome::after{content:"";position:absolute;right:-30px;top:-40px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(255,236,200,.22),transparent 70%);pointer-events:none}
-.welcome .wl-ic{flex:none;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-size:1.5rem;background:rgba(255,248,238,.14);box-shadow:inset 0 0 0 1px rgba(255,248,238,.18)}
-.welcome .wl-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
-.welcome .wl-hi{font:700 1.14rem/1.2 var(--display);letter-spacing:-.01em}.welcome .wl-hi em{font-style:normal;color:#F3D58F}
-.welcome .wl-q{font-size:.88rem;line-height:1.4;opacity:.92}.welcome .wl-by{display:block;margin-top:2px;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;opacity:.65}
-.welcome.wl-in .wl-q{animation:wlq .5s var(--ease-out,ease) both}@keyframes wlq{from{opacity:0;transform:translateY(4px)}to{opacity:.92;transform:none}}
-.welcome.t-morning{--wa:#C9864A;--wb:#7A4A2C}.welcome.t-day{--wa:#9C6A3E;--wb:#5A3A24}.welcome.t-evening{--wa:#7A4A5E;--wb:#3A2236}.welcome.t-night{--wa:#3E4A6E;--wb:#1C2236}
-@media (prefers-reduced-motion:reduce){.welcome.wl-in .wl-q{animation:none}}
+/* The welcome on Brew: a card like the others, with a greeting and the day's line of coffee wisdom. */
+.welcome{margin:0 0 12px;padding:16px 18px}
+.wl-top{display:flex;align-items:center;gap:12px}
+.wl-ic{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:1.2rem;background:color-mix(in srgb,var(--cherry) 12%,var(--surface))}
+.wl-hi{margin:0;font:700 1.15rem/1.2 var(--display);letter-spacing:-.01em;color:var(--ink)}.wl-hi em{font-style:normal;color:var(--cherry-ink,var(--cherry))}
+.wl-date{display:block;margin-top:2px;font-size:.8rem;color:var(--muted)}
+.wl-k{display:block;margin:14px 0 6px;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.wl-q{margin:0;padding-left:12px;border-left:3px solid color-mix(in srgb,var(--cherry) 55%,transparent);font-size:.95rem;line-height:1.5;color:var(--ink)}
+.wl-by{display:block;margin-top:4px;font-size:.78rem;color:var(--muted)}
 </style>
 <script>const JSPDF_SRC="vendor/jspdf.umd.min.js"</script>
 <link rel="manifest" href="manifest.webmanifest">
@@ -1982,7 +1980,7 @@ body.t-dial.dial-ready .herowrap{display:none}
 
 <!-- DIAL-IN -->
 <section id="dial" class="on">
-  <button type="button" class="welcome" id="welcome" aria-live="polite"></button>
+  <div class="welcome panel" id="welcome"></div>
   <div class="minires" id="minires"><div><b id="mr-v"></b><span id="mr-g"></span></div><div class="gauge mini" aria-hidden="true"><i id="mr-m"></i></div><button type="button" class="mr-play" id="mr-play" hidden aria-label="Start the brew timer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button></div>
   <div class="bench">
     <div class="panel">
@@ -7017,11 +7015,12 @@ const WISDOM=[['Grind fresh, brew slow, taste twice.'],['The best grinder is the
   ['Buna dabo naw: coffee is our bread.','Ethiopian saying']];
 function welcomeHTML(when){const d=when||new Date(),h=d.getHours(),t=h<5?'night':h<12?'morning':h<17?'day':h<22?'evening':'night';
   const hi={morning:['☀️','Good morning'],day:['☕','Good afternoon'],evening:['🌙','Good evening'],night:['✨','Late-night brew']}[t];
-  const nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick||ME||'',day=Math.floor((d.getTime()-d.getTimezoneOffset()*6e4)/864e5),i=((day+WOFF)%WISDOM.length+WISDOM.length)%WISDOM.length,[q,by]=WISDOM[i];
-  return{t,html:'<span class="wl-ic" aria-hidden="true">'+hi[0]+'</span><span class="wl-tx"><span class="wl-hi">'+hi[1]+(nick?', <em>'+esc(nick)+'</em>':'')+'</span><span class="wl-q">\u201c'+esc(q)+'\u201d'+(by?'<small class="wl-by">'+esc(by)+'</small>':'')+'</span></span>'}}
-let WOFF=0;
-function renderWelcome(bump){const el=$('welcome');if(!el)return;if(bump)WOFF++;const w=welcomeHTML();el.className='welcome t-'+w.t+(bump?' wl-in':'');el.innerHTML=w.html;el.setAttribute('aria-label',el.textContent.trim()+'. Tap for another line of coffee wisdom.')}
-$('welcome').onclick=()=>renderWelcome(true);renderWelcome();
+  // One line a day, the same all day.
+  const nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick||ME||'',day=Math.floor((d.getTime()-d.getTimezoneOffset()*6e4)/864e5),[q,by]=WISDOM[((day*7)%WISDOM.length+WISDOM.length)%WISDOM.length];
+  return{t,html:'<div class="wl-top"><span class="wl-ic" aria-hidden="true">'+hi[0]+'</span><div><h2 class="wl-hi">'+hi[1]+(nick?', <em>'+esc(nick)+'</em>':'')+'</h2><span class="wl-date">'+esc(d.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'}))+'</span></div></div>'+
+    '<span class="wl-k">Today\u2019s coffee wisdom</span><p class="wl-q">'+esc(q)+(by?'<small class="wl-by">'+esc(by)+'</small>':'')+'</p>'}}
+function renderWelcome(){const el=$('welcome');if(!el)return;const w=welcomeHTML();el.innerHTML=w.html}
+renderWelcome();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)renderWelcome()});
 /* ================= INIT ================= */
 // Drawings that loop (the pour on the Dial-in page) pause while they're out of sight, so the phone isn't redrawing
