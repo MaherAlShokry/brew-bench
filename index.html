@@ -7245,7 +7245,7 @@ let TGOT=load('bb-trophies',null);
 function checkTrophies(){const st=cabStats(),first=!TGOT||typeof TGOT!=='object';if(first)TGOT={};const news=[];
   for(const [id,n,,ic,f] of TROPHIES){const [h,need]=f(st);if(h>=need&&!TGOT[id]){TGOT[id]=todayISO();news.push(ic+' '+n)}}
   for(const t of seasonNow())if(t.h>=t.need&&!TGOT[t.key]){TGOT[t.key]=todayISO();news.push(t.ic+' '+t.n)}
-  save('bb-trophies',TGOT);if(!first&&news.length)setTimeout(()=>toast('Trophy unlocked: '+news.join(', ')),600)}
+  save('bb-trophies',TGOT);if(!first&&news.length)setTimeout(()=>toast((news.length>1?'Trophies unlocked: ':'Trophy unlocked: ')+(news.length>3?news.slice(0,3).join(', ')+' and '+(news.length-3)+' more':news.join(', '))),600)}
 
 /* ---------- From your cabinet: one coffee a day ---------- */
 // Like the word of the day: a coffee from your cabinet, chosen for the date. A bag that needs you comes first (just at
