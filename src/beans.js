@@ -626,10 +626,11 @@ function openBeanEditor(b,pre){const isNew=!b;const B=Object.assign({name:'',roa
   for(const [id,k] of [['be-origin','origin'],['be-process','process']])$(id).value=B[k];
   autoList($('be-roaster'),$('be-rsug'),roasters);
   // Varieties: one picker to start; a blend or mixed lot adds more, up to four, each removable.
-  const vOpts=opt(varietyOptions(),'Not sure');let VL=beanVars(B);if(!VL.length)VL=[''];
-  const readVars=()=>{VL=[...$('be-vars').querySelectorAll('select')].map(x=>x.value)};
+  // The pickers list each variety once; a regional Geisha (geisha:panama) shows as Geisha and keeps its region when saved.
+  const vOpts=opt(varietyOptions(),'Not sure'),ORIG=beanVars(B),base=v=>String(v||'').split(':')[0];let VL=[...ORIG];if(!VL.length)VL=[''];
+  const readVars=()=>{VL=[...$('be-vars').querySelectorAll('select')].map(x=>x.value&&(ORIG.find(o=>base(o)===x.value)||x.value))};
   const drawVars=()=>{const many=VL.length>1;$('be-vars').innerHTML=VL.map((v,i)=>'<div class="bvar"><select data-vi="'+i+'" aria-label="'+(many?'Variety '+(i+1):'Variety')+'">'+vOpts+'</select>'+(many?'<button type="button" class="bvar-x" data-vx="'+i+'" aria-label="Remove variety '+(i+1)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>':'')+'</div>').join('');
-    $('be-vars').querySelectorAll('select').forEach((x,i)=>x.value=VL[i]||'');$('be-vlbl').textContent=many?'Varieties':'Variety';$('be-addv').hidden=VL.length>=4};
+    $('be-vars').querySelectorAll('select').forEach((x,i)=>x.value=base(VL[i]));$('be-vlbl').textContent=many?'Varieties':'Variety';$('be-addv').hidden=VL.length>=4};
   drawVars();
   $('be-addv').onclick=()=>{readVars();VL.push('');drawVars();const l=$('be-vars').querySelectorAll('select');l[l.length-1].focus()};
   $('be-vars').onclick=e=>{const x=e.target.closest('[data-vx]');if(!x)return;readVars();VL.splice(+x.dataset.vx,1);if(!VL.length)VL=[''];drawVars()};
