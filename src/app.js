@@ -468,7 +468,7 @@ function renderDialRecipe(){const tl=techList(S.brewer),r=dialRec();
     '<div class="dr-meta"><span class="gl">'+esc(goalLabel(S.goal,S.amt))+'</span><span>'+S.dose+'g : '+dp.water+'g · 1:'+rr1(S.ratio)+'</span><span>'+S.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span><span>'+esc(gLabel(S.grinder,S.setting))+'</span><span>'+BREWERS[S.brewer].bloom.label+' '+S.bloom+'s</span></div>'+
     '<div class="dr-cols"><div><h3 style="margin-top:0">Steps</h3>'+pourGraph(dp.steps,dp.water)+stepList(dp.steps)+(r.tip&&r.kind!=='46'?'<p class="hint">'+esc(r.tip)+'</p>':'')+'</div>'+
     '<div><h3 style="margin-top:0">What changed and why</h3><ul class="why">'+(notes.length?notes.map(w=>'<li>'+w+'</li>').join(''):'<li>The recipe as written suits this coffee.</li>')+'</ul></div></div>'+
-    '<div class="actions"><button type="button" class="btn" data-dtimer>Start brew timer</button><button type="button" class="btn ghost" data-dfull>Original recipe</button><button type="button" class="btn ghost" data-dshare>Share</button></div>'}
+    '<div class="actions"><button type="button" class="btn" data-dtimer>Start brew timer</button><button type="button" class="btn ghost" data-dfull>Original recipe</button></div>'}
 function dialTimer(){const dp=dialPlan();if(!dp)return;openTimer(S.rec,{brewer:S.brewer,grinder:S.grinder,set:{[S.grinder]:S.setting},r:{dose:S.dose},water:dp.water,temp:S.temp,steps:dp.steps})}
 // The Beans row under Your coffee: the coffee you picked, or a way to pick one from the gallery.
 // The coffee you picked from your gallery drives the dial-in: its process, variety, roast and region follow the coffee
@@ -487,6 +487,18 @@ function renderDBean(){const el=$('d-bean');if(!el||!window.BEANS_OK)return;cons
       '<button type="button" class="dbean-tx" data-dbpick><b>'+esc(b.name)+'</b><small>'+esc([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · ')||'Tap to change')+'</small></button>'+
       '<button type="button" class="dbean-x" data-dbclear aria-label="Clear the beans">✕</button></div>';hydrateImgs(el)}
   else el.innerHTML=BEANS.length?'<button type="button" class="btn ghost dbean-pick" data-dbpick>'+beanSVG+'Pick from your bean gallery</button>':'<p class="hint" style="margin:0">Add coffees under Beans (or scan a bag) and they show here and on your shared brew cards.</p>'}
+// The four steps of the dial-in each fold to a line saying what's set. Which are open is remembered; at first, the
+// gear is folded (it's always set) and your coffee is folded once you've picked one from your gallery.
+let DSTEPS=load('bb-dsteps',null);
+function dialSteps(){const r=dialRec(),sb=S.bean;
+  const sum={gear:gname(S.grinder)+' · '+BREWERS[S.brewer].name,
+    coffee:[sb?sb.name:'',S.roast[0].toUpperCase()+S.roast.slice(1),shortName(PROCESSES[S.process].name),vName(S.variety)!=='Arabica'?shortName(vName(S.variety)):'',S.age+' days'].filter(Boolean).join(' · '),
+    recipe:r?r.name+' · '+(GOALN[S.goal]||'')+' · '+gfmt(S.dose)+'g':'No recipe: brewing freely',
+    tune:gLabel(S.grinder,S.setting)+' · '+S.temp+'°C · 1:'+(Math.round(S.ratio*10)/10)};
+  for(const k in sum){const el=$('ds-'+k);if(el)el.textContent=sum[k]}
+  document.body.classList.toggle('dial-ready',!!r)}
+function initSteps(){const def={gear:false,coffee:!S.bean,recipe:true,tune:true},st=Object.assign(def,DSTEPS||{});
+  document.querySelectorAll('#dial .dstep').forEach(d=>{d.open=!!st[d.dataset.step];d.addEventListener('toggle',()=>{DSTEPS=Object.assign({},def,DSTEPS||{},{[d.dataset.step]:d.open});save('bb-dsteps',DSTEPS)})})}
 function render(){
   const G=GRINDERS[S.grinder],B=BREWERS[S.brewer];
   grinderSeg('g-grinder',(S.brewer),()=>S.grinder,v=>{if(v!==S.grinder){const was=isTuned();S.setting=swapGrinder(v);S.grinder=v;
@@ -533,6 +545,7 @@ function render(){
   $('o-tips').onclick=e=>{if(e.target.closest('[data-reset-grind]')){S.setting=roundG(S.grinder,baseX(S.grinder,S.brewer));render();toast('Grind reset to '+dial(S.grinder,S.setting))}};
   // The recipe is kept by its key too: its place in the list moves when recipes are added or folded together.
   S.reck=S.rec!=null&&RECIPES[S.rec]?rkey(RECIPES[S.rec]):null;save('bb-state',S);
+  try{dialSteps()}catch(e){}
 }
 function renderCal(){
   $('caltbody').innerHTML=MODEL.filter(LISTED).map(k=>{const b=BREWERS[k];const cell=g=>!canGrind(g,k)?'<td class="hint">n/a</td>':'<td><input type="number" step="1" data-g="'+g+'" data-b="'+k+'" value="'+base(g,k)+'" aria-label="'+GRINDERS[g].name+' clicks, '+esc(b.name)+'"> <span class="hint">'+dial(g,base(g,k))+'</span></td>';return'<tr><td>'+esc(b.name)+'</td>'+MYG.map(cell).join('')+'</tr>'}).join('');
@@ -562,7 +575,7 @@ function initDial(){
   $('i-variety').onchange=e=>{S.variety=effVariety(e.target.value,S.region);retuneIfAuto()};
   $('i-region').onchange=e=>{S.region=e.target.value;S.variety=effVariety(S.variety.split(':')[0],S.region);retuneIfAuto()};
   $('v-about').onclick=()=>openVariety(S.variety.split(':')[0]);
-  renderCal();
+  renderCal();initSteps();
   $('caltbody').oninput=e=>{const i=e.target;if(!i.dataset.g)return;const v=parseFloat(i.value);if(isNaN(v))return;(BASE[i.dataset.g]=BASE[i.dataset.g]||{})[i.dataset.b]=Math.round(v)-gOff(i.dataset.g);(BOFF={},save('bb-base3',BASE));i.nextElementSibling.textContent=dial(i.dataset.g,v);render();renderRecipes();renderGrindMap()};
   $('calreset').onclick=()=>{BASE={};GOFF={};save('bb-goff',GOFF);(BOFF={},save('bb-base3',BASE));renderCal();render();renderRecipes();renderGrindMap();if(BUILT.gear)renderMatch();toast('Calibration reset')};
 }
@@ -789,7 +802,7 @@ function paint(){const el=TM.el,C=2*Math.PI*96;$('tm-big').textContent=mmss(el);
 // Heavy tabs are built the first time they are opened, which keeps startup quick.
 const LAZY={champs:renderChamps,words:renderWords,wheel:renderWheelTab,flow:renderFlow,gear:buildGear,recipes:renderRecipes,tech:renderTech,process:renderProcesses,variety:renderVarieties,map:buildMap,history:()=>{buildTree();startQuiz()}},BUILT={};
 // Explore and More re-render each visit: the word of the day, your counts and the theme can change.
-const ALWAYS={explore:()=>renderExplore(),settings:()=>renderSettings(),beans:()=>{if(window.BEANS_OK)renderBeansIfChanged()},
+const ALWAYS={explore:()=>renderExplore(),settings:()=>renderSettings(),beans:()=>{if(window.BEANS_OK){renderBeansIfChanged();requestAnimationFrame(()=>setTimeout(()=>loadNear($('beans')),30))}},
   // The Beans row on the dial-in follows the gallery: a coffee added, renamed or removed shows on the next visit.
   dial:()=>{if(window.BEANS_OK){if(beanSync())retuneIfAuto();renderDBean()}},
   // The countdown stops ticking when you leave the page; coming back starts it again.
@@ -1599,7 +1612,7 @@ let ME=(()=>{try{return localStorage.getItem('bb-name')||''}catch(e){return''}})
 let PENDING=load('bb-pending',[]),STREAM=null,SYNC_STATE='off';
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 // Older entries had no id or timestamp; give them one so they can be shared.
-LOG.forEach(l=>{if(!l.id)l.id=uid();if(!l.ts){const t=Date.parse(l.date);l.ts=isNaN(t)?Date.now():t}});LOG.sort((a,b)=>b.ts-a.ts);save('bb-log',LOG);
+LOG.forEach(l=>{if(!l.id)l.id=uid();if(!l.ts){const t=Date.parse(l.date);l.ts=isNaN(t)?Date.now():t}});LOG.sort((a,b)=>b.ts-a.ts);save('bb-log',LOG);if(window.BEANS_OK)checkTrophies();
 const dbUrl=path=>SYNC_DB.replace(/\/+$/,'')+'/groups/'+GROUP.code+path+'.json';
 const newCode=()=>{const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let c='';const r=crypto.getRandomValues(new Uint8Array(8));r.forEach((x,i)=>{c+=A[x%A.length];if(i===3)c+='-'});return c};
 function setSync(st){SYNC_STATE=st;const el=$('sync-state');if(el){el.dataset.s=st;el.textContent={live:'Live',connecting:'Connecting…',offline:'Offline: changes will sync later',off:''}[st]||''}}
@@ -1612,7 +1625,7 @@ function queue(op,id,data,col='log'){if(!GROUP||!SYNC_DB)return;PENDING=PENDING.
 function mergeRemote(col,entries){const pend=new Map(PENDING.filter(p=>(p.col||'log')===col).map(p=>[p.id,p]));const out=[];
   for(const [id,e] of Object.entries(entries||{})){if(!e||typeof e!=='object'||pend.get(id)&&pend.get(id).op==='del')continue;out.push(Object.assign({},e,{id}))}
   for(const p of pend.values())if(p.op==='put'&&!out.some(e=>e.id===p.id))out.push(p.data);return out}
-function applyRemote(snap){LOG=mergeRemote('log',snap.log).sort((a,b)=>(b.ts||0)-(a.ts||0));save('bb-log',LOG);renderLog();
+function applyRemote(snap){LOG=mergeRemote('log',snap.log).sort((a,b)=>(b.ts||0)-(a.ts||0));save('bb-log',LOG);if(window.BEANS_OK)checkTrophies();renderLog();
   CREC=mergeRemote('recipes',snap.recipes).map(sanRec).filter(Boolean);save('bb-myrecipes',CREC);recipesChanged()}
 function startStream(){stopStream();if(!GROUP||!SYNC_DB||typeof EventSource==='undefined')return;setSync('connecting');
   let snap={};const es=STREAM=new EventSource(dbUrl(''));
@@ -1689,11 +1702,11 @@ $('l-save').onclick=()=>{const k=LEDIT?LOG.findIndex(x=>x.id===LEDIT):-1;
   if(k>=0){const o=LOG[k],u=Object.assign({},o,{coffee:$('l-coffee').value.trim(),settings:$('l-settings').value.trim(),stars:STAR,pred:$('l-pred').value.trim(),notes:$('l-notes').value.trim(),brewer:$('l-settings').dataset.brewer||o.brewer||'',edited:Date.now()});
     if(LFL.length)u.fl=LFL.slice();else delete u.fl;
     if(!u.coffee&&!u.settings&&!u.notes&&!LFL.length){toast('Add a coffee name or some notes first');return}
-    LOG[k]=u;save('bb-log',LOG);queue('put',u.id,u);endEdit();renderLog();toast(GROUP?'Brew updated and shared':'Brew updated');return}
+    LOG[k]=u;save('bb-log',LOG);if(window.BEANS_OK)checkTrophies();queue('put',u.id,u);endEdit();renderLog();toast(GROUP?'Brew updated and shared':'Brew updated');return}
   if(LEDIT)endEdit();
   const e={id:uid(),ts:Date.now(),date:new Date().toLocaleDateString(),coffee:$('l-coffee').value.trim(),settings:$('l-settings').value.trim(),stars:STAR,pred:$('l-pred').value.trim(),notes:$('l-notes').value.trim(),brewer:$('l-settings').dataset.brewer||''};if(LFL.length)e.fl=LFL.slice();if(LSNAP)e.snap=LSNAP;LSNAP=null;
   if(GROUP)e.by=ME;
-  if(!e.coffee&&!e.settings&&!e.notes&&!LFL.length){toast('Add a coffee name or some notes first');return}LOG.unshift(e);save('bb-log',LOG);queue('put',e.id,e);['l-coffee','l-settings','l-pred','l-notes'].forEach(id=>$(id).value='');delete $('l-settings').dataset.brewer;STAR=0;LFL=[];renderFlForm();renderStars();renderLog();toast(GROUP?'Brew saved and shared':'Brew saved');beans()};
+  if(!e.coffee&&!e.settings&&!e.notes&&!LFL.length){toast('Add a coffee name or some notes first');return}LOG.unshift(e);save('bb-log',LOG);if(window.BEANS_OK)checkTrophies();queue('put',e.id,e);['l-coffee','l-settings','l-pred','l-notes'].forEach(id=>$(id).value='');delete $('l-settings').dataset.brewer;STAR=0;LFL=[];renderFlForm();renderStars();renderLog();toast(GROUP?'Brew saved and shared':'Brew saved');beans()};
 $('l-list').onclick=e=>{const ls=e.target.closest('[data-lshare]');if(ls){const l=LOG[+ls.dataset.lshare];if(l)openShare(logEntryDoc(l));return}
   const fe=e.target.closest('[data-fledit]'),fv=e.target.closest('[data-flview]'),ed=e.target.closest('[data-edit]');
   if(ed){const l=LOG[+ed.dataset.edit];if(l&&canEdit(l))editBrew(l);return}
@@ -1701,7 +1714,7 @@ $('l-list').onclick=e=>{const ls=e.target.closest('[data-lshare]');if(ls){const 
   if(fv){const l=LOG[+fv.dataset.flview];if(l)openProfile(l.coffee||'Untitled',[fmtDate(l),l.stars?l.stars+' of 5 stars':'',l.settings].filter(Boolean).join(' \u00B7 '),flOf(l),l);return}
   const b=e.target.closest('[data-del]');if(!b)return;const l=LOG[+b.dataset.del];if(!l)return;
   // One tap on Delete shouldn't lose a brew and its notes: ask first, as recipes do.
-  if(!confirm(GROUP&&l.by&&l.by!==ME?'Delete '+l.by+'’s entry for everyone?':'Delete \u201c'+(l.coffee||'Untitled')+'\u201d from your log?'))return;if(LEDIT===l.id)endEdit();LOG.splice(+b.dataset.del,1);save('bb-log',LOG);queue('del',l.id);renderLog();toast('Entry deleted')};
+  if(!confirm(GROUP&&l.by&&l.by!==ME?'Delete '+l.by+'’s entry for everyone?':'Delete \u201c'+(l.coffee||'Untitled')+'\u201d from your log?'))return;if(LEDIT===l.id)endEdit();LOG.splice(+b.dataset.del,1);save('bb-log',LOG);if(window.BEANS_OK)checkTrophies();queue('del',l.id);renderLog();toast('Entry deleted')};
 $('l-csv').onclick=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const rows=[['Date','Coffee','Settings','Stars','Predicted','Notes','Flavour notes']].concat(LOG.map(l=>[l.date,l.coffee,l.settings,l.stars,l.pred,l.notes,flText(flOf(l))]));
   saveFile('brew-log.csv',new Blob(['\ufeff'+rows.map(r=>r.map(q).join(',')).join('\r\n')],{type:'text/csv'}))};
 
@@ -1793,7 +1806,12 @@ async function ocrWorker(onProgress){OCR_PROGRESS=onProgress;
       throw e}})().catch(e=>{OCR=null;throw e})}
   return OCR}
 // Load a photo once; it is prepared (and turned, if needed) from this.
-function loadImage(file){return new Promise((ok,no)=>{const img=new Image();img.onload=()=>{URL.revokeObjectURL(img.src);ok(img)};img.onerror=()=>no(new Error('image'));img.src=URL.createObjectURL(file)})}
+// A phone camera's photo (often 12 MP or more) is brought down to 2400 px on its long side once, here: still sharp
+// enough for small print, and light enough that reading it doesn't run a phone out of memory or time.
+function loadImage(file){return new Promise((ok,no)=>{const img=new Image();img.onload=()=>{URL.revokeObjectURL(img.src);const M=2400,k=Math.min(1,M/Math.max(img.width,img.height));if(k>=1){ok(img);return}
+  try{const c=document.createElement('canvas');c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);const x=c.getContext('2d');x.imageSmoothingQuality='high';x.drawImage(img,0,0,c.width,c.height);ok(c)}catch(e){ok(img)}};img.onerror=()=>no(new Error('image'));img.src=URL.createObjectURL(file)})}
+// Shut the text reader down, so a scan that was stopped or ran too long can't keep it busy for the next one.
+function resetOcr(){const o=OCR;OCR=null;if(o)o.then(w=>{try{w.terminate()}catch(e){}}).catch(()=>{})}
 // Grey, with the contrast stretched between the darkest and lightest 2% so faded print and shadows read cleanly.
 // Light text on a dark label is flipped to dark on light, which the reader handles far better. rot turns the photo
 // (for bags shot sideways); max is the long side in pixels, big enough that small print stays readable (a small
@@ -1865,6 +1883,8 @@ function textBox(img){const S=Math.min(1,640/Math.max(img.width,img.height)),W=M
   return{x:X0/S,y:Y0/S,w:(X1-X0)/S,h:(Y1-Y0)/S,vertical:cv(cols)>cv(rows)*1.25}}
 function cropTo(img,b){const c=document.createElement('canvas');c.width=Math.round(b.w);c.height=Math.round(b.h);c.getContext('2d').drawImage(img,b.x,b.y,b.w,b.h,0,0,c.width,c.height);return c}
 async function readLabelImage(w,file,onStatus){const photo=await loadImage(file);
+  // The extra readings below are optional: past this budget, the best reading so far is used.
+  const t0=performance.now(),budget=NATIVE?45000:70000,more=()=>performance.now()-t0<budget;
   // Read the writing, not the bag: crop to it when it fills well under half the photo.
   const tb=textBox(photo),small=tb&&tb.w*tb.h<photo.width*photo.height*.5;let img=small?cropTo(photo,tb):photo;
   const read=async c=>{const r=await w.recognize(c),text=r.data.text||'',info=parseLabel(text);return{text,info,conf:r.data.confidence||0,score:readScore(info,r.data.confidence),lines:ocrLines(r,c)}};
@@ -1885,7 +1905,7 @@ async function readLabelImage(w,file,onStatus){const photo=await loadImage(file)
   // in boxes and columns), then read everything found together.
   // A missing origin or process gets both extra readings. A missing variety (many bags never name one) gets only the
   // evened-out one, the cheap fix for glare washing out part of a line.
-  if(gaps(best.info)&&gaps(best.info)<3){onStatus&&onStatus('more');const core=!best.info.origin_key||!best.info.process_key;
+  if(gaps(best.info)&&gaps(best.info)<3&&more()){onStatus&&onStatus('more');const core=!best.info.origin_key||!best.info.process_key;
     const texts=[best.text];for(const [canvas,psm] of [[evenLight(prepCanvas(img,best.rot)),PSM_DEF],...(core?[[prepCanvas(img,best.rot),'11']]:[])]){try{if(psm!==PSM_DEF)await w.setParameters({tessedit_pageseg_mode:psm});const r=await w.recognize(canvas);texts.push(r.data.text||'')}catch(e){}finally{if(psm!==PSM_DEF)try{await w.setParameters({tessedit_pageseg_mode:PSM_DEF})}catch(e){}}}
     const both=texts.join('\n'),info=parseLabel(both,best.geo),sc=readScore(info,0);if(gaps(info)<gaps(best.info)||sc>best.score){const keep=best;best={text:both,info,score:sc,rot:keep.rot,geo:keep.geo};
       // Keep the clean first reading's name and roaster when it had them.
@@ -1893,10 +1913,10 @@ async function readLabelImage(w,file,onStatus){const photo=await loadImage(file)
       // …unless the evened-out reading saw more of the same name ("Nyamas" under glare, "Nyamasheke" after).
       const ev=parseLabel(texts[1]||'').coffee_name,kn=keep.info.coffee_name;if(ev&&(!kn||(fold(ev).startsWith(fold(kn).slice(0,4))&&ev.length>kn.length)))best.info.coffee_name=ev}}
   if(!best.info.origin_key&&!best.info.variety_key&&!best.info.process_key){
-    for(const rot of [90,270,180]){onStatus&&onStatus(rot);const r=await read(prepCanvas(img,rot,1300));if(r.score>best.score+8){r.rot=rot;best=r}}
-    if(best.rot){const r=await readBoth(best.rot);if(r.score>=best.score){r.rot=best.rot;best=r}}}
+    for(const rot of [90,270,180]){if(!more())break;onStatus&&onStatus(rot);const r=await read(prepCanvas(img,rot,1300));if(r.score>best.score+8){r.rot=rot;best=r}}
+    if(best.rot&&more()){const r=await readBoth(best.rot);if(r.score>=best.score){r.rot=best.rot;best=r}}}
   // The crop missed something (a roastery printed far from the label): read the whole photo too and keep the better.
-  if(small&&gaps(best.info)){img=photo;const r=await readBoth(best.rot||0);r.rot=best.rot||0;if(r.geo)r.info=parseLabel(r.text,r.geo);if(gaps(r.info)<gaps(best.info)||(gaps(r.info)===gaps(best.info)&&r.score>best.score))best=r}
+  if(small&&gaps(best.info)&&more()){img=photo;const r=await readBoth(best.rot||0);r.rot=best.rot||0;if(r.geo)r.info=parseLabel(r.text,r.geo);if(gaps(r.info)<gaps(best.info)||(gaps(r.info)===gaps(best.info)&&r.score>best.score))best=r}
   return best}
 const fold=t=>String(t).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[’']/g,"'");
 const reEsc=t=>t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
@@ -2102,10 +2122,14 @@ async function runLocalScan(useImg){
   const st=$('scan-status'),mb=b=>(b/1e6).toFixed(1);let stop;const stopped=new Promise((_,no)=>{stop=()=>no(Object.assign(new Error('cancelled'),{code:'cancelled'}))});stopped.catch(()=>{});
   SCTL={abort:()=>stop()};$('scan-stop').hidden=!useImg;$('scan-go').disabled=true;$('scan-drop').classList.add('scanning');
   st.hidden=false;st.textContent=useImg?'Getting the text reader ready…':'Reading the text…';
+  // A watchdog: if the reader makes no progress for 40 s (once it has started), stop rather than hang.
+  let tick=Date.now(),started=false;const dog=useImg?setInterval(()=>{if(started&&Date.now()-tick>40000){clearInterval(dog);stop2()}},2000):0;let stop2=()=>{};
+  const stalled=new Promise((_,no)=>{stop2=()=>no(Object.assign(new Error('slow'),{code:'slow'}))});stalled.catch(()=>{});
   try{let text=txt,rot=0,j=null;
-    if(useImg){const w=await Promise.race([ocrWorker((status,p,g,t)=>{if(SCTL.done)return;st.textContent=status==='download'?'Downloading the text reader (first time only)… '+mb(g)+' of '+mb(t)+' MB'
+    if(useImg){const w=await Promise.race([ocrWorker((status,p,g,t)=>{if(SCTL.done)return;tick=Date.now();st.textContent=status==='download'?'Downloading the text reader (first time only)… '+mb(g)+' of '+mb(t)+' MB'
           :/recogniz/.test(status)?'Reading the label… '+Math.round(p*100)+'%':'Starting the text reader…'}),stopped]);
-      const res=await Promise.race([withTimeout(readLabelImage(w,SFILE,k=>{if(!SCTL.done)st.textContent=k==='more'?'Looking closer for the rest of the details…':'Trying the photo the other way round…'}),180000,'slow'),stopped]);text=res.text;rot=res.rot||0;j=res.info;$('scan-text').value=text.trim()}
+      started=true;tick=Date.now();
+      const res=await Promise.race([withTimeout(readLabelImage(w,SFILE,k=>{tick=Date.now();if(!SCTL.done)st.textContent=k==='more'?'Looking closer for the rest of the details…':'Trying the photo the other way round…'}),120000,'slow'),stopped,stalled]);text=res.text;rot=res.rot||0;j=res.info;$('scan-text').value=text.trim()}
     // A photo's reading already chose the name and roastery from the type sizes; pasted text is read here.
     if(!j)j=parseLabel(text);if(!j.origin_key&&!j.variety_key&&!j.process_key&&!j.roast_date){st.textContent=useImg?'Couldn’t find coffee details in that photo. Try again with the label filling most of the photo, in sharp focus, or fill in the details below.':'No coffee details found in that text.';return}
     if(rot)await uprightPreview(rot);
@@ -2113,7 +2137,7 @@ async function runLocalScan(useImg){
     st.textContent=(j.confidence==='low'?'Found a few details: ':'Label read: ')+found.join(' · ')+'. Your brew plan is below; adjust anything that looks off.';renderScan();saveScan();toast('Label read');
     // Show the result: it sits below the form, out of sight on a phone.
     setTimeout(()=>{const h=$('scan-head');if(h)scrollTo({top:h.getBoundingClientRect().top+scrollY-90,behavior:RM()?'auto':'smooth'})},250)}
-  catch(e){const c=e&&e.code;st.textContent=c==='cancelled'?'Stopped.'
+  catch(e){const c=e&&e.code;if(useImg&&(c==='cancelled'||c==='slow'))resetOcr();st.textContent=c==='cancelled'?'Stopped.'
       :(c==='download'||c==='stalled'||!navigator.onLine)&&!NATIVE?'The text reader couldn’t download. It needs a connection the first time only; try again on Wi-Fi, or fill in the details below.'
       :c==='download'||c==='stalled'?'The text reader didn’t load on this phone. Check you’re online and try again, or paste the label text below.'
       :c==='start'?'The text reader didn’t start on this phone. Paste the label text below, or fill in the details by hand.'
@@ -2121,7 +2145,7 @@ async function runLocalScan(useImg){
       :'The text reader couldn’t start. Try again, or fill in the details below.';
     // The technical reason, small, so a screenshot of this message shows what failed.
     if(c!=='cancelled'&&OCR_LOG.length)st.insertAdjacentHTML('beforeend','<small class="scan-why">Details: '+esc(OCR_LOG.join(' · '))+'</small>')}
-  finally{if(SCTL)SCTL.done=true;$('scan-stop').hidden=true;$('scan-go').disabled=!SFILE;$('scan-drop').classList.remove('scanning')}}
+  finally{if(dog)clearInterval(dog);if(SCTL)SCTL.done=true;$('scan-stop').hidden=true;$('scan-go').disabled=!SFILE;$('scan-drop').classList.remove('scanning')}}
 // After a sideways photo is read, show it the right way up (the saved thumbnail follows the preview).
 async function uprightPreview(rot){try{const img=await loadImage(SFILE),k=Math.min(1,1200/Math.max(img.width,img.height)),w=img.width*k,h=img.height*k,c=document.createElement('canvas'),side=rot%180!==0;
   c.width=side?h:w;c.height=side?w:h;const x=c.getContext('2d');x.translate(c.width/2,c.height/2);x.rotate(rot*Math.PI/180);x.drawImage(img,-w/2,-h/2,w,h);$('scan-prev').src=c.toDataURL('image/jpeg',.85)}catch(e){}}
@@ -2838,6 +2862,28 @@ document.addEventListener('click',e=>{const el=e.target.closest('#st-grind [data
   else if(el.hasAttribute('data-gbreset')){const b=el.closest('[data-b]').dataset.b;if(BASE[g])delete BASE[g][b]}
   else{delete BASE[g];delete GOFF[g];toast(G.name+' is back to the app’s settings')}
   grindChanged()});
+// The welcome on Brew: good morning (or afternoon, evening, a late-night brew) by your nickname, and a line of
+// coffee wisdom that changes each day. Tap it for another.
+const WISDOM=[['Grind fresh, brew slow, taste twice.'],['The best grinder is the one you adjust by taste, not by number.'],['A good cup starts the night before: rest your beans, fill your kettle.'],
+  ['Sour means go finer. Bitter means go coarser. Everything else is detail.'],['Coffee is a fruit. Brew it like you want to taste the fruit.'],['Patience in the bloom is flavour in the cup.'],
+  ['Every bag tells you where it grew. Listen with your first sip.'],['Change one thing at a time, and write it down.'],['Water is ninety-eight per cent of your cup. Choose it well.'],
+  ['A slow pour is a quiet conversation with the bed.'],['The freshest beans in the world still need a few days to settle.'],['Good coffee is shared coffee.'],
+  ['Taste as it cools: the truth of a cup comes out at the end.'],['Weigh your coffee, and you can repeat your best cup.'],['Clean gear, clean cup.'],
+  ['Light roasts ask for heat; dark roasts ask for gentleness.'],['There is no wrong cup, only the next adjustment.'],['A flat bed is an even extraction.'],
+  ['Behind every cup are hands that picked each cherry.'],['Brew for yourself first, then for the people you love.'],['The sweet spot is a place you find, not a number you set.'],
+  ['Coffee rewards curiosity: try one new origin this month.'],['Smell the grounds before you pour. It is the cup in a preview.'],['Your palate is the best instrument in the room.'],
+  ['Small changes, big cups.'],['The best brew is the one you are drinking now.'],
+  ['A cup of coffee commits one to forty years of friendship.','Turkish proverb'],['Coffee should be black as hell, strong as death and sweet as love.','Old saying'],
+  ['The first cup is for the guest, the second for pleasure, the third for the sword.','Arabian saying, on serving qahwa'],['Coffee and love taste best when hot.','Ethiopian saying'],
+  ['Buna dabo naw: coffee is our bread.','Ethiopian saying']];
+function welcomeHTML(when){const d=when||new Date(),h=d.getHours(),t=h<5?'night':h<12?'morning':h<17?'day':h<22?'evening':'night';
+  const hi={morning:['☀️','Good morning'],day:['☕','Good afternoon'],evening:['🌙','Good evening'],night:['✨','Late-night brew']}[t];
+  const nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick||ME||'',day=Math.floor((d.getTime()-d.getTimezoneOffset()*6e4)/864e5),i=((day+WOFF)%WISDOM.length+WISDOM.length)%WISDOM.length,[q,by]=WISDOM[i];
+  return{t,html:'<span class="wl-ic" aria-hidden="true">'+hi[0]+'</span><span class="wl-tx"><span class="wl-hi">'+hi[1]+(nick?', <em>'+esc(nick)+'</em>':'')+'</span><span class="wl-q">\u201c'+esc(q)+'\u201d'+(by?'<small class="wl-by">'+esc(by)+'</small>':'')+'</span></span>'}}
+let WOFF=0;
+function renderWelcome(bump){const el=$('welcome');if(!el)return;if(bump)WOFF++;const w=welcomeHTML();el.className='welcome t-'+w.t+(bump?' wl-in':'');el.innerHTML=w.html;el.setAttribute('aria-label',el.textContent.trim()+'. Tap for another line of coffee wisdom.')}
+$('welcome').onclick=()=>renderWelcome(true);renderWelcome();
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)renderWelcome()});
 /* ================= INIT ================= */
 // Drawings that loop (the pour on the Dial-in page) pause while they're out of sight, so the phone isn't redrawing
 // something nobody can see.
