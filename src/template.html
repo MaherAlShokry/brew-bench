@@ -1761,6 +1761,9 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .gs-list{display:grid;gap:8px;padding-bottom:12px}.gs-row{display:flex;align-items:center;gap:10px;justify-content:space-between}
 .gs-n{min-width:0;font-size:.9rem;display:flex;flex-direction:column}.gs-n small{color:var(--muted);font-size:.74rem}.gs-row.own .gs-n{font-weight:600}
 .gs-row .stepper{width:132px;flex:none}.gs-each .actions{padding-bottom:12px}
+.gtabs{position:sticky;top:calc(var(--sa-top,0px) + 64px);z-index:5;margin:14px 0 6px;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:6px;border-radius:var(--r-pill)}
+.gpanel{padding-top:6px}.gpanel>.gsec:first-child,.gpanel>#st-grind:first-child{margin-top:8px}
+.gs-shortcut .btn{white-space:nowrap}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
@@ -2025,36 +2028,46 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 <!-- GEAR -->
 <section id="gear">
   <h2>Gear and dials</h2>
-  <p class="lede">Your grinders and brewers, how to read the dials, and what to reach for.</p>
+  <p class="lede">Your grinders and brewers, your grind settings, and how to read the dials.</p>
   <div class="card kit" id="gear-kit"></div>
-  <div class="seg filters scrollrow jumpnav" id="gear-nav" role="navigation" aria-label="On this page">
-    <button type="button" data-jump="g-dials">Read a dial</button><button type="button" data-jump="gmatch">Match a grind</button><button type="button" data-jump="g-map">Grind map</button><button type="button" data-jump="g-brew">Brewers</button><button type="button" data-jump="g-lib">Grinder library</button><button type="button" data-jump="g-acc">Accessories</button>
+  <div class="seg filters scrollrow gtabs" id="gear-tabs" role="tablist" aria-label="Gear and dials">
+    <button type="button" role="tab" data-gtab="set">Grind settings</button><button type="button" role="tab" data-gtab="dials">Dials</button><button type="button" role="tab" data-gtab="brew">Brewers</button><button type="button" role="tab" data-gtab="lib">Grinders</button><button type="button" role="tab" data-gtab="acc">More gear</button>
   </div>
-  <h3 id="g-dials" class="gsec">Read your dials</h3>
-  <p class="hint" style="margin-top:0">Drag the slider to see what a setting means and which brew it suits.</p>
-  <div class="seg" id="gear-dialpick"></div>
-  <div class="grid gdials" id="gear-grinders" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))"></div>
-  <div class="card gsec" id="gmatch" style="margin-top:14px"></div>
-  <details class="card" style="margin-top:14px"><summary><b>Why grinders need different numbers</b> <span class="hint">How the dials work</span></summary>
+  <div class="gpanel" data-gpanel="set" role="tabpanel">
+    <div id="st-grind"></div>
+  </div>
+  <div class="gpanel" data-gpanel="dials" role="tabpanel" hidden>
+    <h3 id="g-dials" class="gsec">Read your dials</h3>
+    <p class="hint" style="margin-top:0">Drag the slider to see what a setting means and which brew it suits.</p>
+    <div class="seg" id="gear-dialpick"></div>
+    <div class="grid gdials" id="gear-grinders" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))"></div>
+    <div class="card gsec" id="gmatch" style="margin-top:14px"></div>
+    <h3 id="g-map" class="gsec" style="margin-top:1.6rem">Where every brewer sits on your dials</h3>
+    <p class="hint">Tap a marker to see the setting. These follow your grind settings.</p>
+    <div class="card" id="grindmap"></div>
+    <details class="card" style="margin-top:14px"><summary><b>Why grinders need different numbers</b> <span class="hint">How the dials work</span></summary>
     <p>The 1Zpresso grinders use an external ring read as <b>rotation.number.click</b>. Close the burrs until they just touch: that is zero. Turning toward bigger numbers opens the burrs and grinds coarser. Most filter brewing stays inside the first rotation, so the rotation digit is usually dropped: <b>5.6</b> means number 5, click 6.</p>
     <p>The two dials are not interchangeable. The ZP6 Special has 9 numbers per turn (90 clicks, about 22 microns each); the K-Ultra has 10 (100 clicks, 20 microns each). The same number on both grinders is a different grind size, and different burr shapes mean even the same micron gap tastes different. Calibrate each one by taste.</p>
-    <p><b>Why a V60 is 5.6 on one and 8.0 on the other.</b> 56 ZP6 clicks is a gap of about 1.2 mm; 80 K-Ultra clicks is about 1.6 mm. The K-Ultra needs the wider gap because its all-round burrs make more fine particles, which slow the drawdown and pull more out of the coffee. The ZP6's filter burrs make very few fines, so it needs a tighter gap to reach the same flow and strength. The numbers also follow 1Zpresso's own ranges for each grinder (filter roughly 4.5 to 7.0 on the ZP6, 7.0 to 9.5 on the K-Ultra).</p>    <p>Across brands the numbers mean even less: a Comandante counts clicks from closed, an Ode or Encore has a numbered dial, a Niche is stepless. The app places every grinder on one shared scale, anchored on its typical V60 setting, so it can suggest a starting point for any brewer and match a setting from one grinder to another. For grinders you haven't calibrated these are starting points from typical ranges: fine-tune by taste and save them under <b>Calibrate to your grinders</b> on the dial-in.</p>
+    <p><b>Why a V60 is 5.6 on one and 7.2 on the other.</b> 56 ZP6 clicks is a gap of about 1.2 mm; 72 K-Ultra clicks is about 1.4 mm. The K-Ultra needs the wider gap because its all-round burrs make more fine particles, which slow the drawdown and pull more out of the coffee. The ZP6's filter burrs make very few fines, so it needs a tighter gap to reach the same flow and strength. The numbers also follow 1Zpresso's own ranges for each grinder (filter roughly 4.5 to 7.0 on the ZP6, 7.0 to 9.5 on the K-Ultra).</p>    <p>Across brands the numbers mean even less: a Comandante counts clicks from closed, an Ode or Encore has a numbered dial, a Niche is stepless. The app places every grinder on one shared scale, anchored on its typical V60 setting, so it can suggest a starting point for any brewer and match a setting from one grinder to another. For grinders you haven't calibrated these are starting points from typical ranges: fine-tune by taste and save them under <b>Calibrate to your grinders</b> on the dial-in.</p>
   </details>
-
-  <h3 style="margin-top:1.6rem" id="g-map" class="gsec">Where every brewer sits on your dials</h3>
-  <p class="hint">Tap a marker to see the setting. These follow your calibration.</p>
-  <div class="card" id="grindmap"></div>
-  <h3 style="margin-top:1.6rem" id="g-brew" class="gsec">Brewers</h3>
-  <div class="seg filters scrollrow" id="gear-filter" style="margin-bottom:12px"></div>
-  <div class="grid" id="gear-brewers"></div>
-  <h3 style="margin-top:1.6rem" id="g-lib" class="gsec">Grinder library</h3>
-  <p class="hint" style="margin-top:0">Manual and electric grinders by brand, with their burrs, dials and typical settings. Tap Compare on up to three to see them side by side.</p>
-  <div class="vtools"><input type="search" id="glib-search" placeholder="Search, e.g. Timemore, K-Ultra, flat burrs" aria-label="Search grinders"><div class="seg filters scrollrow" id="glib-filter"></div></div>
-  <div id="gcmp"></div>
-  <div id="glib"></div>
-  <details class="card" id="gcustom" style="margin-top:14px"><summary><b>Add your own grinder</b> <span class="hint">Not in the list? Set it up in a minute</span></summary><div id="gcustom-in"></div></details>
-  <h3 style="margin-top:1.6rem" id="g-acc" class="gsec">Everything else</h3>
-  <div class="grid" id="gear-acc"></div>
+  </div>
+  <div class="gpanel" data-gpanel="brew" role="tabpanel" hidden>
+    <h3 id="g-brew" class="gsec">Brewers</h3>
+    <div class="seg filters scrollrow" id="gear-filter" style="margin-bottom:12px"></div>
+    <div class="grid" id="gear-brewers"></div>
+  </div>
+  <div class="gpanel" data-gpanel="lib" role="tabpanel" hidden>
+    <h3 id="g-lib" class="gsec">Grinder library</h3>
+    <p class="hint" style="margin-top:0">Manual and electric grinders by brand, with their burrs, dials and typical settings. Tap Compare on up to three to see them side by side.</p>
+    <div class="vtools"><input type="search" id="glib-search" placeholder="Search, e.g. Timemore, K-Ultra, flat burrs" aria-label="Search grinders"><div class="seg filters scrollrow" id="glib-filter"></div></div>
+    <div id="gcmp"></div>
+    <div id="glib"></div>
+    <details class="card" id="gcustom" style="margin-top:14px"><summary><b>Add your own grinder</b> <span class="hint">Not in the list? Set it up in a minute</span></summary><div id="gcustom-in"></div></details>
+  </div>
+  <div class="gpanel" data-gpanel="acc" role="tabpanel" hidden>
+    <h3 id="g-acc" class="gsec">Everything else</h3>
+    <div class="grid" id="gear-acc"></div>
+  </div>
 </section>
 
 <!-- MAP -->

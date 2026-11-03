@@ -383,7 +383,7 @@ function swapGrinder(v){if(!SWAP||SWAP.b!==S.brewer||SWAP.out[S.grinder]!==S.set
 // The same grind on your other grinders, for the dial-in and recipes.
 function equivLine(g,c,b){const o=MYG.filter(h=>h!==g&&canGrind(h,b)).map(h=>esc(gLabel(h,convertSetting({grinder:g,setting:c,brewer:b},h,b))));
   return (o.length?'Same grind: '+o.join(' · ')+' · ':'')+'<button type="button" class="linkbtn" data-match="'+g+'|'+c+'">'+(o.length?'All grinders':'Same grind on other grinders')+' →</button>'}
-function openMatch(g,c){MATCH={g,v:dial(g,c)};showTab('gear');renderMatch();requestAnimationFrame(()=>$('gmatch').scrollIntoView({behavior:RM()?'auto':'smooth',block:'start'}))}
+function openMatch(g,c){MATCH={g,v:dial(g,c)};goGear('dials');renderMatch();requestAnimationFrame(()=>$('gmatch').scrollIntoView({behavior:RM()?'auto':'smooth',block:'start'}))}
 document.addEventListener('click',e=>{const m=e.target.closest('[data-match]');if(m){const [g,c]=m.dataset.match.split('|');if(GRINDERS[g])openMatch(g,+c)}});
 function fitRanges(){const B=BREWERS[S.brewer];S.ratio=clamp(S.ratio,B.ratio.min,B.ratio.max);S.temp=clamp(S.temp,B.temp.min,B.temp.max);S.bloom=clamp(S.bloom,B.bloom.min,B.bloom.max)}
 /* ---------- Dial-in with a recipe ----------
@@ -1180,7 +1180,17 @@ const GEAR_A=[
  ['Freshness','Most filter coffees taste best about one week to one month after roast; espresso often likes two weeks or more.']
 ];
 let GF='all';const TYCOL={};Object.values(BREWERS).forEach(b=>{if(!TYCOL[b.type])TYCOL[b.type]=['#8A5A3B','#6B8E4E','#C9964A','#B5533C','#4F8A74','#6E8FA8','#9A7390','#5B5F66'][Object.keys(TYCOL).length%8]});
+// Gear and dials is split into tabs: Grind settings, Dials, Brewers, Grinders, More gear.
+let GTAB=(()=>{try{return sessionStorage.getItem('bb-gtab')||'set'}catch(e){return 'set'}})();
+function gearTab(t){if(!document.querySelector('[data-gpanel="'+t+'"]'))t='set';GTAB=t;try{sessionStorage.setItem('bb-gtab',t)}catch(e){}
+  document.querySelectorAll('#gear-tabs [data-gtab]').forEach(b=>{const on=b.dataset.gtab===t;b.setAttribute('aria-pressed',on);b.setAttribute('aria-selected',on)});
+  document.querySelectorAll('#gear [data-gpanel]').forEach(p=>{p.hidden=p.dataset.gpanel!==t})}
+// Open Gear and dials on a tab (and optionally scroll to something on it).
+function goGear(t,el){if(!BUILT.gear){BUILT.gear=1;buildGear()}gearTab(t);showTab('gear');if(el)requestAnimationFrame(()=>{const x=$(el);if(x)x.scrollIntoView({behavior:RM()?'auto':'smooth',block:'start'})})}
+document.addEventListener('click',e=>{const b=e.target.closest('#gear-tabs [data-gtab]');if(b){gearTab(b.dataset.gtab);const t=$('gear-tabs');if(t.getBoundingClientRect().top<0||scrollY>t.offsetTop)t.scrollIntoView({block:'start'});return}
+  const g=e.target.closest('[data-gearto]');if(g)goGear(g.dataset.gearto)});
 function buildGear(){
+  gearTab(GTAB);renderGrindSet();
   renderMyGrinders();renderMyBrewers();renderMatch();renderLibrary();renderCustomForm();
   $('gear-acc').innerHTML=GEAR_A.map(([n,d])=>'<div class="card hovercard"><h3>'+n+'</h3><p style="margin:0">'+d+'</p></div>').join('');
   renderGearBrewers();renderGrindMap();
@@ -1303,7 +1313,7 @@ function renderMyBrewers(){const el=$('gear-kit');if(!el)return;
     row(KIT_IC.g,'Grinders','Settings everywhere are shown for these','Add or change','data-gpick',MYG.map(g=>'<button type="button" class="chip" data-kitg="'+g+'">'+esc(gname(g))+'</button>').join(''))+
     row(KIT_IC.b,'Brewers','Recipes and champion brews adapt to these',MYB.length?'Add or change':'Choose','data-gpick-b',MYB.length?MYB.map(b=>'<button type="button" class="chip" data-kitb="'+b+'">'+esc(BREWERS[b].name)+'</button>').join(''):'<p class="hint">None picked yet. Choose the brewers you own so recipes fit your kit.</p>');
   el.onclick=e=>{const g=e.target.closest('[data-kitg]'),b=e.target.closest('[data-kitb]');
-    if(g){GDIAL=g.dataset.kitg;renderMyGrinders();$('g-dials').scrollIntoView({behavior:RM()?'auto':'smooth',block:'start'})}
+    if(g){GDIAL=g.dataset.kitg;renderMyGrinders();gearTab('dials');$('g-dials').scrollIntoView({behavior:RM()?'auto':'smooth',block:'start'})}
     if(b){GF='all';renderGearBrewers();const c=$('gb-'+b.dataset.kitb);if(c){c.style.scrollMarginTop='16px';c.scrollIntoView({block:'start'});
       // Cards further down are laid out only when near the screen, so settle once they are, then land exactly.
       requestAnimationFrame(()=>requestAnimationFrame(()=>c.scrollIntoView({block:'start'})));c.classList.add('flash');setTimeout(()=>c.classList.remove('flash'),1400)}}}}
@@ -2667,7 +2677,7 @@ function renderSettings(){const t=document.documentElement.getAttribute('data-th
     row('wheel','#6E8FA8','Motion','Animations between pages and sheets','<div class="seg" id="st-motion"></div>')+
     row('globe','#4F8A74','Open the app on','The page you see first','<div class="seg" id="st-start"></div>')+'</div>'+
    // The coffee of the day: always on the Beans and Explore pages; in the Android app, also as a notification.
-   '<h3 class="rh">Grind settings</h3><div id="st-grind"></div>'+
+   '<h3 class="rh">Grind settings</h3><div class="setgroup">'+row('wheel','#6E8FA8','Grind settings','Each grinder\u2019s setting for every brewer, and a nudge for all its recipes. Now in Gear and dials.','<div class="actions gs-shortcut" style="margin:0"><button type="button" class="btn ghost" data-gearto="set">Open grind settings</button></div>')+'</div>'+
    '<h3 class="rh">Reminders</h3><div class="setgroup">'+row('hourglass','#8A5A3B','Coffee of the day','A coffee from your cabinet each day: a bag at its peak or running low, one from this day in an earlier year, or a memory from your diary.',
      window.BEANS_OK&&LN()?'<div class="setbtns"><div class="seg" id="st-remind"></div><input type="time" id="st-rtime" class="dateinp" value="'+REMIND.t+'" aria-label="Reminder time"'+(REMIND.on?'':' disabled')+'></div>'
        :'<p class="setnote" style="margin:0">It’s at the top of Beans and Explore each day. In the Android app it can also arrive as a notification at the time you choose.</p>')+
@@ -2680,7 +2690,6 @@ function renderSettings(){const t=document.documentElement.getAttribute('data-th
    (installed()?'':'<h3 class="rh">Install</h3><div class="setgroup">'+row('download','#9A7390','Add to your home screen','Use it like an app, offline too','<p class="setnote" style="margin:0"><b>iPhone (Safari):</b> tap the Share button, then <b>Add to Home Screen</b>.<br><b>Android (Chrome):</b> tap the ⋮ menu, then <b>Add to Home screen</b>.</p>')+'</div>')+
    '<h3 class="rh">About</h3><div class="setgroup">'+row('book','#8A5A3B','The Brew Bench','A coffee field guide and dial-in tool. What you save stays on this device, or syncs with your account if you sign in.','<p class="setnote" style="margin:0"><a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a> · <a href="'+SITE_URL+'delete-account.html" target="_blank" rel="noopener">Delete your account</a></p>')+
      '</div>';
-  renderGrindSet();
   seg('st-mode',[['light','Light'],['dark','Dark'],['auto','Auto']],()=>t,v=>{if(v==='auto'){document.documentElement.removeAttribute('data-theme');try{localStorage.removeItem('bb-theme')}catch(e){}}
     else{document.documentElement.setAttribute('data-theme',v);try{localStorage.setItem('bb-theme',v)}catch(e){}}syncThemeBtn();applyUI();renderSettings()});
   seg('st-text',[['s','Small'],['m','Standard'],['l','Large'],['xl','Larger']],()=>UI.text,v=>{UI.text=v;saveUI();renderSettings()});
