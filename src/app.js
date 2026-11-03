@@ -2217,7 +2217,10 @@ function beanProfile(){const P=PROCESSES[SC.process],Vp=vParams(SC.variety),Vv=v
   // One line of character, from what stands out most.
   // Earthy processes (wet-hulled, monsooned, aged) read by their own notes, not as fruit.
   const earthy=/earth|cedar|spice|tobacco|herb|wood|musty|savoury/i.test(P.notes||'')||P.cat==='regional';
-  const a=acid>.5?'lively acidity':acid<-.2?'low acidity':'gentle acidity',sw=sweet>.8?'lots of sweetness':sweet>.3?'good sweetness':'',bd=body>.9?'a heavy, syrupy body':body>.3?'a round body':body<-.1?'a light, tea-like body':'a medium body';
+  // The line reads from the same levels as the meters, so the words and the beans always agree.
+  const LA=lvl(acid),LS=lvl(sweet),LB=lvl(body);
+  const a=['soft acidity','mild acidity','bright acidity','lively acidity','sparkling acidity'][LA-1],sw=['','','','rich sweetness','honeyed sweetness'][LS-1],
+    bd=['a light, tea-like body','a light body','a round body','a full body','a heavy, syrupy body'][LB-1];
   const fk=earthy?'earthy, spicy depth':funk>=1.2?'loud fermented fruit':funk>=.6?'ripe fruit':'';
   const parts=[fk,a,sw].filter(Boolean),list=parts.length>1?parts.slice(0,-1).join(', ')+' and '+parts[parts.length-1]:parts[0];
   const head=list[0].toUpperCase()+list.slice(1)+', with '+bd+'.';
