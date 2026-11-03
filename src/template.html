@@ -1809,6 +1809,13 @@ body.t-dial.dial-ready .herowrap{display:none}
 .seg.bviews button i{margin:0!important;padding:0!important;background:none!important;color:inherit!important;font-size:.7rem!important;font-weight:700;opacity:.7;font-variant-numeric:tabular-nums}
 @media (max-width:399px){.seg.bviews button,.gtabs button{padding:0 6px!important;font-size:.8rem!important}}
 @media (max-width:359px){.seg.bviews button,.gtabs button{padding:0 4px!important;font-size:.74rem!important}.seg.bviews button i{display:none}}
+/* A coffee's varieties in the editor: one picker per variety, a quiet remove, and a dashed "add another". */
+.bvars{display:grid;gap:8px}.bvar{display:flex;gap:8px;align-items:stretch}.bvar select{flex:1 1 auto;min-width:0}
+.bvar-x{flex:none;width:44px;min-height:44px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--muted);display:grid;place-items:center;cursor:pointer;padding:0}
+.bvar-x:hover{color:var(--cherry-ink);border-color:color-mix(in srgb,var(--cherry) 40%,var(--line))}
+.bvar-x svg,.bv-add svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+.bv-add{margin-top:8px;display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:6px 14px;border-radius:var(--r-pill);border:1px dashed color-mix(in srgb,var(--cherry) 45%,var(--line));background:transparent;color:var(--cherry-ink);font:inherit;font-weight:600;font-size:.86rem;cursor:pointer}
+.bv-add[hidden]{display:none}
 /* The welcome on Brew: a card like the others, with a greeting and the day's line of coffee wisdom. */
 .welcome{margin:0 0 12px;padding:16px 18px}
 .wl-top{display:flex;align-items:center;gap:12px}
