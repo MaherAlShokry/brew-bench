@@ -1806,6 +1806,17 @@ body.t-dial.dial-ready .herowrap{display:none}
 .seg.bviews button i{font-size:.66rem;padding:1px 5px;margin-left:2px}
 @media (max-width:350px){.gtabs button,.seg.bviews button{font-size:.74rem!important}.gtabs button{font-size:.68rem!important;letter-spacing:-.01em}}
 .gtabs{overflow:visible!important;-webkit-mask-image:none!important;mask-image:none!important}.gtabs button{flex:1 1 0!important;min-width:0;padding-left:2px!important;padding-right:2px!important;font-size:.82rem}
+/* The welcome on Brew: a greeting by time of day, your nickname, and a line of coffee wisdom. */
+.welcome{position:relative;display:flex;align-items:center;gap:14px;width:100%;margin:0 0 12px;padding:16px 18px;border:0;border-radius:22px;text-align:left;font:inherit;cursor:pointer;overflow:hidden;color:#FFF8EE;
+  background:linear-gradient(135deg,var(--wa,#8A5A3B),var(--wb,#3B2417));box-shadow:0 10px 26px -16px rgba(40,24,14,.7);-webkit-tap-highlight-color:transparent}
+.welcome::after{content:"";position:absolute;right:-30px;top:-40px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(255,236,200,.22),transparent 70%);pointer-events:none}
+.welcome .wl-ic{flex:none;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-size:1.5rem;background:rgba(255,248,238,.14);box-shadow:inset 0 0 0 1px rgba(255,248,238,.18)}
+.welcome .wl-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.welcome .wl-hi{font:700 1.14rem/1.2 var(--display);letter-spacing:-.01em}.welcome .wl-hi em{font-style:normal;color:#F3D58F}
+.welcome .wl-q{font-size:.88rem;line-height:1.4;opacity:.92}.welcome .wl-by{display:block;margin-top:2px;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;opacity:.65}
+.welcome.wl-in .wl-q{animation:wlq .5s var(--ease-out,ease) both}@keyframes wlq{from{opacity:0;transform:translateY(4px)}to{opacity:.92;transform:none}}
+.welcome.t-morning{--wa:#C9864A;--wb:#7A4A2C}.welcome.t-day{--wa:#9C6A3E;--wb:#5A3A24}.welcome.t-evening{--wa:#7A4A5E;--wb:#3A2236}.welcome.t-night{--wa:#3E4A6E;--wb:#1C2236}
+@media (prefers-reduced-motion:reduce){.welcome.wl-in .wl-q{animation:none}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
@@ -1967,6 +1978,7 @@ body.t-dial.dial-ready .herowrap{display:none}
 
 <!-- DIAL-IN -->
 <section id="dial" class="on">
+  <button type="button" class="welcome" id="welcome" aria-live="polite"></button>
   <div class="minires" id="minires"><div><b id="mr-v"></b><span id="mr-g"></span></div><div class="gauge mini" aria-hidden="true"><i id="mr-m"></i></div><button type="button" class="mr-play" id="mr-play" hidden aria-label="Start the brew timer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button></div>
   <div class="bench">
     <div class="panel">

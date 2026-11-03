@@ -2862,6 +2862,28 @@ document.addEventListener('click',e=>{const el=e.target.closest('#st-grind [data
   else if(el.hasAttribute('data-gbreset')){const b=el.closest('[data-b]').dataset.b;if(BASE[g])delete BASE[g][b]}
   else{delete BASE[g];delete GOFF[g];toast(G.name+' is back to the app’s settings')}
   grindChanged()});
+// The welcome on Brew: good morning (or afternoon, evening, a late-night brew) by your nickname, and a line of
+// coffee wisdom that changes each day. Tap it for another.
+const WISDOM=[['Grind fresh, brew slow, taste twice.'],['The best grinder is the one you adjust by taste, not by number.'],['A good cup starts the night before: rest your beans, fill your kettle.'],
+  ['Sour means go finer. Bitter means go coarser. Everything else is detail.'],['Coffee is a fruit. Brew it like you want to taste the fruit.'],['Patience in the bloom is flavour in the cup.'],
+  ['Every bag tells you where it grew. Listen with your first sip.'],['Change one thing at a time, and write it down.'],['Water is ninety-eight per cent of your cup. Choose it well.'],
+  ['A slow pour is a quiet conversation with the bed.'],['The freshest beans in the world still need a few days to settle.'],['Good coffee is shared coffee.'],
+  ['Taste as it cools: the truth of a cup comes out at the end.'],['Weigh your coffee, and you can repeat your best cup.'],['Clean gear, clean cup.'],
+  ['Light roasts ask for heat; dark roasts ask for gentleness.'],['There is no wrong cup, only the next adjustment.'],['A flat bed is an even extraction.'],
+  ['Behind every cup are hands that picked each cherry.'],['Brew for yourself first, then for the people you love.'],['The sweet spot is a place you find, not a number you set.'],
+  ['Coffee rewards curiosity: try one new origin this month.'],['Smell the grounds before you pour. It is the cup in a preview.'],['Your palate is the best instrument in the room.'],
+  ['Small changes, big cups.'],['The best brew is the one you are drinking now.'],
+  ['A cup of coffee commits one to forty years of friendship.','Turkish proverb'],['Coffee should be black as hell, strong as death and sweet as love.','Old saying'],
+  ['The first cup is for the guest, the second for pleasure, the third for the sword.','Arabian saying, on serving qahwa'],['Coffee and love taste best when hot.','Ethiopian saying'],
+  ['Buna dabo naw: coffee is our bread.','Ethiopian saying']];
+function welcomeHTML(when){const d=when||new Date(),h=d.getHours(),t=h<5?'night':h<12?'morning':h<17?'day':h<22?'evening':'night';
+  const hi={morning:['☀️','Good morning'],day:['☕','Good afternoon'],evening:['🌙','Good evening'],night:['✨','Late-night brew']}[t];
+  const nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick||ME||'',day=Math.floor((d.getTime()-d.getTimezoneOffset()*6e4)/864e5),i=((day+WOFF)%WISDOM.length+WISDOM.length)%WISDOM.length,[q,by]=WISDOM[i];
+  return{t,html:'<span class="wl-ic" aria-hidden="true">'+hi[0]+'</span><span class="wl-tx"><span class="wl-hi">'+hi[1]+(nick?', <em>'+esc(nick)+'</em>':'')+'</span><span class="wl-q">\u201c'+esc(q)+'\u201d'+(by?'<small class="wl-by">'+esc(by)+'</small>':'')+'</span></span>'}}
+let WOFF=0;
+function renderWelcome(bump){const el=$('welcome');if(!el)return;if(bump)WOFF++;const w=welcomeHTML();el.className='welcome t-'+w.t+(bump?' wl-in':'');el.innerHTML=w.html;el.setAttribute('aria-label',el.textContent.trim()+'. Tap for another line of coffee wisdom.')}
+$('welcome').onclick=()=>renderWelcome(true);renderWelcome();
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)renderWelcome()});
 /* ================= INIT ================= */
 // Drawings that loop (the pour on the Dial-in page) pause while they're out of sight, so the phone isn't redrawing
 // something nobody can see.
