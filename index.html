@@ -4737,9 +4737,20 @@ function render(){
   if(Math.abs(r.D)>0.45){const bx0=baseX(S.grinder,S.brewer);let t=roundG(S.grinder,shift(S.grinder,S.setting,r.D/KG*160));
     // Stay inside the brewer's usual window (about 1.5 recipe steps either side of its baseline); the water temperature does the rest.
     if(bx0!=null){const lo=roundG(S.grinder,shift(S.grinder,bx0,-240)),hi=roundG(S.grinder,shift(S.grinder,bx0,240));t=r.D>0?Math.min(t,Math.max(hi,S.setting)):Math.max(t,Math.min(lo,S.setting))}const diff=Math.abs(t-S.setting);// Water alone is offered only when a few degrees will do it; past that the grind is the right lever.
-    const dTa=-r.D/KT,ta=Math.abs(dTa)<=6?clamp(Math.round(S.temp+dTa),B.temp.min,B.temp.max):S.temp;
-    const unit=(G.fmt==='rot'||G.unit==='clicks'?'click':'step')+(diff===1?'':'s'),way=r.D>0?'coarser':'finer';
-    if(diff)tips.push('To land in the sweet spot, try <b>'+gLabel(S.grinder,t)+'</b> ('+diff+' '+unit+' '+way+')'+(ta!==S.temp?', or keep the grind and move the water to <b>'+ta+'°C</b>.':'.'));
+    // Water is a small lever: a few degrees at most, and never past 96 °C going up (hotter than that mostly adds
+    // bitterness, which the model itself scores). When a few degrees can't get there alone, pair them with a smaller grind change.
+    const tHi=Math.min(B.temp.max,96,S.temp+3),tLo=Math.max(B.temp.min,S.temp-3);
+    const ta=r.D<0?(S.temp<tHi?clamp(Math.round(S.temp-r.D/KT),S.temp,tHi):S.temp):(S.temp>tLo?clamp(Math.round(S.temp-r.D/KT),tLo,S.temp):S.temp);
+    const rest=r.D+(ta-S.temp)*KT,waterOnly=ta!==S.temp&&Math.abs(rest)<=0.2;
+    let t2=S.setting;if(ta!==S.temp&&!waterOnly){t2=roundG(S.grinder,shift(S.grinder,S.setting,rest/KG*160));if(bx0!=null){const lo=roundG(S.grinder,shift(S.grinder,bx0,-240)),hi=roundG(S.grinder,shift(S.grinder,bx0,240));t2=rest>0?Math.min(t2,Math.max(hi,S.setting)):Math.max(t2,Math.min(lo,S.setting))}}
+    const units=n=>(G.fmt==='rot'||G.unit==='clicks'?'click':'step')+(n===1?'':'s'),way=r.D>0?'coarser':'finer',d2=Math.abs(t2-S.setting);
+    // Each option is checked against the model, so what's offered really lands in the sweet spot.
+    const lands=(set,temp)=>Math.abs(compute(Object.assign({},S,{setting:set,temp})).D)<=0.45;
+    const gOk=diff&&lands(t,S.temp),cOk=ta!==S.temp&&lands(waterOnly?S.setting:t2,ta);
+    const combo=()=>waterOnly?'keep the grind and use water at <b>'+ta+'°C</b>':(d2?'go '+d2+' '+units(d2)+' '+way+' (<b>'+gLabel(S.grinder,t2)+'</b>) ':'keep the grind ')+'with water at <b>'+ta+'°C</b>';
+    if(gOk)tips.push('To land in the sweet spot, try <b>'+gLabel(S.grinder,t)+'</b> ('+diff+' '+units(diff)+' '+way+')'+(cOk&&(waterOnly||d2<diff)?', or '+combo()+'.':'.'));
+    else if(cOk)tips.push('To land in the sweet spot, '+combo()+'.');
+    else if(diff)tips.push('To get closer to the sweet spot, try <b>'+gLabel(S.grinder,t)+'</b> ('+diff+' '+units(diff)+' '+way+')'+(ta!==S.temp?' with water at <b>'+ta+'°C</b>':'')+'. This coffee may suit '+(r.D<0?'a hotter, longer':'a cooler, shorter')+' recipe better.');
     else tips.push('The '+esc(G.name)+' is at the '+(r.D>0?'coarse':'fine')+' end of its range here'+(ta!==S.temp?', so move the water to <b>'+ta+'°C</b> instead.':'. Try another grinder or brewer.'))}
   if(r.clarity<4&&r.body>6.5&&B.ratio.ref>10)tips.push('Body is crowding out detail. The ZP6 Special, V60, V60 NEO or Chemex will separate the flavours more.');
   if(r.body<3.5&&r.D>-0.45&&B.ratio.ref>10)tips.push('Balanced but light. The K-Ultra, an immersion brewer or a tighter ratio will add weight.');
