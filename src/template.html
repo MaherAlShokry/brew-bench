@@ -391,7 +391,11 @@ button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.a
 .cupcard:active{transform:scale(.97)}.cupcard[aria-pressed="true"]{outline:3px solid var(--cherry);outline-offset:2px}
 .cupart{height:104px;display:grid;place-items:center;background:var(--g)}.cupart svg{width:64px;height:64px;fill:none;stroke:#fff;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;opacity:.95}
 .cupcard b{display:block;padding:10px 14px 0;font-family:var(--display);font-size:1.02rem}.cupcard small{display:block;padding:2px 14px 12px;color:var(--muted);font-size:.84rem;line-height:1.35}
-.cupcard .cc{float:right;font-weight:600;color:var(--muted)}
+.cupart{position:relative}
+.cupcard .cc{position:absolute;top:10px;right:10px;font-size:.74rem;font-weight:700;color:#fff;background:rgba(0,0,0,.28);border-radius:99px;padding:2px 9px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.cupcard{border:1px solid var(--line)}.cupcard small{padding-bottom:14px}
+.cupcard{min-width:0}.cupcard b{overflow-wrap:anywhere}
+@media (max-width:359px){.cupcard b{font-size:.92rem;padding:10px 12px 0}.cupcard small{padding:2px 12px 12px;font-size:.8rem}}
 .favbtn{position:absolute;top:12px;right:12px;width:38px;height:38px;border-radius:50%;border:0;background:var(--surface2);color:var(--muted);display:grid;place-items:center;cursor:pointer;transition:transform .15s ease}
 .favbtn svg{width:20px;height:20px}.favbtn[aria-pressed="true"]{color:#E0445A;background:color-mix(in srgb,#E0445A 14%,var(--surface))}.favbtn[aria-pressed="true"] svg{fill:currentColor}.favbtn:active{transform:scale(.85)}
 #rgrid>.card{position:relative}#rgrid>.card>h3,#rgrid>.card>h3+.hint{padding-right:44px}
@@ -1861,7 +1865,7 @@ body.t-dial.dial-ready .herowrap{display:none}
 .tvars .tbar .tdot{width:9px;height:9px;border-radius:50%;background:var(--t)}
 .tvars .tbar .t b{background:var(--t)}
 .tvars .tbar .num{font-size:.9rem;text-align:right;color:var(--ink)}
-.cupcard{display:grid;gap:12px;padding:16px 16px 10px;border-radius:var(--r-lg);background:radial-gradient(120% 70% at 50% 0%,color-mix(in srgb,var(--cherry) 12%,var(--surface2)),var(--surface2) 70%);border:1px solid color-mix(in srgb,var(--line) 60%,transparent)}
+.cupprof{display:grid;gap:12px;padding:16px 16px 10px;border-radius:var(--r-lg);background:radial-gradient(120% 70% at 50% 0%,color-mix(in srgb,var(--cherry) 12%,var(--surface2)),var(--surface2) 70%);border:1px solid color-mix(in srgb,var(--line) 60%,transparent)}
 .cupshape{width:100%;max-width:184px;height:auto;display:block;overflow:visible;margin:0 auto 2px;transform:translateX(6px)}
 .cs-saucer{fill:color-mix(in srgb,var(--ink) 5%,transparent);stroke:color-mix(in srgb,var(--ink) 10%,transparent);stroke-width:1}
 .cs-handle{fill:none;stroke:color-mix(in srgb,var(--ink) 22%,transparent);stroke-width:5;stroke-linecap:round}
