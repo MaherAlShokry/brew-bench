@@ -932,14 +932,15 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-fav]');if(
 function noteRecent(r){if(!r)return;const k=rkey(r);RECENT=[k,...RECENT.filter(x=>x!==k)].slice(0,8);save('bb-recent',RECENT);if(BUILT.recipes)renderRHome()}
 // Cup types: a quick way into the recipes by the kind of coffee you want.
 const ICED=r=>BREWERS[r.b].type==='Cold'||/\b(iced|cold|flash)\b|đá/i.test(r.name);
-const CI=p=>'<svg viewBox="0 0 64 64" aria-hidden="true"><path d="'+p+'"/></svg>';
+// Cup-type icons come from the app's own set (the brewer and hub icons): 24-unit paths, round strokes, in a frosted tile.
+const CI=p=>'<span class="cuptile"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+p+'"/></svg></span>';
 const CUPS=[
-  ['pour','Pour-over','Clean, bright, layered','linear-gradient(135deg,#D8A15A,#8A5A3B)',r=>['Cone dripper','Flat-bottom dripper','Machine'].includes(BREWERS[r.b].type)&&!ICED(r),CI('M16 14h32L36 34H28z M26 34h12 M32 38v4 M20 44h24l-3 12H23z M44 46h4a4 4 0 0 1 0 8h-5')],
-  ['imm','Immersion','Presses, switches, siphons','linear-gradient(135deg,#9C7A5B,#4F3A2A)',r=>(BREWERS[r.b].type==='Valve and hybrid'||['frenchpress','siphon'].includes(r.b))&&!ICED(r),CI('M20 16h24v38H20z M20 16h-3 M44 22h5a3 3 0 0 1 3 3v16a3 3 0 0 1-3 3h-5 M32 8v8 M26 8h12 M22 28h20')],
-  ['aero','AeroPress','Quick, punchy, travel-ready','linear-gradient(135deg,#7FA7A0,#3F6E66)',r=>r.b==='aeropress'&&!ICED(r),CI('M24 8h16v8H24z M22 16h20v26H22z M26 42h12v6H26z M18 50h28v6H18z M28 24h8')],
-  ['esp','Espresso-like','Strong and concentrated','linear-gradient(135deg,#B0704A,#5B2E1A)',r=>['Espresso and stovetop','Boiled'].includes(BREWERS[r.b].type)&&!ICED(r),CI('M18 30h24v8a12 12 0 0 1-24 0z M42 32h4a4 4 0 0 1 0 8h-5 M12 52h40 M26 12c-2 3 2 5 0 8 M34 12c-2 3 2 5 0 8')],
-  ['iced','Iced and cold','Flash brews and cold brews','linear-gradient(135deg,#8EB6D0,#4C7390)',ICED,CI('M18 14h28l-4 42H22z M24 26h7v7h-7z M33 32h7v7h-7z M27 40h7v7h-7z M40 8l-6 16')],
-  ['champ','Championships','Recipes that won world titles','linear-gradient(135deg,#E2B866,#9A6A1E)',r=>!!r.champ,CI('M22 10h20v14a10 10 0 0 1-20 0z M22 14h-7a6 6 0 0 0 7 10 M42 14h7a6 6 0 0 1-7 10 M32 34v10 M24 54h16 M26 44h12v10H26z')]];
+  ['pour','Pour-over','Clean, bright, layered','linear-gradient(135deg,#D8A15A,#8A5A3B)',r=>['Cone dripper','Flat-bottom dripper','Machine'].includes(BREWERS[r.b].type)&&!ICED(r),()=>CI(BT_ICON['Cone dripper'])],
+  ['imm','Immersion','Presses, switches, siphons','linear-gradient(135deg,#9C7A5B,#4F3A2A)',r=>(BREWERS[r.b].type==='Valve and hybrid'||['frenchpress','siphon'].includes(r.b))&&!ICED(r),()=>CI(BT_ICON['Immersion and pressure'])],
+  ['aero','AeroPress','Quick, punchy, travel-ready','linear-gradient(135deg,#7FA7A0,#3F6E66)',r=>r.b==='aeropress'&&!ICED(r),()=>CI('M8 3h8v3H8z M7 6h10v11H7z M10 10h4 M9 17h6v2H9z M5 21h14')],
+  ['esp','Espresso-like','Strong and concentrated','linear-gradient(135deg,#B0704A,#5B2E1A)',r=>['Espresso and stovetop','Boiled'].includes(BREWERS[r.b].type)&&!ICED(r),()=>CI(BT_ICON['Espresso and stovetop'])],
+  ['iced','Iced and cold','Flash brews and cold brews','linear-gradient(135deg,#8EB6D0,#4C7390)',ICED,()=>CI(BT_ICON['Cold'])],
+  ['champ','Championships','Recipes that won world titles','linear-gradient(135deg,#E2B866,#9A6A1E)',r=>!!r.champ,()=>CI(ICO.trophy)]];
 const CUPBY=Object.fromEntries(CUPS.map(c=>[c[0],c]));
 /* What a recipe asks of you, worked out from its steps: how long it takes, how many pours, and how hard it is. */
 const RMETA=new Map();
@@ -976,7 +977,7 @@ function renderRHome(){const QI=(c,p)=>'<span class="qi" style="background:'+c+'
     '<h3 class="rh">By brewer</h3><div class="bshelf">'+RBREWERS().map(k=>{const B=BREWERS[k],n=RECIPES.filter(r=>RFAM(r.b)===k).length;
       return '<button type="button" data-rb="'+k+'" aria-pressed="'+(RF==='b:'+k)+'"><span class="bi">'+bIcon(B.type)+'</span><b>'+esc(famName(k).replace(/\s*\(.*\)$/,''))+'</b><small>'+n+' recipe'+(n>1?'s':'')+'</small></button>'}).join('')+'</div>'+
     '<h3 class="rh">Collections</h3><div class="colshelf">'+COLS.map(([k,n,d,c,f])=>'<button type="button" data-col="'+k+'" aria-pressed="'+(RF==='col:'+k)+'" style="--cc:'+c+'"><b>'+esc(n)+'</b><small>'+esc(d)+'</small><span class="cn">'+RECIPES.filter(f).length+'</span></button>').join('')+'</div>'+
-    '<h3 class="rh">Cup types</h3><div class="cups">'+CUPS.map(([k,n,d,g,f,ic])=>'<button type="button" class="cupcard" data-cup="'+k+'" aria-pressed="'+(RF==='cup:'+k)+'"><span class="cupart" style="--g:'+g+'">'+ic+'</span><b>'+esc(n)+'<span class="cc">'+RECIPES.filter(f).length+'</span></b><small>'+esc(d)+'</small></button>').join('')+'</div>'}
+    '<h3 class="rh">Cup types</h3><div class="cups">'+CUPS.map(([k,n,d,g,f,ic])=>'<button type="button" class="cupcard" data-cup="'+k+'" aria-pressed="'+(RF==='cup:'+k)+'"><span class="cupart" style="--g:'+g+'">'+ic()+'<span class="cc">'+RECIPES.filter(f).length+'<span class="sr"> recipes</span></span></span><b>'+esc(n)+'</b><small>'+esc(d)+'</small></button>').join('')+'</div>'}
 function showRecipeList(){renderRecipes();renderRHome();requestAnimationFrame(()=>$('rall').scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'}))}
 $('rhome').onclick=e=>{const q=e.target.closest('[data-q]'),a=e.target.closest('[data-again]'),c=e.target.closest('[data-cup]'),bb=e.target.closest('[data-rb]'),co=e.target.closest('[data-col]');
   if(a){openRecipe(+a.dataset.again);return}
@@ -2245,7 +2246,7 @@ function cupShapeSVG(m){const n=m.length,c=60,R=40,pt=(i,r)=>{const a=-Math.PI/2
     '<polygon class="cs-crema" points="'+poly+'"/>'+m.map(([k,v],i)=>{const [x,y]=pt(i,R*(.18+.82*v/5));return '<circle class="cs-dot t-'+CUPT[k][0]+'" cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3.6"/>'}).join('')+'</svg>'}
 function beanProfileHTML(){const b=beanProfile();
   const beans=(k,n)=>'<span class="cb-row t-'+CUPT[k][0]+'" aria-hidden="true">'+[1,2,3,4,5].map(i=>'<i'+(i<=n?' class="on"':'')+'>'+CUP_BEAN+'</i>').join('')+'</span>';
-  return '<div class="bprof"><p class="bp-head">'+esc(b.head)+'</p><div class="cupcard">'+cupShapeSVG(b.meters)+'<ul class="cuptraits">'+
+  return '<div class="bprof"><p class="bp-head">'+esc(b.head)+'</p><div class="cupprof">'+cupShapeSVG(b.meters)+'<ul class="cuptraits">'+
     b.meters.map(([k,n])=>'<li><b>'+k+'</b>'+beans(k,n)+'<em class="t-'+CUPT[k][0]+'">'+CUPT[k][1][n-1]+'</em><span class="sr">'+n+' of 5</span></li>').join('')+'</ul></div>'+
     (b.notes.length?'<h4 class="bp-h">In the cup</h4><div class="chips">'+b.notes.map(n=>'<span class="chip">'+esc(n)+'</span>').join('')+'</div>':'')+
     (b.from.length?'<h4 class="bp-h">Where it comes from</h4><dl class="bp-from">'+b.from.map(([k,v])=>'<dt>'+esc(k)+'</dt><dd>'+esc(v)+'</dd>').join('')+'</dl>':'')+
