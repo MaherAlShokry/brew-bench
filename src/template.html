@@ -1209,8 +1209,6 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .hubcard .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none;margin-bottom:4px}.hubcard .ic svg{width:22px;height:22px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .hubcard b{font-family:var(--display);font-size:1rem;line-height:1.2}.hubcard small{color:var(--muted);font-size:.82rem;line-height:1.35}
 .hubcard .hn{position:absolute;top:14px;right:14px;font-size:.74rem;font-weight:700;color:var(--muted);background:var(--surface2);border-radius:99px;padding:2px 8px}
-.wotd{display:block;width:100%;text-align:left;border:0;border-radius:20px;padding:16px 18px;margin:4px 0 6px;color:#fff;cursor:pointer;font:inherit;background:linear-gradient(135deg,#9A7390,#5E4057)}
-.wotd small{display:block;font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;opacity:.85;font-weight:700}.wotd b{display:block;font-family:var(--display);font-size:1.3rem;margin:4px 0}.wotd span{display:block;font-size:.9rem;line-height:1.45;opacity:.95;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .morelist{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
 .morelist>div,.morelist>button{display:flex;align-items:center;gap:12px;width:100%;padding:14px 16px;border:0;background:none;color:var(--ink);font:inherit;text-align:left}
 .morelist>*+*{border-top:1px solid var(--line)}.morelist>button{cursor:pointer}.morelist .ic{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;flex:none}.morelist .ic svg{width:20px;height:20px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
@@ -1381,7 +1379,8 @@ dialog#vd:has(.me-hero){overflow-x:hidden}
 .setrow>.sl{display:flex;align-items:center;gap:12px;margin-bottom:10px}.setrow>.sl:last-child{margin-bottom:0}
 .setrow .ic{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;flex:none}.setrow .ic svg{width:20px;height:20px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .setrow .mt{flex:1;min-width:0}.setrow .mt b{display:block;font-weight:600}.setrow .mt small{display:block;color:var(--muted);font-size:.84rem;line-height:1.35}
-.setrow .seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr}
+.setrow .seg{display:flex;flex-wrap:nowrap}.setrow .seg button{flex:1 1 auto;min-width:0;white-space:nowrap;text-overflow:clip}
+@media (max-width:399px){.setrow .seg button{padding-left:6px!important;padding-right:6px!important}}
 .vibes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}@media (min-width:700px){.vibes{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .vibe{display:flex;flex-direction:column;align-items:stretch;gap:2px;padding:8px 8px 10px;border-radius:18px;border:1px solid var(--line);background:var(--surface);color:var(--ink);text-align:left;cursor:pointer;font:inherit;transition:transform .15s,box-shadow .15s}
 .vibe b{font:700 .9rem/1.25 var(--display);margin:8px 4px 0}.vibe small{font-size:.76rem;line-height:1.3;color:var(--muted);margin:0 4px}
@@ -1801,11 +1800,44 @@ body.t-dial.dial-ready .herowrap{display:none}
 .yic-row span{min-width:0}.yic-row b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:1.1rem}
 /* No clipping: the journal label wraps beside the bag picture, and the view tabs share the width. */
 .bgh-k{white-space:normal!important;display:block;line-height:1.4;padding-right:4px}
-.seg.bviews{overflow:visible!important;-webkit-mask-image:none!important;mask-image:none!important}
-.seg.bviews button{flex:1 1 0!important;min-width:0;padding-left:2px!important;padding-right:2px!important;font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.seg.bviews button i{font-size:.66rem;padding:1px 5px;margin-left:2px}
-@media (max-width:350px){.gtabs button,.seg.bviews button{font-size:.74rem!important}.gtabs button{font-size:.68rem!important;letter-spacing:-.01em}}
-.gtabs{overflow:visible!important;-webkit-mask-image:none!important;mask-image:none!important}.gtabs button{flex:1 1 0!important;min-width:0;padding-left:2px!important;padding-right:2px!important;font-size:.82rem}
+/* One tab track for Beans and Gear: a soft rail, tabs sized to their words, the chosen one filled. */
+.seg.bviews,.gtabs{display:flex!important;flex-wrap:nowrap!important;gap:2px!important;padding:4px!important;margin-left:0!important;margin-right:0!important;border-radius:var(--r-pill);background:color-mix(in srgb,var(--surface2) 88%,transparent)!important;border:1px solid color-mix(in srgb,var(--line) 60%,transparent);overflow:visible!important;-webkit-mask-image:none!important;mask-image:none!important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.seg.bviews button,.gtabs button{flex:1 1 auto!important;min-width:0;min-height:38px;display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:0 10px!important;border:0!important;border-radius:var(--r-pill)!important;background:transparent!important;box-shadow:none!important;color:var(--muted)!important;font-size:.84rem!important;font-weight:600;letter-spacing:0!important;white-space:nowrap;overflow:visible;text-overflow:clip}
+.seg.bviews button[aria-pressed="true"],.gtabs button[aria-pressed="true"]{background:var(--cherry)!important;color:var(--surface)!important;box-shadow:0 4px 12px -6px color-mix(in srgb,var(--cherry) 70%,transparent)!important}
+.seg.bviews button i{margin:0!important;padding:0!important;background:none!important;color:inherit!important;font-size:.7rem!important;font-weight:700;opacity:.7;font-variant-numeric:tabular-nums}
+@media (max-width:399px){.seg.bviews button,.gtabs button{padding:0 6px!important;font-size:.8rem!important}}
+@media (max-width:359px){.seg.bviews button,.gtabs button{padding:0 4px!important;font-size:.74rem!important}.seg.bviews button i{display:none}}
+/* A coffee's varieties in the editor: one picker per variety, a quiet remove, and a dashed "add another". */
+.bvars{display:grid;gap:8px}.bvar{display:flex;gap:8px;align-items:stretch}.bvar select{flex:1 1 auto;min-width:0}
+.bvar-x{flex:none;width:44px;min-height:44px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--muted);display:grid;place-items:center;cursor:pointer;padding:0}
+.bvar-x:hover{color:var(--cherry-ink);border-color:color-mix(in srgb,var(--cherry) 40%,var(--line))}
+.bvar-x svg,.bv-add svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+.bv-add{margin-top:8px;display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:6px 14px;border-radius:var(--r-pill);border:1px dashed color-mix(in srgb,var(--cherry) 45%,var(--line));background:transparent;color:var(--cherry-ink);font:inherit;font-weight:600;font-size:.86rem;cursor:pointer}
+.bv-add[hidden]{display:none}
+/* The dialog header stays above anything that scrolls under it (the rating beans drew over it). */
+.vd-head{z-index:4}
+.bvar select{width:100%}
+@media (max-width:399px){.two.bagrow{grid-template-columns:1fr!important;display:grid}}
+.beform .seg button{min-width:0;white-space:nowrap;overflow:visible;text-overflow:clip;padding-left:6px;padding-right:6px}
+/* Suggestions under a text box: the app's own list, a solid card. */
+.acw{position:relative}
+.acl{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:6;max-height:236px;overflow-y:auto;padding:6px;border-radius:var(--r-md);background:var(--surface);border:1px solid var(--line);box-shadow:0 14px 34px -12px rgba(0,0,0,.45)}
+.acl[hidden]{display:none}
+.aco{padding:11px 12px;border-radius:10px;cursor:pointer;color:var(--ink);font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aco:hover,.aco[aria-selected="true"]{background:var(--surface2)}
+/* Explore's "Today in coffee": the panel the app uses everywhere, two rows with the hub tiles' icons. */
+.today{padding:14px 14px 6px;margin:4px 0 8px}
+.td-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:2px 4px 8px}
+.td-head h2{margin:0;font:700 1.08rem/1.2 var(--display);color:var(--ink)}.td-head span{font-size:.8rem;color:var(--muted);white-space:nowrap}
+.td-row{display:flex;align-items:flex-start;gap:12px;width:100%;padding:12px 4px;border:0;border-top:1px solid var(--line);background:none;color:var(--ink);font:inherit;text-align:left;cursor:pointer;border-radius:0}
+.td-row .ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex:none;margin-top:2px}
+.td-row .ic svg{width:20px;height:20px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.td-t{flex:1;min-width:0;display:grid;gap:2px}
+.td-t small{display:flex;align-items:center;gap:6px;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.td-t b{font:700 1.02rem/1.3 var(--display);color:var(--ink)}
+.td-t>span{font-size:.9rem;line-height:1.5;color:color-mix(in srgb,var(--ink) 78%,var(--muted))}
+.td-go{flex:none;width:18px;height:18px;margin-top:12px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.td-row:active{background:color-mix(in srgb,var(--ink) 4%,transparent)}
 /* The welcome on Brew: a card like the others, with a greeting and the day's line of coffee wisdom. */
 .welcome{margin:0 0 12px;padding:16px 18px}
 .wl-top{display:flex;align-items:center;gap:12px}
@@ -1815,6 +1847,37 @@ body.t-dial.dial-ready .herowrap{display:none}
 .wl-k{display:block;margin:14px 0 6px;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--muted)}
 .wl-q{margin:0;padding-left:12px;border-left:3px solid color-mix(in srgb,var(--cherry) 55%,transparent);font-size:.95rem;line-height:1.5;color:var(--ink)}
 .wl-by{display:block;margin-top:4px;font-size:.78rem;color:var(--muted)}
+.bprof{margin-top:6px}.bp-head{margin:0 0 12px;font:600 1.05rem/1.4 var(--display);color:var(--ink)}
+/* The cup profile: a cup from above whose crema is the coffee's shape; each trait keeps its own colour, from citrus to cocoa. */
+.bprof{--t-acid:#D4A72C;--t-sweet:#D9894A;--t-body:#9C6444;--t-clar:#4E9C97;--t-ferm:#A6527C;
+  /* The words take a deeper (light theme) or paler (dark theme) shade of the same colour, for 4.5:1 or better. */
+  --w-acid:#765A06;--w-sweet:#8A4614;--w-body:#6E4128;--w-clar:#1F5F5B;--w-ferm:#7E2D57}
+:root[data-theme="dark"] .bprof{--t-body:#C08A63;--w-acid:#F2D27A;--w-sweet:#F7BE92;--w-body:#E8BE9C;--w-clar:#9ED9D3;--w-ferm:#EBAACB}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .bprof{--t-body:#C08A63;--w-acid:#F2D27A;--w-sweet:#F7BE92;--w-body:#E8BE9C;--w-clar:#9ED9D3;--w-ferm:#EBAACB}}
+.t-acid{--t:var(--t-acid);--tw:var(--w-acid)}.t-sweet{--t:var(--t-sweet);--tw:var(--w-sweet)}.t-body{--t:var(--t-body);--tw:var(--w-body)}.t-clar{--t:var(--t-clar);--tw:var(--w-clar)}.t-ferm{--t:var(--t-ferm);--tw:var(--w-ferm)}
+.cupcard{display:grid;gap:12px;padding:16px 16px 10px;border-radius:var(--r-lg);background:radial-gradient(120% 70% at 50% 0%,color-mix(in srgb,var(--cherry) 12%,var(--surface2)),var(--surface2) 70%);border:1px solid color-mix(in srgb,var(--line) 60%,transparent)}
+.cupshape{width:100%;max-width:184px;height:auto;display:block;overflow:visible;margin:0 auto 2px;transform:translateX(6px)}
+.cs-saucer{fill:color-mix(in srgb,var(--ink) 5%,transparent);stroke:color-mix(in srgb,var(--ink) 10%,transparent);stroke-width:1}
+.cs-handle{fill:none;stroke:color-mix(in srgb,var(--ink) 22%,transparent);stroke-width:5;stroke-linecap:round}
+.cs-rim{fill:var(--surface);stroke:color-mix(in srgb,var(--ink) 16%,transparent);stroke-width:1.5}
+.cs-coffee{fill:color-mix(in srgb,#3B2418 82%,var(--surface))}
+.cs-g{fill:none;stroke:rgba(255,236,210,.12);stroke-width:.8}
+.cs-crema{fill:color-mix(in srgb,#E2B07A 62%,transparent);stroke:#F1CFA2;stroke-width:1.4;stroke-linejoin:round}
+.cs-dot{fill:var(--t);stroke:#2A1A12;stroke-width:1.2}
+.cuptraits{list-style:none;margin:0;padding:0;display:grid;gap:0;min-width:0}
+.cuptraits li{display:grid;grid-template-columns:minmax(5.6em,1fr) auto minmax(5.4em,1fr);align-items:center;gap:10px;padding:8px 2px;border-top:1px solid color-mix(in srgb,var(--line) 55%,transparent);font-size:.88rem;min-width:0}
+.cuptraits li:first-child{border-top:0}.cuptraits li>b{font-weight:600;font-size:inherit;line-height:1.3;padding:0;margin:0;display:block}
+.cuptraits em{font-style:normal;font-weight:700;font-size:.8rem;text-align:right;color:var(--tw);white-space:nowrap}
+.cb-row{display:flex;gap:3px}.cb-row i{width:15px;height:18px;display:block}
+.cb-row svg{width:100%;height:100%;display:block}
+.cb-row ellipse{fill:color-mix(in srgb,var(--ink) 9%,transparent);stroke:color-mix(in srgb,var(--ink) 20%,transparent);stroke-width:1.3}
+.cb-row path{fill:none;stroke:color-mix(in srgb,var(--ink) 18%,transparent);stroke-width:1.3;stroke-linecap:round}
+.cb-row i.on ellipse{fill:var(--t);stroke:color-mix(in srgb,var(--t) 70%,#000)}.cb-row i.on path{stroke:rgba(40,20,10,.55)}
+@media (max-width:359px){.cuptraits li{gap:8px;grid-template-columns:6.4em auto 1fr;font-size:.8rem}.cb-row i{width:13px;height:16px}}
+@media (max-width:379px){.bprof .bp-from{grid-template-columns:1fr;gap:2px}.bprof .bp-from dd{margin-bottom:8px}}
+.bp-h{margin:16px 0 8px;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.bp-from{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-size:.9rem}.bp-from dt{font-weight:600;white-space:nowrap}.bp-from dd{margin:0;color:var(--muted)}
+.bp-tips{margin:0;padding-left:18px;display:grid;gap:6px;font-size:.92rem;line-height:1.45}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
@@ -2052,14 +2115,14 @@ body.t-dial.dial-ready .herowrap{display:none}
       </details>
       <h3>Coffee details</h3>
       <div class="two stackm"><div class="field"><label for="s-name">Coffee name</label><input id="s-name" style="width:100%" maxlength="60" placeholder="e.g. Luis Aníbal Calderón" autocomplete="off"></div>
-        <div class="field"><label for="s-roaster">Roastery</label><input id="s-roaster" style="width:100%" maxlength="50" list="s-roasters" placeholder="e.g. Windrose" autocomplete="off"><datalist id="s-roasters"></datalist></div></div>
+        <div class="field"><label for="s-roaster">Roastery</label><div class="acw"><input id="s-roaster" style="width:100%" maxlength="50" placeholder="e.g. Windrose" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="s-rsug"><div class="acl" id="s-rsug" role="listbox" aria-label="Roasteries you’ve had" hidden></div></div></div></div>
       <div class="field"><label for="s-origin">Origin</label><select id="s-origin"></select></div>
       <div class="field"><label for="s-process">Process</label><select id="s-process"></select></div>
       <div class="field"><label for="s-variety">Variety</label><select id="s-variety"></select></div>
       <div class="field"><div class="lbl">Roast</div><div class="seg" id="s-roast"></div></div>
       <div class="field"><label for="s-date">Roast date</label><input type="date" id="s-date" class="dateinp"></div>
-      <div class="field"><label for="s-brewer">Brew with</label><select id="s-brewer"></select></div>
-      <div class="field"><div class="lbl">Grinder <button type="button" class="gpick-btn" data-gpick aria-label="Change grinders" title="Change grinders"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l4 4-4 4"/><path d="M3 7h18"/><path d="M7 21l-4-4 4-4"/><path d="M21 17H3"/></svg></button></div><div class="seg" id="s-grinder"></div></div>
+      <div class="field" hidden><label for="s-brewer">Brew with</label><select id="s-brewer"></select></div>
+      <div class="field" hidden><div class="lbl">Grinder <button type="button" class="gpick-btn" data-gpick aria-label="Change grinders" title="Change grinders"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l4 4-4 4"/><path d="M3 7h18"/><path d="M7 21l-4-4 4-4"/><path d="M21 17H3"/></svg></button></div><div class="seg" id="s-grinder"></div></div>
     </div>
     <div class="stick"><div class="panel" id="scan-out"></div></div>
   </div>
