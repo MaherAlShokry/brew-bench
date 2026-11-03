@@ -257,7 +257,7 @@ The logo, a two-tone coffee bean split by its S-shaped crease, is drawn in `asse
 
 ## Notes on accuracy
 
-The cup-profile estimator is a model built from brewing rules of thumb, not a measurement. Grind is its main lever: one recipe step (about 160 microns, roughly 7 ZP6 clicks) counts for more than water temperature, where 1 °C is worth about one ZP6 click, in line with brewing studies that find temperature a finer adjustment than grind. Grinder dials are placed on one shared size scale and checked against each maker's published ranges. Recipes credited to named people follow their published methods; recipes marked "classic" or "in the style of" are general techniques. History and variety facts were checked against sources, but some coffee history is legend, and those items are labelled as such. Corrections are welcome as issues or pull requests.
+The cup-profile estimator is a model built from brewing rules of thumb, not a measurement. Grind is its main lever: one recipe step is 7.3 ZP6 clicks or 8 K-Ultra clicks, and 1 °C of water is worth about two ZP6 clicks. The ZP6 and K-Ultra use the app's original tables and click formula (restored in November 2026); the other grinders are placed on one shared size scale from the ZP6 and checked against each maker's published ranges. Recipes credited to named people follow their published methods; recipes marked "classic" or "in the style of" are general techniques. History and variety facts were checked against sources, but some coffee history is legend, and those items are labelled as such. Corrections are welcome as issues or pull requests.
 
 ## Credits
 

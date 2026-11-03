@@ -35,10 +35,10 @@ const ns='http://www.w3.org/2000/svg';
    fmt 'num': a plain dial: shown as first + steps/sub (sub 3 = thirds, like 4, 4.1, 4.2); unit 'clicks' counts from closed. */
 const V60_SIZE=56*22;
 const GRINDER_LIB={
-  zp6:{name:'ZP6 Special',full:'1Zpresso ZP6 Special',type:'manual',brand:'1Zpresso',fmt:'rot',per:90,um:22,min:20,max:90,v60:56,k:22,body:-0.4,clarity:1.2,espresso:false,
+  zp6:{name:'ZP6 Special',full:'1Zpresso ZP6 Special',type:'manual',brand:'1Zpresso',fmt:'rot',per:90,um:22,min:20,max:90,v60:56,k:160/7.3,body:-0.4,clarity:1.2,espresso:false,
     burr:'48 mm hexagonal (six-sided) conical steel burrs, designed only for filter',adjust:'External ring: 9 numbers per turn, 10 clicks per number, 90 clicks per rotation, about 22 microns per click',
     range:'Filter roughly 4.5 to 7.0 (45 to 70 clicks). Below about 2.0 the burrs rub, so no espresso or Turkish.',cup:'The fewest fines in the 1Zpresso range: very clean, separated, high-clarity cups.',use:'Washed coffees, Geisha and Ethiopian landraces, V60, NEO, Origami, Chemex.'},
-  kultra:{name:'K-Ultra',full:'1Zpresso K-Ultra',type:'manual',brand:'1Zpresso',fmt:'rot',per:100,um:20,min:5,max:130,v60:80,k:20,pts:[[5,6],[10,97],[36,573],[80,1232],[130,2232]],body:0.7,clarity:-0.2,espresso:true,
+  kultra:{name:'K-Ultra',full:'1Zpresso K-Ultra',type:'manual',brand:'1Zpresso',fmt:'rot',per:100,um:20,min:5,max:130,v60:72,k:20,body:0.7,clarity:-0.2,espresso:true,
     burr:'48 mm heptagonal (seven-sided) "K burr" conical steel burrs, an all-rounder',adjust:'External ring: 10 numbers per turn, 10 clicks per number, 100 clicks per rotation, 20 microns per click. Can go past one full turn.',
     range:'Filter roughly 7.0 to 9.5 (70 to 95 clicks). Espresso around 2.5 to 4.5; French press and cold brew past one full turn.',cup:'More body and a rounder, more blended cup than the ZP6.',use:'Naturals and honeys, immersion, espresso, AeroPress, anything that tastes thin.'},
   jxpro:{name:'JX-Pro',full:'1Zpresso JX-Pro',type:'manual',brand:'1Zpresso',fmt:'rot',per:40,um:12.5,min:20,max:160,v60:92,k:13,body:0.4,clarity:0,espresso:true,
@@ -177,7 +177,8 @@ const stepsFor=(g,size)=>{const G=GRINDERS[g];return G.pts?interp(G.pts,size,1,0
 const shift=(g,c,ds)=>stepsFor(g,sizeOf(g,c)+ds);
 // How far a setting sits from another, in recipe steps (positive = finer).
 const stepsBetween=(g,from,c)=>(sizeOf(g,from)-sizeOf(g,c))/160;
-function defBase(g,b,raw){if(g==='zp6'||g==='kultra'&&needsFine(b))return BREWERS[b].base[g];const G=GRINDERS[g],E=brewSize(b);if(E==null||(needsFine(b)&&!G.espresso))return null;
+// The ZP6 and K-Ultra each read their own table, as in the first version; other grinders are matched by grind size.
+function defBase(g,b,raw){if((g==='zp6'||g==='kultra')&&BREWERS[b].base[g]!=null)return BREWERS[b].base[g];if(g==='zp6')return null;const G=GRINDERS[g],E=brewSize(b);if(E==null||(needsFine(b)&&!G.espresso))return null;
   const s=stepsFor(g,E);return s<G.min-0.5||s>G.max+0.5?null:raw?clamp(s,G.min,G.max):Math.round(clamp(s,G.min,G.max))}
 let BASE=load('bb-base3',null);if(!BASE||typeof BASE!=='object')BASE={};
 for(const g in BASE)if(!BASE[g]||typeof BASE[g]!=='object')delete BASE[g];
@@ -191,6 +192,9 @@ for(const g in BASE)for(const k in BASE[g])if(!BREWERS[k]||BASE[g][k]!==null&&!N
   if(ch)save('bb-base3',BASE)}
 // Once, on every device: back to the app's own calibration (asked for in October 2026). Your later changes stay.
 try{if(!localStorage.getItem('bb-calreset1')){BASE={};save('bb-base3',BASE);localStorage.setItem('bb-calreset1','1')}}catch(e){}
+// Once more for the K-Ultra when its original formula came back (November 2026): settings saved against the old curve
+// would hide it. ZP6 calibration stays, as its formula never changed.
+try{if(!localStorage.getItem('bb-calreset2')){if(BASE.kultra){delete BASE.kultra;save('bb-base3',BASE)}localStorage.setItem('bb-calreset2','1')}}catch(e){}
 // Calibrating a brewer on one grinder says how fine you like that brewer, so your other grinders follow it on that
 // brewer (the same grind size; averaged if you calibrated it on several). Cached; cleared when BASE changes.
 let BOFF={};
@@ -282,17 +286,18 @@ let LOG=load('bb-log',[]),LFL=[];
    KG: one recipe step of grind (160 on the shared size scale, about 7 ZP6 clicks or 160 microns).
    KT: one degree of water. Grind is the bigger lever: in brewing studies a 5 °C change moves extraction about as much as
    a few clicks, so 1 °C is worth roughly one ZP6 click. Temperatures count from the brewer's own default. */
-const KG=0.45,KT=0.2/3;
+// Back to the first version's weights (asked for in November 2026): temperature moves the grind 0.35 of a step per 3°C.
+const KG=0.45,KT=0.35/3;
 function rBias(r){const B=BREWERS[r.b];return -(KG*r.off+(clamp(r.temp||B.temp.def,B.temp.min,B.temp.max)-B.temp.def)*KT+(r.water/r.dose-B.ratio.ref)*B.ratio.k)}
 // A longer bloom extracts a little more, with diminishing returns past 75 s (a 3-minute bloom is not four times a 45 s one).
-const bloomE=(b,B)=>{const d=b-B.bloom.def,over=Math.max(0,b-75);return (d-over*0.75)/15*0.09};
+const bloomE=(b,B)=>(b-B.bloom.def)/15*0.12;
 function compute(st){
   const G=GRINDERS[st.grinder],B=BREWERS[st.brewer],P=PROCESSES[st.process],Vp=vParams(st.variety);
   const step=stepsBetween(st.grinder,baseX(st.grinder,st.brewer),st.setting);
   const agit={low:-0.25,med:0,high:0.25}[st.agit], roastE={light:0,medium:0.25,dark:0.6}[st.roast];
   const rec=st.rec!=null&&RECIPES[st.rec]&&sameFam(RECIPES[st.rec].b,st.brewer)?RECIPES[st.rec]:null;
   // A smaller dose than the recipe's drains faster through a dripper, so the same grind extracts a little less.
-  const dadj=rec&&st.dose>0&&['Cone dripper','Flat-bottom dripper'].includes(B.type)?clamp(Math.round(-0.6*Math.log2(st.dose/rec.dose)*10)/10,-1,1):0;
+  const dadj=0;
   const E=KG*(step-dadj)+(st.temp-B.temp.def)*KT+bloomE(st.bloom,B)+agit+(st.ratio-B.ratio.ref)*B.ratio.k+roastE+(rec?rBias(rec):0);
   const D=E-(P.t+Vp.t);
   const roastAcid={light:1,medium:0,dark:-2}[st.roast], roastBit={light:0,medium:0.6,dark:2}[st.roast];
@@ -605,7 +610,8 @@ function planSteps(r,dose,water,goal){
     return{steps:st,changes:ch}}
   return{steps:scaleSteps(r,dose,water),changes:[]}}
 // How far, in recipe grind steps (160 µm each), the coffee and the target may move a recipe's grind.
-const GRIND_SWAY=0.9;
+// The first version let the coffee move the grind as far as it needed (no cap, no swapping grind for water temperature).
+const GRIND_SWAY=Infinity;
 function plan(c){
   const tl=techList(c.brewer);if(!tl.find(([,i])=>i===c.tech))c.tech=tl[0][1];c.goal=goalOf(c.goal);c.amt=amtOf(c.amt);
   const r=RECIPES[c.tech],bb=sameFam(r.b,c.brewer)?c.brewer:r.b,B=BREWERS[bb],P=PROCESSES[c.process],Vp=vParams(c.variety),Vv=vById(c.variety);
@@ -646,7 +652,8 @@ function plan(c){
   const Dt=clamp(G.Dt*m,-0.33,0.33);
   // Your dose: a smaller bed in a dripper drains faster, so grind finer for it (coarser for a bigger one).
   const dose=c.dose>0?Math.round(c.dose*2)/2:r.dose,f_=dose/r.dose,perc=['Cone dripper','Flat-bottom dripper'].includes(B.type);
-  const dadj=perc?clamp(Math.round(-0.6*Math.log2(f_)*10)/10,-1,1):0;
+  // The dose doesn't move the grind (as in the first version).
+  const dadj=0;void perc;
   if(dadj)why.push((dadj>0?'A smaller':'A bigger')+' dose than the recipe\u2019s '+r.dose+'g: grind a little '+(dadj>0?'finer':'coarser')+', because '+(dadj>0?'a shallower bed drains faster.':'a deeper bed drains slower.'));
   const agv={low:-0.25,med:0,high:0.25}[agit], roastE={light:0,medium:0.25,dark:0.6}[c.roast];
   const rest=(temp-clamp(r.temp||B.temp.def,B.temp.min,B.temp.max))*KT+bloomE(bloom,B)+agv+(ratio-r.water/r.dose)*B.ratio.k+roastE-(P.t+Vp.t);
