@@ -395,6 +395,13 @@ const isTuned=()=>!!S.tuned&&TUNED_KEYS.every(k=>S.tuned[k]===S[k]);
 // FIT_R: how far your settings can move from the target's own cup and still make it; FIT_OFF: past this, and nearer
 // another target's cup, you are brewing that other cup.
 // On target: up to about a grind step (7 ZP6 clicks), 3°C or a ratio step from the plan. Another cup: about two steps out.
+// The ink for an icon on a colour that changes with the theme and the cup: dark or light, whichever reads better.
+// The colour is resolved where it's used (it can be a mix of theme colours), so a pale accent gets dark ink.
+let INK_CV=null;
+function inkOn(host,col){const pr=document.createElement('i');pr.style.cssText='position:absolute;width:0;height:0;transition:none;background:'+col;host.appendChild(pr);const bg=getComputedStyle(pr).backgroundColor;pr.remove();
+  const x=INK_CV||(INK_CV=Object.assign(document.createElement('canvas'),{width:1,height:1}).getContext('2d',{willReadFrequently:true}));x.clearRect(0,0,1,1);x.fillStyle='#000';x.fillStyle=bg;x.fillRect(0,0,1,1);
+  const [r,g,b]=x.getImageData(0,0,1,1).data,f=v=>{v/=255;return v<=.03928?v/12.92:((v+.055)/1.055)**2.4},L=.2126*f(r)+.7152*f(g)+.0722*f(b);
+  return 1.05/(L+.05)>=(L+.05)/0.0589?'#FFFDF9':'#1E1611'}
 const FIT_R=5.2,FIT_OFF=9,FIT_HONEY='#C9964A',FIT_ROAST='#A8432F';
 function cupFit(){if(!dialRec())return null;const B=BREWERS[S.brewer];
   const feats=st=>{const c=compute(st);return [c.D/0.15,c.acid/0.4,c.body/0.4,c.clarity/0.4,-st.ratio/B.ratio.step*0.6,c.sweet/0.4]};
@@ -421,7 +428,7 @@ function renderFit(){const el=$('g-fit'),f=cupFit();
   const t=f.score,col=t>=0.56?'color-mix(in srgb,var(--cherry) '+Math.round(Math.min(1,(t-0.56)/0.3)*100)+'%,'+FIT_HONEY+')'
     :t>=0.5?'color-mix(in srgb,'+FIT_HONEY+' '+Math.round((t-0.5)/0.06*100)+'%,'+FIT_ROAST+')':FIT_ROAST;
   if(cur&&f.state!=='on')cur.style.setProperty('--fitc',col);if(nb&&f.state!=='on')nb.classList.add(f.state==='off'?'fit-near':'fit-lean')
-  el.style.setProperty('--fc',col);
+  el.style.setProperty('--fc',col);el.style.setProperty('--fi',inkOn(el,col));
   // The match reads on the same three zones as the gauge under it: on target from about 67%, another cup below 33%.
   const pos=Math.max(2,Math.min(98,t<0.5?(t-0.35)/0.15*33:t<0.56?33+(t-0.5)/0.06*33:66+(t-0.56)/0.44*34)),pct=Math.round(pos);
   const title=f.state==='on'?'On target':f.state==='drift'?'Drifting':'Closer to '+nn;
