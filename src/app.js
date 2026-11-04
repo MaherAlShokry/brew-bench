@@ -1981,7 +1981,7 @@ function lexicon(){if(LEX)return LEX;
     const inner=(n.match(/\(([^)]*)\)/)||[])[1];if(inner)regions.push([inner.trim(),k]);for(const r of o.subs||[])for(const part of fold(r).replace(/\([^)]*\)/g,'').split(/[:,/]/))if(part.trim())regions.push([part.trim(),k])}
   countries.push(['cote d\'ivoire','ivorycoast'],['ivory coast','ivorycoast'],['png','png'],['congo','drc'],['drc','drc'],['usa hawaii','kona']);
   const notes=new Set();for(const v of V)(v.notes||[]).forEach(n=>notes.add(fold(n)));for(const k in PROCESSES)(PROCESSES[k].notes||[]).forEach(n=>notes.add(fold(n)));
-  ['chocolate','dark chocolate','milk chocolate','caramel','toffee','honey','brown sugar','molasses','vanilla','almond','hazelnut','walnut','peach','apricot','nectarine','plum','cherry','blackcurrant','blueberry','strawberry','raspberry','blackberry','grape','lemon','lime','orange','grapefruit','bergamot','mandarin','tangerine','pineapple','mango','papaya','passion fruit','lychee','guava','coconut','banana','apple','green apple','pear','jasmine','rose','hibiscus','lavender','floral','black tea','green tea','earl grey','cinnamon','clove','cardamom','nutmeg','tamarind','red wine','whisky','rum','cola','maple','date','fig','raisin','cacao','cocoa','nougat','marzipan','butterscotch','panela','sugarcane','melon','watermelon','kiwi','pomegranate','cranberry','rhubarb','sweet','juicy','bright','silky'].forEach(n=>notes.add(n));
+  ['chocolate','dark chocolate','milk chocolate','caramel','toffee','honey','brown sugar','molasses','vanilla','almond','hazelnut','walnut','peach','apricot','nectarine','plum','cherry','blackcurrant','blueberry','strawberry','raspberry','blackberry','grape','lemon','lime','orange','grapefruit','bergamot','mandarin','tangerine','pineapple','mango','papaya','passion fruit','lychee','guava','coconut','banana','apple','green apple','pear','jasmine','rose','hibiscus','lavender','floral','black tea','green tea','earl grey','cinnamon','clove','cardamom','nutmeg','tamarind','red wine','whisky','rum','cola','white wine','sparkling wine','champagne','rose wine','cider','brandy','iced tea','peach tea','peach iced tea','lemon iced tea','white tea','jasmine tea','oolong','rooibos','honeysuckle','coffee blossom','orange blossom','lemon blossom','elderflower','chamomile','lilac','violet','magnolia','gardenia','lily','peony','geranium','yuzu','kumquat','lemonade','turkish delight','ginger ale','ginger beer','cherry cola','root beer','cream soda','orange juice','grape juice','kombucha','tonic','sangria','apple pie','brownie','cheesecake','key lime pie','black forest','baklava','marmalade','marshmallow','jam','maple','date','fig','raisin','cacao','cocoa','nougat','marzipan','butterscotch','panela','sugarcane','melon','watermelon','kiwi','pomegranate','cranberry','rhubarb','sweet','juicy','bright','silky'].forEach(n=>notes.add(n));
   return LEX={vars,procs,countries,hubs,regions,notes:[...notes].filter(n=>n.length>2)}}
 const MONTHS={jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,sept:9,oct:10,nov:11,dec:12};
 function findDate(raw){const t=fold(raw),now=new Date(),cands=[];
@@ -2256,20 +2256,37 @@ function renderScanHead(){const h=$('scan-head');if(!h)return;const r=SC.roaster
 // Washed acidity is weighted lower than the rest of the process, or every washed coffee would read as a Kenya.
 const CUP_W={variety:.7,process:.8,processAcid:.6,notes:.9,scale:1.3};
 const CUP_ROAST={light:{acid:.25,body:-.15,sweet:0,clarity:.1},medium:{acid:0,body:.1,sweet:.1,clarity:0},dark:{acid:-.5,body:.4,sweet:-.15,clarity:-.3}};
-// Each note is read by the first pattern it matches, so specific ones (orange blossom, black tea) come before broad ones (orange, tea).
+// Notes that mean something other than their words: a white wine is crisp, not boozy; a Turkish delight is sweet and rosy.
+const NOTE_WHOLE=[
+  [/white wine|sparkling|champagne|prosecco|riesling|sauvignon|chardonnay/,{acid:.8,clarity:.4,ferm:.2}],
+  [/ros[ée] wine|rosé|rosado/,{acid:.5,sweet:.2,ferm:.3}],
+  [/sangria|mulled wine/,{ferm:.6,sweet:.4,body:.2}],
+  [/red wine|merlot|cabernet|pinot|port wine/,{ferm:.8,body:.4,acid:.2}],
+  [/cider/,{acid:.6,ferm:.3}],
+  [/turkish delight|lokum/,{sweet:.7,clarity:.3}],
+  [/lemonade/,{acid:.8,sweet:.4,clarity:.2}],
+  [/ginger ale|ginger beer/,{sweet:.5,acid:.4,clarity:.2}],
+  [/\bcola\b|root beer|dr ?pepper/,{sweet:.6,body:.3,acid:.1}],
+  [/cream soda|marshmallow/,{sweet:.7,body:.2}],
+  [/kombucha/,{acid:.6,ferm:.6}],
+  [/tonic/,{acid:.3,clarity:.4}],
+  [/key lime pie|lemon tart/,{acid:.6,sweet:.5}],
+  [/apple pie|black forest|cheesecake|baklava|pastry|tiramisu/,{sweet:.6,body:.4,acid:.1}],
+  [/marmalade/,{acid:.5,sweet:.5}]];
+// Simple notes: a compound one ("peach iced tea", "orange blossom honey") takes every pattern it matches, averaged.
 const NOTE_SIG=[
   [/raisin|prune|dried|\bfigs?\b|\bdates?\b|sultana/,{sweet:.5,body:.3,acid:-.2}],
   [/wine|winey|boozy|\brum\b|whisk|liqueur|brandy|ferment|funk|kombucha|sake|kirsch/,{ferm:1,clarity:-.3,body:.2}],
-  [/jasmine|rose|floral|lavender|elderflower|hibiscus|blossom|honeysuckle|chamomile|violet|lilac|geranium/,{clarity:.7,body:-.4,acid:.3}],
-  [/\btea\b|earl grey|oolong|tea-like/,{clarity:.6,body:-.4,acid:.2}],
+  [/jasmine|\brose\b|floral|flower|lavender|elderflower|hibiscus|blossom|honeysuckle|chamomile|violet|lilac|geranium|magnolia|gardenia|peony|\blil(y|ies)\b|tuberose|ylang|\biris\b|freesia|frangipani|wisteria|orchid|petal|perfum/,{clarity:.7,body:-.4,acid:.3}],
+  [/\btea\b|earl grey|oolong|tea-like|rooibos/,{clarity:.6,body:-.4,acid:.2}],
   [/lemon|lime|grapefruit|citrus|orange|tangerine|mandarin|clementine|yuzu|bergamot|kumquat/,{acid:.9,clarity:.3}],
   [/mango|pineapple|passion|lychee|papaya|guava|tropical|banana|coconut|jackfruit|melon/,{acid:.3,sweet:.4,ferm:.3}],
   [/berr|cherry|currant|cranberr|pomegranate/,{acid:.6,sweet:.2}],
   [/apple|\bpears?\b|grape|kiwi|rhubarb|tamarind|cider/,{acid:.6}],
   [/peach|apricot|nectarine|stone fruit|\bplums?\b|red fruit|\bjam/,{acid:.3,sweet:.4}],
   [/cocoa|cacao|chocolate|brownie/,{acid:-.4,body:.5,sweet:.2}],
-  [/nut|almond|hazelnut|peanut|walnut|pecan|macadamia|praline/,{acid:-.5,body:.3,sweet:.1}],
-  [/caramel|toffee|brown sugar|panela|molasses|honey|maple|butterscotch|vanilla|sugar|candy|marzipan|nougat|syrup|fudge/,{sweet:.7,body:.2}],
+  [/\bnut|almond|hazelnut|peanut|walnut|pecan|macadamia|praline/,{acid:-.5,body:.3,sweet:.1}],
+  [/caramel|toffee|brown sugar|panela|molasses|honey(?!suckle)|maple|butterscotch|vanilla|sugar|candy|marzipan|nougat|syrup|fudge/,{sweet:.7,body:.2}],
   [/spice|cinnamon|clove|nutmeg|pepper|cardamom|cedar|tobacco|earth|herb|wood|leather|smok|\boak|musty/,{body:.5,clarity:-.4,acid:-.4}],
   [/cream|butter|velvet|heavy|\bfull\b|round/,{body:.6}],
   [/bright|crisp|lively|sparkling|zest|tart|juicy/,{acid:.7}],
@@ -2277,7 +2294,9 @@ const NOTE_SIG=[
   [/sweet/,{sweet:.5}]];
 // Words that describe structure rather than flavour: the meters already say these, so they stay off the chips we add.
 const NOTE_STRUCT=/^(simple|heavy|wild|bright|crisp acidity|crisp|clean|very clean|round|rounded|balanced|juicy|sweet|syrupy|light|delicate|mild|soft|complex|silky|smooth|low acidity|full body|intense aroma|flavoured|very sweet|honeyed|clean ferment|clean fruit|soft acidity|ripe fruit|concentrated fruit|added fruit)$/;
-function noteSig(n){n=String(n).toLowerCase();for(const [re,v] of NOTE_SIG)if(re.test(n))return v;return null}
+function noteSig(n){n=String(n).toLowerCase();for(const [re,v] of NOTE_WHOLE)if(re.test(n))return v;
+  const hit=NOTE_SIG.filter(([re])=>re.test(n)).map(x=>x[1]);if(!hit.length)return null;if(hit.length===1)return hit[0];
+  const out={};for(const v of hit)for(const k in v)out[k]=(out[k]||0)+v[k]/hit.length;return out}
 // Altitude in metres from free text ("1,100 to 1,300 masl", "1800m", "Arabica 1,300 to 2,300 m"): the middle of the last range.
 function altMid(s){const n=(String(s||'').match(/\d{1,2}[.,]\d{3}|\d{3,4}/g)||[]).map(x=>+x.replace(/[.,]/g,'')).filter(x=>x>=100&&x<=3200);
   if(!n.length)return null;const l=n.slice(-2);return (Math.min(...l)+Math.max(...l))/2}

@@ -2348,7 +2348,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
 <!-- FLAVOUR WHEEL -->
 <section id="wheel">
   <h2>Flavour wheel</h2>
-  <p class="lede">Every word tasters use for coffee, from the broad family in the middle to the exact note at the edge: 121 notes in 9 families. Tap a colour to open it up, and a note to see what it tastes like and where it comes from.</p>
+  <p class="lede">Every word tasters use for coffee, from the broad family in the middle to the exact note at the edge: 164 notes in 9 families. Tap a colour to open it up, and a note to see what it tastes like and where it comes from.</p>
   <div class="fw-layout">
     <div class="fw-main">
       <input type="search" id="fw-q" placeholder="Find a note" aria-label="Find a flavour note">
@@ -3774,7 +3774,13 @@ const FWHEEL=[
    ['Whiskey','Boozy and oaky. Barrel-aged and some anaerobic coffees.',['p:barrelaged']],
    ['Fermented','Funky, yeasty and ripe. Anaerobic, yeast and co-fermented coffees lean this way.',['p:anaerobic','k:Fermentation']],
    ['Overripe','Fruit past its best, close to rotting. Too-ripe cherries or uneven drying.',['k:Selective picking']],
-   ['Rum','Dark, sweet and boozy. Anaerobic and rum-barrel-aged coffees.',['p:anaerobic','p:barrelaged']]]}]},
+   ['Rum','Dark, sweet and boozy. Anaerobic and rum-barrel-aged coffees.',['p:anaerobic','p:barrelaged']],
+   ['Red wine','Dark fruit with some grip and tannin. Naturals and carbonic maceration.',['p:natural','p:carbonic']],
+   ['White wine','Crisp, juicy acidity like a dry white: grape, green apple, a little floral. Bright washed and anaerobic washed coffees.',['p:washed','p:anaerobicwashed']],
+   ['Sparkling wine','Lively, crisp and fizzy-tasting acidity, like champagne. Kenyans and bright anaerobic washed lots.',['p:doublewashed','p:anaerobicwashed']],
+   ['Rosé','Light red fruit with a dry, juicy finish. Some honeys and carbonic coffees.',['p:redhoney','p:carbonic']],
+   ['Cider','Fermented apple: tart, juicy and a little funky. Some naturals and yeast-fermented coffees.',['p:yeast','p:natural']],
+   ['Brandy','Warm, dried-fruit spirit. Long natural fermentations and barrel-aged lots.',['p:extended','p:barrelaged']]]}]},
  {n:'Green/Vegetative',c:'#678C4C',d:'Plant and vegetable notes. Usually from under-ripe cherries, under-roasting or under-extraction.',k:[
   {n:'Raw and beany',d:'Raw, oily and bean-like. Usually a sign of a light or underdeveloped roast.',k:[
    ['Olive oil','Smooth, slightly green and oily. Some naturals and lighter roasts.',[]],
@@ -3863,13 +3869,42 @@ const FWHEEL=[
    ['Overall sweet','General sweetness without a specific note. A sign of ripe fruit and good extraction.',['k:Sweetness']],
    ['Sweet aromatics','Sweet-smelling, like candy or cake. Aroma more than taste.',['k:Fragrance and aroma']],
    ['Cotton candy','Light, airy spun sugar. Some washed and honey coffees.',['p:honey']],
-   ['Bubblegum','Fruity, pink candy. Anaerobic and carbonic-maceration coffees.',['p:carbonic']]]}]},
+   ['Bubblegum','Fruity, pink candy. Anaerobic and carbonic-maceration coffees.',['p:carbonic']],
+   ['Marshmallow','Soft, vanilla-sugar sweetness. Sweet honeys and naturals.',['p:honey']]]},
+  {n:'Drinks',d:'Soft drinks and juices: sweetness with a lift of acidity, often a little spice or sparkle.',k:[
+   ['Ginger ale','Sweet and lightly spicy with a crisp, fizzy-tasting finish. Some Kenyans, honeys and co-fermented lots.',['p:honey','p:coferment']],
+   ['Cola','Dark sugar, a little spice and citrus. Fuller Central and South American coffees.',['v:bourbon','p:pulpednatural']],
+   ['Cherry cola','Red cherry over cola sweetness. Bourbons and red honeys.',['v:bourbon','p:redhoney']],
+   ['Root beer','Sweet, herbal and a little like liquorice. Some naturals and anaerobics.',['p:anaerobic']],
+   ['Cream soda','Vanilla sweetness with a light, creamy feel. Sweet honeys and naturals.',['p:honey']],
+   ['Lemonade','Sweet and sour lemon. Bright washed East African coffees.',['p:washed']],
+   ['Orange juice','Sweet, juicy citrus. Washed Latin American coffees.',['p:washed']],
+   ['Grape juice','Sweet, dark grape. Naturals and Kenyans.',['p:natural','v:sl28']],
+   ['Kombucha','Tart, fizzy and fermented tea. Yeast and anaerobic coffees.',['p:yeast','p:anaerobic']],
+   ['Tonic water','Bitter-sweet and crisp, with a clean finish. Some washed and anaerobic washed lots.',['p:anaerobicwashed']],
+   ['Sangria','Red wine, fruit and spice. Carbonic and long natural fermentations.',['p:carbonic','p:extended']]]},
+  {n:'Desserts',d:'Baked and sweet-shop flavours: sugar, fruit and fat together, as roasters describe whole impressions.',k:[
+   ['Apple pie','Baked apple, cinnamon and pastry. Washed Central Americans at medium roast.',['v:caturra','p:washed']],
+   ['Brownie','Rich, fudgy chocolate. Brazilians and fuller medium roasts.',['p:pulpednatural']],
+   ['Cheesecake','Creamy, sweet and a little tangy. Lactic-fermented coffees and sweet honeys.',['p:lactic']],
+   ['Key lime pie','Tart lime over sweet cream. Bright washed and lactic coffees.',['p:washed','p:lactic']],
+   ['Black Forest cake','Chocolate, cherry and cream. Naturals and fuller bourbons.',['p:natural','v:bourbon']],
+   ['Baklava','Honey, nuts and pastry. Yemeni and sweet natural coffees.',['v:yemenia','p:natural']],
+   ['Turkish delight','Rose-scented, sugary sweetness. Some Ethiopians and anaerobic lots.',['v:landrace','p:anaerobic']],
+   ['Marmalade','Bittersweet cooked orange. Washed coffees with sweet citrus.',['p:washed']],
+   ['Jam','Cooked, concentrated fruit. Naturals.',['p:natural']]]}]},
  {n:'Floral',c:'#B4688F',d:'Flowers and tea. Delicate notes that need light roasting and careful brewing.',k:[
   {n:'Tea-like',d:'Tea flavours and a light, tea-like body. Washed Ethiopians, Kenyans and Geisha.',k:[
    ['Black tea','Tea-like body and gentle tannin. Washed Ethiopians and Kenyans.',['p:washed']],
    ['Earl Grey','Black tea with bergamot: floral citrus. Washed Ethiopians and some Geisha.',['v:geisha']],
    ['Green tea','Fresh, grassy and gently astringent. Light, washed coffees.',['p:washed']],
-   ['Oolong','Toasty-floral tea with a honeyed finish. Some Geisha and washed Panamas.',['v:geisha']]]},
+   ['Oolong','Toasty-floral tea with a honeyed finish. Some Geisha and washed Panamas.',['v:geisha']],
+   ['White tea','Very delicate, sweet and floral tea. Light, washed Geisha and Ethiopians.',['v:geisha','p:washed']],
+   ['Jasmine tea','Green tea scented with jasmine: floral and clean. Washed Ethiopians and Geisha.',['v:geisha','v:landrace']],
+   ['Iced tea','Light, sweet and refreshing, with a soft tannin. Clean washed and honey coffees as they cool.',['p:washed','p:honey']],
+   ['Peach iced tea','Sweet stone fruit over light tea. Washed Ethiopians, Geisha and many light honeys.',['v:geisha','p:honey']],
+   ['Lemon iced tea','Citrus over light tea, sweet and crisp. Washed East African coffees.',['p:washed']],
+   ['Rooibos','Red bush tea: sweet, woody and a little honeyed. Some naturals and honeys.',['p:honey']]]},
   {n:'Floral',d:'Fragrant flowers. Geisha and washed Ethiopians are the classic examples.',k:[
    ['Chamomile','Gentle, herbal and honeyed. Some Ethiopian and Colombian coffees.',[]],
    ['Rose','Rose petal and rose water. Some Ethiopians and anaerobic lots.',['p:anaerobic']],
@@ -3877,7 +3912,17 @@ const FWHEEL=[
    ['Orange blossom','Sweet, perfumed citrus flower. Washed Ethiopians and Geisha.',['v:geisha']],
    ['Elderflower','Delicate, sweet and floral. Light washed coffees.',['p:washed']],
    ['Lavender','Herbal and floral. Rare; some Ethiopian and anaerobic coffees.',[]],
-   ['Hibiscus','Tart, floral and red, like hibiscus tea. Kenyan and some natural coffees.',['p:natural']]]}]}
+   ['Hibiscus','Tart, floral and red, like hibiscus tea. Kenyan and some natural coffees.',['p:natural']],
+   ['Honeysuckle','Sweet, nectar-like flower. Washed Ethiopians, Geisha and light honeys.',['v:geisha','p:whitehoney']],
+   ['Coffee blossom','The coffee plant\u2019s own white flower, jasmine-like and sweet. Washed Ethiopians and Geisha.',['v:landrace','v:geisha']],
+   ['Lilac','Soft, powdery spring flower. Some washed Ethiopian and Panamanian lots.',['p:washed']],
+   ['Violet','Perfumed and a little powdery, like violet sweets. Some Kenyans and naturals.',['v:sl28','p:natural']],
+   ['Magnolia','Creamy, lemony white flower. Geisha and washed Ethiopians.',['v:geisha']],
+   ['Gardenia','Rich, heady white flower. Some Geisha and anaerobic washed lots.',['v:geisha','p:anaerobicwashed']],
+   ['Lily','Fresh, sweet and green-floral. Light washed coffees.',['p:washed']],
+   ['Peony','Light, rosy and fresh. Some Ethiopian and Colombian lots.',[]],
+   ['Geranium','Leafy, rose-like and a little green. Some Ethiopians and Kenyans.',['v:landrace']],
+   ['Lemon blossom','Bright, zesty flower. Washed Ethiopians, especially Yirgacheffe.',['v:landrace','p:washed']]]}]}
 ];
 
 /* ================= ROASTERS ================= */
@@ -6307,7 +6352,7 @@ function lexicon(){if(LEX)return LEX;
     const inner=(n.match(/\(([^)]*)\)/)||[])[1];if(inner)regions.push([inner.trim(),k]);for(const r of o.subs||[])for(const part of fold(r).replace(/\([^)]*\)/g,'').split(/[:,/]/))if(part.trim())regions.push([part.trim(),k])}
   countries.push(['cote d\'ivoire','ivorycoast'],['ivory coast','ivorycoast'],['png','png'],['congo','drc'],['drc','drc'],['usa hawaii','kona']);
   const notes=new Set();for(const v of V)(v.notes||[]).forEach(n=>notes.add(fold(n)));for(const k in PROCESSES)(PROCESSES[k].notes||[]).forEach(n=>notes.add(fold(n)));
-  ['chocolate','dark chocolate','milk chocolate','caramel','toffee','honey','brown sugar','molasses','vanilla','almond','hazelnut','walnut','peach','apricot','nectarine','plum','cherry','blackcurrant','blueberry','strawberry','raspberry','blackberry','grape','lemon','lime','orange','grapefruit','bergamot','mandarin','tangerine','pineapple','mango','papaya','passion fruit','lychee','guava','coconut','banana','apple','green apple','pear','jasmine','rose','hibiscus','lavender','floral','black tea','green tea','earl grey','cinnamon','clove','cardamom','nutmeg','tamarind','red wine','whisky','rum','cola','maple','date','fig','raisin','cacao','cocoa','nougat','marzipan','butterscotch','panela','sugarcane','melon','watermelon','kiwi','pomegranate','cranberry','rhubarb','sweet','juicy','bright','silky'].forEach(n=>notes.add(n));
+  ['chocolate','dark chocolate','milk chocolate','caramel','toffee','honey','brown sugar','molasses','vanilla','almond','hazelnut','walnut','peach','apricot','nectarine','plum','cherry','blackcurrant','blueberry','strawberry','raspberry','blackberry','grape','lemon','lime','orange','grapefruit','bergamot','mandarin','tangerine','pineapple','mango','papaya','passion fruit','lychee','guava','coconut','banana','apple','green apple','pear','jasmine','rose','hibiscus','lavender','floral','black tea','green tea','earl grey','cinnamon','clove','cardamom','nutmeg','tamarind','red wine','whisky','rum','cola','white wine','sparkling wine','champagne','rose wine','cider','brandy','iced tea','peach tea','peach iced tea','lemon iced tea','white tea','jasmine tea','oolong','rooibos','honeysuckle','coffee blossom','orange blossom','lemon blossom','elderflower','chamomile','lilac','violet','magnolia','gardenia','lily','peony','geranium','yuzu','kumquat','lemonade','turkish delight','ginger ale','ginger beer','cherry cola','root beer','cream soda','orange juice','grape juice','kombucha','tonic','sangria','apple pie','brownie','cheesecake','key lime pie','black forest','baklava','marmalade','marshmallow','jam','maple','date','fig','raisin','cacao','cocoa','nougat','marzipan','butterscotch','panela','sugarcane','melon','watermelon','kiwi','pomegranate','cranberry','rhubarb','sweet','juicy','bright','silky'].forEach(n=>notes.add(n));
   return LEX={vars,procs,countries,hubs,regions,notes:[...notes].filter(n=>n.length>2)}}
 const MONTHS={jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,sept:9,oct:10,nov:11,dec:12};
 function findDate(raw){const t=fold(raw),now=new Date(),cands=[];
@@ -6582,20 +6627,37 @@ function renderScanHead(){const h=$('scan-head');if(!h)return;const r=SC.roaster
 // Washed acidity is weighted lower than the rest of the process, or every washed coffee would read as a Kenya.
 const CUP_W={variety:.7,process:.8,processAcid:.6,notes:.9,scale:1.3};
 const CUP_ROAST={light:{acid:.25,body:-.15,sweet:0,clarity:.1},medium:{acid:0,body:.1,sweet:.1,clarity:0},dark:{acid:-.5,body:.4,sweet:-.15,clarity:-.3}};
-// Each note is read by the first pattern it matches, so specific ones (orange blossom, black tea) come before broad ones (orange, tea).
+// Notes that mean something other than their words: a white wine is crisp, not boozy; a Turkish delight is sweet and rosy.
+const NOTE_WHOLE=[
+  [/white wine|sparkling|champagne|prosecco|riesling|sauvignon|chardonnay/,{acid:.8,clarity:.4,ferm:.2}],
+  [/ros[ée] wine|rosé|rosado/,{acid:.5,sweet:.2,ferm:.3}],
+  [/sangria|mulled wine/,{ferm:.6,sweet:.4,body:.2}],
+  [/red wine|merlot|cabernet|pinot|port wine/,{ferm:.8,body:.4,acid:.2}],
+  [/cider/,{acid:.6,ferm:.3}],
+  [/turkish delight|lokum/,{sweet:.7,clarity:.3}],
+  [/lemonade/,{acid:.8,sweet:.4,clarity:.2}],
+  [/ginger ale|ginger beer/,{sweet:.5,acid:.4,clarity:.2}],
+  [/\bcola\b|root beer|dr ?pepper/,{sweet:.6,body:.3,acid:.1}],
+  [/cream soda|marshmallow/,{sweet:.7,body:.2}],
+  [/kombucha/,{acid:.6,ferm:.6}],
+  [/tonic/,{acid:.3,clarity:.4}],
+  [/key lime pie|lemon tart/,{acid:.6,sweet:.5}],
+  [/apple pie|black forest|cheesecake|baklava|pastry|tiramisu/,{sweet:.6,body:.4,acid:.1}],
+  [/marmalade/,{acid:.5,sweet:.5}]];
+// Simple notes: a compound one ("peach iced tea", "orange blossom honey") takes every pattern it matches, averaged.
 const NOTE_SIG=[
   [/raisin|prune|dried|\bfigs?\b|\bdates?\b|sultana/,{sweet:.5,body:.3,acid:-.2}],
   [/wine|winey|boozy|\brum\b|whisk|liqueur|brandy|ferment|funk|kombucha|sake|kirsch/,{ferm:1,clarity:-.3,body:.2}],
-  [/jasmine|rose|floral|lavender|elderflower|hibiscus|blossom|honeysuckle|chamomile|violet|lilac|geranium/,{clarity:.7,body:-.4,acid:.3}],
-  [/\btea\b|earl grey|oolong|tea-like/,{clarity:.6,body:-.4,acid:.2}],
+  [/jasmine|\brose\b|floral|flower|lavender|elderflower|hibiscus|blossom|honeysuckle|chamomile|violet|lilac|geranium|magnolia|gardenia|peony|\blil(y|ies)\b|tuberose|ylang|\biris\b|freesia|frangipani|wisteria|orchid|petal|perfum/,{clarity:.7,body:-.4,acid:.3}],
+  [/\btea\b|earl grey|oolong|tea-like|rooibos/,{clarity:.6,body:-.4,acid:.2}],
   [/lemon|lime|grapefruit|citrus|orange|tangerine|mandarin|clementine|yuzu|bergamot|kumquat/,{acid:.9,clarity:.3}],
   [/mango|pineapple|passion|lychee|papaya|guava|tropical|banana|coconut|jackfruit|melon/,{acid:.3,sweet:.4,ferm:.3}],
   [/berr|cherry|currant|cranberr|pomegranate/,{acid:.6,sweet:.2}],
   [/apple|\bpears?\b|grape|kiwi|rhubarb|tamarind|cider/,{acid:.6}],
   [/peach|apricot|nectarine|stone fruit|\bplums?\b|red fruit|\bjam/,{acid:.3,sweet:.4}],
   [/cocoa|cacao|chocolate|brownie/,{acid:-.4,body:.5,sweet:.2}],
-  [/nut|almond|hazelnut|peanut|walnut|pecan|macadamia|praline/,{acid:-.5,body:.3,sweet:.1}],
-  [/caramel|toffee|brown sugar|panela|molasses|honey|maple|butterscotch|vanilla|sugar|candy|marzipan|nougat|syrup|fudge/,{sweet:.7,body:.2}],
+  [/\bnut|almond|hazelnut|peanut|walnut|pecan|macadamia|praline/,{acid:-.5,body:.3,sweet:.1}],
+  [/caramel|toffee|brown sugar|panela|molasses|honey(?!suckle)|maple|butterscotch|vanilla|sugar|candy|marzipan|nougat|syrup|fudge/,{sweet:.7,body:.2}],
   [/spice|cinnamon|clove|nutmeg|pepper|cardamom|cedar|tobacco|earth|herb|wood|leather|smok|\boak|musty/,{body:.5,clarity:-.4,acid:-.4}],
   [/cream|butter|velvet|heavy|\bfull\b|round/,{body:.6}],
   [/bright|crisp|lively|sparkling|zest|tart|juicy/,{acid:.7}],
@@ -6603,7 +6665,9 @@ const NOTE_SIG=[
   [/sweet/,{sweet:.5}]];
 // Words that describe structure rather than flavour: the meters already say these, so they stay off the chips we add.
 const NOTE_STRUCT=/^(simple|heavy|wild|bright|crisp acidity|crisp|clean|very clean|round|rounded|balanced|juicy|sweet|syrupy|light|delicate|mild|soft|complex|silky|smooth|low acidity|full body|intense aroma|flavoured|very sweet|honeyed|clean ferment|clean fruit|soft acidity|ripe fruit|concentrated fruit|added fruit)$/;
-function noteSig(n){n=String(n).toLowerCase();for(const [re,v] of NOTE_SIG)if(re.test(n))return v;return null}
+function noteSig(n){n=String(n).toLowerCase();for(const [re,v] of NOTE_WHOLE)if(re.test(n))return v;
+  const hit=NOTE_SIG.filter(([re])=>re.test(n)).map(x=>x[1]);if(!hit.length)return null;if(hit.length===1)return hit[0];
+  const out={};for(const v of hit)for(const k in v)out[k]=(out[k]||0)+v[k]/hit.length;return out}
 // Altitude in metres from free text ("1,100 to 1,300 masl", "1800m", "Arabica 1,300 to 2,300 m"): the middle of the last range.
 function altMid(s){const n=(String(s||'').match(/\d{1,2}[.,]\d{3}|\d{3,4}/g)||[]).map(x=>+x.replace(/[.,]/g,'')).filter(x=>x>=100&&x<=3200);
   if(!n.length)return null;const l=n.slice(-2);return (Math.min(...l)+Math.max(...l))/2}
@@ -7539,12 +7603,16 @@ function setLeft(b,g){b.left=gramsOrNull(g);b.leftAt=Date.now()}
 const TN_MAX=12,TN_LEN=160;
 const tnFams=()=>FW.roots.filter(r=>r.n!=='Other');
 // Words bags use that the wheel doesn't have, each with the wheel note whose colour and family it takes.
-const TN_X={Caramel:'Caramelized','Brown sugar':'Molasses','Cane sugar':'Panela',Sugarcane:'Panela',Cocoa:'Cocoa nib',Cacao:'Cocoa nib',Cola:'Molasses',Butterscotch:'Toffee',Fudge:'Toffee',
+const TN_X={Caramel:'Caramelized','Brown sugar':'Molasses','Cane sugar':'Panela',Sugarcane:'Panela',Cocoa:'Cocoa nib',Cacao:'Cocoa nib',Butterscotch:'Toffee',Fudge:'Brownie',
   Citrus:'Orange',Tangerine:'Mandarin',Clementine:'Mandarin','Blood orange':'Orange','Orange zest':'Orange','Lemon zest':'Lemon','Red apple':'Apple','Green apple':'Apple',
   'Stone fruit':'Peach',Nectarine:'Peach','Red fruit':'Raspberry','Red currant':'Blackcurrant','Black cherry':'Cherry','Tropical fruit':'Mango',Papaya:'Mango',Guava:'Passion fruit',
-  Kiwi:'Lime',Watermelon:'Melon',Tamarind:'Date','Dried fruit':'Raisin',Jam:'Blackberry',
+  Kiwi:'Lime',Watermelon:'Melon',Tamarind:'Date','Dried fruit':'Raisin',
   'Tea-like':'Black tea',Floral:'Jasmine',Lemongrass:'Herb-like',Mint:'Herb-like',Butter:'Custard',Cream:'Custard',Creamy:'Custard',
-  Nougat:'Almond',Marzipan:'Almond',Praline:'Hazelnut',Cashew:'Macadamia',Nutty:'Hazelnut','Brown spice':'Cinnamon',Wine:'Winey','Red wine':'Winey',Liqueur:'Rum'};
+  Nougat:'Almond',Marzipan:'Almond',Praline:'Hazelnut',Cashew:'Macadamia',Nutty:'Hazelnut','Brown spice':'Cinnamon',Wine:'Winey',Liqueur:'Rum',
+  Champagne:'Sparkling wine',Prosecco:'Sparkling wine','Rose wine':'Rosé',Riesling:'White wine','Sauvignon blanc':'White wine','Peach tea':'Peach iced tea','Lemon tea':'Lemon iced tea',
+  'Orange flower':'Orange blossom','Coffee flower':'Coffee blossom','Lily of the valley':'Lily','Rose water':'Rose',Florals:'Jasmine','White flowers':'Jasmine','Wildflowers':'Chamomile',
+  'Hibiscus tea':'Hibiscus','Pink lemonade':'Lemonade','Yellow peach':'Peach','White peach':'Peach','Ginger beer':'Ginger ale',Soda:'Cream soda',
+  'Dr Pepper':'Cola','Lime juice':'Lemonade','Apple juice':'Apple','Cherry pie':'Cherry','Lemon tart':'Lemon','Strawberry jam':'Jam','Candied orange':'Marmalade',Tiramisu:'Brownie',Pastry:'Apple pie'};
 // Every note you can pick: the wheel's (bar the defects) and the words above. {n, c, id: the wheel note, g: its group}.
 let TN_ALL=null;
 const tnNotes=()=>TN_ALL||(TN_ALL=(()=>{const base=FW.leaves.filter(n=>n.cat.n!=='Other'),by=Object.fromEntries(base.map(n=>[n.n,n]));
