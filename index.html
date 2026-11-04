@@ -1869,6 +1869,16 @@ body.t-dial.dial-ready .herowrap{display:none}
 .cm[aria-pressed="true"]{background:var(--cherry);color:var(--surface)}.cm:disabled{opacity:.35;cursor:default}
 .calq{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}.calq .chip{cursor:pointer}.calq .calclear{margin-left:auto}.calq .chip:disabled{opacity:.4}
 dialog#selsheet.pop.dates .selhead{display:none}
+/* Every disclosure row in one style: no browser marker, the app's chevron after the words, turning as it opens.
+   (The dial-in steps draw their own chevron.) */
+summary{list-style:none}summary::-webkit-details-marker{display:none}summary::marker{content:""}
+details:not(.dstep)>summary{display:flex;align-items:center;gap:8px;-webkit-tap-highlight-color:transparent}
+details:not(.dstep)>summary::after{content:"";flex:none;width:7px;height:7px;margin:0 4px 0 auto;border-right:2px solid currentColor;border-bottom:2px solid currentColor;opacity:.6;transform:rotate(45deg) translateY(-2px);transition:transform .2s}
+details:not(.dstep)[open]>summary::after{transform:rotate(-135deg) translateY(-1px)}
+/* Short link-like rows keep the chevron beside the words rather than at the far edge. */
+:is(details.gspec,details.rsteps,details.tm-all,details.cal)>summary{justify-content:flex-start}
+:is(details.gspec,details.rsteps,details.tm-all,details.cal)>summary::after{margin-left:2px}
+details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{flex-basis:100%;order:2}
 /* The welcome on Brew: a card like the others, with a greeting and the day's line of coffee wisdom. */
 .welcome{margin:0 0 12px;padding:16px 18px}
 .wl-top{display:flex;align-items:center;gap:12px}
