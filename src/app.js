@@ -689,6 +689,12 @@ function plan(c){
   if(Math.abs(extra)>lim){const want=Math.sign(extra)*(Math.abs(extra)-lim),t1=clamp(Math.round(temp+want*KG/KT),Math.max(B.temp.min,temp-4),Math.min(B.temp.max,temp+4)),dt=t1-temp;
     step=r.off+clamp(extra-dt*KT/KG,-lim,lim);held=true;
     if(dt||Math.abs(extra)-lim>0.25)why.push('The grind stays within a few clicks of the recipe rather than going much '+(extra<0?'coarser':'finer')+(dt?'; the water is '+Math.abs(dt)+'°C '+(dt<0?'cooler':'warmer')+' ('+t1+'°C) instead.':'.'));temp=t1}
+  // An outer limit: the grind stays within about a step and a half of what this brewer normally takes (wider for a
+  // recipe that is fine or coarse by design: a step past its own offset), so no coffee and target push it to an extreme.
+  // When the coffee asks for more, up to 3°C of water does some of it (never past 96°C going up).
+  {const lo=Math.min(-1.5,r.off-1),hi=Math.max(1.5,r.off+1);if(step>hi||step<lo){const tgt=clamp(step,lo,hi),want=step-tgt;
+    const up=Math.max(temp,Math.min(B.temp.max,96,temp+3)),down=Math.max(B.temp.min,temp-3),t1=clamp(Math.round(temp+want*KG/KT),down,up),dt=t1-temp;
+    step=tgt;why.push('The grind stays within the usual range for '+art(brewName(B.name))+' '+esc(brewName(B.name))+' rather than going '+(want>0?'finer':'coarser')+(dt?'; the water is '+Math.abs(dt)+'°C '+(dt<0?'cooler':'warmer')+' ('+t1+'°C) instead.':'. Taste and adjust from here.'));temp=t1}}
   const set={};for(const g of new Set([...MYG,grinder]))set[g]=canGrind(g,bb)?roundG(g,shift(g,baseX(g,bb),-step*160)):null;
   const water=+gfmt(dose*ratio);
   const st={grinder,setting:set[grinder],brewer:bb,temp,ratio,bloom,agit,roast:c.roast,process:c.process,variety:c.variety,rec:c.tech};
