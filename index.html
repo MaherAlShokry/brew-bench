@@ -231,6 +231,8 @@ dialog#vd::backdrop{background:rgba(20,14,10,.55)}
 #tree .n:focus-visible rect{stroke:var(--ink)}
 #tree .tmark circle{fill:color-mix(in srgb,var(--cherry) 14%,var(--surface));stroke:color-mix(in srgb,var(--cherry) 45%,transparent);stroke-width:1.2}
 #tree .tmark text{font:700 10.5px var(--body);text-anchor:middle;fill:var(--cherry-ink,var(--cherry))}
+#tree .tmark{cursor:pointer}
+.treenotes li.flash{animation:tn-flash 1.4s ease}@keyframes tn-flash{0%,40%{background:color-mix(in srgb,var(--cherry) 16%,transparent)}100%{background:transparent}}.treenotes li{border-radius:10px;padding:4px 6px;margin:-4px -6px}
 /* The tree's notes, numbered to match their markers. */
 .treenotes{list-style:none;margin:10px 0 0;padding:12px 14px;display:grid;gap:8px;border-radius:var(--r-md);background:var(--surface);border:1px solid var(--line)}
 .treenotes[hidden]{display:none}.treenotes li{display:flex;gap:10px;align-items:flex-start;font-size:.86rem;line-height:1.45;color:var(--muted)}
@@ -6109,8 +6111,8 @@ function drawTree(){
   // the tree, so none runs into the next generation or off the edge.
   const noted=Object.keys(TREE.notes||{}).filter(id=>pos[id]).sort((a,b)=>pos[a].x-pos[b].x||pos[a].y-pos[b].y);
   noted.forEach((id,k)=>{const p=pos[id],cx=p.x+p.w+13,cy=p.y+p.h/2;W=Math.max(W,cx+12);
-    t+='<g class="tmark" data-id="'+id+'" aria-hidden="true"><circle cx="'+cx+'" cy="'+cy+'" r="9"/><text x="'+cx+'" y="'+(cy+4)+'">'+(k+1)+'</text></g>'});
-  {const ul=$('treenotes');if(ul){ul.innerHTML=noted.map((id,k)=>'<li><span class="tn-k">'+(k+1)+'</span><span><b>'+esc(pos[id].lab)+'</b>'+esc(TREE.notes[id])+'</span></li>').join('');ul.hidden=!noted.length}}
+    t+='<g class="tmark" data-id="'+id+'" role="button" tabindex="-1" aria-label="Note '+(k+1)+' on '+esc(p.lab)+'"><circle cx="'+cx+'" cy="'+cy+'" r="9"/><text x="'+cx+'" y="'+(cy+4)+'">'+(k+1)+'</text></g>'});
+  {const ul=$('treenotes');if(ul){ul.innerHTML=noted.map((id,k)=>'<li data-id="'+id+'"><span class="tn-k">'+(k+1)+'</span><span><b>'+esc(pos[id].lab)+'</b>'+esc(TREE.notes[id])+'</span></li>').join('');ul.hidden=!noted.length}}
   W=Math.ceil(W+24);H=Math.ceil(H+28);
   // Generation bands with their headings.
   let bands='';TCOLS.forEach(([x,lab],k)=>{const x0=k?x-12:0,x1=k<TCOLS.length-1?TCOLS[k+1][0]-12:W;
@@ -6136,7 +6138,9 @@ function buildTree(){
     svg.classList.add('focus');svg.querySelectorAll('.n').forEach(n=>n.classList.toggle('on',anc.has(n.dataset.id)));svg.querySelectorAll('path.e').forEach(e=>e.classList.toggle('on',anc.has(e.dataset.a)&&anc.has(e.dataset.b)))};
   svg.onmouseover=e=>{const n=e.target.closest('.n');if(n)focus(n.dataset.id)};
   svg.onmouseleave=()=>svg.classList.remove('focus');
-  svg.onclick=e=>{const n=e.target.closest('.n');if(!n){svg.classList.remove('focus');return}focus(n.dataset.id);openVariety(n.dataset.id)};
+  // A note's marker takes you to its note in the key under the tree, which flashes so you can find it.
+  svg.onclick=e=>{const m=e.target.closest('.tmark');if(m){const li=$('treenotes').querySelector('[data-id="'+m.dataset.id+'"]');if(li){li.scrollIntoView({block:'center',behavior:'smooth'});li.classList.remove('flash');void li.offsetWidth;li.classList.add('flash')}return}
+    const n=e.target.closest('.n');if(!n){svg.classList.remove('focus');return}focus(n.dataset.id);openVariety(n.dataset.id)};
   svg.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){const n=e.target.closest('.n');if(n){e.preventDefault();focus(n.dataset.id);openVariety(n.dataset.id)}}};
   $('treelegend').innerHTML=Object.values(FAM).map(f=>'<span class="pill tleg" style="--c:'+f.color+'"><i></i>'+f.name+'</span>').join('')+'<span class="pill tleg dna">Notes in italics: where DNA overturned the old story</span>';
   const box=svg.parentElement,edge=()=>{box.classList.toggle('at-start',box.scrollLeft<8);box.classList.toggle('at-end',box.scrollLeft+box.clientWidth>=box.scrollWidth-8)};box.onscroll=edge;requestAnimationFrame(edge);

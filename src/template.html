@@ -230,6 +230,8 @@ dialog#vd::backdrop{background:rgba(20,14,10,.55)}
 #tree .n:focus-visible rect{stroke:var(--ink)}
 #tree .tmark circle{fill:color-mix(in srgb,var(--cherry) 14%,var(--surface));stroke:color-mix(in srgb,var(--cherry) 45%,transparent);stroke-width:1.2}
 #tree .tmark text{font:700 10.5px var(--body);text-anchor:middle;fill:var(--cherry-ink,var(--cherry))}
+#tree .tmark{cursor:pointer}
+.treenotes li.flash{animation:tn-flash 1.4s ease}@keyframes tn-flash{0%,40%{background:color-mix(in srgb,var(--cherry) 16%,transparent)}100%{background:transparent}}.treenotes li{border-radius:10px;padding:4px 6px;margin:-4px -6px}
 /* The tree's notes, numbered to match their markers. */
 .treenotes{list-style:none;margin:10px 0 0;padding:12px 14px;display:grid;gap:8px;border-radius:var(--r-md);background:var(--surface);border:1px solid var(--line)}
 .treenotes[hidden]{display:none}.treenotes li{display:flex;gap:10px;align-items:flex-start;font-size:.86rem;line-height:1.45;color:var(--muted)}
