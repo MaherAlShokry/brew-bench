@@ -1844,6 +1844,30 @@ body.t-dial.dial-ready .herowrap{display:none}
 .td-t>span{font-size:.9rem;line-height:1.5;color:color-mix(in srgb,var(--ink) 78%,var(--muted))}
 .td-go{flex:none;width:18px;height:18px;margin-top:12px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .td-row:active{background:color-mix(in srgb,var(--ink) 4%,transparent)}
+/* Dates: the field reads like the app's other fields; the calendar opens in the dropdowns' sheet. */
+.datew{position:relative;display:flex;align-items:center;gap:10px;width:100%;min-height:46px;padding:0 14px;border-radius:var(--r-md,14px);background:var(--surface2);border:1px solid transparent;color:var(--ink);cursor:pointer;-webkit-tap-highlight-color:transparent;box-sizing:border-box}
+.datew>input{position:absolute;inset:0;opacity:0;pointer-events:none;width:100%;height:100%}
+.datew .dw-t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:1rem}.datew.empty .dw-t{color:var(--muted)}
+.datew svg{flex:none;width:18px;height:18px;fill:none;stroke:var(--muted);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.datew:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}.datew:active{transform:scale(.99)}
+.cal{padding:4px 16px 16px}
+.calnav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:2px 0 8px}
+.cal .cn-b{box-shadow:none;padding:0;width:40px;height:40px;border-radius:50%;border:0;background:var(--surface2);color:var(--ink);display:grid;place-items:center;cursor:pointer}
+.cn-b:disabled{opacity:.35;cursor:default}.cn-b svg,.cal-t svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.cal-t{display:inline-flex;align-items:center;gap:4px;border:0;background:none;color:var(--ink);font:700 1.02rem/1.2 var(--display);padding:8px 10px;border-radius:12px;cursor:pointer}
+.cal-t svg{width:16px;height:16px;color:var(--muted)}
+.calwk,.calgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px 2px;text-align:center}
+.calwk span{font-size:.72rem;font-weight:700;color:var(--muted);padding:4px 0;text-transform:uppercase}
+.cal .cd{all:unset;box-sizing:border-box;display:grid;place-items:center;width:100%;max-width:44px;aspect-ratio:1;justify-self:center;border-radius:50%;color:var(--ink);font-family:var(--body);font-size:.95rem;font-variant-numeric:tabular-nums;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.cal .cd:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
+.cal .cd:hover{background:var(--surface2)}.cal .cd.today{box-shadow:inset 0 0 0 1.5px var(--cherry);color:var(--cherry-ink,var(--cherry));font-weight:700}
+.cal .cd[aria-pressed="true"]{background:var(--cherry);color:var(--surface);font-weight:700;box-shadow:0 6px 14px -8px var(--cherry)}
+.cal .cd:disabled{color:var(--muted);opacity:.4;cursor:default;background:none}
+.calmonths{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:4px 0}
+.cal .cm{box-shadow:none;padding:0;min-height:48px;border:0;border-radius:14px;background:var(--surface2);color:var(--ink);font:inherit;font-weight:600;cursor:pointer}
+.cm[aria-pressed="true"]{background:var(--cherry);color:var(--surface)}.cm:disabled{opacity:.35;cursor:default}
+.calq{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}.calq .chip{cursor:pointer}.calq .calclear{margin-left:auto}.calq .chip:disabled{opacity:.4}
+dialog#selsheet.pop.dates .selhead{display:none}
 /* The welcome on Brew: a card like the others, with a greeting and the day's line of coffee wisdom. */
 .welcome{margin:0 0 12px;padding:16px 18px}
 .wl-top{display:flex;align-items:center;gap:12px}
