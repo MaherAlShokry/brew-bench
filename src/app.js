@@ -1029,10 +1029,18 @@ $('rsearch').oninput=e=>{RQ=e.target.value;if(RQ.trim()&&RF!=='all'){RF='all';re
 let RSORT=(()=>{try{return localStorage.getItem('bb-rsort')||'brewer'}catch(e){return'brewer'}})();
 const RF_NAME=()=>RF==='all'?'All recipes':RF==='fav'?'Favorites':RF==='mine'?(TEAM()?'Yours and your team’s':'Your recipes'):RF==='champ'?'Champions':RF.startsWith('cup:')?CUPBY[RF.slice(4)][1]
   :RF.startsWith('b:')&&BREWERS[RF.slice(2)]?famName(RFAM(RF.slice(2))):RF.startsWith('col:')&&COLBY[RF.slice(4)]?COLBY[RF.slice(4)][1]:'All recipes';
-// One recipe as a compact row: what it is, who it's from, the numbers that matter, and a play button for the timer.
-function rrow(r,i){const m=rmeta(r),lv={Easy:'e',Medium:'i',Advanced:'a'}[m.level];
-  return '<article class="rrow'+(r.custom?' mine':'')+'"><button type="button" class="rr-open" data-open="'+i+'"><span class="rr-t"><b>'+esc(r.name)+'</b>'+(BTAG[r.b]?'<span class="rr-tag neo">'+BTAG[r.b]+'</span>':'')+(r.champ?'<span class="rr-tag champ">Champion</span>':'')+(r.custom?'<span class="rr-tag ours">'+esc(r.author&&r.author!==ME?'From '+r.author:'Yours')+'</span>':'')+'</span>'+
-    '<small class="rr-by"><span class="lv lv-'+lv+'"><i aria-hidden="true"></i>'+m.level+'</span>'+(r.by?'<span class="rr-who">'+esc(r.by)+'</span>':'')+'</small><span class="rr-m"><span>'+r.dose+'g · '+r.water+'g</span>'+(m.ratio?'<span>'+m.ratio+'</span>':'')+(m.time!=null?'<span>'+mmss(m.time)+'</span>':'')+(r.temp?'<span>'+r.temp+'°C</span>':'')+'</span></button>'+
+// One recipe as a row: the name and its tags; the level and who it's from on one line; the numbers in one strip.
+// The heart sits level with the name and the play button level with the numbers.
+const RR_IC={time:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="7.5"/><path d="M12 9.5V13l2.5 1.6M10 3h4"/></svg>',
+  temp:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13.6V5a2 2 0 0 1 4 0v8.6a4 4 0 1 1-4 0z"/><path d="M12 17v-5"/></svg>'};
+function rrow(r,i){const m=rmeta(r),lv={Easy:'e',Medium:'i',Advanced:'a'}[m.level],who=r.by?r.by.split(/,\s*/)[0]:'';
+  const tags=(BTAG[r.b]?'<span class="rr-tag neo">'+BTAG[r.b]+'</span>':'')+(r.champ?'<span class="rr-tag champ">Champion</span>':'')+(r.custom?'<span class="rr-tag ours">'+esc(r.author&&r.author!==ME?'From '+r.author:'Yours')+'</span>':'');
+  const st=['<span class="rr-dose">'+r.dose+'<i aria-hidden="true">→</i>'+r.water+'<em>g</em></span>',m.ratio?'<span>'+m.ratio+'</span>':'',
+    m.time!=null?'<span>'+RR_IC.time+mmss(m.time)+'</span>':'',r.temp?'<span>'+RR_IC.temp+r.temp+'°</span>':''].filter(Boolean).join('');
+  return '<article class="rrow'+(r.custom?' mine':'')+'"><button type="button" class="rr-open" data-open="'+i+'">'+
+    '<span class="rr-t"><b>'+esc(r.name)+'</b>'+tags+'</span>'+
+    '<span class="rr-by"><span class="lv lv-'+lv+'"><i aria-hidden="true"></i>'+m.level+'</span>'+(who?'<span class="rr-who">'+esc(who)+'</span>':'')+'</span>'+
+    '<span class="rr-m" aria-label="'+esc([r.dose+' g coffee, '+r.water+' g water',m.ratio,m.time!=null?mmss(m.time):'',r.temp?r.temp+'°C':''].filter(Boolean).join(', '))+'">'+st+'</span></button>'+
     '<div class="rr-side">'+favBtn(r)+'<button type="button" class="rr-play" data-timer="'+i+'" aria-label="Start the timer for '+esc(r.name)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button></div></article>'}
 function renderRecipes(){
   if(RF==='mine'&&!CREC.length)RF='all';if(RF==='fav'&&!favCount())RF='all';if((RF.startsWith('b:')&&!BREWERS[RF.slice(2)])||(RF.startsWith('col:')&&!COLBY[RF.slice(4)])||(RF.startsWith('cup:')&&!CUPBY[RF.slice(4)]))RF='all';

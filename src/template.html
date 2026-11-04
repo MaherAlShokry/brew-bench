@@ -1132,31 +1132,36 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .rgrp{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:14px;content-visibility:auto;contain-intrinsic-block-size:auto 320px}
 .rgrp h4{display:flex;align-items:center;gap:10px;margin:0;padding:12px 14px;font:700 .98rem var(--display);border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--cherry) 5%,var(--surface))}
 .rgrp h4 small{margin-left:auto;font:600 .78rem var(--body);color:var(--muted)}
-.rrow{display:flex;align-items:stretch}.rrow+.rrow{border-top:1px solid var(--line)}
-.rr-open{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;padding:12px 6px 12px 14px;border:0;background:none;color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+/* A recipe row: content on the left in three lines (name and tags; level and author; the numbers in one strip), the
+   heart level with the name and the play button level with the strip. */
+.rrow{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:stretch}.rrow+.rrow{border-top:1px solid var(--line)}
+.rr-open{grid-column:1;min-width:0;display:flex;flex-direction:column;gap:5px;padding:14px 8px 14px 16px;border:0;background:none;color:var(--ink);font:inherit;text-align:left;cursor:pointer}
 .rr-open:active{background:var(--surface2)}
-.rr-t{display:flex;flex-wrap:wrap;align-items:center;gap:6px}.rr-t b{font-weight:650;font-size:.97rem}
-.rr-tag{font-size:.7rem;font-weight:700;letter-spacing:.02em;border-radius:99px;padding:1px 8px}.rr-tag.neo{background:color-mix(in srgb,var(--cherry) 14%,var(--surface));color:var(--cherry-ink)}.rr-tag.champ{background:color-mix(in srgb,var(--honey) 30%,var(--surface));color:var(--ink)}.rr-tag.ours{background:color-mix(in srgb,var(--leaf) 25%,var(--surface));color:var(--ink)}
-.rr-by{color:var(--muted);font-size:.8rem;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rr-m{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:3px;font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
-.lv{font-weight:700;border-radius:6px;padding:0 6px}.lv-e{color:#256B42;background:color-mix(in srgb,#2F7A4F 12%,transparent)}.lv-i{color:#85550C;background:color-mix(in srgb,#C8891E 14%,transparent)}.lv-a{color:#A53A2A;background:color-mix(in srgb,#A53A2A 12%,transparent)}
-/* On phones the app bar and the tab bar float: what scrolls past their edges fades into the page instead of showing
-   in the gaps around them. */
+.rr-t{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;min-height:32px}.rr-t b{font:650 1rem/1.25 var(--display);letter-spacing:-.005em}
+.rr-tag{font-size:.68rem;font-weight:700;letter-spacing:.02em;border-radius:99px;padding:2px 8px;line-height:1.3}.rr-tag.neo{background:color-mix(in srgb,var(--cherry) 14%,var(--surface));color:var(--cherry-ink)}.rr-tag.champ{background:color-mix(in srgb,var(--honey) 30%,var(--surface));color:var(--ink)}.rr-tag.ours{background:color-mix(in srgb,var(--leaf) 25%,var(--surface));color:var(--ink)}
+.rr-by{display:block;font-size:.82rem;line-height:1.4;color:var(--muted)}
+.rr-by .lv{display:inline-flex;align-items:center;gap:6px;vertical-align:baseline;padding:0;background:none;border-radius:0;font-weight:700;white-space:nowrap}
+.rr-by .lv i{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+.rr-by .rr-who::before{content:'·';margin:0 7px;color:var(--muted)}
+.rr-m{align-self:flex-start;display:inline-flex;align-items:center;max-width:100%;margin-top:2px;padding:0 2px;border-radius:10px;background:var(--surface2);font-size:.8rem;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+.rr-m>span{display:inline-flex;align-items:center;gap:4px;padding:6px 8px;line-height:1}.rr-m>span+span{border-left:1px solid color-mix(in srgb,var(--line) 80%,transparent)}
+.rr-m em{font-style:normal;font-weight:500;color:var(--muted);margin-left:.18em}.rr-m .rr-dose i{font-style:normal;color:var(--muted);margin:0 2px;font-weight:500}
+.rr-m svg{width:13px;height:13px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none;transform:translateY(-.1em)}
+.rr-side{grid-column:2;display:flex;flex-direction:column;justify-content:space-between;align-items:center;padding:12px 14px 8px 4px}
+.rr-side .favbtn{position:static;width:36px;height:36px;background:none}.rr-side .favbtn svg{width:21px;height:21px}
+.rr-side .favbtn[aria-pressed="true"]{background:none}
+.rr-play{width:40px;height:40px;border-radius:50%;border:0;display:grid;place-items:center;background:var(--cherry);color:var(--surface);cursor:pointer;box-shadow:0 4px 12px -4px color-mix(in srgb,var(--cherry) 60%,transparent)}.rr-play svg{width:17px;height:17px;fill:currentColor;margin-left:2px}
+.rr-play:active{transform:scale(.92)}
+@media (max-width:379px){.rr-m svg{display:none}.rr-m>span{padding:6px 7px}}
+@media (max-width:339px){.rr-open{padding-left:12px}.rr-side{padding-right:8px}.rr-m{font-size:.76rem}.rr-m>span{padding:6px 6px}}
+/* On phones the app bar and the tab bar float: what scrolls past them fades into the page instead of showing in the
+   gaps around them or through the glass. */
 @media (max-width:759px){
   body::before,body::after{content:'';position:fixed;left:0;right:0;pointer-events:none}
-  body::before{top:0;height:calc(var(--sa-top) + 40px);z-index:19;background:linear-gradient(var(--paper) 45%,color-mix(in srgb,var(--paper) 0%,transparent))}
+  body::before{top:0;height:calc(var(--sa-top) + 84px);z-index:19;background:linear-gradient(var(--paper) calc(100% - 18px),color-mix(in srgb,var(--paper) 0%,transparent))}
   body::after{bottom:0;height:calc(var(--sa-bottom) + 56px);z-index:29;background:linear-gradient(color-mix(in srgb,var(--paper) 0%,transparent),var(--paper) 62%)}
 }
-/* The level sits with the author as a coloured dot and a word, so the numbers keep their own line and every row has the same shape. */
-.rr-by .lv{display:inline-flex;align-items:center;gap:5px;padding:0;background:none;border-radius:0;white-space:nowrap}
-.rr-by .lv i{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
-.rr-by .rr-who::before{content:'·';margin:0 6px;color:var(--muted)}
-.rr-m>span{white-space:nowrap}
-@media (max-width:359px){.rr-side{flex-direction:column;justify-content:center;gap:6px;padding-right:8px}.rr-open{padding-left:12px}.rr-m{gap:4px 8px}}
-.rr-open{padding-top:13px;padding-bottom:13px}.rr-t b{line-height:1.25}
-.rr-side{flex:none;display:flex;align-items:center;gap:2px;padding-right:10px}.rr-side .favbtn{position:static}
-.rr-play{width:40px;height:40px;border-radius:50%;border:0;display:grid;place-items:center;background:var(--cherry);color:var(--surface);cursor:pointer}.rr-play svg{width:18px;height:18px;fill:currentColor;margin-left:2px}
-.rr-play:active{transform:scale(.92)}
+.lv{font-weight:700;border-radius:6px;padding:0 6px}.lv-e{color:#256B42;background:color-mix(in srgb,#2F7A4F 12%,transparent)}.lv-i{color:#85550C;background:color-mix(in srgb,#C8891E 14%,transparent)}.lv-a{color:#A53A2A;background:color-mix(in srgb,#A53A2A 12%,transparent)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .lv-e{color:#7FCB9C}:root:not([data-theme="light"]) .lv-i{color:#E7B060}:root:not([data-theme="light"]) .lv-a{color:#F08F7E}}
 :root[data-theme="dark"] .lv-e{color:#7FCB9C}:root[data-theme="dark"] .lv-i{color:#E7B060}:root[data-theme="dark"] .lv-a{color:#F08F7E}
 /* Cup types sit lower on the page now, so their cards are shorter. */
@@ -1324,7 +1329,7 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .me-hero>*{position:relative;z-index:1}
 .me-x{position:absolute!important;z-index:2!important;background:rgba(255,248,238,.14)!important;color:#FFF8EE!important}
 .me-edit{position:absolute!important;z-index:2!important;left:12px;top:12px;display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;border:0;border-radius:999px;background:rgba(255,248,238,.14);color:#FFF8EE;font:inherit;font-size:.85rem;font-weight:600;cursor:pointer}
-.me-edit svg,.me-ic svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.me-edit svg,.me-ic svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.me-edit svg{transform:translateY(-1px)}
 .me-hero .pav{box-shadow:0 0 0 4px rgba(255,248,238,.9),0 10px 30px -8px rgba(0,0,0,.6);margin-bottom:10px}
 .me-k{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:#F0C987}
 .me-hero h2{margin:2px 0 0;font-family:var(--display);font-size:1.75rem;line-height:1.15;color:#FFF8EE;overflow-wrap:anywhere}
