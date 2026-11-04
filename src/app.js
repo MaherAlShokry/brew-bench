@@ -1026,20 +1026,42 @@ $('rhome').onclick=e=>{const q=e.target.closest('[data-q]'),a=e.target.closest('
   if(k==='fav'){if(!favCount()){toast('Tap the heart on any recipe to save it here');return}RF='fav'}
   RQ='';$('rsearch').value='';showRecipeList()};
 $('rsearch').oninput=e=>{RQ=e.target.value;if(RQ.trim()&&RF!=='all'){RF='all';renderRHome()}soon(renderRecipes)}; // a search looks through every recipe
-let RSORT=(()=>{try{return localStorage.getItem('bb-rsort')||'brewer'}catch(e){return'brewer'}})();
+// Two levels of order: a main one and a second one within it ("Brewer, then Level"). Brewer and Level also group the
+// list under headings.
+const RSORTS={brewer:'Brewer',level:'Level',quick:'Quickest',az:'A to Z',temp:'Hottest',strong:'Strongest'};
+const RS_HINT={brewer:'Grouped by brewer',level:'Easy first, grouped by level',quick:'Shortest brew first',az:'By name',temp:'Hottest water first',strong:'Strongest ratio first'};
+const LV_ORDER={Easy:0,Medium:1,Advanced:2};
+let RSORT=(()=>{try{const v=localStorage.getItem('bb-rsort');return RSORTS[v]?v:'brewer'}catch(e){return'brewer'}})();
+let RSORT2=(()=>{try{const v=localStorage.getItem('bb-rsort2');return v===''||RSORTS[v]?v:'level'}catch(e){return'level'}})();
+const RCMP={brewer:(a,b)=>{const o=Object.keys(BREWERS);return o.indexOf(RFAM(a.b))-o.indexOf(RFAM(b.b))},level:(a,b)=>LV_ORDER[rmeta(a).level]-LV_ORDER[rmeta(b).level],
+  quick:(a,b)=>(rmeta(a).time??1e9)-(rmeta(b).time??1e9),az:(a,b)=>a.name.localeCompare(b.name),temp:(a,b)=>(+b.temp||0)-(+a.temp||0),
+  strong:(a,b)=>(a.water/a.dose||99)-(b.water/b.dose||99)};
+const rsortLabel=()=>RSORTS[RSORT]+(RSORT2&&RSORT2!==RSORT?' · '+RSORTS[RSORT2]:'');
+function saveRSort(){try{localStorage.setItem('bb-rsort',RSORT);localStorage.setItem('bb-rsort2',RSORT2)}catch(e){}}
+// The sort sheet: the main order as a list, the second order as chips (anything but the main one, or nothing).
+function openRSort(){const d=$('selsheet');
+  const draw=()=>{$('sel-in').innerHTML='<div class="selhead"><div class="grab"></div><h3 id="sel-title">Sort recipes</h3><button type="button" class="vd-close" id="sel-x" aria-label="Close">✕</button></div>'+
+    '<div class="rs-sec"><h4>Sort by</h4><div class="sellist" role="radiogroup" aria-label="Sort by">'+Object.keys(RSORTS).map(k=>'<button type="button" role="radio" class="selopt" data-rs1="'+k+'" aria-checked="'+(k===RSORT)+'" aria-selected="'+(k===RSORT)+'"><span>'+RSORTS[k]+'<small>'+RS_HINT[k]+'</small></span><i aria-hidden="true">✓</i></button>').join('')+'</div></div>'+
+    '<div class="rs-sec"><h4>Then by</h4><div class="rs-chips" role="radiogroup" aria-label="Then by">'+['',...Object.keys(RSORTS)].filter(k=>k!==RSORT).map(k=>'<button type="button" role="radio" class="chip rs-chip" data-rs2="'+k+'" aria-checked="'+((RSORT2===RSORT?'':RSORT2)===k)+'">'+(k?RSORTS[k]:'Nothing')+'</button>').join('')+'</div></div>'+
+    '<div class="rs-done"><button type="button" class="btn" id="rs-done">Show '+RLIST.length+' recipes</button></div>';
+    $('sel-x').onclick=$('rs-done').onclick=()=>d.close()};
+  draw();d.querySelector('#sel-in').onclick=e=>{const a=e.target.closest('[data-rs1]'),b=e.target.closest('[data-rs2]');if(!a&&!b)return;
+    if(a){RSORT=a.dataset.rs1;if(RSORT2===RSORT)RSORT2=RSORT==='level'?'quick':'level'}else RSORT2=b.dataset.rs2;saveRSort();renderRecipes();draw()};
+  showDlg(d)}
 const RF_NAME=()=>RF==='all'?'All recipes':RF==='fav'?'Favorites':RF==='mine'?(TEAM()?'Yours and your team’s':'Your recipes'):RF==='champ'?'Champions':RF.startsWith('cup:')?CUPBY[RF.slice(4)][1]
   :RF.startsWith('b:')&&BREWERS[RF.slice(2)]?famName(RFAM(RF.slice(2))):RF.startsWith('col:')&&COLBY[RF.slice(4)]?COLBY[RF.slice(4)][1]:'All recipes';
 // One recipe as a row: the name and its tags; the level and who it's from on one line; the numbers in one strip.
 // The heart sits level with the name and the play button level with the numbers.
 const RR_IC={time:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="7.5"/><path d="M12 9.5V13l2.5 1.6M10 3h4"/></svg>',
   temp:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13.6V5a2 2 0 0 1 4 0v8.6a4 4 0 1 1-4 0z"/><path d="M12 17v-5"/></svg>'};
-function rrow(r,i){const m=rmeta(r),lv={Easy:'e',Medium:'i',Advanced:'a'}[m.level],who=r.by?r.by.split(/,\s*/)[0]:'';
+// o.lv false: the level is already the heading. o.brewer: say which brewer (when the list isn't grouped by brewer).
+function rrow(r,i,o={}){const m=rmeta(r),lv={Easy:'e',Medium:'i',Advanced:'a'}[m.level],who=r.by?r.by.split(/,\s*/)[0]:'';
   const tags=(BTAG[r.b]?'<span class="rr-tag neo">'+BTAG[r.b]+'</span>':'')+(r.champ?'<span class="rr-tag champ">Champion</span>':'')+(r.custom?'<span class="rr-tag ours">'+esc(r.author&&r.author!==ME?'From '+r.author:'Yours')+'</span>':'');
   const st=['<span class="rr-dose">'+r.dose+'<i aria-hidden="true">→</i>'+r.water+'<em>g</em></span>',m.ratio?'<span>'+m.ratio+'</span>':'',
     m.time!=null?'<span>'+RR_IC.time+mmss(m.time)+'</span>':'',r.temp?'<span>'+RR_IC.temp+r.temp+'°</span>':''].filter(Boolean).join('');
   return '<article class="rrow'+(r.custom?' mine':'')+'"><button type="button" class="rr-open" data-open="'+i+'">'+
     '<span class="rr-t"><b>'+esc(r.name)+'</b>'+tags+'</span>'+
-    '<span class="rr-by"><span class="lv lv-'+lv+'"><i aria-hidden="true"></i>'+m.level+'</span>'+(who?'<span class="rr-who">'+esc(who)+'</span>':'')+'</span>'+
+    '<span class="rr-by">'+[o.lv===false?'':'<span class="lv lv-'+lv+'"><i aria-hidden="true"></i>'+m.level+'</span>',o.brewer?'<span class="rr-bw">'+esc(BREWERS[r.b].name)+'</span>':'',who?'<span class="rr-who">'+esc(who)+'</span>':''].filter(Boolean).join('<span class="rr-sep" aria-hidden="true">·</span>')+'</span>'+
     '<span class="rr-m" aria-label="'+esc([r.dose+' g coffee, '+r.water+' g water',m.ratio,m.time!=null?mmss(m.time):'',r.temp?r.temp+'°C':''].filter(Boolean).join(', '))+'">'+st+'</span></button>'+
     '<div class="rr-side">'+favBtn(r)+'<button type="button" class="rr-play" data-timer="'+i+'" aria-label="Start the timer for '+esc(r.name)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button></div></article>'}
 function renderRecipes(){
@@ -1049,19 +1071,23 @@ function renderRecipes(){
   {const f=$('rfilter'),edge=()=>f.classList.toggle('end',f.scrollLeft+f.clientWidth>=f.scrollWidth-2);requestAnimationFrame(()=>{f.classList.toggle('more',f.scrollWidth>f.clientWidth+2);edge()});if(!f.dataset.edge){f.dataset.edge=1;f.addEventListener('scroll',edge,{passive:true})}}
   const q=fold(RQ.trim());
   let list=RECIPES.map((r,i)=>[r,i]).filter(([r])=>(RF==='all'||(RF==='mine'?r.custom:RF==='champ'?r.champ:RF==='fav'?FAVS.has(rkey(r)):cup?cup[4](r):col?col[4](r):rb?RFAM(r.b)===RFAM(rb):true))&&(!q||fold([r.name,r.by,r.why,BREWERS[r.b].name,BREWERS[r.b].type].join(' ')).includes(q)));
-  const by=(a,b)=>(b[0].custom?1:0)-(a[0].custom?1:0);
-  if(RSORT==='quick')list.sort((a,b)=>(rmeta(a[0]).time??1e9)-(rmeta(b[0]).time??1e9));else if(RSORT==='az')list.sort((a,b)=>a[0].name.localeCompare(b[0].name));else list.sort(by);
+  // Main order, then the second, then your own recipes first, then the list's own order.
+  const c1=RCMP[RSORT],c2=RSORT2&&RSORT2!==RSORT?RCMP[RSORT2]:null;
+  list.sort((a,b)=>c1(a[0],b[0])||(c2?c2(a[0],b[0]):0)||((b[0].custom?1:0)-(a[0].custom?1:0))||a[1]-b[1]);
   RLIST=list;updShare();$('rall').textContent=RF_NAME()+' · '+list.length;
-  $('rsort').value=RSORT;
+  $('rsortbtn').querySelector('span').textContent=rsortLabel();
   let html='';
-  if(RSORT==='brewer'&&!rb){const order=Object.keys(BREWERS);const groups=new Map();for(const x of list){const k=RFAM(x[0].b);if(!groups.has(k))groups.set(k,[]);groups.get(k).push(x)}
-    for(const k of [...groups.keys()].sort((a,b)=>order.indexOf(a)-order.indexOf(b))){const g=groups.get(k),B=BREWERS[k];
+  if(RSORT==='brewer'&&!rb){const groups=new Map();for(const x of list){const k=RFAM(x[0].b);if(!groups.has(k))groups.set(k,[]);groups.get(k).push(x)}
+    for(const [k,g] of groups){const B=BREWERS[k];
       html+='<div class="rgrp"><h4><span class="bi">'+bIcon(B.type)+'</span><span>'+esc(famName(k))+'</span><small>'+g.length+'</small></h4>'+g.map(([r,i])=>rrow(r,i)).join('')+'</div>'}}
-  else html='<div class="rgrp">'+list.map(([r,i])=>rrow(r,i)).join('')+'</div>';
+  else if(RSORT==='level'){const groups=new Map();for(const x of list){const k=rmeta(x[0]).level;if(!groups.has(k))groups.set(k,[]);groups.get(k).push(x)}
+    for(const [k,g] of groups){const lv={Easy:'e',Medium:'i',Advanced:'a'}[k];
+      html+='<div class="rgrp"><h4><span class="bi lvbi lv-'+lv+'" aria-hidden="true"><i></i></span><span>'+k+'</span><small>'+g.length+'</small></h4>'+g.map(([r,i])=>rrow(r,i,{lv:false,brewer:!rb})).join('')+'</div>'}}
+  else html='<div class="rgrp">'+list.map(([r,i])=>rrow(r,i,{brewer:!rb})).join('')+'</div>';
   $('rgrid').innerHTML=list.length?html:'<p class="hint">No recipes match. Try a shorter search, or pick All.</p>';
   if(!$('rhome').innerHTML)renderRHome();
 }
-$('rsort').onchange=e=>{RSORT=e.target.value;try{localStorage.setItem('bb-rsort',RSORT)}catch(x){}renderRecipes()};
+$('rsortbtn').onclick=()=>openRSort();
 function recipeAct(e){const ed=e.target.closest('[data-redit]');if(ed){openRecipeEditor(CREC.find(r=>r.id===ed.dataset.redit));return true}
   const b=e.target.closest('[data-load],[data-plan],[data-timer],[data-rshare]');if(!b)return false;if(b.dataset.rshare){openShare(recipeDoc(+b.dataset.rshare));return true}
   if(b.dataset.timer){openTimer(+b.dataset.timer);return true}
