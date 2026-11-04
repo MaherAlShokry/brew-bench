@@ -445,12 +445,14 @@ mark.wq{background:color-mix(in srgb,var(--honey) 40%,transparent);color:inherit
 .flow{--gap:34px;max-width:760px;margin:0 auto;position:relative}
 .fphase{position:relative;border-radius:20px;padding:34px 14px 14px;margin:0 0 var(--gap);background:color-mix(in srgb,var(--c) 7%,var(--surface));border:1px solid color-mix(in srgb,var(--c) 28%,var(--line))}
 .fphase>.fph{position:absolute;top:10px;left:16px;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--c)}
-.fphase+.fphase::before{content:"";position:absolute;left:50%;top:calc(-1 * var(--gap));height:var(--gap);border-left:2px dashed color-mix(in srgb,var(--c) 60%,var(--line))}
-.fsteps{display:grid;gap:18px}
+.fphase+.fphase::before{content:"";position:absolute;left:calc(50% - 1px);top:calc(-1 * var(--gap) - 1px);height:var(--gap);border-left:2px dashed color-mix(in srgb,var(--c) 60%,var(--line))}
+.fsteps{display:grid;gap:26px}
 .fstep{position:relative;display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 14px;cursor:pointer;box-shadow:var(--shadow);transition:transform .15s ease,border-color .15s ease}
 .fstep:hover{transform:translateY(-2px);border-color:var(--c)}
-.fstep+.fstep::before,.fbranch+.fstep::before,.fstep+.fbranch::before{content:"";position:absolute;left:50%;top:-19px;height:18px;border-left:2px solid var(--c)}
-.fstep+.fstep::after,.fbranch+.fstep::after{content:"";position:absolute;left:calc(50% - 5px);top:-8px;border:5px solid transparent;border-top-color:var(--c)}
+/* The arrow between steps: a stem from just below the step above to the head, and a head that stops just short of the
+   next step, both on the same centre line. */
+.fstep+.fstep::before,.fbranch+.fstep::before,.fstep+.fbranch::before{content:"";position:absolute;left:calc(50% - 1px);top:-22px;width:2px;height:11px;border-radius:1px;background:var(--c)}
+.fstep+.fstep::after,.fbranch+.fstep::after{content:"";position:absolute;left:calc(50% - 5px);top:-11px;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid var(--c)}
 .fstep .fico{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--c)}
 .fstep .fico svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .fstep b{display:block;font-family:var(--display);font-size:1rem}.fstep small{display:block;color:var(--muted);font-size:.84rem;margin-top:1px}
@@ -468,7 +470,10 @@ mark.wq{background:color-mix(in srgb,var(--honey) 40%,transparent);color:inherit
   .fbr::before{left:50%;top:-9px;width:0;height:8px;border-top:0;border-left:2px solid var(--c)}}
 .flowd .fbranch{padding-left:0}.flowd .fbranch::after,.flowd .fbr::before{display:none}
 .fbr .fbr-list{display:block;font-size:.76rem;line-height:1.35;color:var(--muted);margin-top:6px}
-.fbr .fbr-more{display:block;font-size:.76rem;font-weight:700;color:var(--ink);margin-top:6px}.fbr .fbr-more::after{content:" \25BE"}.fbr[aria-expanded="true"] .fbr-more::after{content:" \25B4"}
+/* "Explore 4 processes" with a drawn chevron on the middle of the text; it turns over when the list is open. */
+.fbr .fbr-more{display:inline-flex;align-items:center;gap:7px;font-size:.76rem;font-weight:700;color:var(--ink);margin-top:6px}
+.fbr .fbr-more::after{content:"";width:6px;height:6px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-2px) rotate(45deg);transition:transform .2s}
+.fbr[aria-expanded="true"] .fbr-more::after{transform:translateY(2px) rotate(-135deg)}
 .fbr[aria-expanded="true"]{border-color:var(--c);box-shadow:0 0 0 2px color-mix(in srgb,var(--c) 35%,transparent)}
 .fbranch{grid-auto-flow:row dense}
 .fbx{grid-column:1/-1;background:var(--surface);border:1px solid color-mix(in srgb,var(--c) 40%,var(--line));border-radius:16px;padding:12px;animation:secin .25s ease}
