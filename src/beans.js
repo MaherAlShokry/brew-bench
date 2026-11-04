@@ -110,17 +110,29 @@ function setLeft(b,g){b.left=gramsOrNull(g);b.leftAt=Date.now()}
 // flavour wheel takes its family's colour; anything else (a roaster's "Turkish delight") is kept as you wrote it.
 const TN_MAX=12,TN_LEN=160;
 const tnFams=()=>FW.roots.filter(r=>r.n!=='Other');
+// Words bags use that the wheel doesn't have, each with the wheel note whose colour and family it takes.
+const TN_X={Caramel:'Caramelized','Brown sugar':'Molasses','Cane sugar':'Panela',Sugarcane:'Panela',Cocoa:'Cocoa nib',Cacao:'Cocoa nib',Cola:'Molasses',Butterscotch:'Toffee',Fudge:'Toffee',
+  Citrus:'Orange',Tangerine:'Mandarin',Clementine:'Mandarin','Blood orange':'Orange','Orange zest':'Orange','Lemon zest':'Lemon','Red apple':'Apple','Green apple':'Apple',
+  'Stone fruit':'Peach',Nectarine:'Peach','Red fruit':'Raspberry','Red currant':'Blackcurrant','Black cherry':'Cherry','Tropical fruit':'Mango',Papaya:'Mango',Guava:'Passion fruit',
+  Kiwi:'Lime',Watermelon:'Melon',Tamarind:'Date','Dried fruit':'Raisin',Jam:'Blackberry',
+  'Tea-like':'Black tea',Floral:'Jasmine',Lemongrass:'Herb-like',Mint:'Herb-like',Butter:'Custard',Cream:'Custard',Creamy:'Custard',
+  Nougat:'Almond',Marzipan:'Almond',Praline:'Hazelnut',Cashew:'Macadamia',Nutty:'Hazelnut','Brown spice':'Cinnamon',Wine:'Winey','Red wine':'Winey',Liqueur:'Rum'};
+// Every note you can pick: the wheel's (bar the defects) and the words above. {n, c, id: the wheel note, g: its group}.
+let TN_ALL=null;
+const tnNotes=()=>TN_ALL||(TN_ALL=(()=>{const base=FW.leaves.filter(n=>n.cat.n!=='Other'),by=Object.fromEntries(base.map(n=>[n.n,n]));
+  return[...base.map(n=>({n:n.n,c:n.c,id:n.id,g:n.parent?n.parent.n:''})),...Object.entries(TN_X).filter(([,w])=>by[w]).map(([x,w])=>({n:x,c:by[w].c,id:by[w].id,g:by[w].parent?by[w].parent.n:''}))]})());
 const tnLeaves=()=>FW.leaves.filter(n=>n.cat.n!=='Other');
-const tnLeaf=w=>{const f=fold(String(w).trim());return f?tnLeaves().find(n=>fold(n.n)===f)||null:null};
+const tnLeaf=w=>{const f=fold(String(w).trim());return f?tnNotes().find(n=>fold(n.n)===f)||null:null};
 const tnSplit=s=>{const seen=new Set();return String(s||'').split(/\s*[,;·]\s*/).map(x=>x.trim()).filter(x=>x&&!seen.has(fold(x))&&seen.add(fold(x)))};
 const tnEsc=w=>w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 // Notes a coffee is known for: the words in its varieties' and origin's cup descriptions, then the notes the wheel
 // links to its process and varieties.
-function tnSuggest(o){const sc=new Map(),add=(n,v)=>sc.set(n.id,(sc.get(n.id)||0)+v),base=v=>String(v).split(':')[0];
+function tnSuggest(o){const base=v=>String(v).split(':')[0];
   const text=fold([...o.vars.map(v=>(VBY[base(v)]||{}).cup),(oInfo(o.origin)||{}).cup].filter(Boolean).join(' '));
-  for(const n of tnLeaves()){const w=fold(n.n);if(text&&w.length>2&&new RegExp('\\b'+tnEsc(w)+'\\b').test(text))add(n,3);
-    for(const l of n.l||[]){if(o.process&&l==='p:'+o.process)add(n,2);if(o.vars.some(v=>l==='v:'+base(v)))add(n,2)}}
-  return[...sc].sort((a,b)=>b[1]-a[1]).map(([id])=>FW.byId[id])}
+  const sc2=new Map(),put=(n,v)=>sc2.set(n.n,[n,((sc2.get(n.n)||[])[1]||0)+v]);
+  for(const n of tnNotes()){const w=fold(n.n),L=FW.byId[n.id].l||[];if(text&&w.length>2&&new RegExp('\\b'+tnEsc(w)+'\\b').test(text))put(n,3);
+    if(TN_X[n.n])continue;for(const l of L){if(o.process&&l==='p:'+o.process)put(n,2);if(o.vars.some(v=>l==='v:'+base(v)))put(n,2)}}
+  return[...sc2.values()].sort((a,b)=>b[1]-a[1]).map(x=>x[0])}
 // The tasting notes field: the notes as chips, a box to find or type one, notes this coffee is known for, and the
 // flavour wheel's families to browse. Returns {val, suggest}.
 function tasteInput(host,init,ctx){let L=tnSplit(init),fam=null,at=-1,opts=[];
@@ -150,9 +162,9 @@ function tasteInput(host,init,ctx){let L=tnSplit(init),fam=null,at=-1,opts=[];
   const close=()=>{box.hidden=true;at=-1;q.setAttribute('aria-expanded','false');q.removeAttribute('aria-activedescendant')};
   const hl=()=>box.querySelectorAll('[role=option]').forEach((o,i)=>{o.setAttribute('aria-selected',i===at);if(i===at){q.setAttribute('aria-activedescendant',o.id);o.scrollIntoView({block:'nearest'})}});
   const draw=()=>{const t=q.value.trim(),f=fold(t);at=-1;if(!f||document.activeElement!==q){close();return}
-    const m=tnLeaves().filter(n=>fold(n.n).includes(f)).sort((a,b)=>fold(a.n).indexOf(f)-fold(b.n).indexOf(f)).slice(0,6);
-    opts=m.map(n=>({w:n.n,h:'<i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'<small>'+esc(n.parent?n.parent.n:'')+'</small>'+(has(n.n)?'<em>Added</em>':'')}));
-    if(!m.some(n=>fold(n.n)===f))opts.push({w:t,h:'<span class="tn-new">+</span>Add “'+esc(t)+'”'});
+    const m=tnNotes().filter(n=>fold(n.n).includes(f)).sort((a,b)=>fold(a.n).indexOf(f)-fold(b.n).indexOf(f)||a.n.length-b.n.length).slice(0,6);
+    opts=m.map(n=>({w:n.n,h:'<i class="dot" style="background:'+n.c+'"></i><span class="tn-on">'+esc(n.n)+'</span>'+(has(n.n)?'<em>Added</em>':'<small>'+esc(n.g)+'</small>')}));
+    if(!m.some(n=>fold(n.n)===f))opts.push({w:t,h:'<span class="tn-new" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 6v12M6 12h12"/></svg></span><span class="tn-on">Add “'+esc(t)+'”</span>'});
     box.innerHTML=opts.map((o,i)=>'<div role="option" class="aco tn-o" id="tn-o'+i+'" data-i="'+i+'" aria-selected="false">'+o.h+'</div>').join('');box.hidden=false;q.setAttribute('aria-expanded','true');
     // The closest note on the wheel is ready for Enter; your own words are one step down.
     if(m.length){at=0;hl()}};

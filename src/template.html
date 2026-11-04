@@ -1101,7 +1101,9 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .fphase>.fph{color:color-mix(in srgb,var(--c) 45%,var(--ink))}
 .cdclock b{color:color-mix(in srgb,var(--c) 68%,var(--ink))}
 .gcard .mine-tag{color:var(--leaf-ink)}
-.stars button{color:var(--muted);min-width:40px;min-height:40px;padding:0}
+.stars button{color:color-mix(in srgb,var(--muted) 55%,var(--surface));min-width:40px;min-height:40px;padding:.09em 0 0;display:inline-grid;place-items:center}
+.l-rate .stars button{padding:.12em 4px 0}
+@media (hover:hover){.stars button:not(.on):hover{color:color-mix(in srgb,var(--honey) 55%,var(--surface))}}
 .linkbtn,button.hint,.legend button{position:relative}
 .linkbtn::after,button.hint::after{content:"";position:absolute;inset:-9px -4px}
 .addcmp::after{content:"";position:absolute;inset:-10px -6px}
@@ -1827,8 +1829,8 @@ body.t-dial.dial-ready .herowrap{display:none}
 .beform .seg button{min-width:0;white-space:nowrap;overflow:visible;text-overflow:clip;padding-left:6px;padding-right:6px}
 /* Tasting notes in the editor: chosen notes as chips in their wheel colours, a find-or-type box, notes the coffee is
    known for and the wheel's families to browse. */
-.tn-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px}.tn-head label{margin:0}
-.tn-box{display:grid;gap:10px;padding:12px;border-radius:var(--r-md);background:var(--surface2);margin-top:6px}
+.tn-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px}.tn-head label{margin:0;font-size:.92rem;font-weight:600}
+.tn-box{display:grid;gap:10px;padding:12px;border-radius:var(--r-md);background:var(--surface2)}
 .tn-sel .fwbar{margin:10px 2px 2px}.tn-sel .fwbar-key{margin:0 2px}
 .tn-chips{display:flex;flex-wrap:wrap;gap:6px}
 .tn-x{display:inline-flex;align-items:center;gap:7px;padding:4px 4px 4px 11px;border-radius:var(--r-pill);background:var(--surface);border:1px solid color-mix(in srgb,var(--fc) 40%,var(--line));font-size:.88rem;font-weight:600;color:var(--ink);line-height:1.2}
@@ -1840,8 +1842,11 @@ body.t-dial.dial-ready .herowrap{display:none}
 .tn-find input{width:100%;padding-left:40px;background:var(--surface)}
 .tn-find>svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:var(--muted);pointer-events:none;z-index:1}
 .tn-o{display:flex;align-items:center;gap:8px}.tn-o i.dot{width:10px;height:10px;border-radius:50%;flex:none}
-.tn-o small{color:var(--muted);font-size:.8rem;margin-left:auto}.tn-o em{font-style:normal;font-size:.76rem;font-weight:700;color:var(--cherry-ink);margin-left:6px}
-.tn-new{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:var(--cherry);color:#FFFDF9;font-weight:700;flex:none}
+.tn-o .tn-on{flex:1 1 auto;min-width:0;white-space:normal;overflow-wrap:anywhere}
+.tn-o small{color:var(--muted);font-size:.8rem;flex:none;text-align:right}.tn-o em{font-style:normal;font-size:.76rem;font-weight:700;color:var(--cherry-ink);flex:none}
+.tn-o{white-space:normal}
+.tn-new{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--cherry);color:var(--surface);flex:none}
+.tn-new svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;display:block}
 .tn-lbl{font-size:.74rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:2px 2px 6px}
 .tn-cs,.tn-fams{display:flex;flex-wrap:wrap;gap:6px}
 .tn-c,.tn-f{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:6px 12px;border-radius:var(--r-pill);border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:.86rem;cursor:pointer;line-height:1.2}

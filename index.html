@@ -1102,7 +1102,9 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .fphase>.fph{color:color-mix(in srgb,var(--c) 45%,var(--ink))}
 .cdclock b{color:color-mix(in srgb,var(--c) 68%,var(--ink))}
 .gcard .mine-tag{color:var(--leaf-ink)}
-.stars button{color:var(--muted);min-width:40px;min-height:40px;padding:0}
+.stars button{color:color-mix(in srgb,var(--muted) 55%,var(--surface));min-width:40px;min-height:40px;padding:.09em 0 0;display:inline-grid;place-items:center}
+.l-rate .stars button{padding:.12em 4px 0}
+@media (hover:hover){.stars button:not(.on):hover{color:color-mix(in srgb,var(--honey) 55%,var(--surface))}}
 .linkbtn,button.hint,.legend button{position:relative}
 .linkbtn::after,button.hint::after{content:"";position:absolute;inset:-9px -4px}
 .addcmp::after{content:"";position:absolute;inset:-10px -6px}
@@ -1828,8 +1830,8 @@ body.t-dial.dial-ready .herowrap{display:none}
 .beform .seg button{min-width:0;white-space:nowrap;overflow:visible;text-overflow:clip;padding-left:6px;padding-right:6px}
 /* Tasting notes in the editor: chosen notes as chips in their wheel colours, a find-or-type box, notes the coffee is
    known for and the wheel's families to browse. */
-.tn-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px}.tn-head label{margin:0}
-.tn-box{display:grid;gap:10px;padding:12px;border-radius:var(--r-md);background:var(--surface2);margin-top:6px}
+.tn-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px}.tn-head label{margin:0;font-size:.92rem;font-weight:600}
+.tn-box{display:grid;gap:10px;padding:12px;border-radius:var(--r-md);background:var(--surface2)}
 .tn-sel .fwbar{margin:10px 2px 2px}.tn-sel .fwbar-key{margin:0 2px}
 .tn-chips{display:flex;flex-wrap:wrap;gap:6px}
 .tn-x{display:inline-flex;align-items:center;gap:7px;padding:4px 4px 4px 11px;border-radius:var(--r-pill);background:var(--surface);border:1px solid color-mix(in srgb,var(--fc) 40%,var(--line));font-size:.88rem;font-weight:600;color:var(--ink);line-height:1.2}
@@ -1841,8 +1843,11 @@ body.t-dial.dial-ready .herowrap{display:none}
 .tn-find input{width:100%;padding-left:40px;background:var(--surface)}
 .tn-find>svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:var(--muted);pointer-events:none;z-index:1}
 .tn-o{display:flex;align-items:center;gap:8px}.tn-o i.dot{width:10px;height:10px;border-radius:50%;flex:none}
-.tn-o small{color:var(--muted);font-size:.8rem;margin-left:auto}.tn-o em{font-style:normal;font-size:.76rem;font-weight:700;color:var(--cherry-ink);margin-left:6px}
-.tn-new{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:var(--cherry);color:#FFFDF9;font-weight:700;flex:none}
+.tn-o .tn-on{flex:1 1 auto;min-width:0;white-space:normal;overflow-wrap:anywhere}
+.tn-o small{color:var(--muted);font-size:.8rem;flex:none;text-align:right}.tn-o em{font-style:normal;font-size:.76rem;font-weight:700;color:var(--cherry-ink);flex:none}
+.tn-o{white-space:normal}
+.tn-new{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--cherry);color:var(--surface);flex:none}
+.tn-new svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;display:block}
 .tn-lbl{font-size:.74rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:2px 2px 6px}
 .tn-cs,.tn-fams{display:flex;flex-wrap:wrap;gap:6px}
 .tn-c,.tn-f{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:6px 12px;border-radius:var(--r-pill);border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:.86rem;cursor:pointer;line-height:1.2}
@@ -7449,17 +7454,29 @@ function setLeft(b,g){b.left=gramsOrNull(g);b.leftAt=Date.now()}
 // flavour wheel takes its family's colour; anything else (a roaster's "Turkish delight") is kept as you wrote it.
 const TN_MAX=12,TN_LEN=160;
 const tnFams=()=>FW.roots.filter(r=>r.n!=='Other');
+// Words bags use that the wheel doesn't have, each with the wheel note whose colour and family it takes.
+const TN_X={Caramel:'Caramelized','Brown sugar':'Molasses','Cane sugar':'Panela',Sugarcane:'Panela',Cocoa:'Cocoa nib',Cacao:'Cocoa nib',Cola:'Molasses',Butterscotch:'Toffee',Fudge:'Toffee',
+  Citrus:'Orange',Tangerine:'Mandarin',Clementine:'Mandarin','Blood orange':'Orange','Orange zest':'Orange','Lemon zest':'Lemon','Red apple':'Apple','Green apple':'Apple',
+  'Stone fruit':'Peach',Nectarine:'Peach','Red fruit':'Raspberry','Red currant':'Blackcurrant','Black cherry':'Cherry','Tropical fruit':'Mango',Papaya:'Mango',Guava:'Passion fruit',
+  Kiwi:'Lime',Watermelon:'Melon',Tamarind:'Date','Dried fruit':'Raisin',Jam:'Blackberry',
+  'Tea-like':'Black tea',Floral:'Jasmine',Lemongrass:'Herb-like',Mint:'Herb-like',Butter:'Custard',Cream:'Custard',Creamy:'Custard',
+  Nougat:'Almond',Marzipan:'Almond',Praline:'Hazelnut',Cashew:'Macadamia',Nutty:'Hazelnut','Brown spice':'Cinnamon',Wine:'Winey','Red wine':'Winey',Liqueur:'Rum'};
+// Every note you can pick: the wheel's (bar the defects) and the words above. {n, c, id: the wheel note, g: its group}.
+let TN_ALL=null;
+const tnNotes=()=>TN_ALL||(TN_ALL=(()=>{const base=FW.leaves.filter(n=>n.cat.n!=='Other'),by=Object.fromEntries(base.map(n=>[n.n,n]));
+  return[...base.map(n=>({n:n.n,c:n.c,id:n.id,g:n.parent?n.parent.n:''})),...Object.entries(TN_X).filter(([,w])=>by[w]).map(([x,w])=>({n:x,c:by[w].c,id:by[w].id,g:by[w].parent?by[w].parent.n:''}))]})());
 const tnLeaves=()=>FW.leaves.filter(n=>n.cat.n!=='Other');
-const tnLeaf=w=>{const f=fold(String(w).trim());return f?tnLeaves().find(n=>fold(n.n)===f)||null:null};
+const tnLeaf=w=>{const f=fold(String(w).trim());return f?tnNotes().find(n=>fold(n.n)===f)||null:null};
 const tnSplit=s=>{const seen=new Set();return String(s||'').split(/\s*[,;·]\s*/).map(x=>x.trim()).filter(x=>x&&!seen.has(fold(x))&&seen.add(fold(x)))};
 const tnEsc=w=>w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 // Notes a coffee is known for: the words in its varieties' and origin's cup descriptions, then the notes the wheel
 // links to its process and varieties.
-function tnSuggest(o){const sc=new Map(),add=(n,v)=>sc.set(n.id,(sc.get(n.id)||0)+v),base=v=>String(v).split(':')[0];
+function tnSuggest(o){const base=v=>String(v).split(':')[0];
   const text=fold([...o.vars.map(v=>(VBY[base(v)]||{}).cup),(oInfo(o.origin)||{}).cup].filter(Boolean).join(' '));
-  for(const n of tnLeaves()){const w=fold(n.n);if(text&&w.length>2&&new RegExp('\\b'+tnEsc(w)+'\\b').test(text))add(n,3);
-    for(const l of n.l||[]){if(o.process&&l==='p:'+o.process)add(n,2);if(o.vars.some(v=>l==='v:'+base(v)))add(n,2)}}
-  return[...sc].sort((a,b)=>b[1]-a[1]).map(([id])=>FW.byId[id])}
+  const sc2=new Map(),put=(n,v)=>sc2.set(n.n,[n,((sc2.get(n.n)||[])[1]||0)+v]);
+  for(const n of tnNotes()){const w=fold(n.n),L=FW.byId[n.id].l||[];if(text&&w.length>2&&new RegExp('\\b'+tnEsc(w)+'\\b').test(text))put(n,3);
+    if(TN_X[n.n])continue;for(const l of L){if(o.process&&l==='p:'+o.process)put(n,2);if(o.vars.some(v=>l==='v:'+base(v)))put(n,2)}}
+  return[...sc2.values()].sort((a,b)=>b[1]-a[1]).map(x=>x[0])}
 // The tasting notes field: the notes as chips, a box to find or type one, notes this coffee is known for, and the
 // flavour wheel's families to browse. Returns {val, suggest}.
 function tasteInput(host,init,ctx){let L=tnSplit(init),fam=null,at=-1,opts=[];
@@ -7489,9 +7506,9 @@ function tasteInput(host,init,ctx){let L=tnSplit(init),fam=null,at=-1,opts=[];
   const close=()=>{box.hidden=true;at=-1;q.setAttribute('aria-expanded','false');q.removeAttribute('aria-activedescendant')};
   const hl=()=>box.querySelectorAll('[role=option]').forEach((o,i)=>{o.setAttribute('aria-selected',i===at);if(i===at){q.setAttribute('aria-activedescendant',o.id);o.scrollIntoView({block:'nearest'})}});
   const draw=()=>{const t=q.value.trim(),f=fold(t);at=-1;if(!f||document.activeElement!==q){close();return}
-    const m=tnLeaves().filter(n=>fold(n.n).includes(f)).sort((a,b)=>fold(a.n).indexOf(f)-fold(b.n).indexOf(f)).slice(0,6);
-    opts=m.map(n=>({w:n.n,h:'<i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'<small>'+esc(n.parent?n.parent.n:'')+'</small>'+(has(n.n)?'<em>Added</em>':'')}));
-    if(!m.some(n=>fold(n.n)===f))opts.push({w:t,h:'<span class="tn-new">+</span>Add “'+esc(t)+'”'});
+    const m=tnNotes().filter(n=>fold(n.n).includes(f)).sort((a,b)=>fold(a.n).indexOf(f)-fold(b.n).indexOf(f)||a.n.length-b.n.length).slice(0,6);
+    opts=m.map(n=>({w:n.n,h:'<i class="dot" style="background:'+n.c+'"></i><span class="tn-on">'+esc(n.n)+'</span>'+(has(n.n)?'<em>Added</em>':'<small>'+esc(n.g)+'</small>')}));
+    if(!m.some(n=>fold(n.n)===f))opts.push({w:t,h:'<span class="tn-new" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 6v12M6 12h12"/></svg></span><span class="tn-on">Add “'+esc(t)+'”</span>'});
     box.innerHTML=opts.map((o,i)=>'<div role="option" class="aco tn-o" id="tn-o'+i+'" data-i="'+i+'" aria-selected="false">'+o.h+'</div>').join('');box.hidden=false;q.setAttribute('aria-expanded','true');
     // The closest note on the wheel is ready for Enter; your own words are one step down.
     if(m.length){at=0;hl()}};
