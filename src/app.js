@@ -1032,12 +1032,13 @@ const RF_NAME=()=>RF==='all'?'All recipes':RF==='fav'?'Favorites':RF==='mine'?(T
 // One recipe as a compact row: what it is, who it's from, the numbers that matter, and a play button for the timer.
 function rrow(r,i){const m=rmeta(r),lv={Easy:'e',Medium:'i',Advanced:'a'}[m.level];
   return '<article class="rrow'+(r.custom?' mine':'')+'"><button type="button" class="rr-open" data-open="'+i+'"><span class="rr-t"><b>'+esc(r.name)+'</b>'+(BTAG[r.b]?'<span class="rr-tag neo">'+BTAG[r.b]+'</span>':'')+(r.champ?'<span class="rr-tag champ">Champion</span>':'')+(r.custom?'<span class="rr-tag ours">'+esc(r.author&&r.author!==ME?'From '+r.author:'Yours')+'</span>':'')+'</span>'+
-    (r.by?'<small class="rr-by">'+esc(r.by)+'</small>':'')+'<span class="rr-m"><span>'+r.dose+'g · '+r.water+'g</span>'+(m.ratio?'<span>'+m.ratio+'</span>':'')+(m.time!=null?'<span>'+mmss(m.time)+'</span>':'')+(r.temp?'<span>'+r.temp+'°C</span>':'')+'<span class="lv lv-'+lv+'">'+m.level+'</span></span></button>'+
+    '<small class="rr-by"><span class="lv lv-'+lv+'"><i aria-hidden="true"></i>'+m.level+'</span>'+(r.by?'<span class="rr-who">'+esc(r.by)+'</span>':'')+'</small><span class="rr-m"><span>'+r.dose+'g · '+r.water+'g</span>'+(m.ratio?'<span>'+m.ratio+'</span>':'')+(m.time!=null?'<span>'+mmss(m.time)+'</span>':'')+(r.temp?'<span>'+r.temp+'°C</span>':'')+'</span></button>'+
     '<div class="rr-side">'+favBtn(r)+'<button type="button" class="rr-play" data-timer="'+i+'" aria-label="Start the timer for '+esc(r.name)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button></div></article>'}
 function renderRecipes(){
   if(RF==='mine'&&!CREC.length)RF='all';if(RF==='fav'&&!favCount())RF='all';if((RF.startsWith('b:')&&!BREWERS[RF.slice(2)])||(RF.startsWith('col:')&&!COLBY[RF.slice(4)])||(RF.startsWith('cup:')&&!CUPBY[RF.slice(4)]))RF='all';
   const cup=RF.startsWith('cup:')?CUPBY[RF.slice(4)]:null,col=RF.startsWith('col:')?COLBY[RF.slice(4)]:null,rb=RF.startsWith('b:')?RF.slice(2):null,extra=cup||col||rb;
   seg('rfilter',[['all','All']].concat(extra?[[RF,esc(RF_NAME())+' ✕']]:[],favCount()?[['fav','♥ Favorites']]:[],CREC.length?[['mine',TEAM()?'Yours & team':'Yours']]:[],[['champ','Champions']]),()=>RF,v=>{RF=v===RF&&extra?'all':v;renderRecipes();renderRHome()});
+  {const f=$('rfilter'),edge=()=>f.classList.toggle('end',f.scrollLeft+f.clientWidth>=f.scrollWidth-2);requestAnimationFrame(()=>{f.classList.toggle('more',f.scrollWidth>f.clientWidth+2);edge()});if(!f.dataset.edge){f.dataset.edge=1;f.addEventListener('scroll',edge,{passive:true})}}
   const q=fold(RQ.trim());
   let list=RECIPES.map((r,i)=>[r,i]).filter(([r])=>(RF==='all'||(RF==='mine'?r.custom:RF==='champ'?r.champ:RF==='fav'?FAVS.has(rkey(r)):cup?cup[4](r):col?col[4](r):rb?RFAM(r.b)===RFAM(rb):true))&&(!q||fold([r.name,r.by,r.why,BREWERS[r.b].name,BREWERS[r.b].type].join(' ')).includes(q)));
   const by=(a,b)=>(b[0].custom?1:0)-(a[0].custom?1:0);

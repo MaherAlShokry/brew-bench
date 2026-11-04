@@ -1124,7 +1124,10 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .colshelf button{flex:none;scroll-snap-align:start;width:168px;position:relative;display:flex;flex-direction:column;gap:3px;padding:14px 14px 30px;border-radius:18px;border:0;color:#fff;font:inherit;text-align:left;cursor:pointer;
   background:linear-gradient(140deg,var(--cc),color-mix(in srgb,var(--cc) 60%,#000))}
 .colshelf b{font-family:var(--display);font-size:1rem}.colshelf small{font-size:.8rem;opacity:.9;line-height:1.3}.colshelf .cn{position:absolute;left:14px;bottom:10px;font-size:.78rem;font-weight:700;background:rgba(255,255,255,.22);border-radius:99px;padding:1px 8px}
-.rtools{display:flex;align-items:center;gap:10px;margin-bottom:12px}.rtools .seg{flex:1;min-width:0}.rsortw{flex:none}.rsortw select{padding:8px 34px 8px 12px;font-size:.86rem;border-radius:12px}
+.rtools{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+/* Filters that don't fit scroll sideways; the edge fades so a chip that runs on reads as more to see, not as cut off. */
+.rtools .seg.more{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}
+.rtools .seg.more.end{-webkit-mask-image:none;mask-image:none}.rtools .seg{flex:1;min-width:0}.rsortw{flex:none}.rsortw select{padding:8px 34px 8px 12px;font-size:.86rem;border-radius:12px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .rgrp{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:14px;content-visibility:auto;contain-intrinsic-block-size:auto 320px}
 .rgrp h4{display:flex;align-items:center;gap:10px;margin:0;padding:12px 14px;font:700 .98rem var(--display);border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--cherry) 5%,var(--surface))}
@@ -1137,6 +1140,20 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .rr-by{color:var(--muted);font-size:.8rem;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rr-m{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:3px;font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
 .lv{font-weight:700;border-radius:6px;padding:0 6px}.lv-e{color:#256B42;background:color-mix(in srgb,#2F7A4F 12%,transparent)}.lv-i{color:#85550C;background:color-mix(in srgb,#C8891E 14%,transparent)}.lv-a{color:#A53A2A;background:color-mix(in srgb,#A53A2A 12%,transparent)}
+/* On phones the app bar and the tab bar float: what scrolls past their edges fades into the page instead of showing
+   in the gaps around them. */
+@media (max-width:759px){
+  body::before,body::after{content:'';position:fixed;left:0;right:0;pointer-events:none}
+  body::before{top:0;height:calc(var(--sa-top) + 40px);z-index:19;background:linear-gradient(var(--paper) 45%,color-mix(in srgb,var(--paper) 0%,transparent))}
+  body::after{bottom:0;height:calc(var(--sa-bottom) + 56px);z-index:29;background:linear-gradient(color-mix(in srgb,var(--paper) 0%,transparent),var(--paper) 62%)}
+}
+/* The level sits with the author as a coloured dot and a word, so the numbers keep their own line and every row has the same shape. */
+.rr-by .lv{display:inline-flex;align-items:center;gap:5px;padding:0;background:none;border-radius:0;white-space:nowrap}
+.rr-by .lv i{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+.rr-by .rr-who::before{content:'·';margin:0 6px;color:var(--muted)}
+.rr-m>span{white-space:nowrap}
+@media (max-width:359px){.rr-side{flex-direction:column;justify-content:center;gap:6px;padding-right:8px}.rr-open{padding-left:12px}.rr-m{gap:4px 8px}}
+.rr-open{padding-top:13px;padding-bottom:13px}.rr-t b{line-height:1.25}
 .rr-side{flex:none;display:flex;align-items:center;gap:2px;padding-right:10px}.rr-side .favbtn{position:static}
 .rr-play{width:40px;height:40px;border-radius:50%;border:0;display:grid;place-items:center;background:var(--cherry);color:var(--surface);cursor:pointer}.rr-play svg{width:18px;height:18px;fill:currentColor;margin-left:2px}
 .rr-play:active{transform:scale(.92)}
@@ -2394,7 +2411,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
   <div class="rsearchw"><input type="search" id="rsearch" placeholder="Search recipes" aria-label="Search recipes"></div>
   <div id="rhome"></div>
   <div class="rhead"><h3 class="rh" id="rall">All recipes</h3><button type="button" class="btn ghost" id="r-new">+ New recipe</button></div>
-  <div class="rtools"><div class="seg filters scrollrow" id="rfilter"></div><label class="rsortw"><span class="sr">Sort</span><select id="rsort" aria-label="Sort recipes"><option value="brewer">By brewer</option><option value="quick">Quickest first</option><option value="az">A to Z</option></select></label></div>
+  <div class="rtools"><div class="seg filters scrollrow" id="rfilter"></div><label class="rsortw"><span class="sr">Sort</span><select id="rsort" aria-label="Sort recipes"><option value="brewer">Brewer</option><option value="quick">Quickest</option><option value="az">A to Z</option></select></label></div>
   <div id="rgrid"></div>
 </section>
 
