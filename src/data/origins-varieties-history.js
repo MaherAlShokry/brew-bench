@@ -193,6 +193,9 @@ const V=[
 {id:'maracaturra',name:'Maracaturra',fam:'cross',origin:'Nicaragua',parents:'Maragogype x Caturra',
  story:'A natural cross first found in Nicaragua, with large beans and a fruit-forward cup.',
  cup:'Tropical fruit, citrus, sweet, medium body.',brew:'Slightly coarser, 93°C.',dir:'coarser',notes:['tropical','citrus','sweet'],grown:['nicaragua']},
+{id:'kimono',name:'Kimono',fam:'cross',origin:'Finca La Serranía, Sierra de las Minas, Guatemala',parents:'A natural mutation found between Maragogype and Catuai trees; parentage not confirmed',
+ story:'Found on Finca La Serranía in the Sierra de las Minas, where Pedro Fernández noticed trees with large beans, lush leaves and long branches that hang to the ground, like the sleeves of a kimono, which gave it its name. It grows there at about 1,450 to 1,600 m, alongside cardamom. It is rare, sold in small lots, often as naturals.',
+ cup:'Sweet and fruity, plum and blackberry, caramel, milk chocolate.',brew:'Large beans: slightly coarser, 92 to 93°C.',dir:'coarser',notes:['plum','blackberry','caramel'],m:{t:-0.15,acid:0.2,body:0.4,sweet:0.6,clarity:0.2},grown:['guatemala']},
 
 /* timor */
 {id:'timorhybrid',name:'Timor Hybrid',fam:'timor',origin:'Timor island',year:'Found 1927',parents:'Natural Arabica x Robusta cross',
