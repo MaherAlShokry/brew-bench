@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Made by tools/gen-app-icons.py: edit src/data/logos.json or the vibes, not this. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <group android:translateX="27" android:translateY="27"><group android:scaleX="0.15341" android:scaleY="0.15341"><group android:translateX="-80" android:translateY="-80"><group android:rotation="-38" android:pivotX="256" android:pivotY="256">
+        <clip-path android:pathData="M136,256a120,166 0 1,0 240,0a120,166 0 1,0 -240,0z"/>
+        <path android:fillColor="#3F6E2E" android:pathData="M100,80h320v360h-320z"/>
+        <path android:fillColor="#9C7A26" android:pathData="M262 80c-50 50 50 126 0 176s50 126 0 184H440V80z"/>
+        <path android:fillColor="#00000000" android:strokeColor="#F1F5EB" android:strokeWidth="22" android:pathData="M262 80c-50 50 50 126 0 176s50 126 0 184"/>
+    </group></group></group></group>
+</vector>

@@ -2740,9 +2740,13 @@ function setFavicon(){try{const cs=getComputedStyle(document.documentElement),co
   img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)}catch(e){}}
 function applyUI(){const d=document.documentElement;d.setAttribute('data-accent',UI.accent);if(UI.vibe==='roastery')d.removeAttribute('data-vibe');else d.setAttribute('data-vibe',UI.vibe);d.setAttribute('data-text',UI.text);d.setAttribute('data-motion',UI.motion);
   $('ab-logo').innerHTML=logoSVG(UI.logo,24);
-  // In the Android app the home-screen icon follows the logo; the app swaps it when you next leave it.
-  {const ai=plugin('AppIcon');if(ai)ai.set({name:UI.logo}).catch(()=>{})}
+  // In the Android app the home-screen icon follows the look: the logo in the vibe's colours, light or dark as the
+  // app is now. The app swaps it when you next leave it.
+  setAppIcon();
   const pap=(VIBES.find(v=>v[0]===UI.vibe)||VIBES[0])[curTheme()==='dark'?4:3].paper;document.querySelectorAll('meta[name="theme-color"]').forEach(m=>{if(d.hasAttribute('data-theme')||UI.vibe!=='roastery')m.content=pap});(window.requestIdleCallback||(f=>setTimeout(f,300)))(setFavicon)}
+function setAppIcon(){const ai=plugin('AppIcon');if(ai)ai.set({name:UI.logo,vibe:UI.vibe,mode:curTheme()==='dark'?'dark':'light'}).catch(()=>{})}
+// Auto theme follows the phone, so the icon follows it too.
+try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>setAppIcon())}catch(e){}
 function saveUI(){save('bb-ui',UI);applyUI()}
 /* Your data: everything the app saves on this device, in one file you can keep or move to another phone. */
 // Sign-in tokens never go into a backup file.
@@ -2871,7 +2875,7 @@ function curTheme(){return document.documentElement.getAttribute('data-theme')||
 function syncThemeBtn(){const t=curTheme();$('themebtn').textContent=t==='dark'?'Light':'Dark';
   // Once a theme is chosen by hand, the browser bar follows it rather than the system setting.
   if(document.documentElement.hasAttribute('data-theme'))document.querySelectorAll('meta[name="theme-color"]').forEach(m=>m.content=t==='dark'?'#1F1814':'#FBF7F0')}
-$('themebtn').onclick=()=>{const n=curTheme()==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);try{localStorage.setItem('bb-theme',n)}catch(e){}syncThemeBtn()};
+$('themebtn').onclick=()=>{const n=curTheme()==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);try{localStorage.setItem('bb-theme',n)}catch(e){}syncThemeBtn();setAppIcon()};
 syncThemeBtn();
 
 /* ================= APP UPDATES ================= */
