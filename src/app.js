@@ -394,11 +394,16 @@ const isTuned=()=>!!S.tuned&&TUNED_KEYS.every(k=>S.tuned[k]===S[k]);
 // share: how much closer the chosen target is than the next nearest (1 = right on it, under 0.5 = another is closer).
 // FIT_R: how far your settings can move from the target's own cup and still make it; FIT_OFF: past this, and nearer
 // another target's cup, you are brewing that other cup.
-const FIT_R=2.2,FIT_OFF=4.5,FIT_HONEY='#C9964A',FIT_ROAST='#A8432F';
+// On target: up to about a grind step (7 ZP6 clicks), 3°C or a ratio step from the plan. Another cup: about two steps out.
+const FIT_R=5.2,FIT_OFF=9,FIT_HONEY='#C9964A',FIT_ROAST='#A8432F';
 function cupFit(){if(!dialRec())return null;const B=BREWERS[S.brewer];
   const feats=st=>{const c=compute(st);return [c.D/0.15,c.acid/0.4,c.body/0.4,c.clarity/0.4,-st.ratio/B.ratio.step*0.6,c.sweet/0.4]};
-  const cur=feats(S),d={};
-  for(const [g] of GOALS){const p=plan(Object.assign(dialCtx(),{goal:g,amt:g===S.goal?S.amt:'mid'}));d[g]=Math.hypot(...feats(Object.assign({},S,p.st)).map((x,i)=>x-cur[i]))}
+  const cur=feats(S),d={},F={};
+  for(const [g] of GOALS){const p=plan(Object.assign(dialCtx(),{goal:g,amt:g===S.goal?S.amt:'mid'}));F[g]=feats(Object.assign({},S,p.st));d[g]=Math.hypot(...F[g].map((x,i)=>x-cur[i]))}
+  // Going further the target's own way (a tighter ratio on Stronger, hotter on Sweeter) is more of that cup, not a
+  // drift away from it: that part of the change is forgiven, up to half as far again as the target itself moves.
+  if(S.goal!=='balance'&&F.balance){const v=F[S.goal].map((x,i)=>x-F.balance[i]),vv=v.reduce((a,x)=>a+x*x,0);
+    if(vv>1e-6){const e=cur.map((x,i)=>x-F[S.goal][i]),along=e.reduce((a,x,i)=>a+x*v[i],0)/vv;if(along>0){const k=Math.min(along,1.5);d[S.goal]=Math.hypot(...e.map((x,i)=>x-k*v[i]))}}}
   const near=GOALS.map(x=>x[0]).filter(g=>g!==S.goal).sort((a,b)=>d[a]-d[b])[0],share=d[near]/((d[S.goal]+d[near])||1);
   const ds=d[S.goal],state=ds<=FIT_R?'on':share<0.5&&ds>FIT_OFF?'off':'drift';
   // One score for the colour, the marker and the percentage: 1 at the target's own settings, 0.56 at the edge of
@@ -417,17 +422,17 @@ function renderFit(){const el=$('g-fit'),f=cupFit();
     :t>=0.5?'color-mix(in srgb,'+FIT_HONEY+' '+Math.round((t-0.5)/0.06*100)+'%,'+FIT_ROAST+')':FIT_ROAST;
   if(cur&&f.state!=='on')cur.style.setProperty('--fitc',col);if(nb&&f.state!=='on')nb.classList.add(f.state==='off'?'fit-near':'fit-lean')
   el.style.setProperty('--fc',col);
-  const pct=Math.round(f.score*100),title=f.state==='on'?'On target':f.state==='drift'?'Drifting':'Closer to '+nn;
+  // The match reads on the same three zones as the gauge under it: on target from about 67%, another cup below 33%.
+  const pos=Math.max(2,Math.min(98,t<0.5?(t-0.35)/0.15*33:t<0.56?33+(t-0.5)/0.06*33:66+(t-0.56)/0.44*34)),pct=Math.round(pos);
+  const title=f.state==='on'?'On target':f.state==='drift'?'Drifting':'Closer to '+nn;
   const txt=f.state==='on'?'Your settings still make a '+me+' cup.'
     :f.state==='drift'?'Your changes are pulling away from a '+me+' cup. A little further and it turns '+nw+'.'
     :'Your settings now make a '+nw+' cup, not a '+me+' one.';
   el.className='fit fit-'+f.state;
-  // The marker sits on three even zones (another cup · drifting · on target), so it lines up with the scale labels.
-  const pos=Math.max(2,Math.min(98,t<0.5?(t-0.35)/0.15*33:t<0.56?33+(t-0.5)/0.06*33:66+(t-0.56)/0.44*34));
   const icon=f.state==='on'?'M5 9h12v4a6 6 0 0 1-6 6h0a6 6 0 0 1-6-6z M17 10h1.5a2.5 2.5 0 0 1 0 5H17 M9 3c-1 1.5 1 2.5 0 4 M13 3c-1 1.5 1 2.5 0 4'
     :f.state==='drift'?'M12 3v10 M12 17v.5 M4.5 20h15L12 4z':'M4 8h14 M15 5l3 3-3 3 M20 16H6 M9 13l-3 3 3 3';
   el.innerHTML='<div class="fit-head"><span class="fit-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+icon+'"/></svg></span><b>'+esc(title)+'</b>'+
-    '<span class="fit-pct" title="How '+esc(me)+' the cup still is">'+pct+'% '+esc(me)+'</span></div><p>'+esc(txt)+'</p>'+
+    '<span class="fit-pct" title="How close the cup is to '+esc(GOALN[S.goal])+'">'+pct+'% match</span></div><p>'+esc(txt)+'</p>'+
     '<div class="gauge fit-g" role="meter" aria-label="How close to '+esc(GOALN[S.goal])+'" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+pct+'"><i style="left:'+pos.toFixed(1)+'%"></i></div>'+
     '<div class="gscale"><span>Another cup</span><span>Drifting</span><span>On target</span></div>'+
     // The card keeps one size whatever the state, so the page under your finger doesn't jump while you drag a slider.
