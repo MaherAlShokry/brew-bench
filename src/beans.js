@@ -105,6 +105,73 @@ const bagLine=b=>{const g=gramsLeft(b);if(g==null)return '';const c=cupsLeft(b),
 // Mark the bag's contents as they are now: brews logged after this are taken off again.
 function setLeft(b,g){b.left=gramsOrNull(g);b.leftAt=Date.now()}
 
+/* ---------- Tasting notes in the editor ---------- */
+// Notes are kept as words ("Jasmine, Peach"), so a scan, a backup or an older save reads the same. A word on the
+// flavour wheel takes its family's colour; anything else (a roaster's "Turkish delight") is kept as you wrote it.
+const TN_MAX=12,TN_LEN=160;
+const tnFams=()=>FW.roots.filter(r=>r.n!=='Other');
+const tnLeaves=()=>FW.leaves.filter(n=>n.cat.n!=='Other');
+const tnLeaf=w=>{const f=fold(String(w).trim());return f?tnLeaves().find(n=>fold(n.n)===f)||null:null};
+const tnSplit=s=>{const seen=new Set();return String(s||'').split(/\s*[,;·]\s*/).map(x=>x.trim()).filter(x=>x&&!seen.has(fold(x))&&seen.add(fold(x)))};
+const tnEsc=w=>w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+// Notes a coffee is known for: the words in its varieties' and origin's cup descriptions, then the notes the wheel
+// links to its process and varieties.
+function tnSuggest(o){const sc=new Map(),add=(n,v)=>sc.set(n.id,(sc.get(n.id)||0)+v),base=v=>String(v).split(':')[0];
+  const text=fold([...o.vars.map(v=>(VBY[base(v)]||{}).cup),(oInfo(o.origin)||{}).cup].filter(Boolean).join(' '));
+  for(const n of tnLeaves()){const w=fold(n.n);if(text&&w.length>2&&new RegExp('\\b'+tnEsc(w)+'\\b').test(text))add(n,3);
+    for(const l of n.l||[]){if(o.process&&l==='p:'+o.process)add(n,2);if(o.vars.some(v=>l==='v:'+base(v)))add(n,2)}}
+  return[...sc].sort((a,b)=>b[1]-a[1]).map(([id])=>FW.byId[id])}
+// The tasting notes field: the notes as chips, a box to find or type one, notes this coffee is known for, and the
+// flavour wheel's families to browse. Returns {val, suggest}.
+function tasteInput(host,init,ctx){let L=tnSplit(init),fam=null,at=-1,opts=[];
+  host.className='tn-box';
+  host.innerHTML='<div class="tn-sel" id="tn-sel"></div>'+
+    '<div class="acw tn-find"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><input id="tn-q" maxlength="40" autocomplete="off" enterkeyhint="done" placeholder="Find or type a note" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="tn-list"><div class="acl" id="tn-list" role="listbox" aria-label="Notes" hidden></div></div>'+
+    '<div class="tn-sug" id="tn-sug"></div>'+
+    '<div class="tn-lbl">Browse the flavour wheel</div><div class="tn-fams" id="tn-fams">'+tnFams().map(r=>'<button type="button" class="tn-f" data-fam="'+r.id+'" aria-expanded="false" style="--fc:'+r.c+'"><i></i>'+esc(r.n)+'</button>').join('')+'</div>'+
+    '<div class="tn-fam" id="tn-fam" hidden></div>';
+  const q=$('tn-q'),box=$('tn-list'),has=w=>L.some(x=>fold(x)===fold(w));
+  const chip=(n,on)=>'<button type="button" class="tn-c'+(on?' on':'')+'" data-add="'+esc(n.n)+'" aria-pressed="'+on+'" style="--fc:'+n.c+'"><i></i>'+esc(n.n)+'</button>';
+  const drawSel=()=>{const wl=L.map(tnLeaf);
+    $('tn-sel').innerHTML=(L.length?'<div class="tn-chips">'+L.map((w,i)=>{const n=wl[i];return'<span class="tn-x" style="--fc:'+(n?n.c:'var(--muted)')+'"><i></i>'+esc(n?n.n:w)+'<button type="button" data-rm="'+i+'" aria-label="Remove '+esc(w)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></button></span>'}).join('')+'</div>':
+      '<p class="tn-empty">What does the bag say, or what do you taste? Pick from below or type your own.</p>')+
+      (wl.filter(Boolean).length>1?flBar(wl.filter(Boolean).map(n=>[n.id,2])):'');
+    $('tn-n').textContent=L.length?L.length+' of '+TN_MAX:'';drawSug();drawFam()};
+  const drawSug=()=>{const s=tnSuggest(ctx()).filter(n=>!has(n.n)).slice(0,8);
+    $('tn-sug').innerHTML=s.length?'<div class="tn-lbl">Known in this coffee</div><div class="tn-cs">'+s.map(n=>chip(n,false)).join('')+'</div>':''};
+  const drawFam=()=>{const f=fam&&FW.byId[fam];$('tn-fam').hidden=!f;document.querySelectorAll('#tn-fams [data-fam]').forEach(b=>{const on=b.dataset.fam===fam;b.setAttribute('aria-expanded',on);b.classList.toggle('on',on)});
+    if(!f)return;$('tn-fam').style.setProperty('--fc',f.c);
+    $('tn-fam').innerHTML='<p class="tn-fd">'+esc(f.d)+'</p>'+f.kids.map(g=>{const ls=g.leaf?[g]:g.kids.flatMap(k=>k.leaf?[k]:k.kids);return'<div class="tn-g"><small>'+esc(g.n)+'</small><div class="tn-cs">'+ls.map(n=>chip(n,has(n.n))).join('')+'</div></div>'}).join('')};
+  const add=w=>{w=String(w).trim().replace(/\s+/g,' ');if(!w)return false;const n=tnLeaf(w);if(n)w=n.n;else w=w[0].toUpperCase()+w.slice(1);
+    if(has(w)){L=L.filter(x=>fold(x)!==fold(w));drawSel();return true}
+    if(L.length>=TN_MAX){toast('That’s '+TN_MAX+' notes, plenty for one bag');return false}
+    if([...L,w].join(', ').length>TN_LEN){toast('That’s as many notes as fit');return false}
+    L.push(w);drawSel();return true};
+  const close=()=>{box.hidden=true;at=-1;q.setAttribute('aria-expanded','false');q.removeAttribute('aria-activedescendant')};
+  const hl=()=>box.querySelectorAll('[role=option]').forEach((o,i)=>{o.setAttribute('aria-selected',i===at);if(i===at){q.setAttribute('aria-activedescendant',o.id);o.scrollIntoView({block:'nearest'})}});
+  const draw=()=>{const t=q.value.trim(),f=fold(t);at=-1;if(!f||document.activeElement!==q){close();return}
+    const m=tnLeaves().filter(n=>fold(n.n).includes(f)).sort((a,b)=>fold(a.n).indexOf(f)-fold(b.n).indexOf(f)).slice(0,6);
+    opts=m.map(n=>({w:n.n,h:'<i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'<small>'+esc(n.parent?n.parent.n:'')+'</small>'+(has(n.n)?'<em>Added</em>':'')}));
+    if(!m.some(n=>fold(n.n)===f))opts.push({w:t,h:'<span class="tn-new">+</span>Add “'+esc(t)+'”'});
+    box.innerHTML=opts.map((o,i)=>'<div role="option" class="aco tn-o" id="tn-o'+i+'" data-i="'+i+'" aria-selected="false">'+o.h+'</div>').join('');box.hidden=false;q.setAttribute('aria-expanded','true');
+    // The closest note on the wheel is ready for Enter; your own words are one step down.
+    if(m.length){at=0;hl()}};
+  const take=w=>{if(add(w)){q.value='';close()}};
+  q.addEventListener('input',draw);q.addEventListener('focus',draw);q.addEventListener('blur',()=>setTimeout(close,120));
+  q.addEventListener('keydown',e=>{if(e.key==='ArrowDown'||e.key==='ArrowUp'){if(box.hidden)return;e.preventDefault();at=(at+(e.key==='ArrowDown'?1:-1)+opts.length)%opts.length;hl()}
+    else if(e.key==='Enter'||e.key===','){if(!q.value.trim())return;e.preventDefault();take(at>=0&&!box.hidden?opts[at].w:q.value)}
+    else if(e.key==='Escape'&&!box.hidden){e.preventDefault();e.stopPropagation();close()}
+    else if(e.key==='Backspace'&&!q.value&&L.length){L.pop();drawSel()}});
+  // A pasted list ("cherry, cocoa, honey") becomes its notes.
+  q.addEventListener('paste',e=>{const t=(e.clipboardData||{}).getData?.('text')||'';if(/[,;·\n]/.test(t)){e.preventDefault();t.split(/\s*[,;·\n]\s*/).forEach(w=>w.trim()&&!has(w)&&add(w));close()}});
+  box.addEventListener('pointerdown',e=>e.preventDefault());box.addEventListener('click',e=>{const o=e.target.closest('[data-i]');if(o)take(opts[+o.dataset.i].w)});
+  host.addEventListener('click',e=>{const a=e.target.closest('[data-add]'),r=e.target.closest('[data-rm]'),f=e.target.closest('[data-fam]');
+    if(a){add(a.dataset.add);return}if(r){L.splice(+r.dataset.rm,1);drawSel();return}
+    if(f){fam=fam===f.dataset.fam?null:f.dataset.fam;drawFam();if(fam)$('tn-fam').scrollIntoView({block:'nearest',behavior:'smooth'})}});
+  drawSel();
+  // Whatever is still in the box when you save counts too.
+  return{val:()=>{const t=q.value.trim();if(t&&!has(t))add(t);return L.join(', ')},suggest:drawSug}}
+
 /* ---------- The diary ---------- */
 // A coffee's story: your entries and the brews you logged with it, newest first.
 function beanTimeline(b){const fmt=s=>new Date(s+'T12:00');
@@ -559,7 +626,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;const d=$('vd'),rk
       '<button type="button" class="btn ghost bd-done" id="bd-done">🏁 Finish the bag</button></div>'
      :'<button type="button" class="linkbtn" id="bd-shelf">Put it back on the shelf</button>')+
     (kv.length?'<div class="specs">'+kv.map(([k,v])=>'<div><b>'+k+'</b><span class="bd-v">'+esc(v)+'</span></div>').join('')+'</div>':'')+
-    (b.flavours?'<h3>Tasting notes</h3><div class="chips">'+b.flavours.split(/\s*[,;·]\s*/).filter(Boolean).map(f=>'<span class="chip">'+esc(f)+'</span>').join('')+'</div>':'')+
+    (b.flavours?'<h3>Tasting notes</h3><div class="chips">'+tnSplit(b.flavours).map(f=>{const n=tnLeaf(f);return'<span class="chip">'+(n?'<i class="dot" style="background:'+n.c+'"></i>':'')+esc(f)+'</span>'}).join('')+'</div>':'')+
     (b.notes?'<h3>Your notes</h3><p>'+esc(b.notes)+'</p>':'')+
     '<div class="bd-again"><span>Would you buy it again?</span><div class="seg" id="bd-again"></div></div>'+
     (ls?'<p class="hint">In your brew log: '+ls.n+' brew'+(ls.n===1?'':'s')+(ls.avg?', rated '+ls.avg.toFixed(1)+' on average':'')+'.</p>':'')+
@@ -624,11 +691,13 @@ function openBeanEditor(b,pre){const isNew=!b;const B=Object.assign({name:'',roa
    '<div class="two"><div class="field"><label for="be-rdate">Roasted on</label><input type="date" id="be-rdate" class="dateinp" value="'+B.roastDate+'" max="'+todayISO()+'"></div><div class="field"><label for="be-tried">Tried on</label><input type="date" id="be-tried" class="dateinp" value="'+B.tried+'" max="'+todayISO()+'"></div></div>'+
    '<div class="two bagrow"><div class="field"><label for="be-bag">Bag size <span class="hint">grams</span></label><input id="be-bag" type="number" inputmode="numeric" min="0" max="5000" step="1" value="'+(B.bag||'')+'"></div>'+
    '<div class="field"><div class="lbl">On the shelf</div><div class="seg" id="be-shelf"></div></div></div>'+
-   '<div class="field"><label for="be-fl">Tasting notes <span class="hint">separate with commas</span></label><input id="be-fl" maxlength="160" value="'+esc(B.flavours)+'"></div>'+
+   '<div class="field tn"><div class="tn-head"><label for="tn-q">Tasting notes</label><span class="hint" id="tn-n"></span></div><div id="be-fl"></div></div>'+
    '<div class="field"><label for="be-notes">Your notes</label><textarea id="be-notes" rows="3" maxlength="600" placeholder="How you brewed it, what you loved, would you buy it again?">'+esc(B.notes)+'</textarea></div>'+
    '<div class="actions"><button class="btn" id="be-save">'+(isNew?'Add to the gallery':'Save changes')+'</button><button class="btn ghost" id="be-cancel">Cancel</button></div></div>';
   for(const [id,k] of [['be-origin','origin'],['be-process','process']])$(id).value=B[k];
   autoList($('be-roaster'),$('be-rsug'),roasters);
+  const TN=tasteInput($('be-fl'),B.flavours,()=>({origin:$('be-origin').value,process:$('be-process').value,vars:[...$('be-vars').querySelectorAll('select')].map(x=>x.value).filter(Boolean)}));
+  ['be-origin','be-process','be-vars'].forEach(id=>$(id).addEventListener('change',()=>TN.suggest()));
   // Varieties: one picker to start; a blend or mixed lot adds more, up to four, each removable.
   // The pickers list each variety once; a regional Geisha (geisha:panama) shows as Geisha and keeps its region when saved.
   const vOpts=opt(varietyOptions(),'Not sure'),ORIG=beanVars(B),base=v=>String(v||'').split(':')[0];let VL=[...ORIG];if(!VL.length)VL=[''];
@@ -653,7 +722,7 @@ function openBeanEditor(b,pre){const isNew=!b;const B=Object.assign({name:'',roa
   $('be-camf').onchange=$('be-file').onchange=e=>{const f=e.target.files[0];e.target.value='';take(f)};
   $('be-cancel').onclick=()=>d.close();
   $('be-save').onclick=async()=>{const n=okBean({id:b?b.id:uid().replace(/[^a-z0-9]/g,'').slice(0,20),name:$('be-name').value,roaster:$('be-roaster').value,origin:$('be-origin').value,process:$('be-process').value,...(readVars(),{variety:VL.filter(Boolean)[0]||'',vars:VL.filter(Boolean).slice(1)}),
-      roast:B.roast,roastDate:$('be-rdate').value,tried:$('be-tried').value,rating,flavours:$('be-fl').value,notes:$('be-notes').value,img:photoChanged?!!photo:B.img,scan:B.scan||'',ts:b?b.ts:Date.now(),
+      roast:B.roast,roastDate:$('be-rdate').value,tried:$('be-tried').value,rating,flavours:TN.val(),notes:$('be-notes').value,img:photoChanged?!!photo:B.img,scan:B.scan||'',ts:b?b.ts:Date.now(),
       shelf:B.shelf,bag:$('be-bag').value,left:b?b.left:null,leftAt:b?b.leftAt:0,again:b?b.again:'',diary:b?b.diary:[]});
     if(!n.name&&!n.origin&&!photo){toast('Add a name, an origin or a photo first');$('be-name').focus();return}
     let note='';if(photoChanged){if(photo){if(!await BIMG.put(n.id,photo)){n.img=false;note=', but the photo couldn’t be saved on this device'}}else if(!inAnyTop(n.id))BIMG.del(n.id)}
