@@ -229,13 +229,21 @@ dialog#vd::backdrop{background:rgba(20,14,10,.55)}
 #tree .n.big text{font-size:13.5px;font-weight:600}
 #tree .n:hover rect,#tree .n:focus-visible rect{fill:color-mix(in srgb,var(--c) 26%,var(--surface));stroke-width:2}
 #tree .n:focus-visible rect{stroke:var(--ink)}
-#tree .tnote rect{fill:color-mix(in srgb,var(--cherry) 9%,var(--surface));stroke:color-mix(in srgb,var(--cherry) 35%,transparent);stroke-dasharray:3 3}
-#tree .tnote text{font-family:var(--display);font-size:11px;font-style:italic;fill:var(--cherry-ink)}
+#tree .tmark circle{fill:color-mix(in srgb,var(--cherry) 14%,var(--surface));stroke:color-mix(in srgb,var(--cherry) 45%,transparent);stroke-width:1.2}
+#tree .tmark text{font:700 10.5px var(--body);text-anchor:middle;fill:var(--cherry-ink,var(--cherry))}
+#tree .tmark{cursor:pointer}
+.treenotes li.flash{animation:tn-flash 1.4s ease}@keyframes tn-flash{0%,40%{background:color-mix(in srgb,var(--cherry) 16%,transparent)}100%{background:transparent}}.treenotes li{border-radius:10px;padding:4px 6px;margin:-4px -6px}
+/* The tree's notes, numbered to match their markers. */
+.treenotes{list-style:none;margin:10px 0 0;padding:12px 14px;display:grid;gap:8px;border-radius:var(--r-md);background:var(--surface);border:1px solid var(--line)}
+.treenotes[hidden]{display:none}.treenotes li{display:flex;gap:10px;align-items:flex-start;font-size:.86rem;line-height:1.45;color:var(--muted)}
+.treenotes .tn-k{flex:none;width:20px;height:20px;margin-top:.05em;border-radius:50%;display:grid;place-items:center;font-size:.7rem;font-weight:700;background:color-mix(in srgb,var(--cherry) 14%,var(--surface));color:var(--cherry-ink,var(--cherry))}
+.treenotes b{color:var(--ink);font-weight:650;margin-right:6px}
+
 #tree path.e{fill:none;stroke-width:1.7;opacity:.55;stroke-linecap:round;stroke-dasharray:1;transition:opacity .2s,stroke-width .2s;animation:tdraw 1s cubic-bezier(.3,.6,.3,1) both;animation-delay:calc(var(--i) * 14ms)}
 @keyframes tdraw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
 #tree.focus path.e{opacity:.12}
 #tree.focus path.e.on{opacity:1;stroke-width:2.6}
-#tree.focus .n,#tree.focus .tnote{opacity:.3;transition:opacity .2s}
+#tree.focus .n,#tree.focus .tmark{opacity:.3;transition:opacity .2s}
 #tree.focus .n.on{opacity:1}
 .tleg i{background:var(--c);width:10px;height:7px;transform:rotate(-35deg)}
 .tleg.dna{font-style:italic;color:var(--cherry-ink);white-space:normal;max-width:100%}
@@ -439,12 +447,14 @@ mark.wq{background:color-mix(in srgb,var(--honey) 40%,transparent);color:inherit
 .flow{--gap:34px;max-width:760px;margin:0 auto;position:relative}
 .fphase{position:relative;border-radius:20px;padding:34px 14px 14px;margin:0 0 var(--gap);background:color-mix(in srgb,var(--c) 7%,var(--surface));border:1px solid color-mix(in srgb,var(--c) 28%,var(--line))}
 .fphase>.fph{position:absolute;top:10px;left:16px;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--c)}
-.fphase+.fphase::before{content:"";position:absolute;left:50%;top:calc(-1 * var(--gap));height:var(--gap);border-left:2px dashed color-mix(in srgb,var(--c) 60%,var(--line))}
-.fsteps{display:grid;gap:18px}
+.fphase+.fphase::before{content:"";position:absolute;left:calc(50% - 1px);top:calc(-1 * var(--gap) - 1px);height:var(--gap);border-left:2px dashed color-mix(in srgb,var(--c) 60%,var(--line))}
+.fsteps{display:grid;gap:26px}
 .fstep{position:relative;display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 14px;cursor:pointer;box-shadow:var(--shadow);transition:transform .15s ease,border-color .15s ease}
 .fstep:hover{transform:translateY(-2px);border-color:var(--c)}
-.fstep+.fstep::before,.fbranch+.fstep::before,.fstep+.fbranch::before{content:"";position:absolute;left:50%;top:-19px;height:18px;border-left:2px solid var(--c)}
-.fstep+.fstep::after,.fbranch+.fstep::after{content:"";position:absolute;left:calc(50% - 5px);top:-8px;border:5px solid transparent;border-top-color:var(--c)}
+/* The arrow between steps: a stem from just below the step above to the head, and a head that stops just short of the
+   next step, both on the same centre line. */
+.fstep+.fstep::before,.fbranch+.fstep::before,.fstep+.fbranch::before{content:"";position:absolute;left:calc(50% - 1px);top:-22px;width:2px;height:11px;border-radius:1px;background:var(--c)}
+.fstep+.fstep::after,.fbranch+.fstep::after{content:"";position:absolute;left:calc(50% - 5px);top:-11px;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid var(--c)}
 .fstep .fico{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--c)}
 .fstep .fico svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .fstep b{display:block;font-family:var(--display);font-size:1rem}.fstep small{display:block;color:var(--muted);font-size:.84rem;margin-top:1px}
@@ -462,7 +472,10 @@ mark.wq{background:color-mix(in srgb,var(--honey) 40%,transparent);color:inherit
   .fbr::before{left:50%;top:-9px;width:0;height:8px;border-top:0;border-left:2px solid var(--c)}}
 .flowd .fbranch{padding-left:0}.flowd .fbranch::after,.flowd .fbr::before{display:none}
 .fbr .fbr-list{display:block;font-size:.76rem;line-height:1.35;color:var(--muted);margin-top:6px}
-.fbr .fbr-more{display:block;font-size:.76rem;font-weight:700;color:var(--ink);margin-top:6px}.fbr .fbr-more::after{content:" \25BE"}.fbr[aria-expanded="true"] .fbr-more::after{content:" \25B4"}
+/* "Explore 4 processes" with a drawn chevron on the middle of the text; it turns over when the list is open. */
+.fbr .fbr-more{display:inline-flex;align-items:center;gap:7px;font-size:.76rem;font-weight:700;color:var(--ink);margin-top:6px}
+.fbr .fbr-more::after{content:"";width:6px;height:6px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-2px) rotate(45deg);transition:transform .2s}
+.fbr[aria-expanded="true"] .fbr-more::after{transform:translateY(2px) rotate(-135deg)}
 .fbr[aria-expanded="true"]{border-color:var(--c);box-shadow:0 0 0 2px color-mix(in srgb,var(--c) 35%,transparent)}
 .fbranch{grid-auto-flow:row dense}
 .fbx{grid-column:1/-1;background:var(--surface);border:1px solid color-mix(in srgb,var(--c) 40%,var(--line));border-radius:16px;padding:12px;animation:secin .25s ease}
@@ -540,6 +553,10 @@ dialog#navsheet::backdrop,dialog#sharesheet::backdrop{background:rgba(30,20,14,.
   :root{padding-top:0}
   .ab-back{flex:none;display:grid;place-items:center;width:38px;height:38px;margin:-4px 0 -4px -6px;border:0;border-radius:50%;background:var(--surface2);color:var(--cherry);cursor:pointer;animation:secin .2s ease}.ab-back[hidden]{display:none}
   .ab-brand{flex:1;min-width:0;display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:800;font-size:1.15rem;color:var(--ink)}
+#ab-title{flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;line-height:1.2}
+#ab-share svg{display:none;width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
+/* On a narrow phone Share is its icon, so the page title has room. */
+@media (max-width:379px){#ab-share:not([hidden]){width:40px;height:40px;padding:0;display:grid;place-items:center}#ab-share svg{display:block}#ab-share span{display:none}}
   .ab-btn{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-family:var(--display);font-size:.88rem;color:var(--cherry);cursor:pointer}
   .herowrap{display:none}
   body.t-dial .herowrap{display:block}
@@ -1125,22 +1142,57 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .colshelf button{flex:none;scroll-snap-align:start;width:168px;position:relative;display:flex;flex-direction:column;gap:3px;padding:14px 14px 30px;border-radius:18px;border:0;color:#fff;font:inherit;text-align:left;cursor:pointer;
   background:linear-gradient(140deg,var(--cc),color-mix(in srgb,var(--cc) 60%,#000))}
 .colshelf b{font-family:var(--display);font-size:1rem}.colshelf small{font-size:.8rem;opacity:.9;line-height:1.3}.colshelf .cn{position:absolute;left:14px;bottom:10px;font-size:.78rem;font-weight:700;background:rgba(255,255,255,.22);border-radius:99px;padding:1px 8px}
-.rtools{display:flex;align-items:center;gap:10px;margin-bottom:12px}.rtools .seg{flex:1;min-width:0}.rsortw{flex:none}.rsortw select{padding:8px 34px 8px 12px;font-size:.86rem;border-radius:12px}
+.rtools{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+/* Filters that don't fit scroll sideways; the edge fades so a chip that runs on reads as more to see, not as cut off. */
+.rtools .seg.more{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}
+.rtools .seg.more.end{-webkit-mask-image:none;mask-image:none}.rtools .seg{flex:1;min-width:0}
+/* The sort button shows both orders ("Brewer · Level"); it opens the sort sheet. */
+.rsortw{flex:none;display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:0 14px 0 12px;border-radius:var(--r-pill);border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:.84rem;font-weight:600;cursor:pointer;white-space:nowrap}
+.rsortw svg{width:17px;height:17px;fill:none;stroke:var(--cherry-ink,var(--cherry));stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.rs-sec{padding:4px 16px 8px}.rs-sec h4{margin:6px 4px 8px;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.rs-sec .sellist{padding:0}.rs-sec .selopt span{display:flex;flex-direction:column;gap:2px}.rs-sec .selopt small{font-size:.78rem;font-weight:400;color:var(--muted)}
+.rs-chips{display:flex;flex-wrap:wrap;gap:8px}.rs-chip{min-height:38px;padding:8px 14px;font-size:.88rem;font-weight:600;border:1px solid transparent;cursor:pointer}
+.rs-chip[aria-checked="true"]{background:color-mix(in srgb,var(--cherry) 16%,var(--surface));border-color:var(--cherry);color:var(--cherry-ink,var(--ink))}
+.rs-done{padding:8px 16px calc(14px + var(--sa-bottom))}.rs-done .btn{width:100%}
+.rgrp h4 .lvbi{background:color-mix(in srgb,currentColor 14%,var(--surface))}.rgrp h4 .lvbi i{width:10px;height:10px;border-radius:50%;background:currentColor}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .rgrp{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:14px;content-visibility:auto;contain-intrinsic-block-size:auto 320px}
 .rgrp h4{display:flex;align-items:center;gap:10px;margin:0;padding:12px 14px;font:700 .98rem var(--display);border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--cherry) 5%,var(--surface))}
 .rgrp h4 small{margin-left:auto;font:600 .78rem var(--body);color:var(--muted)}
-.rrow{display:flex;align-items:stretch}.rrow+.rrow{border-top:1px solid var(--line)}
-.rr-open{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;padding:12px 6px 12px 14px;border:0;background:none;color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+/* A recipe row: content on the left in three lines (name and tags; level and author; the numbers in one strip), the
+   heart level with the name and the play button level with the strip. */
+.rrow{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:stretch}.rrow+.rrow{border-top:1px solid var(--line)}
+.rr-open{grid-column:1;min-width:0;display:flex;flex-direction:column;gap:5px;padding:14px 8px 14px 16px;border:0;background:none;color:var(--ink);font:inherit;text-align:left;cursor:pointer}
 .rr-open:active{background:var(--surface2)}
-.rr-t{display:flex;flex-wrap:wrap;align-items:center;gap:6px}.rr-t b{font-weight:650;font-size:.97rem}
-.rr-tag{font-size:.7rem;font-weight:700;letter-spacing:.02em;border-radius:99px;padding:1px 8px}.rr-tag.neo{background:color-mix(in srgb,var(--cherry) 14%,var(--surface));color:var(--cherry-ink)}.rr-tag.champ{background:color-mix(in srgb,var(--honey) 30%,var(--surface));color:var(--ink)}.rr-tag.ours{background:color-mix(in srgb,var(--leaf) 25%,var(--surface));color:var(--ink)}
-.rr-by{color:var(--muted);font-size:.8rem;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rr-m{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:3px;font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
-.lv{font-weight:700;border-radius:6px;padding:0 6px}.lv-e{color:#256B42;background:color-mix(in srgb,#2F7A4F 12%,transparent)}.lv-i{color:#85550C;background:color-mix(in srgb,#C8891E 14%,transparent)}.lv-a{color:#A53A2A;background:color-mix(in srgb,#A53A2A 12%,transparent)}
-.rr-side{flex:none;display:flex;align-items:center;gap:2px;padding-right:10px}.rr-side .favbtn{position:static}
-.rr-play{width:40px;height:40px;border-radius:50%;border:0;display:grid;place-items:center;background:var(--cherry);color:var(--surface);cursor:pointer}.rr-play svg{width:18px;height:18px;fill:currentColor;margin-left:2px}
+.rr-t{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;min-height:32px}.rr-t b{font:650 1rem/1.25 var(--display);letter-spacing:-.005em}
+.rr-tag{font-size:.68rem;font-weight:700;letter-spacing:.02em;border-radius:99px;padding:2px 8px;line-height:1.3}.rr-tag.neo{background:color-mix(in srgb,var(--cherry) 14%,var(--surface));color:var(--cherry-ink)}.rr-tag.champ{background:color-mix(in srgb,var(--honey) 30%,var(--surface));color:var(--ink)}.rr-tag.ours{background:color-mix(in srgb,var(--leaf) 25%,var(--surface));color:var(--ink)}
+.rr-by{display:block;font-size:.82rem;line-height:1.4;color:var(--muted)}
+.rr-by .lv{display:inline;padding:0;background:none;border-radius:0;font-weight:700;white-space:nowrap}
+/* The dot sits on the middle of the lower-case letters, on the same baseline as the rest of the line. */
+.rr-by .lv i{display:inline-block;width:7px;height:7px;margin-right:6px;border-radius:50%;background:currentColor;vertical-align:calc((1ex - 7px) / 2)}
+.rr-sep{margin:0 7px;color:var(--muted)}.rr-bw{color:var(--ink);font-weight:600}
+.rr-m{align-self:flex-start;display:inline-flex;align-items:center;max-width:100%;margin-top:2px;padding:0 2px;border-radius:10px;background:var(--surface2);font-size:.8rem;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+.rr-m>span{display:inline-flex;align-items:center;gap:4px;padding:6px 8px;line-height:1}.rr-m>span+span{border-left:1px solid color-mix(in srgb,var(--line) 80%,transparent)}
+.rr-m em{font-style:normal;font-weight:500;color:var(--muted);margin-left:.18em}.rr-m .rr-dose i{font-style:normal;color:var(--muted);margin:0 2px;font-weight:500}
+.rr-m svg{width:13px;height:13px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+/* Icons sit on the middle of the digits (cap height), not the middle of the line, whatever font the phone uses. */
+@supports (height:1cap){.rr-m>span{display:inline-block}.rr-m svg{display:inline-block;vertical-align:calc((1cap - 13px) / 2);margin-right:4px}.rr-m .rr-dose i,.rr-m em{display:inline}.rr-m .rr-dose i{margin:0 .32em}}
+.rr-side{grid-column:2;display:flex;flex-direction:column;justify-content:space-between;align-items:center;padding:12px 14px 8px 4px}
+.rr-side .favbtn{position:static;width:36px;height:36px;background:none}.rr-side .favbtn svg{width:21px;height:21px}
+.rr-side .favbtn[aria-pressed="true"]{background:none}
+.rr-play{width:40px;height:40px;border-radius:50%;border:0;display:grid;place-items:center;background:var(--cherry);color:var(--surface);cursor:pointer;box-shadow:0 4px 12px -4px color-mix(in srgb,var(--cherry) 60%,transparent)}.rr-play svg{width:17px;height:17px;fill:currentColor;margin-left:2px}
 .rr-play:active{transform:scale(.92)}
+@media (max-width:379px){.rr-m svg{display:none}.rr-m>span{padding:6px 7px}}
+@media (max-width:339px){.rr-open{padding-left:12px}.rr-side{padding-right:8px}.rr-m{font-size:.76rem}.rr-m>span{padding:6px 6px}}
+/* On phones the app bar and the tab bar float: what scrolls past them fades into the page instead of showing in the
+   gaps around them or through the glass. */
+@media (max-width:759px){
+  body::before,body::after{content:'';position:fixed;left:0;right:0;pointer-events:none}
+  body::before{top:0;height:calc(var(--sa-top) + 84px);z-index:19;background:linear-gradient(var(--paper) calc(100% - 18px),color-mix(in srgb,var(--paper) 0%,transparent))}
+  body:has(dialog[open])::before,body:has(dialog[open])::after{display:none}
+  body::after{bottom:0;height:calc(var(--sa-bottom) + 56px);z-index:29;background:linear-gradient(color-mix(in srgb,var(--paper) 0%,transparent),var(--paper) 62%)}
+}
+.lv{font-weight:700;border-radius:6px;padding:0 6px}.lv-e{color:#256B42;background:color-mix(in srgb,#2F7A4F 12%,transparent)}.lv-i{color:#85550C;background:color-mix(in srgb,#C8891E 14%,transparent)}.lv-a{color:#A53A2A;background:color-mix(in srgb,#A53A2A 12%,transparent)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .lv-e{color:#7FCB9C}:root:not([data-theme="light"]) .lv-i{color:#E7B060}:root:not([data-theme="light"]) .lv-a{color:#F08F7E}}
 :root[data-theme="dark"] .lv-e{color:#7FCB9C}:root[data-theme="dark"] .lv-i{color:#E7B060}:root[data-theme="dark"] .lv-a{color:#F08F7E}
 /* Cup types sit lower on the page now, so their cards are shorter. */
@@ -1150,12 +1202,16 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 /* A recipe at a glance, and its steps as a timeline. */
 .rstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:.4rem 0 .8rem}
 .rstats div{background:var(--surface2);border-radius:12px;padding:8px 10px}.rstats b{display:block;font:700 1.02rem var(--display);font-variant-numeric:tabular-nums}.rstats small{color:var(--muted);font-size:.74rem}
-.steps.tl{list-style:none;padding:0;margin:.4rem 0 .6rem;position:relative}.steps.tl li{position:relative;padding:0 0 12px 64px;min-height:26px}
-.steps.tl li::before{content:"";position:absolute;left:25px;top:24px;bottom:0;width:2px;background:var(--line)}.steps.tl li:last-child::before{display:none}
-.steps.tl .t{position:absolute;left:0;top:0;width:52px;text-align:center;font:700 .78rem var(--body);font-variant-numeric:tabular-nums;color:var(--cherry);background:color-mix(in srgb,var(--cherry) 12%,var(--surface));border-radius:99px;padding:3px 0}
-.steps.tl .t.dot{width:12px;height:12px;left:20px;top:6px;padding:0;background:var(--line)}
-.steps.tl .tk{display:inline-grid;place-items:center;vertical-align:-4px;width:20px;height:20px;margin-right:6px;border-radius:50%;background:color-mix(in srgb,var(--k,var(--muted)) 16%,var(--surface));color:var(--k,var(--muted))}
+.steps.tl{list-style:none;padding:0;margin:.4rem 0 .6rem;position:relative}
+/* A step: its time, the kind of move and the instruction in three columns. The time and the icon are one text line tall,
+   so they sit on the middle of the first line however the instruction wraps. */
+.steps.tl li{--row:1.5rem;position:relative;display:grid;grid-template-columns:52px 22px minmax(0,1fr);column-gap:10px;align-items:start;padding:0 0 12px;min-height:var(--row)}
+.steps.tl li::before{content:"";position:absolute;left:25px;top:calc(var(--row) + 2px);bottom:2px;width:2px;border-radius:1px;background:var(--line)}.steps.tl li:last-child::before{display:none}
+.steps.tl .t{grid-column:1;height:var(--row);display:flex;align-items:center;justify-content:center;font:700 .78rem var(--body);font-variant-numeric:tabular-nums;color:var(--cherry);background:color-mix(in srgb,var(--cherry) 12%,var(--surface));border-radius:99px;padding:0}
+.steps.tl .t.dot{width:12px;height:12px;margin:calc((var(--row) - 12px) / 2) 0 0 20px;padding:0;background:var(--line)}
+.steps.tl .tk{grid-column:2;display:grid;place-items:center;width:22px;height:22px;margin-top:calc((var(--row) - 22px) / 2);border-radius:50%;background:color-mix(in srgb,var(--k,var(--muted)) 16%,var(--surface));color:var(--k,var(--muted))}
 .steps.tl .tk svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.steps.tl .sx{grid-column:3;line-height:var(--row);overflow-wrap:anywhere}
 .steps.tl li.k-pour .t,.steps.tl li.k-bloom .t{background:color-mix(in srgb,var(--k) 16%,var(--surface));color:color-mix(in srgb,var(--k) 75%,var(--ink))}
 
 /* Steppers (the dial-in's coffee dose). */
@@ -2087,7 +2143,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
   s.querySelector(".sp-art").outerHTML='<svg class="sp-logo k-'+k+'" viewBox="'+vb+'" overflow="visible">'+x+body+"</svg>";
   if(run)run(s.querySelector(".sp-logo"))
   })()}catch(e){}})()</script>
-<header class="appbar" id="appbar"><button type="button" class="ab-back" id="ab-back" aria-label="Back" hidden><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="ab-brand"><span id="ab-logo"><svg viewBox="80 80 352 352" width="24" height="24" aria-hidden="true"><g transform="rotate(-38 256 256)"><clipPath id="abBean"><ellipse cx="256" cy="256" rx="120" ry="166"/></clipPath><g clip-path="url(#abBean)"><rect x="100" y="80" width="320" height="360" fill="var(--cherry)"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184H440V80z" fill="var(--honey)"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184" fill="none" stroke="var(--paper)" stroke-width="22"/></g></g></svg></span><span id="ab-title">Dial-in</span></div><button type="button" class="ab-btn" id="ab-share" aria-label="Share">Share</button><button type="button" class="me-btn" id="ab-me" aria-label="Your profile"></button></header>
+<header class="appbar" id="appbar"><button type="button" class="ab-back" id="ab-back" aria-label="Back" hidden><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="ab-brand"><span id="ab-logo"><svg viewBox="80 80 352 352" width="24" height="24" aria-hidden="true"><g transform="rotate(-38 256 256)"><clipPath id="abBean"><ellipse cx="256" cy="256" rx="120" ry="166"/></clipPath><g clip-path="url(#abBean)"><rect x="100" y="80" width="320" height="360" fill="var(--cherry)"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184H440V80z" fill="var(--honey)"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184" fill="none" stroke="var(--paper)" stroke-width="22"/></g></g></svg></span><span id="ab-title">Dial-in</span></div><button type="button" class="ab-btn" id="ab-share" aria-label="Share"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M8 8l4-4 4 4M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg><span>Share</span></button><button type="button" class="me-btn" id="ab-me" aria-label="Your profile"></button></header>
 <div class="herowrap"><button type="button" class="themebtn" id="themebtn" aria-label="Switch theme">Dark</button>
 <header class="hero wrap">
   <div>
@@ -2377,7 +2433,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
   <h3>The coffee family tree</h3>
   <p class="hint">Tap any variety to trace its ancestors and read its story. Families follow genetics, not names: Pink Bourbon sits with the Ethiopian landraces because DNA tests show that is where it comes from.</p>
   <div class="legend" id="treelegend"></div>
-  <div class="treewrap"><div class="treebox"><svg id="tree" role="img" aria-label="Coffee variety family tree"></svg></div></div><p class="treehint" aria-hidden="true">Drag sideways to follow the family across seven generations →</p>
+  <div class="treewrap"><div class="treebox"><svg id="tree" role="img" aria-label="Coffee variety family tree"></svg></div></div><p class="treehint" aria-hidden="true">Drag sideways to follow the family across seven generations →</p><ul class="treenotes" id="treenotes" aria-label="Notes on the tree" hidden></ul>
 
   <h3 style="margin-top:2rem">The coffee species</h3>
   <p class="hint">More than 130 species of Coffea exist. These are the ones that matter in your cup.</p>
@@ -2398,7 +2454,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
   <div class="rsearchw"><input type="search" id="rsearch" placeholder="Search recipes" aria-label="Search recipes"></div>
   <div id="rhome"></div>
   <div class="rhead"><h3 class="rh" id="rall">All recipes</h3><button type="button" class="btn ghost" id="r-new">+ New recipe</button></div>
-  <div class="rtools"><div class="seg filters scrollrow" id="rfilter"></div><label class="rsortw"><span class="sr">Sort</span><select id="rsort" aria-label="Sort recipes"><option value="brewer">By brewer</option><option value="quick">Quickest first</option><option value="az">A to Z</option></select></label></div>
+  <div class="rtools"><div class="seg filters scrollrow" id="rfilter"></div><button type="button" class="rsortw" id="rsortbtn" aria-label="Sort recipes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h11M4 12h8M4 17h5M18 6v12M15 15l3 3 3-3"/></svg><span>Brewer · Level</span></button></div>
   <div id="rgrid"></div>
 </section>
 
@@ -2707,6 +2763,9 @@ const V=[
 {id:'maracaturra',name:'Maracaturra',fam:'cross',origin:'Nicaragua',parents:'Maragogype x Caturra',
  story:'A natural cross first found in Nicaragua, with large beans and a fruit-forward cup.',
  cup:'Tropical fruit, citrus, sweet, medium body.',brew:'Slightly coarser, 93°C.',dir:'coarser',notes:['tropical','citrus','sweet'],grown:['nicaragua']},
+{id:'kimono',name:'Kimono',fam:'cross',origin:'Finca La Serranía, Sierra de las Minas, Guatemala',parents:'A natural mutation found between Maragogype and Catuai trees; parentage not confirmed',
+ story:'Found on Finca La Serranía in the Sierra de las Minas, where Pedro Fernández noticed trees with large beans, lush leaves and long branches that hang to the ground, like the sleeves of a kimono, which gave it its name. It grows there at about 1,450 to 1,600 m, alongside cardamom. It is rare, sold in small lots, often as naturals.',
+ cup:'Sweet and fruity, plum and blackberry, caramel, milk chocolate.',brew:'Large beans: slightly coarser, 92 to 93°C.',dir:'coarser',notes:['plum','blackberry','caramel'],m:{t:-0.15,acid:0.2,body:0.4,sweet:0.6,clarity:0.2},grown:['guatemala']},
 
 /* timor */
 {id:'timorhybrid',name:'Timor Hybrid',fam:'timor',origin:'Timor island',year:'Found 1927',parents:'Natural Arabica x Robusta cross',
@@ -5403,7 +5462,7 @@ const rr1=v=>Math.round(v*10)/10;
 // Steps as a timeline: the time each one starts in a badge, the instruction beside it.
 // Each step also shows what kind of move it is (pour, swirl, valve…) as a small coloured icon; see steps.js.
 // An untimed pour shows the time the chart estimated for it ("~1:00"), so the list and the chart agree.
-const stepList=steps=>{const c=pourCurve(steps);return '<ol class="steps tl">'+steps.map((x,i)=>{const m=/^\s*(\d+:\d\d)\s*/.exec(x),k=stepKind(x),d=!m&&c&&c.dots[i];return '<li class="k-'+k+'">'+(m?'<span class="t">'+m[1]+'</span>':d&&d.e?'<span class="t est" title="Estimated from the recipe\'s pace">~'+mmss(d.t)+'</span>':'<span class="t dot"></span>')+'<i class="tk" title="'+SKNAME(k)+'">'+SKICO(k)+'</i>'+esc(capS(m?x.slice(m[0].length):x))+'</li>'}).join('')+'</ol>'};
+const stepList=steps=>{const c=pourCurve(steps);return '<ol class="steps tl">'+steps.map((x,i)=>{const m=/^\s*(\d+:\d\d)\s*/.exec(x),k=stepKind(x),d=!m&&c&&c.dots[i];return '<li class="k-'+k+'">'+(m?'<span class="t">'+m[1]+'</span>':d&&d.e?'<span class="t est" title="Estimated from the recipe\'s pace">~'+mmss(d.t)+'</span>':'<span class="t dot"></span>')+'<i class="tk" title="'+SKNAME(k)+'">'+SKICO(k)+'</i><span class="sx">'+esc(capS(m?x.slice(m[0].length):x))+'</span></li>'}).join('')+'</ol>'};
 function recipeBody(r,i,compact){const B=BREWERS[r.b],sc=compact?{dose:r.dose,water:r.water,steps:r.steps,off:r.off,ratio:r.water/r.dose}:scaled(r);const gs=MYG.map(g=>[g,settingFor(g,r.b,sc.off)]);
   const m=rmeta(r);
   return (compact?'<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span>':'')+'</div>'
@@ -5500,33 +5559,68 @@ $('rhome').onclick=e=>{const q=e.target.closest('[data-q]'),a=e.target.closest('
   if(k==='fav'){if(!favCount()){toast('Tap the heart on any recipe to save it here');return}RF='fav'}
   RQ='';$('rsearch').value='';showRecipeList()};
 $('rsearch').oninput=e=>{RQ=e.target.value;if(RQ.trim()&&RF!=='all'){RF='all';renderRHome()}soon(renderRecipes)}; // a search looks through every recipe
-let RSORT=(()=>{try{return localStorage.getItem('bb-rsort')||'brewer'}catch(e){return'brewer'}})();
+// Two levels of order: a main one and a second one within it ("Brewer, then Level"). Brewer and Level also group the
+// list under headings.
+const RSORTS={brewer:'Brewer',level:'Level',quick:'Quickest',az:'A to Z',temp:'Hottest',strong:'Strongest'};
+const RS_HINT={brewer:'Grouped by brewer',level:'Easy first, grouped by level',quick:'Shortest brew first',az:'By name',temp:'Hottest water first',strong:'Strongest ratio first'};
+const LV_ORDER={Easy:0,Medium:1,Advanced:2};
+let RSORT=(()=>{try{const v=localStorage.getItem('bb-rsort');return RSORTS[v]?v:'brewer'}catch(e){return'brewer'}})();
+let RSORT2=(()=>{try{const v=localStorage.getItem('bb-rsort2');return v===''||RSORTS[v]?v:'level'}catch(e){return'level'}})();
+const RCMP={brewer:(a,b)=>{const o=Object.keys(BREWERS);return o.indexOf(RFAM(a.b))-o.indexOf(RFAM(b.b))},level:(a,b)=>LV_ORDER[rmeta(a).level]-LV_ORDER[rmeta(b).level],
+  quick:(a,b)=>(rmeta(a).time??1e9)-(rmeta(b).time??1e9),az:(a,b)=>a.name.localeCompare(b.name),temp:(a,b)=>(+b.temp||0)-(+a.temp||0),
+  strong:(a,b)=>(a.water/a.dose||99)-(b.water/b.dose||99)};
+const rsortLabel=()=>RSORTS[RSORT]+(RSORT2&&RSORT2!==RSORT?' · '+RSORTS[RSORT2]:'');
+function saveRSort(){try{localStorage.setItem('bb-rsort',RSORT);localStorage.setItem('bb-rsort2',RSORT2)}catch(e){}}
+// The sort sheet: the main order as a list, the second order as chips (anything but the main one, or nothing).
+function openRSort(){const d=$('selsheet');
+  const draw=()=>{$('sel-in').innerHTML='<div class="selhead"><div class="grab"></div><h3 id="sel-title">Sort recipes</h3><button type="button" class="vd-close" id="sel-x" aria-label="Close">✕</button></div>'+
+    '<div class="rs-sec"><h4>Sort by</h4><div class="sellist" role="radiogroup" aria-label="Sort by">'+Object.keys(RSORTS).map(k=>'<button type="button" role="radio" class="selopt" data-rs1="'+k+'" aria-checked="'+(k===RSORT)+'" aria-selected="'+(k===RSORT)+'"><span>'+RSORTS[k]+'<small>'+RS_HINT[k]+'</small></span><i aria-hidden="true">✓</i></button>').join('')+'</div></div>'+
+    '<div class="rs-sec"><h4>Then by</h4><div class="rs-chips" role="radiogroup" aria-label="Then by">'+['',...Object.keys(RSORTS)].filter(k=>k!==RSORT).map(k=>'<button type="button" role="radio" class="chip rs-chip" data-rs2="'+k+'" aria-checked="'+((RSORT2===RSORT?'':RSORT2)===k)+'">'+(k?RSORTS[k]:'Nothing')+'</button>').join('')+'</div></div>'+
+    '<div class="rs-done"><button type="button" class="btn" id="rs-done">Show '+RLIST.length+' recipes</button></div>';
+    $('sel-x').onclick=$('rs-done').onclick=()=>d.close()};
+  draw();d.querySelector('#sel-in').onclick=e=>{const a=e.target.closest('[data-rs1]'),b=e.target.closest('[data-rs2]');if(!a&&!b)return;
+    if(a){RSORT=a.dataset.rs1;if(RSORT2===RSORT)RSORT2=RSORT==='level'?'quick':'level'}else RSORT2=b.dataset.rs2;saveRSort();renderRecipes();draw()};
+  showDlg(d)}
 const RF_NAME=()=>RF==='all'?'All recipes':RF==='fav'?'Favorites':RF==='mine'?(TEAM()?'Yours and your team’s':'Your recipes'):RF==='champ'?'Champions':RF.startsWith('cup:')?CUPBY[RF.slice(4)][1]
   :RF.startsWith('b:')&&BREWERS[RF.slice(2)]?famName(RFAM(RF.slice(2))):RF.startsWith('col:')&&COLBY[RF.slice(4)]?COLBY[RF.slice(4)][1]:'All recipes';
-// One recipe as a compact row: what it is, who it's from, the numbers that matter, and a play button for the timer.
-function rrow(r,i){const m=rmeta(r),lv={Easy:'e',Medium:'i',Advanced:'a'}[m.level];
-  return '<article class="rrow'+(r.custom?' mine':'')+'"><button type="button" class="rr-open" data-open="'+i+'"><span class="rr-t"><b>'+esc(r.name)+'</b>'+(BTAG[r.b]?'<span class="rr-tag neo">'+BTAG[r.b]+'</span>':'')+(r.champ?'<span class="rr-tag champ">Champion</span>':'')+(r.custom?'<span class="rr-tag ours">'+esc(r.author&&r.author!==ME?'From '+r.author:'Yours')+'</span>':'')+'</span>'+
-    (r.by?'<small class="rr-by">'+esc(r.by)+'</small>':'')+'<span class="rr-m"><span>'+r.dose+'g · '+r.water+'g</span>'+(m.ratio?'<span>'+m.ratio+'</span>':'')+(m.time!=null?'<span>'+mmss(m.time)+'</span>':'')+(r.temp?'<span>'+r.temp+'°C</span>':'')+'<span class="lv lv-'+lv+'">'+m.level+'</span></span></button>'+
+// One recipe as a row: the name and its tags; the level and who it's from on one line; the numbers in one strip.
+// The heart sits level with the name and the play button level with the numbers.
+const RR_IC={time:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="7.5"/><path d="M12 9.5V13l2.5 1.6M10 3h4"/></svg>',
+  temp:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13.6V5a2 2 0 0 1 4 0v8.6a4 4 0 1 1-4 0z"/><path d="M12 17v-5"/></svg>'};
+// o.lv false: the level is already the heading. o.brewer: say which brewer (when the list isn't grouped by brewer).
+function rrow(r,i,o={}){const m=rmeta(r),lv={Easy:'e',Medium:'i',Advanced:'a'}[m.level],who=r.by?r.by.split(/,\s*/)[0]:'';
+  const tags=(BTAG[r.b]?'<span class="rr-tag neo">'+BTAG[r.b]+'</span>':'')+(r.champ?'<span class="rr-tag champ">Champion</span>':'')+(r.custom?'<span class="rr-tag ours">'+esc(r.author&&r.author!==ME?'From '+r.author:'Yours')+'</span>':'');
+  const st=['<span class="rr-dose">'+r.dose+'<i aria-hidden="true">→</i>'+r.water+'<em>g</em></span>',m.ratio?'<span>'+m.ratio+'</span>':'',
+    m.time!=null?'<span>'+RR_IC.time+mmss(m.time)+'</span>':'',r.temp?'<span>'+RR_IC.temp+r.temp+'°</span>':''].filter(Boolean).join('');
+  return '<article class="rrow'+(r.custom?' mine':'')+'"><button type="button" class="rr-open" data-open="'+i+'">'+
+    '<span class="rr-t"><b>'+esc(r.name)+'</b>'+tags+'</span>'+
+    '<span class="rr-by">'+[o.lv===false?'':'<span class="lv lv-'+lv+'"><i aria-hidden="true"></i>'+m.level+'</span>',o.brewer?'<span class="rr-bw">'+esc(BREWERS[r.b].name)+'</span>':'',who?'<span class="rr-who">'+esc(who)+'</span>':''].filter(Boolean).join('<span class="rr-sep" aria-hidden="true">·</span>')+'</span>'+
+    '<span class="rr-m" aria-label="'+esc([r.dose+' g coffee, '+r.water+' g water',m.ratio,m.time!=null?mmss(m.time):'',r.temp?r.temp+'°C':''].filter(Boolean).join(', '))+'">'+st+'</span></button>'+
     '<div class="rr-side">'+favBtn(r)+'<button type="button" class="rr-play" data-timer="'+i+'" aria-label="Start the timer for '+esc(r.name)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button></div></article>'}
 function renderRecipes(){
   if(RF==='mine'&&!CREC.length)RF='all';if(RF==='fav'&&!favCount())RF='all';if((RF.startsWith('b:')&&!BREWERS[RF.slice(2)])||(RF.startsWith('col:')&&!COLBY[RF.slice(4)])||(RF.startsWith('cup:')&&!CUPBY[RF.slice(4)]))RF='all';
   const cup=RF.startsWith('cup:')?CUPBY[RF.slice(4)]:null,col=RF.startsWith('col:')?COLBY[RF.slice(4)]:null,rb=RF.startsWith('b:')?RF.slice(2):null,extra=cup||col||rb;
   seg('rfilter',[['all','All']].concat(extra?[[RF,esc(RF_NAME())+' ✕']]:[],favCount()?[['fav','♥ Favorites']]:[],CREC.length?[['mine',TEAM()?'Yours & team':'Yours']]:[],[['champ','Champions']]),()=>RF,v=>{RF=v===RF&&extra?'all':v;renderRecipes();renderRHome()});
+  {const f=$('rfilter'),edge=()=>f.classList.toggle('end',f.scrollLeft+f.clientWidth>=f.scrollWidth-2);requestAnimationFrame(()=>{f.classList.toggle('more',f.scrollWidth>f.clientWidth+2);edge()});if(!f.dataset.edge){f.dataset.edge=1;f.addEventListener('scroll',edge,{passive:true})}}
   const q=fold(RQ.trim());
   let list=RECIPES.map((r,i)=>[r,i]).filter(([r])=>(RF==='all'||(RF==='mine'?r.custom:RF==='champ'?r.champ:RF==='fav'?FAVS.has(rkey(r)):cup?cup[4](r):col?col[4](r):rb?RFAM(r.b)===RFAM(rb):true))&&(!q||fold([r.name,r.by,r.why,BREWERS[r.b].name,BREWERS[r.b].type].join(' ')).includes(q)));
-  const by=(a,b)=>(b[0].custom?1:0)-(a[0].custom?1:0);
-  if(RSORT==='quick')list.sort((a,b)=>(rmeta(a[0]).time??1e9)-(rmeta(b[0]).time??1e9));else if(RSORT==='az')list.sort((a,b)=>a[0].name.localeCompare(b[0].name));else list.sort(by);
+  // Main order, then the second, then your own recipes first, then the list's own order.
+  const c1=RCMP[RSORT],c2=RSORT2&&RSORT2!==RSORT?RCMP[RSORT2]:null;
+  list.sort((a,b)=>c1(a[0],b[0])||(c2?c2(a[0],b[0]):0)||((b[0].custom?1:0)-(a[0].custom?1:0))||a[1]-b[1]);
   RLIST=list;updShare();$('rall').textContent=RF_NAME()+' · '+list.length;
-  $('rsort').value=RSORT;
+  $('rsortbtn').querySelector('span').textContent=rsortLabel();
   let html='';
-  if(RSORT==='brewer'&&!rb){const order=Object.keys(BREWERS);const groups=new Map();for(const x of list){const k=RFAM(x[0].b);if(!groups.has(k))groups.set(k,[]);groups.get(k).push(x)}
-    for(const k of [...groups.keys()].sort((a,b)=>order.indexOf(a)-order.indexOf(b))){const g=groups.get(k),B=BREWERS[k];
+  if(RSORT==='brewer'&&!rb){const groups=new Map();for(const x of list){const k=RFAM(x[0].b);if(!groups.has(k))groups.set(k,[]);groups.get(k).push(x)}
+    for(const [k,g] of groups){const B=BREWERS[k];
       html+='<div class="rgrp"><h4><span class="bi">'+bIcon(B.type)+'</span><span>'+esc(famName(k))+'</span><small>'+g.length+'</small></h4>'+g.map(([r,i])=>rrow(r,i)).join('')+'</div>'}}
-  else html='<div class="rgrp">'+list.map(([r,i])=>rrow(r,i)).join('')+'</div>';
+  else if(RSORT==='level'){const groups=new Map();for(const x of list){const k=rmeta(x[0]).level;if(!groups.has(k))groups.set(k,[]);groups.get(k).push(x)}
+    for(const [k,g] of groups){const lv={Easy:'e',Medium:'i',Advanced:'a'}[k];
+      html+='<div class="rgrp"><h4><span class="bi lvbi lv-'+lv+'" aria-hidden="true"><i></i></span><span>'+k+'</span><small>'+g.length+'</small></h4>'+g.map(([r,i])=>rrow(r,i,{lv:false,brewer:!rb})).join('')+'</div>'}}
+  else html='<div class="rgrp">'+list.map(([r,i])=>rrow(r,i,{brewer:!rb})).join('')+'</div>';
   $('rgrid').innerHTML=list.length?html:'<p class="hint">No recipes match. Try a shorter search, or pick All.</p>';
   if(!$('rhome').innerHTML)renderRHome();
 }
-$('rsort').onchange=e=>{RSORT=e.target.value;try{localStorage.setItem('bb-rsort',RSORT)}catch(x){}renderRecipes()};
+$('rsortbtn').onclick=()=>openRSort();
 function recipeAct(e){const ed=e.target.closest('[data-redit]');if(ed){openRecipeEditor(CREC.find(r=>r.id===ed.dataset.redit));return true}
   const b=e.target.closest('[data-load],[data-plan],[data-timer],[data-rshare]');if(!b)return false;if(b.dataset.rshare){openShare(recipeDoc(+b.dataset.rshare));return true}
   if(b.dataset.timer){openTimer(+b.dataset.timer);return true}
@@ -6013,8 +6107,12 @@ function drawTree(){
     pos[id]={x,y:y+TTOP-(big?3:1),h,w:Math.ceil(textW(lab,big?'600 13.5px':'12px'))+(big?46:40),lab,big,c:FAM[VBY[id].fam].color}}
   let W=0,H=0,defs='',e='',n='',t='';
   for(const id in pos){const p=pos[id];W=Math.max(W,p.x+p.w);H=Math.max(H,p.y+p.h)}
-  for(const id in (TREE.notes||{})){const p=pos[id];if(!p)continue;const nx=p.x+p.w+10,nw=textW(TREE.notes[id],'italic 11px');W=Math.max(W,nx+nw+16);
-    t+='<g class="tnote"><rect x="'+nx+'" y="'+(p.y+p.h/2-10)+'" width="'+Math.ceil(nw+16)+'" height="20" rx="6"/><text x="'+(nx+8)+'" y="'+(p.y+p.h/2+4)+'">'+esc(TREE.notes[id])+'</text></g>'}
+  // A variety with a note (what its DNA says) gets a small marker beside it; the notes are written out in full under
+  // the tree, so none runs into the next generation or off the edge.
+  const noted=Object.keys(TREE.notes||{}).filter(id=>pos[id]).sort((a,b)=>pos[a].x-pos[b].x||pos[a].y-pos[b].y);
+  noted.forEach((id,k)=>{const p=pos[id],cx=p.x+p.w+13,cy=p.y+p.h/2;W=Math.max(W,cx+12);
+    t+='<g class="tmark" data-id="'+id+'" role="button" tabindex="-1" aria-label="Note '+(k+1)+' on '+esc(p.lab)+'"><circle cx="'+cx+'" cy="'+cy+'" r="9"/><text x="'+cx+'" y="'+(cy+4)+'">'+(k+1)+'</text></g>'});
+  {const ul=$('treenotes');if(ul){ul.innerHTML=noted.map((id,k)=>'<li data-id="'+id+'"><span class="tn-k">'+(k+1)+'</span><span><b>'+esc(pos[id].lab)+'</b>'+esc(TREE.notes[id])+'</span></li>').join('');ul.hidden=!noted.length}}
   W=Math.ceil(W+24);H=Math.ceil(H+28);
   // Generation bands with their headings.
   let bands='';TCOLS.forEach(([x,lab],k)=>{const x0=k?x-12:0,x1=k<TCOLS.length-1?TCOLS[k+1][0]-12:W;
@@ -6040,7 +6138,9 @@ function buildTree(){
     svg.classList.add('focus');svg.querySelectorAll('.n').forEach(n=>n.classList.toggle('on',anc.has(n.dataset.id)));svg.querySelectorAll('path.e').forEach(e=>e.classList.toggle('on',anc.has(e.dataset.a)&&anc.has(e.dataset.b)))};
   svg.onmouseover=e=>{const n=e.target.closest('.n');if(n)focus(n.dataset.id)};
   svg.onmouseleave=()=>svg.classList.remove('focus');
-  svg.onclick=e=>{const n=e.target.closest('.n');if(!n){svg.classList.remove('focus');return}focus(n.dataset.id);openVariety(n.dataset.id)};
+  // A note's marker takes you to its note in the key under the tree, which flashes so you can find it.
+  svg.onclick=e=>{const m=e.target.closest('.tmark');if(m){const li=$('treenotes').querySelector('[data-id="'+m.dataset.id+'"]');if(li){li.scrollIntoView({block:'center',behavior:'smooth'});li.classList.remove('flash');void li.offsetWidth;li.classList.add('flash')}return}
+    const n=e.target.closest('.n');if(!n){svg.classList.remove('focus');return}focus(n.dataset.id);openVariety(n.dataset.id)};
   svg.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){const n=e.target.closest('.n');if(n){e.preventDefault();focus(n.dataset.id);openVariety(n.dataset.id)}}};
   $('treelegend').innerHTML=Object.values(FAM).map(f=>'<span class="pill tleg" style="--c:'+f.color+'"><i></i>'+f.name+'</span>').join('')+'<span class="pill tleg dna">Notes in italics: where DNA overturned the old story</span>';
   const box=svg.parentElement,edge=()=>{box.classList.toggle('at-start',box.scrollLeft<8);box.classList.toggle('at-end',box.scrollLeft+box.clientWidth>=box.scrollWidth-8)};box.onscroll=edge;requestAnimationFrame(edge);
@@ -6449,7 +6549,7 @@ function lexicon(){if(LEX)return LEX;
     liberica:['liberica','excelsa'],yemenia:['yemenia','yemeni landrace'],udaini:['udaini','odaini','oudaini','udayni','udeini'],dawairi:['dawairi','dawayri','dawairy','duwairi','dawari'],tufahi:['tufahi','tuffahi','tofahi','tufahy','tuffahy'],jaadi:['jaadi',"ja'adi",'ja’adi','ja adi','jaady'],kent:['kent','s795','s 795'],laurina:['laurina','bourbon pointu'],catuai:['catuai','red catuai','yellow catuai'],
     castillo:['castillo'],ruiru:['ruiru 11','ruiru','batian'],jackson:['jackson','mibirizi'],centroamericano:['centroamericano','h1'],bourbon:['bourbon','red bourbon','borbon','bourbon rojo','bourbon vermelho'],kona:['kona typica'],
     sl28:['sl28','sl 28','sl-28'],aji:['bourbon aji','aji bourbon','aji'],ombligon:['ombligon'],typicamejorado:['typica mejorado'],rumesudan:['rume sudan'],mokka:['mokka','maui mokka'],obata:['obata'],sl34:['sl34','sl 34','sl-34'],pinkbourbon:['pink bourbon','bourbon rosado','borbon rosado'],yellowbourbon:['yellow bourbon','bourbon amarelo','bourbon amarillo'],caturra:['caturra'],catuai:['catuai','red catuai','yellow catuai','catuai amarelo','catuai vermelho'],
-    kurume:['kurume'],wolisho:['wolisho','welisho','wolicho'],papayo:['papayo','typica papayo'],sl14:['sl14','sl 14','sl-14'],k7:['k7','k 7','k-7'],aruzi:['bourbon aruzi','aruzi'],acaia:['acaia'],cenicafe1:['cenicafe 1','cenicafe1','cenicafe uno'],ihcafe90:['ihcafe 90','ihcafe90','ihcafe-90'],anacafe14:['anacafe 14','anacafe14','anacafe-14'],paraiso:['paraiso'],
+    kurume:['kurume'],wolisho:['wolisho','welisho','wolicho'],papayo:['papayo','typica papayo'],sl14:['sl14','sl 14','sl-14'],k7:['k7','k 7','k-7'],aruzi:['bourbon aruzi','aruzi'],acaia:['acaia'],cenicafe1:['cenicafe 1','cenicafe1','cenicafe uno'],ihcafe90:['ihcafe 90','ihcafe90','ihcafe-90'],anacafe14:['anacafe 14','anacafe14','anacafe-14'],paraiso:['paraiso'],kimono:['kimono'],
     // Also a place: Lempira is a Honduran region and Dega an Ethiopian word for the highlands, so these count only on a Variety line.
     lempira:[],dega:[]};
   const V_LINE=[['lempira','lempira'],['dega','dega']];
@@ -7256,7 +7356,15 @@ const ico=(n,bg)=>'<span class="ic'+(/var\(--/.test(bg)?' on-accent':'')+'" styl
 
 const TABNAMES={explore:'Explore',settings:'Settings',champs:'World championships',words:'Coffee words',wheel:'Flavour wheel',flow:'From seed to cup',dial:'Dial-in',scan:'Scan beans',gear:'Gear and dials',recipes:'Recipes',tech:'Techniques',process:'Processes',map:'Origins map',variety:'Varieties',history:'History',guide:'Guide',log:'Brew log',beans:'Beans'};
 const BNGROUP={explore:'explore',settings:'settings',champs:'explore',words:'explore',wheel:'explore',flow:'explore',dial:'dial',recipes:'recipes',scan:'beans',map:'explore',variety:'explore',history:'explore',process:'explore',tech:'explore',gear:'settings',guide:'settings',log:'settings',beans:'beans'};
-function syncShell(id){$('ab-title').textContent=TABNAMES[id]||'Brew Bench';$('ab-back').hidden=NAVD<1;document.body.className=document.body.className.replace(/\bt-\w+/g,'').trim()+' t-'+id;
+// The title stays on one line: a long one ("World championships") is set a little smaller until it fits.
+// If it still doesn't fit at the smallest size, the page's short name takes its place.
+const TABSHORT={flow:'Seed to cup',champs:'Championships',wheel:'Flavours',words:'Words',gear:'Gear',variety:'Varieties',map:'Origins'};
+let TITLE_ID='';
+function fitTitle(){const el=$('ab-title');if(!el)return;el.style.fontSize='';el.textContent=TABNAMES[TITLE_ID]||el.textContent;const room=()=>el.scrollWidth<=el.clientWidth+1;let f=parseFloat(getComputedStyle(el).fontSize);
+  for(let i=0;i<8&&!room()&&f>14;i++){f=Math.max(14,f-1);el.style.fontSize=f+'px'}
+  if(!room()&&TABSHORT[TITLE_ID]){el.textContent=TABSHORT[TITLE_ID];el.style.fontSize='';f=parseFloat(getComputedStyle(el).fontSize);for(let i=0;i<8&&!room()&&f>14;i++){f=Math.max(14,f-1);el.style.fontSize=f+'px'}}}
+addEventListener('resize',()=>requestAnimationFrame(fitTitle));
+function syncShell(id){TITLE_ID=id;$('ab-title').textContent=TABNAMES[id]||'Brew Bench';requestAnimationFrame(fitTitle);$('ab-back').hidden=NAVD<1;document.body.className=document.body.className.replace(/\bt-\w+/g,'').trim()+' t-'+id;
   document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));requestAnimationFrame(movePill);
   updShare(id)}
 // The app bar's Share only shows when the page has something to share: a picked origin on the map, a list of recipes.
