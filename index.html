@@ -750,6 +750,24 @@ html.app .bg-hero::after,html.app .me-hero::after,html.app .pp-st img{mix-blend-
 @keyframes sp-stream{to{stroke-dashoffset:0}}@keyframes sp-gone{to{opacity:0}}
 .sp-logo .puff{opacity:0;transform-box:fill-box;transform-origin:center;animation:sp-puff 1s var(--d) ease-out infinite}
 @keyframes sp-puff{0%{opacity:.85;transform:translate(0,0) scale(.4)}100%{opacity:0;transform:translate(-1.2px,-6px) scale(1.9)}}
+/* The Bench's own ending: a warmer glow, and a plank-coloured line draws itself under the name like a bench top's edge. */
+.sp-bench .sp-glow{background:radial-gradient(46% 34% at 50% 44%,color-mix(in srgb,var(--cherry) 26%,color-mix(in srgb,var(--honey) 30%,transparent)),transparent 72%)}
+.sp-bench .sp-word b{position:relative;padding-bottom:6px}
+.sp-bench .sp-word b::after{content:"";position:absolute;left:4%;right:4%;bottom:0;height:5px;border-radius:3px;background:linear-gradient(90deg,var(--cherry),var(--honey));transform:scaleX(0);transform-origin:left;animation:bn-plank .6s 1.15s cubic-bezier(.3,1,.4,1) forwards}
+@keyframes bn-plank{to{transform:scaleX(1)}}
+.k-bench .bn-legs{transform-box:fill-box;transform-origin:50% 100%;animation:bn-legs .45s .1s cubic-bezier(.3,1.4,.5,1) both}@keyframes bn-legs{from{transform:scaleY(0);opacity:0}}
+.k-bench .bn-top{animation:bn-top .42s .38s cubic-bezier(.45,0,.6,1.5) both}@keyframes bn-top{from{transform:translateY(-12px);opacity:0}}
+.k-bench .bn-drip{animation:bn-land .5s .72s cubic-bezier(.3,1.5,.5,1) both}.k-bench .bn-mug{animation:bn-land .5s .88s cubic-bezier(.3,1.5,.5,1) both}
+@keyframes bn-land{from{transform:translateY(-10px);opacity:0}}
+.k-bench .bn-fill{transform:translateY(3.4px);animation:sp-svfill .9s 1.2s ease-out forwards}
+.k-bench .bn-steam{stroke-dasharray:1;stroke-dashoffset:1;animation:sp-stream .8s 1.25s ease-out forwards}
+.k-aeropress .ap-plunge{animation:ap-press .8s .95s cubic-bezier(.5,0,.3,1) both}@keyframes ap-press{to{transform:translateY(3.4px)}}
+.k-chemex .cx-fill{transform-box:fill-box;transform-origin:50% 100%;animation:cx-fill 1s .85s ease-out both}@keyframes cx-fill{from{transform:scaleY(0)}}
+.k-chemex .cx-drip{animation-name:cx-drip}@keyframes cx-drip{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(6px)}}
+.k-bag .bg-bag{transform-box:fill-box;transform-origin:50% 100%;animation:bg-drop .5s .05s cubic-bezier(.3,1.5,.5,1) both,bg-wob .5s .6s ease-in-out}
+@keyframes bg-drop{from{transform:translateY(-14px);opacity:0}}@keyframes bg-wob{30%{transform:rotate(-4deg)}70%{transform:rotate(3deg)}}
+.k-bag .bg-bean{opacity:0;transform-box:fill-box;transform-origin:center;animation:bg-pop .9s var(--d) cubic-bezier(.2,.7,.4,1) both}
+@keyframes bg-pop{0%{opacity:0;transform:translate(0,4px)}15%{opacity:1}60%{transform:translate(calc(var(--dx)*.7),-6px) rotate(calc(var(--r)*.6))}100%{opacity:0;transform:translate(var(--dx),3px) rotate(var(--r))}}
 .sp-word{display:flex;flex-direction:column;align-items:center;margin-top:18px;font-family:var(--display);line-height:1.05;overflow:hidden;padding:2px 8px}
 .sp-word span{font-size:.95rem;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:var(--cherry-ink);animation:sp-up .6s .55s cubic-bezier(.2,1,.3,1) both}
 .sp-word b{font-size:clamp(2rem,9vw,2.8rem);font-weight:800;letter-spacing:-.02em;animation:sp-up .7s .65s cubic-bezier(.2,1,.3,1) both}
@@ -2091,11 +2109,11 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
   try{(function(){
   // The scene follows the chosen logo: the V60 pour for the dripper; for the others the logo builds itself piece by
   // piece, then does what it does (the grinder's crank turns, the kettle pours, the moka puffs...).
-  var L={"cup":{"name":"Espresso","parts":[{"d":"M8.6 3.2c-1.1 1.4 1.1 2.5 0 4.1M12.4 3.2c-1.1 1.4 1.1 2.5 0 4.1","stroke":"honey","w":1.5},{"d":"M4.6 10.4h11.6v3.9a5.6 5.6 0 0 1-5.6 5.6h-.4a5.6 5.6 0 0 1-5.6-5.6z","fill":"cherry"},{"d":"M4.6 10.4h11.6v1.7H4.6z","fill":"honey"},{"d":"M16.2 12h1.3a2.3 2.3 0 0 1 0 4.6h-1.9","stroke":"cherry","w":1.7},{"d":"M2.8 21.4h15.2","stroke":"cherry","w":1.8,"op":0.7}]},"latte":{"name":"Latte art","parts":[{"c":[11.2,12,10.6],"fill":"honey","op":0.35},{"d":"M18.6 10.4h2.2a1.6 1.6 0 0 1 0 3.2h-2.2z","fill":"cherry"},{"c":[11.2,12,7.9],"fill":"cherry"},{"c":[11.2,12,6.1],"fill":"honey"},{"d":"M11.2 15.7c-2.5-1.7-4-3.2-4-4.9 0-1.2.9-2.1 2-2.1.9 0 1.6.5 2 1.3.4-.8 1.1-1.3 2-1.3 1.1 0 2 .9 2 2.1 0 1.7-1.5 3.2-4 4.9z","fill":"paper"}]},"dripper":{"name":"Dripper","parts":[{"d":"M3.4 4.2h17.2l-6.1 9.6h-5z","fill":"cherry"},{"d":"M8.2 6.3l2.9 5.6M12 6.1v6.1M15.8 6.3l-2.9 5.6","stroke":"paper","w":1,"op":0.55},{"d":"M12 15c.9 1.2 1.3 1.9 1.3 2.6a1.3 1.3 0 0 1-2.6 0c0-.7.4-1.4 1.3-2.6z","fill":"honey"},{"d":"M6.4 20h11.2a1.5 1.5 0 0 1 0 3H6.4a1.5 1.5 0 0 1 0-3z","fill":"cherry","op":0.85}]},"cherry":{"name":"Cherries","parts":[{"d":"M8.3 11.2C8.9 7.4 11.6 4.8 15.6 3.6M16.2 10.4c.1-2.6-.1-4.7-.6-6.8","stroke":"leaf","w":1.6},{"d":"M15.6 3.6c2.6-.9 5.1-.4 6.4 1.2-2 1.6-4.8 1.6-6.4-1.2z","fill":"leaf"},{"c":[16.2,14.8,4.4],"fill":"cherry","op":0.78},{"c":[8.3,16.2,5],"fill":"cherry"},{"c":[6.6,14.5,1.1],"fill":"paper","op":0.6},{"c":[14.8,13.4,0.9],"fill":"paper","op":0.6}]},"moka":{"name":"Moka pot","parts":[{"d":"M10.8 1.6h2.4v1.7h-2.4z","fill":"cherry"},{"d":"M8 3.3h8l1.3 7.3H6.7z","fill":"honey"},{"d":"M8 3.3L5.6 4.8","stroke":"honey","w":1.6},{"d":"M17 5.3h2.4l-1.6 4.6","stroke":"cherry","w":1.8},{"d":"M7.4 10.6h9.2v1.5H7.4z","fill":"cherry","op":0.7},{"d":"M6.7 12.1h10.6l-1.7 9.4H8.4z","fill":"cherry"}]},"kettle":{"name":"Gooseneck","parts":[{"d":"M3.6 19.5h15.2a.5.5 0 0 1 .5.5v1.7a.5.5 0 0 1-.5.5H3.6a.5.5 0 0 1-.5-.5V20a.5.5 0 0 1 .5-.5z","fill":"cherry","op":0.75},{"d":"M6 18.1C4 17.3 3.3 14.8 2.9 11.1 2.6 8.3 2.4 5.9 1.6 4.7","stroke":"cherry","w":0.85},{"d":"M1.6 4.7c-.3-.4-.9-.3-1.1.3","stroke":"cherry","w":0.85},{"d":"M13.6 8.5h1.9v1.3h-1.9z","fill":"cherry"},{"d":"M15.2 8.1h2.9c.5 0 .9.3 1.1.7l2.4 5.6c.3.7-.1 1.4-.8 1.6l-.7.2c-.6.1-1.1-.2-1.3-.7l-2.1-5.6h-1.5z","fill":"honey"},{"d":"M8.2 8.1h5.6c.1 4.3 1.3 8.1 3.5 11H4.7c2.2-2.9 3.4-6.7 3.5-11z","fill":"cherry"},{"d":"M8.1 7.3h5.8a.4.4 0 0 1 .4.4v.6H7.7v-.6a.4.4 0 0 1 .4-.4z","fill":"cherry"},{"d":"M10.7 6.5h.6v.9h-.6z","fill":"cherry"},{"d":"M9.9 5.6h2.2a.5.5 0 0 1 .5.5v.2a.5.5 0 0 1-.5.5H9.9a.5.5 0 0 1-.5-.5v-.2a.5.5 0 0 1 .5-.5z","fill":"honey"}]},"grinder":{"name":"Hand grinder","parts":[{"d":"M9.4 2.9h4.4c1 0 1.7.3 2.3.9l1.4 1.4c.6.6.9 1.3.9 2.2v4.4","stroke":"cherry","w":1},{"d":"M14.7 3.5l2.4 2.3","stroke":"cherry","w":1.6},{"d":"M17.6 11.5h1.6v1.3h-1.6z","fill":"cherry"},{"c":[15.2,13.3,2.4],"fill":"honey"},{"d":"M16.9 12.2l1.9-.4v2.6l-1.9-.4z","fill":"honey"},{"d":"M7.6 1.9h1.9v1.9H7.6z","fill":"cherry"},{"d":"M5.9 3.8h5.3c.4 0 .7.3.7.7v2.3H5.2V4.5c0-.4.3-.7.7-.7z","fill":"cherry"},{"d":"M6.6 4.7v1.2M8.55 4.7v1.2M10.5 4.7v1.2","stroke":"honey","w":0.5},{"c":[7.58,5.3,0.22],"fill":"honey"},{"c":[9.52,5.3,0.22],"fill":"honey"},{"d":"M5.4 7.1h6.3v7.3H5.4z","fill":"cherry"},{"d":"M5.4 8.3h6.3M5.4 9.5h6.3M5.4 10.7h6.3M5.4 11.9h6.3M5.4 13.1h6.3","stroke":"honey","w":0.25,"op":0.35},{"d":"M5.4 14.7h6.3v.9H5.4z","fill":"honey","op":0.55},{"d":"M5.4 15.9h6.3v5.5a1.3 1.3 0 0 1-1.3 1.3H6.7a1.3 1.3 0 0 1-1.3-1.3z","fill":"cherry","op":0.85}]}},k="bean";try{k=JSON.parse(localStorage.getItem("bb-ui")||"{}").logo||"bean"}catch(e){}if(typeof k!=="string"||k!=="bean"&&!Object.prototype.hasOwnProperty.call(L,k))k="bean";
-  var TAG={bean:"Every bean has a story.",cup:"Pull a perfect shot.",latte:"Pour a little art.",dripper:"Dial in. Brew well.",cherry:"From cherry to cup.",moka:"Stovetop, done right.",kettle:"Pour with care.",grinder:"Grind fresh. Brew well."};
-  s.querySelector(".sp-tag").textContent=TAG[k];
+  var L={"cup":{"name":"Espresso","parts":[{"d":"M8.6 3.2c-1.1 1.4 1.1 2.5 0 4.1M12.4 3.2c-1.1 1.4 1.1 2.5 0 4.1","stroke":"honey","w":1.5},{"d":"M4.6 10.4h11.6v3.9a5.6 5.6 0 0 1-5.6 5.6h-.4a5.6 5.6 0 0 1-5.6-5.6z","fill":"cherry"},{"d":"M4.6 10.4h11.6v1.7H4.6z","fill":"honey"},{"d":"M16.2 12h1.3a2.3 2.3 0 0 1 0 4.6h-1.9","stroke":"cherry","w":1.7},{"d":"M2.8 21.4h15.2","stroke":"cherry","w":1.8,"op":0.7}]},"latte":{"name":"Latte art","parts":[{"c":[11.2,12,10.6],"fill":"honey","op":0.35},{"d":"M18.6 10.4h2.2a1.6 1.6 0 0 1 0 3.2h-2.2z","fill":"cherry"},{"c":[11.2,12,7.9],"fill":"cherry"},{"c":[11.2,12,6.1],"fill":"honey"},{"d":"M11.2 15.7c-2.5-1.7-4-3.2-4-4.9 0-1.2.9-2.1 2-2.1.9 0 1.6.5 2 1.3.4-.8 1.1-1.3 2-1.3 1.1 0 2 .9 2 2.1 0 1.7-1.5 3.2-4 4.9z","fill":"paper"}]},"dripper":{"name":"Dripper","parts":[{"d":"M3.4 4.2h17.2l-6.1 9.6h-5z","fill":"cherry"},{"d":"M8.2 6.3l2.9 5.6M12 6.1v6.1M15.8 6.3l-2.9 5.6","stroke":"paper","w":1,"op":0.55},{"d":"M12 15c.9 1.2 1.3 1.9 1.3 2.6a1.3 1.3 0 0 1-2.6 0c0-.7.4-1.4 1.3-2.6z","fill":"honey"},{"d":"M6.4 20h11.2a1.5 1.5 0 0 1 0 3H6.4a1.5 1.5 0 0 1 0-3z","fill":"cherry","op":0.85}]},"cherry":{"name":"Cherries","parts":[{"d":"M8.3 11.2C8.9 7.4 11.6 4.8 15.6 3.6M16.2 10.4c.1-2.6-.1-4.7-.6-6.8","stroke":"leaf","w":1.6},{"d":"M15.6 3.6c2.6-.9 5.1-.4 6.4 1.2-2 1.6-4.8 1.6-6.4-1.2z","fill":"leaf"},{"c":[16.2,14.8,4.4],"fill":"cherry","op":0.78},{"c":[8.3,16.2,5],"fill":"cherry"},{"c":[6.6,14.5,1.1],"fill":"paper","op":0.6},{"c":[14.8,13.4,0.9],"fill":"paper","op":0.6}]},"moka":{"name":"Moka pot","parts":[{"d":"M10.8 1.6h2.4v1.7h-2.4z","fill":"cherry"},{"d":"M8 3.3h8l1.3 7.3H6.7z","fill":"honey"},{"d":"M8 3.3L5.6 4.8","stroke":"honey","w":1.6},{"d":"M17 5.3h2.4l-1.6 4.6","stroke":"cherry","w":1.8},{"d":"M7.4 10.6h9.2v1.5H7.4z","fill":"cherry","op":0.7},{"d":"M6.7 12.1h10.6l-1.7 9.4H8.4z","fill":"cherry"}]},"kettle":{"name":"Gooseneck","parts":[{"d":"M3.6 19.5h15.2a.5.5 0 0 1 .5.5v1.7a.5.5 0 0 1-.5.5H3.6a.5.5 0 0 1-.5-.5V20a.5.5 0 0 1 .5-.5z","fill":"cherry","op":0.75},{"d":"M6 18.1C4 17.3 3.3 14.8 2.9 11.1 2.6 8.3 2.4 5.9 1.6 4.7","stroke":"cherry","w":0.85},{"d":"M1.6 4.7c-.3-.4-.9-.3-1.1.3","stroke":"cherry","w":0.85},{"d":"M13.6 8.5h1.9v1.3h-1.9z","fill":"cherry"},{"d":"M15.2 8.1h2.9c.5 0 .9.3 1.1.7l2.4 5.6c.3.7-.1 1.4-.8 1.6l-.7.2c-.6.1-1.1-.2-1.3-.7l-2.1-5.6h-1.5z","fill":"honey"},{"d":"M8.2 8.1h5.6c.1 4.3 1.3 8.1 3.5 11H4.7c2.2-2.9 3.4-6.7 3.5-11z","fill":"cherry"},{"d":"M8.1 7.3h5.8a.4.4 0 0 1 .4.4v.6H7.7v-.6a.4.4 0 0 1 .4-.4z","fill":"cherry"},{"d":"M10.7 6.5h.6v.9h-.6z","fill":"cherry"},{"d":"M9.9 5.6h2.2a.5.5 0 0 1 .5.5v.2a.5.5 0 0 1-.5.5H9.9a.5.5 0 0 1-.5-.5v-.2a.5.5 0 0 1 .5-.5z","fill":"honey"}]},"grinder":{"name":"Hand grinder","parts":[{"d":"M9.4 2.9h4.4c1 0 1.7.3 2.3.9l1.4 1.4c.6.6.9 1.3.9 2.2v4.4","stroke":"cherry","w":1},{"d":"M14.7 3.5l2.4 2.3","stroke":"cherry","w":1.6},{"d":"M17.6 11.5h1.6v1.3h-1.6z","fill":"cherry"},{"c":[15.2,13.3,2.4],"fill":"honey"},{"d":"M16.9 12.2l1.9-.4v2.6l-1.9-.4z","fill":"honey"},{"d":"M7.6 1.9h1.9v1.9H7.6z","fill":"cherry"},{"d":"M5.9 3.8h5.3c.4 0 .7.3.7.7v2.3H5.2V4.5c0-.4.3-.7.7-.7z","fill":"cherry"},{"d":"M6.6 4.7v1.2M8.55 4.7v1.2M10.5 4.7v1.2","stroke":"honey","w":0.5},{"c":[7.58,5.3,0.22],"fill":"honey"},{"c":[9.52,5.3,0.22],"fill":"honey"},{"d":"M5.4 7.1h6.3v7.3H5.4z","fill":"cherry"},{"d":"M5.4 8.3h6.3M5.4 9.5h6.3M5.4 10.7h6.3M5.4 11.9h6.3M5.4 13.1h6.3","stroke":"honey","w":0.25,"op":0.35},{"d":"M5.4 14.7h6.3v.9H5.4z","fill":"honey","op":0.55},{"d":"M5.4 15.9h6.3v5.5a1.3 1.3 0 0 1-1.3 1.3H6.7a1.3 1.3 0 0 1-1.3-1.3z","fill":"cherry","op":0.85}]},"bench":{"name":"The Bench","parts":[{"d":"M4.6 15.6h2.2l-1 6.6H3.6z","fill":"cherry","op":0.8},{"d":"M17.2 15.6h2.2l1 6.6h-2.2z","fill":"cherry","op":0.8},{"d":"M5.3 19.2h13.4v1.2H5.3z","fill":"cherry","op":0.55},{"d":"M2.4 12.8h19.2a1 1 0 0 1 1 1v.8a1 1 0 0 1-1 1H2.4a1 1 0 0 1-1-1v-.8a1 1 0 0 1 1-1z","fill":"cherry"},{"d":"M3.2 13.7h17.6","stroke":"paper","w":0.5,"op":0.35},{"d":"M5.9 9.6h4.4l-.45 2.45a.9.9 0 0 1-.9.75H7.25a.9.9 0 0 1-.9-.75z","fill":"honey"},{"d":"M4.6 4.2h7l-2.4 3.9H7z","fill":"cherry"},{"d":"M4 3.6h8.2v.9H4z","fill":"honey"},{"d":"M7.6 8.1h1v1.5h-1z","fill":"cherry"},{"d":"M14.4 8.2h5v3.6a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1z","fill":"honey"},{"d":"M19.4 9.2h.6a1.2 1.2 0 0 1 0 2.4h-.6","stroke":"honey","w":0.9},{"d":"M16 6.6c-.6-.8.6-1.3 0-2.3M17.9 6.6c-.6-.8.6-1.3 0-2.3","stroke":"leaf","w":0.8}]},"aeropress":{"name":"AeroPress","parts":[{"d":"M6.2 18.4h11.6v2.8a1.6 1.6 0 0 1-1.6 1.6H7.8a1.6 1.6 0 0 1-1.6-1.6z","fill":"honey"},{"d":"M17.8 19h.9a1.3 1.3 0 0 1 0 2.6h-.9","stroke":"honey","w":0.9},{"d":"M7.6 16.6h8.8v1.8H7.6z","fill":"cherry","op":0.75},{"d":"M8.4 7.2h7.2v9.4H8.4z","fill":"cherry"},{"d":"M9.4 10h2M9.4 12.2h2M9.4 14.4h2","stroke":"paper","w":0.6,"op":0.6},{"d":"M9.2 3.6h5.6v4.6H9.2z","fill":"honey","op":0.85},{"d":"M7.8 1.8h8.4a.8.8 0 0 1 .8.8v.6a.8.8 0 0 1-.8.8H7.8a.8.8 0 0 1-.8-.8v-.6a.8.8 0 0 1 .8-.8z","fill":"honey"}]},"chemex":{"name":"Chemex","parts":[{"d":"M6.4 2.4h11.2l-4.2 8.2v1l4.6 8.2a1.6 1.6 0 0 1-1.4 2.4H7.4A1.6 1.6 0 0 1 6 19.8l4.6-8.2v-1z","fill":"cherry","op":0.22},{"d":"M8.1 17.2h7.8l1.5 2.7a1 1 0 0 1-.9 1.5H7.5a1 1 0 0 1-.9-1.5z","fill":"cherry"},{"d":"M6.4 2.4h11.2l-4.2 8.2v1l4.6 8.2a1.6 1.6 0 0 1-1.4 2.4H7.4A1.6 1.6 0 0 1 6 19.8l4.6-8.2v-1z","stroke":"cherry","w":1.1},{"d":"M7.6 3.2h8.8l-3.4 5.9h-2z","fill":"paper","op":0.6},{"d":"M9.6 9.3h4.8l.7 3.4H8.9z","fill":"honey"},{"d":"M8.9 11h6.2","stroke":"cherry","w":0.55,"op":0.7},{"c":[15.8,12.9,0.75],"fill":"cherry"}]},"bag":{"name":"Bean bag","parts":[{"d":"M5.6 6.6h12.8l.9 14.2a1.6 1.6 0 0 1-1.6 1.7H6.3a1.6 1.6 0 0 1-1.6-1.7z","fill":"cherry"},{"d":"M6.2 2.2h11.6l.6 4.4H5.6z","fill":"honey"},{"d":"M7.9 2.6v3.6M10 2.6v3.6M12 2.6v3.6M14 2.6v3.6M16.1 2.6v3.6","stroke":"cherry","w":0.45,"op":0.35},{"d":"M8 10.4h8a1.4 1.4 0 0 1 1.4 1.4v5.4a1.4 1.4 0 0 1-1.4 1.4H8a1.4 1.4 0 0 1-1.4-1.4v-5.4A1.4 1.4 0 0 1 8 10.4z","fill":"paper"},{"d":"M12 11.6c1.9 0 3 1.3 2.6 2.9-.4 1.7-2 2.8-3.4 2.6-1.5-.2-2.3-1.6-1.9-3.2.4-1.4 1.4-2.3 2.7-2.3z","fill":"cherry"},{"d":"M12.9 12c-1.3.9-.2 2.2-1.6 4.8","stroke":"paper","w":0.55},{"c":[16,8.4,0.9],"fill":"paper","op":0.7}]}},k="bean";try{k=JSON.parse(localStorage.getItem("bb-ui")||"{}").logo||"bean"}catch(e){}if(typeof k!=="string"||k!=="bean"&&!Object.prototype.hasOwnProperty.call(L,k))k="bean";
+  var TAG={bean:"Every bean has a story.",cup:"Pull a perfect shot.",latte:"Pour a little art.",dripper:"Dial in. Brew well.",cherry:"From cherry to cup.",moka:"Stovetop, done right.",kettle:"Pour with care.",grinder:"Grind fresh. Brew well.",bench:"Your coffee workbench.",aeropress:"Press, swirl, sip.",chemex:"Clean, bright, patient.",bag:"Freshly roasted."};
+  s.querySelector(".sp-tag").textContent=TAG[k];s.classList.add("sp-"+k);
   // The drifting shapes behind: beans, drops, leaves or bubbles.
-  var G={drop:'<path d="M0-15c7 9 10 13 10 17a10 10 0 0 1-20 0c0-4 3-8 10-17z"/>',leaf:'<path d="M-13 0C-6-11 6-11 13 0 6 11-6 11-13 0z"/>',dot:'<circle r="11"/>'}[{kettle:"drop",dripper:"drop",cherry:"leaf",latte:"dot"}[k]];
+  var G={drop:'<path d="M0-15c7 9 10 13 10 17a10 10 0 0 1-20 0c0-4 3-8 10-17z"/>',leaf:'<path d="M-13 0C-6-11 6-11 13 0 6 11-6 11-13 0z"/>',dot:'<circle r="11"/>'}[{kettle:"drop",dripper:"drop",cherry:"leaf",latte:"dot",chemex:"drop",aeropress:"dot"}[k]];
   if(G)s.querySelectorAll(".spb").forEach(function(b){b.innerHTML=G});if(k==="cherry")s.querySelector(".sp-beans g").setAttribute("fill","var(--leaf)");
   if(k==="dripper")return;
   var paint=function(p,c){c=c||"var(--"+(p.fill||p.stroke)+")";var o=p.op!=null?' opacity="'+p.op+'"':"";return p.fill?'fill="'+c+'"'+o:'fill="none" stroke="'+c+'" stroke-width="'+p.w+'" stroke-linecap="round" stroke-linejoin="round" pathLength="1"'+o},
@@ -2138,6 +2156,28 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
   else if(k==="cherry"){
     // The cherries ripen from green to red on a swaying stem.
     body='<g class="sway">'+parts.slice(0,2).join("")+"</g>"+parts.slice(2).join("")+P.slice(2,4).map(function(p,i){return shape(p,' class="unripe" style="--i:'+(i+2)+'" fill="#8DB05E"')}).join("")}
+  else if(k==="bench"){
+    // The house logo, built like a workbench: the legs grow up from the floor, the top drops on with a thud and a
+    // little dust, then the dripper and the mug land on it; coffee drips into the server and the mug steams.
+    var raw=function(p){return shape(p," "+paint(p))};
+    body='<g class="bn-legs">'+P.slice(0,3).map(raw).join("")+'</g><g class="bn-top">'+P.slice(3,5).map(raw).join("")+'</g>'+
+      '<g class="bn-drip">'+raw(P[5])+'<clipPath id="spBnS"><path d="'+P[5].d+'"/></clipPath><g clip-path="url(#spBnS)"><rect class="bn-fill" x="5" y="9.6" width="6" height="4" fill="#6B4226"/></g>'+P.slice(6,9).map(raw).join("")+'</g>'+
+      '<g class="bn-mug">'+raw(P[9])+raw(P[10])+'</g>'+shape(P[11],' class="bn-steam" '+paint(P[11]));
+    for(var u=0;u<4;u++)x+='<circle class="puff bn-dust" cx="'+[2.6,4.4,19.6,21.4][u]+'" cy="15.4" r=".8" fill="var(--honey)" style="--d:'+(.62+(u%2)*.06).toFixed(2)+'s"/>';
+    for(var v=0;v<3;v++)x+='<circle class="vdrip" cx="8.1" cy="9.6" r=".3" fill="#6B4226" style="--d:'+(1.15+v*.17).toFixed(2)+'s"/>'}
+  else if(k==="aeropress"){
+    // The plunger presses down and the coffee drips through the cap into the mug.
+    body=parts.slice(0,5).join("")+'<g class="ap-plunge">'+parts.slice(5).join("")+'</g>';
+    for(var a2=0;a2<4;a2++)x+='<circle class="vdrip" cx="12" cy="18.3" r=".32" fill="#6B4226" style="--d:'+(1.0+a2*.15).toFixed(2)+'s"/>'}
+  else if(k==="chemex"){
+    // Coffee drips through the neck and the lower bulb fills.
+    body=parts[0]+'<g class="cx-fill">'+parts[1]+'</g>'+parts.slice(2).join("");
+    for(var c2=0;c2<4;c2++)x+='<circle class="vdrip cx-drip" cx="12" cy="11.6" r=".32" fill="#6B4226" style="--d:'+(.75+c2*.16).toFixed(2)+'s"/>'}
+  else if(k==="bag"){
+    // The bag drops in with a wobble, the valve breathes out, and a few beans tumble from the top.
+    body='<g class="bg-bag">'+parts.join("")+'</g>';
+    for(var g2=0;g2<3;g2++)x+='<g class="bg-bean" style="--d:'+(1.0+g2*.14).toFixed(2)+'s;--dx:'+[-5,1,6][g2]+'px;--r:'+[-160,120,200][g2]+'deg"><path d="M12 1.6c1 0 1.6.7 1.4 1.6-.2.9-1.1 1.5-1.8 1.4-.8-.1-1.3-.9-1.1-1.7.2-.8.8-1.3 1.5-1.3z" fill="var(--cherry)"/></g>';
+    for(var g3=0;g3<3;g3++)x+='<circle class="puff late" cx="16" cy="8.4" r=".7" fill="var(--paper)" style="--d:'+(.95+g3*.2).toFixed(2)+'s"/>'}
   else body=parts.join("");
   if(k==="cup"){x='<path class="stream" d="M10.4-7V10" stroke="#6B4226" stroke-width=".9" stroke-linecap="round" pathLength="1" fill="none"/>';for(var q=0;q<3;q++)x+='<circle class="puff late" cx="10.4" cy="2.6" r="1" fill="var(--honey)" style="--d:'+(1.1+q*.22).toFixed(2)+'s"/>'}
   s.querySelector(".sp-art").outerHTML='<svg class="sp-logo k-'+k+'" viewBox="'+vb+'" overflow="visible">'+x+body+"</svg>";
@@ -4205,7 +4245,44 @@ const LOGO_DATA={
   {"d": "M5.4 7.1h6.3v7.3H5.4z", "fill": "cherry"},
   {"d": "M5.4 8.3h6.3M5.4 9.5h6.3M5.4 10.7h6.3M5.4 11.9h6.3M5.4 13.1h6.3", "stroke": "honey", "w": 0.25, "op": 0.35},
   {"d": "M5.4 14.7h6.3v.9H5.4z", "fill": "honey", "op": 0.55},
-  {"d": "M5.4 15.9h6.3v5.5a1.3 1.3 0 0 1-1.3 1.3H6.7a1.3 1.3 0 0 1-1.3-1.3z", "fill": "cherry", "op": 0.85}]}
+  {"d": "M5.4 15.9h6.3v5.5a1.3 1.3 0 0 1-1.3 1.3H6.7a1.3 1.3 0 0 1-1.3-1.3z", "fill": "cherry", "op": 0.85}]},
+ "bench": {"name": "The Bench", "parts": [
+  {"d": "M4.6 15.6h2.2l-1 6.6H3.6z", "fill": "cherry", "op": 0.8},
+  {"d": "M17.2 15.6h2.2l1 6.6h-2.2z", "fill": "cherry", "op": 0.8},
+  {"d": "M5.3 19.2h13.4v1.2H5.3z", "fill": "cherry", "op": 0.55},
+  {"d": "M2.4 12.8h19.2a1 1 0 0 1 1 1v.8a1 1 0 0 1-1 1H2.4a1 1 0 0 1-1-1v-.8a1 1 0 0 1 1-1z", "fill": "cherry"},
+  {"d": "M3.2 13.7h17.6", "stroke": "paper", "w": 0.5, "op": 0.35},
+  {"d": "M5.9 9.6h4.4l-.45 2.45a.9.9 0 0 1-.9.75H7.25a.9.9 0 0 1-.9-.75z", "fill": "honey"},
+  {"d": "M4.6 4.2h7l-2.4 3.9H7z", "fill": "cherry"},
+  {"d": "M4 3.6h8.2v.9H4z", "fill": "honey"},
+  {"d": "M7.6 8.1h1v1.5h-1z", "fill": "cherry"},
+  {"d": "M14.4 8.2h5v3.6a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1z", "fill": "honey"},
+  {"d": "M19.4 9.2h.6a1.2 1.2 0 0 1 0 2.4h-.6", "stroke": "honey", "w": 0.9},
+  {"d": "M16 6.6c-.6-.8.6-1.3 0-2.3M17.9 6.6c-.6-.8.6-1.3 0-2.3", "stroke": "leaf", "w": 0.8}]},
+ "aeropress": {"name": "AeroPress", "parts": [
+  {"d": "M6.2 18.4h11.6v2.8a1.6 1.6 0 0 1-1.6 1.6H7.8a1.6 1.6 0 0 1-1.6-1.6z", "fill": "honey"},
+  {"d": "M17.8 19h.9a1.3 1.3 0 0 1 0 2.6h-.9", "stroke": "honey", "w": 0.9},
+  {"d": "M7.6 16.6h8.8v1.8H7.6z", "fill": "cherry", "op": 0.75},
+  {"d": "M8.4 7.2h7.2v9.4H8.4z", "fill": "cherry"},
+  {"d": "M9.4 10h2M9.4 12.2h2M9.4 14.4h2", "stroke": "paper", "w": 0.6, "op": 0.6},
+  {"d": "M9.2 3.6h5.6v4.6H9.2z", "fill": "honey", "op": 0.85},
+  {"d": "M7.8 1.8h8.4a.8.8 0 0 1 .8.8v.6a.8.8 0 0 1-.8.8H7.8a.8.8 0 0 1-.8-.8v-.6a.8.8 0 0 1 .8-.8z", "fill": "honey"}]},
+ "chemex": {"name": "Chemex", "parts": [
+  {"d": "M6.4 2.4h11.2l-4.2 8.2v1l4.6 8.2a1.6 1.6 0 0 1-1.4 2.4H7.4A1.6 1.6 0 0 1 6 19.8l4.6-8.2v-1z", "fill": "cherry", "op": 0.22},
+  {"d": "M8.1 17.2h7.8l1.5 2.7a1 1 0 0 1-.9 1.5H7.5a1 1 0 0 1-.9-1.5z", "fill": "cherry"},
+  {"d": "M6.4 2.4h11.2l-4.2 8.2v1l4.6 8.2a1.6 1.6 0 0 1-1.4 2.4H7.4A1.6 1.6 0 0 1 6 19.8l4.6-8.2v-1z", "stroke": "cherry", "w": 1.1},
+  {"d": "M7.6 3.2h8.8l-3.4 5.9h-2z", "fill": "paper", "op": 0.6},
+  {"d": "M9.6 9.3h4.8l.7 3.4H8.9z", "fill": "honey"},
+  {"d": "M8.9 11h6.2", "stroke": "cherry", "w": 0.55, "op": 0.7},
+  {"c": [15.8, 12.9, 0.75], "fill": "cherry"}]},
+ "bag": {"name": "Bean bag", "parts": [
+  {"d": "M5.6 6.6h12.8l.9 14.2a1.6 1.6 0 0 1-1.6 1.7H6.3a1.6 1.6 0 0 1-1.6-1.7z", "fill": "cherry"},
+  {"d": "M6.2 2.2h11.6l.6 4.4H5.6z", "fill": "honey"},
+  {"d": "M7.9 2.6v3.6M10 2.6v3.6M12 2.6v3.6M14 2.6v3.6M16.1 2.6v3.6", "stroke": "cherry", "w": 0.45, "op": 0.35},
+  {"d": "M8 10.4h8a1.4 1.4 0 0 1 1.4 1.4v5.4a1.4 1.4 0 0 1-1.4 1.4H8a1.4 1.4 0 0 1-1.4-1.4v-5.4A1.4 1.4 0 0 1 8 10.4z", "fill": "paper"},
+  {"d": "M12 11.6c1.9 0 3 1.3 2.6 2.9-.4 1.7-2 2.8-3.4 2.6-1.5-.2-2.3-1.6-1.9-3.2.4-1.4 1.4-2.3 2.7-2.3z", "fill": "cherry"},
+  {"d": "M12.9 12c-1.3.9-.2 2.2-1.6 4.8", "stroke": "paper", "w": 0.55},
+  {"c": [16, 8.4, 0.9], "fill": "paper", "op": 0.7}]}
 }
 ;
 /* ================= FLAVOUR WHEEL ================= */
