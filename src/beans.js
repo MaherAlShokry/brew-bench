@@ -679,7 +679,9 @@ function beanDoc(b){const P=b.process&&PROCESSES[b.process];
 function useBean(b){S.bean=okSBean({name:beanTitle(b),roaster:b.roaster,origin:b.origin,id:b.id});S.bsig='';S.bday='';beanSync()}
 // Pick the beans for the dial-in from the gallery: the bags you're drinking now first, then the rest, most recent first.
 function openBeanPick(){const d=$('vd'),list=[...BEANS].sort((a,c)=>beanDay(c).localeCompare(beanDay(a))||c.ts-a.ts);
-  const opt=b=>'<button type="button" class="t3opt'+(S.bean&&S.bean.id===b.id?' on':'')+'" data-usebean="'+b.id+'" style="--m:var(--cherry)">'+beanPic(b,'xs')+'<span class="t3o-tx"><b>'+esc(beanTitle(b))+'</b><small>'+esc([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '))+'</small>'+beanRow(b.rating,'sm')+'</span></button>';
+  // A bag you're drinking shows how fresh it is and what's left, which matter more than its rating when you pick one.
+  const pkMeta=b=>{const f=fresh(b),g=gramsLeft(b),m=[f?freshPill(f):'',g!=null?'<span class="pk-left">'+(g?g+' g left':'Bag empty')+'</span>':''].join('');return m?'<span class="pk-meta">'+m+'</span>':''};
+  const opt=b=>'<button type="button" class="t3opt'+(S.bean&&S.bean.id===b.id?' on':'')+'" data-usebean="'+b.id+'" style="--m:var(--cherry)">'+beanPic(b,'xs')+'<span class="t3o-tx"><b>'+esc(beanTitle(b))+'</b><small>'+esc([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '))+'</small>'+(b.shelf&&pkMeta(b)||beanRow(b.rating,'sm'))+'</span></button>';
   const now=list.filter(b=>b.shelf),rest=list.filter(b=>!b.shelf);
   // With both kinds of coffee, each gets a heading; with only one kind, the list stands on its own.
   const grp=(h,l)=>l.length?(now.length&&rest.length?'<div class="bg-gh bp-gh"><b>'+h+'</b><span>'+l.length+'</span></div>':'')+'<div class="t3list">'+l.map(opt).join('')+'</div>':'';
