@@ -567,7 +567,9 @@ function initDial(){
   if(S.fresh){const bx=baseX(S.grinder,S.brewer);if(bx!=null)S.setting=roundG(S.grinder,bx);const B=BREWERS[S.brewer];if(B){S.temp=B.temp.def;S.ratio=B.ratio.ref;S.bloom=B.bloom.def}delete S.fresh}
   $('i-brewer').innerHTML=brewerOptions(MODEL);
   for(const id of['i-process','s-process'])$(id).innerHTML=processOptions();
-  for(const id of['i-variety','s-variety'])$(id).innerHTML=varietyOptions();
+  $('i-variety').innerHTML=varietyOptions();
+  // A scan that names no variety reads as plain Arabica: the picker shows it as Not sure rather than blank.
+  $('s-variety').innerHTML='<option value="arabica">Not sure</option>'+varietyOptions();
   $('i-region').innerHTML=regionOptions();
   $('i-grind').oninput=e=>{S.setting=+e.target.value;soon(render)};
   $('i-temp').oninput=e=>{S.temp=+e.target.value;soon(render)};
@@ -1073,7 +1075,7 @@ function openRecipeEditor(r,fresh){const isNew=!r||fresh;r=Object.assign({b:'v60
   const card=(n,t,body,hint)=>'<div class="re-card"><h3 class="re-h"><i>'+n+'</i>'+t+(hint?'<small>'+hint+'</small>':'')+'</h3>'+body+'</div>';
   $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>'+(isNew?'New recipe':'Edit recipe')+'</span><h2 id="vd-title">'+(isNew?'Create a recipe':esc(r.name))+'</h2></div>'+
    '<div class="vd-body recform re2">'+
-   card(1,'The basics','<div class="field"><label for="re-name">Name</label><input id="re-name" maxlength="60" value="'+esc(r.name)+'" placeholder="e.g. Saturday V60"></div>'+
+   card(1,'The basics','<div class="field"><label for="re-name">Name</label><input id="re-name" maxlength="60" value="'+esc(r.name)+'"></div>'+
      '<div class="field"><label for="re-b">Brewer</label><select id="re-b">'+brewerOptions(Object.keys(BREWERS).filter(LISTED))+'</select></div>'+
      '<div class="field" id="re-mw" hidden><span class="lab">Method</span><div class="seg" id="re-m" role="group" aria-label="Method"><button type="button" data-m="hy">Hybrid</button><button type="button" data-m="im">Full immersion</button></div></div>')+
    card(2,'Coffee and water','<div class="re-tiles">'+tile('re-dose','Coffee','g',r.dose,0.5)+tile('re-water','Water','g',r.water,10)+tile('re-temp','Water temp','°C',r.temp,1)+'</div><p class="re-ratio" id="re-ratio"></p>')+
@@ -1081,7 +1083,7 @@ function openRecipeEditor(r,fresh){const isNew=!r||fresh;r=Object.assign({b:'v60
    card(4,'Steps','<div id="re-steps"></div>','tap a kind of step to add it; times let the timer follow')+
    card(5,'The story','<div class="field"><label for="re-why">Why it works <span class="hint">optional</span></label><textarea id="re-why" rows="2" placeholder="What this recipe does differently">'+esc(r.why)+'</textarea></div>'+
      '<div class="field"><label for="re-tip">Tip <span class="hint">optional</span></label><input id="re-tip" maxlength="300" value="'+esc(r.tip)+'" placeholder="One thing to try next time"></div>'+
-     '<div class="field"><label for="re-by">Credit <span class="hint">optional</span></label><input id="re-by" maxlength="60" value="'+esc(r.by)+'" placeholder="e.g. Based on Hoffmann"></div>')+
+     '<div class="field"><label for="re-by">Credit <span class="hint">optional</span></label><input id="re-by" maxlength="60" value="'+esc(r.by)+'"></div>')+
    '<div class="actions"><button class="btn" id="re-save">'+(isNew?'Save recipe':'Save changes')+'</button>'+(!isNew?'<button class="btn ghost" id="re-del">Delete</button>':'')+'</div>'+
    (GROUP&&SYNC_DB?'<p class="hint">Saved recipes are shared with your group ('+GROUP.code+').</p>':'<p class="hint">Share it from its card'+(SYNC_DB?', or start a shared log in the Log tab to share all your recipes with your team':'')+'.</p>')+'</div>';
   $('re-b').value=BREWERS[r.b].of||r.b;let method=imm?'im':'hy';
@@ -1357,13 +1359,13 @@ function grindersChanged(){if(!MYG.includes(S.grinder)||!canGrind(S.grinder,S.br
   if(!MYG.includes(SC.grinder))SC.grinder=MYG.find(x=>canGrind(x,SC.brewer))||capable(SC.brewer);
   render();renderScan();renderCal();if(BUILT.recipes)renderRecipes();if(BUILT.gear){renderMyGrinders();renderMyBrewers();renderMatch();renderLibrary();renderGearBrewers();renderGrindMap()}}
 function renderCustomForm(){
-  $('gcustom-in').innerHTML='<div class="cform"><div class="field"><label for="cg-name">Name</label><input id="cg-name" maxlength="40" placeholder="e.g. Hario Skerton Pro"></div>'+
+  $('gcustom-in').innerHTML='<div class="cform"><div class="field"><label for="cg-name">Name</label><input id="cg-name" maxlength="40"></div>'+
    '<div class="two"><div class="field"><label for="cg-type">Type</label><select id="cg-type"><option value="manual">Manual</option><option value="electric">Electric</option></select></div>'+
    '<div class="field"><label for="cg-fmt">How is it set?</label><select id="cg-fmt"><option value="clicks">Clicks from fully closed</option><option value="num1">Numbered dial (1, 2, 3)</option><option value="num10">Numbered dial with 10 steps (5.6)</option><option value="num3">Numbered dial with thirds (4, 4.1, 4.2)</option><option value="rot">1Zpresso-style ring (rotation.number.click)</option></select></div></div>'+
    '<div class="two"><div class="field"><label for="cg-min">Finest setting</label><input id="cg-min" inputmode="decimal" value="0"></div><div class="field"><label for="cg-max">Coarsest setting</label><input id="cg-max" inputmode="decimal" value="40"></div></div>'+
-   '<div class="two stackm"><div class="field"><label for="cg-v60">Your V60 setting</label><input id="cg-v60" inputmode="decimal" placeholder="e.g. 24"></div>'+
+   '<div class="two stackm"><div class="field"><label for="cg-v60">Your V60 setting</label><input id="cg-v60" inputmode="decimal"></div>'+
    '<div class="field"><label for="cg-ref">And one more you know</label><div class="joinrow"><select id="cg-reft" aria-label="Brewer for this setting"><option value="espresso">Espresso</option><option value="aeropress">AeroPress</option><option value="frenchpress" selected>French press</option></select><input id="cg-ref" inputmode="decimal" placeholder="optional"></div></div></div>'+
-   '<div class="field"><label for="cg-burr">Burrs (optional)</label><input id="cg-burr" maxlength="80" placeholder="e.g. 38 mm ceramic conical"></div>'+
+   '<div class="field"><label for="cg-burr">Burrs (optional)</label><input id="cg-burr" maxlength="80"></div>'+
    '<p class="hint">The V60 setting anchors it; the second setting tells the app how far apart the settings are. Without it, the app assumes a typical spacing.</p>'+
    '<div class="actions"><button type="button" class="btn" id="cg-save">Add grinder</button></div></div>';
   $('cg-save').onclick=()=>{const name=$('cg-name').value.trim(),fmt=$('cg-fmt').value;if(!name){toast('Give the grinder a name');return}
@@ -1667,7 +1669,7 @@ function renderShare(){const el=$('l-share');if(!el)return;
   // No sync server set up for this copy of the app: there is nothing to join, so the card stays out of the way.
   el.hidden=!SYNC_DB;if(!SYNC_DB){el.innerHTML='';return}
   if(!GROUP){el.innerHTML='<h3>Shared log</h3><p class="hint" style="margin-top:0">Log brews together: everyone in the group sees each other’s entries on their own phone.</p>'+
-    '<div class="field"><label for="sh-name">Your name</label><input id="sh-name" maxlength="30" placeholder="e.g. Maher" value="'+esc(ME)+'"></div>'+
+    '<div class="field"><label for="sh-name">Your name</label><input id="sh-name" maxlength="30" value="'+esc(ME)+'"></div>'+
     '<div class="actions"><button class="btn" id="sh-new">Start a shared log</button></div>'+
     '<div class="field" style="margin-top:12px"><label for="sh-code">Or join with a code</label><div class="joinrow"><input id="sh-code" placeholder="ABCD-2345" maxlength="9" autocapitalize="characters" value="'+esc(JOIN_CODE||'')+'"><button class="btn ghost" id="sh-join">Join</button></div></div>';
     const name=()=>{const n=$('sh-name').value.trim();if(!n){toast('Add your name first, so friends know who logged what');$('sh-name').focus()}return n};

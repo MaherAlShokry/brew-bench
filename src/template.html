@@ -2168,12 +2168,12 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
       <div class="actions two-up" id="scan-again" hidden><button class="btn ghost" id="scan-go" disabled>Read again</button><button class="btn ghost" id="scan-stop" hidden>Stop</button></div>
       <p class="hint" id="scan-status" style="margin-top:10px"></p>
       <details class="cal" id="scan-textbox"><summary>Or type or paste the label text</summary>
-        <textarea id="scan-text" rows="4" placeholder="e.g. Finca El Diviso, Huila, Colombia. Pink Bourbon. Anaerobic natural. 1,800 m. Notes: lychee, rose, mango. Roasted 12 Sep."></textarea>
+        <textarea id="scan-text" rows="4"></textarea>
         <div class="actions"><button class="btn ghost" id="scan-text-go">Read this text</button></div>
       </details>
       <h3>Coffee details</h3>
-      <div class="two stackm"><div class="field"><label for="s-name">Coffee name</label><input id="s-name" style="width:100%" maxlength="60" placeholder="e.g. Luis Aníbal Calderón" autocomplete="off"></div>
-        <div class="field"><label for="s-roaster">Roastery</label><div class="acw"><input id="s-roaster" style="width:100%" maxlength="50" placeholder="e.g. Windrose" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="s-rsug"><div class="acl" id="s-rsug" role="listbox" aria-label="Roasteries you’ve had" hidden></div></div></div></div>
+      <div class="two stackm"><div class="field"><label for="s-name">Coffee name</label><input id="s-name" style="width:100%" maxlength="60" autocomplete="off"></div>
+        <div class="field"><label for="s-roaster">Roastery</label><div class="acw"><input id="s-roaster" style="width:100%" maxlength="50" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="s-rsug"><div class="acl" id="s-rsug" role="listbox" aria-label="Roasteries you’ve had" hidden></div></div></div></div>
       <div class="field"><label for="s-origin">Origin</label><select id="s-origin"></select></div>
       <div class="field"><label for="s-process">Process</label><select id="s-process"></select></div>
       <div class="field"><label for="s-variety">Variety</label><select id="s-variety"></select></div>
@@ -2197,7 +2197,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
 <section id="tech">
   <h2>Techniques</h2>
   <p class="lede">Every move in the brewing toolbox, briefly. Tap a card for when to use it.</p>
-  <div class="vtools"><input type="search" id="tsearch" placeholder="Search, e.g. bloom, bypass" aria-label="Search techniques"><div class="seg filters scrollrow" id="tcat"></div></div>
+  <div class="vtools"><input type="search" id="tsearch" placeholder="Search" aria-label="Search techniques"><div class="seg filters scrollrow" id="tcat"></div></div>
   <div class="grid" id="tgrid"></div>
 </section>
 
@@ -2235,7 +2235,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
   <div class="gpanel" data-gpanel="lib" role="tabpanel" hidden>
     <h3 id="g-lib" class="gsec">Grinder library</h3>
     <p class="hint" style="margin-top:0">Manual and electric grinders by brand, with their burrs, dials and typical settings. Tap Compare on up to three to see them side by side.</p>
-    <div class="vtools"><input type="search" id="glib-search" placeholder="Search, e.g. Timemore, K-Ultra, flat burrs" aria-label="Search grinders"><div class="seg filters scrollrow" id="glib-filter"></div></div>
+    <div class="vtools"><input type="search" id="glib-search" placeholder="Search" aria-label="Search grinders"><div class="seg filters scrollrow" id="glib-filter"></div></div>
     <div id="gcmp"></div>
     <div id="glib"></div>
     <details class="card" id="gcustom" style="margin-top:14px"><summary><b>Add your own grinder</b> <span class="hint">Not in the list? Set it up in a minute</span></summary><div id="gcustom-in"></div></details>
@@ -2268,7 +2268,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
   <h2>Varieties</h2>
   <p class="lede">Every variety, grouped by family. Tap one for its story, how it tastes and how to brew it.</p>
   <div class="vtools">
-    <input type="search" id="vsearch" placeholder="Search, e.g. geisha, bourbon" aria-label="Search varieties">
+    <input type="search" id="vsearch" placeholder="Search" aria-label="Search varieties">
     <div class="seg filters scrollrow" id="vfam"></div>
   </div>
   <div id="vcompare"></div>
@@ -2301,7 +2301,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
   <h2>Coffee words</h2>
   <p class="lede">A bank of the words you meet on bags, menus and in brewing guides, from co-fermentation to TDS. Search, or browse by topic; tap a word for links to the processes, varieties and techniques behind it.</p>
   <div class="vtools">
-    <input type="search" id="wsearch" placeholder="Search, e.g. anaerobic, first crack, TDS" aria-label="Search coffee words">
+    <input type="search" id="wsearch" placeholder="Search" aria-label="Search coffee words">
     <div class="seg filters scrollrow" id="wcat"></div>
   </div>
   <p class="hint" id="wcount" style="margin:0 0 10px"></p>
@@ -2314,7 +2314,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
   <p class="lede">Every word tasters use for coffee, from the broad family in the middle to the exact note at the edge: 121 notes in 9 families. Tap a colour to open it up, and a note to see what it tastes like and where it comes from.</p>
   <div class="fw-layout">
     <div class="fw-main">
-      <input type="search" id="fw-q" placeholder="Find a note, e.g. blueberry, caramel" aria-label="Find a flavour note">
+      <input type="search" id="fw-q" placeholder="Find a note" aria-label="Find a flavour note">
       <div class="chips fw-res" id="fw-res"></div>
       <div class="fw-box" id="fw-box"></div>
       <div class="chips fw-cats" id="fw-cats"></div>
@@ -2351,7 +2351,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
 <section id="recipes">
   <h2>Recipes</h2>
   <p class="lede">Browse by brewer, pick a collection, or search. Grind settings follow your calibration; tap a recipe for its steps, or the play button to start brewing.</p>
-  <div class="rsearchw"><input type="search" id="rsearch" placeholder="Search recipes, e.g. Kasuya, iced, Kalita" aria-label="Search recipes"></div>
+  <div class="rsearchw"><input type="search" id="rsearch" placeholder="Search recipes" aria-label="Search recipes"></div>
   <div id="rhome"></div>
   <div class="rhead"><h3 class="rh" id="rall">All recipes</h3><button type="button" class="btn ghost" id="r-new">+ New recipe</button></div>
   <div class="rtools"><div class="seg filters scrollrow" id="rfilter"></div><label class="rsortw"><span class="sr">Sort</span><select id="rsort" aria-label="Sort recipes"><option value="brewer">By brewer</option><option value="quick">Quickest first</option><option value="az">A to Z</option></select></label></div>
@@ -2426,11 +2426,11 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
     <p class="hint l-editing" id="l-editing" hidden></p>
     <div class="logform re2">
       <div class="re-card"><h3 class="re-h"><i>1</i>The brew</h3>
-      <div class="field"><label for="l-coffee">Coffee</label><input id="l-coffee" placeholder="e.g. Finca X Pink Bourbon"></div>
-      <div class="field"><label for="l-settings">Settings <span class="hint">grind, dose and water, recipe</span></label><input id="l-settings" placeholder="e.g. Hoffmann V60, 15g : 250g"></div></div>
+      <div class="field"><label for="l-coffee">Coffee</label><input id="l-coffee"></div>
+      <div class="field"><label for="l-settings">Settings <span class="hint">grind, dose and water, recipe</span></label><input id="l-settings"></div></div>
       <div class="re-card"><h3 class="re-h"><i>2</i>How was it?</h3>
       <div class="l-rate"><div class="stars" id="l-stars" role="radiogroup" aria-label="Rating"></div></div>
-      <div class="field"><label for="l-pred">Predicted <span class="hint">what the dial-in expected</span></label><input id="l-pred" placeholder="e.g. Sweet and balanced"></div></div>
+      <div class="field"><label for="l-pred">Predicted <span class="hint">what the dial-in expected</span></label><input id="l-pred"></div></div>
       <div class="re-card"><h3 class="re-h"><i>3</i>What you tasted</h3>
       <div class="field"><label for="l-notes" class="sr">Tasting notes</label><textarea id="l-notes" rows="3" placeholder="How it actually tasted: sweet, bright, heavy, short…"></textarea></div>
       <div class="fl-row"><button type="button" class="btn ghost fl-add" id="l-fl"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l7.8 4.5M12 12l-7.8 4.5"/></svg><span>Add flavour notes</span></button><div class="chips" id="l-flchips"></div></div></div>

@@ -2172,12 +2172,12 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
       <div class="actions two-up" id="scan-again" hidden><button class="btn ghost" id="scan-go" disabled>Read again</button><button class="btn ghost" id="scan-stop" hidden>Stop</button></div>
       <p class="hint" id="scan-status" style="margin-top:10px"></p>
       <details class="cal" id="scan-textbox"><summary>Or type or paste the label text</summary>
-        <textarea id="scan-text" rows="4" placeholder="e.g. Finca El Diviso, Huila, Colombia. Pink Bourbon. Anaerobic natural. 1,800 m. Notes: lychee, rose, mango. Roasted 12 Sep."></textarea>
+        <textarea id="scan-text" rows="4"></textarea>
         <div class="actions"><button class="btn ghost" id="scan-text-go">Read this text</button></div>
       </details>
       <h3>Coffee details</h3>
-      <div class="two stackm"><div class="field"><label for="s-name">Coffee name</label><input id="s-name" style="width:100%" maxlength="60" placeholder="e.g. Luis Aníbal Calderón" autocomplete="off"></div>
-        <div class="field"><label for="s-roaster">Roastery</label><div class="acw"><input id="s-roaster" style="width:100%" maxlength="50" placeholder="e.g. Windrose" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="s-rsug"><div class="acl" id="s-rsug" role="listbox" aria-label="Roasteries you’ve had" hidden></div></div></div></div>
+      <div class="two stackm"><div class="field"><label for="s-name">Coffee name</label><input id="s-name" style="width:100%" maxlength="60" autocomplete="off"></div>
+        <div class="field"><label for="s-roaster">Roastery</label><div class="acw"><input id="s-roaster" style="width:100%" maxlength="50" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="s-rsug"><div class="acl" id="s-rsug" role="listbox" aria-label="Roasteries you’ve had" hidden></div></div></div></div>
       <div class="field"><label for="s-origin">Origin</label><select id="s-origin"></select></div>
       <div class="field"><label for="s-process">Process</label><select id="s-process"></select></div>
       <div class="field"><label for="s-variety">Variety</label><select id="s-variety"></select></div>
@@ -2201,7 +2201,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
 <section id="tech">
   <h2>Techniques</h2>
   <p class="lede">Every move in the brewing toolbox, briefly. Tap a card for when to use it.</p>
-  <div class="vtools"><input type="search" id="tsearch" placeholder="Search, e.g. bloom, bypass" aria-label="Search techniques"><div class="seg filters scrollrow" id="tcat"></div></div>
+  <div class="vtools"><input type="search" id="tsearch" placeholder="Search" aria-label="Search techniques"><div class="seg filters scrollrow" id="tcat"></div></div>
   <div class="grid" id="tgrid"></div>
 </section>
 
@@ -2239,7 +2239,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
   <div class="gpanel" data-gpanel="lib" role="tabpanel" hidden>
     <h3 id="g-lib" class="gsec">Grinder library</h3>
     <p class="hint" style="margin-top:0">Manual and electric grinders by brand, with their burrs, dials and typical settings. Tap Compare on up to three to see them side by side.</p>
-    <div class="vtools"><input type="search" id="glib-search" placeholder="Search, e.g. Timemore, K-Ultra, flat burrs" aria-label="Search grinders"><div class="seg filters scrollrow" id="glib-filter"></div></div>
+    <div class="vtools"><input type="search" id="glib-search" placeholder="Search" aria-label="Search grinders"><div class="seg filters scrollrow" id="glib-filter"></div></div>
     <div id="gcmp"></div>
     <div id="glib"></div>
     <details class="card" id="gcustom" style="margin-top:14px"><summary><b>Add your own grinder</b> <span class="hint">Not in the list? Set it up in a minute</span></summary><div id="gcustom-in"></div></details>
@@ -2272,7 +2272,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
   <h2>Varieties</h2>
   <p class="lede">Every variety, grouped by family. Tap one for its story, how it tastes and how to brew it.</p>
   <div class="vtools">
-    <input type="search" id="vsearch" placeholder="Search, e.g. geisha, bourbon" aria-label="Search varieties">
+    <input type="search" id="vsearch" placeholder="Search" aria-label="Search varieties">
     <div class="seg filters scrollrow" id="vfam"></div>
   </div>
   <div id="vcompare"></div>
@@ -2305,7 +2305,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
   <h2>Coffee words</h2>
   <p class="lede">A bank of the words you meet on bags, menus and in brewing guides, from co-fermentation to TDS. Search, or browse by topic; tap a word for links to the processes, varieties and techniques behind it.</p>
   <div class="vtools">
-    <input type="search" id="wsearch" placeholder="Search, e.g. anaerobic, first crack, TDS" aria-label="Search coffee words">
+    <input type="search" id="wsearch" placeholder="Search" aria-label="Search coffee words">
     <div class="seg filters scrollrow" id="wcat"></div>
   </div>
   <p class="hint" id="wcount" style="margin:0 0 10px"></p>
@@ -2318,7 +2318,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
   <p class="lede">Every word tasters use for coffee, from the broad family in the middle to the exact note at the edge: 121 notes in 9 families. Tap a colour to open it up, and a note to see what it tastes like and where it comes from.</p>
   <div class="fw-layout">
     <div class="fw-main">
-      <input type="search" id="fw-q" placeholder="Find a note, e.g. blueberry, caramel" aria-label="Find a flavour note">
+      <input type="search" id="fw-q" placeholder="Find a note" aria-label="Find a flavour note">
       <div class="chips fw-res" id="fw-res"></div>
       <div class="fw-box" id="fw-box"></div>
       <div class="chips fw-cats" id="fw-cats"></div>
@@ -2355,7 +2355,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
 <section id="recipes">
   <h2>Recipes</h2>
   <p class="lede">Browse by brewer, pick a collection, or search. Grind settings follow your calibration; tap a recipe for its steps, or the play button to start brewing.</p>
-  <div class="rsearchw"><input type="search" id="rsearch" placeholder="Search recipes, e.g. Kasuya, iced, Kalita" aria-label="Search recipes"></div>
+  <div class="rsearchw"><input type="search" id="rsearch" placeholder="Search recipes" aria-label="Search recipes"></div>
   <div id="rhome"></div>
   <div class="rhead"><h3 class="rh" id="rall">All recipes</h3><button type="button" class="btn ghost" id="r-new">+ New recipe</button></div>
   <div class="rtools"><div class="seg filters scrollrow" id="rfilter"></div><label class="rsortw"><span class="sr">Sort</span><select id="rsort" aria-label="Sort recipes"><option value="brewer">By brewer</option><option value="quick">Quickest first</option><option value="az">A to Z</option></select></label></div>
@@ -2430,11 +2430,11 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
     <p class="hint l-editing" id="l-editing" hidden></p>
     <div class="logform re2">
       <div class="re-card"><h3 class="re-h"><i>1</i>The brew</h3>
-      <div class="field"><label for="l-coffee">Coffee</label><input id="l-coffee" placeholder="e.g. Finca X Pink Bourbon"></div>
-      <div class="field"><label for="l-settings">Settings <span class="hint">grind, dose and water, recipe</span></label><input id="l-settings" placeholder="e.g. Hoffmann V60, 15g : 250g"></div></div>
+      <div class="field"><label for="l-coffee">Coffee</label><input id="l-coffee"></div>
+      <div class="field"><label for="l-settings">Settings <span class="hint">grind, dose and water, recipe</span></label><input id="l-settings"></div></div>
       <div class="re-card"><h3 class="re-h"><i>2</i>How was it?</h3>
       <div class="l-rate"><div class="stars" id="l-stars" role="radiogroup" aria-label="Rating"></div></div>
-      <div class="field"><label for="l-pred">Predicted <span class="hint">what the dial-in expected</span></label><input id="l-pred" placeholder="e.g. Sweet and balanced"></div></div>
+      <div class="field"><label for="l-pred">Predicted <span class="hint">what the dial-in expected</span></label><input id="l-pred"></div></div>
       <div class="re-card"><h3 class="re-h"><i>3</i>What you tasted</h3>
       <div class="field"><label for="l-notes" class="sr">Tasting notes</label><textarea id="l-notes" rows="3" placeholder="How it actually tasted: sweet, bright, heavy, short…"></textarea></div>
       <div class="fl-row"><button type="button" class="btn ghost fl-add" id="l-fl"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l7.8 4.5M12 12l-7.8 4.5"/></svg><span>Add flavour notes</span></button><div class="chips" id="l-flchips"></div></div></div>
@@ -4138,7 +4138,7 @@ function fwStatic(fl){const items=fwLayout({a0:0,a1:1,z:0},300,{mode:'profile',s
 function openNotesPicker(entry){const d=$('vd'),sel=flMap(entry?flOf(entry):LFL.slice());
   $('vd-in').innerHTML='<div class="vd-head" style="--c:#C4473F"><button class="vd-close" id="vd-x" aria-label="Done">✕</button><span class="pill"><i style="background:#C4473F"></i>Tasting notes</span>'+
     '<h2 id="vd-title">'+(entry&&entry.coffee?esc(entry.coffee):'What did you taste?')+'</h2><p class="hint" style="margin:0">Start in the middle: tap a family to open it, then tap the notes you taste. Tap a note again to remove it.</p></div>'+
-    '<div class="vd-body fl-pick"><input type="search" id="fl-q" placeholder="Find a note, e.g. jasmine" aria-label="Find a flavour note" style="width:100%"><div class="chips fw-res" id="fl-res"></div>'+
+    '<div class="vd-body fl-pick"><input type="search" id="fl-q" placeholder="Find a note" aria-label="Find a flavour note" style="width:100%"><div class="chips fw-res" id="fl-res"></div>'+
     '<div class="fw-box" id="fl-box"></div><div class="fl-sel" id="fl-sel"></div><div class="actions"><button type="button" class="btn" id="fl-done">Done</button><button type="button" class="btn ghost" id="fl-clear">Clear all</button></div></div>';
   const list=()=>{$('fl-sel').innerHTML=sel.size?[...sel].map(([id,v])=>{const n=FW.byId[id];return'<div class="fl-selrow"><i style="background:'+n.c+'"></i><span><b>'+esc(n.n)+'</b> <small class="hint">'+esc(n.parent?n.parent.n:'')+'</small></span>'+
       '<div class="fl-lv" role="group" aria-label="How strong">'+[1,2,3].map(k=>'<button type="button" data-lv="'+k+'" data-id="'+id+'" aria-pressed="'+(v===k)+'">'+FL_LV[k]+'</button>').join('')+'</div><button type="button" class="x" data-rm="'+id+'" aria-label="Remove '+esc(n.n)+'">✕</button></div>'}).join(''):'<p class="hint" style="margin:0">No notes yet.</p>'};
@@ -4838,7 +4838,9 @@ function initDial(){
   if(S.fresh){const bx=baseX(S.grinder,S.brewer);if(bx!=null)S.setting=roundG(S.grinder,bx);const B=BREWERS[S.brewer];if(B){S.temp=B.temp.def;S.ratio=B.ratio.ref;S.bloom=B.bloom.def}delete S.fresh}
   $('i-brewer').innerHTML=brewerOptions(MODEL);
   for(const id of['i-process','s-process'])$(id).innerHTML=processOptions();
-  for(const id of['i-variety','s-variety'])$(id).innerHTML=varietyOptions();
+  $('i-variety').innerHTML=varietyOptions();
+  // A scan that names no variety reads as plain Arabica: the picker shows it as Not sure rather than blank.
+  $('s-variety').innerHTML='<option value="arabica">Not sure</option>'+varietyOptions();
   $('i-region').innerHTML=regionOptions();
   $('i-grind').oninput=e=>{S.setting=+e.target.value;soon(render)};
   $('i-temp').oninput=e=>{S.temp=+e.target.value;soon(render)};
@@ -5344,7 +5346,7 @@ function openRecipeEditor(r,fresh){const isNew=!r||fresh;r=Object.assign({b:'v60
   const card=(n,t,body,hint)=>'<div class="re-card"><h3 class="re-h"><i>'+n+'</i>'+t+(hint?'<small>'+hint+'</small>':'')+'</h3>'+body+'</div>';
   $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>'+(isNew?'New recipe':'Edit recipe')+'</span><h2 id="vd-title">'+(isNew?'Create a recipe':esc(r.name))+'</h2></div>'+
    '<div class="vd-body recform re2">'+
-   card(1,'The basics','<div class="field"><label for="re-name">Name</label><input id="re-name" maxlength="60" value="'+esc(r.name)+'" placeholder="e.g. Saturday V60"></div>'+
+   card(1,'The basics','<div class="field"><label for="re-name">Name</label><input id="re-name" maxlength="60" value="'+esc(r.name)+'"></div>'+
      '<div class="field"><label for="re-b">Brewer</label><select id="re-b">'+brewerOptions(Object.keys(BREWERS).filter(LISTED))+'</select></div>'+
      '<div class="field" id="re-mw" hidden><span class="lab">Method</span><div class="seg" id="re-m" role="group" aria-label="Method"><button type="button" data-m="hy">Hybrid</button><button type="button" data-m="im">Full immersion</button></div></div>')+
    card(2,'Coffee and water','<div class="re-tiles">'+tile('re-dose','Coffee','g',r.dose,0.5)+tile('re-water','Water','g',r.water,10)+tile('re-temp','Water temp','°C',r.temp,1)+'</div><p class="re-ratio" id="re-ratio"></p>')+
@@ -5352,7 +5354,7 @@ function openRecipeEditor(r,fresh){const isNew=!r||fresh;r=Object.assign({b:'v60
    card(4,'Steps','<div id="re-steps"></div>','tap a kind of step to add it; times let the timer follow')+
    card(5,'The story','<div class="field"><label for="re-why">Why it works <span class="hint">optional</span></label><textarea id="re-why" rows="2" placeholder="What this recipe does differently">'+esc(r.why)+'</textarea></div>'+
      '<div class="field"><label for="re-tip">Tip <span class="hint">optional</span></label><input id="re-tip" maxlength="300" value="'+esc(r.tip)+'" placeholder="One thing to try next time"></div>'+
-     '<div class="field"><label for="re-by">Credit <span class="hint">optional</span></label><input id="re-by" maxlength="60" value="'+esc(r.by)+'" placeholder="e.g. Based on Hoffmann"></div>')+
+     '<div class="field"><label for="re-by">Credit <span class="hint">optional</span></label><input id="re-by" maxlength="60" value="'+esc(r.by)+'"></div>')+
    '<div class="actions"><button class="btn" id="re-save">'+(isNew?'Save recipe':'Save changes')+'</button>'+(!isNew?'<button class="btn ghost" id="re-del">Delete</button>':'')+'</div>'+
    (GROUP&&SYNC_DB?'<p class="hint">Saved recipes are shared with your group ('+GROUP.code+').</p>':'<p class="hint">Share it from its card'+(SYNC_DB?', or start a shared log in the Log tab to share all your recipes with your team':'')+'.</p>')+'</div>';
   $('re-b').value=BREWERS[r.b].of||r.b;let method=imm?'im':'hy';
@@ -5628,13 +5630,13 @@ function grindersChanged(){if(!MYG.includes(S.grinder)||!canGrind(S.grinder,S.br
   if(!MYG.includes(SC.grinder))SC.grinder=MYG.find(x=>canGrind(x,SC.brewer))||capable(SC.brewer);
   render();renderScan();renderCal();if(BUILT.recipes)renderRecipes();if(BUILT.gear){renderMyGrinders();renderMyBrewers();renderMatch();renderLibrary();renderGearBrewers();renderGrindMap()}}
 function renderCustomForm(){
-  $('gcustom-in').innerHTML='<div class="cform"><div class="field"><label for="cg-name">Name</label><input id="cg-name" maxlength="40" placeholder="e.g. Hario Skerton Pro"></div>'+
+  $('gcustom-in').innerHTML='<div class="cform"><div class="field"><label for="cg-name">Name</label><input id="cg-name" maxlength="40"></div>'+
    '<div class="two"><div class="field"><label for="cg-type">Type</label><select id="cg-type"><option value="manual">Manual</option><option value="electric">Electric</option></select></div>'+
    '<div class="field"><label for="cg-fmt">How is it set?</label><select id="cg-fmt"><option value="clicks">Clicks from fully closed</option><option value="num1">Numbered dial (1, 2, 3)</option><option value="num10">Numbered dial with 10 steps (5.6)</option><option value="num3">Numbered dial with thirds (4, 4.1, 4.2)</option><option value="rot">1Zpresso-style ring (rotation.number.click)</option></select></div></div>'+
    '<div class="two"><div class="field"><label for="cg-min">Finest setting</label><input id="cg-min" inputmode="decimal" value="0"></div><div class="field"><label for="cg-max">Coarsest setting</label><input id="cg-max" inputmode="decimal" value="40"></div></div>'+
-   '<div class="two stackm"><div class="field"><label for="cg-v60">Your V60 setting</label><input id="cg-v60" inputmode="decimal" placeholder="e.g. 24"></div>'+
+   '<div class="two stackm"><div class="field"><label for="cg-v60">Your V60 setting</label><input id="cg-v60" inputmode="decimal"></div>'+
    '<div class="field"><label for="cg-ref">And one more you know</label><div class="joinrow"><select id="cg-reft" aria-label="Brewer for this setting"><option value="espresso">Espresso</option><option value="aeropress">AeroPress</option><option value="frenchpress" selected>French press</option></select><input id="cg-ref" inputmode="decimal" placeholder="optional"></div></div></div>'+
-   '<div class="field"><label for="cg-burr">Burrs (optional)</label><input id="cg-burr" maxlength="80" placeholder="e.g. 38 mm ceramic conical"></div>'+
+   '<div class="field"><label for="cg-burr">Burrs (optional)</label><input id="cg-burr" maxlength="80"></div>'+
    '<p class="hint">The V60 setting anchors it; the second setting tells the app how far apart the settings are. Without it, the app assumes a typical spacing.</p>'+
    '<div class="actions"><button type="button" class="btn" id="cg-save">Add grinder</button></div></div>';
   $('cg-save').onclick=()=>{const name=$('cg-name').value.trim(),fmt=$('cg-fmt').value;if(!name){toast('Give the grinder a name');return}
@@ -5938,7 +5940,7 @@ function renderShare(){const el=$('l-share');if(!el)return;
   // No sync server set up for this copy of the app: there is nothing to join, so the card stays out of the way.
   el.hidden=!SYNC_DB;if(!SYNC_DB){el.innerHTML='';return}
   if(!GROUP){el.innerHTML='<h3>Shared log</h3><p class="hint" style="margin-top:0">Log brews together: everyone in the group sees each other’s entries on their own phone.</p>'+
-    '<div class="field"><label for="sh-name">Your name</label><input id="sh-name" maxlength="30" placeholder="e.g. Maher" value="'+esc(ME)+'"></div>'+
+    '<div class="field"><label for="sh-name">Your name</label><input id="sh-name" maxlength="30" value="'+esc(ME)+'"></div>'+
     '<div class="actions"><button class="btn" id="sh-new">Start a shared log</button></div>'+
     '<div class="field" style="margin-top:12px"><label for="sh-code">Or join with a code</label><div class="joinrow"><input id="sh-code" placeholder="ABCD-2345" maxlength="9" autocapitalize="characters" value="'+esc(JOIN_CODE||'')+'"><button class="btn ghost" id="sh-join">Join</button></div></div>';
     const name=()=>{const n=$('sh-name').value.trim();if(!n){toast('Add your name first, so friends know who logged what');$('sh-name').focus()}return n};
@@ -7913,17 +7915,17 @@ function openBeanEditor(b,pre){const isNew=!b;const B=Object.assign({name:'',roa
    '<div class="actions two-up"><button type="button" class="btn ghost" id="be-cam">Take a photo</button><button type="button" class="btn ghost" id="be-pick">Choose a photo</button></div>'+
    '<input type="file" id="be-camf" accept="image/*" capture="environment" hidden><input type="file" id="be-file" accept="image/*" hidden>'+
    '<div class="field"><div class="lbl">Your rating</div><div class="beanrate" id="be-rate"></div></div>'+
-   '<div class="two stackm"><div class="field"><label for="be-name">Coffee name</label><input id="be-name" maxlength="60" value="'+esc(B.name)+'" placeholder="e.g. El Diviso Pink Bourbon" autocomplete="off"></div>'+
-   '<div class="field"><label for="be-roaster">Roastery</label><div class="acw"><input id="be-roaster" maxlength="50" value="'+esc(B.roaster)+'" placeholder="e.g. Archers" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="be-rsug"><div class="acl" id="be-rsug" role="listbox" aria-label="Roasteries you’ve had" hidden></div></div></div></div>'+
+   '<div class="two stackm"><div class="field"><label for="be-name">Coffee name</label><input id="be-name" maxlength="60" value="'+esc(B.name)+'" autocomplete="off"></div>'+
+   '<div class="field"><label for="be-roaster">Roastery</label><div class="acw"><input id="be-roaster" maxlength="50" value="'+esc(B.roaster)+'" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="be-rsug"><div class="acl" id="be-rsug" role="listbox" aria-label="Roasteries you’ve had" hidden></div></div></div></div>'+
    '<div class="two stackm"><div class="field"><label for="be-origin">Origin</label><select id="be-origin">'+opt(originOptions(),'Not sure')+'</select></div>'+
    '<div class="field"><label for="be-process">Process</label><select id="be-process">'+opt(processOptions(),'Not sure')+'</select></div></div>'+
    '<div class="field"><div class="lbl" id="be-vlbl">Variety</div><div class="bvars" id="be-vars" role="group" aria-labelledby="be-vlbl"></div>'+
    '<button type="button" class="bv-add" id="be-addv"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add another variety</button></div>'+
    '<div class="field"><div class="lbl">Roast</div><div class="seg" id="be-roast"></div></div>'+
    '<div class="two"><div class="field"><label for="be-rdate">Roasted on</label><input type="date" id="be-rdate" class="dateinp" value="'+B.roastDate+'" max="'+todayISO()+'"></div><div class="field"><label for="be-tried">Tried on</label><input type="date" id="be-tried" class="dateinp" value="'+B.tried+'" max="'+todayISO()+'" required></div></div>'+
-   '<div class="two bagrow"><div class="field"><label for="be-bag">Bag size <span class="hint">grams</span></label><input id="be-bag" type="number" inputmode="numeric" min="0" max="5000" step="1" value="'+(B.bag||'')+'" placeholder="e.g. 250"></div>'+
+   '<div class="two bagrow"><div class="field"><label for="be-bag">Bag size <span class="hint">grams</span></label><input id="be-bag" type="number" inputmode="numeric" min="0" max="5000" step="1" value="'+(B.bag||'')+'"></div>'+
    '<div class="field"><div class="lbl">On the shelf</div><div class="seg" id="be-shelf"></div></div></div>'+
-   '<div class="field"><label for="be-fl">Tasting notes <span class="hint">separate with commas</span></label><input id="be-fl" maxlength="160" value="'+esc(B.flavours)+'" placeholder="e.g. jasmine, peach, honey"></div>'+
+   '<div class="field"><label for="be-fl">Tasting notes <span class="hint">separate with commas</span></label><input id="be-fl" maxlength="160" value="'+esc(B.flavours)+'"></div>'+
    '<div class="field"><label for="be-notes">Your notes</label><textarea id="be-notes" rows="3" maxlength="600" placeholder="How you brewed it, what you loved, would you buy it again?">'+esc(B.notes)+'</textarea></div>'+
    '<div class="actions"><button class="btn" id="be-save">'+(isNew?'Add to the gallery':'Save changes')+'</button><button class="btn ghost" id="be-cancel">Cancel</button></div></div>';
   for(const [id,k] of [['be-origin','origin'],['be-process','process']])$(id).value=B[k];
@@ -8681,13 +8683,13 @@ function openProfileEditor(opts){opts=opts||{};const J=opts.join,d=$('vd'),isNew
      [['','Roast'],...Object.entries(BANNERS).map(([k,b])=>[k,b.name])].map(([k,n])=>'<button type="button" data-b="'+k+'" aria-label="'+n+'"><i style="'+(k?'background:'+BANNERS[k].bg:'')+'"></i><span>'+n+'</span></button>').join('')+
      '<button type="button" data-b="photo" aria-label="Your own photo"><i class="pf-bphoto">'+CAM_SVG+'</i><span>Your photo</span></button></div>'+
      '<div class="pf-bpos" id="pf-bposrow" hidden><label for="pf-bpos">Move the photo up or down</label><input type="range" id="pf-bpos" min="0" max="100" step="1"></div><input type="file" id="pf-bfile" accept="image/*" hidden></div>'+
-   '<div class="two stackm"><div class="field"><label for="pf-nick">Nickname</label><input id="pf-nick" maxlength="30" autocomplete="nickname" placeholder="e.g. The V60 guy" value="'+esc(P.nick)+'"></div>'+
+   '<div class="two stackm"><div class="field"><label for="pf-nick">Nickname</label><input id="pf-nick" maxlength="30" autocomplete="nickname" value="'+esc(P.nick)+'"></div>'+
    '<div class="field"><label for="pf-name">Name <span class="hint">optional</span></label><input id="pf-name" maxlength="40" autocomplete="name" value="'+esc(P.name)+'"></div></div>'+
-   '<div class="field"><label for="pf-brief">A few words about you <span class="hint" id="pf-count"></span></label><textarea id="pf-brief" rows="3" maxlength="160" placeholder="e.g. Chasing florals with a Switch and a ZP6. Washed Ethiopians forever.">'+esc(P.brief)+'</textarea></div>'+
+   '<div class="field"><label for="pf-brief">A few words about you <span class="hint" id="pf-count"></span></label><textarea id="pf-brief" rows="3" maxlength="160">'+esc(P.brief)+'</textarea></div>'+
    '<div class="field"><div class="lbl">How you like your coffee</div><div class="seg filters wrap" id="pf-style"></div></div>'+
    '<div class="two stackm"><div class="field"><label for="pf-brewer">Favourite brewer</label><select id="pf-brewer"><option value="">None yet</option>'+brewerOpts+'</select></div>'+
    '<div class="field"><label for="pf-origin">Favourite origin</label><select id="pf-origin"><option value="">None yet</option>'+originOptions()+'</select></div></div>'+
-   '<div class="field"><label for="pf-city">Where you brew <span class="hint">optional</span></label><input id="pf-city" maxlength="40" autocomplete="address-level2" placeholder="e.g. Muscat" value="'+esc(P.city)+'"></div>'+
+   '<div class="field"><label for="pf-city">Where you brew <span class="hint">optional</span></label><input id="pf-city" maxlength="40" autocomplete="address-level2" value="'+esc(P.city)+'"></div>'+
    '<div class="actions"><button class="btn" id="pf-save">'+(J?'Create my account':opts.welcome?'Done':isNew?'Create my profile':'Save')+'</button><button class="btn ghost" id="pf-cancel">'+(J?'Back':opts.welcome?'Later':'Cancel')+'</button></div>'+
    (J?'<p class="au-fine">We keep only what you save, and you can delete your account at any time. <a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a></p>':'')+
    (isNew?'':'<button type="button" class="linkbtn danger" id="pf-del">'+(ACCT?'Delete my account and profile':'Delete my profile')+'</button>')+'</div>';
