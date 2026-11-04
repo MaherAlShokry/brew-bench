@@ -503,3 +503,25 @@ const TREE={w:1530,h:830,notes:{pinkbourbon:'DNA: Ethiopian landrace, not a Bour
  ['caturra','catimor'],['timorhybrid','catimor'],['villasarchi','sarchimor'],['timorhybrid','sarchimor'],['typica','sl34'],['typica','yellowbourbon'],
  ['caturra','castillo'],['timorhybrid','castillo'],['timorhybrid','tabi'],['typica','tabi'],['bourbon','tabi'],['catimor','ruiru'],['sl28','ruiru'],['sarchimor','parainema'],['sarchimor','centroamericano'],['villasarchi','marsellesa'],['timorhybrid','marsellesa'],['villasarchi','obata'],['timorhybrid','obata'],['obata','arara'],['catuai','arara'],['marsellesa','starmaya'],['landrace','centroamericano']
 ]};
+
+/* What each origin's terroir brings to the cup, before variety, process and roast: acidity, body, sweetness and
+   clarity on the same scale as the variety families (about -1 to +1, 0 is a neutral middle). Read from each origin's
+   cup line and its usual altitude. Origins not listed here count as neutral. */
+const TERROIR={
+ ethiopia:{acid:0.7,body:-0.4,sweet:0.3,clarity:0.6},yemen:{acid:0.1,body:0.5,sweet:0.4,clarity:-0.4},kenya:{acid:0.9,body:0.2,sweet:0.2,clarity:0.4},
+ rwanda:{acid:0.5,body:-0.1,sweet:0.3,clarity:0.4},burundi:{acid:0.5,body:0,sweet:0.4,clarity:0.3},tanzania:{acid:0.6,body:-0.1,sweet:0.2,clarity:0.3},
+ uganda:{acid:0.1,body:0.3,sweet:0.3,clarity:0},drc:{acid:0.4,body:0,sweet:0.3,clarity:0.3},malawi:{acid:0.2,body:-0.1,sweet:0.3,clarity:0.2},
+ colombia:{acid:0.3,body:0.1,sweet:0.3,clarity:0.2},brazil:{acid:-0.8,body:0.5,sweet:0.3,clarity:-0.1},peru:{acid:-0.1,body:0,sweet:0.3,clarity:0.1},
+ bolivia:{acid:0.5,body:-0.1,sweet:0.3,clarity:0.4},ecuador:{acid:0.4,body:-0.1,sweet:0.2,clarity:0.4},panama:{acid:0.5,body:-0.5,sweet:0.3,clarity:0.7},
+ costarica:{acid:0.5,body:-0.1,sweet:0.4,clarity:0.5},guatemala:{acid:0.4,body:0.2,sweet:0.2,clarity:0.2},elsalvador:{acid:0.1,body:0.2,sweet:0.4,clarity:0.1},
+ honduras:{acid:0.2,body:0.1,sweet:0.3,clarity:0.1},nicaragua:{acid:0,body:0.1,sweet:0.2,clarity:0.1},mexico:{acid:-0.3,body:0,sweet:0.1,clarity:0.1},
+ jamaica:{acid:-0.3,body:0,sweet:0.2,clarity:0.4},indonesia:{acid:-0.8,body:0.8,sweet:0,clarity:-0.6},timor:{acid:-0.2,body:0.2,sweet:0.3,clarity:0.2},
+ china:{acid:0,body:0,sweet:0.3,clarity:0.3},india:{acid:-0.6,body:0.5,sweet:0,clarity:-0.3},vietnam:{acid:-0.6,body:0.6,sweet:0,clarity:-0.2},
+ png:{acid:0.1,body:0.2,sweet:0.3,clarity:0},thailand:{acid:0,body:0,sweet:0.3,clarity:0.3},myanmar:{acid:0,body:0.1,sweet:0.3,clarity:0.2},
+ southsudan:{acid:0.4,body:-0.3,sweet:0.1,clarity:0.5},saudi:{acid:0.1,body:0.5,sweet:0.4,clarity:-0.4},oman:{acid:0.1,body:0.5,sweet:0.4,clarity:-0.4},
+ philippines:{acid:-0.3,body:0.4,sweet:0.1,clarity:-0.1},laos:{acid:-0.2,body:0.1,sweet:0.2,clarity:0.1},srilanka:{acid:-0.4,body:0.2,sweet:0,clarity:0},
+ nepal:{acid:-0.2,body:0,sweet:0.2,clarity:0.1},taiwan:{acid:0.1,body:-0.3,sweet:0.3,clarity:0.5},cuba:{acid:-0.6,body:0.3,sweet:0,clarity:0},
+ dominican:{acid:-0.2,body:0.1,sweet:0.2,clarity:0.1},haiti:{acid:-0.3,body:0.2,sweet:0.2,clarity:0},puertorico:{acid:-0.4,body:0.1,sweet:0.2,clarity:0.1},
+ venezuela:{acid:-0.3,body:0.1,sweet:0.2,clarity:0},zambia:{acid:0.5,body:-0.1,sweet:0.2,clarity:0.4},zimbabwe:{acid:0.6,body:0,sweet:0.1,clarity:0.2},
+ cameroon:{acid:0,body:0.2,sweet:0.2,clarity:0},ivorycoast:{acid:-0.9,body:0.8,sweet:-0.1,clarity:-0.5},sierraleone:{acid:-0.6,body:0.5,sweet:0,clarity:-0.3},
+ madagascar:{acid:-0.8,body:0.7,sweet:-0.1,clarity:-0.5},kona:{acid:-0.3,body:0.1,sweet:0.2,clarity:0.4},reunion:{acid:0.1,body:-0.2,sweet:0.3,clarity:0.5}};
