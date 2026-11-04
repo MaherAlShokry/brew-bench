@@ -81,6 +81,19 @@ const V=[
  story:'Yemeni farmers grow local types known as Udaini, Dawairi, Tuffahi and Jaadi on ancient terraces. A genetic study published in 2021 identified a distinct group, named Yemenia, separate from known Ethiopian groups. Yemen\u2019s coffees are the ancestors of Typica and Bourbon, and so of most coffee grown outside Africa.',
  cup:'Dried fruit, spice, cocoa, raisin, wild and winey.',brew:'Coarser for naturals, 91 to 92°C. Grind unevenly sized beans a touch coarser.',dir:'coarser',notes:['dried fruit','spice','cocoa'],grown:['yemen']},
 
+{id:'udaini',name:'Udaini (Odaini)',fam:'yemen',origin:'Yemen',parents:'Yemeni landrace (Yemenia group)',m:{t:-0.3,body:0.85,acid:0.1,clarity:-0.25,sweet:0.5},
+ story:'The most widely grown of Yemen’s local types: in one survey of 148 farms it was the name farmers gave most often, about a third of the time. The name is usually traced to Udayn in Ibb. Like all Yemeni names it is a farmers’ name rather than a registered variety, so it can mean slightly different trees from one valley to the next.',
+ cup:'Deep and heavy: dried fruit, cocoa and earthy spice, with a full body and a long finish.',brew:'Its weight takes a slightly coarser grind and 91 to 92°C; an immersion brewer suits it well.',dir:'coarser',notes:['dried fruit','cocoa','earthy spice'],grown:['yemen']},
+{id:'dawairi',name:'Dawairi',fam:'yemen',origin:'Yemen',parents:'Yemeni landrace (Yemenia group)',m:{t:-0.25,body:0.7,acid:0,clarity:-0.1,sweet:0.6},
+ story:'The second most common Yemeni name in farm surveys, after Udaini. Often described as the most complex of the local types, it is grown on high terraces, picked by hand and usually dried whole in the cherry.',
+ cup:'Complex and winey: dark fruit, chocolate and spice, low acidity and a lingering finish.',brew:'Gentle pours at 91 to 92°C keep the wine-like fruit from turning heavy.',dir:'coarser',notes:['dark fruit','chocolate','winey'],grown:['yemen']},
+{id:'tufahi',name:'Tufahi (Tuffahi)',fam:'yemen',origin:'Yemen',parents:'Yemeni landrace (Yemenia group)',m:{t:-0.08,body:0.3,acid:0.5,clarity:0.2,sweet:0.6},
+ story:'Tufahi means apple in Arabic, and it is the third most common name in Yemeni farm surveys. Among the local types it is the one usually described as the brightest and most floral.',
+ cup:'Brighter and lighter than most Yemeni coffees: apple-like fruit, florals and honeyed sweetness.',brew:'A cone dripper and 92 to 93°C bring out its brightness; keep the pours gentle.',dir:'finer',notes:['apple','floral','honey'],grown:['yemen']},
+{id:'jaadi',name:'Jaadi (Ja’adi)',fam:'yemen',origin:'Yemen',parents:'Yemeni landrace (Yemenia group)',m:{t:-0.2,body:0.5,acid:0.2,clarity:0,sweet:0.5},
+ story:'A local Yemeni name more than a fixed variety: lots sold as Jaadi can differ from village to village. It is grown on the terraces of the western highlands and dried whole in the cherry like most Yemeni coffee.',
+ cup:'Rounded and balanced: stone fruit, cardamom and dark chocolate, with mild acidity.',brew:'Brews easily: a standard grind for your brewer at about 92°C.',dir:'baseline',notes:['stone fruit','cardamom','dark chocolate'],grown:['yemen']},
+
 /* typica */
 {id:'typica',name:'Typica',fam:'typica',origin:'Yemen via India and Java',year:'1690s onward',parents:'Yemeni Arabica',
  story:'The Dutch took coffee from India to Java in the late 1690s. One tree went to Amsterdam, one of its descendants was given to Louis XIV, and from there it reached the Caribbean and Latin America. Typica is the tall, low-yielding, elegant ancestor of much of the coffee world.',
@@ -216,7 +229,7 @@ const O={
  yemen:{name:'Yemen',flag:'🇾🇪',reg:'arabia',subs:['Haraz','Bani Matar','Hayma',"Yafa'"],alt:'1,500 to 2,500 m',harvest:'Oct to Dec',process:'Mostly natural, dried on terraces and rooftops',
   cup:'Dried fruit, spice, cocoa, raisin, wild and winey.',
   hist:'Where coffee became a drink. Sufi communities in the 1400s drank it to stay awake through night devotions, and the port of Mocha shipped it to the world for two centuries, lending its name to a style and to chocolate coffee drinks. Almost every Arabica planted outside Africa before the 1900s descends from Yemeni seeds.',
-  fact:'Coffee grows on terraces carved into mountains over centuries, often with very little water.',vars:['yemenia','typica','bourbon']},
+  fact:'Coffee grows on terraces carved into mountains over centuries, often with very little water.',vars:['yemenia','udaini','dawairi','tufahi','jaadi','typica','bourbon']},
  kenya:{name:'Kenya',flag:'🇰🇪',reg:'africa',subs:['Nyeri','Kirinyaga',"Murang'a",'Kiambu','Embu','Mt Elgon'],alt:'1,400 to 2,100 m',harvest:'Main Oct to Dec, fly crop Apr to Jun',process:'Washed, often double fermented and soaked',
   cup:'Blackcurrant, tomato, grapefruit, syrupy and intensely bright.',
   hist:'French missionaries brought Bourbon from Réunion in the 1890s. In the 1930s Scott Agricultural Laboratories selected SL28 and SL34, which still define the Kenyan cup. Lots are graded by bean size (AA, AB, PB) and traditionally sold through the Nairobi auction.',
