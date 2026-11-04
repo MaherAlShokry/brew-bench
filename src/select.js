@@ -39,3 +39,67 @@ function openSelect(s){const d=$('selsheet'),opts=[...s.options],long=opts.lengt
 // Selects already on the page, and any drawn later.
 document.querySelectorAll('select').forEach(enhanceSelect);
 new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.nodeType===1){if(n.tagName==='SELECT')enhanceSelect(n);else n.querySelectorAll&&n.querySelectorAll('select').forEach(enhanceSelect)}}).observe(document.body,{childList:true,subtree:true});
+
+/* ================= DATES ================= */
+// Every date field keeps its <input type="date"> (its value, events, min and max), but shows the date in the app's own
+// words and opens the app's own calendar, in the same sheet as the dropdowns, so the phone's picker never appears.
+const CAL_RE=/^\d{4}-\d{2}-\d{2}$/;
+const calIso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const calDate=v=>{const [y,m,d]=v.split('-').map(Number);return new Date(y,m-1,d,12)};
+const calWords=v=>CAL_RE.test(v)?calDate(v).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'';
+// Weeks start on Sunday where that's the custom (US, Canada, Japan, Israel, Brazil...), on Monday elsewhere.
+const CAL_SUN=/^(en-(US|CA|PH)|ja|he|pt-BR|ko|zh-TW|ar-SA)/i.test(navigator.language||'');
+const CAL_ICO='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14v13H5z M5 10h14 M9 3v4 M15 3v4"/></svg>';
+function calLabel(inp){const l=inp.id&&document.querySelector('label[for="'+inp.id+'"]');return((l&&l.textContent)||inp.getAttribute('aria-label')||'Date').replace(/\s+/g,' ').trim()}
+function enhanceDate(inp){if(inp.dataset.ui)return;inp.dataset.ui=1;
+  const w=document.createElement('span');w.className='datew';w.tabIndex=0;w.setAttribute('role','button');
+  inp.parentNode.insertBefore(w,inp);w.appendChild(inp);w.insertAdjacentHTML('beforeend','<span class="dw-t"></span>'+CAL_ICO);
+  inp.tabIndex=-1;inp.setAttribute('aria-hidden','true');
+  const paint=()=>{const t=calWords(inp.value);w.querySelector('.dw-t').textContent=t||'Choose a date';w.classList.toggle('empty',!t);
+    w.setAttribute('aria-label',calLabel(inp)+': '+(t||'not set')+'. Choose a date')};
+  // Code that sets the value (a scan filling in its roast date) updates the words too.
+  const D=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value');
+  Object.defineProperty(inp,'value',{configurable:true,get(){return D.get.call(inp)},set(v){D.set.call(inp,v);paint()}});
+  paint();
+  const open=e=>{if(inp.disabled)return;e&&e.preventDefault();openDate(inp,w)};
+  w.addEventListener('click',open);w.addEventListener('keydown',e=>{if(['Enter',' ','ArrowDown'].includes(e.key))open(e)});
+  inp.addEventListener('focus',()=>w.focus());inp.addEventListener('mousedown',e=>e.preventDefault());
+  const l=inp.id&&document.querySelector('label[for="'+inp.id+'"]');if(l)l.addEventListener('click',e=>{e.preventDefault();w.focus()})}
+function openDate(inp,w){const d=$('selsheet'),min=CAL_RE.test(inp.min)?inp.min:'',max=CAL_RE.test(inp.max)?inp.max:'',today=calIso(new Date());
+  let cur=CAL_RE.test(inp.value)?inp.value:'',view=calDate(cur||(max&&today>max?max:today)),mode='days';
+  const ok=v=>(!min||v>=min)&&(!max||v<=max);
+  const pick=v=>{if(inp.value!==v){inp.value=v;inp.dispatchEvent(new Event('input',{bubbles:true}));inp.dispatchEvent(new Event('change',{bubbles:true}))}d.close();setTimeout(()=>w.focus({preventScroll:true}),0)};
+  const yest=calIso(new Date(Date.now()-864e5));
+  const draw=()=>{const y=view.getFullYear(),m=view.getMonth();let body;
+    if(mode==='days'){const first=new Date(y,m,1),lead=(first.getDay()-(CAL_SUN?0:1)+7)%7,n=new Date(y,m+1,0).getDate();
+      const wd=[...Array(7)].map((_,i)=>new Date(2024,0,(CAL_SUN?7:1)+i).toLocaleDateString(undefined,{weekday:'narrow'}));
+      let cells='';for(let i=0;i<lead;i++)cells+='<span></span>';
+      for(let k=1;k<=n;k++){const v=calIso(new Date(y,m,k));cells+='<button type="button" class="cd'+(v===today?' today':'')+'" data-d="'+v+'" aria-pressed="'+(v===cur)+'"'+(ok(v)?'':' disabled')+' aria-label="'+esc(new Date(y,m,k).toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'}))+'">'+k+'</button>'}
+      body='<div class="calwk" aria-hidden="true">'+wd.map(x=>'<span>'+esc(x)+'</span>').join('')+'</div><div class="calgrid">'+cells+'</div>'}
+    else{body='<div class="calmonths">'+[...Array(12)].map((_,k)=>{const a=calIso(new Date(y,k,1)),z=calIso(new Date(y,k+1,0)),can=(!max||a<=max)&&(!min||z>=min);
+      return '<button type="button" class="cm" data-m="'+k+'" aria-pressed="'+(k===m)+'"'+(can?'':' disabled')+'>'+esc(new Date(y,k,1).toLocaleDateString(undefined,{month:'short'}))+'</button>'}).join('')+'</div>'}
+    const title=mode==='days'?view.toLocaleDateString(undefined,{month:'long',year:'numeric'}):String(y);
+    const prevOk=mode==='days'?(!min||calIso(new Date(y,m,0))>=min):(!min||String(y-1)>=min.slice(0,4)),nextOk=mode==='days'?(!max||calIso(new Date(y,m+1,1))<=max):(!max||String(y+1)<=max.slice(0,4));
+    $('sel-in').innerHTML='<div class="selhead"><div class="grab"></div><h3 id="sel-title">'+esc(calLabel(inp))+'</h3><button type="button" class="vd-close" id="sel-x" aria-label="Close">✕</button></div>'+
+      '<div class="cal"><div class="calnav"><button type="button" class="cn-b" id="cal-p" aria-label="'+(mode==='days'?'Previous month':'Previous year')+'"'+(prevOk?'':' disabled')+'><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>'+
+      '<button type="button" class="cal-t" id="cal-t" aria-label="'+esc(title)+(mode==='days'?', choose a month':', back to the days')+'">'+esc(title)+'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button>'+
+      '<button type="button" class="cn-b" id="cal-n" aria-label="'+(mode==='days'?'Next month':'Next year')+'"'+(nextOk?'':' disabled')+'><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div>'+body+
+      '<div class="calq">'+(ok(today)?'<button type="button" class="chip" data-d="'+today+'">Today</button>':'')+(ok(yest)?'<button type="button" class="chip" data-d="'+yest+'">Yesterday</button>':'')+
+      (inp.required?'':'<button type="button" class="chip calclear" data-clear="1"'+(cur?'':' disabled')+'>Clear</button>')+'</div></div>';
+    $('sel-x').onclick=()=>d.close();
+    $('cal-p').onclick=()=>{view=mode==='days'?new Date(y,m-1,1):new Date(y-1,m,1);draw()};$('cal-n').onclick=()=>{view=mode==='days'?new Date(y,m+1,1):new Date(y+1,m,1);draw()};
+    $('cal-t').onclick=()=>{mode=mode==='days'?'months':'days';draw()};
+    d.querySelector('.cal').onclick=e=>{const b=e.target.closest('[data-d],[data-m],[data-clear]');if(!b||b.disabled)return;
+      if(b.dataset.m){view=new Date(y,+b.dataset.m,1);mode='days';draw();return}if(b.dataset.clear){pick('');return}pick(b.dataset.d)}};
+  draw();
+  const narrow=matchMedia('(max-width:759px)').matches;d.classList.toggle('pop',!narrow);d.classList.add('dates');
+  if(!narrow){const r=w.getBoundingClientRect(),W=320,below=innerHeight-r.bottom,up=below<420&&r.top>below;
+    Object.assign(d.style,{left:Math.min(Math.max(8,r.left),innerWidth-W-8)+'px',width:W+'px',top:up?'auto':(r.bottom+6)+'px',bottom:up?(innerHeight-r.top+6)+'px':'auto',maxHeight:Math.max(300,(up?r.top:below)-24)+'px'})}
+  else Object.assign(d.style,{left:'',width:'',top:'',bottom:'',maxHeight:''});
+  d.onkeydown=e=>{const a=document.activeElement;if(!a||!a.classList||!a.classList.contains('cd'))return;const st={ArrowLeft:-1,ArrowRight:1,ArrowUp:-7,ArrowDown:7}[e.key];if(!st)return;e.preventDefault();
+    const t=calDate(a.dataset.d);t.setDate(t.getDate()+st);const v=calIso(t);if(!ok(v))return;if(t.getMonth()!==view.getMonth()){view=new Date(t.getFullYear(),t.getMonth(),1);draw()}const nb=d.querySelector('.cd[data-d="'+v+'"]');if(nb)nb.focus()};
+  d.addEventListener('close',()=>d.classList.remove('dates'),{once:true});
+  showDlg(d);const on=d.querySelector('.cd[aria-pressed="true"]')||d.querySelector('.cd.today')||d.querySelector('.cd:not([disabled])');
+  if(on&&!narrow)on.focus({preventScroll:true});else{const c=$('sel-in');c.tabIndex=-1;c.focus({preventScroll:true})}}
+document.querySelectorAll('input[type=date]').forEach(enhanceDate);
+new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.nodeType===1){if(n.matches&&n.matches('input[type=date]'))enhanceDate(n);else n.querySelectorAll&&n.querySelectorAll('input[type=date]').forEach(enhanceDate)}}).observe(document.body,{childList:true,subtree:true});

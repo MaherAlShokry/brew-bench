@@ -1173,10 +1173,10 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .kit-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.kit-chips .chip{cursor:pointer}.kit-chips .hint{margin:0}
 .jumpnav{margin:0 0 10px}
 .fit{--fc:var(--cherry);margin-top:14px;padding:12px 14px 12px;border-radius:var(--r-lg);border:1px solid color-mix(in srgb,var(--fc) 30%,var(--hair));background:color-mix(in srgb,var(--fc) 6%,var(--surface));transition:border-color .3s,background .3s}
-.fit-head{display:flex;align-items:center;gap:10px;min-width:0}
+.fit-head{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;min-width:0}
 .fit-ic{width:30px;height:30px;border-radius:50%;flex:none;display:grid;place-items:center;background:var(--fc);box-shadow:0 3px 10px color-mix(in srgb,var(--fc) 35%,transparent);transition:background .3s}
 .fit-ic svg{width:17px;height:17px;fill:none;stroke:#FFFDF9;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.fit-head b{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--display);font-size:1rem;line-height:1.2;color:color-mix(in srgb,var(--fc) 80%,var(--ink));transition:color .3s}
+.fit-head b{flex:1 1 9.5em;min-width:0;font-family:var(--display);font-size:1rem;line-height:1.2;color:color-mix(in srgb,var(--fc) 80%,var(--ink));transition:color .3s}
 .fit-pct{flex:none;font-size:.74rem;font-weight:600;padding:3px 9px;border-radius:var(--r-pill);background:color-mix(in srgb,var(--fc) 14%,var(--surface2));color:color-mix(in srgb,var(--fc) 70%,var(--ink));font-variant-numeric:tabular-nums;white-space:nowrap}
 .fit>p{margin:8px 0 0;font-size:.84rem;line-height:1.4;color:var(--muted);min-height:4.2em}
 .fit .gauge.fit-g{margin:14px 4px 6px;background:linear-gradient(90deg,#A8432F 0%,#B9603A 22%,#C9964A 40%,#C9964A 58%,color-mix(in srgb,var(--cherry) 70%,#C9964A) 72%,var(--cherry) 100%)}
@@ -1845,6 +1845,46 @@ body.t-dial.dial-ready .herowrap{display:none}
 .td-t>span{font-size:.9rem;line-height:1.5;color:color-mix(in srgb,var(--ink) 78%,var(--muted))}
 .td-go{flex:none;width:18px;height:18px;margin-top:12px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .td-row:active{background:color-mix(in srgb,var(--ink) 4%,transparent)}
+/* Dates: the field reads like the app's other fields; the calendar opens in the dropdowns' sheet. */
+.datew{position:relative;display:flex;align-items:center;gap:10px;width:100%;min-height:46px;padding:0 14px;border-radius:var(--r-md,14px);background:var(--surface2);border:1px solid transparent;color:var(--ink);cursor:pointer;-webkit-tap-highlight-color:transparent;box-sizing:border-box}
+.datew>input{position:absolute;inset:0;opacity:0;pointer-events:none;width:100%;height:100%}
+.datew .dw-t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:1rem}.datew.empty .dw-t{color:var(--muted)}
+.datew svg{flex:none;width:18px;height:18px;fill:none;stroke:var(--muted);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.datew:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}.datew:active{transform:scale(.99)}
+.cal{padding:4px 16px 16px}
+.calnav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:2px 0 8px}
+.cal .cn-b{box-shadow:none;padding:0;width:40px;height:40px;border-radius:50%;border:0;background:var(--surface2);color:var(--ink);display:grid;place-items:center;cursor:pointer}
+.cn-b:disabled{opacity:.35;cursor:default}.cn-b svg,.cal-t svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.cal-t{display:inline-flex;align-items:center;gap:4px;border:0;background:none;color:var(--ink);font:700 1.02rem/1.2 var(--display);padding:8px 10px;border-radius:12px;cursor:pointer}
+.cal-t svg{width:16px;height:16px;color:var(--muted)}
+.calwk,.calgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px 2px;text-align:center}
+.calwk span{font-size:.72rem;font-weight:700;color:var(--muted);padding:4px 0;text-transform:uppercase}
+.cal .cd{all:unset;box-sizing:border-box;display:grid;place-items:center;width:100%;max-width:44px;aspect-ratio:1;justify-self:center;border-radius:50%;color:var(--ink);font-family:var(--body);font-size:.95rem;font-variant-numeric:tabular-nums;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.cal .cd:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
+.cal .cd:hover{background:var(--surface2)}.cal .cd.today{box-shadow:inset 0 0 0 1.5px var(--cherry);color:var(--cherry-ink,var(--cherry));font-weight:700}
+.cal .cd[aria-pressed="true"]{background:var(--cherry);color:var(--surface);font-weight:700;box-shadow:0 6px 14px -8px var(--cherry)}
+.cal .cd:disabled{color:var(--muted);opacity:.4;cursor:default;background:none}
+.calmonths{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:4px 0}
+.cal .cm{box-shadow:none;padding:0;min-height:48px;border:0;border-radius:14px;background:var(--surface2);color:var(--ink);font:inherit;font-weight:600;cursor:pointer}
+.cm[aria-pressed="true"]{background:var(--cherry);color:var(--surface)}.cm:disabled{opacity:.35;cursor:default}
+.calq{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}.calq .chip{cursor:pointer}.calq .calclear{margin-left:auto}.calq .chip:disabled{opacity:.4}
+dialog#selsheet.pop.dates .selhead{display:none}
+/* Every disclosure row in one style: no browser marker, the app's chevron after the words, turning as it opens.
+   (The dial-in steps draw their own chevron.) */
+summary{list-style:none}summary::-webkit-details-marker{display:none}summary::marker{content:""}
+details:not(.dstep)>summary{display:flex;align-items:center;gap:8px;-webkit-tap-highlight-color:transparent}
+details:not(.dstep)>summary::after{content:"";flex:none;width:7px;height:7px;margin:0 4px 0 auto;border-right:2px solid currentColor;border-bottom:2px solid currentColor;opacity:.6;transform:rotate(45deg) translateY(-2px);transition:transform .2s}
+details:not(.dstep)[open]>summary::after{transform:rotate(-135deg) translateY(-1px)}
+/* Short link-like rows keep the chevron beside the words rather than at the far edge. */
+:is(details.gspec,details.rsteps,details.tm-all,details.cal)>summary{justify-content:flex-start}
+:is(details.gspec,details.rsteps,details.tm-all,details.cal)>summary::after{margin-left:2px}
+details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{flex-basis:100%;order:2}
+/* Words are never cut short: titles, meta lines, notes and previews wrap instead of ending in "…" or a clamp.
+   (Dropdown boxes, segmented tabs and the date field size themselves to fit instead.) */
+:is(.srow-tx small,.t45t small,.ts-row em,.actions.two-up>.btn,.meta span,.tm-nx,.again b,.wcard .wdef,.gcard .gtop .hint,.bshelf b,.rr-by,.me-dna b,.srow-tx b,.t45t b,.t3hm-i small,.t3s-tx b,.pm b,.pm small,.t3tile small,.cr-tx b,.cr-tx>small,.cr-notes,.dbeans button span:last-child,.otd-tx small,.yic-row small,.yic-row b,.pp-reg small,.t3o-tx b,.dbean-tx b,.dbean-tx small,.shsw span,.dst small,.cr-top b,.aco,.fit-head b){white-space:normal!important;overflow:visible!important;text-overflow:clip!important;-webkit-line-clamp:unset!important;line-clamp:none!important;overflow-wrap:anywhere}
+.actions.two-up>.btn{line-height:1.2;padding-top:8px;padding-bottom:8px}
+/* Two date fields side by side on a narrow phone: the words get the room, the icon steps aside. */
+@media (max-width:399px){.two .datew{padding:0 10px;gap:6px}.two .datew svg{display:none}.two .datew .dw-t{font-size:.95rem}}
 /* The welcome on Brew: a card like the others, with a greeting and the day's line of coffee wisdom. */
 .welcome{margin:0 0 12px;padding:16px 18px}
 .wl-top{display:flex;align-items:center;gap:12px}
@@ -2988,7 +3028,7 @@ const RECIPES=[
  {b:'v60',kind:'46',name:'Tetsu Kasuya 4:6',by:'Tetsu Kasuya, 2016 World Brewers Cup champion',off:-0.4,temp:92,dose:20,water:300,why:'The most adjustable recipe. The first 40% of the water sets flavour balance, the last 60% sets strength. Coarse grind.',
   steps:['0:00 pour 60g.','0:45 pour 60g (to 120g).','1:30 pour 60g (to 180g).','2:15 pour 60g (to 240g).','3:00 pour 60g (to 300g).','3:30 remove the dripper.'],
   tip:'Sweeter: pour 1 smaller than pour 2 (50/70). Brighter: pour 1 larger (70/50). Stronger: split the last 180g into four pours; lighter: two pours.'},
- {b:'v60',kind:'pulse',name:'Tetsu Kasuya 10-pour',by:'Tetsu Kasuya, 2016 World Brewers Cup champion',off:-3.2,temp:96,dose:20,water:300,why:'Ten small pours of 30g every 15 seconds, released for the tenth anniversary of his 2016 World Brewers Cup win. A super-coarse grind and very hot water, with the bed draining almost dry before each pour: full extraction without the bitterness of a fine grind.',
+ {b:'v60',kind:'pulse',name:'Tetsu Kasuya 10-pour',by:'Tetsu Kasuya, 2016 World Brewers Cup champion',off:-1.8,temp:96,dose:20,water:300,why:'Ten small pours of 30g every 15 seconds, released for the tenth anniversary of his 2016 World Brewers Cup win. A medium-coarse grind, a touch coarser than his 4:6, and very hot water, with the bed draining almost dry before each pour: the many small pours extract fully without the bitterness of a fine grind.',
   steps:['0:00 pour 30g at 96°C, bloom.','0:30 pour 30g (to 60g).','0:45 pour 30g (to 90g).','1:00 pour 30g (to 120g).','1:15 pour 30g (to 150g).','1:30 pour 30g (to 180g).','1:45 pour 30g (to 210g).','2:00 pour 30g (to 240g).','2:15 pour 30g (to 270g).','2:30 pour 30g (to 300g).','3:00 drawdown finishes, remove the dripper.'],
   tip:'Pour each 30g gently in the centre in about 5 seconds, then let it drain. Super coarse means it, well past your usual V60 setting. If it runs past 3:30, go coarser.'},
  {b:'v60',kind:'hoff',name:'The Ultimate V60',by:'James Hoffmann',off:0.5,temp:96,dose:30,water:500,why:'Built for consistency: agitation early, then left alone. Hoffmann uses water as hot as possible for light roasts.',
@@ -3009,7 +3049,7 @@ const RECIPES=[
  {b:'neo',kind:'neo',name:'NEO split pour',by:'Built around the NEO\u2019s fast flow',off:0.3,temp:94,dose:15,water:240,why:'The NEO drains faster than the classic V60, so a single slow pour under-extracts. Split pours put contact time back.',
   steps:['0:00 pour 40g quickly, wetting every ground.','0:35 pour with a strong stream to 144g.','1:10 pour to 240g.','2:30 finished.'],
   tip:'The NEO handles a slightly finer grind than the V60 without stalling.'},
- {b:'neo',kind:'neo',name:'Tetsu Kasuya 10-pour on the NEO',by:'Tetsu Kasuya, 2016 World Brewers Cup champion',off:-3.4,temp:96,dose:20,water:300,why:'Ten small pours of 30g every 15 seconds, released for the tenth anniversary of his 2016 World Brewers Cup win. A super-coarse grind and very hot water, with the bed draining almost dry before each pour: full extraction without the bitterness of a fine grind. Kasuya\u2019s own choice of dripper for it.',
+ {b:'neo',kind:'neo',name:'Tetsu Kasuya 10-pour on the NEO',by:'Tetsu Kasuya, 2016 World Brewers Cup champion',off:-2.0,temp:96,dose:20,water:300,why:'Ten small pours of 30g every 15 seconds, released for the tenth anniversary of his 2016 World Brewers Cup win. A medium-coarse grind, a touch coarser than his 4:6, and very hot water, with the bed draining almost dry before each pour: the many small pours extract fully without the bitterness of a fine grind. Kasuya\u2019s own choice of dripper for it.',
   steps:['0:00 pour 30g at 96°C, bloom.','0:30 pour 30g (to 60g).','0:45 pour 30g (to 90g).','1:00 pour 30g (to 120g).','1:15 pour 30g (to 150g).','1:30 pour 30g (to 180g).','1:45 pour 30g (to 210g).','2:00 pour 30g (to 240g).','2:15 pour 30g (to 270g).','2:30 pour 30g (to 300g).','3:00 drawdown finishes, remove the dripper.'],
   tip:'The NEO\u2019s ribs spread each small pour evenly across the bed. Pour in the centre, about 5 seconds per pour, and let it drain before the next.'},
  {b:'neo',kind:'neo',name:'Yuma Kawano NEO recipe',by:'Yuma Kawano',off:0.6,temp:95,dose:14,water:235,why:'A pouring-technique recipe aimed at texture, density and sweetness. Medium-fine grind.',
@@ -4606,11 +4646,16 @@ const isTuned=()=>!!S.tuned&&TUNED_KEYS.every(k=>S.tuned[k]===S[k]);
 // share: how much closer the chosen target is than the next nearest (1 = right on it, under 0.5 = another is closer).
 // FIT_R: how far your settings can move from the target's own cup and still make it; FIT_OFF: past this, and nearer
 // another target's cup, you are brewing that other cup.
-const FIT_R=2.2,FIT_OFF=4.5,FIT_HONEY='#C9964A',FIT_ROAST='#A8432F';
+// On target: up to about a grind step (7 ZP6 clicks), 3°C or a ratio step from the plan. Another cup: about two steps out.
+const FIT_R=5.2,FIT_OFF=9,FIT_HONEY='#C9964A',FIT_ROAST='#A8432F';
 function cupFit(){if(!dialRec())return null;const B=BREWERS[S.brewer];
   const feats=st=>{const c=compute(st);return [c.D/0.15,c.acid/0.4,c.body/0.4,c.clarity/0.4,-st.ratio/B.ratio.step*0.6,c.sweet/0.4]};
-  const cur=feats(S),d={};
-  for(const [g] of GOALS){const p=plan(Object.assign(dialCtx(),{goal:g,amt:g===S.goal?S.amt:'mid'}));d[g]=Math.hypot(...feats(Object.assign({},S,p.st)).map((x,i)=>x-cur[i]))}
+  const cur=feats(S),d={},F={};
+  for(const [g] of GOALS){const p=plan(Object.assign(dialCtx(),{goal:g,amt:g===S.goal?S.amt:'mid'}));F[g]=feats(Object.assign({},S,p.st));d[g]=Math.hypot(...F[g].map((x,i)=>x-cur[i]))}
+  // Going further the target's own way (a tighter ratio on Stronger, hotter on Sweeter) is more of that cup, not a
+  // drift away from it: that part of the change is forgiven, up to half as far again as the target itself moves.
+  if(S.goal!=='balance'&&F.balance){const v=F[S.goal].map((x,i)=>x-F.balance[i]),vv=v.reduce((a,x)=>a+x*x,0);
+    if(vv>1e-6){const e=cur.map((x,i)=>x-F[S.goal][i]),along=e.reduce((a,x,i)=>a+x*v[i],0)/vv;if(along>0){const k=Math.min(along,1.5);d[S.goal]=Math.hypot(...e.map((x,i)=>x-k*v[i]))}}}
   const near=GOALS.map(x=>x[0]).filter(g=>g!==S.goal).sort((a,b)=>d[a]-d[b])[0],share=d[near]/((d[S.goal]+d[near])||1);
   const ds=d[S.goal],state=ds<=FIT_R?'on':share<0.5&&ds>FIT_OFF?'off':'drift';
   // One score for the colour, the marker and the percentage: 1 at the target's own settings, 0.56 at the edge of
@@ -4629,17 +4674,17 @@ function renderFit(){const el=$('g-fit'),f=cupFit();
     :t>=0.5?'color-mix(in srgb,'+FIT_HONEY+' '+Math.round((t-0.5)/0.06*100)+'%,'+FIT_ROAST+')':FIT_ROAST;
   if(cur&&f.state!=='on')cur.style.setProperty('--fitc',col);if(nb&&f.state!=='on')nb.classList.add(f.state==='off'?'fit-near':'fit-lean')
   el.style.setProperty('--fc',col);
-  const pct=Math.round(f.score*100),title=f.state==='on'?'On target':f.state==='drift'?'Drifting':'Closer to '+nn;
+  // The match reads on the same three zones as the gauge under it: on target from about 67%, another cup below 33%.
+  const pos=Math.max(2,Math.min(98,t<0.5?(t-0.35)/0.15*33:t<0.56?33+(t-0.5)/0.06*33:66+(t-0.56)/0.44*34)),pct=Math.round(pos);
+  const title=f.state==='on'?'On target':f.state==='drift'?'Drifting':'Closer to '+nn;
   const txt=f.state==='on'?'Your settings still make a '+me+' cup.'
     :f.state==='drift'?'Your changes are pulling away from a '+me+' cup. A little further and it turns '+nw+'.'
     :'Your settings now make a '+nw+' cup, not a '+me+' one.';
   el.className='fit fit-'+f.state;
-  // The marker sits on three even zones (another cup · drifting · on target), so it lines up with the scale labels.
-  const pos=Math.max(2,Math.min(98,t<0.5?(t-0.35)/0.15*33:t<0.56?33+(t-0.5)/0.06*33:66+(t-0.56)/0.44*34));
   const icon=f.state==='on'?'M5 9h12v4a6 6 0 0 1-6 6h0a6 6 0 0 1-6-6z M17 10h1.5a2.5 2.5 0 0 1 0 5H17 M9 3c-1 1.5 1 2.5 0 4 M13 3c-1 1.5 1 2.5 0 4'
     :f.state==='drift'?'M12 3v10 M12 17v.5 M4.5 20h15L12 4z':'M4 8h14 M15 5l3 3-3 3 M20 16H6 M9 13l-3 3 3 3';
   el.innerHTML='<div class="fit-head"><span class="fit-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+icon+'"/></svg></span><b>'+esc(title)+'</b>'+
-    '<span class="fit-pct" title="How '+esc(me)+' the cup still is">'+pct+'% '+esc(me)+'</span></div><p>'+esc(txt)+'</p>'+
+    '<span class="fit-pct" title="How close the cup is to '+esc(GOALN[S.goal])+'">'+pct+'% match</span></div><p>'+esc(txt)+'</p>'+
     '<div class="gauge fit-g" role="meter" aria-label="How close to '+esc(GOALN[S.goal])+'" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+pct+'"><i style="left:'+pos.toFixed(1)+'%"></i></div>'+
     '<div class="gscale"><span>Another cup</span><span>Drifting</span><span>On target</span></div>'+
     // The card keeps one size whatever the state, so the page under your finger doesn't jump while you drag a slider.
@@ -4901,6 +4946,12 @@ function plan(c){
   if(Math.abs(extra)>lim){const want=Math.sign(extra)*(Math.abs(extra)-lim),t1=clamp(Math.round(temp+want*KG/KT),Math.max(B.temp.min,temp-4),Math.min(B.temp.max,temp+4)),dt=t1-temp;
     step=r.off+clamp(extra-dt*KT/KG,-lim,lim);held=true;
     if(dt||Math.abs(extra)-lim>0.25)why.push('The grind stays within a few clicks of the recipe rather than going much '+(extra<0?'coarser':'finer')+(dt?'; the water is '+Math.abs(dt)+'°C '+(dt<0?'cooler':'warmer')+' ('+t1+'°C) instead.':'.'));temp=t1}
+  // An outer limit: the grind stays within about a step and a half of what this brewer normally takes (wider for a
+  // recipe that is fine or coarse by design: a step past its own offset), so no coffee and target push it to an extreme.
+  // When the coffee asks for more, up to 3°C of water does some of it (never past 96°C going up).
+  {const lo=Math.min(-1.5,r.off-1),hi=Math.max(1.5,r.off+1);if(step>hi||step<lo){const tgt=clamp(step,lo,hi),want=step-tgt;
+    const up=Math.max(temp,Math.min(B.temp.max,96,temp+3)),down=Math.max(B.temp.min,temp-3),t1=clamp(Math.round(temp+want*KG/KT),down,up),dt=t1-temp;
+    step=tgt;why.push('The grind stays within the usual range for '+art(brewName(B.name))+' '+esc(brewName(B.name))+' rather than going '+(want>0?'finer':'coarser')+(dt?'; the water is '+Math.abs(dt)+'°C '+(dt<0?'cooler':'warmer')+' ('+t1+'°C) instead.':'. Taste and adjust from here.'));temp=t1}}
   const set={};for(const g of new Set([...MYG,grinder]))set[g]=canGrind(g,bb)?roundG(g,shift(g,baseX(g,bb),-step*160)):null;
   const water=+gfmt(dose*ratio);
   const st={grinder,setting:set[grinder],brewer:bb,temp,ratio,bloom,agit,roast:c.roast,process:c.process,variety:c.variety,rec:c.tech};
@@ -7343,7 +7394,7 @@ const CAM_ICO='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-2.5
 function dwriteHTML(p,st,top){return '<div class="dwrite" id="'+p+'-write">'+(top||'')+'<div class="dmoms" role="group" aria-label="What kind of moment">'+
     Object.entries(MOMENTS).map(([k,[n,ic]])=>'<button type="button" data-mom="'+k+'" aria-pressed="'+(k===st.mom)+'"><span aria-hidden="true">'+ic+'</span>'+n+'</button>').join('')+'</div>'+
     '<textarea id="'+p+'-dt" rows="3" maxlength="600" aria-label="Diary entry" placeholder="'+esc(MOMENTS[st.mom][2])+'">'+esc(st.t||'')+'</textarea><div class="dw-ph" id="'+p+'-phv"'+(st.ph?'':' hidden')+'>'+dwPh(st)+'</div>'+
-    '<div class="dw-row"><input type="date" id="'+p+'-dd" class="dateinp" value="'+(st.d||todayISO())+'" max="'+todayISO()+'" aria-label="Date"><input type="file" accept="image/*" id="'+p+'-ph" hidden>'+
+    '<div class="dw-row"><input type="date" id="'+p+'-dd" class="dateinp" value="'+(st.d||todayISO())+'" max="'+todayISO()+'" aria-label="Date" required><input type="file" accept="image/*" id="'+p+'-ph" hidden>'+
       '<button type="button" class="btn ghost dw-cam" id="'+p+'-cam">'+CAM_ICO+(st.ph?'Change photo':'Photo')+'</button><button type="button" class="btn" id="'+p+'-dadd">Add to the diary</button></div></div>'}
 const dwPh=st=>st.ph?'<img src="'+st.ph+'" alt="The photo for this entry"><button type="button" class="dw-phx" aria-label="Remove the photo">✕</button>':'';
 // bean(): the coffee it's about. done(b): save and redraw.
@@ -7831,7 +7882,7 @@ function openBeanEditor(b,pre){const isNew=!b;const B=Object.assign({name:'',roa
    '<div class="field"><div class="lbl" id="be-vlbl">Variety</div><div class="bvars" id="be-vars" role="group" aria-labelledby="be-vlbl"></div>'+
    '<button type="button" class="bv-add" id="be-addv"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add another variety</button></div>'+
    '<div class="field"><div class="lbl">Roast</div><div class="seg" id="be-roast"></div></div>'+
-   '<div class="two"><div class="field"><label for="be-rdate">Roasted on</label><input type="date" id="be-rdate" class="dateinp" value="'+B.roastDate+'"></div><div class="field"><label for="be-tried">Tried on</label><input type="date" id="be-tried" class="dateinp" value="'+B.tried+'"></div></div>'+
+   '<div class="two"><div class="field"><label for="be-rdate">Roasted on</label><input type="date" id="be-rdate" class="dateinp" value="'+B.roastDate+'" max="'+todayISO()+'"></div><div class="field"><label for="be-tried">Tried on</label><input type="date" id="be-tried" class="dateinp" value="'+B.tried+'" max="'+todayISO()+'" required></div></div>'+
    '<div class="two bagrow"><div class="field"><label for="be-bag">Bag size <span class="hint">grams</span></label><input id="be-bag" type="number" inputmode="numeric" min="0" max="5000" step="1" value="'+(B.bag||'')+'" placeholder="e.g. 250"></div>'+
    '<div class="field"><div class="lbl">On the shelf</div><div class="seg" id="be-shelf"></div></div></div>'+
    '<div class="field"><label for="be-fl">Tasting notes <span class="hint">separate with commas</span></label><input id="be-fl" maxlength="160" value="'+esc(B.flavours)+'" placeholder="e.g. jasmine, peach, honey"></div>'+
@@ -8403,6 +8454,70 @@ function openSelect(s){const d=$('selsheet'),opts=[...s.options],long=opts.lengt
 // Selects already on the page, and any drawn later.
 document.querySelectorAll('select').forEach(enhanceSelect);
 new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.nodeType===1){if(n.tagName==='SELECT')enhanceSelect(n);else n.querySelectorAll&&n.querySelectorAll('select').forEach(enhanceSelect)}}).observe(document.body,{childList:true,subtree:true});
+
+/* ================= DATES ================= */
+// Every date field keeps its <input type="date"> (its value, events, min and max), but shows the date in the app's own
+// words and opens the app's own calendar, in the same sheet as the dropdowns, so the phone's picker never appears.
+const CAL_RE=/^\d{4}-\d{2}-\d{2}$/;
+const calIso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const calDate=v=>{const [y,m,d]=v.split('-').map(Number);return new Date(y,m-1,d,12)};
+const calWords=v=>CAL_RE.test(v)?calDate(v).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'';
+// Weeks start on Sunday where that's the custom (US, Canada, Japan, Israel, Brazil...), on Monday elsewhere.
+const CAL_SUN=/^(en-(US|CA|PH)|ja|he|pt-BR|ko|zh-TW|ar-SA)/i.test(navigator.language||'');
+const CAL_ICO='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14v13H5z M5 10h14 M9 3v4 M15 3v4"/></svg>';
+function calLabel(inp){const l=inp.id&&document.querySelector('label[for="'+inp.id+'"]');return((l&&l.textContent)||inp.getAttribute('aria-label')||'Date').replace(/\s+/g,' ').trim()}
+function enhanceDate(inp){if(inp.dataset.ui)return;inp.dataset.ui=1;
+  const w=document.createElement('span');w.className='datew';w.tabIndex=0;w.setAttribute('role','button');
+  inp.parentNode.insertBefore(w,inp);w.appendChild(inp);w.insertAdjacentHTML('beforeend','<span class="dw-t"></span>'+CAL_ICO);
+  inp.tabIndex=-1;inp.setAttribute('aria-hidden','true');
+  const paint=()=>{const t=calWords(inp.value);w.querySelector('.dw-t').textContent=t||'Choose a date';w.classList.toggle('empty',!t);
+    w.setAttribute('aria-label',calLabel(inp)+': '+(t||'not set')+'. Choose a date')};
+  // Code that sets the value (a scan filling in its roast date) updates the words too.
+  const D=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value');
+  Object.defineProperty(inp,'value',{configurable:true,get(){return D.get.call(inp)},set(v){D.set.call(inp,v);paint()}});
+  paint();
+  const open=e=>{if(inp.disabled)return;e&&e.preventDefault();openDate(inp,w)};
+  w.addEventListener('click',open);w.addEventListener('keydown',e=>{if(['Enter',' ','ArrowDown'].includes(e.key))open(e)});
+  inp.addEventListener('focus',()=>w.focus());inp.addEventListener('mousedown',e=>e.preventDefault());
+  const l=inp.id&&document.querySelector('label[for="'+inp.id+'"]');if(l)l.addEventListener('click',e=>{e.preventDefault();w.focus()})}
+function openDate(inp,w){const d=$('selsheet'),min=CAL_RE.test(inp.min)?inp.min:'',max=CAL_RE.test(inp.max)?inp.max:'',today=calIso(new Date());
+  let cur=CAL_RE.test(inp.value)?inp.value:'',view=calDate(cur||(max&&today>max?max:today)),mode='days';
+  const ok=v=>(!min||v>=min)&&(!max||v<=max);
+  const pick=v=>{if(inp.value!==v){inp.value=v;inp.dispatchEvent(new Event('input',{bubbles:true}));inp.dispatchEvent(new Event('change',{bubbles:true}))}d.close();setTimeout(()=>w.focus({preventScroll:true}),0)};
+  const yest=calIso(new Date(Date.now()-864e5));
+  const draw=()=>{const y=view.getFullYear(),m=view.getMonth();let body;
+    if(mode==='days'){const first=new Date(y,m,1),lead=(first.getDay()-(CAL_SUN?0:1)+7)%7,n=new Date(y,m+1,0).getDate();
+      const wd=[...Array(7)].map((_,i)=>new Date(2024,0,(CAL_SUN?7:1)+i).toLocaleDateString(undefined,{weekday:'narrow'}));
+      let cells='';for(let i=0;i<lead;i++)cells+='<span></span>';
+      for(let k=1;k<=n;k++){const v=calIso(new Date(y,m,k));cells+='<button type="button" class="cd'+(v===today?' today':'')+'" data-d="'+v+'" aria-pressed="'+(v===cur)+'"'+(ok(v)?'':' disabled')+' aria-label="'+esc(new Date(y,m,k).toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'}))+'">'+k+'</button>'}
+      body='<div class="calwk" aria-hidden="true">'+wd.map(x=>'<span>'+esc(x)+'</span>').join('')+'</div><div class="calgrid">'+cells+'</div>'}
+    else{body='<div class="calmonths">'+[...Array(12)].map((_,k)=>{const a=calIso(new Date(y,k,1)),z=calIso(new Date(y,k+1,0)),can=(!max||a<=max)&&(!min||z>=min);
+      return '<button type="button" class="cm" data-m="'+k+'" aria-pressed="'+(k===m)+'"'+(can?'':' disabled')+'>'+esc(new Date(y,k,1).toLocaleDateString(undefined,{month:'short'}))+'</button>'}).join('')+'</div>'}
+    const title=mode==='days'?view.toLocaleDateString(undefined,{month:'long',year:'numeric'}):String(y);
+    const prevOk=mode==='days'?(!min||calIso(new Date(y,m,0))>=min):(!min||String(y-1)>=min.slice(0,4)),nextOk=mode==='days'?(!max||calIso(new Date(y,m+1,1))<=max):(!max||String(y+1)<=max.slice(0,4));
+    $('sel-in').innerHTML='<div class="selhead"><div class="grab"></div><h3 id="sel-title">'+esc(calLabel(inp))+'</h3><button type="button" class="vd-close" id="sel-x" aria-label="Close">✕</button></div>'+
+      '<div class="cal"><div class="calnav"><button type="button" class="cn-b" id="cal-p" aria-label="'+(mode==='days'?'Previous month':'Previous year')+'"'+(prevOk?'':' disabled')+'><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>'+
+      '<button type="button" class="cal-t" id="cal-t" aria-label="'+esc(title)+(mode==='days'?', choose a month':', back to the days')+'">'+esc(title)+'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button>'+
+      '<button type="button" class="cn-b" id="cal-n" aria-label="'+(mode==='days'?'Next month':'Next year')+'"'+(nextOk?'':' disabled')+'><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div>'+body+
+      '<div class="calq">'+(ok(today)?'<button type="button" class="chip" data-d="'+today+'">Today</button>':'')+(ok(yest)?'<button type="button" class="chip" data-d="'+yest+'">Yesterday</button>':'')+
+      (inp.required?'':'<button type="button" class="chip calclear" data-clear="1"'+(cur?'':' disabled')+'>Clear</button>')+'</div></div>';
+    $('sel-x').onclick=()=>d.close();
+    $('cal-p').onclick=()=>{view=mode==='days'?new Date(y,m-1,1):new Date(y-1,m,1);draw()};$('cal-n').onclick=()=>{view=mode==='days'?new Date(y,m+1,1):new Date(y+1,m,1);draw()};
+    $('cal-t').onclick=()=>{mode=mode==='days'?'months':'days';draw()};
+    d.querySelector('.cal').onclick=e=>{const b=e.target.closest('[data-d],[data-m],[data-clear]');if(!b||b.disabled)return;
+      if(b.dataset.m){view=new Date(y,+b.dataset.m,1);mode='days';draw();return}if(b.dataset.clear){pick('');return}pick(b.dataset.d)}};
+  draw();
+  const narrow=matchMedia('(max-width:759px)').matches;d.classList.toggle('pop',!narrow);d.classList.add('dates');
+  if(!narrow){const r=w.getBoundingClientRect(),W=320,below=innerHeight-r.bottom,up=below<420&&r.top>below;
+    Object.assign(d.style,{left:Math.min(Math.max(8,r.left),innerWidth-W-8)+'px',width:W+'px',top:up?'auto':(r.bottom+6)+'px',bottom:up?(innerHeight-r.top+6)+'px':'auto',maxHeight:Math.max(300,(up?r.top:below)-24)+'px'})}
+  else Object.assign(d.style,{left:'',width:'',top:'',bottom:'',maxHeight:''});
+  d.onkeydown=e=>{const a=document.activeElement;if(!a||!a.classList||!a.classList.contains('cd'))return;const st={ArrowLeft:-1,ArrowRight:1,ArrowUp:-7,ArrowDown:7}[e.key];if(!st)return;e.preventDefault();
+    const t=calDate(a.dataset.d);t.setDate(t.getDate()+st);const v=calIso(t);if(!ok(v))return;if(t.getMonth()!==view.getMonth()){view=new Date(t.getFullYear(),t.getMonth(),1);draw()}const nb=d.querySelector('.cd[data-d="'+v+'"]');if(nb)nb.focus()};
+  d.addEventListener('close',()=>d.classList.remove('dates'),{once:true});
+  showDlg(d);const on=d.querySelector('.cd[aria-pressed="true"]')||d.querySelector('.cd.today')||d.querySelector('.cd:not([disabled])');
+  if(on&&!narrow)on.focus({preventScroll:true});else{const c=$('sel-in');c.tabIndex=-1;c.focus({preventScroll:true})}}
+document.querySelectorAll('input[type=date]').forEach(enhanceDate);
+new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.nodeType===1){if(n.matches&&n.matches('input[type=date]'))enhanceDate(n);else n.querySelectorAll&&n.querySelectorAll('input[type=date]').forEach(enhanceDate)}}).observe(document.body,{childList:true,subtree:true});
 
 /* ================= YOUR PROFILE ================= */
 // Who's brewing: a nickname, a few words, a face and the coffee you love. It is saved on this device and, once you

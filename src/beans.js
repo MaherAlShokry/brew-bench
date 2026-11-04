@@ -129,7 +129,7 @@ const CAM_ICO='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-2.5
 function dwriteHTML(p,st,top){return '<div class="dwrite" id="'+p+'-write">'+(top||'')+'<div class="dmoms" role="group" aria-label="What kind of moment">'+
     Object.entries(MOMENTS).map(([k,[n,ic]])=>'<button type="button" data-mom="'+k+'" aria-pressed="'+(k===st.mom)+'"><span aria-hidden="true">'+ic+'</span>'+n+'</button>').join('')+'</div>'+
     '<textarea id="'+p+'-dt" rows="3" maxlength="600" aria-label="Diary entry" placeholder="'+esc(MOMENTS[st.mom][2])+'">'+esc(st.t||'')+'</textarea><div class="dw-ph" id="'+p+'-phv"'+(st.ph?'':' hidden')+'>'+dwPh(st)+'</div>'+
-    '<div class="dw-row"><input type="date" id="'+p+'-dd" class="dateinp" value="'+(st.d||todayISO())+'" max="'+todayISO()+'" aria-label="Date"><input type="file" accept="image/*" id="'+p+'-ph" hidden>'+
+    '<div class="dw-row"><input type="date" id="'+p+'-dd" class="dateinp" value="'+(st.d||todayISO())+'" max="'+todayISO()+'" aria-label="Date" required><input type="file" accept="image/*" id="'+p+'-ph" hidden>'+
       '<button type="button" class="btn ghost dw-cam" id="'+p+'-cam">'+CAM_ICO+(st.ph?'Change photo':'Photo')+'</button><button type="button" class="btn" id="'+p+'-dadd">Add to the diary</button></div></div>'}
 const dwPh=st=>st.ph?'<img src="'+st.ph+'" alt="The photo for this entry"><button type="button" class="dw-phx" aria-label="Remove the photo">✕</button>':'';
 // bean(): the coffee it's about. done(b): save and redraw.
@@ -617,7 +617,7 @@ function openBeanEditor(b,pre){const isNew=!b;const B=Object.assign({name:'',roa
    '<div class="field"><div class="lbl" id="be-vlbl">Variety</div><div class="bvars" id="be-vars" role="group" aria-labelledby="be-vlbl"></div>'+
    '<button type="button" class="bv-add" id="be-addv"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add another variety</button></div>'+
    '<div class="field"><div class="lbl">Roast</div><div class="seg" id="be-roast"></div></div>'+
-   '<div class="two"><div class="field"><label for="be-rdate">Roasted on</label><input type="date" id="be-rdate" class="dateinp" value="'+B.roastDate+'"></div><div class="field"><label for="be-tried">Tried on</label><input type="date" id="be-tried" class="dateinp" value="'+B.tried+'"></div></div>'+
+   '<div class="two"><div class="field"><label for="be-rdate">Roasted on</label><input type="date" id="be-rdate" class="dateinp" value="'+B.roastDate+'" max="'+todayISO()+'"></div><div class="field"><label for="be-tried">Tried on</label><input type="date" id="be-tried" class="dateinp" value="'+B.tried+'" max="'+todayISO()+'" required></div></div>'+
    '<div class="two bagrow"><div class="field"><label for="be-bag">Bag size <span class="hint">grams</span></label><input id="be-bag" type="number" inputmode="numeric" min="0" max="5000" step="1" value="'+(B.bag||'')+'" placeholder="e.g. 250"></div>'+
    '<div class="field"><div class="lbl">On the shelf</div><div class="seg" id="be-shelf"></div></div></div>'+
    '<div class="field"><label for="be-fl">Tasting notes <span class="hint">separate with commas</span></label><input id="be-fl" maxlength="160" value="'+esc(B.flavours)+'" placeholder="e.g. jasmine, peach, honey"></div>'+
