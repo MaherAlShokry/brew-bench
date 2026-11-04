@@ -526,7 +526,7 @@ async function addScanToGallery(i){const s=SCANS[i];if(!s)return;const inf=s.inf
   openBeanEditor(null,{name:scanTitle(s.sc,inf),roaster:scRoaster(s)||'',origin:s.sc.origin,process:s.sc.process,variety:s.sc.variety,vars:scanVars(s.sc,inf),roast:s.sc.roast,roastDate:s.sc.date||'',
     flavours:inf&&Array.isArray(inf.tasting_notes)?inf.tasting_notes.join(', ').slice(0,160):'',photo,scan:s.id,lowres:!full&&!!s.t})}
 $('beans-in').addEventListener('input',e=>{if(e.target.id!=='bg-q')return;BQ=e.target.value;renderGrid()});
-$('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-add')){openBeanEditor();return}if(e.target.closest('#bg-scan,#bg-scan2')){showTab('scan');scrollTo(0,0);return} /* the Scan page offers taking or choosing a photo */
+$('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-add')){openBeanEditor();return}if(e.target.closest('#bg-scan,#bg-scan2')){showTab('scan');newScan();scrollTo(0,0);return} /* the Scan page offers taking or choosing a photo */
   const v=e.target.closest('[data-view]');if(v){BVIEW=v.dataset.view;renderBeanViews();if(v.classList.contains('tshelf'))$('bg-views').scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'});return}
   const dyb=e.target.closest('[data-dyb]');if(dyb){if(dyb.dataset.dyb==='more')openDiaryPick();else setDyBean(dyb.dataset.dyb);return}
   if(e.target.closest('#dy-more')){DLIM+=60;renderDiaryList();return}
@@ -610,17 +610,17 @@ function openBeanEditor(b,pre){const isNew=!b;const B=Object.assign({name:'',roa
    '<div class="actions two-up"><button type="button" class="btn ghost" id="be-cam">Take a photo</button><button type="button" class="btn ghost" id="be-pick">Choose a photo</button></div>'+
    '<input type="file" id="be-camf" accept="image/*" capture="environment" hidden><input type="file" id="be-file" accept="image/*" hidden>'+
    '<div class="field"><div class="lbl">Your rating</div><div class="beanrate" id="be-rate"></div></div>'+
-   '<div class="two stackm"><div class="field"><label for="be-name">Coffee name</label><input id="be-name" maxlength="60" value="'+esc(B.name)+'" placeholder="e.g. El Diviso Pink Bourbon" autocomplete="off"></div>'+
-   '<div class="field"><label for="be-roaster">Roastery</label><div class="acw"><input id="be-roaster" maxlength="50" value="'+esc(B.roaster)+'" placeholder="e.g. Archers" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="be-rsug"><div class="acl" id="be-rsug" role="listbox" aria-label="Roasteries you’ve had" hidden></div></div></div></div>'+
+   '<div class="two stackm"><div class="field"><label for="be-name">Coffee name</label><input id="be-name" maxlength="60" value="'+esc(B.name)+'" autocomplete="off"></div>'+
+   '<div class="field"><label for="be-roaster">Roastery</label><div class="acw"><input id="be-roaster" maxlength="50" value="'+esc(B.roaster)+'" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="be-rsug"><div class="acl" id="be-rsug" role="listbox" aria-label="Roasteries you’ve had" hidden></div></div></div></div>'+
    '<div class="two stackm"><div class="field"><label for="be-origin">Origin</label><select id="be-origin">'+opt(originOptions(),'Not sure')+'</select></div>'+
    '<div class="field"><label for="be-process">Process</label><select id="be-process">'+opt(processOptions(),'Not sure')+'</select></div></div>'+
    '<div class="field"><div class="lbl" id="be-vlbl">Variety</div><div class="bvars" id="be-vars" role="group" aria-labelledby="be-vlbl"></div>'+
    '<button type="button" class="bv-add" id="be-addv"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add another variety</button></div>'+
    '<div class="field"><div class="lbl">Roast</div><div class="seg" id="be-roast"></div></div>'+
    '<div class="two"><div class="field"><label for="be-rdate">Roasted on</label><input type="date" id="be-rdate" class="dateinp" value="'+B.roastDate+'" max="'+todayISO()+'"></div><div class="field"><label for="be-tried">Tried on</label><input type="date" id="be-tried" class="dateinp" value="'+B.tried+'" max="'+todayISO()+'" required></div></div>'+
-   '<div class="two bagrow"><div class="field"><label for="be-bag">Bag size <span class="hint">grams</span></label><input id="be-bag" type="number" inputmode="numeric" min="0" max="5000" step="1" value="'+(B.bag||'')+'" placeholder="e.g. 250"></div>'+
+   '<div class="two bagrow"><div class="field"><label for="be-bag">Bag size <span class="hint">grams</span></label><input id="be-bag" type="number" inputmode="numeric" min="0" max="5000" step="1" value="'+(B.bag||'')+'"></div>'+
    '<div class="field"><div class="lbl">On the shelf</div><div class="seg" id="be-shelf"></div></div></div>'+
-   '<div class="field"><label for="be-fl">Tasting notes <span class="hint">separate with commas</span></label><input id="be-fl" maxlength="160" value="'+esc(B.flavours)+'" placeholder="e.g. jasmine, peach, honey"></div>'+
+   '<div class="field"><label for="be-fl">Tasting notes <span class="hint">separate with commas</span></label><input id="be-fl" maxlength="160" value="'+esc(B.flavours)+'"></div>'+
    '<div class="field"><label for="be-notes">Your notes</label><textarea id="be-notes" rows="3" maxlength="600" placeholder="How you brewed it, what you loved, would you buy it again?">'+esc(B.notes)+'</textarea></div>'+
    '<div class="actions"><button class="btn" id="be-save">'+(isNew?'Add to the gallery':'Save changes')+'</button><button class="btn ghost" id="be-cancel">Cancel</button></div></div>';
   for(const [id,k] of [['be-origin','origin'],['be-process','process']])$(id).value=B[k];

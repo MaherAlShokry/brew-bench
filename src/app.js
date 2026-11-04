@@ -563,9 +563,13 @@ function renderCal(){
   $('calhead').innerHTML='<th>Brewer</th>'+MYG.map(g=>'<th>'+esc(gname(g))+'</th>').join('');
 }
 function initDial(){
+  // A fresh start puts the grind back on this brewer's usual setting for your grinder.
+  if(S.fresh){const bx=baseX(S.grinder,S.brewer);if(bx!=null)S.setting=roundG(S.grinder,bx);const B=BREWERS[S.brewer];if(B){S.temp=B.temp.def;S.ratio=B.ratio.ref;S.bloom=B.bloom.def}delete S.fresh}
   $('i-brewer').innerHTML=brewerOptions(MODEL);
   for(const id of['i-process','s-process'])$(id).innerHTML=processOptions();
-  for(const id of['i-variety','s-variety'])$(id).innerHTML=varietyOptions();
+  $('i-variety').innerHTML=varietyOptions();
+  // A scan that names no variety reads as plain Arabica: the picker shows it as Not sure rather than blank.
+  $('s-variety').innerHTML='<option value="arabica">Not sure</option>'+varietyOptions();
   $('i-region').innerHTML=regionOptions();
   $('i-grind').oninput=e=>{S.setting=+e.target.value;soon(render)};
   $('i-temp').oninput=e=>{S.temp=+e.target.value;soon(render)};
@@ -1071,7 +1075,7 @@ function openRecipeEditor(r,fresh){const isNew=!r||fresh;r=Object.assign({b:'v60
   const card=(n,t,body,hint)=>'<div class="re-card"><h3 class="re-h"><i>'+n+'</i>'+t+(hint?'<small>'+hint+'</small>':'')+'</h3>'+body+'</div>';
   $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>'+(isNew?'New recipe':'Edit recipe')+'</span><h2 id="vd-title">'+(isNew?'Create a recipe':esc(r.name))+'</h2></div>'+
    '<div class="vd-body recform re2">'+
-   card(1,'The basics','<div class="field"><label for="re-name">Name</label><input id="re-name" maxlength="60" value="'+esc(r.name)+'" placeholder="e.g. Saturday V60"></div>'+
+   card(1,'The basics','<div class="field"><label for="re-name">Name</label><input id="re-name" maxlength="60" value="'+esc(r.name)+'"></div>'+
      '<div class="field"><label for="re-b">Brewer</label><select id="re-b">'+brewerOptions(Object.keys(BREWERS).filter(LISTED))+'</select></div>'+
      '<div class="field" id="re-mw" hidden><span class="lab">Method</span><div class="seg" id="re-m" role="group" aria-label="Method"><button type="button" data-m="hy">Hybrid</button><button type="button" data-m="im">Full immersion</button></div></div>')+
    card(2,'Coffee and water','<div class="re-tiles">'+tile('re-dose','Coffee','g',r.dose,0.5)+tile('re-water','Water','g',r.water,10)+tile('re-temp','Water temp','°C',r.temp,1)+'</div><p class="re-ratio" id="re-ratio"></p>')+
@@ -1079,7 +1083,7 @@ function openRecipeEditor(r,fresh){const isNew=!r||fresh;r=Object.assign({b:'v60
    card(4,'Steps','<div id="re-steps"></div>','tap a kind of step to add it; times let the timer follow')+
    card(5,'The story','<div class="field"><label for="re-why">Why it works <span class="hint">optional</span></label><textarea id="re-why" rows="2" placeholder="What this recipe does differently">'+esc(r.why)+'</textarea></div>'+
      '<div class="field"><label for="re-tip">Tip <span class="hint">optional</span></label><input id="re-tip" maxlength="300" value="'+esc(r.tip)+'" placeholder="One thing to try next time"></div>'+
-     '<div class="field"><label for="re-by">Credit <span class="hint">optional</span></label><input id="re-by" maxlength="60" value="'+esc(r.by)+'" placeholder="e.g. Based on Hoffmann"></div>')+
+     '<div class="field"><label for="re-by">Credit <span class="hint">optional</span></label><input id="re-by" maxlength="60" value="'+esc(r.by)+'"></div>')+
    '<div class="actions"><button class="btn" id="re-save">'+(isNew?'Save recipe':'Save changes')+'</button>'+(!isNew?'<button class="btn ghost" id="re-del">Delete</button>':'')+'</div>'+
    (GROUP&&SYNC_DB?'<p class="hint">Saved recipes are shared with your group ('+GROUP.code+').</p>':'<p class="hint">Share it from its card'+(SYNC_DB?', or start a shared log in the Log tab to share all your recipes with your team':'')+'.</p>')+'</div>';
   $('re-b').value=BREWERS[r.b].of||r.b;let method=imm?'im':'hy';
@@ -1355,13 +1359,13 @@ function grindersChanged(){if(!MYG.includes(S.grinder)||!canGrind(S.grinder,S.br
   if(!MYG.includes(SC.grinder))SC.grinder=MYG.find(x=>canGrind(x,SC.brewer))||capable(SC.brewer);
   render();renderScan();renderCal();if(BUILT.recipes)renderRecipes();if(BUILT.gear){renderMyGrinders();renderMyBrewers();renderMatch();renderLibrary();renderGearBrewers();renderGrindMap()}}
 function renderCustomForm(){
-  $('gcustom-in').innerHTML='<div class="cform"><div class="field"><label for="cg-name">Name</label><input id="cg-name" maxlength="40" placeholder="e.g. Hario Skerton Pro"></div>'+
+  $('gcustom-in').innerHTML='<div class="cform"><div class="field"><label for="cg-name">Name</label><input id="cg-name" maxlength="40"></div>'+
    '<div class="two"><div class="field"><label for="cg-type">Type</label><select id="cg-type"><option value="manual">Manual</option><option value="electric">Electric</option></select></div>'+
    '<div class="field"><label for="cg-fmt">How is it set?</label><select id="cg-fmt"><option value="clicks">Clicks from fully closed</option><option value="num1">Numbered dial (1, 2, 3)</option><option value="num10">Numbered dial with 10 steps (5.6)</option><option value="num3">Numbered dial with thirds (4, 4.1, 4.2)</option><option value="rot">1Zpresso-style ring (rotation.number.click)</option></select></div></div>'+
    '<div class="two"><div class="field"><label for="cg-min">Finest setting</label><input id="cg-min" inputmode="decimal" value="0"></div><div class="field"><label for="cg-max">Coarsest setting</label><input id="cg-max" inputmode="decimal" value="40"></div></div>'+
-   '<div class="two stackm"><div class="field"><label for="cg-v60">Your V60 setting</label><input id="cg-v60" inputmode="decimal" placeholder="e.g. 24"></div>'+
+   '<div class="two stackm"><div class="field"><label for="cg-v60">Your V60 setting</label><input id="cg-v60" inputmode="decimal"></div>'+
    '<div class="field"><label for="cg-ref">And one more you know</label><div class="joinrow"><select id="cg-reft" aria-label="Brewer for this setting"><option value="espresso">Espresso</option><option value="aeropress">AeroPress</option><option value="frenchpress" selected>French press</option></select><input id="cg-ref" inputmode="decimal" placeholder="optional"></div></div></div>'+
-   '<div class="field"><label for="cg-burr">Burrs (optional)</label><input id="cg-burr" maxlength="80" placeholder="e.g. 38 mm ceramic conical"></div>'+
+   '<div class="field"><label for="cg-burr">Burrs (optional)</label><input id="cg-burr" maxlength="80"></div>'+
    '<p class="hint">The V60 setting anchors it; the second setting tells the app how far apart the settings are. Without it, the app assumes a typical spacing.</p>'+
    '<div class="actions"><button type="button" class="btn" id="cg-save">Add grinder</button></div></div>';
   $('cg-save').onclick=()=>{const name=$('cg-name').value.trim(),fmt=$('cg-fmt').value;if(!name){toast('Give the grinder a name');return}
@@ -1665,7 +1669,7 @@ function renderShare(){const el=$('l-share');if(!el)return;
   // No sync server set up for this copy of the app: there is nothing to join, so the card stays out of the way.
   el.hidden=!SYNC_DB;if(!SYNC_DB){el.innerHTML='';return}
   if(!GROUP){el.innerHTML='<h3>Shared log</h3><p class="hint" style="margin-top:0">Log brews together: everyone in the group sees each other’s entries on their own phone.</p>'+
-    '<div class="field"><label for="sh-name">Your name</label><input id="sh-name" maxlength="30" placeholder="e.g. Maher" value="'+esc(ME)+'"></div>'+
+    '<div class="field"><label for="sh-name">Your name</label><input id="sh-name" maxlength="30" value="'+esc(ME)+'"></div>'+
     '<div class="actions"><button class="btn" id="sh-new">Start a shared log</button></div>'+
     '<div class="field" style="margin-top:12px"><label for="sh-code">Or join with a code</label><div class="joinrow"><input id="sh-code" placeholder="ABCD-2345" maxlength="9" autocapitalize="characters" value="'+esc(JOIN_CODE||'')+'"><button class="btn ghost" id="sh-join">Join</button></div></div>';
     const name=()=>{const n=$('sh-name').value.trim();if(!n){toast('Add your name first, so friends know who logged what');$('sh-name').focus()}return n};
@@ -1738,6 +1742,14 @@ $('l-csv').onclick=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';cons
 
 /* ================= SCAN ================= */
 let SC=Object.assign({origin:'',process:'washed',variety:'pinkbourbon',roast:'light',date:'',brewer:'v60',grinder:'zp6',info:null,name:'',roaster:''},load('bb-scan',{}));SC.name=str(SC.name,60);SC.roaster=str(SC.roaster,50);if(!MYG.includes(SC.grinder))SC.grinder=MYG[0];
+// Each new scan starts from a blank coffee: nothing from the last bag (its roast date, process or roastery) carries over.
+const SC_BLANK={origin:'',process:'washed',variety:'arabica',roast:'light',date:'',info:null,name:'',roaster:'',id:''};
+const clearScanData=()=>Object.assign(SC,SC_BLANK);
+// Reopening the app starts the scan and the dial-in fresh (your gear and calibration stay), unless Settings says to
+// pick up where you left off. A reload in the same session keeps everything.
+const FRESH_OPEN=(()=>{try{const first=!sessionStorage.getItem('bb-open');sessionStorage.setItem('bb-open','1');return first&&(load('bb-ui',{}).resume||'fresh')==='fresh'}catch(e){return false}})();
+if(FRESH_OPEN){clearScanData();SC.blank=true;
+  Object.assign(S,{rec:null,reck:null,temp:93,ratio:15,bloom:45,agit:'med',roast:'light',process:'washed',variety:'caturra',region:'',dose:15,goal:'balance',amt:'mid',age:14,tuned:null,bean:null});S.fresh=1}
 if(!PROCESSES[SC.process])SC.process='washed';if(!vById(SC.variety))SC.variety='pinkbourbon';if(!['light','medium','dark'].includes(SC.roast))SC.roast='light';if(!/^\d{4}-\d{2}-\d{2}$/.test(SC.date||''))SC.date='';SC.origin=okOrigin(SC.origin);if(!PBREWERS.includes(SC.brewer))SC.brewer='v60';
 // Saved scans come from storage, a backup or another device: keep only well-formed ones, with known keys.
 const okScan=x=>{if(!x||typeof x!=='object'||!x.sc||typeof x.sc!=='object')return null;const c=x.sc;
@@ -1750,14 +1762,14 @@ function daysSince(d){if(!d)return 14;const t=Date.parse(d);if(isNaN(t))return 1
 function initScan(){
   $('s-origin').innerHTML='<option value="">Not sure</option>'+originOptions();
   $('s-brewer').innerHTML=brewerOptions(PBREWERS);
-  for(const [id,key] of [['s-origin','origin'],['s-process','process'],['s-variety','variety'],['s-brewer','brewer'],['s-date','date']])$(id).onchange=e=>{SC[key]=key==='variety'?effVariety(e.target.value,SC.origin):e.target.value;if(key==='brewer'&&!canGrind(SC.grinder,SC.brewer))SC.grinder=capable(SC.brewer);renderScan()};
+  for(const [id,key] of [['s-origin','origin'],['s-process','process'],['s-variety','variety'],['s-brewer','brewer'],['s-date','date']])$(id).onchange=e=>{if(key!=='brewer')SC.blank=false;SC[key]=key==='variety'?effVariety(e.target.value,SC.origin):e.target.value;if(key==='brewer'&&!canGrind(SC.grinder,SC.brewer))SC.grinder=capable(SC.brewer);renderScan()};
   // Two ways in: the camera straight away, or a photo already on the phone. Typing or pasting the text is below.
   $('scan-pick').onclick=()=>openCamera();$('scan-choose').onclick=()=>$('scan-file').click();
   $('scan-drop').onclick=e=>{if(e.target.tagName!=='INPUT')openCamera()}; /* the hidden inputs sit inside the box, so their clicks bubble up to it */
   $('scan-cam').onchange=$('scan-file').onchange=e=>{const f=e.target.files[0];e.target.value='';if(f)usePhoto(f)};
   $('scan-go').onclick=()=>runScan(true);$('scan-text-go').onclick=()=>runScan(false);$('scan-stop').onclick=()=>SCTL&&SCTL.abort();
   // Name and roastery: typed fixes show at once and update the saved scan they belong to.
-  for(const [id,key,n] of [['s-name','name',60],['s-roaster','roaster',50]])$(id).oninput=e=>{SC[key]=str(e.target.value,n);const i=SCANS.findIndex(x=>x.id&&x.id===SC.id);if(i>=0){SCANS[i].sc[key]=SC[key];save('bb-scans',SCANS);renderScanList()}save('bb-scan',Object.assign({},SC));soon(renderScanHead)};
+  for(const [id,key,n] of [['s-name','name',60],['s-roaster','roaster',50]])$(id).oninput=e=>{SC[key]=str(e.target.value,n);if(SC.blank){SC.blank=false;renderScan()}const i=SCANS.findIndex(x=>x.id&&x.id===SC.id);if(i>=0){SCANS[i].sc[key]=SC[key];save('bb-scans',SCANS);renderScanList()}save('bb-scan',Object.assign({},SC));soon(renderScanHead)};
   renderScan();
 }
 function scanPrompt(extra){
@@ -1951,7 +1963,7 @@ let LEX=null;
 function lexicon(){if(LEX)return LEX;
   const strip=n=>fold(n).replace(/\([^)]*\)/g,' ').replace(/["“”]/g,'').replace(/\s+/g,' ').trim();
   const V_EXTRA={geisha:['geisha','gesha'],landrace:['heirloom','ethiopian landrace','ethiopian landraces','ethiopian heirloom','landrace'],jarc:['jarc','74110','74112','74158'],robusta:['robusta','canephora'],
-    liberica:['liberica','excelsa'],yemenia:['yemenia','yemeni landrace'],kent:['kent','s795','s 795'],laurina:['laurina','bourbon pointu'],catuai:['catuai','red catuai','yellow catuai'],
+    liberica:['liberica','excelsa'],yemenia:['yemenia','yemeni landrace'],udaini:['udaini','odaini','oudaini','udayni','udeini'],dawairi:['dawairi','dawayri','dawairy','duwairi','dawari'],tufahi:['tufahi','tuffahi','tofahi','tufahy','tuffahy'],jaadi:['jaadi',"ja'adi",'ja’adi','ja adi','jaady'],kent:['kent','s795','s 795'],laurina:['laurina','bourbon pointu'],catuai:['catuai','red catuai','yellow catuai'],
     castillo:['castillo'],ruiru:['ruiru 11','ruiru','batian'],jackson:['jackson','mibirizi'],centroamericano:['centroamericano','h1'],bourbon:['bourbon','red bourbon','borbon','bourbon rojo','bourbon vermelho'],kona:['kona typica'],
     sl28:['sl28','sl 28','sl-28'],aji:['bourbon aji','aji bourbon','aji'],ombligon:['ombligon'],typicamejorado:['typica mejorado'],rumesudan:['rume sudan'],mokka:['mokka','maui mokka'],obata:['obata'],sl34:['sl34','sl 34','sl-34'],pinkbourbon:['pink bourbon','bourbon rosado','borbon rosado'],yellowbourbon:['yellow bourbon','bourbon amarelo','bourbon amarillo'],caturra:['caturra'],catuai:['catuai','red catuai','yellow catuai','catuai amarelo','catuai vermelho']};
   const vars=[];for(const v of V){if(v.id==='arabica')continue; /* "100% Arabica" on a bag says nothing about the variety */for(const a of (V_EXTRA[v.id]||[strip(v.name)]))vars.push([a,v.id])}
@@ -2132,7 +2144,7 @@ function findRoaster(lines,t,geo){const clean=lines.map(cleanLine),L=lexicon(),c
   if(!cands.length)return null;cands.sort((a,b)=>b.score-a.score);const best=cands[0];
   // Names in capitals come back in normal case; a known roaster keeps its own spelling.
   return{name:best.score>=100?best.name:niceName(best.name).replace(/\s+/g,' ').slice(0,50),line:best.line}}
-function applyInfo(j){SC.origin=okOrigin(j.origin_key);if(j.process_key&&PROCESSES[j.process_key])SC.process=j.process_key;
+function applyInfo(j){clearScanData();SC.blank=false;SC.origin=okOrigin(j.origin_key);if(j.process_key&&PROCESSES[j.process_key])SC.process=j.process_key;
   // A label that names no variety gets plain arabica (neutral in the plan), not whatever the last bag was.
   SC.variety=j.variety_key&&vById(j.variety_key)?j.variety_key:'arabica';if(['light','medium','dark'].includes(j.roast_level))SC.roast=j.roast_level;if(/^\d{4}-\d{2}-\d{2}$/.test(j.roast_date||''))SC.date=j.roast_date;SC.name=plausibleName(j.coffee_name)?niceName(j.coffee_name).slice(0,60):'';SC.roaster=plausibleName(j.roaster)?niceName(j.roaster).slice(0,50):'';SC.info=j}
 async function runLocalScan(useImg){
@@ -2167,7 +2179,7 @@ async function runLocalScan(useImg){
 // After a sideways photo is read, show it the right way up (the saved thumbnail follows the preview).
 async function uprightPreview(rot){try{const img=await loadImage(SFILE),k=Math.min(1,1200/Math.max(img.width,img.height)),w=img.width*k,h=img.height*k,c=document.createElement('canvas'),side=rot%180!==0;
   c.width=side?h:w;c.height=side?w:h;const x=c.getContext('2d');x.translate(c.width/2,c.height/2);x.rotate(rot*Math.PI/180);x.drawImage(img,-w/2,-h/2,w,h);$('scan-prev').src=c.toDataURL('image/jpeg',.85)}catch(e){}}
-function usePhoto(f){SFILE=f;if($('scan-prev').src.startsWith('blob:'))URL.revokeObjectURL($('scan-prev').src);
+function usePhoto(f){SFILE=f;clearScanData();SC.blank=true;renderScan();if($('scan-prev').src.startsWith('blob:'))URL.revokeObjectURL($('scan-prev').src);
   $('scan-prev').src=URL.createObjectURL(f);$('scan-prev').hidden=false;$('scan-empty').hidden=true;$('scan-go').disabled=false;$('scan-again').hidden=false;$('scan-status').hidden=false;runScan(true)}
 /* In-app camera. Some phones answer a file input's "use the camera" request with the gallery anyway, so the
    camera runs inside the app: a live viewfinder with a frame for the label and a shutter. If the camera can't
@@ -2200,8 +2212,11 @@ function saveScan(){SC.id='s'+Date.now().toString(36);const sid=SC.id;
   if(SFILE&&$('scan-prev').src)shrinkPhoto($('scan-prev').src,900).then(u=>BIMG.put(sid,u)).catch(()=>{});
   thumb(t=>{SCANS.unshift({id:SC.id,t,info:SC.info,sc:{origin:SC.origin,process:SC.process,variety:SC.variety,roast:SC.roast,date:SC.date,name:SC.name,roaster:SC.roaster},when:new Date().toLocaleDateString()});for(const x of SCANS.slice(12))if(x.id)BIMG.del(x.id);SCANS=SCANS.slice(0,12);save('bb-scans',SCANS);renderScanList()})}
 // A saved scan reopens on the Scan page with its details.
-function openSavedScan(i){const s=SCANS[i];if(!s)return;Object.assign(SC,{name:'',roaster:''},s.sc);SC.id=s.id;SC.info=s.info;if(typeof s.sc.name!=='string'&&s.info&&plausibleName(s.info.coffee_name))SC.name=niceName(s.info.coffee_name);if(typeof s.sc.roaster!=='string')SC.roaster=scRoaster(s)&&niceName(scRoaster(s));renderScan();showTab('scan')}
+function openSavedScan(i){const s=SCANS[i];if(!s)return;clearScanData();SC.blank=false;Object.assign(SC,{name:'',roaster:''},s.sc);SC.id=s.id;SC.info=s.info;if(typeof s.sc.name!=='string'&&s.info&&plausibleName(s.info.coffee_name))SC.name=niceName(s.info.coffee_name);if(typeof s.sc.roaster!=='string')SC.roaster=scRoaster(s)&&niceName(scRoaster(s));renderScan();showTab('scan')}
 // Scans are listed on the Beans page.
+function newScan(){clearScanData();SC.blank=true;SFILE=null;const pv=$('scan-prev');if(pv.src.startsWith('blob:'))URL.revokeObjectURL(pv.src);pv.removeAttribute('src');pv.hidden=true;
+  $('scan-empty').hidden=false;$('scan-again').hidden=true;$('scan-go').disabled=true;$('scan-status').textContent='';$('scan-text').value='';const tb=$('scan-textbox');if(tb)tb.open=false;
+  ['scan-cam','scan-file'].forEach(id=>{const f=$(id);if(f)f.value=''});save('bb-scan',Object.assign({},SC));renderScan()}
 function renderScanList(){if(window.BEANS_OK&&$('bv-scans')){renderBeanScans();renderBeanViews()}}
 // What to call the coffee: its name if we have a real one, else origin and variety ("Colombia Pink Bourbon").
 // Suggestions under a text box, drawn by the app (the phone's own list draws see-through over the form in some web views).
@@ -2276,7 +2291,7 @@ function beanProfileHTML(){const b=beanProfile();
     '<p class="hint" style="margin:10px 0 0">For exact grind and water settings on your gear, open it in the dial-in.</p></div>'}
 function renderScan(){
   $('s-origin').value=SC.origin;$('s-process').value=SC.process;$('s-variety').value=String(SC.variety).split(':')[0];$('s-date').value=SC.date||'';$('s-brewer').value=SC.brewer;
-  seg('s-roast',[['light','Light'],['medium','Medium'],['dark','Dark']],()=>SC.roast,v=>{SC.roast=v;renderScan()});
+  seg('s-roast',[['light','Light'],['medium','Medium'],['dark','Dark']],()=>SC.roast,v=>{SC.roast=v;SC.blank=false;renderScan()});
   grinderSeg('s-grinder',(SC.brewer),()=>SC.grinder,v=>{SC.grinder=v;renderScan()});
   const age=daysSince(SC.date);const c={brewer:SC.brewer,grinder:SC.grinder,tech:techList(SC.brewer)[0][1],process:SC.process,variety:SC.variety,roast:SC.roast,age,goal:'balance'};
   const P=PROCESSES[SC.process],Vp=vParams(SC.variety);
@@ -2284,11 +2299,14 @@ function renderScan(){
   const p=plan(c);const o=oInfo(SC.origin),inf=SC.info;
   const kv=inf?[['Producer or farm',inf.producer_or_farm],['Region',inf.region],['Altitude',inf.altitude],['Varieties',(inf.varieties||[]).join(', ')],['Process',inf.process],['Notes',(inf.tasting_notes||[]).join(', ')]].filter(x=>x[1]):[];
   $('s-name').value=SC.name||'';$('s-roaster').value=SC.roaster||'';autoList($('s-roaster'),$('s-rsug'),()=>[...new Set([...SCANS.map(scRoaster),...(typeof BEANS!=='undefined'?BEANS:[]).map(x=>x.roaster)].filter(Boolean))].sort());
+  if(SC.blank){$('scan-out').innerHTML='<div class="scan-wait"><span class="sw-ic" aria-hidden="true">'+CI(BT_ICON['Cone dripper'])+'</span><b>Your coffee shows here</b><p class="hint">Scan a bag or type its label, and its profile, notes and how to brew it appear here.</p></div>';
+    save('bb-scan',Object.assign({},SC));return}
   $('scan-out').innerHTML='<div id="scan-head"></div>'+(inf?(inf.summary?'<p class="hint">'+esc(inf.summary)+'</p>':'')+(kv.length?'<dl class="kv">'+kv.map(([k,v])=>'<dt>'+k+'</dt><dd>'+esc(v)+'</dd>').join('')+'</dl>':''):'<p class="hint">Scan a bag or fill in the details to get a plan.</p>')+
    // Only an origin on the map opens its page; one off the map is a plain chip.
    '<div class="chips">'+(!o?'':ALLO()[SC.origin]?'<button class="chip" data-o="'+SC.origin+'">'+(o.flag||'')+' '+esc(o.name)+'</button>':'<span class="chip">'+(o.flag||'')+' '+esc(o.name)+'</span>')+vbtn(SC.variety.split(':')[0])+scanVars(SC,SC.info).map(vbtn).join('')+'<span class="chip">'+esc(P.name)+'</span><span class="chip">'+age+' days off roast</span></div>'+
    '<h3>Coffee profile</h3>'+beanProfileHTML()+
-   '<div class="actions"><button class="btn" id="sc-dial">Brew it in the dial-in</button><button class="btn ghost" id="sc-gallery">Add to the bean gallery</button><button class="btn ghost" id="sc-share">Share</button></div>';
+   '<div class="actions"><button class="btn" id="sc-dial">Brew it in the dial-in</button><button class="btn ghost" id="sc-gallery">Add to the bean gallery</button><button class="btn ghost" id="sc-share">Share</button></div>'+
+   '<button type="button" class="linkbtn sc-new" id="sc-new">Scan another bag</button>';
   renderScanHead();
   const oc=$('scan-out').querySelector('[data-o]');if(oc)oc.onclick=()=>{showTab('map');selectOrigin(SC.origin,true)};
   $('sc-gallery').onclick=async()=>{let photo=null;if(SFILE&&$('scan-prev').src)try{photo=await shrinkPhoto($('scan-prev').src,900)}catch(e){}
@@ -2297,7 +2315,7 @@ function renderScan(){
     openBeanEditor(null,{name:SC.name||(inf&&plausibleName(inf.coffee_name)?niceName(inf.coffee_name):''),roaster:SC.roaster,origin:SC.origin,process:SC.process,variety:SC.variety,vars:scanVars(SC,inf),roast:SC.roast,roastDate:SC.date||'',
       flavours:inf&&Array.isArray(inf.tasting_notes)?inf.tasting_notes.join(', ').slice(0,160):'',photo,scan:SC.id||''})};
   $('sc-dial').onclick=()=>{S.bean=okSBean({name:SC.name||scanTitle(SC,SC.info),roaster:SC.roaster,origin:SC.origin,scan:SC.id||''});Object.assign(S,{brewer:p.st.brewer,rec:c.tech,process:c.process,variety:c.variety,roast:c.roast,age:c.age,goal:c.goal,amt:c.amt||'mid',dose:p.r.dose,grinder:p.grinder});showTab('dial');tune('Tuned for this coffee')};
-  $('sc-share').onclick=()=>openShare(scanDoc(p,c));
+  $('sc-share').onclick=()=>openShare(scanDoc(p,c));$('sc-new').onclick=()=>{newScan();scrollTo({top:0,behavior:RM()?'auto':'smooth'})};
   const cp=Object.assign({},SC);save('bb-scan',cp);renderScanList();
 }
 
@@ -2700,7 +2718,7 @@ function renderExplore(){const day=Math.floor(Date.now()/864e5),w=GLOSSARY[day%G
 /* ---------- Settings: the app's look, name and your data ---------- */
 // Vibes: whole palettes, light and dark (their colours live in the styles; these are for the previews).
 const VIBES=[["roastery","Roastery","The house look: cream and roasted brown",{"paper":"#FBF7F0","surface":"#FFFDF9","surface2":"#F3EADC","ink":"#3B2A20","cherry":"#8A5A3B","honey":"#C9964A","leaf":"#6B8E4E"},{"paper":"#1F1814","surface":"#2A211B","surface2":"#362A22","ink":"#F3EADF","cherry":"#D9A06B","honey":"#E2B866","leaf":"#A7C084"}],["oat","Oat latte","Soft, milky and calm",{"paper":"#F6F0E8","surface":"#FFFCF7","surface2":"#EDE3D6","ink":"#3A3029","cherry":"#855735","honey":"#B98A3E","leaf":"#5F7F49"},{"paper":"#2F2A26","surface":"#3C3631","surface2":"#4A433D","ink":"#F5EFE8","cherry":"#E9C29E","honey":"#EDCB91","leaf":"#BCD1A6"}],["matcha","Matcha caf\u00e9","Fresh greens, easy on the eyes",{"paper":"#F1F5EB","surface":"#FCFEF8","surface2":"#E1E9D4","ink":"#24301D","cherry":"#3F6E2E","honey":"#9C7A26","leaf":"#4E7A3A"},{"paper":"#0D2216","surface":"#143020","surface2":"#1C3F2B","ink":"#E6F4E3","cherry":"#9FDB82","honey":"#E3CF7C","leaf":"#9FDB82"}],["blossom","Coffee blossom","Pink like the flowers on the tree",{"paper":"#FBF3F3","surface":"#FFFBFB","surface2":"#F4E0E2","ink":"#3D2328","cherry":"#A8324F","honey":"#B47E3A","leaf":"#5E8A5A"},{"paper":"#2A0D1D","surface":"#3A1429","surface2":"#4B1D36","ink":"#FCE9F0","cherry":"#FF93B6","honey":"#F3C98A","leaf":"#B4DDA8"}],["nordic","Nordic roast","Cool, light and minimal",{"paper":"#F3F6F8","surface":"#FFFFFF","surface2":"#E5EBF0","ink":"#1E2833","cherry":"#2C5A80","honey":"#9A7A3A","leaf":"#4F7C69"},{"paper":"#0A1A2E","surface":"#11253F","surface2":"#19324F","ink":"#E5EEF8","cherry":"#8FC4F2","honey":"#E3C68D","leaf":"#93D1B8"}],["desert","Desert mocha","Sand and terracotta, Yemen at dusk",{"paper":"#F8F0E3","surface":"#FFFAF1","surface2":"#EEDEC6","ink":"#3A2618","cherry":"#9A4522","honey":"#B87E25","leaf":"#6E7F3E"},{"paper":"#2E140A","surface":"#3E1D0F","surface2":"#4F2715","ink":"#FBE9D8","cherry":"#FFA06E","honey":"#F5C77A","leaf":"#CFD593"}],["neon","Neon espresso","Late-night caf\u00e9, a little loud",{"paper":"#F6F2FF","surface":"#FFFFFF","surface2":"#EBE3FF","ink":"#24183A","cherry":"#6A30D6","honey":"#C2357E","leaf":"#13896A"},{"paper":"#130A33","surface":"#1E1250","surface2":"#2A1B66","ink":"#F3EEFF","cherry":"#D0A5FF","honey":"#FF8BD0","leaf":"#5FF0BE"}],["caramel","Caramel pop","Warm, sweet and sunny",{"paper":"#FFF5EA","surface":"#FFFDF8","surface2":"#FBE4CC","ink":"#3B2412","cherry":"#9C4913","honey":"#B97A15","leaf":"#5E8040"},{"paper":"#2A1A06","surface":"#3A250B","surface2":"#4A3012","ink":"#FFF0DC","cherry":"#FFB061","honey":"#FFD27A","leaf":"#C3DA93"}],["pure","Pure","Crisp white by day, true black by night",{"paper":"#FFFFFF","surface":"#FFFFFF","surface2":"#F2F2F4","ink":"#0B0B0C","cherry":"#141416","honey":"#8A6A2C","leaf":"#2F7A45"},{"paper":"#000000","surface":"#0E0E10","surface2":"#1A1A1D","ink":"#FFFFFF","cherry":"#F4F4F5","honey":"#E3C17E","leaf":"#7FD08F"}],["black","Black coffee","White or pitch black, with a crema accent",{"paper":"#FFFFFF","surface":"#FFFFFF","surface2":"#F4F1EE","ink":"#121212","cherry":"#7A4A2C","honey":"#9A6B1F","leaf":"#4E7A3A"},{"paper":"#000000","surface":"#0F0D0C","surface2":"#1C1916","ink":"#FFFFFF","cherry":"#E2A877","honey":"#F0C477","leaf":"#A5CC86"}]];
-let UI=Object.assign({accent:'classic',vibe:'roastery',logo:'bean',text:'m',motion:'full',start:'dial'},load('bb-ui',{}));
+let UI=Object.assign({accent:'classic',vibe:'roastery',logo:'bean',text:'m',motion:'full',start:'dial',resume:'fresh'},load('bb-ui',{}));
 if(!VIBES.some(v=>v[0]===UI.vibe))UI.vibe='roastery';
 const ACCENTS=[['classic','Vibe’s own','#8A5A3B'],['espresso','Espresso','#5E3B2A'],['cascara','Cascara','#A3392E'],['kenya','Kenya','#7B2D4E'],['honey','Honey','#A8741C'],['leaf','Coffee leaf','#4F7A45'],['coldbrew','Cold brew','#2E5C7A'],['geisha','Geisha','#76588C']];
 if(!ACCENTS.some(a=>a[0]===UI.accent))UI.accent='classic';
@@ -2781,7 +2799,8 @@ function renderSettings(){const t=document.documentElement.getAttribute('data-th
     row('leaf','#6B8E4E','App logo','In the top bar, the tab and on your home screen','<div class="logos">'+Object.entries(LOGOS).map(([k,[n]])=>'<button type="button" class="logopick" data-logo="'+k+'" aria-pressed="'+(UI.logo===k)+'"><span class="lg-tile">'+logoSVG(k,36)+'</span>'+n+'</button>').join('')+'</div><p class="setnote">'+(NATIVE&&plugin('AppIcon')?'Your home-screen icon changes to match a moment after you leave the app.':NATIVE?'The home-screen icon follows the logo from the next app update.':'The browser tab shows it too. In the Android app, the home-screen icon follows it.')+'</p>')+
     row('text','#C9964A','Text size','','<div class="seg" id="st-text"></div>')+
     row('wheel','#6E8FA8','Motion','Animations between pages and sheets','<div class="seg" id="st-motion"></div>')+
-    row('globe','#4F8A74','Open the app on','The page you see first','<div class="seg" id="st-start"></div>')+'</div>'+
+    row('globe','#4F8A74','Open the app on','The page you see first','<div class="seg" id="st-start"></div>')+
+    row('hourglass','#8A5A3B','When you reopen the app','Scan and Brew start fresh, or pick up where you left off','<div class="seg" id="st-resume"></div>')+'</div>'+
    // The coffee of the day: always on the Beans and Explore pages; in the Android app, also as a notification.
    '<h3 class="rh">Grind settings</h3><div class="setgroup">'+row('wheel','#6E8FA8','Grind settings','Each grinder\u2019s setting for every brewer, and a nudge for all its recipes. Now in Gear and dials.','<div class="actions gs-shortcut" style="margin:0"><button type="button" class="btn ghost" data-gearto="set">Open grind settings</button></div>')+'</div>'+
    '<h3 class="rh">Reminders</h3><div class="setgroup">'+row('hourglass','#8A5A3B','Coffee of the day','A coffee from your cabinet each day: a bag at its peak or running low, one from this day in an earlier year, or a memory from your diary.',
@@ -2804,7 +2823,8 @@ function renderSettings(){const t=document.documentElement.getAttribute('data-th
     $('st-rtime').onchange=async e=>{if(/^\d\d:\d\d$/.test(e.target.value)){REMIND.t=e.target.value;save('bb-remind',REMIND);await scheduleReminders();toast('Your coffee of the day arrives at '+REMIND.t)}}}
   if($('st-learn')){seg('st-learn',[['0','Off'],['1','Every day']],()=>LEARN.on?'1':'0',async v=>{await setLearn(v==='1');renderSettings()});
     $('st-ltime').onchange=async e=>{if(/^\d\d:\d\d$/.test(e.target.value)){LEARN.t=e.target.value;save('bb-learn',LEARN);await scheduleFacts();toast('Your coffee fact arrives at '+LEARN.t)}}}
-  seg('st-start',[['dial','Brew'],['recipes','Recipes'],['beans','Beans'],['explore','Explore']],()=>UI.start,v=>{UI.start=v;saveUI();renderSettings();toast('The app will open on '+TABNAMES[v])})}
+  seg('st-start',[['dial','Brew'],['recipes','Recipes'],['beans','Beans'],['explore','Explore']],()=>UI.start,v=>{UI.start=v;saveUI();renderSettings();toast('The app will open on '+TABNAMES[v])});
+  seg('st-resume',[['fresh','Start fresh'],['keep','Where I left off']],()=>UI.resume||'fresh',v=>{UI.resume=v;saveUI();renderSettings();toast(v==='fresh'?'Scan and Brew will start fresh next time':'The app will remember your last scan and dial-in')})}
 $('settings-in').addEventListener('click',e=>{const vb=e.target.closest('.vibe[data-vibe]');if(vb){UI.vibe=vb.dataset.vibe;UI.accent='classic';saveUI();renderSettings();toast((VIBES.find(v=>v[0]===UI.vibe)||[])[1]+' on');return}const a=e.target.closest('.swatch[data-accent]');if(a){UI.accent=a.dataset.accent;saveUI();renderSettings();return}
   const l=e.target.closest('.logopick[data-logo]');if(l){UI.logo=l.dataset.logo;saveUI();renderSettings();return}
   if(e.target.closest('#st-export')){exportData();return}if(e.target.closest('#st-import')){$('st-file').click();return}});
@@ -2993,7 +3013,8 @@ document.querySelectorAll('table.ref').forEach(t=>{const hs=[...t.querySelectorA
     // Recipes added since then aren't in that old list (list each new built-in recipe's key in ADDED_SINCE), so count past them.
     const j=st.rec-Object.keys(OLD_GONE).filter(k=>+k<st.rec).length,old=RECIPES.map((r,n)=>n).filter(n=>!ADDED_SINCE.has(rkey(RECIPES[n])));
     i=OLD_GONE[st.rec]?rByKey(OLD_GONE[st.rec]):old[j]}
-  if(st.rec!=null||st.reck){S.rec=i!=null&&i>=0&&RECIPES[i]?i:null;if(S.rec==null)S.tuned=null}}
+  // A fresh start (reopening the app) begins with no recipe, so the saved one isn't brought back.
+  if(!FRESH_OPEN&&(st.rec!=null||st.reck)){S.rec=i!=null&&i>=0&&RECIPES[i]?i:null;if(S.rec==null)S.tuned=null}}
 try{initDial();render();renderCalc();renderTS();renderStars();renderLog();initScan();}
 catch(err){let retried=false;try{retried=sessionStorage.getItem('bb-reset')==='1';sessionStorage.setItem('bb-reset','1')}catch(e){}
   if(!retried){try{['bb-state','bb-plan','bb-scan','bb-calc','bb-base3'].forEach(k=>localStorage.removeItem(k))}catch(e){}location.reload()}throw err}

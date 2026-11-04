@@ -122,13 +122,13 @@ function openProfileEditor(opts){opts=opts||{};const J=opts.join,d=$('vd'),isNew
      [['','Roast'],...Object.entries(BANNERS).map(([k,b])=>[k,b.name])].map(([k,n])=>'<button type="button" data-b="'+k+'" aria-label="'+n+'"><i style="'+(k?'background:'+BANNERS[k].bg:'')+'"></i><span>'+n+'</span></button>').join('')+
      '<button type="button" data-b="photo" aria-label="Your own photo"><i class="pf-bphoto">'+CAM_SVG+'</i><span>Your photo</span></button></div>'+
      '<div class="pf-bpos" id="pf-bposrow" hidden><label for="pf-bpos">Move the photo up or down</label><input type="range" id="pf-bpos" min="0" max="100" step="1"></div><input type="file" id="pf-bfile" accept="image/*" hidden></div>'+
-   '<div class="two stackm"><div class="field"><label for="pf-nick">Nickname</label><input id="pf-nick" maxlength="30" autocomplete="nickname" placeholder="e.g. The V60 guy" value="'+esc(P.nick)+'"></div>'+
+   '<div class="two stackm"><div class="field"><label for="pf-nick">Nickname</label><input id="pf-nick" maxlength="30" autocomplete="nickname" value="'+esc(P.nick)+'"></div>'+
    '<div class="field"><label for="pf-name">Name <span class="hint">optional</span></label><input id="pf-name" maxlength="40" autocomplete="name" value="'+esc(P.name)+'"></div></div>'+
-   '<div class="field"><label for="pf-brief">A few words about you <span class="hint" id="pf-count"></span></label><textarea id="pf-brief" rows="3" maxlength="160" placeholder="e.g. Chasing florals with a Switch and a ZP6. Washed Ethiopians forever.">'+esc(P.brief)+'</textarea></div>'+
+   '<div class="field"><label for="pf-brief">A few words about you <span class="hint" id="pf-count"></span></label><textarea id="pf-brief" rows="3" maxlength="160">'+esc(P.brief)+'</textarea></div>'+
    '<div class="field"><div class="lbl">How you like your coffee</div><div class="seg filters wrap" id="pf-style"></div></div>'+
    '<div class="two stackm"><div class="field"><label for="pf-brewer">Favourite brewer</label><select id="pf-brewer"><option value="">None yet</option>'+brewerOpts+'</select></div>'+
    '<div class="field"><label for="pf-origin">Favourite origin</label><select id="pf-origin"><option value="">None yet</option>'+originOptions()+'</select></div></div>'+
-   '<div class="field"><label for="pf-city">Where you brew <span class="hint">optional</span></label><input id="pf-city" maxlength="40" autocomplete="address-level2" placeholder="e.g. Muscat" value="'+esc(P.city)+'"></div>'+
+   '<div class="field"><label for="pf-city">Where you brew <span class="hint">optional</span></label><input id="pf-city" maxlength="40" autocomplete="address-level2" value="'+esc(P.city)+'"></div>'+
    '<div class="actions"><button class="btn" id="pf-save">'+(J?'Create my account':opts.welcome?'Done':isNew?'Create my profile':'Save')+'</button><button class="btn ghost" id="pf-cancel">'+(J?'Back':opts.welcome?'Later':'Cancel')+'</button></div>'+
    (J?'<p class="au-fine">We keep only what you save, and you can delete your account at any time. <a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a></p>':'')+
    (isNew?'':'<button type="button" class="linkbtn danger" id="pf-del">'+(ACCT?'Delete my account and profile':'Delete my profile')+'</button>')+'</div>';
