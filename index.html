@@ -229,13 +229,19 @@ dialog#vd::backdrop{background:rgba(20,14,10,.55)}
 #tree .n.big text{font-size:13.5px;font-weight:600}
 #tree .n:hover rect,#tree .n:focus-visible rect{fill:color-mix(in srgb,var(--c) 26%,var(--surface));stroke-width:2}
 #tree .n:focus-visible rect{stroke:var(--ink)}
-#tree .tnote rect{fill:color-mix(in srgb,var(--cherry) 9%,var(--surface));stroke:color-mix(in srgb,var(--cherry) 35%,transparent);stroke-dasharray:3 3}
-#tree .tnote text{font-family:var(--display);font-size:11px;font-style:italic;fill:var(--cherry-ink)}
+#tree .tmark circle{fill:color-mix(in srgb,var(--cherry) 14%,var(--surface));stroke:color-mix(in srgb,var(--cherry) 45%,transparent);stroke-width:1.2}
+#tree .tmark text{font:700 10.5px var(--body);text-anchor:middle;fill:var(--cherry-ink,var(--cherry))}
+/* The tree's notes, numbered to match their markers. */
+.treenotes{list-style:none;margin:10px 0 0;padding:12px 14px;display:grid;gap:8px;border-radius:var(--r-md);background:var(--surface);border:1px solid var(--line)}
+.treenotes[hidden]{display:none}.treenotes li{display:flex;gap:10px;align-items:flex-start;font-size:.86rem;line-height:1.45;color:var(--muted)}
+.treenotes .tn-k{flex:none;width:20px;height:20px;margin-top:.05em;border-radius:50%;display:grid;place-items:center;font-size:.7rem;font-weight:700;background:color-mix(in srgb,var(--cherry) 14%,var(--surface));color:var(--cherry-ink,var(--cherry))}
+.treenotes b{color:var(--ink);font-weight:650;margin-right:6px}
+
 #tree path.e{fill:none;stroke-width:1.7;opacity:.55;stroke-linecap:round;stroke-dasharray:1;transition:opacity .2s,stroke-width .2s;animation:tdraw 1s cubic-bezier(.3,.6,.3,1) both;animation-delay:calc(var(--i) * 14ms)}
 @keyframes tdraw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
 #tree.focus path.e{opacity:.12}
 #tree.focus path.e.on{opacity:1;stroke-width:2.6}
-#tree.focus .n,#tree.focus .tnote{opacity:.3;transition:opacity .2s}
+#tree.focus .n,#tree.focus .tmark{opacity:.3;transition:opacity .2s}
 #tree.focus .n.on{opacity:1}
 .tleg i{background:var(--c);width:10px;height:7px;transform:rotate(-35deg)}
 .tleg.dna{font-style:italic;color:var(--cherry-ink);white-space:normal;max-width:100%}
@@ -540,6 +546,10 @@ dialog#navsheet::backdrop,dialog#sharesheet::backdrop{background:rgba(30,20,14,.
   :root{padding-top:0}
   .ab-back{flex:none;display:grid;place-items:center;width:38px;height:38px;margin:-4px 0 -4px -6px;border:0;border-radius:50%;background:var(--surface2);color:var(--cherry);cursor:pointer;animation:secin .2s ease}.ab-back[hidden]{display:none}
   .ab-brand{flex:1;min-width:0;display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:800;font-size:1.15rem;color:var(--ink)}
+#ab-title{flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;line-height:1.2}
+#ab-share svg{display:none;width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
+/* On a narrow phone Share is its icon, so the page title has room. */
+@media (max-width:379px){#ab-share:not([hidden]){width:40px;height:40px;padding:0;display:grid;place-items:center}#ab-share svg{display:block}#ab-share span{display:none}}
   .ab-btn{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-family:var(--display);font-size:.88rem;color:var(--cherry);cursor:pointer}
   .herowrap{display:none}
   body.t-dial .herowrap{display:block}
@@ -1185,12 +1195,16 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 /* A recipe at a glance, and its steps as a timeline. */
 .rstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:.4rem 0 .8rem}
 .rstats div{background:var(--surface2);border-radius:12px;padding:8px 10px}.rstats b{display:block;font:700 1.02rem var(--display);font-variant-numeric:tabular-nums}.rstats small{color:var(--muted);font-size:.74rem}
-.steps.tl{list-style:none;padding:0;margin:.4rem 0 .6rem;position:relative}.steps.tl li{position:relative;padding:0 0 12px 64px;min-height:26px}
-.steps.tl li::before{content:"";position:absolute;left:25px;top:24px;bottom:0;width:2px;background:var(--line)}.steps.tl li:last-child::before{display:none}
-.steps.tl .t{position:absolute;left:0;top:0;width:52px;text-align:center;font:700 .78rem var(--body);font-variant-numeric:tabular-nums;color:var(--cherry);background:color-mix(in srgb,var(--cherry) 12%,var(--surface));border-radius:99px;padding:3px 0}
-.steps.tl .t.dot{width:12px;height:12px;left:20px;top:6px;padding:0;background:var(--line)}
-.steps.tl .tk{display:inline-grid;place-items:center;vertical-align:-4px;width:20px;height:20px;margin-right:6px;border-radius:50%;background:color-mix(in srgb,var(--k,var(--muted)) 16%,var(--surface));color:var(--k,var(--muted))}
+.steps.tl{list-style:none;padding:0;margin:.4rem 0 .6rem;position:relative}
+/* A step: its time, the kind of move and the instruction in three columns. The time and the icon are one text line tall,
+   so they sit on the middle of the first line however the instruction wraps. */
+.steps.tl li{--row:1.5rem;position:relative;display:grid;grid-template-columns:52px 22px minmax(0,1fr);column-gap:10px;align-items:start;padding:0 0 12px;min-height:var(--row)}
+.steps.tl li::before{content:"";position:absolute;left:25px;top:calc(var(--row) + 2px);bottom:2px;width:2px;border-radius:1px;background:var(--line)}.steps.tl li:last-child::before{display:none}
+.steps.tl .t{grid-column:1;height:var(--row);display:flex;align-items:center;justify-content:center;font:700 .78rem var(--body);font-variant-numeric:tabular-nums;color:var(--cherry);background:color-mix(in srgb,var(--cherry) 12%,var(--surface));border-radius:99px;padding:0}
+.steps.tl .t.dot{width:12px;height:12px;margin:calc((var(--row) - 12px) / 2) 0 0 20px;padding:0;background:var(--line)}
+.steps.tl .tk{grid-column:2;display:grid;place-items:center;width:22px;height:22px;margin-top:calc((var(--row) - 22px) / 2);border-radius:50%;background:color-mix(in srgb,var(--k,var(--muted)) 16%,var(--surface));color:var(--k,var(--muted))}
 .steps.tl .tk svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.steps.tl .sx{grid-column:3;line-height:var(--row);overflow-wrap:anywhere}
 .steps.tl li.k-pour .t,.steps.tl li.k-bloom .t{background:color-mix(in srgb,var(--k) 16%,var(--surface));color:color-mix(in srgb,var(--k) 75%,var(--ink))}
 
 /* Steppers (the dial-in's coffee dose). */
@@ -2122,7 +2136,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
   s.querySelector(".sp-art").outerHTML='<svg class="sp-logo k-'+k+'" viewBox="'+vb+'" overflow="visible">'+x+body+"</svg>";
   if(run)run(s.querySelector(".sp-logo"))
   })()}catch(e){}})()</script>
-<header class="appbar" id="appbar"><button type="button" class="ab-back" id="ab-back" aria-label="Back" hidden><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="ab-brand"><span id="ab-logo"><svg viewBox="80 80 352 352" width="24" height="24" aria-hidden="true"><g transform="rotate(-38 256 256)"><clipPath id="abBean"><ellipse cx="256" cy="256" rx="120" ry="166"/></clipPath><g clip-path="url(#abBean)"><rect x="100" y="80" width="320" height="360" fill="var(--cherry)"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184H440V80z" fill="var(--honey)"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184" fill="none" stroke="var(--paper)" stroke-width="22"/></g></g></svg></span><span id="ab-title">Dial-in</span></div><button type="button" class="ab-btn" id="ab-share" aria-label="Share">Share</button><button type="button" class="me-btn" id="ab-me" aria-label="Your profile"></button></header>
+<header class="appbar" id="appbar"><button type="button" class="ab-back" id="ab-back" aria-label="Back" hidden><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="ab-brand"><span id="ab-logo"><svg viewBox="80 80 352 352" width="24" height="24" aria-hidden="true"><g transform="rotate(-38 256 256)"><clipPath id="abBean"><ellipse cx="256" cy="256" rx="120" ry="166"/></clipPath><g clip-path="url(#abBean)"><rect x="100" y="80" width="320" height="360" fill="var(--cherry)"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184H440V80z" fill="var(--honey)"/><path d="M262 80c-50 50 50 126 0 176s50 126 0 184" fill="none" stroke="var(--paper)" stroke-width="22"/></g></g></svg></span><span id="ab-title">Dial-in</span></div><button type="button" class="ab-btn" id="ab-share" aria-label="Share"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M8 8l4-4 4 4M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg><span>Share</span></button><button type="button" class="me-btn" id="ab-me" aria-label="Your profile"></button></header>
 <div class="herowrap"><button type="button" class="themebtn" id="themebtn" aria-label="Switch theme">Dark</button>
 <header class="hero wrap">
   <div>
@@ -2412,7 +2426,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
   <h3>The coffee family tree</h3>
   <p class="hint">Tap any variety to trace its ancestors and read its story. Families follow genetics, not names: Pink Bourbon sits with the Ethiopian landraces because DNA tests show that is where it comes from.</p>
   <div class="legend" id="treelegend"></div>
-  <div class="treewrap"><div class="treebox"><svg id="tree" role="img" aria-label="Coffee variety family tree"></svg></div></div><p class="treehint" aria-hidden="true">Drag sideways to follow the family across seven generations →</p>
+  <div class="treewrap"><div class="treebox"><svg id="tree" role="img" aria-label="Coffee variety family tree"></svg></div></div><p class="treehint" aria-hidden="true">Drag sideways to follow the family across seven generations →</p><ul class="treenotes" id="treenotes" aria-label="Notes on the tree" hidden></ul>
 
   <h3 style="margin-top:2rem">The coffee species</h3>
   <p class="hint">More than 130 species of Coffea exist. These are the ones that matter in your cup.</p>
@@ -5441,7 +5455,7 @@ const rr1=v=>Math.round(v*10)/10;
 // Steps as a timeline: the time each one starts in a badge, the instruction beside it.
 // Each step also shows what kind of move it is (pour, swirl, valve…) as a small coloured icon; see steps.js.
 // An untimed pour shows the time the chart estimated for it ("~1:00"), so the list and the chart agree.
-const stepList=steps=>{const c=pourCurve(steps);return '<ol class="steps tl">'+steps.map((x,i)=>{const m=/^\s*(\d+:\d\d)\s*/.exec(x),k=stepKind(x),d=!m&&c&&c.dots[i];return '<li class="k-'+k+'">'+(m?'<span class="t">'+m[1]+'</span>':d&&d.e?'<span class="t est" title="Estimated from the recipe\'s pace">~'+mmss(d.t)+'</span>':'<span class="t dot"></span>')+'<i class="tk" title="'+SKNAME(k)+'">'+SKICO(k)+'</i>'+esc(capS(m?x.slice(m[0].length):x))+'</li>'}).join('')+'</ol>'};
+const stepList=steps=>{const c=pourCurve(steps);return '<ol class="steps tl">'+steps.map((x,i)=>{const m=/^\s*(\d+:\d\d)\s*/.exec(x),k=stepKind(x),d=!m&&c&&c.dots[i];return '<li class="k-'+k+'">'+(m?'<span class="t">'+m[1]+'</span>':d&&d.e?'<span class="t est" title="Estimated from the recipe\'s pace">~'+mmss(d.t)+'</span>':'<span class="t dot"></span>')+'<i class="tk" title="'+SKNAME(k)+'">'+SKICO(k)+'</i><span class="sx">'+esc(capS(m?x.slice(m[0].length):x))+'</span></li>'}).join('')+'</ol>'};
 function recipeBody(r,i,compact){const B=BREWERS[r.b],sc=compact?{dose:r.dose,water:r.water,steps:r.steps,off:r.off,ratio:r.water/r.dose}:scaled(r);const gs=MYG.map(g=>[g,settingFor(g,r.b,sc.off)]);
   const m=rmeta(r);
   return (compact?'<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span>':'')+'</div>'
@@ -6086,8 +6100,12 @@ function drawTree(){
     pos[id]={x,y:y+TTOP-(big?3:1),h,w:Math.ceil(textW(lab,big?'600 13.5px':'12px'))+(big?46:40),lab,big,c:FAM[VBY[id].fam].color}}
   let W=0,H=0,defs='',e='',n='',t='';
   for(const id in pos){const p=pos[id];W=Math.max(W,p.x+p.w);H=Math.max(H,p.y+p.h)}
-  for(const id in (TREE.notes||{})){const p=pos[id];if(!p)continue;const nx=p.x+p.w+10,nw=textW(TREE.notes[id],'italic 11px');W=Math.max(W,nx+nw+16);
-    t+='<g class="tnote"><rect x="'+nx+'" y="'+(p.y+p.h/2-10)+'" width="'+Math.ceil(nw+16)+'" height="20" rx="6"/><text x="'+(nx+8)+'" y="'+(p.y+p.h/2+4)+'">'+esc(TREE.notes[id])+'</text></g>'}
+  // A variety with a note (what its DNA says) gets a small marker beside it; the notes are written out in full under
+  // the tree, so none runs into the next generation or off the edge.
+  const noted=Object.keys(TREE.notes||{}).filter(id=>pos[id]).sort((a,b)=>pos[a].x-pos[b].x||pos[a].y-pos[b].y);
+  noted.forEach((id,k)=>{const p=pos[id],cx=p.x+p.w+13,cy=p.y+p.h/2;W=Math.max(W,cx+12);
+    t+='<g class="tmark" data-id="'+id+'" aria-hidden="true"><circle cx="'+cx+'" cy="'+cy+'" r="9"/><text x="'+cx+'" y="'+(cy+4)+'">'+(k+1)+'</text></g>'});
+  {const ul=$('treenotes');if(ul){ul.innerHTML=noted.map((id,k)=>'<li><span class="tn-k">'+(k+1)+'</span><span><b>'+esc(pos[id].lab)+'</b>'+esc(TREE.notes[id])+'</span></li>').join('');ul.hidden=!noted.length}}
   W=Math.ceil(W+24);H=Math.ceil(H+28);
   // Generation bands with their headings.
   let bands='';TCOLS.forEach(([x,lab],k)=>{const x0=k?x-12:0,x1=k<TCOLS.length-1?TCOLS[k+1][0]-12:W;
@@ -7329,7 +7347,15 @@ const ico=(n,bg)=>'<span class="ic'+(/var\(--/.test(bg)?' on-accent':'')+'" styl
 
 const TABNAMES={explore:'Explore',settings:'Settings',champs:'World championships',words:'Coffee words',wheel:'Flavour wheel',flow:'From seed to cup',dial:'Dial-in',scan:'Scan beans',gear:'Gear and dials',recipes:'Recipes',tech:'Techniques',process:'Processes',map:'Origins map',variety:'Varieties',history:'History',guide:'Guide',log:'Brew log',beans:'Beans'};
 const BNGROUP={explore:'explore',settings:'settings',champs:'explore',words:'explore',wheel:'explore',flow:'explore',dial:'dial',recipes:'recipes',scan:'beans',map:'explore',variety:'explore',history:'explore',process:'explore',tech:'explore',gear:'settings',guide:'settings',log:'settings',beans:'beans'};
-function syncShell(id){$('ab-title').textContent=TABNAMES[id]||'Brew Bench';$('ab-back').hidden=NAVD<1;document.body.className=document.body.className.replace(/\bt-\w+/g,'').trim()+' t-'+id;
+// The title stays on one line: a long one ("World championships") is set a little smaller until it fits.
+// If it still doesn't fit at the smallest size, the page's short name takes its place.
+const TABSHORT={flow:'Seed to cup',champs:'Championships',wheel:'Flavours',words:'Words',gear:'Gear',variety:'Varieties',map:'Origins'};
+let TITLE_ID='';
+function fitTitle(){const el=$('ab-title');if(!el)return;el.style.fontSize='';el.textContent=TABNAMES[TITLE_ID]||el.textContent;const room=()=>el.scrollWidth<=el.clientWidth+1;let f=parseFloat(getComputedStyle(el).fontSize);
+  for(let i=0;i<8&&!room()&&f>14;i++){f=Math.max(14,f-1);el.style.fontSize=f+'px'}
+  if(!room()&&TABSHORT[TITLE_ID]){el.textContent=TABSHORT[TITLE_ID];el.style.fontSize='';f=parseFloat(getComputedStyle(el).fontSize);for(let i=0;i<8&&!room()&&f>14;i++){f=Math.max(14,f-1);el.style.fontSize=f+'px'}}}
+addEventListener('resize',()=>requestAnimationFrame(fitTitle));
+function syncShell(id){TITLE_ID=id;$('ab-title').textContent=TABNAMES[id]||'Brew Bench';requestAnimationFrame(fitTitle);$('ab-back').hidden=NAVD<1;document.body.className=document.body.className.replace(/\bt-\w+/g,'').trim()+' t-'+id;
   document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));requestAnimationFrame(movePill);
   updShare(id)}
 // The app bar's Share only shows when the page has something to share: a picked origin on the map, a list of recipes.

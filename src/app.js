@@ -929,7 +929,7 @@ const rr1=v=>Math.round(v*10)/10;
 // Steps as a timeline: the time each one starts in a badge, the instruction beside it.
 // Each step also shows what kind of move it is (pour, swirl, valve…) as a small coloured icon; see steps.js.
 // An untimed pour shows the time the chart estimated for it ("~1:00"), so the list and the chart agree.
-const stepList=steps=>{const c=pourCurve(steps);return '<ol class="steps tl">'+steps.map((x,i)=>{const m=/^\s*(\d+:\d\d)\s*/.exec(x),k=stepKind(x),d=!m&&c&&c.dots[i];return '<li class="k-'+k+'">'+(m?'<span class="t">'+m[1]+'</span>':d&&d.e?'<span class="t est" title="Estimated from the recipe\'s pace">~'+mmss(d.t)+'</span>':'<span class="t dot"></span>')+'<i class="tk" title="'+SKNAME(k)+'">'+SKICO(k)+'</i>'+esc(capS(m?x.slice(m[0].length):x))+'</li>'}).join('')+'</ol>'};
+const stepList=steps=>{const c=pourCurve(steps);return '<ol class="steps tl">'+steps.map((x,i)=>{const m=/^\s*(\d+:\d\d)\s*/.exec(x),k=stepKind(x),d=!m&&c&&c.dots[i];return '<li class="k-'+k+'">'+(m?'<span class="t">'+m[1]+'</span>':d&&d.e?'<span class="t est" title="Estimated from the recipe\'s pace">~'+mmss(d.t)+'</span>':'<span class="t dot"></span>')+'<i class="tk" title="'+SKNAME(k)+'">'+SKICO(k)+'</i><span class="sx">'+esc(capS(m?x.slice(m[0].length):x))+'</span></li>'}).join('')+'</ol>'};
 function recipeBody(r,i,compact){const B=BREWERS[r.b],sc=compact?{dose:r.dose,water:r.water,steps:r.steps,off:r.off,ratio:r.water/r.dose}:scaled(r);const gs=MYG.map(g=>[g,settingFor(g,r.b,sc.off)]);
   const m=rmeta(r);
   return (compact?'<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span>':'')+'</div>'
@@ -1574,8 +1574,12 @@ function drawTree(){
     pos[id]={x,y:y+TTOP-(big?3:1),h,w:Math.ceil(textW(lab,big?'600 13.5px':'12px'))+(big?46:40),lab,big,c:FAM[VBY[id].fam].color}}
   let W=0,H=0,defs='',e='',n='',t='';
   for(const id in pos){const p=pos[id];W=Math.max(W,p.x+p.w);H=Math.max(H,p.y+p.h)}
-  for(const id in (TREE.notes||{})){const p=pos[id];if(!p)continue;const nx=p.x+p.w+10,nw=textW(TREE.notes[id],'italic 11px');W=Math.max(W,nx+nw+16);
-    t+='<g class="tnote"><rect x="'+nx+'" y="'+(p.y+p.h/2-10)+'" width="'+Math.ceil(nw+16)+'" height="20" rx="6"/><text x="'+(nx+8)+'" y="'+(p.y+p.h/2+4)+'">'+esc(TREE.notes[id])+'</text></g>'}
+  // A variety with a note (what its DNA says) gets a small marker beside it; the notes are written out in full under
+  // the tree, so none runs into the next generation or off the edge.
+  const noted=Object.keys(TREE.notes||{}).filter(id=>pos[id]).sort((a,b)=>pos[a].x-pos[b].x||pos[a].y-pos[b].y);
+  noted.forEach((id,k)=>{const p=pos[id],cx=p.x+p.w+13,cy=p.y+p.h/2;W=Math.max(W,cx+12);
+    t+='<g class="tmark" data-id="'+id+'" aria-hidden="true"><circle cx="'+cx+'" cy="'+cy+'" r="9"/><text x="'+cx+'" y="'+(cy+4)+'">'+(k+1)+'</text></g>'});
+  {const ul=$('treenotes');if(ul){ul.innerHTML=noted.map((id,k)=>'<li><span class="tn-k">'+(k+1)+'</span><span><b>'+esc(pos[id].lab)+'</b>'+esc(TREE.notes[id])+'</span></li>').join('');ul.hidden=!noted.length}}
   W=Math.ceil(W+24);H=Math.ceil(H+28);
   // Generation bands with their headings.
   let bands='';TCOLS.forEach(([x,lab],k)=>{const x0=k?x-12:0,x1=k<TCOLS.length-1?TCOLS[k+1][0]-12:W;
@@ -2817,7 +2821,15 @@ const ico=(n,bg)=>'<span class="ic'+(/var\(--/.test(bg)?' on-accent':'')+'" styl
 
 const TABNAMES={explore:'Explore',settings:'Settings',champs:'World championships',words:'Coffee words',wheel:'Flavour wheel',flow:'From seed to cup',dial:'Dial-in',scan:'Scan beans',gear:'Gear and dials',recipes:'Recipes',tech:'Techniques',process:'Processes',map:'Origins map',variety:'Varieties',history:'History',guide:'Guide',log:'Brew log',beans:'Beans'};
 const BNGROUP={explore:'explore',settings:'settings',champs:'explore',words:'explore',wheel:'explore',flow:'explore',dial:'dial',recipes:'recipes',scan:'beans',map:'explore',variety:'explore',history:'explore',process:'explore',tech:'explore',gear:'settings',guide:'settings',log:'settings',beans:'beans'};
-function syncShell(id){$('ab-title').textContent=TABNAMES[id]||'Brew Bench';$('ab-back').hidden=NAVD<1;document.body.className=document.body.className.replace(/\bt-\w+/g,'').trim()+' t-'+id;
+// The title stays on one line: a long one ("World championships") is set a little smaller until it fits.
+// If it still doesn't fit at the smallest size, the page's short name takes its place.
+const TABSHORT={flow:'Seed to cup',champs:'Championships',wheel:'Flavours',words:'Words',gear:'Gear',variety:'Varieties',map:'Origins'};
+let TITLE_ID='';
+function fitTitle(){const el=$('ab-title');if(!el)return;el.style.fontSize='';el.textContent=TABNAMES[TITLE_ID]||el.textContent;const room=()=>el.scrollWidth<=el.clientWidth+1;let f=parseFloat(getComputedStyle(el).fontSize);
+  for(let i=0;i<8&&!room()&&f>14;i++){f=Math.max(14,f-1);el.style.fontSize=f+'px'}
+  if(!room()&&TABSHORT[TITLE_ID]){el.textContent=TABSHORT[TITLE_ID];el.style.fontSize='';f=parseFloat(getComputedStyle(el).fontSize);for(let i=0;i<8&&!room()&&f>14;i++){f=Math.max(14,f-1);el.style.fontSize=f+'px'}}}
+addEventListener('resize',()=>requestAnimationFrame(fitTitle));
+function syncShell(id){TITLE_ID=id;$('ab-title').textContent=TABNAMES[id]||'Brew Bench';requestAnimationFrame(fitTitle);$('ab-back').hidden=NAVD<1;document.body.className=document.body.className.replace(/\bt-\w+/g,'').trim()+' t-'+id;
   document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));requestAnimationFrame(movePill);
   updShare(id)}
 // The app bar's Share only shows when the page has something to share: a picked origin on the map, a list of recipes.
