@@ -2996,8 +2996,10 @@ function welcomeHTML(when){const d=when||new Date(),h=d.getHours(),t=h<5?'night'
   const hi={morning:['☀️','Good morning'],day:['☕','Good afternoon'],evening:['🌙','Good evening'],night:['✨','Late-night brew']}[t];
   // One line a day, the same all day.
   const nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick||ME||'',day=Math.floor((d.getTime()-d.getTimezoneOffset()*6e4)/864e5),[q,by]=WISDOM[((day*7)%WISDOM.length+WISDOM.length)%WISDOM.length];
-  return{t,html:'<div class="wl-top"><span class="wl-ic" aria-hidden="true">'+hi[0]+'</span><div><h2 class="wl-hi">'+hi[1]+(nick?', <em>'+esc(nick)+'</em>':'')+'</h2><span class="wl-date">'+esc(d.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'}))+'</span></div></div>'+
-    '<span class="wl-k">Today\u2019s coffee wisdom</span><p class="wl-q">'+esc(q)+(by?'<small class="wl-by">'+esc(by)+'</small>':'')+'</p>'}}
+  return{t,html:'<div class="wl-top"><span class="wl-ic" aria-hidden="true">'+hi[0]+'</span><span class="wl-date">'+esc(d.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'}))+'</span></div>'+
+    '<h2 class="wl-hi">'+hi[1]+(nick?', <em>'+esc(nick)+'</em>':'')+'</h2>'+
+    '<figure class="wl-qf"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18v-5.5C4 8.4 6.4 5.6 10 5l.6 1.9C8.4 7.6 7.4 9 7.3 11H10v7H4zm10 0v-5.5c0-4.1 2.4-6.9 6-7.5l.6 1.9c-2.2.7-3.2 2.1-3.3 4.1H20v7h-6z"/></svg>'+
+    '<span class="wl-k">Today\u2019s coffee wisdom</span><blockquote class="wl-q">'+esc(q)+'</blockquote>'+(by?'<figcaption class="wl-by">'+esc(by)+'</figcaption>':'')+'</figure>'}}
 function renderWelcome(){const el=$('welcome');if(!el)return;const w=welcomeHTML();el.innerHTML=w.html}
 renderWelcome();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)renderWelcome()});
