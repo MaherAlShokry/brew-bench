@@ -111,12 +111,16 @@ function setLeft(b,g){b.left=gramsOrNull(g);b.leftAt=Date.now()}
 const TN_MAX=12,TN_LEN=160;
 const tnFams=()=>FW.roots.filter(r=>r.n!=='Other');
 // Words bags use that the wheel doesn't have, each with the wheel note whose colour and family it takes.
-const TN_X={Caramel:'Caramelized','Brown sugar':'Molasses','Cane sugar':'Panela',Sugarcane:'Panela',Cocoa:'Cocoa nib',Cacao:'Cocoa nib',Cola:'Molasses',Butterscotch:'Toffee',Fudge:'Toffee',
+const TN_X={Caramel:'Caramelized','Brown sugar':'Molasses','Cane sugar':'Panela',Sugarcane:'Panela',Cocoa:'Cocoa nib',Cacao:'Cocoa nib',Butterscotch:'Toffee',Fudge:'Brownie',
   Citrus:'Orange',Tangerine:'Mandarin',Clementine:'Mandarin','Blood orange':'Orange','Orange zest':'Orange','Lemon zest':'Lemon','Red apple':'Apple','Green apple':'Apple',
   'Stone fruit':'Peach',Nectarine:'Peach','Red fruit':'Raspberry','Red currant':'Blackcurrant','Black cherry':'Cherry','Tropical fruit':'Mango',Papaya:'Mango',Guava:'Passion fruit',
-  Kiwi:'Lime',Watermelon:'Melon',Tamarind:'Date','Dried fruit':'Raisin',Jam:'Blackberry',
+  Kiwi:'Lime',Watermelon:'Melon',Tamarind:'Date','Dried fruit':'Raisin',
   'Tea-like':'Black tea',Floral:'Jasmine',Lemongrass:'Herb-like',Mint:'Herb-like',Butter:'Custard',Cream:'Custard',Creamy:'Custard',
-  Nougat:'Almond',Marzipan:'Almond',Praline:'Hazelnut',Cashew:'Macadamia',Nutty:'Hazelnut','Brown spice':'Cinnamon',Wine:'Winey','Red wine':'Winey',Liqueur:'Rum'};
+  Nougat:'Almond',Marzipan:'Almond',Praline:'Hazelnut',Cashew:'Macadamia',Nutty:'Hazelnut','Brown spice':'Cinnamon',Wine:'Winey',Liqueur:'Rum',
+  Champagne:'Sparkling wine',Prosecco:'Sparkling wine','Rose wine':'Rosé',Riesling:'White wine','Sauvignon blanc':'White wine','Peach tea':'Peach iced tea','Lemon tea':'Lemon iced tea',
+  'Orange flower':'Orange blossom','Coffee flower':'Coffee blossom','Lily of the valley':'Lily','Rose water':'Rose',Florals:'Jasmine','White flowers':'Jasmine','Wildflowers':'Chamomile',
+  'Hibiscus tea':'Hibiscus','Pink lemonade':'Lemonade','Yellow peach':'Peach','White peach':'Peach','Ginger beer':'Ginger ale',Soda:'Cream soda',
+  'Dr Pepper':'Cola','Lime juice':'Lemonade','Apple juice':'Apple','Cherry pie':'Cherry','Lemon tart':'Lemon','Strawberry jam':'Jam','Candied orange':'Marmalade',Tiramisu:'Brownie',Pastry:'Apple pie'};
 // Every note you can pick: the wheel's (bar the defects) and the words above. {n, c, id: the wheel note, g: its group}.
 let TN_ALL=null;
 const tnNotes=()=>TN_ALL||(TN_ALL=(()=>{const base=FW.leaves.filter(n=>n.cat.n!=='Other'),by=Object.fromEntries(base.map(n=>[n.n,n]));

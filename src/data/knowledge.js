@@ -229,7 +229,13 @@ const FWHEEL=[
    ['Whiskey','Boozy and oaky. Barrel-aged and some anaerobic coffees.',['p:barrelaged']],
    ['Fermented','Funky, yeasty and ripe. Anaerobic, yeast and co-fermented coffees lean this way.',['p:anaerobic','k:Fermentation']],
    ['Overripe','Fruit past its best, close to rotting. Too-ripe cherries or uneven drying.',['k:Selective picking']],
-   ['Rum','Dark, sweet and boozy. Anaerobic and rum-barrel-aged coffees.',['p:anaerobic','p:barrelaged']]]}]},
+   ['Rum','Dark, sweet and boozy. Anaerobic and rum-barrel-aged coffees.',['p:anaerobic','p:barrelaged']],
+   ['Red wine','Dark fruit with some grip and tannin. Naturals and carbonic maceration.',['p:natural','p:carbonic']],
+   ['White wine','Crisp, juicy acidity like a dry white: grape, green apple, a little floral. Bright washed and anaerobic washed coffees.',['p:washed','p:anaerobicwashed']],
+   ['Sparkling wine','Lively, crisp and fizzy-tasting acidity, like champagne. Kenyans and bright anaerobic washed lots.',['p:doublewashed','p:anaerobicwashed']],
+   ['Rosé','Light red fruit with a dry, juicy finish. Some honeys and carbonic coffees.',['p:redhoney','p:carbonic']],
+   ['Cider','Fermented apple: tart, juicy and a little funky. Some naturals and yeast-fermented coffees.',['p:yeast','p:natural']],
+   ['Brandy','Warm, dried-fruit spirit. Long natural fermentations and barrel-aged lots.',['p:extended','p:barrelaged']]]}]},
  {n:'Green/Vegetative',c:'#678C4C',d:'Plant and vegetable notes. Usually from under-ripe cherries, under-roasting or under-extraction.',k:[
   {n:'Raw and beany',d:'Raw, oily and bean-like. Usually a sign of a light or underdeveloped roast.',k:[
    ['Olive oil','Smooth, slightly green and oily. Some naturals and lighter roasts.',[]],
@@ -318,13 +324,42 @@ const FWHEEL=[
    ['Overall sweet','General sweetness without a specific note. A sign of ripe fruit and good extraction.',['k:Sweetness']],
    ['Sweet aromatics','Sweet-smelling, like candy or cake. Aroma more than taste.',['k:Fragrance and aroma']],
    ['Cotton candy','Light, airy spun sugar. Some washed and honey coffees.',['p:honey']],
-   ['Bubblegum','Fruity, pink candy. Anaerobic and carbonic-maceration coffees.',['p:carbonic']]]}]},
+   ['Bubblegum','Fruity, pink candy. Anaerobic and carbonic-maceration coffees.',['p:carbonic']],
+   ['Marshmallow','Soft, vanilla-sugar sweetness. Sweet honeys and naturals.',['p:honey']]]},
+  {n:'Drinks',d:'Soft drinks and juices: sweetness with a lift of acidity, often a little spice or sparkle.',k:[
+   ['Ginger ale','Sweet and lightly spicy with a crisp, fizzy-tasting finish. Some Kenyans, honeys and co-fermented lots.',['p:honey','p:coferment']],
+   ['Cola','Dark sugar, a little spice and citrus. Fuller Central and South American coffees.',['v:bourbon','p:pulpednatural']],
+   ['Cherry cola','Red cherry over cola sweetness. Bourbons and red honeys.',['v:bourbon','p:redhoney']],
+   ['Root beer','Sweet, herbal and a little like liquorice. Some naturals and anaerobics.',['p:anaerobic']],
+   ['Cream soda','Vanilla sweetness with a light, creamy feel. Sweet honeys and naturals.',['p:honey']],
+   ['Lemonade','Sweet and sour lemon. Bright washed East African coffees.',['p:washed']],
+   ['Orange juice','Sweet, juicy citrus. Washed Latin American coffees.',['p:washed']],
+   ['Grape juice','Sweet, dark grape. Naturals and Kenyans.',['p:natural','v:sl28']],
+   ['Kombucha','Tart, fizzy and fermented tea. Yeast and anaerobic coffees.',['p:yeast','p:anaerobic']],
+   ['Tonic water','Bitter-sweet and crisp, with a clean finish. Some washed and anaerobic washed lots.',['p:anaerobicwashed']],
+   ['Sangria','Red wine, fruit and spice. Carbonic and long natural fermentations.',['p:carbonic','p:extended']]]},
+  {n:'Desserts',d:'Baked and sweet-shop flavours: sugar, fruit and fat together, as roasters describe whole impressions.',k:[
+   ['Apple pie','Baked apple, cinnamon and pastry. Washed Central Americans at medium roast.',['v:caturra','p:washed']],
+   ['Brownie','Rich, fudgy chocolate. Brazilians and fuller medium roasts.',['p:pulpednatural']],
+   ['Cheesecake','Creamy, sweet and a little tangy. Lactic-fermented coffees and sweet honeys.',['p:lactic']],
+   ['Key lime pie','Tart lime over sweet cream. Bright washed and lactic coffees.',['p:washed','p:lactic']],
+   ['Black Forest cake','Chocolate, cherry and cream. Naturals and fuller bourbons.',['p:natural','v:bourbon']],
+   ['Baklava','Honey, nuts and pastry. Yemeni and sweet natural coffees.',['v:yemenia','p:natural']],
+   ['Turkish delight','Rose-scented, sugary sweetness. Some Ethiopians and anaerobic lots.',['v:landrace','p:anaerobic']],
+   ['Marmalade','Bittersweet cooked orange. Washed coffees with sweet citrus.',['p:washed']],
+   ['Jam','Cooked, concentrated fruit. Naturals.',['p:natural']]]}]},
  {n:'Floral',c:'#B4688F',d:'Flowers and tea. Delicate notes that need light roasting and careful brewing.',k:[
   {n:'Tea-like',d:'Tea flavours and a light, tea-like body. Washed Ethiopians, Kenyans and Geisha.',k:[
    ['Black tea','Tea-like body and gentle tannin. Washed Ethiopians and Kenyans.',['p:washed']],
    ['Earl Grey','Black tea with bergamot: floral citrus. Washed Ethiopians and some Geisha.',['v:geisha']],
    ['Green tea','Fresh, grassy and gently astringent. Light, washed coffees.',['p:washed']],
-   ['Oolong','Toasty-floral tea with a honeyed finish. Some Geisha and washed Panamas.',['v:geisha']]]},
+   ['Oolong','Toasty-floral tea with a honeyed finish. Some Geisha and washed Panamas.',['v:geisha']],
+   ['White tea','Very delicate, sweet and floral tea. Light, washed Geisha and Ethiopians.',['v:geisha','p:washed']],
+   ['Jasmine tea','Green tea scented with jasmine: floral and clean. Washed Ethiopians and Geisha.',['v:geisha','v:landrace']],
+   ['Iced tea','Light, sweet and refreshing, with a soft tannin. Clean washed and honey coffees as they cool.',['p:washed','p:honey']],
+   ['Peach iced tea','Sweet stone fruit over light tea. Washed Ethiopians, Geisha and many light honeys.',['v:geisha','p:honey']],
+   ['Lemon iced tea','Citrus over light tea, sweet and crisp. Washed East African coffees.',['p:washed']],
+   ['Rooibos','Red bush tea: sweet, woody and a little honeyed. Some naturals and honeys.',['p:honey']]]},
   {n:'Floral',d:'Fragrant flowers. Geisha and washed Ethiopians are the classic examples.',k:[
    ['Chamomile','Gentle, herbal and honeyed. Some Ethiopian and Colombian coffees.',[]],
    ['Rose','Rose petal and rose water. Some Ethiopians and anaerobic lots.',['p:anaerobic']],
@@ -332,7 +367,17 @@ const FWHEEL=[
    ['Orange blossom','Sweet, perfumed citrus flower. Washed Ethiopians and Geisha.',['v:geisha']],
    ['Elderflower','Delicate, sweet and floral. Light washed coffees.',['p:washed']],
    ['Lavender','Herbal and floral. Rare; some Ethiopian and anaerobic coffees.',[]],
-   ['Hibiscus','Tart, floral and red, like hibiscus tea. Kenyan and some natural coffees.',['p:natural']]]}]}
+   ['Hibiscus','Tart, floral and red, like hibiscus tea. Kenyan and some natural coffees.',['p:natural']],
+   ['Honeysuckle','Sweet, nectar-like flower. Washed Ethiopians, Geisha and light honeys.',['v:geisha','p:whitehoney']],
+   ['Coffee blossom','The coffee plant\u2019s own white flower, jasmine-like and sweet. Washed Ethiopians and Geisha.',['v:landrace','v:geisha']],
+   ['Lilac','Soft, powdery spring flower. Some washed Ethiopian and Panamanian lots.',['p:washed']],
+   ['Violet','Perfumed and a little powdery, like violet sweets. Some Kenyans and naturals.',['v:sl28','p:natural']],
+   ['Magnolia','Creamy, lemony white flower. Geisha and washed Ethiopians.',['v:geisha']],
+   ['Gardenia','Rich, heady white flower. Some Geisha and anaerobic washed lots.',['v:geisha','p:anaerobicwashed']],
+   ['Lily','Fresh, sweet and green-floral. Light washed coffees.',['p:washed']],
+   ['Peony','Light, rosy and fresh. Some Ethiopian and Colombian lots.',[]],
+   ['Geranium','Leafy, rose-like and a little green. Some Ethiopians and Kenyans.',['v:landrace']],
+   ['Lemon blossom','Bright, zesty flower. Washed Ethiopians, especially Yirgacheffe.',['v:landrace','p:washed']]]}]}
 ];
 
 /* ================= ROASTERS ================= */
