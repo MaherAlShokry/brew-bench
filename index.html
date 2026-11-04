@@ -553,7 +553,7 @@ dialog#navsheet::backdrop,dialog#sharesheet::backdrop{background:rgba(30,20,14,.
   .bottomnav svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
   .bottomnav button[aria-current="true"]{color:var(--cherry)}
   .bottomnav button[aria-current="true"] svg{stroke-width:2.3}
-  .wrap{padding:0 14px}
+  .wrap{padding:0 10px}
   main section.on{padding:16px 0 28px!important}
   h2{font-size:1.35rem}
   .panel{padding:16px;border-radius:18px}
@@ -1087,7 +1087,7 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
   @supports (backdrop-filter:blur(1px)){.appbar{backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4)}}
   .ab-btn{border:0;background:var(--tonal);color:var(--cherry);padding:8px 16px;font-weight:600}
   .herowrap{margin:10px 10px 0;border:1px solid var(--hair);border-radius:var(--r-xl);box-shadow:var(--e1);overflow:hidden}
-  .minires{top:calc(var(--sa-top) + 76px);margin:0 -4px 14px;padding:10px 14px;border:1px solid var(--hair);border-radius:var(--r-lg);background:var(--glass);box-shadow:var(--e2)}
+  .minires{top:calc(var(--sa-top) + 76px);margin:0 0 14px;padding:10px 14px;border:1px solid var(--hair);border-radius:var(--r-lg);background:var(--glass);box-shadow:var(--e2)}
   @supports (backdrop-filter:blur(1px)){.minires{backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4)}}
   .bottomnav{border-radius:var(--r-xl);background:var(--glass);box-shadow:var(--e2)}
   .bottomnav button{border-radius:var(--r-lg)}
@@ -1925,14 +1925,18 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
 .scan-wait b{font:700 1.05rem/1.3 var(--display);margin-top:6px}.scan-wait .hint{margin:0;max-width:30ch}
 .sc-new{display:block;margin:14px auto 0}
 /* The welcome on Brew: a card like the others, with a greeting and the day's line of coffee wisdom. */
-.welcome{margin:0 0 12px;padding:16px 18px}
-.wl-top{display:flex;align-items:center;gap:12px}
-.wl-ic{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:1.2rem;background:color-mix(in srgb,var(--cherry) 12%,var(--surface))}
-.wl-hi{margin:0;font:700 1.15rem/1.2 var(--display);letter-spacing:-.01em;color:var(--ink)}.wl-hi em{font-style:normal;color:var(--cherry-ink,var(--cherry))}
-.wl-date{display:block;margin-top:2px;font-size:.8rem;color:var(--muted)}
-.wl-k{display:block;margin:14px 0 6px;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--muted)}
-.wl-q{margin:0;padding-left:12px;border-left:3px solid color-mix(in srgb,var(--cherry) 55%,transparent);font-size:.95rem;line-height:1.5;color:var(--ink)}
-.wl-by{display:block;margin-top:4px;font-size:.78rem;color:var(--muted)}
+.welcome{margin:0 0 12px;padding:16px 18px 18px}
+/* The greeting: the time of day and the date on a small line, then your name, then the day's line of wisdom as a quote. */
+.wl-top{display:flex;align-items:center;gap:8px;min-width:0}
+.wl-ic{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:.85rem;line-height:1;background:color-mix(in srgb,var(--cherry) 14%,var(--surface2))}
+.wl-date{font-size:.76rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.wl-hi{margin:10px 0 0;font:700 1.4rem/1.18 var(--display);letter-spacing:-.015em;color:var(--ink);text-wrap:balance;overflow-wrap:anywhere}
+.wl-hi em{display:block;font-style:normal;color:var(--cherry-ink,var(--cherry))}
+.wl-qf{position:relative;margin:14px 0 0;padding:12px 14px 12px 44px;border-radius:var(--r-md);background:var(--surface2)}
+.wl-qf>svg{position:absolute;left:14px;top:14px;width:20px;height:20px;fill:color-mix(in srgb,var(--cherry) 70%,var(--surface2))}
+.wl-k{display:block;margin:0 0 4px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.wl-q{margin:0;font-size:.98rem;line-height:1.45;color:var(--ink);font-weight:500}
+.wl-by{display:block;margin-top:4px;font-size:.8rem;color:var(--muted)}
 .bprof{margin-top:6px}.bp-head{margin:0 0 12px;font:600 1.05rem/1.4 var(--display);color:var(--ink)}
 /* The cup profile: a cup from above whose crema is the coffee's shape; each trait keeps its own colour, from citrus to cocoa. */
 .bprof,.tvars{--t-acid:#D4A72C;--t-sweet:#D9894A;--t-body:#9C6444;--t-clar:#4E9C97;--t-ferm:#A6527C;--t-bitt:#8E3B2C;--w-bitt:#7A2E21;
@@ -7448,8 +7452,10 @@ function welcomeHTML(when){const d=when||new Date(),h=d.getHours(),t=h<5?'night'
   const hi={morning:['☀️','Good morning'],day:['☕','Good afternoon'],evening:['🌙','Good evening'],night:['✨','Late-night brew']}[t];
   // One line a day, the same all day.
   const nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick||ME||'',day=Math.floor((d.getTime()-d.getTimezoneOffset()*6e4)/864e5),[q,by]=WISDOM[((day*7)%WISDOM.length+WISDOM.length)%WISDOM.length];
-  return{t,html:'<div class="wl-top"><span class="wl-ic" aria-hidden="true">'+hi[0]+'</span><div><h2 class="wl-hi">'+hi[1]+(nick?', <em>'+esc(nick)+'</em>':'')+'</h2><span class="wl-date">'+esc(d.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'}))+'</span></div></div>'+
-    '<span class="wl-k">Today\u2019s coffee wisdom</span><p class="wl-q">'+esc(q)+(by?'<small class="wl-by">'+esc(by)+'</small>':'')+'</p>'}}
+  return{t,html:'<div class="wl-top"><span class="wl-ic" aria-hidden="true">'+hi[0]+'</span><span class="wl-date">'+esc(d.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'}))+'</span></div>'+
+    '<h2 class="wl-hi">'+hi[1]+(nick?', <em>'+esc(nick)+'</em>':'')+'</h2>'+
+    '<figure class="wl-qf"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18v-5.5C4 8.4 6.4 5.6 10 5l.6 1.9C8.4 7.6 7.4 9 7.3 11H10v7H4zm10 0v-5.5c0-4.1 2.4-6.9 6-7.5l.6 1.9c-2.2.7-3.2 2.1-3.3 4.1H20v7h-6z"/></svg>'+
+    '<span class="wl-k">Today\u2019s coffee wisdom</span><blockquote class="wl-q">'+esc(q)+'</blockquote>'+(by?'<figcaption class="wl-by">'+esc(by)+'</figcaption>':'')+'</figure>'}}
 function renderWelcome(){const el=$('welcome');if(!el)return;const w=welcomeHTML();el.innerHTML=w.html}
 renderWelcome();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)renderWelcome()});
