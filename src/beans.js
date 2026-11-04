@@ -677,11 +677,15 @@ function beanDoc(b){const P=b.process&&PROCESSES[b.process];
 
 // Brewing a gallery coffee: the dial-in takes its process, variety, roast and age, and remembers which coffee it is.
 function useBean(b){S.bean=okSBean({name:beanTitle(b),roaster:b.roaster,origin:b.origin,id:b.id});S.bsig='';S.bday='';beanSync()}
-// Pick the beans for the dial-in from the gallery, most recent first.
+// Pick the beans for the dial-in from the gallery: the bags you're drinking now first, then the rest, most recent first.
 function openBeanPick(){const d=$('vd'),list=[...BEANS].sort((a,c)=>beanDay(c).localeCompare(beanDay(a))||c.ts-a.ts);
+  const opt=b=>'<button type="button" class="t3opt'+(S.bean&&S.bean.id===b.id?' on':'')+'" data-usebean="'+b.id+'" style="--m:var(--cherry)">'+beanPic(b,'xs')+'<span class="t3o-tx"><b>'+esc(beanTitle(b))+'</b><small>'+esc([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '))+'</small>'+beanRow(b.rating,'sm')+'</span></button>';
+  const now=list.filter(b=>b.shelf),rest=list.filter(b=>!b.shelf);
+  // With both kinds of coffee, each gets a heading; with only one kind, the list stands on its own.
+  const grp=(h,l)=>l.length?(now.length&&rest.length?'<div class="bg-gh bp-gh"><b>'+h+'</b><span>'+l.length+'</span></div>':'')+'<div class="t3list">'+l.map(opt).join('')+'</div>':'';
   $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Your beans</span><h2 id="vd-title">Which coffee are you brewing?</h2><p class="vd-sub">Its process, variety and roast tune the recipe, and it shows on your brew cards.</p></div>'+
-    '<div class="vd-body"><div class="t3list">'+list.map(b=>'<button type="button" class="t3opt'+(S.bean&&S.bean.id===b.id?' on':'')+'" data-usebean="'+b.id+'" style="--m:var(--cherry)">'+beanPic(b,'xs')+'<span class="t3o-tx"><b>'+esc(beanTitle(b))+'</b><small>'+esc([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '))+'</small>'+beanRow(b.rating,'sm')+'</span></button>').join('')+'</div></div>';
-  hydrateImgs($('vd-in'));$('vd-in').querySelector('.t3list').onclick=e=>{const o=e.target.closest('[data-usebean]');if(!o)return;const b=beanById(o.dataset.usebean);if(!b)return;useBean(b);d.close();
+    '<div class="vd-body" id="bp-body">'+grp('Drinking now',now)+grp('Your other coffees',rest)+'</div>';
+  hydrateImgs($('vd-in'));$('bp-body').onclick=e=>{const o=e.target.closest('[data-usebean]');if(!o)return;const b=beanById(o.dataset.usebean);if(!b)return;useBean(b);d.close();
     if(dialRec())tune('Brewing '+beanTitle(b));else{render();toast('Brewing '+beanTitle(b))}};
   showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
 document.addEventListener('click',e=>{if(e.target.closest('#d-bean [data-dbpick]')){openBeanPick();return}if(e.target.closest('#d-bean [data-dbclear]')){S.bean=null;render()}});
