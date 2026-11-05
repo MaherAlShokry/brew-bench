@@ -799,7 +799,11 @@ html.app .bg-hero::after,html.app .me-hero::after,html.app .pp-st img{mix-blend-
 .l-pickbean{display:flex;align-items:center;gap:12px;width:100%;min-height:68px;padding:10px 12px 10px 10px;border:0;border-radius:var(--r-md);background:var(--surface2);color:var(--ink);font:inherit;text-align:left;cursor:pointer;transition:transform .12s}
 .l-pickbean:active{transform:scale(.98)}
 .l-pickbean .lp-ic{flex:none;width:48px;height:48px;border-radius:12px;display:grid;place-items:center;background:var(--surface);color:var(--cherry)}
-.l-pickbean .lp-ic svg{width:22px;height:22px;fill:currentColor}
+.l-pickbean .lp-ic svg{width:28px;height:28px}
+/* The bean glyph: the body filled, the crease cut through it as a line. Without this the crease fills in and the
+   bean reads as a plain blob of colour. Places that style their own bean still win. */
+svg .bo{fill:currentColor}svg .bc{fill:none;stroke:var(--surface);stroke-width:1.7;stroke-linecap:round}
+.l-pickbean .lp-ic .bo{fill:color-mix(in srgb,var(--cherry) 88%,var(--honey))}
 .l-pickbean .lb-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.l-pickbean b{font:650 .98rem/1.25 var(--display);overflow-wrap:anywhere}.l-pickbean small,.l-beancard small{font-size:.8rem;font-weight:500;color:var(--muted);text-transform:none;letter-spacing:0}
 .l-pickbean .lp-chev{flex:none;width:20px;height:20px;fill:none;stroke:var(--muted);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .l-starword.none{color:var(--muted);font-weight:500}
