@@ -483,7 +483,7 @@ function renderDialRecipe(){const tl=techList(S.brewer),r=dialRec();
     '<div class="dr-cols"><div><h3 style="margin-top:0">Steps</h3>'+pourGraph(dp.steps,dp.water)+stepList(dp.steps)+(r.tip&&r.kind!=='46'?'<p class="hint">'+esc(r.tip)+'</p>':'')+'</div>'+
     '<div><h3 style="margin-top:0">What changed and why</h3><ul class="why">'+(notes.length?notes.map(w=>'<li>'+w+'</li>').join(''):'<li>The recipe as written suits this coffee.</li>')+'</ul></div></div>'+
     '<div class="actions"><button type="button" class="btn" data-dtimer>Start brew timer</button><button type="button" class="btn ghost" data-dfull>Original recipe</button></div>'}
-function dialTimer(){const dp=dialPlan();if(!dp)return;openTimer(S.rec,{brewer:S.brewer,grinder:S.grinder,set:{[S.grinder]:S.setting},r:{dose:S.dose},water:dp.water,temp:S.temp,steps:dp.steps})}
+function dialTimer(){const dp=dialPlan();if(!dp)return;openTimer(S.rec,{brewer:S.brewer,grinder:S.grinder,set:{[S.grinder]:S.setting},r:{dose:S.dose},water:dp.water,temp:S.temp,steps:dp.steps,bean:S.bean&&S.bean.id||null})}
 // The Beans row under Your coffee: the coffee you picked, or a way to pick one from the gallery.
 // The coffee you picked from your gallery drives the dial-in: its process, variety, roast and region follow the coffee
 // (edit the coffee and they follow), and the days since roast count up from its roast date each day. Anything you change
@@ -764,7 +764,7 @@ function openTimer(idx,p){noteRecent(RECIPES[idx]);
   const r=Object.assign({},r0,{dose,water,steps:p&&p.steps||(p?scaleSteps(r0,dose,water):sc.steps),off:sc.off});const ev=parseSteps(r.steps);const timed=ev.filter(e=>e.t>=0);
   const total=timed.length?Math.max(...timed.map(e=>e.t))+(/finish|drain|finished|serve/i.test(r.steps[r.steps.length-1])?0:30):0;
   if(TM&&TM.iv)clearInterval(TM.iv);
-  TM={idx,r,p,ev,total,el:0,run:false,iv:null,lastIdx:-1,lastWarn:-1,ctx:null};
+  TM={idx,r,p,ev,total,el:0,run:false,iv:null,lastIdx:-1,lastWarn:-1,ctx:null,cup:null};
   const g=p?p.grinder:(MYG.find(x=>settingFor(x,r.b,r.off)!=null)),gv=p?p.set[p.grinder]:g?settingFor(g,r.b,r.off):null;
   const meta=[(p?p.r.dose:r.dose)+'g : '+(p?p.water:r.water)+'g',(p?p.temp:r.temp)?(p?p.temp:r.temp)+'°C':'',gv!=null?gLabel(g,gv):''].filter(Boolean);
   // Tick marks on the ring where each timed step starts.
@@ -808,8 +808,15 @@ function done(){const r=TM.r||RECIPES[TM.idx],d=Math.floor(TM.el)-Math.floor(TM.
     '<span class="tm-time">Brewed in <b>'+mmss(TM.el)+'</b>'+(when?' · '+when:'')+'</span>';
   $('tm-barfill').style.width='100%';
   $('tm-next').innerHTML='<div class="tm-done"><button class="btn" id="tm-log">Log this brew</button><button class="btn ghost" id="tm-again">Brew again</button></div>';
-  $('tm-log').onclick=()=>{const p=TM.p,B=BREWERS[r.b];$('timer').close();setTimeout(()=>{showTab('log');$('l-settings').value=r.name+', '+(p?p.r.dose:r.dose)+'g : '+(p?p.water:r.water)+'g'+((p?p.temp:r.temp)?', '+(p?p.temp:r.temp)+'°C':'');$('l-settings').dataset.brewer=r.b;renderLSet();$('l-coffee').focus()},250)};
-  $('tm-again').onclick=()=>{$('tm-card').classList.remove('fin');TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;TM.fin=false;paint();$('tm-go').click()};drawCheck();
+  // Brewed from the dial-in with a coffee from the gallery: this cup comes off its bag (once, however the brew ends).
+  const gb=TM.p&&TM.p.bean&&window.BEANS_OK?beanById(TM.p.bean):null,dz=TM.p&&TM.p.r&&+TM.p.r.dose;
+  // A brew ended in its first 20 seconds was most likely started by mistake, so it isn't counted.
+  if(gb&&dz>0&&!TM.cup&&TM.el>=20&&gramsLeft(gb)!=null){TM.cup={bean:gb.id,id:takeCup(gb,dz)};LAST_CUP=Object.assign({ts:Date.now()},TM.cup)}
+  if(gb&&TM.cup){const bag=document.createElement('div');bag.className='tm-bag';const draw=()=>{const g=gramsLeft(gb);bag.innerHTML=TM.cup?'<span>'+gfmt(dz)+' g off your <b>'+esc(beanTitle(gb))+'</b> bag · '+(g?g+' g left':'bag empty')+'</span><button type="button" class="linkbtn" id="tm-bagundo">Undo</button>':'<span>Not taken off the bag.</span>';
+      const u=bag.querySelector('#tm-bagundo');if(u)u.onclick=()=>{untakeCup(gb,TM.cup.id);if(LAST_CUP&&LAST_CUP.id===TM.cup.id)LAST_CUP=null;TM.cup=null;draw();if(window.BEANS_OK)renderBeans()}};draw();$('tm-next').prepend(bag);if(window.BEANS_OK)renderBeans()}
+  // From the dial-in, the log is filled in from the dial-in itself: the coffee, the full settings and the cup.
+  $('tm-log').onclick=()=>{const p=TM.p,B=BREWERS[r.b];$('timer').close();if(p&&'bean' in p){setTimeout(()=>$('tolog').click(),250);return}setTimeout(()=>{showTab('log');$('l-settings').value=r.name+', '+(p?p.r.dose:r.dose)+'g : '+(p?p.water:r.water)+'g'+((p?p.temp:r.temp)?', '+(p?p.temp:r.temp)+'°C':'');$('l-settings').dataset.brewer=r.b;renderLSet();$('l-coffee').focus()},250)};
+  $('tm-again').onclick=()=>{TM.cup=null;$('tm-card').classList.remove('fin');TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;TM.fin=false;paint();$('tm-go').click()};drawCheck();
   // Finished early by a tap: that tap is when the drawdown ended, so the nearest answer is already picked.
   if(d<=-8){const opt=[-30,-15].reduce((a,b)=>Math.abs(b-d)<Math.abs(a-d)?b:a),bt=document.querySelector('.tm-dseg [data-dd="'+opt+'"]');if(bt)bt.click()}}
 // How long the drawdown took is the most reliable grind signal there is: a dripper that finishes early wants a finer
@@ -1922,7 +1929,9 @@ $('tolog').onclick=()=>{const r=compute(S),dp=dialPlan();if(LEDIT)endEdit();
   if(S.bean&&!LBEAN&&!$('l-coffee').value.trim())$('l-coffee').value=S.bean.name;
   renderLBean();renderPred();renderFlForm();showTab('log');if(!LBEAN)$('l-coffee').focus()};
 // The brew as it was on the dial-in, kept with the entry so its card can show the dial, the cup and the pours.
-let LSNAP=null;
+let LSNAP=null,LAST_CUP=null;
+// The cup a brew being logged already took off the bag, if any (the timer's cup, logged within three hours).
+const lastCupFor=beanId=>LAST_CUP&&LAST_CUP.bean===beanId&&Date.now()-LAST_CUP.ts<3*3600e3?LAST_CUP.id:null;
 $('l-cancel').onclick=()=>endEdit();
 $('l-save').onclick=()=>{const k=LEDIT?LOG.findIndex(x=>x.id===LEDIT):-1;
   if(k>=0){const o=LOG[k],u=Object.assign({},o,{beanId:LBEAN&&!(o.snap&&o.snap.bean&&o.snap.bean.id===LBEAN)?LBEAN:o.beanId,coffee:$('l-coffee').value.trim(),settings:$('l-settings').value.trim(),stars:STAR,pred:$('l-pred').value.trim(),notes:$('l-notes').value.trim(),brewer:$('l-settings').dataset.brewer||o.brewer||'',edited:Date.now()});
@@ -1930,7 +1939,7 @@ $('l-save').onclick=()=>{const k=LEDIT?LOG.findIndex(x=>x.id===LEDIT):-1;
     if(!u.coffee&&!u.settings&&!u.notes&&!LFL.length){toast('Add a coffee name or some notes first');return}
     LOG[k]=u;save('bb-log',LOG);if(window.BEANS_OK)checkTrophies();queue('put',u.id,u);endEdit();renderLog();toast(GROUP?'Brew updated and shared':'Brew updated');return}
   if(LEDIT)endEdit();
-  const e={id:uid(),ts:Date.now(),date:new Date().toLocaleDateString(),coffee:$('l-coffee').value.trim(),settings:$('l-settings').value.trim(),stars:STAR,pred:$('l-pred').value.trim(),notes:$('l-notes').value.trim(),brewer:$('l-settings').dataset.brewer||''};if(LFL.length)e.fl=LFL.slice();if(LSNAP)e.snap=LSNAP;LSNAP=null;
+  const e={id:uid(),ts:Date.now(),date:new Date().toLocaleDateString(),coffee:$('l-coffee').value.trim(),settings:$('l-settings').value.trim(),stars:STAR,pred:$('l-pred').value.trim(),notes:$('l-notes').value.trim(),brewer:$('l-settings').dataset.brewer||''};if(LFL.length)e.fl=LFL.slice();if(LSNAP)e.snap=LSNAP;LSNAP=null;{const cb=(e.snap&&e.snap.bean&&e.snap.bean.id)||LBEAN,cid=cb&&lastCupFor(cb);if(cid){e.cup=cid;LAST_CUP=null}}
   if(LBEAN&&!(e.snap&&e.snap.bean&&e.snap.bean.id===LBEAN))e.beanId=LBEAN;
   if(GROUP)e.by=ME;
   if(!e.coffee&&!e.settings&&!e.notes&&!LFL.length){toast('Add a coffee name or some notes first');return}LOG.unshift(e);save('bb-log',LOG);if(window.BEANS_OK){
