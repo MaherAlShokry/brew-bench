@@ -1693,7 +1693,7 @@ $('ts-chips').onclick=e=>{const b=e.target.closest('[data-ts]');if(!b)return;ren
 
 /* ================= LOG ================= */
 let STAR=0,DL=null;
-function renderStars(){const w=$('l-starword');if(w)w.textContent=STARW[STAR]||'';$('l-stars').innerHTML=[1,2,3,4,5].map(n=>'<button type="button" class="'+(n<=STAR?'on':'')+'" data-s="'+n+'" role="radio" aria-checked="'+(n===STAR)+'" aria-label="'+n+' stars">\u2605</button>').join('')}
+function renderStars(){const w=$('l-starword');if(w){w.textContent=STARW[STAR]||'';w.classList.toggle('none',!STAR)}$('l-stars').innerHTML=[1,2,3,4,5].map(n=>'<button type="button" class="'+(n<=STAR?'on':'')+'" data-s="'+n+'" role="radio" aria-checked="'+(n===STAR)+'" aria-label="'+n+' stars">\u2605</button>').join('')}
 $('l-stars').onclick=e=>{const b=e.target.closest('[data-s]');if(b){STAR=+b.dataset.s;renderStars()}};
 /* ---------- Shared log (Firebase Realtime Database over REST, no SDK) ---------- */
 // The Realtime Database URL of the Firebase project that holds shared logs (see README).
@@ -1744,7 +1744,7 @@ function renderShare(){const el=$('l-share');if(!el)return;
   if(!GROUP){el.innerHTML='<h3>Shared log</h3><p class="hint" style="margin-top:0">Log brews together: everyone in the group sees each other’s entries on their own phone.</p>'+
     (nick?'<div class="sh-me">'+avatarHTML(PROFILE,34)+'<span>Friends will see your brews as <b>'+esc(nick)+'</b></span></div>':'<div class="field"><label for="sh-name">Your name</label><input id="sh-name" maxlength="30" value="'+esc(ME)+'"></div>')+
     '<div class="actions"><button class="btn" id="sh-new">Start a shared log</button></div>'+
-    '<div class="field" style="margin-top:12px"><label for="sh-code">Or join with a code</label><div class="joinrow"><input id="sh-code" placeholder="ABCD-2345" maxlength="9" autocapitalize="characters" value="'+esc(JOIN_CODE||'')+'"><button class="btn ghost" id="sh-join">Join</button></div></div>';
+    '<div class="field" style="margin:12px 0 0"><label for="sh-code">Or join with a code</label><div class="joinrow"><input id="sh-code" placeholder="ABCD-2345" maxlength="9" autocapitalize="characters" value="'+esc(JOIN_CODE||'')+'"><button class="btn ghost" id="sh-join">Join</button></div></div>';
     const name=()=>{if(nick)return nick;const n=$('sh-name').value.trim();if(!n){toast('Add your name first, so friends know who logged what');$('sh-name').focus()}return n};
     $('sh-new').onclick=()=>{const n=name();if(n){joinGroup(newCode(),n);toast('Shared log started. Invite your friends.')}};
     $('sh-join').onclick=()=>{const n=name();if(!n)return;const c=$('sh-code').value.toUpperCase().replace(/[^A-Z0-9]/g,'');if(c.length!==8){toast('Codes look like ABCD-2345');return}JOIN_CODE='';joinGroup(c.slice(0,4)+'-'+c.slice(4),n);toast('Joined the shared log')};return}
@@ -1763,11 +1763,14 @@ const LFIELDS=['l-coffee','l-settings','l-pred','l-notes'];
 // The coffee being logged, when it's one of your beans: it shows as a card, and its bag's notes sit beside what you tasted.
 let LBEAN=null;
 const lBean=()=>LBEAN&&window.BEANS_OK?beanById(LBEAN):null;
-const STARW=['','Not for me','Just okay','A good cup','Lovely','Outstanding'];
+const STARW=['Tap a star to rate','Not for me','Just okay','A good cup','Lovely','Outstanding'];
 function renderLBean(){const el=$('l-bean'),b=lBean();
   if(b){$('l-coffee').value=beanTitle(b);el.innerHTML='<div class="l-beancard">'+beanPic(b,'xs')+'<span class="lb-tx"><b>'+esc(beanTitle(b))+'</b><small>'+esc([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '))+'</small></span><button type="button" class="btn ghost" id="l-beanchg">Change</button></div>';
     hydrateImgs(el);$('l-coffee-f').hidden=true}
-  else{el.innerHTML=window.BEANS_OK&&BEANS.length?'<button type="button" class="btn ghost l-pickbean" id="l-beanchg">'+beanSVG+'<span>Pick from your beans</span></button>':'';$('l-coffee-f').hidden=false}
+  else{const n=window.BEANS_OK?BEANS.length:0;
+    // No bean picked: one tile, shaped like the bean card it turns into, and the name box below as the other way in.
+    el.innerHTML=n?'<button type="button" class="l-pickbean" id="l-beanchg"><span class="lp-ic">'+beanSVG+'</span><span class="lb-tx"><b>Pick from your beans</b><small>'+n+' coffee'+(n===1?'':'s')+' in your gallery</small></span><svg class="lp-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>':'';
+    $('l-coffee-lab').textContent=n?'Or type its name':'Coffee';$('l-coffee-f').hidden=false}
   const ch=$('l-beanchg');if(ch)ch.onclick=()=>openBeanPick(b=>{LBEAN=b.id;renderLBean();renderFlForm()});
   const nm=b?beanTitle(b):$('l-coffee').value.trim();$('l-howq').textContent=nm?'How was your '+nm+'?':'How was it?'}
 function renderPred(){const v=$('l-pred').value.trim(),el=$('l-predshow');el.hidden=!v;el.innerHTML=v?'The dial-in expected <b>'+esc(v)+'</b>':''}

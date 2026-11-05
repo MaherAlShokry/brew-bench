@@ -790,13 +790,19 @@ html.app .bg-hero::after,html.app .me-hero::after,html.app .pp-st img{mix-blend-
 .sh-me{display:flex;align-items:center;gap:10px;margin:2px 0 12px;font-size:.9rem;color:var(--muted)}.sh-me b{color:var(--ink)}
 .sh-you{display:flex;align-items:center;gap:8px}
 /* The settings line can be long: the box grows to show all of it. */
-#l-settings{field-sizing:content;min-height:52px;resize:none;line-height:1.4}
+#l-settings{field-sizing:content;min-height:0;resize:none;line-height:1.4}
 .l-bean{margin:0 0 10px}.l-bean:empty{display:none}
 .l-beancard{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 10px;border-radius:var(--r-md);background:var(--surface2)}
 .l-beancard .bpic{width:48px;height:58px;border-radius:12px;flex:none}
 .l-beancard .lb-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.l-beancard b{font:650 .98rem/1.25 var(--display)}.l-beancard small{font-size:.8rem;color:var(--muted)}
 .l-beancard .btn{min-height:36px;padding:0 14px;font-size:.84rem;flex:none}
-.l-pickbean{display:inline-flex;align-items:center;gap:8px;min-height:40px;margin:0 0 10px}
+.l-pickbean{display:flex;align-items:center;gap:12px;width:100%;min-height:68px;padding:10px 12px 10px 10px;border:0;border-radius:var(--r-md);background:var(--surface2);color:var(--ink);font:inherit;text-align:left;cursor:pointer;transition:transform .12s}
+.l-pickbean:active{transform:scale(.98)}
+.l-pickbean .lp-ic{flex:none;width:48px;height:48px;border-radius:12px;display:grid;place-items:center;background:var(--surface);color:var(--cherry)}
+.l-pickbean .lp-ic svg{width:22px;height:22px;fill:currentColor}
+.l-pickbean .lb-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.l-pickbean b{font:650 .98rem/1.25 var(--display);overflow-wrap:anywhere}.l-pickbean small,.l-beancard small{font-size:.8rem;font-weight:500;color:var(--muted);text-transform:none;letter-spacing:0}
+.l-pickbean .lp-chev{flex:none;width:20px;height:20px;fill:none;stroke:var(--muted);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.l-starword.none{color:var(--muted);font-weight:500}
 .l-starword{margin:6px 0 0;text-align:center;font:600 .92rem var(--display);color:var(--cherry-ink,var(--cherry));min-height:1.3em}
 .l-pred{margin:6px 0 0;text-align:center;font-size:.84rem;color:var(--muted)}.l-pred b{color:var(--ink);font-weight:650}
 .l-sub{font-size:.74rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
@@ -2039,8 +2045,8 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
 .lb-open{flex:1;min-width:0;display:flex;align-items:center;gap:12px;background:none;border:0;padding:0;text-align:left;color:inherit;font:inherit;cursor:pointer}
 .lb-ic{flex:none;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:color-mix(in srgb,var(--honey) 20%,var(--surface2));color:var(--cherry)}
 .lb-ic svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.lb-tx{min-width:0;display:flex;flex-direction:column;gap:1px}.lb-tx small{font-size:.74rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.lb-tx b{font-size:1.02rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lb-tx span{font-size:.84rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lb-tx .st{color:var(--honey-ink,#9A6B1F);letter-spacing:1px}
+.lastbrew .lb-tx{min-width:0;display:flex;flex-direction:column;gap:1px}.lastbrew .lb-tx small{font-size:.74rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.lastbrew .lb-tx b{font-size:1.02rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lastbrew .lb-tx span{font-size:.84rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lastbrew .lb-tx .st{color:var(--honey-ink,#9A6B1F);letter-spacing:1px}
 .lb-act{flex:none;display:flex;flex-direction:column;gap:6px}.lb-act .btn{min-height:38px;padding:7px 14px;font-size:.88rem}
 /* A toast with one action: share the brew you just saved. */
 #toast.act{pointer-events:auto;display:flex;align-items:center;gap:12px;padding:8px 8px 8px 18px}
@@ -2607,7 +2613,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
     <div class="logform re2">
       <div class="re-card"><h3 class="re-h"><i>1</i>The brew</h3>
       <div class="l-bean" id="l-bean"></div>
-      <div class="field" id="l-coffee-f"><label for="l-coffee">Coffee</label><input id="l-coffee" autocomplete="off"></div>
+      <div class="field" id="l-coffee-f"><label for="l-coffee" id="l-coffee-lab">Coffee</label><input id="l-coffee" autocomplete="off"></div>
       <div class="field"><label for="l-settings">Settings <span class="hint">grind, dose and water, recipe</span></label><textarea id="l-settings" rows="1"></textarea></div></div>
       <div class="re-card"><h3 class="re-h"><i>2</i><span id="l-howq">How was it?</span></h3>
       <div class="l-rate"><div class="stars" id="l-stars" role="radiogroup" aria-label="Rating"></div><p class="l-starword" id="l-starword" aria-live="polite"></p></div>
