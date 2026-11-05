@@ -276,7 +276,9 @@ function bcStamp(x,cx,cy,T){const R=92;x.save();x.translate(cx,cy);x.rotate(-0.1
 
 /* Draw a card. m: {kicker, date, photo (an image), title, by, sub, rating {kind,v,word}, pills [[text,main]], tiles [[label,value]],
    grind {g,c,line}, cup {r,vt,vs}, text [{label,body}], steps [], expect {label,items,bar}, quote {label,text}, footer} */
-function bcDraw(m){const W=BC.W,P=BC.PAD,IW=W-2*P,c=document.createElement('canvas');c.width=W;c.height=4400;const x=c.getContext('2d');
+// One full-height drawing surface, reused for every card: a fresh 1080 × 4400 canvas each time is a lot of memory on a phone.
+let BC_CV=null;
+function bcDraw(m){const W=BC.W,P=BC.PAD,IW=W-2*P;if(!BC_CV){BC_CV=document.createElement('canvas');BC_CV.width=W;BC_CV.height=4400}const c=BC_CV,x=c.getContext('2d');x.setTransform(1,0,0,1,0,0);x.globalAlpha=1;x.clearRect(0,0,W,c.height);
   BC.F=getComputedStyle(document.body).fontFamily;
   // The origin's look (or the house espresso and honey): its accent colours are used throughout the card.
   const T=cardStyle(m.theme||OT.house,m.style||CARD_STYLE);
@@ -297,13 +299,19 @@ function bcBG(x,W,H,T){const c={height:H};
     const fd=x.createLinearGradient(0,0,0,470),hf=BC.LIGHT?[.94,.9]:[.8,.72];fd.addColorStop(0,hexA(T.bg[0],hf[0]));fd.addColorStop(0.2,hexA(T.bg[0],hf[1]));fd.addColorStop(0.32,hexA(T.bg[0],.18));fd.addColorStop(0.62,hexA(T.bg[0],.6));fd.addColorStop(1,hexA(T.bg[0],1));x.fillStyle=fd;x.fillRect(0,0,W,471)}
   const gl2=x.createRadialGradient(-120,1100,10,-120,1100,760);gl2.addColorStop(0,hexA(T.acc2,BC.LIGHT?.08:.16));gl2.addColorStop(1,hexA(T.acc2,0));x.fillStyle=gl2;x.fillRect(0,0,W,2000);
   if(!T.motif){x.save();x.globalAlpha=0.05;bcBean(x,W-150,250,420,BC.HONEY,T.bg[0]);x.restore()}
-  x.fillStyle=BC.LIGHT?'rgba(60,36,20,.03)':'rgba(255,255,255,.022)';for(let gy=0;gy<c.height;gy+=7)for(let gx=(gy/7)%2*3.5;gx<W;gx+=7)x.fillRect(gx,gy,1,1);
+  // The grain: one 7 × 14 tile of dots, repeated, rather than a hundred thousand single-pixel squares.
+  {const g=document.createElement('canvas');g.width=7;g.height=14;const gc=g.getContext('2d');gc.fillStyle=BC.LIGHT?'rgba(60,36,20,.03)':'rgba(255,255,255,.022)';gc.fillRect(0,0,1,1);gc.fillRect(3.5,7,1,1);
+   x.fillStyle=x.createPattern(g,'repeat');x.fillRect(0,0,W,c.height)}
   // A soft shade on the left of the hero band, where the title and credit sit.
   if(T.motif){const sc=x.createLinearGradient(0,0,W*0.75,0);sc.addColorStop(0,hexA(T.bg[0],.62));sc.addColorStop(1,hexA(T.bg[0],0));x.fillStyle=sc;x.fillRect(0,130,W,320)}}
 // The card checks itself: the accent is measured against the background actually drawn under the header, the title and
 // the body (glow and pattern included), and stepped further from it if any of them falls short.
-function bcCheck(x,W,T){const P=BC.PAD,worst=(y0,y1,x0,x1)=>{const d=x.getImageData(x0,y0,x1-x0,y1-y0).data,L=[];for(let i=0;i<d.length;i+=4*7)L.push(hexOf([d[i],d[i+1],d[i+2]]));
-    L.sort((a,b)=>relLum(a)-relLum(b));return L[Math.floor(L.length*(BC.LIGHT?0.03:0.97))]};
+// It reads a small copy of the card (a quarter of the size) rather than the card itself: reading pixels back from a
+// full-size canvas is slow on phones, and the background it measures is smooth enough to survive the shrink.
+function bcCheck(x,W,T){const P=BC.PAD,K=4,H0=2400,sm=document.createElement('canvas');sm.width=Math.ceil(W/K);sm.height=Math.ceil(H0/K);
+  const sx=sm.getContext('2d',{willReadFrequently:true});sx.drawImage(x.canvas,0,0,W,H0,0,0,sm.width,sm.height);const all=sx.getImageData(0,0,sm.width,sm.height).data;
+  const worst=(y0,y1,x0,x1)=>{const L=[];for(let yy=Math.floor(y0/K);yy<Math.ceil(y1/K);yy++)for(let xx=Math.floor(x0/K);xx<Math.ceil(x1/K);xx++){const i=(yy*sm.width+xx)*4,h=hexOf([all[i],all[i+1],all[i+2]]);L.push([relLum(h),h])}
+    L.sort((a,b)=>a[0]-b[0]);return L[Math.floor(L.length*(BC.LIGHT?0.03:0.97))][1]};
   const zs=[worst(70,112,P,W-P),worst(150,330,P,W-300),worst(330,470,P,W-P),worst(900,2400,P,W-P)];
   BC.HONEY=T.acc=ensureC(BC.HONEY,zs,BC.LIGHT?4.8:5.2,BC.LIGHT?'#1A0E08':'#FFFFFF')}
 function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
@@ -392,7 +400,10 @@ function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
   // Trim to what was drawn.
   const H=Math.round(y+70),out=document.createElement('canvas');out.width=W;out.height=H;out.getContext('2d').drawImage(c,0,0);
   return out}
-const bcBlob=async m=>{if(document.fonts&&document.fonts.ready)await document.fonts.ready;const cv=bcDraw(m);return new Promise(res=>cv.toBlob(res,'image/jpeg',0.92))};
+// The look is taken when the card is asked for, not when it's drawn after the fonts load, so a card drawn ahead for
+// another look (see the share sheet) keeps the one it was asked with.
+const bcBlob=m=>{const st=m.style||Object.assign({},CARD_STYLE);return (async()=>{if(document.fonts&&document.fonts.ready)await document.fonts.ready;
+  const cv=bcDraw(Object.assign({},m,{style:st}));return new Promise(res=>cv.toBlob(res,'image/jpeg',0.92))})()};
 
 /* ---------- What each card shows ---------- */
 const AGITW={low:'Gentle',med:'Steady',high:'Lively'};
@@ -467,9 +478,9 @@ function logSumCard(){const L=LOG.filter(l=>l&&!(l.by&&l.by!==ME)),rated=L.filte
     list:{label:'Latest cups',items:L.slice(0,6).map(l=>({t:l.coffee||'A brew',d:fmtDate(l),s:clamp(Math.round(+l.stars||0),0,5)}))},
     footer:'Logged with The Brew Bench'})}
 // A coffee from the gallery: the bag, your rating in beans, where it is from and what you tasted.
-async function beanCardImg(b){const P=b.process&&PROCESSES[b.process],rk=beanRank(b),fmt=s=>s?new Date(s+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'–';
+async function beanCardImg(b){const style=Object.assign({},CARD_STYLE),P=b.process&&PROCESSES[b.process],rk=beanRank(b),fmt=s=>s?new Date(s+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'–';
   const photo=b.img?await bcLoad(await BIMG.get(b.id)):null;
-  return bcBlob({theme:originTheme(b.origin),kicker:'From my bean gallery',date:fmt(beanDay(b)),photo,title:beanTitle(b),by:b.roaster,
+  return bcBlob({style,theme:originTheme(b.origin),kicker:'From my bean gallery',date:fmt(beanDay(b)),photo,title:beanTitle(b),by:b.roaster,
     sub:[b.variety?vName(b.variety):'',P?P.name:'',b.roast?bcCap(b.roast)+' roast':''].filter(Boolean).join('  ·  '),
     rating:b.rating?{kind:'beans',v:b.rating,word:rateWord(b.rating)}:null,
     pills:rk?[[rk<=3?'#'+rk+' · '+MEDALN[rk]+' of '+beanYear(b):'#'+rk+' of '+beanYear(b),1]]:beanMention(b)?[['Honourable mention · '+beanYear(b),1]]:[],

@@ -184,7 +184,10 @@ const flMap=fl=>new Map(fl);
 const flChips=fl=>fl.map(([id,v])=>{const n=FW.byId[id];return'<span class="flchip" title="'+FL_LV[v]+'"><i style="background:'+n.c+'"></i><b>'+esc(n.n)+'</b><span class="lv" aria-label="'+FL_LV[v]+'">'+'●'.repeat(v)+'○'.repeat(3-v)+'</span></span>'}).join('');
 const flText=fl=>fl.map(([id,v])=>FW.byId[id].n+(v!==2?' ('+FL_LV[v].toLowerCase()+')':'')).join(', ');
 // A small, still wheel for lists: what you tasted is filled in, the rest stays faint.
-function fwStatic(fl){const items=fwLayout({a0:0,a1:1,z:0},300,{mode:'profile',sel:flMap(fl),labels:false});
+// The little profile wheels are the same drawing for the same notes, and a log draws one per brew: each is built once.
+const FW_MEMO=new Map();
+function fwStatic(fl){const k=JSON.stringify(fl);let h=FW_MEMO.get(k);if(h==null){h=fwStatic0(fl);if(FW_MEMO.size>200)FW_MEMO.clear();FW_MEMO.set(k,h)}return h}
+function fwStatic0(fl){const items=fwLayout({a0:0,a1:1,z:0},300,{mode:'profile',sel:flMap(fl),labels:false});
   return'<svg class="fwheel" viewBox="-306 -306 612 612" aria-hidden="true">'+items.map(it=>'<path d="'+it.d+'" fill="'+it.n.c+'" fill-opacity="'+it.op+'"/>'+(it.fill?'<path d="'+it.fill+'" fill="'+it.n.c+'"/>':'')).join('')+'<circle r="57" fill="var(--surface2)" stroke="var(--paper)" stroke-width="2"/></svg>'}
 // The notes picker: tap families to open them and notes to add them; set how strong each one was.
 function openNotesPicker(entry){const d=$('vd'),sel=flMap(entry?flOf(entry):LFL.slice());
