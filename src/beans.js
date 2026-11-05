@@ -87,7 +87,7 @@ const placeLine=(rk,y)=>MEDALN[rk]+' · top '+(rk<=3?3:5)+' of '+y;
 
 /* ---------- On the shelf: freshness and what's left in the bag ---------- */
 // The brews you logged from the dial-in with this coffee picked (yours only, in a shared log).
-const beanBrews=b=>LOG.filter(l=>l&&l.snap&&l.snap.bean&&l.snap.bean.id===b.id&&(!l.by||l.by===ME));
+const beanBrews=b=>LOG.filter(l=>l&&((l.snap&&l.snap.bean&&l.snap.bean.id===b.id)||l.beanId===b.id)&&(!l.by||l.by===ME));
 // Grams left: what you last said was left (or the full bag), less every brew logged since. null when the bag size isn't known.
 function gramsLeft(b){const base=b.left!=null?b.left:b.bag;if(!base&&b.left==null)return null;const since=b.left!=null?b.leftAt:b.ts;
   return Math.max(0,Math.round(base-beanBrews(b).filter(l=>(+l.ts||0)>since).reduce((s,l)=>s+(+l.snap.dose||0),0)))}
@@ -678,16 +678,17 @@ function beanDoc(b){const P=b.process&&PROCESSES[b.process];
 // Brewing a gallery coffee: the dial-in takes its process, variety, roast and age, and remembers which coffee it is.
 function useBean(b){S.bean=okSBean({name:beanTitle(b),roaster:b.roaster,origin:b.origin,id:b.id});S.bsig='';S.bday='';beanSync()}
 // Pick the beans for the dial-in from the gallery: the bags you're drinking now first, then the rest, most recent first.
-function openBeanPick(){const d=$('vd'),list=[...BEANS].sort((a,c)=>beanDay(c).localeCompare(beanDay(a))||c.ts-a.ts);
+// pick: what to do with the chosen coffee (the brew log uses it); without it, the dial-in brews it.
+function openBeanPick(pick){const d=$('vd'),list=[...BEANS].sort((a,c)=>beanDay(c).localeCompare(beanDay(a))||c.ts-a.ts);
   // A bag you're drinking shows how fresh it is and what's left, which matter more than its rating when you pick one.
   const pkMeta=b=>{const f=fresh(b),g=gramsLeft(b),m=[f?freshPill(f):'',g!=null?'<span class="pk-left">'+(g?g+' g left':'Bag empty')+'</span>':''].join('');return m?'<span class="pk-meta">'+m+'</span>':''};
   const opt=b=>'<button type="button" class="t3opt'+(S.bean&&S.bean.id===b.id?' on':'')+'" data-usebean="'+b.id+'" style="--m:var(--cherry)">'+beanPic(b,'xs')+'<span class="t3o-tx"><b>'+esc(beanTitle(b))+'</b><small>'+esc([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '))+'</small>'+(b.shelf&&pkMeta(b)||beanRow(b.rating,'sm'))+'</span></button>';
   const now=list.filter(b=>b.shelf),rest=list.filter(b=>!b.shelf);
   // With both kinds of coffee, each gets a heading; with only one kind, the list stands on its own.
   const grp=(h,l)=>l.length?(now.length&&rest.length?'<div class="bg-gh bp-gh"><b>'+h+'</b><span>'+l.length+'</span></div>':'')+'<div class="t3list">'+l.map(opt).join('')+'</div>':'';
-  $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Your beans</span><h2 id="vd-title">Which coffee are you brewing?</h2><p class="vd-sub">Its process, variety and roast tune the recipe, and it shows on your brew cards.</p></div>'+
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Your beans</span><h2 id="vd-title">'+(pick?'Which coffee did you brew?':'Which coffee are you brewing?')+'</h2><p class="vd-sub">'+(pick?'Its tasting notes show beside what you tasted.':'Its process, variety and roast tune the recipe, and it shows on your brew cards.')+'</p></div>'+
     '<div class="vd-body" id="bp-body">'+grp('Drinking now',now)+grp('Your other coffees',rest)+'</div>';
-  hydrateImgs($('vd-in'));$('bp-body').onclick=e=>{const o=e.target.closest('[data-usebean]');if(!o)return;const b=beanById(o.dataset.usebean);if(!b)return;useBean(b);d.close();
+  hydrateImgs($('vd-in'));$('bp-body').onclick=e=>{const o=e.target.closest('[data-usebean]');if(!o)return;const b=beanById(o.dataset.usebean);if(!b)return;if(pick){d.close();pick(b);return}useBean(b);d.close();
     if(dialRec())tune('Brewing '+beanTitle(b));else{render();toast('Brewing '+beanTitle(b))}};
   showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
 document.addEventListener('click',e=>{if(e.target.closest('#d-bean [data-dbpick]')){openBeanPick();return}if(e.target.closest('#d-bean [data-dbclear]')){S.bean=null;render()}});

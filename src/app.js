@@ -833,6 +833,8 @@ const LAZY={champs:renderChamps,words:renderWords,wheel:renderWheelTab,flow:rend
 const ALWAYS={explore:()=>renderExplore(),settings:()=>renderSettings(),beans:()=>{if(window.BEANS_OK){renderBeansIfChanged();requestAnimationFrame(()=>setTimeout(()=>loadNear($('beans')),30))}},
   // The Beans row on the dial-in follows the gallery: a coffee added, renamed or removed shows on the next visit.
   dial:()=>{if(window.BEANS_OK){if(beanSync())retuneIfAuto();renderDBean()}},
+  // The log's coffee card and the bag's notes follow the gallery too.
+  log:()=>{renderLBean();renderPred();renderFlForm()},
   // The countdown stops ticking when you leave the page; coming back starts it again.
   champs:()=>{if(BUILT.champs)renderCountdown()}};
 // Pages are built the first time they're opened. So that first tap isn't slow, the rest are built ahead, one per
@@ -1670,7 +1672,7 @@ $('ts-chips').onclick=e=>{const b=e.target.closest('[data-ts]');if(!b)return;ren
 
 /* ================= LOG ================= */
 let STAR=0,DL=null;
-function renderStars(){$('l-stars').innerHTML=[1,2,3,4,5].map(n=>'<button type="button" class="'+(n<=STAR?'on':'')+'" data-s="'+n+'" role="radio" aria-checked="'+(n===STAR)+'" aria-label="'+n+' stars">\u2605</button>').join('')}
+function renderStars(){const w=$('l-starword');if(w)w.textContent=STARW[STAR]||'';$('l-stars').innerHTML=[1,2,3,4,5].map(n=>'<button type="button" class="'+(n<=STAR?'on':'')+'" data-s="'+n+'" role="radio" aria-checked="'+(n===STAR)+'" aria-label="'+n+' stars">\u2605</button>').join('')}
 $('l-stars').onclick=e=>{const b=e.target.closest('[data-s]');if(b){STAR=+b.dataset.s;renderStars()}};
 /* ---------- Shared log (Firebase Realtime Database over REST, no SDK) ---------- */
 // The Realtime Database URL of the Firebase project that holds shared logs (see README).
@@ -1716,14 +1718,16 @@ function inviteDoc(){const link=SITE_URL+'#join='+GROUP.code;return{link,title:'
 function renderShare(){const el=$('l-share');if(!el)return;
   // No sync server set up for this copy of the app: there is nothing to join, so the card stays out of the way.
   el.hidden=!SYNC_DB;if(!SYNC_DB){el.innerHTML='';return}
+  // Your name comes from your profile; only without one does the card ask for it.
+  const nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick||'';
   if(!GROUP){el.innerHTML='<h3>Shared log</h3><p class="hint" style="margin-top:0">Log brews together: everyone in the group sees each other’s entries on their own phone.</p>'+
-    '<div class="field"><label for="sh-name">Your name</label><input id="sh-name" maxlength="30" value="'+esc(ME)+'"></div>'+
+    (nick?'<div class="sh-me">'+avatarHTML(PROFILE,34)+'<span>Friends will see your brews as <b>'+esc(nick)+'</b></span></div>':'<div class="field"><label for="sh-name">Your name</label><input id="sh-name" maxlength="30" value="'+esc(ME)+'"></div>')+
     '<div class="actions"><button class="btn" id="sh-new">Start a shared log</button></div>'+
     '<div class="field" style="margin-top:12px"><label for="sh-code">Or join with a code</label><div class="joinrow"><input id="sh-code" placeholder="ABCD-2345" maxlength="9" autocapitalize="characters" value="'+esc(JOIN_CODE||'')+'"><button class="btn ghost" id="sh-join">Join</button></div></div>';
-    const name=()=>{const n=$('sh-name').value.trim();if(!n){toast('Add your name first, so friends know who logged what');$('sh-name').focus()}return n};
+    const name=()=>{if(nick)return nick;const n=$('sh-name').value.trim();if(!n){toast('Add your name first, so friends know who logged what');$('sh-name').focus()}return n};
     $('sh-new').onclick=()=>{const n=name();if(n){joinGroup(newCode(),n);toast('Shared log started. Invite your friends.')}};
     $('sh-join').onclick=()=>{const n=name();if(!n)return;const c=$('sh-code').value.toUpperCase().replace(/[^A-Z0-9]/g,'');if(c.length!==8){toast('Codes look like ABCD-2345');return}JOIN_CODE='';joinGroup(c.slice(0,4)+'-'+c.slice(4),n);toast('Joined the shared log')};return}
-  el.innerHTML='<div class="sharehead"><h3 style="margin:0">Shared log</h3><span class="sync" id="sync-state"></span></div><p class="hint" style="margin:.3rem 0 .8rem">You are <b>'+esc(ME||'Guest')+'</b>. Code <b class="code">'+GROUP.code+'</b></p>'+
+  el.innerHTML='<div class="sharehead"><h3 style="margin:0">Shared log</h3><span class="sync" id="sync-state"></span></div><p class="hint sh-you" style="margin:.3rem 0 .8rem">'+(window.PROFILE_OK&&PROFILE?avatarHTML(PROFILE,24):'')+'<span>You are <b>'+esc(ME||'Guest')+'</b>. Code <b class="code">'+GROUP.code+'</b></span></p>'+
     '<div class="actions"><button class="btn" id="sh-invite">Invite friends</button><button class="btn ghost" id="sh-leave">Leave</button></div>';
   $('sh-invite').onclick=()=>openShare(inviteDoc());
   $('sh-leave').onclick=()=>{if(confirm('Leave the shared log? Your phone keeps a copy of the entries.'))leaveGroup()};setSync(SYNC_STATE==='off'?'connecting':SYNC_STATE)}
@@ -1735,12 +1739,24 @@ const fmtDate=l=>{const d=new Date(l.ts||Date.parse(l.date));return isNaN(d)?(l.
 let LEDIT=null;
 const canEdit=l=>!GROUP||!l.by||l.by===ME;
 const LFIELDS=['l-coffee','l-settings','l-pred','l-notes'];
-function editBrew(l){LEDIT=l.id;$('l-coffee').value=l.coffee||'';$('l-settings').value=l.settings||'';$('l-pred').value=l.pred||'';$('l-notes').value=l.notes||'';
-  $('l-settings').dataset.brewer=l.brewer||'';STAR=+l.stars||0;LFL=flOf(l).map(x=>Array.isArray(x)?x.slice():x);renderStars();renderFlForm();
+// The coffee being logged, when it's one of your beans: it shows as a card, and its bag's notes sit beside what you tasted.
+let LBEAN=null;
+const lBean=()=>LBEAN&&window.BEANS_OK?beanById(LBEAN):null;
+const STARW=['','Not for me','Just okay','A good cup','Lovely','Outstanding'];
+function renderLBean(){const el=$('l-bean'),b=lBean();
+  if(b){$('l-coffee').value=beanTitle(b);el.innerHTML='<div class="l-beancard">'+beanPic(b,'xs')+'<span class="lb-tx"><b>'+esc(beanTitle(b))+'</b><small>'+esc([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '))+'</small></span><button type="button" class="btn ghost" id="l-beanchg">Change</button></div>';
+    hydrateImgs(el);$('l-coffee-f').hidden=true}
+  else{el.innerHTML=window.BEANS_OK&&BEANS.length?'<button type="button" class="btn ghost l-pickbean" id="l-beanchg">'+beanSVG+'<span>Pick from your beans</span></button>':'';$('l-coffee-f').hidden=false}
+  const ch=$('l-beanchg');if(ch)ch.onclick=()=>openBeanPick(b=>{LBEAN=b.id;renderLBean();renderFlForm()});
+  const nm=b?beanTitle(b):$('l-coffee').value.trim();$('l-howq').textContent=nm?'How was your '+nm+'?':'How was it?'}
+function renderPred(){const v=$('l-pred').value.trim(),el=$('l-predshow');el.hidden=!v;el.innerHTML=v?'The dial-in expected <b>'+esc(v)+'</b>':''}
+$('l-coffee').addEventListener('input',()=>{const nm=$('l-coffee').value.trim();$('l-howq').textContent=nm?'How was your '+nm+'?':'How was it?'});
+function editBrew(l){LEDIT=l.id;LBEAN=(l.snap&&l.snap.bean&&l.snap.bean.id)||l.beanId||null;$('l-coffee').value=l.coffee||'';$('l-settings').value=l.settings||'';$('l-pred').value=l.pred||'';$('l-notes').value=l.notes||'';
+  $('l-settings').dataset.brewer=l.brewer||'';STAR=+l.stars||0;LFL=flOf(l).map(x=>Array.isArray(x)?x.slice():x);renderStars();renderFlForm();renderLBean();renderPred();
   $('l-editing').hidden=false;$('l-editing').textContent='Editing \u201c'+(l.coffee||'Untitled')+'\u201d from '+fmtDate(l);$('l-save').textContent='Update entry';$('l-cancel').hidden=false;
   $('l-form').scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'});$('l-coffee').focus({preventScroll:true})}
-function endEdit(){LEDIT=null;LFIELDS.forEach(id=>$(id).value='');delete $('l-settings').dataset.brewer;STAR=0;LFL=[];renderStars();renderFlForm();
-  $('l-editing').hidden=true;$('l-save').textContent='Save entry';$('l-cancel').hidden=true}
+function endEdit(){LEDIT=null;LBEAN=null;LFIELDS.forEach(id=>$(id).value='');delete $('l-settings').dataset.brewer;STAR=0;LFL=[];renderStars();renderFlForm();renderLBean();renderPred();
+  $('l-editing').hidden=true;$('l-save').textContent='Save to my log';$('l-cancel').hidden=true}
 function renderLog(){renderShare();
   $('l-list').innerHTML=LOG.length?LOG.map((l,i)=>'<div class="logentry"><div class="lehead"><b>'+esc(l.coffee||'Untitled')+'</b>'+(l.stars?'<span class="stars-sm" aria-label="'+l.stars+' stars">'+'★'.repeat(+l.stars||0)+'<span>'+'★'.repeat(5-(+l.stars||0))+'</span></span>':'')+'<button class="x" data-lshare="'+i+'" aria-label="Share this brew as a card">Share</button>'+(canEdit(l)?'<button class="x" data-edit="'+i+'" aria-label="Edit entry">Edit</button>':'')+'<button class="x" data-del="'+i+'" aria-label="Delete entry">Delete</button></div>'+
     '<div class="hint">'+esc(fmtDate(l))+(l.edited?' \u00B7 edited':'')+(l.by&&GROUP?' · '+esc(l.by===ME?'you':l.by):'')+'</div>'+(l.settings?'<div class="hint">'+esc(l.settings)+'</div>':'')+(l.pred?'<div class="hint">Predicted: '+esc(l.pred)+'</div>':'')+(l.notes?'<p>'+esc(l.notes)+'</p>':'')+flEntry(l,i)+'</div>').join(''):'<p class="hint">No brews logged yet. Dial one in, then tap "Log this brew".</p>';
@@ -1755,7 +1771,14 @@ function renderLog(){renderShare();
 // Flavour notes: a little profile wheel on each brew, and the notes as chips.
 function flEntry(l,i){const fl=flOf(l);if(!fl.length)return'<button type="button" class="linkbtn fl-edit" data-fledit="'+i+'">+ Add flavour notes</button>';
   return'<div class="fl-entry"><button type="button" class="fl-mini" data-flview="'+i+'" aria-label="Open the flavour profile">'+fwStatic(fl)+'</button><div><div class="chips" style="margin:0 0 4px">'+flChips(fl)+'</div><button type="button" class="linkbtn" data-fledit="'+i+'">Edit notes</button></div></div>'}
-function renderFlForm(){$('l-flchips').innerHTML=flChips(LFL);$('l-fl').querySelector('span').textContent=LFL.length?'Edit flavour notes':'Add flavour notes'}
+function renderFlForm(){$('l-flchips').innerHTML=flChips(LFL);$('l-fl').querySelector('span').textContent=LFL.length?'Add more from the flavour wheel':'Find it on the flavour wheel';
+  // What the bag promised: tap a note you tasted to add it to your cup. Words that aren't on the wheel are shown, not added.
+  const bag=$('l-bag'),b=lBean(),words=b&&b.flavours&&typeof tnSplit==='function'?tnSplit(b.flavours):[];bag.hidden=!words.length;if(!words.length){bag.innerHTML='';return}
+  const has=id=>LFL.some(x=>x[0]===id),notes=words.map(w=>{const n=tnLeaf(w),leaf=n&&FW.byId[n.id];return{w:n?n.n:w,n,id:leaf&&leaf.leaf?leaf.id:null}});
+  const found=notes.filter(x=>x.id&&has(x.id)).length,can=notes.filter(x=>x.id).length;
+  bag.innerHTML='<div class="l-sub">The bag says</div><div class="tn-cs">'+notes.map(x=>x.id?'<button type="button" class="tn-c'+(has(x.id)?' on':'')+'" data-bagfl="'+x.id+'" aria-pressed="'+has(x.id)+'" style="--fc:'+x.n.c+'"><i></i>'+esc(x.w)+'</button>':'<span class="tn-c off" title="Not on the flavour wheel" style="--fc:var(--muted)"><i></i>'+esc(x.w)+'</span>').join('')+'</div>'+
+    '<p class="l-match">'+(can?found?'You found <b>'+found+' of '+can+'</b> '+(can===1?'note':'notes')+' on the bag'+(found===can?'. Spot on.':'.'):'Tap the ones you tasted.':'These notes aren’t on the flavour wheel; add yours below.')+'</p>'}
+$('l-bag').onclick=e=>{const t=e.target.closest('[data-bagfl]');if(!t)return;const id=t.dataset.bagfl,k=LFL.findIndex(x=>x[0]===id);if(k>=0)LFL.splice(k,1);else LFL.push([id,2]);renderFlForm()};
 function renderPalate(){const el=$('l-palate'),P=palate();el.hidden=!P;if(!P)return;
   el.innerHTML='<button type="button" class="fl-mini" id="pal-open" aria-label="Open your palate">'+fwStatic(P.fl)+'</button><div><h3>Your palate</h3><p class="hint" style="margin:0 0 6px">From '+P.n+(P.n===1?' brew':' brews')+' with flavour notes. You notice '+P.top.join(' and ')+' the most.</p>'+flBar(P.fl)+'<div class="chips" style="margin:0">'+flChips(P.fl.slice(0,6))+'</div></div>';
   $('pal-open').onclick=()=>openProfile('Your palate','From '+P.n+(P.n===1?' brew':' brews'),P.fl)}
@@ -1763,22 +1786,25 @@ $('l-fl').onclick=()=>openNotesPicker();
 $('tolog').onclick=()=>{const r=compute(S),dp=dialPlan();if(LEDIT)endEdit();
   $('l-settings').value=(dp?dp.r.name+(S.goal!=='balance'?' ('+goalLabel(S.goal,S.amt).toLowerCase()+')':'')+', '+S.dose+'g : '+dp.water+'g, ':'')+gLabel(S.grinder,S.setting)+', '+BREWERS[S.brewer].name+', '+S.temp+'°C, 1:'+rr1(S.ratio)+', '+BREWERS[S.brewer].bloom.label.toLowerCase()+' '+S.bloom+'s, '+PROCESSES[S.process].name+' '+vName(S.variety);
   $('l-pred').value=verdict(r.D)[0];$('l-settings').dataset.brewer=S.brewer;LSNAP=brewSnap();
-  // The coffee picked on the dial-in names the entry, and the brew comes off its bag.
-  if(S.bean&&!$('l-coffee').value.trim())$('l-coffee').value=S.bean.name;showTab('log');$('l-coffee').focus()};
+  // The coffee picked on the dial-in is the coffee being logged: it shows as its card, with its bag's notes.
+  LBEAN=S.bean&&S.bean.id&&window.BEANS_OK&&beanById(S.bean.id)?S.bean.id:null;
+  if(S.bean&&!LBEAN&&!$('l-coffee').value.trim())$('l-coffee').value=S.bean.name;
+  renderLBean();renderPred();renderFlForm();showTab('log');if(!LBEAN)$('l-coffee').focus()};
 // The brew as it was on the dial-in, kept with the entry so its card can show the dial, the cup and the pours.
 let LSNAP=null;
 $('l-cancel').onclick=()=>endEdit();
 $('l-save').onclick=()=>{const k=LEDIT?LOG.findIndex(x=>x.id===LEDIT):-1;
-  if(k>=0){const o=LOG[k],u=Object.assign({},o,{coffee:$('l-coffee').value.trim(),settings:$('l-settings').value.trim(),stars:STAR,pred:$('l-pred').value.trim(),notes:$('l-notes').value.trim(),brewer:$('l-settings').dataset.brewer||o.brewer||'',edited:Date.now()});
+  if(k>=0){const o=LOG[k],u=Object.assign({},o,{beanId:LBEAN&&!(o.snap&&o.snap.bean&&o.snap.bean.id===LBEAN)?LBEAN:o.beanId,coffee:$('l-coffee').value.trim(),settings:$('l-settings').value.trim(),stars:STAR,pred:$('l-pred').value.trim(),notes:$('l-notes').value.trim(),brewer:$('l-settings').dataset.brewer||o.brewer||'',edited:Date.now()});
     if(LFL.length)u.fl=LFL.slice();else delete u.fl;
     if(!u.coffee&&!u.settings&&!u.notes&&!LFL.length){toast('Add a coffee name or some notes first');return}
     LOG[k]=u;save('bb-log',LOG);if(window.BEANS_OK)checkTrophies();queue('put',u.id,u);endEdit();renderLog();toast(GROUP?'Brew updated and shared':'Brew updated');return}
   if(LEDIT)endEdit();
   const e={id:uid(),ts:Date.now(),date:new Date().toLocaleDateString(),coffee:$('l-coffee').value.trim(),settings:$('l-settings').value.trim(),stars:STAR,pred:$('l-pred').value.trim(),notes:$('l-notes').value.trim(),brewer:$('l-settings').dataset.brewer||''};if(LFL.length)e.fl=LFL.slice();if(LSNAP)e.snap=LSNAP;LSNAP=null;
+  if(LBEAN&&!(e.snap&&e.snap.bean&&e.snap.bean.id===LBEAN))e.beanId=LBEAN;
   if(GROUP)e.by=ME;
   if(!e.coffee&&!e.settings&&!e.notes&&!LFL.length){toast('Add a coffee name or some notes first');return}LOG.unshift(e);save('bb-log',LOG);if(window.BEANS_OK){
     // The first brew with a bag you hadn't tried yet is the day you tried it.
-    const gb=e.snap&&e.snap.bean&&e.snap.bean.id&&beanById(e.snap.bean.id);if(gb&&!gb.tried){gb.tried=todayISO();saveBeans()}checkTrophies()}queue('put',e.id,e);['l-coffee','l-settings','l-pred','l-notes'].forEach(id=>$(id).value='');delete $('l-settings').dataset.brewer;STAR=0;LFL=[];renderFlForm();renderStars();renderLog();toast(GROUP?'Brew saved and shared':'Brew saved');beans()};
+    const gid=(e.snap&&e.snap.bean&&e.snap.bean.id)||e.beanId,gb=gid&&beanById(gid);if(gb&&!gb.tried){gb.tried=todayISO();saveBeans()}checkTrophies()}queue('put',e.id,e);['l-coffee','l-settings','l-pred','l-notes'].forEach(id=>$(id).value='');delete $('l-settings').dataset.brewer;STAR=0;LFL=[];LBEAN=null;renderFlForm();renderStars();renderLBean();renderPred();renderLog();toast(GROUP?'Brew saved and shared':'Brew saved');beans()};
 $('l-list').onclick=e=>{const ls=e.target.closest('[data-lshare]');if(ls){const l=LOG[+ls.dataset.lshare];if(l)openShare(logEntryDoc(l));return}
   const fe=e.target.closest('[data-fledit]'),fv=e.target.closest('[data-flview]'),ed=e.target.closest('[data-edit]');
   if(ed){const l=LOG[+ed.dataset.edit];if(l&&canEdit(l))editBrew(l);return}
@@ -2511,8 +2537,8 @@ function historyDoc(){return{link:SITE_URL+'#history',title:'The story of coffee
 function logEntryDoc(l){const fl=flOf(l).filter(([id])=>FW.byId[id]);
   return{title:l.coffee||'A brew',sub:fmtDate(l)+(l.stars?' | '+l.stars+' / 5':''),file:'brew-'+(l.coffee||'log'),
     blocks:[{kv:[['Settings',l.settings||'-'],['Predicted',l.pred||'-']]},...(fl.length?[{h:'What I tasted',p:fl.map(([id])=>FW.byId[id].n).join(', ')}]:[]),...(l.notes?[{h:'Notes',p:l.notes}]:[])],
-    card:()=>logCard(l),cardTheme:()=>{const s=okSnap(l.snap);return originTheme(s&&s.bean&&s.bean.origin)},cardName:'brew-card',cardSub:'This brew as one image: your rating, '+(l.snap?'the settings with the grind dial, the predicted cup, the pours, ':'the settings, ')+'what you tasted and your notes.'}}
-function logDoc(){return{title:'My brew log',sub:LOG.length+' brews',file:'brew-log',blocks:LOG.length?LOG.map(l=>({h:(l.coffee||'Untitled')+' - '+l.date,kv:[['Rating',l.stars?l.stars+' / 5':'-'],['Settings',l.settings||'-'],['Predicted',l.pred||'-'],['Notes',l.notes||'-']].concat(flOf(l).length?[['Flavour notes',flText(flOf(l))]]:[])})):[{p:'No brews logged yet.'}]}}
+    card:()=>logCard(l),cardTheme:()=>{const s=okSnap(l.snap),b=!s&&l.beanId&&window.BEANS_OK?beanById(l.beanId):null;return originTheme(s?s.bean&&s.bean.origin:b&&b.origin)},cardName:'brew-card',cardSub:'This brew as one image: your rating, '+(l.snap?'the settings with the grind dial, the predicted cup, the pours, ':'the settings, ')+'what you tasted and your notes.'}}
+function logDoc(){return{title:'My brew log',sub:LOG.length+' brews',file:'brew-log',card:logSumCard,cardName:'brew-log',cardTitle:'Log card',cardSub:'Your log as one image: your brews, your average, your palate and your latest cups.',blocks:LOG.length?LOG.map(l=>({h:(l.coffee||'Untitled')+' - '+l.date,kv:[['Rating',l.stars?l.stars+' / 5':'-'],['Settings',l.settings||'-'],['Predicted',l.pred||'-'],['Notes',l.notes||'-']].concat(flOf(l).length?[['Flavour notes',flText(flOf(l))]]:[])})):[{p:'No brews logged yet.'}]}}
 function scanDoc(p,c){const inf=SC.info||{};const kv=[...(SC.roaster?[['Roastery',SC.roaster]]:[]),['Origin',SC.origin?originName(SC.origin):'Not sure'],[scanVars(SC,inf).length?'Varieties':'Variety',[vName(SC.variety),...scanVars(SC,inf).map(vName)].join(', ')],['Process',PROCESSES[SC.process].name],['Roast',SC.roast],['Days off roast',String(daysSince(SC.date))]];
   if(inf.producer_or_farm)kv.push(['Producer or farm',inf.producer_or_farm]);if(inf.altitude)kv.push(['Altitude',inf.altitude]);if((inf.tasting_notes||[]).length)kv.push(['Tasting notes',inf.tasting_notes.join(', ')]);
   const b=beanProfile(),rd=recipeDoc(c.tech,p,c);return{link:rd.link,title:scanTitle(SC,SC.info),sub:'Coffee profile',file:'bean-profile',blocks:[{h:'The coffee',kv}].concat(inf.summary?[{p:inf.summary}]:[]).concat([{h:'Profile',p:b.head},{h:'In the cup',p:b.notes.join(', ')},{h:'Where it comes from',kv:b.from},{h:'How to brew it',list:b.tips}])}}

@@ -292,7 +292,7 @@ dialog#vd::backdrop{background:rgba(20,14,10,.55)}
 .logform{display:grid;gap:10px;grid-template-columns:1fr 1fr}
 .logform .full{grid-column:1/-1}
 .logform.re2{display:flex;grid-template-columns:none;gap:12px;margin-bottom:12px}.logform.re2 .re-card{padding-bottom:12px}.logform.re2 .field:last-child{margin-bottom:0}
-.l-rate{display:flex;justify-content:center;padding:4px 0 12px}.l-rate .stars button{font-size:2.3rem;padding:0 4px}
+.l-rate{display:flex;flex-direction:column;align-items:center;padding:4px 0 8px}.l-rate .stars button{font-size:2.3rem;padding:0 4px}
 .logentry{border-bottom:1px solid var(--line);padding:12px 0}
 .logentry .x{background:none;border:0;color:var(--muted);cursor:pointer;font-family:var(--display);font-size:.8rem;padding:4px 6px;min-height:32px}
 
@@ -773,6 +773,25 @@ html.app .bg-hero::after,html.app .me-hero::after,html.app .pp-st img{mix-blend-
 @keyframes sp-up{from{transform:translateY(110%);opacity:0}}
 .sp-tag{margin:8px 0 0;font-size:.95rem;color:var(--muted);animation:sp-fade .6s 1s ease-out both}
 @keyframes sp-fade{from{opacity:0;transform:translateY(6px)}}
+/* The brew log form: the coffee you brewed as a card, words with the stars, and the bag's notes beside what you tasted. */
+.sh-me{display:flex;align-items:center;gap:10px;margin:2px 0 12px;font-size:.9rem;color:var(--muted)}.sh-me b{color:var(--ink)}
+.sh-you{display:flex;align-items:center;gap:8px}
+/* The settings line can be long: the box grows to show all of it. */
+#l-settings{field-sizing:content;min-height:52px;resize:none;line-height:1.4}
+.l-bean{margin:0 0 10px}.l-bean:empty{display:none}
+.l-beancard{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 10px;border-radius:var(--r-md);background:var(--surface2)}
+.l-beancard .bpic{width:48px;height:58px;border-radius:12px;flex:none}
+.l-beancard .lb-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.l-beancard b{font:650 .98rem/1.25 var(--display)}.l-beancard small{font-size:.8rem;color:var(--muted)}
+.l-beancard .btn{min-height:36px;padding:0 14px;font-size:.84rem;flex:none}
+.l-pickbean{display:inline-flex;align-items:center;gap:8px;min-height:40px;margin:0 0 10px}
+.l-starword{margin:6px 0 0;text-align:center;font:600 .92rem var(--display);color:var(--cherry-ink,var(--cherry));min-height:1.3em}
+.l-pred{margin:6px 0 0;text-align:center;font-size:.84rem;color:var(--muted)}.l-pred b{color:var(--ink);font-weight:650}
+.l-sub{font-size:.74rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+.l-bag{margin:0 0 14px;padding:12px;border-radius:var(--r-md);background:var(--surface2)}.l-bag[hidden]{display:none}
+.l-bag .tn-cs{margin-bottom:8px}.l-bag .tn-c{background:var(--surface)}
+.l-bag .l-match{margin:0;font-size:.82rem;color:var(--muted)}.l-bag .l-match b{color:var(--ink)}
+.l-bag .tn-c.off{opacity:.6;cursor:default}
+.l-mine .chips{margin:0 0 8px}.l-mine .chips:empty{display:none}
 /* The recipe editor: numbered cards, stepper tiles and a timeline for the steps. */
 .re2{display:flex;flex-direction:column;gap:14px}
 .re-card{background:var(--surface);border:1px solid color-mix(in srgb,var(--line) 80%,transparent);border-radius:20px;padding:14px 14px 4px;box-shadow:0 1px 0 color-mix(in srgb,var(--ink) 4%,transparent)}
@@ -2556,26 +2575,29 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
 <!-- LOG -->
 <section id="log">
   <h2>Brew log</h2>
-  <p class="lede">"Log this brew" on the dial-in fills in the settings. Rate each cup, note what you tasted, and share your log when you like.</p>
+  <p class="lede">Every cup you brew, how it went and what you tasted. "Log this brew" on the dial-in fills it in for you.</p>
   <div class="panel sharepanel" id="l-share" style="margin-bottom:14px"></div>
   <div class="panel" id="l-form" style="margin-bottom:18px">
     <p class="hint l-editing" id="l-editing" hidden></p>
     <div class="logform re2">
       <div class="re-card"><h3 class="re-h"><i>1</i>The brew</h3>
-      <div class="field"><label for="l-coffee">Coffee</label><input id="l-coffee"></div>
-      <div class="field"><label for="l-settings">Settings <span class="hint">grind, dose and water, recipe</span></label><input id="l-settings"></div></div>
-      <div class="re-card"><h3 class="re-h"><i>2</i>How was it?</h3>
-      <div class="l-rate"><div class="stars" id="l-stars" role="radiogroup" aria-label="Rating"></div></div>
-      <div class="field"><label for="l-pred">Predicted <span class="hint">what the dial-in expected</span></label><input id="l-pred"></div></div>
+      <div class="l-bean" id="l-bean"></div>
+      <div class="field" id="l-coffee-f"><label for="l-coffee">Coffee</label><input id="l-coffee" autocomplete="off"></div>
+      <div class="field"><label for="l-settings">Settings <span class="hint">grind, dose and water, recipe</span></label><textarea id="l-settings" rows="1"></textarea></div></div>
+      <div class="re-card"><h3 class="re-h"><i>2</i><span id="l-howq">How was it?</span></h3>
+      <div class="l-rate"><div class="stars" id="l-stars" role="radiogroup" aria-label="Rating"></div><p class="l-starword" id="l-starword" aria-live="polite"></p></div>
+      <p class="l-pred" id="l-predshow" hidden></p><input type="hidden" id="l-pred"></div>
       <div class="re-card"><h3 class="re-h"><i>3</i>What you tasted</h3>
-      <div class="field"><label for="l-notes" class="sr">Tasting notes</label><textarea id="l-notes" rows="3" placeholder="How it actually tasted: sweet, bright, heavy, short…"></textarea></div>
-      <div class="fl-row"><button type="button" class="btn ghost fl-add" id="l-fl"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l7.8 4.5M12 12l-7.8 4.5"/></svg><span>Add flavour notes</span></button><div class="chips" id="l-flchips"></div></div></div>
+      <div class="l-bag" id="l-bag" hidden></div>
+      <div class="l-mine"><div class="l-sub">In your cup</div><div class="chips" id="l-flchips"></div>
+      <button type="button" class="btn ghost fl-add" id="l-fl"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l7.8 4.5M12 12l-7.8 4.5"/></svg><span>Find it on the flavour wheel</span></button></div>
+      <div class="field" style="margin-top:12px"><label for="l-notes">In your words</label><textarea id="l-notes" rows="3"></textarea></div></div>
     </div>
-    <div class="actions"><button class="btn" id="l-save">Save entry</button><button class="btn ghost" id="l-cancel" hidden>Cancel</button></div>
+    <div class="actions"><button class="btn" id="l-save">Save to my log</button><button class="btn ghost" id="l-cancel" hidden>Cancel</button></div>
   </div>
   <div class="specs" id="l-stats"></div>
   <div class="panel palate" id="l-palate" hidden></div>
-  <div class="actions" style="margin-bottom:10px"><button class="btn ghost" id="l-pdf">Share log as PDF</button><button class="btn ghost" id="l-csv" hidden>Download log as CSV</button></div>
+  <div class="actions" style="margin-bottom:10px"><button class="btn ghost" id="l-pdf">Share my log</button><button class="btn ghost" id="l-csv" hidden>Download log as CSV</button></div>
   <div id="l-list"></div>
 </section>
 <!-- EXPLORE (the phone's Explore tab) -->
