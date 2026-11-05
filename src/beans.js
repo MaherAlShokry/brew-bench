@@ -51,7 +51,9 @@ function okBean(b){if(!b||typeof b!=='object'||typeof b.id!=='string'||!BID.test
     shelf:typeof b.shelf==='boolean'?b.shelf:daysAgo(tried||tsISO(ts))<=30,
     // The bag: its size, and what was left when you last said so (brews logged since then are taken off).
     bag:gramsOrNull(b.bag)||0,left:gramsOrNull(b.left),leftAt:+b.leftAt||0,again:b.again==='yes'||b.again==='no'?b.again:'',
-    diary:(Array.isArray(b.diary)?b.diary:[]).map(okEntry).filter(Boolean).sort((x,y)=>y.d.localeCompare(x.d)).slice(0,80)}}
+    diary:(Array.isArray(b.diary)?b.diary:[]).map(okEntry).filter(Boolean).sort((x,y)=>y.d.localeCompare(x.d)).slice(0,80),
+    // Cups brewed with the dial-in's timer: each comes off the bag, unless a logged brew already counts it.
+    cups:(Array.isArray(b.cups)?b.cups:[]).filter(c=>c&&typeof c.id==='string'&&BID.test(c.id)&&+c.ts>0&&+c.g>0&&+c.g<=200).map(c=>({id:c.id,ts:+c.ts,g:+c.g})).slice(-60)}}
 let BEANS=load('bb-beans',[]);BEANS=Array.isArray(BEANS)?BEANS.map(okBean).filter(Boolean):[];
 // Top 3 per year: three places (gold, silver, bronze), each a bean id or '' while open, plus a snapshot so a podium
 // survives the bean being deleted later.
@@ -92,7 +94,12 @@ const beanBrews=b=>LOG.filter(l=>l&&((l.snap&&l.snap.bean&&l.snap.bean.id===b.id
 // The coffee a brew used: from the dial-in's snapshot, or read from the settings line of a brew logged by hand.
 function brewDose(l){const d=l&&l.snap&&+l.snap.dose;if(d>0)return d;const q=typeof parseSettings==='function'?parseSettings(l&&l.settings||''):{};return q.dose>0?q.dose:0}
 function gramsLeft(b){const base=b.left!=null?b.left:b.bag;if(!base&&b.left==null)return null;const since=b.left!=null?b.leftAt:b.ts;
-  return Math.max(0,Math.round(base-beanBrews(b).filter(l=>(+l.ts||0)>since).reduce((s,l)=>s+brewDose(l),0)))}
+  const logged=beanBrews(b).filter(l=>(+l.ts||0)>since),used=new Set(LOG.map(l=>l&&l.cup).filter(Boolean));
+  return Math.max(0,Math.round(base-logged.reduce((s,l)=>s+brewDose(l),0)-(b.cups||[]).filter(c=>c.ts>since&&!used.has(c.id)).reduce((s,c)=>s+c.g,0)))}
+// A cup brewed with the timer, from the dial-in with this coffee picked: taken off the bag now. Returns its id, so a
+// brew logged straight after can say it is the same cup and the bag isn't charged twice.
+function takeCup(b,g){if(!b||!(g>0))return null;const c={id:uid(),ts:Date.now(),g:Math.round(g*10)/10};b.cups=[...(b.cups||[]),c].slice(-60);saveBeans();return c.id}
+function untakeCup(b,id){if(!b)return;b.cups=(b.cups||[]).filter(c=>c.id!==id);saveBeans()}
 const beanDose=b=>{const d=beanBrews(b).map(brewDose).filter(v=>v>0);return d.length?d[0]:(+S.dose||15)};
 const cupsLeft=b=>{const g=gramsLeft(b);return g==null?null:Math.floor(g/beanDose(b))};
 // Where a bag is in its life, from the roast date: resting (still degassing), at its peak, still lovely, then fading.
@@ -642,7 +649,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;const d=$('vd'),rk
     // The bag now: how fresh it is, what's left, and finishing it.
     (b.shelf?'<div class="bd-shelf">'+(f?'<div class="bd-f"><div class="bd-fh"><b>'+f.label+'</b><span>Day '+f.d+' off roast</span></div>'+freshBar(f)+'<p>'+f.tip+'</p></div>':'<label class="bd-addrd"><span><b>When was it roasted?</b><small>Add the date on the bag to see how fresh it is.</small></span><input type="date" id="bd-rd" class="dateinp" max="'+todayISO()+'" aria-label="Roast date"></label>')+
       (g!=null?'<div class="bd-bag">'+bagLine(b)+'<div class="bd-cupr"><span class="bd-cupl">Brewed a cup with</span><span class="bd-step"><button type="button" id="bd-cm" aria-label="Less coffee">−</button><b id="bd-cg">'+dose+' g</b><button type="button" id="bd-cp" aria-label="More coffee">+</button></span><button type="button" class="btn" id="bd-cup">Take it off</button></div>'+
-        '<p class="bd-auto">Brews you log with this coffee come off the bag on their own.</p><div class="bd-bagb"><button type="button" class="chip" id="bd-left">Set what’s left</button></div></div>'
+        '<p class="bd-auto">Brews you finish with the dial-in’s timer or log with this coffee come off the bag on their own.</p><div class="bd-bagb"><button type="button" class="chip" id="bd-left">Set what’s left</button></div></div>'
         :'<p class="hint" style="margin:8px 0 0">Add the bag size in Edit to see what’s left as you log brews.</p>')+
       '<button type="button" class="btn ghost bd-done" id="bd-done">🏁 Finish the bag</button></div>'
      :'<button type="button" class="linkbtn" id="bd-shelf">Put it back on the shelf</button>')+
@@ -755,7 +762,7 @@ function openBeanEditor(b,pre){const isNew=!b;const B=Object.assign({name:'',roa
   $('be-cancel').onclick=()=>d.close();
   $('be-save').onclick=async()=>{const n=okBean({id:b?b.id:uid().replace(/[^a-z0-9]/g,'').slice(0,20),name:$('be-name').value,roaster:$('be-roaster').value,origin:$('be-origin').value,process:$('be-process').value,...(readVars(),{variety:VL.filter(Boolean)[0]||'',vars:VL.filter(Boolean).slice(1)}),
       roast:B.roast,roastDate:$('be-rdate').value,tried:$('be-tried').value,rating,flavours:TN.val(),notes:$('be-notes').value,img:photoChanged?!!photo:B.img,scan:B.scan||'',ts:b?b.ts:Date.now(),
-      shelf:B.shelf,bag:$('be-bag').value,left:b?b.left:null,leftAt:b?b.leftAt:0,again:b?b.again:'',diary:b?b.diary:[]});
+      shelf:B.shelf,bag:$('be-bag').value,left:b?b.left:null,leftAt:b?b.leftAt:0,again:b?b.again:'',diary:b?b.diary:[],cups:b?b.cups:[]});
     if(!n.name&&!n.origin&&!photo){toast('Add a name, an origin or a photo first');$('be-name').focus();return}
     let note='';if(photoChanged){if(photo){if(!await BIMG.put(n.id,photo)){n.img=false;note=', but the photo couldn’t be saved on this device'}}else if(!inAnyTop(n.id))BIMG.del(n.id)}
     // Moved to another year: it leaves the old year's top 3, where it no longer belongs.
