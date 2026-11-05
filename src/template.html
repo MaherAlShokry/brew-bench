@@ -770,6 +770,8 @@ html.app .bg-hero::after,html.app .me-hero::after,html.app .pp-st img{mix-blend-
 .k-bench .bn-legs{transform-box:fill-box;transform-origin:50% 100%;animation:bn-legs .45s .1s cubic-bezier(.3,1.4,.5,1) both}@keyframes bn-legs{from{transform:scaleY(0);opacity:0}}
 .k-bench .bn-top{animation:bn-top .42s .38s cubic-bezier(.45,0,.6,1.5) both}@keyframes bn-top{from{transform:translateY(-12px);opacity:0}}
 .k-bench .bn-drip{animation:bn-land .5s .72s cubic-bezier(.3,1.5,.5,1) both}.k-bench .bn-mug{animation:bn-land .5s .88s cubic-bezier(.3,1.5,.5,1) both}
+/* A single bean rolls in last and settles between the server and the mug. */
+.k-bench .bn-bean{transform-box:fill-box;transform-origin:50% 50%;animation:bn-roll .55s 1.02s cubic-bezier(.3,1.3,.5,1) both}@keyframes bn-roll{from{transform:translateX(5px) rotate(200deg);opacity:0}}
 @keyframes bn-land{from{transform:translateY(-10px);opacity:0}}
 .k-bench .bn-fill{transform:translateY(3.4px);animation:sp-svfill .9s 1.2s ease-out forwards}
 .k-bench .bn-steam{stroke-dasharray:1;stroke-dashoffset:1;animation:sp-stream .8s 1.25s ease-out forwards}
@@ -790,7 +792,35 @@ html.app .bg-hero::after,html.app .me-hero::after,html.app .pp-st img{mix-blend-
 .sh-me{display:flex;align-items:center;gap:10px;margin:2px 0 12px;font-size:.9rem;color:var(--muted)}.sh-me b{color:var(--ink)}
 .sh-you{display:flex;align-items:center;gap:8px}
 /* The settings line can be long: the box grows to show all of it. */
-#l-settings{field-sizing:content;min-height:0;resize:none;line-height:1.4}
+/* How you brewed it: two pickers, four number tiles, the ratio as a scale, and a line for anything else. */
+.ls-pick{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:8px}@media (min-width:560px){.ls-pick{grid-template-columns:1fr 1fr}}
+.ls-sel{position:relative;display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:10px;align-items:center;padding:10px 12px;border-radius:var(--r-md);background:var(--surface2);cursor:pointer;min-width:0}
+.ls-sel .ls-ic{grid-row:span 2}.ls-sel b{font:650 .92rem/1.25 var(--display);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ls-sel select{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;font-size:16px}
+.ls-sel:focus-within{box-shadow:0 0 0 2px var(--cherry)}
+/* The app wraps every select with its own chevron; here the whole tile is the control, so that wrapper steps aside. */
+.ls-sel .selw,.ls-gsel .selw{display:contents}.ls-sel .selw::after,.ls-gsel .selw::after{display:none}
+.ls-sel{grid-template-columns:auto 1fr auto}.ls-chev{grid-row:1/3;grid-column:3;width:16px;height:16px;fill:none;stroke:var(--muted);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ls-ic{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--surface);color:var(--cherry);flex:none}
+.ls-ic svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ls-l{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.ls-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ls-t{position:relative;display:flex;flex-direction:column;gap:4px;padding:12px;border-radius:var(--r-md);background:var(--surface2);min-width:0}
+.ls-t .ls-ic{position:absolute;right:10px;top:10px;width:26px;height:26px;border-radius:8px}.ls-t .ls-ic svg{width:15px;height:15px}
+.ls-v{font:800 1.7rem/1.1 var(--display);letter-spacing:-.02em;font-variant-numeric:tabular-nums}.ls-v small{font-size:.9rem;font-weight:600;color:var(--muted);margin-left:2px}
+.ls-t.empty .ls-v{color:var(--muted);opacity:.6}
+.ls-st{display:flex;gap:6px;margin-top:auto;padding-top:4px}.ls-st button{flex:1;height:36px;border:0;border-radius:10px;background:var(--surface);color:var(--ink);font:600 1.15rem/1 var(--display);cursor:pointer;transition:transform .1s,background .15s}
+.ls-st button:active{transform:scale(.92);background:color-mix(in srgb,var(--honey) 25%,var(--surface))}
+.ls-gsel{position:relative;align-self:flex-start;max-width:100%;font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:underline dotted;text-underline-offset:3px;cursor:pointer}
+.ls-gsel select{position:absolute;inset:0;opacity:0;width:100%;font-size:16px;cursor:pointer}
+.ls-ratio{margin-top:8px;padding:12px 14px;border-radius:var(--r-md);background:color-mix(in srgb,var(--honey) 14%,var(--surface2))}
+.ls-rtop{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}.ls-rtop b{font:800 1.2rem var(--display);font-variant-numeric:tabular-nums}.ls-rtop em{font-style:normal;font-size:.85rem;font-weight:600;color:var(--cherry-ink,var(--cherry))}
+.ls-ratio.empty .ls-rtop b{font:500 .9rem var(--body,inherit);color:var(--muted)}
+.ls-bar{position:relative;height:8px;margin:10px 0 4px;border-radius:4px;background:linear-gradient(90deg,#4A2A18,#7A4524 35%,#C98A3E 70%,#E8C987)}
+.ls-bar i{position:absolute;top:50%;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:var(--surface);border:3px solid var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.2);transition:left .25s}
+.ls-ratio.empty .ls-bar{opacity:.35}.ls-ratio.empty .ls-bar i{display:none}
+.ls-ends{display:flex;justify-content:space-between;font-size:.74rem;color:var(--muted)}
+.ls-x{margin-top:8px;width:100%}
 .l-bean{margin:0 0 10px}.l-bean:empty{display:none}
 .l-beancard{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 10px;border-radius:var(--r-md);background:var(--surface2)}
 .l-beancard .bpic{width:48px;height:58px;border-radius:12px;flex:none}
@@ -1136,6 +1166,48 @@ button.chip:hover{background:var(--tonal-hover)}
 /* Lists as cards */
 .logentry{background:var(--surface);border:1px solid var(--hair);border-radius:var(--r-md);padding:14px 16px;margin:0 0 10px;box-shadow:var(--e1)}
 .logentry p{margin:.4rem 0 0}
+/* Each brew as a card: the coffee and who brewed it, the stars, the settings as pills, your notes and what you tasted. */
+.le2{padding:14px 16px 10px}
+.le-top{display:flex;align-items:center;gap:12px}
+.le-top .bpic{width:44px;height:52px;border-radius:12px;flex:none}
+.le-init{flex:none;width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font:800 1.15rem var(--display);color:hsl(var(--h) 40% 30%);background:hsl(var(--h) 45% 88%)}
+:root[data-theme="dark"] .le-init{color:hsl(var(--h) 55% 82%);background:hsl(var(--h) 25% 24%)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .le-init{color:hsl(var(--h) 55% 82%);background:hsl(var(--h) 25% 24%)}}
+.le-tt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.le-tt b{font:700 1.02rem/1.25 var(--display);overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.le-meta{font-size:.8rem;color:var(--muted);display:flex;align-items:center;flex-wrap:wrap;gap:0 4px}
+.le-who{display:inline-flex;align-items:center;gap:5px;font-weight:600;color:var(--ink)}.le-who .pav{flex:none}
+.le-av{width:20px;height:20px;border-radius:50%;display:inline-grid;place-items:center;font:700 .66rem var(--display);color:#fff;background:hsl(var(--h) 38% 46%)}
+.le-stars{flex:none;align-self:flex-start;display:flex;align-items:center;gap:1px;color:var(--honey-ink);font-size:.82rem;letter-spacing:.5px}.le-stars b{font:800 .95rem var(--display);color:var(--ink);margin-right:4px}.le-stars i{font-style:normal;color:color-mix(in srgb,var(--muted) 55%,var(--surface))}
+.le-stars.none{font-size:.74rem;color:var(--muted);letter-spacing:0}
+.le-pills{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 0}
+.le-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 10px 5px 8px;border-radius:999px;background:var(--surface2);font-size:.8rem;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.le-pill svg{width:14px;height:14px;fill:none;stroke:var(--cherry);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.le-pill.k-rec{background:color-mix(in srgb,var(--honey) 20%,var(--surface2))}
+.le-rest{margin:8px 0 0!important;font-size:.84rem;color:var(--muted)}
+.le-pred{margin:8px 0 0!important;font-size:.84rem;color:var(--muted)}.le-pred b{color:var(--ink);font-weight:600}
+.le-notes{margin:10px 0 0;padding:8px 12px;border-left:3px solid var(--honey);background:color-mix(in srgb,var(--honey) 8%,transparent);border-radius:0 10px 10px 0;font-style:italic;line-height:1.45}
+.le2 .fl-entry,.le2 .fl-edit{margin-top:10px}.le2 .fl-entry .linkbtn,.le2 .fl-edit{font-size:.86rem}
+.le-act{display:flex;justify-content:flex-end;gap:4px;margin-top:8px;padding-top:8px;border-top:1px solid var(--hair,var(--line))}
+.le-b{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border:0;border-radius:999px;background:none;color:var(--muted);font:600 .82rem var(--display);cursor:pointer}
+.le-b:hover,.le-b:focus-visible{background:var(--surface2);color:var(--ink)}.le-b svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.le-b.del{padding:0 10px}.le-b.del:hover{color:var(--cherry)}
+.le-day{margin:18px 4px 8px;font:700 .76rem var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.le-count{margin:4px 4px 0;font-size:.82rem;color:var(--muted)}
+.le-empty{display:flex;flex-direction:column;align-items:center;gap:6px;padding:28px 16px;text-align:center;color:var(--muted)}.le-empty svg{width:28px;height:28px;fill:none;stroke:var(--cherry);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.le-empty b{color:var(--ink);font-family:var(--display)}.le-empty p{margin:0}
+/* Search, sort and filters above the list. */
+.lf{margin:18px 0 4px}
+.lf-top{display:flex;gap:8px}
+.lf-q{flex:1;min-width:0;display:flex;align-items:center;gap:8px;padding:0 14px;min-height:46px;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
+.lf-q svg{width:18px;height:18px;flex:none;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round}
+.lf-q input{flex:1;min-width:0;border:0;background:none;padding:0;min-height:44px;box-shadow:none;outline:0;font-size:16px;color:var(--ink)}
+.lf-q:focus-within{border-color:var(--cherry)}
+.lf-sort{position:relative;flex:none;display:flex;flex-direction:column;justify-content:center;padding:0 16px;min-height:46px;border-radius:999px;background:var(--surface);border:1px solid var(--line);cursor:pointer}
+.lf-sort span{font-size:.66rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);line-height:1.1}.lf-sort b{font:650 .86rem/1.2 var(--display)}
+.lf-sort .selw{display:contents}.lf-sort .selw::after{display:none}.lf-sort select{position:absolute;inset:0;opacity:0;width:100%;font-size:16px;cursor:pointer}
+.lf-row{display:flex;gap:6px;margin-top:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}.lf-row::-webkit-scrollbar{display:none}
+.lf-c{flex:none;min-height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:600 .84rem var(--display);cursor:pointer}
+.lf-c[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.lf-sep{flex:none;width:1px;background:var(--line);margin:6px 2px}
 .qopt{border-radius:var(--r-md);border:1px solid var(--hair);background:var(--surface);padding:12px 16px}
 .scroll{border-radius:var(--r-lg);border:1px solid var(--hair);background:var(--surface);box-shadow:var(--e1);padding:4px 16px;margin:10px 0 18px}
 table.ref th{border-bottom:1px solid var(--line)}
@@ -2211,7 +2283,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
     var raw=function(p){return shape(p," "+paint(p))};
     body='<g class="bn-legs">'+P.slice(0,3).map(raw).join("")+'</g><g class="bn-top">'+P.slice(3,5).map(raw).join("")+'</g>'+
       '<g class="bn-drip">'+raw(P[5])+'<clipPath id="spBnS"><path d="'+P[5].d+'"/></clipPath><g clip-path="url(#spBnS)"><rect class="bn-fill" x="5" y="9.6" width="6" height="4" fill="#6B4226"/></g>'+P.slice(6,9).map(raw).join("")+'</g>'+
-      '<g class="bn-mug">'+raw(P[9])+raw(P[10])+'</g>'+shape(P[11],' class="bn-steam" '+paint(P[11]));
+      '<g class="bn-mug">'+raw(P[9])+raw(P[10])+'</g>'+(P[12]?'<g class="bn-bean">'+P.slice(12).map(raw).join("")+'</g>':'')+shape(P[11],' class="bn-steam" '+paint(P[11]));
     for(var u=0;u<4;u++)x+='<circle class="puff bn-dust" cx="'+[2.6,4.4,19.6,21.4][u]+'" cy="15.4" r=".8" fill="var(--honey)" style="--d:'+(.62+(u%2)*.06).toFixed(2)+'s"/>';
     for(var v=0;v<3;v++)x+='<circle class="vdrip" cx="8.1" cy="9.6" r=".3" fill="#6B4226" style="--d:'+(1.15+v*.17).toFixed(2)+'s"/>'}
   else if(k==="aeropress"){
@@ -2618,7 +2690,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
       <div class="re-card"><h3 class="re-h"><i>1</i>The brew</h3>
       <div class="l-bean" id="l-bean"></div>
       <div class="field" id="l-coffee-f"><label for="l-coffee" id="l-coffee-lab">Coffee</label><input id="l-coffee" autocomplete="off"></div>
-      <div class="field"><label for="l-settings">Settings <span class="hint">grind, dose and water, recipe</span></label><textarea id="l-settings" rows="1"></textarea></div></div>
+      <div class="field ls-f"><div class="lbl">How you brewed it</div><div class="lset" id="lset"></div><textarea id="l-settings" rows="1" hidden></textarea></div></div>
       <div class="re-card"><h3 class="re-h"><i>2</i><span id="l-howq">How was it?</span></h3>
       <div class="l-rate"><div class="stars" id="l-stars" role="radiogroup" aria-label="Rating"></div><p class="l-starword" id="l-starword" aria-live="polite"></p></div>
       <p class="l-pred" id="l-predshow" hidden></p><input type="hidden" id="l-pred"></div>
@@ -2633,6 +2705,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
   <div class="specs" id="l-stats"></div>
   <div class="panel palate" id="l-palate" hidden></div>
   <div class="actions" style="margin-bottom:10px"><button class="btn ghost" id="l-pdf">Share my log</button><button class="btn ghost" id="l-csv" hidden>Download log as CSV</button></div>
+  <div class="lf" id="l-filter" hidden></div>
   <div id="l-list"></div>
 </section>
 <!-- EXPLORE (the phone's Explore tab) -->

@@ -450,7 +450,7 @@ function parseSettings(t){const o={};let rest=t;const take=re=>{const m=re.exec(
   m=take(/(\d{2,3}(?:[.,]\d)?)\s*°\s*C/i);if(m)o.temp=+m[1].replace(',','.');
   m=take(/\b1\s*:\s*(\d+(?:[.,]\d+)?)/);o.ratio=m?+m[1].replace(',','.'):o.dose&&o.water?o.water/o.dose:null;
   const G=Object.values(GRINDERS).sort((a,b)=>b.name.length-a.name.length).find(g=>rest.includes(g.name));
-  if(G){m=take(new RegExp(G.name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\s*([\\d.,]+(?:\\s*clicks)?)?'));o.grind=G.name+(m&&m[1]?' · '+m[1].trim():'')}
+  if(G){m=take(new RegExp(G.name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\s*(\\d+(?:[.,]\\d+)*(?:\\s*clicks)?)?'));o.grind=G.name+(m&&m[1]?' · '+m[1].trim():'')}
   const B=Object.values(BREWERS).sort((a,b)=>b.name.length-a.name.length).find(b=>rest.includes(b.name));if(B){o.brewer=B;rest=rest.replace(B.name,' ')}
   if(!o.brewer&&rec)o.brewer=BREWERS[rec.b];
   o.rest=rest.split(',').map(x=>x.trim()).filter(x=>x&&/[a-z]/i.test(x)).join(', ');return o}
@@ -494,3 +494,5 @@ function cardViewer(blob,file,title){const d=$('vd'),u=URL.createObjectURL(blob)
   const rd=new FileReader();rd.onload=()=>{const a=$('cv-dl');if(a)a.href=rd.result};rd.readAsDataURL(blob);
   const sb=$('cv-share');if(sb)sb.onclick=async()=>{const f=new File([blob],file,{type:'image/jpeg'});try{if(navigator.canShare({files:[f]}))await navigator.share({files:[f],title});else toast('This browser can’t share images. Press and hold the image to save it')}catch(e){if(!e||e.name!=='AbortError')toast('Sharing was blocked. Press and hold the image to save it')}};
   d.addEventListener('close',()=>setTimeout(()=>URL.revokeObjectURL(u),60000),{once:true});showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
+// The brew log's cards read snapshots with okSnap above; the log drew before this file ran, so it draws again now.
+window.CARD_OK=true;try{renderLogList()}catch(e){}
