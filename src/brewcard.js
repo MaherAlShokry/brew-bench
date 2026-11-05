@@ -450,7 +450,7 @@ function parseSettings(t){const o={};let rest=t;const take=re=>{const m=re.exec(
   m=take(/(\d{2,3}(?:[.,]\d)?)\s*°\s*C/i);if(m)o.temp=+m[1].replace(',','.');
   m=take(/\b1\s*:\s*(\d+(?:[.,]\d+)?)/);o.ratio=m?+m[1].replace(',','.'):o.dose&&o.water?o.water/o.dose:null;
   const G=Object.values(GRINDERS).sort((a,b)=>b.name.length-a.name.length).find(g=>rest.includes(g.name));
-  if(G){m=take(new RegExp(G.name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\s*([\\d.,]+(?:\\s*clicks)?)?'));o.grind=G.name+(m&&m[1]?' · '+m[1].trim():'')}
+  if(G){m=take(new RegExp(G.name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\s*(\\d+(?:[.,]\\d+)*(?:\\s*clicks)?)?'));o.grind=G.name+(m&&m[1]?' · '+m[1].trim():'')}
   const B=Object.values(BREWERS).sort((a,b)=>b.name.length-a.name.length).find(b=>rest.includes(b.name));if(B){o.brewer=B;rest=rest.replace(B.name,' ')}
   if(!o.brewer&&rec)o.brewer=BREWERS[rec.b];
   o.rest=rest.split(',').map(x=>x.trim()).filter(x=>x&&/[a-z]/i.test(x)).join(', ');return o}
