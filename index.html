@@ -901,6 +901,19 @@ svg .bo{fill:currentColor}svg .bc{fill:none;stroke:var(--surface);stroke-width:1
 .code{font-family:var(--display);letter-spacing:.08em;font-variant-numeric:tabular-nums}
 .joinrow{display:flex;gap:8px}.joinrow input{flex:1;min-width:0;text-transform:uppercase;letter-spacing:.08em;font-family:var(--display)}.joinrow .btn{flex:0 0 auto}
 .lehead{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.lehead .x{margin-left:auto}
+/* Bean ratings outside the gallery: a row of small beans, filled to the rating. */
+.hm-ic{width:1.05em;height:1.05em;vertical-align:-.18em;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linejoin:round;stroke-linecap:round}
+.bd-addrd .dateinp{flex:1 1 100%;width:100%}
+.brate{display:inline-flex;gap:.12em;font-size:15px;vertical-align:-.15em}.brate.sm{font-size:12px;margin-left:6px}
+/* Rating a brew: five beans you tap; the one you pick pops and tips over like a bean landing. */
+.stars button svg{width:1em;height:1em;overflow:visible}
+.stars button svg .bo{fill:color-mix(in srgb,var(--line) 45%,var(--surface2));stroke:color-mix(in srgb,var(--cherry) 55%,var(--line));stroke-width:1.4;transition:fill .2s}
+.stars button svg .bc{fill:none;stroke:color-mix(in srgb,var(--cherry) 40%,var(--line));stroke-width:1.5;stroke-linecap:round}
+.stars button.on svg .bo{fill:var(--cherry);stroke:var(--cherry)}.stars button.on svg .bc{stroke:color-mix(in srgb,var(--surface) 75%,var(--honey))}
+.stars button.pop svg{animation:bean-pop .45s var(--ease-spring,cubic-bezier(.3,1.5,.5,1))}@keyframes bean-pop{0%{transform:scale(.6) rotate(-25deg)}60%{transform:scale(1.18) rotate(8deg)}100%{transform:none}}
+@media (prefers-reduced-motion:reduce){.stars button.pop svg{animation:none}}
+.lf-b{display:inline-block;width:14px;height:14px;margin-right:4px;vertical-align:-2px}.lf-b svg{width:14px;height:14px}.lf-b .bo{fill:currentColor}.lf-b .bc{fill:none;stroke:var(--surface);stroke-width:1.8}
+.lf-c[aria-pressed="true"] .lf-b .bc{stroke:var(--ink)}
 .stars-sm{color:var(--honey-ink);letter-spacing:1px;font-size:.9rem}.stars-sm span{color:color-mix(in srgb,var(--muted) 82%,var(--surface))}
 /* Open dialogs and sheets lock the page behind them. */
 html.locked,html.locked body{overflow:hidden}
@@ -1178,7 +1191,7 @@ button.chip:hover{background:var(--tonal-hover)}
 .le-meta{font-size:.8rem;color:var(--muted);display:flex;align-items:center;flex-wrap:wrap;gap:0 4px}
 .le-who{display:inline-flex;align-items:center;gap:5px;font-weight:600;color:var(--ink)}.le-who .pav{flex:none}
 .le-av{width:20px;height:20px;border-radius:50%;display:inline-grid;place-items:center;font:700 .66rem var(--display);color:#fff;background:hsl(var(--h) 38% 46%)}
-.le-stars{flex:none;align-self:flex-start;display:flex;align-items:center;gap:1px;color:var(--honey-ink);font-size:.82rem;letter-spacing:.5px}.le-stars b{font:800 .95rem var(--display);color:var(--ink);margin-right:4px}.le-stars i{font-style:normal;color:color-mix(in srgb,var(--muted) 55%,var(--surface))}
+.le-stars{flex:none;align-self:flex-start;display:flex;align-items:center;gap:6px}.le-stars .brate{font-size:14px}.le-stars b{font:800 .95rem var(--display);color:var(--ink)}
 .le-stars.none{font-size:.74rem;color:var(--muted);letter-spacing:0}
 .le-pills{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 0}
 .le-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 10px 5px 8px;border-radius:999px;background:var(--surface2);font-size:.8rem;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
@@ -1331,6 +1344,9 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 #rhome .cupart{height:76px}
 @media (min-width:1000px){#rgrid{columns:2;column-gap:16px}#rgrid .rgrp{break-inside:avoid;display:inline-block;width:100%;content-visibility:visible}}
 @media (min-width:760px){.bshelf button{width:128px}.colshelf button{width:200px}}
+/* A collection's count sits in the top corner, as on the cup-type cards, clear of the title and the line under it. */
+.colshelf button{padding:14px 14px 16px;min-height:118px}.colshelf b{padding-right:42px}
+.colshelf .cn{left:auto;bottom:auto;top:12px;right:12px;font-size:.74rem;background:rgba(0,0,0,.24);padding:2px 9px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
 /* A recipe at a glance, and its steps as a timeline. */
 .rstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:.4rem 0 .8rem}
 .rstats div{background:var(--surface2);border-radius:12px;padding:8px 10px}.rstats b{display:block;font:700 1.02rem var(--display);font-variant-numeric:tabular-nums}.rstats small{color:var(--muted);font-size:.74rem}
@@ -1837,6 +1853,12 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .fbar i{display:block;height:100%}.fbar .fz1{width:6.7%;background:#B8AFA6;border-radius:5px 0 0 5px}.fbar .fz2{width:28.3%;background:#5E9A63}.fbar .fz3{width:40%;background:#C9964A}.fbar .fz4{flex:1;background:#A8432F;border-radius:0 5px 5px 0;opacity:.75}
 .fbar b{position:absolute;top:50%;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:var(--surface);box-shadow:0 0 0 3px var(--ink),0 3px 8px rgba(0,0,0,.3)}
 .bd-bag{margin-top:12px}.bd-bag .bagm{height:8px}.bd-bag .bagl small{font-size:.86rem;color:var(--ink);font-weight:600}
+.bd-cupr{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}.bd-cupl{font-size:.86rem;color:var(--muted)}
+.bd-step{display:inline-flex;align-items:center;gap:2px;padding:3px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line)}
+.bd-step button{width:34px;height:34px;border:0;border-radius:50%;background:var(--surface2);color:var(--ink);font:600 1.1rem/1 var(--display);cursor:pointer}.bd-step button:active{transform:scale(.9)}
+.bd-step b{min-width:52px;text-align:center;font:700 .95rem var(--display);font-variant-numeric:tabular-nums}
+.bd-cupr .btn{min-height:40px;padding:0 16px;font-size:.88rem}
+.bd-auto{margin:8px 0 0;font-size:.8rem;color:var(--muted)}
 .bd-bagb{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.bd-bagb .chip{cursor:pointer;padding:7px 13px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line)}
 .bd-done{width:100%;margin-top:12px}
 .bd-again{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:14px 0 6px;font-weight:600;font-size:.92rem}
@@ -1991,6 +2013,8 @@ body.t-dial.dial-ready .herowrap{display:none}
 .cr-now{gap:4px 12px;margin-top:6px}.cr-left{font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
 .cr-fresh{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:600;color:var(--ink)}
 .cr-fresh i{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:none}
+.cr-fresh.none{font-weight:500;color:var(--muted)}.cr-fresh.none i{background:none;box-shadow:inset 0 0 0 1.5px var(--muted)}
+.bd-addrd{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;cursor:pointer}.bd-addrd span{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 180px}.bd-addrd small{font-size:.82rem;color:var(--muted)}.bd-addrd input{flex:0 0 auto;width:auto;min-height:42px}
 .cr-fresh.f-peak i{background:#4F9A57}.cr-fresh.f-good i{background:#C9964A}.cr-fresh.f-fade i{background:#B5533C}.cr-fresh.f-rest i{background:#8FA3B8}
 .cr-bar{display:block;height:4px;border-radius:4px;background:color-mix(in srgb,var(--line) 70%,transparent);margin-top:8px;overflow:hidden}
 .cr-bar i{display:block;height:100%;border-radius:4px;background:color-mix(in srgb,var(--cherry) 70%,var(--honey))}
@@ -2123,7 +2147,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
 .lb-ic{flex:none;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:color-mix(in srgb,var(--honey) 20%,var(--surface2));color:var(--cherry)}
 .lb-ic svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .lastbrew .lb-tx{min-width:0;display:flex;flex-direction:column;gap:1px}.lastbrew .lb-tx small{font-size:.74rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.lastbrew .lb-tx b{font-size:1.02rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lastbrew .lb-tx span{font-size:.84rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lastbrew .lb-tx .st{color:var(--honey-ink,#9A6B1F);letter-spacing:1px}
+.lastbrew .lb-tx b{font-size:1.02rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lastbrew .lb-tx>span{font-size:.84rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lastbrew .lb-tx .st .brate{font-size:12px}.lastbrew .lb-tx .st{color:var(--honey-ink,#9A6B1F);letter-spacing:1px}
 .lb-act{flex:none;display:flex;flex-direction:column;gap:6px}.lb-act .btn{min-height:38px;padding:7px 14px;font-size:.88rem}
 /* A toast with one action: share the brew you just saved. */
 #toast.act{pointer-events:auto;display:flex;align-items:center;gap:12px;padding:8px 8px 8px 18px}
@@ -4757,6 +4781,10 @@ const num=(v,d,a=-Infinity,b=Infinity)=>{v=+v;return Number.isFinite(v)?Math.min
 const oneOf=(v,list,d)=>list.includes(v)?v:d;
 function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 const MQ=q=>!!(window.matchMedia&&window.matchMedia(q).matches);const RM=()=>MQ('(prefers-reduced-motion: reduce)')||document.documentElement.getAttribute('data-motion')==='reduced';
+// Ratings are drawn as coffee beans, filled to the rating (half a bean for a half), here and in the bean gallery.
+const RB_G='<g transform="rotate(30 12 12)"><path class="bo" d="M12 2.6c4.1 0 6.6 4.3 6.6 9.4s-2.5 9.4-6.6 9.4-6.6-4.3-6.6-9.4 2.5-9.4 6.6-9.4z"/><path class="bc" d="M12.7 3.2c-2.4 2.6-.4 5.6-1.3 8.8s1.3 5.9-.6 8.8"/></g>';
+const RB_SVG='<svg viewBox="0 0 24 24" aria-hidden="true">'+RB_G+'</svg>';
+const beanRate=(r,cls)=>{let h='';for(let i=1;i<=5;i++){const f=r>=i?100:r>=i-0.5?50:0;h+='<span class="rb">'+RB_SVG+'<span class="rbf" style="width:'+f+'%">'+RB_SVG+'</span></span>'}return '<span class="brate'+(cls?' '+cls:'')+'" aria-hidden="true">'+h+'</span>'};
 let toastT;function toast(m){const t=$('toast');t.classList.remove('act');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600)}
 // A toast with a button, kept up a little longer so there is time to tap it.
 function toastAct(m,label,fn){const t=$('toast');t.textContent='';t.classList.add('act');const sp=document.createElement('span');sp.textContent=m;const b=document.createElement('button');b.type='button';b.className='tact';b.textContent=label;
@@ -5762,9 +5790,10 @@ const COLBY=Object.fromEntries(COLS.map(c=>[c[0],c]));
 const RBREWERS=()=>Object.keys(BREWERS).filter(k=>RFAM(k)===k&&RECIPES.some(r=>RFAM(r.b)===k));
 // A brewer family's name in the recipe library (the V60 and NEO share one shelf and one group).
 const famName=k=>k==='v60'?'Hario V60 and V60 NEO':k==='sw'?'Hario Switch and NEO Switch':BREWERS[k].name;
-const BT_ICON={'Cone dripper':'M5 5h14l-5 9h-4z M10 14h4 M12 14v3 M7 19h10','Flat-bottom dripper':'M5 5h14l-3 8H8z M8 13h8 M12 13v4 M7 19h10','Valve and hybrid':'M6 4h12l-4 8h-4z M10 12h4v3h-4z M7 19h10 M12 15v4',
-  'Immersion and pressure':'M7 5h10v14H7z M7 5H5 M12 2v3 M9 10h6','Espresso and stovetop':'M6 10h10v3a5 5 0 0 1-10 0z M16 11h2a2 2 0 0 1 0 4h-2 M4 20h14 M9 4c-1 1.5 1 2.5 0 4 M13 4c-1 1.5 1 2.5 0 4',
-  'Boiled':'M5 10h10l-1 8H6z M15 12l5-3 M8 6c-1 1 1 2 0 3','Cold':'M6 4h12l-2 16H8z M9 9h3v3H9z M12 13h3v3h-3z','Machine':'M5 3h14v6H5z M7 9v8h10V9 M9 13h6 M6 21h12'};
+// Brewer icons, drawn like the rest of the app: each brewer with its cup, its steam or its ice.
+const BT_ICON={'Cone dripper':'M4.5 4.5h15 M6 4.5l4 6.5h4l4-6.5 M9.6 7.6h4.8 M12 12.6v.8 M7.5 15h9v1.8a3.2 3.2 0 0 1-3.2 3.2h-2.6a3.2 3.2 0 0 1-3.2-3.2z M16.5 16h.7a1.4 1.4 0 0 1 0 2.8h-.9','Flat-bottom dripper':'M4.5 4.5h15 M6 4.5l2.2 6.5h7.6L18 4.5 M8 8h8 M12 12.6v.8 M7.5 15h9v1.8a3.2 3.2 0 0 1-3.2 3.2h-2.6a3.2 3.2 0 0 1-3.2-3.2z M16.5 16h.7a1.4 1.4 0 0 1 0 2.8h-.9','Valve and hybrid':'M4.5 4h15 M6 4l3.6 6h4.8L18 4 M10.6 10h2.8v1.6h-2.8z M12 13v.8 M7.5 15h9v1.8a3.2 3.2 0 0 1-3.2 3.2h-2.6a3.2 3.2 0 0 1-3.2-3.2z M16.5 16h.7a1.4 1.4 0 0 1 0 2.8h-.9',
+  'Immersion and pressure':'M6.5 7.5h9v10.5a2 2 0 0 1-2 2h-5a2 2 0 0 1-2-2z M15.5 9.5h1.3a1.7 1.7 0 0 1 1.7 1.7v3.6a1.7 1.7 0 0 1-1.7 1.7h-1.3 M5.5 7.5h11 M11 3.5v8 M8.5 11.5h5 M8.5 15h5','Espresso and stovetop':'M6 10h10v3a5 5 0 0 1-10 0z M16 11h2a2 2 0 0 1 0 4h-2 M4 20h14 M9 4c-1 1.5 1 2.5 0 4 M13 4c-1 1.5 1 2.5 0 4',
+  'Boiled':'M6.5 9.5h9.5l-1 8.6a2 2 0 0 1-2 1.9H9.5a2 2 0 0 1-2-1.9z M16 11.5l4.5-2.5 M6 9.5h10.5 M9.5 3.5c-1 1.2 1 2 0 3.2 M13 3.5c-1 1.2 1 2 0 3.2','Cold':'M6 6.5h12l-1.5 12.2a1.6 1.6 0 0 1-1.6 1.4H9.1a1.6 1.6 0 0 1-1.6-1.4z M9.2 10.5l2.4-.8.8 2.4-2.4.8z M12.4 14.2l2.4.4-.4 2.4-2.4-.4z M14 6.5l1.6-3.5h2.4','Machine':'M5 3.5h14v5H5z M8 8.5v3 M7 12.5h7v5.5a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z M14 14h.8a1.4 1.4 0 0 1 0 2.8H14 M17.5 8.5v11.5 M4.5 20h15 M8 6h2'};
 const bIcon=t=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+(BT_ICON[t]||BT_ICON['Cone dripper'])+'"/></svg>';
 function renderRHome(){const QI=(c,p)=>'<span class="qi" style="background:'+c+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+p+'"/></svg></span>';
   const again=RECENT.map(rByKey).filter(i=>i>=0).slice(0,6);
@@ -6436,8 +6465,9 @@ $('ts-chips').onclick=e=>{const b=e.target.closest('[data-ts]');if(!b)return;ren
 
 /* ================= LOG ================= */
 let STAR=0,DL=null;
-function renderStars(){const w=$('l-starword');if(w){w.textContent=STARW[STAR]||'';w.classList.toggle('none',!STAR)}$('l-stars').innerHTML=[1,2,3,4,5].map(n=>'<button type="button" class="'+(n<=STAR?'on':'')+'" data-s="'+n+'" role="radio" aria-checked="'+(n===STAR)+'" aria-label="'+n+' stars">\u2605</button>').join('')}
-$('l-stars').onclick=e=>{const b=e.target.closest('[data-s]');if(b){STAR=+b.dataset.s;renderStars()}};
+function renderStars(){const w=$('l-starword');if(w){w.textContent=STARW[STAR]||'';w.classList.toggle('none',!STAR)}$('l-stars').innerHTML=[1,2,3,4,5].map(n=>'<button type="button" class="'+(n<=STAR?'on':'')+(n===STAR&&LSPOP?' pop':'')+'" data-s="'+n+'" role="radio" aria-checked="'+(n===STAR)+'" aria-label="'+n+' bean'+(n>1?'s':'')+(STARW[n]?', '+STARW[n]:'')+'">'+RB_SVG+'</button>').join('');LSPOP=false}
+let LSPOP=false;
+$('l-stars').onclick=e=>{const b=e.target.closest('[data-s]');if(b){STAR=+b.dataset.s;LSPOP=true;renderStars()}};
 /* ---------- Shared log (Firebase Realtime Database over REST, no SDK) ---------- */
 // The Realtime Database URL of the Firebase project that holds shared logs (see README).
 // Empty means shared logs are switched off. A 'bb-syncdb' value in localStorage overrides it, for testing.
@@ -6506,7 +6536,7 @@ const LFIELDS=['l-coffee','l-settings','l-pred','l-notes'];
 // The coffee being logged, when it's one of your beans: it shows as a card, and its bag's notes sit beside what you tasted.
 let LBEAN=null;
 const lBean=()=>LBEAN&&window.BEANS_OK?beanById(LBEAN):null;
-const STARW=['Tap a star to rate','Not for me','Just okay','A good cup','Lovely','Outstanding'];
+const STARW=['Tap a bean to rate','Not for me','Just okay','A good cup','Lovely','Outstanding'];
 function renderLBean(){renderLSet();const el=$('l-bean'),b=lBean();
   if(b){$('l-coffee').value=beanTitle(b);el.innerHTML='<div class="l-beancard">'+beanPic(b,'xs')+'<span class="lb-tx"><b>'+esc(beanTitle(b))+'</b><small>'+esc([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '))+'</small></span><button type="button" class="btn ghost" id="l-beanchg">Change</button></div>';
     hydrateImgs(el);$('l-coffee-f').hidden=true}
@@ -6523,10 +6553,10 @@ function renderLBean(){renderLSet();const el=$('l-bean'),b=lBean();
 let LS={};
 const LSI={dose:'M12 3.5c3.6 0 5.8 3.8 5.8 8.5s-2.2 8.5-5.8 8.5-5.8-3.8-5.8-8.5 2.2-8.5 5.8-8.5z M12.6 4c-2 2.4-.4 5-1.1 8s1.1 5.3-.5 8',
   water:'M12 3.5c3.3 4.3 5.5 7.1 5.5 10.2a5.5 5.5 0 0 1-11 0C6.5 10.6 8.7 7.8 12 3.5z',
-  temp:'M10 5a2 2 0 0 1 4 0v8.6a4 4 0 1 1-4 0z M12 9.5v6.5',
-  grind:'M12 3v2.5 M12 18.5V21 M3 12h2.5 M18.5 12H21 M12 7a5 5 0 1 0 0 10a5 5 0 1 0 0-10z M12 12l2.6-1.8',
+  temp:'M5 11.5h10v5.5a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3z M15 13.5c2 0 3.2-1.6 4-4.4l1.5-.8 M7.5 11.5V10a2.5 2.5 0 0 1 5 0v1.5 M4.5 20h11',
+  grind:'M8.5 9h7v10a1.5 1.5 0 0 1-1.5 1.5h-4A1.5 1.5 0 0 1 8.5 19z M7.5 9h9 M12 9V6 M12 6h5.5 M17.5 6v2.4 M8.5 13h7 M10.5 16.5h3',
   rec:'M6 4h10a2 2 0 0 1 2 2v14l-3-2-3 2-3-2-3 2V6a2 2 0 0 1 2-2z M9 9h6 M9 12.5h4',
-  brew:'M4 6h16l-6 8h-4z M12 14v3 M8 20h8'};
+  brew:'M4.5 4.5h15 M6 4.5l4 6.5h4l4-6.5 M9.6 7.6h4.8 M12 12.6v.8 M7.5 15h9v1.8a3.2 3.2 0 0 1-3.2 3.2h-2.6a3.2 3.2 0 0 1-3.2-3.2z M16.5 16h.7a1.4 1.4 0 0 1 0 2.8h-.9'};
 const lsIc=k=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+LSI[k]+'"/></svg>';
 const lsRe=t=>t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 function lsParse(t){t=t||'';const q=parseSettings(t),db=$('l-settings').dataset.brewer;
@@ -6580,7 +6610,7 @@ function endEdit(){LEDIT=null;LBEAN=null;LFIELDS.forEach(id=>$(id).value='');del
 function renderLastBrew(){const el=$('lastbrew');if(!el)return;const l=LOG.find(x=>x&&(!x.by||x.by===ME));if(!l){el.hidden=true;return}
   const st=clamp(Math.round(+l.stars||0),0,5),n=LOG.length;el.hidden=false;
   el.innerHTML='<button type="button" class="lb-open" id="lb-open" aria-label="Open your brew log"><span class="lb-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z M16 10h1.5a2.5 2.5 0 0 1 0 5H16 M8 3c-1 1 1 2 0 3 M11.5 3c-1 1 1 2 0 3"/></svg></span>'+
-    '<span class="lb-tx"><small>Your last brew</small><b>'+esc(l.coffee||'A brew')+'</b><span>'+(st?'<i class="st" aria-label="'+st+' stars">'+'★'.repeat(st)+'</i> · ':'')+esc(fmtDate(l))+'</span></span></button>'+
+    '<span class="lb-tx"><small>Your last brew</small><b>'+esc(l.coffee||'A brew')+'</b><span>'+(st?'<i class="st" role="img" aria-label="'+st+' of 5 beans">'+beanRate(st)+'</i> · ':'')+esc(fmtDate(l))+'</span></span></button>'+
     '<div class="lb-act"><button type="button" class="btn" id="lb-share">Share</button><button type="button" class="btn ghost" id="lb-all" aria-label="All '+n+' brews">All '+n+'</button></div>';
   $('lb-open').onclick=$('lb-all').onclick=()=>goTab('log');$('lb-share').onclick=()=>openShare(logEntryDoc(l))}
 /* ---------- The list of brews: search, filters, sort, and each brew as a card ---------- */
@@ -6603,7 +6633,7 @@ function logGroup(l){const d=new Date(l.ts||Date.parse(l.date));if(isNaN(d))retu
 function logEntryHTML(l,i){const st=clamp(Math.round(+l.stars||0),0,5),{pills,rest}=logPills(l),who=GROUP&&l.by?(l.by===ME?'You':l.by):'';
   const av=who?(l.by===ME&&window.PROFILE_OK&&PROFILE?avatarHTML(PROFILE,20):'<span class="le-av" style="--h:'+lHue(l.by)+'">'+esc(l.by.charAt(0).toUpperCase())+'</span>'):'';
   return '<article class="logentry le2"><div class="le-top">'+logThumb(l)+'<div class="le-tt"><b>'+esc(l.coffee||'Untitled')+'</b><span class="le-meta">'+(who?'<span class="le-who">'+av+esc(who)+'</span> · ':'')+esc(fmtDate(l))+(l.edited?' · edited':'')+'</span></div>'+
-    (st?'<span class="le-stars" aria-label="'+st+' of 5 stars"><b>'+st+'</b>'+'★'.repeat(st)+'<i>'+'★'.repeat(5-st)+'</i></span>':'<span class="le-stars none">Not rated</span>')+'</div>'+
+    (st?'<span class="le-stars" role="img" aria-label="'+st+' of 5 beans, '+STARW[st]+'">'+beanRate(st)+'<b>'+st+'</b></span>':'<span class="le-stars none">Not rated</span>')+'</div>'+
     (pills.length?'<div class="le-pills">'+pills.map(([k,t])=>'<span class="le-pill k-'+k+'">'+(LSI[k==='ratio'?'water':k]?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+LSI[k==='ratio'?'water':k]+'"/></svg>':'')+esc(t)+'</span>').join('')+'</div>':'')+
     (rest?'<p class="le-rest">'+esc(rest)+'</p>':'')+(l.pred?'<p class="le-pred">Expected <b>'+esc(l.pred)+'</b></p>':'')+(l.notes?'<blockquote class="le-notes">'+esc(l.notes)+'</blockquote>':'')+flEntry(l,i)+
     '<div class="le-act"><button type="button" class="le-b" data-lshare="'+i+'" aria-label="Share this brew">'+lIc('share')+'Share</button>'+(canEdit(l)?'<button type="button" class="le-b" data-edit="'+i+'" aria-label="Edit this brew">'+lIc('edit')+'Edit</button>':'')+'<button type="button" class="le-b del" data-del="'+i+'" aria-label="Delete this brew">'+lIc('del')+'</button></div></article>'}
@@ -6611,7 +6641,7 @@ function renderLogFilter(){const el=$('l-filter');if(!el)return;el.hidden=LOG.le
   const people=GROUP?[...new Set(LOG.map(lWho))]:[];const chip=(k,v,t)=>'<button type="button" class="lf-c" data-lf="'+k+'" data-v="'+v+'" aria-pressed="'+(String(LF[k])===String(v))+'">'+t+'</button>';
   el.innerHTML='<div class="lf-top"><label class="lf-q">'+lIc('search')+'<input id="lf-q" type="search" placeholder="Search coffee, recipe, notes" value="'+esc(LF.q)+'" aria-label="Search your brews"></label>'+
     '<label class="lf-sort"><span>Sort</span><b>'+LOG_SORTS.find(x=>x[0]===LF.sort)[1]+'</b><select id="lf-sort" aria-label="Sort brews">'+LOG_SORTS.map(([k,n])=>'<option value="'+k+'"'+(k===LF.sort?' selected':'')+'>'+n+'</option>').join('')+'</select></label></div>'+
-    '<div class="lf-row" role="group" aria-label="Filter brews">'+chip('min',0,'All')+chip('min',4,'4★ and up')+chip('min',5,'5★')+(people.length>1?'<span class="lf-sep"></span>'+chip('who','all','Everyone')+people.map(p=>chip('who',p,p==='me'?'Me':esc(p))).join(''):'')+'</div>'}
+    '<div class="lf-row" role="group" aria-label="Filter brews">'+chip('min',0,'All')+chip('min',4,'<span class="lf-b">'+RB_SVG+'</span>4 and up')+chip('min',5,'<span class="lf-b">'+RB_SVG+'</span>5')+(people.length>1?'<span class="lf-sep"></span>'+chip('who','all','Everyone')+people.map(p=>chip('who',p,p==='me'?'Me':esc(p))).join(''):'')+'</div>'}
 function renderLogList(){renderLogFilter();const q=LF.q.trim().toLowerCase();
   if(LF.who!=='all'&&!(GROUP&&LOG.some(l=>lWho(l)===LF.who)))LF.who='all';
   let rows=LOG.map((l,i)=>[l,i]).filter(([l])=>(+l.stars||0)>=LF.min&&(LF.who==='all'||lWho(l)===LF.who)&&(!q||[l.coffee,l.settings,l.notes,l.by,flText(flOf(l))].join(' ').toLowerCase().includes(q)));
@@ -6677,7 +6707,7 @@ $('l-list').onclick=e=>{const ls=e.target.closest('[data-lshare]');if(ls){const 
   const fe=e.target.closest('[data-fledit]'),fv=e.target.closest('[data-flview]'),ed=e.target.closest('[data-edit]');
   if(ed){const l=LOG[+ed.dataset.edit];if(l&&canEdit(l))editBrew(l);return}
   if(fe){const l=LOG[+fe.dataset.fledit];if(l)openNotesPicker(l);return}
-  if(fv){const l=LOG[+fv.dataset.flview];if(l)openProfile(l.coffee||'Untitled',[fmtDate(l),l.stars?l.stars+' of 5 stars':'',l.settings].filter(Boolean).join(' \u00B7 '),flOf(l),l);return}
+  if(fv){const l=LOG[+fv.dataset.flview];if(l)openProfile(l.coffee||'Untitled',[fmtDate(l),l.stars?l.stars+' of 5 beans':'',l.settings].filter(Boolean).join(' \u00B7 '),flOf(l),l);return}
   const b=e.target.closest('[data-del]');if(!b)return;const l=LOG[+b.dataset.del];if(!l)return;
   // One tap on Delete shouldn't lose a brew and its notes: ask first, as recipes do.
   if(!confirm(GROUP&&l.by&&l.by!==ME?'Delete '+l.by+'’s entry for everyone?':'Delete \u201c'+(l.coffee||'Untitled')+'\u201d from your log?'))return;if(LEDIT===l.id)endEdit();LOG.splice(+b.dataset.del,1);save('bb-log',LOG);if(window.BEANS_OK)checkTrophies();queue('del',l.id);renderLog();toast('Entry deleted')};
@@ -8167,9 +8197,11 @@ const placeLine=(rk,y)=>MEDALN[rk]+' · top '+(rk<=3?3:5)+' of '+y;
 // The brews you logged from the dial-in with this coffee picked (yours only, in a shared log).
 const beanBrews=b=>LOG.filter(l=>l&&((l.snap&&l.snap.bean&&l.snap.bean.id===b.id)||l.beanId===b.id)&&(!l.by||l.by===ME));
 // Grams left: what you last said was left (or the full bag), less every brew logged since. null when the bag size isn't known.
+// The coffee a brew used: from the dial-in's snapshot, or read from the settings line of a brew logged by hand.
+function brewDose(l){const d=l&&l.snap&&+l.snap.dose;if(d>0)return d;const q=typeof parseSettings==='function'?parseSettings(l&&l.settings||''):{};return q.dose>0?q.dose:0}
 function gramsLeft(b){const base=b.left!=null?b.left:b.bag;if(!base&&b.left==null)return null;const since=b.left!=null?b.leftAt:b.ts;
-  return Math.max(0,Math.round(base-beanBrews(b).filter(l=>(+l.ts||0)>since).reduce((s,l)=>s+(+l.snap.dose||0),0)))}
-const beanDose=b=>{const d=beanBrews(b).map(l=>+l.snap.dose).filter(v=>v>0);return d.length?d.reduce((a,v)=>a+v,0)/d.length:(+S.dose||15)};
+  return Math.max(0,Math.round(base-beanBrews(b).filter(l=>(+l.ts||0)>since).reduce((s,l)=>s+brewDose(l),0)))}
+const beanDose=b=>{const d=beanBrews(b).map(brewDose).filter(v=>v>0);return d.length?d[0]:(+S.dose||15)};
 const cupsLeft=b=>{const g=gramsLeft(b);return g==null?null:Math.floor(g/beanDose(b))};
 // Where a bag is in its life, from the roast date: resting (still degassing), at its peak, still lovely, then fading.
 const FRESH={rest:['Resting','Give it a few more days: fresh coffee is gassy and brews uneven.'],peak:['At its peak','Brew it now: these are its best weeks.'],
@@ -8277,9 +8309,9 @@ function timelineHTML(items,withBean){if(!items.length)return '';
     if(it.kind==='entry'){const [n,ic]=MOMENTS[it.e.k];return '<li class="tl-e k-'+it.e.k+'"><span class="tl-ic" aria-hidden="true">'+ic+'</span><div class="tl-b">'+head+'<div class="tl-h"><b>'+n+'</b><time>'+dfmt(it.t)+'</time>'+
       (withBean?'':'<button type="button" class="tl-x" data-deldiary="'+it.e.id+'" aria-label="Delete this entry">✕</button>')+'</div>'+(it.e.t?'<p>'+esc(it.e.t)+'</p>':'')+
       (it.e.ph?'<button type="button" class="tl-ph" data-dyph="'+it.e.id+'" aria-label="Open the photo"><span class="tl-pic" data-bimg="'+DPH(it.e.id)+'"></span></button>':'')+'</div></li>'}
-    const l=it.l,B=BREWERS[l.snap.b],st=+l.stars||0;
+    const l=it.l,sn=l.snap||{},B=BREWERS[sn.b||l.brewer],st=+l.stars||0,dz=brewDose(l);
     return '<li class="tl-e k-brew"><span class="tl-ic" aria-hidden="true">☕</span><div class="tl-b">'+head+'<div class="tl-h"><b>Brewed'+(B?' on '+esc(B.name):'')+'</b><time>'+dfmt(it.t)+'</time></div>'+
-      '<p class="tl-meta">'+[l.snap.dose?gfmt(l.snap.dose)+' g':'',l.snap.rec||'',st?'★'.repeat(st)+'☆'.repeat(5-st):''].filter(Boolean).map(esc).join(' · ')+'</p>'+(l.notes?'<p>'+esc(l.notes)+'</p>':'')+'</div></li>'}).join('')+'</ol>'}
+      '<p class="tl-meta">'+[dz?gfmt(dz)+' g':'',sn.rec||''].filter(Boolean).map(esc).join(' · ')+(st?'<span role="img" aria-label="'+st+' of 5 beans">'+beanRate(st,'sm')+'</span>':'')+'</p>'+(l.notes?'<p>'+esc(l.notes)+'</p>':'')+'</div></li>'}).join('')+'</ol>'}
 
 // A diary photo is kept with the coffee photos, under its entry's id.
 const DPH=id=>'dy:'+id;
@@ -8317,7 +8349,7 @@ const dropDiaryPhotos=l=>l.forEach(e=>{if(e.ph)BIMG.del(DPH(e.id))});
 
 // This year in coffee: how many coffees, the cups and grams you brewed, and where they came from most.
 function yearInCoffeeHTML(){const cy=new Date().getFullYear(),bs=BEANS.filter(b=>beanYear(b)===cy),ls=LOG.filter(l=>l&&(!l.by||l.by===ME)&&new Date(+l.ts||0).getFullYear()===cy);
-  if(!bs.length&&!ls.length)return '';const g=Math.round(ls.reduce((s,l)=>s+(+(l.snap&&l.snap.dose)||0),0));
+  if(!bs.length&&!ls.length)return '';const g=Math.round(ls.reduce((s,l)=>s+brewDose(l),0));
   const most=f=>{const m=new Map();for(const b of bs){const k=f(b);if(k)m.set(k,(m.get(k)||0)+1)}let best=null,n=1;for(const [k,v] of m)if(v>n){best=k;n=v}return best};
   const o=most(b=>b.origin),r=most(b=>b.roaster);
   const cells=[[bs.length,bs.length===1?'coffee':'coffees'],[ls.length,ls.length===1?'cup brewed':'cups brewed'],g?[g>=1000?(g/1000).toFixed(g>=10000?0:1)+' kg':g+' g','of coffee']:null,
@@ -8439,6 +8471,8 @@ const BEAN_G='<g transform="rotate(30 12 12)"><path class="bo" d="M12 2.6c4.1 0 
 const beanSVG='<svg viewBox="0 0 24 24" aria-hidden="true">'+BEAN_G+'</svg>';
 const RATEW=['Not rated','Not for me','Okay','Good','Great','Outstanding'];
 const rateWord=r=>RATEW[Math.floor(r)]||RATEW[0];
+// An honourable mention's mark: a rosette, drawn like the app's other icons.
+const HM_SVG='<svg class="hm-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a5 5 0 1 0 0 10a5 5 0 1 0 0-10z M12 6l.9 1.8 2 .3-1.45 1.4.35 2-1.8-.95-1.8.95.35-2L9.1 8.1l2-.3z M9 12.4L7.6 20l4.4-2.4 4.4 2.4-1.4-7.6"/></svg>';
 function beanRow(r,cls){let h='';for(let i=1;i<=5;i++){const f=r>=i?100:r>=i-0.5?50:0;h+='<span class="rb">'+beanSVG+'<span class="rbf" style="width:'+f+'%">'+beanSVG+'</span></span>'}
   return '<span class="beans-r'+(cls?' '+cls:'')+'" role="img" aria-label="'+(r?r+' out of 5 beans':'Not rated')+'">'+h+'</span>'}
 // The rating input: tap the left half of a bean for a half, the right half for a whole one; arrow keys step by halves.
@@ -8507,7 +8541,7 @@ function podiumHTML(y,years){const t=TOP3[y],n=BEANS.filter(b=>beanYear(b)===y).
     (n>3||(t&&(t.ids[3]||t.ids[4]))?'<div class="t45">'+[3,4].map(i=>{const id=t&&t.ids[i];if(!id)return '<button type="button" class="t45c empty" data-top3="'+y+'" data-slot="'+i+'"><span class="t45n">'+(i+1)+'</span><span class="t45t"><b>'+MEDALN[i+1]+' place</b><small>Tap to add</small></span></button>';
       const b=beanById(id),s=(t.snap||[]).find(x=>x.id===id)||{},v=b||Object.assign({id,img:true,origin:''},s);
       return '<button type="button" class="t45c" '+(b?'data-bean="'+id+'"':'data-top3="'+y+'" data-slot="'+i+'"')+'><span class="t45n">'+(i+1)+'</span>'+beanPic(Object.assign({},v,{img:b?b.img:true}),'xs')+'<span class="t45t"><b>'+esc(t3name(t,id))+'</b><small>'+esc((b?b.roaster:s.roaster)||'')+'</small></span></button>'}).join('')+'</div>':'')+
-    (t&&(t.hm||[]).length||n>3?'<div class="t3hm"><div class="t3hm-h"><span>★ Honourable mentions</span>'+(n?'<button type="button" class="linkbtn" data-top3="'+y+'" data-slot="hm">'+(t&&(t.hm||[]).length?'Change':'Add')+'</button>':'')+'</div>'+
+    (t&&(t.hm||[]).length||n>3?'<div class="t3hm"><div class="t3hm-h"><span>'+HM_SVG+' Honourable mentions</span>'+(n?'<button type="button" class="linkbtn" data-top3="'+y+'" data-slot="hm">'+(t&&(t.hm||[]).length?'Change':'Add')+'</button>':'')+'</div>'+
       (t&&(t.hm||[]).length?'<div class="t3hm-l">'+(t.hm||[]).map(id=>{const b=beanById(id),s=(t.snap||[]).find(x=>x.id===id)||{},v=b||Object.assign({id,img:true,origin:''},s);
         return '<button type="button" class="t3hm-i" '+(b?'data-bean="'+id+'"':'')+'>'+beanPic(Object.assign({},v,{img:b?b.img:true}),'av')+'<small>'+esc(t3name(t,id))+'</small></button>'}).join('')+'</div>'
        :'<p class="t3hm-e">The ones that nearly made it: coffees you want to remember.</p>')+'</div>':'')+
@@ -8571,13 +8605,13 @@ function coffeeRow(b,now,i){const rk=beanRank(b),f=now&&fresh(b),g=now?gramsLeft
   const meta=[b.roaster,b.origin?flagOf(b.origin)+' '+originName(b.origin):'',!now&&b.process?shortName(PROCESSES[b.process].name):''].filter(Boolean).join(' · ');
   // One clean row: name with its medal and rating on the right, roaster and origin below, then (for bags you're
   // drinking) a single line of freshness and what's left, with a thin bar for the bag.
-  const end=(rk?'<span class="cr-medal'+(rk>3?' r45':'')+'" style="--m:'+MEDAL[rk]+'" title="'+placeLine(rk,beanYear(b))+'">'+(rk>3?rk:CROWN)+'</span>':beanMention(b)?'<span class="cr-medal hm" title="Honourable mention, '+beanYear(b)+'">★</span>':'')+
+  const end=(rk?'<span class="cr-medal'+(rk>3?' r45':'')+'" style="--m:'+MEDAL[rk]+'" title="'+placeLine(rk,beanYear(b))+'">'+(rk>3?rk:CROWN)+'</span>':beanMention(b)?'<span class="cr-medal hm" title="Honourable mention, '+beanYear(b)+'">'+HM_SVG+'</span>':'')+
     (b.rating?'<span class="cr-rate">'+beanSVG+String(b.rating).replace('.5','½')+'</span>':'');
   const bagPct=now&&g!=null&&b.bag>0?Math.max(0,Math.min(100,g/b.bag*100)):null;
   return '<button type="button" class="crow'+(now?' now':'')+(isNew?' enter':'')+'" data-bean="'+b.id+'" style="--i:'+Math.min(i||0,12)+'">'+beanPic(b,'rw')+
     '<span class="cr-tx"><span class="cr-top"><b>'+esc(beanTitle(b))+'</b>'+(end?'<span class="cr-end">'+end+'</span>':'')+'</span>'+(meta?'<small>'+esc(meta)+'</small>':'')+
       (!now&&b.flavours?'<small class="cr-notes">'+esc(b.flavours.split(/\s*[,;·]\s*/).filter(Boolean).slice(0,3).join(' · '))+'</small>':'')+
-      (now&&(f||g!=null)?'<span class="cr-now">'+(f?'<span class="cr-fresh f-'+f.k+'"><i aria-hidden="true"></i>Day '+f.d+' · '+esc(f.label)+'</span>':'')+(g!=null?'<span class="cr-left">'+(g?g+' g'+(c!=null?' · '+c+' cup'+(c===1?'':'s'):''):'Bag empty')+'</span>':'')+'</span>'+
+      (now?'<span class="cr-now">'+(f?'<span class="cr-fresh f-'+f.k+'"><i aria-hidden="true"></i>Day '+f.d+' · '+esc(f.label)+'</span>':'<span class="cr-fresh none"><i aria-hidden="true"></i>No roast date</span>')+(g!=null?'<span class="cr-left">'+(g?g+' g'+(c!=null?' · '+c+' cup'+(c===1?'':'s'):''):'Bag empty')+'</span>':'')+'</span>'+
         (bagPct!=null?'<span class="cr-bar" aria-hidden="true"><i style="width:'+bagPct.toFixed(0)+'%"></i></span>':''):'')+'</span></button>'}
 // The bags you're drinking now, each with its freshness and what's left.
 function shelfHTML(){const sh=BEANS.filter(b=>b.shelf).sort((a,b)=>beanDay(b).localeCompare(beanDay(a))||b.ts-a.ts);
@@ -8714,8 +8748,9 @@ function openBean(id,write){const b=beanById(id);if(!b)return;const d=$('vd'),rk
   $('vd-in').innerHTML='<div class="vd-head" style="--c:'+(rk?MEDAL[rk]:'var(--cherry)')+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:'+(rk?MEDAL[rk]:'var(--cherry)')+'"></i>'+(rk?placeLine(rk,beanYear(b)):beanMention(b)?'Honourable mention · '+beanYear(b):b.shelf?'Drinking now':'Your coffees')+'</span><h2 id="vd-title">'+esc(beanTitle(b))+'</h2>'+(b.roaster?'<p class="vd-sub">'+esc(b.roaster)+'</p>':'')+'</div>'+
     '<div class="vd-body"><div class="bd-hero">'+beanPic(b,'hero')+glassRate(b.rating)+'</div>'+'<div class="bd-rate">'+beanRow(b.rating,'big')+'<span>'+(b.rating?b.rating.toString().replace('.5','½')+' · ':'')+rateWord(b.rating)+'</span></div>'+
     // The bag now: how fresh it is, what's left, and finishing it.
-    (b.shelf?'<div class="bd-shelf">'+(f?'<div class="bd-f"><div class="bd-fh"><b>'+f.label+'</b><span>Day '+f.d+' off roast</span></div>'+freshBar(f)+'<p>'+f.tip+'</p></div>':'<p class="hint" style="margin:0">Add the roast date to see how fresh it is.</p>')+
-      (g!=null?'<div class="bd-bag">'+bagLine(b)+'<div class="bd-bagb"><button type="button" class="chip" id="bd-cup">Brewed a cup · −'+dose+' g</button><button type="button" class="chip" id="bd-left">Set what’s left</button></div></div>'
+    (b.shelf?'<div class="bd-shelf">'+(f?'<div class="bd-f"><div class="bd-fh"><b>'+f.label+'</b><span>Day '+f.d+' off roast</span></div>'+freshBar(f)+'<p>'+f.tip+'</p></div>':'<label class="bd-addrd"><span><b>When was it roasted?</b><small>Add the date on the bag to see how fresh it is.</small></span><input type="date" id="bd-rd" class="dateinp" max="'+todayISO()+'" aria-label="Roast date"></label>')+
+      (g!=null?'<div class="bd-bag">'+bagLine(b)+'<div class="bd-cupr"><span class="bd-cupl">Brewed a cup with</span><span class="bd-step"><button type="button" id="bd-cm" aria-label="Less coffee">−</button><b id="bd-cg">'+dose+' g</b><button type="button" id="bd-cp" aria-label="More coffee">+</button></span><button type="button" class="btn" id="bd-cup">Take it off</button></div>'+
+        '<p class="bd-auto">Brews you log with this coffee come off the bag on their own.</p><div class="bd-bagb"><button type="button" class="chip" id="bd-left">Set what’s left</button></div></div>'
         :'<p class="hint" style="margin:8px 0 0">Add the bag size in Edit to see what’s left as you log brews.</p>')+
       '<button type="button" class="btn ghost bd-done" id="bd-done">🏁 Finish the bag</button></div>'
      :'<button type="button" class="linkbtn" id="bd-shelf">Put it back on the shelf</button>')+
@@ -8731,13 +8766,17 @@ function openBean(id,write){const b=beanById(id);if(!b)return;const d=$('vd'),rk
     '<button type="button" class="linkbtn danger" id="bd-del">Remove from the gallery</button></div>';
   hydrateImgs($('vd-in'));
   const refresh=(msg)=>{saveBeans();checkTrophies();renderBeans();openBean(b.id);if(msg)toast(msg)};
+  if($('bd-rd'))$('bd-rd').onchange=e=>{const v=e.target.value;if(!/^\d{4}-\d\d-\d\d$/.test(v)||v>todayISO())return;b.roastDate=v;refresh('Roast date added')};
   $('bd-edit').onclick=()=>openBeanEditor(b);
   $('bd-share').onclick=()=>{d.close();openShare(beanDoc(b))};
   $('bd-brew').onclick=()=>{useBean(b);d.close();showTab('dial');
     if(!dialRec()){const t=techList(S.brewer)[0];if(t)S.rec=t[1]}if(dialRec())tune('Tuned for '+beanTitle(b));else{render();toast('Set up for '+beanTitle(b))}};
   // Tapping the chosen answer again clears it.
   const again=()=>seg('bd-again',[['yes','Yes'],['no','No']],()=>b.again,v=>{b.again=b.again===v?'':v;saveBeans();again()});again();
-  if($('bd-cup'))$('bd-cup').onclick=()=>{setLeft(b,Math.max(0,(gramsLeft(b)||0)-dose));refresh('Marked a '+dose+' g cup')};
+  // A cup brewed without logging it: you set the grams (it starts at your usual dose) and it comes off the bag.
+  let cupG=dose;const cupShow=()=>{$('bd-cg').textContent=gfmt(cupG)+' g'};
+  if($('bd-cm')){$('bd-cm').onclick=()=>{cupG=Math.max(1,cupG-1);cupShow()};$('bd-cp').onclick=()=>{cupG=Math.min(100,cupG+1);cupShow()}}
+  if($('bd-cup'))$('bd-cup').onclick=()=>{setLeft(b,Math.max(0,(gramsLeft(b)||0)-cupG));refresh('Took '+gfmt(cupG)+' g off the bag')};
   if($('bd-left'))$('bd-left').onclick=()=>{const v=prompt('How many grams are left in the bag?',String(gramsLeft(b)||''));if(v==null)return;const n=parseFloat(v);if(!isFinite(n)||n<0){toast('Enter the grams left, like 120');return}setLeft(b,n);refresh('Updated')};
   if($('bd-done'))$('bd-done').onclick=()=>{b.shelf=false;if(!b.diary.some(e=>e.k==='last'))b.diary.unshift(okEntry({k:'last',d:todayISO(),t:''}));refresh('Finished: it’s in the cabinet now. Add how it ended in its diary')};
   if($('bd-shelf'))$('bd-shelf').onclick=()=>{b.shelf=true;refresh('Back on the shelf')};
@@ -8848,7 +8887,7 @@ function openTop3(y,start){const d=$('vd'),pool=BEANS.filter(b=>beanYear(b)===y)
       '<span class="t3s-pic">'+(b?beanPic(b,'xs'):'<span class="t3s-n">'+(i+1)+'</span>')+'</span><span class="t3s-tx"><small>'+MEDALN[i+1]+'</small><b>'+(b?esc(beanTitle(b)):'Open')+'</b></span></button>'+(b?'<button type="button" class="t3s-x" data-unset="'+i+'" aria-label="Clear '+MEDALN[i+1]+'">✕</button>':'')+'</div>'}).join('');
     $('t3-list').innerHTML=pool.map(b=>{const r=slots.indexOf(b.id)+1,m=hm.includes(b.id),on=mode==='places'?!!r:m;
       return '<button type="button" class="t3opt'+(on?' on':'')+'" data-t3="'+b.id+'" aria-pressed="'+on+'" style="--m:'+(mode==='places'?(MEDAL[r]||'var(--line)'):(m?'var(--honey)':'var(--line)'))+'">'+beanPic(b,'xs')+
-      '<span class="t3o-tx"><b>'+esc(beanTitle(b))+'</b><small>'+esc([b.roaster,mode==='hm'&&r?'In place '+r:'',mode==='places'&&m?'Honourable mention':''].filter(Boolean).join(' · '))+'</small>'+beanRow(b.rating,'sm')+'</span><span class="t3o-r">'+(mode==='places'?(r||''):(m?'★':''))+'</span></button>'}).join('');
+      '<span class="t3o-tx"><b>'+esc(beanTitle(b))+'</b><small>'+esc([b.roaster,mode==='hm'&&r?'In place '+r:'',mode==='places'&&m?'Honourable mention':''].filter(Boolean).join(' · '))+'</small>'+beanRow(b.rating,'sm')+'</span><span class="t3o-r">'+(mode==='places'?(r||''):(m?HM_SVG:''))+'</span></button>'}).join('');
     $('t3-msg').innerHTML=mode==='places'?'Choose your <b style="color:color-mix(in srgb,'+MEDAL[act+1]+' 55%,var(--ink))">'+(act<3?MEDALN[act+1].toLowerCase():MEDALN[act+1]+' place')+'</b> coffee'+(slots[act]?', or tap it again to clear the place.':'.')
       :'Tap the coffees that nearly made it. Up to ten'+(hm.length?': '+hm.length+' chosen.':'.');
     hydrateImgs($('t3-slots'));hydrateImgs($('t3-list'))};
@@ -9248,7 +9287,7 @@ function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
   if(m.list&&m.list.items.length){y+=48;bcLabel(x,m.list.label,P,y);y+=22;const rh=96,h=m.list.items.length*rh;bcPane(x,P,y,IW,h,28);
     m.list.items.forEach((it,i)=>{const ry=y+i*rh;if(i){x.fillStyle=bcI(.09);x.fillRect(P+24,ry,IW-48,1.5)}
       const sw=it.s?5*24*1.18:0;x.font='700 32px '+BC.F;x.fillStyle=BC.INK;x.fillText(bcWrap(x,it.t,IW-80-sw-20,1)[0],P+28,ry+46);
-      x.font='500 22px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(it.d,P+28,ry+78);if(it.s)bcRating(x,'stars',it.s,W-P-28-sw,ry+rh/2,24)});y+=h}
+      x.font='500 22px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(it.d,P+28,ry+78);if(it.s)bcRating(x,'beans',it.s,W-P-28-sw,ry+rh/2,24)});y+=h}
   // Your own words
   if(m.quote&&m.quote.text){y+=48;x.font='italic 500 33px '+BC.F;const lines=bcWrap(x,m.quote.text,IW-60,6),h=66+lines.length*46;
     x.font='800 132px Georgia,serif';x.fillStyle=bcA(.2);x.fillText('“',P,y+96);
@@ -9290,7 +9329,7 @@ function okSnap(s){if(!s||typeof s!=='object')return null;const n=(v,a,b)=>typeo
 function logCard(l){const s=okSnap(l.snap),fl=flOf(l).filter(([id])=>FW.byId[id]),B=s&&BREWERS[s.b],stars=clamp(Math.round(+l.stars||0),0,5);
   const m={theme:originTheme(s&&s.bean&&s.bean.origin),kicker:'From my brew log',date:fmtDate(l),title:l.coffee||(s&&s.rec)||'A brew',by:s&&s.rec&&l.coffee?s.rec+(s.by?' · '+s.by:''):s&&s.by,
     coffee:s&&s.v?bcCoffee(s.bean&&s.bean.name!==l.coffee?s.bean:null,s.v,s.p,s.ro):null,
-    rating:stars?{kind:'stars',v:stars,word:STARW[stars]}:null,
+    rating:stars?{kind:'beans',v:stars,word:STARW[stars]}:null,
     pills:[...(s&&s.goal?[[s.goal+' cup',1]]:[]),...(B?[[B.name]]:[]),...(l.by&&GROUP?[['Brewed by '+(l.by===ME?'me':l.by)]]:[])],
     footer:'Logged with The Brew Bench'};
   if(s){m.tiles=[['Coffee',s.dose!=null?gfmt(s.dose)+' g':'–'],['Water',s.water!=null?gfmt(s.water)+' g':'–'],['Temp',s.t!=null?s.t+'°C':'–'],['Ratio',s.ra!=null?'1:'+rr1(s.ra):'–']];
@@ -9329,7 +9368,7 @@ function logSumCard(){const L=LOG.filter(l=>l&&!(l.by&&l.by!==ME)),rated=L.filte
   const brewers=new Map();L.forEach(l=>{const s=okSnap(l.snap),b=s&&s.b||l.brewer||(parseSettings(l.settings||'').brewer||{}).name;const n=BREWERS[b]?BREWERS[b].name:b;if(n)brewers.set(n,(brewers.get(n)||0)+1)});
   const top=[...brewers].sort((a,b)=>b[1]-a[1])[0],best=[...rated].sort((a,b)=>b.stars-a.stars||(b.ts||0)-(a.ts||0))[0];
   return bcBlob({kicker:'My brew log',title:nick?nick+'’s brew log':'My brew log',sub:L.length+(L.length===1?' brew':' brews')+'  ·  '+coffees.size+(coffees.size===1?' coffee':' coffees'),
-    rating:avg?{kind:'stars',v:Math.round(avg*2)/2,word:'average'}:null,
+    rating:avg?{kind:'beans',v:Math.round(avg*2)/2,word:'average'}:null,
     pills:[...(best?[['Favourite: '+(best.coffee||'a brew'),1]]:[]),...(top?[['Most brewed on '+top[0]]]:[])],
     tiles:[['Brews',String(L.length)],['Coffees',String(coffees.size)],['Rated',String(rated.length)],['5 stars',String(rated.filter(l=>+l.stars===5).length)]],
     expect:P?{label:'My palate',items:P.fl.slice(0,8).map(([id,v])=>({t:FW.byId[id].n,c:FW.byId[id].c})),bar:flFamilies(P.fl)}:null,
