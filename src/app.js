@@ -2707,9 +2707,19 @@ function openShare(doc){SHDOC=doc;loadPDF().catch(()=>{});const pdfOK=true;
   if(doc.card)drawShCard()}
 let SHCARD=null,SHN=0;
 // The preview, redrawn whenever the style changes; an older drawing that finishes late is dropped.
+// Each look is drawn once per share: switching back to one you've seen is instant, and once a card is up the other
+// mode (dark or light) is drawn while the sheet sits idle, so the first switch is quick too.
+const shKey=st=>st.mode+'|'+st.col;
+function shCardFor(doc,st){const c=doc._cards||(doc._cards=new Map()),k=shKey(st);if(c.has(k))return c.get(k);
+  const keep=Object.assign({},CARD_STYLE);Object.assign(CARD_STYLE,st);let pr;try{pr=doc.card()}finally{Object.assign(CARD_STYLE,keep)}
+  pr=Promise.resolve(pr).then(bl=>{if(!bl)c.delete(k);return bl},e=>{c.delete(k);throw e});c.set(k,pr);return pr}
 function drawShCard(){const d=$('sharesheet'),doc=SHDOC,n=++SHN;SHCARD=null;const pv=d.querySelector('.shcard-pv');if(pv)pv.classList.add('busy');
-  doc.card().then(bl=>{if(SHDOC!==doc||n!==SHN||!bl)return;SHCARD=bl;const pv=d.querySelector('.shcard-pv');if(!pv)return;pv.classList.remove('busy');
-    const u=URL.createObjectURL(bl);pv.innerHTML='<img src="'+u+'" alt="Your brew card">';pv.querySelector('img').onload=()=>setTimeout(()=>URL.revokeObjectURL(u),1000)}).catch(()=>{const ph=d.querySelector('.shcard-ph');if(ph)ph.textContent='Couldn’t draw the card'})}
+  const st={mode:CARD_STYLE.mode,col:CARD_STYLE.col};
+  // Let the tapped button show as picked before the card is drawn.
+  requestAnimationFrame(()=>setTimeout(()=>{if(n!==SHN)return;
+  shCardFor(doc,st).then(bl=>{if(SHDOC!==doc||n!==SHN||!bl)return;SHCARD=bl;const pv=d.querySelector('.shcard-pv');if(!pv)return;pv.classList.remove('busy');
+    const u=URL.createObjectURL(bl);pv.innerHTML='<img src="'+u+'" alt="Your brew card">';pv.querySelector('img').onload=()=>setTimeout(()=>URL.revokeObjectURL(u),1000);
+    const other={mode:st.mode==='dark'?'light':'dark',col:st.col};(window.requestIdleCallback||(f=>setTimeout(f,400)))(()=>{if(SHDOC===doc&&d.open)shCardFor(doc,other).catch(()=>{})})}).catch(()=>{const ph=d.querySelector('.shcard-ph');if(ph)ph.textContent='Couldn’t draw the card'})},0))}
 // One swatch per colour, painted in what the card would use: its background and its accent.
 function shSwatches(doc){const T=(doc.cardTheme&&doc.cardTheme())||OT.house,keep=Object.assign({},BC);
   const h=cardCols().map(([k,n])=>{const t=cardStyle(T,{mode:CARD_STYLE.mode,col:k}),lab=k==='origin'?(T.key?(flagOf(T.key)+' '+T.name):'House'):n;

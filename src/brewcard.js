@@ -276,7 +276,9 @@ function bcStamp(x,cx,cy,T){const R=92;x.save();x.translate(cx,cy);x.rotate(-0.1
 
 /* Draw a card. m: {kicker, date, photo (an image), title, by, sub, rating {kind,v,word}, pills [[text,main]], tiles [[label,value]],
    grind {g,c,line}, cup {r,vt,vs}, text [{label,body}], steps [], expect {label,items,bar}, quote {label,text}, footer} */
-function bcDraw(m){const W=BC.W,P=BC.PAD,IW=W-2*P,c=document.createElement('canvas');c.width=W;c.height=4400;const x=c.getContext('2d');
+// One full-height drawing surface, reused for every card: a fresh 1080 × 4400 canvas each time is a lot of memory on a phone.
+let BC_CV=null;
+function bcDraw(m){const W=BC.W,P=BC.PAD,IW=W-2*P;if(!BC_CV){BC_CV=document.createElement('canvas');BC_CV.width=W;BC_CV.height=4400}const c=BC_CV,x=c.getContext('2d');x.setTransform(1,0,0,1,0,0);x.globalAlpha=1;x.clearRect(0,0,W,c.height);
   BC.F=getComputedStyle(document.body).fontFamily;
   // The origin's look (or the house espresso and honey): its accent colours are used throughout the card.
   const T=cardStyle(m.theme||OT.house,m.style||CARD_STYLE);
@@ -293,17 +295,27 @@ function bcBG(x,W,H,T){const c={height:H};
   const MP=BC.LIGHT?1.7:1;
   if(T.motif&&MOTIF[T.motif]){x.save();MK=MP;MOTIF[T.motif](x,W,c.height,T);x.restore();
     // The hero band: the pattern bold across the top, fading into the card.
-    x.save();x.beginPath();x.rect(0,0,W,470);x.clip();MK=5.5*MP;MOTIF[T.motif](x,W,470,T);MK=1;x.restore();
-    const fd=x.createLinearGradient(0,0,0,470),hf=BC.LIGHT?[.94,.9]:[.8,.72];fd.addColorStop(0,hexA(T.bg[0],hf[0]));fd.addColorStop(0.2,hexA(T.bg[0],hf[1]));fd.addColorStop(0.32,hexA(T.bg[0],.18));fd.addColorStop(0.62,hexA(T.bg[0],.6));fd.addColorStop(1,hexA(T.bg[0],1));x.fillStyle=fd;x.fillRect(0,0,W,471)}
+    // Drawn on its own layer and faded out at the bottom, so it melts into the card below with no edge.
+    const HB=520,hb=document.createElement('canvas');hb.width=W;hb.height=HB;const hx=hb.getContext('2d');MK=5.5*MP;MOTIF[T.motif](hx,W,HB,T);MK=1;
+    const fd=hx.createLinearGradient(0,0,0,HB),hf=BC.LIGHT?[.94,.9]:[.8,.72];fd.addColorStop(0,hexA(T.bg[0],hf[0]));fd.addColorStop(0.18,hexA(T.bg[0],hf[1]));fd.addColorStop(0.3,hexA(T.bg[0],.18));fd.addColorStop(0.62,hexA(T.bg[0],.55));fd.addColorStop(1,hexA(T.bg[0],.75));hx.fillStyle=fd;hx.fillRect(0,0,W,HB);
+    const mk=hx.createLinearGradient(0,0,0,HB);mk.addColorStop(0,'#000');mk.addColorStop(0.62,'#000');mk.addColorStop(1,'rgba(0,0,0,0)');hx.globalCompositeOperation='destination-in';hx.fillStyle=mk;hx.fillRect(0,0,W,HB);
+    x.drawImage(hb,0,0)}
   const gl2=x.createRadialGradient(-120,1100,10,-120,1100,760);gl2.addColorStop(0,hexA(T.acc2,BC.LIGHT?.08:.16));gl2.addColorStop(1,hexA(T.acc2,0));x.fillStyle=gl2;x.fillRect(0,0,W,2000);
   if(!T.motif){x.save();x.globalAlpha=0.05;bcBean(x,W-150,250,420,BC.HONEY,T.bg[0]);x.restore()}
-  x.fillStyle=BC.LIGHT?'rgba(60,36,20,.03)':'rgba(255,255,255,.022)';for(let gy=0;gy<c.height;gy+=7)for(let gx=(gy/7)%2*3.5;gx<W;gx+=7)x.fillRect(gx,gy,1,1);
+  // The grain: one 7 × 14 tile of dots, repeated, rather than a hundred thousand single-pixel squares.
+  {const g=document.createElement('canvas');g.width=7;g.height=14;const gc=g.getContext('2d');gc.fillStyle=BC.LIGHT?'rgba(60,36,20,.03)':'rgba(255,255,255,.022)';gc.fillRect(0,0,1,1);gc.fillRect(3.5,7,1,1);
+   x.fillStyle=x.createPattern(g,'repeat');x.fillRect(0,0,W,c.height)}
   // A soft shade on the left of the hero band, where the title and credit sit.
-  if(T.motif){const sc=x.createLinearGradient(0,0,W*0.75,0);sc.addColorStop(0,hexA(T.bg[0],.62));sc.addColorStop(1,hexA(T.bg[0],0));x.fillStyle=sc;x.fillRect(0,130,W,320)}}
+  // An oval with soft edges all round, so it leaves no line where it ends.
+  if(T.motif){x.save();x.translate(W*0.12,300);x.scale(1,0.3);const sc=x.createRadialGradient(0,0,0,0,0,W*0.85);sc.addColorStop(0,hexA(T.bg[0],.66));sc.addColorStop(0.55,hexA(T.bg[0],.4));sc.addColorStop(1,hexA(T.bg[0],0));x.fillStyle=sc;x.fillRect(-W,-W*1.2,W*3,W*2.4);x.restore()}}
 // The card checks itself: the accent is measured against the background actually drawn under the header, the title and
 // the body (glow and pattern included), and stepped further from it if any of them falls short.
-function bcCheck(x,W,T){const P=BC.PAD,worst=(y0,y1,x0,x1)=>{const d=x.getImageData(x0,y0,x1-x0,y1-y0).data,L=[];for(let i=0;i<d.length;i+=4*7)L.push(hexOf([d[i],d[i+1],d[i+2]]));
-    L.sort((a,b)=>relLum(a)-relLum(b));return L[Math.floor(L.length*(BC.LIGHT?0.03:0.97))]};
+// It reads a small copy of the card (a quarter of the size) rather than the card itself: reading pixels back from a
+// full-size canvas is slow on phones, and the background it measures is smooth enough to survive the shrink.
+function bcCheck(x,W,T){const P=BC.PAD,K=4,H0=2400,sm=document.createElement('canvas');sm.width=Math.ceil(W/K);sm.height=Math.ceil(H0/K);
+  const sx=sm.getContext('2d',{willReadFrequently:true});sx.drawImage(x.canvas,0,0,W,H0,0,0,sm.width,sm.height);const all=sx.getImageData(0,0,sm.width,sm.height).data;
+  const worst=(y0,y1,x0,x1)=>{const L=[];for(let yy=Math.floor(y0/K);yy<Math.ceil(y1/K);yy++)for(let xx=Math.floor(x0/K);xx<Math.ceil(x1/K);xx++){const i=(yy*sm.width+xx)*4,h=hexOf([all[i],all[i+1],all[i+2]]);L.push([relLum(h),h])}
+    L.sort((a,b)=>a[0]-b[0]);return L[Math.floor(L.length*(BC.LIGHT?0.03:0.97))][1]};
   const zs=[worst(70,112,P,W-P),worst(150,330,P,W-300),worst(330,470,P,W-P),worst(900,2400,P,W-P)];
   BC.HONEY=T.acc=ensureC(BC.HONEY,zs,BC.LIGHT?4.8:5.2,BC.LIGHT?'#1A0E08':'#FFFFFF')}
 function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
@@ -324,7 +336,8 @@ function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
   y+=104;x.font='800 76px '+BC.F;x.fillStyle=BC.INK;x.letterSpacing='-1px';x.shadowColor=BC.LIGHT?'rgba(255,255,255,.75)':'rgba(0,0,0,.5)';x.shadowBlur=18;
   for(const l of bcWrap(x,m.title,TW,2)){x.fillText(l,P,y);y+=84}x.letterSpacing='0px';x.shadowBlur=0;x.shadowColor='transparent';
   if(m.by){x.font='italic 500 28px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(bcWrap(x,m.by,TW,1)[0],P,y-34);y+=10}
-  if(stamp)y=Math.max(y,230+126+70);
+  // Below the title the next lines are short (a rating, a line of pills), so they only need to clear the stamp's foot.
+  if(stamp)y=Math.max(y,372);
   if(m.sub){x.font='600 32px '+BC.F;x.fillStyle=BC.HONEY;x.fillText(bcWrap(x,m.sub,IW,1)[0],P,y+4);y+=56}
   // Rating, large, with its word.
   if(m.rating&&m.rating.v){y+=6;bcRating(x,m.rating.kind,m.rating.v,P,y+24,46);const rv=String(m.rating.v).replace('.5','½'),rx=P+5*46*1.18+14;
@@ -381,9 +394,9 @@ function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
       const sw=it.s?5*24*1.18:0;x.font='700 32px '+BC.F;x.fillStyle=BC.INK;x.fillText(bcWrap(x,it.t,IW-80-sw-20,1)[0],P+28,ry+46);
       x.font='500 22px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(it.d,P+28,ry+78);if(it.s)bcRating(x,'beans',it.s,W-P-28-sw,ry+rh/2,24)});y+=h}
   // Your own words
-  if(m.quote&&m.quote.text){y+=48;x.font='italic 500 33px '+BC.F;const lines=bcWrap(x,m.quote.text,IW-60,6),h=66+lines.length*46;
-    x.font='800 132px Georgia,serif';x.fillStyle=bcA(.2);x.fillText('“',P,y+96);
-    bcLabel(x,m.quote.label,P+64,y+26);x.font='italic 500 33px '+BC.F;x.fillStyle=BC.INK;lines.forEach((l,j)=>x.fillText(l,P+64,y+76+j*46));y+=h}
+  if(m.quote&&m.quote.text){y+=48;x.font='italic 500 33px '+BC.F;const lines=bcWrap(x,m.quote.text,IW-100,6),h=66+lines.length*46;
+    x.font='800 132px Georgia,serif';x.fillStyle=bcA(.2);x.fillText('“',P-6,y+96);const qx=P+Math.ceil(x.measureText('“').width)+6;
+    bcLabel(x,m.quote.label,qx,y+26);x.font='italic 500 33px '+BC.F;x.fillStyle=BC.INK;lines.forEach((l,j)=>x.fillText(l,qx,y+76+j*46));y+=h}
   // Footer: centred mark and line, the link beneath.
   y+=70;const fr=x.createLinearGradient(P,0,W-P,0);fr.addColorStop(0,bcA(0));fr.addColorStop(.5,bcA(.45));fr.addColorStop(1,bcA(0));x.fillStyle=fr;x.fillRect(P,y,IW,1.5);
   y+=64;x.font='700 26px '+BC.F;const ft=m.footer||'Brewed with The Brew Bench',fw=x.measureText(ft).width;bcBean(x,W/2-fw/2-22,y-9,28,BC.HONEY);
@@ -392,14 +405,18 @@ function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
   // Trim to what was drawn.
   const H=Math.round(y+70),out=document.createElement('canvas');out.width=W;out.height=H;out.getContext('2d').drawImage(c,0,0);
   return out}
-const bcBlob=async m=>{if(document.fonts&&document.fonts.ready)await document.fonts.ready;const cv=bcDraw(m);return new Promise(res=>cv.toBlob(res,'image/jpeg',0.92))};
+// The look is taken when the card is asked for, not when it's drawn after the fonts load, so a card drawn ahead for
+// another look (see the share sheet) keeps the one it was asked with.
+const bcBlob=m=>{const st=m.style||Object.assign({},CARD_STYLE);return (async()=>{if(document.fonts&&document.fonts.ready)await document.fonts.ready;
+  const cv=bcDraw(Object.assign({},m,{style:st}));return new Promise(res=>cv.toBlob(res,'image/jpeg',0.92))})()};
 
 /* ---------- What each card shows ---------- */
 const AGITW={low:'Gentle',med:'Steady',high:'Lively'};
 // The brew on the dial-in now.
 // Under the title: the name of the beans you're brewing, or what the coffee is when none is picked.
 // The coffee as labelled tiles: the beans' name (when picked) next to the variety, process and roast.
-const bcCoffee=(bean,v,p,ro)=>[...(bean?[['Beans',bean.name]]:[]),['Variety',v?vName(v):''],['Process',p&&PROCESSES[p]?PROCESSES[p].name:''],['Roast',ro?bcCap(ro):'']];
+const bcShort=t=>String(t||'').replace(/\s*\([^)]*\)\s*$/,'');
+const bcCoffee=(bean,v,p,ro)=>[...(bean?[['Beans',bean.name]]:[]),['Variety',v?bcShort(vName(v)):''],['Process',p&&PROCESSES[p]?bcShort(PROCESSES[p].name):''],['Roast',ro?bcCap(ro):'']];
 function brewCard(){const r=compute(S),[vt,vs]=verdict(r.D),B=BREWERS[S.brewer],dp=dialPlan(),water=dp?dp.water:+gfmt(S.dose*S.ratio);
   return bcBlob({theme:originTheme(S.bean&&S.bean.origin),title:dp?dp.r.name:'My '+brewName(B.name)+' brew',by:dp&&dp.r.by,coffee:bcCoffee(S.bean,S.variety,S.process,S.roast),
     pills:[...(dp?[[goalLabel(S.goal,S.amt)+' cup',1]]:[]),[B.name],...(S.age?[[S.age+' days off roast']]:[])],
@@ -467,9 +484,9 @@ function logSumCard(){const L=LOG.filter(l=>l&&!(l.by&&l.by!==ME)),rated=L.filte
     list:{label:'Latest cups',items:L.slice(0,6).map(l=>({t:l.coffee||'A brew',d:fmtDate(l),s:clamp(Math.round(+l.stars||0),0,5)}))},
     footer:'Logged with The Brew Bench'})}
 // A coffee from the gallery: the bag, your rating in beans, where it is from and what you tasted.
-async function beanCardImg(b){const P=b.process&&PROCESSES[b.process],rk=beanRank(b),fmt=s=>s?new Date(s+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'–';
+async function beanCardImg(b){const style=Object.assign({},CARD_STYLE),P=b.process&&PROCESSES[b.process],rk=beanRank(b),fmt=s=>s?new Date(s+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'–';
   const photo=b.img?await bcLoad(await BIMG.get(b.id)):null;
-  return bcBlob({theme:originTheme(b.origin),kicker:'From my bean gallery',date:fmt(beanDay(b)),photo,title:beanTitle(b),by:b.roaster,
+  return bcBlob({style,theme:originTheme(b.origin),kicker:'From my bean gallery',date:fmt(beanDay(b)),photo,title:beanTitle(b),by:b.roaster,
     sub:[b.variety?vName(b.variety):'',P?P.name:'',b.roast?bcCap(b.roast)+' roast':''].filter(Boolean).join('  ·  '),
     rating:b.rating?{kind:'beans',v:b.rating,word:rateWord(b.rating)}:null,
     pills:rk?[[rk<=3?'#'+rk+' · '+MEDALN[rk]+' of '+beanYear(b):'#'+rk+' of '+beanYear(b),1]]:beanMention(b)?[['Honourable mention · '+beanYear(b),1]]:[],
