@@ -14,7 +14,10 @@ const num=(v,d,a=-Infinity,b=Infinity)=>{v=+v;return Number.isFinite(v)?Math.min
 const oneOf=(v,list,d)=>list.includes(v)?v:d;
 function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 const MQ=q=>!!(window.matchMedia&&window.matchMedia(q).matches);const RM=()=>MQ('(prefers-reduced-motion: reduce)')||document.documentElement.getAttribute('data-motion')==='reduced';
-let toastT;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600)}
+let toastT;function toast(m){const t=$('toast');t.classList.remove('act');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600)}
+// A toast with a button, kept up a little longer so there is time to tap it.
+function toastAct(m,label,fn){const t=$('toast');t.textContent='';t.classList.add('act');const sp=document.createElement('span');sp.textContent=m;const b=document.createElement('button');b.type='button';b.className='tact';b.textContent=label;
+  b.onclick=()=>{t.classList.remove('show');fn()};t.append(sp,b);t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),6000)}
 // A small, quick burst of beans from the button that was tapped (a celebration, not a curtain over the content).
 function beans(n=10){if(RM())return;const el=document.activeElement,r=el&&el!==document.body?el.getBoundingClientRect():null;
   const x0=r?r.left+r.width/2:innerWidth/2,y0=r?r.top+r.height/2:innerHeight*.6;
@@ -850,7 +853,7 @@ const LAZY={champs:renderChamps,words:renderWords,wheel:renderWheelTab,flow:rend
 // Explore and More re-render each visit: the word of the day, your counts and the theme can change.
 const ALWAYS={explore:()=>renderExplore(),settings:()=>renderSettings(),beans:()=>{if(window.BEANS_OK){renderBeansIfChanged();requestAnimationFrame(()=>setTimeout(()=>loadNear($('beans')),30))}},
   // The Beans row on the dial-in follows the gallery: a coffee added, renamed or removed shows on the next visit.
-  dial:()=>{if(window.BEANS_OK){if(beanSync())retuneIfAuto();renderDBean()}},
+  dial:()=>{if(window.BEANS_OK){if(beanSync())retuneIfAuto();renderDBean()}renderLastBrew()},
   // The log's coffee card and the bag's notes follow the gallery too.
   log:()=>{renderLBean();renderPred();renderFlForm()},
   // The countdown stops ticking when you leave the page; coming back starts it again.
@@ -1775,7 +1778,14 @@ function editBrew(l){LEDIT=l.id;LBEAN=(l.snap&&l.snap.bean&&l.snap.bean.id)||l.b
   $('l-form').scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'});$('l-coffee').focus({preventScroll:true})}
 function endEdit(){LEDIT=null;LBEAN=null;LFIELDS.forEach(id=>$(id).value='');delete $('l-settings').dataset.brewer;STAR=0;LFL=[];renderStars();renderFlForm();renderLBean();renderPred();
   $('l-editing').hidden=true;$('l-save').textContent='Save to my log';$('l-cancel').hidden=true}
-function renderLog(){renderShare();
+// The Brew tab's last-brew card: your latest result, shared in one tap, and the way into the whole log.
+function renderLastBrew(){const el=$('lastbrew');if(!el)return;const l=LOG.find(x=>x&&(!x.by||x.by===ME));if(!l){el.hidden=true;return}
+  const st=clamp(Math.round(+l.stars||0),0,5),n=LOG.length;el.hidden=false;
+  el.innerHTML='<button type="button" class="lb-open" id="lb-open" aria-label="Open your brew log"><span class="lb-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z M16 10h1.5a2.5 2.5 0 0 1 0 5H16 M8 3c-1 1 1 2 0 3 M11.5 3c-1 1 1 2 0 3"/></svg></span>'+
+    '<span class="lb-tx"><small>Your last brew</small><b>'+esc(l.coffee||'A brew')+'</b><span>'+(st?'<i class="st" aria-label="'+st+' stars">'+'★'.repeat(st)+'</i> · ':'')+esc(fmtDate(l))+'</span></span></button>'+
+    '<div class="lb-act"><button type="button" class="btn" id="lb-share">Share</button><button type="button" class="btn ghost" id="lb-all" aria-label="All '+n+' brews">All '+n+'</button></div>';
+  $('lb-open').onclick=$('lb-all').onclick=()=>goTab('log');$('lb-share').onclick=()=>openShare(logEntryDoc(l))}
+function renderLog(){renderShare();renderLastBrew();
   $('l-list').innerHTML=LOG.length?LOG.map((l,i)=>'<div class="logentry"><div class="lehead"><b>'+esc(l.coffee||'Untitled')+'</b>'+(l.stars?'<span class="stars-sm" aria-label="'+l.stars+' stars">'+'★'.repeat(+l.stars||0)+'<span>'+'★'.repeat(5-(+l.stars||0))+'</span></span>':'')+'<button class="x" data-lshare="'+i+'" aria-label="Share this brew as a card">Share</button>'+(canEdit(l)?'<button class="x" data-edit="'+i+'" aria-label="Edit entry">Edit</button>':'')+'<button class="x" data-del="'+i+'" aria-label="Delete entry">Delete</button></div>'+
     '<div class="hint">'+esc(fmtDate(l))+(l.edited?' \u00B7 edited':'')+(l.by&&GROUP?' · '+esc(l.by===ME?'you':l.by):'')+'</div>'+(l.settings?'<div class="hint">'+esc(l.settings)+'</div>':'')+(l.pred?'<div class="hint">Predicted: '+esc(l.pred)+'</div>':'')+(l.notes?'<p>'+esc(l.notes)+'</p>':'')+flEntry(l,i)+'</div>').join(''):'<p class="hint">No brews logged yet. Dial one in, then tap "Log this brew".</p>';
   renderPalate();
@@ -1822,7 +1832,7 @@ $('l-save').onclick=()=>{const k=LEDIT?LOG.findIndex(x=>x.id===LEDIT):-1;
   if(GROUP)e.by=ME;
   if(!e.coffee&&!e.settings&&!e.notes&&!LFL.length){toast('Add a coffee name or some notes first');return}LOG.unshift(e);save('bb-log',LOG);if(window.BEANS_OK){
     // The first brew with a bag you hadn't tried yet is the day you tried it.
-    const gid=(e.snap&&e.snap.bean&&e.snap.bean.id)||e.beanId,gb=gid&&beanById(gid);if(gb&&!gb.tried){gb.tried=todayISO();saveBeans()}checkTrophies()}queue('put',e.id,e);['l-coffee','l-settings','l-pred','l-notes'].forEach(id=>$(id).value='');delete $('l-settings').dataset.brewer;STAR=0;LFL=[];LBEAN=null;renderFlForm();renderStars();renderLBean();renderPred();renderLog();toast(GROUP?'Brew saved and shared':'Brew saved');beans()};
+    const gid=(e.snap&&e.snap.bean&&e.snap.bean.id)||e.beanId,gb=gid&&beanById(gid);if(gb&&!gb.tried){gb.tried=todayISO();saveBeans()}checkTrophies()}queue('put',e.id,e);['l-coffee','l-settings','l-pred','l-notes'].forEach(id=>$(id).value='');delete $('l-settings').dataset.brewer;STAR=0;LFL=[];LBEAN=null;renderFlForm();renderStars();renderLBean();renderPred();renderLog();toastAct(GROUP?'Brew saved and shared':'Brew saved','Share it',()=>openShare(logEntryDoc(e)));beans()};
 $('l-list').onclick=e=>{const ls=e.target.closest('[data-lshare]');if(ls){const l=LOG[+ls.dataset.lshare];if(l)openShare(logEntryDoc(l));return}
   const fe=e.target.closest('[data-fledit]'),fv=e.target.closest('[data-flview]'),ed=e.target.closest('[data-edit]');
   if(ed){const l=LOG[+ed.dataset.edit];if(l&&canEdit(l))editBrew(l);return}

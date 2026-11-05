@@ -2034,6 +2034,17 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
 .sc-new{display:block;margin:14px auto 0}
 /* The welcome on Brew: a card like the others, with a greeting and the day's line of coffee wisdom. */
 .welcome{margin:0 0 12px;padding:16px 18px 18px}
+/* Your last brew, on the Brew tab: its result to share in one tap, and the way into the whole log. */
+.lastbrew{display:flex;align-items:center;gap:12px;margin:0 0 12px;padding:12px 12px 12px 14px;background:var(--surface);border:1px solid var(--line);border-radius:22px}
+.lb-open{flex:1;min-width:0;display:flex;align-items:center;gap:12px;background:none;border:0;padding:0;text-align:left;color:inherit;font:inherit;cursor:pointer}
+.lb-ic{flex:none;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:color-mix(in srgb,var(--honey) 20%,var(--surface2));color:var(--cherry)}
+.lb-ic svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.lb-tx{min-width:0;display:flex;flex-direction:column;gap:1px}.lb-tx small{font-size:.74rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.lb-tx b{font-size:1.02rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lb-tx span{font-size:.84rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lb-tx .st{color:var(--honey-ink,#9A6B1F);letter-spacing:1px}
+.lb-act{flex:none;display:flex;flex-direction:column;gap:6px}.lb-act .btn{min-height:38px;padding:7px 14px;font-size:.88rem}
+/* A toast with one action: share the brew you just saved. */
+#toast.act{pointer-events:auto;display:flex;align-items:center;gap:12px;padding:8px 8px 8px 18px}
+#toast .tact{border:0;border-radius:999px;background:var(--honey);color:#2A1A10;font:inherit;font-weight:700;padding:7px 14px;cursor:pointer}
 /* The greeting: the time of day and the date on a small line, then your name, then the day's line of wisdom as a quote. */
 .wl-top{display:flex;align-items:center;gap:8px;min-width:0}
 .wl-ic{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:.85rem;line-height:1;background:color-mix(in srgb,var(--cherry) 14%,var(--surface2))}
@@ -2266,6 +2277,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
 <!-- DIAL-IN -->
 <section id="dial" class="on">
   <div class="welcome panel" id="welcome"></div>
+  <div class="lastbrew" id="lastbrew" hidden></div>
   <div class="minires" id="minires"><div><b id="mr-v"></b><span id="mr-g"></span></div><div class="gauge mini" aria-hidden="true"><i id="mr-m"></i></div><button type="button" class="mr-play" id="mr-play" hidden aria-label="Start the brew timer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button></div>
   <div class="bench">
     <div class="panel">
