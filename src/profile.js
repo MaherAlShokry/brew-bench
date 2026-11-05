@@ -44,7 +44,7 @@ let ACCT=load('bb-account',null);if(!(ACCT&&typeof ACCT.uid==='string'&&typeof A
 // The shared log signs your entries with your nickname unless you gave it another name.
 if(PROFILE&&!ME)ME=PROFILE.nick;
 function saveProfile(p){p.updated=Date.now();PROFILE=p;save('bb-profile',p);if(!ME||ME===p.nick)ME=p.nick;pushProfile();profileChanged()}
-function profileChanged(){renderMe();if(typeof renderWelcome==='function')renderWelcome();const d=$('vd');if(d.open&&d.dataset.me&&!d.classList.contains('closing'))openMe(true);if(window.BEANS_OK&&$('bg-hero'))renderBeanHero()}
+function profileChanged(){renderMe();if(typeof renderShare==='function')renderShare();if(typeof renderWelcome==='function')renderWelcome();const d=$('vd');if(d.open&&d.dataset.me&&!d.classList.contains('closing'))openMe(true);if(window.BEANS_OK&&$('bg-hero'))renderBeanHero()}
 // Your face in the top bar (phones) and at the end of the tab bar (larger screens). It opens your profile.
 function renderMe(){for(const id of ['ab-me','tab-me']){const b=$(id);if(!b)continue;b.innerHTML=avatarHTML(PROFILE,id==='ab-me'?32:30);
   b.setAttribute('aria-label',PROFILE?'Your profile: '+PROFILE.nick:'Create your profile')}}
