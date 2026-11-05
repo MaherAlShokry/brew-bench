@@ -1166,6 +1166,48 @@ button.chip:hover{background:var(--tonal-hover)}
 /* Lists as cards */
 .logentry{background:var(--surface);border:1px solid var(--hair);border-radius:var(--r-md);padding:14px 16px;margin:0 0 10px;box-shadow:var(--e1)}
 .logentry p{margin:.4rem 0 0}
+/* Each brew as a card: the coffee and who brewed it, the stars, the settings as pills, your notes and what you tasted. */
+.le2{padding:14px 16px 10px}
+.le-top{display:flex;align-items:center;gap:12px}
+.le-top .bpic{width:44px;height:52px;border-radius:12px;flex:none}
+.le-init{flex:none;width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font:800 1.15rem var(--display);color:hsl(var(--h) 40% 30%);background:hsl(var(--h) 45% 88%)}
+:root[data-theme="dark"] .le-init{color:hsl(var(--h) 55% 82%);background:hsl(var(--h) 25% 24%)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .le-init{color:hsl(var(--h) 55% 82%);background:hsl(var(--h) 25% 24%)}}
+.le-tt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.le-tt b{font:700 1.02rem/1.25 var(--display);overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.le-meta{font-size:.8rem;color:var(--muted);display:flex;align-items:center;flex-wrap:wrap;gap:0 4px}
+.le-who{display:inline-flex;align-items:center;gap:5px;font-weight:600;color:var(--ink)}.le-who .pav{flex:none}
+.le-av{width:20px;height:20px;border-radius:50%;display:inline-grid;place-items:center;font:700 .66rem var(--display);color:#fff;background:hsl(var(--h) 38% 46%)}
+.le-stars{flex:none;align-self:flex-start;display:flex;align-items:center;gap:1px;color:var(--honey-ink);font-size:.82rem;letter-spacing:.5px}.le-stars b{font:800 .95rem var(--display);color:var(--ink);margin-right:4px}.le-stars i{font-style:normal;color:color-mix(in srgb,var(--muted) 55%,var(--surface))}
+.le-stars.none{font-size:.74rem;color:var(--muted);letter-spacing:0}
+.le-pills{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 0}
+.le-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 10px 5px 8px;border-radius:999px;background:var(--surface2);font-size:.8rem;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.le-pill svg{width:14px;height:14px;fill:none;stroke:var(--cherry);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.le-pill.k-rec{background:color-mix(in srgb,var(--honey) 20%,var(--surface2))}
+.le-rest{margin:8px 0 0!important;font-size:.84rem;color:var(--muted)}
+.le-pred{margin:8px 0 0!important;font-size:.84rem;color:var(--muted)}.le-pred b{color:var(--ink);font-weight:600}
+.le-notes{margin:10px 0 0;padding:8px 12px;border-left:3px solid var(--honey);background:color-mix(in srgb,var(--honey) 8%,transparent);border-radius:0 10px 10px 0;font-style:italic;line-height:1.45}
+.le2 .fl-entry,.le2 .fl-edit{margin-top:10px}.le2 .fl-entry .linkbtn,.le2 .fl-edit{font-size:.86rem}
+.le-act{display:flex;justify-content:flex-end;gap:4px;margin-top:8px;padding-top:8px;border-top:1px solid var(--hair,var(--line))}
+.le-b{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border:0;border-radius:999px;background:none;color:var(--muted);font:600 .82rem var(--display);cursor:pointer}
+.le-b:hover,.le-b:focus-visible{background:var(--surface2);color:var(--ink)}.le-b svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.le-b.del{padding:0 10px}.le-b.del:hover{color:var(--cherry)}
+.le-day{margin:18px 4px 8px;font:700 .76rem var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.le-count{margin:4px 4px 0;font-size:.82rem;color:var(--muted)}
+.le-empty{display:flex;flex-direction:column;align-items:center;gap:6px;padding:28px 16px;text-align:center;color:var(--muted)}.le-empty svg{width:28px;height:28px;fill:none;stroke:var(--cherry);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.le-empty b{color:var(--ink);font-family:var(--display)}.le-empty p{margin:0}
+/* Search, sort and filters above the list. */
+.lf{margin:18px 0 4px}
+.lf-top{display:flex;gap:8px}
+.lf-q{flex:1;min-width:0;display:flex;align-items:center;gap:8px;padding:0 14px;min-height:46px;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
+.lf-q svg{width:18px;height:18px;flex:none;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round}
+.lf-q input{flex:1;min-width:0;border:0;background:none;padding:0;min-height:44px;box-shadow:none;outline:0;font-size:16px;color:var(--ink)}
+.lf-q:focus-within{border-color:var(--cherry)}
+.lf-sort{position:relative;flex:none;display:flex;flex-direction:column;justify-content:center;padding:0 16px;min-height:46px;border-radius:999px;background:var(--surface);border:1px solid var(--line);cursor:pointer}
+.lf-sort span{font-size:.66rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);line-height:1.1}.lf-sort b{font:650 .86rem/1.2 var(--display)}
+.lf-sort .selw{display:contents}.lf-sort .selw::after{display:none}.lf-sort select{position:absolute;inset:0;opacity:0;width:100%;font-size:16px;cursor:pointer}
+.lf-row{display:flex;gap:6px;margin-top:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}.lf-row::-webkit-scrollbar{display:none}
+.lf-c{flex:none;min-height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:600 .84rem var(--display);cursor:pointer}
+.lf-c[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.lf-sep{flex:none;width:1px;background:var(--line);margin:6px 2px}
 .qopt{border-radius:var(--r-md);border:1px solid var(--hair);background:var(--surface);padding:12px 16px}
 .scroll{border-radius:var(--r-lg);border:1px solid var(--hair);background:var(--surface);box-shadow:var(--e1);padding:4px 16px;margin:10px 0 18px}
 table.ref th{border-bottom:1px solid var(--line)}
@@ -2663,6 +2705,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
   <div class="specs" id="l-stats"></div>
   <div class="panel palate" id="l-palate" hidden></div>
   <div class="actions" style="margin-bottom:10px"><button class="btn ghost" id="l-pdf">Share my log</button><button class="btn ghost" id="l-csv" hidden>Download log as CSV</button></div>
+  <div class="lf" id="l-filter" hidden></div>
   <div id="l-list"></div>
 </section>
 <!-- EXPLORE (the phone's Explore tab) -->

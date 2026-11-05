@@ -1840,9 +1840,50 @@ function renderLastBrew(){const el=$('lastbrew');if(!el)return;const l=LOG.find(
     '<span class="lb-tx"><small>Your last brew</small><b>'+esc(l.coffee||'A brew')+'</b><span>'+(st?'<i class="st" aria-label="'+st+' stars">'+'★'.repeat(st)+'</i> · ':'')+esc(fmtDate(l))+'</span></span></button>'+
     '<div class="lb-act"><button type="button" class="btn" id="lb-share">Share</button><button type="button" class="btn ghost" id="lb-all" aria-label="All '+n+' brews">All '+n+'</button></div>';
   $('lb-open').onclick=$('lb-all').onclick=()=>goTab('log');$('lb-share').onclick=()=>openShare(logEntryDoc(l))}
+/* ---------- The list of brews: search, filters, sort, and each brew as a card ---------- */
+let LF=Object.assign({q:'',who:'all',min:0,sort:'new'},load('bb-logfilter',{}));LF.q='';
+const LOG_SORTS=[['new','Newest'],['old','Oldest'],['top','Highest rated'],['az','Coffee A–Z']];
+const LI={share:'M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5',edit:'M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4',del:'M5 7h14 M10 7V4.8h4V7 M7 7l.8 12.2a1.6 1.6 0 0 0 1.6 1.5h5.2a1.6 1.6 0 0 0 1.6-1.5L17 7',search:'M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4'};
+const lIc=k=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+LI[k]+'"/></svg>';
+const lHue=n=>{let h=0;for(const c of String(n))h=(h*31+c.charCodeAt(0))%360;return h};
+const lWho=l=>l.by&&l.by!==ME?l.by:'me';
+// What the card shows as pills: from the dial-in's snapshot when there is one, otherwise read back from the settings line.
+function logPills(l){const s=window.CARD_OK?okSnap(l.snap):null,out=[];
+  if(s){if(s.rec)out.push(['rec',s.rec]);if(s.b)out.push(['brew',BREWERS[s.b].name]);if(s.dose!=null&&s.water!=null)out.push(['dose',gfmt(s.dose)+' g : '+gfmt(s.water)+' g']);if(s.t!=null)out.push(['temp',s.t+'°C']);if(s.g&&s.c!=null)out.push(['grind',gname(s.g)+' '+dial(s.g,s.c)]);if(s.ra)out.push(['ratio','1:'+rr1(s.ra)]);return{pills:out,rest:''}}
+  const q=parseSettings(l.settings||''),B=BREWERS[l.brewer]||q.brewer;
+  if(q.rec)out.push(['rec',q.rec.name]);if(B)out.push(['brew',B.name]);if(q.dose&&q.water)out.push(['dose',gfmt(q.dose)+' g : '+gfmt(q.water)+' g']);if(q.temp)out.push(['temp',q.temp+'°C']);if(q.grind)out.push(['grind',q.grind.replace(' · ',' ')]);if(q.ratio)out.push(['ratio','1:'+rr1(q.ratio)]);
+  return{pills:out,rest:out.length?q.rest:(l.settings||'')}}
+function logThumb(l){const s=window.CARD_OK?okSnap(l.snap):null,id=(s&&s.bean&&s.bean.id)||l.beanId,b=id&&window.BEANS_OK?beanById(id):null;
+  if(b)return beanPic(b,'xs');const n=(l.coffee||'?').trim(),h=lHue(n);return '<span class="le-init" style="--h:'+h+'">'+esc(n.charAt(0).toUpperCase()||'?')+'</span>'}
+function logGroup(l){const d=new Date(l.ts||Date.parse(l.date));if(isNaN(d))return'Earlier';const t=new Date();t.setHours(0,0,0,0);const dd=new Date(d);dd.setHours(0,0,0,0);const n=Math.round((t-dd)/864e5);
+  return n<=0?'Today':n===1?'Yesterday':n<7?'This week':n<14?'Last week':d.getFullYear()===t.getFullYear()?new Intl.DateTimeFormat(undefined,{month:'long'}).format(d):new Intl.DateTimeFormat(undefined,{month:'long',year:'numeric'}).format(d)}
+function logEntryHTML(l,i){const st=clamp(Math.round(+l.stars||0),0,5),{pills,rest}=logPills(l),who=GROUP&&l.by?(l.by===ME?'You':l.by):'';
+  const av=who?(l.by===ME&&window.PROFILE_OK&&PROFILE?avatarHTML(PROFILE,20):'<span class="le-av" style="--h:'+lHue(l.by)+'">'+esc(l.by.charAt(0).toUpperCase())+'</span>'):'';
+  return '<article class="logentry le2"><div class="le-top">'+logThumb(l)+'<div class="le-tt"><b>'+esc(l.coffee||'Untitled')+'</b><span class="le-meta">'+(who?'<span class="le-who">'+av+esc(who)+'</span> · ':'')+esc(fmtDate(l))+(l.edited?' · edited':'')+'</span></div>'+
+    (st?'<span class="le-stars" aria-label="'+st+' of 5 stars"><b>'+st+'</b>'+'★'.repeat(st)+'<i>'+'★'.repeat(5-st)+'</i></span>':'<span class="le-stars none">Not rated</span>')+'</div>'+
+    (pills.length?'<div class="le-pills">'+pills.map(([k,t])=>'<span class="le-pill k-'+k+'">'+(LSI[k==='ratio'?'water':k]?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+LSI[k==='ratio'?'water':k]+'"/></svg>':'')+esc(t)+'</span>').join('')+'</div>':'')+
+    (rest?'<p class="le-rest">'+esc(rest)+'</p>':'')+(l.pred?'<p class="le-pred">Expected <b>'+esc(l.pred)+'</b></p>':'')+(l.notes?'<blockquote class="le-notes">'+esc(l.notes)+'</blockquote>':'')+flEntry(l,i)+
+    '<div class="le-act"><button type="button" class="le-b" data-lshare="'+i+'" aria-label="Share this brew">'+lIc('share')+'Share</button>'+(canEdit(l)?'<button type="button" class="le-b" data-edit="'+i+'" aria-label="Edit this brew">'+lIc('edit')+'Edit</button>':'')+'<button type="button" class="le-b del" data-del="'+i+'" aria-label="Delete this brew">'+lIc('del')+'</button></div></article>'}
+function renderLogFilter(){const el=$('l-filter');if(!el)return;el.hidden=LOG.length<2;if(el.hidden)return;
+  const people=GROUP?[...new Set(LOG.map(lWho))]:[];const chip=(k,v,t)=>'<button type="button" class="lf-c" data-lf="'+k+'" data-v="'+v+'" aria-pressed="'+(String(LF[k])===String(v))+'">'+t+'</button>';
+  el.innerHTML='<div class="lf-top"><label class="lf-q">'+lIc('search')+'<input id="lf-q" type="search" placeholder="Search coffee, recipe, notes" value="'+esc(LF.q)+'" aria-label="Search your brews"></label>'+
+    '<label class="lf-sort"><span>Sort</span><b>'+LOG_SORTS.find(x=>x[0]===LF.sort)[1]+'</b><select id="lf-sort" aria-label="Sort brews">'+LOG_SORTS.map(([k,n])=>'<option value="'+k+'"'+(k===LF.sort?' selected':'')+'>'+n+'</option>').join('')+'</select></label></div>'+
+    '<div class="lf-row" role="group" aria-label="Filter brews">'+chip('min',0,'All')+chip('min',4,'4★ and up')+chip('min',5,'5★')+(people.length>1?'<span class="lf-sep"></span>'+chip('who','all','Everyone')+people.map(p=>chip('who',p,p==='me'?'Me':esc(p))).join(''):'')+'</div>'}
+function renderLogList(){renderLogFilter();const q=LF.q.trim().toLowerCase();
+  if(LF.who!=='all'&&!(GROUP&&LOG.some(l=>lWho(l)===LF.who)))LF.who='all';
+  let rows=LOG.map((l,i)=>[l,i]).filter(([l])=>(+l.stars||0)>=LF.min&&(LF.who==='all'||lWho(l)===LF.who)&&(!q||[l.coffee,l.settings,l.notes,l.by,flText(flOf(l))].join(' ').toLowerCase().includes(q)));
+  const ts=l=>l.ts||Date.parse(l.date)||0;
+  rows.sort(LF.sort==='old'?(a,b)=>ts(a[0])-ts(b[0]):LF.sort==='top'?(a,b)=>(+b[0].stars||0)-(+a[0].stars||0)||ts(b[0])-ts(a[0]):LF.sort==='az'?(a,b)=>(a[0].coffee||'').localeCompare(b[0].coffee||'')||ts(b[0])-ts(a[0]):(a,b)=>ts(b[0])-ts(a[0]));
+  const byDate=LF.sort==='new'||LF.sort==='old';let last='',h='';
+  for(const [l,i] of rows){if(byDate){const d=logGroup(l);if(d!==last){h+='<h3 class="le-day">'+esc(d)+'</h3>';last=d}}h+=logEntryHTML(l,i)}
+  $('l-list').innerHTML=!LOG.length?'<div class="le-empty">'+lIc('edit')+'<b>No brews yet</b><p>Dial one in, then tap “Log this brew”, or fill in the form above.</p></div>':
+    rows.length?(rows.length<LOG.length?'<p class="le-count">Showing '+rows.length+' of '+LOG.length+' brews</p>':'')+h:'<div class="le-empty">'+lIc('search')+'<b>No brews match</b><p><button type="button" class="linkbtn" id="lf-clear">Clear the filters</button></p></div>';
+  const c=$('lf-clear');if(c)c.onclick=()=>{LF.q='';LF.min=0;LF.who='all';save('bb-logfilter',{min:0,who:'all',sort:LF.sort});renderLogList()}}
+$('l-filter').addEventListener('click',e=>{const b=e.target.closest('[data-lf]');if(!b)return;const k=b.dataset.lf;LF[k]=k==='min'?+b.dataset.v:b.dataset.v;save('bb-logfilter',{min:LF.min,who:LF.who,sort:LF.sort});renderLogList()});
+$('l-filter').addEventListener('change',e=>{if(e.target.id==='lf-sort'){LF.sort=e.target.value;save('bb-logfilter',{min:LF.min,who:LF.who,sort:LF.sort});renderLogList()}});
+$('l-filter').addEventListener('input',e=>{if(e.target.id!=='lf-q')return;LF.q=e.target.value;const pos=e.target.selectionStart;renderLogList();const n=$('lf-q');n.focus();try{n.setSelectionRange(pos,pos)}catch(x){}});
 function renderLog(){renderShare();renderLastBrew();
-  $('l-list').innerHTML=LOG.length?LOG.map((l,i)=>'<div class="logentry"><div class="lehead"><b>'+esc(l.coffee||'Untitled')+'</b>'+(l.stars?'<span class="stars-sm" aria-label="'+l.stars+' stars">'+'★'.repeat(+l.stars||0)+'<span>'+'★'.repeat(5-(+l.stars||0))+'</span></span>':'')+'<button class="x" data-lshare="'+i+'" aria-label="Share this brew as a card">Share</button>'+(canEdit(l)?'<button class="x" data-edit="'+i+'" aria-label="Edit entry">Edit</button>':'')+'<button class="x" data-del="'+i+'" aria-label="Delete entry">Delete</button></div>'+
-    '<div class="hint">'+esc(fmtDate(l))+(l.edited?' \u00B7 edited':'')+(l.by&&GROUP?' · '+esc(l.by===ME?'you':l.by):'')+'</div>'+(l.settings?'<div class="hint">'+esc(l.settings)+'</div>':'')+(l.pred?'<div class="hint">Predicted: '+esc(l.pred)+'</div>':'')+(l.notes?'<p>'+esc(l.notes)+'</p>':'')+flEntry(l,i)+'</div>').join(''):'<p class="hint">No brews logged yet. Dial one in, then tap "Log this brew".</p>';
+  renderLogList();
   renderPalate();
   const rated=LOG.filter(l=>+l.stars>0),avg=rated.length?(rated.reduce((a,l)=>a+ +l.stars,0)/rated.length).toFixed(1):'–';
   const cnt={};LOG.forEach(l=>{if(l.brewer)cnt[l.brewer]=(cnt[l.brewer]||0)+1});const fav=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];
