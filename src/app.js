@@ -774,21 +774,37 @@ function openTimer(idx,p){noteRecent(RECIPES[idx]);
   $('tm-x').onclick=()=>d.close();
   // However the timer is closed (X, back, Escape, backdrop), stop it and let the screen sleep again.
   d.onclose=()=>{if(TM&&TM.iv)clearInterval(TM.iv);if(TM)TM.run=false;wake(false)};
-  if(total){$('tm-go').onclick=()=>{if(TM.el>=TM.total){TM.el=0;TM.lastIdx=-1}if(!TM.ctx){try{TM.ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}TM.run=!TM.run;setPlay();wake(TM.run);
+  if(total){$('tm-go').onclick=()=>{if(TM.el>=TM.total||TM.fin){TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;TM.fin=false}if(!TM.ctx){try{TM.ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}TM.run=!TM.run;setPlay();wake(TM.run);
       if(TM.run){TM.t0=performance.now()-TM.el*1000;TM.iv=setInterval(tick,200);tick()}else clearInterval(TM.iv)};
-    $('tm-reset').onclick=()=>{clearInterval(TM.iv);TM.run=false;wake(false);TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;setPlay();paint()};
+    $('tm-reset').onclick=()=>{clearInterval(TM.iv);TM.run=false;wake(false);TM.fin=false;TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;setPlay();paint()};
     // Skip jumps to the next step's time (handy when you pour faster than the recipe).
-    $('tm-skip').onclick=()=>{const n=TM.ev.find(e=>e.t>TM.el+0.5);if(!n)return;TM.el=n.t;if(TM.run)TM.t0=performance.now()-TM.el*1000;paint()};paint()}
+    $('tm-skip').onclick=()=>{if(TM.fin)return;const n=TM.ev.find(e=>e.t>TM.el+0.5);if(!n){if(TM.el>0||TM.run)finishBrew();return}TM.el=n.t;if(TM.run)TM.t0=performance.now()-TM.el*1000;paint()};paint()}
 }
 function setPlay(){const b=$('tm-go');b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+(TM.run?'M7 5h4v14H7z M13 5h4v14h-4z':'M8 5v14l11-7z')+'"/></svg>';b.setAttribute('aria-label',TM.run?'Pause':TM.el>0?'Resume':'Start');b.classList.toggle('on',TM.run)}
 // Keep the screen on while a brew timer runs (where the browser supports it).
 let WL=null;function wake(on){try{if(on&&!WL&&navigator.wakeLock)navigator.wakeLock.request('screen').then(l=>{WL=l;l.addEventListener('release',()=>{WL=null})}).catch(()=>{});else if(!on&&WL){WL.release();WL=null}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&TM&&TM.run)wake(true)});
 function beep(soft){if(!TM.ctx)return;try{const o=TM.ctx.createOscillator(),g=TM.ctx.createGain();o.frequency.value=soft?660:880;g.gain.setValueAtTime(.001,TM.ctx.currentTime);g.gain.exponentialRampToValueAtTime(.25,TM.ctx.currentTime+.02);g.gain.exponentialRampToValueAtTime(.001,TM.ctx.currentTime+.35);o.connect(g).connect(TM.ctx.destination);o.start();o.stop(TM.ctx.currentTime+.4)}catch(e){}if(navigator.vibrate)navigator.vibrate(120)}
-function tick(){TM.el=(performance.now()-TM.t0)/1000;if(TM.el>=TM.total){TM.el=TM.total;clearInterval(TM.iv);TM.run=false;wake(false);setPlay();paint();done();beep();beans(26);return}paint()}
-function done(){const r=TM.r||RECIPES[TM.idx];$('tm-step').textContent='Done';$('tm-target').innerHTML='';$('tm-now').textContent='Enjoy your cup.';$('tm-next').innerHTML='<div class="tm-done"><button class="btn" id="tm-log">Log this brew</button><button class="btn ghost" id="tm-again">Brew again</button></div>';
+function tick(){TM.el=(performance.now()-TM.t0)/1000;if(TM.el>=TM.total){TM.el=TM.total;finishBrew();return}paint()}
+// The end of a brew, on time or early: the clock stops where you are and the cup is yours.
+const TMI=d=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+d+'"/></svg>';
+function finishBrew(){if(TM.fin)return;if(TM.run)TM.el=Math.min(TM.total,(performance.now()-TM.t0)/1000);clearInterval(TM.iv);TM.run=false;TM.fin=true;wake(false);
+  setPlay();paint();$('tm-arc').setAttribute('stroke-dashoffset','0');$('tm-big').textContent=mmss(TM.el);$('tm-card').classList.remove('warn');
+  $('tm-list').querySelectorAll('li').forEach(li=>li.className='done');done();beep();beans(26)}
+// A thank-you to end on: the brew time against the recipe's, and a line to go with the cup.
+const TM_THANKS=['Enjoy it while it’s warm.','Take the first sip slowly: it changes as it cools.','Smell it before you sip. That’s half the flavour.','Good coffee, made by you.','Sit down with it. You earned this one.'];
+function done(){const r=TM.r||RECIPES[TM.idx],d=Math.floor(TM.el)-Math.floor(TM.total),bean=S.bean&&S.bean.name;
+  const when=Math.abs(d)<5?'Right on the recipe’s time.':d<0?mmss(-d)+' ahead of the recipe’s '+mmss(TM.total)+'.':'';
+  $('tm-card').classList.add('fin');$('tm-step').textContent='Brew complete';$('tm-target').innerHTML='';
+  $('tm-now').innerHTML='<span class="tm-thx">'+TMI('M5 9h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z M16 10h1.5a2.5 2.5 0 0 1 0 5H16 M8 3c-1 1 1 2 0 3 M11.5 3c-1 1 1 2 0 3')+'</span><b class="tm-thank">Thank you for brewing</b>'+
+    '<span class="tm-thsub">Your '+esc(r.name)+(bean?' with '+esc(bean):'')+' is ready. '+TM_THANKS[Math.floor(Math.random()*TM_THANKS.length)]+'</span>'+
+    '<span class="tm-time">Brewed in <b>'+mmss(TM.el)+'</b>'+(when?' · '+when:'')+'</span>';
+  $('tm-barfill').style.width='100%';
+  $('tm-next').innerHTML='<div class="tm-done"><button class="btn" id="tm-log">Log this brew</button><button class="btn ghost" id="tm-again">Brew again</button></div>';
   $('tm-log').onclick=()=>{const p=TM.p,B=BREWERS[r.b];$('timer').close();setTimeout(()=>{showTab('log');$('l-settings').value=r.name+', '+(p?p.r.dose:r.dose)+'g : '+(p?p.water:r.water)+'g'+((p?p.temp:r.temp)?', '+(p?p.temp:r.temp)+'°C':'');$('l-settings').dataset.brewer=r.b;$('l-coffee').focus()},250)};
-  $('tm-again').onclick=()=>{TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;paint();$('tm-go').click()};drawCheck()}
+  $('tm-again').onclick=()=>{$('tm-card').classList.remove('fin');TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;TM.fin=false;paint();$('tm-go').click()};drawCheck();
+  // Finished early by a tap: that tap is when the drawdown ended, so the nearest answer is already picked.
+  if(d<=-8){const opt=[-30,-15].reduce((a,b)=>Math.abs(b-d)<Math.abs(a-d)?b:a),bt=document.querySelector('.tm-dseg [data-dd="'+opt+'"]');if(bt)bt.click()}}
 // How long the drawdown took is the most reliable grind signal there is: a dripper that finishes early wants a finer
 // grind, one that runs long a coarser one. About 35 s of drawdown is one recipe step of grind size (about 7 ZP6 clicks),
 // so the answer becomes an exact setting on your grinder, and you can keep it as your setting for this brewer.
@@ -817,12 +833,14 @@ function paint(){const el=TM.el,C=2*Math.PI*96;$('tm-big').textContent=mmss(el);
   // Three soft beeps before the next step, so you can get the kettle ready.
   if(TM.run&&next&&left<=3&&left>0){const w=Math.ceil(left);if(TM.lastWarn!==ni*10+w){TM.lastWarn=ni*10+w;beep(true)}}
   $('tm-list').querySelectorAll('li').forEach((li,i)=>{li.className=i<cur?'done':i===cur?'cur':''});
+  const sk=$('tm-skip'),last=el>0&&!TM.ev.some(e=>e.t>el+0.5);if(sk&&sk.dataset.last!==String(last)){sk.dataset.last=last;sk.innerHTML=TMI(last?'M5 12.5l4.5 4.5L19 7':'M6 5l9 7-9 7z M18 5v14');sk.setAttribute('aria-label',last?'Finish brew':'Next step')}
   const nTimed=TM.ev.filter(e=>e.t>=0).length,stepNo=cur>=0?TM.ev.slice(0,cur+1).filter(e=>e.t>=0).length:0;
   if(el>0&&el<TM.total||TM.run){const txt=cur>=0?TM.ev[cur].s.replace(/^\s*\d+:\d\d\s*/,''):'Get ready.',pr=cur>=0?pourOf(TM.ev[cur].s):null;
     $('tm-step').textContent=cur>=0?'Step '+stepNo+' of '+nTimed:'Starting';$('tm-now').textContent=txt.charAt(0).toUpperCase()+txt.slice(1);
     $('tm-target').innerHTML=pr?(pr.to?'<b>'+pr.to+'</b><small> g on the scale</small>'+(pr.add?'<em>+'+pr.add+' g</em>':''):'<b>+'+pr.add+'</b><small> g</small>'):'';
     const from=cur>=0?TM.ev[cur].t:0,span=(next?next.t:TM.total)-from;$('tm-barfill').style.width=(span>0?Math.min(100,(el-from)/span*100):100)+'%';
-    $('tm-next').innerHTML=next?'<span>Next in <b>'+Math.ceil(left)+'s</b></span><span class="tm-nx">'+esc(stepTxt(next.s))+'</span>':'<span>Finishing in <b>'+Math.ceil(left)+'s</b></span>';
+    $('tm-next').innerHTML=next?'<span>Next in <b>'+Math.ceil(left)+'s</b></span><span class="tm-nx">'+esc(stepTxt(next.s))+'</span>':'<div class="tm-last"><span>Finishing in <b>'+Math.ceil(left)+'s</b></span><button type="button" class="btn" id="tm-fin">Finish brew</button></div>';
+    if(!next)$('tm-fin').onclick=finishBrew;
     $('tm-card').classList.toggle('warn',!!(TM.run&&next&&left<=3))}
   else if(el===0){$('tm-step').textContent='Ready when you are';$('tm-target').innerHTML='';$('tm-now').textContent='Get your gear ready, then press start.';$('tm-barfill').style.width='0';$('tm-next').innerHTML=TM.ev[0]?'<span class="tm-nx">First: '+esc(stepTxt(TM.ev[0].s))+'</span>':''}}
 
