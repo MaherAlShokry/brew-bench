@@ -900,6 +900,19 @@ svg .bo{fill:currentColor}svg .bc{fill:none;stroke:var(--surface);stroke-width:1
 .code{font-family:var(--display);letter-spacing:.08em;font-variant-numeric:tabular-nums}
 .joinrow{display:flex;gap:8px}.joinrow input{flex:1;min-width:0;text-transform:uppercase;letter-spacing:.08em;font-family:var(--display)}.joinrow .btn{flex:0 0 auto}
 .lehead{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.lehead .x{margin-left:auto}
+/* Bean ratings outside the gallery: a row of small beans, filled to the rating. */
+.hm-ic{width:1.05em;height:1.05em;vertical-align:-.18em;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linejoin:round;stroke-linecap:round}
+.bd-addrd .dateinp{flex:1 1 100%;width:100%}
+.brate{display:inline-flex;gap:.12em;font-size:15px;vertical-align:-.15em}.brate.sm{font-size:12px;margin-left:6px}
+/* Rating a brew: five beans you tap; the one you pick pops and tips over like a bean landing. */
+.stars button svg{width:1em;height:1em;overflow:visible}
+.stars button svg .bo{fill:color-mix(in srgb,var(--line) 45%,var(--surface2));stroke:color-mix(in srgb,var(--cherry) 55%,var(--line));stroke-width:1.4;transition:fill .2s}
+.stars button svg .bc{fill:none;stroke:color-mix(in srgb,var(--cherry) 40%,var(--line));stroke-width:1.5;stroke-linecap:round}
+.stars button.on svg .bo{fill:var(--cherry);stroke:var(--cherry)}.stars button.on svg .bc{stroke:color-mix(in srgb,var(--surface) 75%,var(--honey))}
+.stars button.pop svg{animation:bean-pop .45s var(--ease-spring,cubic-bezier(.3,1.5,.5,1))}@keyframes bean-pop{0%{transform:scale(.6) rotate(-25deg)}60%{transform:scale(1.18) rotate(8deg)}100%{transform:none}}
+@media (prefers-reduced-motion:reduce){.stars button.pop svg{animation:none}}
+.lf-b{display:inline-block;width:14px;height:14px;margin-right:4px;vertical-align:-2px}.lf-b svg{width:14px;height:14px}.lf-b .bo{fill:currentColor}.lf-b .bc{fill:none;stroke:var(--surface);stroke-width:1.8}
+.lf-c[aria-pressed="true"] .lf-b .bc{stroke:var(--ink)}
 .stars-sm{color:var(--honey-ink);letter-spacing:1px;font-size:.9rem}.stars-sm span{color:color-mix(in srgb,var(--muted) 82%,var(--surface))}
 /* Open dialogs and sheets lock the page behind them. */
 html.locked,html.locked body{overflow:hidden}
@@ -1177,7 +1190,7 @@ button.chip:hover{background:var(--tonal-hover)}
 .le-meta{font-size:.8rem;color:var(--muted);display:flex;align-items:center;flex-wrap:wrap;gap:0 4px}
 .le-who{display:inline-flex;align-items:center;gap:5px;font-weight:600;color:var(--ink)}.le-who .pav{flex:none}
 .le-av{width:20px;height:20px;border-radius:50%;display:inline-grid;place-items:center;font:700 .66rem var(--display);color:#fff;background:hsl(var(--h) 38% 46%)}
-.le-stars{flex:none;align-self:flex-start;display:flex;align-items:center;gap:1px;color:var(--honey-ink);font-size:.82rem;letter-spacing:.5px}.le-stars b{font:800 .95rem var(--display);color:var(--ink);margin-right:4px}.le-stars i{font-style:normal;color:color-mix(in srgb,var(--muted) 55%,var(--surface))}
+.le-stars{flex:none;align-self:flex-start;display:flex;align-items:center;gap:6px}.le-stars .brate{font-size:14px}.le-stars b{font:800 .95rem var(--display);color:var(--ink)}
 .le-stars.none{font-size:.74rem;color:var(--muted);letter-spacing:0}
 .le-pills{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 0}
 .le-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 10px 5px 8px;border-radius:999px;background:var(--surface2);font-size:.8rem;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
@@ -1330,6 +1343,9 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 #rhome .cupart{height:76px}
 @media (min-width:1000px){#rgrid{columns:2;column-gap:16px}#rgrid .rgrp{break-inside:avoid;display:inline-block;width:100%;content-visibility:visible}}
 @media (min-width:760px){.bshelf button{width:128px}.colshelf button{width:200px}}
+/* A collection's count sits in the top corner, as on the cup-type cards, clear of the title and the line under it. */
+.colshelf button{padding:14px 14px 16px;min-height:118px}.colshelf b{padding-right:42px}
+.colshelf .cn{left:auto;bottom:auto;top:12px;right:12px;font-size:.74rem;background:rgba(0,0,0,.24);padding:2px 9px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
 /* A recipe at a glance, and its steps as a timeline. */
 .rstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:.4rem 0 .8rem}
 .rstats div{background:var(--surface2);border-radius:12px;padding:8px 10px}.rstats b{display:block;font:700 1.02rem var(--display);font-variant-numeric:tabular-nums}.rstats small{color:var(--muted);font-size:.74rem}
@@ -1836,6 +1852,12 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .fbar i{display:block;height:100%}.fbar .fz1{width:6.7%;background:#B8AFA6;border-radius:5px 0 0 5px}.fbar .fz2{width:28.3%;background:#5E9A63}.fbar .fz3{width:40%;background:#C9964A}.fbar .fz4{flex:1;background:#A8432F;border-radius:0 5px 5px 0;opacity:.75}
 .fbar b{position:absolute;top:50%;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:var(--surface);box-shadow:0 0 0 3px var(--ink),0 3px 8px rgba(0,0,0,.3)}
 .bd-bag{margin-top:12px}.bd-bag .bagm{height:8px}.bd-bag .bagl small{font-size:.86rem;color:var(--ink);font-weight:600}
+.bd-cupr{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}.bd-cupl{font-size:.86rem;color:var(--muted)}
+.bd-step{display:inline-flex;align-items:center;gap:2px;padding:3px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line)}
+.bd-step button{width:34px;height:34px;border:0;border-radius:50%;background:var(--surface2);color:var(--ink);font:600 1.1rem/1 var(--display);cursor:pointer}.bd-step button:active{transform:scale(.9)}
+.bd-step b{min-width:52px;text-align:center;font:700 .95rem var(--display);font-variant-numeric:tabular-nums}
+.bd-cupr .btn{min-height:40px;padding:0 16px;font-size:.88rem}
+.bd-auto{margin:8px 0 0;font-size:.8rem;color:var(--muted)}
 .bd-bagb{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.bd-bagb .chip{cursor:pointer;padding:7px 13px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line)}
 .bd-done{width:100%;margin-top:12px}
 .bd-again{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:14px 0 6px;font-weight:600;font-size:.92rem}
@@ -1990,6 +2012,8 @@ body.t-dial.dial-ready .herowrap{display:none}
 .cr-now{gap:4px 12px;margin-top:6px}.cr-left{font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
 .cr-fresh{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:600;color:var(--ink)}
 .cr-fresh i{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:none}
+.cr-fresh.none{font-weight:500;color:var(--muted)}.cr-fresh.none i{background:none;box-shadow:inset 0 0 0 1.5px var(--muted)}
+.bd-addrd{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;cursor:pointer}.bd-addrd span{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 180px}.bd-addrd small{font-size:.82rem;color:var(--muted)}.bd-addrd input{flex:0 0 auto;width:auto;min-height:42px}
 .cr-fresh.f-peak i{background:#4F9A57}.cr-fresh.f-good i{background:#C9964A}.cr-fresh.f-fade i{background:#B5533C}.cr-fresh.f-rest i{background:#8FA3B8}
 .cr-bar{display:block;height:4px;border-radius:4px;background:color-mix(in srgb,var(--line) 70%,transparent);margin-top:8px;overflow:hidden}
 .cr-bar i{display:block;height:100%;border-radius:4px;background:color-mix(in srgb,var(--cherry) 70%,var(--honey))}
@@ -2122,7 +2146,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
 .lb-ic{flex:none;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:color-mix(in srgb,var(--honey) 20%,var(--surface2));color:var(--cherry)}
 .lb-ic svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .lastbrew .lb-tx{min-width:0;display:flex;flex-direction:column;gap:1px}.lastbrew .lb-tx small{font-size:.74rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.lastbrew .lb-tx b{font-size:1.02rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lastbrew .lb-tx span{font-size:.84rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lastbrew .lb-tx .st{color:var(--honey-ink,#9A6B1F);letter-spacing:1px}
+.lastbrew .lb-tx b{font-size:1.02rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lastbrew .lb-tx>span{font-size:.84rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lastbrew .lb-tx .st .brate{font-size:12px}.lastbrew .lb-tx .st{color:var(--honey-ink,#9A6B1F);letter-spacing:1px}
 .lb-act{flex:none;display:flex;flex-direction:column;gap:6px}.lb-act .btn{min-height:38px;padding:7px 14px;font-size:.88rem}
 /* A toast with one action: share the brew you just saved. */
 #toast.act{pointer-events:auto;display:flex;align-items:center;gap:12px;padding:8px 8px 8px 18px}

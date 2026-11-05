@@ -379,7 +379,7 @@ function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
   if(m.list&&m.list.items.length){y+=48;bcLabel(x,m.list.label,P,y);y+=22;const rh=96,h=m.list.items.length*rh;bcPane(x,P,y,IW,h,28);
     m.list.items.forEach((it,i)=>{const ry=y+i*rh;if(i){x.fillStyle=bcI(.09);x.fillRect(P+24,ry,IW-48,1.5)}
       const sw=it.s?5*24*1.18:0;x.font='700 32px '+BC.F;x.fillStyle=BC.INK;x.fillText(bcWrap(x,it.t,IW-80-sw-20,1)[0],P+28,ry+46);
-      x.font='500 22px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(it.d,P+28,ry+78);if(it.s)bcRating(x,'stars',it.s,W-P-28-sw,ry+rh/2,24)});y+=h}
+      x.font='500 22px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(it.d,P+28,ry+78);if(it.s)bcRating(x,'beans',it.s,W-P-28-sw,ry+rh/2,24)});y+=h}
   // Your own words
   if(m.quote&&m.quote.text){y+=48;x.font='italic 500 33px '+BC.F;const lines=bcWrap(x,m.quote.text,IW-60,6),h=66+lines.length*46;
     x.font='800 132px Georgia,serif';x.fillStyle=bcA(.2);x.fillText('“',P,y+96);
@@ -421,7 +421,7 @@ function okSnap(s){if(!s||typeof s!=='object')return null;const n=(v,a,b)=>typeo
 function logCard(l){const s=okSnap(l.snap),fl=flOf(l).filter(([id])=>FW.byId[id]),B=s&&BREWERS[s.b],stars=clamp(Math.round(+l.stars||0),0,5);
   const m={theme:originTheme(s&&s.bean&&s.bean.origin),kicker:'From my brew log',date:fmtDate(l),title:l.coffee||(s&&s.rec)||'A brew',by:s&&s.rec&&l.coffee?s.rec+(s.by?' · '+s.by:''):s&&s.by,
     coffee:s&&s.v?bcCoffee(s.bean&&s.bean.name!==l.coffee?s.bean:null,s.v,s.p,s.ro):null,
-    rating:stars?{kind:'stars',v:stars,word:STARW[stars]}:null,
+    rating:stars?{kind:'beans',v:stars,word:STARW[stars]}:null,
     pills:[...(s&&s.goal?[[s.goal+' cup',1]]:[]),...(B?[[B.name]]:[]),...(l.by&&GROUP?[['Brewed by '+(l.by===ME?'me':l.by)]]:[])],
     footer:'Logged with The Brew Bench'};
   if(s){m.tiles=[['Coffee',s.dose!=null?gfmt(s.dose)+' g':'–'],['Water',s.water!=null?gfmt(s.water)+' g':'–'],['Temp',s.t!=null?s.t+'°C':'–'],['Ratio',s.ra!=null?'1:'+rr1(s.ra):'–']];
@@ -460,7 +460,7 @@ function logSumCard(){const L=LOG.filter(l=>l&&!(l.by&&l.by!==ME)),rated=L.filte
   const brewers=new Map();L.forEach(l=>{const s=okSnap(l.snap),b=s&&s.b||l.brewer||(parseSettings(l.settings||'').brewer||{}).name;const n=BREWERS[b]?BREWERS[b].name:b;if(n)brewers.set(n,(brewers.get(n)||0)+1)});
   const top=[...brewers].sort((a,b)=>b[1]-a[1])[0],best=[...rated].sort((a,b)=>b.stars-a.stars||(b.ts||0)-(a.ts||0))[0];
   return bcBlob({kicker:'My brew log',title:nick?nick+'’s brew log':'My brew log',sub:L.length+(L.length===1?' brew':' brews')+'  ·  '+coffees.size+(coffees.size===1?' coffee':' coffees'),
-    rating:avg?{kind:'stars',v:Math.round(avg*2)/2,word:'average'}:null,
+    rating:avg?{kind:'beans',v:Math.round(avg*2)/2,word:'average'}:null,
     pills:[...(best?[['Favourite: '+(best.coffee||'a brew'),1]]:[]),...(top?[['Most brewed on '+top[0]]]:[])],
     tiles:[['Brews',String(L.length)],['Coffees',String(coffees.size)],['Rated',String(rated.length)],['5 stars',String(rated.filter(l=>+l.stars===5).length)]],
     expect:P?{label:'My palate',items:P.fl.slice(0,8).map(([id,v])=>({t:FW.byId[id].n,c:FW.byId[id].c})),bar:flFamilies(P.fl)}:null,

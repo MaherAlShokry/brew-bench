@@ -14,6 +14,10 @@ const num=(v,d,a=-Infinity,b=Infinity)=>{v=+v;return Number.isFinite(v)?Math.min
 const oneOf=(v,list,d)=>list.includes(v)?v:d;
 function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 const MQ=q=>!!(window.matchMedia&&window.matchMedia(q).matches);const RM=()=>MQ('(prefers-reduced-motion: reduce)')||document.documentElement.getAttribute('data-motion')==='reduced';
+// Ratings are drawn as coffee beans, filled to the rating (half a bean for a half), here and in the bean gallery.
+const RB_G='<g transform="rotate(30 12 12)"><path class="bo" d="M12 2.6c4.1 0 6.6 4.3 6.6 9.4s-2.5 9.4-6.6 9.4-6.6-4.3-6.6-9.4 2.5-9.4 6.6-9.4z"/><path class="bc" d="M12.7 3.2c-2.4 2.6-.4 5.6-1.3 8.8s1.3 5.9-.6 8.8"/></g>';
+const RB_SVG='<svg viewBox="0 0 24 24" aria-hidden="true">'+RB_G+'</svg>';
+const beanRate=(r,cls)=>{let h='';for(let i=1;i<=5;i++){const f=r>=i?100:r>=i-0.5?50:0;h+='<span class="rb">'+RB_SVG+'<span class="rbf" style="width:'+f+'%">'+RB_SVG+'</span></span>'}return '<span class="brate'+(cls?' '+cls:'')+'" aria-hidden="true">'+h+'</span>'};
 let toastT;function toast(m){const t=$('toast');t.classList.remove('act');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600)}
 // A toast with a button, kept up a little longer so there is time to tap it.
 function toastAct(m,label,fn){const t=$('toast');t.textContent='';t.classList.add('act');const sp=document.createElement('span');sp.textContent=m;const b=document.createElement('button');b.type='button';b.className='tact';b.textContent=label;
@@ -1019,9 +1023,10 @@ const COLBY=Object.fromEntries(COLS.map(c=>[c[0],c]));
 const RBREWERS=()=>Object.keys(BREWERS).filter(k=>RFAM(k)===k&&RECIPES.some(r=>RFAM(r.b)===k));
 // A brewer family's name in the recipe library (the V60 and NEO share one shelf and one group).
 const famName=k=>k==='v60'?'Hario V60 and V60 NEO':k==='sw'?'Hario Switch and NEO Switch':BREWERS[k].name;
-const BT_ICON={'Cone dripper':'M5 5h14l-5 9h-4z M10 14h4 M12 14v3 M7 19h10','Flat-bottom dripper':'M5 5h14l-3 8H8z M8 13h8 M12 13v4 M7 19h10','Valve and hybrid':'M6 4h12l-4 8h-4z M10 12h4v3h-4z M7 19h10 M12 15v4',
-  'Immersion and pressure':'M7 5h10v14H7z M7 5H5 M12 2v3 M9 10h6','Espresso and stovetop':'M6 10h10v3a5 5 0 0 1-10 0z M16 11h2a2 2 0 0 1 0 4h-2 M4 20h14 M9 4c-1 1.5 1 2.5 0 4 M13 4c-1 1.5 1 2.5 0 4',
-  'Boiled':'M5 10h10l-1 8H6z M15 12l5-3 M8 6c-1 1 1 2 0 3','Cold':'M6 4h12l-2 16H8z M9 9h3v3H9z M12 13h3v3h-3z','Machine':'M5 3h14v6H5z M7 9v8h10V9 M9 13h6 M6 21h12'};
+// Brewer icons, drawn like the rest of the app: each brewer with its cup, its steam or its ice.
+const BT_ICON={'Cone dripper':'M4.5 4.5h15 M6 4.5l4 6.5h4l4-6.5 M9.6 7.6h4.8 M12 12.6v.8 M7.5 15h9v1.8a3.2 3.2 0 0 1-3.2 3.2h-2.6a3.2 3.2 0 0 1-3.2-3.2z M16.5 16h.7a1.4 1.4 0 0 1 0 2.8h-.9','Flat-bottom dripper':'M4.5 4.5h15 M6 4.5l2.2 6.5h7.6L18 4.5 M8 8h8 M12 12.6v.8 M7.5 15h9v1.8a3.2 3.2 0 0 1-3.2 3.2h-2.6a3.2 3.2 0 0 1-3.2-3.2z M16.5 16h.7a1.4 1.4 0 0 1 0 2.8h-.9','Valve and hybrid':'M4.5 4h15 M6 4l3.6 6h4.8L18 4 M10.6 10h2.8v1.6h-2.8z M12 13v.8 M7.5 15h9v1.8a3.2 3.2 0 0 1-3.2 3.2h-2.6a3.2 3.2 0 0 1-3.2-3.2z M16.5 16h.7a1.4 1.4 0 0 1 0 2.8h-.9',
+  'Immersion and pressure':'M6.5 7.5h9v10.5a2 2 0 0 1-2 2h-5a2 2 0 0 1-2-2z M15.5 9.5h1.3a1.7 1.7 0 0 1 1.7 1.7v3.6a1.7 1.7 0 0 1-1.7 1.7h-1.3 M5.5 7.5h11 M11 3.5v8 M8.5 11.5h5 M8.5 15h5','Espresso and stovetop':'M6 10h10v3a5 5 0 0 1-10 0z M16 11h2a2 2 0 0 1 0 4h-2 M4 20h14 M9 4c-1 1.5 1 2.5 0 4 M13 4c-1 1.5 1 2.5 0 4',
+  'Boiled':'M6.5 9.5h9.5l-1 8.6a2 2 0 0 1-2 1.9H9.5a2 2 0 0 1-2-1.9z M16 11.5l4.5-2.5 M6 9.5h10.5 M9.5 3.5c-1 1.2 1 2 0 3.2 M13 3.5c-1 1.2 1 2 0 3.2','Cold':'M6 6.5h12l-1.5 12.2a1.6 1.6 0 0 1-1.6 1.4H9.1a1.6 1.6 0 0 1-1.6-1.4z M9.2 10.5l2.4-.8.8 2.4-2.4.8z M12.4 14.2l2.4.4-.4 2.4-2.4-.4z M14 6.5l1.6-3.5h2.4','Machine':'M5 3.5h14v5H5z M8 8.5v3 M7 12.5h7v5.5a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z M14 14h.8a1.4 1.4 0 0 1 0 2.8H14 M17.5 8.5v11.5 M4.5 20h15 M8 6h2'};
 const bIcon=t=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+(BT_ICON[t]||BT_ICON['Cone dripper'])+'"/></svg>';
 function renderRHome(){const QI=(c,p)=>'<span class="qi" style="background:'+c+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+p+'"/></svg></span>';
   const again=RECENT.map(rByKey).filter(i=>i>=0).slice(0,6);
@@ -1693,8 +1698,9 @@ $('ts-chips').onclick=e=>{const b=e.target.closest('[data-ts]');if(!b)return;ren
 
 /* ================= LOG ================= */
 let STAR=0,DL=null;
-function renderStars(){const w=$('l-starword');if(w){w.textContent=STARW[STAR]||'';w.classList.toggle('none',!STAR)}$('l-stars').innerHTML=[1,2,3,4,5].map(n=>'<button type="button" class="'+(n<=STAR?'on':'')+'" data-s="'+n+'" role="radio" aria-checked="'+(n===STAR)+'" aria-label="'+n+' stars">\u2605</button>').join('')}
-$('l-stars').onclick=e=>{const b=e.target.closest('[data-s]');if(b){STAR=+b.dataset.s;renderStars()}};
+function renderStars(){const w=$('l-starword');if(w){w.textContent=STARW[STAR]||'';w.classList.toggle('none',!STAR)}$('l-stars').innerHTML=[1,2,3,4,5].map(n=>'<button type="button" class="'+(n<=STAR?'on':'')+(n===STAR&&LSPOP?' pop':'')+'" data-s="'+n+'" role="radio" aria-checked="'+(n===STAR)+'" aria-label="'+n+' bean'+(n>1?'s':'')+(STARW[n]?', '+STARW[n]:'')+'">'+RB_SVG+'</button>').join('');LSPOP=false}
+let LSPOP=false;
+$('l-stars').onclick=e=>{const b=e.target.closest('[data-s]');if(b){STAR=+b.dataset.s;LSPOP=true;renderStars()}};
 /* ---------- Shared log (Firebase Realtime Database over REST, no SDK) ---------- */
 // The Realtime Database URL of the Firebase project that holds shared logs (see README).
 // Empty means shared logs are switched off. A 'bb-syncdb' value in localStorage overrides it, for testing.
@@ -1763,7 +1769,7 @@ const LFIELDS=['l-coffee','l-settings','l-pred','l-notes'];
 // The coffee being logged, when it's one of your beans: it shows as a card, and its bag's notes sit beside what you tasted.
 let LBEAN=null;
 const lBean=()=>LBEAN&&window.BEANS_OK?beanById(LBEAN):null;
-const STARW=['Tap a star to rate','Not for me','Just okay','A good cup','Lovely','Outstanding'];
+const STARW=['Tap a bean to rate','Not for me','Just okay','A good cup','Lovely','Outstanding'];
 function renderLBean(){renderLSet();const el=$('l-bean'),b=lBean();
   if(b){$('l-coffee').value=beanTitle(b);el.innerHTML='<div class="l-beancard">'+beanPic(b,'xs')+'<span class="lb-tx"><b>'+esc(beanTitle(b))+'</b><small>'+esc([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '))+'</small></span><button type="button" class="btn ghost" id="l-beanchg">Change</button></div>';
     hydrateImgs(el);$('l-coffee-f').hidden=true}
@@ -1780,10 +1786,10 @@ function renderLBean(){renderLSet();const el=$('l-bean'),b=lBean();
 let LS={};
 const LSI={dose:'M12 3.5c3.6 0 5.8 3.8 5.8 8.5s-2.2 8.5-5.8 8.5-5.8-3.8-5.8-8.5 2.2-8.5 5.8-8.5z M12.6 4c-2 2.4-.4 5-1.1 8s1.1 5.3-.5 8',
   water:'M12 3.5c3.3 4.3 5.5 7.1 5.5 10.2a5.5 5.5 0 0 1-11 0C6.5 10.6 8.7 7.8 12 3.5z',
-  temp:'M10 5a2 2 0 0 1 4 0v8.6a4 4 0 1 1-4 0z M12 9.5v6.5',
-  grind:'M12 3v2.5 M12 18.5V21 M3 12h2.5 M18.5 12H21 M12 7a5 5 0 1 0 0 10a5 5 0 1 0 0-10z M12 12l2.6-1.8',
+  temp:'M5 11.5h10v5.5a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3z M15 13.5c2 0 3.2-1.6 4-4.4l1.5-.8 M7.5 11.5V10a2.5 2.5 0 0 1 5 0v1.5 M4.5 20h11',
+  grind:'M8.5 9h7v10a1.5 1.5 0 0 1-1.5 1.5h-4A1.5 1.5 0 0 1 8.5 19z M7.5 9h9 M12 9V6 M12 6h5.5 M17.5 6v2.4 M8.5 13h7 M10.5 16.5h3',
   rec:'M6 4h10a2 2 0 0 1 2 2v14l-3-2-3 2-3-2-3 2V6a2 2 0 0 1 2-2z M9 9h6 M9 12.5h4',
-  brew:'M4 6h16l-6 8h-4z M12 14v3 M8 20h8'};
+  brew:'M4.5 4.5h15 M6 4.5l4 6.5h4l4-6.5 M9.6 7.6h4.8 M12 12.6v.8 M7.5 15h9v1.8a3.2 3.2 0 0 1-3.2 3.2h-2.6a3.2 3.2 0 0 1-3.2-3.2z M16.5 16h.7a1.4 1.4 0 0 1 0 2.8h-.9'};
 const lsIc=k=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+LSI[k]+'"/></svg>';
 const lsRe=t=>t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 function lsParse(t){t=t||'';const q=parseSettings(t),db=$('l-settings').dataset.brewer;
@@ -1837,7 +1843,7 @@ function endEdit(){LEDIT=null;LBEAN=null;LFIELDS.forEach(id=>$(id).value='');del
 function renderLastBrew(){const el=$('lastbrew');if(!el)return;const l=LOG.find(x=>x&&(!x.by||x.by===ME));if(!l){el.hidden=true;return}
   const st=clamp(Math.round(+l.stars||0),0,5),n=LOG.length;el.hidden=false;
   el.innerHTML='<button type="button" class="lb-open" id="lb-open" aria-label="Open your brew log"><span class="lb-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z M16 10h1.5a2.5 2.5 0 0 1 0 5H16 M8 3c-1 1 1 2 0 3 M11.5 3c-1 1 1 2 0 3"/></svg></span>'+
-    '<span class="lb-tx"><small>Your last brew</small><b>'+esc(l.coffee||'A brew')+'</b><span>'+(st?'<i class="st" aria-label="'+st+' stars">'+'★'.repeat(st)+'</i> · ':'')+esc(fmtDate(l))+'</span></span></button>'+
+    '<span class="lb-tx"><small>Your last brew</small><b>'+esc(l.coffee||'A brew')+'</b><span>'+(st?'<i class="st" role="img" aria-label="'+st+' of 5 beans">'+beanRate(st)+'</i> · ':'')+esc(fmtDate(l))+'</span></span></button>'+
     '<div class="lb-act"><button type="button" class="btn" id="lb-share">Share</button><button type="button" class="btn ghost" id="lb-all" aria-label="All '+n+' brews">All '+n+'</button></div>';
   $('lb-open').onclick=$('lb-all').onclick=()=>goTab('log');$('lb-share').onclick=()=>openShare(logEntryDoc(l))}
 /* ---------- The list of brews: search, filters, sort, and each brew as a card ---------- */
@@ -1860,7 +1866,7 @@ function logGroup(l){const d=new Date(l.ts||Date.parse(l.date));if(isNaN(d))retu
 function logEntryHTML(l,i){const st=clamp(Math.round(+l.stars||0),0,5),{pills,rest}=logPills(l),who=GROUP&&l.by?(l.by===ME?'You':l.by):'';
   const av=who?(l.by===ME&&window.PROFILE_OK&&PROFILE?avatarHTML(PROFILE,20):'<span class="le-av" style="--h:'+lHue(l.by)+'">'+esc(l.by.charAt(0).toUpperCase())+'</span>'):'';
   return '<article class="logentry le2"><div class="le-top">'+logThumb(l)+'<div class="le-tt"><b>'+esc(l.coffee||'Untitled')+'</b><span class="le-meta">'+(who?'<span class="le-who">'+av+esc(who)+'</span> · ':'')+esc(fmtDate(l))+(l.edited?' · edited':'')+'</span></div>'+
-    (st?'<span class="le-stars" aria-label="'+st+' of 5 stars"><b>'+st+'</b>'+'★'.repeat(st)+'<i>'+'★'.repeat(5-st)+'</i></span>':'<span class="le-stars none">Not rated</span>')+'</div>'+
+    (st?'<span class="le-stars" role="img" aria-label="'+st+' of 5 beans, '+STARW[st]+'">'+beanRate(st)+'<b>'+st+'</b></span>':'<span class="le-stars none">Not rated</span>')+'</div>'+
     (pills.length?'<div class="le-pills">'+pills.map(([k,t])=>'<span class="le-pill k-'+k+'">'+(LSI[k==='ratio'?'water':k]?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+LSI[k==='ratio'?'water':k]+'"/></svg>':'')+esc(t)+'</span>').join('')+'</div>':'')+
     (rest?'<p class="le-rest">'+esc(rest)+'</p>':'')+(l.pred?'<p class="le-pred">Expected <b>'+esc(l.pred)+'</b></p>':'')+(l.notes?'<blockquote class="le-notes">'+esc(l.notes)+'</blockquote>':'')+flEntry(l,i)+
     '<div class="le-act"><button type="button" class="le-b" data-lshare="'+i+'" aria-label="Share this brew">'+lIc('share')+'Share</button>'+(canEdit(l)?'<button type="button" class="le-b" data-edit="'+i+'" aria-label="Edit this brew">'+lIc('edit')+'Edit</button>':'')+'<button type="button" class="le-b del" data-del="'+i+'" aria-label="Delete this brew">'+lIc('del')+'</button></div></article>'}
@@ -1868,7 +1874,7 @@ function renderLogFilter(){const el=$('l-filter');if(!el)return;el.hidden=LOG.le
   const people=GROUP?[...new Set(LOG.map(lWho))]:[];const chip=(k,v,t)=>'<button type="button" class="lf-c" data-lf="'+k+'" data-v="'+v+'" aria-pressed="'+(String(LF[k])===String(v))+'">'+t+'</button>';
   el.innerHTML='<div class="lf-top"><label class="lf-q">'+lIc('search')+'<input id="lf-q" type="search" placeholder="Search coffee, recipe, notes" value="'+esc(LF.q)+'" aria-label="Search your brews"></label>'+
     '<label class="lf-sort"><span>Sort</span><b>'+LOG_SORTS.find(x=>x[0]===LF.sort)[1]+'</b><select id="lf-sort" aria-label="Sort brews">'+LOG_SORTS.map(([k,n])=>'<option value="'+k+'"'+(k===LF.sort?' selected':'')+'>'+n+'</option>').join('')+'</select></label></div>'+
-    '<div class="lf-row" role="group" aria-label="Filter brews">'+chip('min',0,'All')+chip('min',4,'4★ and up')+chip('min',5,'5★')+(people.length>1?'<span class="lf-sep"></span>'+chip('who','all','Everyone')+people.map(p=>chip('who',p,p==='me'?'Me':esc(p))).join(''):'')+'</div>'}
+    '<div class="lf-row" role="group" aria-label="Filter brews">'+chip('min',0,'All')+chip('min',4,'<span class="lf-b">'+RB_SVG+'</span>4 and up')+chip('min',5,'<span class="lf-b">'+RB_SVG+'</span>5')+(people.length>1?'<span class="lf-sep"></span>'+chip('who','all','Everyone')+people.map(p=>chip('who',p,p==='me'?'Me':esc(p))).join(''):'')+'</div>'}
 function renderLogList(){renderLogFilter();const q=LF.q.trim().toLowerCase();
   if(LF.who!=='all'&&!(GROUP&&LOG.some(l=>lWho(l)===LF.who)))LF.who='all';
   let rows=LOG.map((l,i)=>[l,i]).filter(([l])=>(+l.stars||0)>=LF.min&&(LF.who==='all'||lWho(l)===LF.who)&&(!q||[l.coffee,l.settings,l.notes,l.by,flText(flOf(l))].join(' ').toLowerCase().includes(q)));
@@ -1934,7 +1940,7 @@ $('l-list').onclick=e=>{const ls=e.target.closest('[data-lshare]');if(ls){const 
   const fe=e.target.closest('[data-fledit]'),fv=e.target.closest('[data-flview]'),ed=e.target.closest('[data-edit]');
   if(ed){const l=LOG[+ed.dataset.edit];if(l&&canEdit(l))editBrew(l);return}
   if(fe){const l=LOG[+fe.dataset.fledit];if(l)openNotesPicker(l);return}
-  if(fv){const l=LOG[+fv.dataset.flview];if(l)openProfile(l.coffee||'Untitled',[fmtDate(l),l.stars?l.stars+' of 5 stars':'',l.settings].filter(Boolean).join(' \u00B7 '),flOf(l),l);return}
+  if(fv){const l=LOG[+fv.dataset.flview];if(l)openProfile(l.coffee||'Untitled',[fmtDate(l),l.stars?l.stars+' of 5 beans':'',l.settings].filter(Boolean).join(' \u00B7 '),flOf(l),l);return}
   const b=e.target.closest('[data-del]');if(!b)return;const l=LOG[+b.dataset.del];if(!l)return;
   // One tap on Delete shouldn't lose a brew and its notes: ask first, as recipes do.
   if(!confirm(GROUP&&l.by&&l.by!==ME?'Delete '+l.by+'’s entry for everyone?':'Delete \u201c'+(l.coffee||'Untitled')+'\u201d from your log?'))return;if(LEDIT===l.id)endEdit();LOG.splice(+b.dataset.del,1);save('bb-log',LOG);if(window.BEANS_OK)checkTrophies();queue('del',l.id);renderLog();toast('Entry deleted')};
