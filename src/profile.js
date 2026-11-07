@@ -36,7 +36,7 @@ function bannerBg(p){const b=p&&p.banner;if(!b)return '';const shade='linear-gra
   return shade+','+(BANNERS[b]?BANNERS[b].bg:"url('"+b+"') 50% "+(p.bpos??50)+'%/cover no-repeat')}
 // Anything read back (from storage, a backup or the server) is checked field by field.
 function okProfile(p){if(!p||typeof p!=='object')return null;const s=(v,n)=>str(v,n).replace(/[\u0000-\u001f\u007f]/g,'');const nick=s(p.nick,30);if(!nick)return null;const av=p.av&&typeof p.av==='object'?p.av:{};
-  return{nick,name:s(p.name,40),brief:s(p.brief,160),city:s(p.city,40),style:STYLES.some(x=>x[0]===p.style)?p.style:'',brewer:BREWERS[p.brewer]?(BREWERS[p.brewer].of||p.brewer):'',
+  return{nick,name:s(p.name,40),brief:s(p.brief,160),city:s(p.city,40),style:STYLES.some(x=>x[0]===p.style)?p.style:'',brewer:BREWERS[p.brewer]?CANONB(BREWERS[p.brewer].of||p.brewer):'',
     origin:typeof p.origin==='string'&&oInfo(p.origin)?p.origin:'',av:{e:AV_EMOJI.includes(av.e)?av.e:'',c:AV_COL.includes(av.c)?av.c:AV_COL[0]},
     photo:typeof p.photo==='string'&&p.photo.length<120000&&PHOTO_RE.test(p.photo)?p.photo:'',banner:okBanner(p.banner),bpos:Math.max(0,Math.min(100,Math.round(+p.bpos)))||(+p.bpos===0?0:50),since:+p.since||Date.now(),updated:+p.updated||0}}
 let PROFILE=okProfile(load('bb-profile',null));

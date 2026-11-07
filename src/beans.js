@@ -257,7 +257,7 @@ function tasteOf(bs,ls){const top=(items,f,w)=>{const m=new Map();for(const x of
   const t={origin:top(bs,b=>b.origin),region:top(bs,b=>{const o=b.origin&&oInfo(b.origin);return o&&o.reg}),variety:top(bs,b=>beanVars(b).map(v=>v.split(':')[0])),
     process:top(bs,b=>b.process),roast:top(bs,b=>b.roast),roaster:top(bs,b=>b.roaster&&b.roaster.trim()),
     likedOrigin:top(bs.filter(b=>b.rating>=4),b=>b.origin),likedProcess:top(bs.filter(b=>b.rating>=4),b=>b.process),
-    brewer:top(ls,l=>(l.snap&&l.snap.b)||l.brewer),regionOrigin:null,recipe:top(ls,l=>l.snap&&l.snap.rec),goal:top(ls,l=>l.snap&&l.snap.goal)};
+    brewer:top(ls,l=>{const b=(l.snap&&l.snap.b)||l.brewer;return b&&CANONB(b)}),regionOrigin:null,recipe:top(ls,l=>l.snap&&l.snap.rec),goal:top(ls,l=>l.snap&&l.snap.goal)};
   // Flavours: the families of the notes on the bags you liked and of what you tasted in your brews.
   const fam=new Map(),note=new Map();
   for(const b of bs){const w=like(b);for(const wd of tnSplit(b.flavours)){const n=tnLeaf(wd),leaf=n&&FW.byId[n.id];if(!leaf)continue;fam.set(leaf.cat.id,(fam.get(leaf.cat.id)||0)+w);note.set(leaf.id,(note.get(leaf.id)||0)+w)}}
@@ -350,8 +350,9 @@ function openMakeRecipe(bid){const d=$('vd'),beans=[...BEANS.filter(b=>b.shelf),
       '<div class="lbl">Your coffee</div>'+chips('bean',beans.slice(0,10).map(b=>[b.id,beanTitle(b),beanPic(b,'xs')]),st.bean)+
       '<div class="lbl">Brewer</div>'+chips('b',brewers.map(k=>[k,BREWERS[k].name]),st.b)+
       '<div class="lbl">The cup you want'+(t.families.length?' <span class="hint">your taste leans '+(lean==='bright'?'bright and fruity':lean==='round'?'sweet and round':'balanced')+'</span>':'')+'</div>'+chips('goal',MK_GOALS,st.goal)+
-      (r?'<div class="mk-res"><div class="mk-h"><b>'+esc(r.name)+'</b><small>'+esc(r.by)+'</small></div><div class="le-pills"><span class="le-pill">'+r.dose+' g : '+r.water+' g</span><span class="le-pill">1:'+(Math.round(r.water/r.dose*10)/10)+'</span><span class="le-pill">'+r.temp+'°C</span><span class="le-pill">'+esc(BREWERS[r.b].name)+'</span><span class="le-pill">Grind '+(r.off>0?'a touch coarser':r.off<0?'a touch finer':'as usual')+'</span></div>'+
-        '<ol class="mk-steps">'+r.steps.map(s=>{const m=/^(\d+:\d\d)\s*(.*)$/.exec(s);return '<li><b>'+(m?m[1]:'')+'</b><span>'+esc(m?m[2]:s)+'</span></li>'}).join('')+'</ol><p class="mk-why">'+esc(r.why)+'</p><p class="hint" style="margin:6px 0 0">'+esc(r.tip)+'</p>'+
+      (r?'<div class="mk-res"><div class="mk-h"><b>'+esc(r.name)+'</b><small>'+esc(r.by)+'</small></div>'+
+        // The same stats, grind settings, pour graph and steps as every recipe page.
+        recipeBody(r,-1).replace(/<div class="actions">[\s\S]*$/,'')+
         '<div class="actions"><button type="button" class="btn" id="mk-save">Save and brew it</button><button type="button" class="btn ghost" id="mk-again">Another one</button></div></div>'
        :'<div class="actions"><button type="button" class="btn" id="mk-go"'+(st.busy?' disabled':'')+'>'+(st.busy?'Writing your recipe…':'Create the recipe')+'</button></div><button type="button" class="linkbtn mk-rand" id="mk-rand">Or open a random recipe from the list</button>')+'</div>';
     hydrateImgs($('vd-in'));$('vd-x').onclick=()=>d.close()};
