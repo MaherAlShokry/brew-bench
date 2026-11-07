@@ -133,6 +133,8 @@ function rngEnhance(i){if(i.dataset.rng)return;i.dataset.rng='1';
 // like that control's own highlight, instead of jumping. It picks up where it was even when the options are redrawn.
 function segUpdate(el){const on=el.querySelector(':scope>button[aria-pressed="true"]');let ind=el.querySelector(':scope>.seg-ind');
   if(!on||!on.offsetWidth){if(ind)ind.style.opacity='0';return}
+  // The highlight needs a positioned parent; a control that's already sticky or absolute keeps its own positioning.
+  if(!el.classList.contains('ind-rel')&&getComputedStyle(el).position==='static')el.classList.add('ind-rel');
   if(!ind){ind=document.createElement('span');ind.className='seg-ind';ind.setAttribute('aria-hidden','true');el.append(ind);
     if(el._ip){ind.style.transition='none';Object.assign(ind.style,el._ip);ind.offsetWidth;ind.style.transition=''}}
   // Read the picked option's own look for a moment (data-peek lets it show), then hand it to the highlight.

@@ -2274,7 +2274,7 @@ label[for=i-grind]>span{display:flex;flex-direction:column;align-items:flex-end;
 #v-grindhint{font-size:.74rem;font-weight:500;color:var(--muted)}
 .two:has(.rng-row){grid-template-columns:1fr;gap:0}
 /* Selection controls: one highlight that glides to the picked option. */
-.seg.has-ind{position:relative}
+.seg.has-ind.ind-rel{position:relative}
 .seg>button[data-peek]{transition:none!important}
 .seg.has-ind>button{position:relative;z-index:1}
 .seg.has-ind>button[aria-pressed="true"]:not([data-peek]){background:transparent!important;background-image:none!important;box-shadow:none!important}
@@ -2284,6 +2284,20 @@ label[for=i-grind]>span{display:flex;flex-direction:column;align-items:flex-end;
 .bd-rebuy .actions{align-items:center;margin-top:4px}.bd-rebuy input,.bd-rebuy .datew{background:var(--surface)}
 .bd-bags{list-style:none;margin:0;padding:0;display:grid;gap:6px}.bd-bags li{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:12px;border:1px solid var(--line)}.bd-bags b{font-size:.88rem}.bd-bags span{font-size:.8rem;color:var(--muted)}
 .cr-buys{display:inline-flex;align-items:center;padding:2px 7px;border-radius:999px;font-size:.72rem;font-weight:800;color:var(--cherry-ink,var(--cherry));background:color-mix(in srgb,var(--cherry) 14%,var(--surface));font-variant-numeric:tabular-nums}
+/* Your last brew: picture, the full name, how it was brewed and the rating, with the two actions underneath. */
+.lastbrew{flex-direction:column;align-items:stretch;gap:12px;padding:16px}
+.lastbrew .lb-open{align-items:flex-start;gap:14px}
+.lb-pic{flex:none;width:52px;height:52px;border-radius:14px;overflow:hidden;display:block}.lb-pic>*{width:100%!important;height:100%!important}
+.lastbrew .lb-ic{width:52px;height:52px}
+.lastbrew .lb-tx{gap:3px}
+.lastbrew .lb-tx b{white-space:normal;overflow:visible;text-overflow:clip;font:700 1.08rem/1.3 var(--display);overflow-wrap:anywhere}
+.lastbrew .lb-how{font-size:.84rem;color:var(--muted)}
+.lastbrew .lb-tx .st{margin-top:2px;font-style:normal}
+.lastbrew .lb-act{flex-direction:row;gap:8px}.lastbrew .lb-act .btn{flex:1;min-height:40px}
+.di{width:1.15em;height:1.15em;display:inline-block;vertical-align:-.2em;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+:is([class^="yic"],.me-tiles,.me-dna,.tro-ic,.ssn-ic,.tl-ic,.tshelf,.ssn-got,.bd-rbh,.wel-ic,.fact-ic) .di{color:var(--cherry);stroke-width:1.7}
+.tro-ic .di,.ssn-ic .di{width:1.5em;height:1.5em}.me-tiles .di{width:1.35em;height:1.35em}.bd-rbh .di{width:1.6em;height:1.6em}
+#toast .di{width:1.05em;height:1.05em;vertical-align:-.18em;margin:0 .1em}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>

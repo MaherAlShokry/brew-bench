@@ -288,7 +288,10 @@ function tasteLine(t){const bits=[];const pr=t.process&&PROCESSES[t.process.k],o
   if(t.brewer&&BREWERS[t.brewer.k])bits.push('on '+art(BREWERS[t.brewer.k].name)+' '+BREWERS[t.brewer.k].name);return bits.join(', ')}
 // This year in coffee: the counts, then what you bought most (origin, region, variety, process, roast, roastery), how you
 // brewed, and the notes you came back to.
-function yearInCoffeeHTML(){const cy=new Date().getFullYear(),bs=BEANS.filter(b=>beanYear(b)===cy),ls=LOG.filter(l=>isMine(l)&&new Date(brewTs(l)).getFullYear()===cy);
+// Kept until your coffees, your brews or the day change, so redrawing the page doesn't work it all out again.
+let YIC_MEMO={k:'',h:''};
+function yearInCoffeeHTML(){const k=BREV+'|'+LOGV+'|'+LOG.length+'|'+(LOG[0]?(LOG[0].id||'')+(LOG[0].ts||''):'')+'|'+todayISO();if(YIC_MEMO.k===k)return YIC_MEMO.h;const h=yearInCoffeeHTML0();YIC_MEMO={k,h};return h}
+function yearInCoffeeHTML0(){const cy=new Date().getFullYear(),bs=BEANS.filter(b=>beanYear(b)===cy),ls=LOG.filter(l=>isMine(l)&&new Date(brewTs(l)).getFullYear()===cy);
   if(!bs.length&&!ls.length)return '';const g=Math.round(ls.reduce((s,l)=>s+brewDose(l),0)),t=tasteOf(bs,ls),origins=new Set(bs.map(b=>b.origin).filter(Boolean)).size;
   const big=[[bs.length,bs.length===1?'coffee':'coffees'],[ls.length,ls.length===1?'cup brewed':'cups brewed'],g?[g>=1000?(g/1000).toFixed(g>=10000?0:1)+' kg':g+' g','of coffee']:[origins,origins===1?'origin':'origins']];
   const o=t.origin&&oInfo(t.origin.k),R=t.region&&REG[t.region.k],v=t.variety&&VBY[t.variety.k],pr=t.process&&PROCESSES[t.process.k],B=t.brewer&&BREWERS[t.brewer.k];
@@ -619,17 +622,27 @@ function renderBeanViews(){const cy=new Date().getFullYear();
 function renderCoffees(){const p=$('bv-coffees'),years=beanYears();if(BYEAR!=='all'&&!years.includes(+BYEAR))BYEAR='all';
   if(!BEANS.length){p.innerHTML='<div class="bg-empty">'+beanSVG+'<b>No coffees yet</b><p>Scan a bag or add one by hand. Your earlier scans are under <button type="button" class="linkbtn" data-view="scans">Scans</button>, ready to add.</p></div>';return}
   const fs=BFILTERS.filter(([f])=>f==='all'||BEANS.some(b=>bfKeep(b,f)));if(!fs.some(([f])=>f===BF))BF='all';
-  p.innerHTML=shelfHTML()+seasonCardHTML()+yearInCoffeeHTML()+trophyRowHTML()+'<h3 class="rh cab-h">All your coffees</h3><div class="bg-tools"><input type="search" id="bg-q" placeholder="Search coffees, roasters, origins, notes" aria-label="Search your coffees" value="'+esc(BQ)+'">'+
+  p.innerHTML=shelfHTML()+seasonCardHTML()+'<div id="bg-yic"></div>'+trophyRowHTML()+'<h3 class="rh cab-h">All your coffees</h3><div class="bg-tools"><input type="search" id="bg-q" placeholder="Search coffees, roasters, origins, notes" aria-label="Search your coffees" value="'+esc(BQ)+'">'+
     (fs.length>1?'<div class="seg filters scrollrow" id="bg-filt" role="group" aria-label="Show"></div>':'')+'<div class="seg filters scrollrow" id="bg-sort" role="group" aria-label="Sort"></div>'+(years.length>1?'<div class="seg filters scrollrow" id="bg-year" role="group" aria-label="Show year"></div>':'')+'</div><div id="bg-grid"></div>';
   seg('bg-sort',[['recent','Recent'],['rated','Top rated'],['roaster','Roastery'],['origin','Origin']],()=>BSORT,v=>{BSORT=v;renderBeanSort()});
   if(fs.length>1)seg('bg-filt',fs,()=>BF,v=>{BF=v;renderBeanSort()});
   if(years.length>1)seg('bg-year',[['all','All years'],...years.map(y=>[String(y),String(y)])],()=>BYEAR,v=>{BYEAR=v;renderBeanSort()});
-  renderGrid()}
+  renderGrid();
+  // The year in coffee is the costliest block and sits below the fold: it's drawn once the page has opened.
+  whenIdle(()=>{const e=$('bg-yic');if(e&&!e.firstChild)e.innerHTML=yearInCoffeeHTML()})}
 // Sorting and filtering redraw only the cards and the chips' state, so the page doesn't jump.
 function renderBeanSort(){for(const [id,v] of [['bg-filt',BF],['bg-sort',BSORT],['bg-year',BYEAR]]){const s=$(id);if(s)s.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v))}renderGrid()}
-function renderGrid(){const g=$('bg-grid');if(!g)return;const list=beanList();let n=0;
-  g.innerHTML=list.length?beanGroups(list).map(([h,l])=>(h?'<div class="bg-gh"><b>'+esc(h)+'</b><span>'+l.length+'</span></div>':'')+'<div class="clist">'+l.map(b=>coffeeRow(b,false,n++)).join('')+'</div>').join(''):'<p class="hint">'+(BQ.trim()?'No coffees match that search.':'No coffees here yet.')+'</p>';
-  hydrateImgs(g)}
+// Idle time after the page has opened (the tab swing takes about a third of a second), or soon anyway.
+const whenIdle=fn=>window.requestIdleCallback?requestIdleCallback(fn,{timeout:450}):setTimeout(fn,180);
+// The first rows are drawn at once; the rest of a long gallery follows when the phone is idle.
+let GRID_GEN=0;
+function renderGrid(){const g=$('bg-grid');if(!g)return;const list=beanList(),gen=++GRID_GEN;let n=0;const FIRST=8;
+  if(!list.length){g.innerHTML='<p class="hint">'+(BQ.trim()?'No coffees match that search.':'No coffees here yet.')+'</p>';return}
+  const groups=beanGroups(list),later=[];
+  g.innerHTML=groups.map(([h,l],gi)=>(h?'<div class="bg-gh"><b>'+esc(h)+'</b><span>'+l.length+'</span></div>':'')+'<div class="clist" data-g="'+gi+'">'+l.map(b=>{const i=n++;if(i<FIRST)return coffeeRow(b,false,i);later.push([gi,b,i]);return ''}).join('')+'</div>').join('');
+  hydrateImgs(g);if(!later.length)return;
+  whenIdle(()=>{if(gen!==GRID_GEN)return;const by=new Map();for(const [gi,b,i] of later){if(!by.has(gi))by.set(gi,'');by.set(gi,by.get(gi)+coffeeRow(b,false,i))}
+    for(const [gi,h] of by){const c=g.querySelector('.clist[data-g="'+gi+'"]');if(c)c.insertAdjacentHTML('beforeend',emoIc(h))}hydrateImgs(g)})}
 // One coffee as a row: the bag, its name, where it's from, and your rating. Bags you're drinking now (now=true) also
 // show how fresh they are and what's left.
 function coffeeRow(b,now,i){const rk=beanRank(b),f=now&&fresh(b),g=now?gramsLeft(b):null,c=now?cupsLeft(b):null,isNew=!BSEEN.has(b.id)&&(i||0)<12;BSEEN.add(b.id);

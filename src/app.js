@@ -12,13 +12,86 @@ function load(k,d){let v;try{const t=localStorage.getItem(k);v=t?JSON.parse(t):d
   if(d===null||typeof d==='object')return v&&typeof v==='object'&&!Array.isArray(v)?v:d;return v}
 const num=(v,d,a=-Infinity,b=Infinity)=>{v=+v;return Number.isFinite(v)?Math.min(b,Math.max(a,v)):d};
 const oneOf=(v,list,d)=>list.includes(v)?v:d;
-function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+// LOGV counts changes to the brew log, so summaries built from it know when to work it out again.
+let LOGV=0;function save(k,v){if(k==='bb-log')LOGV++;try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 const MQ=q=>!!(window.matchMedia&&window.matchMedia(q).matches);const RM=()=>MQ('(prefers-reduced-motion: reduce)')||document.documentElement.getAttribute('data-motion')==='reduced';
+/* Drawn icons in place of emoji: one line style (24-grid, round strokes in the text colour) across stats, trophies,
+   seasons, moments and greetings. emoIc() swaps every known emoji in a bit of HTML for its icon; anything unknown
+   (country flags, for one) is left as it is. */
+const EMO_P={
+ '☕':'M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z M16 10h1.5a2.5 2.5 0 0 1 0 5H16 M8.5 3.5c-1 1 1 2 0 3 M12 3.5c-1 1 1 2 0 3',
+ '🗺':'M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z M9 4v14 M15 6v14',
+ '🌱':'M12 21v-8 M12 13c0-4-3-6.5-7-6.5 0 4 3 6.5 7 6.5z M12 15c0-4 3-6.5 7-6.5 0 4-3 6.5-7 6.5z',
+ '🧪':'M9 3h6 M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3 M7.3 15h9.4',
+ '🔥':'M12 3c.8 3.6 5.5 5.6 5.5 10.5a5.5 5.5 0 0 1-11 0c0-2.6 1.4-3.9 2-6 1.6 1 2.6 2.6 2.6 4.6 1.2-1.8 1.3-5.4.9-9.1z',
+ '🏷':'M3.5 12.5V4.5a1 1 0 0 1 1-1h8l8 8a1.4 1.4 0 0 1 0 2l-7 7a1.4 1.4 0 0 1-2 0z M8 8h.01',
+ '🔁':'M4 12V9.5A3.5 3.5 0 0 1 7.5 6H19 M16 3l3 3-3 3 M20 12v2.5a3.5 3.5 0 0 1-3.5 3.5H5 M8 21l-3-3 3-3',
+ '🏆':'M8 4h8v5a4 4 0 0 1-8 0z M8 5.5H5.5a2.5 2.5 0 0 0 2.6 4 M16 5.5h2.5a2.5 2.5 0 0 1-2.6 4 M12 13v4 M8.5 20.5h7 M9.5 17h5l1 3.5h-7z',
+ '🛍':'M5 8h14l-1 12.5a1 1 0 0 1-1 .9H7a1 1 0 0 1-1-.9z M9 10V6.5a3 3 0 0 1 6 0V10',
+ '🏁':'M5 21V4 M5 4.5c4-2 7 2 12 0v8c-5 2-8-2-12 0',
+ '📍':'M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z M12 7.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5z',
+ '🌸':'M12 9.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5z M12 9.5C10 6 11 3.5 12 3c1 .5 2 3 0 6.5z M14.4 11.2c2.3-3.2 5-3.2 5.7-2.4.2 1.1-1.6 3.2-5.7 3.3z M13.4 14.2c3.6 1.5 4.2 4.2 3.5 5-1.1.4-3.5-1-3.9-5z M10.6 14.2c-.4 4-2.8 5.4-3.9 5-.7-.8-.1-3.5 3.5-5z M9.6 11.2c-4.1-.1-5.9-2.2-5.7-3.3.7-.8 3.4-.8 5.7 2.4z',
+ '❄':'M12 3v18 M4.2 7.5l15.6 9 M4.2 16.5l15.6-9 M9.5 4.5 12 7l2.5-2.5 M9.5 19.5 12 17l2.5 2.5',
+ '🍂':'M5 19c0-8.5 5.5-14 15-14 0 9.5-5.5 15-14 15z M5 19l7.5-7.5',
+ '☀':'M12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8z M12 2.5v2 M12 19.5v2 M2.5 12h2 M19.5 12h2 M5.3 5.3l1.4 1.4 M17.3 17.3l1.4 1.4 M5.3 18.7l1.4-1.4 M17.3 6.7l1.4-1.4',
+ '🌙':'M19.5 14.5A7.5 7.5 0 1 1 9.5 4.5a6 6 0 0 0 10 10z',
+ '✨':'M11 3l1.7 5.1L18 10l-5.3 1.9L11 17l-1.7-5.1L4 10l5.3-1.9z M18.5 15l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z',
+ '🤝':'M12 20s-7-4.4-9-8.6C1.6 8.4 3.4 5 6.7 5c2 0 3.3 1.2 4.3 2.6C12 6.2 13.3 5 15.3 5c3.3 0 5.1 3.4 3.7 6.4C19 15.6 12 20 12 20z M9 12l2 2 4-4',
+ '💛':'M12 20s-7-4.4-9-8.6C1.6 8.4 3.4 5 6.7 5c2 0 3.3 1.2 4.3 2.6C12 6.2 13.3 5 15.3 5c3.3 0 5.1 3.4 3.7 6.4C19 15.6 12 20 12 20z',
+ '🐐':'M8 13.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z M16.5 11a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z M8 13.5c0-5 3-8.5 8-10 M16.5 11c-.5-3 0-5.5 1-7.5 M13 6c1.5-.2 3 .3 4.5 1.5',
+ '🍒':'M8 13.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z M16.5 11a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z M8 13.5c0-5 3-8.5 8-10 M16.5 11c-.5-3 0-5.5 1-7.5',
+ '🦁':'M12 3l7 3v5c0 5-3 8.5-7 10-4-1.5-7-5-7-10V6z M9 11.5h.01 M15 11.5h.01 M10 15.5c1.2.8 2.8.8 4 0',
+ '📦':'M3.5 7.5 12 3.5l8.5 4L12 11.5z M3.5 7.5v9l8.5 4 8.5-4v-9 M12 11.5v9',
+ '✍':'M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4',
+ '🎯':'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10z M12 11a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
+ '🏛':'M3 9.5 12 4l9 5.5 M5 10v8 M9.5 10v8 M14.5 10v8 M19 10v8 M3 20.5h18',
+ '⛵':'M12 3v14 M12 4.5l6.5 11.5H12 M10 7.5 5 16h5 M3 18.5h18l-2 2.5H5z',
+ '🛂':'M6 3h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z M12 7.5a3 3 0 1 1 0 6 3 3 0 0 1 0-6z M9 17h6',
+ '🌍':'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z M3 12h18 M12 3c3 3 3 15 0 18 M12 3c-3 3-3 15 0 18',
+ '🧭':'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z M15.5 8.5l-2 5-5 2 2-5z',
+ '🍷':'M7 3h10l-.8 6.2a4.2 4.2 0 0 1-8.4 0z M12 13.5V21 M8.5 21h7',
+ '📖':'M3.5 5.5A1.5 1.5 0 0 1 5 4h5a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H3.5z M20.5 5.5A1.5 1.5 0 0 0 19 4h-5a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h6.5z',
+ '👑':'M3.5 8l4.5 4 4-7 4 7 4.5-4-2 11h-13z',
+ '☯':'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z M12 3a4.5 4.5 0 0 0 0 9 4.5 4.5 0 0 1 0 9 M12 7h.01 M12 16.5h.01',
+ '🦉':'M19.5 14.5A7.5 7.5 0 1 1 9.5 4.5a6 6 0 0 0 10 10z M16 4l.6 1.4L18 6l-1.4.6L16 8l-.6-1.4L14 6l1.4-.6z',
+ '⏱':'M12 8a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13z M12 11v3.5l2.2 1.5 M10 3h4 M12 3v5 M18.5 6.5l-1.3 1.3',
+ '🧐':'M10.5 4a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13z M15.5 15.5 20.5 20.5',
+ '👃':'M6 19c2-2 2-4 0-6s-2-4 0-6 M12 19c2-2 2-4 0-6s-2-4 0-6 M18 19c2-2 2-4 0-6s-2-4 0-6',
+ '🏡':'M3.5 11 12 4l8.5 7 M5.5 9.5V20h13V9.5 M10 20v-5.5h4V20',
+ '📝':'M6 3h9l4 4v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z M15 3v4h4 M8.5 12h7 M8.5 16h5',
+ '💯':'M12 9.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11z M8.5 10.5 6.5 3.5h3.5l2 4 2-4h3.5l-2 7 M12 13l.9 1.8 2 .3-1.4 1.4.3 2-1.8-.9-1.8.9.3-2-1.4-1.4 2-.3z',
+ '📅':'M4.5 6h15a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1z M3.5 10.5h17 M8 3.5v5 M16 3.5v5',
+ '🧰':'M3.5 9h17v10.5a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1z M8.5 9V6.5a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2V9 M3.5 13.5h17 M10.5 13.5v2h3v-2',
+ '🧊':'M4 8l8-4 8 4v8l-8 4-8-4z M4 8l8 4 8-4 M12 12v8',
+ '🎉':'M4 20l4.5-12 7.5 7.5z M14 3.5l.7 2 M20.5 10l-2 .7 M17.5 3l-1.2 3 M21 6.5l-3 1.2',
+ '🌋':'M3 20.5l6-11 3.5 5 2.5-3.5 6 9.5z M10 5.5c.5-1 1.5-1.5 2.5-1.2 M14 4.5c1-.7 2.2-.6 3 .3',
+ '⛰':'M3 20.5l6-11 3.5 5 2.5-3.5 6 9.5z',
+ '📺':'M3.5 7.5h17a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-17a1 1 0 0 1-1-1v-10a1 1 0 0 1 1-1z M8 3.5l4 4 4-4',
+ '🫘':'M12 3c4 0 7 4 7 9s-3 9-7 9-7-4-7-9 3-9 7-9z M12 3.5c-2 3 2 5.5 0 8.5s2 5.5 0 8.5',
+ '🍋':'M5 19c-2-2-1.2-7.2 3-11.4S17 2.6 19 4.6s1.2 7.2-3 11.4S7 21 5 19z M8.5 15.5l7-7',
+ '🍫':'M6 3h12v18H6z M6 9h12 M6 15h12 M12 3v18',
+ '🫖':'M5 10h11v4.5a5.5 5.5 0 0 1-5.5 5.5h0A5.5 5.5 0 0 1 5 14.5z M16 11h1.5a2 2 0 0 1 0 4H16 M5 12.5H3 M8.5 10V8.5h4V10 M10.5 6v2.5',
+ '🐦':'M4 15c3 0 5.5-2 6.5-5.2C11.6 6.6 14 5 16.5 5.5L21 7l-3 1.8c0 6.3-5 10.7-11.5 10 2-1 3-2.3 3-3.8',
+ '📜':'M7 3h10.5A1.5 1.5 0 0 1 19 4.5V18a3 3 0 0 1-3 3H7 M7 3a2 2 0 0 0-2 2v2h4V5a2 2 0 0 0-2-2z M7 21a2 2 0 0 1-2-2V7 M11 8.5h5 M11 12.5h5',
+ '📊':'M4 20.5h16 M6.5 20V13 M11 20V8 M15.5 20v-5 M20 20V5'
+};
+const EMO_RE=new RegExp('('+Object.keys(EMO_P).map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')\uFE0F?','gu');
+const emoSVG=ch=>EMO_P[ch]?'<svg class="di" viewBox="0 0 24 24" aria-hidden="true"><path d="'+EMO_P[ch]+'"/></svg>':ch;
+// Text inside tags (attributes) and inside <option>, <textarea> and <title> stays as it is: those can't hold a drawing.
+const EMO_TEST=new RegExp(EMO_RE.source,'u');
+function emoIc(s){s=String(s??'');if(!EMO_TEST.test(s))return s;let skip=0;
+  return s.replace(/(<[^>]*>)|([^<]+)/g,(m,tag,txt)=>{if(tag){if(/^<(option|textarea|title)\b/i.test(tag))skip++;else if(/^<\/(option|textarea|title)\b/i.test(tag))skip=Math.max(0,skip-1);return tag}
+    return skip?txt:txt.replace(EMO_RE,(x,ch)=>emoSVG(ch))})}
+// Every bit of HTML the app draws goes through emoIc, so a new screen can't bring emoji back by accident.
+(()=>{const d=Object.getOwnPropertyDescriptor(Element.prototype,'innerHTML');if(!d||!d.set)return;
+  Object.defineProperty(Element.prototype,'innerHTML',{configurable:true,enumerable:d.enumerable,get(){return d.get.call(this)},
+    set(v){d.set.call(this,typeof v==='string'&&this.namespaceURI==='http://www.w3.org/1999/xhtml'&&this.localName!=='textarea'&&this.localName!=='option'&&this.localName!=='select'?emoIc(v):v)}})
+  const ia=Element.prototype.insertAdjacentHTML;Element.prototype.insertAdjacentHTML=function(w,h){return ia.call(this,w,typeof h==='string'?emoIc(h):h)}})();
 // Ratings are drawn as coffee beans, filled to the rating (half a bean for a half), here and in the bean gallery.
 const RB_G='<g transform="rotate(30 12 12)"><path class="bo" d="M12 2.6c4.1 0 6.6 4.3 6.6 9.4s-2.5 9.4-6.6 9.4-6.6-4.3-6.6-9.4 2.5-9.4 6.6-9.4z"/><path class="bc" d="M12.7 3.2c-2.4 2.6-.4 5.6-1.3 8.8s1.3 5.9-.6 8.8"/></g>';
 const RB_SVG='<svg viewBox="0 0 24 24" aria-hidden="true">'+RB_G+'</svg>';
 const beanRate=(r,cls)=>{let h='';for(let i=1;i<=5;i++){const f=r>=i?100:r>=i-0.5?50:0;h+='<span class="rb">'+RB_SVG+'<span class="rbf" style="width:'+f+'%">'+RB_SVG+'</span></span>'}return '<span class="brate'+(cls?' '+cls:'')+'" aria-hidden="true">'+h+'</span>'};
-let toastT;function toast(m){const t=$('toast');t.classList.remove('act');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600)}
+let toastT;function toast(m){const t=$('toast');t.classList.remove('act');t.innerHTML=emoIc(esc(m));t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600)}
 // A toast with a button, kept up a little longer so there is time to tap it.
 function toastAct(m,label,fn){const t=$('toast');t.textContent='';t.classList.add('act');const sp=document.createElement('span');sp.textContent=m;const b=document.createElement('button');b.type='button';b.className='tact';b.textContent=label;
   b.onclick=()=>{t.classList.remove('show');fn()};t.append(sp,b);t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),6000)}
@@ -1861,9 +1934,15 @@ function endEdit(){LEDIT=null;LBEAN=null;LFIELDS.forEach(id=>$(id).value='');del
 // The Brew tab's last-brew card: your latest result, shared in one tap, and the way into the whole log.
 function renderLastBrew(){const el=$('lastbrew');if(!el)return;const l=LOG.find(x=>x&&(!x.by||x.by===ME));if(!l){el.hidden=true;return}
   const st=clamp(Math.round(+l.stars||0),0,5),n=LOG.length;el.hidden=false;
-  el.innerHTML='<button type="button" class="lb-open" id="lb-open" aria-label="Open your brew log"><span class="lb-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z M16 10h1.5a2.5 2.5 0 0 1 0 5H16 M8 3c-1 1 1 2 0 3 M11.5 3c-1 1 1 2 0 3"/></svg></span>'+
-    '<span class="lb-tx"><small>Your last brew</small><b>'+esc(l.coffee||'A brew')+'</b><span>'+(st?'<i class="st" role="img" aria-label="'+st+' of 5 beans">'+beanRate(st)+'</i> · ':'')+esc(fmtDate(l))+'</span></span></button>'+
-    '<div class="lb-act"><button type="button" class="btn" id="lb-share">Share</button><button type="button" class="btn ghost" id="lb-all" aria-label="All '+n+' brews">All '+n+'</button></div>';
+  // The full coffee name, then how it was brewed in one line, with the bag's picture when the brew is tied to one.
+  const q=typeof parseSettings==='function'?parseSettings(l.settings||''):{},bk=CANONB((l.snap&&l.snap.b)||l.brewer||''),bean=window.BEANS_OK&&l.beanId?beanById(l.beanId):null;
+  const how=[BREWERS[bk]?famName(bk):(q.brewer||''),(l.snap&&l.snap.dose)||q.dose?((l.snap&&l.snap.dose)||q.dose)+' g'+(q.water?' : '+q.water+' g':''):'',q.temp?q.temp+'°C':''].filter(Boolean);
+  el.innerHTML='<button type="button" class="lb-open" id="lb-open" aria-label="Open your brew log">'+
+    (bean?'<span class="lb-pic">'+beanPic(bean,'xs')+'</span>':'<span class="lb-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z M16 10h1.5a2.5 2.5 0 0 1 0 5H16 M8 3c-1 1 1 2 0 3 M11.5 3c-1 1 1 2 0 3"/></svg></span>')+
+    '<span class="lb-tx"><small>Your last brew · '+esc(fmtDate(l))+'</small><b>'+esc(l.coffee||'A brew')+'</b>'+(how.length?'<span class="lb-how">'+esc(how.join(' · '))+'</span>':'')+
+    (st?'<i class="st" role="img" aria-label="'+st+' of 5 beans">'+beanRate(st)+'</i>':'')+'</span></button>'+
+    '<div class="lb-act"><button type="button" class="btn" id="lb-share">Share</button><button type="button" class="btn ghost" id="lb-all">All '+n+' brew'+(n===1?'':'s')+'</button></div>';
+  if(bean&&typeof hydrateImgs==='function')hydrateImgs(el);
   $('lb-open').onclick=$('lb-all').onclick=()=>goTab('log');$('lb-share').onclick=()=>openShare(logEntryDoc(l))}
 /* ---------- The list of brews: search, filters, sort, and each brew as a card ---------- */
 let LF=Object.assign({q:'',who:'all',min:0,sort:'new'},load('bb-logfilter',{}));LF.q='';
