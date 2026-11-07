@@ -1689,9 +1689,8 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
 .seg.bviews.scrollrow button{flex:0 0 auto;min-width:auto;padding-left:14px;padding-right:14px;overflow:visible;text-overflow:clip}
 @media (max-width:759px){.seg.bviews{position:sticky;top:calc(var(--ab-b,64px) + 6px);z-index:5;box-shadow:0 8px 20px -14px rgba(40,24,14,.35)}}
 .seg.bviews button{flex:1 1 auto;min-width:0;white-space:nowrap;padding-left:8px;padding-right:8px}.seg.bviews i{font-style:normal;font-size:.72rem;font-weight:700;margin-left:4px;padding:0 6px;border-radius:var(--r-pill);background:color-mix(in srgb,currentColor 14%,transparent)}.seg.bviews button:not([aria-pressed="true"]) i{color:var(--ink)}.seg.bviews button[aria-pressed="true"] i{background:color-mix(in srgb,var(--paper) 40%,transparent)}
-/* Switching Beans views: the new view slides in from the side of the tab you tapped. */
-.bview.bv-in-r{animation:bvinr .3s cubic-bezier(.2,.8,.2,1)}.bview.bv-in-l{animation:bvinl .3s cubic-bezier(.2,.8,.2,1)}
-@keyframes bvinr{from{opacity:0;transform:translate3d(28px,0,0)}to{opacity:1;transform:none}}@keyframes bvinl{from{opacity:0;transform:translate3d(-28px,0,0)}to{opacity:1;transform:none}}
+/* Switching Beans views: one simple, quick fade, the same whichever way you go. */
+.bview.bv-in-r,.bview.bv-in-l{animation:bvin .16s ease-out}@keyframes bvin{from{opacity:0}to{opacity:1}}
 /* Scans */
 .scan-cta{display:flex;align-items:center;gap:12px;padding:14px;border-radius:var(--r-lg);border:1px solid var(--hair);background:var(--surface);box-shadow:var(--shadow)}
 .scan-cta>span:nth-child(2){flex:1;min-width:0}.scan-cta b{display:block;font-family:var(--display)}.scan-cta small{display:block;font-size:.8rem;color:var(--muted);line-height:1.3}
@@ -2284,7 +2283,7 @@ label[for=i-grind]>span{display:flex;flex-direction:column;align-items:flex-end;
 .seg>button[data-peek]{transition:none!important}
 .seg.has-ind>button{position:relative;z-index:1}
 .seg.has-ind>button[aria-pressed="true"]:not([data-peek]){background:transparent!important;background-image:none!important;box-shadow:none!important}
-.seg-ind{position:absolute;z-index:0;pointer-events:none;will-change:transform;transition:transform .24s cubic-bezier(.25,.8,.25,1),width .24s cubic-bezier(.25,.8,.25,1),height .24s cubic-bezier(.25,.8,.25,1),background-color .2s,opacity .2s}
+.seg-ind{position:absolute;z-index:0;pointer-events:none;will-change:transform;transition:transform .2s ease-out,width .2s ease-out,height .2s ease-out,background-color .2s,opacity .2s}
 .bd-bags{list-style:none;margin:0;padding:0;display:grid;gap:6px}.bd-bags li{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:12px;border:1px solid var(--line)}.bd-bags b{font-size:.88rem}.bd-bags span{font-size:.8rem;color:var(--muted)}
 .cr-buys{display:inline-flex;align-items:center;padding:2px 7px;border-radius:999px;font-size:.72rem;font-weight:800;color:var(--cherry-ink,var(--cherry));background:color-mix(in srgb,var(--cherry) 14%,var(--surface));font-variant-numeric:tabular-nums}
 /* Your last brew: picture, the full name, how it was brewed and the rating, with the two actions underneath. */
