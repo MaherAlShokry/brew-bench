@@ -452,6 +452,33 @@ function drawDial(id,g,c){
 /* ================= SEGMENTS ================= */
 // A row of options. When the same options are drawn again, only which one is picked (and which are disabled)
 // changes, so the buttons stay put and the picked highlight can glide instead of being redrawn.
+/* ---------- One way to search, filter and sort every list ----------
+   A search (where the list has one), then round filter and sort buttons that open the same sheet of choices. A dot on
+   the filter button says a filter is on; each button's label names what it's set to. Lists without a search say what
+   they're showing in its place. */
+const IC_FILT='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>',
+  IC_SORT='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h11M4 12h8M4 17h5M18 6v12M15 15l3 3 3-3"/></svg>',
+  IC_FIND='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4"/></svg>';
+function ltHTML(id,o){return '<div class="lf-top lt" id="'+id+'">'+(o.q?'<label class="lf-q">'+IC_FIND+'<input type="search" id="'+o.q.id+'" placeholder="'+esc(o.q.ph)+'" aria-label="'+esc(o.q.label)+'" value="'+esc(o.q.value||'')+'"></label>':'<p class="lt-k" id="'+id+'-k"></p>')+
+  (o.filter?'<button type="button" class="rsortw" id="'+id+'-f" aria-pressed="false" aria-label="Filter">'+IC_FILT+'</button>':'')+(o.sort?'<button type="button" class="rsortw" id="'+id+'-s" aria-label="Sort">'+IC_SORT+'</button>':'')+'</div>'}
+function ltSync(id,o){const f=$(id+'-f'),s=$(id+'-s'),k=$(id+'-k');
+  if(f){const on=String(!!o.on);if(f.getAttribute('aria-pressed')!==on)f.setAttribute('aria-pressed',on);f.setAttribute('aria-label','Filter: '+o.filter);f.title='Filter: '+o.filter}
+  if(s){s.setAttribute('aria-label','Sort: '+o.sort);s.title='Sort: '+o.sort}
+  if(k&&o.k!=null&&k.textContent!==o.k)k.textContent=o.k}
+// The sheet: sections of choices, each a list (with a line under each choice) or chips. A pick applies at once and the
+// list behind updates; the button at the bottom says how many are showing and closes the sheet.
+function openChoices(o){const d=$('selsheet');
+  const draw=()=>{$('sel-in').innerHTML='<div class="selhead"><div class="grab"></div><h3 id="sel-title">'+esc(o.title)+'</h3><button type="button" class="vd-close" id="sel-x" aria-label="Close">✕</button></div>'+
+    o.secs().filter(x=>x&&x.opts.length).map(x=>{const cur=String(o.get(x.key)),lab=esc(x.h||o.title);
+      return '<div class="rs-sec">'+(x.h?'<h4>'+esc(x.h)+'</h4>':'')+(x.chips
+        ?'<div class="rs-chips" role="radiogroup" aria-label="'+lab+'">'+x.opts.map(([v,n])=>'<button type="button" role="radio" class="chip rs-chip" data-ck="'+x.key+'" data-v="'+esc(String(v))+'" aria-checked="'+(cur===String(v))+'">'+esc(n)+'</button>').join('')+'</div>'
+        :'<div class="sellist" role="radiogroup" aria-label="'+lab+'">'+x.opts.map(([v,n,h])=>'<button type="button" role="radio" class="selopt" data-ck="'+x.key+'" data-v="'+esc(String(v))+'" aria-checked="'+(cur===String(v))+'" aria-selected="'+(cur===String(v))+'"><span>'+esc(n)+(h?'<small>'+esc(h)+'</small>':'')+'</span><i aria-hidden="true">✓</i></button>').join('')+'</div>')+'</div>'}).join('')+
+    '<div class="rs-done"><button type="button" class="btn" id="rs-done">'+esc(o.done())+'</button></div>';
+    $('sel-x').onclick=$('rs-done').onclick=()=>d.close()};
+  draw();$('sel-in').onclick=e=>{const b=e.target.closest('[data-ck]');if(!b)return;o.set(b.dataset.ck,b.dataset.v);draw()};showDlg(d)}
+const nOf=(n,one,many)=>n+' '+(n===1?one:(many||one+'s'));
+// A list with one kind of filter (a category): the same sheet with a single section.
+function pickOne(title,one,opts,get,set,count,many){openChoices({title,get,set:(k,v)=>set(v),done:()=>'Show '+nOf(count(),one,many),secs:()=>[{key:'c',opts}]})}
 function seg(el,opts,get,set){const box=$(el),cur=get(),html=opts.map(([v,l,dis])=>'<button type="button" data-v="'+v+'" aria-pressed="'+(cur===v)+'"'+(dis?' disabled title="'+esc(dis)+'"':'')+'>'+l+'</button>').join('');
   const key=opts.map(([v,l,dis])=>v+'\u0001'+l+'\u0001'+(dis||'')).join('\u0002');
   if(box._segk===key&&box.children.length){box.querySelectorAll(':scope>button[data-v]').forEach(b=>{const on=String(b.dataset.v===String(cur));if(b.getAttribute('aria-pressed')!==on)b.setAttribute('aria-pressed',on)})}
@@ -1177,15 +1204,10 @@ const RCMP={brewer:(a,b)=>{const o=Object.keys(BREWERS);return o.indexOf(RFAM(a.
 const rsortLabel=()=>RSORTS[RSORT]+(RSORT2&&RSORT2!==RSORT?' · '+RSORTS[RSORT2]:'');
 function saveRSort(){try{localStorage.setItem('bb-rsort',RSORT);localStorage.setItem('bb-rsort2',RSORT2)}catch(e){}}
 // The sort sheet: the main order as a list, the second order as chips (anything but the main one, or nothing).
-function openRSort(){const d=$('selsheet');
-  const draw=()=>{$('sel-in').innerHTML='<div class="selhead"><div class="grab"></div><h3 id="sel-title">Sort recipes</h3><button type="button" class="vd-close" id="sel-x" aria-label="Close">✕</button></div>'+
-    '<div class="rs-sec"><h4>Sort by</h4><div class="sellist" role="radiogroup" aria-label="Sort by">'+Object.keys(RSORTS).map(k=>'<button type="button" role="radio" class="selopt" data-rs1="'+k+'" aria-checked="'+(k===RSORT)+'" aria-selected="'+(k===RSORT)+'"><span>'+RSORTS[k]+'<small>'+RS_HINT[k]+'</small></span><i aria-hidden="true">✓</i></button>').join('')+'</div></div>'+
-    '<div class="rs-sec"><h4>Then by</h4><div class="rs-chips" role="radiogroup" aria-label="Then by">'+['',...Object.keys(RSORTS)].filter(k=>k!==RSORT).map(k=>'<button type="button" role="radio" class="chip rs-chip" data-rs2="'+k+'" aria-checked="'+((RSORT2===RSORT?'':RSORT2)===k)+'">'+(k?RSORTS[k]:'Nothing')+'</button>').join('')+'</div></div>'+
-    '<div class="rs-done"><button type="button" class="btn" id="rs-done">Show '+RLIST.length+' recipes</button></div>';
-    $('sel-x').onclick=$('rs-done').onclick=()=>d.close()};
-  draw();d.querySelector('#sel-in').onclick=e=>{const a=e.target.closest('[data-rs1]'),b=e.target.closest('[data-rs2]');if(!a&&!b)return;
-    if(a){RSORT=a.dataset.rs1;if(RSORT2===RSORT)RSORT2=RSORT==='level'?'quick':'level'}else RSORT2=b.dataset.rs2;saveRSort();renderRecipes();draw()};
-  showDlg(d)}
+const recDone=()=>'Show '+nOf(RLIST.length,'recipe');
+function openRSort(){openChoices({title:'Sort recipes',done:recDone,get:k=>k==='s1'?RSORT:(RSORT2===RSORT?'':RSORT2),
+  set:(k,v)=>{if(k==='s1'){RSORT=v;if(RSORT2===RSORT)RSORT2=RSORT==='level'?'quick':'level'}else RSORT2=v;saveRSort();renderRecipes()},
+  secs:()=>[{h:'Sort by',key:'s1',opts:Object.keys(RSORTS).map(k=>[k,RSORTS[k],RS_HINT[k]])},{h:'Then by',key:'s2',chips:1,opts:['',...Object.keys(RSORTS)].filter(k=>k!==RSORT).map(k=>[k,k?RSORTS[k]:'Nothing'])}]})}
 const RF_NAME=()=>RF==='all'?'All recipes':RF==='fav'?'Saved':RF==='mine'?(TEAM()?'Yours and your team’s':'Your recipes'):RF==='champ'?'Champions':RF.startsWith('cup:')?CUPBY[RF.slice(4)][1]
   :RF.startsWith('b:')&&BREWERS[RF.slice(2)]?famName(RFAM(RF.slice(2))):RF.startsWith('col:')&&COLBY[RF.slice(4)]?COLBY[RF.slice(4)][1]:'All recipes';
 // One recipe as a row: the name and its tags; the level and who it's from on one line; the numbers in one strip.
@@ -1235,18 +1257,10 @@ function renderRecipes(){
 }
 $('rsortbtn').onclick=()=>openRSort();
 // The filter sheet: what to show, or one brewer, cup type or collection. One filter at a time, like the shelves above.
-function openRFilter(){const d=$('selsheet');
-  const opt=(k,n,h)=>'<button type="button" role="radio" class="selopt" data-rf="'+k+'" aria-checked="'+(RF===k)+'" aria-selected="'+(RF===k)+'"><span>'+n+'<small>'+h+'</small></span><i aria-hidden="true">✓</i></button>';
-  const chips=(t,a)=>'<div class="rs-sec"><h4>'+t+'</h4><div class="rs-chips" role="radiogroup" aria-label="'+t+'">'+a.map(([k,n])=>'<button type="button" role="radio" class="chip rs-chip" data-rf="'+k+'" aria-checked="'+(RF===k)+'">'+esc(n)+'</button>').join('')+'</div></div>';
-  const cnt=n=>n+' recipe'+(n===1?'':'s');
-  const draw=()=>{$('sel-in').innerHTML='<div class="selhead"><div class="grab"></div><h3 id="sel-title">Filter recipes</h3><button type="button" class="vd-close" id="sel-x" aria-label="Close">✕</button></div>'+
-    '<div class="rs-sec"><h4>Show</h4><div class="sellist" role="radiogroup" aria-label="Show">'+opt('all','All recipes',cnt(RECIPES.length))+
-      (favCount()?opt('fav','Saved',cnt(favCount())):'')+(CREC.length?opt('mine',TEAM()?'Yours and your team’s':'Yours',cnt(CREC.length)):'')+opt('champ','Champions',cnt(RECIPES.filter(r=>r.champ).length))+'</div></div>'+
-    chips('Brewer',RBREWERS().map(k=>['b:'+k,famName(k)]))+chips('Cup type',CUPS.map(c=>['cup:'+c[0],c[1]]))+chips('Collection',COLS.map(c=>['col:'+c[0],c[1]]))+
-    '<div class="rs-done"><button type="button" class="btn" id="rs-done">Show '+cnt(RLIST.length)+'</button></div>';
-    $('sel-x').onclick=$('rs-done').onclick=()=>d.close()};
-  draw();d.querySelector('#sel-in').onclick=e=>{const a=e.target.closest('[data-rf]');if(!a)return;RF=a.dataset.rf;RQ='';$('rsearch').value='';renderRecipes();markRHome();draw()};
-  showDlg(d)}
+function openRFilter(){const cnt=n=>nOf(n,'recipe');
+  openChoices({title:'Filter recipes',done:recDone,get:()=>RF,set:(k,v)=>{RF=v;RQ='';$('rsearch').value='';renderRecipes();markRHome()},
+    secs:()=>[{h:'Show',key:'rf',opts:[['all','All recipes',cnt(RECIPES.length)]].concat(favCount()?[['fav','Saved',cnt(favCount())]]:[],CREC.length?[['mine',TEAM()?'Yours and your team’s':'Yours',cnt(CREC.length)]]:[],[['champ','Champions',cnt(RECIPES.filter(r=>r.champ).length)]])},
+      {h:'Brewer',key:'rf',chips:1,opts:RBREWERS().map(k=>['b:'+k,famName(k)])},{h:'Cup type',key:'rf',chips:1,opts:CUPS.map(c=>['cup:'+c[0],c[1]])},{h:'Collection',key:'rf',chips:1,opts:COLS.map(c=>['col:'+c[0],c[1]])}]})}
 $('rfiltbtn').onclick=()=>openRFilter();
 function recipeAct(e){const ed=e.target.closest('[data-redit]');if(ed){openRecipeEditor(CREC.find(r=>r.id===ed.dataset.redit));return true}
   const b=e.target.closest('[data-load],[data-plan],[data-timer],[data-rshare]');if(!b)return false;if(b.dataset.rshare){openShare(recipeDoc(+b.dataset.rshare));return true}
@@ -1379,18 +1393,20 @@ function importRecipe(code){let r;try{r=sanRec(b64u.dec(code))}catch(e){r=null}i
 /* ================= TECHNIQUES ================= */
 let TC='all',TQ='';const TCOL={bloom:'#C9964A',pour:'#8A5A3B',bed:'#6B8E4E',structure:'#B5533C',temp:'#4F8A74',cold:'#6E8FA8',espresso:'#7B4F32',taste:'#9A7390'};
 function renderTech(){
-  seg('tcat',[['all','All'],...Object.entries(TCAT)],()=>TC,v=>{TC=v;renderTech()});
+  ltSync('tlt',{on:TC!=='all',filter:TC==='all'?'All techniques':TCAT[TC]});
   const q=TQ.toLowerCase();const list=TECH.filter(t=>(TC==='all'||t[0]===TC)&&(!q||t.join(' ').toLowerCase().includes(q)));
   $('tgrid').innerHTML=list.length?list.map(t=>'<button type="button" class="card tcard hovercard" aria-expanded="false" style="--c:'+TCOL[t[0]]+'"><span class="cat">'+TCAT[t[0]]+'</span><h3 style="margin:.2rem 0">'+esc(t[1])+'</h3><p style="margin:0">'+esc(t[2])+'</p><p class="more"><b>Why and when.</b> '+esc(t[3])+'</p></button>').join(''):'<p class="hint">Nothing matches. Try a broader word.</p>';
 }
 $('tgrid').onclick=e=>{const c=e.target.closest('.tcard');if(c)c.setAttribute('aria-expanded',c.getAttribute('aria-expanded')!=='true')};
 $('tsearch').oninput=e=>{TQ=e.target.value;soon(renderTech)};
+$('tlt-f').onclick=()=>pickOne('Filter techniques','technique',[['all','All techniques'],...Object.entries(TCAT)],()=>TC,v=>{TC=v;renderTech()},()=>TECH.filter(t=>(TC==='all'||t[0]===TC)&&(!TQ||t.join(' ').toLowerCase().includes(TQ.toLowerCase()))).length);
 
 /* ================= PROCESSES ================= */
 let PC='all';const PCOL={classic:'#4F8A74',honey:'#D2A04A',ferment:'#B5533C',regional:'#8A5A3B',decaf:'#6E8FA8'};
 const dirTag=d=>'<span class="dir '+(d==='coarser'?'coarse':'')+'">'+(d==='finer'?'Go finer':d==='coarser'?'Go coarser':'Baseline')+'</span>';
+$('plt-f').onclick=()=>pickOne('Filter processes','process',[['all','All processes'],...Object.entries(PCAT)],()=>PC,v=>{PC=v;renderProcesses()},()=>Object.values(PROCESSES).filter(p=>PC==='all'||p.cat===PC).length,'processes');
 function renderProcesses(){
-  seg('pcat',[['all','All'],...Object.entries(PCAT)],()=>PC,v=>{PC=v;renderProcesses()});
+  {const n=Object.values(PROCESSES).filter(p=>PC==='all'||p.cat===PC).length;ltSync('plt',{on:PC!=='all',filter:PC==='all'?'All processes':PCAT[PC],k:(PC==='all'?'All processes':PCAT[PC])+' · '+n})}
   $('pgrid').innerHTML=Object.entries(PROCESSES).filter(([,p])=>PC==='all'||p.cat===PC).map(([k,p])=>'<article class="card" id="pc-'+k+'" style="border-top:5px solid '+PCOL[p.cat]+'"><span class="hint">'+PCAT[p.cat]+'</span><h3 style="margin-top:.2rem">'+esc(p.name)+'</h3>'+dirTag(p.dir)+'<p>'+esc(p.char)+'</p><p><b>Brewing it well.</b> '+esc(p.brew)+'</p><div class="chips">'+p.notes.map(n=>'<span class="chip">'+esc(n)+'</span>').join('')+'</div><button class="btn ghost" data-usep="'+k+'">Brew with this process</button></article>').join('');
   const W=640,H=300,px=f=>60+f/1.7*540,py=a=>150-a/1.6*120;
   let h='<rect x="60" y="20" width="540" height="250" rx="14" fill="var(--paper)"/><line x1="60" y1="150" x2="600" y2="150" stroke="var(--line)"/><line x1="330" y1="20" x2="330" y2="270" stroke="var(--line)"/>'+
@@ -1481,7 +1497,7 @@ const GICO={manual:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
 const gkind=g=>GRINDERS[g].custom?'custom':GRINDERS[g].type==='electric'?'electric':'manual';
 const gicon=k=>'<span class="gi '+k+'">'+GICO[k]+'</span>';
 function renderLibrary(){
-  seg('glib-filter',[['all','All'],['manual',gicon('manual')+'Manual'],['electric',gicon('electric')+'Electric']].concat(Object.values(GRINDERS).some(G=>G.custom)?[['custom',gicon('custom')+'Your own']]:[]),()=>GLF,v=>{GLF=v;renderLibrary()});
+  ltSync('glt',{on:GLF!=='all',filter:{all:'All grinders',manual:'Manual',electric:'Electric',custom:'Your own'}[GLF]});
   const q=fold(GLQ.trim()),hit=g=>{const G=GRINDERS[g];return !q||fold([G.full,G.brand,G.burr,G.use].join(' ')).includes(q)};
   const groups=[['manual','Manual grinders'],['electric','Electric grinders'],['custom','Your own grinders']].filter(([t])=>GLF==='all'||GLF===t);
   let html='';
@@ -1498,6 +1514,7 @@ function renderLibrary(){
   $('glib').innerHTML=html||'<p class="hint">No grinders match. Try a brand name, or pick All.</p>';
   renderGCompare()}
 $('glib-search').oninput=e=>{GLQ=e.target.value;soon(renderLibrary)};
+$('glt-f').onclick=()=>pickOne('Filter grinders','grinder',[['all','All grinders'],['manual','Manual'],['electric','Electric']].concat(Object.values(GRINDERS).some(G=>G.custom)?[['custom','Your own']]:[]),()=>GLF,v=>{GLF=v;renderLibrary()},()=>Object.keys(GRINDERS).filter(g=>GLF==='all'||gkind(g)===GLF).length);
 $('glib').onclick=e=>{const m=e.target.closest('[data-gmine]'),c=e.target.closest('[data-gcmp]'),d=e.target.closest('[data-gdel]');
   if(m){setMine(m.dataset.gmine,!MYG.includes(m.dataset.gmine));return}
   if(c){const g=c.dataset.gcmp;if(GCMP.includes(g))GCMP=GCMP.filter(x=>x!==g);else{if(GCMP.length>=3){toast('Compare up to three at a time');return}GCMP.push(g)}renderLibrary();if(GCMP.length)$('gcmp').scrollIntoView({behavior:RM()?'auto':'smooth',block:'nearest'});return}
@@ -1582,7 +1599,8 @@ function renderCustomForm(){
     $('gcustom').open=false;toast(name+' added to your grinders');GLF='all';renderLibrary()}}
 function renderGearBrewers(){
   const types=[...new Set(Object.values(BREWERS).map(b=>b.type))];
-  seg('gear-filter',[['all','All'],...types.map(t=>[t,t])],()=>GF,v=>{GF=v;renderGearBrewers()});
+  {const n=Object.entries(BREWERS).filter(([k,b])=>LISTED(k)&&(GF==='all'||b.type===GF)).length;ltSync('gblt',{on:GF!=='all',filter:GF==='all'?'All brewers':GF,k:(GF==='all'?'All brewers':GF)+' · '+n})
+   $('gblt-f').onclick=()=>pickOne('Filter brewers','brewer',[['all','All brewers'],...types.map(t=>[t,t])],()=>GF,v=>{GF=v;renderGearBrewers()},()=>Object.entries(BREWERS).filter(([k,b])=>LISTED(k)&&(GF==='all'||b.type===GF)).length)}
   $('gear-brewers').innerHTML=Object.entries(BREWERS).filter(([k,b])=>LISTED(k)&&(GF==='all'||b.type===GF)).map(([k,b])=>'<div class="card hovercard" id="gb-'+k+'" style="border-top:5px solid '+TYCOL[b.type]+'"><span class="hint">'+b.type+'</span><h3 style="margin-top:.2rem">'+esc(b.name)+'</h3><p>'+esc(b.desc)+'</p><p><b>How it behaves.</b> '+esc(b.how)+'</p><p><b>Best for.</b> '+esc(b.best)+'</p>'+
    '<div class="meta">'+MYG.map(g=>'<span>'+esc(canGrind(g,k)?gLabel(g,base(g,k)):gname(g)+': n/a')+'</span>').join('')+'</div>'+
    METHODS(k).map(x=>'<p class="hint" style="margin:.5rem 0 .2rem">'+esc(BREWERS[x].method)+'</p><div class="meta">'+MYG.map(g=>'<span>'+esc(canGrind(g,x)?gLabel(g,base(g,x)):gname(g)+': n/a')+'</span>').join('')+'</div>').join('')+
@@ -1633,7 +1651,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('.vbtn[data-v]');
 /* ================= VARIETIES TAB ================= */
 let VF='all',VQ='',CMP=[];
 function renderVarieties(){
-  seg('vfam',[['all','All'],...Object.entries(FAM).map(([k,f])=>[k,f.name])],()=>VF,v=>{VF=v;renderVarieties()});
+  ltSync('vlt',{on:VF!=='all',filter:VF==='all'?'All families':FAM[VF].name});
   const q=VQ.trim().toLowerCase();
   const list=V.filter(v=>(VF==='all'||v.fam===VF)&&(!q||(v.name+' '+(v.origin||'')+' '+v.notes.join(' ')+' '+(v.grown||[]).map(originName).join(' ')+' '+(v.subs||[]).map(s=>s.name).join(' ')).toLowerCase().includes(q)));
   $('vgrid').innerHTML=(list.length?list.map(v=>'<div class="card vcard" data-v="'+v.id+'" style="--c:'+FAM[v.fam].color+'" tabindex="0" role="button"><button type="button" class="addcmp" data-cmp="'+v.id+'" aria-pressed="'+CMP.includes(v.id)+'">'+(CMP.includes(v.id)?'Comparing':'+ Compare')+'</button><span class="fam">'+FAM[v.fam].name+'</span><h3>'+esc(v.name)+'</h3>'+
@@ -1652,6 +1670,7 @@ function renderCompare(){
   $('vclear').onclick=()=>{CMP=[];renderVarieties()};
 }
 $('vsearch').oninput=e=>{VQ=e.target.value;soon(renderVarieties)};
+$('vlt-f').onclick=()=>pickOne('Filter varieties','variety',[['all','All families'],...Object.entries(FAM).map(([k,f])=>[k,f.name])],()=>VF,v=>{VF=v;renderVarieties()},()=>V.filter(v=>VF==='all'||v.fam===VF).length,'varieties');
 $('vgrid').onclick=e=>{const c=e.target.closest('[data-cmp]');if(c){e.stopPropagation();const id=c.dataset.cmp;if(CMP.includes(id))CMP=CMP.filter(x=>x!==id);else{if(CMP.length>=3){toast('Compare up to three at a time');return}CMP.push(id)}renderVarieties();return}
   const b=e.target.closest('[data-v]');if(b)openVariety(b.dataset.v)};
 $('vgrid').onkeydown=e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('.vcard')){e.preventDefault();openVariety(e.target.dataset.v)}};
@@ -2012,27 +2031,16 @@ function logEntryHTML(l,i){const st=clamp(Math.round(+l.stars||0),0,5),{pills,re
     (rest?'<p class="le-rest">'+esc(rest)+'</p>':'')+(l.pred?'<p class="le-pred">Expected <b>'+esc(l.pred)+'</b></p>':'')+(l.notes?'<blockquote class="le-notes">'+esc(l.notes)+'</blockquote>':'')+flEntry(l,i)+
     '<div class="le-act"><button type="button" class="le-b" data-lshare="'+i+'" aria-label="Share this brew">'+lIc('share')+'Share</button>'+(canEdit(l)?'<button type="button" class="le-b" data-edit="'+i+'" aria-label="Edit this brew">'+lIc('edit')+'Edit</button>':'')+'<button type="button" class="le-b del" data-del="'+i+'" aria-label="Delete this brew">'+lIc('del')+'</button></div></article>'}
 // Search, then a filter and a sort button, as on Recipes: each opens a sheet. A dot on the filter says one is on.
-const IC_FILT='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>',
-  IC_SORT='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h11M4 12h8M4 17h5M18 6v12M15 15l3 3 3-3"/></svg>';
 let LLN=0;const saveLF=()=>save('bb-logfilter',{min:LF.min,who:LF.who,sort:LF.sort});
 const lfName=()=>[LF.min?(LF.min===5?'5 beans':LF.min+' beans and up'):'',LF.who!=='all'?(LF.who==='me'?'Me':LF.who):''].filter(Boolean).join(', ')||'All brews';
 function renderLogFilter(){const el=$('l-filter');if(!el)return;el.hidden=LOG.length<2;if(el.hidden)return;
-  const on=!!LF.min||LF.who!=='all',sn=LOG_SORTS.find(x=>x[0]===LF.sort)[1];
-  if(!$('lf-q'))el.innerHTML='<div class="lf-top"><label class="lf-q">'+lIc('search')+'<input id="lf-q" type="search" placeholder="Search coffee, recipe, notes" value="'+esc(LF.q)+'" aria-label="Search your brews"></label>'+
-    '<button type="button" class="rsortw" id="lf-fbtn">'+IC_FILT+'</button><button type="button" class="rsortw" id="lf-sbtn">'+IC_SORT+'</button></div>';
-  const f=$('lf-fbtn'),so=$('lf-sbtn');f.setAttribute('aria-pressed',on);f.setAttribute('aria-label','Filter brews: '+lfName());f.title='Filter: '+lfName();
-  so.setAttribute('aria-label','Sort brews: '+sn);so.title='Sort: '+sn}
-function openLogSheet(kind){const d=$('selsheet');
-  const opt=(k,v,n,h)=>'<button type="button" role="radio" class="selopt" data-lf="'+k+'" data-v="'+v+'" aria-checked="'+(String(LF[k])===String(v))+'" aria-selected="'+(String(LF[k])===String(v))+'"><span>'+n+(h?'<small>'+h+'</small>':'')+'</span><i aria-hidden="true">✓</i></button>';
-  const draw=()=>{const people=GROUP?[...new Set(LOG.map(lWho))]:[];
-    $('sel-in').innerHTML='<div class="selhead"><div class="grab"></div><h3 id="sel-title">'+(kind==='sort'?'Sort brews':'Filter brews')+'</h3><button type="button" class="vd-close" id="sel-x" aria-label="Close">✕</button></div>'+
-      (kind==='sort'?'<div class="rs-sec"><div class="sellist" role="radiogroup" aria-label="Sort by">'+LOG_SORTS.map(([k,n])=>opt('sort',k,n)).join('')+'</div></div>'
-      :'<div class="rs-sec"><h4>Rating</h4><div class="sellist" role="radiogroup" aria-label="Rating">'+opt('min',0,'All brews')+opt('min',4,'4 beans and up')+opt('min',5,'5 beans')+'</div></div>'+
-        (people.length>1?'<div class="rs-sec"><h4>Brewed by</h4><div class="rs-chips" role="radiogroup" aria-label="Brewed by">'+[['all','Everyone'],...people.map(p=>[p,p==='me'?'Me':p])].map(([v,n])=>'<button type="button" role="radio" class="chip rs-chip" data-lf="who" data-v="'+esc(v)+'" aria-checked="'+(LF.who===v)+'">'+esc(n)+'</button>').join('')+'</div></div>':''))+
-      '<div class="rs-done"><button type="button" class="btn" id="rs-done">Show '+LLN+' brew'+(LLN===1?'':'s')+'</button></div>';
-    $('sel-x').onclick=$('rs-done').onclick=()=>d.close()};
-  draw();d.querySelector('#sel-in').onclick=e=>{const b=e.target.closest('[data-lf]');if(!b)return;const k=b.dataset.lf;LF[k]=k==='min'?+b.dataset.v:b.dataset.v;saveLF();renderLogList();draw()};
-  showDlg(d)}
+  if(!$('lf-q'))el.innerHTML=ltHTML('lf',{q:{id:'lf-q',ph:'Search coffee, recipe, notes',label:'Search your brews',value:LF.q},filter:true,sort:true});
+  ltSync('lf',{on:!!LF.min||LF.who!=='all',filter:lfName(),sort:LOG_SORTS.find(x=>x[0]===LF.sort)[1]})}
+const logDone=()=>'Show '+nOf(LLN,'brew');
+function openLogFilter(){openChoices({title:'Filter brews',done:logDone,get:k=>LF[k],set:(k,v)=>{LF[k]=k==='min'?+v:v;saveLF();renderLogList()},
+  secs:()=>{const people=GROUP?[...new Set(LOG.map(lWho))]:[];return [{h:'Rating',key:'min',opts:[[0,'All brews'],[4,'4 beans and up'],[5,'5 beans']]},
+    people.length>1?{h:'Brewed by',key:'who',chips:1,opts:[['all','Everyone'],...people.map(p=>[p,p==='me'?'Me':p])]}:null]}})}
+function openLogSort(){openChoices({title:'Sort brews',done:logDone,get:()=>LF.sort,set:(k,v)=>{LF.sort=v;saveLF();renderLogList()},secs:()=>[{key:'sort',opts:LOG_SORTS}]})}
 function renderLogList(){renderLogFilter();const q=LF.q.trim().toLowerCase();
   if(LF.who!=='all'&&!(GROUP&&LOG.some(l=>lWho(l)===LF.who)))LF.who='all';
   let rows=LOG.map((l,i)=>[l,i]).filter(([l])=>(+l.stars||0)>=LF.min&&(LF.who==='all'||lWho(l)===LF.who)&&(!q||[l.coffee,l.settings,l.notes,l.by,flText(flOf(l))].join(' ').toLowerCase().includes(q)));
@@ -2044,7 +2052,7 @@ function renderLogList(){renderLogFilter();const q=LF.q.trim().toLowerCase();
     rows.length?(rows.length<LOG.length?'<p class="le-count">Showing '+rows.length+' of '+LOG.length+' brews</p>':'')+h:'<div class="le-empty">'+lIc('search')+'<b>No brews match</b><p><button type="button" class="linkbtn" id="lf-clear">Clear the filters</button></p></div>';
   const c=$('lf-clear');if(c)c.onclick=()=>{LF.q='';const qi=$('lf-q');if(qi)qi.value='';LF.min=0;LF.who='all';save('bb-logfilter',{min:0,who:'all',sort:LF.sort});renderLogList()};
   if(typeof hydrateImgs==='function')hydrateImgs($('l-list'))}
-$('l-filter').addEventListener('click',e=>{if(e.target.closest('#lf-fbtn'))openLogSheet('filter');else if(e.target.closest('#lf-sbtn'))openLogSheet('sort')});
+$('l-filter').addEventListener('click',e=>{if(e.target.closest('#lf-f'))openLogFilter();else if(e.target.closest('#lf-s'))openLogSort()});
 $('l-filter').addEventListener('input',e=>{if(e.target.id!=='lf-q')return;LF.q=e.target.value;renderLogList()});
 function renderLog(){renderShare();renderLastBrew();
   renderLogList();
@@ -2959,10 +2967,15 @@ function renderCountdown(){const ev=upcoming().filter(e=>CHF==='all'||e.c===CHF)
 const chDev=ch=>ch.dev&&ch.dev!=='Not published'?ch.dev:null;
 const chBrewer=ch=>ch.rec?(ch.ri!=null?RECIPES[ch.ri].b:ch.rec.b):null;
 function renderChamps(){fetchEvents();
-  seg('ch-filter',[['all','All']].concat(Object.entries(COMPS).map(([k,c])=>[k,c.short])),()=>CHF,v=>{CHF=v;CHB='all';renderChamps()});
+
   const pool=CHAMPS.filter(x=>CHF==='all'||x.c===CHF),devs=[...new Set(pool.map(chDev).filter(Boolean))].sort((a,b)=>pool.filter(x=>chDev(x)===b).length-pool.filter(x=>chDev(x)===a).length);
   if(CHB!=='all'&&CHB!=='mine'&&!devs.includes(CHB))CHB='all';
-  seg('ch-brewer',[['all','Any brewer']].concat(MYB.length?[['mine','With my brewers']]:[],devs.map(d=>[d,d])),()=>CHB,v=>{CHB=v;renderChamps()});
+  {const nm=[CHF!=='all'?COMPS[CHF].name:'',CHB==='mine'?'With my brewers':CHB!=='all'?CHB:''].filter(Boolean).join(', ')||'All champions';
+   ltSync('chlt',{on:CHF!=='all'||CHB!=='all',filter:nm,k:nm+' · '+CHAMPS.filter(x=>(CHF==='all'||x.c===CHF)&&(CHB==='all'||(CHB==='mine'?MYB.includes(chBrewer(x)):chDev(x)===CHB))).length});
+   $('chlt-f').onclick=()=>openChoices({title:'Filter champions',done:()=>'Show '+nOf(CHAMPS.filter(x=>(CHF==='all'||x.c===CHF)&&(CHB==='all'||(CHB==='mine'?MYB.includes(chBrewer(x)):chDev(x)===CHB))).length,'champion'),
+     get:k=>k==='comp'?CHF:CHB,set:(k,v)=>{if(k==='comp'){CHF=v;CHB='all'}else CHB=v;renderChamps()},
+     secs:()=>{const pl=CHAMPS.filter(x=>CHF==='all'||x.c===CHF),dv=[...new Set(pl.map(chDev).filter(Boolean))].sort((a,b)=>pl.filter(x=>chDev(x)===b).length-pl.filter(x=>chDev(x)===a).length);
+       return [{h:'Competition',key:'comp',opts:[['all','All competitions']].concat(Object.entries(COMPS).map(([k,c])=>[k,c.name]))},{h:'Brewer',key:'dev',chips:1,opts:[['all','Any brewer']].concat(MYB.length?[['mine','With my brewers']]:[],dv.map(d=>[d,d]))}]}})}
   renderCountdown();
   $('ch-about').innerHTML=Object.entries(COMPS).filter(([k])=>CHF==='all'||CHF===k).map(([k,c])=>'<div class="card chcomp"><span class="pill"><i style="background:'+c.color+'"></i>Since '+c.since+'</span><h3>'+esc(c.name)+'</h3><p class="hint">'+esc(c.about)+'</p><p class="chcount">'+CHAMPS.filter(x=>x.c===k).length+' champions</p></div>').join('');
   const on=ch=>(CHF==='all'||ch.c===CHF)&&(CHB==='all'||(CHB==='mine'?MYB.includes(chBrewer(ch)):chDev(ch)===CHB));
@@ -3066,7 +3079,7 @@ function openProcess(k){if(!PROCESSES[k])return;showTab('process');if(PC!=='all'
 // Scroll to a card and flash it. Cards further up can still change size as they render, so check again once the page settles.
 function flashTo(c){replay(c,'flash');c.scrollIntoView({block:'center'});setTimeout(()=>{const r=c.getBoundingClientRect();if(r.top<0||r.bottom>innerHeight)c.scrollIntoView({block:'center'})},400)}
 function renderWords(){
-  seg('wcat',[['all','All']].concat(Object.entries(GCAT).map(([k,[n]])=>[k,n])),()=>WC,v=>{WC=v;renderWords()});
+  ltSync('wlt',{on:WC!=='all',filter:WC==='all'?'All words':GCAT[WC][0]});
   const q=WQ.trim(),fq=fold(q),list=GLOSSARY.filter(g=>(WC==='all'||g[1]===WC)&&(!fq||fold(g[0]+' '+g[2]).includes(fq)));
   const mark=t=>{const h=esc(t);if(!q)return h;const re=new RegExp('('+reEsc(esc(q))+')','ig');return h.replace(re,'<mark class="wq">$1</mark>')};
   $('wcount').textContent=list.length===GLOSSARY.length?GLOSSARY.length+' words':list.length+' of '+GLOSSARY.length+' words';
@@ -3079,6 +3092,7 @@ const toggleWord=c=>{const o=!c.classList.contains('open');c.classList.toggle('o
 $('wlist').onclick=e=>{if(goLink(e))return;const c=e.target.closest('.wcard');if(c)toggleWord(c)};
 $('wlist').onkeydown=e=>{if((e.key==='Enter'||e.key===' ')&&e.target.classList.contains('wcard')){e.preventDefault();toggleWord(e.target)}};
 $('wsearch').oninput=e=>{WQ=e.target.value;soon(renderWords)};
+$('wlt-f').onclick=()=>pickOne('Filter coffee words','word',[['all','All words']].concat(Object.entries(GCAT).map(([k,[n]])=>[k,n])),()=>WC,v=>{WC=v;renderWords()},()=>GLOSSARY.filter(g=>WC==='all'||g[1]===WC).length);
 // Open the Coffee words section on one word, expanded.
 function openWord(t){const g=GBY[t];if(!g)return;showTab('words');WC='all';WQ='';$('wsearch').value='';renderWords();
   requestAnimationFrame(()=>{const c=[...document.querySelectorAll('#wlist .wcard')].find(x=>x.dataset.w===t);if(!c)return;c.classList.add('open');c.setAttribute('aria-expanded','true');

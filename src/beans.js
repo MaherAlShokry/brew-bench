@@ -645,16 +645,20 @@ function renderBeanViews(){const cy=new Date().getFullYear();
 function renderCoffees(){const p=$('bv-coffees'),years=beanYears();if(BYEAR!=='all'&&!years.includes(+BYEAR))BYEAR='all';
   if(!BEANS.length){p.innerHTML='<div class="bg-empty">'+beanSVG+'<b>No coffees yet</b><p>Scan a bag or add one by hand. Your earlier scans are under <button type="button" class="linkbtn" data-view="scans">Scans</button>, ready to add.</p></div>';return}
   const fs=BFILTERS.filter(([f])=>f==='all'||BEANS.some(b=>bfKeep(b,f)));if(!fs.some(([f])=>f===BF))BF='all';
-  p.innerHTML=shelfHTML()+seasonCardHTML()+'<div id="bg-yic"></div>'+trophyRowHTML()+'<h3 class="rh cab-h">All your coffees</h3><div class="bg-tools"><input type="search" id="bg-q" placeholder="Search coffees, roasters, origins, notes" aria-label="Search your coffees" value="'+esc(BQ)+'">'+
-    (fs.length>1?'<div class="seg filters scrollrow" id="bg-filt" role="group" aria-label="Show"></div>':'')+'<div class="seg filters scrollrow" id="bg-sort" role="group" aria-label="Sort"></div>'+(years.length>1?'<div class="seg filters scrollrow" id="bg-year" role="group" aria-label="Show year"></div>':'')+'</div><div id="bg-grid"></div>';
-  seg('bg-sort',[['recent','Recent'],['rated','Top rated'],['roaster','Roastery'],['origin','Origin']],()=>BSORT,v=>{BSORT=v;renderBeanSort()});
-  if(fs.length>1)seg('bg-filt',fs,()=>BF,v=>{BF=v;renderBeanSort()});
-  if(years.length>1)seg('bg-year',[['all','All years'],...years.map(y=>[String(y),String(y)])],()=>BYEAR,v=>{BYEAR=v;renderBeanSort()});
-  renderGrid();
+  p.innerHTML=shelfHTML()+seasonCardHTML()+'<div id="bg-yic"></div>'+trophyRowHTML()+'<h3 class="rh cab-h">All your coffees</h3><div class="bg-tools">'+ltHTML('bg-lt',{q:{id:'bg-q',ph:'Search coffees, roasters, origins, notes',label:'Search your coffees',value:BQ},filter:fs.length>1||years.length>1,sort:true})+'</div><div id="bg-grid"></div>';
+  renderBeanSort();
   // The year in coffee is the costliest block and sits below the fold: it's drawn once the page has opened.
   whenIdle(()=>{const e=$('bg-yic');if(e&&!e.firstChild)e.innerHTML=yearInCoffeeHTML()})}
 // Sorting and filtering redraw only the cards and the chips' state, so the page doesn't jump.
-function renderBeanSort(){for(const [id,v] of [['bg-filt',BF],['bg-sort',BSORT],['bg-year',BYEAR]]){const s=$(id);if(s)s.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v))}renderGrid()}
+// The coffee list's filter and sort, in the same sheet as every other list.
+const BSORTS=[['recent','Recent'],['rated','Top rated'],['roaster','Roastery'],['origin','Origin']];
+const bFilterName=()=>[BF!=='all'?(BFILTERS.find(x=>x[0]===BF)||[,''])[1]:'',BYEAR!=='all'?BYEAR:''].filter(Boolean).join(', ')||'All coffees';
+function renderBeanSort(){ltSync('bg-lt',{on:BF!=='all'||BYEAR!=='all',filter:bFilterName(),sort:BSORTS.find(x=>x[0]===BSORT)[1]});renderGrid()}
+const bDone=()=>'Show '+nOf(beanList().length,'coffee');
+function openBeanFilter(){const years=beanYears(),fs=BFILTERS.filter(([f])=>f==='all'||BEANS.some(b=>bfKeep(b,f)));
+  openChoices({title:'Filter coffees',done:bDone,get:k=>k==='bf'?BF:BYEAR,set:(k,v)=>{if(k==='bf')BF=v;else BYEAR=v;renderBeanSort()},
+    secs:()=>[fs.length>1?{h:'Show',key:'bf',opts:fs.map(([f,n])=>[f,f==='all'?'All coffees':n])}:null,years.length>1?{h:'Year',key:'year',chips:1,opts:[['all','All years'],...years.map(y=>[String(y),String(y)])]}:null]})}
+function openBeanSort(){openChoices({title:'Sort coffees',done:bDone,get:()=>BSORT,set:(k,v)=>{BSORT=v;renderBeanSort()},secs:()=>[{key:'sort',opts:BSORTS}]})}
 // Idle time after the page has opened (the tab swing takes about a third of a second), or soon anyway.
 const whenIdle=fn=>window.requestIdleCallback?requestIdleCallback(fn,{timeout:450}):setTimeout(fn,180);
 // The first rows are drawn at once; the rest of a long gallery follows when the phone is idle.
@@ -729,11 +733,16 @@ function renderDiaryView(){const p=$('bv-diary');if(!p)return;const items=[];
   p.innerHTML='<div class="diary-h"><div><span class="crown-k">Your coffee diary</span><h3>'+(n?n+' entr'+(n===1?'y':'ies')+' <em>· '+(items.length-n)+' brew'+(items.length-n===1?'':'s')+'</em>':'Every bag has a story')+'</h3>'+
       '<p>'+(BEANS.length?'Opening a bag, the cup that clicked, the last one. Your logged brews join in on their own.':'Add a coffee to your gallery, then keep its story here.')+'</p></div></div>'+
     onThisDayHTML(items)+(BEANS.length?dwriteHTML('dy',DYST,dyBeansHTML()):'')+
-    (fs.length>2?'<div class="seg filters scrollrow dy-f" id="dy-f" role="group" aria-label="Show"></div>':'')+'<div id="dy-list"></div>';
-  if(fs.length>2)seg('dy-f',fs,()=>DYF,v=>{DYF=v;DLIM=40;$('dy-f').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===v));renderDiaryList()});
+    (fs.length>2?ltHTML('dy-lt',{filter:true}):'')+'<div id="dy-list"></div>';
+  dySync();
   if(BEANS.length)wireDwrite('dy',DYST,()=>beanById(DYB),(b,msg)=>{saveBeans();checkTrophies();renderBeans();toast(msg)});
   renderDiaryList();hydrateImgs(p)}
 // The timeline under the filters, by month; the newest 40 first and the rest a tap away, so a long diary opens at once.
+// The diary's filter: the same button and sheet as every list, with what it's showing beside it.
+const dyName=()=>DYF==='all'?'Everything':(DYFILTERS.find(x=>x[0]===DYF)||[,''])[1];
+function dySync(){const n=DYI.filter(it=>dyKeep(it,DYF)).length;ltSync('dy-lt',{on:DYF!=='all',filter:dyName(),k:dyName()+' · '+nOf(n,'item')})}
+function openDiaryFilter(){openChoices({title:'Filter the diary',done:()=>'Show '+nOf(DYI.filter(it=>dyKeep(it,DYF)).length,'item'),get:()=>DYF,
+  set:(k,v)=>{DYF=v;DLIM=40;dySync();renderDiaryList()},secs:()=>[{key:'dyf',opts:DYFILTERS.filter(([f])=>f==='all'||DYI.some(it=>dyKeep(it,f))).map(([f,n])=>[f,f==='all'?'Everything':n])}]})}
 function renderDiaryList(){const p=$('dy-list');if(!p)return;const items=DYI.filter(it=>dyKeep(it,DYF)),months=new Map();
   for(const it of items.slice(0,DLIM)){const m=new Date(it.t).toLocaleDateString(undefined,{month:'long',year:'numeric'});if(!months.has(m))months.set(m,[]);months.get(m).push(it)}
   p.innerHTML=items.length?[...months].map(([m,l])=>'<h4 class="dy-m">'+esc(m)+'</h4>'+timelineHTML(l,true)).join('')+(items.length>DLIM?'<button type="button" class="btn ghost dy-more" id="dy-more">Show '+Math.min(60,items.length-DLIM)+' more</button>':'')
@@ -802,6 +811,7 @@ async function addScanToGallery(i){const s=SCANS[i];if(!s)return;const inf=s.inf
   openBeanEditor(null,{name:scanTitle(s.sc,inf),roaster:scRoaster(s)||'',origin:s.sc.origin,process:s.sc.process,variety:s.sc.variety,vars:scanVars(s.sc,inf),roast:s.sc.roast,roastDate:s.sc.date||'',
     flavours:inf&&Array.isArray(inf.tasting_notes)?inf.tasting_notes.slice(0,TN_MAX).reduce((t,n)=>{const x=t?t+', '+n:String(n);return x.length<=TN_LEN?x:t},''):'',photo,scan:s.id,lowres:!full&&!!s.t})}
 $('beans-in').addEventListener('input',e=>{if(e.target.id!=='bg-q')return;BQ=e.target.value;renderGrid()});
+$('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-lt-f'))openBeanFilter();else if(e.target.closest('#bg-lt-s'))openBeanSort();else if(e.target.closest('#dy-lt-f'))openDiaryFilter()});
 $('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-add')){openBeanEditor();return}if(e.target.closest('#bg-scan,#bg-scan2')){showTab('scan');newScan();scrollTo(0,0);return} /* the Scan page offers taking or choosing a photo */
   const v=e.target.closest('[data-view]');if(v){BVIEW=v.dataset.view;renderBeanViews();if(v.classList.contains('tshelf'))$('bg-views').scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'});return}
   const dyb=e.target.closest('[data-dyb]');if(dyb){if(dyb.dataset.dyb==='more')openDiaryPick();else setDyBean(dyb.dataset.dyb);return}

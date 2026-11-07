@@ -187,7 +187,7 @@ details.cal summary{cursor:pointer;font-weight:600}
 .vbtn:hover{border-color:var(--ink)}
 
 /* varieties */
-.vtools{display:grid;gap:10px;margin-bottom:16px}
+
 .vcard{text-align:left;cursor:pointer;border-top:5px solid var(--c);font:inherit;color:inherit}
 .vcard:hover{border-color:var(--ink);border-top-color:var(--c)}
 .vcard h3{margin:.2rem 0 .1rem}
@@ -1209,7 +1209,7 @@ button.chip:hover{background:var(--tonal-hover)}
 .le-empty{display:flex;flex-direction:column;align-items:center;gap:6px;padding:28px 16px;text-align:center;color:var(--muted)}.le-empty svg{width:28px;height:28px;fill:none;stroke:var(--cherry);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.le-empty b{color:var(--ink);font-family:var(--display)}.le-empty p{margin:0}
 /* Search, sort and filters above the list. */
 .lf{margin:18px 0 4px}
-.lf-top{display:flex;align-items:center;gap:8px}.lf-top .rsortw{width:46px;height:46px}
+.lf-top{display:flex;align-items:center;gap:8px}.lf-top.lt{margin:0 0 16px}.lt-k{flex:1;min-width:0;margin:0;font-size:.88rem;font-weight:600;color:var(--muted)}.bg-tools .lf-top.lt,#l-filter .lf-top.lt{margin:0}.lf-top .rsortw{width:46px;height:46px}
 .lf-q{flex:1;min-width:0;display:flex;align-items:center;gap:8px;padding:0 14px;min-height:46px;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
 .lf-q svg{width:18px;height:18px;flex:none;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round}
 .lf-q input{flex:1;min-width:0;border:0;background:none;padding:0;min-height:44px;box-shadow:none;outline:0;font-size:16px;color:var(--ink)}
@@ -1897,7 +1897,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 /* Which coffee an entry in the Diary view is about */
 .dbeans{margin-bottom:8px}.dbeans button{padding:4px 12px 4px 4px;max-width:200px}.dbeans button span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dbeans .bpic{flex:none;width:24px;height:28px;border-radius:999px}.dbeans button[data-dyb="more"]{padding:6px 12px}
-.dy-f{margin:4px 0 2px}
+
 /* Photos in the diary */
 .tl-ph{display:block;width:min(100%,260px);margin:8px 0 2px;padding:0;border:0;background:none;cursor:zoom-in;border-radius:var(--r-md)}
 .tl-pic{position:relative;display:block;width:100%;aspect-ratio:4/3;border-radius:var(--r-md);overflow:hidden;background:var(--surface2)}
@@ -2653,7 +2653,7 @@ dialog.dlg-pre[open]::backdrop{animation:none!important;opacity:0}
 <section id="tech">
   <h2>Techniques</h2>
   <p class="lede">Every move in the brewing toolbox, and when to use it.</p>
-  <div class="vtools"><input type="search" id="tsearch" placeholder="Search" aria-label="Search techniques"><div class="seg filters scrollrow" id="tcat"></div></div>
+  <div class="lf-top lt" id="tlt"><label class="lf-q"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4"/></svg><input type="search" id="tsearch" placeholder="Search techniques" aria-label="Search techniques"></label><button type="button" class="rsortw" id="tlt-f" aria-pressed="false" aria-label="Filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
   <div class="grid" id="tgrid"></div>
 </section>
 
@@ -2685,13 +2685,13 @@ dialog.dlg-pre[open]::backdrop{animation:none!important;opacity:0}
   </div>
   <div class="gpanel" data-gpanel="brew" role="tabpanel" hidden>
     <h3 id="g-brew" class="gsec">Brewers</h3>
-    <div class="seg filters scrollrow" id="gear-filter" style="margin-bottom:12px"></div>
+    <div class="lf-top lt" id="gblt"><p class="lt-k" id="gblt-k"></p><button type="button" class="rsortw" id="gblt-f" aria-pressed="false" aria-label="Filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
     <div class="grid" id="gear-brewers"></div>
   </div>
   <div class="gpanel" data-gpanel="lib" role="tabpanel" hidden>
     <h3 id="g-lib" class="gsec">Grinder library</h3>
     <p class="hint" style="margin-top:0">Manual and electric grinders by brand, with their burrs, dials and typical settings. Tap Compare on up to three to see them side by side.</p>
-    <div class="vtools"><input type="search" id="glib-search" placeholder="Search" aria-label="Search grinders"><div class="seg filters scrollrow" id="glib-filter"></div></div>
+    <div class="lf-top lt" id="glt"><label class="lf-q"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4"/></svg><input type="search" id="glib-search" placeholder="Search grinders" aria-label="Search grinders"></label><button type="button" class="rsortw" id="glt-f" aria-pressed="false" aria-label="Filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
     <div id="gcmp"></div>
     <div id="glib"></div>
     <details class="card" id="gcustom" style="margin-top:14px"><summary><b>Add your own grinder</b> <span class="hint">Not in the list? Set it up in a minute</span></summary><div id="gcustom-in"></div></details>
@@ -2723,10 +2723,7 @@ dialog.dlg-pre[open]::backdrop{animation:none!important;opacity:0}
 <section id="variety">
   <h2>Varieties</h2>
   <p class="lede">Every variety by family: its story, taste and how to brew it.</p>
-  <div class="vtools">
-    <input type="search" id="vsearch" placeholder="Search" aria-label="Search varieties">
-    <div class="seg filters scrollrow" id="vfam"></div>
-  </div>
+  <div class="lf-top lt" id="vlt"><label class="lf-q"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4"/></svg><input type="search" id="vsearch" placeholder="Search varieties" aria-label="Search varieties"></label><button type="button" class="rsortw" id="vlt-f" aria-pressed="false" aria-label="Filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
   <div id="vcompare"></div>
   <div class="grid" id="vgrid"></div>
 </section>
@@ -2736,8 +2733,7 @@ dialog.dlg-pre[open]::backdrop{animation:none!important;opacity:0}
   <h2>Coffee World Championships</h2>
   <p class="lede">Every world champion and their winning recipes, set for your grinder.</p>
   <div id="ch-next"></div>
-  <div class="seg filters scrollrow" id="ch-filter" style="margin:14px 0 8px"></div>
-  <div class="seg filters scrollrow" id="ch-brewer" style="margin:0 0 14px"></div>
+  <div class="lf-top lt" id="chlt"><p class="lt-k" id="chlt-k"></p><button type="button" class="rsortw" id="chlt-f" aria-pressed="false" aria-label="Filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
   <div class="grid" id="ch-about"></div>
   <h3 class="sec">Timeline</h3>
   <p class="hint">Newest first. Tap a champion's button for their recipe and gear, and how to brew it with yours.</p>
@@ -2756,10 +2752,7 @@ dialog.dlg-pre[open]::backdrop{animation:none!important;opacity:0}
 <section id="words">
   <h2>Coffee words</h2>
   <p class="lede">The words on bags and menus, from co-fermentation to TDS.</p>
-  <div class="vtools">
-    <input type="search" id="wsearch" placeholder="Search" aria-label="Search coffee words">
-    <div class="seg filters scrollrow" id="wcat"></div>
-  </div>
+  <div class="lf-top lt" id="wlt"><label class="lf-q"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4"/></svg><input type="search" id="wsearch" placeholder="Search coffee words" aria-label="Search coffee words"></label><button type="button" class="rsortw" id="wlt-f" aria-pressed="false" aria-label="Filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
   <p class="hint" id="wcount" style="margin:0 0 10px"></p>
   <div id="wlist"></div>
 </section>
@@ -2818,7 +2811,7 @@ dialog.dlg-pre[open]::backdrop{animation:none!important;opacity:0}
   <h2>Processes</h2>
   <p class="lede">How each process shapes the cup, and how to brew it. <button type="button" class="linkbtn" data-go-t="flow">See where processing fits, from seed to cup</button></p>
   <div class="card" style="margin-bottom:16px"><h3 style="margin-top:0">The process map</h3><p class="hint" style="margin-top:0">Left is clean, right is wild; top is bright, bottom is soft. Tap a dot.</p><svg id="pmap" viewBox="0 -14 640 314" role="img" aria-label="Processes plotted by cleanliness and acidity"></svg></div>
-  <div class="seg filters scrollrow" id="pcat" style="margin-bottom:14px"></div>
+  <div class="lf-top lt" id="plt"><p class="lt-k" id="plt-k"></p><button type="button" class="rsortw" id="plt-f" aria-pressed="false" aria-label="Filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
   <div class="grid" id="pgrid"></div>
 </section>
 
