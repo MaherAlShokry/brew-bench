@@ -288,30 +288,12 @@ function yearInCoffeeHTML(){const cy=new Date().getFullYear(),bs=BEANS.filter(b=
     (t.notes.length?'<div class="yic-notes"><small>Notes you keep coming back to</small><div class="chips">'+t.notes.map(n=>'<span class="chip"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'</span>').join('')+'</div></div>':'')+'</div>'}
 
 /* ================= FOR YOU ================= */
-// Recipes picked for you: each recipe that suits your brewers is scored against the bags you're drinking now, the cup
-// your taste leans to (fruity and floral → brighter and clearer; chocolate, nutty and sweet → sweeter, more body) and
-// how you rated it before, and the best few come with the reason they were picked.
+// Which way your taste leans: fruity and floral → brighter and clearer; chocolate, nutty and sweet → sweeter, more body.
 const FY_LEAN=t=>{const f=new Set((t.families||[]).map(x=>x.n.toLowerCase()));const bright=['fruity','floral','sour','sour/fermented'].some(k=>f.has(k)),round=['sweet','nutty/cocoa','nutty','cocoa','spices'].some(k=>f.has(k));
   return bright&&!round?'bright':round&&!bright?'round':'balanced'};
-function forYouPicks(n){if(!window.BEANS_OK)return[];const shelf=BEANS.filter(b=>b.shelf),bean=shelf[0]||BEANS[0],t=tasteOf(BEANS,LOG.filter(isMine)),lean=FY_LEAN(t);
-  const fam=k=>BREWERS[k]&&(BREWERS[k].of||k),mine=MYB.length?MYB.map(fam):null,rated=new Map();
-  for(const l of LOG.filter(isMine)){const r=l.snap&&l.snap.rec;if(r&&+l.stars){const v=rated.get(r)||[];v.push(+l.stars);rated.set(r,v)}}
-  const recent=new Set(RECENT.slice(0,3));const out=[];
-  RECIPES.forEach((r,i)=>{const B=BREWERS[r.b];if(!B||!B.model||(mine&&!mine.includes(fam(r.b))))return;const ratio=r.water/r.dose,why=[];let sc=0;
-    const rs=rated.get(r.name);if(rs){const avg=rs.reduce((a,b)=>a+b,0)/rs.length;sc+=(avg-3)*1.6;if(avg>=4)why.push('you rated it '+avg.toFixed(avg%1?1:0)+' beans')}
-    if(bean){const fer=/natural|anaerobic|honey|carbonic|ferment|thermal|yeast|koji/i.test(bean.process||''),dark=bean.roast==='dark',light=bean.roast==='light';
-      if(fer&&r.temp&&r.temp<=92){sc+=1.2;why.push('a cooler pour keeps your '+beanTitle(bean)+'’s fruit clean')}
-      if(light&&r.temp>=94){sc+=1;why.push('hot water opens up a light roast like '+beanTitle(bean))}
-      if(dark&&(r.temp<=90||r.kind==='imm')){sc+=1.2;why.push('gentle on a darker roast')}}
-    if(lean==='bright'&&ratio>=16){sc+=1;why.push('a longer ratio for the bright, '+((t.families[0]||{}).n||'fruity').toLowerCase()+' cups you like')}
-    if(lean==='round'&&ratio<=15.5){sc+=1;why.push('a shorter ratio for the sweet, rounder cups you like')}
-    if(t.brewer&&fam(t.brewer.k)===fam(r.b))sc+=.6;if(recent.has(rkey(r)))sc-=1.5;if(r.custom)sc+=.3;
-    out.push({i,sc,why:why[0]||(t.brewer&&fam(t.brewer.k)===fam(r.b)?'on the brewer you use most':'')})});
-  return out.sort((a,b)=>b.sc-a.sc).filter(x=>x.why).slice(0,n||3)}
-function forYouHTML(){const p=forYouPicks(3);const shelf=window.BEANS_OK&&BEANS.some(b=>b.shelf);
-  return '<h3 class="rh">Picked for you</h3>'+
-    '<button type="button" class="fy-make" data-q="mkrec"><span class="fy-spark" aria-hidden="true">✦</span><span><b>Create a recipe for your coffee</b><small>'+(shelf?'A new recipe made around your bag and your taste':'Made around a coffee from your gallery and your taste')+'</small></span></button>'+
-    (p.length?'<div class="fy-list">'+p.map(x=>{const r=RECIPES[x.i],B=BREWERS[r.b];return '<button type="button" class="fy-r" data-again="'+x.i+'"><span class="bi">'+bIcon(B.type)+'</span><span class="fy-tx"><b>'+esc(r.name)+'</b><small>'+esc(B.name)+' · '+r.dose+' g : '+r.water+' g</small><em>'+esc(x.why.charAt(0).toUpperCase()+x.why.slice(1))+'</em></span></button>'}).join('')+'</div>':'')}
+// The way into the recipe maker, at the top of Recipes.
+function forYouHTML(){const shelf=window.BEANS_OK&&BEANS.some(b=>b.shelf);
+  return '<button type="button" class="fy-make" data-q="mkrec"><span class="fy-spark" aria-hidden="true">✦</span><span><b>Create a recipe for your coffee</b><small>'+(shelf?'A new recipe made around your bag and your taste':'Made around a coffee from your gallery and your taste')+'</small></span></button>'}
 
 // A new recipe for one of your coffees, made around it and your taste. With an AI model at hand (the app running
 // inside Claude), the model writes it from your coffee, taste and gear; otherwise it's built here from the same rules

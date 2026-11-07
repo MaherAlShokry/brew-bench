@@ -423,7 +423,7 @@ button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.a
 .favbtn{position:absolute;top:12px;right:12px;width:38px;height:38px;border-radius:50%;border:0;background:var(--surface2);color:var(--muted);display:grid;place-items:center;cursor:pointer;transition:transform .15s ease}
 .favbtn svg{width:20px;height:20px}.favbtn[aria-pressed="true"]{color:#E0445A;background:color-mix(in srgb,#E0445A 14%,var(--surface))}.favbtn[aria-pressed="true"] svg{fill:currentColor}.favbtn:active{transform:scale(.85)}
 #rgrid>.card{position:relative}#rgrid>.card>h3,#rgrid>.card>h3+.hint{padding-right:44px}
-@media (min-width:760px){.qlinks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.qlinks button+button{border-top:0;border-left:1px solid var(--line)}}
+
 .vd-head .favbtn{top:14px;right:62px}
 .rfchip{display:inline-flex;align-items:center;gap:8px}
 /* In-app camera */
@@ -1342,18 +1342,25 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 :root[data-theme="dark"] .lv-e{color:#7FCB9C}:root[data-theme="dark"] .lv-i{color:#E7B060}:root[data-theme="dark"] .lv-a{color:#F08F7E}
 /* Cup types sit lower on the page now, so their cards are shorter. */
 #rhome .cupart{height:76px}
+/* Recipes home, kept light: the three quick links side by side, cup types as small tiles. */
+.qlinks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+.qlinks button{position:relative;flex-direction:column;justify-content:center;gap:6px;padding:12px 6px;text-align:center}
+.qlinks button+button{border-top:0;border-left:1px solid var(--line)}
+.qlinks b{font-size:.86rem;line-height:1.2}.qlinks small{display:none}
+.qlinks .qn{position:absolute;top:8px;right:8px;margin:0;font-size:.72rem;font-weight:700}
+#rhome .cups{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#rhome .cupcard{border-radius:14px}#rhome .cupart{height:52px}#rhome .cuptile{width:34px;height:34px;border-radius:10px}#rhome .cuptile svg{width:22px;height:22px}
+#rhome .cupcard b{padding:7px 9px 9px;font-size:.8rem;line-height:1.2;overflow-wrap:normal;hyphens:auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#rhome .cupcard small{display:none}
+@media (max-width:359px){#rhome .cupcard b{font-size:.72rem;padding:7px 6px 9px}}
+#rhome .cupcard .cc{top:6px;right:6px;font-size:.66rem;padding:1px 6px}
 @media (min-width:1000px){#rgrid{columns:2;column-gap:16px}#rgrid .rgrp{break-inside:avoid;display:inline-block;width:100%;content-visibility:visible}}
 @media (min-width:760px){.bshelf button{width:128px}.colshelf button{width:200px}}
 /* A collection's count sits in the top corner, as on the cup-type cards, clear of the title and the line under it. */
 .colshelf button{padding:14px 14px 16px;min-height:118px}
-/* Picked for you: the recipe maker, then recipes chosen for your coffee and taste, each with why. */
-.fy-make{display:flex;align-items:center;gap:12px;width:100%;padding:14px 16px;border:0;border-radius:var(--r-lg);background:linear-gradient(135deg,color-mix(in srgb,var(--honey) 30%,var(--surface)),color-mix(in srgb,var(--cherry) 18%,var(--surface)));color:var(--ink);text-align:left;font:inherit;cursor:pointer}
+/* The way into the recipe maker. */
+.fy-make{margin:0 0 14px;display:flex;align-items:center;gap:12px;width:100%;padding:14px 16px;border:0;border-radius:var(--r-lg);background:linear-gradient(135deg,color-mix(in srgb,var(--honey) 30%,var(--surface)),color-mix(in srgb,var(--cherry) 18%,var(--surface)));color:var(--ink);text-align:left;font:inherit;cursor:pointer}
 .fy-make b{display:block;font:700 1rem var(--display)}.fy-make small{font-size:.82rem;color:var(--muted)}
 .fy-spark{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--surface);color:var(--cherry);font-size:1.2rem}
-.fy-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
-.fy-r{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--r-md);border:1px solid var(--line);background:var(--surface);color:var(--ink);text-align:left;font:inherit;cursor:pointer}
-.fy-r .bi{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--surface2);color:var(--cherry)}.fy-r .bi svg{width:22px;height:22px}
-.fy-tx{display:flex;flex-direction:column;gap:1px;min-width:0}.fy-tx b{font:650 .95rem/1.25 var(--display)}.fy-tx small{font-size:.78rem;color:var(--muted)}.fy-tx em{font-style:normal;font-size:.82rem;color:var(--cherry-ink,var(--cherry))}
 /* The recipe maker sheet. */
 .mk .lbl{margin:14px 0 6px}.mk .lbl .hint{font-weight:500;margin-left:6px}
 .mk-chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}.mk-chips::-webkit-scrollbar{display:none}
@@ -1926,8 +1933,12 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .me-taste{margin:16px 0 4px;padding:14px;border-radius:var(--r-lg);background:var(--surface2)}
 .me-th{display:flex;flex-direction:column;gap:2px}.me-th b{font:700 1.02rem var(--display)}.me-th small{font-size:.78rem;color:var(--muted)}
 .me-tl{margin:8px 0 0;font:600 .98rem/1.4 var(--display);color:var(--ink)}
-.me-fams{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.me-fams span{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;font-size:.82rem;font-weight:600;background:color-mix(in srgb,var(--fc) 18%,var(--surface));color:var(--ink)}.me-fams i{width:9px;height:9px;border-radius:50%;background:var(--fc)}
-.me-taste .me-dna{margin-top:12px}.yic-notes .chip,.me-notes .chip{background:var(--surface);border:1px solid var(--line)}.me-notes{margin-top:12px}.me-notes .chips{margin:0}
+.me-tiles{display:flex;gap:8px;margin:12px -14px 0;padding:0 14px 2px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}.me-tiles::-webkit-scrollbar{display:none}
+.me-tiles>div{flex:none;width:104px;scroll-snap-align:start;display:flex;flex-direction:column;gap:2px;padding:10px;border-radius:14px;background:var(--surface)}
+.me-mine{margin:16px 0 4px;padding:0;overflow:visible}.me-mine>div{flex:1 1 0;min-width:0;width:auto;background:var(--surface2)}
+.me-tiles i{font-style:normal;font-size:1.15rem;line-height:1;margin-bottom:4px}.me-tiles small{font-size:.68rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.me-tiles b{font:650 .9rem/1.2 var(--display);color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.yic-notes .chip,.me-notes .chip{background:var(--surface);border:1px solid var(--line)}.me-notes{margin:12px 0 0}
 .yic-k{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:var(--muted)}
 .yic-row{display:flex;gap:8px 20px;flex-wrap:wrap;margin-top:6px}.yic-row span{display:flex;flex-direction:column;min-width:0}
 .yic-row b{font-family:var(--display);font-size:1.2rem;line-height:1.2;color:var(--ink)}.yic-row small{font-size:.76rem;color:var(--muted);max-width:16ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -2673,7 +2684,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
 <!-- RECIPES -->
 <section id="recipes">
   <h2>Recipes</h2>
-  <p class="lede">Browse by brewer, pick a collection, or search. Grind settings follow your calibration; tap a recipe for its steps, or the play button to start brewing.</p>
+  <p class="lede">Pick a brewer or collection, or search. Grind settings follow your calibration.</p>
   <div class="rsearchw"><input type="search" id="rsearch" placeholder="Search recipes" aria-label="Search recipes"></div>
   <div id="rhome"></div>
   <div class="rhead"><h3 class="rh" id="rall">All recipes</h3><button type="button" class="btn ghost" id="r-new">+ New recipe</button></div>

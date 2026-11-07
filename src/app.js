@@ -1010,7 +1010,7 @@ const CUPS=[
   ['aero','AeroPress','Quick, punchy, travel-ready','linear-gradient(135deg,#7FA7A0,#3F6E66)',r=>r.b==='aeropress'&&!ICED(r),()=>CI('M8 3h8v3H8z M7 6h10v11H7z M10 10h4 M9 17h6v2H9z M5 21h14')],
   ['esp','Espresso-like','Strong and concentrated','linear-gradient(135deg,#B0704A,#5B2E1A)',r=>['Espresso and stovetop','Boiled'].includes(BREWERS[r.b].type)&&!ICED(r),()=>CI(BT_ICON['Espresso and stovetop'])],
   ['iced','Iced and cold','Flash brews and cold brews','linear-gradient(135deg,#8EB6D0,#4C7390)',ICED,()=>CI(BT_ICON['Cold'])],
-  ['champ','Championships','Recipes that won world titles','linear-gradient(135deg,#E2B866,#9A6A1E)',r=>!!r.champ,()=>CI(ICO.trophy)]];
+  ['champ','Champions','Recipes that won world titles','linear-gradient(135deg,#E2B866,#9A6A1E)',r=>!!r.champ,()=>CI(ICO.trophy)]];
 const CUPBY=Object.fromEntries(CUPS.map(c=>[c[0],c]));
 /* What a recipe asks of you, worked out from its steps: how long it takes, how many pours, and how hard it is. */
 const RMETA=new Map();
@@ -1032,7 +1032,8 @@ const COLBY=Object.fromEntries(COLS.map(c=>[c[0],c]));
 // Brewers that have recipes, in the guide's order, for the brewer shelf and the grouped list.
 const RBREWERS=()=>Object.keys(BREWERS).filter(k=>RFAM(k)===k&&RECIPES.some(r=>RFAM(r.b)===k));
 // A brewer family's name in the recipe library (the V60 and NEO share one shelf and one group).
-const famName=k=>k==='v60'?'Hario V60 and V60 NEO':k==='sw'?'Hario Switch and NEO Switch':BREWERS[k].name;
+// One name per brewer family: the V60 NEO's recipes sit under Hario V60, the NEO Switch's under Hario Switch.
+const famName=k=>BREWERS[RFAM(k)].name.replace(/\s*\(.*\)$/,'');
 // Brewer icons, drawn like the rest of the app: each brewer with its cup, its steam or its ice.
 const BT_ICON={'Cone dripper':'M4.5 4.5h15 M6 4.5l4 6.5h4l4-6.5 M9.6 7.6h4.8 M12 12.6v.8 M7.5 15h9v1.8a3.2 3.2 0 0 1-3.2 3.2h-2.6a3.2 3.2 0 0 1-3.2-3.2z M16.5 16h.7a1.4 1.4 0 0 1 0 2.8h-.9','Flat-bottom dripper':'M4.5 4.5h15 M6 4.5l2.2 6.5h7.6L18 4.5 M8 8h8 M12 12.6v.8 M7.5 15h9v1.8a3.2 3.2 0 0 1-3.2 3.2h-2.6a3.2 3.2 0 0 1-3.2-3.2z M16.5 16h.7a1.4 1.4 0 0 1 0 2.8h-.9','Valve and hybrid':'M4.5 4h15 M6 4l3.6 6h4.8L18 4 M10.6 10h2.8v1.6h-2.8z M12 13v.8 M7.5 15h9v1.8a3.2 3.2 0 0 1-3.2 3.2h-2.6a3.2 3.2 0 0 1-3.2-3.2z M16.5 16h.7a1.4 1.4 0 0 1 0 2.8h-.9',
   'Immersion and pressure':'M6.5 7.5h9v10.5a2 2 0 0 1-2 2h-5a2 2 0 0 1-2-2z M15.5 9.5h1.3a1.7 1.7 0 0 1 1.7 1.7v3.6a1.7 1.7 0 0 1-1.7 1.7h-1.3 M5.5 7.5h11 M11 3.5v8 M8.5 11.5h5 M8.5 15h5','Espresso and stovetop':'M6 10h10v3a5 5 0 0 1-10 0z M16 11h2a2 2 0 0 1 0 4h-2 M4 20h14 M9 4c-1 1.5 1 2.5 0 4 M13 4c-1 1.5 1 2.5 0 4',
@@ -1041,12 +1042,12 @@ const bIcon=t=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strok
 function renderRHome(){const QI=(c,p)=>'<span class="qi" style="background:'+c+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+p+'"/></svg></span>';
   const again=RECENT.map(rByKey).filter(i=>i>=0).slice(0,6);
   $('rhome').innerHTML=(window.BEANS_OK&&BEANS.length?forYouHTML():'')+'<div class="qlinks">'+
-    '<button type="button" data-q="surprise">'+QI('#2F80ED','M5 5h14v14H5z M9 9h.01 M15 9h.01 M12 12h.01 M9 15h.01 M15 15h.01')+'<span><b>Surprise me</b><small>'+(MYB.length?'A random recipe for your brewers':'Pick a random recipe')+'</small></span></button>'+
-    '<button type="button" data-q="mine">'+QI('#C8741F','M4 20h4L19 9l-4-4L4 16z M13 7l4 4')+'<span><b>Your recipes</b><small>'+(CREC.length?(TEAM()?'Yours and your team’s':'Recipes you saved'):'Create your own recipe')+'</small></span>'+(CREC.length?'<span class="qn">'+CREC.length+'</span>':'')+'</button>'+
-    '<button type="button" data-q="fav">'+QI('#E0445A','M12 20s-7-4.4-9-8.6C1.6 8.4 3.4 5 6.7 5c2 0 3.3 1.2 4.3 2.6C12 6.2 13.3 5 15.3 5c3.3 0 5.1 3.4 3.7 6.4C19 15.6 12 20 12 20z')+'<span><b>Favorites</b><small>'+(favCount()?'Your go-to recipes':'Tap the heart on any recipe')+'</small></span>'+(favCount()?'<span class="qn">'+favCount()+'</span>':'')+'</button></div>'+
-    (again.length?'<h3 class="rh">Brew again</h3><div class="again">'+again.map(i=>'<button type="button" data-again="'+i+'"><b>'+esc(RECIPES[i].name)+'</b><small>'+esc(BREWERS[RECIPES[i].b].name)+'</small></button>').join('')+'</div>':'')+
+    '<button type="button" data-q="surprise">'+QI('#2F80ED','M5 5h14v14H5z M9 9h.01 M15 9h.01 M12 12h.01 M9 15h.01 M15 15h.01')+'<b>Surprise me</b></button>'+
+    '<button type="button" data-q="mine">'+QI('#C8741F','M4 20h4L19 9l-4-4L4 16z M13 7l4 4')+'<b>Your recipes</b>'+(CREC.length?'<span class="qn">'+CREC.length+'</span>':'')+'</button>'+
+    '<button type="button" data-q="fav">'+QI('#E0445A','M12 20s-7-4.4-9-8.6C1.6 8.4 3.4 5 6.7 5c2 0 3.3 1.2 4.3 2.6C12 6.2 13.3 5 15.3 5c3.3 0 5.1 3.4 3.7 6.4C19 15.6 12 20 12 20z')+'<b>Favorites</b>'+(favCount()?'<span class="qn">'+favCount()+'</span>':'')+'</button></div>'+
+    (again.length?'<h3 class="rh">Brew again</h3><div class="again">'+again.map(i=>'<button type="button" data-again="'+i+'"><b>'+esc(RECIPES[i].name)+'</b><small>'+esc(famName(RECIPES[i].b))+'</small></button>').join('')+'</div>':'')+
     '<h3 class="rh">By brewer</h3><div class="bshelf">'+RBREWERS().map(k=>{const B=BREWERS[k],n=RECIPES.filter(r=>RFAM(r.b)===k).length;
-      return '<button type="button" data-rb="'+k+'" aria-pressed="'+(RF==='b:'+k)+'"><span class="bi">'+bIcon(B.type)+'</span><b>'+esc(famName(k).replace(/\s*\(.*\)$/,''))+'</b><small>'+n+' recipe'+(n>1?'s':'')+'</small></button>'}).join('')+'</div>'+
+      return '<button type="button" data-rb="'+k+'" aria-pressed="'+(RF==='b:'+k)+'"><span class="bi">'+bIcon(B.type)+'</span><b>'+esc(famName(k))+'</b><small>'+n+' recipe'+(n>1?'s':'')+'</small></button>'}).join('')+'</div>'+
     '<h3 class="rh">Collections</h3><div class="colshelf">'+COLS.map(([k,n,d,c,f])=>'<button type="button" data-col="'+k+'" aria-pressed="'+(RF==='col:'+k)+'" style="--cc:'+c+'"><b>'+esc(n)+'</b><small>'+esc(d)+'</small><span class="cn">'+RECIPES.filter(f).length+'</span></button>').join('')+'</div>'+
     '<h3 class="rh">Cup types</h3><div class="cups">'+CUPS.map(([k,n,d,g,f,ic])=>'<button type="button" class="cupcard" data-cup="'+k+'" aria-pressed="'+(RF==='cup:'+k)+'"><span class="cupart" style="--g:'+g+'">'+ic()+'<span class="cc">'+RECIPES.filter(f).length+'<span class="sr"> recipes</span></span></span><b>'+esc(n)+'</b><small>'+esc(d)+'</small></button>').join('')+'</div>'}
 function showRecipeList(){renderRecipes();renderRHome();requestAnimationFrame(()=>$('rall').scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'}))}
@@ -1100,7 +1101,7 @@ function rrow(r,i,o={}){const m=rmeta(r),lv={Easy:'e',Medium:'i',Advanced:'a'}[m
     m.time!=null?'<span>'+RR_IC.time+mmss(m.time)+'</span>':'',r.temp?'<span>'+RR_IC.temp+r.temp+'°</span>':''].filter(Boolean).join('');
   return '<article class="rrow'+(r.custom?' mine':'')+'"><button type="button" class="rr-open" data-open="'+i+'">'+
     '<span class="rr-t"><b>'+esc(r.name)+'</b>'+tags+'</span>'+
-    '<span class="rr-by">'+[o.lv===false?'':'<span class="lv lv-'+lv+'"><i aria-hidden="true"></i>'+m.level+'</span>',o.brewer?'<span class="rr-bw">'+esc(BREWERS[r.b].name)+'</span>':'',who?'<span class="rr-who">'+esc(who)+'</span>':''].filter(Boolean).join('<span class="rr-sep" aria-hidden="true">·</span>')+'</span>'+
+    '<span class="rr-by">'+[o.lv===false?'':'<span class="lv lv-'+lv+'"><i aria-hidden="true"></i>'+m.level+'</span>',o.brewer?'<span class="rr-bw">'+esc(famName(r.b))+'</span>':'',who?'<span class="rr-who">'+esc(who)+'</span>':''].filter(Boolean).join('<span class="rr-sep" aria-hidden="true">·</span>')+'</span>'+
     '<span class="rr-m" aria-label="'+esc([r.dose+' g coffee, '+r.water+' g water',m.ratio,m.time!=null?mmss(m.time):'',r.temp?r.temp+'°C':''].filter(Boolean).join(', '))+'">'+st+'</span></button>'+
     '<div class="rr-side">'+favBtn(r)+'<button type="button" class="rr-play" data-timer="'+i+'" aria-label="Start the timer for '+esc(r.name)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button></div></article>'}
 function renderRecipes(){
