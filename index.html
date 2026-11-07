@@ -1294,9 +1294,10 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 /* Filters that don't fit scroll sideways; the edge fades so a chip that runs on reads as more to see, not as cut off. */
 .rtools .seg.more{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}
 .rtools .seg.more.end{-webkit-mask-image:none;mask-image:none}.rtools .seg{flex:1;min-width:0}
-/* The sort button shows both orders ("Brewer · Level"); it opens the sort sheet. */
-.rsortw{flex:none;display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:0 14px 0 12px;border-radius:var(--r-pill);border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:.84rem;font-weight:600;cursor:pointer;white-space:nowrap}
-.rsortw svg{width:17px;height:17px;fill:none;stroke:var(--cherry-ink,var(--cherry));stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+/* The sort button is a round icon button, like the save and close buttons; it opens the sort sheet. */
+.rsortw{flex:none;display:grid;place-items:center;width:40px;height:40px;padding:0;border-radius:50%;border:0;background:var(--surface2);color:var(--ink);cursor:pointer;transition:transform .15s ease}
+.rsortw:active{transform:scale(.88)}
+.rsortw svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .rs-sec{padding:4px 16px 8px}.rs-sec h4{margin:6px 4px 8px;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .rs-sec .sellist{padding:0}.rs-sec .selopt span{display:flex;flex-direction:column;gap:2px}.rs-sec .selopt small{font-size:.78rem;font-weight:400;color:var(--muted)}
 .rs-chips{display:flex;flex-wrap:wrap;gap:8px}.rs-chip{min-height:38px;padding:8px 14px;font-size:.88rem;font-weight:600;border:1px solid transparent;cursor:pointer}
@@ -2821,7 +2822,7 @@ dialog.dlg-pre[open]::backdrop{animation:none!important;opacity:0}
   <div class="rsearchw"><input type="search" id="rsearch" placeholder="Search recipes" aria-label="Search recipes"></div>
   <div id="rhome"></div>
   <div class="rhead"><h3 class="rh" id="rall">All recipes</h3><button type="button" class="btn ghost" id="r-new">+ New recipe</button></div>
-  <div class="rtools"><div class="seg filters scrollrow" id="rfilter"></div><button type="button" class="rsortw" id="rsortbtn" aria-label="Sort recipes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h11M4 12h8M4 17h5M18 6v12M15 15l3 3 3-3"/></svg><span>Brewer · Level</span></button></div>
+  <div class="rtools"><div class="seg filters scrollrow" id="rfilter"></div><button type="button" class="rsortw" id="rsortbtn" aria-label="Sort recipes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h11M4 12h8M4 17h5M18 6v12M15 15l3 3 3-3"/></svg></button></div>
   <div id="rgrid"></div>
 </section>
 
@@ -6169,7 +6170,7 @@ function renderRecipes(){
   const c1=RCMP[RSORT],c2=RSORT2&&RSORT2!==RSORT?RCMP[RSORT2]:null;
   list.sort((a,b)=>c1(a[0],b[0])||(c2?c2(a[0],b[0]):0)||((b[0].custom?1:0)-(a[0].custom?1:0))||a[1]-b[1]);
   RLIST=list;updShare();$('rall').textContent=RF_NAME()+' · '+list.length;
-  $('rsortbtn').querySelector('span').textContent=rsortLabel();
+  {const sb=$('rsortbtn');sb.setAttribute('aria-label','Sort recipes: '+rsortLabel());sb.title='Sort: '+rsortLabel()}
   let html='';RLZ.clear();RLZN=0;
   if(RSORT==='brewer'&&!rb){const groups=new Map();for(const x of list){const k=RFAM(x[0].b);if(!groups.has(k))groups.set(k,[]);groups.get(k).push(x)}
     for(const [k,g] of groups){const B=BREWERS[k];

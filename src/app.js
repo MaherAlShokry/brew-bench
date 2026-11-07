@@ -1218,7 +1218,7 @@ function renderRecipes(){
   const c1=RCMP[RSORT],c2=RSORT2&&RSORT2!==RSORT?RCMP[RSORT2]:null;
   list.sort((a,b)=>c1(a[0],b[0])||(c2?c2(a[0],b[0]):0)||((b[0].custom?1:0)-(a[0].custom?1:0))||a[1]-b[1]);
   RLIST=list;updShare();$('rall').textContent=RF_NAME()+' · '+list.length;
-  $('rsortbtn').querySelector('span').textContent=rsortLabel();
+  {const sb=$('rsortbtn');sb.setAttribute('aria-label','Sort recipes: '+rsortLabel());sb.title='Sort: '+rsortLabel()}
   let html='';RLZ.clear();RLZN=0;
   if(RSORT==='brewer'&&!rb){const groups=new Map();for(const x of list){const k=RFAM(x[0].b);if(!groups.has(k))groups.set(k,[]);groups.get(k).push(x)}
     for(const [k,g] of groups){const B=BREWERS[k];
