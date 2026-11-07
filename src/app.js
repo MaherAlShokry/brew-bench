@@ -621,7 +621,7 @@ const sameFam=(a,b)=>BFAM(a)===BFAM(b);
 // The Recipes tab also shelves full-immersion Switch recipes with the Switch.
 let LASTSURP=-1;
 const RFAM=b=>b==='swi'?'sw':BFAM(b);
-const BTAG={neo:'NEO',swneo:'NEO',swi:'Immersion'};
+const BTAG={swi:'Immersion'};
 const BSHORT={v60:'V60',neo:'NEO',sw:'Switch',swneo:'NEO Switch'};
 function techList(b){const all=RECIPES.map((r,i)=>[r,i]);return all.filter(([r])=>r.b===b).concat(all.filter(([r])=>r.b!==b&&sameFam(r.b,b)),all.filter(([r])=>(b==='sw'||b==='swneo')&&r.b==='swi'))}
 /* Target cup profiles. Each moves the predicted extraction (Dt), the ratio (in brewer steps), the agitation and, for
@@ -1558,7 +1558,7 @@ function buildMap(){mapData();
   svg.onclick=e=>{const t=e.target.closest('[data-k]');if(t)selectOrigin(t.dataset.k,false)};
   svg.onmousemove=e=>{const t=e.target.closest('[data-k]');const n=$('mapname');if(t){n.textContent=(ALLO()[t.dataset.k].flag||'')+' '+ALLO()[t.dataset.k].name;n.classList.add('show')}else n.classList.remove('show')};
   svg.onmouseleave=()=>$('mapname').classList.remove('show');
-  const views=[['all','World'],['africa','Africa and Arabia'],['asia','Asia and Pacific'],['americas','The Americas']];
+  const views=[['all','World'],['africa','Africa'],['asia','Asia'],['americas','Americas']];
   $('mapzoom').className='mapbar seg filters';
   $('mapzoom').innerHTML=views.map(([k,l])=>'<button type="button" data-z="'+k+'" aria-pressed="'+(k==='all')+'">'+l+'</button>').join('')+'<button type="button" data-z="rand">Surprise me</button>';
   $('mapzoom').onclick=e=>{const b=e.target.closest('[data-z]');if(!b)return;if(b.dataset.z==='rand'){const ks=Object.keys(ALLO());let k;do{k=ks[Math.floor(Math.random()*ks.length)]}while(k===SEL);selectOrigin(k,true)}else zoomTo(b.dataset.z)};
@@ -1586,7 +1586,7 @@ function zoomTo(z){
   requestAnimationFrame(step);
 }
 function emptyInfo(){
-  $('info').innerHTML='<h2>Pick an origin</h2><p>Tap any coloured country or dot. Colours group origins by region; the shaded band is the coffee belt between the tropics.</p>'+
+  $('info').innerHTML='<h2>Pick an origin</h2><p>Tap a coloured country or dot. The shaded band is the coffee belt.</p>'+
   '<div class="stats"><div><b>Where it all began</b><button class="chip" data-o="ethiopia" style="margin-top:4px">🇪🇹 Ethiopia</button> <button class="chip" data-o="yemen">🇾🇪 Yemen</button> <button class="chip" data-o="southsudan">🇸🇸 South Sudan</button></div><div><b>Feeling curious?</b>Tap "Surprise me" under the map.</div></div>';
 }
 $('info').onclick=e=>{const s=e.target.closest('[data-oshare]');if(s){openShare(originDoc(s.dataset.oshare));return}const b=e.target.closest('[data-o]');if(b)selectOrigin(b.dataset.o,true)};
@@ -3116,7 +3116,7 @@ try{if(sessionStorage.getItem('bb-movedin')){sessionStorage.removeItem('bb-moved
 function renderSettings(){const t=document.documentElement.getAttribute('data-theme')||'auto';
   const row=(icon,bg,title,sub,body)=>'<div class="setrow"><div class="sl">'+ico(icon,bg)+'<span class="mt"><b>'+title+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</span></div>'+(body||'')+'</div>';
   const qt=(k,n,d)=>'<button type="button" class="qtool" data-go="'+k+'">'+ico(hubItem(k)[4],hubItem(k)[3])+'<span><b>'+n+'</b><small>'+d+'</small></span></button>';
-  $('settings-in').innerHTML='<div class="quicktools">'+qt('gear','Gear and dials',MYG.length+' grinder'+(MYG.length>1?'s':'')+(MYB.length?', '+MYB.length+' brewer'+(MYB.length>1?'s':''):''))+qt('log','Brew log',LOG.length?LOG.length+' brew'+(LOG.length>1?'s':''):'Rate and keep your brews')+qt('guide','Guide','Ratios and fixes')+'</div>'+
+  $('settings-in').innerHTML='<div class="quicktools">'+qt('gear','Gear',MYG.length+' grinder'+(MYG.length>1?'s':'')+(MYB.length?', '+MYB.length+' brewer'+(MYB.length>1?'s':''):''))+qt('log','Brew log',LOG.length?LOG.length+' brew'+(LOG.length>1?'s':''):'Rate and keep your brews')+qt('guide','Guide','Ratios, fixes')+'</div>'+
     // In the Android app: its version, whether a newer one is out, and a button to check now (the website updates itself).
     (appVersion()?'<div class="appver'+(updLatest()?' new':'')+'">'+ico('download','#4F8A74')+'<span class="av-tx"><b>Brew Bench '+esc(appVersion())+'</b><small>'+esc(updNote())+'</small></span>'+
       '<div class="av-btns">'+(updLatest()?'<button type="button" class="btn" id="st-updgo">Update to '+esc(updLatest())+'</button>':'')+'<button type="button" class="btn'+(updLatest()?' ghost':'')+'" id="st-upd">Check for updates</button></div></div>':'')+
@@ -3363,4 +3363,4 @@ if(window.claude&&window.claude.use){
     try{const l=await s.limits();IMGS=!!(l&&l.images);if(IMGS)$('scan-file').accept=$('scan-cam').accept=l.images.mediaTypes.join(',')}catch(e){IMGS=false}
     $('scan-go').disabled=!SFILE}).catch(()=>{});
   window.claude.use('downloads').then(d=>{DL=d;renderLog()}).catch(()=>{});
-}else{$('scan-status').hidden=true;$('scan-lede').textContent='Take a photo of the bag or the roaster’s card. The text is read on your phone, matched to the guide and turned into a brew plan for your gear.'}
+}else{$('scan-status').hidden=true;$('scan-lede').textContent='Snap a bag and get its details and a brew plan for your gear. The label is read on your phone.'}

@@ -1454,6 +1454,8 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 
 /* The map's region buttons are easier to tap on phones. */
 @media (max-width:759px){.mapbar.seg.filters button{min-height:34px}}
+/* One row of region chips under the map, like the filters elsewhere. */
+.mapbar.seg.filters{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.mapbar.seg.filters::-webkit-scrollbar{display:none}.mapbar.seg.filters button{flex:0 0 auto;padding-inline:14px}
 
 /* Coffee colour themes: the accent, with the soft surfaces and lines tinted to match. */
 /* Vibes: whole palettes for light and dark (Settings → Appearance). The colour swatches below still change just the accent. */
@@ -2486,7 +2488,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
 <!-- SCAN -->
 <section id="scan">
   <h2>Scan your beans</h2>
-  <p class="lede" id="scan-lede">Snap the bag or the roaster’s card. The details are read for you, matched to the guide, and turned into a brew plan for your gear.</p>
+  <p class="lede" id="scan-lede">Snap a bag and get its details and a brew plan for your gear.</p>
   <div class="bench">
     <div class="panel">
       <div id="scan-drop" class="drop">
@@ -2527,7 +2529,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
 <!-- TECHNIQUES -->
 <section id="tech">
   <h2>Techniques</h2>
-  <p class="lede">Every move in the brewing toolbox, briefly. Tap a card for when to use it.</p>
+  <p class="lede">Every move in the brewing toolbox, and when to use it.</p>
   <div class="vtools"><input type="search" id="tsearch" placeholder="Search" aria-label="Search techniques"><div class="seg filters scrollrow" id="tcat"></div></div>
   <div class="grid" id="tgrid"></div>
 </section>
@@ -2535,7 +2537,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
 <!-- GEAR -->
 <section id="gear">
   <h2>Gear and dials</h2>
-  <p class="lede">Your grinders and brewers, your grind settings, and how to read the dials.</p>
+  <p class="lede">Your grinders, brewers and grind settings.</p>
   <div class="card kit" id="gear-kit"></div>
   <div class="seg filters scrollrow gtabs" id="gear-tabs" role="tablist" aria-label="Gear and dials">
     <button type="button" role="tab" data-gtab="set">Grind</button><button type="button" role="tab" data-gtab="dials">Dials</button><button type="button" role="tab" data-gtab="brew">Brewers</button><button type="button" role="tab" data-gtab="lib">Grinders</button><button type="button" role="tab" data-gtab="acc">More</button>
@@ -2580,7 +2582,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
 <!-- MAP -->
 <section id="map">
   <h2>Origins map</h2>
-  <p class="lede">Coffee grows in a band around the equator between the tropics. Tap a country or a marker to explore its regions, varieties and story.</p>
+  <p class="lede">Coffee grows between the tropics. Tap a country to explore it.</p>
   <div class="atlas">
     <div>
       <div class="mapbox"><div class="mapname" id="mapname"></div>
@@ -2597,7 +2599,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
 <!-- VARIETIES -->
 <section id="variety">
   <h2>Varieties</h2>
-  <p class="lede">Every variety, grouped by family. Tap one for its story, how it tastes and how to brew it.</p>
+  <p class="lede">Every variety by family: its story, taste and how to brew it.</p>
   <div class="vtools">
     <input type="search" id="vsearch" placeholder="Search" aria-label="Search varieties">
     <div class="seg filters scrollrow" id="vfam"></div>
@@ -2609,7 +2611,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
 <!-- HISTORY -->
 <section id="champs">
   <h2>Coffee World Championships</h2>
-  <p class="lede">Every world champion in brewing and espresso: where they won, what they brewed, and the published winning recipes, converted to your grinders.</p>
+  <p class="lede">Every world champion and their winning recipes, set for your grinder.</p>
   <div id="ch-next"></div>
   <div class="seg filters scrollrow" id="ch-filter" style="margin:14px 0 8px"></div>
   <div class="seg filters scrollrow" id="ch-brewer" style="margin:0 0 14px"></div>
@@ -2622,7 +2624,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
 <!-- FROM SEED TO CUP -->
 <section id="flow">
   <h2>From seed to cup</h2>
-  <p class="lede">Every step a coffee goes through, from a seed in a nursery to the cup in your hand. Tap any step to see what happens there and why it matters to the taste. The processing step splits into its paths; each one leads to the full process explanation.</p>
+  <p class="lede">Every step from a seedling to your cup. Tap one to see why it matters.</p>
   <div class="flowlegend" id="flowlegend"></div>
   <div class="flow" id="flowchart"></div>
 </section>
@@ -2630,7 +2632,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
 <!-- COFFEE WORDS -->
 <section id="words">
   <h2>Coffee words</h2>
-  <p class="lede">A bank of the words you meet on bags, menus and in brewing guides, from co-fermentation to TDS. Search, or browse by topic; tap a word for links to the processes, varieties and techniques behind it.</p>
+  <p class="lede">The words on bags and menus, from co-fermentation to TDS.</p>
   <div class="vtools">
     <input type="search" id="wsearch" placeholder="Search" aria-label="Search coffee words">
     <div class="seg filters scrollrow" id="wcat"></div>
@@ -2642,7 +2644,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
 <!-- FLAVOUR WHEEL -->
 <section id="wheel">
   <h2>Flavour wheel</h2>
-  <p class="lede">Every word tasters use for coffee, from the broad family in the middle to the exact note at the edge: 164 notes in 9 families. Tap a colour to open it up, and a note to see what it tastes like and where it comes from.</p>
+  <p class="lede">164 tasting notes in 9 families. Tap a colour to open it up.</p>
   <div class="fw-layout">
     <div class="fw-main">
       <input type="search" id="fw-q" placeholder="Find a note" aria-label="Find a flavour note">
@@ -2660,7 +2662,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
 
 <section id="history">
   <h2>The story of coffee</h2>
-  <p class="lede">From wild Ethiopian forests to a Sufi drink in Yemen to a global crop. Almost all Arabica outside Africa traces back to a handful of seeds, which is why genetic diversity, and Ethiopia, matter so much.</p>
+  <p class="lede">From wild Ethiopian forests to Yemen, and then the world.</p>
   <h3>The coffee family tree</h3>
   <p class="hint">Tap any variety to trace its ancestors and read its story. Families follow genetics, not names: Pink Bourbon sits with the Ethiopian landraces because DNA tests show that is where it comes from.</p>
   <div class="legend" id="treelegend"></div>
@@ -2692,7 +2694,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
 <!-- PROCESSES -->
 <section id="process">
   <h2>Processes</h2>
-  <p class="lede">Process sets the direction. Clean coffees want help building sweetness; fruit-heavy coffees want restraint. <button type="button" class="linkbtn" data-go-t="flow">See where processing fits, from seed to cup</button></p>
+  <p class="lede">How each process shapes the cup, and how to brew it. <button type="button" class="linkbtn" data-go-t="flow">See where processing fits, from seed to cup</button></p>
   <div class="card" style="margin-bottom:16px"><h3 style="margin-top:0">The process map</h3><p class="hint" style="margin-top:0">Left is clean, right is wild; top is bright, bottom is soft. Tap a dot.</p><svg id="pmap" viewBox="0 -14 640 314" role="img" aria-label="Processes plotted by cleanliness and acidity"></svg></div>
   <div class="seg filters scrollrow" id="pcat" style="margin-bottom:14px"></div>
   <div class="grid" id="pgrid"></div>
@@ -2751,7 +2753,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
 <!-- LOG -->
 <section id="log">
   <h2>Brew log</h2>
-  <p class="lede">Every cup you brew, how it went and what you tasted. "Log this brew" on the dial-in fills it in for you.</p>
+  <p class="lede">Every cup you brew, how it went and what you tasted.</p>
   <div class="panel sharepanel" id="l-share" style="margin-bottom:14px"></div>
   <div class="panel" id="l-form" style="margin-bottom:18px">
     <p class="hint l-editing" id="l-editing" hidden></p>
