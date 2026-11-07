@@ -295,10 +295,14 @@ function tasteOf(bs,ls){const top=(items,f,w)=>{const m=new Map();for(const x of
   t.regular=[...bs].filter(b=>buys(b)>1).sort((a,b)=>buys(b)-buys(a)||b.rating-a.rating)[0]||null;
   return t}
 // One line that sums it up: "Washed Ethiopian heirlooms, light roast, floral and fruity, on a Hario V60."
-function tasteLine(t){const bits=[];const pr=t.process&&PROCESSES[t.process.k],o=t.origin&&oInfo(t.origin.k),v=t.variety&&VBY[t.variety.k];
-  const head=[pr?pr.name.replace(/\s*\(.*\)$/,'').toLowerCase():'',v?shortName(v.name):'coffees'].filter(Boolean).join(' ')+(o?' from '+o.name:'');if(t.origin||t.variety)bits.push(head.charAt(0).toUpperCase()+head.slice(1));
-  if(t.roast)bits.push(t.roast.k+' roast');if(t.families.length)bits.push(t.families.slice(0,2).map(f=>f.n.toLowerCase()).join(' and '));
-  if(t.brewer&&BREWERS[t.brewer.k])bits.push('on '+art(BREWERS[t.brewer.k].name)+' '+BREWERS[t.brewer.k].name);return bits.join(', ')}
+// Your taste in one sentence of plain statements, each true on its own: the roast and the flavours you like, where your
+// coffees mostly come from, and what you brew on ("Light roasts that taste fruity and sweet, mostly from Yemen, brewed
+// on a Hario V60"). The top variety and process are listed separately: strung together they read like one coffee.
+function tasteLine(t){const o=t.origin&&oInfo(t.origin.k),B=t.brewer&&BREWERS[t.brewer.k],fam=t.families.slice(0,2).map(f=>f.n.toLowerCase().replace(/\//g,' and ')).join(' and ');
+  const rs=t.roast?t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1)+' roasts':'';
+  const head=rs&&fam?rs+' that taste '+fam:rs?'Mostly '+rs.toLowerCase():fam?'Coffees that taste '+fam:'';
+  const bits=[head,o?(head?'mostly from ':'Mostly from ')+o.name:'',B?(head||o?'brewed on ':'Brewed on ')+art(B.name)+' '+B.name:''].filter(Boolean);
+  return bits.length?bits.join(', ')+'.':''}
 // This year in coffee: the counts, then what you bought most (origin, region, variety, process, roast, roastery), how you
 // brewed, and the notes you came back to.
 // Kept until your coffees, your brews or the day change, so redrawing the page doesn't work it all out again.
@@ -314,13 +318,16 @@ function yearInCoffeeHTML0(){const cy=new Date().getFullYear(),bs=BEANS.filter(b
   const cups=myCups(cy);if(!bs.length&&!cups.length)return '';const g=Math.round(cups.reduce((s,c)=>s+(c.g||0),0)),t=tasteOf(bs,ls),origins=new Set(bs.map(b=>b.origin).filter(Boolean)).size,bags=bagsIn(cy);
   const big=[[bs.length,(bs.length===1?'coffee':'coffees')+(bags>bs.length?' · '+bags+' bags':'')],[cups.length,cups.length===1?'cup brewed':'cups brewed'],g?[g>=1000?(g/1000).toFixed(g>=10000?0:1)+' kg':g+' g','of coffee']:[origins,origins===1?'origin':'origins']];
   const o=t.origin&&oInfo(t.origin.k),R=t.region&&REG[t.region.k],v=t.variety&&VBY[t.variety.k],pr=t.process&&PROCESSES[t.process.k],B=t.brewer&&BREWERS[t.brewer.k];
-  const facts=[o&&['<span class="yic-fl">'+flagOf(t.origin.k)+'</span>','Mostly from',o.name,t.origin.n+' bag'+(t.origin.n===1?'':'s')],R&&['🗺️','Favourite region',R.name,t.region.n+' bag'+(t.region.n===1?'':'s')+(t.regionOrigin&&t.regionOrigin.k!==(t.origin&&t.origin.k)?', most from '+oInfo(t.regionOrigin.k).name:'')],
+  const facts=[o&&['<span class="yic-fl">'+flagOf(t.origin.k)+'</span>','Mostly from',o.name,t.origin.n+' bag'+(t.origin.n===1?'':'s')],R&&['🗺️','Favourite region',R.name+(t.regionOrigin&&t.regionOrigin.k!==(t.origin&&t.origin.k)?' · mostly '+oInfo(t.regionOrigin.k).name:''),t.region.n+' bag'+(t.region.n===1?'':'s')],
     v&&['🌱','Top variety',shortName(v.name),t.variety.n+' bag'+(t.variety.n===1?'':'s')],pr&&['🧪','Top process',pr.name.replace(/\s*\(.*\)$/,''),t.process.n+' bag'+(t.process.n===1?'':'s')],
     t.roast&&['🔥','Usual roast',t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1),''],t.roaster&&['🏷️','Roastery most often',t.roaster.k,t.roaster.n+' bag'+(t.roaster.n===1?'':'s')],
     t.regular&&['🔁','Your regular',beanTitle(t.regular),'Bought '+buys(t.regular)+' times'],t.best&&['🏆','Best of the year',beanTitle(t.best),String(t.best.rating).replace('.5','½')+' beans'],B&&['☕','Brewed most on',B.name,t.brewer.n+' cup'+(t.brewer.n===1?'':'s')]].filter(Boolean);
-  return '<div class="yic" role="region" aria-label="'+cy+' in coffee"><span class="yic-k">'+cy+' in coffee <em class="yic-scope">this year only</em></span>'+(bs.length>1?'<p class="yic-line">'+esc(tasteLine(t))+'</p>':'')+
+  // The months it covers (January to this month), in place of a "this year only" note.
+  const mon=m=>new Date(cy,m,1).toLocaleDateString(undefined,{month:'short'}),nowM=new Date().getMonth(),range=nowM?mon(0)+' – '+mon(nowM):mon(0);
+  return '<div class="yic" role="region" aria-label="'+cy+' in coffee"><div class="yic-h"><h3>'+cy+' in coffee</h3><span>'+esc(range)+'</span></div>'+(bs.length>1?'<p class="yic-line">'+esc(tasteLine(t))+'</p>':'')+
     '<div class="yic-big">'+big.map(([n,l])=>'<span><b>'+esc(String(n))+'</b><small>'+esc(l)+'</small></span>').join('')+'</div>'+
-    (facts.length?'<div class="yic-facts">'+facts.map(([i,k,vv,sub])=>'<div><i aria-hidden="true">'+i+'</i><span><small>'+k+'</small><b>'+esc(vv)+'</b>'+(sub?'<em>'+esc(sub)+'</em>':'')+'</span></div>').join('')+'</div>':'')+
+    // The facts as one list: the icon, what it is over its value, and the count on the right.
+    (facts.length?'<ul class="yic-list">'+facts.map(([i,k,vv,sub])=>'<li><i aria-hidden="true">'+i+'</i><span><small>'+k+'</small><b>'+esc(vv)+'</b></span>'+(sub?'<em>'+esc(sub)+'</em>':'')+'</li>').join('')+'</ul>':'')+
     (t.notes.length?'<div class="yic-notes"><small>Notes you keep coming back to</small><div class="chips">'+t.notes.map(n=>'<span class="chip"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'</span>').join('')+'</div></div>':'')+'</div>'}
 
 /* ================= FOR YOU ================= */
@@ -610,10 +617,10 @@ function setAbBottom(){const a=$('appbar');if(!a)return;const top=parseFloat(get
 addEventListener('resize',setAbBottom);
 // The page: a compact hero with the two ways in, then one of three views (your coffees, the top 3, your scans).
 function renderBeans(){const el=$('beans-in');if(!el)return;BSIG=beansSig();setAbBottom();
-  if(!el.firstChild)el.innerHTML='<div id="bg-hero"></div><div id="bg-day"></div><div class="seg bviews scrollrow" id="bg-views" role="group" aria-label="Show"></div>'+
+  if(!el.firstChild)el.innerHTML='<div id="bg-hero"></div><div class="seg bviews scrollrow" id="bg-views" role="group" aria-label="Show"></div>'+
     '<div class="bview" id="bv-coffees" aria-label="Your coffees"></div><div class="bview" id="bv-diary" aria-label="Your coffee diary"></div><div class="bview" id="bv-passport" aria-label="Your coffee passport"></div>'+
     '<div class="bview" id="bv-top3" aria-label="Top 3"></div><div class="bview" id="bv-scans" aria-label="Your scans"></div>';
-  $('bg-day').innerHTML=cabinetDayHTML();hydrateImgs($('bg-day'));
+  // "From your cabinet" lives on Explore only.
   // Only the view on screen is drawn now; the others are drawn when you switch to them.
   // The top shows at once; the long list follows a frame later, so the tab opens without a pause.
   renderBeanHero();BDIRTY=new Set(Object.keys(BVIEWS));
@@ -637,8 +644,7 @@ function renderBeanHero(){const cy=new Date().getFullYear(),N=BEANS.length,rated
     '<div class="bgh-acts"><button type="button" class="bgh-btn main" id="bg-scan">'+SCAN_ICO+'Scan a bag</button><button type="button" class="bgh-btn" id="bg-add">'+PLUS_ICO+'Add a coffee</button></div>';
   hydrateImgs(h)}
 function renderBeanViews(){const cy=new Date().getFullYear();
-  const cnt=n=>n?' <i>'+(n>999?'999+':n)+'</i>':'';
-  seg('bg-views',[['coffees','Coffees'+cnt(BEANS.length)],['diary','Diary'],['passport','Passport'],['top3','Top 5'],['scans','Scans'+cnt(SCANS.length)]],()=>BVIEW,v=>{if(v===BVIEW)return;BVIEW=v;
+  seg('bg-views',[['coffees','Coffees'],['diary','Diary'],['passport','Passport'],['top3','Top 5'],['scans','Scans']],()=>BVIEW,v=>{if(v===BVIEW)return;BVIEW=v;
     // The highlight moves at once; the page under it is built a frame later, so the glide isn't held up.
     $('bg-views').querySelectorAll(':scope>button[data-v]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===v)));requestAnimationFrame(()=>setTimeout(renderBeanViews,0))});
   if(BDIRTY.has(BVIEW)){BDIRTY.delete(BVIEW);BVIEWS[BVIEW]()}
@@ -888,7 +894,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;const d=$('vd'),rk
   let cupG=dose;const cupShow=()=>{$('bd-cg').textContent=gfmt(cupG)+' g'};
   if($('bd-cm')){$('bd-cm').onclick=()=>{cupG=Math.max(1,cupG-1);cupShow()};$('bd-cp').onclick=()=>{cupG=Math.min(100,cupG+1);cupShow()}}
   if($('bd-cup'))$('bd-cup').onclick=()=>{setLeft(b,Math.max(0,(gramsLeft(b)||0)-cupG));refresh('Took '+gfmt(cupG)+' g off the bag')};
-  if($('bd-left'))$('bd-left').onclick=()=>{const v=prompt('How many grams are left in the bag?',String(gramsLeft(b)||''));if(v==null)return;const n=parseFloat(v);if(!isFinite(n)||n<0){toast('Enter the grams left, like 120');return}setLeft(b,n);refresh('Updated')};
+  if($('bd-left'))$('bd-left').onclick=()=>askSheet({title:'What’s left in the bag?',text:'Weigh the bag, or a good guess. Brews from here on come off this.',ok:'Save',input:{value:gramsLeft(b)??'',unit:'g',step:5,min:0,max:5000,label:'Grams left'}}).then(n=>{if(n==null)return;setLeft(b,n);refresh('Updated')});
   if($('bd-done'))$('bd-done').onclick=()=>{b.shelf=false;const ol=b.diary.find(e=>e.k==='opened'||e.k==='last');if(!ol||ol.k!=='last')b.diary.unshift(okEntry({k:'last',d:todayISO(),t:''}));refresh('Finished: it’s in the cabinet now. Add how it ended in its diary')};
   if($('bd-shelf'))$('bd-shelf').onclick=()=>{b.shelf=true;refresh('Back on the shelf')};
   if($('bd-rbopen'))$('bd-rbopen').onclick=e=>{const f=$('bd-rbform'),o=f.hidden;f.hidden=!o;e.currentTarget.setAttribute('aria-expanded',o);if(o)f.scrollIntoView({block:'nearest',behavior:RM()?'auto':'smooth'})};
@@ -899,10 +905,10 @@ function openBean(id,write){const b=beanById(id);if(!b)return;const d=$('vd'),rk
     if(rd&&(!/^\d{4}-\d\d-\d\d$/.test(rd)||rd>todayISO())){toast('Pick a roast date that isn’t in the future');return}
     rebuyBean(b,rd,g>=50&&g<=5000?Math.round(g):0);refresh('New bag on the shelf: it’s in Drinking now')};
   wireDwrite('bd',st,()=>b,(_,msg)=>{refresh(msg);setTimeout(()=>{const h=$('bd-dh');if(h)h.scrollIntoView({block:'start'})},50)});
-  $('bd-tl').onclick=e=>{const x=e.target.closest('[data-deldiary]');if(!x||!confirm('Delete this diary entry?'))return;dropDiaryPhotos(b.diary.filter(en=>en.id===x.dataset.deldiary));b.diary=b.diary.filter(en=>en.id!==x.dataset.deldiary);refresh('Entry deleted')};
+  $('bd-tl').onclick=e=>{const x=e.target.closest('[data-deldiary]');if(!x)return;const id=x.dataset.deldiary;askConfirm('Its words and photos go with it.','Delete',true,'Delete this diary entry?').then(y=>{if(!y)return;dropDiaryPhotos(b.diary.filter(en=>en.id===id));b.diary=b.diary.filter(en=>en.id!==id);refresh('Entry deleted')})};
   $('bd-del').onclick=()=>{const inTop=inAnyTop(b.id);
-    if(!confirm('Remove “'+beanTitle(b)+'” from your gallery?'+(inTop?' It stays in your top 3 history.':'')))return;
-    BEANS=BEANS.filter(x=>x.id!==b.id);saveBeans();if(!inTop)BIMG.del(b.id);dropDiaryPhotos(b.diary);d.close();renderBeans();toast('Removed from your gallery')};
+    askConfirm('Its diary and photos go with it.'+(inTop?' It stays in your top 5 history.':''),'Remove',true,'Remove “'+beanTitle(b)+'”?').then(y=>{if(!y)return;
+    BEANS=BEANS.filter(x=>x.id!==b.id);saveBeans();if(!inTop)BIMG.del(b.id);dropDiaryPhotos(b.diary);d.close();renderBeans();toast('Removed from your gallery')})};
   showDlg(d);$('vd-x').onclick=()=>d.close();if($('vd-back'))$('vd-back').onclick=()=>openOrigin(from);
   if(write)setTimeout(()=>{const h=$('bd-dh');if(h){h.scrollIntoView({block:'start'});$('bd-dt').focus({preventScroll:true})}},80);else d.scrollTop=0}
 function beanDoc(b){const P=b.process&&PROCESSES[b.process];
