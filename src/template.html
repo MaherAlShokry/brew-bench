@@ -2404,6 +2404,8 @@ dialog.dlg-pre[open]::backdrop{animation:none!important;opacity:0}
 @media (max-width:759px){
   .seg.bviews{top:calc(var(--ab-b,64px) + 8px)!important;margin-left:-6px!important;margin-right:-6px!important;background:var(--surface)!important;border:1px solid var(--hair)!important;box-shadow:var(--e2)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 }
+#ab-title{transition:opacity .2s ease,transform .2s ease}.appbar.title-off #ab-title{opacity:0;transform:translateY(6px)}
+@media (min-width:760px){.appbar.title-off #ab-title{opacity:1;transform:none}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>

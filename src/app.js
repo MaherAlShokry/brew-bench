@@ -3220,7 +3220,12 @@ function fitTitle(){const el=$('ab-title');if(!el)return;el.style.fontSize='';el
   for(let i=0;i<8&&!room()&&f>14;i++){f=Math.max(14,f-1);el.style.fontSize=f+'px'}
   if(!room()&&TABSHORT[TITLE_ID]){el.textContent=TABSHORT[TITLE_ID];el.style.fontSize='';f=parseFloat(getComputedStyle(el).fontSize);for(let i=0;i<8&&!room()&&f>14;i++){f=Math.max(14,f-1);el.style.fontSize=f+'px'}}}
 addEventListener('resize',()=>requestAnimationFrame(fitTitle));
-function syncShell(id){TITLE_ID=id;$('ab-title').textContent=TABNAMES[id]||'Brew Bench';requestAnimationFrame(fitTitle);$('ab-back').hidden=NAVD<1;document.body.className=document.body.className.replace(/\bt-\w+/g,'').trim()+' t-'+id;
+// The page's own heading says where you are, so the top bar's title waits until that heading scrolls up under the bar,
+// then takes over (and hands back on the way down). Pages without a heading keep the bar's title.
+let TIO_T=null;const TIO='IntersectionObserver' in window?new IntersectionObserver(es=>{for(const e of es)if(e.target===TIO_T)$('appbar').classList.toggle('title-off',e.isIntersecting)},{rootMargin:'-84px 0px 0px 0px'}):null;
+function watchTitle(id){const ab=$('appbar');if(!ab)return;if(TIO&&TIO_T)TIO.unobserve(TIO_T);const s=$(id);TIO_T=s&&s.querySelector(':scope > h2');
+  if(!TIO||!TIO_T){ab.classList.remove('title-off');return}const r=TIO_T.getBoundingClientRect();ab.classList.toggle('title-off',r.bottom>84&&r.top<innerHeight);TIO.observe(TIO_T)}
+function syncShell(id){TITLE_ID=id;$('ab-title').textContent=TABNAMES[id]||'Brew Bench';requestAnimationFrame(fitTitle);watchTitle(id);$('ab-back').hidden=NAVD<1;document.body.className=document.body.className.replace(/\bt-\w+/g,'').trim()+' t-'+id;
   document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));requestAnimationFrame(movePill);
   updShare(id)}
 // The app bar's Share only shows when the page has something to share: a picked origin on the map, a list of recipes.
