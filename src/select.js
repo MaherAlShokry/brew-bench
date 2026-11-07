@@ -105,8 +105,8 @@ document.querySelectorAll('input[type=date]').forEach(enhanceDate);
 new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.nodeType===1){if(n.matches&&n.matches('input[type=date]'))enhanceDate(n);else n.querySelectorAll&&n.querySelectorAll('input[type=date]').forEach(enhanceDate)}}).observe(document.body,{childList:true,subtree:true});
 
 /* ================= SLIDERS ================= */
-// Every slider gets a filled track and a bigger thumb, and, where its value is shown in the label, a − and + either
-// side of that value for one exact step (hold to keep going). The fill follows the value whether you drag it or the
+// Every slider gets a filled track and a bigger thumb, and, where its value is shown in the label, a − and + at the
+// ends of the track for one exact step (hold to keep going). The fill follows the value whether you drag it or the
 // app sets it, and Android gives a light tick on each step.
 const RNG_VAL=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value');
 function rngFill(i){const mn=+i.min||0,mx=i.max===''?100:+i.max,f=(+RNG_VAL.get.call(i)-mn)/((mx-mn)||1);i.style.setProperty('--p',Math.max(0,Math.min(1,f)).toFixed(4))}
@@ -124,8 +124,9 @@ function rngButton(i,dir){const b=document.createElement('button');b.type='butto
 function rngEnhance(i){if(i.dataset.rng)return;i.dataset.rng='1';
   Object.defineProperty(i,'value',{configurable:true,get(){return RNG_VAL.get.call(this)},set(v){RNG_VAL.set.call(this,v);rngFill(this)}});
   i.addEventListener('input',()=>{rngFill(i);rngBuzz()});rngFill(i);
-  const lab=i.id&&document.querySelector('label[for="'+i.id+'"]'),num=lab&&lab.querySelector('.num');
-  if(num&&!num.closest('.rng-st')){const w=document.createElement('span');w.className='rng-st';num.before(w);w.append(rngButton(i,-1),num,rngButton(i,1))}}
+  // The − and + sit at the two ends of the track, so the label row keeps just the name and the value.
+  const lab=i.id&&document.querySelector('label[for="'+i.id+'"]');
+  if(lab&&lab.querySelector('.num')&&!i.parentElement.classList.contains('rng-row')){const w=document.createElement('div');w.className='rng-row';i.before(w);w.append(rngButton(i,-1),i,rngButton(i,1))}}
 
 /* ================= SELECTION CONTROLS ================= */
 // Segmented controls (roast, agitation, light or dark…) get one highlight that glides to the option you pick, styled
