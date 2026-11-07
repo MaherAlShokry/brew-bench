@@ -1983,18 +1983,16 @@ function drawLSet(){const el=$('lset');if(!el)return;const o=LS,B=o.b&&BREWERS[o
   const bl=[...new Set([...(o.b?[o.b]:[]),...MYB,...Object.keys(BREWERS).filter(LISTED)])];
   const recs=RECIPES.map((r,i)=>[r,i]).filter(([r])=>!o.b||r.b===o.b||(BREWERS[r.b]&&BREWERS[r.b].of===o.b)||r===o.rec);
   const gl=[...new Set([...(o.g?[o.g]:[]),...MYG])];
-  // Each setting is a row: its icon and name, then − value + (the way the dial-in's sliders put their buttons at the ends).
-  const pm=d=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+(d<0?'M6 12h12':'M12 6v12M6 12h12')+'"/></svg>';
-  const tile=(k,lab,val,unit,step,sub)=>'<div class="ls-t'+(val==null?' empty':'')+'"><div class="ls-th"><span class="ls-ic">'+lsIc(k)+'</span><span class="ls-tt"><span class="ls-l">'+lab+'</span>'+(sub||'')+'</span></div>'+
-    '<div class="ls-row ls-st"><button type="button" data-ls="'+k+'" data-d="-1" aria-label="Less '+lab.toLowerCase()+'">'+pm(-1)+'</button>'+
-    '<b class="ls-v">'+(val==null?'Not set':esc(String(val)))+(val!=null&&unit?'<small>'+unit+'</small>':'')+'</b>'+
-    '<button type="button" data-ls="'+k+'" data-d="1" aria-label="More '+lab.toLowerCase()+'">'+pm(1)+'</button></div></div>';
+  const tile=(k,lab,val,unit,step,sub)=>'<div class="ls-t'+(val==null?' empty':'')+'"><span class="ls-ic">'+lsIc(k)+'</span><span class="ls-l">'+lab+'</span>'+
+    '<b class="ls-v">'+(val==null?'–':esc(String(val)))+(val!=null&&unit?'<small>'+unit+'</small>':'')+'</b>'+(sub||'')+
+    '<span class="ls-st"><button type="button" data-ls="'+k+'" data-d="-1" aria-label="Less '+lab.toLowerCase()+'">−</button><button type="button" data-ls="'+k+'" data-d="1" aria-label="More '+lab.toLowerCase()+'">+</button></span></div>';
   const ra=o.dose&&o.water?o.water/o.dose:null,pos=ra?clamp((ra-12)/7,0,1)*100:50;
   el.innerHTML='<div class="ls-pick"><label class="ls-sel"><span class="ls-ic">'+lsIc('brew')+'</span><span class="ls-l">Brewer</span><b>'+esc(B?B.name:'Choose')+'</b><svg class="ls-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg><select id="ls-b" aria-label="Brewer"><option value="">No brewer</option>'+bl.map(k=>'<option value="'+k+'"'+(k===o.b?' selected':'')+'>'+esc(BREWERS[k].name)+'</option>').join('')+'</select></label>'+
     '<label class="ls-sel"><span class="ls-ic">'+lsIc('rec')+'</span><span class="ls-l">Recipe</span><b>'+esc(o.rec?o.rec.name:'Your own')+'</b><svg class="ls-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg><select id="ls-r" aria-label="Recipe"><option value="">My own recipe</option>'+recs.map(([r,i])=>'<option value="'+i+'"'+(r===o.rec?' selected':'')+'>'+esc(r.name)+'</option>').join('')+'</select></label></div>'+
     '<div class="ls-grid">'+tile('dose','Coffee',o.dose!=null?gfmt(o.dose):null,' g')+tile('water','Water',o.water!=null?gfmt(o.water):null,' g')+tile('temp','Water temp',o.temp,'°C')+
     tile('grind','Grind',G&&o.c!=null?dial(o.g,o.c):null,G&&G.unit==='clicks'&&G.fmt!=='rot'?' clicks':'','',G||gl.length?'<label class="ls-gsel">'+esc(G?G.name:gname(gl[0]))+'<select id="ls-g" aria-label="Grinder">'+gl.map(g=>'<option value="'+g+'"'+(g===o.g?' selected':'')+'>'+esc(gname(g))+'</option>').join('')+'</select></label>':'')+'</div>'+
-    '<div class="ls-ratio'+(ra?'':' empty')+'"><div class="ls-rtop"><span class="ls-l">Ratio</span><b>'+(ra?'1:'+rr1(ra):'Set coffee and water')+'</b>'+(ra?'<em>'+lsWord(ra)+'</em>':'')+'</div>'+
+    // The ratio: its name on the left, the ratio and what it tastes like on the right, then where it sits from strong to light.
+    '<div class="ls-ratio'+(ra?'':' empty')+'"><div class="ls-rtop"><span class="ls-l">Ratio</span>'+(ra?'<span class="ls-rv"><b>1:'+rr1(ra)+'</b><em>'+lsWord(ra)+'</em></span>':'<span class="ls-rv"><small>Set coffee and water</small></span>')+'</div>'+
     '<div class="ls-bar"><i style="left:'+pos.toFixed(1)+'%"></i></div><div class="ls-ends"><span>Stronger</span><span>Lighter</span></div></div>'+
     '<input id="ls-x" class="ls-x" placeholder="Anything else? Bloom 45 s, two swirls…" value="'+esc(o.extra)+'" aria-label="Other settings">'}
 function lsDefault(k){const o=LS,r=o.rec;
