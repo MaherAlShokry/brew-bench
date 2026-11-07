@@ -295,10 +295,14 @@ function tasteOf(bs,ls){const top=(items,f,w)=>{const m=new Map();for(const x of
   t.regular=[...bs].filter(b=>buys(b)>1).sort((a,b)=>buys(b)-buys(a)||b.rating-a.rating)[0]||null;
   return t}
 // One line that sums it up: "Washed Ethiopian heirlooms, light roast, floral and fruity, on a Hario V60."
-function tasteLine(t){const bits=[];const pr=t.process&&PROCESSES[t.process.k],o=t.origin&&oInfo(t.origin.k),v=t.variety&&VBY[t.variety.k];
-  const head=[pr?pr.name.replace(/\s*\(.*\)$/,'').toLowerCase():'',v?shortName(v.name):'coffees'].filter(Boolean).join(' ')+(o?' from '+o.name:'');if(t.origin||t.variety)bits.push(head.charAt(0).toUpperCase()+head.slice(1));
-  if(t.roast)bits.push(t.roast.k+' roast');if(t.families.length)bits.push(t.families.slice(0,2).map(f=>f.n.toLowerCase()).join(' and '));
-  if(t.brewer&&BREWERS[t.brewer.k])bits.push('on '+art(BREWERS[t.brewer.k].name)+' '+BREWERS[t.brewer.k].name);return bits.join(', ')}
+// Your taste in one sentence of plain statements, each true on its own: the roast and the flavours you like, where your
+// coffees mostly come from, and what you brew on ("Light roasts that taste fruity and sweet, mostly from Yemen, brewed
+// on a Hario V60"). The top variety and process are listed separately: strung together they read like one coffee.
+function tasteLine(t){const o=t.origin&&oInfo(t.origin.k),B=t.brewer&&BREWERS[t.brewer.k],fam=t.families.slice(0,2).map(f=>f.n.toLowerCase().replace(/\//g,' and ')).join(' and ');
+  const rs=t.roast?t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1)+' roasts':'';
+  const head=rs&&fam?rs+' that taste '+fam:rs?'Mostly '+rs.toLowerCase():fam?'Coffees that taste '+fam:'';
+  const bits=[head,o?(head?'mostly from ':'Mostly from ')+o.name:'',B?(head||o?'brewed on ':'Brewed on ')+art(B.name)+' '+B.name:''].filter(Boolean);
+  return bits.length?bits.join(', ')+'.':''}
 // This year in coffee: the counts, then what you bought most (origin, region, variety, process, roast, roastery), how you
 // brewed, and the notes you came back to.
 // Kept until your coffees, your brews or the day change, so redrawing the page doesn't work it all out again.
