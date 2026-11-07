@@ -77,8 +77,9 @@ const CAM_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l1.6-2
 const SYNC_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 0 1-14 5.3 M4 12a8 8 0 0 1 14-5.3 M18 3v4h-4 M6 21v-4h4"/></svg>';
 // Your coffee style, as a title under your name.
 const ROLE={bright:'Florals chaser',sweet:'Sweet-cup seeker',choc:'Comfort-cup brewer',wild:'Ferment explorer',espresso:'Espresso devotee',milk:'Milk-drink maker'};
-function profileStats(){const mine=LOG.filter(l=>window.BEANS_OK?isMine(l):l&&(!l.by||l.by===ME)).length,b=window.BEANS_OK?BEANS:[],o=new Set(b.map(x=>x.origin).filter(Boolean)).size,t=window.BEANS_OK&&TGOT?Object.keys(TGOT).length:0;
-  return [[b.length,b.length===1?'coffee':'coffees'],[mine,mine===1?'brew':'brews'],[o,o===1?'origin':'origins'],[t,t===1?'trophy':'trophies']]}
+// All-time counts: every coffee, every cup made (logged brews and unlogged timer cups), origins and trophies.
+function profileStats(){const mine=window.BEANS_OK?myCups().length:LOG.filter(l=>l&&(!l.by||l.by===ME)).length,b=window.BEANS_OK?BEANS:[],o=new Set(b.map(x=>x.origin).filter(Boolean)).size,t=window.BEANS_OK&&TGOT?Object.keys(TGOT).length:0;
+  return [[b.length,b.length===1?'coffee':'coffees'],[mine,mine===1?'cup':'cups'],[o,o===1?'origin':'origins'],[t,t===1?'trophy':'trophies']]}
 // Your taste, read from your coffees and brews (not typed in): where you buy from, the variety, process and roast you
 // come back to, the flavours you like most and how you brew. It fills in as the gallery and the log grow.
 function tasteHTML(){if(!window.BEANS_OK||BEANS.length<2)return '';const t=tasteOf(BEANS,LOG.filter(isMine));
@@ -91,7 +92,7 @@ function tasteHTML(){if(!window.BEANS_OK||BEANS.length<2)return '';const t=taste
     t.roast&&['🔥','Roast',t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1)],
     lo&&lo!==o&&[fl(t.likedOrigin.k),'Rated best',lo.name],B&&['☕','Brewer',shortBrewer(B.name)]].filter(Boolean).slice(0,5);
   if(!rows.length&&!t.families.length)return '';
-  return '<div class="me-taste"><div class="me-th"><b>Your coffee taste</b><small>From '+BEANS.length+' coffees and '+LOG.filter(isMine).length+' brews</small></div>'+
+  return '<div class="me-taste"><div class="me-th"><b>Your coffee taste</b><small>From all '+BEANS.length+' coffees and '+myCups().length+' cups, all time</small></div>'+
     (tasteLine(t)?'<p class="me-tl">'+esc(tasteLine(t))+'</p>':'')+
     (rows.length?'<div class="me-tiles">'+rows.map(([i,k,vv])=>'<div><i aria-hidden="true">'+i+'</i><small>'+k+'</small><b>'+esc(vv)+'</b></div>').join('')+'</div>':'')+
     (t.notes.length?'<div class="me-notes chips">'+t.notes.slice(0,5).map(n=>'<span class="chip"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'</span>').join('')+'</div>':'')+'</div>'}

@@ -450,7 +450,12 @@ function drawDial(id,g,c){
 }
 
 /* ================= SEGMENTS ================= */
-function seg(el,opts,get,set){$(el).innerHTML=opts.map(([v,l,dis])=>'<button type="button" data-v="'+v+'" aria-pressed="'+(get()===v)+'"'+(dis?' disabled title="'+esc(dis)+'"':'')+'>'+l+'</button>').join('');
+// A row of options. When the same options are drawn again, only which one is picked (and which are disabled)
+// changes, so the buttons stay put and the picked highlight can glide instead of being redrawn.
+function seg(el,opts,get,set){const box=$(el),cur=get(),html=opts.map(([v,l,dis])=>'<button type="button" data-v="'+v+'" aria-pressed="'+(cur===v)+'"'+(dis?' disabled title="'+esc(dis)+'"':'')+'>'+l+'</button>').join('');
+  const key=opts.map(([v,l,dis])=>v+'\u0001'+l+'\u0001'+(dis||'')).join('\u0002');
+  if(box._segk===key&&box.children.length){box.querySelectorAll(':scope>button[data-v]').forEach(b=>{const on=String(b.dataset.v===String(cur));if(b.getAttribute('aria-pressed')!==on)b.setAttribute('aria-pressed',on)})}
+  else{box.innerHTML=html;box._segk=key}
   $(el).onclick=e=>{const b=e.target.closest('button');if(b&&!b.disabled)set(b.dataset.v)}}
 // Your grinders as a picker. With more than three they wrap as chips instead of a segmented control.
 const grinderOpts=b=>MYG.map(g=>[g,gname(g),canGrind(g,b)?'':'Can\u2019t grind for this brewer']);
@@ -1004,7 +1009,11 @@ function cascadeIn(sec){if(RM()||!sec)return;const vh=innerHeight,picked=[];
     const done=e=>{if(e&&e.target!==c)return;c.classList.remove('cascade');c.removeEventListener('animationend',done)};c.addEventListener('animationend',done);setTimeout(done,1400)})}
 try{history.scrollRestoration='manual'}catch(e){}
 // Lock the page behind any open dialog or sheet so it can't scroll underneath.
-{const sync=()=>document.documentElement.classList.toggle('locked',!!document.querySelector('dialog[open]'));
+// The page behind a sheet stops scrolling once the sheet has finished opening, not at the start: locking it straight
+// away made the browser lay the page out again mid-animation and the sticky tabs jumped. Blurs behind the page's
+// sticky bars are switched off while a sheet is up, so the sliding sheet doesn't make them redraw every frame.
+{let lockT=0;const sync=()=>{const open=!!document.querySelector('dialog[open]'),h=document.documentElement;clearTimeout(lockT);h.classList.toggle('sheeting',open);
+  if(!open){h.classList.remove('locked');return}if(!h.classList.contains('locked'))lockT=setTimeout(()=>{if(document.querySelector('dialog[open]'))h.classList.add('locked')},340)};
   const mo=new MutationObserver(sync);document.querySelectorAll('dialog').forEach(d=>{mo.observe(d,{attributes:true,attributeFilter:['open']});d.addEventListener('close',sync)})}
 // An open dialog also gets a history entry, so back closes it instead of leaving the tab.
 // When one sheet closes and another opens straight away (Share inside a sheet, Start timer from a recipe), the step back

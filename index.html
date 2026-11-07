@@ -2332,6 +2332,49 @@ button[aria-pressed]:active{transform:scale(.95)}
 /* Smoother page changes on phones: no blur behind the little count badges (it was invisible and costly to draw). */
 .cupcard .cc,.colshelf .cn,#rhome .cc,#rhome .cn{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 .colshelf .cn{background:rgba(0,0,0,.26)}
+/* Trophies as a medal grid: three to a row on phones, a gold medal with a dark engraved icon when earned, grey with
+   progress when not. The icon colour is fixed so it reads on gold in every theme. */
+.trophies{grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px}
+.tro{flex-direction:column;align-items:center;text-align:center;gap:4px;padding:14px 8px 12px;box-shadow:none;border:1px solid var(--line)}
+.tro b{font:700 .84rem/1.25 var(--display);color:var(--ink);overflow-wrap:anywhere}
+.tro small{font-size:.72rem;line-height:1.3;color:var(--muted)}
+.tro-ic{width:56px;height:56px;margin-bottom:4px;filter:none;opacity:1;background:var(--surface2);color:color-mix(in srgb,var(--ink) 38%,transparent);box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--ink) 10%,transparent)}
+.tro .tro-ic .di{color:inherit;width:26px;height:26px;stroke-width:1.8}
+.tro.on .tro-ic{color:#5A3A12;background:radial-gradient(circle at 34% 28%,#FFF4D6,#EBC27A 52%,#B9853E);box-shadow:inset 0 0 0 2px rgba(255,248,230,.55),inset 0 -3px 6px rgba(120,80,20,.25),0 6px 14px -8px rgba(150,100,30,.9)}
+.tro.on .tro-ic .di{color:#5A3A12;stroke-width:2}
+.tro:not(.on) b{color:color-mix(in srgb,var(--ink) 75%,transparent)}
+.tro .tro-p{width:72%;margin:6px auto 0}
+.yic-scope{font-style:normal;font-weight:600;letter-spacing:0;text-transform:none;opacity:.8;margin-left:6px}
+.tro small{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+html.sheeting :is(.seg.bviews,.gtabs,.appbar,.minires,.bottomnav){-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+/* Diary: the entry icons' rings aren't cropped (content-visibility clips whatever pokes out of a row, so rows keep a
+   little room on the left), and the moment chips scroll with an end fade instead of being cut by the card. */
+.tl-e{padding-left:3px}
+#vd .tl-e{content-visibility:visible}
+.dmoms{padding-right:28px;scroll-padding-inline:12px;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}
+/* Bags you're drinking now are always near the top: drawn in full, never with a placeholder height. */
+.clist.now .crow,.shelf .crow{content-visibility:visible}
+/* The trophy row fades out at its end instead of cutting the last medal in half. */
+.ts-row{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 26px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 26px),transparent)}
+/* Flags on bag pictures sit fully inside the picture. */
+.bpic .bfl{right:10%;top:9%;font-size:1.2em}
+.vd-back{position:absolute;top:14px;right:62px;border:0;border-radius:999px;padding:8px 14px;font:600 .86rem var(--body);background:var(--surface2);color:var(--ink);cursor:pointer}
+.og-fl{font-size:.9em}.og-list{margin-top:4px}
+.bpic>img.hi{animation:imgin .26s ease both!important}@keyframes imgin{from{opacity:0}}
+/* Beans opens with what's on screen: the blocks further down (the year in coffee, the season card, the trophy row,
+   the tools above the list) are laid out and drawn only as they come near view. */
+#bg-yic,#bv-coffees .season,#bv-coffees .tshelf,#bv-coffees .bg-tools{content-visibility:auto;contain-intrinsic-size:auto 420px}
+#bv-coffees .season{contain-intrinsic-size:auto 200px}
+#bv-coffees .tshelf,#bv-coffees .bg-tools{contain-intrinsic-size:auto 120px}
+/* Top 5: fourth and fifth each get a full-width row, so long names read on one or two lines instead of a column of
+   single words; honourable mentions are a two-column list (picture, then the full name) rather than narrow tiles. */
+.t45{grid-template-columns:1fr}
+.t45c{padding:10px 12px 10px 10px;gap:12px}.t45c .bpic{width:44px;height:52px}
+.t45t b{font-size:.92rem}
+.t3hm-l{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px;overflow:visible}
+.t3hm-i{width:auto;flex-direction:row;align-items:center;gap:10px;text-align:left}
+.t3hm-i .bpic{flex:none;width:40px;height:40px}
+.t3hm-i small{max-width:none;text-align:left;font-size:.8rem;line-height:1.25}
 </style>
 <script>const JSPDF_SRC="vendor/jspdf.umd.min.js"</script>
 <link rel="manifest" href="manifest.webmanifest">
@@ -5356,7 +5399,12 @@ function drawDial(id,g,c){
 }
 
 /* ================= SEGMENTS ================= */
-function seg(el,opts,get,set){$(el).innerHTML=opts.map(([v,l,dis])=>'<button type="button" data-v="'+v+'" aria-pressed="'+(get()===v)+'"'+(dis?' disabled title="'+esc(dis)+'"':'')+'>'+l+'</button>').join('');
+// A row of options. When the same options are drawn again, only which one is picked (and which are disabled)
+// changes, so the buttons stay put and the picked highlight can glide instead of being redrawn.
+function seg(el,opts,get,set){const box=$(el),cur=get(),html=opts.map(([v,l,dis])=>'<button type="button" data-v="'+v+'" aria-pressed="'+(cur===v)+'"'+(dis?' disabled title="'+esc(dis)+'"':'')+'>'+l+'</button>').join('');
+  const key=opts.map(([v,l,dis])=>v+'\u0001'+l+'\u0001'+(dis||'')).join('\u0002');
+  if(box._segk===key&&box.children.length){box.querySelectorAll(':scope>button[data-v]').forEach(b=>{const on=String(b.dataset.v===String(cur));if(b.getAttribute('aria-pressed')!==on)b.setAttribute('aria-pressed',on)})}
+  else{box.innerHTML=html;box._segk=key}
   $(el).onclick=e=>{const b=e.target.closest('button');if(b&&!b.disabled)set(b.dataset.v)}}
 // Your grinders as a picker. With more than three they wrap as chips instead of a segmented control.
 const grinderOpts=b=>MYG.map(g=>[g,gname(g),canGrind(g,b)?'':'Can\u2019t grind for this brewer']);
@@ -5910,7 +5958,11 @@ function cascadeIn(sec){if(RM()||!sec)return;const vh=innerHeight,picked=[];
     const done=e=>{if(e&&e.target!==c)return;c.classList.remove('cascade');c.removeEventListener('animationend',done)};c.addEventListener('animationend',done);setTimeout(done,1400)})}
 try{history.scrollRestoration='manual'}catch(e){}
 // Lock the page behind any open dialog or sheet so it can't scroll underneath.
-{const sync=()=>document.documentElement.classList.toggle('locked',!!document.querySelector('dialog[open]'));
+// The page behind a sheet stops scrolling once the sheet has finished opening, not at the start: locking it straight
+// away made the browser lay the page out again mid-animation and the sticky tabs jumped. Blurs behind the page's
+// sticky bars are switched off while a sheet is up, so the sliding sheet doesn't make them redraw every frame.
+{let lockT=0;const sync=()=>{const open=!!document.querySelector('dialog[open]'),h=document.documentElement;clearTimeout(lockT);h.classList.toggle('sheeting',open);
+  if(!open){h.classList.remove('locked');return}if(!h.classList.contains('locked'))lockT=setTimeout(()=>{if(document.querySelector('dialog[open]'))h.classList.add('locked')},340)};
   const mo=new MutationObserver(sync);document.querySelectorAll('dialog').forEach(d=>{mo.observe(d,{attributes:true,attributeFilter:['open']});d.addEventListener('close',sync)})}
 // An open dialog also gets a history entry, so back closes it instead of leaving the tab.
 // When one sheet closes and another opens straight away (Share inside a sheet, Start timer from a recipe), the step back
@@ -8453,7 +8505,14 @@ function saveBeans(){try{localStorage.setItem('bb-beans',JSON.stringify(BEANS));
 const saveTop3=()=>{BREV++;save('bb-top3',TOP3)};
 // Changes to the gallery, the log or the scans; opening the tab again with none of them redraws nothing.
 let BREV=0,BSIG='';
-const beansSig=()=>[BREV,LOG.length,LOG[0]&&LOG[0].ts,SCANS.length,todayISO(),Object.keys(TGOT||{}).length].join('|');
+// What the Beans page shows depends on: your coffees, every change to the brew log (not just new brews), scans, the
+// day, trophies and who you are (your brews are the ones under your name).
+const beansSig=()=>[BREV,LOGV,LOG.length,SCANS.length,todayISO(),Object.keys(TGOT||{}).length,typeof ME==='string'?ME:''].join('|');
+// Every cup you made: brews in your log, plus cups finished with the dial-in's timer that weren't logged. `year` keeps
+// it to one year. Each comes with its grams of coffee.
+function myCups(year){const inY=ts=>!year||new Date(ts).getFullYear()===year;const used=new Set(LOG.map(l=>l&&l.cup).filter(Boolean));
+  const out=LOG.filter(l=>isMine(l)&&inY(brewTs(l))).map(l=>({ts:brewTs(l),g:brewDose(l),log:l}));
+  for(const b of BEANS)for(const c of (b.cups||[]))if(!used.has(c.id)&&inY(c.ts))out.push({ts:c.ts,g:c.g,bean:b});return out}
 function renderBeansIfChanged(){const s=beansSig();if(s===BSIG&&$('beans-in').firstChild)return;renderBeans()}
 const beanYear=b=>+beanDay(b).slice(0,4);
 const beanById=id=>BEANS.find(b=>b.id===id);
@@ -8661,16 +8720,18 @@ function tasteLine(t){const bits=[];const pr=t.process&&PROCESSES[t.process.k],o
 // brewed, and the notes you came back to.
 // Kept until your coffees, your brews or the day change, so redrawing the page doesn't work it all out again.
 let YIC_MEMO={k:'',h:''};
-function yearInCoffeeHTML(){const k=BREV+'|'+LOGV+'|'+LOG.length+'|'+(LOG[0]?(LOG[0].id||'')+(LOG[0].ts||''):'')+'|'+todayISO();if(YIC_MEMO.k===k)return YIC_MEMO.h;const h=yearInCoffeeHTML0();YIC_MEMO={k,h};return h}
+function yearInCoffeeHTML(){const k=beansSig();if(YIC_MEMO.k===k)return YIC_MEMO.h;const h=yearInCoffeeHTML0();YIC_MEMO={k,h};return h}
 function yearInCoffeeHTML0(){const cy=new Date().getFullYear(),bs=BEANS.filter(b=>beanYear(b)===cy),ls=LOG.filter(l=>isMine(l)&&new Date(brewTs(l)).getFullYear()===cy);
-  if(!bs.length&&!ls.length)return '';const g=Math.round(ls.reduce((s,l)=>s+brewDose(l),0)),t=tasteOf(bs,ls),origins=new Set(bs.map(b=>b.origin).filter(Boolean)).size;
-  const big=[[bs.length,bs.length===1?'coffee':'coffees'],[ls.length,ls.length===1?'cup brewed':'cups brewed'],g?[g>=1000?(g/1000).toFixed(g>=10000?0:1)+' kg':g+' g','of coffee']:[origins,origins===1?'origin':'origins']];
+  // The counts are this year's: coffees first tried or added this year (and the bags of them, when some were bought
+  // again), every cup made (logged brews and timer cups), and the coffee those cups used.
+  const cups=myCups(cy);if(!bs.length&&!cups.length)return '';const g=Math.round(cups.reduce((s,c)=>s+(c.g||0),0)),t=tasteOf(bs,ls),origins=new Set(bs.map(b=>b.origin).filter(Boolean)).size,bags=bs.reduce((a,b)=>a+buys(b),0);
+  const big=[[bs.length,(bs.length===1?'coffee':'coffees')+(bags>bs.length?' · '+bags+' bags':'')],[cups.length,cups.length===1?'cup brewed':'cups brewed'],g?[g>=1000?(g/1000).toFixed(g>=10000?0:1)+' kg':g+' g','of coffee']:[origins,origins===1?'origin':'origins']];
   const o=t.origin&&oInfo(t.origin.k),R=t.region&&REG[t.region.k],v=t.variety&&VBY[t.variety.k],pr=t.process&&PROCESSES[t.process.k],B=t.brewer&&BREWERS[t.brewer.k];
   const facts=[o&&['<span class="yic-fl">'+flagOf(t.origin.k)+'</span>','Mostly from',o.name,t.origin.n+' bag'+(t.origin.n===1?'':'s')],R&&['🗺️','Favourite region',R.name,t.region.n+' bag'+(t.region.n===1?'':'s')+(t.regionOrigin&&t.regionOrigin.k!==(t.origin&&t.origin.k)?', most from '+oInfo(t.regionOrigin.k).name:'')],
     v&&['🌱','Top variety',shortName(v.name),t.variety.n+' bag'+(t.variety.n===1?'':'s')],pr&&['🧪','Top process',pr.name.replace(/\s*\(.*\)$/,''),t.process.n+' bag'+(t.process.n===1?'':'s')],
     t.roast&&['🔥','Usual roast',t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1),''],t.roaster&&['🏷️','Roastery most often',t.roaster.k,t.roaster.n+' bag'+(t.roaster.n===1?'':'s')],
     t.regular&&['🔁','Your regular',beanTitle(t.regular),'Bought '+buys(t.regular)+' times'],t.best&&['🏆','Best of the year',beanTitle(t.best),String(t.best.rating).replace('.5','½')+' beans'],B&&['☕','Brewed most on',B.name,t.brewer.n+' cup'+(t.brewer.n===1?'':'s')]].filter(Boolean);
-  return '<div class="yic" role="region" aria-label="'+cy+' in coffee"><span class="yic-k">'+cy+' in coffee</span>'+(bs.length>1?'<p class="yic-line">'+esc(tasteLine(t))+'</p>':'')+
+  return '<div class="yic" role="region" aria-label="'+cy+' in coffee"><span class="yic-k">'+cy+' in coffee <em class="yic-scope">this year only</em></span>'+(bs.length>1?'<p class="yic-line">'+esc(tasteLine(t))+'</p>':'')+
     '<div class="yic-big">'+big.map(([n,l])=>'<span><b>'+esc(String(n))+'</b><small>'+esc(l)+'</small></span>').join('')+'</div>'+
     (facts.length?'<div class="yic-facts">'+facts.map(([i,k,vv,sub])=>'<div><i aria-hidden="true">'+i+'</i><span><small>'+k+'</small><b>'+esc(vv)+'</b>'+(sub?'<em>'+esc(sub)+'</em>':'')+'</span></div>').join('')+'</div>':'')+
     (t.notes.length?'<div class="yic-notes"><small>Notes you keep coming back to</small><div class="chips">'+t.notes.map(n=>'<span class="chip"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'</span>').join('')+'</div></div>':'')+'</div>'}
@@ -8895,7 +8956,11 @@ const fileURL=f=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(
 // Only the large photo on a coffee's page uses the full image; every list uses the small copy.
 function loadImg(el){const id=el.dataset.bimg;if(!id)return;el.removeAttribute('data-bimg');const big=el.classList.contains('hero');
   const put=(u,now)=>{const i=new Image();i.alt='';i.decoding='async';i.src=u;if(now){i.className='now';el.classList.add('has');el.prepend(i)}else i.onload=()=>{el.classList.add('has');el.prepend(i)}};
-  const c=big?BIMG.peek(id):BIMG.peekThumb(id);if(c){put(c,true);return}(big?BIMG.get(id):BIMG.thumb(id)).then(u=>{if(u)put(u,false);else if(el.classList.contains('tl-pic'))(el.closest('.tl-ph,.otd-pic')||el).remove()})}
+  // A coffee's big picture shows its thumbnail at once and the full photo once the sheet has finished opening, so
+  // decoding a camera-sized photo doesn't stall the slide.
+  if(big){const t=BIMG.peekThumb(id),f=BIMG.peek(id);if(f&&!t){put(f,true);return}if(t)put(t,true);
+    setTimeout(()=>(f?Promise.resolve(f):BIMG.get(id)).then(u=>{if(!u||!el.isConnected)return;const i=new Image();i.alt='';i.decoding='async';i.src=u;(i.decode?i.decode():Promise.resolve()).then(()=>{if(!el.isConnected)return;i.className='now hi';const old=el.querySelector(':scope>img');if(old)old.after(i);else el.prepend(i);el.classList.add('has');if(old)setTimeout(()=>old.remove(),300)}).catch(()=>{})}),380);return}
+  const c=BIMG.peekThumb(id);if(c){put(c,true);return}BIMG.thumb(id).then(u=>{if(u)put(u,false);else if(el.classList.contains('tl-pic'))(el.closest('.tl-ph,.otd-pic')||el).remove()})}
 const BIO='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){BIO.unobserve(e.target);loadImg(e.target)}}),{rootMargin:'400px 0px'}):null;
 // Before the Beans tab is first opened, the small photos of its first coffees are read and decoded in the background, one
 // at a time, and put into the page that was built ahead: opening the tab then shows them at once instead of filling in.
@@ -8986,7 +9051,9 @@ function renderBeanHero(){const cy=new Date().getFullYear(),N=BEANS.length,rated
   hydrateImgs(h)}
 function renderBeanViews(){const cy=new Date().getFullYear();
   const cnt=n=>n?' <i>'+(n>999?'999+':n)+'</i>':'';
-  seg('bg-views',[['coffees','Coffees'+cnt(BEANS.length)],['diary','Diary'],['passport','Passport'],['top3','Top 5'],['scans','Scans'+cnt(SCANS.length)]],()=>BVIEW,v=>{if(v===BVIEW)return;BVIEW=v;renderBeanViews()});
+  seg('bg-views',[['coffees','Coffees'+cnt(BEANS.length)],['diary','Diary'],['passport','Passport'],['top3','Top 5'],['scans','Scans'+cnt(SCANS.length)]],()=>BVIEW,v=>{if(v===BVIEW)return;BVIEW=v;
+    // The highlight moves at once; the page under it is built a frame later, so the glide isn't held up.
+    $('bg-views').querySelectorAll(':scope>button[data-v]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===v)));requestAnimationFrame(()=>setTimeout(renderBeanViews,0))});
   if(BDIRTY.has(BVIEW)){BDIRTY.delete(BVIEW);BVIEWS[BVIEW]()}
   requestAnimationFrame(()=>setTimeout(()=>loadNear($('bv-'+BVIEW)),30));
   for(const v of ['coffees','diary','passport','top3','scans']){const p=$('bv-'+v),on=v===BVIEW;if(p.hidden===!on)continue;p.hidden=!on;if(on&&!RM())replay(p,'bv-in')}}
@@ -9039,11 +9106,11 @@ function seasonCardHTML(full){const now=seasonNow(),nx=seasonNext();if(!now.leng
   const row=t=>'<div class="ssn'+(t.done?' on':'')+'"><span class="ssn-ic" aria-hidden="true">'+t.ic+'</span><span class="ssn-tx"><b>'+esc(t.w.label?t.n+': '+t.w.label:t.n)+'</b><small>'+(t.done?'Earned '+dfmt(Date.parse(TGOT[t.key]+'T12:00')):esc(t.desc))+'</small>'+
     (t.done?'':'<span class="tro-p" aria-label="'+t.h+' of '+t.need+'"><i style="width:'+(t.h/t.need*100).toFixed(0)+'%"></i></span>')+'</span><span class="ssn-n">'+(t.done?'✓':t.h+'/'+t.need)+'<small>'+(t.left?t.left+' day'+(t.left===1?'':'s')+' left':'Last day')+'</small></span></div>';
   const list=full?now:now.filter(t=>!t.done).slice(0,2);
-  return '<div class="season"><div class="ssn-h"><span class="pp-k">This season</span>'+(full?'':'<button type="button" class="linkbtn" data-view="passport">All trophies</button>')+'</div>'+
+  return '<div class="season"><div class="ssn-h"><span class="pp-k">This season</span>'+(full?'':'<button type="button" class="linkbtn" data-tro="1">All trophies</button>')+'</div>'+
     (list.length?list.map(row).join(''):'<p class="hint" style="margin:6px 0 0">Every challenge this season is done. Nice work.</p>')+
     (nx?'<p class="ssn-next">Next: '+nx.ic+' '+esc(nx.n)+(nx.w.label?' ('+esc(nx.w.label)+')':'')+', in '+nx.days+' day'+(nx.days===1?'':'s')+'</p>':'')+'</div>'}
 function trophyRowHTML(){const got=TROPHIES.filter(t=>TGOT&&TGOT[t[0]]);
-  return '<button type="button" class="tshelf" data-view="passport" aria-label="Trophies: '+got.length+' of '+TROPHIES.length+'. Open your passport"><span class="ts-k">Trophies</span><span class="ts-row">'+
+  return '<button type="button" class="tshelf" data-tro="1" aria-label="Trophies: '+got.length+' of '+TROPHIES.length+'. Open your trophies"><span class="ts-k">Trophies</span><span class="ts-row">'+
     (got.length?got.map(t=>'<i title="'+esc(t[1])+'">'+t[3]+'</i>').join(''):'<em>Your first comes with your first coffee</em>')+'</span><b>'+got.length+'<small>/'+TROPHIES.length+'</small></b></button>'}
 function renderTop3View(){const p=$('bv-top3'),years=beanYears(),cy=new Date().getFullYear();if(BPOD==null||!(years.includes(BPOD)||BPOD===cy))BPOD=cy;
   const hist=Object.keys(TOP3).map(Number).filter(y=>y!==BPOD&&t3has(TOP3[y])).sort((a,b)=>b-a);
@@ -9107,6 +9174,19 @@ const idle=f=>window.requestIdleCallback?requestIdleCallback(f,{timeout:300}):se
 function fillStamps(root){const left=[...root.querySelectorAll('img[data-stamp]')].filter(i=>!STAMPS.has(i.dataset.stamp));
   const next=()=>{const im=left.shift();if(!im||!im.isConnected)return;const u=stampURL(im.dataset.stamp);root.querySelectorAll('img[data-stamp="'+im.dataset.stamp+'"]').forEach(x=>{if(u)x.src=u});if(left.length)idle(next)};
   root.querySelectorAll('img[data-stamp]').forEach(i=>{if(STAMPS.has(i.dataset.stamp))i.src=STAMPS.get(i.dataset.stamp)});if(left.length)idle(next)}
+/* Trophies have their own page (a sheet), opened from the trophy row and "All trophies": the season, seasonal
+   trophies and the medal grid. The passport keeps to stamps and origins. */
+function trophiesHTML(){const st=cabStats(),T=TGOT||{},earned=TROPHIES.filter(t=>T[t[0]]).length;
+  return seasonCardHTML(true)+(seasonEarned().length?'<h3 class="rh">Seasonal trophies <span class="hint">'+seasonEarned().length+' earned</span></h3><div class="chips ssn-got">'+seasonEarned().map(t=>'<span class="chip" title="Earned '+esc(dfmt(Date.parse(t.at+'T12:00')))+'">'+t.ic+' '+esc(t.n)+' '+esc(t.y)+'</span>').join('')+'</div>':'')+
+    '<h3 class="rh">Trophies <span class="hint">'+earned+' of '+TROPHIES.length+'</span></h3><div class="trophies">'+[...TROPHIES].sort((a,b)=>(!!T[b[0]])-(!!T[a[0]])).map(([id,n,desc,ic,f])=>{const [h,need]=f(st),on=!!T[id];
+      // A medal grid: earned ones in gold with the date, the rest in quiet grey with how far along you are.
+      return '<div class="tro'+(on?' on':'')+'" title="'+esc(desc)+'"><span class="tro-ic" aria-hidden="true">'+ic+'</span><b>'+n+'</b>'+
+        (on?'<small>'+new Date(T[id]+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'})+'</small>'
+          :'<small>'+esc(desc)+'</small><span class="tro-p" role="img" aria-label="'+Math.min(h,need)+' of '+need+'"><i style="width:'+Math.min(100,h/need*100).toFixed(0)+'%"></i></span>')+'</div>'}).join('')+'</div>'}
+function openTrophies(){const d=$('vd'),T=TGOT||{},earned=TROPHIES.filter(t=>T[t[0]]).length;
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:#C9964A"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:#C9964A"></i>Your trophies</span><h2 id="vd-title">'+earned+' of '+TROPHIES.length+' earned</h2>'+
+    '<p class="hint" style="margin:0">Earned by what you add, brew and buy again. Seasonal ones come round each year.</p></div><div class="vd-body tro-page">'+trophiesHTML()+'</div>';
+  $('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
 function renderPassport(){const p=$('bv-passport');if(!p||BVIEW!=='passport')return;const st=cabStats(),total=Object.keys(ALLO()).length,by={};
   for(const b of BEANS)if(b.origin)(by[b.origin]=by[b.origin]||[]).push(b);
   const first=k=>by[k].map(beanDay).sort()[0],got=Object.keys(by).sort((a,b)=>first(a).localeCompare(first(b)));
@@ -9121,10 +9201,7 @@ function renderPassport(){const p=$('bv-passport');if(!p||BVIEW!=='passport')ret
     (got.length?'<div class="pp-grid">'+got.map((k,i)=>'<button type="button" class="pp-st" data-ppo="'+k+'" style="--r:'+(((i*37)%15)-7)+'deg"><img alt="" src="'+(STAMPS.get(k)||STAMP_WAIT)+'" data-stamp="'+k+'"><b>'+esc(originName(k))+'</b><small>'+by[k].length+' bag'+(by[k].length===1?'':'s')+' · since '+mon(first(k))+'</small></button>').join('')+'</div>'
       :'<p class="pp-empty">Your first stamp arrives with your first coffee.</p>')+
     (next.length?'<div class="pp-next"><b>Still to discover</b><div class="chips">'+[...new Set(next)].map(k=>'<button type="button" class="chip" data-o="'+k+'">'+(ALLO()[k].flag||'')+' '+esc(originName(k))+'</button>').join('')+'</div></div>':'')+'</div>'+
-    seasonCardHTML(true)+(seasonEarned().length?'<h3 class="rh">Seasonal trophies <span class="hint">'+seasonEarned().length+' earned</span></h3><div class="chips ssn-got">'+seasonEarned().map(t=>'<span class="chip" title="Earned '+esc(dfmt(Date.parse(t.at+'T12:00')))+'">'+t.ic+' '+esc(t.n)+' '+esc(t.y)+'</span>').join('')+'</div>':'')+
-    '<h3 class="rh">Trophies <span class="hint">'+earned+' of '+TROPHIES.length+'</span></h3><div class="trophies">'+[...TROPHIES].sort((a,b)=>(!!T[b[0]])-(!!T[a[0]])).map(([id,n,desc,ic,f])=>{const [h,need]=f(st),on=!!T[id];
-      return '<div class="tro'+(on?' on':'')+'"><span class="tro-ic" aria-hidden="true">'+ic+'</span><span class="tro-tx"><b>'+n+'</b><small>'+(on?'Earned '+dfmt(Date.parse(T[id]+'T12:00')):esc(desc))+'</small>'+
-        (on?'':'<span class="tro-p" aria-label="'+Math.min(h,need)+' of '+need+'"><i style="width:'+Math.min(100,h/need*100).toFixed(0)+'%"></i></span>')+'</span>'+(on?'':'<span class="tro-n">'+Math.min(h,need)+'/'+need+'</span>')+'</div>'}).join('')+'</div>';fillStamps(p)}
+    '';fillStamps(p)}
 
 /* Your scans, each one a tap away from the gallery. A scan counts as added when a gallery coffee came from it or has
    the same name and roastery. */
@@ -9144,7 +9221,8 @@ $('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-add')){openB
   const v=e.target.closest('[data-view]');if(v){BVIEW=v.dataset.view;renderBeanViews();if(v.classList.contains('tshelf'))$('bg-views').scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'});return}
   const dyb=e.target.closest('[data-dyb]');if(dyb){if(dyb.dataset.dyb==='more')openDiaryPick();else setDyBean(dyb.dataset.dyb);return}
   if(e.target.closest('#dy-more')){DLIM+=60;renderDiaryList();return}
-  const po=e.target.closest('[data-ppo]');if(po){BQ=originName(po.dataset.ppo);BVIEW='coffees';renderBeanViews();renderCoffees();return}
+  if(e.target.closest('[data-tro]')){openTrophies();return}
+  const po=e.target.closest('[data-ppo]');if(po){openOrigin(po.dataset.ppo);return}
   const oo=e.target.closest('[data-o]');if(oo){showTab('map');selectOrigin(oo.dataset.o,true);return}
   const py=e.target.closest('[data-py]');if(py){BPOD=+py.dataset.py;renderTop3View();if(py.classList.contains('t3tile'))$('bv-top3').scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'});return}
   const t=e.target.closest('[data-top3]');if(t){openTop3(+t.dataset.top3,t.dataset.slot==='hm'?'hm':+(t.dataset.slot||0));return}
@@ -9156,11 +9234,22 @@ $('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-add')){openB
 function beanLogStats(b){const n=b.name.toLowerCase();if(n.length<3)return null;const l=LOG.filter(x=>(x.coffee||'').toLowerCase().includes(n));if(!l.length)return null;
   const r=l.filter(x=>x.rating);return{n:l.length,avg:r.length?r.reduce((s,x)=>s+x.rating,0)/r.length:0}}
 // A coffee's page. write: open it at the diary, ready to write.
+/* A stamp in the passport opens its origin: every coffee you've had from there, newest first. A coffee opened from
+   here has a "‹ Yemen" button back to the list, and closing the sheet (or the back button) returns to the passport. */
+let BFROM=null;$('vd').addEventListener('close',()=>{BFROM=null});
+function openOrigin(k){const d=$('vd'),o=oInfo(k);if(!o)return;BFROM=k;const list=BEANS.filter(b=>b.origin===k).sort((a,c)=>beanDay(c).localeCompare(beanDay(a))||c.ts-a.ts);
+  const bags=list.reduce((a,b)=>a+buys(b),0),first=list.length?list.map(beanDay).sort()[0]:'',R=REG[o.reg],rated=list.filter(b=>b.rating),avg=rated.length?rated.reduce((a,b)=>a+b.rating,0)/rated.length:0;
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:'+(R?R.color:'var(--cherry)')+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:'+(R?R.color:'var(--cherry)')+'"></i>'+(R?esc(R.name):'Origin')+'</span>'+
+    '<h2 id="vd-title"><span class="og-fl">'+flagOf(k)+'</span> '+esc(originName(k))+'</h2><p class="hint" style="margin:0">'+list.length+' coffee'+(list.length===1?'':'s')+(bags>list.length?' · '+bags+' bags':'')+(first?' · since '+new Date(first+'T12:00').toLocaleDateString(undefined,{month:'short',year:'numeric'}):'')+(avg?' · rated '+avg.toFixed(1)+' on average':'')+'</p></div>'+
+    '<div class="vd-body"><div class="clist og-list">'+list.map((b,i)=>coffeeRow(b,false,i)).join('')+'</div><div class="actions"><button type="button" class="btn ghost" id="og-map">'+esc(originName(k))+' on the map</button></div></div>';
+  hydrateImgs($('vd-in'));$('vd-in').onclick=e=>{if(!$('vd-in').querySelector('.og-list'))return;const r=e.target.closest('[data-bean]');if(r){BFROM=k;openBean(r.dataset.bean);return}if(e.target.closest('#og-map')){d.close();goTab('map');setTimeout(()=>{try{selectOrigin(k,true)}catch(x){}},350)}};
+  $('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
 function openBean(id,write){const b=beanById(id);if(!b)return;const d=$('vd'),rk=beanRank(b),P=b.process&&PROCESSES[b.process],ls=beanLogStats(b),f=b.shelf&&fresh(b);
   const fmt=s=>s?new Date(s+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'';
   const kv=[['Origin',b.origin?flagOf(b.origin)+' '+originName(b.origin):''],['Process',P?P.name:''],[b.vars?'Varieties':'Variety',b.variety?varsName(b):''],['Roast',b.roast?b.roast[0].toUpperCase()+b.roast.slice(1):''],['Roasted',fmt(b.roastDate)],['Tried',b.tried?fmt(b.tried):'Not yet']].filter(x=>x[1]);
   const st={mom:'note',ph:null};const g=gramsLeft(b),dose=Math.round(beanDose(b));
-  $('vd-in').innerHTML='<div class="vd-head" style="--c:'+(rk?MEDAL[rk]:'var(--cherry)')+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:'+(rk?MEDAL[rk]:'var(--cherry)')+'"></i>'+(rk?placeLine(rk,beanYear(b)):beanMention(b)?'Honourable mention · '+beanYear(b):b.shelf?'Drinking now':'Your coffees')+'</span><h2 id="vd-title">'+esc(beanTitle(b))+'</h2>'+(b.roaster?'<p class="vd-sub">'+esc(b.roaster)+'</p>':'')+'</div>'+
+  const from=BFROM&&BFROM===b.origin?BFROM:null;
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:'+(rk?MEDAL[rk]:'var(--cherry)')+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button>'+(from?'<button type="button" class="vd-back" id="vd-back">‹ '+esc(originName(from))+'</button>':'')+'<span class="pill"><i style="background:'+(rk?MEDAL[rk]:'var(--cherry)')+'"></i>'+(rk?placeLine(rk,beanYear(b)):beanMention(b)?'Honourable mention · '+beanYear(b):b.shelf?'Drinking now':'Your coffees')+'</span><h2 id="vd-title">'+esc(beanTitle(b))+'</h2>'+(b.roaster?'<p class="vd-sub">'+esc(b.roaster)+'</p>':'')+'</div>'+
     '<div class="vd-body"><div class="bd-hero">'+beanPic(b,'hero')+glassRate(b.rating)+'</div>'+'<div class="bd-rate">'+beanRow(b.rating,'big')+'<span>'+(b.rating?b.rating.toString().replace('.5','½')+' · ':'')+rateWord(b.rating)+'</span></div>'+
     // The bag now: how fresh it is, what's left, and finishing it.
     (b.shelf?'<div class="bd-shelf">'+(f?'<div class="bd-f"><div class="bd-fh"><b>'+f.label+'</b><span>Day '+f.d+' off roast</span></div>'+freshBar(f)+'<p>'+f.tip+'</p></div>':'<label class="bd-addrd"><span><b>When was it roasted?</b><small>Add the date on the bag to see how fresh it is.</small></span><input type="date" id="bd-rd" class="dateinp" max="'+todayISO()+'" aria-label="Roast date"></label>')+
@@ -9217,7 +9306,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;const d=$('vd'),rk
   $('bd-del').onclick=()=>{const inTop=inAnyTop(b.id);
     if(!confirm('Remove “'+beanTitle(b)+'” from your gallery?'+(inTop?' It stays in your top 3 history.':'')))return;
     BEANS=BEANS.filter(x=>x.id!==b.id);saveBeans();if(!inTop)BIMG.del(b.id);dropDiaryPhotos(b.diary);d.close();renderBeans();toast('Removed from your gallery')};
-  showDlg(d);$('vd-x').onclick=()=>d.close();
+  showDlg(d);$('vd-x').onclick=()=>d.close();if($('vd-back'))$('vd-back').onclick=()=>openOrigin(from);
   if(write)setTimeout(()=>{const h=$('bd-dh');if(h){h.scrollIntoView({block:'start'});$('bd-dt').focus({preventScroll:true})}},80);else d.scrollTop=0}
 function beanDoc(b){const P=b.process&&PROCESSES[b.process];
   return{title:beanTitle(b),sub:(b.roaster?b.roaster+' | ':'')+'Rated '+(b.rating||'–')+' of 5',file:'coffee-'+beanTitle(b),
@@ -9317,9 +9406,10 @@ function openTop3(y,start){const d=$('vd'),pool=BEANS.filter(b=>beanYear(b)===y)
     $('t3-slots').hidden=mode!=='places';
     $('t3-slots').innerHTML=[0,1,2,3,4].map(i=>{const b=slots[i]&&beanById(slots[i]);return '<div class="t3slot'+(i>2?' sm':'')+(i===act?' act':'')+(b?' full':'')+'" style="--m:'+MEDAL[i+1]+'"><button type="button" class="t3s-main" data-sl="'+i+'" aria-pressed="'+(i===act)+'">'+
       '<span class="t3s-pic">'+(b?beanPic(b,'xs'):'<span class="t3s-n">'+(i+1)+'</span>')+'</span><span class="t3s-tx"><small>'+MEDALN[i+1]+'</small><b>'+(b?esc(beanTitle(b)):'Open')+'</b></span></button>'+(b?'<button type="button" class="t3s-x" data-unset="'+i+'" aria-label="Clear '+MEDALN[i+1]+'">✕</button>':'')+'</div>'}).join('');
-    $('t3-list').innerHTML=pool.map(b=>{const r=slots.indexOf(b.id)+1,m=hm.includes(b.id),on=mode==='places'?!!r:m;
+    // Mentions only offer coffees that aren't already in the top five.
+    $('t3-list').innerHTML=(mode==='hm'?pool.filter(b=>!slots.includes(b.id)):pool).map(b=>{const r=slots.indexOf(b.id)+1,m=hm.includes(b.id),on=mode==='places'?!!r:m;
       return '<button type="button" class="t3opt'+(on?' on':'')+'" data-t3="'+b.id+'" aria-pressed="'+on+'" style="--m:'+(mode==='places'?(MEDAL[r]||'var(--line)'):(m?'var(--honey)':'var(--line)'))+'">'+beanPic(b,'xs')+
-      '<span class="t3o-tx"><b>'+esc(beanTitle(b))+'</b><small>'+esc([b.roaster,mode==='hm'&&r?'In place '+r:'',mode==='places'&&m?'Honourable mention':''].filter(Boolean).join(' · '))+'</small>'+beanRow(b.rating,'sm')+'</span><span class="t3o-r">'+(mode==='places'?(r||''):(m?HM_SVG:''))+'</span></button>'}).join('');
+      '<span class="t3o-tx"><b>'+esc(beanTitle(b))+'</b><small>'+esc([b.roaster,mode==='places'&&m?'Honourable mention':''].filter(Boolean).join(' · '))+'</small>'+beanRow(b.rating,'sm')+'</span><span class="t3o-r">'+(mode==='places'?(r||''):(m?HM_SVG:''))+'</span></button>'}).join('');
     $('t3-msg').innerHTML=mode==='places'?'Choose your <b style="color:color-mix(in srgb,'+MEDAL[act+1]+' 55%,var(--ink))">'+(act<3?MEDALN[act+1].toLowerCase():MEDALN[act+1]+' place')+'</b> coffee'+(slots[act]?', or tap it again to clear the place.':'.')
       :'Tap the coffees that nearly made it. Up to ten'+(hm.length?': '+hm.length+' chosen.':'.');
     hydrateImgs($('t3-slots'));hydrateImgs($('t3-list'))};
@@ -10110,8 +10200,9 @@ const CAM_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l1.6-2
 const SYNC_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 0 1-14 5.3 M4 12a8 8 0 0 1 14-5.3 M18 3v4h-4 M6 21v-4h4"/></svg>';
 // Your coffee style, as a title under your name.
 const ROLE={bright:'Florals chaser',sweet:'Sweet-cup seeker',choc:'Comfort-cup brewer',wild:'Ferment explorer',espresso:'Espresso devotee',milk:'Milk-drink maker'};
-function profileStats(){const mine=LOG.filter(l=>window.BEANS_OK?isMine(l):l&&(!l.by||l.by===ME)).length,b=window.BEANS_OK?BEANS:[],o=new Set(b.map(x=>x.origin).filter(Boolean)).size,t=window.BEANS_OK&&TGOT?Object.keys(TGOT).length:0;
-  return [[b.length,b.length===1?'coffee':'coffees'],[mine,mine===1?'brew':'brews'],[o,o===1?'origin':'origins'],[t,t===1?'trophy':'trophies']]}
+// All-time counts: every coffee, every cup made (logged brews and unlogged timer cups), origins and trophies.
+function profileStats(){const mine=window.BEANS_OK?myCups().length:LOG.filter(l=>l&&(!l.by||l.by===ME)).length,b=window.BEANS_OK?BEANS:[],o=new Set(b.map(x=>x.origin).filter(Boolean)).size,t=window.BEANS_OK&&TGOT?Object.keys(TGOT).length:0;
+  return [[b.length,b.length===1?'coffee':'coffees'],[mine,mine===1?'cup':'cups'],[o,o===1?'origin':'origins'],[t,t===1?'trophy':'trophies']]}
 // Your taste, read from your coffees and brews (not typed in): where you buy from, the variety, process and roast you
 // come back to, the flavours you like most and how you brew. It fills in as the gallery and the log grow.
 function tasteHTML(){if(!window.BEANS_OK||BEANS.length<2)return '';const t=tasteOf(BEANS,LOG.filter(isMine));
@@ -10124,7 +10215,7 @@ function tasteHTML(){if(!window.BEANS_OK||BEANS.length<2)return '';const t=taste
     t.roast&&['🔥','Roast',t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1)],
     lo&&lo!==o&&[fl(t.likedOrigin.k),'Rated best',lo.name],B&&['☕','Brewer',shortBrewer(B.name)]].filter(Boolean).slice(0,5);
   if(!rows.length&&!t.families.length)return '';
-  return '<div class="me-taste"><div class="me-th"><b>Your coffee taste</b><small>From '+BEANS.length+' coffees and '+LOG.filter(isMine).length+' brews</small></div>'+
+  return '<div class="me-taste"><div class="me-th"><b>Your coffee taste</b><small>From all '+BEANS.length+' coffees and '+myCups().length+' cups, all time</small></div>'+
     (tasteLine(t)?'<p class="me-tl">'+esc(tasteLine(t))+'</p>':'')+
     (rows.length?'<div class="me-tiles">'+rows.map(([i,k,vv])=>'<div><i aria-hidden="true">'+i+'</i><small>'+k+'</small><b>'+esc(vv)+'</b></div>').join('')+'</div>':'')+
     (t.notes.length?'<div class="me-notes chips">'+t.notes.slice(0,5).map(n=>'<span class="chip"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'</span>').join('')+'</div>':'')+'</div>'}
