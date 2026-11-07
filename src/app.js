@@ -833,7 +833,14 @@ function planHTML(p,c){
 }
 /* ================= BREW TIMER ================= */
 let TM=null;
-function parseSteps(steps){let last=-1;return steps.map(s=>{const m=s.match(/(\d+):(\d\d)/);let t=m?(+m[1]*60+ +m[2]):null;if(t==null)t=last;else last=t;return{t,s}})}
+// Each step's moment on the clock: its own time, or for a pour without one the recipe page's estimate, so the timer and
+// the steps list agree. Steps before the first time (rinse the paper) aren't on the clock.
+// How long a brew takes, the same in the recipe list and the timer: the last step's moment, plus 30 seconds for a
+// last step that is still going (a press, a top-up) rather than the brew finishing.
+function clockTotal(steps,ev){ev=ev||parseSteps(steps);const ts=ev.map(e=>e.t).filter(t=>t>=0);if(!ts.length)return 0;
+  return Math.max(...ts)+(/finish|drain|finished|serve|stop at/i.test(steps[steps.length-1])?0:30)}
+function parseSteps(steps){let last=-1;const c=pourCurve(steps);return steps.map((s,i)=>{const m=s.match(/(\d+):(\d\d)/);let t=m?(+m[1]*60+ +m[2]):null;
+  const e=t==null&&last>=0&&!!(c&&c.dots[i]&&c.dots[i].e);if(t==null)t=e?Math.max(last,Math.round(c.dots[i].t)):last;last=t;return{t,s,e}})}
 const capS=t=>t.charAt(0).toUpperCase()+t.slice(1),stepTxt=s=>capS(s.replace(/^\s*\d+:\d\d\s*/,''));
 const mmss=t=>Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0');
 // The pour in a step, for the big target: "pour 60g (to 120g)" → to 120 g, +60 g; "pour to 250g" → to 250 g.
@@ -843,7 +850,7 @@ function openTimer(idx,p){noteRecent(RECIPES[idx]);
   // The steps follow the dose and water being brewed (the dial-in and Scan pass their own).
   const r0=RECIPES[idx],sc=scaled(r0),dose=p&&p.r&&p.r.dose||sc.dose,water=p&&p.water||sc.water;
   const r=Object.assign({},r0,{dose,water,steps:p&&p.steps||(p?scaleSteps(r0,dose,water):sc.steps),off:sc.off});const ev=parseSteps(r.steps);const timed=ev.filter(e=>e.t>=0);
-  const total=timed.length?Math.max(...timed.map(e=>e.t))+(/finish|drain|finished|serve/i.test(r.steps[r.steps.length-1])?0:30):0;
+  const total=clockTotal(r.steps,ev);
   if(TM&&TM.iv)clearInterval(TM.iv);
   TM={idx,r,p,ev,total,el:0,run:false,iv:null,lastIdx:-1,lastWarn:-1,ctx:null,cup:null};
   const g=p?p.grinder:(MYG.find(x=>settingFor(x,r.b,r.off)!=null)),gv=p?p.set[p.grinder]:g?settingFor(g,r.b,r.off):null;
@@ -857,7 +864,7 @@ function openTimer(idx,p){noteRecent(RECIPES[idx]);
       '<div class="tm-now" id="tm-card"><div class="tm-step" id="tm-step">Ready when you are</div><div class="tm-target" id="tm-target"></div><div class="tm-text" id="tm-now">Get your gear ready, then press start.</div><div class="tm-bar"><i id="tm-barfill"></i></div><div class="tm-next" id="tm-next"></div></div>'+
       '<div class="tm-ctl"><button class="tm-ic big" id="tm-reset" aria-label="Reset">'+I('M4 12a8 8 0 1 0 2.3-5.6M4 4v5h5')+'</button><button class="tm-play" id="tm-go" aria-label="Start">'+I('M8 5v14l11-7z')+'</button><button class="tm-ic big" id="tm-skip" aria-label="Next step">'+I('M6 5l9 7-9 7z M18 5v14')+'</button></div>'
     :'<p class="tm-text" style="text-align:center">This one is by eye rather than the clock.</p>')+
-   '<details class="tm-all"'+(total?'':' open')+'><summary>All steps ('+ev.length+')</summary><ol id="tm-list">'+ev.map((e,i)=>'<li data-i="'+i+'">'+(e.t>=0?'<b>'+mmss(e.t)+'</b>':'')+'<span>'+esc(stepTxt(e.s))+'</span></li>').join('')+'</ol></details></div>';
+   '<details class="tm-all"'+(total?'':' open')+'><summary>All steps ('+ev.length+')</summary><ol id="tm-list">'+ev.map((e,i)=>'<li data-i="'+i+'">'+(e.t>=0?'<b'+(e.e?' class="est" title="Estimated from the recipe\'s pace"':'')+'>'+(e.e?'~':'')+mmss(e.t)+'</b>':'')+'<span>'+esc(stepTxt(e.s))+'</span></li>').join('')+'</ol></details></div>';
   const d=$('timer');showDlg(d);d.scrollTop=0;
   $('tm-x').onclick=()=>d.close();
   // However the timer is closed (X, back, Escape, backdrop), stop it and let the screen sleep again.
@@ -1100,7 +1107,7 @@ const CUPS=[
 const CUPBY=Object.fromEntries(CUPS.map(c=>[c[0],c]));
 /* What a recipe asks of you, worked out from its steps: how long it takes, how many pours, and how hard it is. */
 const RMETA=new Map();
-function rmeta(r){let m=RMETA.get(r);if(m)return m;const ts=parseSteps(r.steps).map(e=>e.t).filter(t=>t>=0),time=ts.length&&Math.max(...ts)>0?Math.max(...ts):null,
+function rmeta(r){let m=RMETA.get(r);if(m)return m;const pe=parseSteps(r.steps),ct=pe.some(e=>e.t>0)?clockTotal(r.steps,pe):0,time=ct>0?ct:null,
     pours=r.steps.filter(s=>/\bpour|\badd\b/i.test(s)).length,k=r.kind,type=BREWERS[r.b].type;
   const level=r.temp2||['hedrick','kh1','kh2','esp'].includes(k)||pours>=7?'Advanced':pours<=2||['single','imm'].includes(k)||['Valve and hybrid','Immersion and pressure'].includes(type)?'Easy':'Medium';
   const ratio=r.dose&&r.water?'1:'+(Math.round(r.water/r.dose*10)/10):'';
@@ -1140,7 +1147,10 @@ function renderRHome(){const QI=(c,p)=>'<span class="qi" style="background:'+c+'
 function surpriseRecipe(){const mine=RECIPES.map((r,i)=>i).filter(i=>MYB.some(b=>RFAM(b)===RFAM(RECIPES[i].b)));
     const all=mine.length?mine:RECIPES.map((r,i)=>i),pool=all.length>1?all.filter(i=>i!==LASTSURP):all;LASTSURP=pool[Math.floor(Math.random()*pool.length)];openRecipe(LASTSURP);
     if(!mine.length)toast(MYB.length?'No recipes for your brewers yet, so this is from all of them':'Add your brewers in Gear and Surprise me picks from those');}
-function showRecipeList(){renderRecipes();renderRHome();requestAnimationFrame(()=>$('rall').scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'}))}
+// A filter change only moves which shelf card is picked: the home's cards keep their elements.
+function markRHome(){const h=$('rhome');if(!h.firstChild){renderRHome();return}
+  h.querySelectorAll('[data-rb],[data-col],[data-cup]').forEach(b=>{const k=b.dataset.rb?'b:'+b.dataset.rb:b.dataset.col?'col:'+b.dataset.col:'cup:'+b.dataset.cup;const on=String(RF===k);if(b.getAttribute('aria-pressed')!==on)b.setAttribute('aria-pressed',on)})}
+function showRecipeList(){renderRecipes();markRHome();requestAnimationFrame(()=>$('rall').scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'}))}
 $('rhome').onclick=e=>{const q=e.target.closest('[data-q]'),a=e.target.closest('[data-again]'),c=e.target.closest('[data-cup]'),bb=e.target.closest('[data-rb]'),co=e.target.closest('[data-col]');
   if(a){openRecipe(+a.dataset.again);return}
   const pick=k=>{RF=RF===k?'all':k;RQ='';$('rsearch').value='';showRecipeList()};
@@ -1153,7 +1163,7 @@ $('rhome').onclick=e=>{const q=e.target.closest('[data-q]'),a=e.target.closest('
   if(k==='mine'){if(!CREC.length){openRecipeEditor(null);return}RF='mine'}
   if(k==='fav'){if(!favCount()){toast('Tap the bookmark on any recipe to save it here');return}RF='fav'}
   RQ='';$('rsearch').value='';showRecipeList()};
-$('rsearch').oninput=e=>{RQ=e.target.value;if(RQ.trim()&&RF!=='all'){RF='all';renderRHome()}soon(renderRecipes)}; // a search looks through every recipe
+$('rsearch').oninput=e=>{RQ=e.target.value;if(RQ.trim()&&RF!=='all'){RF='all';markRHome()}soon(renderRecipes)}; // a search looks through every recipe
 // Two levels of order: a main one and a second one within it ("Brewer, then Level"). Brewer and Level also group the
 // list under headings.
 const RSORTS={brewer:'Brewer',level:'Level',quick:'Quickest',az:'A to Z',temp:'Hottest',strong:'Strongest'};
@@ -1221,7 +1231,7 @@ function renderRecipes(){
   else html='<div class="rgrp">'+lzRows(list,{brewer:!rb})+'</div>';
   $('rgrid').innerHTML=list.length?html:'<p class="hint">No recipes match. Try a shorter search, or pick All.</p>';
   if(RLZ.size)$('rgrid').querySelectorAll('.rlz').forEach(el=>RLZ_IO?RLZ_IO.observe(el):lzFill(el));
-  if(!$('rhome').innerHTML)renderRHome();
+  if(!$('rhome').firstChild)renderRHome();
 }
 $('rsortbtn').onclick=()=>openRSort();
 // The filter sheet: what to show, or one brewer, cup type or collection. One filter at a time, like the shelves above.
@@ -1235,7 +1245,7 @@ function openRFilter(){const d=$('selsheet');
     chips('Brewer',RBREWERS().map(k=>['b:'+k,famName(k)]))+chips('Cup type',CUPS.map(c=>['cup:'+c[0],c[1]]))+chips('Collection',COLS.map(c=>['col:'+c[0],c[1]]))+
     '<div class="rs-done"><button type="button" class="btn" id="rs-done">Show '+cnt(RLIST.length)+'</button></div>';
     $('sel-x').onclick=$('rs-done').onclick=()=>d.close()};
-  draw();d.querySelector('#sel-in').onclick=e=>{const a=e.target.closest('[data-rf]');if(!a)return;RF=a.dataset.rf;RQ='';$('rsearch').value='';renderRecipes();renderRHome();draw()};
+  draw();d.querySelector('#sel-in').onclick=e=>{const a=e.target.closest('[data-rf]');if(!a)return;RF=a.dataset.rf;RQ='';$('rsearch').value='';renderRecipes();markRHome();draw()};
   showDlg(d)}
 $('rfiltbtn').onclick=()=>openRFilter();
 function recipeAct(e){const ed=e.target.closest('[data-redit]');if(ed){openRecipeEditor(CREC.find(r=>r.id===ed.dataset.redit));return true}
@@ -1965,7 +1975,7 @@ function endEdit(){LEDIT=null;LBEAN=null;LFIELDS.forEach(id=>$(id).value='');del
 function renderLastBrew(){const el=$('lastbrew');if(!el)return;const l=LOG.find(x=>x&&(!x.by||x.by===ME));if(!l){el.hidden=true;return}
   const st=clamp(Math.round(+l.stars||0),0,5),n=LOG.length;el.hidden=false;
   // The full coffee name, then how it was brewed in one line, with the bag's picture when the brew is tied to one.
-  const q=typeof parseSettings==='function'?parseSettings(l.settings||''):{},bk=CANONB((l.snap&&l.snap.b)||l.brewer||''),bean=window.BEANS_OK&&l.beanId?beanById(l.beanId):null;
+  const q=typeof parseSettings==='function'?parseSettings(l.settings||''):{},bk=CANONB((l.snap&&l.snap.b)||l.brewer||''),bean=logBean(l);
   const how=[BREWERS[bk]?famName(bk):(q.brewer||''),(l.snap&&l.snap.dose)||q.dose?((l.snap&&l.snap.dose)||q.dose)+' g'+(q.water?' : '+q.water+' g':''):'',q.temp?q.temp+'°C':''].filter(Boolean);
   el.innerHTML='<button type="button" class="lb-open" id="lb-open" aria-label="Open your brew log">'+
     (bean?'<span class="lb-pic">'+beanPic(bean,'xs')+'</span>':'<span class="lb-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z M16 10h1.5a2.5 2.5 0 0 1 0 5H16 M8 3c-1 1 1 2 0 3 M11.5 3c-1 1 1 2 0 3"/></svg></span>')+
@@ -1987,7 +1997,10 @@ function logPills(l){const s=window.CARD_OK?okSnap(l.snap):null,out=[];
   const q=parseSettings(l.settings||''),B=BREWERS[l.brewer]||q.brewer;
   if(q.rec)out.push(['rec',q.rec.name]);if(B)out.push(['brew',B.name]);if(q.dose&&q.water)out.push(['dose',gfmt(q.dose)+' g : '+gfmt(q.water)+' g']);if(q.temp)out.push(['temp',q.temp+'°C']);if(q.grind)out.push(['grind',q.grind.replace(' · ',' ')]);if(q.ratio)out.push(['ratio','1:'+rr1(q.ratio)]);
   return{pills:out,rest:out.length?q.rest:(l.settings||'')}}
-function logThumb(l){const s=window.CARD_OK?okSnap(l.snap):null,id=(s&&s.bean&&s.bean.id)||l.beanId,b=id&&window.BEANS_OK?beanById(id):null;
+// A brew's coffee: the one the dial-in picked, or for a brew logged by hand, the coffee in your gallery with that name.
+function logBean(l){if(!window.BEANS_OK)return null;const s=window.CARD_OK?okSnap(l.snap):null,id=(s&&s.bean&&s.bean.id)||l.beanId;if(id){const b=beanById(id);if(b)return b}
+  const n=String(l.coffee||'').trim().toLowerCase();return n?BEANS.find(b=>beanTitle(b).toLowerCase()===n)||null:null}
+function logThumb(l){const b=logBean(l);
   if(b)return beanPic(b,'xs');const n=(l.coffee||'?').trim(),h=lHue(n);return '<span class="le-init" style="--h:'+h+'">'+esc(n.charAt(0).toUpperCase()||'?')+'</span>'}
 function logGroup(l){const d=new Date(l.ts||Date.parse(l.date));if(isNaN(d))return'Earlier';const t=new Date();t.setHours(0,0,0,0);const dd=new Date(d);dd.setHours(0,0,0,0);const n=Math.round((t-dd)/864e5);
   return n<=0?'Today':n===1?'Yesterday':n<7?'This week':n<14?'Last week':d.getFullYear()===t.getFullYear()?new Intl.DateTimeFormat(undefined,{month:'long'}).format(d):new Intl.DateTimeFormat(undefined,{month:'long',year:'numeric'}).format(d)}
@@ -2012,7 +2025,8 @@ function renderLogList(){renderLogFilter();const q=LF.q.trim().toLowerCase();
   for(const [l,i] of rows){if(byDate){const d=logGroup(l);if(d!==last){h+='<h3 class="le-day">'+esc(d)+'</h3>';last=d}}h+=logEntryHTML(l,i)}
   $('l-list').innerHTML=!LOG.length?'<div class="le-empty">'+lIc('edit')+'<b>No brews yet</b><p>Dial one in, then tap “Log this brew”, or fill in the form above.</p></div>':
     rows.length?(rows.length<LOG.length?'<p class="le-count">Showing '+rows.length+' of '+LOG.length+' brews</p>':'')+h:'<div class="le-empty">'+lIc('search')+'<b>No brews match</b><p><button type="button" class="linkbtn" id="lf-clear">Clear the filters</button></p></div>';
-  const c=$('lf-clear');if(c)c.onclick=()=>{LF.q='';LF.min=0;LF.who='all';save('bb-logfilter',{min:0,who:'all',sort:LF.sort});renderLogList()}}
+  const c=$('lf-clear');if(c)c.onclick=()=>{LF.q='';LF.min=0;LF.who='all';save('bb-logfilter',{min:0,who:'all',sort:LF.sort});renderLogList()};
+  if(typeof hydrateImgs==='function')hydrateImgs($('l-list'))}
 $('l-filter').addEventListener('click',e=>{const b=e.target.closest('[data-lf]');if(!b)return;const k=b.dataset.lf;LF[k]=k==='min'?+b.dataset.v:b.dataset.v;save('bb-logfilter',{min:LF.min,who:LF.who,sort:LF.sort});renderLogList()});
 $('l-filter').addEventListener('change',e=>{if(e.target.id==='lf-sort'){LF.sort=e.target.value;save('bb-logfilter',{min:LF.min,who:LF.who,sort:LF.sort});renderLogList()}});
 $('l-filter').addEventListener('input',e=>{if(e.target.id!=='lf-q')return;LF.q=e.target.value;const pos=e.target.selectionStart;renderLogList();const n=$('lf-q');n.focus();try{n.setSelectionRange(pos,pos)}catch(x){}});
