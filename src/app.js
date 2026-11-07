@@ -1051,8 +1051,8 @@ function showTab(id,fromHistory,pure){NAV_AT=performance.now();ensureTab(id);con
     document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x.dataset.t===(BNGROUP[id]||id)));
     document.querySelectorAll('main section').forEach(s=>s.classList.toggle('on',s.id===id));window.scrollTo({top:0});syncShell(id);
     if(kind&&NAV_READY){const sec=$(id);if(!vt){replay(sec,'nav-in');clearTimeout(sec._nav);sec._nav=setTimeout(()=>sec.classList.remove('nav-in'),480);
-      // Between bottom-bar sections the page swings in as a whole; its blocks cascade only on the way in or out.
-      if(kind==='push'||kind==='pop')cascadeIn(sec)}}};
+      // Pages slide in as one piece, the same as every other page (no block-by-block cascade on top).
+      }}};
   document.documentElement.dataset.nav=NAV_READY?kind:'';
   // The bottom-bar highlight answers the tap at once, before the page itself changes.
   if(kind){document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));movePill()}
@@ -2865,7 +2865,8 @@ function recipeDoc(i,p,c){const r=RECIPES[i],B=BREWERS[r.b];const gs=MYG.map(g=>
   if(p)kv.push([B.bloom.label,p.bloom+'s']);
   const blocks=[{p:r.why},{h:'Settings',kv},{h:'Steps',num:true,list:r.steps},{h:'Tip',p:r.tip}].filter(x=>!('p' in x)||x.p);
   if(p&&p.tw.length)blocks.push({h:'Tuned for your coffee',p:p.tw.join(' ')});if(p&&p.why.length)blocks.push({h:'Why these settings',list:p.why.map(w=>w.replace(/<[^>]+>/g,''))});
-  return{link:c?planHref(c):recipeHref(i),title:r.name,sub:[r.by||(r.custom?(r.author?'By '+r.author:'Your recipe'):''),B.name].filter(Boolean).join(' | '),blocks,file:'recipe-'+r.name}}
+  return{link:c?planHref(c):recipeHref(i),title:r.name,sub:[r.by||(r.custom?(r.author?'By '+r.author:'Your recipe'):''),B.name].filter(Boolean).join(' | '),blocks,file:'recipe-'+r.name,
+    card:()=>recipeCard(i),cardName:'recipe-card',cardTitle:'Recipe card',cardSub:'One image with the numbers, the grind dial, why it works and every pour.',cardTheme:()=>OT.house}}
 function dialDoc(){const r=compute(S),[vt,vs]=verdict(r.D),B=BREWERS[S.brewer],dp=dialPlan();
   const doc={link:brewHref(),title:'My brew: '+vName(S.variety),sub:PROCESSES[S.process].name+' | '+S.roast+' roast | '+B.name,file:'my-brew',blocks:[
    {h:'Settings',kv:[['Grinder',gLabel(S.grinder,S.setting)+' ('+S.setting+' clicks)'],['Brewer',B.name],['Water',S.temp+'°C'],['Ratio','1:'+rr1(S.ratio)],[B.bloom.label,S.bloom+'s'],['Agitation',{low:'Gentle',med:'Normal',high:'Vigorous'}[S.agit]]]},
@@ -2877,7 +2878,8 @@ function dialDoc(){const r=compute(S),[vt,vs]=verdict(r.D),B=BREWERS[S.brewer],d
   return doc}
 function varietyDoc(id){const v=VBY[id];const b=[{kv:[['Family',FAM[v.fam].name],['Origin',v.origin||'-'],['Year',v.year||'-'],['Parentage',v.parents||'-']]},{h:'Story',p:v.story},{h:'In the cup',p:v.cup+' ('+v.notes.join(', ')+')'},{h:'How to brew it',p:v.brew}];
   if(v.subs)b.push({h:'Types',list:v.subs.map(s=>s.name+': '+s.cup)});return{link:SITE_URL+'#v='+id,title:v.name,sub:'Variety guide',blocks:b,file:'variety-'+v.name}}
-function originDoc(k){const o=ALLO()[k];return{link:SITE_URL+'#o='+k,title:o.name,sub:'Coffee origin | '+REG[o.reg].name,file:'origin-'+o.name,blocks:[{kv:[['Regions',o.subs.join(', ')],['Altitude',o.alt],['Harvest',o.harvest],['Processing',o.process]]},{h:'In the cup',p:o.cup},{h:'Story',p:o.hist},{h:'Varieties grown here',list:o.vars.map(v=>VBY[v]?VBY[v].name:v)},{h:'Did you know?',p:o.fact}]}}
+function originDoc(k){const o=ALLO()[k];return{link:SITE_URL+'#o='+k,title:o.name,sub:'Coffee origin | '+REG[o.reg].name,file:'origin-'+o.name,
+  card:()=>originCard(k),cardName:'origin-card',cardTitle:'Origin card',cardSub:'One image in its own colours: altitude, harvest, the cup, its story and the varieties grown there.',cardTheme:()=>originTheme(k),blocks:[{kv:[['Regions',o.subs.join(', ')],['Altitude',o.alt],['Harvest',o.harvest],['Processing',o.process]]},{h:'In the cup',p:o.cup},{h:'Story',p:o.hist},{h:'Varieties grown here',list:o.vars.map(v=>VBY[v]?VBY[v].name:v)},{h:'Did you know?',p:o.fact}]}}
 function historyDoc(){return{link:SITE_URL+'#history',title:'The story of coffee',sub:'From Ethiopian forests to your cup',file:'coffee-history',blocks:[{h:'Timeline',list:TIMELINE.map(([w,t,d])=>w+' - '+t+': '+d)},{h:'People who spread coffee',list:PEOPLE.map(([n,r,d])=>n+' ('+r+'): '+d)}]}}
 // One logged brew, as text and as a card.
 function logEntryDoc(l){const fl=flOf(l).filter(([id])=>FW.byId[id]);
@@ -2907,7 +2909,7 @@ const loadPDF=()=>window.jspdf&&window.jspdf.jsPDF?Promise.resolve():(PDFP=PDFP|
 function openShare(doc){SHDOC=doc;loadPDF().catch(()=>{});const pdfOK=true;
   $('sh-in').innerHTML='<div class="sheet"><div class="grab"></div><button class="vd-close" id="sh-x" aria-label="Close">\u2715</button><h2 id="sh-title" style="margin:0 40px 2px 0">Share</h2><p class="hint" style="margin:0">'+esc(doc.title)+'</p>'+
    // A brew can also go out as a designed image card: shown first, with a preview drawn as the sheet opens.
-   (doc.card?'<div class="shcard"><button type="button" class="shcard-pv" data-sh="img" aria-label="Share the brew card image"><span class="shcard-ph">Drawing your brew card…</span></button>'+
+   (doc.card?'<div class="shcard"><button type="button" class="shcard-pv" data-sh="img" aria-label="Share the '+esc((doc.cardTitle||'Brew card').toLowerCase())+' image"><span class="shcard-ph">Drawing your '+esc((doc.cardTitle||'Brew card').toLowerCase())+'…</span></button>'+
      '<div class="shcard-tx"><b>'+esc(doc.cardTitle||'Brew card')+'</b><small>'+esc(doc.cardSub||'One image with everything: recipe, numbers, grind dial, the predicted cup and every pour.')+'</small>'+
      '<div class="shcard-act"><button type="button" class="btn" data-sh="img">Share image</button><button type="button" class="btn ghost" data-sh="imgsave">Save</button></div></div>'+
      // The card's look is yours to choose each time: Dark or Light, in the origin's colours or one of the coffee colours.

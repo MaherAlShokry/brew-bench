@@ -487,6 +487,26 @@ function parseSettings(t){const o={};let rest=t;const take=re=>{const m=re.exec(
   if(!o.brewer&&rec)o.brewer=BREWERS[rec.b];
   o.rest=rest.split(',').map(x=>x.trim()).filter(x=>x&&/[a-z]/i.test(x)).join(', ');return o}
 // The whole log as one image: how many brews, the average, your palate and the latest cups.
+// A recipe as a card, in the brew card's design: who it's from, the four numbers, the grind on your first grinder that
+// can make it (as a dial), why it works, every pour and the tip.
+function recipeCard(i){const r=RECIPES[i];if(!r)return Promise.resolve(null);const B=BREWERS[r.b],mt=rmeta(r);
+  const g=MYG.find(h=>settingFor(h,r.b,r.off)!=null),c=g?settingFor(g,r.b,r.off):null,ra=r.dose?r.water/r.dose:null;
+  const m={theme:OT.house,kicker:r.champ?'Champion’s recipe':r.custom?'My recipe':'Recipe',date:famName(r.b),title:r.name,by:r.by||(r.custom&&r.author?'By '+r.author:''),
+    pills:[[mt.level,1],[B.type],...(mt.time!=null?[['Done in '+mmss(mt.time)]]:[])],
+    tiles:[['Coffee',r.dose+' g'],['Water',r.water+' g'],['Temp',r.temp?r.temp+'°C':'–'],['Ratio',ra?'1:'+rr1(ra):'–']],
+    grind:g&&c!=null?{g,c,line:B.bloom.label+' '+B.bloom.def+' s  ·  '+mt.pours+' pour'+(mt.pours===1?'':'s')}:null,
+    text:r.why?[{label:'Why it works',body:r.why}]:[],steps:r.steps.slice(0,14),quote:r.tip?{label:'Tip',text:r.tip}:null,footer:'Shared from The Brew Bench'};
+  if(r.temp2)m.pills.push(['Then '+r.temp2+'°C']);
+  return bcBlob(m)}
+// An origin as a card: its own colours and stamp, where and how its coffee grows, how it tastes, its story, the varieties
+// grown there and a fact.
+function originCard(k){const o=ALLO()[k];if(!o)return Promise.resolve(null);
+  const m={theme:originTheme(k),kicker:'Coffee origin',date:REG[o.reg]?REG[o.reg].name:'',title:o.name,by:(o.subs||[]).slice(0,3).join(' · '),
+    coffee:[['Altitude',o.alt],['Harvest',o.harvest],['Processing',o.process]].filter(([,v])=>v),
+    text:[{label:'In the cup',body:o.cup},{label:'Story',body:o.hist}].filter(t=>t.body),
+    expect:o.vars&&o.vars.length?{label:'Varieties grown here',items:o.vars.slice(0,10).map(v=>({t:VBY[v]?shortName(VBY[v].name):v,c:VBY[v]&&FAM[VBY[v].fam]?FAM[VBY[v].fam].color:BC.HONEY}))}:null,
+    quote:o.fact?{label:'Did you know?',text:o.fact}:null,footer:'Shared from The Brew Bench'};
+  return bcBlob(m)}
 function logSumCard(){const L=LOG.filter(l=>l&&!(l.by&&l.by!==ME)),rated=L.filter(l=>+l.stars>0),avg=rated.length?rated.reduce((a,l)=>a+ +l.stars,0)/rated.length:0;
   const coffees=new Set(L.map(l=>(l.coffee||'').trim().toLowerCase()).filter(Boolean)),P=palate(),nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick;
   const brewers=new Map();L.forEach(l=>{const s=okSnap(l.snap),b=s&&s.b||l.brewer||(parseSettings(l.settings||'').brewer||{}).name;const n=BREWERS[b]?BREWERS[b].name:b;if(n)brewers.set(n,(brewers.get(n)||0)+1)});
