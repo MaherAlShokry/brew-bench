@@ -9908,12 +9908,14 @@ function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
   // Every pour: the times in a honey column, a fine line linking the steps.
   const steps=m.steps||[];
   if(steps.length){y+=40;bcLabel(x,'The pours',P,y);
-    const last=[...steps].reverse().map(t=>/^(\d+:\d\d)/.exec(t)).find(Boolean);if(last){x.font='500 22px '+BC.F;x.fillStyle=BC.MUTED;x.textAlign='right';x.fillText('Done by '+last[1],W-P,y);x.textAlign='left'}y+=22;
+    // The same clock as the timer and the recipe page: a step with no time of its own gets its estimate (with ~), and
+    // "Done by" is the brew's total, not the last time written in the steps.
+    const ev=parseSteps(steps),tot=clockTotal(steps,ev);if(tot>0){x.font='500 22px '+BC.F;x.fillStyle=BC.MUTED;x.textAlign='right';x.fillText('Done by '+mmss(tot),W-P,y);x.textAlign='left'}y+=22;
     const tx=P+108,tw=W-P-tx-10,show=steps.slice(0,10);x.font='500 30px '+BC.F;
-    const rows=show.map(s=>{const mm=/^(\d+:\d\d)\s*(.*)$/.exec(s);return{t:mm?mm[1]:'',d:bcCap(mm?mm[2]:s)}}).map(o=>({...o,lines:bcWrap(x,o.d,tw,2)}));
+    const rows=show.map((s,i)=>{const mm=/^(\d+:\d\d)\s*(.*)$/.exec(s),e=ev[i];return{t:mm?mm[1]:e&&e.e?'~'+mmss(e.t):'',d:bcCap(mm?mm[2]:s)}}).map(o=>({...o,lines:bcWrap(x,o.d,tw,2)}));
     const top=y+18;let yy=y;const ys=rows.map(o=>{const r0=yy;yy+=30+o.lines.length*40;return r0});
     x.fillStyle=bcA(.28);x.fillRect(P+86,top+22,1.5,Math.max(0,ys[ys.length-1]-y+4));
-    rows.forEach((o,i)=>{const ry=ys[i];x.font='700 26px '+BC.F;x.fillStyle=BC.HONEY;x.fillText(o.t||'·',P,ry+50);
+    rows.forEach((o,i)=>{const ry=ys[i];x.font=(o.t[0]==='~'?'700 22px ':'700 26px ')+BC.F;x.fillStyle=BC.HONEY;x.fillText(o.t||'·',P,ry+50);
       x.beginPath();x.arc(P+86.75,ry+41,7,0,TAU);x.fillStyle=BC.BG2;x.fill();x.lineWidth=2;x.strokeStyle=BC.HONEY;x.stroke();
       x.font='500 30px '+BC.F;x.fillStyle=BC.INK;o.lines.forEach((l,j)=>x.fillText(l,tx,ry+51+j*40))});
     y=yy+10;if(steps.length>show.length){x.font='500 23px '+BC.F;x.fillStyle=BC.MUTED;x.fillText('+ '+(steps.length-show.length)+' more in the app',tx,y+10);y+=36}}
@@ -9979,7 +9981,11 @@ function logCard(l){const s=okSnap(l.snap),fl=flOf(l).filter(([id])=>FW.byId[id]
     if(s.g&&s.c!=null)m.grind={g:s.g,c:s.c,line:(B?B.bloom.label:'Bloom')+' '+(s.bl||0)+' s  ·  '+AGITW[s.ag]+' pours'};
     if(s.r){const [vt,vs]=verdict(s.r.D);m.cup={r:s.r,vt,vs}}
     // Brews logged before the steps followed the brewing temperature: the recipe's own temperature is put right here.
-    const rr=s.rec&&RECIPES.find(x=>x.name===s.rec);m.steps=stepsAtTemp(s.steps,rr&&rr.temp,s.t)}
+    const rr=s.rec&&RECIPES.find(x=>x.name===s.rec);let st=s.steps;
+    // Brews logged before a recipe's steps were corrected (Matt Winton's two pours in one step): the card is drawn from
+    // the recipe as it is now, at the brew's own dose, water and bloom.
+    if(rr&&rr.kind!=='46'&&s.dose&&s.water&&st.length&&st.length!==rr.steps.length){const sc=scaleSteps(rr,s.dose,s.water);st=s.bl&&BREWERS[rr.b]&&BREWERS[rr.b].bloom.label==='Bloom'?bloomShift(sc,s.bl).steps:sc}
+    m.steps=stepsAtTemp(st,rr&&rr.temp,s.t)}
   else{// Logged by hand: the numbers are read back from the settings line, so the card has the same tiles as a dial-in brew.
     const q=parseSettings(l.settings||''),bean=l.beanId&&window.BEANS_OK?beanById(l.beanId):null;
     if(bean){m.theme=originTheme(bean.origin);if(bean.variety||bean.process||bean.roast)m.coffee=bcCoffee(beanTitle(bean)!==l.coffee?{name:beanTitle(bean)}:null,bean.variety,bean.process,bean.roast).filter(c=>c[1])}
