@@ -608,7 +608,7 @@ function render(){
   const ti=$('i-temp');ti.min=B.temp.min;ti.max=B.temp.max;ti.value=S.temp;$('v-temp').textContent=S.temp+'°C';
   const ri=$('i-ratio');ri.min=Math.min(B.ratio.min,S.ratio);ri.max=Math.max(B.ratio.max,S.ratio);ri.step=B.ratio.step;ri.value=S.ratio;$('v-ratio').textContent='1:'+rr1(S.ratio);
   const bi=$('i-bloom');bi.min=B.bloom.min;bi.max=B.bloom.max;bi.step=B.bloom.max<=20?1:5;bi.value=S.bloom;$('v-bloom').textContent=S.bloom+'s';
-  $('i-bloom').previousElementSibling.firstChild.textContent=B.bloom.label+' ';
+  document.querySelector('label[for="i-bloom"]').firstChild.textContent=B.bloom.label+' ';
   renderDialRecipe();renderDBean();
   $('i-brewer').value=S.brewer;$('i-process').value=S.process;$('i-variety').value=S.variety.split(':')[0];$('i-region').value=S.region;$('i-age').value=S.age;$('v-age').textContent=S.age+' days';
   const [vt,vs]=verdict(r.D);$('o-verdict').textContent=vt;$('mr-v').textContent=vt;$('mr-g').textContent=gLabel(S.grinder,S.setting)+', '+S.temp+'°C, 1:'+rr1(S.ratio);$('mr-m').style.left=((clamp(r.D,-2.5,2.5)+2.5)/5*100)+'%';$('o-summary').textContent=vs+' '+strength(S)+'.';

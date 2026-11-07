@@ -2280,9 +2280,6 @@ label[for=i-grind]>span{display:flex;flex-direction:column;align-items:flex-end;
 .seg.has-ind>button{position:relative;z-index:1}
 .seg.has-ind>button[aria-pressed="true"]:not([data-peek]){background:transparent!important;background-image:none!important;box-shadow:none!important}
 .seg-ind{position:absolute;z-index:0;pointer-events:none;transition:left .32s cubic-bezier(.3,1.25,.5,1),top .32s cubic-bezier(.3,1.25,.5,1),width .32s cubic-bezier(.3,1.25,.5,1),height .32s,background-color .2s,opacity .2s}
-.bd-rebuy{margin:14px 0 6px;padding:14px;border-radius:var(--r-lg);background:var(--surface2)}
-.bd-rbh{display:flex;align-items:center;gap:12px;margin-bottom:10px}.bd-rbh>span:first-child{font-size:1.5rem}.bd-rbh b{display:block;font:700 1rem var(--display)}.bd-rbh small{font-size:.82rem;color:var(--muted)}
-.bd-rebuy .actions{align-items:center;margin-top:4px}.bd-rebuy input,.bd-rebuy .datew{background:var(--surface)}
 .bd-bags{list-style:none;margin:0;padding:0;display:grid;gap:6px}.bd-bags li{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:12px;border:1px solid var(--line)}.bd-bags b{font-size:.88rem}.bd-bags span{font-size:.8rem;color:var(--muted)}
 .cr-buys{display:inline-flex;align-items:center;padding:2px 7px;border-radius:999px;font-size:.72rem;font-weight:800;color:var(--cherry-ink,var(--cherry));background:color-mix(in srgb,var(--cherry) 14%,var(--surface));font-variant-numeric:tabular-nums}
 /* Your last brew: picture, the full name, how it was brewed and the rating, with the two actions underneath. */
@@ -2299,6 +2296,36 @@ label[for=i-grind]>span{display:flex;flex-direction:column;align-items:flex-end;
 :is([class^="yic"],.me-tiles,.me-dna,.tro-ic,.ssn-ic,.tl-ic,.tshelf,.ssn-got,.bd-rbh,.wel-ic,.fact-ic) .di{color:var(--cherry);stroke-width:1.7}
 .tro-ic .di,.ssn-ic .di{width:1.5em;height:1.5em}.me-tiles .di{width:1.35em;height:1.35em}.bd-rbh .di{width:1.6em;height:1.6em}
 #toast .di{width:1.05em;height:1.05em;vertical-align:-.18em;margin:0 .1em}
+/* Brew steps: icons a size up, in even tinted circles, and a small dot on the line for steps without a time. */
+.steps.tl li{grid-template-columns:52px 28px minmax(0,1fr);--row:1.75rem}
+.steps.tl .tk{width:28px;height:28px;margin-top:calc((var(--row) - 28px) / 2)}
+.steps.tl .tk svg{width:16px;height:16px;stroke-width:1.9}
+.steps.tl .t.dot{width:8px;height:8px;margin:calc((var(--row) - 8px) / 2) 0 0 22px;background:color-mix(in srgb,var(--ink) 22%,transparent)}
+/* The dose stepper: no box around the number while typing; the stepper shows focus as a whole. */
+.stepper input:focus,.stepper input:focus-visible{outline:none!important;box-shadow:none!important;border:0!important;background:none}
+.stepper:focus-within{border-color:color-mix(in srgb,var(--cherry) 55%,var(--line));box-shadow:0 0 0 3px color-mix(in srgb,var(--cherry) 14%,transparent)}
+.stepper button{display:grid;place-items:center;transition:background-color .15s,transform .12s}.stepper button:active{transform:scale(.9)}
+input[type=range].pop::-webkit-slider-thumb{animation:rngpop .26s cubic-bezier(.3,1.4,.5,1)}
+input[type=range].pop::-moz-range-thumb{animation:rngpop .26s cubic-bezier(.3,1.4,.5,1)}
+@keyframes rngpop{40%{transform:scale(1.22)}}
+.num.pop{display:inline-block;animation:numpop .26s cubic-bezier(.3,1.4,.5,1)}@keyframes numpop{40%{transform:scale(1.12)}}
+@media (prefers-reduced-motion:reduce){input[type=range].pop::-webkit-slider-thumb,.num.pop{animation:none}}
+button[aria-pressed]{transition:background-color .22s,color .22s,border-color .22s,box-shadow .22s,transform .15s}
+button[aria-pressed]:active{transform:scale(.95)}
+.chip-on{animation:chipon .36s cubic-bezier(.3,1.35,.5,1)}@keyframes chipon{0%{transform:scale(.88);filter:brightness(1.12)}55%{transform:scale(1.05)}100%{transform:none}}
+.me-tiles>div{width:auto;min-width:104px;max-width:168px}
+.me-tiles b{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:break-word;hyphens:auto}
+/* Names are shown in full everywhere: they wrap rather than being cut short (secondary details may still shorten). */
+:is(.again b,.me-dna b,.srow-tx b,.t3o-tx b,.dbean-tx b,.yic-row b,.ls-sel b,.t3s-tx b,.me-tiles b){white-space:normal!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:anywhere;max-width:none}
+.t3s-tx b{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden!important}
+/* Your bags, low on the coffee's page and compact. */
+.bd-buys{margin:14px 0 4px;padding:12px 14px;border-radius:var(--r-lg);border:1px solid var(--line)}
+.bd-bh{display:flex;align-items:center;gap:12px}.bd-bi{flex:none;width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:var(--surface2);color:var(--cherry)}.bd-bi .di{width:20px;height:20px}
+.bd-bt{flex:1;min-width:0;display:flex;flex-direction:column}.bd-bt b{font:700 .95rem var(--display)}.bd-bt small{font-size:.78rem;color:var(--muted)}
+.bd-bst{width:112px;height:36px;flex:none}.bd-bst button:disabled{opacity:.35}
+.bd-rbrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}.bd-rbtn{font-weight:650}
+.bd-rbform{margin-top:12px}.bd-rbform input{background:var(--surface2)}.bd-rbform .btn{width:100%}
+.bd-bagsd{margin-top:10px}.bd-bagsd summary{cursor:pointer;font-size:.86rem;font-weight:600;color:var(--muted)}.bd-bagsd .bd-bags{margin-top:8px}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>

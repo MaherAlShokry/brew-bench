@@ -111,9 +111,12 @@ new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.nod
 const RNG_VAL=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value');
 function rngFill(i){const mn=+i.min||0,mx=i.max===''?100:+i.max,f=(+RNG_VAL.get.call(i)-mn)/((mx-mn)||1);i.style.setProperty('--p',Math.max(0,Math.min(1,f)).toFixed(4))}
 let RNG_BUZZ=0;
+// A step from − or + gives the thumb and the value a small pop, so the change is felt as well as seen.
+function rngPop(i){const lab=i.id&&document.querySelector('label[for="'+i.id+'"]'),n=lab&&lab.querySelector('.num');
+  for(const e of [i,n])if(e){e.classList.remove('pop');void e.offsetWidth;e.classList.add('pop');clearTimeout(e._pop);e._pop=setTimeout(()=>e.classList.remove('pop'),260)}}
 function rngBuzz(){const t=Date.now();if(t-RNG_BUZZ<40)return;RNG_BUZZ=t;try{navigator.vibrate&&navigator.vibrate(4)}catch(e){}}
 function rngStep(i,dir){if(i.disabled)return;const before=i.value;try{dir>0?i.stepUp():i.stepDown()}catch(e){return}
-  if(i.value===before)return;rngFill(i);rngBuzz();i.dispatchEvent(new Event('input',{bubbles:true}));i.dispatchEvent(new Event('change',{bubbles:true}))}
+  if(i.value===before)return;rngFill(i);rngBuzz();rngPop(i);i.dispatchEvent(new Event('input',{bubbles:true}));i.dispatchEvent(new Event('change',{bubbles:true}))}
 function rngButton(i,dir){const b=document.createElement('button');b.type='button';b.className='rng-b';b.setAttribute('aria-label',(dir>0?'Increase ':'Decrease ')+((i.labels&&i.labels[0]&&i.labels[0].firstChild&&i.labels[0].firstChild.textContent.trim())||'value'));
   b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+(dir>0?'M12 6v12M6 12h12':'M6 12h12')+'"/></svg>';
   let t1=0,t2=0;const stop=()=>{clearTimeout(t1);clearInterval(t2)};
@@ -151,9 +154,14 @@ const SEG_SEL='.seg:not(.filters)';
 function uiScan(root){if(!root.querySelectorAll)return;
   if(root.matches&&root.matches('input[type=range]'))rngEnhance(root);root.querySelectorAll('input[type=range]:not([data-rng])').forEach(rngEnhance);
   if(root.matches&&root.matches(SEG_SEL))segQueue(root);root.querySelectorAll(SEG_SEL).forEach(segQueue)}
+// Chip choices that wrap onto several lines (target cup, filters, the recipe maker's picks) can't glide, so the newly
+// picked chip pops in instead: on a pressed change, or when the row is redrawn with a different one picked.
+function chipCheck(box){if(!box||box.matches(SEG_SEL))return;const on=box.querySelector(':scope>button[aria-pressed="true"]');const key=on?(on.dataset.v||on.dataset.mk||on.textContent):'';
+  if(box._onk!==undefined&&key&&key!==box._onk&&!RM()){on.classList.remove('chip-on');void on.offsetWidth;on.classList.add('chip-on');setTimeout(()=>on.classList.remove('chip-on'),360)}box._onk=key}
 // Only what changed is looked at: new nodes, and the control whose options were swapped or picked. A timer ticking in
 // a big page doesn't make every control on it measure itself again.
 new MutationObserver(ms=>{for(const m of ms){const t=m.type==='attributes'?m.target.parentElement:m.target,s=t&&t.closest&&t.closest(SEG_SEL);if(s)segQueue(s);
+  if(t&&t.querySelector&&t.querySelector(':scope>button[aria-pressed]'))chipCheck(t);
   if(m.type==='childList')m.addedNodes.forEach(n=>n.nodeType===1&&uiScan(n));else if(m.removedNodes)for(const n of m.removedNodes)if(n._ro&&SEG_RO)SEG_RO.unobserve(n)}})
   .observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['aria-pressed']});
 uiScan(document.body);
