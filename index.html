@@ -2276,6 +2276,7 @@ label[for=i-grind]>span{display:flex;flex-direction:column;align-items:flex-end;
 .two:has(.rng-row){grid-template-columns:1fr;gap:0}
 /* Selection controls: one highlight that glides to the picked option. */
 .seg.has-ind{position:relative}
+.seg>button[data-peek]{transition:none!important}
 .seg.has-ind>button{position:relative;z-index:1}
 .seg.has-ind>button[aria-pressed="true"]:not([data-peek]){background:transparent!important;background-image:none!important;box-shadow:none!important}
 .seg-ind{position:absolute;z-index:0;pointer-events:none;transition:left .32s cubic-bezier(.3,1.25,.5,1),top .32s cubic-bezier(.3,1.25,.5,1),width .32s cubic-bezier(.3,1.25,.5,1),height .32s,background-color .2s,opacity .2s}
@@ -2283,6 +2284,7 @@ label[for=i-grind]>span{display:flex;flex-direction:column;align-items:flex-end;
 .bd-rbh{display:flex;align-items:center;gap:12px;margin-bottom:10px}.bd-rbh>span:first-child{font-size:1.5rem}.bd-rbh b{display:block;font:700 1rem var(--display)}.bd-rbh small{font-size:.82rem;color:var(--muted)}
 .bd-rebuy .actions{align-items:center;margin-top:4px}.bd-rebuy input,.bd-rebuy .datew{background:var(--surface)}
 .bd-bags{list-style:none;margin:0;padding:0;display:grid;gap:6px}.bd-bags li{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:12px;border:1px solid var(--line)}.bd-bags b{font-size:.88rem}.bd-bags span{font-size:.8rem;color:var(--muted)}
+.cr-buys{display:inline-flex;align-items:center;padding:2px 7px;border-radius:999px;font-size:.72rem;font-weight:800;color:var(--cherry-ink,var(--cherry));background:color-mix(in srgb,var(--cherry) 14%,var(--surface));font-variant-numeric:tabular-nums}
 </style>
 <script>const JSPDF_SRC="vendor/jspdf.umd.min.js"</script>
 <link rel="manifest" href="manifest.webmanifest">
@@ -8503,6 +8505,8 @@ function tasteOf(bs,ls){const top=(items,f,w)=>{const m=new Map();for(const x of
   // The origin you buy most within your favourite region (so the region and its country always agree).
   if(t.region)t.regionOrigin=top(bs.filter(b=>{const o=b.origin&&oInfo(b.origin);return o&&o.reg===t.region.k}),b=>b.origin);
   const rated=bs.filter(b=>b.rating);t.avg=rated.length?rated.reduce((a,b)=>a+b.rating,0)/rated.length:0;t.best=[...rated].sort((a,b)=>b.rating-a.rating||(b.ts||0)-(a.ts||0))[0]||null;
+  // Your regular: the coffee you've bought the most times (only once you've bought one again).
+  t.regular=[...bs].filter(b=>(b.bags||[]).length).sort((a,b)=>buys(b)-buys(a)||b.rating-a.rating)[0]||null;
   return t}
 // One line that sums it up: "Washed Ethiopian heirlooms, light roast, floral and fruity, on a Hario V60."
 function tasteLine(t){const bits=[];const pr=t.process&&PROCESSES[t.process.k],o=t.origin&&oInfo(t.origin.k),v=t.variety&&VBY[t.variety.k];
@@ -8518,7 +8522,7 @@ function yearInCoffeeHTML(){const cy=new Date().getFullYear(),bs=BEANS.filter(b=
   const facts=[o&&['<span class="yic-fl">'+flagOf(t.origin.k)+'</span>','Mostly from',o.name,t.origin.n+' bag'+(t.origin.n===1?'':'s')],R&&['🗺️','Favourite region',R.name,t.region.n+' bag'+(t.region.n===1?'':'s')+(t.regionOrigin&&t.regionOrigin.k!==(t.origin&&t.origin.k)?', most from '+oInfo(t.regionOrigin.k).name:'')],
     v&&['🌱','Top variety',shortName(v.name),t.variety.n+' bag'+(t.variety.n===1?'':'s')],pr&&['🧪','Top process',pr.name.replace(/\s*\(.*\)$/,''),t.process.n+' bag'+(t.process.n===1?'':'s')],
     t.roast&&['🔥','Usual roast',t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1),''],t.roaster&&['🏷️','Roastery most often',t.roaster.k,t.roaster.n+' bag'+(t.roaster.n===1?'':'s')],
-    t.best&&['🏆','Best of the year',beanTitle(t.best),String(t.best.rating).replace('.5','½')+' beans'],B&&['☕','Brewed most on',B.name,t.brewer.n+' cup'+(t.brewer.n===1?'':'s')]].filter(Boolean);
+    t.regular&&['🔁','Your regular',beanTitle(t.regular),'Bought '+buys(t.regular)+' times'],t.best&&['🏆','Best of the year',beanTitle(t.best),String(t.best.rating).replace('.5','½')+' beans'],B&&['☕','Brewed most on',B.name,t.brewer.n+' cup'+(t.brewer.n===1?'':'s')]].filter(Boolean);
   return '<div class="yic" role="region" aria-label="'+cy+' in coffee"><span class="yic-k">'+cy+' in coffee</span>'+(bs.length>1?'<p class="yic-line">'+esc(tasteLine(t))+'</p>':'')+
     '<div class="yic-big">'+big.map(([n,l])=>'<span><b>'+esc(String(n))+'</b><small>'+esc(l)+'</small></span>').join('')+'</div>'+
     (facts.length?'<div class="yic-facts">'+facts.map(([i,k,vv,sub])=>'<div><i aria-hidden="true">'+i+'</i><span><small>'+k+'</small><b>'+esc(vv)+'</b>'+(sub?'<em>'+esc(sub)+'</em>':'')+'</span></div>').join('')+'</div>':'')+
@@ -8607,7 +8611,7 @@ function openMakeRecipe(bid){const d=$('vd'),beans=[...BEANS.filter(b=>b.shelf),
 const WILD=['anaerobic','anaerobicnatural','anaerobicwashed','anaerobichoney','doubleanaerobic','carbonic','lactic','yeast','koji','extended','thermalshock','mossto','coferment','infused','barrelaged'];
 function cabStats(){const o=new Set(BEANS.map(b=>b.origin).filter(Boolean));
   return{n:BEANS.length,o,regs:new Set([...o].map(k=>(oInfo(k)||{}).reg).filter(Boolean)),procs:new Set(BEANS.map(b=>b.process).filter(Boolean)),
-    roasters:new Set(BEANS.map(b=>b.roaster.toLowerCase()).filter(Boolean)),diary:BEANS.reduce((a,b)=>a+b.diary.length,0),done:BEANS.filter(b=>!b.shelf).length,
+    roasters:new Set(BEANS.map(b=>b.roaster.toLowerCase()).filter(Boolean)),diary:BEANS.reduce((a,b)=>a+b.diary.length,0),done:BEANS.filter(b=>!b.shelf).length+BEANS.reduce((a,b)=>a+(b.bags||[]).length,0),rebought:BEANS.filter(b=>(b.bags||[]).length).length,maxBuys:BEANS.reduce((a,b)=>Math.max(a,buys(b)),0),
     crowned:Object.values(TOP3).some(t=>t.ids.slice(0,3).every(Boolean)),perfect:BEANS.some(b=>b.rating===5),wild:BEANS.some(b=>WILD.includes(b.process)),
     geisha:BEANS.some(b=>beanVars(b).some(v=>/^geisha/.test(v))),arabia:BEANS.some(b=>['yemen','saudi','oman','uae'].includes(b.origin)),eth:o.has('ethiopia'),
     brews:LOG.length,streak:brewStreak(),brewers:new Set(LOG.map(l=>l.snap&&l.snap.b).filter(Boolean)).size,champ:LOG.some(l=>l.snap&&CHAMP_REC.test(l.snap.rec||'')),
@@ -8632,6 +8636,8 @@ const TROPHIES=[
   ['sl','Kenyan classics','An SL28 or SL34','🦁',s=>[+s.sl,1]],['decaf','Night owl','A decaf in the cabinet','🦉',s=>[+s.decaf,1]],
   ['fresh','Straight from the roaster','Add a coffee within three days of its roast','⏱️',s=>[+s.fresh,1]],['critic','The critic','Rate twenty coffees','🧐',s=>[s.rated,20]],
   ['notes','Tasting notes','Tasting notes on ten coffees','👃',s=>[s.noted,10]],['again','Old faithful','Mark a coffee you\u2019d buy again','💛',s=>[+s.again,1]],
+  ['rebuy','Back for more','Buy a coffee again','🔁',s=>[s.rebought,1]],['regular','The regular','Buy the same coffee three times','🤝',s=>[s.maxBuys,3]],
+  ['loyal','House favourites','Buy five different coffees again','🏡',s=>[s.rebought,5]],
   ['brew10','Ten brews','Log ten brews','📝',s=>[s.brews,10]],['brew100','Centurion','Log a hundred brews','💯',s=>[s.brews,100]],
   ['streak','Daily ritual','Brew on seven days in a row','📅',s=>[s.streak,7]],['kit','Toolkit','Brew with three different brewers','🧰',s=>[s.brewers,3]],
   ['champ','Champion\u2019s cup','Brew a world champion\u2019s recipe','🏆',s=>[+s.champ,1]]];
@@ -8763,8 +8769,8 @@ const CROWN='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8l4.5 4L12 
 
 /* ---------- The Beans page ---------- */
 // The coffees list's filters.
-const BFILTERS=[['all','All'],['done','Finished'],['again','Buy again'],['top','4 beans and up'],['fav','Favourites']];
-const bfKeep=(b,f)=>f==='all'||(f==='done'?!b.shelf:f==='again'?b.again==='yes':f==='top'?b.rating>=4:inAnyTop(b.id));
+const BFILTERS=[['all','All'],['done','Finished'],['rebought','Bought again'],['again','Buy again'],['top','4 beans and up'],['fav','Favourites']];
+const bfKeep=(b,f)=>f==='all'||(f==='done'?!b.shelf:f==='rebought'?buys(b)>1:f==='again'?b.again==='yes':f==='top'?b.rating>=4:inAnyTop(b.id));
 function beanList(){const q=BQ.trim().toLowerCase();
   let l=BEANS.filter(b=>(BYEAR==='all'||beanYear(b)===+BYEAR)&&bfKeep(b,BF)&&(!q||[b.name,b.roaster,originName(b.origin),b.process&&PROCESSES[b.process].name,beanVars(b).map(vName).join(' '),b.flavours,b.notes].join(' ').toLowerCase().includes(q)));
   const by={recent:(a,b)=>beanDay(b).localeCompare(beanDay(a))||b.ts-a.ts,rated:(a,b)=>b.rating-a.rating||beanDay(b).localeCompare(beanDay(a)),
@@ -8858,7 +8864,7 @@ function coffeeRow(b,now,i){const rk=beanRank(b),f=now&&fresh(b),g=now?gramsLeft
   // One clean row: name with its medal and rating on the right, roaster and origin below, then (for bags you're
   // drinking) a single line of freshness and what's left, with a thin bar for the bag.
   const end=(rk?'<span class="cr-medal'+(rk>3?' r45':'')+'" style="--m:'+MEDAL[rk]+'" title="'+placeLine(rk,beanYear(b))+'">'+(rk>3?rk:CROWN)+'</span>':beanMention(b)?'<span class="cr-medal hm" title="Honourable mention, '+beanYear(b)+'">'+HM_SVG+'</span>':'')+
-    (b.rating?'<span class="cr-rate">'+beanSVG+String(b.rating).replace('.5','½')+'</span>':'');
+    (buys(b)>1?'<span class="cr-buys" title="Bought '+buys(b)+' times">'+buys(b)+'×</span>':'')+(b.rating?'<span class="cr-rate">'+beanSVG+String(b.rating).replace('.5','½')+'</span>':'');
   const bagPct=now&&g!=null&&b.bag>0?Math.max(0,Math.min(100,g/b.bag*100)):null;
   return '<button type="button" class="crow'+(now?' now':'')+(isNew?' enter':'')+'" data-bean="'+b.id+'" style="--i:'+Math.min(i||0,12)+'">'+beanPic(b,'rw')+
     '<span class="cr-tx"><span class="cr-top"><b>'+esc(beanTitle(b))+'</b>'+(end?'<span class="cr-end">'+end+'</span>':'')+'</span>'+(meta?'<small>'+esc(meta)+'</small>':'')+

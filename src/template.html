@@ -2275,6 +2275,7 @@ label[for=i-grind]>span{display:flex;flex-direction:column;align-items:flex-end;
 .two:has(.rng-row){grid-template-columns:1fr;gap:0}
 /* Selection controls: one highlight that glides to the picked option. */
 .seg.has-ind{position:relative}
+.seg>button[data-peek]{transition:none!important}
 .seg.has-ind>button{position:relative;z-index:1}
 .seg.has-ind>button[aria-pressed="true"]:not([data-peek]){background:transparent!important;background-image:none!important;box-shadow:none!important}
 .seg-ind{position:absolute;z-index:0;pointer-events:none;transition:left .32s cubic-bezier(.3,1.25,.5,1),top .32s cubic-bezier(.3,1.25,.5,1),width .32s cubic-bezier(.3,1.25,.5,1),height .32s,background-color .2s,opacity .2s}
@@ -2282,6 +2283,7 @@ label[for=i-grind]>span{display:flex;flex-direction:column;align-items:flex-end;
 .bd-rbh{display:flex;align-items:center;gap:12px;margin-bottom:10px}.bd-rbh>span:first-child{font-size:1.5rem}.bd-rbh b{display:block;font:700 1rem var(--display)}.bd-rbh small{font-size:.82rem;color:var(--muted)}
 .bd-rebuy .actions{align-items:center;margin-top:4px}.bd-rebuy input,.bd-rebuy .datew{background:var(--surface)}
 .bd-bags{list-style:none;margin:0;padding:0;display:grid;gap:6px}.bd-bags li{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:12px;border:1px solid var(--line)}.bd-bags b{font-size:.88rem}.bd-bags span{font-size:.8rem;color:var(--muted)}
+.cr-buys{display:inline-flex;align-items:center;padding:2px 7px;border-radius:999px;font-size:.72rem;font-weight:800;color:var(--cherry-ink,var(--cherry));background:color-mix(in srgb,var(--cherry) 14%,var(--surface));font-variant-numeric:tabular-nums}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
