@@ -53,7 +53,19 @@ function okBean(b){if(!b||typeof b!=='object'||typeof b.id!=='string'||!BID.test
     bag:gramsOrNull(b.bag)||0,left:gramsOrNull(b.left),leftAt:+b.leftAt||0,again:b.again==='yes'||b.again==='no'?b.again:'',
     diary:(Array.isArray(b.diary)?b.diary:[]).map(okEntry).filter(Boolean).sort((x,y)=>y.d.localeCompare(x.d)).slice(0,80),
     // Cups brewed with the dial-in's timer: each comes off the bag, unless a logged brew already counts it.
-    cups:(Array.isArray(b.cups)?b.cups:[]).filter(c=>c&&typeof c.id==='string'&&BID.test(c.id)&&+c.ts>0&&+c.g>0&&+c.g<=200).map(c=>({id:c.id,ts:+c.ts,g:+c.g})).slice(-60)}}
+    cups:(Array.isArray(b.cups)?b.cups:[]).filter(c=>c&&typeof c.id==='string'&&BID.test(c.id)&&+c.ts>0&&+c.g>0&&+c.g<=200).map(c=>({id:c.id,ts:+c.ts,g:+c.g})).slice(-60),
+    // Earlier bags of the same coffee, kept when you buy it again: roast date, size, and when it was opened and finished.
+    bags:(Array.isArray(b.bags)?b.bags:[]).filter(x=>x&&typeof x.id==='string'&&BID.test(x.id)).map(x=>({id:x.id,rd:ISO_D.test(x.rd)?x.rd:'',g:gramsOrNull(x.g)||0,on:ISO_D.test(x.on)?x.on:'',off:ISO_D.test(x.off)?x.off:''})).slice(-40)}}
+// How many times you've bought a coffee: this bag and every earlier one.
+const buys=b=>1+((b&&b.bags)||[]).length;
+// Bought it again: the bag you finished goes into the coffee's history, and the new one starts fresh on the shelf with
+// its own roast date and size. Ratings, notes, the diary and every brew stay as they are.
+function rebuyBean(b,rd,g){const opened=b.diary.find(e=>e.k==='opened'),last=b.diary.find(e=>e.k==='last');
+  b.bags=[...(b.bags||[]),{id:uid(),rd:b.roastDate||'',g:b.bag||0,on:opened?opened.d:(b.tried||tsISO(b.ts)),off:last?last.d:todayISO()}].slice(-40);
+  b.roastDate=rd||'';if(g>0)b.bag=g;setLeft(b,b.bag||null);b.shelf=true;b.again='yes';
+  b.diary.unshift(okEntry({k:'opened',d:todayISO(),t:'Bought it again'+(buys(b)>2?' ('+ordinal(buys(b))+' bag)':'')}));saveBeans()}
+const fmtD=s=>s?new Date(s+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'';
+const ordinal=n=>n+(n%100>10&&n%100<14?'th':['th','st','nd','rd'][n%10]||'th');
 let BEANS=load('bb-beans',[]);BEANS=Array.isArray(BEANS)?BEANS.map(okBean).filter(Boolean):[];
 // Top 3 per year: three places (gold, silver, bronze), each a bean id or '' while open, plus a snapshot so a podium
 // survives the bean being deleted later.
@@ -254,8 +266,8 @@ const brewTs=l=>+l.ts||Date.parse(l.date)||0;
 function tasteOf(bs,ls){const top=(items,f,w)=>{const m=new Map();for(const x of items){const ks=[].concat(f(x)).filter(Boolean),wt=w?w(x):1;for(const k of ks)m.set(k,(m.get(k)||0)+wt)}
     let best=null,n=0;for(const [k,v] of m)if(v>n){best=k;n=v}return best?{k:best,n}:null};
   const like=b=>b.rating>=4?2:b.rating&&b.rating<3?0.5:1;
-  const t={origin:top(bs,b=>b.origin),region:top(bs,b=>{const o=b.origin&&oInfo(b.origin);return o&&o.reg}),variety:top(bs,b=>beanVars(b).map(v=>v.split(':')[0])),
-    process:top(bs,b=>b.process),roast:top(bs,b=>b.roast),roaster:top(bs,b=>b.roaster&&b.roaster.trim()),
+  const t={origin:top(bs,b=>b.origin,buys),region:top(bs,b=>{const o=b.origin&&oInfo(b.origin);return o&&o.reg},buys),variety:top(bs,b=>beanVars(b).map(v=>v.split(':')[0]),buys),
+    process:top(bs,b=>b.process,buys),roast:top(bs,b=>b.roast,buys),roaster:top(bs,b=>b.roaster&&b.roaster.trim(),buys),
     likedOrigin:top(bs.filter(b=>b.rating>=4),b=>b.origin),likedProcess:top(bs.filter(b=>b.rating>=4),b=>b.process),
     brewer:top(ls,l=>{const b=(l.snap&&l.snap.b)||l.brewer;return b&&CANONB(b)}),regionOrigin:null,recipe:top(ls,l=>l.snap&&l.snap.rec),goal:top(ls,l=>l.snap&&l.snap.goal)};
   // Flavours: the families of the notes on the bags you liked and of what you tasted in your brews.
@@ -768,7 +780,11 @@ function openBean(id,write){const b=beanById(id);if(!b)return;const d=$('vd'),rk
         '<p class="bd-auto">Brews you finish with the dial-in’s timer or log with this coffee come off the bag on their own.</p><div class="bd-bagb"><button type="button" class="chip" id="bd-left">Set what’s left</button></div></div>'
         :'<p class="hint" style="margin:8px 0 0">Add the bag size in Edit to see what’s left as you log brews.</p>')+
       '<button type="button" class="btn ghost bd-done" id="bd-done">🏁 Finish the bag</button></div>'
-     :'<button type="button" class="linkbtn" id="bd-shelf">Put it back on the shelf</button>')+
+     :'<div class="bd-rebuy"><div class="bd-rbh"><span aria-hidden="true">🛍️</span><span><b>Bought it again?</b><small>Start a new bag. This one stays in its history.</small></span></div>'+
+      '<div class="two"><div class="field"><label for="bd-rb-rd">New roast date</label><input type="date" id="bd-rb-rd" max="'+todayISO()+'"></div>'+
+      '<div class="field"><label for="bd-rb-g">Bag size (g)</label><input type="number" id="bd-rb-g" inputmode="numeric" min="50" max="5000" step="10" value="'+(b.bag||'')+'" placeholder="250"></div></div>'+
+      '<div class="actions"><button type="button" class="btn" id="bd-rebuy">Add the new bag</button><button type="button" class="linkbtn" id="bd-shelf">Just put it back on the shelf</button></div></div>')+
+    (b.bags&&b.bags.length?'<h3>Bought '+buys(b)+' times</h3><ol class="bd-bags">'+b.bags.slice().reverse().map((x,i)=>'<li><b>'+ordinal(b.bags.length-i)+' bag</b><span>'+[x.rd?'Roasted '+fmtD(x.rd):'',x.g?x.g+' g':'',x.off?'finished '+fmtD(x.off):''].filter(Boolean).join(' · ')+'</span></li>').join('')+'</ol>':'')+
     (kv.length?'<div class="specs">'+kv.map(([k,v])=>'<div><b>'+k+'</b><span class="bd-v">'+esc(v)+'</span></div>').join('')+'</div>':'')+
     (b.flavours?'<h3>Tasting notes</h3><div class="chips">'+tnSplit(b.flavours).map(f=>{const n=tnLeaf(f);return'<span class="chip">'+(n?'<i class="dot" style="background:'+n.c+'"></i>':'')+esc(f)+'</span>'}).join('')+'</div>':'')+
     (b.notes?'<h3>Your notes</h3><p>'+esc(b.notes)+'</p>':'')+
@@ -794,8 +810,11 @@ function openBean(id,write){const b=beanById(id);if(!b)return;const d=$('vd'),rk
   if($('bd-cm')){$('bd-cm').onclick=()=>{cupG=Math.max(1,cupG-1);cupShow()};$('bd-cp').onclick=()=>{cupG=Math.min(100,cupG+1);cupShow()}}
   if($('bd-cup'))$('bd-cup').onclick=()=>{setLeft(b,Math.max(0,(gramsLeft(b)||0)-cupG));refresh('Took '+gfmt(cupG)+' g off the bag')};
   if($('bd-left'))$('bd-left').onclick=()=>{const v=prompt('How many grams are left in the bag?',String(gramsLeft(b)||''));if(v==null)return;const n=parseFloat(v);if(!isFinite(n)||n<0){toast('Enter the grams left, like 120');return}setLeft(b,n);refresh('Updated')};
-  if($('bd-done'))$('bd-done').onclick=()=>{b.shelf=false;if(!b.diary.some(e=>e.k==='last'))b.diary.unshift(okEntry({k:'last',d:todayISO(),t:''}));refresh('Finished: it’s in the cabinet now. Add how it ended in its diary')};
+  if($('bd-done'))$('bd-done').onclick=()=>{b.shelf=false;const ol=b.diary.find(e=>e.k==='opened'||e.k==='last');if(!ol||ol.k!=='last')b.diary.unshift(okEntry({k:'last',d:todayISO(),t:''}));refresh('Finished: it’s in the cabinet now. Add how it ended in its diary')};
   if($('bd-shelf'))$('bd-shelf').onclick=()=>{b.shelf=true;refresh('Back on the shelf')};
+  if($('bd-rebuy'))$('bd-rebuy').onclick=()=>{const rd=$('bd-rb-rd').value,g=+$('bd-rb-g').value;
+    if(rd&&(!/^\d{4}-\d\d-\d\d$/.test(rd)||rd>todayISO())){toast('Pick a roast date that isn’t in the future');return}
+    rebuyBean(b,rd,g>=50&&g<=5000?Math.round(g):0);refresh('New bag on the shelf: it’s in Drinking now')};
   wireDwrite('bd',st,()=>b,(_,msg)=>{refresh(msg);setTimeout(()=>{const h=$('bd-dh');if(h)h.scrollIntoView({block:'start'})},50)});
   $('bd-tl').onclick=e=>{const x=e.target.closest('[data-deldiary]');if(!x||!confirm('Delete this diary entry?'))return;dropDiaryPhotos(b.diary.filter(en=>en.id===x.dataset.deldiary));b.diary=b.diary.filter(en=>en.id!==x.dataset.deldiary);refresh('Entry deleted')};
   $('bd-del').onclick=()=>{const inTop=inAnyTop(b.id);
@@ -879,7 +898,7 @@ function openBeanEditor(b,pre){const isNew=!b;const B=Object.assign({name:'',roa
   $('be-cancel').onclick=()=>d.close();
   $('be-save').onclick=async()=>{const n=okBean({id:b?b.id:uid().replace(/[^a-z0-9]/g,'').slice(0,20),name:$('be-name').value,roaster:$('be-roaster').value,origin:$('be-origin').value,process:$('be-process').value,...(readVars(),{variety:VL.filter(Boolean)[0]||'',vars:VL.filter(Boolean).slice(1)}),
       roast:B.roast,roastDate:$('be-rdate').value,tried:$('be-tried').value,rating,flavours:TN.val(),notes:$('be-notes').value,img:photoChanged?!!photo:B.img,scan:B.scan||'',ts:b?b.ts:Date.now(),
-      shelf:B.shelf,bag:$('be-bag').value,left:b?b.left:null,leftAt:b?b.leftAt:0,again:b?b.again:'',diary:b?b.diary:[],cups:b?b.cups:[]});
+      shelf:B.shelf,bag:$('be-bag').value,left:b?b.left:null,leftAt:b?b.leftAt:0,again:b?b.again:'',diary:b?b.diary:[],cups:b?b.cups:[],bags:b?b.bags:[]});
     if(!n.name&&!n.origin&&!photo){toast('Add a name, an origin or a photo first');$('be-name').focus();return}
     let note='';if(photoChanged){if(photo){if(!await BIMG.put(n.id,photo)){n.img=false;note=', but the photo couldn’t be saved on this device'}}else if(!inAnyTop(n.id))BIMG.del(n.id)}
     // Moved to another year: it leaves the old year's top 3, where it no longer belongs.
