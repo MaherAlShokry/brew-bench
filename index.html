@@ -9226,7 +9226,8 @@ function renderBeanViews(){const cy=new Date().getFullYear();
   for(const v of ['coffees','diary','passport','top3','scans']){const p=$('bv-'+v),on=v===BVIEW;if(p.hidden===!on)continue;p.hidden=!on;if(on&&!RM())replay(p,'bv-in')}
   // Switched while scrolled down: the new view starts just under the stuck tab strip, not partway down or with the page
   // jumping back up (each view is at least a screen tall, so a short one can't pull the page up).
-  {const st=$('bg-views'),p=$('bv-'+BVIEW);if(st&&p){const sb=st.getBoundingClientRect().bottom,pt=p.getBoundingClientRect().top;if(pt<sb)scrollBy(0,pt-sb-8)}}}
+  // Only when the strip is stuck (scrolled past where it sits): at the top of the page there is nothing to measure.
+  {const st=$('bg-views'),p=$('bv-'+BVIEW);if(st&&p){if(st._y==null)st._y=st.getBoundingClientRect().top+scrollY;if(scrollY>st._y-120){const sb=st.getBoundingClientRect().bottom,pt=p.getBoundingClientRect().top;if(pt<sb)scrollBy(0,pt-sb-8)}}}}
 function renderCoffees(){const p=$('bv-coffees'),years=beanYears();BYEAR=BYEAR.filter(y=>years.includes(+y));
   if(!BEANS.length){p.innerHTML='<div class="bg-empty">'+beanSVG+'<b>No coffees yet</b><p>Scan a bag or add one by hand. Your earlier scans are under <button type="button" class="linkbtn" data-view="scans">Scans</button>, ready to add.</p></div>';return}
   const fs=BFILTERS.filter(([f])=>f==='all'||BEANS.some(b=>bfKeep(b,f)));BF=BF.filter(f=>fs.some(([x])=>x===f));
