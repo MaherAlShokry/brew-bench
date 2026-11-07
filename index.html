@@ -2317,7 +2317,7 @@ input[type=range].pop::-moz-range-thumb{animation:rngpop .26s cubic-bezier(.3,1.
 @media (prefers-reduced-motion:reduce){input[type=range].pop::-webkit-slider-thumb,.num.pop{animation:none}}
 button[aria-pressed]{transition:background-color .22s,color .22s,border-color .22s,box-shadow .22s,transform .15s}
 button[aria-pressed]:active{transform:scale(.95)}
-.chip-on{animation:chipon .36s cubic-bezier(.3,1.35,.5,1)}@keyframes chipon{0%{transform:scale(.88);filter:brightness(1.12)}55%{transform:scale(1.05)}100%{transform:none}}
+.chip-on{animation:chipon .2s ease-out}@keyframes chipon{from{opacity:.6}to{opacity:1}}
 .me-tiles>div{width:auto;min-width:104px;max-width:168px}
 .me-tiles b{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:break-word;hyphens:auto}
 .me-tiles.me-mine>div{min-width:0;max-width:none}
@@ -10338,22 +10338,25 @@ function segUpdate(el){const on=el.querySelector(':scope>button[aria-pressed="tr
   // The highlight needs a positioned parent; a control that's already sticky or absolute keeps its own positioning.
   if(!el.classList.contains('ind-rel')&&getComputedStyle(el).position==='static')el.classList.add('ind-rel');
   if(!ind){ind=document.createElement('span');ind.className='seg-ind';ind.setAttribute('aria-hidden','true');el.append(ind);
-    if(el._ip){ind.style.transition='none';Object.assign(ind.style,el._ip);ind.offsetWidth;ind.style.transition=''}}
+    // A strip that was redrawn (Settings redraws on every pick) starts from where its highlight last was, so it still glides.
+    const ip=el._ip||(el.id&&SEG_IP.get(el.id));if(ip){ind.style.transition='none';Object.assign(ind.style,ip);ind.offsetWidth;ind.style.transition=''}}
   // Read the picked option's own look for a moment (data-peek lets it show), then hand it to the highlight.
   on.setAttribute('data-peek','');const cs=getComputedStyle(on);
   const look={background:cs.backgroundColor,backgroundImage:cs.backgroundImage,boxShadow:cs.boxShadow,borderRadius:cs.borderRadius};on.removeAttribute('data-peek');el.classList.add('has-ind');
   // Moved with a transform (the compositor animates it without laying the page out again); only the size changes width.
   const pos={left:'0px',top:'0px',transform:'translate3d('+on.offsetLeft+'px,'+on.offsetTop+'px,0)',width:on.offsetWidth+'px',height:on.offsetHeight+'px'};
-  if(RM())ind.style.transition='none';Object.assign(ind.style,look,pos,{opacity:'1'});el._ip=pos;
+  if(RM())ind.style.transition='none';Object.assign(ind.style,look,pos,{opacity:'1'});el._ip=pos;if(el.id)SEG_IP.set(el.id,pos);
   if(SEG_RO&&!el._ro){el._ro=1;SEG_RO.observe(el)}}
 // One watcher for every control's size (a tab coming into view, the phone turning); controls that have left the page are dropped.
 const SEG_RO=window.ResizeObserver?new ResizeObserver(es=>es.forEach(e=>{if(e.target.isConnected)segQueue(e.target);else SEG_RO.unobserve(e.target)})):null;
-const SEG_Q=new Set();let SEG_RAF=0;
+const SEG_Q=new Set(),SEG_IP=new Map();let SEG_RAF=0;
 function segQueue(el){SEG_Q.add(el);if(!SEG_RAF)SEG_RAF=requestAnimationFrame(()=>{SEG_RAF=0;const l=[...SEG_Q];SEG_Q.clear();l.forEach(x=>{if(x.isConnected)segUpdate(x)})})}
-const SEG_SEL='.seg:not(.filters)';
+// Every one-line strip glides, the Gear tabs included; wrapping filter chips can't, so they get the plain pick instead.
+const SEG_SEL='.seg:not(.filters),.seg.gtabs';
 function uiScan(root){if(!root.querySelectorAll)return;
   if(root.matches&&root.matches('input[type=range]'))rngEnhance(root);root.querySelectorAll('input[type=range]:not([data-rng])').forEach(rngEnhance);
-  if(root.matches&&root.matches(SEG_SEL))segQueue(root);root.querySelectorAll(SEG_SEL).forEach(segQueue)}
+  // A redrawn strip is placed at once (before the page paints), so it never shows a frame without its highlight.
+  const go=x=>x.id&&SEG_IP.has(x.id)?segUpdate(x):segQueue(x);if(root.matches&&root.matches(SEG_SEL))go(root);root.querySelectorAll(SEG_SEL).forEach(go)}
 // Chip choices that wrap onto several lines (target cup, filters, the recipe maker's picks) can't glide, so the newly
 // picked chip pops in instead: on a pressed change, or when the row is redrawn with a different one picked.
 function chipCheck(box){if(!box||box.matches(SEG_SEL))return;const on=box.querySelector(':scope>button[aria-pressed="true"]');const key=on?(on.dataset.v||on.dataset.mk||on.textContent):'';
