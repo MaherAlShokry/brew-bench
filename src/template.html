@@ -2013,11 +2013,11 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .shmode{display:inline-flex;padding:3px;border-radius:999px;background:rgba(255,246,232,.08);margin-bottom:10px}
 .shmode button{border:0;background:none;color:rgba(255,246,232,.82);font:inherit;font-size:.84rem;font-weight:700;padding:7px 16px;border-radius:999px;min-height:36px;cursor:pointer}
 .shmode button[aria-pressed="true"]{background:#F0C987;color:#2E1C12}
-.shcols{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -12px;padding:2px 12px 4px;scroll-padding-inline:12px;scroll-snap-type:x proximity}.shcols::-webkit-scrollbar{display:none}
+.shcols{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -12px;padding:7px 12px 6px;scroll-padding-inline:12px;scroll-snap-type:x proximity}.shcols::-webkit-scrollbar{display:none}
 .shsw{flex:none;display:flex;flex-direction:column;align-items:center;gap:5px;width:64px;border:0;background:none;padding:0;color:rgba(255,246,232,.78);font:inherit;font-size:.68rem;line-height:1.2;cursor:pointer;scroll-snap-align:start}
 .shsw i{width:40px;height:40px;border-radius:50%;box-shadow:0 0 0 1.5px rgba(255,246,232,.25);transition:box-shadow .2s,transform .2s var(--ease-spring)}
 .shsw span{max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.shsw[aria-pressed="true"]{color:#F0C987;font-weight:700}.shsw[aria-pressed="true"] i{box-shadow:0 0 0 2.5px #1A100A,0 0 0 4.5px #F0C987;transform:scale(1.05)}
+.shsw[aria-pressed="true"]{color:#F0C987;font-weight:700}.shsw[aria-pressed="true"] i{box-shadow:0 0 0 2.5px #1A100A,0 0 0 4.5px #F0C987}
 .shsw:focus-visible i,.shmode button:focus-visible{outline:2px solid #F0C987;outline-offset:2px}
 .shcard-pv.busy{position:relative}.shcard-pv.busy::after{content:'';position:absolute;inset:0;background:rgba(20,12,7,.45);animation:bfade .2s ease}
 .steps.tl .t.est{background:transparent;border:1px dashed color-mix(in srgb,var(--ink) 30%,transparent);opacity:.85}
@@ -2361,6 +2361,10 @@ button[aria-pressed]:active{transform:scale(.95)}
 .le-slide{flex:0 0 calc(100% - 28px);min-width:0;scroll-snap-align:start;scroll-snap-stop:always}.le-track.one .le-slide{flex-basis:100%}
 .le-slide .le-day{margin:0 4px 8px}.le-slide .logentry{margin:0}
 @media (min-width:760px){.le-slide{flex-basis:min(440px,calc(100% - 28px))}.le-track{margin:0;padding:0 0 6px;scroll-padding-inline:0}}
+/* Profile: the facts you gave about yourself, as one quiet line of pills under your words. */
+.me-facts{list-style:none;display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 2px;padding:0}
+.me-facts li{display:inline-flex;align-items:center;gap:6px;padding:6px 12px 6px 9px;border-radius:999px;background:var(--surface2);color:var(--muted);font-size:.84rem;line-height:1.3}
+.me-facts li b{color:var(--ink);font-weight:650}.me-facts i{font-style:normal;font-size:.95rem;line-height:1}.me-facts .me-flag{font-size:1rem}
 html.sheeting :is(.seg.bviews,.gtabs,.appbar,.minires,.bottomnav){-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 /* Diary: the entry icons' rings aren't cropped (content-visibility clips whatever pokes out of a row, so rows keep a
    little room on the left), and the moment chips scroll with an end fade instead of being cut by the card. */
