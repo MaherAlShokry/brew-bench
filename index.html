@@ -1895,6 +1895,22 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .otd-tx b{font-size:.92rem;font-family:var(--display)}.otd-tx small{font-size:.84rem;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 /* This year in coffee */
 .yic{margin:14px 0 4px;padding:12px 14px;border-radius:var(--r-lg);background:var(--surface2)}
+/* The year card: a line that sums up the year, three big numbers, then what you bought and brewed most, and your notes. */
+.yic{padding:16px 16px 14px}.yic-line{margin:6px 0 0;font:600 1rem/1.4 var(--display);color:var(--ink)}
+.yic-big{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.yic-big span{display:flex;flex-direction:column;padding:10px 12px;border-radius:14px;background:var(--surface);min-width:0}
+.yic-big b{font:800 1.45rem/1.1 var(--display);color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}.yic-big small{font-size:.76rem;color:var(--muted);margin-top:2px}
+.yic-facts{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;margin-top:14px}
+.yic-facts>div{display:flex;gap:9px;align-items:flex-start;min-width:0}.yic-facts i{flex:none;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--surface);font-style:normal;font-size:.95rem}
+.yic-facts span{display:flex;flex-direction:column;min-width:0}.yic-facts small{font-size:.7rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.yic-facts b{font:650 .92rem/1.25 var(--display);color:var(--ink);overflow-wrap:anywhere}.yic-facts em{font-style:normal;font-size:.74rem;color:var(--muted)}
+.yic-fl{font-size:1.05rem}
+.yic-notes{margin-top:14px}.yic-notes small,.me-notes small{display:block;font-size:.7rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}.yic-notes .chips{margin:0}
+/* Your coffee taste, on the profile. */
+.me-taste{margin:16px 0 4px;padding:14px;border-radius:var(--r-lg);background:var(--surface2)}
+.me-th{display:flex;flex-direction:column;gap:2px}.me-th b{font:700 1.02rem var(--display)}.me-th small{font-size:.78rem;color:var(--muted)}
+.me-tl{margin:8px 0 0;font:600 .98rem/1.4 var(--display);color:var(--ink)}
+.me-fams{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.me-fams span{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;font-size:.82rem;font-weight:600;background:color-mix(in srgb,var(--fc) 18%,var(--surface));color:var(--ink)}.me-fams i{width:9px;height:9px;border-radius:50%;background:var(--fc)}
+.me-taste .me-dna{margin-top:12px}.yic-notes .chip,.me-notes .chip{background:var(--surface);border:1px solid var(--line)}.me-notes{margin-top:12px}.me-notes .chips{margin:0}
 .yic-k{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:var(--muted)}
 .yic-row{display:flex;gap:8px 20px;flex-wrap:wrap;margin-top:6px}.yic-row span{display:flex;flex-direction:column;min-width:0}
 .yic-row b{font-family:var(--display);font-size:1.2rem;line-height:1.2;color:var(--ink)}.yic-row small{font-size:.76rem;color:var(--muted);max-width:16ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -8225,7 +8241,7 @@ const placeLine=(rk,y)=>MEDALN[rk]+' · top '+(rk<=3?3:5)+' of '+y;
 
 /* ---------- On the shelf: freshness and what's left in the bag ---------- */
 // The brews you logged from the dial-in with this coffee picked (yours only, in a shared log).
-const beanBrews=b=>LOG.filter(l=>l&&((l.snap&&l.snap.bean&&l.snap.bean.id===b.id)||l.beanId===b.id)&&(!l.by||l.by===ME));
+const beanBrews=b=>LOG.filter(l=>l&&((l.snap&&l.snap.bean&&l.snap.bean.id===b.id)||l.beanId===b.id)&&isMine(l));
 // Grams left: what you last said was left (or the full bag), less every brew logged since. null when the bag size isn't known.
 // The coffee a brew used: from the dial-in's snapshot, or read from the settings line of a brew logged by hand.
 function brewDose(l){const d=l&&l.snap&&+l.snap.dose;if(d>0)return d;const q=typeof parseSettings==='function'?parseSettings(l&&l.settings||''):{};return q.dose>0?q.dose:0}
@@ -8382,14 +8398,46 @@ function wireDwrite(p,st,bean,done){const w=$(p+'-write');if(!w)return;
     Object.assign(st,{mom:'note',ph:null,t:'',d:''});done(b,msg)}}
 const dropDiaryPhotos=l=>l.forEach(e=>{if(e.ph)BIMG.del(DPH(e.id))});
 
-// This year in coffee: how many coffees, the cups and grams you brewed, and where they came from most.
-function yearInCoffeeHTML(){const cy=new Date().getFullYear(),bs=BEANS.filter(b=>beanYear(b)===cy),ls=LOG.filter(l=>l&&(!l.by||l.by===ME)&&new Date(+l.ts||0).getFullYear()===cy);
-  if(!bs.length&&!ls.length)return '';const g=Math.round(ls.reduce((s,l)=>s+brewDose(l),0));
-  const most=f=>{const m=new Map();for(const b of bs){const k=f(b);if(k)m.set(k,(m.get(k)||0)+1)}let best=null,n=1;for(const [k,v] of m)if(v>n){best=k;n=v}return best};
-  const o=most(b=>b.origin),r=most(b=>b.roaster);
-  const cells=[[bs.length,bs.length===1?'coffee':'coffees'],[ls.length,ls.length===1?'cup brewed':'cups brewed'],g?[g>=1000?(g/1000).toFixed(g>=10000?0:1)+' kg':g+' g','of coffee']:null,
-    o?[originName(o),'mostly from'] :null,r?[r,'most often']:null].filter(Boolean);
-  return '<div class="yic" aria-label="'+cy+' in coffee"><span class="yic-k">'+cy+' in coffee</span><div class="yic-row">'+cells.map(([v,l])=>'<span><b>'+esc(String(v))+'</b><small>'+esc(l)+'</small></span>').join('')+'</div></div>'}
+// Your brews: your own, in a shared log too (logged under the name you joined with, or your profile's name).
+const isMine=l=>l&&(!l.by||l.by===ME||(window.PROFILE_OK&&PROFILE&&PROFILE.nick&&l.by===PROFILE.nick));
+const brewTs=l=>+l.ts||Date.parse(l.date)||0;
+// Your taste, worked out from the coffees you buy and how you rate them, and from what you brew and taste. A coffee
+// you rated 4 or more counts double towards what you like; every bag counts once towards what you buy.
+function tasteOf(bs,ls){const top=(items,f,w)=>{const m=new Map();for(const x of items){const ks=[].concat(f(x)).filter(Boolean),wt=w?w(x):1;for(const k of ks)m.set(k,(m.get(k)||0)+wt)}
+    let best=null,n=0;for(const [k,v] of m)if(v>n){best=k;n=v}return best?{k:best,n}:null};
+  const like=b=>b.rating>=4?2:b.rating&&b.rating<3?0.5:1;
+  const t={origin:top(bs,b=>b.origin),region:top(bs,b=>{const o=b.origin&&oInfo(b.origin);return o&&o.reg}),variety:top(bs,b=>beanVars(b).map(v=>v.split(':')[0])),
+    process:top(bs,b=>b.process),roast:top(bs,b=>b.roast),roaster:top(bs,b=>b.roaster&&b.roaster.trim()),
+    likedOrigin:top(bs.filter(b=>b.rating>=4),b=>b.origin),likedProcess:top(bs.filter(b=>b.rating>=4),b=>b.process),
+    brewer:top(ls,l=>(l.snap&&l.snap.b)||l.brewer),regionOrigin:null,recipe:top(ls,l=>l.snap&&l.snap.rec),goal:top(ls,l=>l.snap&&l.snap.goal)};
+  // Flavours: the families of the notes on the bags you liked and of what you tasted in your brews.
+  const fam=new Map(),note=new Map();
+  for(const b of bs){const w=like(b);for(const wd of tnSplit(b.flavours)){const n=tnLeaf(wd),leaf=n&&FW.byId[n.id];if(!leaf)continue;fam.set(leaf.cat.id,(fam.get(leaf.cat.id)||0)+w);note.set(leaf.id,(note.get(leaf.id)||0)+w)}}
+  for(const l of ls){const w=(+l.stars||3)>=4?2:1;for(const [id,v] of flOf(l)){const leaf=FW.byId[id];if(!leaf)continue;fam.set(leaf.cat.id,(fam.get(leaf.cat.id)||0)+w*v/2);note.set(id,(note.get(id)||0)+w*v/2)}}
+  t.families=[...fam].sort((a,b)=>b[1]-a[1]).slice(0,3).map(([id])=>FW.byId[id]);t.notes=[...note].sort((a,b)=>b[1]-a[1]).slice(0,6).map(([id])=>FW.byId[id]);
+  // The origin you buy most within your favourite region (so the region and its country always agree).
+  if(t.region)t.regionOrigin=top(bs.filter(b=>{const o=b.origin&&oInfo(b.origin);return o&&o.reg===t.region.k}),b=>b.origin);
+  const rated=bs.filter(b=>b.rating);t.avg=rated.length?rated.reduce((a,b)=>a+b.rating,0)/rated.length:0;t.best=[...rated].sort((a,b)=>b.rating-a.rating||(b.ts||0)-(a.ts||0))[0]||null;
+  return t}
+// One line that sums it up: "Washed Ethiopian heirlooms, light roast, floral and fruity, on a Hario V60."
+function tasteLine(t){const bits=[];const pr=t.process&&PROCESSES[t.process.k],o=t.origin&&oInfo(t.origin.k),v=t.variety&&VBY[t.variety.k];
+  const head=[pr?pr.name.replace(/\s*\(.*\)$/,'').toLowerCase():'',v?shortName(v.name):'coffees'].filter(Boolean).join(' ')+(o?' from '+o.name:'');if(t.origin||t.variety)bits.push(head.charAt(0).toUpperCase()+head.slice(1));
+  if(t.roast)bits.push(t.roast.k+' roast');if(t.families.length)bits.push(t.families.slice(0,2).map(f=>f.n.toLowerCase()).join(' and '));
+  if(t.brewer&&BREWERS[t.brewer.k])bits.push('on '+art(BREWERS[t.brewer.k].name)+' '+BREWERS[t.brewer.k].name);return bits.join(', ')}
+// This year in coffee: the counts, then what you bought most (origin, region, variety, process, roast, roastery), how you
+// brewed, and the notes you came back to.
+function yearInCoffeeHTML(){const cy=new Date().getFullYear(),bs=BEANS.filter(b=>beanYear(b)===cy),ls=LOG.filter(l=>isMine(l)&&new Date(brewTs(l)).getFullYear()===cy);
+  if(!bs.length&&!ls.length)return '';const g=Math.round(ls.reduce((s,l)=>s+brewDose(l),0)),t=tasteOf(bs,ls),origins=new Set(bs.map(b=>b.origin).filter(Boolean)).size;
+  const big=[[bs.length,bs.length===1?'coffee':'coffees'],[ls.length,ls.length===1?'cup brewed':'cups brewed'],g?[g>=1000?(g/1000).toFixed(g>=10000?0:1)+' kg':g+' g','of coffee']:[origins,origins===1?'origin':'origins']];
+  const o=t.origin&&oInfo(t.origin.k),R=t.region&&REG[t.region.k],v=t.variety&&VBY[t.variety.k],pr=t.process&&PROCESSES[t.process.k],B=t.brewer&&BREWERS[t.brewer.k];
+  const facts=[o&&['<span class="yic-fl">'+flagOf(t.origin.k)+'</span>','Mostly from',o.name,t.origin.n+' bag'+(t.origin.n===1?'':'s')],R&&['🗺️','Favourite region',R.name,t.region.n+' bag'+(t.region.n===1?'':'s')+(t.regionOrigin&&t.regionOrigin.k!==(t.origin&&t.origin.k)?', most from '+oInfo(t.regionOrigin.k).name:'')],
+    v&&['🌱','Top variety',shortName(v.name),t.variety.n+' bag'+(t.variety.n===1?'':'s')],pr&&['🧪','Top process',pr.name.replace(/\s*\(.*\)$/,''),t.process.n+' bag'+(t.process.n===1?'':'s')],
+    t.roast&&['🔥','Usual roast',t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1),''],t.roaster&&['🏷️','Roastery most often',t.roaster.k,t.roaster.n+' bag'+(t.roaster.n===1?'':'s')],
+    t.best&&['🏆','Best of the year',beanTitle(t.best),String(t.best.rating).replace('.5','½')+' beans'],B&&['☕','Brewed most on',B.name,t.brewer.n+' cup'+(t.brewer.n===1?'':'s')]].filter(Boolean);
+  return '<div class="yic" role="region" aria-label="'+cy+' in coffee"><span class="yic-k">'+cy+' in coffee</span>'+(bs.length>1?'<p class="yic-line">'+esc(tasteLine(t))+'</p>':'')+
+    '<div class="yic-big">'+big.map(([n,l])=>'<span><b>'+esc(String(n))+'</b><small>'+esc(l)+'</small></span>').join('')+'</div>'+
+    (facts.length?'<div class="yic-facts">'+facts.map(([i,k,vv,sub])=>'<div><i aria-hidden="true">'+i+'</i><span><small>'+k+'</small><b>'+esc(vv)+'</b>'+(sub?'<em>'+esc(sub)+'</em>':'')+'</span></div>').join('')+'</div>':'')+
+    (t.notes.length?'<div class="yic-notes"><small>Notes you keep coming back to</small><div class="chips">'+t.notes.map(n=>'<span class="chip"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'</span>').join('')+'</div></div>':'')+'</div>'}
 
 /* ---------- Trophies ---------- */
 // Earned from the cabinet as it is: each has a goal and counts towards it. The day one is first earned is kept.
@@ -9657,8 +9705,25 @@ const CAM_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l1.6-2
 const SYNC_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 0 1-14 5.3 M4 12a8 8 0 0 1 14-5.3 M18 3v4h-4 M6 21v-4h4"/></svg>';
 // Your coffee style, as a title under your name.
 const ROLE={bright:'Florals chaser',sweet:'Sweet-cup seeker',choc:'Comfort-cup brewer',wild:'Ferment explorer',espresso:'Espresso devotee',milk:'Milk-drink maker'};
-function profileStats(){const mine=LOG.filter(l=>l&&(!l.by||l.by===ME)).length,b=window.BEANS_OK?BEANS:[],o=new Set(b.map(x=>x.origin).filter(Boolean)).size,t=window.BEANS_OK&&TGOT?Object.keys(TGOT).length:0;
+function profileStats(){const mine=LOG.filter(l=>window.BEANS_OK?isMine(l):l&&(!l.by||l.by===ME)).length,b=window.BEANS_OK?BEANS:[],o=new Set(b.map(x=>x.origin).filter(Boolean)).size,t=window.BEANS_OK&&TGOT?Object.keys(TGOT).length:0;
   return [[b.length,b.length===1?'coffee':'coffees'],[mine,mine===1?'brew':'brews'],[o,o===1?'origin':'origins'],[t,t===1?'trophy':'trophies']]}
+// Your taste, read from your coffees and brews (not typed in): where you buy from, the variety, process and roast you
+// come back to, the flavours you like most and how you brew. It fills in as the gallery and the log grow.
+function tasteHTML(){if(!window.BEANS_OK||BEANS.length<2)return '';const t=tasteOf(BEANS,LOG.filter(isMine));
+  const o=t.origin&&oInfo(t.origin.k),R=t.region&&REG[t.region.k],v=t.variety&&VBY[t.variety.k],pr=t.process&&PROCESSES[t.process.k],B=t.brewer&&BREWERS[t.brewer.k],lo=t.likedOrigin&&oInfo(t.likedOrigin.k);
+  const ro=t.regionOrigin&&oInfo(t.regionOrigin.k);
+  const rows=[R&&['🗺️','Favourite region',R.name+(ro?' · mostly '+ro.name:''),ro?'<span class="me-flag">'+flagOf(t.regionOrigin.k)+'</span>':''],
+    o&&ro&&t.origin.k!==t.regionOrigin.k&&['📍','Country you buy most',o.name,'<span class="me-flag">'+flagOf(t.origin.k)+'</span>'],
+    lo&&lo!==o&&['❤️','Rated highest from',lo.name,'<span class="me-flag">'+flagOf(t.likedOrigin.k)+'</span>'],
+    v&&['🌱','Variety you buy most',shortName(v.name)],pr&&['🧪','Process you buy most',pr.name.replace(/\s*\(.*\)$/,'')],t.roast&&['🔥','Roast',t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1)+' roast'],
+    B&&['☕','Brews mostly on',B.name+(t.recipe?' · '+t.recipe.k:'')],t.goal&&['🎯','The cup you aim for',t.goal.k],
+    t.avg&&['⭐','Your average coffee',t.avg.toFixed(1)+' of 5 beans']].filter(Boolean);
+  if(!rows.length&&!t.families.length)return '';
+  return '<div class="me-taste"><div class="me-th"><b>Your coffee taste</b><small>From your '+BEANS.length+' coffees and '+LOG.filter(isMine).length+' brews</small></div>'+
+    (tasteLine(t)?'<p class="me-tl">'+esc(tasteLine(t))+'</p>':'')+
+    (t.families.length?'<div class="me-fams">'+t.families.map(f=>'<span style="--fc:'+f.c+'"><i></i>'+esc(f.n)+'</span>').join('')+'</div>':'')+
+    '<div class="me-dna">'+rows.map(([i,k,vv,fl])=>'<div><i aria-hidden="true">'+(fl&&fl.replace(/<[^>]+>/g,'')?fl:i)+'</i><span><small>'+k+'</small><b>'+esc(vv)+'</b></span></div>').join('')+'</div>'+
+    (t.notes.length?'<div class="me-notes"><small>Notes you love</small><div class="chips">'+t.notes.map(n=>'<span class="chip"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'</span>').join('')+'</div></div>':'')+'</div>'}
 // Who you're signed in as, and the sync; or, signed out, what an account brings.
 function accountHTML(){
   if(ACCT)return '<div class="me-acct"><div class="me-row"><span class="me-dot" aria-hidden="true"></span><span class="me-rt"><b>'+(ACCT.provider==='google.com'?'Signed in with Google':'Signed in')+'</b><small>'+esc(ACCT.email)+'</small>'+
@@ -9676,7 +9741,7 @@ function meHTML(){const p=PROFILE,x='<button class="vd-close me-x" id="vd-x" ari
       '<span class="me-k">'+esc(ROLE[p.style]||'Home brewer')+'</span><h2 id="vd-title">'+esc(p.nick)+'</h2>'+(p.name?'<small class="me-name">'+esc(p.name)+'</small>':'')+
       '<span class="me-since">Brewing with us since '+new Date(p.since).toLocaleDateString(undefined,{month:'long',year:'numeric'})+'</span></div>'+
     '<div class="me-body">'+(p.brief?'<blockquote class="me-brief">'+esc(p.brief)+'</blockquote>':'<button type="button" class="me-add" id="pf-edit2">Add a few words about how you take your coffee</button>')+
-      '<div class="me-stats">'+profileStats().map(([n,l])=>'<span><b>'+n+'</b>'+l+'</span>').join('')+'</div>'+
+      '<div class="me-stats">'+profileStats().map(([n,l])=>'<span><b>'+n+'</b>'+l+'</span>').join('')+'</div>'+tasteHTML()+
       (dna.length?'<div class="me-dna">'+dna.map(([i,k,v])=>'<div><i aria-hidden="true">'+i+'</i><span><small>'+k+'</small><b>'+esc(v)+'</b></span></div>').join('')+'</div>'
         :'<button type="button" class="me-add" id="pf-edit3">Add your favourite origin, brewer and where you brew</button>')+accountHTML()+'</div>'}
 $('vd').addEventListener('click',e=>{if(e.target.closest('#pf-new,#pf-edit,#pf-edit2,#pf-edit3')){delete $('vd').dataset.me;openProfileEditor();return}if(e.target.closest('#pf-signin')){delete $('vd').dataset.me;openSignIn();return}

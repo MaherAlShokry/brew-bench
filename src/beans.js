@@ -89,7 +89,7 @@ const placeLine=(rk,y)=>MEDALN[rk]+' · top '+(rk<=3?3:5)+' of '+y;
 
 /* ---------- On the shelf: freshness and what's left in the bag ---------- */
 // The brews you logged from the dial-in with this coffee picked (yours only, in a shared log).
-const beanBrews=b=>LOG.filter(l=>l&&((l.snap&&l.snap.bean&&l.snap.bean.id===b.id)||l.beanId===b.id)&&(!l.by||l.by===ME));
+const beanBrews=b=>LOG.filter(l=>l&&((l.snap&&l.snap.bean&&l.snap.bean.id===b.id)||l.beanId===b.id)&&isMine(l));
 // Grams left: what you last said was left (or the full bag), less every brew logged since. null when the bag size isn't known.
 // The coffee a brew used: from the dial-in's snapshot, or read from the settings line of a brew logged by hand.
 function brewDose(l){const d=l&&l.snap&&+l.snap.dose;if(d>0)return d;const q=typeof parseSettings==='function'?parseSettings(l&&l.settings||''):{};return q.dose>0?q.dose:0}
@@ -246,14 +246,46 @@ function wireDwrite(p,st,bean,done){const w=$(p+'-write');if(!w)return;
     Object.assign(st,{mom:'note',ph:null,t:'',d:''});done(b,msg)}}
 const dropDiaryPhotos=l=>l.forEach(e=>{if(e.ph)BIMG.del(DPH(e.id))});
 
-// This year in coffee: how many coffees, the cups and grams you brewed, and where they came from most.
-function yearInCoffeeHTML(){const cy=new Date().getFullYear(),bs=BEANS.filter(b=>beanYear(b)===cy),ls=LOG.filter(l=>l&&(!l.by||l.by===ME)&&new Date(+l.ts||0).getFullYear()===cy);
-  if(!bs.length&&!ls.length)return '';const g=Math.round(ls.reduce((s,l)=>s+brewDose(l),0));
-  const most=f=>{const m=new Map();for(const b of bs){const k=f(b);if(k)m.set(k,(m.get(k)||0)+1)}let best=null,n=1;for(const [k,v] of m)if(v>n){best=k;n=v}return best};
-  const o=most(b=>b.origin),r=most(b=>b.roaster);
-  const cells=[[bs.length,bs.length===1?'coffee':'coffees'],[ls.length,ls.length===1?'cup brewed':'cups brewed'],g?[g>=1000?(g/1000).toFixed(g>=10000?0:1)+' kg':g+' g','of coffee']:null,
-    o?[originName(o),'mostly from'] :null,r?[r,'most often']:null].filter(Boolean);
-  return '<div class="yic" aria-label="'+cy+' in coffee"><span class="yic-k">'+cy+' in coffee</span><div class="yic-row">'+cells.map(([v,l])=>'<span><b>'+esc(String(v))+'</b><small>'+esc(l)+'</small></span>').join('')+'</div></div>'}
+// Your brews: your own, in a shared log too (logged under the name you joined with, or your profile's name).
+const isMine=l=>l&&(!l.by||l.by===ME||(window.PROFILE_OK&&PROFILE&&PROFILE.nick&&l.by===PROFILE.nick));
+const brewTs=l=>+l.ts||Date.parse(l.date)||0;
+// Your taste, worked out from the coffees you buy and how you rate them, and from what you brew and taste. A coffee
+// you rated 4 or more counts double towards what you like; every bag counts once towards what you buy.
+function tasteOf(bs,ls){const top=(items,f,w)=>{const m=new Map();for(const x of items){const ks=[].concat(f(x)).filter(Boolean),wt=w?w(x):1;for(const k of ks)m.set(k,(m.get(k)||0)+wt)}
+    let best=null,n=0;for(const [k,v] of m)if(v>n){best=k;n=v}return best?{k:best,n}:null};
+  const like=b=>b.rating>=4?2:b.rating&&b.rating<3?0.5:1;
+  const t={origin:top(bs,b=>b.origin),region:top(bs,b=>{const o=b.origin&&oInfo(b.origin);return o&&o.reg}),variety:top(bs,b=>beanVars(b).map(v=>v.split(':')[0])),
+    process:top(bs,b=>b.process),roast:top(bs,b=>b.roast),roaster:top(bs,b=>b.roaster&&b.roaster.trim()),
+    likedOrigin:top(bs.filter(b=>b.rating>=4),b=>b.origin),likedProcess:top(bs.filter(b=>b.rating>=4),b=>b.process),
+    brewer:top(ls,l=>(l.snap&&l.snap.b)||l.brewer),regionOrigin:null,recipe:top(ls,l=>l.snap&&l.snap.rec),goal:top(ls,l=>l.snap&&l.snap.goal)};
+  // Flavours: the families of the notes on the bags you liked and of what you tasted in your brews.
+  const fam=new Map(),note=new Map();
+  for(const b of bs){const w=like(b);for(const wd of tnSplit(b.flavours)){const n=tnLeaf(wd),leaf=n&&FW.byId[n.id];if(!leaf)continue;fam.set(leaf.cat.id,(fam.get(leaf.cat.id)||0)+w);note.set(leaf.id,(note.get(leaf.id)||0)+w)}}
+  for(const l of ls){const w=(+l.stars||3)>=4?2:1;for(const [id,v] of flOf(l)){const leaf=FW.byId[id];if(!leaf)continue;fam.set(leaf.cat.id,(fam.get(leaf.cat.id)||0)+w*v/2);note.set(id,(note.get(id)||0)+w*v/2)}}
+  t.families=[...fam].sort((a,b)=>b[1]-a[1]).slice(0,3).map(([id])=>FW.byId[id]);t.notes=[...note].sort((a,b)=>b[1]-a[1]).slice(0,6).map(([id])=>FW.byId[id]);
+  // The origin you buy most within your favourite region (so the region and its country always agree).
+  if(t.region)t.regionOrigin=top(bs.filter(b=>{const o=b.origin&&oInfo(b.origin);return o&&o.reg===t.region.k}),b=>b.origin);
+  const rated=bs.filter(b=>b.rating);t.avg=rated.length?rated.reduce((a,b)=>a+b.rating,0)/rated.length:0;t.best=[...rated].sort((a,b)=>b.rating-a.rating||(b.ts||0)-(a.ts||0))[0]||null;
+  return t}
+// One line that sums it up: "Washed Ethiopian heirlooms, light roast, floral and fruity, on a Hario V60."
+function tasteLine(t){const bits=[];const pr=t.process&&PROCESSES[t.process.k],o=t.origin&&oInfo(t.origin.k),v=t.variety&&VBY[t.variety.k];
+  const head=[pr?pr.name.replace(/\s*\(.*\)$/,'').toLowerCase():'',v?shortName(v.name):'coffees'].filter(Boolean).join(' ')+(o?' from '+o.name:'');if(t.origin||t.variety)bits.push(head.charAt(0).toUpperCase()+head.slice(1));
+  if(t.roast)bits.push(t.roast.k+' roast');if(t.families.length)bits.push(t.families.slice(0,2).map(f=>f.n.toLowerCase()).join(' and '));
+  if(t.brewer&&BREWERS[t.brewer.k])bits.push('on '+art(BREWERS[t.brewer.k].name)+' '+BREWERS[t.brewer.k].name);return bits.join(', ')}
+// This year in coffee: the counts, then what you bought most (origin, region, variety, process, roast, roastery), how you
+// brewed, and the notes you came back to.
+function yearInCoffeeHTML(){const cy=new Date().getFullYear(),bs=BEANS.filter(b=>beanYear(b)===cy),ls=LOG.filter(l=>isMine(l)&&new Date(brewTs(l)).getFullYear()===cy);
+  if(!bs.length&&!ls.length)return '';const g=Math.round(ls.reduce((s,l)=>s+brewDose(l),0)),t=tasteOf(bs,ls),origins=new Set(bs.map(b=>b.origin).filter(Boolean)).size;
+  const big=[[bs.length,bs.length===1?'coffee':'coffees'],[ls.length,ls.length===1?'cup brewed':'cups brewed'],g?[g>=1000?(g/1000).toFixed(g>=10000?0:1)+' kg':g+' g','of coffee']:[origins,origins===1?'origin':'origins']];
+  const o=t.origin&&oInfo(t.origin.k),R=t.region&&REG[t.region.k],v=t.variety&&VBY[t.variety.k],pr=t.process&&PROCESSES[t.process.k],B=t.brewer&&BREWERS[t.brewer.k];
+  const facts=[o&&['<span class="yic-fl">'+flagOf(t.origin.k)+'</span>','Mostly from',o.name,t.origin.n+' bag'+(t.origin.n===1?'':'s')],R&&['🗺️','Favourite region',R.name,t.region.n+' bag'+(t.region.n===1?'':'s')+(t.regionOrigin&&t.regionOrigin.k!==(t.origin&&t.origin.k)?', most from '+oInfo(t.regionOrigin.k).name:'')],
+    v&&['🌱','Top variety',shortName(v.name),t.variety.n+' bag'+(t.variety.n===1?'':'s')],pr&&['🧪','Top process',pr.name.replace(/\s*\(.*\)$/,''),t.process.n+' bag'+(t.process.n===1?'':'s')],
+    t.roast&&['🔥','Usual roast',t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1),''],t.roaster&&['🏷️','Roastery most often',t.roaster.k,t.roaster.n+' bag'+(t.roaster.n===1?'':'s')],
+    t.best&&['🏆','Best of the year',beanTitle(t.best),String(t.best.rating).replace('.5','½')+' beans'],B&&['☕','Brewed most on',B.name,t.brewer.n+' cup'+(t.brewer.n===1?'':'s')]].filter(Boolean);
+  return '<div class="yic" role="region" aria-label="'+cy+' in coffee"><span class="yic-k">'+cy+' in coffee</span>'+(bs.length>1?'<p class="yic-line">'+esc(tasteLine(t))+'</p>':'')+
+    '<div class="yic-big">'+big.map(([n,l])=>'<span><b>'+esc(String(n))+'</b><small>'+esc(l)+'</small></span>').join('')+'</div>'+
+    (facts.length?'<div class="yic-facts">'+facts.map(([i,k,vv,sub])=>'<div><i aria-hidden="true">'+i+'</i><span><small>'+k+'</small><b>'+esc(vv)+'</b>'+(sub?'<em>'+esc(sub)+'</em>':'')+'</span></div>').join('')+'</div>':'')+
+    (t.notes.length?'<div class="yic-notes"><small>Notes you keep coming back to</small><div class="chips">'+t.notes.map(n=>'<span class="chip"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'</span>').join('')+'</div></div>':'')+'</div>'}
 
 /* ---------- Trophies ---------- */
 // Earned from the cabinet as it is: each has a goal and counts towards it. The day one is first earned is kept.
