@@ -45,7 +45,7 @@ function okBean(b){if(!b||typeof b!=='object'||typeof b.id!=='string'||!BID.test
   const vl=okVars(b),r=Math.round(clamp(+b.rating||0,0,5)*2)/2,tried=ISO_D.test(b.tried)?b.tried:'',ts=+b.ts||Date.now();
   return{id:b.id,name:str(b.name,60),roaster:str(b.roaster,50),origin:okOrigin(b.origin),process:PROCESSES[b.process]?b.process:'',
     variety:vl[0]||'',...(vl.length>1?{vars:vl.slice(1)}:{}),roast:['light','medium','dark'].includes(b.roast)?b.roast:'',
-    roastDate:ISO_D.test(b.roastDate)?b.roastDate:'',tried,rating:r,flavours:str(b.flavours,160),notes:str(b.notes,600),
+    roastDate:ISO_D.test(b.roastDate)?b.roastDate:'',tried,rating:r,flavours:str(b.flavours,300),notes:str(b.notes,600),
     img:!!b.img,scan:typeof b.scan==='string'&&BID.test(b.scan)?b.scan:'',ts,
     // On the shelf: a bag you're drinking now. Coffees saved before shelves existed are on it if tried in the last month.
     shelf:typeof b.shelf==='boolean'?b.shelf:daysAgo(tried||tsISO(ts))<=30,
@@ -117,7 +117,7 @@ function setLeft(b,g){b.left=gramsOrNull(g);b.leftAt=Date.now()}
 /* ---------- Tasting notes in the editor ---------- */
 // Notes are kept as words ("Jasmine, Peach"), so a scan, a backup or an older save reads the same. A word on the
 // flavour wheel takes its family's colour; anything else (a roaster's "Turkish delight") is kept as you wrote it.
-const TN_MAX=12,TN_LEN=160;
+const TN_MAX=12,TN_LEN=300;
 const tnFams=()=>FW.roots.filter(r=>r.n!=='Other');
 // Words bags use that the wheel doesn't have, each with the wheel note whose colour and family it takes.
 const TN_X={Caramel:'Caramelized','Brown sugar':'Molasses','Cane sugar':'Panela',Sugarcane:'Panela',Cocoa:'Cocoa nib',Cacao:'Cocoa nib',Butterscotch:'Toffee',Fudge:'Brownie',
@@ -628,7 +628,7 @@ function renderBeanScans(){const p=$('bv-scans');if(!p)return;
 // A saved scan opens the gallery editor with its details and photo (the full photo when kept, else its thumbnail).
 async function addScanToGallery(i){const s=SCANS[i];if(!s)return;const inf=s.info,full=await BIMG.get(s.id),photo=full||s.t||null;
   openBeanEditor(null,{name:scanTitle(s.sc,inf),roaster:scRoaster(s)||'',origin:s.sc.origin,process:s.sc.process,variety:s.sc.variety,vars:scanVars(s.sc,inf),roast:s.sc.roast,roastDate:s.sc.date||'',
-    flavours:inf&&Array.isArray(inf.tasting_notes)?inf.tasting_notes.join(', ').slice(0,160):'',photo,scan:s.id,lowres:!full&&!!s.t})}
+    flavours:inf&&Array.isArray(inf.tasting_notes)?inf.tasting_notes.slice(0,TN_MAX).reduce((t,n)=>{const x=t?t+', '+n:String(n);return x.length<=TN_LEN?x:t},''):'',photo,scan:s.id,lowres:!full&&!!s.t})}
 $('beans-in').addEventListener('input',e=>{if(e.target.id!=='bg-q')return;BQ=e.target.value;renderGrid()});
 $('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-add')){openBeanEditor();return}if(e.target.closest('#bg-scan,#bg-scan2')){showTab('scan');newScan();scrollTo(0,0);return} /* the Scan page offers taking or choosing a photo */
   const v=e.target.closest('[data-view]');if(v){BVIEW=v.dataset.view;renderBeanViews();if(v.classList.contains('tshelf'))$('bg-views').scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'});return}
