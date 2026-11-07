@@ -1058,7 +1058,9 @@ function showTab(id,fromHistory,pure){NAV_AT=performance.now();ensureTab(id);con
   if(kind){document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));movePill()}
   // Moving deeper or back uses a view transition (both pages move). Between bottom-bar sections only the new page
   // swings in: capturing the whole old page first held each tap back by a frame or two on phones.
-  if((kind==='push'||kind==='pop')&&pure&&NAV_READY&&document.startViewTransition&&!RM()&&!document.hidden&&!document.querySelector('dialog[open]')){
+  // Pages inside a section slide in on the tap itself: a view transition first captures the old page, which held the
+  // start back (most of all on a heavy page like the map). Only the new page moves, the same as every other page.
+  if(false&&(kind==='push'||kind==='pop')&&pure&&NAV_READY&&document.startViewTransition&&!RM()&&!document.hidden&&!document.querySelector('dialog[open]')){
     const h=document.documentElement;h.classList.add('vt');
     try{document.startViewTransition(()=>swap(true)).finished.finally(()=>h.classList.remove('vt'))}catch(e){h.classList.remove('vt');swap()}}
   else swap()}

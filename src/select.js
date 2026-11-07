@@ -143,7 +143,8 @@ function segUpdate(el){const on=el.querySelector(':scope>button[aria-pressed="tr
   // Read the picked option's own look for a moment (data-peek lets it show), then hand it to the highlight.
   on.setAttribute('data-peek','');const cs=getComputedStyle(on);
   const look={background:cs.backgroundColor,backgroundImage:cs.backgroundImage,boxShadow:cs.boxShadow,borderRadius:cs.borderRadius};on.removeAttribute('data-peek');el.classList.add('has-ind');
-  const pos={left:on.offsetLeft+'px',top:on.offsetTop+'px',width:on.offsetWidth+'px',height:on.offsetHeight+'px'};
+  // Moved with a transform (the compositor animates it without laying the page out again); only the size changes width.
+  const pos={left:'0px',top:'0px',transform:'translate3d('+on.offsetLeft+'px,'+on.offsetTop+'px,0)',width:on.offsetWidth+'px',height:on.offsetHeight+'px'};
   if(RM())ind.style.transition='none';Object.assign(ind.style,look,pos,{opacity:'1'});el._ip=pos;
   if(SEG_RO&&!el._ro){el._ro=1;SEG_RO.observe(el)}}
 // One watcher for every control's size (a tab coming into view, the phone turning); controls that have left the page are dropped.
