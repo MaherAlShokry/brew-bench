@@ -1342,6 +1342,7 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 :root[data-theme="dark"] .lv-e{color:#7FCB9C}:root[data-theme="dark"] .lv-i{color:#E7B060}:root[data-theme="dark"] .lv-a{color:#F08F7E}
 /* Cup types sit lower on the page now, so their cards are shorter. */
 #rhome .cupart{height:76px}
+.mk-rand{display:block;margin:10px auto 0}
 /* Recipes home, kept light: the three quick links side by side, cup types as small tiles. */
 .qlinks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
 .qlinks button{position:relative;flex-direction:column;justify-content:center;gap:6px;padding:12px 6px;text-align:center}
@@ -1357,10 +1358,6 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 @media (min-width:760px){.bshelf button{width:128px}.colshelf button{width:200px}}
 /* A collection's count sits in the top corner, as on the cup-type cards, clear of the title and the line under it. */
 .colshelf button{padding:14px 14px 16px;min-height:118px}
-/* The way into the recipe maker. */
-.fy-make{margin:0 0 14px;display:flex;align-items:center;gap:12px;width:100%;padding:14px 16px;border:0;border-radius:var(--r-lg);background:linear-gradient(135deg,color-mix(in srgb,var(--honey) 30%,var(--surface)),color-mix(in srgb,var(--cherry) 18%,var(--surface)));color:var(--ink);text-align:left;font:inherit;cursor:pointer}
-.fy-make b{display:block;font:700 1rem var(--display)}.fy-make small{font-size:.82rem;color:var(--muted)}
-.fy-spark{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--surface);color:var(--cherry);font-size:1.2rem}
 /* The recipe maker sheet. */
 .mk .lbl{margin:14px 0 6px}.mk .lbl .hint{font-weight:500;margin-left:6px}
 .mk-chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}.mk-chips::-webkit-scrollbar{display:none}

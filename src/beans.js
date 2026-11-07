@@ -291,9 +291,6 @@ function yearInCoffeeHTML(){const cy=new Date().getFullYear(),bs=BEANS.filter(b=
 // Which way your taste leans: fruity and floral → brighter and clearer; chocolate, nutty and sweet → sweeter, more body.
 const FY_LEAN=t=>{const f=new Set((t.families||[]).map(x=>x.n.toLowerCase()));const bright=['fruity','floral','sour','sour/fermented'].some(k=>f.has(k)),round=['sweet','nutty/cocoa','nutty','cocoa','spices'].some(k=>f.has(k));
   return bright&&!round?'bright':round&&!bright?'round':'balanced'};
-// The way into the recipe maker, at the top of Recipes.
-function forYouHTML(){const shelf=window.BEANS_OK&&BEANS.some(b=>b.shelf);
-  return '<button type="button" class="fy-make" data-q="mkrec"><span class="fy-spark" aria-hidden="true">✦</span><span><b>Create a recipe for your coffee</b><small>'+(shelf?'A new recipe made around your bag and your taste':'Made around a coffee from your gallery and your taste')+'</small></span></button>'}
 
 // A new recipe for one of your coffees, made around it and your taste. With an AI model at hand (the app running
 // inside Claude), the model writes it from your coffee, taste and gear; otherwise it's built here from the same rules
@@ -356,13 +353,13 @@ function openMakeRecipe(bid){const d=$('vd'),beans=[...BEANS.filter(b=>b.shelf),
       (r?'<div class="mk-res"><div class="mk-h"><b>'+esc(r.name)+'</b><small>'+esc(r.by)+'</small></div><div class="le-pills"><span class="le-pill">'+r.dose+' g : '+r.water+' g</span><span class="le-pill">1:'+(Math.round(r.water/r.dose*10)/10)+'</span><span class="le-pill">'+r.temp+'°C</span><span class="le-pill">'+esc(BREWERS[r.b].name)+'</span><span class="le-pill">Grind '+(r.off>0?'a touch coarser':r.off<0?'a touch finer':'as usual')+'</span></div>'+
         '<ol class="mk-steps">'+r.steps.map(s=>{const m=/^(\d+:\d\d)\s*(.*)$/.exec(s);return '<li><b>'+(m?m[1]:'')+'</b><span>'+esc(m?m[2]:s)+'</span></li>'}).join('')+'</ol><p class="mk-why">'+esc(r.why)+'</p><p class="hint" style="margin:6px 0 0">'+esc(r.tip)+'</p>'+
         '<div class="actions"><button type="button" class="btn" id="mk-save">Save and brew it</button><button type="button" class="btn ghost" id="mk-again">Another one</button></div></div>'
-       :'<div class="actions"><button type="button" class="btn" id="mk-go"'+(st.busy?' disabled':'')+'>'+(st.busy?'Writing your recipe…':'Create the recipe')+'</button></div>')+'</div>';
+       :'<div class="actions"><button type="button" class="btn" id="mk-go"'+(st.busy?' disabled':'')+'>'+(st.busy?'Writing your recipe…':'Create the recipe')+'</button></div><button type="button" class="linkbtn mk-rand" id="mk-rand">Or open a random recipe from the list</button>')+'</div>';
     hydrateImgs($('vd-in'));$('vd-x').onclick=()=>d.close()};
   const go=async()=>{const bean=beanById(st.bean);if(!bean)return;st.busy=true;draw();let r=null;
     if(SAMPLE)try{r=await aiRecipe(bean,st.b,st.goal)}catch(e){r=null}
     if(!r)r=makeRecipe(bean,st.b,st.goal,st.seed);st.rec=r;st.busy=false;draw()};
   $('vd-in').onclick=e=>{const c=e.target.closest('[data-mk]');if(c){st[c.dataset.mk]=c.dataset.v;st.rec=null;draw();return}
-    if(e.target.closest('#mk-go')){go();return}if(e.target.closest('#mk-again')){st.seed++;st.rec=null;go();return}
+    if(e.target.closest('#mk-go')){go();return}if(e.target.closest('#mk-rand')){d.close();setTimeout(surpriseRecipe,200);return}if(e.target.closest('#mk-again')){st.seed++;st.rec=null;go();return}
     if(e.target.closest('#mk-save')){const r=Object.assign({},st.rec,{id:'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),author:ME||'',ts:Date.now()});saveRecipe(r);
       const i=RECIPES.findIndex(x=>x.id===r.id);d.close();toast('Saved to your recipes');if(i>=0)setTimeout(()=>openRecipe(i),250)}};
   draw();showDlg(d);d.scrollTop=0}

@@ -1041,8 +1041,8 @@ const BT_ICON={'Cone dripper':'M4.5 4.5h15 M6 4.5l4 6.5h4l4-6.5 M9.6 7.6h4.8 M12
 const bIcon=t=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+(BT_ICON[t]||BT_ICON['Cone dripper'])+'"/></svg>';
 function renderRHome(){const QI=(c,p)=>'<span class="qi" style="background:'+c+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+p+'"/></svg></span>';
   const again=RECENT.map(rByKey).filter(i=>i>=0).slice(0,6);
-  $('rhome').innerHTML=(window.BEANS_OK&&BEANS.length?forYouHTML():'')+'<div class="qlinks">'+
-    '<button type="button" data-q="surprise">'+QI('#2F80ED','M5 5h14v14H5z M9 9h.01 M15 9h.01 M12 12h.01 M9 15h.01 M15 15h.01')+'<b>Surprise me</b></button>'+
+  $('rhome').innerHTML='<div class="qlinks">'+
+    '<button type="button" data-q="surprise">'+QI('#2F80ED','M12 3l1.9 5.6L19.5 10l-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.4z M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z')+'<b>Surprise me</b></button>'+
     '<button type="button" data-q="mine">'+QI('#C8741F','M4 20h4L19 9l-4-4L4 16z M13 7l4 4')+'<b>Your recipes</b>'+(CREC.length?'<span class="qn">'+CREC.length+'</span>':'')+'</button>'+
     '<button type="button" data-q="fav">'+QI('#E0445A','M12 20s-7-4.4-9-8.6C1.6 8.4 3.4 5 6.7 5c2 0 3.3 1.2 4.3 2.6C12 6.2 13.3 5 15.3 5c3.3 0 5.1 3.4 3.7 6.4C19 15.6 12 20 12 20z')+'<b>Favorites</b>'+(favCount()?'<span class="qn">'+favCount()+'</span>':'')+'</button></div>'+
     (again.length?'<h3 class="rh">Brew again</h3><div class="again">'+again.map(i=>'<button type="button" data-again="'+i+'"><b>'+esc(RECIPES[i].name)+'</b><small>'+esc(famName(RECIPES[i].b))+'</small></button>').join('')+'</div>':'')+
@@ -1050,6 +1050,10 @@ function renderRHome(){const QI=(c,p)=>'<span class="qi" style="background:'+c+'
       return '<button type="button" data-rb="'+k+'" aria-pressed="'+(RF==='b:'+k)+'"><span class="bi">'+bIcon(B.type)+'</span><b>'+esc(famName(k))+'</b><small>'+n+' recipe'+(n>1?'s':'')+'</small></button>'}).join('')+'</div>'+
     '<h3 class="rh">Collections</h3><div class="colshelf">'+COLS.map(([k,n,d,c,f])=>'<button type="button" data-col="'+k+'" aria-pressed="'+(RF==='col:'+k)+'" style="--cc:'+c+'"><b>'+esc(n)+'</b><small>'+esc(d)+'</small><span class="cn">'+RECIPES.filter(f).length+'</span></button>').join('')+'</div>'+
     '<h3 class="rh">Cup types</h3><div class="cups">'+CUPS.map(([k,n,d,g,f,ic])=>'<button type="button" class="cupcard" data-cup="'+k+'" aria-pressed="'+(RF==='cup:'+k)+'"><span class="cupart" style="--g:'+g+'">'+ic()+'<span class="cc">'+RECIPES.filter(f).length+'<span class="sr"> recipes</span></span></span><b>'+esc(n)+'</b><small>'+esc(d)+'</small></button>').join('')+'</div>'}
+// A random recipe for the brewers you have (a family counts), never the last pick twice running.
+function surpriseRecipe(){const mine=RECIPES.map((r,i)=>i).filter(i=>MYB.some(b=>RFAM(b)===RFAM(RECIPES[i].b)));
+    const all=mine.length?mine:RECIPES.map((r,i)=>i),pool=all.length>1?all.filter(i=>i!==LASTSURP):all;LASTSURP=pool[Math.floor(Math.random()*pool.length)];openRecipe(LASTSURP);
+    if(!mine.length)toast(MYB.length?'No recipes for your brewers yet, so this is from all of them':'Add your brewers in Gear and Surprise me picks from those');}
 function showRecipeList(){renderRecipes();renderRHome();requestAnimationFrame(()=>$('rall').scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'}))}
 $('rhome').onclick=e=>{const q=e.target.closest('[data-q]'),a=e.target.closest('[data-again]'),c=e.target.closest('[data-cup]'),bb=e.target.closest('[data-rb]'),co=e.target.closest('[data-col]');
   if(a){openRecipe(+a.dataset.again);return}
@@ -1058,10 +1062,8 @@ $('rhome').onclick=e=>{const q=e.target.closest('[data-q]'),a=e.target.closest('
   if(!q)return;const k=q.dataset.q;
   // Surprise me draws from recipes for the brewers you have (a family counts: a V60 covers NEO recipes, a Switch its
   // immersion ones), and never repeats the last pick straight away. With no brewers set, it uses every recipe.
-  if(k==='mkrec'){openMakeRecipe();return}
-  if(k==='surprise'){const mine=RECIPES.map((r,i)=>i).filter(i=>MYB.some(b=>RFAM(b)===RFAM(RECIPES[i].b)));
-    const all=mine.length?mine:RECIPES.map((r,i)=>i),pool=all.length>1?all.filter(i=>i!==LASTSURP):all;LASTSURP=pool[Math.floor(Math.random()*pool.length)];openRecipe(LASTSURP);
-    if(!mine.length)toast(MYB.length?'No recipes for your brewers yet, so this is from all of them':'Add your brewers in Gear and Surprise me picks from those');return}
+  // With coffees in the gallery, Surprise me makes a new recipe for one of them; the maker can still pull a random one from the list.
+  if(k==='surprise'){if(window.BEANS_OK&&BEANS.length)openMakeRecipe();else surpriseRecipe();return}
   if(k==='mine'){if(!CREC.length){openRecipeEditor(null);return}RF='mine'}
   if(k==='fav'){if(!favCount()){toast('Tap the heart on any recipe to save it here');return}RF='fav'}
   RQ='';$('rsearch').value='';showRecipeList()};
