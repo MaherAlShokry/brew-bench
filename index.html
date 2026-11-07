@@ -1690,7 +1690,7 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
 .seg.bviews.scrollrow button{flex:0 0 auto;min-width:auto;padding-left:14px;padding-right:14px;overflow:visible;text-overflow:clip}
 @media (max-width:759px){.seg.bviews{position:sticky;top:calc(var(--ab-b,64px) + 6px);z-index:5;box-shadow:0 8px 20px -14px rgba(40,24,14,.35)}}
 .seg.bviews button{flex:1 1 auto;min-width:0;white-space:nowrap;padding-left:8px;padding-right:8px}.seg.bviews i{font-style:normal;font-size:.72rem;font-weight:700;margin-left:4px;padding:0 6px;border-radius:var(--r-pill);background:color-mix(in srgb,currentColor 14%,transparent)}.seg.bviews button:not([aria-pressed="true"]) i{color:var(--ink)}.seg.bviews button[aria-pressed="true"] i{background:color-mix(in srgb,var(--paper) 40%,transparent)}
-.bview.bv-in{animation:bvin .28s var(--ease-out)}@keyframes bvin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.bview.bv-in{animation:bvin .2s var(--ease-out)}@keyframes bvin{from{opacity:0}to{opacity:1}}
 /* Scans */
 .scan-cta{display:flex;align-items:center;gap:12px;padding:14px;border-radius:var(--r-lg);border:1px solid var(--hair);background:var(--surface);box-shadow:var(--shadow)}
 .scan-cta>span:nth-child(2){flex:1;min-width:0}.scan-cta b{display:block;font-family:var(--display)}.scan-cta small{display:block;font-size:.8rem;color:var(--muted);line-height:1.3}
@@ -2283,7 +2283,7 @@ label[for=i-grind]>span{display:flex;flex-direction:column;align-items:flex-end;
 .seg>button[data-peek]{transition:none!important}
 .seg.has-ind>button{position:relative;z-index:1}
 .seg.has-ind>button[aria-pressed="true"]:not([data-peek]){background:transparent!important;background-image:none!important;box-shadow:none!important}
-.seg-ind{position:absolute;z-index:0;pointer-events:none;transition:left .32s cubic-bezier(.3,1.25,.5,1),top .32s cubic-bezier(.3,1.25,.5,1),width .32s cubic-bezier(.3,1.25,.5,1),height .32s,background-color .2s,opacity .2s}
+.seg-ind{position:absolute;z-index:0;pointer-events:none;will-change:transform;transition:transform .24s cubic-bezier(.25,.8,.25,1),width .24s cubic-bezier(.25,.8,.25,1),height .24s cubic-bezier(.25,.8,.25,1),background-color .2s,opacity .2s}
 .bd-bags{list-style:none;margin:0;padding:0;display:grid;gap:6px}.bd-bags li{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:12px;border:1px solid var(--line)}.bd-bags b{font-size:.88rem}.bd-bags span{font-size:.8rem;color:var(--muted)}
 .cr-buys{display:inline-flex;align-items:center;padding:2px 7px;border-radius:999px;font-size:.72rem;font-weight:800;color:var(--cherry-ink,var(--cherry));background:color-mix(in srgb,var(--cherry) 14%,var(--surface));font-variant-numeric:tabular-nums}
 /* Your last brew: picture, the full name, how it was brewed and the rating, with the two actions underneath. */
@@ -6063,7 +6063,9 @@ function showTab(id,fromHistory,pure){NAV_AT=performance.now();ensureTab(id);con
   if(kind){document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));movePill()}
   // Moving deeper or back uses a view transition (both pages move). Between bottom-bar sections only the new page
   // swings in: capturing the whole old page first held each tap back by a frame or two on phones.
-  if((kind==='push'||kind==='pop')&&pure&&NAV_READY&&document.startViewTransition&&!RM()&&!document.hidden&&!document.querySelector('dialog[open]')){
+  // Pages inside a section slide in on the tap itself: a view transition first captures the old page, which held the
+  // start back (most of all on a heavy page like the map). Only the new page moves, the same as every other page.
+  if(false&&(kind==='push'||kind==='pop')&&pure&&NAV_READY&&document.startViewTransition&&!RM()&&!document.hidden&&!document.querySelector('dialog[open]')){
     const h=document.documentElement;h.classList.add('vt');
     try{document.startViewTransition(()=>swap(true)).finished.finally(()=>h.classList.remove('vt'))}catch(e){h.classList.remove('vt');swap()}}
   else swap()}
@@ -9215,6 +9217,11 @@ function renderBeans(){const el=$('beans-in');if(!el)return;BSIG=beansSig();setA
     requestAnimationFrame(()=>setTimeout(()=>{BVPEND=0;renderBeanViews()},16))}
   else if(!BVPEND)renderBeanViews()}
 let BVPEND=0;
+// The other views are built while the phone is idle, one at a time, so switching to one only has to show it. A tap
+// or a page change in the meantime pushes the work back.
+let BVPRE=0;function prebuildBViews(){if(BVPRE)return;BVPRE=1;const next=()=>{BVPRE=0;const v=[...BDIRTY].find(k=>k!==BVIEW);if(!v||!$('bv-'+v))return;
+    if(performance.now()-NAV_AT<800||document.hidden){BVPRE=1;setTimeout(()=>whenIdle(next),600);return}
+    BDIRTY.delete(v);try{BVIEWS[v]()}catch(e){}BVPRE=1;whenIdle(next)};whenIdle(next)}
 let BDIRTY=new Set();
 const BVIEWS={coffees:()=>renderCoffees(),diary:()=>renderDiaryView(),passport:()=>renderPassport(),top3:()=>renderTop3View(),scans:()=>renderBeanScans()};
 // The journal's season, in the corner of the Beans header (northern-hemisphere seasons, as the seasonal trophies).
@@ -9232,9 +9239,10 @@ function renderBeanHero(){const cy=new Date().getFullYear(),N=BEANS.length,rated
   hydrateImgs(h)}
 function renderBeanViews(){const cy=new Date().getFullYear();
   seg('bg-views',[['coffees','Coffees'],['diary','Diary'],['passport','Passport'],['top3','Top 5'],['scans','Scans']],()=>BVIEW,v=>{if(v===BVIEW)return;BVIEW=v;
-    // The highlight moves at once; the page under it is built a frame later, so the glide isn't held up.
-    $('bg-views').querySelectorAll(':scope>button[data-v]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===v)));requestAnimationFrame(()=>setTimeout(renderBeanViews,0))});
+    // The highlight moves at once; the view (already built in the background) shows on the next frame.
+    $('bg-views').querySelectorAll(':scope>button[data-v]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===v)));requestAnimationFrame(renderBeanViews)});
   if(BDIRTY.has(BVIEW)){BDIRTY.delete(BVIEW);BVIEWS[BVIEW]()}
+  if(BDIRTY.size)prebuildBViews();
   requestAnimationFrame(()=>setTimeout(()=>loadNear($('bv-'+BVIEW)),30));
   for(const v of ['coffees','diary','passport','top3','scans']){const p=$('bv-'+v),on=v===BVIEW;if(p.hidden===!on)continue;p.hidden=!on;if(on&&!RM())replay(p,'bv-in')}
   // Switched while scrolled down: the new view starts just under the stuck tab strip, not partway down or with the page
@@ -10318,7 +10326,8 @@ function segUpdate(el){const on=el.querySelector(':scope>button[aria-pressed="tr
   // Read the picked option's own look for a moment (data-peek lets it show), then hand it to the highlight.
   on.setAttribute('data-peek','');const cs=getComputedStyle(on);
   const look={background:cs.backgroundColor,backgroundImage:cs.backgroundImage,boxShadow:cs.boxShadow,borderRadius:cs.borderRadius};on.removeAttribute('data-peek');el.classList.add('has-ind');
-  const pos={left:on.offsetLeft+'px',top:on.offsetTop+'px',width:on.offsetWidth+'px',height:on.offsetHeight+'px'};
+  // Moved with a transform (the compositor animates it without laying the page out again); only the size changes width.
+  const pos={left:'0px',top:'0px',transform:'translate3d('+on.offsetLeft+'px,'+on.offsetTop+'px,0)',width:on.offsetWidth+'px',height:on.offsetHeight+'px'};
   if(RM())ind.style.transition='none';Object.assign(ind.style,look,pos,{opacity:'1'});el._ip=pos;
   if(SEG_RO&&!el._ro){el._ro=1;SEG_RO.observe(el)}}
 // One watcher for every control's size (a tab coming into view, the phone turning); controls that have left the page are dropped.

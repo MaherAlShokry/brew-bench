@@ -628,6 +628,11 @@ function renderBeans(){const el=$('beans-in');if(!el)return;BSIG=beansSig();setA
     requestAnimationFrame(()=>setTimeout(()=>{BVPEND=0;renderBeanViews()},16))}
   else if(!BVPEND)renderBeanViews()}
 let BVPEND=0;
+// The other views are built while the phone is idle, one at a time, so switching to one only has to show it. A tap
+// or a page change in the meantime pushes the work back.
+let BVPRE=0;function prebuildBViews(){if(BVPRE)return;BVPRE=1;const next=()=>{BVPRE=0;const v=[...BDIRTY].find(k=>k!==BVIEW);if(!v||!$('bv-'+v))return;
+    if(performance.now()-NAV_AT<800||document.hidden){BVPRE=1;setTimeout(()=>whenIdle(next),600);return}
+    BDIRTY.delete(v);try{BVIEWS[v]()}catch(e){}BVPRE=1;whenIdle(next)};whenIdle(next)}
 let BDIRTY=new Set();
 const BVIEWS={coffees:()=>renderCoffees(),diary:()=>renderDiaryView(),passport:()=>renderPassport(),top3:()=>renderTop3View(),scans:()=>renderBeanScans()};
 // The journal's season, in the corner of the Beans header (northern-hemisphere seasons, as the seasonal trophies).
@@ -645,9 +650,10 @@ function renderBeanHero(){const cy=new Date().getFullYear(),N=BEANS.length,rated
   hydrateImgs(h)}
 function renderBeanViews(){const cy=new Date().getFullYear();
   seg('bg-views',[['coffees','Coffees'],['diary','Diary'],['passport','Passport'],['top3','Top 5'],['scans','Scans']],()=>BVIEW,v=>{if(v===BVIEW)return;BVIEW=v;
-    // The highlight moves at once; the page under it is built a frame later, so the glide isn't held up.
-    $('bg-views').querySelectorAll(':scope>button[data-v]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===v)));requestAnimationFrame(()=>setTimeout(renderBeanViews,0))});
+    // The highlight moves at once; the view (already built in the background) shows on the next frame.
+    $('bg-views').querySelectorAll(':scope>button[data-v]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===v)));requestAnimationFrame(renderBeanViews)});
   if(BDIRTY.has(BVIEW)){BDIRTY.delete(BVIEW);BVIEWS[BVIEW]()}
+  if(BDIRTY.size)prebuildBViews();
   requestAnimationFrame(()=>setTimeout(()=>loadNear($('bv-'+BVIEW)),30));
   for(const v of ['coffees','diary','passport','top3','scans']){const p=$('bv-'+v),on=v===BVIEW;if(p.hidden===!on)continue;p.hidden=!on;if(on&&!RM())replay(p,'bv-in')}
   // Switched while scrolled down: the new view starts just under the stuck tab strip, not partway down or with the page
