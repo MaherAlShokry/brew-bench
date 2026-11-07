@@ -620,7 +620,7 @@ function renderBeanViews(){const cy=new Date().getFullYear();
   seg('bg-views',[['coffees','Coffees'+cnt(BEANS.length)],['diary','Diary'],['passport','Passport'],['top3','Top 5'],['scans','Scans'+cnt(SCANS.length)]],()=>BVIEW,v=>{if(v===BVIEW)return;BVIEW=v;renderBeanViews()});
   if(BDIRTY.has(BVIEW)){BDIRTY.delete(BVIEW);BVIEWS[BVIEW]()}
   requestAnimationFrame(()=>setTimeout(()=>loadNear($('bv-'+BVIEW)),30));
-  for(const v of ['coffees','diary','passport','top3','scans']){const p=$('bv-'+v),on=v===BVIEW;if(p.hidden===!on)continue;p.hidden=!on;if(on&&!RM()){p.classList.remove('bv-in');void p.offsetWidth;p.classList.add('bv-in')}}}
+  for(const v of ['coffees','diary','passport','top3','scans']){const p=$('bv-'+v),on=v===BVIEW;if(p.hidden===!on)continue;p.hidden=!on;if(on&&!RM())replay(p,'bv-in')}}
 function renderCoffees(){const p=$('bv-coffees'),years=beanYears();if(BYEAR!=='all'&&!years.includes(+BYEAR))BYEAR='all';
   if(!BEANS.length){p.innerHTML='<div class="bg-empty">'+beanSVG+'<b>No coffees yet</b><p>Scan a bag or add one by hand. Your earlier scans are under <button type="button" class="linkbtn" data-view="scans">Scans</button>, ready to add.</p></div>';return}
   const fs=BFILTERS.filter(([f])=>f==='all'||BEANS.some(b=>bfKeep(b,f)));if(!fs.some(([f])=>f===BF))BF='all';

@@ -113,7 +113,7 @@ function rngFill(i){const mn=+i.min||0,mx=i.max===''?100:+i.max,f=(+RNG_VAL.get.
 let RNG_BUZZ=0;
 // A step from − or + gives the thumb and the value a small pop, so the change is felt as well as seen.
 function rngPop(i){const lab=i.id&&document.querySelector('label[for="'+i.id+'"]'),n=lab&&lab.querySelector('.num');
-  for(const e of [i,n])if(e){e.classList.remove('pop');void e.offsetWidth;e.classList.add('pop');clearTimeout(e._pop);e._pop=setTimeout(()=>e.classList.remove('pop'),260)}}
+  for(const e of [i,n])if(e){replay(e,'pop');clearTimeout(e._pop);e._pop=setTimeout(()=>e.classList.remove('pop'),300)}}
 function rngBuzz(){const t=Date.now();if(t-RNG_BUZZ<40)return;RNG_BUZZ=t;try{navigator.vibrate&&navigator.vibrate(4)}catch(e){}}
 function rngStep(i,dir){if(i.disabled)return;const before=i.value;try{dir>0?i.stepUp():i.stepDown()}catch(e){return}
   if(i.value===before)return;rngFill(i);rngBuzz();rngPop(i);i.dispatchEvent(new Event('input',{bubbles:true}));i.dispatchEvent(new Event('change',{bubbles:true}))}
@@ -129,7 +129,7 @@ function rngEnhance(i){if(i.dataset.rng)return;i.dataset.rng='1';
   i.addEventListener('input',()=>{rngFill(i);rngBuzz()});rngFill(i);
   // The − and + sit at the two ends of the track, so the label row keeps just the name and the value.
   const lab=i.id&&document.querySelector('label[for="'+i.id+'"]');
-  if(lab&&lab.querySelector('.num')&&!i.parentElement.classList.contains('rng-row')){const w=document.createElement('div');w.className='rng-row';i.before(w);w.append(rngButton(i,-1),i,rngButton(i,1))}}
+  if(lab&&lab.querySelector('.num')&&!i.parentElement.classList.contains('rng-row')){const w=document.createElement('div');w.className='rng-row';i.before(w);w.append(rngButton(i,-1),i,rngButton(i,1));const f=w.closest('.field');if(f){f.classList.add('rng-f');const t=f.parentElement;if(t&&t.classList.contains('two'))t.classList.add('rng-two')}}}
 
 /* ================= SELECTION CONTROLS ================= */
 // Segmented controls (roast, agitation, light or dark…) get one highlight that glides to the option you pick, styled
@@ -157,7 +157,7 @@ function uiScan(root){if(!root.querySelectorAll)return;
 // Chip choices that wrap onto several lines (target cup, filters, the recipe maker's picks) can't glide, so the newly
 // picked chip pops in instead: on a pressed change, or when the row is redrawn with a different one picked.
 function chipCheck(box){if(!box||box.matches(SEG_SEL))return;const on=box.querySelector(':scope>button[aria-pressed="true"]');const key=on?(on.dataset.v||on.dataset.mk||on.textContent):'';
-  if(box._onk!==undefined&&key&&key!==box._onk&&!RM()){on.classList.remove('chip-on');void on.offsetWidth;on.classList.add('chip-on');setTimeout(()=>on.classList.remove('chip-on'),360)}box._onk=key}
+  if(box._onk!==undefined&&key&&key!==box._onk&&!RM()){replay(on,'chip-on');setTimeout(()=>on.classList.remove('chip-on'),400)}box._onk=key}
 // Only what changed is looked at: new nodes, and the control whose options were swapped or picked. A timer ticking in
 // a big page doesn't make every control on it measure itself again.
 new MutationObserver(ms=>{for(const m of ms){const t=m.type==='attributes'?m.target.parentElement:m.target,s=t&&t.closest&&t.closest(SEG_SEL);if(s)segQueue(s);

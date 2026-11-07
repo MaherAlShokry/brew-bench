@@ -1073,18 +1073,20 @@ html[data-nav=left]::view-transition-new(abtitle),html[data-nav=pop]::view-trans
 /* Where both pages can't move together (an action that jumps to a page, or older browsers) the new page alone
    makes the same move. */
 @media (prefers-reduced-motion:no-preference){
-  html[data-nav=right] main section.nav-in{animation:sec-in-r .6s var(--spring) both,vt-show .2s ease-out both}
-  html[data-nav=left] main section.nav-in{animation:sec-in-l .6s var(--spring) both,vt-show .2s ease-out both}
-  html[data-nav=push] main section.nav-in{animation:sec-rise .56s var(--spring) both,vt-show .2s ease-out both}
+  html[data-nav=right] main section.nav-in{animation:sec-in-r .36s cubic-bezier(.2,.9,.3,1) both,vt-show .18s ease-out both}
+  html[data-nav=left] main section.nav-in{animation:sec-in-l .36s cubic-bezier(.2,.9,.3,1) both,vt-show .18s ease-out both}
+  html[data-nav=push] main section.nav-in{animation:sec-rise .4s cubic-bezier(.2,.9,.3,1) both,vt-show .18s ease-out both}
   html[data-nav=pop] main section.nav-in{animation:sec-surface .48s var(--spring) both,vt-show .22s ease-out both}
   .cascade{animation:cascade-in .62s var(--spring) both;animation-delay:calc(70ms + var(--ci,0) * 42ms)}
 }
-/* While a page slides in from the side it mustn't make the screen scroll sideways. */
-main:has(> section.nav-in){overflow-x:clip}
+/* A page sliding in from the side mustn't make the screen scroll sideways. Always on: a :has() rule here made the
+   browser re-check the styles of the whole page every time a page started or ended its entrance. */
+main{overflow-x:clip}
 /* A page can be many screens tall: it moves by a fixed distance, and turns and scales about the part on screen. */
 main section.nav-in{transform-origin:50% 40vh}
-@keyframes sec-rise{from{transform:translateY(72px) scale(.94)}}@keyframes sec-surface{from{transform:scale(1.04)}}
-@keyframes sec-in-r{from{transform:translateX(26%) rotate(1.5deg)}}@keyframes sec-in-l{from{transform:translateX(-26%) rotate(-1.5deg)}}
+@keyframes sec-rise{from{transform:translate3d(0,48px,0) scale(.97)}}@keyframes sec-surface{from{transform:scale(1.04)}}
+/* A short slide without a turn: turning a page that is many screens tall is costly to draw on phones. */
+@keyframes sec-in-r{from{transform:translate3d(14%,0,0)}}@keyframes sec-in-l{from{transform:translate3d(-14%,0,0)}}
 @keyframes cascade-in{from{opacity:0;transform:translateY(22px) scale(.96)}}
 :root[data-motion="reduced"]::view-transition-group(*),:root[data-motion="reduced"]::view-transition-old(*),:root[data-motion="reduced"]::view-transition-new(*){animation:none!important}
 /* The nav highlight is one pill that moves between buttons. */
@@ -2268,12 +2270,12 @@ input[type=range]:disabled{opacity:.45}
 .rng-b:hover{color:var(--cherry)}
 .rng-b:active{transform:scale(.88);color:var(--cherry);background:color-mix(in srgb,var(--cherry) 14%,var(--surface2))}
 /* Slider fields: name on the left, the value large on the right, room to breathe between them. */
-.field:has(.rng-row){margin-bottom:22px}
-.field:has(.rng-row)>label{align-items:baseline;margin-bottom:8px}
-.field:has(.rng-row)>label .num{font:800 1.25rem/1 var(--display);letter-spacing:-.01em;color:var(--ink)}
+.field.rng-f{margin-bottom:22px}
+.field.rng-f>label{align-items:baseline;margin-bottom:8px}
+.field.rng-f>label .num{font:800 1.25rem/1 var(--display);letter-spacing:-.01em;color:var(--ink)}
 label[for=i-grind]>span{display:flex;flex-direction:column;align-items:flex-end;gap:3px;text-align:right}
 #v-grindhint{font-size:.74rem;font-weight:500;color:var(--muted)}
-.two:has(.rng-row){grid-template-columns:1fr;gap:0}
+.two.rng-two{grid-template-columns:1fr;gap:0}
 /* Selection controls: one highlight that glides to the picked option. */
 .seg.has-ind.ind-rel{position:relative}
 .seg>button[data-peek]{transition:none!important}
@@ -2326,6 +2328,9 @@ button[aria-pressed]:active{transform:scale(.95)}
 .bd-rbrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}.bd-rbtn{font-weight:650}
 .bd-rbform{margin-top:12px}.bd-rbform input{background:var(--surface2)}.bd-rbform .btn{width:100%}
 .bd-bagsd{margin-top:10px}.bd-bagsd summary{cursor:pointer;font-size:.86rem;font-weight:600;color:var(--muted)}.bd-bagsd .bd-bags{margin-top:8px}
+/* Smoother page changes on phones: no blur behind the little count badges (it was invisible and costly to draw). */
+.cupcard .cc,.colshelf .cn,#rhome .cc,#rhome .cn{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.colshelf .cn{background:rgba(0,0,0,.26)}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
