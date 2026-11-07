@@ -2415,10 +2415,13 @@ dialog.dlg-pre[open]::backdrop{animation:none!important;opacity:0}
 /* The Beans tab strip, when it sticks under the top bar, matches the bar: the same nearly solid surface, hairline and
    shadow, the same width, and an even gap, so the two read as one header instead of a see-through second bar. */
 @media (max-width:759px){
-  .seg.bviews{top:calc(var(--ab-b,64px) + 8px)!important;margin-left:0!important;margin-right:0!important;background:var(--surface)!important;border:1px solid var(--hair)!important;box-shadow:var(--e2)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+  .seg.bviews{top:calc(var(--ab-b,64px) + 8px)!important;z-index:21!important;margin-left:0!important;margin-right:0!important;background:var(--surface)!important;border:1px solid var(--hair)!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 }
   /* The gap between the top bar and the stuck strip is filled with the page colour, so the list never peeks through. */
-  .seg.bviews::before{content:'';position:absolute;left:-12px;right:-12px;bottom:calc(100% + 1px);height:12px;background:var(--paper);pointer-events:none}
+  .seg.bviews::before{content:'';position:absolute;left:-12px;right:-12px;bottom:calc(100% + 1px);height:8px;background:var(--paper);pointer-events:none}
+  /* On Beans the top bar casts no shadow, so the bar and the stuck strip are two clean, solid pieces. */
+  @media (max-width:759px){html:has(main section#beans.on) .appbar{box-shadow:none!important}}
+  .seg.bviews .seg-ind,.seg.bviews button[aria-pressed="true"]{box-shadow:none!important}
 #ab-title{transition:opacity .2s ease,transform .2s ease}.appbar.title-off #ab-title{opacity:0;transform:translateY(6px)}
 @media (min-width:760px){.appbar.title-off #ab-title{opacity:1;transform:none}}
 .me-tiles>div>i{height:26px;display:flex;align-items:center;margin-bottom:4px}.me-tiles>div>i .me-flag{font-size:1.25rem;line-height:1}
