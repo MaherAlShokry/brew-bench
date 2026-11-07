@@ -1017,7 +1017,6 @@ dialog#selsheet.pop .selopt{min-height:40px;padding:8px 12px;font-size:.95rem}
   dialog.closing{animation:dlg-out .2s cubic-bezier(.4,0,1,1) both;pointer-events:none}
   dialog.closing::backdrop{animation:bd-out .24s ease both}
   .sheetlist button{animation:item-in .42s var(--ease-out) both;animation-delay:calc(70ms + var(--i,0) * 32ms)}
-  .bottomnav button[aria-current="true"] svg{animation:bn-jelly .62s var(--spring) both;transform-origin:50% 80%}
   .appbar #ab-title{animation:title-in .3s var(--ease-out)}
 }
 @media (prefers-reduced-motion:no-preference) and (max-width:759px){
@@ -1039,7 +1038,6 @@ dialog#selsheet.pop .selopt{min-height:40px;padding:8px 12px;font-size:.95rem}
 @keyframes bd-in{from{opacity:0}to{opacity:1}}
 @keyframes bd-out{from{opacity:1}to{opacity:0}}
 @keyframes item-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-@keyframes bn-jelly{0%{transform:scale(1)}25%{transform:scale(1.28,.78)}45%{transform:scale(.88,1.16) translateY(-4px)}65%{transform:scale(1.06,.95) translateY(-1px)}100%{transform:translateY(-1px)}}
 @keyframes title-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 /* Navigation motion. Between bottom-bar sections the pages swing past each other sideways; into a page within a
    section the new one rises and grows from behind, and back out it drops away. Both pages move at once where the
@@ -8419,10 +8417,9 @@ function movePill(){const nav=document.querySelector('.bottomnav'),pill=nav&&nav
   let pos=b&&PILLPOS.get(b);if(b&&!pos){if(!nav.offsetWidth){pill.style.opacity=0;PILL=null;return}pos={x:b.offsetLeft,w:b.offsetWidth};if(pos.w)PILLPOS.set(b,pos)}
   if(!b||!pos.w){pill.style.opacity=0;PILL=null;return}const x1=pos.x,w1=pos.w,from=PILL;PILL={x:x1,w:w1};
   pill.style.transition='none';pill.style.opacity=1;pill.style.width=w1+'px';pill.style.transform='translateX('+x1+'px)';
-  if(!from||RM()||(from.x===x1&&from.w===w1)||!pill.animate)return;const right=x1>from.x,
-    mid=right?{x:from.x+(x1-from.x)*.3,r:x1+w1}:{x:x1,r:from.x+from.w-(from.x+from.w-x1-w1)*.3};
-  pill.animate([{transform:'translateX('+from.x+'px)',width:from.w+'px'},{offset:.42,transform:'translateX('+mid.x+'px) scaleY(.86)',width:(mid.r-mid.x)+'px'},
-    {offset:.78,transform:'translateX('+(x1+(right?3:-3))+'px) scaleY(1.04)',width:(w1-2)+'px'},{transform:'translateX('+x1+'px)',width:w1+'px'}],{duration:620,easing:'cubic-bezier(.3,.7,.25,1)'})}
+  // A plain glide from the old button to the new one: no stretch, no overshoot.
+  if(!from||RM()||(from.x===x1&&from.w===w1)||!pill.animate)return;
+  pill.animate([{transform:'translateX('+from.x+'px)',width:from.w+'px'},{transform:'translateX('+x1+'px)',width:w1+'px'}],{duration:200,easing:'ease-out'})}
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(movePill);
 addEventListener('resize',()=>soon(movePill));
 document.querySelector('.bottomnav').onclick=e=>{const b=e.target.closest('[data-bn]');if(b)showTab(b.dataset.bn,false,true)};

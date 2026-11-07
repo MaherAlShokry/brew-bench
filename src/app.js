@@ -3396,10 +3396,9 @@ function movePill(){const nav=document.querySelector('.bottomnav'),pill=nav&&nav
   let pos=b&&PILLPOS.get(b);if(b&&!pos){if(!nav.offsetWidth){pill.style.opacity=0;PILL=null;return}pos={x:b.offsetLeft,w:b.offsetWidth};if(pos.w)PILLPOS.set(b,pos)}
   if(!b||!pos.w){pill.style.opacity=0;PILL=null;return}const x1=pos.x,w1=pos.w,from=PILL;PILL={x:x1,w:w1};
   pill.style.transition='none';pill.style.opacity=1;pill.style.width=w1+'px';pill.style.transform='translateX('+x1+'px)';
-  if(!from||RM()||(from.x===x1&&from.w===w1)||!pill.animate)return;const right=x1>from.x,
-    mid=right?{x:from.x+(x1-from.x)*.3,r:x1+w1}:{x:x1,r:from.x+from.w-(from.x+from.w-x1-w1)*.3};
-  pill.animate([{transform:'translateX('+from.x+'px)',width:from.w+'px'},{offset:.42,transform:'translateX('+mid.x+'px) scaleY(.86)',width:(mid.r-mid.x)+'px'},
-    {offset:.78,transform:'translateX('+(x1+(right?3:-3))+'px) scaleY(1.04)',width:(w1-2)+'px'},{transform:'translateX('+x1+'px)',width:w1+'px'}],{duration:620,easing:'cubic-bezier(.3,.7,.25,1)'})}
+  // A plain glide from the old button to the new one: no stretch, no overshoot.
+  if(!from||RM()||(from.x===x1&&from.w===w1)||!pill.animate)return;
+  pill.animate([{transform:'translateX('+from.x+'px)',width:from.w+'px'},{transform:'translateX('+x1+'px)',width:w1+'px'}],{duration:200,easing:'ease-out'})}
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(movePill);
 addEventListener('resize',()=>soon(movePill));
 document.querySelector('.bottomnav').onclick=e=>{const b=e.target.closest('[data-bn]');if(b)showTab(b.dataset.bn,false,true)};
