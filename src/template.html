@@ -1292,7 +1292,8 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .rs-sec .sellist{padding:0}.rs-sec .selopt span{display:flex;flex-direction:column;gap:2px}.rs-sec .selopt small{font-size:.78rem;font-weight:400;color:var(--muted)}
 .rs-chips{display:flex;flex-wrap:wrap;gap:8px}.rs-chip{min-height:38px;padding:8px 14px;font-size:.88rem;font-weight:600;border:1px solid transparent;cursor:pointer}
 .rs-chip[aria-checked="true"]{background:color-mix(in srgb,var(--cherry) 16%,var(--surface));border-color:var(--cherry);color:var(--cherry-ink,var(--ink))}
-.rs-done{padding:8px 16px calc(14px + var(--sa-bottom))}.rs-done .btn{width:100%}
+.rs-done{position:sticky;bottom:0;display:flex;gap:10px;padding:10px 16px calc(14px + var(--sa-bottom));background:linear-gradient(transparent,var(--surface) 30%)}.rs-done .btn{flex:1}.rs-done #rs-clear{flex:none;padding-inline:20px}.rs-done #rs-clear:disabled{opacity:.45}
+.rs-sec h4 small{font-weight:600;letter-spacing:0;text-transform:none;margin-left:6px;opacity:.8}
 .rgrp h4 .lvbi{background:color-mix(in srgb,currentColor 14%,var(--surface))}.rgrp h4 .lvbi i{width:10px;height:10px;border-radius:50%;background:currentColor}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .rgrp{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:14px;content-visibility:auto;contain-intrinsic-block-size:auto 320px}
