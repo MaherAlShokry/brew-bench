@@ -287,6 +287,104 @@ function yearInCoffeeHTML(){const cy=new Date().getFullYear(),bs=BEANS.filter(b=
     (facts.length?'<div class="yic-facts">'+facts.map(([i,k,vv,sub])=>'<div><i aria-hidden="true">'+i+'</i><span><small>'+k+'</small><b>'+esc(vv)+'</b>'+(sub?'<em>'+esc(sub)+'</em>':'')+'</span></div>').join('')+'</div>':'')+
     (t.notes.length?'<div class="yic-notes"><small>Notes you keep coming back to</small><div class="chips">'+t.notes.map(n=>'<span class="chip"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'</span>').join('')+'</div></div>':'')+'</div>'}
 
+/* ================= FOR YOU ================= */
+// Recipes picked for you: each recipe that suits your brewers is scored against the bags you're drinking now, the cup
+// your taste leans to (fruity and floral → brighter and clearer; chocolate, nutty and sweet → sweeter, more body) and
+// how you rated it before, and the best few come with the reason they were picked.
+const FY_LEAN=t=>{const f=new Set((t.families||[]).map(x=>x.n.toLowerCase()));const bright=['fruity','floral','sour','sour/fermented'].some(k=>f.has(k)),round=['sweet','nutty/cocoa','nutty','cocoa','spices'].some(k=>f.has(k));
+  return bright&&!round?'bright':round&&!bright?'round':'balanced'};
+function forYouPicks(n){if(!window.BEANS_OK)return[];const shelf=BEANS.filter(b=>b.shelf),bean=shelf[0]||BEANS[0],t=tasteOf(BEANS,LOG.filter(isMine)),lean=FY_LEAN(t);
+  const fam=k=>BREWERS[k]&&(BREWERS[k].of||k),mine=MYB.length?MYB.map(fam):null,rated=new Map();
+  for(const l of LOG.filter(isMine)){const r=l.snap&&l.snap.rec;if(r&&+l.stars){const v=rated.get(r)||[];v.push(+l.stars);rated.set(r,v)}}
+  const recent=new Set(RECENT.slice(0,3));const out=[];
+  RECIPES.forEach((r,i)=>{const B=BREWERS[r.b];if(!B||!B.model||(mine&&!mine.includes(fam(r.b))))return;const ratio=r.water/r.dose,why=[];let sc=0;
+    const rs=rated.get(r.name);if(rs){const avg=rs.reduce((a,b)=>a+b,0)/rs.length;sc+=(avg-3)*1.6;if(avg>=4)why.push('you rated it '+avg.toFixed(avg%1?1:0)+' beans')}
+    if(bean){const fer=/natural|anaerobic|honey|carbonic|ferment|thermal|yeast|koji/i.test(bean.process||''),dark=bean.roast==='dark',light=bean.roast==='light';
+      if(fer&&r.temp&&r.temp<=92){sc+=1.2;why.push('a cooler pour keeps your '+beanTitle(bean)+'’s fruit clean')}
+      if(light&&r.temp>=94){sc+=1;why.push('hot water opens up a light roast like '+beanTitle(bean))}
+      if(dark&&(r.temp<=90||r.kind==='imm')){sc+=1.2;why.push('gentle on a darker roast')}}
+    if(lean==='bright'&&ratio>=16){sc+=1;why.push('a longer ratio for the bright, '+((t.families[0]||{}).n||'fruity').toLowerCase()+' cups you like')}
+    if(lean==='round'&&ratio<=15.5){sc+=1;why.push('a shorter ratio for the sweet, rounder cups you like')}
+    if(t.brewer&&fam(t.brewer.k)===fam(r.b))sc+=.6;if(recent.has(rkey(r)))sc-=1.5;if(r.custom)sc+=.3;
+    out.push({i,sc,why:why[0]||(t.brewer&&fam(t.brewer.k)===fam(r.b)?'on the brewer you use most':'')})});
+  return out.sort((a,b)=>b.sc-a.sc).filter(x=>x.why).slice(0,n||3)}
+function forYouHTML(){const p=forYouPicks(3);const shelf=window.BEANS_OK&&BEANS.some(b=>b.shelf);
+  return '<h3 class="rh">Picked for you</h3>'+
+    '<button type="button" class="fy-make" data-q="mkrec"><span class="fy-spark" aria-hidden="true">✦</span><span><b>Create a recipe for your coffee</b><small>'+(shelf?'A new recipe made around your bag and your taste':'Made around a coffee from your gallery and your taste')+'</small></span></button>'+
+    (p.length?'<div class="fy-list">'+p.map(x=>{const r=RECIPES[x.i],B=BREWERS[r.b];return '<button type="button" class="fy-r" data-again="'+x.i+'"><span class="bi">'+bIcon(B.type)+'</span><span class="fy-tx"><b>'+esc(r.name)+'</b><small>'+esc(B.name)+' · '+r.dose+' g : '+r.water+' g</small><em>'+esc(x.why.charAt(0).toUpperCase()+x.why.slice(1))+'</em></span></button>'}).join('')+'</div>':'')}
+
+// A new recipe for one of your coffees, made around it and your taste. With an AI model at hand (the app running
+// inside Claude), the model writes it from your coffee, taste and gear; otherwise it's built here from the same rules
+// the dial-in uses: the roast and process set the water and grind, your taste sets the ratio and the pours.
+const MK_GOALS=[['balanced','Balanced'],['sweet','Sweeter'],['bright','Brighter'],['clear','Clearer'],['body','More body']];
+const MK_TYPES=['Cone dripper','Flat-bottom dripper','Valve and hybrid','Immersion and pressure'];
+const mmssF=s=>Math.floor(s/60)+':'+String(Math.round(s%60)).padStart(2,'0');
+function makeRecipe(bean,bk,goal,seed){const B=BREWERS[bk],t=tasteOf(BEANS,LOG.filter(isMine)),rnd=(k=>()=>(k=(k*9301+49297)%233280)/233280)(seed||1);
+  const doses=LOG.filter(l=>isMine(l)&&l.snap&&(BREWERS[l.snap.b]||{}).of===(B.of||bk)||isMine(l)&&l.snap&&l.snap.b===bk).map(l=>+l.snap.dose).filter(v=>v>0).sort((a,b)=>a-b);
+  const imm=B.type==='Immersion and pressure',valve=B.type==='Valve and hybrid',aero=/aeropress/i.test(B.name);
+  const dose=Math.min(doses.length?doses[doses.length>>1]:imm&&!aero?18:15,aero?16:99);
+  const fer=/natural|anaerobic|honey|carbonic|ferment|thermal|yeast|koji/i.test(bean.process||''),roast=bean.roast||'medium',fresh=bean.roastDate&&daysAgo(bean.roastDate)<10;
+  const ratio=clamp(({balanced:16,sweet:15.5,bright:16.5,clear:17,body:14.5})[goal]-(roast==='dark'?.5:0)+(rnd()-.5)*.4,13,18);
+  const water=Math.min(Math.round(dose*ratio/5)*5,aero?230:3000);
+  let temp=({light:95,medium:92,dark:89})[roast]||92;if(fer)temp-=2;if(goal==='bright')temp-=1;if(goal==='sweet'||goal==='clear')temp+=1;temp=clamp(Math.round(temp),86,97);
+  const off=clamp((roast==='dark'?.5:roast==='light'?-.5:0)+(goal==='clear'?.5:goal==='body'?-.5:0)+(imm?1:0),-2,2);
+  const bloomG=Math.round(dose*(fer?2.5:3)/5)*5,bloomT=fresh?45:fer?40:35,steps=[];let why=[],kind='pulse',style='';
+  if(aero){kind='aero';const steep=({balanced:90,sweet:105,bright:75,clear:75,body:120})[goal];
+    steps.push('0:00 pour '+water+'g and stir 10 seconds.');steps.push(mmssF(steep-30)+' put the plunger in to hold the brew.');steps.push(mmssF(steep)+' press slowly for about 30 seconds.');steps.push(mmssF(steep+30)+' done: stop at the hiss.');
+    style='press';why.push('A '+steep+'-second steep and a slow press'+(goal==='body'?' for a fuller cup':goal==='bright'?', kept short for a lively cup':' for a clean, sweet cup')+'.')}
+  else if(imm||valve){kind=valve?'hybrid':'imm';const steep=({balanced:180,sweet:210,bright:150,clear:150,body:240})[goal]+(roast==='dark'?-30:roast==='light'?30:0);
+    steps.push('0:00 pour all '+water+'g and stir gently 3 times.');if(steep>120)steps.push('1:00 break the crust and skim the foam.');
+    steps.push(mmssF(steep)+(valve?' open the valve and let it drain.':' press the plunger down slowly and pour.'));steps.push(mmssF(steep+(valve?60:20))+' done: swirl the cup and taste.');
+    style=valve?'switch':'steep';why.push('A '+Math.round(steep/60*10)/10+'-minute steep'+(goal==='body'?' for a fuller, rounder cup':goal==='bright'?' kept short so the acidity stays lively':' for an even, sweet extraction')+'.')}
+  else{const n=({balanced:3,sweet:3,bright:4,clear:2,body:3})[goal];const rest=water-bloomG,gap=goal==='clear'?40:30;let at=bloomT,poured=bloomG;
+    steps.push('0:00 pour '+bloomG+'g, bloom'+(fresh?' (fresh coffee: let it degas)':'')+'.');
+    let lastAt=0;for(let k=1;k<=n;k++){lastAt=at;poured=k===n?water:Math.round((bloomG+rest*k/n)/5)*5;steps.push(mmssF(at)+' pour to '+poured+'g'+(goal==='body'&&k===n?', then stir gently once':goal==='sweet'&&k===n?', then a gentle swirl':'')+'.');at+=gap+(goal==='clear'?15:0)}
+    const end=lastAt+(goal==='clear'?50:40);steps.push(mmssF(end)+' let it drain, done by '+mmssF(end+15)+'.');style=goal==='clear'?'two-pour':n>=4?'pulse':'three-pour';
+    why.push(n+' pours'+(goal==='bright'?' in short pulses keep the bed agitated, for a livelier cup':goal==='clear'?', big and calm, for a clean, tea-like clarity':goal==='body'?' and a final stir build sweetness and body':' after a '+bloomT+'-second bloom for an even extraction')+'.')}
+  why.unshift((fer?beanTitle(bean)+' is a '+(PROCESSES[bean.process]||{name:'fermented'}).name.replace(/\s*\(.*\)$/,'').toLowerCase()+' coffee, so the water is a little cooler ('+temp+'°C) to keep the fruit clean and the ferment in check.':roast==='light'?'A light roast wants hot water ('+temp+'°C) to open up.':roast==='dark'?'A darker roast is brewed cooler ('+temp+'°C) and a little coarser to stay sweet, not bitter.':'Water at '+temp+'°C suits a medium roast.'));
+  if(t.families.length)why.push('The 1:'+(Math.round(water/dose*10)/10)+' ratio is set for the '+t.families.slice(0,2).map(f=>f.n.toLowerCase()).join(' and ')+' cups you like.');
+  const word=({balanced:'everyday',sweet:'sweet',bright:'bright',clear:'clean',body:'round'})[goal];
+  return sanRec({b:bk,kind,name:shortName(beanTitle(bean)).slice(0,36)+' '+word+' '+style,by:'Made for you by The Brew Bench',dose,water,temp,off,why:why.join(' '),
+    tip:'Taste it: sour or thin, go a click finer next time; bitter or dry, a click coarser.',steps})}
+// The model's version: given the same facts, it writes the recipe as JSON, and it's checked like any recipe.
+async function aiRecipe(bean,bk,goal){const B=BREWERS[bk],t=tasteOf(BEANS,LOG.filter(isMine)),P=bean.process&&PROCESSES[bean.process];
+  const prompt='You are a specialty coffee brewing coach. Write ONE new pour-over or immersion recipe for this coffee and this person. Do not copy a famous recipe.\n\n'+
+    'Coffee: '+beanTitle(bean)+(bean.roaster?' by '+bean.roaster:'')+'; origin '+(bean.origin?originName(bean.origin):'unknown')+'; variety '+(beanVars(bean).map(vName).join(', ')||'unknown')+'; process '+(P?P.name:'unknown')+'; roast '+(bean.roast||'unknown')+
+    (bean.roastDate?'; '+daysAgo(bean.roastDate)+' days off roast':'')+(bean.flavours?'; bag notes: '+bean.flavours:'')+'.\n'+
+    'Brewer: '+B.name+' ('+B.type+'). Cup goal: '+MK_GOALS.find(g=>g[0]===goal)[1]+'.\n'+
+    'Their taste: '+(tasteLine(t)||'not known yet')+(t.notes.length?'; notes they love: '+t.notes.map(n=>n.n).join(', '):'')+'.\n\n'+
+    'Reply with ONLY JSON: {"name":"short new name (max 40 chars)","dose":grams,"water":grams,"temp":celsius,"grind_offset":number from -2 (finer) to 2 (coarser) relative to a normal grind for this brewer,'+
+    '"steps":["0:00 pour 45g, bloom.","0:40 pour to 150g.","..."],"why":"two or three sentences on why it suits this coffee and this person","tip":"one sentence"}\n'+
+    'Each step starts with m:ss and the pours use "pour Xg" or "pour to Xg" with the scale total; the last pour reaches the full water.';
+  const j=await SAMPLE.json(prompt,{});if(!j||typeof j!=='object')throw new Error('no reply');
+  const r=sanRec({b:bk,kind:B.type==='Immersion and pressure'?'imm':B.type==='Valve and hybrid'?'hybrid':'pulse',name:j.name,by:'Made for you by AI',dose:j.dose,water:j.water,temp:j.temp,off:j.grind_offset,why:j.why,tip:j.tip,
+    steps:(Array.isArray(j.steps)?j.steps:[]).filter(s=>/^\s*\d+:\d\d\b/.test(String(s)))});
+  if(!r||r.steps.length<2||!(r.water>r.dose*8&&r.water<r.dose*20))throw new Error('unusable');return r}
+function openMakeRecipe(bid){const d=$('vd'),beans=[...BEANS.filter(b=>b.shelf),...BEANS.filter(b=>!b.shelf)];if(!beans.length){toast('Add a coffee to your gallery first');return}
+  const brewers=[...new Set([...MYB,'v60','origami','switch','frenchpress'])].filter(k=>BREWERS[k]&&MK_TYPES.includes(BREWERS[k].type)&&!BREWERS[k].of).slice(0,8);
+  const t=tasteOf(BEANS,LOG.filter(isMine)),lean=FY_LEAN(t);
+  const st={bean:bid&&beanById(bid)?bid:beans[0].id,b:MYB.find(k=>brewers.includes(k))||brewers[0],goal:lean==='bright'?'bright':lean==='round'?'sweet':'balanced',seed:1,rec:null,busy:false};
+  const chips=(k,list,cur)=>'<div class="mk-chips" role="group">'+list.map(([v,n,pic])=>'<button type="button" data-mk="'+k+'" data-v="'+esc(v)+'" aria-pressed="'+(v===cur)+'">'+(pic||'')+esc(n)+'</button>').join('')+'</div>';
+  const draw=()=>{const r=st.rec,bean=beanById(st.bean);
+    $('vd-in').innerHTML='<div class="vd-head" style="--c:#8A5A3B"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:#C9964A"></i>'+(SAMPLE?'Made with AI':'Made for you')+'</span><h2 id="vd-title">A recipe for your coffee</h2>'+
+      '<p class="hint" style="margin:0">'+(SAMPLE?'Written by AI from your coffee, your taste and your brewer.':'Built from your coffee, your taste and your brewer: a new recipe, not one from the list.')+'</p></div><div class="vd-body mk">'+
+      '<div class="lbl">Your coffee</div>'+chips('bean',beans.slice(0,10).map(b=>[b.id,beanTitle(b),beanPic(b,'xs')]),st.bean)+
+      '<div class="lbl">Brewer</div>'+chips('b',brewers.map(k=>[k,BREWERS[k].name]),st.b)+
+      '<div class="lbl">The cup you want'+(t.families.length?' <span class="hint">your taste leans '+(lean==='bright'?'bright and fruity':lean==='round'?'sweet and round':'balanced')+'</span>':'')+'</div>'+chips('goal',MK_GOALS,st.goal)+
+      (r?'<div class="mk-res"><div class="mk-h"><b>'+esc(r.name)+'</b><small>'+esc(r.by)+'</small></div><div class="le-pills"><span class="le-pill">'+r.dose+' g : '+r.water+' g</span><span class="le-pill">1:'+(Math.round(r.water/r.dose*10)/10)+'</span><span class="le-pill">'+r.temp+'°C</span><span class="le-pill">'+esc(BREWERS[r.b].name)+'</span><span class="le-pill">Grind '+(r.off>0?'a touch coarser':r.off<0?'a touch finer':'as usual')+'</span></div>'+
+        '<ol class="mk-steps">'+r.steps.map(s=>{const m=/^(\d+:\d\d)\s*(.*)$/.exec(s);return '<li><b>'+(m?m[1]:'')+'</b><span>'+esc(m?m[2]:s)+'</span></li>'}).join('')+'</ol><p class="mk-why">'+esc(r.why)+'</p><p class="hint" style="margin:6px 0 0">'+esc(r.tip)+'</p>'+
+        '<div class="actions"><button type="button" class="btn" id="mk-save">Save and brew it</button><button type="button" class="btn ghost" id="mk-again">Another one</button></div></div>'
+       :'<div class="actions"><button type="button" class="btn" id="mk-go"'+(st.busy?' disabled':'')+'>'+(st.busy?'Writing your recipe…':'Create the recipe')+'</button></div>')+'</div>';
+    hydrateImgs($('vd-in'));$('vd-x').onclick=()=>d.close()};
+  const go=async()=>{const bean=beanById(st.bean);if(!bean)return;st.busy=true;draw();let r=null;
+    if(SAMPLE)try{r=await aiRecipe(bean,st.b,st.goal)}catch(e){r=null}
+    if(!r)r=makeRecipe(bean,st.b,st.goal,st.seed);st.rec=r;st.busy=false;draw()};
+  $('vd-in').onclick=e=>{const c=e.target.closest('[data-mk]');if(c){st[c.dataset.mk]=c.dataset.v;st.rec=null;draw();return}
+    if(e.target.closest('#mk-go')){go();return}if(e.target.closest('#mk-again')){st.seed++;st.rec=null;go();return}
+    if(e.target.closest('#mk-save')){const r=Object.assign({},st.rec,{id:'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),author:ME||'',ts:Date.now()});saveRecipe(r);
+      const i=RECIPES.findIndex(x=>x.id===r.id);d.close();toast('Saved to your recipes');if(i>=0)setTimeout(()=>openRecipe(i),250)}};
+  draw();showDlg(d);d.scrollTop=0}
+
 /* ---------- Trophies ---------- */
 // Earned from the cabinet as it is: each has a goal and counts towards it. The day one is first earned is kept.
 const WILD=['anaerobic','anaerobicnatural','anaerobicwashed','anaerobichoney','doubleanaerobic','carbonic','lactic','yeast','koji','extended','thermalshock','mossto','coferment','infused','barrelaged'];
@@ -696,7 +794,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;const d=$('vd'),rk
     (b.notes?'<h3>Your notes</h3><p>'+esc(b.notes)+'</p>':'')+
     '<div class="bd-again"><span>Would you buy it again?</span><div class="seg" id="bd-again"></div></div>'+
     (ls?'<p class="hint">In your brew log: '+ls.n+' brew'+(ls.n===1?'':'s')+(ls.avg?', rated '+ls.avg.toFixed(1)+' on average':'')+'.</p>':'')+
-    '<div class="actions"><button class="btn" id="bd-brew">Brew it in the dial-in</button><button class="btn ghost" id="bd-edit">Edit</button><button class="btn ghost" id="bd-share">Share</button></div>'+
+    '<div class="actions"><button class="btn" id="bd-brew">Brew it in the dial-in</button><button class="btn ghost" id="bd-mkrec">Create a recipe</button><button class="btn ghost" id="bd-edit">Edit</button><button class="btn ghost" id="bd-share">Share</button></div>'+
     // Its diary: a moment, a few words, the day.
     '<h3 id="bd-dh">Diary</h3>'+dwriteHTML('bd',st)+
     '<div id="bd-tl">'+timelineHTML(beanTimeline(b),false)+'</div>'+
@@ -705,6 +803,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;const d=$('vd'),rk
   const refresh=(msg)=>{saveBeans();checkTrophies();renderBeans();openBean(b.id);if(msg)toast(msg)};
   if($('bd-rd'))$('bd-rd').onchange=e=>{const v=e.target.value;if(!/^\d{4}-\d\d-\d\d$/.test(v)||v>todayISO())return;b.roastDate=v;refresh('Roast date added')};
   $('bd-edit').onclick=()=>openBeanEditor(b);
+  $('bd-mkrec').onclick=()=>openMakeRecipe(b.id);
   $('bd-share').onclick=()=>{d.close();openShare(beanDoc(b))};
   $('bd-brew').onclick=()=>{useBean(b);d.close();showTab('dial');
     if(!dialRec()){const t=techList(S.brewer)[0];if(t)S.rec=t[1]}if(dialRec())tune('Tuned for '+beanTitle(b));else{render();toast('Set up for '+beanTitle(b))}};
