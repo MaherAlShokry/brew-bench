@@ -1689,7 +1689,9 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
 .seg.bviews.scrollrow button{flex:0 0 auto;min-width:auto;padding-left:14px;padding-right:14px;overflow:visible;text-overflow:clip}
 @media (max-width:759px){.seg.bviews{position:sticky;top:calc(var(--ab-b,64px) + 6px);z-index:5;box-shadow:0 8px 20px -14px rgba(40,24,14,.35)}}
 .seg.bviews button{flex:1 1 auto;min-width:0;white-space:nowrap;padding-left:8px;padding-right:8px}.seg.bviews i{font-style:normal;font-size:.72rem;font-weight:700;margin-left:4px;padding:0 6px;border-radius:var(--r-pill);background:color-mix(in srgb,currentColor 14%,transparent)}.seg.bviews button:not([aria-pressed="true"]) i{color:var(--ink)}.seg.bviews button[aria-pressed="true"] i{background:color-mix(in srgb,var(--paper) 40%,transparent)}
-.bview.bv-in{animation:bvin .2s var(--ease-out)}@keyframes bvin{from{opacity:0}to{opacity:1}}
+/* Switching Beans views: the new view slides in from the side of the tab you tapped. */
+.bview.bv-in-r{animation:bvinr .3s cubic-bezier(.2,.8,.2,1)}.bview.bv-in-l{animation:bvinl .3s cubic-bezier(.2,.8,.2,1)}
+@keyframes bvinr{from{opacity:0;transform:translate3d(28px,0,0)}to{opacity:1;transform:none}}@keyframes bvinl{from{opacity:0;transform:translate3d(-28px,0,0)}to{opacity:1;transform:none}}
 /* Scans */
 .scan-cta{display:flex;align-items:center;gap:12px;padding:14px;border-radius:var(--r-lg);border:1px solid var(--hair);background:var(--surface);box-shadow:var(--shadow)}
 .scan-cta>span:nth-child(2){flex:1;min-width:0}.scan-cta b{display:block;font-family:var(--display)}.scan-cta small{display:block;font-size:.8rem;color:var(--muted);line-height:1.3}
@@ -2347,6 +2349,16 @@ button[aria-pressed]:active{transform:scale(.95)}
 .tro .tro-p{width:72%;margin:6px auto 0}
 
 .tro small{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+/* Diary: the coffee and moment chips sit on tidy wrapped rows (nothing cut off at the card's edges). */
+.dmoms{flex-wrap:wrap;overflow:visible!important;margin:0 0 10px!important;padding:0!important;-webkit-mask-image:none!important;mask-image:none!important}
+.dmoms button{max-width:100%;text-align:left;line-height:1.25}.dbeans button{max-width:100%!important;min-height:36px}
+/* Brew log: a sideways slider, one brew per slide with the next one peeking in. */
+.le-nav{display:flex;align-items:center;gap:8px;margin:12px 2px 8px}.le-pos{flex:1;font:600 .84rem var(--body);color:var(--muted);font-variant-numeric:tabular-nums}
+.le-arr{width:38px;height:38px;display:grid;place-items:center;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}.le-arr svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.le-arr:disabled{opacity:.35;cursor:default}
+.le-track{display:flex;gap:12px;align-items:flex-start;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;margin:0 -16px;padding:0 16px 6px;scroll-padding-inline:16px}.le-track::-webkit-scrollbar{display:none}
+.le-slide{flex:0 0 calc(100% - 28px);min-width:0;scroll-snap-align:start;scroll-snap-stop:always}.le-track.one .le-slide{flex-basis:100%}
+.le-slide .le-day{margin:0 4px 8px}.le-slide .logentry{margin:0}
+@media (min-width:760px){.le-slide{flex-basis:min(440px,calc(100% - 28px))}.le-track{margin:0;padding:0 0 6px;scroll-padding-inline:0}}
 html.sheeting :is(.seg.bviews,.gtabs,.appbar,.minires,.bottomnav){-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 /* Diary: the entry icons' rings aren't cropped (content-visibility clips whatever pokes out of a row, so rows keep a
    little room on the left), and the moment chips scroll with an end fade instead of being cut by the card. */
@@ -2403,8 +2415,13 @@ dialog.dlg-pre[open]::backdrop{animation:none!important;opacity:0}
 /* The Beans tab strip, when it sticks under the top bar, matches the bar: the same nearly solid surface, hairline and
    shadow, the same width, and an even gap, so the two read as one header instead of a see-through second bar. */
 @media (max-width:759px){
-  .seg.bviews{top:calc(var(--ab-b,64px) + 8px)!important;margin-left:-6px!important;margin-right:-6px!important;background:var(--surface)!important;border:1px solid var(--hair)!important;box-shadow:var(--e2)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+  .seg.bviews{top:calc(var(--ab-b,64px) + 8px)!important;z-index:21!important;margin-left:0!important;margin-right:0!important;background:var(--surface)!important;border:1px solid var(--hair)!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 }
+  /* The gap between the top bar and the stuck strip is filled with the page colour, so the list never peeks through. */
+  .seg.bviews::before{content:'';position:absolute;left:-12px;right:-12px;bottom:calc(100% + 1px);height:8px;background:var(--paper);pointer-events:none}
+  /* On Beans the top bar casts no shadow, so the bar and the stuck strip are two clean, solid pieces. */
+  @media (max-width:759px){html:has(main section#beans.on) .appbar{box-shadow:none!important}}
+  .seg.bviews .seg-ind,.seg.bviews button[aria-pressed="true"]{box-shadow:none!important}
 #ab-title{transition:opacity .2s ease,transform .2s ease}.appbar.title-off #ab-title{opacity:0;transform:translateY(6px)}
 @media (min-width:760px){.appbar.title-off #ab-title{opacity:1;transform:none}}
 .me-tiles>div>i{height:26px;display:flex;align-items:center;margin-bottom:4px}.me-tiles>div>i .me-flag{font-size:1.25rem;line-height:1}

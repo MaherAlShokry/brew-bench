@@ -1690,7 +1690,9 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
 .seg.bviews.scrollrow button{flex:0 0 auto;min-width:auto;padding-left:14px;padding-right:14px;overflow:visible;text-overflow:clip}
 @media (max-width:759px){.seg.bviews{position:sticky;top:calc(var(--ab-b,64px) + 6px);z-index:5;box-shadow:0 8px 20px -14px rgba(40,24,14,.35)}}
 .seg.bviews button{flex:1 1 auto;min-width:0;white-space:nowrap;padding-left:8px;padding-right:8px}.seg.bviews i{font-style:normal;font-size:.72rem;font-weight:700;margin-left:4px;padding:0 6px;border-radius:var(--r-pill);background:color-mix(in srgb,currentColor 14%,transparent)}.seg.bviews button:not([aria-pressed="true"]) i{color:var(--ink)}.seg.bviews button[aria-pressed="true"] i{background:color-mix(in srgb,var(--paper) 40%,transparent)}
-.bview.bv-in{animation:bvin .2s var(--ease-out)}@keyframes bvin{from{opacity:0}to{opacity:1}}
+/* Switching Beans views: the new view slides in from the side of the tab you tapped. */
+.bview.bv-in-r{animation:bvinr .3s cubic-bezier(.2,.8,.2,1)}.bview.bv-in-l{animation:bvinl .3s cubic-bezier(.2,.8,.2,1)}
+@keyframes bvinr{from{opacity:0;transform:translate3d(28px,0,0)}to{opacity:1;transform:none}}@keyframes bvinl{from{opacity:0;transform:translate3d(-28px,0,0)}to{opacity:1;transform:none}}
 /* Scans */
 .scan-cta{display:flex;align-items:center;gap:12px;padding:14px;border-radius:var(--r-lg);border:1px solid var(--hair);background:var(--surface);box-shadow:var(--shadow)}
 .scan-cta>span:nth-child(2){flex:1;min-width:0}.scan-cta b{display:block;font-family:var(--display)}.scan-cta small{display:block;font-size:.8rem;color:var(--muted);line-height:1.3}
@@ -2348,6 +2350,16 @@ button[aria-pressed]:active{transform:scale(.95)}
 .tro .tro-p{width:72%;margin:6px auto 0}
 
 .tro small{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+/* Diary: the coffee and moment chips sit on tidy wrapped rows (nothing cut off at the card's edges). */
+.dmoms{flex-wrap:wrap;overflow:visible!important;margin:0 0 10px!important;padding:0!important;-webkit-mask-image:none!important;mask-image:none!important}
+.dmoms button{max-width:100%;text-align:left;line-height:1.25}.dbeans button{max-width:100%!important;min-height:36px}
+/* Brew log: a sideways slider, one brew per slide with the next one peeking in. */
+.le-nav{display:flex;align-items:center;gap:8px;margin:12px 2px 8px}.le-pos{flex:1;font:600 .84rem var(--body);color:var(--muted);font-variant-numeric:tabular-nums}
+.le-arr{width:38px;height:38px;display:grid;place-items:center;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}.le-arr svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.le-arr:disabled{opacity:.35;cursor:default}
+.le-track{display:flex;gap:12px;align-items:flex-start;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;margin:0 -16px;padding:0 16px 6px;scroll-padding-inline:16px}.le-track::-webkit-scrollbar{display:none}
+.le-slide{flex:0 0 calc(100% - 28px);min-width:0;scroll-snap-align:start;scroll-snap-stop:always}.le-track.one .le-slide{flex-basis:100%}
+.le-slide .le-day{margin:0 4px 8px}.le-slide .logentry{margin:0}
+@media (min-width:760px){.le-slide{flex-basis:min(440px,calc(100% - 28px))}.le-track{margin:0;padding:0 0 6px;scroll-padding-inline:0}}
 html.sheeting :is(.seg.bviews,.gtabs,.appbar,.minires,.bottomnav){-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 /* Diary: the entry icons' rings aren't cropped (content-visibility clips whatever pokes out of a row, so rows keep a
    little room on the left), and the moment chips scroll with an end fade instead of being cut by the card. */
@@ -2404,8 +2416,13 @@ dialog.dlg-pre[open]::backdrop{animation:none!important;opacity:0}
 /* The Beans tab strip, when it sticks under the top bar, matches the bar: the same nearly solid surface, hairline and
    shadow, the same width, and an even gap, so the two read as one header instead of a see-through second bar. */
 @media (max-width:759px){
-  .seg.bviews{top:calc(var(--ab-b,64px) + 8px)!important;margin-left:-6px!important;margin-right:-6px!important;background:var(--surface)!important;border:1px solid var(--hair)!important;box-shadow:var(--e2)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+  .seg.bviews{top:calc(var(--ab-b,64px) + 8px)!important;z-index:21!important;margin-left:0!important;margin-right:0!important;background:var(--surface)!important;border:1px solid var(--hair)!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 }
+  /* The gap between the top bar and the stuck strip is filled with the page colour, so the list never peeks through. */
+  .seg.bviews::before{content:'';position:absolute;left:-12px;right:-12px;bottom:calc(100% + 1px);height:8px;background:var(--paper);pointer-events:none}
+  /* On Beans the top bar casts no shadow, so the bar and the stuck strip are two clean, solid pieces. */
+  @media (max-width:759px){html:has(main section#beans.on) .appbar{box-shadow:none!important}}
+  .seg.bviews .seg-ind,.seg.bviews button[aria-pressed="true"]{box-shadow:none!important}
 #ab-title{transition:opacity .2s ease,transform .2s ease}.appbar.title-off #ab-title{opacity:0;transform:translateY(6px)}
 @media (min-width:760px){.appbar.title-off #ab-title{opacity:1;transform:none}}
 .me-tiles>div>i{height:26px;display:flex;align-items:center;margin-bottom:4px}.me-tiles>div>i .me-flag{font-size:1.25rem;line-height:1}
@@ -7100,11 +7117,16 @@ function renderLogList(){renderLogFilter();const q=LF.q.trim().toLowerCase();
   let rows=LOG.map((l,i)=>[l,i]).filter(([l])=>lfKeep(l));
   LLN=rows.length;const ts=l=>l.ts||Date.parse(l.date)||0;
   rows.sort(LF.sort==='old'?(a,b)=>ts(a[0])-ts(b[0]):LF.sort==='top'?(a,b)=>(+b[0].stars||0)-(+a[0].stars||0)||ts(b[0])-ts(a[0]):LF.sort==='az'?(a,b)=>(a[0].coffee||'').localeCompare(b[0].coffee||'')||ts(b[0])-ts(a[0]):(a,b)=>ts(b[0])-ts(a[0]));
-  const byDate=LF.sort==='new'||LF.sort==='old';let last='',h='';
-  for(const [l,i] of rows){if(byDate){const d=logGroup(l);if(d!==last){h+='<h3 class="le-day">'+esc(d)+'</h3>';last=d}}h+=logEntryHTML(l,i)}
+  // One brew per slide, swiped sideways in the chosen order; each slide says when it was brewed.
+  let h='<div class="le-nav"><span class="le-pos" id="l-pos" aria-live="polite">'+(rows.length>1?'1 of '+rows.length:'')+'</span>'+(rows.length>1?'<button type="button" class="le-arr" data-lgo="-1" aria-label="Previous brew" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><button type="button" class="le-arr" data-lgo="1" aria-label="Next brew"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>':'')+'</div><div class="le-track'+(rows.length===1?' one':'')+'" id="l-track">';
+  for(const [l,i] of rows)h+='<div class="le-slide"><h3 class="le-day">'+esc(logGroup(l))+'</h3>'+logEntryHTML(l,i)+'</div>';h+='</div>';
   $('l-list').innerHTML=!LOG.length?'<div class="le-empty">'+lIc('edit')+'<b>No brews yet</b><p>Dial one in, then tap “Log this brew”, or fill in the form above.</p></div>':
     rows.length?(rows.length<LOG.length?'<p class="le-count">Showing '+rows.length+' of '+LOG.length+' brews</p>':'')+h:'<div class="le-empty">'+lIc('search')+'<b>No brews match</b><p><button type="button" class="linkbtn" id="lf-clear">Clear the filters</button></p></div>';
   const c=$('lf-clear');if(c)c.onclick=()=>{LF.q='';const qi=$('lf-q');if(qi)qi.value='';LF.min=0;LF.who=[];saveLF();renderLogList()};
+  const tr=$('l-track');if(tr&&rows.length>1){const pos=$('l-pos'),[pv,nx]=$('l-list').querySelectorAll('[data-lgo]');let raf=0;
+    const at=()=>Math.round(tr.scrollLeft/(tr.firstElementChild.offsetWidth+12));
+    tr.onscroll=()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;const k=clamp(at(),0,rows.length-1);pos.textContent=(k+1)+' of '+rows.length;pv.disabled=k===0;nx.disabled=k===rows.length-1})};
+    $('l-list').querySelectorAll('[data-lgo]').forEach(b=>b.onclick=()=>{const k=clamp(at()+ +b.dataset.lgo,0,rows.length-1);tr.scrollTo({left:tr.children[k].offsetLeft-tr.firstElementChild.offsetLeft,behavior:RM()?'auto':'smooth'})})}
   if(typeof hydrateImgs==='function')hydrateImgs($('l-list'))}
 $('l-filter').addEventListener('click',e=>{if(e.target.closest('#lf-f'))openLogFilter();else if(e.target.closest('#lf-s'))openLogSort()});
 $('l-filter').addEventListener('input',e=>{if(e.target.id!=='lf-q')return;LF.q=e.target.value;renderLogList()});
@@ -9216,7 +9238,7 @@ function renderBeans(){const el=$('beans-in');if(!el)return;BSIG=beansSig();setA
   if(!$('bv-'+BVIEW).firstChild&&!BVPEND){BVPEND=1;seg('bg-views',[['coffees','Coffees'],['diary','Diary'],['passport','Passport'],['top3','Top 5'],['scans','Scans']],()=>BVIEW,()=>{});
     requestAnimationFrame(()=>setTimeout(()=>{BVPEND=0;renderBeanViews()},16))}
   else if(!BVPEND)renderBeanViews()}
-let BVPEND=0;
+let BVPEND=0,BVDIR=0;
 // The other views are built while the phone is idle, one at a time, so switching to one only has to show it. A tap
 // or a page change in the meantime pushes the work back.
 let BVPRE=0;function prebuildBViews(){if(BVPRE)return;BVPRE=1;const next=()=>{BVPRE=0;const v=[...BDIRTY].find(k=>k!==BVIEW);if(!v||!$('bv-'+v))return;
@@ -9238,13 +9260,13 @@ function renderBeanHero(){const cy=new Date().getFullYear(),N=BEANS.length,rated
     '<div class="bgh-acts"><button type="button" class="bgh-btn main" id="bg-scan">'+SCAN_ICO+'Scan a bag</button><button type="button" class="bgh-btn" id="bg-add">'+PLUS_ICO+'Add a coffee</button></div>';
   hydrateImgs(h)}
 function renderBeanViews(){const cy=new Date().getFullYear();
-  seg('bg-views',[['coffees','Coffees'],['diary','Diary'],['passport','Passport'],['top3','Top 5'],['scans','Scans']],()=>BVIEW,v=>{if(v===BVIEW)return;BVIEW=v;
+  seg('bg-views',[['coffees','Coffees'],['diary','Diary'],['passport','Passport'],['top3','Top 5'],['scans','Scans']],()=>BVIEW,v=>{if(v===BVIEW)return;const K=Object.keys(BVIEWS);BVDIR=K.indexOf(v)>K.indexOf(BVIEW)?1:-1;BVIEW=v;
     // The highlight moves at once; the view (already built in the background) shows on the next frame.
     $('bg-views').querySelectorAll(':scope>button[data-v]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===v)));requestAnimationFrame(renderBeanViews)});
   if(BDIRTY.has(BVIEW)){BDIRTY.delete(BVIEW);BVIEWS[BVIEW]()}
   if(BDIRTY.size)prebuildBViews();
   requestAnimationFrame(()=>setTimeout(()=>loadNear($('bv-'+BVIEW)),30));
-  for(const v of ['coffees','diary','passport','top3','scans']){const p=$('bv-'+v),on=v===BVIEW;if(p.hidden===!on)continue;p.hidden=!on;if(on&&!RM())replay(p,'bv-in')}
+  for(const v of ['coffees','diary','passport','top3','scans']){const p=$('bv-'+v),on=v===BVIEW;if(p.hidden===!on)continue;p.hidden=!on;if(on&&!RM()&&BVDIR){p.classList.remove('bv-in-r','bv-in-l');void p.offsetWidth;p.classList.add(BVDIR>0?'bv-in-r':'bv-in-l')}}BVDIR=0;
   // Switched while scrolled down: the new view starts just under the stuck tab strip, not partway down or with the page
   // jumping back up (each view is at least a screen tall, so a short one can't pull the page up).
   // Only when the strip is stuck (scrolled past where it sits): at the top of the page there is nothing to measure.
@@ -9320,9 +9342,9 @@ const DYFILTERS=[['all','All'],['written','Written'],['photos','Photos'],['brews
 const dyKeep=(it,f)=>f==='all'||(f==='brews'?it.kind==='brew':f==='best'?(it.kind==='entry'?it.e.k==='best':+it.l.stars===5):it.kind==='entry'&&(f==='written'?!!it.e.t:f==='photos'?!!it.e.ph:it.e.k===f));
 const dyBeanOrder=()=>[...BEANS].sort((a,c)=>(c.shelf-a.shelf)||beanDay(c).localeCompare(beanDay(a))||c.ts-a.ts);
 // Which coffee you're writing about: the open bags first, the rest a tap away.
-function dyBeansHTML(){const list=dyBeanOrder();if(!beanById(DYB))DYB=list[0].id;const sel=beanById(DYB);let l=list.slice(0,8);if(!l.includes(sel))l=[sel,...l.slice(0,7)];
+function dyBeansHTML(){const list=dyBeanOrder();if(!beanById(DYB))DYB=list[0].id;const sel=beanById(DYB);let l=list.slice(0,4);if(!l.includes(sel))l=[sel,...l.slice(0,3)];
   return '<div class="dmoms dbeans" id="dy-beans" role="group" aria-label="Which coffee">'+l.map(b=>'<button type="button" data-dyb="'+b.id+'" aria-pressed="'+(b.id===DYB)+'">'+beanPic(b,'xs')+'<span>'+esc(beanTitle(b))+'</span></button>').join('')+
-    (list.length>8?'<button type="button" data-dyb="more">All coffees…</button>':'')+'</div>'}
+    (list.length>4?'<button type="button" data-dyb="more">All coffees…</button>':'')+'</div>'}
 function setDyBean(id){DYB=id;const r=$('dy-beans');if(!r)return;r.outerHTML=dyBeansHTML();hydrateImgs($('dy-write'))}
 // A memory: what you wrote on this day in an earlier year, or else a month ago today.
 function onThisDayHTML(items){const t=todayISO(),y=+t.slice(0,4),e=items.filter(it=>it.kind==='entry');
@@ -9388,7 +9410,7 @@ function openTrophies(){const d=$('vd'),T=TGOT||{},earned=TROPHIES.filter(t=>T[t
   $('vd-in').innerHTML='<div class="vd-head" style="--c:#C9964A"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:#C9964A"></i>Your trophies</span><h2 id="vd-title">'+earned+' of '+TROPHIES.length+' earned</h2>'+
     '<p class="hint" style="margin:0">Earned by what you add, brew and buy again. Seasonal ones come round each year.</p></div><div class="vd-body tro-page">'+trophiesHTML()+'</div>';
   $('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
-function renderPassport(){const p=$('bv-passport');if(!p||BVIEW!=='passport')return;const st=cabStats(),total=Object.keys(ALLO()).length,by={};
+function renderPassport(){const p=$('bv-passport');if(!p)return;const st=cabStats(),total=Object.keys(ALLO()).length,by={};
   for(const b of BEANS)if(b.origin)(by[b.origin]=by[b.origin]||[]).push(b);
   const first=k=>by[k].map(beanDay).sort()[0],got=Object.keys(by).sort((a,b)=>first(a).localeCompare(first(b)));
   const mon=iso=>new Date(iso+'T12:00').toLocaleDateString(undefined,{month:'short',year:'numeric'});
