@@ -455,7 +455,10 @@ function tune(msg){if(!dialRec())return;const p=plan(dialCtx());Object.assign(S,
 // Inputs that change the plan re-tune while you haven't moved the sliders yourself.
 function retuneIfAuto(msg){if(dialRec()&&(isTuned()||!S.tuned))tune(msg);else render()}
 function dialPlan(){const r=dialRec();if(!r)return null;const p=plan(dialCtx()),water=+gfmt(S.dose*S.ratio),ps=planSteps(r,S.dose,water,S.goal),bl=BREWERS[S.brewer].bloom.label==='Bloom'?bloomShift(ps.steps,S.bloom):{steps:ps.steps};
-  return{r,p,water,steps:bl.steps,changes:bl.note?[...ps.changes,bl.note]:ps.changes}}
+  const st=stepsAtTemp(bl.steps,r.temp,S.temp);return{r,p,water,steps:st,changes:bl.note?[...ps.changes,bl.note]:ps.changes}}
+// The water temperature written into a recipe's steps ("pour 30 g at 96°C") follows the temperature you brew at, so the
+// steps, the timer and the brew card agree with the settings. A second temperature (a recipe that cools part way) stays.
+function stepsAtTemp(steps,rt,t){if(!rt||!t||rt===t)return steps;const re=new RegExp('\\b'+rt+'(\\s*°\\s*C)','g');return steps.map(x=>String(x).replace(re,t+'$1'))}
 // Your bloom sets the second pour: the recipe's own bloom is the time from its first step (at 0:00) to its second, and
 // every step after the first moves by the difference, so the steps, the timer and the brew card follow what you set.
 // Only when that second step is a pour 25 to 90 s in: a stir, a press or the end of a steep isn't the end of a bloom.
@@ -877,7 +880,7 @@ function prebuildTabs(){const ids=['recipes','gear','variety','process','map','w
   // so building ahead never competes with the page you just opened.
   let beans=false;
   const next=()=>{if(document.hidden){setTimeout(()=>idle(next),2000);return}if(performance.now()-NAV_AT<1500){setTimeout(()=>idle(next),900);return}
-    if(!beans&&window.BEANS_OK){beans=true;try{renderBeansIfChanged()}catch(e){}idle(next);return}
+    if(!beans&&window.BEANS_OK){beans=true;try{renderBeansIfChanged();warmBeanPhotos()}catch(e){}idle(next);return}
     const id=ids.find(k=>!BUILT[k]);if(!id)return;BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
   setTimeout(()=>idle(next),2500)}
 function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove());if(LAZY[id]&&!BUILT[id]){BUILT[id]=1;LAZY[id]()}if(ALWAYS[id])ALWAYS[id]()}
@@ -1037,7 +1040,7 @@ const BT_ICON={'Cone dripper':'M4.5 4.5h15 M6 4.5l4 6.5h4l4-6.5 M9.6 7.6h4.8 M12
 const bIcon=t=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+(BT_ICON[t]||BT_ICON['Cone dripper'])+'"/></svg>';
 function renderRHome(){const QI=(c,p)=>'<span class="qi" style="background:'+c+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+p+'"/></svg></span>';
   const again=RECENT.map(rByKey).filter(i=>i>=0).slice(0,6);
-  $('rhome').innerHTML='<div class="qlinks">'+
+  $('rhome').innerHTML=(window.BEANS_OK&&BEANS.length?forYouHTML():'')+'<div class="qlinks">'+
     '<button type="button" data-q="surprise">'+QI('#2F80ED','M5 5h14v14H5z M9 9h.01 M15 9h.01 M12 12h.01 M9 15h.01 M15 15h.01')+'<span><b>Surprise me</b><small>'+(MYB.length?'A random recipe for your brewers':'Pick a random recipe')+'</small></span></button>'+
     '<button type="button" data-q="mine">'+QI('#C8741F','M4 20h4L19 9l-4-4L4 16z M13 7l4 4')+'<span><b>Your recipes</b><small>'+(CREC.length?(TEAM()?'Yours and your team’s':'Recipes you saved'):'Create your own recipe')+'</small></span>'+(CREC.length?'<span class="qn">'+CREC.length+'</span>':'')+'</button>'+
     '<button type="button" data-q="fav">'+QI('#E0445A','M12 20s-7-4.4-9-8.6C1.6 8.4 3.4 5 6.7 5c2 0 3.3 1.2 4.3 2.6C12 6.2 13.3 5 15.3 5c3.3 0 5.1 3.4 3.7 6.4C19 15.6 12 20 12 20z')+'<span><b>Favorites</b><small>'+(favCount()?'Your go-to recipes':'Tap the heart on any recipe')+'</small></span>'+(favCount()?'<span class="qn">'+favCount()+'</span>':'')+'</button></div>'+
@@ -1054,6 +1057,7 @@ $('rhome').onclick=e=>{const q=e.target.closest('[data-q]'),a=e.target.closest('
   if(!q)return;const k=q.dataset.q;
   // Surprise me draws from recipes for the brewers you have (a family counts: a V60 covers NEO recipes, a Switch its
   // immersion ones), and never repeats the last pick straight away. With no brewers set, it uses every recipe.
+  if(k==='mkrec'){openMakeRecipe();return}
   if(k==='surprise'){const mine=RECIPES.map((r,i)=>i).filter(i=>MYB.some(b=>RFAM(b)===RFAM(RECIPES[i].b)));
     const all=mine.length?mine:RECIPES.map((r,i)=>i),pool=all.length>1?all.filter(i=>i!==LASTSURP):all;LASTSURP=pool[Math.floor(Math.random()*pool.length)];openRecipe(LASTSURP);
     if(!mine.length)toast(MYB.length?'No recipes for your brewers yet, so this is from all of them':'Add your brewers in Gear and Surprise me picks from those');return}

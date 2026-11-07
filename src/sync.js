@@ -25,6 +25,24 @@ const syncBase=()=>SYNC_DB.replace(/\/+$/,'');
 function localList(k){let a;try{a=JSON.parse(localStorage.getItem(k)||'[]')}catch(e){a=[]}if(!Array.isArray(a))a=[];const m=new Map();
   for(const x of a)if(x&&typeof x.id==='string'&&SYNC_ID.test(x.id)&&!(k==='bb-log'&&x.by&&x.by!==ME))m.set(x.id,JSON.stringify(x));return{a,m}}
 // One item, three ways. Returns 'push', 'pull' or '' (nothing to do), and settles the shadow when both already agree.
+// The last agreed copy of each coffee and recipe is kept too, so when one was changed in two places the two
+// changes can be put together field by field: tasting notes added on the phone and a brew that updated the bag on the
+// website both survive, instead of one whole copy replacing the other. Brews and scans aren't kept: brews are rarely
+// edited in two places, and the copies would take a lot of room.
+const SYNC_BASE_COLS=['bb-beans','bb-myrecipes'];
+const jeq=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+function syncFieldMerge(base,local,remote){const out={},keys=new Set([...Object.keys(base),...Object.keys(local),...Object.keys(remote)]);
+  for(const k of keys){const B=base[k],L=local[k],R=remote[k];
+    if(jeq(L,B)){if(R!==undefined)out[k]=R;continue}if(jeq(R,B)||jeq(L,R)){if(L!==undefined)out[k]=L;continue}
+    // Both changed. Lists of entries with ids (diary, cups) keep every entry; tasting notes keep every note; anything
+    // else keeps this device's value.
+    if(Array.isArray(L)&&Array.isArray(R)&&L.concat(R).every(x=>x&&typeof x==='object'&&typeof x.id==='string')){const m=new Map();for(const x of R)m.set(x.id,x);for(const x of L)m.set(x.id,x);
+      const gone=new Set((Array.isArray(B)?B:[]).map(x=>x&&x.id).filter(id=>!L.some(x=>x.id===id)||!R.some(x=>x.id===id)));out[k]=[...m.values()].filter(x=>!gone.has(x.id));continue}
+    if(k==='flavours'&&typeof L==='string'&&typeof R==='string'){const sp=t=>t.split(/\s*[,;·]\s*/).map(x=>x.trim()).filter(Boolean),seen=new Set(),bs=new Set(sp(B||'').map(x=>x.toLowerCase()));
+      const lw=sp(L),rw=sp(R),drop=new Set([...bs].filter(x=>!lw.some(w=>w.toLowerCase()===x)||!rw.some(w=>w.toLowerCase()===x)));
+      out[k]=[...lw,...rw].filter(w=>{const f=w.toLowerCase();if(seen.has(f)||drop.has(f))return false;seen.add(f);return true}).join(', ');continue}
+    if(L!==undefined)out[k]=L}
+  return out}
 function syncMerge(H,sk,local,remoteText){const s=H[sk],lh=local==null?null:fnv(local),rh=remoteText==null?null:fnv(remoteText);
   if(lh===rh){if(lh===null)delete H[sk];else H[sk]=lh;return ''}
   const lc=lh!==(s===undefined?null:s),rc=rh!==(s===undefined?null:s);
@@ -37,10 +55,18 @@ async function sync(apply){if(!syncOn())return false;if(SYNC_BUSY){SYNC_MORE=Mat
     const res=await fetch(syncBase()+'/users/'+uid+'/data'+q);if(!res.ok)throw Object.assign(new Error('read'),{status:res.status});const R=(await res.json())||{};
     const up={},done=[],pulls=[];const txt=r=>r&&!r.del&&typeof r.d==='string'?r.d:null;
     // Lists, item by item.
-    for(const k of SYNC_COLS){if(k==='bb-log'&&GROUP)continue;const L=localList(k),RC=(R.col&&R.col[k])||{},pre='c|'+k+'|';
+    const RAW={};
+    for(const k of SYNC_COLS){if(k==='bb-log'&&GROUP)continue;RAW[k]=localStorage.getItem(k);const L=localList(k),RC=(R.col&&R.col[k])||{},pre='c|'+k+'|';
       const ids=new Set([...L.m.keys(),...Object.keys(RC).filter(i=>SYNC_ID.test(i)),...Object.keys(H).filter(x=>x.startsWith(pre)).map(x=>x.slice(pre.length))]);
       const sets=new Map(),dels=new Set();
-      for(const id of ids){const l=L.m.has(id)?L.m.get(id):null,r=txt(RC[id]),a=syncMerge(H,pre+id,l,r);
+      for(const id of ids){const l=L.m.has(id)?L.m.get(id):null,r=txt(RC[id]),bt=SYNC_BASE_COLS.includes(k)&&SHADOW.b?SHADOW.b[pre+id]:null;
+        // Changed here and in the account since the last sync: put the two together field by field. This needs the page
+        // to reload afterwards, so it waits for a sync that can (until then nothing is sent, and nothing is lost).
+        if(l!=null&&r!=null&&bt&&H[pre+id]!==undefined&&fnv(l)!==H[pre+id]&&fnv(r)!==H[pre+id]&&l!==r){if(!apply)continue;
+          let mt;try{mt=JSON.stringify(syncFieldMerge(JSON.parse(bt),JSON.parse(l),JSON.parse(r)))}catch(e){mt=l}
+          up['col/'+k+'/'+id]={t:now,d:mt};if(mt!==l)sets.set(id,mt);done.push([pre+id,mt]);continue}
+        const a=syncMerge(H,pre+id,l,r);
+        if(!a&&l!=null&&l===r&&bt!==l&&SYNC_BASE_COLS.includes(k)){SHADOW.b=SHADOW.b||{};SHADOW.b[pre+id]=l}
         if(a==='push'){up['col/'+k+'/'+id]=l==null?{t:now,del:1}:{t:now,d:l};done.push([pre+id,l])}
         else if(a==='pull'&&apply){if(r==null)dels.add(id);else sets.set(id,r);done.push([pre+id,r])}}
       if(sets.size||dels.size){const out=[];for(const x of L.a){const id=x&&x.id;if(dels.has(id))continue;if(sets.has(id)){out.push(JSON.parse(sets.get(id)));sets.delete(id)}else out.push(x)}
@@ -57,8 +83,12 @@ async function sync(apply){if(!syncOn())return false;if(SYNC_BUSY){SYNC_MORE=Mat
       else if(a==='pull'&&apply){if(r==null)await BIMG.del(k);else{const g=await fetch(imgUrl(k));const v=g.ok?await g.json():null;if(typeof v!=='string'||!/^data:image\//.test(v))continue;await BIMG.put(k,v)}
         pulled=true;done.push(['i|'+k,r])}}
     if(Object.keys(up).length){const w=await fetch(syncBase()+'/users/'+uid+'/data'+q,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(up)});if(!w.ok)throw Object.assign(new Error('write'),{status:w.status})}
-    for(const [k,v] of pulls){if(v==null)localStorage.removeItem(k);else localStorage.setItem(k,v);pulled=true}
-    for(const [sk,v] of done){if(v==null)delete H[sk];else H[sk]=fnv(v)}
+    // A list edited here while the sync was talking to the account isn't overwritten: its changes from the account
+    // wait for the next sync, which also sends the new edit.
+    const busy=new Set(pulls.map(([k])=>k).filter(k=>k in RAW&&localStorage.getItem(k)!==RAW[k]));
+    for(const [k,v] of pulls){if(busy.has(k))continue;if(v==null)localStorage.removeItem(k);else localStorage.setItem(k,v);pulled=true}
+    SHADOW.b=SHADOW.b||{};
+    for(const [sk,v] of done){if(busy.has(sk.split('|')[1]))continue;if(v==null){delete H[sk];delete SHADOW.b[sk]}else{H[sk]=fnv(v);if(sk.startsWith('c|')&&SYNC_BASE_COLS.includes(sk.split('|')[1]))SHADOW.b[sk]=v}}
     save('bb-syncshadow',SHADOW);SYNC_AT=Date.now();save('bb-syncat',SYNC_AT);SYNC_ERR=''}
   // A refusal (401/403) means the database's rules don't let accounts keep their data yet (see the README).
   catch(e){SYNC_ERR=navigator.onLine===false?'offline':e.status===401||e.status===403?'rules':'error'}

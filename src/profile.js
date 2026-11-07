@@ -77,8 +77,25 @@ const CAM_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l1.6-2
 const SYNC_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 0 1-14 5.3 M4 12a8 8 0 0 1 14-5.3 M18 3v4h-4 M6 21v-4h4"/></svg>';
 // Your coffee style, as a title under your name.
 const ROLE={bright:'Florals chaser',sweet:'Sweet-cup seeker',choc:'Comfort-cup brewer',wild:'Ferment explorer',espresso:'Espresso devotee',milk:'Milk-drink maker'};
-function profileStats(){const mine=LOG.filter(l=>l&&(!l.by||l.by===ME)).length,b=window.BEANS_OK?BEANS:[],o=new Set(b.map(x=>x.origin).filter(Boolean)).size,t=window.BEANS_OK&&TGOT?Object.keys(TGOT).length:0;
+function profileStats(){const mine=LOG.filter(l=>window.BEANS_OK?isMine(l):l&&(!l.by||l.by===ME)).length,b=window.BEANS_OK?BEANS:[],o=new Set(b.map(x=>x.origin).filter(Boolean)).size,t=window.BEANS_OK&&TGOT?Object.keys(TGOT).length:0;
   return [[b.length,b.length===1?'coffee':'coffees'],[mine,mine===1?'brew':'brews'],[o,o===1?'origin':'origins'],[t,t===1?'trophy':'trophies']]}
+// Your taste, read from your coffees and brews (not typed in): where you buy from, the variety, process and roast you
+// come back to, the flavours you like most and how you brew. It fills in as the gallery and the log grow.
+function tasteHTML(){if(!window.BEANS_OK||BEANS.length<2)return '';const t=tasteOf(BEANS,LOG.filter(isMine));
+  const o=t.origin&&oInfo(t.origin.k),R=t.region&&REG[t.region.k],v=t.variety&&VBY[t.variety.k],pr=t.process&&PROCESSES[t.process.k],B=t.brewer&&BREWERS[t.brewer.k],lo=t.likedOrigin&&oInfo(t.likedOrigin.k);
+  const ro=t.regionOrigin&&oInfo(t.regionOrigin.k);
+  const rows=[R&&['🗺️','Favourite region',R.name+(ro?' · mostly '+ro.name:''),ro?'<span class="me-flag">'+flagOf(t.regionOrigin.k)+'</span>':''],
+    o&&ro&&t.origin.k!==t.regionOrigin.k&&['📍','Country you buy most',o.name,'<span class="me-flag">'+flagOf(t.origin.k)+'</span>'],
+    lo&&lo!==o&&['❤️','Rated highest from',lo.name,'<span class="me-flag">'+flagOf(t.likedOrigin.k)+'</span>'],
+    v&&['🌱','Variety you buy most',shortName(v.name)],pr&&['🧪','Process you buy most',pr.name.replace(/\s*\(.*\)$/,'')],t.roast&&['🔥','Roast',t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1)+' roast'],
+    B&&['☕','Brews mostly on',B.name+(t.recipe?' · '+t.recipe.k:'')],t.goal&&['🎯','The cup you aim for',t.goal.k],
+    t.avg&&['⭐','Your average coffee',t.avg.toFixed(1)+' of 5 beans']].filter(Boolean);
+  if(!rows.length&&!t.families.length)return '';
+  return '<div class="me-taste"><div class="me-th"><b>Your coffee taste</b><small>From your '+BEANS.length+' coffees and '+LOG.filter(isMine).length+' brews</small></div>'+
+    (tasteLine(t)?'<p class="me-tl">'+esc(tasteLine(t))+'</p>':'')+
+    (t.families.length?'<div class="me-fams">'+t.families.map(f=>'<span style="--fc:'+f.c+'"><i></i>'+esc(f.n)+'</span>').join('')+'</div>':'')+
+    '<div class="me-dna">'+rows.map(([i,k,vv,fl])=>'<div><i aria-hidden="true">'+(fl&&fl.replace(/<[^>]+>/g,'')?fl:i)+'</i><span><small>'+k+'</small><b>'+esc(vv)+'</b></span></div>').join('')+'</div>'+
+    (t.notes.length?'<div class="me-notes"><small>Notes you love</small><div class="chips">'+t.notes.map(n=>'<span class="chip"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'</span>').join('')+'</div></div>':'')+'</div>'}
 // Who you're signed in as, and the sync; or, signed out, what an account brings.
 function accountHTML(){
   if(ACCT)return '<div class="me-acct"><div class="me-row"><span class="me-dot" aria-hidden="true"></span><span class="me-rt"><b>'+(ACCT.provider==='google.com'?'Signed in with Google':'Signed in')+'</b><small>'+esc(ACCT.email)+'</small>'+
@@ -96,7 +113,7 @@ function meHTML(){const p=PROFILE,x='<button class="vd-close me-x" id="vd-x" ari
       '<span class="me-k">'+esc(ROLE[p.style]||'Home brewer')+'</span><h2 id="vd-title">'+esc(p.nick)+'</h2>'+(p.name?'<small class="me-name">'+esc(p.name)+'</small>':'')+
       '<span class="me-since">Brewing with us since '+new Date(p.since).toLocaleDateString(undefined,{month:'long',year:'numeric'})+'</span></div>'+
     '<div class="me-body">'+(p.brief?'<blockquote class="me-brief">'+esc(p.brief)+'</blockquote>':'<button type="button" class="me-add" id="pf-edit2">Add a few words about how you take your coffee</button>')+
-      '<div class="me-stats">'+profileStats().map(([n,l])=>'<span><b>'+n+'</b>'+l+'</span>').join('')+'</div>'+
+      '<div class="me-stats">'+profileStats().map(([n,l])=>'<span><b>'+n+'</b>'+l+'</span>').join('')+'</div>'+tasteHTML()+
       (dna.length?'<div class="me-dna">'+dna.map(([i,k,v])=>'<div><i aria-hidden="true">'+i+'</i><span><small>'+k+'</small><b>'+esc(v)+'</b></span></div>').join('')+'</div>'
         :'<button type="button" class="me-add" id="pf-edit3">Add your favourite origin, brewer and where you brew</button>')+accountHTML()+'</div>'}
 $('vd').addEventListener('click',e=>{if(e.target.closest('#pf-new,#pf-edit,#pf-edit2,#pf-edit3')){delete $('vd').dataset.me;openProfileEditor();return}if(e.target.closest('#pf-signin')){delete $('vd').dataset.me;openSignIn();return}
