@@ -60,10 +60,10 @@ function okBean(b){if(!b||typeof b!=='object'||typeof b.id!=='string'||!BID.test
     bags:(Array.isArray(b.bags)?b.bags:[]).filter(x=>x&&typeof x.id==='string'&&BID.test(x.id)).map(x=>({id:x.id,rd:ISO_D.test(x.rd)?x.rd:'',g:gramsOrNull(x.g)||0,on:ISO_D.test(x.on)?x.on:'',off:ISO_D.test(x.off)?x.off:''})).slice(-40)}}
 // How many times you've bought a coffee: this bag and every earlier one.
 const buys=b=>1+((b&&b.bags)||[]).length+((b&&b.prior)||0);
-// Bought it again: the bag you finished goes into the coffee's history, and the new one starts fresh on the shelf with
+// Bought it again (a "last" entry from an earlier bag doesn't close this one): the bag you finished goes into the coffee's history, and the new one starts fresh on the shelf with
 // its own roast date and size. Ratings, notes, the diary and every brew stay as they are.
 function rebuyBean(b,rd,g){const opened=b.diary.find(e=>e.k==='opened'),last=b.diary.find(e=>e.k==='last');
-  b.bags=[...(b.bags||[]),{id:uid(),rd:b.roastDate||'',g:b.bag||0,on:opened?opened.d:(b.tried||tsISO(b.ts)),off:last?last.d:todayISO()}].slice(-40);
+  b.bags=[...(b.bags||[]),{id:uid(),rd:b.roastDate||'',g:b.bag||0,on:opened?opened.d:(b.tried||tsISO(b.ts)),off:last&&(!opened||last.d>=opened.d)?last.d:todayISO()}].slice(-40);
   b.roastDate=rd||'';if(g>0)b.bag=g;setLeft(b,b.bag||null);b.shelf=true;b.again='yes';
   b.diary.unshift(okEntry({k:'opened',d:todayISO(),t:'Bought it again'+(buys(b)>2?' ('+ordinal(buys(b))+' bag)':'')}));saveBeans()}
 const fmtD=s=>s?new Date(s+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'';
@@ -269,6 +269,8 @@ const dropDiaryPhotos=l=>l.forEach(e=>{if(e.ph)BIMG.del(DPH(e.id))});
 
 // Your brews: your own, in a shared log too (logged under the name you joined with, or your profile's name).
 const isMine=l=>l&&(!l.by||l.by===ME||(window.PROFILE_OK&&PROFILE&&PROFILE.nick&&l.by===PROFILE.nick));
+// Your own brews: trophies and streaks count these, not a teammate's in a shared log.
+const MYLOG=()=>LOG.filter(isMine);
 const brewTs=l=>+l.ts||Date.parse(l.date)||0;
 // Your taste, worked out from the coffees you buy and how you rate them, and from what you brew and taste. A coffee
 // you rated 4 or more counts double towards what you like; every bag counts once towards what you buy.
@@ -300,10 +302,14 @@ function tasteLine(t){const bits=[];const pr=t.process&&PROCESSES[t.process.k],o
 // Kept until your coffees, your brews or the day change, so redrawing the page doesn't work it all out again.
 let YIC_MEMO={k:'',h:''};
 function yearInCoffeeHTML(){const k=beansSig();if(YIC_MEMO.k===k)return YIC_MEMO.h;const h=yearInCoffeeHTML0();YIC_MEMO={k,h};return h}
+// Bags opened in a year: earlier bags by the day they were opened, and each coffee's current bag by its latest
+// "opened" entry (or the day it was added). Bags bought before the app have no date and stay out of a year's count.
+const bagOn=b=>{const e=b.diary.find(x=>x.k==='opened');return (e&&e.d)||beanDay(b)};
+const bagsIn=y=>{const k=String(y);return BEANS.reduce((a,b)=>a+(b.bags||[]).filter(x=>(x.on||'').slice(0,4)===k).length+(String(bagOn(b)).slice(0,4)===k?1:0),0)};
 function yearInCoffeeHTML0(){const cy=new Date().getFullYear(),bs=BEANS.filter(b=>beanYear(b)===cy),ls=LOG.filter(l=>isMine(l)&&new Date(brewTs(l)).getFullYear()===cy);
   // The counts are this year's: coffees first tried or added this year (and the bags of them, when some were bought
   // again), every cup made (logged brews and timer cups), and the coffee those cups used.
-  const cups=myCups(cy);if(!bs.length&&!cups.length)return '';const g=Math.round(cups.reduce((s,c)=>s+(c.g||0),0)),t=tasteOf(bs,ls),origins=new Set(bs.map(b=>b.origin).filter(Boolean)).size,bags=bs.reduce((a,b)=>a+buys(b),0);
+  const cups=myCups(cy);if(!bs.length&&!cups.length)return '';const g=Math.round(cups.reduce((s,c)=>s+(c.g||0),0)),t=tasteOf(bs,ls),origins=new Set(bs.map(b=>b.origin).filter(Boolean)).size,bags=bagsIn(cy);
   const big=[[bs.length,(bs.length===1?'coffee':'coffees')+(bags>bs.length?' · '+bags+' bags':'')],[cups.length,cups.length===1?'cup brewed':'cups brewed'],g?[g>=1000?(g/1000).toFixed(g>=10000?0:1)+' kg':g+' g','of coffee']:[origins,origins===1?'origin':'origins']];
   const o=t.origin&&oInfo(t.origin.k),R=t.region&&REG[t.region.k],v=t.variety&&VBY[t.variety.k],pr=t.process&&PROCESSES[t.process.k],B=t.brewer&&BREWERS[t.brewer.k];
   const facts=[o&&['<span class="yic-fl">'+flagOf(t.origin.k)+'</span>','Mostly from',o.name,t.origin.n+' bag'+(t.origin.n===1?'':'s')],R&&['🗺️','Favourite region',R.name,t.region.n+' bag'+(t.region.n===1?'':'s')+(t.regionOrigin&&t.regionOrigin.k!==(t.origin&&t.origin.k)?', most from '+oInfo(t.regionOrigin.k).name:'')],
@@ -396,12 +402,12 @@ function openMakeRecipe(bid){const d=$('vd'),beans=[...BEANS.filter(b=>b.shelf),
 /* ---------- Trophies ---------- */
 // Earned from the cabinet as it is: each has a goal and counts towards it. The day one is first earned is kept.
 const WILD=['anaerobic','anaerobicnatural','anaerobicwashed','anaerobichoney','doubleanaerobic','carbonic','lactic','yeast','koji','extended','thermalshock','mossto','coferment','infused','barrelaged'];
-function cabStats(){const o=new Set(BEANS.map(b=>b.origin).filter(Boolean));
+function cabStats(){const o=new Set(BEANS.map(b=>b.origin).filter(Boolean)),ml=MYLOG();
   return{n:BEANS.length,o,regs:new Set([...o].map(k=>(oInfo(k)||{}).reg).filter(Boolean)),procs:new Set(BEANS.map(b=>b.process).filter(Boolean)),
     roasters:new Set(BEANS.map(b=>b.roaster.toLowerCase()).filter(Boolean)),diary:BEANS.reduce((a,b)=>a+b.diary.length,0),done:BEANS.filter(b=>!b.shelf).length+BEANS.reduce((a,b)=>a+(b.bags||[]).length+(b.prior||0),0),rebought:BEANS.filter(b=>buys(b)>1).length,maxBuys:BEANS.reduce((a,b)=>Math.max(a,buys(b)),0),
     crowned:Object.values(TOP3).some(t=>t.ids.slice(0,3).every(Boolean)),perfect:BEANS.some(b=>b.rating===5),wild:BEANS.some(b=>WILD.includes(b.process)),
     geisha:BEANS.some(b=>beanVars(b).some(v=>/^geisha/.test(v))),arabia:BEANS.some(b=>['yemen','saudi','oman','uae'].includes(b.origin)),eth:o.has('ethiopia'),
-    brews:LOG.length,streak:brewStreak(),brewers:new Set(LOG.map(l=>l.snap&&l.snap.b).filter(Boolean)).size,champ:LOG.some(l=>l.snap&&CHAMP_REC.test(l.snap.rec||'')),
+    brews:ml.length,streak:brewStreak(ml),brewers:new Set(ml.map(l=>l.snap&&l.snap.b).filter(Boolean)).size,champ:ml.some(l=>l.snap&&CHAMP_REC.test(l.snap.rec||'')),
     decaf:BEANS.some(b=>PROCESSES[b.process]&&PROCESSES[b.process].cat==='decaf'),sl:BEANS.some(b=>beanVars(b).some(v=>/^sl(28|34)/.test(v))),
     fresh:BEANS.some(b=>ISO_D.test(b.roastDate||'')&&ISO_D.test(b.tried||'')&&(Date.parse(b.tried)-Date.parse(b.roastDate))/864e5<=3&&b.tried>=b.roastDate),
     two:[...o].some(k=>BEANS.some(b=>b.origin===k&&b.process==='washed')&&BEANS.some(b=>b.origin===k&&/natural/.test(b.process||''))),
@@ -410,7 +416,7 @@ function cabStats(){const o=new Set(BEANS.map(b=>b.origin).filter(Boolean));
 const CHAMP_REC=/\((Brewers Cup|AeroPress|Barista) \d{4}\)|champion/i;
 const logDay=l=>String(l.date||'').slice(0,10)||(l.ts?new Date(l.ts).toISOString().slice(0,10):'');
 // The longest run of days in a row with at least one brew logged.
-function brewStreak(){const ds=[...new Set(LOG.map(logDay).filter(d=>ISO_D.test(d)))].sort();let best=0,run=0,prev=null;
+function brewStreak(ml=MYLOG()){const ds=[...new Set(ml.map(logDay).filter(d=>ISO_D.test(d)))].sort();let best=0,run=0,prev=null;
   for(const d of ds){run=prev&&Math.round((Date.parse(d)-Date.parse(prev))/864e5)===1?run+1:1;best=Math.max(best,run);prev=d}return best}
 const TROPHIES=[
   ['first','First bag','Add your first coffee to the cabinet','☕',s=>[s.n,1]],['ten','Ten bags','Ten coffees in the cabinet','🛍️',s=>[s.n,10]],['fifty','The collector','Fifty coffees in the cabinet','🏛️',s=>[s.n,50]],

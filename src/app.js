@@ -467,11 +467,6 @@ function convertSetting(st,g2,b2){if(!canGrind(g2,b2)||!canGrind(st.grinder,st.b
 let SWAP=null;
 function swapGrinder(v){if(!SWAP||SWAP.b!==S.brewer||SWAP.out[S.grinder]!==S.setting)SWAP={b:S.brewer,src:{grinder:S.grinder,setting:S.setting,brewer:S.brewer},out:{[S.grinder]:S.setting}};
   if(SWAP.out[v]==null)SWAP.out[v]=convertSetting(SWAP.src,v,S.brewer);return SWAP.out[v]}
-// The same grind on your other grinders, for the dial-in and recipes.
-function equivLine(g,c,b){const o=MYG.filter(h=>h!==g&&canGrind(h,b)).map(h=>esc(gLabel(h,convertSetting({grinder:g,setting:c,brewer:b},h,b))));
-  return (o.length?'Same grind: '+o.join(' · ')+' · ':'')+'<button type="button" class="linkbtn" data-match="'+g+'|'+c+'">'+(o.length?'All grinders':'Same grind on other grinders')+' →</button>'}
-function openMatch(g,c){MATCH={g,v:dial(g,c)};goGear('dials');renderMatch();requestAnimationFrame(()=>$('gmatch').scrollIntoView({behavior:RM()?'auto':'smooth',block:'start'}))}
-document.addEventListener('click',e=>{const m=e.target.closest('[data-match]');if(m){const [g,c]=m.dataset.match.split('|');if(GRINDERS[g])openMatch(g,+c)}});
 function fitRanges(){const B=BREWERS[S.brewer];S.ratio=clamp(S.ratio,B.ratio.min,B.ratio.max);S.temp=clamp(S.temp,B.temp.min,B.temp.max);S.bloom=clamp(S.bloom,B.bloom.min,B.bloom.max)}
 /* ---------- Dial-in with a recipe ----------
    Pick a recipe, your dose and the cup you're after: the brew plan tunes grind, water, ratio, bloom and agitation
@@ -611,8 +606,6 @@ function render(){
   const gi=$('i-grind');gi.min=G.min;gi.max=G.max;gi.step=1;gi.value=S.setting;
   $('v-grind').textContent=dial(S.grinder,S.setting);drawDial('dialsvg',S.grinder,S.setting);
   const r=compute(S);
-  $('v-equiv').innerHTML=equivLine(S.grinder,S.setting,S.brewer);
-  $('v-grindhint').textContent=(G.fmt==='rot'?'('+S.setting+' clicks) ':'')+(Math.abs(r.step)<0.15?'at your baseline':(r.step>0?'finer':'coarser')+' than baseline');
   const ti=$('i-temp');ti.min=B.temp.min;ti.max=B.temp.max;ti.value=S.temp;$('v-temp').textContent=S.temp+'°C';
   const ri=$('i-ratio');ri.min=Math.min(B.ratio.min,S.ratio);ri.max=Math.max(B.ratio.max,S.ratio);ri.step=B.ratio.step;ri.value=S.ratio;$('v-ratio').textContent='1:'+rr1(S.ratio);
   const bi=$('i-bloom');bi.min=B.bloom.min;bi.max=B.bloom.max;bi.step=B.bloom.max<=20?1:5;bi.value=S.bloom;$('v-bloom').textContent=S.bloom+'s';
@@ -805,7 +798,7 @@ function plan(c){
   // When the coffee asks for more, up to 3°C of water does some of it (never past 96°C going up).
   {const lo=Math.min(-1.5,r.off-1),hi=Math.max(1.5,r.off+1);if(step>hi||step<lo){const tgt=clamp(step,lo,hi),want=step-tgt;
     const up=Math.max(temp,Math.min(B.temp.max,96,temp+3)),down=Math.max(B.temp.min,temp-3),t1=clamp(Math.round(temp+want*KG/KT),down,up),dt=t1-temp;
-    step=tgt;why.push('The grind stays within the usual range for '+art(brewName(B.name))+' '+esc(brewName(B.name))+' rather than going '+(want>0?'finer':'coarser')+(dt?'; the water is '+Math.abs(dt)+'°C '+(dt<0?'cooler':'warmer')+' ('+t1+'°C) instead.':'. Taste and adjust from here.'));temp=t1}}
+    step=tgt;held=true;why.push('The grind stays within the usual range for '+art(brewName(B.name))+' '+esc(brewName(B.name))+' rather than going '+(want>0?'finer':'coarser')+(dt?'; the water is '+Math.abs(dt)+'°C '+(dt<0?'cooler':'warmer')+' ('+t1+'°C) instead.':'. Taste and adjust from here.'));temp=t1}}
   const set={};for(const g of new Set([...MYG,grinder]))set[g]=canGrind(g,bb)?roundG(g,shift(g,baseX(g,bb),-step*160)):null;
   const water=+gfmt(dose*ratio);
   const st={grinder,setting:set[grinder],brewer:bb,temp,ratio,bloom,agit,roast:c.roast,process:c.process,variety:c.variety,rec:c.tech};

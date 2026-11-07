@@ -675,7 +675,6 @@ input[type=range]{touch-action:pan-y}
 .gpick-btn{display:inline-grid;place-items:center;width:34px;height:34px;margin:-6px 0;border-radius:50%;border:0;background:var(--tonal);color:var(--cherry);cursor:pointer;transition:background .15s,transform .15s}
 .gpick-btn:hover{background:var(--tonal-hover)}.gpick-btn:active{transform:scale(.92)}.gpick-btn:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
 .linkbtn{background:none;border:0;padding:2px 0;font:inherit;font-weight:600;color:var(--cherry);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
-.equiv{margin:.5rem 0 0;line-height:1.5}
 .mswap{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:end}.mswap>*{min-width:0}.mswap select{width:100%;padding-left:12px;padding-right:26px}
 .mswap .field{margin-bottom:0}.gpick-btn.mswapbtn{width:46px;height:46px;margin:0}.mswap+.field{margin-top:14px}
 @media (max-width:560px){.mswap{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"from swap" "to swap";row-gap:10px;align-items:center}.mswap>.field:first-child{grid-area:from}.mswap>.field:last-child{grid-area:to}.mswap>.mswapbtn{grid-area:swap;transform:rotate(90deg)}}
@@ -2276,7 +2275,7 @@ input[type=range]:disabled{opacity:.45}
 .field.rng-f>label{align-items:baseline;margin-bottom:8px}
 .field.rng-f>label .num{font:800 1.25rem/1 var(--display);letter-spacing:-.01em;color:var(--ink)}
 label[for=i-grind]>span{display:flex;flex-direction:column;align-items:flex-end;gap:3px;text-align:right}
-#v-grindhint{font-size:.74rem;font-weight:500;color:var(--muted)}
+
 .two.rng-two{grid-template-columns:1fr;gap:0}
 /* Selection controls: one highlight that glides to the picked option. */
 .seg.has-ind.ind-rel{position:relative}
@@ -2319,6 +2318,7 @@ button[aria-pressed]:active{transform:scale(.95)}
 .chip-on{animation:chipon .36s cubic-bezier(.3,1.35,.5,1)}@keyframes chipon{0%{transform:scale(.88);filter:brightness(1.12)}55%{transform:scale(1.05)}100%{transform:none}}
 .me-tiles>div{width:auto;min-width:104px;max-width:168px}
 .me-tiles b{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:break-word;hyphens:auto}
+.me-tiles.me-mine>div{min-width:0;max-width:none}
 /* Names are shown in full everywhere: they wrap rather than being cut short (secondary details may still shorten). */
 :is(.again b,.me-dna b,.srow-tx b,.t3o-tx b,.dbean-tx b,.yic-row b,.ls-sel b,.t3s-tx b,.me-tiles b){white-space:normal!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:anywhere;max-width:none}
 .t3s-tx b{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden!important}
@@ -2585,7 +2585,7 @@ dialog.dlg-pre[open]::backdrop{animation:none!important;opacity:0}
       </div>
 </div></details>
 <details class="dstep" data-step="tune" open><summary><span class="dn">4</span><span class="dst"><b>Fine-tune</b><small id="ds-tune"></small></span><span class="dchev" aria-hidden="true"></span></summary><div class="dstep-in"><p class="hint dstep-lead">Tuned for your coffee and target. Adjust by taste.</p>
-      <div class="field"><label for="i-grind">Grind <span><span class="num" id="v-grind"></span> <span class="hint" id="v-grindhint"></span></span></label><input type="range" id="i-grind"><div class="dialrow"><svg id="dialsvg" class="dialmini" viewBox="0 0 160 160" aria-hidden="true"></svg><p class="hint" style="margin:0">Dials read number.click. Tap <b>Gear and dials</b> for how each grinder works.</p></div><p class="hint equiv" id="v-equiv"></p></div>
+      <div class="field"><label for="i-grind">Grind <span><span class="num" id="v-grind"></span></span></label><input type="range" id="i-grind"><div class="dialrow"><svg id="dialsvg" class="dialmini" viewBox="0 0 160 160" aria-hidden="true"></svg><p class="hint" style="margin:0">Dials read number.click. Tap <b>Gear and dials</b> for how each grinder works.</p></div></div>
       <div class="two">
         <div class="field"><label for="i-temp">Water <span class="num" id="v-temp"></span></label><input type="range" id="i-temp" min="85" max="100" step="1"></div>
         <div class="field"><label for="i-ratio">Ratio <span class="num" id="v-ratio"></span></label><input type="range" id="i-ratio" min="13" max="18" step="0.5"></div>
