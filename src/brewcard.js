@@ -42,22 +42,17 @@ function bcDial(x,g,c,cx,cy,R){const G=GRINDERS[g];c=Math.round(c);x.save();
     x.fillText('fine',cx+Math.cos(A(0))*R*0.78,cy+Math.sin(A(0))*R*0.78+R*0.22);x.fillText('coarse',cx+Math.cos(A(1))*R*0.78,cy+Math.sin(A(1))*R*0.78+R*0.22)}
   x.beginPath();x.arc(cx,cy,R*0.32,0,TAU);x.fillStyle=BC.HONEY;x.fill();
   x.fillStyle=BC.BG1;x.font='800 '+Math.round(R*0.2)+'px '+BC.F;x.textAlign='center';x.textBaseline='middle';x.fillText(dial(g,c),cx,cy+1);x.restore()}
-// The predicted cup seen from above, with the flavour radar floating on the coffee (as on the dial-in).
-// L and Rt: the left and right edges the labels must stay inside (the panel on one side, the text on the other).
-function bcCup(x,r,cx,cy,R,L,Rt){const ax=[['Sweet',r.sweet],['Acidity',r.acid],['Body',r.body],['Clarity',r.clarity],['Bitter',r.bitter]],ang=i=>-Math.PI/2+i*TAU/5;
-  x.save();x.beginPath();x.arc(cx,cy,R*1.3,0,TAU);x.fillStyle=bcI(.07);x.fill();
-  x.beginPath();x.arc(cx,cy,R*1.1,0,TAU);x.fillStyle='#F3EADC';x.fill();
-  x.beginPath();x.arc(cx,cy,R,0,TAU);x.fillStyle=liquid(r.D);x.fill();x.lineWidth=4;x.strokeStyle='rgba(255,235,200,.35)';x.stroke();
-  const pt=(i,v)=>[cx+Math.cos(ang(i))*R*0.92*v/10,cy+Math.sin(ang(i))*R*0.92*v/10];
-  for(const k of [2.5,5,7.5,10]){x.beginPath();ax.forEach((_,i)=>{const p=pt(i,k);i?x.lineTo(...p):x.moveTo(...p)});x.closePath();x.strokeStyle='rgba(255,255,255,'+(k===10?.3:.15)+')';x.lineWidth=1.5;x.stroke()}
-  x.beginPath();ax.forEach((a,i)=>{const p=pt(i,a[1]);i?x.lineTo(...p):x.moveTo(...p)});x.closePath();x.fillStyle='rgba(255,245,225,.34)';x.fill();x.strokeStyle='#FFF3DD';x.lineWidth=4;x.lineJoin='round';x.stroke();
-  ax.forEach((a,i)=>{const p=pt(i,a[1]);x.beginPath();x.arc(p[0],p[1],6,0,TAU);x.fillStyle='#FFF3DD';x.fill()});
-  x.font='600 22px '+BC.F;x.textBaseline='middle';
-  ax.forEach((a,i)=>{const an=ang(i),al=Math.abs(Math.cos(an))<0.3?'center':Math.cos(an)>0?'left':'right',ly=cy+Math.sin(an)*R*1.48;let lx=cx+Math.cos(an)*R*1.5;
-    // Each label is kept inside the panel: measured, then nudged in if it would cross an edge.
-    x.font='600 22px '+BC.F;const w1=x.measureText(a[0]).width;x.font='800 26px '+BC.F;const w=Math.max(w1,x.measureText(a[1].toFixed(1)).width);
-    if(L!=null){const lo=al==='right'?lx-w:al==='center'?lx-w/2:lx,hi=lo+w;if(lo<L)lx+=L-lo;if(Rt!=null&&hi>Rt)lx-=hi-Rt}
-    x.textAlign=al;x.font='600 22px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(a[0],lx,ly-12);x.fillStyle=BC.INK;x.font='800 26px '+BC.F;x.fillText(a[1].toFixed(1),lx,ly+16);x.font='600 22px '+BC.F});
+// The cup from above, as the dial-in draws it: a saucer and handle, the rim, the coffee coloured by the extraction,
+// faint guide rings, the traits as crema, and one dot per trait in its own colour.
+function bcCup2(x,TR,r,cx,cy,R){const n=TR.length,ang=i=>-Math.PI/2+i*TAU/n,pt=(i,v,f)=>{const rr=(f||R*0.9)*(.12+.88*clamp(v,0,10)/10);return[cx+Math.cos(ang(i))*rr,cy+Math.sin(ang(i))*rr]};
+  x.save();x.beginPath();x.arc(cx,cy,R*1.3,0,TAU);x.fillStyle=bcI(.06);x.fill();x.lineWidth=1.5;x.strokeStyle=bcI(.12);x.stroke();
+  x.beginPath();x.arc(cx+R*1.16,cy-R*.18,R*.26,-Math.PI/2,Math.PI/2);x.lineWidth=R*.12;x.strokeStyle=bcI(.25);x.stroke();
+  x.beginPath();x.arc(cx,cy,R*1.12,0,TAU);x.fillStyle=BC.LIGHT?'#FFFFFF':'#F3EADC';x.fill();
+  x.beginPath();x.arc(cx,cy,R,0,TAU);x.fillStyle=liquid(r.D);x.fill();
+  const ring=f=>{x.beginPath();TR.forEach((_,i)=>{const a=ang(i),q=[cx+Math.cos(a)*R*.9*f,cy+Math.sin(a)*R*.9*f];i?x.lineTo(...q):x.moveTo(...q)});x.closePath()};
+  for(const f of [.5,1]){ring(f);x.strokeStyle='rgba(255,236,210,.16)';x.lineWidth=1.5;x.stroke()}
+  x.beginPath();TR.forEach((t,i)=>{const q=pt(i,t[1]);i?x.lineTo(...q):x.moveTo(...q)});x.closePath();x.fillStyle='rgba(226,176,122,.62)';x.fill();x.strokeStyle='#F1CFA2';x.lineWidth=3;x.lineJoin='round';x.stroke();
+  TR.forEach((t,i)=>{const q=pt(i,t[1]);x.beginPath();x.arc(q[0],q[1],9,0,TAU);x.fillStyle=t[2];x.fill();x.lineWidth=3;x.strokeStyle='#2A1A10';x.stroke()});
   x.restore()}
 // Chips that wrap onto new rows; each can carry its own colour dot (flavour notes keep their wheel colours).
 function bcChips(x,items,y){const W=BC.W,P=BC.PAD;let px=P;x.font='500 27px '+BC.F;
@@ -362,14 +357,24 @@ function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
     const sw=x.measureText(dv).width;x.font='500 28px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(G.fmt==='rot'?Math.round(st)+' clicks':G.unit==='clicks'?'clicks':'',X+sw+16,y+154);
     x.font='600 30px '+BC.F;x.fillStyle=BC.INK;x.fillText(bcWrap(x,G.name,W-P-X-30,1)[0],X,y+200);
     if(m.grind.line){x.font='500 25px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(bcWrap(x,m.grind.line,W-P-X-30,1)[0],X,y+240)}y+=h+20}
-  // The predicted cup
-  if(m.cup){const r=m.cup.r,h=430,X=P+478,w=W-P-X-36;bcPane(x,P,y,IW,h,28);bcCup(x,r,P+212,y+h/2+6,100,P+24,X-20);
-    bcLabel(x,'Predicted cup',X,y+68);x.font='800 44px '+BC.F;x.fillStyle=BC.INK;let yy=y+124;for(const l of bcWrap(x,m.cup.vt,w,2)){x.fillText(l,X,yy);yy+=52}
+  // The predicted cup, as the dial-in shows it: the cup from above with its traits as crema and coloured dots, the
+  // verdict and the extraction scale beside it, then each trait as a coloured bar with its score.
+  if(m.cup){const r=m.cup.r,TR=[['Sweetness',r.sweet,'#D9894A'],['Acidity',r.acid,'#D4A72C'],['Body',r.body,'#B07A56'],['Clarity',r.clarity,'#4E9C97'],['Bitterness',r.bitter,'#B5533C']];
+    const top=400,rowH=58,h=top+TR.length*rowH+34,X=P+372,w=W-P-X-36;bcPane(x,P,y,IW,h,28);bcCup2(x,TR,r,P+184,y+top/2+4,118);
+    bcLabel(x,'Predicted cup',X,y+64);x.font='800 42px '+BC.F;x.fillStyle=BC.INK;let yy=y+118;for(const l of bcWrap(x,m.cup.vt,w,2)){x.fillText(l,X,yy);yy+=50}
     x.font='500 25px '+BC.F;x.fillStyle=BC.MUTED;for(const l of bcWrap(x,m.cup.vs,w,4)){x.fillText(l,X,yy);yy+=35}
-    const gy=y+h-84,gw=w;const gg=x.createLinearGradient(X,0,X+gw,0);gg.addColorStop(0,'#D9B35A');gg.addColorStop(.25,'#C98A3E');gg.addColorStop(.5,'#7A4524');gg.addColorStop(.75,'#4A2A18');gg.addColorStop(1,'#1E120B');
+    const gy=y+top-74,gw=w;const gg=x.createLinearGradient(X,0,X+gw,0);gg.addColorStop(0,'#D9B35A');gg.addColorStop(.25,'#C98A3E');gg.addColorStop(.5,'#7A4524');gg.addColorStop(.75,'#4A2A18');gg.addColorStop(1,'#1E120B');
     bcRound(x,X,gy,gw,12,6);x.fillStyle=gg;x.fill();x.strokeStyle=bcI(.14);x.lineWidth=1;x.stroke();
     const mx=X+(clamp(r.D,-2.5,2.5)+2.5)/5*gw;bcRound(x,mx-4,gy-11,8,34,4);x.fillStyle=BC.INK;x.fill();
-    x.font='500 19px '+BC.F;x.fillStyle=BC.MUTED;x.textAlign='left';x.fillText('Under',X,gy+48);x.textAlign='center';x.fillText('Sweet spot',X+gw/2,gy+48);x.textAlign='right';x.fillText('Over',X+gw,gy+48);x.textAlign='left';y+=h+20}
+    x.font='500 19px '+BC.F;x.fillStyle=BC.MUTED;x.textAlign='left';x.fillText('Under',X,gy+48);x.textAlign='center';x.fillText('Sweet spot',X+gw/2,gy+48);x.textAlign='right';x.fillText('Over',X+gw,gy+48);x.textAlign='left';
+    // The traits
+    x.fillStyle=bcI(.09);x.fillRect(P+28,y+top,IW-56,1.5);
+    const bx=P+290,bw=W-P-120-bx;TR.forEach(([n,v,c],i)=>{const ry=y+top+30+i*rowH;
+      x.beginPath();x.arc(P+44,ry,9,0,TAU);x.fillStyle=c;x.fill();
+      x.font='500 28px '+BC.F;x.fillStyle=BC.INK;x.textBaseline='middle';x.fillText(n,P+68,ry+1);
+      bcRound(x,bx,ry-7,bw,14,7);x.fillStyle=bcI(.12);x.fill();bcRound(x,bx,ry-7,Math.max(14,bw*clamp(v,0,10)/10),14,7);x.fillStyle=c;x.fill();
+      x.font='800 30px '+BC.F;x.textAlign='right';x.fillStyle=BC.INK;x.fillText(v.toFixed(1),W-P-28,ry+1);x.textAlign='left';x.textBaseline='alphabetic'});
+    y+=h+20}
   // Text blocks (settings written as text, for log entries from before brews were kept in full)
   for(const tb of m.text||[]){if(!tb.body)continue;x.font='500 29px '+BC.F;const lines=bcWrap(x,tb.body,IW-56,6),h=86+lines.length*40;bcPane(x,P,y,IW,h,28);
     bcLabel(x,tb.label,P+28,y+48);x.font='500 29px '+BC.F;x.fillStyle=BC.INK;lines.forEach((l,j)=>x.fillText(l,P+28,y+94+j*40));y+=h+20}
@@ -415,17 +420,19 @@ const AGITW={low:'Gentle',med:'Steady',high:'Lively'};
 // The brew on the dial-in now.
 // Under the title: the name of the beans you're brewing, or what the coffee is when none is picked.
 // The coffee as labelled tiles: the beans' name (when picked) next to the variety, process and roast.
+// A recipe's credit, short: the person, not the titles after them ("Tetsu Kasuya, 2016 World Brewers Cup champion").
+const bcBy=t=>t?String(t).split(',')[0].trim():t;
 const bcShort=t=>String(t||'').replace(/\s*\([^)]*\)\s*$/,'');
 const bcCoffee=(bean,v,p,ro)=>[...(bean?[['Beans',bean.name]]:[]),['Variety',v?bcShort(vName(v)):''],['Process',p&&PROCESSES[p]?bcShort(PROCESSES[p].name):''],['Roast',ro?bcCap(ro):'']];
 function brewCard(){const r=compute(S),[vt,vs]=verdict(r.D),B=BREWERS[S.brewer],dp=dialPlan(),water=dp?dp.water:+gfmt(S.dose*S.ratio);
-  return bcBlob({theme:originTheme(S.bean&&S.bean.origin),title:dp?dp.r.name:'My '+brewName(B.name)+' brew',by:dp&&dp.r.by,coffee:bcCoffee(S.bean,S.variety,S.process,S.roast),
+  return bcBlob({theme:originTheme(S.bean&&S.bean.origin),title:dp?dp.r.name:'My '+brewName(B.name)+' brew',by:dp&&bcBy(dp.r.by),coffee:bcCoffee(S.bean,S.variety,S.process,S.roast),
     pills:[...(dp?[[goalLabel(S.goal,S.amt)+' cup',1]]:[]),[B.name],...(S.age?[[S.age+' days off roast']]:[])],
     tiles:[['Coffee',gfmt(S.dose)+' g'],['Water',gfmt(water)+' g'],['Temp',S.temp+'°C'],['Ratio','1:'+rr1(S.ratio)]],
     grind:{g:S.grinder,c:S.setting,line:BREWERS[S.brewer].bloom.label+' '+S.bloom+' s  ·  '+AGITW[S.agit]+' pours'},cup:{r,vt,vs},steps:dp?dp.steps:[],expect:{label:'Expect',items:cupNotes(S,r).slice(0,8)}})}
 // What Log this brew keeps, so the log's card can show the dial, the cup and the pours later.
 function brewSnap(){const r=compute(S),dp=dialPlan();
   return{g:S.grinder,c:S.setting,b:S.brewer,t:S.temp,ra:S.ratio,bl:S.bloom,ag:S.agit,dose:S.dose,water:dp?dp.water:+gfmt(S.dose*S.ratio),v:S.variety,p:S.process,ro:S.roast,
-    bean:S.bean?Object.assign({},S.bean):null,age:S.age,rec:dp?dp.r.name:'',by:dp&&dp.r.by||'',goal:dp?goalLabel(S.goal,S.amt):'',steps:dp?dp.steps.slice(0,14):[],
+    bean:S.bean?Object.assign({},S.bean):null,age:S.age,rec:dp?dp.r.name:'',by:dp&&bcBy(dp.r.by)||'',goal:dp?goalLabel(S.goal,S.amt):'',steps:dp?dp.steps.slice(0,14):[],
     r:{D:+r.D.toFixed(3),sweet:+r.sweet.toFixed(2),acid:+r.acid.toFixed(2),body:+r.body.toFixed(2),clarity:+r.clarity.toFixed(2),bitter:+r.bitter.toFixed(2)}}}
 // A snapshot can come from another phone in a shared log, so every field is checked before it is drawn.
 function okSnap(s){if(!s||typeof s!=='object')return null;const n=(v,a,b)=>typeof v==='number'&&isFinite(v)?clamp(v,a,b):null,r=s.r||{};
@@ -436,14 +443,16 @@ function okSnap(s){if(!s||typeof s!=='object')return null;const n=(v,a,b)=>typeo
   return o.b?o:null}
 // A brew from the log: what you rated and tasted, with the brew itself when it was logged from the dial-in.
 function logCard(l){const s=okSnap(l.snap),fl=flOf(l).filter(([id])=>FW.byId[id]),B=s&&BREWERS[s.b],stars=clamp(Math.round(+l.stars||0),0,5);
-  const m={theme:originTheme(s&&s.bean&&s.bean.origin),kicker:'From my brew log',date:fmtDate(l),title:l.coffee||(s&&s.rec)||'A brew',by:s&&s.rec&&l.coffee?s.rec+(s.by?' · '+s.by:''):s&&s.by,
+  const m={theme:originTheme(s&&s.bean&&s.bean.origin),kicker:'From my brew log',date:fmtDate(l),title:l.coffee||(s&&s.rec)||'A brew',by:s&&s.rec&&l.coffee?s.rec+(s.by?' · '+bcBy(s.by):''):s&&bcBy(s.by),
     coffee:s&&s.v?bcCoffee(s.bean&&s.bean.name!==l.coffee?s.bean:null,s.v,s.p,s.ro):null,
     rating:stars?{kind:'beans',v:stars,word:STARW[stars]}:null,
     pills:[...(s&&s.goal?[[s.goal+' cup',1]]:[]),...(B?[[B.name]]:[]),...(l.by&&GROUP?[['Brewed by '+(l.by===ME?'me':l.by)]]:[])],
     footer:'Logged with The Brew Bench'};
   if(s){m.tiles=[['Coffee',s.dose!=null?gfmt(s.dose)+' g':'–'],['Water',s.water!=null?gfmt(s.water)+' g':'–'],['Temp',s.t!=null?s.t+'°C':'–'],['Ratio',s.ra!=null?'1:'+rr1(s.ra):'–']];
     if(s.g&&s.c!=null)m.grind={g:s.g,c:s.c,line:(B?B.bloom.label:'Bloom')+' '+(s.bl||0)+' s  ·  '+AGITW[s.ag]+' pours'};
-    if(s.r){const [vt,vs]=verdict(s.r.D);m.cup={r:s.r,vt,vs}}m.steps=s.steps}
+    if(s.r){const [vt,vs]=verdict(s.r.D);m.cup={r:s.r,vt,vs}}
+    // Brews logged before the steps followed the brewing temperature: the recipe's own temperature is put right here.
+    const rr=s.rec&&RECIPES.find(x=>x.name===s.rec);m.steps=stepsAtTemp(s.steps,rr&&rr.temp,s.t)}
   else{// Logged by hand: the numbers are read back from the settings line, so the card has the same tiles as a dial-in brew.
     const q=parseSettings(l.settings||''),bean=l.beanId&&window.BEANS_OK?beanById(l.beanId):null;
     if(bean){m.theme=originTheme(bean.origin);if(bean.variety||bean.process||bean.roast)m.coffee=bcCoffee(beanTitle(bean)!==l.coffee?{name:beanTitle(bean)}:null,bean.variety,bean.process,bean.roast).filter(c=>c[1])}

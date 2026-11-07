@@ -397,6 +397,12 @@ function loadImg(el){const id=el.dataset.bimg;if(!id)return;el.removeAttribute('
   const put=(u,now)=>{const i=new Image();i.alt='';i.decoding='async';i.src=u;if(now){i.className='now';el.classList.add('has');el.prepend(i)}else i.onload=()=>{el.classList.add('has');el.prepend(i)}};
   const c=big?BIMG.peek(id):BIMG.peekThumb(id);if(c){put(c,true);return}(big?BIMG.get(id):BIMG.thumb(id)).then(u=>{if(u)put(u,false);else if(el.classList.contains('tl-pic'))(el.closest('.tl-ph,.otd-pic')||el).remove()})}
 const BIO='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){BIO.unobserve(e.target);loadImg(e.target)}}),{rootMargin:'400px 0px'}):null;
+// Before the Beans tab is first opened, the small photos of its first coffees are read and decoded in the background, one
+// at a time, and put into the page that was built ahead: opening the tab then shows them at once instead of filling in.
+async function warmBeanPhotos(){const root=$('beans');if(!root)return;const order=[...BEANS.filter(b=>b.shelf),...BEANS.filter(b=>!b.shelf)].filter(b=>b.img).slice(0,24);
+  for(const b of order){if(document.hidden)await new Promise(r=>setTimeout(r,1500));let u=BIMG.peekThumb(b.id);if(!u)try{u=await BIMG.thumb(b.id)}catch(e){u=null}
+    if(u){try{const i=new Image();i.src=u;await i.decode()}catch(e){}root.querySelectorAll('[data-bimg="'+b.id+'"]').forEach(el=>{if(!el.classList.contains('hero'))loadImg(el)})}
+    await new Promise(r=>(window.requestIdleCallback||setTimeout)(r,{timeout:500}))}}
 function hydrateImgs(root){root.querySelectorAll('[data-bimg]').forEach(el=>{if(BIMG.peekThumb(el.dataset.bimg)||!BIO||root.closest&&root.closest('dialog'))loadImg(el);else BIO.observe(el)});requestAnimationFrame(()=>loadNear(root))}
 // Photos already on screen (or close) load straight away. A list drawn while its tab was hidden never hears from the
 // observer when the tab is shown, so its first rows stayed blank until you scrolled.

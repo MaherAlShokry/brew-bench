@@ -455,7 +455,10 @@ function tune(msg){if(!dialRec())return;const p=plan(dialCtx());Object.assign(S,
 // Inputs that change the plan re-tune while you haven't moved the sliders yourself.
 function retuneIfAuto(msg){if(dialRec()&&(isTuned()||!S.tuned))tune(msg);else render()}
 function dialPlan(){const r=dialRec();if(!r)return null;const p=plan(dialCtx()),water=+gfmt(S.dose*S.ratio),ps=planSteps(r,S.dose,water,S.goal),bl=BREWERS[S.brewer].bloom.label==='Bloom'?bloomShift(ps.steps,S.bloom):{steps:ps.steps};
-  return{r,p,water,steps:bl.steps,changes:bl.note?[...ps.changes,bl.note]:ps.changes}}
+  const st=stepsAtTemp(bl.steps,r.temp,S.temp);return{r,p,water,steps:st,changes:bl.note?[...ps.changes,bl.note]:ps.changes}}
+// The water temperature written into a recipe's steps ("pour 30 g at 96°C") follows the temperature you brew at, so the
+// steps, the timer and the brew card agree with the settings. A second temperature (a recipe that cools part way) stays.
+function stepsAtTemp(steps,rt,t){if(!rt||!t||rt===t)return steps;const re=new RegExp('\\b'+rt+'(\\s*°\\s*C)','g');return steps.map(x=>String(x).replace(re,t+'$1'))}
 // Your bloom sets the second pour: the recipe's own bloom is the time from its first step (at 0:00) to its second, and
 // every step after the first moves by the difference, so the steps, the timer and the brew card follow what you set.
 // Only when that second step is a pour 25 to 90 s in: a stir, a press or the end of a steep isn't the end of a bloom.
@@ -877,7 +880,7 @@ function prebuildTabs(){const ids=['recipes','gear','variety','process','map','w
   // so building ahead never competes with the page you just opened.
   let beans=false;
   const next=()=>{if(document.hidden){setTimeout(()=>idle(next),2000);return}if(performance.now()-NAV_AT<1500){setTimeout(()=>idle(next),900);return}
-    if(!beans&&window.BEANS_OK){beans=true;try{renderBeansIfChanged()}catch(e){}idle(next);return}
+    if(!beans&&window.BEANS_OK){beans=true;try{renderBeansIfChanged();warmBeanPhotos()}catch(e){}idle(next);return}
     const id=ids.find(k=>!BUILT[k]);if(!id)return;BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
   setTimeout(()=>idle(next),2500)}
 function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove());if(LAZY[id]&&!BUILT[id]){BUILT[id]=1;LAZY[id]()}if(ALWAYS[id])ALWAYS[id]()}

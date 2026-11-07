@@ -1161,7 +1161,7 @@ input[type=range]{accent-color:var(--cherry)}
 /* Filters: pill chips, the chosen one filled */
 .seg.filters{gap:8px}
 .seg.filters button{border:0;background:var(--surface2);border-radius:var(--r-pill);padding:8px 14px;color:var(--ink);font-weight:500}
-.seg.filters button[aria-pressed="true"]{background:var(--cherry);color:var(--surface);box-shadow:0 6px 14px -8px var(--cherry)}
+.seg.filters button[aria-pressed="true"]{background:var(--cherry);color:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.14)}
 
 /* Map region buttons: filter chips across the bottom of the map card */
 .mapbar{border-top:1px solid var(--hair)}
@@ -1396,9 +1396,11 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 #g-goal button{transition:background .3s,border-color .3s,box-shadow .3s,color .3s}
 #g-goal button.fit-lean{background:color-mix(in srgb,#C9964A 22%,var(--surface2));border-color:color-mix(in srgb,#C9964A 55%,transparent)}
 #g-goal button.fit-near{position:relative;background:color-mix(in srgb,#C9964A 34%,var(--surface2));border-color:#C9964A;color:var(--ink)}
-/* The glow is drawn once and only fades in and out, so the button isn't repainted on every frame. */
-#g-goal button.fit-near::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:inset 0 0 0 2px #C9964A,inset 0 0 12px color-mix(in srgb,#C9964A 55%,transparent);opacity:0;animation:fitglow 2.4s ease-in-out infinite}
-@keyframes fitglow{50%{opacity:1}}
+/* The cup this coffee leans to: a steady honey ring, not a pulsing glow. */
+#g-goal button.fit-near::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:inset 0 0 0 2px #C9964A}
+/* In the dark, a shadow in the accent colour reads as a glow (white in Pure): buttons cast a plain dark shadow instead. */
+:root[data-theme="dark"] .btn:not(.ghost),:root[data-theme="dark"] .tm-play,:root[data-theme="dark"] .rr-play{box-shadow:0 2px 8px rgba(0,0,0,.35)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn:not(.ghost),:root:not([data-theme="light"]) .tm-play,:root:not([data-theme="light"]) .rr-play{box-shadow:0 2px 8px rgba(0,0,0,.35)}}
 @media (prefers-reduced-motion:reduce){#g-goal button.fit-near::after{animation:none;opacity:1}}
 .offscreen,.offscreen *{animation-play-state:paused!important}
 .scan-why{display:block;margin-top:6px;font-size:.72rem;opacity:.75;word-break:break-word}.quicktools{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:4px 0 18px}
@@ -2027,7 +2029,7 @@ body.t-dial.dial-ready .herowrap{display:none}
 /* One tab track for Beans and Gear: a soft rail, tabs sized to their words, the chosen one filled. */
 .seg.bviews,.gtabs{display:flex!important;flex-wrap:nowrap!important;gap:2px!important;padding:4px!important;margin-left:0!important;margin-right:0!important;border-radius:var(--r-pill);background:color-mix(in srgb,var(--surface2) 88%,transparent)!important;border:1px solid color-mix(in srgb,var(--line) 60%,transparent);overflow:visible!important;-webkit-mask-image:none!important;mask-image:none!important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .seg.bviews button,.gtabs button{flex:1 1 auto!important;min-width:0;min-height:38px;display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:0 10px!important;border:0!important;border-radius:var(--r-pill)!important;background:transparent!important;box-shadow:none!important;color:var(--muted)!important;font-size:.84rem!important;font-weight:600;letter-spacing:0!important;white-space:nowrap;overflow:visible;text-overflow:clip}
-.seg.bviews button[aria-pressed="true"],.gtabs button[aria-pressed="true"]{background:var(--cherry)!important;color:var(--surface)!important;box-shadow:0 4px 12px -6px color-mix(in srgb,var(--cherry) 70%,transparent)!important}
+.seg.bviews button[aria-pressed="true"],.gtabs button[aria-pressed="true"]{background:var(--cherry)!important;color:var(--surface)!important;box-shadow:0 1px 3px rgba(0,0,0,.14)!important}
 .seg.bviews button i{margin:0!important;padding:0!important;background:none!important;color:inherit!important;font-size:.7rem!important;font-weight:700;opacity:.7;font-variant-numeric:tabular-nums}
 @media (max-width:399px){.seg.bviews button,.gtabs button{padding:0 6px!important;font-size:.8rem!important}}
 @media (max-width:359px){.seg.bviews button,.gtabs button{padding:0 4px!important;font-size:.74rem!important}.seg.bviews button i{display:none}}
@@ -2110,7 +2112,7 @@ body.t-dial.dial-ready .herowrap{display:none}
 .cal .cd{all:unset;box-sizing:border-box;display:grid;place-items:center;width:100%;max-width:44px;aspect-ratio:1;justify-self:center;border-radius:50%;color:var(--ink);font-family:var(--body);font-size:.95rem;font-variant-numeric:tabular-nums;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .cal .cd:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
 .cal .cd:hover{background:var(--surface2)}.cal .cd.today{box-shadow:inset 0 0 0 1.5px var(--cherry);color:var(--cherry-ink,var(--cherry));font-weight:700}
-.cal .cd[aria-pressed="true"]{background:var(--cherry);color:var(--surface);font-weight:700;box-shadow:0 6px 14px -8px var(--cherry)}
+.cal .cd[aria-pressed="true"]{background:var(--cherry);color:var(--surface);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.14)}
 .cal .cd:disabled{color:var(--muted);opacity:.4;cursor:default;background:none}
 .calmonths{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:4px 0}
 .cal .cm{box-shadow:none;padding:0;min-height:48px;border:0;border-radius:14px;background:var(--surface2);color:var(--ink);font:inherit;font-weight:600;cursor:pointer}
