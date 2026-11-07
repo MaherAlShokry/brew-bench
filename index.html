@@ -2355,6 +2355,13 @@ button[aria-pressed]:active{transform:scale(.95)}
 .dwrite .dmoms{flex-wrap:nowrap;overflow-x:auto;margin:0 -12px 12px!important;padding:1px 12px!important;scroll-padding-inline:12px;-webkit-mask-image:none!important;mask-image:none!important}
 .dwrite .dmoms button{min-height:36px;white-space:nowrap}.dwrite .dbeans button{max-width:220px}
 .dwrite .dbeans button span:last-child{white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+/* Brew log: a sideways slider, one brew per slide with the next one peeking in. */
+.le-nav{display:flex;align-items:center;gap:8px;margin:12px 2px 8px}.le-pos{flex:1;font:600 .84rem var(--body);color:var(--muted);font-variant-numeric:tabular-nums}
+.le-arr{width:38px;height:38px;display:grid;place-items:center;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}.le-arr svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.le-arr:disabled{opacity:.35;cursor:default}
+.le-track{display:flex;gap:12px;align-items:flex-start;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;margin:0 -16px;padding:0 16px 6px;scroll-padding-inline:16px}.le-track::-webkit-scrollbar{display:none}
+.le-slide{flex:0 0 calc(100% - 28px);min-width:0;scroll-snap-align:start;scroll-snap-stop:always}.le-track.one .le-slide{flex-basis:100%}
+.le-slide .le-day{margin:0 4px 8px}.le-slide .logentry{margin:0}
+@media (min-width:760px){.le-slide{flex-basis:min(440px,calc(100% - 28px))}.le-track{margin:0;padding:0 0 6px;scroll-padding-inline:0}}
 html.sheeting :is(.seg.bviews,.gtabs,.appbar,.minires,.bottomnav){-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 /* Diary: the entry icons' rings aren't cropped (content-visibility clips whatever pokes out of a row, so rows keep a
    little room on the left), and the moment chips scroll with an end fade instead of being cut by the card. */
