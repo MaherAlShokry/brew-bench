@@ -1983,9 +1983,12 @@ function drawLSet(){const el=$('lset');if(!el)return;const o=LS,B=o.b&&BREWERS[o
   const bl=[...new Set([...(o.b?[o.b]:[]),...MYB,...Object.keys(BREWERS).filter(LISTED)])];
   const recs=RECIPES.map((r,i)=>[r,i]).filter(([r])=>!o.b||r.b===o.b||(BREWERS[r.b]&&BREWERS[r.b].of===o.b)||r===o.rec);
   const gl=[...new Set([...(o.g?[o.g]:[]),...MYG])];
-  const tile=(k,lab,val,unit,step,sub)=>'<div class="ls-t'+(val==null?' empty':'')+'"><span class="ls-ic">'+lsIc(k)+'</span><span class="ls-l">'+lab+'</span>'+
-    '<b class="ls-v">'+(val==null?'–':esc(String(val)))+(val!=null&&unit?'<small>'+unit+'</small>':'')+'</b>'+(sub||'')+
-    '<span class="ls-st"><button type="button" data-ls="'+k+'" data-d="-1" aria-label="Less '+lab.toLowerCase()+'">−</button><button type="button" data-ls="'+k+'" data-d="1" aria-label="More '+lab.toLowerCase()+'">+</button></span></div>';
+  // Each setting is a row: its icon and name, then − value + (the way the dial-in's sliders put their buttons at the ends).
+  const pm=d=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+(d<0?'M6 12h12':'M12 6v12M6 12h12')+'"/></svg>';
+  const tile=(k,lab,val,unit,step,sub)=>'<div class="ls-t'+(val==null?' empty':'')+'"><div class="ls-th"><span class="ls-ic">'+lsIc(k)+'</span><span class="ls-tt"><span class="ls-l">'+lab+'</span>'+(sub||'')+'</span></div>'+
+    '<div class="ls-row ls-st"><button type="button" data-ls="'+k+'" data-d="-1" aria-label="Less '+lab.toLowerCase()+'">'+pm(-1)+'</button>'+
+    '<b class="ls-v">'+(val==null?'Not set':esc(String(val)))+(val!=null&&unit?'<small>'+unit+'</small>':'')+'</b>'+
+    '<button type="button" data-ls="'+k+'" data-d="1" aria-label="More '+lab.toLowerCase()+'">'+pm(1)+'</button></div></div>';
   const ra=o.dose&&o.water?o.water/o.dose:null,pos=ra?clamp((ra-12)/7,0,1)*100:50;
   el.innerHTML='<div class="ls-pick"><label class="ls-sel"><span class="ls-ic">'+lsIc('brew')+'</span><span class="ls-l">Brewer</span><b>'+esc(B?B.name:'Choose')+'</b><svg class="ls-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg><select id="ls-b" aria-label="Brewer"><option value="">No brewer</option>'+bl.map(k=>'<option value="'+k+'"'+(k===o.b?' selected':'')+'>'+esc(BREWERS[k].name)+'</option>').join('')+'</select></label>'+
     '<label class="ls-sel"><span class="ls-ic">'+lsIc('rec')+'</span><span class="ls-l">Recipe</span><b>'+esc(o.rec?o.rec.name:'Your own')+'</b><svg class="ls-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg><select id="ls-r" aria-label="Recipe"><option value="">My own recipe</option>'+recs.map(([r,i])=>'<option value="'+i+'"'+(r===o.rec?' selected':'')+'>'+esc(r.name)+'</option>').join('')+'</select></label></div>'+
@@ -3372,10 +3375,12 @@ $('ab-share').onclick=()=>{const id=(document.querySelector('main section.on')||
   if(id==='dial')openShare(dialDoc());else if(id==='scan')$('sc-share').click();else if(id==='history')openShare(historyDoc());else if(id==='log')openShare(logDoc());else if(id==='map'){if(SEL)openShare(originDoc(SEL));else toast('Pick an origin first')}else if(id==='recipes'&&rListed())openShare(recipesDoc());else if(id==='words')openShare(wordsDoc());else if(id==='flow')openShare(flowDoc());else if(id==='wheel')openShare(wheelDoc())};
 $('dial-share').onclick=()=>openShare(dialDoc());
 $('ab-back').onclick=()=>history.back();
-// The Android back gesture asks here first: close the top sheet, or step back a screen. False means there is nothing
+// The Android back gesture asks here first: close the top sheet, scroll the page back to its top, or step back a screen. False means there is nothing
 // left to go back to, so the app goes to the background like any other.
 window.bbBack=()=>{const d=[...document.querySelectorAll('dialog[open]:not(.closing)')].pop();
   if(d){if(history.state&&history.state.dlg)history.back();else d.close();return true}
+  // Scrolled down a page: the first back goes to its top; the next one goes back a screen.
+  if(scrollY>80){scrollTo({top:0,behavior:RM()?'auto':'smooth'});return true}
   if(NAVD>0){history.back();return true}
   if(!document.getElementById('dial').classList.contains('on')){showTab('dial');NAVD=0;syncShell('dial');return true}
   return false};

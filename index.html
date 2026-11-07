@@ -806,23 +806,27 @@ html.app .bg-hero::after,html.app .me-hero::after,html.app .pp-st img{mix-blend-
 .ls-ic{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--surface);color:var(--cherry);flex:none}
 .ls-ic svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .ls-l{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.ls-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.ls-t{position:relative;display:flex;flex-direction:column;gap:4px;padding:12px;border-radius:var(--r-md);background:var(--surface2);min-width:0}
-.ls-t .ls-ic{position:absolute;right:10px;top:10px;width:26px;height:26px;border-radius:8px}.ls-t .ls-ic svg{width:15px;height:15px}
-.ls-v{font:800 1.7rem/1.1 var(--display);letter-spacing:-.02em;font-variant-numeric:tabular-nums}.ls-v small{font-size:.9rem;font-weight:600;color:var(--muted);margin-left:2px}
-.ls-t.empty .ls-v{color:var(--muted);opacity:.6}
-.ls-st{display:flex;gap:6px;margin-top:auto;padding-top:4px}.ls-st button{flex:1;height:36px;border:0;border-radius:10px;background:var(--surface);color:var(--ink);font:600 1.15rem/1 var(--display);cursor:pointer;transition:transform .1s,background .15s}
-.ls-st button:active{transform:scale(.92);background:color-mix(in srgb,var(--honey) 25%,var(--surface))}
+.ls-grid{display:grid;grid-template-columns:1fr;gap:6px}@media (min-width:700px){.ls-grid{grid-template-columns:1fr 1fr}}
+.ls-t{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 10px 10px 12px;border-radius:var(--r-md);background:var(--surface2);min-width:0}
+.ls-th{flex:1;display:flex;align-items:center;gap:10px;min-width:0;overflow:hidden}.ls-tt{display:flex;flex-direction:column;gap:2px;min-width:0}.ls-tt .ls-l{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:359px){.ls-t{flex-wrap:wrap;row-gap:6px}.ls-th{flex:1 1 100%}.ls-row{flex:1 1 100%;grid-template-columns:32px 1fr 32px}}
+.ls-t .ls-ic{width:26px;height:26px;border-radius:8px}.ls-t .ls-ic svg{width:15px;height:15px}
+.ls-row{flex:none;display:grid;grid-template-columns:32px 92px 32px;align-items:center;gap:4px}.ls-row .ls-v{text-align:center}
+.ls-v{min-width:0;font:800 1.25rem/1.1 var(--display);letter-spacing:-.02em;font-variant-numeric:tabular-nums;white-space:nowrap}.ls-v small{font-size:.8rem;font-weight:600;color:var(--muted);margin-left:2px}
+.ls-t.empty .ls-v{font:600 .9rem/1.2 var(--body,inherit);letter-spacing:0;color:var(--muted)}
+.ls-st button{width:32px;height:32px;padding:0;border:0;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--ink) 9%,var(--surface2));color:var(--ink);cursor:pointer;transition:transform .1s,background .15s,color .15s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.ls-st button svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+.ls-st button:active{transform:scale(.88);color:var(--cherry);background:color-mix(in srgb,var(--cherry) 16%,var(--surface2))}
 .ls-gsel{position:relative;align-self:flex-start;max-width:100%;font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:underline dotted;text-underline-offset:3px;cursor:pointer}
 .ls-gsel select{position:absolute;inset:0;opacity:0;width:100%;font-size:16px;cursor:pointer}
-.ls-ratio{margin-top:8px;padding:12px 14px;border-radius:var(--r-md);background:color-mix(in srgb,var(--honey) 14%,var(--surface2))}
+.ls-ratio{margin-top:8px;padding:12px 14px;border-radius:var(--r-md);background:var(--surface2)}
 .ls-rtop{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}.ls-rtop b{font:800 1.2rem var(--display);font-variant-numeric:tabular-nums}.ls-rtop em{font-style:normal;font-size:.85rem;font-weight:600;color:var(--cherry-ink,var(--cherry))}
-.ls-ratio.empty .ls-rtop b{font:500 .9rem var(--body,inherit);color:var(--muted)}
-.ls-bar{position:relative;height:8px;margin:10px 0 4px;border-radius:4px;background:linear-gradient(90deg,#4A2A18,#7A4524 35%,#C98A3E 70%,#E8C987)}
-.ls-bar i{position:absolute;top:50%;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:var(--surface);border:3px solid var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.2);transition:left .25s}
-.ls-ratio.empty .ls-bar{opacity:.35}.ls-ratio.empty .ls-bar i{display:none}
+.ls-ratio.empty .ls-rtop b{font:500 .88rem var(--body,inherit);color:var(--muted)}
+.ls-bar{position:relative;height:6px;margin:12px 0 6px;border-radius:3px;background:linear-gradient(90deg,#4A2A18,#7A4524 35%,#C98A3E 70%,#E8C987)}
+.ls-bar i{position:absolute;top:50%;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;background:var(--surface);border:3px solid var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.2);transition:left .25s}
+.ls-ratio.empty .ls-bar{opacity:.5}.ls-ratio.empty .ls-bar i{display:none}
 .ls-ends{display:flex;justify-content:space-between;font-size:.74rem;color:var(--muted)}
-.ls-x{margin-top:8px;width:100%}
+.ls-x{margin-top:8px;width:100%;border-radius:var(--r-md)!important;background:var(--surface2)!important;border:1px solid transparent!important}.ls-x:focus{border-color:var(--cherry)!important}
 .l-bean{margin:0 0 10px}.l-bean:empty{display:none}
 .l-beancard{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 10px;border-radius:var(--r-md);background:var(--surface2)}
 .l-beancard .bpic{width:48px;height:58px;border-radius:12px;flex:none}
@@ -6927,9 +6931,12 @@ function drawLSet(){const el=$('lset');if(!el)return;const o=LS,B=o.b&&BREWERS[o
   const bl=[...new Set([...(o.b?[o.b]:[]),...MYB,...Object.keys(BREWERS).filter(LISTED)])];
   const recs=RECIPES.map((r,i)=>[r,i]).filter(([r])=>!o.b||r.b===o.b||(BREWERS[r.b]&&BREWERS[r.b].of===o.b)||r===o.rec);
   const gl=[...new Set([...(o.g?[o.g]:[]),...MYG])];
-  const tile=(k,lab,val,unit,step,sub)=>'<div class="ls-t'+(val==null?' empty':'')+'"><span class="ls-ic">'+lsIc(k)+'</span><span class="ls-l">'+lab+'</span>'+
-    '<b class="ls-v">'+(val==null?'–':esc(String(val)))+(val!=null&&unit?'<small>'+unit+'</small>':'')+'</b>'+(sub||'')+
-    '<span class="ls-st"><button type="button" data-ls="'+k+'" data-d="-1" aria-label="Less '+lab.toLowerCase()+'">−</button><button type="button" data-ls="'+k+'" data-d="1" aria-label="More '+lab.toLowerCase()+'">+</button></span></div>';
+  // Each setting is a row: its icon and name, then − value + (the way the dial-in's sliders put their buttons at the ends).
+  const pm=d=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+(d<0?'M6 12h12':'M12 6v12M6 12h12')+'"/></svg>';
+  const tile=(k,lab,val,unit,step,sub)=>'<div class="ls-t'+(val==null?' empty':'')+'"><div class="ls-th"><span class="ls-ic">'+lsIc(k)+'</span><span class="ls-tt"><span class="ls-l">'+lab+'</span>'+(sub||'')+'</span></div>'+
+    '<div class="ls-row ls-st"><button type="button" data-ls="'+k+'" data-d="-1" aria-label="Less '+lab.toLowerCase()+'">'+pm(-1)+'</button>'+
+    '<b class="ls-v">'+(val==null?'Not set':esc(String(val)))+(val!=null&&unit?'<small>'+unit+'</small>':'')+'</b>'+
+    '<button type="button" data-ls="'+k+'" data-d="1" aria-label="More '+lab.toLowerCase()+'">'+pm(1)+'</button></div></div>';
   const ra=o.dose&&o.water?o.water/o.dose:null,pos=ra?clamp((ra-12)/7,0,1)*100:50;
   el.innerHTML='<div class="ls-pick"><label class="ls-sel"><span class="ls-ic">'+lsIc('brew')+'</span><span class="ls-l">Brewer</span><b>'+esc(B?B.name:'Choose')+'</b><svg class="ls-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg><select id="ls-b" aria-label="Brewer"><option value="">No brewer</option>'+bl.map(k=>'<option value="'+k+'"'+(k===o.b?' selected':'')+'>'+esc(BREWERS[k].name)+'</option>').join('')+'</select></label>'+
     '<label class="ls-sel"><span class="ls-ic">'+lsIc('rec')+'</span><span class="ls-l">Recipe</span><b>'+esc(o.rec?o.rec.name:'Your own')+'</b><svg class="ls-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg><select id="ls-r" aria-label="Recipe"><option value="">My own recipe</option>'+recs.map(([r,i])=>'<option value="'+i+'"'+(r===o.rec?' selected':'')+'>'+esc(r.name)+'</option>').join('')+'</select></label></div>'+
@@ -8316,10 +8323,12 @@ $('ab-share').onclick=()=>{const id=(document.querySelector('main section.on')||
   if(id==='dial')openShare(dialDoc());else if(id==='scan')$('sc-share').click();else if(id==='history')openShare(historyDoc());else if(id==='log')openShare(logDoc());else if(id==='map'){if(SEL)openShare(originDoc(SEL));else toast('Pick an origin first')}else if(id==='recipes'&&rListed())openShare(recipesDoc());else if(id==='words')openShare(wordsDoc());else if(id==='flow')openShare(flowDoc());else if(id==='wheel')openShare(wheelDoc())};
 $('dial-share').onclick=()=>openShare(dialDoc());
 $('ab-back').onclick=()=>history.back();
-// The Android back gesture asks here first: close the top sheet, or step back a screen. False means there is nothing
+// The Android back gesture asks here first: close the top sheet, scroll the page back to its top, or step back a screen. False means there is nothing
 // left to go back to, so the app goes to the background like any other.
 window.bbBack=()=>{const d=[...document.querySelectorAll('dialog[open]:not(.closing)')].pop();
   if(d){if(history.state&&history.state.dlg)history.back();else d.close();return true}
+  // Scrolled down a page: the first back goes to its top; the next one goes back a screen.
+  if(scrollY>80){scrollTo({top:0,behavior:RM()?'auto':'smooth'});return true}
   if(NAVD>0){history.back();return true}
   if(!document.getElementById('dial').classList.contains('on')){showTab('dial');NAVD=0;syncShell('dial');return true}
   return false};
