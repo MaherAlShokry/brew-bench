@@ -1051,8 +1051,8 @@ function showTab(id,fromHistory,pure){NAV_AT=performance.now();ensureTab(id);con
     document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x.dataset.t===(BNGROUP[id]||id)));
     document.querySelectorAll('main section').forEach(s=>s.classList.toggle('on',s.id===id));window.scrollTo({top:0});syncShell(id);
     if(kind&&NAV_READY){const sec=$(id);if(!vt){replay(sec,'nav-in');clearTimeout(sec._nav);sec._nav=setTimeout(()=>sec.classList.remove('nav-in'),480);
-      // Between bottom-bar sections the page swings in as a whole; its blocks cascade only on the way in or out.
-      if(kind==='push'||kind==='pop')cascadeIn(sec)}}};
+      // Pages slide in as one piece, the same as every other page (no block-by-block cascade on top).
+      }}};
   document.documentElement.dataset.nav=NAV_READY?kind:'';
   // The bottom-bar highlight answers the tap at once, before the page itself changes.
   if(kind){document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));movePill()}

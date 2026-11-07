@@ -1026,8 +1026,8 @@ dialog#selsheet.pop .selopt{min-height:40px;padding:8px 12px;font-size:.95rem}
      out the same way, so nothing behind it has to move or lock. */
   html dialog#vd[open]{animation:page-in .34s var(--ease-sheet) both}
   html dialog#vd.closing{animation:page-out .26s cubic-bezier(.4,0,.6,1) both}
-  html dialog#timer[open]{animation:sheet-up .46s var(--ease-sheet) both}
-  html dialog#timer.closing{animation:sheet-down .28s cubic-bezier(.4,0,1,1) both}
+  html dialog#timer[open]{animation:page-in .34s var(--ease-sheet) both}
+  html dialog#timer.closing{animation:page-out .26s cubic-bezier(.4,0,.6,1) both}
 }
 @keyframes dlg-in{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
 @keyframes dlg-out{to{opacity:0;transform:translateY(10px) scale(.97)}}
@@ -2418,6 +2418,19 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 .vd-close:focus:not(:focus-visible),.favbtn:focus:not(:focus-visible){outline:none;box-shadow:none}
 @media (max-width:759px){html dialog#vd:not(.camdlg) .vd-head .vd-close,html dialog#vd:not(.camdlg) .vd-head .favbtn{top:calc(12px + var(--sa-top,0px))}}
 .vd-head .pill+h2{margin-top:10px}
+/* Every page moves the same way: a page you open (a coffee, a recipe, the timer, or a page inside Explore such as the
+   map) slides in from the right over the one you were on, which eases a little to the left; going back is the reverse.
+   No zoom or bounce, so even a heavy page like the map moves as one flat layer. */
+@media (prefers-reduced-motion:no-preference){
+  html[data-nav=push]::view-transition-old(root){animation:vt-push-old .34s var(--ease-sheet) both}
+  html[data-nav=push]::view-transition-new(root){animation:page-in .34s var(--ease-sheet) both}
+  html[data-nav=pop]::view-transition-old(root){z-index:2;animation:page-out .28s cubic-bezier(.4,0,.6,1) both}
+  html[data-nav=pop]::view-transition-new(root){animation:vt-pop-new .28s cubic-bezier(.4,0,.6,1) both}
+  html[data-nav=push] main section.nav-in{animation:page-in .34s var(--ease-sheet) both}
+  html[data-nav=pop] main section.nav-in{animation:vt-pop-new .28s cubic-bezier(.4,0,.6,1) both}
+}
+@keyframes vt-push-old{to{transform:translateX(-18%);opacity:.7}}
+@keyframes vt-pop-new{from{transform:translateX(-18%);opacity:.7}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
