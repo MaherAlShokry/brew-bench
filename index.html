@@ -2014,11 +2014,11 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .shmode{display:inline-flex;padding:3px;border-radius:999px;background:rgba(255,246,232,.08);margin-bottom:10px}
 .shmode button{border:0;background:none;color:rgba(255,246,232,.82);font:inherit;font-size:.84rem;font-weight:700;padding:7px 16px;border-radius:999px;min-height:36px;cursor:pointer}
 .shmode button[aria-pressed="true"]{background:#F0C987;color:#2E1C12}
-.shcols{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -12px;padding:2px 12px 4px;scroll-padding-inline:12px;scroll-snap-type:x proximity}.shcols::-webkit-scrollbar{display:none}
+.shcols{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -12px;padding:7px 12px 6px;scroll-padding-inline:12px;scroll-snap-type:x proximity}.shcols::-webkit-scrollbar{display:none}
 .shsw{flex:none;display:flex;flex-direction:column;align-items:center;gap:5px;width:64px;border:0;background:none;padding:0;color:rgba(255,246,232,.78);font:inherit;font-size:.68rem;line-height:1.2;cursor:pointer;scroll-snap-align:start}
 .shsw i{width:40px;height:40px;border-radius:50%;box-shadow:0 0 0 1.5px rgba(255,246,232,.25);transition:box-shadow .2s,transform .2s var(--ease-spring)}
 .shsw span{max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.shsw[aria-pressed="true"]{color:#F0C987;font-weight:700}.shsw[aria-pressed="true"] i{box-shadow:0 0 0 2.5px #1A100A,0 0 0 4.5px #F0C987;transform:scale(1.05)}
+.shsw[aria-pressed="true"]{color:#F0C987;font-weight:700}.shsw[aria-pressed="true"] i{box-shadow:0 0 0 2.5px #1A100A,0 0 0 4.5px #F0C987}
 .shsw:focus-visible i,.shmode button:focus-visible{outline:2px solid #F0C987;outline-offset:2px}
 .shcard-pv.busy{position:relative}.shcard-pv.busy::after{content:'';position:absolute;inset:0;background:rgba(20,12,7,.45);animation:bfade .2s ease}
 .steps.tl .t.est{background:transparent;border:1px dashed color-mix(in srgb,var(--ink) 30%,transparent);opacity:.85}
@@ -2284,7 +2284,7 @@ label[for=i-grind]>span{display:flex;flex-direction:column;align-items:flex-end;
 .seg.has-ind>button[aria-pressed="true"]:not([data-peek]){background:transparent!important;background-image:none!important;box-shadow:none!important}
 /* Only the gliding highlight moves: the tapped option never shows (or fades out) a highlight of its own. */
 .seg.has-ind>button{transition:color .2s ease!important}
-.seg-ind{position:absolute;z-index:0;pointer-events:none;will-change:transform;transition:transform .2s ease-out,width .2s ease-out,height .2s ease-out,background-color .2s,opacity .2s}
+.seg-ind{position:absolute;z-index:0;pointer-events:none;will-change:transform;transition:transform .2s ease-out,width .2s ease-out,height .2s ease-out,opacity .2s}
 .bd-bags{list-style:none;margin:0;padding:0;display:grid;gap:6px}.bd-bags li{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:12px;border:1px solid var(--line)}.bd-bags b{font-size:.88rem}.bd-bags span{font-size:.8rem;color:var(--muted)}
 .cr-buys{display:inline-flex;align-items:center;padding:2px 7px;border-radius:999px;font-size:.72rem;font-weight:800;color:var(--cherry-ink,var(--cherry));background:color-mix(in srgb,var(--cherry) 14%,var(--surface));font-variant-numeric:tabular-nums}
 /* Your last brew: picture, the full name, how it was brewed and the rating, with the two actions underneath. */
@@ -2355,6 +2355,17 @@ button[aria-pressed]:active{transform:scale(.95)}
 .dwrite .dmoms{flex-wrap:nowrap;overflow-x:auto;margin:0 -12px 12px!important;padding:1px 12px!important;scroll-padding-inline:12px;-webkit-mask-image:none!important;mask-image:none!important}
 .dwrite .dmoms button{min-height:36px;white-space:nowrap}.dwrite .dbeans button{max-width:220px}
 .dwrite .dbeans button span:last-child{white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+/* Brew log: a sideways slider, one brew per slide with the next one peeking in. */
+.le-nav{display:flex;align-items:center;gap:8px;margin:12px 2px 8px}.le-pos{flex:1;font:600 .84rem var(--body);color:var(--muted);font-variant-numeric:tabular-nums}
+.le-arr{width:38px;height:38px;display:grid;place-items:center;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}.le-arr svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.le-arr:disabled{opacity:.35;cursor:default}
+.le-track{display:flex;gap:12px;align-items:flex-start;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;margin:0;padding:0 0 6px}.le-track::-webkit-scrollbar{display:none}
+.le-slide{flex:0 0 calc(100% - 28px);min-width:0;scroll-snap-align:start;scroll-snap-stop:always}.le-track.one .le-slide{flex-basis:100%}
+.le-slide .le-day{margin:0 4px 8px}.le-slide .logentry{margin:0}
+@media (min-width:760px){.le-slide{flex-basis:min(440px,calc(100% - 28px))}.le-track{margin:0;padding:0 0 6px;scroll-padding-inline:0}}
+/* Profile: the facts you gave about yourself, as one quiet line of pills under your words. */
+.me-facts{list-style:none;display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 2px;padding:0}
+.me-facts li{display:inline-flex;align-items:center;gap:6px;padding:6px 12px 6px 9px;border-radius:999px;background:var(--surface2);color:var(--muted);font-size:.84rem;line-height:1.3}
+.me-facts li b{color:var(--ink);font-weight:650}.me-facts i{font-style:normal;font-size:.95rem;line-height:1}.me-facts .me-flag{font-size:1rem}
 html.sheeting :is(.seg.bviews,.gtabs,.appbar,.minires,.bottomnav){-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 /* Diary: the entry icons' rings aren't cropped (content-visibility clips whatever pokes out of a row, so rows keep a
    little room on the left), and the moment chips scroll with an end fade instead of being cut by the card. */
@@ -7115,10 +7126,12 @@ function renderLogList(){renderLogFilter();const q=LF.q.trim().toLowerCase();
   // One brew per slide, swiped sideways in the chosen order; each slide says when it was brewed.
   let h='<div class="le-nav"><span class="le-pos" id="l-pos" aria-live="polite">'+(rows.length>1?'1 of '+rows.length:'')+'</span>'+(rows.length>1?'<button type="button" class="le-arr" data-lgo="-1" aria-label="Previous brew" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><button type="button" class="le-arr" data-lgo="1" aria-label="Next brew"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>':'')+'</div><div class="le-track'+(rows.length===1?' one':'')+'" id="l-track">';
   for(const [l,i] of rows)h+='<div class="le-slide"><h3 class="le-day">'+esc(logGroup(l))+'</h3>'+logEntryHTML(l,i)+'</div>';h+='</div>';
+  // Keep your place in the slider when the list is redrawn (a rating, an edit, a deletion).
+  const keepX=$('l-track')?$('l-track').scrollLeft:0;
   $('l-list').innerHTML=!LOG.length?'<div class="le-empty">'+lIc('edit')+'<b>No brews yet</b><p>Dial one in, then tap “Log this brew”, or fill in the form above.</p></div>':
     rows.length?(rows.length<LOG.length?'<p class="le-count">Showing '+rows.length+' of '+LOG.length+' brews</p>':'')+h:'<div class="le-empty">'+lIc('search')+'<b>No brews match</b><p><button type="button" class="linkbtn" id="lf-clear">Clear the filters</button></p></div>';
   const c=$('lf-clear');if(c)c.onclick=()=>{LF.q='';const qi=$('lf-q');if(qi)qi.value='';LF.min=0;LF.who=[];saveLF();renderLogList()};
-  const tr=$('l-track');if(tr&&rows.length>1){const pos=$('l-pos'),[pv,nx]=$('l-list').querySelectorAll('[data-lgo]');let raf=0;
+  const tr=$('l-track');if(tr&&keepX)tr.scrollLeft=keepX;if(tr&&rows.length>1){const pos=$('l-pos'),[pv,nx]=$('l-list').querySelectorAll('[data-lgo]');let raf=0;
     const at=()=>Math.round(tr.scrollLeft/(tr.firstElementChild.offsetWidth+12));
     tr.onscroll=()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;const k=clamp(at(),0,rows.length-1);pos.textContent=(k+1)+' of '+rows.length;pv.disabled=k===0;nx.disabled=k===rows.length-1})};
     $('l-list').querySelectorAll('[data-lgo]').forEach(b=>b.onclick=()=>{const k=clamp(at()+ +b.dataset.lgo,0,rows.length-1);tr.scrollTo({left:tr.children[k].offsetLeft-tr.firstElementChild.offsetLeft,behavior:RM()?'auto':'smooth'})})}
@@ -10380,6 +10393,11 @@ new MutationObserver(ms=>{for(const m of ms){const t=m.type==='attributes'?m.tar
   if(m.type==='childList')m.addedNodes.forEach(n=>n.nodeType===1&&uiScan(n));else if(m.removedNodes)for(const n of m.removedNodes)if(n._ro&&SEG_RO)SEG_RO.unobserve(n)}})
   .observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['aria-pressed']});
 uiScan(document.body);
+// A change of look (light/dark, following the phone, a vibe or an accent): every highlight takes its colours again
+// (they're copied from the picked option, so they'd otherwise stay in the old look), and so does the cup-fit badge.
+{const reTheme=()=>{document.querySelectorAll('.seg').forEach(s=>segQueue(s));try{if($('g-fit'))renderFit()}catch(e){}};
+  new MutationObserver(reTheme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','data-vibe','data-accent']});
+  try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',reTheme)}catch(e){}}
 
 /* ================= YOUR PROFILE ================= */
 // Who's brewing: a nickname, a few words, a face and the coffee you love. It is saved on this device and, once you
@@ -10492,15 +10510,19 @@ function meHTML(){const p=PROFILE,x='<button class="vd-close me-x" id="vd-x" ari
   if(!p)return '<div class="me-hero blank">'+x+CUP_SVG+'<span class="me-k">The Brew Bench</span><h2 id="vd-title">Who’s brewing?</h2>'+
       '<p>A nickname, a face and a few words about the cups you love.</p><div class="me-acts"><button type="button" class="btn me-main" id="pf-new">Create your profile</button>'+
       (AUTH_ON&&!ACCT?'<button type="button" class="btn me-ghost" id="pf-signin">I have an account</button>':'')+'</div></div>'+(ACCT?'<div class="me-body">'+accountHTML()+'</div>':'');
-  const dna=[p.origin&&['<span class="me-flag">'+flagOf(p.origin)+'</span>','Origin',originName(p.origin)],p.brewer&&['☕','Brewer',BREWERS[p.brewer].name],p.city&&['📍','Brews in',p.city]].filter(Boolean);
+  // What you told us about yourself sits with who you are (under your words), as one line of plain facts. The numbers
+  // and "Your coffee taste" below are what your coffees and cups show.
+  const dna=[p.city&&['📍','Brews in <b>'+esc(p.city)+'</b>'],p.brewer&&['☕','Loves the <b>'+esc(BREWERS[p.brewer].name)+'</b>'],
+    p.origin&&['<span class="me-flag">'+flagOf(p.origin)+'</span>','Favourite origin: <b>'+esc(originName(p.origin))+'</b>']].filter(Boolean);
   const bg=bannerBg(p);
   return '<div class="me-hero'+(bg?' banner':'')+'" style="--c:'+p.av.c+(bg?';background:'+bg:'')+'">'+x+'<button type="button" class="me-edit" id="pf-edit">'+PEN_SVG+'Edit</button>'+avatarHTML(p,96)+
       '<span class="me-k">'+esc(ROLE[p.style]||'Home brewer')+'</span><h2 id="vd-title">'+esc(p.nick)+'</h2>'+(p.name?'<small class="me-name">'+esc(p.name)+'</small>':'')+
       '<span class="me-since">Brewing with us since '+new Date(p.since).toLocaleDateString(undefined,{month:'long',year:'numeric'})+'</span></div>'+
     '<div class="me-body">'+(p.brief?'<blockquote class="me-brief">'+esc(p.brief)+'</blockquote>':'<button type="button" class="me-add" id="pf-edit2">Add a few words about how you take your coffee</button>')+
+      (dna.length?'<ul class="me-facts">'+dna.map(([i,t])=>'<li><i aria-hidden="true">'+i+'</i><span>'+t+'</span></li>').join('')+'</ul>'
+        :'<button type="button" class="me-add" id="pf-edit3">Add where you brew, your brewer and your favourite origin</button>')+
       '<div class="me-stats">'+profileStats().map(([n,l])=>'<span><b>'+n+'</b>'+l+'</span>').join('')+'</div>'+tasteHTML()+
-      (dna.length?'<div class="me-tiles me-mine">'+dna.map(([i,k,v])=>'<div><i aria-hidden="true">'+i+'</i><small>'+k+'</small><b>'+esc(v)+'</b></div>').join('')+'</div>'
-        :'<button type="button" class="me-add" id="pf-edit3">Add your favourite origin, brewer and where you brew</button>')+accountHTML()+'</div>'}
+      accountHTML()+'</div>'}
 $('vd').addEventListener('click',e=>{if(e.target.closest('#pf-new,#pf-edit,#pf-edit2,#pf-edit3')){delete $('vd').dataset.me;openProfileEditor();return}if(e.target.closest('#pf-signin')){delete $('vd').dataset.me;openSignIn();return}
   if(e.target.closest('#pf-out')){askConfirm('Your profile stays on this phone.','Sign out',false,'Sign out?').then(y=>{if(y)signOut()});return}
   if(e.target.closest('#pf-bio')){const on=BIOM&&BIOM.saved&&BIOM.email===(ACCT&&ACCT.email),w=bioWord();(on?bioOff():bioOn()).then(()=>toast(on?w[0].toUpperCase()+w.slice(1)+' sign-in is off':'Next time, sign in with your '+bioWord()),err=>{if(err&&err.message&&!/cancel/i.test(err.message))toast(err.message)});return}

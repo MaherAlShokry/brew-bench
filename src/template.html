@@ -2013,11 +2013,11 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .shmode{display:inline-flex;padding:3px;border-radius:999px;background:rgba(255,246,232,.08);margin-bottom:10px}
 .shmode button{border:0;background:none;color:rgba(255,246,232,.82);font:inherit;font-size:.84rem;font-weight:700;padding:7px 16px;border-radius:999px;min-height:36px;cursor:pointer}
 .shmode button[aria-pressed="true"]{background:#F0C987;color:#2E1C12}
-.shcols{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -12px;padding:2px 12px 4px;scroll-padding-inline:12px;scroll-snap-type:x proximity}.shcols::-webkit-scrollbar{display:none}
+.shcols{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -12px;padding:7px 12px 6px;scroll-padding-inline:12px;scroll-snap-type:x proximity}.shcols::-webkit-scrollbar{display:none}
 .shsw{flex:none;display:flex;flex-direction:column;align-items:center;gap:5px;width:64px;border:0;background:none;padding:0;color:rgba(255,246,232,.78);font:inherit;font-size:.68rem;line-height:1.2;cursor:pointer;scroll-snap-align:start}
 .shsw i{width:40px;height:40px;border-radius:50%;box-shadow:0 0 0 1.5px rgba(255,246,232,.25);transition:box-shadow .2s,transform .2s var(--ease-spring)}
 .shsw span{max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.shsw[aria-pressed="true"]{color:#F0C987;font-weight:700}.shsw[aria-pressed="true"] i{box-shadow:0 0 0 2.5px #1A100A,0 0 0 4.5px #F0C987;transform:scale(1.05)}
+.shsw[aria-pressed="true"]{color:#F0C987;font-weight:700}.shsw[aria-pressed="true"] i{box-shadow:0 0 0 2.5px #1A100A,0 0 0 4.5px #F0C987}
 .shsw:focus-visible i,.shmode button:focus-visible{outline:2px solid #F0C987;outline-offset:2px}
 .shcard-pv.busy{position:relative}.shcard-pv.busy::after{content:'';position:absolute;inset:0;background:rgba(20,12,7,.45);animation:bfade .2s ease}
 .steps.tl .t.est{background:transparent;border:1px dashed color-mix(in srgb,var(--ink) 30%,transparent);opacity:.85}
@@ -2283,7 +2283,7 @@ label[for=i-grind]>span{display:flex;flex-direction:column;align-items:flex-end;
 .seg.has-ind>button[aria-pressed="true"]:not([data-peek]){background:transparent!important;background-image:none!important;box-shadow:none!important}
 /* Only the gliding highlight moves: the tapped option never shows (or fades out) a highlight of its own. */
 .seg.has-ind>button{transition:color .2s ease!important}
-.seg-ind{position:absolute;z-index:0;pointer-events:none;will-change:transform;transition:transform .2s ease-out,width .2s ease-out,height .2s ease-out,background-color .2s,opacity .2s}
+.seg-ind{position:absolute;z-index:0;pointer-events:none;will-change:transform;transition:transform .2s ease-out,width .2s ease-out,height .2s ease-out,opacity .2s}
 .bd-bags{list-style:none;margin:0;padding:0;display:grid;gap:6px}.bd-bags li{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:12px;border:1px solid var(--line)}.bd-bags b{font-size:.88rem}.bd-bags span{font-size:.8rem;color:var(--muted)}
 .cr-buys{display:inline-flex;align-items:center;padding:2px 7px;border-radius:999px;font-size:.72rem;font-weight:800;color:var(--cherry-ink,var(--cherry));background:color-mix(in srgb,var(--cherry) 14%,var(--surface));font-variant-numeric:tabular-nums}
 /* Your last brew: picture, the full name, how it was brewed and the rating, with the two actions underneath. */
@@ -2354,6 +2354,17 @@ button[aria-pressed]:active{transform:scale(.95)}
 .dwrite .dmoms{flex-wrap:nowrap;overflow-x:auto;margin:0 -12px 12px!important;padding:1px 12px!important;scroll-padding-inline:12px;-webkit-mask-image:none!important;mask-image:none!important}
 .dwrite .dmoms button{min-height:36px;white-space:nowrap}.dwrite .dbeans button{max-width:220px}
 .dwrite .dbeans button span:last-child{white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+/* Brew log: a sideways slider, one brew per slide with the next one peeking in. */
+.le-nav{display:flex;align-items:center;gap:8px;margin:12px 2px 8px}.le-pos{flex:1;font:600 .84rem var(--body);color:var(--muted);font-variant-numeric:tabular-nums}
+.le-arr{width:38px;height:38px;display:grid;place-items:center;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}.le-arr svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.le-arr:disabled{opacity:.35;cursor:default}
+.le-track{display:flex;gap:12px;align-items:flex-start;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;margin:0;padding:0 0 6px}.le-track::-webkit-scrollbar{display:none}
+.le-slide{flex:0 0 calc(100% - 28px);min-width:0;scroll-snap-align:start;scroll-snap-stop:always}.le-track.one .le-slide{flex-basis:100%}
+.le-slide .le-day{margin:0 4px 8px}.le-slide .logentry{margin:0}
+@media (min-width:760px){.le-slide{flex-basis:min(440px,calc(100% - 28px))}.le-track{margin:0;padding:0 0 6px;scroll-padding-inline:0}}
+/* Profile: the facts you gave about yourself, as one quiet line of pills under your words. */
+.me-facts{list-style:none;display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 2px;padding:0}
+.me-facts li{display:inline-flex;align-items:center;gap:6px;padding:6px 12px 6px 9px;border-radius:999px;background:var(--surface2);color:var(--muted);font-size:.84rem;line-height:1.3}
+.me-facts li b{color:var(--ink);font-weight:650}.me-facts i{font-style:normal;font-size:.95rem;line-height:1}.me-facts .me-flag{font-size:1rem}
 html.sheeting :is(.seg.bviews,.gtabs,.appbar,.minires,.bottomnav){-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 /* Diary: the entry icons' rings aren't cropped (content-visibility clips whatever pokes out of a row, so rows keep a
    little room on the left), and the moment chips scroll with an end fade instead of being cut by the card. */

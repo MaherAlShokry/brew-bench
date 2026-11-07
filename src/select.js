@@ -169,3 +169,8 @@ new MutationObserver(ms=>{for(const m of ms){const t=m.type==='attributes'?m.tar
   if(m.type==='childList')m.addedNodes.forEach(n=>n.nodeType===1&&uiScan(n));else if(m.removedNodes)for(const n of m.removedNodes)if(n._ro&&SEG_RO)SEG_RO.unobserve(n)}})
   .observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['aria-pressed']});
 uiScan(document.body);
+// A change of look (light/dark, following the phone, a vibe or an accent): every highlight takes its colours again
+// (they're copied from the picked option, so they'd otherwise stay in the old look), and so does the cup-fit badge.
+{const reTheme=()=>{document.querySelectorAll('.seg').forEach(s=>segQueue(s));try{if($('g-fit'))renderFit()}catch(e){}};
+  new MutationObserver(reTheme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','data-vibe','data-accent']});
+  try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',reTheme)}catch(e){}}
