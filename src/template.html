@@ -2297,7 +2297,7 @@ label[for=i-grind]>span{display:flex;flex-direction:column;align-items:flex-end;
 .lastbrew .lb-tx .st{margin-top:2px;font-style:normal}
 .lastbrew .lb-act{flex-direction:row;gap:8px}.lastbrew .lb-act .btn{flex:1;min-height:40px}
 .di{width:1.15em;height:1.15em;display:inline-block;vertical-align:-.2em;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
-:is([class^="yic"],.me-tiles,.me-dna,.tro-ic,.ssn-ic,.tl-ic,.tshelf,.ssn-got,.bd-rbh,.wel-ic,.fact-ic) .di{color:var(--cherry);stroke-width:1.7}
+:is([class^="yic"],.me-tiles,.me-dna,.me-sq,.tro-ic,.ssn-ic,.tl-ic,.tshelf,.ssn-got,.bd-rbh,.wel-ic,.fact-ic) .di{color:var(--cherry);stroke-width:1.7}
 .tro-ic .di,.ssn-ic .di{width:1.5em;height:1.5em}.me-tiles .di{width:1.35em;height:1.35em}.bd-rbh .di{width:1.6em;height:1.6em}
 #toast .di{width:1.05em;height:1.05em;vertical-align:-.18em;margin:0 .1em}
 /* Brew steps: icons a size up, in even tinted circles, and a small dot on the line for steps without a time. */
@@ -2361,10 +2361,28 @@ button[aria-pressed]:active{transform:scale(.95)}
 .le-slide{flex:0 0 calc(100% - 28px);min-width:0;scroll-snap-align:start;scroll-snap-stop:always}.le-track.one .le-slide{flex-basis:100%}
 .le-slide .le-day{margin:0 4px 8px}.le-slide .logentry{margin:0}
 @media (min-width:760px){.le-slide{flex-basis:min(440px,calc(100% - 28px))}.le-track{margin:0;padding:0 0 6px;scroll-padding-inline:0}}
-/* Profile: the facts you gave about yourself, as one quiet line of pills under your words. */
-.me-facts{list-style:none;display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 2px;padding:0}
-.me-facts li{display:inline-flex;align-items:center;gap:6px;padding:6px 12px 6px 9px;border-radius:999px;background:var(--surface2);color:var(--muted);font-size:.84rem;line-height:1.3}
-.me-facts li b{color:var(--ink);font-weight:650}.me-facts i{font-style:normal;font-size:.95rem;line-height:1}.me-facts .me-flag{font-size:1rem}
+/* Profile, restructured: a cover strip, the picture over its edge, who you are on the page; then the numbers as one
+   bar, About (your words and three squares), your coffee taste and the account. */
+.me-cover{height:calc(128px + var(--sa-top,0px));padding:0!important;display:block!important}
+.me-id{position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-start;gap:2px;margin-top:-46px;padding:0 20px}
+.me-id .pav{box-shadow:0 0 0 4px var(--surface),0 8px 24px -10px rgba(0,0,0,.45);margin-bottom:10px}
+.me-id .me-k{color:var(--cherry);font-size:.68rem}
+.me-id h2{margin:2px 0 0;font:700 1.6rem/1.15 var(--display);color:var(--ink);overflow-wrap:anywhere}
+.me-id .me-name{font-size:.86rem;color:var(--muted);opacity:1}
+.me-body .me-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;padding:12px 0;border-radius:16px;background:var(--surface2)}
+.me-body .me-stats span{padding:2px 4px;border-radius:0;background:none;font-size:.74rem}
+.me-body .me-stats span+span{border-left:1px solid var(--line)}
+.me-body .me-stats b{font-size:1.35rem}
+.me-sec{display:flex;flex-direction:column;gap:10px}
+.me-sh{margin:6px 0 0;font:700 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.me-body .me-brief{margin:0;padding:0;font:400 1rem/1.5 var(--body);color:var(--ink)}.me-body .me-brief::before{content:none}
+.me-sq{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.me-sq>div{aspect-ratio:1/1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end;gap:2px;padding:12px;border-radius:16px;background:var(--surface2)}
+.me-sq i{width:34px;height:34px;display:grid;place-items:center;margin-bottom:auto;border-radius:50%;background:var(--surface);font-style:normal;font-size:1.05rem}
+.me-sq .me-flag{font-size:1.15rem}
+.me-sq small{font-size:.66rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.me-sq b{font:650 .92rem/1.2 var(--display);color:var(--ink);overflow-wrap:anywhere}
+.me-body .me-taste{margin:6px 0 0}
 html.sheeting :is(.seg.bviews,.gtabs,.appbar,.minires,.bottomnav){-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 /* Diary: the entry icons' rings aren't cropped (content-visibility clips whatever pokes out of a row, so rows keep a
    little room on the left), and the moment chips scroll with an end fade instead of being cut by the card. */
