@@ -245,7 +245,7 @@ document.addEventListener('click',e=>{const x=e.target.closest('[data-dyph]');if
 // The diary's composer, on a coffee's page (bd) and in the Diary view (dy): the moment, a few words, the day and a photo.
 // st keeps what's chosen so far, so a redraw doesn't lose it.
 const CAM_ICO='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-2.5h6L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.6"/></svg>';
-function dwriteHTML(p,st,top){return '<div class="dwrite" id="'+p+'-write">'+(top||'')+'<div class="dmoms" role="group" aria-label="What kind of moment">'+
+function dwriteHTML(p,st,top){return '<div class="dwrite" id="'+p+'-write">'+(top?'<p class="dw-lab">Coffee</p>'+top+'<p class="dw-lab">Moment</p>':'')+'<div class="dmoms" role="group" aria-label="What kind of moment">'+
     Object.entries(MOMENTS).map(([k,[n,ic]])=>'<button type="button" data-mom="'+k+'" aria-pressed="'+(k===st.mom)+'"><span aria-hidden="true">'+ic+'</span>'+n+'</button>').join('')+'</div>'+
     '<textarea id="'+p+'-dt" rows="3" maxlength="600" aria-label="Diary entry" placeholder="'+esc(MOMENTS[st.mom][2])+'">'+esc(st.t||'')+'</textarea><div class="dw-ph" id="'+p+'-phv"'+(st.ph?'':' hidden')+'>'+dwPh(st)+'</div>'+
     '<div class="dw-row"><input type="date" id="'+p+'-dd" class="dateinp" value="'+(st.d||todayISO())+'" max="'+todayISO()+'" aria-label="Date" required><input type="file" accept="image/*" id="'+p+'-ph" hidden>'+
@@ -731,9 +731,9 @@ const DYFILTERS=[['all','All'],['written','Written'],['photos','Photos'],['brews
 const dyKeep=(it,f)=>f==='all'||(f==='brews'?it.kind==='brew':f==='best'?(it.kind==='entry'?it.e.k==='best':+it.l.stars===5):it.kind==='entry'&&(f==='written'?!!it.e.t:f==='photos'?!!it.e.ph:it.e.k===f));
 const dyBeanOrder=()=>[...BEANS].sort((a,c)=>(c.shelf-a.shelf)||beanDay(c).localeCompare(beanDay(a))||c.ts-a.ts);
 // Which coffee you're writing about: the open bags first, the rest a tap away.
-function dyBeansHTML(){const list=dyBeanOrder();if(!beanById(DYB))DYB=list[0].id;const sel=beanById(DYB);let l=list.slice(0,4);if(!l.includes(sel))l=[sel,...l.slice(0,3)];
+function dyBeansHTML(){const list=dyBeanOrder();if(!beanById(DYB))DYB=list[0].id;const sel=beanById(DYB);let l=list.slice(0,8);if(!l.includes(sel))l=[sel,...l.slice(0,7)];
   return '<div class="dmoms dbeans" id="dy-beans" role="group" aria-label="Which coffee">'+l.map(b=>'<button type="button" data-dyb="'+b.id+'" aria-pressed="'+(b.id===DYB)+'">'+beanPic(b,'xs')+'<span>'+esc(beanTitle(b))+'</span></button>').join('')+
-    (list.length>4?'<button type="button" data-dyb="more">All coffees…</button>':'')+'</div>'}
+    (list.length>8?'<button type="button" data-dyb="more">All coffees…</button>':'')+'</div>'}
 function setDyBean(id){DYB=id;const r=$('dy-beans');if(!r)return;r.outerHTML=dyBeansHTML();hydrateImgs($('dy-write'))}
 // A memory: what you wrote on this day in an earlier year, or else a month ago today.
 function onThisDayHTML(items){const t=todayISO(),y=+t.slice(0,4),e=items.filter(it=>it.kind==='entry');
