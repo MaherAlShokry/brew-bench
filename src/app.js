@@ -12,13 +12,86 @@ function load(k,d){let v;try{const t=localStorage.getItem(k);v=t?JSON.parse(t):d
   if(d===null||typeof d==='object')return v&&typeof v==='object'&&!Array.isArray(v)?v:d;return v}
 const num=(v,d,a=-Infinity,b=Infinity)=>{v=+v;return Number.isFinite(v)?Math.min(b,Math.max(a,v)):d};
 const oneOf=(v,list,d)=>list.includes(v)?v:d;
-function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+// LOGV counts changes to the brew log, so summaries built from it know when to work it out again.
+var LOGV=0;function save(k,v){if(k==='bb-log')LOGV++;try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 const MQ=q=>!!(window.matchMedia&&window.matchMedia(q).matches);const RM=()=>MQ('(prefers-reduced-motion: reduce)')||document.documentElement.getAttribute('data-motion')==='reduced';
+/* Drawn icons in place of emoji: one line style (24-grid, round strokes in the text colour) across stats, trophies,
+   seasons, moments and greetings. emoIc() swaps every known emoji in a bit of HTML for its icon; anything unknown
+   (country flags, for one) is left as it is. */
+const EMO_P={
+ '☕':'M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z M16 10h1.5a2.5 2.5 0 0 1 0 5H16 M8.5 3.5c-1 1 1 2 0 3 M12 3.5c-1 1 1 2 0 3',
+ '🗺':'M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z M9 4v14 M15 6v14',
+ '🌱':'M12 21v-8 M12 13c0-4-3-6.5-7-6.5 0 4 3 6.5 7 6.5z M12 15c0-4 3-6.5 7-6.5 0 4-3 6.5-7 6.5z',
+ '🧪':'M9 3h6 M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3 M7.3 15h9.4',
+ '🔥':'M12 3c.8 3.6 5.5 5.6 5.5 10.5a5.5 5.5 0 0 1-11 0c0-2.6 1.4-3.9 2-6 1.6 1 2.6 2.6 2.6 4.6 1.2-1.8 1.3-5.4.9-9.1z',
+ '🏷':'M3.5 12.5V4.5a1 1 0 0 1 1-1h8l8 8a1.4 1.4 0 0 1 0 2l-7 7a1.4 1.4 0 0 1-2 0z M8 8h.01',
+ '🔁':'M4 12V9.5A3.5 3.5 0 0 1 7.5 6H19 M16 3l3 3-3 3 M20 12v2.5a3.5 3.5 0 0 1-3.5 3.5H5 M8 21l-3-3 3-3',
+ '🏆':'M8 4h8v5a4 4 0 0 1-8 0z M8 5.5H5.5a2.5 2.5 0 0 0 2.6 4 M16 5.5h2.5a2.5 2.5 0 0 1-2.6 4 M12 13v4 M8.5 20.5h7 M9.5 17h5l1 3.5h-7z',
+ '🛍':'M5 8h14l-1 12.5a1 1 0 0 1-1 .9H7a1 1 0 0 1-1-.9z M9 10V6.5a3 3 0 0 1 6 0V10',
+ '🏁':'M5 21V4 M5 4.5c4-2 7 2 12 0v8c-5 2-8-2-12 0',
+ '📍':'M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z M12 7.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5z',
+ '🌸':'M12 9.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5z M12 9.5C10 6 11 3.5 12 3c1 .5 2 3 0 6.5z M14.4 11.2c2.3-3.2 5-3.2 5.7-2.4.2 1.1-1.6 3.2-5.7 3.3z M13.4 14.2c3.6 1.5 4.2 4.2 3.5 5-1.1.4-3.5-1-3.9-5z M10.6 14.2c-.4 4-2.8 5.4-3.9 5-.7-.8-.1-3.5 3.5-5z M9.6 11.2c-4.1-.1-5.9-2.2-5.7-3.3.7-.8 3.4-.8 5.7 2.4z',
+ '❄':'M12 3v18 M4.2 7.5l15.6 9 M4.2 16.5l15.6-9 M9.5 4.5 12 7l2.5-2.5 M9.5 19.5 12 17l2.5 2.5',
+ '🍂':'M5 19c0-8.5 5.5-14 15-14 0 9.5-5.5 15-14 15z M5 19l7.5-7.5',
+ '☀':'M12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8z M12 2.5v2 M12 19.5v2 M2.5 12h2 M19.5 12h2 M5.3 5.3l1.4 1.4 M17.3 17.3l1.4 1.4 M5.3 18.7l1.4-1.4 M17.3 6.7l1.4-1.4',
+ '🌙':'M19.5 14.5A7.5 7.5 0 1 1 9.5 4.5a6 6 0 0 0 10 10z',
+ '✨':'M11 3l1.7 5.1L18 10l-5.3 1.9L11 17l-1.7-5.1L4 10l5.3-1.9z M18.5 15l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z',
+ '🤝':'M12 20s-7-4.4-9-8.6C1.6 8.4 3.4 5 6.7 5c2 0 3.3 1.2 4.3 2.6C12 6.2 13.3 5 15.3 5c3.3 0 5.1 3.4 3.7 6.4C19 15.6 12 20 12 20z M9 12l2 2 4-4',
+ '💛':'M12 20s-7-4.4-9-8.6C1.6 8.4 3.4 5 6.7 5c2 0 3.3 1.2 4.3 2.6C12 6.2 13.3 5 15.3 5c3.3 0 5.1 3.4 3.7 6.4C19 15.6 12 20 12 20z',
+ '🐐':'M8 13.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z M16.5 11a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z M8 13.5c0-5 3-8.5 8-10 M16.5 11c-.5-3 0-5.5 1-7.5 M13 6c1.5-.2 3 .3 4.5 1.5',
+ '🍒':'M8 13.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z M16.5 11a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z M8 13.5c0-5 3-8.5 8-10 M16.5 11c-.5-3 0-5.5 1-7.5',
+ '🦁':'M12 3l7 3v5c0 5-3 8.5-7 10-4-1.5-7-5-7-10V6z M9 11.5h.01 M15 11.5h.01 M10 15.5c1.2.8 2.8.8 4 0',
+ '📦':'M3.5 7.5 12 3.5l8.5 4L12 11.5z M3.5 7.5v9l8.5 4 8.5-4v-9 M12 11.5v9',
+ '✍':'M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4',
+ '🎯':'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10z M12 11a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
+ '🏛':'M3 9.5 12 4l9 5.5 M5 10v8 M9.5 10v8 M14.5 10v8 M19 10v8 M3 20.5h18',
+ '⛵':'M12 3v14 M12 4.5l6.5 11.5H12 M10 7.5 5 16h5 M3 18.5h18l-2 2.5H5z',
+ '🛂':'M6 3h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z M12 7.5a3 3 0 1 1 0 6 3 3 0 0 1 0-6z M9 17h6',
+ '🌍':'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z M3 12h18 M12 3c3 3 3 15 0 18 M12 3c-3 3-3 15 0 18',
+ '🧭':'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z M15.5 8.5l-2 5-5 2 2-5z',
+ '🍷':'M7 3h10l-.8 6.2a4.2 4.2 0 0 1-8.4 0z M12 13.5V21 M8.5 21h7',
+ '📖':'M3.5 5.5A1.5 1.5 0 0 1 5 4h5a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H3.5z M20.5 5.5A1.5 1.5 0 0 0 19 4h-5a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h6.5z',
+ '👑':'M3.5 8l4.5 4 4-7 4 7 4.5-4-2 11h-13z',
+ '☯':'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z M12 3a4.5 4.5 0 0 0 0 9 4.5 4.5 0 0 1 0 9 M12 7h.01 M12 16.5h.01',
+ '🦉':'M19.5 14.5A7.5 7.5 0 1 1 9.5 4.5a6 6 0 0 0 10 10z M16 4l.6 1.4L18 6l-1.4.6L16 8l-.6-1.4L14 6l1.4-.6z',
+ '⏱':'M12 8a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13z M12 11v3.5l2.2 1.5 M10 3h4 M12 3v5 M18.5 6.5l-1.3 1.3',
+ '🧐':'M10.5 4a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13z M15.5 15.5 20.5 20.5',
+ '👃':'M6 19c2-2 2-4 0-6s-2-4 0-6 M12 19c2-2 2-4 0-6s-2-4 0-6 M18 19c2-2 2-4 0-6s-2-4 0-6',
+ '🏡':'M3.5 11 12 4l8.5 7 M5.5 9.5V20h13V9.5 M10 20v-5.5h4V20',
+ '📝':'M6 3h9l4 4v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z M15 3v4h4 M8.5 12h7 M8.5 16h5',
+ '💯':'M12 9.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11z M8.5 10.5 6.5 3.5h3.5l2 4 2-4h3.5l-2 7 M12 13l.9 1.8 2 .3-1.4 1.4.3 2-1.8-.9-1.8.9.3-2-1.4-1.4 2-.3z',
+ '📅':'M4.5 6h15a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1z M3.5 10.5h17 M8 3.5v5 M16 3.5v5',
+ '🧰':'M3.5 9h17v10.5a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1z M8.5 9V6.5a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2V9 M3.5 13.5h17 M10.5 13.5v2h3v-2',
+ '🧊':'M4 8l8-4 8 4v8l-8 4-8-4z M4 8l8 4 8-4 M12 12v8',
+ '🎉':'M4 20l4.5-12 7.5 7.5z M14 3.5l.7 2 M20.5 10l-2 .7 M17.5 3l-1.2 3 M21 6.5l-3 1.2',
+ '🌋':'M3 20.5l6-11 3.5 5 2.5-3.5 6 9.5z M10 5.5c.5-1 1.5-1.5 2.5-1.2 M14 4.5c1-.7 2.2-.6 3 .3',
+ '⛰':'M3 20.5l6-11 3.5 5 2.5-3.5 6 9.5z',
+ '📺':'M3.5 7.5h17a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-17a1 1 0 0 1-1-1v-10a1 1 0 0 1 1-1z M8 3.5l4 4 4-4',
+ '🫘':'M12 3c4 0 7 4 7 9s-3 9-7 9-7-4-7-9 3-9 7-9z M12 3.5c-2 3 2 5.5 0 8.5s2 5.5 0 8.5',
+ '🍋':'M5 19c-2-2-1.2-7.2 3-11.4S17 2.6 19 4.6s1.2 7.2-3 11.4S7 21 5 19z M8.5 15.5l7-7',
+ '🍫':'M6 3h12v18H6z M6 9h12 M6 15h12 M12 3v18',
+ '🫖':'M5 10h11v4.5a5.5 5.5 0 0 1-5.5 5.5h0A5.5 5.5 0 0 1 5 14.5z M16 11h1.5a2 2 0 0 1 0 4H16 M5 12.5H3 M8.5 10V8.5h4V10 M10.5 6v2.5',
+ '🐦':'M4 15c3 0 5.5-2 6.5-5.2C11.6 6.6 14 5 16.5 5.5L21 7l-3 1.8c0 6.3-5 10.7-11.5 10 2-1 3-2.3 3-3.8',
+ '📜':'M7 3h10.5A1.5 1.5 0 0 1 19 4.5V18a3 3 0 0 1-3 3H7 M7 3a2 2 0 0 0-2 2v2h4V5a2 2 0 0 0-2-2z M7 21a2 2 0 0 1-2-2V7 M11 8.5h5 M11 12.5h5',
+ '📊':'M4 20.5h16 M6.5 20V13 M11 20V8 M15.5 20v-5 M20 20V5'
+};
+const EMO_RE=new RegExp('('+Object.keys(EMO_P).map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')\uFE0F?','gu');
+const emoSVG=ch=>EMO_P[ch]?'<svg class="di" viewBox="0 0 24 24" aria-hidden="true"><path d="'+EMO_P[ch]+'"/></svg>':ch;
+// Text inside tags (attributes) and inside <option>, <textarea> and <title> stays as it is: those can't hold a drawing.
+const EMO_TEST=new RegExp(EMO_RE.source,'u');
+function emoIc(s){s=String(s??'');if(!EMO_TEST.test(s))return s;let skip=0;
+  return s.replace(/(<[^>]*>)|([^<]+)/g,(m,tag,txt)=>{if(tag){if(/^<(option|textarea|title)\b/i.test(tag))skip++;else if(/^<\/(option|textarea|title)\b/i.test(tag))skip=Math.max(0,skip-1);return tag}
+    return skip?txt:txt.replace(EMO_RE,(x,ch)=>emoSVG(ch))})}
+// Every bit of HTML the app draws goes through emoIc, so a new screen can't bring emoji back by accident.
+(()=>{const d=Object.getOwnPropertyDescriptor(Element.prototype,'innerHTML');if(!d||!d.set)return;
+  Object.defineProperty(Element.prototype,'innerHTML',{configurable:true,enumerable:d.enumerable,get(){return d.get.call(this)},
+    set(v){d.set.call(this,typeof v==='string'&&this.namespaceURI==='http://www.w3.org/1999/xhtml'&&this.localName!=='textarea'&&this.localName!=='option'&&this.localName!=='select'?emoIc(v):v)}})
+  const ia=Element.prototype.insertAdjacentHTML;Element.prototype.insertAdjacentHTML=function(w,h){return ia.call(this,w,typeof h==='string'?emoIc(h):h)}})();
 // Ratings are drawn as coffee beans, filled to the rating (half a bean for a half), here and in the bean gallery.
 const RB_G='<g transform="rotate(30 12 12)"><path class="bo" d="M12 2.6c4.1 0 6.6 4.3 6.6 9.4s-2.5 9.4-6.6 9.4-6.6-4.3-6.6-9.4 2.5-9.4 6.6-9.4z"/><path class="bc" d="M12.7 3.2c-2.4 2.6-.4 5.6-1.3 8.8s1.3 5.9-.6 8.8"/></g>';
 const RB_SVG='<svg viewBox="0 0 24 24" aria-hidden="true">'+RB_G+'</svg>';
 const beanRate=(r,cls)=>{let h='';for(let i=1;i<=5;i++){const f=r>=i?100:r>=i-0.5?50:0;h+='<span class="rb">'+RB_SVG+'<span class="rbf" style="width:'+f+'%">'+RB_SVG+'</span></span>'}return '<span class="brate'+(cls?' '+cls:'')+'" aria-hidden="true">'+h+'</span>'};
-let toastT;function toast(m){const t=$('toast');t.classList.remove('act');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600)}
+let toastT;function toast(m){const t=$('toast');t.classList.remove('act');t.innerHTML=emoIc(esc(m));t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600)}
 // A toast with a button, kept up a little longer so there is time to tap it.
 function toastAct(m,label,fn){const t=$('toast');t.textContent='';t.classList.add('act');const sp=document.createElement('span');sp.textContent=m;const b=document.createElement('button');b.type='button';b.className='tact';b.textContent=label;
   b.onclick=()=>{t.classList.remove('show');fn()};t.append(sp,b);t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),6000)}
@@ -243,9 +316,13 @@ function sanRec(r){if(!r||typeof r!=='object'||!BREWERS[r.b])return null;const n
 let CREC=load('bb-myrecipes',[]).map(sanRec).filter(Boolean);
 function syncRecipes(){RECIPES.length=BUILTIN_N;CREC.slice().sort((a,b)=>a.ts-b.ts).forEach(r=>RECIPES.push(r))}
 syncRecipes();
-const MODEL=Object.keys(BREWERS).filter(k=>BREWERS[k].model);
+// The V60 NEO and NEO Switch are shown as the V60 and the Switch: one name, one choice, their recipes together.
+// Their data stays so old brews and recipes still open, but nothing offers them as a brewer of their own.
+const TWIN={neo:'v60',swneo:'sw'},CANONB=b=>TWIN[b]||b;
+if(BREWERS.neo)BREWERS.neo.name=BREWERS.v60.name;if(BREWERS.swneo)BREWERS.swneo.name=BREWERS.sw.name;
+const MODEL=Object.keys(BREWERS).filter(k=>BREWERS[k].model&&!TWIN[k]);
 // A method of another brewer (the Switch used as a full immersion) isn't listed as a brewer of its own.
-const LISTED=k=>!BREWERS[k].of,METHODS=k=>Object.keys(BREWERS).filter(x=>BREWERS[x].of===k);
+const LISTED=k=>!BREWERS[k].of&&!TWIN[k],METHODS=k=>Object.keys(BREWERS).filter(x=>BREWERS[x].of===k);
 function brewerOptions(list){const types=[...new Set(list.map(k=>BREWERS[k].type))];return types.map(t=>'<optgroup label="'+t+'">'+list.filter(k=>BREWERS[k].type===t).map(k=>'<option value="'+k+'">'+esc(BREWERS[k].name)+'</option>').join('')+'</optgroup>').join('')}
 
 /* ================= VARIETY HELPERS ================= */
@@ -283,7 +360,7 @@ const okSBean=b=>{if(!b||typeof b!=='object')return null;const id=/^[a-z0-9]{4,2
 S.bean=okSBean(S.bean);
 S.setting=num(S.setting,56);S.temp=num(S.temp,93);S.ratio=num(S.ratio,15);S.bloom=num(S.bloom,45);if(S.rec!=null&&!RECIPES[S.rec])S.rec=null;
 S.dose=num(S.dose,15,3,120);S.age=Math.round(num(S.age,14,0,90));if(!S.tuned||typeof S.tuned!=='object')S.tuned=null;
-if(typeof S.variety!=='string'||!vById(S.variety))S.variety='caturra';S.region=okOrigin(S.region)||(S.variety.includes(':')?okOrigin(S.variety.split(':')[1]):'');if(!BREWERS[S.brewer]||!BREWERS[S.brewer].model)S.brewer='v60';if(!PROCESSES[S.process])S.process='washed';
+if(typeof S.variety!=='string'||!vById(S.variety))S.variety='caturra';S.region=okOrigin(S.region)||(S.variety.includes(':')?okOrigin(S.variety.split(':')[1]):'');S.brewer=CANONB(S.brewer);if(!BREWERS[S.brewer]||!BREWERS[S.brewer].model)S.brewer='v60';if(!PROCESSES[S.process])S.process='washed';
 if(S.grinder==='kultra'&&S.setting<30&&S.setting>5&&S.setting%1)S.setting=Math.round(S.setting*10);
 // If the saved grinder is gone or can't do this brewer, move to one of yours and carry the grind across, never the raw click number.
 if(!MYG.includes(S.grinder)||!canGrind(S.grinder,S.brewer)){const g=MYG.find(x=>canGrind(x,S.brewer))||capable(S.brewer);
@@ -467,7 +544,7 @@ function bloomShift(steps,bloom){const t=s=>{const m=/^(\d+):(\d\d)\b/.exec(s);r
   return{steps:steps.map((s,i)=>{const v=t(s);return i&&v!=null?s.replace(/^\d+:\d\d/,fmt(Math.max(0,v+d))):s}),
     note:'Bloom '+Math.round(bloom)+' s (the recipe says '+t(steps[1])+' s): the next pours move '+Math.abs(d)+' s '+(d>0?'later':'earlier')+'.'}}
 function renderDialRecipe(){const tl=techList(S.brewer),r=dialRec();
-  const opts='<option value="">No recipe: dial in freely</option>'+tl.map(([x,i])=>'<option value="'+i+'">'+esc(x.name)+(x.b!==S.brewer&&sameFam(x.b,S.brewer)?' (for the '+BSHORT[x.b]+')':'')+(x.champ?' (champion)':'')+'</option>').join('');
+  const opts='<option value="">No recipe: dial in freely</option>'+tl.map(([x,i])=>'<option value="'+i+'">'+esc(x.name)+(x.b!==S.brewer&&sameFam(x.b,S.brewer)&&!TWIN[x.b]&&!TWIN[S.brewer]?' (for the '+BSHORT[x.b]+')':'')+(x.champ?' (champion)':'')+'</option>').join('');
   if($('i-rec').dataset.k!==S.brewer+'|'+tl.length){$('i-rec').innerHTML=opts;$('i-rec').dataset.k=S.brewer+'|'+tl.length}
   $('i-rec').value=r?String(S.rec):'';$('v-rec').textContent=r?(r.by||''):tl.length+' for this brewer';
   $('d-recbox').hidden=!r;$('mr-play').hidden=!r;
@@ -562,7 +639,7 @@ function render(){
     else if(cOk)tips.push('To land in the sweet spot, '+combo()+'.');
     else if(diff)tips.push('To get closer to the sweet spot, try <b>'+gLabel(S.grinder,t)+'</b> ('+diff+' '+units(diff)+' '+way+')'+(ta!==S.temp?' with water at <b>'+ta+'°C</b>':'')+'. This coffee may suit '+(r.D<0?'a hotter, longer':'a cooler, shorter')+' recipe better.');
     else tips.push('The '+esc(G.name)+' is at the '+(r.D>0?'coarse':'fine')+' end of its range here'+(ta!==S.temp?', so move the water to <b>'+ta+'°C</b> instead.':'. Try another grinder or brewer.'))}
-  if(r.clarity<4&&r.body>6.5&&B.ratio.ref>10)tips.push('Body is crowding out detail. The ZP6 Special, V60, V60 NEO or Chemex will separate the flavours more.');
+  if(r.clarity<4&&r.body>6.5&&B.ratio.ref>10)tips.push('Body is crowding out detail. The ZP6 Special, V60 or Chemex will separate the flavours more.');
   if(r.body<3.5&&r.D>-0.45&&B.ratio.ref>10)tips.push('Balanced but light. The K-Ultra, an immersion brewer or a tighter ratio will add weight.');
   if(P.funk>=1.2&&S.temp>92)tips.push(P.name+' coffees get harsh with hot water. Try 88 to 91°C.');
   if(vParams(S.variety).clarity>=0.8&&S.agit==='high')tips.push('Vigorous agitation flattens delicate aromatics. Go gentle.');
@@ -992,11 +1069,12 @@ let FAVS=new Set(loadKeys('bb-favs'));
 let RECENT=loadKeys('bb-recent').slice(0,8);
 const rByKey=k=>{k=RALIAS[k]||k;return RECIPES.findIndex(r=>rkey(r)===k)};
 const favCount=()=>RECIPES.filter(r=>FAVS.has(rkey(r))).length;
-const HEART='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-9-8.6C1.6 8.4 3.4 5 6.7 5c2 0 3.3 1.2 4.3 2.6C12 6.2 13.3 5 15.3 5c3.3 0 5.1 3.4 3.7 6.4C19 15.6 12 20 12 20z"/></svg>';
-const favBtn=r=>{const k=rkey(r),on=FAVS.has(k);return '<button type="button" class="favbtn" data-fav="'+esc(k)+'" aria-pressed="'+on+'" aria-label="'+(on?'Remove from favorites':'Add to favorites')+'">'+HEART+'</button>'};
+// Saving a recipe: a rounded bookmark drawn like the rest of the app's icons.
+const HEART='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3.5h10a1.5 1.5 0 0 1 1.5 1.5v15.2a.6.6 0 0 1-.95.5L12 16.8l-5.55 3.9a.6.6 0 0 1-.95-.5V5A1.5 1.5 0 0 1 7 3.5z"/></svg>';
+const favBtn=r=>{const k=rkey(r),on=FAVS.has(k);return '<button type="button" class="favbtn" data-fav="'+esc(k)+'" aria-pressed="'+on+'" aria-label="'+(on?'Remove from saved':'Save this recipe')+'">'+HEART+'</button>'};
 function toggleFav(k){if(FAVS.has(k))FAVS.delete(k);else FAVS.add(k);save('bb-favs',[...FAVS]);const on=FAVS.has(k);
-  document.querySelectorAll('[data-fav]').forEach(b=>{if(b.dataset.fav===k){b.setAttribute('aria-pressed',on);b.setAttribute('aria-label',on?'Remove from favorites':'Add to favorites')}});
-  toast(on?'Added to favorites':'Removed from favorites');if(BUILT.recipes){renderRHome();if(RF==='fav')renderRecipes()}}
+  document.querySelectorAll('[data-fav]').forEach(b=>{if(b.dataset.fav===k){b.setAttribute('aria-pressed',on);b.setAttribute('aria-label',on?'Remove from saved':'Save this recipe')}});
+  toast(on?'Saved':'Removed from saved');if(BUILT.recipes){renderRHome();if(RF==='fav')renderRecipes()}}
 // Hearts work anywhere (cards, recipe sheets, champion sheets) without triggering the card underneath.
 document.addEventListener('click',e=>{const b=e.target.closest('[data-fav]');if(b){e.stopPropagation();e.preventDefault();toggleFav(b.dataset.fav)}},true);
 function noteRecent(r){if(!r)return;const k=rkey(r);RECENT=[k,...RECENT.filter(x=>x!==k)].slice(0,8);save('bb-recent',RECENT);if(BUILT.recipes)renderRHome()}
@@ -1044,7 +1122,7 @@ function renderRHome(){const QI=(c,p)=>'<span class="qi" style="background:'+c+'
   $('rhome').innerHTML='<div class="qlinks">'+
     '<button type="button" data-q="surprise">'+QI('#2F80ED','M12 3l1.9 5.6L19.5 10l-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.4z M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z')+'<b>Surprise me</b></button>'+
     '<button type="button" data-q="mine">'+QI('#C8741F','M4 20h4L19 9l-4-4L4 16z M13 7l4 4')+'<b>Your recipes</b>'+(CREC.length?'<span class="qn">'+CREC.length+'</span>':'')+'</button>'+
-    '<button type="button" data-q="fav">'+QI('#E0445A','M12 20s-7-4.4-9-8.6C1.6 8.4 3.4 5 6.7 5c2 0 3.3 1.2 4.3 2.6C12 6.2 13.3 5 15.3 5c3.3 0 5.1 3.4 3.7 6.4C19 15.6 12 20 12 20z')+'<b>Favorites</b>'+(favCount()?'<span class="qn">'+favCount()+'</span>':'')+'</button></div>'+
+    '<button type="button" data-q="fav">'+QI('#E0445A','M7 3.5h10a1.5 1.5 0 0 1 1.5 1.5v15.2a.6.6 0 0 1-.95.5L12 16.8l-5.55 3.9a.6.6 0 0 1-.95-.5V5A1.5 1.5 0 0 1 7 3.5z')+'<b>Saved</b>'+(favCount()?'<span class="qn">'+favCount()+'</span>':'')+'</button></div>'+
     (again.length?'<h3 class="rh">Brew again</h3><div class="again">'+again.map(i=>'<button type="button" data-again="'+i+'"><b>'+esc(RECIPES[i].name)+'</b><small>'+esc(famName(RECIPES[i].b))+'</small></button>').join('')+'</div>':'')+
     '<h3 class="rh">By brewer</h3><div class="bshelf">'+RBREWERS().map(k=>{const B=BREWERS[k],n=RECIPES.filter(r=>RFAM(r.b)===k).length;
       return '<button type="button" data-rb="'+k+'" aria-pressed="'+(RF==='b:'+k)+'"><span class="bi">'+bIcon(B.type)+'</span><b>'+esc(famName(k))+'</b><small>'+n+' recipe'+(n>1?'s':'')+'</small></button>'}).join('')+'</div>'+
@@ -1065,7 +1143,7 @@ $('rhome').onclick=e=>{const q=e.target.closest('[data-q]'),a=e.target.closest('
   // With coffees in the gallery, Surprise me makes a new recipe for one of them; the maker can still pull a random one from the list.
   if(k==='surprise'){if(window.BEANS_OK&&BEANS.length)openMakeRecipe();else surpriseRecipe();return}
   if(k==='mine'){if(!CREC.length){openRecipeEditor(null);return}RF='mine'}
-  if(k==='fav'){if(!favCount()){toast('Tap the heart on any recipe to save it here');return}RF='fav'}
+  if(k==='fav'){if(!favCount()){toast('Tap the bookmark on any recipe to save it here');return}RF='fav'}
   RQ='';$('rsearch').value='';showRecipeList()};
 $('rsearch').oninput=e=>{RQ=e.target.value;if(RQ.trim()&&RF!=='all'){RF='all';renderRHome()}soon(renderRecipes)}; // a search looks through every recipe
 // Two levels of order: a main one and a second one within it ("Brewer, then Level"). Brewer and Level also group the
@@ -1090,10 +1168,10 @@ function openRSort(){const d=$('selsheet');
   draw();d.querySelector('#sel-in').onclick=e=>{const a=e.target.closest('[data-rs1]'),b=e.target.closest('[data-rs2]');if(!a&&!b)return;
     if(a){RSORT=a.dataset.rs1;if(RSORT2===RSORT)RSORT2=RSORT==='level'?'quick':'level'}else RSORT2=b.dataset.rs2;saveRSort();renderRecipes();draw()};
   showDlg(d)}
-const RF_NAME=()=>RF==='all'?'All recipes':RF==='fav'?'Favorites':RF==='mine'?(TEAM()?'Yours and your team’s':'Your recipes'):RF==='champ'?'Champions':RF.startsWith('cup:')?CUPBY[RF.slice(4)][1]
+const RF_NAME=()=>RF==='all'?'All recipes':RF==='fav'?'Saved':RF==='mine'?(TEAM()?'Yours and your team’s':'Your recipes'):RF==='champ'?'Champions':RF.startsWith('cup:')?CUPBY[RF.slice(4)][1]
   :RF.startsWith('b:')&&BREWERS[RF.slice(2)]?famName(RFAM(RF.slice(2))):RF.startsWith('col:')&&COLBY[RF.slice(4)]?COLBY[RF.slice(4)][1]:'All recipes';
 // One recipe as a row: the name and its tags; the level and who it's from on one line; the numbers in one strip.
-// The heart sits level with the name and the play button level with the numbers.
+// The bookmark sits level with the name and the play button level with the numbers.
 const RR_IC={time:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="7.5"/><path d="M12 9.5V13l2.5 1.6M10 3h4"/></svg>',
   temp:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13.6V5a2 2 0 0 1 4 0v8.6a4 4 0 1 1-4 0z"/><path d="M12 17v-5"/></svg>'};
 // o.lv false: the level is already the heading. o.brewer: say which brewer (when the list isn't grouped by brewer).
@@ -1109,7 +1187,7 @@ function rrow(r,i,o={}){const m=rmeta(r),lv={Easy:'e',Medium:'i',Advanced:'a'}[m
 function renderRecipes(){
   if(RF==='mine'&&!CREC.length)RF='all';if(RF==='fav'&&!favCount())RF='all';if((RF.startsWith('b:')&&!BREWERS[RF.slice(2)])||(RF.startsWith('col:')&&!COLBY[RF.slice(4)])||(RF.startsWith('cup:')&&!CUPBY[RF.slice(4)]))RF='all';
   const cup=RF.startsWith('cup:')?CUPBY[RF.slice(4)]:null,col=RF.startsWith('col:')?COLBY[RF.slice(4)]:null,rb=RF.startsWith('b:')?RF.slice(2):null,extra=cup||col||rb;
-  seg('rfilter',[['all','All']].concat(extra?[[RF,esc(RF_NAME())+' ✕']]:[],favCount()?[['fav','♥ Favorites']]:[],CREC.length?[['mine',TEAM()?'Yours & team':'Yours']]:[],[['champ','Champions']]),()=>RF,v=>{RF=v===RF&&extra?'all':v;renderRecipes();renderRHome()});
+  seg('rfilter',[['all','All']].concat(extra?[[RF,esc(RF_NAME())+' ✕']]:[],favCount()?[['fav','Saved']]:[],CREC.length?[['mine',TEAM()?'Yours & team':'Yours']]:[],[['champ','Champions']]),()=>RF,v=>{RF=v===RF&&extra?'all':v;renderRecipes();renderRHome()});
   {const f=$('rfilter'),edge=()=>f.classList.toggle('end',f.scrollLeft+f.clientWidth>=f.scrollWidth-2);requestAnimationFrame(()=>{f.classList.toggle('more',f.scrollWidth>f.clientWidth+2);edge()});if(!f.dataset.edge){f.dataset.edge=1;f.addEventListener('scroll',edge,{passive:true})}}
   const q=fold(RQ.trim());
   let list=RECIPES.map((r,i)=>[r,i]).filter(([r])=>(RF==='all'||(RF==='mine'?r.custom:RF==='champ'?r.champ:RF==='fav'?FAVS.has(rkey(r)):cup?cup[4](r):col?col[4](r):rb?RFAM(r.b)===RFAM(rb):true))&&(!q||fold([r.name,r.by,r.why,BREWERS[r.b].name,BREWERS[r.b].type].join(' ')).includes(q)));
@@ -1142,7 +1220,7 @@ function openRecipe(i){const r=RECIPES[i],B=BREWERS[r.b],d=$('vd');
    '<div class="vd-body">'+recipeBody(r,i)+'</div>';
   d.querySelector('.vd-body').onclick=e=>{if(!e.target.closest('[data-load],[data-plan],[data-timer],[data-rshare],[data-redit]'))return;const sh=e.target.closest('[data-rshare]');if(!sh)d.close();recipeAct(e)};
   $('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
-function loadRecipe(i){const r=RECIPES[i];if(!r||!BREWERS[r.b].model)return;if(!sameFam(r.b,S.brewer))S.brewer=r.b;S.rec=i;S.dose=r.dose;if(!canGrind(S.grinder,r.b))S.grinder=capable(r.b);
+function loadRecipe(i){const r=RECIPES[i];if(!r||!BREWERS[r.b].model)return;if(!sameFam(r.b,S.brewer))S.brewer=CANONB(r.b);S.rec=i;S.dose=r.dose;if(!canGrind(S.grinder,r.b))S.grinder=capable(r.b);
   showTab('dial');tune('Tuned '+r.name+' for your coffee')}
 const planRecipe=loadRecipe;
 
@@ -1220,7 +1298,7 @@ const ROASTS=['light','medium','dark'];
 function goTab(id){try{history.replaceState(null,'','#'+id)}catch(e){}showTab(id,true)}
 function openBrewLink(code){let x;try{x=b64u.dec(code)}catch(e){}goTab('dial');
   if(!x||!BREWERS[x.b]||!BREWERS[x.b].model){toast('That brew link looks broken');return}
-  const b=x.b,g=MYG.includes(x.g)&&canGrind(x.g,b)?x.g:canGrind(S.grinder,b)?S.grinder:capable(b);
+  const b=CANONB(x.b),g=MYG.includes(x.g)&&canGrind(x.g,b)?x.g:canGrind(S.grinder,b)?S.grinder:capable(b);
   S.brewer=b;S.grinder=g;S.setting=g===x.g&&Number.isFinite(+x.c)?roundG(g,+x.c):roundG(g,shift(g,baseX(g,b),-num(x.off,0,-6,6)*160));
   S.temp=num(x.t,S.temp);S.ratio=num(x.r,S.ratio);S.bloom=num(x.bl,S.bloom);fitRanges();S.rec=null;
   if(['low','med','high'].includes(x.a))S.agit=x.a;if(ROASTS.includes(x.ro))S.roast=x.ro;if(PROCESSES[x.p])S.process=x.p;if(typeof x.v==='string'&&vById(x.v))S.variety=x.v;
@@ -1231,7 +1309,7 @@ function openBrewLink(code){let x;try{x=b64u.dec(code)}catch(e){}goTab('dial');
 function openPlanLink(code){let x;try{x=b64u.dec(code)}catch(e){}goTab('dial');
   if(!x||!PBREWERS.includes(x.b)){toast('That brew link looks broken');return}
   // The sender's brewer stays, even when the recipe was written for its family twin (a NEO recipe on a V60).
-  const t=techList(x.b).find(([r])=>slug(r.name)===x.t)||techList(x.b)[0];S.brewer=sameFam(t[0].b,x.b)?x.b:t[0].b;S.rec=t[1];
+  const t=techList(x.b).find(([r])=>slug(r.name)===x.t)||techList(x.b)[0];S.brewer=CANONB(sameFam(t[0].b,x.b)?x.b:t[0].b);S.rec=t[1];
   if(PROCESSES[x.p])S.process=x.p;if(typeof x.v==='string'&&vById(x.v))S.variety=x.v;if(ROASTS.includes(x.ro))S.roast=x.ro;S.age=Math.round(num(x.age,S.age,0,90));S.goal=goalOf(x.goal);S.amt=amtOf(x.am);S.dose=num(x.d,t[0].dose,3,120);
   if(!canGrind(S.grinder,S.brewer))S.grinder=capable(S.brewer);tune('Opened the shared brew')}
 // Opens whatever a link points at. Returns false for plain tab links.
@@ -1293,7 +1371,7 @@ $('pgrid').onclick=e=>{const b=e.target.closest('[data-usep]');if(b){S.process=b
 const GEAR_A=[
  ['Kettle','A gooseneck kettle with temperature control. For two-temperature recipes keep a small bottle of room-temperature water beside it.'],
  ['Scale','Weigh coffee and water every time, ideally 0.1 g with a built-in timer.'],
- ['Filters','Cone papers fit the V60, NEO, Switch and Origami; Kalita Wave filters fit the Kalita and Origami; the Chemex needs its own thick filters. Rinse papers first.'],
+ ['Filters','Cone papers fit the V60, Switch and Origami; Kalita Wave filters fit the Kalita and Origami; the Chemex needs its own thick filters. Rinse papers first.'],
  ['Water','The SCA standard targets about 150 mg/L total dissolved solids, calcium hardness around 68 mg/L (17 to 85) and alkalinity near 40 mg/L. Soft water tastes sour and thin; hard water flat and chalky.'],
  ['Distribution tools','A WDT needle tool breaks clumps; a spritz of water on the beans (RDT) cuts static in the grinder.'],
  ['Freshness','Most filter coffees taste best about one week to one month after roast; espresso often likes two weeks or more.']
@@ -1395,7 +1473,7 @@ function setMine(g,on,quiet){if(on&&!MYG.includes(g))MYG.push(g);if(!on){if(MYG.
 // Pick which grinders you own from anywhere a grinder is chosen. The same list as "Your grinders" in Gear.
 const SWAP_ICON='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l4 4-4 4"/><path d="M3 7h18"/><path d="M7 21l-4-4 4-4"/><path d="M21 17H3"/></svg>';
 // The brewers you own. Empty means you haven't said yet, and recipes are shown as the champion brewed them.
-let MYB=(()=>{try{const v=JSON.parse(localStorage.getItem('bb-mybrewers'));return Array.isArray(v)?[...new Set(v.filter(b=>typeof b==='string'&&BREWERS[b]).map(b=>BREWERS[b].of||b))]:[]}catch(e){return[]}})();
+let MYB=(()=>{try{const v=JSON.parse(localStorage.getItem('bb-mybrewers'));return Array.isArray(v)?[...new Set(v.filter(b=>typeof b==='string'&&BREWERS[b]).map(b=>CANONB(BREWERS[b].of||b)))]:[]}catch(e){return[]}})();
 function setMyBrewer(b,on){MYB=on?[...new Set([...MYB,b])]:MYB.filter(x=>x!==b);save('bb-mybrewers',MYB)}
 function openGearPicker(tab,after){let q='',T=tab==='brewers'?'brewers':'grinders';const d=$('vd');
   const row=(k,on,title,sub,ic)=>'<button type="button" data-gp="'+k+'" aria-pressed="'+on+'">'+(ic||'')+'<span><b>'+esc(title)+'</b><small>'+esc(sub)+'</small></span><i class="tick" aria-hidden="true">'+(on?'✓':'')+'</i></button>';
@@ -1818,7 +1896,7 @@ function lsWrite(){const o=LS,B=o.b&&BREWERS[o.b],pr=[];
 const lsWord=r=>r<14.5?'Strong and rich':r<16.2?'The classic':r<17.6?'Light and clear':'Very light';
 function renderLSet(){LS=lsParse($('l-settings').value);drawLSet()}
 function drawLSet(){const el=$('lset');if(!el)return;const o=LS,B=o.b&&BREWERS[o.b],G=o.g&&GRINDERS[o.g];
-  const bl=[...new Set([...(o.b?[o.b]:[]),...MYB,...Object.keys(BREWERS).filter(k=>!BREWERS[k].of)])];
+  const bl=[...new Set([...(o.b?[o.b]:[]),...MYB,...Object.keys(BREWERS).filter(LISTED)])];
   const recs=RECIPES.map((r,i)=>[r,i]).filter(([r])=>!o.b||r.b===o.b||(BREWERS[r.b]&&BREWERS[r.b].of===o.b)||r===o.rec);
   const gl=[...new Set([...(o.g?[o.g]:[]),...MYG])];
   const tile=(k,lab,val,unit,step,sub)=>'<div class="ls-t'+(val==null?' empty':'')+'"><span class="ls-ic">'+lsIc(k)+'</span><span class="ls-l">'+lab+'</span>'+
@@ -1856,9 +1934,15 @@ function endEdit(){LEDIT=null;LBEAN=null;LFIELDS.forEach(id=>$(id).value='');del
 // The Brew tab's last-brew card: your latest result, shared in one tap, and the way into the whole log.
 function renderLastBrew(){const el=$('lastbrew');if(!el)return;const l=LOG.find(x=>x&&(!x.by||x.by===ME));if(!l){el.hidden=true;return}
   const st=clamp(Math.round(+l.stars||0),0,5),n=LOG.length;el.hidden=false;
-  el.innerHTML='<button type="button" class="lb-open" id="lb-open" aria-label="Open your brew log"><span class="lb-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z M16 10h1.5a2.5 2.5 0 0 1 0 5H16 M8 3c-1 1 1 2 0 3 M11.5 3c-1 1 1 2 0 3"/></svg></span>'+
-    '<span class="lb-tx"><small>Your last brew</small><b>'+esc(l.coffee||'A brew')+'</b><span>'+(st?'<i class="st" role="img" aria-label="'+st+' of 5 beans">'+beanRate(st)+'</i> · ':'')+esc(fmtDate(l))+'</span></span></button>'+
-    '<div class="lb-act"><button type="button" class="btn" id="lb-share">Share</button><button type="button" class="btn ghost" id="lb-all" aria-label="All '+n+' brews">All '+n+'</button></div>';
+  // The full coffee name, then how it was brewed in one line, with the bag's picture when the brew is tied to one.
+  const q=typeof parseSettings==='function'?parseSettings(l.settings||''):{},bk=CANONB((l.snap&&l.snap.b)||l.brewer||''),bean=window.BEANS_OK&&l.beanId?beanById(l.beanId):null;
+  const how=[BREWERS[bk]?famName(bk):(q.brewer||''),(l.snap&&l.snap.dose)||q.dose?((l.snap&&l.snap.dose)||q.dose)+' g'+(q.water?' : '+q.water+' g':''):'',q.temp?q.temp+'°C':''].filter(Boolean);
+  el.innerHTML='<button type="button" class="lb-open" id="lb-open" aria-label="Open your brew log">'+
+    (bean?'<span class="lb-pic">'+beanPic(bean,'xs')+'</span>':'<span class="lb-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z M16 10h1.5a2.5 2.5 0 0 1 0 5H16 M8 3c-1 1 1 2 0 3 M11.5 3c-1 1 1 2 0 3"/></svg></span>')+
+    '<span class="lb-tx"><small>Your last brew · '+esc(fmtDate(l))+'</small><b>'+esc(l.coffee||'A brew')+'</b>'+(how.length?'<span class="lb-how">'+esc(how.join(' · '))+'</span>':'')+
+    (st?'<i class="st" role="img" aria-label="'+st+' of 5 beans">'+beanRate(st)+'</i>':'')+'</span></button>'+
+    '<div class="lb-act"><button type="button" class="btn" id="lb-share">Share</button><button type="button" class="btn ghost" id="lb-all">All '+n+' brew'+(n===1?'':'s')+'</button></div>';
+  if(bean&&typeof hydrateImgs==='function')hydrateImgs(el);
   $('lb-open').onclick=$('lb-all').onclick=()=>goTab('log');$('lb-share').onclick=()=>openShare(logEntryDoc(l))}
 /* ---------- The list of brews: search, filters, sort, and each brew as a card ---------- */
 let LF=Object.assign({q:'',who:'all',min:0,sort:'new'},load('bb-logfilter',{}));LF.q='';

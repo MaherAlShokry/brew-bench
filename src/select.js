@@ -103,3 +103,57 @@ function openDate(inp,w){const d=$('selsheet'),min=CAL_RE.test(inp.min)?inp.min:
   if(on&&!narrow)on.focus({preventScroll:true});else{const c=$('sel-in');c.tabIndex=-1;c.focus({preventScroll:true})}}
 document.querySelectorAll('input[type=date]').forEach(enhanceDate);
 new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.nodeType===1){if(n.matches&&n.matches('input[type=date]'))enhanceDate(n);else n.querySelectorAll&&n.querySelectorAll('input[type=date]').forEach(enhanceDate)}}).observe(document.body,{childList:true,subtree:true});
+
+/* ================= SLIDERS ================= */
+// Every slider gets a filled track and a bigger thumb, and, where its value is shown in the label, a − and + at the
+// ends of the track for one exact step (hold to keep going). The fill follows the value whether you drag it or the
+// app sets it, and Android gives a light tick on each step.
+const RNG_VAL=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value');
+function rngFill(i){const mn=+i.min||0,mx=i.max===''?100:+i.max,f=(+RNG_VAL.get.call(i)-mn)/((mx-mn)||1);i.style.setProperty('--p',Math.max(0,Math.min(1,f)).toFixed(4))}
+let RNG_BUZZ=0;
+function rngBuzz(){const t=Date.now();if(t-RNG_BUZZ<40)return;RNG_BUZZ=t;try{navigator.vibrate&&navigator.vibrate(4)}catch(e){}}
+function rngStep(i,dir){if(i.disabled)return;const before=i.value;try{dir>0?i.stepUp():i.stepDown()}catch(e){return}
+  if(i.value===before)return;rngFill(i);rngBuzz();i.dispatchEvent(new Event('input',{bubbles:true}));i.dispatchEvent(new Event('change',{bubbles:true}))}
+function rngButton(i,dir){const b=document.createElement('button');b.type='button';b.className='rng-b';b.setAttribute('aria-label',(dir>0?'Increase ':'Decrease ')+((i.labels&&i.labels[0]&&i.labels[0].firstChild&&i.labels[0].firstChild.textContent.trim())||'value'));
+  b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+(dir>0?'M12 6v12M6 12h12':'M6 12h12')+'"/></svg>';
+  let t1=0,t2=0;const stop=()=>{clearTimeout(t1);clearInterval(t2)};
+  b.addEventListener('pointerdown',e=>{if(e.button)return;e.preventDefault();rngStep(i,dir);t1=setTimeout(()=>{t2=setInterval(()=>rngStep(i,dir),85)},380)});
+  ['pointerup','pointerleave','pointercancel'].forEach(k=>b.addEventListener(k,stop));
+  b.addEventListener('click',e=>{if(e.detail===0)rngStep(i,dir)});// keyboard
+  b.addEventListener('contextmenu',e=>e.preventDefault());return b}
+function rngEnhance(i){if(i.dataset.rng)return;i.dataset.rng='1';
+  Object.defineProperty(i,'value',{configurable:true,get(){return RNG_VAL.get.call(this)},set(v){RNG_VAL.set.call(this,v);rngFill(this)}});
+  i.addEventListener('input',()=>{rngFill(i);rngBuzz()});rngFill(i);
+  // The − and + sit at the two ends of the track, so the label row keeps just the name and the value.
+  const lab=i.id&&document.querySelector('label[for="'+i.id+'"]');
+  if(lab&&lab.querySelector('.num')&&!i.parentElement.classList.contains('rng-row')){const w=document.createElement('div');w.className='rng-row';i.before(w);w.append(rngButton(i,-1),i,rngButton(i,1))}}
+
+/* ================= SELECTION CONTROLS ================= */
+// Segmented controls (roast, agitation, light or dark…) get one highlight that glides to the option you pick, styled
+// like that control's own highlight, instead of jumping. It picks up where it was even when the options are redrawn.
+function segUpdate(el){const on=el.querySelector(':scope>button[aria-pressed="true"]');let ind=el.querySelector(':scope>.seg-ind');
+  if(!on||!on.offsetWidth){if(ind)ind.style.opacity='0';return}
+  // The highlight needs a positioned parent; a control that's already sticky or absolute keeps its own positioning.
+  if(!el.classList.contains('ind-rel')&&getComputedStyle(el).position==='static')el.classList.add('ind-rel');
+  if(!ind){ind=document.createElement('span');ind.className='seg-ind';ind.setAttribute('aria-hidden','true');el.append(ind);
+    if(el._ip){ind.style.transition='none';Object.assign(ind.style,el._ip);ind.offsetWidth;ind.style.transition=''}}
+  // Read the picked option's own look for a moment (data-peek lets it show), then hand it to the highlight.
+  on.setAttribute('data-peek','');const cs=getComputedStyle(on);
+  const look={background:cs.backgroundColor,backgroundImage:cs.backgroundImage,boxShadow:cs.boxShadow,borderRadius:cs.borderRadius};on.removeAttribute('data-peek');el.classList.add('has-ind');
+  const pos={left:on.offsetLeft+'px',top:on.offsetTop+'px',width:on.offsetWidth+'px',height:on.offsetHeight+'px'};
+  if(RM())ind.style.transition='none';Object.assign(ind.style,look,pos,{opacity:'1'});el._ip=pos;
+  if(SEG_RO&&!el._ro){el._ro=1;SEG_RO.observe(el)}}
+// One watcher for every control's size (a tab coming into view, the phone turning); controls that have left the page are dropped.
+const SEG_RO=window.ResizeObserver?new ResizeObserver(es=>es.forEach(e=>{if(e.target.isConnected)segQueue(e.target);else SEG_RO.unobserve(e.target)})):null;
+const SEG_Q=new Set();let SEG_RAF=0;
+function segQueue(el){SEG_Q.add(el);if(!SEG_RAF)SEG_RAF=requestAnimationFrame(()=>{SEG_RAF=0;const l=[...SEG_Q];SEG_Q.clear();l.forEach(x=>{if(x.isConnected)segUpdate(x)})})}
+const SEG_SEL='.seg:not(.filters)';
+function uiScan(root){if(!root.querySelectorAll)return;
+  if(root.matches&&root.matches('input[type=range]'))rngEnhance(root);root.querySelectorAll('input[type=range]:not([data-rng])').forEach(rngEnhance);
+  if(root.matches&&root.matches(SEG_SEL))segQueue(root);root.querySelectorAll(SEG_SEL).forEach(segQueue)}
+// Only what changed is looked at: new nodes, and the control whose options were swapped or picked. A timer ticking in
+// a big page doesn't make every control on it measure itself again.
+new MutationObserver(ms=>{for(const m of ms){const t=m.type==='attributes'?m.target.parentElement:m.target,s=t&&t.closest&&t.closest(SEG_SEL);if(s)segQueue(s);
+  if(m.type==='childList')m.addedNodes.forEach(n=>n.nodeType===1&&uiScan(n));else if(m.removedNodes)for(const n of m.removedNodes)if(n._ro&&SEG_RO)SEG_RO.unobserve(n)}})
+  .observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['aria-pressed']});
+uiScan(document.body);
