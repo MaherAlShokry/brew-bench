@@ -87,6 +87,9 @@ function emoIc(s){s=String(s??'');if(!EMO_TEST.test(s))return s;let skip=0;
   Object.defineProperty(Element.prototype,'innerHTML',{configurable:true,enumerable:d.enumerable,get(){return d.get.call(this)},
     set(v){d.set.call(this,typeof v==='string'&&this.namespaceURI==='http://www.w3.org/1999/xhtml'&&this.localName!=='textarea'&&this.localName!=='option'&&this.localName!=='select'?emoIc(v):v)}})
   const ia=Element.prototype.insertAdjacentHTML;Element.prototype.insertAdjacentHTML=function(w,h){return ia.call(this,w,typeof h==='string'?emoIc(h):h)}})();
+// Restart a CSS animation without forcing a layout: if the class is already on, take it off and put it back two
+// frames later (one frame for the browser to see it gone); if it isn't, just add it.
+function replay(el,cls){if(!el)return;if(!el.classList.contains(cls)){el.classList.add(cls);return}el.classList.remove(cls);requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add(cls)))}
 // Ratings are drawn as coffee beans, filled to the rating (half a bean for a half), here and in the bean gallery.
 const RB_G='<g transform="rotate(30 12 12)"><path class="bo" d="M12 2.6c4.1 0 6.6 4.3 6.6 9.4s-2.5 9.4-6.6 9.4-6.6-4.3-6.6-9.4 2.5-9.4 6.6-9.4z"/><path class="bc" d="M12.7 3.2c-2.4 2.6-.4 5.6-1.3 8.8s1.3 5.9-.6 8.8"/></g>';
 const RB_SVG='<svg viewBox="0 0 24 24" aria-hidden="true">'+RB_G+'</svg>';
@@ -608,7 +611,7 @@ function render(){
   const ti=$('i-temp');ti.min=B.temp.min;ti.max=B.temp.max;ti.value=S.temp;$('v-temp').textContent=S.temp+'°C';
   const ri=$('i-ratio');ri.min=Math.min(B.ratio.min,S.ratio);ri.max=Math.max(B.ratio.max,S.ratio);ri.step=B.ratio.step;ri.value=S.ratio;$('v-ratio').textContent='1:'+rr1(S.ratio);
   const bi=$('i-bloom');bi.min=B.bloom.min;bi.max=B.bloom.max;bi.step=B.bloom.max<=20?1:5;bi.value=S.bloom;$('v-bloom').textContent=S.bloom+'s';
-  $('i-bloom').previousElementSibling.firstChild.textContent=B.bloom.label+' ';
+  document.querySelector('label[for="i-bloom"]').firstChild.textContent=B.bloom.label+' ';
   renderDialRecipe();renderDBean();
   $('i-brewer').value=S.brewer;$('i-process').value=S.process;$('i-variety').value=S.variety.split(':')[0];$('i-region').value=S.region;$('i-age').value=S.age;$('v-age').textContent=S.age+' days';
   const [vt,vs]=verdict(r.D);$('o-verdict').textContent=vt;$('mr-v').textContent=vt;$('mr-g').textContent=gLabel(S.grinder,S.setting)+', '+S.temp+'°C, 1:'+rr1(S.ratio);$('mr-m').style.left=((clamp(r.D,-2.5,2.5)+2.5)/5*100)+'%';$('o-summary').textContent=vs+' '+strength(S)+'.';
@@ -981,7 +984,7 @@ function showTab(id,fromHistory,pure){NAV_AT=performance.now();ensureTab(id);con
     // A page inside a section (the map, the log…) lights up that section's tab.
     document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x.dataset.t===(BNGROUP[id]||id)));
     document.querySelectorAll('main section').forEach(s=>s.classList.toggle('on',s.id===id));window.scrollTo({top:0});syncShell(id);
-    if(kind&&NAV_READY){const sec=$(id);if(!vt){sec.classList.remove('nav-in');void sec.offsetWidth;sec.classList.add('nav-in');clearTimeout(sec._nav);sec._nav=setTimeout(()=>sec.classList.remove('nav-in'),800);
+    if(kind&&NAV_READY){const sec=$(id);if(!vt){replay(sec,'nav-in');clearTimeout(sec._nav);sec._nav=setTimeout(()=>sec.classList.remove('nav-in'),480);
       // Between bottom-bar sections the page swings in as a whole; its blocks cascade only on the way in or out.
       if(kind==='push'||kind==='pop')cascadeIn(sec)}}};
   document.documentElement.dataset.nav=NAV_READY?kind:'';
@@ -997,7 +1000,7 @@ function showTab(id,fromHistory,pure){NAV_AT=performance.now();ensureTab(id);con
 function cascadeIn(sec){if(RM()||!sec)return;const vh=innerHeight,picked=[];
   const pick=(el,depth)=>{for(const c of el.children){if(picked.length>=12)return;const r=c.getBoundingClientRect();if(!r.height||r.bottom<0)continue;if(r.top>vh)return;
     if(depth<2&&r.height>vh*.55&&c.children.length>1)pick(c,depth+1);else picked.push(c)}};
-  pick(sec,0);picked.forEach((c,i)=>{c.style.setProperty('--ci',i);c.classList.remove('cascade');void c.offsetWidth;c.classList.add('cascade');
+  pick(sec,0);picked.forEach((c,i)=>{c.style.setProperty('--ci',i);replay(c,'cascade');
     const done=e=>{if(e&&e.target!==c)return;c.classList.remove('cascade');c.removeEventListener('animationend',done)};c.addEventListener('animationend',done);setTimeout(done,1400)})}
 try{history.scrollRestoration='manual'}catch(e){}
 // Lock the page behind any open dialog or sheet so it can't scroll underneath.
@@ -1184,6 +1187,14 @@ function rrow(r,i,o={}){const m=rmeta(r),lv={Easy:'e',Medium:'i',Advanced:'a'}[m
     '<span class="rr-by">'+[o.lv===false?'':'<span class="lv lv-'+lv+'"><i aria-hidden="true"></i>'+m.level+'</span>',o.brewer?'<span class="rr-bw">'+esc(famName(r.b))+'</span>':'',who?'<span class="rr-who">'+esc(who)+'</span>':''].filter(Boolean).join('<span class="rr-sep" aria-hidden="true">·</span>')+'</span>'+
     '<span class="rr-m" aria-label="'+esc([r.dose+' g coffee, '+r.water+' g water',m.ratio,m.time!=null?mmss(m.time):'',r.temp?r.temp+'°C':''].filter(Boolean).join(', '))+'">'+st+'</span></button>'+
     '<div class="rr-side">'+favBtn(r)+'<button type="button" class="rr-play" data-timer="'+i+'" aria-label="Start the timer for '+esc(r.name)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button></div></article>'}
+// The recipe list is long (about 3,000 elements for every recipe): the first dozen rows are drawn at once and the
+// rest in blocks of ten as they come within a couple of screens of view, so opening and filtering Recipes stays quick.
+const RLZ=new Map();let RLZN=0;
+function lzRows(rows,o){let h='';for(let k=0;k<rows.length;k+=10){const blk=rows.slice(k,k+10);
+  if(RLZN<12){h+=blk.map(([r,i])=>rrow(r,i,o)).join('');RLZN+=blk.length;continue}
+  const id=RLZ.size+1;RLZ.set(id,[blk,o]);h+='<div class="rlz" data-lz="'+id+'" style="height:'+blk.length*118+'px"></div>'}return h}
+function lzFill(el){const v=RLZ.get(+el.dataset.lz);if(!v){el.remove();return}RLZ.delete(+el.dataset.lz);if(RLZ_IO)RLZ_IO.unobserve(el);el.insertAdjacentHTML('afterend',v[0].map(([r,i])=>rrow(r,i,v[1])).join(''));el.remove()}
+const RLZ_IO=window.IntersectionObserver?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)lzFill(e.target)}),{rootMargin:'1600px 0px'}):null;
 function renderRecipes(){
   if(RF==='mine'&&!CREC.length)RF='all';if(RF==='fav'&&!favCount())RF='all';if((RF.startsWith('b:')&&!BREWERS[RF.slice(2)])||(RF.startsWith('col:')&&!COLBY[RF.slice(4)])||(RF.startsWith('cup:')&&!CUPBY[RF.slice(4)]))RF='all';
   const cup=RF.startsWith('cup:')?CUPBY[RF.slice(4)]:null,col=RF.startsWith('col:')?COLBY[RF.slice(4)]:null,rb=RF.startsWith('b:')?RF.slice(2):null,extra=cup||col||rb;
@@ -1196,15 +1207,16 @@ function renderRecipes(){
   list.sort((a,b)=>c1(a[0],b[0])||(c2?c2(a[0],b[0]):0)||((b[0].custom?1:0)-(a[0].custom?1:0))||a[1]-b[1]);
   RLIST=list;updShare();$('rall').textContent=RF_NAME()+' · '+list.length;
   $('rsortbtn').querySelector('span').textContent=rsortLabel();
-  let html='';
+  let html='';RLZ.clear();RLZN=0;
   if(RSORT==='brewer'&&!rb){const groups=new Map();for(const x of list){const k=RFAM(x[0].b);if(!groups.has(k))groups.set(k,[]);groups.get(k).push(x)}
     for(const [k,g] of groups){const B=BREWERS[k];
-      html+='<div class="rgrp"><h4><span class="bi">'+bIcon(B.type)+'</span><span>'+esc(famName(k))+'</span><small>'+g.length+'</small></h4>'+g.map(([r,i])=>rrow(r,i)).join('')+'</div>'}}
+      html+='<div class="rgrp"><h4><span class="bi">'+bIcon(B.type)+'</span><span>'+esc(famName(k))+'</span><small>'+g.length+'</small></h4>'+lzRows(g,{})+'</div>'}}
   else if(RSORT==='level'){const groups=new Map();for(const x of list){const k=rmeta(x[0]).level;if(!groups.has(k))groups.set(k,[]);groups.get(k).push(x)}
     for(const [k,g] of groups){const lv={Easy:'e',Medium:'i',Advanced:'a'}[k];
-      html+='<div class="rgrp"><h4><span class="bi lvbi lv-'+lv+'" aria-hidden="true"><i></i></span><span>'+k+'</span><small>'+g.length+'</small></h4>'+g.map(([r,i])=>rrow(r,i,{lv:false,brewer:!rb})).join('')+'</div>'}}
-  else html='<div class="rgrp">'+list.map(([r,i])=>rrow(r,i,{brewer:!rb})).join('')+'</div>';
+      html+='<div class="rgrp"><h4><span class="bi lvbi lv-'+lv+'" aria-hidden="true"><i></i></span><span>'+k+'</span><small>'+g.length+'</small></h4>'+lzRows(g,{lv:false,brewer:!rb})+'</div>'}}
+  else html='<div class="rgrp">'+lzRows(list,{brewer:!rb})+'</div>';
   $('rgrid').innerHTML=list.length?html:'<p class="hint">No recipes match. Try a shorter search, or pick All.</p>';
+  if(RLZ.size)$('rgrid').querySelectorAll('.rlz').forEach(el=>RLZ_IO?RLZ_IO.observe(el):lzFill(el));
   if(!$('rhome').innerHTML)renderRHome();
 }
 $('rsortbtn').onclick=()=>openRSort();
@@ -1679,7 +1691,7 @@ function selectOrigin(k,zoom){
    '<h3>In the cup</h3><p>'+esc(o.cup)+'</p><h3>Story</h3><p>'+esc(o.hist)+'</p>'+
    '<h3>Varieties grown here</h3><div class="chips">'+o.vars.map(vbtn).join('')+'</div>'+
    '<div class="fact"><b>Did you know?</b> '+esc(o.fact)+'</div><div class="actions"><button class="btn ghost" data-oshare="'+k+'">Share this origin</button></div>';
-  const info=$('info');info.classList.remove('flash');void info.offsetWidth;info.classList.add('flash');
+  const info=$('info');replay(info,'flash');
   if(MQ('(max-width:959px)')&&!zoom)info.scrollIntoView({behavior:RM()?'auto':'smooth',block:'nearest'});
 }
 
@@ -3004,7 +3016,7 @@ function goLink(e){const b=e.target.closest('[data-go-p],[data-go-v],[data-go-k]
 function openProcess(k){if(!PROCESSES[k])return;showTab('process');if(PC!=='all'&&PROCESSES[k].cat!==PC){PC='all';renderProcesses()}
   requestAnimationFrame(()=>{const c=$('pc-'+k);if(!c)return;flashTo(c)})}
 // Scroll to a card and flash it. Cards further up can still change size as they render, so check again once the page settles.
-function flashTo(c){c.classList.remove('flash');void c.offsetWidth;c.classList.add('flash');c.scrollIntoView({block:'center'});setTimeout(()=>{const r=c.getBoundingClientRect();if(r.top<0||r.bottom>innerHeight)c.scrollIntoView({block:'center'})},400)}
+function flashTo(c){replay(c,'flash');c.scrollIntoView({block:'center'});setTimeout(()=>{const r=c.getBoundingClientRect();if(r.top<0||r.bottom>innerHeight)c.scrollIntoView({block:'center'})},400)}
 function renderWords(){
   seg('wcat',[['all','All']].concat(Object.entries(GCAT).map(([k,[n]])=>[k,n])),()=>WC,v=>{WC=v;renderWords()});
   const q=WQ.trim(),fq=fold(q),list=GLOSSARY.filter(g=>(WC==='all'||g[1]===WC)&&(!fq||fold(g[0]+' '+g[2]).includes(fq)));

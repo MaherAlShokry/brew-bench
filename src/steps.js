@@ -2,16 +2,16 @@
 // A recipe's steps stay plain strings ("0:45 pour to 150g."), so recipes, sharing and the timer are unchanged. These
 // read them as a timeline: what kind of move each step is, how the water builds over time, and an editor for them.
 const SK=[
-  ['bloom',/\bbloom/i,'Bloom','M12 3c3 4 6 7 6 11a6 6 0 0 1-12 0c0-4 3-7 6-11z M9 15a3 3 0 0 0 3 3'],
-  ['pour',/\bpour|\badd\b.*\bwater|\bfill\b|\btop (?:up|off)\b/i,'Pour','M5 7h9l-1 4h-7z M14 8l5-3 M9 11v2 M9 15v1 M9 18v1'],
-  ['swirl',/\bswirl|\brao\b|\bspin\b/i,'Swirl','M12 5a7 7 0 1 1-7 7 M5 12a4 4 0 1 0 4-4'],
-  ['stir',/\bstir|\bbreak the crust|\bagitat/i,'Stir','M15 3l-6 18 M7 14c2 2 8 2 10 0'],
-  ['valve',/\bvalve|\bswitch\b|\bon a cup|\bplace (?:it )?on\b/i,'Valve','M12 4v6 M8 10h8 M6 14h12v4H6z'],
-  ['press',/\bpress|\bplunge|\bflip\b|\binvert/i,'Press','M7 4h10 M12 4v9 M6 13h12 M8 17h8 M10 20h4'],
-  ['steep',/\bsteep|\bwait|\brest\b|\blet it\b(?!.*drain)/i,'Wait','M12 7v5l3 2 M12 3a9 9 0 1 1 0 18 9 9 0 0 1 0-18z'],
-  ['ice',/\bice\b/i,'Ice','M12 3v18 M4.5 7.5l15 9 M19.5 7.5l-15 9'],
-  ['prep',/\brinse|\bpreheat|\bwell in|\bgrind\b|\bweigh|\bheat\b/i,'Prep','M5 18h14 M7 18V9h10v9 M9 6c0-1 1-2 1-3 M13 6c0-1 1-2 1-3'],
-  ['end',/\bfinish|\bdrawdown|\bdrain|\bremove|\bserve|\bdone\b|\bdecant|\bpour (?:it )?into/i,'Finish','M5 12l4 4 10-10']];
+  ['bloom',/\bbloom/i,'Bloom','M12 3.5c3.3 4.2 6 7.3 6 10.5a6 6 0 0 1-12 0c0-3.2 2.7-6.3 6-10.5z M9.2 14.5a2.8 2.8 0 0 0 2.8 2.8'],
+  ['pour',/\bpour|\badd\b.*\bwater|\bfill\b|\btop (?:up|off)\b/i,'Pour','M6 19.5h7.5a1 1 0 0 0 1-1.1L13.6 11H5.9L5 18.4a1 1 0 0 0 1 1.1z M7.8 11V8.6h4V11 M14 13.2c2.6-.3 3.8-2.6 5-5.2 M19 8l1.8-.6 M5.6 13.2C3.6 13 3.4 16 5.2 16.4'],
+  ['swirl',/\bswirl|\brao\b|\bspin\b/i,'Swirl','M19.5 12a7.5 7.5 0 1 1-2.2-5.3 M19.5 4.5v3.7h-3.7 M14.5 12a2.5 2.5 0 1 1-2.5-2.5'],
+  ['stir',/\bstir|\bbreak the crust|\bagitat/i,'Stir','M17.6 3.4a2 2 0 0 1 2.8 2.8l-2 2a2 2 0 0 1-2.8-2.8z M15.6 8.4 7 17 M4 20.5c2.5 1 5.5 1 8 0 M3.5 17.5c.8.7 1.8 1.1 2.8 1.3'],
+  ['valve',/\bvalve|\bswitch\b|\bon a cup|\bplace (?:it )?on\b/i,'Valve','M8 4h8 M12 4v3 M6.5 7h11v4h-11z M12 11v2.5 M12 16.5v.5 M12 19.5v.5'],
+  ['press',/\bpress|\bplunge|\bflip\b|\binvert/i,'Press','M7 3.5h10 M12 3.5v7 M7.5 10.5h9 M6.5 10.5l1.2 9a1 1 0 0 0 1 .9h6.6a1 1 0 0 0 1-.9l1.2-9'],
+  ['steep',/\bsteep|\bwait|\brest\b|\blet it\b(?!.*drain)/i,'Wait','M12 7.5V12l3 2 M12 3.5a8.5 8.5 0 1 1 0 17 8.5 8.5 0 0 1 0-17z'],
+  ['ice',/\bice\b/i,'Ice','M4.5 8 12 4l7.5 4v8L12 20l-7.5-4z M4.5 8 12 12l7.5-4 M12 12v8'],
+  ['prep',/\brinse|\bpreheat|\bwell in|\bgrind\b|\bweigh|\bheat\b/i,'Prep','M4.5 11h10v5.5a3.5 3.5 0 0 1-3.5 3.5h-3a3.5 3.5 0 0 1-3.5-3.5z M14.5 12.5h1.5a2.2 2.2 0 0 1 0 4.4h-1.5 M8 8c0-1.2 1-1.6 1-3 M11.5 8c0-1.2 1-1.6 1-3'],
+  ['end',/\bfinish|\bdrawdown|\bdrain|\bremove|\bserve|\bdone\b|\bdecant|\bpour (?:it )?into/i,'Finish','M5 12.5l4.2 4.2L19 7']];
 // End wins over pour ("pour into cups"), bloom over pour ("pour 50g, bloom").
 const stepKind=s=>{const x=String(s).replace(/^\s*\d+:\d\d\s*/,'');for(const k of ['bloom','end','swirl','stir','valve','press','ice'])if(SK.find(z=>z[0]===k)[1].test(x))return k;
   for(const [k,re] of SK)if(re.test(x))return k;return 'note'};
@@ -31,12 +31,16 @@ function pourCurve(steps,water){const pts=[[0,0]],dots=[];let lvl=0,any=false,t=
     const tos=[...x.matchAll(/(?<!\d\s?)\b(?:to|until)\s+(\d{2,4})\s?g\b/gi)].map(m=>+m[1]),p=pourOf(x),pours=tos.length?tos.map(v=>({to:v})):p?[p]:[];
     const untimed=own[i]==null&&i>0&&(pours.length||/\b(pour|repeat|add)\b/i.test(x));
     if(own[i]!=null)t=Math.max(t,own[i]);else if(untimed){t+=gap;est=true}
-    let st=t;dots.push({t:st,g:lvl,k:stepKind(s),e:untimed});
+    // A step with no time and no pour ("stir, then swirl") comes after the last pour has finished, not at its start.
+    let st=t;if(own[i]==null&&!pours.length&&pts.length>1)st=Math.max(st,pts[pts.length-1][0]);dots.push({t:st,g:lvl,k:stepKind(s),e:untimed});
     pours.forEach((q,n)=>{const to=q.to||(q.add?lvl+q.add:null);if(to==null||to<=lvl)return;if(n){st+=gap;est=own[i]==null||est}
       const next=own.slice(i+1).find(v=>v!=null&&v>st),dur=Math.max(4,Math.min(next!=null?next-st:12,Math.max(8,(to-lvl)/5),gap*.6));
       pts.push([st,lvl],[st+dur,to]);lvl=to;any=true;t=Math.max(t,st)});
     if(pours.length>1&&own[i]==null)t=st});
-  if(!any)return null;const end=Math.max(t,pts[pts.length-1][0]);pts.push([end,lvl]);
+  if(!any)return null;const end=Math.max(t,pts[pts.length-1][0],...dots.map(d=>d.t));pts.push([end,lvl]);
+  // Every dot sits on the line: the water level at its moment.
+  const at=x=>{for(let j=1;j<pts.length;j++){const [t0,g0]=pts[j-1],[t1,g1]=pts[j];if(x<=t1)return t1>t0?g0+(g1-g0)*Math.max(0,x-t0)/(t1-t0):g1}return lvl};
+  dots.forEach(d=>{d.g=at(d.t)});
   return{pts,dots,end:Math.max(end,1),top:Math.max(lvl,water||0,1),lvl,est}}
 // The curve as a small chart: the water rising pour by pour, a dot for each step coloured by its kind.
 // Each chart's gradient gets its own id: several can be on screen at once (the dial-in and an open recipe).

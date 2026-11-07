@@ -1073,18 +1073,20 @@ html[data-nav=left]::view-transition-new(abtitle),html[data-nav=pop]::view-trans
 /* Where both pages can't move together (an action that jumps to a page, or older browsers) the new page alone
    makes the same move. */
 @media (prefers-reduced-motion:no-preference){
-  html[data-nav=right] main section.nav-in{animation:sec-in-r .6s var(--spring) both,vt-show .2s ease-out both}
-  html[data-nav=left] main section.nav-in{animation:sec-in-l .6s var(--spring) both,vt-show .2s ease-out both}
-  html[data-nav=push] main section.nav-in{animation:sec-rise .56s var(--spring) both,vt-show .2s ease-out both}
+  html[data-nav=right] main section.nav-in{animation:sec-in-r .36s cubic-bezier(.2,.9,.3,1) both,vt-show .18s ease-out both}
+  html[data-nav=left] main section.nav-in{animation:sec-in-l .36s cubic-bezier(.2,.9,.3,1) both,vt-show .18s ease-out both}
+  html[data-nav=push] main section.nav-in{animation:sec-rise .4s cubic-bezier(.2,.9,.3,1) both,vt-show .18s ease-out both}
   html[data-nav=pop] main section.nav-in{animation:sec-surface .48s var(--spring) both,vt-show .22s ease-out both}
   .cascade{animation:cascade-in .62s var(--spring) both;animation-delay:calc(70ms + var(--ci,0) * 42ms)}
 }
-/* While a page slides in from the side it mustn't make the screen scroll sideways. */
-main:has(> section.nav-in){overflow-x:clip}
+/* A page sliding in from the side mustn't make the screen scroll sideways. Always on: a :has() rule here made the
+   browser re-check the styles of the whole page every time a page started or ended its entrance. */
+main{overflow-x:clip}
 /* A page can be many screens tall: it moves by a fixed distance, and turns and scales about the part on screen. */
 main section.nav-in{transform-origin:50% 40vh}
-@keyframes sec-rise{from{transform:translateY(72px) scale(.94)}}@keyframes sec-surface{from{transform:scale(1.04)}}
-@keyframes sec-in-r{from{transform:translateX(26%) rotate(1.5deg)}}@keyframes sec-in-l{from{transform:translateX(-26%) rotate(-1.5deg)}}
+@keyframes sec-rise{from{transform:translate3d(0,48px,0) scale(.97)}}@keyframes sec-surface{from{transform:scale(1.04)}}
+/* A short slide without a turn: turning a page that is many screens tall is costly to draw on phones. */
+@keyframes sec-in-r{from{transform:translate3d(14%,0,0)}}@keyframes sec-in-l{from{transform:translate3d(-14%,0,0)}}
 @keyframes cascade-in{from{opacity:0;transform:translateY(22px) scale(.96)}}
 :root[data-motion="reduced"]::view-transition-group(*),:root[data-motion="reduced"]::view-transition-old(*),:root[data-motion="reduced"]::view-transition-new(*){animation:none!important}
 /* The nav highlight is one pill that moves between buttons. */
@@ -2268,21 +2270,18 @@ input[type=range]:disabled{opacity:.45}
 .rng-b:hover{color:var(--cherry)}
 .rng-b:active{transform:scale(.88);color:var(--cherry);background:color-mix(in srgb,var(--cherry) 14%,var(--surface2))}
 /* Slider fields: name on the left, the value large on the right, room to breathe between them. */
-.field:has(.rng-row){margin-bottom:22px}
-.field:has(.rng-row)>label{align-items:baseline;margin-bottom:8px}
-.field:has(.rng-row)>label .num{font:800 1.25rem/1 var(--display);letter-spacing:-.01em;color:var(--ink)}
+.field.rng-f{margin-bottom:22px}
+.field.rng-f>label{align-items:baseline;margin-bottom:8px}
+.field.rng-f>label .num{font:800 1.25rem/1 var(--display);letter-spacing:-.01em;color:var(--ink)}
 label[for=i-grind]>span{display:flex;flex-direction:column;align-items:flex-end;gap:3px;text-align:right}
 #v-grindhint{font-size:.74rem;font-weight:500;color:var(--muted)}
-.two:has(.rng-row){grid-template-columns:1fr;gap:0}
+.two.rng-two{grid-template-columns:1fr;gap:0}
 /* Selection controls: one highlight that glides to the picked option. */
 .seg.has-ind.ind-rel{position:relative}
 .seg>button[data-peek]{transition:none!important}
 .seg.has-ind>button{position:relative;z-index:1}
 .seg.has-ind>button[aria-pressed="true"]:not([data-peek]){background:transparent!important;background-image:none!important;box-shadow:none!important}
 .seg-ind{position:absolute;z-index:0;pointer-events:none;transition:left .32s cubic-bezier(.3,1.25,.5,1),top .32s cubic-bezier(.3,1.25,.5,1),width .32s cubic-bezier(.3,1.25,.5,1),height .32s,background-color .2s,opacity .2s}
-.bd-rebuy{margin:14px 0 6px;padding:14px;border-radius:var(--r-lg);background:var(--surface2)}
-.bd-rbh{display:flex;align-items:center;gap:12px;margin-bottom:10px}.bd-rbh>span:first-child{font-size:1.5rem}.bd-rbh b{display:block;font:700 1rem var(--display)}.bd-rbh small{font-size:.82rem;color:var(--muted)}
-.bd-rebuy .actions{align-items:center;margin-top:4px}.bd-rebuy input,.bd-rebuy .datew{background:var(--surface)}
 .bd-bags{list-style:none;margin:0;padding:0;display:grid;gap:6px}.bd-bags li{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:12px;border:1px solid var(--line)}.bd-bags b{font-size:.88rem}.bd-bags span{font-size:.8rem;color:var(--muted)}
 .cr-buys{display:inline-flex;align-items:center;padding:2px 7px;border-radius:999px;font-size:.72rem;font-weight:800;color:var(--cherry-ink,var(--cherry));background:color-mix(in srgb,var(--cherry) 14%,var(--surface));font-variant-numeric:tabular-nums}
 /* Your last brew: picture, the full name, how it was brewed and the rating, with the two actions underneath. */
@@ -2299,6 +2298,39 @@ label[for=i-grind]>span{display:flex;flex-direction:column;align-items:flex-end;
 :is([class^="yic"],.me-tiles,.me-dna,.tro-ic,.ssn-ic,.tl-ic,.tshelf,.ssn-got,.bd-rbh,.wel-ic,.fact-ic) .di{color:var(--cherry);stroke-width:1.7}
 .tro-ic .di,.ssn-ic .di{width:1.5em;height:1.5em}.me-tiles .di{width:1.35em;height:1.35em}.bd-rbh .di{width:1.6em;height:1.6em}
 #toast .di{width:1.05em;height:1.05em;vertical-align:-.18em;margin:0 .1em}
+/* Brew steps: icons a size up, in even tinted circles, and a small dot on the line for steps without a time. */
+.steps.tl li{grid-template-columns:52px 28px minmax(0,1fr);--row:1.75rem}
+.steps.tl .tk{width:28px;height:28px;margin-top:calc((var(--row) - 28px) / 2)}
+.steps.tl .tk svg{width:18px;height:18px;stroke-width:1.8}
+.steps.tl .t.dot{width:8px;height:8px;margin:calc((var(--row) - 8px) / 2) 0 0 22px;background:color-mix(in srgb,var(--ink) 22%,transparent)}
+/* The dose stepper: no box around the number while typing; the stepper shows focus as a whole. */
+.stepper input:focus,.stepper input:focus-visible{outline:none!important;box-shadow:none!important;border:0!important;background:none}
+.stepper:focus-within{border-color:color-mix(in srgb,var(--cherry) 55%,var(--line));box-shadow:0 0 0 3px color-mix(in srgb,var(--cherry) 14%,transparent)}
+.stepper button{display:grid;place-items:center;transition:background-color .15s,transform .12s}.stepper button:active{transform:scale(.9)}
+input[type=range].pop::-webkit-slider-thumb{animation:rngpop .26s cubic-bezier(.3,1.4,.5,1)}
+input[type=range].pop::-moz-range-thumb{animation:rngpop .26s cubic-bezier(.3,1.4,.5,1)}
+@keyframes rngpop{40%{transform:scale(1.22)}}
+.num.pop{display:inline-block;animation:numpop .26s cubic-bezier(.3,1.4,.5,1)}@keyframes numpop{40%{transform:scale(1.12)}}
+@media (prefers-reduced-motion:reduce){input[type=range].pop::-webkit-slider-thumb,.num.pop{animation:none}}
+button[aria-pressed]{transition:background-color .22s,color .22s,border-color .22s,box-shadow .22s,transform .15s}
+button[aria-pressed]:active{transform:scale(.95)}
+.chip-on{animation:chipon .36s cubic-bezier(.3,1.35,.5,1)}@keyframes chipon{0%{transform:scale(.88);filter:brightness(1.12)}55%{transform:scale(1.05)}100%{transform:none}}
+.me-tiles>div{width:auto;min-width:104px;max-width:168px}
+.me-tiles b{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:break-word;hyphens:auto}
+/* Names are shown in full everywhere: they wrap rather than being cut short (secondary details may still shorten). */
+:is(.again b,.me-dna b,.srow-tx b,.t3o-tx b,.dbean-tx b,.yic-row b,.ls-sel b,.t3s-tx b,.me-tiles b){white-space:normal!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:anywhere;max-width:none}
+.t3s-tx b{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden!important}
+/* Your bags, low on the coffee's page and compact. */
+.bd-buys{margin:14px 0 4px;padding:12px 14px;border-radius:var(--r-lg);border:1px solid var(--line)}
+.bd-bh{display:flex;align-items:center;gap:12px}.bd-bi{flex:none;width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:var(--surface2);color:var(--cherry)}.bd-bi .di{width:20px;height:20px}
+.bd-bt{flex:1;min-width:0;display:flex;flex-direction:column}.bd-bt b{font:700 .95rem var(--display)}.bd-bt small{font-size:.78rem;color:var(--muted)}
+.bd-bst{width:112px;height:36px;flex:none}.bd-bst button:disabled{opacity:.35}
+.bd-rbrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}.bd-rbtn{font-weight:650}
+.bd-rbform{margin-top:12px}.bd-rbform input{background:var(--surface2)}.bd-rbform .btn{width:100%}
+.bd-bagsd{margin-top:10px}.bd-bagsd summary{cursor:pointer;font-size:.86rem;font-weight:600;color:var(--muted)}.bd-bagsd .bd-bags{margin-top:8px}
+/* Smoother page changes on phones: no blur behind the little count badges (it was invisible and costly to draw). */
+.cupcard .cc,.colshelf .cn,#rhome .cc,#rhome .cn{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.colshelf .cn{background:rgba(0,0,0,.26)}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
