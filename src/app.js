@@ -489,6 +489,24 @@ function openChoices(o){const d=$('selsheet'),secs=o.secs().filter(x=>x&&x.opts.
     if(x.multi){const a=dr[x.key];if(v==='all')dr[x.key]=[];else{const i=a.indexOf(v);if(i>=0)a.splice(i,1);else a.push(v)}}else dr[x.key]=v;
     const y=d.scrollTop;draw();d.scrollTop=y};
   showDlg(d)}
+// A question in the app's own sheet, in place of the browser's prompt and confirm boxes. With `input`, it asks for a
+// number (− and + step it) and resolves to it, or null when cancelled; without, it resolves to true or false.
+// o: {title, text, ok, cancel, danger, input:{value, unit, step, min, max, label}}
+function askSheet(o){return new Promise(res=>{const d=$('selsheet'),I=o.input;let done=false;
+  const pm=k=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+(k<0?'M6 12h12':'M12 6v12M6 12h12')+'"/></svg>';
+  const fin=v=>{if(done)return;done=true;res(v);if(d.open)d.close()};
+  $('sel-in').innerHTML='<div class="selhead"><div class="grab"></div><h3 id="sel-title">'+esc(o.title)+'</h3><button type="button" class="vd-close" id="sel-x" aria-label="Cancel">✕</button></div>'+
+    '<div class="ask">'+(o.text?'<p class="ask-t">'+esc(o.text)+'</p>':'')+
+    (I?'<div class="ask-in"><button type="button" class="ask-b" data-d="-1" aria-label="Less">'+pm(-1)+'</button><label class="ask-f"><input id="ask-v" type="number" inputmode="decimal" min="'+(I.min??0)+'"'+(I.max!=null?' max="'+I.max+'"':'')+' step="any" value="'+esc(I.value==null?'':String(I.value))+'" aria-label="'+esc(I.label||o.title)+'">'+(I.unit?'<span>'+esc(I.unit)+'</span>':'')+'</label><button type="button" class="ask-b" data-d="1" aria-label="More">'+pm(1)+'</button></div>':'')+'</div>'+
+    '<div class="rs-done"><button type="button" class="btn ghost" id="ask-no">'+esc(o.cancel||'Cancel')+'</button><button type="button" class="btn'+(o.danger?' danger':'')+'" id="ask-ok">'+esc(o.ok||'OK')+'</button></div>';
+  const val=()=>{const n=parseFloat($('ask-v').value);return isFinite(n)?n:null};
+  $('sel-in').onclick=e=>{if(e.target.closest('#sel-x,#ask-no')){fin(I?null:false);return}
+    if(e.target.closest('#ask-ok')){if(!I){fin(true);return}const n=val();if(n==null||n<(I.min??0)||(I.max!=null&&n>I.max)){toast('Enter a number'+(I.unit?' of '+I.unit.trim():''));$('ask-v').focus();return}fin(n);return}
+    const b=e.target.closest('.ask-b');if(b){const st=I.step||1,n=val()??0;$('ask-v').value=String(Math.max(I.min??0,Math.min(I.max??1e9,Math.round((n+st*+b.dataset.d)/st)*st)))}};
+  if(I)$('ask-v').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();$('ask-ok').click()}};
+  d.addEventListener('close',()=>fin(I?null:false),{once:true});showDlg(d);if(I)setTimeout(()=>{const v=$('ask-v');if(v){v.focus();v.select()}},380)})}
+const askConfirm=(text,ok,danger,title)=>askSheet({title:title||'Are you sure?',text,ok:ok||'OK',danger:danger!==false});
+
 // Several picks: kept when the list is empty (nothing picked shows everything).
 const inSel=(a,v)=>!a||!a.length||a.includes(v);
 const selName=(a,name,all)=>!a.length?all:a.length<3?a.map(name).join(', '):name(a[0])+' and '+(a.length-1)+' more';
@@ -1056,7 +1074,9 @@ try{history.scrollRestoration='manual'}catch(e){}
 // away made the browser lay the page out again mid-animation and the sticky tabs jumped. Blurs behind the page's
 // sticky bars are switched off while a sheet is up, so the sliding sheet doesn't make them redraw every frame.
 {let lockT=0;const sync=()=>{const open=!!document.querySelector('dialog[open]'),h=document.documentElement;clearTimeout(lockT);h.classList.toggle('sheeting',open);
-  if(!open){h.classList.remove('locked');return}if(!h.classList.contains('locked'))lockT=setTimeout(()=>{if(document.querySelector('dialog[open]'))h.classList.add('locked')},340)};
+  // No scroll lock: details open as full pages and sheets keep their own scrolling (overscroll-behavior), so the page
+  // behind never shifts when one opens or closes.
+  h.classList.remove('locked')};
   const mo=new MutationObserver(sync);document.querySelectorAll('dialog').forEach(d=>{mo.observe(d,{attributes:true,attributeFilter:['open']});d.addEventListener('close',sync)})}
 // An open dialog also gets a history entry, so back closes it instead of leaving the tab.
 // When one sheet closes and another opens straight away (Share inside a sheet, Start timer from a recipe), the step back
@@ -1185,13 +1205,13 @@ function renderRHome(){const QI=(c,p)=>'<span class="qi" style="background:'+c+'
   const again=RECENT.map(rByKey).filter(i=>i>=0).slice(0,6);
   $('rhome').innerHTML='<div class="qlinks">'+
     '<button type="button" data-q="surprise">'+QI('#2F80ED','M12 3l1.9 5.6L19.5 10l-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.4z M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z')+'<b>Surprise me</b></button>'+
-    '<button type="button" data-q="mine">'+QI('#C8741F','M4 20h4L19 9l-4-4L4 16z M13 7l4 4')+'<b>Your recipes</b>'+(CREC.length?'<span class="qn">'+CREC.length+'</span>':'')+'</button>'+
-    '<button type="button" data-q="fav">'+QI('#E0445A','M7 3.5h10a1.5 1.5 0 0 1 1.5 1.5v15.2a.6.6 0 0 1-.95.5L12 16.8l-5.55 3.9a.6.6 0 0 1-.95-.5V5A1.5 1.5 0 0 1 7 3.5z')+'<b>Saved</b>'+(favCount()?'<span class="qn">'+favCount()+'</span>':'')+'</button></div>'+
+    '<button type="button" data-q="mine">'+QI('#C8741F','M4 20h4L19 9l-4-4L4 16z M13 7l4 4')+'<b>Your recipes</b></button>'+
+    '<button type="button" data-q="fav">'+QI('#E0445A','M7 3.5h10a1.5 1.5 0 0 1 1.5 1.5v15.2a.6.6 0 0 1-.95.5L12 16.8l-5.55 3.9a.6.6 0 0 1-.95-.5V5A1.5 1.5 0 0 1 7 3.5z')+'<b>Saved</b></button></div>'+
     (again.length?'<h3 class="rh">Brew again</h3><div class="again">'+again.map(i=>'<button type="button" data-again="'+i+'"><b>'+esc(RECIPES[i].name)+'</b><small>'+esc(famName(RECIPES[i].b))+'</small></button>').join('')+'</div>':'')+
     '<h3 class="rh">By brewer</h3><div class="bshelf">'+RBREWERS().map(k=>{const B=BREWERS[k],n=RECIPES.filter(r=>RFAM(r.b)===k).length;
-      return '<button type="button" data-rb="'+k+'" aria-pressed="'+RF.includes('b:'+k)+'"><span class="bi">'+bIcon(B.type)+'</span><b>'+esc(famName(k))+'</b><small>'+n+' recipe'+(n>1?'s':'')+'</small></button>'}).join('')+'</div>'+
-    '<h3 class="rh">Collections</h3><div class="colshelf">'+COLS.map(([k,n,d,c,f])=>'<button type="button" data-col="'+k+'" aria-pressed="'+RF.includes('col:'+k)+'" style="--cc:'+c+'"><b>'+esc(n)+'</b><small>'+esc(d)+'</small><span class="cn">'+RECIPES.filter(f).length+'</span></button>').join('')+'</div>'+
-    '<h3 class="rh">Cup types</h3><div class="cups">'+CUPS.map(([k,n,d,g,f,ic])=>'<button type="button" class="cupcard" data-cup="'+k+'" aria-pressed="'+RF.includes('cup:'+k)+'"><span class="cupart" style="--g:'+g+'">'+ic()+'<span class="cc">'+RECIPES.filter(f).length+'<span class="sr"> recipes</span></span></span><b>'+esc(n)+'</b><small>'+esc(d)+'</small></button>').join('')+'</div>'}
+      return '<button type="button" data-rb="'+k+'" aria-pressed="'+RF.includes('b:'+k)+'"><span class="bi">'+bIcon(B.type)+'</span><b>'+esc(famName(k))+'</b><small>'+esc(B.type)+'</small></button>'}).join('')+'</div>'+
+    '<h3 class="rh">Collections</h3><div class="colshelf">'+COLS.map(([k,n,d,c,f])=>'<button type="button" data-col="'+k+'" aria-pressed="'+RF.includes('col:'+k)+'" style="--cc:'+c+'"><b>'+esc(n)+'</b><small>'+esc(d)+'</small></button>').join('')+'</div>'+
+    '<h3 class="rh">Cup types</h3><div class="cups">'+CUPS.map(([k,n,d,g,f,ic])=>'<button type="button" class="cupcard" data-cup="'+k+'" aria-pressed="'+RF.includes('cup:'+k)+'"><span class="cupart" style="--g:'+g+'">'+ic()+'</span><b>'+esc(n)+'</b><small>'+esc(d)+'</small></button>').join('')+'</div>'}
 // A random recipe for the brewers you have (a family counts), never the last pick twice running.
 function surpriseRecipe(){const mine=RECIPES.map((r,i)=>i).filter(i=>MYB.some(b=>RFAM(b)===RFAM(RECIPES[i].b)));
     const all=mine.length?mine:RECIPES.map((r,i)=>i),pool=all.length>1?all.filter(i=>i!==LASTSURP):all;LASTSURP=pool[Math.floor(Math.random()*pool.length)];openRecipe(LASTSURP);
@@ -1341,7 +1361,7 @@ function openRecipeEditor(r,fresh){const isNew=!r||fresh;r=Object.assign({b:'v60
   $('re-save').onclick=()=>{const n=sanRec({id:isNew?undefined:r.id,b:bOf(),name:$('re-name').value,by:$('re-by').value,author:isNew?(ME||''):r.author,dose:+$('re-dose').value,water:+$('re-water').value,temp:+$('re-temp').value,off:-(+$('re-off').value),
       steps:SE.value(),why:$('re-why').value,tip:$('re-tip').value,ts:isNew?Date.now():r.ts,kind:r.kind});
     if(!n){toast('Give the recipe a name');$('re-name').focus();return}saveRecipe(n);$('vd').close();RF=['mine'];if(BUILT.recipes)renderRecipes();showTab('recipes');toast(isNew?'Recipe saved':'Recipe updated')};
-  if(!isNew)$('re-del').onclick=()=>{if(!confirm(own?'Delete this recipe?':'Delete '+r.author+'’s recipe for everyone?'))return;deleteRecipe(r);$('vd').close();toast('Recipe deleted')};
+  if(!isNew)$('re-del').onclick=()=>askConfirm(own?'This recipe will be removed from your recipes.':'This removes '+r.author+'’s recipe for everyone in your shared log.','Delete',true,own?'Delete this recipe?':'Delete for everyone?').then(y=>{if(!y)return;deleteRecipe(r);$('vd').close();toast('Recipe deleted')});
   const d=$('vd');showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
 $('r-new').onclick=()=>openRecipeEditor(null);
 // Save the current dial-in as a starting recipe.
@@ -1543,7 +1563,7 @@ $('glt-f').onclick=()=>pickOne('Filter grinders','grinder',[['all','All grinders
 $('glib').onclick=e=>{const m=e.target.closest('[data-gmine]'),c=e.target.closest('[data-gcmp]'),d=e.target.closest('[data-gdel]');
   if(m){setMine(m.dataset.gmine,!MYG.includes(m.dataset.gmine));return}
   if(c){const g=c.dataset.gcmp;if(GCMP.includes(g))GCMP=GCMP.filter(x=>x!==g);else{if(GCMP.length>=3){toast('Compare up to three at a time');return}GCMP.push(g)}renderLibrary();if(GCMP.length)$('gcmp').scrollIntoView({behavior:RM()?'auto':'smooth',block:'nearest'});return}
-  if(d&&confirm('Delete '+GRINDERS[d.dataset.gdel].name+'?')){const g=d.dataset.gdel;delete CUSTOM_G[g];save('bb-custom-grinders',CUSTOM_G);setMine(g,false,true);delete GRINDERS[g];GCMP=GCMP.filter(x=>x!==g);grindersChanged();toast('Grinder deleted')}};
+  if(d){const g=d.dataset.gdel;askConfirm('Its settings go with it.','Delete',true,'Delete '+GRINDERS[g].name+'?').then(y=>{if(!y||!GRINDERS[g])return;delete CUSTOM_G[g];save('bb-custom-grinders',CUSTOM_G);setMine(g,false,true);delete GRINDERS[g];GCMP=GCMP.filter(x=>x!==g);grindersChanged();toast('Grinder deleted')})}};
 function renderGCompare(){if(!GCMP.length){$('gcmp').innerHTML='';return}
   const rows=[['Type',g=>gtype(g)],['Burrs',g=>GRINDERS[g].burr||'–'],['Dial',g=>GRINDERS[g].adjust||'–'],['Microns per step',g=>GRINDERS[g].um?'about '+GRINDERS[g].um:'–'],['Espresso',g=>GRINDERS[g].espresso?'Yes':'No'],
     ['Espresso setting',g=>{const v=base(g,'espresso');return v!=null?dial(g,v):'n/a'}],['AeroPress',g=>{const v=base(g,'aeropress');return v!=null?dial(g,v):'n/a'}],['V60',g=>{const v=base(g,'v60');return v!=null?dial(g,v):'n/a'}],['French press',g=>{const v=base(g,'frenchpress');return v!=null?dial(g,v):'n/a'}],['In the cup',g=>GRINDERS[g].cup||'–']];
@@ -1933,7 +1953,7 @@ function renderShare(){const el=$('l-share');if(!el)return;
   el.innerHTML='<div class="sharehead"><h3 style="margin:0">Shared log</h3><span class="sync" id="sync-state"></span></div><p class="hint sh-you" style="margin:.3rem 0 .8rem">'+(window.PROFILE_OK&&PROFILE?avatarHTML(PROFILE,24):'')+'<span>You are <b>'+esc(ME||'Guest')+'</b>. Code <b class="code">'+GROUP.code+'</b></span></p>'+
     '<div class="actions"><button class="btn" id="sh-invite">Invite friends</button><button class="btn ghost" id="sh-leave">Leave</button></div>';
   $('sh-invite').onclick=()=>openShare(inviteDoc());
-  $('sh-leave').onclick=()=>{if(confirm('Leave the shared log? Your phone keeps a copy of the entries.'))leaveGroup()};setSync(SYNC_STATE==='off'?'connecting':SYNC_STATE)}
+  $('sh-leave').onclick=()=>askConfirm('Your phone keeps a copy of the entries.','Leave',true,'Leave the shared log?').then(y=>{if(y)leaveGroup()});setSync(SYNC_STATE==='off'?'connecting':SYNC_STATE)}
 let JOIN_CODE='';
 // Two shared date formats: making a new one for every entry was the slowest part of drawing a long log.
 const FMT_D=new Intl.DateTimeFormat(undefined,{day:'numeric',month:'short'}),FMT_DY=new Intl.DateTimeFormat(undefined,{day:'numeric',month:'short',year:'numeric'});
@@ -2138,7 +2158,7 @@ $('l-list').onclick=e=>{const ls=e.target.closest('[data-lshare]');if(ls){const 
   if(fv){const l=LOG[+fv.dataset.flview];if(l)openProfile(l.coffee||'Untitled',[fmtDate(l),l.stars?l.stars+' of 5 beans':'',l.settings].filter(Boolean).join(' \u00B7 '),flOf(l),l);return}
   const b=e.target.closest('[data-del]');if(!b)return;const l=LOG[+b.dataset.del];if(!l)return;
   // One tap on Delete shouldn't lose a brew and its notes: ask first, as recipes do.
-  if(!confirm(GROUP&&l.by&&l.by!==ME?'Delete '+l.by+'’s entry for everyone?':'Delete \u201c'+(l.coffee||'Untitled')+'\u201d from your log?'))return;if(LEDIT===l.id)endEdit();LOG.splice(+b.dataset.del,1);save('bb-log',LOG);if(window.BEANS_OK)checkTrophies();queue('del',l.id);renderLog();toast('Entry deleted')};
+  askConfirm(GROUP&&l.by&&l.by!==ME?'This removes '+l.by+'’s entry for everyone in the shared log.':'\u201c'+(l.coffee||'Untitled')+'\u201d and its notes come out of your log.','Delete',true,'Delete this brew?').then(y=>{if(!y)return;const i=LOG.indexOf(l);if(i<0)return;if(LEDIT===l.id)endEdit();LOG.splice(i,1);save('bb-log',LOG);if(window.BEANS_OK)checkTrophies();queue('del',l.id);renderLog();toast('Entry deleted')})};
 $('l-csv').onclick=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const rows=[['Date','Coffee','Settings','Stars','Predicted','Notes','Flavour notes']].concat(LOG.map(l=>[l.date,l.coffee,l.settings,l.stars,l.pred,l.notes,flText(flOf(l))]));
   saveFile('brew-log.csv',new Blob(['\ufeff'+rows.map(r=>r.map(q).join(',')).join('\r\n')],{type:'text/csv'}))};
 
@@ -3223,8 +3243,8 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-jump]');if
   const el=t[0]==='@'?[...sec.querySelectorAll('h2,h3')].find(h=>h.offsetParent&&h.textContent.trim().startsWith(t.slice(1))):$(t);
   if(!el){toast('Nothing to show there yet');return}el.style.scrollMarginTop='96px';el.scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'})});
 const hubItem=k=>[...SHEETS.explore,...SHEETS.more].find(x=>x[0]===k);
-const hubCount=k=>({map:Object.keys(ALLO()).length,variety:V.length,process:Object.keys(PROCESSES).length,tech:TECH.length,words:GLOSSARY.length,champs:CHAMPS.length,gear:MYG.length+' grinder'+(MYG.length===1?'':'s'),log:LOG.length?LOG.length+' brew'+(LOG.length===1?'':'s'):0})[k];
-const hubCard=k=>{const [,n,d,c,ic]=hubItem(k),cnt=hubCount(k);return '<button type="button" class="hubcard" data-go="'+k+'">'+ico(ic,c)+(cnt?'<span class="hn">'+cnt+'</span>':'')+'<b>'+n+'</b><small>'+d+'</small></button>'};
+// No count badges on cards (Recipes, Explore and the rest): the number shows once you open the section.
+const hubCard=k=>{const [,n,d,c,ic]=hubItem(k);return '<button type="button" class="hubcard" data-go="'+k+'">'+ico(ic,c)+'<b>'+n+'</b><small>'+d+'</small></button>'};
 function renderExplore(){const day=Math.floor(Date.now()/864e5),w=GLOSSARY[day%GLOSSARY.length];
   $('explore-in').innerHTML=todayCard(day,w)+(window.BEANS_OK?cabinetDayHTML():'')+
     HUB.explore.map(([h,ks])=>'<h3 class="rh">'+h+'</h3><div class="hubgrid">'+ks.map(hubCard).join('')+'</div>').join('');if(window.BEANS_OK)hydrateImgs($('explore-in'))}
@@ -3283,8 +3303,8 @@ function importData(file){if(!file)return;if(file.size>80e6){toast('That file is
   const rd=new FileReader();rd.onload=()=>{let j;try{j=JSON.parse(rd.result)}catch(e){toast('That file isn’t a Brew Bench backup');return}
     const b=backupParts(j);if(!b){toast('That file isn’t a Brew Bench backup');return}if(!b.ent.length){toast('That backup is empty');return}
     const when=j.exported?new Date(j.exported).toLocaleDateString():'an earlier date';
-    if(!confirm('Replace the data on this device with the backup from '+when+'? Your current recipes, log, scans and settings here will be overwritten.'))return;
-    applyBackup(b).then(()=>{toast('Backup restored');setTimeout(()=>location.reload(),600)},()=>toast('Couldn’t restore the backup: storage is full or blocked'))};
+    askConfirm('Your current recipes, log, scans and settings on this device are replaced by the backup from '+when+'.','Restore',true,'Restore this backup?').then(y=>{if(!y)return;
+    applyBackup(b).then(()=>{toast('Backup restored');setTimeout(()=>location.reload(),600)},()=>toast('Couldn’t restore the backup: storage is full or blocked'))})};
   rd.onerror=()=>toast('Couldn’t read that file');rd.readAsText(file)}
 // The website moved from GitHub Pages. The old address opens this one with #move and hands over what was saved
 // there (each address keeps its own storage). Only that page, and only into the tab it opened, can hand data over.
@@ -3294,8 +3314,8 @@ if(location.hash==='#move'&&window.opener&&!NATIVE&&location.origin!==OLD_ORIGIN
     try{history.replaceState(null,'',location.pathname)}catch(_){}const b=backupParts(e.data.backup);
     const has=['bb-beans','bb-log','bb-scans','bb-myrecipes'].some(k=>{try{const v=JSON.parse(localStorage.getItem(k)||'[]');return Array.isArray(v)&&v.length}catch(_){return false}});
     if(!b||!b.ent.length){toast('Nothing to bring across');return}
-    if(has&&!confirm('Bring across what you saved at the old address? It replaces what is saved here.'))return;
-    applyBackup(b).then(()=>{try{from.postMessage({kind:'bb-moved'},OLD_ORIGIN)}catch(_){}try{sessionStorage.setItem('bb-movedin','1')}catch(_){}location.reload()},()=>toast('Couldn’t bring it across: storage is full or blocked'))});
+    (has?askConfirm('It replaces what is saved here.','Bring it across',false,'Bring across what you saved at the old address?'):Promise.resolve(true)).then(y=>{if(!y)return;
+    applyBackup(b).then(()=>{try{from.postMessage({kind:'bb-moved'},OLD_ORIGIN)}catch(_){}try{sessionStorage.setItem('bb-movedin','1')}catch(_){}location.reload()},()=>toast('Couldn’t bring it across: storage is full or blocked'))})});
   // Say hello until the old page answers (it may still be gathering photos).
   let n=0;const hi=()=>{if(got||n++>20)return;try{from.postMessage({kind:'bb-move-ready'},OLD_ORIGIN)}catch(_){}setTimeout(hi,500)};hi()}
 try{if(sessionStorage.getItem('bb-movedin')){sessionStorage.removeItem('bb-movedin');setTimeout(()=>toast('Your coffees, brews and settings are here'),700)}}catch(e){}

@@ -118,7 +118,7 @@ function meHTML(){const p=PROFILE,x='<button class="vd-close me-x" id="vd-x" ari
       (dna.length?'<div class="me-tiles me-mine">'+dna.map(([i,k,v])=>'<div><i aria-hidden="true">'+i+'</i><small>'+k+'</small><b>'+esc(v)+'</b></div>').join('')+'</div>'
         :'<button type="button" class="me-add" id="pf-edit3">Add your favourite origin, brewer and where you brew</button>')+accountHTML()+'</div>'}
 $('vd').addEventListener('click',e=>{if(e.target.closest('#pf-new,#pf-edit,#pf-edit2,#pf-edit3')){delete $('vd').dataset.me;openProfileEditor();return}if(e.target.closest('#pf-signin')){delete $('vd').dataset.me;openSignIn();return}
-  if(e.target.closest('#pf-out')){if(confirm('Sign out? Your profile stays on this phone.'))signOut();return}
+  if(e.target.closest('#pf-out')){askConfirm('Your profile stays on this phone.','Sign out',false,'Sign out?').then(y=>{if(y)signOut()});return}
   if(e.target.closest('#pf-bio')){const on=BIOM&&BIOM.saved&&BIOM.email===(ACCT&&ACCT.email),w=bioWord();(on?bioOff():bioOn()).then(()=>toast(on?w[0].toUpperCase()+w.slice(1)+' sign-in is off':'Next time, sign in with your '+bioWord()),err=>{if(err&&err.message&&!/cancel/i.test(err.message))toast(err.message)});return}
   if(e.target.closest('#pf-verify')){sendVerify().then(()=>toast('We sent a link to '+ACCT.email+'. Open it to confirm your email.'),err=>toast(err.message));return}});
 
@@ -183,7 +183,7 @@ function openProfileEditor(opts){opts=opts||{};const J=opts.join,d=$('vd'),isNew
     setAcct(j,'password');sendVerify().catch(()=>{});PROFILE=p;save('bb-profile',p);await afterSignIn();if(PROFILE)saveProfile(PROFILE);d.close();
     toast('Welcome to the bench, '+nick+'. We sent a link to '+J.email+' to confirm it.')};
   $('pf-cancel').onclick=()=>J?back():d.close();$('vd-x').onclick=()=>d.close();
-  if($('pf-del'))$('pf-del').onclick=async()=>{if(!confirm(ACCT?'Delete your account? Your profile and everything synced to it are removed from the server, and this can’t be undone. This phone keeps its own copy of your coffees, brews and recipes.':'Delete your profile from this phone?'))return;
+  if($('pf-del'))$('pf-del').onclick=async()=>{if(!await askConfirm(ACCT?'Your profile and everything synced to it are removed from the server, and this can’t be undone. This phone keeps its own copy of your coffees, brews and recipes.':'Your profile is removed from this phone. Your coffees, brews and recipes stay.','Delete',true,ACCT?'Delete your account?':'Delete your profile?'))return;
     const had=!!ACCT;if(had){try{await deleteAccount()}catch(err){toast(err.message);return}}PROFILE=null;try{localStorage.removeItem('bb-profile')}catch(_){}d.close();profileChanged();toast(had?'Your account and profile are deleted':'Profile deleted')};
   showDlg(d);d.scrollTop=0}
 

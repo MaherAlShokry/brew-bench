@@ -916,7 +916,7 @@ svg .bo{fill:currentColor}svg .bc{fill:none;stroke:var(--surface);stroke-width:1
 @media (prefers-reduced-motion:reduce){.stars button.pop svg{animation:none}}
 .stars-sm{color:var(--honey-ink);letter-spacing:1px;font-size:.9rem}.stars-sm span{color:color-mix(in srgb,var(--muted) 82%,var(--surface))}
 /* Open dialogs and sheets lock the page behind them. */
-html.locked,html.locked body{overflow:hidden}
+dialog{overscroll-behavior:contain}
 dialog{overscroll-behavior:contain;overflow:auto}
 /* Dropdowns: the field shows our own arrow; the list opens in #selsheet. */
 .selw{display:block;position:relative;min-width:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -1021,14 +1021,20 @@ dialog#selsheet.pop .selopt{min-height:40px;padding:8px 12px;font-size:.95rem}
   .appbar #ab-title{animation:title-in .3s var(--ease-out)}
 }
 @media (prefers-reduced-motion:no-preference) and (max-width:759px){
-  dialog#vd[open],dialog#navsheet[open],dialog#sharesheet[open]{animation:sheet-up .44s var(--ease-sheet) both}
-  dialog#vd.closing,dialog#navsheet.closing,dialog#sharesheet.closing{animation:sheet-down .26s cubic-bezier(.4,0,1,1) both}
+  dialog#navsheet[open],dialog#sharesheet[open]{animation:sheet-up .44s var(--ease-sheet) both}
+  dialog#navsheet.closing,dialog#sharesheet.closing{animation:sheet-down .26s cubic-bezier(.4,0,1,1) both}
+  /* A coffee, a recipe or any other detail opens as a page: it slides in from the right over the list and slides back
+     out the same way, so nothing behind it has to move or lock. */
+  html dialog#vd[open]{animation:page-in .34s var(--ease-sheet) both}
+  html dialog#vd.closing{animation:page-out .26s cubic-bezier(.4,0,.6,1) both}
   html dialog#timer[open]{animation:sheet-up .46s var(--ease-sheet) both}
   html dialog#timer.closing{animation:sheet-down .28s cubic-bezier(.4,0,1,1) both}
 }
 @keyframes dlg-in{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
 @keyframes dlg-out{to{opacity:0;transform:translateY(10px) scale(.97)}}
 @keyframes sheet-up{from{transform:translateY(100%)}to{transform:none}}
+@keyframes page-in{from{transform:translateX(100%)}to{transform:none}}
+@keyframes page-out{from{transform:none}to{transform:translateX(100%)}}
 @keyframes sheet-down{from{transform:none}to{transform:translateY(100%)}}
 @keyframes bd-in{from{opacity:0}to{opacity:1}}
 @keyframes bd-out{from{opacity:1}to{opacity:0}}
@@ -2339,7 +2345,7 @@ button[aria-pressed]:active{transform:scale(.95)}
 .tro.on .tro-ic .di{color:#5A3A12;stroke-width:2}
 .tro:not(.on) b{color:color-mix(in srgb,var(--ink) 75%,transparent)}
 .tro .tro-p{width:72%;margin:6px auto 0}
-.yic-scope{font-style:normal;font-weight:600;letter-spacing:0;text-transform:none;opacity:.8;margin-left:6px}
+
 .tro small{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 html.sheeting :is(.seg.bviews,.gtabs,.appbar,.minires,.bottomnav){-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 /* Diary: the entry icons' rings aren't cropped (content-visibility clips whatever pokes out of a row, so rows keep a
@@ -2372,6 +2378,33 @@ html.sheeting :is(.seg.bviews,.gtabs,.appbar,.minires,.bottomnav){-webkit-backdr
 .t3hm-i small{max-width:none;text-align:left;font-size:.8rem;line-height:1.25}
 dialog.dlg-pre[open]{animation:none!important;opacity:0}
 dialog.dlg-pre[open]::backdrop{animation:none!important;opacity:0}
+/* On phones the detail sheet is a full page: edge to edge, the full height, under the status bar. */
+@media (max-width:759px){
+  html dialog#vd:not(.camdlg){position:fixed;inset:0;margin:0;width:100%;max-width:100%;height:100%;max-height:100%;border-radius:0;border:0;box-shadow:none;will-change:transform}
+  html dialog#vd:not(.camdlg)::backdrop{background:rgba(15,10,6,.3)}
+  html dialog#vd:not(.camdlg) .vd-head{padding-top:calc(18px + var(--sa-top,0px))}
+  html dialog#vd:not(.camdlg) .vd-close{top:calc(12px + var(--sa-top,0px))}
+}
+.ask{padding:2px 20px 6px}.ask-t{margin:0 0 14px;color:var(--muted);font-size:.95rem;line-height:1.45}
+.ask-in{display:grid;grid-template-columns:48px 1fr 48px;align-items:center;gap:10px;margin:4px 0 8px}
+.ask-b{width:48px;height:48px;padding:0;border:0;border-radius:50%;display:grid;place-items:center;background:var(--surface2);color:var(--ink);cursor:pointer;transition:transform .1s}.ask-b:active{transform:scale(.9);color:var(--cherry)}
+.ask-b svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+.ask-f{display:flex;align-items:baseline;justify-content:center;gap:4px;min-height:60px;padding:6px 14px;border-radius:var(--r-md);background:var(--surface2);border:1.5px solid transparent;cursor:text}.ask-f:focus-within{border-color:var(--cherry)}
+.ask-f input{width:4.6ch;flex:none;border:0!important;background:none!important;box-shadow:none!important;padding:0!important;text-align:center;font:800 2rem/1.2 var(--display);color:var(--ink);-moz-appearance:textfield}.ask-f input::-webkit-inner-spin-button,.ask-f input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.ask-f span{font:600 1rem var(--display);color:var(--muted)}
+.btn.danger{background:#A8432F;color:#fff}
+.yic-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px}.yic-h h3{margin:0;font:800 1.15rem/1.2 var(--display);letter-spacing:-.01em;color:var(--ink)}.yic-h span{font-size:.8rem;font-weight:600;color:var(--muted);white-space:nowrap}
+.yic .yic-line{margin:6px 0 0;font:500 .92rem/1.45 var(--body,inherit);color:var(--muted)}
+.yic-list{list-style:none;margin:14px 0 0;padding:4px 12px;border-radius:14px;background:var(--surface)}
+.yic-list li{display:grid;grid-template-columns:30px minmax(0,1fr) auto;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}.yic-list li:first-child{border-top:0}
+.yic-list i{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--surface2);font-style:normal;font-size:.95rem}
+.yic-list span{display:flex;flex-direction:column;gap:1px;min-width:0}.yic-list small{font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.yic-list b{font:650 .95rem/1.3 var(--display);color:var(--ink);overflow-wrap:anywhere}.yic-list em{font-style:normal;font-size:.8rem;font-weight:600;color:var(--muted);white-space:nowrap;text-align:right}
+/* The Beans tab strip, when it sticks under the top bar, matches the bar: the same nearly solid surface, hairline and
+   shadow, the same width, and an even gap, so the two read as one header instead of a see-through second bar. */
+@media (max-width:759px){
+  .seg.bviews{top:calc(var(--ab-b,64px) + 8px)!important;margin-left:-6px!important;margin-right:-6px!important;background:var(--surface)!important;border:1px solid var(--hair)!important;box-shadow:var(--e2)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+}
 </style>
 <script>const JSPDF_SRC="vendor/jspdf.umd.min.js"</script>
 <link rel="manifest" href="manifest.webmanifest">
@@ -4811,7 +4844,7 @@ function openNotesPicker(entry){const d=$('vd'),sel=flMap(entry?flOf(entry):LFL.
     if(a){const n=FW.byId[a.dataset.fa];if(n.leaf){if(!sel.has(n.id))sel.set(n.id,2);W.zoom(n.parent&&n.parent.id)}else W.zoom(n.id);W.redraw();list();$('fl-q').value='';res.innerHTML='';return}
     if(lv){sel.set(lv.dataset.id,+lv.dataset.lv);list();W.redraw();return}
     if(rm){sel.delete(rm.dataset.rm);list();W.redraw();return}
-    if(e.target.closest('#fl-clear')){if(!sel.size||confirm('Remove all the notes?')){sel.clear();list();W.redraw()}return}
+    if(e.target.closest('#fl-clear')){(sel.size?askConfirm('Every note you picked is cleared.','Remove',true,'Remove all the notes?'):Promise.resolve(true)).then(y=>{if(y){sel.clear();list();W.redraw()}});return}
     if(e.target.closest('#fl-done'))d.close()};
   $('vd-x').onclick=()=>d.close();
   // Whatever you leave the sheet with (Done, the cross or back) is kept.
@@ -5434,6 +5467,24 @@ function openChoices(o){const d=$('selsheet'),secs=o.secs().filter(x=>x&&x.opts.
     if(x.multi){const a=dr[x.key];if(v==='all')dr[x.key]=[];else{const i=a.indexOf(v);if(i>=0)a.splice(i,1);else a.push(v)}}else dr[x.key]=v;
     const y=d.scrollTop;draw();d.scrollTop=y};
   showDlg(d)}
+// A question in the app's own sheet, in place of the browser's prompt and confirm boxes. With `input`, it asks for a
+// number (− and + step it) and resolves to it, or null when cancelled; without, it resolves to true or false.
+// o: {title, text, ok, cancel, danger, input:{value, unit, step, min, max, label}}
+function askSheet(o){return new Promise(res=>{const d=$('selsheet'),I=o.input;let done=false;
+  const pm=k=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+(k<0?'M6 12h12':'M12 6v12M6 12h12')+'"/></svg>';
+  const fin=v=>{if(done)return;done=true;res(v);if(d.open)d.close()};
+  $('sel-in').innerHTML='<div class="selhead"><div class="grab"></div><h3 id="sel-title">'+esc(o.title)+'</h3><button type="button" class="vd-close" id="sel-x" aria-label="Cancel">✕</button></div>'+
+    '<div class="ask">'+(o.text?'<p class="ask-t">'+esc(o.text)+'</p>':'')+
+    (I?'<div class="ask-in"><button type="button" class="ask-b" data-d="-1" aria-label="Less">'+pm(-1)+'</button><label class="ask-f"><input id="ask-v" type="number" inputmode="decimal" min="'+(I.min??0)+'"'+(I.max!=null?' max="'+I.max+'"':'')+' step="any" value="'+esc(I.value==null?'':String(I.value))+'" aria-label="'+esc(I.label||o.title)+'">'+(I.unit?'<span>'+esc(I.unit)+'</span>':'')+'</label><button type="button" class="ask-b" data-d="1" aria-label="More">'+pm(1)+'</button></div>':'')+'</div>'+
+    '<div class="rs-done"><button type="button" class="btn ghost" id="ask-no">'+esc(o.cancel||'Cancel')+'</button><button type="button" class="btn'+(o.danger?' danger':'')+'" id="ask-ok">'+esc(o.ok||'OK')+'</button></div>';
+  const val=()=>{const n=parseFloat($('ask-v').value);return isFinite(n)?n:null};
+  $('sel-in').onclick=e=>{if(e.target.closest('#sel-x,#ask-no')){fin(I?null:false);return}
+    if(e.target.closest('#ask-ok')){if(!I){fin(true);return}const n=val();if(n==null||n<(I.min??0)||(I.max!=null&&n>I.max)){toast('Enter a number'+(I.unit?' of '+I.unit.trim():''));$('ask-v').focus();return}fin(n);return}
+    const b=e.target.closest('.ask-b');if(b){const st=I.step||1,n=val()??0;$('ask-v').value=String(Math.max(I.min??0,Math.min(I.max??1e9,Math.round((n+st*+b.dataset.d)/st)*st)))}};
+  if(I)$('ask-v').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();$('ask-ok').click()}};
+  d.addEventListener('close',()=>fin(I?null:false),{once:true});showDlg(d);if(I)setTimeout(()=>{const v=$('ask-v');if(v){v.focus();v.select()}},380)})}
+const askConfirm=(text,ok,danger,title)=>askSheet({title:title||'Are you sure?',text,ok:ok||'OK',danger:danger!==false});
+
 // Several picks: kept when the list is empty (nothing picked shows everything).
 const inSel=(a,v)=>!a||!a.length||a.includes(v);
 const selName=(a,name,all)=>!a.length?all:a.length<3?a.map(name).join(', '):name(a[0])+' and '+(a.length-1)+' more';
@@ -6001,7 +6052,9 @@ try{history.scrollRestoration='manual'}catch(e){}
 // away made the browser lay the page out again mid-animation and the sticky tabs jumped. Blurs behind the page's
 // sticky bars are switched off while a sheet is up, so the sliding sheet doesn't make them redraw every frame.
 {let lockT=0;const sync=()=>{const open=!!document.querySelector('dialog[open]'),h=document.documentElement;clearTimeout(lockT);h.classList.toggle('sheeting',open);
-  if(!open){h.classList.remove('locked');return}if(!h.classList.contains('locked'))lockT=setTimeout(()=>{if(document.querySelector('dialog[open]'))h.classList.add('locked')},340)};
+  // No scroll lock: details open as full pages and sheets keep their own scrolling (overscroll-behavior), so the page
+  // behind never shifts when one opens or closes.
+  h.classList.remove('locked')};
   const mo=new MutationObserver(sync);document.querySelectorAll('dialog').forEach(d=>{mo.observe(d,{attributes:true,attributeFilter:['open']});d.addEventListener('close',sync)})}
 // An open dialog also gets a history entry, so back closes it instead of leaving the tab.
 // When one sheet closes and another opens straight away (Share inside a sheet, Start timer from a recipe), the step back
@@ -6130,13 +6183,13 @@ function renderRHome(){const QI=(c,p)=>'<span class="qi" style="background:'+c+'
   const again=RECENT.map(rByKey).filter(i=>i>=0).slice(0,6);
   $('rhome').innerHTML='<div class="qlinks">'+
     '<button type="button" data-q="surprise">'+QI('#2F80ED','M12 3l1.9 5.6L19.5 10l-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.4z M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z')+'<b>Surprise me</b></button>'+
-    '<button type="button" data-q="mine">'+QI('#C8741F','M4 20h4L19 9l-4-4L4 16z M13 7l4 4')+'<b>Your recipes</b>'+(CREC.length?'<span class="qn">'+CREC.length+'</span>':'')+'</button>'+
-    '<button type="button" data-q="fav">'+QI('#E0445A','M7 3.5h10a1.5 1.5 0 0 1 1.5 1.5v15.2a.6.6 0 0 1-.95.5L12 16.8l-5.55 3.9a.6.6 0 0 1-.95-.5V5A1.5 1.5 0 0 1 7 3.5z')+'<b>Saved</b>'+(favCount()?'<span class="qn">'+favCount()+'</span>':'')+'</button></div>'+
+    '<button type="button" data-q="mine">'+QI('#C8741F','M4 20h4L19 9l-4-4L4 16z M13 7l4 4')+'<b>Your recipes</b></button>'+
+    '<button type="button" data-q="fav">'+QI('#E0445A','M7 3.5h10a1.5 1.5 0 0 1 1.5 1.5v15.2a.6.6 0 0 1-.95.5L12 16.8l-5.55 3.9a.6.6 0 0 1-.95-.5V5A1.5 1.5 0 0 1 7 3.5z')+'<b>Saved</b></button></div>'+
     (again.length?'<h3 class="rh">Brew again</h3><div class="again">'+again.map(i=>'<button type="button" data-again="'+i+'"><b>'+esc(RECIPES[i].name)+'</b><small>'+esc(famName(RECIPES[i].b))+'</small></button>').join('')+'</div>':'')+
     '<h3 class="rh">By brewer</h3><div class="bshelf">'+RBREWERS().map(k=>{const B=BREWERS[k],n=RECIPES.filter(r=>RFAM(r.b)===k).length;
-      return '<button type="button" data-rb="'+k+'" aria-pressed="'+RF.includes('b:'+k)+'"><span class="bi">'+bIcon(B.type)+'</span><b>'+esc(famName(k))+'</b><small>'+n+' recipe'+(n>1?'s':'')+'</small></button>'}).join('')+'</div>'+
-    '<h3 class="rh">Collections</h3><div class="colshelf">'+COLS.map(([k,n,d,c,f])=>'<button type="button" data-col="'+k+'" aria-pressed="'+RF.includes('col:'+k)+'" style="--cc:'+c+'"><b>'+esc(n)+'</b><small>'+esc(d)+'</small><span class="cn">'+RECIPES.filter(f).length+'</span></button>').join('')+'</div>'+
-    '<h3 class="rh">Cup types</h3><div class="cups">'+CUPS.map(([k,n,d,g,f,ic])=>'<button type="button" class="cupcard" data-cup="'+k+'" aria-pressed="'+RF.includes('cup:'+k)+'"><span class="cupart" style="--g:'+g+'">'+ic()+'<span class="cc">'+RECIPES.filter(f).length+'<span class="sr"> recipes</span></span></span><b>'+esc(n)+'</b><small>'+esc(d)+'</small></button>').join('')+'</div>'}
+      return '<button type="button" data-rb="'+k+'" aria-pressed="'+RF.includes('b:'+k)+'"><span class="bi">'+bIcon(B.type)+'</span><b>'+esc(famName(k))+'</b><small>'+esc(B.type)+'</small></button>'}).join('')+'</div>'+
+    '<h3 class="rh">Collections</h3><div class="colshelf">'+COLS.map(([k,n,d,c,f])=>'<button type="button" data-col="'+k+'" aria-pressed="'+RF.includes('col:'+k)+'" style="--cc:'+c+'"><b>'+esc(n)+'</b><small>'+esc(d)+'</small></button>').join('')+'</div>'+
+    '<h3 class="rh">Cup types</h3><div class="cups">'+CUPS.map(([k,n,d,g,f,ic])=>'<button type="button" class="cupcard" data-cup="'+k+'" aria-pressed="'+RF.includes('cup:'+k)+'"><span class="cupart" style="--g:'+g+'">'+ic()+'</span><b>'+esc(n)+'</b><small>'+esc(d)+'</small></button>').join('')+'</div>'}
 // A random recipe for the brewers you have (a family counts), never the last pick twice running.
 function surpriseRecipe(){const mine=RECIPES.map((r,i)=>i).filter(i=>MYB.some(b=>RFAM(b)===RFAM(RECIPES[i].b)));
     const all=mine.length?mine:RECIPES.map((r,i)=>i),pool=all.length>1?all.filter(i=>i!==LASTSURP):all;LASTSURP=pool[Math.floor(Math.random()*pool.length)];openRecipe(LASTSURP);
@@ -6286,7 +6339,7 @@ function openRecipeEditor(r,fresh){const isNew=!r||fresh;r=Object.assign({b:'v60
   $('re-save').onclick=()=>{const n=sanRec({id:isNew?undefined:r.id,b:bOf(),name:$('re-name').value,by:$('re-by').value,author:isNew?(ME||''):r.author,dose:+$('re-dose').value,water:+$('re-water').value,temp:+$('re-temp').value,off:-(+$('re-off').value),
       steps:SE.value(),why:$('re-why').value,tip:$('re-tip').value,ts:isNew?Date.now():r.ts,kind:r.kind});
     if(!n){toast('Give the recipe a name');$('re-name').focus();return}saveRecipe(n);$('vd').close();RF=['mine'];if(BUILT.recipes)renderRecipes();showTab('recipes');toast(isNew?'Recipe saved':'Recipe updated')};
-  if(!isNew)$('re-del').onclick=()=>{if(!confirm(own?'Delete this recipe?':'Delete '+r.author+'’s recipe for everyone?'))return;deleteRecipe(r);$('vd').close();toast('Recipe deleted')};
+  if(!isNew)$('re-del').onclick=()=>askConfirm(own?'This recipe will be removed from your recipes.':'This removes '+r.author+'’s recipe for everyone in your shared log.','Delete',true,own?'Delete this recipe?':'Delete for everyone?').then(y=>{if(!y)return;deleteRecipe(r);$('vd').close();toast('Recipe deleted')});
   const d=$('vd');showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
 $('r-new').onclick=()=>openRecipeEditor(null);
 // Save the current dial-in as a starting recipe.
@@ -6488,7 +6541,7 @@ $('glt-f').onclick=()=>pickOne('Filter grinders','grinder',[['all','All grinders
 $('glib').onclick=e=>{const m=e.target.closest('[data-gmine]'),c=e.target.closest('[data-gcmp]'),d=e.target.closest('[data-gdel]');
   if(m){setMine(m.dataset.gmine,!MYG.includes(m.dataset.gmine));return}
   if(c){const g=c.dataset.gcmp;if(GCMP.includes(g))GCMP=GCMP.filter(x=>x!==g);else{if(GCMP.length>=3){toast('Compare up to three at a time');return}GCMP.push(g)}renderLibrary();if(GCMP.length)$('gcmp').scrollIntoView({behavior:RM()?'auto':'smooth',block:'nearest'});return}
-  if(d&&confirm('Delete '+GRINDERS[d.dataset.gdel].name+'?')){const g=d.dataset.gdel;delete CUSTOM_G[g];save('bb-custom-grinders',CUSTOM_G);setMine(g,false,true);delete GRINDERS[g];GCMP=GCMP.filter(x=>x!==g);grindersChanged();toast('Grinder deleted')}};
+  if(d){const g=d.dataset.gdel;askConfirm('Its settings go with it.','Delete',true,'Delete '+GRINDERS[g].name+'?').then(y=>{if(!y||!GRINDERS[g])return;delete CUSTOM_G[g];save('bb-custom-grinders',CUSTOM_G);setMine(g,false,true);delete GRINDERS[g];GCMP=GCMP.filter(x=>x!==g);grindersChanged();toast('Grinder deleted')})}};
 function renderGCompare(){if(!GCMP.length){$('gcmp').innerHTML='';return}
   const rows=[['Type',g=>gtype(g)],['Burrs',g=>GRINDERS[g].burr||'–'],['Dial',g=>GRINDERS[g].adjust||'–'],['Microns per step',g=>GRINDERS[g].um?'about '+GRINDERS[g].um:'–'],['Espresso',g=>GRINDERS[g].espresso?'Yes':'No'],
     ['Espresso setting',g=>{const v=base(g,'espresso');return v!=null?dial(g,v):'n/a'}],['AeroPress',g=>{const v=base(g,'aeropress');return v!=null?dial(g,v):'n/a'}],['V60',g=>{const v=base(g,'v60');return v!=null?dial(g,v):'n/a'}],['French press',g=>{const v=base(g,'frenchpress');return v!=null?dial(g,v):'n/a'}],['In the cup',g=>GRINDERS[g].cup||'–']];
@@ -6878,7 +6931,7 @@ function renderShare(){const el=$('l-share');if(!el)return;
   el.innerHTML='<div class="sharehead"><h3 style="margin:0">Shared log</h3><span class="sync" id="sync-state"></span></div><p class="hint sh-you" style="margin:.3rem 0 .8rem">'+(window.PROFILE_OK&&PROFILE?avatarHTML(PROFILE,24):'')+'<span>You are <b>'+esc(ME||'Guest')+'</b>. Code <b class="code">'+GROUP.code+'</b></span></p>'+
     '<div class="actions"><button class="btn" id="sh-invite">Invite friends</button><button class="btn ghost" id="sh-leave">Leave</button></div>';
   $('sh-invite').onclick=()=>openShare(inviteDoc());
-  $('sh-leave').onclick=()=>{if(confirm('Leave the shared log? Your phone keeps a copy of the entries.'))leaveGroup()};setSync(SYNC_STATE==='off'?'connecting':SYNC_STATE)}
+  $('sh-leave').onclick=()=>askConfirm('Your phone keeps a copy of the entries.','Leave',true,'Leave the shared log?').then(y=>{if(y)leaveGroup()});setSync(SYNC_STATE==='off'?'connecting':SYNC_STATE)}
 let JOIN_CODE='';
 // Two shared date formats: making a new one for every entry was the slowest part of drawing a long log.
 const FMT_D=new Intl.DateTimeFormat(undefined,{day:'numeric',month:'short'}),FMT_DY=new Intl.DateTimeFormat(undefined,{day:'numeric',month:'short',year:'numeric'});
@@ -7083,7 +7136,7 @@ $('l-list').onclick=e=>{const ls=e.target.closest('[data-lshare]');if(ls){const 
   if(fv){const l=LOG[+fv.dataset.flview];if(l)openProfile(l.coffee||'Untitled',[fmtDate(l),l.stars?l.stars+' of 5 beans':'',l.settings].filter(Boolean).join(' \u00B7 '),flOf(l),l);return}
   const b=e.target.closest('[data-del]');if(!b)return;const l=LOG[+b.dataset.del];if(!l)return;
   // One tap on Delete shouldn't lose a brew and its notes: ask first, as recipes do.
-  if(!confirm(GROUP&&l.by&&l.by!==ME?'Delete '+l.by+'’s entry for everyone?':'Delete \u201c'+(l.coffee||'Untitled')+'\u201d from your log?'))return;if(LEDIT===l.id)endEdit();LOG.splice(+b.dataset.del,1);save('bb-log',LOG);if(window.BEANS_OK)checkTrophies();queue('del',l.id);renderLog();toast('Entry deleted')};
+  askConfirm(GROUP&&l.by&&l.by!==ME?'This removes '+l.by+'’s entry for everyone in the shared log.':'\u201c'+(l.coffee||'Untitled')+'\u201d and its notes come out of your log.','Delete',true,'Delete this brew?').then(y=>{if(!y)return;const i=LOG.indexOf(l);if(i<0)return;if(LEDIT===l.id)endEdit();LOG.splice(i,1);save('bb-log',LOG);if(window.BEANS_OK)checkTrophies();queue('del',l.id);renderLog();toast('Entry deleted')})};
 $('l-csv').onclick=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const rows=[['Date','Coffee','Settings','Stars','Predicted','Notes','Flavour notes']].concat(LOG.map(l=>[l.date,l.coffee,l.settings,l.stars,l.pred,l.notes,flText(flOf(l))]));
   saveFile('brew-log.csv',new Blob(['\ufeff'+rows.map(r=>r.map(q).join(',')).join('\r\n')],{type:'text/csv'}))};
 
@@ -8168,8 +8221,8 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-jump]');if
   const el=t[0]==='@'?[...sec.querySelectorAll('h2,h3')].find(h=>h.offsetParent&&h.textContent.trim().startsWith(t.slice(1))):$(t);
   if(!el){toast('Nothing to show there yet');return}el.style.scrollMarginTop='96px';el.scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'})});
 const hubItem=k=>[...SHEETS.explore,...SHEETS.more].find(x=>x[0]===k);
-const hubCount=k=>({map:Object.keys(ALLO()).length,variety:V.length,process:Object.keys(PROCESSES).length,tech:TECH.length,words:GLOSSARY.length,champs:CHAMPS.length,gear:MYG.length+' grinder'+(MYG.length===1?'':'s'),log:LOG.length?LOG.length+' brew'+(LOG.length===1?'':'s'):0})[k];
-const hubCard=k=>{const [,n,d,c,ic]=hubItem(k),cnt=hubCount(k);return '<button type="button" class="hubcard" data-go="'+k+'">'+ico(ic,c)+(cnt?'<span class="hn">'+cnt+'</span>':'')+'<b>'+n+'</b><small>'+d+'</small></button>'};
+// No count badges on cards (Recipes, Explore and the rest): the number shows once you open the section.
+const hubCard=k=>{const [,n,d,c,ic]=hubItem(k);return '<button type="button" class="hubcard" data-go="'+k+'">'+ico(ic,c)+'<b>'+n+'</b><small>'+d+'</small></button>'};
 function renderExplore(){const day=Math.floor(Date.now()/864e5),w=GLOSSARY[day%GLOSSARY.length];
   $('explore-in').innerHTML=todayCard(day,w)+(window.BEANS_OK?cabinetDayHTML():'')+
     HUB.explore.map(([h,ks])=>'<h3 class="rh">'+h+'</h3><div class="hubgrid">'+ks.map(hubCard).join('')+'</div>').join('');if(window.BEANS_OK)hydrateImgs($('explore-in'))}
@@ -8228,8 +8281,8 @@ function importData(file){if(!file)return;if(file.size>80e6){toast('That file is
   const rd=new FileReader();rd.onload=()=>{let j;try{j=JSON.parse(rd.result)}catch(e){toast('That file isn’t a Brew Bench backup');return}
     const b=backupParts(j);if(!b){toast('That file isn’t a Brew Bench backup');return}if(!b.ent.length){toast('That backup is empty');return}
     const when=j.exported?new Date(j.exported).toLocaleDateString():'an earlier date';
-    if(!confirm('Replace the data on this device with the backup from '+when+'? Your current recipes, log, scans and settings here will be overwritten.'))return;
-    applyBackup(b).then(()=>{toast('Backup restored');setTimeout(()=>location.reload(),600)},()=>toast('Couldn’t restore the backup: storage is full or blocked'))};
+    askConfirm('Your current recipes, log, scans and settings on this device are replaced by the backup from '+when+'.','Restore',true,'Restore this backup?').then(y=>{if(!y)return;
+    applyBackup(b).then(()=>{toast('Backup restored');setTimeout(()=>location.reload(),600)},()=>toast('Couldn’t restore the backup: storage is full or blocked'))})};
   rd.onerror=()=>toast('Couldn’t read that file');rd.readAsText(file)}
 // The website moved from GitHub Pages. The old address opens this one with #move and hands over what was saved
 // there (each address keeps its own storage). Only that page, and only into the tab it opened, can hand data over.
@@ -8239,8 +8292,8 @@ if(location.hash==='#move'&&window.opener&&!NATIVE&&location.origin!==OLD_ORIGIN
     try{history.replaceState(null,'',location.pathname)}catch(_){}const b=backupParts(e.data.backup);
     const has=['bb-beans','bb-log','bb-scans','bb-myrecipes'].some(k=>{try{const v=JSON.parse(localStorage.getItem(k)||'[]');return Array.isArray(v)&&v.length}catch(_){return false}});
     if(!b||!b.ent.length){toast('Nothing to bring across');return}
-    if(has&&!confirm('Bring across what you saved at the old address? It replaces what is saved here.'))return;
-    applyBackup(b).then(()=>{try{from.postMessage({kind:'bb-moved'},OLD_ORIGIN)}catch(_){}try{sessionStorage.setItem('bb-movedin','1')}catch(_){}location.reload()},()=>toast('Couldn’t bring it across: storage is full or blocked'))});
+    (has?askConfirm('It replaces what is saved here.','Bring it across',false,'Bring across what you saved at the old address?'):Promise.resolve(true)).then(y=>{if(!y)return;
+    applyBackup(b).then(()=>{try{from.postMessage({kind:'bb-moved'},OLD_ORIGIN)}catch(_){}try{sessionStorage.setItem('bb-movedin','1')}catch(_){}location.reload()},()=>toast('Couldn’t bring it across: storage is full or blocked'))})});
   // Say hello until the old page answers (it may still be gathering photos).
   let n=0;const hi=()=>{if(got||n++>20)return;try{from.postMessage({kind:'bb-move-ready'},OLD_ORIGIN)}catch(_){}setTimeout(hi,500)};hi()}
 try{if(sessionStorage.getItem('bb-movedin')){sessionStorage.removeItem('bb-movedin');setTimeout(()=>toast('Your coffees, brews and settings are here'),700)}}catch(e){}
@@ -8814,13 +8867,16 @@ function yearInCoffeeHTML0(){const cy=new Date().getFullYear(),bs=BEANS.filter(b
   const cups=myCups(cy);if(!bs.length&&!cups.length)return '';const g=Math.round(cups.reduce((s,c)=>s+(c.g||0),0)),t=tasteOf(bs,ls),origins=new Set(bs.map(b=>b.origin).filter(Boolean)).size,bags=bagsIn(cy);
   const big=[[bs.length,(bs.length===1?'coffee':'coffees')+(bags>bs.length?' · '+bags+' bags':'')],[cups.length,cups.length===1?'cup brewed':'cups brewed'],g?[g>=1000?(g/1000).toFixed(g>=10000?0:1)+' kg':g+' g','of coffee']:[origins,origins===1?'origin':'origins']];
   const o=t.origin&&oInfo(t.origin.k),R=t.region&&REG[t.region.k],v=t.variety&&VBY[t.variety.k],pr=t.process&&PROCESSES[t.process.k],B=t.brewer&&BREWERS[t.brewer.k];
-  const facts=[o&&['<span class="yic-fl">'+flagOf(t.origin.k)+'</span>','Mostly from',o.name,t.origin.n+' bag'+(t.origin.n===1?'':'s')],R&&['🗺️','Favourite region',R.name,t.region.n+' bag'+(t.region.n===1?'':'s')+(t.regionOrigin&&t.regionOrigin.k!==(t.origin&&t.origin.k)?', most from '+oInfo(t.regionOrigin.k).name:'')],
+  const facts=[o&&['<span class="yic-fl">'+flagOf(t.origin.k)+'</span>','Mostly from',o.name,t.origin.n+' bag'+(t.origin.n===1?'':'s')],R&&['🗺️','Favourite region',R.name+(t.regionOrigin&&t.regionOrigin.k!==(t.origin&&t.origin.k)?' · mostly '+oInfo(t.regionOrigin.k).name:''),t.region.n+' bag'+(t.region.n===1?'':'s')],
     v&&['🌱','Top variety',shortName(v.name),t.variety.n+' bag'+(t.variety.n===1?'':'s')],pr&&['🧪','Top process',pr.name.replace(/\s*\(.*\)$/,''),t.process.n+' bag'+(t.process.n===1?'':'s')],
     t.roast&&['🔥','Usual roast',t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1),''],t.roaster&&['🏷️','Roastery most often',t.roaster.k,t.roaster.n+' bag'+(t.roaster.n===1?'':'s')],
     t.regular&&['🔁','Your regular',beanTitle(t.regular),'Bought '+buys(t.regular)+' times'],t.best&&['🏆','Best of the year',beanTitle(t.best),String(t.best.rating).replace('.5','½')+' beans'],B&&['☕','Brewed most on',B.name,t.brewer.n+' cup'+(t.brewer.n===1?'':'s')]].filter(Boolean);
-  return '<div class="yic" role="region" aria-label="'+cy+' in coffee"><span class="yic-k">'+cy+' in coffee <em class="yic-scope">this year only</em></span>'+(bs.length>1?'<p class="yic-line">'+esc(tasteLine(t))+'</p>':'')+
+  // The months it covers (January to this month), in place of a "this year only" note.
+  const mon=m=>new Date(cy,m,1).toLocaleDateString(undefined,{month:'short'}),nowM=new Date().getMonth(),range=nowM?mon(0)+' – '+mon(nowM):mon(0);
+  return '<div class="yic" role="region" aria-label="'+cy+' in coffee"><div class="yic-h"><h3>'+cy+' in coffee</h3><span>'+esc(range)+'</span></div>'+(bs.length>1?'<p class="yic-line">'+esc(tasteLine(t))+'</p>':'')+
     '<div class="yic-big">'+big.map(([n,l])=>'<span><b>'+esc(String(n))+'</b><small>'+esc(l)+'</small></span>').join('')+'</div>'+
-    (facts.length?'<div class="yic-facts">'+facts.map(([i,k,vv,sub])=>'<div><i aria-hidden="true">'+i+'</i><span><small>'+k+'</small><b>'+esc(vv)+'</b>'+(sub?'<em>'+esc(sub)+'</em>':'')+'</span></div>').join('')+'</div>':'')+
+    // The facts as one list: the icon, what it is over its value, and the count on the right.
+    (facts.length?'<ul class="yic-list">'+facts.map(([i,k,vv,sub])=>'<li><i aria-hidden="true">'+i+'</i><span><small>'+k+'</small><b>'+esc(vv)+'</b></span>'+(sub?'<em>'+esc(sub)+'</em>':'')+'</li>').join('')+'</ul>':'')+
     (t.notes.length?'<div class="yic-notes"><small>Notes you keep coming back to</small><div class="chips">'+t.notes.map(n=>'<span class="chip"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'</span>').join('')+'</div></div>':'')+'</div>'}
 
 /* ================= FOR YOU ================= */
@@ -9137,8 +9193,7 @@ function renderBeanHero(){const cy=new Date().getFullYear(),N=BEANS.length,rated
     '<div class="bgh-acts"><button type="button" class="bgh-btn main" id="bg-scan">'+SCAN_ICO+'Scan a bag</button><button type="button" class="bgh-btn" id="bg-add">'+PLUS_ICO+'Add a coffee</button></div>';
   hydrateImgs(h)}
 function renderBeanViews(){const cy=new Date().getFullYear();
-  const cnt=n=>n?' <i>'+(n>999?'999+':n)+'</i>':'';
-  seg('bg-views',[['coffees','Coffees'+cnt(BEANS.length)],['diary','Diary'],['passport','Passport'],['top3','Top 5'],['scans','Scans'+cnt(SCANS.length)]],()=>BVIEW,v=>{if(v===BVIEW)return;BVIEW=v;
+  seg('bg-views',[['coffees','Coffees'],['diary','Diary'],['passport','Passport'],['top3','Top 5'],['scans','Scans']],()=>BVIEW,v=>{if(v===BVIEW)return;BVIEW=v;
     // The highlight moves at once; the page under it is built a frame later, so the glide isn't held up.
     $('bg-views').querySelectorAll(':scope>button[data-v]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===v)));requestAnimationFrame(()=>setTimeout(renderBeanViews,0))});
   if(BDIRTY.has(BVIEW)){BDIRTY.delete(BVIEW);BVIEWS[BVIEW]()}
@@ -9388,7 +9443,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;const d=$('vd'),rk
   let cupG=dose;const cupShow=()=>{$('bd-cg').textContent=gfmt(cupG)+' g'};
   if($('bd-cm')){$('bd-cm').onclick=()=>{cupG=Math.max(1,cupG-1);cupShow()};$('bd-cp').onclick=()=>{cupG=Math.min(100,cupG+1);cupShow()}}
   if($('bd-cup'))$('bd-cup').onclick=()=>{setLeft(b,Math.max(0,(gramsLeft(b)||0)-cupG));refresh('Took '+gfmt(cupG)+' g off the bag')};
-  if($('bd-left'))$('bd-left').onclick=()=>{const v=prompt('How many grams are left in the bag?',String(gramsLeft(b)||''));if(v==null)return;const n=parseFloat(v);if(!isFinite(n)||n<0){toast('Enter the grams left, like 120');return}setLeft(b,n);refresh('Updated')};
+  if($('bd-left'))$('bd-left').onclick=()=>askSheet({title:'What’s left in the bag?',text:'Weigh the bag, or a good guess. Brews from here on come off this.',ok:'Save',input:{value:gramsLeft(b)??'',unit:'g',step:5,min:0,max:5000,label:'Grams left'}}).then(n=>{if(n==null)return;setLeft(b,n);refresh('Updated')});
   if($('bd-done'))$('bd-done').onclick=()=>{b.shelf=false;const ol=b.diary.find(e=>e.k==='opened'||e.k==='last');if(!ol||ol.k!=='last')b.diary.unshift(okEntry({k:'last',d:todayISO(),t:''}));refresh('Finished: it’s in the cabinet now. Add how it ended in its diary')};
   if($('bd-shelf'))$('bd-shelf').onclick=()=>{b.shelf=true;refresh('Back on the shelf')};
   if($('bd-rbopen'))$('bd-rbopen').onclick=e=>{const f=$('bd-rbform'),o=f.hidden;f.hidden=!o;e.currentTarget.setAttribute('aria-expanded',o);if(o)f.scrollIntoView({block:'nearest',behavior:RM()?'auto':'smooth'})};
@@ -9399,10 +9454,10 @@ function openBean(id,write){const b=beanById(id);if(!b)return;const d=$('vd'),rk
     if(rd&&(!/^\d{4}-\d\d-\d\d$/.test(rd)||rd>todayISO())){toast('Pick a roast date that isn’t in the future');return}
     rebuyBean(b,rd,g>=50&&g<=5000?Math.round(g):0);refresh('New bag on the shelf: it’s in Drinking now')};
   wireDwrite('bd',st,()=>b,(_,msg)=>{refresh(msg);setTimeout(()=>{const h=$('bd-dh');if(h)h.scrollIntoView({block:'start'})},50)});
-  $('bd-tl').onclick=e=>{const x=e.target.closest('[data-deldiary]');if(!x||!confirm('Delete this diary entry?'))return;dropDiaryPhotos(b.diary.filter(en=>en.id===x.dataset.deldiary));b.diary=b.diary.filter(en=>en.id!==x.dataset.deldiary);refresh('Entry deleted')};
+  $('bd-tl').onclick=e=>{const x=e.target.closest('[data-deldiary]');if(!x)return;const id=x.dataset.deldiary;askConfirm('Its words and photos go with it.','Delete',true,'Delete this diary entry?').then(y=>{if(!y)return;dropDiaryPhotos(b.diary.filter(en=>en.id===id));b.diary=b.diary.filter(en=>en.id!==id);refresh('Entry deleted')})};
   $('bd-del').onclick=()=>{const inTop=inAnyTop(b.id);
-    if(!confirm('Remove “'+beanTitle(b)+'” from your gallery?'+(inTop?' It stays in your top 3 history.':'')))return;
-    BEANS=BEANS.filter(x=>x.id!==b.id);saveBeans();if(!inTop)BIMG.del(b.id);dropDiaryPhotos(b.diary);d.close();renderBeans();toast('Removed from your gallery')};
+    askConfirm('Its diary and photos go with it.'+(inTop?' It stays in your top 5 history.':''),'Remove',true,'Remove “'+beanTitle(b)+'”?').then(y=>{if(!y)return;
+    BEANS=BEANS.filter(x=>x.id!==b.id);saveBeans();if(!inTop)BIMG.del(b.id);dropDiaryPhotos(b.diary);d.close();renderBeans();toast('Removed from your gallery')})};
   showDlg(d);$('vd-x').onclick=()=>d.close();if($('vd-back'))$('vd-back').onclick=()=>openOrigin(from);
   if(write)setTimeout(()=>{const h=$('bd-dh');if(h){h.scrollIntoView({block:'start'});$('bd-dt').focus({preventScroll:true})}},80);else d.scrollTop=0}
 function beanDoc(b){const P=b.process&&PROCESSES[b.process];
@@ -10344,7 +10399,7 @@ function meHTML(){const p=PROFILE,x='<button class="vd-close me-x" id="vd-x" ari
       (dna.length?'<div class="me-tiles me-mine">'+dna.map(([i,k,v])=>'<div><i aria-hidden="true">'+i+'</i><small>'+k+'</small><b>'+esc(v)+'</b></div>').join('')+'</div>'
         :'<button type="button" class="me-add" id="pf-edit3">Add your favourite origin, brewer and where you brew</button>')+accountHTML()+'</div>'}
 $('vd').addEventListener('click',e=>{if(e.target.closest('#pf-new,#pf-edit,#pf-edit2,#pf-edit3')){delete $('vd').dataset.me;openProfileEditor();return}if(e.target.closest('#pf-signin')){delete $('vd').dataset.me;openSignIn();return}
-  if(e.target.closest('#pf-out')){if(confirm('Sign out? Your profile stays on this phone.'))signOut();return}
+  if(e.target.closest('#pf-out')){askConfirm('Your profile stays on this phone.','Sign out',false,'Sign out?').then(y=>{if(y)signOut()});return}
   if(e.target.closest('#pf-bio')){const on=BIOM&&BIOM.saved&&BIOM.email===(ACCT&&ACCT.email),w=bioWord();(on?bioOff():bioOn()).then(()=>toast(on?w[0].toUpperCase()+w.slice(1)+' sign-in is off':'Next time, sign in with your '+bioWord()),err=>{if(err&&err.message&&!/cancel/i.test(err.message))toast(err.message)});return}
   if(e.target.closest('#pf-verify')){sendVerify().then(()=>toast('We sent a link to '+ACCT.email+'. Open it to confirm your email.'),err=>toast(err.message));return}});
 
@@ -10409,7 +10464,7 @@ function openProfileEditor(opts){opts=opts||{};const J=opts.join,d=$('vd'),isNew
     setAcct(j,'password');sendVerify().catch(()=>{});PROFILE=p;save('bb-profile',p);await afterSignIn();if(PROFILE)saveProfile(PROFILE);d.close();
     toast('Welcome to the bench, '+nick+'. We sent a link to '+J.email+' to confirm it.')};
   $('pf-cancel').onclick=()=>J?back():d.close();$('vd-x').onclick=()=>d.close();
-  if($('pf-del'))$('pf-del').onclick=async()=>{if(!confirm(ACCT?'Delete your account? Your profile and everything synced to it are removed from the server, and this can’t be undone. This phone keeps its own copy of your coffees, brews and recipes.':'Delete your profile from this phone?'))return;
+  if($('pf-del'))$('pf-del').onclick=async()=>{if(!await askConfirm(ACCT?'Your profile and everything synced to it are removed from the server, and this can’t be undone. This phone keeps its own copy of your coffees, brews and recipes.':'Your profile is removed from this phone. Your coffees, brews and recipes stay.','Delete',true,ACCT?'Delete your account?':'Delete your profile?'))return;
     const had=!!ACCT;if(had){try{await deleteAccount()}catch(err){toast(err.message);return}}PROFILE=null;try{localStorage.removeItem('bb-profile')}catch(_){}d.close();profileChanged();toast(had?'Your account and profile are deleted':'Profile deleted')};
   showDlg(d);d.scrollTop=0}
 
