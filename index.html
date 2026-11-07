@@ -2284,7 +2284,7 @@ label[for=i-grind]>span{display:flex;flex-direction:column;align-items:flex-end;
 .seg.has-ind>button[aria-pressed="true"]:not([data-peek]){background:transparent!important;background-image:none!important;box-shadow:none!important}
 /* Only the gliding highlight moves: the tapped option never shows (or fades out) a highlight of its own. */
 .seg.has-ind>button{transition:color .2s ease!important}
-.seg-ind{position:absolute;z-index:0;pointer-events:none;will-change:transform;transition:transform .2s ease-out,width .2s ease-out,height .2s ease-out,background-color .2s,opacity .2s}
+.seg-ind{position:absolute;z-index:0;pointer-events:none;will-change:transform;transition:transform .2s ease-out,width .2s ease-out,height .2s ease-out,opacity .2s}
 .bd-bags{list-style:none;margin:0;padding:0;display:grid;gap:6px}.bd-bags li{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:12px;border:1px solid var(--line)}.bd-bags b{font-size:.88rem}.bd-bags span{font-size:.8rem;color:var(--muted)}
 .cr-buys{display:inline-flex;align-items:center;padding:2px 7px;border-radius:999px;font-size:.72rem;font-weight:800;color:var(--cherry-ink,var(--cherry));background:color-mix(in srgb,var(--cherry) 14%,var(--surface));font-variant-numeric:tabular-nums}
 /* Your last brew: picture, the full name, how it was brewed and the rating, with the two actions underneath. */
@@ -10380,6 +10380,11 @@ new MutationObserver(ms=>{for(const m of ms){const t=m.type==='attributes'?m.tar
   if(m.type==='childList')m.addedNodes.forEach(n=>n.nodeType===1&&uiScan(n));else if(m.removedNodes)for(const n of m.removedNodes)if(n._ro&&SEG_RO)SEG_RO.unobserve(n)}})
   .observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['aria-pressed']});
 uiScan(document.body);
+// A change of look (light/dark, following the phone, a vibe or an accent): every highlight takes its colours again
+// (they're copied from the picked option, so they'd otherwise stay in the old look), and so does the cup-fit badge.
+{const reTheme=()=>{document.querySelectorAll('.seg').forEach(s=>segQueue(s));try{if($('g-fit'))renderFit()}catch(e){}};
+  new MutationObserver(reTheme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','data-vibe','data-accent']});
+  try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',reTheme)}catch(e){}}
 
 /* ================= YOUR PROFILE ================= */
 // Who's brewing: a nickname, a few words, a face and the coffee you love. It is saved on this device and, once you
