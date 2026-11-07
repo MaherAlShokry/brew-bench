@@ -538,7 +538,7 @@ function loadImg(el){const id=el.dataset.bimg;if(!id)return;el.removeAttribute('
   // A coffee's big picture shows its thumbnail at once and the full photo once the sheet has finished opening, so
   // decoding a camera-sized photo doesn't stall the slide.
   if(big){const t=BIMG.peekThumb(id),f=BIMG.peek(id);if(f&&!t){put(f,true);return}if(t)put(t,true);
-    setTimeout(()=>(f?Promise.resolve(f):BIMG.get(id)).then(u=>{if(!u||!el.isConnected)return;const i=new Image();i.alt='';i.decoding='async';i.src=u;(i.decode?i.decode():Promise.resolve()).then(()=>{if(!el.isConnected)return;i.className='now hi';const old=el.querySelector(':scope>img');if(old)old.after(i);else el.prepend(i);el.classList.add('has');if(old)setTimeout(()=>old.remove(),300)}).catch(()=>{})}),380);return}
+    setTimeout(()=>(f?Promise.resolve(f):BIMG.get(id)).then(u=>{if(!u||!el.isConnected)return;const i=new Image();i.alt='';i.decoding='async';i.src=u;(i.decode?i.decode():Promise.resolve()).then(()=>{if(!el.isConnected)return;i.className='now hi';const old=el.querySelector(':scope>img');if(old)old.after(i);else el.prepend(i);el.classList.add('has');if(old)setTimeout(()=>old.remove(),300)}).catch(()=>{})}),620);return}
   const c=BIMG.peekThumb(id);if(c){put(c,true);return}BIMG.thumb(id).then(u=>{if(u)put(u,false);else if(el.classList.contains('tl-pic'))(el.closest('.tl-ph,.otd-pic')||el).remove()})}
 const BIO='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){BIO.unobserve(e.target);loadImg(e.target)}}),{rootMargin:'400px 0px'}):null;
 // Before the Beans tab is first opened, the small photos of its first coffees are read and decoded in the background, one

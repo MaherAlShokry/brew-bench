@@ -1030,7 +1030,10 @@ const DSTACK=[];
     end=e=>{if(e.target===this)done()},t=setTimeout(done,380);this.addEventListener('animationend',end)}}
 document.addEventListener('cancel',e=>{if(e.target.tagName==='DIALOG'){e.preventDefault();e.target.close()}},true);
 // Open a dialog; reopening one that is sliding away just keeps it.
-function showDlg(d){if(d.classList.contains('closing')){d.classList.remove('closing');return}if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}}
+// Opening a sheet: background building waits (NAV_AT), and the slide starts two frames after the sheet is shown, once
+// its content is laid out, so the first frames of the slide aren't skipped while the browser catches up.
+function showDlg(d){NAV_AT=performance.now();if(d.classList.contains('closing')){d.classList.remove('closing');return}
+  if(!d.open){d.classList.add('dlg-pre');try{d.showModal()}catch(e){d.setAttribute('open','')}requestAnimationFrame(()=>requestAnimationFrame(()=>d.classList.remove('dlg-pre')))}}
 addEventListener('popstate',()=>{const open=[...document.querySelectorAll('dialog[open]:not(.closing)')];
   if(BACKING){BACKING=false;try{if(PEND_TAB&&location.hash!=='#'+PEND_TAB)history.pushState(null,'','#'+PEND_TAB);if(open.length)history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}PEND_TAB=null;return}
   if(open.length){const top=DSTACK.filter(d=>d.open&&!d.classList.contains('closing')).pop();if(top){top.dataset.popped=1;top.close()}else open.forEach(d=>d.close());return}

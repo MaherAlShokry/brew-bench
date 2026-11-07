@@ -2375,6 +2375,8 @@ html.sheeting :is(.seg.bviews,.gtabs,.appbar,.minires,.bottomnav){-webkit-backdr
 .t3hm-i{width:auto;flex-direction:row;align-items:center;gap:10px;text-align:left}
 .t3hm-i .bpic{flex:none;width:40px;height:40px}
 .t3hm-i small{max-width:none;text-align:left;font-size:.8rem;line-height:1.25}
+dialog.dlg-pre[open]{animation:none!important;opacity:0}
+dialog.dlg-pre[open]::backdrop{animation:none!important;opacity:0}
 </style>
 <script>const JSPDF_SRC="vendor/jspdf.umd.min.js"</script>
 <link rel="manifest" href="manifest.webmanifest">
@@ -5979,7 +5981,10 @@ const DSTACK=[];
     end=e=>{if(e.target===this)done()},t=setTimeout(done,380);this.addEventListener('animationend',end)}}
 document.addEventListener('cancel',e=>{if(e.target.tagName==='DIALOG'){e.preventDefault();e.target.close()}},true);
 // Open a dialog; reopening one that is sliding away just keeps it.
-function showDlg(d){if(d.classList.contains('closing')){d.classList.remove('closing');return}if(!d.open){try{d.showModal()}catch(e){d.setAttribute('open','')}}}
+// Opening a sheet: background building waits (NAV_AT), and the slide starts two frames after the sheet is shown, once
+// its content is laid out, so the first frames of the slide aren't skipped while the browser catches up.
+function showDlg(d){NAV_AT=performance.now();if(d.classList.contains('closing')){d.classList.remove('closing');return}
+  if(!d.open){d.classList.add('dlg-pre');try{d.showModal()}catch(e){d.setAttribute('open','')}requestAnimationFrame(()=>requestAnimationFrame(()=>d.classList.remove('dlg-pre')))}}
 addEventListener('popstate',()=>{const open=[...document.querySelectorAll('dialog[open]:not(.closing)')];
   if(BACKING){BACKING=false;try{if(PEND_TAB&&location.hash!=='#'+PEND_TAB)history.pushState(null,'','#'+PEND_TAB);if(open.length)history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}PEND_TAB=null;return}
   if(open.length){const top=DSTACK.filter(d=>d.open&&!d.classList.contains('closing')).pop();if(top){top.dataset.popped=1;top.close()}else open.forEach(d=>d.close());return}
@@ -8959,7 +8964,7 @@ function loadImg(el){const id=el.dataset.bimg;if(!id)return;el.removeAttribute('
   // A coffee's big picture shows its thumbnail at once and the full photo once the sheet has finished opening, so
   // decoding a camera-sized photo doesn't stall the slide.
   if(big){const t=BIMG.peekThumb(id),f=BIMG.peek(id);if(f&&!t){put(f,true);return}if(t)put(t,true);
-    setTimeout(()=>(f?Promise.resolve(f):BIMG.get(id)).then(u=>{if(!u||!el.isConnected)return;const i=new Image();i.alt='';i.decoding='async';i.src=u;(i.decode?i.decode():Promise.resolve()).then(()=>{if(!el.isConnected)return;i.className='now hi';const old=el.querySelector(':scope>img');if(old)old.after(i);else el.prepend(i);el.classList.add('has');if(old)setTimeout(()=>old.remove(),300)}).catch(()=>{})}),380);return}
+    setTimeout(()=>(f?Promise.resolve(f):BIMG.get(id)).then(u=>{if(!u||!el.isConnected)return;const i=new Image();i.alt='';i.decoding='async';i.src=u;(i.decode?i.decode():Promise.resolve()).then(()=>{if(!el.isConnected)return;i.className='now hi';const old=el.querySelector(':scope>img');if(old)old.after(i);else el.prepend(i);el.classList.add('has');if(old)setTimeout(()=>old.remove(),300)}).catch(()=>{})}),620);return}
   const c=BIMG.peekThumb(id);if(c){put(c,true);return}BIMG.thumb(id).then(u=>{if(u)put(u,false);else if(el.classList.contains('tl-pic'))(el.closest('.tl-ph,.otd-pic')||el).remove()})}
 const BIO='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){BIO.unobserve(e.target);loadImg(e.target)}}),{rootMargin:'400px 0px'}):null;
 // Before the Beans tab is first opened, the small photos of its first coffees are read and decoded in the background, one
