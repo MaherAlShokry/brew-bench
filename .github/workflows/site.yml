@@ -45,15 +45,41 @@ jobs:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_BREW_BENCH }}
           projectId: brew-bench
           channelId: live
-      # A pull request gets its own preview address for 7 days, posted on the PR.
+      # Preview channels of pull requests that are closed or merged are deleted first, so new previews have room.
+      - name: Free preview channels of closed pull requests
+        if: env.HAS_FB == 'true' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        continue-on-error: true
+        env:
+          SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_BREW_BENCH }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          printf '%s' "$SA" > "$RUNNER_TEMP/sa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
+          npx -y firebase-tools@latest hosting:channel:list --project brew-bench --json > "$RUNNER_TEMP/ch.json"
+          python3 - "$RUNNER_TEMP/ch.json" > "$RUNNER_TEMP/prs.txt" <<'PY'
+          import json, re, sys
+          for c in json.load(open(sys.argv[1])).get('result', {}).get('channels', []):
+              cid = c['name'].rsplit('/', 1)[-1]
+              m = re.match(r'pr(\d+)-', cid)
+              if m: print(m.group(1), cid)
+          PY
+          while read -r n cid; do
+            state=$(gh api "repos/${{ github.repository }}/pulls/$n" --jq .state || echo open)
+            if [ "$state" = "closed" ]; then npx -y firebase-tools@latest hosting:channel:delete "$cid" --project brew-bench --force && echo "Deleted $cid"; fi
+          done < "$RUNNER_TEMP/prs.txt"
+          rm -f "$RUNNER_TEMP/sa.json"
+      # A pull request gets its own preview address for 2 days, posted on the PR. Firebase allows only so many preview
+      # channels at once; when they're all taken the preview is skipped with a warning instead of failing the PR (the live
+      # site is deployed on its own, after merge).
       - name: Preview this pull request
         if: env.HAS_FB == 'true' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        continue-on-error: true
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_BREW_BENCH }}
           projectId: brew-bench
-          expires: 7d
+          expires: 2d
       - id: done
         if: steps.live.outcome == 'success'
         run: echo "live=true" >> "$GITHUB_OUTPUT"
