@@ -1454,7 +1454,8 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 
 /* The map's region buttons are easier to tap on phones. */
 @media (max-width:759px){.mapbar.seg.filters button{min-height:34px}}
-/* One row of region chips under the map, like the filters elsewhere. */
+/* One row of region chips under the map, like the filters elsewhere. The map's column mustn't grow to fit the row. */
+.atlas>*{min-width:0}
 .mapbar.seg.filters{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.mapbar.seg.filters::-webkit-scrollbar{display:none}.mapbar.seg.filters button{flex:0 0 auto;padding-inline:14px}
 
 /* Coffee colour themes: the accent, with the soft surfaces and lines tinted to match. */
@@ -2553,7 +2554,7 @@ label[for=i-grind]>span{display:flex;flex-direction:column;align-items:flex-end;
       <div class="actions two-up" id="scan-again" hidden><button class="btn ghost" id="scan-go" disabled>Read again</button><button class="btn ghost" id="scan-stop" hidden>Stop</button></div>
       <p class="hint" id="scan-status" style="margin-top:10px"></p>
       <details class="cal" id="scan-textbox"><summary>Or type or paste the label text</summary>
-        <textarea id="scan-text" rows="4"></textarea>
+        <textarea id="scan-text" rows="4" aria-label="Label text" placeholder="Paste or type what the bag says"></textarea>
         <div class="actions"><button class="btn ghost" id="scan-text-go">Read this text</button></div>
       </details>
       <h3>Coffee details</h3>

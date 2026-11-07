@@ -1455,7 +1455,8 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 
 /* The map's region buttons are easier to tap on phones. */
 @media (max-width:759px){.mapbar.seg.filters button{min-height:34px}}
-/* One row of region chips under the map, like the filters elsewhere. */
+/* One row of region chips under the map, like the filters elsewhere. The map's column mustn't grow to fit the row. */
+.atlas>*{min-width:0}
 .mapbar.seg.filters{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.mapbar.seg.filters::-webkit-scrollbar{display:none}.mapbar.seg.filters button{flex:0 0 auto;padding-inline:14px}
 
 /* Coffee colour themes: the accent, with the soft surfaces and lines tinted to match. */
@@ -2557,7 +2558,7 @@ label[for=i-grind]>span{display:flex;flex-direction:column;align-items:flex-end;
       <div class="actions two-up" id="scan-again" hidden><button class="btn ghost" id="scan-go" disabled>Read again</button><button class="btn ghost" id="scan-stop" hidden>Stop</button></div>
       <p class="hint" id="scan-status" style="margin-top:10px"></p>
       <details class="cal" id="scan-textbox"><summary>Or type or paste the label text</summary>
-        <textarea id="scan-text" rows="4"></textarea>
+        <textarea id="scan-text" rows="4" aria-label="Label text" placeholder="Paste or type what the bag says"></textarea>
         <div class="actions"><button class="btn ghost" id="scan-text-go">Read this text</button></div>
       </details>
       <h3>Coffee details</h3>
@@ -4882,7 +4883,7 @@ function load(k,d){let v;try{const t=localStorage.getItem(k);v=t?JSON.parse(t):d
 const num=(v,d,a=-Infinity,b=Infinity)=>{v=+v;return Number.isFinite(v)?Math.min(b,Math.max(a,v)):d};
 const oneOf=(v,list,d)=>list.includes(v)?v:d;
 // LOGV counts changes to the brew log, so summaries built from it know when to work it out again.
-let LOGV=0;function save(k,v){if(k==='bb-log')LOGV++;try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+var LOGV=0;function save(k,v){if(k==='bb-log')LOGV++;try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 const MQ=q=>!!(window.matchMedia&&window.matchMedia(q).matches);const RM=()=>MQ('(prefers-reduced-motion: reduce)')||document.documentElement.getAttribute('data-motion')==='reduced';
 /* Drawn icons in place of emoji: one line style (24-grid, round strokes in the text colour) across stats, trophies,
    seasons, moments and greetings. emoIc() swaps every known emoji in a bit of HTML for its icon; anything unknown
@@ -5413,7 +5414,7 @@ function bloomShift(steps,bloom){const t=s=>{const m=/^(\d+):(\d\d)\b/.exec(s);r
   return{steps:steps.map((s,i)=>{const v=t(s);return i&&v!=null?s.replace(/^\d+:\d\d/,fmt(Math.max(0,v+d))):s}),
     note:'Bloom '+Math.round(bloom)+' s (the recipe says '+t(steps[1])+' s): the next pours move '+Math.abs(d)+' s '+(d>0?'later':'earlier')+'.'}}
 function renderDialRecipe(){const tl=techList(S.brewer),r=dialRec();
-  const opts='<option value="">No recipe: dial in freely</option>'+tl.map(([x,i])=>'<option value="'+i+'">'+esc(x.name)+(x.b!==S.brewer&&sameFam(x.b,S.brewer)?' (for the '+BSHORT[x.b]+')':'')+(x.champ?' (champion)':'')+'</option>').join('');
+  const opts='<option value="">No recipe: dial in freely</option>'+tl.map(([x,i])=>'<option value="'+i+'">'+esc(x.name)+(x.b!==S.brewer&&sameFam(x.b,S.brewer)&&!TWIN[x.b]&&!TWIN[S.brewer]?' (for the '+BSHORT[x.b]+')':'')+(x.champ?' (champion)':'')+'</option>').join('');
   if($('i-rec').dataset.k!==S.brewer+'|'+tl.length){$('i-rec').innerHTML=opts;$('i-rec').dataset.k=S.brewer+'|'+tl.length}
   $('i-rec').value=r?String(S.rec):'';$('v-rec').textContent=r?(r.by||''):tl.length+' for this brewer';
   $('d-recbox').hidden=!r;$('mr-play').hidden=!r;
@@ -5508,7 +5509,7 @@ function render(){
     else if(cOk)tips.push('To land in the sweet spot, '+combo()+'.');
     else if(diff)tips.push('To get closer to the sweet spot, try <b>'+gLabel(S.grinder,t)+'</b> ('+diff+' '+units(diff)+' '+way+')'+(ta!==S.temp?' with water at <b>'+ta+'°C</b>':'')+'. This coffee may suit '+(r.D<0?'a hotter, longer':'a cooler, shorter')+' recipe better.');
     else tips.push('The '+esc(G.name)+' is at the '+(r.D>0?'coarse':'fine')+' end of its range here'+(ta!==S.temp?', so move the water to <b>'+ta+'°C</b> instead.':'. Try another grinder or brewer.'))}
-  if(r.clarity<4&&r.body>6.5&&B.ratio.ref>10)tips.push('Body is crowding out detail. The ZP6 Special, V60, V60 NEO or Chemex will separate the flavours more.');
+  if(r.clarity<4&&r.body>6.5&&B.ratio.ref>10)tips.push('Body is crowding out detail. The ZP6 Special, V60 or Chemex will separate the flavours more.');
   if(r.body<3.5&&r.D>-0.45&&B.ratio.ref>10)tips.push('Balanced but light. The K-Ultra, an immersion brewer or a tighter ratio will add weight.');
   if(P.funk>=1.2&&S.temp>92)tips.push(P.name+' coffees get harsh with hot water. Try 88 to 91°C.');
   if(vParams(S.variety).clarity>=0.8&&S.agit==='high')tips.push('Vigorous agitation flattens delicate aromatics. Go gentle.');
@@ -6240,7 +6241,7 @@ $('pgrid').onclick=e=>{const b=e.target.closest('[data-usep]');if(b){S.process=b
 const GEAR_A=[
  ['Kettle','A gooseneck kettle with temperature control. For two-temperature recipes keep a small bottle of room-temperature water beside it.'],
  ['Scale','Weigh coffee and water every time, ideally 0.1 g with a built-in timer.'],
- ['Filters','Cone papers fit the V60, NEO, Switch and Origami; Kalita Wave filters fit the Kalita and Origami; the Chemex needs its own thick filters. Rinse papers first.'],
+ ['Filters','Cone papers fit the V60, Switch and Origami; Kalita Wave filters fit the Kalita and Origami; the Chemex needs its own thick filters. Rinse papers first.'],
  ['Water','The SCA standard targets about 150 mg/L total dissolved solids, calcium hardness around 68 mg/L (17 to 85) and alkalinity near 40 mg/L. Soft water tastes sour and thin; hard water flat and chalky.'],
  ['Distribution tools','A WDT needle tool breaks clumps; a spritz of water on the beans (RDT) cuts static in the grinder.'],
  ['Freshness','Most filter coffees taste best about one week to one month after roast; espresso often likes two weeks or more.']
@@ -9947,14 +9948,19 @@ function segUpdate(el){const on=el.querySelector(':scope>button[aria-pressed="tr
   const look={background:cs.backgroundColor,backgroundImage:cs.backgroundImage,boxShadow:cs.boxShadow,borderRadius:cs.borderRadius};on.removeAttribute('data-peek');el.classList.add('has-ind');
   const pos={left:on.offsetLeft+'px',top:on.offsetTop+'px',width:on.offsetWidth+'px',height:on.offsetHeight+'px'};
   if(RM())ind.style.transition='none';Object.assign(ind.style,look,pos,{opacity:'1'});el._ip=pos;
-  if(!el._ro&&window.ResizeObserver){el._ro=new ResizeObserver(()=>segQueue(el));el._ro.observe(el)}}
+  if(SEG_RO&&!el._ro){el._ro=1;SEG_RO.observe(el)}}
+// One watcher for every control's size (a tab coming into view, the phone turning); controls that have left the page are dropped.
+const SEG_RO=window.ResizeObserver?new ResizeObserver(es=>es.forEach(e=>{if(e.target.isConnected)segQueue(e.target);else SEG_RO.unobserve(e.target)})):null;
 const SEG_Q=new Set();let SEG_RAF=0;
 function segQueue(el){SEG_Q.add(el);if(!SEG_RAF)SEG_RAF=requestAnimationFrame(()=>{SEG_RAF=0;const l=[...SEG_Q];SEG_Q.clear();l.forEach(x=>{if(x.isConnected)segUpdate(x)})})}
 const SEG_SEL='.seg:not(.filters)';
 function uiScan(root){if(!root.querySelectorAll)return;
   if(root.matches&&root.matches('input[type=range]'))rngEnhance(root);root.querySelectorAll('input[type=range]:not([data-rng])').forEach(rngEnhance);
-  if(root.matches&&root.matches(SEG_SEL))segQueue(root);const s=root.closest&&root.closest(SEG_SEL);if(s)segQueue(s);root.querySelectorAll(SEG_SEL).forEach(segQueue)}
-new MutationObserver(ms=>{for(const m of ms){if(m.type==='attributes'){const s=m.target.parentElement&&m.target.parentElement.closest(SEG_SEL);if(s)segQueue(s)}else{uiScan(m.target);m.addedNodes.forEach(n=>n.nodeType===1&&uiScan(n))}}})
+  if(root.matches&&root.matches(SEG_SEL))segQueue(root);root.querySelectorAll(SEG_SEL).forEach(segQueue)}
+// Only what changed is looked at: new nodes, and the control whose options were swapped or picked. A timer ticking in
+// a big page doesn't make every control on it measure itself again.
+new MutationObserver(ms=>{for(const m of ms){const t=m.type==='attributes'?m.target.parentElement:m.target,s=t&&t.closest&&t.closest(SEG_SEL);if(s)segQueue(s);
+  if(m.type==='childList')m.addedNodes.forEach(n=>n.nodeType===1&&uiScan(n));else if(m.removedNodes)for(const n of m.removedNodes)if(n._ro&&SEG_RO)SEG_RO.unobserve(n)}})
   .observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['aria-pressed']});
 uiScan(document.body);
 

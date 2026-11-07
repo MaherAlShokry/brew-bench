@@ -142,13 +142,18 @@ function segUpdate(el){const on=el.querySelector(':scope>button[aria-pressed="tr
   const look={background:cs.backgroundColor,backgroundImage:cs.backgroundImage,boxShadow:cs.boxShadow,borderRadius:cs.borderRadius};on.removeAttribute('data-peek');el.classList.add('has-ind');
   const pos={left:on.offsetLeft+'px',top:on.offsetTop+'px',width:on.offsetWidth+'px',height:on.offsetHeight+'px'};
   if(RM())ind.style.transition='none';Object.assign(ind.style,look,pos,{opacity:'1'});el._ip=pos;
-  if(!el._ro&&window.ResizeObserver){el._ro=new ResizeObserver(()=>segQueue(el));el._ro.observe(el)}}
+  if(SEG_RO&&!el._ro){el._ro=1;SEG_RO.observe(el)}}
+// One watcher for every control's size (a tab coming into view, the phone turning); controls that have left the page are dropped.
+const SEG_RO=window.ResizeObserver?new ResizeObserver(es=>es.forEach(e=>{if(e.target.isConnected)segQueue(e.target);else SEG_RO.unobserve(e.target)})):null;
 const SEG_Q=new Set();let SEG_RAF=0;
 function segQueue(el){SEG_Q.add(el);if(!SEG_RAF)SEG_RAF=requestAnimationFrame(()=>{SEG_RAF=0;const l=[...SEG_Q];SEG_Q.clear();l.forEach(x=>{if(x.isConnected)segUpdate(x)})})}
 const SEG_SEL='.seg:not(.filters)';
 function uiScan(root){if(!root.querySelectorAll)return;
   if(root.matches&&root.matches('input[type=range]'))rngEnhance(root);root.querySelectorAll('input[type=range]:not([data-rng])').forEach(rngEnhance);
-  if(root.matches&&root.matches(SEG_SEL))segQueue(root);const s=root.closest&&root.closest(SEG_SEL);if(s)segQueue(s);root.querySelectorAll(SEG_SEL).forEach(segQueue)}
-new MutationObserver(ms=>{for(const m of ms){if(m.type==='attributes'){const s=m.target.parentElement&&m.target.parentElement.closest(SEG_SEL);if(s)segQueue(s)}else{uiScan(m.target);m.addedNodes.forEach(n=>n.nodeType===1&&uiScan(n))}}})
+  if(root.matches&&root.matches(SEG_SEL))segQueue(root);root.querySelectorAll(SEG_SEL).forEach(segQueue)}
+// Only what changed is looked at: new nodes, and the control whose options were swapped or picked. A timer ticking in
+// a big page doesn't make every control on it measure itself again.
+new MutationObserver(ms=>{for(const m of ms){const t=m.type==='attributes'?m.target.parentElement:m.target,s=t&&t.closest&&t.closest(SEG_SEL);if(s)segQueue(s);
+  if(m.type==='childList')m.addedNodes.forEach(n=>n.nodeType===1&&uiScan(n));else if(m.removedNodes)for(const n of m.removedNodes)if(n._ro&&SEG_RO)SEG_RO.unobserve(n)}})
   .observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['aria-pressed']});
 uiScan(document.body);

@@ -13,7 +13,7 @@ function load(k,d){let v;try{const t=localStorage.getItem(k);v=t?JSON.parse(t):d
 const num=(v,d,a=-Infinity,b=Infinity)=>{v=+v;return Number.isFinite(v)?Math.min(b,Math.max(a,v)):d};
 const oneOf=(v,list,d)=>list.includes(v)?v:d;
 // LOGV counts changes to the brew log, so summaries built from it know when to work it out again.
-let LOGV=0;function save(k,v){if(k==='bb-log')LOGV++;try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+var LOGV=0;function save(k,v){if(k==='bb-log')LOGV++;try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 const MQ=q=>!!(window.matchMedia&&window.matchMedia(q).matches);const RM=()=>MQ('(prefers-reduced-motion: reduce)')||document.documentElement.getAttribute('data-motion')==='reduced';
 /* Drawn icons in place of emoji: one line style (24-grid, round strokes in the text colour) across stats, trophies,
    seasons, moments and greetings. emoIc() swaps every known emoji in a bit of HTML for its icon; anything unknown
@@ -544,7 +544,7 @@ function bloomShift(steps,bloom){const t=s=>{const m=/^(\d+):(\d\d)\b/.exec(s);r
   return{steps:steps.map((s,i)=>{const v=t(s);return i&&v!=null?s.replace(/^\d+:\d\d/,fmt(Math.max(0,v+d))):s}),
     note:'Bloom '+Math.round(bloom)+' s (the recipe says '+t(steps[1])+' s): the next pours move '+Math.abs(d)+' s '+(d>0?'later':'earlier')+'.'}}
 function renderDialRecipe(){const tl=techList(S.brewer),r=dialRec();
-  const opts='<option value="">No recipe: dial in freely</option>'+tl.map(([x,i])=>'<option value="'+i+'">'+esc(x.name)+(x.b!==S.brewer&&sameFam(x.b,S.brewer)?' (for the '+BSHORT[x.b]+')':'')+(x.champ?' (champion)':'')+'</option>').join('');
+  const opts='<option value="">No recipe: dial in freely</option>'+tl.map(([x,i])=>'<option value="'+i+'">'+esc(x.name)+(x.b!==S.brewer&&sameFam(x.b,S.brewer)&&!TWIN[x.b]&&!TWIN[S.brewer]?' (for the '+BSHORT[x.b]+')':'')+(x.champ?' (champion)':'')+'</option>').join('');
   if($('i-rec').dataset.k!==S.brewer+'|'+tl.length){$('i-rec').innerHTML=opts;$('i-rec').dataset.k=S.brewer+'|'+tl.length}
   $('i-rec').value=r?String(S.rec):'';$('v-rec').textContent=r?(r.by||''):tl.length+' for this brewer';
   $('d-recbox').hidden=!r;$('mr-play').hidden=!r;
@@ -639,7 +639,7 @@ function render(){
     else if(cOk)tips.push('To land in the sweet spot, '+combo()+'.');
     else if(diff)tips.push('To get closer to the sweet spot, try <b>'+gLabel(S.grinder,t)+'</b> ('+diff+' '+units(diff)+' '+way+')'+(ta!==S.temp?' with water at <b>'+ta+'°C</b>':'')+'. This coffee may suit '+(r.D<0?'a hotter, longer':'a cooler, shorter')+' recipe better.');
     else tips.push('The '+esc(G.name)+' is at the '+(r.D>0?'coarse':'fine')+' end of its range here'+(ta!==S.temp?', so move the water to <b>'+ta+'°C</b> instead.':'. Try another grinder or brewer.'))}
-  if(r.clarity<4&&r.body>6.5&&B.ratio.ref>10)tips.push('Body is crowding out detail. The ZP6 Special, V60, V60 NEO or Chemex will separate the flavours more.');
+  if(r.clarity<4&&r.body>6.5&&B.ratio.ref>10)tips.push('Body is crowding out detail. The ZP6 Special, V60 or Chemex will separate the flavours more.');
   if(r.body<3.5&&r.D>-0.45&&B.ratio.ref>10)tips.push('Balanced but light. The K-Ultra, an immersion brewer or a tighter ratio will add weight.');
   if(P.funk>=1.2&&S.temp>92)tips.push(P.name+' coffees get harsh with hot water. Try 88 to 91°C.');
   if(vParams(S.variety).clarity>=0.8&&S.agit==='high')tips.push('Vigorous agitation flattens delicate aromatics. Go gentle.');
@@ -1371,7 +1371,7 @@ $('pgrid').onclick=e=>{const b=e.target.closest('[data-usep]');if(b){S.process=b
 const GEAR_A=[
  ['Kettle','A gooseneck kettle with temperature control. For two-temperature recipes keep a small bottle of room-temperature water beside it.'],
  ['Scale','Weigh coffee and water every time, ideally 0.1 g with a built-in timer.'],
- ['Filters','Cone papers fit the V60, NEO, Switch and Origami; Kalita Wave filters fit the Kalita and Origami; the Chemex needs its own thick filters. Rinse papers first.'],
+ ['Filters','Cone papers fit the V60, Switch and Origami; Kalita Wave filters fit the Kalita and Origami; the Chemex needs its own thick filters. Rinse papers first.'],
  ['Water','The SCA standard targets about 150 mg/L total dissolved solids, calcium hardness around 68 mg/L (17 to 85) and alkalinity near 40 mg/L. Soft water tastes sour and thin; hard water flat and chalky.'],
  ['Distribution tools','A WDT needle tool breaks clumps; a spritz of water on the beans (RDT) cuts static in the grinder.'],
  ['Freshness','Most filter coffees taste best about one week to one month after roast; espresso often likes two weeks or more.']
