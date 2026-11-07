@@ -26,13 +26,20 @@ const SKNAME=k=>{const z=SK.find(x=>x[0]===k);return z?z[2]:'Note'};
 function pourCurve(steps,water){const pts=[[0,0]],dots=[];let lvl=0,any=false,t=0,est=false;
   const own=steps.map(s=>{const m=/^\s*(\d+):(\d\d)/.exec(s)||/(?:^|[\s(])(\d+):(\d\d)(?![\d:])/.exec(s);return m?+m[1]*60+ +m[2]:null}),tt=own.filter(x=>x!=null),
     gaps=tt.slice(1).map((x,i)=>x-tt[i]).filter(g=>g>0).sort((a,b)=>a-b),gap=gaps.length?gaps[gaps.length>>1]:35;
+  // Pours with no time of their own ("when the bed nearly drains, pour 60g") that sit before a timed step share the time
+  // up to it evenly, the last drawdown included; after the last time only a real pour moves the clock, at the recipe's
+  // pace (30 s at most). Other steps ("open the valve", "put the lid on") come as the pour before them finishes.
+  const isPour=j=>{const x=String(steps[j]).replace(/^\s*\d+:\d\d\s*/,'');return own[j]==null&&j>0&&(/(?<!\d\s?)\b(?:to|until)\s+\d{2,4}\s?g\b/i.test(x)||!!pourOf(x)||/\b(pour|repeat|add)\b/i.test(x))};
+  const runGap=i=>{let a=i;while(a>0&&own[a]==null)a--;let b=i;while(b<steps.length&&own[b]==null)b++;if(own[a]==null)return gap;if(b>=steps.length)return Math.min(gap,30);
+    let n=0;for(let j=a+1;j<b;j++)if(isPour(j))n++;const g=(own[b]-own[a])/(n+1);return g>0?Math.round(g/5)*5||g:gap};
   steps.forEach((s,i)=>{const x=String(s).replace(/^\s*\d+:\d\d\s*/,'');
     // Every pour in the step: "to 240g" targets, or "pour 60g" amounts when there are none.
     const tos=[...x.matchAll(/(?<!\d\s?)\b(?:to|until)\s+(\d{2,4})\s?g\b/gi)].map(m=>+m[1]),p=pourOf(x),pours=tos.length?tos.map(v=>({to:v})):p?[p]:[];
-    const untimed=own[i]==null&&i>0&&(pours.length||/\b(pour|repeat|add)\b/i.test(x));
-    if(own[i]!=null)t=Math.max(t,own[i]);else if(untimed){t+=gap;est=true}
+    // After the last time, only a real pour (with grams) moves the clock: "pour over ice" or "pour slowly" doesn't.
+    const later=own.slice(i+1).some(v=>v!=null),untimed=own[i]==null&&i>0&&(pours.length||(later&&/\b(pour|repeat|add)\b/i.test(x)));
+    if(own[i]!=null)t=Math.max(t,own[i]);else if(untimed){t+=runGap(i);est=true}
     // A step with no time and no pour ("stir, then swirl") comes after the last pour has finished, not at its start.
-    let st=t;if(own[i]==null&&!pours.length&&pts.length>1)st=Math.max(st,pts[pts.length-1][0]);dots.push({t:st,g:lvl,k:stepKind(s),e:untimed});
+    let st=t;if(own[i]==null&&!pours.length&&pts.length>1)st=Math.max(st,pts[pts.length-1][0]);dots.push({t:st,g:lvl,k:stepKind(s),e:own[i]==null&&own.slice(0,i).some(v=>v!=null)});
     pours.forEach((q,n)=>{const to=q.to||(q.add?lvl+q.add:null);if(to==null||to<=lvl)return;if(n){st+=gap;est=own[i]==null||est}
       const next=own.slice(i+1).find(v=>v!=null&&v>st),dur=Math.max(4,Math.min(next!=null?next-st:12,Math.max(8,(to-lvl)/5),gap*.6));
       pts.push([st,lvl],[st+dur,to]);lvl=to;any=true;t=Math.max(t,st)});

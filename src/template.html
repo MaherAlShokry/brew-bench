@@ -187,7 +187,7 @@ details.cal summary{cursor:pointer;font-weight:600}
 .vbtn:hover{border-color:var(--ink)}
 
 /* varieties */
-.vtools{display:grid;gap:10px;margin-bottom:16px}
+
 .vcard{text-align:left;cursor:pointer;border-top:5px solid var(--c);font:inherit;color:inherit}
 .vcard:hover{border-color:var(--ink);border-top-color:var(--c)}
 .vcard h3{margin:.2rem 0 .1rem}
@@ -393,6 +393,7 @@ button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.a
 #tm-list{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}
 #tm-list li{display:flex;gap:10px;align-items:baseline;padding:8px 10px;border-radius:12px;color:var(--muted)}
 #tm-list li b{flex:none;min-width:40px;font-variant-numeric:tabular-nums;color:var(--ink)}
+#tm-list li b.est{color:var(--muted)}
 #tm-list li.cur{background:color-mix(in srgb,var(--cherry) 12%,var(--surface));color:var(--ink);font-weight:600}#tm-list li.done{opacity:.55;text-decoration:line-through}
 @media (max-width:759px){html dialog#timer{margin:0;width:100%;max-width:100%;height:100%;max-height:100%;border-radius:0;border:0}}
 /* Recipes home: quick links and cup types */
@@ -675,7 +676,6 @@ input[type=range]{touch-action:pan-y}
 .gpick-btn{display:inline-grid;place-items:center;width:34px;height:34px;margin:-6px 0;border-radius:50%;border:0;background:var(--tonal);color:var(--cherry);cursor:pointer;transition:background .15s,transform .15s}
 .gpick-btn:hover{background:var(--tonal-hover)}.gpick-btn:active{transform:scale(.92)}.gpick-btn:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
 .linkbtn{background:none;border:0;padding:2px 0;font:inherit;font-weight:600;color:var(--cherry);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
-.equiv{margin:.5rem 0 0;line-height:1.5}
 .mswap{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:end}.mswap>*{min-width:0}.mswap select{width:100%;padding-left:12px;padding-right:26px}
 .mswap .field{margin-bottom:0}.gpick-btn.mswapbtn{width:46px;height:46px;margin:0}.mswap+.field{margin-top:14px}
 @media (max-width:560px){.mswap{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"from swap" "to swap";row-gap:10px;align-items:center}.mswap>.field:first-child{grid-area:from}.mswap>.field:last-child{grid-area:to}.mswap>.mswapbtn{grid-area:swap;transform:rotate(90deg)}}
@@ -814,13 +814,14 @@ html.app .bg-hero::after,html.app .me-hero::after,html.app .pp-st img{mix-blend-
 .ls-st button:active{transform:scale(.92);background:color-mix(in srgb,var(--honey) 25%,var(--surface))}
 .ls-gsel{position:relative;align-self:flex-start;max-width:100%;font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:underline dotted;text-underline-offset:3px;cursor:pointer}
 .ls-gsel select{position:absolute;inset:0;opacity:0;width:100%;font-size:16px;cursor:pointer}
-.ls-ratio{margin-top:8px;padding:12px 14px;border-radius:var(--r-md);background:color-mix(in srgb,var(--honey) 14%,var(--surface2))}
-.ls-rtop{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}.ls-rtop b{font:800 1.2rem var(--display);font-variant-numeric:tabular-nums}.ls-rtop em{font-style:normal;font-size:.85rem;font-weight:600;color:var(--cherry-ink,var(--cherry))}
-.ls-ratio.empty .ls-rtop b{font:500 .9rem var(--body,inherit);color:var(--muted)}
-.ls-bar{position:relative;height:8px;margin:10px 0 4px;border-radius:4px;background:linear-gradient(90deg,#4A2A18,#7A4524 35%,#C98A3E 70%,#E8C987)}
-.ls-bar i{position:absolute;top:50%;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:var(--surface);border:3px solid var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.2);transition:left .25s}
-.ls-ratio.empty .ls-bar{opacity:.35}.ls-ratio.empty .ls-bar i{display:none}
-.ls-ends{display:flex;justify-content:space-between;font-size:.74rem;color:var(--muted)}
+.ls-ratio{margin-top:8px;padding:12px;border-radius:var(--r-md);background:var(--surface2)}
+.ls-rtop{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:26px}
+.ls-rv{display:flex;align-items:baseline;gap:8px;min-width:0;text-align:right}.ls-rv b{font:800 1.15rem var(--display);font-variant-numeric:tabular-nums;color:var(--ink)}
+.ls-rv em{font-style:normal;font-size:.8rem;font-weight:600;color:var(--cherry-ink,var(--cherry));white-space:nowrap}.ls-rv small{font-size:.8rem;color:var(--muted)}
+.ls-bar{position:relative;height:6px;margin:12px 4px 6px;border-radius:3px;background:linear-gradient(90deg,#4A2A18,#7A4524 35%,#C98A3E 70%,#E8C987)}
+.ls-bar i{position:absolute;top:50%;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;background:var(--surface);border:3px solid var(--cherry);box-shadow:0 1px 4px rgba(0,0,0,.25);transition:left .25s}
+.ls-ratio.empty .ls-bar{background:color-mix(in srgb,var(--ink) 12%,transparent)}.ls-ratio.empty .ls-bar i{display:none}
+.ls-ends{display:flex;justify-content:space-between;padding:0 2px;font-size:.72rem;color:var(--muted)}
 .ls-x{margin-top:8px;width:100%}
 .l-bean{margin:0 0 10px}.l-bean:empty{display:none}
 .l-beancard{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 10px;border-radius:var(--r-md);background:var(--surface2)}
@@ -912,8 +913,6 @@ svg .bo{fill:currentColor}svg .bc{fill:none;stroke:var(--surface);stroke-width:1
 .stars button.on svg .bo{fill:var(--cherry);stroke:var(--cherry)}.stars button.on svg .bc{stroke:color-mix(in srgb,var(--surface) 75%,var(--honey))}
 .stars button.pop svg{animation:bean-pop .45s var(--ease-spring,cubic-bezier(.3,1.5,.5,1))}@keyframes bean-pop{0%{transform:scale(.6) rotate(-25deg)}60%{transform:scale(1.18) rotate(8deg)}100%{transform:none}}
 @media (prefers-reduced-motion:reduce){.stars button.pop svg{animation:none}}
-.lf-b{display:inline-block;width:14px;height:14px;margin-right:4px;vertical-align:-2px}.lf-b svg{width:14px;height:14px}.lf-b .bo{fill:currentColor}.lf-b .bc{fill:none;stroke:var(--surface);stroke-width:1.8}
-.lf-c[aria-pressed="true"] .lf-b .bc{stroke:var(--ink)}
 .stars-sm{color:var(--honey-ink);letter-spacing:1px;font-size:.9rem}.stars-sm span{color:color-mix(in srgb,var(--muted) 82%,var(--surface))}
 /* Open dialogs and sheets lock the page behind them. */
 html.locked,html.locked body{overflow:hidden}
@@ -1189,11 +1188,10 @@ button.chip:hover{background:var(--tonal-hover)}
 .le-init{flex:none;width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font:800 1.15rem var(--display);color:hsl(var(--h) 40% 30%);background:hsl(var(--h) 45% 88%)}
 :root[data-theme="dark"] .le-init{color:hsl(var(--h) 55% 82%);background:hsl(var(--h) 25% 24%)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .le-init{color:hsl(var(--h) 55% 82%);background:hsl(var(--h) 25% 24%)}}
-.le-tt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.le-tt b{font:700 1.02rem/1.25 var(--display);overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.le-tt{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}.le-tt b{font:700 1.02rem/1.25 var(--display);overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .le-meta{font-size:.8rem;color:var(--muted);display:flex;align-items:center;flex-wrap:wrap;gap:0 4px}
-.le-who{display:inline-flex;align-items:center;gap:5px;font-weight:600;color:var(--ink)}.le-who .pav{flex:none}
-.le-av{width:20px;height:20px;border-radius:50%;display:inline-grid;place-items:center;font:700 .66rem var(--display);color:#fff;background:hsl(var(--h) 38% 46%)}
-.le-stars{flex:none;align-self:flex-start;display:flex;align-items:center;gap:6px}.le-stars .brate{font-size:14px}.le-stars b{font:800 .95rem var(--display);color:var(--ink)}
+.le-who{font-weight:600;color:var(--ink)}
+.le-sub{display:flex;align-items:center;justify-content:space-between;gap:4px 10px;flex-wrap:wrap}.le-stars{flex:none;display:flex;align-items:center;gap:6px}.le-stars .brate{font-size:14px}.le-stars b{font:800 .95rem var(--display);color:var(--ink)}
 .le-stars.none{font-size:.74rem;color:var(--muted);letter-spacing:0}
 .le-pills{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 0}
 .le-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 10px 5px 8px;border-radius:999px;background:var(--surface2);font-size:.8rem;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
@@ -1212,18 +1210,11 @@ button.chip:hover{background:var(--tonal-hover)}
 .le-empty{display:flex;flex-direction:column;align-items:center;gap:6px;padding:28px 16px;text-align:center;color:var(--muted)}.le-empty svg{width:28px;height:28px;fill:none;stroke:var(--cherry);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.le-empty b{color:var(--ink);font-family:var(--display)}.le-empty p{margin:0}
 /* Search, sort and filters above the list. */
 .lf{margin:18px 0 4px}
-.lf-top{display:flex;gap:8px}
+.lf-top{display:flex;align-items:center;gap:8px}.lf-top.lt{margin:0 0 16px}.lt-k{flex:1;min-width:0;margin:0;font-size:.88rem;font-weight:600;color:var(--muted)}.bg-tools .lf-top.lt,#l-filter .lf-top.lt{margin:0}.lf-top .rsortw{width:46px;height:46px}
 .lf-q{flex:1;min-width:0;display:flex;align-items:center;gap:8px;padding:0 14px;min-height:46px;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
 .lf-q svg{width:18px;height:18px;flex:none;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round}
 .lf-q input{flex:1;min-width:0;border:0;background:none;padding:0;min-height:44px;box-shadow:none;outline:0;font-size:16px;color:var(--ink)}
 .lf-q:focus-within{border-color:var(--cherry)}
-.lf-sort{position:relative;flex:none;display:flex;flex-direction:column;justify-content:center;padding:0 16px;min-height:46px;border-radius:999px;background:var(--surface);border:1px solid var(--line);cursor:pointer}
-.lf-sort span{font-size:.66rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);line-height:1.1}.lf-sort b{font:650 .86rem/1.2 var(--display)}
-.lf-sort .selw{display:contents}.lf-sort .selw::after{display:none}.lf-sort select{position:absolute;inset:0;opacity:0;width:100%;font-size:16px;cursor:pointer}
-.lf-row{display:flex;gap:6px;margin-top:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}.lf-row::-webkit-scrollbar{display:none}
-.lf-c{flex:none;min-height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:600 .84rem var(--display);cursor:pointer}
-.lf-c[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
-.lf-sep{flex:none;width:1px;background:var(--line);margin:6px 2px}
 .qopt{border-radius:var(--r-md);border:1px solid var(--hair);background:var(--surface);padding:12px 16px}
 .scroll{border-radius:var(--r-lg);border:1px solid var(--hair);background:var(--surface);box-shadow:var(--e1);padding:4px 16px;margin:10px 0 18px}
 table.ref th{border-bottom:1px solid var(--line)}
@@ -1289,18 +1280,21 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .colshelf button{flex:none;scroll-snap-align:start;width:168px;position:relative;display:flex;flex-direction:column;gap:3px;padding:14px 14px 30px;border-radius:18px;border:0;color:#fff;font:inherit;text-align:left;cursor:pointer;
   background:linear-gradient(140deg,var(--cc),color-mix(in srgb,var(--cc) 60%,#000))}
 .colshelf b{font-family:var(--display);font-size:1rem}.colshelf small{font-size:.8rem;opacity:.9;line-height:1.3}.colshelf .cn{position:absolute;left:14px;bottom:10px;font-size:.78rem;font-weight:700;background:rgba(255,255,255,.22);border-radius:99px;padding:1px 8px}
-.rtools{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-/* Filters that don't fit scroll sideways; the edge fades so a chip that runs on reads as more to see, not as cut off. */
-.rtools .seg.more{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}
-.rtools .seg.more.end{-webkit-mask-image:none;mask-image:none}.rtools .seg{flex:1;min-width:0}
-/* The sort button shows both orders ("Brewer · Level"); it opens the sort sheet. */
-.rsortw{flex:none;display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:0 14px 0 12px;border-radius:var(--r-pill);border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:.84rem;font-weight:600;cursor:pointer;white-space:nowrap}
-.rsortw svg{width:17px;height:17px;fill:none;stroke:var(--cherry-ink,var(--cherry));stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.rhead .rh{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rhtools{flex:none;display:flex;align-items:center;gap:8px}
+@media (max-width:389px){.rn-w{display:none}}
+/* The sort button is a round icon button, like the save and close buttons; it opens the sort sheet. */
+.rsortw{flex:none;display:grid;place-items:center;width:40px;height:40px;padding:0;border-radius:50%;border:0;background:var(--surface2);color:var(--ink);cursor:pointer;transition:transform .15s ease}
+.rsortw:active{transform:scale(.88)}
+.rsortw{position:relative}.rsortw[aria-pressed="true"]{color:var(--cherry);background:color-mix(in srgb,var(--cherry) 14%,var(--surface))}
+.rsortw[aria-pressed="true"]::after{content:"";position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--cherry);box-shadow:0 0 0 2px var(--bg)}
+.rsortw svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .rs-sec{padding:4px 16px 8px}.rs-sec h4{margin:6px 4px 8px;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .rs-sec .sellist{padding:0}.rs-sec .selopt span{display:flex;flex-direction:column;gap:2px}.rs-sec .selopt small{font-size:.78rem;font-weight:400;color:var(--muted)}
 .rs-chips{display:flex;flex-wrap:wrap;gap:8px}.rs-chip{min-height:38px;padding:8px 14px;font-size:.88rem;font-weight:600;border:1px solid transparent;cursor:pointer}
 .rs-chip[aria-checked="true"]{background:color-mix(in srgb,var(--cherry) 16%,var(--surface));border-color:var(--cherry);color:var(--cherry-ink,var(--ink))}
-.rs-done{padding:8px 16px calc(14px + var(--sa-bottom))}.rs-done .btn{width:100%}
+.rs-done{position:sticky;bottom:0;display:flex;gap:10px;padding:10px 16px calc(14px + var(--sa-bottom));background:linear-gradient(transparent,var(--surface) 30%)}.rs-done .btn{flex:1}.rs-done #rs-clear{flex:none;padding-inline:20px}.rs-done #rs-clear:disabled{opacity:.45}
+.rs-sec h4 small{font-weight:600;letter-spacing:0;text-transform:none;margin-left:6px;opacity:.8}
 .rgrp h4 .lvbi{background:color-mix(in srgb,currentColor 14%,var(--surface))}.rgrp h4 .lvbi i{width:10px;height:10px;border-radius:50%;background:currentColor}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .rgrp{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:14px;content-visibility:auto;contain-intrinsic-block-size:auto 320px}
@@ -1905,7 +1899,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 /* Which coffee an entry in the Diary view is about */
 .dbeans{margin-bottom:8px}.dbeans button{padding:4px 12px 4px 4px;max-width:200px}.dbeans button span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dbeans .bpic{flex:none;width:24px;height:28px;border-radius:999px}.dbeans button[data-dyb="more"]{padding:6px 12px}
-.dy-f{margin:4px 0 2px}
+
 /* Photos in the diary */
 .tl-ph{display:block;width:min(100%,260px);margin:8px 0 2px;padding:0;border:0;background:none;cursor:zoom-in;border-radius:var(--r-md)}
 .tl-pic{position:relative;display:block;width:100%;aspect-ratio:4/3;border-radius:var(--r-md);overflow:hidden;background:var(--surface2)}
@@ -2274,7 +2268,7 @@ input[type=range]:disabled{opacity:.45}
 .field.rng-f>label{align-items:baseline;margin-bottom:8px}
 .field.rng-f>label .num{font:800 1.25rem/1 var(--display);letter-spacing:-.01em;color:var(--ink)}
 label[for=i-grind]>span{display:flex;flex-direction:column;align-items:flex-end;gap:3px;text-align:right}
-#v-grindhint{font-size:.74rem;font-weight:500;color:var(--muted)}
+
 .two.rng-two{grid-template-columns:1fr;gap:0}
 /* Selection controls: one highlight that glides to the picked option. */
 .seg.has-ind.ind-rel{position:relative}
@@ -2317,6 +2311,7 @@ button[aria-pressed]:active{transform:scale(.95)}
 .chip-on{animation:chipon .36s cubic-bezier(.3,1.35,.5,1)}@keyframes chipon{0%{transform:scale(.88);filter:brightness(1.12)}55%{transform:scale(1.05)}100%{transform:none}}
 .me-tiles>div{width:auto;min-width:104px;max-width:168px}
 .me-tiles b{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:break-word;hyphens:auto}
+.me-tiles.me-mine>div{min-width:0;max-width:none}
 /* Names are shown in full everywhere: they wrap rather than being cut short (secondary details may still shorten). */
 :is(.again b,.me-dna b,.srow-tx b,.t3o-tx b,.dbean-tx b,.yic-row b,.ls-sel b,.t3s-tx b,.me-tiles b){white-space:normal!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:anywhere;max-width:none}
 .t3s-tx b{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden!important}
@@ -2331,6 +2326,51 @@ button[aria-pressed]:active{transform:scale(.95)}
 /* Smoother page changes on phones: no blur behind the little count badges (it was invisible and costly to draw). */
 .cupcard .cc,.colshelf .cn,#rhome .cc,#rhome .cn{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 .colshelf .cn{background:rgba(0,0,0,.26)}
+/* Trophies as a medal grid: three to a row on phones, a gold medal with a dark engraved icon when earned, grey with
+   progress when not. The icon colour is fixed so it reads on gold in every theme. */
+.trophies{grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px}
+.tro{flex-direction:column;align-items:center;text-align:center;gap:4px;padding:14px 8px 12px;box-shadow:none;border:1px solid var(--line)}
+.tro b{font:700 .84rem/1.25 var(--display);color:var(--ink);overflow-wrap:anywhere}
+.tro small{font-size:.72rem;line-height:1.3;color:var(--muted)}
+.tro-ic{width:56px;height:56px;margin-bottom:4px;filter:none;opacity:1;background:var(--surface2);color:color-mix(in srgb,var(--ink) 38%,transparent);box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--ink) 10%,transparent)}
+.tro .tro-ic .di{color:inherit;width:26px;height:26px;stroke-width:1.8}
+.tro.on .tro-ic{color:#5A3A12;background:radial-gradient(circle at 34% 28%,#FFF4D6,#EBC27A 52%,#B9853E);box-shadow:inset 0 0 0 2px rgba(255,248,230,.55),inset 0 -3px 6px rgba(120,80,20,.25),0 6px 14px -8px rgba(150,100,30,.9)}
+.tro.on .tro-ic .di{color:#5A3A12;stroke-width:2}
+.tro:not(.on) b{color:color-mix(in srgb,var(--ink) 75%,transparent)}
+.tro .tro-p{width:72%;margin:6px auto 0}
+.yic-scope{font-style:normal;font-weight:600;letter-spacing:0;text-transform:none;opacity:.8;margin-left:6px}
+.tro small{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+html.sheeting :is(.seg.bviews,.gtabs,.appbar,.minires,.bottomnav){-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+/* Diary: the entry icons' rings aren't cropped (content-visibility clips whatever pokes out of a row, so rows keep a
+   little room on the left), and the moment chips scroll with an end fade instead of being cut by the card. */
+.tl-e{padding-left:3px}
+#vd .tl-e{content-visibility:visible}
+.dmoms{padding-right:28px;scroll-padding-inline:12px;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}
+/* Bags you're drinking now are always near the top: drawn in full, never with a placeholder height. */
+.clist.now .crow,.shelf .crow{content-visibility:visible}
+/* The trophy row fades out at its end instead of cutting the last medal in half. */
+.ts-row{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 26px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 26px),transparent)}
+/* Flags on bag pictures sit fully inside the picture. */
+.bpic .bfl{right:10%;top:9%;font-size:1.2em}
+.vd-back{position:absolute;top:14px;right:62px;border:0;border-radius:999px;padding:8px 14px;font:600 .86rem var(--body);background:var(--surface2);color:var(--ink);cursor:pointer}
+.og-fl{font-size:.9em}.og-list{margin-top:4px}
+.bpic>img.hi{animation:imgin .26s ease both!important}@keyframes imgin{from{opacity:0}}
+/* Beans opens with what's on screen: the blocks further down (the year in coffee, the season card, the trophy row,
+   the tools above the list) are laid out and drawn only as they come near view. */
+#bg-yic,#bv-coffees .season,#bv-coffees .tshelf,#bv-coffees .bg-tools{content-visibility:auto;contain-intrinsic-size:auto 420px}
+#bv-coffees .season{contain-intrinsic-size:auto 200px}
+#bv-coffees .tshelf,#bv-coffees .bg-tools{contain-intrinsic-size:auto 120px}
+/* Top 5: fourth and fifth each get a full-width row, so long names read on one or two lines instead of a column of
+   single words; honourable mentions are a two-column list (picture, then the full name) rather than narrow tiles. */
+.t45{grid-template-columns:1fr}
+.t45c{padding:10px 12px 10px 10px;gap:12px}.t45c .bpic{width:44px;height:52px}
+.t45t b{font-size:.92rem}
+.t3hm-l{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px;overflow:visible}
+.t3hm-i{width:auto;flex-direction:row;align-items:center;gap:10px;text-align:left}
+.t3hm-i .bpic{flex:none;width:40px;height:40px}
+.t3hm-i small{max-width:none;text-align:left;font-size:.8rem;line-height:1.25}
+dialog.dlg-pre[open]{animation:none!important;opacity:0}
+dialog.dlg-pre[open]::backdrop{animation:none!important;opacity:0}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
@@ -2538,7 +2578,7 @@ button[aria-pressed]:active{transform:scale(.95)}
       </div>
 </div></details>
 <details class="dstep" data-step="tune" open><summary><span class="dn">4</span><span class="dst"><b>Fine-tune</b><small id="ds-tune"></small></span><span class="dchev" aria-hidden="true"></span></summary><div class="dstep-in"><p class="hint dstep-lead">Tuned for your coffee and target. Adjust by taste.</p>
-      <div class="field"><label for="i-grind">Grind <span><span class="num" id="v-grind"></span> <span class="hint" id="v-grindhint"></span></span></label><input type="range" id="i-grind"><div class="dialrow"><svg id="dialsvg" class="dialmini" viewBox="0 0 160 160" aria-hidden="true"></svg><p class="hint" style="margin:0">Dials read number.click. Tap <b>Gear and dials</b> for how each grinder works.</p></div><p class="hint equiv" id="v-equiv"></p></div>
+      <div class="field"><label for="i-grind">Grind <span><span class="num" id="v-grind"></span></span></label><input type="range" id="i-grind"><div class="dialrow"><svg id="dialsvg" class="dialmini" viewBox="0 0 160 160" aria-hidden="true"></svg><p class="hint" style="margin:0">Dials read number.click. Tap <b>Gear and dials</b> for how each grinder works.</p></div></div>
       <div class="two">
         <div class="field"><label for="i-temp">Water <span class="num" id="v-temp"></span></label><input type="range" id="i-temp" min="85" max="100" step="1"></div>
         <div class="field"><label for="i-ratio">Ratio <span class="num" id="v-ratio"></span></label><input type="range" id="i-ratio" min="13" max="18" step="0.5"></div>
@@ -2615,7 +2655,7 @@ button[aria-pressed]:active{transform:scale(.95)}
 <section id="tech">
   <h2>Techniques</h2>
   <p class="lede">Every move in the brewing toolbox, and when to use it.</p>
-  <div class="vtools"><input type="search" id="tsearch" placeholder="Search" aria-label="Search techniques"><div class="seg filters scrollrow" id="tcat"></div></div>
+  <div class="lf-top lt" id="tlt"><label class="lf-q"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4"/></svg><input type="search" id="tsearch" placeholder="Search techniques" aria-label="Search techniques"></label><button type="button" class="rsortw" id="tlt-f" aria-pressed="false" aria-label="Filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
   <div class="grid" id="tgrid"></div>
 </section>
 
@@ -2647,13 +2687,13 @@ button[aria-pressed]:active{transform:scale(.95)}
   </div>
   <div class="gpanel" data-gpanel="brew" role="tabpanel" hidden>
     <h3 id="g-brew" class="gsec">Brewers</h3>
-    <div class="seg filters scrollrow" id="gear-filter" style="margin-bottom:12px"></div>
+    <div class="lf-top lt" id="gblt"><p class="lt-k" id="gblt-k"></p><button type="button" class="rsortw" id="gblt-f" aria-pressed="false" aria-label="Filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
     <div class="grid" id="gear-brewers"></div>
   </div>
   <div class="gpanel" data-gpanel="lib" role="tabpanel" hidden>
     <h3 id="g-lib" class="gsec">Grinder library</h3>
     <p class="hint" style="margin-top:0">Manual and electric grinders by brand, with their burrs, dials and typical settings. Tap Compare on up to three to see them side by side.</p>
-    <div class="vtools"><input type="search" id="glib-search" placeholder="Search" aria-label="Search grinders"><div class="seg filters scrollrow" id="glib-filter"></div></div>
+    <div class="lf-top lt" id="glt"><label class="lf-q"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4"/></svg><input type="search" id="glib-search" placeholder="Search grinders" aria-label="Search grinders"></label><button type="button" class="rsortw" id="glt-f" aria-pressed="false" aria-label="Filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
     <div id="gcmp"></div>
     <div id="glib"></div>
     <details class="card" id="gcustom" style="margin-top:14px"><summary><b>Add your own grinder</b> <span class="hint">Not in the list? Set it up in a minute</span></summary><div id="gcustom-in"></div></details>
@@ -2685,10 +2725,7 @@ button[aria-pressed]:active{transform:scale(.95)}
 <section id="variety">
   <h2>Varieties</h2>
   <p class="lede">Every variety by family: its story, taste and how to brew it.</p>
-  <div class="vtools">
-    <input type="search" id="vsearch" placeholder="Search" aria-label="Search varieties">
-    <div class="seg filters scrollrow" id="vfam"></div>
-  </div>
+  <div class="lf-top lt" id="vlt"><label class="lf-q"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4"/></svg><input type="search" id="vsearch" placeholder="Search varieties" aria-label="Search varieties"></label><button type="button" class="rsortw" id="vlt-f" aria-pressed="false" aria-label="Filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
   <div id="vcompare"></div>
   <div class="grid" id="vgrid"></div>
 </section>
@@ -2698,8 +2735,7 @@ button[aria-pressed]:active{transform:scale(.95)}
   <h2>Coffee World Championships</h2>
   <p class="lede">Every world champion and their winning recipes, set for your grinder.</p>
   <div id="ch-next"></div>
-  <div class="seg filters scrollrow" id="ch-filter" style="margin:14px 0 8px"></div>
-  <div class="seg filters scrollrow" id="ch-brewer" style="margin:0 0 14px"></div>
+  <div class="lf-top lt" id="chlt"><p class="lt-k" id="chlt-k"></p><button type="button" class="rsortw" id="chlt-f" aria-pressed="false" aria-label="Filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
   <div class="grid" id="ch-about"></div>
   <h3 class="sec">Timeline</h3>
   <p class="hint">Newest first. Tap a champion's button for their recipe and gear, and how to brew it with yours.</p>
@@ -2718,10 +2754,7 @@ button[aria-pressed]:active{transform:scale(.95)}
 <section id="words">
   <h2>Coffee words</h2>
   <p class="lede">The words on bags and menus, from co-fermentation to TDS.</p>
-  <div class="vtools">
-    <input type="search" id="wsearch" placeholder="Search" aria-label="Search coffee words">
-    <div class="seg filters scrollrow" id="wcat"></div>
-  </div>
+  <div class="lf-top lt" id="wlt"><label class="lf-q"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4"/></svg><input type="search" id="wsearch" placeholder="Search coffee words" aria-label="Search coffee words"></label><button type="button" class="rsortw" id="wlt-f" aria-pressed="false" aria-label="Filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
   <p class="hint" id="wcount" style="margin:0 0 10px"></p>
   <div id="wlist"></div>
 </section>
@@ -2771,8 +2804,7 @@ button[aria-pressed]:active{transform:scale(.95)}
   <p class="lede">Pick a brewer or collection, or search. Grind settings follow your calibration.</p>
   <div class="rsearchw"><input type="search" id="rsearch" placeholder="Search recipes" aria-label="Search recipes"></div>
   <div id="rhome"></div>
-  <div class="rhead"><h3 class="rh" id="rall">All recipes</h3><button type="button" class="btn ghost" id="r-new">+ New recipe</button></div>
-  <div class="rtools"><div class="seg filters scrollrow" id="rfilter"></div><button type="button" class="rsortw" id="rsortbtn" aria-label="Sort recipes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h11M4 12h8M4 17h5M18 6v12M15 15l3 3 3-3"/></svg><span>Brewer · Level</span></button></div>
+  <div class="rhead"><h3 class="rh" id="rall">All recipes</h3><div class="rhtools"><button type="button" class="rsortw" id="rfiltbtn" aria-label="Filter recipes" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button><button type="button" class="rsortw" id="rsortbtn" aria-label="Sort recipes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h11M4 12h8M4 17h5M18 6v12M15 15l3 3 3-3"/></svg></button><button type="button" class="btn ghost" id="r-new" aria-label="New recipe">+ New<span class="rn-w"> recipe</span></button></div></div>
   <div id="rgrid"></div>
 </section>
 
@@ -2781,7 +2813,7 @@ button[aria-pressed]:active{transform:scale(.95)}
   <h2>Processes</h2>
   <p class="lede">How each process shapes the cup, and how to brew it. <button type="button" class="linkbtn" data-go-t="flow">See where processing fits, from seed to cup</button></p>
   <div class="card" style="margin-bottom:16px"><h3 style="margin-top:0">The process map</h3><p class="hint" style="margin-top:0">Left is clean, right is wild; top is bright, bottom is soft. Tap a dot.</p><svg id="pmap" viewBox="0 -14 640 314" role="img" aria-label="Processes plotted by cleanliness and acidity"></svg></div>
-  <div class="seg filters scrollrow" id="pcat" style="margin-bottom:14px"></div>
+  <div class="lf-top lt" id="plt"><p class="lt-k" id="plt-k"></p><button type="button" class="rsortw" id="plt-f" aria-pressed="false" aria-label="Filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
   <div class="grid" id="pgrid"></div>
 </section>
 

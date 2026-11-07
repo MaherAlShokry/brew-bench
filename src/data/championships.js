@@ -41,7 +41,7 @@ const CHAMPS=[
  {c:'wbrc',y:2021,city:'Milan, Italy',who:'Matt Winton',dev:'V60',from:'Switzerland',coffee:'A blend of Catucai and Coffea eugenioides (only about 30% Arabica)',note:'',
   rec:{b:'v60',kind:'pulse',dose:20,water:300,temp:93,temp2:88,grind:{label:'Medium'},off:0,gear:['Hario V60 (metal)','Two kettles: 93°C and 88°C','Balanced mineral water'],
    why:'His published Five-Pour method: five equal pours, each added when the bed has almost drained. Pour a little higher than usual to agitate.',
-   steps:['0:00 pour 60g at 93°C, bloom.','0:30 pour 60g (to 120g).','When the bed nearly stops dripping, pour 60g at 88°C (to 180g).','Repeat: 60g (to 240g), then 60g (to 300g).'],
+   steps:['0:00 pour 60g at 93°C, bloom.','0:30 pour 60g (to 120g).','When the bed nearly stops dripping, pour 60g at 88°C (to 180g).','When it nearly stops again, pour 60g (to 240g).','Once more, pour the last 60g (to 300g).','3:30 drawdown should be finished.'],
    alt:'Any cone dripper works for this one.'}},
  {c:'wbrc',y:2019,city:'Boston, United States',who:'Du Jianing',dev:'Origami',from:'China',coffee:'Ninety Plus Gesha Estate, roasted on an Ikawa sample roaster',note:'',
   rec:{b:'origami',kind:'pulse',dose:16,water:240,temp:94,time:'1:40',grind:{label:'Ground twice: coarse first to remove chaff, then finer'},off:0,gear:['Origami Dripper'],
