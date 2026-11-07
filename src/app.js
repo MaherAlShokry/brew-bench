@@ -1210,8 +1210,7 @@ const RLZ_IO=window.IntersectionObserver?new IntersectionObserver(es=>es.forEach
 function renderRecipes(){
   if(RF==='mine'&&!CREC.length)RF='all';if(RF==='fav'&&!favCount())RF='all';if((RF.startsWith('b:')&&!BREWERS[RF.slice(2)])||(RF.startsWith('col:')&&!COLBY[RF.slice(4)])||(RF.startsWith('cup:')&&!CUPBY[RF.slice(4)]))RF='all';
   const cup=RF.startsWith('cup:')?CUPBY[RF.slice(4)]:null,col=RF.startsWith('col:')?COLBY[RF.slice(4)]:null,rb=RF.startsWith('b:')?RF.slice(2):null,extra=cup||col||rb;
-  seg('rfilter',[['all','All']].concat(extra?[[RF,esc(RF_NAME())+' ✕']]:[],favCount()?[['fav','Saved']]:[],CREC.length?[['mine',TEAM()?'Yours & team':'Yours']]:[],[['champ','Champions']]),()=>RF,v=>{RF=v===RF&&extra?'all':v;renderRecipes();renderRHome()});
-  {const f=$('rfilter'),edge=()=>f.classList.toggle('end',f.scrollLeft+f.clientWidth>=f.scrollWidth-2);requestAnimationFrame(()=>{f.classList.toggle('more',f.scrollWidth>f.clientWidth+2);edge()});if(!f.dataset.edge){f.dataset.edge=1;f.addEventListener('scroll',edge,{passive:true})}}
+  {const fb=$('rfiltbtn'),on=RF!=='all';fb.setAttribute('aria-pressed',on);fb.setAttribute('aria-label','Filter recipes: '+RF_NAME());fb.title='Filter: '+RF_NAME()}
   const q=fold(RQ.trim());
   let list=RECIPES.map((r,i)=>[r,i]).filter(([r])=>(RF==='all'||(RF==='mine'?r.custom:RF==='champ'?r.champ:RF==='fav'?FAVS.has(rkey(r)):cup?cup[4](r):col?col[4](r):rb?RFAM(r.b)===RFAM(rb):true))&&(!q||fold([r.name,r.by,r.why,BREWERS[r.b].name,BREWERS[r.b].type].join(' ')).includes(q)));
   // Main order, then the second, then your own recipes first, then the list's own order.
@@ -1232,6 +1231,20 @@ function renderRecipes(){
   if(!$('rhome').innerHTML)renderRHome();
 }
 $('rsortbtn').onclick=()=>openRSort();
+// The filter sheet: what to show, or one brewer, cup type or collection. One filter at a time, like the shelves above.
+function openRFilter(){const d=$('selsheet');
+  const opt=(k,n,h)=>'<button type="button" role="radio" class="selopt" data-rf="'+k+'" aria-checked="'+(RF===k)+'" aria-selected="'+(RF===k)+'"><span>'+n+'<small>'+h+'</small></span><i aria-hidden="true">✓</i></button>';
+  const chips=(t,a)=>'<div class="rs-sec"><h4>'+t+'</h4><div class="rs-chips" role="radiogroup" aria-label="'+t+'">'+a.map(([k,n])=>'<button type="button" role="radio" class="chip rs-chip" data-rf="'+k+'" aria-checked="'+(RF===k)+'">'+esc(n)+'</button>').join('')+'</div></div>';
+  const cnt=n=>n+' recipe'+(n===1?'':'s');
+  const draw=()=>{$('sel-in').innerHTML='<div class="selhead"><div class="grab"></div><h3 id="sel-title">Filter recipes</h3><button type="button" class="vd-close" id="sel-x" aria-label="Close">✕</button></div>'+
+    '<div class="rs-sec"><h4>Show</h4><div class="sellist" role="radiogroup" aria-label="Show">'+opt('all','All recipes',cnt(RECIPES.length))+
+      (favCount()?opt('fav','Saved',cnt(favCount())):'')+(CREC.length?opt('mine',TEAM()?'Yours and your team’s':'Yours',cnt(CREC.length)):'')+opt('champ','Champions',cnt(RECIPES.filter(r=>r.champ).length))+'</div></div>'+
+    chips('Brewer',RBREWERS().map(k=>['b:'+k,famName(k)]))+chips('Cup type',CUPS.map(c=>['cup:'+c[0],c[1]]))+chips('Collection',COLS.map(c=>['col:'+c[0],c[1]]))+
+    '<div class="rs-done"><button type="button" class="btn" id="rs-done">Show '+cnt(RLIST.length)+'</button></div>';
+    $('sel-x').onclick=$('rs-done').onclick=()=>d.close()};
+  draw();d.querySelector('#sel-in').onclick=e=>{const a=e.target.closest('[data-rf]');if(!a)return;RF=a.dataset.rf;RQ='';$('rsearch').value='';renderRecipes();renderRHome();draw()};
+  showDlg(d)}
+$('rfiltbtn').onclick=()=>openRFilter();
 function recipeAct(e){const ed=e.target.closest('[data-redit]');if(ed){openRecipeEditor(CREC.find(r=>r.id===ed.dataset.redit));return true}
   const b=e.target.closest('[data-load],[data-plan],[data-timer],[data-rshare]');if(!b)return false;if(b.dataset.rshare){openShare(recipeDoc(+b.dataset.rshare));return true}
   if(b.dataset.timer){openTimer(+b.dataset.timer);return true}

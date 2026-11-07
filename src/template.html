@@ -1289,13 +1289,14 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .colshelf button{flex:none;scroll-snap-align:start;width:168px;position:relative;display:flex;flex-direction:column;gap:3px;padding:14px 14px 30px;border-radius:18px;border:0;color:#fff;font:inherit;text-align:left;cursor:pointer;
   background:linear-gradient(140deg,var(--cc),color-mix(in srgb,var(--cc) 60%,#000))}
 .colshelf b{font-family:var(--display);font-size:1rem}.colshelf small{font-size:.8rem;opacity:.9;line-height:1.3}.colshelf .cn{position:absolute;left:14px;bottom:10px;font-size:.78rem;font-weight:700;background:rgba(255,255,255,.22);border-radius:99px;padding:1px 8px}
-.rtools{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-/* Filters that don't fit scroll sideways; the edge fades so a chip that runs on reads as more to see, not as cut off. */
-.rtools .seg.more{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}
-.rtools .seg.more.end{-webkit-mask-image:none;mask-image:none}.rtools .seg{flex:1;min-width:0}
+.rhead .rh{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rhtools{flex:none;display:flex;align-items:center;gap:8px}
+@media (max-width:389px){.rn-w{display:none}}
 /* The sort button is a round icon button, like the save and close buttons; it opens the sort sheet. */
 .rsortw{flex:none;display:grid;place-items:center;width:40px;height:40px;padding:0;border-radius:50%;border:0;background:var(--surface2);color:var(--ink);cursor:pointer;transition:transform .15s ease}
 .rsortw:active{transform:scale(.88)}
+.rsortw{position:relative}.rsortw[aria-pressed="true"]{color:var(--cherry);background:color-mix(in srgb,var(--cherry) 14%,var(--surface))}
+.rsortw[aria-pressed="true"]::after{content:"";position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--cherry);box-shadow:0 0 0 2px var(--bg)}
 .rsortw svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .rs-sec{padding:4px 16px 8px}.rs-sec h4{margin:6px 4px 8px;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .rs-sec .sellist{padding:0}.rs-sec .selopt span{display:flex;flex-direction:column;gap:2px}.rs-sec .selopt small{font-size:.78rem;font-weight:400;color:var(--muted)}
@@ -2817,8 +2818,7 @@ dialog.dlg-pre[open]::backdrop{animation:none!important;opacity:0}
   <p class="lede">Pick a brewer or collection, or search. Grind settings follow your calibration.</p>
   <div class="rsearchw"><input type="search" id="rsearch" placeholder="Search recipes" aria-label="Search recipes"></div>
   <div id="rhome"></div>
-  <div class="rhead"><h3 class="rh" id="rall">All recipes</h3><button type="button" class="btn ghost" id="r-new">+ New recipe</button></div>
-  <div class="rtools"><div class="seg filters scrollrow" id="rfilter"></div><button type="button" class="rsortw" id="rsortbtn" aria-label="Sort recipes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h11M4 12h8M4 17h5M18 6v12M15 15l3 3 3-3"/></svg></button></div>
+  <div class="rhead"><h3 class="rh" id="rall">All recipes</h3><div class="rhtools"><button type="button" class="rsortw" id="rfiltbtn" aria-label="Filter recipes" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button><button type="button" class="rsortw" id="rsortbtn" aria-label="Sort recipes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h11M4 12h8M4 17h5M18 6v12M15 15l3 3 3-3"/></svg></button><button type="button" class="btn ghost" id="r-new" aria-label="New recipe">+ New<span class="rn-w"> recipe</span></button></div></div>
   <div id="rgrid"></div>
 </section>
 
