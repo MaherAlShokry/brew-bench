@@ -669,6 +669,9 @@ function renderCoffees(){const p=$('bv-coffees'),years=beanYears();BYEAR=BYEAR.f
   if(!BEANS.length){p.innerHTML='<div class="bg-empty">'+beanSVG+'<b>No coffees yet</b><p>Scan a bag or add one by hand. Your earlier scans are under <button type="button" class="linkbtn" data-view="scans">Scans</button>, ready to add.</p></div>';return}
   const fs=BFILTERS.filter(([f])=>f==='all'||BEANS.some(b=>bfKeep(b,f)));BF=BF.filter(f=>fs.some(([x])=>x===f));
   p.innerHTML=shelfHTML()+seasonCardHTML()+'<div id="bg-yic"></div>'+trophyRowHTML()+'<h3 class="rh cab-h">All your coffees</h3><div class="bg-tools">'+ltHTML('bg-lt',{q:{id:'bg-q',ph:'Search coffees, roasters, origins, notes',label:'Search your coffees',value:BQ},filter:fs.length>1||years.length>1,sort:true})+'</div><div id="bg-grid"></div>';
+  // The shelf, season card and trophies above the grid have photos too: they're watched like the grid's, so a redraw
+  // (after adding or editing a coffee) shows them again instead of leaving the ones off screen blank until a restart.
+  hydrateImgs(p);
   renderBeanSort();
   // The year in coffee is the costliest block and sits below the fold: it's drawn once the page has opened.
   whenIdle(()=>{const e=$('bg-yic');if(e&&!e.firstChild)e.innerHTML=yearInCoffeeHTML()})}
