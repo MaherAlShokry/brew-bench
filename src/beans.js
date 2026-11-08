@@ -60,6 +60,8 @@ function okBean(b){if(!b||typeof b!=='object'||typeof b.id!=='string'||!BID.test
     bags:(Array.isArray(b.bags)?b.bags:[]).filter(x=>x&&typeof x.id==='string'&&BID.test(x.id)).map(x=>({id:x.id,rd:ISO_D.test(x.rd)?x.rd:'',g:gramsOrNull(x.g)||0,on:ISO_D.test(x.on)?x.on:'',off:ISO_D.test(x.off)?x.off:''})).slice(-40)}}
 // How many times you've bought a coffee: this bag and every earlier one.
 const buys=b=>1+((b&&b.bags)||[]).length+((b&&b.prior)||0);
+// The first day you had this coffee: earlier bags count too.
+const beanFirst=b=>[beanDay(b),...((b&&b.bags)||[]).map(x=>x.on)].filter(Boolean).sort()[0];
 // Bought it again (a "last" entry from an earlier bag doesn't close this one): the bag you finished goes into the coffee's history, and the new one starts fresh on the shelf with
 // its own roast date and size. Ratings, notes, the diary and every brew stay as they are.
 function rebuyBean(b,rd,g){const opened=b.diary.find(e=>e.k==='opened'),last=b.diary.find(e=>e.k==='last');
@@ -412,7 +414,7 @@ function openMakeRecipe(bid){const d=$('vd'),beans=[...BEANS.filter(b=>b.shelf),
 // Earned from the cabinet as it is: each has a goal and counts towards it. The day one is first earned is kept.
 const WILD=['anaerobic','anaerobicnatural','anaerobicwashed','anaerobichoney','doubleanaerobic','carbonic','lactic','yeast','koji','extended','thermalshock','mossto','coferment','infused','barrelaged'];
 function cabStats(){const o=new Set(BEANS.map(b=>b.origin).filter(Boolean)),ml=MYLOG();
-  return{n:BEANS.length,o,regs:new Set([...o].map(k=>(oInfo(k)||{}).reg).filter(Boolean)),procs:new Set(BEANS.map(b=>b.process).filter(Boolean)),
+  return{n:BEANS.length,bags:BEANS.reduce((a,b)=>a+buys(b),0),o,regs:new Set([...o].map(k=>(oInfo(k)||{}).reg).filter(Boolean)),procs:new Set(BEANS.map(b=>b.process).filter(Boolean)),
     roasters:new Set(BEANS.map(b=>b.roaster.toLowerCase()).filter(Boolean)),diary:BEANS.reduce((a,b)=>a+b.diary.length,0),done:BEANS.filter(b=>!b.shelf).length+BEANS.reduce((a,b)=>a+(b.bags||[]).length+(b.prior||0),0),rebought:BEANS.filter(b=>buys(b)>1).length,maxBuys:BEANS.reduce((a,b)=>Math.max(a,buys(b)),0),
     crowned:Object.values(TOP3).some(t=>t.ids.slice(0,3).every(Boolean)),perfect:BEANS.some(b=>b.rating===5),wild:BEANS.some(b=>WILD.includes(b.process)),
     geisha:BEANS.some(b=>beanVars(b).some(v=>/^geisha/.test(v))),arabia:BEANS.some(b=>['yemen','saudi','oman','uae'].includes(b.origin)),eth:o.has('ethiopia'),
@@ -428,7 +430,7 @@ const logDay=l=>String(l.date||'').slice(0,10)||(l.ts?new Date(l.ts).toISOString
 function brewStreak(ml=MYLOG()){const ds=[...new Set(ml.map(logDay).filter(d=>ISO_D.test(d)))].sort();let best=0,run=0,prev=null;
   for(const d of ds){run=prev&&Math.round((Date.parse(d)-Date.parse(prev))/864e5)===1?run+1:1;best=Math.max(best,run);prev=d}return best}
 const TROPHIES=[
-  ['first','First bag','Add your first coffee to the cabinet','☕',s=>[s.n,1]],['ten','Ten bags','Ten coffees in the cabinet','🛍️',s=>[s.n,10]],['fifty','The collector','Fifty coffees in the cabinet','🏛️',s=>[s.n,50]],
+  ['first','First bag','Add your first coffee to the cabinet','☕',s=>[s.n,1]],['ten','Ten bags','Ten bags bought, bought-again ones included','🛍️',s=>[s.bags,10]],['fifty','The collector','Fifty coffees in the cabinet','🏛️',s=>[s.n,50]],
   ['birth','Where it began','A coffee from Ethiopia, the birthplace of Arabica','🐐',s=>[+s.eth,1]],['mocha','The Mocha road','A coffee from the Arabian Peninsula','⛵',s=>[+s.arabia,1]],
   ['pass5','Stamped passport','Coffees from five origins','🛂',s=>[s.o.size,5]],['pass15','Globetrotter','Coffees from fifteen origins','🌍',s=>[s.o.size,15]],['regions','All five regions','A coffee from every coffee region','🧭',s=>[s.regs.size,5]],
   ['procs','Process explorer','Five different processes','🧪',s=>[s.procs.size,5]],['wild','Wild side','An anaerobic, carbonic or co-fermented coffee','🍷',s=>[+s.wild,1]],['geisha','Geisha club','A Geisha in the cabinet','🌸',s=>[+s.geisha,1]],
@@ -801,7 +803,9 @@ function openTrophies(){const d=$('vd'),T=TGOT||{},earned=TROPHIES.filter(t=>T[t
   $('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
 function renderPassport(){const p=$('bv-passport');if(!p)return;const st=cabStats(),total=Object.keys(ALLO()).length,by={};
   for(const b of BEANS)if(b.origin)(by[b.origin]=by[b.origin]||[]).push(b);
-  const first=k=>by[k].map(beanDay).sort()[0],got=Object.keys(by).sort((a,b)=>first(a).localeCompare(first(b)));
+  // Every bag counts, bought-again ones included; "since" is the first of them.
+  const nBags=k=>by[k].reduce((a,b)=>a+buys(b),0);
+  const first=k=>by[k].map(beanFirst).sort()[0],got=Object.keys(by).sort((a,b)=>first(a).localeCompare(first(b)));
   const mon=iso=>new Date(iso+'T12:00').toLocaleDateString(undefined,{month:'short',year:'numeric'});
   const regs=Object.entries(REG).map(([rk,r])=>{const all=Object.keys(ALLO()).filter(k=>ALLO()[k].reg===rk),have=got.filter(k=>ALLO()[k]&&ALLO()[k].reg===rk).length;
     return '<span class="pp-reg"><small>'+esc(r.name.replace(' and Caribbean','').replace(' and Pacific',''))+'</small><span class="pp-rb"><i style="width:'+Math.min(100,have/all.length*100).toFixed(0)+'%;background:'+r.color+'"></i></span><b>'+have+'</b></span>'}).join('');
@@ -810,7 +814,7 @@ function renderPassport(){const p=$('bv-passport');if(!p)return;const st=cabStat
   // The count is of the map's origins; countries off the map still get a stamp, counted on their own.
   const onMap=got.filter(k=>ALLO()[k]).length,T=TGOT||{},earned=TROPHIES.filter(t=>T[t[0]]).length;
   p.innerHTML='<div class="passport"><div class="pp-h"><span class="pp-k">Coffee passport</span><h3>'+onMap+' <em>of '+total+' origins'+(got.length>onMap?' · +'+(got.length-onMap)+' more':'')+'</em></h3><div class="pp-regs">'+regs+'</div></div>'+
-    (got.length?'<div class="pp-grid">'+got.map((k,i)=>'<button type="button" class="pp-st" data-ppo="'+k+'" style="--r:'+(((i*37)%15)-7)+'deg"><img alt="" src="'+(STAMPS.get(k)||STAMP_WAIT)+'" data-stamp="'+k+'"><b>'+esc(originName(k))+'</b><small>'+by[k].length+' bag'+(by[k].length===1?'':'s')+' · since '+mon(first(k))+'</small></button>').join('')+'</div>'
+    (got.length?'<div class="pp-grid">'+got.map((k,i)=>'<button type="button" class="pp-st" data-ppo="'+k+'" style="--r:'+(((i*37)%15)-7)+'deg"><img alt="" src="'+(STAMPS.get(k)||STAMP_WAIT)+'" data-stamp="'+k+'"><b>'+esc(originName(k))+'</b><small>'+nBags(k)+' bag'+(nBags(k)===1?'':'s')+' · since '+mon(first(k))+'</small></button>').join('')+'</div>'
       :'<p class="pp-empty">Your first stamp arrives with your first coffee.</p>')+
     (next.length?'<div class="pp-next"><b>Still to discover</b><div class="chips">'+[...new Set(next)].map(k=>'<button type="button" class="chip" data-o="'+k+'">'+(ALLO()[k].flag||'')+' '+esc(originName(k))+'</button>').join('')+'</div></div>':'')+'</div>'+
     '';fillStamps(p)}
@@ -851,7 +855,7 @@ function beanLogStats(b){const n=b.name.toLowerCase();if(n.length<3)return null;
    here has a "‹ Yemen" button back to the list, and closing the sheet (or the back button) returns to the passport. */
 let BFROM=null;$('vd').addEventListener('close',()=>{BFROM=null});
 function openOrigin(k){const d=$('vd'),o=oInfo(k);if(!o)return;BFROM=k;const list=BEANS.filter(b=>b.origin===k).sort((a,c)=>beanDay(c).localeCompare(beanDay(a))||c.ts-a.ts);
-  const bags=list.reduce((a,b)=>a+buys(b),0),first=list.length?list.map(beanDay).sort()[0]:'',R=REG[o.reg],rated=list.filter(b=>b.rating),avg=rated.length?rated.reduce((a,b)=>a+b.rating,0)/rated.length:0;
+  const bags=list.reduce((a,b)=>a+buys(b),0),first=list.length?list.map(beanFirst).sort()[0]:'',R=REG[o.reg],rated=list.filter(b=>b.rating),avg=rated.length?rated.reduce((a,b)=>a+b.rating,0)/rated.length:0;
   $('vd-in').innerHTML='<div class="vd-head" style="--c:'+(R?R.color:'var(--cherry)')+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:'+(R?R.color:'var(--cherry)')+'"></i>'+(R?esc(R.name):'Origin')+'</span>'+
     '<h2 id="vd-title"><span class="og-fl">'+flagOf(k)+'</span> '+esc(originName(k))+'</h2><p class="hint" style="margin:0">'+list.length+' coffee'+(list.length===1?'':'s')+(bags>list.length?' · '+bags+' bags':'')+(first?' · since '+new Date(first+'T12:00').toLocaleDateString(undefined,{month:'short',year:'numeric'}):'')+(avg?' · rated '+avg.toFixed(1)+' on average':'')+'</p></div>'+
     '<div class="vd-body"><div class="clist og-list">'+list.map((b,i)=>coffeeRow(b,false,i)).join('')+'</div><div class="actions"><button type="button" class="btn ghost" id="og-map">'+esc(originName(k))+' on the map</button></div></div>';
