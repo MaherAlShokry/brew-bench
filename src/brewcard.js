@@ -529,6 +529,24 @@ async function beanCardImg(b){const style=Object.assign({},CARD_STYLE),P=b.proce
     expect:b.flavours?{label:'Tasting notes',items:b.flavours.split(/\s*[,;·]\s*/).filter(Boolean)}:null,
     quote:b.notes?{label:'My notes',text:b.notes}:null,footer:'From my bean gallery'})}
 
+// The year's top 5: the winner's photo up top, then the five in order with your ratings, and the honourable mentions.
+async function top5CardImg(y){const style=Object.assign({},CARD_STYLE),it=t5Items(y),hm=t5Hm(y),w=it[0],nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick;
+  const photo=w&&w.b&&w.b.img?await bcLoad(await BIMG.get(w.id)):null,n=BEANS.filter(b=>beanYear(b)===y).length;
+  return bcBlob({style,theme:originTheme(w&&w.origin),kicker:nick?nick+'’s favourites':'My favourite coffees',date:String(y),photo,title:'Top 5 of '+y,
+    by:w?'Gold: '+w.name:'',sub:n?n+' coffee'+(n===1?'':'s')+' tasted in '+y:'',pills:hm.slice(0,3).map(h=>['Honourable mention · '+h]),
+    list:{label:'The five',items:it.map(x=>({t:'#'+x.rk+'  '+x.name,d:[x.roaster,x.origin?originName(x.origin):''].filter(Boolean).join('  ·  ')||MEDALN[x.rk],s:x.rating}))},
+    footer:'From my bean gallery'})}
+// The shelf: what you're drinking now, each bag with how fresh it is and what's left.
+async function shelfCardImg(){const style=Object.assign({},CARD_STYLE),sh=shelfOrder(),nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick,first=sh.find(b=>b.img);
+  const photo=first?await bcLoad(await BIMG.get(first.id)):null,ros=new Set(sh.map(b=>(b.roaster||'').toLowerCase()).filter(Boolean)).size,ors=new Set(sh.map(b=>b.origin).filter(Boolean)).size;
+  const notes=[];sh.forEach(b=>(b.flavours||'').split(/\s*[,;·]\s*/).filter(Boolean).forEach(f=>{if(!notes.some(x=>x.toLowerCase()===f.toLowerCase()))notes.push(f)}));
+  const shown=sh.slice(0,8),more=sh.length-shown.length;
+  return bcBlob({style,theme:originTheme(sh[0]&&sh[0].origin),kicker:nick?'On '+nick+'’s shelf':'On my shelf',date:new Date().toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}),photo,
+    title:'What I’m drinking now',sub:sh.length+' open bag'+(sh.length===1?'':'s'),
+    tiles:[['Bags',String(sh.length)],['Roasteries',String(ros)],['Origins',String(ors)]],
+    list:{label:more?'Drinking now (and '+more+' more)':'Drinking now',items:shown.map(b=>({t:beanTitle(b),d:shelfLine(b).replace(/ · /g,'  ·  ')||'Open bag',s:+b.rating||0}))},
+    expect:notes.length?{label:'In my cups',items:notes.slice(0,10)}:null,footer:'From my bean gallery'})}
+
 /* ---------- Sharing and saving the image ---------- */
 // Share where the phone can (WhatsApp, Instagram, Photos). Otherwise, and for Save on a phone, the card opens full size,
 // where press-and-hold saves it: phone browsers can refuse a script-started download (Chrome on Android reports it as
