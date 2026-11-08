@@ -1488,12 +1488,6 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 :root[data-vibe="pure"]{--paper:#FFFFFF;--surface:#FFFFFF;--surface2:#F2F2F4;--ink:#0B0B0C;--muted:#5D5D66;--line:#E6E6EA;--cherry:#141416;--leaf:#2F7A45;--honey:#8A6A2C;--cherry-ink:#141416;--leaf-ink:#276A3B;--honey-ink:#735823;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}
 @media (prefers-color-scheme:dark){:root[data-vibe="pure"]:not([data-theme="light"]){--paper:#000000;--surface:#0E0E10;--surface2:#1A1A1D;--ink:#FFFFFF;--muted:#A6A6AE;--line:#2A2A2F;--cherry:#F4F4F5;--leaf:#7FD08F;--honey:#E3C17E;--cherry-ink:#F4F4F5;--leaf-ink:#7FD08F;--honey-ink:#E3C17E;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}}
 :root[data-vibe="pure"][data-theme="dark"]{--paper:#000000;--surface:#0E0E10;--surface2:#1A1A1D;--ink:#FFFFFF;--muted:#A6A6AE;--line:#2A2A2F;--cherry:#F4F4F5;--leaf:#7FD08F;--honey:#E3C17E;--cherry-ink:#F4F4F5;--leaf-ink:#7FD08F;--honey-ink:#E3C17E;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}
-/* Pure with its own black accent: every logo (top bar, picker, tab icon, splash) stays black and white. The logos'
-   second colours (gold and green) turn grey there, and the splash coffee turns near-black, so nothing reads brown. */
-:root[data-vibe="pure"]:is([data-accent="classic"],:not([data-accent])) :is(#splash,#ab-logo,.logopick){--honey:#8E8E96;--leaf:#8E8E96}
-:root[data-vibe="pure"]:is([data-accent="classic"],:not([data-accent])) #splash :is([fill="#6B4226"],[fill="#8DB05E"]){fill:#2C2C30}
-:root[data-vibe="pure"]:is([data-accent="classic"],:not([data-accent])) #splash [stroke="#6B4226"]{stroke:#2C2C30}
-:root[data-vibe="pure"]:is([data-accent="classic"],:not([data-accent])) #splash [fill="#C8955A"]{fill:#9A9AA2}
 :root[data-vibe="black"]{--paper:#FFFFFF;--surface:#FFFFFF;--surface2:#F4F1EE;--ink:#121212;--muted:#5E5852;--line:#ECE6E0;--cherry:#7A4A2C;--leaf:#4E7A3A;--honey:#9A6B1F;--cherry-ink:#7A4A2C;--leaf-ink:#3F6530;--honey-ink:#7A5518;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}
 @media (prefers-color-scheme:dark){:root[data-vibe="black"]:not([data-theme="light"]){--paper:#000000;--surface:#0F0D0C;--surface2:#1C1916;--ink:#FFFFFF;--muted:#B5ABA2;--line:#2C2824;--cherry:#E2A877;--leaf:#A5CC86;--honey:#F0C477;--cherry-ink:#E2A877;--leaf-ink:#A5CC86;--honey-ink:#F0C477;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}}
 :root[data-vibe="black"][data-theme="dark"]{--paper:#000000;--surface:#0F0D0C;--surface2:#1C1916;--ink:#FFFFFF;--muted:#B5ABA2;--line:#2C2824;--cherry:#E2A877;--leaf:#A5CC86;--honey:#F0C477;--cherry-ink:#E2A877;--leaf-ink:#A5CC86;--honey-ink:#F0C477;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}
@@ -1771,6 +1765,12 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .crown-h{position:relative;display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
 .crown-k{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:#E2B866}
 .crown h3{margin:4px 0 0;font-family:var(--display);font-size:1.45rem;color:#FFF8EE}
+.crown-acts{display:flex;align-items:center;gap:8px;flex:none}
+/* A small Share button in a section's header (Top 5, Drinking now). */
+.sh-mini{display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:7px 14px;border-radius:var(--r-pill);border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-weight:700;font-size:.84rem;cursor:pointer}
+.sh-mini svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sh-mini.ic{width:38px;padding:0;justify-content:center}
+.shelf-h .sh-mini{margin-left:auto;align-self:center}
 .crown-btn{flex:none;min-height:38px;padding:7px 16px;border-radius:var(--r-pill);border:0;font:inherit;font-weight:700;font-size:.86rem;cursor:pointer;color:#2C1B12;background:linear-gradient(135deg,#F3D58F,#C9964A);box-shadow:0 6px 16px -6px rgba(201,150,74,.7)}
 .crown-yrs{position:relative;display:flex;gap:6px;margin-top:12px;overflow-x:auto;scrollbar-width:none}.crown-yrs::-webkit-scrollbar{display:none}
 .crown-yrs button{flex:none;padding:5px 13px;border-radius:var(--r-pill);border:0;font:inherit;font-size:.82rem;font-weight:700;cursor:pointer;color:rgba(255,248,238,.75);background:rgba(255,248,238,.08);box-shadow:inset 0 0 0 1px rgba(255,248,238,.14)}

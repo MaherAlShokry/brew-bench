@@ -280,7 +280,7 @@ function bcDraw(m){const W=BC.W,P=BC.PAD,IW=W-2*P;if(!BC_CV){BC_CV=document.crea
   bcBG(x,W,c.height,T);
   x.textBaseline='alphabetic';x.textAlign='left';if(T.motif)bcBand(x,W,T);
   bcCheck(x,W,T);
-  return bcBody(x,c,m,T)}
+  return m.draw?m.draw(x,c,T):bcBody(x,c,m,T)}
 // The background: the palette's deep tones, a soft glow, the origin's pattern (bold in the hero band, faint below), a faint
 // bean watermark and a very fine grain. Text never sits on it directly where it is busy: see bcBody.
 function bcBG(x,W,H,T){const c={height:H};
@@ -344,12 +344,17 @@ function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
       x.fillStyle=main?BC.HONEY:bcI(.85);x.fillText(t,px+20,y+32);px+=w+10}y+=78}else y+=20;
   // The spec sheet: the coffee on one row, the numbers on the next, in one panel divided by fine lines.
   const specRows=[m.coffee,m.tiles].filter(r=>r&&r.length);
-  if(specRows.length){const rows=specRows.map((r,ri)=>{const n=r.length,cw=IW/n,big=r===m.tiles,fs=big?(n>3?44:38):(n>3?28:32);x.font='700 '+fs+'px '+BC.F;
-      const cells=r.map(([k,v])=>[k,bcWrap(x,v||'–',cw-44,2)]),lines=Math.max(...cells.map(cc=>cc[1].length));return{n,cw,fs,cells,big,h:big?136:(lines>1?150:118)}});
+  if(specRows.length){const rows=specRows.map((r,ri)=>{const n=r.length,cw=IW/n,big=r===m.tiles;let fs=big?(n>3?50:58):(n>3?28:32);x.font='700 '+fs+'px '+BC.F;
+      // The figures are one line each: as large as the widest one allows.
+      if(big){const fit=()=>{x.font='800 '+fs+'px '+BC.F;return r.every(([,v])=>x.measureText(v||'–').width<=cw-52)};while(!fit()&&fs>30)fs-=2}
+      
+      if(!big)x.font='700 '+fs+'px '+BC.F;const cells=r.map(([k,v])=>[k,bcWrap(x,v||'–',cw-44,2)]),lines=Math.max(...cells.map(cc=>cc[1].length));return{n,cw,fs,cells,big,h:big?(lines>1?190:150):(lines>1?150:118)}});
     const H=rows.reduce((a,r)=>a+r.h,0);bcPane(x,P,y,IW,H,28);let ry=y;
     rows.forEach((r,ri)=>{if(ri){x.fillStyle=bcI(.10);x.fillRect(P+24,ry,IW-48,1.5)}
       r.cells.forEach(([k,ls],i)=>{const X=P+i*r.cw;if(i){x.fillStyle=bcI(.09);x.fillRect(X,ry+22,1.5,r.h-44)}
-        bcLabel(x,k,X+24,ry+44,r.big?BC.MUTED:BC.HONEY);x.font='700 '+r.fs+'px '+BC.F;x.fillStyle=BC.INK;ls.forEach((l,j)=>x.fillText(l,X+24,ry+(r.big?100:90)+j*(r.fs+8)))});ry+=r.h});
+        // The numbers sit centred in their column, the figure large in the accent; the coffee's row reads left to right.
+        if(r.big){x.textAlign='center';bcLabel(x,k,X+r.cw/2,ry+46,BC.MUTED);x.font='800 '+r.fs+'px '+BC.F;x.fillStyle=BC.HONEY;ls.forEach((l,j)=>x.fillText(l,X+r.cw/2,ry+112+j*(r.fs+8)));x.textAlign='left'}
+        else{bcLabel(x,k,X+24,ry+44,BC.HONEY);x.font='700 '+r.fs+'px '+BC.F;x.fillStyle=BC.INK;ls.forEach((l,j)=>x.fillText(l,X+24,ry+90+j*(r.fs+8)))}});ry+=r.h});
     y+=H+20}
   // Grind, with the dial drawn at the setting
   if(m.grind&&GRINDERS[m.grind.g]){const G=GRINDERS[m.grind.g],h=280,st=m.grind.c;bcPane(x,P,y,IW,h,28);bcDial(x,m.grind.g,st,P+146,y+h/2,108);const X=P+292;
@@ -528,6 +533,103 @@ async function beanCardImg(b){const style=Object.assign({},CARD_STYLE),P=b.proce
     tiles:[['Origin',b.origin?originName(b.origin):'–'],['Roasted',fmt(b.roastDate)],['Tried',b.tried?fmt(b.tried):'Not yet']],
     expect:b.flavours?{label:'Tasting notes',items:b.flavours.split(/\s*[,;·]\s*/).filter(Boolean)}:null,
     quote:b.notes?{label:'My notes',text:b.notes}:null,footer:'From my bean gallery'})}
+
+/* ---------- Designed cards: your Top 5 and your shelf ---------- */
+// The same header, background and footer as every card; the body is laid out for the collection it shows.
+function bcHead(x,kicker,date){const W=BC.W,P=BC.PAD;let y=100;bcBean(x,P+16,y-9,32,BC.HONEY);bcLabel(x,kicker,P+44,y);
+  x.textAlign='right';x.font='500 22px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(date,W-P,y);x.textAlign='left';
+  y+=30;const rl=x.createLinearGradient(P,0,W-P,0);rl.addColorStop(0,bcA(.55));rl.addColorStop(1,bcA(0));x.fillStyle=rl;x.fillRect(P,y,W-2*P,1.5);return y}
+function bcFoot(x,c,y,ft){const W=BC.W,P=BC.PAD;y+=70;const fr=x.createLinearGradient(P,0,W-P,0);fr.addColorStop(0,bcA(0));fr.addColorStop(.5,bcA(.45));fr.addColorStop(1,bcA(0));x.fillStyle=fr;x.fillRect(P,y,W-2*P,1.5);
+  y+=64;x.font='700 26px '+BC.F;const fw=x.measureText(ft).width;bcBean(x,W/2-fw/2-22,y-9,28,BC.HONEY);x.fillStyle=BC.INK;x.textAlign='left';x.fillText(ft,W/2-fw/2+6,y);
+  y+=40;x.textAlign='center';x.font='500 22px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(SITE_URL.replace(/^https?:\/\//,'').replace(/\/$/,''),W/2,y);x.textAlign='left';
+  const H=Math.round(y+70),out=document.createElement('canvas');out.width=W;out.height=H;out.getContext('2d').drawImage(c,0,0);return out}
+// A coffee's picture in a rounded frame: its photo, cropped to fill, or (without one) a tile in its origin's colours
+// with the bean mark, like the gallery's.
+function bcPic(x,img,origin,X,Y,w,h,r,edge,ew){x.save();bcRound(x,X,Y,w,h,r);x.clip();
+  if(img){const s=Math.max(w/img.width,h/img.height),dw=img.width*s,dh=img.height*s;x.drawImage(img,X+(w-dw)/2,Y+(h-dh)/2,dw,dh)}
+  else{const t=originTheme(origin),g=x.createLinearGradient(X,Y,X+w,Y+h);g.addColorStop(0,t.bg?t.bg[0]:'#5B3A26');g.addColorStop(1,t.bg?t.bg[2]:'#2E1C12');x.fillStyle=g;x.fillRect(X,Y,w,h);
+    bcBean(x,X+w/2,Y+h/2,Math.min(w,h)*0.42,'rgba(255,248,238,.22)','rgba(0,0,0,.18)')}
+  x.restore();if(edge){bcRound(x,X,Y,w,h,r);x.lineWidth=ew||3;x.strokeStyle=edge;x.stroke()}}
+// Centred text on up to `max` lines; returns the y below it.
+function bcCenter(x,t,cx,y,w,font,col,lh,max){x.font=font;x.fillStyle=col;x.textAlign='center';const L=bcWrap(x,t,w,max||2);L.forEach((l,i)=>x.fillText(l,cx,y+i*lh));x.textAlign='left';return y+(L.length-1)*lh}
+// The crown over the winner.
+function bcCrown(x,cx,cy,s,col){x.save();x.translate(cx-s/2,cy-s/2);x.scale(s/24,s/24);x.beginPath();x.moveTo(3,8);x.lineTo(7.5,12);x.lineTo(12,5);x.lineTo(16.5,12);x.lineTo(21,8);x.lineTo(19,19);x.lineTo(5,19);x.closePath();x.fillStyle=col;x.fill();x.restore()}
+const BC_FRESH={rest:'#8FB3D6',peak:'#7CC48A',good:'#E2B866',fade:'#D08A6A'};
+
+// Your Top 5 of a year: a podium for the three medals (gold in the middle, raised, under a crown), then 4th and 5th,
+// then the honourable mentions, every coffee with its bag photo in its medal's colour.
+async function top5CardImg(y){const style=Object.assign({},CARD_STYLE),it=t5Items(y),hm=t5Hm(y),nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick,n=BEANS.filter(b=>beanYear(b)===y).length;
+  const imgs=await Promise.all(it.map(async c=>c.b&&c.b.img?bcLoad(await BIMG.get(c.id)):null));
+  return bcBlob({style,theme:originTheme(it[0]&&it[0].origin),draw:(x,c)=>{const W=BC.W,P=BC.PAD,IW=W-2*P;
+    let Y=bcHead(x,nick?nick+'’s favourites':'My favourite coffees',String(y));
+    // The title: "Top 5" large, the year in the accent.
+    // "Top 5 of 2026", as large as fits: the year in the accent, "of" quieter.
+    let fs=132;const parts=()=>{x.font='800 '+fs+'px '+BC.F;const a=x.measureText('Top 5 ').width,c2=x.measureText(String(y)).width;x.font='500 '+Math.round(fs*0.5)+'px '+BC.F;return[a,x.measureText('of ').width,c2]};
+    let pw=parts();while(pw[0]+pw[1]+pw[2]>IW&&fs>80){fs-=4;pw=parts()}
+    Y+=Math.round(fs*1.12);x.font='800 '+fs+'px '+BC.F;x.fillStyle=BC.INK;x.fillText('Top 5',P-4,Y);x.font='500 '+Math.round(fs*0.5)+'px '+BC.F;x.fillStyle=BC.MUTED;x.fillText('of',P-4+pw[0],Y);
+    x.font='800 '+fs+'px '+BC.F;x.fillStyle=BC.HONEY;x.fillText(String(y),P-4+pw[0]+pw[1],Y);
+    Y+=56;x.font='500 30px '+BC.F;x.fillStyle=BC.MUTED;x.fillText([n?n+' coffee'+(n===1?'':'s')+' tasted this year':'',hm.length?hm.length+' honourable mention'+(hm.length===1?'':'s'):''].filter(Boolean).join('  ·  '),P,Y);
+    // The podium: places 2, 1, 3.
+    const byRk=r=>it.findIndex(c=>c.rk===r),cols=[[2,P,250],[1,P+IW/2-170,340],[3,W-P-250,250]],top=Y+90;let low=top;
+    const slots=cols.map(([rk,X0,w])=>({rk,X0,w,i:byRk(rk)})).filter(s=>s.i>=0);
+    for(const s of slots){const c=it[s.i],med=MEDAL[s.rk],h=Math.round(s.w*1.25),yy=top+(s.rk===1?0:110);
+      if(s.rk===1)bcCrown(x,s.X0+s.w/2,yy-44,64,med);
+      // A soft glow of the medal's colour behind the frame.
+      x.save();x.shadowColor=hexA(med,.55);x.shadowBlur=40;bcRound(x,s.X0,yy,s.w,h,34);x.fillStyle=hexA(med,.35);x.fill();x.restore();
+      bcPic(x,imgs[s.i],c.origin,s.X0,yy,s.w,h,34,med,s.rk===1?7:5);
+      // The place, in a medal disc on the frame's lower edge.
+      const dy=yy+h,cx=s.X0+s.w/2;x.beginPath();x.arc(cx,dy,s.rk===1?40:34,0,TAU);x.fillStyle=med;x.fill();x.lineWidth=5;x.strokeStyle=BC.BG1;x.stroke();
+      x.font='800 '+(s.rk===1?38:32)+'px '+BC.F;x.fillStyle='#24160E';x.textAlign='center';x.textBaseline='middle';x.fillText(String(s.rk),cx,dy+2);x.textBaseline='alphabetic';x.textAlign='left';
+      let ty=dy+(s.rk===1?92:84);ty=bcCenter(x,c.name,cx,ty,s.w+(s.rk===1?40:20),'800 '+(s.rk===1?38:31)+'px '+BC.F,BC.INK,s.rk===1?44:37,2);
+      if(c.roaster){ty+=38;bcCenter(x,c.roaster,cx,ty,s.w+20,'500 24px '+BC.F,BC.MUTED,30,1)}
+      if(c.rating){ty+=40;const sz=s.rk===1?28:24;bcRating(x,'beans',c.rating,cx-(5*sz*1.18)/2,ty,sz)}
+      low=Math.max(low,ty+20)}
+    Y=low+30;
+    // 4th and 5th: a row each, photo, place, name, roastery and origin, rating.
+    const rest=it.filter(c=>c.rk>3);
+    if(rest.length){Y+=20;const rh=150;bcPane(x,P,Y,IW,rest.length*rh,30);
+      rest.forEach((c,k)=>{const ry=Y+k*rh,i=it.indexOf(c),med=MEDAL[c.rk];if(k){x.fillStyle=bcI(.09);x.fillRect(P+28,ry,IW-56,1.5)}
+        x.font='800 44px '+BC.F;x.fillStyle=med;x.fillText(String(c.rk),P+34,ry+rh/2+16);
+        bcPic(x,imgs[i],c.origin,P+90,ry+22,106,106,22,hexA(med,.8),3);
+        const sw=c.rating?5*24*1.18:0,tx=P+222,tw2=IW-222-sw-50;x.font='700 32px '+BC.F;x.fillStyle=BC.INK;x.fillText(bcWrap(x,c.name,tw2,1)[0],tx,ry+68);
+        x.font='500 23px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(bcWrap(x,[c.roaster,c.origin?originName(c.origin):''].filter(Boolean).join('  ·  ')||MEDALN[c.rk]+' place',tw2,1)[0],tx,ry+104);
+        if(c.rating)bcRating(x,'beans',c.rating,W-P-28-sw,ry+rh/2,24)});
+      Y+=rest.length*rh}
+    // The honourable mentions, as chips.
+    if(hm.length){Y+=56;bcLabel(x,'Honourable mentions',P,Y);Y+=26;Y=bcChips(x,hm.slice(0,8),Y)}
+    return bcFoot(x,c,Y,'From my bean gallery')}})}
+
+// Your shelf: every bag you're drinking as a card in a grid, its photo, name, roastery and origin, how fresh it is,
+// what's left in the bag and your rating, then the notes across your cups.
+async function shelfCardImg(){const style=Object.assign({},CARD_STYLE),sh=shelfOrder(),nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick;
+  const shown=sh.slice(0,8),more=sh.length-shown.length,imgs=await Promise.all(shown.map(async b=>b.img?bcLoad(await BIMG.get(b.id)):null));
+  const ros=new Set(sh.map(b=>(b.roaster||'').toLowerCase()).filter(Boolean)).size,ors=new Set(sh.map(b=>b.origin).filter(Boolean)).size;
+  const notes=[];sh.forEach(b=>(b.flavours||'').split(/\s*[,;·]\s*/).filter(Boolean).forEach(f=>{if(!notes.some(q=>q.toLowerCase()===f.toLowerCase()))notes.push(f)}));
+  return bcBlob({style,theme:originTheme(sh[0]&&sh[0].origin),draw:(x,c)=>{const W=BC.W,P=BC.PAD,IW=W-2*P;
+    let Y=bcHead(x,nick?'On '+nick+'’s shelf':'On my shelf',new Date().toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}));
+    Y+=130;x.font='800 112px '+BC.F;x.fillStyle=BC.INK;x.fillText('Drinking',P-4,Y);const dw=x.measureText('Drinking ').width;x.fillStyle=BC.HONEY;x.fillText('now',P-4+dw,Y);
+    // The counts, as three figures in a row.
+    Y+=52;const st=[[sh.length,sh.length===1?'bag open':'bags open'],[ros,ros===1?'roastery':'roasteries'],[ors,ors===1?'origin':'origins']];let sx=P;
+    st.forEach(([v,l])=>{x.font='800 46px '+BC.F;x.fillStyle=BC.HONEY;x.fillText(String(v),sx,Y+40);const vw=x.measureText(String(v)).width;x.font='500 26px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(l,sx+vw+12,Y+40);sx+=vw+12+x.measureText(l).width+44});
+    Y+=90;
+    // The bags, two to a row.
+    // Every card the same height: enough for the longest name in the grid (one or two lines), no more.
+    const gap=28,cw=(IW-gap)/2,ph=Math.round(cw*0.86);x.font='800 31px '+BC.F;const nl=Math.max(1,...shown.map(b=>bcWrap(x,beanTitle(b),cw-48,2).length)),chH=ph+52+nl*37+110;
+    shown.forEach((b,i)=>{const col=i%2,row=Math.floor(i/2),X=P+col*(cw+gap),yy=Y+row*(chH+gap),f=fresh(b),g=gramsLeft(b),fc=f?BC_FRESH[f.k]:bcI(.4);
+      bcPane(x,X,yy,cw,chH,30);bcPic(x,imgs[i],b.origin,X+14,yy+14,cw-28,ph-14,22);
+      // Freshness on the photo, as a tag.
+      const tag=f?'Day '+f.d+' · '+f.label:'No roast date';x.font='700 22px '+BC.F;const tgw=x.measureText(tag).width+56;bcRound(x,X+28,yy+28,tgw,44,22);x.fillStyle='rgba(18,11,7,.78)';x.fill();
+      x.beginPath();x.arc(X+28+24,yy+50,7,0,TAU);x.fillStyle=fc;x.fill();x.fillStyle='#FFF8EE';x.fillText(tag,X+28+40,yy+58);
+      let ty=yy+ph+52;x.font='800 31px '+BC.F;x.fillStyle=BC.INK;bcWrap(x,beanTitle(b),cw-48,2).forEach((l,k)=>x.fillText(l,X+24,ty+k*37));ty+=bcWrap(x,beanTitle(b),cw-48,2).length*37;
+      x.font='500 22px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(bcWrap(x,[b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join('  ·  ')||'Open bag',cw-48,1)[0],X+24,ty+4);
+      // What's left: a bar across the card, and the grams.
+      const by=yy+chH-58;if(g!=null&&b.bag>0){const pc=clamp(g/b.bag,0,1);bcRound(x,X+24,by,cw-48,10,5);x.fillStyle=bcI(.12);x.fill();if(pc>0){bcRound(x,X+24,by,Math.max(10,(cw-48)*pc),10,5);x.fillStyle=BC.HONEY;x.fill()}
+        x.font='600 21px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(g?g+' g left':'Bag empty',X+24,by+40)}
+      if(b.rating){const sz=20;bcRating(x,'beans',b.rating,X+cw-24-5*sz*1.18,by+33,sz)}});
+    Y+=Math.ceil(shown.length/2)*(chH+gap)-gap;
+    if(more){Y+=46;x.font='600 26px '+BC.F;x.fillStyle=BC.MUTED;x.fillText('and '+more+' more bag'+(more===1?'':'s')+' on the shelf',P,Y)}
+    if(notes.length){Y+=60;bcLabel(x,'In my cups',P,Y);Y+=26;Y=bcChips(x,notes.slice(0,10),Y)}
+    return bcFoot(x,c,Y,'From my bean gallery')}})}
 
 /* ---------- Sharing and saving the image ---------- */
 // Share where the phone can (WhatsApp, Instagram, Photos). Otherwise, and for Save on a phone, the card opens full size,

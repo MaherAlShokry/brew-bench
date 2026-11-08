@@ -108,6 +108,7 @@ const flagOf=k=>(oInfo(k)||{}).flag||'';
 const beanRank=b=>{const t=TOP3[beanYear(b)];return t?t.ids.indexOf(b.id)+1:0};
 const beanMention=b=>{const t=TOP3[beanYear(b)];return !!t&&(t.hm||[]).includes(b.id)};
 const inAnyTop=id=>Object.values(TOP3).some(t=>t.ids.includes(id)||(t.hm||[]).includes(id));
+const SH_ICO='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5M5 12v8h14v-8"/></svg>';
 const MEDAL=['','#C9964A','#A49C92','#A8673F','#7F8E97','#8C7B6B'],MEDALN=['','Gold','Silver','Bronze','4th','5th'];
 // How a place reads: "Gold · top 3 of 2026", "4th · top 5 of 2026".
 const placeLine=(rk,y)=>MEDALN[rk]+' · top '+(rk<=3?3:5)+' of '+y;
@@ -603,7 +604,7 @@ function podiumHTML(y,years){const t=TOP3[y],n=BEANS.filter(b=>beanYear(b)===y).
       '<span class="pm-rk">'+(i===0?CROWN:'')+(i+1)+'</span><b>'+esc(t3name(t,id))+'</b><small>'+esc((b?b.roaster:s.roaster)||'')+'</small></button>'};
   const yrs=[...new Set([cy,...years])].sort((a,b)=>b-a);
   return '<div class="crown-h"><div><span class="crown-k">'+(y===cy?'This year’s favourites':'Your history')+'</span><h3>Top 5 of '+y+'</h3></div>'+
-    (n?'<button type="button" class="crown-btn" data-top3="'+y+'" data-slot="0">'+(has?'Change':'Pick')+'</button>':'')+'</div>'+
+    '<div class="crown-acts">'+(t&&t.ids.some(Boolean)?'<button type="button" class="sh-mini ic" data-t5share="'+y+'" aria-label="Share your top 5 of '+y+'" title="Share">'+SH_ICO+'</button>':'')+(n?'<button type="button" class="crown-btn" data-top3="'+y+'" data-slot="0">'+(has?'Change':'Pick')+'</button>':'')+'</div></div>'+
     (yrs.length>1?'<div class="crown-yrs" role="group" aria-label="Year">'+yrs.map(x=>'<button type="button" data-py="'+x+'" aria-pressed="'+(x===y)+'">'+x+'</button>').join('')+'</div>':'')+
     '<div class="podium">'+[1,0,2].map(slot).join('')+'</div>'+
     // 4th and 5th beneath the podium, then the honourable mentions.
@@ -716,7 +717,7 @@ function shelfOrder(){const k=new Map();for(const b of BEANS.filter(x=>x.shelf))
     k.set(b,{s:b.tried||used>0||beanBrews(b).length?1:0,u:used})}
   return [...k.keys()].sort((a,b)=>{const x=k.get(a),y=k.get(b);return (y.s-x.s)||(y.u-x.u)||(a.roaster||'').localeCompare(b.roaster||'',undefined,{sensitivity:'base'})||beanTitle(a).localeCompare(beanTitle(b))})}
 function shelfHTML(){const sh=shelfOrder();
-  return '<div class="shelf-h"><b>Drinking now</b><span>'+(sh.length?sh.length+' open bag'+(sh.length===1?'':'s'):'')+'</span></div>'+
+  return '<div class="shelf-h"><b>Drinking now</b><span>'+(sh.length?sh.length+' open bag'+(sh.length===1?'':'s'):'')+'</span>'+(sh.length?'<button type="button" class="sh-mini ic" data-shelfshare aria-label="Share what you’re drinking" title="Share">'+SH_ICO+'</button>':'')+'</div>'+
     (sh.length?'<div class="clist now">'+sh.map((b,i)=>coffeeRow(b,true,i)).join('')+'</div>'
      :'<p class="shelf-empty">The bags you’re drinking now show here, with how fresh they are and what’s left. Mark a coffee as “Drinking it” from its page.</p>')}
 // The trophies you've earned, along the top of the cabinet.
@@ -854,6 +855,8 @@ $('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-add')){openB
   const po=e.target.closest('[data-ppo]');if(po){openOrigin(po.dataset.ppo);return}
   const oo=e.target.closest('[data-o]');if(oo){showTab('map');selectOrigin(oo.dataset.o,true);return}
   const py=e.target.closest('[data-py]');if(py){BPOD=+py.dataset.py;renderTop3View();if(py.classList.contains('t3tile'))$('bv-top3').scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'});return}
+  const t5=e.target.closest('[data-t5share]');if(t5){openShare(top5Doc(+t5.dataset.t5share));return}
+  if(e.target.closest('[data-shelfshare]')){openShare(shelfDoc());return}
   const t=e.target.closest('[data-top3]');if(t){openTop3(+t.dataset.top3,t.dataset.slot==='hm'?'hm':+(t.dataset.slot||0));return}
   const sa=e.target.closest('[data-scanadd]');if(sa){addScanToGallery(+sa.dataset.scanadd);return}
   const sc=e.target.closest('[data-scan]');if(sc){openSavedScan(+sc.dataset.scan);return}
@@ -941,6 +944,22 @@ function beanDoc(b){const P=b.process&&PROCESSES[b.process];
   return{title:beanTitle(b),sub:(b.roaster?b.roaster+' | ':'')+'Rated '+(b.rating||'–')+' of 5',file:'coffee-'+beanTitle(b),
     card:()=>beanCardImg(b),cardTheme:()=>originTheme(b.origin),cardName:'coffee-card',cardTitle:'Coffee card',cardSub:'This coffee as one image: the bag, your rating in beans, where it’s from and what you tasted.',
     blocks:[{kv:[['Origin',b.origin?originName(b.origin):'-'],['Process',P?P.name:'-'],[b.vars?'Varieties':'Variety',b.variety?varsName(b):'-'],['Roast',b.roast||'-']]},...(b.flavours?[{h:'Tasting notes',p:b.flavours}]:[]),...(b.notes?[{h:'Notes',p:b.notes}]:[])]}}
+
+// The year's favourites, shared: the five in order (a coffee since removed from the gallery keeps its snapshot), then
+// the honourable mentions.
+function t5Items(y){const t=TOP3[y];if(!t)return[];return t.ids.map((id,i)=>{if(!id)return null;const b=beanById(id),s=(t.snap||[]).find(x=>x.id===id)||{};
+  return{rk:i+1,id,b,name:t3name(t,id),roaster:(b?b.roaster:s.roaster)||'',origin:(b?b.origin:s.origin)||'',rating:+(b?b.rating:s.rating)||0}}).filter(Boolean)}
+const t5Hm=y=>{const t=TOP3[y];return t?(t.hm||[]).map(id=>t3name(t,id)):[]};
+function top5Doc(y){const it=t5Items(y),hm=t5Hm(y),line=x=>'#'+x.rk+' '+x.name+([x.roaster,x.origin?originName(x.origin):''].filter(Boolean).length?' ('+[x.roaster,x.origin?originName(x.origin):''].filter(Boolean).join(', ')+')':'')+(x.rating?' · '+x.rating+' of 5':'');
+  return{title:'My top 5 of '+y,sub:it.length+' favourite coffee'+(it.length===1?'':'s')+(hm.length?' and '+hm.length+' honourable mention'+(hm.length===1?'':'s'):''),file:'top-5-'+y,
+    card:()=>top5CardImg(y),cardTheme:()=>originTheme(it[0]&&it[0].origin),cardName:'top-5-'+y,cardTitle:'Top 5 card',cardSub:'Your favourite coffees of '+y+' as one image: in order, with your ratings and your honourable mentions.',
+    blocks:[{h:'Top 5 of '+y,list:it.map(line)},...(hm.length?[{h:'Honourable mentions',list:hm}]:[])]}}
+// What's on the shelf, shared: every bag you're drinking, in the shelf's order, with how fresh it is and what's left.
+function shelfLine(b){const f=fresh(b),g=gramsLeft(b);return[b.roaster,b.origin?originName(b.origin):'',f?'Day '+f.d+', '+f.label.toLowerCase():'',g!=null?(g?g+' g left':'bag empty'):''].filter(Boolean).join(' · ')}
+function shelfDoc(){const sh=shelfOrder();
+  return{title:'What I’m drinking now',sub:sh.length+' open bag'+(sh.length===1?'':'s'),file:'drinking-now',
+    card:()=>shelfCardImg(),cardTheme:()=>originTheme(sh[0]&&sh[0].origin),cardName:'drinking-now',cardTitle:'Shelf card',cardSub:'The bags you’re drinking as one image: each coffee, how fresh it is, what’s left and your rating.',
+    blocks:[{h:'Drinking now',list:sh.map(b=>beanTitle(b)+(shelfLine(b)?' ('+shelfLine(b)+')':'')+(b.rating?' · '+b.rating+' of 5':''))}]}}
 
 // Brewing a gallery coffee: the dial-in takes its process, variety, roast and age, and remembers which coffee it is.
 function useBean(b){S.bean=okSBean({name:beanTitle(b),roaster:b.roaster,origin:b.origin,id:b.id});S.bsig='';S.bday='';beanSync()}
