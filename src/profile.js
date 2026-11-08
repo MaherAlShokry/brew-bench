@@ -105,17 +105,14 @@ function accountHTML(){
       (BIOM?'<div class="me-row"><span class="me-ic" aria-hidden="true">'+FP_SVG+'</span><span class="me-rt"><b>Sign in with your '+bioWord()+'</b><small>'+(BIOM.saved&&BIOM.email===ACCT.email?'On for this phone':'Off')+'</small></span><button type="button" class="linkbtn" id="pf-bio">'+(BIOM.saved&&BIOM.email===ACCT.email?'Turn off':'Turn on')+'</button></div>':'')+syncLine()+'</div>';
   if(!AUTH_ON)return '<p class="me-fine">Saved on this device.</p>';
   return '<div class="me-cta"><button type="button" class="btn" id="pf-signin">Sign in or create an account</button></div>'}
-// No profile yet: the page still shows your coffee so far (the numbers and your taste), and what a profile adds.
-const PERK_SVG={me:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',pin:'<path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/>',
-  sync:'<path d="M20 12a8 8 0 0 1-14.3 4.9M4 12a8 8 0 0 1 14.3-4.9"/><path d="M18.5 3v4.2h-4.2M5.5 21v-4.2h4.2"/>'};
-function blankBody(){const st=profileStats(),any=st.some(([n])=>+n>0);
-  const perks=[['me','Your name and picture','On your brew cards, shared logs and the top bar.'],['pin','About you','Where you brew, your brewer and your favourite origin.'],
-    AUTH_ON&&['sync','On every phone','Sign in to keep your coffees, brews and trophies in sync.']].filter(Boolean);
-  return '<div class="me-body">'+(any?'<section class="me-sec" aria-label="Your coffee so far"><h3 class="me-sh">Your coffee so far</h3><div class="me-stats">'+st.map(([n,l])=>'<span><b>'+n+'</b>'+l+'</span>').join('')+'</div></section>'+tasteHTML():'')+
-    '<section class="me-sec" aria-label="What a profile adds"><h3 class="me-sh">What a profile adds</h3><ul class="me-perks">'+perks.map(([i,t,d])=>'<li><span class="me-pi" aria-hidden="true"><svg viewBox="0 0 24 24">'+PERK_SVG[i]+'</svg></span><span><b>'+t+'</b><small>'+d+'</small></span></li>').join('')+'</ul></section>'+
+// No profile yet: under the header, your coffee so far (the numbers and your taste) when there is any. With nothing
+// yet, the header fills the page.
+const blankAny=()=>profileStats().some(([n])=>+n>0);
+function blankBody(){if(!blankAny())return ACCT?'<div class="me-body">'+accountHTML()+'</div>':'';
+  return '<div class="me-body"><section class="me-sec" aria-label="Your coffee so far"><h3 class="me-sh">Your coffee so far</h3><div class="me-stats">'+profileStats().map(([n,l])=>'<span><b>'+n+'</b>'+l+'</span>').join('')+'</div></section>'+tasteHTML()+
     (ACCT?accountHTML():'')+'</div>'}
 function meHTML(){const p=PROFILE,x='<button class="vd-close me-x" id="vd-x" aria-label="Close">✕</button>';
-  if(!p)return '<div class="me-hero blank">'+x+CUP_SVG+'<span class="me-k">The Brew Bench</span><h2 id="vd-title">Who’s brewing?</h2>'+
+  if(!p)return '<div class="me-hero blank'+(blankAny()?'':' full')+'">'+x+CUP_SVG+'<span class="me-k">The Brew Bench</span><h2 id="vd-title">Who’s brewing?</h2>'+
       '<p>A nickname, a face and a few words about the cups you love.</p><div class="me-acts"><button type="button" class="btn me-main" id="pf-new">Create your profile</button>'+
       (AUTH_ON&&!ACCT?'<button type="button" class="btn me-ghost" id="pf-signin">I have an account</button>':'')+'</div></div>'+blankBody();
   // What you told us about yourself sits with who you are (under your words), as one line of plain facts. The numbers
