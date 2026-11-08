@@ -73,8 +73,6 @@ for v in vibes:
     for mode, idx in MODES.items():
         pal = v[idx]
         col = {k: pal[k] for k in ('cherry', 'honey', 'leaf', 'paper')}
-        if vibe == 'pure':  # Pure stays black and white: the logos' gold and green turn grey, as in the app
-            col['honey'] = col['leaf'] = '#8E8E96'
         bg = f'ic_bg_{vibe}_{mode}'
         colors.append(f'    <color name="{bg}">{pal["paper"]}</color>')
         for logo in LOGO_KEYS:
