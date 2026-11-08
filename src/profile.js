@@ -117,7 +117,7 @@ function meHTML(){const p=PROFILE,x='<button class="vd-close me-x" id="vd-x" ari
       (AUTH_ON&&!ACCT?'<button type="button" class="btn me-ghost" id="pf-signin">I have an account</button>':'')+'</div></div>'+blankBody();
   // What you told us about yourself sits with who you are (under your words), as one line of plain facts. The numbers
   // and "Your coffee taste" below are what your coffees and cups show.
-  const dna=[p.city&&['📍','Brews in',p.city],p.brewer&&['☕','Brewer',BREWERS[p.brewer].name],
+  const dna=[p.city&&['📍','Brews in',p.city],p.brewer&&['☕','Favourite brewer',BREWERS[p.brewer].name],
     p.origin&&['<span class="me-flag">'+flagOf(p.origin)+'</span>','Favourite origin',originName(p.origin)]].filter(Boolean);
   const bg=bannerBg(p),since=new Date(p.since).toLocaleDateString(undefined,{month:'long',year:'numeric'});
   // A cover strip (your banner), your picture overlapping its edge, and who you are on the page under it.
