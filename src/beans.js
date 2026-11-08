@@ -789,7 +789,8 @@ function stampURL(k){if(STAMPS.has(k))return STAMPS.get(k);let u='';
 const STAMP_WAIT='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240"><circle cx="120" cy="120" r="92" fill="none" stroke="rgba(120,80,40,.18)" stroke-width="3" stroke-dasharray="6 8"/></svg>');
 const idle=f=>window.requestIdleCallback?requestIdleCallback(f,{timeout:300}):setTimeout(f,16);
 function fillStamps(root){const left=[...root.querySelectorAll('img[data-stamp]')].filter(i=>!STAMPS.has(i.dataset.stamp));
-  const next=()=>{const im=left.shift();if(!im||!im.isConnected)return;const u=stampURL(im.dataset.stamp);root.querySelectorAll('img[data-stamp="'+im.dataset.stamp+'"]').forEach(x=>{if(u)x.src=u});if(left.length)idle(next)};
+  // Each stamp is a canvas drawing, so none is drawn while you're moving between pages.
+  const next=()=>{if(performance.now()-NAV_AT<800){setTimeout(()=>idle(next),400);return}const im=left.shift();if(!im||!im.isConnected)return;const u=stampURL(im.dataset.stamp);root.querySelectorAll('img[data-stamp="'+im.dataset.stamp+'"]').forEach(x=>{if(u)x.src=u});if(left.length)idle(next)};
   root.querySelectorAll('img[data-stamp]').forEach(i=>{if(STAMPS.has(i.dataset.stamp))i.src=STAMPS.get(i.dataset.stamp)});if(left.length)idle(next)}
 /* Trophies have their own page (a sheet), opened from the trophy row and "All trophies": the season, seasonal
    trophies and the medal grid. The passport keeps to stamps and origins. */

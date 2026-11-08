@@ -1015,7 +1015,7 @@ const ALWAYS={explore:()=>renderExplore(),settings:()=>renderSettings(),beans:()
   // The Beans row on the dial-in follows the gallery: a coffee added, renamed or removed shows on the next visit.
   dial:()=>{if(window.BEANS_OK){if(beanSync())retuneIfAuto();renderDBean()}renderLastBrew()},
   // The log's coffee card and the bag's notes follow the gallery too.
-  log:()=>{renderLBean();renderPred();renderFlForm()},
+  log:()=>{if(LOGL_STALE)renderLogList(1);renderLBean();renderPred();renderFlForm()},
   // The countdown stops ticking when you leave the page; coming back starts it again.
   champs:()=>{if(BUILT.champs)renderCountdown()}};
 // Pages are built the first time they're opened. So that first tap isn't slow, the rest are built ahead, one per
@@ -1027,6 +1027,7 @@ function prebuildTabs(){const ids=['recipes','gear','variety','process','map','w
   let beans=false;
   const next=()=>{if(document.hidden){setTimeout(()=>idle(next),2000);return}if(performance.now()-NAV_AT<1500){setTimeout(()=>idle(next),900);return}
     if(!beans&&window.BEANS_OK){beans=true;try{renderBeansIfChanged();warmBeanPhotos()}catch(e){}idle(next);return}
+    if(LOGL_STALE&&BUILT.recipes){try{renderLogList(1)}catch(e){}idle(next);return}
     const id=ids.find(k=>!BUILT[k]);if(!id)return;BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
   setTimeout(()=>idle(next),2500)}
 function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove());if(LAZY[id]&&!BUILT[id]){BUILT[id]=1;LAZY[id]()}if(ALWAYS[id])ALWAYS[id]()}
@@ -2090,7 +2091,10 @@ function openLogFilter(){openChoices({title:'Filter brews',one:'brew',get:k=>LF[
   secs:()=>{const people=GROUP?[...new Set(LOG.map(lWho))]:[];return [{h:'Rating',key:'min',opts:[[0,'All brews'],[4,'4 beans and up'],[5,'5 beans']]},
     people.length>1?{h:'Brewed by',key:'who',multi:true,chips:1,opts:[['all','Everyone'],...people.map(p=>[p,p==='me'?'Me':p])]}:null]}})}
 function openLogSort(){openChoices({title:'Sort brews',one:'brew',get:()=>LF.sort,set:(k,v)=>{LF.sort=v},render:()=>{saveLF();renderLogList()},count:()=>LOG.filter(lfKeep).length,secs:()=>[{key:'sort',opts:LOG_SORTS}]})}
-function renderLogList(){renderLogFilter();const q=LF.q.trim().toLowerCase();
+// The brew slider is only drawn while the Log page is open (or ahead of time, when the app is idle). A redraw asked
+// for while it's hidden just marks it stale, so opening the app no longer builds every brew card twice.
+let LOGL_STALE=true;
+function renderLogList(force){const sec=$('log');if(!force&&sec&&!sec.classList.contains('on')){LOGL_STALE=true;return}LOGL_STALE=false;renderLogFilter();const q=LF.q.trim().toLowerCase();
   LF.who=LF.who.filter(w=>GROUP&&LOG.some(l=>lWho(l)===w));
   let rows=LOG.map((l,i)=>[l,i]).filter(([l])=>lfKeep(l));
   LLN=rows.length;const ts=l=>l.ts||Date.parse(l.date)||0;
@@ -3229,10 +3233,17 @@ const BNGROUP={explore:'explore',settings:'settings',champs:'explore',words:'exp
 // If it still doesn't fit at the smallest size, the page's short name takes its place.
 const TABSHORT={flow:'Seed to cup',champs:'Championships',wheel:'Flavours',words:'Words',gear:'Gear',variety:'Varieties',map:'Origins'};
 let TITLE_ID='';
-function fitTitle(){const el=$('ab-title');if(!el)return;el.style.fontSize='';el.textContent=TABNAMES[TITLE_ID]||el.textContent;const room=()=>el.scrollWidth<=el.clientWidth+1;let f=parseFloat(getComputedStyle(el).fontSize);
+// Fitting the title means measuring it, which makes the browser lay the new page out early. The fit only depends on
+// the page, the screen width, the text size and the back button, so each one is measured once and then reused.
+const TFIT=new Map();
+function fitTitle(){const el=$('ab-title');if(!el)return;const bk=$('ab-back'),key=TITLE_ID+'|'+innerWidth+'|'+document.documentElement.dataset.text+'|'+document.documentElement.dataset.vibe+'|'+!!(bk&&!bk.hidden);
+  const hit=TFIT.get(key);if(hit){el.textContent=hit[0];el.style.fontSize=hit[1];return}
+  el.style.fontSize='';el.textContent=TABNAMES[TITLE_ID]||el.textContent;const room=()=>el.scrollWidth<=el.clientWidth+1;let f=parseFloat(getComputedStyle(el).fontSize);
   for(let i=0;i<8&&!room()&&f>14;i++){f=Math.max(14,f-1);el.style.fontSize=f+'px'}
-  if(!room()&&TABSHORT[TITLE_ID]){el.textContent=TABSHORT[TITLE_ID];el.style.fontSize='';f=parseFloat(getComputedStyle(el).fontSize);for(let i=0;i<8&&!room()&&f>14;i++){f=Math.max(14,f-1);el.style.fontSize=f+'px'}}}
-addEventListener('resize',()=>requestAnimationFrame(fitTitle));
+  if(!room()&&TABSHORT[TITLE_ID]){el.textContent=TABSHORT[TITLE_ID];el.style.fontSize='';f=parseFloat(getComputedStyle(el).fontSize);for(let i=0;i<8&&!room()&&f>14;i++){f=Math.max(14,f-1);el.style.fontSize=f+'px'}}
+  // Only keep a fit made with the real fonts in, and only for a known page title.
+  if(TABNAMES[TITLE_ID]&&el.clientWidth&&(!document.fonts||document.fonts.status==='loaded'))TFIT.set(key,[el.textContent,el.style.fontSize])}
+addEventListener('resize',()=>{TFIT.clear();requestAnimationFrame(fitTitle)});
 // The page's own heading says where you are, so the top bar's title waits until that heading scrolls up under the bar,
 // then takes over (and hands back on the way down). Pages without a heading keep the bar's title.
 let TIO_T=null;const TIO='IntersectionObserver' in window?new IntersectionObserver(es=>{for(const e of es)if(e.target===TIO_T)$('appbar').classList.toggle('title-off',e.isIntersecting)},{rootMargin:'-84px 0px 0px 0px'}):null;
