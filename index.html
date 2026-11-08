@@ -8087,7 +8087,8 @@ function drawShCard(){const d=$('sharesheet'),doc=SHDOC,n=++SHN;SHCARD=null;cons
   requestAnimationFrame(()=>setTimeout(()=>{if(n!==SHN)return;
   shCardFor(doc,st).then(bl=>{if(SHDOC!==doc||n!==SHN||!bl)return;SHCARD=bl;const pv=d.querySelector('.shcard-pv');if(!pv)return;pv.classList.remove('busy');
     const u=URL.createObjectURL(bl);pv.innerHTML='<img src="'+u+'" alt="Your brew card">';pv.querySelector('img').onload=()=>setTimeout(()=>URL.revokeObjectURL(u),1000);
-    const other={mode:st.mode==='dark'?'light':'dark',col:st.col};(window.requestIdleCallback||(f=>setTimeout(f,400)))(()=>{if(SHDOC===doc&&d.open)shCardFor(doc,other).catch(()=>{})})}).catch(()=>{const ph=d.querySelector('.shcard-ph');if(ph)ph.textContent='Couldn’t draw the card'})},0))}
+    // The other look is drawn ahead while the sheet sits idle, except for a card that takes long to draw (a big gallery).
+    const other={mode:st.mode==='dark'?'light':'dark',col:st.col};if(!doc.heavy)(window.requestIdleCallback||(f=>setTimeout(f,400)))(()=>{if(SHDOC===doc&&d.open)shCardFor(doc,other).catch(()=>{})})}).catch(()=>{const ph=d.querySelector('.shcard-ph');if(ph)ph.textContent='Couldn’t draw the card'})},0))}
 // One swatch per colour, painted in what the card would use: its background and its accent.
 function shSwatches(doc){const T=(doc.cardTheme&&doc.cardTheme())||OT.house,keep=Object.assign({},BC);
   const h=cardCols().map(([k,n])=>{const t=cardStyle(T,{mode:CARD_STYLE.mode,col:k}),lab=k==='origin'?(T.key?(flagOf(T.key)+' '+T.name):'House'):n;
@@ -8862,7 +8863,9 @@ const beanTitle=b=>b.name||(b.origin?originName(b.origin)+(b.variety?' '+vName(b
 const flagOf=k=>(oInfo(k)||{}).flag||'';
 // The place a bean holds in its year's top 3 (1, 2 or 3), or 0.
 const beanRank=b=>{const t=TOP3[beanYear(b)];return t?t.ids.indexOf(b.id)+1:0};
-const beanMention=b=>{const t=TOP3[beanYear(b)];return !!t&&(t.hm||[]).includes(b.id)};
+// Up to three honourable mentions a year. A year saved with more (from before the limit) keeps them, but shows its first three.
+const HM_MAX=3,hmOf=t=>(t&&t.hm||[]).slice(0,HM_MAX);
+const beanMention=b=>{const t=TOP3[beanYear(b)];return !!t&&hmOf(t).includes(b.id)};
 const inAnyTop=id=>Object.values(TOP3).some(t=>t.ids.includes(id)||(t.hm||[]).includes(id));
 const SH_ICO='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5M5 12v8h14v-8"/></svg>';
 const MEDAL=['','#C9964A','#A49C92','#A8673F','#7F8E97','#8C7B6B'],MEDALN=['','Gold','Silver','Bronze','4th','5th'];
@@ -9368,7 +9371,7 @@ function podiumHTML(y,years){const t=TOP3[y],n=BEANS.filter(b=>beanYear(b)===y).
       const b=beanById(id),s=(t.snap||[]).find(x=>x.id===id)||{},v=b||Object.assign({id,img:true,origin:''},s);
       return '<button type="button" class="t45c" '+(b?'data-bean="'+id+'"':'data-top3="'+y+'" data-slot="'+i+'"')+'><span class="t45n">'+(i+1)+'</span>'+beanPic(Object.assign({},v,{img:b?b.img:true}),'xs')+'<span class="t45t"><b>'+esc(t3name(t,id))+'</b><small>'+esc((b?b.roaster:s.roaster)||'')+'</small></span></button>'}).join('')+'</div>':'')+
     (t&&(t.hm||[]).length||n>3?'<div class="t3hm"><div class="t3hm-h"><span>'+HM_SVG+' Honourable mentions</span>'+(n?'<button type="button" class="linkbtn" data-top3="'+y+'" data-slot="hm">'+(t&&(t.hm||[]).length?'Change':'Add')+'</button>':'')+'</div>'+
-      (t&&(t.hm||[]).length?'<div class="t3hm-l">'+(t.hm||[]).map(id=>{const b=beanById(id),s=(t.snap||[]).find(x=>x.id===id)||{},v=b||Object.assign({id,img:true,origin:''},s);
+      (t&&(t.hm||[]).length?'<div class="t3hm-l">'+hmOf(t).map(id=>{const b=beanById(id),s=(t.snap||[]).find(x=>x.id===id)||{},v=b||Object.assign({id,img:true,origin:''},s);
         return '<button type="button" class="t3hm-i" '+(b?'data-bean="'+id+'"':'')+'>'+beanPic(Object.assign({},v,{img:b?b.img:true}),'av')+'<small>'+esc(t3name(t,id))+'</small></button>'}).join('')+'</div>'
        :'<p class="t3hm-e">The ones that nearly made it: coffees you want to remember.</p>')+'</div>':'')+
     (has?'':'<p class="crown-empty">'+(n?'Tap a place to crown a coffee of '+y+'. Your picks stay in your history after the year ends.':'Add the coffees you drink in '+y+', then crown your favourites here.')+'</p>')}
@@ -9706,15 +9709,15 @@ function beanDoc(b){const P=b.process&&PROCESSES[b.process];
 // the honourable mentions.
 function t5Items(y){const t=TOP3[y];if(!t)return[];return t.ids.map((id,i)=>{if(!id)return null;const b=beanById(id),s=(t.snap||[]).find(x=>x.id===id)||{};
   return{rk:i+1,id,b,name:t3name(t,id),roaster:(b?b.roaster:s.roaster)||'',origin:(b?b.origin:s.origin)||'',rating:+(b?b.rating:s.rating)||0}}).filter(Boolean)}
-const t5Hm=y=>{const t=TOP3[y];return t?(t.hm||[]).map(id=>t3name(t,id)):[]};
+const t5Hm=y=>{const t=TOP3[y];return t?hmOf(t).map(id=>t3name(t,id)):[]};
 function top5Doc(y){const it=t5Items(y),hm=t5Hm(y),line=x=>'#'+x.rk+' '+x.name+([x.roaster,x.origin?originName(x.origin):''].filter(Boolean).length?' ('+[x.roaster,x.origin?originName(x.origin):''].filter(Boolean).join(', ')+')':'')+(x.rating?' · '+x.rating+' of 5':'');
-  return{title:'My top 5 of '+y,sub:it.length+' favourite coffee'+(it.length===1?'':'s')+(hm.length?' and '+hm.length+' honourable mention'+(hm.length===1?'':'s'):''),file:'top-5-'+y,
+  return{heavy:true,title:'My top 5 of '+y,sub:it.length+' favourite coffee'+(it.length===1?'':'s')+(hm.length?' and '+hm.length+' honourable mention'+(hm.length===1?'':'s'):''),file:'top-5-'+y,
     card:()=>top5CardImg(y),cardTheme:()=>originTheme(it[0]&&it[0].origin),cardName:'top-5-'+y,cardTitle:'Top 5 card',cardSub:'Your favourite coffees of '+y+' as one image: in order, with your ratings and your honourable mentions.',
     blocks:[{h:'Top 5 of '+y,list:it.map(line)},...(hm.length?[{h:'Honourable mentions',list:hm}]:[])]}}
 // What's on the shelf, shared: every bag you're drinking, in the shelf's order, with how fresh it is and what's left.
 function shelfLine(b){const f=fresh(b),g=gramsLeft(b);return[b.roaster,b.origin?originName(b.origin):'',f?'Day '+f.d+', '+f.label.toLowerCase():'',g!=null?(g?g+' g left':'bag empty'):''].filter(Boolean).join(' · ')}
 function shelfDoc(){const sh=shelfOrder();
-  return{title:'What I’m drinking now',sub:sh.length+' open bag'+(sh.length===1?'':'s'),file:'drinking-now',
+  return{heavy:true,title:'What I’m drinking now',sub:sh.length+' open bag'+(sh.length===1?'':'s'),file:'drinking-now',
     card:()=>shelfCardImg(),cardTheme:()=>originTheme(sh[0]&&sh[0].origin),cardName:'drinking-now',cardTitle:'Shelf card',cardSub:'The bags you’re drinking as one image: each coffee, how fresh it is, what’s left and your rating.',
     blocks:[{h:'Drinking now',list:sh.map(b=>beanTitle(b)+(shelfLine(b)?' ('+shelfLine(b)+')':'')+(b.rating?' · '+b.rating+' of 5':''))}]}}
 
@@ -9722,7 +9725,7 @@ function shelfDoc(){const sh=shelfOrder();
 // By roastery, A to Z (coffees without one last); within a roastery, the newest first.
 function galleryOrder(){const r=b=>(b.roaster||'').trim();return [...BEANS].sort((a,b)=>(!r(a))-(!r(b))||r(a).localeCompare(r(b),undefined,{sensitivity:'base'})||beanDay(b).localeCompare(beanDay(a))||(b.ts||0)-(a.ts||0))}
 function galleryDoc(){const all=galleryOrder();
-  return{title:'My coffee gallery',sub:all.length+' coffee'+(all.length===1?'':'s'),file:'coffee-gallery',
+  return{title:'My coffee gallery',sub:all.length+' coffee'+(all.length===1?'':'s'),file:'coffee-gallery',heavy:all.length>16,
     card:()=>galleryCardImg(),cardTheme:()=>originTheme(all[0]&&all[0].origin),cardName:'coffee-gallery',cardTitle:'Gallery card',cardSub:'Every coffee you’ve collected, by roastery, hung like prints on a wall: each with its photo, origin and your rating, the top 5s marked.',
     blocks:[{h:'My coffees',list:all.map(b=>beanTitle(b)+([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).length?' ('+[b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(', ')+')':'')+(b.rating?' · '+b.rating+' of 5':''))}]}}
 
@@ -9824,14 +9827,14 @@ function openTop3(y,start){const d=$('vd'),pool=BEANS.filter(b=>beanYear(b)===y)
       return '<button type="button" class="t3opt'+(on?' on':'')+'" data-t3="'+b.id+'" aria-pressed="'+on+'" style="--m:'+(mode==='places'?(MEDAL[r]||'var(--line)'):(m?'var(--honey)':'var(--line)'))+'">'+beanPic(b,'xs')+
       '<span class="t3o-tx"><b>'+esc(beanTitle(b))+'</b><small>'+esc([b.roaster,mode==='places'&&m?'Honourable mention':''].filter(Boolean).join(' · '))+'</small>'+beanRow(b.rating,'sm')+'</span><span class="t3o-r">'+(mode==='places'?(r||''):(m?HM_SVG:''))+'</span></button>'}).join('');
     $('t3-msg').innerHTML=mode==='places'?'Choose your <b style="color:color-mix(in srgb,'+MEDAL[act+1]+' 55%,var(--ink))">'+(act<3?MEDALN[act+1].toLowerCase():MEDALN[act+1]+' place')+'</b> coffee'+(slots[act]?', or tap it again to clear the place.':'.')
-      :'Tap the coffees that nearly made it. Up to ten'+(hm.length?': '+hm.length+' chosen.':'.');
+      :'Tap the coffees that nearly made it. Up to three'+(hm.length?': '+Math.min(hm.length,HM_MAX)+' of 3 chosen'+(hm.length>HM_MAX?'. Remove '+(hm.length-HM_MAX)+' to keep it to three.':'.'):'.');
     hydrateImgs($('t3-slots'));hydrateImgs($('t3-list'))};
   $('vd-in').innerHTML='<div class="vd-head" style="--c:'+MEDAL[1]+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:'+MEDAL[1]+'"></i>Favourites of '+y+'</span><h2 id="vd-title">Crown your favourites</h2>'+
     '<div class="seg" id="t3-mode" role="group" aria-label="Places or honourable mentions"></div><div class="t3slots five" id="t3-slots"></div><p class="vd-sub" id="t3-msg"></p></div>'+
     '<div class="vd-body"><div class="t3list" id="t3-list"></div><div class="actions"><button class="btn" id="t3-save">Save my favourites</button><button class="btn ghost" id="t3-clear">Clear all</button></div></div>';
   $('t3-slots').onclick=e=>{const x=e.target.closest('[data-unset]');if(x){slots[+x.dataset.unset]='';act=+x.dataset.unset;draw();return}const s=e.target.closest('[data-sl]');if(s){act=+s.dataset.sl;draw()}};
   $('t3-list').onclick=e=>{const o=e.target.closest('[data-t3]');if(!o)return;const id=o.dataset.t3;
-    if(mode==='hm'){const k=hm.indexOf(id);if(k>=0)hm.splice(k,1);else if(slots.includes(id)){toast('It already has a place in your top 5');return}else if(hm.length>=10){toast('Up to ten honourable mentions');return}else hm.push(id);draw();return}
+    if(mode==='hm'){const k=hm.indexOf(id);if(k>=0)hm.splice(k,1);else if(slots.includes(id)){toast('It already has a place in your top 5');return}else if(hm.length>=HM_MAX){toast('Up to three honourable mentions: remove one to add another');return}else hm.push(id);draw();return}
     const at=slots.indexOf(id);if(at===act)slots[act]='';else{if(at>=0)slots[at]=slots[act];slots[act]=id;hm=hm.filter(x=>x!==id);act=nextOpen(act)}draw()};
   $('t3-clear').onclick=()=>{slots=['','','','',''];hm=[];act=0;draw()};
   $('t3-save').onclick=()=>{const any=slots.some(Boolean)||hm.length;
@@ -10118,13 +10121,19 @@ function bcStamp(x,cx,cy,T){const R=92;x.save();x.translate(cx,cy);x.rotate(-0.1
 let BC_CV=null;
 function bcDraw(m){const W=BC.W,P=BC.PAD,IW=W-2*P;if(!BC_CV){BC_CV=document.createElement('canvas');BC_CV.width=W;BC_CV.height=4400}
   // A card that needs more room (a large gallery) gets a taller canvas; every other card draws on the usual one.
-  {const H0=Math.max(4400,Math.ceil(m.minH||0));if(BC_CV.height!==H0)BC_CV.height=H0}const c=BC_CV,x=c.getContext('2d');x.setTransform(1,0,0,1,0,0);x.globalAlpha=1;x.clearRect(0,0,W,c.height);
+  // Drawn at one and a half times the size (1620 px wide: sharp on any phone, and about what messaging apps keep), a
+  // very tall gallery a little less to keep memory in hand;
+  // everything is laid out in the card's own 1080-wide units and scaled once here.
+  // A card that knows its height draws on a canvas just that tall (the background is most of the drawing work).
+  const H0=m.minH?Math.ceil(m.minH):4400,S=BC.S=Math.min(1.5,Math.sqrt(26e6/(W*H0)));
+  if(BC_CV.width!==Math.round(W*S)||BC_CV.height!==Math.round(H0*S)){BC_CV.width=Math.round(W*S);BC_CV.height=Math.round(H0*S)}
+  const c=BC_CV,x=c.getContext('2d');x.setTransform(1,0,0,1,0,0);x.globalAlpha=1;x.clearRect(0,0,c.width,c.height);x.setTransform(S,0,0,S,0,0);x.imageSmoothingQuality='high';
   BC.F=getComputedStyle(document.body).fontFamily;
   // The origin's look (or the house espresso and honey): its accent colours are used throughout the card.
   const T=cardStyle(m.theme||OT.house,m.style||CARD_STYLE);
-  bcBG(x,W,c.height,T);
+  bcBG(x,W,H0,T);
   x.textBaseline='alphabetic';x.textAlign='left';if(T.motif)bcBand(x,W,T);
-  bcCheck(x,W,T);
+  bcCheck(x,W,T,H0);
   return m.draw?m.draw(x,c,T):bcBody(x,c,m,T)}
 // The background: the palette's deep tones, a soft glow, the origin's pattern (bold in the hero band, faint below), a faint
 // bean watermark and a very fine grain. Text never sits on it directly where it is busy: see bcBody.
@@ -10152,11 +10161,13 @@ function bcBG(x,W,H,T){const c={height:H};
 // the body (glow and pattern included), and stepped further from it if any of them falls short.
 // It reads a small copy of the card (a quarter of the size) rather than the card itself: reading pixels back from a
 // full-size canvas is slow on phones, and the background it measures is smooth enough to survive the shrink.
-function bcCheck(x,W,T){const P=BC.PAD,K=4,H0=2400,sm=document.createElement('canvas');sm.width=Math.ceil(W/K);sm.height=Math.ceil(H0/K);
-  const sx=sm.getContext('2d',{willReadFrequently:true});sx.drawImage(x.canvas,0,0,W,H0,0,0,sm.width,sm.height);const all=sx.getImageData(0,0,sm.width,sm.height).data;
+// The background is painted again, small, for this: copying the full-size card down to read it was most of a card's
+// drawing time on a phone.
+function bcCheck(x,W,T,Hbg){const P=BC.PAD,K=6,H0=2400,sm=document.createElement('canvas');sm.width=Math.ceil(W/K);sm.height=Math.ceil(H0/K);
+  const sx=sm.getContext('2d',{willReadFrequently:true});sx.scale(1/K,1/K);bcBG(sx,W,Hbg,T);if(T.motif)bcBand(sx,W,T);const all=sx.getImageData(0,0,sm.width,sm.height).data;
   const worst=(y0,y1,x0,x1)=>{const L=[];for(let yy=Math.floor(y0/K);yy<Math.ceil(y1/K);yy++)for(let xx=Math.floor(x0/K);xx<Math.ceil(x1/K);xx++){const i=(yy*sm.width+xx)*4,h=hexOf([all[i],all[i+1],all[i+2]]);L.push([relLum(h),h])}
     L.sort((a,b)=>a[0]-b[0]);return L[Math.floor(L.length*(BC.LIGHT?0.03:0.97))][1]};
-  const zs=[worst(70,112,P,W-P),worst(150,330,P,W-300),worst(330,470,P,W-P),worst(900,2400,P,W-P)];
+  const zs=[worst(70,112,P,W-P),worst(150,330,P,W-300),worst(330,470,P,W-P),worst(900,Math.min(2400,Hbg),P,W-P)];
   BC.HONEY=T.acc=ensureC(BC.HONEY,zs,BC.LIGHT?4.8:5.2,BC.LIGHT?'#1A0E08':'#FFFFFF')}
 function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
   // Header: the mark and kicker, the date, then a fine rule.
@@ -10260,12 +10271,12 @@ function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
   x.fillStyle=BC.INK;x.textAlign='left';x.fillText(ft,W/2-fw/2+6,y);
   y+=40;x.textAlign='center';x.font='500 22px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(SITE_URL.replace(/^https?:\/\//,'').replace(/\/$/,''),W/2,y);x.textAlign='left';
   // Trim to what was drawn.
-  const H=Math.round(y+70),out=document.createElement('canvas');out.width=W;out.height=H;out.getContext('2d').drawImage(c,0,0);
+  const H=Math.round(y+70),out=document.createElement('canvas');out.width=Math.round(W*BC.S);out.height=Math.round(H*BC.S);out.getContext('2d').drawImage(c,0,0);
   return out}
 // The look is taken when the card is asked for, not when it's drawn after the fonts load, so a card drawn ahead for
 // another look (see the share sheet) keeps the one it was asked with.
 const bcBlob=m=>{const st=m.style||Object.assign({},CARD_STYLE);return (async()=>{if(document.fonts&&document.fonts.ready)await document.fonts.ready;
-  const cv=bcDraw(Object.assign({},m,{style:st}));return new Promise(res=>cv.toBlob(res,'image/jpeg',0.92))})()};
+  const cv=bcDraw(Object.assign({},m,{style:st}));return new Promise(res=>cv.toBlob(res,'image/jpeg',0.94))})()};
 
 /* ---------- What each card shows ---------- */
 const AGITW={low:'Gentle',med:'Steady',high:'Lively'};
@@ -10387,7 +10398,7 @@ function bcHead(x,kicker,date){const W=BC.W,P=BC.PAD;let y=100;bcBean(x,P+16,y-9
 function bcFoot(x,c,y,ft){const W=BC.W,P=BC.PAD;y+=70;const fr=x.createLinearGradient(P,0,W-P,0);fr.addColorStop(0,bcA(0));fr.addColorStop(.5,bcA(.45));fr.addColorStop(1,bcA(0));x.fillStyle=fr;x.fillRect(P,y,W-2*P,1.5);
   y+=64;x.font='700 26px '+BC.F;const fw=x.measureText(ft).width;bcBean(x,W/2-fw/2-22,y-9,28,BC.HONEY);x.fillStyle=BC.INK;x.textAlign='left';x.fillText(ft,W/2-fw/2+6,y);
   y+=40;x.textAlign='center';x.font='500 22px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(SITE_URL.replace(/^https?:\/\//,'').replace(/\/$/,''),W/2,y);x.textAlign='left';
-  const H=Math.round(y+70),out=document.createElement('canvas');out.width=W;out.height=H;out.getContext('2d').drawImage(c,0,0);return out}
+  const H=Math.round(y+70),out=document.createElement('canvas');out.width=Math.round(W*BC.S);out.height=Math.round(H*BC.S);out.getContext('2d').drawImage(c,0,0);return out}
 // A coffee's picture in a rounded frame: its photo, cropped to fill, or (without one) a tile in its origin's colours
 // with the bean mark, like the gallery's.
 function bcPic(x,img,origin,X,Y,w,h,r,edge,ew){x.save();bcRound(x,X,Y,w,h,r);x.clip();
@@ -10410,7 +10421,11 @@ function bcChipLine(x,items,y){const W=BC.W,P=BC.PAD;x.font='500 27px '+BC.F;let
 // A ring for what's left in a bag, the grams in the middle.
 function bcLeftRing(x,cx,cy,R,pc,g){x.save();x.lineCap='round';x.lineWidth=Math.max(8,R*0.17);x.beginPath();x.arc(cx,cy,R,0,TAU);x.strokeStyle=bcI(.12);x.stroke();
   if(pc>0){x.beginPath();x.arc(cx,cy,R,-Math.PI/2,-Math.PI/2+TAU*pc);x.strokeStyle=BC.HONEY;x.stroke()}
-  x.textAlign='center';x.fillStyle=BC.INK;x.font='800 '+Math.round(R*0.5)+'px '+BC.F;x.fillText(g?String(g):'0',cx,cy+R*0.12);x.font='600 '+Math.round(R*0.27)+'px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(g?'g left':'empty',cx,cy+R*0.5);x.restore()}
+    // The grams with their unit beside them ("110 g"), "left" beneath.
+  x.textBaseline='alphabetic';if(g){const nf='800 '+Math.round(R*0.46)+'px '+BC.F,uf='700 '+Math.round(R*0.3)+'px '+BC.F;x.font=nf;const nw=x.measureText(String(g)).width;x.font=uf;const uw=x.measureText(' g').width,x0=cx-(nw+uw)/2;
+    x.textAlign='left';x.font=nf;x.fillStyle=BC.INK;x.fillText(String(g),x0,cy+R*0.1);x.font=uf;x.fillText(' g',x0+nw,cy+R*0.1)}
+  else{x.textAlign='center';x.font='800 '+Math.round(R*0.32)+'px '+BC.F;x.fillStyle=BC.INK;x.fillText('Empty',cx,cy+R*0.1)}
+  x.textAlign='center';x.font='600 '+Math.round(R*0.27)+'px '+BC.F;x.fillStyle=BC.MUTED;if(g)x.fillText('left',cx,cy+R*0.5);x.restore()}
 
 // Your Top 5 of a year, with room to breathe: the title, then a podium (the three medal coffees as framed photos on
 // steps in their medal's colours, gold raised in the middle in a soft glow under a crown) with each one's name, roastery
@@ -10418,7 +10433,7 @@ function bcLeftRing(x,cx,cy,R,pc,g){x.save();x.lineCap='round';x.lineWidth=Math.
 // brew card's height and the free space is shared out evenly between the sections.
 async function top5CardImg(y){const style=Object.assign({},CARD_STYLE),it=t5Items(y),hm=t5Hm(y),nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick,n=BEANS.filter(b=>beanYear(b)===y).length;
   const imgs=await Promise.all(it.map(async c=>c.b&&c.b.img?bcLoad(await BIMG.get(c.id)):null));
-  return bcBlob({style,theme:originTheme(it[0]&&it[0].origin),draw:(x,c)=>{const W=BC.W,P=BC.PAD,IW=W-2*P,H=2100,end=H-BC_FOOT;
+  return bcBlob({style,theme:originTheme(it[0]&&it[0].origin),minH:2100,draw:(x,c)=>{const W=BC.W,P=BC.PAD,IW=W-2*P,H=2100,end=H-BC_FOOT;
     const pod=[2,1,3].map(rk=>it.find(q=>q.rk===rk)).filter(Boolean),rest=it.filter(q=>q.rk>3),RH=128;
     const D={1:[280,350,110],2:[236,295,80],3:[236,295,56]},CG=26,LAB=196;
     let Y=bcHead(x,nick?nick+'’s favourites':'My favourite coffees',String(y));
@@ -10429,7 +10444,7 @@ async function top5CardImg(y){const style=Object.assign({},CARD_STYLE),it=t5Item
     x.font='800 '+fs+'px '+BC.F;x.fillStyle=BC.HONEY;x.fillText(String(y),P-3+pw[0]+pw[1],Y);
     Y+=56;x.font='500 28px '+BC.F;x.fillStyle=BC.MUTED;x.fillText([n?n+' coffee'+(n===1?'':'s')+' tasted this year':'',hm.length?hm.length+' honourable mention'+(hm.length===1?'':'s'):''].filter(Boolean).join('  ·  '),P,Y);
     // The sections' heights, and the space between them.
-    const hPod=pod.length?70+D[1][1]+D[1][2]+LAB:0,hRest=rest.length*RH,hHm=hm.length?128:0,secs=[hPod,hRest,hHm].filter(Boolean);
+    const hPod=pod.length?70+D[1][1]+D[1][2]+LAB:0,hRest=rest.length*RH,hHm=hm.length?hmH(x,hm.slice(0,3)):0,secs=[hPod,hRest,hHm].filter(Boolean);
     const gap=Math.max(56,Math.min(210,(end-Y-secs.reduce((a,b)=>a+b,0))/(secs.length+1)));
     if(pod.length){Y+=gap;const order=pod.map(q=>q.rk),tw=order.reduce((a,r)=>a+D[r][0],0)+CG*(order.length-1),base=Y+70+D[1][1]+D[1][2];let X=(W-tw)/2;const colX={};order.forEach(r=>{colX[r]=X;X+=D[r][0]+CG});
       if(colX[1]!=null){const cx=colX[1]+D[1][0]/2,cy=Y+70+D[1][1]/2,gl=x.createRadialGradient(cx,cy,20,cx,cy,460);gl.addColorStop(0,hexA(MEDAL[1],.34));gl.addColorStop(1,hexA(MEDAL[1],0));x.fillStyle=gl;x.fillRect(cx-480,cy-480,960,960)}
@@ -10456,7 +10471,7 @@ async function top5CardImg(y){const style=Object.assign({},CARD_STYLE),it=t5Item
         x.font='500 22px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(bcWrap(x,[q.roaster,q.origin?originName(q.origin):''].filter(Boolean).join('  ·  ')||MEDALN[q.rk]+' place',tw2,1)[0],tx,cy+29);
         if(q.rating)bcRating(x,'beans',q.rating,W-P-28-sw,cy,22)});
       Y+=hRest}
-    if(hm.length){Y+=gap;bcLabel(x,'Honourable mentions',P,Y+22);bcChipLine(x,hm,Y+48)}
+    if(hm.length){Y+=gap;bcLabel(x,'Honourable mentions',P,Y+22);bcChips(x,hm.slice(0,3),Y+48)}
     return bcFoot(x,c,end,'From my bean gallery')}})}
 
 // Your shelf: every bag you're drinking as a row in one panel (photo, name, roastery and origin, a freshness tag, your
@@ -10465,7 +10480,8 @@ async function shelfCardImg(){const style=Object.assign({},CARD_STYLE),sh=shelfO
   const many=sh.length>12,shown=many?sh.slice(0,11):sh,more=sh.length-shown.length,imgs=await Promise.all(shown.map(async b=>b.img?bcLoad(await BIMG.get(b.id)):null));
   const ros=new Set(sh.map(b=>(b.roaster||'').toLowerCase()).filter(Boolean)).size,ors=new Set(sh.map(b=>b.origin).filter(Boolean)).size;
   const notes=[];sh.forEach(b=>(b.flavours||'').split(/\s*[,;·]\s*/).filter(Boolean).forEach(f=>{if(!notes.some(q=>q.toLowerCase()===f.toLowerCase()))notes.push(f)}));
-  return bcBlob({style,theme:originTheme(sh[0]&&sh[0].origin),draw:(x,c)=>{const W=BC.W,P=BC.PAD,IW=W-2*P,rh=shown.length<=3?200:176;
+  const rhS=shown.length<=3?200:176,minH=130+118+40+58+48+shown.length*rhS+(more?64:0)+(notes.length?146:0)+BC_FOOT+40;
+  return bcBlob({style,theme:originTheme(sh[0]&&sh[0].origin),minH,draw:(x,c)=>{const W=BC.W,P=BC.PAD,IW=W-2*P,rh=rhS;
     let Y=bcHead(x,nick?'On '+nick+'’s shelf':'On my shelf',new Date().toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}));
     Y+=118;x.font='800 104px '+BC.F;x.fillStyle=BC.INK;x.fillText('Drinking',P-4,Y);const dw=x.measureText('Drinking ').width;x.fillStyle=BC.HONEY;x.fillText('now',P-4+dw,Y);
     Y+=40;bcStatPills(x,P,Y,[[sh.length,sh.length===1?'bag open':'bags open'],[ros,ros===1?'roastery':'roasteries'],[ors,ors===1?'origin':'origins']]);Y+=58+48;
@@ -10484,6 +10500,8 @@ async function shelfCardImg(){const style=Object.assign({},CARD_STYLE),sh=shelfO
     Y+=ph;
     if(notes.length){Y+=64;bcLabel(x,'In my cups',P,Y);bcChipLine(x,notes,Y+26);Y+=26+56}
     return bcFoot(x,c,Y,'From my bean gallery')}})}
+// How tall a set of chips will be once wrapped (the same measure bcChips uses).
+function hmH(x,items){const W=BC.W,P=BC.PAD;x.font='500 27px '+BC.F;let px=P,rows=1;for(const t of items){const w=x.measureText(t).width+48;if(px+w>W-P){px=P;rows++}px+=w+12}return 48+56+(rows-1)*70}
 // Counts as pills: the figure in the accent, the word after it.
 function bcStatPills(x,X,Y,list){let px=X;list.forEach(([v,l])=>{x.font='800 30px '+BC.F;const vw=x.measureText(String(v)).width;x.font='500 26px '+BC.F;const lw=x.measureText(l).width,w=vw+lw+58;
   bcRound(x,px,Y,w,58,29);x.fillStyle=BC.CHIP;x.fill();x.strokeStyle=bcA(.38);x.lineWidth=1.5;x.stroke();
@@ -10495,7 +10513,7 @@ function bcStatPills(x,X,Y,list){let px=X;list.forEach(([v,l])=>{x.font='800 30p
 async function galleryCardImg(){const style=Object.assign({},CARD_STYLE),nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick;
   // Every coffee is shown: more to a row as the gallery grows, so even a large one stays a sensible length.
   const all=galleryOrder(),N=all.length,cols=N<=9?3:N<=40?4:N<=90?5:6,shown=all,more=0,K={3:0,4:1,5:2,6:3}[cols],pick=a=>a[K];
-  const imgs=await Promise.all(shown.map(async b=>b.img?bcLoad(BIMG.peekThumb(b.id)||await BIMG.thumb(b.id)):null));
+  const imgs=await Promise.all(shown.map(async b=>b.img?bcLoad(cols===3?(BIMG.peek(b.id)||await BIMG.get(b.id)):(BIMG.peekThumb(b.id)||await BIMG.thumb(b.id))):null));
   const gapG=pick([30,22,18,14]),cwG=(BC.W-2*BC.PAD-gapG*(cols-1))/cols,chG=cwG+pick([118,104,92,84]),minH=900+Math.ceil(N/cols)*(chG+gapG)+600;
   const ros=new Set(all.map(b=>(b.roaster||'').toLowerCase()).filter(Boolean)).size,orc=new Map();all.forEach(b=>{if(b.origin)orc.set(b.origin,(orc.get(b.origin)||0)+1)});
   const first=all.length?all.map(beanDay).sort()[0]:'',since=first?new Date(first+'T12:00').toLocaleDateString(undefined,{month:'short',year:'numeric'}):'';
@@ -10508,7 +10526,8 @@ async function galleryCardImg(){const style=Object.assign({},CARD_STYLE),nick=wi
     const gap=gapG,cw=Math.floor((IW-gap*(cols-1))/cols),gx=P+Math.floor((IW-(cw*cols+gap*(cols-1)))/2),mat=pick([14,10,8,7]),phH=cw-mat*2,lab=pick([118,104,92,84]),ch=mat+phH+lab;
     shown.forEach((b,i)=>{const col=i%cols,row=Math.floor(i/cols),X=gx+col*(cw+gap),yy=Math.round(Y+row*(ch+gap)),rk=beanRank(b);
       // The frame: a pane with a fine edge, the photo inset like a mounted print.
-      x.save();x.shadowColor='rgba(0,0,0,.28)';x.shadowBlur=22;x.shadowOffsetY=10;bcRound(x,X,yy,cw,ch,20);x.fillStyle=BC.PANE;x.fill();x.restore();bcPane(x,X,yy,cw,ch,20);
+      // A soft shadow under each frame for a small wall; a large one keeps the fine edge only (blurring dozens of shadows is slow).
+      if(cols<=4){x.save();x.shadowColor='rgba(0,0,0,.28)';x.shadowBlur=22;x.shadowOffsetY=10;bcRound(x,X,yy,cw,ch,20);x.fillStyle=BC.PANE;x.fill();x.restore()}bcPane(x,X,yy,cw,ch,20);
       bcPic(x,imgs[i],b.origin,X+mat,yy+mat,cw-mat*2,phH,14);
       if(rk){const r=pick([24,20,17,15]),bx=X+cw-mat-r-8,by=yy+mat+r+8,med=MEDAL[rk];x.beginPath();x.arc(bx,by,r,0,TAU);x.fillStyle=med;x.fill();x.lineWidth=3;x.strokeStyle='rgba(18,11,7,.6)';x.stroke();
         if(rk<=3)bcCrown(x,bx,by+1,r*1.05,'#24160E');else{x.font='800 '+Math.round(r*0.95)+'px '+BC.F;x.fillStyle='#24160E';x.textAlign='center';x.fillText(String(rk),bx,by+r*0.34);x.textAlign='left'}}
