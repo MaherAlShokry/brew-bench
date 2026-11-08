@@ -63,7 +63,7 @@ jobs:
           chmod +x gradlew
           for i in 1 2 3 4 5; do
             ./gradlew --version --no-daemon && exit 0
-            echo "Gradle download failed (attempt $i), retrying in $((i*20))s"; sleep $((i*20))
+            [ $i -lt 5 ] && { echo "Gradle download failed (attempt $i), retrying in $((i*20))s"; sleep $((i*20)); }
           done
           exit 1
       - name: Build APK
