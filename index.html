@@ -1287,6 +1287,8 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
   background:linear-gradient(140deg,var(--cc),color-mix(in srgb,var(--cc) 60%,#000))}
 .colshelf b{font-family:var(--display);font-size:1rem}.colshelf small{font-size:.8rem;opacity:.9;line-height:1.3}.colshelf .cn{position:absolute;left:14px;bottom:10px;font-size:.78rem;font-weight:700;background:rgba(255,255,255,.22);border-radius:99px;padding:1px 8px}
 .rhead .rh{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* On the narrowest phones the heading's letters close up a little, so "All recipes · 113" fits beside the tools. */
+@media (max-width:359px){.rhead{gap:8px}.rhead .rh{letter-spacing:.02em}}
 .rhtools{flex:none;display:flex;align-items:center;gap:8px}
 @media (max-width:389px){.rn-w{display:none}}
 /* The sort button is a round icon button, like the save and close buttons; it opens the sort sheet. */
@@ -3872,7 +3874,7 @@ const RECIPES=[
  {b:'origami',kind:'pulse',name:'Origami with cone papers',by:'Classic technique',off:0.2,temp:94,dose:15,water:240,why:'With V60-style cone papers the Origami drains fast like a V60, so three pours keep the contact time up for a bright, clear cup.',
   steps:['0:00 pour 40g, bloom.','0:40 pour to 140g.','1:15 pour to 240g.','2:30 finished.'],
   tip:'Grind a little finer than with wave papers: the cone paper drains faster.'},
- {b:'chemex',kind:'pulse',name:'Chemex for one',by:'Classic technique',off:0.3,temp:94,dose:20,water:320,why:'A one-cup Chemex: a smaller dose in three pours, a touch finer so the shallower bed still steeps long enough.',
+ {b:'chemex',kind:'pulse',name:'One-cup Chemex',by:'Classic technique',off:0.3,temp:94,dose:20,water:320,why:'A one-cup Chemex: a smaller dose in three pours, a touch finer so the shallower bed still steeps long enough.',
   steps:['Rinse the thick filter well (three-layer side toward the spout).','0:00 pour 50g, bloom.','0:45 pour to 190g.','1:30 pour to 320g.','3:45 finished.'],
   tip:'Use the 3-cup Chemex if you have it; in a big one the bed spreads thin.'},
  {b:'april',kind:'pulse',name:'Iced April Brewer',by:'Classic technique',off:0.3,temp:96,dose:16,water:160,why:'A short, strong flat-bottom brew onto ice. The April Brewer’s quick, even drawdown suits a fast iced cup.',
@@ -8680,8 +8682,8 @@ document.querySelectorAll('table.ref').forEach(t=>{const hs=[...t.querySelectorA
 // If saved settings ever stop the app from starting, clear them (the brew log and scans are kept) and retry once.
 // The dial-in's recipe, by key. A state saved before keys were kept points at the list as it was then (76 built-in
 // recipes); the ones folded together lead to the recipe they joined.
-{const ADDED_SINCE=new Set(['r:tetsu-kasuya-10-pour','r:tetsu-kasuya-10-pour-on-the-neo']);
- const OLD_GONE={22:'r:mugen-small-cup',26:'r:kalita-for-darker-roasts',43:'r:ristretto',44:'r:long-shot-allonge',53:'r:4-6-sweeter',54:'r:4-6-lighter-and-cleaner',55:'r:4-6-fuller-body',59:'r:two-cup-v60',64:'r:chemex-for-one',65:'r:kalita-big-batch',73:'r:ready-to-drink-cold-brew'};
+{const ADDED_SINCE=new Set(['r:tetsu-kasuya-10-pour','r:tetsu-kasuya-10-pour-on-the-neo','r:kono-three-pours','r:kono-for-light-roasts','r:melitta-three-pours','r:melitta-for-two','r:flower-dripper-bloom-and-one-pour','r:flower-dripper-for-two','r:mugen-two-pours','r:iced-mugen','r:bee-house-two-pours','r:bee-house-light-roast','r:orea-three-pours','r:iced-orea','r:tricolate-with-a-bloom','r:tricolate-small-cup','r:origami-with-cone-papers','r:one-cup-chemex','r:iced-april-brewer','r:pulsar-one-cup','r:clever-with-a-bloom']);
+ const OLD_GONE={22:'r:mugen-small-cup',26:'r:kalita-for-darker-roasts',43:'r:ristretto',44:'r:long-shot-allonge',53:'r:4-6-sweeter',54:'r:4-6-lighter-and-cleaner',55:'r:4-6-fuller-body',59:'r:two-cup-v60',64:'r:chemex-for-one',65:'r:kalita-big-batch',73:'r:ready-to-drink-cold-brew',32:'r:kasuya-hybrid-on-the-neo'};
   const st=load('bb-state',{});let i=null;
   if(typeof st.reck==='string')i=rByKey(st.reck);
   else if(Number.isInteger(st.rec)&&st.rec>=0){

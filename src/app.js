@@ -3573,8 +3573,8 @@ document.querySelectorAll('table.ref').forEach(t=>{const hs=[...t.querySelectorA
 // If saved settings ever stop the app from starting, clear them (the brew log and scans are kept) and retry once.
 // The dial-in's recipe, by key. A state saved before keys were kept points at the list as it was then (76 built-in
 // recipes); the ones folded together lead to the recipe they joined.
-{const ADDED_SINCE=new Set(['r:tetsu-kasuya-10-pour','r:tetsu-kasuya-10-pour-on-the-neo']);
- const OLD_GONE={22:'r:mugen-small-cup',26:'r:kalita-for-darker-roasts',43:'r:ristretto',44:'r:long-shot-allonge',53:'r:4-6-sweeter',54:'r:4-6-lighter-and-cleaner',55:'r:4-6-fuller-body',59:'r:two-cup-v60',64:'r:chemex-for-one',65:'r:kalita-big-batch',73:'r:ready-to-drink-cold-brew'};
+{const ADDED_SINCE=new Set(['r:tetsu-kasuya-10-pour','r:tetsu-kasuya-10-pour-on-the-neo','r:kono-three-pours','r:kono-for-light-roasts','r:melitta-three-pours','r:melitta-for-two','r:flower-dripper-bloom-and-one-pour','r:flower-dripper-for-two','r:mugen-two-pours','r:iced-mugen','r:bee-house-two-pours','r:bee-house-light-roast','r:orea-three-pours','r:iced-orea','r:tricolate-with-a-bloom','r:tricolate-small-cup','r:origami-with-cone-papers','r:one-cup-chemex','r:iced-april-brewer','r:pulsar-one-cup','r:clever-with-a-bloom']);
+ const OLD_GONE={22:'r:mugen-small-cup',26:'r:kalita-for-darker-roasts',43:'r:ristretto',44:'r:long-shot-allonge',53:'r:4-6-sweeter',54:'r:4-6-lighter-and-cleaner',55:'r:4-6-fuller-body',59:'r:two-cup-v60',64:'r:chemex-for-one',65:'r:kalita-big-batch',73:'r:ready-to-drink-cold-brew',32:'r:kasuya-hybrid-on-the-neo'};
   const st=load('bb-state',{});let i=null;
   if(typeof st.reck==='string')i=rByKey(st.reck);
   else if(Number.isInteger(st.rec)&&st.rec>=0){
