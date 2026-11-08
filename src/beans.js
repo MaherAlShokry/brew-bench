@@ -278,12 +278,17 @@ const MYLOG=()=>LOG.filter(isMine);
 const brewTs=l=>+l.ts||Date.parse(l.date)||0;
 // Your taste, worked out from the coffees you buy and how you rate them, and from what you brew and taste. A coffee
 // you rated 4 or more counts double towards what you like; every bag counts once towards what you buy.
+// Rated best: the highest average rating, among keys with at least two rated coffees (one lucky bag can't win); with
+// none rated twice, any rated one. Ties go to the one rated more often.
+function best(items,f){const m=new Map();for(const b of items){const k=f(b);if(!k||!b.rating)continue;const e=m.get(k)||{k,sum:0,n:0};e.sum+=b.rating;e.n++;m.set(k,e)}
+  const all=[...m.values()],pool=all.some(e=>e.n>=2)?all.filter(e=>e.n>=2):all;
+  const r=pool.sort((a,c)=>c.sum/c.n-a.sum/a.n||c.n-a.n)[0];return r?{k:r.k,n:r.n,avg:r.sum/r.n}:null}
 function tasteOf(bs,ls){const top=(items,f,w)=>{const m=new Map();for(const x of items){const ks=[].concat(f(x)).filter(Boolean),wt=w?w(x):1;for(const k of ks)m.set(k,(m.get(k)||0)+wt)}
     let best=null,n=0;for(const [k,v] of m)if(v>n){best=k;n=v}return best?{k:best,n}:null};
   const like=b=>b.rating>=4?2:b.rating&&b.rating<3?0.5:1;
   const t={origin:top(bs,b=>b.origin,buys),region:top(bs,b=>{const o=b.origin&&oInfo(b.origin);return o&&o.reg},buys),variety:top(bs,b=>beanVars(b).map(v=>v.split(':')[0]),buys),
     process:top(bs,b=>b.process,buys),roast:top(bs,b=>b.roast,buys),roaster:top(bs,b=>b.roaster&&b.roaster.trim(),buys),
-    likedOrigin:top(bs.filter(b=>b.rating>=4),b=>b.origin),likedProcess:top(bs.filter(b=>b.rating>=4),b=>b.process),
+    likedOrigin:best(bs,b=>b.origin),likedProcess:best(bs,b=>b.process),
     brewer:top(ls,l=>{const b=(l.snap&&l.snap.b)||l.brewer;return b&&CANONB(b)}),regionOrigin:null,recipe:top(ls,l=>l.snap&&l.snap.rec),goal:top(ls,l=>l.snap&&l.snap.goal)};
   // Flavours: the families of the notes on the bags you liked and of what you tasted in your brews.
   const fam=new Map(),note=new Map();
@@ -324,9 +329,7 @@ function yearInCoffeeHTML0(){const cy=new Date().getFullYear(),bs=BEANS.filter(b
     v&&['🌱','Top variety',shortName(v.name),t.variety.n+' bag'+(t.variety.n===1?'':'s')],pr&&['🧪','Top process',pr.name.replace(/\s*\(.*\)$/,''),t.process.n+' bag'+(t.process.n===1?'':'s')],
     t.roast&&['🔥','Usual roast',t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1),''],t.roaster&&['🏷️','Roastery most often',t.roaster.k,t.roaster.n+' bag'+(t.roaster.n===1?'':'s')],
     t.regular&&['🔁','Your regular',beanTitle(t.regular),'Bought '+buys(t.regular)+' times'],t.best&&['🏆','Best of the year',beanTitle(t.best),String(t.best.rating).replace('.5','½')+' beans'],B&&['☕','Brewed most on',B.name,t.brewer.n+' cup'+(t.brewer.n===1?'':'s')]].filter(Boolean);
-  // The months it covers (January to this month), in place of a "this year only" note.
-  const mon=m=>new Date(cy,m,1).toLocaleDateString(undefined,{month:'short'}),nowM=new Date().getMonth(),range=nowM?mon(0)+' – '+mon(nowM):mon(0);
-  return '<div class="yic" role="region" aria-label="'+cy+' in coffee"><div class="yic-h"><h3>'+cy+' in coffee</h3><span>'+esc(range)+'</span></div>'+(bs.length>1?'<p class="yic-line">'+esc(tasteLine(t))+'</p>':'')+
+  return '<div class="yic" role="region" aria-label="'+cy+' in coffee"><div class="yic-h"><h3>'+cy+' in coffee</h3></div>'+(bs.length>1?'<p class="yic-line">'+esc(tasteLine(t))+'</p>':'')+
     '<div class="yic-big">'+big.map(([n,l])=>'<span><b>'+esc(String(n))+'</b><small>'+esc(l)+'</small></span>').join('')+'</div>'+
     // The facts as one list: the icon, what it is over its value, and the count on the right.
     (facts.length?'<ul class="yic-list">'+facts.map(([i,k,vv,sub])=>'<li><i aria-hidden="true">'+i+'</i><span><small>'+k+'</small><b>'+esc(vv)+'</b></span>'+(sub?'<em>'+esc(sub)+'</em>':'')+'</li>').join('')+'</ul>':'')+
