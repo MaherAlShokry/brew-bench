@@ -1015,7 +1015,7 @@ const ALWAYS={explore:()=>renderExplore(),settings:()=>renderSettings(),beans:()
   // The Beans row on the dial-in follows the gallery: a coffee added, renamed or removed shows on the next visit.
   dial:()=>{if(window.BEANS_OK){if(beanSync())retuneIfAuto();renderDBean()}renderLastBrew()},
   // The log's coffee card and the bag's notes follow the gallery too.
-  log:()=>{renderLBean();renderPred();renderFlForm()},
+  log:()=>{if(LOGL_STALE)renderLogList(1);renderLBean();renderPred();renderFlForm()},
   // The countdown stops ticking when you leave the page; coming back starts it again.
   champs:()=>{if(BUILT.champs)renderCountdown()}};
 // Pages are built the first time they're opened. So that first tap isn't slow, the rest are built ahead, one per
@@ -1027,6 +1027,7 @@ function prebuildTabs(){const ids=['recipes','gear','variety','process','map','w
   let beans=false;
   const next=()=>{if(document.hidden){setTimeout(()=>idle(next),2000);return}if(performance.now()-NAV_AT<1500){setTimeout(()=>idle(next),900);return}
     if(!beans&&window.BEANS_OK){beans=true;try{renderBeansIfChanged();warmBeanPhotos()}catch(e){}idle(next);return}
+    if(LOGL_STALE&&BUILT.recipes){try{renderLogList(1)}catch(e){}idle(next);return}
     const id=ids.find(k=>!BUILT[k]);if(!id)return;BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
   setTimeout(()=>idle(next),2500)}
 function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove());if(LAZY[id]&&!BUILT[id]){BUILT[id]=1;LAZY[id]()}if(ALWAYS[id])ALWAYS[id]()}
@@ -2090,7 +2091,10 @@ function openLogFilter(){openChoices({title:'Filter brews',one:'brew',get:k=>LF[
   secs:()=>{const people=GROUP?[...new Set(LOG.map(lWho))]:[];return [{h:'Rating',key:'min',opts:[[0,'All brews'],[4,'4 beans and up'],[5,'5 beans']]},
     people.length>1?{h:'Brewed by',key:'who',multi:true,chips:1,opts:[['all','Everyone'],...people.map(p=>[p,p==='me'?'Me':p])]}:null]}})}
 function openLogSort(){openChoices({title:'Sort brews',one:'brew',get:()=>LF.sort,set:(k,v)=>{LF.sort=v},render:()=>{saveLF();renderLogList()},count:()=>LOG.filter(lfKeep).length,secs:()=>[{key:'sort',opts:LOG_SORTS}]})}
-function renderLogList(){renderLogFilter();const q=LF.q.trim().toLowerCase();
+// The brew slider is only drawn while the Log page is open (or ahead of time, when the app is idle). A redraw asked
+// for while it's hidden just marks it stale, so opening the app no longer builds every brew card twice.
+let LOGL_STALE=true;
+function renderLogList(force){const sec=$('log');if(!force&&sec&&!sec.classList.contains('on')){LOGL_STALE=true;return}LOGL_STALE=false;renderLogFilter();const q=LF.q.trim().toLowerCase();
   LF.who=LF.who.filter(w=>GROUP&&LOG.some(l=>lWho(l)===w));
   let rows=LOG.map((l,i)=>[l,i]).filter(([l])=>lfKeep(l));
   LLN=rows.length;const ts=l=>l.ts||Date.parse(l.date)||0;
@@ -3229,10 +3233,17 @@ const BNGROUP={explore:'explore',settings:'settings',champs:'explore',words:'exp
 // If it still doesn't fit at the smallest size, the page's short name takes its place.
 const TABSHORT={flow:'Seed to cup',champs:'Championships',wheel:'Flavours',words:'Words',gear:'Gear',variety:'Varieties',map:'Origins'};
 let TITLE_ID='';
-function fitTitle(){const el=$('ab-title');if(!el)return;el.style.fontSize='';el.textContent=TABNAMES[TITLE_ID]||el.textContent;const room=()=>el.scrollWidth<=el.clientWidth+1;let f=parseFloat(getComputedStyle(el).fontSize);
+// Fitting the title means measuring it, which makes the browser lay the new page out early. The fit only depends on
+// the page, the screen width, the text size and the back button, so each one is measured once and then reused.
+const TFIT=new Map();
+function fitTitle(){const el=$('ab-title');if(!el)return;const bk=$('ab-back'),key=TITLE_ID+'|'+innerWidth+'|'+document.documentElement.dataset.text+'|'+document.documentElement.dataset.vibe+'|'+!!(bk&&!bk.hidden);
+  const hit=TFIT.get(key);if(hit){el.textContent=hit[0];el.style.fontSize=hit[1];return}
+  el.style.fontSize='';el.textContent=TABNAMES[TITLE_ID]||el.textContent;const room=()=>el.scrollWidth<=el.clientWidth+1;let f=parseFloat(getComputedStyle(el).fontSize);
   for(let i=0;i<8&&!room()&&f>14;i++){f=Math.max(14,f-1);el.style.fontSize=f+'px'}
-  if(!room()&&TABSHORT[TITLE_ID]){el.textContent=TABSHORT[TITLE_ID];el.style.fontSize='';f=parseFloat(getComputedStyle(el).fontSize);for(let i=0;i<8&&!room()&&f>14;i++){f=Math.max(14,f-1);el.style.fontSize=f+'px'}}}
-addEventListener('resize',()=>requestAnimationFrame(fitTitle));
+  if(!room()&&TABSHORT[TITLE_ID]){el.textContent=TABSHORT[TITLE_ID];el.style.fontSize='';f=parseFloat(getComputedStyle(el).fontSize);for(let i=0;i<8&&!room()&&f>14;i++){f=Math.max(14,f-1);el.style.fontSize=f+'px'}}
+  // Only keep a fit made with the real fonts in, and only for a known page title.
+  if(TABNAMES[TITLE_ID]&&el.clientWidth&&(!document.fonts||document.fonts.status==='loaded'))TFIT.set(key,[el.textContent,el.style.fontSize])}
+addEventListener('resize',()=>{TFIT.clear();requestAnimationFrame(fitTitle)});
 // The page's own heading says where you are, so the top bar's title waits until that heading scrolls up under the bar,
 // then takes over (and hands back on the way down). Pages without a heading keep the bar's title.
 let TIO_T=null;const TIO='IntersectionObserver' in window?new IntersectionObserver(es=>{for(const e of es)if(e.target===TIO_T)$('appbar').classList.toggle('title-off',e.isIntersecting)},{rootMargin:'-84px 0px 0px 0px'}):null;
@@ -3284,7 +3295,7 @@ const BEAN_SVG=$('ab-logo').innerHTML;
 // Each copy of the bean gets its own clip id: two elements with one id can draw the wrong (or no) bean.
 const logoSVG=(k,sz)=>k==='bean'?BEAN_SVG.replace(/width="24" height="24"/,'width="'+sz+'" height="'+sz+'"').replace(/abBean/g,sz===24?'abBean':'abBean'+sz):'<svg viewBox="0 0 24 24" width="'+sz+'" height="'+sz+'" aria-hidden="true">'+LOGOS[k][1]+'</svg>';
 // The browser tab icon follows the chosen logo and colours.
-function setFavicon(){try{const cs=getComputedStyle(document.documentElement),col=v=>cs.getPropertyValue(v).trim()||'#8A5A3B';
+function setFavicon(){try{const cs=getComputedStyle($('ab-logo')),col=v=>cs.getPropertyValue(v).trim()||'#8A5A3B';
   const svg=logoSVG(UI.logo,64).replace('<svg ','<svg xmlns="http://www.w3.org/2000/svg" ').replace(/var\((--[a-z-]+)\)/g,(m,v)=>col(v));
   const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');x.fillStyle=col('--paper');x.beginPath();x.arc(32,32,32,0,7);x.fill();x.drawImage(img,6,6,52,52);
     let l=document.querySelector('link[rel="icon"]');if(!l){l=document.createElement('link');l.rel='icon';document.head.appendChild(l)}l.href=c.toDataURL('image/png')};
@@ -3339,7 +3350,10 @@ if(location.hash==='#move'&&window.opener&&!NATIVE&&location.origin!==OLD_ORIGIN
 try{if(sessionStorage.getItem('bb-movedin')){sessionStorage.removeItem('bb-movedin');setTimeout(()=>toast('Your coffees, brews and settings are here'),700)}}catch(e){}
 // A pick in Settings (soft) updates what changed in place; the page is only rebuilt when you open it. Rebuilding on
 // every tap made the pictures flash, the strips jump and the page lose its place.
-function settingsSync(){const ico0=$('st-mode')&&$('st-mode').closest('.setrow').querySelector('.sl').firstElementChild;
+// "Vibe's own" shows the chosen vibe's accent in the current light or dark mode, so it is worked out again whenever
+// the settings update in place or the theme changes.
+function ownAccent(){return (VIBES.find(v=>v[0]===UI.vibe)||VIBES[0])[curTheme()==='dark'?4:3].cherry}
+function settingsSync(){const own=document.querySelector('#settings-in .swatch[data-accent="classic"] i');if(own)own.style.background=ownAccent();const ico0=$('st-mode')&&$('st-mode').closest('.setrow').querySelector('.sl').firstElementChild;
   if(ico0)ico0.outerHTML=ico(curTheme()==='dark'?'moon':'sun','#5B5F66');
   const pr=(sel,k,v)=>document.querySelectorAll('#settings-in '+sel).forEach(b=>b.setAttribute('aria-pressed',String(b.dataset[k]===v)));
   pr('.vibe[data-vibe]','vibe',UI.vibe);pr('.swatch[data-accent]','accent',UI.accent);pr('.logopick[data-logo]','logo',UI.logo);
@@ -3357,7 +3371,7 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
     '<h3 class="rh">Appearance</h3><div class="setgroup">'+
     row(curTheme()==='dark'?'moon':'sun','#5B5F66','Light or dark','Bright cream, cosy espresso, or follow your phone','<div class="seg" id="st-mode"></div>')+
     row('drop','var(--cherry)','Vibe','A whole look, in light and in dark','<div class="vibes">'+VIBES.map(([k,n,d,L,D])=>'<button type="button" class="vibe" data-vibe="'+k+'" aria-pressed="'+(UI.vibe===k)+'" style="--l-p:'+L.paper+';--l-s:'+L.surface+';--l-i:'+L.ink+';--l-c:'+L.cherry+';--l-h:'+L.honey+';--d-p:'+D.paper+';--d-s:'+D.surface+';--d-i:'+D.ink+';--d-c:'+D.cherry+';--d-h:'+D.honey+'"><span class="vb-pv" aria-hidden="true"><i class="vb-l"><u></u><s></s><em></em></i><i class="vb-d"><u></u><s></s><em></em></i></span><b>'+n+'</b><small>'+d+'</small></button>').join('')+'</div>')+
-    row('palette','var(--cherry)','Accent','Change just the highlight colour (Vibe’s own keeps the vibe’s)','<div class="swatches">'+ACCENTS.map(([k,n,c])=>'<button type="button" class="swatch" data-accent="'+k+'" aria-pressed="'+(UI.accent===k)+'"><i style="background:'+(k==='classic'?(VIBES.find(v=>v[0]===UI.vibe)||VIBES[0])[curTheme()==='dark'?4:3].cherry:c)+'"></i>'+n+'</button>').join('')+'</div>')+
+    row('palette','var(--cherry)','Accent','Change just the highlight colour (Vibe’s own keeps the vibe’s)','<div class="swatches">'+ACCENTS.map(([k,n,c])=>'<button type="button" class="swatch" data-accent="'+k+'" aria-pressed="'+(UI.accent===k)+'"><i style="background:'+(k==='classic'?ownAccent():c)+'"></i>'+n+'</button>').join('')+'</div>')+
     row('leaf','#6B8E4E','App logo','In the top bar, the tab and on your home screen','<div class="logos">'+Object.entries(LOGOS).map(([k,[n]])=>'<button type="button" class="logopick" data-logo="'+k+'" aria-pressed="'+(UI.logo===k)+'"><span class="lg-tile">'+logoSVG(k,36)+'</span>'+n+'</button>').join('')+'</div><p class="setnote">'+(NATIVE&&plugin('AppIcon')?'Your home-screen icon changes to match a moment after you leave the app.':NATIVE?'The home-screen icon follows the logo from the next app update.':'The browser tab shows it too. In the Android app, the home-screen icon follows it.')+'</p>')+
     row('text','#C9964A','Text size','','<div class="seg" id="st-text"></div>')+
     row('motion','#6E8FA8','Motion','Animations between pages and sheets','<div class="seg" id="st-motion"></div>')+

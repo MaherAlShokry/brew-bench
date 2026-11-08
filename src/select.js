@@ -134,43 +134,58 @@ function rngEnhance(i){if(i.dataset.rng)return;i.dataset.rng='1';
 /* ================= SELECTION CONTROLS ================= */
 // Segmented controls (roast, agitation, light or dark…) get one highlight that glides to the option you pick, styled
 // like that control's own highlight, instead of jumping. It picks up where it was even when the options are redrawn.
-function segUpdate(el){const on=el.querySelector(':scope>button[aria-pressed="true"]');let ind=el.querySelector(':scope>.seg-ind');
-  if(!on||!on.offsetWidth){if(ind)ind.style.opacity='0';return}
-  // The highlight needs a positioned parent; a control that's already sticky or absolute keeps its own positioning.
-  if(!el.classList.contains('ind-rel')&&getComputedStyle(el).position==='static')el.classList.add('ind-rel');
-  if(!ind){ind=document.createElement('span');ind.className='seg-ind';ind.setAttribute('aria-hidden','true');el.append(ind);
-    // A strip that was redrawn (Settings redraws on every pick) starts from where its highlight last was, so it still glides.
-    const ip=el._ip||(el.id&&SEG_IP.get(el.id));if(ip){ind.style.transition='none';Object.assign(ind.style,ip);ind.offsetWidth;ind.style.transition=''}}
-  // Read the picked option's own look for a moment (data-peek lets it show), then hand it to the highlight.
-  on.setAttribute('data-peek','');const cs=getComputedStyle(on);
-  const look={background:cs.backgroundColor,backgroundImage:cs.backgroundImage,boxShadow:cs.boxShadow,borderRadius:cs.borderRadius};on.removeAttribute('data-peek');el.classList.add('has-ind');
-  // Moved with a transform (the compositor animates it without laying the page out again); only the size changes width.
-  const pos={left:'0px',top:'0px',transform:'translate3d('+on.offsetLeft+'px,'+on.offsetTop+'px,0)',width:on.offsetWidth+'px',height:on.offsetHeight+'px'};
-  if(RM())ind.style.transition='none';Object.assign(ind.style,look,pos,{opacity:'1'});el._ip=pos;if(el.id)SEG_IP.set(el.id,pos);
-  if(SEG_RO&&!el._ro){el._ro=1;SEG_RO.observe(el)}}
+// Highlights are placed in batches: every strip is read first, then every highlight is written, so a page with many
+// strips (Settings redraws them all) is laid out about once instead of once per strip.
+function segBatch(list){const items=[];
+  for(const el of new Set(list)){if(!el||!el.isConnected)continue;const on=el.querySelector(':scope>button[aria-pressed="true"]');items.push({el,on,ind:el.querySelector(':scope>.seg-ind')})}
+  if(!items.length)return;
+  // Reads, part 1: which strips are shown, and which need a positioned parent for their highlight.
+  for(const it of items){it.ok=!!(it.on&&it.on.offsetWidth);if(it.ok&&!it.el.classList.contains('ind-rel'))it.stat=getComputedStyle(it.el).position==='static'}
+  for(const it of items)if(it.stat)it.el.classList.add('ind-rel');
+  // Reads, part 2: the picked option's own look (data-peek lets it show for a moment) and where it sits.
+  const live=items.filter(it=>it.ok);live.forEach(it=>it.on.setAttribute('data-peek',''));
+  for(const it of live){const cs=getComputedStyle(it.on),on=it.on;it.look={background:cs.backgroundColor,backgroundImage:cs.backgroundImage,boxShadow:cs.boxShadow,borderRadius:cs.borderRadius};
+    it.pos={left:'0px',top:'0px',transform:'translate3d('+on.offsetLeft+'px,'+on.offsetTop+'px,0)',width:on.offsetWidth+'px',height:on.offsetHeight+'px'}}
+  live.forEach(it=>it.on.removeAttribute('data-peek'));
+  // Writes. A strip that was redrawn (Settings redraws on every pick) starts from where its highlight last was, so it
+  // still glides: all the new highlights are put there first, with one layout for the lot.
+  let fresh=false;
+  for(const it of items){if(!it.ok){if(it.ind)it.ind.style.opacity='0';continue}
+    if(!it.ind){const ind=it.ind=document.createElement('span');ind.className='seg-ind';ind.setAttribute('aria-hidden','true');it.el.append(ind);
+      const ip=it.el._ip||(it.el.id&&SEG_IP.get(it.el.id));if(ip){ind.style.transition='none';Object.assign(ind.style,ip);fresh=true;it.reset=true}}}
+  if(fresh)document.body.offsetWidth;
+  const rm=RM();
+  for(const it of live){const el=it.el,ind=it.ind;if(it.reset)ind.style.transition='';el.classList.add('has-ind');
+    // Moved with a transform (the compositor animates it without laying the page out again); only the size changes width.
+    if(rm)ind.style.transition='none';Object.assign(ind.style,it.look,it.pos,{opacity:'1'});el._ip=it.pos;if(el.id)SEG_IP.set(el.id,it.pos)}
+  for(const it of items)if(SEG_RO&&!it.el._ro){it.el._ro=1;SEG_RO.observe(it.el)}}
+function segUpdate(el){segBatch([el])}
 // One watcher for every control's size (a tab coming into view, the phone turning); controls that have left the page are dropped.
 const SEG_RO=window.ResizeObserver?new ResizeObserver(es=>es.forEach(e=>{if(e.target.isConnected)segQueue(e.target);else SEG_RO.unobserve(e.target)})):null;
 const SEG_Q=new Set(),SEG_IP=new Map();let SEG_RAF=0;
-function segQueue(el){SEG_Q.add(el);if(!SEG_RAF)SEG_RAF=requestAnimationFrame(()=>{SEG_RAF=0;const l=[...SEG_Q];SEG_Q.clear();l.forEach(x=>{if(x.isConnected)segUpdate(x)})})}
+function segQueue(el){SEG_Q.add(el);if(!SEG_RAF)SEG_RAF=requestAnimationFrame(()=>{SEG_RAF=0;const l=[...SEG_Q];SEG_Q.clear();segBatch(l)})}
 // Every one-line strip glides, the Gear tabs included; wrapping filter chips can't, so they get the plain pick instead.
 const SEG_SEL='.seg:not(.filters),.seg.gtabs';
-function uiScan(root){if(!root.querySelectorAll)return;
+// Strips redrawn in one go are collected here and placed together when the scan is done.
+let SEG_NOW=null;
+function uiScan(root){if(!root.querySelectorAll)return;const own=!SEG_NOW;if(own)SEG_NOW=[];
   if(root.matches&&root.matches('input[type=range]'))rngEnhance(root);root.querySelectorAll('input[type=range]:not([data-rng])').forEach(rngEnhance);
   // A redrawn strip is placed at once (before the page paints), so it never shows a frame without its highlight.
-  const go=x=>x.id&&SEG_IP.has(x.id)?segUpdate(x):segQueue(x);if(root.matches&&root.matches(SEG_SEL))go(root);root.querySelectorAll(SEG_SEL).forEach(go)}
+  const go=x=>x.id&&SEG_IP.has(x.id)?SEG_NOW.push(x):segQueue(x);if(root.matches&&root.matches(SEG_SEL))go(root);root.querySelectorAll(SEG_SEL).forEach(go);
+  if(own){const l=SEG_NOW;SEG_NOW=null;segBatch(l)}}
 // Chip choices that wrap onto several lines (target cup, filters, the recipe maker's picks) can't glide, so the newly
 // picked chip pops in instead: on a pressed change, or when the row is redrawn with a different one picked.
 function chipCheck(box){if(!box||box.matches(SEG_SEL))return;const on=box.querySelector(':scope>button[aria-pressed="true"]');const key=on?(on.dataset.v||on.dataset.mk||on.textContent):'';
   if(box._onk!==undefined&&key&&key!==box._onk&&!RM()){replay(on,'chip-on');setTimeout(()=>on.classList.remove('chip-on'),400)}box._onk=key}
 // Only what changed is looked at: new nodes, and the control whose options were swapped or picked. A timer ticking in
 // a big page doesn't make every control on it measure itself again.
-new MutationObserver(ms=>{for(const m of ms){const t=m.type==='attributes'?m.target.parentElement:m.target,s=t&&t.closest&&t.closest(SEG_SEL);if(s)segQueue(s);
+new MutationObserver(ms=>{SEG_NOW=[];try{for(const m of ms){const t=m.type==='attributes'?m.target.parentElement:m.target,s=t&&t.closest&&t.closest(SEG_SEL);if(s)segQueue(s);
   if(t&&t.querySelector&&t.querySelector(':scope>button[aria-pressed]'))chipCheck(t);
-  if(m.type==='childList')m.addedNodes.forEach(n=>n.nodeType===1&&uiScan(n));else if(m.removedNodes)for(const n of m.removedNodes)if(n._ro&&SEG_RO)SEG_RO.unobserve(n)}})
+  if(m.type==='childList')m.addedNodes.forEach(n=>n.nodeType===1&&uiScan(n));else if(m.removedNodes)for(const n of m.removedNodes)if(n._ro&&SEG_RO)SEG_RO.unobserve(n)}}finally{const l=SEG_NOW;SEG_NOW=null;segBatch(l)}})
   .observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['aria-pressed']});
 uiScan(document.body);
 // A change of look (light/dark, following the phone, a vibe or an accent): every highlight takes its colours again
 // (they're copied from the picked option, so they'd otherwise stay in the old look), and so does the cup-fit badge.
-{const reTheme=()=>{document.querySelectorAll('.seg').forEach(s=>segQueue(s));try{if($('g-fit'))renderFit()}catch(e){}};
+{const reTheme=()=>{document.querySelectorAll('.seg').forEach(s=>segQueue(s));try{if($('settings-in'))settingsSync()}catch(e){}try{if($('g-fit'))renderFit()}catch(e){}};
   new MutationObserver(reTheme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','data-vibe','data-accent']});
   try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',reTheme)}catch(e){}}

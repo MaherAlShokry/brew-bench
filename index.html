@@ -765,16 +765,17 @@ html.app .bg-hero::after,html.app .me-hero::after,html.app .pp-st img{mix-blend-
 .sp-logo .puff{opacity:0;transform-box:fill-box;transform-origin:center;animation:sp-puff 1s var(--d) ease-out infinite}
 @keyframes sp-puff{0%{opacity:.85;transform:translate(0,0) scale(.4)}100%{opacity:0;transform:translate(-1.2px,-6px) scale(1.9)}}
 /* The Bench's own ending: a warmer glow, and a plank-coloured line draws itself under the name like a bench top's edge. */
-.sp-bench .sp-glow{background:radial-gradient(46% 34% at 50% 44%,color-mix(in srgb,var(--cherry) 26%,color-mix(in srgb,var(--honey) 30%,transparent)),transparent 72%)}
-.sp-bench .sp-word b{position:relative;padding-bottom:6px}
-.sp-bench .sp-word b::after{content:"";position:absolute;left:4%;right:4%;bottom:0;height:5px;border-radius:3px;background:linear-gradient(90deg,var(--cherry),var(--honey));transform:scaleX(0);transform-origin:left;animation:bn-plank .6s 1.15s cubic-bezier(.3,1,.4,1) forwards}
+:is(.sp-bench,.sp-benchtop) .sp-glow{background:radial-gradient(46% 34% at 50% 44%,color-mix(in srgb,var(--cherry) 26%,color-mix(in srgb,var(--honey) 30%,transparent)),transparent 72%)}
+:is(.sp-bench,.sp-benchtop) .sp-word b{position:relative;padding-bottom:6px}
+:is(.sp-bench,.sp-benchtop) .sp-word b::after{content:"";position:absolute;left:4%;right:4%;bottom:0;height:5px;border-radius:3px;background:linear-gradient(90deg,var(--cherry),var(--honey));transform:scaleX(0);transform-origin:left;animation:bn-plank .6s 1.15s cubic-bezier(.3,1,.4,1) forwards}
 @keyframes bn-plank{to{transform:scaleX(1)}}
-.k-bench .bn-legs{transform-box:fill-box;transform-origin:50% 100%;animation:bn-legs .45s .1s cubic-bezier(.3,1.4,.5,1) both}@keyframes bn-legs{from{transform:scaleY(0);opacity:0}}
-.k-bench .bn-top{animation:bn-top .42s .38s cubic-bezier(.45,0,.6,1.5) both}@keyframes bn-top{from{transform:translateY(-12px);opacity:0}}
+:is(.k-bench,.k-benchtop) .bn-legs{transform-box:fill-box;transform-origin:50% 100%;animation:bn-legs .45s .1s cubic-bezier(.3,1.4,.5,1) both}@keyframes bn-legs{from{transform:scaleY(0);opacity:0}}
+:is(.k-bench,.k-benchtop) .bn-top{animation:bn-top .42s .38s cubic-bezier(.45,0,.6,1.5) both}@keyframes bn-top{from{transform:translateY(-12px);opacity:0}}
 .k-bench .bn-drip{animation:bn-land .5s .72s cubic-bezier(.3,1.5,.5,1) both}.k-bench .bn-mug{animation:bn-land .5s .88s cubic-bezier(.3,1.5,.5,1) both}
 /* A single bean rolls in last and settles between the server and the mug. */
 .k-bench .bn-bean{transform-box:fill-box;transform-origin:50% 50%;animation:bn-roll .55s 1.02s cubic-bezier(.3,1.3,.5,1) both}@keyframes bn-roll{from{transform:translateX(5px) rotate(200deg);opacity:0}}
 @keyframes bn-land{from{transform:translateY(-10px);opacity:0}}
+.k-benchtop .bt-bean{transform-box:fill-box;transform-origin:50% 50%;animation:bn-roll .55s var(--d) cubic-bezier(.3,1.3,.5,1) both}
 .k-bench .bn-fill{transform:translateY(3.4px);animation:sp-svfill .9s 1.2s ease-out forwards}
 .k-bench .bn-steam{stroke-dasharray:1;stroke-dashoffset:1;animation:sp-stream .8s 1.25s ease-out forwards}
 .k-aeropress .ap-plunge{animation:ap-press .8s .95s cubic-bezier(.5,0,.3,1) both}@keyframes ap-press{to{transform:translateY(3.4px)}}
@@ -1488,6 +1489,12 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 :root[data-vibe="pure"]{--paper:#FFFFFF;--surface:#FFFFFF;--surface2:#F2F2F4;--ink:#0B0B0C;--muted:#5D5D66;--line:#E6E6EA;--cherry:#141416;--leaf:#2F7A45;--honey:#8A6A2C;--cherry-ink:#141416;--leaf-ink:#276A3B;--honey-ink:#735823;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}
 @media (prefers-color-scheme:dark){:root[data-vibe="pure"]:not([data-theme="light"]){--paper:#000000;--surface:#0E0E10;--surface2:#1A1A1D;--ink:#FFFFFF;--muted:#A6A6AE;--line:#2A2A2F;--cherry:#F4F4F5;--leaf:#7FD08F;--honey:#E3C17E;--cherry-ink:#F4F4F5;--leaf-ink:#7FD08F;--honey-ink:#E3C17E;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}}
 :root[data-vibe="pure"][data-theme="dark"]{--paper:#000000;--surface:#0E0E10;--surface2:#1A1A1D;--ink:#FFFFFF;--muted:#A6A6AE;--line:#2A2A2F;--cherry:#F4F4F5;--leaf:#7FD08F;--honey:#E3C17E;--cherry-ink:#F4F4F5;--leaf-ink:#7FD08F;--honey-ink:#E3C17E;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}
+/* Pure with its own black accent: every logo (top bar, picker, tab icon, splash) stays black and white. The logos'
+   second colours (gold and green) turn grey there, and the splash coffee turns near-black, so nothing reads brown. */
+:root[data-vibe="pure"]:is([data-accent="classic"],:not([data-accent])) :is(#splash,#ab-logo,.logopick){--honey:#8E8E96;--leaf:#8E8E96}
+:root[data-vibe="pure"]:is([data-accent="classic"],:not([data-accent])) #splash :is([fill="#6B4226"],[fill="#8DB05E"]){fill:#2C2C30}
+:root[data-vibe="pure"]:is([data-accent="classic"],:not([data-accent])) #splash [stroke="#6B4226"]{stroke:#2C2C30}
+:root[data-vibe="pure"]:is([data-accent="classic"],:not([data-accent])) #splash [fill="#C8955A"]{fill:#9A9AA2}
 :root[data-vibe="black"]{--paper:#FFFFFF;--surface:#FFFFFF;--surface2:#F4F1EE;--ink:#121212;--muted:#5E5852;--line:#ECE6E0;--cherry:#7A4A2C;--leaf:#4E7A3A;--honey:#9A6B1F;--cherry-ink:#7A4A2C;--leaf-ink:#3F6530;--honey-ink:#7A5518;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}
 @media (prefers-color-scheme:dark){:root[data-vibe="black"]:not([data-theme="light"]){--paper:#000000;--surface:#0F0D0C;--surface2:#1C1916;--ink:#FFFFFF;--muted:#B5ABA2;--line:#2C2824;--cherry:#E2A877;--leaf:#A5CC86;--honey:#F0C477;--cherry-ink:#E2A877;--leaf-ink:#A5CC86;--honey-ink:#F0C477;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}}
 :root[data-vibe="black"][data-theme="dark"]{--paper:#000000;--surface:#0F0D0C;--surface2:#1C1916;--ink:#FFFFFF;--muted:#B5ABA2;--line:#2C2824;--cherry:#E2A877;--leaf:#A5CC86;--honey:#F0C477;--cherry-ink:#E2A877;--leaf-ink:#A5CC86;--honey-ink:#F0C477;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}
@@ -2538,8 +2545,8 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
   try{(function(){
   // The scene follows the chosen logo: the V60 pour for the dripper; for the others the logo builds itself piece by
   // piece, then does what it does (the grinder's crank turns, the kettle pours, the moka puffs...).
-  var L={"cup":{"name":"Espresso","parts":[{"d":"M8.6 3.2c-1.1 1.4 1.1 2.5 0 4.1M12.4 3.2c-1.1 1.4 1.1 2.5 0 4.1","stroke":"honey","w":1.5},{"d":"M4.6 10.4h11.6v3.9a5.6 5.6 0 0 1-5.6 5.6h-.4a5.6 5.6 0 0 1-5.6-5.6z","fill":"cherry"},{"d":"M4.6 10.4h11.6v1.7H4.6z","fill":"honey"},{"d":"M16.2 12h1.3a2.3 2.3 0 0 1 0 4.6h-1.9","stroke":"cherry","w":1.7},{"d":"M2.8 21.4h15.2","stroke":"cherry","w":1.8,"op":0.7}]},"latte":{"name":"Latte art","parts":[{"c":[11.2,12,10.6],"fill":"honey","op":0.35},{"d":"M18.6 10.4h2.2a1.6 1.6 0 0 1 0 3.2h-2.2z","fill":"cherry"},{"c":[11.2,12,7.9],"fill":"cherry"},{"c":[11.2,12,6.1],"fill":"honey"},{"d":"M11.2 15.7c-2.5-1.7-4-3.2-4-4.9 0-1.2.9-2.1 2-2.1.9 0 1.6.5 2 1.3.4-.8 1.1-1.3 2-1.3 1.1 0 2 .9 2 2.1 0 1.7-1.5 3.2-4 4.9z","fill":"paper"}]},"dripper":{"name":"Dripper","parts":[{"d":"M3.4 4.2h17.2l-6.1 9.6h-5z","fill":"cherry"},{"d":"M8.2 6.3l2.9 5.6M12 6.1v6.1M15.8 6.3l-2.9 5.6","stroke":"paper","w":1,"op":0.55},{"d":"M12 15c.9 1.2 1.3 1.9 1.3 2.6a1.3 1.3 0 0 1-2.6 0c0-.7.4-1.4 1.3-2.6z","fill":"honey"},{"d":"M6.4 20h11.2a1.5 1.5 0 0 1 0 3H6.4a1.5 1.5 0 0 1 0-3z","fill":"cherry","op":0.85}]},"cherry":{"name":"Cherries","parts":[{"d":"M8.3 11.2C8.9 7.4 11.6 4.8 15.6 3.6M16.2 10.4c.1-2.6-.1-4.7-.6-6.8","stroke":"leaf","w":1.6},{"d":"M15.6 3.6c2.6-.9 5.1-.4 6.4 1.2-2 1.6-4.8 1.6-6.4-1.2z","fill":"leaf"},{"c":[16.2,14.8,4.4],"fill":"cherry","op":0.78},{"c":[8.3,16.2,5],"fill":"cherry"},{"c":[6.6,14.5,1.1],"fill":"paper","op":0.6},{"c":[14.8,13.4,0.9],"fill":"paper","op":0.6}]},"moka":{"name":"Moka pot","parts":[{"d":"M10.8 1.6h2.4v1.7h-2.4z","fill":"cherry"},{"d":"M8 3.3h8l1.3 7.3H6.7z","fill":"honey"},{"d":"M8 3.3L5.6 4.8","stroke":"honey","w":1.6},{"d":"M17 5.3h2.4l-1.6 4.6","stroke":"cherry","w":1.8},{"d":"M7.4 10.6h9.2v1.5H7.4z","fill":"cherry","op":0.7},{"d":"M6.7 12.1h10.6l-1.7 9.4H8.4z","fill":"cherry"}]},"kettle":{"name":"Gooseneck","parts":[{"d":"M3.6 19.5h15.2a.5.5 0 0 1 .5.5v1.7a.5.5 0 0 1-.5.5H3.6a.5.5 0 0 1-.5-.5V20a.5.5 0 0 1 .5-.5z","fill":"cherry","op":0.75},{"d":"M6 18.1C4 17.3 3.3 14.8 2.9 11.1 2.6 8.3 2.4 5.9 1.6 4.7","stroke":"cherry","w":0.85},{"d":"M1.6 4.7c-.3-.4-.9-.3-1.1.3","stroke":"cherry","w":0.85},{"d":"M13.6 8.5h1.9v1.3h-1.9z","fill":"cherry"},{"d":"M15.2 8.1h2.9c.5 0 .9.3 1.1.7l2.4 5.6c.3.7-.1 1.4-.8 1.6l-.7.2c-.6.1-1.1-.2-1.3-.7l-2.1-5.6h-1.5z","fill":"honey"},{"d":"M8.2 8.1h5.6c.1 4.3 1.3 8.1 3.5 11H4.7c2.2-2.9 3.4-6.7 3.5-11z","fill":"cherry"},{"d":"M8.1 7.3h5.8a.4.4 0 0 1 .4.4v.6H7.7v-.6a.4.4 0 0 1 .4-.4z","fill":"cherry"},{"d":"M10.7 6.5h.6v.9h-.6z","fill":"cherry"},{"d":"M9.9 5.6h2.2a.5.5 0 0 1 .5.5v.2a.5.5 0 0 1-.5.5H9.9a.5.5 0 0 1-.5-.5v-.2a.5.5 0 0 1 .5-.5z","fill":"honey"}]},"grinder":{"name":"Hand grinder","parts":[{"d":"M9.4 2.9h4.4c1 0 1.7.3 2.3.9l1.4 1.4c.6.6.9 1.3.9 2.2v4.4","stroke":"cherry","w":1},{"d":"M14.7 3.5l2.4 2.3","stroke":"cherry","w":1.6},{"d":"M17.6 11.5h1.6v1.3h-1.6z","fill":"cherry"},{"c":[15.2,13.3,2.4],"fill":"honey"},{"d":"M16.9 12.2l1.9-.4v2.6l-1.9-.4z","fill":"honey"},{"d":"M7.6 1.9h1.9v1.9H7.6z","fill":"cherry"},{"d":"M5.9 3.8h5.3c.4 0 .7.3.7.7v2.3H5.2V4.5c0-.4.3-.7.7-.7z","fill":"cherry"},{"d":"M6.6 4.7v1.2M8.55 4.7v1.2M10.5 4.7v1.2","stroke":"honey","w":0.5},{"c":[7.58,5.3,0.22],"fill":"honey"},{"c":[9.52,5.3,0.22],"fill":"honey"},{"d":"M5.4 7.1h6.3v7.3H5.4z","fill":"cherry"},{"d":"M5.4 8.3h6.3M5.4 9.5h6.3M5.4 10.7h6.3M5.4 11.9h6.3M5.4 13.1h6.3","stroke":"honey","w":0.25,"op":0.35},{"d":"M5.4 14.7h6.3v.9H5.4z","fill":"honey","op":0.55},{"d":"M5.4 15.9h6.3v5.5a1.3 1.3 0 0 1-1.3 1.3H6.7a1.3 1.3 0 0 1-1.3-1.3z","fill":"cherry","op":0.85}]},"bench":{"name":"The Bench","parts":[{"d":"M4.4 15.1h2.2l-1.5 6.2a.8.8 0 0 1-.78.6h-.6a.6.6 0 0 1-.58-.74z","fill":"cherry","op":0.85},{"d":"M17.4 15.1h2.2l1.48 6.06a.6.6 0 0 1-.58.74h-.6a.8.8 0 0 1-.78-.6z","fill":"cherry","op":0.85},{"d":"M5.5 18.8h13v1.1h-13z","fill":"cherry","op":0.55},{"d":"M2.7 12.9h18.6a1.1 1.1 0 0 1 0 2.2H2.7a1.1 1.1 0 0 1 0-2.2z","fill":"cherry"},{"d":"M3.3 13.72h5.6M10.6 13.72h3.2M15.6 13.72h5","stroke":"paper","w":0.45,"op":0.4},{"d":"M6.5 9.4h3.2l.85 2.55a.75.75 0 0 1-.71.95H6.36a.75.75 0 0 1-.71-.95z","fill":"honey"},{"d":"M4.7 4.6h6.8l-2.5 3.9H7.2z","fill":"cherry"},{"d":"M4.1 3.85h8a.45.45 0 0 1 0 .9h-8a.45.45 0 0 1 0-.9z","fill":"honey"},{"d":"M7.6 8.5h1v.9h-1z","fill":"cherry"},{"d":"M14.2 8.4h5.2v3.4a1.1 1.1 0 0 1-1.1 1.1h-3a1.1 1.1 0 0 1-1.1-1.1z","fill":"honey"},{"d":"M19.4 9.3h.55a1.25 1.25 0 0 1 0 2.5h-.55","stroke":"honey","w":0.9},{"d":"M15.9 6.9c-.6-.8.6-1.3 0-2.3M17.8 6.9c-.6-.8.6-1.3 0-2.3","stroke":"leaf","w":0.8},{"d":"M11.5 12.54a1.05 .72 -25 1 1 1.9-.88 1.05 .72 -25 1 1-1.9.88z","fill":"cherry"},{"d":"M11.85 12.45c.55-.1.95-.65 1.3-.7","stroke":"paper","w":0.35,"op":0.7}]},"aeropress":{"name":"AeroPress","parts":[{"d":"M6.2 18.4h11.6v2.8a1.6 1.6 0 0 1-1.6 1.6H7.8a1.6 1.6 0 0 1-1.6-1.6z","fill":"honey"},{"d":"M17.8 19h.9a1.3 1.3 0 0 1 0 2.6h-.9","stroke":"honey","w":0.9},{"d":"M7.6 16.6h8.8v1.8H7.6z","fill":"cherry","op":0.75},{"d":"M8.4 7.2h7.2v9.4H8.4z","fill":"cherry"},{"d":"M9.4 10h2M9.4 12.2h2M9.4 14.4h2","stroke":"paper","w":0.6,"op":0.6},{"d":"M9.2 3.6h5.6v4.6H9.2z","fill":"honey","op":0.85},{"d":"M7.8 1.8h8.4a.8.8 0 0 1 .8.8v.6a.8.8 0 0 1-.8.8H7.8a.8.8 0 0 1-.8-.8v-.6a.8.8 0 0 1 .8-.8z","fill":"honey"}]},"chemex":{"name":"Chemex","parts":[{"d":"M6.4 2.4h11.2l-4.2 8.2v1l4.6 8.2a1.6 1.6 0 0 1-1.4 2.4H7.4A1.6 1.6 0 0 1 6 19.8l4.6-8.2v-1z","fill":"cherry","op":0.22},{"d":"M8.1 17.2h7.8l1.5 2.7a1 1 0 0 1-.9 1.5H7.5a1 1 0 0 1-.9-1.5z","fill":"cherry"},{"d":"M6.4 2.4h11.2l-4.2 8.2v1l4.6 8.2a1.6 1.6 0 0 1-1.4 2.4H7.4A1.6 1.6 0 0 1 6 19.8l4.6-8.2v-1z","stroke":"cherry","w":1.1},{"d":"M7.6 3.2h8.8l-3.4 5.9h-2z","fill":"paper","op":0.6},{"d":"M9.6 9.3h4.8l.7 3.4H8.9z","fill":"honey"},{"d":"M8.9 11h6.2","stroke":"cherry","w":0.55,"op":0.7},{"c":[15.8,12.9,0.75],"fill":"cherry"}]},"bag":{"name":"Bean bag","parts":[{"d":"M5.6 6.6h12.8l.9 14.2a1.6 1.6 0 0 1-1.6 1.7H6.3a1.6 1.6 0 0 1-1.6-1.7z","fill":"cherry"},{"d":"M6.2 2.2h11.6l.6 4.4H5.6z","fill":"honey"},{"d":"M7.9 2.6v3.6M10 2.6v3.6M12 2.6v3.6M14 2.6v3.6M16.1 2.6v3.6","stroke":"cherry","w":0.45,"op":0.35},{"d":"M8 10.4h8a1.4 1.4 0 0 1 1.4 1.4v5.4a1.4 1.4 0 0 1-1.4 1.4H8a1.4 1.4 0 0 1-1.4-1.4v-5.4A1.4 1.4 0 0 1 8 10.4z","fill":"paper"},{"d":"M12 11.6c1.9 0 3 1.3 2.6 2.9-.4 1.7-2 2.8-3.4 2.6-1.5-.2-2.3-1.6-1.9-3.2.4-1.4 1.4-2.3 2.7-2.3z","fill":"cherry"},{"d":"M12.9 12c-1.3.9-.2 2.2-1.6 4.8","stroke":"paper","w":0.55},{"c":[16,8.4,0.9],"fill":"paper","op":0.7}]}},k="bean";try{k=JSON.parse(localStorage.getItem("bb-ui")||"{}").logo||"bean"}catch(e){}if(typeof k!=="string"||k!=="bean"&&!Object.prototype.hasOwnProperty.call(L,k))k="bean";
-  var TAG={bean:"Every bean has a story.",cup:"Pull a perfect shot.",latte:"Pour a little art.",dripper:"Dial in. Brew well.",cherry:"From cherry to cup.",moka:"Stovetop, done right.",kettle:"Pour with care.",grinder:"Grind fresh. Brew well.",bench:"Your coffee workbench.",aeropress:"Press, swirl, sip.",chemex:"Clean, bright, patient.",bag:"Freshly roasted."};
+  var L={"cup":{"name":"Espresso","parts":[{"d":"M8.6 3.2c-1.1 1.4 1.1 2.5 0 4.1M12.4 3.2c-1.1 1.4 1.1 2.5 0 4.1","stroke":"honey","w":1.5},{"d":"M4.6 10.4h11.6v3.9a5.6 5.6 0 0 1-5.6 5.6h-.4a5.6 5.6 0 0 1-5.6-5.6z","fill":"cherry"},{"d":"M4.6 10.4h11.6v1.7H4.6z","fill":"honey"},{"d":"M16.2 12h1.3a2.3 2.3 0 0 1 0 4.6h-1.9","stroke":"cherry","w":1.7},{"d":"M2.8 21.4h15.2","stroke":"cherry","w":1.8,"op":0.7}]},"latte":{"name":"Latte art","parts":[{"c":[11.2,12,10.6],"fill":"honey","op":0.35},{"d":"M18.6 10.4h2.2a1.6 1.6 0 0 1 0 3.2h-2.2z","fill":"cherry"},{"c":[11.2,12,7.9],"fill":"cherry"},{"c":[11.2,12,6.1],"fill":"honey"},{"d":"M11.2 15.7c-2.5-1.7-4-3.2-4-4.9 0-1.2.9-2.1 2-2.1.9 0 1.6.5 2 1.3.4-.8 1.1-1.3 2-1.3 1.1 0 2 .9 2 2.1 0 1.7-1.5 3.2-4 4.9z","fill":"paper"}]},"dripper":{"name":"Dripper","parts":[{"d":"M3.4 4.2h17.2l-6.1 9.6h-5z","fill":"cherry"},{"d":"M8.2 6.3l2.9 5.6M12 6.1v6.1M15.8 6.3l-2.9 5.6","stroke":"paper","w":1,"op":0.55},{"d":"M12 15c.9 1.2 1.3 1.9 1.3 2.6a1.3 1.3 0 0 1-2.6 0c0-.7.4-1.4 1.3-2.6z","fill":"honey"},{"d":"M6.4 20h11.2a1.5 1.5 0 0 1 0 3H6.4a1.5 1.5 0 0 1 0-3z","fill":"cherry","op":0.85}]},"cherry":{"name":"Cherries","parts":[{"d":"M8.3 11.2C8.9 7.4 11.6 4.8 15.6 3.6M16.2 10.4c.1-2.6-.1-4.7-.6-6.8","stroke":"leaf","w":1.6},{"d":"M15.6 3.6c2.6-.9 5.1-.4 6.4 1.2-2 1.6-4.8 1.6-6.4-1.2z","fill":"leaf"},{"c":[16.2,14.8,4.4],"fill":"cherry","op":0.78},{"c":[8.3,16.2,5],"fill":"cherry"},{"c":[6.6,14.5,1.1],"fill":"paper","op":0.6},{"c":[14.8,13.4,0.9],"fill":"paper","op":0.6}]},"moka":{"name":"Moka pot","parts":[{"d":"M10.8 1.6h2.4v1.7h-2.4z","fill":"cherry"},{"d":"M8 3.3h8l1.3 7.3H6.7z","fill":"honey"},{"d":"M8 3.3L5.6 4.8","stroke":"honey","w":1.6},{"d":"M17 5.3h2.4l-1.6 4.6","stroke":"cherry","w":1.8},{"d":"M7.4 10.6h9.2v1.5H7.4z","fill":"cherry","op":0.7},{"d":"M6.7 12.1h10.6l-1.7 9.4H8.4z","fill":"cherry"}]},"kettle":{"name":"Gooseneck","parts":[{"d":"M3.6 19.5h15.2a.5.5 0 0 1 .5.5v1.7a.5.5 0 0 1-.5.5H3.6a.5.5 0 0 1-.5-.5V20a.5.5 0 0 1 .5-.5z","fill":"cherry","op":0.75},{"d":"M6 18.1C4 17.3 3.3 14.8 2.9 11.1 2.6 8.3 2.4 5.9 1.6 4.7","stroke":"cherry","w":0.85},{"d":"M1.6 4.7c-.3-.4-.9-.3-1.1.3","stroke":"cherry","w":0.85},{"d":"M13.6 8.5h1.9v1.3h-1.9z","fill":"cherry"},{"d":"M15.2 8.1h2.9c.5 0 .9.3 1.1.7l2.4 5.6c.3.7-.1 1.4-.8 1.6l-.7.2c-.6.1-1.1-.2-1.3-.7l-2.1-5.6h-1.5z","fill":"honey"},{"d":"M8.2 8.1h5.6c.1 4.3 1.3 8.1 3.5 11H4.7c2.2-2.9 3.4-6.7 3.5-11z","fill":"cherry"},{"d":"M8.1 7.3h5.8a.4.4 0 0 1 .4.4v.6H7.7v-.6a.4.4 0 0 1 .4-.4z","fill":"cherry"},{"d":"M10.7 6.5h.6v.9h-.6z","fill":"cherry"},{"d":"M9.9 5.6h2.2a.5.5 0 0 1 .5.5v.2a.5.5 0 0 1-.5.5H9.9a.5.5 0 0 1-.5-.5v-.2a.5.5 0 0 1 .5-.5z","fill":"honey"}]},"grinder":{"name":"Hand grinder","parts":[{"d":"M9.4 2.9h4.4c1 0 1.7.3 2.3.9l1.4 1.4c.6.6.9 1.3.9 2.2v4.4","stroke":"cherry","w":1},{"d":"M14.7 3.5l2.4 2.3","stroke":"cherry","w":1.6},{"d":"M17.6 11.5h1.6v1.3h-1.6z","fill":"cherry"},{"c":[15.2,13.3,2.4],"fill":"honey"},{"d":"M16.9 12.2l1.9-.4v2.6l-1.9-.4z","fill":"honey"},{"d":"M7.6 1.9h1.9v1.9H7.6z","fill":"cherry"},{"d":"M5.9 3.8h5.3c.4 0 .7.3.7.7v2.3H5.2V4.5c0-.4.3-.7.7-.7z","fill":"cherry"},{"d":"M6.6 4.7v1.2M8.55 4.7v1.2M10.5 4.7v1.2","stroke":"honey","w":0.5},{"c":[7.58,5.3,0.22],"fill":"honey"},{"c":[9.52,5.3,0.22],"fill":"honey"},{"d":"M5.4 7.1h6.3v7.3H5.4z","fill":"cherry"},{"d":"M5.4 8.3h6.3M5.4 9.5h6.3M5.4 10.7h6.3M5.4 11.9h6.3M5.4 13.1h6.3","stroke":"honey","w":0.25,"op":0.35},{"d":"M5.4 14.7h6.3v.9H5.4z","fill":"honey","op":0.55},{"d":"M5.4 15.9h6.3v5.5a1.3 1.3 0 0 1-1.3 1.3H6.7a1.3 1.3 0 0 1-1.3-1.3z","fill":"cherry","op":0.85}]},"bench":{"name":"The Bench","parts":[{"d":"M4.4 15.1h2.2l-1.5 6.2a.8.8 0 0 1-.78.6h-.6a.6.6 0 0 1-.58-.74z","fill":"cherry","op":0.85},{"d":"M17.4 15.1h2.2l1.48 6.06a.6.6 0 0 1-.58.74h-.6a.8.8 0 0 1-.78-.6z","fill":"cherry","op":0.85},{"d":"M5.5 18.8h13v1.1h-13z","fill":"cherry","op":0.55},{"d":"M2.7 12.9h18.6a1.1 1.1 0 0 1 0 2.2H2.7a1.1 1.1 0 0 1 0-2.2z","fill":"cherry"},{"d":"M3.3 13.72h5.6M10.6 13.72h3.2M15.6 13.72h5","stroke":"paper","w":0.45,"op":0.4},{"d":"M6.5 9.4h3.2l.85 2.55a.75.75 0 0 1-.71.95H6.36a.75.75 0 0 1-.71-.95z","fill":"honey"},{"d":"M4.7 4.6h6.8l-2.5 3.9H7.2z","fill":"cherry"},{"d":"M4.1 3.85h8a.45.45 0 0 1 0 .9h-8a.45.45 0 0 1 0-.9z","fill":"honey"},{"d":"M7.6 8.5h1v.9h-1z","fill":"cherry"},{"d":"M14.2 8.4h5.3l-.55 3.62a1.05 1.05 0 0 1-1.04.88h-2.12a1.05 1.05 0 0 1-1.04-.88z","fill":"honey"},{"d":"M15.9 6.9c-.6-.8.6-1.3 0-2.3M17.8 6.9c-.6-.8.6-1.3 0-2.3","stroke":"leaf","w":0.8},{"d":"M11.5 12.54a1.05 .72 -25 1 1 1.9-.88 1.05 .72 -25 1 1-1.9.88z","fill":"cherry"},{"d":"M11.85 12.45c.55-.1.95-.65 1.3-.7","stroke":"paper","w":0.35,"op":0.7}]},"benchtop":{"name":"Bare bench","parts":[{"d":"M4.6 11.2h2.6l-1.75 9.6a.9.9 0 0 1-.89.74h-.7a.65.65 0 0 1-.64-.77z","fill":"cherry","op":0.85},{"d":"M16.8 11.2h2.6l1.98 9.57a.65.65 0 0 1-.64.77h-.7a.9.9 0 0 1-.89-.74z","fill":"cherry","op":0.85},{"d":"M6 16.3h12v1.4H6z","fill":"cherry","op":0.55},{"d":"M2.6 8.6h18.8a1.3 1.3 0 0 1 0 2.6H2.6a1.3 1.3 0 0 1 0-2.6z","fill":"cherry"},{"d":"M3.4 9.9h6.4M11.6 9.9h3.6M17.2 9.9h3.6","stroke":"paper","w":0.5,"op":0.4}]},"aeropress":{"name":"AeroPress","parts":[{"d":"M6.2 18.4h11.6v2.8a1.6 1.6 0 0 1-1.6 1.6H7.8a1.6 1.6 0 0 1-1.6-1.6z","fill":"honey"},{"d":"M17.8 19h.9a1.3 1.3 0 0 1 0 2.6h-.9","stroke":"honey","w":0.9},{"d":"M7.6 16.6h8.8v1.8H7.6z","fill":"cherry","op":0.75},{"d":"M8.4 7.2h7.2v9.4H8.4z","fill":"cherry"},{"d":"M9.4 10h2M9.4 12.2h2M9.4 14.4h2","stroke":"paper","w":0.6,"op":0.6},{"d":"M9.2 3.6h5.6v4.6H9.2z","fill":"honey","op":0.85},{"d":"M7.8 1.8h8.4a.8.8 0 0 1 .8.8v.6a.8.8 0 0 1-.8.8H7.8a.8.8 0 0 1-.8-.8v-.6a.8.8 0 0 1 .8-.8z","fill":"honey"}]},"chemex":{"name":"Chemex","parts":[{"d":"M6.4 2.4h11.2l-4.2 8.2v1l4.6 8.2a1.6 1.6 0 0 1-1.4 2.4H7.4A1.6 1.6 0 0 1 6 19.8l4.6-8.2v-1z","fill":"cherry","op":0.22},{"d":"M8.1 17.2h7.8l1.5 2.7a1 1 0 0 1-.9 1.5H7.5a1 1 0 0 1-.9-1.5z","fill":"cherry"},{"d":"M6.4 2.4h11.2l-4.2 8.2v1l4.6 8.2a1.6 1.6 0 0 1-1.4 2.4H7.4A1.6 1.6 0 0 1 6 19.8l4.6-8.2v-1z","stroke":"cherry","w":1.1},{"d":"M7.6 3.2h8.8l-3.4 5.9h-2z","fill":"paper","op":0.6},{"d":"M9.6 9.3h4.8l.7 3.4H8.9z","fill":"honey"},{"d":"M8.9 11h6.2","stroke":"cherry","w":0.55,"op":0.7},{"c":[15.8,12.9,0.75],"fill":"cherry"}]},"bag":{"name":"Bean bag","parts":[{"d":"M5.6 6.6h12.8l.9 14.2a1.6 1.6 0 0 1-1.6 1.7H6.3a1.6 1.6 0 0 1-1.6-1.7z","fill":"cherry"},{"d":"M6.2 2.2h11.6l.6 4.4H5.6z","fill":"honey"},{"d":"M7.9 2.6v3.6M10 2.6v3.6M12 2.6v3.6M14 2.6v3.6M16.1 2.6v3.6","stroke":"cherry","w":0.45,"op":0.35},{"d":"M8 10.4h8a1.4 1.4 0 0 1 1.4 1.4v5.4a1.4 1.4 0 0 1-1.4 1.4H8a1.4 1.4 0 0 1-1.4-1.4v-5.4A1.4 1.4 0 0 1 8 10.4z","fill":"paper"},{"d":"M12 11.6c1.9 0 3 1.3 2.6 2.9-.4 1.7-2 2.8-3.4 2.6-1.5-.2-2.3-1.6-1.9-3.2.4-1.4 1.4-2.3 2.7-2.3z","fill":"cherry"},{"d":"M12.9 12c-1.3.9-.2 2.2-1.6 4.8","stroke":"paper","w":0.55},{"c":[16,8.4,0.9],"fill":"paper","op":0.7}]}},k="bean";try{k=JSON.parse(localStorage.getItem("bb-ui")||"{}").logo||"bean"}catch(e){}if(typeof k!=="string"||k!=="bean"&&!Object.prototype.hasOwnProperty.call(L,k))k="bean";
+  var TAG={bean:"Every bean has a story.",cup:"Pull a perfect shot.",latte:"Pour a little art.",dripper:"Dial in. Brew well.",cherry:"From cherry to cup.",moka:"Stovetop, done right.",kettle:"Pour with care.",grinder:"Grind fresh. Brew well.",bench:"Your coffee workbench.",benchtop:"Where every brew begins.",aeropress:"Press, swirl, sip.",chemex:"Clean, bright, patient.",bag:"Freshly roasted."};
   s.querySelector(".sp-tag").textContent=TAG[k];s.classList.add("sp-"+k);
   // The drifting shapes behind: beans, drops, leaves or bubbles.
   var G={drop:'<path d="M0-15c7 9 10 13 10 17a10 10 0 0 1-20 0c0-4 3-8 10-17z"/>',leaf:'<path d="M-13 0C-6-11 6-11 13 0 6 11-6 11-13 0z"/>',dot:'<circle r="11"/>'}[{kettle:"drop",dripper:"drop",cherry:"leaf",latte:"dot",chemex:"drop",aeropress:"dot"}[k]];
@@ -2591,9 +2598,16 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
     var raw=function(p){return shape(p," "+paint(p))};
     body='<g class="bn-legs">'+P.slice(0,3).map(raw).join("")+'</g><g class="bn-top">'+P.slice(3,5).map(raw).join("")+'</g>'+
       '<g class="bn-drip">'+raw(P[5])+'<clipPath id="spBnS"><path d="'+P[5].d+'"/></clipPath><g clip-path="url(#spBnS)"><rect class="bn-fill" x="5" y="9.6" width="6" height="4" fill="#6B4226"/></g>'+P.slice(6,9).map(raw).join("")+'</g>'+
-      '<g class="bn-mug">'+raw(P[9])+raw(P[10])+'</g>'+(P[12]?'<g class="bn-bean">'+P.slice(12).map(raw).join("")+'</g>':'')+shape(P[11],' class="bn-steam" '+paint(P[11]));
+      '<g class="bn-mug">'+raw(P[9])+'</g>'+(P[11]?'<g class="bn-bean">'+P.slice(11).map(raw).join("")+'</g>':'')+shape(P[10],' class="bn-steam" '+paint(P[10]));
     for(var u=0;u<4;u++)x+='<circle class="puff bn-dust" cx="'+[2.6,4.4,19.6,21.4][u]+'" cy="15.4" r=".8" fill="var(--honey)" style="--d:'+(.62+(u%2)*.06).toFixed(2)+'s"/>';
     for(var v=0;v<3;v++)x+='<circle class="vdrip" cx="8.1" cy="9.6" r=".3" fill="#6B4226" style="--d:'+(1.15+v*.17).toFixed(2)+'s"/>'}
+  else if(k==="benchtop"){
+    // The bare bench, built the same way: the legs grow up, the top drops on with a little dust, then three coffee
+    // beans tumble onto it one after another and settle in a row.
+    var raw2=function(p){return shape(p," "+paint(p))},bean2='<path d="M11.5 12.54a1.05 .72 -25 1 1 1.9-.88 1.05 .72 -25 1 1-1.9.88z" fill="var(--honey)"/><path d="M11.85 12.45c.55-.1.95-.65 1.3-.7" fill="none" stroke="var(--cherry)" stroke-width=".35" stroke-linecap="round" opacity=".75"/>';
+    body='<g class="bn-legs">'+P.slice(0,3).map(raw2).join("")+'</g><g class="bn-top">'+P.slice(3).map(raw2).join("")+'</g>';
+    [7.4,12,16.6].forEach(function(bx,i){body+='<g class="bt-bean" style="--d:'+(.82+i*.16).toFixed(2)+'s"><g transform="translate('+bx+' 7.55) scale(1.35) translate(-12.45 -12.1)">'+bean2+'</g></g>'});
+    for(var u2=0;u2<4;u2++)x+='<circle class="puff bn-dust" cx="'+[2.6,4.4,19.6,21.4][u2]+'" cy="11.4" r=".8" fill="var(--honey)" style="--d:'+(.62+(u2%2)*.06).toFixed(2)+'s"/>'}
   else if(k==="aeropress"){
     // The plunger presses down and the coffee drips through the cap into the mug.
     body=parts.slice(0,5).join("")+'<g class="ap-plunge">'+parts.slice(5).join("")+'</g>';
@@ -4738,11 +4752,17 @@ const LOGO_DATA={
   {"d": "M4.7 4.6h6.8l-2.5 3.9H7.2z", "fill": "cherry"},
   {"d": "M4.1 3.85h8a.45.45 0 0 1 0 .9h-8a.45.45 0 0 1 0-.9z", "fill": "honey"},
   {"d": "M7.6 8.5h1v.9h-1z", "fill": "cherry"},
-  {"d": "M14.2 8.4h5.2v3.4a1.1 1.1 0 0 1-1.1 1.1h-3a1.1 1.1 0 0 1-1.1-1.1z", "fill": "honey"},
-  {"d": "M19.4 9.3h.55a1.25 1.25 0 0 1 0 2.5h-.55", "stroke": "honey", "w": 0.9},
+  {"d": "M14.2 8.4h5.3l-.55 3.62a1.05 1.05 0 0 1-1.04.88h-2.12a1.05 1.05 0 0 1-1.04-.88z", "fill": "honey"},
   {"d": "M15.9 6.9c-.6-.8.6-1.3 0-2.3M17.8 6.9c-.6-.8.6-1.3 0-2.3", "stroke": "leaf", "w": 0.8},
   {"d": "M11.5 12.54a1.05 .72 -25 1 1 1.9-.88 1.05 .72 -25 1 1-1.9.88z", "fill": "cherry"},
   {"d": "M11.85 12.45c.55-.1.95-.65 1.3-.7", "stroke": "paper", "w": 0.35, "op": 0.7}
+ ]},
+ "benchtop": {"name": "Bare bench", "parts": [
+  {"d": "M4.6 11.2h2.6l-1.75 9.6a.9.9 0 0 1-.89.74h-.7a.65.65 0 0 1-.64-.77z", "fill": "cherry", "op": 0.85},
+  {"d": "M16.8 11.2h2.6l1.98 9.57a.65.65 0 0 1-.64.77h-.7a.9.9 0 0 1-.89-.74z", "fill": "cherry", "op": 0.85},
+  {"d": "M6 16.3h12v1.4H6z", "fill": "cherry", "op": 0.55},
+  {"d": "M2.6 8.6h18.8a1.3 1.3 0 0 1 0 2.6H2.6a1.3 1.3 0 0 1 0-2.6z", "fill": "cherry"},
+  {"d": "M3.4 9.9h6.4M11.6 9.9h3.6M17.2 9.9h3.6", "stroke": "paper", "w": 0.5, "op": 0.4}
  ]},
  "aeropress": {"name": "AeroPress", "parts": [
   {"d": "M6.2 18.4h11.6v2.8a1.6 1.6 0 0 1-1.6 1.6H7.8a1.6 1.6 0 0 1-1.6-1.6z", "fill": "honey"},
@@ -6124,7 +6144,7 @@ const ALWAYS={explore:()=>renderExplore(),settings:()=>renderSettings(),beans:()
   // The Beans row on the dial-in follows the gallery: a coffee added, renamed or removed shows on the next visit.
   dial:()=>{if(window.BEANS_OK){if(beanSync())retuneIfAuto();renderDBean()}renderLastBrew()},
   // The log's coffee card and the bag's notes follow the gallery too.
-  log:()=>{renderLBean();renderPred();renderFlForm()},
+  log:()=>{if(LOGL_STALE)renderLogList(1);renderLBean();renderPred();renderFlForm()},
   // The countdown stops ticking when you leave the page; coming back starts it again.
   champs:()=>{if(BUILT.champs)renderCountdown()}};
 // Pages are built the first time they're opened. So that first tap isn't slow, the rest are built ahead, one per
@@ -6136,6 +6156,7 @@ function prebuildTabs(){const ids=['recipes','gear','variety','process','map','w
   let beans=false;
   const next=()=>{if(document.hidden){setTimeout(()=>idle(next),2000);return}if(performance.now()-NAV_AT<1500){setTimeout(()=>idle(next),900);return}
     if(!beans&&window.BEANS_OK){beans=true;try{renderBeansIfChanged();warmBeanPhotos()}catch(e){}idle(next);return}
+    if(LOGL_STALE&&BUILT.recipes){try{renderLogList(1)}catch(e){}idle(next);return}
     const id=ids.find(k=>!BUILT[k]);if(!id)return;BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
   setTimeout(()=>idle(next),2500)}
 function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove());if(LAZY[id]&&!BUILT[id]){BUILT[id]=1;LAZY[id]()}if(ALWAYS[id])ALWAYS[id]()}
@@ -7199,7 +7220,10 @@ function openLogFilter(){openChoices({title:'Filter brews',one:'brew',get:k=>LF[
   secs:()=>{const people=GROUP?[...new Set(LOG.map(lWho))]:[];return [{h:'Rating',key:'min',opts:[[0,'All brews'],[4,'4 beans and up'],[5,'5 beans']]},
     people.length>1?{h:'Brewed by',key:'who',multi:true,chips:1,opts:[['all','Everyone'],...people.map(p=>[p,p==='me'?'Me':p])]}:null]}})}
 function openLogSort(){openChoices({title:'Sort brews',one:'brew',get:()=>LF.sort,set:(k,v)=>{LF.sort=v},render:()=>{saveLF();renderLogList()},count:()=>LOG.filter(lfKeep).length,secs:()=>[{key:'sort',opts:LOG_SORTS}]})}
-function renderLogList(){renderLogFilter();const q=LF.q.trim().toLowerCase();
+// The brew slider is only drawn while the Log page is open (or ahead of time, when the app is idle). A redraw asked
+// for while it's hidden just marks it stale, so opening the app no longer builds every brew card twice.
+let LOGL_STALE=true;
+function renderLogList(force){const sec=$('log');if(!force&&sec&&!sec.classList.contains('on')){LOGL_STALE=true;return}LOGL_STALE=false;renderLogFilter();const q=LF.q.trim().toLowerCase();
   LF.who=LF.who.filter(w=>GROUP&&LOG.some(l=>lWho(l)===w));
   let rows=LOG.map((l,i)=>[l,i]).filter(([l])=>lfKeep(l));
   LLN=rows.length;const ts=l=>l.ts||Date.parse(l.date)||0;
@@ -8338,10 +8362,17 @@ const BNGROUP={explore:'explore',settings:'settings',champs:'explore',words:'exp
 // If it still doesn't fit at the smallest size, the page's short name takes its place.
 const TABSHORT={flow:'Seed to cup',champs:'Championships',wheel:'Flavours',words:'Words',gear:'Gear',variety:'Varieties',map:'Origins'};
 let TITLE_ID='';
-function fitTitle(){const el=$('ab-title');if(!el)return;el.style.fontSize='';el.textContent=TABNAMES[TITLE_ID]||el.textContent;const room=()=>el.scrollWidth<=el.clientWidth+1;let f=parseFloat(getComputedStyle(el).fontSize);
+// Fitting the title means measuring it, which makes the browser lay the new page out early. The fit only depends on
+// the page, the screen width, the text size and the back button, so each one is measured once and then reused.
+const TFIT=new Map();
+function fitTitle(){const el=$('ab-title');if(!el)return;const bk=$('ab-back'),key=TITLE_ID+'|'+innerWidth+'|'+document.documentElement.dataset.text+'|'+document.documentElement.dataset.vibe+'|'+!!(bk&&!bk.hidden);
+  const hit=TFIT.get(key);if(hit){el.textContent=hit[0];el.style.fontSize=hit[1];return}
+  el.style.fontSize='';el.textContent=TABNAMES[TITLE_ID]||el.textContent;const room=()=>el.scrollWidth<=el.clientWidth+1;let f=parseFloat(getComputedStyle(el).fontSize);
   for(let i=0;i<8&&!room()&&f>14;i++){f=Math.max(14,f-1);el.style.fontSize=f+'px'}
-  if(!room()&&TABSHORT[TITLE_ID]){el.textContent=TABSHORT[TITLE_ID];el.style.fontSize='';f=parseFloat(getComputedStyle(el).fontSize);for(let i=0;i<8&&!room()&&f>14;i++){f=Math.max(14,f-1);el.style.fontSize=f+'px'}}}
-addEventListener('resize',()=>requestAnimationFrame(fitTitle));
+  if(!room()&&TABSHORT[TITLE_ID]){el.textContent=TABSHORT[TITLE_ID];el.style.fontSize='';f=parseFloat(getComputedStyle(el).fontSize);for(let i=0;i<8&&!room()&&f>14;i++){f=Math.max(14,f-1);el.style.fontSize=f+'px'}}
+  // Only keep a fit made with the real fonts in, and only for a known page title.
+  if(TABNAMES[TITLE_ID]&&el.clientWidth&&(!document.fonts||document.fonts.status==='loaded'))TFIT.set(key,[el.textContent,el.style.fontSize])}
+addEventListener('resize',()=>{TFIT.clear();requestAnimationFrame(fitTitle)});
 // The page's own heading says where you are, so the top bar's title waits until that heading scrolls up under the bar,
 // then takes over (and hands back on the way down). Pages without a heading keep the bar's title.
 let TIO_T=null;const TIO='IntersectionObserver' in window?new IntersectionObserver(es=>{for(const e of es)if(e.target===TIO_T)$('appbar').classList.toggle('title-off',e.isIntersecting)},{rootMargin:'-84px 0px 0px 0px'}):null;
@@ -8393,7 +8424,7 @@ const BEAN_SVG=$('ab-logo').innerHTML;
 // Each copy of the bean gets its own clip id: two elements with one id can draw the wrong (or no) bean.
 const logoSVG=(k,sz)=>k==='bean'?BEAN_SVG.replace(/width="24" height="24"/,'width="'+sz+'" height="'+sz+'"').replace(/abBean/g,sz===24?'abBean':'abBean'+sz):'<svg viewBox="0 0 24 24" width="'+sz+'" height="'+sz+'" aria-hidden="true">'+LOGOS[k][1]+'</svg>';
 // The browser tab icon follows the chosen logo and colours.
-function setFavicon(){try{const cs=getComputedStyle(document.documentElement),col=v=>cs.getPropertyValue(v).trim()||'#8A5A3B';
+function setFavicon(){try{const cs=getComputedStyle($('ab-logo')),col=v=>cs.getPropertyValue(v).trim()||'#8A5A3B';
   const svg=logoSVG(UI.logo,64).replace('<svg ','<svg xmlns="http://www.w3.org/2000/svg" ').replace(/var\((--[a-z-]+)\)/g,(m,v)=>col(v));
   const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');x.fillStyle=col('--paper');x.beginPath();x.arc(32,32,32,0,7);x.fill();x.drawImage(img,6,6,52,52);
     let l=document.querySelector('link[rel="icon"]');if(!l){l=document.createElement('link');l.rel='icon';document.head.appendChild(l)}l.href=c.toDataURL('image/png')};
@@ -8448,7 +8479,10 @@ if(location.hash==='#move'&&window.opener&&!NATIVE&&location.origin!==OLD_ORIGIN
 try{if(sessionStorage.getItem('bb-movedin')){sessionStorage.removeItem('bb-movedin');setTimeout(()=>toast('Your coffees, brews and settings are here'),700)}}catch(e){}
 // A pick in Settings (soft) updates what changed in place; the page is only rebuilt when you open it. Rebuilding on
 // every tap made the pictures flash, the strips jump and the page lose its place.
-function settingsSync(){const ico0=$('st-mode')&&$('st-mode').closest('.setrow').querySelector('.sl').firstElementChild;
+// "Vibe's own" shows the chosen vibe's accent in the current light or dark mode, so it is worked out again whenever
+// the settings update in place or the theme changes.
+function ownAccent(){return (VIBES.find(v=>v[0]===UI.vibe)||VIBES[0])[curTheme()==='dark'?4:3].cherry}
+function settingsSync(){const own=document.querySelector('#settings-in .swatch[data-accent="classic"] i');if(own)own.style.background=ownAccent();const ico0=$('st-mode')&&$('st-mode').closest('.setrow').querySelector('.sl').firstElementChild;
   if(ico0)ico0.outerHTML=ico(curTheme()==='dark'?'moon':'sun','#5B5F66');
   const pr=(sel,k,v)=>document.querySelectorAll('#settings-in '+sel).forEach(b=>b.setAttribute('aria-pressed',String(b.dataset[k]===v)));
   pr('.vibe[data-vibe]','vibe',UI.vibe);pr('.swatch[data-accent]','accent',UI.accent);pr('.logopick[data-logo]','logo',UI.logo);
@@ -8466,7 +8500,7 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
     '<h3 class="rh">Appearance</h3><div class="setgroup">'+
     row(curTheme()==='dark'?'moon':'sun','#5B5F66','Light or dark','Bright cream, cosy espresso, or follow your phone','<div class="seg" id="st-mode"></div>')+
     row('drop','var(--cherry)','Vibe','A whole look, in light and in dark','<div class="vibes">'+VIBES.map(([k,n,d,L,D])=>'<button type="button" class="vibe" data-vibe="'+k+'" aria-pressed="'+(UI.vibe===k)+'" style="--l-p:'+L.paper+';--l-s:'+L.surface+';--l-i:'+L.ink+';--l-c:'+L.cherry+';--l-h:'+L.honey+';--d-p:'+D.paper+';--d-s:'+D.surface+';--d-i:'+D.ink+';--d-c:'+D.cherry+';--d-h:'+D.honey+'"><span class="vb-pv" aria-hidden="true"><i class="vb-l"><u></u><s></s><em></em></i><i class="vb-d"><u></u><s></s><em></em></i></span><b>'+n+'</b><small>'+d+'</small></button>').join('')+'</div>')+
-    row('palette','var(--cherry)','Accent','Change just the highlight colour (Vibe’s own keeps the vibe’s)','<div class="swatches">'+ACCENTS.map(([k,n,c])=>'<button type="button" class="swatch" data-accent="'+k+'" aria-pressed="'+(UI.accent===k)+'"><i style="background:'+(k==='classic'?(VIBES.find(v=>v[0]===UI.vibe)||VIBES[0])[curTheme()==='dark'?4:3].cherry:c)+'"></i>'+n+'</button>').join('')+'</div>')+
+    row('palette','var(--cherry)','Accent','Change just the highlight colour (Vibe’s own keeps the vibe’s)','<div class="swatches">'+ACCENTS.map(([k,n,c])=>'<button type="button" class="swatch" data-accent="'+k+'" aria-pressed="'+(UI.accent===k)+'"><i style="background:'+(k==='classic'?ownAccent():c)+'"></i>'+n+'</button>').join('')+'</div>')+
     row('leaf','#6B8E4E','App logo','In the top bar, the tab and on your home screen','<div class="logos">'+Object.entries(LOGOS).map(([k,[n]])=>'<button type="button" class="logopick" data-logo="'+k+'" aria-pressed="'+(UI.logo===k)+'"><span class="lg-tile">'+logoSVG(k,36)+'</span>'+n+'</button>').join('')+'</div><p class="setnote">'+(NATIVE&&plugin('AppIcon')?'Your home-screen icon changes to match a moment after you leave the app.':NATIVE?'The home-screen icon follows the logo from the next app update.':'The browser tab shows it too. In the Android app, the home-screen icon follows it.')+'</p>')+
     row('text','#C9964A','Text size','','<div class="seg" id="st-text"></div>')+
     row('motion','#6E8FA8','Motion','Animations between pages and sheets','<div class="seg" id="st-motion"></div>')+
@@ -9500,7 +9534,8 @@ function stampURL(k){if(STAMPS.has(k))return STAMPS.get(k);let u='';
 const STAMP_WAIT='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240"><circle cx="120" cy="120" r="92" fill="none" stroke="rgba(120,80,40,.18)" stroke-width="3" stroke-dasharray="6 8"/></svg>');
 const idle=f=>window.requestIdleCallback?requestIdleCallback(f,{timeout:300}):setTimeout(f,16);
 function fillStamps(root){const left=[...root.querySelectorAll('img[data-stamp]')].filter(i=>!STAMPS.has(i.dataset.stamp));
-  const next=()=>{const im=left.shift();if(!im||!im.isConnected)return;const u=stampURL(im.dataset.stamp);root.querySelectorAll('img[data-stamp="'+im.dataset.stamp+'"]').forEach(x=>{if(u)x.src=u});if(left.length)idle(next)};
+  // Each stamp is a canvas drawing, so none is drawn while you're moving between pages.
+  const next=()=>{if(performance.now()-NAV_AT<800){setTimeout(()=>idle(next),400);return}const im=left.shift();if(!im||!im.isConnected)return;const u=stampURL(im.dataset.stamp);root.querySelectorAll('img[data-stamp="'+im.dataset.stamp+'"]').forEach(x=>{if(u)x.src=u});if(left.length)idle(next)};
   root.querySelectorAll('img[data-stamp]').forEach(i=>{if(STAMPS.has(i.dataset.stamp))i.src=STAMPS.get(i.dataset.stamp)});if(left.length)idle(next)}
 /* Trophies have their own page (a sheet), opened from the trophy row and "All trophies": the season, seasonal
    trophies and the medal grid. The passport keeps to stamps and origins. */
@@ -10446,44 +10481,59 @@ function rngEnhance(i){if(i.dataset.rng)return;i.dataset.rng='1';
 /* ================= SELECTION CONTROLS ================= */
 // Segmented controls (roast, agitation, light or dark…) get one highlight that glides to the option you pick, styled
 // like that control's own highlight, instead of jumping. It picks up where it was even when the options are redrawn.
-function segUpdate(el){const on=el.querySelector(':scope>button[aria-pressed="true"]');let ind=el.querySelector(':scope>.seg-ind');
-  if(!on||!on.offsetWidth){if(ind)ind.style.opacity='0';return}
-  // The highlight needs a positioned parent; a control that's already sticky or absolute keeps its own positioning.
-  if(!el.classList.contains('ind-rel')&&getComputedStyle(el).position==='static')el.classList.add('ind-rel');
-  if(!ind){ind=document.createElement('span');ind.className='seg-ind';ind.setAttribute('aria-hidden','true');el.append(ind);
-    // A strip that was redrawn (Settings redraws on every pick) starts from where its highlight last was, so it still glides.
-    const ip=el._ip||(el.id&&SEG_IP.get(el.id));if(ip){ind.style.transition='none';Object.assign(ind.style,ip);ind.offsetWidth;ind.style.transition=''}}
-  // Read the picked option's own look for a moment (data-peek lets it show), then hand it to the highlight.
-  on.setAttribute('data-peek','');const cs=getComputedStyle(on);
-  const look={background:cs.backgroundColor,backgroundImage:cs.backgroundImage,boxShadow:cs.boxShadow,borderRadius:cs.borderRadius};on.removeAttribute('data-peek');el.classList.add('has-ind');
-  // Moved with a transform (the compositor animates it without laying the page out again); only the size changes width.
-  const pos={left:'0px',top:'0px',transform:'translate3d('+on.offsetLeft+'px,'+on.offsetTop+'px,0)',width:on.offsetWidth+'px',height:on.offsetHeight+'px'};
-  if(RM())ind.style.transition='none';Object.assign(ind.style,look,pos,{opacity:'1'});el._ip=pos;if(el.id)SEG_IP.set(el.id,pos);
-  if(SEG_RO&&!el._ro){el._ro=1;SEG_RO.observe(el)}}
+// Highlights are placed in batches: every strip is read first, then every highlight is written, so a page with many
+// strips (Settings redraws them all) is laid out about once instead of once per strip.
+function segBatch(list){const items=[];
+  for(const el of new Set(list)){if(!el||!el.isConnected)continue;const on=el.querySelector(':scope>button[aria-pressed="true"]');items.push({el,on,ind:el.querySelector(':scope>.seg-ind')})}
+  if(!items.length)return;
+  // Reads, part 1: which strips are shown, and which need a positioned parent for their highlight.
+  for(const it of items){it.ok=!!(it.on&&it.on.offsetWidth);if(it.ok&&!it.el.classList.contains('ind-rel'))it.stat=getComputedStyle(it.el).position==='static'}
+  for(const it of items)if(it.stat)it.el.classList.add('ind-rel');
+  // Reads, part 2: the picked option's own look (data-peek lets it show for a moment) and where it sits.
+  const live=items.filter(it=>it.ok);live.forEach(it=>it.on.setAttribute('data-peek',''));
+  for(const it of live){const cs=getComputedStyle(it.on),on=it.on;it.look={background:cs.backgroundColor,backgroundImage:cs.backgroundImage,boxShadow:cs.boxShadow,borderRadius:cs.borderRadius};
+    it.pos={left:'0px',top:'0px',transform:'translate3d('+on.offsetLeft+'px,'+on.offsetTop+'px,0)',width:on.offsetWidth+'px',height:on.offsetHeight+'px'}}
+  live.forEach(it=>it.on.removeAttribute('data-peek'));
+  // Writes. A strip that was redrawn (Settings redraws on every pick) starts from where its highlight last was, so it
+  // still glides: all the new highlights are put there first, with one layout for the lot.
+  let fresh=false;
+  for(const it of items){if(!it.ok){if(it.ind)it.ind.style.opacity='0';continue}
+    if(!it.ind){const ind=it.ind=document.createElement('span');ind.className='seg-ind';ind.setAttribute('aria-hidden','true');it.el.append(ind);
+      const ip=it.el._ip||(it.el.id&&SEG_IP.get(it.el.id));if(ip){ind.style.transition='none';Object.assign(ind.style,ip);fresh=true;it.reset=true}}}
+  if(fresh)document.body.offsetWidth;
+  const rm=RM();
+  for(const it of live){const el=it.el,ind=it.ind;if(it.reset)ind.style.transition='';el.classList.add('has-ind');
+    // Moved with a transform (the compositor animates it without laying the page out again); only the size changes width.
+    if(rm)ind.style.transition='none';Object.assign(ind.style,it.look,it.pos,{opacity:'1'});el._ip=it.pos;if(el.id)SEG_IP.set(el.id,it.pos)}
+  for(const it of items)if(SEG_RO&&!it.el._ro){it.el._ro=1;SEG_RO.observe(it.el)}}
+function segUpdate(el){segBatch([el])}
 // One watcher for every control's size (a tab coming into view, the phone turning); controls that have left the page are dropped.
 const SEG_RO=window.ResizeObserver?new ResizeObserver(es=>es.forEach(e=>{if(e.target.isConnected)segQueue(e.target);else SEG_RO.unobserve(e.target)})):null;
 const SEG_Q=new Set(),SEG_IP=new Map();let SEG_RAF=0;
-function segQueue(el){SEG_Q.add(el);if(!SEG_RAF)SEG_RAF=requestAnimationFrame(()=>{SEG_RAF=0;const l=[...SEG_Q];SEG_Q.clear();l.forEach(x=>{if(x.isConnected)segUpdate(x)})})}
+function segQueue(el){SEG_Q.add(el);if(!SEG_RAF)SEG_RAF=requestAnimationFrame(()=>{SEG_RAF=0;const l=[...SEG_Q];SEG_Q.clear();segBatch(l)})}
 // Every one-line strip glides, the Gear tabs included; wrapping filter chips can't, so they get the plain pick instead.
 const SEG_SEL='.seg:not(.filters),.seg.gtabs';
-function uiScan(root){if(!root.querySelectorAll)return;
+// Strips redrawn in one go are collected here and placed together when the scan is done.
+let SEG_NOW=null;
+function uiScan(root){if(!root.querySelectorAll)return;const own=!SEG_NOW;if(own)SEG_NOW=[];
   if(root.matches&&root.matches('input[type=range]'))rngEnhance(root);root.querySelectorAll('input[type=range]:not([data-rng])').forEach(rngEnhance);
   // A redrawn strip is placed at once (before the page paints), so it never shows a frame without its highlight.
-  const go=x=>x.id&&SEG_IP.has(x.id)?segUpdate(x):segQueue(x);if(root.matches&&root.matches(SEG_SEL))go(root);root.querySelectorAll(SEG_SEL).forEach(go)}
+  const go=x=>x.id&&SEG_IP.has(x.id)?SEG_NOW.push(x):segQueue(x);if(root.matches&&root.matches(SEG_SEL))go(root);root.querySelectorAll(SEG_SEL).forEach(go);
+  if(own){const l=SEG_NOW;SEG_NOW=null;segBatch(l)}}
 // Chip choices that wrap onto several lines (target cup, filters, the recipe maker's picks) can't glide, so the newly
 // picked chip pops in instead: on a pressed change, or when the row is redrawn with a different one picked.
 function chipCheck(box){if(!box||box.matches(SEG_SEL))return;const on=box.querySelector(':scope>button[aria-pressed="true"]');const key=on?(on.dataset.v||on.dataset.mk||on.textContent):'';
   if(box._onk!==undefined&&key&&key!==box._onk&&!RM()){replay(on,'chip-on');setTimeout(()=>on.classList.remove('chip-on'),400)}box._onk=key}
 // Only what changed is looked at: new nodes, and the control whose options were swapped or picked. A timer ticking in
 // a big page doesn't make every control on it measure itself again.
-new MutationObserver(ms=>{for(const m of ms){const t=m.type==='attributes'?m.target.parentElement:m.target,s=t&&t.closest&&t.closest(SEG_SEL);if(s)segQueue(s);
+new MutationObserver(ms=>{SEG_NOW=[];try{for(const m of ms){const t=m.type==='attributes'?m.target.parentElement:m.target,s=t&&t.closest&&t.closest(SEG_SEL);if(s)segQueue(s);
   if(t&&t.querySelector&&t.querySelector(':scope>button[aria-pressed]'))chipCheck(t);
-  if(m.type==='childList')m.addedNodes.forEach(n=>n.nodeType===1&&uiScan(n));else if(m.removedNodes)for(const n of m.removedNodes)if(n._ro&&SEG_RO)SEG_RO.unobserve(n)}})
+  if(m.type==='childList')m.addedNodes.forEach(n=>n.nodeType===1&&uiScan(n));else if(m.removedNodes)for(const n of m.removedNodes)if(n._ro&&SEG_RO)SEG_RO.unobserve(n)}}finally{const l=SEG_NOW;SEG_NOW=null;segBatch(l)}})
   .observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['aria-pressed']});
 uiScan(document.body);
 // A change of look (light/dark, following the phone, a vibe or an accent): every highlight takes its colours again
 // (they're copied from the picked option, so they'd otherwise stay in the old look), and so does the cup-fit badge.
-{const reTheme=()=>{document.querySelectorAll('.seg').forEach(s=>segQueue(s));try{if($('g-fit'))renderFit()}catch(e){}};
+{const reTheme=()=>{document.querySelectorAll('.seg').forEach(s=>segQueue(s));try{if($('settings-in'))settingsSync()}catch(e){}try{if($('g-fit'))renderFit()}catch(e){}};
   new MutationObserver(reTheme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','data-vibe','data-accent']});
   try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',reTheme)}catch(e){}}
 
