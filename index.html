@@ -3736,7 +3736,7 @@ const RECIPES=[
   steps:['0:00 pour 60g, bloom.','0:45 pour steadily to 200g.','1:45 when the level drops to a third, pour to 350g.','3:45 finished.'],tip:'A good daily recipe when you want no fuss.'},
  {b:'sw',kind:'kh1',name:'Hybrid method ("Devil" recipe)',by:'Tetsu Kasuya',off:-0.5,temp:90,temp2:70,dose:20,water:280,why:'Pour-over first at 90°C for acidity and fruit, then a closed-valve immersion at 70°C for sweetness without bitterness. Coarse grind.',
   steps:['Valve OPEN. 0:00 pour 60g at 90°C.','0:30 pour to 120g. Then cool the kettle to about 70°C.','1:15 CLOSE the valve and pour to 280g with the 70°C water.','1:45 OPEN the valve and let it drain.','3:00 finished.'],
-  tip:'Keep a small bottle of room-temperature water ready to drop the kettle temperature quickly.'},
+  tip:'Keep a small bottle of room-temperature water ready to drop the kettle temperature quickly. On a NEO Switch cone, start 2 to 3 clicks finer.'},
  {b:'sw',kind:'kh2',name:'New Hybrid (2025)',by:'Tetsu Kasuya',off:-0.7,temp:90,temp2:75,dose:20,water:300,why:'A closed-valve immersion bloom, pour-over in the middle, then a cooler immersion finish. More body and sweetness than the original.',
   steps:['Valve CLOSED. 0:00 pour 40 to 50g at 90°C.','0:35 OPEN the valve.','0:40 pour to 120g.','1:30 pour to 200g. Cool the kettle to 70 to 80°C.','2:05 CLOSE the valve.','2:10 pour to 300g.','2:45 OPEN and let it drain.','3:30 finished.'],
   tip:'If it runs long, go coarser rather than hotter.'},
@@ -3744,10 +3744,8 @@ const RECIPES=[
   steps:['Valve CLOSED. 0:00 pour 100g, swirl.','0:45 pour to 300g, one gentle swirl.','1:45 OPEN the valve.','3:00 finished.'],tip:'Open earlier for more clarity, later for more body.'},
  {b:'swi',kind:'imm',name:'Full immersion',by:'Classic Switch technique',off:0,temp:95,dose:18,water:300,why:'A clean French press. Works with the Switch or the NEO Switch.',
   steps:['Valve CLOSED. 0:00 add all water, stir.','3:30 stir once and OPEN the valve.','4:30 finished.'],tip:'Great for naturals and anaerobics.'},
- {b:'swneo',kind:'swneo',name:'NEO Switch: percolate, then immerse',by:'Built for the NEO Switch',off:0.3,temp:93,dose:20,water:300,why:'NEO pour-over for clarity, then a closed-valve finish for body.',
-  steps:['Valve OPEN. 0:00 pour 50g, bloom.','0:35 pour to 150g.','1:10 CLOSE the valve and pour to 300g.','2:00 OPEN the valve.','2:45 finished.'],tip:'Grind a few clicks finer than for the glass Switch cone.'},
- {b:'swneo',kind:'kh1',name:'Kasuya Hybrid on the NEO',by:'Tetsu Kasuya\u2019s method, on the NEO',off:-0.2,temp:90,temp2:70,dose:20,water:280,why:'The same 90°C then 70°C structure; the NEO\u2019s faster open-valve flow allows a slightly finer grind.',
-  steps:['Valve OPEN. 0:00 pour 60g at 90°C.','0:30 pour to 120g. Cool the kettle to about 70°C.','1:15 CLOSE and pour to 280g.','1:45 OPEN and drain.','2:45 finished.'],tip:'Start 2 to 3 clicks finer than your glass-Switch setting.'},
+ {b:'sw',kind:'hybrid',name:'Percolate, then immerse',by:'Classic Switch technique',off:0,temp:93,dose:20,water:300,why:'Pour-over first for clarity, then a closed-valve finish for body.',
+  steps:['Valve OPEN. 0:00 pour 50g, bloom.','0:35 pour to 150g.','1:10 CLOSE the valve and pour to 300g.','2:00 OPEN the valve.','2:45 finished.'],tip:'On a NEO Switch cone, grind a few clicks finer: it drains faster.'},
  {b:'clever',kind:'imm',name:'Clever steep',by:'Classic Clever technique',off:0,temp:95,dose:20,water:320,why:'Water first, then coffee, reduces clogging and gives an even steep.',
   steps:['0:00 pour all 320g of water, then add the coffee.','0:15 stir gently to wet everything.','2:00 stir once, then set on the cup to drain.','3:00 finished.'],tip:'A longer steep adds body; shorten it for clarity.'},
  {b:'aeropress',kind:'aero',name:'The Ultimate AeroPress',by:'James Hoffmann',off:1.2,temp:99,dose:11,water:200,why:'Low dose, fine grind, long steep, gentle press. Remarkably clean.',
@@ -3883,9 +3881,6 @@ const RECIPES=[
  {b:'pulsar',kind:'pulsar',name:'Pulsar one cup',by:'Classic technique',off:0.2,temp:95,dose:15,water:240,why:'A smaller dose with the same no-bypass idea: every drop goes through the bed, so a short brew still extracts fully.',
   steps:['Valve CLOSED. 0:00 pour 45g, swirl.','0:40 OPEN the valve.','0:45 pour through the dispersion cap to 240g.','2:45 finished.'],
   tip:'Still coarser than a V60, but a touch finer than for 20g.'},
- {b:'swneo',kind:'imm',name:'NEO Switch immersion',by:'Classic technique',off:-0.3,temp:95,dose:18,water:280,why:'Valve closed for a full steep, then the NEO’s fast, even drawdown: a sweet, round cup that still finishes clean.',
-  steps:['Valve CLOSED. 0:00 pour 280g, swirl to wet all the coffee.','1:00 gentle swirl.','2:00 OPEN the valve.','3:00 finished.'],
-  tip:'Steep longer for more body, shorter for more clarity.'},
  {b:'clever',kind:'imm',name:'Clever with a bloom',by:'Classic technique',off:-0.2,temp:96,dose:18,water:290,why:'A short bloom before the steep lets fresh coffee release its gas, so the grounds soak evenly instead of floating.',
   steps:['0:00 pour 50g, stir gently, bloom.','0:30 pour to 290g.','2:00 stir once.','2:30 set it on the cup to drain.','3:30 finished.'],
   tip:'Best with very fresh coffee, within a few weeks of roasting.'}
@@ -6261,7 +6256,7 @@ const rkey=r=>r.custom?'c:'+r.id:'r:'+slug(r.name);
 // their old keys lead to the recipe they joined.
 const RALIAS={'r:4-6-sweeter':'r:tetsu-kasuya-4-6','r:4-6-lighter-and-cleaner':'r:tetsu-kasuya-4-6','r:4-6-fuller-body':'r:tetsu-kasuya-4-6','r:mugen-small-cup':'r:mugen-one-pour',
   'r:kalita-for-darker-roasts':'r:kalita-pulse-pour','r:kalita-big-batch':'r:kalita-pulse-pour','r:ristretto':'r:classic-espresso-1-2','r:long-shot-allonge':'r:classic-espresso-1-2',
-  'r:two-cup-v60':'r:the-ultimate-v60','r:chemex-for-one':'r:classic-chemex','r:ready-to-drink-cold-brew':'r:cold-brew-concentrate'};
+  'r:two-cup-v60':'r:the-ultimate-v60','r:neo-switch-percolate-then-immerse':'r:percolate-then-immerse','r:kasuya-hybrid-on-the-neo':'r:hybrid-method-devil-recipe','r:neo-switch-immersion':'r:full-immersion','r:chemex-for-one':'r:classic-chemex','r:ready-to-drink-cold-brew':'r:cold-brew-concentrate'};
 const loadKeys=k=>{try{const v=JSON.parse(localStorage.getItem(k)||'[]');return Array.isArray(v)?[...new Set(v.filter(x=>typeof x==='string'&&x.length<120).map(x=>RALIAS[x]||x))]:[]}catch(e){return[]}};
 let FAVS=new Set(loadKeys('bb-favs'));
 let RECENT=loadKeys('bb-recent').slice(0,8);
