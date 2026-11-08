@@ -962,10 +962,12 @@ function shelfDoc(){const sh=shelfOrder();
     card:()=>shelfCardImg(),cardTheme:()=>originTheme(sh[0]&&sh[0].origin),cardName:'drinking-now',cardTitle:'Shelf card',cardSub:'The bags you’re drinking as one image: each coffee, how fresh it is, what’s left and your rating.',
     blocks:[{h:'Drinking now',list:sh.map(b=>beanTitle(b)+(shelfLine(b)?' ('+shelfLine(b)+')':'')+(b.rating?' · '+b.rating+' of 5':''))}]}}
 
-// The whole gallery, shared: every coffee you've collected, newest first.
-function galleryDoc(){const all=[...BEANS].sort((a,b)=>beanDay(b).localeCompare(beanDay(a))||(b.ts||0)-(a.ts||0));
+// The whole gallery, shared: every coffee you've collected, grouped by roastery.
+// By roastery, A to Z (coffees without one last); within a roastery, the newest first.
+function galleryOrder(){const r=b=>(b.roaster||'').trim();return [...BEANS].sort((a,b)=>(!r(a))-(!r(b))||r(a).localeCompare(r(b),undefined,{sensitivity:'base'})||beanDay(b).localeCompare(beanDay(a))||(b.ts||0)-(a.ts||0))}
+function galleryDoc(){const all=galleryOrder();
   return{title:'My coffee gallery',sub:all.length+' coffee'+(all.length===1?'':'s'),file:'coffee-gallery',
-    card:()=>galleryCardImg(),cardTheme:()=>originTheme(all[0]&&all[0].origin),cardName:'coffee-gallery',cardTitle:'Gallery card',cardSub:'Every coffee you’ve collected, hung like prints on a wall: each with its photo, roastery, origin and your rating, the top 5s marked.',
+    card:()=>galleryCardImg(),cardTheme:()=>originTheme(all[0]&&all[0].origin),cardName:'coffee-gallery',cardTitle:'Gallery card',cardSub:'Every coffee you’ve collected, by roastery, hung like prints on a wall: each with its photo, origin and your rating, the top 5s marked.',
     blocks:[{h:'My coffees',list:all.map(b=>beanTitle(b)+([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).length?' ('+[b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(', ')+')':'')+(b.rating?' · '+b.rating+' of 5':''))}]}}
 
 // Brewing a gallery coffee: the dial-in takes its process, variety, roast and age, and remembers which coffee it is.

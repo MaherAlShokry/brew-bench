@@ -644,14 +644,14 @@ function bcStatPills(x,X,Y,list){let px=X;list.forEach(([v,l])=>{x.font='800 30p
   bcRound(x,px,Y,w,58,29);x.fillStyle=BC.CHIP;x.fill();x.strokeStyle=bcA(.38);x.lineWidth=1.5;x.stroke();
   x.font='800 30px '+BC.F;x.fillStyle=BC.HONEY;x.fillText(String(v),px+24,Y+40);x.font='500 26px '+BC.F;x.fillStyle=BC.INK;x.fillText(l,px+24+vw+10,Y+39);px+=w+12})}
 
-// Your gallery: every coffee you've collected, newest first, hung like prints on a wall, each framed with a small
+// Your gallery: every coffee you've collected, by roastery (A to Z, newest first within each), hung like prints on a wall, each framed with a small
 // name card beneath (name, roastery, rating) and a medal on the ones that made a year's top 5; then where they're from.
 // The card grows with the collection: three across for a small one, four for a larger one, up to 24 shown.
 async function galleryCardImg(){const style=Object.assign({},CARD_STYLE),nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick;
-  const all=[...BEANS].sort((a,b)=>beanDay(b).localeCompare(beanDay(a))||(b.ts||0)-(a.ts||0)),cols=all.length<=9?3:4,cap=cols*6,shown=all.length>cap?all.slice(0,cap-1):all,more=all.length-shown.length;
+  const all=galleryOrder(),cols=all.length<=9?3:4,cap=cols*6,shown=all.length>cap?all.slice(0,cap-1):all,more=all.length-shown.length;
   const imgs=await Promise.all(shown.map(async b=>b.img?bcLoad(BIMG.peekThumb(b.id)||await BIMG.thumb(b.id)):null));
   const ros=new Set(all.map(b=>(b.roaster||'').toLowerCase()).filter(Boolean)).size,orc=new Map();all.forEach(b=>{if(b.origin)orc.set(b.origin,(orc.get(b.origin)||0)+1)});
-  const first=all.length?beanDay(all[all.length-1]):'',since=first?new Date(first+'T12:00').toLocaleDateString(undefined,{month:'short',year:'numeric'}):'';
+  const first=all.length?all.map(beanDay).sort()[0]:'',since=first?new Date(first+'T12:00').toLocaleDateString(undefined,{month:'short',year:'numeric'}):'';
   return bcBlob({style,theme:originTheme(all[0]&&all[0].origin),draw:(x,c)=>{const W=BC.W,P=BC.PAD,IW=W-2*P;
     let Y=bcHead(x,nick?nick+'’s coffee journey':'My coffee journey',since?'Since '+since:'');
     Y+=118;x.font='800 100px '+BC.F;x.fillStyle=BC.INK;x.fillText('My',P-4,Y);const mw=x.measureText('My ').width;x.fillStyle=BC.HONEY;x.fillText('gallery',P-4+mw,Y);
