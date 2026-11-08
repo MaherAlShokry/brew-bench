@@ -268,7 +268,7 @@ const RECIPES=[
  {b:'origami',kind:'pulse',name:'Origami with cone papers',by:'Classic technique',off:0.2,temp:94,dose:15,water:240,why:'With V60-style cone papers the Origami drains fast like a V60, so three pours keep the contact time up for a bright, clear cup.',
   steps:['0:00 pour 40g, bloom.','0:40 pour to 140g.','1:15 pour to 240g.','2:30 finished.'],
   tip:'Grind a little finer than with wave papers: the cone paper drains faster.'},
- {b:'chemex',kind:'pulse',name:'Chemex for one',by:'Classic technique',off:0.3,temp:94,dose:20,water:320,why:'A one-cup Chemex: a smaller dose in three pours, a touch finer so the shallower bed still steeps long enough.',
+ {b:'chemex',kind:'pulse',name:'One-cup Chemex',by:'Classic technique',off:0.3,temp:94,dose:20,water:320,why:'A one-cup Chemex: a smaller dose in three pours, a touch finer so the shallower bed still steeps long enough.',
   steps:['Rinse the thick filter well (three-layer side toward the spout).','0:00 pour 50g, bloom.','0:45 pour to 190g.','1:30 pour to 320g.','3:45 finished.'],
   tip:'Use the 3-cup Chemex if you have it; in a big one the bed spreads thin.'},
  {b:'april',kind:'pulse',name:'Iced April Brewer',by:'Classic technique',off:0.3,temp:96,dose:16,water:160,why:'A short, strong flat-bottom brew onto ice. The April Brewer’s quick, even drawdown suits a fast iced cup.',

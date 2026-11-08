@@ -1286,6 +1286,8 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
   background:linear-gradient(140deg,var(--cc),color-mix(in srgb,var(--cc) 60%,#000))}
 .colshelf b{font-family:var(--display);font-size:1rem}.colshelf small{font-size:.8rem;opacity:.9;line-height:1.3}.colshelf .cn{position:absolute;left:14px;bottom:10px;font-size:.78rem;font-weight:700;background:rgba(255,255,255,.22);border-radius:99px;padding:1px 8px}
 .rhead .rh{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* On the narrowest phones the heading's letters close up a little, so "All recipes · 113" fits beside the tools. */
+@media (max-width:359px){.rhead{gap:8px}.rhead .rh{letter-spacing:.02em}}
 .rhtools{flex:none;display:flex;align-items:center;gap:8px}
 @media (max-width:389px){.rn-w{display:none}}
 /* The sort button is a round icon button, like the save and close buttons; it opens the sort sheet. */
