@@ -10421,11 +10421,12 @@ function bcChipLine(x,items,y){const W=BC.W,P=BC.PAD;x.font='500 27px '+BC.F;let
 // A ring for what's left in a bag, the grams in the middle.
 function bcLeftRing(x,cx,cy,R,pc,g){x.save();x.lineCap='round';x.lineWidth=Math.max(8,R*0.17);x.beginPath();x.arc(cx,cy,R,0,TAU);x.strokeStyle=bcI(.12);x.stroke();
   if(pc>0){x.beginPath();x.arc(cx,cy,R,-Math.PI/2,-Math.PI/2+TAU*pc);x.strokeStyle=BC.HONEY;x.stroke()}
-    // The grams with their unit beside them ("110 g"), "left" beneath.
-  x.textBaseline='alphabetic';if(g){const nf='800 '+Math.round(R*0.46)+'px '+BC.F,uf='700 '+Math.round(R*0.3)+'px '+BC.F;x.font=nf;const nw=x.measureText(String(g)).width;x.font=uf;const uw=x.measureText(' g').width,x0=cx-(nw+uw)/2;
-    x.textAlign='left';x.font=nf;x.fillStyle=BC.INK;x.fillText(String(g),x0,cy+R*0.1);x.font=uf;x.fillText(' g',x0+nw,cy+R*0.1)}
-  else{x.textAlign='center';x.font='800 '+Math.round(R*0.32)+'px '+BC.F;x.fillStyle=BC.INK;x.fillText('Empty',cx,cy+R*0.1)}
-  x.textAlign='center';x.font='600 '+Math.round(R*0.27)+'px '+BC.F;x.fillStyle=BC.MUTED;if(g)x.fillText('left',cx,cy+R*0.5);x.restore()}
+    // The grams with their unit beside them ("110 g"), centred in the ring.
+  // The number and its unit share one baseline, set so the figures sit in the ring's middle.
+  x.textBaseline='alphabetic';if(g){const nf='800 '+Math.round(R*0.48)+'px '+BC.F,uf='700 '+Math.round(R*0.3)+'px '+BC.F,by=cy+R*0.17;x.font=nf;const nw=x.measureText(String(g)).width;x.font=uf;const uw=x.measureText(' g').width,x0=cx-(nw+uw)/2;
+    x.textAlign='left';x.font=nf;x.fillStyle=BC.INK;x.fillText(String(g),x0,by);x.font=uf;x.fillText(' g',x0+nw,by)}
+  else{x.textAlign='center';x.font='800 '+Math.round(R*0.32)+'px '+BC.F;x.fillStyle=BC.INK;x.fillText('Empty',cx,cy+R*0.11)}
+  x.restore()}
 
 // Your Top 5 of a year, with room to breathe: the title, then a podium (the three medal coffees as framed photos on
 // steps in their medal's colours, gold raised in the middle in a soft glow under a crown) with each one's name, roastery
