@@ -2958,7 +2958,8 @@ function drawShCard(){const d=$('sharesheet'),doc=SHDOC,n=++SHN;SHCARD=null;cons
   requestAnimationFrame(()=>setTimeout(()=>{if(n!==SHN)return;
   shCardFor(doc,st).then(bl=>{if(SHDOC!==doc||n!==SHN||!bl)return;SHCARD=bl;const pv=d.querySelector('.shcard-pv');if(!pv)return;pv.classList.remove('busy');
     const u=URL.createObjectURL(bl);pv.innerHTML='<img src="'+u+'" alt="Your brew card">';pv.querySelector('img').onload=()=>setTimeout(()=>URL.revokeObjectURL(u),1000);
-    const other={mode:st.mode==='dark'?'light':'dark',col:st.col};(window.requestIdleCallback||(f=>setTimeout(f,400)))(()=>{if(SHDOC===doc&&d.open)shCardFor(doc,other).catch(()=>{})})}).catch(()=>{const ph=d.querySelector('.shcard-ph');if(ph)ph.textContent='Couldn’t draw the card'})},0))}
+    // The other look is drawn ahead while the sheet sits idle, except for a card that takes long to draw (a big gallery).
+    const other={mode:st.mode==='dark'?'light':'dark',col:st.col};if(!doc.heavy)(window.requestIdleCallback||(f=>setTimeout(f,400)))(()=>{if(SHDOC===doc&&d.open)shCardFor(doc,other).catch(()=>{})})}).catch(()=>{const ph=d.querySelector('.shcard-ph');if(ph)ph.textContent='Couldn’t draw the card'})},0))}
 // One swatch per colour, painted in what the card would use: its background and its accent.
 function shSwatches(doc){const T=(doc.cardTheme&&doc.cardTheme())||OT.house,keep=Object.assign({},BC);
   const h=cardCols().map(([k,n])=>{const t=cardStyle(T,{mode:CARD_STYLE.mode,col:k}),lab=k==='origin'?(T.key?(flagOf(T.key)+' '+T.name):'House'):n;

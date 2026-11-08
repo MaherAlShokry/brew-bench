@@ -106,7 +106,9 @@ const beanTitle=b=>b.name||(b.origin?originName(b.origin)+(b.variety?' '+vName(b
 const flagOf=k=>(oInfo(k)||{}).flag||'';
 // The place a bean holds in its year's top 3 (1, 2 or 3), or 0.
 const beanRank=b=>{const t=TOP3[beanYear(b)];return t?t.ids.indexOf(b.id)+1:0};
-const beanMention=b=>{const t=TOP3[beanYear(b)];return !!t&&(t.hm||[]).includes(b.id)};
+// Up to three honourable mentions a year. A year saved with more (from before the limit) keeps them, but shows its first three.
+const HM_MAX=3,hmOf=t=>(t&&t.hm||[]).slice(0,HM_MAX);
+const beanMention=b=>{const t=TOP3[beanYear(b)];return !!t&&hmOf(t).includes(b.id)};
 const inAnyTop=id=>Object.values(TOP3).some(t=>t.ids.includes(id)||(t.hm||[]).includes(id));
 const SH_ICO='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5M5 12v8h14v-8"/></svg>';
 const MEDAL=['','#C9964A','#A49C92','#A8673F','#7F8E97','#8C7B6B'],MEDALN=['','Gold','Silver','Bronze','4th','5th'];
@@ -612,7 +614,7 @@ function podiumHTML(y,years){const t=TOP3[y],n=BEANS.filter(b=>beanYear(b)===y).
       const b=beanById(id),s=(t.snap||[]).find(x=>x.id===id)||{},v=b||Object.assign({id,img:true,origin:''},s);
       return '<button type="button" class="t45c" '+(b?'data-bean="'+id+'"':'data-top3="'+y+'" data-slot="'+i+'"')+'><span class="t45n">'+(i+1)+'</span>'+beanPic(Object.assign({},v,{img:b?b.img:true}),'xs')+'<span class="t45t"><b>'+esc(t3name(t,id))+'</b><small>'+esc((b?b.roaster:s.roaster)||'')+'</small></span></button>'}).join('')+'</div>':'')+
     (t&&(t.hm||[]).length||n>3?'<div class="t3hm"><div class="t3hm-h"><span>'+HM_SVG+' Honourable mentions</span>'+(n?'<button type="button" class="linkbtn" data-top3="'+y+'" data-slot="hm">'+(t&&(t.hm||[]).length?'Change':'Add')+'</button>':'')+'</div>'+
-      (t&&(t.hm||[]).length?'<div class="t3hm-l">'+(t.hm||[]).map(id=>{const b=beanById(id),s=(t.snap||[]).find(x=>x.id===id)||{},v=b||Object.assign({id,img:true,origin:''},s);
+      (t&&(t.hm||[]).length?'<div class="t3hm-l">'+hmOf(t).map(id=>{const b=beanById(id),s=(t.snap||[]).find(x=>x.id===id)||{},v=b||Object.assign({id,img:true,origin:''},s);
         return '<button type="button" class="t3hm-i" '+(b?'data-bean="'+id+'"':'')+'>'+beanPic(Object.assign({},v,{img:b?b.img:true}),'av')+'<small>'+esc(t3name(t,id))+'</small></button>'}).join('')+'</div>'
        :'<p class="t3hm-e">The ones that nearly made it: coffees you want to remember.</p>')+'</div>':'')+
     (has?'':'<p class="crown-empty">'+(n?'Tap a place to crown a coffee of '+y+'. Your picks stay in your history after the year ends.':'Add the coffees you drink in '+y+', then crown your favourites here.')+'</p>')}
@@ -950,15 +952,15 @@ function beanDoc(b){const P=b.process&&PROCESSES[b.process];
 // the honourable mentions.
 function t5Items(y){const t=TOP3[y];if(!t)return[];return t.ids.map((id,i)=>{if(!id)return null;const b=beanById(id),s=(t.snap||[]).find(x=>x.id===id)||{};
   return{rk:i+1,id,b,name:t3name(t,id),roaster:(b?b.roaster:s.roaster)||'',origin:(b?b.origin:s.origin)||'',rating:+(b?b.rating:s.rating)||0}}).filter(Boolean)}
-const t5Hm=y=>{const t=TOP3[y];return t?(t.hm||[]).map(id=>t3name(t,id)):[]};
+const t5Hm=y=>{const t=TOP3[y];return t?hmOf(t).map(id=>t3name(t,id)):[]};
 function top5Doc(y){const it=t5Items(y),hm=t5Hm(y),line=x=>'#'+x.rk+' '+x.name+([x.roaster,x.origin?originName(x.origin):''].filter(Boolean).length?' ('+[x.roaster,x.origin?originName(x.origin):''].filter(Boolean).join(', ')+')':'')+(x.rating?' · '+x.rating+' of 5':'');
-  return{title:'My top 5 of '+y,sub:it.length+' favourite coffee'+(it.length===1?'':'s')+(hm.length?' and '+hm.length+' honourable mention'+(hm.length===1?'':'s'):''),file:'top-5-'+y,
+  return{heavy:true,title:'My top 5 of '+y,sub:it.length+' favourite coffee'+(it.length===1?'':'s')+(hm.length?' and '+hm.length+' honourable mention'+(hm.length===1?'':'s'):''),file:'top-5-'+y,
     card:()=>top5CardImg(y),cardTheme:()=>originTheme(it[0]&&it[0].origin),cardName:'top-5-'+y,cardTitle:'Top 5 card',cardSub:'Your favourite coffees of '+y+' as one image: in order, with your ratings and your honourable mentions.',
     blocks:[{h:'Top 5 of '+y,list:it.map(line)},...(hm.length?[{h:'Honourable mentions',list:hm}]:[])]}}
 // What's on the shelf, shared: every bag you're drinking, in the shelf's order, with how fresh it is and what's left.
 function shelfLine(b){const f=fresh(b),g=gramsLeft(b);return[b.roaster,b.origin?originName(b.origin):'',f?'Day '+f.d+', '+f.label.toLowerCase():'',g!=null?(g?g+' g left':'bag empty'):''].filter(Boolean).join(' · ')}
 function shelfDoc(){const sh=shelfOrder();
-  return{title:'What I’m drinking now',sub:sh.length+' open bag'+(sh.length===1?'':'s'),file:'drinking-now',
+  return{heavy:true,title:'What I’m drinking now',sub:sh.length+' open bag'+(sh.length===1?'':'s'),file:'drinking-now',
     card:()=>shelfCardImg(),cardTheme:()=>originTheme(sh[0]&&sh[0].origin),cardName:'drinking-now',cardTitle:'Shelf card',cardSub:'The bags you’re drinking as one image: each coffee, how fresh it is, what’s left and your rating.',
     blocks:[{h:'Drinking now',list:sh.map(b=>beanTitle(b)+(shelfLine(b)?' ('+shelfLine(b)+')':'')+(b.rating?' · '+b.rating+' of 5':''))}]}}
 
@@ -966,7 +968,7 @@ function shelfDoc(){const sh=shelfOrder();
 // By roastery, A to Z (coffees without one last); within a roastery, the newest first.
 function galleryOrder(){const r=b=>(b.roaster||'').trim();return [...BEANS].sort((a,b)=>(!r(a))-(!r(b))||r(a).localeCompare(r(b),undefined,{sensitivity:'base'})||beanDay(b).localeCompare(beanDay(a))||(b.ts||0)-(a.ts||0))}
 function galleryDoc(){const all=galleryOrder();
-  return{title:'My coffee gallery',sub:all.length+' coffee'+(all.length===1?'':'s'),file:'coffee-gallery',
+  return{title:'My coffee gallery',sub:all.length+' coffee'+(all.length===1?'':'s'),file:'coffee-gallery',heavy:all.length>16,
     card:()=>galleryCardImg(),cardTheme:()=>originTheme(all[0]&&all[0].origin),cardName:'coffee-gallery',cardTitle:'Gallery card',cardSub:'Every coffee you’ve collected, by roastery, hung like prints on a wall: each with its photo, origin and your rating, the top 5s marked.',
     blocks:[{h:'My coffees',list:all.map(b=>beanTitle(b)+([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).length?' ('+[b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(', ')+')':'')+(b.rating?' · '+b.rating+' of 5':''))}]}}
 
@@ -1068,14 +1070,14 @@ function openTop3(y,start){const d=$('vd'),pool=BEANS.filter(b=>beanYear(b)===y)
       return '<button type="button" class="t3opt'+(on?' on':'')+'" data-t3="'+b.id+'" aria-pressed="'+on+'" style="--m:'+(mode==='places'?(MEDAL[r]||'var(--line)'):(m?'var(--honey)':'var(--line)'))+'">'+beanPic(b,'xs')+
       '<span class="t3o-tx"><b>'+esc(beanTitle(b))+'</b><small>'+esc([b.roaster,mode==='places'&&m?'Honourable mention':''].filter(Boolean).join(' · '))+'</small>'+beanRow(b.rating,'sm')+'</span><span class="t3o-r">'+(mode==='places'?(r||''):(m?HM_SVG:''))+'</span></button>'}).join('');
     $('t3-msg').innerHTML=mode==='places'?'Choose your <b style="color:color-mix(in srgb,'+MEDAL[act+1]+' 55%,var(--ink))">'+(act<3?MEDALN[act+1].toLowerCase():MEDALN[act+1]+' place')+'</b> coffee'+(slots[act]?', or tap it again to clear the place.':'.')
-      :'Tap the coffees that nearly made it. Up to ten'+(hm.length?': '+hm.length+' chosen.':'.');
+      :'Tap the coffees that nearly made it. Up to three'+(hm.length?': '+Math.min(hm.length,HM_MAX)+' of 3 chosen'+(hm.length>HM_MAX?'. Remove '+(hm.length-HM_MAX)+' to keep it to three.':'.'):'.');
     hydrateImgs($('t3-slots'));hydrateImgs($('t3-list'))};
   $('vd-in').innerHTML='<div class="vd-head" style="--c:'+MEDAL[1]+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:'+MEDAL[1]+'"></i>Favourites of '+y+'</span><h2 id="vd-title">Crown your favourites</h2>'+
     '<div class="seg" id="t3-mode" role="group" aria-label="Places or honourable mentions"></div><div class="t3slots five" id="t3-slots"></div><p class="vd-sub" id="t3-msg"></p></div>'+
     '<div class="vd-body"><div class="t3list" id="t3-list"></div><div class="actions"><button class="btn" id="t3-save">Save my favourites</button><button class="btn ghost" id="t3-clear">Clear all</button></div></div>';
   $('t3-slots').onclick=e=>{const x=e.target.closest('[data-unset]');if(x){slots[+x.dataset.unset]='';act=+x.dataset.unset;draw();return}const s=e.target.closest('[data-sl]');if(s){act=+s.dataset.sl;draw()}};
   $('t3-list').onclick=e=>{const o=e.target.closest('[data-t3]');if(!o)return;const id=o.dataset.t3;
-    if(mode==='hm'){const k=hm.indexOf(id);if(k>=0)hm.splice(k,1);else if(slots.includes(id)){toast('It already has a place in your top 5');return}else if(hm.length>=10){toast('Up to ten honourable mentions');return}else hm.push(id);draw();return}
+    if(mode==='hm'){const k=hm.indexOf(id);if(k>=0)hm.splice(k,1);else if(slots.includes(id)){toast('It already has a place in your top 5');return}else if(hm.length>=HM_MAX){toast('Up to three honourable mentions: remove one to add another');return}else hm.push(id);draw();return}
     const at=slots.indexOf(id);if(at===act)slots[act]='';else{if(at>=0)slots[at]=slots[act];slots[act]=id;hm=hm.filter(x=>x!==id);act=nextOpen(act)}draw()};
   $('t3-clear').onclick=()=>{slots=['','','','',''];hm=[];act=0;draw()};
   $('t3-save').onclick=()=>{const any=slots.some(Boolean)||hm.length;
