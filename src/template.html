@@ -764,16 +764,17 @@ html.app .bg-hero::after,html.app .me-hero::after,html.app .pp-st img{mix-blend-
 .sp-logo .puff{opacity:0;transform-box:fill-box;transform-origin:center;animation:sp-puff 1s var(--d) ease-out infinite}
 @keyframes sp-puff{0%{opacity:.85;transform:translate(0,0) scale(.4)}100%{opacity:0;transform:translate(-1.2px,-6px) scale(1.9)}}
 /* The Bench's own ending: a warmer glow, and a plank-coloured line draws itself under the name like a bench top's edge. */
-.sp-bench .sp-glow{background:radial-gradient(46% 34% at 50% 44%,color-mix(in srgb,var(--cherry) 26%,color-mix(in srgb,var(--honey) 30%,transparent)),transparent 72%)}
-.sp-bench .sp-word b{position:relative;padding-bottom:6px}
-.sp-bench .sp-word b::after{content:"";position:absolute;left:4%;right:4%;bottom:0;height:5px;border-radius:3px;background:linear-gradient(90deg,var(--cherry),var(--honey));transform:scaleX(0);transform-origin:left;animation:bn-plank .6s 1.15s cubic-bezier(.3,1,.4,1) forwards}
+:is(.sp-bench,.sp-benchtop) .sp-glow{background:radial-gradient(46% 34% at 50% 44%,color-mix(in srgb,var(--cherry) 26%,color-mix(in srgb,var(--honey) 30%,transparent)),transparent 72%)}
+:is(.sp-bench,.sp-benchtop) .sp-word b{position:relative;padding-bottom:6px}
+:is(.sp-bench,.sp-benchtop) .sp-word b::after{content:"";position:absolute;left:4%;right:4%;bottom:0;height:5px;border-radius:3px;background:linear-gradient(90deg,var(--cherry),var(--honey));transform:scaleX(0);transform-origin:left;animation:bn-plank .6s 1.15s cubic-bezier(.3,1,.4,1) forwards}
 @keyframes bn-plank{to{transform:scaleX(1)}}
-.k-bench .bn-legs{transform-box:fill-box;transform-origin:50% 100%;animation:bn-legs .45s .1s cubic-bezier(.3,1.4,.5,1) both}@keyframes bn-legs{from{transform:scaleY(0);opacity:0}}
-.k-bench .bn-top{animation:bn-top .42s .38s cubic-bezier(.45,0,.6,1.5) both}@keyframes bn-top{from{transform:translateY(-12px);opacity:0}}
+:is(.k-bench,.k-benchtop) .bn-legs{transform-box:fill-box;transform-origin:50% 100%;animation:bn-legs .45s .1s cubic-bezier(.3,1.4,.5,1) both}@keyframes bn-legs{from{transform:scaleY(0);opacity:0}}
+:is(.k-bench,.k-benchtop) .bn-top{animation:bn-top .42s .38s cubic-bezier(.45,0,.6,1.5) both}@keyframes bn-top{from{transform:translateY(-12px);opacity:0}}
 .k-bench .bn-drip{animation:bn-land .5s .72s cubic-bezier(.3,1.5,.5,1) both}.k-bench .bn-mug{animation:bn-land .5s .88s cubic-bezier(.3,1.5,.5,1) both}
 /* A single bean rolls in last and settles between the server and the mug. */
 .k-bench .bn-bean{transform-box:fill-box;transform-origin:50% 50%;animation:bn-roll .55s 1.02s cubic-bezier(.3,1.3,.5,1) both}@keyframes bn-roll{from{transform:translateX(5px) rotate(200deg);opacity:0}}
 @keyframes bn-land{from{transform:translateY(-10px);opacity:0}}
+.k-benchtop .bt-bean{transform-box:fill-box;transform-origin:50% 50%;animation:bn-roll .55s var(--d) cubic-bezier(.3,1.3,.5,1) both}
 .k-bench .bn-fill{transform:translateY(3.4px);animation:sp-svfill .9s 1.2s ease-out forwards}
 .k-bench .bn-steam{stroke-dasharray:1;stroke-dashoffset:1;animation:sp-stream .8s 1.25s ease-out forwards}
 .k-aeropress .ap-plunge{animation:ap-press .8s .95s cubic-bezier(.5,0,.3,1) both}@keyframes ap-press{to{transform:translateY(3.4px)}}
@@ -2535,7 +2536,7 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
   // The scene follows the chosen logo: the V60 pour for the dripper; for the others the logo builds itself piece by
   // piece, then does what it does (the grinder's crank turns, the kettle pours, the moka puffs...).
   var L=__SPLASH_LOGOS__,k="bean";try{k=JSON.parse(localStorage.getItem("bb-ui")||"{}").logo||"bean"}catch(e){}if(typeof k!=="string"||k!=="bean"&&!Object.prototype.hasOwnProperty.call(L,k))k="bean";
-  var TAG={bean:"Every bean has a story.",cup:"Pull a perfect shot.",latte:"Pour a little art.",dripper:"Dial in. Brew well.",cherry:"From cherry to cup.",moka:"Stovetop, done right.",kettle:"Pour with care.",grinder:"Grind fresh. Brew well.",bench:"Your coffee workbench.",aeropress:"Press, swirl, sip.",chemex:"Clean, bright, patient.",bag:"Freshly roasted."};
+  var TAG={bean:"Every bean has a story.",cup:"Pull a perfect shot.",latte:"Pour a little art.",dripper:"Dial in. Brew well.",cherry:"From cherry to cup.",moka:"Stovetop, done right.",kettle:"Pour with care.",grinder:"Grind fresh. Brew well.",bench:"Your coffee workbench.",benchtop:"Where every brew begins.",aeropress:"Press, swirl, sip.",chemex:"Clean, bright, patient.",bag:"Freshly roasted."};
   s.querySelector(".sp-tag").textContent=TAG[k];s.classList.add("sp-"+k);
   // The drifting shapes behind: beans, drops, leaves or bubbles.
   var G={drop:'<path d="M0-15c7 9 10 13 10 17a10 10 0 0 1-20 0c0-4 3-8 10-17z"/>',leaf:'<path d="M-13 0C-6-11 6-11 13 0 6 11-6 11-13 0z"/>',dot:'<circle r="11"/>'}[{kettle:"drop",dripper:"drop",cherry:"leaf",latte:"dot",chemex:"drop",aeropress:"dot"}[k]];
@@ -2587,9 +2588,16 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
     var raw=function(p){return shape(p," "+paint(p))};
     body='<g class="bn-legs">'+P.slice(0,3).map(raw).join("")+'</g><g class="bn-top">'+P.slice(3,5).map(raw).join("")+'</g>'+
       '<g class="bn-drip">'+raw(P[5])+'<clipPath id="spBnS"><path d="'+P[5].d+'"/></clipPath><g clip-path="url(#spBnS)"><rect class="bn-fill" x="5" y="9.6" width="6" height="4" fill="#6B4226"/></g>'+P.slice(6,9).map(raw).join("")+'</g>'+
-      '<g class="bn-mug">'+raw(P[9])+raw(P[10])+'</g>'+(P[12]?'<g class="bn-bean">'+P.slice(12).map(raw).join("")+'</g>':'')+shape(P[11],' class="bn-steam" '+paint(P[11]));
+      '<g class="bn-mug">'+raw(P[9])+'</g>'+(P[11]?'<g class="bn-bean">'+P.slice(11).map(raw).join("")+'</g>':'')+shape(P[10],' class="bn-steam" '+paint(P[10]));
     for(var u=0;u<4;u++)x+='<circle class="puff bn-dust" cx="'+[2.6,4.4,19.6,21.4][u]+'" cy="15.4" r=".8" fill="var(--honey)" style="--d:'+(.62+(u%2)*.06).toFixed(2)+'s"/>';
     for(var v=0;v<3;v++)x+='<circle class="vdrip" cx="8.1" cy="9.6" r=".3" fill="#6B4226" style="--d:'+(1.15+v*.17).toFixed(2)+'s"/>'}
+  else if(k==="benchtop"){
+    // The bare bench, built the same way: the legs grow up, the top drops on with a little dust, then three coffee
+    // beans tumble onto it one after another and settle in a row.
+    var raw2=function(p){return shape(p," "+paint(p))},bean2='<path d="M11.5 12.54a1.05 .72 -25 1 1 1.9-.88 1.05 .72 -25 1 1-1.9.88z" fill="var(--honey)"/><path d="M11.85 12.45c.55-.1.95-.65 1.3-.7" fill="none" stroke="var(--cherry)" stroke-width=".35" stroke-linecap="round" opacity=".75"/>';
+    body='<g class="bn-legs">'+P.slice(0,3).map(raw2).join("")+'</g><g class="bn-top">'+P.slice(3).map(raw2).join("")+'</g>';
+    [7.4,12,16.6].forEach(function(bx,i){body+='<g class="bt-bean" style="--d:'+(.82+i*.16).toFixed(2)+'s"><g transform="translate('+bx+' 7.55) scale(1.35) translate(-12.45 -12.1)">'+bean2+'</g></g>'});
+    for(var u2=0;u2<4;u2++)x+='<circle class="puff bn-dust" cx="'+[2.6,4.4,19.6,21.4][u2]+'" cy="11.4" r=".8" fill="var(--honey)" style="--d:'+(.62+(u2%2)*.06).toFixed(2)+'s"/>'}
   else if(k==="aeropress"){
     // The plunger presses down and the coffee drips through the cap into the mug.
     body=parts.slice(0,5).join("")+'<g class="ap-plunge">'+parts.slice(5).join("")+'</g>';
