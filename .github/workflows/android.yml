@@ -48,6 +48,24 @@ jobs:
         run: |
           echo "${{ secrets.BB_KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/release.keystore"
           echo "BB_KEYSTORE=$RUNNER_TEMP/release.keystore" >> "$GITHUB_ENV"
+      # Gradle itself is downloaded on first use; keep it between runs, and fetch it with retries so a passing hiccup at
+      # the download server (a 504 or a dropped connection) doesn't fail the build.
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/wrapper
+            ~/.gradle/caches
+          key: gradle-${{ runner.os }}-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties', 'android/**/*.gradle') }}
+          restore-keys: gradle-${{ runner.os }}-
+      - name: Fetch Gradle
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          for i in 1 2 3 4 5; do
+            ./gradlew --version --no-daemon && exit 0
+            echo "Gradle download failed (attempt $i), retrying in $((i*20))s"; sleep $((i*20))
+          done
+          exit 1
       - name: Build APK
         working-directory: android
         env:
