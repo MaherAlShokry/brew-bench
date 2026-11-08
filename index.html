@@ -10116,7 +10116,9 @@ function bcStamp(x,cx,cy,T){const R=92;x.save();x.translate(cx,cy);x.rotate(-0.1
    grind {g,c,line}, cup {r,vt,vs}, text [{label,body}], steps [], expect {label,items,bar}, quote {label,text}, footer} */
 // One full-height drawing surface, reused for every card: a fresh 1080 × 4400 canvas each time is a lot of memory on a phone.
 let BC_CV=null;
-function bcDraw(m){const W=BC.W,P=BC.PAD,IW=W-2*P;if(!BC_CV){BC_CV=document.createElement('canvas');BC_CV.width=W;BC_CV.height=4400}const c=BC_CV,x=c.getContext('2d');x.setTransform(1,0,0,1,0,0);x.globalAlpha=1;x.clearRect(0,0,W,c.height);
+function bcDraw(m){const W=BC.W,P=BC.PAD,IW=W-2*P;if(!BC_CV){BC_CV=document.createElement('canvas');BC_CV.width=W;BC_CV.height=4400}
+  // A card that needs more room (a large gallery) gets a taller canvas; every other card draws on the usual one.
+  {const H0=Math.max(4400,Math.ceil(m.minH||0));if(BC_CV.height!==H0)BC_CV.height=H0}const c=BC_CV,x=c.getContext('2d');x.setTransform(1,0,0,1,0,0);x.globalAlpha=1;x.clearRect(0,0,W,c.height);
   BC.F=getComputedStyle(document.body).fontFamily;
   // The origin's look (or the house espresso and honey): its accent colours are used throughout the card.
   const T=cardStyle(m.theme||OT.house,m.style||CARD_STYLE);
@@ -10489,28 +10491,30 @@ function bcStatPills(x,X,Y,list){let px=X;list.forEach(([v,l])=>{x.font='800 30p
 
 // Your gallery: every coffee you've collected, by roastery (A to Z, newest first within each), hung like prints on a wall, each framed with a small
 // name card beneath (name, roastery, rating) and a medal on the ones that made a year's top 5; then where they're from.
-// The card grows with the collection: three across for a small one, four for a larger one, up to 24 shown.
+// The card grows with the collection and shows all of it: three across for a small one, then four, five and six.
 async function galleryCardImg(){const style=Object.assign({},CARD_STYLE),nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick;
-  const all=galleryOrder(),cols=all.length<=9?3:4,cap=cols*6,shown=all.length>cap?all.slice(0,cap-1):all,more=all.length-shown.length;
+  // Every coffee is shown: more to a row as the gallery grows, so even a large one stays a sensible length.
+  const all=galleryOrder(),N=all.length,cols=N<=9?3:N<=40?4:N<=90?5:6,shown=all,more=0,K={3:0,4:1,5:2,6:3}[cols],pick=a=>a[K];
   const imgs=await Promise.all(shown.map(async b=>b.img?bcLoad(BIMG.peekThumb(b.id)||await BIMG.thumb(b.id)):null));
+  const gapG=pick([30,22,18,14]),cwG=(BC.W-2*BC.PAD-gapG*(cols-1))/cols,chG=cwG+pick([118,104,92,84]),minH=900+Math.ceil(N/cols)*(chG+gapG)+600;
   const ros=new Set(all.map(b=>(b.roaster||'').toLowerCase()).filter(Boolean)).size,orc=new Map();all.forEach(b=>{if(b.origin)orc.set(b.origin,(orc.get(b.origin)||0)+1)});
   const first=all.length?all.map(beanDay).sort()[0]:'',since=first?new Date(first+'T12:00').toLocaleDateString(undefined,{month:'short',year:'numeric'}):'';
-  return bcBlob({style,theme:originTheme(all[0]&&all[0].origin),draw:(x,c)=>{const W=BC.W,P=BC.PAD,IW=W-2*P;
+  return bcBlob({style,theme:originTheme(all[0]&&all[0].origin),minH,draw:(x,c)=>{const W=BC.W,P=BC.PAD,IW=W-2*P;
     let Y=bcHead(x,nick?nick+'’s coffee journey':'My coffee journey',since?'Since '+since:'');
     Y+=118;x.font='800 100px '+BC.F;x.fillStyle=BC.INK;x.fillText('My',P-4,Y);const mw=x.measureText('My ').width;x.fillStyle=BC.HONEY;x.fillText('gallery',P-4+mw,Y);
     Y+=40;bcStatPills(x,P,Y,[[all.length,all.length===1?'coffee':'coffees'],[ros,ros===1?'roastery':'roasteries'],[orc.size,orc.size===1?'origin':'origins']]);Y+=58+56;
     // The wall: framed prints in a grid.
-    const gap=cols===3?30:22,cw=(IW-gap*(cols-1))/cols,mat=cols===3?14:10,phH=cw-mat*2,lab=cols===3?118:104,ch=mat+phH+lab;
+    const gap=gapG,cw=(IW-gap*(cols-1))/cols,mat=pick([14,10,8,7]),phH=cw-mat*2,lab=pick([118,104,92,84]),ch=mat+phH+lab;
     shown.forEach((b,i)=>{const col=i%cols,row=Math.floor(i/cols),X=P+col*(cw+gap),yy=Y+row*(ch+gap),rk=beanRank(b);
       // The frame: a pane with a fine edge, the photo inset like a mounted print.
       x.save();x.shadowColor='rgba(0,0,0,.28)';x.shadowBlur=22;x.shadowOffsetY=10;bcRound(x,X,yy,cw,ch,20);x.fillStyle=BC.PANE;x.fill();x.restore();bcPane(x,X,yy,cw,ch,20);
       bcPic(x,imgs[i],b.origin,X+mat,yy+mat,cw-mat*2,phH,14);
-      if(rk){const r=cols===3?24:20,bx=X+cw-mat-r-8,by=yy+mat+r+8,med=MEDAL[rk];x.beginPath();x.arc(bx,by,r,0,TAU);x.fillStyle=med;x.fill();x.lineWidth=3;x.strokeStyle='rgba(18,11,7,.6)';x.stroke();
+      if(rk){const r=pick([24,20,17,15]),bx=X+cw-mat-r-8,by=yy+mat+r+8,med=MEDAL[rk];x.beginPath();x.arc(bx,by,r,0,TAU);x.fillStyle=med;x.fill();x.lineWidth=3;x.strokeStyle='rgba(18,11,7,.6)';x.stroke();
         if(rk<=3)bcCrown(x,bx,by+1,r*1.05,'#24160E');else{x.font='800 '+Math.round(r*0.95)+'px '+BC.F;x.fillStyle='#24160E';x.textAlign='center';x.fillText(String(rk),bx,by+r*0.34);x.textAlign='left'}}
       // The name card.
-      const tx=X+mat+4,tw=cw-mat*2-8;let ty=yy+mat+phH+(cols===3?40:36);x.font='800 '+(cols===3?25:22)+'px '+BC.F;x.fillStyle=BC.INK;x.fillText(bcWrap(x,beanTitle(b),tw,1)[0],tx,ty);
-      x.font='500 '+(cols===3?20:18)+'px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(bcWrap(x,[b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · ')||'–',tw,1)[0],tx,ty+(cols===3?30:27));
-      if(b.rating){const sz=cols===3?18:15;bcRating(x,'beans',b.rating,tx,ty+(cols===3?62:56),sz)}});
+      const tx=X+mat+4,tw=cw-mat*2-8;let ty=yy+mat+phH+pick([40,36,32,29]);x.font='800 '+pick([25,22,19,17])+'px '+BC.F;x.fillStyle=BC.INK;x.fillText(bcWrap(x,beanTitle(b),tw,1)[0],tx,ty);
+      x.font='500 '+pick([20,18,16,15])+'px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(bcWrap(x,[b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · ')||'–',tw,1)[0],tx,ty+pick([30,27,24,22]));
+      if(b.rating){const sz=pick([18,15,13,12]);bcRating(x,'beans',b.rating,tx,ty+pick([62,56,50,46]),sz)}});
     Y+=Math.ceil(shown.length/cols)*(ch+gap)-gap;
     if(more){Y+=52;x.font='600 26px '+BC.F;x.fillStyle=BC.MUTED;x.textAlign='center';x.fillText('and '+more+' more coffee'+(more===1?'':'s')+' in the gallery',W/2,Y);x.textAlign='left'}
     if(orc.size){Y+=64;bcLabel(x,'Where they’re from',P,Y);Y=bcChips(x,[...orc].sort((a,b)=>b[1]-a[1]).slice(0,12).map(([k,v])=>originName(k)+(v>1?'  ×'+v:'')),Y+26)}
