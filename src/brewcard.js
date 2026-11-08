@@ -661,8 +661,9 @@ async function galleryCardImg(){const style=Object.assign({},CARD_STYLE),nick=wi
     Y+=118;x.font='800 100px '+BC.F;x.fillStyle=BC.INK;x.fillText('My',P-4,Y);const mw=x.measureText('My ').width;x.fillStyle=BC.HONEY;x.fillText('gallery',P-4+mw,Y);
     Y+=40;bcStatPills(x,P,Y,[[all.length,all.length===1?'coffee':'coffees'],[ros,ros===1?'roastery':'roasteries'],[orc.size,orc.size===1?'origin':'origins']]);Y+=58+56;
     // The wall: framed prints in a grid.
-    const gap=gapG,cw=(IW-gap*(cols-1))/cols,mat=pick([14,10,8,7]),phH=cw-mat*2,lab=pick([118,104,92,84]),ch=mat+phH+lab;
-    shown.forEach((b,i)=>{const col=i%cols,row=Math.floor(i/cols),X=P+col*(cw+gap),yy=Y+row*(ch+gap),rk=beanRank(b);
+    // Whole pixels throughout, so every frame's edge is crisp, and the grid centred under the title.
+    const gap=gapG,cw=Math.floor((IW-gap*(cols-1))/cols),gx=P+Math.floor((IW-(cw*cols+gap*(cols-1)))/2),mat=pick([14,10,8,7]),phH=cw-mat*2,lab=pick([118,104,92,84]),ch=mat+phH+lab;
+    shown.forEach((b,i)=>{const col=i%cols,row=Math.floor(i/cols),X=gx+col*(cw+gap),yy=Math.round(Y+row*(ch+gap)),rk=beanRank(b);
       // The frame: a pane with a fine edge, the photo inset like a mounted print.
       x.save();x.shadowColor='rgba(0,0,0,.28)';x.shadowBlur=22;x.shadowOffsetY=10;bcRound(x,X,yy,cw,ch,20);x.fillStyle=BC.PANE;x.fill();x.restore();bcPane(x,X,yy,cw,ch,20);
       bcPic(x,imgs[i],b.origin,X+mat,yy+mat,cw-mat*2,phH,14);
@@ -670,7 +671,9 @@ async function galleryCardImg(){const style=Object.assign({},CARD_STYLE),nick=wi
         if(rk<=3)bcCrown(x,bx,by+1,r*1.05,'#24160E');else{x.font='800 '+Math.round(r*0.95)+'px '+BC.F;x.fillStyle='#24160E';x.textAlign='center';x.fillText(String(rk),bx,by+r*0.34);x.textAlign='left'}}
       // The name card.
       const tx=X+mat+4,tw=cw-mat*2-8;let ty=yy+mat+phH+pick([40,36,32,29]);x.font='800 '+pick([25,22,19,17])+'px '+BC.F;x.fillStyle=BC.INK;x.fillText(bcWrap(x,beanTitle(b),tw,1)[0],tx,ty);
-      x.font='500 '+pick([20,18,16,15])+'px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(bcWrap(x,[b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · ')||'–',tw,1)[0],tx,ty+pick([30,27,24,22]));
+      // The line under the name: roastery and origin when both fit, else the roastery alone (the gallery's order), never a lone "…".
+      x.font='500 '+pick([20,18,16,15])+'px '+BC.F;x.fillStyle=BC.MUTED;const both=[b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '),meta=x.measureText(both).width<=tw?both:(b.roaster||(b.origin?originName(b.origin):'')||'–');
+      x.fillText(bcWrap(x,meta,tw,1)[0],tx,ty+pick([30,27,24,22]));
       if(b.rating){const sz=pick([18,15,13,12]);bcRating(x,'beans',b.rating,tx,ty+pick([62,56,50,46]),sz)}});
     Y+=Math.ceil(shown.length/cols)*(ch+gap)-gap;
     if(more){Y+=52;x.font='600 26px '+BC.F;x.fillStyle=BC.MUTED;x.textAlign='center';x.fillText('and '+more+' more coffee'+(more===1?'':'s')+' in the gallery',W/2,Y);x.textAlign='left'}
