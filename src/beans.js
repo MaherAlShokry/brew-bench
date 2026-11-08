@@ -79,7 +79,7 @@ let TOP3=(t=>{const o={};if(t&&typeof t==='object')for(const [y,v] of Object.ent
   const hm=[...new Set((Array.isArray(v.hm)?v.hm:[]).filter(id=>typeof id==='string'&&BID.test(id)&&!ids.includes(id)))].slice(0,10);if(!ids.some(Boolean)&&!hm.length)continue;
   o[y]={ids,hm,snap:(Array.isArray(v.snap)?v.snap:[]).filter(s=>s&&BID.test(s.id)).slice(0,15).map(s=>({id:s.id,name:str(s&&s.name,60),roaster:str(s&&s.roaster,50),origin:okOrigin(s&&s.origin),rating:clamp(+(s&&s.rating)||0,0,5)})),at:+v.at||0}}return o})(load('bb-top3',{}));
 const t3has=t=>!!t&&(t.ids.some(Boolean)||(t.hm||[]).length>0);
-let BQ='',BSORT='recent',BYEAR=[],BF=[],BPOD=null,BVIEW='coffees';
+let BQ='',BSORT=vwGet('bsort','recent',v=>['recent','rated','roaster','origin'].includes(v)),BYEAR=vwGet('byear',[],vwStrs).map(String),BF=vwGet('bf',[],vwStrs),BPOD=null,BVIEW='coffees';
 // A coffee shows when it fits any of the picked filters and any of the picked years (none picked: all).
 const bfAny=b=>!BF.length||BF.some(f=>bfKeep(b,f));
 // Cards slide in the first time you see them, not every time the list is sorted or searched.
@@ -679,7 +679,7 @@ function renderCoffees(){const p=$('bv-coffees'),years=beanYears();BYEAR=BYEAR.f
 // The coffee list's filter and sort, in the same sheet as every other list.
 const BSORTS=[['recent','Recent'],['rated','Top rated'],['roaster','Roastery'],['origin','Origin']];
 const bFilterName=()=>selName([...BF.map(f=>(BFILTERS.find(x=>x[0]===f)||[,f])[1]),...BYEAR],x=>x,'All coffees');
-function renderBeanSort(){ltSync('bg-lt',{on:BF.length+BYEAR.length>0,filter:bFilterName(),sort:BSORTS.find(x=>x[0]===BSORT)[1]});renderGrid()}
+function renderBeanSort(){vwSet('bsort',BSORT);vwSet('byear',BYEAR);vwSet('bf',BF);ltSync('bg-lt',{on:BF.length+BYEAR.length>0,filter:bFilterName(),sort:BSORTS.find(x=>x[0]===BSORT)[1]});renderGrid()}
 function openBeanFilter(){const years=beanYears(),fs=BFILTERS.filter(([f])=>f==='all'||BEANS.some(b=>bfKeep(b,f)));
   openChoices({title:'Filter coffees',one:'coffee',get:k=>k==='bf'?BF:BYEAR,set:(k,v)=>{if(k==='bf')BF=v;else BYEAR=v},render:renderBeanSort,count:()=>beanList().length,
     secs:()=>[fs.length>1?{h:'Show',key:'bf',multi:true,opts:fs.map(([f,n])=>[f,f==='all'?'All coffees':n])}:null,years.length>1?{h:'Year',key:'year',multi:true,chips:1,opts:[['all','All years'],...years.map(y=>[String(y),String(y)])]}:null]})}
@@ -738,7 +738,7 @@ function renderTop3View(){const p=$('bv-top3'),years=beanYears(),cy=new Date().g
       ids.map(id=>{const b=beanById(id),s=(t.snap||[]).find(x=>x.id===id)||{};return beanPic(b||Object.assign({id,img:true,origin:''},s),'av')}).join('')+'</span><small>'+CROWN+esc(t3name(t,ids[0]))+'</small></button>'}).join('')+'</div>':'');
   hydrateImgs(p)}
 /* ---------- The diary: every coffee's story in one timeline ---------- */
-let DLIM=40,DYF=[],DYB=null,DYI=[];const DYST={mom:'note',ph:null,t:'',d:''};
+let DLIM=40,DYF=vwGet('dyf',[],vwStrs),DYB=null,DYI=[];const DYST={mom:'note',ph:null,t:'',d:''};
 const DYFILTERS=[['all','All'],['written','Written'],['photos','Photos'],['brews','Brews'],['best','Best cups'],['dial','Dialled in']];
 // Best cups: the entries you marked so, and the brews you gave five stars.
 const dyKeep=(it,f)=>f==='all'||(f==='brews'?it.kind==='brew':f==='best'?(it.kind==='entry'?it.e.k==='best':+it.l.stars===5):it.kind==='entry'&&(f==='written'?!!it.e.t:f==='photos'?!!it.e.ph:it.e.k===f));
@@ -774,7 +774,7 @@ const dyName=()=>selName(DYF,f=>(DYFILTERS.find(x=>x[0]===f)||[,f])[1],'Everythi
 function dySync(){const n=DYI.filter(dyAny).length;ltSync('dy-lt',{on:DYF.length>0,filter:dyName(),k:dyName()+' · '+nOf(n,'item')})}
 function openDiaryFilter(){openChoices({title:'Filter the diary',one:'item',get:()=>DYF,count:()=>DYI.filter(dyAny).length,
   set:(k,v)=>{DYF=v},render:()=>{DLIM=40;dySync();renderDiaryList()},secs:()=>[{key:'dyf',multi:true,opts:DYFILTERS.filter(([f])=>f==='all'||DYI.some(it=>dyKeep(it,f))).map(([f,n])=>[f,f==='all'?'Everything':n])}]})}
-function renderDiaryList(){const p=$('dy-list');if(!p)return;const items=DYI.filter(dyAny),months=new Map();
+function renderDiaryList(){vwSet('dyf',DYF);const p=$('dy-list');if(!p)return;const items=DYI.filter(dyAny),months=new Map();
   for(const it of items.slice(0,DLIM)){const m=new Date(it.t).toLocaleDateString(undefined,{month:'long',year:'numeric'});if(!months.has(m))months.set(m,[]);months.get(m).push(it)}
   p.innerHTML=items.length?[...months].map(([m,l])=>'<h4 class="dy-m">'+esc(m)+'</h4>'+timelineHTML(l,true)).join('')+(items.length>DLIM?'<button type="button" class="btn ghost dy-more" id="dy-more">Show '+Math.min(60,items.length-DLIM)+' more</button>':'')
     :DYI.length?'<p class="hint">Nothing here yet.</p>':'<div class="bg-empty">'+beanSVG+'<b>Nothing written yet</b><p>'+(BEANS.length?'Write the first entry above, or log a brew with the coffee picked on the dial-in.':'Add a coffee first, then its story starts here.')+'</p></div>';
