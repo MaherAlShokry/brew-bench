@@ -1621,6 +1621,16 @@ dialog#vd:has(.me-hero){overflow-x:hidden}
 .auth>.linkbtn{display:block;margin:6px auto 0}
 .setrow{padding:14px 16px}.setrow+.setrow{border-top:1px solid var(--line)}
 .setrow>.sl{display:flex;align-items:center;gap:12px;margin-bottom:10px}.setrow>.sl:last-child{margin-bottom:0}
+/* Logos in light mode: their gold parts a touch deeper (towards the vibe's darker gold) so they read on pale tiles.
+   --honey-base carries the vibe's own gold down, since a variable can't refer to itself. */
+:root{--honey-base:var(--honey)}
+:root[data-theme="light"] :is(#ab-logo,.logopick,#splash,.lg-tile){--honey:color-mix(in srgb,var(--honey-base) 68%,var(--honey-ink,var(--honey-base)))}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]) :is(#ab-logo,.logopick,#splash,.lg-tile){--honey:color-mix(in srgb,var(--honey-base) 68%,var(--honey-ink,var(--honey-base)))}}
+/* Tinted icon tiles in the vibe's colours (see ico in app.js): a soft tint with the symbol in the colour itself. */
+.ic.t-c{--t:var(--cherry-ink,var(--cherry))}.ic.t-h{--t:var(--honey-ink,var(--honey))}.ic.t-l{--t:var(--leaf-ink,var(--leaf))}
+.ic.t-cl{--t:color-mix(in srgb,var(--cherry-ink,var(--cherry)) 52%,var(--leaf-ink,var(--leaf)))}.ic.t-ch{--t:color-mix(in srgb,var(--cherry-ink,var(--cherry)) 58%,var(--honey-ink,var(--honey)))}
+.ic[class*=" t-"]{background:color-mix(in srgb,var(--t) 15%,var(--surface))!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--t) 20%,transparent)}
+.ic[class*=" t-"] svg{stroke:var(--t)!important}
 .setrow .ic{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;flex:none}.setrow .ic svg{width:20px;height:20px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .setrow .mt{flex:1;min-width:0}.setrow .mt b{display:block;font-weight:600}.setrow .mt small{display:block;color:var(--muted);font-size:.84rem;line-height:1.35}
 .setrow .seg{display:flex;flex-wrap:nowrap}.setrow .seg button{flex:1 1 auto;min-width:0;white-space:nowrap;text-overflow:clip}
@@ -2030,7 +2040,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .shsw:focus-visible i,.shmode button:focus-visible{outline:2px solid #F0C987;outline-offset:2px}
 .shcard-pv.busy{position:relative}.shcard-pv.busy::after{content:'';position:absolute;inset:0;background:rgba(20,12,7,.45);animation:bfade .2s ease}
 .steps.tl .t.est{background:transparent;border:1px dashed color-mix(in srgb,var(--ink) 30%,transparent);opacity:.85}
-.ic.on-accent svg{stroke:var(--paper)!important}
+
 .av-note{grid-column:1/-1;margin:0;font-size:.8rem}.getapp a.btn{text-decoration:none;display:flex;justify-content:center;align-items:center;text-align:center}
 /* A long coffee list: rows off screen skip layout and paint until you scroll near them (opening Beans was slow). */
 #bg-grid .crow,#bv-diary .tl-item,#log .logentry{content-visibility:auto;contain-intrinsic-size:auto 76px}
