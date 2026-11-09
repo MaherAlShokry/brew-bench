@@ -3235,7 +3235,16 @@ const ICO={sliders:'M4 7h9 M17 7h3 M4 17h3 M11 17h9 M15 5v4 M9 15v4',motion:'M3 
 const IOS=()=>/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 const installed=()=>!!window.Capacitor||MQ('(display-mode: standalone)')||navigator.standalone===true;
 // A tile in the vibe's own accent turns light in the dark vibes, so its icon takes the paper colour instead of white.
-const ico=(n,bg)=>'<span class="ic'+(/var\(--/.test(bg)?' on-accent':'')+'" style="background:'+bg+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+ICO[n]+'"/></svg></span>';
+// Icon tiles take the vibe's colours: the colour an icon is given only says which role it plays, by its hue (browns
+// and reds the vibe's main colour, golds its honey, greens its leaf, blues and purples a blend of them), and the tile
+// is a soft tint of that colour with the symbol drawn in it, so every vibe, light or dark, gets icons in its own palette.
+const ICO_TONE=new Map();
+function icoTone(bg){if(ICO_TONE.has(bg))return ICO_TONE.get(bg);let t='c';const m=/^#([0-9a-f]{6})$/i.exec(bg||'');
+  if(/var\(--honey/.test(bg))t='h';else if(/var\(--leaf/.test(bg))t='l';else if(m){const n=parseInt(m[1],16),r=(n>>16)/255,g=(n>>8&255)/255,b=(n&255)/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn;
+    let h=0;if(d){h=mx===r?((g-b)/d)%6:mx===g?(b-r)/d+2:(r-g)/d+4;h=(h*60+360)%360}
+    t=d/(mx||1)<0.18?'cl':h<38||h>=340?'c':h<62?'h':h<170?'l':h<265?'cl':'ch'}
+  ICO_TONE.set(bg,t);return t}
+const ico=(n,bg)=>'<span class="ic t-'+icoTone(bg)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+ICO[n]+'"/></svg></span>';
 
 const TABNAMES={explore:'Explore',settings:'Settings',champs:'World championships',words:'Coffee words',wheel:'Flavour wheel',flow:'From seed to cup',dial:'Dial-in',scan:'Scan beans',gear:'Gear and dials',recipes:'Recipes',tech:'Techniques',process:'Processes',map:'Origins map',variety:'Varieties',history:'History',guide:'Guide',log:'Brew log',beans:'Beans'};
 const BNGROUP={explore:'explore',settings:'settings',champs:'explore',words:'explore',wheel:'explore',flow:'explore',dial:'dial',recipes:'recipes',scan:'beans',map:'explore',variety:'explore',history:'explore',process:'explore',tech:'explore',gear:'settings',guide:'settings',log:'settings',beans:'beans'};

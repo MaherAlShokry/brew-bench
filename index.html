@@ -1622,6 +1622,16 @@ dialog#vd:has(.me-hero){overflow-x:hidden}
 .auth>.linkbtn{display:block;margin:6px auto 0}
 .setrow{padding:14px 16px}.setrow+.setrow{border-top:1px solid var(--line)}
 .setrow>.sl{display:flex;align-items:center;gap:12px;margin-bottom:10px}.setrow>.sl:last-child{margin-bottom:0}
+/* Logos in light mode: their gold parts a touch deeper (towards the vibe's darker gold) so they read on pale tiles.
+   --honey-base carries the vibe's own gold down, since a variable can't refer to itself. */
+:root{--honey-base:var(--honey)}
+:root[data-theme="light"] :is(#ab-logo,.logopick,#splash,.lg-tile){--honey:color-mix(in srgb,var(--honey-base) 68%,var(--honey-ink,var(--honey-base)))}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]) :is(#ab-logo,.logopick,#splash,.lg-tile){--honey:color-mix(in srgb,var(--honey-base) 68%,var(--honey-ink,var(--honey-base)))}}
+/* Tinted icon tiles in the vibe's colours (see ico in app.js): a soft tint with the symbol in the colour itself. */
+.ic.t-c{--t:var(--cherry-ink,var(--cherry))}.ic.t-h{--t:var(--honey-ink,var(--honey))}.ic.t-l{--t:var(--leaf-ink,var(--leaf))}
+.ic.t-cl{--t:color-mix(in srgb,var(--cherry-ink,var(--cherry)) 52%,var(--leaf-ink,var(--leaf)))}.ic.t-ch{--t:color-mix(in srgb,var(--cherry-ink,var(--cherry)) 58%,var(--honey-ink,var(--honey)))}
+.ic[class*=" t-"]{background:color-mix(in srgb,var(--t) 15%,var(--surface))!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--t) 20%,transparent)}
+.ic[class*=" t-"] svg{stroke:var(--t)!important}
 .setrow .ic{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;flex:none}.setrow .ic svg{width:20px;height:20px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .setrow .mt{flex:1;min-width:0}.setrow .mt b{display:block;font-weight:600}.setrow .mt small{display:block;color:var(--muted);font-size:.84rem;line-height:1.35}
 .setrow .seg{display:flex;flex-wrap:nowrap}.setrow .seg button{flex:1 1 auto;min-width:0;white-space:nowrap;text-overflow:clip}
@@ -2031,7 +2041,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .shsw:focus-visible i,.shmode button:focus-visible{outline:2px solid #F0C987;outline-offset:2px}
 .shcard-pv.busy{position:relative}.shcard-pv.busy::after{content:'';position:absolute;inset:0;background:rgba(20,12,7,.45);animation:bfade .2s ease}
 .steps.tl .t.est{background:transparent;border:1px dashed color-mix(in srgb,var(--ink) 30%,transparent);opacity:.85}
-.ic.on-accent svg{stroke:var(--paper)!important}
+
 .av-note{grid-column:1/-1;margin:0;font-size:.8rem}.getapp a.btn{text-decoration:none;display:flex;justify-content:center;align-items:center;text-align:center}
 /* A long coffee list: rows off screen skip layout and paint until you scroll near them (opening Beans was slow). */
 #bg-grid .crow,#bv-diary .tl-item,#log .logentry{content-visibility:auto;contain-intrinsic-size:auto 76px}
@@ -8364,7 +8374,16 @@ const ICO={sliders:'M4 7h9 M17 7h3 M4 17h3 M11 17h9 M15 5v4 M9 15v4',motion:'M3 
 const IOS=()=>/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 const installed=()=>!!window.Capacitor||MQ('(display-mode: standalone)')||navigator.standalone===true;
 // A tile in the vibe's own accent turns light in the dark vibes, so its icon takes the paper colour instead of white.
-const ico=(n,bg)=>'<span class="ic'+(/var\(--/.test(bg)?' on-accent':'')+'" style="background:'+bg+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+ICO[n]+'"/></svg></span>';
+// Icon tiles take the vibe's colours: the colour an icon is given only says which role it plays, by its hue (browns
+// and reds the vibe's main colour, golds its honey, greens its leaf, blues and purples a blend of them), and the tile
+// is a soft tint of that colour with the symbol drawn in it, so every vibe, light or dark, gets icons in its own palette.
+const ICO_TONE=new Map();
+function icoTone(bg){if(ICO_TONE.has(bg))return ICO_TONE.get(bg);let t='c';const m=/^#([0-9a-f]{6})$/i.exec(bg||'');
+  if(/var\(--honey/.test(bg))t='h';else if(/var\(--leaf/.test(bg))t='l';else if(m){const n=parseInt(m[1],16),r=(n>>16)/255,g=(n>>8&255)/255,b=(n&255)/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn;
+    let h=0;if(d){h=mx===r?((g-b)/d)%6:mx===g?(b-r)/d+2:(r-g)/d+4;h=(h*60+360)%360}
+    t=d/(mx||1)<0.18?'cl':h<38||h>=340?'c':h<62?'h':h<170?'l':h<265?'cl':'ch'}
+  ICO_TONE.set(bg,t);return t}
+const ico=(n,bg)=>'<span class="ic t-'+icoTone(bg)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+ICO[n]+'"/></svg></span>';
 
 const TABNAMES={explore:'Explore',settings:'Settings',champs:'World championships',words:'Coffee words',wheel:'Flavour wheel',flow:'From seed to cup',dial:'Dial-in',scan:'Scan beans',gear:'Gear and dials',recipes:'Recipes',tech:'Techniques',process:'Processes',map:'Origins map',variety:'Varieties',history:'History',guide:'Guide',log:'Brew log',beans:'Beans'};
 const BNGROUP={explore:'explore',settings:'settings',champs:'explore',words:'explore',wheel:'explore',flow:'explore',dial:'dial',recipes:'recipes',scan:'beans',map:'explore',variety:'explore',history:'explore',process:'explore',tech:'explore',gear:'settings',guide:'settings',log:'settings',beans:'beans'};
