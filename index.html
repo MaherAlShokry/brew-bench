@@ -10199,6 +10199,8 @@ function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
       bcRound(x,px,y,w,48,24);x.fillStyle=BC.CHIP;x.fill();if(main){x.fillStyle=bcA(.16);x.fill()}x.lineWidth=1.5;x.strokeStyle=main?bcA(.7):bcI(.22);x.stroke();
       x.fillStyle=main?BC.HONEY:bcI(.85);x.fillText(t,px+20,y+32);px+=w+10}y+=78}else y+=20;
   // The spec sheet: the coffee on one row, the numbers on the next, in one panel divided by fine lines.
+  // A figure that isn't known isn't shown: a bar of dashes reads as broken.
+  if(m.tiles)m.tiles=m.tiles.filter(([,v])=>v&&v!=='–');
   const specRows=[m.coffee,m.tiles].filter(r=>r&&r.length);
   if(specRows.length){const rows=specRows.map((r,ri)=>{const n=r.length,cw=IW/n,big=r===m.tiles;let fs=big?(n>3?50:58):(n>3?28:32);x.font='700 '+fs+'px '+BC.F;
       // The figures are one line each: as large as the widest one allows.
@@ -10403,8 +10405,12 @@ function bcFoot(x,c,y,ft){const W=BC.W,P=BC.PAD;y+=70;const fr=x.createLinearGra
 // with the bean mark, like the gallery's.
 function bcPic(x,img,origin,X,Y,w,h,r,edge,ew){x.save();bcRound(x,X,Y,w,h,r);x.clip();
   if(img){const s=Math.max(w/img.width,h/img.height),dw=img.width*s,dh=img.height*s;x.drawImage(img,X+(w-dw)/2,Y+(h-dh)/2,dw,dh)}
-  else{const t=originTheme(origin),g=x.createLinearGradient(X,Y,X+w,Y+h);g.addColorStop(0,t.bg?t.bg[0]:'#5B3A26');g.addColorStop(1,t.bg?t.bg[2]:'#2E1C12');x.fillStyle=g;x.fillRect(X,Y,w,h);
-    bcBean(x,X+w/2,Y+h/2,Math.min(w,h)*0.42,'rgba(255,248,238,.22)','rgba(0,0,0,.18)')}
+  // No photo: a tile in the origin's colours (its light ones on a light card), the bean mark on it. Built with palFrom,
+  // not cardStyle, which would also restyle the card being drawn.
+  else{const t=originTheme(origin),L=BC.LIGHT,bg=L?palFrom(t.acc||'#8A5A3B',true).bg:t.bg,g=x.createLinearGradient(X,Y,X+w,Y+h);
+    g.addColorStop(0,bg?bg[0]:(L?'#EFE3D3':'#5B3A26'));g.addColorStop(1,bg?bg[2]:(L?'#E4D3BE':'#2E1C12'));x.fillStyle=g;x.fillRect(X,Y,w,h);
+    if(L){x.fillStyle='rgba(60,36,20,.05)';x.fillRect(X,Y,w,h)}
+    bcBean(x,X+w/2,Y+h/2,Math.min(w,h)*0.42,L?'rgba(60,36,20,.16)':'rgba(255,248,238,.22)',L?'rgba(255,255,255,.35)':'rgba(0,0,0,.18)')}
   x.restore();if(edge){bcRound(x,X,Y,w,h,r);x.lineWidth=ew||3;x.strokeStyle=edge;x.stroke()}}
 // Centred text on up to `max` lines; returns the y below it.
 function bcCenter(x,t,cx,y,w,font,col,lh,max){x.font=font;x.fillStyle=col;x.textAlign='center';const L=bcWrap(x,t,w,max||2);L.forEach((l,i)=>x.fillText(l,cx,y+i*lh));x.textAlign='left';return y+(L.length-1)*lh}
