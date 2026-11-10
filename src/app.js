@@ -2858,7 +2858,12 @@ function pdfSafe(s){return String(s??'').replace(/[\u2018\u2019]/g,"'").replace(
 function docText(doc,noLink){let t='# '+doc.title+'\n';if(doc.sub)t+=doc.sub+'\n';t+='\n';
   for(const b of doc.blocks){if(b.h)t+='## '+b.h+'\n';if(b.p)t+=b.p+'\n';if(b.kv)t+=b.kv.map(([k,v])=>'- '+k+': '+v).join('\n')+'\n';if(b.list)t+=b.list.map((x,i)=>(b.num?(i+1)+'. ':'- ')+x).join('\n')+'\n';t+='\n'}
   return t+(doc.link&&!noLink&&!t.includes(doc.link)?'Open it in The Brew Bench: '+doc.link+'\n':'Made with The Brew Bench\n')}
-function docPDF(doc){
+// Every PDF looks like its share card: the card itself (in the look picked in the share sheet), or for a share
+// without one, its text set in the same style. The plain page below is kept only for when drawing fails.
+async function docPDF(doc){try{const st={mode:CARD_STYLE.mode,col:CARD_STYLE.col};let bl=null;
+    if(doc.card)bl=await shCardFor(doc,st).catch(()=>null);if(!bl)bl=await docCardImg(doc);const out=await cardPDF(bl,doc.title);if(out)return out}catch(e){}
+  return docPDFText(doc)}
+function docPDFText(doc){
   const J=(window.jspdf||{}).jsPDF;if(!J)return null;
   const pdf=new J({unit:'pt',format:'a4'});const W=595,H=842,M=48,CW=W-2*M;let y=0;
   const brown=[138,90,59],ink=[59,42,32],muted=[122,102,86],cream=[243,234,220],green=[107,142,78];
@@ -2943,7 +2948,7 @@ function openShare(doc){SHDOC=doc;loadPDF().catch(()=>{});const pdfOK=true;
      '<div class="shcols" role="group" aria-label="Card colours">'+shSwatches(doc)+'</div></div></div>':'')+
    '<div class="sharerow">'+APPS.map(([k,n,c,d])=>'<button type="button" data-sh="'+k+'"><span class="app" style="background:'+c+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+d+'"/></svg></span>'+n+'</button>').join('')+'</div>'+
    '<div class="sheetlist">'+
-   '<button type="button" data-sh="pdf">'+ico('file','#B5533C')+'<span>Save as PDF<small>'+(pdfOK?'A styled page to send or print':'Loading the PDF engine\u2026 try again in a moment')+'</small></span></button>'+
+   '<button type="button" data-sh="pdf">'+ico('file','#B5533C')+'<span>Save as PDF<small>'+(pdfOK?'The same design as the image, on A4 pages':'Loading the PDF engine\u2026 try again in a moment')+'</small></span></button>'+
    '<button type="button" data-sh="copy">'+ico('copy','#C9964A')+'<span>Copy as text<small>Paste it anywhere</small></span></button>'+
    '<button type="button" data-sh="md">'+ico('text','#8A5A3B')+'<span>Save as a text file<small>Plain text you can edit</small></span></button></div></div>';
   const d=$('sharesheet');showDlg(d);$('sh-x').onclick=()=>d.close();
@@ -2993,14 +2998,14 @@ $('sharesheet').addEventListener('click',async e=>{const d=$('sharesheet');if(e.
     d.querySelectorAll('[data-shmode]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.shmode===CARD_STYLE.mode));const sc=d.querySelector('.shcols');if(sc)sc.innerHTML=shSwatches(SHDOC);drawShCard();return}
   const b=e.target.closest('[data-sh]');if(!b||!SHDOC)return;const k=b.dataset.sh,doc=SHDOC,txt=docText(doc),base=fname(doc.file||doc.title);
   if(k==='img'||k==='imgsave'){const bl=SHCARD||await doc.card();if(!bl){toast('Couldn’t draw the card');return}d.close();await shareCard(bl,fname(doc.cardName||base),doc.title,k==='imgsave');return}
-  if(k==='pdf'){try{await loadPDF()}catch(e){toast('Couldn’t load the PDF maker. Check your connection and try again');return}const blob=docPDF(doc);if(!blob){toast('Couldn’t make the PDF. Try again');return}d.close();await saveFile(base+'.pdf',blob)}
+  if(k==='pdf'){try{await loadPDF()}catch(e){toast('Couldn’t load the PDF maker. Check your connection and try again');return}const blob=await docPDF(doc);if(!blob){toast('Couldn’t make the PDF. Try again');return}d.close();await saveFile(base+'.pdf',blob)}
   if(k==='md'){d.close();await saveFile(base+'.txt',txt)}
   if(k==='copy'){let ok=false;try{await navigator.clipboard.writeText(txt);ok=true}catch(err){try{const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();ok=document.execCommand('copy');ta.remove()}catch(e2){}}d.close();toast(ok?'Copied to clipboard':'Copying isn\u2019t allowed here; try Save as a text file')}
   if(k==='whatsapp'||k==='telegram'||k==='sms'||k==='email'){const t=shareText(doc),e=encodeURIComponent;d.close();
     openLink({whatsapp:'https://wa.me/?text='+e(t),telegram:'https://t.me/share/url?url='+e(doc.link||SITE_URL)+'&text='+e(t.replace(doc.link||SITE_URL,'').replace(/\n*Open it in The Brew Bench:\s*$/,'').trim()),sms:'sms:?&body='+e(t),email:'mailto:?subject='+e(doc.title)+'&body='+e(t)}[k]);return}
   if(k==='native'&&!navigator.share&&!NATIVE){let ok=false;try{await navigator.clipboard.writeText(shareText(doc));ok=true}catch(e){}d.close();toast(ok?'This browser has no share menu, so the text was copied':'Sharing isn\u2019t available here; use Copy as text');return}
-  if(k==='native'&&NATIVE){d.close();await loadPDF().catch(()=>{});try{const blob=docPDF(doc);await nativeShare(doc.title,blob?base+'.pdf':null,blob,txt)}catch(err){if(!/cancel/i.test(err&&err.message||''))toast('Could not share')}return}
-  if(k==='native'){await loadPDF().catch(()=>{});try{const blob=docPDF(doc);const f=blob&&typeof File!=='undefined'?new File([blob],base+'.pdf',{type:'application/pdf'}):null;
+  if(k==='native'&&NATIVE){d.close();await loadPDF().catch(()=>{});try{const blob=await docPDF(doc);await nativeShare(doc.title,blob?base+'.pdf':null,blob,txt)}catch(err){if(!/cancel/i.test(err&&err.message||''))toast('Could not share')}return}
+  if(k==='native'){await loadPDF().catch(()=>{});try{const blob=await docPDF(doc);const f=blob&&typeof File!=='undefined'?new File([blob],base+'.pdf',{type:'application/pdf'}):null;
       if(f&&navigator.canShare&&navigator.canShare({files:[f]}))await navigator.share({title:doc.title,files:[f]});else await navigator.share({title:doc.title,text:txt});d.close()}
     catch(err){if(!err||err.name!=='AbortError')toast('Sharing isn\u2019t allowed here; use Save as PDF instead')}}
 });
