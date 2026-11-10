@@ -116,9 +116,11 @@ function openCalEditor(c){const d=$('vd'),isNew=!c,C=c||{name:'',roaster:'',year
     renderBeans();openCal(n.id);toast(isNew?'Calendar added: tap a door to add its coffee':'Saved')};
   showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
 
-// Shared as text and a PDF: the box, your review, and every door you've opened, in order.
+// Shared as an image, a PDF (the same card) and text: the box, your review, and every door you've opened, in order.
 function calDoc(c){const s=calStats(c),doors=[...s.doors.entries()].sort((a,b)=>a[0]-b[0]);
   const sc=calScore(c,s);
-  return{title:calName(c),sub:s.open+' of '+c.n+' doors opened'+(sc.v?' · rated '+sc.v.toFixed(1)+' of 5':''),file:'advent-'+c.year,
+  return{heavy:true,card:()=>calCardImg(c),cardTheme:()=>{const o=new Map();for(const b of s.doors.values())if(b.origin)o.set(b.origin,(o.get(b.origin)||0)+1);const t=[...o].sort((a,b)=>b[1]-a[1])[0];return originTheme(t&&t[0])},
+    cardName:'advent-'+c.year,cardTitle:'Calendar card',cardSub:'The whole box as one image: its photo, total rating, every door with its coffee, and the best of the box.',
+    title:calName(c),sub:s.open+' of '+c.n+' doors opened'+(sc.v?' · rated '+sc.v.toFixed(1)+' of 5':''),file:'advent-'+c.year,
     blocks:[{kv:[['Roastery',c.roaster||'-'],['Year',String(c.year)],['Doors',c.n+' × '+c.g+' g'],['Total rating',sc.v?sc.v.toFixed(1)+' of 5 (average of '+sc.n+' rated)':'-']]},...(c.notes?[{h:'My review',p:c.notes}]:[]),
       {h:'The doors',list:doors.map(([n,b])=>'Day '+n+': '+beanTitle(b)+([b.roaster!==c.roaster?b.roaster:'',b.origin?originName(b.origin):''].filter(Boolean).length?' ('+[b.roaster!==c.roaster?b.roaster:'',b.origin?originName(b.origin):''].filter(Boolean).join(', ')+')':'')+(b.rating?' · '+b.rating+' of 5':''))}]}}

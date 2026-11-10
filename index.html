@@ -8064,7 +8064,12 @@ function pdfSafe(s){return String(s??'').replace(/[\u2018\u2019]/g,"'").replace(
 function docText(doc,noLink){let t='# '+doc.title+'\n';if(doc.sub)t+=doc.sub+'\n';t+='\n';
   for(const b of doc.blocks){if(b.h)t+='## '+b.h+'\n';if(b.p)t+=b.p+'\n';if(b.kv)t+=b.kv.map(([k,v])=>'- '+k+': '+v).join('\n')+'\n';if(b.list)t+=b.list.map((x,i)=>(b.num?(i+1)+'. ':'- ')+x).join('\n')+'\n';t+='\n'}
   return t+(doc.link&&!noLink&&!t.includes(doc.link)?'Open it in The Brew Bench: '+doc.link+'\n':'Made with The Brew Bench\n')}
-function docPDF(doc){
+// Every PDF looks like its share card: the card itself (in the look picked in the share sheet), or for a share
+// without one, its text set in the same style. The plain page below is kept only for when drawing fails.
+async function docPDF(doc){try{const st={mode:CARD_STYLE.mode,col:CARD_STYLE.col};let bl=null;
+    if(doc.card)bl=await shCardFor(doc,st).catch(()=>null);if(!bl)bl=await docCardImg(doc);const out=await cardPDF(bl,doc.title);if(out)return out}catch(e){}
+  return docPDFText(doc)}
+function docPDFText(doc){
   const J=(window.jspdf||{}).jsPDF;if(!J)return null;
   const pdf=new J({unit:'pt',format:'a4'});const W=595,H=842,M=48,CW=W-2*M;let y=0;
   const brown=[138,90,59],ink=[59,42,32],muted=[122,102,86],cream=[243,234,220],green=[107,142,78];
@@ -8149,7 +8154,7 @@ function openShare(doc){SHDOC=doc;loadPDF().catch(()=>{});const pdfOK=true;
      '<div class="shcols" role="group" aria-label="Card colours">'+shSwatches(doc)+'</div></div></div>':'')+
    '<div class="sharerow">'+APPS.map(([k,n,c,d])=>'<button type="button" data-sh="'+k+'"><span class="app" style="background:'+c+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+d+'"/></svg></span>'+n+'</button>').join('')+'</div>'+
    '<div class="sheetlist">'+
-   '<button type="button" data-sh="pdf">'+ico('file','#B5533C')+'<span>Save as PDF<small>'+(pdfOK?'A styled page to send or print':'Loading the PDF engine\u2026 try again in a moment')+'</small></span></button>'+
+   '<button type="button" data-sh="pdf">'+ico('file','#B5533C')+'<span>Save as PDF<small>'+(pdfOK?'The same design as the image, on A4 pages':'Loading the PDF engine\u2026 try again in a moment')+'</small></span></button>'+
    '<button type="button" data-sh="copy">'+ico('copy','#C9964A')+'<span>Copy as text<small>Paste it anywhere</small></span></button>'+
    '<button type="button" data-sh="md">'+ico('text','#8A5A3B')+'<span>Save as a text file<small>Plain text you can edit</small></span></button></div></div>';
   const d=$('sharesheet');showDlg(d);$('sh-x').onclick=()=>d.close();
@@ -8199,14 +8204,14 @@ $('sharesheet').addEventListener('click',async e=>{const d=$('sharesheet');if(e.
     d.querySelectorAll('[data-shmode]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.shmode===CARD_STYLE.mode));const sc=d.querySelector('.shcols');if(sc)sc.innerHTML=shSwatches(SHDOC);drawShCard();return}
   const b=e.target.closest('[data-sh]');if(!b||!SHDOC)return;const k=b.dataset.sh,doc=SHDOC,txt=docText(doc),base=fname(doc.file||doc.title);
   if(k==='img'||k==='imgsave'){const bl=SHCARD||await doc.card();if(!bl){toast('Couldn’t draw the card');return}d.close();await shareCard(bl,fname(doc.cardName||base),doc.title,k==='imgsave');return}
-  if(k==='pdf'){try{await loadPDF()}catch(e){toast('Couldn’t load the PDF maker. Check your connection and try again');return}const blob=docPDF(doc);if(!blob){toast('Couldn’t make the PDF. Try again');return}d.close();await saveFile(base+'.pdf',blob)}
+  if(k==='pdf'){try{await loadPDF()}catch(e){toast('Couldn’t load the PDF maker. Check your connection and try again');return}const blob=await docPDF(doc);if(!blob){toast('Couldn’t make the PDF. Try again');return}d.close();await saveFile(base+'.pdf',blob)}
   if(k==='md'){d.close();await saveFile(base+'.txt',txt)}
   if(k==='copy'){let ok=false;try{await navigator.clipboard.writeText(txt);ok=true}catch(err){try{const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();ok=document.execCommand('copy');ta.remove()}catch(e2){}}d.close();toast(ok?'Copied to clipboard':'Copying isn\u2019t allowed here; try Save as a text file')}
   if(k==='whatsapp'||k==='telegram'||k==='sms'||k==='email'){const t=shareText(doc),e=encodeURIComponent;d.close();
     openLink({whatsapp:'https://wa.me/?text='+e(t),telegram:'https://t.me/share/url?url='+e(doc.link||SITE_URL)+'&text='+e(t.replace(doc.link||SITE_URL,'').replace(/\n*Open it in The Brew Bench:\s*$/,'').trim()),sms:'sms:?&body='+e(t),email:'mailto:?subject='+e(doc.title)+'&body='+e(t)}[k]);return}
   if(k==='native'&&!navigator.share&&!NATIVE){let ok=false;try{await navigator.clipboard.writeText(shareText(doc));ok=true}catch(e){}d.close();toast(ok?'This browser has no share menu, so the text was copied':'Sharing isn\u2019t available here; use Copy as text');return}
-  if(k==='native'&&NATIVE){d.close();await loadPDF().catch(()=>{});try{const blob=docPDF(doc);await nativeShare(doc.title,blob?base+'.pdf':null,blob,txt)}catch(err){if(!/cancel/i.test(err&&err.message||''))toast('Could not share')}return}
-  if(k==='native'){await loadPDF().catch(()=>{});try{const blob=docPDF(doc);const f=blob&&typeof File!=='undefined'?new File([blob],base+'.pdf',{type:'application/pdf'}):null;
+  if(k==='native'&&NATIVE){d.close();await loadPDF().catch(()=>{});try{const blob=await docPDF(doc);await nativeShare(doc.title,blob?base+'.pdf':null,blob,txt)}catch(err){if(!/cancel/i.test(err&&err.message||''))toast('Could not share')}return}
+  if(k==='native'){await loadPDF().catch(()=>{});try{const blob=await docPDF(doc);const f=blob&&typeof File!=='undefined'?new File([blob],base+'.pdf',{type:'application/pdf'}):null;
       if(f&&navigator.canShare&&navigator.canShare({files:[f]}))await navigator.share({title:doc.title,files:[f]});else await navigator.share({title:doc.title,text:txt});d.close()}
     catch(err){if(!err||err.name!=='AbortError')toast('Sharing isn\u2019t allowed here; use Save as PDF instead')}}
 });
@@ -10055,10 +10060,12 @@ function openCalEditor(c){const d=$('vd'),isNew=!c,C=c||{name:'',roaster:'',year
     renderBeans();openCal(n.id);toast(isNew?'Calendar added: tap a door to add its coffee':'Saved')};
   showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
 
-// Shared as text and a PDF: the box, your review, and every door you've opened, in order.
+// Shared as an image, a PDF (the same card) and text: the box, your review, and every door you've opened, in order.
 function calDoc(c){const s=calStats(c),doors=[...s.doors.entries()].sort((a,b)=>a[0]-b[0]);
   const sc=calScore(c,s);
-  return{title:calName(c),sub:s.open+' of '+c.n+' doors opened'+(sc.v?' · rated '+sc.v.toFixed(1)+' of 5':''),file:'advent-'+c.year,
+  return{heavy:true,card:()=>calCardImg(c),cardTheme:()=>{const o=new Map();for(const b of s.doors.values())if(b.origin)o.set(b.origin,(o.get(b.origin)||0)+1);const t=[...o].sort((a,b)=>b[1]-a[1])[0];return originTheme(t&&t[0])},
+    cardName:'advent-'+c.year,cardTitle:'Calendar card',cardSub:'The whole box as one image: its photo, total rating, every door with its coffee, and the best of the box.',
+    title:calName(c),sub:s.open+' of '+c.n+' doors opened'+(sc.v?' · rated '+sc.v.toFixed(1)+' of 5':''),file:'advent-'+c.year,
     blocks:[{kv:[['Roastery',c.roaster||'-'],['Year',String(c.year)],['Doors',c.n+' × '+c.g+' g'],['Total rating',sc.v?sc.v.toFixed(1)+' of 5 (average of '+sc.n+' rated)':'-']]},...(c.notes?[{h:'My review',p:c.notes}]:[]),
       {h:'The doors',list:doors.map(([n,b])=>'Day '+n+': '+beanTitle(b)+([b.roaster!==c.roaster?b.roaster:'',b.origin?originName(b.origin):''].filter(Boolean).length?' ('+[b.roaster!==c.roaster?b.roaster:'',b.origin?originName(b.origin):''].filter(Boolean).join(', ')+')':'')+(b.rating?' · '+b.rating+' of 5':''))}]}}
 
@@ -10337,7 +10344,7 @@ function bcStamp(x,cx,cy,T){const R=92;x.save();x.translate(cx,cy);x.rotate(-0.1
    grind {g,c,line}, cup {r,vt,vs}, text [{label,body}], steps [], expect {label,items,bar}, quote {label,text}, footer} */
 // One full-height drawing surface, reused for every card: a fresh 1080 × 4400 canvas each time is a lot of memory on a phone.
 let BC_CV=null;
-function bcDraw(m){const W=BC.W,P=BC.PAD,IW=W-2*P;if(!BC_CV){BC_CV=document.createElement('canvas');BC_CV.width=W;BC_CV.height=4400}
+function bcDraw(m){const W=BC.W,P=BC.PAD,IW=W-2*P;BC.BRK=[];if(!BC_CV){BC_CV=document.createElement('canvas');BC_CV.width=W;BC_CV.height=4400}
   // A card that needs more room (a large gallery) gets a taller canvas; every other card draws on the usual one.
   // Drawn at one and a half times the size (1620 px wide: sharp on any phone, and about what messaging apps keep), a
   // very tall gallery a little less to keep memory in hand;
@@ -10384,8 +10391,8 @@ function bcBG(x,W,H,T){const c={height:H};
 function bcCheck(x,W,T,Hbg){const P=BC.PAD,K=6,H0=2400,sm=document.createElement('canvas');sm.width=Math.ceil(W/K);sm.height=Math.ceil(H0/K);
   const sx=sm.getContext('2d',{willReadFrequently:true});sx.scale(1/K,1/K);bcBG(sx,W,Hbg,T);if(T.motif)bcBand(sx,W,T);const all=sx.getImageData(0,0,sm.width,sm.height).data;
   const worst=(y0,y1,x0,x1)=>{const L=[];for(let yy=Math.floor(y0/K);yy<Math.ceil(y1/K);yy++)for(let xx=Math.floor(x0/K);xx<Math.ceil(x1/K);xx++){const i=(yy*sm.width+xx)*4,h=hexOf([all[i],all[i+1],all[i+2]]);L.push([relLum(h),h])}
-    L.sort((a,b)=>a[0]-b[0]);return L[Math.floor(L.length*(BC.LIGHT?0.03:0.97))][1]};
-  const zs=[worst(70,112,P,W-P),worst(150,330,P,W-300),worst(330,470,P,W-P),worst(900,Math.min(2400,Hbg),P,W-P)];
+    if(!L.length)return null;L.sort((a,b)=>a[0]-b[0]);return L[Math.floor(L.length*(BC.LIGHT?0.03:0.97))][1]};
+  const zs=[worst(70,112,P,W-P),worst(150,330,P,W-300),worst(330,470,P,W-P),worst(900,Math.min(2400,Hbg),P,W-P)].filter(Boolean);
   BC.HONEY=T.acc=ensureC(BC.HONEY,zs,BC.LIGHT?4.8:5.2,BC.LIGHT?'#1A0E08':'#FFFFFF')}
 function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
   // Header: the mark and kicker, the date, then a fine rule.
@@ -10496,7 +10503,9 @@ function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
 // The look is taken when the card is asked for, not when it's drawn after the fonts load, so a card drawn ahead for
 // another look (see the share sheet) keeps the one it was asked with.
 const bcBlob=m=>{const st=m.style||Object.assign({},CARD_STYLE);return (async()=>{if(document.fonts&&document.fonts.ready)await document.fonts.ready;
-  const cv=bcDraw(Object.assign({},m,{style:st}));return new Promise(res=>cv.toBlob(res,'image/jpeg',0.94))})()};
+  const cv=bcDraw(Object.assign({},m,{style:st})),brk=(BC.BRK||[]).map(y=>Math.round(y*BC.S));return new Promise(res=>cv.toBlob(b=>{if(b)b._brk=brk;res(b)},'image/jpeg',0.94))})()};
+// Where a PDF page may end: between rows, never through one (in the card's own units).
+const bcBrk=y=>{if(BC.BRK)BC.BRK.push(y)};
 
 /* ---------- What each card shows ---------- */
 const AGITW={low:'Gentle',med:'Steady',high:'Lively'};
@@ -10720,7 +10729,7 @@ async function shelfCardImg(){const style=Object.assign({},CARD_STYLE),sh=shelfO
       const tag=f?'Day '+f.d+' · '+f.label:'No roast date',fc=f?BC_FRESH[f.k]:bcI(.4);x.font='700 21px '+BC.F;const tgw=x.measureText(tag).width+50,tgY=ty+52;
       bcRound(x,tx,tgY,tgw,38,19);x.fillStyle=hexA(fc,.16);x.fill();x.strokeStyle=hexA(fc,.55);x.lineWidth=1.5;x.stroke();x.beginPath();x.arc(tx+20,tgY+19,6,0,TAU);x.fillStyle=fc;x.fill();x.fillStyle=BC.INK;x.fillText(tag,tx+34,tgY+26);
       if(b.rating&&tgw+16+5*20*1.18<=tw)bcRating(x,'beans',b.rating,tx+tgw+16,tgY+19,20);
-      if(ring)bcLeftRing(x,W-P-28-R,cy,R,clamp(g/b.bag,0,1),g)});
+      if(ring)bcLeftRing(x,W-P-28-R,cy,R,clamp(g/b.bag,0,1),g);bcBrk(ry+rh)});
     if(more){const my=Y+shown.length*rh;x.fillStyle=bcI(.09);x.fillRect(P+28,my,IW-56,1.5);x.font='600 26px '+BC.F;x.fillStyle=BC.MUTED;x.textAlign='center';x.fillText('and '+more+' more bag'+(more===1?'':'s')+' on the shelf',W/2,my+42);x.textAlign='left'}
     Y+=ph;
     if(notes.length){Y+=64;bcLabel(x,'In my cups',P,Y);bcChipLine(x,notes,Y+26);Y+=26+56}
@@ -10762,6 +10771,7 @@ async function galleryCardImg(){const style=Object.assign({},CARD_STYLE),nick=wi
       x.font='500 '+pick([20,18,16,15])+'px '+BC.F;x.fillStyle=BC.MUTED;const both=[b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '),meta=x.measureText(both).width<=tw?both:(b.roaster||(b.origin?originName(b.origin):'')||'–');
       x.fillText(bcWrap(x,meta,tw,1)[0],tx,ty+pick([30,27,24,22]));
       if(b.rating){const sz=pick([18,15,13,12]);bcRating(x,'beans',b.rating,tx,ty+pick([62,56,50,46]),sz)}});
+    for(let r=1;r<=Math.ceil(shown.length/cols);r++)bcBrk(Y+r*(ch+gap)-gap/2);
     Y+=Math.ceil(shown.length/cols)*(ch+gap)-gap;
     if(more){Y+=52;x.font='600 26px '+BC.F;x.fillStyle=BC.MUTED;x.textAlign='center';x.fillText('and '+more+' more coffee'+(more===1?'':'s')+' in the gallery',W/2,Y);x.textAlign='left'}
     if(orc.size){Y+=64;bcLabel(x,'Where they’re from',P,Y);Y=bcChips(x,[...orc].sort((a,b)=>b[1]-a[1]).slice(0,12).map(([k,v])=>originName(k)+(v>1?'  ×'+v:'')),Y+26)}
@@ -10786,6 +10796,99 @@ function cardViewer(blob,file,title){const d=$('vd'),u=URL.createObjectURL(blob)
   d.addEventListener('close',()=>setTimeout(()=>URL.revokeObjectURL(u),60000),{once:true});showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
 // The brew log's cards read snapshots with okSnap above; the log drew before this file ran, so it draws again now.
 window.CARD_OK=true;try{renderLogList()}catch(e){}
+
+/* ---------- A share without a card of its own: its text, set in the cards' style ---------- */
+// The same header, panes, labels and footer as every other card, so a PDF of a list or a guide looks like the rest.
+// Laid out twice: once to measure (on a scratch canvas), then drawn on a canvas exactly that tall.
+function docCardLay(x,doc,draw){const W=BC.W,P=BC.PAD,IW=W-2*P,F=BC.F;let Y=draw?bcHead(x,doc.kicker||'The Brew Bench',new Date().toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'})):130;
+  const T=(s,font,col,X,y)=>{if(draw){x.font=font;x.fillStyle=col;x.fillText(s,X,y)}};
+  x.font='800 68px '+F;const tl=bcWrap(x,doc.title||'',IW,3);Y+=96;tl.forEach((l,i)=>{if(draw){x.font='800 68px '+F;x.fillStyle=BC.INK;x.letterSpacing='-1px';x.fillText(l,P,Y);x.letterSpacing='0px'}Y+=i<tl.length-1?78:0});
+  if(doc.sub){x.font='600 30px '+F;bcWrap(x,doc.sub,IW,2).forEach(l=>{Y+=46;T(l,'600 30px '+F,BC.HONEY,P,Y)})}
+  Y+=24;
+  const linked=doc.link&&!doc.blocks.some(b=>b.p===doc.link)?[{h:'Open it in The Brew Bench',p:doc.link}]:[];
+  for(const b of doc.blocks.concat(linked)){
+    if(b.h){if(draw)bcBrk(Y+20);Y+=64;if(draw)bcLabel(x,b.h,P,Y);Y+=10}
+    if(b.p){x.font='500 29px '+F;const L=bcWrap(x,b.p,IW-56,400),h=48+L.length*41;Y+=18;if(draw){bcPane(x,P,Y,IW,h,26);L.forEach((l,j)=>{T(l,'500 29px '+F,BC.INK,P+28,Y+56+j*41);bcBrk(Y+66+j*41)})}Y+=h}
+    if(b.kv&&b.kv.length){Y+=18;const kw=Math.min(300,IW*0.34);x.font='600 29px '+F;const rows=b.kv.map(([k,v])=>({k,L:bcWrap(x,String(v),IW-kw-56,8)})),hs=rows.map(r=>34+r.L.length*40),h=hs.reduce((a,v)=>a+v,0)+16;
+      if(draw){bcPane(x,P,Y,IW,h,26);let ry=Y+8;rows.forEach((r,i)=>{if(i){x.fillStyle=bcI(.09);x.fillRect(P+24,ry,IW-48,1.5)}
+        x.font='700 21px '+F;x.fillStyle=BC.MUTED;x.letterSpacing='2px';x.fillText(bcWrap(x,String(r.k).toUpperCase(),kw-24,1)[0],P+28,ry+46);x.letterSpacing='0px';
+        r.L.forEach((l,j)=>T(l,'600 29px '+F,BC.INK,P+kw+28,ry+48+j*40));ry+=hs[i];bcBrk(ry)})}Y+=h}
+    if(b.list&&b.list.length){Y+=18;x.font='500 29px '+F;const lw=b.num?56:36,rows=b.list.map(t=>bcWrap(x,String(t),IW-56-lw,6)),hs=rows.map(L=>32+L.length*40),h=hs.reduce((a,v)=>a+v,0)+16;
+      if(draw){bcPane(x,P,Y,IW,h,26);let ry=Y+8;rows.forEach((L,i)=>{if(i){x.fillStyle=bcI(.09);x.fillRect(P+24,ry,IW-48,1.5)}
+        if(b.num)T(String(i+1),'800 28px '+F,BC.HONEY,P+28,ry+48);else{x.beginPath();x.arc(P+36,ry+38,6,0,TAU);x.fillStyle=BC.HONEY;x.fill()}
+        L.forEach((l,j)=>T(l,'500 29px '+F,BC.INK,P+28+lw,ry+48+j*40));ry+=hs[i];bcBrk(ry)})}Y+=h}}
+  return Y}
+async function docCardImg(doc){const style=Object.assign({},CARD_STYLE);if(document.fonts&&document.fonts.ready)await document.fonts.ready;
+  const sc=document.createElement('canvas').getContext('2d');BC.F=getComputedStyle(document.body).fontFamily;const H=docCardLay(sc,doc,false)+BC_FOOT+60;
+  return bcBlob({style,theme:(doc.cardTheme&&doc.cardTheme())||null,minH:H,draw:(x,c)=>bcFoot(x,c,docCardLay(x,doc,true),'Made with The Brew Bench')})}
+
+/* ---------- The PDF: the share's card on A4 pages ---------- */
+// A long card is cut between rows, never through a line: just above each page's end, the calmest pixel row (the
+// background between panes) is where the page breaks. Each page is filled with the card's colour behind the slice.
+async function cardPDF(blob,title){const J=(window.jspdf||{}).jsPDF;if(!J||!blob)return null;
+  const img=await new Promise((ok,no)=>{const u=URL.createObjectURL(blob),i=new Image();i.onload=()=>{URL.revokeObjectURL(u);ok(i)};i.onerror=e=>{URL.revokeObjectURL(u);no(e)};i.src=u});
+  const iw=img.naturalWidth,ih=img.naturalHeight,full=document.createElement('canvas');full.width=iw;full.height=ih;const fx=full.getContext('2d',{willReadFrequently:true});fx.drawImage(img,0,0);
+  const PW=595.28,PH=841.89,pageH=Math.floor(iw*PH/PW),pdf=new J({unit:'pt',format:'a4',compress:true});pdf.setProperties({title:title||'The Brew Bench',creator:'The Brew Bench'});
+  const calm=(from,to)=>{const h=to-from;if(h<=0)return to;const d=fx.getImageData(0,from,iw,h).data;let best=to,bs=Infinity;
+    for(let r=h-1;r>=0;r--){let s=0;const o=r*iw*4;for(let i=4*8;i<iw*4-32;i+=24){s+=Math.abs(d[o+i]-d[o+i-24])+Math.abs(d[o+i+1]-d[o+i-23])+Math.abs(d[o+i+2]-d[o+i-22])+0.5*(Math.abs(d[o+i]-d[o+32])+Math.abs(d[o+i+1]-d[o+33])+Math.abs(d[o+i+2]-d[o+34]))}
+      const sc=s+(h-1-r)*0.6;if(sc<bs){bs=sc;best=from+r}}return best};
+  const colAt=y=>{const d=fx.getImageData(3,Math.max(0,Math.min(ih-1,y)),1,1).data;return[d[0],d[1],d[2]]};
+  // A card up to about one and a half pages tall goes on one page, scaled to fit and framed in its own colour; only a
+  // long one (a big gallery, a long list) runs over several.
+  if(ih<=pageH*1.5){const k=Math.min(PW/iw,PH/ih),w=iw*k,h=ih*k,bg=colAt(Math.round(ih/2));pdf.setFillColor(...bg);pdf.rect(0,0,PW,PH,'F');
+    pdf.addImage(full.toDataURL('image/jpeg',0.88),'JPEG',(PW-w)/2,(PH-h)/2,w,h,undefined,'FAST');return pdf.output('blob')}
+  // Pages after the first start a little down the page, so a pane carried over doesn't touch the top edge.
+  const brk=(blob._brk||[]).filter(v=>v>0&&v<ih).sort((a,b)=>a-b),TOP=Math.round(iw*30/PW);
+  let y=0,n=0;while(y<ih-2){const room=pageH-(n?TOP:0);let end=Math.min(ih,y+room);
+    if(end<ih){const ok=brk.filter(v=>v>y+room*0.45&&v<=end);end=ok.length?ok[ok.length-1]:calm(Math.max(y+Math.floor(room*0.7),end-Math.floor(room*0.22)),end)}
+    const sh=end-y,cv=document.createElement('canvas');cv.width=iw;cv.height=sh;cv.getContext('2d').drawImage(full,0,y,iw,sh,0,0,iw,sh);
+    const bg=colAt(n?y+2:end-1);if(n)pdf.addPage();pdf.setFillColor(...bg);pdf.rect(0,0,PW,PH,'F');
+    pdf.addImage(cv.toDataURL('image/jpeg',0.86),'JPEG',0,n?TOP*PW/iw:0,PW,sh*PW/iw,undefined,'FAST');n++;y=end}
+  return pdf.output('blob')}
+
+/* ---------- An advent calendar ---------- */
+// The box: its photo, name and roastery, the total rating (the average of the coffees rated from it), how far along it
+// is, every door (opened ones with their coffee's picture and rating), the best of the box and your review.
+async function calCardImg(c){const style=Object.assign({},CARD_STYLE),s=calStats(c),sc=calScore(c,s),rk=calRanked(),pos=rk.findIndex(x=>x.c.id===c.id);
+  const photo=c.img?await bcLoad(BIMG.peek(c.id)||await BIMG.get(c.id)):null,doors=Array.from({length:c.n},(_,i)=>s.doors.get(i+1)||null);
+  const imgs=await Promise.all(doors.map(async b=>b&&b.img?bcLoad(BIMG.peekThumb(b.id)||await BIMG.thumb(b.id)):null));
+  const W=BC.W,P=BC.PAD,IW=W-2*P,cols=c.n<=12?4:6,gap=c.n<=12?20:14,cw=Math.floor((IW-gap*(cols-1))/cols),rows=Math.ceil(c.n/cols),best=s.best,phH=photo?Math.round(IW*0.62):0;
+  const orc=new Map();doors.forEach(b=>{if(b&&b.origin)orc.set(b.origin,(orc.get(b.origin)||0)+1)});const topO=[...orc].sort((a,b)=>b[1]-a[1])[0];
+  const minH=130+(photo?36+phH:0)+104+84*2+60+100+58+56+70+rows*(cw+gap)+(best.length?90+best.length*124:0)+(c.notes?420:0)+(orc.size?200:0)+BC_FOOT+60;
+  return bcBlob({style,theme:originTheme(topO&&topO[0]),minH,draw:(x,cv)=>{const F=BC.F;
+    let Y=bcHead(x,'Advent calendar · '+c.year,c.roaster&&c.name?c.roaster:'');
+    if(photo){Y+=36;x.save();bcRound(x,P,Y,IW,phH,30);x.clip();const k=Math.max(IW/photo.width,phH/photo.height),dw=photo.width*k,dh=photo.height*k;x.drawImage(photo,P+(IW-dw)/2,Y+(phH-dh)/2,dw,dh);
+      const g=x.createLinearGradient(0,Y+phH*0.6,0,Y+phH);g.addColorStop(0,'rgba(14,8,5,0)');g.addColorStop(1,'rgba(14,8,5,.45)');x.fillStyle=g;x.fillRect(P,Y,IW,phH);x.restore();
+      bcRound(x,P,Y,IW,phH,30);x.lineWidth=1.5;x.strokeStyle=bcA(.45);x.stroke();Y+=phH}
+    Y+=104;x.font='800 76px '+F;x.fillStyle=BC.INK;x.letterSpacing='-1px';for(const l of bcWrap(x,calName(c),IW,2)){x.fillText(l,P,Y);Y+=84}x.letterSpacing='0px';
+    // The total rating, large: the beans, the figure and what it is.
+    if(sc.v){Y+=6;bcRating(x,'beans',Math.round(sc.v*2)/2,P,Y+24,46);const rx=P+5*46*1.18+14,rv=sc.v.toFixed(1);x.font='800 40px '+F;x.fillStyle=BC.INK;x.fillText(rv,rx,Y+38);
+      const vw=x.measureText(rv).width;x.font='500 26px '+F;x.fillStyle=BC.MUTED;x.fillText(bcWrap(x,'average of '+sc.n+' rated',W-P-rx-vw-18,1)[0],rx+vw+18,Y+37);Y+=80}
+    else{x.font='500 28px '+F;x.fillStyle=BC.MUTED;x.fillText('Not rated yet',P,Y+20);Y+=56}
+    bcStatPills(x,P,Y,[[s.open+'/'+c.n,'doors opened'],...(s.origins?[[s.origins,s.origins===1?'origin':'origins']]:[]),...(rk.length>1&&pos>=0?[['#'+(pos+1),'of '+rk.length+' calendars']]:[])]);Y+=58+64;
+    // The doors: a grid like the box itself.
+    bcLabel(x,'The doors',P,Y);Y+=28;
+    doors.forEach((b,i)=>{const X=P+(i%cols)*(cw+gap),yy=Y+Math.floor(i/cols)*(cw+gap),n=String(i+1);
+      if(b){bcPic(x,imgs[i],b.origin,X,yy,cw,cw,18);const r=cols>4?19:23;x.beginPath();x.arc(X+r+8,yy+r+8,r,0,TAU);x.fillStyle='rgba(18,11,7,.72)';x.fill();
+        x.font='800 '+(cols>4?20:24)+'px '+F;x.fillStyle='#FFF8EE';x.textAlign='center';x.fillText(n,X+r+8,yy+r+8+(cols>4?7:8));x.textAlign='left';
+        if(b.rating){const t=String(b.rating).replace('.5','½');x.font='800 '+(cols>4?19:22)+'px '+F;const tw=x.measureText(t).width+22,th=cols>4?30:34;
+          bcRound(x,X+cw-tw-8,yy+cw-th-8,tw,th,th/2);x.fillStyle='rgba(18,11,7,.72)';x.fill();x.fillStyle='#FFF8EE';x.fillText(t,X+cw-tw+3,yy+cw-8-th*0.3)}}
+      else{bcRound(x,X,yy,cw,cw,18);x.fillStyle=BC.CHIP;x.fill();x.lineWidth=1.5;x.strokeStyle=bcI(.16);x.stroke();
+        x.font='800 '+(cols>4?40:52)+'px '+F;x.fillStyle=bcI(.55);x.textAlign='center';x.fillText(n,X+cw/2,yy+cw/2+(cols>4?14:18));x.textAlign='left'}});
+    for(let r=0;r<=rows;r++)bcBrk(Y+r*(cw+gap)-gap/2);
+    Y+=rows*(cw+gap)-gap;
+    // The best of the box, like a podium list.
+    if(best.length){Y+=72;bcLabel(x,'Best of the box',P,Y);Y+=22;const rh=124,h=best.length*rh;bcPane(x,P,Y,IW,h,28);
+      best.forEach((b,i)=>{const ry=Y+i*rh,sw=5*24*1.18;if(i){x.fillStyle=bcI(.09);x.fillRect(P+24,ry,IW-48,1.5)}
+        x.beginPath();x.arc(P+52,ry+rh/2,24,0,TAU);x.fillStyle=MEDAL[i+1]||BC.HONEY;x.fill();x.font='800 24px '+F;x.fillStyle='#24160E';x.textAlign='center';x.fillText(String(i+1),P+52,ry+rh/2+8);x.textAlign='left';
+        const tx=P+96,tw=IW-96-sw-40;x.font='800 32px '+F;x.fillStyle=BC.INK;x.fillText(bcWrap(x,beanTitle(b),tw,1)[0],tx,ry+54);
+        x.font='500 23px '+F;x.fillStyle=BC.MUTED;x.fillText(bcWrap(x,['Door '+b.cal.d,b.origin?originName(b.origin):'',b.roaster&&b.roaster!==c.roaster?b.roaster:''].filter(Boolean).join('  ·  '),tw,1)[0],tx,ry+88);
+        bcRating(x,'beans',b.rating,W-P-28-sw,ry+rh/2,24);bcBrk(ry+rh)});Y+=h}
+    if(orc.size){bcBrk(Y+30)}if(c.notes){bcBrk(Y+(orc.size?150:30))}
+    if(orc.size){Y+=64;bcLabel(x,'Where they’re from',P,Y);Y=bcChips(x,[...orc].sort((a,b)=>b[1]-a[1]).slice(0,12).map(([k,v])=>originName(k)+(v>1?'  ×'+v:'')),Y+26)}
+    if(c.notes){Y+=56;x.font='italic 500 33px '+F;const lines=bcWrap(x,c.notes,IW-100,6);x.font='800 132px Georgia,serif';x.fillStyle=bcA(.2);x.fillText('“',P-6,Y+96);const qx=P+Math.ceil(x.measureText('“').width)+6;
+      bcLabel(x,'My review',qx,Y+26);x.font='italic 500 33px '+F;x.fillStyle=BC.INK;lines.forEach((l,j)=>x.fillText(l,qx,Y+76+j*46));Y+=66+lines.length*46}
+    return bcFoot(x,cv,Y,'From my advent calendar')}})}
 
 /* ================= DROPDOWNS ================= */
 // Every <select> keeps doing its job (value, change events, labels), but its list opens in the app's own design: a sheet
