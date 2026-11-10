@@ -1909,6 +1909,18 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .bd-auto{margin:8px 0 0;font-size:.8rem;color:var(--muted)}
 .bd-bagb{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.bd-bagb .chip{cursor:pointer;padding:7px 13px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line)}
 .bd-done{width:100%;margin-top:12px}
+/* The coffee page: share and edit as round icons in the header, beside close. */
+.vd-tools{position:absolute;right:62px;top:12px;display:flex;gap:8px}
+.vd-tool{width:40px;height:40px;border-radius:999px;border:0;background:var(--surface2);color:var(--ink);display:grid;place-items:center;cursor:pointer;padding:0}
+.vd-tool svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.vd-tool:active{transform:scale(.94)}
+@media (max-width:759px){html dialog#vd:not(.camdlg) .vd-head .vd-tools{top:calc(12px + var(--sa-top,0px))}}
+.vd-head:has(.vd-tools) .pill{max-width:calc(100% - 170px)}
+/* What's left: the bar across, the grams and "Set what's left" on one line under it. */
+.bd-bagh{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px}.bd-bagh .bagl{display:contents}
+.bd-bagh .bagm{flex:1 0 100%}.bd-bagh .linkbtn{font-size:.84rem;font-weight:700;padding:4px 0}
+.bd-shelf .bagm{background:color-mix(in srgb,var(--ink) 10%,var(--surface))}
+.bd-acts{display:grid;grid-template-columns:1fr;gap:8px;margin-top:16px}.bd-acts .btn{width:100%;margin:0}
 .bd-again{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:14px 0 6px;font-weight:600;font-size:.92rem}
 .dwrite{padding:12px;border-radius:var(--r-lg);background:var(--surface2);margin-bottom:12px}
 .dmoms{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -12px 10px;padding:0 12px}.dmoms::-webkit-scrollbar{display:none}
@@ -2347,7 +2359,8 @@ button[aria-pressed]:active{transform:scale(.95)}
 .bd-bh{display:flex;align-items:center;gap:12px}.bd-bi{flex:none;width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:var(--surface2);color:var(--cherry)}.bd-bi .di{width:20px;height:20px}
 .bd-bt{flex:1;min-width:0;display:flex;flex-direction:column}.bd-bt b{font:700 .95rem var(--display)}.bd-bt small{font-size:.78rem;color:var(--muted)}
 .bd-bst{width:112px;height:36px;flex:none}.bd-bst button:disabled{opacity:.35}
-.bd-rbrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}.bd-rbtn{font-weight:650}
+.bd-rbrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.bd-rbrow .btn{width:100%;margin:0;min-height:42px;padding:0 10px;font-size:.9rem;background:var(--surface2)}
+.bd-hero .bglass small{font-size:.8em;font-weight:600;opacity:.85;margin-left:6px;padding-left:7px;border-left:1px solid currentColor}
 .bd-rbform{margin-top:12px}.bd-rbform input{background:var(--surface2)}.bd-rbform .btn{width:100%}
 .bd-bagsd{margin-top:10px}.bd-bagsd summary{cursor:pointer;font-size:.86rem;font-weight:600;color:var(--muted)}.bd-bagsd .bd-bags{margin-top:8px}
 /* Smoother page changes on phones: no blur behind the little count badges (it was invisible and costly to draw). */

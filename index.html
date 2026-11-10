@@ -1910,6 +1910,18 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .bd-auto{margin:8px 0 0;font-size:.8rem;color:var(--muted)}
 .bd-bagb{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.bd-bagb .chip{cursor:pointer;padding:7px 13px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line)}
 .bd-done{width:100%;margin-top:12px}
+/* The coffee page: share and edit as round icons in the header, beside close. */
+.vd-tools{position:absolute;right:62px;top:12px;display:flex;gap:8px}
+.vd-tool{width:40px;height:40px;border-radius:999px;border:0;background:var(--surface2);color:var(--ink);display:grid;place-items:center;cursor:pointer;padding:0}
+.vd-tool svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.vd-tool:active{transform:scale(.94)}
+@media (max-width:759px){html dialog#vd:not(.camdlg) .vd-head .vd-tools{top:calc(12px + var(--sa-top,0px))}}
+.vd-head:has(.vd-tools) .pill{max-width:calc(100% - 170px)}
+/* What's left: the bar across, the grams and "Set what's left" on one line under it. */
+.bd-bagh{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px}.bd-bagh .bagl{display:contents}
+.bd-bagh .bagm{flex:1 0 100%}.bd-bagh .linkbtn{font-size:.84rem;font-weight:700;padding:4px 0}
+.bd-shelf .bagm{background:color-mix(in srgb,var(--ink) 10%,var(--surface))}
+.bd-acts{display:grid;grid-template-columns:1fr;gap:8px;margin-top:16px}.bd-acts .btn{width:100%;margin:0}
 .bd-again{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:14px 0 6px;font-weight:600;font-size:.92rem}
 .dwrite{padding:12px;border-radius:var(--r-lg);background:var(--surface2);margin-bottom:12px}
 .dmoms{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -12px 10px;padding:0 12px}.dmoms::-webkit-scrollbar{display:none}
@@ -2348,7 +2360,8 @@ button[aria-pressed]:active{transform:scale(.95)}
 .bd-bh{display:flex;align-items:center;gap:12px}.bd-bi{flex:none;width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:var(--surface2);color:var(--cherry)}.bd-bi .di{width:20px;height:20px}
 .bd-bt{flex:1;min-width:0;display:flex;flex-direction:column}.bd-bt b{font:700 .95rem var(--display)}.bd-bt small{font-size:.78rem;color:var(--muted)}
 .bd-bst{width:112px;height:36px;flex:none}.bd-bst button:disabled{opacity:.35}
-.bd-rbrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}.bd-rbtn{font-weight:650}
+.bd-rbrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.bd-rbrow .btn{width:100%;margin:0;min-height:42px;padding:0 10px;font-size:.9rem;background:var(--surface2)}
+.bd-hero .bglass small{font-size:.8em;font-weight:600;opacity:.85;margin-left:6px;padding-left:7px;border-left:1px solid currentColor}
 .bd-rbform{margin-top:12px}.bd-rbform input{background:var(--surface2)}.bd-rbform .btn{width:100%}
 .bd-bagsd{margin-top:10px}.bd-bagsd summary{cursor:pointer;font-size:.86rem;font-weight:600;color:var(--muted)}.bd-bagsd .bd-bags{margin-top:8px}
 /* Smoother page changes on phones: no blur behind the little count badges (it was invisible and costly to draw). */
@@ -8913,8 +8926,8 @@ function fresh(b){if(!b.roastDate)return null;const d=daysAgo(b.roastDate);if(d<
 // The freshness line: 0 to 60 days, its four stretches coloured, a marker on today.
 const freshBar=f=>'<span class="fbar" role="img" aria-label="Day '+f.d+' off roast: '+f.label+'"><i class="fz1"></i><i class="fz2"></i><i class="fz3"></i><i class="fz4"></i><b style="left:'+Math.min(100,f.d/60*100).toFixed(1)+'%"></b></span>';
 const freshPill=f=>'<span class="fpill f-'+f.k+'">'+f.label+' · day '+f.d+'</span>';
-const bagLine=b=>{const g=gramsLeft(b);if(g==null)return '';const c=cupsLeft(b),pct=b.bag?clamp(g/b.bag*100,0,100):null;
-  return '<span class="bagl">'+(pct!=null?'<span class="bagm"><i style="width:'+pct.toFixed(0)+'%"></i></span>':'')+'<small>'+(g?g+' g left'+(c!=null?' · about '+c+' cup'+(c===1?'':'s'):''):'Bag empty')+'</small></span>'};
+const bagLine=b=>{const g=gramsLeft(b);if(g==null)return '';const pct=b.bag?clamp(g/b.bag*100,0,100):null;
+  return '<span class="bagl">'+(pct!=null?'<span class="bagm"><i style="width:'+pct.toFixed(0)+'%"></i></span>':'')+'<small>'+(g?g+' g left'+(b.bag?' of '+b.bag+' g':''):'Bag empty')+'</small></span>'};
 // Mark the bag's contents as they are now: brews logged after this are taken off again.
 function setLeft(b,g){b.left=gramsOrNull(g);b.leftAt=Date.now()}
 
@@ -9204,7 +9217,7 @@ function cabStats(){const o=new Set(BEANS.map(b=>b.origin).filter(Boolean)),ml=M
     decaf:BEANS.some(b=>PROCESSES[b.process]&&PROCESSES[b.process].cat==='decaf'),sl:BEANS.some(b=>beanVars(b).some(v=>/^sl(28|34)/.test(v))),
     fresh:BEANS.some(b=>ISO_D.test(b.roastDate||'')&&ISO_D.test(b.tried||'')&&(Date.parse(b.tried)-Date.parse(b.roastDate))/864e5<=3&&b.tried>=b.roastDate),
     two:[...o].some(k=>BEANS.some(b=>b.origin===k&&b.process==='washed')&&BEANS.some(b=>b.origin===k&&/natural/.test(b.process||''))),
-    rated:BEANS.filter(b=>b.rating).length,noted:BEANS.filter(b=>(b.flavours||'').trim()).length,again:BEANS.some(b=>b.again==='yes')}}
+    rated:BEANS.filter(b=>b.rating).length,noted:BEANS.filter(b=>(b.flavours||'').trim()).length,again:BEANS.some(b=>b.again==='yes'||buys(b)>1)}}
 // A champion's recipe, as named in the recipe list ("Pan Wei (Barista 2026)") or credited to one.
 const CHAMP_REC=/\((Brewers Cup|AeroPress|Barista) \d{4}\)|champion/i;
 const logDay=l=>String(l.date||'').slice(0,10)||(l.ts?new Date(l.ts).toISOString().slice(0,10):'');
@@ -9221,7 +9234,7 @@ const TROPHIES=[
   ['atlas','Atlas','Coffees from twenty-five origins','🗺️',s=>[s.o.size,25]],['two','Two sides','A washed and a natural from the same origin','☯️',s=>[+s.two,1]],
   ['sl','Kenyan classics','An SL28 or SL34','🦁',s=>[+s.sl,1]],['decaf','Night owl','A decaf in the cabinet','🦉',s=>[+s.decaf,1]],
   ['fresh','Straight from the roaster','Add a coffee within three days of its roast','⏱️',s=>[+s.fresh,1]],['critic','The critic','Rate twenty coffees','🧐',s=>[s.rated,20]],
-  ['notes','Tasting notes','Tasting notes on ten coffees','👃',s=>[s.noted,10]],['again','Old faithful','Mark a coffee you\u2019d buy again','💛',s=>[+s.again,1]],
+  ['notes','Tasting notes','Tasting notes on ten coffees','👃',s=>[s.noted,10]],['again','Old faithful','Buy a coffee again','💛',s=>[+s.again,1]],
   ['rebuy','Back for more','Buy a coffee again','🔁',s=>[s.rebought,1]],['regular','The regular','Buy the same coffee three times','🤝',s=>[s.maxBuys,3]],
   ['loyal','House favourites','Buy five different coffees again','🏡',s=>[s.rebought,5]],
   ['brew10','Ten brews','Log ten brews','📝',s=>[s.brews,10]],['brew100','Centurion','Log a hundred brews','💯',s=>[s.brews,100]],
@@ -9271,7 +9284,7 @@ function cabinetDay(when){const day=when||new Date(),iso=day.getFullYear()+'-'+S
   for(const b of shelf){const d=b.roastDate?at(b.roastDate):null,c=cupsLeft(b);
     // Each nudge comes on a few days, not every day: the peak on days 4 and 5, fading once a week, running low every third day.
     if(d!=null&&d>=4&&d<=5)need.push({b,k:'peak',title:beanTitle(b)+' is at its peak',text:'Day '+d+' off roast: its best weeks start now. Brew it today.'});
-    else if(c!=null&&c<=2&&seed%3===0)need.push({b,k:'low',title:c?'About '+c+' cup'+(c===1?'':'s')+' of '+beanTitle(b)+' left':beanTitle(b)+' is empty',text:c?'Make the last of it count, or note how it ended in its diary.':'Finish the bag in its page to move it into the cabinet.'});
+    else if(c!=null&&c<=2&&seed%3===0)need.push({b,k:'low',title:c?'Only '+gramsLeft(b)+' g of '+beanTitle(b)+' left':beanTitle(b)+' is empty',text:c?'Make the last of it count, or note how it ended in its diary.':'Finish the bag in its page to move it into the cabinet.'});
     else if(d!=null&&d>45&&d<=75&&(d-46)%7===0)need.push({b,k:'fade',title:beanTitle(b)+' is fading',text:'Day '+d+' off roast. Brew it soon: a little finer and hotter brings it back.'})}
   if(need.length)return pick(need);
   const md=iso.slice(5),ago=BEANS.filter(b=>b.tried&&b.tried.slice(5)===md&&b.tried<iso);
@@ -9359,8 +9372,8 @@ const CROWN='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8l4.5 4L12 
 
 /* ---------- The Beans page ---------- */
 // The coffees list's filters.
-const BFILTERS=[['all','All'],['done','Finished'],['rebought','Bought again'],['again','Buy again'],['top','4 beans and up'],['fav','Favourites']];
-const bfKeep=(b,f)=>f==='all'||(f==='done'?!b.shelf:f==='rebought'?buys(b)>1:f==='again'?b.again==='yes':f==='top'?b.rating>=4:inAnyTop(b.id));
+const BFILTERS=[['all','All'],['done','Finished'],['rebought','Bought again'],['top','4 beans and up'],['fav','Favourites']];
+const bfKeep=(b,f)=>f==='all'||(f==='done'?!b.shelf:f==='rebought'?buys(b)>1:f==='again'?b.again==='yes'||buys(b)>1:f==='top'?b.rating>=4:inAnyTop(b.id));
 function beanList(){const q=BQ.trim().toLowerCase();
   let l=BEANS.filter(b=>inSel(BYEAR,String(beanYear(b)))&&bfAny(b)&&(!q||[b.name,b.roaster,originName(b.origin),b.process&&PROCESSES[b.process].name,beanVars(b).map(vName).join(' '),b.flavours,b.notes].join(' ').toLowerCase().includes(q)));
   const by={recent:(a,b)=>beanDay(b).localeCompare(beanDay(a))||b.ts-a.ts,rated:(a,b)=>b.rating-a.rating||beanDay(b).localeCompare(beanDay(a)),
@@ -9476,7 +9489,7 @@ function renderGrid(){const g=$('bg-grid');if(!g)return;const list=beanList(),ge
     for(const [gi,h] of by){const c=g.querySelector('.clist[data-g="'+gi+'"]');if(c)c.insertAdjacentHTML('beforeend',emoIc(h))}hydrateImgs(g)})}
 // One coffee as a row: the bag, its name, where it's from, and your rating. Bags you're drinking now (now=true) also
 // show how fresh they are and what's left.
-function coffeeRow(b,now,i){const rk=beanRank(b),f=now&&fresh(b),g=now?gramsLeft(b):null,c=now?cupsLeft(b):null,isNew=!BSEEN.has(b.id)&&(i||0)<12;BSEEN.add(b.id);
+function coffeeRow(b,now,i){const rk=beanRank(b),f=now&&fresh(b),g=now?gramsLeft(b):null,isNew=!BSEEN.has(b.id)&&(i||0)<12;BSEEN.add(b.id);
   const meta=[b.roaster,b.origin?flagOf(b.origin)+' '+originName(b.origin):'',!now&&b.process?shortName(PROCESSES[b.process].name):''].filter(Boolean).join(' · ');
   // One clean row: name with its medal and rating on the right, roaster and origin below, then (for bags you're
   // drinking) a single line of freshness and what's left, with a thin bar for the bag.
@@ -9486,7 +9499,7 @@ function coffeeRow(b,now,i){const rk=beanRank(b),f=now&&fresh(b),g=now?gramsLeft
   return '<button type="button" class="crow'+(now?' now':'')+(isNew?' enter':'')+'" data-bean="'+b.id+'" style="--i:'+Math.min(i||0,12)+'">'+beanPic(b,'rw')+
     '<span class="cr-tx"><span class="cr-top"><b>'+esc(beanTitle(b))+'</b>'+(end?'<span class="cr-end">'+end+'</span>':'')+'</span>'+(meta?'<small>'+esc(meta)+'</small>':'')+
       (!now&&b.flavours?'<small class="cr-notes">'+esc(b.flavours.split(/\s*[,;·]\s*/).filter(Boolean).slice(0,3).join(' · '))+'</small>':'')+
-      (now?'<span class="cr-now">'+(f?'<span class="cr-fresh f-'+f.k+'"><i aria-hidden="true"></i>Day '+f.d+' · '+esc(f.label)+'</span>':'<span class="cr-fresh none"><i aria-hidden="true"></i>No roast date</span>')+(g!=null?'<span class="cr-left">'+(g?g+' g'+(c!=null?' · '+c+' cup'+(c===1?'':'s'):''):'Bag empty')+'</span>':'')+'</span>'+
+      (now?'<span class="cr-now">'+(f?'<span class="cr-fresh f-'+f.k+'"><i aria-hidden="true"></i>Day '+f.d+' · '+esc(f.label)+'</span>':'<span class="cr-fresh none"><i aria-hidden="true"></i>No roast date</span>')+(g!=null?'<span class="cr-left">'+(g?g+' g':'Bag empty')+'</span>':'')+'</span>'+
         (bagPct!=null?'<span class="cr-bar" aria-hidden="true"><i style="width:'+bagPct.toFixed(0)+'%"></i></span>':''):'')+'</span></button>'}
 // The bags you're drinking now, each with its freshness and what's left.
 // Drinking now: the bags you've started come first, the most used at the top (they're the ones to finish), then the
@@ -9657,33 +9670,31 @@ function openOrigin(k){const d=$('vd'),o=oInfo(k);if(!o)return;BFROM=k;const lis
   $('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
 function openBean(id,write){const b=beanById(id);if(!b)return;const d=$('vd'),rk=beanRank(b),P=b.process&&PROCESSES[b.process],ls=beanLogStats(b),f=b.shelf&&fresh(b);
   const fmt=s=>s?new Date(s+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'';
-  const kv=[['Origin',b.origin?flagOf(b.origin)+' '+originName(b.origin):''],['Process',P?P.name:''],[b.vars?'Varieties':'Variety',b.variety?varsName(b):''],['Roast',b.roast?b.roast[0].toUpperCase()+b.roast.slice(1):''],['Roasted',fmt(b.roastDate)],['Tried',b.tried?fmt(b.tried):'Not yet']].filter(x=>x[1]);
+  const kv=[['Origin',b.origin?flagOf(b.origin)+' '+originName(b.origin):''],['Process',P?P.name:''],[b.vars?'Varieties':'Variety',b.variety?varsName(b):''],['Roast',b.roast?b.roast[0].toUpperCase()+b.roast.slice(1):''],['Roasted',fmt(b.roastDate)],['Tried',b.tried?fmt(b.tried):'Not yet'],['Brewed',ls?ls.n+' time'+(ls.n===1?'':'s'):'']].filter(x=>x[1]);
   const st={mom:'note',ph:null};const g=gramsLeft(b),dose=Math.round(beanDose(b));
   const from=BFROM&&BFROM===b.origin?BFROM:null;
-  $('vd-in').innerHTML='<div class="vd-head" style="--c:'+(rk?MEDAL[rk]:'var(--cherry)')+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button>'+(from?'<button type="button" class="vd-back" id="vd-back">‹ '+esc(originName(from))+'</button>':'')+'<span class="pill"><i style="background:'+(rk?MEDAL[rk]:'var(--cherry)')+'"></i>'+(rk?placeLine(rk,beanYear(b)):beanMention(b)?'Honourable mention · '+beanYear(b):b.shelf?'Drinking now':'Your coffees')+'</span><h2 id="vd-title">'+esc(beanTitle(b))+'</h2>'+(b.roaster?'<p class="vd-sub">'+esc(b.roaster)+'</p>':'')+'</div>'+
-    '<div class="vd-body"><div class="bd-hero">'+beanPic(b,'hero')+glassRate(b.rating)+'</div>'+'<div class="bd-rate">'+beanRow(b.rating,'big')+'<span>'+(b.rating?b.rating.toString().replace('.5','½')+' · ':'')+rateWord(b.rating)+'</span></div>'+
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:'+(rk?MEDAL[rk]:'var(--cherry)')+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button>'+(from?'<button type="button" class="vd-back" id="vd-back">‹ '+esc(originName(from))+'</button>':'')+'<span class="vd-tools"><button type="button" class="vd-tool" id="bd-share" aria-label="Share this coffee" title="Share">'+lIc('share')+'</button><button type="button" class="vd-tool" id="bd-edit" aria-label="Edit this coffee" title="Edit">'+lIc('edit')+'</button></span><span class="pill"><i style="background:'+(rk?MEDAL[rk]:'var(--cherry)')+'"></i>'+(rk?placeLine(rk,beanYear(b)):beanMention(b)?'Honourable mention · '+beanYear(b):b.shelf?'Drinking now':'Your coffees')+'</span><h2 id="vd-title">'+esc(beanTitle(b))+'</h2>'+(b.roaster?'<p class="vd-sub">'+esc(b.roaster)+'</p>':'')+'</div>'+
+    '<div class="vd-body"><div class="bd-hero">'+beanPic(b,'hero')+(b.rating?'<span class="bglass">'+beanSVG+b.rating.toString().replace('.5','½')+'<small>'+rateWord(b.rating)+'</small></span>':'')+'</div>'+
     // The bag now: how fresh it is, what's left, and finishing it.
     (b.shelf?'<div class="bd-shelf">'+(f?'<div class="bd-f"><div class="bd-fh"><b>'+f.label+'</b><span>Day '+f.d+' off roast</span></div>'+freshBar(f)+'<p>'+f.tip+'</p></div>':'<label class="bd-addrd"><span><b>When was it roasted?</b><small>Add the date on the bag to see how fresh it is.</small></span><input type="date" id="bd-rd" class="dateinp" max="'+todayISO()+'" aria-label="Roast date"></label>')+
-      (g!=null?'<div class="bd-bag">'+bagLine(b)+'<div class="bd-cupr"><span class="bd-cupl">Brewed a cup with</span><span class="bd-step"><button type="button" id="bd-cm" aria-label="Less coffee">−</button><b id="bd-cg">'+dose+' g</b><button type="button" id="bd-cp" aria-label="More coffee">+</button></span><button type="button" class="btn" id="bd-cup">Take it off</button></div>'+
-        '<p class="bd-auto">Brews you finish with the dial-in’s timer or log with this coffee come off the bag on their own.</p><div class="bd-bagb"><button type="button" class="chip" id="bd-left">Set what’s left</button></div></div>'
+      (g!=null?'<div class="bd-bag"><div class="bd-bagh">'+bagLine(b)+'<button type="button" class="linkbtn" id="bd-left">Set what’s left</button></div><div class="bd-cupr"><span class="bd-cupl">Brewed a cup with</span><span class="bd-step"><button type="button" id="bd-cm" aria-label="Less coffee">−</button><b id="bd-cg">'+dose+' g</b><button type="button" id="bd-cp" aria-label="More coffee">+</button></span><button type="button" class="btn" id="bd-cup">Take it off</button></div>'+
+        '<p class="bd-auto">Brews you log or finish with the dial-in’s timer come off on their own.</p></div>'
         :'<p class="hint" style="margin:8px 0 0">Add the bag size in Edit to see what’s left as you log brews.</p>')+
       '<button type="button" class="btn ghost bd-done" id="bd-done">🏁 Finish the bag</button></div>'
      :'')+
     (kv.length?'<div class="specs">'+kv.map(([k,v])=>'<div><b>'+k+'</b><span class="bd-v">'+esc(v)+'</span></div>').join('')+'</div>':'')+
     (b.flavours?'<h3>Tasting notes</h3><div class="chips">'+tnSplit(b.flavours).map(f=>{const n=tnLeaf(f);return'<span class="chip">'+(n?'<i class="dot" style="background:'+n.c+'"></i>':'')+esc(f)+'</span>'}).join('')+'</div>':'')+
     (b.notes?'<h3>Your notes</h3><p>'+esc(b.notes)+'</p>':'')+
-    '<div class="bd-again"><span>Would you buy it again?</span><div class="seg" id="bd-again"></div></div>'+
     // Your bags: how many times you've bought it (set it for bags from before the app), buying it again when it's
     // finished, and the earlier bags folded away.
     '<div class="bd-buys"><div class="bd-bh"><span class="bd-bi" aria-hidden="true">🛍️</span><span class="bd-bt"><b>Bought '+(buys(b)===1?'once':buys(b)+' times')+'</b><small>'+(b.prior?'Including '+b.prior+' before the app':'Count bags from before the app too')+'</small></span>'+
       '<span class="stepper bd-bst"><button type="button" id="bd-bm" aria-label="One less time bought"'+(b.prior?'':' disabled')+'>−</button><output id="bd-bn" aria-live="polite">'+buys(b)+'</output><button type="button" id="bd-bp" aria-label="One more time bought">+</button></span></div>'+
-      (b.shelf?'':'<div class="bd-rbrow"><button type="button" class="chip bd-rbtn" id="bd-rbopen" aria-expanded="false">Bought it again</button><button type="button" class="linkbtn" id="bd-shelf">Put it back on the shelf</button></div>'+
+      (b.shelf?'':'<div class="bd-rbrow"><button type="button" class="btn ghost" id="bd-rbopen" aria-expanded="false">Bought it again</button><button type="button" class="btn ghost" id="bd-shelf">Back on the shelf</button></div>'+
         '<div class="bd-rbform" id="bd-rbform" hidden><div class="two"><div class="field"><label for="bd-rb-rd">New roast date</label><input type="date" id="bd-rb-rd" max="'+todayISO()+'"></div>'+
         '<div class="field"><label for="bd-rb-g">Bag size (g)</label><input type="number" id="bd-rb-g" inputmode="numeric" min="50" max="5000" step="10" value="'+(b.bag||'')+'" placeholder="250"></div></div>'+
         '<button type="button" class="btn" id="bd-rebuy">Add the new bag</button></div>')+
       (b.bags&&b.bags.length?'<details class="bd-bagsd"><summary>Earlier bags ('+b.bags.length+')</summary><ol class="bd-bags">'+b.bags.slice().reverse().map((x,i)=>'<li><b>'+ordinal(b.bags.length-i)+' bag</b><span>'+[x.rd?'Roasted '+fmtD(x.rd):'',x.g?x.g+' g':'',x.off?'finished '+fmtD(x.off):''].filter(Boolean).join(' · ')+'</span></li>').join('')+'</ol></details>':'')+'</div>'+
-    (ls?'<p class="hint">In your brew log: '+ls.n+' brew'+(ls.n===1?'':'s')+(ls.avg?', rated '+ls.avg.toFixed(1)+' on average':'')+'.</p>':'')+
-    '<div class="actions"><button class="btn" id="bd-brew">Brew it in the dial-in</button><button class="btn ghost" id="bd-mkrec">Create a recipe</button><button class="btn ghost" id="bd-edit">Edit</button><button class="btn ghost" id="bd-share">Share</button></div>'+
+    '<div class="actions bd-acts"><button class="btn" id="bd-brew">Brew it in the dial-in</button><button class="btn ghost" id="bd-mkrec">Create a recipe</button></div>'+
     // Its diary: a moment, a few words, the day.
     '<h3 id="bd-dh">Diary</h3>'+dwriteHTML('bd',st)+
     '<div id="bd-tl">'+timelineHTML(beanTimeline(b),false)+'</div>'+
@@ -9697,7 +9708,6 @@ function openBean(id,write){const b=beanById(id);if(!b)return;const d=$('vd'),rk
   $('bd-brew').onclick=()=>{useBean(b);d.close();showTab('dial');
     if(!dialRec()){const t=techList(S.brewer)[0];if(t)S.rec=t[1]}if(dialRec())tune('Tuned for '+beanTitle(b));else{render();toast('Set up for '+beanTitle(b))}};
   // Tapping the chosen answer again clears it.
-  const again=()=>seg('bd-again',[['yes','Yes'],['no','No']],()=>b.again,v=>{b.again=b.again===v?'':v;saveBeans();again()});again();
   // A cup brewed without logging it: you set the grams (it starts at your usual dose) and it comes off the bag.
   let cupG=dose;const cupShow=()=>{$('bd-cg').textContent=gfmt(cupG)+' g'};
   if($('bd-cm')){$('bd-cm').onclick=()=>{cupG=Math.max(1,cupG-1);cupShow()};$('bd-cp').onclick=()=>{cupG=Math.min(100,cupG+1);cupShow()}}
