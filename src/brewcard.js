@@ -119,15 +119,30 @@ const over=(fg,a,bg)=>mixHex(bg,fg,a);
 let CARD_STYLE=(v=>({mode:v&&v.mode==='light'?'light':'dark',col:v&&typeof v.col==='string'?v.col:'origin'}))(load('bb-cardstyle',null));
 const saveCardStyle=()=>save('bb-cardstyle',CARD_STYLE);
 // The colour options: the origin's own, then the app's coffee colours (Settings > Colour).
-const cardCols=()=>[['origin','Origin'],...ACCENTS.map(([k,n])=>[k,n])];
-// A palette from one colour: deep tones for dark, tinted paper for light.
-function palFrom(base,light){return light?{bg:[mixHex(base,'#FBF5EC',.86),mixHex(base,'#FBF5EC',.91),mixHex(base,'#FBF5EC',.94)],glow:mixHex(base,'#FFFFFF',.35),acc:base,acc2:mixHex(base,'#FFFFFF',.2)}
-  :{bg:[mixHex(base,'#000000',.66),mixHex(base,'#000000',.8),mixHex(base,'#000000',.9)],glow:mixHex(base,'#FFFFFF',.25),acc:mixHex(base,'#FFE9C2',.62),acc2:mixHex(base,'#FFFFFF',.15)}}
+// The vibe's own option is named after your vibe ("Pure"), so it's clear it follows the app's look.
+const cardCols=()=>[['origin','Origin'],...ACCENTS.map(([k,n])=>[k,k==='classic'?((VIBES.find(v=>v[0]===UI.vibe)||VIBES[0])[1]):n])];
+// Colours by hue, saturation and lightness: a palette keeps one hue clean from the deepest tone to the brightest,
+// instead of mixing towards black or cream (which turned every colour muddy brown or beige).
+const hslOf=h=>{const [r,g,b]=rgbOf(h).map(v=>v/255),mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,d=mx-mn;if(!d)return[0,0,l];
+  const s=d/(1-Math.abs(2*l-1));let hu=mx===r?((g-b)/d)%6:mx===g?(b-r)/d+2:(r-g)/d+4;return[(hu*60+360)%360,s,l]};
+const hsl=(h,s,l)=>{h=((h%360)+360)%360;s=clamp(s,0,1);l=clamp(l,0,1);const c=(1-Math.abs(2*l-1))*s,x=c*(1-Math.abs((h/60)%2-1)),m=l-c/2;
+  const [r,g,b]=h<60?[c,x,0]:h<120?[x,c,0]:h<180?[0,c,x]:h<240?[0,x,c]:h<300?[x,0,c]:[c,0,x];return hexOf([r,g,b].map(v=>(v+m)*255))};
+// A palette from one colour. Dark: an inky, clearly tinted ground with a luminous accent of the same hue and a second
+// accent a little round the colour wheel. Light: crisp tinted paper with a deep, saturated accent.
+function palFrom(base,light){const [h,s0]=hslOf(base),s=clamp(s0,.3,.65);
+  return light?{bg:[hsl(h,s*.7,.935),hsl(h,s*.6,.962),hsl(h,s*.5,.982)],glow:hsl(h,.7,.62),acc:hsl(h,.68,.34),acc2:hsl(h+30,.55,.42)}
+    :{bg:[hsl(h,s*.62,.145),hsl(h,s*.55,.088),hsl(h,s*.5,.05)],glow:hsl(h,.72,.56),acc:hsl(h,.78,.73),acc2:hsl(h+30,.62,.64)}}
+// "Vibe's own": the app's own look, light or dark as the card is: its paper and surfaces as the ground and its colours
+// as the accents. A vibe whose main colour has no hue (Pure's black and white) takes its gold as the accent.
+function vibePal(light){const v=VIBES.find(x=>x[0]===UI.vibe)||VIBES[0],P=v[light?3:4],grey=c=>hslOf(c)[1]<.12;
+  const acc=grey(P.cherry)?P.honey:P.cherry,acc2=acc===P.honey?P.leaf:P.honey;
+  return light?{bg:[mixHex(P.surface2,P.paper,.35),mixHex(P.surface2,P.paper,.7),P.paper],glow:acc,acc:acc,acc2}
+    :{bg:[mixHex(P.surface2,P.paper,.35),mixHex(P.surface,P.paper,.6),mixHex(P.paper,'#000000',.45)],glow:acc,acc,acc2}}
 // The card's theme in the chosen style. T is the origin's (or the house) theme; its pattern, stamp and names are kept.
-function cardStyle(T,st){const light=st&&st.mode==='light',acc=ACCENTS.find(a=>a[0]===(st&&st.col));
-  let pal=acc?palFrom(acc[2],light):{bg:T.bg.slice(),glow:T.glow,acc:T.acc,acc2:T.acc2};
+function cardStyle(T,st){const light=st&&st.mode==='light',col=st&&st.col,acc=col!=='classic'&&ACCENTS.find(a=>a[0]===col);
+  let pal=col==='classic'?vibePal(light):acc?palFrom(acc[2],light):{bg:T.bg.slice(),glow:T.glow,acc:T.acc,acc2:T.acc2};
   // The origin's own colours on paper: its deep tone tints the paper and its accents are deepened.
-  if(!acc&&light){const bg=[mixHex(T.bg[0],'#FBF5EC',.84),mixHex(T.bg[0],'#FBF5EC',.9),mixHex(T.bg[0],'#FBF5EC',.94)];
+  if(!acc&&col!=='classic'&&light){const [oh,os]=hslOf(T.bg[0]),ss=clamp(os,.3,.6),bg=[hsl(oh,ss*.62,.935),hsl(oh,ss*.52,.962),hsl(oh,ss*.42,.982)];
     // On paper the origin's gold would turn muddy once deepened, so the accent is whichever of its colours reads best as it
     // is (Kenya's red, Yemen's blue), among the ones with real colour in them.
     const sat=h=>{const c=rgbOf(h);return(Math.max(...c)-Math.min(...c))/255},cands=[T.glow,T.acc2,T.acc].filter(c=>sat(c)>.3);

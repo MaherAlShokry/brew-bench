@@ -2086,25 +2086,25 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .dbean-pick{display:inline-flex;align-items:center;gap:8px}.dbean-pick svg{width:20px;height:20px}.dbean-pick .bo{fill:var(--cherry)}.dbean-pick .bc{fill:none;stroke:var(--surface);stroke-width:1.6}
 /* Brew card in the share sheet */
 .cardview{display:block;width:100%;max-width:420px;margin:4px auto 12px;border-radius:18px;box-shadow:0 18px 40px -16px rgba(0,0,0,.6);-webkit-touch-callout:default;user-select:auto}
-.shcard{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin:14px 0 4px;padding:12px;border-radius:var(--r-lg);background:linear-gradient(135deg,#2E1C12,#140C07);color:#FFF6E8}
-.shcard-pv{flex:none;width:96px;aspect-ratio:9/16;border-radius:14px;overflow:hidden;border:0;padding:0;cursor:pointer;background:rgba(255,246,232,.08);box-shadow:0 10px 24px -10px rgba(0,0,0,.7),0 0 0 1.5px rgba(226,184,102,.5);transform:rotate(-3deg);transition:transform .25s var(--ease-spring)}
+.shcard{--sa:var(--cherry-ink,var(--cherry));display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin:14px 0 4px;padding:12px;border-radius:var(--r-lg);background:linear-gradient(135deg,color-mix(in srgb,var(--sa) 10%,var(--surface2)),var(--surface2));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--sa) 14%,transparent);color:var(--ink)}
+.shcard-pv{flex:none;width:96px;aspect-ratio:9/16;border-radius:14px;overflow:hidden;border:0;padding:0;cursor:pointer;background:color-mix(in srgb,var(--ink) 6%,transparent);box-shadow:0 10px 24px -10px rgba(0,0,0,.45),0 0 0 1.5px color-mix(in srgb,var(--sa) 45%,transparent);transform:rotate(-3deg);transition:transform .25s var(--ease-spring)}
 .shcard-pv:active{transform:rotate(-3deg) scale(.95)}.shcard-pv img{width:100%;height:100%;object-fit:cover;object-position:top;display:block;animation:bfade .35s ease}
-.shcard-ph{display:grid;place-items:center;height:100%;padding:8px;font-size:.68rem;text-align:center;color:rgba(255,246,232,.6)}
-.shcard-tx{flex:1;min-width:0}.shcard-tx b{display:block;font-family:var(--display);font-size:1.08rem;color:#F0C987}.shcard-tx small{display:block;font-size:.8rem;line-height:1.35;color:rgba(255,246,232,.75);margin-top:2px}
+.shcard-ph{display:grid;place-items:center;height:100%;padding:8px;font-size:.68rem;text-align:center;color:var(--muted)}
+.shcard-tx{flex:1;min-width:0}.shcard-tx b{display:block;font-family:var(--display);font-size:1.08rem;color:var(--sa)}.shcard-tx small{display:block;font-size:.8rem;line-height:1.35;color:var(--muted);margin-top:2px}
 .shcard-act{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.shcard-act .btn{min-height:40px;padding:8px 14px;flex:1 1 auto}
-.shcard-act .btn:not(.ghost){background:#F0C987;border-color:#F0C987;color:#2E1C12}.shcard-act .btn.ghost{color:#FFF6E8;border-color:rgba(255,246,232,.35);background:transparent}
+.shcard-act .btn:not(.ghost){background:var(--sa);border-color:var(--sa);color:var(--paper)}.shcard-act .btn.ghost{color:var(--ink);border-color:color-mix(in srgb,var(--ink) 22%,transparent);background:transparent}
 /* The card's style: Dark or Light, then its colours, each swatch painted in the card's background and accent. */
-.shstyle{flex-basis:100%;min-width:0;border-top:1px solid rgba(255,246,232,.14);padding-top:12px}
-.shmode{display:inline-flex;padding:3px;border-radius:999px;background:rgba(255,246,232,.08);margin-bottom:10px}
-.shmode button{border:0;background:none;color:rgba(255,246,232,.82);font:inherit;font-size:.84rem;font-weight:700;padding:7px 16px;border-radius:999px;min-height:36px;cursor:pointer}
-.shmode button[aria-pressed="true"]{background:#F0C987;color:#2E1C12}
+.shstyle{flex-basis:100%;min-width:0;border-top:1px solid color-mix(in srgb,var(--ink) 12%,transparent);padding-top:12px}
+.shmode{display:inline-flex;padding:3px;border-radius:999px;background:color-mix(in srgb,var(--ink) 7%,transparent);margin-bottom:10px}
+.shmode button{border:0;background:none;font:inherit;font-size:.84rem;font-weight:700;padding:7px 16px;border-radius:999px;min-height:36px;cursor:pointer;color:var(--muted)}
+.shmode button[aria-pressed="true"]{background:var(--sa);color:var(--paper)}
 .shcols{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -12px;padding:7px 12px 6px;scroll-padding-inline:12px;scroll-snap-type:x proximity}.shcols::-webkit-scrollbar{display:none}
-.shsw{flex:none;display:flex;flex-direction:column;align-items:center;gap:5px;width:64px;border:0;background:none;padding:0;color:rgba(255,246,232,.78);font:inherit;font-size:.68rem;line-height:1.2;cursor:pointer;scroll-snap-align:start}
-.shsw i{width:40px;height:40px;border-radius:50%;box-shadow:0 0 0 1.5px rgba(255,246,232,.25);transition:box-shadow .2s,transform .2s var(--ease-spring)}
+.shsw{flex:none;display:flex;flex-direction:column;align-items:center;gap:5px;width:64px;border:0;background:none;padding:0;color:var(--muted);font:inherit;font-size:.68rem;line-height:1.2;cursor:pointer;scroll-snap-align:start}
+.shsw i{width:40px;height:40px;border-radius:50%;box-shadow:0 0 0 1.5px color-mix(in srgb,var(--ink) 18%,transparent);transition:box-shadow .2s,transform .2s var(--ease-spring)}
 .shsw span{max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.shsw[aria-pressed="true"]{color:#F0C987;font-weight:700}.shsw[aria-pressed="true"] i{box-shadow:0 0 0 2.5px #1A100A,0 0 0 4.5px #F0C987}
-.shsw:focus-visible i,.shmode button:focus-visible{outline:2px solid #F0C987;outline-offset:2px}
-.shcard-pv.busy{position:relative}.shcard-pv.busy::after{content:'';position:absolute;inset:0;background:rgba(20,12,7,.45);animation:bfade .2s ease}
+.shsw[aria-pressed="true"]{color:var(--sa);font-weight:700}.shsw[aria-pressed="true"] i{box-shadow:0 0 0 2.5px var(--surface2),0 0 0 4.5px var(--sa)}
+.shsw:focus-visible i,.shmode button:focus-visible{outline:2px solid var(--sa);outline-offset:2px}
+.shcard-pv.busy{position:relative}.shcard-pv.busy::after{content:'';position:absolute;inset:0;background:color-mix(in srgb,var(--paper) 45%,transparent);animation:bfade .2s ease}
 .steps.tl .t.est{background:transparent;border:1px dashed color-mix(in srgb,var(--ink) 30%,transparent);opacity:.85}
 
 .av-note{grid-column:1/-1;margin:0;font-size:.8rem}.getapp a.btn{text-decoration:none;display:flex;justify-content:center;align-items:center;text-align:center}
