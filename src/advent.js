@@ -22,26 +22,36 @@ const calDay=(c,d)=>{const iso=c.year+'-12-'+String(d).padStart(2,'0');return is
 function calStats(c){const doors=calDoors(c),bs=[...doors.values()],rated=bs.filter(b=>b.rating);
   return{doors,open:bs.length,avg:rated.length?rated.reduce((s,b)=>s+b.rating,0)/rated.length:0,origins:new Set(bs.map(b=>b.origin).filter(Boolean)).size,
     best:rated.slice().sort((a,b)=>b.rating-a.rating||a.cal.d-b.cal.d).slice(0,3)}}
+// The calendar's total rating: yours for the whole box, or (until you give one) the average of its doors.
+function calScore(c,st){const s=st||calStats(c);return c.rating?{v:c.rating,mine:true,avg:s.avg}:s.avg?{v:Math.round(s.avg*10)/10,mine:false,avg:s.avg}:{v:0,mine:false,avg:0}}
+const calNum=v=>String(v).replace('.5','½');
+// Your calendars side by side, best first: how each box (and roastery) did against the others.
+function calRanked(){return CALS.map(c=>({c,sc:calScore(c)})).filter(x=>x.sc.v).sort((a,b)=>b.sc.v-a.sc.v||b.c.year-a.c.year)}
 let ADVFROM=null,ADVRET=null;$('vd').addEventListener('close',()=>{ADVFROM=null;ADVRET=null});
 
 // On the Coffees page: your calendars, each a little box of doors. With none yet, an invitation in the season.
 function advHTML(){const m=new Date().getMonth();
   if(!CALS.length)return m>=9||m===0?'<button type="button" class="adv-invite" data-advnew><span class="adv-ii" aria-hidden="true">'+advBoxSVG+'</span><span><b>Got an advent calendar?</b><small>Add the box and review each numbered coffee as you open it.</small></span><span class="adv-plus" aria-hidden="true">+</span></button>':'';
-  const list=CALS.slice().sort((a,b)=>b.year-a.year||b.ts-a.ts);
+  const list=CALS.slice().sort((a,b)=>b.year-a.year||b.ts-a.ts),rk=calRanked();
   return '<div class="rhead adv-h"><h3 class="rh">Advent calendars</h3><button type="button" class="sh-mini ic" data-advnew aria-label="Add an advent calendar" title="Add">'+lIc('plus')+'</button></div>'+
-    '<div class="adv-list">'+list.map(c=>{const s=calStats(c),t=calToday(c,s.doors);
+    '<div class="adv-list">'+list.map(c=>{const s=calStats(c),t=calToday(c,s.doors),sc=calScore(c,s);
       return '<button type="button" class="adv-card" data-adv="'+c.id+'"><span class="adv-mini" style="--n:'+Math.min(c.n,24)+'">'+Array.from({length:c.n},(_,i)=>'<i class="'+(s.doors.has(i+1)?'on':i+1===t?'now':'')+'"></i>').join('')+'</span>'+
         '<span class="adv-ct"><b>'+esc(calName(c))+'</b><small>'+esc([c.roaster&&c.name?c.roaster:'',String(c.year)].filter(Boolean).join(' · '))+'</small>'+
-        '<span class="adv-cm"><span>'+s.open+'/'+c.n+' opened</span>'+(c.rating||s.avg?'<span class="adv-r">'+beanSVG+String(c.rating||Math.round(s.avg*10)/10).replace('.5','½')+'</span>':'')+'</span></span></button>'}).join('')+'</div>'}
+        '<span class="adv-cm"><span>'+s.open+'/'+c.n+' opened</span>'+(sc.v?'<span class="adv-r">'+beanSVG+calNum(sc.v)+'</span>':'')+'</span></span></button>'}).join('')+'</div>'+
+    // Two or more rated: ranked, so boxes from different roasteries (and years) can be compared at a glance.
+    (rk.length>1?'<div class="adv-rank"><b class="adv-rkh">Your calendars ranked</b>'+rk.map((x,i)=>'<button type="button" class="adv-rr" data-adv="'+x.c.id+'"><span class="adv-rn">'+(i+1)+'</span><span class="adv-rt"><b>'+esc(x.c.roaster||calName(x.c))+'</b><small>'+esc([x.c.roaster&&x.c.name?x.c.name:'',String(x.c.year)].filter(Boolean).join(' · '))+'</small></span><span class="adv-r">'+beanSVG+calNum(x.sc.v)+'</span></button>').join('')+'</div>':'')}
 const advBoxSVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="17" height="16" rx="2.5"/><path d="M3.5 9.5h17M3.5 14.8h17M9.2 4v16M14.8 4v16"/></svg>';
 
 // A calendar's page: the box at a glance, your review of it, every door, and the best of what was inside.
-function openCal(id){const c=calById(id);if(!c)return;ADVFROM=id;const d=$('vd'),s=calStats(c),t=calToday(c,s.doors);
+function openCal(id){const c=calById(id);if(!c)return;ADVFROM=id;const d=$('vd'),s=calStats(c),t=calToday(c,s.doors),sc=calScore(c,s),rk=calRanked(),pos=rk.findIndex(x=>x.c.id===c.id);
   const stat=(v,l)=>'<div><b>'+l+'</b><span class="bd-v">'+v+'</span></div>';
   $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button>'+
     '<span class="vd-tools"><button type="button" class="vd-tool" id="adv-share" aria-label="Share this calendar" title="Share">'+lIc('share')+'</button><button type="button" class="vd-tool" id="adv-edit" aria-label="Edit this calendar" title="Edit">'+lIc('edit')+'</button></span>'+
     '<span class="pill"><i style="background:var(--cherry)"></i>Advent calendar · '+c.year+'</span><h2 id="vd-title">'+esc(calName(c))+'</h2><p class="vd-sub">'+esc([c.name?c.roaster:'',c.n+' doors · '+c.g+' g each'].filter(Boolean).join(' · '))+'</p></div>'+
     '<div class="vd-body">'+
+    // The total rating of the box: yours, set here, with the doors' average beside it and where it ranks among your calendars.
+    '<div class="adv-score"><div class="adv-sh"><span class="adv-big">'+(sc.v?calNum(sc.v):'–')+'<small>/5</small></span><span class="adv-sl"><b>Total rating</b><small id="adv-sub">'+advSub(c,s,sc,rk,pos)+'</small></span></div>'+
+      '<div class="beanrate" id="adv-rate"></div></div>'+
     '<div class="adv-prog"><div class="adv-ph"><b>'+s.open+' of '+c.n+' opened</b><span>'+(s.open===c.n?'All done':t?'Next: door '+t:'')+'</span></div><span class="bagm"><i style="width:'+(s.open/c.n*100).toFixed(0)+'%"></i></span></div>'+
     '<div class="specs">'+stat(s.avg?s.avg.toFixed(1).replace('.0','')+' of 5':'–','Average of the doors')+stat(s.origins||'–',s.origins===1?'Origin':'Origins')+'</div>'+
     '<h3>The doors</h3><div class="adv-grid">'+Array.from({length:c.n},(_,i)=>{const n=i+1,b=s.doors.get(n);
@@ -49,10 +59,11 @@ function openCal(id){const c=calById(id);if(!c)return;ADVFROM=id;const d=$('vd')
         :'<button type="button" class="adv-door'+(n===t?' now':'')+'" data-door="'+n+'" aria-label="Door '+n+': add its coffee"><span class="adv-n">'+n+'</span>'+(n===t?'<small>'+(calLive(c)?'Today':'Next')+'</small>':'')+'</button>'}).join('')+'</div>'+
     '<p class="hint adv-tip">Tap a door to add the coffee behind it, then rate it and note what you taste. Opened doors open that coffee.</p>'+
     (s.best.length>1?'<h3>Best of the box</h3><div class="clist">'+s.best.map((b,i)=>coffeeRow(b,false,i)).join('')+'</div>':'')+
-    '<h3>Your review of the box</h3><div class="adv-rev"><div class="beanrate" id="adv-rate"></div><textarea id="adv-notes" rows="3" maxlength="600" placeholder="The box as a whole: the range of coffees, the surprises, would you get it again?">'+esc(c.notes)+'</textarea></div>'+
+    '<h3>Your review of the box</h3><div class="adv-rev"><textarea id="adv-notes" rows="3" maxlength="600" placeholder="The box as a whole: the range of coffees, the surprises, would you get it again?">'+esc(c.notes)+'</textarea></div>'+
     '<button type="button" class="linkbtn danger" id="adv-del">Remove the calendar</button></div>';
   hydrateImgs($('vd-in'));
-  beanRateInput('adv-rate',()=>c.rating,v=>{c.rating=v;saveCals();renderBeans()});
+  beanRateInput('adv-rate',()=>c.rating,v=>{c.rating=v;saveCals();renderBeans();const n=calScore(c,s),r=calRanked();
+    document.querySelector('.adv-big').firstChild.textContent=n.v?calNum(n.v):'–';$('adv-sub').textContent=advSub(c,s,n,r,r.findIndex(x=>x.c.id===c.id))});
   let nt=0;$('adv-notes').oninput=e=>{clearTimeout(nt);nt=setTimeout(()=>{c.notes=str(e.target.value,600);saveCals()},400)};
   $('adv-notes').onchange=e=>{clearTimeout(nt);c.notes=str(e.target.value,600);saveCals()};
   $('adv-edit').onclick=()=>openCalEditor(c);
@@ -64,6 +75,9 @@ function openCal(id){const c=calById(id);if(!c)return;ADVFROM=id;const d=$('vd')
     const bb=e.target.closest('[data-bean]');if(bb){ADVFROM=c.id;openBean(bb.dataset.bean)}};
   showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
 
+// Under the total: whose number it is and its place among your calendars.
+function advSub(c,s,sc,rk,pos){return [sc.mine?'Your rating of the whole box':sc.v?'From the doors so far: tap to give your own':'Rate the box as a whole',
+  rk.length>1&&pos>=0?'#'+(pos+1)+' of your '+rk.length+' calendars':''].filter(Boolean).join(' · ')}
 // Adding or editing the box itself.
 function openCalEditor(c){const d=$('vd'),isNew=!c,C=c||{name:'',roaster:'',year:new Date().getMonth()<6?new Date().getFullYear()-1:new Date().getFullYear(),n:24,g:50};
   const roasters=[...new Set(BEANS.map(x=>x.roaster).filter(Boolean))].sort();
@@ -88,6 +102,7 @@ function openCalEditor(c){const d=$('vd'),isNew=!c,C=c||{name:'',roaster:'',year
 
 // Shared as text and a PDF: the box, your review, and every door you've opened, in order.
 function calDoc(c){const s=calStats(c),doors=[...s.doors.entries()].sort((a,b)=>a[0]-b[0]);
-  return{title:calName(c),sub:s.open+' of '+c.n+' doors opened'+(c.rating?' · rated '+c.rating+' of 5':''),file:'advent-'+c.year,
-    blocks:[{kv:[['Roastery',c.roaster||'-'],['Year',String(c.year)],['Doors',c.n+' × '+c.g+' g'],['Average',s.avg?s.avg.toFixed(1)+' of 5':'-']]},...(c.notes?[{h:'My review',p:c.notes}]:[]),
+  const sc=calScore(c,s);
+  return{title:calName(c),sub:s.open+' of '+c.n+' doors opened'+(sc.v?' · '+(sc.mine?'rated ':'doors average ')+sc.v+' of 5':''),file:'advent-'+c.year,
+    blocks:[{kv:[['Roastery',c.roaster||'-'],['Year',String(c.year)],['Doors',c.n+' × '+c.g+' g'],['Total rating',c.rating?c.rating+' of 5':'-'],['Doors average',s.avg?s.avg.toFixed(1)+' of 5':'-']]},...(c.notes?[{h:'My review',p:c.notes}]:[]),
       {h:'The doors',list:doors.map(([n,b])=>'Day '+n+': '+beanTitle(b)+([b.roaster!==c.roaster?b.roaster:'',b.origin?originName(b.origin):''].filter(Boolean).length?' ('+[b.roaster!==c.roaster?b.roaster:'',b.origin?originName(b.origin):''].filter(Boolean).join(', ')+')':'')+(b.rating?' · '+b.rating+' of 5':''))}]}}
