@@ -137,8 +137,8 @@ function fresh(b){if(!b.roastDate)return null;const d=daysAgo(b.roastDate);if(d<
 // The freshness line: 0 to 60 days, its four stretches coloured, a marker on today.
 const freshBar=f=>'<span class="fbar" role="img" aria-label="Day '+f.d+' off roast: '+f.label+'"><i class="fz1"></i><i class="fz2"></i><i class="fz3"></i><i class="fz4"></i><b style="left:'+Math.min(100,f.d/60*100).toFixed(1)+'%"></b></span>';
 const freshPill=f=>'<span class="fpill f-'+f.k+'">'+f.label+' · day '+f.d+'</span>';
-const bagLine=b=>{const g=gramsLeft(b);if(g==null)return '';const c=cupsLeft(b),pct=b.bag?clamp(g/b.bag*100,0,100):null;
-  return '<span class="bagl">'+(pct!=null?'<span class="bagm"><i style="width:'+pct.toFixed(0)+'%"></i></span>':'')+'<small>'+(g?g+' g left'+(c!=null?' · about '+c+' cup'+(c===1?'':'s'):''):'Bag empty')+'</small></span>'};
+const bagLine=b=>{const g=gramsLeft(b);if(g==null)return '';const pct=b.bag?clamp(g/b.bag*100,0,100):null;
+  return '<span class="bagl">'+(pct!=null?'<span class="bagm"><i style="width:'+pct.toFixed(0)+'%"></i></span>':'')+'<small>'+(g?g+' g left'+(b.bag?' of '+b.bag+' g':''):'Bag empty')+'</small></span>'};
 // Mark the bag's contents as they are now: brews logged after this are taken off again.
 function setLeft(b,g){b.left=gramsOrNull(g);b.leftAt=Date.now()}
 
@@ -495,7 +495,7 @@ function cabinetDay(when){const day=when||new Date(),iso=day.getFullYear()+'-'+S
   for(const b of shelf){const d=b.roastDate?at(b.roastDate):null,c=cupsLeft(b);
     // Each nudge comes on a few days, not every day: the peak on days 4 and 5, fading once a week, running low every third day.
     if(d!=null&&d>=4&&d<=5)need.push({b,k:'peak',title:beanTitle(b)+' is at its peak',text:'Day '+d+' off roast: its best weeks start now. Brew it today.'});
-    else if(c!=null&&c<=2&&seed%3===0)need.push({b,k:'low',title:c?'About '+c+' cup'+(c===1?'':'s')+' of '+beanTitle(b)+' left':beanTitle(b)+' is empty',text:c?'Make the last of it count, or note how it ended in its diary.':'Finish the bag in its page to move it into the cabinet.'});
+    else if(c!=null&&c<=2&&seed%3===0)need.push({b,k:'low',title:c?'Only '+gramsLeft(b)+' g of '+beanTitle(b)+' left':beanTitle(b)+' is empty',text:c?'Make the last of it count, or note how it ended in its diary.':'Finish the bag in its page to move it into the cabinet.'});
     else if(d!=null&&d>45&&d<=75&&(d-46)%7===0)need.push({b,k:'fade',title:beanTitle(b)+' is fading',text:'Day '+d+' off roast. Brew it soon: a little finer and hotter brings it back.'})}
   if(need.length)return pick(need);
   const md=iso.slice(5),ago=BEANS.filter(b=>b.tried&&b.tried.slice(5)===md&&b.tried<iso);
@@ -700,7 +700,7 @@ function renderGrid(){const g=$('bg-grid');if(!g)return;const list=beanList(),ge
     for(const [gi,h] of by){const c=g.querySelector('.clist[data-g="'+gi+'"]');if(c)c.insertAdjacentHTML('beforeend',emoIc(h))}hydrateImgs(g)})}
 // One coffee as a row: the bag, its name, where it's from, and your rating. Bags you're drinking now (now=true) also
 // show how fresh they are and what's left.
-function coffeeRow(b,now,i){const rk=beanRank(b),f=now&&fresh(b),g=now?gramsLeft(b):null,c=now?cupsLeft(b):null,isNew=!BSEEN.has(b.id)&&(i||0)<12;BSEEN.add(b.id);
+function coffeeRow(b,now,i){const rk=beanRank(b),f=now&&fresh(b),g=now?gramsLeft(b):null,isNew=!BSEEN.has(b.id)&&(i||0)<12;BSEEN.add(b.id);
   const meta=[b.roaster,b.origin?flagOf(b.origin)+' '+originName(b.origin):'',!now&&b.process?shortName(PROCESSES[b.process].name):''].filter(Boolean).join(' · ');
   // One clean row: name with its medal and rating on the right, roaster and origin below, then (for bags you're
   // drinking) a single line of freshness and what's left, with a thin bar for the bag.
@@ -710,7 +710,7 @@ function coffeeRow(b,now,i){const rk=beanRank(b),f=now&&fresh(b),g=now?gramsLeft
   return '<button type="button" class="crow'+(now?' now':'')+(isNew?' enter':'')+'" data-bean="'+b.id+'" style="--i:'+Math.min(i||0,12)+'">'+beanPic(b,'rw')+
     '<span class="cr-tx"><span class="cr-top"><b>'+esc(beanTitle(b))+'</b>'+(end?'<span class="cr-end">'+end+'</span>':'')+'</span>'+(meta?'<small>'+esc(meta)+'</small>':'')+
       (!now&&b.flavours?'<small class="cr-notes">'+esc(b.flavours.split(/\s*[,;·]\s*/).filter(Boolean).slice(0,3).join(' · '))+'</small>':'')+
-      (now?'<span class="cr-now">'+(f?'<span class="cr-fresh f-'+f.k+'"><i aria-hidden="true"></i>Day '+f.d+' · '+esc(f.label)+'</span>':'<span class="cr-fresh none"><i aria-hidden="true"></i>No roast date</span>')+(g!=null?'<span class="cr-left">'+(g?g+' g'+(c!=null?' · '+c+' cup'+(c===1?'':'s'):''):'Bag empty')+'</span>':'')+'</span>'+
+      (now?'<span class="cr-now">'+(f?'<span class="cr-fresh f-'+f.k+'"><i aria-hidden="true"></i>Day '+f.d+' · '+esc(f.label)+'</span>':'<span class="cr-fresh none"><i aria-hidden="true"></i>No roast date</span>')+(g!=null?'<span class="cr-left">'+(g?g+' g':'Bag empty')+'</span>':'')+'</span>'+
         (bagPct!=null?'<span class="cr-bar" aria-hidden="true"><i style="width:'+bagPct.toFixed(0)+'%"></i></span>':''):'')+'</span></button>'}
 // The bags you're drinking now, each with its freshness and what's left.
 // Drinking now: the bags you've started come first, the most used at the top (they're the ones to finish), then the
@@ -881,15 +881,15 @@ function openOrigin(k){const d=$('vd'),o=oInfo(k);if(!o)return;BFROM=k;const lis
   $('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
 function openBean(id,write){const b=beanById(id);if(!b)return;const d=$('vd'),rk=beanRank(b),P=b.process&&PROCESSES[b.process],ls=beanLogStats(b),f=b.shelf&&fresh(b);
   const fmt=s=>s?new Date(s+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'';
-  const kv=[['Origin',b.origin?flagOf(b.origin)+' '+originName(b.origin):''],['Process',P?P.name:''],[b.vars?'Varieties':'Variety',b.variety?varsName(b):''],['Roast',b.roast?b.roast[0].toUpperCase()+b.roast.slice(1):''],['Roasted',fmt(b.roastDate)],['Tried',b.tried?fmt(b.tried):'Not yet']].filter(x=>x[1]);
+  const kv=[['Origin',b.origin?flagOf(b.origin)+' '+originName(b.origin):''],['Process',P?P.name:''],[b.vars?'Varieties':'Variety',b.variety?varsName(b):''],['Roast',b.roast?b.roast[0].toUpperCase()+b.roast.slice(1):''],['Roasted',fmt(b.roastDate)],['Tried',b.tried?fmt(b.tried):'Not yet'],['Brewed',ls?ls.n+' time'+(ls.n===1?'':'s')+(ls.avg?' · rated '+ls.avg.toFixed(1):''):'']].filter(x=>x[1]);
   const st={mom:'note',ph:null};const g=gramsLeft(b),dose=Math.round(beanDose(b));
   const from=BFROM&&BFROM===b.origin?BFROM:null;
-  $('vd-in').innerHTML='<div class="vd-head" style="--c:'+(rk?MEDAL[rk]:'var(--cherry)')+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button>'+(from?'<button type="button" class="vd-back" id="vd-back">‹ '+esc(originName(from))+'</button>':'')+'<span class="pill"><i style="background:'+(rk?MEDAL[rk]:'var(--cherry)')+'"></i>'+(rk?placeLine(rk,beanYear(b)):beanMention(b)?'Honourable mention · '+beanYear(b):b.shelf?'Drinking now':'Your coffees')+'</span><h2 id="vd-title">'+esc(beanTitle(b))+'</h2>'+(b.roaster?'<p class="vd-sub">'+esc(b.roaster)+'</p>':'')+'</div>'+
-    '<div class="vd-body"><div class="bd-hero">'+beanPic(b,'hero')+glassRate(b.rating)+'</div>'+'<div class="bd-rate">'+beanRow(b.rating,'big')+'<span>'+(b.rating?b.rating.toString().replace('.5','½')+' · ':'')+rateWord(b.rating)+'</span></div>'+
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:'+(rk?MEDAL[rk]:'var(--cherry)')+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button>'+(from?'<button type="button" class="vd-back" id="vd-back">‹ '+esc(originName(from))+'</button>':'')+'<span class="vd-tools"><button type="button" class="vd-tool" id="bd-share" aria-label="Share this coffee" title="Share">'+lIc('share')+'</button><button type="button" class="vd-tool" id="bd-edit" aria-label="Edit this coffee" title="Edit">'+lIc('edit')+'</button></span><span class="pill"><i style="background:'+(rk?MEDAL[rk]:'var(--cherry)')+'"></i>'+(rk?placeLine(rk,beanYear(b)):beanMention(b)?'Honourable mention · '+beanYear(b):b.shelf?'Drinking now':'Your coffees')+'</span><h2 id="vd-title">'+esc(beanTitle(b))+'</h2>'+(b.roaster?'<p class="vd-sub">'+esc(b.roaster)+'</p>':'')+'</div>'+
+    '<div class="vd-body"><div class="bd-hero">'+beanPic(b,'hero')+'</div>'+'<div class="bd-rate">'+beanRow(b.rating,'big')+'<span>'+(b.rating?b.rating.toString().replace('.5','½')+' · ':'')+rateWord(b.rating)+'</span></div>'+
     // The bag now: how fresh it is, what's left, and finishing it.
     (b.shelf?'<div class="bd-shelf">'+(f?'<div class="bd-f"><div class="bd-fh"><b>'+f.label+'</b><span>Day '+f.d+' off roast</span></div>'+freshBar(f)+'<p>'+f.tip+'</p></div>':'<label class="bd-addrd"><span><b>When was it roasted?</b><small>Add the date on the bag to see how fresh it is.</small></span><input type="date" id="bd-rd" class="dateinp" max="'+todayISO()+'" aria-label="Roast date"></label>')+
-      (g!=null?'<div class="bd-bag">'+bagLine(b)+'<div class="bd-cupr"><span class="bd-cupl">Brewed a cup with</span><span class="bd-step"><button type="button" id="bd-cm" aria-label="Less coffee">−</button><b id="bd-cg">'+dose+' g</b><button type="button" id="bd-cp" aria-label="More coffee">+</button></span><button type="button" class="btn" id="bd-cup">Take it off</button></div>'+
-        '<p class="bd-auto">Brews you finish with the dial-in’s timer or log with this coffee come off the bag on their own.</p><div class="bd-bagb"><button type="button" class="chip" id="bd-left">Set what’s left</button></div></div>'
+      (g!=null?'<div class="bd-bag"><div class="bd-bagh">'+bagLine(b)+'<button type="button" class="linkbtn" id="bd-left">Set what’s left</button></div><div class="bd-cupr"><span class="bd-cupl">Brewed a cup with</span><span class="bd-step"><button type="button" id="bd-cm" aria-label="Less coffee">−</button><b id="bd-cg">'+dose+' g</b><button type="button" id="bd-cp" aria-label="More coffee">+</button></span><button type="button" class="btn" id="bd-cup">Take it off</button></div>'+
+        '<p class="bd-auto">Brews you log or finish with the dial-in’s timer come off on their own.</p></div>'
         :'<p class="hint" style="margin:8px 0 0">Add the bag size in Edit to see what’s left as you log brews.</p>')+
       '<button type="button" class="btn ghost bd-done" id="bd-done">🏁 Finish the bag</button></div>'
      :'')+
@@ -906,8 +906,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;const d=$('vd'),rk
         '<div class="field"><label for="bd-rb-g">Bag size (g)</label><input type="number" id="bd-rb-g" inputmode="numeric" min="50" max="5000" step="10" value="'+(b.bag||'')+'" placeholder="250"></div></div>'+
         '<button type="button" class="btn" id="bd-rebuy">Add the new bag</button></div>')+
       (b.bags&&b.bags.length?'<details class="bd-bagsd"><summary>Earlier bags ('+b.bags.length+')</summary><ol class="bd-bags">'+b.bags.slice().reverse().map((x,i)=>'<li><b>'+ordinal(b.bags.length-i)+' bag</b><span>'+[x.rd?'Roasted '+fmtD(x.rd):'',x.g?x.g+' g':'',x.off?'finished '+fmtD(x.off):''].filter(Boolean).join(' · ')+'</span></li>').join('')+'</ol></details>':'')+'</div>'+
-    (ls?'<p class="hint">In your brew log: '+ls.n+' brew'+(ls.n===1?'':'s')+(ls.avg?', rated '+ls.avg.toFixed(1)+' on average':'')+'.</p>':'')+
-    '<div class="actions"><button class="btn" id="bd-brew">Brew it in the dial-in</button><button class="btn ghost" id="bd-mkrec">Create a recipe</button><button class="btn ghost" id="bd-edit">Edit</button><button class="btn ghost" id="bd-share">Share</button></div>'+
+    '<div class="actions bd-acts"><button class="btn" id="bd-brew">Brew it in the dial-in</button><button class="btn ghost" id="bd-mkrec">Create a recipe</button></div>'+
     // Its diary: a moment, a few words, the day.
     '<h3 id="bd-dh">Diary</h3>'+dwriteHTML('bd',st)+
     '<div id="bd-tl">'+timelineHTML(beanTimeline(b),false)+'</div>'+

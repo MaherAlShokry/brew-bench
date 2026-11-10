@@ -1909,6 +1909,18 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .bd-auto{margin:8px 0 0;font-size:.8rem;color:var(--muted)}
 .bd-bagb{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.bd-bagb .chip{cursor:pointer;padding:7px 13px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line)}
 .bd-done{width:100%;margin-top:12px}
+/* The coffee page: share and edit as round icons in the header, beside close. */
+.vd-tools{position:absolute;right:62px;top:12px;display:flex;gap:8px}
+.vd-tool{width:40px;height:40px;border-radius:999px;border:0;background:var(--surface2);color:var(--ink);display:grid;place-items:center;cursor:pointer;padding:0}
+.vd-tool svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.vd-tool:active{transform:scale(.94)}
+@media (max-width:759px){html dialog#vd:not(.camdlg) .vd-head .vd-tools{top:calc(12px + var(--sa-top,0px))}}
+.vd-head:has(.vd-tools) .pill{max-width:calc(100% - 170px)}
+/* What's left: the bar across, the grams and "Set what's left" on one line under it. */
+.bd-bagh{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px}.bd-bagh .bagl{display:contents}
+.bd-bagh .bagm{flex:1 0 100%}.bd-bagh .linkbtn{font-size:.84rem;font-weight:700;padding:4px 0}
+.bd-shelf .bagm{background:color-mix(in srgb,var(--ink) 10%,var(--surface))}
+.bd-acts{display:grid;grid-template-columns:1fr;gap:8px;margin-top:16px}.bd-acts .btn{width:100%;margin:0}
 .bd-again{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:14px 0 6px;font-weight:600;font-size:.92rem}
 .dwrite{padding:12px;border-radius:var(--r-lg);background:var(--surface2);margin-bottom:12px}
 .dmoms{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -12px 10px;padding:0 12px}.dmoms::-webkit-scrollbar{display:none}
