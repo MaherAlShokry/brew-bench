@@ -1920,6 +1920,35 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .bd-bagh{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px}.bd-bagh .bagl{display:contents}
 .bd-bagh .bagm{flex:1 0 100%}.bd-bagh .linkbtn{font-size:.84rem;font-weight:700;padding:4px 0}
 .bd-shelf .bagm{background:color-mix(in srgb,var(--ink) 10%,var(--surface))}
+.vd-head:has(.vd-tools) .vd-back{position:static;display:inline-flex;margin:0 0 10px}
+/* Advent calendars: the boxes on the Coffees page, and a calendar's page of numbered doors. */
+.adv-invite{display:flex;align-items:center;gap:12px;width:100%;margin:14px 0 4px;padding:12px 14px;border:1px dashed color-mix(in srgb,var(--cherry) 40%,var(--line));border-radius:var(--r-lg);background:color-mix(in srgb,var(--cherry) 5%,var(--surface));color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+.adv-invite b{display:block;font-family:var(--display);font-size:.95rem}.adv-invite small{display:block;color:var(--muted);font-size:.8rem;line-height:1.35;margin-top:2px}
+.adv-ii{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb,var(--cherry) 14%,var(--surface));color:var(--cherry-ink,var(--cherry))}.adv-ii svg{width:22px;height:22px}
+.adv-plus{margin-left:auto;flex:none;width:32px;height:32px;border-radius:999px;display:grid;place-items:center;background:var(--surface2);font-size:1.2rem;font-weight:700}
+.adv-h{margin-top:18px}.adv-h .sh-mini{margin-left:auto}
+.adv-list{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 8px;margin:0 -2px;scrollbar-width:none}.adv-list::-webkit-scrollbar{display:none}
+.adv-card{flex:0 0 min(78%,280px);scroll-snap-align:start;display:flex;gap:12px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface);color:var(--ink);font:inherit;text-align:left;cursor:pointer;box-shadow:var(--shadow-sm,none)}
+.adv-card:only-child{flex-basis:100%}
+.adv-mini{flex:none;display:grid;grid-template-columns:repeat(6,1fr);gap:3px;width:66px;padding:6px;border-radius:12px;background:color-mix(in srgb,var(--cherry) 10%,var(--surface2))}
+.adv-mini i{aspect-ratio:1;border-radius:3px;background:color-mix(in srgb,var(--ink) 12%,transparent)}.adv-mini i.on{background:var(--cherry)}.adv-mini i.now{background:var(--honey)}
+.adv-ct{min-width:0;display:flex;flex-direction:column;gap:2px}.adv-ct b{font-family:var(--display);font-size:.95rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.adv-ct small{color:var(--muted);font-size:.8rem}
+.adv-cm{display:flex;gap:10px;align-items:center;font-size:.8rem;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}.adv-r{display:inline-flex;align-items:center;gap:3px}.adv-r svg{width:13px;height:13px}
+.adv-prog{margin:4px 0 6px;padding:14px;border-radius:var(--r-lg);background:var(--surface2)}.adv-ph{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:10px}
+.adv-ph b{font-family:var(--display);font-size:1.05rem}.adv-ph span{font-size:.84rem;color:var(--muted)}
+.adv-prog .bagm{height:8px;background:color-mix(in srgb,var(--ink) 10%,var(--surface))}
+.adv-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0 6px}
+@media (min-width:480px){.adv-grid{grid-template-columns:repeat(6,1fr)}}
+.adv-door{position:relative;aspect-ratio:1;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);font:inherit;cursor:pointer;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0}
+.adv-door .adv-n{font-family:var(--display);font-weight:800;font-size:1.35rem;line-height:1;font-variant-numeric:tabular-nums}
+.adv-door small{font-size:.66rem;font-weight:700;margin-top:3px;text-transform:uppercase;letter-spacing:.04em}
+.adv-door.now{border:2px solid var(--honey-ink,var(--honey));background:color-mix(in srgb,var(--honey) 14%,var(--surface));color:var(--honey-ink,var(--honey))}
+.adv-door.on{border:0}.adv-door .bpic.adv{position:absolute;inset:0;width:100%;height:100%;border-radius:0}
+.adv-door.on .adv-n{position:absolute;left:6px;top:6px;font-size:.8rem;min-width:22px;height:22px;padding:0 5px;border-radius:999px;display:grid;place-items:center;background:rgba(20,12,8,.66);color:#FFF8EE;z-index:2}
+.adv-dr{position:absolute;right:6px;bottom:6px;z-index:2;font-family:var(--display);font-weight:800;font-size:.74rem;padding:2px 7px;border-radius:999px;background:rgba(20,12,8,.66);color:#FFF8EE}
+.adv-tip{margin:4px 0 8px}
+.adv-rev{display:flex;flex-direction:column;gap:10px;margin:6px 0 4px}.adv-rev textarea{width:100%}
+.adv-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .bd-acts{display:grid;grid-template-columns:1fr;gap:8px;margin-top:16px}.bd-acts .btn{width:100%;margin:0}
 .bd-again{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:14px 0 6px;font-weight:600;font-size:.92rem}
 .dwrite{padding:12px;border-radius:var(--r-lg);background:var(--surface2);margin-bottom:12px}

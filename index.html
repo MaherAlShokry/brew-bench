@@ -1921,6 +1921,35 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .bd-bagh{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px}.bd-bagh .bagl{display:contents}
 .bd-bagh .bagm{flex:1 0 100%}.bd-bagh .linkbtn{font-size:.84rem;font-weight:700;padding:4px 0}
 .bd-shelf .bagm{background:color-mix(in srgb,var(--ink) 10%,var(--surface))}
+.vd-head:has(.vd-tools) .vd-back{position:static;display:inline-flex;margin:0 0 10px}
+/* Advent calendars: the boxes on the Coffees page, and a calendar's page of numbered doors. */
+.adv-invite{display:flex;align-items:center;gap:12px;width:100%;margin:14px 0 4px;padding:12px 14px;border:1px dashed color-mix(in srgb,var(--cherry) 40%,var(--line));border-radius:var(--r-lg);background:color-mix(in srgb,var(--cherry) 5%,var(--surface));color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+.adv-invite b{display:block;font-family:var(--display);font-size:.95rem}.adv-invite small{display:block;color:var(--muted);font-size:.8rem;line-height:1.35;margin-top:2px}
+.adv-ii{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb,var(--cherry) 14%,var(--surface));color:var(--cherry-ink,var(--cherry))}.adv-ii svg{width:22px;height:22px}
+.adv-plus{margin-left:auto;flex:none;width:32px;height:32px;border-radius:999px;display:grid;place-items:center;background:var(--surface2);font-size:1.2rem;font-weight:700}
+.adv-h{margin-top:18px}.adv-h .sh-mini{margin-left:auto}
+.adv-list{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 8px;margin:0 -2px;scrollbar-width:none}.adv-list::-webkit-scrollbar{display:none}
+.adv-card{flex:0 0 min(78%,280px);scroll-snap-align:start;display:flex;gap:12px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface);color:var(--ink);font:inherit;text-align:left;cursor:pointer;box-shadow:var(--shadow-sm,none)}
+.adv-card:only-child{flex-basis:100%}
+.adv-mini{flex:none;display:grid;grid-template-columns:repeat(6,1fr);gap:3px;width:66px;padding:6px;border-radius:12px;background:color-mix(in srgb,var(--cherry) 10%,var(--surface2))}
+.adv-mini i{aspect-ratio:1;border-radius:3px;background:color-mix(in srgb,var(--ink) 12%,transparent)}.adv-mini i.on{background:var(--cherry)}.adv-mini i.now{background:var(--honey)}
+.adv-ct{min-width:0;display:flex;flex-direction:column;gap:2px}.adv-ct b{font-family:var(--display);font-size:.95rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.adv-ct small{color:var(--muted);font-size:.8rem}
+.adv-cm{display:flex;gap:10px;align-items:center;font-size:.8rem;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}.adv-r{display:inline-flex;align-items:center;gap:3px}.adv-r svg{width:13px;height:13px}
+.adv-prog{margin:4px 0 6px;padding:14px;border-radius:var(--r-lg);background:var(--surface2)}.adv-ph{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:10px}
+.adv-ph b{font-family:var(--display);font-size:1.05rem}.adv-ph span{font-size:.84rem;color:var(--muted)}
+.adv-prog .bagm{height:8px;background:color-mix(in srgb,var(--ink) 10%,var(--surface))}
+.adv-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0 6px}
+@media (min-width:480px){.adv-grid{grid-template-columns:repeat(6,1fr)}}
+.adv-door{position:relative;aspect-ratio:1;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);font:inherit;cursor:pointer;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0}
+.adv-door .adv-n{font-family:var(--display);font-weight:800;font-size:1.35rem;line-height:1;font-variant-numeric:tabular-nums}
+.adv-door small{font-size:.66rem;font-weight:700;margin-top:3px;text-transform:uppercase;letter-spacing:.04em}
+.adv-door.now{border:2px solid var(--honey-ink,var(--honey));background:color-mix(in srgb,var(--honey) 14%,var(--surface));color:var(--honey-ink,var(--honey))}
+.adv-door.on{border:0}.adv-door .bpic.adv{position:absolute;inset:0;width:100%;height:100%;border-radius:0}
+.adv-door.on .adv-n{position:absolute;left:6px;top:6px;font-size:.8rem;min-width:22px;height:22px;padding:0 5px;border-radius:999px;display:grid;place-items:center;background:rgba(20,12,8,.66);color:#FFF8EE;z-index:2}
+.adv-dr{position:absolute;right:6px;bottom:6px;z-index:2;font-family:var(--display);font-weight:800;font-size:.74rem;padding:2px 7px;border-radius:999px;background:rgba(20,12,8,.66);color:#FFF8EE}
+.adv-tip{margin:4px 0 8px}
+.adv-rev{display:flex;flex-direction:column;gap:10px;margin:6px 0 4px}.adv-rev textarea{width:100%}
+.adv-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .bd-acts{display:grid;grid-template-columns:1fr;gap:8px;margin-top:16px}.bd-acts .btn{width:100%;margin:0}
 .bd-again{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:14px 0 6px;font-weight:600;font-size:.92rem}
 .dwrite{padding:12px;border-radius:var(--r-lg);background:var(--surface2);margin-bottom:12px}
@@ -7216,7 +7245,7 @@ function renderLastBrew(){const el=$('lastbrew');if(!el)return;const l=LOG.find(
 /* ---------- The list of brews: search, filters, sort, and each brew as a card ---------- */
 let LF=Object.assign({q:'',who:[],min:0,sort:'new'},VW_KEEP?load('bb-logfilter',{}):{});LF.q='';if(!Array.isArray(LF.who))LF.who=LF.who&&LF.who!=='all'?[LF.who]:[];
 const LOG_SORTS=[['new','Newest'],['old','Oldest'],['top','Highest rated'],['az','Coffee A–Z']];
-const LI={share:'M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5',edit:'M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4',del:'M5 7h14 M10 7V4.8h4V7 M7 7l.8 12.2a1.6 1.6 0 0 0 1.6 1.5h5.2a1.6 1.6 0 0 0 1.6-1.5L17 7',search:'M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4'};
+const LI={share:'M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5',edit:'M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4',del:'M5 7h14 M10 7V4.8h4V7 M7 7l.8 12.2a1.6 1.6 0 0 0 1.6 1.5h5.2a1.6 1.6 0 0 0 1.6-1.5L17 7',search:'M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4',plus:'M12 5v14 M5 12h14'};
 const lIc=k=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+LI[k]+'"/></svg>';
 const lHue=n=>{let h=0;for(const c of String(n))h=(h*31+c.charCodeAt(0))%360;return h};
 const lWho=l=>l.by&&l.by!==ME?l.by:'me';
@@ -8846,6 +8875,8 @@ function okBean(b){if(!b||typeof b!=='object'||typeof b.id!=='string'||!BID.test
     // Earlier bags of the same coffee, kept when you buy it again: roast date, size, and when it was opened and finished.
     // Bags bought before the app, so the count of times you've bought it can start where it really is.
     prior:Math.max(0,Math.min(99,Math.round(+b.prior||0))),
+    // A door of an advent calendar: which box, and which day.
+    ...(b.cal&&typeof b.cal.id==='string'&&BID.test(b.cal.id)&&+b.cal.d>=1&&+b.cal.d<=31?{cal:{id:b.cal.id,d:Math.round(+b.cal.d)}}:{}),
     bags:(Array.isArray(b.bags)?b.bags:[]).filter(x=>x&&typeof x.id==='string'&&BID.test(x.id)).map(x=>({id:x.id,rd:ISO_D.test(x.rd)?x.rd:'',g:gramsOrNull(x.g)||0,on:ISO_D.test(x.on)?x.on:'',off:ISO_D.test(x.off)?x.off:''})).slice(-40)}}
 // How many times you've bought a coffee: this bag and every earlier one.
 const buys=b=>1+((b&&b.bags)||[]).length+((b&&b.prior)||0);
@@ -9372,8 +9403,8 @@ const CROWN='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8l4.5 4L12 
 
 /* ---------- The Beans page ---------- */
 // The coffees list's filters.
-const BFILTERS=[['all','All'],['done','Finished'],['rebought','Bought again'],['top','4 beans and up'],['fav','Favourites']];
-const bfKeep=(b,f)=>f==='all'||(f==='done'?!b.shelf:f==='rebought'?buys(b)>1:f==='again'?b.again==='yes'||buys(b)>1:f==='top'?b.rating>=4:inAnyTop(b.id));
+const BFILTERS=[['all','All'],['done','Finished'],['rebought','Bought again'],['advent','Advent'],['top','4 beans and up'],['fav','Favourites']];
+const bfKeep=(b,f)=>f==='all'||(f==='done'?!b.shelf:f==='rebought'?buys(b)>1:f==='advent'?!!b.cal:f==='again'?b.again==='yes'||buys(b)>1:f==='top'?b.rating>=4:inAnyTop(b.id));
 function beanList(){const q=BQ.trim().toLowerCase();
   let l=BEANS.filter(b=>inSel(BYEAR,String(beanYear(b)))&&bfAny(b)&&(!q||[b.name,b.roaster,originName(b.origin),b.process&&PROCESSES[b.process].name,beanVars(b).map(vName).join(' '),b.flavours,b.notes].join(' ').toLowerCase().includes(q)));
   const by={recent:(a,b)=>beanDay(b).localeCompare(beanDay(a))||b.ts-a.ts,rated:(a,b)=>b.rating-a.rating||beanDay(b).localeCompare(beanDay(a)),
@@ -9460,7 +9491,7 @@ function renderBeanViews(){const cy=new Date().getFullYear();
 function renderCoffees(){const p=$('bv-coffees'),years=beanYears();BYEAR=BYEAR.filter(y=>years.includes(+y));
   if(!BEANS.length){p.innerHTML='<div class="bg-empty">'+beanSVG+'<b>No coffees yet</b><p>Scan a bag or add one by hand. Your earlier scans are under <button type="button" class="linkbtn" data-view="scans">Scans</button>, ready to add.</p></div>';return}
   const fs=BFILTERS.filter(([f])=>f==='all'||BEANS.some(b=>bfKeep(b,f)));BF=BF.filter(f=>fs.some(([x])=>x===f));
-  p.innerHTML=shelfHTML()+seasonCardHTML()+'<div id="bg-yic"></div>'+trophyRowHTML()+'<div class="rhead cab-h"><h3 class="rh">All your coffees</h3><button type="button" class="sh-mini ic" data-galshare aria-label="Share your coffee gallery" title="Share">'+SH_ICO+'</button></div><div class="bg-tools">'+ltHTML('bg-lt',{q:{id:'bg-q',ph:'Search coffees, roasters, origins, notes',label:'Search your coffees',value:BQ},filter:fs.length>1||years.length>1,sort:true})+'</div><div id="bg-grid"></div>';
+  p.innerHTML=shelfHTML()+advHTML()+seasonCardHTML()+'<div id="bg-yic"></div>'+trophyRowHTML()+'<div class="rhead cab-h"><h3 class="rh">All your coffees</h3><button type="button" class="sh-mini ic" data-galshare aria-label="Share your coffee gallery" title="Share">'+SH_ICO+'</button></div><div class="bg-tools">'+ltHTML('bg-lt',{q:{id:'bg-q',ph:'Search coffees, roasters, origins, notes',label:'Search your coffees',value:BQ},filter:fs.length>1||years.length>1,sort:true})+'</div><div id="bg-grid"></div>';
   // The shelf, season card and trophies above the grid have photos too: they're watched like the grid's, so a redraw
   // (after adding or editing a coffee) shows them again instead of leaving the ones off screen blank until a restart.
   hydrateImgs(p);
@@ -9640,6 +9671,7 @@ $('beans-in').addEventListener('input',e=>{if(e.target.id!=='bg-q')return;BQ=e.t
 $('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-lt-f'))openBeanFilter();else if(e.target.closest('#bg-lt-s'))openBeanSort();else if(e.target.closest('#dy-lt-f'))openDiaryFilter()});
 $('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-add')){openBeanEditor();return}if(e.target.closest('#bg-scan,#bg-scan2')){showTab('scan');newScan();scrollTo(0,0);return} /* the Scan page offers taking or choosing a photo */
   const v=e.target.closest('[data-view]');if(v){BVIEW=v.dataset.view;renderBeanViews();if(v.classList.contains('tshelf'))$('bg-views').scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'});return}
+  if(e.target.closest('[data-advnew]')){openCalEditor();return}const adv=e.target.closest('[data-adv]');if(adv){openCal(adv.dataset.adv);return}
   const dyb=e.target.closest('[data-dyb]');if(dyb){if(dyb.dataset.dyb==='more')openDiaryPick();else setDyBean(dyb.dataset.dyb);return}
   if(e.target.closest('#dy-more')){DLIM+=60;renderDiaryList();return}
   if(e.target.closest('[data-tro]')){openTrophies();return}
@@ -9669,11 +9701,12 @@ function openOrigin(k){const d=$('vd'),o=oInfo(k);if(!o)return;BFROM=k;const lis
   hydrateImgs($('vd-in'));$('vd-in').onclick=e=>{if(!$('vd-in').querySelector('.og-list'))return;const r=e.target.closest('[data-bean]');if(r){BFROM=k;openBean(r.dataset.bean);return}if(e.target.closest('#og-map')){d.close();goTab('map');setTimeout(()=>{try{selectOrigin(k,true)}catch(x){}},350)}};
   $('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
 function openBean(id,write){const b=beanById(id);if(!b)return;const d=$('vd'),rk=beanRank(b),P=b.process&&PROCESSES[b.process],ls=beanLogStats(b),f=b.shelf&&fresh(b);
+  const cal=b.cal&&calById(b.cal.id);
   const fmt=s=>s?new Date(s+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'';
-  const kv=[['Origin',b.origin?flagOf(b.origin)+' '+originName(b.origin):''],['Process',P?P.name:''],[b.vars?'Varieties':'Variety',b.variety?varsName(b):''],['Roast',b.roast?b.roast[0].toUpperCase()+b.roast.slice(1):''],['Roasted',fmt(b.roastDate)],['Tried',b.tried?fmt(b.tried):'Not yet'],['Brewed',ls?ls.n+' time'+(ls.n===1?'':'s'):'']].filter(x=>x[1]);
+  const kv=[['Origin',b.origin?flagOf(b.origin)+' '+originName(b.origin):''],['Process',P?P.name:''],[b.vars?'Varieties':'Variety',b.variety?varsName(b):''],['Roast',b.roast?b.roast[0].toUpperCase()+b.roast.slice(1):''],['Roasted',fmt(b.roastDate)],['Tried',b.tried?fmt(b.tried):'Not yet'],...(cal?[['Advent','Door '+b.cal.d+' · '+calName(cal)]]:[]),['Brewed',ls?ls.n+' time'+(ls.n===1?'':'s'):'']].filter(x=>x[1]);
   const st={mom:'note',ph:null};const g=gramsLeft(b),dose=Math.round(beanDose(b));
-  const from=BFROM&&BFROM===b.origin?BFROM:null;
-  $('vd-in').innerHTML='<div class="vd-head" style="--c:'+(rk?MEDAL[rk]:'var(--cherry)')+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button>'+(from?'<button type="button" class="vd-back" id="vd-back">‹ '+esc(originName(from))+'</button>':'')+'<span class="vd-tools"><button type="button" class="vd-tool" id="bd-share" aria-label="Share this coffee" title="Share">'+lIc('share')+'</button><button type="button" class="vd-tool" id="bd-edit" aria-label="Edit this coffee" title="Edit">'+lIc('edit')+'</button></span><span class="pill"><i style="background:'+(rk?MEDAL[rk]:'var(--cherry)')+'"></i>'+(rk?placeLine(rk,beanYear(b)):beanMention(b)?'Honourable mention · '+beanYear(b):b.shelf?'Drinking now':'Your coffees')+'</span><h2 id="vd-title">'+esc(beanTitle(b))+'</h2>'+(b.roaster?'<p class="vd-sub">'+esc(b.roaster)+'</p>':'')+'</div>'+
+  const from=BFROM&&BFROM===b.origin?BFROM:null,calBack=cal&&ADVFROM===cal.id;
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:'+(rk?MEDAL[rk]:'var(--cherry)')+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button>'+(calBack?'<button type="button" class="vd-back adv-back" id="bd-advback">‹ Calendar</button>':from?'<button type="button" class="vd-back" id="vd-back">‹ '+esc(originName(from))+'</button>':'')+'<span class="vd-tools"><button type="button" class="vd-tool" id="bd-share" aria-label="Share this coffee" title="Share">'+lIc('share')+'</button><button type="button" class="vd-tool" id="bd-edit" aria-label="Edit this coffee" title="Edit">'+lIc('edit')+'</button></span><span class="pill"><i style="background:'+(rk?MEDAL[rk]:'var(--cherry)')+'"></i>'+(rk?placeLine(rk,beanYear(b)):beanMention(b)?'Honourable mention · '+beanYear(b):b.shelf?'Drinking now':'Your coffees')+'</span><h2 id="vd-title">'+esc(beanTitle(b))+'</h2>'+(b.roaster?'<p class="vd-sub">'+esc(b.roaster)+'</p>':'')+'</div>'+
     '<div class="vd-body"><div class="bd-hero">'+beanPic(b,'hero')+(b.rating?'<span class="bglass">'+beanSVG+b.rating.toString().replace('.5','½')+'<small>'+rateWord(b.rating)+'</small></span>':'')+'</div>'+
     // The bag now: how fresh it is, what's left, and finishing it.
     (b.shelf?'<div class="bd-shelf">'+(f?'<div class="bd-f"><div class="bd-fh"><b>'+f.label+'</b><span>Day '+f.d+' off roast</span></div>'+freshBar(f)+'<p>'+f.tip+'</p></div>':'<label class="bd-addrd"><span><b>When was it roasted?</b><small>Add the date on the bag to see how fresh it is.</small></span><input type="date" id="bd-rd" class="dateinp" max="'+todayISO()+'" aria-label="Roast date"></label>')+
@@ -9727,7 +9760,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;const d=$('vd'),rk
   $('bd-del').onclick=()=>{const inTop=inAnyTop(b.id);
     askConfirm('Its diary and photos go with it.'+(inTop?' It stays in your top 5 history.':''),'Remove',true,'Remove “'+beanTitle(b)+'”?').then(y=>{if(!y)return;
     BEANS=BEANS.filter(x=>x.id!==b.id);saveBeans();if(!inTop)BIMG.del(b.id);dropDiaryPhotos(b.diary);d.close();renderBeans();toast('Removed from your gallery')})};
-  showDlg(d);$('vd-x').onclick=()=>d.close();if($('vd-back'))$('vd-back').onclick=()=>openOrigin(from);
+  showDlg(d);$('vd-x').onclick=()=>d.close();if($('vd-back'))$('vd-back').onclick=()=>openOrigin(from);if($('bd-advback'))$('bd-advback').onclick=()=>openCal(cal.id);
   if(write)setTimeout(()=>{const h=$('bd-dh');if(h){h.scrollIntoView({block:'start'});$('bd-dt').focus({preventScroll:true})}},80);else d.scrollTop=0}
 function beanDoc(b){const P=b.process&&PROCESSES[b.process];
   return{title:beanTitle(b),sub:(b.roaster?b.roaster+' | ':'')+'Rated '+(b.rating||'–')+' of 5',file:'coffee-'+beanTitle(b),
@@ -9782,7 +9815,7 @@ function openBeanEditor(b,pre){const isNew=!b;const B=Object.assign({name:'',roa
   let photo=null,photoChanged=false,rating=B.rating;const d=$('vd');
   const opt=(h,none)=>'<option value="">'+none+'</option>'+h;
   const roasters=[...new Set([...BEANS.map(x=>x.roaster),...SCANS.map(scRoaster)].filter(Boolean))].sort();
-  $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Bean gallery</span><h2 id="vd-title">'+(isNew?'Add a coffee':'Edit '+esc(beanTitle(B)))+'</h2></div>'+
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Bean gallery</span><h2 id="vd-title">'+(isNew?(B.cal?'Door '+B.cal.d+': add its coffee':'Add a coffee'):'Edit '+esc(beanTitle(B)))+'</h2></div>'+
    '<div class="vd-body beform"><div class="be-photo" id="be-photo"><span class="bph">'+beanSVG+'<small>Add a photo of the bag</small></span></div>'+
    '<div class="actions two-up"><button type="button" class="btn ghost" id="be-cam">Take a photo</button><button type="button" class="btn ghost" id="be-pick">Choose a photo</button></div>'+
    '<input type="file" id="be-camf" accept="image/*" capture="environment" hidden><input type="file" id="be-file" accept="image/*" hidden>'+
@@ -9826,10 +9859,10 @@ function openBeanEditor(b,pre){const isNew=!b;const B=Object.assign({name:'',roa
   const take=async f=>{if(!f)return;try{photo=await shrinkPhoto(await fileURL(f),900);photoChanged=true;showPhoto(photo);document.querySelector('.be-low')?.remove()}catch(e){toast('Couldn’t open that photo')}};
   $('be-cam').onclick=()=>$('be-camf').click();$('be-pick').onclick=$('be-photo').onclick=e=>{if(e.target.closest('#be-rm'))return;$('be-file').click()};
   $('be-camf').onchange=$('be-file').onchange=e=>{const f=e.target.files[0];e.target.value='';take(f)};
-  $('be-cancel').onclick=()=>d.close();
+  $('be-cancel').onclick=()=>{if(ADVRET&&B.cal&&calById(B.cal.id)){const c=ADVRET;ADVRET=null;openCal(c)}else d.close()};
   $('be-save').onclick=async()=>{const n=okBean({id:b?b.id:uid().replace(/[^a-z0-9]/g,'').slice(0,20),name:$('be-name').value,roaster:$('be-roaster').value,origin:$('be-origin').value,process:$('be-process').value,...(readVars(),{variety:VL.filter(Boolean)[0]||'',vars:VL.filter(Boolean).slice(1)}),
       roast:B.roast,roastDate:$('be-rdate').value,tried:$('be-tried').value,rating,flavours:TN.val(),notes:$('be-notes').value,img:photoChanged?!!photo:B.img,scan:B.scan||'',ts:b?b.ts:Date.now(),
-      shelf:B.shelf,bag:$('be-bag').value,left:b?b.left:null,leftAt:b?b.leftAt:0,again:b?b.again:'',diary:b?b.diary:[],cups:b?b.cups:[],bags:b?b.bags:[],prior:b?b.prior:0});
+      shelf:B.shelf,bag:$('be-bag').value,left:b?b.left:null,leftAt:b?b.leftAt:0,again:b?b.again:'',diary:b?b.diary:[],cups:b?b.cups:[],bags:b?b.bags:[],prior:b?b.prior:0,cal:B.cal});
     if(!n.name&&!n.origin&&!photo){toast('Add a name, an origin or a photo first');$('be-name').focus();return}
     let note='';if(photoChanged){if(photo){if(!await BIMG.put(n.id,photo)){n.img=false;note=', but the photo couldn’t be saved on this device'}}else if(!inAnyTop(n.id))BIMG.del(n.id)}
     // Moved to another year: it leaves the old year's top 3, where it no longer belongs.
@@ -9837,6 +9870,8 @@ function openBeanEditor(b,pre){const isNew=!b;const B=Object.assign({name:'',roa
     const i=BEANS.findIndex(x=>x.id===n.id);if(i>=0)BEANS[i]=n;else BEANS.unshift(n);if(!saveBeans())return;
     // A crowned coffee keeps its podium snapshot up to date.
     for(const t of Object.values(TOP3)){const s=(t.snap||[]).find(x=>x.id===n.id);if(s)Object.assign(s,{name:beanTitle(n),roaster:n.roaster,origin:n.origin,rating:n.rating})}saveTop3();
+    // Added from an advent calendar's door: back to the calendar.
+    if(n.cal&&ADVRET===n.cal.id&&calById(n.cal.id)){ADVRET=null;checkTrophies();renderBeans();openCal(n.cal.id);toast('Door '+n.cal.d+' added'+note);return}
     d.close();if(isNew)BVIEW='coffees';if(!$('beans').classList.contains('on'))showTab('beans');checkTrophies();renderBeans();toast((isNew?'Added to your gallery':'Saved')+note)};
   showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
 
@@ -9872,6 +9907,100 @@ function openTop3(y,start){const d=$('vd'),pool=BEANS.filter(b=>beanYear(b)===y)
   draw();showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
 // The app may have opened on the Beans page before this part loaded.
 window.BEANS_OK=1;if(beanSync())retuneIfAuto();checkTrophies();renderDBean();if($('beans').classList.contains('on'))renderBeans();if($('settings').classList.contains('on'))renderSettings();
+
+/* ---------- Advent calendars: a box of numbered coffees, one door a day ---------- */
+// A calendar is the box: its name, roaster, year, how many doors and how much coffee is behind each, and your review of
+// the whole box. Each door you open is an ordinary coffee in your gallery (with cal:{id,d}), so it has its own photo,
+// rating, notes and diary, counts in the passport and can go in your top 5. The doors are read back from the gallery.
+const okCal=c=>{if(!c||typeof c!=='object'||typeof c.id!=='string'||!BID.test(c.id))return null;
+  const y=Math.round(+c.year)||new Date().getFullYear();
+  return{id:c.id,name:str(c.name,60),roaster:str(c.roaster,50),year:clamp(y,2000,2100),n:Math.round(clamp(+c.n||24,1,31)),g:Math.round(clamp(+c.g||50,1,500)),
+    rating:Math.round(clamp(+c.rating||0,0,5)*2)/2,notes:str(c.notes,600),ts:+c.ts||Date.now()}};
+let CALS=load('bb-advent',[]);CALS=Array.isArray(CALS)?CALS.map(okCal).filter(Boolean):[];
+const saveCals=()=>{BREV++;save('bb-advent',CALS)};
+const calById=id=>CALS.find(c=>c.id===id);
+const calName=c=>c.name||(c.roaster?c.roaster+' advent calendar':'Advent calendar');
+// Door number → its coffee. Two coffees on one door: the newer wins.
+function calDoors(c){const m=new Map();for(const b of BEANS)if(b.cal&&b.cal.id===c.id&&b.cal.d<=c.n){const o=m.get(b.cal.d);if(!o||b.ts>o.ts)m.set(b.cal.d,b)}return m}
+// The door for today: in December of the calendar's year, today's date; otherwise the first one still closed.
+function calToday(c,doors){if(calLive(c))return new Date().getDate();
+  for(let i=1;i<=c.n;i++)if(!doors.has(i))return i;return 0}
+// December of the calendar's year: the doors follow the date.
+const calLive=c=>{const t=new Date();return t.getFullYear()===c.year&&t.getMonth()===11&&t.getDate()<=c.n};
+// The day a door belongs to: 1 December onwards, or today if that day hasn't come yet.
+const calDay=(c,d)=>{const iso=c.year+'-12-'+String(d).padStart(2,'0');return iso<=todayISO()?iso:todayISO()};
+function calStats(c){const doors=calDoors(c),bs=[...doors.values()],rated=bs.filter(b=>b.rating);
+  return{doors,open:bs.length,avg:rated.length?rated.reduce((s,b)=>s+b.rating,0)/rated.length:0,origins:new Set(bs.map(b=>b.origin).filter(Boolean)).size,
+    best:rated.slice().sort((a,b)=>b.rating-a.rating||a.cal.d-b.cal.d).slice(0,3)}}
+let ADVFROM=null,ADVRET=null;$('vd').addEventListener('close',()=>{ADVFROM=null;ADVRET=null});
+
+// On the Coffees page: your calendars, each a little box of doors. With none yet, an invitation in the season.
+function advHTML(){const m=new Date().getMonth();
+  if(!CALS.length)return m>=9||m===0?'<button type="button" class="adv-invite" data-advnew><span class="adv-ii" aria-hidden="true">'+advBoxSVG+'</span><span><b>Got an advent calendar?</b><small>Add the box and review each numbered coffee as you open it.</small></span><span class="adv-plus" aria-hidden="true">+</span></button>':'';
+  const list=CALS.slice().sort((a,b)=>b.year-a.year||b.ts-a.ts);
+  return '<div class="rhead adv-h"><h3 class="rh">Advent calendars</h3><button type="button" class="sh-mini ic" data-advnew aria-label="Add an advent calendar" title="Add">'+lIc('plus')+'</button></div>'+
+    '<div class="adv-list">'+list.map(c=>{const s=calStats(c),t=calToday(c,s.doors);
+      return '<button type="button" class="adv-card" data-adv="'+c.id+'"><span class="adv-mini" style="--n:'+Math.min(c.n,24)+'">'+Array.from({length:c.n},(_,i)=>'<i class="'+(s.doors.has(i+1)?'on':i+1===t?'now':'')+'"></i>').join('')+'</span>'+
+        '<span class="adv-ct"><b>'+esc(calName(c))+'</b><small>'+esc([c.roaster&&c.name?c.roaster:'',String(c.year)].filter(Boolean).join(' · '))+'</small>'+
+        '<span class="adv-cm"><span>'+s.open+'/'+c.n+' opened</span>'+(c.rating||s.avg?'<span class="adv-r">'+beanSVG+String(c.rating||Math.round(s.avg*10)/10).replace('.5','½')+'</span>':'')+'</span></span></button>'}).join('')+'</div>'}
+const advBoxSVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="17" height="16" rx="2.5"/><path d="M3.5 9.5h17M3.5 14.8h17M9.2 4v16M14.8 4v16"/></svg>';
+
+// A calendar's page: the box at a glance, your review of it, every door, and the best of what was inside.
+function openCal(id){const c=calById(id);if(!c)return;ADVFROM=id;const d=$('vd'),s=calStats(c),t=calToday(c,s.doors);
+  const stat=(v,l)=>'<div><b>'+l+'</b><span class="bd-v">'+v+'</span></div>';
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button>'+
+    '<span class="vd-tools"><button type="button" class="vd-tool" id="adv-share" aria-label="Share this calendar" title="Share">'+lIc('share')+'</button><button type="button" class="vd-tool" id="adv-edit" aria-label="Edit this calendar" title="Edit">'+lIc('edit')+'</button></span>'+
+    '<span class="pill"><i style="background:var(--cherry)"></i>Advent calendar · '+c.year+'</span><h2 id="vd-title">'+esc(calName(c))+'</h2><p class="vd-sub">'+esc([c.name?c.roaster:'',c.n+' doors · '+c.g+' g each'].filter(Boolean).join(' · '))+'</p></div>'+
+    '<div class="vd-body">'+
+    '<div class="adv-prog"><div class="adv-ph"><b>'+s.open+' of '+c.n+' opened</b><span>'+(s.open===c.n?'All done':t?'Next: door '+t:'')+'</span></div><span class="bagm"><i style="width:'+(s.open/c.n*100).toFixed(0)+'%"></i></span></div>'+
+    '<div class="specs">'+stat(s.avg?s.avg.toFixed(1).replace('.0','')+' of 5':'–','Average of the doors')+stat(s.origins||'–',s.origins===1?'Origin':'Origins')+'</div>'+
+    '<h3>The doors</h3><div class="adv-grid">'+Array.from({length:c.n},(_,i)=>{const n=i+1,b=s.doors.get(n);
+      return b?'<button type="button" class="adv-door on" data-door="'+n+'" aria-label="Door '+n+': '+esc(beanTitle(b))+'">'+beanPic(b,'adv')+'<span class="adv-n">'+n+'</span>'+(b.rating?'<span class="adv-dr">'+String(b.rating).replace('.5','½')+'</span>':'')+'</button>'
+        :'<button type="button" class="adv-door'+(n===t?' now':'')+'" data-door="'+n+'" aria-label="Door '+n+': add its coffee"><span class="adv-n">'+n+'</span>'+(n===t?'<small>'+(calLive(c)?'Today':'Next')+'</small>':'')+'</button>'}).join('')+'</div>'+
+    '<p class="hint adv-tip">Tap a door to add the coffee behind it, then rate it and note what you taste. Opened doors open that coffee.</p>'+
+    (s.best.length>1?'<h3>Best of the box</h3><div class="clist">'+s.best.map((b,i)=>coffeeRow(b,false,i)).join('')+'</div>':'')+
+    '<h3>Your review of the box</h3><div class="adv-rev"><div class="beanrate" id="adv-rate"></div><textarea id="adv-notes" rows="3" maxlength="600" placeholder="The box as a whole: the range of coffees, the surprises, would you get it again?">'+esc(c.notes)+'</textarea></div>'+
+    '<button type="button" class="linkbtn danger" id="adv-del">Remove the calendar</button></div>';
+  hydrateImgs($('vd-in'));
+  beanRateInput('adv-rate',()=>c.rating,v=>{c.rating=v;saveCals();renderBeans()});
+  let nt=0;$('adv-notes').oninput=e=>{clearTimeout(nt);nt=setTimeout(()=>{c.notes=str(e.target.value,600);saveCals()},400)};
+  $('adv-notes').onchange=e=>{clearTimeout(nt);c.notes=str(e.target.value,600);saveCals()};
+  $('adv-edit').onclick=()=>openCalEditor(c);
+  $('adv-share').onclick=()=>{d.close();openShare(calDoc(c))};
+  $('adv-del').onclick=()=>askSheet({title:'Remove this calendar?',text:'Its coffees stay in your gallery.',ok:'Remove',danger:true}).then(ok=>{if(!ok)return;
+    for(const b of BEANS)if(b.cal&&b.cal.id===c.id)delete b.cal;saveBeans();CALS=CALS.filter(x=>x.id!==c.id);saveCals();d.close();renderBeans();toast('Calendar removed')});
+  $('vd-in').onclick=e=>{const r=e.target.closest('[data-door]');
+    if(r){const n=+r.dataset.door,b=s.doors.get(n);if(b){ADVFROM=c.id;openBean(b.id)}else{ADVRET=c.id;openBeanEditor(null,{roaster:c.roaster,bag:c.g,shelf:false,tried:calDay(c,n),cal:{id:c.id,d:n}})}return}
+    const bb=e.target.closest('[data-bean]');if(bb){ADVFROM=c.id;openBean(bb.dataset.bean)}};
+  showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
+
+// Adding or editing the box itself.
+function openCalEditor(c){const d=$('vd'),isNew=!c,C=c||{name:'',roaster:'',year:new Date().getMonth()<6?new Date().getFullYear()-1:new Date().getFullYear(),n:24,g:50};
+  const roasters=[...new Set(BEANS.map(x=>x.roaster).filter(Boolean))].sort();
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Advent calendar</span><h2 id="vd-title">'+(isNew?'Add an advent calendar':'Edit '+esc(calName(C)))+'</h2></div>'+
+    '<div class="vd-body beform">'+
+    '<div class="field"><label for="ac-name">Calendar name</label><input id="ac-name" maxlength="60" value="'+esc(C.name)+'" placeholder="Coffee Advent 2026" autocomplete="off"></div>'+
+    '<div class="field"><label for="ac-roaster">Roastery</label><div class="acw"><input id="ac-roaster" maxlength="50" value="'+esc(C.roaster)+'" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="ac-rsug"><div class="acl" id="ac-rsug" role="listbox" aria-label="Roasteries you’ve had" hidden></div></div></div>'+
+    '<div class="adv-3"><div class="field"><label for="ac-year">Year</label><input id="ac-year" type="number" inputmode="numeric" min="2000" max="2100" value="'+C.year+'"></div>'+
+    '<div class="field"><label for="ac-n">Doors</label><input id="ac-n" type="number" inputmode="numeric" min="1" max="31" value="'+C.n+'"></div>'+
+    '<div class="field"><label for="ac-g">Each <span class="hint">grams</span></label><input id="ac-g" type="number" inputmode="numeric" min="1" max="500" value="'+C.g+'"></div></div>'+
+    '<p class="hint">Each door you open becomes a coffee in your gallery, with its own rating, notes and diary.</p>'+
+    '<div class="actions"><button class="btn" id="ac-save">'+(isNew?'Add the calendar':'Save changes')+'</button><button class="btn ghost" id="ac-cancel">Cancel</button></div></div>';
+  autoList($('ac-roaster'),$('ac-rsug'),roasters);
+  $('ac-cancel').onclick=()=>{if(c)openCal(c.id);else d.close()};
+  $('ac-save').onclick=()=>{const n=okCal({...(c||{}),id:c?c.id:uid().replace(/[^a-z0-9]/g,'').slice(0,20),name:$('ac-name').value,roaster:$('ac-roaster').value,year:$('ac-year').value,n:$('ac-n').value,g:$('ac-g').value,ts:c?c.ts:Date.now()});
+    if(!n.name&&!n.roaster){toast('Add a name or the roastery first');$('ac-name').focus();return}
+    const i=CALS.findIndex(x=>x.id===n.id);if(i>=0)CALS[i]=n;else CALS.unshift(n);saveCals();
+    // The roaster of a new box fills in for doors still without one.
+    if(c&&c.roaster!==n.roaster){for(const b of BEANS)if(b.cal&&b.cal.id===n.id&&(!b.roaster||b.roaster===c.roaster))b.roaster=n.roaster;saveBeans()}
+    renderBeans();openCal(n.id);toast(isNew?'Calendar added: tap a door to add its coffee':'Saved')};
+  showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
+
+// Shared as text and a PDF: the box, your review, and every door you've opened, in order.
+function calDoc(c){const s=calStats(c),doors=[...s.doors.entries()].sort((a,b)=>a[0]-b[0]);
+  return{title:calName(c),sub:s.open+' of '+c.n+' doors opened'+(c.rating?' · rated '+c.rating+' of 5':''),file:'advent-'+c.year,
+    blocks:[{kv:[['Roastery',c.roaster||'-'],['Year',String(c.year)],['Doors',c.n+' × '+c.g+' g'],['Average',s.avg?s.avg.toFixed(1)+' of 5':'-']]},...(c.notes?[{h:'My review',p:c.notes}]:[]),
+      {h:'The doors',list:doors.map(([n,b])=>'Day '+n+': '+beanTitle(b)+([b.roaster!==c.roaster?b.roaster:'',b.origin?originName(b.origin):''].filter(Boolean).length?' ('+[b.roaster!==c.roaster?b.roaster:'',b.origin?originName(b.origin):''].filter(Boolean).join(', ')+')':'')+(b.rating?' · '+b.rating+' of 5':''))}]}}
 
 /* ================= BREW CARDS ================= */
 // A brew, a logged brew or a gallery coffee as one designed image to share. Drawn on a canvas in the app's espresso and
@@ -11158,7 +11287,7 @@ window.PROFILE_OK=true;profileChanged();
 //   users/<uid>/data/img/<key>        {t, s: a fingerprint of the photo} or {t, del:1}
 //   userimg/<uid>/<key>               the photo itself
 const SYNC_COLS=['bb-beans','bb-log','bb-scans','bb-myrecipes'];
-const SYNC_KEYS=['bb-top3','bb-trophies','bb-favs','bb-custom-grinders','bb-mygrinders','bb-mybrewers','bb-base3','bb-calc','bb-ui','bb-theme','bb-cardstyle','bb-group','bb-name'];
+const SYNC_KEYS=['bb-top3','bb-advent','bb-trophies','bb-favs','bb-custom-grinders','bb-mygrinders','bb-mybrewers','bb-base3','bb-calc','bb-ui','bb-theme','bb-cardstyle','bb-group','bb-name'];
 const SYNC_ID=/^[A-Za-z0-9_:-]{1,40}$/;
 const fnv=s=>{let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)}return(h>>>0).toString(36)+'.'+s.length.toString(36)};
 // Photos are large: their fingerprint is taken from the length and both ends.
