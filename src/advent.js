@@ -28,11 +28,12 @@ function calRanked(){return CALS.map(c=>({c,sc:calScore(c)})).filter(x=>x.sc.v).
 let ADVFROM=null,ADVRET=null;$('vd').addEventListener('close',()=>{ADVFROM=null;ADVRET=null;VD_BACK=null});
 // A door's coffee again (after editing it), with back still leading to its calendar.
 function calBackTo(b){ADVFROM=b.cal.id;openBean(b.id);VD_BACK=()=>openCal(b.cal.id,{back:b.cal.d})}
-// Into a door and back out: the door swings open (and shut again on the way back), and the page slides across.
+// Into a door and back out: the door presses in and glows, the page slides across, and on the way back the door you
+// came from glows once so you can see where you were.
 // Back (the gesture or the button) from a door's coffee or its editor returns to the calendar, not out of it.
 function calSlide(dir){const v=$('vd-in');if(RM())return;v.classList.remove('adv-fwd','adv-bwd');void v.offsetWidth;v.classList.add(dir>0?'adv-fwd':'adv-bwd')}
 function calEnter(c,n,go){const r=document.querySelector('.adv-door[data-door="'+n+'"]'),run=()=>{go();VD_BACK=()=>openCal(c.id,{back:n});calSlide(1)};
-  if(RM()||!r){run();return}r.insertAdjacentHTML('beforeend','<i class="adv-flap" aria-hidden="true"><b>'+n+'</b></i>');r.classList.add('opening');setTimeout(run,330)}
+  if(RM()||!r){run();return}r.classList.add('opening');setTimeout(run,200)}
 
 // On the Coffees page: your calendars, each a little box of doors. With none yet, an invitation in the season.
 function advHTML(){const m=new Date().getMonth();
@@ -77,8 +78,7 @@ function openCal(id,o){const c=calById(id);if(!c)return;ADVFROM=id;VD_BACK=null;
     const bb=e.target.closest('[data-bean]');if(bb){const b=beanById(bb.dataset.bean);if(b&&b.cal){ADVFROM=c.id;openBean(b.id);VD_BACK=()=>openCal(c.id,{back:b.cal.d});calSlide(1)}}};
   showDlg(d);$('vd-x').onclick=()=>d.close();
   // Back from a door: the page slides back, and that door swings shut.
-  if(back){calSlide(-1);const r=document.querySelector('.adv-door[data-door="'+back+'"]');if(r){r.scrollIntoView({block:'center'});
-      if(!RM()){r.insertAdjacentHTML('beforeend','<i class="adv-flap shut" aria-hidden="true"><b>'+back+'</b></i>');setTimeout(()=>r.querySelector('.adv-flap')?.remove(),900)}}}
+  if(back){calSlide(-1);const r=document.querySelector('.adv-door[data-door="'+back+'"]');if(r){r.scrollIntoView({block:'center'});if(!RM())r.classList.add('back')}}
   else d.scrollTop=0}
 
 // Under the total: whose number it is and its place among your calendars.

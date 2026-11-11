@@ -1053,17 +1053,22 @@ let NAV_READY=false;
 let NAV_AT=-1e9;
 function showTab(id,fromHistory,pure){NAV_AT=performance.now();ensureTab(id);const cur=document.querySelector('main section.on');let kind='';
   if(cur&&cur.id!==id){const a=BNORD.indexOf(BNGROUP[cur.id]),b=BNORD.indexOf(BNGROUP[id]);
-    kind=a!==b&&a>=0&&b>=0?(b<a?'left':'right'):fromHistory?'pop':'push';document.body.classList.toggle('nav-back',kind==='left'||kind==='pop')}
+    kind=a!==b&&a>=0&&b>=0?(b<a?'left':'right'):fromHistory?'pop':'push'}
   // Each tab gets a history entry, so the back button (browser or Android) returns to the last tab.
   if(!fromHistory&&location.hash!=='#'+id){NAVD++;if(BACKING)PEND_TAB=id;else try{history.pushState(null,'','#'+id)}catch(e){}}
   const swap=vt=>{
     // A page inside a section (the map, the log…) lights up that section's tab.
     document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x.dataset.t===(BNGROUP[id]||id)));
-    document.querySelectorAll('main section').forEach(s=>s.classList.toggle('on',s.id===id));window.scrollTo({top:0});syncShell(id);
+    document.querySelectorAll('main section').forEach(s=>s.classList.toggle('on',s.id===id));
+    // Every change first, then the scroll (which lays the page out): one layout pass instead of two.
+    syncShell(id,true);
     if(kind&&NAV_READY){const sec=$(id);if(!vt){replay(sec,'nav-in');clearTimeout(sec._nav);sec._nav=setTimeout(()=>sec.classList.remove('nav-in'),480);
+      // The Brew page's hero sits above the page itself: it comes in with it.
+      const hw=id==='dial'&&document.querySelector('.herowrap');if(hw){replay(hw,'nav-in');clearTimeout(hw._nav);hw._nav=setTimeout(()=>hw.classList.remove('nav-in'),480)}
       // Pages slide in as one piece, the same as every other page (no block-by-block cascade on top).
       }}};
-  document.documentElement.dataset.nav=NAV_READY?kind:'';
+  // Set only when it changes: a new value on <html> makes the browser re-check styles across the whole app.
+  {const nv=NAV_READY?kind:'';if(document.documentElement.dataset.nav!==nv)document.documentElement.dataset.nav=nv}
   // The bottom-bar highlight answers the tap at once, before the page itself changes.
   if(kind){document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));movePill()}
   // Moving deeper or back uses a view transition (both pages move). Between bottom-bar sections only the new page
@@ -1074,12 +1079,6 @@ function showTab(id,fromHistory,pure){NAV_AT=performance.now();ensureTab(id);con
     const h=document.documentElement;h.classList.add('vt');
     try{document.startViewTransition(()=>swap(true)).finished.finally(()=>h.classList.remove('vt'))}catch(e){h.classList.remove('vt');swap()}}
   else swap()}
-// The new page's first blocks arrive one after another, top to bottom: only those on screen, at most a dozen.
-function cascadeIn(sec){if(RM()||!sec)return;const vh=innerHeight,picked=[];
-  const pick=(el,depth)=>{for(const c of el.children){if(picked.length>=12)return;const r=c.getBoundingClientRect();if(!r.height||r.bottom<0)continue;if(r.top>vh)return;
-    if(depth<2&&r.height>vh*.55&&c.children.length>1)pick(c,depth+1);else picked.push(c)}};
-  pick(sec,0);picked.forEach((c,i)=>{c.style.setProperty('--ci',i);replay(c,'cascade');
-    const done=e=>{if(e&&e.target!==c)return;c.classList.remove('cascade');c.removeEventListener('animationend',done)};c.addEventListener('animationend',done);setTimeout(done,1400)})}
 try{history.scrollRestoration='manual'}catch(e){}
 // Lock the page behind any open dialog or sheet so it can't scroll underneath.
 // The page behind a sheet stops scrolling once the sheet has finished opening, not at the start: locking it straight
@@ -3277,8 +3276,11 @@ addEventListener('resize',()=>{TFIT.clear();requestAnimationFrame(fitTitle)});
 let TIO_T=null;const TIO='IntersectionObserver' in window?new IntersectionObserver(es=>{for(const e of es)if(e.target===TIO_T)$('appbar').classList.toggle('title-off',e.isIntersecting)},{rootMargin:'-84px 0px 0px 0px'}):null;
 function watchTitle(id){const ab=$('appbar');if(!ab)return;if(TIO&&TIO_T)TIO.unobserve(TIO_T);const s=$(id);TIO_T=s&&s.querySelector(':scope > h2');
   if(!TIO||!TIO_T){ab.classList.remove('title-off');return}const r=TIO_T.getBoundingClientRect();ab.classList.toggle('title-off',r.bottom>84&&r.top<innerHeight);TIO.observe(TIO_T)}
-function syncShell(id){TITLE_ID=id;$('ab-title').textContent=TABNAMES[id]||'Brew Bench';requestAnimationFrame(fitTitle);watchTitle(id);$('ab-back').hidden=NAVD<1;document.body.className=document.body.className.replace(/\bt-\w+/g,'').trim()+' t-'+id;
+// The shell's writes come first and its one measurement (where the page title sits) last, so a tab switch lays the
+// page out once. top: scroll to the top first (a tab switch), so the title is measured where it will be.
+function syncShell(id,top){TITLE_ID=id;$('ab-title').textContent=TABNAMES[id]||'Brew Bench';requestAnimationFrame(fitTitle);$('ab-back').hidden=NAVD<1;document.body.classList.toggle('t-dial',id==='dial');
   document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));requestAnimationFrame(movePill);
+  if(top)window.scrollTo({top:0});watchTitle(id);
   updShare(id)}
 // The app bar's Share only shows when the page has something to share: a picked origin on the map, a list of recipes.
 function updShare(id){id=id||(document.querySelector('main section.on')||{}).id;
@@ -3328,7 +3330,12 @@ function setFavicon(){try{const cs=getComputedStyle($('ab-logo')),col=v=>cs.getP
   const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');x.fillStyle=col('--paper');x.beginPath();x.arc(32,32,32,0,7);x.fill();x.drawImage(img,6,6,52,52);
     let l=document.querySelector('link[rel="icon"]');if(!l){l=document.createElement('link');l.rel='icon';document.head.appendChild(l)}l.href=c.toDataURL('image/png')};
   img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)}catch(e){}}
-function applyUI(){const d=document.documentElement;d.setAttribute('data-accent',UI.accent);if(UI.vibe==='roastery')d.removeAttribute('data-vibe');else d.setAttribute('data-vibe',UI.vibe);d.setAttribute('data-text',UI.text);d.setAttribute('data-motion',UI.motion);
+// Switching look (light or dark, vibe, accent): every colour changes at once. Colour transitions would otherwise run
+// from the old look's colours for a moment (buttons and pills flashed blank or in the old colours), so they're held off
+// for two frames; movement (a toggle's pill sliding) still animates.
+function themeSwap(){const d=document.documentElement;d.classList.add('thx');clearTimeout(themeSwap.t);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{themeSwap.t=setTimeout(()=>d.classList.remove('thx'),60)}))}
+function applyUI(){const d=document.documentElement;themeSwap();d.setAttribute('data-accent',UI.accent);if(UI.vibe==='roastery')d.removeAttribute('data-vibe');else d.setAttribute('data-vibe',UI.vibe);d.setAttribute('data-text',UI.text);d.setAttribute('data-motion',UI.motion);
   $('ab-logo').innerHTML=logoSVG(UI.logo,24);
   // In the Android app the home-screen icon follows the look: the logo in the vibe's colours, light or dark as the
   // app is now. The app swaps it when you next leave it.
@@ -3336,7 +3343,7 @@ function applyUI(){const d=document.documentElement;d.setAttribute('data-accent'
   const pap=(VIBES.find(v=>v[0]===UI.vibe)||VIBES[0])[curTheme()==='dark'?4:3].paper;document.querySelectorAll('meta[name="theme-color"]').forEach(m=>{if(d.hasAttribute('data-theme')||UI.vibe!=='roastery')m.content=pap});(window.requestIdleCallback||(f=>setTimeout(f,300)))(setFavicon)}
 function setAppIcon(){const ai=plugin('AppIcon');if(ai)ai.set({name:UI.logo,vibe:UI.vibe,mode:curTheme()==='dark'?'dark':'light'}).catch(()=>{})}
 // Auto theme follows the phone, so the icon follows it too.
-try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>setAppIcon())}catch(e){}
+try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{themeSwap();setAppIcon()})}catch(e){}
 function saveUI(){save('bb-ui',UI);applyUI()}
 /* Your data: everything the app saves on this device, in one file you can keep or move to another phone. */
 // Sign-in tokens never go into a backup file.
@@ -3421,7 +3428,7 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
    (installed()?'':'<h3 class="rh">Install</h3><div class="setgroup">'+row('phone','#9A7390','Add to your home screen','Use it like an app, offline too','<p class="setnote" style="margin:0"><b>iPhone (Safari):</b> tap the Share button, then <b>Add to Home Screen</b>.<br><b>Android (Chrome):</b> tap the ⋮ menu, then <b>Add to Home screen</b>.</p>')+'</div>')+
    '<h3 class="rh">About</h3><div class="setgroup">'+row('info','#8A5A3B','The Brew Bench','A coffee field guide and dial-in tool. What you save stays on this device, or syncs with your account if you sign in.','<p class="setnote" style="margin:0"><a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a> · <a href="'+SITE_URL+'delete-account.html" target="_blank" rel="noopener">Delete your account</a></p>')+
      '</div>';
-  seg('st-mode',[['light','Light'],['dark','Dark'],['auto','Auto']],()=>t,v=>{if(v==='auto'){document.documentElement.removeAttribute('data-theme');try{localStorage.removeItem('bb-theme')}catch(e){}}
+  seg('st-mode',[['light','Light'],['dark','Dark'],['auto','Auto']],()=>t,v=>{themeSwap();if(v==='auto'){document.documentElement.removeAttribute('data-theme');try{localStorage.removeItem('bb-theme')}catch(e){}}
     else{document.documentElement.setAttribute('data-theme',v);try{localStorage.setItem('bb-theme',v)}catch(e){}}syncThemeBtn();applyUI();renderSettings(1)});
   seg('st-text',[['s','Small'],['m','Standard'],['l','Large'],['xl','Larger']],()=>UI.text,v=>{const st=$('st-text'),y0=st.getBoundingClientRect().top;UI.text=v;saveUI();renderSettings(1);
     // New text size: the strip you tapped stays under your finger, and every highlight (strips and the nav bar) is measured again.
@@ -3481,7 +3488,7 @@ function curTheme(){return document.documentElement.getAttribute('data-theme')||
 function syncThemeBtn(){const t=curTheme();$('themebtn').textContent=t==='dark'?'Light':'Dark';
   // Once a theme is chosen by hand, the browser bar follows it rather than the system setting.
   if(document.documentElement.hasAttribute('data-theme'))document.querySelectorAll('meta[name="theme-color"]').forEach(m=>m.content=t==='dark'?'#1F1814':'#FBF7F0')}
-$('themebtn').onclick=()=>{const n=curTheme()==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);try{localStorage.setItem('bb-theme',n)}catch(e){}syncThemeBtn();setAppIcon()};
+$('themebtn').onclick=()=>{themeSwap();const n=curTheme()==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);try{localStorage.setItem('bb-theme',n)}catch(e){}syncThemeBtn();setAppIcon()};
 syncThemeBtn();
 
 /* ================= APP UPDATES ================= */

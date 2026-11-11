@@ -1064,7 +1064,8 @@ html[data-nav=right]::view-transition-old(abtitle),html[data-nav=push]::view-tra
 html[data-nav=right]::view-transition-new(abtitle),html[data-nav=push]::view-transition-new(abtitle){animation:vt-t-in-r .5s var(--spring) .08s both,vt-show .2s ease-out .08s both}
 html[data-nav=left]::view-transition-old(abtitle),html[data-nav=pop]::view-transition-old(abtitle){animation:vt-t-out-r .13s ease-in both}
 html[data-nav=left]::view-transition-new(abtitle),html[data-nav=pop]::view-transition-new(abtitle){animation:vt-t-in-l .5s var(--spring) .08s both,vt-show .2s ease-out .08s both}
-@keyframes vt-fade{to{opacity:0}}@keyframes vt-show{from{opacity:0}}
+/* A page coming in starts part-visible: the old one is already gone, so starting from nothing flashed an empty screen. */
+@keyframes vt-fade{to{opacity:0}}@keyframes vt-show{from{opacity:.45}}
 @keyframes vt-out-l{to{transform:translateX(-30%) scale(.94) rotate(-1.5deg);opacity:0}}
 @keyframes vt-out-r{to{transform:translateX(30%) scale(.94) rotate(1.5deg);opacity:0}}
 @keyframes vt-in-r{from{transform:translateX(62%) scale(.92) rotate(3deg)}}
@@ -1078,11 +1079,10 @@ html[data-nav=left]::view-transition-new(abtitle),html[data-nav=pop]::view-trans
 /* Where both pages can't move together (an action that jumps to a page, or older browsers) the new page alone
    makes the same move. */
 @media (prefers-reduced-motion:no-preference){
-  html[data-nav=right] main section.nav-in{animation:sec-in-r .36s cubic-bezier(.2,.9,.3,1) both,vt-show .18s ease-out both}
-  html[data-nav=left] main section.nav-in{animation:sec-in-l .36s cubic-bezier(.2,.9,.3,1) both,vt-show .18s ease-out both}
-  html[data-nav=push] main section.nav-in{animation:sec-rise .4s cubic-bezier(.2,.9,.3,1) both,vt-show .18s ease-out both}
-  html[data-nav=pop] main section.nav-in{animation:sec-surface .48s var(--spring) both,vt-show .22s ease-out both}
-  .cascade{animation:cascade-in .62s var(--spring) both;animation-delay:calc(70ms + var(--ci,0) * 42ms)}
+  html[data-nav=right] :is(main section,.herowrap).nav-in{animation:sec-in-r .36s cubic-bezier(.2,.9,.3,1) both,vt-show .18s ease-out both}
+  html[data-nav=left] :is(main section,.herowrap).nav-in{animation:sec-in-l .36s cubic-bezier(.2,.9,.3,1) both,vt-show .18s ease-out both}
+  html[data-nav=push] :is(main section,.herowrap).nav-in{animation:sec-rise .4s cubic-bezier(.2,.9,.3,1) both,vt-show .18s ease-out both}
+  html[data-nav=pop] :is(main section,.herowrap).nav-in{animation:sec-surface .48s var(--spring) both,vt-show .22s ease-out both}
 }
 /* A page sliding in from the side mustn't make the screen scroll sideways. Always on: a :has() rule here made the
    browser re-check the styles of the whole page every time a page started or ended its entrance. */
@@ -1092,7 +1092,7 @@ main section.nav-in{transform-origin:50% 40vh}
 @keyframes sec-rise{from{transform:translate3d(0,48px,0) scale(.97)}}@keyframes sec-surface{from{transform:scale(1.04)}}
 /* A short slide without a turn: turning a page that is many screens tall is costly to draw on phones. */
 @keyframes sec-in-r{from{transform:translate3d(14%,0,0)}}@keyframes sec-in-l{from{transform:translate3d(-14%,0,0)}}
-@keyframes cascade-in{from{opacity:0;transform:translateY(22px) scale(.96)}}
+
 :root[data-motion="reduced"]::view-transition-group(*),:root[data-motion="reduced"]::view-transition-old(*),:root[data-motion="reduced"]::view-transition-new(*){animation:none!important}
 /* The nav highlight is one pill that moves between buttons. */
 .bn-pill{display:none}
@@ -1627,6 +1627,8 @@ dialog#vd:has(.me-hero){overflow-x:hidden}
 :root{--honey-base:var(--honey)}
 :root[data-theme="light"] :is(#ab-logo,.logopick,#splash,.lg-tile){--honey:color-mix(in srgb,var(--honey-base) 68%,var(--honey-ink,var(--honey-base)))}
 @media (prefers-color-scheme:light){:root:not([data-theme="dark"]) :is(#ab-logo,.logopick,#splash,.lg-tile){--honey:color-mix(in srgb,var(--honey-base) 68%,var(--honey-ink,var(--honey-base)))}}
+/* During a change of look (see themeSwap): colours switch at once, movement still animates. */
+html.thx *,html.thx *::before,html.thx *::after{transition-property:transform,translate,scale!important}
 /* Tinted icon tiles in the vibe's colours (see ico in app.js): a soft tint with the symbol in the colour itself. */
 .ic.t-c{--t:var(--cherry-ink,var(--cherry))}.ic.t-h{--t:var(--honey-ink,var(--honey))}.ic.t-l{--t:var(--leaf-ink,var(--leaf))}
 .ic.t-cl{--t:color-mix(in srgb,var(--cherry-ink,var(--cherry)) 52%,var(--leaf-ink,var(--leaf)))}.ic.t-ch{--t:color-mix(in srgb,var(--cherry-ink,var(--cherry)) 58%,var(--honey-ink,var(--honey)))}
@@ -1702,7 +1704,9 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
 @media (max-width:759px){.seg.bviews{position:sticky;top:calc(var(--ab-b,64px) + 6px);z-index:5;box-shadow:0 8px 20px -14px rgba(40,24,14,.35)}}
 .seg.bviews button{flex:1 1 auto;min-width:0;white-space:nowrap;padding-left:8px;padding-right:8px}.seg.bviews i{font-style:normal;font-size:.72rem;font-weight:700;margin-left:4px;padding:0 6px;border-radius:var(--r-pill);background:color-mix(in srgb,currentColor 14%,transparent)}.seg.bviews button:not([aria-pressed="true"]) i{color:var(--ink)}.seg.bviews button[aria-pressed="true"] i{background:color-mix(in srgb,var(--paper) 40%,transparent)}
 /* Switching Beans views: one simple, quick fade, the same whichever way you go. */
-.bview.bv-in-r,.bview.bv-in-l{animation:bvin .16s ease-out}@keyframes bvin{from{opacity:0}to{opacity:1}}
+/* Switching Beans views: the new one is already partly there on the first frame (no blank flash) and drifts in from the side you moved towards. */
+.bview.bv-in-r{--bvx:10px}.bview.bv-in-l{--bvx:-10px}
+.bview.bv-in-r,.bview.bv-in-l{animation:bvin .2s cubic-bezier(.2,.8,.3,1)}@keyframes bvin{from{opacity:.4;transform:translateX(var(--bvx))}to{opacity:1;transform:none}}
 /* Scans */
 .scan-cta{display:flex;align-items:center;gap:12px;padding:14px;border-radius:var(--r-lg);border:1px solid var(--hair);background:var(--surface);box-shadow:var(--shadow)}
 .scan-cta>span:nth-child(2){flex:1;min-width:0}.scan-cta b{display:block;font-family:var(--display)}.scan-cta small{display:block;font-size:.8rem;color:var(--muted);line-height:1.3}
@@ -1956,20 +1960,15 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .adv-door.on .adv-n{position:absolute;left:6px;top:6px;font-size:.8rem;min-width:22px;height:22px;padding:0 5px;border-radius:999px;display:grid;place-items:center;background:rgba(20,12,8,.66);color:#FFF8EE;z-index:2}
 .adv-dr{position:absolute;right:6px;bottom:6px;z-index:2;font-family:var(--display);font-weight:800;font-size:.74rem;padding:2px 7px;border-radius:999px;background:rgba(20,12,8,.66);color:#FFF8EE}
 .adv-tip{margin:4px 0 8px}
-/* Doors swing open on their left hinge when tapped, and shut again when you come back; the page slides between them. */
-.adv-grid{perspective:900px}.adv-door{transform-style:preserve-3d}
-.adv-flap{position:absolute;inset:-1px;z-index:4;border-radius:14px;display:grid;place-items:center;background:var(--surface);border:1px solid var(--line);transform-origin:0 50%;backface-visibility:hidden;pointer-events:none;
-  box-shadow:inset 0 0 0 3px color-mix(in srgb,var(--honey) 22%,transparent)}
-.adv-flap b{font-family:var(--display);font-weight:800;font-size:1.35rem;font-variant-numeric:tabular-nums;color:var(--ink)}
-.adv-flap::after{content:"";position:absolute;right:9px;top:50%;width:5px;height:14px;margin-top:-7px;border-radius:3px;background:color-mix(in srgb,var(--honey) 70%,var(--ink))}
-.adv-door.opening{background:radial-gradient(circle at 50% 55%,color-mix(in srgb,var(--honey) 38%,var(--surface)),var(--surface2) 75%)}
-.adv-door.opening .adv-flap{animation:adv-open .34s cubic-bezier(.45,.05,.55,1) forwards}
-@keyframes adv-open{0%{transform:rotateY(0)}100%{transform:rotateY(-112deg);box-shadow:-14px 0 22px rgba(0,0,0,.18)}}
-.adv-flap.shut{animation:adv-shut .5s .12s cubic-bezier(.3,.8,.4,1) both,adv-fade .3s .62s ease forwards}
-@keyframes adv-shut{0%{transform:rotateY(-112deg)}80%{transform:rotateY(6deg)}100%{transform:rotateY(0)}}@keyframes adv-fade{to{opacity:0}}
+/* A tapped door presses in and lights up; the one you come back from glows once. Flat, no 3D: the number stays put. */
+.adv-door{transition:transform .15s var(--ease-out)}
+.adv-door.opening{animation:adv-press .2s ease-out forwards}
+@keyframes adv-press{0%{transform:scale(1)}55%{transform:scale(.93)}100%{transform:scale(.96);box-shadow:0 0 0 3px color-mix(in srgb,var(--honey) 60%,transparent);background:color-mix(in srgb,var(--honey) 22%,var(--surface))}}
+.adv-door.back{animation:adv-back .7s ease-out}
+@keyframes adv-back{0%{box-shadow:0 0 0 4px color-mix(in srgb,var(--honey) 65%,transparent);transform:scale(1.04)}100%{box-shadow:0 0 0 4px transparent;transform:scale(1)}}
 #vd-in.adv-fwd{animation:adv-fwd .3s cubic-bezier(.2,.8,.3,1)}#vd-in.adv-bwd{animation:adv-bwd .3s cubic-bezier(.2,.8,.3,1)}
-@keyframes adv-fwd{from{opacity:0;transform:translateX(28px)}}@keyframes adv-bwd{from{opacity:0;transform:translateX(-28px)}}
-@media (prefers-reduced-motion:reduce){.adv-flap,#vd-in.adv-fwd,#vd-in.adv-bwd{animation:none!important}}
+@keyframes adv-fwd{from{opacity:.45;transform:translateX(28px)}}@keyframes adv-bwd{from{opacity:.45;transform:translateX(-28px)}}
+@media (prefers-reduced-motion:reduce){.adv-door.opening,.adv-door.back,#vd-in.adv-fwd,#vd-in.adv-bwd{animation:none!important}}
 /* The calendar's own photo: on its card and across the top of its page. */
 .adv-thumb{flex:none;width:66px;height:66px;border-radius:12px}
 .bpic.adv-hero{aspect-ratio:16/10}
@@ -2559,8 +2558,8 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
   html[data-nav=push]::view-transition-new(root){animation:page-in .34s var(--ease-sheet) both}
   html[data-nav=pop]::view-transition-old(root){z-index:2;animation:page-out .28s cubic-bezier(.4,0,.6,1) both}
   html[data-nav=pop]::view-transition-new(root){animation:vt-pop-new .28s cubic-bezier(.4,0,.6,1) both}
-  html[data-nav=push] main section.nav-in{animation:page-in .34s var(--ease-sheet) both}
-  html[data-nav=pop] main section.nav-in{animation:vt-pop-new .28s cubic-bezier(.4,0,.6,1) both}
+  html[data-nav=push] :is(main section,.herowrap).nav-in{animation:page-in .34s var(--ease-sheet) both}
+  html[data-nav=pop] :is(main section,.herowrap).nav-in{animation:vt-pop-new .28s cubic-bezier(.4,0,.6,1) both}
 }
 @keyframes vt-push-old{to{transform:translateX(-18%);opacity:.7}}
 @keyframes vt-pop-new{from{transform:translateX(-18%);opacity:.7}}
@@ -6259,17 +6258,22 @@ let NAV_READY=false;
 let NAV_AT=-1e9;
 function showTab(id,fromHistory,pure){NAV_AT=performance.now();ensureTab(id);const cur=document.querySelector('main section.on');let kind='';
   if(cur&&cur.id!==id){const a=BNORD.indexOf(BNGROUP[cur.id]),b=BNORD.indexOf(BNGROUP[id]);
-    kind=a!==b&&a>=0&&b>=0?(b<a?'left':'right'):fromHistory?'pop':'push';document.body.classList.toggle('nav-back',kind==='left'||kind==='pop')}
+    kind=a!==b&&a>=0&&b>=0?(b<a?'left':'right'):fromHistory?'pop':'push'}
   // Each tab gets a history entry, so the back button (browser or Android) returns to the last tab.
   if(!fromHistory&&location.hash!=='#'+id){NAVD++;if(BACKING)PEND_TAB=id;else try{history.pushState(null,'','#'+id)}catch(e){}}
   const swap=vt=>{
     // A page inside a section (the map, the log…) lights up that section's tab.
     document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x.dataset.t===(BNGROUP[id]||id)));
-    document.querySelectorAll('main section').forEach(s=>s.classList.toggle('on',s.id===id));window.scrollTo({top:0});syncShell(id);
+    document.querySelectorAll('main section').forEach(s=>s.classList.toggle('on',s.id===id));
+    // Every change first, then the scroll (which lays the page out): one layout pass instead of two.
+    syncShell(id,true);
     if(kind&&NAV_READY){const sec=$(id);if(!vt){replay(sec,'nav-in');clearTimeout(sec._nav);sec._nav=setTimeout(()=>sec.classList.remove('nav-in'),480);
+      // The Brew page's hero sits above the page itself: it comes in with it.
+      const hw=id==='dial'&&document.querySelector('.herowrap');if(hw){replay(hw,'nav-in');clearTimeout(hw._nav);hw._nav=setTimeout(()=>hw.classList.remove('nav-in'),480)}
       // Pages slide in as one piece, the same as every other page (no block-by-block cascade on top).
       }}};
-  document.documentElement.dataset.nav=NAV_READY?kind:'';
+  // Set only when it changes: a new value on <html> makes the browser re-check styles across the whole app.
+  {const nv=NAV_READY?kind:'';if(document.documentElement.dataset.nav!==nv)document.documentElement.dataset.nav=nv}
   // The bottom-bar highlight answers the tap at once, before the page itself changes.
   if(kind){document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));movePill()}
   // Moving deeper or back uses a view transition (both pages move). Between bottom-bar sections only the new page
@@ -6280,12 +6284,6 @@ function showTab(id,fromHistory,pure){NAV_AT=performance.now();ensureTab(id);con
     const h=document.documentElement;h.classList.add('vt');
     try{document.startViewTransition(()=>swap(true)).finished.finally(()=>h.classList.remove('vt'))}catch(e){h.classList.remove('vt');swap()}}
   else swap()}
-// The new page's first blocks arrive one after another, top to bottom: only those on screen, at most a dozen.
-function cascadeIn(sec){if(RM()||!sec)return;const vh=innerHeight,picked=[];
-  const pick=(el,depth)=>{for(const c of el.children){if(picked.length>=12)return;const r=c.getBoundingClientRect();if(!r.height||r.bottom<0)continue;if(r.top>vh)return;
-    if(depth<2&&r.height>vh*.55&&c.children.length>1)pick(c,depth+1);else picked.push(c)}};
-  pick(sec,0);picked.forEach((c,i)=>{c.style.setProperty('--ci',i);replay(c,'cascade');
-    const done=e=>{if(e&&e.target!==c)return;c.classList.remove('cascade');c.removeEventListener('animationend',done)};c.addEventListener('animationend',done);setTimeout(done,1400)})}
 try{history.scrollRestoration='manual'}catch(e){}
 // Lock the page behind any open dialog or sheet so it can't scroll underneath.
 // The page behind a sheet stops scrolling once the sheet has finished opening, not at the start: locking it straight
@@ -8483,8 +8481,11 @@ addEventListener('resize',()=>{TFIT.clear();requestAnimationFrame(fitTitle)});
 let TIO_T=null;const TIO='IntersectionObserver' in window?new IntersectionObserver(es=>{for(const e of es)if(e.target===TIO_T)$('appbar').classList.toggle('title-off',e.isIntersecting)},{rootMargin:'-84px 0px 0px 0px'}):null;
 function watchTitle(id){const ab=$('appbar');if(!ab)return;if(TIO&&TIO_T)TIO.unobserve(TIO_T);const s=$(id);TIO_T=s&&s.querySelector(':scope > h2');
   if(!TIO||!TIO_T){ab.classList.remove('title-off');return}const r=TIO_T.getBoundingClientRect();ab.classList.toggle('title-off',r.bottom>84&&r.top<innerHeight);TIO.observe(TIO_T)}
-function syncShell(id){TITLE_ID=id;$('ab-title').textContent=TABNAMES[id]||'Brew Bench';requestAnimationFrame(fitTitle);watchTitle(id);$('ab-back').hidden=NAVD<1;document.body.className=document.body.className.replace(/\bt-\w+/g,'').trim()+' t-'+id;
+// The shell's writes come first and its one measurement (where the page title sits) last, so a tab switch lays the
+// page out once. top: scroll to the top first (a tab switch), so the title is measured where it will be.
+function syncShell(id,top){TITLE_ID=id;$('ab-title').textContent=TABNAMES[id]||'Brew Bench';requestAnimationFrame(fitTitle);$('ab-back').hidden=NAVD<1;document.body.classList.toggle('t-dial',id==='dial');
   document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));requestAnimationFrame(movePill);
+  if(top)window.scrollTo({top:0});watchTitle(id);
   updShare(id)}
 // The app bar's Share only shows when the page has something to share: a picked origin on the map, a list of recipes.
 function updShare(id){id=id||(document.querySelector('main section.on')||{}).id;
@@ -8534,7 +8535,12 @@ function setFavicon(){try{const cs=getComputedStyle($('ab-logo')),col=v=>cs.getP
   const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');x.fillStyle=col('--paper');x.beginPath();x.arc(32,32,32,0,7);x.fill();x.drawImage(img,6,6,52,52);
     let l=document.querySelector('link[rel="icon"]');if(!l){l=document.createElement('link');l.rel='icon';document.head.appendChild(l)}l.href=c.toDataURL('image/png')};
   img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)}catch(e){}}
-function applyUI(){const d=document.documentElement;d.setAttribute('data-accent',UI.accent);if(UI.vibe==='roastery')d.removeAttribute('data-vibe');else d.setAttribute('data-vibe',UI.vibe);d.setAttribute('data-text',UI.text);d.setAttribute('data-motion',UI.motion);
+// Switching look (light or dark, vibe, accent): every colour changes at once. Colour transitions would otherwise run
+// from the old look's colours for a moment (buttons and pills flashed blank or in the old colours), so they're held off
+// for two frames; movement (a toggle's pill sliding) still animates.
+function themeSwap(){const d=document.documentElement;d.classList.add('thx');clearTimeout(themeSwap.t);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{themeSwap.t=setTimeout(()=>d.classList.remove('thx'),60)}))}
+function applyUI(){const d=document.documentElement;themeSwap();d.setAttribute('data-accent',UI.accent);if(UI.vibe==='roastery')d.removeAttribute('data-vibe');else d.setAttribute('data-vibe',UI.vibe);d.setAttribute('data-text',UI.text);d.setAttribute('data-motion',UI.motion);
   $('ab-logo').innerHTML=logoSVG(UI.logo,24);
   // In the Android app the home-screen icon follows the look: the logo in the vibe's colours, light or dark as the
   // app is now. The app swaps it when you next leave it.
@@ -8542,7 +8548,7 @@ function applyUI(){const d=document.documentElement;d.setAttribute('data-accent'
   const pap=(VIBES.find(v=>v[0]===UI.vibe)||VIBES[0])[curTheme()==='dark'?4:3].paper;document.querySelectorAll('meta[name="theme-color"]').forEach(m=>{if(d.hasAttribute('data-theme')||UI.vibe!=='roastery')m.content=pap});(window.requestIdleCallback||(f=>setTimeout(f,300)))(setFavicon)}
 function setAppIcon(){const ai=plugin('AppIcon');if(ai)ai.set({name:UI.logo,vibe:UI.vibe,mode:curTheme()==='dark'?'dark':'light'}).catch(()=>{})}
 // Auto theme follows the phone, so the icon follows it too.
-try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>setAppIcon())}catch(e){}
+try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{themeSwap();setAppIcon()})}catch(e){}
 function saveUI(){save('bb-ui',UI);applyUI()}
 /* Your data: everything the app saves on this device, in one file you can keep or move to another phone. */
 // Sign-in tokens never go into a backup file.
@@ -8627,7 +8633,7 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
    (installed()?'':'<h3 class="rh">Install</h3><div class="setgroup">'+row('phone','#9A7390','Add to your home screen','Use it like an app, offline too','<p class="setnote" style="margin:0"><b>iPhone (Safari):</b> tap the Share button, then <b>Add to Home Screen</b>.<br><b>Android (Chrome):</b> tap the ⋮ menu, then <b>Add to Home screen</b>.</p>')+'</div>')+
    '<h3 class="rh">About</h3><div class="setgroup">'+row('info','#8A5A3B','The Brew Bench','A coffee field guide and dial-in tool. What you save stays on this device, or syncs with your account if you sign in.','<p class="setnote" style="margin:0"><a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a> · <a href="'+SITE_URL+'delete-account.html" target="_blank" rel="noopener">Delete your account</a></p>')+
      '</div>';
-  seg('st-mode',[['light','Light'],['dark','Dark'],['auto','Auto']],()=>t,v=>{if(v==='auto'){document.documentElement.removeAttribute('data-theme');try{localStorage.removeItem('bb-theme')}catch(e){}}
+  seg('st-mode',[['light','Light'],['dark','Dark'],['auto','Auto']],()=>t,v=>{themeSwap();if(v==='auto'){document.documentElement.removeAttribute('data-theme');try{localStorage.removeItem('bb-theme')}catch(e){}}
     else{document.documentElement.setAttribute('data-theme',v);try{localStorage.setItem('bb-theme',v)}catch(e){}}syncThemeBtn();applyUI();renderSettings(1)});
   seg('st-text',[['s','Small'],['m','Standard'],['l','Large'],['xl','Larger']],()=>UI.text,v=>{const st=$('st-text'),y0=st.getBoundingClientRect().top;UI.text=v;saveUI();renderSettings(1);
     // New text size: the strip you tapped stays under your finger, and every highlight (strips and the nav bar) is measured again.
@@ -8687,7 +8693,7 @@ function curTheme(){return document.documentElement.getAttribute('data-theme')||
 function syncThemeBtn(){const t=curTheme();$('themebtn').textContent=t==='dark'?'Light':'Dark';
   // Once a theme is chosen by hand, the browser bar follows it rather than the system setting.
   if(document.documentElement.hasAttribute('data-theme'))document.querySelectorAll('meta[name="theme-color"]').forEach(m=>m.content=t==='dark'?'#1F1814':'#FBF7F0')}
-$('themebtn').onclick=()=>{const n=curTheme()==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);try{localStorage.setItem('bb-theme',n)}catch(e){}syncThemeBtn();setAppIcon()};
+$('themebtn').onclick=()=>{themeSwap();const n=curTheme()==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);try{localStorage.setItem('bb-theme',n)}catch(e){}syncThemeBtn();setAppIcon()};
 syncThemeBtn();
 
 /* ================= APP UPDATES ================= */
@@ -9972,11 +9978,12 @@ function calRanked(){return CALS.map(c=>({c,sc:calScore(c)})).filter(x=>x.sc.v).
 let ADVFROM=null,ADVRET=null;$('vd').addEventListener('close',()=>{ADVFROM=null;ADVRET=null;VD_BACK=null});
 // A door's coffee again (after editing it), with back still leading to its calendar.
 function calBackTo(b){ADVFROM=b.cal.id;openBean(b.id);VD_BACK=()=>openCal(b.cal.id,{back:b.cal.d})}
-// Into a door and back out: the door swings open (and shut again on the way back), and the page slides across.
+// Into a door and back out: the door presses in and glows, the page slides across, and on the way back the door you
+// came from glows once so you can see where you were.
 // Back (the gesture or the button) from a door's coffee or its editor returns to the calendar, not out of it.
 function calSlide(dir){const v=$('vd-in');if(RM())return;v.classList.remove('adv-fwd','adv-bwd');void v.offsetWidth;v.classList.add(dir>0?'adv-fwd':'adv-bwd')}
 function calEnter(c,n,go){const r=document.querySelector('.adv-door[data-door="'+n+'"]'),run=()=>{go();VD_BACK=()=>openCal(c.id,{back:n});calSlide(1)};
-  if(RM()||!r){run();return}r.insertAdjacentHTML('beforeend','<i class="adv-flap" aria-hidden="true"><b>'+n+'</b></i>');r.classList.add('opening');setTimeout(run,330)}
+  if(RM()||!r){run();return}r.classList.add('opening');setTimeout(run,200)}
 
 // On the Coffees page: your calendars, each a little box of doors. With none yet, an invitation in the season.
 function advHTML(){const m=new Date().getMonth();
@@ -10021,8 +10028,7 @@ function openCal(id,o){const c=calById(id);if(!c)return;ADVFROM=id;VD_BACK=null;
     const bb=e.target.closest('[data-bean]');if(bb){const b=beanById(bb.dataset.bean);if(b&&b.cal){ADVFROM=c.id;openBean(b.id);VD_BACK=()=>openCal(c.id,{back:b.cal.d});calSlide(1)}}};
   showDlg(d);$('vd-x').onclick=()=>d.close();
   // Back from a door: the page slides back, and that door swings shut.
-  if(back){calSlide(-1);const r=document.querySelector('.adv-door[data-door="'+back+'"]');if(r){r.scrollIntoView({block:'center'});
-      if(!RM()){r.insertAdjacentHTML('beforeend','<i class="adv-flap shut" aria-hidden="true"><b>'+back+'</b></i>');setTimeout(()=>r.querySelector('.adv-flap')?.remove(),900)}}}
+  if(back){calSlide(-1);const r=document.querySelector('.adv-door[data-door="'+back+'"]');if(r){r.scrollIntoView({block:'center'});if(!RM())r.classList.add('back')}}
   else d.scrollTop=0}
 
 // Under the total: whose number it is and its place among your calendars.
