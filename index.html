@@ -2026,6 +2026,10 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .me-mine{margin:16px 0 4px;padding:0;overflow:visible;-webkit-mask-image:none;mask-image:none}.me-mine>div{flex:1 1 0;min-width:0;width:auto;background:var(--surface2)}
 .me-tiles i{font-style:normal;font-size:1.15rem;line-height:1;margin-bottom:4px}.me-tiles small{font-size:.68rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
 .me-tiles b{font:650 .9rem/1.2 var(--display);color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* The taste facts sit in a grid of three that wraps, so every fact shows in full (a sideways strip hid the third one
+   behind its fade and cut its name off). Names can take two lines. */
+.me-tiles{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible!important;padding:0!important;-webkit-mask-image:none!important;mask-image:none!important}
+.me-tiles>div{width:auto!important}.me-tiles b{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:break-word;hyphens:auto}
 .yic-notes .chip,.me-notes .chip{background:var(--surface);border:1px solid var(--line)}.me-notes{margin:12px 0 0}
 .yic-k{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:var(--muted)}
 .yic-row{display:flex;gap:8px 20px;flex-wrap:wrap;margin-top:6px}.yic-row span{display:flex;flex-direction:column;min-width:0}
