@@ -12,7 +12,7 @@ let {p,c,errs}=await open(false,0,0);
 ok('not on the very first visit',await p.evaluate(()=>!$('vd').open));await c.close();
 ({p,c,errs}=await open(false,3,0));
 ok('shown on a later visit',await p.evaluate(()=>$('vd').open&&/worth knowing/.test($('vd').textContent)));
-const web=await p.evaluate(()=>[...document.querySelectorAll('.tip b')].map(x=>x.textContent));
+const web=await p.evaluate(()=>[...document.querySelectorAll('.gk-tip b')].map(x=>x.textContent));
 ok('the website mentions offline use, not widgets',web.some(t=>/offline/i.test(t))&&!web.some(t=>/home screen/i.test(t)),web);
 await p.click('#tips-ok');await p.waitForTimeout(400);ok('Got it closes it',await p.evaluate(()=>!$('vd').open));
 ok('remembered',await p.evaluate(()=>localStorage.getItem('bb-tips')==='1'));
@@ -21,7 +21,7 @@ await p.evaluate(()=>showTab('settings'));await p.waitForTimeout(500);await p.cl
 ok('again from Settings',await p.evaluate(()=>$('vd').open&&/worth knowing/.test($('vd').textContent)));
 ok('no errors (website)',!errs.length,errs);await c.close();
 ({p,c,errs}=await open(true,3,0));
-const app=await p.evaluate(()=>[...document.querySelectorAll('.tip b')].map(x=>x.textContent));
+const app=await p.evaluate(()=>[...document.querySelectorAll('.gk-tip b')].map(x=>x.textContent));
 ok('the Android app mentions the widgets',app.some(t=>/home screen/i.test(t)),app);
 ok('no errors (app)',!errs.length,errs);await c.close();
 // Waits for an open sheet to close first

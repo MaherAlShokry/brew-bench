@@ -2467,8 +2467,10 @@ dialog.dlg-pre[open]::backdrop{animation:none!important;opacity:0}
 .yic .yic-line{margin:6px 0 0;font:500 .92rem/1.45 var(--body,inherit);color:var(--muted)}
 .sh-pdfpv{flex:none;width:34px;height:48px;margin-left:auto;border-radius:4px;background:var(--surface2);overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.18);opacity:0;transition:opacity .25s}
 .sh-pdfpv.on{opacity:1}.sh-pdfpv img{display:block;width:100%;height:100%;object-fit:cover;object-position:top}
-.tips{display:grid;gap:10px}.tip{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:14px;background:var(--surface)}
-.tip>span{display:flex;flex-direction:column;gap:3px;min-width:0}.tip b{font:650 .98rem/1.3 var(--display);color:var(--ink)}.tip small{font-size:.88rem;line-height:1.45;color:var(--muted)}
+.gk-tips{display:grid;gap:10px}.gk-tip .ic{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;flex:none;margin-top:1px}
+.gk-tip .ic svg{width:19px;height:19px;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.bd-wpin{display:block;margin:18px auto 0;text-align:center}.gk-tip{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:14px;background:var(--surface)}
+.gk-tip>span{display:flex;flex-direction:column;gap:3px;min-width:0}.gk-tip b{font:650 .98rem/1.3 var(--display);color:var(--ink)}.gk-tip small{font-size:.88rem;line-height:1.45;color:var(--muted)}
 .yic-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:14px 0 0}
 .yic-t{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0;padding:12px;border:0;border-radius:14px;background:var(--surface);color:var(--ink);font:inherit;text-align:left}
 .yic-t.w{grid-column:1/-1;flex-direction:row;align-items:center;gap:12px}
@@ -2520,7 +2522,7 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="d4302b8835e8"</script>
+<script>const BUILD_ID="01d2a9204a58"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -5278,7 +5280,7 @@ function tipsList(){const sync=typeof syncOn==='function'&&syncOn();return[
   ['leaf','#6B8E4E','Freshness that fits the bag','Each coffee\u2019s freshness line follows its roast, where and how it was grown, how you brew it and when you opened the bag.']].filter(Boolean)}
 function openTips(){const d=$('vd');try{localStorage.setItem('bb-tips',String(TIPS_V))}catch(e){}
   $('vd-in').innerHTML='<div class="vd-head" style="--c:#C9964A"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:#C9964A"></i>Good to know</span><h2 id="vd-title">A few things worth knowing</h2></div>'+
-    '<div class="vd-body"><div class="tips">'+tipsList().map(([ic,c,t,x])=>'<div class="tip">'+ico(ic,c)+'<span><b>'+esc(t)+'</b><small>'+esc(x)+'</small></span></div>').join('')+'</div>'+
+    '<div class="vd-body"><div class="gk-tips">'+tipsList().map(([ic,c,t,x])=>'<div class="gk-tip">'+ico(ic,c)+'<span><b>'+esc(t)+'</b><small>'+esc(x)+'</small></span></div>').join('')+'</div>'+
     '<div class="actions"><button type="button" class="btn" id="tips-ok">Got it</button></div></div>';
   $('vd-x').onclick=()=>d.close();$('tips-ok').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
 // Once: on a visit after the first (the first is for brewing), after a few minutes, when nothing else is open.
@@ -5302,7 +5304,10 @@ const UNDO_PEND=new Set();
 function undoToast(msg,undo,commit){const job={done:false,commit};const fin=()=>{if(job.done)return;job.done=true;UNDO_PEND.delete(job);try{commit&&commit()}catch(e){}};
   UNDO_PEND.add(job);const t=setTimeout(fin,6500);
   toastAct(msg,'Undo',()=>{if(job.done)return;job.done=true;clearTimeout(t);UNDO_PEND.delete(job);undo()})}
-addEventListener('pagehide',()=>{for(const j of [...UNDO_PEND]){j.done=true;try{j.commit&&j.commit()}catch(e){}}UNDO_PEND.clear()});
+// Leaving finishes them too: the page closing, or (in the Android app, which can be stopped while in the background
+// without the page ever closing) the app going to the background, so a delete always reaches a shared log.
+const undoFlush=()=>{for(const j of [...UNDO_PEND]){j.done=true;try{j.commit&&j.commit()}catch(e){}}UNDO_PEND.clear()};
+addEventListener('pagehide',undoFlush);document.addEventListener('visibilitychange',()=>{if(document.hidden)undoFlush()});
 // A small, quick burst of beans from the button that was tapped (a celebration, not a curtain over the content).
 function beans(n=10){if(RM())return;const el=document.activeElement,r=el&&el!==document.body?el.getBoundingClientRect():null;
   const x0=r?r.left+r.width/2:innerWidth/2,y0=r?r.top+r.height/2:innerHeight*.6;
@@ -9940,7 +9945,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.be
     '<h3 id="bd-dh">Diary</h3>'+dwriteHTML('bd',st)+
     '<div id="bd-tl">'+timelineHTML(beanTimeline(b),false)+'</div>'+
     // Android: keep this coffee on the Drinking now widget instead of the one brewed most recently.
-    (plugin('Widget')&&b.shelf?'<button type="button" class="linkbtn" id="bd-wpin">'+(wPinned()===b.id?'On your Drinking now widget · Let it choose again':'Show on the Drinking now widget')+'</button>':'')+
+    (plugin('Widget')&&b.shelf?'<button type="button" class="btn ghost bd-wpin" id="bd-wpin">'+(wPinned()===b.id?'On your Drinking now widget · Let it choose again':'Show on the Drinking now widget')+'</button>':'')+
     '<button type="button" class="linkbtn danger" id="bd-del">Remove from the gallery</button></div>';
   hydrateImgs($('vd-in'));
   if($('bd-wpin'))$('bd-wpin').onclick=()=>{const on=wPinned()!==b.id;try{on?localStorage.setItem('bb-wbean',b.id):localStorage.removeItem('bb-wbean')}catch(e){}updWidget();

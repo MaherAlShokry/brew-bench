@@ -1008,7 +1008,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.be
     '<h3 id="bd-dh">Diary</h3>'+dwriteHTML('bd',st)+
     '<div id="bd-tl">'+timelineHTML(beanTimeline(b),false)+'</div>'+
     // Android: keep this coffee on the Drinking now widget instead of the one brewed most recently.
-    (plugin('Widget')&&b.shelf?'<button type="button" class="linkbtn" id="bd-wpin">'+(wPinned()===b.id?'On your Drinking now widget · Let it choose again':'Show on the Drinking now widget')+'</button>':'')+
+    (plugin('Widget')&&b.shelf?'<button type="button" class="btn ghost bd-wpin" id="bd-wpin">'+(wPinned()===b.id?'On your Drinking now widget · Let it choose again':'Show on the Drinking now widget')+'</button>':'')+
     '<button type="button" class="linkbtn danger" id="bd-del">Remove from the gallery</button></div>';
   hydrateImgs($('vd-in'));
   if($('bd-wpin'))$('bd-wpin').onclick=()=>{const on=wPinned()!==b.id;try{on?localStorage.setItem('bb-wbean',b.id):localStorage.removeItem('bb-wbean')}catch(e){}updWidget();

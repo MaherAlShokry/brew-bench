@@ -117,7 +117,7 @@ function tipsList(){const sync=typeof syncOn==='function'&&syncOn();return[
   ['leaf','#6B8E4E','Freshness that fits the bag','Each coffee\u2019s freshness line follows its roast, where and how it was grown, how you brew it and when you opened the bag.']].filter(Boolean)}
 function openTips(){const d=$('vd');try{localStorage.setItem('bb-tips',String(TIPS_V))}catch(e){}
   $('vd-in').innerHTML='<div class="vd-head" style="--c:#C9964A"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:#C9964A"></i>Good to know</span><h2 id="vd-title">A few things worth knowing</h2></div>'+
-    '<div class="vd-body"><div class="tips">'+tipsList().map(([ic,c,t,x])=>'<div class="tip">'+ico(ic,c)+'<span><b>'+esc(t)+'</b><small>'+esc(x)+'</small></span></div>').join('')+'</div>'+
+    '<div class="vd-body"><div class="gk-tips">'+tipsList().map(([ic,c,t,x])=>'<div class="gk-tip">'+ico(ic,c)+'<span><b>'+esc(t)+'</b><small>'+esc(x)+'</small></span></div>').join('')+'</div>'+
     '<div class="actions"><button type="button" class="btn" id="tips-ok">Got it</button></div></div>';
   $('vd-x').onclick=()=>d.close();$('tips-ok').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
 // Once: on a visit after the first (the first is for brewing), after a few minutes, when nothing else is open.
@@ -141,7 +141,10 @@ const UNDO_PEND=new Set();
 function undoToast(msg,undo,commit){const job={done:false,commit};const fin=()=>{if(job.done)return;job.done=true;UNDO_PEND.delete(job);try{commit&&commit()}catch(e){}};
   UNDO_PEND.add(job);const t=setTimeout(fin,6500);
   toastAct(msg,'Undo',()=>{if(job.done)return;job.done=true;clearTimeout(t);UNDO_PEND.delete(job);undo()})}
-addEventListener('pagehide',()=>{for(const j of [...UNDO_PEND]){j.done=true;try{j.commit&&j.commit()}catch(e){}}UNDO_PEND.clear()});
+// Leaving finishes them too: the page closing, or (in the Android app, which can be stopped while in the background
+// without the page ever closing) the app going to the background, so a delete always reaches a shared log.
+const undoFlush=()=>{for(const j of [...UNDO_PEND]){j.done=true;try{j.commit&&j.commit()}catch(e){}}UNDO_PEND.clear()};
+addEventListener('pagehide',undoFlush);document.addEventListener('visibilitychange',()=>{if(document.hidden)undoFlush()});
 // A small, quick burst of beans from the button that was tapped (a celebration, not a curtain over the content).
 function beans(n=10){if(RM())return;const el=document.activeElement,r=el&&el!==document.body?el.getBoundingClientRect():null;
   const x0=r?r.left+r.width/2:innerWidth/2,y0=r?r.top+r.height/2:innerHeight*.6;
