@@ -524,8 +524,19 @@ async function setReminder(on,t){const ln=LN();if(t)REMIND.t=t;
   if(on&&!REMIND.on){if(!ln){toast('Phone reminders work in the Android app');return false}
     try{let p=await ln.checkPermissions();if(p.display!=='granted')p=await ln.requestPermissions();if(p.display!=='granted'){toast('Allow notifications for Brew Bench in your phone’s settings first');return false}}catch(e){toast('Couldn’t turn on reminders');return false}}
   REMIND.on=on;save('bb-remind',REMIND);await scheduleReminders();if(on)toast('Your coffee of the day arrives at '+REMIND.t);return true}
-// Tapping the notification opens that coffee.
-(()=>{const ln=LN();if(!ln)return;try{ln.addListener('localNotificationActionPerformed',a=>{const id=a&&a.notification&&a.notification.extra&&a.notification.extra.bean;if(id&&beanById(id)){showTab('beans');openBean(id)}})}catch(e){}
+// Tapping a notification takes you to what it's about, whether the app was closed or in the background: the coffee of
+// the day opens that coffee (or the Beans page when the day's note has no coffee), a coffee fact opens what it's about
+// (or Today in coffee on Explore). The listener is set up as the app loads, so the tap that opened the app isn't
+// missed, and the tap is acted on once the app has finished opening (after the splash and the start page), so the
+// start page doesn't land on top of it. Older notifications already on the phone are told apart by their ids.
+(()=>{const ln=LN();if(!ln)return;let pend=null;
+  const go=n=>{const x=(n&&n.extra)||{},id=+(n&&n.id)||0;document.querySelectorAll('dialog[open]').forEach(d=>d.close());
+    if(x.bean&&beanById(x.bean)){showTab('beans');openBean(x.bean);return}
+    if(x.fact||(id>=7201&&id<7215)){if(goFact(x.fact))return;goTab('explore');setTimeout(()=>{const t=document.querySelector('#explore .today');if(t)t.scrollIntoView({block:'start',behavior:'smooth'})},400);return}
+    if(id>=7101&&id<7115||x.bean)showTab('beans')};
+  const ready=()=>NAV_READY&&!document.documentElement.classList.contains('splashing');
+  const run=()=>{if(!pend)return;if(!ready()){setTimeout(run,150);return}const n=pend;pend=null;try{go(n)}catch(e){}};
+  try{ln.addListener('localNotificationActionPerformed',a=>{pend=a&&a.notification;run()})}catch(e){}
   if(REMIND.on)setTimeout(scheduleReminders,3000)})();
 function cabinetDayHTML(){const c=cabinetDay();if(!c)return '';
   return '<button type="button" class="cday k-'+c.k+'" data-bean="'+c.b.id+'">'+beanPic(c.b,'cd')+'<span class="cd-tx"><small>'+(c.k==='fav'?'From your cabinet':'From your cabinet · '+DAYK[c.k])+'</small><b>'+esc(c.title)+'</b><span>'+esc(c.text)+'</span></span></button>'}
