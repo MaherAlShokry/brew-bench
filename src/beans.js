@@ -1070,7 +1070,7 @@ function shelfDoc(){const sh=shelfOrder();
 function galleryOrder(){const r=b=>(b.roaster||'').trim();return [...BEANS].sort((a,b)=>(!r(a))-(!r(b))||r(a).localeCompare(r(b),undefined,{sensitivity:'base'})||beanDay(b).localeCompare(beanDay(a))||(b.ts||0)-(a.ts||0))}
 function galleryDoc(){const all=galleryOrder();
   return{title:'My coffee gallery',sub:all.length+' coffee'+(all.length===1?'':'s'),file:'coffee-gallery',heavy:all.length>16,
-    card:()=>galleryCardImg(),cardTheme:()=>originTheme(all[0]&&all[0].origin),cardName:'coffee-gallery',cardTitle:'Gallery card',cardSub:'Every coffee you’ve collected, by roastery, hung like prints on a wall: each with its photo, origin and your rating, the top 5s marked.',
+    card:()=>galleryCardImg(),pdfCard:all.length>120?()=>galleryCardImg(true):null,cardTheme:()=>originTheme(all[0]&&all[0].origin),cardName:'coffee-gallery',cardTitle:'Gallery card',cardSub:'Every coffee you’ve collected, by roastery, hung like prints on a wall: each with its photo, origin and your rating, the top 5s marked.',
     blocks:[{h:'My coffees',list:all.map(b=>beanTitle(b)+([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).length?' ('+[b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(', ')+')':'')+(b.rating?' · '+b.rating+' of 5':''))}]}}
 
 // Brewing a gallery coffee: the dial-in takes its process, variety, roast and age, and remembers which coffee it is.

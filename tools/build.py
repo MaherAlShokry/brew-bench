@@ -17,7 +17,7 @@ Usage: python3 tools/build.py [--artifact | --app] [--site DIR] [--site-url URL]
                forwards to the new address and carries saved data across, plus
                the files older apps and the Play listing still fetch there
 """
-import json, sys, shutil, pathlib
+import json, re, sys, shutil, pathlib
 
 root = pathlib.Path(__file__).resolve().parent.parent
 src = root / 'src'
@@ -92,6 +92,9 @@ else:
     target = root / 'index.html'
 target.parent.mkdir(parents=True, exist_ok=True)
 out = address(out)
+# The styles' comments are for whoever edits template.html; the app doesn't need them (about 20 KB). Only comments in
+# <style> blocks are taken out, whole, so no rule or string is touched.
+out = re.sub(r'(<style[^>]*>)(.*?)(</style>)', lambda m: m.group(1) + re.sub(r'/\*.*?\*/', '', m.group(2), flags=re.S) + m.group(3), out, flags=re.S)
 if not artifact and not app:
     # The website's build stamp: the page compares it with the copy its service worker has saved, to offer a reload.
     import hashlib

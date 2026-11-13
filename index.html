@@ -19,7 +19,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
 <style>
 :root{
-  /* Safe areas: the browser's env() values, or the ones the Android app injects, whichever is larger. */
+  
   --sa-top:max(env(safe-area-inset-top,0px),var(--safe-area-inset-top,0px));
   --sa-bottom:max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px));
   --paper:#FBF7F0; --surface:#FFFDF9; --surface2:#F3EADC; --ink:#3B2A20; --muted:#7A6656;
@@ -27,7 +27,7 @@
   --cherry-ink:#6E4328; --leaf-ink:#4B6B34; --honey-ink:#8A621F;
   --ocean:#EDF2EA; --land:#E8DCC9; --belt:rgba(201,150,74,.10);
   --shadow:0 1px 0 rgba(92,64,40,.04),0 8px 24px rgba(92,64,40,.07);
-  /* San Francisco on Apple devices, Inter (bundled, very close to it) everywhere else. */
+  
   --display:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter",system-ui,"Segoe UI",Roboto,"Noto Color Emoji",sans-serif;
   --body:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter",system-ui,"Segoe UI",Roboto,"Noto Color Emoji",sans-serif;
   box-sizing:border-box;
@@ -70,15 +70,14 @@ nav.tabs{position:sticky;top:var(--sa-top);z-index:5;background:color-mix(in srg
 nav.tabs .wrap{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
 .tab{background:none;border:0;padding:14px 11px;font-size:.96rem;color:var(--muted);cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent}
 .tab[aria-selected="true"]{color:var(--cherry);border-bottom-color:var(--cherry);font-weight:600}
-/* Pages you've left stay laid out but aren't drawn (content-visibility keeps their layout), so coming back to one is
-   immediate instead of laying it all out again. Only the page on screen takes room. */
+
 main section{display:block;content-visibility:hidden;height:0;overflow:hidden;padding:0!important}
 main section.on{content-visibility:visible;height:auto;overflow:visible;padding:22px 0 64px!important}
 button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
 .lede{color:var(--muted);margin-bottom:1.2rem}
 .hint{font-family:var(--body);font-weight:400;color:var(--muted);font-size:.84rem}
 
-/* shared controls */
+
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:var(--shadow)}
 .field{margin:0 0 16px}
 .field>label,.field>.lbl{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:.92rem;font-weight:600;margin-bottom:6px}
@@ -86,7 +85,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visi
 .seg{display:flex;flex-wrap:wrap;gap:6px}
 .seg button{flex:1 1 auto;padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-size:.9rem;cursor:pointer}
 .seg.filters button{flex:0 0 auto}
-/* Long filter rows scroll sideways on one line instead of wrapping into a tall block. */
+
 .seg.scrollrow{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin-left:-4px;margin-right:-4px;padding:4px 28px 4px 4px;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}
 .seg.scrollrow::-webkit-scrollbar{display:none}
 .seg button[aria-pressed="true"]{background:var(--cherry);color:var(--surface);border-color:var(--cherry)}
@@ -128,7 +127,7 @@ table.ref td{border-bottom:1px solid var(--line);padding:8px;vertical-align:top}
 ol.steps{padding-left:1.2rem;margin:.4rem 0}
 ol.steps li{margin:.2rem 0}
 
-/* dial-in */
+
 .bench{display:grid;grid-template-columns:1fr;gap:22px}
 @media (min-width:880px){.bench{grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);align-items:start}}
 .stick{position:sticky;top:70px}
@@ -152,11 +151,11 @@ details.cal summary{cursor:pointer;font-weight:600}
 .caltable input{width:78px;padding:6px}
 .disclaim{font-size:.82rem;color:var(--muted);margin-top:12px}
 
-/* map */
+
 .atlas{display:grid;grid-template-columns:1fr;gap:18px}
 @media (min-width:960px){.atlas{grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);align-items:start}}
 .mapbox{background:var(--ocean);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);overflow:hidden;position:relative}
-/* dial */
+
 .dialrow{display:flex;gap:12px;align-items:center;margin-top:6px}
 .dialmini{width:92px;height:92px;flex:none}
 .dialbig{width:170px;height:170px;display:block;margin:6px auto}
@@ -187,7 +186,7 @@ details.cal summary{cursor:pointer;font-weight:600}
 .vbtn i{width:9px;height:9px;border-radius:50%}
 .vbtn:hover{border-color:var(--ink)}
 
-/* varieties */
+
 
 .vcard{text-align:left;cursor:pointer;border-top:5px solid var(--c);font:inherit;color:inherit}
 .vcard:hover{border-color:var(--ink);border-top-color:var(--c)}
@@ -204,7 +203,7 @@ dialog#vd::backdrop{background:rgba(20,14,10,.55)}
 .sub summary{cursor:pointer;font-weight:600}
 .sub p{margin:.4rem 0}
 
-/* history */
+
 .treebox{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
 .treewrap{position:relative}
 .treewrap::before,.treewrap::after{content:"";position:absolute;top:1px;bottom:1px;width:28px;z-index:1;pointer-events:none;transition:opacity .2s}
@@ -233,7 +232,7 @@ dialog#vd::backdrop{background:rgba(20,14,10,.55)}
 #tree .tmark text{font:700 10.5px var(--body);text-anchor:middle;fill:var(--cherry-ink,var(--cherry))}
 #tree .tmark{cursor:pointer}
 .treenotes li.flash{animation:tn-flash 1.4s ease}@keyframes tn-flash{0%,40%{background:color-mix(in srgb,var(--cherry) 16%,transparent)}100%{background:transparent}}.treenotes li{border-radius:10px;padding:4px 6px;margin:-4px -6px}
-/* The tree's notes, numbered to match their markers. */
+
 .treenotes{list-style:none;margin:10px 0 0;padding:12px 14px;display:grid;gap:8px;border-radius:var(--r-md);background:var(--surface);border:1px solid var(--line)}
 .treenotes[hidden]{display:none}.treenotes li{display:flex;gap:10px;align-items:flex-start;font-size:.86rem;line-height:1.45;color:var(--muted)}
 .treenotes .tn-k{flex:none;width:20px;height:20px;margin-top:.05em;border-radius:50%;display:grid;place-items:center;font-size:.7rem;font-weight:700;background:color-mix(in srgb,var(--cherry) 14%,var(--surface));color:var(--cherry-ink,var(--cherry))}
@@ -280,8 +279,7 @@ dialog#vd::backdrop{background:rgba(20,14,10,.55)}
 .twocol{display:grid;gap:26px;grid-template-columns:1fr}
 @media (min-width:960px){.twocol{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}}
 
-/* brew plan (Scan) */
-.plan-out h2{margin-bottom:.2rem}
+
 .specs{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin:12px 0}
 .specs div{background:var(--paper);border-radius:10px;padding:10px}
 .specs b{display:block;font-family:var(--display);font-size:.76rem;color:var(--muted);font-weight:600}
@@ -289,7 +287,7 @@ dialog#vd::backdrop{background:rgba(20,14,10,.55)}
 .specs small{display:block;font-size:.78rem;color:var(--muted)}
 .why li{margin:.25rem 0}
 
-/* log */
+
 .logform{display:grid;gap:10px;grid-template-columns:1fr 1fr}
 .logform .full{grid-column:1/-1}
 .logform.re2{display:flex;grid-template-columns:none;gap:12px;margin-bottom:12px}.logform.re2 .re-card{padding-bottom:12px}.logform.re2 .field:last-child{margin-bottom:0}
@@ -297,7 +295,7 @@ dialog#vd::backdrop{background:rgba(20,14,10,.55)}
 .logentry{border-bottom:1px solid var(--line);padding:12px 0}
 .logentry .x{background:none;border:0;color:var(--muted);cursor:pointer;font-family:var(--display);font-size:.8rem;padding:4px 6px;min-height:32px}
 
-/* alive */
+
 .card,.vbtn,.chip,.btn{transition:transform .18s ease,box-shadow .18s ease,background .18s ease,border-color .18s ease}
 .vcard:hover,.hovercard:hover{transform:translateY(-3px)}
 .btn:active{transform:scale(.97)}
@@ -306,7 +304,7 @@ button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.a
 #ts-chips .chip[aria-pressed="true"]{background:var(--cherry);color:var(--surface)}
 #toast{position:fixed;left:50%;bottom:calc(var(--sa-bottom) + 22px);transform:translate(-50%,30px);opacity:0;background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:999px;font-family:var(--display);font-size:.92rem;z-index:50;pointer-events:none;transition:opacity .25s,transform .25s;max-width:90vw;text-align:center}
 #toast.show{opacity:1;transform:translate(-50%,0)}
-/* A long message wraps as a rounded card under a fixed width, never a circle. */
+
 #toast{width:max-content;max-width:min(92vw,440px);text-align:center;line-height:1.4}
 #toast:not(:empty){border-radius:22px}
 .bean-fx{position:fixed;z-index:60;pointer-events:none;will-change:transform,opacity}
@@ -318,7 +316,7 @@ button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.a
 .dateinp{width:100%;padding:9px 10px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:12px;font-family:var(--body)}
 .scanning{position:relative;overflow:hidden}
 .scanning::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(var(--honey),var(--honey)) 0 0/100% 3px no-repeat,linear-gradient(color-mix(in srgb,var(--honey) 35%,transparent),transparent) 0 3px/100% 12px no-repeat;animation:scanline 1.4s ease-in-out infinite alternate;will-change:transform}
-/* The line sweeps by moving the whole layer (transform), so the page isn't laid out again on every frame. */
+
 @keyframes scanline{from{transform:translateY(0)}to{transform:translateY(calc(100% - 3px))}}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.93rem;margin:10px 0}
 .kv dt{font-family:var(--display);color:var(--muted);font-weight:600}
@@ -343,7 +341,7 @@ button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.a
 .roastery .ri{flex:none;width:40px;height:40px;border-radius:12px;background:var(--cherry);color:var(--surface);display:grid;place-items:center}.roastery .ri svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .roastery small{display:block;color:var(--muted);font-size:.78rem}.roastery b{display:block;font-family:var(--display);font-size:1.05rem}
 .scan-sub{margin:-.1rem 0 .4rem;color:var(--muted)}
-/* Brew timer */
+
 .tm2{display:flex;flex-direction:column;gap:14px;padding:calc(var(--sa-top) + 14px) 18px calc(var(--sa-bottom) + 18px);min-height:100%}
 .tm-top{display:flex;align-items:flex-start;gap:12px}
 .tm-head{flex:1;min-width:0}.tm-head h2{margin:2px 0 6px;font-size:1.25rem;line-height:1.25}
@@ -370,7 +368,7 @@ button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.a
 .tm-next{display:flex;flex-direction:column;gap:2px;font-size:.88rem;color:var(--muted)}.tm-next b{color:var(--ink);font-variant-numeric:tabular-nums}.tm-nx{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tm-bag{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:2px 0 8px;font-size:.86rem;color:var(--muted)}.tm-bag b{color:var(--ink)}
 .tm-done{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}.tm-done .btn{flex:1 1 auto}
-/* The last step: a clear way to end early. The end: a thank-you with the brew time. */
+
 .tm-last{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.tm-last .btn{padding:10px 18px;min-height:44px}
 .tm-now.fin{text-align:center;background:color-mix(in srgb,var(--honey) 12%,var(--surface2))}.tm-now.fin .tm-bar{display:none}
 .tm-now.fin .tm-text{display:flex;flex-direction:column;align-items:center;gap:6px}
@@ -379,9 +377,9 @@ button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.a
 .tm-thank{font-size:1.35rem;font-weight:800;color:var(--ink);letter-spacing:-.01em}.tm-thsub{color:var(--muted);font-size:.95rem;line-height:1.45}
 .tm-time{font-size:.85rem;color:var(--muted)}.tm-time b{color:var(--ink);font-variant-numeric:tabular-nums}
 .tm-now.fin .tm-done{justify-content:center}
-/* The finish tick is a line, not a filled shape. */
+
 #tm-skip[data-last="true"] svg{fill:none;stroke-width:2.6}
-/* The drawdown answers wrap to two rows on a phone rather than cutting their words. */
+
 #tm-in .tm-dseg{flex-wrap:wrap}#tm-in .tm-dseg button{flex:1 1 28%;white-space:nowrap;text-overflow:clip;overflow:visible}
 .tm-draw{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);color:var(--ink)}
 .tm-dq{margin:0 0 8px;font-weight:600;font-size:.92rem}.tm-dq small{display:block;font-weight:400;color:var(--muted);font-size:.8rem}
@@ -397,7 +395,7 @@ button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.a
 #tm-list li b.est{color:var(--muted)}
 #tm-list li.cur{background:color-mix(in srgb,var(--cherry) 12%,var(--surface));color:var(--ink);font-weight:600}#tm-list li.done{opacity:.55;text-decoration:line-through}
 @media (max-width:759px){html dialog#timer{margin:0;width:100%;max-width:100%;height:100%;max-height:100%;border-radius:0;border:0}}
-/* Recipes home: quick links and cup types */
+
 .rhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 0 10px}.rhead .rh{margin:0}.rhead .btn{flex:none;padding:8px 14px;font-size:.88rem}
 .rsteps{margin:.2rem 0 .4rem}.rsteps summary{cursor:pointer;font-weight:600;color:var(--cherry);padding:4px 0}.rsteps[open] summary{margin-bottom:.2rem}
 .rh{margin:22px 0 10px;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-family:var(--body);font-weight:700}
@@ -427,8 +425,7 @@ button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.a
 #rgrid>.card{position:relative}#rgrid>.card>h3,#rgrid>.card>h3+.hint{padding-right:44px}
 
 .vd-head .favbtn{top:14px;right:62px}
-.rfchip{display:inline-flex;align-items:center;gap:8px}
-/* In-app camera */
+
 dialog#vd.camdlg{background:#000;color:#fff;padding:0;max-height:100vh;height:100%;max-width:100%;width:100%;margin:0;border-radius:0;border:0}
 @media (min-width:760px){dialog#vd.camdlg{max-width:520px;height:auto;max-height:92vh;margin:auto;border-radius:24px}}
 dialog#vd.camdlg #vd-in{height:100%}
@@ -445,7 +442,7 @@ dialog#vd.camdlg #vd-in{height:100%}
 .cam-shutter{width:74px;height:74px;border-radius:50%;border:5px solid #fff;background:#fff;box-shadow:inset 0 0 0 4px #000;cursor:pointer;transition:transform .1s}.cam-shutter:active{transform:scale(.92)}.cam-shutter:disabled{opacity:.4}
 .cam-side{width:48px;height:48px;border-radius:50%;border:0;background:rgba(255,255,255,.16);color:#fff;font-size:1.1rem;display:grid;place-items:center;cursor:pointer}
 .ts-range{display:block;margin-top:8px;font-size:.86rem;color:var(--muted)}
-/* Coffee words */
+
 .wgroup{margin:0 0 22px}.wgroup>h3{display:flex;align-items:center;gap:8px;margin:0 0 10px}.wgroup>h3 i{width:12px;height:12px;border-radius:3px;display:inline-block;background:var(--c)}
 .wgrid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
 .wcard{text-align:left;font:inherit;color:inherit;cursor:pointer;border-left:4px solid var(--c);padding:14px 16px;display:block;width:100%}
@@ -457,7 +454,7 @@ dialog#vd.camdlg #vd-in{height:100%}
 .wlinks .chip{font-size:.8rem}.wlinks .chip.p{background:color-mix(in srgb,var(--honey) 22%,var(--surface))}.wlinks .chip.v{background:color-mix(in srgb,var(--leaf) 20%,var(--surface))}
 .wempty{padding:20px 0}
 mark.wq{background:color-mix(in srgb,var(--honey) 40%,transparent);color:inherit;border-radius:3px;padding:0 1px}
-/* From seed to cup */
+
 .flowlegend{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
 .flow{--gap:34px;max-width:760px;margin:0 auto;position:relative}
 .fphase{position:relative;border-radius:20px;padding:34px 14px 14px;margin:0 0 var(--gap);background:color-mix(in srgb,var(--c) 7%,var(--surface));border:1px solid color-mix(in srgb,var(--c) 28%,var(--line))}
@@ -466,8 +463,7 @@ mark.wq{background:color-mix(in srgb,var(--honey) 40%,transparent);color:inherit
 .fsteps{display:grid;gap:26px}
 .fstep{position:relative;display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 14px;cursor:pointer;box-shadow:var(--shadow);transition:transform .15s ease,border-color .15s ease}
 .fstep:hover{transform:translateY(-2px);border-color:var(--c)}
-/* The arrow between steps: a stem from just below the step above to the head, and a head that stops just short of the
-   next step, both on the same centre line. */
+
 .fstep+.fstep::before,.fbranch+.fstep::before,.fstep+.fbranch::before{content:"";position:absolute;left:calc(50% - 1px);top:-22px;width:2px;height:11px;border-radius:1px;background:var(--c)}
 .fstep+.fstep::after,.fbranch+.fstep::after{content:"";position:absolute;left:calc(50% - 5px);top:-11px;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid var(--c)}
 .fstep .fico{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--c)}
@@ -476,7 +472,7 @@ mark.wq{background:color-mix(in srgb,var(--honey) 40%,transparent);color:inherit
 .fstep .fn{margin-left:auto;flex:none;font-size:.75rem;font-weight:700;color:var(--muted);background:var(--surface2);border-radius:999px;padding:2px 8px}
 .fstep.side{border-style:dashed;background:transparent;box-shadow:none}
 .fstep.key{border-width:2px;border-color:var(--c)}
-/* Phones: the paths hang off a rail on the left, one per line. Wide screens: five across under a bar. */
+
 .fbranch{position:relative;display:grid;gap:8px;grid-template-columns:1fr;padding:2px 0 2px 26px}
 .fbranch::after{content:"";position:absolute;left:10px;top:-18px;bottom:28px;border-left:2px solid var(--c)}
 .fstep+.fbranch::before{display:none}
@@ -487,7 +483,7 @@ mark.wq{background:color-mix(in srgb,var(--honey) 40%,transparent);color:inherit
   .fbr::before{left:50%;top:-9px;width:0;height:8px;border-top:0;border-left:2px solid var(--c)}}
 .flowd .fbranch{padding-left:0}.flowd .fbranch::after,.flowd .fbr::before{display:none}
 .fbr .fbr-list{display:block;font-size:.76rem;line-height:1.35;color:var(--muted);margin-top:6px}
-/* "Explore 4 processes" with a drawn chevron on the middle of the text; it turns over when the list is open. */
+
 .fbr .fbr-more{display:inline-flex;align-items:center;gap:7px;font-size:.76rem;font-weight:700;color:var(--ink);margin-top:6px}
 .fbr .fbr-more::after{content:"";width:6px;height:6px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-2px) rotate(45deg);transition:transform .2s}
 .fbr[aria-expanded="true"] .fbr-more::after{transform:translateY(2px) rotate(-135deg)}
@@ -548,7 +544,7 @@ dialog#timer::backdrop{background:rgba(30,20,14,.6)}
 .mapname.show{opacity:1}
 
 
-/* ===== app shell ===== */
+
 .appbar{display:none}
 .bottomnav{display:none}
 .minires{display:none}
@@ -570,7 +566,7 @@ dialog#navsheet::backdrop,dialog#sharesheet::backdrop{background:rgba(30,20,14,.
   .ab-brand{flex:1;min-width:0;display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:800;font-size:1.15rem;color:var(--ink)}
 #ab-title{flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;line-height:1.2}
 #ab-share svg{display:none;width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
-/* On a narrow phone Share is its icon, so the page title has room. */
+
 @media (max-width:379px){#ab-share:not([hidden]){width:40px;height:40px;padding:0;display:grid;place-items:center}#ab-share svg{display:block}#ab-share span{display:none}}
   .ab-btn{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-family:var(--display);font-size:.88rem;color:var(--cherry);cursor:pointer}
   .herowrap{display:none}
@@ -597,14 +593,13 @@ dialog#navsheet::backdrop,dialog#sharesheet::backdrop{background:rgba(30,20,14,.
   .gauge.mini{flex:1;margin:0;height:8px}
   .gauge.mini i{height:18px;top:-5px}
   select,input[type=search],input[type=number],textarea,.dateinp{min-height:46px;font-size:16px}
-  /* Every field a finger types into is at least 16px, so the phone never zooms the page in on it. */
+  
   input[type=text],input[type=email],input[type=password],input:not([type]),input[type=time],.logform input,#rsort{font-size:16px}
   .seg button{min-height:42px;font-size:.92rem}
   input[type=range]{height:40px}
   .btn{min-height:46px;padding:10px 18px;flex:1 1 auto}
   .actions{gap:8px}
   .grid{grid-template-columns:1fr}
-  .tab-scroll{overflow-x:auto}
   dialog#vd,dialog#timer,dialog#navsheet,dialog#sharesheet{margin:auto 0 0;width:100%;max-width:100%;border-radius:24px 24px 0 0;max-height:90vh}
   #toast{bottom:calc(var(--sa-bottom) + 86px)}
   .mapbar button{flex:1 1 45%}
@@ -616,7 +611,7 @@ dialog#navsheet::backdrop,dialog#sharesheet::backdrop{background:rgba(30,20,14,.
 
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
-/* ================= MODERN REFRESH ================= */
+
 body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-feature-settings:"cv11","ss01";letter-spacing:-.006em}
 h1{letter-spacing:-.035em;font-weight:800}
 h2{letter-spacing:-.022em;font-weight:700}
@@ -638,28 +633,27 @@ select,input[type=search],input[type=number],input[type=date],input[type=email],
 select:focus-visible,input:focus-visible,textarea:focus-visible{outline:none;border-color:var(--cherry);box-shadow:0 0 0 3px color-mix(in srgb,var(--cherry) 22%,transparent)}
 button:focus-visible,.tab:focus-visible,[role=button]:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
 
-/* Desktop: the section tabs float as a pill under the header. */
+
 nav.tabs{background:none;border:0;backdrop-filter:none;-webkit-backdrop-filter:none;top:calc(var(--sa-top) + 10px);pointer-events:none;padding:10px 0}
 nav.tabs .wrap{pointer-events:auto;width:fit-content;max-width:calc(100% - 24px);gap:2px;padding:5px;border-radius:999px;background:var(--nav-bg);backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4);border:1px solid color-mix(in srgb,var(--line) 70%,transparent);box-shadow:var(--float)}
 .tab{border:0;border-radius:999px;padding:8px 14px;font-size:.92rem;transition:background .2s,color .2s}
 .tab:hover{color:var(--ink);background:color-mix(in srgb,var(--surface2) 70%,transparent)}
 .tab[aria-selected="true"]{background:var(--cherry);color:var(--surface);border:0}
 
-/* Share sheet: a row of round app buttons, like the iPhone share sheet. */
+
 .sharerow{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin:16px -6px 6px;padding-bottom:14px;border-bottom:1px solid var(--line)}
 .sharerow button{background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:7px;padding:4px 0;font-family:var(--display);font-size:.74rem;color:var(--ink);cursor:pointer}
 .sharerow .app{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;box-shadow:0 4px 12px -6px rgba(0,0,0,.35);transition:transform .15s}
 .sharerow button:active .app{transform:scale(.92)}
 .sharerow svg{width:26px;height:26px;fill:none;stroke:#fff;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 button,a,.tab,.chip,[role=button]{touch-action:manipulation}
-/* On touch screens a slider moves only when you grab its thumb and drag sideways; a swipe that starts on
-   the track, or goes up and down, scrolls the page instead of changing the setting. */
+
 input[type=range]{touch-action:pan-y}
 @media (pointer:coarse){input[type=range]{pointer-events:none}input[type=range]::-webkit-slider-thumb{pointer-events:auto}input[type=range]::-moz-range-thumb{pointer-events:auto}}
-/* Long lists: the browser skips layout and paint for cards that are off screen. */
+
 #rgrid>.card,#pgrid>.card,#tgrid>.card,#vgrid>.card,#gear-brewers>.card,#people>.card{content-visibility:auto;contain-intrinsic-block-size:auto 420px}
 @media (max-width:759px){.appbar,nav.tabs .wrap{backdrop-filter:none;-webkit-backdrop-filter:none}.appbar{background:var(--paper)}}
-/* Grinders: cards, match tool, library, comparison, custom form */
+
 .ghead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
 .gspec{margin-top:8px}.gspec summary{cursor:pointer;font-family:var(--display);font-weight:600;color:var(--cherry);font-size:.9rem;padding:4px 0}.gspec .spec{margin-top:6px}
 .mgroup{margin-top:10px}.mgroup h4{margin:0 0 6px;font-family:var(--display);font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
@@ -681,7 +675,6 @@ input[type=range]{touch-action:pan-y}
 .mswap .field{margin-bottom:0}.gpick-btn.mswapbtn{width:46px;height:46px;margin:0}.mswap+.field{margin-top:14px}
 @media (max-width:560px){.mswap{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"from swap" "to swap";row-gap:10px;align-items:center}.mswap>.field:first-child{grid-area:from}.mswap>.field:last-child{grid-area:to}.mswap>.mswapbtn{grid-area:swap;transform:rotate(90deg)}}
 .mrow.mine{background:color-mix(in srgb,var(--cherry) 12%,var(--surface))}
-.libhead{font-family:var(--display);margin:18px 0 10px;font-size:1rem}
 .gi{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:7px;background:var(--gc,var(--surface2));color:#fff;flex:none}.gi svg{width:17px;height:17px}
 .gpick button span.gi{flex:none;width:34px;height:34px;border-radius:10px}.gpick button span.gi svg{width:22px;height:22px}
 .gi.manual{--gc:#8A5A3B}.gi.electric{--gc:#4F8A74}.gi.custom{--gc:#9A7390}
@@ -699,20 +692,18 @@ input[type=range]{touch-action:pan-y}
 .cform input,.cform select{width:100%;min-width:0;box-sizing:border-box}.cform .two>*{min-width:0}
 .cform .joinrow .selw{flex:0 0 42%;width:42%}.cform .joinrow .selw>select{width:100%;flex:none}.cform .joinrow select{flex:0 0 42%;width:42%}.cform .joinrow input{flex:1;text-transform:none;letter-spacing:normal;font-family:inherit}
 @media (max-width:560px){.cform .stackm,.panel .stackm{grid-template-columns:1fr;gap:0}}
-/* Recipe editor and your recipes */
+
 .recform input:not([type=range]),.recform select,.recform textarea{width:100%}
 .recform .three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.recform .three input{min-width:0}
-/* ================= THE ANDROID APP ================= */
-/* Android's WebView redraws frosted glass (backdrop-filter) on every frame anything scrolls or moves beneath it, and
-   blend modes force extra passes: smooth in Chrome, the lag you feel in the app. In the app the glass is solid. */
+
+
 html.app{--nav-bg:color-mix(in srgb,var(--surface) 97%,transparent);--glass:color-mix(in srgb,var(--surface) 96%,transparent)}
 html.app .appbar,html.app .bottomnav,html.app .minires,html.app nav.tabs,html.app nav.tabs .wrap,html.app #toast,html.app .themebtn,html.app .bglass,html.app dialog::backdrop{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 html.app .appbar{background:color-mix(in srgb,var(--paper) 97%,transparent)}html.app #toast{background:color-mix(in srgb,var(--ink) 96%,transparent)}html.app .bglass{background:rgba(30,18,11,.78)}
 html.app .bg-hero::after,html.app .me-hero::after,html.app .pp-st img{mix-blend-mode:normal}
-/* The kettle's pour and the steam on the Dial-in drawing, and the steam over the profile, play a few times and rest,
-   rather than redrawing for as long as they're on screen. */
-/* Decorations play a few times, then rest (website and app): an endless loop keeps the screen repainting. */.hero-art .stream{animation-iteration-count:4}.hero-art .steam,.me-steam path{animation-iteration-count:2}.deco-rest .hero-art .stream,.deco-rest .hero-art .steam,.deco-rest .me-steam path{animation:none}html.app .bg-hero::after,html.app .me-hero::after{opacity:.06}
-/* ================= OPENING SCENE ================= */
+
+.hero-art .stream{animation-iteration-count:4}.hero-art .steam,.me-steam path{animation-iteration-count:2}.deco-rest .hero-art .stream,.deco-rest .hero-art .steam,.deco-rest .me-steam path{animation:none}html.app .bg-hero::after,html.app .me-hero::after{opacity:.06}
+
 #splash{display:none}
 .splashing #splash{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;overflow:hidden;background:var(--paper);color:var(--ink);touch-action:none}
 .splashing body{overflow:hidden}
@@ -764,7 +755,7 @@ html.app .bg-hero::after,html.app .me-hero::after,html.app .pp-st img{mix-blend-
 @keyframes sp-stream{to{stroke-dashoffset:0}}@keyframes sp-gone{to{opacity:0}}
 .sp-logo .puff{opacity:0;transform-box:fill-box;transform-origin:center;animation:sp-puff 1s var(--d) ease-out infinite}
 @keyframes sp-puff{0%{opacity:.85;transform:translate(0,0) scale(.4)}100%{opacity:0;transform:translate(-1.2px,-6px) scale(1.9)}}
-/* The Bench's own ending: a warmer glow, and a plank-coloured line draws itself under the name like a bench top's edge. */
+
 :is(.sp-bench,.sp-benchtop) .sp-glow{background:radial-gradient(46% 34% at 50% 44%,color-mix(in srgb,var(--cherry) 26%,color-mix(in srgb,var(--honey) 30%,transparent)),transparent 72%)}
 :is(.sp-bench,.sp-benchtop) .sp-word b{position:relative;padding-bottom:6px}
 :is(.sp-bench,.sp-benchtop) .sp-word b::after{content:"";position:absolute;left:4%;right:4%;bottom:0;height:5px;border-radius:3px;background:linear-gradient(90deg,var(--cherry),var(--honey));transform:scaleX(0);transform-origin:left;animation:bn-plank .6s 1.15s cubic-bezier(.3,1,.4,1) forwards}
@@ -772,7 +763,7 @@ html.app .bg-hero::after,html.app .me-hero::after,html.app .pp-st img{mix-blend-
 :is(.k-bench,.k-benchtop) .bn-legs{transform-box:fill-box;transform-origin:50% 100%;animation:bn-legs .45s .1s cubic-bezier(.3,1.4,.5,1) both}@keyframes bn-legs{from{transform:scaleY(0);opacity:0}}
 :is(.k-bench,.k-benchtop) .bn-top{animation:bn-top .42s .38s cubic-bezier(.45,0,.6,1.5) both}@keyframes bn-top{from{transform:translateY(-12px);opacity:0}}
 .k-bench .bn-drip{animation:bn-land .5s .72s cubic-bezier(.3,1.5,.5,1) both}.k-bench .bn-mug{animation:bn-land .5s .88s cubic-bezier(.3,1.5,.5,1) both}
-/* A single bean rolls in last and settles between the server and the mug. */
+
 .k-bench .bn-bean{transform-box:fill-box;transform-origin:50% 50%;animation:bn-roll .55s 1.02s cubic-bezier(.3,1.3,.5,1) both}@keyframes bn-roll{from{transform:translateX(5px) rotate(200deg);opacity:0}}
 @keyframes bn-land{from{transform:translateY(-10px);opacity:0}}
 .k-benchtop .bt-bean{transform-box:fill-box;transform-origin:50% 50%;animation:bn-roll .55s var(--d) cubic-bezier(.3,1.3,.5,1) both}
@@ -791,17 +782,17 @@ html.app .bg-hero::after,html.app .me-hero::after,html.app .pp-st img{mix-blend-
 @keyframes sp-up{from{transform:translateY(110%);opacity:0}}
 .sp-tag{margin:8px 0 0;font-size:.95rem;color:var(--muted);animation:sp-fade .6s 1s ease-out both}
 @keyframes sp-fade{from{opacity:0;transform:translateY(6px)}}
-/* The brew log form: the coffee you brewed as a card, words with the stars, and the bag's notes beside what you tasted. */
+
 .sh-me{display:flex;align-items:center;gap:10px;margin:2px 0 12px;font-size:.9rem;color:var(--muted)}.sh-me b{color:var(--ink)}
 .sh-you{display:flex;align-items:center;gap:8px}
-/* The settings line can be long: the box grows to show all of it. */
-/* How you brewed it: two pickers, four number tiles, the ratio as a scale, and a line for anything else. */
+
+
 .ls-pick{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:8px}@media (min-width:560px){.ls-pick{grid-template-columns:1fr 1fr}}
 .ls-sel{position:relative;display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:10px;align-items:center;padding:10px 12px;border-radius:var(--r-md);background:var(--surface2);cursor:pointer;min-width:0}
 .ls-sel .ls-ic{grid-row:span 2}.ls-sel b{font:650 .92rem/1.25 var(--display);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ls-sel select{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;font-size:16px}
 .ls-sel:focus-within{box-shadow:0 0 0 2px var(--cherry)}
-/* The app wraps every select with its own chevron; here the whole tile is the control, so that wrapper steps aside. */
+
 .ls-sel .selw,.ls-gsel .selw{display:contents}.ls-sel .selw::after,.ls-gsel .selw::after{display:none}
 .ls-sel{grid-template-columns:auto 1fr auto}.ls-chev{grid-row:1/3;grid-column:3;width:16px;height:16px;fill:none;stroke:var(--muted);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .ls-ic{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--surface);color:var(--cherry);flex:none}
@@ -834,8 +825,7 @@ html.app .bg-hero::after,html.app .me-hero::after,html.app .pp-st img{mix-blend-
 .l-pickbean:active{transform:scale(.98)}
 .l-pickbean .lp-ic{flex:none;width:48px;height:48px;border-radius:12px;display:grid;place-items:center;background:var(--surface);color:var(--cherry)}
 .l-pickbean .lp-ic svg{width:28px;height:28px}
-/* The bean glyph: the body filled, the crease cut through it as a line. Without this the crease fills in and the
-   bean reads as a plain blob of colour. Places that style their own bean still win. */
+
 svg .bo{fill:currentColor}svg .bc{fill:none;stroke:var(--surface);stroke-width:1.7;stroke-linecap:round}
 .l-pickbean .lp-ic .bo{fill:color-mix(in srgb,var(--cherry) 88%,var(--honey))}
 .l-pickbean .lb-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.l-pickbean b{font:650 .98rem/1.25 var(--display);overflow-wrap:anywhere}.l-pickbean small,.l-beancard small{font-size:.8rem;font-weight:500;color:var(--muted);text-transform:none;letter-spacing:0}
@@ -849,7 +839,7 @@ svg .bo{fill:currentColor}svg .bc{fill:none;stroke:var(--surface);stroke-width:1
 .l-bag .l-match{margin:0;font-size:.82rem;color:var(--muted)}.l-bag .l-match b{color:var(--ink)}
 .l-bag .tn-c.off{opacity:.6;cursor:default}
 .l-mine .chips{margin:0 0 8px}.l-mine .chips:empty{display:none}
-/* The recipe editor: numbered cards, stepper tiles and a timeline for the steps. */
+
 .re2{display:flex;flex-direction:column;gap:14px}
 .re-card{background:var(--surface);border:1px solid color-mix(in srgb,var(--line) 80%,transparent);border-radius:20px;padding:14px 14px 4px;box-shadow:0 1px 0 color-mix(in srgb,var(--ink) 4%,transparent)}
 .re-h{display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;margin:0 0 12px;font-family:var(--display);font-size:1.02rem}
@@ -867,7 +857,7 @@ svg .bo{fill:currentColor}svg .bc{fill:none;stroke:var(--surface);stroke-width:1
 .re-pm:active{transform:scale(.9)}
 .re-ratio{text-align:center;margin:10px 0 8px;font-size:.88rem;color:var(--muted)}.re-ratio b{color:var(--cherry-ink);font-variant-numeric:tabular-nums}
 @media (max-width:340px){.re-tiles{grid-template-columns:1fr}}
-/* Step kinds share one colour each, on the rail, the chips and the chart. */
+
 .k-bloom{--k:var(--honey)}.k-pour{--k:var(--cherry)}.k-swirl,.k-stir{--k:var(--leaf)}.k-valve,.k-press{--k:color-mix(in srgb,var(--cherry) 45%,var(--ink))}
 .k-steep,.k-prep,.k-note{--k:var(--muted)}.k-end{--k:var(--leaf)}.k-ice{--k:#5B8FB0}
 .pgraph{margin:0 0 10px;padding:8px 8px 4px;border-radius:16px;background:color-mix(in srgb,var(--cherry) 4%,var(--paper))}
@@ -894,7 +884,7 @@ svg .bo{fill:currentColor}svg .bc{fill:none;stroke:var(--surface);stroke-width:1
 .se-sum{margin:6px 0 10px;font-size:.8rem;color:var(--muted)}.se-sum.warn{color:var(--honey-ink)}
 .rangeends{display:flex;justify-content:space-between;font-family:var(--display);font-size:.74rem;color:var(--muted);margin-top:-2px}
 .pill.ours{background:color-mix(in srgb,var(--cherry) 14%,var(--surface));color:var(--cherry);margin-bottom:6px}
-/* Shared log */
+
 .sharepanel h3{margin:0 0 .3rem}
 .sharehead{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .sync{font-family:var(--display);font-size:.78rem;color:var(--muted);display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
@@ -903,23 +893,21 @@ svg .bo{fill:currentColor}svg .bc{fill:none;stroke:var(--surface);stroke-width:1
 .sync[data-s="offline"]::before{background:var(--honey)}
 .code{font-family:var(--display);letter-spacing:.08em;font-variant-numeric:tabular-nums}
 .joinrow{display:flex;gap:8px}.joinrow input{flex:1;min-width:0;text-transform:uppercase;letter-spacing:.08em;font-family:var(--display)}.joinrow .btn{flex:0 0 auto}
-.lehead{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.lehead .x{margin-left:auto}
-/* Bean ratings outside the gallery: a row of small beans, filled to the rating. */
+
 .hm-ic{width:1.05em;height:1.05em;vertical-align:-.18em;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linejoin:round;stroke-linecap:round}
 .bd-addrd .dateinp{flex:1 1 100%;width:100%}
 .brate{display:inline-flex;gap:.12em;font-size:15px;vertical-align:-.15em}.brate.sm{font-size:12px;margin-left:6px}
-/* Rating a brew: five beans you tap; the one you pick pops and tips over like a bean landing. */
+
 .stars button svg{width:1em;height:1em;overflow:visible}
 .stars button svg .bo{fill:color-mix(in srgb,var(--line) 45%,var(--surface2));stroke:color-mix(in srgb,var(--cherry) 55%,var(--line));stroke-width:1.4;transition:fill .2s}
 .stars button svg .bc{fill:none;stroke:color-mix(in srgb,var(--cherry) 40%,var(--line));stroke-width:1.5;stroke-linecap:round}
 .stars button.on svg .bo{fill:var(--cherry);stroke:var(--cherry)}.stars button.on svg .bc{stroke:color-mix(in srgb,var(--surface) 75%,var(--honey))}
 .stars button.pop svg{animation:bean-pop .45s var(--ease-spring,cubic-bezier(.3,1.5,.5,1))}@keyframes bean-pop{0%{transform:scale(.6) rotate(-25deg)}60%{transform:scale(1.18) rotate(8deg)}100%{transform:none}}
 @media (prefers-reduced-motion:reduce){.stars button.pop svg{animation:none}}
-.stars-sm{color:var(--honey-ink);letter-spacing:1px;font-size:.9rem}.stars-sm span{color:color-mix(in srgb,var(--muted) 82%,var(--surface))}
-/* Open dialogs and sheets lock the page behind them. */
+
 dialog{overscroll-behavior:contain}
 dialog{overscroll-behavior:contain;overflow:auto}
-/* Dropdowns: the field shows our own arrow; the list opens in #selsheet. */
+
 .selw{display:block;position:relative;min-width:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .selw>select{width:100%;pointer-events:none;-webkit-appearance:none;appearance:none;padding-right:40px!important;text-overflow:ellipsis;cursor:pointer}
 .selw::after{content:"";position:absolute;right:15px;top:50%;width:12px;height:12px;margin-top:-6px;background:var(--muted);pointer-events:none;
@@ -961,7 +949,7 @@ dialog#selsheet.pop .selopt{min-height:40px;padding:8px 12px;font-size:.95rem}
 @media (prefers-reduced-motion:no-preference) and (max-width:759px){dialog#selsheet[open]{animation:sheet-up .4s var(--ease-sheet) both}dialog#selsheet.closing{animation:sheet-down .24s cubic-bezier(.4,0,1,1) both}}
 @media (prefers-reduced-motion:no-preference){dialog#selsheet.pop[open]{animation:pop-in .18s var(--ease-out) both;transform-origin:top center}dialog#selsheet.pop.closing{animation:dlg-out .14s ease-in both}}
 @keyframes pop-in{from{opacity:0;transform:translateY(-6px) scale(.98)}to{opacity:1;transform:none}}
-/* Flavour wheel */
+
 .fw-layout{display:grid;gap:18px;align-items:start}
 @media (min-width:900px){.fw-layout{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}.fw-side{position:sticky;top:90px}}
 #fw-q{width:100%;margin-bottom:8px}
@@ -990,8 +978,7 @@ dialog#selsheet.pop .selopt{min-height:40px;padding:8px 12px;font-size:.95rem}
 @media (hover:hover){.fwheel path[role=button]:hover{filter:brightness(1.08) saturate(1.06)}}
 @media (prefers-reduced-motion:no-preference){.fw-box .fwheel{animation:fw-in .7s var(--ease-out) both}}
 @keyframes fw-in{from{opacity:0;transform:scale(.86) rotate(-24deg)}to{opacity:1;transform:none}}
-/* Tasting notes on brews */
-.fl-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+
 .fl-add{flex:0 0 auto!important;display:inline-flex;align-items:center;gap:8px}
 .fl-add svg,.fl-edit svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
 .flchip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:var(--surface2);font-size:.85rem}
@@ -1010,7 +997,7 @@ dialog#selsheet.pop .selopt{min-height:40px;padding:8px 12px;font-size:.95rem}
 .palate{display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:center;margin-bottom:14px}
 .palate .fl-mini{width:120px;height:120px}
 .palate h3{margin:0 0 4px}
-/* Motion: sheets rise and settle, then slide away; the backdrop fades; screens slide the way you are going. */
+
 :root{--ease-sheet:cubic-bezier(.32,.72,0,1);--ease-spring:cubic-bezier(.34,1.4,.5,1);--ease-out:cubic-bezier(.2,.8,.2,1)}
 @media (prefers-reduced-motion:no-preference){
   dialog[open]{animation:dlg-in .3s var(--ease-out) both}
@@ -1023,8 +1010,7 @@ dialog#selsheet.pop .selopt{min-height:40px;padding:8px 12px;font-size:.95rem}
 @media (prefers-reduced-motion:no-preference) and (max-width:759px){
   dialog#navsheet[open],dialog#sharesheet[open]{animation:sheet-up .44s var(--ease-sheet) both}
   dialog#navsheet.closing,dialog#sharesheet.closing{animation:sheet-down .26s cubic-bezier(.4,0,1,1) both}
-  /* A coffee, a recipe or any other detail opens as a page: it slides in from the right over the list and slides back
-     out the same way, so nothing behind it has to move or lock. */
+  
   html dialog#vd[open]{animation:page-in .34s var(--ease-sheet) both}
   html dialog#vd.closing{animation:page-out .26s cubic-bezier(.4,0,.6,1) both}
   html dialog#timer[open]{animation:page-in .34s var(--ease-sheet) both}
@@ -1040,10 +1026,7 @@ dialog#selsheet.pop .selopt{min-height:40px;padding:8px 12px;font-size:.95rem}
 @keyframes bd-out{from{opacity:1}to{opacity:0}}
 @keyframes item-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 @keyframes title-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-/* Navigation motion. Between bottom-bar sections the pages swing past each other sideways; into a page within a
-   section the new one rises and grows from behind, and back out it drops away. Both pages move at once where the
-   browser can (view transitions); the app bar and bottom bar hold still, the title slides, and the new page's
-   blocks arrive one after another. A spring curve gives each a small, soft overshoot. */
+
 :root{--spring:cubic-bezier(.34,1.45,.5,1)}
 @supports (animation-timing-function:linear(0,1)){:root{--spring:linear(0,.006,.025 2.8%,.101 6.1%,.539 18.9%,.721 25.3%,.849 31.5%,.937 38.1%,.968 41.8%,.991 45.7%,1.006 50.1%,1.015 55%,1.017 63.9%,1.001 85.9%,1)}}
 html.vt .appbar{view-transition-name:appbar}html.vt #ab-title{view-transition-name:abtitle}html.vt .bottomnav{view-transition-name:bnav}html.vt nav.tabs{view-transition-name:navtabs}
@@ -1064,7 +1047,7 @@ html[data-nav=right]::view-transition-old(abtitle),html[data-nav=push]::view-tra
 html[data-nav=right]::view-transition-new(abtitle),html[data-nav=push]::view-transition-new(abtitle){animation:vt-t-in-r .5s var(--spring) .08s both,vt-show .2s ease-out .08s both}
 html[data-nav=left]::view-transition-old(abtitle),html[data-nav=pop]::view-transition-old(abtitle){animation:vt-t-out-r .13s ease-in both}
 html[data-nav=left]::view-transition-new(abtitle),html[data-nav=pop]::view-transition-new(abtitle){animation:vt-t-in-l .5s var(--spring) .08s both,vt-show .2s ease-out .08s both}
-/* A page coming in starts part-visible: the old one is already gone, so starting from nothing flashed an empty screen. */
+
 @keyframes vt-fade{to{opacity:0}}@keyframes vt-show{from{opacity:.45}}
 @keyframes vt-out-l{to{transform:translateX(-30%) scale(.94) rotate(-1.5deg);opacity:0}}
 @keyframes vt-out-r{to{transform:translateX(30%) scale(.94) rotate(1.5deg);opacity:0}}
@@ -1076,39 +1059,37 @@ html[data-nav=left]::view-transition-new(abtitle),html[data-nav=pop]::view-trans
 @keyframes vt-surface{from{transform:scale(1.08)}}
 @keyframes vt-t-out-l{to{transform:translateX(-24px);opacity:0}}@keyframes vt-t-out-r{to{transform:translateX(24px);opacity:0}}
 @keyframes vt-t-in-r{from{transform:translateX(34px)}}@keyframes vt-t-in-l{from{transform:translateX(-34px)}}
-/* Where both pages can't move together (an action that jumps to a page, or older browsers) the new page alone
-   makes the same move. */
+
 @media (prefers-reduced-motion:no-preference){
   html[data-nav=right] :is(main section,.herowrap).nav-in{animation:sec-in-r .36s cubic-bezier(.2,.9,.3,1) both,vt-show .18s ease-out both}
   html[data-nav=left] :is(main section,.herowrap).nav-in{animation:sec-in-l .36s cubic-bezier(.2,.9,.3,1) both,vt-show .18s ease-out both}
   html[data-nav=push] :is(main section,.herowrap).nav-in{animation:sec-rise .4s cubic-bezier(.2,.9,.3,1) both,vt-show .18s ease-out both}
   html[data-nav=pop] :is(main section,.herowrap).nav-in{animation:sec-surface .48s var(--spring) both,vt-show .22s ease-out both}
 }
-/* A page sliding in from the side mustn't make the screen scroll sideways. Always on: a :has() rule here made the
-   browser re-check the styles of the whole page every time a page started or ended its entrance. */
+
 main{overflow-x:clip}
-/* A page can be many screens tall: it moves by a fixed distance, and turns and scales about the part on screen. */
+
 main section.nav-in{transform-origin:50% 40vh}
 @keyframes sec-rise{from{transform:translate3d(0,48px,0) scale(.97)}}@keyframes sec-surface{from{transform:scale(1.04)}}
-/* A short slide without a turn: turning a page that is many screens tall is costly to draw on phones. */
+
 @keyframes sec-in-r{from{transform:translate3d(14%,0,0)}}@keyframes sec-in-l{from{transform:translate3d(-14%,0,0)}}
 
 :root[data-motion="reduced"]::view-transition-group(*),:root[data-motion="reduced"]::view-transition-old(*),:root[data-motion="reduced"]::view-transition-new(*){animation:none!important}
-/* The nav highlight is one pill that moves between buttons. */
+
 .bn-pill{display:none}
 @media (max-width:759px){
   .bn-pill{display:block;position:absolute;left:0;top:6px;bottom:6px;width:0;opacity:0;border-radius:var(--r-lg,20px);background:color-mix(in srgb,var(--cherry) 14%,transparent);z-index:0;pointer-events:none}
   .bottomnav button{position:relative;z-index:1}
   .bottomnav button[aria-current="true"]{background:transparent!important}
 }
-/* Taps: anything you can press gives a little under your finger. */
-.card[data-r],.card[data-v],.vcard,.hovercard,.gcard,.sheetlist button,.qlinks button,.mrow,.rcard,.tile,.fstep,.pnode,.linkchip,.bottomnav button{transition:transform .16s var(--ease-out),background-color .2s,box-shadow .2s;-webkit-tap-highlight-color:transparent}
-.card[data-r]:active,.card[data-v]:active,.vcard:active,.hovercard:active,.sheetlist button:active,.mrow:active,.rcard:active,.tile:active,.linkchip:active,.bottomnav button:active{transform:scale(.97)}
+
+.card[data-r],.card[data-v],.vcard,.hovercard,.gcard,.sheetlist button,.qlinks button,.mrow,.rcard,.tile,.fstep,.pnode,.bottomnav button{transition:transform .16s var(--ease-out),background-color .2s,box-shadow .2s;-webkit-tap-highlight-color:transparent}
+.card[data-r]:active,.card[data-v]:active,.vcard:active,.hovercard:active,.sheetlist button:active,.mrow:active,.rcard:active,.tile:active,.bottomnav button:active{transform:scale(.97)}
 .sheetlist button:active{background:color-mix(in srgb,var(--cherry) 8%,var(--surface2))}
 
 @media (max-width:759px){
   body{padding-bottom:calc(104px + var(--sa-bottom))}
-  /* Phones: a floating navigation bar. */
+  
   .bottomnav{left:12px;right:12px;bottom:calc(12px + var(--sa-bottom));padding:6px;gap:4px;border-radius:26px;border:1px solid color-mix(in srgb,var(--line) 70%,transparent);background:var(--nav-bg);backdrop-filter:blur(18px) saturate(1.5);-webkit-backdrop-filter:blur(18px) saturate(1.5);box-shadow:var(--float)}
   .bottomnav button{min-height:54px;gap:2px;border-radius:20px;font-size:.7rem;font-weight:600;letter-spacing:.01em;transition:color .2s,background .25s}
   .bottomnav button span{line-height:1.1}
@@ -1120,11 +1101,7 @@ main section.nav-in{transform-origin:50% 40vh}
   .appbar{border-bottom-color:transparent;box-shadow:0 1px 0 color-mix(in srgb,var(--line) 60%,transparent)}
 }
 
-/* ================= DESIGN SYSTEM =================
-   One set of tokens for every component:
-   radius  --r-xl 28 (sheets, hero) · --r-lg 22 (panels, cards) · --r-md 16 (tiles, inputs) · --r-sm 12 (small tiles) · pill
-   depth   --e1 resting cards · --e2 floating bars · --e3 sheets and dialogs
-   All floating chrome (top bar, result strip, nav, toast) shares one frosted "glass" surface. */
+
 :root{--r-xl:28px;--r-lg:22px;--r-md:16px;--r-sm:12px;--r-pill:999px;--hair:color-mix(in srgb,var(--line) 75%,transparent);
   --e1:0 1px 2px rgba(60,40,25,.04),0 6px 20px -10px rgba(60,40,25,.16);
   --e2:0 10px 30px -10px rgba(40,25,15,.30),0 2px 6px rgba(40,25,15,.06);
@@ -1134,10 +1111,10 @@ main section.nav-in{transform-origin:50% 40vh}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--e1:0 0 0 1px rgba(255,255,255,.04),0 8px 24px -12px rgba(0,0,0,.7);--e2:0 12px 32px -10px rgba(0,0,0,.75),0 0 0 1px rgba(255,255,255,.06);--e3:0 24px 60px -18px rgba(0,0,0,.85);--tonal:color-mix(in srgb,var(--cherry) 16%,var(--surface));--tonal-hover:color-mix(in srgb,var(--cherry) 24%,var(--surface))}}
 :root[data-theme="dark"]{--e1:0 0 0 1px rgba(255,255,255,.04),0 8px 24px -12px rgba(0,0,0,.7);--e2:0 12px 32px -10px rgba(0,0,0,.75),0 0 0 1px rgba(255,255,255,.06);--e3:0 24px 60px -18px rgba(0,0,0,.85);--tonal:color-mix(in srgb,var(--cherry) 16%,var(--surface));--tonal-hover:color-mix(in srgb,var(--cherry) 24%,var(--surface))}
 
-/* Surfaces */
+
 .panel,.card,.treebox,.mapbox,#vcompare>.card{border-radius:var(--r-lg);border:1px solid var(--hair);box-shadow:var(--e1);background:var(--surface)}
 .card{padding:18px}
-.specs div,.stats div,.sub,.drop,.cal,.minires-tile{border-radius:var(--r-md)}
+.specs div,.stats div,.sub,.drop,.cal{border-radius:var(--r-md)}
 .specs div,.stats div{background:var(--surface2);border:0}
 .tip,.fact{border-left:0;border-radius:var(--r-md);background:color-mix(in srgb,var(--honey) 12%,var(--surface));padding:12px 14px}
 .fact{background:color-mix(in srgb,var(--cherry) 9%,var(--surface))}
@@ -1146,48 +1123,48 @@ section>h2,section>.twocol h2{font-size:1.55rem}
 .grid>*,.bench>*,.twocol>*{min-width:0}
 @media (hover:hover){.hovercard:hover,.vcard:hover{box-shadow:var(--e2)}}
 
-/* Inputs */
+
 select,input[type=search],input[type=number],input[type=date],input[type=time],input[type=text],input[type=email],input[type=password],input:not([type]),textarea,.logform input{border-radius:var(--r-md)!important;border:1px solid transparent;background:var(--surface2);color:var(--ink);font-family:inherit;min-height:46px;padding:10px 14px}
 textarea{min-height:84px}
 select:hover,input:hover,textarea:hover{border-color:var(--hair)}
 input[type=range]{accent-color:var(--cherry)}
 
-/* Buttons: filled primary, soft tonal secondary, both pills */
+
 .btn{border-radius:var(--r-pill);min-height:44px;padding:10px 18px;border:0}
 .btn.ghost{background:var(--tonal);color:var(--cherry);border:0;box-shadow:none}
 .btn.ghost:hover{background:var(--tonal-hover)}
 .btn:disabled{opacity:.5;cursor:default}
 
-/* Option toggles (grinder, roast, agitation): an iOS-style segmented control */
+
 .seg:not(.filters){background:var(--surface2);border-radius:var(--r-pill);padding:4px;gap:4px;flex-wrap:nowrap}
 .seg:not(.filters) button{flex:1 1 0;min-width:0;border:0;background:transparent;border-radius:var(--r-pill);color:var(--muted);font-weight:600;padding:8px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .seg:not(.filters) button[aria-pressed="true"]{background:var(--surface);color:var(--cherry);box-shadow:0 1px 2px rgba(0,0,0,.08),0 4px 12px -6px rgba(60,40,25,.35)}
 .seg:not(.filters) button:disabled{opacity:.4}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .seg:not(.filters) button[aria-pressed="true"]{background:color-mix(in srgb,var(--cherry) 26%,var(--surface2));color:var(--ink)}}
 :root[data-theme="dark"] .seg:not(.filters) button[aria-pressed="true"]{background:color-mix(in srgb,var(--cherry) 26%,var(--surface2));color:var(--ink)}
-/* Filters: pill chips, the chosen one filled */
+
 .seg.filters{gap:8px}
 .seg.filters button{border:0;background:var(--surface2);border-radius:var(--r-pill);padding:8px 14px;color:var(--ink);font-weight:500}
 .seg.filters button[aria-pressed="true"]{background:var(--cherry);color:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.14)}
 
-/* Map region buttons: filter chips across the bottom of the map card */
+
 .mapbar{border-top:1px solid var(--hair)}
 .mapbar.seg.filters button{flex:1 1 auto}
-/* Chips, pills, tags: one pill shape */
+
 .chip,.pill,.meta span,.vbtn,.addcmp,.dir{border-radius:var(--r-pill)}
 .chip{background:var(--surface2);border:0;padding:5px 12px}
 button.chip:hover{background:var(--tonal-hover)}
 .meta span{padding:4px 11px;border-radius:var(--r-pill)}
 
-/* Charts: rounded tracks */
+
 .gauge{border-radius:var(--r-pill);height:10px}.gauge i{border-radius:var(--r-pill);width:6px;height:22px;top:-6px;transform:translateX(-3px);box-shadow:0 0 0 2px var(--surface)}
 .bar .t,.cmpbar .t{height:8px;border-radius:var(--r-pill)}.bar .t b,.cmpbar .t b{border-radius:var(--r-pill)}
 .grindtrack{border-radius:var(--r-md)}
 
-/* Lists as cards */
+
 .logentry{background:var(--surface);border:1px solid var(--hair);border-radius:var(--r-md);padding:14px 16px;margin:0 0 10px;box-shadow:var(--e1)}
 .logentry p{margin:.4rem 0 0}
-/* Each brew as a card: the coffee and who brewed it, the stars, the settings as pills, your notes and what you tasted. */
+
 .le2{padding:14px 16px 10px}
 .le-top{display:flex;align-items:center;gap:12px}
 .le-top .bpic{width:44px;height:52px;border-radius:12px;flex:none}
@@ -1214,7 +1191,7 @@ button.chip:hover{background:var(--tonal-hover)}
 .le-day{margin:18px 4px 8px;font:700 .76rem var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .le-count{margin:4px 4px 0;font-size:.82rem;color:var(--muted)}
 .le-empty{display:flex;flex-direction:column;align-items:center;gap:6px;padding:28px 16px;text-align:center;color:var(--muted)}.le-empty svg{width:28px;height:28px;fill:none;stroke:var(--cherry);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.le-empty b{color:var(--ink);font-family:var(--display)}.le-empty p{margin:0}
-/* Search, sort and filters above the list. */
+
 .lf{margin:18px 0 4px}
 .lf-top{display:flex;align-items:center;gap:8px}.lf-top.lt{margin:0 0 16px}.lt-k{flex:1;min-width:0;margin:0;font-size:.88rem;font-weight:600;color:var(--muted)}.bg-tools .lf-top.lt,#l-filter .lf-top.lt{margin:0}.lf-top .rsortw{width:46px;height:46px}
 .lf-q{flex:1;min-width:0;display:flex;align-items:center;gap:8px;padding:0 14px;min-height:46px;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
@@ -1226,23 +1203,23 @@ button.chip:hover{background:var(--tonal-hover)}
 table.ref th{border-bottom:1px solid var(--line)}
 table.ref tr:last-child td{border-bottom:0}
 
-/* Sheets and dialogs */
+
 dialog#vd,dialog#timer,dialog#navsheet,dialog#sharesheet{border-radius:var(--r-xl);box-shadow:var(--e3);border:1px solid var(--hair)}
 dialog::backdrop{background:rgba(25,16,10,.5)}
 .sheetlist button{border-radius:var(--r-md);border:0;background:var(--surface2)}
 .sheetlist button .ic{border-radius:var(--r-sm)}
 .vd-close{background:var(--surface2)}
 
-/* Floating toast */
+
 #toast{background:color-mix(in srgb,var(--ink) 88%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:var(--e2);padding:11px 18px}
 
-/* Desktop: the hero becomes a rounded card, tabs float below it */
+
 @media (min-width:760px){
   .herowrap{margin:14px 14px 0;border:1px solid var(--hair);border-radius:var(--r-xl);box-shadow:var(--e1);overflow:hidden}
   .themebtn{border:0;background:var(--glass);box-shadow:var(--e1);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 }
 
-/* Phones: floating top bar and result strip, matching the floating nav */
+
 @media (max-width:759px){
   .appbar{position:sticky;top:calc(var(--sa-top) + 8px);margin:calc(var(--sa-top) + 8px) 10px 0;padding:8px 8px 8px 14px;border-radius:var(--r-lg);background:var(--glass);border:1px solid var(--hair);box-shadow:var(--e2)}
   @supports (backdrop-filter:blur(1px)){.appbar{backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4)}}
@@ -1256,7 +1233,7 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
   .panel{padding:16px}
   html{scroll-padding-top:calc(var(--sa-top) + 90px)}
 }
-/* Review fixes: readable accent text, visible empty stars, and touch targets of at least ~40px. */
+
 .btn.ghost,.btn.ghost:hover,.selopt[aria-selected="true"],.linkbtn{color:var(--cherry-ink)}
 .dir{color:var(--leaf-ink)}
 .fbr em{color:var(--honey-ink)!important}
@@ -1269,30 +1246,30 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .linkbtn,button.hint,.legend button{position:relative}
 .linkbtn::after,button.hint::after{content:"";position:absolute;inset:-9px -4px}
 .addcmp::after{content:"";position:absolute;inset:-10px -6px}
-/* Small marks and inline links get a finger-sized tap area around them. */
+
 .grindtrack .gm::after{content:"";position:absolute;inset:-9px}
 #v-about{position:relative}#v-about::after{content:"";position:absolute;inset:-12px -4px}
 .grindtrack .gm::after{content:"";position:absolute;inset:-9px;border-radius:50%}
 @media (pointer:coarse){button.chip,.vbtn,.legend button{min-height:36px}.legend button::after{content:"";position:absolute;inset:-6px 0}}
 
-/* Recipes: search, brewer and collection shelves, and a compact list grouped by brewer. */
+
 .rsearchw{margin:0 0 14px}.rsearchw input{width:100%;box-shadow:var(--shadow)}
 #rhome>.qlinks{margin-top:4px}
 .bshelf,.colshelf{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:none;scroll-snap-type:x proximity}.bshelf::-webkit-scrollbar,.colshelf::-webkit-scrollbar{display:none}
 .bshelf button{flex:none;scroll-snap-align:start;width:112px;display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:12px;border-radius:16px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;text-align:left;cursor:pointer}
 .bshelf .bi,.rgrp h4 .bi{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:color-mix(in srgb,var(--cherry) 12%,var(--surface));color:var(--cherry)}.bshelf .bi svg,.rgrp h4 .bi svg{width:20px;height:20px}
 .bshelf b{font-size:.88rem;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.bshelf small{color:var(--muted);font-size:.76rem}
-/* The picked card is ringed inside its own edge, so a sideways-scrolling row can't cut the ring off. */
+
 .bshelf button[aria-pressed="true"],.colshelf button[aria-pressed="true"]{outline:none;border-color:var(--cherry);box-shadow:inset 0 0 0 2px var(--cherry)}
 .colshelf button{flex:none;scroll-snap-align:start;width:168px;position:relative;display:flex;flex-direction:column;gap:3px;padding:14px 14px 30px;border-radius:18px;border:0;color:#fff;font:inherit;text-align:left;cursor:pointer;
   background:linear-gradient(140deg,var(--cc),color-mix(in srgb,var(--cc) 60%,#000))}
 .colshelf b{font-family:var(--display);font-size:1rem}.colshelf small{font-size:.8rem;opacity:.9;line-height:1.3}.colshelf .cn{position:absolute;left:14px;bottom:10px;font-size:.78rem;font-weight:700;background:rgba(255,255,255,.22);border-radius:99px;padding:1px 8px}
 .rhead .rh{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-/* On the narrowest phones the heading's letters close up a little, so "All recipes · 113" fits beside the tools. */
+
 @media (max-width:359px){.rhead{gap:8px}.rhead .rh{letter-spacing:.02em}}
 .rhtools{flex:none;display:flex;align-items:center;gap:8px}
 @media (max-width:389px){.rn-w{display:none}}
-/* The sort button is a round icon button, like the save and close buttons; it opens the sort sheet. */
+
 .rsortw{flex:none;display:grid;place-items:center;width:40px;height:40px;padding:0;border-radius:50%;border:0;background:var(--surface2);color:var(--ink);cursor:pointer;transition:transform .15s ease}
 .rsortw:active{transform:scale(.88)}
 .rsortw{position:relative}.rsortw[aria-pressed="true"]{color:var(--cherry);background:color-mix(in srgb,var(--cherry) 14%,var(--surface))}
@@ -1309,8 +1286,7 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .rgrp{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:14px;content-visibility:auto;contain-intrinsic-block-size:auto 320px}
 .rgrp h4{display:flex;align-items:center;gap:10px;margin:0;padding:12px 14px;font:700 .98rem var(--display);border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--cherry) 5%,var(--surface))}
 .rgrp h4 small{margin-left:auto;font:600 .78rem var(--body);color:var(--muted)}
-/* A recipe row: content on the left in three lines (name and tags; level and author; the numbers in one strip), the
-   heart level with the name and the play button level with the strip. */
+
 .rrow{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:stretch}.rrow+.rrow{border-top:1px solid var(--line)}
 .rr-open{grid-column:1;min-width:0;display:flex;flex-direction:column;gap:5px;padding:14px 8px 14px 16px;border:0;background:none;color:var(--ink);font:inherit;text-align:left;cursor:pointer}
 .rr-open:active{background:var(--surface2)}
@@ -1318,14 +1294,14 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .rr-tag{font-size:.68rem;font-weight:700;letter-spacing:.02em;border-radius:99px;padding:2px 8px;line-height:1.3}.rr-tag.neo{background:color-mix(in srgb,var(--cherry) 14%,var(--surface));color:var(--cherry-ink)}.rr-tag.champ{background:color-mix(in srgb,var(--honey) 30%,var(--surface));color:var(--ink)}.rr-tag.ours{background:color-mix(in srgb,var(--leaf) 25%,var(--surface));color:var(--ink)}
 .rr-by{display:block;font-size:.82rem;line-height:1.4;color:var(--muted)}
 .rr-by .lv{display:inline;padding:0;background:none;border-radius:0;font-weight:700;white-space:nowrap}
-/* The dot sits on the middle of the lower-case letters, on the same baseline as the rest of the line. */
+
 .rr-by .lv i{display:inline-block;width:7px;height:7px;margin-right:6px;border-radius:50%;background:currentColor;vertical-align:calc((1ex - 7px) / 2)}
 .rr-sep{margin:0 7px;color:var(--muted)}.rr-bw{color:var(--ink);font-weight:600}
 .rr-m{align-self:flex-start;display:inline-flex;align-items:center;max-width:100%;margin-top:2px;padding:0 2px;border-radius:10px;background:var(--surface2);font-size:.8rem;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
 .rr-m>span{display:inline-flex;align-items:center;gap:4px;padding:6px 8px;line-height:1}.rr-m>span+span{border-left:1px solid color-mix(in srgb,var(--line) 80%,transparent)}
 .rr-m em{font-style:normal;font-weight:500;color:var(--muted);margin-left:.18em}.rr-m .rr-dose i{font-style:normal;color:var(--muted);margin:0 2px;font-weight:500}
 .rr-m svg{width:13px;height:13px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
-/* Icons sit on the middle of the digits (cap height), not the middle of the line, whatever font the phone uses. */
+
 @supports (height:1cap){.rr-m>span{display:inline-block}.rr-m svg{display:inline-block;vertical-align:calc((1cap - 13px) / 2);margin-right:4px}.rr-m .rr-dose i,.rr-m em{display:inline}.rr-m .rr-dose i{margin:0 .32em}}
 .rr-side{grid-column:2;display:flex;flex-direction:column;justify-content:space-between;align-items:center;gap:10px;padding:14px 14px 14px 4px}
 .rr-side .favbtn{position:static;width:40px;height:40px;background:var(--surface2)}.rr-side .favbtn svg{width:19px;height:19px}
@@ -1334,8 +1310,7 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .rr-play:active{transform:scale(.92)}
 @media (max-width:379px){.rr-m svg{display:none}.rr-m>span{padding:6px 7px}}
 @media (max-width:339px){.rr-open{padding-left:12px}.rr-side{padding-right:8px}.rr-m{font-size:.76rem}.rr-m>span{padding:6px 6px}}
-/* On phones the app bar and the tab bar float: what scrolls past them fades into the page instead of showing in the
-   gaps around them or through the glass. */
+
 @media (max-width:759px){
   body::before,body::after{content:'';position:fixed;left:0;right:0;pointer-events:none}
   body::before{top:0;height:calc(var(--sa-top) + 84px);z-index:19;background:linear-gradient(var(--paper) calc(100% - 18px),color-mix(in srgb,var(--paper) 0%,transparent))}
@@ -1345,10 +1320,10 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .lv{font-weight:700;border-radius:6px;padding:0 6px}.lv-e{color:#256B42;background:color-mix(in srgb,#2F7A4F 12%,transparent)}.lv-i{color:#85550C;background:color-mix(in srgb,#C8891E 14%,transparent)}.lv-a{color:#A53A2A;background:color-mix(in srgb,#A53A2A 12%,transparent)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .lv-e{color:#7FCB9C}:root:not([data-theme="light"]) .lv-i{color:#E7B060}:root:not([data-theme="light"]) .lv-a{color:#F08F7E}}
 :root[data-theme="dark"] .lv-e{color:#7FCB9C}:root[data-theme="dark"] .lv-i{color:#E7B060}:root[data-theme="dark"] .lv-a{color:#F08F7E}
-/* Cup types sit lower on the page now, so their cards are shorter. */
+
 #rhome .cupart{height:76px}
 .mk-rand{display:block;margin:10px auto 0}
-/* Recipes home, kept light: the three quick links side by side, cup types as small tiles. */
+
 .qlinks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
 .qlinks button{position:relative;flex-direction:column;justify-content:center;gap:6px;padding:12px 6px;text-align:center}
 .qlinks button+button{border-top:0;border-left:1px solid var(--line)}
@@ -1361,25 +1336,22 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 #rhome .cupcard .cc{top:6px;right:6px;font-size:.66rem;padding:1px 6px}
 @media (min-width:1000px){#rgrid{columns:2;column-gap:16px}#rgrid .rgrp{break-inside:avoid;display:inline-block;width:100%;content-visibility:visible}}
 @media (min-width:760px){.bshelf button{width:128px}.colshelf button{width:200px}}
-/* A collection's count sits in the top corner, as on the cup-type cards, clear of the title and the line under it. */
+
 .colshelf button{padding:14px 14px 16px;min-height:118px}
-/* The recipe maker sheet. */
+
 .mk .lbl{margin:14px 0 6px}.mk .lbl .hint{font-weight:500;margin-left:6px}
 .mk-chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 24px 2px 0;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 24px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 24px),transparent)}.mk-chips::-webkit-scrollbar{display:none}
 .mk-chips button{flex:none;display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:4px 14px 4px 6px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:600 .86rem var(--display);cursor:pointer}
 .mk-chips button:not(:has(.bpic)){padding-left:14px}.mk-chips .bpic{width:30px;height:30px;border-radius:50%}
 .mk-chips button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
 .mk-res{margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}.mk-res .mk-h{margin-bottom:8px}
-.mk-h b{display:block;font:800 1.2rem/1.25 var(--display)}.mk-h small{font-size:.8rem;color:var(--muted)}
-.mk-steps{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}.mk-steps li{display:flex;gap:12px}.mk-steps b{flex:none;width:44px;font-variant-numeric:tabular-nums;color:var(--cherry-ink,var(--cherry))}
-.mk-why{margin:12px 0 0;line-height:1.5}.mk-res .le-pill{background:var(--surface)}.mk-res .le-pills{margin-top:10px}.colshelf b{padding-right:42px}
+.mk-h b{display:block;font:800 1.2rem/1.25 var(--display)}.mk-h small{font-size:.8rem;color:var(--muted)}.mk-res .le-pill{background:var(--surface)}.mk-res .le-pills{margin-top:10px}.colshelf b{padding-right:42px}
 .colshelf .cn{left:auto;bottom:auto;top:12px;right:12px;font-size:.74rem;background:rgba(0,0,0,.24);padding:2px 9px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
-/* A recipe at a glance, and its steps as a timeline. */
+
 .rstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:.4rem 0 .8rem}
 .rstats div{background:var(--surface2);border-radius:12px;padding:8px 10px}.rstats b{display:block;font:700 1.02rem var(--display);font-variant-numeric:tabular-nums}.rstats small{color:var(--muted);font-size:.74rem}
 .steps.tl{list-style:none;padding:0;margin:.4rem 0 .6rem;position:relative}
-/* A step: its time, the kind of move and the instruction in three columns. The time and the icon are one text line tall,
-   so they sit on the middle of the first line however the instruction wraps. */
+
 .steps.tl li{--row:1.5rem;position:relative;display:grid;grid-template-columns:52px 22px minmax(0,1fr);column-gap:10px;align-items:start;padding:0 0 12px;min-height:var(--row)}
 .steps.tl li::before{content:"";position:absolute;left:25px;top:calc(var(--row) + 2px);bottom:2px;width:2px;border-radius:1px;background:var(--line)}.steps.tl li:last-child::before{display:none}
 .steps.tl .t{grid-column:1;height:var(--row);display:flex;align-items:center;justify-content:center;font:700 .78rem var(--body);font-variant-numeric:tabular-nums;color:var(--cherry);background:color-mix(in srgb,var(--cherry) 12%,var(--surface));border-radius:99px;padding:0}
@@ -1389,13 +1361,13 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .steps.tl .sx{grid-column:3;line-height:var(--row);overflow-wrap:anywhere}
 .steps.tl li.k-pour .t,.steps.tl li.k-bloom .t{background:color-mix(in srgb,var(--k) 16%,var(--surface));color:color-mix(in srgb,var(--k) 75%,var(--ink))}
 
-/* Steppers (the dial-in's coffee dose). */
+
 .stepper{display:flex;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;height:40px}
 .stepper button{flex:none;width:34px;height:100%;border:0;background:none;color:var(--cherry);font:600 1.2rem var(--body);cursor:pointer}.stepper button:active{background:var(--surface2)}
 .stepper input,.stepper output{flex:1;min-width:0;width:100%;text-align:center;border:0;background:none;padding:0;font:700 .98rem var(--display);color:var(--ink);font-variant-numeric:tabular-nums;-moz-appearance:textfield}
 .stepper input::-webkit-inner-spin-button,.stepper input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}.stepper span{font-size:.82rem;color:var(--muted);margin-right:2px}
 
-/* Dial-in with a recipe: dose, target cup and the adapted steps. */
+
 .recbox{margin:-4px 0 18px;padding:12px 14px 10px;border-radius:16px;background:color-mix(in srgb,var(--cherry) 5%,var(--surface));border:1px solid color-mix(in srgb,var(--cherry) 25%,var(--line))}
 .dose-row{display:grid;grid-template-columns:1.4fr 1fr;gap:10px;align-items:end}.dose-row .lbl{margin-bottom:4px}
 .dose-w{display:flex;align-items:center;justify-content:center;height:40px;border-radius:12px;background:var(--surface2);font:700 1rem var(--display);font-variant-numeric:tabular-nums}
@@ -1423,9 +1395,9 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 #g-goal button{transition:background .3s,border-color .3s,box-shadow .3s,color .3s}
 #g-goal button.fit-lean{background:color-mix(in srgb,#C9964A 22%,var(--surface2));border-color:color-mix(in srgb,#C9964A 55%,transparent)}
 #g-goal button.fit-near{position:relative;background:color-mix(in srgb,#C9964A 34%,var(--surface2));border-color:#C9964A;color:var(--ink)}
-/* The cup this coffee leans to: a steady honey ring, not a pulsing glow. */
+
 #g-goal button.fit-near::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:inset 0 0 0 2px #C9964A}
-/* In the dark, a shadow in the accent colour reads as a glow (white in Pure): buttons cast a plain dark shadow instead. */
+
 :root[data-theme="dark"] .btn:not(.ghost),:root[data-theme="dark"] .tm-play,:root[data-theme="dark"] .rr-play{box-shadow:0 2px 8px rgba(0,0,0,.35)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn:not(.ghost),:root:not([data-theme="light"]) .tm-play,:root:not([data-theme="light"]) .rr-play{box-shadow:0 2px 8px rgba(0,0,0,.35)}}
 @media (prefers-reduced-motion:reduce){#g-goal button.fit-near::after{animation:none;opacity:1}}
@@ -1436,14 +1408,12 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .qtool b{display:block;font-size:.92rem}.qtool small{display:block;color:var(--muted);font-size:.76rem;margin-top:2px}.qtool:active{transform:scale(.98)}.gsec{scroll-margin-top:96px}#gear-dialpick:empty{display:none}#gear-dialpick{margin-bottom:10px}
 @media (max-width:899px){#gear-grinders>.card:not(.on){display:none}}@media (min-width:900px){#gear-dialpick{display:none}}
 .l-editing{margin:0 0 10px;font-weight:600;color:var(--cherry-ink)}.goalseg{margin-top:6px}.gdesc{margin:.5rem 0 0;font-size:.85rem}.amtrow{margin-top:12px}.amtrow[hidden]{display:none}.amtrow .seg{margin-top:6px}.tuneline{margin:.6rem 0 0;font-size:.82rem}.tuneline .linkbtn{margin-left:4px}
-.dsub .hint{text-transform:none;letter-spacing:0;font-weight:400;margin-left:4px}
-.dsub{margin:22px 0 10px;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-family:var(--body);font-weight:700}
 .drecipe{margin-top:18px}.drecipe h2{margin:.1rem 0 .1rem}.drecipe .dr-meta{display:flex;flex-wrap:wrap;gap:6px;margin:.5rem 0 .8rem}
 .drecipe .dr-meta span{font-size:.8rem;border-radius:99px;padding:3px 10px;background:var(--surface2)}.drecipe .dr-meta .gl{background:color-mix(in srgb,var(--cherry) 15%,var(--surface));color:var(--cherry);font-weight:700}
 .drecipe .why li{margin:.25rem 0}.dr-cols{display:grid;gap:4px 28px}@media (min-width:900px){.dr-cols{grid-template-columns:1.1fr 1fr}}
 .mr-play{flex:none;width:36px;height:36px;border-radius:50%;border:0;display:grid;place-items:center;background:var(--cherry);color:var(--surface);cursor:pointer;margin-left:8px}.mr-play svg{width:16px;height:16px;fill:currentColor;margin-left:2px}
 
-/* Explore and More pages: tiles grouped under small headings. */
+
 .hubgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 @media (min-width:760px){.hubgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}@media (min-width:1100px){.hubgrid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .hubcard{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:14px 14px 16px;border-radius:18px;border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow);color:var(--ink);font:inherit;text-align:left;cursor:pointer;min-height:132px}
@@ -1451,20 +1421,15 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .hubcard .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none;margin-bottom:4px}.hubcard .ic svg{width:22px;height:22px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .hubcard b{font-family:var(--display);font-size:1rem;line-height:1.2}.hubcard small{color:var(--muted);font-size:.82rem;line-height:1.35}
 .hubcard .hn{position:absolute;top:14px;right:14px;font-size:.74rem;font-weight:700;color:var(--muted);background:var(--surface2);border-radius:99px;padding:2px 8px}
-.morelist{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
-.morelist>div,.morelist>button{display:flex;align-items:center;gap:12px;width:100%;padding:14px 16px;border:0;background:none;color:var(--ink);font:inherit;text-align:left}
-.morelist>*+*{border-top:1px solid var(--line)}.morelist>button{cursor:pointer}.morelist .ic{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;flex:none}.morelist .ic svg{width:20px;height:20px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.morelist .mt{flex:1;min-width:0}.morelist .mt b{display:block;font-weight:600}.morelist .mt small{display:block;color:var(--muted);font-size:.84rem}
-.morelist .mtheme{flex-wrap:wrap}.morelist .mtheme .seg{flex:1 1 100%;display:grid;grid-template-columns:repeat(3,1fr)}.moretip{padding:0 16px 14px!important;border-top:0!important;display:block!important;font-size:.88rem;color:var(--muted)}
 
-/* The map's region buttons are easier to tap on phones. */
+
 @media (max-width:759px){.mapbar.seg.filters button{min-height:34px}}
-/* One row of region chips under the map, like the filters elsewhere. The map's column mustn't grow to fit the row. */
+
 .atlas>*{min-width:0}
 .mapbar.seg.filters{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.mapbar.seg.filters::-webkit-scrollbar{display:none}.mapbar.seg.filters button{flex:0 0 auto;padding-inline:14px}
 
-/* Coffee colour themes: the accent, with the soft surfaces and lines tinted to match. */
-/* Vibes: whole palettes for light and dark (Settings → Appearance). The colour swatches below still change just the accent. */
+
+
 :root[data-vibe="oat"]{--paper:#F6F0E8;--surface:#FFFCF7;--surface2:#EDE3D6;--ink:#3A3029;--muted:#6E6055;--line:#E3D7C8;--cherry:#855735;--leaf:#5F7F49;--honey:#B98A3E;--cherry-ink:#855735;--leaf-ink:#4D673B;--honey-ink:#7B5C29;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}
 @media (prefers-color-scheme:dark){:root[data-vibe="oat"]:not([data-theme="light"]){--paper:#2F2A26;--surface:#3C3631;--surface2:#4A433D;--ink:#F5EFE8;--muted:#D3C7BA;--line:#5B524B;--cherry:#E9C29E;--leaf:#BCD1A6;--honey:#EDCB91;--cherry-ink:#E9C29E;--leaf-ink:#BCD1A6;--honey-ink:#EDCB91;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}}
 :root[data-vibe="oat"][data-theme="dark"]{--paper:#2F2A26;--surface:#3C3631;--surface2:#4A433D;--ink:#F5EFE8;--muted:#D3C7BA;--line:#5B524B;--cherry:#E9C29E;--leaf:#BCD1A6;--honey:#EDCB91;--cherry-ink:#E9C29E;--leaf-ink:#BCD1A6;--honey-ink:#EDCB91;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}
@@ -1514,9 +1479,9 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 :root[data-accent="geisha"][data-theme="dark"]{--cherry:#C6A9DD;--cherry-ink:#C6A9DD}
 @media (prefers-color-scheme:dark){:root[data-accent="geisha"]:not([data-theme="light"]){--cherry:#C6A9DD;--cherry-ink:#C6A9DD}}
 :root[data-accent]:not([data-accent="classic"]){--surface2:color-mix(in srgb,var(--cherry) 11%,var(--surface));--line:color-mix(in srgb,var(--cherry) 17%,var(--surface))}
-/* Text size and motion. */
+
 :root[data-text="s"]{font-size:15px}:root[data-text="l"]{font-size:17.5px}:root[data-text="xl"]{font-size:19px}
-/* Large text on a narrow phone: labels tighten or wrap instead of being cut off. */
+
 @media (max-width:379px){
   :root:is([data-text="l"],[data-text="xl"]) .seg>button{padding-left:5px;padding-right:5px;font-size:.84em;letter-spacing:-.01em}
   :root:is([data-text="l"],[data-text="xl"]) #rhome .cupcard b{white-space:normal;overflow-wrap:anywhere;text-overflow:clip;font-size:.68rem;padding-left:5px;padding-right:5px}
@@ -1527,29 +1492,20 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 }
 
 :root[data-motion="reduced"] *,:root[data-motion="reduced"] *::before,:root[data-motion="reduced"] *::after{animation:none!important;transition:none!important}
-/* Settings page. */
+
 .setgroup{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
-/* ---------- Your profile ---------- */
+
 .pav{position:relative;flex:none;display:grid;place-items:center;width:var(--s);height:var(--s);border-radius:50%;overflow:hidden;background:var(--c,#8A5A3B);color:#fff;box-shadow:0 0 0 3px var(--surface),0 0 0 4.5px color-mix(in srgb,var(--c,#8A5A3B) 45%,transparent)}
 .pav img{width:100%;height:100%;object-fit:cover}.pav b{font-family:var(--display);font-size:calc(var(--s)*.38);font-weight:700;letter-spacing:.02em}.pav i{font-style:normal;font-size:calc(var(--s)*.48);line-height:1}
 .pav.none{background:var(--surface2);color:var(--muted);box-shadow:inset 0 0 0 1.5px var(--line)}.pav.none svg{width:55%;height:55%;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round}
 .pcard{margin:0 0 18px;padding:18px;border-radius:var(--r-xl,24px);background:linear-gradient(160deg,color-mix(in srgb,var(--c,var(--cherry)) 14%,var(--surface)),var(--surface) 70%);border:1px solid var(--line);box-shadow:var(--shadow)}
 .pcard.empty{--c:var(--honey)}
-.pc-top{display:flex;align-items:center;gap:16px}.pc-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.pc-tx h3{margin:0;font-family:var(--display);font-size:1.35rem;line-height:1.2;overflow-wrap:anywhere}.pc-tx small{color:var(--muted);font-size:.88rem;line-height:1.4}
-.pc-edit{flex:none;min-height:40px;padding:0 16px}
-.pc-brief{margin:14px 0 0;font-size:.95rem;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
-.pc-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}.pc-chips span{padding:4px 11px;border-radius:var(--r-pill);background:var(--surface2);font-size:.8rem;font-weight:600}
-.pc-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--hair,var(--line))}
-.pc-stats span{display:flex;flex-direction:column;font-size:.74rem;color:var(--muted);min-width:0}.pc-stats b{font-family:var(--display);font-size:1.15rem;color:var(--ink);font-variant-numeric:tabular-nums}
-.pc-acct{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 12px;margin-top:14px;font-size:.84rem;color:var(--muted)}.pc-acct b{color:var(--ink);overflow-wrap:anywhere}
-.pc-who{flex:1 1 200px;min-width:0}.pc-acct .btn{min-height:40px;padding:0 16px}
 .pcard .setbtns{margin-top:14px}
-/* The profile sheet and sign-in: a dark-roast hero in your colour, like the Beans page */
+
 .me-hero{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding:34px 20px 24px;color:#FFF8EE;overflow:hidden}
-/* The standard roast banner, tinted with your colour; other banners and photos replace it (see BANNERS). */
+
 .me-hero,.pf-cover,.pf-banners [data-b=""] i{background:radial-gradient(90% 80% at 50% 0%,color-mix(in srgb,var(--c,var(--honey)) 70%,transparent),transparent 70%),radial-gradient(80% 90% at 100% 100%,color-mix(in srgb,var(--cherry) 55%,transparent),transparent 70%),linear-gradient(160deg,#4A2E20,#1E120C)}
-.me-hero.banner{background-color:#1E120C}.me-hero.banner .me-k{text-shadow:0 1px 8px rgba(0,0,0,.45)}.me-hero.banner h2,.me-hero.banner .me-name,.me-hero.banner .me-since{text-shadow:0 1px 12px rgba(0,0,0,.5)}
+.me-hero.banner{background-color:#1E120C}.me-hero.banner .me-k{text-shadow:0 1px 8px rgba(0,0,0,.45)}.me-hero.banner h2,.me-hero.banner .me-name{text-shadow:0 1px 12px rgba(0,0,0,.5)}
 .me-hero::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.12;background-image:radial-gradient(rgba(255,255,255,.7) .6px,transparent .8px);background-size:5px 5px;mix-blend-mode:overlay}
 .me-hero>*{position:relative;z-index:1}
 .me-x{position:absolute!important;z-index:2!important;background:rgba(255,248,238,.14)!important;color:#FFF8EE!important}
@@ -1558,7 +1514,7 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .me-hero .pav{box-shadow:0 0 0 4px rgba(255,248,238,.9),0 10px 30px -8px rgba(0,0,0,.6);margin-bottom:10px}
 .me-k{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:#F0C987}
 .me-hero h2{margin:2px 0 0;font-family:var(--display);font-size:1.75rem;line-height:1.15;color:#FFF8EE;overflow-wrap:anywhere}
-.me-name{font-size:.92rem;opacity:.8}.me-since{margin-top:8px;font-size:.76rem;opacity:.65}
+.me-name{font-size:.92rem;opacity:.8}
 .me-hero p{margin:6px 0 0;max-width:34ch;font-size:.92rem;line-height:1.5;opacity:.85}
 .me-cup{width:110px;height:auto;margin:-4px 0 6px}.me-steam path{animation:steam 3.2s ease-in-out infinite;opacity:.8}.me-steam path:nth-child(2){animation-delay:.6s}.me-steam path:nth-child(3){animation-delay:1.2s}
 @keyframes steam{0%{transform:translateY(4px);opacity:0}30%{opacity:.85}100%{transform:translateY(-8px);opacity:0}}
@@ -1571,10 +1527,7 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .me-add{padding:12px 14px;border-radius:14px;border:1.5px dashed var(--line);background:none;color:var(--muted);font:inherit;font-size:.88rem;text-align:left;cursor:pointer}
 .me-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .me-stats span{display:flex;flex-direction:column;align-items:center;padding:10px 4px;border-radius:14px;background:var(--surface2);font-size:.72rem;color:var(--muted)}
-.me-stats b{font-family:var(--display);font-size:1.3rem;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.2}
-.me-dna{display:grid;gap:8px}.me-dna>div{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;border:1px solid var(--line)}
-.me-dna i{flex:none;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--surface2);font-style:normal;font-size:1.2rem}.me-flag{font-size:1.3rem}
-.me-dna span{display:flex;flex-direction:column;min-width:0}.me-dna small{font-size:.72rem;color:var(--muted)}.me-dna b{font-size:.95rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.me-stats b{font-family:var(--display);font-size:1.3rem;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.2}.me-flag{font-size:1.3rem}
 .me-acct{border-radius:16px;background:var(--surface2);overflow:hidden}
 .me-row{display:flex;align-items:center;gap:12px;padding:12px 14px}.me-row+.me-row{border-top:1px solid var(--line)}
 .me-rt{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start}.me-rt b{font-size:.92rem}.me-rt small{font-size:.8rem;color:var(--muted);overflow-wrap:anywhere}
@@ -1586,8 +1539,6 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .me-cta li::before{content:"";display:inline-block;width:6px;height:6px;margin-right:9px;border-radius:50%;background:var(--honey);vertical-align:middle}.me-cta .btn{width:100%}
 .me-fine,.au-fine{margin:0;text-align:center;font-size:.78rem;color:var(--muted)}.au-fine a,.setnote a{color:var(--cherry);font-weight:600}
 .au-hero{padding-bottom:20px}.au-hero .me-cup{width:96px}
-.au-perks{margin:0 0 16px;padding:0;list-style:none;display:grid;gap:8px}.au-perks li{display:flex;align-items:center;gap:10px;font-size:.9rem}
-.au-perks i{flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--surface2);font-style:normal}
 .au-forgot{display:block;margin:-6px 0 12px auto}.au-who{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px;padding:10px 14px;border-radius:999px;background:var(--surface2);font-weight:600;font-size:.92rem}.au-who span{min-width:0;overflow-wrap:anywhere}.au-who .linkbtn{flex:none}
 .au-bio{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:56px;text-align:left}.au-bio svg{flex:none;width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}.au-bio span{display:flex;flex-direction:column;line-height:1.25}.au-bio small{font-weight:500;opacity:.8;font-size:.8rem}
 .au-gbtn{display:inline-flex;align-items:center;justify-content:center;gap:12px;width:min(100%,360px);min-height:44px;padding:0 18px;border-radius:999px;border:1px solid #DADCE0;background:#fff;color:#1F1F1F;font:500 .95rem/1 inherit;font-family:inherit;cursor:pointer}.au-gbtn svg{width:20px;height:20px;flex:none}.au-gbtn:disabled{opacity:.6}
@@ -1600,15 +1551,14 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .updcard.out{animation:upd-out .24s ease-in both}.upd-ic{flex:none}.upd-ic .ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center}.upd-ic .ic svg{width:21px;height:21px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}.upd-tx{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3}.upd-tx b{font-family:var(--display);font-size:.95rem}.upd-tx small{color:var(--muted);font-size:.8rem}
 .updcard .btn{flex:none;min-height:40px;padding:0 16px}.upd-x{flex:none;width:36px;height:36px;border:0;border-radius:50%;background:var(--surface2);color:var(--muted);font-size:.9rem;cursor:pointer}
 @keyframes upd-in{from{opacity:0;transform:translateY(24px) scale(.96)}}@keyframes upd-out{to{opacity:0;transform:translateY(16px)}}
-.au-hint{margin:0 0 12px;font-size:.86rem;color:var(--muted)}.au-hero .pav{margin:0 auto 10px}.au-switch{margin:14px 0 6px;text-align:center;font-size:.9rem;color:var(--muted)}.au-note{text-align:center}
+.au-hint{margin:0 0 12px;font-size:.86rem;color:var(--muted)}.au-hero .pav{margin:0 auto 10px}.au-switch{margin:14px 0 6px;text-align:center;font-size:.9rem;color:var(--muted)}
 .auth{padding-top:18px!important}
 dialog#vd:has(.me-hero){overflow-x:hidden}
-/* The face in the top bar (phones) and the tab bar (larger screens); it opens your profile. */
+
 .me-btn{flex:none;display:grid;place-items:center;width:40px;height:40px;margin:-4px -6px -4px 0;padding:0;border:0;border-radius:50%;background:none;cursor:pointer}
 .me-btn .pav{box-shadow:0 0 0 2px var(--surface),0 0 0 3.5px color-mix(in srgb,var(--c,#8A5A3B) 40%,transparent)}.me-btn .pav.none{box-shadow:inset 0 0 0 1.5px var(--line)}
 .me-btn:active .pav{transform:scale(.94)}.me-tab{width:38px;height:38px;margin:0 0 0 6px;align-self:center}
 .me-body .pcard{margin:4px 0 0;box-shadow:none}
-.pc-sync{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px 12px;margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--surface2);font-size:.8rem;color:var(--muted)}.pc-sync span{flex:1 1 200px}.pc-sync .linkbtn{min-height:36px}
 .pf-cover{position:relative;display:grid;place-items:center;height:150px;margin:6px 0 10px;border-radius:20px;overflow:hidden;background-color:#1E120C}
 .pf-cover .pav{box-shadow:0 0 0 4px rgba(255,248,238,.9),0 10px 30px -8px rgba(0,0,0,.6)}
 .pf-photo{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px 14px;margin:0 0 18px}
@@ -1632,14 +1582,13 @@ dialog#vd:has(.me-hero){overflow-x:hidden}
 .auth>.linkbtn{display:block;margin:6px auto 0}
 .setrow{padding:14px 16px}.setrow+.setrow{border-top:1px solid var(--line)}
 .setrow>.sl{display:flex;align-items:center;gap:12px;margin-bottom:10px}.setrow>.sl:last-child{margin-bottom:0}
-/* Logos in light mode: their gold parts a touch deeper (towards the vibe's darker gold) so they read on pale tiles.
-   --honey-base carries the vibe's own gold down, since a variable can't refer to itself. */
+
 :root{--honey-base:var(--honey)}
 :root[data-theme="light"] :is(#ab-logo,.logopick,#splash,.lg-tile){--honey:color-mix(in srgb,var(--honey-base) 68%,var(--honey-ink,var(--honey-base)))}
 @media (prefers-color-scheme:light){:root:not([data-theme="dark"]) :is(#ab-logo,.logopick,#splash,.lg-tile){--honey:color-mix(in srgb,var(--honey-base) 68%,var(--honey-ink,var(--honey-base)))}}
-/* During a change of look (see themeSwap): colours switch at once, movement still animates. */
+
 html.thx *,html.thx *::before,html.thx *::after{transition-property:transform,translate,scale!important}
-/* Tinted icon tiles in the vibe's colours (see ico in app.js): a soft tint with the symbol in the colour itself. */
+
 .ic.t-c{--t:var(--cherry-ink,var(--cherry))}.ic.t-h{--t:var(--honey-ink,var(--honey))}.ic.t-l{--t:var(--leaf-ink,var(--leaf))}
 .ic.t-cl{--t:color-mix(in srgb,var(--cherry-ink,var(--cherry)) 52%,var(--leaf-ink,var(--leaf)))}.ic.t-ch{--t:color-mix(in srgb,var(--cherry-ink,var(--cherry)) 58%,var(--honey-ink,var(--honey)))}
 .ic[class*=" t-"]{background:color-mix(in srgb,var(--t) 15%,var(--surface))!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--t) 20%,transparent)}
@@ -1652,7 +1601,7 @@ html.thx *,html.thx *::before,html.thx *::after{transition-property:transform,tr
 .vibe{display:flex;flex-direction:column;align-items:stretch;gap:2px;padding:8px 8px 10px;border-radius:18px;border:1px solid var(--line);background:var(--surface);color:var(--ink);text-align:left;cursor:pointer;font:inherit;transition:transform .15s,box-shadow .15s}
 .vibe b{font:700 .9rem/1.25 var(--display);margin:8px 4px 0}.vibe small{font-size:.76rem;line-height:1.3;color:var(--muted);margin:0 4px}
 .vibe[aria-pressed="true"]{box-shadow:0 0 0 2px var(--surface),0 0 0 4.5px var(--cherry)}.vibe:active{transform:scale(.97)}
-/* Each tile shows the vibe's light half and dark half side by side: paper, a card, a line of text and the accent. */
+
 .vb-pv{display:grid;grid-template-columns:1fr 1fr;height:64px;border-radius:12px;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
 .vb-pv i{position:relative;display:block}.vb-l{background:var(--l-p)}.vb-d{background:var(--d-p)}
 .vb-pv u{position:absolute;left:8px;right:8px;top:9px;height:30px;border-radius:7px}.vb-l u{background:var(--l-s)}.vb-d u{background:var(--d-s)}
@@ -1663,7 +1612,7 @@ html.thx *,html.thx *::before,html.thx *::after{transition-property:transform,tr
 .swatch{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 6px;border-radius:14px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:600 .8rem var(--display);cursor:pointer;text-align:center}
 .swatch i{width:34px;height:34px;border-radius:50%;box-shadow:inset 0 0 0 3px rgba(255,255,255,.35)}.swatch[aria-pressed="true"]{outline:3px solid var(--cherry);outline-offset:1px}
 .logos{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 8px}@media (min-width:600px){.logos{grid-template-columns:repeat(8,minmax(0,1fr))}}
-/* Each logo sits in an app-icon tile, as it would on a home screen. */
+
 .logopick{display:flex;flex-direction:column;align-items:center;gap:6px;padding:0;border:0;background:none;color:var(--muted);font:600 .74rem/1.2 var(--display);cursor:pointer;text-align:center}
 .logopick .lg-tile{display:grid;place-items:center;width:58px;height:58px;border-radius:17px;background:linear-gradient(160deg,var(--surface),var(--surface2));box-shadow:inset 0 0 0 1px var(--line),0 4px 12px -6px rgba(0,0,0,.25);transition:transform .15s,box-shadow .15s}
 .logopick svg{width:36px;height:36px}.logopick:active .lg-tile{transform:scale(.94)}
@@ -1671,12 +1620,12 @@ html.thx *,html.thx *::before,html.thx *::after{transition-property:transform,tr
 .setbtns{display:flex;flex-wrap:wrap;gap:8px}.setnote{font-size:.82rem;color:var(--muted);margin:.5rem 0 0}
 #ab-logo{display:inline-flex}#ab-logo svg{width:24px;height:24px}
 
-/* One heading scale everywhere: the page title (h2), section headings inside a page (h3.sec), card and panel titles. */
-h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;margin:2rem 0 .7rem}
-.panel>h2:not(#o-verdict),.panel .vd-head h2,#info>h2,.drecipe>h2,.plan-out h2,#scan-out h2{font-size:1.3rem;line-height:1.2}
 
-/* ---------- Bean gallery ---------- */
-/* Ratings are coffee beans: filled, half or empty. */
+h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;margin:2rem 0 .7rem}
+.panel>h2:not(#o-verdict),.panel .vd-head h2,#info>h2,.drecipe>h2,#scan-out h2{font-size:1.3rem;line-height:1.2}
+
+
+
 .beans-r{display:inline-flex;gap:3px;font-size:17px;line-height:1;vertical-align:middle}.beans-r.sm{font-size:12px}.beans-r.big{font-size:30px;gap:5px}
 .rb{position:relative;display:inline-block;width:1em;height:1em;flex:none}
 .rb>svg,.rbf svg{position:absolute;left:0;top:0;width:1em;height:1em}
@@ -1685,8 +1634,8 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
 .rbf svg .bo{fill:var(--cherry)}.rbf svg .bc{fill:none;stroke:color-mix(in srgb,var(--surface) 75%,var(--honey));stroke-width:1.6;stroke-linecap:round}
 .beanrate{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 14px;border-radius:var(--r-md);background:var(--surface2);cursor:pointer;width:max-content;max-width:100%;outline-offset:3px}
 .beanrate .rb{transition:transform .2s var(--ease-spring)}.beanrate .rb:active{transform:scale(.85) rotate(-8deg)}
-.br-w,.bd-rate span:last-child{font-family:var(--display);font-weight:700;color:var(--cherry-ink,var(--cherry))}
-/* Photo tiles. Without a photo: the origin region's colour, a big bean and the flag. */
+.br-w{font-family:var(--display);font-weight:700;color:var(--cherry-ink,var(--cherry))}
+
 .bpic{--rc:var(--cherry);position:relative;display:block;overflow:hidden;isolation:isolate;
   background:radial-gradient(120% 90% at 20% 10%,color-mix(in srgb,var(--rc) 55%,#fff3) 0%,transparent 60%),linear-gradient(155deg,color-mix(in srgb,var(--rc) 85%,#3a2416),color-mix(in srgb,var(--rc) 45%,#1a0f09))}
 .bpic>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;animation:bfade .35s ease}.bpic>img.now{animation:none}
@@ -1695,11 +1644,11 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
 .bph>svg{width:48%;height:48%;transform:rotate(-8deg);filter:drop-shadow(0 8px 14px rgba(0,0,0,.25))}.bph>svg .bo{fill:rgba(255,248,236,.22)}.bph>svg .bc{fill:none;stroke:rgba(255,248,236,.55);stroke-width:1.3}
 .bfl{position:absolute;right:9%;top:7%;font-size:1.35em;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3))}
 .bpic.sm .bfl,.bpic.av .bfl,.bpic.hero .bfl{display:none}
-/* Glass rating pill on photos. */
+
 .bglass{position:absolute;z-index:3;top:10px;right:10px;display:inline-flex;align-items:center;gap:4px;padding:4px 9px 4px 7px;border-radius:var(--r-pill);font-family:var(--display);font-weight:800;font-size:.82rem;color:#FFF8EE;
   background:rgba(30,18,11,.64);backdrop-filter:blur(10px) saturate(1.4);-webkit-backdrop-filter:blur(10px) saturate(1.4);box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
 .bglass svg{width:14px;height:14px}.bglass .bo{fill:#E2B866}.bglass .bc{fill:none;stroke:rgba(60,35,20,.6);stroke-width:1.6}
-/* Hero actions */
+
 .bgh-acts{position:relative;z-index:1;flex:1 0 100%;display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
 .bgh-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:8px 14px;border-radius:var(--r-pill);border:0;font:inherit;font-weight:700;font-size:.86rem;cursor:pointer;color:#FFF8EE;background:rgba(255,248,236,.14);box-shadow:inset 0 0 0 1px rgba(255,248,236,.28);transition:transform .15s var(--ease-out)}
 .bgh-btn.main{background:#FFF8EE;color:var(--hero-b);box-shadow:0 6px 16px -6px rgba(0,0,0,.5)}.bgh-btn:active{transform:scale(.95)}
@@ -1707,17 +1656,17 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
 .bg-hero.empty .bgh-fan{opacity:.8}
 @media (max-width:360px){.bgh-fan{width:72px;height:100px}.bgh-fan .bpic{width:50px;height:68px}.bgh-stats{gap:10px}.bgh-btn{padding:8px 10px;font-size:.8rem}.bgh-btn svg{width:15px;height:15px}.bg-hero h3{font-size:1.2rem}}
 .bgh-btn{white-space:nowrap}.bgh-k{white-space:nowrap}
-/* Coffees · Top 3 · Scans */
+
 .seg.bviews{margin:0 0 14px}
-/* Five views: each tab keeps its full name and the row scrolls sideways when they don't all fit. */
+
 .seg.bviews.scrollrow button{flex:0 0 auto;min-width:auto;padding-left:14px;padding-right:14px;overflow:visible;text-overflow:clip}
 @media (max-width:759px){.seg.bviews{position:sticky;top:calc(var(--ab-b,64px) + 6px);z-index:5;box-shadow:0 8px 20px -14px rgba(40,24,14,.35)}}
 .seg.bviews button{flex:1 1 auto;min-width:0;white-space:nowrap;padding-left:8px;padding-right:8px}.seg.bviews i{font-style:normal;font-size:.72rem;font-weight:700;margin-left:4px;padding:0 6px;border-radius:var(--r-pill);background:color-mix(in srgb,currentColor 14%,transparent)}.seg.bviews button:not([aria-pressed="true"]) i{color:var(--ink)}.seg.bviews button[aria-pressed="true"] i{background:color-mix(in srgb,var(--paper) 40%,transparent)}
-/* Switching Beans views: one simple, quick fade, the same whichever way you go. */
-/* Switching Beans views: the new one is already partly there on the first frame (no blank flash) and drifts in from the side you moved towards. */
+
+
 .bview.bv-in-r{--bvx:10px}.bview.bv-in-l{--bvx:-10px}
 .bview.bv-in-r,.bview.bv-in-l{animation:bvin .2s cubic-bezier(.2,.8,.3,1)}@keyframes bvin{from{opacity:.4;transform:translateX(var(--bvx))}to{opacity:1;transform:none}}
-/* Scans */
+
 .scan-cta{display:flex;align-items:center;gap:12px;padding:14px;border-radius:var(--r-lg);border:1px solid var(--hair);background:var(--surface);box-shadow:var(--shadow)}
 .scan-cta>span:nth-child(2){flex:1;min-width:0}.scan-cta b{display:block;font-family:var(--display)}.scan-cta small{display:block;font-size:.8rem;color:var(--muted);line-height:1.3}
 .scan-cta-ic{flex:none;display:grid;place-items:center;width:42px;height:42px;border-radius:14px;background:#4F8A74}.scan-cta-ic svg{width:22px;height:22px;fill:none;stroke:#FFF8EE;stroke-width:2;stroke-linecap:round}
@@ -1733,12 +1682,12 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
 .srow-add svg,.srow-in svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 .pm-ph{flex-direction:column;gap:6px}.pm-ph small{font-size:.7rem;font-weight:700;color:rgba(255,248,238,.55)}
 button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.96)}.pm.empty .pm-card{transition:transform .15s}
-/* Top 3 picker: the three places */
+
 .t3slots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:12px 0 2px}
-/* Five places in the picker: the podium three across, 4th and 5th beneath. */
+
 .t3slots.five{grid-template-columns:repeat(6,minmax(0,1fr))}.t3slots.five>.t3slot{grid-column:span 2}.t3slots.five>.t3slot.sm{grid-column:span 3}
 #t3-mode{margin-top:10px}
-/* 4th and 5th under the podium, then the honourable mentions, on the dark showcase. */
+
 .t45{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:18px auto 0;max-width:460px}
 .t45c{display:flex;align-items:center;gap:10px;min-width:0;padding:8px 10px 8px 8px;border-radius:16px;border:0;font:inherit;text-align:left;cursor:pointer;color:#FFF8EE;background:rgba(255,248,238,.07);box-shadow:inset 0 0 0 1px rgba(255,248,238,.12)}
 .t45c:active{transform:scale(.97)}.t45c .bpic{flex:none;width:40px;height:50px;border-radius:9px}
@@ -1752,7 +1701,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .t3hm-i{flex:none;display:flex;flex-direction:column;align-items:center;gap:5px;width:64px;border:0;background:none;padding:0;font:inherit;color:#FFF8EE;cursor:pointer}
 .t3hm-i .bpic{width:54px;height:54px;border-radius:50%;box-shadow:0 0 0 2px rgba(226,184,102,.7)}.t3hm-i small{font-size:.7rem;line-height:1.2;max-width:64px;text-align:center;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .t3hm-e{margin:8px 0 0;font-size:.84rem;color:rgba(255,248,238,.65)}
-/* Places 4 and 5 and mentions in the list of coffees */
+
 .cr-medal.r45{font-family:var(--display);font-weight:800;font-size:.72rem;color:#2C1B12}.cr-medal.hm{background:color-mix(in srgb,var(--honey) 18%,var(--surface));color:var(--honey-ink);font-size:.78rem}
 .t3slot{position:relative;min-width:0;border-radius:var(--r-md);border:1.5px solid var(--hair);background:var(--surface2);transition:border-color .2s,background .2s}
 .t3slot.act{border-color:var(--m);background:color-mix(in srgb,var(--m) 14%,var(--surface))}
@@ -1762,8 +1711,8 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .t3s-tx{display:flex;flex-direction:column;min-width:0;max-width:100%}.t3s-tx small{font-size:.66rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .t3s-tx b{font-family:var(--display);font-size:.8rem;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .t3s-x{position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;border:0;background:var(--surface);color:var(--muted);font-size:.7rem;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.15)}
-/* The hero: your coffee journal at a glance, with a fan of your latest bags. */
-/* Its colours come from the vibe: a deep shade of the accent. Dark vibes have light accents, so they mix in less. */
+
+
 .bg-hero{--hm:52%;--hr:30%;--hh:55%}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .bg-hero{--hm:32%;--hr:20%;--hh:40%}:root[data-vibe="pure"]:not([data-theme="light"]) .bg-hero{--hm:16%;--hr:10%}}
 :root[data-theme="dark"] .bg-hero{--hm:32%;--hr:20%;--hh:40%}:root[data-vibe="pure"][data-theme="dark"] .bg-hero{--hm:16%;--hr:10%}
@@ -1783,7 +1732,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .bgh-fan .bpic:nth-child(1){right:2px;transform:rotate(10deg) translateY(6px);z-index:3}.bgh-fan .bpic:nth-child(2){right:18px;transform:rotate(-2deg) translateY(-8px);z-index:2}.bgh-fan .bpic:nth-child(3){right:34px;transform:rotate(-14deg) translateY(8px);z-index:1}
 .bgh-fan .bpic:only-child{right:14px;transform:rotate(6deg)}
 .bg-hero:hover .bgh-fan .bpic:nth-child(1){transform:rotate(16deg) translate(6px,4px)}.bg-hero:hover .bgh-fan .bpic:nth-child(3){transform:rotate(-20deg) translate(-6px,8px)}
-/* Top 3: a dark espresso showcase. */
+
 .crown{position:relative;padding:20px 16px 18px;border-radius:var(--r-xl,28px);overflow:hidden;color:#FFF8EE;margin-bottom:8px;
   background:radial-gradient(80% 60% at 50% 18%,rgba(226,184,102,.32),transparent 70%),linear-gradient(180deg,#2C1B12,#160D08);box-shadow:var(--shadow)}
 .crown::before{content:"";position:absolute;left:50%;top:-40%;width:140%;height:120%;transform:translateX(-50%);pointer-events:none;background:conic-gradient(from 180deg at 50% 0%,transparent 0 40%,rgba(255,236,190,.08) 45%,transparent 50%,rgba(255,236,190,.06) 55%,transparent 60% 100%)}
@@ -1791,7 +1740,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .crown-k{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:#E2B866}
 .crown h3{margin:4px 0 0;font-family:var(--display);font-size:1.45rem;color:#FFF8EE}
 .crown-acts{display:flex;align-items:center;gap:8px;flex:none}
-/* A small Share button in a section's header (Top 5, Drinking now). */
+
 .sh-mini{display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:7px 14px;border-radius:var(--r-pill);border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-weight:700;font-size:.84rem;cursor:pointer}
 .sh-mini svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .sh-mini.ic{width:38px;padding:0;justify-content:center}
@@ -1818,15 +1767,14 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .pm-ph{position:absolute;inset:0;display:grid;place-items:center}.pm-ph svg{width:34%;fill:color-mix(in srgb,var(--m) 45%,transparent)}
 .pm.empty b{color:rgba(255,248,238,.55)}.podium.none{opacity:.9}
 .crown-empty{position:relative;text-align:center;font-size:.88rem;color:rgba(255,248,238,.72);margin:14px auto 2px;max-width:34ch}
-/* History: one tile per year. */
+
 .t3hist{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 8px;margin:0 -2px;scrollbar-width:none;scroll-snap-type:x mandatory}.t3hist::-webkit-scrollbar{display:none}
 .t3tile{flex:0 0 158px;scroll-snap-align:start;display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:14px;border-radius:var(--r-lg);border:0;font:inherit;text-align:left;cursor:pointer;color:#FFF8EE;
   background:radial-gradient(100% 80% at 100% 0%,rgba(243,213,143,.45),transparent 60%),linear-gradient(150deg,#8A5A3B,#3B2416);box-shadow:var(--shadow)}
 .t3y{font-family:var(--display);font-weight:800;font-size:1.5rem;line-height:1}
 .t3av{display:flex}.t3av .bpic{width:34px;height:34px;border-radius:50%;box-shadow:0 0 0 2px #FFF8EE}.t3av .bpic+.bpic{margin-left:-10px}
 .t3tile small{display:flex;align-items:center;gap:4px;font-size:.78rem;opacity:.9;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.t3tile small svg{flex:none;width:13px;height:13px;fill:#F3D58F}
-/* Your coffees */
-.rh-n{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:var(--r-pill);background:var(--surface2);color:var(--muted);letter-spacing:0}
+
 .bg-tools{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;margin-bottom:4px}.bg-tools .seg.filters{margin:0}
 .bg-gh{display:flex;align-items:center;gap:8px;margin:18px 2px 10px}.bg-gh b{font-family:var(--display);font-size:1.1rem}
 .bg-gh span{font-size:.74rem;font-weight:700;color:var(--muted);padding:1px 8px;border-radius:var(--r-pill);background:var(--surface2)}
@@ -1835,12 +1783,11 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
   background:linear-gradient(135deg,color-mix(in srgb,var(--m) 45%,#fff),var(--m));box-shadow:0 4px 10px rgba(0,0,0,.3)}
 @media (prefers-reduced-motion:reduce){.crow,.pm-sheen,.bpic>img{animation:none}.pm-sheen{display:none}}
 [data-motion="reduced"] .crow,[data-motion="reduced"] .bpic>img{animation:none}[data-motion="reduced"] .pm-sheen{display:none}
-/* One coffee */
+
 .bd-hero{position:relative;margin:4px 0 14px}.bpic.hero{aspect-ratio:4/3;border-radius:var(--r-lg);box-shadow:var(--shadow)}
 .bd-hero .bglass{top:12px;right:12px;font-size:.95rem;padding:6px 12px 6px 9px}.bd-hero .bglass svg{width:17px;height:17px}
-.bd-rate{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:6px 0 8px}
 .bd-v{font-size:.98rem!important;font-weight:700!important}
-/* ---------- From your cabinet: one coffee a day ---------- */
+
 .cday{display:flex;align-items:center;gap:14px;width:100%;text-align:left;border:0;border-radius:20px;padding:12px 16px 12px 12px;margin:4px 0 14px;cursor:pointer;font:inherit;color:var(--ink);
   background:linear-gradient(135deg,color-mix(in srgb,var(--honey) 16%,var(--surface)),var(--surface));box-shadow:var(--shadow),inset 0 0 0 1px var(--hair);transition:transform .2s var(--ease-out)}
 .cday:active{transform:scale(.98)}
@@ -1848,7 +1795,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .cd-tx{min-width:0}.cd-tx small{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--honey-ink,var(--cherry))}
 .cd-tx b{display:block;font-family:var(--display);font-size:1.05rem;line-height:1.25;margin:3px 0 2px}.cd-tx span{display:block;font-size:.86rem;line-height:1.4;color:var(--muted)}
 .cday.k-peak small{color:var(--leaf-ink,#2F6B36)}.cday.k-fade small,.cday.k-low small{color:var(--cherry)}
-/* ---------- On the shelf ---------- */
+
 .shelf-h{display:flex;align-items:baseline;gap:8px;margin:2px 2px 10px}.shelf-h b{font-family:var(--display);font-size:1.15rem}.shelf-h span{font-size:.8rem;color:var(--muted)}
 .fpill{align-self:flex-start;font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:var(--r-pill);background:var(--surface2);color:var(--ink)}
 .fpill.f-peak{background:color-mix(in srgb,#4F8A54 18%,var(--surface));color:color-mix(in srgb,#2F6B36 80%,var(--ink))}
@@ -1865,14 +1812,14 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 @keyframes bgfloat{50%{transform:translateY(-4px) rotate(-6deg)}}
 @media (prefers-reduced-motion:reduce){.bg-empty svg{animation:none}}
 .shelf-empty{margin:0 2px 14px;padding:12px 14px;border-radius:var(--r-md);border:1.5px dashed var(--line);font-size:.86rem;color:var(--muted)}
-/* The trophies along the top of the cabinet */
+
 .tshelf{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;margin:4px 0 4px;border-radius:var(--r-md);border:0;font:inherit;cursor:pointer;text-align:left;color:var(--ink);background:var(--surface2)}
   background:linear-gradient(180deg,#5A3A26,#3E2718);box-shadow:inset 0 1px 0 rgba(255,236,200,.18),0 6px 14px -8px rgba(0,0,0,.6)}
 .ts-k{flex:none;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;font-weight:800;color:var(--muted)}
 .ts-row{flex:1;min-width:0;display:flex;gap:4px;overflow:hidden;font-size:1.25rem;line-height:1}.ts-row i{font-style:normal;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}.ts-row em{font-size:.82rem;font-style:normal;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tshelf>b{flex:none;font-family:var(--display);font-size:1rem}.tshelf>b small{opacity:.78;font-size:.8em}
 .cab-h{margin-top:22px}
-/* Your coffees as a list: the bag, its name and where it's from, your rating at the end. */
+
 .clist{display:flex;flex-direction:column;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--shadow),inset 0 0 0 1px var(--hair);overflow:hidden}
 .crow{display:flex;align-items:center;gap:14px;width:100%;padding:10px 14px 10px 10px;border:0;background:none;font:inherit;color:var(--ink);text-align:left;cursor:pointer;transition:background .15s}
 .crow+.crow{box-shadow:inset 0 1px 0 var(--hair)}.crow:active{background:var(--surface2)}@media (hover:hover){.crow:hover{background:color-mix(in srgb,var(--surface2) 60%,var(--surface))}}
@@ -1887,15 +1834,15 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .cr-rate{display:inline-flex;align-items:center;gap:3px;font-family:var(--display);font-weight:800;font-size:.9rem;font-variant-numeric:tabular-nums}
 .cr-rate svg{width:15px;height:15px}.cr-rate .bo{fill:var(--honey)}.cr-rate .bc{fill:none;stroke:color-mix(in srgb,var(--ink) 55%,transparent);stroke-width:1.6}
 .cr-medal{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--m)}.cr-medal svg{width:13px;height:13px;fill:#2C1B12}
-/* ---------- The diary ---------- */
+
 .diary-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:18px 16px;border-radius:var(--r-xl,28px);color:var(--ink);margin-bottom:6px;background:linear-gradient(160deg,color-mix(in srgb,var(--honey) 14%,var(--surface)),var(--surface));box-shadow:inset 0 0 0 1px var(--hair)}
 .diary-h .crown-k{color:var(--honey-ink)}
 .diary-h h3{margin:4px 0 0;font-family:var(--display);font-size:1.35rem;color:var(--ink)}.diary-h h3 em{font-style:normal;color:var(--muted);font-size:.85em}.diary-h p{margin:8px 0 0;font-size:.88rem;color:var(--muted);max-width:36ch}
 .dy-m{margin:20px 2px 8px;font-family:var(--display);font-size:1rem;color:var(--muted)}
 .tline{list-style:none;margin:0;padding:0 0 0 6px;position:relative}
-/* Rows off screen aren't laid out until you scroll near them: long lists stay quick. */
+
 .tl-e,.crow{content-visibility:auto;contain-intrinsic-size:auto 84px}
-/* The same for the long lists elsewhere: recipes, grinders, brewers, champions, words, varieties, techniques, processes. */
+
 .rrow,.chwin,.gcard,#gear-brewers>.hovercard,#words article.card,#vgrid>.card,#tech .card,#process article.card{content-visibility:auto;contain-intrinsic-size:auto 160px}
 .dy-more{display:block;margin:14px auto 0}
 .tline::before{content:"";position:absolute;left:21px;top:8px;bottom:8px;width:2px;border-radius:1px;background:var(--line)}
@@ -1908,7 +1855,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .tl-b p{margin:4px 0 0;font-size:.9rem;line-height:1.45;white-space:pre-wrap}.tl-b .tl-meta{font-size:.8rem;color:var(--muted)}
 .tl-bean{display:flex;align-items:center;gap:8px;border:0;background:none;padding:0;margin:0 0 6px;font:inherit;color:var(--ink);cursor:pointer;text-align:left}
 .tl-bean .bpic{flex:none;width:26px;height:32px;border-radius:7px}.tl-bean b{font-size:.82rem;font-family:var(--display)}
-/* A coffee's page: the bag now, buying again, writing */
+
 .bd-shelf{margin:6px 0 14px;padding:14px;border-radius:var(--r-lg);background:var(--surface2)}
 .bd-fh{display:flex;align-items:baseline;justify-content:space-between;gap:8px}.bd-fh b{font-family:var(--display);font-size:1.05rem}.bd-fh span{font-size:.82rem;color:var(--muted)}
 .bd-f p{margin:8px 0 0;font-size:.88rem;line-height:1.45}.bd-fw{display:block;margin-top:6px;font-size:.76rem;color:var(--muted);line-height:1.4}
@@ -1922,21 +1869,20 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .bd-step b{min-width:52px;text-align:center;font:700 .95rem var(--display);font-variant-numeric:tabular-nums}
 .bd-cupr .btn{min-height:40px;padding:0 16px;font-size:.88rem}
 .bd-auto{margin:8px 0 0;font-size:.8rem;color:var(--muted)}
-.bd-bagb{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.bd-bagb .chip{cursor:pointer;padding:7px 13px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line)}
 .bd-done{width:100%;margin-top:12px}
-/* The coffee page: share and edit as round icons in the header, beside close. */
+
 .vd-tools{position:absolute;right:62px;top:12px;display:flex;gap:8px}
 .vd-tool{width:40px;height:40px;border-radius:999px;border:0;background:var(--surface2);color:var(--ink);display:grid;place-items:center;cursor:pointer;padding:0}
 .vd-tool svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .vd-tool:active{transform:scale(.94)}
 @media (max-width:759px){html dialog#vd:not(.camdlg) .vd-head .vd-tools{top:calc(12px + var(--sa-top,0px))}}
 .vd-head:has(.vd-tools) .pill{max-width:calc(100% - 170px)}
-/* What's left: the bar across, the grams and "Set what's left" on one line under it. */
+
 .bd-bagh{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px}.bd-bagh .bagl{display:contents}
 .bd-bagh .bagm{flex:1 0 100%}.bd-bagh .linkbtn{font-size:.84rem;font-weight:700;padding:4px 0}
 .bd-shelf .bagm{background:color-mix(in srgb,var(--ink) 10%,var(--surface))}
 .vd-head:has(.vd-tools) .vd-back{position:static;display:inline-flex;margin:0 0 10px}
-/* Advent calendars: the boxes on the Coffees page, and a calendar's page of numbered doors. */
+
 .adv-invite{display:flex;align-items:center;gap:12px;width:100%;margin:14px 0 4px;padding:12px 14px;border:1px dashed color-mix(in srgb,var(--cherry) 40%,var(--line));border-radius:var(--r-lg);background:color-mix(in srgb,var(--cherry) 5%,var(--surface));color:var(--ink);font:inherit;text-align:left;cursor:pointer}
 .adv-invite b{display:block;font-family:var(--display);font-size:.95rem}.adv-invite small{display:block;color:var(--muted);font-size:.8rem;line-height:1.35;margin-top:2px}
 .adv-ii{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb,var(--cherry) 14%,var(--surface));color:var(--cherry-ink,var(--cherry))}.adv-ii svg{width:22px;height:22px}
@@ -1970,7 +1916,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .adv-door.on .adv-n{position:absolute;left:6px;top:6px;font-size:.8rem;min-width:22px;height:22px;padding:0 5px;border-radius:999px;display:grid;place-items:center;background:rgba(20,12,8,.66);color:#FFF8EE;z-index:2}
 .adv-dr{position:absolute;right:6px;bottom:6px;z-index:2;font-family:var(--display);font-weight:800;font-size:.74rem;padding:2px 7px;border-radius:999px;background:rgba(20,12,8,.66);color:#FFF8EE}
 .adv-tip{margin:4px 0 8px}
-/* A tapped door presses in and lights up; the one you come back from glows once. Flat, no 3D: the number stays put. */
+
 .adv-door{transition:transform .15s var(--ease-out)}
 .adv-door.opening{animation:adv-press .2s ease-out forwards}
 @keyframes adv-press{0%{transform:scale(1)}55%{transform:scale(.93)}100%{transform:scale(.96);box-shadow:0 0 0 3px color-mix(in srgb,var(--honey) 60%,transparent);background:color-mix(in srgb,var(--honey) 22%,var(--surface))}}
@@ -1979,29 +1925,27 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 #vd-in.adv-fwd{animation:adv-fwd .3s cubic-bezier(.2,.8,.3,1)}#vd-in.adv-bwd{animation:adv-bwd .3s cubic-bezier(.2,.8,.3,1)}
 @keyframes adv-fwd{from{opacity:.45;transform:translateX(28px)}}@keyframes adv-bwd{from{opacity:.45;transform:translateX(-28px)}}
 @media (prefers-reduced-motion:reduce){.adv-door.opening,.adv-door.back,#vd-in.adv-fwd,#vd-in.adv-bwd{animation:none!important}}
-/* The calendar's own photo: on its card and across the top of its page. */
+
 .adv-thumb{flex:none;width:66px;height:66px;border-radius:12px}
 .bpic.adv-hero{aspect-ratio:16/10}
 .adv-rev{display:flex;flex-direction:column;gap:10px;margin:6px 0 4px}.adv-rev textarea{width:100%}
 .adv-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .bd-acts{display:grid;grid-template-columns:1fr;gap:8px;margin-top:16px}.bd-acts .btn{width:100%;margin:0}
-.bd-again{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:14px 0 6px;font-weight:600;font-size:.92rem}
 .dwrite{padding:12px;border-radius:var(--r-lg);background:var(--surface2);margin-bottom:12px}
 .dmoms{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -12px 10px;padding:0 12px}.dmoms::-webkit-scrollbar{display:none}
 .dmoms button{flex:none;display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--r-pill);border:0;font:inherit;font-size:.82rem;font-weight:600;cursor:pointer;background:var(--surface);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
 .dmoms button[aria-pressed="true"]{background:var(--cherry);color:var(--surface);box-shadow:none}
 .dwrite textarea{width:100%;box-sizing:border-box;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r-md);padding:10px 12px}
-.bd-again .seg{flex:none}.bd-again .seg button{flex:none;min-width:64px}
 .dw-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}.dw-row input{flex:1 1 140px;min-width:0}.dw-row .btn{flex:1 1 auto}
 .dw-cam{display:inline-flex;align-items:center;justify-content:center;gap:6px}.dw-cam svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round}
 .dw-ph{position:relative;margin-top:8px;width:min(100%,220px);aspect-ratio:4/3;border-radius:var(--r-md);overflow:hidden;background:var(--surface)}.dw-ph[hidden]{display:none}
 .dw-ph img{width:100%;height:100%;object-fit:cover;display:block}
 .dw-phx{position:absolute;top:6px;right:6px;width:32px;height:32px;border-radius:50%;border:0;background:rgba(20,12,8,.62);color:#fff;font-size:.8rem;cursor:pointer}
-/* Which coffee an entry in the Diary view is about */
+
 .dbeans{margin-bottom:8px}.dbeans button{padding:4px 12px 4px 4px;max-width:200px}.dbeans button span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dbeans .bpic{flex:none;width:24px;height:28px;border-radius:999px}.dbeans button[data-dyb="more"]{padding:6px 12px}
 
-/* Photos in the diary */
+
 .tl-ph{display:block;width:min(100%,260px);margin:8px 0 2px;padding:0;border:0;background:none;cursor:zoom-in;border-radius:var(--r-md)}
 .tl-pic{position:relative;display:block;width:100%;aspect-ratio:4/3;border-radius:var(--r-md);overflow:hidden;background:var(--surface2)}
 .tl-pic>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;animation:bfade .35s ease}.tl-pic>img.now{animation:none}
@@ -2009,14 +1953,14 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .phv:not([open]){display:none}.phv.closing{animation:phout .18s ease forwards}@keyframes phout{to{opacity:0}}.phv::backdrop{background:rgba(10,6,4,.6)}
 .phv img{max-width:calc(100vw - 32px);max-height:calc(100vh - 96px);object-fit:contain;border-radius:12px;animation:bfade .25s ease}
 .phv-x{position:fixed;top:max(12px,env(safe-area-inset-top));right:14px;width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.14);color:#fff;font-size:1rem;cursor:pointer}
-/* On this day */
+
 .otd{display:flex;align-items:center;gap:12px;width:100%;margin:0 0 12px;padding:10px 12px;border:0;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--shadow),inset 3px 0 0 #C9964A;font:inherit;color:var(--ink);text-align:left;cursor:pointer}
 .otd .bpic{flex:none;width:40px;height:48px;border-radius:10px}.otd .otd-pic{flex:none;width:56px;height:56px;aspect-ratio:auto;border-radius:10px}
 .otd-tx{display:flex;flex-direction:column;gap:2px;min-width:0}.otd-k{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;font-weight:800;color:var(--muted)}
 .otd-tx b{font-size:.92rem;font-family:var(--display)}.otd-tx small{font-size:.84rem;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-/* This year in coffee */
+
 .yic{margin:14px 0 4px;padding:12px 14px;border-radius:var(--r-lg);background:var(--surface2)}
-/* The year card: a line that sums up the year, three big numbers, then what you bought and brewed most, and your notes. */
+
 .yic{padding:16px 16px 14px}.yic-line{margin:6px 0 0;font:600 1rem/1.4 var(--display);color:var(--ink)}
 .yic-big{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.yic-big span{display:flex;flex-direction:column;padding:10px 12px;border-radius:14px;background:var(--surface);min-width:0}
 .yic-big b{font:800 1.45rem/1.1 var(--display);color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}.yic-big small{font-size:.76rem;color:var(--muted);margin-top:2px}
@@ -2026,18 +1970,16 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .yic-facts b{font:650 .92rem/1.25 var(--display);color:var(--ink);overflow-wrap:anywhere}.yic-facts em{font-style:normal;font-size:.74rem;color:var(--muted)}
 .yic-fl{font-size:1.05rem}
 .yic-notes{margin-top:14px}.yic-notes small,.me-notes small{display:block;font-size:.7rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}.yic-notes .chips{margin:0}
-/* Your coffee taste, on the profile. */
+
 .me-taste{margin:16px 0 4px;padding:14px;border-radius:var(--r-lg);background:var(--surface2)}
 .me-th{display:flex;flex-direction:column;gap:2px}.me-th b{font:700 1.02rem var(--display)}.me-th small{font-size:.78rem;color:var(--muted)}
 .me-tl{margin:8px 0 0;font:600 .98rem/1.4 var(--display);color:var(--ink)}
-/* Swipeable rows start flush with the text above them and fade out at the right edge, so nothing looks cut at the start. */
+
 .me-tiles{display:flex;gap:8px;margin:12px 0 0;padding:0 24px 2px 0;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 24px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 24px),transparent)}.me-tiles::-webkit-scrollbar{display:none}
 .me-tiles>div{flex:none;width:104px;scroll-snap-align:start;display:flex;flex-direction:column;gap:2px;padding:10px;border-radius:14px;background:var(--surface)}
-.me-mine{margin:16px 0 4px;padding:0;overflow:visible;-webkit-mask-image:none;mask-image:none}.me-mine>div{flex:1 1 0;min-width:0;width:auto;background:var(--surface2)}
 .me-tiles i{font-style:normal;font-size:1.15rem;line-height:1;margin-bottom:4px}.me-tiles small{font-size:.68rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
 .me-tiles b{font:650 .9rem/1.2 var(--display);color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-/* The taste facts sit in a grid of three that wraps, so every fact shows in full (a sideways strip hid the third one
-   behind its fade and cut its name off). Names can take two lines. */
+
 .me-tiles{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible!important;padding:0!important;-webkit-mask-image:none!important;mask-image:none!important}
 .me-tiles>div{width:auto!important}.me-tiles b{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:break-word;hyphens:auto}
 .yic-notes .chip,.me-notes .chip{background:var(--surface);border:1px solid var(--line)}.me-notes{margin:12px 0 0}
@@ -2045,7 +1987,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .yic-row{display:flex;gap:8px 20px;flex-wrap:wrap;margin-top:6px}.yic-row span{display:flex;flex-direction:column;min-width:0}
 .yic-row b{font-family:var(--display);font-size:1.2rem;line-height:1.2;color:var(--ink)}.yic-row small{font-size:.76rem;color:var(--muted);max-width:16ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cr-notes{font-style:italic}
-/* ---------- The passport ---------- */
+
 .passport{position:relative;padding:18px 14px 16px;border-radius:24px;color:#2A1A10;margin-bottom:8px;
   background:repeating-linear-gradient(0deg,transparent 0 27px,rgba(90,60,30,.06) 27px 28px),radial-gradient(120% 90% at 50% 0%,#FBF3E4,#EFE1C8);box-shadow:inset 0 0 0 1.5px rgba(120,80,40,.18),var(--shadow)}
 .pp-k{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:#7A4A26}
@@ -2060,19 +2002,17 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .pp-empty{margin:16px 0 4px;font-size:.9rem;color:#5A3E2A}
 .pp-next{margin-top:14px;padding-top:12px;border-top:1px dashed rgba(90,60,30,.25)}.pp-next b{display:block;font-size:.82rem;margin-bottom:6px;color:#5A3E2A}
 .pp-next .chip{cursor:pointer;background:rgba(255,255,255,.65);color:#2A1A10;box-shadow:inset 0 0 0 1px rgba(90,60,30,.18)}
-/* ---------- Trophies ---------- */
+
 .trophies{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px}
 .tro{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--r-md);background:var(--surface);box-shadow:var(--shadow)}
 .tro-ic{flex:none;width:44px;height:44px;display:grid;place-items:center;border-radius:50%;font-size:1.35rem;background:var(--surface2);filter:grayscale(1);opacity:.55}
 .tro.on .tro-ic{filter:none;opacity:1;background:radial-gradient(circle at 35% 30%,#FFF1C9,#E2B866 60%,#B07D35);box-shadow:0 4px 10px -4px rgba(176,125,53,.8)}
-.tro-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.tro-tx b{font-size:.92rem}.tro-tx small{font-size:.78rem;color:var(--muted);line-height:1.3}
 .tro-p{display:block;height:5px;margin-top:4px;border-radius:3px;background:var(--surface2);overflow:hidden}.tro-p i{display:block;height:100%;background:var(--cherry);border-radius:3px}
-.tro-n{flex:none;font-size:.78rem;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
 .vd-sub{margin:.1rem 0 0;color:var(--muted)}
 .linkbtn.danger{display:block;margin:16px auto 0;color:#A8432F!important}
 [data-theme="dark"] .linkbtn.danger{color:#EE8A72!important}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .linkbtn.danger{color:#EE8A72!important}}
-/* Adding and editing */
+
 .beform input:not([type=file]),.beform textarea{width:100%;min-width:0;box-sizing:border-box;font-size:16px}.beform .two>.field{min-width:0}
 .be-photo{position:relative;aspect-ratio:4/3;border-radius:var(--r-lg);overflow:hidden;cursor:pointer;margin-bottom:10px;border:1.5px dashed color-mix(in srgb,var(--cherry) 40%,var(--line));
   background:radial-gradient(100% 80% at 20% 0%,color-mix(in srgb,var(--honey) 30%,transparent),transparent 60%),var(--surface2)}
@@ -2080,7 +2020,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .be-photo>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .be-photo .bph{flex-direction:column;align-content:center;gap:6px}.be-photo .bph>svg{width:56px;height:56px}.be-photo .bph>svg .bo{fill:color-mix(in srgb,var(--cherry) 25%,var(--surface))}.be-photo .bph>svg .bc{stroke:var(--cherry)}.be-photo .bph small{color:var(--muted);font-weight:600}
 .be-rm{position:absolute;top:10px;right:10px;width:36px;height:36px;border-radius:50%;border:0;background:rgba(0,0,0,.55);color:#fff;font-size:1rem;cursor:pointer}
-/* Picking the top 3 */
+
 .pk-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:5px}.pk-meta .fpill{align-self:center}
 .pk-left{font-size:.78rem;color:var(--muted);font-weight:600}
 .t3list{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;margin:4px 0 6px}
@@ -2091,14 +2031,14 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .t3o-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.t3o-tx b{font-family:var(--display);font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.t3o-tx small{font-size:.78rem;color:var(--muted)}
 .t3o-r{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:800;color:#2C1B12;border:2px solid var(--line)}
 .t3opt.on .t3o-r{background:linear-gradient(135deg,color-mix(in srgb,var(--m) 45%,#fff),var(--m));border-color:var(--m)}
-/* Dial-in: the beans you're brewing */
+
 .dbean{display:flex;align-items:center;gap:12px;padding:8px 8px 8px 8px;border-radius:var(--r-md);background:var(--surface2)}
 .dbean .bpic{width:46px;height:58px;border-radius:12px;flex:none}
 .dbean-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;padding:0;border:0;background:none;font:inherit;color:var(--ink);text-align:left;cursor:pointer}
 .dbean-tx b{font-family:var(--display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dbean-tx small{font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dbean-x{flex:none;width:36px;height:36px;border-radius:50%;border:0;background:var(--surface);color:var(--muted);cursor:pointer}
 .dbean-pick{display:inline-flex;align-items:center;gap:8px}.dbean-pick svg{width:20px;height:20px}.dbean-pick .bo{fill:var(--cherry)}.dbean-pick .bc{fill:none;stroke:var(--surface);stroke-width:1.6}
-/* Brew card in the share sheet */
+
 .cardview{display:block;width:100%;max-width:420px;margin:4px auto 12px;border-radius:18px;box-shadow:0 18px 40px -16px rgba(0,0,0,.6);-webkit-touch-callout:default;user-select:auto}
 .shcard{--sa:var(--cherry-ink,var(--cherry));display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin:14px 0 4px;padding:12px;border-radius:var(--r-lg);background:linear-gradient(135deg,color-mix(in srgb,var(--sa) 10%,var(--surface2)),var(--surface2));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--sa) 14%,transparent);color:var(--ink)}
 .shcard-pv{flex:none;width:96px;aspect-ratio:9/16;border-radius:14px;overflow:hidden;border:0;padding:0;cursor:pointer;background:color-mix(in srgb,var(--ink) 6%,transparent);box-shadow:0 10px 24px -10px rgba(0,0,0,.45),0 0 0 1.5px color-mix(in srgb,var(--sa) 45%,transparent);transform:rotate(-3deg);transition:transform .25s var(--ease-spring)}
@@ -2107,7 +2047,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .shcard-tx{flex:1;min-width:0}.shcard-tx b{display:block;font-family:var(--display);font-size:1.08rem;color:var(--sa)}.shcard-tx small{display:block;font-size:.8rem;line-height:1.35;color:var(--muted);margin-top:2px}
 .shcard-act{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.shcard-act .btn{min-height:40px;padding:8px 14px;flex:1 1 auto}
 .shcard-act .btn:not(.ghost){background:var(--sa);border-color:var(--sa);color:var(--paper)}.shcard-act .btn.ghost{color:var(--ink);border-color:color-mix(in srgb,var(--ink) 22%,transparent);background:transparent}
-/* The card's style: Dark or Light, then its colours, each swatch painted in the card's background and accent. */
+
 .shstyle{flex-basis:100%;min-width:0;border-top:1px solid color-mix(in srgb,var(--ink) 12%,transparent);padding-top:12px}
 .shmode{display:inline-flex;padding:3px;border-radius:999px;background:color-mix(in srgb,var(--ink) 7%,transparent);margin-bottom:10px}
 .shmode button{border:0;background:none;font:inherit;font-size:.84rem;font-weight:700;padding:7px 16px;border-radius:999px;min-height:36px;cursor:pointer;color:var(--muted)}
@@ -2122,8 +2062,8 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .steps.tl .t.est{background:transparent;border:1px dashed color-mix(in srgb,var(--ink) 30%,transparent);opacity:.85}
 
 .av-note{grid-column:1/-1;margin:0;font-size:.8rem}.getapp a.btn{text-decoration:none;display:flex;justify-content:center;align-items:center;text-align:center}
-/* A long coffee list: rows off screen skip layout and paint until you scroll near them (opening Beans was slow). */
-#bg-grid .crow,#bv-diary .tl-item,#log .logentry{content-visibility:auto;contain-intrinsic-size:auto 76px}
+
+#bg-grid .crow,#log .logentry{content-visibility:auto;contain-intrinsic-size:auto 76px}
 .gs-lead{margin:-2px 2px 10px}.setgroup.gs{margin-bottom:12px}
 .gs .gs-all{width:132px;flex:none}.gs .stepper output{font-size:.95rem}
 .gs-each{border-top:1px solid var(--line);padding:0 14px}.gs-each>summary{cursor:pointer;padding:12px 0;font-weight:600;font-size:.9rem;color:var(--cherry-ink,var(--cherry))}
@@ -2134,7 +2074,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .gtabs{position:sticky;top:calc(var(--sa-top,0px) + 64px);z-index:5;margin:14px 0 6px;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:6px;border-radius:var(--r-pill)}
 .gpanel{padding-top:6px}.gpanel>.gsec:first-child,.gpanel>#st-grind:first-child{margin-top:8px}
 .gs-shortcut .btn{white-space:nowrap}
-/* The dial-in in four steps that fold to a one-line summary. */
+
 .dstep{border-bottom:1px solid var(--line);margin:0 -2px}.dstep:last-of-type{border-bottom:0}
 .dstep>summary{list-style:none;display:flex;align-items:center;gap:12px;padding:14px 2px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .dstep>summary::-webkit-details-marker{display:none}
@@ -2154,7 +2094,7 @@ body.t-dial.dial-ready .herowrap{display:none}
 .ssn-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.ssn-tx b{font-family:var(--display);font-size:.95rem}.ssn-tx small{color:var(--muted);font-size:.8rem}
 .ssn-n{flex:none;text-align:right;font:700 .9rem var(--display);display:flex;flex-direction:column;align-items:flex-end}.ssn-n small{font:500 .72rem var(--body);color:var(--muted)}
 .ssn-next{margin:8px 0 0;font-size:.82rem;color:var(--muted)}.ssn-got{margin-bottom:6px}
-/* Coffee rows, cleaned up. */
+
 .crow{align-items:flex-start;gap:12px;padding:12px 14px 12px 12px}
 .crow .bpic,.clist.now .crow .bpic{width:52px;height:52px;border-radius:14px}
 .cr-top{display:flex;align-items:center;gap:8px;min-width:0}.cr-top b{flex:1;min-width:0;-webkit-line-clamp:1!important}
@@ -2168,32 +2108,31 @@ body.t-dial.dial-ready .herowrap{display:none}
 .cr-bar{display:block;height:4px;border-radius:4px;background:color-mix(in srgb,var(--line) 70%,transparent);margin-top:8px;overflow:hidden}
 .cr-bar i{display:block;height:100%;border-radius:4px;background:color-mix(in srgb,var(--cherry) 70%,var(--honey))}
 .crow,.crow.now{contain-intrinsic-size:auto 80px}
-/* The year in coffee: even tiles. */
+
 .yic-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:12px 14px}
 .yic-row span{min-width:0}.yic-row b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:1.1rem}
-/* No clipping: the journal label wraps beside the bag picture, and the view tabs share the width. */
+
 .bgh-k{white-space:normal!important;display:block;line-height:1.4;padding-right:4px}
-/* One tab track for Beans and Gear: a soft rail, tabs sized to their words, the chosen one filled. */
+
 .seg.bviews,.gtabs{display:flex!important;flex-wrap:nowrap!important;gap:2px!important;padding:4px!important;margin-left:0!important;margin-right:0!important;border-radius:var(--r-pill);background:color-mix(in srgb,var(--surface2) 88%,transparent)!important;border:1px solid color-mix(in srgb,var(--line) 60%,transparent);overflow:visible!important;-webkit-mask-image:none!important;mask-image:none!important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .seg.bviews button,.gtabs button{flex:1 1 auto!important;min-width:0;min-height:38px;display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:0 10px!important;border:0!important;border-radius:var(--r-pill)!important;background:transparent!important;box-shadow:none!important;color:var(--muted)!important;font-size:.84rem!important;font-weight:600;letter-spacing:0!important;white-space:nowrap;overflow:visible;text-overflow:clip}
 .seg.bviews button[aria-pressed="true"],.gtabs button[aria-pressed="true"]{background:var(--cherry)!important;color:var(--surface)!important;box-shadow:0 1px 3px rgba(0,0,0,.14)!important}
 .seg.bviews button i{margin:0!important;padding:0!important;background:none!important;color:inherit!important;font-size:.7rem!important;font-weight:700;opacity:.7;font-variant-numeric:tabular-nums}
 @media (max-width:399px){.seg.bviews button,.gtabs button{padding:0 6px!important;font-size:.8rem!important}}
 @media (max-width:359px){.seg.bviews button,.gtabs button{padding:0 4px!important;font-size:.74rem!important}.seg.bviews button i{display:none}}
-/* A coffee's varieties in the editor: one picker per variety, a quiet remove, and a dashed "add another". */
+
 .bvars{display:grid;gap:8px}.bvar{display:flex;gap:8px;align-items:stretch}.bvar select{flex:1 1 auto;min-width:0}
 .bvar-x{flex:none;width:44px;min-height:44px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--muted);display:grid;place-items:center;cursor:pointer;padding:0}
 .bvar-x:hover{color:var(--cherry-ink);border-color:color-mix(in srgb,var(--cherry) 40%,var(--line))}
 .bvar-x svg,.bv-add svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
 .bv-add{margin-top:8px;display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:6px 14px;border-radius:var(--r-pill);border:1px dashed color-mix(in srgb,var(--cherry) 45%,var(--line));background:transparent;color:var(--cherry-ink);font:inherit;font-weight:600;font-size:.86rem;cursor:pointer}
 .bv-add[hidden]{display:none}
-/* The dialog header stays above anything that scrolls under it (the rating beans drew over it). */
+
 .vd-head{z-index:4}
 .bvar select{width:100%}
 @media (max-width:399px){.two.bagrow{grid-template-columns:1fr!important;display:grid}}
 .beform .seg button{min-width:0;white-space:nowrap;overflow:visible;text-overflow:clip;padding-left:6px;padding-right:6px}
-/* Tasting notes in the editor: chosen notes as chips in their wheel colours, a find-or-type box, notes the coffee is
-   known for and the wheel's families to browse. */
+
 .tn-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px}.tn-head label{margin:0;font-size:.92rem;font-weight:600}
 .tn-box{display:grid;gap:10px;padding:12px;border-radius:var(--r-md);background:var(--surface2)}
 .tn-sel .fwbar{margin:10px 2px 2px}.tn-sel .fwbar-key{margin:0 2px}
@@ -2223,13 +2162,13 @@ body.t-dial.dial-ready .herowrap{display:none}
 .tn-fam[hidden]{display:none}.tn-fd{margin:0;font-size:.85rem;color:var(--muted);line-height:1.45}
 .tn-g small{display:block;font-size:.76rem;font-weight:700;color:var(--ink-soft,var(--muted));margin:0 2px 6px}
 .tn-fam .tn-c{background:var(--surface2);border-color:transparent}.tn-fam .tn-c.on{background:color-mix(in srgb,var(--fc) 20%,var(--surface));border-color:var(--fc)}
-/* Suggestions under a text box: the app's own list, a solid card. */
+
 .acw{position:relative}
 .acl{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:6;max-height:236px;overflow-y:auto;padding:6px;border-radius:var(--r-md);background:var(--surface);border:1px solid var(--line);box-shadow:0 14px 34px -12px rgba(0,0,0,.45)}
 .acl[hidden]{display:none}
 .aco{padding:11px 12px;border-radius:10px;cursor:pointer;color:var(--ink);font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .aco:hover,.aco[aria-selected="true"]{background:var(--surface2)}
-/* Explore's "Today in coffee": the panel the app uses everywhere, two rows with the hub tiles' icons. */
+
 .today{padding:14px 14px 6px;margin:4px 0 8px}
 .td-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:2px 4px 8px}
 .td-head h2{margin:0;font:700 1.08rem/1.2 var(--display);color:var(--ink)}.td-head span{font-size:.8rem;color:var(--muted);white-space:nowrap}
@@ -2242,7 +2181,7 @@ body.t-dial.dial-ready .herowrap{display:none}
 .td-t>span{font-size:.9rem;line-height:1.5;color:color-mix(in srgb,var(--ink) 78%,var(--muted))}
 .td-go{flex:none;width:18px;height:18px;margin-top:12px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .td-row:active{background:color-mix(in srgb,var(--ink) 4%,transparent)}
-/* Dates: the field reads like the app's other fields; the calendar opens in the dropdowns' sheet. */
+
 .datew{position:relative;display:flex;align-items:center;gap:10px;width:100%;min-height:46px;padding:0 14px;border-radius:var(--r-md,14px);background:var(--surface2);border:1px solid transparent;color:var(--ink);cursor:pointer;-webkit-tap-highlight-color:transparent;box-sizing:border-box}
 .datew>input{position:absolute;inset:0;opacity:0;pointer-events:none;width:100%;height:100%}
 .datew .dw-t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:1rem}.datew.empty .dw-t{color:var(--muted)}
@@ -2266,31 +2205,29 @@ body.t-dial.dial-ready .herowrap{display:none}
 .cm[aria-pressed="true"]{background:var(--cherry);color:var(--surface)}.cm:disabled{opacity:.35;cursor:default}
 .calq{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}.calq .chip{cursor:pointer}.calq .calclear{margin-left:auto}.calq .chip:disabled{opacity:.4}
 dialog#selsheet.pop.dates .selhead{display:none}
-/* Every disclosure row in one style: no browser marker, the app's chevron after the words, turning as it opens.
-   (The dial-in steps draw their own chevron.) */
+
 summary{list-style:none}summary::-webkit-details-marker{display:none}summary::marker{content:""}
 details:not(.dstep)>summary{display:flex;align-items:center;gap:8px;-webkit-tap-highlight-color:transparent}
 details:not(.dstep)>summary::after{content:"";flex:none;width:7px;height:7px;margin:0 4px 0 auto;border-right:2px solid currentColor;border-bottom:2px solid currentColor;opacity:.6;transform:rotate(45deg) translateY(-2px);transition:transform .2s}
 details:not(.dstep)[open]>summary::after{transform:rotate(-135deg) translateY(-1px)}
-/* Short link-like rows keep the chevron beside the words rather than at the far edge. */
+
 :is(details.gspec,details.rsteps,details.tm-all,details.cal)>summary{justify-content:flex-start}
 :is(details.gspec,details.rsteps,details.tm-all,details.cal)>summary::after{margin-left:2px}
 details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{flex-basis:100%;order:2}
-/* Words are never cut short: titles, meta lines, notes and previews wrap instead of ending in "…" or a clamp.
-   (Dropdown boxes, segmented tabs and the date field size themselves to fit instead.) */
+
 :is(.srow-tx small,.t45t small,.ts-row em,.actions.two-up>.btn,.meta span,.tm-nx,.again b,.wcard .wdef,.gcard .gtop .hint,.bshelf b,.rr-by,.me-dna b,.srow-tx b,.t45t b,.t3hm-i small,.t3s-tx b,.pm b,.pm small,.t3tile small,.cr-tx b,.cr-tx>small,.cr-notes,.dbeans button span:last-child,.otd-tx small,.yic-row small,.yic-row b,.pp-reg small,.t3o-tx b,.dbean-tx b,.dbean-tx small,.shsw span,.dst small,.cr-top b,.aco,.fit-head b){white-space:normal!important;overflow:visible!important;text-overflow:clip!important;-webkit-line-clamp:unset!important;line-clamp:none!important;overflow-wrap:anywhere}
 .actions.two-up>.btn{line-height:1.2;padding-top:8px;padding-bottom:8px}
-/* Two date fields side by side on a narrow phone: the words get the room, the icon steps aside. */
+
 @media (max-width:399px){.two .datew{padding:0 10px;gap:6px}.two .datew svg{display:none}.two .datew .dw-t{font-size:.95rem}}
-/* The scan before a coffee is read: a quiet placeholder where the profile will be, and a way to start another. */
+
 .scan-wait{display:grid;justify-items:center;text-align:center;gap:6px;padding:28px 12px}
 .scan-wait .sw-ic .cuptile{width:52px;height:52px;border-radius:15px;background:color-mix(in srgb,var(--cherry) 14%,var(--surface2));box-shadow:none}
 .scan-wait .sw-ic .cuptile svg{stroke:var(--cherry)}
 .scan-wait b{font:700 1.05rem/1.3 var(--display);margin-top:6px}.scan-wait .hint{margin:0;max-width:30ch}
 .sc-new{display:block;margin:14px auto 0}
-/* The welcome on Brew: a card like the others, with a greeting and the day's line of coffee wisdom. */
+
 .welcome{margin:0 0 12px;padding:16px 18px 18px}
-/* Your last brew, on the Brew tab: its result to share in one tap, and the way into the whole log. */
+
 .lastbrew{display:flex;align-items:center;gap:12px;margin:0 0 12px;padding:12px 12px 12px 14px;background:var(--surface);border:1px solid var(--line);border-radius:22px}
 .lb-open{flex:1;min-width:0;display:flex;align-items:center;gap:12px;background:none;border:0;padding:0;text-align:left;color:inherit;font:inherit;cursor:pointer}
 .lb-ic{flex:none;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:color-mix(in srgb,var(--honey) 20%,var(--surface2));color:var(--cherry)}
@@ -2298,10 +2235,10 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
 .lastbrew .lb-tx{min-width:0;display:flex;flex-direction:column;gap:1px}.lastbrew .lb-tx small{font-size:.74rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .lastbrew .lb-tx b{font-size:1.02rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lastbrew .lb-tx>span{font-size:.84rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lastbrew .lb-tx .st .brate{font-size:12px}.lastbrew .lb-tx .st{color:var(--honey-ink,#9A6B1F);letter-spacing:1px}
 .lb-act{flex:none;display:flex;flex-direction:column;gap:6px}.lb-act .btn{min-height:38px;padding:7px 14px;font-size:.88rem}
-/* A toast with one action: share the brew you just saved. */
+
 #toast.act{pointer-events:auto;display:flex;align-items:center;gap:12px;padding:8px 8px 8px 18px}
 #toast .tact{border:0;border-radius:999px;background:var(--honey);color:#2A1A10;font:inherit;font-weight:700;padding:7px 14px;cursor:pointer}
-/* The greeting: the time of day and the date on a small line, then your name, then the day's line of wisdom as a quote. */
+
 .wl-top{display:flex;align-items:center;gap:8px;min-width:0}
 .wl-ic{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:.85rem;line-height:1;background:color-mix(in srgb,var(--cherry) 14%,var(--surface2))}
 .wl-date{font-size:.76rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
@@ -2313,14 +2250,14 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
 .wl-q{margin:0;font-size:.98rem;line-height:1.45;color:var(--ink);font-weight:500}
 .wl-by{display:block;margin-top:4px;font-size:.8rem;color:var(--muted)}
 .bprof{margin-top:6px}.bp-head{margin:0 0 12px;font:600 1.05rem/1.4 var(--display);color:var(--ink)}
-/* The cup profile: a cup from above whose crema is the coffee's shape; each trait keeps its own colour, from citrus to cocoa. */
+
 .bprof,.tvars{--t-acid:#D4A72C;--t-sweet:#D9894A;--t-body:#9C6444;--t-clar:#4E9C97;--t-ferm:#A6527C;--t-bitt:#8E3B2C;--w-bitt:#7A2E21;
-  /* The words take a deeper (light theme) or paler (dark theme) shade of the same colour, for 4.5:1 or better. */
+  
   --w-acid:#765A06;--w-sweet:#8A4614;--w-body:#6E4128;--w-clar:#1F5F5B;--w-ferm:#7E2D57}
 :root[data-theme="dark"] :is(.bprof,.tvars){--t-body:#C08A63;--t-bitt:#C46A52;--w-bitt:#F0AE9C;--w-acid:#F2D27A;--w-sweet:#F7BE92;--w-body:#E8BE9C;--w-clar:#9ED9D3;--w-ferm:#EBAACB}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(.bprof,.tvars){--t-body:#C08A63;--t-bitt:#C46A52;--w-bitt:#F0AE9C;--w-acid:#F2D27A;--w-sweet:#F7BE92;--w-body:#E8BE9C;--w-clar:#9ED9D3;--w-ferm:#EBAACB}}
 .t-acid{--t:var(--t-acid);--tw:var(--w-acid)}.t-sweet{--t:var(--t-sweet);--tw:var(--w-sweet)}.t-body{--t:var(--t-body);--tw:var(--w-body)}.t-clar{--t:var(--t-clar);--tw:var(--w-clar)}.t-ferm{--t:var(--t-ferm);--tw:var(--w-ferm)}.t-bitt{--t:var(--t-bitt);--tw:var(--w-bitt)}
-/* The dial-in's predicted cup, in the same style: a compact cup, then one row per trait with its colour as the legend. */
+
 .tvars .cup{max-width:208px;margin:4px auto 6px;overflow:visible;transform:translateX(7px)}
 .tvars .bar.tbar{grid-template-columns:9px 6.4em 1fr 2.4em;align-items:center}
 .tvars .tbar .tdot{width:9px;height:9px;border-radius:50%;background:var(--t)}
@@ -2349,7 +2286,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
 .bp-h{margin:16px 0 8px;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--muted)}
 .bp-from{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-size:.9rem}.bp-from dt{font-weight:600;white-space:nowrap}.bp-from dd{margin:0;color:var(--muted)}
 .bp-tips{margin:0;padding-left:18px;display:grid;gap:6px;font-size:.92rem;line-height:1.45}
-/* Sliders: a filled track, a bigger thumb that lifts while you drag, and − / + beside the value. */
+
 input[type=range]{-webkit-appearance:none;appearance:none;background:transparent;height:36px;--trk:color-mix(in srgb,var(--ink) 11%,transparent);--fillc:var(--cherry)}
 input[type=range]:focus{outline:none}
 input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:999px;background:linear-gradient(90deg,var(--fillc) calc(13px + (100% - 26px) * var(--p,.5)),var(--trk) 0)}
@@ -2368,24 +2305,24 @@ input[type=range]:disabled{opacity:.45}
 .rng-b svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
 .rng-b:hover{color:var(--cherry)}
 .rng-b:active{transform:scale(.88);color:var(--cherry);background:color-mix(in srgb,var(--cherry) 14%,var(--surface2))}
-/* Slider fields: name on the left, the value large on the right, room to breathe between them. */
+
 .field.rng-f{margin-bottom:22px}
 .field.rng-f>label{align-items:baseline;margin-bottom:8px}
 .field.rng-f>label .num{font:800 1.25rem/1 var(--display);letter-spacing:-.01em;color:var(--ink)}
 label[for=i-grind]>span{display:flex;flex-direction:column;align-items:flex-end;gap:3px;text-align:right}
 
 .two.rng-two{grid-template-columns:1fr;gap:0}
-/* Selection controls: one highlight that glides to the picked option. */
+
 .seg.has-ind.ind-rel{position:relative}
 .seg>button[data-peek]{transition:none!important}
 .seg.has-ind>button{position:relative;z-index:1}
 .seg.has-ind>button[aria-pressed="true"]:not([data-peek]){background:transparent!important;background-image:none!important;box-shadow:none!important}
-/* Only the gliding highlight moves: the tapped option never shows (or fades out) a highlight of its own. */
+
 .seg.has-ind>button{transition:color .2s ease!important}
 .seg-ind{position:absolute;z-index:0;pointer-events:none;will-change:transform;transition:transform .2s ease-out,width .2s ease-out,height .2s ease-out,opacity .2s}
 .bd-bags{list-style:none;margin:0;padding:0;display:grid;gap:6px}.bd-bags li{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:12px;border:1px solid var(--line)}.bd-bags b{font-size:.88rem}.bd-bags span{font-size:.8rem;color:var(--muted)}
 .cr-buys{display:inline-flex;align-items:center;padding:2px 7px;border-radius:999px;font-size:.72rem;font-weight:800;color:var(--cherry-ink,var(--cherry));background:color-mix(in srgb,var(--cherry) 14%,var(--surface));font-variant-numeric:tabular-nums}
-/* Your last brew: picture, the full name, how it was brewed and the rating, with the two actions underneath. */
+
 .lastbrew{flex-direction:column;align-items:stretch;gap:12px;padding:16px}
 .lastbrew .lb-open{align-items:flex-start;gap:14px}
 .lb-pic{flex:none;width:52px;height:52px;border-radius:14px;overflow:hidden;display:block}.lb-pic>*{width:100%!important;height:100%!important}
@@ -2397,14 +2334,14 @@ label[for=i-grind]>span{display:flex;flex-direction:column;align-items:flex-end;
 .lastbrew .lb-act{flex-direction:row;gap:8px}.lastbrew .lb-act .btn{flex:1;min-height:40px}
 .di{width:1.15em;height:1.15em;display:inline-block;vertical-align:-.2em;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
 :is([class^="yic"],.me-tiles,.me-dna,.me-sq,.tro-ic,.ssn-ic,.tl-ic,.tshelf,.ssn-got,.bd-rbh,.wel-ic,.fact-ic) .di{color:var(--cherry);stroke-width:1.7}
-.tro-ic .di,.ssn-ic .di{width:1.5em;height:1.5em}.me-tiles .di{width:1.35em;height:1.35em}.bd-rbh .di{width:1.6em;height:1.6em}
+.tro-ic .di,.ssn-ic .di{width:1.5em;height:1.5em}.me-tiles .di{width:1.35em;height:1.35em}
 #toast .di{width:1.05em;height:1.05em;vertical-align:-.18em;margin:0 .1em}
-/* Brew steps: icons a size up, in even tinted circles, and a small dot on the line for steps without a time. */
+
 .steps.tl li{grid-template-columns:52px 28px minmax(0,1fr);--row:1.75rem}
 .steps.tl .tk{width:28px;height:28px;margin-top:calc((var(--row) - 28px) / 2)}
 .steps.tl .tk svg{width:18px;height:18px;stroke-width:1.8}
 .steps.tl .t.dot{width:8px;height:8px;margin:calc((var(--row) - 8px) / 2) 0 0 22px;background:color-mix(in srgb,var(--ink) 22%,transparent)}
-/* The dose stepper: no box around the number while typing; the stepper shows focus as a whole. */
+
 .stepper input:focus,.stepper input:focus-visible{outline:none!important;box-shadow:none!important;border:0!important;background:none}
 .stepper:focus-within{border-color:color-mix(in srgb,var(--cherry) 55%,var(--line));box-shadow:0 0 0 3px color-mix(in srgb,var(--cherry) 14%,transparent)}
 .stepper button{display:grid;place-items:center;transition:background-color .15s,transform .12s}.stepper button:active{transform:scale(.9)}
@@ -2418,11 +2355,10 @@ button[aria-pressed]:active{transform:scale(.95)}
 .chip-on{animation:chipon .2s ease-out}@keyframes chipon{from{opacity:.6}to{opacity:1}}
 .me-tiles>div{width:auto;min-width:104px;max-width:168px}
 .me-tiles b{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:break-word;hyphens:auto}
-.me-tiles.me-mine>div{min-width:0;max-width:none}
-/* Names are shown in full everywhere: they wrap rather than being cut short (secondary details may still shorten). */
+
 :is(.again b,.me-dna b,.srow-tx b,.t3o-tx b,.dbean-tx b,.yic-row b,.ls-sel b,.t3s-tx b,.me-tiles b){white-space:normal!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:anywhere;max-width:none}
 .t3s-tx b{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden!important}
-/* Your bags, low on the coffee's page and compact. */
+
 .bd-buys{margin:14px 0 4px;padding:12px 14px;border-radius:var(--r-lg);border:1px solid var(--line)}
 .bd-bh{display:flex;align-items:center;gap:12px}.bd-bi{flex:none;width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:var(--surface2);color:var(--cherry)}.bd-bi .di{width:20px;height:20px}
 .bd-bt{flex:1;min-width:0;display:flex;flex-direction:column}.bd-bt b{font:700 .95rem var(--display)}.bd-bt small{font-size:.78rem;color:var(--muted)}
@@ -2431,11 +2367,10 @@ button[aria-pressed]:active{transform:scale(.95)}
 .bd-hero .bglass small{font-size:.8em;font-weight:600;opacity:.85;margin-left:6px;padding-left:7px;border-left:1px solid currentColor}
 .bd-rbform{margin-top:12px}.bd-rbform input{background:var(--surface2)}.bd-rbform .btn{width:100%}
 .bd-bagsd{margin-top:10px}.bd-bagsd summary{cursor:pointer;font-size:.86rem;font-weight:600;color:var(--muted)}.bd-bagsd .bd-bags{margin-top:8px}
-/* Smoother page changes on phones: no blur behind the little count badges (it was invisible and costly to draw). */
+
 .cupcard .cc,.colshelf .cn,#rhome .cc,#rhome .cn{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 .colshelf .cn{background:rgba(0,0,0,.26)}
-/* Trophies as a medal grid: three to a row on phones, a gold medal with a dark engraved icon when earned, grey with
-   progress when not. The icon colour is fixed so it reads on gold in every theme. */
+
 .trophies{grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px}
 .tro{flex-direction:column;align-items:center;text-align:center;gap:4px;padding:14px 8px 12px;box-shadow:none;border:1px solid var(--line)}
 .tro b{font:700 .84rem/1.25 var(--display);color:var(--ink);overflow-wrap:anywhere}
@@ -2448,21 +2383,19 @@ button[aria-pressed]:active{transform:scale(.95)}
 .tro .tro-p{width:72%;margin:6px auto 0}
 
 
-/* Diary writer: a small label over each row; each row is one line that scrolls sideways, running to the card's
-   edges so nothing is cut off inside the card. Long coffee names stay on one line. */
+
 .dw-lab{margin:2px 2px 6px;font:700 .68rem var(--body);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
 .dwrite .dmoms{flex-wrap:nowrap;overflow-x:auto;margin:0 -12px 12px!important;padding:1px 12px!important;scroll-padding-inline:12px;-webkit-mask-image:none!important;mask-image:none!important}
 .dwrite .dmoms button{min-height:36px;white-space:nowrap}.dwrite .dbeans button{max-width:220px}
 .dwrite .dbeans button span:last-child{white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
-/* Brew log: a sideways slider, one brew per slide with the next one peeking in. */
+
 .le-nav{display:flex;align-items:center;gap:8px;margin:12px 2px 8px}.le-pos{flex:1;font:600 .84rem var(--body);color:var(--muted);font-variant-numeric:tabular-nums}
 .le-arr{width:38px;height:38px;display:grid;place-items:center;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}.le-arr svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.le-arr:disabled{opacity:.35;cursor:default}
 .le-track{display:flex;gap:12px;align-items:flex-start;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;margin:0;padding:0 0 6px}.le-track::-webkit-scrollbar{display:none}
 .le-slide{flex:0 0 calc(100% - 28px);min-width:0;scroll-snap-align:start;scroll-snap-stop:always}.le-track.one .le-slide{flex-basis:100%}
 .le-slide .le-day{margin:0 4px 8px}.le-slide .logentry{margin:0}
 @media (min-width:760px){.le-slide{flex-basis:min(440px,calc(100% - 28px))}.le-track{margin:0;padding:0 0 6px;scroll-padding-inline:0}}
-/* Profile, restructured: a cover strip, the picture over its edge, who you are on the page; then the numbers as one
-   bar, About (your words and three squares), your coffee taste and the account. */
+
 .me-cover{height:calc(128px + var(--sa-top,0px));padding:0!important;display:block!important}
 .me-id{position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-start;gap:2px;margin-top:-46px;padding:0 20px}
 .me-id .pav{box-shadow:0 0 0 4px var(--surface),0 8px 24px -10px rgba(0,0,0,.45);margin-bottom:10px}
@@ -2483,33 +2416,29 @@ button[aria-pressed]:active{transform:scale(.95)}
 .me-sq small{font-size:.66rem;line-height:1.3;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
 .me-sq b{font:650 .92rem/1.2 var(--display);color:var(--ink);overflow-wrap:anywhere}
 .me-body .me-taste{margin:6px 0 0}
-/* The profile header (and the cover) end in soft, rounded corners. With nothing below it yet, it fills the page as one
-   solid block, with no corners and no gap. */
+
 .me-hero{border-radius:0 0 32px 32px}
 .me-hero.full{min-height:100vh;min-height:100dvh;justify-content:center;border-radius:0}
 @media (min-width:760px){.me-hero.full{min-height:min(560px,80vh)}}
 html.sheeting :is(.seg.bviews,.gtabs,.appbar,.minires,.bottomnav){-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
-/* Diary: the entry icons' rings aren't cropped (content-visibility clips whatever pokes out of a row, so rows keep a
-   little room on the left), and the moment chips scroll with an end fade instead of being cut by the card. */
+
 .tl-e{padding-left:3px}
 #vd .tl-e{content-visibility:visible}
 .dmoms{padding-right:28px;scroll-padding-inline:12px;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}
-/* Bags you're drinking now are always near the top: drawn in full, never with a placeholder height. */
+
 .clist.now .crow,.shelf .crow{content-visibility:visible}
-/* The trophy row fades out at its end instead of cutting the last medal in half. */
+
 .ts-row{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 26px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 26px),transparent)}
-/* Flags on bag pictures sit fully inside the picture. */
+
 .bpic .bfl{right:10%;top:9%;font-size:1.2em}
 .vd-back{position:absolute;top:14px;right:62px;border:0;border-radius:999px;padding:8px 14px;font:600 .86rem var(--body);background:var(--surface2);color:var(--ink);cursor:pointer}
 .og-fl{font-size:.9em}.og-list{margin-top:4px}
 .bpic>img.hi{animation:imgin .26s ease both!important}@keyframes imgin{from{opacity:0}}
-/* Beans opens with what's on screen: the blocks further down (the year in coffee, the season card, the trophy row,
-   the tools above the list) are laid out and drawn only as they come near view. */
+
 #bg-yic,#bv-coffees .season,#bv-coffees .tshelf,#bv-coffees .bg-tools{content-visibility:auto;contain-intrinsic-size:auto 420px}
 #bv-coffees .season{contain-intrinsic-size:auto 200px}
 #bv-coffees .tshelf,#bv-coffees .bg-tools{contain-intrinsic-size:auto 120px}
-/* Top 5: fourth and fifth each get a full-width row, so long names read on one or two lines instead of a column of
-   single words; honourable mentions are a two-column list (picture, then the full name) rather than narrow tiles. */
+
 .t45{grid-template-columns:1fr}
 .t45c{padding:10px 12px 10px 10px;gap:12px}.t45c .bpic{width:44px;height:52px}
 .t45t b{font-size:.92rem}
@@ -2519,7 +2448,7 @@ html.sheeting :is(.seg.bviews,.gtabs,.appbar,.minires,.bottomnav){-webkit-backdr
 .t3hm-i small{max-width:none;text-align:left;font-size:.8rem;line-height:1.25}
 dialog.dlg-pre[open]{animation:none!important;opacity:0}
 dialog.dlg-pre[open]::backdrop{animation:none!important;opacity:0}
-/* On phones the detail sheet is a full page: edge to edge, the full height, under the status bar. */
+
 @media (max-width:759px){
   html dialog#vd:not(.camdlg){position:fixed;inset:0;margin:0;width:100%;max-width:100%;height:100%;max-height:100%;border-radius:0;border:0;box-shadow:none;will-change:transform}
   html dialog#vd:not(.camdlg)::backdrop{background:rgba(15,10,6,.3)}
@@ -2554,32 +2483,28 @@ button.yic-t{cursor:pointer;-webkit-tap-highlight-color:transparent;transition:t
 .yic-list i{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--surface2);font-style:normal;font-size:.95rem}
 .yic-list span{display:flex;flex-direction:column;gap:1px;min-width:0}.yic-list small{font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
 .yic-list b{font:650 .95rem/1.3 var(--display);color:var(--ink);overflow-wrap:anywhere}.yic-list em{font-style:normal;font-size:.8rem;font-weight:600;color:var(--muted);white-space:nowrap;text-align:right}
-/* The Beans tab strip, when it sticks under the top bar, matches the bar: the same nearly solid surface, hairline and
-   shadow, the same width, and an even gap, so the two read as one header instead of a see-through second bar. */
+
 @media (max-width:759px){
   .seg.bviews{top:calc(var(--ab-b,64px) + 8px)!important;z-index:21!important;margin-left:0!important;margin-right:0!important;background:var(--surface)!important;border:1px solid var(--hair)!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 }
-  /* The gap between the top bar and the stuck strip is filled with the page colour, so the list never peeks through. */
+  
   .seg.bviews::before{content:'';position:absolute;left:-12px;right:-12px;bottom:calc(100% + 1px);height:8px;background:var(--paper);pointer-events:none}
-  /* On Beans the top bar casts no shadow, so the bar and the stuck strip are two clean, solid pieces. */
+  
   @media (max-width:759px){html:has(main section#beans.on) .appbar{box-shadow:none!important}}
   .seg.bviews .seg-ind,.seg.bviews button[aria-pressed="true"]{box-shadow:none!important}
 #ab-title{transition:opacity .2s ease,transform .2s ease}.appbar.title-off #ab-title{opacity:0;transform:translateY(6px)}
 @media (min-width:760px){.appbar.title-off #ab-title{opacity:1;transform:none}}
 .me-tiles>div>i{height:26px;display:flex;align-items:center;margin-bottom:4px}.me-tiles>div>i .me-flag{font-size:1.25rem;line-height:1}
-/* No browser tap highlight anywhere (Arc and others paint a blue-grey patch over a tapped tab while the highlight glides). */
+
 html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visible){outline:none}
-/* Each Beans view and gear tab is at least a screen tall, so switching to a short one never shortens the page under you. */
+
 @media (max-width:759px){#beans [id^="bv-"]:not([hidden]),#gear .gpanel:not([hidden]){min-height:calc(100vh - 120px)}}
-/* A detail's header buttons (save and close) are one size on one line, evenly spaced from the edge; the focus ring only
-   shows for keyboard focus, not when the page opens. */
+
 .vd-head .vd-close,.vd-head .favbtn{width:40px;height:40px;top:12px}.vd-head .vd-close{right:14px}.vd-head .favbtn{right:62px}
 .vd-close:focus:not(:focus-visible),.favbtn:focus:not(:focus-visible){outline:none;box-shadow:none}
 @media (max-width:759px){html dialog#vd:not(.camdlg) .vd-head .vd-close,html dialog#vd:not(.camdlg) .vd-head .favbtn{top:calc(12px + var(--sa-top,0px))}}
 .vd-head .pill+h2{margin-top:10px}
-/* Every page moves the same way: a page you open (a coffee, a recipe, the timer, or a page inside Explore such as the
-   map) slides in from the right over the one you were on, which eases a little to the left; going back is the reverse.
-   No zoom or bounce, so even a heavy page like the map moves as one flat layer. */
+
 @media (prefers-reduced-motion:no-preference){
   html[data-nav=push]::view-transition-old(root){animation:vt-push-old .34s var(--ease-sheet) both}
   html[data-nav=push]::view-transition-new(root){animation:page-in .34s var(--ease-sheet) both}
@@ -2595,7 +2520,7 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="bc2cc95a7b2d"</script>
+<script>const BUILD_ID="d4302b8835e8"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -7403,17 +7328,24 @@ function renderLogList(force){const sec=$('log');if(!force&&sec&&!sec.classList.
   rows.sort(LF.sort==='old'?(a,b)=>ts(a[0])-ts(b[0]):LF.sort==='top'?(a,b)=>(+b[0].stars||0)-(+a[0].stars||0)||ts(b[0])-ts(a[0]):LF.sort==='az'?(a,b)=>(a[0].coffee||'').localeCompare(b[0].coffee||'')||ts(b[0])-ts(a[0]):(a,b)=>ts(b[0])-ts(a[0]));
   // One brew per slide, swiped sideways in the chosen order; each slide says when it was brewed.
   let h='<div class="le-nav"><span class="le-pos" id="l-pos" aria-live="polite">'+(rows.length>1?'1 of '+rows.length:'')+'</span>'+(rows.length>1?'<button type="button" class="le-arr" data-lgo="-1" aria-label="Previous brew" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><button type="button" class="le-arr" data-lgo="1" aria-label="Next brew"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>':'')+'</div><div class="le-track'+(rows.length===1?' one':'')+'" id="l-track">';
-  for(const [l,i] of rows)h+='<div class="le-slide"><h3 class="le-day">'+esc(logGroup(l))+'</h3>'+logEntryHTML(l,i)+'</div>';h+='</div>';
+  // Only the slides near the one on screen are filled (more as you swipe): with thousands of brews, building every
+  // slide at once froze the screen for seconds on a phone. Empty slides keep their place in the row.
+  for(let k=0;k<rows.length;k++)h+='<div class="le-slide" data-k="'+k+'"></div>';h+='</div>';
   // Keep your place in the slider when the list is redrawn (a rating, an edit, a deletion).
   const keepX=$('l-track')?$('l-track').scrollLeft:0;
   $('l-list').innerHTML=!LOG.length?'<div class="le-empty">'+lIc('edit')+'<b>No brews yet</b><p>Dial one in, then tap “Log this brew”, or fill in the form above.</p></div>':
     rows.length?(rows.length<LOG.length?'<p class="le-count">Showing '+rows.length+' of '+LOG.length+' brews</p>':'')+h:'<div class="le-empty">'+lIc('search')+'<b>No brews match</b><p><button type="button" class="linkbtn" id="lf-clear">Clear the filters</button></p></div>';
   const c=$('lf-clear');if(c)c.onclick=()=>{LF.q='';const qi=$('lf-q');if(qi)qi.value='';LF.min=0;LF.who=[];saveLF();renderLogList()};
-  const tr=$('l-track');if(tr&&keepX)tr.scrollLeft=keepX;if(tr&&rows.length>1){const pos=$('l-pos'),[pv,nx]=$('l-list').querySelectorAll('[data-lgo]');let raf=0;
-    const at=()=>Math.round(tr.scrollLeft/(tr.firstElementChild.offsetWidth+12));
-    tr.onscroll=()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;const k=clamp(at(),0,rows.length-1);pos.textContent=(k+1)+' of '+rows.length;pv.disabled=k===0;nx.disabled=k===rows.length-1})};
+  const tr=$('l-track');
+  const fill=k=>{if(!tr)return;for(let j=Math.max(0,k-2);j<=Math.min(rows.length-1,k+3);j++){const sl=tr.children[j];if(!sl||sl.dataset.f)continue;const [l,i]=rows[j];sl.dataset.f=1;
+    sl.innerHTML='<h3 class="le-day">'+esc(logGroup(l))+'</h3>'+logEntryHTML(l,i);if(typeof hydrateImgs==='function')hydrateImgs(sl)}};
+  const slideAt=()=>tr&&tr.firstElementChild?Math.round(tr.scrollLeft/(tr.firstElementChild.offsetWidth+12)):0;
+  if(tr&&keepX)tr.scrollLeft=keepX;fill(slideAt());
+  if(tr&&rows.length>1){const pos=$('l-pos'),[pv,nx]=$('l-list').querySelectorAll('[data-lgo]');let raf=0;
+    const at=slideAt;
+    tr.onscroll=()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;const k=clamp(at(),0,rows.length-1);fill(k);pos.textContent=(k+1)+' of '+rows.length;pv.disabled=k===0;nx.disabled=k===rows.length-1})};
     $('l-list').querySelectorAll('[data-lgo]').forEach(b=>b.onclick=()=>{const k=clamp(at()+ +b.dataset.lgo,0,rows.length-1);tr.scrollTo({left:tr.children[k].offsetLeft-tr.firstElementChild.offsetLeft,behavior:RM()?'auto':'smooth'})})}
-  if(typeof hydrateImgs==='function')hydrateImgs($('l-list'))}
+}
 $('l-filter').addEventListener('click',e=>{if(e.target.closest('#lf-f'))openLogFilter();else if(e.target.closest('#lf-s'))openLogSort()});
 $('l-filter').addEventListener('input',e=>{if(e.target.id!=='lf-q')return;LF.q=e.target.value;renderLogList()});
 function renderLog(){renderShare();renderLastBrew();
@@ -10070,7 +10002,7 @@ function shelfDoc(){const sh=shelfOrder();
 function galleryOrder(){const r=b=>(b.roaster||'').trim();return [...BEANS].sort((a,b)=>(!r(a))-(!r(b))||r(a).localeCompare(r(b),undefined,{sensitivity:'base'})||beanDay(b).localeCompare(beanDay(a))||(b.ts||0)-(a.ts||0))}
 function galleryDoc(){const all=galleryOrder();
   return{title:'My coffee gallery',sub:all.length+' coffee'+(all.length===1?'':'s'),file:'coffee-gallery',heavy:all.length>16,
-    card:()=>galleryCardImg(),cardTheme:()=>originTheme(all[0]&&all[0].origin),cardName:'coffee-gallery',cardTitle:'Gallery card',cardSub:'Every coffee you’ve collected, by roastery, hung like prints on a wall: each with its photo, origin and your rating, the top 5s marked.',
+    card:()=>galleryCardImg(),pdfCard:all.length>120?()=>galleryCardImg(true):null,cardTheme:()=>originTheme(all[0]&&all[0].origin),cardName:'coffee-gallery',cardTitle:'Gallery card',cardSub:'Every coffee you’ve collected, by roastery, hung like prints on a wall: each with its photo, origin and your rating, the top 5s marked.',
     blocks:[{h:'My coffees',list:all.map(b=>beanTitle(b)+([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).length?' ('+[b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(', ')+')':'')+(b.rating?' · '+b.rating+' of 5':''))}]}}
 
 // Brewing a gallery coffee: the dial-in takes its process, variety, roast and age, and remembers which coffee it is.
@@ -11078,11 +11010,14 @@ function bcStatPills(x,X,Y,list){let px=X;list.forEach(([v,l])=>{x.font='800 30p
 // Your gallery: every coffee you've collected, by roastery (A to Z, newest first within each), hung like prints on a wall, each framed with a small
 // name card beneath (name, roastery, rating) and a medal on the ones that made a year's top 5; then where they're from.
 // The card grows with the collection and shows all of it: three across for a small one, then four, five and six.
-async function galleryCardImg(){const style=Object.assign({},CARD_STYLE),nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick;
-  // Every coffee is shown: more to a row as the gallery grows, so even a large one stays a sensible length.
-  const all=galleryOrder(),N=all.length,cols=N<=9?3:N<=40?4:N<=90?5:6,shown=all,more=0,K={3:0,4:1,5:2,6:3}[cols],pick=a=>a[K];
+async function galleryCardImg(full){const style=Object.assign({},CARD_STYLE),nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick;
+  // More to a row as the gallery grows. The image shows up to 120 coffees (your Top 5s, then the best rated, then the
+  // latest, in gallery order) and how many more, so it stays a length messaging apps keep readable; the PDF has them all.
+  const all=galleryOrder(),N=all.length,cols=N<=9?3:N<=40?4:N<=90?5:6,K={3:0,4:1,5:2,6:3}[cols],pick=a=>a[K],CAP=120;
+  const keep=!full&&N>CAP?new Set([...all].sort((a,b)=>(beanRank(a)?0:1)-(beanRank(b)?0:1)||(b.rating||0)-(a.rating||0)||String(beanDay(b)).localeCompare(String(beanDay(a)))).slice(0,CAP)):null;
+  const shown=keep?all.filter(b=>keep.has(b)):all,more=N-shown.length;
   const imgs=await Promise.all(shown.map(async b=>b.img?bcLoad(cols===3?(BIMG.peek(b.id)||await BIMG.get(b.id)):(BIMG.peekThumb(b.id)||await BIMG.thumb(b.id))):null));
-  const gapG=pick([30,22,18,14]),cwG=(BC.W-2*BC.PAD-gapG*(cols-1))/cols,chG=cwG+pick([118,104,92,84]),minH=900+Math.ceil(N/cols)*(chG+gapG)+600;
+  const gapG=pick([30,22,18,14]),cwG=(BC.W-2*BC.PAD-gapG*(cols-1))/cols,chG=cwG+pick([118,104,92,84]),minH=900+Math.ceil(shown.length/cols)*(chG+gapG)+600+(more?80:0);
   const ros=new Set(all.map(b=>(b.roaster||'').toLowerCase()).filter(Boolean)).size,orc=new Map();all.forEach(b=>{if(b.origin)orc.set(b.origin,(orc.get(b.origin)||0)+1)});
   const first=all.length?all.map(beanDay).sort()[0]:'',since=first?new Date(first+'T12:00').toLocaleDateString(undefined,{month:'short',year:'numeric'}):'';
   return bcBlob({style,theme:originTheme(all[0]&&all[0].origin),minH,draw:(x,c)=>{const W=BC.W,P=BC.PAD,IW=W-2*P;

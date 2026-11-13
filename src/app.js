@@ -2167,17 +2167,24 @@ function renderLogList(force){const sec=$('log');if(!force&&sec&&!sec.classList.
   rows.sort(LF.sort==='old'?(a,b)=>ts(a[0])-ts(b[0]):LF.sort==='top'?(a,b)=>(+b[0].stars||0)-(+a[0].stars||0)||ts(b[0])-ts(a[0]):LF.sort==='az'?(a,b)=>(a[0].coffee||'').localeCompare(b[0].coffee||'')||ts(b[0])-ts(a[0]):(a,b)=>ts(b[0])-ts(a[0]));
   // One brew per slide, swiped sideways in the chosen order; each slide says when it was brewed.
   let h='<div class="le-nav"><span class="le-pos" id="l-pos" aria-live="polite">'+(rows.length>1?'1 of '+rows.length:'')+'</span>'+(rows.length>1?'<button type="button" class="le-arr" data-lgo="-1" aria-label="Previous brew" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><button type="button" class="le-arr" data-lgo="1" aria-label="Next brew"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>':'')+'</div><div class="le-track'+(rows.length===1?' one':'')+'" id="l-track">';
-  for(const [l,i] of rows)h+='<div class="le-slide"><h3 class="le-day">'+esc(logGroup(l))+'</h3>'+logEntryHTML(l,i)+'</div>';h+='</div>';
+  // Only the slides near the one on screen are filled (more as you swipe): with thousands of brews, building every
+  // slide at once froze the screen for seconds on a phone. Empty slides keep their place in the row.
+  for(let k=0;k<rows.length;k++)h+='<div class="le-slide" data-k="'+k+'"></div>';h+='</div>';
   // Keep your place in the slider when the list is redrawn (a rating, an edit, a deletion).
   const keepX=$('l-track')?$('l-track').scrollLeft:0;
   $('l-list').innerHTML=!LOG.length?'<div class="le-empty">'+lIc('edit')+'<b>No brews yet</b><p>Dial one in, then tap “Log this brew”, or fill in the form above.</p></div>':
     rows.length?(rows.length<LOG.length?'<p class="le-count">Showing '+rows.length+' of '+LOG.length+' brews</p>':'')+h:'<div class="le-empty">'+lIc('search')+'<b>No brews match</b><p><button type="button" class="linkbtn" id="lf-clear">Clear the filters</button></p></div>';
   const c=$('lf-clear');if(c)c.onclick=()=>{LF.q='';const qi=$('lf-q');if(qi)qi.value='';LF.min=0;LF.who=[];saveLF();renderLogList()};
-  const tr=$('l-track');if(tr&&keepX)tr.scrollLeft=keepX;if(tr&&rows.length>1){const pos=$('l-pos'),[pv,nx]=$('l-list').querySelectorAll('[data-lgo]');let raf=0;
-    const at=()=>Math.round(tr.scrollLeft/(tr.firstElementChild.offsetWidth+12));
-    tr.onscroll=()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;const k=clamp(at(),0,rows.length-1);pos.textContent=(k+1)+' of '+rows.length;pv.disabled=k===0;nx.disabled=k===rows.length-1})};
+  const tr=$('l-track');
+  const fill=k=>{if(!tr)return;for(let j=Math.max(0,k-2);j<=Math.min(rows.length-1,k+3);j++){const sl=tr.children[j];if(!sl||sl.dataset.f)continue;const [l,i]=rows[j];sl.dataset.f=1;
+    sl.innerHTML='<h3 class="le-day">'+esc(logGroup(l))+'</h3>'+logEntryHTML(l,i);if(typeof hydrateImgs==='function')hydrateImgs(sl)}};
+  const slideAt=()=>tr&&tr.firstElementChild?Math.round(tr.scrollLeft/(tr.firstElementChild.offsetWidth+12)):0;
+  if(tr&&keepX)tr.scrollLeft=keepX;fill(slideAt());
+  if(tr&&rows.length>1){const pos=$('l-pos'),[pv,nx]=$('l-list').querySelectorAll('[data-lgo]');let raf=0;
+    const at=slideAt;
+    tr.onscroll=()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;const k=clamp(at(),0,rows.length-1);fill(k);pos.textContent=(k+1)+' of '+rows.length;pv.disabled=k===0;nx.disabled=k===rows.length-1})};
     $('l-list').querySelectorAll('[data-lgo]').forEach(b=>b.onclick=()=>{const k=clamp(at()+ +b.dataset.lgo,0,rows.length-1);tr.scrollTo({left:tr.children[k].offsetLeft-tr.firstElementChild.offsetLeft,behavior:RM()?'auto':'smooth'})})}
-  if(typeof hydrateImgs==='function')hydrateImgs($('l-list'))}
+}
 $('l-filter').addEventListener('click',e=>{if(e.target.closest('#lf-f'))openLogFilter();else if(e.target.closest('#lf-s'))openLogSort()});
 $('l-filter').addEventListener('input',e=>{if(e.target.id!=='lf-q')return;LF.q=e.target.value;renderLogList()});
 function renderLog(){renderShare();renderLastBrew();
