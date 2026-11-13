@@ -4,7 +4,8 @@ const {chromium}=require('playwright');const demo=require('./seed2.cjs');const f
 const c=await b.newContext({viewport:{width:390,height:844},serviceWorkers:'block',acceptDownloads:true});const p=await c.newPage();p.on('pageerror',e=>errs.push(e.message));p.on('dialog',d=>d.accept());
 await p.route(u=>!u.href.startsWith('http://localhost'),r=>r.abort());await p.goto('http://localhost:8099/index.html',{waitUntil:'networkidle'});await p.evaluate(demo);await p.reload({waitUntil:'networkidle'});
 // Ratio calculator
-const calc=await p.evaluate(()=>{showTab('guide');const out={};for(const k of ['1','2','esp','cold']){document.querySelector('#c-pre [data-v="'+k+'"]').click();out[k]=[...document.querySelectorAll('#c-out > div')].map(d=>d.querySelector('b').textContent+'='+d.querySelector('span').textContent).join(', ')}return out});
+// A strip shows the pick at once; what it changes follows a frame later.
+const calc=await p.evaluate(async()=>{const frame=()=>new Promise(r=>requestAnimationFrame(()=>setTimeout(()=>requestAnimationFrame(r),0)));showTab('guide');const out={};for(const k of ['1','2','esp','cold']){document.querySelector('#c-pre [data-v="'+k+'"]').click();await frame();out[k]=[...document.querySelectorAll('#c-out > div')].map(d=>d.querySelector('b').textContent+'='+d.querySelector('span').textContent).join(', ')}return out});
 ok('1 cup: 15 g at 1:16.5 → 248 g water, 218 g in the cup',/Water=248g/.test(calc['1'])&&/In the cup=218g/.test(calc['1']),calc['1']);
 ok('2 cups → 495 g water',/Water=495g/.test(calc['2']),calc['2']);
 ok('espresso: 18 g at 1:2 → a 36 g shot, no bloom or 4:6',/Shot weight=36g/.test(calc.esp)&&!/Bloom|4:6/.test(calc.esp),calc.esp);
@@ -47,6 +48,7 @@ ok('wiped',await p.evaluate(()=>BEANS.length===0));
 await p.evaluate(()=>showTab('settings'));await p.setInputFiles('#st-file',path);await p.waitForTimeout(700);await p.click('#ask-ok');await p.waitForTimeout(400);await p.waitForLoadState('networkidle');await p.waitForTimeout(1500);
 const after=await p.evaluate(()=>JSON.stringify([BEANS.length,LOG.length,Object.keys(TOP3).length,PROFILE&&PROFILE.nick]));ok('restored to the same state',after===before,before+' → '+after);
 // Theme and colour
-const th=await p.evaluate(()=>{showTab('settings');document.querySelector('#st-mode [data-v="dark"]').click();const t1=curTheme();document.querySelector('.swatch[data-accent="leaf"]').click();const a=document.documentElement.dataset.accent;document.querySelector('#st-mode [data-v="auto"]').click();return t1+' '+a});
+// A pick shows at once and the new look follows a frame later.
+const th=await p.evaluate(async()=>{const frame=()=>new Promise(r=>requestAnimationFrame(()=>setTimeout(()=>requestAnimationFrame(r),0)));showTab('settings');document.querySelector('#st-mode [data-v="dark"]').click();await frame();const t1=curTheme();document.querySelector('.swatch[data-accent="leaf"]').click();await frame();const a=document.documentElement.dataset.accent;document.querySelector('#st-mode [data-v="auto"]').click();await frame();return t1+' '+a});
 ok('theme and colour switch',th==='dark leaf',th);
 console.log('errors',errs.length?errs:'none');await b.close()})();
