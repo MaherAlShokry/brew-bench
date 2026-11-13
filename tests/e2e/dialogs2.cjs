@@ -1,3 +1,5 @@
+// Output (screenshots, downloads) goes to tests/e2e/out, wherever this is run from.
+{const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 // Open each dialog and sheet, in every vibe x light/dark: errors, text and icons that are hard to see, overflow.
 const {chromium}=require('playwright');const demo=require('./seed2.cjs');(async()=>{const b=await chromium.launch();const R={};const add=(k,v)=>{(R[k]=R[k]||new Set()).add(v)};
  const OPEN={bean:()=>openBean(BEANS[0].id),beanEditor:()=>openBeanEditor(),beanPick:()=>openBeanPick(),explore:()=>document.querySelector('.bottomnav [data-sheet="explore"],.bottomnav [data-tab="explore"]')&&0};

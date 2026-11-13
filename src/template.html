@@ -195,6 +195,7 @@ details.cal summary{cursor:pointer;font-weight:600}
 .vcard p{font-size:.92rem;margin:.4rem 0}
 dialog#vd{border:0;border-radius:16px;padding:0;max-width:620px;width:calc(100% - 24px);background:var(--surface);color:var(--ink);max-height:88vh}
 dialog#vd::backdrop{background:rgba(20,14,10,.55)}
+#vd.warm:not([open]){display:block!important;position:fixed!important;left:-300vw!important;top:0!important;visibility:hidden!important;pointer-events:none!important}
 .vd-head{padding:18px 20px 12px;border-top:6px solid var(--c);position:sticky;top:0;background:var(--surface)}
 .vd-body{padding:0 20px 20px}
 .vd-close{position:absolute;right:12px;top:12px;background:var(--surface2);border:0;border-radius:999px;width:34px;height:34px;cursor:pointer;font-size:1.1rem;color:var(--ink)}
@@ -1841,7 +1842,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 /* Your coffees as a list: the bag, its name and where it's from, your rating at the end. */
 .clist{display:flex;flex-direction:column;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--shadow),inset 0 0 0 1px var(--hair);overflow:hidden}
 .crow{display:flex;align-items:center;gap:14px;width:100%;padding:10px 14px 10px 10px;border:0;background:none;font:inherit;color:var(--ink);text-align:left;cursor:pointer;transition:background .15s}
-.crow+.crow{box-shadow:inset 0 1px 0 var(--hair)}.crow:active{background:var(--surface2)}.tapped{background-color:var(--surface2)}@media (hover:hover){.crow:hover{background:color-mix(in srgb,var(--surface2) 60%,var(--surface))}}
+.crow+.crow{box-shadow:inset 0 1px 0 var(--hair)}.crow:active{background:var(--surface2)}.tapped{background-color:var(--surface2)}.tapped-b{transform:scale(.94);transition:transform .12s}@media (hover:hover){.crow:hover{background:color-mix(in srgb,var(--surface2) 60%,var(--surface))}}
 .crow.enter{animation:bin .35s var(--ease-out) both;animation-delay:calc(var(--i,0)*25ms)}
 .crow .bpic .bfl{display:none}
 .crow .bpic{flex:none;width:52px;height:64px;border-radius:12px}.clist.now .crow .bpic{width:60px;height:74px}

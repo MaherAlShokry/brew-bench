@@ -1,3 +1,5 @@
+// Output (screenshots, downloads) goes to tests/e2e/out, wherever this is run from.
+{const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 // Share images are painted in a background worker: each card matches the one drawn on the page (same size, nearly the
 // same pixels), the screen doesn't freeze while it's made, and PDFs follow the app's own look.
 const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();

@@ -1,3 +1,5 @@
+// Output (screenshots, downloads) goes to tests/e2e/out, wherever this is run from.
+{const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const ok=(n,c,x)=>console.log((c?'ok  ':'FAIL')+' '+n+(x!==undefined?'  ('+JSON.stringify(x)+')':''));const errs=[];
  // website
  let c=await b.newContext({viewport:{width:390,height:844}});let p=await c.newPage();p.on('pageerror',e=>errs.push(e.message));await p.route(/.*/,r=>r.request().url().startsWith('http://localhost')?r.continue():r.abort());await p.goto('http://localhost:8099/index.html');await p.waitForTimeout(500);

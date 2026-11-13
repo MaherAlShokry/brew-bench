@@ -1,3 +1,5 @@
+// Output (screenshots, downloads) goes to tests/e2e/out, wherever this is run from.
+{const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const p=await b.newPage();await p.route(/.*/,r=>r.request().url().startsWith('http://localhost')?r.continue():r.abort());await p.goto('http://localhost:8099/index.html');await p.waitForTimeout(500);
 const out=await p.evaluate(()=>{const issues=[];RECIPES.forEach((r,i)=>{const B=BREWERS[r.b];if(!B){issues.push([r.name,'unknown brewer']);return}
  const ev=parseSteps(r.steps),ts=r.steps.map(s=>{const m=/^\s*(\d+):(\d\d)/.exec(s);return m?+m[1]*60+ +m[2]:null});let last=-1;ts.forEach((t,j)=>{if(t!=null){if(t<last)issues.push([r.name,'step '+(j+1)+' time goes back ('+r.steps[j]+')']);last=t}});

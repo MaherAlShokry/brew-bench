@@ -1,3 +1,5 @@
+// Output (screenshots, downloads) goes to tests/e2e/out, wherever this is run from.
+{const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:392,height:844}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
 await p.addInitScript(()=>{sessionStorage.setItem('bb-splashed','1')});await p.goto('http://localhost:8099/index.html');await p.waitForTimeout(1000);
 console.log(await p.evaluate(()=>['Iced Switch','Iced MUGEN','Iced Orea','Iced April Brewer','Japanese iced (flash brew)'].map(n=>{const i=RECIPES.findIndex(r=>r.name===n);const r=RECIPES[i];loadRecipe(i);const p=window.dialPlan?null:null;return [n,r.dose,r.water,(r.water/r.dose).toFixed(1),'ratio='+S.ratio+' water='+(S.tuned&&S.tuned.water||'?'),'S.dose='+S.dose,'brewer min='+BREWERS[r.b].ratio.min]})));console.log(errs);await b.close()})()

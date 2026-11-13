@@ -1,3 +1,5 @@
+// Output (screenshots, downloads) goes to tests/e2e/out, wherever this is run from.
+{const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 // Deleting offers Undo instead of asking first: coffees (with their photo), diary entries, your own recipes and
 // custom grinders come back in place; without Undo they stay gone and photos are cleared once the chance has passed.
 // Also the backup reminder: shown when nothing is backed up and there is something to keep, not when recently backed up.

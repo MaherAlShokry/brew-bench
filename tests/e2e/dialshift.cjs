@@ -1,3 +1,5 @@
+// Output (screenshots, downloads) goes to tests/e2e/out, wherever this is run from.
+{const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 // Drag each dial-in slider through its range: which blocks change height (and push the page around)?
 const {chromium}=require('playwright');const demo=require('./seed2.cjs');(async()=>{const b=await chromium.launch();
  for(const W of [390,360]){const c=await b.newContext({viewport:{width:W,height:844},serviceWorkers:'block'});await c.addInitScript(()=>{sessionStorage.setItem('bb-splashed','1')});const p=await c.newPage();p.on('pageerror',e=>console.log('ERR',e.message));await p.route(u=>!u.href.startsWith('http://localhost'),r=>r.abort());

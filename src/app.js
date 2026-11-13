@@ -27,6 +27,11 @@ function vwSet(k,v){const j=JSON.stringify(v);if(JSON.stringify(VW[k])===j)retur
 // Building a sheet or a page inside the tap itself kept the screen still until all of it was ready.
 const afterPaint=fn=>requestAnimationFrame(()=>setTimeout(fn,0));
 // Show a pick at once (the tapped option pressed, the others not); the change it makes follows with afterPaint.
+// Called from a tap: the tapped button shows pressed and is drawn, then fn runs (opening a sheet lays a lot out, which
+// held the press back). Called from code, there's no tap to answer, so the caller runs it straight away (false).
+function fromTap(fn){const ev=window.event;if(!ev||ev.type!=='click'||!ev.isTrusted)return false;
+  const b=ev.target&&ev.target.closest&&ev.target.closest('button,a,[role=button],.tile,.qtool,.hubtile');if(b){b.classList.add('tapped-b');setTimeout(()=>b.classList.remove('tapped-b'),450)}
+  afterPaint(fn);return true}
 const pickNow=(sel,el)=>{document.querySelectorAll(sel).forEach(x=>x.setAttribute('aria-pressed',String(x===el)))};
 // A tapped row stays lit (a tap ends before its click, so :active is already gone) until its sheet is up.
 const tapOpen=(el,fn)=>{el.classList.add('tapped');afterPaint(()=>{try{fn()}finally{setTimeout(()=>el.classList.remove('tapped'),350)}})};
@@ -973,7 +978,8 @@ const mmss=t=>Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0');
 // The pour in a step, for the big target: "pour 60g (to 120g)" → to 120 g, +60 g; "pour to 250g" → to 250 g.
 // Also "until 374g", "add 210g", "pour the last 70g", "pour all 250g", "bloom with 50g"; a range ("dilute with 100 to 150g") isn't a pour to its end.
 function pourOf(txt){const to=/(?<!\d\s?)\b(?:to|until)\s+(\d{2,4})\s?g\b/i.exec(txt),add=/\b(?:pour(?:ing)?|add|bloom with)\s+(?:(?:the|another|all)\s+)?(?:(?:last|remaining|rest of the|final|first)\s+)?(\d{2,4})\s?g\b/i.exec(txt);return to?{to:+to[1],add:add?+add[1]:null}:add?{to:null,add:+add[1]}:null}
-function openTimer(idx,p){noteRecent(RECIPES[idx]);
+function openTimer(idx,p){if(fromTap(()=>openTimerNow(idx,p)))return;openTimerNow(idx,p)}
+function openTimerNow(idx,p){noteRecent(RECIPES[idx]);
   // The steps follow the dose and water being brewed (the dial-in and Scan pass their own).
   const r0=RECIPES[idx],sc=scaled(r0),dose=p&&p.r&&p.r.dose||sc.dose,water=p&&p.water||sc.water;
   const r=Object.assign({},r0,{dose,water,steps:p&&p.steps||(p?scaleSteps(r0,dose,water):sc.steps),off:sc.off});const ev=parseSteps(r.steps);const timed=ev.filter(e=>e.t>=0);
@@ -1097,17 +1103,28 @@ const ALWAYS={explore:()=>renderExplore(),settings:()=>renderSettings(),beans:()
 // The last time you touched, typed or scrolled: work done ahead waits for a quiet moment.
 let USER_AT=0;for(const ev of ['pointerdown','keydown','wheel','touchmove'])addEventListener(ev,()=>{USER_AT=performance.now()},{capture:true,passive:true});
 addEventListener('scroll',()=>{USER_AT=performance.now()},{capture:true,passive:true});
+// The first coffee or recipe sheet of a visit took about twice as long to open as later ones: the browser laying its
+// parts out for the first time. Right after the Beans page is built, one of each is drawn off screen in a quiet moment
+// (never shown, nothing saved) and cleared, so the first real one opens like the rest.
+let SHEETS_WARM=false;
+function warmSheets(){if(SHEETS_WARM)return;SHEETS_WARM=true;const d=$('vd');if(!d||d.open)return;const keep=showDlg;
+  try{showDlg=()=>{};d.classList.add('warm');
+    if(window.BEANS_OK&&BEANS.length){openBean(BEANS[0].id);d.offsetHeight}
+    if(RECIPES.length){openRecipe(0);d.offsetHeight}}catch(e){}
+  finally{showDlg=keep;d.classList.remove('warm');if(!d.open){$('vd-in').innerHTML='';delete d.dataset.bean}}}
 function prebuildTabs(){const ids=['recipes','gear','variety','process','map','words','history','flow','wheel','champs','tech'].filter(k=>LAZY[k]);
   // A step only starts in a real idle moment (not one the timeout forced), and not within 1.5 s of a touch, a key or a
   // scroll: building a page takes a while on a phone, and one started just after a tap held that tap's answer back.
-  const idle=window.requestIdleCallback?f=>requestIdleCallback(d=>{if(!d.didTimeout&&d.timeRemaining()<25)idle(f);else f()},{timeout:6000}):f=>setTimeout(f,200);
+  // (The wait has an end: after 6 s a step goes ahead in whatever idle time there is, or the rest would never be built.)
+  const idle=window.requestIdleCallback?(f,t0=performance.now())=>requestIdleCallback(d=>{if(!d.didTimeout&&d.timeRemaining()<25&&performance.now()-t0<6000)idle(f,t0);else f()},{timeout:6000}):f=>setTimeout(f,200);
   // Beans comes first (it's opened most and has the most to draw). Each step waits while you're moving between tabs,
   // so building ahead never competes with the page you just opened.
   let beans=false;
   const next=()=>{if(document.hidden){setTimeout(()=>idle(next),2000);return}if(performance.now()-Math.max(NAV_AT,USER_AT)<1500){setTimeout(()=>idle(next),900);return}
     if(!beans&&window.BEANS_OK){beans=true;try{renderBeansIfChanged();warmBeanPhotos()}catch(e){}idle(next);return}
+    if(!SHEETS_WARM&&window.BEANS_OK){warmSheets();idle(next);return}
     if(LOGL_STALE&&BUILT.recipes){try{renderLogList(1)}catch(e){}idle(next);return}
-    const id=ids.find(k=>!BUILT[k]);if(!id)return;BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
+    const id=ids.find(k=>!BUILT[k]);if(!id){warmSheets();return}BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
   setTimeout(()=>idle(next),2500)}
 function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove());if(LAZY[id]&&!BUILT[id]){BUILT[id]=1;LAZY[id]()}if(ALWAYS[id])ALWAYS[id]()}
 // NAVD counts tab changes you can step back through, so the app bar can offer a back button.
@@ -1249,7 +1266,7 @@ const HEART='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-w
 const favBtn=r=>{const k=rkey(r),on=FAVS.has(k);return '<button type="button" class="favbtn" data-fav="'+esc(k)+'" aria-pressed="'+on+'" aria-label="'+(on?'Remove from saved':'Save this recipe')+'">'+HEART+'</button>'};
 function toggleFav(k){if(FAVS.has(k))FAVS.delete(k);else FAVS.add(k);save('bb-favs',[...FAVS]);const on=FAVS.has(k);
   document.querySelectorAll('[data-fav]').forEach(b=>{if(b.dataset.fav===k){b.setAttribute('aria-pressed',on);b.setAttribute('aria-label',on?'Remove from saved':'Save this recipe')}});
-  toast(on?'Saved':'Removed from saved');if(BUILT.recipes){renderRHome();if(RF.includes('fav'))renderRecipes()}}
+  toast(on?'Saved':'Removed from saved');if(BUILT.recipes)afterPaint(()=>{renderRHome();if(RF.includes('fav'))renderRecipes()})}
 // Hearts work anywhere (cards, recipe sheets, champion sheets) without triggering the card underneath.
 document.addEventListener('click',e=>{const b=e.target.closest('[data-fav]');if(b){e.stopPropagation();e.preventDefault();toggleFav(b.dataset.fav)}},true);
 function noteRecent(r){if(!r)return;const k=rkey(r);RECENT=[k,...RECENT.filter(x=>x!==k)].slice(0,8);save('bb-recent',RECENT);if(BUILT.recipes)renderRHome()}
@@ -2524,7 +2541,7 @@ function lexicon(){if(LEX)return LEX;
   const P_EXTRA={washed:['washed','fully washed','wet process','wet processed','lavado','lavada','lave'],doublewashed:['double washed','kenyan process','kenya process'],ecopulped:['eco pulped','eco-pulped','demucilaged'],
     natural:['natural','dry process','dry processed','sun dried','sun-dried','natural seco','secado al sol'],pulpednatural:['pulped natural','cereja descascada','descascado'],wethulled:['wet hulled','wet-hulled','giling basah'],honey:['honey','miel','honey process'],hydrohoney:['hydro honey','hydro honey process','hydro-honey','hydrohoney'],anaerobichoney:['anaerobic honey','honey anaerobic','miel anaerobico'],doubleanaerobic:['double anaerobic','doble anaerobico','double anaerobico'],mountainwater:['mountain water'],
     whitehoney:['white honey','yellow honey','miel amarilla','miel blanca'],redhoney:['red honey','miel roja'],blackhoney:['black honey','miel negra'],anaerobic:['anaerobic','anaerobico','anaerobica','anaerobio'],anaerobicnatural:['anaerobic natural','natural anaerobico','natural anaerobic'],anaerobicwashed:['anaerobic washed','lavado anaerobico'],
-    carbonic:['carbonic maceration','carbonic'],lactic:['lactic'],yeast:['yeast'],koji:['koji'],extended:['extended fermentation'],thermalshock:['thermal shock'],mossto:['mossto'],supernatural:['supernatural','super natural'],coldferment:['cold fermentation','cold ferment','cold fermented','fermentacion en frio'],nitro:['nitro washed','nitro natural','nitrogen fermentation','nitro fermentation','nitrogen flushed'],slowdry:['dark room','slow dry','slow dried','dark room dried'],raisin:['raisin process','raisin natural','passa','uva pasa','dried on the branch','dried on the tree'],
+    carbonic:['carbonic maceration','carbonic'],alchemy:['alchemy process','alchemy'],lactic:['lactic'],yeast:['yeast'],koji:['koji'],extended:['extended fermentation'],thermalshock:['thermal shock'],mossto:['mossto'],supernatural:['supernatural','super natural'],coldferment:['cold fermentation','cold ferment','cold fermented','fermentacion en frio'],nitro:['nitro washed','nitro natural','nitrogen fermentation','nitro fermentation','nitrogen flushed'],slowdry:['dark room','slow dry','slow dried','dark room dried'],raisin:['raisin process','raisin natural','passa','uva pasa','dried on the branch','dried on the tree'],
     coferment:['co-ferment','co-fermented','coferment','cofermented','co ferment'],infused:['infused'],barrelaged:['barrel aged','barrel-aged'],monsooned:['monsooned'],aged:['aged green'],
     swisswater:['swiss water'],sugarcane:['sugarcane','sugar cane','ethyl acetate','ea decaf'],co2decaf:['co2 decaf','co2 process'],mcdecaf:['methylene chloride']};
   const procs=[];for(const k in PROCESSES)for(const a of (P_EXTRA[k]||[strip(PROCESSES[k].name)]))procs.push([a,k]);
@@ -3046,7 +3063,8 @@ function shareText(doc){const link=doc.link||SITE_URL,t=docText(doc,true).replac
 // The PDF engine (360 KB) loads when a share sheet first opens, not on every start.
 let PDFP=null;
 const loadPDF=()=>window.jspdf&&window.jspdf.jsPDF?Promise.resolve():(PDFP=PDFP||loadScript(typeof JSPDF_SRC==='string'?JSPDF_SRC:'vendor/jspdf.umd.min.js').catch(e=>{PDFP=null;throw e}));
-function openShare(doc){SHDOC=doc;loadPDF().catch(()=>{});const pdfOK=true;
+function openShare(doc){if(fromTap(()=>openShareNow(doc)))return;openShareNow(doc)}
+function openShareNow(doc){SHDOC=doc;loadPDF().catch(()=>{});const pdfOK=true;
   $('sh-in').innerHTML='<div class="sheet"><div class="grab"></div><button class="vd-close" id="sh-x" aria-label="Close">\u2715</button><h2 id="sh-title" style="margin:0 40px 2px 0">Share</h2><p class="hint" style="margin:0">'+esc(doc.title)+'</p>'+
    // A brew can also go out as a designed image card: shown first, with a preview drawn as the sheet opens.
    (doc.card?'<div class="shcard"><button type="button" class="shcard-pv" data-sh="img" aria-label="Share the '+esc((doc.cardTitle||'Brew card').toLowerCase())+' image"><span class="shcard-ph">Drawing your '+esc((doc.cardTitle||'Brew card').toLowerCase())+'…</span></button>'+
@@ -3610,7 +3628,7 @@ $('settings-in').addEventListener('click',e=>{if(e.target.closest('#st-tips')){o
   const l=e.target.closest('.logopick[data-logo]');if(l){UI.logo=l.dataset.logo;saveUI();renderSettings(1);return}
   if(e.target.closest('#st-export')){exportData();return}if(e.target.closest('#st-import')){$('st-file').click();return}});
 $('settings-in').addEventListener('change',e=>{if(e.target.id==='st-file'){importData(e.target.files[0]);e.target.value=''}});
-for(const id of ['explore-in','settings-in'])$(id).addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g){showTab(g.dataset.go,false,true);return}
+for(const id of ['explore-in','settings-in'])$(id).addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g){const t=g.dataset.go;tapOpen(g,()=>showTab(t,false,true));return}
   const cb=e.target.closest('.cday[data-bean]');if(cb){openBean(cb.dataset.bean);return}
   const w=e.target.closest('[data-word]');if(w)openWord(w.dataset.word)});
 // Older code and links may still ask for the sheets; they are pages now.

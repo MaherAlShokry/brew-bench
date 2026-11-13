@@ -1,3 +1,5 @@
+// Output (screenshots, downloads) goes to tests/e2e/out, wherever this is run from.
+{const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 const {chromium}=require('playwright');
 (async()=>{const b=await chromium.launch();const found=new Map();
 for(const [w,th] of [[320,'light'],[390,'dark']]){const c=await b.newContext({viewport:{width:w,height:844},serviceWorkers:'block',hasTouch:true});

@@ -1,3 +1,5 @@
+// Output (screenshots, downloads) goes to tests/e2e/out, wherever this is run from.
+{const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 const {chromium}=require('playwright');
 (async()=>{const b=await chromium.launch();const bad=[];
 for(const th of ['light','dark'])for(const vibe of ['roastery','oat','matcha','blossom','nordic','desert','neon','caramel','pure','black']){const c=await b.newContext({viewport:{width:390,height:900},serviceWorkers:'block'});

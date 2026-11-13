@@ -1,3 +1,5 @@
+// Output (screenshots, downloads) goes to tests/e2e/out, wherever this is run from.
+{const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 const {chromium}=require('playwright');const seed=require('./seed.cjs');
 (async()=>{const b=await chromium.launch();const errs=[];let issues=0;
 for(const [w,h] of [[390,844],[1280,900]])for(const cs of ['light','dark']){const c=await b.newContext({viewport:{width:w,height:h},colorScheme:cs,serviceWorkers:'block'});const p=await c.newPage();

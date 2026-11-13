@@ -1,3 +1,5 @@
+// Output (screenshots, downloads) goes to tests/e2e/out, wherever this is run from.
+{const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 // Every visible pill (segmented buttons, chips, tabs) on every page, with all sections and dialogs' details opened: none may cut its words.
 const {chromium}=require('playwright');
 (async()=>{const b=await chromium.launch();const bad=new Set();

@@ -37,7 +37,7 @@ jobs:
           npm i --no-save --no-package-lock playwright@1.63.0
           npx playwright install --with-deps chromium
       - name: Run the tests
-        run: SHARD=${{ matrix.shard }}/3 JOBS=4 tests/run.sh
+        run: SHARD=${{ matrix.shard }}/3 JOBS=6 tests/run.sh
       - name: Keep the screenshots of a failed run
         if: failure()
         uses: actions/upload-artifact@v5

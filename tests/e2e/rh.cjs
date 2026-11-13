@@ -1,3 +1,5 @@
+// Output (screenshots, downloads) goes to tests/e2e/out, wherever this is run from.
+{const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();for(const w of [320,360]){const p=await b.newPage({viewport:{width:w,height:700},deviceScaleFactor:2});
 await p.addInitScript(()=>{sessionStorage.setItem('bb-splashed','1')});await p.goto('http://localhost:8099/index.html');await p.waitForTimeout(800);await p.evaluate(()=>goTab('recipes'));await p.waitForTimeout(1200);
 const r=await p.evaluate(()=>{const h=[...document.querySelectorAll('#recipes .rh')].find(x=>/All recipes/.test(x.textContent));h.scrollIntoView({block:'center'});const row=h.parentElement;return {txt:h.textContent,sw:h.scrollWidth,cw:h.clientWidth,row:row.className,kids:[...row.children].map(k=>k.id||k.className+':'+Math.round(k.getBoundingClientRect().width))}});console.log(w,r);

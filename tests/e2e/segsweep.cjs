@@ -1,3 +1,5 @@
+// Output (screenshots, downloads) goes to tests/e2e/out, wherever this is run from.
+{const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 // Every selection highlight, on every page and in the sheets, after the things that move them (text size, light or
 // dark, a vibe): each visible highlight sits on its picked option, chip rows have none, and every picked option shows
 // as picked (its highlight, or its own background).

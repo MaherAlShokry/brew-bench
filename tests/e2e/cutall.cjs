@@ -1,3 +1,5 @@
+// Output (screenshots, downloads) goes to tests/e2e/out, wherever this is run from.
+{const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 // Cut text and broken layout across every page and sheet: ellipses that cut, clamps hiding words, text clipped by an
 // overflow:hidden box, and anything poking past the screen's edge (outside scrollers).
 const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const found=new Map();

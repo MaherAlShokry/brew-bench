@@ -1,3 +1,5 @@
+// Output (screenshots, downloads) goes to tests/e2e/out, wherever this is run from.
+{const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 // The Android home-screen widget, with a stand-in Widget plugin: the app sends the coffee you're drinking (the cabinet
 // coffee brewed most recently) with its roast date and freshness window; a widget tap opens that coffee, and Log brew
 // opens the brew form with it, both when the tap starts the app and while it's running.

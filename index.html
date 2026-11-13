@@ -195,6 +195,7 @@ details.cal summary{cursor:pointer;font-weight:600}
 .vcard p{font-size:.92rem;margin:.4rem 0}
 dialog#vd{border:0;border-radius:16px;padding:0;max-width:620px;width:calc(100% - 24px);background:var(--surface);color:var(--ink);max-height:88vh}
 dialog#vd::backdrop{background:rgba(20,14,10,.55)}
+#vd.warm:not([open]){display:block!important;position:fixed!important;left:-300vw!important;top:0!important;visibility:hidden!important;pointer-events:none!important}
 .vd-head{padding:18px 20px 12px;border-top:6px solid var(--c);position:sticky;top:0;background:var(--surface)}
 .vd-body{padding:0 20px 20px}
 .vd-close{position:absolute;right:12px;top:12px;background:var(--surface2);border:0;border-radius:999px;width:34px;height:34px;cursor:pointer;font-size:1.1rem;color:var(--ink)}
@@ -1822,7 +1823,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 
 .clist{display:flex;flex-direction:column;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--shadow),inset 0 0 0 1px var(--hair);overflow:hidden}
 .crow{display:flex;align-items:center;gap:14px;width:100%;padding:10px 14px 10px 10px;border:0;background:none;font:inherit;color:var(--ink);text-align:left;cursor:pointer;transition:background .15s}
-.crow+.crow{box-shadow:inset 0 1px 0 var(--hair)}.crow:active{background:var(--surface2)}.tapped{background-color:var(--surface2)}@media (hover:hover){.crow:hover{background:color-mix(in srgb,var(--surface2) 60%,var(--surface))}}
+.crow+.crow{box-shadow:inset 0 1px 0 var(--hair)}.crow:active{background:var(--surface2)}.tapped{background-color:var(--surface2)}.tapped-b{transform:scale(.94);transition:transform .12s}@media (hover:hover){.crow:hover{background:color-mix(in srgb,var(--surface2) 60%,var(--surface))}}
 .crow.enter{animation:bin .35s var(--ease-out) both;animation-delay:calc(var(--i,0)*25ms)}
 .crow .bpic .bfl{display:none}
 .crow .bpic{flex:none;width:52px;height:64px;border-radius:12px}.clist.now .crow .bpic{width:60px;height:74px}
@@ -2528,7 +2529,7 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="39bfb4644a50"</script>
+<script>const BUILD_ID="f75c5224c86e"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -3962,6 +3963,7 @@ const PROCESSES={
  anaerobicwashed:pr({name:'Anaerobic washed',cat:'ferment',t:-0.35,acid:0.4,body:0.6,sweet:0.4,funk:0.8,notes:['tropical','clean ferment'],dir:'coarser',char:'Pulped beans fermented sealed, then washed. Ferment character with a cleaner finish.',brew:'Slightly coarse, 90 to 92°C.'}),
  anaerobichoney:pr({name:'Anaerobic honey',cat:'ferment',t:-0.45,acid:0.1,body:0.9,sweet:0.7,funk:1,notes:['tropical','syrupy','honey'],dir:'coarser',char:'Pulped, fermented sealed with the mucilage still on, then dried as a honey. Sits between anaerobic washed and anaerobic natural: ferment-forward and very sweet.',brew:'Coarse, 90 to 91°C, gentle pours.'}),
  doubleanaerobic:pr({name:'Double anaerobic',cat:'ferment',t:-0.7,acid:-0.1,body:1.2,sweet:0.7,funk:1.5,notes:['boozy','candied fruit','spice'],dir:'coarser',char:'Two sealed fermentations, usually first as whole cherries and then again after pulping, before drying. Among the most intense processes: liqueur-like, candied and spicy.',brew:'Coarsest and coolest, 88 to 90°C, minimal agitation, a longer ratio if it shouts.'}),
+ alchemy:pr({name:'Alchemy (Qima, Yemen)',cat:'ferment',t:-0.55,acid:-0.1,body:1.1,sweet:0.8,funk:1,notes:['dark fruit','caramel','floral'],dir:'coarser',char:'Qima Coffee\u2019s own process for its Yemeni lots, refined over a thousand-plus trials. Whole cherries are fermented in stages, among them sealed, pressurised tanks where temperature and gas are controlled, then dried slowly under watch. Expect ripe dark fruit (blackcurrant, grape, cherry, mango), caramel sweetness and florals. The exact stages vary from lot to lot.',brew:'Coarse and cool like an anaerobic natural, 89 to 91°C, a 35 s bloom and gentle pours.'}),
  carbonic:pr({name:'Carbonic maceration',cat:'ferment',t:-0.5,acid:0.2,body:0.8,sweet:0.6,funk:1,notes:['red wine','cinnamon','grape'],dir:'coarser',char:'Borrowed from winemaking: whole cherries fermented in tanks flushed with carbon dioxide. Brought to fame when Sasa Sestic won the 2015 World Barista Championship with it.',brew:'Coarse, 90 to 91°C, gentle.'}),
  lactic:pr({name:'Lactic',cat:'ferment',t:-0.3,acid:-0.2,body:0.8,sweet:0.5,funk:0.7,notes:['creamy','yoghurt','soft acidity'],dir:'coarser',char:'Anaerobic conditions that favour lactic acid bacteria. Creamy, round, soft yoghurt-like acidity.',brew:'Slightly coarse, 91 to 92°C.'}),
  yeast:pr({name:'Yeast inoculated',cat:'ferment',t:-0.2,acid:0.3,body:0.5,sweet:0.5,funk:0.5,notes:['clean fruit','floral'],dir:'baseline',char:'Selected wine or beer yeasts are added to steer the fermentation. Cleaner, more controlled fruit.',brew:'Baseline to slightly coarse, 92°C.'}),
@@ -4272,6 +4274,7 @@ const GLOSSARY=[
   ['Lactic process','process','A fermentation steered towards lactic acid bacteria, giving creamy body and a yoghurt-like, rounded acidity.',['p:lactic']],
   ['Koji','process','Aspergillus oryzae, the mould behind sake, miso and soy sauce. Grown on coffee it breaks down starches and proteins and adds sweetness and savoury depth.',['p:koji']],
   ['Hydro honey','process','A hybrid process: cherries rest whole like a natural, ferment in tanks, then are pulped and dried with their mucilage on like a honey. Fruit of a natural, finish of a honey.',['p:hydrohoney']],
+  ['Alchemy','process','Qima Coffee\u2019s own post-harvest process for Yemeni coffee: whole cherries fermented in stages, including sealed, pressurised tanks with temperature and gas controlled, then slowly dried. Dark fruit, caramel and florals.',['p:alchemy','v:yemenia','k:Anaerobic fermentation']],
   ['Thermal shock','process','Washing fermented coffee in hot water and then cold, to open the bean and lock in aromatics. Developed by Diego Bermúdez at Finca El Paraíso in Cauca, Colombia.',['p:thermalshock']],
   ['Mossto','process','The liquid drained from an earlier fermentation, fed back into a new batch as a starter so the same microbes and flavours carry on.',['p:mossto','k:Inoculation']],
   ['Washed process','process','Pulped, fermented to loosen the mucilage, washed clean, then dried. The cup shows the variety and origin most clearly: bright, clean and precise.',['p:washed','p:doublewashed']],
@@ -4394,7 +4397,7 @@ const FLOW_BRANCH=[
     {p:'natural',kids:[{p:'anaerobicnatural',r:'Whole cherries sealed and fermented before drying'},{p:'carbonic',r:'Whole cherries fermented under CO₂ before drying'}]}]},
   {t:'Wet-hulled',s:'Hull while still wet',d:'Earthy and low acid',tree:[{p:'wethulled'}]},
   {t:'Fermentation-led',s:'Sealed tanks, starters, added ingredients',d:'Intense and experimental',tree:[
-    {p:'anaerobic',kids:[{p:'anaerobicnatural',r:'Sealed as whole cherries, then dried as a natural'},{p:'anaerobicwashed',r:'Pulped, sealed, then washed'},{p:'carbonic',r:'The sealed tank is flushed with carbon dioxide'},{p:'lactic',r:'Conditions steered towards lactic acid bacteria'},{p:'anaerobichoney',r:'Pulped, sealed with the mucilage on, dried as a honey'},{p:'doubleanaerobic',r:'Two sealed ferments, in cherry and after pulping'}]},
+    {p:'anaerobic',kids:[{p:'anaerobicnatural',r:'Sealed as whole cherries, then dried as a natural'},{p:'anaerobicwashed',r:'Pulped, sealed, then washed'},{p:'carbonic',r:'The sealed tank is flushed with carbon dioxide'},{p:'lactic',r:'Conditions steered towards lactic acid bacteria'},{p:'anaerobichoney',r:'Pulped, sealed with the mucilage on, dried as a honey'},{p:'doubleanaerobic',r:'Two sealed ferments, in cherry and after pulping'},{p:'alchemy',r:'Qima\u2019s staged ferment in pressurised tanks, Yemen'}]},
     {p:'extended',r:'Days instead of hours, in cherry or in tanks'},
     {g:'Starter cultures',s:'Adding chosen microbes to steer the ferment',d:'Instead of relying on the wild yeasts and bacteria on the fruit, the producer adds a culture, much as a baker uses a starter. The result is more control and a more repeatable cup.',kids:[{p:'yeast',r:'Selected wine or beer yeasts'},{p:'koji',r:'The mould behind sake and miso'},{p:'mossto',r:'Juice from an earlier fermentation starts the next'}]},
     {p:'thermalshock',r:'A finishing rinse, hot then cold, after a long ferment'},
@@ -5196,6 +5199,11 @@ function vwSet(k,v){const j=JSON.stringify(v);if(JSON.stringify(VW[k])===j)retur
 // Building a sheet or a page inside the tap itself kept the screen still until all of it was ready.
 const afterPaint=fn=>requestAnimationFrame(()=>setTimeout(fn,0));
 // Show a pick at once (the tapped option pressed, the others not); the change it makes follows with afterPaint.
+// Called from a tap: the tapped button shows pressed and is drawn, then fn runs (opening a sheet lays a lot out, which
+// held the press back). Called from code, there's no tap to answer, so the caller runs it straight away (false).
+function fromTap(fn){const ev=window.event;if(!ev||ev.type!=='click'||!ev.isTrusted)return false;
+  const b=ev.target&&ev.target.closest&&ev.target.closest('button,a,[role=button],.tile,.qtool,.hubtile');if(b){b.classList.add('tapped-b');setTimeout(()=>b.classList.remove('tapped-b'),450)}
+  afterPaint(fn);return true}
 const pickNow=(sel,el)=>{document.querySelectorAll(sel).forEach(x=>x.setAttribute('aria-pressed',String(x===el)))};
 // A tapped row stays lit (a tap ends before its click, so :active is already gone) until its sheet is up.
 const tapOpen=(el,fn)=>{el.classList.add('tapped');afterPaint(()=>{try{fn()}finally{setTimeout(()=>el.classList.remove('tapped'),350)}})};
@@ -6142,7 +6150,8 @@ const mmss=t=>Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0');
 // The pour in a step, for the big target: "pour 60g (to 120g)" → to 120 g, +60 g; "pour to 250g" → to 250 g.
 // Also "until 374g", "add 210g", "pour the last 70g", "pour all 250g", "bloom with 50g"; a range ("dilute with 100 to 150g") isn't a pour to its end.
 function pourOf(txt){const to=/(?<!\d\s?)\b(?:to|until)\s+(\d{2,4})\s?g\b/i.exec(txt),add=/\b(?:pour(?:ing)?|add|bloom with)\s+(?:(?:the|another|all)\s+)?(?:(?:last|remaining|rest of the|final|first)\s+)?(\d{2,4})\s?g\b/i.exec(txt);return to?{to:+to[1],add:add?+add[1]:null}:add?{to:null,add:+add[1]}:null}
-function openTimer(idx,p){noteRecent(RECIPES[idx]);
+function openTimer(idx,p){if(fromTap(()=>openTimerNow(idx,p)))return;openTimerNow(idx,p)}
+function openTimerNow(idx,p){noteRecent(RECIPES[idx]);
   // The steps follow the dose and water being brewed (the dial-in and Scan pass their own).
   const r0=RECIPES[idx],sc=scaled(r0),dose=p&&p.r&&p.r.dose||sc.dose,water=p&&p.water||sc.water;
   const r=Object.assign({},r0,{dose,water,steps:p&&p.steps||(p?scaleSteps(r0,dose,water):sc.steps),off:sc.off});const ev=parseSteps(r.steps);const timed=ev.filter(e=>e.t>=0);
@@ -6266,17 +6275,28 @@ const ALWAYS={explore:()=>renderExplore(),settings:()=>renderSettings(),beans:()
 // The last time you touched, typed or scrolled: work done ahead waits for a quiet moment.
 let USER_AT=0;for(const ev of ['pointerdown','keydown','wheel','touchmove'])addEventListener(ev,()=>{USER_AT=performance.now()},{capture:true,passive:true});
 addEventListener('scroll',()=>{USER_AT=performance.now()},{capture:true,passive:true});
+// The first coffee or recipe sheet of a visit took about twice as long to open as later ones: the browser laying its
+// parts out for the first time. Right after the Beans page is built, one of each is drawn off screen in a quiet moment
+// (never shown, nothing saved) and cleared, so the first real one opens like the rest.
+let SHEETS_WARM=false;
+function warmSheets(){if(SHEETS_WARM)return;SHEETS_WARM=true;const d=$('vd');if(!d||d.open)return;const keep=showDlg;
+  try{showDlg=()=>{};d.classList.add('warm');
+    if(window.BEANS_OK&&BEANS.length){openBean(BEANS[0].id);d.offsetHeight}
+    if(RECIPES.length){openRecipe(0);d.offsetHeight}}catch(e){}
+  finally{showDlg=keep;d.classList.remove('warm');if(!d.open){$('vd-in').innerHTML='';delete d.dataset.bean}}}
 function prebuildTabs(){const ids=['recipes','gear','variety','process','map','words','history','flow','wheel','champs','tech'].filter(k=>LAZY[k]);
   // A step only starts in a real idle moment (not one the timeout forced), and not within 1.5 s of a touch, a key or a
   // scroll: building a page takes a while on a phone, and one started just after a tap held that tap's answer back.
-  const idle=window.requestIdleCallback?f=>requestIdleCallback(d=>{if(!d.didTimeout&&d.timeRemaining()<25)idle(f);else f()},{timeout:6000}):f=>setTimeout(f,200);
+  // (The wait has an end: after 6 s a step goes ahead in whatever idle time there is, or the rest would never be built.)
+  const idle=window.requestIdleCallback?(f,t0=performance.now())=>requestIdleCallback(d=>{if(!d.didTimeout&&d.timeRemaining()<25&&performance.now()-t0<6000)idle(f,t0);else f()},{timeout:6000}):f=>setTimeout(f,200);
   // Beans comes first (it's opened most and has the most to draw). Each step waits while you're moving between tabs,
   // so building ahead never competes with the page you just opened.
   let beans=false;
   const next=()=>{if(document.hidden){setTimeout(()=>idle(next),2000);return}if(performance.now()-Math.max(NAV_AT,USER_AT)<1500){setTimeout(()=>idle(next),900);return}
     if(!beans&&window.BEANS_OK){beans=true;try{renderBeansIfChanged();warmBeanPhotos()}catch(e){}idle(next);return}
+    if(!SHEETS_WARM&&window.BEANS_OK){warmSheets();idle(next);return}
     if(LOGL_STALE&&BUILT.recipes){try{renderLogList(1)}catch(e){}idle(next);return}
-    const id=ids.find(k=>!BUILT[k]);if(!id)return;BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
+    const id=ids.find(k=>!BUILT[k]);if(!id){warmSheets();return}BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
   setTimeout(()=>idle(next),2500)}
 function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove());if(LAZY[id]&&!BUILT[id]){BUILT[id]=1;LAZY[id]()}if(ALWAYS[id])ALWAYS[id]()}
 // NAVD counts tab changes you can step back through, so the app bar can offer a back button.
@@ -6418,7 +6438,7 @@ const HEART='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-w
 const favBtn=r=>{const k=rkey(r),on=FAVS.has(k);return '<button type="button" class="favbtn" data-fav="'+esc(k)+'" aria-pressed="'+on+'" aria-label="'+(on?'Remove from saved':'Save this recipe')+'">'+HEART+'</button>'};
 function toggleFav(k){if(FAVS.has(k))FAVS.delete(k);else FAVS.add(k);save('bb-favs',[...FAVS]);const on=FAVS.has(k);
   document.querySelectorAll('[data-fav]').forEach(b=>{if(b.dataset.fav===k){b.setAttribute('aria-pressed',on);b.setAttribute('aria-label',on?'Remove from saved':'Save this recipe')}});
-  toast(on?'Saved':'Removed from saved');if(BUILT.recipes){renderRHome();if(RF.includes('fav'))renderRecipes()}}
+  toast(on?'Saved':'Removed from saved');if(BUILT.recipes)afterPaint(()=>{renderRHome();if(RF.includes('fav'))renderRecipes()})}
 // Hearts work anywhere (cards, recipe sheets, champion sheets) without triggering the card underneath.
 document.addEventListener('click',e=>{const b=e.target.closest('[data-fav]');if(b){e.stopPropagation();e.preventDefault();toggleFav(b.dataset.fav)}},true);
 function noteRecent(r){if(!r)return;const k=rkey(r);RECENT=[k,...RECENT.filter(x=>x!==k)].slice(0,8);save('bb-recent',RECENT);if(BUILT.recipes)renderRHome()}
@@ -7693,7 +7713,7 @@ function lexicon(){if(LEX)return LEX;
   const P_EXTRA={washed:['washed','fully washed','wet process','wet processed','lavado','lavada','lave'],doublewashed:['double washed','kenyan process','kenya process'],ecopulped:['eco pulped','eco-pulped','demucilaged'],
     natural:['natural','dry process','dry processed','sun dried','sun-dried','natural seco','secado al sol'],pulpednatural:['pulped natural','cereja descascada','descascado'],wethulled:['wet hulled','wet-hulled','giling basah'],honey:['honey','miel','honey process'],hydrohoney:['hydro honey','hydro honey process','hydro-honey','hydrohoney'],anaerobichoney:['anaerobic honey','honey anaerobic','miel anaerobico'],doubleanaerobic:['double anaerobic','doble anaerobico','double anaerobico'],mountainwater:['mountain water'],
     whitehoney:['white honey','yellow honey','miel amarilla','miel blanca'],redhoney:['red honey','miel roja'],blackhoney:['black honey','miel negra'],anaerobic:['anaerobic','anaerobico','anaerobica','anaerobio'],anaerobicnatural:['anaerobic natural','natural anaerobico','natural anaerobic'],anaerobicwashed:['anaerobic washed','lavado anaerobico'],
-    carbonic:['carbonic maceration','carbonic'],lactic:['lactic'],yeast:['yeast'],koji:['koji'],extended:['extended fermentation'],thermalshock:['thermal shock'],mossto:['mossto'],supernatural:['supernatural','super natural'],coldferment:['cold fermentation','cold ferment','cold fermented','fermentacion en frio'],nitro:['nitro washed','nitro natural','nitrogen fermentation','nitro fermentation','nitrogen flushed'],slowdry:['dark room','slow dry','slow dried','dark room dried'],raisin:['raisin process','raisin natural','passa','uva pasa','dried on the branch','dried on the tree'],
+    carbonic:['carbonic maceration','carbonic'],alchemy:['alchemy process','alchemy'],lactic:['lactic'],yeast:['yeast'],koji:['koji'],extended:['extended fermentation'],thermalshock:['thermal shock'],mossto:['mossto'],supernatural:['supernatural','super natural'],coldferment:['cold fermentation','cold ferment','cold fermented','fermentacion en frio'],nitro:['nitro washed','nitro natural','nitrogen fermentation','nitro fermentation','nitrogen flushed'],slowdry:['dark room','slow dry','slow dried','dark room dried'],raisin:['raisin process','raisin natural','passa','uva pasa','dried on the branch','dried on the tree'],
     coferment:['co-ferment','co-fermented','coferment','cofermented','co ferment'],infused:['infused'],barrelaged:['barrel aged','barrel-aged'],monsooned:['monsooned'],aged:['aged green'],
     swisswater:['swiss water'],sugarcane:['sugarcane','sugar cane','ethyl acetate','ea decaf'],co2decaf:['co2 decaf','co2 process'],mcdecaf:['methylene chloride']};
   const procs=[];for(const k in PROCESSES)for(const a of (P_EXTRA[k]||[strip(PROCESSES[k].name)]))procs.push([a,k]);
@@ -8215,7 +8235,8 @@ function shareText(doc){const link=doc.link||SITE_URL,t=docText(doc,true).replac
 // The PDF engine (360 KB) loads when a share sheet first opens, not on every start.
 let PDFP=null;
 const loadPDF=()=>window.jspdf&&window.jspdf.jsPDF?Promise.resolve():(PDFP=PDFP||loadScript(typeof JSPDF_SRC==='string'?JSPDF_SRC:'vendor/jspdf.umd.min.js').catch(e=>{PDFP=null;throw e}));
-function openShare(doc){SHDOC=doc;loadPDF().catch(()=>{});const pdfOK=true;
+function openShare(doc){if(fromTap(()=>openShareNow(doc)))return;openShareNow(doc)}
+function openShareNow(doc){SHDOC=doc;loadPDF().catch(()=>{});const pdfOK=true;
   $('sh-in').innerHTML='<div class="sheet"><div class="grab"></div><button class="vd-close" id="sh-x" aria-label="Close">\u2715</button><h2 id="sh-title" style="margin:0 40px 2px 0">Share</h2><p class="hint" style="margin:0">'+esc(doc.title)+'</p>'+
    // A brew can also go out as a designed image card: shown first, with a preview drawn as the sheet opens.
    (doc.card?'<div class="shcard"><button type="button" class="shcard-pv" data-sh="img" aria-label="Share the '+esc((doc.cardTitle||'Brew card').toLowerCase())+' image"><span class="shcard-ph">Drawing your '+esc((doc.cardTitle||'Brew card').toLowerCase())+'…</span></button>'+
@@ -8779,7 +8800,7 @@ $('settings-in').addEventListener('click',e=>{if(e.target.closest('#st-tips')){o
   const l=e.target.closest('.logopick[data-logo]');if(l){UI.logo=l.dataset.logo;saveUI();renderSettings(1);return}
   if(e.target.closest('#st-export')){exportData();return}if(e.target.closest('#st-import')){$('st-file').click();return}});
 $('settings-in').addEventListener('change',e=>{if(e.target.id==='st-file'){importData(e.target.files[0]);e.target.value=''}});
-for(const id of ['explore-in','settings-in'])$(id).addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g){showTab(g.dataset.go,false,true);return}
+for(const id of ['explore-in','settings-in'])$(id).addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g){const t=g.dataset.go;tapOpen(g,()=>showTab(t,false,true));return}
   const cb=e.target.closest('.cday[data-bean]');if(cb){openBean(cb.dataset.bean);return}
   const w=e.target.closest('[data-word]');if(w)openWord(w.dataset.word)});
 // Older code and links may still ask for the sheets; they are pages now.
@@ -9146,7 +9167,7 @@ const FWIN={light:[7,30,60],medium:[4,21,45],dark:[3,14,30]};
 // still-lovely stretch end a few weeks after opening, whatever the roast date says.
 const F_DENSE_V=new Set(['geisha','sl28','sl34','sl14','landrace','jarc','kurume','dega','wolisho','wushwush','yemenia','udaini','dawairi','tufahi','jaadi','mokka']),
   F_SOFT_V=new Set(['maragogype','pacamara','maracaturra']),
-  F_FRUIT_P=new Set(['natural','pulpednatural','honey','redhoney','blackhoney','hydrohoney','anaerobic','anaerobicnatural','anaerobicwashed','anaerobichoney','doubleanaerobic','carbonic','lactic','yeast','koji','extended','thermalshock','mossto','supernatural','coldferment','nitro','raisin','coferment','infused','barrelaged']),
+  F_FRUIT_P=new Set(['natural','pulpednatural','honey','redhoney','blackhoney','hydrohoney','anaerobic','anaerobicnatural','anaerobicwashed','anaerobichoney','doubleanaerobic','carbonic','alchemy','lactic','yeast','koji','extended','thermalshock','mossto','supernatural','coldferment','nitro','raisin','coferment','infused','barrelaged']),
   F_DECAF_P=new Set(['swisswater','sugarcane','mountainwater','mcdecaf']),F_OPEN={light:[21,35],medium:[14,28],dark:[10,21]};
 // How high the origin grows: the middle of its altitude range ("1,500 to 2,300 m"), or 0 when it isn't given in metres.
 const altOf=k=>{const o=k&&oInfo(k),a=o&&o.alt;if(!a)return 0;if(/low/i.test(a))return 900;const n=(a.match(/\d[\d,]*/g)||[]).map(x=>+x.replace(/,/g,'')).filter(x=>x>=100);return n.length?(Math.min(...n)+Math.max(...n))/2:0};
@@ -9395,7 +9416,7 @@ function makeRecipe(bean,bk,goal,seed){const B=BREWERS[bk],t=tasteOf(BEANS,LOG.f
   const doses=LOG.filter(l=>isMine(l)&&l.snap&&(BREWERS[l.snap.b]||{}).of===(B.of||bk)||isMine(l)&&l.snap&&l.snap.b===bk).map(l=>+l.snap.dose).filter(v=>v>0).sort((a,b)=>a-b);
   const imm=B.type==='Immersion and pressure',valve=B.type==='Valve and hybrid',aero=/aeropress/i.test(B.name);
   const dose=Math.min(doses.length?doses[doses.length>>1]:imm&&!aero?18:15,aero?16:99);
-  const fer=/natural|anaerobic|honey|carbonic|ferment|thermal|yeast|koji/i.test(bean.process||''),roast=bean.roast||'medium',fresh=bean.roastDate&&daysAgo(bean.roastDate)<10;
+  const fer=/natural|anaerobic|honey|carbonic|alchemy|ferment|thermal|yeast|koji/i.test(bean.process||''),roast=bean.roast||'medium',fresh=bean.roastDate&&daysAgo(bean.roastDate)<10;
   const ratio=clamp(({balanced:16,sweet:15.5,bright:16.5,clear:17,body:14.5})[goal]-(roast==='dark'?.5:0)+(rnd()-.5)*.4,13,18);
   const water=Math.min(Math.round(dose*ratio/5)*5,aero?230:3000);
   let temp=({light:95,medium:92,dark:89})[roast]||92;if(fer)temp-=2;if(goal==='bright')temp-=1;if(goal==='sweet'||goal==='clear')temp+=1;temp=clamp(Math.round(temp),86,97);
@@ -9460,7 +9481,7 @@ function openMakeRecipe(bid){const d=$('vd'),beans=[...BEANS.filter(b=>b.shelf),
 
 /* ---------- Trophies ---------- */
 // Earned from the cabinet as it is: each has a goal and counts towards it. The day one is first earned is kept.
-const WILD=['anaerobic','anaerobicnatural','anaerobicwashed','anaerobichoney','doubleanaerobic','carbonic','lactic','yeast','koji','extended','thermalshock','mossto','coferment','infused','barrelaged'];
+const WILD=['anaerobic','anaerobicnatural','anaerobicwashed','anaerobichoney','doubleanaerobic','carbonic','alchemy','lactic','yeast','koji','extended','thermalshock','mossto','coferment','infused','barrelaged'];
 function cabStats(){const o=new Set(BEANS.map(b=>b.origin).filter(Boolean)),ml=MYLOG();
   return{n:BEANS.length,bags:BEANS.reduce((a,b)=>a+buys(b),0),o,regs:new Set([...o].map(k=>(oInfo(k)||{}).reg).filter(Boolean)),procs:new Set(BEANS.map(b=>b.process).filter(Boolean)),
     roasters:new Set(BEANS.map(b=>b.roaster.toLowerCase()).filter(Boolean)),diary:BEANS.reduce((a,b)=>a+b.diary.length,0),done:BEANS.filter(b=>!b.shelf).length+BEANS.reduce((a,b)=>a+(b.bags||[]).length+(b.prior||0),0),rebought:BEANS.filter(b=>buys(b)>1).length,maxBuys:BEANS.reduce((a,b)=>Math.max(a,buys(b)),0),

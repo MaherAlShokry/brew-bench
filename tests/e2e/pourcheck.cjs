@@ -1,3 +1,5 @@
+// Output (screenshots, downloads) goes to tests/e2e/out, wherever this is run from.
+{const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 // Pours add up everywhere a recipe's steps are shown: each recipe as written, sized to other doses, and the dial-in's
 // plan (what Brew, the timer and the brew card use) for every cup target, at awkward doses and ratios. In each list,
 // "pour Xg (to Yg)" pours what takes the scale from the last total to Y, totals never go back down, and the last total
