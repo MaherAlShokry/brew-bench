@@ -1123,11 +1123,10 @@ function openBeanEditor(b,pre){const isNew=!b;const B=Object.assign({name:'',roa
    '<div class="field"><div class="lbl">Your rating</div><div class="beanrate" id="be-rate"></div></div>'+
    '<div class="two stackm"><div class="field"><label for="be-name">Coffee name</label><input id="be-name" maxlength="60" value="'+esc(B.name)+'" autocomplete="off"></div>'+
    '<div class="field"><label for="be-roaster">Roastery</label><div class="acw"><input id="be-roaster" maxlength="50" value="'+esc(B.roaster)+'" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="be-rsug"><div class="acl" id="be-rsug" role="listbox" aria-label="Roasteries you’ve had" hidden></div></div></div></div>'+
-   '<div class="two stackm"><div class="field"><label for="be-origin">Origin</label><select id="be-origin">'+opt('<option value="blend">\u{1F30D} Blend</option>'+originOptions(),'Not sure')+'</select></div>'+
-   '<div class="field"><label for="be-process">Process</label><select id="be-process">'+opt(processOptions(),'Not sure')+'</select></div></div>'+
-   // A blend: its origins, each with the region if the bag says (up to four).
-   '<div class="field" id="be-blendf" hidden><div class="lbl" id="be-blbl">Origins in the blend</div><div class="bvars bblend" id="be-blend" role="group" aria-labelledby="be-blbl"></div>'+
+   '<div class="field"><div class="lbl" id="be-olbl">Origin</div><div class="bvars" id="be-origins" role="group" aria-labelledby="be-olbl"></div>'+
+   // A second origin makes it a blend (up to four), the same way varieties are added.
    '<button type="button" class="bv-add" id="be-addo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add another origin</button></div>'+
+   '<div class="field"><label for="be-process">Process</label><select id="be-process">'+opt(processOptions(),'Not sure')+'</select></div>'+
    '<div class="field"><div class="lbl" id="be-vlbl">Variety</div><div class="bvars" id="be-vars" role="group" aria-labelledby="be-vlbl"></div>'+
    '<button type="button" class="bv-add" id="be-addv"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add another variety</button></div>'+
    '<div class="field"><div class="lbl">Roast</div><div class="seg" id="be-roast"></div></div>'+
@@ -1137,23 +1136,20 @@ function openBeanEditor(b,pre){const isNew=!b;const B=Object.assign({name:'',roa
    '<div class="field tn"><div class="tn-head"><label for="tn-q">Tasting notes</label><span class="hint" id="tn-n"></span></div><div id="be-fl"></div></div>'+
    '<div class="field"><label for="be-notes">Your notes</label><textarea id="be-notes" rows="3" maxlength="600" placeholder="How you brewed it, what you loved, would you buy it again?">'+esc(B.notes)+'</textarea></div>'+
    '<div class="actions"><button class="btn" id="be-save">'+(isNew?'Add to the gallery':'Save changes')+'</button><button class="btn ghost" id="be-cancel">Cancel</button></div></div>';
-  for(const [id,k] of [['be-origin','origin'],['be-process','process']])$(id).value=B[k];
+  $('be-process').value=B.process;
   autoList($('be-roaster'),$('be-rsug'),roasters);
-  const oOpts=opt(originOptions(),'Pick an origin');let BL=(B.blend||[]).map(x=>({o:x.o,r:x.r||''}));while(BL.length<2)BL.push({o:'',r:''});
-  const readBlend=()=>{BL=[...$('be-blend').querySelectorAll('.bvar')].map(r=>({o:r.querySelector('select').value,r:r.querySelector('input').value.trim()}))};
-  const subsOf=o=>((oInfo(o)||{}).subs||[]).map(s=>String(s).replace(/\s*\(.*$/,''));
-  const drawBlend=()=>{const many=BL.length>2;$('be-blend').innerHTML=BL.map((x,i)=>'<div class="bvar bo"><select data-bi="'+i+'" aria-label="Origin '+(i+1)+'">'+oOpts+'</select>'+
-      '<input data-br="'+i+'" maxlength="40" placeholder="Region (optional)" value="'+esc(x.r)+'" list="be-bl'+i+'" aria-label="Region of origin '+(i+1)+'" autocomplete="off"><datalist id="be-bl'+i+'">'+subsOf(x.o).map(s=>'<option value="'+esc(s)+'">').join('')+'</datalist>'+
-      (many?'<button type="button" class="bvar-x" data-bx="'+i+'" aria-label="Remove origin '+(i+1)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>':'')+'</div>').join('');
-    $('be-blend').querySelectorAll('select').forEach((s,i)=>s.value=BL[i].o);$('be-addo').hidden=BL.length>=4};
-  const showBlend=()=>{const on=$('be-origin').value==='blend';$('be-blendf').hidden=!on;if(on&&!$('be-blend').children.length)drawBlend()};
-  $('be-origin').addEventListener('change',showBlend);
-  $('be-addo').onclick=()=>{readBlend();BL.push({o:'',r:''});drawBlend();const l=$('be-blend').querySelectorAll('select');l[l.length-1].focus()};
-  $('be-blend').onclick=e=>{const x=e.target.closest('[data-bx]');if(!x)return;readBlend();BL.splice(+x.dataset.bx,1);while(BL.length<2)BL.push({o:'',r:''});drawBlend();TN.suggest()};
-  $('be-blend').onchange=e=>{const s=e.target.closest('select');if(s){readBlend();const dl=$('be-bl'+s.dataset.bi);if(dl)dl.innerHTML=subsOf(s.value).map(v=>'<option value="'+esc(v)+'">').join('')}TN.suggest()};
-  const TN=tasteInput($('be-fl'),B.flavours,()=>({origin:$('be-origin').value,origins:$('be-origin').value==='blend'?[...$('be-blend').querySelectorAll('select')].map(x=>x.value).filter(Boolean):null,process:$('be-process').value,vars:[...$('be-vars').querySelectorAll('select')].map(x=>x.value).filter(Boolean)}));
-  ['be-origin','be-process','be-vars'].forEach(id=>$(id).addEventListener('change',()=>TN.suggest()));
-  showBlend();
+  // Origins: one picker to start; adding a second makes the coffee a blend (up to four), each removable.
+  const oOpts=opt(originOptions(),'Not sure');let OL=isBlend(B)?blendParts(B).map(x=>x.o):[B.origin==='blend'?'':B.origin||''];if(!OL.length)OL=[''];
+  const readOrigins=()=>{OL=[...$('be-origins').querySelectorAll('select')].map(x=>x.value)};
+  const drawOrigins=()=>{const many=OL.length>1;$('be-origins').innerHTML=OL.map((o,i)=>'<div class="bvar"><select data-oi="'+i+'" aria-label="'+(many?'Origin '+(i+1):'Origin')+'">'+oOpts+'</select>'+(many?'<button type="button" class="bvar-x" data-ox="'+i+'" aria-label="Remove origin '+(i+1)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>':'')+'</div>').join('');
+    $('be-origins').querySelectorAll('select').forEach((x,i)=>x.value=OL[i]);$('be-olbl').textContent=many?'Origins (a blend)':'Origin';$('be-addo').hidden=OL.length>=4};
+  drawOrigins();
+  $('be-addo').onclick=()=>{readOrigins();OL.push('');drawOrigins();const l=$('be-origins').querySelectorAll('select');l[l.length-1].focus()};
+  $('be-origins').onclick=e=>{const x=e.target.closest('[data-ox]');if(!x)return;readOrigins();OL.splice(+x.dataset.ox,1);if(!OL.length)OL=[''];drawOrigins();TN.suggest()};
+  // What the form says now: one origin, or a blend of the different origins picked.
+  const pickedOrigins=()=>{readOrigins();return[...new Set(OL.filter(Boolean))]};
+  const TN=tasteInput($('be-fl'),B.flavours,()=>({origin:pickedOrigins()[0]||'',origins:pickedOrigins(),process:$('be-process').value,vars:[...$('be-vars').querySelectorAll('select')].map(x=>x.value).filter(Boolean)}));
+  ['be-origins','be-process','be-vars'].forEach(id=>$(id).addEventListener('change',()=>TN.suggest()));
   // Varieties: one picker to start; a blend or mixed lot adds more, up to four, each removable.
   // The pickers list each variety once; a regional Geisha (geisha:panama) shows as Geisha and keeps its region when saved.
   const vOpts=opt(varietyOptions(),'Not sure'),ORIG=beanVars(B),base=v=>String(v||'').split(':')[0];let VL=[...ORIG];if(!VL.length)VL=[''];
@@ -1177,7 +1173,7 @@ function openBeanEditor(b,pre){const isNew=!b;const B=Object.assign({name:'',roa
   $('be-cam').onclick=()=>$('be-camf').click();$('be-pick').onclick=$('be-photo').onclick=e=>{if(e.target.closest('#be-rm'))return;$('be-file').click()};
   $('be-camf').onchange=$('be-file').onchange=e=>{const f=e.target.files[0];e.target.value='';take(f)};
   $('be-cancel').onclick=()=>{if(ADVRET&&B.cal&&calById(B.cal.id)){const c=ADVRET;ADVRET=null;if(isNew)openCal(c,{back:B.cal.d});else calBackTo(b)}else d.close()};
-  $('be-save').onclick=async()=>{const n=okBean({id:b?b.id:uid().replace(/[^a-z0-9]/g,'').slice(0,20),name:$('be-name').value,roaster:$('be-roaster').value,origin:$('be-origin').value,...($('be-origin').value==='blend'?(readBlend(),{blend:BL.filter(x=>x.o)}):{}),process:$('be-process').value,...(readVars(),{variety:VL.filter(Boolean)[0]||'',vars:VL.filter(Boolean).slice(1)}),
+  $('be-save').onclick=async()=>{const n=okBean({id:b?b.id:uid().replace(/[^a-z0-9]/g,'').slice(0,20),name:$('be-name').value,roaster:$('be-roaster').value,...(o=>o.length>1?{origin:'blend',blend:o.map(x=>({o:x}))}:{origin:o[0]||''})(pickedOrigins()),process:$('be-process').value,...(readVars(),{variety:VL.filter(Boolean)[0]||'',vars:VL.filter(Boolean).slice(1)}),
       roast:B.roast,roastDate:$('be-rdate').value,tried:$('be-tried').value,rating,flavours:TN.val(),notes:$('be-notes').value,img:photoChanged?!!photo:B.img,scan:B.scan||'',ts:b?b.ts:Date.now(),
       shelf:B.shelf,bag:$('be-bag').value,left:b?b.left:null,leftAt:b?b.leftAt:0,again:b?b.again:'',diary:b?b.diary:[],cups:b?b.cups:[],bags:b?b.bags:[],prior:b?b.prior:0,cal:B.cal});
     if(!n.name&&!n.origin&&!photo){toast('Add a name, an origin or a photo first');$('be-name').focus();return}

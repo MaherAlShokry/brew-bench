@@ -2331,7 +2331,7 @@ const okScan=x=>{if(!x||typeof x!=='object'||!x.sc||typeof x.sc!=='object')retur
 let SCANS=load('bb-scans',[]).map(okScan).filter(Boolean),SAMPLE=null,IMGS=null,SFILE=null,SCTL=null;
 function daysSince(d){if(!d)return 14;const t=Date.parse(d);if(isNaN(t))return 14;return clamp(Math.round((Date.now()-t)/864e5),1,90)}
 function initScan(){
-  $('s-origin').innerHTML='<option value="">Not sure</option><option value="blend">\u{1F30D} Blend</option>'+originOptions();
+  $('s-origin').innerHTML='<option value="">Not sure</option>'+originOptions();
   $('s-brewer').innerHTML=brewerOptions(PBREWERS);
   for(const [id,key] of [['s-origin','origin'],['s-process','process'],['s-variety','variety'],['s-brewer','brewer'],['s-date','date']])$(id).onchange=e=>{if(key!=='brewer')SC.blank=false;SC[key]=key==='variety'?effVariety(e.target.value,SC.origin):e.target.value;if(key==='brewer'&&!canGrind(SC.grinder,SC.brewer))SC.grinder=capable(SC.brewer);renderScan()};
   // Two ways in: the camera straight away, or a photo already on the phone. Typing or pasting the text is below.
@@ -2951,7 +2951,7 @@ function beanProfileHTML(){const b=beanProfile();
     '<h4 class="bp-h">How to brew it</h4><ul class="bp-tips">'+b.tips.map(t=>'<li>'+esc(t)+'</li>').join('')+'</ul>'+
     '<p class="hint" style="margin:10px 0 0">For exact grind and water settings on your gear, open it in the dial-in.</p></div>'}
 function renderScan(){
-  $('s-origin').value=SC.origin;$('s-process').value=SC.process;$('s-variety').value=String(SC.variety).split(':')[0];$('s-date').value=SC.date||'';$('s-brewer').value=SC.brewer;
+  {const so=$('s-origin');let bo=so.querySelector('option[value="blend"]');if(SC.origin==='blend'){if(!bo){bo=document.createElement('option');bo.value='blend';so.prepend(bo)}bo.textContent='\u{1F30D} Blend of '+((SC.blend||[]).map(x=>originName(x.o)).join(', ')||'several origins')}else if(bo)bo.remove();so.value=SC.origin}$('s-process').value=SC.process;$('s-variety').value=String(SC.variety).split(':')[0];$('s-date').value=SC.date||'';$('s-brewer').value=SC.brewer;
   seg('s-roast',[['light','Light'],['medium','Medium'],['dark','Dark']],()=>SC.roast,v=>{SC.roast=v;SC.blank=false;renderScan()});
   grinderSeg('s-grinder',(SC.brewer),()=>SC.grinder,v=>{SC.grinder=v;renderScan()});
   const age=daysSince(SC.date);const c={brewer:SC.brewer,grinder:SC.grinder,tech:techList(SC.brewer)[0][1],process:SC.process,variety:SC.variety,roast:SC.roast,age,goal:'balance'};
