@@ -17,6 +17,12 @@
             android:exported="true">
         </activity>
 
+        <!-- The home-screen widget: the coffee you're drinking, its freshness and a Log brew button (BrewWidget). -->
+        <receiver android:name=".BrewWidget" android:exported="false" android:label="@string/widget_name">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_bean_info" />
+        </receiver>
+
         <!-- The home-screen icon follows the app logo (Settings → App logo). Each logo is a launcher entry; exactly one is
              on. AppIconPlugin switches them when the app goes to the background. The icons come from
              tools/gen-app-icons.py. -->

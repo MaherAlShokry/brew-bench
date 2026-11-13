@@ -579,6 +579,24 @@ async function setReminder(on,t){const ln=LN();if(t)REMIND.t=t;
   const run=()=>{if(!pend)return;if(!ready()){setTimeout(run,150);return}const n=pend;pend=null;try{go(n)}catch(e){}};
   try{ln.addListener('localNotificationActionPerformed',a=>{pend=a&&a.notification;run()})}catch(e){}
   if(REMIND.on)setTimeout(scheduleReminders,3000)})();
+// The home-screen widget (Android, see BrewWidget.java): the coffee you're drinking, meaning the cabinet coffee you
+// brewed most recently (or added most recently, before any brews), sent when the app starts and each time you leave
+// it. The widget works out the day's freshness itself from the roast date and window. Tapping it opens that coffee;
+// its Log brew button opens the brew form with that coffee picked.
+function widgetBean(){const sh=BEANS.filter(b=>b.shelf);if(!sh.length)return null;const last=b=>beanBrews(b).reduce((m,l)=>Math.max(m,+l.ts||0),0);
+  return sh.map(b=>[b,last(b)]).sort((a,c)=>c[1]-a[1]||(+c[0].ts||0)-(+a[0].ts||0))[0][0]}
+function updWidget(){const w=plugin('Widget');if(!w)return;try{const b=widgetBean(),c=b&&cupsLeft(b);
+  w.update(b?{id:b.id,title:beanTitle(b),sub:[b.roaster,b.origin?(flagOf(b.origin)+' '+originName(b.origin)).trim():''].filter(Boolean).join(' · '),
+    roastDate:b.roastDate||'',win:freshWin(b).w.join(','),left:c==null?'':c?c+(c===1?' cup left':' cups left'):'Bag empty'}:{id:''}).catch(()=>{})}catch(e){}}
+(()=>{if(!plugin('Widget'))return;setTimeout(updWidget,2500);document.addEventListener('visibilitychange',()=>{if(document.hidden)updWidget()});
+  const go=o=>{const [k,id]=String(o||'').split(':');document.querySelectorAll('dialog[open]').forEach(d=>d.close());
+    if(k==='bean'&&beanById(id)){showTab('beans');openBean(id);return}
+    if(k==='log'){if(LEDIT)endEdit();LBEAN=id&&beanById(id)?id:null;renderLBean();renderFlForm();showTab('log');setTimeout(()=>$('l-form').scrollIntoView({block:'start'}),60);return}
+    showTab('beans')};
+  const ready=()=>NAV_READY&&!document.documentElement.classList.contains('splashing');
+  // Asked on start (a tap that opened the app) and by the app when a tap arrives while it's running.
+  const ask=()=>{if(!ready()){setTimeout(ask,150);return}plugin('Widget').pending().then(r=>{if(r&&r.open)go(r.open)}).catch(()=>{})};
+  window.bbWidget=ask;ask()})();
 function cabinetDayHTML(){const c=cabinetDay();if(!c)return '';
   return '<button type="button" class="cday k-'+c.k+'" data-bean="'+c.b.id+'">'+beanPic(c.b,'cd')+'<span class="cd-tx"><small>'+(c.k==='fav'?'From your cabinet':'From your cabinet · '+DAYK[c.k])+'</small><b>'+esc(c.title)+'</b><span>'+esc(c.text)+'</span></span></button>'}
 

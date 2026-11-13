@@ -769,9 +769,10 @@ async function docCardImg(doc){const style=Object.assign({},CARD_STYLE);if(docum
 /* ---------- The PDF: the share's card on A4 pages ---------- */
 // A long card is cut between rows, never through a line: just above each page's end, the calmest pixel row (the
 // background between panes) is where the page breaks. Each page is filled with the card's colour behind the slice.
-async function cardPDF(blob,title){const J=(window.jspdf||{}).jsPDF;if(!J||!blob)return null;
-  const img=await new Promise((ok,no)=>{const u=URL.createObjectURL(blob),i=new Image();i.onload=()=>{URL.revokeObjectURL(u);ok(i)};i.onerror=e=>{URL.revokeObjectURL(u);no(e)};i.src=u});
-  const iw=img.naturalWidth,ih=img.naturalHeight,full=document.createElement('canvas');full.width=iw;full.height=ih;const fx=full.getContext('2d',{willReadFrequently:true});fx.drawImage(img,0,0);
+// The work itself, shared by the background worker and the fallback here: it only uses what it is given, so its source
+// can be handed to the worker as it is. mk(w,h) makes a canvas; jpg(canvas,q) gives JPEG data for jsPDF.
+async function pdfCore(J,bm,title,brk0,mk,jpg){
+  const iw=bm.width,ih=bm.height,full=mk(iw,ih),fx=full.getContext('2d',{willReadFrequently:true});fx.drawImage(bm,0,0);
   const PW=595.28,PH=841.89,pageH=Math.floor(iw*PH/PW),pdf=new J({unit:'pt',format:'a4',compress:true});pdf.setProperties({title:title||'The Brew Bench',creator:'The Brew Bench'});
   const calm=(from,to)=>{const h=to-from;if(h<=0)return to;const d=fx.getImageData(0,from,iw,h).data;let best=to,bs=Infinity;
     for(let r=h-1;r>=0;r--){let s=0;const o=r*iw*4;for(let i=4*8;i<iw*4-32;i+=24){s+=Math.abs(d[o+i]-d[o+i-24])+Math.abs(d[o+i+1]-d[o+i-23])+Math.abs(d[o+i+2]-d[o+i-22])+0.5*(Math.abs(d[o+i]-d[o+32])+Math.abs(d[o+i+1]-d[o+33])+Math.abs(d[o+i+2]-d[o+34]))}
@@ -780,15 +781,35 @@ async function cardPDF(blob,title){const J=(window.jspdf||{}).jsPDF;if(!J||!blob
   // A card up to about one and a half pages tall goes on one page, scaled to fit and framed in its own colour; only a
   // long one (a big gallery, a long list) runs over several.
   if(ih<=pageH*1.5){const k=Math.min(PW/iw,PH/ih),w=iw*k,h=ih*k,bg=colAt(Math.round(ih/2));pdf.setFillColor(...bg);pdf.rect(0,0,PW,PH,'F');
-    pdf.addImage(full.toDataURL('image/jpeg',0.88),'JPEG',(PW-w)/2,(PH-h)/2,w,h,undefined,'FAST');return pdf.output('blob')}
+    pdf.addImage(await jpg(full,0.88),'JPEG',(PW-w)/2,(PH-h)/2,w,h,undefined,'FAST');return pdf.output('blob')}
   // Pages after the first start a little down the page, so a pane carried over doesn't touch the top edge.
-  const brk=(blob._brk||[]).filter(v=>v>0&&v<ih).sort((a,b)=>a-b),TOP=Math.round(iw*30/PW);
+  const brk=(brk0||[]).filter(v=>v>0&&v<ih).sort((a,b)=>a-b),TOP=Math.round(iw*30/PW);
   let y=0,n=0;while(y<ih-2){const room=pageH-(n?TOP:0);let end=Math.min(ih,y+room);
     if(end<ih){const ok=brk.filter(v=>v>y+room*0.45&&v<=end);end=ok.length?ok[ok.length-1]:calm(Math.max(y+Math.floor(room*0.7),end-Math.floor(room*0.22)),end)}
-    const sh=end-y,cv=document.createElement('canvas');cv.width=iw;cv.height=sh;cv.getContext('2d').drawImage(full,0,y,iw,sh,0,0,iw,sh);
+    const sh=end-y,cv=mk(iw,sh);cv.getContext('2d').drawImage(full,0,y,iw,sh,0,0,iw,sh);
     const bg=colAt(n?y+2:end-1);if(n)pdf.addPage();pdf.setFillColor(...bg);pdf.rect(0,0,PW,PH,'F');
-    pdf.addImage(cv.toDataURL('image/jpeg',0.86),'JPEG',0,n?TOP*PW/iw:0,PW,sh*PW/iw,undefined,'FAST');n++;y=end}
+    pdf.addImage(await jpg(cv,0.86),'JPEG',0,n?TOP*PW/iw:0,PW,sh*PW/iw,undefined,'FAST');n++;y=end}
   return pdf.output('blob')}
+// The PDF is put together in a background worker, so the screen doesn't freeze while it's made: the card's image is
+// decoded, cut into pages and each page encoded there. Where workers can't do that (no OffscreenCanvas), or the
+// worker fails, it is made here as before.
+let PDFW=null;
+function pdfWorker(){if(PDFW!==null)return PDFW;PDFW=false;
+  try{if(typeof OffscreenCanvas!=='function'||typeof createImageBitmap!=='function'||!window.Worker)return PDFW;
+    const src=new URL(typeof JSPDF_SRC==='string'?JSPDF_SRC:'vendor/jspdf.umd.min.js',location.href).href;
+    const code='importScripts('+JSON.stringify(src)+');\n'+pdfCore.toString()+'\nself.onmessage=async e=>{const {id,blob,title,brk}=e.data;try{const bm=await createImageBitmap(blob);'+
+      'const out=await pdfCore(self.jspdf.jsPDF,bm,title,brk,(w,h)=>new OffscreenCanvas(w,h),async(c,q)=>new Uint8Array(await (await c.convertToBlob({type:"image/jpeg",quality:q})).arrayBuffer()));'+
+      'self.postMessage({id,blob:out})}catch(err){self.postMessage({id,err:String(err&&err.message||err)})}};';
+    const w=new Worker(URL.createObjectURL(new Blob([code],{type:'text/javascript'})));const wait=new Map();let seq=0;
+    w.onmessage=e=>{const p=wait.get(e.data.id);if(!p)return;wait.delete(e.data.id);e.data.blob?p.ok(e.data.blob):p.no(new Error(e.data.err||'pdf'))};
+    w.onerror=e=>{e.preventDefault&&e.preventDefault();for(const p of wait.values())p.no(new Error('worker'));wait.clear();PDFW=false};
+    PDFW={make:(blob,title,brk)=>new Promise((ok,no)=>{const id=++seq;wait.set(id,{ok,no});w.postMessage({id,blob,title,brk})})}}catch(e){PDFW=false}
+  return PDFW}
+async function cardPDF(blob,title){if(!blob)return null;const brk=blob._brk||[];
+  const w=pdfWorker();if(w){try{return await w.make(blob,title,brk)}catch(e){}}
+  const J=(window.jspdf||{}).jsPDF;if(!J)return null;
+  const bm=await new Promise((ok,no)=>{const u=URL.createObjectURL(blob),i=new Image();i.onload=()=>{URL.revokeObjectURL(u);ok(i)};i.onerror=e=>{URL.revokeObjectURL(u);no(e)};i.src=u});
+  return pdfCore(J,bm,title,brk,(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c},async(c,q)=>c.toDataURL('image/jpeg',q))}
 
 /* ---------- An advent calendar ---------- */
 // The box: its photo, name and roastery, the total rating (the average of the coffees rated from it), how far along it
