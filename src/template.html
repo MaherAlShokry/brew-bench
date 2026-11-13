@@ -57,7 +57,7 @@ header.hero{padding:30px 18px 26px;display:grid;grid-template-columns:1fr;gap:10
 @media (min-width:760px){header.hero{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}}
 .hero h1{color:var(--cherry)}
 .hero p{color:var(--muted);margin:.7rem 0 0;font-size:1.05rem}
-.hero-art{width:100%;max-width:340px;justify-self:center}
+.hero-art{width:100%;max-width:340px;justify-self:center;contain:layout paint}
 .steam{animation:steam 4.5s ease-in-out infinite;transform-box:fill-box;transform-origin:center bottom}
 .steam.s2{animation-delay:1.4s}.steam.s3{animation-delay:2.8s}
 @keyframes steam{0%{opacity:0;transform:translateY(8px) scaleY(.8)}35%{opacity:.7}100%{opacity:0;transform:translateY(-14px) scaleY(1.1)}}
@@ -706,7 +706,7 @@ html.app .appbar{background:color-mix(in srgb,var(--paper) 97%,transparent)}html
 html.app .bg-hero::after,html.app .me-hero::after,html.app .pp-st img{mix-blend-mode:normal}
 /* The kettle's pour and the steam on the Dial-in drawing, and the steam over the profile, play a few times and rest,
    rather than redrawing for as long as they're on screen. */
-/* Decorations play a few times, then rest (website and app): an endless loop keeps the screen repainting. */.hero-art .stream{animation-iteration-count:4}.hero-art .steam,.me-steam path{animation-iteration-count:2}.deco-rest .hero-art .stream,.deco-rest .hero-art .steam,.deco-rest .me-steam path{animation:none}html.app .bg-hero::after,html.app .me-hero::after{opacity:.06}
+/* Decorations play a few times, then rest (website and app): an endless loop keeps the screen repainting. */.hero-art .stream{animation-iteration-count:2}.hero-art .steam{animation-iteration-count:1}.me-steam path{animation-iteration-count:2}.deco-rest .hero-art .stream,.deco-rest .hero-art .steam,.deco-rest .me-steam path{animation:none}html.app .bg-hero::after,html.app .me-hero::after{opacity:.06}
 /* ================= OPENING SCENE ================= */
 #splash{display:none}
 .splashing #splash{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;overflow:hidden;background:var(--paper);color:var(--ink);touch-action:none}

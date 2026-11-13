@@ -136,9 +136,13 @@ function rngEnhance(i){if(i.dataset.rng)return;i.dataset.rng='1';
 // like that control's own highlight, instead of jumping. It picks up where it was even when the options are redrawn.
 // Highlights are placed in batches: every strip is read first, then every highlight is written, so a page with many
 // strips (Settings redraws them all) is laid out about once instead of once per strip.
+// Every one-line strip glides, the Gear tabs included; wrapping filter chips can't, so they get the plain pick instead.
+const SEG_SEL='.seg:not(.filters),.seg.gtabs';
 // Only one-line strips (SEG_SEL) get one: wrapping chip rows keep their own pick, so a highlight never floats loose.
 function segBatch(list){const items=[];
-  for(const el of new Set(list)){if(!el||!el.isConnected||!el.matches(SEG_SEL))continue;const on=el.querySelector(':scope>button[aria-pressed="true"]');items.push({el,on,ind:el.querySelector(':scope>.seg-ind')})}
+  for(const el of new Set(list)){if(!el||!el.isConnected||!el.matches(SEG_SEL))continue;
+    // A strip on a page that isn't shown waits until that page opens: measuring it would lay out the hidden page.
+    if(el.closest('main section:not(.on)')){el._stale=1;continue}const on=el.querySelector(':scope>button[aria-pressed="true"]');items.push({el,on,ind:el.querySelector(':scope>.seg-ind')})}
   if(!items.length)return;
   // Reads, part 1: which strips are shown, and which need a positioned parent for their highlight.
   for(const it of items){it.ok=!!(it.on&&it.on.offsetWidth);if(it.ok&&!it.el.classList.contains('ind-rel'))it.stat=getComputedStyle(it.el).position==='static'}
@@ -161,12 +165,12 @@ function segBatch(list){const items=[];
     if(rm)ind.style.transition='none';Object.assign(ind.style,it.look,it.pos,{opacity:'1'});el._ip=it.pos;if(el.id)SEG_IP.set(el.id,it.pos)}
   for(const it of items)if(SEG_RO&&!it.el._ro){it.el._ro=1;SEG_RO.observe(it.el)}}
 function segUpdate(el){segBatch([el])}
+// A page coming into view places the highlights that waited for it (after a change of look or text size).
+function segShown(sec){const l=[...sec.querySelectorAll(SEG_SEL)].filter(x=>x._stale);if(l.length){l.forEach(x=>x._stale=0);segBatch(l)}}
 // One watcher for every control's size (a tab coming into view, the phone turning); controls that have left the page are dropped.
 const SEG_RO=window.ResizeObserver?new ResizeObserver(es=>es.forEach(e=>{if(e.target.isConnected)segQueue(e.target);else SEG_RO.unobserve(e.target)})):null;
 const SEG_Q=new Set(),SEG_IP=new Map();let SEG_RAF=0;
 function segQueue(el){SEG_Q.add(el);if(!SEG_RAF)SEG_RAF=requestAnimationFrame(()=>{SEG_RAF=0;const l=[...SEG_Q];SEG_Q.clear();segBatch(l)})}
-// Every one-line strip glides, the Gear tabs included; wrapping filter chips can't, so they get the plain pick instead.
-const SEG_SEL='.seg:not(.filters),.seg.gtabs';
 // Strips redrawn in one go are collected here and placed together when the scan is done.
 let SEG_NOW=null;
 function uiScan(root){if(!root.querySelectorAll)return;const own=!SEG_NOW;if(own)SEG_NOW=[];

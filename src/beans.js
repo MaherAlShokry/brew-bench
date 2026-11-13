@@ -673,7 +673,9 @@ async function warmBeanPhotos(){const root=$('beans');if(!root)return;const orde
 function hydrateImgs(root){root.querySelectorAll('[data-bimg]').forEach(el=>{if(BIMG.peekThumb(el.dataset.bimg)||!BIO||root.closest&&root.closest('dialog'))loadImg(el);else BIO.observe(el)});requestAnimationFrame(()=>loadNear(root))}
 // Photos already on screen (or close) load straight away. A list drawn while its tab was hidden never hears from the
 // observer when the tab is shown, so its first rows stayed blank until you scrolled.
-function loadNear(root){if(!root)return;const H=innerHeight+400;root.querySelectorAll('[data-bimg]').forEach(el=>{const r=el.getBoundingClientRect();if(r.width&&r.bottom>-400&&r.top<H){if(BIO)BIO.unobserve(el);loadImg(el)}})}
+// Every photo is measured first, then the near ones load: loading one between measurements re-laid the page out each time.
+function loadNear(root){if(!root)return;const H=innerHeight+400,near=[...root.querySelectorAll('[data-bimg]')].filter(el=>{const r=el.getBoundingClientRect();return r.width&&r.bottom>-400&&r.top<H});
+  near.forEach(el=>{if(BIO)BIO.unobserve(el);loadImg(el)})}
 // The photo area: a placeholder in the origin's flag and coffee tones until the photo loads (or when there isn't one).
 // Without a photo, a coffee gets a tile in its origin region's colour (the map's colours) with a large bean.
 const regCol=k=>{const o=oInfo(k);return o&&REG[o.reg]?REG[o.reg].color:'var(--cherry)'};

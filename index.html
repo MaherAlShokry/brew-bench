@@ -58,7 +58,7 @@ header.hero{padding:30px 18px 26px;display:grid;grid-template-columns:1fr;gap:10
 @media (min-width:760px){header.hero{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}}
 .hero h1{color:var(--cherry)}
 .hero p{color:var(--muted);margin:.7rem 0 0;font-size:1.05rem}
-.hero-art{width:100%;max-width:340px;justify-self:center}
+.hero-art{width:100%;max-width:340px;justify-self:center;contain:layout paint}
 .steam{animation:steam 4.5s ease-in-out infinite;transform-box:fill-box;transform-origin:center bottom}
 .steam.s2{animation-delay:1.4s}.steam.s3{animation-delay:2.8s}
 @keyframes steam{0%{opacity:0;transform:translateY(8px) scaleY(.8)}35%{opacity:.7}100%{opacity:0;transform:translateY(-14px) scaleY(1.1)}}
@@ -702,7 +702,7 @@ html.app .appbar,html.app .bottomnav,html.app .minires,html.app nav.tabs,html.ap
 html.app .appbar{background:color-mix(in srgb,var(--paper) 97%,transparent)}html.app #toast{background:color-mix(in srgb,var(--ink) 96%,transparent)}html.app .bglass{background:rgba(30,18,11,.78)}
 html.app .bg-hero::after,html.app .me-hero::after,html.app .pp-st img{mix-blend-mode:normal}
 
-.hero-art .stream{animation-iteration-count:4}.hero-art .steam,.me-steam path{animation-iteration-count:2}.deco-rest .hero-art .stream,.deco-rest .hero-art .steam,.deco-rest .me-steam path{animation:none}html.app .bg-hero::after,html.app .me-hero::after{opacity:.06}
+.hero-art .stream{animation-iteration-count:2}.hero-art .steam{animation-iteration-count:1}.me-steam path{animation-iteration-count:2}.deco-rest .hero-art .stream,.deco-rest .hero-art .steam,.deco-rest .me-steam path{animation:none}html.app .bg-hero::after,html.app .me-hero::after{opacity:.06}
 
 #splash{display:none}
 .splashing #splash{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;overflow:hidden;background:var(--paper);color:var(--ink);touch-action:none}
@@ -2528,7 +2528,7 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="09496b0e6e61"</script>
+<script>const BUILD_ID="86d26261b870"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -5765,7 +5765,12 @@ const isTuned=()=>!!S.tuned&&TUNED_KEYS.every(k=>S.tuned[k]===S[k]);
 // The ink for an icon on a colour that changes with the theme and the cup: dark or light, whichever reads better.
 // The colour is resolved where it's used (it can be a mix of theme colours), so a pale accent gets dark ink.
 let INK_CV=null;
-function inkOn(host,col){const pr=document.createElement('i');pr.style.cssText='position:absolute;width:0;height:0;transition:none;background:'+col;host.appendChild(pr);const bg=getComputedStyle(pr).backgroundColor;pr.remove();
+// Remembered per colour and look: working it out restyles the page, and the fit badge asks on every change.
+const INK_MEMO=new Map();let INK_DARK=null;
+function inkOn(host,col){const h=document.documentElement;if(!INK_DARK)try{INK_DARK=matchMedia('(prefers-color-scheme: dark)')}catch(e){INK_DARK={matches:false}}
+  const key=col+'|'+(h.dataset.theme||'')+'|'+(h.dataset.vibe||'')+'|'+(h.dataset.accent||'')+'|'+INK_DARK.matches;if(INK_MEMO.has(key))return INK_MEMO.get(key);
+  const v=inkCalc(host,col);if(INK_MEMO.size>80)INK_MEMO.clear();INK_MEMO.set(key,v);return v}
+function inkCalc(host,col){const pr=document.createElement('i');pr.style.cssText='position:absolute;width:0;height:0;transition:none;background:'+col;host.appendChild(pr);const bg=getComputedStyle(pr).backgroundColor;pr.remove();
   const x=INK_CV||(INK_CV=Object.assign(document.createElement('canvas'),{width:1,height:1}).getContext('2d',{willReadFrequently:true}));x.clearRect(0,0,1,1);x.fillStyle='#000';x.fillStyle=bg;x.fillRect(0,0,1,1);
   const [r,g,b]=x.getImageData(0,0,1,1).data,f=v=>{v/=255;return v<=.03928?v/12.92:((v+.055)/1.055)**2.4},L=.2126*f(r)+.7152*f(g)+.0722*f(b);
   return 1.05/(L+.05)>=(L+.05)/0.0589?'#FFFDF9':'#1E1611'}
@@ -6280,7 +6285,8 @@ function showTab(id,fromHistory,pure){NAV_AT=performance.now();ensureTab(id);con
     document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x.dataset.t===(BNGROUP[id]||id)));
     document.querySelectorAll('main section').forEach(s=>s.classList.toggle('on',s.id===id));
     // Every change first, then the scroll (which lays the page out): one layout pass instead of two.
-    syncShell(id,true);
+    // Highlights that waited for this page (select.js loads after the first page is shown, so it may not be there yet).
+    syncShell(id,true);try{segShown($(id))}catch(e){}
     if(kind&&NAV_READY){const sec=$(id);if(!vt){replay(sec,'nav-in');clearTimeout(sec._nav);sec._nav=setTimeout(()=>sec.classList.remove('nav-in'),480);
       // The Brew page's hero sits above the page itself: it comes in with it.
       const hw=id==='dial'&&document.querySelector('.herowrap');if(hw){replay(hw,'nav-in');clearTimeout(hw._nav);hw._nav=setTimeout(()=>hw.classList.remove('nav-in'),480)}
@@ -9639,7 +9645,9 @@ async function warmBeanPhotos(){const root=$('beans');if(!root)return;const orde
 function hydrateImgs(root){root.querySelectorAll('[data-bimg]').forEach(el=>{if(BIMG.peekThumb(el.dataset.bimg)||!BIO||root.closest&&root.closest('dialog'))loadImg(el);else BIO.observe(el)});requestAnimationFrame(()=>loadNear(root))}
 // Photos already on screen (or close) load straight away. A list drawn while its tab was hidden never hears from the
 // observer when the tab is shown, so its first rows stayed blank until you scrolled.
-function loadNear(root){if(!root)return;const H=innerHeight+400;root.querySelectorAll('[data-bimg]').forEach(el=>{const r=el.getBoundingClientRect();if(r.width&&r.bottom>-400&&r.top<H){if(BIO)BIO.unobserve(el);loadImg(el)}})}
+// Every photo is measured first, then the near ones load: loading one between measurements re-laid the page out each time.
+function loadNear(root){if(!root)return;const H=innerHeight+400,near=[...root.querySelectorAll('[data-bimg]')].filter(el=>{const r=el.getBoundingClientRect();return r.width&&r.bottom>-400&&r.top<H});
+  near.forEach(el=>{if(BIO)BIO.unobserve(el);loadImg(el)})}
 // The photo area: a placeholder in the origin's flag and coffee tones until the photo loads (or when there isn't one).
 // Without a photo, a coffee gets a tile in its origin region's colour (the map's colours) with a large bean.
 const regCol=k=>{const o=oInfo(k);return o&&REG[o.reg]?REG[o.reg].color:'var(--cherry)'};
@@ -11393,9 +11401,13 @@ function rngEnhance(i){if(i.dataset.rng)return;i.dataset.rng='1';
 // like that control's own highlight, instead of jumping. It picks up where it was even when the options are redrawn.
 // Highlights are placed in batches: every strip is read first, then every highlight is written, so a page with many
 // strips (Settings redraws them all) is laid out about once instead of once per strip.
+// Every one-line strip glides, the Gear tabs included; wrapping filter chips can't, so they get the plain pick instead.
+const SEG_SEL='.seg:not(.filters),.seg.gtabs';
 // Only one-line strips (SEG_SEL) get one: wrapping chip rows keep their own pick, so a highlight never floats loose.
 function segBatch(list){const items=[];
-  for(const el of new Set(list)){if(!el||!el.isConnected||!el.matches(SEG_SEL))continue;const on=el.querySelector(':scope>button[aria-pressed="true"]');items.push({el,on,ind:el.querySelector(':scope>.seg-ind')})}
+  for(const el of new Set(list)){if(!el||!el.isConnected||!el.matches(SEG_SEL))continue;
+    // A strip on a page that isn't shown waits until that page opens: measuring it would lay out the hidden page.
+    if(el.closest('main section:not(.on)')){el._stale=1;continue}const on=el.querySelector(':scope>button[aria-pressed="true"]');items.push({el,on,ind:el.querySelector(':scope>.seg-ind')})}
   if(!items.length)return;
   // Reads, part 1: which strips are shown, and which need a positioned parent for their highlight.
   for(const it of items){it.ok=!!(it.on&&it.on.offsetWidth);if(it.ok&&!it.el.classList.contains('ind-rel'))it.stat=getComputedStyle(it.el).position==='static'}
@@ -11418,12 +11430,12 @@ function segBatch(list){const items=[];
     if(rm)ind.style.transition='none';Object.assign(ind.style,it.look,it.pos,{opacity:'1'});el._ip=it.pos;if(el.id)SEG_IP.set(el.id,it.pos)}
   for(const it of items)if(SEG_RO&&!it.el._ro){it.el._ro=1;SEG_RO.observe(it.el)}}
 function segUpdate(el){segBatch([el])}
+// A page coming into view places the highlights that waited for it (after a change of look or text size).
+function segShown(sec){const l=[...sec.querySelectorAll(SEG_SEL)].filter(x=>x._stale);if(l.length){l.forEach(x=>x._stale=0);segBatch(l)}}
 // One watcher for every control's size (a tab coming into view, the phone turning); controls that have left the page are dropped.
 const SEG_RO=window.ResizeObserver?new ResizeObserver(es=>es.forEach(e=>{if(e.target.isConnected)segQueue(e.target);else SEG_RO.unobserve(e.target)})):null;
 const SEG_Q=new Set(),SEG_IP=new Map();let SEG_RAF=0;
 function segQueue(el){SEG_Q.add(el);if(!SEG_RAF)SEG_RAF=requestAnimationFrame(()=>{SEG_RAF=0;const l=[...SEG_Q];SEG_Q.clear();segBatch(l)})}
-// Every one-line strip glides, the Gear tabs included; wrapping filter chips can't, so they get the plain pick instead.
-const SEG_SEL='.seg:not(.filters),.seg.gtabs';
 // Strips redrawn in one go are collected here and placed together when the scan is done.
 let SEG_NOW=null;
 function uiScan(root){if(!root.querySelectorAll)return;const own=!SEG_NOW;if(own)SEG_NOW=[];

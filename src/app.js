@@ -596,7 +596,12 @@ const isTuned=()=>!!S.tuned&&TUNED_KEYS.every(k=>S.tuned[k]===S[k]);
 // The ink for an icon on a colour that changes with the theme and the cup: dark or light, whichever reads better.
 // The colour is resolved where it's used (it can be a mix of theme colours), so a pale accent gets dark ink.
 let INK_CV=null;
-function inkOn(host,col){const pr=document.createElement('i');pr.style.cssText='position:absolute;width:0;height:0;transition:none;background:'+col;host.appendChild(pr);const bg=getComputedStyle(pr).backgroundColor;pr.remove();
+// Remembered per colour and look: working it out restyles the page, and the fit badge asks on every change.
+const INK_MEMO=new Map();let INK_DARK=null;
+function inkOn(host,col){const h=document.documentElement;if(!INK_DARK)try{INK_DARK=matchMedia('(prefers-color-scheme: dark)')}catch(e){INK_DARK={matches:false}}
+  const key=col+'|'+(h.dataset.theme||'')+'|'+(h.dataset.vibe||'')+'|'+(h.dataset.accent||'')+'|'+INK_DARK.matches;if(INK_MEMO.has(key))return INK_MEMO.get(key);
+  const v=inkCalc(host,col);if(INK_MEMO.size>80)INK_MEMO.clear();INK_MEMO.set(key,v);return v}
+function inkCalc(host,col){const pr=document.createElement('i');pr.style.cssText='position:absolute;width:0;height:0;transition:none;background:'+col;host.appendChild(pr);const bg=getComputedStyle(pr).backgroundColor;pr.remove();
   const x=INK_CV||(INK_CV=Object.assign(document.createElement('canvas'),{width:1,height:1}).getContext('2d',{willReadFrequently:true}));x.clearRect(0,0,1,1);x.fillStyle='#000';x.fillStyle=bg;x.fillRect(0,0,1,1);
   const [r,g,b]=x.getImageData(0,0,1,1).data,f=v=>{v/=255;return v<=.03928?v/12.92:((v+.055)/1.055)**2.4},L=.2126*f(r)+.7152*f(g)+.0722*f(b);
   return 1.05/(L+.05)>=(L+.05)/0.0589?'#FFFDF9':'#1E1611'}
@@ -1111,7 +1116,8 @@ function showTab(id,fromHistory,pure){NAV_AT=performance.now();ensureTab(id);con
     document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x.dataset.t===(BNGROUP[id]||id)));
     document.querySelectorAll('main section').forEach(s=>s.classList.toggle('on',s.id===id));
     // Every change first, then the scroll (which lays the page out): one layout pass instead of two.
-    syncShell(id,true);
+    // Highlights that waited for this page (select.js loads after the first page is shown, so it may not be there yet).
+    syncShell(id,true);try{segShown($(id))}catch(e){}
     if(kind&&NAV_READY){const sec=$(id);if(!vt){replay(sec,'nav-in');clearTimeout(sec._nav);sec._nav=setTimeout(()=>sec.classList.remove('nav-in'),480);
       // The Brew page's hero sits above the page itself: it comes in with it.
       const hw=id==='dial'&&document.querySelector('.herowrap');if(hw){replay(hw,'nav-in');clearTimeout(hw._nav);hw._nav=setTimeout(()=>hw.classList.remove('nav-in'),480)}
