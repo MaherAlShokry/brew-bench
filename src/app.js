@@ -104,6 +104,27 @@ const RB_G='<g transform="rotate(30 12 12)"><path class="bo" d="M12 2.6c4.1 0 6.
 const RB_SVG='<svg viewBox="0 0 24 24" aria-hidden="true">'+RB_G+'</svg>';
 const beanRate=(r,cls)=>{let h='';for(let i=1;i<=5;i++){const f=r>=i?100:r>=i-0.5?50:0;h+='<span class="rb">'+RB_SVG+'<span class="rbf" style="width:'+f+'%">'+RB_SVG+'</span></span>'}return '<span class="brate'+(cls?' '+cls:'')+'" aria-hidden="true">'+h+'</span>'};
 let toastT;function toast(m){const t=$('toast');t.classList.remove('act');t.innerHTML=emoIc(esc(m));t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600)}
+// Good to know: a short sheet on what's easy to miss (Undo, backups, sharing, the widgets, offline use), shown once,
+// a few minutes into a later visit (never on the very first one, and never over an open sheet), and again from
+// Settings. TIPS_V goes up when there's something new to tell.
+const TIPS_V=1;
+function tipsList(){const sync=typeof syncOn==='function'&&syncOn();return[
+  ['pencil','#8A5A3B','Changed your mind? Tap Undo','Deleting a brew, a coffee, a diary entry or a recipe happens at once, with Undo on the message at the bottom for a few seconds.'],
+  ['download','#4F8A74',sync?'Your coffees follow your account':'Keep a backup',sync?'Signed in, everything you save syncs to your account. A backup file (Settings, Your data) is still handy to keep.':'Everything stays on this phone. Save a backup file, photos included, from Settings, Your data; a reminder comes if it\u2019s been a month.'],
+  ['share','#C9964A','Share as an image or a PDF','Every Share has a designed image in the look you pick, and a PDF in the app\u2019s own look.'],
+  NATIVE?['phone','#9A7390','Brew Bench on your home screen','Touch and hold your home screen, then Widgets, Brew Bench: Drinking now, Your cabinet, Quick brew and the coffee word of the day.']
+    :['phone','#9A7390','Works offline','Once opened, the app works without a connection. When a new version is ready, a Reload message appears.'],
+  ['leaf','#6B8E4E','Freshness that fits the bag','Each coffee\u2019s freshness line follows its roast, where and how it was grown, how you brew it and when you opened the bag.']].filter(Boolean)}
+function openTips(){const d=$('vd');try{localStorage.setItem('bb-tips',String(TIPS_V))}catch(e){}
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:#C9964A"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:#C9964A"></i>Good to know</span><h2 id="vd-title">A few things worth knowing</h2></div>'+
+    '<div class="vd-body"><div class="tips">'+tipsList().map(([ic,c,t,x])=>'<div class="tip">'+ico(ic,c)+'<span><b>'+esc(t)+'</b><small>'+esc(x)+'</small></span></div>').join('')+'</div>'+
+    '<div class="actions"><button type="button" class="btn" id="tips-ok">Got it</button></div></div>';
+  $('vd-x').onclick=()=>d.close();$('tips-ok').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
+// Once: on a visit after the first (the first is for brewing), after a few minutes, when nothing else is open.
+(()=>{let seen=0,first=false;try{seen=+localStorage.getItem('bb-tips')||0;first=!localStorage.getItem('bb-visits');localStorage.setItem('bb-visits',String((+localStorage.getItem('bb-visits')||0)+1))}catch(e){return}
+  // Not under automated testing (navigator.webdriver), where a sheet appearing on its own would get in the way.
+  if(seen>=TIPS_V||first||(navigator.webdriver&&!window.__tipsTest))return;
+  setTimeout(()=>{const t=setInterval(()=>{if(document.hidden||document.querySelector('dialog[open]')||document.documentElement.classList.contains('splashing'))return;clearInterval(t);openTips()},4000)},window.__tipsTest||150000)})();
 // The website opens from its saved copy; when a newer version has been saved in the background, offer to switch.
 // The page carries a build stamp (BUILD_ID) and compares it with the saved copy's: on start, when the worker says it
 // saved a new copy, and when the app comes back to the screen. Offered once per new version.
@@ -952,10 +973,10 @@ function openTimer(idx,p){noteRecent(RECIPES[idx]);
   const d=$('timer');showDlg(d);d.scrollTop=0;
   $('tm-x').onclick=()=>d.close();
   // However the timer is closed (X, back, Escape, backdrop), stop it and let the screen sleep again.
-  d.onclose=()=>{if(TM&&TM.iv)clearInterval(TM.iv);if(TM)TM.run=false;wake(false)};
+  d.onclose=()=>{if(TM&&TM.iv)clearInterval(TM.iv);if(TM){TM.run=false;TM.closed=true;tmWidget()}wake(false)};
   if(total){$('tm-go').onclick=()=>{if(TM.el>=TM.total||TM.fin){TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;TM.fin=false}if(!TM.ctx){try{TM.ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}TM.run=!TM.run;setPlay();wake(TM.run);
-      if(TM.run){TM.t0=performance.now()-TM.el*1000;TM.iv=setInterval(tick,200);tick()}else clearInterval(TM.iv)};
-    $('tm-reset').onclick=()=>{clearInterval(TM.iv);TM.run=false;wake(false);TM.fin=false;TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;setPlay();paint()};
+      if(TM.run){TM.t0=performance.now()-TM.el*1000;TM.iv=setInterval(tick,200);tick()}else clearInterval(TM.iv);tmWidget()};
+    $('tm-reset').onclick=()=>{clearInterval(TM.iv);TM.run=false;wake(false);TM.fin=false;TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;setPlay();paint();tmWidget()};
     // Skip jumps to the next step's time (handy when you pour faster than the recipe).
     $('tm-skip').onclick=()=>{if(TM.fin)return;const n=TM.ev.find(e=>e.t>TM.el+0.5);if(!n){if(TM.el>0||TM.run)finishBrew();return}TM.el=n.t;if(TM.run)TM.t0=performance.now()-TM.el*1000;paint()};paint()}
 }
@@ -967,7 +988,14 @@ function beep(soft){if(!TM.ctx)return;try{const o=TM.ctx.createOscillator(),g=TM
 function tick(){TM.el=(performance.now()-TM.t0)/1000;if(TM.el>=TM.total){TM.el=TM.total;finishBrew();return}paint()}
 // The end of a brew, on time or early: the clock stops where you are and the cup is yours.
 const TMI=d=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+d+'"/></svg>';
-function finishBrew(){if(TM.fin)return;if(TM.run)TM.el=Math.min(TM.total,(performance.now()-TM.t0)/1000);clearInterval(TM.iv);TM.run=false;TM.fin=true;wake(false);
+// The Quick brew widget follows a running brew (Android): the recipe, a clock the phone keeps itself, the step now and
+// the next one. Sent when the timer starts, pauses, moves to a new step, finishes or closes.
+function tmWidget(){const w=plugin('Widget');if(!w||!w.timer||!TM)return;try{
+  const r=TM.r||RECIPES[TM.idx]||{},el=TM.run?(performance.now()-TM.t0)/1000:TM.el;let cur=-1;TM.ev.forEach((e,i)=>{if(e.t>=0&&e.t<=el)cur=i});
+  const nx=TM.ev.find(e=>e.t>el),txt=e=>{const t=stepTxt(e.s);return t.charAt(0).toUpperCase()+t.slice(1)};
+  const state=TM.closed?'stop':TM.fin?'done':TM.run?'run':el>0?'pause':'stop';
+  w.timer({state,name:r.name||'Brew',elapsed:Math.round(el*1000),total:Math.round(TM.total*1000),step:cur>=0?txt(TM.ev[cur]):'Get ready',next:nx?'Next at '+mmss(nx.t)+': '+txt(nx):'Last step'}).catch(()=>{})}catch(e){}}
+function finishBrew(){if(TM.fin)return;if(TM.run)TM.el=Math.min(TM.total,(performance.now()-TM.t0)/1000);clearInterval(TM.iv);TM.run=false;TM.fin=true;wake(false);tmWidget();
   setPlay();paint();$('tm-arc').setAttribute('stroke-dashoffset','0');$('tm-big').textContent=mmss(TM.el);$('tm-card').classList.remove('warn');
   $('tm-list').querySelectorAll('li').forEach(li=>li.className='done');done();beep();beans(26)}
 // A thank-you to end on: the brew time against the recipe's, and a line to go with the cup.
@@ -1015,6 +1043,7 @@ function paint(){const el=TM.el,C=2*Math.PI*96;$('tm-big').textContent=mmss(el);
   $('tm-arc').setAttribute('stroke-dashoffset',(C*(1-el/TM.total)).toFixed(1));
   let cur=-1;TM.ev.forEach((e,i)=>{if(e.t>=0&&e.t<=el)cur=i});
   if(cur!==TM.lastIdx&&TM.run&&cur>=0){beep();TM.lastIdx=cur}
+  if(TM.wIdx!==cur+':'+TM.run){TM.wIdx=cur+':'+TM.run;tmWidget()}
   const ni=TM.ev.findIndex(e=>e.t>el),next=ni>=0?TM.ev[ni]:null,left=next?next.t-el:TM.total-el;
   // Three soft beeps before the next step, so you can get the kettle ready.
   if(TM.run&&next&&left<=3&&left>0){const w=Math.ceil(left);if(TM.lastWarn!==ni*10+w){TM.lastWarn=ni*10+w;beep(true)}}
@@ -2890,8 +2919,10 @@ function docText(doc,noLink){let t='# '+doc.title+'\n';if(doc.sub)t+=doc.sub+'\n
 // without one, its text set in the same style. The plain page below is kept only for when drawing fails.
 // A PDF is in the app's own look: light or dark as the app is, in the vibe's own colours ("Vibe's own"), whichever
 // look is picked for the image.
-async function docPDF(doc){try{const st={mode:curTheme()==='dark'?'dark':'light',col:'classic'};let bl=null;
-    if(doc.card)bl=await shCardFor(doc,st).catch(()=>null);if(!bl)bl=await docCardImg(doc);const out=await cardPDF(bl,doc.title);if(out)return out}catch(e){}
+async function docPDF(doc){try{const st=pdfStyle();let bl=null;
+    // A share whose image is a short version (coffee words) has its full card for the PDF.
+    if(doc.pdfCard){if(!doc._pdfBl){const keep=Object.assign({},CARD_STYLE);Object.assign(CARD_STYLE,st);let pr;try{pr=doc.pdfCard()}finally{Object.assign(CARD_STYLE,keep)}doc._pdfBl=Promise.resolve(pr)}bl=await doc._pdfBl.catch(()=>null)}
+    else if(doc.card)bl=await shCardFor(doc,st).catch(()=>null);if(!bl)bl=await(doc._pdfBl||docCardImg(doc));const out=await cardPDF(bl,doc.title);if(out)return out}catch(e){}
   return docPDFText(doc)}
 function docPDFText(doc){
   const J=(window.jspdf||{}).jsPDF;if(!J)return null;
@@ -2982,11 +3013,26 @@ function openShare(doc){SHDOC=doc;loadPDF().catch(()=>{});const pdfOK=true;
      '<div class="shcols" role="group" aria-label="Card colours">'+shSwatches(doc)+'</div></div></div>':'')+
    '<div class="sharerow">'+APPS.map(([k,n,c,d])=>'<button type="button" data-sh="'+k+'"><span class="app" style="background:'+c+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+d+'"/></svg></span>'+n+'</button>').join('')+'</div>'+
    '<div class="sheetlist">'+
-   '<button type="button" data-sh="pdf">'+ico('file','#B5533C')+'<span>Save as PDF<small>'+(pdfOK?'The same design, in the app’s look, on A4 pages':'Loading the PDF engine\u2026 try again in a moment')+'</small></span></button>'+
+   '<button type="button" data-sh="pdf">'+ico('file','#B5533C')+'<span>Save as PDF<small>'+(pdfOK?'The same design, in the app’s look, on A4 pages':'Loading the PDF engine\u2026 try again in a moment')+'</small></span><span class="sh-pdfpv" aria-hidden="true"></span></button>'+
    '<button type="button" data-sh="copy">'+ico('copy','#C9964A')+'<span>Copy as text<small>Paste it anywhere</small></span></button>'+
    '<button type="button" data-sh="md">'+ico('text','#8A5A3B')+'<span>Save as a text file<small>Plain text you can edit</small></span></button></div></div>';
   const d=$('sharesheet');showDlg(d);$('sh-x').onclick=()=>d.close();
-  if(doc.card)drawShCard()}
+  if(doc.card)drawShCard();setTimeout(()=>shPdfThumb(doc),doc.card?500:150)}
+// The PDF's first page, small, on its row: in the app's look (as the PDF is), so it's clear it can differ from the image.
+// Drawn in the background after the image's preview; the PDF itself then reuses the same card.
+const pdfStyle=()=>({mode:curTheme()==='dark'?'dark':'light',col:'classic'});
+async function shPdfThumb(doc){const el=$('sharesheet').querySelector('.sh-pdfpv');if(!el||SHDOC!==doc)return;
+  try{const st=pdfStyle();let bl;
+    if(doc.pdfCard){if(!doc._pdfBl){const keep=Object.assign({},CARD_STYLE);Object.assign(CARD_STYLE,st);let pr;try{pr=doc.pdfCard()}finally{Object.assign(CARD_STYLE,keep)}doc._pdfBl=Promise.resolve(pr)}bl=await doc._pdfBl}
+    else if(doc.card)bl=await shCardFor(doc,st);else{doc._pdfBl=doc._pdfBl||docCardImg(doc);bl=await doc._pdfBl}
+    if(!bl||SHDOC!==doc||!el.isConnected)return;const bm=await createImageBitmap(bl),W=96,H=136,c=document.createElement('canvas');c.width=W;c.height=H;
+    // As the PDF lays it out: a card up to one and a half pages tall fits on one page, framed in its own colour; a longer
+    // one starts at the top of the first page.
+    const x=c.getContext('2d',{willReadFrequently:true}),iw=bm.width,ih=bm.height,pageH=iw*841.89/595.28;
+    if(ih<=pageH*1.5){x.drawImage(bm,3,Math.round(ih/2),1,1,0,0,1,1);const d=x.getImageData(0,0,1,1).data;x.fillStyle='rgb('+d[0]+','+d[1]+','+d[2]+')';x.fillRect(0,0,W,H);
+      const k=Math.min(W/iw,H/ih);x.drawImage(bm,(W-iw*k)/2,(H-ih*k)/2,iw*k,ih*k)}
+    else{const k=W/iw;x.drawImage(bm,0,0,iw,Math.min(ih,H/k),0,0,W,Math.min(ih*k,H))}
+    el.innerHTML='<img alt="" src="'+c.toDataURL('image/jpeg',.85)+'">';el.classList.add('on')}catch(e){}}
 let SHCARD=null,SHN=0;
 // The preview, redrawn whenever the style changes; an older drawing that finishes late is dropped.
 // Each look is drawn once per share: switching back to one you've seen is instant, and once a card is up the other
@@ -3217,8 +3263,13 @@ function openWord(t){const g=GBY[t];if(!g)return;showTab('words');WC=[];WQ='';$(
 // coffee: terms in bold over their meaning, the steps on a line of dots, the flavour families with their colours.
 // The lists stay for the text versions.
 const withCard=doc=>{doc.card=()=>docCardImg(doc);return doc};
-function wordsDoc(){return withCard({link:SITE_URL+'#words',title:'Coffee words',sub:GLOSSARY.length+' terms, from farm to cup',file:'coffee-words',cardTitle:'Coffee words card',cardSub:'Every term and what it means, in one image.',
-  blocks:Object.entries(GCAT).map(([k,[n,c]])=>{const g=GLOSSARY.filter(g=>g[1]===k);return{h:n,defs:g.map(x=>[x[0],x[2],c]),list:g.map(x=>x[0]+': '+x[2])}})})}
+// All 112 words make a very tall image, which messaging apps shrink until it can't be read, so the image has a taste of
+// each category (three words, then how many more); the PDF has every word.
+function wordsDoc(){const cats=Object.entries(GCAT).map(([k,[n,c]])=>[n,c,GLOSSARY.filter(g=>g[1]===k)]);
+  const doc={link:SITE_URL+'#words',title:'Coffee words',sub:GLOSSARY.length+' terms, from farm to cup',file:'coffee-words',cardTitle:'Coffee words card',cardSub:'Three words from each part of the journey; the PDF has all '+GLOSSARY.length+'.',
+    blocks:cats.map(([n,c,g])=>({h:n,defs:g.map(x=>[x[0],x[2],c]),list:g.map(x=>x[0]+': '+x[2])}))};
+  const short=Object.assign({},doc,{blocks:cats.map(([n,c,g])=>({h:n,defs:g.slice(0,3).map(x=>[x[0],x[2],c]).concat(g.length>3?[['+ '+(g.length-3)+' more in the app','']]:[])}))});
+  doc.card=()=>docCardImg(short);doc.pdfCard=()=>docCardImg(doc);return doc}
 
 /* ================= FROM SEED TO CUP ================= */
 const FBY=Object.fromEntries(FLOW.map(f=>[f.id,f]));
@@ -3390,7 +3441,7 @@ try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{th
 function saveUI(){save('bb-ui',UI);applyUI()}
 /* Your data: everything the app saves on this device, in one file you can keep or move to another phone. */
 // Sign-in tokens never go into a backup file.
-const DATA_SKIP=['bb-calreset1','bb-splash-test','bb-reset','bb-pending','bb-account','bb-fbcfg','bb-syncshadow','bb-syncat','bb-syncdb','bb-bio','bb-bio-no','bb-upd','bb-lastbak','bb-bakask'];
+const DATA_SKIP=['bb-calreset1','bb-splash-test','bb-reset','bb-pending','bb-account','bb-fbcfg','bb-syncshadow','bb-syncat','bb-syncdb','bb-bio','bb-bio-no','bb-upd','bb-lastbak','bb-bakask','bb-tips','bb-visits','bb-wbean'];
 function dataKeys(){const k=[];try{for(let i=0;i<localStorage.length;i++){const n=localStorage.key(i);if(n&&n.startsWith('bb-')&&!DATA_SKIP.includes(n))k.push(n)}}catch(e){}return k.sort()}
 function dataSummary(){const n=k=>{let v=null;try{v=JSON.parse(localStorage.getItem(k)||'null')}catch(e){}return Array.isArray(v)?v.length:v&&typeof v==='object'?Object.keys(v).length:0};
   return [[n('bb-myrecipes'),'recipe'],[n('bb-log'),'brew'],[n('bb-beans'),'gallery coffee'],[n('bb-scans'),'scan'],[n('bb-favs'),'favourite']].filter(x=>x[0]).map(([c,w])=>c+' '+w+(c===1?'':'s')).join(', ')||'Nothing saved yet besides your settings'}
@@ -3482,7 +3533,7 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
    '<h3 class="rh">Your data</h3><div class="setgroup">'+row('download','#8A5A3B','Back up and restore','Everything you’ve saved stays on this device: '+esc(dataSummary())+'. Save it as a file, photos included, to keep it safe or move it to another phone.',
      '<p class="setnote" id="st-lastbak" style="margin:0 0 8px">'+lastBakText()+'</p><div class="setbtns"><button type="button" class="btn" id="st-export">Export my data</button><button type="button" class="btn ghost" id="st-import">Import a backup</button><input type="file" id="st-file" accept="application/json,.json" hidden></div>')+'</div>'+
    (installed()?'':'<h3 class="rh">Install</h3><div class="setgroup">'+row('phone','#9A7390','Add to your home screen','Use it like an app, offline too','<p class="setnote" style="margin:0"><b>iPhone (Safari):</b> tap the Share button, then <b>Add to Home Screen</b>.<br><b>Android (Chrome):</b> tap the ⋮ menu, then <b>Add to Home screen</b>.</p>')+'</div>')+
-   '<h3 class="rh">About</h3><div class="setgroup">'+row('info','#8A5A3B','The Brew Bench','A coffee field guide and dial-in tool. What you save stays on this device, or syncs with your account if you sign in.','<p class="setnote" style="margin:0"><a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a> · <a href="'+SITE_URL+'delete-account.html" target="_blank" rel="noopener">Delete your account</a></p>')+
+   '<h3 class="rh">About</h3><div class="setgroup">'+row('bulb','#C9964A','Good to know','Undo, backups, sharing'+(NATIVE?', widgets':'')+' and more, in a minute','<div class="setbtns"><button type="button" class="btn ghost" id="st-tips">Show the tips</button></div>')+row('info','#8A5A3B','The Brew Bench','A coffee field guide and dial-in tool. What you save stays on this device, or syncs with your account if you sign in.','<p class="setnote" style="margin:0"><a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a> · <a href="'+SITE_URL+'delete-account.html" target="_blank" rel="noopener">Delete your account</a></p>')+
      '</div>';
   seg('st-mode',[['light','Light'],['dark','Dark'],['auto','Auto']],()=>t,v=>{themeSwap();if(v==='auto'){document.documentElement.removeAttribute('data-theme');try{localStorage.removeItem('bb-theme')}catch(e){}}
     else{document.documentElement.setAttribute('data-theme',v);try{localStorage.setItem('bb-theme',v)}catch(e){}}syncThemeBtn();applyUI();renderSettings(1)});
@@ -3497,7 +3548,7 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
   seg('st-start',[['dial','Brew'],['recipes','Recipes'],['beans','Beans'],['explore','Explore']],()=>UI.start,v=>{UI.start=v;saveUI();renderSettings(1);toast('The app will open on '+TABNAMES[v])});
   seg('st-views',[['keep','Keep my choices'],['reset','Reset each time']],()=>UI.views||'keep',v=>{UI.views=v;saveUI();renderSettings(1);toast(v==='keep'?'Your sorts and filters will stay as you set them':'Lists will open in their default order next time')});
   seg('st-resume',[['fresh','Start fresh'],['keep','Where I left off']],()=>UI.resume||'fresh',v=>{UI.resume=v;saveUI();renderSettings(1);toast(v==='fresh'?'Scan and Brew will start fresh next time':'The app will remember your last scan and dial-in')})}
-$('settings-in').addEventListener('click',e=>{const vb=e.target.closest('.vibe[data-vibe]');if(vb){UI.vibe=vb.dataset.vibe;UI.accent='classic';saveUI();renderSettings(1);toast((VIBES.find(v=>v[0]===UI.vibe)||[])[1]+' on');return}const a=e.target.closest('.swatch[data-accent]');if(a){UI.accent=a.dataset.accent;saveUI();renderSettings(1);return}
+$('settings-in').addEventListener('click',e=>{if(e.target.closest('#st-tips')){openTips();return}const vb=e.target.closest('.vibe[data-vibe]');if(vb){UI.vibe=vb.dataset.vibe;UI.accent='classic';saveUI();renderSettings(1);toast((VIBES.find(v=>v[0]===UI.vibe)||[])[1]+' on');return}const a=e.target.closest('.swatch[data-accent]');if(a){UI.accent=a.dataset.accent;saveUI();renderSettings(1);return}
   const l=e.target.closest('.logopick[data-logo]');if(l){UI.logo=l.dataset.logo;saveUI();renderSettings(1);return}
   if(e.target.closest('#st-export')){exportData();return}if(e.target.closest('#st-import')){$('st-file').click();return}});
 $('settings-in').addEventListener('change',e=>{if(e.target.id==='st-file'){importData(e.target.files[0]);e.target.value=''}});
@@ -3593,8 +3644,13 @@ function factFor(day){const k=FACT_KINDS[((day%7)+7)%7],round=Math.floor(day/7),
 // The top of Explore: one "Today in coffee" card, in the same panel as the rest of the app, with the word of the day and
 // the day's fact (on word days, the word of the day already is one). Each reads in whole sentences and opens in full.
 const FACT_TILE={word:['book','#9A7390'],variety:['leaf','#B5533C'],origin:['globe','#4F8A74'],process:['flask','#D2A04A'],tech:['drop','#6B8E4E'],history:['hourglass','#8A5A3B'],champ:['trophy','#C9964A']};
-const sentences=(t,n)=>{t=String(t||'').replace(/\s+/g,' ').trim();if(t.length<=n)return t;const parts=t.match(/[^.!?]+[.!?]+(\s|$)/g)||[t];let o='';
-  for(const p of parts){if((o+p).trim().length>n)break;o+=p}o=o.trim();return o||t.slice(0,n).replace(/\s+\S*$/,'')+'…'};
+// Whole sentences up to about n characters. A sentence ends at . ! or ? followed by a space and a capital, a digit or a
+// quote; not after an initial or a short abbreviation ("C. arabica", "c. 1670", "e.g."), and never inside a number
+// ("1.3"), so no words go missing.
+const SENT_ABBR=/(?:^|[\s(\["“‘'])(?:[A-Za-z]|c|ca|e\.g|i\.e|vs|approx|St|Dr|Mt|No)\.$/;
+const sentenceParts=t=>{const out=[];let cur='';for(const w of t.split(/(?<=[.!?])\s+/)){cur=cur?cur+' '+w:w;if(/[.!?]$/.test(cur)&&!SENT_ABBR.test(cur)){out.push(cur);cur=''}}if(cur)out.push(cur);return out};
+const sentences=(t,n)=>{t=String(t||'').replace(/\s+/g,' ').trim();if(t.length<=n)return t;let o='';
+  for(const p of sentenceParts(t)){if((o?o+' '+p:p).length>n)break;o=o?o+' '+p:p}return o||t.slice(0,n).replace(/\s+\S*$/,'')+'…'};
 function todayCard(day,w){const f=factFor(day),chev='<svg class="td-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
   const row=(attr,tile,kick,title,text,year)=>'<button type="button" class="td-row" '+attr+'>'+ico(tile[0],tile[1])+'<span class="td-t"><small>'+kick+(year?' · '+year:'')+'</small><b>'+esc(title)+'</b><span>'+esc(text)+'</span></span>'+chev+'</button>';
   let ft=f.text,yr='';const m=f.k==='history'&&/^(\d{3,4}s?)\.\s+/.exec(ft);if(m){yr=m[1];ft=ft.slice(m[0].length)}

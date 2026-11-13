@@ -26,6 +26,7 @@
                 android:importantForAccessibility="no"
                 android:src="@drawable/widget_bean_ic" />
             <TextView
+                android:id="@+id/q_kicker"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/widget_brew_name"
@@ -45,6 +46,15 @@
             android:textColor="@color/widget_ink"
             android:textSize="17sp"
             android:textStyle="bold" />
+        <Chronometer
+            android:id="@+id/q_chrono"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textColor="@color/widget_ink"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
         <TextView
             android:id="@+id/q_line"
             android:layout_width="match_parent"
@@ -55,6 +65,16 @@
             android:textColor="@color/widget_accent"
             android:textSize="13sp"
             android:textStyle="bold" />
+        <TextView
+            android:id="@+id/q_next"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/widget_muted"
+            android:textSize="12sp"
+            android:visibility="gone" />
     </LinearLayout>
 
     <TextView

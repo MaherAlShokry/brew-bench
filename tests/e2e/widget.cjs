@@ -6,7 +6,7 @@ const ok=(m,c,x)=>console.log((c?'ok   ':'FAIL ')+m+(c||x===undefined?'':' '+JSO
 const run=async(open,seed)=>{const c=await b.newContext({viewport:{width:390,height:844}});const p=await c.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
   await p.route(u=>!u.href.startsWith('http://localhost'),r=>r.abort());
   await p.addInitScript(open=>{window.__w={sent:[],open};sessionStorage.setItem('bb-splashed','1');
-    window.Capacitor={isNativePlatform:()=>true,getPlatform:()=>'android',Plugins:{Widget:{update:async o=>{window.__w.sent.push(o)},pending:async()=>{const o=window.__w.open;window.__w.open='';return{open:o||''}}}}}},open);
+    window.Capacitor={isNativePlatform:()=>true,getPlatform:()=>'android',Plugins:{Widget:{update:async o=>{window.__w.sent.push(o)},timer:async o=>{(window.__w.tm=window.__w.tm||[]).push(o)},pending:async()=>{const o=window.__w.open;window.__w.open='';return{open:o||''}}}}}},open);
   await p.goto('http://localhost:8099/index.html');if(seed){await p.evaluate(require('./seed2.cjs'));await p.reload()}await p.waitForTimeout(3500);
   return{p,c,errs}};
 // What's sent
@@ -35,6 +35,23 @@ await p.evaluate(k=>{window.__w.open='recipe:'+k;window.bbWidget()},more.brew.ke
 ok('tapping Quick brew opens the recipe',await p.evaluate(n=>$('vd').open&&$('vd').textContent.includes(n),more.brew.name));
 await p.evaluate(w=>{window.__w.open='word:'+w;window.bbWidget()},more.wotd);await p.waitForTimeout(1200);
 ok('the word opens in full',await p.evaluate(()=>document.querySelector('main section.on').id==='words'));
+// Choosing the coffee for Drinking now, from its page
+const other=await p.evaluate(id=>{const b=BEANS.find(x=>x.shelf&&x.id!==id);openBean(b.id);return b.id},want.id);await p.waitForTimeout(700);
+await p.evaluate(()=>$('bd-wpin').click());await p.waitForTimeout(300);
+ok('a chosen coffee stays on Drinking now',await p.evaluate(id=>window.__w.sent.slice(-1)[0].id===id&&/Let it choose/.test($('bd-wpin').textContent),other));
+await p.evaluate(()=>$('bd-wpin').click());await p.waitForTimeout(300);
+ok('letting it choose again goes back to the last brewed',await p.evaluate(id=>window.__w.sent.slice(-1)[0].id===id,want.id));
+await p.evaluate(()=>$('vd').close());
+// The Quick brew widget follows a running brew
+await p.evaluate(k=>openTimer(rByKey(k)),more.brew.key);await p.waitForTimeout(500);
+await p.evaluate(()=>$('tm-go').click());await p.waitForTimeout(1500);
+const t1=await p.evaluate(()=>window.__w.tm.slice(-1)[0]);
+ok('starting the timer tells the widget',t1&&t1.state==='run'&&t1.name&&t1.step&&t1.total>0&&/^Next at \d+:\d\d: /.test(t1.next),t1);
+await p.evaluate(()=>$('tm-skip').click());await p.waitForTimeout(600);
+const t2=await p.evaluate(()=>window.__w.tm.slice(-1)[0]);ok('a new step tells it again',t2.state==='run'&&t2.step!==t1.step&&t2.elapsed>t1.elapsed,[t1.step,t2.step]);
+await p.evaluate(()=>$('tm-go').click());await p.waitForTimeout(300);ok('pausing',await p.evaluate(()=>window.__w.tm.slice(-1)[0].state==='pause'));
+await p.evaluate(()=>$('timer').close());await p.waitForTimeout(300);ok('closing the timer ends it on the widget',await p.evaluate(()=>window.__w.tm.slice(-1)[0].state==='stop'));
+const tab0=await p.evaluate(()=>{goTab('explore');return 'explore'});await p.waitForTimeout(500);await p.evaluate(()=>{window.__w.open='resume';window.bbWidget()});await p.waitForTimeout(800);ok('Open from the widget leaves the app where it was',await p.evaluate(t=>document.querySelector('main section.on').id===t,tab0));
 ok('no errors (other widgets)',!errs.length,errs);
 // Empty cabinet
 await p.evaluate(()=>{BEANS.forEach(b=>b.shelf=false);updWidget()});ok('empty cabinet sends no coffee',await p.evaluate(()=>window.__w.sent.slice(-1)[0].id===''));

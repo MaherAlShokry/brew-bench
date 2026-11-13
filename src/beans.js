@@ -585,7 +585,9 @@ async function setReminder(on,t){const ln=LN();if(t)REMIND.t=t;
 // brewed most recently (or added most recently, before any brews), sent when the app starts and each time you leave
 // it. The widget works out the day's freshness itself from the roast date and window. Tapping it opens that coffee;
 // its Log brew button opens the brew form with that coffee picked.
-function widgetBean(){const sh=BEANS.filter(b=>b.shelf);if(!sh.length)return null;const last=b=>beanBrews(b).reduce((m,l)=>Math.max(m,+l.ts||0),0);
+// A coffee you chose for the widget (from its page) stays on it while it's in your cabinet.
+const wPinned=()=>{try{return localStorage.getItem('bb-wbean')||''}catch(e){return''}};
+function widgetBean(){const sh=BEANS.filter(b=>b.shelf);if(!sh.length)return null;const pin=sh.find(b=>b.id===wPinned());if(pin)return pin;const last=b=>beanBrews(b).reduce((m,l)=>Math.max(m,+l.ts||0),0);
   return sh.map(b=>[b,last(b)]).sort((a,c)=>c[1]-a[1]||(+c[0].ts||0)-(+a[0].ts||0))[0][0]}
 const wLeft=b=>{const c=cupsLeft(b);return c==null?'':c?c+(c===1?' cup left':' cups left'):'Bag empty'};
 // The other widgets: Your cabinet (up to four shelf coffees, most recently brewed first), Quick brew (the recipe you've
@@ -611,6 +613,7 @@ function updWidget(){const w=plugin('Widget');if(!w)return;try{const b=widgetBea
     const rest=String(o).slice(k.length+1);
     if(k==='recipe'||k==='timer'){const i=rByKey(rest);if(i>=0){showTab('recipes');if(k==='timer')openTimer(i);else openRecipe(i);return}showTab('recipes');return}
     if(k==='recipes'){showTab('recipes');return}
+    if(k==='resume')return;
     if(k==='word'&&GBY[rest]){openWord(rest);return}
     if(k==='word'||k==='explore'){goTab('explore');return}
     showTab('beans')};
@@ -1004,8 +1007,12 @@ function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.be
     // Its diary: a moment, a few words, the day.
     '<h3 id="bd-dh">Diary</h3>'+dwriteHTML('bd',st)+
     '<div id="bd-tl">'+timelineHTML(beanTimeline(b),false)+'</div>'+
+    // Android: keep this coffee on the Drinking now widget instead of the one brewed most recently.
+    (plugin('Widget')&&b.shelf?'<button type="button" class="linkbtn" id="bd-wpin">'+(wPinned()===b.id?'On your Drinking now widget · Let it choose again':'Show on the Drinking now widget')+'</button>':'')+
     '<button type="button" class="linkbtn danger" id="bd-del">Remove from the gallery</button></div>';
   hydrateImgs($('vd-in'));
+  if($('bd-wpin'))$('bd-wpin').onclick=()=>{const on=wPinned()!==b.id;try{on?localStorage.setItem('bb-wbean',b.id):localStorage.removeItem('bb-wbean')}catch(e){}updWidget();
+    $('bd-wpin').textContent=on?'On your Drinking now widget · Let it choose again':'Show on the Drinking now widget';toast(on?'Drinking now shows '+beanTitle(b):'Drinking now shows the coffee you brewed last')};
   const refresh=(msg)=>{saveBeans();checkTrophies();renderBeans();openBean(b.id);if(msg)toast(msg)};
   if($('bd-rd'))$('bd-rd').onchange=e=>{const v=e.target.value;if(!/^\d{4}-\d\d-\d\d$/.test(v)||v>todayISO())return;b.roastDate=v;refresh('Roast date added')};
   $('bd-edit').onclick=()=>{if(calBack)ADVRET=cal.id;openBeanEditor(b)};

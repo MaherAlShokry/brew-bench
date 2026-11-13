@@ -57,7 +57,7 @@ jobs:
           echo "BB_KEYSTORE=$RUNNER_TEMP/release.keystore" >> "$GITHUB_ENV"
       # Gradle itself is downloaded on first use; keep it between runs, and fetch it with retries so a passing hiccup at
       # the download server (a 504 or a dropped connection) doesn't fail the build.
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: |
             ~/.gradle/wrapper
@@ -88,7 +88,7 @@ jobs:
           # The app bundle is what Google Play takes; it is only built when the upload key is set.
           if [ "$HAS_KEY" = true ]; then cp app/build/outputs/bundle/release/app-release.aab "$GITHUB_WORKSPACE/brew-bench.aab"; fi
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: brew-bench-apk
           path: |
