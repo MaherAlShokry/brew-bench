@@ -308,6 +308,10 @@ function bcDraw(m){const W=BC.W,P=BC.PAD,IW=W-2*P;BC.BRK=[];if(!BC_CV){BC_CV=doc
   return m.draw?m.draw(x,c,T):bcBody(x,c,m,T)}
 // The background: the palette's deep tones, a soft glow, the origin's pattern (bold in the hero band, faint below), a faint
 // bean watermark and a very fine grain. Text never sits on it directly where it is busy: see bcBody.
+// A layer to paint and then draw into the card (the hero band): recorded with the card when the card is recorded, so
+// the worker paints it; for the small copy the card's contrast check reads, painted small (bcK) like the rest of it.
+function bcLayer(x,w,h){if(x.bcRecLayer)return x.bcRecLayer(w,h);const k=Math.min(1,x.bcK||1),cv=document.createElement('canvas');cv.width=Math.max(1,Math.ceil(w*k));cv.height=Math.max(1,Math.ceil(h*k));
+  return{cv,k,getContext:()=>cv.getContext('2d')}}
 function bcBG(x,W,H,T){const c={height:H};
   const bg=x.createLinearGradient(0,0,0,c.height);bg.addColorStop(0,T.bg[0]);bg.addColorStop(0.45,T.bg[1]);bg.addColorStop(1,T.bg[2]);x.fillStyle=bg;x.fillRect(0,0,W,c.height);
   const gl=x.createRadialGradient(W*0.95,-60,10,W*0.95,-60,W*1.05);gl.addColorStop(0,hexA(T.glow,.30));gl.addColorStop(1,hexA(T.glow,0));x.fillStyle=gl;x.fillRect(0,0,W,1300);
@@ -316,10 +320,10 @@ function bcBG(x,W,H,T){const c={height:H};
   if(T.motif&&MOTIF[T.motif]){x.save();MK=MP;MOTIF[T.motif](x,W,c.height,T);x.restore();
     // The hero band: the pattern bold across the top, fading into the card.
     // Drawn on its own layer and faded out at the bottom, so it melts into the card below with no edge.
-    const HB=520,hb=document.createElement('canvas');hb.width=W;hb.height=HB;const hx=hb.getContext('2d');MK=5.5*MP;MOTIF[T.motif](hx,W,HB,T);MK=1;
+    const HB=520,hb=bcLayer(x,W,HB),hx=hb.getContext('2d');hx.scale(hb.k,hb.k);MK=5.5*MP;MOTIF[T.motif](hx,W,HB,T);MK=1;
     const fd=hx.createLinearGradient(0,0,0,HB),hf=BC.LIGHT?[.94,.9]:[.8,.72];fd.addColorStop(0,hexA(T.bg[0],hf[0]));fd.addColorStop(0.18,hexA(T.bg[0],hf[1]));fd.addColorStop(0.3,hexA(T.bg[0],.18));fd.addColorStop(0.62,hexA(T.bg[0],.55));fd.addColorStop(1,hexA(T.bg[0],.75));hx.fillStyle=fd;hx.fillRect(0,0,W,HB);
     const mk=hx.createLinearGradient(0,0,0,HB);mk.addColorStop(0,'#000');mk.addColorStop(0.62,'#000');mk.addColorStop(1,'rgba(0,0,0,0)');hx.globalCompositeOperation='destination-in';hx.fillStyle=mk;hx.fillRect(0,0,W,HB);
-    x.drawImage(hb,0,0)}
+    x.drawImage(hb.cv,0,0,W,HB)}
   const gl2=x.createRadialGradient(-120,1100,10,-120,1100,760);gl2.addColorStop(0,hexA(T.acc2,BC.LIGHT?.08:.16));gl2.addColorStop(1,hexA(T.acc2,0));x.fillStyle=gl2;x.fillRect(0,0,W,2000);
   if(!T.motif){x.save();x.globalAlpha=0.05;bcBean(x,W-150,250,420,BC.HONEY,T.bg[0]);x.restore()}
   // The grain: one 7 × 14 tile of dots, repeated, rather than a hundred thousand single-pixel squares.
@@ -335,7 +339,7 @@ function bcBG(x,W,H,T){const c={height:H};
 // The background is painted again, small, for this: copying the full-size card down to read it was most of a card's
 // drawing time on a phone.
 function bcCheck(x,W,T,Hbg){const P=BC.PAD,K=6,H0=2400,sm=document.createElement('canvas');sm.width=Math.ceil(W/K);sm.height=Math.ceil(H0/K);
-  const sx=sm.getContext('2d',{willReadFrequently:true});sx.scale(1/K,1/K);bcBG(sx,W,Hbg,T);if(T.motif)bcBand(sx,W,T);const all=sx.getImageData(0,0,sm.width,sm.height).data;
+  const sx=sm.getContext('2d',{willReadFrequently:true});sx.scale(1/K,1/K);sx.bcK=1/K;bcBG(sx,W,Hbg,T);if(T.motif)bcBand(sx,W,T);const all=sx.getImageData(0,0,sm.width,sm.height).data;
   const worst=(y0,y1,x0,x1)=>{const L=[];for(let yy=Math.floor(y0/K);yy<Math.ceil(y1/K);yy++)for(let xx=Math.floor(x0/K);xx<Math.ceil(x1/K);xx++){const i=(yy*sm.width+xx)*4,h=hexOf([all[i],all[i+1],all[i+2]]);L.push([relLum(h),h])}
     if(!L.length)return null;L.sort((a,b)=>a[0]-b[0]);return L[Math.floor(L.length*(BC.LIGHT?0.03:0.97))][1]};
   const zs=[worst(70,112,P,W-P),worst(150,330,P,W-300),worst(330,470,P,W-P),worst(900,Math.min(2400,Hbg),P,W-P)].filter(Boolean);
@@ -463,7 +467,7 @@ function bcOut(c,w,h){if(c.rec)return{recOut:true,ops:c.ops,bms:c.bms,width:c.wi
 // The recorder: looks like a canvas context to the drawing code. Settings and calls are written down; gradients and
 // patterns are numbered; pictures and canvases drawn in become bitmaps (a canvas's is taken at that moment, as
 // drawImage would); measureText is answered by a tiny real canvas kept in the same state.
-function bcRec(c){const ops=c.ops=[],bms=c.bms=[],meas=document.createElement('canvas').getContext('2d'),st={},stack=[],imgIx=new Map();let gid=0;
+function bcRec(c,sh){sh=sh||{bms:[],imgIx:new Map()};const ops=c.ops=[],bms=c.bms=sh.bms,imgIx=sh.imgIx,meas=document.createElement('canvas').getContext('2d'),st={},stack=[];let gid=0;
   const bm=src=>{if(!(src instanceof HTMLCanvasElement)&&imgIx.has(src))return imgIx.get(src);const i=bms.length;bms.push(createImageBitmap(src));if(!(src instanceof HTMLCanvasElement))imgIx.set(src,i);return i};
   const val=v=>v&&typeof v==='object'&&v.__id!=null?{__ref:v.__id}:v;
   const grad=(kind,a)=>{const id=gid++;ops.push(['g',id,kind,a]);return{__id:id,addColorStop:(o,col)=>ops.push(['gs',id,o,col])}};
@@ -475,7 +479,8 @@ function bcRec(c){const ops=c.ops=[],bms=c.bms=[],meas=document.createElement('c
       if(k==='createLinearGradient')return(...a)=>grad('l',a);
       if(k==='createRadialGradient')return(...a)=>grad('r',a);
       if(k==='createPattern')return(src,rep)=>{const id=gid++;ops.push(['p',id,bm(src),rep]);return{__id:id}};
-      if(k==='drawImage')return(src,...a)=>{ops.push(['d',bm(src),a])};
+      if(k==='bcRecLayer')return(w,h)=>{const L={width:w,height:h,layer:true};const lx=bcRec(L,sh);return{cv:L,k:1,getContext:()=>lx}};
+      if(k==='drawImage')return(src,...a)=>{if(src&&src.layer)ops.push(['dl',src.ops,src.width,src.height,a]);else ops.push(['d',bm(src),a])};
       if(k==='getImageData'||k==='putImageData'||k==='isPointInPath')return()=>{throw new Error('not recordable')};
       if(k==='save')return()=>{stack.push(Object.assign({},st));meas.save();ops.push(['c','save',[]])};
       if(k==='restore')return()=>{const o=stack.pop();if(o){for(const q in st)delete st[q];Object.assign(st,o)}meas.restore();ops.push(['c','restore',[]])};
@@ -494,12 +499,14 @@ function bcWorker(){if(BCW!==null)return BCW;
     const code=`let ready=null;
 const load=fonts=>ready||(ready=Promise.all(fonts.map(f=>{try{const ff=new FontFace(f.family,f.src,f.d);self.fonts.add(ff);return ff.load().catch(()=>{})}catch(e){}})));
 self.onmessage=async e=>{const q=e.data;if(q.fonts){await load(q.fonts);self.postMessage({ok:'letterSpacing' in OffscreenCanvasRenderingContext2D.prototype});return}
-  try{await ready;const c=new OffscreenCanvas(q.width,q.height),x=c.getContext('2d'),R=[],B=q.bms;
-    const val=v=>v&&typeof v==='object'&&v.__ref!=null?R[v.__ref]:v;
-    for(const o of q.ops){const k=o[0];
-      if(k==='s')x[o[1]]=val(o[2]);else if(k==='c')x[o[1]](...o[2].map(val));else if(k==='d')x.drawImage(B[o[1]],...o[2]);
-      else if(k==='g')R[o[1]]=o[2]==='l'?x.createLinearGradient(...o[3]):x.createRadialGradient(...o[3]);else if(k==='gs')R[o[1]].addColorStop(o[2],o[3]);
-      else if(k==='p')R[o[1]]=x.createPattern(B[o[2]],o[3])}
+  try{await ready;const c=new OffscreenCanvas(q.width,q.height),B=q.bms;
+    const play=(x,ops)=>{const R=[],val=v=>v&&typeof v==='object'&&v.__ref!=null?R[v.__ref]:v;
+      for(const o of ops){const k=o[0];
+        if(k==='s')x[o[1]]=val(o[2]);else if(k==='c')x[o[1]](...o[2].map(val));else if(k==='d')x.drawImage(B[o[1]],...o[2]);
+        else if(k==='dl'){const l=new OffscreenCanvas(o[2],o[3]);play(l.getContext('2d'),o[1]);x.drawImage(l,...o[4])}
+        else if(k==='g')R[o[1]]=o[2]==='l'?x.createLinearGradient(...o[3]):x.createRadialGradient(...o[3]);else if(k==='gs')R[o[1]].addColorStop(o[2],o[3]);
+        else if(k==='p')R[o[1]]=x.createPattern(B[o[2]],o[3])}};
+    play(c.getContext('2d'),q.ops);
     const out=new OffscreenCanvas(q.cw,q.ch);out.getContext('2d').drawImage(c,0,0);
     const blob=await out.convertToBlob({type:'image/jpeg',quality:0.94});B.forEach(b=>b.close&&b.close());self.postMessage({id:q.id,blob})}
   catch(err){self.postMessage({id:q.id,err:String(err&&err.message||err)})}};`;
