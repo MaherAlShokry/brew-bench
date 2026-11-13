@@ -3123,7 +3123,10 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 <script type="application/json" id="map-json">__MAP__</script>
 <script>
 // The world map (360 KB) is read only when the Map page first opens, not on every start.
-let MAP=null;const mapData=()=>MAP||(MAP=JSON.parse(document.getElementById('map-json').textContent));
+// The world map's shapes: inline in the single-file build, otherwise fetched from vendor/world-map.json when the map is first opened.
+let MAP=null,MAPP=null;const loadMap=()=>MAP?Promise.resolve(MAP):MAPP||(MAPP=(()=>{const el=document.getElementById('map-json');
+  if(el&&el.textContent.trim()[0]==='{')return Promise.resolve(MAP=JSON.parse(el.textContent));
+  return fetch('vendor/world-map.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(j=>MAP=j)})().catch(e=>{MAPP=null;throw e}));
 __DATA__
 __APP__
 </script>

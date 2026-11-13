@@ -137,8 +137,9 @@ const FRESH={rest:['Resting','Give it a few more days: fresh coffee is gassy and
   good:['Still lovely','Past its peak but still sweet. A touch finer if it tastes flat.'],fade:['Fading','Getting tired: grind finer and brew a little hotter to wake it up.']};
 // The stretches follow the roast. A light roast is dense and lets its gas out slowly: it tastes muted in its first
 // week, is at its best from about day 7 to 30 and stays good for two months. A dark roast is ready in two or three
-// days and fades after about a month. A medium roast (or one whose roast isn't set) sits between: resting to day 3,
-// at its peak 4 to 21, still lovely to 45. Each is [peak from, peak to, still lovely to].
+// days and fades after about a month. A medium roast sits between: resting to day 3, at its peak 4 to 21, still lovely
+// to 45. Each is [peak from, peak to, still lovely to]. A bag whose roast isn't set is treated as light, as most
+// specialty coffee is.
 const FWIN={light:[7,30,60],medium:[4,21,45],dark:[3,14,30]};
 // Then the bean itself moves the window by a few days. Dense beans (grown high, or a dense variety such as Geisha,
 // the SL types or Ethiopian and Yemeni landraces) let their gas out more slowly: a longer rest and a longer peak. Soft,
@@ -153,7 +154,7 @@ const F_DENSE_V=new Set(['geisha','sl28','sl34','sl14','landrace','jarc','kurume
 // How high the origin grows: the middle of its altitude range ("1,500 to 2,300 m"), or 0 when it isn't given in metres.
 const altOf=k=>{const o=k&&oInfo(k),a=o&&o.alt;if(!a)return 0;if(/low/i.test(a))return 900;const n=(a.match(/\d[\d,]*/g)||[]).map(x=>+x.replace(/,/g,'')).filter(x=>x>=100);return n.length?(Math.min(...n)+Math.max(...n))/2:0};
 const vBase=v=>String(v||'').split(':')[0];
-function freshWin(b){const w=(FWIN[b&&b.roast]||FWIN.medium).slice(),why=[];if(!b)return{w,why};
+function freshWin(b){const w=(FWIN[b&&b.roast]||FWIN.light).slice(),why=[];if(!b)return{w,why};
   const vs=[b.variety,...(b.vars||[])].map(vBase).filter(Boolean),alt=altOf(b.origin);
   const dense=vs.some(v=>F_DENSE_V.has(v))||alt>=1700,soft=!dense&&(vs.some(v=>F_SOFT_V.has(v))||(alt&&alt<1200));
   if(dense){w[0]+=2;w[1]+=3;w[2]+=5;why.push(vs.some(v=>F_DENSE_V.has(v))?'dense bean':'high-grown')}
@@ -165,7 +166,7 @@ function freshWin(b){const w=(FWIN[b&&b.roast]||FWIN.medium).slice(),why=[];if(!
   if(br.length>=2&&esp*2>=br.length){w[0]+=5;w[1]+=5;w[2]+=5;why.push('espresso')}
   // Opened: the bag's clock runs faster from then on.
   const op=b.roastDate&&(b.diary||[]).filter(e=>e.k==='opened'&&e.d>=b.roastDate).map(e=>e.d).sort().pop();
-  if(op){const od=Math.round((Date.parse(op+'T12:00')-Date.parse(b.roastDate+'T12:00'))/864e5),cap=F_OPEN[b.roast]||F_OPEN.medium;
+  if(op){const od=Math.round((Date.parse(op+'T12:00')-Date.parse(b.roastDate+'T12:00'))/864e5),cap=F_OPEN[b.roast]||F_OPEN.light;
     const p2=Math.min(w[1],od+cap[0]),g2=Math.min(w[2],od+cap[1]);if(p2<w[1]||g2<w[2]){w[1]=p2;w[2]=g2;why.push('opened '+fmtD(op).replace(/,? \d{4}$/,''))}}
   // Always in order: a peak at least a few days long, and still lovely after it.
   w[1]=Math.max(w[1],w[0]+2);w[2]=Math.max(w[2],w[1]+3);return{w,why}}
@@ -174,7 +175,7 @@ function fresh(b){if(!b.roastDate)return null;const d=daysAgo(b.roastDate);if(d<
 // The bag's window in words, under the line, with what shaped it: so the label isn't a mystery, and a missing roast
 // can be set.
 const freshWinLine=f=>{const by=[f.roast?f.roast[0].toUpperCase()+f.roast.slice(1)+' roast':'',...f.why].filter(Boolean),lead=by.length?by.join(', ').replace(/^./,c=>c.toUpperCase())+': best':'Best';
-  return lead+' from day '+f.w[0]+' to '+f.w[1]+', still lovely to day '+f.w[2]+(f.roast?'':' (set the roast for a closer window)')};
+  return (f.roast?'':'Taken as light roast. ')+lead+' from day '+f.w[0]+' to '+f.w[1]+', still lovely to day '+f.w[2]};
 // The freshness line: its four stretches coloured in proportion (with a little room past "still lovely"), a marker on today.
 const freshBar=f=>{const [a,b,c]=f.w,S=c+15,pc=n=>(n/S*100).toFixed(1)+'%';
   return '<span class="fbar" role="img" aria-label="Day '+f.d+' off roast: '+f.label+'"><i class="fz1" style="width:'+pc(a)+'"></i><i class="fz2" style="width:'+pc(b-a+1)+'"></i><i class="fz3" style="width:'+pc(c-b)+'"></i><i class="fz4"></i><b style="left:'+Math.min(100,f.d/S*100).toFixed(1)+'%"></b></span>'};
@@ -933,7 +934,7 @@ function openOrigin(k){const d=$('vd'),o=oInfo(k);if(!o)return;BFROM=k;const lis
     '<div class="vd-body"><div class="clist og-list">'+list.map((b,i)=>coffeeRow(b,false,i)).join('')+'</div><div class="actions"><button type="button" class="btn ghost" id="og-map">'+esc(originName(k))+' on the map</button></div></div>';
   hydrateImgs($('vd-in'));$('vd-in').onclick=e=>{if(!$('vd-in').querySelector('.og-list'))return;const r=e.target.closest('[data-bean]');if(r){BFROM=k;openBean(r.dataset.bean);return}if(e.target.closest('#og-map')){d.close();goTab('map');setTimeout(()=>{try{selectOrigin(k,true)}catch(x){}},350)}};
   $('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
-function openBean(id,write){const b=beanById(id);if(!b)return;const d=$('vd'),rk=beanRank(b),P=b.process&&PROCESSES[b.process],ls=beanLogStats(b),f=b.shelf&&fresh(b);
+function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.bean=b.id;const d=$('vd'),rk=beanRank(b),P=b.process&&PROCESSES[b.process],ls=beanLogStats(b),f=b.shelf&&fresh(b);
   const cal=b.cal&&calById(b.cal.id);
   const fmt=s=>s?new Date(s+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'';
   const kv=[['Origin',b.origin?flagOf(b.origin)+' '+originName(b.origin):''],['Process',P?P.name:''],[b.vars?'Varieties':'Variety',b.variety?varsName(b):''],['Roast',b.roast?b.roast[0].toUpperCase()+b.roast.slice(1):''],['Roasted',fmt(b.roastDate)],['Tried',b.tried?fmt(b.tried):'Not yet'],...(cal?[['Advent','Door '+b.cal.d+' · '+calName(cal)]]:[]),['Brewed',ls?ls.n+' time'+(ls.n===1?'':'s'):'']].filter(x=>x[1]);
@@ -989,10 +990,12 @@ function openBean(id,write){const b=beanById(id);if(!b)return;const d=$('vd'),rk
     if(rd&&(!/^\d{4}-\d\d-\d\d$/.test(rd)||rd>todayISO())){toast('Pick a roast date that isn’t in the future');return}
     rebuyBean(b,rd,g>=50&&g<=5000?Math.round(g):0);refresh('New bag on the shelf: it’s in Drinking now')};
   wireDwrite('bd',st,()=>b,(_,msg)=>{refresh(msg);setTimeout(()=>{const h=$('bd-dh');if(h)h.scrollIntoView({block:'start'})},50)});
-  $('bd-tl').onclick=e=>{const x=e.target.closest('[data-deldiary]');if(!x)return;const id=x.dataset.deldiary;askConfirm('Its words and photos go with it.','Delete',true,'Delete this diary entry?').then(y=>{if(!y)return;dropDiaryPhotos(b.diary.filter(en=>en.id===id));b.diary=b.diary.filter(en=>en.id!==id);refresh('Entry deleted')})};
+  $('bd-tl').onclick=e=>{const x=e.target.closest('[data-deldiary]');if(!x)return;const id=x.dataset.deldiary;const was=b.diary,gone=was.filter(en=>en.id===id);b.diary=was.filter(en=>en.id!==id);refresh();
+    undoToast('Diary entry deleted',()=>{const cur=BEANS.find(x=>x.id===b.id);if(!cur)return;cur.diary=was;saveBeans();checkTrophies();renderBeans();if($('vd').open&&$('bd-tl')&&$('vd').dataset.bean===b.id)openBean(b.id)},()=>dropDiaryPhotos(gone))};
   $('bd-del').onclick=()=>{const inTop=inAnyTop(b.id);
-    askConfirm('Its diary and photos go with it.'+(inTop?' It stays in your top 5 history.':''),'Remove',true,'Remove “'+beanTitle(b)+'”?').then(y=>{if(!y)return;
-    BEANS=BEANS.filter(x=>x.id!==b.id);saveBeans();if(!inTop)BIMG.del(b.id);dropDiaryPhotos(b.diary);d.close();renderBeans();toast('Removed from your gallery')})};
+    const i=BEANS.findIndex(x=>x.id===b.id);if(i<0)return;BEANS=BEANS.filter(x=>x.id!==b.id);saveBeans();d.close();renderBeans();
+    undoToast('Removed “'+beanTitle(b)+'”',()=>{if(BEANS.some(x=>x.id===b.id))return;BEANS.splice(Math.min(i,BEANS.length),0,b);saveBeans();renderBeans()},
+      ()=>{if(BEANS.some(x=>x.id===b.id))return;if(!inTop)BIMG.del(b.id);dropDiaryPhotos(b.diary||[])})};
   showDlg(d);$('vd-x').onclick=()=>d.close();if($('vd-back'))$('vd-back').onclick=()=>openOrigin(from);if($('bd-advback'))$('bd-advback').onclick=()=>openCal(cal.id,{back:b.cal.d});
   if(write)setTimeout(()=>{const h=$('bd-dh');if(h){h.scrollIntoView({block:'start'});$('bd-dt').focus({preventScroll:true})}},80);else d.scrollTop=0}
 function beanDoc(b){const P=b.process&&PROCESSES[b.process];

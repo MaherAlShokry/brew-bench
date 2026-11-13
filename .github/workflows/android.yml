@@ -13,7 +13,14 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # On main the tests must pass before a release is built; other branches build straight away.
+  tests:
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/tests.yml
+
   apk:
+    needs: tests
+    if: always() && (needs.tests.result == 'success' || needs.tests.result == 'skipped')
     runs-on: ubuntu-latest
     env:
       VERSION_NAME: 1.0.${{ github.run_number }}

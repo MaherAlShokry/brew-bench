@@ -1,0 +1,12 @@
+const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const ok=(n,c,x)=>console.log((c?'ok  ':'FAIL')+' '+n+(x!==undefined?'  ('+JSON.stringify(x)+')':''));const D='';
+ for(const m of ['light','dark']){const c=await b.newContext({viewport:{width:390,height:844},deviceScaleFactor:2,serviceWorkers:'block'});await c.addInitScript(m=>{sessionStorage.setItem('bb-splashed','1');localStorage.setItem('bb-theme',m)},m);const p=await c.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));await p.route(u=>!u.href.startsWith('http://localhost'),r=>r.abort());
+ await p.goto('http://localhost:8099/index.html');await p.waitForTimeout(700);
+ if(m==='light'){ok('no nickname: greeting without a name',await p.evaluate(()=>!/,/.test(document.querySelector('#welcome .wl-hi').textContent)),await p.evaluate(()=>document.querySelector('#welcome .wl-hi').textContent));
+  await p.evaluate(()=>saveProfile(okProfile({nick:'Sam',since:Date.now()})));ok('greets by nickname straight away',await p.evaluate(()=>document.querySelector('#welcome .wl-hi').textContent),await p.evaluate(()=>document.querySelector('#welcome .wl-hi').textContent));
+  const times=await p.evaluate(()=>[7,14,19,2].map(h=>{const d=new Date();d.setHours(h,0,0,0);const w=welcomeHTML(d);return h+'h '+w.t+' '+w.html.match(/wl-hi">([^<]*)/)[1]}));console.log('  ',times.join(' | '));
+  const q1=await p.evaluate(()=>document.querySelector('#welcome .wl-q').textContent);await p.click('#welcome');const q2=await p.evaluate(()=>document.querySelector('#welcome .wl-q').textContent);ok('tapping does not change the line',q1===q2);
+  const days=await p.evaluate(()=>[0,1,2,3].map(k=>{const d=new Date();d.setDate(d.getDate()+k);d.setHours(9);return welcomeHTML(d).html.match(/wl-q">([^<]*)/)[1]}));ok('a different line each day',new Set(days).size===4,days.map(x=>x.slice(0,30)));
+  const morn=await p.evaluate(()=>{const a=new Date(),b=new Date();a.setHours(8);b.setHours(20);return welcomeHTML(a).html.match(/wl-q">([^<]*)/)[1]===welcomeHTML(b).html.match(/wl-q">([^<]*)/)[1]});ok('the same line all day',morn)}
+ else await p.evaluate(()=>saveProfile(okProfile({nick:'Sam',since:Date.now()})));
+ await p.evaluate(()=>{showTab('dial');scrollTo(0,0)});await p.waitForTimeout(300);await p.screenshot({path:D+'welcome-'+m+'.png',clip:{x:0,y:0,width:390,height:520}});
+ ok('no errors ('+m+')',!errs.length,errs);await c.close()}await b.close()})();

@@ -203,7 +203,7 @@ function openNotesPicker(entry){const d=$('vd'),sel=flMap(entry?flOf(entry):LFL.
     if(a){const n=FW.byId[a.dataset.fa];if(n.leaf){if(!sel.has(n.id))sel.set(n.id,2);W.zoom(n.parent&&n.parent.id)}else W.zoom(n.id);W.redraw();list();$('fl-q').value='';res.innerHTML='';return}
     if(lv){sel.set(lv.dataset.id,+lv.dataset.lv);list();W.redraw();return}
     if(rm){sel.delete(rm.dataset.rm);list();W.redraw();return}
-    if(e.target.closest('#fl-clear')){(sel.size?askConfirm('Every note you picked is cleared.','Remove',true,'Remove all the notes?'):Promise.resolve(true)).then(y=>{if(y){sel.clear();list();W.redraw()}});return}
+    if(e.target.closest('#fl-clear')){if(!sel.size)return;const was=[...sel];sel.clear();list();W.redraw();undoToast('Notes cleared',()=>{was.forEach(x=>sel.add(x));list();W.redraw()});return}
     if(e.target.closest('#fl-done'))d.close()};
   $('vd-x').onclick=()=>d.close();
   // Whatever you leave the sheet with (Done, the cross or back) is kept.

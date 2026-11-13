@@ -1,0 +1,42 @@
+name: Tests
+
+# The browser tests in tests/e2e, run against a fresh build of the app. Called by "Deploy the website" (every pull
+# request and every push to main, before anything is deployed) and by "Build Android APK" (on main, before a release).
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+      - name: Build the app
+        run: python3 tools/build.py
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-1.63.0-${{ runner.os }}
+      - name: Install Playwright and Chromium
+        run: |
+          npm i --no-save --no-package-lock playwright@1.63.0
+          npx playwright install --with-deps chromium
+      - name: Run the tests
+        run: JOBS=4 tests/run.sh
+      - name: Keep the screenshots of a failed run
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-output
+          path: tests/e2e/out
+          retention-days: 7

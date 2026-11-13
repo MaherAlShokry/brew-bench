@@ -13,3 +13,4 @@ www/
 Thumbs.db
 .vscode/
 .idea/
+tests/e2e/out/
