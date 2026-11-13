@@ -1,3 +1,5 @@
+// Output (screenshots, downloads) goes to tests/e2e/out, wherever this is run from.
+{const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 // Every page at four phone widths: text cut off (without a tooltip or ellipsis meant as a summary), or text running under a picture.
 const {chromium}=require('playwright');const demo=require('./seed2.cjs');(async()=>{const b=await chromium.launch();const R={};const add=(k,v)=>{(R[k]=R[k]||new Set()).add(v)};
  for(const W of [320,360,390,430]){const c=await b.newContext({viewport:{width:W,height:800},serviceWorkers:'block'});await c.addInitScript(()=>sessionStorage.setItem('bb-splashed','1'));const p=await c.newPage();await p.route(u=>!u.href.startsWith('http://localhost'),r=>r.abort());

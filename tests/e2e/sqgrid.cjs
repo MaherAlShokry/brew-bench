@@ -1,3 +1,5 @@
+// Output (screenshots, downloads) goes to tests/e2e/out, wherever this is run from.
+{const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const ok=(n,v,x)=>console.log((v?'ok  ':'FAIL')+' '+n+(x!==undefined?'  ('+JSON.stringify(x)+')':''));
 for(const w of [320,360,392,430])for(const t of ['m','l','xl']){const c=await b.newContext({viewport:{width:w,height:900},isMobile:true,hasTouch:true});const p=await c.newPage();
 await p.addInitScript(()=>{sessionStorage.setItem('bb-splashed','1')});await p.goto('http://localhost:8099/index.html');await p.evaluate(require('./seed2.cjs'));

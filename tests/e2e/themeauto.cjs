@@ -1,3 +1,5 @@
+// Output (screenshots, downloads) goes to tests/e2e/out, wherever this is run from.
+{const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 const {chromium}=require('playwright');
 const TABS=['dial','beans','settings','gear','recipes'];
 const grab=()=>{const out={};document.querySelectorAll('main section.on *, .appbar *, .bottomnav, .bottomnav *').forEach(e=>{if(!e.getClientRects().length)return;const r=e.getBoundingClientRect();if(r.width<2||r.height<2)return;const s=getComputedStyle(e);

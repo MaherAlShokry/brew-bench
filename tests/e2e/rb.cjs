@@ -1,3 +1,5 @@
+// Output (screenshots, downloads) goes to tests/e2e/out, wherever this is run from.
+{const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:392,height:844}});const errs=[];p.on('pageerror',e=>errs.push(e.message));const ok=(n,v,x)=>console.log((v?'ok  ':'FAIL')+' '+n+(x!==undefined?'  ('+JSON.stringify(x)+')':''));
 await p.addInitScript(()=>{sessionStorage.setItem('bb-splashed','1')});await p.goto('http://localhost:8099/index.html');await p.evaluate(require('./seed2.cjs'));await p.reload();await p.waitForTimeout(1200);
 const r=await p.evaluate(()=>{const mk=(o,r)=>({origin:o,rating:r});const t=best([mk('kenya',5),mk('kenya',4),mk('kenya',4),mk('panama',5),mk('ethiopia',4.5),mk('ethiopia',4.5),mk('colombia',4),mk('colombia',4),mk('colombia',4),mk('colombia',4)],b=>b.origin);

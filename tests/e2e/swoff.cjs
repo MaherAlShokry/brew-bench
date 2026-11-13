@@ -1,3 +1,5 @@
+// Output (screenshots, downloads) goes to tests/e2e/out, wherever this is run from.
+{const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 // Offline-first website: it opens from the saved copy with no network, the map still loads, and when a newer
 // version has been saved in the background the page offers a reload.
 const {chromium}=require('playwright'),fs=require('fs'),os=require('os'),path=require('path'),{spawn,execSync}=require('child_process');

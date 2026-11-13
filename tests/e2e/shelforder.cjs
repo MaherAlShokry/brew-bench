@@ -1,3 +1,5 @@
+// Output (screenshots, downloads) goes to tests/e2e/out, wherever this is run from.
+{const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const c=await b.newContext({viewport:{width:390,height:844}});const p=await c.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
 await p.addInitScript(()=>sessionStorage.setItem('bb-splashed','1'));await p.route(u=>!u.href.startsWith('http://localhost'),r=>r.abort());await p.goto('http://localhost:8099/index.html');await p.evaluate(require('./seed2.cjs'));
 await p.evaluate(()=>{const bs=JSON.parse(localStorage.getItem('bb-beans'));const t=bs[0];const mk=(id,name,roaster,bag,left,tried)=>Object.assign({},t,{id,name,roaster,bag,left,leftAt:Date.now()-1000,tried,shelf:true,ts:Date.now()-86400000,cups:[],bags:[],prior:0});

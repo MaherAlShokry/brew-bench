@@ -1,7 +1,11 @@
+// Output (screenshots, downloads) goes to tests/e2e/out, wherever this is run from.
+{const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 // Every page, every vibe x light/dark: text that's hard to read, things wider than a small phone, unlabelled controls.
 const {chromium}=require('playwright');const demo=require('./seed2.cjs');(async()=>{const b=await chromium.launch();const R={};const add=(k,v)=>{(R[k]=R[k]||new Set()).add(v)};
  const vibes=['roastery','oat','matcha','blossom','nordic','desert','neon','caramel','pure','black'];
- for(const v of vibes)for(const m of ['light','dark']){const w=v==='roastery'&&m==='light'?320:390;
+ // Four looks at a time (each visits every page with a pause): one after another took about 2.5 minutes.
+ const jobs=[];for(const v of vibes)for(const m of ['light','dark'])jobs.push([v,m]);
+ const one=async([v,m])=>{const w=v==='roastery'&&m==='light'?320:390;
   const c=await b.newContext({viewport:{width:w,height:740},serviceWorkers:'block'});await c.addInitScript(([v,m])=>{localStorage.setItem('bb-ui',JSON.stringify({vibe:v}));localStorage.setItem('bb-theme',m);sessionStorage.setItem('bb-splashed','1')},[v,m]);
   const p=await c.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));await p.route(u=>!u.href.startsWith('http://localhost'),r=>r.abort());await p.goto('http://localhost:8099/index.html');await p.evaluate(demo);await p.reload();await p.waitForTimeout(700);
   const tabs=await p.evaluate(()=>[...document.querySelectorAll('main section[id]')].map(s=>s.id));
@@ -19,5 +23,6 @@ const {chromium}=require('playwright');const demo=require('./seed2.cjs');(async(
      const big=parseFloat(s.fontSize)>=18.6||(parseFloat(s.fontSize)>=14&&+s.fontWeight>=700);if(cr<(big?3:4.5))out.text.push(el.tagName.toLowerCase()+'.'+String(el.className).split(' ')[0]+' "'+el.textContent.trim().slice(0,18)+'" '+cr.toFixed(2))}
     return out});
    r.text.forEach(x=>add('text '+t+': '+x.replace(/ [\d.]+$/,''),v+'/'+m+' '+x.match(/[\d.]+$/)[0]));r.wide.forEach(x=>add('wide '+t+': '+x,v+'/'+m+'@'+w));r.label.forEach(x=>add('label '+t+': '+x,v+'/'+m))}
-  errs.forEach(e=>add('error',v+'/'+m+' '+e));await c.close()}
+  errs.forEach(e=>add('error',v+'/'+m+' '+e));await c.close()};
+ const q=[...jobs];await Promise.all(Array.from({length:4},async()=>{while(q.length)await one(q.shift())}));
  const ks=Object.keys(R).sort();console.log(ks.map(k=>k+'  ['+R[k].size+'] '+[...R[k]].slice(0,4).join(', ')).join('\n')||'clean');await b.close()})();

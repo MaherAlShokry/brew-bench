@@ -1,3 +1,5 @@
+// Output (screenshots, downloads) goes to tests/e2e/out, wherever this is run from.
+{const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 // Good to know: shown once, on a visit after the first and only when nothing else is open; not on the first visit;
 // again from Settings; the Android app mentions the widgets, the website working offline.
 const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();

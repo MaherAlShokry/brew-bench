@@ -1,3 +1,5 @@
+// Output (screenshots, downloads) goes to tests/e2e/out, wherever this is run from.
+{const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const p=await b.newPage();await p.addInitScript(()=>sessionStorage.setItem('bb-splashed','1'));await p.goto('http://localhost:8099/index.html');await p.waitForTimeout(800);
 console.log(await p.evaluate(()=>{const out=[];const ri=RECIPES.findIndex(r=>r.name==='Tetsu Kasuya 4:6');
  for(const [g] of GOALS){Object.assign(S,{brewer:'v60',grinder:'zp6',rec:ri,goal:g,amt:'mid',process:'washed',variety:'caturra',roast:'medium',age:14});tune();

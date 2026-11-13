@@ -1,3 +1,5 @@
+// Output (screenshots, downloads) goes to tests/e2e/out, wherever this is run from.
+{const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 // A big collection: 500 coffees (with diaries), 2,000 brews and 60 recipes of your own. Times the main actions with the
 // CPU slowed 4×, like a mid-range phone, and checks nothing breaks. Prints the timings; fails on errors or on an action
 // far slower than it should be.

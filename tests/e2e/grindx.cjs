@@ -1,3 +1,5 @@
+// Output (screenshots, downloads) goes to tests/e2e/out, wherever this is run from.
+{const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 // Across many coffees, roasts, targets and both grinders: the furthest any recipe goes from its brewer's normal grind.
 const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const p=await b.newPage();await p.addInitScript(()=>sessionStorage.setItem('bb-splashed','1'));await p.goto('http://localhost:8099/index.html');await p.waitForTimeout(800);
 console.log(await p.evaluate(()=>{let worst=[0,''],n=0,over=0;const procs=['washed','natural','honey','anaerobicnatural','wethulled'].filter(k=>PROCESSES[k]);
