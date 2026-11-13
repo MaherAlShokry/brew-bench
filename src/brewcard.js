@@ -757,7 +757,26 @@ function docCardLay(x,doc,draw){const W=BC.W,P=BC.PAD,IW=W-2*P,F=BC.F;let Y=draw
       if(draw){bcPane(x,P,Y,IW,h,26);let ry=Y+8;rows.forEach((r,i)=>{if(i){x.fillStyle=bcI(.09);x.fillRect(P+24,ry,IW-48,1.5)}
         x.font='700 21px '+F;x.fillStyle=BC.MUTED;x.letterSpacing='2px';x.fillText(bcWrap(x,String(r.k).toUpperCase(),kw-24,1)[0],P+28,ry+46);x.letterSpacing='0px';
         r.L.forEach((l,j)=>T(l,'600 29px '+F,BC.INK,P+kw+28,ry+48+j*40));ry+=hs[i];bcBrk(ry)})}Y+=h}
-    if(b.list&&b.list.length){Y+=18;x.font='500 29px '+F;const lw=b.num?56:36,rows=b.list.map(t=>bcWrap(x,String(t),IW-56-lw,6)),hs=rows.map(L=>32+L.length*40),h=hs.reduce((a,v)=>a+v,0)+16;
+    // A timeline: when, then what happened and a few words on it, strung on a line of dots.
+    if(b.tl&&b.tl.length){Y+=18;const RX=P+42,TX=P+84,TW=IW-84-30,rows=b.tl.map(([w,t,d])=>{x.font='700 32px '+F;const T1=bcWrap(x,t,TW,2);x.font='500 26px '+F;return{w,T1,D:bcWrap(x,d||'',TW,8)}}),
+        hs=rows.map(r=>40+r.T1.length*40+r.D.length*36+30),h=hs.reduce((a,v)=>a+v,0)+28;
+      if(draw){bcPane(x,P,Y,IW,h,26);let ry=Y+14;const dots=[];rows.forEach((r,i)=>{dots.push(ry+30);
+          x.font='700 21px '+F;x.fillStyle=BC.HONEY;x.letterSpacing='2px';x.fillText(/\d/.test(r.w)?String(r.w):String(r.w).toUpperCase(),TX,ry+38);x.letterSpacing='0px';
+          r.T1.forEach((l,j)=>T(l,'700 32px '+F,BC.INK,TX,ry+80+j*40));r.D.forEach((l,j)=>T(l,'500 26px '+F,BC.MUTED,TX,ry+80+r.T1.length*40+j*36-4));ry+=hs[i];bcBrk(ry)});
+        x.fillStyle=bcI(.16);x.fillRect(RX-1.5,dots[0],3,dots[dots.length-1]-dots[0]);
+        dots.forEach((dy,i)=>{x.beginPath();x.arc(RX,dy,i===0||i===dots.length-1?10:8,0,TAU);x.fillStyle=BC.HONEY;x.fill();x.lineWidth=5;x.strokeStyle=BC.PANE;x.stroke()})}
+      Y+=h}
+    // People: a monogram, the name, who they were, and what they did.
+    if(b.people&&b.people.length){Y+=18;const TX=P+28+64+22,TW=IW-(TX-P)-28,rows=b.people.map(([n,r,d])=>{x.font='700 31px '+F;const N=bcWrap(x,n,TW,2);x.font='500 26px '+F;return{n,N,r,D:bcWrap(x,d||'',TW,8)}}),
+        hs=rows.map(r=>34+r.N.length*39+34+r.D.length*36+26),h=hs.reduce((a,v)=>a+v,0)+16;
+      if(draw){bcPane(x,P,Y,IW,h,26);let ry=Y+8;rows.forEach((r,i)=>{if(i){x.fillStyle=bcI(.09);x.fillRect(P+24,ry,IW-48,1.5)}
+          const cx=P+28+32,cy=ry+56;x.beginPath();x.arc(cx,cy,32,0,TAU);x.fillStyle=bcA(.18);x.fill();
+          x.font='800 30px '+F;x.fillStyle=BC.HONEY;x.textAlign='center';x.fillText((r.n.replace(/^(The|Sufi)\s+/,'').trim()[0]||'·').toUpperCase(),cx,cy+11);x.textAlign='left';
+          r.N.forEach((l,j)=>T(l,'700 31px '+F,BC.INK,TX,ry+52+j*39));const by=ry+52+r.N.length*39;
+          x.font='600 21px '+F;x.fillStyle=BC.HONEY;x.letterSpacing='1px';x.fillText(bcWrap(x,String(r.r).toUpperCase(),TW,1)[0],TX,by+2);x.letterSpacing='0px';
+          r.D.forEach((l,j)=>T(l,'500 26px '+F,BC.MUTED,TX,by+40+j*36));ry+=hs[i];bcBrk(ry)})}
+      Y+=h}
+    if(b.list&&b.list.length&&!b.tl&&!b.people){Y+=18;x.font='500 29px '+F;const lw=b.num?56:36,rows=b.list.map(t=>bcWrap(x,String(t),IW-56-lw,6)),hs=rows.map(L=>32+L.length*40),h=hs.reduce((a,v)=>a+v,0)+16;
       if(draw){bcPane(x,P,Y,IW,h,26);let ry=Y+8;rows.forEach((L,i)=>{if(i){x.fillStyle=bcI(.09);x.fillRect(P+24,ry,IW-48,1.5)}
         if(b.num)T(String(i+1),'800 28px '+F,BC.HONEY,P+28,ry+48);else{x.beginPath();x.arc(P+36,ry+38,6,0,TAU);x.fillStyle=BC.HONEY;x.fill()}
         L.forEach((l,j)=>T(l,'500 29px '+F,BC.INK,P+28+lw,ry+48+j*40));ry+=hs[i];bcBrk(ry)})}Y+=h}}

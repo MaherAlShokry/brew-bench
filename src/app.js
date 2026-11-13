@@ -2939,7 +2939,11 @@ function varietyDoc(id){const v=VBY[id];const b=[{kv:[['Family',FAM[v.fam].name]
   if(v.subs)b.push({h:'Types',list:v.subs.map(s=>s.name+': '+s.cup)});return{link:SITE_URL+'#v='+id,title:v.name,sub:'Variety guide',blocks:b,file:'variety-'+v.name}}
 function originDoc(k){const o=ALLO()[k];return{link:SITE_URL+'#o='+k,title:o.name,sub:'Coffee origin | '+REG[o.reg].name,file:'origin-'+o.name,
   card:()=>originCard(k),cardName:'origin-card',cardTitle:'Origin card',cardSub:'One image in its own colours: altitude, harvest, the cup, its story and the varieties grown there.',cardTheme:()=>originTheme(k),blocks:[{kv:[['Regions',o.subs.join(', ')],['Altitude',o.alt],['Harvest',o.harvest],['Processing',o.process]]},{h:'In the cup',p:o.cup},{h:'Story',p:o.hist},{h:'Varieties grown here',list:o.vars.map(v=>VBY[v]?VBY[v].name:v)},{h:'Did you know?',p:o.fact}]}}
-function historyDoc(){return{link:SITE_URL+'#history',title:'The story of coffee',sub:'From Ethiopian forests to your cup',file:'coffee-history',blocks:[{h:'Timeline',list:TIMELINE.map(([w,t,d])=>w+' - '+t+': '+d)},{h:'People who spread coffee',list:PEOPLE.map(([n,r,d])=>n+' ('+r+'): '+d)}]}}
+// The story of coffee: shared as its own card (and the PDF of it), a timeline strung on dots and the people who spread
+// coffee, each with a monogram. The lists stay for the text versions.
+function historyDoc(){const doc={link:SITE_URL+'#history',title:'The story of coffee',sub:'From Ethiopian forests to your cup',file:'coffee-history',cardTitle:'History card',cardSub:'The timeline and the people who spread coffee, in one image.',
+  blocks:[{h:'Timeline',tl:TIMELINE,list:TIMELINE.map(([w,t,d])=>w+' - '+t+': '+d)},{h:'People who spread coffee',people:PEOPLE,list:PEOPLE.map(([n,r,d])=>n+' ('+r+'): '+d)}]};
+  doc.card=()=>docCardImg(doc);return doc}
 // One logged brew, as text and as a card.
 function logEntryDoc(l){const fl=flOf(l).filter(([id])=>FW.byId[id]);
   return{title:l.coffee||'A brew',sub:fmtDate(l)+(l.stars?' | '+l.stars+' / 5':''),file:'brew-'+(l.coffee||'log'),

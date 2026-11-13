@@ -7,4 +7,5 @@
     <color name="widget_accent">#8A5A3B</color>
     <color name="widget_btn">#C9964A</color>
     <color name="widget_btn_ink">#2A1A10</color>
+    <color name="widget_row">#F3EADC</color>
 </resources>

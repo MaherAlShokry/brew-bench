@@ -371,14 +371,16 @@ function yearInCoffeeHTML0(){const cy=new Date().getFullYear(),bs=BEANS.filter(b
   const cups=myCups(cy);if(!bs.length&&!cups.length)return '';const g=Math.round(cups.reduce((s,c)=>s+(c.g||0),0)),t=tasteOf(bs,ls),origins=new Set(bs.map(b=>b.origin).filter(Boolean)).size,bags=bagsIn(cy);
   const big=[[bs.length,(bs.length===1?'coffee':'coffees')+(bags>bs.length?' · '+bags+' bags':'')],[cups.length,cups.length===1?'cup brewed':'cups brewed'],g?[g>=1000?(g/1000).toFixed(g>=10000?0:1)+' kg':g+' g','of coffee']:[origins,origins===1?'origin':'origins']];
   const o=t.origin&&oInfo(t.origin.k),R=t.region&&REG[t.region.k],v=t.variety&&VBY[t.variety.k],pr=t.process&&PROCESSES[t.process.k],B=t.brewer&&BREWERS[t.brewer.k];
-  const facts=[o&&['<span class="yic-fl">'+flagOf(t.origin.k)+'</span>','Mostly from',o.name,t.origin.n+' bag'+(t.origin.n===1?'':'s')],R&&['🗺️','Favourite region',R.name+(t.regionOrigin&&t.regionOrigin.k!==(t.origin&&t.origin.k)?' · mostly '+oInfo(t.regionOrigin.k).name:''),t.region.n+' bag'+(t.region.n===1?'':'s')],
-    v&&['🌱','Top variety',shortName(v.name),t.variety.n+' bag'+(t.variety.n===1?'':'s')],pr&&['🧪','Top process',pr.name.replace(/\s*\(.*\)$/,''),t.process.n+' bag'+(t.process.n===1?'':'s')],
-    t.roast&&['🔥','Usual roast',t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1),''],t.roaster&&['🏷️','Roastery most often',t.roaster.k,t.roaster.n+' bag'+(t.roaster.n===1?'':'s')],
-    t.regular&&['🔁','Your regular',beanTitle(t.regular),'Bought '+buys(t.regular)+' times'],t.best&&['🏆','Best of the year',beanTitle(t.best),String(t.best.rating).replace('.5','½')+' beans'],B&&['☕','Brewed most on',B.name,t.brewer.n+' cup'+(t.brewer.n===1?'':'s')]].filter(Boolean);
+  // The facts, without counts: short ones as tiles two to a row, then the coffees (your regular, the best of the year)
+  // full width, each opening its coffee. An odd tile out at the end of the short ones spans the row too.
+  const half=[o&&['<span class="yic-fl">'+flagOf(t.origin.k)+'</span>','Mostly from',o.name],R&&['🗺️','Favourite region',R.name+(t.regionOrigin&&t.regionOrigin.k!==(t.origin&&t.origin.k)?' · mostly '+oInfo(t.regionOrigin.k).name:'')],
+    v&&['🌱','Top variety',shortName(v.name)],pr&&['🧪','Top process',pr.name.replace(/\s*\(.*\)$/,'')],t.roast&&['🔥','Usual roast',t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1)],
+    t.roaster&&['🏷️','Roastery most often',t.roaster.k],B&&['☕','Brewed most on',B.name]].filter(Boolean);
+  const wide=[t.regular&&['🔁','Your regular',beanTitle(t.regular),t.regular.id],t.best&&['🏆','Best of the year',beanTitle(t.best),t.best.id]].filter(Boolean);
+  const tile=([ic,k,vv,id],w)=>(id?'<button type="button" class="yic-t w" data-bean="'+id+'">':'<div class="yic-t'+(w?' w':'')+'">')+'<i aria-hidden="true">'+ic+'</i><span><small>'+k+'</small><b>'+esc(vv)+'</b></span>'+(id?'<svg class="yic-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>':'</div>');
   return '<div class="yic" role="region" aria-label="'+cy+' in coffee"><div class="yic-h"><h3>'+cy+' in coffee</h3></div>'+(bs.length>1?'<p class="yic-line">'+esc(tasteLine(t))+'</p>':'')+
     '<div class="yic-big">'+big.map(([n,l])=>'<span><b>'+esc(String(n))+'</b><small>'+esc(l)+'</small></span>').join('')+'</div>'+
-    // The facts as one list: the icon, what it is over its value, and the count on the right.
-    (facts.length?'<ul class="yic-list">'+facts.map(([i,k,vv,sub])=>'<li><i aria-hidden="true">'+i+'</i><span><small>'+k+'</small><b>'+esc(vv)+'</b></span>'+(sub?'<em>'+esc(sub)+'</em>':'')+'</li>').join('')+'</ul>':'')+
+    (half.length||wide.length?'<div class="yic-grid">'+half.map((f,i)=>tile(f,half.length%2===1&&i===half.length-1)).join('')+wide.map(f=>tile(f,true)).join('')+'</div>':'')+
     (t.notes.length?'<div class="yic-notes"><small>Notes you keep coming back to</small><div class="chips">'+t.notes.map(n=>'<span class="chip"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'</span>').join('')+'</div></div>':'')+'</div>'}
 
 /* ================= FOR YOU ================= */
@@ -585,13 +587,32 @@ async function setReminder(on,t){const ln=LN();if(t)REMIND.t=t;
 // its Log brew button opens the brew form with that coffee picked.
 function widgetBean(){const sh=BEANS.filter(b=>b.shelf);if(!sh.length)return null;const last=b=>beanBrews(b).reduce((m,l)=>Math.max(m,+l.ts||0),0);
   return sh.map(b=>[b,last(b)]).sort((a,c)=>c[1]-a[1]||(+c[0].ts||0)-(+a[0].ts||0))[0][0]}
-function updWidget(){const w=plugin('Widget');if(!w)return;try{const b=widgetBean(),c=b&&cupsLeft(b);
-  w.update(b?{id:b.id,title:beanTitle(b),sub:[b.roaster,b.origin?(flagOf(b.origin)+' '+originName(b.origin)).trim():''].filter(Boolean).join(' · '),
-    roastDate:b.roastDate||'',win:freshWin(b).w.join(','),left:c==null?'':c?c+(c===1?' cup left':' cups left'):'Bag empty'}:{id:''}).catch(()=>{})}catch(e){}}
+const wLeft=b=>{const c=cupsLeft(b);return c==null?'':c?c+(c===1?' cup left':' cups left'):'Bag empty'};
+// The other widgets: Your cabinet (up to four shelf coffees, most recently brewed first), Quick brew (the recipe you've
+// brewed most in the last two months, else the last one opened) and Coffee word of the day (the coming six weeks'
+// words, the same as Today in coffee, so the widget moves on each day by itself).
+function widgetCabinet(){const last=b=>beanBrews(b).reduce((m,l)=>Math.max(m,+l.ts||0),0);
+  return BEANS.filter(b=>b.shelf).map(b=>[b,last(b)]).sort((a,c)=>c[1]-a[1]||(+c[0].ts||0)-(+a[0].ts||0)).slice(0,4)
+    .map(([b])=>({id:b.id,title:beanTitle(b),roastDate:b.roastDate||'',win:freshWin(b).w.join(','),left:wLeft(b)}))}
+function widgetRecipe(){const since=Date.now()-60*864e5,n=new Map();for(const l of LOG)if(isMine(l)&&(+l.ts||0)>=since&&l.snap&&l.snap.rec)n.set(l.snap.rec,(n.get(l.snap.rec)||0)+1);
+  let i=-1;const top=[...n].sort((a,b)=>b[1]-a[1])[0];if(top)i=RECIPES.findIndex(r=>r.name===top[0]);
+  if(i<0&&typeof RECENT!=='undefined'&&RECENT.length)i=rByKey(RECENT[0]);if(i<0)return{};
+  const r=RECIPES[i],sc=scaled(r),B=BREWERS[r.b];
+  return{key:rkey(r),name:r.name,line:[B&&B.name,gfmt(sc.dose)+' g : '+gfmt(sc.water)+' g',r.temp?r.temp+'°C':''].filter(Boolean).join(' · ')}}
+function widgetWords(){const d0=Math.floor(Date.now()/864e5),out=[];for(let d=d0;d<d0+42;d++){const w=GLOSSARY[d%GLOSSARY.length];out.push([d,w[0],sentences(w[2],170)])}return out}
+function updWidget(){const w=plugin('Widget');if(!w)return;try{const b=widgetBean();let rc={};try{rc=widgetRecipe()}catch(e){}
+  w.update(Object.assign(b?{id:b.id,title:beanTitle(b),sub:[b.roaster,b.origin?(flagOf(b.origin)+' '+originName(b.origin)).trim():''].filter(Boolean).join(' · '),
+    roastDate:b.roastDate||'',win:freshWin(b).w.join(','),left:wLeft(b)}:{id:''},{cabinet:JSON.stringify(widgetCabinet()),brew:JSON.stringify(rc),words:JSON.stringify(widgetWords())})).catch(()=>{})}catch(e){}}
 (()=>{if(!plugin('Widget'))return;setTimeout(updWidget,2500);document.addEventListener('visibilitychange',()=>{if(document.hidden)updWidget()});
   const go=o=>{const [k,id]=String(o||'').split(':');document.querySelectorAll('dialog[open]').forEach(d=>d.close());
     if(k==='bean'&&beanById(id)){showTab('beans');openBean(id);return}
     if(k==='log'){if(LEDIT)endEdit();LBEAN=id&&beanById(id)?id:null;renderLBean();renderFlForm();showTab('log');setTimeout(()=>$('l-form').scrollIntoView({block:'start'}),60);return}
+    // Recipe keys hold a colon themselves ("r:kasuya-4-6"), so the rest of the request is the key.
+    const rest=String(o).slice(k.length+1);
+    if(k==='recipe'||k==='timer'){const i=rByKey(rest);if(i>=0){showTab('recipes');if(k==='timer')openTimer(i);else openRecipe(i);return}showTab('recipes');return}
+    if(k==='recipes'){showTab('recipes');return}
+    if(k==='word'&&GBY[rest]){openWord(rest);return}
+    if(k==='word'||k==='explore'){goTab('explore');return}
     showTab('beans')};
   const ready=()=>NAV_READY&&!document.documentElement.classList.contains('splashing');
   // Asked on start (a tap that opened the app) and by the app when a tap arrives while it's running.
@@ -798,7 +819,7 @@ function shelfHTML(){const sh=shelfOrder();
 // This season's challenges: what's running, how far along you are and how long is left.
 function seasonCardHTML(full){const now=seasonNow(),nx=seasonNext();if(!now.length&&!nx)return '';
   const row=t=>'<div class="ssn'+(t.done?' on':'')+'"><span class="ssn-ic" aria-hidden="true">'+t.ic+'</span><span class="ssn-tx"><b>'+esc(t.w.label?t.n+': '+t.w.label:t.n)+'</b><small>'+(t.done?'Earned '+dfmt(Date.parse(TGOT[t.key]+'T12:00')):esc(t.desc))+'</small>'+
-    (t.done?'':'<span class="tro-p" aria-label="'+t.h+' of '+t.need+'"><i style="width:'+(t.h/t.need*100).toFixed(0)+'%"></i></span>')+'</span><span class="ssn-n">'+(t.done?'✓':t.h+'/'+t.need)+'<small>'+(t.left?t.left+' day'+(t.left===1?'':'s')+' left':'Last day')+'</small></span></div>';
+    (t.done?'':'<span class="tro-p" role="img" aria-label="'+t.h+' of '+t.need+'"><i style="width:'+(t.h/t.need*100).toFixed(0)+'%"></i></span>')+'</span><span class="ssn-n">'+(t.done?'✓':t.h+'/'+t.need)+'<small>'+(t.left?t.left+' day'+(t.left===1?'':'s')+' left':'Last day')+'</small></span></div>';
   const list=full?now:now.filter(t=>!t.done).slice(0,2);
   return '<div class="season"><div class="ssn-h"><span class="pp-k">This season</span>'+(full?'':'<button type="button" class="linkbtn" data-tro="1">All trophies</button>')+'</div>'+
     (list.length?list.map(row).join(''):'<p class="hint" style="margin:6px 0 0">Every challenge this season is done. Nice work.</p>')+

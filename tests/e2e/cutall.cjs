@@ -6,6 +6,8 @@ await p.addInitScript(()=>sessionStorage.setItem('bb-splashed','1'));await p.rou
 await p.goto('http://localhost:8099/index.html');await p.evaluate(require('./seed2.cjs'));
 await p.evaluate(()=>{const bs=JSON.parse(localStorage.getItem('bb-beans'));bs.slice(0,4).forEach((b,i)=>{b.cal={id:'cutcal',d:i*2+1}});localStorage.setItem('bb-beans',JSON.stringify(bs));
   localStorage.setItem('bb-advent',JSON.stringify([{id:'cutcal',name:'Inspiration Coffee Advent Calendar Twenty Twenty-Six',roaster:'The Barn Coffee Roasters Berlin',year:2026,n:24,g:50,notes:'Lovely box.'},{id:'cutcal2',name:'',roaster:'Spirit Hub',year:2025,n:24,g:50}]))});
+// A third argument sets the text size (s, m, l, xl), as in Settings.
+if(process.argv[4])await p.evaluate(t=>localStorage.setItem('bb-ui',JSON.stringify(Object.assign(JSON.parse(localStorage.getItem('bb-ui')||'{}'),{text:t}))),process.argv[4]);
 await p.reload();await p.waitForTimeout(1500);
 const scan=async lbl=>{const r=await p.evaluate(()=>{const out=[];const dl=[...document.querySelectorAll('dialog[open]')].pop();const root=dl||document.querySelector('main section.on');if(!root)return out;const W=innerWidth;
   const inScroller=e=>{for(let a=e.parentElement;a&&a!==document.body;a=a.parentElement){const o=getComputedStyle(a).overflowX;if(o==='auto'||o==='scroll')return true}return false};

@@ -1516,6 +1516,16 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 :root[data-accent]:not([data-accent="classic"]){--surface2:color-mix(in srgb,var(--cherry) 11%,var(--surface));--line:color-mix(in srgb,var(--cherry) 17%,var(--surface))}
 /* Text size and motion. */
 :root[data-text="s"]{font-size:15px}:root[data-text="l"]{font-size:17.5px}:root[data-text="xl"]{font-size:19px}
+/* Large text on a narrow phone: labels tighten or wrap instead of being cut off. */
+@media (max-width:379px){
+  :root:is([data-text="l"],[data-text="xl"]) .seg>button{padding-left:5px;padding-right:5px;font-size:.84em;letter-spacing:-.01em}
+  :root:is([data-text="l"],[data-text="xl"]) #rhome .cupcard b{white-space:normal;overflow-wrap:anywhere;text-overflow:clip;font-size:.68rem;padding-left:5px;padding-right:5px}
+  :root:is([data-text="l"],[data-text="xl"]) #settings-in .seg>button{white-space:normal;line-height:1.15}
+  :root:is([data-text="l"],[data-text="xl"]) .hubcard b{overflow-wrap:anywhere;hyphens:auto}
+  :root:is([data-text="l"],[data-text="xl"]) #rall.rh{white-space:normal;text-overflow:clip}
+  :root:is([data-text="l"],[data-text="xl"]) .two .datew{padding:0 8px;gap:4px}:root:is([data-text="l"],[data-text="xl"]) .two .datew .dw-t{font-size:.8rem}
+}
+
 :root[data-motion="reduced"] *,:root[data-motion="reduced"] *::before,:root[data-motion="reduced"] *::after{animation:none!important;transition:none!important}
 /* Settings page. */
 .setgroup{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
@@ -1860,7 +1870,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
   background:linear-gradient(180deg,#5A3A26,#3E2718);box-shadow:inset 0 1px 0 rgba(255,236,200,.18),0 6px 14px -8px rgba(0,0,0,.6)}
 .ts-k{flex:none;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;font-weight:800;color:var(--muted)}
 .ts-row{flex:1;min-width:0;display:flex;gap:4px;overflow:hidden;font-size:1.25rem;line-height:1}.ts-row i{font-style:normal;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}.ts-row em{font-size:.82rem;font-style:normal;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tshelf>b{flex:none;font-family:var(--display);font-size:1rem}.tshelf>b small{opacity:.65;font-size:.8em}
+.tshelf>b{flex:none;font-family:var(--display);font-size:1rem}.tshelf>b small{opacity:.78;font-size:.8em}
 .cab-h{margin-top:22px}
 /* Your coffees as a list: the bag, its name and where it's from, your rating at the end. */
 .clist{display:flex;flex-direction:column;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--shadow),inset 0 0 0 1px var(--hair);overflow:hidden}
@@ -2034,7 +2044,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .yic-k{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:var(--muted)}
 .yic-row{display:flex;gap:8px 20px;flex-wrap:wrap;margin-top:6px}.yic-row span{display:flex;flex-direction:column;min-width:0}
 .yic-row b{font-family:var(--display);font-size:1.2rem;line-height:1.2;color:var(--ink)}.yic-row small{font-size:.76rem;color:var(--muted);max-width:16ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cr-notes{font-style:italic;opacity:.9}
+.cr-notes{font-style:italic}
 /* ---------- The passport ---------- */
 .passport{position:relative;padding:18px 14px 16px;border-radius:24px;color:#2A1A10;margin-bottom:8px;
   background:repeating-linear-gradient(0deg,transparent 0 27px,rgba(90,60,30,.06) 27px 28px),radial-gradient(120% 90% at 50% 0%,#FBF3E4,#EFE1C8);box-shadow:inset 0 0 0 1.5px rgba(120,80,40,.18),var(--shadow)}
@@ -2526,6 +2536,15 @@ dialog.dlg-pre[open]::backdrop{animation:none!important;opacity:0}
 .btn.danger{background:#A8432F;color:#fff}
 .yic-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px}.yic-h h3{margin:0;font:800 1.15rem/1.2 var(--display);letter-spacing:-.01em;color:var(--ink)}.yic-h span{font-size:.8rem;font-weight:600;color:var(--muted);white-space:nowrap}
 .yic .yic-line{margin:6px 0 0;font:500 .92rem/1.45 var(--body,inherit);color:var(--muted)}
+.yic-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:14px 0 0}
+.yic-t{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0;padding:12px;border:0;border-radius:14px;background:var(--surface);color:var(--ink);font:inherit;text-align:left}
+.yic-t.w{grid-column:1/-1;flex-direction:row;align-items:center;gap:12px}
+button.yic-t{cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .15s}button.yic-t:active{transform:scale(.985)}
+.yic-t>i{flex:none;width:28px;height:28px;border-radius:10px;display:grid;place-items:center;background:var(--surface2);font-style:normal;font-size:1rem}
+.yic-t>span{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.yic-t small{font-size:.66rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.yic-t b{font:650 .95rem/1.25 var(--display);color:var(--ink);overflow-wrap:anywhere}
+.yic-go{flex:none;width:18px;height:18px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .yic-list{list-style:none;margin:14px 0 0;padding:4px 12px;border-radius:14px;background:var(--surface)}
 .yic-list li{display:grid;grid-template-columns:30px minmax(0,1fr) auto;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}.yic-list li:first-child{border-top:0}
 .yic-list i{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--surface2);font-style:normal;font-size:.95rem}
@@ -2572,7 +2591,7 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="177c6d06f2ec"</script>
+<script>const BUILD_ID="701ba2182bf6"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -8152,7 +8171,11 @@ function varietyDoc(id){const v=VBY[id];const b=[{kv:[['Family',FAM[v.fam].name]
   if(v.subs)b.push({h:'Types',list:v.subs.map(s=>s.name+': '+s.cup)});return{link:SITE_URL+'#v='+id,title:v.name,sub:'Variety guide',blocks:b,file:'variety-'+v.name}}
 function originDoc(k){const o=ALLO()[k];return{link:SITE_URL+'#o='+k,title:o.name,sub:'Coffee origin | '+REG[o.reg].name,file:'origin-'+o.name,
   card:()=>originCard(k),cardName:'origin-card',cardTitle:'Origin card',cardSub:'One image in its own colours: altitude, harvest, the cup, its story and the varieties grown there.',cardTheme:()=>originTheme(k),blocks:[{kv:[['Regions',o.subs.join(', ')],['Altitude',o.alt],['Harvest',o.harvest],['Processing',o.process]]},{h:'In the cup',p:o.cup},{h:'Story',p:o.hist},{h:'Varieties grown here',list:o.vars.map(v=>VBY[v]?VBY[v].name:v)},{h:'Did you know?',p:o.fact}]}}
-function historyDoc(){return{link:SITE_URL+'#history',title:'The story of coffee',sub:'From Ethiopian forests to your cup',file:'coffee-history',blocks:[{h:'Timeline',list:TIMELINE.map(([w,t,d])=>w+' - '+t+': '+d)},{h:'People who spread coffee',list:PEOPLE.map(([n,r,d])=>n+' ('+r+'): '+d)}]}}
+// The story of coffee: shared as its own card (and the PDF of it), a timeline strung on dots and the people who spread
+// coffee, each with a monogram. The lists stay for the text versions.
+function historyDoc(){const doc={link:SITE_URL+'#history',title:'The story of coffee',sub:'From Ethiopian forests to your cup',file:'coffee-history',cardTitle:'History card',cardSub:'The timeline and the people who spread coffee, in one image.',
+  blocks:[{h:'Timeline',tl:TIMELINE,list:TIMELINE.map(([w,t,d])=>w+' - '+t+': '+d)},{h:'People who spread coffee',people:PEOPLE,list:PEOPLE.map(([n,r,d])=>n+' ('+r+'): '+d)}]};
+  doc.card=()=>docCardImg(doc);return doc}
 // One logged brew, as text and as a card.
 function logEntryDoc(l){const fl=flOf(l).filter(([id])=>FW.byId[id]);
   return{title:l.coffee||'A brew',sub:fmtDate(l)+(l.stars?' | '+l.stars+' / 5':''),file:'brew-'+(l.coffee||'log'),
@@ -9279,14 +9302,16 @@ function yearInCoffeeHTML0(){const cy=new Date().getFullYear(),bs=BEANS.filter(b
   const cups=myCups(cy);if(!bs.length&&!cups.length)return '';const g=Math.round(cups.reduce((s,c)=>s+(c.g||0),0)),t=tasteOf(bs,ls),origins=new Set(bs.map(b=>b.origin).filter(Boolean)).size,bags=bagsIn(cy);
   const big=[[bs.length,(bs.length===1?'coffee':'coffees')+(bags>bs.length?' · '+bags+' bags':'')],[cups.length,cups.length===1?'cup brewed':'cups brewed'],g?[g>=1000?(g/1000).toFixed(g>=10000?0:1)+' kg':g+' g','of coffee']:[origins,origins===1?'origin':'origins']];
   const o=t.origin&&oInfo(t.origin.k),R=t.region&&REG[t.region.k],v=t.variety&&VBY[t.variety.k],pr=t.process&&PROCESSES[t.process.k],B=t.brewer&&BREWERS[t.brewer.k];
-  const facts=[o&&['<span class="yic-fl">'+flagOf(t.origin.k)+'</span>','Mostly from',o.name,t.origin.n+' bag'+(t.origin.n===1?'':'s')],R&&['🗺️','Favourite region',R.name+(t.regionOrigin&&t.regionOrigin.k!==(t.origin&&t.origin.k)?' · mostly '+oInfo(t.regionOrigin.k).name:''),t.region.n+' bag'+(t.region.n===1?'':'s')],
-    v&&['🌱','Top variety',shortName(v.name),t.variety.n+' bag'+(t.variety.n===1?'':'s')],pr&&['🧪','Top process',pr.name.replace(/\s*\(.*\)$/,''),t.process.n+' bag'+(t.process.n===1?'':'s')],
-    t.roast&&['🔥','Usual roast',t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1),''],t.roaster&&['🏷️','Roastery most often',t.roaster.k,t.roaster.n+' bag'+(t.roaster.n===1?'':'s')],
-    t.regular&&['🔁','Your regular',beanTitle(t.regular),'Bought '+buys(t.regular)+' times'],t.best&&['🏆','Best of the year',beanTitle(t.best),String(t.best.rating).replace('.5','½')+' beans'],B&&['☕','Brewed most on',B.name,t.brewer.n+' cup'+(t.brewer.n===1?'':'s')]].filter(Boolean);
+  // The facts, without counts: short ones as tiles two to a row, then the coffees (your regular, the best of the year)
+  // full width, each opening its coffee. An odd tile out at the end of the short ones spans the row too.
+  const half=[o&&['<span class="yic-fl">'+flagOf(t.origin.k)+'</span>','Mostly from',o.name],R&&['🗺️','Favourite region',R.name+(t.regionOrigin&&t.regionOrigin.k!==(t.origin&&t.origin.k)?' · mostly '+oInfo(t.regionOrigin.k).name:'')],
+    v&&['🌱','Top variety',shortName(v.name)],pr&&['🧪','Top process',pr.name.replace(/\s*\(.*\)$/,'')],t.roast&&['🔥','Usual roast',t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1)],
+    t.roaster&&['🏷️','Roastery most often',t.roaster.k],B&&['☕','Brewed most on',B.name]].filter(Boolean);
+  const wide=[t.regular&&['🔁','Your regular',beanTitle(t.regular),t.regular.id],t.best&&['🏆','Best of the year',beanTitle(t.best),t.best.id]].filter(Boolean);
+  const tile=([ic,k,vv,id],w)=>(id?'<button type="button" class="yic-t w" data-bean="'+id+'">':'<div class="yic-t'+(w?' w':'')+'">')+'<i aria-hidden="true">'+ic+'</i><span><small>'+k+'</small><b>'+esc(vv)+'</b></span>'+(id?'<svg class="yic-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>':'</div>');
   return '<div class="yic" role="region" aria-label="'+cy+' in coffee"><div class="yic-h"><h3>'+cy+' in coffee</h3></div>'+(bs.length>1?'<p class="yic-line">'+esc(tasteLine(t))+'</p>':'')+
     '<div class="yic-big">'+big.map(([n,l])=>'<span><b>'+esc(String(n))+'</b><small>'+esc(l)+'</small></span>').join('')+'</div>'+
-    // The facts as one list: the icon, what it is over its value, and the count on the right.
-    (facts.length?'<ul class="yic-list">'+facts.map(([i,k,vv,sub])=>'<li><i aria-hidden="true">'+i+'</i><span><small>'+k+'</small><b>'+esc(vv)+'</b></span>'+(sub?'<em>'+esc(sub)+'</em>':'')+'</li>').join('')+'</ul>':'')+
+    (half.length||wide.length?'<div class="yic-grid">'+half.map((f,i)=>tile(f,half.length%2===1&&i===half.length-1)).join('')+wide.map(f=>tile(f,true)).join('')+'</div>':'')+
     (t.notes.length?'<div class="yic-notes"><small>Notes you keep coming back to</small><div class="chips">'+t.notes.map(n=>'<span class="chip"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'</span>').join('')+'</div></div>':'')+'</div>'}
 
 /* ================= FOR YOU ================= */
@@ -9493,13 +9518,32 @@ async function setReminder(on,t){const ln=LN();if(t)REMIND.t=t;
 // its Log brew button opens the brew form with that coffee picked.
 function widgetBean(){const sh=BEANS.filter(b=>b.shelf);if(!sh.length)return null;const last=b=>beanBrews(b).reduce((m,l)=>Math.max(m,+l.ts||0),0);
   return sh.map(b=>[b,last(b)]).sort((a,c)=>c[1]-a[1]||(+c[0].ts||0)-(+a[0].ts||0))[0][0]}
-function updWidget(){const w=plugin('Widget');if(!w)return;try{const b=widgetBean(),c=b&&cupsLeft(b);
-  w.update(b?{id:b.id,title:beanTitle(b),sub:[b.roaster,b.origin?(flagOf(b.origin)+' '+originName(b.origin)).trim():''].filter(Boolean).join(' · '),
-    roastDate:b.roastDate||'',win:freshWin(b).w.join(','),left:c==null?'':c?c+(c===1?' cup left':' cups left'):'Bag empty'}:{id:''}).catch(()=>{})}catch(e){}}
+const wLeft=b=>{const c=cupsLeft(b);return c==null?'':c?c+(c===1?' cup left':' cups left'):'Bag empty'};
+// The other widgets: Your cabinet (up to four shelf coffees, most recently brewed first), Quick brew (the recipe you've
+// brewed most in the last two months, else the last one opened) and Coffee word of the day (the coming six weeks'
+// words, the same as Today in coffee, so the widget moves on each day by itself).
+function widgetCabinet(){const last=b=>beanBrews(b).reduce((m,l)=>Math.max(m,+l.ts||0),0);
+  return BEANS.filter(b=>b.shelf).map(b=>[b,last(b)]).sort((a,c)=>c[1]-a[1]||(+c[0].ts||0)-(+a[0].ts||0)).slice(0,4)
+    .map(([b])=>({id:b.id,title:beanTitle(b),roastDate:b.roastDate||'',win:freshWin(b).w.join(','),left:wLeft(b)}))}
+function widgetRecipe(){const since=Date.now()-60*864e5,n=new Map();for(const l of LOG)if(isMine(l)&&(+l.ts||0)>=since&&l.snap&&l.snap.rec)n.set(l.snap.rec,(n.get(l.snap.rec)||0)+1);
+  let i=-1;const top=[...n].sort((a,b)=>b[1]-a[1])[0];if(top)i=RECIPES.findIndex(r=>r.name===top[0]);
+  if(i<0&&typeof RECENT!=='undefined'&&RECENT.length)i=rByKey(RECENT[0]);if(i<0)return{};
+  const r=RECIPES[i],sc=scaled(r),B=BREWERS[r.b];
+  return{key:rkey(r),name:r.name,line:[B&&B.name,gfmt(sc.dose)+' g : '+gfmt(sc.water)+' g',r.temp?r.temp+'°C':''].filter(Boolean).join(' · ')}}
+function widgetWords(){const d0=Math.floor(Date.now()/864e5),out=[];for(let d=d0;d<d0+42;d++){const w=GLOSSARY[d%GLOSSARY.length];out.push([d,w[0],sentences(w[2],170)])}return out}
+function updWidget(){const w=plugin('Widget');if(!w)return;try{const b=widgetBean();let rc={};try{rc=widgetRecipe()}catch(e){}
+  w.update(Object.assign(b?{id:b.id,title:beanTitle(b),sub:[b.roaster,b.origin?(flagOf(b.origin)+' '+originName(b.origin)).trim():''].filter(Boolean).join(' · '),
+    roastDate:b.roastDate||'',win:freshWin(b).w.join(','),left:wLeft(b)}:{id:''},{cabinet:JSON.stringify(widgetCabinet()),brew:JSON.stringify(rc),words:JSON.stringify(widgetWords())})).catch(()=>{})}catch(e){}}
 (()=>{if(!plugin('Widget'))return;setTimeout(updWidget,2500);document.addEventListener('visibilitychange',()=>{if(document.hidden)updWidget()});
   const go=o=>{const [k,id]=String(o||'').split(':');document.querySelectorAll('dialog[open]').forEach(d=>d.close());
     if(k==='bean'&&beanById(id)){showTab('beans');openBean(id);return}
     if(k==='log'){if(LEDIT)endEdit();LBEAN=id&&beanById(id)?id:null;renderLBean();renderFlForm();showTab('log');setTimeout(()=>$('l-form').scrollIntoView({block:'start'}),60);return}
+    // Recipe keys hold a colon themselves ("r:kasuya-4-6"), so the rest of the request is the key.
+    const rest=String(o).slice(k.length+1);
+    if(k==='recipe'||k==='timer'){const i=rByKey(rest);if(i>=0){showTab('recipes');if(k==='timer')openTimer(i);else openRecipe(i);return}showTab('recipes');return}
+    if(k==='recipes'){showTab('recipes');return}
+    if(k==='word'&&GBY[rest]){openWord(rest);return}
+    if(k==='word'||k==='explore'){goTab('explore');return}
     showTab('beans')};
   const ready=()=>NAV_READY&&!document.documentElement.classList.contains('splashing');
   // Asked on start (a tap that opened the app) and by the app when a tap arrives while it's running.
@@ -9706,7 +9750,7 @@ function shelfHTML(){const sh=shelfOrder();
 // This season's challenges: what's running, how far along you are and how long is left.
 function seasonCardHTML(full){const now=seasonNow(),nx=seasonNext();if(!now.length&&!nx)return '';
   const row=t=>'<div class="ssn'+(t.done?' on':'')+'"><span class="ssn-ic" aria-hidden="true">'+t.ic+'</span><span class="ssn-tx"><b>'+esc(t.w.label?t.n+': '+t.w.label:t.n)+'</b><small>'+(t.done?'Earned '+dfmt(Date.parse(TGOT[t.key]+'T12:00')):esc(t.desc))+'</small>'+
-    (t.done?'':'<span class="tro-p" aria-label="'+t.h+' of '+t.need+'"><i style="width:'+(t.h/t.need*100).toFixed(0)+'%"></i></span>')+'</span><span class="ssn-n">'+(t.done?'✓':t.h+'/'+t.need)+'<small>'+(t.left?t.left+' day'+(t.left===1?'':'s')+' left':'Last day')+'</small></span></div>';
+    (t.done?'':'<span class="tro-p" role="img" aria-label="'+t.h+' of '+t.need+'"><i style="width:'+(t.h/t.need*100).toFixed(0)+'%"></i></span>')+'</span><span class="ssn-n">'+(t.done?'✓':t.h+'/'+t.need)+'<small>'+(t.left?t.left+' day'+(t.left===1?'':'s')+' left':'Last day')+'</small></span></div>';
   const list=full?now:now.filter(t=>!t.done).slice(0,2);
   return '<div class="season"><div class="ssn-h"><span class="pp-k">This season</span>'+(full?'':'<button type="button" class="linkbtn" data-tro="1">All trophies</button>')+'</div>'+
     (list.length?list.map(row).join(''):'<p class="hint" style="margin:6px 0 0">Every challenge this season is done. Nice work.</p>')+
@@ -10956,7 +11000,26 @@ function docCardLay(x,doc,draw){const W=BC.W,P=BC.PAD,IW=W-2*P,F=BC.F;let Y=draw
       if(draw){bcPane(x,P,Y,IW,h,26);let ry=Y+8;rows.forEach((r,i)=>{if(i){x.fillStyle=bcI(.09);x.fillRect(P+24,ry,IW-48,1.5)}
         x.font='700 21px '+F;x.fillStyle=BC.MUTED;x.letterSpacing='2px';x.fillText(bcWrap(x,String(r.k).toUpperCase(),kw-24,1)[0],P+28,ry+46);x.letterSpacing='0px';
         r.L.forEach((l,j)=>T(l,'600 29px '+F,BC.INK,P+kw+28,ry+48+j*40));ry+=hs[i];bcBrk(ry)})}Y+=h}
-    if(b.list&&b.list.length){Y+=18;x.font='500 29px '+F;const lw=b.num?56:36,rows=b.list.map(t=>bcWrap(x,String(t),IW-56-lw,6)),hs=rows.map(L=>32+L.length*40),h=hs.reduce((a,v)=>a+v,0)+16;
+    // A timeline: when, then what happened and a few words on it, strung on a line of dots.
+    if(b.tl&&b.tl.length){Y+=18;const RX=P+42,TX=P+84,TW=IW-84-30,rows=b.tl.map(([w,t,d])=>{x.font='700 32px '+F;const T1=bcWrap(x,t,TW,2);x.font='500 26px '+F;return{w,T1,D:bcWrap(x,d||'',TW,8)}}),
+        hs=rows.map(r=>40+r.T1.length*40+r.D.length*36+30),h=hs.reduce((a,v)=>a+v,0)+28;
+      if(draw){bcPane(x,P,Y,IW,h,26);let ry=Y+14;const dots=[];rows.forEach((r,i)=>{dots.push(ry+30);
+          x.font='700 21px '+F;x.fillStyle=BC.HONEY;x.letterSpacing='2px';x.fillText(/\d/.test(r.w)?String(r.w):String(r.w).toUpperCase(),TX,ry+38);x.letterSpacing='0px';
+          r.T1.forEach((l,j)=>T(l,'700 32px '+F,BC.INK,TX,ry+80+j*40));r.D.forEach((l,j)=>T(l,'500 26px '+F,BC.MUTED,TX,ry+80+r.T1.length*40+j*36-4));ry+=hs[i];bcBrk(ry)});
+        x.fillStyle=bcI(.16);x.fillRect(RX-1.5,dots[0],3,dots[dots.length-1]-dots[0]);
+        dots.forEach((dy,i)=>{x.beginPath();x.arc(RX,dy,i===0||i===dots.length-1?10:8,0,TAU);x.fillStyle=BC.HONEY;x.fill();x.lineWidth=5;x.strokeStyle=BC.PANE;x.stroke()})}
+      Y+=h}
+    // People: a monogram, the name, who they were, and what they did.
+    if(b.people&&b.people.length){Y+=18;const TX=P+28+64+22,TW=IW-(TX-P)-28,rows=b.people.map(([n,r,d])=>{x.font='700 31px '+F;const N=bcWrap(x,n,TW,2);x.font='500 26px '+F;return{n,N,r,D:bcWrap(x,d||'',TW,8)}}),
+        hs=rows.map(r=>34+r.N.length*39+34+r.D.length*36+26),h=hs.reduce((a,v)=>a+v,0)+16;
+      if(draw){bcPane(x,P,Y,IW,h,26);let ry=Y+8;rows.forEach((r,i)=>{if(i){x.fillStyle=bcI(.09);x.fillRect(P+24,ry,IW-48,1.5)}
+          const cx=P+28+32,cy=ry+56;x.beginPath();x.arc(cx,cy,32,0,TAU);x.fillStyle=bcA(.18);x.fill();
+          x.font='800 30px '+F;x.fillStyle=BC.HONEY;x.textAlign='center';x.fillText((r.n.replace(/^(The|Sufi)\s+/,'').trim()[0]||'·').toUpperCase(),cx,cy+11);x.textAlign='left';
+          r.N.forEach((l,j)=>T(l,'700 31px '+F,BC.INK,TX,ry+52+j*39));const by=ry+52+r.N.length*39;
+          x.font='600 21px '+F;x.fillStyle=BC.HONEY;x.letterSpacing='1px';x.fillText(bcWrap(x,String(r.r).toUpperCase(),TW,1)[0],TX,by+2);x.letterSpacing='0px';
+          r.D.forEach((l,j)=>T(l,'500 26px '+F,BC.MUTED,TX,by+40+j*36));ry+=hs[i];bcBrk(ry)})}
+      Y+=h}
+    if(b.list&&b.list.length&&!b.tl&&!b.people){Y+=18;x.font='500 29px '+F;const lw=b.num?56:36,rows=b.list.map(t=>bcWrap(x,String(t),IW-56-lw,6)),hs=rows.map(L=>32+L.length*40),h=hs.reduce((a,v)=>a+v,0)+16;
       if(draw){bcPane(x,P,Y,IW,h,26);let ry=Y+8;rows.forEach((L,i)=>{if(i){x.fillStyle=bcI(.09);x.fillRect(P+24,ry,IW-48,1.5)}
         if(b.num)T(String(i+1),'800 28px '+F,BC.HONEY,P+28,ry+48);else{x.beginPath();x.arc(P+36,ry+38,6,0,TAU);x.fillStyle=BC.HONEY;x.fill()}
         L.forEach((l,j)=>T(l,'500 29px '+F,BC.INK,P+28+lw,ry+48+j*40));ry+=hs[i];bcBrk(ry)})}Y+=h}}
@@ -11110,7 +11173,7 @@ function calLabel(inp){const l=inp.id&&document.querySelector('label[for="'+inp.
 function enhanceDate(inp){if(inp.dataset.ui)return;inp.dataset.ui=1;
   const w=document.createElement('span');w.className='datew';w.tabIndex=0;w.setAttribute('role','button');
   inp.parentNode.insertBefore(w,inp);w.appendChild(inp);w.insertAdjacentHTML('beforeend','<span class="dw-t"></span>'+CAL_ICO);
-  inp.tabIndex=-1;inp.setAttribute('aria-hidden','true');
+  inp.tabIndex=-1;inp.setAttribute('aria-hidden','true');inp.inert=true;
   const paint=()=>{const t=calWords(inp.value);w.querySelector('.dw-t').textContent=t||'Choose a date';w.classList.toggle('empty',!t);
     w.setAttribute('aria-label',calLabel(inp)+': '+(t||'not set')+'. Choose a date')};
   // Code that sets the value (a scan filling in its roast date) updates the words too.

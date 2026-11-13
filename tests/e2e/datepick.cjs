@@ -34,7 +34,7 @@ ok(await p.evaluate(y=>{const x=BEANS.find(b=>b.name==='Cal Test');return x&&x.t
 await p.evaluate(()=>{showTab('scan');document.getElementById('scan-text').value='Origin: Kenya\nProcess: Washed\nRoasted 2026-10-20';runLocalScan(false)});await p.waitForTimeout(800);
 const sd=await p.evaluate(()=>[document.getElementById('s-date').value,document.querySelector('#s-date ~ .dw-t').textContent]);ok(sd[0]==='2026-10-20'&&/20/.test(sd[1]),'scan fills the date and the words follow',sd);
 // keyboard
-await p.focus('#s-date');await p.keyboard.press('Enter');await p.waitForTimeout(400);ok(await p.evaluate(()=>document.getElementById('selsheet').open),'keyboard opens it');
+await p.evaluate(()=>document.getElementById('s-date').closest('.datew').focus());await p.keyboard.press('Enter');await p.waitForTimeout(400);ok(await p.evaluate(()=>document.getElementById('selsheet').open),'keyboard opens it');
 if(w>=760){await p.keyboard.press('ArrowLeft');await p.keyboard.press('Enter');await p.waitForTimeout(400);ok(await p.inputValue('#s-date')==='2026-10-19','arrow keys move a day',await p.inputValue('#s-date'))}else{await p.keyboard.press('Escape');await p.waitForTimeout(300)}
 // diary composer date
 await p.evaluate(()=>{goTab('beans');openBean(BEANS[0].id,true)});await p.waitForTimeout(600);

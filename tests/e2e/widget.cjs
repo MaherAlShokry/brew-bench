@@ -22,6 +22,20 @@ ok('tap opens that coffee',await p.evaluate(id=>$('vd').open&&$('vd').dataset.be
 await p.evaluate(id=>{window.__w.open='log:'+id;window.bbWidget()},want.id);await p.waitForTimeout(1200);
 ok('Log brew opens the form with that coffee',await p.evaluate(id=>document.querySelector('main section.on').id==='log'&&LBEAN===id&&!$('vd').open,want.id));
 ok('no errors',!errs.length,errs);
+// Your cabinet, Quick brew and Word of the day
+const more=await p.evaluate(()=>{const s=window.__w.sent.slice(-1)[0];return{cab:JSON.parse(s.cabinet||'[]'),brew:JSON.parse(s.brew||'{}'),words:JSON.parse(s.words||'[]'),shelf:BEANS.filter(b=>b.shelf).length,
+  today:Math.floor(Date.now()/864e5),wotd:GLOSSARY[Math.floor(Date.now()/864e5)%GLOSSARY.length][0]}});
+ok('cabinet: shelf coffees, at most four, with freshness data',more.cab.length===Math.min(4,more.shelf)&&more.cab.every(c=>c.id&&c.title&&c.win.split(',').length===3),more.cab);
+ok('quick brew: the recipe brewed most lately',more.brew.key&&more.brew.name&&/g : /.test(more.brew.line),more.brew);
+ok('words: six weeks from today, today first, same as Today in coffee',more.words.length===42&&more.words[0][0]===more.today&&more.words[0][1]===more.wotd,more.words[0]);
+await p.evaluate(k=>{window.__w.open='timer:'+k;window.bbWidget()},more.brew.key);await p.waitForTimeout(1200);
+ok('Start timer opens the timer on that recipe',await p.evaluate(()=>$('timer').open));
+await p.evaluate(()=>$('timer').close());await p.waitForTimeout(300);
+await p.evaluate(k=>{window.__w.open='recipe:'+k;window.bbWidget()},more.brew.key);await p.waitForTimeout(1200);
+ok('tapping Quick brew opens the recipe',await p.evaluate(n=>$('vd').open&&$('vd').textContent.includes(n),more.brew.name));
+await p.evaluate(w=>{window.__w.open='word:'+w;window.bbWidget()},more.wotd);await p.waitForTimeout(1200);
+ok('the word opens in full',await p.evaluate(()=>document.querySelector('main section.on').id==='words'));
+ok('no errors (other widgets)',!errs.length,errs);
 // Empty cabinet
 await p.evaluate(()=>{BEANS.forEach(b=>b.shelf=false);updWidget()});ok('empty cabinet sends no coffee',await p.evaluate(()=>window.__w.sent.slice(-1)[0].id===''));
 await c.close();

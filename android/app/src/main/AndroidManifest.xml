@@ -17,10 +17,22 @@
             android:exported="true">
         </activity>
 
-        <!-- The home-screen widget: the coffee you're drinking, its freshness and a Log brew button (BrewWidget). -->
+        <!-- The home-screen widgets: Drinking now (BrewWidget), Your cabinet, Quick brew and Coffee word of the day. -->
         <receiver android:name=".BrewWidget" android:exported="false" android:label="@string/widget_name">
             <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_bean_info" />
+        </receiver>
+        <receiver android:name=".CabinetWidget" android:exported="false" android:label="@string/widget_cabinet_name">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_cabinet_info" />
+        </receiver>
+        <receiver android:name=".QuickBrewWidget" android:exported="false" android:label="@string/widget_brew_name">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_brew_info" />
+        </receiver>
+        <receiver android:name=".WordWidget" android:exported="false" android:label="@string/widget_word_name">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_word_info" />
         </receiver>
 
         <!-- The home-screen icon follows the app logo (Settings → App logo). Each logo is a launcher entry; exactly one is

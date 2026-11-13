@@ -23,11 +23,14 @@ public class BrewWidget extends AppWidgetProvider {
 
     static SharedPreferences prefs(Context ctx) { return ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE); }
 
-    /** Redraws every Brew Bench widget on the home screen. */
+    /** Redraws every Brew Bench widget on the home screen: Drinking now, Your cabinet, Quick brew and Word of the day. */
     static void refresh(Context ctx) {
         AppWidgetManager m = AppWidgetManager.getInstance(ctx);
-        int[] ids = m.getAppWidgetIds(new ComponentName(ctx, BrewWidget.class));
-        if (ids != null && ids.length > 0) new BrewWidget().onUpdate(ctx, m, ids);
+        AppWidgetProvider[] all = {new BrewWidget(), new CabinetWidget(), new QuickBrewWidget(), new WordWidget()};
+        for (AppWidgetProvider w : all) {
+            int[] ids = m.getAppWidgetIds(new ComponentName(ctx, w.getClass()));
+            if (ids != null && ids.length > 0) w.onUpdate(ctx, m, ids);
+        }
     }
 
     @Override
