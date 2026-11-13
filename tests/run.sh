@@ -3,7 +3,8 @@
 #   tests/run.sh            every test in tests/e2e
 #   tests/run.sh fresh nav  just those
 # A test fails when it prints a line with FAIL, exits with an error or takes longer than 5 minutes.
-# Screenshots and other output go to tests/e2e/out (not committed). JOBS sets how many run at once (default 4).
+# Screenshots and other output go to tests/e2e/out (not committed). JOBS sets how many run at once (default 4);
+# SHARD=i/n runs one part of the suite.
 set -u
 cd "$(dirname "$0")/.."
 ROOT=$PWD E2E=$PWD/tests/e2e OUT=$PWD/tests/e2e/out
@@ -13,6 +14,8 @@ if ! curl -s -o /dev/null http://localhost:8099/index.html; then
   for i in $(seq 1 30); do curl -s -o /dev/null http://localhost:8099/index.html && break; sleep 0.5; done
 fi
 if [ $# -gt 0 ]; then T="$*"; else T=$(cd "$E2E" && ls *.cjs | grep -v '^seed' | sed 's/\.cjs$//'); fi
+# SHARD=i/n runs every n-th test starting at the i-th (CI splits the suite across machines this way).
+if [ -n "${SHARD:-}" ]; then i=${SHARD%/*}; n=${SHARD#*/}; T=$(printf '%s\n' $T | awk -v i="$i" -v n="$n" '(NR-1)%n==i-1'); fi
 one() {
   t=$1; f=$E2E/$t.cjs
   [ -f "$f" ] || { echo "MISSING $t"; return; }

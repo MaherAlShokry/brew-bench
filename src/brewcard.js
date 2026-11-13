@@ -759,11 +759,14 @@ function bcStatPills(x,X,Y,list){let px=X;list.forEach(([v,l])=>{x.font='800 30p
 // Your gallery: every coffee you've collected, by roastery (A to Z, newest first within each), hung like prints on a wall, each framed with a small
 // name card beneath (name, roastery, rating) and a medal on the ones that made a year's top 5; then where they're from.
 // The card grows with the collection and shows all of it: three across for a small one, then four, five and six.
-async function galleryCardImg(){const style=Object.assign({},CARD_STYLE),nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick;
-  // Every coffee is shown: more to a row as the gallery grows, so even a large one stays a sensible length.
-  const all=galleryOrder(),N=all.length,cols=N<=9?3:N<=40?4:N<=90?5:6,shown=all,more=0,K={3:0,4:1,5:2,6:3}[cols],pick=a=>a[K];
+async function galleryCardImg(full){const style=Object.assign({},CARD_STYLE),nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick;
+  // More to a row as the gallery grows. The image shows up to 120 coffees (your Top 5s, then the best rated, then the
+  // latest, in gallery order) and how many more, so it stays a length messaging apps keep readable; the PDF has them all.
+  const all=galleryOrder(),N=all.length,cols=N<=9?3:N<=40?4:N<=90?5:6,K={3:0,4:1,5:2,6:3}[cols],pick=a=>a[K],CAP=120;
+  const keep=!full&&N>CAP?new Set([...all].sort((a,b)=>(beanRank(a)?0:1)-(beanRank(b)?0:1)||(b.rating||0)-(a.rating||0)||String(beanDay(b)).localeCompare(String(beanDay(a)))).slice(0,CAP)):null;
+  const shown=keep?all.filter(b=>keep.has(b)):all,more=N-shown.length;
   const imgs=await Promise.all(shown.map(async b=>b.img?bcLoad(cols===3?(BIMG.peek(b.id)||await BIMG.get(b.id)):(BIMG.peekThumb(b.id)||await BIMG.thumb(b.id))):null));
-  const gapG=pick([30,22,18,14]),cwG=(BC.W-2*BC.PAD-gapG*(cols-1))/cols,chG=cwG+pick([118,104,92,84]),minH=900+Math.ceil(N/cols)*(chG+gapG)+600;
+  const gapG=pick([30,22,18,14]),cwG=(BC.W-2*BC.PAD-gapG*(cols-1))/cols,chG=cwG+pick([118,104,92,84]),minH=900+Math.ceil(shown.length/cols)*(chG+gapG)+600+(more?80:0);
   const ros=new Set(all.map(b=>(b.roaster||'').toLowerCase()).filter(Boolean)).size,orc=new Map();all.forEach(b=>{if(b.origin)orc.set(b.origin,(orc.get(b.origin)||0)+1)});
   const first=all.length?all.map(beanDay).sort()[0]:'',since=first?new Date(first+'T12:00').toLocaleDateString(undefined,{month:'short',year:'numeric'}):'';
   return bcBlob({style,theme:originTheme(all[0]&&all[0].origin),minH,draw:(x,c)=>{const W=BC.W,P=BC.PAD,IW=W-2*P;

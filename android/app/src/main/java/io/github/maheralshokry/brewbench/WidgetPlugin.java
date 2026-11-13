@@ -48,6 +48,30 @@ public class WidgetPlugin extends Plugin {
         call.resolve();
     }
 
+    /**
+     * A running brew, for the Quick brew widget: state (run, pause, done or stop), the recipe's name, the time brewed so
+     * far and in all (ms), the step now and the next one. The widget's clock runs on its own from the start time kept here.
+     */
+    @PluginMethod
+    public void timer(PluginCall call) {
+        Context ctx = getContext();
+        long el = call.getLong("elapsed", 0L), now = System.currentTimeMillis();
+        SharedPreferences.Editor e = BrewWidget.prefs(ctx).edit();
+        e.putString("t_state", call.getString("state", "stop"));
+        e.putString("t_name", trim(call.getString("name", "")));
+        e.putString("t_step", trim(call.getString("step", "")));
+        e.putString("t_next", trim(call.getString("next", "")));
+        e.putLong("t_start", now - el);
+        e.putLong("t_el", el);
+        e.putLong("t_total", call.getLong("total", 0L));
+        e.putLong("t_at", now);
+        e.apply();
+        BrewWidget.refresh(ctx);
+        call.resolve();
+    }
+
+    private static String trim(String v) { return v == null ? "" : v.length() > 120 ? v.substring(0, 120) : v; }
+
     @PluginMethod
     public void pending(PluginCall call) {
         JSObject r = new JSObject();

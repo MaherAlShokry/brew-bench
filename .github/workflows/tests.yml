@@ -10,9 +10,14 @@ permissions:
   contents: read
 
 jobs:
+  # Split three ways, each machine running a third of the tests at once, so the checks take a few minutes.
   e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -23,7 +28,7 @@ jobs:
           python-version: '3.x'
       - name: Build the app
         run: python3 tools/build.py
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key: playwright-1.63.0-${{ runner.os }}
@@ -32,11 +37,11 @@ jobs:
           npm i --no-save --no-package-lock playwright@1.63.0
           npx playwright install --with-deps chromium
       - name: Run the tests
-        run: JOBS=4 tests/run.sh
+        run: SHARD=${{ matrix.shard }}/3 JOBS=4 tests/run.sh
       - name: Keep the screenshots of a failed run
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
-          name: test-output
+          name: test-output-${{ matrix.shard }}
           path: tests/e2e/out
           retention-days: 7
