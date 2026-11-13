@@ -338,12 +338,22 @@ function bcBG(x,W,H,T){const c={height:H};
 // full-size canvas is slow on phones, and the background it measures is smooth enough to survive the shrink.
 // The background is painted again, small, for this: copying the full-size card down to read it was most of a card's
 // drawing time on a phone.
-function bcCheck(x,W,T,Hbg){const P=BC.PAD,K=6,H0=2400,sm=document.createElement('canvas');sm.width=Math.ceil(W/K);sm.height=Math.ceil(H0/K);
+// Each pixel's brightness comes from a table (no colour strings), and the result is kept for each look and height:
+// the share sheet draws the same look more than once (the preview, the other look ahead, the PDF's), and this check
+// was most of a card's work on the page.
+const BC_LIN=(()=>{const t=new Float32Array(256);for(let v=0;v<256;v++){const c=v/255;t[v]=c<=0.03928?c/12.92:Math.pow((c+0.055)/1.055,2.4)}return t})();
+const BC_CHK=new Map();
+function bcCheck(x,W,T,Hbg){const key=JSON.stringify([T.bg,T.glow,T.acc,T.acc2,T.motif||'',BC.LIGHT,BC.HONEY,Hbg,W]);
+  if(BC_CHK.has(key)){BC.HONEY=T.acc=BC_CHK.get(key);return}
+  const P=BC.PAD,K=6,H0=2400,sm=document.createElement('canvas');sm.width=Math.ceil(W/K);sm.height=Math.ceil(H0/K);
   const sx=sm.getContext('2d',{willReadFrequently:true});sx.scale(1/K,1/K);sx.bcK=1/K;bcBG(sx,W,Hbg,T);if(T.motif)bcBand(sx,W,T);const all=sx.getImageData(0,0,sm.width,sm.height).data;
-  const worst=(y0,y1,x0,x1)=>{const L=[];for(let yy=Math.floor(y0/K);yy<Math.ceil(y1/K);yy++)for(let xx=Math.floor(x0/K);xx<Math.ceil(x1/K);xx++){const i=(yy*sm.width+xx)*4,h=hexOf([all[i],all[i+1],all[i+2]]);L.push([relLum(h),h])}
-    if(!L.length)return null;L.sort((a,b)=>a[0]-b[0]);return L[Math.floor(L.length*(BC.LIGHT?0.03:0.97))][1]};
+  const worst=(y0,y1,x0,x1)=>{const ys=Math.floor(y0/K),ye=Math.min(sm.height,Math.ceil(y1/K)),xs=Math.floor(x0/K),xe=Math.min(sm.width,Math.ceil(x1/K)),n=Math.max(0,ye-ys)*Math.max(0,xe-xs);if(!n)return null;
+    const lum=new Float32Array(n),at=new Int32Array(n);let k=0;
+    for(let yy=ys;yy<ye;yy++)for(let xx=xs;xx<xe;xx++){const i=(yy*sm.width+xx)*4;lum[k]=0.2126*BC_LIN[all[i]]+0.7152*BC_LIN[all[i+1]]+0.0722*BC_LIN[all[i+2]];at[k++]=i}
+    const q=Float32Array.from(lum).sort()[Math.floor(n*(BC.LIGHT?0.03:0.97))],j=at[lum.indexOf(q)];return hexOf([all[j],all[j+1],all[j+2]])};
   const zs=[worst(70,112,P,W-P),worst(150,330,P,W-300),worst(330,470,P,W-P),worst(900,Math.min(2400,Hbg),P,W-P)].filter(Boolean);
-  BC.HONEY=T.acc=ensureC(BC.HONEY,zs,BC.LIGHT?4.8:5.2,BC.LIGHT?'#1A0E08':'#FFFFFF')}
+  BC.HONEY=T.acc=ensureC(BC.HONEY,zs,BC.LIGHT?4.8:5.2,BC.LIGHT?'#1A0E08':'#FFFFFF');
+  if(BC_CHK.size>60)BC_CHK.clear();BC_CHK.set(key,BC.HONEY)}
 function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
   // Header: the mark and kicker, the date, then a fine rule.
   let y=100;bcBean(x,P+16,y-9,32,BC.HONEY);bcLabel(x,m.kicker||'The Brew Bench',P+44,y);
@@ -549,7 +559,9 @@ function okSnap(s){if(!s||typeof s!=='object')return null;const n=(v,a,b)=>typeo
     r:['D','sweet','acid','body','clarity','bitter'].every(k=>typeof r[k]==='number'&&isFinite(r[k]))?{D:clamp(r.D,-5,5),sweet:clamp(r.sweet,0,10),acid:clamp(r.acid,0,10),body:clamp(r.body,0,10),clarity:clamp(r.clarity,0,10),bitter:clamp(r.bitter,0,10)}:null};
   return o.b?o:null}
 // A brew from the log: what you rated and tasted, with the brew itself when it was logged from the dial-in.
-function logCard(l){const s=okSnap(l.snap),fl=flOf(l).filter(([id])=>FW.byId[id]),B=s&&BREWERS[s.b],stars=clamp(Math.round(+l.stars||0),0,5);
+function logCard(l){return bcBlob(logModel(l))}
+// What a logged brew's card shows (read by the tests too).
+function logModel(l){const s=okSnap(l.snap),fl=flOf(l).filter(([id])=>FW.byId[id]),B=s&&BREWERS[s.b],stars=clamp(Math.round(+l.stars||0),0,5);
   const m={theme:originTheme(s&&s.bean&&s.bean.origin),kicker:'From my brew log',date:fmtDate(l),title:l.coffee||(s&&s.rec)||'A brew',by:s&&s.rec&&l.coffee?s.rec+(s.by?' · '+bcBy(s.by):''):s&&bcBy(s.by),
     coffee:s&&s.v?bcCoffee(s.bean&&s.bean.name!==l.coffee?s.bean:null,s.v,s.p,s.ro):null,
     rating:stars?{kind:'beans',v:stars,word:STARW[stars]}:null,
@@ -563,7 +575,8 @@ function logCard(l){const s=okSnap(l.snap),fl=flOf(l).filter(([id])=>FW.byId[id]
     // Brews logged before a recipe's steps were corrected (Matt Winton's two pours in one step): the card is drawn from
     // the recipe as it is now, at the brew's own dose, water and bloom.
     if(rr&&rr.kind!=='46'&&s.dose&&s.water&&st.length&&st.length!==rr.steps.length){const sc=scaleSteps(rr,s.dose,s.water);st=s.bl&&BREWERS[rr.b]&&BREWERS[rr.b].bloom.label==='Bloom'?bloomShift(sc,s.bl).steps:sc}
-    m.steps=stepsAtTemp(st,rr&&rr.temp,s.t)}
+    // Brews logged before the pours added up ("pour 30g (to 61g)" after 30g) read right too.
+    m.steps=stepsAtTemp(st,rr&&rr.temp,s.t).map(pourSums())}
   else{// Logged by hand: the numbers are read back from the settings line, so the card has the same tiles as a dial-in brew.
     const q=parseSettings(l.settings||''),bean=l.beanId&&window.BEANS_OK?beanById(l.beanId):null;
     if(bean){m.theme=originTheme(bean.origin);if(bean.variety||bean.process||bean.roast)m.coffee=bcCoffee(beanTitle(bean)!==l.coffee?{name:beanTitle(bean)}:null,bean.variety,bean.process,bean.roast).filter(c=>c[1])}
@@ -577,7 +590,7 @@ function logCard(l){const s=okSnap(l.snap),fl=flOf(l).filter(([id])=>FW.byId[id]
     else if(q.rest)m.text=[{label:'Also',body:q.rest}]}
   if(fl.length)m.expect={label:'What I tasted',items:fl.map(([id,v])=>({t:FW.byId[id].n+(v>1?' '+'●'.repeat(v):''),c:FW.byId[id].c})),bar:flFamilies(fl)};
   if(l.notes)m.quote={label:'My notes',text:l.notes};
-  return bcBlob(m)}
+  return m}
 // The settings line, read back: the recipe, the brewer, the grinder, dose : water, temperature and ratio. What isn't
 // recognised is kept as text so nothing typed is lost.
 function parseSettings(t){const o={};let rest=t;const take=re=>{const m=re.exec(rest);if(m)rest=rest.replace(m[0],' ');return m};
@@ -807,7 +820,7 @@ async function shareCard(blob,name,title,save){const file=name+'.jpg';
 function cardViewer(blob,file,title){const d=$('vd'),u=URL.createObjectURL(blob);
   $('vd-in').innerHTML='<div class="vd-head" style="--c:#C9964A"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:#C9964A"></i>Brew card</span><h2 id="vd-title">'+esc(title)+'</h2></div>'+
     '<div class="vd-body"><img class="cardview" src="'+u+'" alt="'+esc(title)+'"><p class="hint" style="text-align:center">Press and hold the image to save it to your phone, or download it.</p>'+
-    '<div class="actions"><a class="btn" id="cv-dl" download="'+esc(file)+'">Download</a>'+(navigator.canShare?'<button type="button" class="btn ghost" id="cv-share">Share</button>':'')+'</div></div>';
+    '<div class="actions"><a class="btn" id="cv-dl" download="'+esc(file)+'">Download</a>'+(navigator.canShare?icoBtn('share','id="cv-share"','Share this image'):'')+'</div></div>';
   // A data link, not a blob one: it survives the hand-off to the phone's download manager.
   const rd=new FileReader();rd.onload=()=>{const a=$('cv-dl');if(a)a.href=rd.result};rd.readAsDataURL(blob);
   const sb=$('cv-share');if(sb)sb.onclick=async()=>{const f=new File([blob],file,{type:'image/jpeg'});try{if(navigator.canShare({files:[f]}))await navigator.share({files:[f],title});else toast('This browser can’t share images. Press and hold the image to save it')}catch(e){if(!e||e.name!=='AbortError')toast('Sharing was blocked. Press and hold the image to save it')}};

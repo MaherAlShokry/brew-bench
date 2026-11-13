@@ -39,7 +39,7 @@ const cards=await p.evaluate(async()=>{const a=await brewCard(),b2=await beanCar
 ok('brew card and coffee card render',cards.every(Boolean),cards.join(' '));
 // Backup: export, wipe, import back
 await p.evaluate(()=>showTab('settings'));await p.waitForTimeout(300);
-const dl=p.waitForEvent('download');await p.click('#st-export');const d=await dl;const path='backup.json';await d.saveAs(path);const bk=JSON.parse(fs.readFileSync(path,'utf8'));
+const dl=p.waitForEvent('download');await p.click('#st-export');const d=await dl;const path=__dirname+'/out/backup.json';fs.mkdirSync(__dirname+'/out',{recursive:true});await d.saveAs(path);const bk=JSON.parse(fs.readFileSync(path,'utf8'));
 ok('backup has data and no tokens',bk.kind==='backup'&&!!bk.data['bb-beans']&&!bk.data['bb-account']&&!Object.keys(bk.data).some(k=>/sync/.test(k)),Object.keys(bk.data).length+' keys');
 const before=await p.evaluate(()=>JSON.stringify([BEANS.length,LOG.length,Object.keys(TOP3).length,PROFILE&&PROFILE.nick]));
 await p.evaluate(()=>{for(const k of Object.keys(localStorage))if(k.startsWith('bb-'))localStorage.removeItem(k)});await p.reload({waitUntil:'networkidle'});

@@ -1,4 +1,4 @@
-const {chromium}=require('playwright');const S='nav/';require('fs').mkdirSync(S,{recursive:true});
+const {chromium}=require('playwright');const S=__dirname+'/out/nav/';require('fs').mkdirSync(S,{recursive:true});require('fs').mkdirSync(S,{recursive:true});
 const ok=(c,m,x)=>console.log((c?'  ok  ':'  FAIL')+' '+m+(x!==undefined?'  ('+x+')':''));
 (async()=>{const b=await chromium.launch();const ctx=await b.newContext({viewport:{width:390,height:844},deviceScaleFactor:2,isMobile:true,hasTouch:true,serviceWorkers:'block'});
  await ctx.route(/.*/,r=>r.request().url().startsWith('http://localhost')?r.continue():r.abort());
@@ -6,7 +6,9 @@ const ok=(c,m,x)=>console.log((c?'  ok  ':'  FAIL')+' '+m+(x!==undefined?'  ('+x
  const on=()=>p.evaluate(()=>document.querySelector('main section.on').id);
  await p.evaluate(()=>{window.__vt=0;const o=document.startViewTransition.bind(document);document.startViewTransition=f=>{__vt++;return o(f)}});
  // a tap on the bottom bar: the new page swings in on its own (no view transition), the highlight moves at once
- await p.tap('.bottomnav [data-bn="recipes"]');const mid=await p.evaluate(()=>[document.documentElement.dataset.nav,document.documentElement.classList.contains('vt'),$('recipes').classList.contains('nav-in'),document.querySelector('.bottomnav [data-bn="recipes"]').getAttribute('aria-current')]);
+ // The highlight answers the tap at once; the page follows in the next frame.
+await p.tap('.bottomnav [data-bn="recipes"]');const now=await p.evaluate(()=>document.querySelector('.bottomnav [data-bn="recipes"]').getAttribute('aria-current'));ok(now==='true','the highlight moves on the tap itself',now);
+await p.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>setTimeout(()=>requestAnimationFrame(r),0))));const mid=await p.evaluate(()=>[document.documentElement.dataset.nav,document.documentElement.classList.contains('vt'),$('recipes').classList.contains('nav-in'),document.querySelector('.bottomnav [data-bn="recipes"]').getAttribute('aria-current')]);
  for(const t of [60,140,240,380])await p.waitForTimeout(t===60?60:t-[60,140,240,380][[60,140,240,380].indexOf(t)-1]).then(()=>p.screenshot({path:S+'right-'+t+'.png'}));
  await p.waitForTimeout(500);ok(await on()==='recipes','bottom bar: on Recipes');ok(mid[0]==='right'&&!mid[1]&&mid[2]&&mid[3]==='true','moving right: new page swings in, highlight already moved',mid.join());
  ok(await p.evaluate(()=>__vt===0&&!document.documentElement.classList.contains('vt')),'no view transition between sections');

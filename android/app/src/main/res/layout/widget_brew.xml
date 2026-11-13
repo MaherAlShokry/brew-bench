@@ -1,93 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- "Quick brew" (QuickBrewWidget): your go-to recipe and Start timer. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/q_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/widget_bg"
-    android:gravity="center_vertical"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:padding="16dp">
-
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical">
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-            <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:layout_marginEnd="6dp"
-                android:importantForAccessibility="no"
-                android:src="@drawable/widget_bean_ic" />
-            <TextView
-                android:id="@+id/q_kicker"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/widget_brew_name"
-                android:textAllCaps="true"
-                android:letterSpacing="0.06"
-                android:textColor="@color/widget_muted"
-                android:textSize="11sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-        <TextView
-            android:id="@+id/q_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:ellipsize="end"
-            android:maxLines="2"
-            android:textColor="@color/widget_ink"
-            android:textSize="17sp"
-            android:textStyle="bold" />
-        <Chronometer
-            android:id="@+id/q_chrono"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:textColor="@color/widget_ink"
-            android:textSize="26sp"
-            android:textStyle="bold"
-            android:visibility="gone" />
-        <TextView
-            android:id="@+id/q_line"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:ellipsize="end"
-            android:maxLines="2"
-            android:textColor="@color/widget_accent"
-            android:textSize="13sp"
-            android:textStyle="bold" />
-        <TextView
-            android:id="@+id/q_next"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textColor="@color/widget_muted"
-            android:textSize="12sp"
-            android:visibility="gone" />
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+        <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_marginEnd="6dp" android:importantForAccessibility="no" android:src="@drawable/widget_bean_ic" />
+        <TextView android:id="@+id/q_kicker" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:ellipsize="end" android:maxLines="1" android:text="Quick brew" android:textAllCaps="true" android:letterSpacing="0.08" android:textColor="@color/widget_muted" android:textSize="11sp" android:textStyle="bold" />
+        <TextView android:id="@+id/q_brewer" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:textColor="@color/widget_muted" android:textSize="11sp" />
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/q_go"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:background="@drawable/widget_btn"
-        android:gravity="center"
-        android:minHeight="48dp"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:textColor="@color/widget_btn_ink"
-        android:textSize="14sp"
-        android:textStyle="bold" />
+    <TextView android:id="@+id/q_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:ellipsize="end" android:maxLines="1" android:textColor="@color/widget_ink" android:textSize="19sp" android:textStyle="bold" />
+    <LinearLayout android:id="@+id/q_stats" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:minHeight="48dp" android:layout_marginTop="8dp" android:layout_marginBottom="10dp" android:orientation="horizontal">
+        <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="6dp" android:background="@drawable/widget_tile" android:gravity="center" android:orientation="vertical" android:paddingTop="6dp" android:paddingBottom="6dp">
+            <TextView android:id="@+id/q_v0" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:textColor="@color/widget_ink" android:textSize="20sp" android:textStyle="bold" />
+            <TextView android:id="@+id/q_l0" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:textAllCaps="true" android:letterSpacing="0.06" android:textColor="@color/widget_muted" android:textSize="10sp" android:textStyle="bold" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="6dp" android:background="@drawable/widget_tile" android:gravity="center" android:orientation="vertical" android:paddingTop="6dp" android:paddingBottom="6dp">
+            <TextView android:id="@+id/q_v1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:textColor="@color/widget_ink" android:textSize="20sp" android:textStyle="bold" />
+            <TextView android:id="@+id/q_l1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:textAllCaps="true" android:letterSpacing="0.06" android:textColor="@color/widget_muted" android:textSize="10sp" android:textStyle="bold" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="0dp" android:background="@drawable/widget_tile" android:gravity="center" android:orientation="vertical" android:paddingTop="6dp" android:paddingBottom="6dp">
+            <TextView android:id="@+id/q_v2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:textColor="@color/widget_ink" android:textSize="20sp" android:textStyle="bold" />
+            <TextView android:id="@+id/q_l2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:textAllCaps="true" android:letterSpacing="0.06" android:textColor="@color/widget_muted" android:textSize="10sp" android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+    <LinearLayout android:id="@+id/q_run" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:gravity="center_vertical" android:orientation="vertical" android:visibility="gone">
+        <Chronometer android:id="@+id/q_chrono" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/widget_ink" android:textSize="40sp" android:textStyle="bold" />
+        <TextView android:id="@+id/q_line" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:maxLines="2" android:textColor="@color/widget_accent" android:textSize="14sp" android:textStyle="bold" />
+        <TextView android:id="@+id/q_next" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:ellipsize="end" android:maxLines="1" android:textColor="@color/widget_muted" android:textSize="12sp" />
+    </LinearLayout>
+    <TextView android:id="@+id/q_go" android:layout_width="match_parent" android:layout_height="42dp" android:background="@drawable/widget_btn" android:gravity="center" android:textColor="@color/widget_btn_ink" android:textSize="15sp" android:textStyle="bold" />
 </LinearLayout>
