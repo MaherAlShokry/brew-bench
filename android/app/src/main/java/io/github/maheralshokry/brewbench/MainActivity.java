@@ -14,7 +14,10 @@ public class MainActivity extends BridgeActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         registerPlugin(AppIconPlugin.class);
+        registerPlugin(WidgetPlugin.class);
         super.onCreate(savedInstanceState);
+        // Opened from the home-screen widget: the app asks what to open once it has started (WidgetPlugin.pending).
+        WidgetPlugin.take(getIntent());
         // The back gesture (or button) steps back inside the app: it closes the open sheet or returns to the previous
         // screen. Only when there is nowhere left to go does the app go to the background.
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -36,6 +39,14 @@ public class MainActivity extends BridgeActivity {
     public void startActivityForResult(Intent intent, int requestCode, Bundle options) {
         opened = true;
         super.startActivityForResult(intent, requestCode, options);
+    }
+
+    // A widget tap while the app is already running: tell the page to collect it.
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (WidgetPlugin.take(intent) && getBridge() != null && getBridge().getWebView() != null)
+            getBridge().getWebView().post(() -> getBridge().getWebView().evaluateJavascript("window.bbWidget&&window.bbWidget()", null));
     }
 
     @Override

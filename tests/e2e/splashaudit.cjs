@@ -1,0 +1,7 @@
+const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const ok=(n,c,x)=>console.log((c?'ok  ':'FAIL')+' '+n+(x!==undefined?'  ('+JSON.stringify(x)+')':''));
+ const run=async(ui,mode)=>{const c=await b.newContext({viewport:{width:390,height:844}});const errs=[];await c.addInitScript(([u,m])=>{window.Capacitor={isNativePlatform:()=>true,getPlatform:()=>'android',Plugins:{}};localStorage.setItem('bb-ui',typeof u==='string'?u:JSON.stringify(u));if(m)localStorage.setItem('bb-theme',m)},[ui,mode]);
+  const p=await c.newPage();p.on('pageerror',e=>errs.push(e.message));await p.route(/.*/,r=>r.request().url().startsWith('http://localhost')?r.continue():r.abort());await p.goto('http://localhost:8099/index.html');await p.waitForTimeout(400);
+  const shown=await p.evaluate(()=>!!document.getElementById('splash'));await p.waitForTimeout(2600);const gone=await p.evaluate(()=>!document.getElementById('splash')&&!document.documentElement.classList.contains('splashing'));await c.close();return{shown,gone,errs}};
+ for(const l of ['bean','cup','latte','dripper','cherry','moka','kettle','grinder'])for(const m of ['light','dark']){const r=await run({logo:l,vibe:m==='dark'?'neon':'oat'},m);ok(l+' '+m,r.shown&&r.gone&&!r.errs.length,r.errs)}
+ for(const bad of [{logo:'__proto__'},{logo:'toString'},{logo:'gone-logo'},'not json',{logo:7}]){const r=await run(bad);ok('odd saved logo '+JSON.stringify(bad)+': shows and clears',r.gone,r)}
+ await b.close()})();

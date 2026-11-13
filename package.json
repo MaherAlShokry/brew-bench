@@ -11,7 +11,8 @@
     "icons": "capacitor-assets generate --android",
     "map": "node tools/gen-map.mjs",
     "serve": "python3 -m http.server 8080",
-    "vendor": "node tools/vendor.mjs"
+    "vendor": "node tools/vendor.mjs",
+    "test": "tests/run.sh"
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",

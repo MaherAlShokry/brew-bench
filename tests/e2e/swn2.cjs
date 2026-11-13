@@ -1,0 +1,6 @@
+const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:392,height:844}});const errs=[];p.on('pageerror',e=>errs.push(e.message));const ok=(n,v,x)=>console.log((v?'ok  ':'FAIL')+' '+n+(x!==undefined?'  ('+JSON.stringify(x)+')':''));
+await p.addInitScript(()=>{sessionStorage.setItem('bb-splashed','1')});await p.goto('http://localhost:8099/index.html');await p.waitForTimeout(1000);
+const r=await p.evaluate(()=>({neoSwitchRecipes:RECIPES.filter(x=>x.b==='swneo').length,aliases:['r:neo-switch-percolate-then-immerse','r:kasuya-hybrid-on-the-neo','r:neo-switch-immersion'].map(k=>RECIPES[rByKey(k)]&&RECIPES[rByKey(k)].name),
+ brewers:[...document.querySelectorAll('select option')].map(o=>o.textContent).filter(t=>/NEO Switch/.test(t)),swList:techList('sw').map(([x])=>x.name)}));
+ok('no NEO Switch recipes or brewer left',!r.neoSwitchRecipes&&!r.brewers.length,r);ok('old names open the merged recipes',r.aliases.every(Boolean),r.aliases);ok('Switch lists them together',r.swList.length>=6,r.swList);
+await p.evaluate(()=>goTab('recipes'));await p.waitForTimeout(1200);const t=await p.evaluate(()=>/NEO Switch/.test(document.querySelector('#recipes').innerText));ok('Recipes page never says NEO Switch',!t);ok('no errors',!errs.length,errs);await b.close()})()

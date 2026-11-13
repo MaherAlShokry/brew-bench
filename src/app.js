@@ -104,9 +104,23 @@ const RB_G='<g transform="rotate(30 12 12)"><path class="bo" d="M12 2.6c4.1 0 6.
 const RB_SVG='<svg viewBox="0 0 24 24" aria-hidden="true">'+RB_G+'</svg>';
 const beanRate=(r,cls)=>{let h='';for(let i=1;i<=5;i++){const f=r>=i?100:r>=i-0.5?50:0;h+='<span class="rb">'+RB_SVG+'<span class="rbf" style="width:'+f+'%">'+RB_SVG+'</span></span>'}return '<span class="brate'+(cls?' '+cls:'')+'" aria-hidden="true">'+h+'</span>'};
 let toastT;function toast(m){const t=$('toast');t.classList.remove('act');t.innerHTML=emoIc(esc(m));t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600)}
+// The website opens from its saved copy; when a newer version has been saved in the background, offer to switch.
+// The page carries a build stamp (BUILD_ID) and compares it with the saved copy's: on start, when the worker says it
+// saved a new copy, and when the app comes back to the screen. Offered once per new version.
+let UPD_SEEN='';const chkNewBuild=()=>{try{if(typeof BUILD_ID==='undefined'||!window.caches)return;caches.match('./index.html').then(r=>r&&r.text()).then(t=>{const m=t&&t.match(/const BUILD_ID="(\w+)"/);
+  if(m&&m[1]!==BUILD_ID&&m[1]!==UPD_SEEN){UPD_SEEN=m[1];toastAct('A new version is ready','Reload',()=>location.reload())}}).catch(()=>{})}catch(e){}};
+try{if(navigator.serviceWorker&&typeof BUILD_ID!=='undefined'){navigator.serviceWorker.addEventListener('message',e=>{if(e.data&&e.data.type==='bb-updated')setTimeout(chkNewBuild,800)});
+  addEventListener('load',()=>setTimeout(chkNewBuild,4000));document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(chkNewBuild,1500)})}}catch(e){}
 // A toast with a button, kept up a little longer so there is time to tap it.
 function toastAct(m,label,fn){const t=$('toast');t.textContent='';t.classList.add('act');const sp=document.createElement('span');sp.textContent=m;const b=document.createElement('button');b.type='button';b.className='tact';b.textContent=label;
   b.onclick=()=>{t.classList.remove('show');fn()};t.append(sp,b);t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),6000)}
+// Deleting doesn't ask first; it offers Undo instead. What can't be taken back (photos removed from storage, a delete
+// sent to a shared log) waits until the chance to undo has passed, or the page is closed.
+const UNDO_PEND=new Set();
+function undoToast(msg,undo,commit){const job={done:false,commit};const fin=()=>{if(job.done)return;job.done=true;UNDO_PEND.delete(job);try{commit&&commit()}catch(e){}};
+  UNDO_PEND.add(job);const t=setTimeout(fin,6500);
+  toastAct(msg,'Undo',()=>{if(job.done)return;job.done=true;clearTimeout(t);UNDO_PEND.delete(job);undo()})}
+addEventListener('pagehide',()=>{for(const j of [...UNDO_PEND]){j.done=true;try{j.commit&&j.commit()}catch(e){}}UNDO_PEND.clear()});
 // A small, quick burst of beans from the button that was tapped (a celebration, not a curtain over the content).
 function beans(n=10){if(RM())return;const el=document.activeElement,r=el&&el!==document.body?el.getBoundingClientRect():null;
   const x0=r?r.left+r.width/2:innerWidth/2,y0=r?r.top+r.height/2:innerHeight*.6;
@@ -1376,7 +1390,11 @@ function openRecipeEditor(r,fresh){const isNew=!r||fresh;r=Object.assign({b:'v60
   $('re-save').onclick=()=>{const n=sanRec({id:isNew?undefined:r.id,b:bOf(),name:$('re-name').value,by:$('re-by').value,author:isNew?(ME||''):r.author,dose:+$('re-dose').value,water:+$('re-water').value,temp:+$('re-temp').value,off:-(+$('re-off').value),
       steps:SE.value(),why:$('re-why').value,tip:$('re-tip').value,ts:isNew?Date.now():r.ts,kind:r.kind});
     if(!n){toast('Give the recipe a name');$('re-name').focus();return}saveRecipe(n);$('vd').close();RF=['mine'];if(BUILT.recipes)renderRecipes();showTab('recipes');toast(isNew?'Recipe saved':'Recipe updated')};
-  if(!isNew)$('re-del').onclick=()=>askConfirm(own?'This recipe will be removed from your recipes.':'This removes '+r.author+'’s recipe for everyone in your shared log.','Delete',true,own?'Delete this recipe?':'Delete for everyone?').then(y=>{if(!y)return;deleteRecipe(r);$('vd').close();toast('Recipe deleted')});
+  if(!isNew)$('re-del').onclick=()=>{
+    // Your own recipe goes at once, with Undo; someone else's in a shared log is gone for everyone, so that still asks.
+    if(own){const i=CREC.findIndex(x=>x.id===r.id),keep=CREC[i];if(!keep)return;deleteRecipe(r);$('vd').close();
+      undoToast('Recipe deleted',()=>{CREC.splice(Math.min(i,CREC.length),0,keep);save('bb-myrecipes',CREC);queue('put',keep.id,keep,'recipes');recipesChanged()});return}
+    askConfirm('This removes '+r.author+'’s recipe for everyone in your shared log.','Delete',true,'Delete for everyone?').then(y=>{if(!y)return;deleteRecipe(r);$('vd').close();toast('Recipe deleted')})};
   const d=$('vd');showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
 $('r-new').onclick=()=>openRecipeEditor(null);
 // Save the current dial-in as a starting recipe.
@@ -1578,7 +1596,9 @@ $('glt-f').onclick=()=>pickOne('Filter grinders','grinder',[['all','All grinders
 $('glib').onclick=e=>{const m=e.target.closest('[data-gmine]'),c=e.target.closest('[data-gcmp]'),d=e.target.closest('[data-gdel]');
   if(m){setMine(m.dataset.gmine,!MYG.includes(m.dataset.gmine));return}
   if(c){const g=c.dataset.gcmp;if(GCMP.includes(g))GCMP=GCMP.filter(x=>x!==g);else{if(GCMP.length>=3){toast('Compare up to three at a time');return}GCMP.push(g)}renderLibrary();if(GCMP.length)$('gcmp').scrollIntoView({behavior:RM()?'auto':'smooth',block:'nearest'});return}
-  if(d){const g=d.dataset.gdel;askConfirm('Its settings go with it.','Delete',true,'Delete '+GRINDERS[g].name+'?').then(y=>{if(!y||!GRINDERS[g])return;delete CUSTOM_G[g];save('bb-custom-grinders',CUSTOM_G);setMine(g,false,true);delete GRINDERS[g];GCMP=GCMP.filter(x=>x!==g);grindersChanged();toast('Grinder deleted')})}};
+  if(d){const g=d.dataset.gdel;if(!GRINDERS[g])return;const kc=CUSTOM_G[g],kg=GRINDERS[g],mine=MYG.includes(g),cmp=GCMP.includes(g);
+    delete CUSTOM_G[g];save('bb-custom-grinders',CUSTOM_G);setMine(g,false,true);delete GRINDERS[g];GCMP=GCMP.filter(x=>x!==g);grindersChanged();
+    undoToast('Grinder deleted',()=>{CUSTOM_G[g]=kc;save('bb-custom-grinders',CUSTOM_G);GRINDERS[g]=kg;if(mine)setMine(g,true,true);if(cmp&&!GCMP.includes(g))GCMP.push(g);grindersChanged()})}};
 function renderGCompare(){if(!GCMP.length){$('gcmp').innerHTML='';return}
   const rows=[['Type',g=>gtype(g)],['Burrs',g=>GRINDERS[g].burr||'–'],['Dial',g=>GRINDERS[g].adjust||'–'],['Microns per step',g=>GRINDERS[g].um?'about '+GRINDERS[g].um:'–'],['Espresso',g=>GRINDERS[g].espresso?'Yes':'No'],
     ['Espresso setting',g=>{const v=base(g,'espresso');return v!=null?dial(g,v):'n/a'}],['AeroPress',g=>{const v=base(g,'aeropress');return v!=null?dial(g,v):'n/a'}],['V60',g=>{const v=base(g,'v60');return v!=null?dial(g,v):'n/a'}],['French press',g=>{const v=base(g,'frenchpress');return v!=null?dial(g,v):'n/a'}],['In the cup',g=>GRINDERS[g].cup||'–']];
@@ -1738,8 +1758,9 @@ $('vgrid').onkeydown=e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('.v
 /* ================= MAP ================= */
 let SEL=null,VIEW=[0,0,1000,520],HL=null;
 const BIG=['brazil','china','india','indonesia','drc','mexico','peru','colombia','ethiopia','bolivia','tanzania','kenya','vietnam','myanmar','thailand','png','yemen','uganda','malawi','venezuela','zambia','zimbabwe','cameroon','ivorycoast','madagascar','southsudan','saudi','philippines','laos','nepal','cuba'];
-function buildMap(){mapData();
-  const svg=$('worldmap');
+function buildMap(){const svg=$('worldmap');
+  // The map's shapes (about 360 KB) arrive on first use, not with the page; the bar, legend and list don't wait for them.
+  const draw=()=>{
   let h='<rect x="-500" y="'+MAP.tropics[0]+'" width="2000" height="'+(MAP.tropics[1]-MAP.tropics[0])+'" fill="var(--belt)"/>'+
    '<line x1="-500" x2="1500" y1="'+MAP.tropics[0]+'" y2="'+MAP.tropics[0]+'" stroke="var(--honey)" stroke-dasharray="4 5" stroke-width=".8" opacity=".6"/>'+
    '<line x1="-500" x2="1500" y1="'+MAP.tropics[1]+'" y2="'+MAP.tropics[1]+'" stroke="var(--honey)" stroke-dasharray="4 5" stroke-width=".8" opacity=".6"/>'+
@@ -1752,6 +1773,9 @@ function buildMap(){mapData();
     h+='<g class="dot" data-k="'+k+'" data-r="'+o.reg+'"><title>'+esc(o.name)+'</title><circle cx="'+p[0]+'" cy="'+p[1]+'" r="11" fill="transparent"/>'+
       '<circle class="v" cx="'+p[0]+'" cy="'+p[1]+'" r="'+(small||PTS[k]?4:2.6)+'" fill="'+(PTS[k]||small?REG[o.reg].color:'var(--paper)')+'" stroke="var(--paper)" stroke-width="1.2"/></g>'}
   svg.innerHTML=h;
+  svg.querySelectorAll('.o').forEach(p=>p.classList.toggle('hl',!!HL&&p.dataset.r===HL));
+  if(SEL)svg.querySelectorAll('.o,.dot').forEach(p=>p.classList.toggle('sel',p.dataset.k===SEL))};
+  if(MAP)draw();else loadMap().then(draw,()=>{svg.innerHTML='<text x="500" y="260" text-anchor="middle" font-size="16" fill="var(--muted)">The map needs a connection the first time.</text>'});
   svg.onclick=e=>{const t=e.target.closest('[data-k]');if(t)selectOrigin(t.dataset.k,false)};
   svg.onmousemove=e=>{const t=e.target.closest('[data-k]');const n=$('mapname');if(t){n.textContent=(ALLO()[t.dataset.k].flag||'')+' '+ALLO()[t.dataset.k].name;n.classList.add('show')}else n.classList.remove('show')};
   svg.onmouseleave=()=>$('mapname').classList.remove('show');
@@ -1771,7 +1795,8 @@ function buildMap(){mapData();
 function regionOf(k){const r=ALLO()[k].reg;return r==='central'||r==='south'?'americas':r==='arabia'?'africa':r}
 function zoomTo(z){
   let box=[0,0,1000,520];
-  if(z!=='all'){mapData();const keys=Object.keys(MAP.bbox).filter(k=>O[k]&&regionOf(k)===z);
+  if(z!=='all'&&!MAP){loadMap().then(()=>zoomTo(z),()=>{});return}
+  if(z!=='all'){const keys=Object.keys(MAP.bbox).filter(k=>O[k]&&regionOf(k)===z);
     let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;for(const k of keys){const b=MAP.bbox[k];x0=Math.min(x0,b[0][0]);y0=Math.min(y0,b[0][1]);x1=Math.max(x1,b[1][0]);y1=Math.max(y1,b[1][1])}
     if(z==='africa'){x1=Math.max(x1,MAP.pts.reunion[0]+10);y1=Math.max(y1,MAP.pts.reunion[1]+10)}
     const pad=24;x0-=pad;y0-=pad;x1+=pad;y1+=pad;let w=x1-x0,h=y1-y0;const ar=1000/520;
@@ -2182,8 +2207,12 @@ $('l-list').onclick=e=>{const ls=e.target.closest('[data-lshare]');if(ls){const 
   if(fe){const l=LOG[+fe.dataset.fledit];if(l)openNotesPicker(l);return}
   if(fv){const l=LOG[+fv.dataset.flview];if(l)openProfile(l.coffee||'Untitled',[fmtDate(l),l.stars?l.stars+' of 5 beans':'',l.settings].filter(Boolean).join(' \u00B7 '),flOf(l),l);return}
   const b=e.target.closest('[data-del]');if(!b)return;const l=LOG[+b.dataset.del];if(!l)return;
-  // One tap on Delete shouldn't lose a brew and its notes: ask first, as recipes do.
-  askConfirm(GROUP&&l.by&&l.by!==ME?'This removes '+l.by+'’s entry for everyone in the shared log.':'\u201c'+(l.coffee||'Untitled')+'\u201d and its notes come out of your log.','Delete',true,'Delete this brew?').then(y=>{if(!y)return;const i=LOG.indexOf(l);if(i<0)return;if(LEDIT===l.id)endEdit();LOG.splice(i,1);save('bb-log',LOG);if(window.BEANS_OK)checkTrophies();queue('del',l.id);renderLog();toast('Entry deleted')})};
+  const del=()=>{const i=LOG.indexOf(l);if(i<0)return -1;if(LEDIT===l.id)endEdit();LOG.splice(i,1);save('bb-log',LOG);if(window.BEANS_OK)checkTrophies();renderLog();return i};
+  // Your own brew goes at once, with Undo (the shared log hears of it once Undo has passed). Someone else's entry in a
+  // shared log is removed for everyone, so that still asks first.
+  if(!(GROUP&&l.by&&l.by!==ME)){const i=del();if(i<0)return;
+    undoToast('Brew deleted',()=>{LOG.splice(Math.min(i,LOG.length),0,l);save('bb-log',LOG);renderLog()},()=>queue('del',l.id));return}
+  askConfirm('This removes '+l.by+'’s entry for everyone in the shared log.','Delete',true,'Delete this brew?').then(y=>{if(!y)return;if(del()<0)return;queue('del',l.id);toast('Entry deleted')})};
 $('l-csv').onclick=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const rows=[['Date','Coffee','Settings','Stars','Predicted','Notes','Flavour notes']].concat(LOG.map(l=>[l.date,l.coffee,l.settings,l.stars,l.pred,l.notes,flText(flOf(l))]));
   saveFile('brew-log.csv',new Blob(['\ufeff'+rows.map(r=>r.map(q).join(',')).join('\r\n')],{type:'text/csv'}))};
 
@@ -2857,9 +2886,11 @@ function pdfSafe(s){return String(s??'').replace(/[\u2018\u2019]/g,"'").replace(
 function docText(doc,noLink){let t='# '+doc.title+'\n';if(doc.sub)t+=doc.sub+'\n';t+='\n';
   for(const b of doc.blocks){if(b.h)t+='## '+b.h+'\n';if(b.p)t+=b.p+'\n';if(b.kv)t+=b.kv.map(([k,v])=>'- '+k+': '+v).join('\n')+'\n';if(b.list)t+=b.list.map((x,i)=>(b.num?(i+1)+'. ':'- ')+x).join('\n')+'\n';t+='\n'}
   return t+(doc.link&&!noLink&&!t.includes(doc.link)?'Open it in The Brew Bench: '+doc.link+'\n':'Made with The Brew Bench\n')}
-// Every PDF looks like its share card: the card itself (in the look picked in the share sheet), or for a share
+// Every PDF looks like its share card: the card itself, or for a share
 // without one, its text set in the same style. The plain page below is kept only for when drawing fails.
-async function docPDF(doc){try{const st={mode:CARD_STYLE.mode,col:CARD_STYLE.col};let bl=null;
+// A PDF is in the app's own look: light or dark as the app is, in the vibe's own colours ("Vibe's own"), whichever
+// look is picked for the image.
+async function docPDF(doc){try{const st={mode:curTheme()==='dark'?'dark':'light',col:'classic'};let bl=null;
     if(doc.card)bl=await shCardFor(doc,st).catch(()=>null);if(!bl)bl=await docCardImg(doc);const out=await cardPDF(bl,doc.title);if(out)return out}catch(e){}
   return docPDFText(doc)}
 function docPDFText(doc){
@@ -2910,7 +2941,11 @@ function varietyDoc(id){const v=VBY[id];const b=[{kv:[['Family',FAM[v.fam].name]
   if(v.subs)b.push({h:'Types',list:v.subs.map(s=>s.name+': '+s.cup)});return{link:SITE_URL+'#v='+id,title:v.name,sub:'Variety guide',blocks:b,file:'variety-'+v.name}}
 function originDoc(k){const o=ALLO()[k];return{link:SITE_URL+'#o='+k,title:o.name,sub:'Coffee origin | '+REG[o.reg].name,file:'origin-'+o.name,
   card:()=>originCard(k),cardName:'origin-card',cardTitle:'Origin card',cardSub:'One image in its own colours: altitude, harvest, the cup, its story and the varieties grown there.',cardTheme:()=>originTheme(k),blocks:[{kv:[['Regions',o.subs.join(', ')],['Altitude',o.alt],['Harvest',o.harvest],['Processing',o.process]]},{h:'In the cup',p:o.cup},{h:'Story',p:o.hist},{h:'Varieties grown here',list:o.vars.map(v=>VBY[v]?VBY[v].name:v)},{h:'Did you know?',p:o.fact}]}}
-function historyDoc(){return{link:SITE_URL+'#history',title:'The story of coffee',sub:'From Ethiopian forests to your cup',file:'coffee-history',blocks:[{h:'Timeline',list:TIMELINE.map(([w,t,d])=>w+' - '+t+': '+d)},{h:'People who spread coffee',list:PEOPLE.map(([n,r,d])=>n+' ('+r+'): '+d)}]}}
+// The story of coffee: shared as its own card (and the PDF of it), a timeline strung on dots and the people who spread
+// coffee, each with a monogram. The lists stay for the text versions.
+function historyDoc(){const doc={link:SITE_URL+'#history',title:'The story of coffee',sub:'From Ethiopian forests to your cup',file:'coffee-history',cardTitle:'History card',cardSub:'The timeline and the people who spread coffee, in one image.',
+  blocks:[{h:'Timeline',tl:TIMELINE,list:TIMELINE.map(([w,t,d])=>w+' - '+t+': '+d)},{h:'People who spread coffee',people:PEOPLE,list:PEOPLE.map(([n,r,d])=>n+' ('+r+'): '+d)}]};
+  doc.card=()=>docCardImg(doc);return doc}
 // One logged brew, as text and as a card.
 function logEntryDoc(l){const fl=flOf(l).filter(([id])=>FW.byId[id]);
   return{title:l.coffee||'A brew',sub:fmtDate(l)+(l.stars?' | '+l.stars+' / 5':''),file:'brew-'+(l.coffee||'log'),
@@ -2947,7 +2982,7 @@ function openShare(doc){SHDOC=doc;loadPDF().catch(()=>{});const pdfOK=true;
      '<div class="shcols" role="group" aria-label="Card colours">'+shSwatches(doc)+'</div></div></div>':'')+
    '<div class="sharerow">'+APPS.map(([k,n,c,d])=>'<button type="button" data-sh="'+k+'"><span class="app" style="background:'+c+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+d+'"/></svg></span>'+n+'</button>').join('')+'</div>'+
    '<div class="sheetlist">'+
-   '<button type="button" data-sh="pdf">'+ico('file','#B5533C')+'<span>Save as PDF<small>'+(pdfOK?'The same design as the image, on A4 pages':'Loading the PDF engine\u2026 try again in a moment')+'</small></span></button>'+
+   '<button type="button" data-sh="pdf">'+ico('file','#B5533C')+'<span>Save as PDF<small>'+(pdfOK?'The same design, in the app’s look, on A4 pages':'Loading the PDF engine\u2026 try again in a moment')+'</small></span></button>'+
    '<button type="button" data-sh="copy">'+ico('copy','#C9964A')+'<span>Copy as text<small>Paste it anywhere</small></span></button>'+
    '<button type="button" data-sh="md">'+ico('text','#8A5A3B')+'<span>Save as a text file<small>Plain text you can edit</small></span></button></div></div>';
   const d=$('sharesheet');showDlg(d);$('sh-x').onclick=()=>d.close();
@@ -3061,7 +3096,7 @@ function renderChamps(){fetchEvents();CHF=CHF.filter(k=>COMPS[k]);
   $('ch-about').innerHTML=Object.entries(COMPS).filter(([k])=>inSel(CHF,k)).map(([k,c])=>'<div class="card chcomp"><span class="pill"><i style="background:'+c.color+'"></i>Since '+c.since+'</span><h3>'+esc(c.name)+'</h3><p class="hint">'+esc(c.about)+'</p><p class="chcount">'+CHAMPS.filter(x=>x.c===k).length+' champions</p></div>').join('');
   const on=chMatch;
   const years=[...new Set(CHAMPS.map(x=>x.y).concat(CH_GAPS.map(g=>g[0])))].sort((a,b)=>b-a);
-  const card=ch=>{const C=COMPS[ch.c],mine=MYB.includes(chBrewer(ch));return '<div class="chwin"><div class="chpills"><span class="pill"><i style="background:'+C.color+'"></i>'+C.short+'</span>'+(chDev(ch)&&ch.c==='wbrc'?'<span class="pill chdev">'+esc(chDev(ch))+'</span>':'')+(mine?'<span class="pill chdev ours">✓ You can brew this</span>':'')+'</div>'+
+  const card=ch=>{const C=COMPS[ch.c];return '<div class="chwin"><div class="chpills"><span class="pill"><i style="background:'+C.color+'"></i>'+C.short+'</span>'+(chDev(ch)&&ch.c==='wbrc'?'<span class="pill chdev">'+esc(chDev(ch))+'</span>':'')+'</div>'+
     '<div class="chname"><span class="flag" aria-hidden="true">'+(FLAGS[ch.from]||'')+'</span><b>'+esc(ch.who)+'</b></div>'+
     '<p class="hint">'+esc(ch.from)+' · '+esc(ch.city)+'</p>'+(ch.coffee?'<p class="chcoffee">'+esc(ch.coffee)+'</p>':'')+(ch.note?'<p class="hint">'+esc(ch.note)+'</p>':'')+
     (ch.rec?'<button type="button" class="btn ghost chbtn" data-champ="'+CHAMPS.indexOf(ch)+'">Winner’s recipe</button>':'')+'</div>'};
@@ -3178,7 +3213,12 @@ $('wlt-f').onclick=()=>pickOne('Filter coffee words','word',[['all','All words']
 function openWord(t){const g=GBY[t];if(!g)return;showTab('words');WC=[];WQ='';$('wsearch').value='';renderWords();
   requestAnimationFrame(()=>{const c=[...document.querySelectorAll('#wlist .wcard')].find(x=>x.dataset.w===t);if(!c)return;c.classList.add('open');c.setAttribute('aria-expanded','true');
     flashTo(c)})}
-function wordsDoc(){return{link:SITE_URL+'#words',title:'Coffee words',sub:GLOSSARY.length+' terms, from farm to cup',file:'coffee-words',blocks:Object.entries(GCAT).map(([k,[n]])=>({h:n,list:GLOSSARY.filter(g=>g[1]===k).map(g=>g[0]+': '+g[2])}))}}
+// Coffee words, From seed to cup and the flavour wheel share as designed cards (and PDFs of them), like the story of
+// coffee: terms in bold over their meaning, the steps on a line of dots, the flavour families with their colours.
+// The lists stay for the text versions.
+const withCard=doc=>{doc.card=()=>docCardImg(doc);return doc};
+function wordsDoc(){return withCard({link:SITE_URL+'#words',title:'Coffee words',sub:GLOSSARY.length+' terms, from farm to cup',file:'coffee-words',cardTitle:'Coffee words card',cardSub:'Every term and what it means, in one image.',
+  blocks:Object.entries(GCAT).map(([k,[n,c]])=>{const g=GLOSSARY.filter(g=>g[1]===k);return{h:n,defs:g.map(x=>[x[0],x[2],c]),list:g.map(x=>x[0]+': '+x[2])}})})}
 
 /* ================= FROM SEED TO CUP ================= */
 const FBY=Object.fromEntries(FLOW.map(f=>[f.id,f]));
@@ -3227,7 +3267,9 @@ function openFlowStep(id){const f=FBY[id];if(!f)return;const [pn,c]=FLOW_PHASES[
 function openFlowBranch(i){const b=FLOW_BRANCH[i],c=FLOW_PHASES.mill[1];
   flowSheet(c,'Processing path',b.t,b.s,'<p><b>In the cup:</b> '+esc(b.d.toLowerCase())+'.</p><h3>'+(treeKeys(b.tree).length>1?'The processes on this path':'The process')+'</h3><p class="hint" style="margin-top:0">Tap a process to learn more; those with variations open to show them.</p>'+ptreeHTML(b.tree,0)+
     '<div class="actions"><button type="button" class="btn ghost" data-fnav="process">\u2190 Processing</button><button type="button" class="btn" data-fnav="dry">Drying \u2192</button></div>')}
-function flowDoc(){return{link:SITE_URL+'#flow',title:'From seed to cup',sub:'How coffee is made, step by step',file:'seed-to-cup',blocks:FLOW.map(f=>({h:(f.side?'Optional: ':FNUM[f.id]+'. ')+f.t,p:f.d+(f.branch?' Paths: '+FLOW_BRANCH.map(b=>b.t+' ('+b.d.toLowerCase()+')').join(', ')+'.':'')}))}}
+function flowDoc(){const txt=f=>f.d.replace(/\s*Tap [^.]*\./g,'')+(f.branch?' Paths: '+FLOW_BRANCH.map(b=>b.t+' ('+b.d.toLowerCase()+')').join(', ')+'.':'');
+  return withCard({link:SITE_URL+'#flow',title:'From seed to cup',sub:'How coffee is made, step by step',file:'seed-to-cup',cardTitle:'Seed to cup card',cardSub:'Every step from the seed to your cup, in one image.',
+    blocks:[{h:'Step by step',tl:FLOW.map(f=>[f.side?'Optional':'Step '+FNUM[f.id],f.t,txt(f)]),list:FLOW.map(f=>(f.side?'Optional: ':FNUM[f.id]+'. ')+f.t+': '+txt(f))}]})}
 
 /* ================= APP SHELL ================= */
 /* Line icons for the sheets, drawn to match the bottom navigation. */
@@ -3348,7 +3390,7 @@ try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{th
 function saveUI(){save('bb-ui',UI);applyUI()}
 /* Your data: everything the app saves on this device, in one file you can keep or move to another phone. */
 // Sign-in tokens never go into a backup file.
-const DATA_SKIP=['bb-calreset1','bb-splash-test','bb-reset','bb-pending','bb-account','bb-fbcfg','bb-syncshadow','bb-syncat','bb-syncdb','bb-bio','bb-bio-no','bb-upd'];
+const DATA_SKIP=['bb-calreset1','bb-splash-test','bb-reset','bb-pending','bb-account','bb-fbcfg','bb-syncshadow','bb-syncat','bb-syncdb','bb-bio','bb-bio-no','bb-upd','bb-lastbak','bb-bakask'];
 function dataKeys(){const k=[];try{for(let i=0;i<localStorage.length;i++){const n=localStorage.key(i);if(n&&n.startsWith('bb-')&&!DATA_SKIP.includes(n))k.push(n)}}catch(e){}return k.sort()}
 function dataSummary(){const n=k=>{let v=null;try{v=JSON.parse(localStorage.getItem(k)||'null')}catch(e){}return Array.isArray(v)?v.length:v&&typeof v==='object'?Object.keys(v).length:0};
   return [[n('bb-myrecipes'),'recipe'],[n('bb-log'),'brew'],[n('bb-beans'),'gallery coffee'],[n('bb-scans'),'scan'],[n('bb-favs'),'favourite']].filter(x=>x[0]).map(([c,w])=>c+' '+w+(c===1?'':'s')).join(', ')||'Nothing saved yet besides your settings'}
@@ -3357,7 +3399,20 @@ async function exportData(){const data={};for(const k of dataKeys()){try{data[k]
   // Gallery photos live outside localStorage, so they travel in the backup alongside it.
   const images=await BIMG.all();
   const blob=new Blob([JSON.stringify({app:'brew-bench',kind:'backup',version:2,exported:d.toISOString(),data,images},null,1)],{type:'application/json'});
-  await saveFile('brew-bench-backup-'+day+'.json',blob)}
+  if(await saveFile('brew-bench-backup-'+day+'.json',blob)){try{localStorage.setItem('bb-lastbak',String(Date.now()))}catch(e){}const n=$('st-lastbak');if(n)n.textContent=lastBakText()}}
+// When the last backup file was saved, for Settings and the reminder.
+const lastBak=()=>{try{return +localStorage.getItem('bb-lastbak')||0}catch(e){return 0}};
+function lastBakText(){const t=lastBak();if(!t)return'No backup saved yet.';const d=Math.floor((Date.now()-t)/864e5);return'Last backup '+(d<1?'today':d===1?'yesterday':d+' days ago')+'.'}
+// A gentle reminder, at most once a week: only with a few things worth keeping, when they don't already follow an
+// account (signed in, everything syncs), and when the last backup is a month old or there has never been one.
+function bakNudge(){try{if(typeof syncOn==='function'&&syncOn())return;const now=Date.now(),ask=+localStorage.getItem('bb-bakask')||0;if(now-ask<7*864e5)return;
+  const n=k=>{try{const v=JSON.parse(localStorage.getItem(k)||'[]');return Array.isArray(v)?v.length:0}catch(e){return 0}},have=n('bb-beans')+n('bb-log')+n('bb-myrecipes');if(have<5)return;
+  const t=lastBak();if(t&&now-t<30*864e5)return;
+  // Someone new to the app gets a week before the first reminder.
+  if(!t&&!ask){localStorage.setItem('bb-bakask',String(now));return}
+  localStorage.setItem('bb-bakask',String(now));
+  toastAct(t?'Last backup '+Math.floor((now-t)/864e5)+' days ago':'Your coffees aren’t backed up yet','Back up',exportData)}catch(e){}}
+addEventListener('load',()=>setTimeout(()=>{if(!document.querySelector('dialog[open]'))bakNudge()},9000));
 // A backup's lists and photos, checked: only Brew Bench keys and photos, never the account or sync state.
 function backupParts(j){if(!j||j.app!=='brew-bench'||!j.data||typeof j.data!=='object')return null;
   const ent=Object.entries(j.data).filter(([k,v])=>/^bb-[a-z0-9-]{1,40}$/.test(k)&&typeof v==='string'&&!DATA_SKIP.includes(k));
@@ -3424,8 +3479,8 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
        window.BEANS_OK&&LN()?'<div class="setbtns"><div class="seg" id="st-learn"></div><input type="time" id="st-ltime" class="dateinp" value="'+LEARN.t+'" aria-label="Fact time"'+(LEARN.on?'':' disabled')+'></div>'
          :'<p class="setnote" style="margin:0">Today’s is on the Explore page. In the Android app it can also arrive as a notification at the time you choose.</p>')+'</div>'+
    /* Gear, Guide and the Log are the buttons at the top. */
-   '<h3 class="rh">Your data</h3><div class="setgroup">'+row('download','#8A5A3B','Back up and restore','Everything you’ve saved stays on this device: '+esc(dataSummary())+'. Save it as a file to keep it safe or move it to another phone.',
-     '<div class="setbtns"><button type="button" class="btn" id="st-export">Export my data</button><button type="button" class="btn ghost" id="st-import">Import a backup</button><input type="file" id="st-file" accept="application/json,.json" hidden></div>')+'</div>'+
+   '<h3 class="rh">Your data</h3><div class="setgroup">'+row('download','#8A5A3B','Back up and restore','Everything you’ve saved stays on this device: '+esc(dataSummary())+'. Save it as a file, photos included, to keep it safe or move it to another phone.',
+     '<p class="setnote" id="st-lastbak" style="margin:0 0 8px">'+lastBakText()+'</p><div class="setbtns"><button type="button" class="btn" id="st-export">Export my data</button><button type="button" class="btn ghost" id="st-import">Import a backup</button><input type="file" id="st-file" accept="application/json,.json" hidden></div>')+'</div>'+
    (installed()?'':'<h3 class="rh">Install</h3><div class="setgroup">'+row('phone','#9A7390','Add to your home screen','Use it like an app, offline too','<p class="setnote" style="margin:0"><b>iPhone (Safari):</b> tap the Share button, then <b>Add to Home Screen</b>.<br><b>Android (Chrome):</b> tap the ⋮ menu, then <b>Add to Home screen</b>.</p>')+'</div>')+
    '<h3 class="rh">About</h3><div class="setgroup">'+row('info','#8A5A3B','The Brew Bench','A coffee field guide and dial-in tool. What you save stays on this device, or syncs with your account if you sign in.','<p class="setnote" style="margin:0"><a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a> · <a href="'+SITE_URL+'delete-account.html" target="_blank" rel="noopener">Delete your account</a></p>')+
      '</div>';

@@ -295,8 +295,10 @@ function bcDraw(m){const W=BC.W,P=BC.PAD,IW=W-2*P;BC.BRK=[];if(!BC_CV){BC_CV=doc
   // everything is laid out in the card's own 1080-wide units and scaled once here.
   // A card that knows its height draws on a canvas just that tall (the background is most of the drawing work).
   const H0=m.minH?Math.ceil(m.minH):4400,S=BC.S=Math.min(1.5,Math.sqrt(26e6/(W*H0)));
-  if(BC_CV.width!==Math.round(W*S)||BC_CV.height!==Math.round(H0*S)){BC_CV.width=Math.round(W*S);BC_CV.height=Math.round(H0*S)}
-  const c=BC_CV,x=c.getContext('2d');x.setTransform(1,0,0,1,0,0);x.globalAlpha=1;x.clearRect(0,0,c.width,c.height);x.setTransform(S,0,0,S,0,0);x.imageSmoothingQuality='high';
+  // Recording (see bcRec): the same drawing, written down to be painted in the background instead of on this canvas.
+  let c,x;if(m.rec){c={width:Math.round(W*S),height:Math.round(H0*S),rec:true};x=bcRec(c)}
+  else{if(BC_CV.width!==Math.round(W*S)||BC_CV.height!==Math.round(H0*S)){BC_CV.width=Math.round(W*S);BC_CV.height=Math.round(H0*S)}c=BC_CV;x=c.getContext('2d')}
+  x.setTransform(1,0,0,1,0,0);x.globalAlpha=1;x.clearRect(0,0,c.width,c.height);x.setTransform(S,0,0,S,0,0);x.imageSmoothingQuality='high';
   BC.F=getComputedStyle(document.body).fontFamily;
   // The origin's look (or the house espresso and honey): its accent colours are used throughout the card.
   const T=cardStyle(m.theme||OT.house,m.style||CARD_STYLE);
@@ -442,12 +444,74 @@ function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
   x.fillStyle=BC.INK;x.textAlign='left';x.fillText(ft,W/2-fw/2+6,y);
   y+=40;x.textAlign='center';x.font='500 22px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(SITE_URL.replace(/^https?:\/\//,'').replace(/\/$/,''),W/2,y);x.textAlign='left';
   // Trim to what was drawn.
-  const H=Math.round(y+70),out=document.createElement('canvas');out.width=Math.round(W*BC.S);out.height=Math.round(H*BC.S);out.getContext('2d').drawImage(c,0,0);
-  return out}
+  return bcOut(c,Math.round(W*BC.S),Math.round(Math.round(y+70)*BC.S))}
 // The look is taken when the card is asked for, not when it's drawn after the fonts load, so a card drawn ahead for
 // another look (see the share sheet) keeps the one it was asked with.
+// A card is drawn in the background: the drawing is recorded here (quick: only the instructions are written down,
+// with text measured on a tiny canvas) and painted, trimmed and encoded in a worker on an OffscreenCanvas, so the
+// screen doesn't freeze while a card is made. Pictures and small layers drawn into the card go along as bitmaps.
+// Where that isn't possible (no OffscreenCanvas or no letter spacing in workers) or the worker fails, the card is drawn
+// here as before.
 const bcBlob=m=>{const st=m.style||Object.assign({},CARD_STYLE);return (async()=>{if(document.fonts&&document.fonts.ready)await document.fonts.ready;
+  const w=await bcWorker();
+  if(w){try{const r=bcDraw(Object.assign({},m,{style:st,rec:true})),brk=(BC.BRK||[]).map(y=>Math.round(y*BC.S));
+      if(r&&r.recOut){const b=await w.paint(r);if(b){b._brk=brk;BC.BGN=(BC.BGN||0)+1;return b}}}catch(e){}}
   const cv=bcDraw(Object.assign({},m,{style:st})),brk=(BC.BRK||[]).map(y=>Math.round(y*BC.S));return new Promise(res=>cv.toBlob(b=>{if(b)b._brk=brk;res(b)},'image/jpeg',0.94))})()};
+// The drawn part of the card, trimmed: copied here, or (recording) the size to trim to in the worker.
+function bcOut(c,w,h){if(c.rec)return{recOut:true,ops:c.ops,bms:c.bms,width:c.width,height:c.height,cw:Math.min(w,c.width),ch:Math.min(h,c.height)};
+  const out=document.createElement('canvas');out.width=w;out.height=h;out.getContext('2d').drawImage(c,0,0);return out}
+// The recorder: looks like a canvas context to the drawing code. Settings and calls are written down; gradients and
+// patterns are numbered; pictures and canvases drawn in become bitmaps (a canvas's is taken at that moment, as
+// drawImage would); measureText is answered by a tiny real canvas kept in the same state.
+function bcRec(c){const ops=c.ops=[],bms=c.bms=[],meas=document.createElement('canvas').getContext('2d'),st={},stack=[],imgIx=new Map();let gid=0;
+  const bm=src=>{if(!(src instanceof HTMLCanvasElement)&&imgIx.has(src))return imgIx.get(src);const i=bms.length;bms.push(createImageBitmap(src));if(!(src instanceof HTMLCanvasElement))imgIx.set(src,i);return i};
+  const val=v=>v&&typeof v==='object'&&v.__id!=null?{__ref:v.__id}:v;
+  const grad=(kind,a)=>{const id=gid++;ops.push(['g',id,kind,a]);return{__id:id,addColorStop:(o,col)=>ops.push(['gs',id,o,col])}};
+  // Methods are told from settings by the prototype's own entries (reading a setting there would throw).
+  const P=CanvasRenderingContext2D.prototype,isFn=k=>{const d=Object.getOwnPropertyDescriptor(P,k);return!!(d&&typeof d.value==='function')};
+  return new Proxy({},{get(t,k){
+      if(k==='canvas')return c;
+      if(k==='measureText')return s=>meas.measureText(s);
+      if(k==='createLinearGradient')return(...a)=>grad('l',a);
+      if(k==='createRadialGradient')return(...a)=>grad('r',a);
+      if(k==='createPattern')return(src,rep)=>{const id=gid++;ops.push(['p',id,bm(src),rep]);return{__id:id}};
+      if(k==='drawImage')return(src,...a)=>{ops.push(['d',bm(src),a])};
+      if(k==='getImageData'||k==='putImageData'||k==='isPointInPath')return()=>{throw new Error('not recordable')};
+      if(k==='save')return()=>{stack.push(Object.assign({},st));meas.save();ops.push(['c','save',[]])};
+      if(k==='restore')return()=>{const o=stack.pop();if(o){for(const q in st)delete st[q];Object.assign(st,o)}meas.restore();ops.push(['c','restore',[]])};
+      if(typeof k==='string'&&isFn(k))return(...a)=>{ops.push(['c',k,a.map(val)])};
+      return k in st?st[k]:meas[k]},
+    set(t,k,v){st[k]=v;ops.push(['s',k,val(v)]);if(typeof v!=='object')try{meas[k]=v}catch(e){}return true}})}
+// The background painter: a worker with the app's fonts, which plays the recording back on an OffscreenCanvas.
+let BCW=null;
+function bcWorker(){if(BCW!==null)return BCW;
+  BCW=(async()=>{try{if(typeof OffscreenCanvas!=='function'||typeof createImageBitmap!=='function'||!window.Worker||!window.Proxy)return false;
+    // The fonts the page uses, from its own style sheets (the bundled Inter), with their addresses made absolute.
+    const fonts=[];for(const sh of document.styleSheets){let rs;try{rs=sh.cssRules}catch(e){continue}
+      for(const r of rs)if(r instanceof CSSFontFaceRule){const g=p=>r.style.getPropertyValue(p),base=sh.href||location.href;
+        const src=g('src').replace(/url\((['"]?)([^'")]+)\1\)/g,(_,q,u)=>'url("'+new URL(u,base).href+'")');
+        fonts.push({family:g('font-family').replace(/['"]/g,''),src,d:{style:g('font-style')||'normal',weight:g('font-weight')||'normal',unicodeRange:g('unicode-range')||'U+0-10FFFF'}})}}
+    const code=`let ready=null;
+const load=fonts=>ready||(ready=Promise.all(fonts.map(f=>{try{const ff=new FontFace(f.family,f.src,f.d);self.fonts.add(ff);return ff.load().catch(()=>{})}catch(e){}})));
+self.onmessage=async e=>{const q=e.data;if(q.fonts){await load(q.fonts);self.postMessage({ok:'letterSpacing' in OffscreenCanvasRenderingContext2D.prototype});return}
+  try{await ready;const c=new OffscreenCanvas(q.width,q.height),x=c.getContext('2d'),R=[],B=q.bms;
+    const val=v=>v&&typeof v==='object'&&v.__ref!=null?R[v.__ref]:v;
+    for(const o of q.ops){const k=o[0];
+      if(k==='s')x[o[1]]=val(o[2]);else if(k==='c')x[o[1]](...o[2].map(val));else if(k==='d')x.drawImage(B[o[1]],...o[2]);
+      else if(k==='g')R[o[1]]=o[2]==='l'?x.createLinearGradient(...o[3]):x.createRadialGradient(...o[3]);else if(k==='gs')R[o[1]].addColorStop(o[2],o[3]);
+      else if(k==='p')R[o[1]]=x.createPattern(B[o[2]],o[3])}
+    const out=new OffscreenCanvas(q.cw,q.ch);out.getContext('2d').drawImage(c,0,0);
+    const blob=await out.convertToBlob({type:'image/jpeg',quality:0.94});B.forEach(b=>b.close&&b.close());self.postMessage({id:q.id,blob})}
+  catch(err){self.postMessage({id:q.id,err:String(err&&err.message||err)})}};`;
+    const w=new Worker(URL.createObjectURL(new Blob([code],{type:'text/javascript'})));const wait=new Map();let seq=0;
+    const ok=await new Promise(res=>{const t=setTimeout(()=>res(false),8000);w.onmessage=e=>{clearTimeout(t);res(!!e.data.ok)};w.onerror=()=>{clearTimeout(t);res(false)};w.postMessage({fonts})});
+    if(!ok){w.terminate();return false}
+    w.onmessage=e=>{const p=wait.get(e.data.id);if(!p)return;wait.delete(e.data.id);e.data.blob?p.ok(e.data.blob):p.no(new Error(e.data.err||'card'))};
+    w.onerror=e=>{e.preventDefault&&e.preventDefault();for(const p of wait.values())p.no(new Error('worker'));wait.clear()};
+    return{paint:async r=>{const bms=await Promise.all(r.bms);const id=++seq;
+      return new Promise((ok,no)=>{wait.set(id,{ok,no});w.postMessage({id,ops:r.ops,bms,width:r.width,height:r.height,cw:r.cw,ch:r.ch},bms)})}}}
+  catch(e){return false}})();
+  return BCW}
 // Where a PDF page may end: between rows, never through one (in the card's own units).
 const bcBrk=y=>{if(BC.BRK)BC.BRK.push(y)};
 
@@ -571,7 +635,7 @@ function bcHead(x,kicker,date){const W=BC.W,P=BC.PAD;let y=100;bcBean(x,P+16,y-9
 function bcFoot(x,c,y,ft){const W=BC.W,P=BC.PAD;y+=70;const fr=x.createLinearGradient(P,0,W-P,0);fr.addColorStop(0,bcA(0));fr.addColorStop(.5,bcA(.45));fr.addColorStop(1,bcA(0));x.fillStyle=fr;x.fillRect(P,y,W-2*P,1.5);
   y+=64;x.font='700 26px '+BC.F;const fw=x.measureText(ft).width;bcBean(x,W/2-fw/2-22,y-9,28,BC.HONEY);x.fillStyle=BC.INK;x.textAlign='left';x.fillText(ft,W/2-fw/2+6,y);
   y+=40;x.textAlign='center';x.font='500 22px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(SITE_URL.replace(/^https?:\/\//,'').replace(/\/$/,''),W/2,y);x.textAlign='left';
-  const H=Math.round(y+70),out=document.createElement('canvas');out.width=Math.round(W*BC.S);out.height=Math.round(H*BC.S);out.getContext('2d').drawImage(c,0,0);return out}
+  return bcOut(c,Math.round(W*BC.S),Math.round(Math.round(y+70)*BC.S))}
 // A coffee's picture in a rounded frame: its photo, cropped to fill, or (without one) a tile in its origin's colours
 // with the bean mark, like the gallery's.
 function bcPic(x,img,origin,X,Y,w,h,r,edge,ew){x.save();bcRound(x,X,Y,w,h,r);x.clip();
@@ -757,7 +821,34 @@ function docCardLay(x,doc,draw){const W=BC.W,P=BC.PAD,IW=W-2*P,F=BC.F;let Y=draw
       if(draw){bcPane(x,P,Y,IW,h,26);let ry=Y+8;rows.forEach((r,i)=>{if(i){x.fillStyle=bcI(.09);x.fillRect(P+24,ry,IW-48,1.5)}
         x.font='700 21px '+F;x.fillStyle=BC.MUTED;x.letterSpacing='2px';x.fillText(bcWrap(x,String(r.k).toUpperCase(),kw-24,1)[0],P+28,ry+46);x.letterSpacing='0px';
         r.L.forEach((l,j)=>T(l,'600 29px '+F,BC.INK,P+kw+28,ry+48+j*40));ry+=hs[i];bcBrk(ry)})}Y+=h}
-    if(b.list&&b.list.length){Y+=18;x.font='500 29px '+F;const lw=b.num?56:36,rows=b.list.map(t=>bcWrap(x,String(t),IW-56-lw,6)),hs=rows.map(L=>32+L.length*40),h=hs.reduce((a,v)=>a+v,0)+16;
+    // A timeline: when, then what happened and a few words on it, strung on a line of dots.
+    if(b.tl&&b.tl.length){Y+=18;const RX=P+42,TX=P+84,TW=IW-84-30,rows=b.tl.map(([w,t,d])=>{x.font='700 32px '+F;const T1=bcWrap(x,t,TW,2);x.font='500 26px '+F;return{w,T1,D:bcWrap(x,d||'',TW,8)}}),
+        hs=rows.map(r=>40+r.T1.length*40+r.D.length*36+30),h=hs.reduce((a,v)=>a+v,0)+28;
+      if(draw){bcPane(x,P,Y,IW,h,26);let ry=Y+14;const dots=[];rows.forEach((r,i)=>{dots.push(ry+30);
+          x.font='700 21px '+F;x.fillStyle=BC.HONEY;x.letterSpacing='2px';x.fillText(/\d{3}/.test(r.w)?String(r.w):String(r.w).toUpperCase(),TX,ry+38);x.letterSpacing='0px';
+          r.T1.forEach((l,j)=>T(l,'700 32px '+F,BC.INK,TX,ry+80+j*40));r.D.forEach((l,j)=>T(l,'500 26px '+F,BC.MUTED,TX,ry+80+r.T1.length*40+j*36-4));ry+=hs[i];bcBrk(ry)});
+        x.fillStyle=bcI(.16);x.fillRect(RX-1.5,dots[0],3,dots[dots.length-1]-dots[0]);
+        dots.forEach((dy,i)=>{x.beginPath();x.arc(RX,dy,i===0||i===dots.length-1?10:8,0,TAU);x.fillStyle=BC.HONEY;x.fill();x.lineWidth=5;x.strokeStyle=BC.PANE;x.stroke()})}
+      Y+=h}
+    // People: a monogram, the name, who they were, and what they did.
+    if(b.people&&b.people.length){Y+=18;const TX=P+28+64+22,TW=IW-(TX-P)-28,rows=b.people.map(([n,r,d])=>{x.font='700 31px '+F;const N=bcWrap(x,n,TW,2);x.font='500 26px '+F;return{n,N,r,D:bcWrap(x,d||'',TW,8)}}),
+        hs=rows.map(r=>34+r.N.length*39+34+r.D.length*36+26),h=hs.reduce((a,v)=>a+v,0)+16;
+      if(draw){bcPane(x,P,Y,IW,h,26);let ry=Y+8;rows.forEach((r,i)=>{if(i){x.fillStyle=bcI(.09);x.fillRect(P+24,ry,IW-48,1.5)}
+          const cx=P+28+32,cy=ry+56;x.beginPath();x.arc(cx,cy,32,0,TAU);x.fillStyle=bcA(.18);x.fill();
+          x.font='800 30px '+F;x.fillStyle=BC.HONEY;x.textAlign='center';x.fillText((r.n.replace(/^(The|Sufi)\s+/,'').trim()[0]||'·').toUpperCase(),cx,cy+11);x.textAlign='left';
+          r.N.forEach((l,j)=>T(l,'700 31px '+F,BC.INK,TX,ry+52+j*39));const by=ry+52+r.N.length*39;
+          x.font='600 21px '+F;x.fillStyle=BC.HONEY;x.letterSpacing='1px';x.fillText(bcWrap(x,String(r.r).toUpperCase(),TW,1)[0],TX,by+2);x.letterSpacing='0px';
+          r.D.forEach((l,j)=>T(l,'500 26px '+F,BC.MUTED,TX,by+40+j*36));ry+=hs[i];bcBrk(ry)})}
+      Y+=h}
+    // Terms and what they mean (coffee words, the flavour families): the term in bold, an optional colour dot, the text.
+    if(b.defs&&b.defs.length){Y+=18;const TX=P+28,TW=IW-56,rows=b.defs.map(([t,d,c])=>{x.font='700 30px '+F;const N=bcWrap(x,t,TW-(c?30:0),2);x.font='500 26px '+F;return{N,c,D:d?bcWrap(x,d,TW,8):[]}}),
+        hs=rows.map(r=>34+r.N.length*38+(r.D.length?8+r.D.length*36:0)+22),h=hs.reduce((a,v)=>a+v,0)+16;
+      if(draw){bcPane(x,P,Y,IW,h,26);let ry=Y+8;rows.forEach((r,i)=>{if(i){x.fillStyle=bcI(.09);x.fillRect(P+24,ry,IW-48,1.5)}
+          let tx=TX;if(r.c){x.beginPath();x.arc(TX+9,ry+41,9,0,TAU);x.fillStyle=r.c;x.fill();tx+=30}
+          r.N.forEach((l,j)=>T(l,'700 30px '+F,BC.INK,tx,ry+52+j*38));const by=ry+52+(r.N.length-1)*38+8;
+          r.D.forEach((l,j)=>T(l,'500 26px '+F,BC.MUTED,TX,by+38+j*36));ry+=hs[i];bcBrk(ry)})}
+      Y+=h}
+    if(b.list&&b.list.length&&!b.tl&&!b.people&&!b.defs){Y+=18;x.font='500 29px '+F;const lw=b.num?56:36,rows=b.list.map(t=>bcWrap(x,String(t),IW-56-lw,6)),hs=rows.map(L=>32+L.length*40),h=hs.reduce((a,v)=>a+v,0)+16;
       if(draw){bcPane(x,P,Y,IW,h,26);let ry=Y+8;rows.forEach((L,i)=>{if(i){x.fillStyle=bcI(.09);x.fillRect(P+24,ry,IW-48,1.5)}
         if(b.num)T(String(i+1),'800 28px '+F,BC.HONEY,P+28,ry+48);else{x.beginPath();x.arc(P+36,ry+38,6,0,TAU);x.fillStyle=BC.HONEY;x.fill()}
         L.forEach((l,j)=>T(l,'500 29px '+F,BC.INK,P+28+lw,ry+48+j*40));ry+=hs[i];bcBrk(ry)})}Y+=h}}
@@ -769,9 +860,10 @@ async function docCardImg(doc){const style=Object.assign({},CARD_STYLE);if(docum
 /* ---------- The PDF: the share's card on A4 pages ---------- */
 // A long card is cut between rows, never through a line: just above each page's end, the calmest pixel row (the
 // background between panes) is where the page breaks. Each page is filled with the card's colour behind the slice.
-async function cardPDF(blob,title){const J=(window.jspdf||{}).jsPDF;if(!J||!blob)return null;
-  const img=await new Promise((ok,no)=>{const u=URL.createObjectURL(blob),i=new Image();i.onload=()=>{URL.revokeObjectURL(u);ok(i)};i.onerror=e=>{URL.revokeObjectURL(u);no(e)};i.src=u});
-  const iw=img.naturalWidth,ih=img.naturalHeight,full=document.createElement('canvas');full.width=iw;full.height=ih;const fx=full.getContext('2d',{willReadFrequently:true});fx.drawImage(img,0,0);
+// The work itself, shared by the background worker and the fallback here: it only uses what it is given, so its source
+// can be handed to the worker as it is. mk(w,h) makes a canvas; jpg(canvas,q) gives JPEG data for jsPDF.
+async function pdfCore(J,bm,title,brk0,mk,jpg){
+  const iw=bm.width,ih=bm.height,full=mk(iw,ih),fx=full.getContext('2d',{willReadFrequently:true});fx.drawImage(bm,0,0);
   const PW=595.28,PH=841.89,pageH=Math.floor(iw*PH/PW),pdf=new J({unit:'pt',format:'a4',compress:true});pdf.setProperties({title:title||'The Brew Bench',creator:'The Brew Bench'});
   const calm=(from,to)=>{const h=to-from;if(h<=0)return to;const d=fx.getImageData(0,from,iw,h).data;let best=to,bs=Infinity;
     for(let r=h-1;r>=0;r--){let s=0;const o=r*iw*4;for(let i=4*8;i<iw*4-32;i+=24){s+=Math.abs(d[o+i]-d[o+i-24])+Math.abs(d[o+i+1]-d[o+i-23])+Math.abs(d[o+i+2]-d[o+i-22])+0.5*(Math.abs(d[o+i]-d[o+32])+Math.abs(d[o+i+1]-d[o+33])+Math.abs(d[o+i+2]-d[o+34]))}
@@ -780,15 +872,35 @@ async function cardPDF(blob,title){const J=(window.jspdf||{}).jsPDF;if(!J||!blob
   // A card up to about one and a half pages tall goes on one page, scaled to fit and framed in its own colour; only a
   // long one (a big gallery, a long list) runs over several.
   if(ih<=pageH*1.5){const k=Math.min(PW/iw,PH/ih),w=iw*k,h=ih*k,bg=colAt(Math.round(ih/2));pdf.setFillColor(...bg);pdf.rect(0,0,PW,PH,'F');
-    pdf.addImage(full.toDataURL('image/jpeg',0.88),'JPEG',(PW-w)/2,(PH-h)/2,w,h,undefined,'FAST');return pdf.output('blob')}
+    pdf.addImage(await jpg(full,0.88),'JPEG',(PW-w)/2,(PH-h)/2,w,h,undefined,'FAST');return pdf.output('blob')}
   // Pages after the first start a little down the page, so a pane carried over doesn't touch the top edge.
-  const brk=(blob._brk||[]).filter(v=>v>0&&v<ih).sort((a,b)=>a-b),TOP=Math.round(iw*30/PW);
+  const brk=(brk0||[]).filter(v=>v>0&&v<ih).sort((a,b)=>a-b),TOP=Math.round(iw*30/PW);
   let y=0,n=0;while(y<ih-2){const room=pageH-(n?TOP:0);let end=Math.min(ih,y+room);
     if(end<ih){const ok=brk.filter(v=>v>y+room*0.45&&v<=end);end=ok.length?ok[ok.length-1]:calm(Math.max(y+Math.floor(room*0.7),end-Math.floor(room*0.22)),end)}
-    const sh=end-y,cv=document.createElement('canvas');cv.width=iw;cv.height=sh;cv.getContext('2d').drawImage(full,0,y,iw,sh,0,0,iw,sh);
+    const sh=end-y,cv=mk(iw,sh);cv.getContext('2d').drawImage(full,0,y,iw,sh,0,0,iw,sh);
     const bg=colAt(n?y+2:end-1);if(n)pdf.addPage();pdf.setFillColor(...bg);pdf.rect(0,0,PW,PH,'F');
-    pdf.addImage(cv.toDataURL('image/jpeg',0.86),'JPEG',0,n?TOP*PW/iw:0,PW,sh*PW/iw,undefined,'FAST');n++;y=end}
+    pdf.addImage(await jpg(cv,0.86),'JPEG',0,n?TOP*PW/iw:0,PW,sh*PW/iw,undefined,'FAST');n++;y=end}
   return pdf.output('blob')}
+// The PDF is put together in a background worker, so the screen doesn't freeze while it's made: the card's image is
+// decoded, cut into pages and each page encoded there. Where workers can't do that (no OffscreenCanvas), or the
+// worker fails, it is made here as before.
+let PDFW=null;
+function pdfWorker(){if(PDFW!==null)return PDFW;PDFW=false;
+  try{if(typeof OffscreenCanvas!=='function'||typeof createImageBitmap!=='function'||!window.Worker)return PDFW;
+    const src=new URL(typeof JSPDF_SRC==='string'?JSPDF_SRC:'vendor/jspdf.umd.min.js',location.href).href;
+    const code='importScripts('+JSON.stringify(src)+');\n'+pdfCore.toString()+'\nself.onmessage=async e=>{const {id,blob,title,brk}=e.data;try{const bm=await createImageBitmap(blob);'+
+      'const out=await pdfCore(self.jspdf.jsPDF,bm,title,brk,(w,h)=>new OffscreenCanvas(w,h),async(c,q)=>new Uint8Array(await (await c.convertToBlob({type:"image/jpeg",quality:q})).arrayBuffer()));'+
+      'self.postMessage({id,blob:out})}catch(err){self.postMessage({id,err:String(err&&err.message||err)})}};';
+    const w=new Worker(URL.createObjectURL(new Blob([code],{type:'text/javascript'})));const wait=new Map();let seq=0;
+    w.onmessage=e=>{const p=wait.get(e.data.id);if(!p)return;wait.delete(e.data.id);e.data.blob?p.ok(e.data.blob):p.no(new Error(e.data.err||'pdf'))};
+    w.onerror=e=>{e.preventDefault&&e.preventDefault();for(const p of wait.values())p.no(new Error('worker'));wait.clear();PDFW=false};
+    PDFW={make:(blob,title,brk)=>new Promise((ok,no)=>{const id=++seq;wait.set(id,{ok,no});w.postMessage({id,blob,title,brk})})}}catch(e){PDFW=false}
+  return PDFW}
+async function cardPDF(blob,title){if(!blob)return null;const brk=blob._brk||[];
+  const w=pdfWorker();if(w){try{return await w.make(blob,title,brk)}catch(e){}}
+  const J=(window.jspdf||{}).jsPDF;if(!J)return null;
+  const bm=await new Promise((ok,no)=>{const u=URL.createObjectURL(blob),i=new Image();i.onload=()=>{URL.revokeObjectURL(u);ok(i)};i.onerror=e=>{URL.revokeObjectURL(u);no(e)};i.src=u});
+  return pdfCore(J,bm,title,brk,(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c},async(c,q)=>c.toDataURL('image/jpeg',q))}
 
 /* ---------- An advent calendar ---------- */
 // The box: its photo, name and roastery, the total rating (the average of the coffees rated from it), how far along it

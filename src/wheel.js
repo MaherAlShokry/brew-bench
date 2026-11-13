@@ -172,8 +172,8 @@ function renderWheelTab(){
     const z=e.target.closest('[data-fz]');if(z)fwGo(z.dataset.fz)});
   $('fw-dl').onclick=()=>fwExport({title:'Coffee flavour wheel',sub:FW.leaves.length+' tasting notes in '+FW.roots.length+' families, from the middle out'},'brew-bench-flavour-wheel');
   $('fw-log').onclick=()=>{showTab('log');openNotesPicker()}}
-function wheelDoc(){return{link:SITE_URL+'#wheel',title:'Coffee flavour wheel',sub:FW.leaves.length+' tasting notes',file:'flavour-wheel',
-  blocks:FW.roots.map(c=>({h:c.n,p:c.d,list:c.kids.map(k=>k.n+(k.kids.length?': '+k.kids.map(x=>x.n).join(', '):''))})).concat([{p:FW_CREDIT}])}}
+function wheelDoc(){return withCard({link:SITE_URL+'#wheel',title:'Coffee flavour wheel',sub:FW.leaves.length+' tasting notes',file:'flavour-wheel',cardTitle:'Flavour wheel card',cardSub:'Every flavour family and its notes, in one image.',
+  blocks:FW.roots.map(c=>({h:c.n,p:c.d,defs:c.kids.map(k=>[k.n,k.kids.map(x=>x.n).join(', '),k.c||c.c]),list:c.kids.map(k=>k.n+(k.kids.length?': '+k.kids.map(x=>x.n).join(', '):''))})).concat([{p:FW_CREDIT}])})}
 
 /* Tasting notes on brews. A brew keeps fl: [[note id, 1 light | 2 medium | 3 strong], ...]. */
 const FL_LV=['','Light','Medium','Strong'];
@@ -203,7 +203,7 @@ function openNotesPicker(entry){const d=$('vd'),sel=flMap(entry?flOf(entry):LFL.
     if(a){const n=FW.byId[a.dataset.fa];if(n.leaf){if(!sel.has(n.id))sel.set(n.id,2);W.zoom(n.parent&&n.parent.id)}else W.zoom(n.id);W.redraw();list();$('fl-q').value='';res.innerHTML='';return}
     if(lv){sel.set(lv.dataset.id,+lv.dataset.lv);list();W.redraw();return}
     if(rm){sel.delete(rm.dataset.rm);list();W.redraw();return}
-    if(e.target.closest('#fl-clear')){(sel.size?askConfirm('Every note you picked is cleared.','Remove',true,'Remove all the notes?'):Promise.resolve(true)).then(y=>{if(y){sel.clear();list();W.redraw()}});return}
+    if(e.target.closest('#fl-clear')){if(!sel.size)return;const was=[...sel];sel.clear();list();W.redraw();undoToast('Notes cleared',()=>{was.forEach(x=>sel.add(x));list();W.redraw()});return}
     if(e.target.closest('#fl-done'))d.close()};
   $('vd-x').onclick=()=>d.close();
   // Whatever you leave the sheet with (Done, the cross or back) is kept.

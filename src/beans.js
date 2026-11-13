@@ -137,8 +137,9 @@ const FRESH={rest:['Resting','Give it a few more days: fresh coffee is gassy and
   good:['Still lovely','Past its peak but still sweet. A touch finer if it tastes flat.'],fade:['Fading','Getting tired: grind finer and brew a little hotter to wake it up.']};
 // The stretches follow the roast. A light roast is dense and lets its gas out slowly: it tastes muted in its first
 // week, is at its best from about day 7 to 30 and stays good for two months. A dark roast is ready in two or three
-// days and fades after about a month. A medium roast (or one whose roast isn't set) sits between: resting to day 3,
-// at its peak 4 to 21, still lovely to 45. Each is [peak from, peak to, still lovely to].
+// days and fades after about a month. A medium roast sits between: resting to day 3, at its peak 4 to 21, still lovely
+// to 45. Each is [peak from, peak to, still lovely to]. A bag whose roast isn't set is treated as light, as most
+// specialty coffee is.
 const FWIN={light:[7,30,60],medium:[4,21,45],dark:[3,14,30]};
 // Then the bean itself moves the window by a few days. Dense beans (grown high, or a dense variety such as Geisha,
 // the SL types or Ethiopian and Yemeni landraces) let their gas out more slowly: a longer rest and a longer peak. Soft,
@@ -153,7 +154,7 @@ const F_DENSE_V=new Set(['geisha','sl28','sl34','sl14','landrace','jarc','kurume
 // How high the origin grows: the middle of its altitude range ("1,500 to 2,300 m"), or 0 when it isn't given in metres.
 const altOf=k=>{const o=k&&oInfo(k),a=o&&o.alt;if(!a)return 0;if(/low/i.test(a))return 900;const n=(a.match(/\d[\d,]*/g)||[]).map(x=>+x.replace(/,/g,'')).filter(x=>x>=100);return n.length?(Math.min(...n)+Math.max(...n))/2:0};
 const vBase=v=>String(v||'').split(':')[0];
-function freshWin(b){const w=(FWIN[b&&b.roast]||FWIN.medium).slice(),why=[];if(!b)return{w,why};
+function freshWin(b){const w=(FWIN[b&&b.roast]||FWIN.light).slice(),why=[];if(!b)return{w,why};
   const vs=[b.variety,...(b.vars||[])].map(vBase).filter(Boolean),alt=altOf(b.origin);
   const dense=vs.some(v=>F_DENSE_V.has(v))||alt>=1700,soft=!dense&&(vs.some(v=>F_SOFT_V.has(v))||(alt&&alt<1200));
   if(dense){w[0]+=2;w[1]+=3;w[2]+=5;why.push(vs.some(v=>F_DENSE_V.has(v))?'dense bean':'high-grown')}
@@ -165,7 +166,7 @@ function freshWin(b){const w=(FWIN[b&&b.roast]||FWIN.medium).slice(),why=[];if(!
   if(br.length>=2&&esp*2>=br.length){w[0]+=5;w[1]+=5;w[2]+=5;why.push('espresso')}
   // Opened: the bag's clock runs faster from then on.
   const op=b.roastDate&&(b.diary||[]).filter(e=>e.k==='opened'&&e.d>=b.roastDate).map(e=>e.d).sort().pop();
-  if(op){const od=Math.round((Date.parse(op+'T12:00')-Date.parse(b.roastDate+'T12:00'))/864e5),cap=F_OPEN[b.roast]||F_OPEN.medium;
+  if(op){const od=Math.round((Date.parse(op+'T12:00')-Date.parse(b.roastDate+'T12:00'))/864e5),cap=F_OPEN[b.roast]||F_OPEN.light;
     const p2=Math.min(w[1],od+cap[0]),g2=Math.min(w[2],od+cap[1]);if(p2<w[1]||g2<w[2]){w[1]=p2;w[2]=g2;why.push('opened '+fmtD(op).replace(/,? \d{4}$/,''))}}
   // Always in order: a peak at least a few days long, and still lovely after it.
   w[1]=Math.max(w[1],w[0]+2);w[2]=Math.max(w[2],w[1]+3);return{w,why}}
@@ -174,7 +175,7 @@ function fresh(b){if(!b.roastDate)return null;const d=daysAgo(b.roastDate);if(d<
 // The bag's window in words, under the line, with what shaped it: so the label isn't a mystery, and a missing roast
 // can be set.
 const freshWinLine=f=>{const by=[f.roast?f.roast[0].toUpperCase()+f.roast.slice(1)+' roast':'',...f.why].filter(Boolean),lead=by.length?by.join(', ').replace(/^./,c=>c.toUpperCase())+': best':'Best';
-  return lead+' from day '+f.w[0]+' to '+f.w[1]+', still lovely to day '+f.w[2]+(f.roast?'':' (set the roast for a closer window)')};
+  return (f.roast?'':'Taken as light roast. ')+lead+' from day '+f.w[0]+' to '+f.w[1]+', still lovely to day '+f.w[2]};
 // The freshness line: its four stretches coloured in proportion (with a little room past "still lovely"), a marker on today.
 const freshBar=f=>{const [a,b,c]=f.w,S=c+15,pc=n=>(n/S*100).toFixed(1)+'%';
   return '<span class="fbar" role="img" aria-label="Day '+f.d+' off roast: '+f.label+'"><i class="fz1" style="width:'+pc(a)+'"></i><i class="fz2" style="width:'+pc(b-a+1)+'"></i><i class="fz3" style="width:'+pc(c-b)+'"></i><i class="fz4"></i><b style="left:'+Math.min(100,f.d/S*100).toFixed(1)+'%"></b></span>'};
@@ -370,14 +371,16 @@ function yearInCoffeeHTML0(){const cy=new Date().getFullYear(),bs=BEANS.filter(b
   const cups=myCups(cy);if(!bs.length&&!cups.length)return '';const g=Math.round(cups.reduce((s,c)=>s+(c.g||0),0)),t=tasteOf(bs,ls),origins=new Set(bs.map(b=>b.origin).filter(Boolean)).size,bags=bagsIn(cy);
   const big=[[bs.length,(bs.length===1?'coffee':'coffees')+(bags>bs.length?' · '+bags+' bags':'')],[cups.length,cups.length===1?'cup brewed':'cups brewed'],g?[g>=1000?(g/1000).toFixed(g>=10000?0:1)+' kg':g+' g','of coffee']:[origins,origins===1?'origin':'origins']];
   const o=t.origin&&oInfo(t.origin.k),R=t.region&&REG[t.region.k],v=t.variety&&VBY[t.variety.k],pr=t.process&&PROCESSES[t.process.k],B=t.brewer&&BREWERS[t.brewer.k];
-  const facts=[o&&['<span class="yic-fl">'+flagOf(t.origin.k)+'</span>','Mostly from',o.name,t.origin.n+' bag'+(t.origin.n===1?'':'s')],R&&['🗺️','Favourite region',R.name+(t.regionOrigin&&t.regionOrigin.k!==(t.origin&&t.origin.k)?' · mostly '+oInfo(t.regionOrigin.k).name:''),t.region.n+' bag'+(t.region.n===1?'':'s')],
-    v&&['🌱','Top variety',shortName(v.name),t.variety.n+' bag'+(t.variety.n===1?'':'s')],pr&&['🧪','Top process',pr.name.replace(/\s*\(.*\)$/,''),t.process.n+' bag'+(t.process.n===1?'':'s')],
-    t.roast&&['🔥','Usual roast',t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1),''],t.roaster&&['🏷️','Roastery most often',t.roaster.k,t.roaster.n+' bag'+(t.roaster.n===1?'':'s')],
-    t.regular&&['🔁','Your regular',beanTitle(t.regular),'Bought '+buys(t.regular)+' times'],t.best&&['🏆','Best of the year',beanTitle(t.best),String(t.best.rating).replace('.5','½')+' beans'],B&&['☕','Brewed most on',B.name,t.brewer.n+' cup'+(t.brewer.n===1?'':'s')]].filter(Boolean);
+  // The facts, without counts: short ones as tiles two to a row, then the coffees (your regular, the best of the year)
+  // full width, each opening its coffee. An odd tile out at the end of the short ones spans the row too.
+  const half=[o&&['<span class="yic-fl">'+flagOf(t.origin.k)+'</span>','Mostly from',o.name],R&&['🗺️','Favourite region',R.name+(t.regionOrigin&&t.regionOrigin.k!==(t.origin&&t.origin.k)?' · mostly '+oInfo(t.regionOrigin.k).name:'')],
+    v&&['🌱','Top variety',shortName(v.name)],pr&&['🧪','Top process',pr.name.replace(/\s*\(.*\)$/,'')],t.roast&&['🔥','Usual roast',t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1)],
+    t.roaster&&['🏷️','Roastery most often',t.roaster.k],B&&['☕','Brewed most on',B.name]].filter(Boolean);
+  const wide=[t.regular&&['🔁','Your regular',beanTitle(t.regular),t.regular.id],t.best&&['🏆','Best of the year',beanTitle(t.best),t.best.id]].filter(Boolean);
+  const tile=([ic,k,vv,id],w)=>(id?'<button type="button" class="yic-t w" data-bean="'+id+'">':'<div class="yic-t'+(w?' w':'')+'">')+'<i aria-hidden="true">'+ic+'</i><span><small>'+k+'</small><b>'+esc(vv)+'</b></span>'+(id?'<svg class="yic-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>':'</div>');
   return '<div class="yic" role="region" aria-label="'+cy+' in coffee"><div class="yic-h"><h3>'+cy+' in coffee</h3></div>'+(bs.length>1?'<p class="yic-line">'+esc(tasteLine(t))+'</p>':'')+
     '<div class="yic-big">'+big.map(([n,l])=>'<span><b>'+esc(String(n))+'</b><small>'+esc(l)+'</small></span>').join('')+'</div>'+
-    // The facts as one list: the icon, what it is over its value, and the count on the right.
-    (facts.length?'<ul class="yic-list">'+facts.map(([i,k,vv,sub])=>'<li><i aria-hidden="true">'+i+'</i><span><small>'+k+'</small><b>'+esc(vv)+'</b></span>'+(sub?'<em>'+esc(sub)+'</em>':'')+'</li>').join('')+'</ul>':'')+
+    (half.length||wide.length?'<div class="yic-grid">'+half.map((f,i)=>tile(f,half.length%2===1&&i===half.length-1)).join('')+wide.map(f=>tile(f,true)).join('')+'</div>':'')+
     (t.notes.length?'<div class="yic-notes"><small>Notes you keep coming back to</small><div class="chips">'+t.notes.map(n=>'<span class="chip"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'</span>').join('')+'</div></div>':'')+'</div>'}
 
 /* ================= FOR YOU ================= */
@@ -578,6 +581,43 @@ async function setReminder(on,t){const ln=LN();if(t)REMIND.t=t;
   const run=()=>{if(!pend)return;if(!ready()){setTimeout(run,150);return}const n=pend;pend=null;try{go(n)}catch(e){}};
   try{ln.addListener('localNotificationActionPerformed',a=>{pend=a&&a.notification;run()})}catch(e){}
   if(REMIND.on)setTimeout(scheduleReminders,3000)})();
+// The home-screen widget (Android, see BrewWidget.java): the coffee you're drinking, meaning the cabinet coffee you
+// brewed most recently (or added most recently, before any brews), sent when the app starts and each time you leave
+// it. The widget works out the day's freshness itself from the roast date and window. Tapping it opens that coffee;
+// its Log brew button opens the brew form with that coffee picked.
+function widgetBean(){const sh=BEANS.filter(b=>b.shelf);if(!sh.length)return null;const last=b=>beanBrews(b).reduce((m,l)=>Math.max(m,+l.ts||0),0);
+  return sh.map(b=>[b,last(b)]).sort((a,c)=>c[1]-a[1]||(+c[0].ts||0)-(+a[0].ts||0))[0][0]}
+const wLeft=b=>{const c=cupsLeft(b);return c==null?'':c?c+(c===1?' cup left':' cups left'):'Bag empty'};
+// The other widgets: Your cabinet (up to four shelf coffees, most recently brewed first), Quick brew (the recipe you've
+// brewed most in the last two months, else the last one opened) and Coffee word of the day (the coming six weeks'
+// words, the same as Today in coffee, so the widget moves on each day by itself).
+function widgetCabinet(){const last=b=>beanBrews(b).reduce((m,l)=>Math.max(m,+l.ts||0),0);
+  return BEANS.filter(b=>b.shelf).map(b=>[b,last(b)]).sort((a,c)=>c[1]-a[1]||(+c[0].ts||0)-(+a[0].ts||0)).slice(0,4)
+    .map(([b])=>({id:b.id,title:beanTitle(b),roastDate:b.roastDate||'',win:freshWin(b).w.join(','),left:wLeft(b)}))}
+function widgetRecipe(){const since=Date.now()-60*864e5,n=new Map();for(const l of LOG)if(isMine(l)&&(+l.ts||0)>=since&&l.snap&&l.snap.rec)n.set(l.snap.rec,(n.get(l.snap.rec)||0)+1);
+  let i=-1;const top=[...n].sort((a,b)=>b[1]-a[1])[0];if(top)i=RECIPES.findIndex(r=>r.name===top[0]);
+  if(i<0&&typeof RECENT!=='undefined'&&RECENT.length)i=rByKey(RECENT[0]);if(i<0)return{};
+  const r=RECIPES[i],sc=scaled(r),B=BREWERS[r.b];
+  return{key:rkey(r),name:r.name,line:[B&&B.name,gfmt(sc.dose)+' g : '+gfmt(sc.water)+' g',r.temp?r.temp+'°C':''].filter(Boolean).join(' · ')}}
+function widgetWords(){const d0=Math.floor(Date.now()/864e5),out=[];for(let d=d0;d<d0+42;d++){const w=GLOSSARY[d%GLOSSARY.length];out.push([d,w[0],sentences(w[2],170)])}return out}
+function updWidget(){const w=plugin('Widget');if(!w)return;try{const b=widgetBean();let rc={};try{rc=widgetRecipe()}catch(e){}
+  w.update(Object.assign(b?{id:b.id,title:beanTitle(b),sub:[b.roaster,b.origin?(flagOf(b.origin)+' '+originName(b.origin)).trim():''].filter(Boolean).join(' · '),
+    roastDate:b.roastDate||'',win:freshWin(b).w.join(','),left:wLeft(b)}:{id:''},{cabinet:JSON.stringify(widgetCabinet()),brew:JSON.stringify(rc),words:JSON.stringify(widgetWords())})).catch(()=>{})}catch(e){}}
+(()=>{if(!plugin('Widget'))return;setTimeout(updWidget,2500);document.addEventListener('visibilitychange',()=>{if(document.hidden)updWidget()});
+  const go=o=>{const [k,id]=String(o||'').split(':');document.querySelectorAll('dialog[open]').forEach(d=>d.close());
+    if(k==='bean'&&beanById(id)){showTab('beans');openBean(id);return}
+    if(k==='log'){if(LEDIT)endEdit();LBEAN=id&&beanById(id)?id:null;renderLBean();renderFlForm();showTab('log');setTimeout(()=>$('l-form').scrollIntoView({block:'start'}),60);return}
+    // Recipe keys hold a colon themselves ("r:kasuya-4-6"), so the rest of the request is the key.
+    const rest=String(o).slice(k.length+1);
+    if(k==='recipe'||k==='timer'){const i=rByKey(rest);if(i>=0){showTab('recipes');if(k==='timer')openTimer(i);else openRecipe(i);return}showTab('recipes');return}
+    if(k==='recipes'){showTab('recipes');return}
+    if(k==='word'&&GBY[rest]){openWord(rest);return}
+    if(k==='word'||k==='explore'){goTab('explore');return}
+    showTab('beans')};
+  const ready=()=>NAV_READY&&!document.documentElement.classList.contains('splashing');
+  // Asked on start (a tap that opened the app) and by the app when a tap arrives while it's running.
+  const ask=()=>{if(!ready()){setTimeout(ask,150);return}plugin('Widget').pending().then(r=>{if(r&&r.open)go(r.open)}).catch(()=>{})};
+  window.bbWidget=ask;ask()})();
 function cabinetDayHTML(){const c=cabinetDay();if(!c)return '';
   return '<button type="button" class="cday k-'+c.k+'" data-bean="'+c.b.id+'">'+beanPic(c.b,'cd')+'<span class="cd-tx"><small>'+(c.k==='fav'?'From your cabinet':'From your cabinet · '+DAYK[c.k])+'</small><b>'+esc(c.title)+'</b><span>'+esc(c.text)+'</span></span></button>'}
 
@@ -779,7 +819,7 @@ function shelfHTML(){const sh=shelfOrder();
 // This season's challenges: what's running, how far along you are and how long is left.
 function seasonCardHTML(full){const now=seasonNow(),nx=seasonNext();if(!now.length&&!nx)return '';
   const row=t=>'<div class="ssn'+(t.done?' on':'')+'"><span class="ssn-ic" aria-hidden="true">'+t.ic+'</span><span class="ssn-tx"><b>'+esc(t.w.label?t.n+': '+t.w.label:t.n)+'</b><small>'+(t.done?'Earned '+dfmt(Date.parse(TGOT[t.key]+'T12:00')):esc(t.desc))+'</small>'+
-    (t.done?'':'<span class="tro-p" aria-label="'+t.h+' of '+t.need+'"><i style="width:'+(t.h/t.need*100).toFixed(0)+'%"></i></span>')+'</span><span class="ssn-n">'+(t.done?'✓':t.h+'/'+t.need)+'<small>'+(t.left?t.left+' day'+(t.left===1?'':'s')+' left':'Last day')+'</small></span></div>';
+    (t.done?'':'<span class="tro-p" role="img" aria-label="'+t.h+' of '+t.need+'"><i style="width:'+(t.h/t.need*100).toFixed(0)+'%"></i></span>')+'</span><span class="ssn-n">'+(t.done?'✓':t.h+'/'+t.need)+'<small>'+(t.left?t.left+' day'+(t.left===1?'':'s')+' left':'Last day')+'</small></span></div>';
   const list=full?now:now.filter(t=>!t.done).slice(0,2);
   return '<div class="season"><div class="ssn-h"><span class="pp-k">This season</span>'+(full?'':'<button type="button" class="linkbtn" data-tro="1">All trophies</button>')+'</div>'+
     (list.length?list.map(row).join(''):'<p class="hint" style="margin:6px 0 0">Every challenge this season is done. Nice work.</p>')+
@@ -933,7 +973,7 @@ function openOrigin(k){const d=$('vd'),o=oInfo(k);if(!o)return;BFROM=k;const lis
     '<div class="vd-body"><div class="clist og-list">'+list.map((b,i)=>coffeeRow(b,false,i)).join('')+'</div><div class="actions"><button type="button" class="btn ghost" id="og-map">'+esc(originName(k))+' on the map</button></div></div>';
   hydrateImgs($('vd-in'));$('vd-in').onclick=e=>{if(!$('vd-in').querySelector('.og-list'))return;const r=e.target.closest('[data-bean]');if(r){BFROM=k;openBean(r.dataset.bean);return}if(e.target.closest('#og-map')){d.close();goTab('map');setTimeout(()=>{try{selectOrigin(k,true)}catch(x){}},350)}};
   $('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
-function openBean(id,write){const b=beanById(id);if(!b)return;const d=$('vd'),rk=beanRank(b),P=b.process&&PROCESSES[b.process],ls=beanLogStats(b),f=b.shelf&&fresh(b);
+function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.bean=b.id;const d=$('vd'),rk=beanRank(b),P=b.process&&PROCESSES[b.process],ls=beanLogStats(b),f=b.shelf&&fresh(b);
   const cal=b.cal&&calById(b.cal.id);
   const fmt=s=>s?new Date(s+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'';
   const kv=[['Origin',b.origin?flagOf(b.origin)+' '+originName(b.origin):''],['Process',P?P.name:''],[b.vars?'Varieties':'Variety',b.variety?varsName(b):''],['Roast',b.roast?b.roast[0].toUpperCase()+b.roast.slice(1):''],['Roasted',fmt(b.roastDate)],['Tried',b.tried?fmt(b.tried):'Not yet'],...(cal?[['Advent','Door '+b.cal.d+' · '+calName(cal)]]:[]),['Brewed',ls?ls.n+' time'+(ls.n===1?'':'s'):'']].filter(x=>x[1]);
@@ -989,10 +1029,12 @@ function openBean(id,write){const b=beanById(id);if(!b)return;const d=$('vd'),rk
     if(rd&&(!/^\d{4}-\d\d-\d\d$/.test(rd)||rd>todayISO())){toast('Pick a roast date that isn’t in the future');return}
     rebuyBean(b,rd,g>=50&&g<=5000?Math.round(g):0);refresh('New bag on the shelf: it’s in Drinking now')};
   wireDwrite('bd',st,()=>b,(_,msg)=>{refresh(msg);setTimeout(()=>{const h=$('bd-dh');if(h)h.scrollIntoView({block:'start'})},50)});
-  $('bd-tl').onclick=e=>{const x=e.target.closest('[data-deldiary]');if(!x)return;const id=x.dataset.deldiary;askConfirm('Its words and photos go with it.','Delete',true,'Delete this diary entry?').then(y=>{if(!y)return;dropDiaryPhotos(b.diary.filter(en=>en.id===id));b.diary=b.diary.filter(en=>en.id!==id);refresh('Entry deleted')})};
+  $('bd-tl').onclick=e=>{const x=e.target.closest('[data-deldiary]');if(!x)return;const id=x.dataset.deldiary;const was=b.diary,gone=was.filter(en=>en.id===id);b.diary=was.filter(en=>en.id!==id);refresh();
+    undoToast('Diary entry deleted',()=>{const cur=BEANS.find(x=>x.id===b.id);if(!cur)return;cur.diary=was;saveBeans();checkTrophies();renderBeans();if($('vd').open&&$('bd-tl')&&$('vd').dataset.bean===b.id)openBean(b.id)},()=>dropDiaryPhotos(gone))};
   $('bd-del').onclick=()=>{const inTop=inAnyTop(b.id);
-    askConfirm('Its diary and photos go with it.'+(inTop?' It stays in your top 5 history.':''),'Remove',true,'Remove “'+beanTitle(b)+'”?').then(y=>{if(!y)return;
-    BEANS=BEANS.filter(x=>x.id!==b.id);saveBeans();if(!inTop)BIMG.del(b.id);dropDiaryPhotos(b.diary);d.close();renderBeans();toast('Removed from your gallery')})};
+    const i=BEANS.findIndex(x=>x.id===b.id);if(i<0)return;BEANS=BEANS.filter(x=>x.id!==b.id);saveBeans();d.close();renderBeans();
+    undoToast('Removed “'+beanTitle(b)+'”',()=>{if(BEANS.some(x=>x.id===b.id))return;BEANS.splice(Math.min(i,BEANS.length),0,b);saveBeans();renderBeans()},
+      ()=>{if(BEANS.some(x=>x.id===b.id))return;if(!inTop)BIMG.del(b.id);dropDiaryPhotos(b.diary||[])})};
   showDlg(d);$('vd-x').onclick=()=>d.close();if($('vd-back'))$('vd-back').onclick=()=>openOrigin(from);if($('bd-advback'))$('bd-advback').onclick=()=>openCal(cal.id,{back:b.cal.d});
   if(write)setTimeout(()=>{const h=$('bd-dh');if(h){h.scrollIntoView({block:'start'});$('bd-dt').focus({preventScroll:true})}},80);else d.scrollTop=0}
 function beanDoc(b){const P=b.process&&PROCESSES[b.process];

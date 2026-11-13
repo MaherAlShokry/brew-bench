@@ -54,7 +54,7 @@ function calLabel(inp){const l=inp.id&&document.querySelector('label[for="'+inp.
 function enhanceDate(inp){if(inp.dataset.ui)return;inp.dataset.ui=1;
   const w=document.createElement('span');w.className='datew';w.tabIndex=0;w.setAttribute('role','button');
   inp.parentNode.insertBefore(w,inp);w.appendChild(inp);w.insertAdjacentHTML('beforeend','<span class="dw-t"></span>'+CAL_ICO);
-  inp.tabIndex=-1;inp.setAttribute('aria-hidden','true');
+  inp.tabIndex=-1;inp.setAttribute('aria-hidden','true');inp.inert=true;
   const paint=()=>{const t=calWords(inp.value);w.querySelector('.dw-t').textContent=t||'Choose a date';w.classList.toggle('empty',!t);
     w.setAttribute('aria-label',calLabel(inp)+': '+(t||'not set')+'. Choose a date')};
   // Code that sets the value (a scan filling in its roast date) updates the words too.

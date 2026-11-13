@@ -4,4 +4,13 @@
     <string name="title_activity_main">Brew Bench</string>
     <string name="package_name">io.github.maheralshokry.brewbench</string>
     <string name="custom_url_scheme">io.github.maheralshokry.brewbench</string>
+    <string name="widget_name">Drinking now</string>
+    <string name="widget_desc">The coffee you\'re drinking, how fresh it is today, and a button to log a brew</string>
+    <string name="widget_cabinet_name">Your cabinet</string>
+    <string name="widget_cabinet_desc">The coffees on your shelf and how fresh each is today</string>
+    <string name="widget_cabinet_empty">Nothing in your cabinet yet. Add the bag you\'re drinking.</string>
+    <string name="widget_brew_name">Quick brew</string>
+    <string name="widget_brew_desc">Your go-to recipe, one tap from the brew timer</string>
+    <string name="widget_word_name">Coffee word of the day</string>
+    <string name="widget_word_desc">A new coffee word each day, the same as Today in coffee</string>
 </resources>

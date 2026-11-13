@@ -1,0 +1,8 @@
+const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const ok=(n,v,x)=>console.log((v?'ok  ':'FAIL')+' '+n+(x!==undefined?'  ('+JSON.stringify(x)+')':''));
+for(const w of [320,360,392,430])for(const t of ['m','l','xl']){const c=await b.newContext({viewport:{width:w,height:900},isMobile:true,hasTouch:true});const p=await c.newPage();
+await p.addInitScript(()=>{sessionStorage.setItem('bb-splashed','1')});await p.goto('http://localhost:8099/index.html');await p.evaluate(require('./seed2.cjs'));
+await p.evaluate(t=>{localStorage.setItem('bb-profile',JSON.stringify({nick:'The Coffee Custodian',name:'Sam Rivers',brief:'x',city:'OMAN',brewer:'sw',origin:'yemen',style:'sweet',since:Date.now(),updated:Date.now()}));const u=JSON.parse(localStorage.getItem('bb-ui')||'{}');u.text=t;localStorage.setItem('bb-ui',JSON.stringify(u))},t);await p.reload();await p.waitForTimeout(900);await p.evaluate(()=>openMe());await p.waitForTimeout(700);
+const r=await p.evaluate(()=>{const d=[...document.querySelectorAll('.me-sq>div')].map(x=>x.getBoundingClientRect()),g=document.querySelector('.me-sq').getBoundingClientRect();let overlap=false;for(let i=1;i<d.length;i++)if(d[i].left<d[i-1].right-0.5)overlap=true;
+ const inside=d.every(x=>x.right<=g.right+0.5&&x.left>=g.left-0.5),clip=[...document.querySelectorAll('.me-sq small,.me-sq b')].some(e=>e.scrollWidth>e.clientWidth+1);return {overlap,inside,clip,h:d.map(x=>Math.round(x.height)),w:d.map(x=>Math.round(x.width)),t:document.documentElement.dataset.text}});
+ok(w+'px text '+t+': squares side by side, inside, same height, nothing cut',!r.overlap&&r.inside&&!r.clip&&r.h.every(h=>h===r.h[0]),r);
+if(w===392&&t==='xl')await p.screenshot({path:'sq-xl.png'});await c.close()}await b.close()})()

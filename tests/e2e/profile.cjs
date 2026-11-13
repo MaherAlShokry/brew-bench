@@ -1,0 +1,15 @@
+const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const ok=(n,c,x)=>console.log((c?'ok  ':'FAIL')+' '+n+(x!==undefined?'  ('+JSON.stringify(x)+')':''));const D='';
+ const c=await b.newContext({viewport:{width:390,height:844},deviceScaleFactor:2,serviceWorkers:'block'});await c.addInitScript(()=>{sessionStorage.setItem('bb-splashed','1');localStorage.setItem('bb-theme','dark')});const p=await c.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));await p.route(u=>!u.href.startsWith('http://localhost'),r=>r.abort());
+ await p.goto('http://localhost:8099/index.html');await p.waitForTimeout(800);await p.evaluate(()=>showTab('scan'));
+ const cases=[['Pink Bourbon, Colombia',"Finca El Mirador\nOrigin: Colombia\nVariety: Pink Bourbon\nProcess: Anaerobic natural\nNotes: mango\nRoast: light\nAltitude 1,550 m"],
+  ['Kenya washed',"Karimikui AA\nOrigin: Kenya\nVariety: SL28\nProcess: Washed\nNotes: blackcurrant, grapefruit\nRoast: light"],
+  ['Sumatra dark',"Sumatra Mandheling\nOrigin: Indonesia\nProcess: Wet-hulled\nRoast: dark\nNotes: cedar, dark chocolate"]];
+ for(const [n,txt] of cases){await p.evaluate(t=>{document.getElementById('scan-text').value=t;runLocalScan(false)},txt);await p.waitForTimeout(700);
+  const r=await p.evaluate(()=>{const out=document.getElementById('scan-out');const pr=out.querySelector('.bprof');return{has:!!pr,old:/Recommended brew/.test(out.innerText),head:pr&&pr.querySelector('.bp-head').textContent,meters:pr&&[...pr.querySelectorAll('.cuptraits li')].map(m=>m.querySelector('b').textContent+' '+m.querySelectorAll('i.on').length+' '+m.querySelector('em').textContent).join(', '),tips:pr&&[...pr.querySelectorAll('.bp-tips li')].map(l=>l.textContent),numbers:pr&&(pr.innerText.match(/\d+\s?(°C|clicks?)|\d\.\d\b|Kasuya|4:6/g)||[])}});
+  console.log('\n'+n+':\n  '+r.head+'\n  '+r.meters+'\n  - '+(r.tips||[]).join('\n  - '));
+  ok(n+': profile shown, no recipe, no grind or temperature numbers',r.has&&!r.old&&!r.numbers.length,r.numbers)}
+ await p.evaluate(()=>{document.getElementById('scan-text').value="Finca El Mirador\nOrigin: Colombia\nVariety: Pink Bourbon\nProcess: Anaerobic natural\nNotes: mango\nRoast: light";runLocalScan(false)});await p.waitForTimeout(900);
+ await p.evaluate(()=>{const h=[...document.querySelectorAll('#scan-out h3')].find(x=>/Coffee profile/.test(x.textContent));h.scrollIntoView({block:'start'});scrollBy(0,-100)});await p.waitForTimeout(400);await p.screenshot({path:D+'scan-profile.png'});
+ ok('Share card has the profile, no recipe',await p.evaluate(()=>{const d=scanDoc(plan({brewer:SC.brewer,grinder:SC.grinder,tech:techList(SC.brewer)[0][1],process:SC.process,variety:SC.variety,roast:SC.roast,age:daysSince(SC.date),goal:'balance'}),{tech:techList(SC.brewer)[0][1]});return d.blocks.map(x=>x.h).join(', ')}).then(h=>/How to brew it/.test(h)&&!/Recommended|Steps|Settings/.test(h)));
+ ok('Brew it in the dial-in still works',await p.evaluate(()=>{document.getElementById('sc-dial').click();return document.querySelector('main section.on').id==='dial'&&S.rec!=null}));
+ ok('no errors',!errs.length,errs);await b.close()})();

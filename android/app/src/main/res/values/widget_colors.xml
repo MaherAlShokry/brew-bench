@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The home-screen widget's colours, from the app's light look (values-night has the dark one). -->
+<resources>
+    <color name="widget_bg">#FBF6EF</color>
+    <color name="widget_ink">#2A1A10</color>
+    <color name="widget_muted">#7A6555</color>
+    <color name="widget_accent">#8A5A3B</color>
+    <color name="widget_btn">#C9964A</color>
+    <color name="widget_btn_ink">#2A1A10</color>
+    <color name="widget_row">#F3EADC</color>
+</resources>

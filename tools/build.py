@@ -56,7 +56,12 @@ JSPDF_CDN = '<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jsp
 page = (src / 'template.html').read_text(encoding='utf-8')
 assert GOOGLE_FONTS in page and JSPDF_CDN in page, 'font or jsPDF tag in template.html changed; update build.py'
 data = (src / 'data' / 'origins-varieties-history.js').read_text(encoding='utf-8') + '\n' + (src / 'data' / 'brewing.js').read_text(encoding='utf-8') + '\n' + (src / 'data' / 'championships.js').read_text(encoding='utf-8') + '\n' + (src / 'data' / 'knowledge.js').read_text(encoding='utf-8') + '\nconst EVENTS_DEFAULT=' + (root / 'events.json').read_text(encoding='utf-8') + ';' + '\nconst LOGO_DATA=' + (src / 'data' / 'logos.json').read_text(encoding='utf-8') + ';'
-out = page.replace('__MAP__', (src / 'data' / 'world-map.json').read_text(encoding='utf-8').replace('</', '<\\/')) \
+# The world map's shapes are inline only in the single-file build; the website and app fetch vendor/world-map.json when
+# the map is first opened, so the page itself loads faster.
+world = (src / 'data' / 'world-map.json').read_text(encoding='utf-8')
+if not artifact and (not (root / 'vendor' / 'world-map.json').exists() or (root / 'vendor' / 'world-map.json').read_text(encoding='utf-8') != world):
+    (root / 'vendor' / 'world-map.json').write_text(world, encoding='utf-8')
+out = page.replace('__MAP__', world.replace('</', '<\\/') if artifact else '') \
           .replace('__SPLASH_LOGOS__', json.dumps({k: v for k, v in json.loads((src / 'data' / 'logos.json').read_text(encoding='utf-8')).items() if k != '_'}, separators=(',', ':'))).replace('__DATA__', data).replace('__APP__', (src / 'wheel.js').read_text(encoding='utf-8') + '\n' + (src / 'steps.js').read_text(encoding='utf-8') + '\n' + (src / 'app.js').read_text(encoding='utf-8') + '\n' + (src / 'beans.js').read_text(encoding='utf-8') + '\n' + (src / 'advent.js').read_text(encoding='utf-8') + '\n' + (src / 'brewcard.js').read_text(encoding='utf-8') + '\n' + (src / 'select.js').read_text(encoding='utf-8') + '\n' + (src / 'profile.js').read_text(encoding='utf-8') + '\n' + (src / 'sync.js').read_text(encoding='utf-8'))
 if not artifact:
     # The website and app use the bundled copies in vendor/ so they work offline.
@@ -86,7 +91,12 @@ elif app:
 else:
     target = root / 'index.html'
 target.parent.mkdir(parents=True, exist_ok=True)
-target.write_text(address(out), encoding='utf-8')
+out = address(out)
+if not artifact and not app:
+    # The website's build stamp: the page compares it with the copy its service worker has saved, to offer a reload.
+    import hashlib
+    out = out.replace('</head>', '<script>const BUILD_ID="' + hashlib.sha1(out.encode('utf-8')).hexdigest()[:12] + '"</script>\n</head>', 1)
+target.write_text(out, encoding='utf-8')
 print(f'Built {target.relative_to(root)} ({len(out)//1024} KB) for {site_url}')
 
 if site:
