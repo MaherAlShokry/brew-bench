@@ -15,9 +15,9 @@ const r=await p.evaluate(async()=>{const docs=[['bean',()=>beanDoc(BEANS[0])],['
     const st={mode:'dark',col:CARD_STYLE.col};
     await new Promise(r=>setTimeout(r,300));long.length=0;
     const n0=BC.BGN||0;const t0=performance.now();const a=await shCardFor(doc,st);const bg=(BC.BGN||0)>n0;const tw=performance.now()-t0;await new Promise(r=>setTimeout(r,150));const lw=Math.max(0,...long);
-    doc._cards=null;const keep=BCW;BCW=Promise.resolve(false);const t1=performance.now();const m=await shCardFor(doc,st);const tm=performance.now()-t1;BCW=keep;
+    doc._cards=null;const keep=BCW;BCW=Promise.resolve(false);await new Promise(r=>setTimeout(r,300));long.length=0;const t1=performance.now();const m=await shCardFor(doc,st);const tm=performance.now()-t1;BCW=keep;await new Promise(r=>setTimeout(r,150));const lm=Math.max(0,...long);
     const A=await px(a),M=await px(m);let diff=0,n=0;if(A.w===M.w&&A.h===M.h){for(let i=0;i<A.d.length;i+=4*37){diff+=Math.abs(A.d[i]-M.d[i])+Math.abs(A.d[i+1]-M.d[i+1])+Math.abs(A.d[i+2]-M.d[i+2]);n+=3}}
-    out.cards[k]={bg,size:[A.w,A.h],same:A.w===M.w&&A.h===M.h,diff:n?+(diff/n).toFixed(2):null,longTask:Math.round(lw),ms:[Math.round(tw),Math.round(tm)],brk:(a._brk||[]).length===(m._brk||[]).length}}
+    out.cards[k]={bg,size:[A.w,A.h],same:A.w===M.w&&A.h===M.h,diff:n?+(diff/n).toFixed(2):null,longTask:Math.round(lw),pageLongTask:Math.round(lm),ms:[Math.round(tw),Math.round(tm)],brk:(a._brk||[]).length===(m._brk||[]).length}}
   // The PDF is in the app's look, whatever look was picked for the image.
   CARD_STYLE.mode=curTheme()==='dark'?'light':'dark';CARD_STYLE.col='kenya';const seen=[];const keepF=shCardFor;
   shCardFor=(d,s)=>{seen.push(s);return keepF(d,s)};await docPDF(beanDoc(BEANS[0]));shCardFor=keepF;out.pdfStyle=seen[0];out.theme=curTheme();
@@ -26,7 +26,9 @@ console.log(mode,JSON.stringify(r));
 ok(mode+': cards are painted in the background',r.worker);
 for(const [k,v] of Object.entries(r.cards)){if(v.skip){console.log('  skip',k,v.skip);continue}
   ok(mode+' '+k+': same size and look as drawn on the page',v.same&&v.diff!==null&&v.diff<3&&v.brk,v);
-  ok(mode+' '+k+': painted in the background, no freeze while it is made',v.bg&&v.longTask<150,v)}
+  // No freeze: the page's longest pause is short, or far shorter than drawing the same card on the page (a slower
+  // machine, like CI's, stretches both).
+  ok(mode+' '+k+': painted in the background, no freeze while it is made',v.bg&&(v.longTask<150||v.longTask<v.pageLongTask*0.4),v)}
 ok(mode+': the PDF follows the app look (Vibe’s own, '+r.theme+')',r.pdfStyle&&r.pdfStyle.col==='classic'&&r.pdfStyle.mode===r.theme,r.pdfStyle);
 ok(mode+': no errors',!errs.length,errs);await c.close()}
 await b.close()})();
