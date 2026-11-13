@@ -2886,9 +2886,11 @@ function pdfSafe(s){return String(s??'').replace(/[\u2018\u2019]/g,"'").replace(
 function docText(doc,noLink){let t='# '+doc.title+'\n';if(doc.sub)t+=doc.sub+'\n';t+='\n';
   for(const b of doc.blocks){if(b.h)t+='## '+b.h+'\n';if(b.p)t+=b.p+'\n';if(b.kv)t+=b.kv.map(([k,v])=>'- '+k+': '+v).join('\n')+'\n';if(b.list)t+=b.list.map((x,i)=>(b.num?(i+1)+'. ':'- ')+x).join('\n')+'\n';t+='\n'}
   return t+(doc.link&&!noLink&&!t.includes(doc.link)?'Open it in The Brew Bench: '+doc.link+'\n':'Made with The Brew Bench\n')}
-// Every PDF looks like its share card: the card itself (in the look picked in the share sheet), or for a share
+// Every PDF looks like its share card: the card itself, or for a share
 // without one, its text set in the same style. The plain page below is kept only for when drawing fails.
-async function docPDF(doc){try{const st={mode:CARD_STYLE.mode,col:CARD_STYLE.col};let bl=null;
+// A PDF is in the app's own look: light or dark as the app is, in the vibe's own colours ("Vibe's own"), whichever
+// look is picked for the image.
+async function docPDF(doc){try{const st={mode:curTheme()==='dark'?'dark':'light',col:'classic'};let bl=null;
     if(doc.card)bl=await shCardFor(doc,st).catch(()=>null);if(!bl)bl=await docCardImg(doc);const out=await cardPDF(bl,doc.title);if(out)return out}catch(e){}
   return docPDFText(doc)}
 function docPDFText(doc){
@@ -2980,7 +2982,7 @@ function openShare(doc){SHDOC=doc;loadPDF().catch(()=>{});const pdfOK=true;
      '<div class="shcols" role="group" aria-label="Card colours">'+shSwatches(doc)+'</div></div></div>':'')+
    '<div class="sharerow">'+APPS.map(([k,n,c,d])=>'<button type="button" data-sh="'+k+'"><span class="app" style="background:'+c+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+d+'"/></svg></span>'+n+'</button>').join('')+'</div>'+
    '<div class="sheetlist">'+
-   '<button type="button" data-sh="pdf">'+ico('file','#B5533C')+'<span>Save as PDF<small>'+(pdfOK?'The same design as the image, on A4 pages':'Loading the PDF engine\u2026 try again in a moment')+'</small></span></button>'+
+   '<button type="button" data-sh="pdf">'+ico('file','#B5533C')+'<span>Save as PDF<small>'+(pdfOK?'The same design, in the app’s look, on A4 pages':'Loading the PDF engine\u2026 try again in a moment')+'</small></span></button>'+
    '<button type="button" data-sh="copy">'+ico('copy','#C9964A')+'<span>Copy as text<small>Paste it anywhere</small></span></button>'+
    '<button type="button" data-sh="md">'+ico('text','#8A5A3B')+'<span>Save as a text file<small>Plain text you can edit</small></span></button></div></div>';
   const d=$('sharesheet');showDlg(d);$('sh-x').onclick=()=>d.close();

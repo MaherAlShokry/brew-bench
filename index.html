@@ -2591,7 +2591,7 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="c34ff536c88c"</script>
+<script>const BUILD_ID="e15a3e160efb"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -8118,9 +8118,11 @@ function pdfSafe(s){return String(s??'').replace(/[\u2018\u2019]/g,"'").replace(
 function docText(doc,noLink){let t='# '+doc.title+'\n';if(doc.sub)t+=doc.sub+'\n';t+='\n';
   for(const b of doc.blocks){if(b.h)t+='## '+b.h+'\n';if(b.p)t+=b.p+'\n';if(b.kv)t+=b.kv.map(([k,v])=>'- '+k+': '+v).join('\n')+'\n';if(b.list)t+=b.list.map((x,i)=>(b.num?(i+1)+'. ':'- ')+x).join('\n')+'\n';t+='\n'}
   return t+(doc.link&&!noLink&&!t.includes(doc.link)?'Open it in The Brew Bench: '+doc.link+'\n':'Made with The Brew Bench\n')}
-// Every PDF looks like its share card: the card itself (in the look picked in the share sheet), or for a share
+// Every PDF looks like its share card: the card itself, or for a share
 // without one, its text set in the same style. The plain page below is kept only for when drawing fails.
-async function docPDF(doc){try{const st={mode:CARD_STYLE.mode,col:CARD_STYLE.col};let bl=null;
+// A PDF is in the app's own look: light or dark as the app is, in the vibe's own colours ("Vibe's own"), whichever
+// look is picked for the image.
+async function docPDF(doc){try{const st={mode:curTheme()==='dark'?'dark':'light',col:'classic'};let bl=null;
     if(doc.card)bl=await shCardFor(doc,st).catch(()=>null);if(!bl)bl=await docCardImg(doc);const out=await cardPDF(bl,doc.title);if(out)return out}catch(e){}
   return docPDFText(doc)}
 function docPDFText(doc){
@@ -8212,7 +8214,7 @@ function openShare(doc){SHDOC=doc;loadPDF().catch(()=>{});const pdfOK=true;
      '<div class="shcols" role="group" aria-label="Card colours">'+shSwatches(doc)+'</div></div></div>':'')+
    '<div class="sharerow">'+APPS.map(([k,n,c,d])=>'<button type="button" data-sh="'+k+'"><span class="app" style="background:'+c+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+d+'"/></svg></span>'+n+'</button>').join('')+'</div>'+
    '<div class="sheetlist">'+
-   '<button type="button" data-sh="pdf">'+ico('file','#B5533C')+'<span>Save as PDF<small>'+(pdfOK?'The same design as the image, on A4 pages':'Loading the PDF engine\u2026 try again in a moment')+'</small></span></button>'+
+   '<button type="button" data-sh="pdf">'+ico('file','#B5533C')+'<span>Save as PDF<small>'+(pdfOK?'The same design, in the app’s look, on A4 pages':'Loading the PDF engine\u2026 try again in a moment')+'</small></span></button>'+
    '<button type="button" data-sh="copy">'+ico('copy','#C9964A')+'<span>Copy as text<small>Paste it anywhere</small></span></button>'+
    '<button type="button" data-sh="md">'+ico('text','#8A5A3B')+'<span>Save as a text file<small>Plain text you can edit</small></span></button></div></div>';
   const d=$('sharesheet');showDlg(d);$('sh-x').onclick=()=>d.close();
@@ -10545,8 +10547,10 @@ function bcDraw(m){const W=BC.W,P=BC.PAD,IW=W-2*P;BC.BRK=[];if(!BC_CV){BC_CV=doc
   // everything is laid out in the card's own 1080-wide units and scaled once here.
   // A card that knows its height draws on a canvas just that tall (the background is most of the drawing work).
   const H0=m.minH?Math.ceil(m.minH):4400,S=BC.S=Math.min(1.5,Math.sqrt(26e6/(W*H0)));
-  if(BC_CV.width!==Math.round(W*S)||BC_CV.height!==Math.round(H0*S)){BC_CV.width=Math.round(W*S);BC_CV.height=Math.round(H0*S)}
-  const c=BC_CV,x=c.getContext('2d');x.setTransform(1,0,0,1,0,0);x.globalAlpha=1;x.clearRect(0,0,c.width,c.height);x.setTransform(S,0,0,S,0,0);x.imageSmoothingQuality='high';
+  // Recording (see bcRec): the same drawing, written down to be painted in the background instead of on this canvas.
+  let c,x;if(m.rec){c={width:Math.round(W*S),height:Math.round(H0*S),rec:true};x=bcRec(c)}
+  else{if(BC_CV.width!==Math.round(W*S)||BC_CV.height!==Math.round(H0*S)){BC_CV.width=Math.round(W*S);BC_CV.height=Math.round(H0*S)}c=BC_CV;x=c.getContext('2d')}
+  x.setTransform(1,0,0,1,0,0);x.globalAlpha=1;x.clearRect(0,0,c.width,c.height);x.setTransform(S,0,0,S,0,0);x.imageSmoothingQuality='high';
   BC.F=getComputedStyle(document.body).fontFamily;
   // The origin's look (or the house espresso and honey): its accent colours are used throughout the card.
   const T=cardStyle(m.theme||OT.house,m.style||CARD_STYLE);
@@ -10692,12 +10696,74 @@ function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
   x.fillStyle=BC.INK;x.textAlign='left';x.fillText(ft,W/2-fw/2+6,y);
   y+=40;x.textAlign='center';x.font='500 22px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(SITE_URL.replace(/^https?:\/\//,'').replace(/\/$/,''),W/2,y);x.textAlign='left';
   // Trim to what was drawn.
-  const H=Math.round(y+70),out=document.createElement('canvas');out.width=Math.round(W*BC.S);out.height=Math.round(H*BC.S);out.getContext('2d').drawImage(c,0,0);
-  return out}
+  return bcOut(c,Math.round(W*BC.S),Math.round(Math.round(y+70)*BC.S))}
 // The look is taken when the card is asked for, not when it's drawn after the fonts load, so a card drawn ahead for
 // another look (see the share sheet) keeps the one it was asked with.
+// A card is drawn in the background: the drawing is recorded here (quick: only the instructions are written down,
+// with text measured on a tiny canvas) and painted, trimmed and encoded in a worker on an OffscreenCanvas, so the
+// screen doesn't freeze while a card is made. Pictures and small layers drawn into the card go along as bitmaps.
+// Where that isn't possible (no OffscreenCanvas or no letter spacing in workers) or the worker fails, the card is drawn
+// here as before.
 const bcBlob=m=>{const st=m.style||Object.assign({},CARD_STYLE);return (async()=>{if(document.fonts&&document.fonts.ready)await document.fonts.ready;
+  const w=await bcWorker();
+  if(w){try{const r=bcDraw(Object.assign({},m,{style:st,rec:true})),brk=(BC.BRK||[]).map(y=>Math.round(y*BC.S));
+      if(r&&r.recOut){const b=await w.paint(r);if(b){b._brk=brk;BC.BGN=(BC.BGN||0)+1;return b}}}catch(e){}}
   const cv=bcDraw(Object.assign({},m,{style:st})),brk=(BC.BRK||[]).map(y=>Math.round(y*BC.S));return new Promise(res=>cv.toBlob(b=>{if(b)b._brk=brk;res(b)},'image/jpeg',0.94))})()};
+// The drawn part of the card, trimmed: copied here, or (recording) the size to trim to in the worker.
+function bcOut(c,w,h){if(c.rec)return{recOut:true,ops:c.ops,bms:c.bms,width:c.width,height:c.height,cw:Math.min(w,c.width),ch:Math.min(h,c.height)};
+  const out=document.createElement('canvas');out.width=w;out.height=h;out.getContext('2d').drawImage(c,0,0);return out}
+// The recorder: looks like a canvas context to the drawing code. Settings and calls are written down; gradients and
+// patterns are numbered; pictures and canvases drawn in become bitmaps (a canvas's is taken at that moment, as
+// drawImage would); measureText is answered by a tiny real canvas kept in the same state.
+function bcRec(c){const ops=c.ops=[],bms=c.bms=[],meas=document.createElement('canvas').getContext('2d'),st={},stack=[],imgIx=new Map();let gid=0;
+  const bm=src=>{if(!(src instanceof HTMLCanvasElement)&&imgIx.has(src))return imgIx.get(src);const i=bms.length;bms.push(createImageBitmap(src));if(!(src instanceof HTMLCanvasElement))imgIx.set(src,i);return i};
+  const val=v=>v&&typeof v==='object'&&v.__id!=null?{__ref:v.__id}:v;
+  const grad=(kind,a)=>{const id=gid++;ops.push(['g',id,kind,a]);return{__id:id,addColorStop:(o,col)=>ops.push(['gs',id,o,col])}};
+  // Methods are told from settings by the prototype's own entries (reading a setting there would throw).
+  const P=CanvasRenderingContext2D.prototype,isFn=k=>{const d=Object.getOwnPropertyDescriptor(P,k);return!!(d&&typeof d.value==='function')};
+  return new Proxy({},{get(t,k){
+      if(k==='canvas')return c;
+      if(k==='measureText')return s=>meas.measureText(s);
+      if(k==='createLinearGradient')return(...a)=>grad('l',a);
+      if(k==='createRadialGradient')return(...a)=>grad('r',a);
+      if(k==='createPattern')return(src,rep)=>{const id=gid++;ops.push(['p',id,bm(src),rep]);return{__id:id}};
+      if(k==='drawImage')return(src,...a)=>{ops.push(['d',bm(src),a])};
+      if(k==='getImageData'||k==='putImageData'||k==='isPointInPath')return()=>{throw new Error('not recordable')};
+      if(k==='save')return()=>{stack.push(Object.assign({},st));meas.save();ops.push(['c','save',[]])};
+      if(k==='restore')return()=>{const o=stack.pop();if(o){for(const q in st)delete st[q];Object.assign(st,o)}meas.restore();ops.push(['c','restore',[]])};
+      if(typeof k==='string'&&isFn(k))return(...a)=>{ops.push(['c',k,a.map(val)])};
+      return k in st?st[k]:meas[k]},
+    set(t,k,v){st[k]=v;ops.push(['s',k,val(v)]);if(typeof v!=='object')try{meas[k]=v}catch(e){}return true}})}
+// The background painter: a worker with the app's fonts, which plays the recording back on an OffscreenCanvas.
+let BCW=null;
+function bcWorker(){if(BCW!==null)return BCW;
+  BCW=(async()=>{try{if(typeof OffscreenCanvas!=='function'||typeof createImageBitmap!=='function'||!window.Worker||!window.Proxy)return false;
+    // The fonts the page uses, from its own style sheets (the bundled Inter), with their addresses made absolute.
+    const fonts=[];for(const sh of document.styleSheets){let rs;try{rs=sh.cssRules}catch(e){continue}
+      for(const r of rs)if(r instanceof CSSFontFaceRule){const g=p=>r.style.getPropertyValue(p),base=sh.href||location.href;
+        const src=g('src').replace(/url\((['"]?)([^'")]+)\1\)/g,(_,q,u)=>'url("'+new URL(u,base).href+'")');
+        fonts.push({family:g('font-family').replace(/['"]/g,''),src,d:{style:g('font-style')||'normal',weight:g('font-weight')||'normal',unicodeRange:g('unicode-range')||'U+0-10FFFF'}})}}
+    const code=`let ready=null;
+const load=fonts=>ready||(ready=Promise.all(fonts.map(f=>{try{const ff=new FontFace(f.family,f.src,f.d);self.fonts.add(ff);return ff.load().catch(()=>{})}catch(e){}})));
+self.onmessage=async e=>{const q=e.data;if(q.fonts){await load(q.fonts);self.postMessage({ok:'letterSpacing' in OffscreenCanvasRenderingContext2D.prototype});return}
+  try{await ready;const c=new OffscreenCanvas(q.width,q.height),x=c.getContext('2d'),R=[],B=q.bms;
+    const val=v=>v&&typeof v==='object'&&v.__ref!=null?R[v.__ref]:v;
+    for(const o of q.ops){const k=o[0];
+      if(k==='s')x[o[1]]=val(o[2]);else if(k==='c')x[o[1]](...o[2].map(val));else if(k==='d')x.drawImage(B[o[1]],...o[2]);
+      else if(k==='g')R[o[1]]=o[2]==='l'?x.createLinearGradient(...o[3]):x.createRadialGradient(...o[3]);else if(k==='gs')R[o[1]].addColorStop(o[2],o[3]);
+      else if(k==='p')R[o[1]]=x.createPattern(B[o[2]],o[3])}
+    const out=new OffscreenCanvas(q.cw,q.ch);out.getContext('2d').drawImage(c,0,0);
+    const blob=await out.convertToBlob({type:'image/jpeg',quality:0.94});B.forEach(b=>b.close&&b.close());self.postMessage({id:q.id,blob})}
+  catch(err){self.postMessage({id:q.id,err:String(err&&err.message||err)})}};`;
+    const w=new Worker(URL.createObjectURL(new Blob([code],{type:'text/javascript'})));const wait=new Map();let seq=0;
+    const ok=await new Promise(res=>{const t=setTimeout(()=>res(false),8000);w.onmessage=e=>{clearTimeout(t);res(!!e.data.ok)};w.onerror=()=>{clearTimeout(t);res(false)};w.postMessage({fonts})});
+    if(!ok){w.terminate();return false}
+    w.onmessage=e=>{const p=wait.get(e.data.id);if(!p)return;wait.delete(e.data.id);e.data.blob?p.ok(e.data.blob):p.no(new Error(e.data.err||'card'))};
+    w.onerror=e=>{e.preventDefault&&e.preventDefault();for(const p of wait.values())p.no(new Error('worker'));wait.clear()};
+    return{paint:async r=>{const bms=await Promise.all(r.bms);const id=++seq;
+      return new Promise((ok,no)=>{wait.set(id,{ok,no});w.postMessage({id,ops:r.ops,bms,width:r.width,height:r.height,cw:r.cw,ch:r.ch},bms)})}}}
+  catch(e){return false}})();
+  return BCW}
 // Where a PDF page may end: between rows, never through one (in the card's own units).
 const bcBrk=y=>{if(BC.BRK)BC.BRK.push(y)};
 
@@ -10821,7 +10887,7 @@ function bcHead(x,kicker,date){const W=BC.W,P=BC.PAD;let y=100;bcBean(x,P+16,y-9
 function bcFoot(x,c,y,ft){const W=BC.W,P=BC.PAD;y+=70;const fr=x.createLinearGradient(P,0,W-P,0);fr.addColorStop(0,bcA(0));fr.addColorStop(.5,bcA(.45));fr.addColorStop(1,bcA(0));x.fillStyle=fr;x.fillRect(P,y,W-2*P,1.5);
   y+=64;x.font='700 26px '+BC.F;const fw=x.measureText(ft).width;bcBean(x,W/2-fw/2-22,y-9,28,BC.HONEY);x.fillStyle=BC.INK;x.textAlign='left';x.fillText(ft,W/2-fw/2+6,y);
   y+=40;x.textAlign='center';x.font='500 22px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(SITE_URL.replace(/^https?:\/\//,'').replace(/\/$/,''),W/2,y);x.textAlign='left';
-  const H=Math.round(y+70),out=document.createElement('canvas');out.width=Math.round(W*BC.S);out.height=Math.round(H*BC.S);out.getContext('2d').drawImage(c,0,0);return out}
+  return bcOut(c,Math.round(W*BC.S),Math.round(Math.round(y+70)*BC.S))}
 // A coffee's picture in a rounded frame: its photo, cropped to fill, or (without one) a tile in its origin's colours
 // with the bean mark, like the gallery's.
 function bcPic(x,img,origin,X,Y,w,h,r,edge,ew){x.save();bcRound(x,X,Y,w,h,r);x.clip();
