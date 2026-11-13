@@ -19,6 +19,7 @@ public class MainActivity extends BridgeActivity {
         super.onCreate(savedInstanceState);
         // Opened from the home-screen widget: the app asks what to open once it has started (WidgetPlugin.pending).
         WidgetPlugin.take(getIntent());
+        addShortcuts();
         // The back gesture (or button) steps back inside the app: it closes the open sheet or returns to the previous
         // screen. Only when there is nowhere left to go does the app go to the background.
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -40,6 +41,27 @@ public class MainActivity extends BridgeActivity {
     public void startActivityForResult(Intent intent, int requestCode, Bundle options) {
         opened = true;
         super.startActivityForResult(intent, requestCode, options);
+    }
+
+    /**
+     * Long-press the app's icon: Start a brew (your go-to recipe's timer), Scan a bag, Log a brew. They open the app with
+     * the same request a widget tap sends. Added from here rather than the manifest, so they follow whichever icon is set.
+     */
+    private void addShortcuts() {
+        if (android.os.Build.VERSION.SDK_INT < 25) return;
+        try {
+            android.content.pm.ShortcutManager sm = getSystemService(android.content.pm.ShortcutManager.class);
+            if (sm == null) return;
+            String[][] list = {{"brew", "Start a brew", "Start your usual brew"}, {"scan", "Scan a bag", "Scan a bag of coffee"}, {"log", "Log a brew", "Log a brew"}};
+            int[] icons = {R.drawable.sc_brew, R.drawable.sc_scan, R.drawable.sc_log};
+            java.util.List<android.content.pm.ShortcutInfo> out = new java.util.ArrayList<>();
+            for (int i = 0; i < list.length; i++) {
+                Intent in = new Intent(this, MainActivity.class).setAction(Intent.ACTION_VIEW).putExtra(WidgetPlugin.EXTRA, list[i][0]);
+                out.add(new android.content.pm.ShortcutInfo.Builder(this, "bb_" + list[i][0]).setShortLabel(list[i][1]).setLongLabel(list[i][2])
+                    .setIcon(android.graphics.drawable.Icon.createWithResource(this, icons[i])).setIntent(in).setRank(i).build());
+            }
+            sm.setDynamicShortcuts(out);
+        } catch (Exception ignored) { }
     }
 
     // A widget tap while the app is already running: tell the page to collect it.

@@ -713,8 +713,8 @@ input[type=range]{touch-action:pan-y}
 /* Android's WebView redraws frosted glass (backdrop-filter) on every frame anything scrolls or moves beneath it, and
    blend modes force extra passes: smooth in Chrome, the lag you feel in the app. In the app the glass is solid. */
 html.app{--nav-bg:color-mix(in srgb,var(--surface) 97%,transparent);--glass:color-mix(in srgb,var(--surface) 96%,transparent)}
-html.app .appbar,html.app .bottomnav,html.app .minires,html.app nav.tabs,html.app nav.tabs .wrap,html.app #toast,html.app .themebtn,html.app .bglass,html.app dialog::backdrop{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
-html.app .appbar{background:color-mix(in srgb,var(--paper) 97%,transparent)}html.app #toast{background:color-mix(in srgb,var(--ink) 96%,transparent)}html.app .bglass{background:rgba(30,18,11,.78)}
+html.app .appbar,html.app .bottomnav,html.app .minires,html.app nav.tabs,html.app nav.tabs .wrap,html.app #toast,html.app .themebtn,html.app .bglass,html.app dialog::backdrop,html.app .gtabs,html.app .seg.bviews,html.app .cupcard .cc,html.app .colshelf .cn{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+html.app .appbar{background:color-mix(in srgb,var(--paper) 97%,transparent)}html.app .gtabs{background:color-mix(in srgb,var(--surface2) 97%,var(--paper))!important}html.app #toast{background:color-mix(in srgb,var(--ink) 96%,transparent)}html.app .bglass{background:rgba(30,18,11,.78)}
 html.app .bg-hero::after,html.app .me-hero::after,html.app .pp-st img{mix-blend-mode:normal}
 /* The kettle's pour and the steam on the Dial-in drawing, and the steam over the profile, play a few times and rest,
    rather than redrawing for as long as they're on screen. */
@@ -2023,6 +2023,16 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .passport{position:relative;padding:18px 14px 16px;border-radius:24px;color:#2A1A10;margin-bottom:8px;
   background:repeating-linear-gradient(0deg,transparent 0 27px,rgba(90,60,30,.06) 27px 28px),radial-gradient(120% 90% at 50% 0%,#FBF3E4,#EFE1C8);box-shadow:inset 0 0 0 1.5px rgba(120,80,40,.18),var(--shadow)}
 .pp-h{position:relative}
+/* Long lists lay out only what's near the screen: cards further down keep a placeholder of their usual height (then
+   their real one, once seen) and are laid out as you scroll to them. Opening Recipes, Beans or an Explore page no
+   longer lays out every card on it before the page can slide in. */
+#recipes .rrow{content-visibility:auto;contain-intrinsic-size:auto 160px}
+#beans .clist>.crow{content-visibility:auto;contain-intrinsic-size:auto 100px}
+#variety .grid>.card,#process .grid>.card{content-visibility:auto;contain-intrinsic-size:auto 200px}
+#words .wcard{content-visibility:auto;contain-intrinsic-size:auto 190px}
+#champs .timeline>li{content-visibility:auto;contain-intrinsic-size:auto 600px}
+#settings .setgroup:nth-of-type(n+3){content-visibility:auto;contain-intrinsic-size:auto 300px}
+.tn-x.arm{outline:2px solid var(--cherry);outline-offset:1px}.tn-x.flash{animation:tnflash .7s ease}@keyframes tnflash{0%,100%{transform:none}30%{transform:scale(1.08);box-shadow:0 0 0 3px color-mix(in srgb,var(--cherry) 30%,transparent)}}
 .tm-why{font-size:.82rem;color:var(--muted);margin:4px 0 8px}
 .dnext{margin:8px 0 0;padding:8px 12px;border-radius:12px;background:color-mix(in srgb,#4F8A74 10%,var(--surface));font-size:.85rem}.dnext b{color:#3F7A62;margin-right:6px}
 :root[data-theme="dark"] .dnext b{color:#7FC4A3}

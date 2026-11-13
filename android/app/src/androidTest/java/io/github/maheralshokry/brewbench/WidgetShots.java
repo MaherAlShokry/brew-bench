@@ -40,6 +40,19 @@ public class WidgetShots {
         return new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date(System.currentTimeMillis() - d * 86400000L));
     }
 
+    /** A stand-in for a bag photo: a small JPEG in two colours, as the app would send one. */
+    static String fakePhoto(int a, int b) {
+        Bitmap bm = Bitmap.createBitmap(112, 112, Bitmap.Config.ARGB_8888);
+        Canvas cv = new Canvas(bm);
+        cv.drawColor(a);
+        android.graphics.Paint p = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
+        p.setColor(b);
+        cv.drawCircle(56, 62, 34, p);
+        java.io.ByteArrayOutputStream o = new java.io.ByteArrayOutputStream();
+        bm.compress(Bitmap.CompressFormat.JPEG, 80, o);
+        return "data:image/jpeg;base64," + android.util.Base64.encodeToString(o.toByteArray(), android.util.Base64.NO_WRAP);
+    }
+
     static void seed(Context ctx, boolean full, boolean brewing) throws Exception {
         SharedPreferences.Editor e = BrewWidget.prefs(ctx).edit().clear();
         if (full) {
@@ -48,11 +61,18 @@ public class WidgetShots {
             JSONArray cab = new JSONArray();
             String[][] beans = {{"Kenya Nyeri AA", "14", "6 cups"}, {"Ethiopia Guji Natural", "5", "11 cups"}, {"House Blend", "30", "2 cups"},
                 {"Colombia Huila Pink Bourbon", "40", "Empty"}, {"Panama Geisha", "9", "4 cups"}, {"Yemen Haraz", "20", "8 cups"}};
-            for (int i = 0; i < beans.length; i++)
-                cab.put(new JSONObject().put("id", "c" + i).put("title", beans[i][0]).put("roastDate", daysAgo(Integer.parseInt(beans[i][1]))).put("win", "7,21,35").put("cups", beans[i][2]));
+            String[] flags = {"\uD83C\uDDF0\uD83C\uDDEA", "\uD83C\uDDEA\uD83C\uDDF9", "\uD83C\uDF0D", "\uD83C\uDDE8\uD83C\uDDF4", "\uD83C\uDDF5\uD83C\uDDE6", "\uD83C\uDDFE\uD83C\uDDEA"};
+            int[][] cols = {{0xFF6B3A2A, 0xFFC9964A}, {0xFF2E4A3A, 0xFFD9B26A}, {0xFF3A2F5A, 0xFFE0A0B0}};
+            // Half the coffees have a photo, the rest show their flag.
+            for (int i = 0; i < beans.length; i++) {
+                JSONObject o = new JSONObject().put("id", "c" + i).put("title", beans[i][0]).put("roastDate", daysAgo(Integer.parseInt(beans[i][1]))).put("win", "7,21,35").put("cups", beans[i][2]).put("flag", flags[i]);
+                if (i % 2 == 0) o.put("ph", fakePhoto(cols[i / 2 % 3][0], cols[i / 2 % 3][1]));
+                cab.put(o);
+            }
             e.putString("cabinet", cab.toString());
             e.putString("brew", new JSONObject().put("key", "r:kasuya-4-6").put("name", "Tetsu Kasuya 4:6").put("brewer", "Hario V60")
-                .put("dose", "20 g").put("water", "300 g").put("temp", "92°C").put("line", "Hario V60 · 20 g : 300 g · 92°C").toString());
+                .put("dose", "20 g").put("water", "300 g").put("temp", "92°C").put("line", "Hario V60 · 20 g : 300 g · 92°C")
+                .put("bean", new JSONObject().put("id", "w1").put("title", "Kenya Nyeri AA").put("flag", "\uD83C\uDDF0\uD83C\uDDEA").put("ph", fakePhoto(0xFF6B3A2A, 0xFFC9964A))).toString());
         }
         long day = System.currentTimeMillis() / 86400000L;
         e.putString("words", new JSONArray().put(new JSONArray().put(day).put("Bloom")

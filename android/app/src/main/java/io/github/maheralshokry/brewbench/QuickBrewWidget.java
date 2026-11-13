@@ -98,6 +98,15 @@ public class QuickBrewWidget extends AppWidgetProvider {
             v.setOnClickPendingIntent(R.id.q_root, BrewWidget.open(ctx, "timer:" + key, 20));
             return v;
         }
+        // With room, the coffee you're drinking now sits under the recipe.
+        JSONObject bean = o.optJSONObject("bean");
+        if (bean != null && h >= 170 && !bean.optString("title", "").isEmpty()) {
+            v.setViewVisibility(R.id.q_bean, View.VISIBLE);
+            v.setTextViewText(R.id.q_btx, "With " + bean.optString("title", ""));
+            android.graphics.Bitmap ph = BrewWidget.thumb(ctx, bean.optString("id", ""), bean.optString("ph", ""), 26, 7);
+            if (ph != null) { v.setImageViewBitmap(R.id.q_bph, ph); v.setViewVisibility(R.id.q_bph, View.VISIBLE); v.setTextViewText(R.id.q_bflag, ""); }
+            else { v.setViewVisibility(R.id.q_bph, View.GONE); String f = bean.optString("flag", ""); v.setTextViewText(R.id.q_bflag, f.isEmpty() ? "☕" : f); }
+        } else v.setViewVisibility(R.id.q_bean, View.GONE);
         v.setViewVisibility(R.id.q_stats, View.VISIBLE);
         v.setViewVisibility(R.id.q_go, View.VISIBLE);
         v.setTextViewText(R.id.q_go, "Start timer");

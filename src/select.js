@@ -139,7 +139,7 @@ function rngEnhance(i){if(i.dataset.rng)return;i.dataset.rng='1';
 // Every one-line strip glides, the Gear tabs included; wrapping filter chips can't, so they get the plain pick instead.
 const SEG_SEL='.seg:not(.filters),.seg.gtabs';
 // Only one-line strips (SEG_SEL) get one: wrapping chip rows keep their own pick, so a highlight never floats loose.
-function segBatch(list){const items=[];
+function segBatch(list,instant){const items=[];
   for(const el of new Set(list)){if(!el||!el.isConnected||!el.matches(SEG_SEL))continue;
     // A strip on a page that isn't shown waits until that page opens: measuring it would lay out the hidden page.
     if(el.closest('main section:not(.on)')){el._stale=1;continue}const on=el.querySelector(':scope>button[aria-pressed="true"]');items.push({el,on,ind:el.querySelector(':scope>.seg-ind')})}
@@ -157,16 +157,27 @@ function segBatch(list){const items=[];
   let fresh=false;
   for(const it of items){if(!it.ok){if(it.ind)it.ind.style.opacity='0';continue}
     if(!it.ind){const ind=it.ind=document.createElement('span');ind.className='seg-ind';ind.setAttribute('aria-hidden','true');it.el.append(ind);
-      const ip=it.el._ip||(it.el.id&&SEG_IP.get(it.el.id));if(ip){ind.style.transition='none';Object.assign(ind.style,ip);fresh=true;it.reset=true}}}
+      // A highlight that appears because its page is opening goes straight to its option: gliding from where it was
+      // last time would trail the page as it slides in. A strip redrawn under your finger still glides from there.
+      const ip=!instant&&(it.el._ip||(it.el.id&&SEG_IP.get(it.el.id)));if(ip){ind.style.transition='none';Object.assign(ind.style,ip);fresh=true;it.reset=true}else it.snap=true}
+    // One that was hidden (its page or sheet wasn't showing) comes back at its option too, not gliding in from where it was.
+    else if(instant||it.ind.style.opacity==='0')it.snap=true}
   if(fresh)document.body.offsetWidth;
   const rm=RM();
   for(const it of live){const el=it.el,ind=it.ind;if(it.reset)ind.style.transition='';el.classList.add('has-ind');
     // Moved with a transform (the compositor animates it without laying the page out again); only the size changes width.
-    if(rm)ind.style.transition='none';Object.assign(ind.style,it.look,it.pos,{opacity:'1'});el._ip=it.pos;if(el.id)SEG_IP.set(el.id,it.pos)}
+    if(rm||it.snap)ind.style.transition='none';Object.assign(ind.style,it.look,it.pos,{opacity:'1'});el._ip=it.pos;if(el.id)SEG_IP.set(el.id,it.pos);
+    if(it.snap&&!rm)requestAnimationFrame(()=>requestAnimationFrame(()=>{ind.style.transition=''}))}
   for(const it of items)if(SEG_RO&&!it.el._ro){it.el._ro=1;SEG_RO.observe(it.el)}}
 function segUpdate(el){segBatch([el])}
 // A page coming into view places the highlights that waited for it (after a change of look or text size).
-function segShown(sec){const l=[...sec.querySelectorAll(SEG_SEL)].filter(x=>x._stale);if(l.length){l.forEach(x=>x._stale=0);segBatch(l)}}
+// Every strip on it is placed then, before the page paints, straight at its option: one kept from before would show
+// for a frame where it was last (off by however much the layout moved since).
+// Strips further down the page are placed a moment later, when the phone is idle (still straight at their option), so
+// opening a long page like Settings doesn't lay out its far end first.
+function segShown(sec){const all=[...sec.querySelectorAll(SEG_SEL)];if(!all.length)return;all.forEach(x=>x._stale=0);
+  const H=innerHeight+120,near=[],far=[];for(const x of all){const t=x.offsetParent?x.getBoundingClientRect().top:H+1;(t<H?near:far).push(x)}
+  if(near.length)segBatch(near,true);if(far.length){const go=()=>{if(sec.classList.contains('on'))segBatch(far.filter(x=>x.isConnected),true)};window.requestIdleCallback?requestIdleCallback(go,{timeout:400}):setTimeout(go,120)}}
 // One watcher for every control's size (a tab coming into view, the phone turning); controls that have left the page are dropped.
 const SEG_RO=window.ResizeObserver?new ResizeObserver(es=>es.forEach(e=>{if(e.target.isConnected)segQueue(e.target);else SEG_RO.unobserve(e.target)})):null;
 const SEG_Q=new Set(),SEG_IP=new Map();let SEG_RAF=0;

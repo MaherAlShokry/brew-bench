@@ -1157,11 +1157,12 @@ addEventListener('scroll',()=>{USER_AT=performance.now()},{capture:true,passive:
 // The first coffee or recipe sheet of a visit took about twice as long to open as later ones: the browser laying its
 // parts out for the first time. Right after the Beans page is built, one of each is drawn off screen in a quiet moment
 // (never shown, nothing saved) and cleared, so the first real one opens like the rest.
-let SHEETS_WARM=false;
-function warmSheets(){if(SHEETS_WARM)return;SHEETS_WARM=true;const d=$('vd');if(!d||d.open)return;const keep=showDlg;
+let SHEETS_WARM=0;
+// One sheet per idle moment (a coffee's page, then a recipe's): both at once was one long stretch a tap could land in.
+function warmSheets(){if(SHEETS_WARM>=2)return;const step=SHEETS_WARM++;const d=$('vd');if(!d||d.open)return;const keep=showDlg;
   try{showDlg=()=>{};d.classList.add('warm');
-    if(window.BEANS_OK&&BEANS.length){openBean(BEANS[0].id);d.offsetHeight}
-    if(RECIPES.length){openRecipe(0);d.offsetHeight}}catch(e){}
+    if(step===0&&window.BEANS_OK&&BEANS.length){openBean(BEANS[0].id);d.offsetHeight}
+    if(step===1&&RECIPES.length){openRecipe(0);d.offsetHeight}}catch(e){}
   finally{showDlg=keep;d.classList.remove('warm');if(!d.open){$('vd-in').innerHTML='';delete d.dataset.bean}}}
 function prebuildTabs(){const ids=['recipes','gear','variety','process','map','words','history','flow','wheel','champs','tech'].filter(k=>LAZY[k]);
   // A step only starts in a real idle moment (not one the timeout forced), and not within 1.5 s of a touch, a key or a
@@ -1173,9 +1174,9 @@ function prebuildTabs(){const ids=['recipes','gear','variety','process','map','w
   let beans=false;
   const next=()=>{if(document.hidden){setTimeout(()=>idle(next),2000);return}if(performance.now()-Math.max(NAV_AT,USER_AT)<1500){setTimeout(()=>idle(next),900);return}
     if(!beans&&window.BEANS_OK){beans=true;try{renderBeansIfChanged();warmBeanPhotos()}catch(e){}idle(next);return}
-    if(!SHEETS_WARM&&window.BEANS_OK){warmSheets();idle(next);return}
+    if(SHEETS_WARM<2&&window.BEANS_OK){warmSheets();idle(next);return}
     if(LOGL_STALE&&BUILT.recipes){try{renderLogList(1)}catch(e){}idle(next);return}
-    const id=ids.find(k=>!BUILT[k]);if(!id){warmSheets();return}BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
+    const id=ids.find(k=>!BUILT[k]);if(!id){if(SHEETS_WARM<2){warmSheets();idle(next)}return}BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
   setTimeout(()=>idle(next),2500)}
 function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove());if(LAZY[id]&&!BUILT[id]){BUILT[id]=1;LAZY[id]()}if(ALWAYS[id])ALWAYS[id]()}
 // NAVD counts tab changes you can step back through, so the app bar can offer a back button.
@@ -2310,7 +2311,7 @@ const lHue=n=>{let h=0;for(const c of String(n))h=(h*31+c.charCodeAt(0))%360;ret
 const lWho=l=>l.by&&l.by!==ME?l.by:'me';
 // What the card shows as pills: from the dial-in's snapshot when there is one, otherwise read back from the settings line.
 function logPills(l){const s=window.CARD_OK?okSnap(l.snap):null,out=[];
-  if(s){if(s.rec)out.push(['rec',s.rec]);if(s.b)out.push(['brew',BREWERS[s.b].name]);if(s.dose!=null&&s.water!=null)out.push(['dose',gfmt(s.dose)+' g : '+gfmt(s.water)+' g']);if(s.t!=null)out.push(['temp',s.t+'°C']);if(s.g&&s.c!=null)out.push(['grind',gname(s.g)+' '+dial(s.g,s.c)]);if(s.ra)out.push(['ratio','1:'+rr1(s.ra)]);return{pills:out,rest:''}}
+  if(s){if(s.rec){const rr=snapRecipe(s);out.push(['rec',rr?rr.name:s.rec+' (no longer in the app)'])}if(s.b)out.push(['brew',BREWERS[s.b].name]);if(s.dose!=null&&s.water!=null)out.push(['dose',gfmt(s.dose)+' g : '+gfmt(s.water)+' g']);if(s.t!=null)out.push(['temp',s.t+'°C']);if(s.g&&s.c!=null)out.push(['grind',gname(s.g)+' '+dial(s.g,s.c)]);if(s.ra)out.push(['ratio','1:'+rr1(s.ra)]);return{pills:out,rest:''}}
   const q=parseSettings(l.settings||''),B=BREWERS[l.brewer]||q.brewer;
   if(q.rec)out.push(['rec',q.rec.name]);if(B)out.push(['brew',B.name]);if(q.dose&&q.water)out.push(['dose',gfmt(q.dose)+' g : '+gfmt(q.water)+' g']);if(q.temp)out.push(['temp',q.temp+'°C']);if(q.grind)out.push(['grind',q.grind.replace(' · ',' ')]);if(q.ratio)out.push(['ratio','1:'+rr1(q.ratio)]);
   return{pills:out,rest:out.length?q.rest:(l.settings||'')}}
@@ -3115,7 +3116,7 @@ function renderScan(){
     // A scan reopened from the list has no file, so its kept photo (or thumbnail) is used.
     if(!photo&&SC.id){photo=await BIMG.get(SC.id);if(!photo){const x=SCANS.find(q=>q.id===SC.id);photo=x&&x.t||null}}
     openBeanEditor(null,{name:SC.name||(inf&&plausibleName(inf.coffee_name)?niceName(inf.coffee_name):''),roaster:SC.roaster,origin:SC.origin,blend:SC.blend||[],process:SC.process,variety:SC.variety,vars:scanVars(SC,inf),roast:SC.roast,roastDate:SC.date||'',bag:SC.bag||0,
-      flavours:inf&&Array.isArray(inf.tasting_notes)?inf.tasting_notes.join(', ').slice(0,160):'',photo,scan:SC.id||''})};
+      flavours:inf&&Array.isArray(inf.tasting_notes)?scanNotes(inf.tasting_notes):'',photo,scan:SC.id||''})};
   $('sc-dial').onclick=()=>{S.bean=okSBean({name:SC.name||scanTitle(SC,SC.info),roaster:SC.roaster,origin:SC.origin,scan:SC.id||''});Object.assign(S,{brewer:p.st.brewer,rec:c.tech,process:c.process,variety:c.variety,roast:c.roast,age:c.age,goal:c.goal,amt:c.amt||'mid',dose:p.r.dose,grinder:p.grinder});showTab('dial');tune('Tuned for this coffee')};
   $('sc-share').onclick=()=>openShare(scanDoc(p,c));$('sc-new').onclick=()=>{newScan();scrollTo({top:0,behavior:RM()?'auto':'smooth'})};
   const cp=Object.assign({},SC);save('bb-scan',cp);renderScanList();

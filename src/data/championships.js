@@ -181,5 +181,5 @@ const CHAMPS=[
  {c:'wbc',y:2000,city:'Monte Carlo, Monaco',who:'Robert Thoresen',dev:'Espresso machine',from:'Norway',note:'The first World Barista Champion.',coffee:'',rec:{b:'espresso',grind:{label:'Not published'},gear:[],why:'The details of this routine were not published.',steps:null,start:'Classic espresso 1:2'}}
 ];
 // Years with no world final.
-const CH_GAPS=[[2020,'wbrc','No World Brewers Cup: cancelled during the pandemic.'],[2020,'wbc','No World Barista Championship: cancelled during the pandemic.']];
+const CH_GAPS=[[2020,'wbrc','No World Brewers Cup: cancelled during the pandemic.'],[2020,'wbc','No World Barista Championship: cancelled during the pandemic.'],[2020,'wac','No World AeroPress Championship final: cancelled during the pandemic (it came back online in March 2021).']];
 // Upcoming finals live in events.json at the site root, so they can be updated without a new app release.
