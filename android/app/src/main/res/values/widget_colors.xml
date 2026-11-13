@@ -8,4 +8,8 @@
     <color name="widget_btn">#C9964A</color>
     <color name="widget_btn_ink">#2A1A10</color>
     <color name="widget_row">#F3EADC</color>
+    <color name="widget_rest">#9A8B7E</color>
+    <color name="widget_peak">#3F7A5E</color>
+    <color name="widget_good">#B07F2E</color>
+    <color name="widget_fade">#B5533C</color>
 </resources>

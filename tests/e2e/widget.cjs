@@ -12,7 +12,7 @@ const run=async(open,seed)=>{const c=await b.newContext({viewport:{width:390,hei
 // What's sent
 let {p,c,errs}=await run('',true);
 const sent=await p.evaluate(()=>window.__w.sent.slice(-1)[0]);const want=await p.evaluate(()=>{const w=widgetBean();return{id:w.id,win:freshWin(w).w.join(','),rd:w.roastDate}});
-ok('sends the coffee on start',sent&&sent.id===want.id&&sent.win===want.win&&sent.roastDate===want.rd&&sent.title,[sent,want]);
+ok('sends the coffee on start, with its flag',sent&&sent.id===want.id&&sent.win===want.win&&sent.roastDate===want.rd&&sent.title&&sent.flag&&'photo' in sent,[sent,want]);
 ok('it is the cabinet coffee brewed most recently',await p.evaluate(()=>{const w=widgetBean(),t=b=>beanBrews(b).reduce((m,l)=>Math.max(m,+l.ts||0),0);return BEANS.filter(b=>b.shelf).every(b=>t(b)<=t(w))}));
 await p.evaluate(()=>{Object.defineProperty(document,'hidden',{value:true,configurable:true});document.dispatchEvent(new Event('visibilitychange'))});await p.waitForTimeout(200);
 ok('sends again when leaving the app',(await p.evaluate(()=>window.__w.sent.length))>=2);
@@ -25,9 +25,9 @@ ok('no errors',!errs.length,errs);
 // Your cabinet, Quick brew and Word of the day
 const more=await p.evaluate(()=>{const s=window.__w.sent.slice(-1)[0];return{cab:JSON.parse(s.cabinet||'[]'),brew:JSON.parse(s.brew||'{}'),words:JSON.parse(s.words||'[]'),shelf:BEANS.filter(b=>b.shelf).length,
   today:Math.floor(Date.now()/864e5),wotd:GLOSSARY[Math.floor(Date.now()/864e5)%GLOSSARY.length][0]}});
-ok('cabinet: shelf coffees, at most four, with freshness data',more.cab.length===Math.min(4,more.shelf)&&more.cab.every(c=>c.id&&c.title&&c.win.split(',').length===3),more.cab);
-ok('quick brew: the recipe brewed most lately',more.brew.key&&more.brew.name&&/g : /.test(more.brew.line),more.brew);
-ok('words: six weeks from today, today first, same as Today in coffee',more.words.length===42&&more.words[0][0]===more.today&&more.words[0][1]===more.wotd,more.words[0]);
+ok('cabinet: every shelf coffee (up to 30), with freshness data and cups',more.cab.length===Math.min(30,more.shelf)&&more.cab.every(c=>c.id&&c.title&&c.win.split(',').length===3&&'cups' in c),more.cab);
+ok('quick brew: the recipe brewed most lately, with its numbers',more.brew.key&&more.brew.name&&/g : /.test(more.brew.line)&&/ g$/.test(more.brew.dose)&&/ g$/.test(more.brew.water)&&more.brew.brewer,more.brew);
+ok('words: six weeks from today, today first, same as Today in coffee, with its category',more.words.length===42&&more.words[0][0]===more.today&&more.words[0][1]===more.wotd&&more.words[0][3],more.words[0]);
 await p.evaluate(k=>{window.__w.open='timer:'+k;window.bbWidget()},more.brew.key);await p.waitForTimeout(1200);
 ok('Start timer opens the timer on that recipe',await p.evaluate(()=>$('timer').open));
 await p.evaluate(()=>$('timer').close());await p.waitForTimeout(300);

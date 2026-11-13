@@ -34,10 +34,13 @@ public class WidgetPlugin extends Plugin {
     public void update(PluginCall call) {
         Context ctx = getContext();
         SharedPreferences.Editor e = BrewWidget.prefs(ctx).edit();
-        for (String k : new String[] {"id", "title", "sub", "roastDate", "win", "left"}) {
+        for (String k : new String[] {"id", "title", "sub", "roastDate", "win", "left", "flag"}) {
             String v = call.getString(k, "");
             e.putString(k, v == null ? "" : v.length() > 120 ? v.substring(0, 120) : v);
         }
+        // The coffee's photo, a small JPEG as a data URL (left out if it's unexpectedly large).
+        String ph = call.getString("photo", "");
+        e.putString("photo", ph != null && ph.length() < 250000 ? ph : "");
         // The other widgets' data, as JSON text: the cabinet's coffees, the go-to recipe and the coming words.
         for (String k : new String[] {"cabinet", "brew", "words"}) {
             String v = call.getString(k, null);

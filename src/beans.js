@@ -593,17 +593,21 @@ const wLeft=b=>{const c=cupsLeft(b);return c==null?'':c?c+(c===1?' cup left':' c
 // The other widgets: Your cabinet (up to four shelf coffees, most recently brewed first), Quick brew (the recipe you've
 // brewed most in the last two months, else the last one opened) and Coffee word of the day (the coming six weeks'
 // words, the same as Today in coffee, so the widget moves on each day by itself).
+// Every coffee in the cabinet (up to 30): the widget shows as many as its height holds and counts the rest.
+const wCups=b=>{const c=cupsLeft(b);return c==null?'':c?c+(c===1?' cup':' cups'):'Empty'};
 function widgetCabinet(){const last=b=>beanBrews(b).reduce((m,l)=>Math.max(m,+l.ts||0),0);
-  return BEANS.filter(b=>b.shelf).map(b=>[b,last(b)]).sort((a,c)=>c[1]-a[1]||(+c[0].ts||0)-(+a[0].ts||0)).slice(0,4)
-    .map(([b])=>({id:b.id,title:beanTitle(b),roastDate:b.roastDate||'',win:freshWin(b).w.join(','),left:wLeft(b)}))}
+  return BEANS.filter(b=>b.shelf).map(b=>[b,last(b)]).sort((a,c)=>c[1]-a[1]||(+c[0].ts||0)-(+a[0].ts||0)).slice(0,30)
+    .map(([b])=>({id:b.id,title:beanTitle(b),roastDate:b.roastDate||'',win:freshWin(b).w.join(','),cups:wCups(b)}))}
 function widgetRecipe(){const since=Date.now()-60*864e5,n=new Map();for(const l of LOG)if(isMine(l)&&(+l.ts||0)>=since&&l.snap&&l.snap.rec)n.set(l.snap.rec,(n.get(l.snap.rec)||0)+1);
   let i=-1;const top=[...n].sort((a,b)=>b[1]-a[1])[0];if(top)i=RECIPES.findIndex(r=>r.name===top[0]);
   if(i<0&&typeof RECENT!=='undefined'&&RECENT.length)i=rByKey(RECENT[0]);if(i<0)return{};
   const r=RECIPES[i],sc=scaled(r),B=BREWERS[r.b];
-  return{key:rkey(r),name:r.name,line:[B&&B.name,gfmt(sc.dose)+' g : '+gfmt(sc.water)+' g',r.temp?r.temp+'°C':''].filter(Boolean).join(' · ')}}
-function widgetWords(){const d0=Math.floor(Date.now()/864e5),out=[];for(let d=d0;d<d0+42;d++){const w=GLOSSARY[d%GLOSSARY.length];out.push([d,w[0],sentences(w[2],170)])}return out}
-function updWidget(){const w=plugin('Widget');if(!w)return;try{const b=widgetBean();let rc={};try{rc=widgetRecipe()}catch(e){}
-  w.update(Object.assign(b?{id:b.id,title:beanTitle(b),sub:[b.roaster,b.origin?(flagOf(b.origin)+' '+originName(b.origin)).trim():''].filter(Boolean).join(' · '),
+  return{key:rkey(r),name:r.name,brewer:B?B.name:'',dose:gfmt(sc.dose)+' g',water:gfmt(sc.water)+' g',temp:r.temp?r.temp+'°C':'',line:[B&&B.name,gfmt(sc.dose)+' g : '+gfmt(sc.water)+' g',r.temp?r.temp+'°C':''].filter(Boolean).join(' · ')}}
+function widgetWords(){const d0=Math.floor(Date.now()/864e5),out=[];for(let d=d0;d<d0+42;d++){const w=GLOSSARY[d%GLOSSARY.length];out.push([d,w[0],w[2],(GCAT[w[1]]||[''])[0]])}return out}
+// Drinking now shows the coffee's photo (a small copy, 192 px) or, without one, its origin's flag.
+async function updWidget(){const w=plugin('Widget');if(!w)return;try{const b=widgetBean();let rc={},photo='';try{rc=widgetRecipe()}catch(e){}
+  if(b&&b.img)try{const t=await BIMG.thumb(b.id);if(t)photo=await shrinkPhoto(t,192)}catch(e){}
+  w.update(Object.assign(b?{id:b.id,title:beanTitle(b),sub:[b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '),flag:b.origin?flagOf(b.origin):'',photo,
     roastDate:b.roastDate||'',win:freshWin(b).w.join(','),left:wLeft(b)}:{id:''},{cabinet:JSON.stringify(widgetCabinet()),brew:JSON.stringify(rc),words:JSON.stringify(widgetWords())})).catch(()=>{})}catch(e){}}
 (()=>{if(!plugin('Widget'))return;setTimeout(updWidget,2500);document.addEventListener('visibilitychange',()=>{if(document.hidden)updWidget()});
   const go=o=>{const [k,id]=String(o||'').split(':');document.querySelectorAll('dialog[open]').forEach(d=>d.close());
