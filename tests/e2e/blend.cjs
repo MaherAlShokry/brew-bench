@@ -52,6 +52,15 @@ const mb=await p.evaluate(async()=>{goTab('scan');await new Promise(r=>setTimeou
 ok('a label naming two countries without the word blend offers to make it one',mb.before.o==='brazil'&&mb.before.shown&&/Brazil and Ethiopia/.test(mb.before.text),mb.before);
 ok('and one tap makes it a blend of both',mb.after.o==='blend'&&mb.after.parts.join()==='brazil,ethiopia'&&mb.after.hidden&&/Blend of Brazil, Ethiopia/.test(mb.after.opt),mb.after);
 const single=await p.evaluate(()=>{applyInfo(parseLabel('KENYA NYERI\nWashed SL28'));renderScan();return $('s-mb').hidden});ok('a single-country label offers nothing',single);
+// Optional shares: 60/40 is kept and shown; a total that isn't 100 is pointed out; a single origin has no share box.
+const pct=await p.evaluate(async()=>{openBeanEditor(null);const one=!document.querySelector('#be-origins [data-op]');$('be-name').value='Sixty Forty';
+  const s0=$('be-origins').querySelector('select');s0.value='brazil';s0.dispatchEvent(new Event('change',{bubbles:true}));$('be-addo').click();await new Promise(r=>setTimeout(r,50));
+  const s1=$('be-origins').querySelectorAll('select')[1];s1.value='ethiopia';s1.dispatchEvent(new Event('change',{bubbles:true}));
+  const a=$('be-origins').querySelector('[data-op="0"]'),b2=$('be-origins').querySelector('[data-op="1"]');a.value='60';a.dispatchEvent(new Event('input',{bubbles:true}));b2.value='30';b2.dispatchEvent(new Event('input',{bubbles:true}));
+  const warn=!$('be-opct').hidden&&/90%/.test($('be-opct').textContent);b2.value='40';b2.dispatchEvent(new Event('input',{bubbles:true}));const fine=$('be-opct').hidden;
+  $('be-save').click();await new Promise(r=>setTimeout(r,500));const b=BEANS.find(x=>x.name==='Sixty Forty');openBean(b.id);const page=$('vd-in').textContent;$('vd').close();
+  return{one,warn,fine,blend:b.blend,page:/Brazil 60%/.test(page)&&/Ethiopia 40%/.test(page)}});
+ok('blend shares: optional, kept, shown, and a total off 100 pointed out',pct.one&&pct.warn&&pct.fine&&JSON.stringify(pct.blend)==='[{"o":"brazil","p":60},{"o":"ethiopia","p":40}]'&&pct.page,pct);
 // The passport shares as an image and a PDF, with its blends.
 const pps=await p.evaluate(async()=>{renderPassport();const btn=!!document.querySelector('#bv-passport [data-ppshare]'),d=passportDoc();const bl=await shCardFor(d,{mode:'dark',col:'origin'}),pdf=await docPDF(d);
   return{btn,card:bl&&bl.size,pdf:pdf&&pdf.size,blends:JSON.stringify(d.blocks).includes('Blends')}});
