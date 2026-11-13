@@ -10,8 +10,32 @@ permissions:
   contents: read
 
 jobs:
+  # How long each test took last time, so the slowest start first and the three machines finish together. CI keeps
+  # these times itself (the "timings" job below saves them after every run); the copy in the repository is only the
+  # starting point. Read once here so all three machines split the tests the same way.
+  durations:
+    runs-on: ubuntu-latest
+    outputs:
+      list: ${{ steps.read.outputs.list }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: tests/e2e/durations.txt
+          sparse-checkout-cone-mode: false
+      - uses: actions/cache/restore@v5
+        with:
+          path: ci-durations.txt
+          key: e2e-durations-${{ github.run_id }}
+          restore-keys: e2e-durations-
+      - id: read
+        run: |
+          f=ci-durations.txt; [ -s "$f" ] || f=tests/e2e/durations.txt
+          echo "Using $f"
+          { echo 'list<<END_OF_LIST'; cat "$f"; echo 'END_OF_LIST'; } >> "$GITHUB_OUTPUT"
+
   # Split three ways, each machine running a third of the tests at once, so the checks take a few minutes.
   e2e:
+    needs: durations
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -34,10 +58,21 @@ jobs:
           key: playwright-1.63.0-${{ runner.os }}
       - name: Install Playwright and Chromium
         run: |
-          npm i --no-save --no-package-lock playwright@1.63.0
+          npm i --no-save --no-package-lock playwright@1.63.0 axe-core@4.10.3
           npx playwright install --with-deps chromium
       - name: Run the tests
-        run: SHARD=${{ matrix.shard }}/3 JOBS=6 tests/run.sh
+        env:
+          LIST: ${{ needs.durations.outputs.list }}
+        run: |
+          printf '%s\n' "$LIST" > "$RUNNER_TEMP/durations.txt"
+          SHARD=${{ matrix.shard }}/3 JOBS=6 DURATIONS="$RUNNER_TEMP/durations.txt" tests/run.sh
+      - name: Keep this machine's test times
+        if: success()
+        uses: actions/upload-artifact@v5
+        with:
+          name: timings-${{ matrix.shard }}
+          path: tests/e2e/out/timings.txt
+          retention-days: 1
       - name: Keep the screenshots of a failed run
         if: failure()
         uses: actions/upload-artifact@v5
@@ -45,3 +80,26 @@ jobs:
           name: test-output-${{ matrix.shard }}
           path: tests/e2e/out
           retention-days: 7
+
+  # After a passing run, fold this run's times into CI's durations and keep them for the next run.
+  timings:
+    needs: [durations, e2e]
+    runs-on: ubuntu-latest
+    # Only bookkeeping: never holds up a deploy.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
+        with:
+          pattern: timings-*
+          path: timings
+      - name: Fold in this run's times
+        env:
+          LIST: ${{ needs.durations.outputs.list }}
+        run: |
+          printf '%s\n' "$LIST" > ci-durations.txt
+          python3 tools/timings.py ci-durations.txt timings/*/timings.txt
+      - uses: actions/cache/save@v5
+        with:
+          path: ci-durations.txt
+          key: e2e-durations-${{ github.run_id }}-${{ github.run_attempt }}

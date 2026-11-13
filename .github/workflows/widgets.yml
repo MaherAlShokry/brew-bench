@@ -1,0 +1,89 @@
+name: Widget pictures
+
+# Draws every home-screen widget on an Android emulator (android/app/src/androidTest/.../WidgetShots.java): each at the
+# sizes people use, light and dark, with a coffee, empty, and mid-brew. The pictures are kept as the run's
+# "widget-shots" artifact, so a change to a widget can be looked at without a phone. Runs when the Android code or the
+# widget data the app sends changes, and on request.
+on:
+  push:
+    branches: ['**']
+    paths:
+      - 'android/app/src/**'
+      - 'src/beans.js'
+      - '.github/workflows/widgets.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: widgets-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  shots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: npm ci
+      - name: Build the app's web files
+        run: python3 tools/build.py --app --site www
+      - name: Copy web files into the Android project
+        run: npx cap sync android
+      - uses: actions/cache@v5
+        with:
+          path: |
+            ~/.gradle/wrapper
+            ~/.gradle/caches
+          key: gradle-${{ runner.os }}-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties', 'android/**/*.gradle') }}
+          restore-keys: gradle-${{ runner.os }}-
+      - name: Build the app and the widget test
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          for i in 1 2 3; do ./gradlew --version --no-daemon >/dev/null && break; sleep $((i*20)); done
+          ./gradlew assembleDebug assembleDebugAndroidTest --no-daemon
+      # The emulator needs hardware acceleration, which GitHub's Linux runners allow once KVM is opened up.
+      - name: Allow the emulator to use KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Draw the widgets on an emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 31
+          arch: x86_64
+          target: google_apis
+          profile: pixel_6
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
+          script: |
+            adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+            adb install -r android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+            adb shell am instrument -w -e class io.github.maheralshokry.brewbench.WidgetShots io.github.maheralshokry.brewbench.test/androidx.test.runner.AndroidJUnitRunner | tee instrument.txt
+            grep -q '^OK (' instrument.txt
+            adb pull /sdcard/Android/data/io.github.maheralshokry.brewbench/files/widget-shots widget-shots
+            ls widget-shots | wc -l
+      - uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: widget-shots
+          path: |
+            widget-shots
+            instrument.txt
+          if-no-files-found: ignore
+          retention-days: 14

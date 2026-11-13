@@ -73,6 +73,16 @@ function rebuyBean(b,rd,g){const opened=b.diary.find(e=>e.k==='opened'),last=b.d
 const fmtD=s=>s?new Date(s+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'';
 const ordinal=n=>n+(n%100>10&&n%100<14?'th':['th','st','nd','rd'][n%10]||'th');
 let BEANS=load('bb-beans',[]);BEANS=Array.isArray(BEANS)?BEANS.map(okBean).filter(Boolean):[];
+// Blends are kept twice: in the coffee, and in a list of their own that versions of the app from before blends never
+// read or write. An older version on another device turns a blend into a coffee with no origin (it doesn't know the
+// word), and the sync brings that back here; the list puts the blend back. A coffee given a real origin there stays as it was.
+const blendsSide=()=>{const o={};for(const b of BEANS)if(b.origin==='blend'&&b.blend&&b.blend.length)o[b.id]=b.blend;return o};
+let BLENDS_TXT=localStorage.getItem('bb-blends')||'';
+const BLENDS_BACK=(()=>{let side;try{side=JSON.parse(BLENDS_TXT||'{}')}catch(e){side={}}if(!side||typeof side!=='object')return 0;let n=0;
+  for(const b of BEANS)if(!b.origin&&Array.isArray(side[b.id])){const parts=okBlend(side[b.id]);if(parts.length>1){b.origin='blend';b.blend=parts;n++}}return n})();
+function saveBlendsSide(){const t=JSON.stringify(blendsSide());if(t===BLENDS_TXT)return;try{localStorage.setItem('bb-blends',t);BLENDS_TXT=t}catch(e){}}
+// Put back: saved again so the account has the blend too, and a word that a device still has the older app.
+setTimeout(()=>{if(BLENDS_BACK){saveBeans();try{toast(BLENDS_BACK===1?'A blend an older version of the app flattened is back. Update the app on your other devices':BLENDS_BACK+' blends an older version of the app flattened are back. Update the app on your other devices')}catch(e){}}else saveBlendsSide()},1500);
 // Top 3 per year: three places (gold, silver, bronze), each a bean id or '' while open, plus a snapshot so a podium
 // survives the bean being deleted later.
 let TOP3=(t=>{const o={};if(t&&typeof t==='object')for(const [y,v] of Object.entries(t))if(/^\d{4}$/.test(y)&&v&&Array.isArray(v.ids)){
@@ -86,7 +96,7 @@ let BQ='',BSORT=vwGet('bsort','recent',v=>['recent','rated','roaster','origin'].
 const bfAny=b=>!BF.length||BF.some(f=>bfKeep(b,f));
 // Cards slide in the first time you see them, not every time the list is sorted or searched.
 const BSEEN=new Set();
-function saveBeans(){try{localStorage.setItem('bb-beans',JSON.stringify(BEANS));BREV++;reschedule();return true}catch(e){toast('Couldn’t save: this device’s storage is full');return false}}
+function saveBeans(){try{localStorage.setItem('bb-beans',JSON.stringify(BEANS));saveBlendsSide();BREV++;reschedule();return true}catch(e){toast('Couldn’t save: this device’s storage is full');return false}}
 const saveTop3=()=>{BREV++;save('bb-top3',TOP3)};
 // Changes to the gallery, the log or the scans; opening the tab again with none of them redraws nothing.
 let BREV=0,BSIG='';
@@ -928,6 +938,18 @@ function openTrophies(){const d=$('vd'),T=TGOT||{},earned=TROPHIES.filter(t=>T[t
   $('vd-in').innerHTML='<div class="vd-head" style="--c:#C9964A"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:#C9964A"></i>Your trophies</span><h2 id="vd-title">'+earned+' of '+TROPHIES.length+' earned</h2>'+
     '<p class="hint" style="margin:0">Earned by what you add, brew and buy again. Seasonal ones come round each year.</p></div><div class="vd-body tro-page">'+trophiesHTML()+'</div>';
   $('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
+// What the passport shows, for the page and its share card: the origins you've had (first had first), each region's
+// count, blends, and how many of the map's origins you've collected.
+function passportData(){const total=Object.keys(ALLO()).length,by={};for(const b of BEANS)if(b.origin)(by[b.origin]=by[b.origin]||[]).push(b);
+  const nBags=k=>by[k].reduce((a,b)=>a+buys(b),0),first=k=>by[k].map(beanFirst).sort()[0],got=Object.keys(by).sort((a,b)=>first(a).localeCompare(first(b)));
+  const regs=Object.entries(REG).map(([rk,r])=>({k:rk,name:r.name.replace(' and Caribbean','').replace(' and Pacific',''),color:r.color,all:Object.keys(ALLO()).filter(k=>ALLO()[k].reg===rk).length,have:got.filter(k=>ALLO()[k]&&ALLO()[k].reg===rk).length}));
+  const onMap=got.filter(k=>ALLO()[k]).length,off=got.filter(k=>k!=='blend').length-onMap;
+  return{total,by,got,nBags,first,regs,onMap,off,nbl:(by.blend||[]).length}}
+function passportDoc(){const D=passportData(),mon=iso=>new Date(iso+'T12:00').toLocaleDateString(undefined,{month:'short',year:'numeric'});
+  return{title:'My coffee passport',sub:D.onMap+' of '+D.total+' origins',file:'coffee-passport',heavy:D.got.length>16,
+    card:()=>passportCardImg(),cardTheme:()=>originTheme(D.got[D.got.length-1]),cardName:'coffee-passport',cardTitle:'Passport card',cardSub:'Your passport as one image: a stamp for every origin you’ve had, how far you are in each region, and your blends.',
+    blocks:[{h:'Regions',kv:D.regs.map(r=>[r.name,r.have+' of '+r.all]).concat(D.nbl?[['Blends',String(D.nbl)]]:[])},
+      {h:'Stamps',list:D.got.map(k=>originName(k)+' ('+(k==='blend'?D.nbl+' blend'+(D.nbl===1?'':'s'):D.nBags(k)+' bag'+(D.nBags(k)===1?'':'s'))+', since '+mon(D.first(k))+')')}]}}
 function renderPassport(){const p=$('bv-passport');if(!p)return;const st=cabStats(),total=Object.keys(ALLO()).length,by={};
   for(const b of BEANS)if(b.origin)(by[b.origin]=by[b.origin]||[]).push(b);
   // Every bag counts, bought-again ones included; "since" is the first of them.
@@ -943,7 +965,7 @@ function renderPassport(){const p=$('bv-passport');if(!p)return;const st=cabStat
   const todo=Object.keys(ALLO()).filter(k=>!by[k]),seed=Math.floor(Date.now()/864e5),next=[];for(let i=0;i<Math.min(6,todo.length);i++)next.push(todo[(seed*7+i*11)%todo.length]);
   // The count is of the map's origins; countries off the map still get a stamp, counted on their own.
   const onMap=got.filter(k=>ALLO()[k]).length,T=TGOT||{},earned=TROPHIES.filter(t=>T[t[0]]).length;
-  p.innerHTML='<div class="passport"><div class="pp-h"><span class="pp-k">Coffee passport</span><h3>'+onMap+' <em>of '+total+' origins'+(got.filter(k=>k!=='blend').length>onMap?' · +'+(got.filter(k=>k!=='blend').length-onMap)+' more':'')+'</em></h3><div class="pp-regs">'+regs+blendReg+'</div></div>'+
+  p.innerHTML='<div class="passport"><div class="pp-h"><span class="pp-k">Coffee passport</span>'+(got.length?'<button type="button" class="sh-mini ic pp-share" data-ppshare aria-label="Share your passport" title="Share">'+SH_ICO+'</button>':'')+'<h3>'+onMap+' <em>of '+total+' origins'+(got.filter(k=>k!=='blend').length>onMap?' · +'+(got.filter(k=>k!=='blend').length-onMap)+' more':'')+'</em></h3><div class="pp-regs">'+regs+blendReg+'</div></div>'+
     (got.length?'<div class="pp-grid">'+got.map((k,i)=>'<button type="button" class="pp-st" data-ppo="'+k+'" style="--r:'+(((i*37)%15)-7)+'deg"><img alt="" src="'+(STAMPS.get(k)||STAMP_WAIT)+'" data-stamp="'+k+'"><b>'+esc(originName(k))+'</b><small>'+(k==='blend'?by.blend.length+' blend'+(by.blend.length===1?'':'s'):nBags(k)+' bag'+(nBags(k)===1?'':'s'))+' · since '+mon(first(k))+'</small></button>').join('')+'</div>'
       :'<p class="pp-empty">Your first stamp arrives with your first coffee.</p>')+
     (next.length?'<div class="pp-next"><b>Still to discover</b><div class="chips">'+[...new Set(next)].map(k=>'<button type="button" class="chip" data-o="'+k+'">'+(ALLO()[k].flag||'')+' '+esc(originName(k))+'</button>').join('')+'</div></div>':'')+'</div>'+
@@ -976,6 +998,7 @@ $('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-add')){openB
   const t5=e.target.closest('[data-t5share]');if(t5){openShare(top5Doc(+t5.dataset.t5share));return}
   if(e.target.closest('[data-shelfshare]')){openShare(shelfDoc());return}
   if(e.target.closest('[data-galshare]')){openShare(galleryDoc());return}
+  if(e.target.closest('[data-ppshare]')){openShare(passportDoc());return}
   const t=e.target.closest('[data-top3]');if(t){openTop3(+t.dataset.top3,t.dataset.slot==='hm'?'hm':+(t.dataset.slot||0));return}
   const sa=e.target.closest('[data-scanadd]');if(sa){addScanToGallery(+sa.dataset.scanadd);return}
   const sc=e.target.closest('[data-scan]');if(sc){openSavedScan(+sc.dataset.scan);return}

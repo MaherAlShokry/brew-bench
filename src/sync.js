@@ -12,7 +12,7 @@
 //   users/<uid>/data/img/<key>        {t, s: a fingerprint of the photo} or {t, del:1}
 //   userimg/<uid>/<key>               the photo itself
 const SYNC_COLS=['bb-beans','bb-log','bb-scans','bb-myrecipes'];
-const SYNC_KEYS=['bb-top3','bb-advent','bb-trophies','bb-favs','bb-custom-grinders','bb-mygrinders','bb-mybrewers','bb-base3','bb-calc','bb-ui','bb-theme','bb-cardstyle','bb-group','bb-name'];
+const SYNC_KEYS=['bb-top3','bb-advent','bb-trophies','bb-favs','bb-custom-grinders','bb-mygrinders','bb-mybrewers','bb-base3','bb-calc','bb-ui','bb-theme','bb-cardstyle','bb-group','bb-name','bb-blends'];
 const SYNC_ID=/^[A-Za-z0-9_:-]{1,40}$/;
 const fnv=s=>{let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)}return(h>>>0).toString(36)+'.'+s.length.toString(36)};
 // Photos are large: their fingerprint is taken from the length and both ends.
