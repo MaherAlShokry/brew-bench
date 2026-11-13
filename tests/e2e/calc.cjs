@@ -55,8 +55,13 @@ const R=await p.evaluate(()=>{const F=[];const bad=(k,m)=>{F.push(k+': '+m)};let
    if(Math.abs(tot-W)>1.5)bad('4:6 total',W+' '+goal+' '+tot)}
  // 7. Recipe timings: total time is the last step's time; steps run in order.
  for(const r of RECIPES){const ts=parseSteps(r.steps).map(e=>e.t);for(let k=1;k<ts.length;k++)if(ts[k]>=0&&ts[k-1]>=0&&ts[k]<ts[k-1]){bad('step order',r.name+' '+r.steps[k]);break}}
+ // 7b. Pours add up: in "pour Xg (to Yg)" X is what takes the scale from the last total to Y, at any dose.
+ for(const r of RECIPES)for(const k of [1.013,0.87,1.37]){const st=scaleSteps(r,Math.round(r.dose*k*10)/10,Math.round(r.water*k));let lvl=null;
+   st.forEach(x=>{for(const m of x.matchAll(/(\d+(?:\.\d+)?)\s?g\s*\(to\s+(\d+(?:\.\d+)?)\s?g\)|\b(?:to|until)\s+(\d+(?:\.\d+)?)\s?g\b|\bpour\s+(\d+(?:\.\d+)?)\s?g\b(?!\s*\(to)/gi)){
+     if(m[2]!=null){if(lvl!=null&&Math.abs(+m[2]-lvl-m[1])>0.05&&Math.abs(+m[2]-lvl-m[1])<=1.5)bad('pours add up',r.name+' x'+k+': '+x);lvl=+m[2]}else if(m[3]!=null)lvl=+m[3];else lvl=(lvl||0)+ +m[4]}})}
+ for(const g of Object.keys(GSPEC))for(const [d,w] of [[20,304],[15,250],[18.5,277]]){let lvl=0;steps46(d,w,g).forEach(x=>{const m=/pour (\d+(?:\.\d+)?)g(?: \(to (\d+(?:\.\d+)?)g\))?/.exec(x);if(!m)return;const to=m[2]!=null?+m[2]:+m[1];if(Math.abs(to-lvl-m[1])>0.05)bad('4:6 pours add up',g+' '+d+'/'+w+': '+x);lvl=to})}
  // 8. Formatting.
  if(mmss(0)!=='0:00'||mmss(75)!=='1:15'||mmss(600)!=='10:00')bad('mmss',[mmss(0),mmss(75),mmss(600)]);if(gfmt(12.4)!=='12'||gfmt(7.25)!=='7.3'&&gfmt(7.25)!=='7.2')bad('gfmt',gfmt(12.4)+' '+gfmt(7.25));
  return {F,n,conv,plans,maxMiss,worst,scaled,limited,maxCap}});
 console.log('dial checks',R.n,'| conversions',R.conv,'| plans',R.plans,'| recipes scaled',R.scaled);console.log('largest plan miss',R.maxMiss.toFixed(3),R.worst);console.log('plans with the grind held near the recipe',R.limited,'| their largest miss',R.maxCap.toFixed(3));
-console.log(R.F.length?R.F.length+' problems:\n  '+[...new Set(R.F)].slice(0,60).join('\n  '):'no problems');console.log('errors',errs.length?errs:'none');await b.close()})();
+console.log(R.F.length?'FAIL '+R.F.length+' problems:\n  '+[...new Set(R.F)].slice(0,60).join('\n  '):'no problems');console.log('errors',errs.length?errs:'none');await b.close()})();

@@ -837,8 +837,9 @@ S.goal=goalOf(S.goal);S.amt=amtOf(S.amt);
 // Kasuya's 4:6: the first 40% of the water sets sweetness against acidity (a smaller first pour is sweeter, a bigger
 // one brighter); the last 60% sets strength (fewer pours lighter, more pours fuller).
 function steps46(dose,water,goal){const G=GSPEC[goal]||{},f=water*0.4,a=G.f46==='sweet'?f/3:G.f46==='bright'?f*2/3:f/2,n=G.n46||3,gap={2:60,3:45,4:35}[n],rest=water*0.6/n;
-  const out=[],pours=[a,f-a,...Array(n).fill(rest)];let t=0,tot=0;
-  pours.forEach((w,k)=>{tot+=w;out.push(mmss(t)+' pour '+gfmt(w)+'g'+(k?' (to '+gfmt(tot)+'g)':'')+'.');t+=k<1?45:k<2?45:gap});
+  const out=[],pours=[a,f-a,...Array(n).fill(rest)];let t=0,tot=0,was=0;
+  // Each pour is the step between rounded totals, so the pours add up to what the scale reads.
+  pours.forEach((w,k)=>{tot+=w;const to=+gfmt(tot);out.push(mmss(t)+' pour '+gfmt(to-was)+'g'+(k?' (to '+gfmt(tot)+'g)':'')+'.');was=to;t+=k<1?45:k<2?45:gap});
   out.push(mmss(t-gap+(n===3?30:gap))+' remove the dripper.');return out}
 function planSteps(r,dose,water,goal){
   goal=goalOf(goal);
@@ -1178,7 +1179,12 @@ function scaleSteps(r,dose,water){if(dose===r.dose&&water===r.water)return r.ste
   return r.steps.map(x=>x.replace(/(\d+(?:\.\d+)?)(?:(\s*(?:to|-|\u2013)\s*)(\d+(?:\.\d+)?))?(\s?)(g|ml)\b/gi,(m,a,mid,b,sp,u,at,str)=>{
     const after=str.slice(at+m.length,at+m.length+30);if(/^\s*(?:of\s+)?(?:\w+\s+)?(?:per|a|\/)\s*(?:litre|liter|l)\b/i.test(after))return m;
     const coffee=/^\s*(?:of\s+)?(?:ground\s+|fresh\s+)?(?:coffee|grounds)\b/i.test(after)||(!b&&Math.abs(+a-r.dose)<1e-6&&r.dose!==r.water&&!/^\s*(?:of\s+)?(?:\w+\s+)?water/i.test(after));
-    const f=coffee?fd:fw;return gfmt(+a*f)+(b?mid+gfmt(+b*f):'')+sp+u}))}
+    const f=coffee?fd:fw;return gfmt(+a*f)+(b?mid+gfmt(+b*f):'')+sp+u})).map(pourSums())}
+// Rounded on their own, the pours stop adding up ("pour 30g (to 61g)" after 30g). So each "pour Xg (to Yg)" pours
+// what takes the scale from the last total to this one; a total stays as rounded, so the last one is still your water.
+function pourSums(){let lvl=null;return x=>x.replace(/(\d+(?:\.\d+)?)(\s?g\s*\(to\s+)(\d+(?:\.\d+)?)(\s?g\))|\b(?:to|until)\s+(\d+(?:\.\d+)?)\s?g\b|\bpour\s+(\d+(?:\.\d+)?)\s?g\b(?!\s*\(to)/gi,(m,a,mid,to,end,only,add)=>{
+  if(to!=null){const d=lvl!=null?+to-lvl:null;lvl=+to;return d!=null&&d>0&&Math.abs(d-a)<=1.5?gfmt(d)+mid+to+end:m}
+  if(only!=null){lvl=+only;return m}if(lvl==null||lvl===0)lvl=+add;else lvl+=+add;return m})}
 // A recipe as written (sizing to your dose happens in the dial-in).
 const scaled=r=>({dose:r.dose,water:r.water,steps:r.steps,off:r.off,adj:0,ratio:r.water/r.dose,on:false});
 const rr1=v=>Math.round(v*10)/10;
@@ -3034,10 +3040,16 @@ function openShare(doc){SHDOC=doc;loadPDF().catch(()=>{});const pdfOK=true;
    '<button type="button" data-sh="copy">'+ico('copy','#C9964A')+'<span>Copy as text<small>Paste it anywhere</small></span></button>'+
    '<button type="button" data-sh="md">'+ico('text','#8A5A3B')+'<span>Save as a text file<small>Plain text you can edit</small></span></button></div></div>';
   const d=$('sharesheet');showDlg(d);$('sh-x').onclick=()=>d.close();
-  if(doc.card)drawShCard();setTimeout(()=>shPdfThumb(doc),doc.card?500:150)}
+  // Nothing is drawn while the sheet slides up (0.44 s), so it moves smoothly; the card's preview comes right after,
+  // then (when the phone is idle) the PDF's thumbnail and the other look.
+  setTimeout(()=>{if(SHDOC!==doc||!d.open)return;if(doc.card)drawShCard(true);else shIdle(()=>shPdfThumb(doc))},460)}
+const shIdle=f=>(window.requestIdleCallback?requestIdleCallback(f,{timeout:1500}):setTimeout(f,300));
 // The PDF's first page, small, on its row: in the app's look (as the PDF is), so it's clear it can differ from the image.
 // Drawn in the background after the image's preview; the PDF itself then reuses the same card.
 const pdfStyle=()=>({mode:curTheme()==='dark'?'dark':'light',col:'classic'});
+// The card painter (a worker with the app's fonts) starts quietly a little after the app opens, so the first share
+// doesn't wait for it.
+addEventListener('load',()=>setTimeout(()=>shIdle(()=>{try{bcWorker()}catch(e){}}),6000));
 async function shPdfThumb(doc){const el=$('sharesheet').querySelector('.sh-pdfpv');if(!el||SHDOC!==doc)return;
   try{const st=pdfStyle();let bl;
     if(doc.pdfCard){if(!doc._pdfBl){const keep=Object.assign({},CARD_STYLE);Object.assign(CARD_STYLE,st);let pr;try{pr=doc.pdfCard()}finally{Object.assign(CARD_STYLE,keep)}doc._pdfBl=Promise.resolve(pr)}bl=await doc._pdfBl}
@@ -3058,14 +3070,18 @@ const shKey=st=>st.mode+'|'+st.col;
 function shCardFor(doc,st){const c=doc._cards||(doc._cards=new Map()),k=shKey(st);if(c.has(k))return c.get(k);
   const keep=Object.assign({},CARD_STYLE);Object.assign(CARD_STYLE,st);let pr;try{pr=doc.card()}finally{Object.assign(CARD_STYLE,keep)}
   pr=Promise.resolve(pr).then(bl=>{if(!bl)c.delete(k);return bl},e=>{c.delete(k);throw e});c.set(k,pr);return pr}
-function drawShCard(){const d=$('sharesheet'),doc=SHDOC,n=++SHN;SHCARD=null;const pv=d.querySelector('.shcard-pv');if(pv)pv.classList.add('busy');
+function drawShCard(first){const d=$('sharesheet'),doc=SHDOC,n=++SHN;SHCARD=null;const pv=d.querySelector('.shcard-pv');if(pv)pv.classList.add('busy');
   const st={mode:CARD_STYLE.mode,col:CARD_STYLE.col};
   // Let the tapped button show as picked before the card is drawn.
   requestAnimationFrame(()=>setTimeout(()=>{if(n!==SHN)return;
   shCardFor(doc,st).then(bl=>{if(SHDOC!==doc||n!==SHN||!bl)return;SHCARD=bl;const pv=d.querySelector('.shcard-pv');if(!pv)return;pv.classList.remove('busy');
-    const u=URL.createObjectURL(bl);pv.innerHTML='<img src="'+u+'" alt="Your brew card">';pv.querySelector('img').onload=()=>setTimeout(()=>URL.revokeObjectURL(u),1000);
-    // The other look is drawn ahead while the sheet sits idle, except for a card that takes long to draw (a big gallery).
-    const other={mode:st.mode==='dark'?'light':'dark',col:st.col};if(!doc.heavy)(window.requestIdleCallback||(f=>setTimeout(f,400)))(()=>{if(SHDOC===doc&&d.open)shCardFor(doc,other).catch(()=>{})})}).catch(()=>{const ph=d.querySelector('.shcard-ph');if(ph)ph.textContent='Couldn’t draw the card'})},0))}
+    // The image is decoded off the page before it's shown, so swapping it in doesn't stall a frame.
+    const u=URL.createObjectURL(bl),im=new Image();im.alt='Your brew card';im.src=u;
+    const show=()=>{if(SHDOC!==doc||n!==SHN)return;pv.replaceChildren(im);setTimeout(()=>URL.revokeObjectURL(u),1000)};(im.decode?im.decode():Promise.resolve()).then(show,show);
+    // Then, while the sheet sits idle: the PDF's thumbnail (first time only), and the other look drawn ahead (except
+    // for a card that takes long to draw, a big gallery).
+    const other={mode:st.mode==='dark'?'light':'dark',col:st.col};
+    shIdle(async()=>{if(SHDOC!==doc||!d.open)return;if(first)await shPdfThumb(doc);if(!doc.heavy&&SHDOC===doc&&d.open)shIdle(()=>{if(SHDOC===doc&&d.open)shCardFor(doc,other).catch(()=>{})})})}).catch(()=>{const ph=d.querySelector('.shcard-ph');if(ph)ph.textContent='Couldn’t draw the card'})},0))}
 // One swatch per colour, painted in what the card would use: its background and its accent.
 function shSwatches(doc){const T=(doc.cardTheme&&doc.cardTheme())||OT.house,keep=Object.assign({},BC);
   const h=cardCols().map(([k,n])=>{const t=cardStyle(T,{mode:CARD_STYLE.mode,col:k}),lab=k==='origin'?(T.key?(flagOf(T.key)+' '+T.name):'House'):n;
@@ -3556,7 +3572,7 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
     else{document.documentElement.setAttribute('data-theme',v);try{localStorage.setItem('bb-theme',v)}catch(e){}}syncThemeBtn();applyUI();renderSettings(1)});
   seg('st-text',[['s','Small'],['m','Standard'],['l','Large'],['xl','Larger']],()=>UI.text,v=>{const st=$('st-text'),y0=st.getBoundingClientRect().top;UI.text=v;saveUI();renderSettings(1);
     // New text size: the strip you tapped stays under your finger, and every highlight (strips and the nav bar) is measured again.
-    scrollBy(0,st.getBoundingClientRect().top-y0);PILLPOS.clear();movePill();document.querySelectorAll('.seg').forEach(x=>segQueue(x))});
+    scrollBy(0,st.getBoundingClientRect().top-y0);PILLPOS.clear();movePill();document.querySelectorAll(SEG_SEL).forEach(x=>segQueue(x))});
   seg('st-motion',[['full','Full'],['reduced','Reduced']],()=>UI.motion,v=>{UI.motion=v;saveUI();renderSettings(1)});
   if($('st-remind')){seg('st-remind',[['0','Off'],['1','Every day']],()=>REMIND.on?'1':'0',async v=>{await setReminder(v==='1');renderSettings(1)});
     $('st-rtime').onchange=async e=>{if(/^\d\d:\d\d$/.test(e.target.value)){REMIND.t=e.target.value;save('bb-remind',REMIND);await scheduleReminders();toast('Your coffee of the day arrives at '+REMIND.t)}}}

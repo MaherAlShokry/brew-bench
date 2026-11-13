@@ -338,12 +338,22 @@ function bcBG(x,W,H,T){const c={height:H};
 // full-size canvas is slow on phones, and the background it measures is smooth enough to survive the shrink.
 // The background is painted again, small, for this: copying the full-size card down to read it was most of a card's
 // drawing time on a phone.
-function bcCheck(x,W,T,Hbg){const P=BC.PAD,K=6,H0=2400,sm=document.createElement('canvas');sm.width=Math.ceil(W/K);sm.height=Math.ceil(H0/K);
+// Each pixel's brightness comes from a table (no colour strings), and the result is kept for each look and height:
+// the share sheet draws the same look more than once (the preview, the other look ahead, the PDF's), and this check
+// was most of a card's work on the page.
+const BC_LIN=(()=>{const t=new Float32Array(256);for(let v=0;v<256;v++){const c=v/255;t[v]=c<=0.03928?c/12.92:Math.pow((c+0.055)/1.055,2.4)}return t})();
+const BC_CHK=new Map();
+function bcCheck(x,W,T,Hbg){const key=JSON.stringify([T.bg,T.glow,T.acc,T.acc2,T.motif||'',BC.LIGHT,BC.HONEY,Hbg,W]);
+  if(BC_CHK.has(key)){BC.HONEY=T.acc=BC_CHK.get(key);return}
+  const P=BC.PAD,K=6,H0=2400,sm=document.createElement('canvas');sm.width=Math.ceil(W/K);sm.height=Math.ceil(H0/K);
   const sx=sm.getContext('2d',{willReadFrequently:true});sx.scale(1/K,1/K);sx.bcK=1/K;bcBG(sx,W,Hbg,T);if(T.motif)bcBand(sx,W,T);const all=sx.getImageData(0,0,sm.width,sm.height).data;
-  const worst=(y0,y1,x0,x1)=>{const L=[];for(let yy=Math.floor(y0/K);yy<Math.ceil(y1/K);yy++)for(let xx=Math.floor(x0/K);xx<Math.ceil(x1/K);xx++){const i=(yy*sm.width+xx)*4,h=hexOf([all[i],all[i+1],all[i+2]]);L.push([relLum(h),h])}
-    if(!L.length)return null;L.sort((a,b)=>a[0]-b[0]);return L[Math.floor(L.length*(BC.LIGHT?0.03:0.97))][1]};
+  const worst=(y0,y1,x0,x1)=>{const ys=Math.floor(y0/K),ye=Math.min(sm.height,Math.ceil(y1/K)),xs=Math.floor(x0/K),xe=Math.min(sm.width,Math.ceil(x1/K)),n=Math.max(0,ye-ys)*Math.max(0,xe-xs);if(!n)return null;
+    const lum=new Float32Array(n),at=new Int32Array(n);let k=0;
+    for(let yy=ys;yy<ye;yy++)for(let xx=xs;xx<xe;xx++){const i=(yy*sm.width+xx)*4;lum[k]=0.2126*BC_LIN[all[i]]+0.7152*BC_LIN[all[i+1]]+0.0722*BC_LIN[all[i+2]];at[k++]=i}
+    const q=Float32Array.from(lum).sort()[Math.floor(n*(BC.LIGHT?0.03:0.97))],j=at[lum.indexOf(q)];return hexOf([all[j],all[j+1],all[j+2]])};
   const zs=[worst(70,112,P,W-P),worst(150,330,P,W-300),worst(330,470,P,W-P),worst(900,Math.min(2400,Hbg),P,W-P)].filter(Boolean);
-  BC.HONEY=T.acc=ensureC(BC.HONEY,zs,BC.LIGHT?4.8:5.2,BC.LIGHT?'#1A0E08':'#FFFFFF')}
+  BC.HONEY=T.acc=ensureC(BC.HONEY,zs,BC.LIGHT?4.8:5.2,BC.LIGHT?'#1A0E08':'#FFFFFF');
+  if(BC_CHK.size>60)BC_CHK.clear();BC_CHK.set(key,BC.HONEY)}
 function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
   // Header: the mark and kicker, the date, then a fine rule.
   let y=100;bcBean(x,P+16,y-9,32,BC.HONEY);bcLabel(x,m.kicker||'The Brew Bench',P+44,y);

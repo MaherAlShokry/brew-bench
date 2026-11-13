@@ -136,8 +136,9 @@ function rngEnhance(i){if(i.dataset.rng)return;i.dataset.rng='1';
 // like that control's own highlight, instead of jumping. It picks up where it was even when the options are redrawn.
 // Highlights are placed in batches: every strip is read first, then every highlight is written, so a page with many
 // strips (Settings redraws them all) is laid out about once instead of once per strip.
+// Only one-line strips (SEG_SEL) get one: wrapping chip rows keep their own pick, so a highlight never floats loose.
 function segBatch(list){const items=[];
-  for(const el of new Set(list)){if(!el||!el.isConnected)continue;const on=el.querySelector(':scope>button[aria-pressed="true"]');items.push({el,on,ind:el.querySelector(':scope>.seg-ind')})}
+  for(const el of new Set(list)){if(!el||!el.isConnected||!el.matches(SEG_SEL))continue;const on=el.querySelector(':scope>button[aria-pressed="true"]');items.push({el,on,ind:el.querySelector(':scope>.seg-ind')})}
   if(!items.length)return;
   // Reads, part 1: which strips are shown, and which need a positioned parent for their highlight.
   for(const it of items){it.ok=!!(it.on&&it.on.offsetWidth);if(it.ok&&!it.el.classList.contains('ind-rel'))it.stat=getComputedStyle(it.el).position==='static'}
