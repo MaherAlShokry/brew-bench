@@ -55,7 +55,8 @@ jobs:
         run: |
           chmod +x gradlew
           for i in 1 2 3; do ./gradlew --version --no-daemon >/dev/null && break; sleep $((i*20)); done
-          ./gradlew assembleDebug assembleDebugAndroidTest --no-daemon
+          # Only the app has a widget test; the library modules' own test builds are left out.
+          ./gradlew :app:assembleDebug :app:assembleDebugAndroidTest --no-daemon
       # The emulator needs hardware acceleration, which GitHub's Linux runners allow once KVM is opened up.
       - name: Allow the emulator to use KVM
         run: |
