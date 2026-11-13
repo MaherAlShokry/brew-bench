@@ -132,6 +132,9 @@ let UPD_SEEN='';const chkNewBuild=()=>{try{if(typeof BUILD_ID==='undefined'||!wi
   if(m&&m[1]!==BUILD_ID&&m[1]!==UPD_SEEN){UPD_SEEN=m[1];toastAct('A new version is ready','Reload',()=>location.reload())}}).catch(()=>{})}catch(e){}};
 try{if(navigator.serviceWorker&&typeof BUILD_ID!=='undefined'){navigator.serviceWorker.addEventListener('message',e=>{if(e.data&&e.data.type==='bb-updated')setTimeout(chkNewBuild,800)});
   addEventListener('load',()=>setTimeout(chkNewBuild,4000));document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(chkNewBuild,1500)})}}catch(e){}
+// Share and Edit are the same round icon button everywhere (with its name for screen readers and on hover).
+const IB_SVG={share:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>',edit:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4"/></svg>'};
+function icoBtn(kind,attrs,label){return '<button type="button" class="sh-mini ic" '+attrs+' aria-label="'+esc(label)+'" title="'+(kind==='edit'?'Edit':'Share')+'">'+IB_SVG[kind]+'</button>'}
 // A toast with a button, kept up a little longer so there is time to tap it.
 function toastAct(m,label,fn){const t=$('toast');t.textContent='';t.classList.add('act');const sp=document.createElement('span');sp.textContent=m;const b=document.createElement('button');b.type='button';b.className='tact';b.textContent=label;
   b.onclick=()=>{t.classList.remove('show');fn()};t.append(sp,b);t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),6000)}
@@ -1183,14 +1186,14 @@ const rr1=v=>Math.round(v*10)/10;
 // Each step also shows what kind of move it is (pour, swirl, valve…) as a small coloured icon; see steps.js.
 // An untimed pour shows the time the chart estimated for it ("~1:00"), so the list and the chart agree.
 const stepList=steps=>{const c=pourCurve(steps);return '<ol class="steps tl">'+steps.map((x,i)=>{const m=/^\s*(\d+:\d\d)\s*/.exec(x),k=stepKind(x),d=!m&&c&&c.dots[i];return '<li class="k-'+k+'">'+(m?'<span class="t">'+m[1]+'</span>':d&&d.e?'<span class="t est" title="Estimated from the recipe\'s pace">~'+mmss(d.t)+'</span>':'<span class="t dot"></span>')+'<i class="tk" title="'+SKNAME(k)+'">'+SKICO(k)+'</i><span class="sx">'+esc(capS(m?x.slice(m[0].length):x))+'</span></li>'}).join('')+'</ol>'};
-function recipeBody(r,i,compact){const B=BREWERS[r.b],sc=compact?{dose:r.dose,water:r.water,steps:r.steps,off:r.off,ratio:r.water/r.dose}:scaled(r);const gs=MYG.map(g=>[g,settingFor(g,r.b,sc.off)]);
+function recipeBody(r,i,compact,inSheet){const B=BREWERS[r.b],sc=compact?{dose:r.dose,water:r.water,steps:r.steps,off:r.off,ratio:r.water/r.dose}:scaled(r);const gs=MYG.map(g=>[g,settingFor(g,r.b,sc.off)]);
   const m=rmeta(r);
   return (compact?'<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span>':'')+'</div>'
      :'<p class="hint" style="margin:0 0 .2rem">'+esc(B.name)+' · '+esc(B.type)+'</p>'+'<div class="rstats"><div><b>'+r.dose+'g</b><small>Coffee</small></div><div><b>'+r.water+'g</b><small>Water</small></div><div><b>'+(m.ratio||'–')+'</b><small>Ratio</small></div>'+
        '<div><b>'+(r.temp?r.temp+'°C':'–')+'</b><small>'+(r.temp2?'Then '+r.temp2+'°C':'Water')+'</small></div><div><b>'+(m.time!=null?mmss(m.time):'By eye')+'</b><small>Total time</small></div><div><b>'+m.level+'</b><small>'+m.pours+' pour'+(m.pours===1?'':'s')+'</small></div></div>')+
    '<div class="meta">'+gs.map(([g,v])=>'<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>').join('')+'</div>'+
    (r.why?'<p>'+esc(r.why)+'</p>':'')+(compact?'<details class="rsteps"><summary>Steps ('+r.steps.length+')</summary>':'')+(compact?'':pourGraph(sc.steps,sc.water))+stepList(sc.steps)+(r.tip?'<p class="hint">'+esc(r.tip)+'</p>':'')+(compact?'</details>':'')+
-   '<div class="actions">'+(B.model?'<button class="btn" data-load="'+i+'">Brew in the dial-in</button><button class="btn ghost" data-timer="'+i+'">Start timer</button>':'<button class="btn" data-timer="'+i+'">Start timer</button>')+'<button class="btn ghost" data-rshare="'+i+'">Share</button>'+(r.custom?'<button class="btn ghost" data-redit="'+esc(r.id)+'">Edit</button>':'')+'</div>'}
+   '<div class="actions">'+(B.model?'<button class="btn" data-load="'+i+'">Brew in the dial-in</button><button class="btn ghost" data-timer="'+i+'">Start timer</button>':'<button class="btn" data-timer="'+i+'">Start timer</button>')+(inSheet?'':icoBtn('share','data-rshare="'+i+'"','Share this recipe')+(r.custom?icoBtn('edit','data-redit="'+esc(r.id)+'"','Edit this recipe'):''))+'</div>'}
 let RF=vwGet('rf',[],vwStrs).map(String),RQ='',RLIST=[];
 // The recipe filter is a set of picks: "fav", "mine", "champ", "b:<brewer>", "cup:<type>", "col:<collection>". Picks of
 // one kind widen the list (V60 or Switch); picks of different kinds narrow it (a Switch recipe that's also a champion's).
@@ -1376,8 +1379,12 @@ function recipeAct(e){const ed=e.target.closest('[data-redit]');if(ed){openRecip
 $('rgrid').onclick=e=>{const o=e.target.closest('[data-open]');if(o){openRecipe(+o.dataset.open);return}recipeAct(e)};
 // A recipe opened from a shared link.
 function openRecipe(i){const r=RECIPES[i],B=BREWERS[r.b],d=$('vd');
-  d.querySelector('#vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">\u2715</button>'+favBtn(r)+'<span class="pill"><i style="background:var(--cherry)"></i>'+esc(r.custom?(r.author?'From '+r.author:'Your recipe'):'Recipe')+'</span><h2 id="vd-title">'+esc(r.name)+'</h2>'+(r.by?'<p class="hint" style="margin:0">'+esc(r.by)+'</p>':'')+'</div>'+
-   '<div class="vd-body">'+recipeBody(r,i)+'</div>';
+  // Share and Edit sit in the sheet's header with Save, as on a coffee's page.
+  const tools='<span class="vd-tools">'+favBtn(r)+'<button type="button" class="vd-tool" data-rshare="'+i+'" aria-label="Share this recipe" title="Share">'+lIc('share')+'</button>'+
+    (r.custom?'<button type="button" class="vd-tool" data-redit="'+esc(r.id)+'" aria-label="Edit this recipe" title="Edit">'+lIc('edit')+'</button>':'')+'</span>';
+  d.querySelector('#vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">\u2715</button>'+tools+'<span class="pill"><i style="background:var(--cherry)"></i>'+esc(r.custom?(r.author?'From '+r.author:'Your recipe'):'Recipe')+'</span><h2 id="vd-title">'+esc(r.name)+'</h2>'+(r.by?'<p class="hint" style="margin:0">'+esc(r.by)+'</p>':'')+'</div>'+
+   '<div class="vd-body">'+recipeBody(r,i,false,true)+'</div>';
+  d.querySelector('.vd-head').onclick=e=>{const t=e.target.closest('[data-rshare],[data-redit]');if(!t)return;if(t.dataset.redit)d.close();recipeAct(e)};
   d.querySelector('.vd-body').onclick=e=>{if(!e.target.closest('[data-load],[data-plan],[data-timer],[data-rshare],[data-redit]'))return;const sh=e.target.closest('[data-rshare]');if(!sh)d.close();recipeAct(e)};
   $('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
 function loadRecipe(i){const r=RECIPES[i];if(!r||!BREWERS[r.b].model)return;if(!sameFam(r.b,S.brewer))S.brewer=CANONB(r.b);S.rec=i;S.dose=r.dose;if(!canGrind(S.grinder,r.b))S.grinder=capable(r.b);
@@ -1741,7 +1748,7 @@ function vbtn(id){const v=VBY[id];if(!v)return'';return'<button type="button" cl
 function openVariety(id){
   const v=VBY[id];if(!v)return;const f=FAM[v.fam];
   const grown=v.grown||Object.keys(ALLO()).filter(k=>(ALLO()[k].vars||[]).includes(id));
-  $('vd-in').innerHTML='<div class="vd-head" style="--c:'+f.color+'"><button class="vd-close" id="vd-x" aria-label="Close">\u2715</button>'+
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:'+f.color+'"><button class="vd-close" id="vd-x" aria-label="Close">\u2715</button>'+(v.id!=='arabica'?'<span class="vd-tools"><button type="button" class="vd-tool" data-vshare="'+v.id+'" aria-label="Share this variety" title="Share">'+lIc('share')+'</button></span>':'')+
    '<span class="pill"><i style="background:'+f.color+'"></i>'+f.name+'</span><h2 id="vd-title">'+esc(v.name)+'</h2>'+
    '<div class="meta">'+(v.origin?'<span>'+esc(v.origin)+'</span>':'')+(v.year?'<span title="'+esc(v.year)+'">'+esc(v.year)+'</span>':'')+'</div></div>'+
    '<div class="vd-body">'+(v.parents?'<p class="hint" style="margin-top:0"><b>Parentage:</b> '+esc(v.parents)+'</p>':'')+
@@ -1749,7 +1756,7 @@ function openVariety(id){
    '<h3>Brewing it '+dirTag(v.dir)+'</h3><p>'+esc(v.brew)+'</p>'+
    (v.subs?'<h3>Types of '+esc(v.name.split(' ')[0])+'</h3>'+v.subs.map(s=>'<details class="sub"><summary>'+esc(s.name)+'</summary><p>'+esc(s.story)+'</p><p><b>Cup:</b> '+esc(s.cup)+'</p><button class="btn ghost" data-use="'+v.id+':'+s.k+'">Brew this in the dial-in</button></details>').join(''):'')+
    (grown.length?'<h3>Where it grows</h3><div class="chips">'+grown.filter(k=>ALLO()[k]).map(k=>'<button class="chip" data-o="'+k+'">'+(ALLO()[k].flag||'')+' '+esc(originName(k))+'</button>').join('')+'</div>':'')+
-   (v.id!=='arabica'?'<div class="actions"><button class="btn" data-use="'+v.id+'">Brew this in the dial-in</button><button class="btn ghost" data-vshare="'+v.id+'">Share</button></div>':'')+'</div>';
+   (v.id!=='arabica'?'<div class="actions"><button class="btn" data-use="'+v.id+'">Brew this in the dial-in</button></div>':'')+'</div>';
   const d=$('vd');showDlg(d);d.scrollTop=0;
   $('vd-x').onclick=()=>d.close();
 }
@@ -1849,12 +1856,12 @@ function selectOrigin(k,zoom){
   document.querySelectorAll('#worldmap .o,#worldmap .dot').forEach(p=>p.classList.toggle('sel',p.dataset.k===k));
   if(zoom)zoomTo(k==='kona'?'all':regionOf(k));
   const r=REG[o.reg];
-  $('info').innerHTML='<div class="flag" aria-hidden="true">'+o.flag+'</div><h2>'+esc(o.name)+'</h2><span class="pill"><i style="background:'+r.color+'"></i>'+r.name+'</span>'+
+  $('info').innerHTML='<div class="info-top"><div class="flag" aria-hidden="true">'+o.flag+'</div>'+icoBtn('share','data-oshare="'+k+'"','Share this origin')+'</div><h2>'+esc(o.name)+'</h2><span class="pill"><i style="background:'+r.color+'"></i>'+r.name+'</span>'+
    '<h3>Regions</h3><div class="chips">'+o.subs.map(s=>'<span class="chip">'+esc(s)+'</span>').join('')+'</div>'+
    '<div class="stats"><div><b>Altitude</b>'+esc(o.alt)+'</div><div><b>Harvest</b>'+esc(o.harvest)+'</div><div><b>Processing</b>'+esc(o.process)+'</div></div>'+
    '<h3>In the cup</h3><p>'+esc(o.cup)+'</p><h3>Story</h3><p>'+esc(o.hist)+'</p>'+
    '<h3>Varieties grown here</h3><div class="chips">'+o.vars.map(vbtn).join('')+'</div>'+
-   '<div class="fact"><b>Did you know?</b> '+esc(o.fact)+'</div><div class="actions"><button class="btn ghost" data-oshare="'+k+'">Share this origin</button></div>';
+   '<div class="fact"><b>Did you know?</b> '+esc(o.fact)+'</div>';
   const info=$('info');replay(info,'flash');
   if(MQ('(max-width:959px)')&&!zoom)info.scrollIntoView({behavior:RM()?'auto':'smooth',block:'nearest'});
 }
@@ -2118,7 +2125,7 @@ function renderLastBrew(){const el=$('lastbrew');if(!el)return;const l=LOG.find(
     (bean?'<span class="lb-pic">'+beanPic(bean,'xs')+'</span>':'<span class="lb-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z M16 10h1.5a2.5 2.5 0 0 1 0 5H16 M8 3c-1 1 1 2 0 3 M11.5 3c-1 1 1 2 0 3"/></svg></span>')+
     '<span class="lb-tx"><small>Your last brew · '+esc(fmtDate(l))+'</small><b>'+esc(l.coffee||'A brew')+'</b>'+(how.length?'<span class="lb-how">'+esc(how.join(' · '))+'</span>':'')+
     (st?'<i class="st" role="img" aria-label="'+st+' of 5 beans">'+beanRate(st)+'</i>':'')+'</span></button>'+
-    '<div class="lb-act"><button type="button" class="btn" id="lb-share">Share</button><button type="button" class="btn ghost" id="lb-all">All '+n+' brew'+(n===1?'':'s')+'</button></div>';
+    '<div class="lb-act">'+icoBtn('share','id="lb-share"','Share this brew')+'<button type="button" class="btn ghost" id="lb-all">All '+n+' brew'+(n===1?'':'s')+'</button></div>';
   if(bean&&typeof hydrateImgs==='function')hydrateImgs(el);
   $('lb-open').onclick=$('lb-all').onclick=()=>goTab('log');$('lb-share').onclick=()=>openShare(logEntryDoc(l))}
 /* ---------- The list of brews: search, filters, sort, and each brew as a card ---------- */
@@ -2202,7 +2209,7 @@ function renderLog(){renderShare();renderLastBrew();
 }
 // Flavour notes: a little profile wheel on each brew, and the notes as chips.
 function flEntry(l,i){const fl=flOf(l);if(!fl.length)return'<button type="button" class="linkbtn fl-edit" data-fledit="'+i+'">+ Add flavour notes</button>';
-  return'<div class="fl-entry"><button type="button" class="fl-mini" data-flview="'+i+'" aria-label="Open the flavour profile">'+fwStatic(fl)+'</button><div><div class="chips" style="margin:0 0 4px">'+flChips(fl)+'</div><button type="button" class="linkbtn" data-fledit="'+i+'">Edit notes</button></div></div>'}
+  return'<div class="fl-entry"><button type="button" class="fl-mini" data-flview="'+i+'" aria-label="Open the flavour profile">'+fwStatic(fl)+'</button><div><div class="chips" style="margin:0 0 4px">'+flChips(fl)+'</div>'+icoBtn('edit','data-fledit="'+i+'"','Edit the flavour notes')+'</div></div>'}
 function renderFlForm(){$('l-flchips').innerHTML=flChips(LFL);$('l-fl').querySelector('span').textContent=LFL.length?'Add more from the flavour wheel':'Find it on the flavour wheel';
   // What the bag promised: tap a note you tasted to add it to your cup. Words that aren't on the wheel are shown, not added.
   const bag=$('l-bag'),b=lBean(),words=b&&b.flavours&&typeof tnSplit==='function'?tnSplit(b.flavours):[];bag.hidden=!words.length;if(!words.length){bag.innerHTML='';return}
@@ -2906,7 +2913,7 @@ function renderScan(){
    // Only an origin on the map opens its page; one off the map is a plain chip.
    '<div class="chips">'+(!o?'':ALLO()[SC.origin]?'<button class="chip" data-o="'+SC.origin+'">'+(o.flag||'')+' '+esc(o.name)+'</button>':'<span class="chip">'+(o.flag||'')+' '+esc(o.name)+'</span>')+vbtn(SC.variety.split(':')[0])+scanVars(SC,SC.info).map(vbtn).join('')+'<span class="chip">'+esc(P.name)+'</span><span class="chip">'+age+' days off roast</span></div>'+
    '<h3>Coffee profile</h3>'+beanProfileHTML()+
-   '<div class="actions"><button class="btn" id="sc-dial">Brew it in the dial-in</button><button class="btn ghost" id="sc-gallery">Add to the bean gallery</button><button class="btn ghost" id="sc-share">Share</button></div>'+
+   '<div class="actions"><button class="btn" id="sc-dial">Brew it in the dial-in</button><button class="btn ghost" id="sc-gallery">Add to the bean gallery</button>'+icoBtn('share','id="sc-share"','Share this coffee profile')+'</div>'+
    '<button type="button" class="linkbtn sc-new" id="sc-new">Scan another bag</button>';
   renderScanHead();
   const oc=$('scan-out').querySelector('[data-o]');if(oc)oc.onclick=()=>{showTab('map');selectOrigin(SC.origin,true)};
@@ -3224,7 +3231,7 @@ function openChamp(ch){const C=COMPS[ch.c],r=ch.rec,R=ch.ri!=null?RECIPES[ch.ri]
    '<p class="hint" style="margin:.2rem 0 .5rem">'+(g?'Grind converted from the champion’s '+esc(r.grind.label)+(sub?', then adjusted for your '+esc(BREWERS[nb].name):'')+'.':'The champion’s grind: '+esc(r.grind&&r.grind.label?lcGrind(r.grind.label):'not published')+'. These are starting points for '+(nb&&MYB.length?'your '+esc(brewName(BREWERS[useB].name)):art(brewName(BREWERS[b].name))+' '+esc(brewName(BREWERS[b].name)))+'; adjust by taste.')+'</p>'+rows+
    (!sub&&r.alt?'<p class="hint">'+esc(r.alt)+'</p>':'')+
    '<div class="actions">'+(U?'<button type="button" class="btn" data-ca="timer">Start timer</button>':'')+(R2?'<button type="button" class="btn ghost" data-ca="load">Brew in the dial-in</button>':'')+
-   (g?'<button type="button" class="btn ghost" data-ca="match">All grinders</button>':'')+'<button type="button" class="btn ghost" data-ca="share">Share</button></div></div>';
+   (g?'<button type="button" class="btn ghost" data-ca="match">All grinders</button>':'')+''+icoBtn('share','data-ca="share"','Share this champion')+'</div></div>';
   d.querySelector('.vd-body').onclick=e=>{const a=e.target.closest('[data-ca]');if(!a)return;const k=a.dataset.ca;if(k==='share'){openShare(champDoc(ch));return}d.close();
     if(k==='gear'){setTimeout(()=>openGearPicker('brewers',()=>openChamp(ch)),0);return}
     if(k==='timer')openTimer(ui);else if(k==='plan')planRecipe(ui);else if(k==='match')openMatch(g,r.grind.c);

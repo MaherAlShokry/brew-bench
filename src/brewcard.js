@@ -807,7 +807,7 @@ async function shareCard(blob,name,title,save){const file=name+'.jpg';
 function cardViewer(blob,file,title){const d=$('vd'),u=URL.createObjectURL(blob);
   $('vd-in').innerHTML='<div class="vd-head" style="--c:#C9964A"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:#C9964A"></i>Brew card</span><h2 id="vd-title">'+esc(title)+'</h2></div>'+
     '<div class="vd-body"><img class="cardview" src="'+u+'" alt="'+esc(title)+'"><p class="hint" style="text-align:center">Press and hold the image to save it to your phone, or download it.</p>'+
-    '<div class="actions"><a class="btn" id="cv-dl" download="'+esc(file)+'">Download</a>'+(navigator.canShare?'<button type="button" class="btn ghost" id="cv-share">Share</button>':'')+'</div></div>';
+    '<div class="actions"><a class="btn" id="cv-dl" download="'+esc(file)+'">Download</a>'+(navigator.canShare?icoBtn('share','id="cv-share"','Share this image'):'')+'</div></div>';
   // A data link, not a blob one: it survives the hand-off to the phone's download manager.
   const rd=new FileReader();rd.onload=()=>{const a=$('cv-dl');if(a)a.href=rd.result};rd.readAsDataURL(blob);
   const sb=$('cv-share');if(sb)sb.onclick=async()=>{const f=new File([blob],file,{type:'image/jpeg'});try{if(navigator.canShare({files:[f]}))await navigator.share({files:[f],title});else toast('This browser can’t share images. Press and hold the image to save it')}catch(e){if(!e||e.name!=='AbortError')toast('Sharing was blocked. Press and hold the image to save it')}};

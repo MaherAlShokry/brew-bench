@@ -26,7 +26,12 @@ one() {
   else echo "ok     $t"; fi
 }
 export -f one; export E2E OUT
-res=$(printf '%s\n' $T | xargs -P "${JOBS:-4}" -I{} bash -c 'one {}')
+# Tests that time things (pauses on screen, freezes) run one at a time after the rest, on a quiet machine: run
+# alongside others they measure the other tests' load as much as the app.
+TIMED="cardwork pdfwork stress"
+par=$(printf '%s\n' $T | grep -vxF -f <(printf '%s\n' $TIMED) || true)
+ser=$(printf '%s\n' $T | grep -xF -f <(printf '%s\n' $TIMED) || true)
+res=$( { [ -n "$par" ] && printf '%s\n' $par | xargs -P "${JOBS:-4}" -I{} bash -c 'one {}'; [ -n "$ser" ] && printf '%s\n' $ser | xargs -P 1 -I{} bash -c 'one {}'; } )
 printf '%s\n' "$res" | sort
 bad=$(printf '%s\n' "$res" | grep -cE '^(FAILED|MISSING)')
 echo "$(printf '%s\n' $T | wc -l) tests, $bad failed"
