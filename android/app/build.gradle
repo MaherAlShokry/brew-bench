@@ -56,6 +56,13 @@ dependencies {
     implementation project(':capacitor-cordova-android-plugins')
 }
 
+// The widget test (androidTest) pulls in an old kotlin-stdlib-jdk7/jdk8 through the test libraries, whose classes
+// clash with the newer kotlin-stdlib the app uses (which already holds them). Left out of the test builds only.
+configurations.matching { it.name.contains('AndroidTest') }.configureEach {
+    exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
+    exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk7'
+}
+
 apply from: 'capacitor.build.gradle'
 
 try {
