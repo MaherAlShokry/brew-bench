@@ -21,6 +21,7 @@ const r=await p.evaluate(async()=>{const y=new Date().getFullYear(),out=[];
 for(const o of r){if(o.err){ok(o.k+': builds',false,o.err);continue}
   ok(o.k+': text has no undefined/NaN',!o.textBad&&!o.shareBad,o.textBad||o.shareBad||o.textLen);
   ok(o.k+': PDF',!o.pdfErr&&o.pdf>500,o.pdfErr||o.pdf);
-  if(o.cards){const badc=o.cards.filter(x=>typeof x[2]!=='number'||x[2]!==1620||x[3]<800||x[3]>12000);const t=o.cards.map(x=>x[4]).filter(Number.isFinite);
+  if(o.cards){// A very long card (every coffee word) is drawn a little smaller so it fits a canvas; it must stay readable (1000+ wide).
+    const badc=o.cards.filter(x=>typeof x[2]!=='number'||x[3]<800||(x[3]<=12000?x[2]!==1620:x[2]<1000||x[3]>32000));const t=o.cards.map(x=>x[4]).filter(Number.isFinite);
     ok(o.k+': card in all '+o.cards.length+' looks',!badc.length,badc.length?badc:{h:[...new Set(o.cards.map(x=>x[3]))],ms:Math.round(t.reduce((a,b)=>a+b,0)/t.length)+' avg / '+Math.max(...t)+' max'})}}
 console.log('errors',errs);await b.close()})();

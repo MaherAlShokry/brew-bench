@@ -2591,7 +2591,7 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="701ba2182bf6"</script>
+<script>const BUILD_ID="c34ff536c88c"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -5067,8 +5067,8 @@ function renderWheelTab(){
     const z=e.target.closest('[data-fz]');if(z)fwGo(z.dataset.fz)});
   $('fw-dl').onclick=()=>fwExport({title:'Coffee flavour wheel',sub:FW.leaves.length+' tasting notes in '+FW.roots.length+' families, from the middle out'},'brew-bench-flavour-wheel');
   $('fw-log').onclick=()=>{showTab('log');openNotesPicker()}}
-function wheelDoc(){return{link:SITE_URL+'#wheel',title:'Coffee flavour wheel',sub:FW.leaves.length+' tasting notes',file:'flavour-wheel',
-  blocks:FW.roots.map(c=>({h:c.n,p:c.d,list:c.kids.map(k=>k.n+(k.kids.length?': '+k.kids.map(x=>x.n).join(', '):''))})).concat([{p:FW_CREDIT}])}}
+function wheelDoc(){return withCard({link:SITE_URL+'#wheel',title:'Coffee flavour wheel',sub:FW.leaves.length+' tasting notes',file:'flavour-wheel',cardTitle:'Flavour wheel card',cardSub:'Every flavour family and its notes, in one image.',
+  blocks:FW.roots.map(c=>({h:c.n,p:c.d,defs:c.kids.map(k=>[k.n,k.kids.map(x=>x.n).join(', '),k.c||c.c]),list:c.kids.map(k=>k.n+(k.kids.length?': '+k.kids.map(x=>x.n).join(', '):''))})).concat([{p:FW_CREDIT}])})}
 
 /* Tasting notes on brews. A brew keeps fl: [[note id, 1 light | 2 medium | 3 strong], ...]. */
 const FL_LV=['','Light','Medium','Strong'];
@@ -8443,7 +8443,12 @@ $('wlt-f').onclick=()=>pickOne('Filter coffee words','word',[['all','All words']
 function openWord(t){const g=GBY[t];if(!g)return;showTab('words');WC=[];WQ='';$('wsearch').value='';renderWords();
   requestAnimationFrame(()=>{const c=[...document.querySelectorAll('#wlist .wcard')].find(x=>x.dataset.w===t);if(!c)return;c.classList.add('open');c.setAttribute('aria-expanded','true');
     flashTo(c)})}
-function wordsDoc(){return{link:SITE_URL+'#words',title:'Coffee words',sub:GLOSSARY.length+' terms, from farm to cup',file:'coffee-words',blocks:Object.entries(GCAT).map(([k,[n]])=>({h:n,list:GLOSSARY.filter(g=>g[1]===k).map(g=>g[0]+': '+g[2])}))}}
+// Coffee words, From seed to cup and the flavour wheel share as designed cards (and PDFs of them), like the story of
+// coffee: terms in bold over their meaning, the steps on a line of dots, the flavour families with their colours.
+// The lists stay for the text versions.
+const withCard=doc=>{doc.card=()=>docCardImg(doc);return doc};
+function wordsDoc(){return withCard({link:SITE_URL+'#words',title:'Coffee words',sub:GLOSSARY.length+' terms, from farm to cup',file:'coffee-words',cardTitle:'Coffee words card',cardSub:'Every term and what it means, in one image.',
+  blocks:Object.entries(GCAT).map(([k,[n,c]])=>{const g=GLOSSARY.filter(g=>g[1]===k);return{h:n,defs:g.map(x=>[x[0],x[2],c]),list:g.map(x=>x[0]+': '+x[2])}})})}
 
 /* ================= FROM SEED TO CUP ================= */
 const FBY=Object.fromEntries(FLOW.map(f=>[f.id,f]));
@@ -8492,7 +8497,9 @@ function openFlowStep(id){const f=FBY[id];if(!f)return;const [pn,c]=FLOW_PHASES[
 function openFlowBranch(i){const b=FLOW_BRANCH[i],c=FLOW_PHASES.mill[1];
   flowSheet(c,'Processing path',b.t,b.s,'<p><b>In the cup:</b> '+esc(b.d.toLowerCase())+'.</p><h3>'+(treeKeys(b.tree).length>1?'The processes on this path':'The process')+'</h3><p class="hint" style="margin-top:0">Tap a process to learn more; those with variations open to show them.</p>'+ptreeHTML(b.tree,0)+
     '<div class="actions"><button type="button" class="btn ghost" data-fnav="process">\u2190 Processing</button><button type="button" class="btn" data-fnav="dry">Drying \u2192</button></div>')}
-function flowDoc(){return{link:SITE_URL+'#flow',title:'From seed to cup',sub:'How coffee is made, step by step',file:'seed-to-cup',blocks:FLOW.map(f=>({h:(f.side?'Optional: ':FNUM[f.id]+'. ')+f.t,p:f.d+(f.branch?' Paths: '+FLOW_BRANCH.map(b=>b.t+' ('+b.d.toLowerCase()+')').join(', ')+'.':'')}))}}
+function flowDoc(){const txt=f=>f.d.replace(/\s*Tap [^.]*\./g,'')+(f.branch?' Paths: '+FLOW_BRANCH.map(b=>b.t+' ('+b.d.toLowerCase()+')').join(', ')+'.':'');
+  return withCard({link:SITE_URL+'#flow',title:'From seed to cup',sub:'How coffee is made, step by step',file:'seed-to-cup',cardTitle:'Seed to cup card',cardSub:'Every step from the seed to your cup, in one image.',
+    blocks:[{h:'Step by step',tl:FLOW.map(f=>[f.side?'Optional':'Step '+FNUM[f.id],f.t,txt(f)]),list:FLOW.map(f=>(f.side?'Optional: ':FNUM[f.id]+'. ')+f.t+': '+txt(f))}]})}
 
 /* ================= APP SHELL ================= */
 /* Line icons for the sheets, drawn to match the bottom navigation. */
@@ -11004,7 +11011,7 @@ function docCardLay(x,doc,draw){const W=BC.W,P=BC.PAD,IW=W-2*P,F=BC.F;let Y=draw
     if(b.tl&&b.tl.length){Y+=18;const RX=P+42,TX=P+84,TW=IW-84-30,rows=b.tl.map(([w,t,d])=>{x.font='700 32px '+F;const T1=bcWrap(x,t,TW,2);x.font='500 26px '+F;return{w,T1,D:bcWrap(x,d||'',TW,8)}}),
         hs=rows.map(r=>40+r.T1.length*40+r.D.length*36+30),h=hs.reduce((a,v)=>a+v,0)+28;
       if(draw){bcPane(x,P,Y,IW,h,26);let ry=Y+14;const dots=[];rows.forEach((r,i)=>{dots.push(ry+30);
-          x.font='700 21px '+F;x.fillStyle=BC.HONEY;x.letterSpacing='2px';x.fillText(/\d/.test(r.w)?String(r.w):String(r.w).toUpperCase(),TX,ry+38);x.letterSpacing='0px';
+          x.font='700 21px '+F;x.fillStyle=BC.HONEY;x.letterSpacing='2px';x.fillText(/\d{3}/.test(r.w)?String(r.w):String(r.w).toUpperCase(),TX,ry+38);x.letterSpacing='0px';
           r.T1.forEach((l,j)=>T(l,'700 32px '+F,BC.INK,TX,ry+80+j*40));r.D.forEach((l,j)=>T(l,'500 26px '+F,BC.MUTED,TX,ry+80+r.T1.length*40+j*36-4));ry+=hs[i];bcBrk(ry)});
         x.fillStyle=bcI(.16);x.fillRect(RX-1.5,dots[0],3,dots[dots.length-1]-dots[0]);
         dots.forEach((dy,i)=>{x.beginPath();x.arc(RX,dy,i===0||i===dots.length-1?10:8,0,TAU);x.fillStyle=BC.HONEY;x.fill();x.lineWidth=5;x.strokeStyle=BC.PANE;x.stroke()})}
@@ -11019,7 +11026,15 @@ function docCardLay(x,doc,draw){const W=BC.W,P=BC.PAD,IW=W-2*P,F=BC.F;let Y=draw
           x.font='600 21px '+F;x.fillStyle=BC.HONEY;x.letterSpacing='1px';x.fillText(bcWrap(x,String(r.r).toUpperCase(),TW,1)[0],TX,by+2);x.letterSpacing='0px';
           r.D.forEach((l,j)=>T(l,'500 26px '+F,BC.MUTED,TX,by+40+j*36));ry+=hs[i];bcBrk(ry)})}
       Y+=h}
-    if(b.list&&b.list.length&&!b.tl&&!b.people){Y+=18;x.font='500 29px '+F;const lw=b.num?56:36,rows=b.list.map(t=>bcWrap(x,String(t),IW-56-lw,6)),hs=rows.map(L=>32+L.length*40),h=hs.reduce((a,v)=>a+v,0)+16;
+    // Terms and what they mean (coffee words, the flavour families): the term in bold, an optional colour dot, the text.
+    if(b.defs&&b.defs.length){Y+=18;const TX=P+28,TW=IW-56,rows=b.defs.map(([t,d,c])=>{x.font='700 30px '+F;const N=bcWrap(x,t,TW-(c?30:0),2);x.font='500 26px '+F;return{N,c,D:d?bcWrap(x,d,TW,8):[]}}),
+        hs=rows.map(r=>34+r.N.length*38+(r.D.length?8+r.D.length*36:0)+22),h=hs.reduce((a,v)=>a+v,0)+16;
+      if(draw){bcPane(x,P,Y,IW,h,26);let ry=Y+8;rows.forEach((r,i)=>{if(i){x.fillStyle=bcI(.09);x.fillRect(P+24,ry,IW-48,1.5)}
+          let tx=TX;if(r.c){x.beginPath();x.arc(TX+9,ry+41,9,0,TAU);x.fillStyle=r.c;x.fill();tx+=30}
+          r.N.forEach((l,j)=>T(l,'700 30px '+F,BC.INK,tx,ry+52+j*38));const by=ry+52+(r.N.length-1)*38+8;
+          r.D.forEach((l,j)=>T(l,'500 26px '+F,BC.MUTED,TX,by+38+j*36));ry+=hs[i];bcBrk(ry)})}
+      Y+=h}
+    if(b.list&&b.list.length&&!b.tl&&!b.people&&!b.defs){Y+=18;x.font='500 29px '+F;const lw=b.num?56:36,rows=b.list.map(t=>bcWrap(x,String(t),IW-56-lw,6)),hs=rows.map(L=>32+L.length*40),h=hs.reduce((a,v)=>a+v,0)+16;
       if(draw){bcPane(x,P,Y,IW,h,26);let ry=Y+8;rows.forEach((L,i)=>{if(i){x.fillStyle=bcI(.09);x.fillRect(P+24,ry,IW-48,1.5)}
         if(b.num)T(String(i+1),'800 28px '+F,BC.HONEY,P+28,ry+48);else{x.beginPath();x.arc(P+36,ry+38,6,0,TAU);x.fillStyle=BC.HONEY;x.fill()}
         L.forEach((l,j)=>T(l,'500 29px '+F,BC.INK,P+28+lw,ry+48+j*40));ry+=hs[i];bcBrk(ry)})}Y+=h}}

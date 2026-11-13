@@ -3211,7 +3211,12 @@ $('wlt-f').onclick=()=>pickOne('Filter coffee words','word',[['all','All words']
 function openWord(t){const g=GBY[t];if(!g)return;showTab('words');WC=[];WQ='';$('wsearch').value='';renderWords();
   requestAnimationFrame(()=>{const c=[...document.querySelectorAll('#wlist .wcard')].find(x=>x.dataset.w===t);if(!c)return;c.classList.add('open');c.setAttribute('aria-expanded','true');
     flashTo(c)})}
-function wordsDoc(){return{link:SITE_URL+'#words',title:'Coffee words',sub:GLOSSARY.length+' terms, from farm to cup',file:'coffee-words',blocks:Object.entries(GCAT).map(([k,[n]])=>({h:n,list:GLOSSARY.filter(g=>g[1]===k).map(g=>g[0]+': '+g[2])}))}}
+// Coffee words, From seed to cup and the flavour wheel share as designed cards (and PDFs of them), like the story of
+// coffee: terms in bold over their meaning, the steps on a line of dots, the flavour families with their colours.
+// The lists stay for the text versions.
+const withCard=doc=>{doc.card=()=>docCardImg(doc);return doc};
+function wordsDoc(){return withCard({link:SITE_URL+'#words',title:'Coffee words',sub:GLOSSARY.length+' terms, from farm to cup',file:'coffee-words',cardTitle:'Coffee words card',cardSub:'Every term and what it means, in one image.',
+  blocks:Object.entries(GCAT).map(([k,[n,c]])=>{const g=GLOSSARY.filter(g=>g[1]===k);return{h:n,defs:g.map(x=>[x[0],x[2],c]),list:g.map(x=>x[0]+': '+x[2])}})})}
 
 /* ================= FROM SEED TO CUP ================= */
 const FBY=Object.fromEntries(FLOW.map(f=>[f.id,f]));
@@ -3260,7 +3265,9 @@ function openFlowStep(id){const f=FBY[id];if(!f)return;const [pn,c]=FLOW_PHASES[
 function openFlowBranch(i){const b=FLOW_BRANCH[i],c=FLOW_PHASES.mill[1];
   flowSheet(c,'Processing path',b.t,b.s,'<p><b>In the cup:</b> '+esc(b.d.toLowerCase())+'.</p><h3>'+(treeKeys(b.tree).length>1?'The processes on this path':'The process')+'</h3><p class="hint" style="margin-top:0">Tap a process to learn more; those with variations open to show them.</p>'+ptreeHTML(b.tree,0)+
     '<div class="actions"><button type="button" class="btn ghost" data-fnav="process">\u2190 Processing</button><button type="button" class="btn" data-fnav="dry">Drying \u2192</button></div>')}
-function flowDoc(){return{link:SITE_URL+'#flow',title:'From seed to cup',sub:'How coffee is made, step by step',file:'seed-to-cup',blocks:FLOW.map(f=>({h:(f.side?'Optional: ':FNUM[f.id]+'. ')+f.t,p:f.d+(f.branch?' Paths: '+FLOW_BRANCH.map(b=>b.t+' ('+b.d.toLowerCase()+')').join(', ')+'.':'')}))}}
+function flowDoc(){const txt=f=>f.d.replace(/\s*Tap [^.]*\./g,'')+(f.branch?' Paths: '+FLOW_BRANCH.map(b=>b.t+' ('+b.d.toLowerCase()+')').join(', ')+'.':'');
+  return withCard({link:SITE_URL+'#flow',title:'From seed to cup',sub:'How coffee is made, step by step',file:'seed-to-cup',cardTitle:'Seed to cup card',cardSub:'Every step from the seed to your cup, in one image.',
+    blocks:[{h:'Step by step',tl:FLOW.map(f=>[f.side?'Optional':'Step '+FNUM[f.id],f.t,txt(f)]),list:FLOW.map(f=>(f.side?'Optional: ':FNUM[f.id]+'. ')+f.t+': '+txt(f))}]})}
 
 /* ================= APP SHELL ================= */
 /* Line icons for the sheets, drawn to match the bottom navigation. */

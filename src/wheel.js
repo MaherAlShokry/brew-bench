@@ -172,8 +172,8 @@ function renderWheelTab(){
     const z=e.target.closest('[data-fz]');if(z)fwGo(z.dataset.fz)});
   $('fw-dl').onclick=()=>fwExport({title:'Coffee flavour wheel',sub:FW.leaves.length+' tasting notes in '+FW.roots.length+' families, from the middle out'},'brew-bench-flavour-wheel');
   $('fw-log').onclick=()=>{showTab('log');openNotesPicker()}}
-function wheelDoc(){return{link:SITE_URL+'#wheel',title:'Coffee flavour wheel',sub:FW.leaves.length+' tasting notes',file:'flavour-wheel',
-  blocks:FW.roots.map(c=>({h:c.n,p:c.d,list:c.kids.map(k=>k.n+(k.kids.length?': '+k.kids.map(x=>x.n).join(', '):''))})).concat([{p:FW_CREDIT}])}}
+function wheelDoc(){return withCard({link:SITE_URL+'#wheel',title:'Coffee flavour wheel',sub:FW.leaves.length+' tasting notes',file:'flavour-wheel',cardTitle:'Flavour wheel card',cardSub:'Every flavour family and its notes, in one image.',
+  blocks:FW.roots.map(c=>({h:c.n,p:c.d,defs:c.kids.map(k=>[k.n,k.kids.map(x=>x.n).join(', '),k.c||c.c]),list:c.kids.map(k=>k.n+(k.kids.length?': '+k.kids.map(x=>x.n).join(', '):''))})).concat([{p:FW_CREDIT}])})}
 
 /* Tasting notes on brews. A brew keeps fl: [[note id, 1 light | 2 medium | 3 strong], ...]. */
 const FL_LV=['','Light','Medium','Strong'];
