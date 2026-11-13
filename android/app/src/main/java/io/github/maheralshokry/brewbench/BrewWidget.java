@@ -102,6 +102,19 @@ public class BrewWidget extends AppWidgetProvider {
     /** The day's stretch: 0 resting, 1 at its peak, 2 still lovely, 3 fading; -1 without a roast date. */
     static int stage(int d, int[] w) { return d < 0 ? -1 : d < w[0] ? 0 : d <= w[1] ? 1 : d <= w[2] ? 2 : 3; }
 
+    /**
+     * When to drink it, counted down: "Peaks in 3 days", "Peak for 5 more days", "Last peak day", "Fades in 4 days",
+     * "Past its best". The widget refreshes every few hours, so the count moves on each day by itself.
+     */
+    static String countdown(int d, int[] w) {
+        if (d < 0) return "";
+        int s = stage(d, w);
+        if (s == 0) { int n = w[0] - d; return n <= 1 ? "Peaks tomorrow" : "Peaks in " + n + " days"; }
+        if (s == 1) { int n = w[1] - d; return n <= 0 ? "Last peak day" : "Peak for " + n + " more day" + (n == 1 ? "" : "s"); }
+        if (s == 2) { int n = w[2] - d; return n <= 0 ? "Fades from tomorrow" : n <= 7 ? "Fades in " + n + " day" + (n == 1 ? "" : "s") : "Still lovely for " + n + " days"; }
+        return "Past its best";
+    }
+
     /** The day's stretch in words, as the app names it: "At its peak · day 12". Kept for the cabinet's older rows. */
     static String freshLine(String roastDate, String win) {
         int d = daysSince(roastDate), s = stage(d, window(win));
@@ -177,9 +190,9 @@ public class BrewWidget extends AppWidgetProvider {
         int[] w = window(p.getString("win", ""));
         int d = daysSince(p.getString("roastDate", "")), s = stage(d, w);
         v.setTextViewText(R.id.w_title, title);
-        String fresh = s < 0 ? "Add its roast date for freshness" : "Day " + d + " · best " + w[0] + "–" + w[1];
+        String fresh = s < 0 ? "Add its roast date for freshness" : countdown(d, w) + " · day " + d;
         if (!left.isEmpty()) fresh = fresh + " · " + left;
-        v.setTextViewText(R.id.w_sub, small ? (s < 0 ? sub : STAGES[s] + " · day " + d + (left.isEmpty() ? "" : " · " + left)) : sub);
+        v.setTextViewText(R.id.w_sub, small ? (s < 0 ? sub : countdown(d, w) + (left.isEmpty() ? "" : " · " + left)) : sub);
         v.setTextViewText(R.id.w_fresh, fresh);
         v.setViewVisibility(R.id.w_fresh, small ? View.GONE : View.VISIBLE);
         if (s >= 0 && !small) {

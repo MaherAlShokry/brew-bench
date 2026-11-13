@@ -47,7 +47,7 @@ public class CabinetWidget extends AppWidgetProvider {
             int[] w = BrewWidget.window(o.optString("win", ""));
             int d = BrewWidget.daysSince(o.optString("roastDate", "")), s = BrewWidget.stage(d, w);
             String left = o.optString("cups", "");
-            String meta = s < 0 ? left : "Day " + d + (left.isEmpty() ? "" : " · " + left);
+            String meta = s < 0 ? left : BrewWidget.countdown(d, w) + (left.isEmpty() ? "" : " · " + left);
             v.setViewVisibility(ROWS[i], View.VISIBLE);
             v.setTextViewText(TITLES[i], o.optString("title", ""));
             v.setTextViewText(LINES[i], meta);

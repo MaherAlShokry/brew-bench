@@ -15,6 +15,7 @@ public class MainActivity extends BridgeActivity {
     protected void onCreate(Bundle savedInstanceState) {
         registerPlugin(AppIconPlugin.class);
         registerPlugin(WidgetPlugin.class);
+        registerPlugin(CuesPlugin.class);
         super.onCreate(savedInstanceState);
         // Opened from the home-screen widget: the app asks what to open once it has started (WidgetPlugin.pending).
         WidgetPlugin.take(getIntent());

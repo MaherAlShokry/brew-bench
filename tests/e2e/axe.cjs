@@ -5,7 +5,7 @@ const {chromium}=require('playwright');const AXE=require('fs').readFileSync(requ
 const ok=(n,v,x)=>console.log((v?'ok  ':'FAIL')+' '+n+(v||x===undefined?'':'  ('+JSON.stringify(x)+')'));
 const PAGES=['dial','scan','beans','tech','gear','map','variety','champs','flow','words','wheel','history','recipes','process','guide','log','explore','settings'];
 const SHEETS={bean:'openBean(BEANS[0].id)',beanEdit:'openBeanEditor(null)',recipe:'openRecipe(0)',variety:"openVariety('geisha')",origin:"openOrigin('kenya')",trophies:'openTrophies()',
-  me:'openMe()',logFilter:'openLogFilter()',tips:'openTips()',flow:'openFlowStep(FLOW[0].id)',champ:'openChamp(CHAMPS[0])',timer:'openTimerNow(0)',share:'openShareNow(beanDoc(BEANS[0]))',speed:'openSpeed()'};
+  me:'openMe()',logFilter:'openLogFilter()',tips:'openTips()',flow:'openFlowStep(FLOW[0].id)',champ:'openChamp(CHAMPS[0])',timer:'openTimerNow(0)',share:'openShareNow(beanDoc(BEANS[0]))',speed:'openSpeed()',roastery:"openRoaster('Archers')",roasteries:'openRoasters()',compare:'openCompare(0,1)',comparePick:'openComparePick(0)'};
 (async()=>{const b=await chromium.launch();const errs=[];
 for(const mode of ['light','dark']){const c=await b.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,colorScheme:mode,reducedMotion:'reduce'});const p=await c.newPage();p.on('pageerror',e=>errs.push(e.message));
   await p.route(u=>!u.href.startsWith('http://localhost'),r=>r.abort());await p.addInitScript(()=>sessionStorage.setItem('bb-splashed','1'));
