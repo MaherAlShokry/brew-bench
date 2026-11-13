@@ -559,7 +559,9 @@ function okSnap(s){if(!s||typeof s!=='object')return null;const n=(v,a,b)=>typeo
     r:['D','sweet','acid','body','clarity','bitter'].every(k=>typeof r[k]==='number'&&isFinite(r[k]))?{D:clamp(r.D,-5,5),sweet:clamp(r.sweet,0,10),acid:clamp(r.acid,0,10),body:clamp(r.body,0,10),clarity:clamp(r.clarity,0,10),bitter:clamp(r.bitter,0,10)}:null};
   return o.b?o:null}
 // A brew from the log: what you rated and tasted, with the brew itself when it was logged from the dial-in.
-function logCard(l){const s=okSnap(l.snap),fl=flOf(l).filter(([id])=>FW.byId[id]),B=s&&BREWERS[s.b],stars=clamp(Math.round(+l.stars||0),0,5);
+function logCard(l){return bcBlob(logModel(l))}
+// What a logged brew's card shows (read by the tests too).
+function logModel(l){const s=okSnap(l.snap),fl=flOf(l).filter(([id])=>FW.byId[id]),B=s&&BREWERS[s.b],stars=clamp(Math.round(+l.stars||0),0,5);
   const m={theme:originTheme(s&&s.bean&&s.bean.origin),kicker:'From my brew log',date:fmtDate(l),title:l.coffee||(s&&s.rec)||'A brew',by:s&&s.rec&&l.coffee?s.rec+(s.by?' · '+bcBy(s.by):''):s&&bcBy(s.by),
     coffee:s&&s.v?bcCoffee(s.bean&&s.bean.name!==l.coffee?s.bean:null,s.v,s.p,s.ro):null,
     rating:stars?{kind:'beans',v:stars,word:STARW[stars]}:null,
@@ -573,7 +575,8 @@ function logCard(l){const s=okSnap(l.snap),fl=flOf(l).filter(([id])=>FW.byId[id]
     // Brews logged before a recipe's steps were corrected (Matt Winton's two pours in one step): the card is drawn from
     // the recipe as it is now, at the brew's own dose, water and bloom.
     if(rr&&rr.kind!=='46'&&s.dose&&s.water&&st.length&&st.length!==rr.steps.length){const sc=scaleSteps(rr,s.dose,s.water);st=s.bl&&BREWERS[rr.b]&&BREWERS[rr.b].bloom.label==='Bloom'?bloomShift(sc,s.bl).steps:sc}
-    m.steps=stepsAtTemp(st,rr&&rr.temp,s.t)}
+    // Brews logged before the pours added up ("pour 30g (to 61g)" after 30g) read right too.
+    m.steps=stepsAtTemp(st,rr&&rr.temp,s.t).map(pourSums())}
   else{// Logged by hand: the numbers are read back from the settings line, so the card has the same tiles as a dial-in brew.
     const q=parseSettings(l.settings||''),bean=l.beanId&&window.BEANS_OK?beanById(l.beanId):null;
     if(bean){m.theme=originTheme(bean.origin);if(bean.variety||bean.process||bean.roast)m.coffee=bcCoffee(beanTitle(bean)!==l.coffee?{name:beanTitle(bean)}:null,bean.variety,bean.process,bean.roast).filter(c=>c[1])}
@@ -587,7 +590,7 @@ function logCard(l){const s=okSnap(l.snap),fl=flOf(l).filter(([id])=>FW.byId[id]
     else if(q.rest)m.text=[{label:'Also',body:q.rest}]}
   if(fl.length)m.expect={label:'What I tasted',items:fl.map(([id,v])=>({t:FW.byId[id].n+(v>1?' '+'●'.repeat(v):''),c:FW.byId[id].c})),bar:flFamilies(fl)};
   if(l.notes)m.quote={label:'My notes',text:l.notes};
-  return bcBlob(m)}
+  return m}
 // The settings line, read back: the recipe, the brewer, the grinder, dose : water, temperature and ratio. What isn't
 // recognised is kept as text so nothing typed is lost.
 function parseSettings(t){const o={};let rest=t;const take=re=>{const m=re.exec(rest);if(m)rest=rest.replace(m[0],' ');return m};

@@ -23,6 +23,11 @@ const vwGet=(k,d,ok)=>{const v=VW[k];return v!==undefined&&(ok?ok(v):true)?v:d};
 const vwStrs=v=>Array.isArray(v)&&v.every(x=>typeof x==='string'||typeof x==='number');
 // Called whenever a list is drawn, so every way of changing a pick (a sheet, a shelf chip, a cleared filter) is kept.
 function vwSet(k,v){const j=JSON.stringify(v);if(JSON.stringify(VW[k])===j)return;VW[k]=JSON.parse(j);save('bb-views',VW)}
+// Run once the tap has been answered on screen: the next frame is drawn (the pressed row, the moved highlight), then fn.
+// Building a sheet or a page inside the tap itself kept the screen still until all of it was ready.
+const afterPaint=fn=>requestAnimationFrame(()=>setTimeout(fn,0));
+// A tapped row stays lit (a tap ends before its click, so :active is already gone) until its sheet is up.
+const tapOpen=(el,fn)=>{el.classList.add('tapped');afterPaint(()=>{try{fn()}finally{setTimeout(()=>el.classList.remove('tapped'),350)}})};
 const MQ=q=>!!(window.matchMedia&&window.matchMedia(q).matches);const RM=()=>MQ('(prefers-reduced-motion: reduce)')||document.documentElement.getAttribute('data-motion')==='reduced';
 /* Drawn icons in place of emoji: one line style (24-grid, round strokes in the text colour) across stats, trophies,
    seasons, moments and greetings. emoIc() swaps every known emoji in a bit of HTML for its icon; anything unknown
@@ -1388,7 +1393,7 @@ function recipeAct(e){const ed=e.target.closest('[data-redit]');if(ed){openRecip
   if(b.dataset.timer){openTimer(+b.dataset.timer);return true}
   if(b.dataset.load)loadRecipe(+b.dataset.load);else planRecipe(+b.dataset.plan);return true}
 // Wrapped: a handler property that returns false cancels the tap, which kept "Steps" from opening.
-$('rgrid').onclick=e=>{const o=e.target.closest('[data-open]');if(o){openRecipe(+o.dataset.open);return}recipeAct(e)};
+$('rgrid').onclick=e=>{const o=e.target.closest('[data-open]');if(o){const i=+o.dataset.open;tapOpen(o,()=>openRecipe(i));return}recipeAct(e)};
 // A recipe opened from a shared link.
 function openRecipe(i){const r=RECIPES[i],B=BREWERS[r.b],d=$('vd');
   // Share and Edit sit in the sheet's header with Save, as on a coffee's page.
@@ -3539,10 +3544,11 @@ function settingsSync(){const own=document.querySelector('#settings-in .swatch[d
   const pr=(sel,k,v)=>document.querySelectorAll('#settings-in '+sel).forEach(b=>b.setAttribute('aria-pressed',String(b.dataset[k]===v)));
   pr('.vibe[data-vibe]','vibe',UI.vibe);pr('.swatch[data-accent]','accent',UI.accent);pr('.logopick[data-logo]','logo',UI.logo);
   if($('st-rtime'))$('st-rtime').disabled=!REMIND.on;if($('st-ltime'))$('st-ltime').disabled=!LEARN.on}
+let SET_H='';
 function renderSettings(soft){const t=document.documentElement.getAttribute('data-theme')||'auto',fresh=!(soft&&$('st-mode'));
   const row=(icon,bg,title,sub,body)=>'<div class="setrow"><div class="sl">'+ico(icon,bg)+'<span class="mt"><b>'+title+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</span></div>'+(body||'')+'</div>';
   const qt=(k,n,d)=>'<button type="button" class="qtool" data-go="'+k+'">'+ico(hubItem(k)[4],hubItem(k)[3])+'<span><b>'+n+'</b><small>'+d+'</small></span></button>';
-  if(!fresh)settingsSync();else $('settings-in').innerHTML='<div class="quicktools">'+qt('gear','Gear',MYG.length+' grinder'+(MYG.length>1?'s':'')+(MYB.length?', '+MYB.length+' brewer'+(MYB.length>1?'s':''):''))+qt('log','Brew log',LOG.length?LOG.length+' brew'+(LOG.length>1?'s':''):'Rate and keep your brews')+qt('guide','Guide','Ratios, fixes')+'</div>'+
+  if(!fresh)settingsSync();else{const h='<div class="quicktools">'+qt('gear','Gear',MYG.length+' grinder'+(MYG.length>1?'s':'')+(MYB.length?', '+MYB.length+' brewer'+(MYB.length>1?'s':''):''))+qt('log','Brew log',LOG.length?LOG.length+' brew'+(LOG.length>1?'s':''):'Rate and keep your brews')+qt('guide','Guide','Ratios, fixes')+'</div>'+
     // In the Android app: its version, whether a newer one is out, and a button to check now (the website updates itself).
     (appVersion()?'<div class="appver'+(updLatest()?' new':'')+'">'+ico('download','#4F8A74')+'<span class="av-tx"><b>Brew Bench '+esc(appVersion())+'</b><small>'+esc(updNote())+'</small></span>'+
       '<div class="av-btns">'+(updLatest()?'<button type="button" class="btn" id="st-updgo">Update to '+esc(updLatest())+'</button>':'')+'<button type="button" class="btn'+(updLatest()?' ghost':'')+'" id="st-upd">Check for updates</button></div></div>':'')+
@@ -3574,6 +3580,8 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
    (installed()?'':'<h3 class="rh">Install</h3><div class="setgroup">'+row('phone','#9A7390','Add to your home screen','Use it like an app, offline too','<p class="setnote" style="margin:0"><b>iPhone (Safari):</b> tap the Share button, then <b>Add to Home Screen</b>.<br><b>Android (Chrome):</b> tap the ⋮ menu, then <b>Add to Home screen</b>.</p>')+'</div>')+
    '<h3 class="rh">About</h3><div class="setgroup">'+row('bulb','#C9964A','Good to know','Undo, backups, sharing'+(NATIVE?', widgets':'')+' and more, in a minute','<div class="setbtns"><button type="button" class="btn ghost" id="st-tips">Show the tips</button></div>')+row('info','#8A5A3B','The Brew Bench','A coffee field guide and dial-in tool. What you save stays on this device, or syncs with your account if you sign in.','<p class="setnote" style="margin:0"><a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a> · <a href="'+SITE_URL+'delete-account.html" target="_blank" rel="noopener">Delete your account</a></p>')+
      '</div>';
+    // Built each visit, but only put in when something changed: redrawing the whole page on every visit laid it out again.
+    if(h!==SET_H||!$('st-mode')){$('settings-in').innerHTML=h;SET_H=h}}
   seg('st-mode',[['light','Light'],['dark','Dark'],['auto','Auto']],()=>t,v=>{themeSwap();if(v==='auto'){document.documentElement.removeAttribute('data-theme');try{localStorage.removeItem('bb-theme')}catch(e){}}
     else{document.documentElement.setAttribute('data-theme',v);try{localStorage.setItem('bb-theme',v)}catch(e){}}syncThemeBtn();applyUI();renderSettings(1)});
   seg('st-text',[['s','Small'],['m','Standard'],['l','Large'],['xl','Larger']],()=>UI.text,v=>{const st=$('st-text'),y0=st.getBoundingClientRect().top;UI.text=v;saveUI();renderSettings(1);
@@ -3609,10 +3617,16 @@ function movePill(){const nav=document.querySelector('.bottomnav'),pill=nav&&nav
   pill.style.transition='none';pill.style.opacity=1;pill.style.width=w1+'px';pill.style.transform='translateX('+x1+'px)';
   // A plain glide from the old button to the new one: no stretch, no overshoot.
   if(!from||RM()||(from.x===x1&&from.w===w1)||!pill.animate)return;
-  pill.animate([{transform:'translateX('+from.x+'px)',width:from.w+'px'},{transform:'translateX('+x1+'px)',width:w1+'px'}],{duration:200,easing:'ease-out'})}
+  // Same width (the usual case): only the transform moves, which the GPU animates even while a page is being built.
+  pill.animate(from.w===w1?[{transform:'translateX('+from.x+'px)'},{transform:'translateX('+x1+'px)'}]:[{transform:'translateX('+from.x+'px)',width:from.w+'px'},{transform:'translateX('+x1+'px)',width:w1+'px'}],{duration:200,easing:'ease-out'})}
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(movePill);
 addEventListener('resize',()=>soon(movePill));
-document.querySelector('.bottomnav').onclick=e=>{const b=e.target.closest('[data-bn]');if(b)showTab(b.dataset.bn,false,true)};
+// A tap on the bar answers at once: its highlight moves and is drawn, then the page is built straight after (building
+// it inside the tap held the highlight back until the whole page was ready). The last tap wins.
+let NAV_R=0,NAV_T=0;
+document.querySelector('.bottomnav').onclick=e=>{const b=e.target.closest('[data-bn]');if(!b)return;const id=b.dataset.bn;
+  document.querySelectorAll('.bottomnav [data-bn]').forEach(x=>x.setAttribute('aria-current',x===b));movePill();
+  cancelAnimationFrame(NAV_R);clearTimeout(NAV_T);NAV_R=requestAnimationFrame(()=>{NAV_T=setTimeout(()=>showTab(id,false,true),0)})};
 $('ab-share').onclick=()=>{const id=(document.querySelector('main section.on')||{}).id;
   if(id==='dial')openShare(dialDoc());else if(id==='scan')$('sc-share').click();else if(id==='history')openShare(historyDoc());else if(id==='log')openShare(logDoc());else if(id==='map'){if(SEL)openShare(originDoc(SEL));else toast('Pick an origin first')}else if(id==='recipes'&&rListed())openShare(recipesDoc());else if(id==='words')openShare(wordsDoc());else if(id==='flow')openShare(flowDoc());else if(id==='wheel')openShare(wheelDoc())};
 $('dial-share').onclick=()=>openShare(dialDoc());
@@ -3664,7 +3678,7 @@ function showUpdate(force){const l=updLatest(),old=$('updcard');if(!l||(!force&&
 if(appVersion()){setTimeout(()=>checkUpdate(),4000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate()})}
 document.addEventListener('click',e=>{if(e.target.closest('#st-updgo')){toast('Downloading the new version. Open it when it finishes to install');openLink(APK_URL);return}
   if(e.target.closest('#st-upd')){const b=e.target.closest('#st-upd');b.disabled=true;b.textContent='Checking…';
-  checkUpdate(true).then(l=>{if(l===null)toast('Couldn’t check just now. Try again when you’re online');else if(!l)toast('You have the latest version');renderSettings()})}});
+  checkUpdate(true).then(l=>{if(l===null)toast('Couldn’t check just now. Try again when you’re online');else if(!l)toast('You have the latest version');SET_H='';renderSettings()})}});
 
 /* ================= A COFFEE FACT A DAY ================= */
 // One thing worth knowing from Explore each day, taking the kinds in turn (a word, a variety, an origin, a process, a

@@ -966,7 +966,7 @@ $('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-add')){openB
   const t=e.target.closest('[data-top3]');if(t){openTop3(+t.dataset.top3,t.dataset.slot==='hm'?'hm':+(t.dataset.slot||0));return}
   const sa=e.target.closest('[data-scanadd]');if(sa){addScanToGallery(+sa.dataset.scanadd);return}
   const sc=e.target.closest('[data-scan]');if(sc){openSavedScan(+sc.dataset.scan);return}
-  const b=e.target.closest('[data-bean]');if(b)openBean(b.dataset.bean)});
+  const b=e.target.closest('[data-bean]');if(b){const id=b.dataset.bean;tapOpen(b,()=>openBean(id))}});
 
 /* ---------- One coffee ---------- */
 function beanLogStats(b){const n=b.name.toLowerCase();if(n.length<3)return null;const l=LOG.filter(x=>(x.coffee||'').toLowerCase().includes(n));if(!l.length)return null;
