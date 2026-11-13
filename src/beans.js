@@ -135,9 +135,19 @@ const cupsLeft=b=>{const g=gramsLeft(b);return g==null?null:Math.floor(g/beanDos
 // Where a bag is in its life, from the roast date: resting (still degassing), at its peak, still lovely, then fading.
 const FRESH={rest:['Resting','Give it a few more days: fresh coffee is gassy and brews uneven.'],peak:['At its peak','Brew it now: these are its best weeks.'],
   good:['Still lovely','Past its peak but still sweet. A touch finer if it tastes flat.'],fade:['Fading','Getting tired: grind finer and brew a little hotter to wake it up.']};
-function fresh(b){if(!b.roastDate)return null;const d=daysAgo(b.roastDate);if(d<0)return null;const k=d<4?'rest':d<=21?'peak':d<=45?'good':'fade';return{d,k,label:FRESH[k][0],tip:FRESH[k][1]}}
-// The freshness line: 0 to 60 days, its four stretches coloured, a marker on today.
-const freshBar=f=>'<span class="fbar" role="img" aria-label="Day '+f.d+' off roast: '+f.label+'"><i class="fz1"></i><i class="fz2"></i><i class="fz3"></i><i class="fz4"></i><b style="left:'+Math.min(100,f.d/60*100).toFixed(1)+'%"></b></span>';
+// The stretches follow the roast. A light roast is dense and lets its gas out slowly: it tastes muted in its first
+// week, is at its best from about day 7 to 30 and stays good for two months. A dark roast is ready in two or three
+// days and fades after about a month. A medium roast (or one whose roast isn't set) sits between: resting to day 3,
+// at its peak 4 to 21, still lovely to 45. Each is [peak from, peak to, still lovely to].
+const FWIN={light:[7,30,60],medium:[4,21,45],dark:[3,14,30]};
+const freshWin=b=>FWIN[b&&b.roast]||FWIN.medium;
+function fresh(b){if(!b.roastDate)return null;const d=daysAgo(b.roastDate);if(d<0)return null;const w=freshWin(b),k=d<w[0]?'rest':d<=w[1]?'peak':d<=w[2]?'good':'fade';
+  return{d,k,w,roast:b.roast||'',label:FRESH[k][0],tip:FRESH[k][1]}}
+// The bag's window in words, under the line: so the label isn't a mystery, and a missing roast can be set.
+const freshWinLine=f=>(f.roast?f.roast[0].toUpperCase()+f.roast.slice(1)+' roast: best':'Best')+' from day '+f.w[0]+' to '+f.w[1]+', still lovely to day '+f.w[2]+(f.roast?'':' (set the roast for its own window)');
+// The freshness line: its four stretches coloured in proportion (with a little room past "still lovely"), a marker on today.
+const freshBar=f=>{const [a,b,c]=f.w,S=c+15,pc=n=>(n/S*100).toFixed(1)+'%';
+  return '<span class="fbar" role="img" aria-label="Day '+f.d+' off roast: '+f.label+'"><i class="fz1" style="width:'+pc(a)+'"></i><i class="fz2" style="width:'+pc(b-a+1)+'"></i><i class="fz3" style="width:'+pc(c-b)+'"></i><i class="fz4"></i><b style="left:'+Math.min(100,f.d/S*100).toFixed(1)+'%"></b></span>'};
 const freshPill=f=>'<span class="fpill f-'+f.k+'">'+f.label+' · day '+f.d+'</span>';
 const bagLine=b=>{const g=gramsLeft(b);if(g==null)return '';const pct=b.bag?clamp(g/b.bag*100,0,100):null;
   return '<span class="bagl">'+(pct!=null?'<span class="bagm"><i style="width:'+pct.toFixed(0)+'%"></i></span>':'')+'<small>'+(g?g+' g left'+(b.bag?' of '+b.bag+' g':''):'Bag empty')+'</small></span>'};
@@ -494,11 +504,11 @@ function checkTrophies(){const st=cabStats(),first=!TGOT||typeof TGOT!=='object'
 function cabinetDay(when){const day=when||new Date(),iso=day.getFullYear()+'-'+String(day.getMonth()+1).padStart(2,'0')+'-'+String(day.getDate()).padStart(2,'0');
   const seed=Math.floor(Date.parse(iso+'T12:00')/864e5),pick=l=>l[((seed%l.length)+l.length)%l.length],at=t=>Math.round((Date.parse(iso+'T12:00')-Date.parse(t+'T12:00'))/864e5);
   if(!BEANS.length)return null;const shelf=BEANS.filter(b=>b.shelf),need=[];
-  for(const b of shelf){const d=b.roastDate?at(b.roastDate):null,c=cupsLeft(b);
+  for(const b of shelf){const d=b.roastDate?at(b.roastDate):null,c=cupsLeft(b),fw=freshWin(b);
     // Each nudge comes on a few days, not every day: the peak on days 4 and 5, fading once a week, running low every third day.
-    if(d!=null&&d>=4&&d<=5)need.push({b,k:'peak',title:beanTitle(b)+' is at its peak',text:'Day '+d+' off roast: its best weeks start now. Brew it today.'});
+    if(d!=null&&d>=fw[0]&&d<=fw[0]+1)need.push({b,k:'peak',title:beanTitle(b)+' is at its peak',text:'Day '+d+' off roast: its best weeks start now. Brew it today.'});
     else if(c!=null&&c<=2&&seed%3===0)need.push({b,k:'low',title:c?'Only '+gramsLeft(b)+' g of '+beanTitle(b)+' left':beanTitle(b)+' is empty',text:c?'Make the last of it count, or note how it ended in its diary.':'Finish the bag in its page to move it into the cabinet.'});
-    else if(d!=null&&d>45&&d<=75&&(d-46)%7===0)need.push({b,k:'fade',title:beanTitle(b)+' is fading',text:'Day '+d+' off roast. Brew it soon: a little finer and hotter brings it back.'})}
+    else if(d!=null&&d>fw[2]&&d<=fw[2]+30&&(d-fw[2]-1)%7===0)need.push({b,k:'fade',title:beanTitle(b)+' is fading',text:'Day '+d+' off roast. Brew it soon: a little finer and hotter brings it back.'})}
   if(need.length)return pick(need);
   const md=iso.slice(5),ago=BEANS.filter(b=>b.tried&&b.tried.slice(5)===md&&b.tried<iso);
   if(ago.length){const b=pick(ago),y=+iso.slice(0,4)-+b.tried.slice(0,4);return{b,k:'ago',title:(y===1?'A year':y+' years')+' ago today',text:'You tried '+beanTitle(b)+(b.roaster?' from '+b.roaster:'')+(b.rating?' and gave it '+String(b.rating).replace('.5','½')+' beans.':'.')}}
@@ -902,7 +912,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;const d=$('vd'),rk
   $('vd-in').innerHTML='<div class="vd-head" style="--c:'+(rk?MEDAL[rk]:'var(--cherry)')+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button>'+(calBack?'<button type="button" class="vd-back adv-back" id="bd-advback">‹ Calendar</button>':from?'<button type="button" class="vd-back" id="vd-back">‹ '+esc(originName(from))+'</button>':'')+'<span class="vd-tools"><button type="button" class="vd-tool" id="bd-share" aria-label="Share this coffee" title="Share">'+lIc('share')+'</button><button type="button" class="vd-tool" id="bd-edit" aria-label="Edit this coffee" title="Edit">'+lIc('edit')+'</button></span><span class="pill"><i style="background:'+(rk?MEDAL[rk]:'var(--cherry)')+'"></i>'+(rk?placeLine(rk,beanYear(b)):beanMention(b)?'Honourable mention · '+beanYear(b):b.shelf?'Drinking now':'Your coffees')+'</span><h2 id="vd-title">'+esc(beanTitle(b))+'</h2>'+(b.roaster?'<p class="vd-sub">'+esc(b.roaster)+'</p>':'')+'</div>'+
     '<div class="vd-body"><div class="bd-hero">'+beanPic(b,'hero')+(b.rating?'<span class="bglass">'+beanSVG+b.rating.toString().replace('.5','½')+'<small>'+rateWord(b.rating)+'</small></span>':'')+'</div>'+
     // The bag now: how fresh it is, what's left, and finishing it.
-    (b.shelf?'<div class="bd-shelf">'+(f?'<div class="bd-f"><div class="bd-fh"><b>'+f.label+'</b><span>Day '+f.d+' off roast</span></div>'+freshBar(f)+'<p>'+f.tip+'</p></div>':'<label class="bd-addrd"><span><b>When was it roasted?</b><small>Add the date on the bag to see how fresh it is.</small></span><input type="date" id="bd-rd" class="dateinp" max="'+todayISO()+'" aria-label="Roast date"></label>')+
+    (b.shelf?'<div class="bd-shelf">'+(f?'<div class="bd-f"><div class="bd-fh"><b>'+f.label+'</b><span>Day '+f.d+' off roast</span></div>'+freshBar(f)+'<p>'+f.tip+'</p><small class="bd-fw">'+freshWinLine(f)+'</small></div>':'<label class="bd-addrd"><span><b>When was it roasted?</b><small>Add the date on the bag to see how fresh it is.</small></span><input type="date" id="bd-rd" class="dateinp" max="'+todayISO()+'" aria-label="Roast date"></label>')+
       (g!=null?'<div class="bd-bag"><div class="bd-bagh">'+bagLine(b)+'<button type="button" class="linkbtn" id="bd-left">Set what’s left</button></div><div class="bd-cupr"><span class="bd-cupl">Brewed a cup with</span><span class="bd-step"><button type="button" id="bd-cm" aria-label="Less coffee">−</button><b id="bd-cg">'+dose+' g</b><button type="button" id="bd-cp" aria-label="More coffee">+</button></span><button type="button" class="btn" id="bd-cup">Take it off</button></div>'+
         '<p class="bd-auto">Brews you log or finish with the dial-in’s timer come off on their own.</p></div>'
         :'<p class="hint" style="margin:8px 0 0">Add the bag size in Edit to see what’s left as you log brews.</p>')+
