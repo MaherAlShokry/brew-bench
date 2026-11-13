@@ -66,6 +66,7 @@ const bcLoad=src=>new Promise(ok=>{if(!src){ok(null);return}const i=new Image();
 // woven band along the top and a passport-style stamp. Origins without their own look use their region's.
 const OT={
   house:   {bg:['#2B1A11','#1A100A','#0E0805'],glow:'#E2B866',acc:'#E2B866',acc2:'#A8432F',motif:null},
+  blend:   {bg:['#16202B','#0E151D','#070B10'],glow:'#D9B35E',acc:'#E6C478',acc2:'#4F8A74',motif:null,note:'Many origins in one bag'},
   yemen:   {bg:['#2B1612','#180B09','#0D0605'],glow:'#E08A3C',acc:'#E9B661',acc2:'#3E6E8E',motif:'arches',note:'Tower houses of Sana’a'},
   ethiopia:{bg:['#17231A','#0D150F','#070B08'],glow:'#E3B23C',acc:'#EBC66B',acc2:'#C4473A',motif:'tibeb',note:'Tibeb weave'},
   kenya:   {bg:['#2A1110','#160909','#0B0505'],glow:'#C8402A',acc:'#EBA93F',acc2:'#3576B8',motif:'beads',note:'Maasai beadwork'},
@@ -273,6 +274,10 @@ function stampFit(x,names,r){let f;
     x.font='800 '+sz+'px '+BC.F;x.letterSpacing='0px';const a=[...t].reduce((s,ch)=>s+x.measureText(ch).width+sp,0)/r;
     f={t,font:x.font,sp,a};if(a<=STAMP_ARC)return f}}
   const n=f.t.length;f.sp-=(f.a-STAMP_ARC)*r/n;f.a=STAMP_ARC;return f}
+// A globe: the outline, the equator and two tropics, and three meridians (the blend stamp's centre).
+function bcGlobe(x,cx,cy,r,col){x.save();x.translate(cx,cy);x.strokeStyle=col;x.lineWidth=3;x.beginPath();x.arc(0,0,r,0,TAU);x.stroke();x.lineWidth=2;
+  for(const y of [-.5,0,.5]){const w=Math.sqrt(1-y*y)*r;x.beginPath();x.moveTo(-w,y*r);x.lineTo(w,y*r);x.stroke()}
+  for(const k of [.35,.75]){x.beginPath();x.ellipse(0,0,r*k,r,0,0,TAU);x.stroke()}x.beginPath();x.moveTo(0,-r);x.lineTo(0,r);x.stroke();x.restore()}
 function bcStamp(x,cx,cy,T){const R=92;x.save();x.translate(cx,cy);x.rotate(-0.16);
   x.strokeStyle=hexA(T.acc,.85);x.lineWidth=3;x.beginPath();x.arc(0,0,R,0,TAU);x.stroke();x.lineWidth=1.5;x.beginPath();x.arc(0,0,R-12,0,TAU);x.stroke();
   // Letters set along the ring: reading left to right over the top, and left to right along the bottom. Each name is fitted to
@@ -282,7 +287,7 @@ function bcStamp(x,cx,cy,T){const R=92;x.save();x.translate(cx,cy);x.rotate(-0.1
     const ws=[...f.t].map(ch=>x.measureText(ch).width+f.sp);let a=top?-Math.PI/2-f.a/2:Math.PI/2+f.a/2;
     [...f.t].forEach((ch,i)=>{const h=ws[i]/2/r;a+=top?h:-h;x.save();x.rotate(a);x.translate(r,0);x.rotate(top?Math.PI/2:-Math.PI/2);x.fillText(ch,0,0);x.restore();a+=top?h:-h})};
   arcText(fit(stampNames(T.name,STAMP_SHORT[T.key])),true);if(T.sub)arcText(fit(stampNames(T.sub,STAMP_SHORT[T.key+':sub'])),false);
-  bcBean(x,0,0,40,hexA(T.acc,.95),T.bg[0]);x.fillStyle=hexA(T.acc,.95);for(const s of [-1,1]){x.beginPath();x.arc(s*(R-28),0,3,0,TAU);x.fill()}x.restore();x.textAlign='left';x.textBaseline='alphabetic'}
+  if(T.key==='blend')bcGlobe(x,0,0,38,hexA(T.acc,.95));else bcBean(x,0,0,40,hexA(T.acc,.95),T.bg[0]);x.fillStyle=hexA(T.acc,.95);for(const s of [-1,1]){x.beginPath();x.arc(s*(R-28),0,3,0,TAU);x.fill()}x.restore();x.textAlign='left';x.textBaseline='alphabetic'}
 
 /* Draw a card. m: {kicker, date, photo (an image), title, by, sub, rating {kind,v,word}, pills [[text,main]], tiles [[label,value]],
    grind {g,c,line}, cup {r,vt,vs}, text [{label,body}], steps [], expect {label,items,bar}, quote {label,text}, footer} */
@@ -643,7 +648,7 @@ async function beanCardImg(b){const style=Object.assign({},CARD_STYLE),P=b.proce
     sub:[b.variety?vName(b.variety):'',P?P.name:'',b.roast?bcCap(b.roast)+' roast':''].filter(Boolean).join('  ·  '),
     rating:b.rating?{kind:'beans',v:b.rating,word:rateWord(b.rating)}:null,
     pills:rk?[[rk<=3?'#'+rk+' · '+MEDALN[rk]+' of '+beanYear(b):'#'+rk+' of '+beanYear(b),1]]:beanMention(b)?[['Honourable mention · '+beanYear(b),1]]:[],
-    tiles:[['Origin',b.origin?originName(b.origin):'–'],['Roasted',fmt(b.roastDate)],['Tried',b.tried?fmt(b.tried):'Not yet']],
+    tiles:[isBlend(b)?['Blend',(p=>p.length&&p.length<=2?p.map(x=>originName(x.o)).join(', '):p.length?p.length+' origins':'Several origins')(blendParts(b))]:['Origin',b.origin?originName(b.origin):'–'],['Roasted',fmt(b.roastDate)],['Tried',b.tried?fmt(b.tried):'Not yet']],
     expect:b.flavours?{label:'Tasting notes',items:b.flavours.split(/\s*[,;·]\s*/).filter(Boolean)}:null,
     quote:b.notes?{label:'My notes',text:b.notes}:null,footer:'From my bean gallery'})}
 
