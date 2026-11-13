@@ -7,7 +7,10 @@ const {chromium}=require('playwright');(async()=>{const b=await chromium.launch(
  console.log(JSON.stringify(r,null,1));
  if(m==='light'){ok('banner hidden once a recipe is picked',r.banner==='none');ok('no duplicate Share buttons on the page',r.shares<=1,r.shares);
   await p.click('#dial .dstep[data-step="gear"] summary');ok('tap a step to open it',await p.evaluate(()=>document.querySelector('#dial .dstep[data-step="gear"]').open));
-  await p.reload();await p.waitForTimeout(700);ok('open steps are remembered',await p.evaluate(()=>document.querySelector('#dial .dstep[data-step="gear"]').open));
+  // The open step is saved on the toggle event, which comes just after the click; let it land before reloading, and
+  // give a slower machine time to set the page up again.
+  await p.waitForFunction(()=>{try{return JSON.parse(localStorage.getItem('bb-dsteps')||'{}').gear===true}catch(e){return false}},null,{timeout:5000}).catch(()=>{});
+  await p.reload();ok('open steps are remembered',await p.waitForFunction(()=>{const d=document.querySelector('#dial .dstep[data-step="gear"]');return d&&d.open},null,{timeout:6000}).then(()=>true,()=>false));
   await p.click('#dial .dstep[data-step="gear"] summary');
   await p.evaluate(()=>{const e=document.getElementById('i-temp');e.value=95;e.dispatchEvent(new Event('input',{bubbles:true}))});await p.waitForTimeout(200);ok('fine-tune summary follows the sliders',await p.evaluate(()=>{document.querySelector('#dial .dstep[data-step="tune"]').open=false;return document.getElementById('ds-tune').textContent.includes('95°C')}));
   await p.evaluate(()=>document.querySelector('#dial .dstep[data-step="tune"]').open=true)}
