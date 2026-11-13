@@ -34,7 +34,8 @@ function fromTap(fn){const ev=window.event;if(!ev||ev.type!=='click'||!ev.isTrus
   afterPaint(fn);return true}
 const pickNow=(sel,el)=>{document.querySelectorAll(sel).forEach(x=>x.setAttribute('aria-pressed',String(x===el)))};
 // A tapped row stays lit (a tap ends before its click, so :active is already gone) until its sheet is up.
-const tapOpen=(el,fn)=>{el.classList.add('tapped');afterPaint(()=>{try{fn()}finally{setTimeout(()=>el.classList.remove('tapped'),350)}})};
+// From code (a click() with no person behind it) there's nothing to answer first, so it opens at once.
+const tapOpen=(el,fn)=>{const ev=window.event;if(!ev||!ev.isTrusted){fn();return}el.classList.add('tapped');afterPaint(()=>{try{fn()}finally{setTimeout(()=>el.classList.remove('tapped'),350)}})};
 const MQ=q=>!!(window.matchMedia&&window.matchMedia(q).matches);const RM=()=>MQ('(prefers-reduced-motion: reduce)')||document.documentElement.getAttribute('data-motion')==='reduced';
 /* Drawn icons in place of emoji: one line style (24-grid, round strokes in the text colour) across stats, trophies,
    seasons, moments and greetings. emoIc() swaps every known emoji in a bit of HTML for its icon; anything unknown
@@ -411,6 +412,8 @@ const ALLO=()=>({...O,...PTS});
 // stays out of ALLO and XO (the map, the origin lists and the label reader's countries).
 const BLEND_O={name:'Blend',flag:'\u{1F30D}',reg:'blend',subs:['Many origins']};
 const oInfo=k=>ALLO()[k]||XO[k]||(k==='blend'?BLEND_O:null);
+// A coffee's country, for counting origins: a blend has several, so it counts as none (it has its own stamp).
+const realO=b=>b&&b.origin&&b.origin!=='blend'?b.origin:'';
 const okOrigin=k=>typeof k==='string'&&oInfo(k)?k:'';
 // A blend's parts: up to four, each an origin (not another blend) and an optional region, no repeats.
 const okBlend=l=>{const out=[],seen=new Set();for(const p of Array.isArray(l)?l:[]){const o=p&&okOrigin(p.o);if(!o||o==='blend')continue;const r=String(p.r==null?'':p.r).replace(/[\u0000-\u001f]/g,' ').trim().slice(0,40),k=o+'|'+r.toLowerCase();if(seen.has(k))continue;seen.add(k);out.push(r?{o,r}:{o});if(out.length>=4)break}return out};
@@ -1930,7 +1933,7 @@ function drawTree(){
   // the tree, so none runs into the next generation or off the edge.
   const noted=Object.keys(TREE.notes||{}).filter(id=>pos[id]).sort((a,b)=>pos[a].x-pos[b].x||pos[a].y-pos[b].y);
   noted.forEach((id,k)=>{const p=pos[id],cx=p.x+p.w+13,cy=p.y+p.h/2;W=Math.max(W,cx+12);
-    t+='<g class="tmark" data-id="'+id+'" role="button" tabindex="-1" aria-label="Note '+(k+1)+' on '+esc(p.lab)+'"><circle class="tm-hit" cx="'+cx+'" cy="'+cy+'" r="20"/><circle cx="'+cx+'" cy="'+cy+'" r="9"/><text x="'+cx+'" y="'+(cy+4)+'">'+(k+1)+'</text></g>'});
+    t+='<g class="tmark" data-id="'+id+'" role="button" tabindex="-1" aria-label="Note '+(k+1)+' on '+esc(p.lab)+'"><circle class="tm-hit" cx="'+(cx+7)+'" cy="'+cy+'" r="16"/><circle cx="'+cx+'" cy="'+cy+'" r="9"/><text x="'+cx+'" y="'+(cy+4)+'">'+(k+1)+'</text></g>'});
   {const ul=$('treenotes');if(ul){ul.innerHTML=noted.map((id,k)=>'<li data-id="'+id+'"><span class="tn-k">'+(k+1)+'</span><span><b>'+esc(pos[id].lab)+'</b>'+esc(TREE.notes[id])+'</span></li>').join('');ul.hidden=!noted.length}}
   W=Math.ceil(W+24);H=Math.ceil(H+28);
   // Generation bands with their headings.

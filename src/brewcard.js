@@ -745,7 +745,7 @@ async function top5CardImg(y){const style=Object.assign({},CARD_STYLE),it=t5Item
 // rating, and a ring for what's left). The card is as long as your shelf: a row per bag, up to twelve.
 async function shelfCardImg(){const style=Object.assign({},CARD_STYLE),sh=shelfOrder(),nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick;
   const many=sh.length>12,shown=many?sh.slice(0,11):sh,more=sh.length-shown.length,imgs=await Promise.all(shown.map(async b=>b.img?bcLoad(await BIMG.get(b.id)):null));
-  const ros=new Set(sh.map(b=>(b.roaster||'').toLowerCase()).filter(Boolean)).size,ors=new Set(sh.map(b=>b.origin).filter(Boolean)).size;
+  const ros=new Set(sh.map(b=>(b.roaster||'').toLowerCase()).filter(Boolean)).size,ors=new Set(sh.map(realO).filter(Boolean)).size;
   const notes=[];sh.forEach(b=>(b.flavours||'').split(/\s*[,;·]\s*/).filter(Boolean).forEach(f=>{if(!notes.some(q=>q.toLowerCase()===f.toLowerCase()))notes.push(f)}));
   const rhS=shown.length<=3?200:176,minH=130+118+40+58+48+shown.length*rhS+(more?64:0)+(notes.length?146:0)+BC_FOOT+40;
   return bcBlob({style,theme:originTheme(sh[0]&&sh[0].origin),minH,draw:(x,c)=>{const W=BC.W,P=BC.PAD,IW=W-2*P,rh=rhS;

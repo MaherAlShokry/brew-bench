@@ -2532,7 +2532,7 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="7b9de24529b0"</script>
+<script>const BUILD_ID="e70d897faf14"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -5209,7 +5209,8 @@ function fromTap(fn){const ev=window.event;if(!ev||ev.type!=='click'||!ev.isTrus
   afterPaint(fn);return true}
 const pickNow=(sel,el)=>{document.querySelectorAll(sel).forEach(x=>x.setAttribute('aria-pressed',String(x===el)))};
 // A tapped row stays lit (a tap ends before its click, so :active is already gone) until its sheet is up.
-const tapOpen=(el,fn)=>{el.classList.add('tapped');afterPaint(()=>{try{fn()}finally{setTimeout(()=>el.classList.remove('tapped'),350)}})};
+// From code (a click() with no person behind it) there's nothing to answer first, so it opens at once.
+const tapOpen=(el,fn)=>{const ev=window.event;if(!ev||!ev.isTrusted){fn();return}el.classList.add('tapped');afterPaint(()=>{try{fn()}finally{setTimeout(()=>el.classList.remove('tapped'),350)}})};
 const MQ=q=>!!(window.matchMedia&&window.matchMedia(q).matches);const RM=()=>MQ('(prefers-reduced-motion: reduce)')||document.documentElement.getAttribute('data-motion')==='reduced';
 /* Drawn icons in place of emoji: one line style (24-grid, round strokes in the text colour) across stats, trophies,
    seasons, moments and greetings. emoIc() swaps every known emoji in a bit of HTML for its icon; anything unknown
@@ -5586,6 +5587,8 @@ const ALLO=()=>({...O,...PTS});
 // stays out of ALLO and XO (the map, the origin lists and the label reader's countries).
 const BLEND_O={name:'Blend',flag:'\u{1F30D}',reg:'blend',subs:['Many origins']};
 const oInfo=k=>ALLO()[k]||XO[k]||(k==='blend'?BLEND_O:null);
+// A coffee's country, for counting origins: a blend has several, so it counts as none (it has its own stamp).
+const realO=b=>b&&b.origin&&b.origin!=='blend'?b.origin:'';
 const okOrigin=k=>typeof k==='string'&&oInfo(k)?k:'';
 // A blend's parts: up to four, each an origin (not another blend) and an optional region, no repeats.
 const okBlend=l=>{const out=[],seen=new Set();for(const p of Array.isArray(l)?l:[]){const o=p&&okOrigin(p.o);if(!o||o==='blend')continue;const r=String(p.r==null?'':p.r).replace(/[\u0000-\u001f]/g,' ').trim().slice(0,40),k=o+'|'+r.toLowerCase();if(seen.has(k))continue;seen.add(k);out.push(r?{o,r}:{o});if(out.length>=4)break}return out};
@@ -7105,7 +7108,7 @@ function drawTree(){
   // the tree, so none runs into the next generation or off the edge.
   const noted=Object.keys(TREE.notes||{}).filter(id=>pos[id]).sort((a,b)=>pos[a].x-pos[b].x||pos[a].y-pos[b].y);
   noted.forEach((id,k)=>{const p=pos[id],cx=p.x+p.w+13,cy=p.y+p.h/2;W=Math.max(W,cx+12);
-    t+='<g class="tmark" data-id="'+id+'" role="button" tabindex="-1" aria-label="Note '+(k+1)+' on '+esc(p.lab)+'"><circle class="tm-hit" cx="'+cx+'" cy="'+cy+'" r="20"/><circle cx="'+cx+'" cy="'+cy+'" r="9"/><text x="'+cx+'" y="'+(cy+4)+'">'+(k+1)+'</text></g>'});
+    t+='<g class="tmark" data-id="'+id+'" role="button" tabindex="-1" aria-label="Note '+(k+1)+' on '+esc(p.lab)+'"><circle class="tm-hit" cx="'+(cx+7)+'" cy="'+cy+'" r="16"/><circle cx="'+cx+'" cy="'+cy+'" r="9"/><text x="'+cx+'" y="'+(cy+4)+'">'+(k+1)+'</text></g>'});
   {const ul=$('treenotes');if(ul){ul.innerHTML=noted.map((id,k)=>'<li data-id="'+id+'"><span class="tn-k">'+(k+1)+'</span><span><b>'+esc(pos[id].lab)+'</b>'+esc(TREE.notes[id])+'</span></li>').join('');ul.hidden=!noted.length}}
   W=Math.ceil(W+24);H=Math.ceil(H+28);
   // Generation bands with their headings.
@@ -9368,9 +9371,9 @@ function best(items,f){const m=new Map();for(const b of items){const k=f(b);if(!
 function tasteOf(bs,ls){const top=(items,f,w)=>{const m=new Map();for(const x of items){const ks=[].concat(f(x)).filter(Boolean),wt=w?w(x):1;for(const k of ks)m.set(k,(m.get(k)||0)+wt)}
     let best=null,n=0;for(const [k,v] of m)if(v>n){best=k;n=v}return best?{k:best,n}:null};
   const like=b=>b.rating>=4?2:b.rating&&b.rating<3?0.5:1;
-  const t={origin:top(bs,b=>b.origin,buys),region:top(bs,b=>{const o=b.origin&&b.origin!=='blend'&&oInfo(b.origin);return o&&o.reg},buys),variety:top(bs,b=>beanVars(b).map(v=>v.split(':')[0]),buys),
+  const t={origin:top(bs,realO,buys),region:top(bs,b=>{const o=b.origin&&b.origin!=='blend'&&oInfo(b.origin);return o&&o.reg},buys),variety:top(bs,b=>beanVars(b).map(v=>v.split(':')[0]),buys),
     process:top(bs,b=>b.process,buys),roast:top(bs,b=>b.roast,buys),roaster:top(bs,b=>b.roaster&&b.roaster.trim(),buys),
-    likedOrigin:best(bs,b=>b.origin),likedProcess:best(bs,b=>b.process),
+    likedOrigin:best(bs,realO),likedProcess:best(bs,b=>b.process),
     brewer:top(ls,l=>{const b=(l.snap&&l.snap.b)||l.brewer;return b&&CANONB(b)}),regionOrigin:null,recipe:top(ls,l=>l.snap&&l.snap.rec),goal:top(ls,l=>l.snap&&l.snap.goal)};
   // Flavours: the families of the notes on the bags you liked and of what you tasted in your brews.
   const fam=new Map(),note=new Map();
@@ -9404,7 +9407,7 @@ const bagsIn=y=>{const k=String(y);return BEANS.reduce((a,b)=>a+(b.bags||[]).fil
 function yearInCoffeeHTML0(){const cy=new Date().getFullYear(),bs=BEANS.filter(b=>beanYear(b)===cy),ls=LOG.filter(l=>isMine(l)&&new Date(brewTs(l)).getFullYear()===cy);
   // The counts are this year's: coffees first tried or added this year (and the bags of them, when some were bought
   // again), every cup made (logged brews and timer cups), and the coffee those cups used.
-  const cups=myCups(cy);if(!bs.length&&!cups.length)return '';const g=Math.round(cups.reduce((s,c)=>s+(c.g||0),0)),t=tasteOf(bs,ls),origins=new Set(bs.map(b=>b.origin).filter(Boolean)).size,bags=bagsIn(cy);
+  const cups=myCups(cy);if(!bs.length&&!cups.length)return '';const g=Math.round(cups.reduce((s,c)=>s+(c.g||0),0)),t=tasteOf(bs,ls),origins=new Set(bs.map(realO).filter(Boolean)).size,bags=bagsIn(cy);
   const big=[[bs.length,(bs.length===1?'coffee':'coffees')+(bags>bs.length?' · '+bags+' bags':'')],[cups.length,cups.length===1?'cup brewed':'cups brewed'],g?[g>=1000?(g/1000).toFixed(g>=10000?0:1)+' kg':g+' g','of coffee']:[origins,origins===1?'origin':'origins']];
   const o=t.origin&&oInfo(t.origin.k),R=t.region&&REG[t.region.k],v=t.variety&&VBY[t.variety.k],pr=t.process&&PROCESSES[t.process.k],B=t.brewer&&BREWERS[t.brewer.k];
   // The facts, without counts: short ones as tiles two to a row, then the coffees (your regular, the best of the year)
@@ -9550,7 +9553,7 @@ const SEASONAL=[
   ['winter','Winter warmer','Brew fifteen times this winter (December to February)','❄️',d=>{const m=d.getMonth()+1,y=d.getFullYear();return m===12?{...months(y,12,12),to:isoOf(new Date(y+1,2,0)),key:y}:m<=2?{from:isoOf(new Date(y-1,11,1)),to:isoOf(new Date(y,2,0)),key:y-1}:null},w=>[brewsIn(w).length,15]],
   ['spring','Spring clean','Add three new coffees this spring (March to May)','🌸',d=>{const m=d.getMonth()+1,y=d.getFullYear();return m>=3&&m<=5?{...months(y,3,5),key:y}:null},w=>[addedIn(w).length,3]],
   ['summer','Iced summer','Brew five iced or cold coffees this summer (June to August)','🧊',d=>{const m=d.getMonth()+1,y=d.getFullYear();return m>=6&&m<=8?{...months(y,6,8),key:y}:null},w=>[brewsIn(w).filter(l=>/iced|cold|flash|japanese|kyoto/i.test((l.snap&&l.snap.rec)||'')||(l.snap&&l.snap.b)==='cold').length,5]],
-  ['autumn','Harvest moon','Coffees from three origins this autumn (September to November)','🍂',d=>{const m=d.getMonth()+1,y=d.getFullYear();return m>=9&&m<=11?{...months(y,9,11),key:y}:null},w=>[new Set(addedIn(w).map(b=>b.origin).filter(Boolean)).size,3]],
+  ['autumn','Harvest moon','Coffees from three origins this autumn (September to November)','🍂',d=>{const m=d.getMonth()+1,y=d.getFullYear();return m>=9&&m<=11?{...months(y,9,11),key:y}:null},w=>[new Set(addedIn(w).map(realO).filter(Boolean)).size,3]],
   ['icd','International Coffee Day','Log a brew on 1 October','🎉',d=>{const y=d.getFullYear();return d.getMonth()===9&&d.getDate()===1?{from:y+'-10-01',to:y+'-10-01',key:y}:null},w=>[Math.min(1,brewsIn(w).length),1]],
   ['ethcrop','Ethiopian new crop','Add an Ethiopian coffee while the new crop arrives (June to September)','🐐',d=>{const m=d.getMonth()+1,y=d.getFullYear();return m>=6&&m<=9?{...months(y,6,9),key:y}:null},w=>[+addedIn(w).some(b=>b.origin==='ethiopia'),1]],
   ['kencrop','Kenyan new crop','Add a Kenyan coffee while the new crop arrives (April to July)','🦁',d=>{const m=d.getMonth()+1,y=d.getFullYear();return m>=4&&m<=7?{...months(y,4,7),key:y}:null},w=>[+addedIn(w).some(b=>b.origin==='kenya'),1]],
@@ -9788,7 +9791,7 @@ const BVIEWS={coffees:()=>renderCoffees(),diary:()=>renderDiaryView(),passport:(
 // The journal's season, in the corner of the Beans header (northern-hemisphere seasons, as the seasonal trophies).
 const seasonTag=()=>{const m=new Date().getMonth();return ['❄️ Winter','❄️ Winter','🌸 Spring','🌸 Spring','🌸 Spring','☀️ Summer','☀️ Summer','☀️ Summer','🍂 Autumn','🍂 Autumn','🍂 Autumn','❄️ Winter'][m]+' · '};
 function renderBeanHero(){const cy=new Date().getFullYear(),N=BEANS.length,rated=BEANS.filter(b=>b.rating),avg=rated.length?rated.reduce((s,b)=>s+b.rating,0)/rated.length:0,
-    roasters=new Set(BEANS.map(b=>b.roaster.toLowerCase()).filter(Boolean)).size,origins=new Set(BEANS.map(b=>b.origin).filter(Boolean)).size,
+    roasters=new Set(BEANS.map(b=>b.roaster.toLowerCase()).filter(Boolean)).size,origins=new Set(BEANS.map(realO).filter(Boolean)).size,
     last=[...BEANS].sort((a,b)=>beanDay(b).localeCompare(beanDay(a))||b.ts-a.ts).slice(0,3);
   const h=$('bg-hero');h.className='bg-hero'+(N?'':' empty');
   h.innerHTML='<div class="bgh-tx"><span class="bgh-k">'+seasonTag()+(window.PROFILE_OK&&PROFILE?esc(PROFILE.nick)+'’s coffee journal':'Your coffee journal')+'</span>'+
@@ -10272,7 +10275,7 @@ const calLive=c=>{const t=new Date();return t.getFullYear()===c.year&&t.getMonth
 // The day a door belongs to: 1 December onwards, or today if that day hasn't come yet.
 const calDay=(c,d)=>{const iso=c.year+'-12-'+String(d).padStart(2,'0');return iso<=todayISO()?iso:todayISO()};
 function calStats(c){const doors=calDoors(c),bs=[...doors.values()],rated=bs.filter(b=>b.rating);
-  return{doors,open:bs.length,rated:rated.length,avg:rated.length?rated.reduce((s,b)=>s+b.rating,0)/rated.length:0,origins:new Set(bs.map(b=>b.origin).filter(Boolean)).size,
+  return{doors,open:bs.length,rated:rated.length,avg:rated.length?rated.reduce((s,b)=>s+b.rating,0)/rated.length:0,origins:new Set(bs.map(realO).filter(Boolean)).size,
     best:rated.slice().sort((a,b)=>b.rating-a.rating||a.cal.d-b.cal.d).slice(0,3)}}
 // The calendar's total rating: the average of the coffees you've rated from it.
 function calScore(c,st){const s=st||calStats(c);return{v:s.avg?Math.round(s.avg*10)/10:0,n:s.rated}}
@@ -11125,7 +11128,7 @@ async function top5CardImg(y){const style=Object.assign({},CARD_STYLE),it=t5Item
 // rating, and a ring for what's left). The card is as long as your shelf: a row per bag, up to twelve.
 async function shelfCardImg(){const style=Object.assign({},CARD_STYLE),sh=shelfOrder(),nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick;
   const many=sh.length>12,shown=many?sh.slice(0,11):sh,more=sh.length-shown.length,imgs=await Promise.all(shown.map(async b=>b.img?bcLoad(await BIMG.get(b.id)):null));
-  const ros=new Set(sh.map(b=>(b.roaster||'').toLowerCase()).filter(Boolean)).size,ors=new Set(sh.map(b=>b.origin).filter(Boolean)).size;
+  const ros=new Set(sh.map(b=>(b.roaster||'').toLowerCase()).filter(Boolean)).size,ors=new Set(sh.map(realO).filter(Boolean)).size;
   const notes=[];sh.forEach(b=>(b.flavours||'').split(/\s*[,;·]\s*/).filter(Boolean).forEach(f=>{if(!notes.some(q=>q.toLowerCase()===f.toLowerCase()))notes.push(f)}));
   const rhS=shown.length<=3?200:176,minH=130+118+40+58+48+shown.length*rhS+(more?64:0)+(notes.length?146:0)+BC_FOOT+40;
   return bcBlob({style,theme:originTheme(sh[0]&&sh[0].origin),minH,draw:(x,c)=>{const W=BC.W,P=BC.PAD,IW=W-2*P,rh=rhS;
@@ -11631,7 +11634,7 @@ const SYNC_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 
 // Your coffee style, as a title under your name.
 const ROLE={bright:'Florals chaser',sweet:'Sweet-cup seeker',choc:'Comfort-cup brewer',wild:'Ferment explorer',espresso:'Espresso devotee',milk:'Milk-drink maker'};
 // All-time counts: every coffee, every cup made (logged brews and unlogged timer cups), origins and trophies.
-function profileStats(){const mine=window.BEANS_OK?myCups().length:LOG.filter(l=>l&&(!l.by||l.by===ME)).length,b=window.BEANS_OK?BEANS:[],o=new Set(b.map(x=>x.origin).filter(Boolean)).size,t=window.BEANS_OK&&TGOT?Object.keys(TGOT).length:0;
+function profileStats(){const mine=window.BEANS_OK?myCups().length:LOG.filter(l=>l&&(!l.by||l.by===ME)).length,b=window.BEANS_OK?BEANS:[],o=new Set(b.map(realO).filter(Boolean)).size,t=window.BEANS_OK&&TGOT?Object.keys(TGOT).length:0;
   return [[b.length,b.length===1?'coffee':'coffees'],[mine,mine===1?'cup':'cups'],[o,o===1?'origin':'origins'],[t,t===1?'trophy':'trophies']]}
 // Your taste, read from your coffees and brews (not typed in): where you buy from, the variety, process and roast you
 // come back to, the flavours you like most and how you brew. It fills in as the gallery and the log grow.

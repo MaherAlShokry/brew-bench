@@ -338,9 +338,9 @@ function best(items,f){const m=new Map();for(const b of items){const k=f(b);if(!
 function tasteOf(bs,ls){const top=(items,f,w)=>{const m=new Map();for(const x of items){const ks=[].concat(f(x)).filter(Boolean),wt=w?w(x):1;for(const k of ks)m.set(k,(m.get(k)||0)+wt)}
     let best=null,n=0;for(const [k,v] of m)if(v>n){best=k;n=v}return best?{k:best,n}:null};
   const like=b=>b.rating>=4?2:b.rating&&b.rating<3?0.5:1;
-  const t={origin:top(bs,b=>b.origin,buys),region:top(bs,b=>{const o=b.origin&&b.origin!=='blend'&&oInfo(b.origin);return o&&o.reg},buys),variety:top(bs,b=>beanVars(b).map(v=>v.split(':')[0]),buys),
+  const t={origin:top(bs,realO,buys),region:top(bs,b=>{const o=b.origin&&b.origin!=='blend'&&oInfo(b.origin);return o&&o.reg},buys),variety:top(bs,b=>beanVars(b).map(v=>v.split(':')[0]),buys),
     process:top(bs,b=>b.process,buys),roast:top(bs,b=>b.roast,buys),roaster:top(bs,b=>b.roaster&&b.roaster.trim(),buys),
-    likedOrigin:best(bs,b=>b.origin),likedProcess:best(bs,b=>b.process),
+    likedOrigin:best(bs,realO),likedProcess:best(bs,b=>b.process),
     brewer:top(ls,l=>{const b=(l.snap&&l.snap.b)||l.brewer;return b&&CANONB(b)}),regionOrigin:null,recipe:top(ls,l=>l.snap&&l.snap.rec),goal:top(ls,l=>l.snap&&l.snap.goal)};
   // Flavours: the families of the notes on the bags you liked and of what you tasted in your brews.
   const fam=new Map(),note=new Map();
@@ -374,7 +374,7 @@ const bagsIn=y=>{const k=String(y);return BEANS.reduce((a,b)=>a+(b.bags||[]).fil
 function yearInCoffeeHTML0(){const cy=new Date().getFullYear(),bs=BEANS.filter(b=>beanYear(b)===cy),ls=LOG.filter(l=>isMine(l)&&new Date(brewTs(l)).getFullYear()===cy);
   // The counts are this year's: coffees first tried or added this year (and the bags of them, when some were bought
   // again), every cup made (logged brews and timer cups), and the coffee those cups used.
-  const cups=myCups(cy);if(!bs.length&&!cups.length)return '';const g=Math.round(cups.reduce((s,c)=>s+(c.g||0),0)),t=tasteOf(bs,ls),origins=new Set(bs.map(b=>b.origin).filter(Boolean)).size,bags=bagsIn(cy);
+  const cups=myCups(cy);if(!bs.length&&!cups.length)return '';const g=Math.round(cups.reduce((s,c)=>s+(c.g||0),0)),t=tasteOf(bs,ls),origins=new Set(bs.map(realO).filter(Boolean)).size,bags=bagsIn(cy);
   const big=[[bs.length,(bs.length===1?'coffee':'coffees')+(bags>bs.length?' · '+bags+' bags':'')],[cups.length,cups.length===1?'cup brewed':'cups brewed'],g?[g>=1000?(g/1000).toFixed(g>=10000?0:1)+' kg':g+' g','of coffee']:[origins,origins===1?'origin':'origins']];
   const o=t.origin&&oInfo(t.origin.k),R=t.region&&REG[t.region.k],v=t.variety&&VBY[t.variety.k],pr=t.process&&PROCESSES[t.process.k],B=t.brewer&&BREWERS[t.brewer.k];
   // The facts, without counts: short ones as tiles two to a row, then the coffees (your regular, the best of the year)
@@ -520,7 +520,7 @@ const SEASONAL=[
   ['winter','Winter warmer','Brew fifteen times this winter (December to February)','❄️',d=>{const m=d.getMonth()+1,y=d.getFullYear();return m===12?{...months(y,12,12),to:isoOf(new Date(y+1,2,0)),key:y}:m<=2?{from:isoOf(new Date(y-1,11,1)),to:isoOf(new Date(y,2,0)),key:y-1}:null},w=>[brewsIn(w).length,15]],
   ['spring','Spring clean','Add three new coffees this spring (March to May)','🌸',d=>{const m=d.getMonth()+1,y=d.getFullYear();return m>=3&&m<=5?{...months(y,3,5),key:y}:null},w=>[addedIn(w).length,3]],
   ['summer','Iced summer','Brew five iced or cold coffees this summer (June to August)','🧊',d=>{const m=d.getMonth()+1,y=d.getFullYear();return m>=6&&m<=8?{...months(y,6,8),key:y}:null},w=>[brewsIn(w).filter(l=>/iced|cold|flash|japanese|kyoto/i.test((l.snap&&l.snap.rec)||'')||(l.snap&&l.snap.b)==='cold').length,5]],
-  ['autumn','Harvest moon','Coffees from three origins this autumn (September to November)','🍂',d=>{const m=d.getMonth()+1,y=d.getFullYear();return m>=9&&m<=11?{...months(y,9,11),key:y}:null},w=>[new Set(addedIn(w).map(b=>b.origin).filter(Boolean)).size,3]],
+  ['autumn','Harvest moon','Coffees from three origins this autumn (September to November)','🍂',d=>{const m=d.getMonth()+1,y=d.getFullYear();return m>=9&&m<=11?{...months(y,9,11),key:y}:null},w=>[new Set(addedIn(w).map(realO).filter(Boolean)).size,3]],
   ['icd','International Coffee Day','Log a brew on 1 October','🎉',d=>{const y=d.getFullYear();return d.getMonth()===9&&d.getDate()===1?{from:y+'-10-01',to:y+'-10-01',key:y}:null},w=>[Math.min(1,brewsIn(w).length),1]],
   ['ethcrop','Ethiopian new crop','Add an Ethiopian coffee while the new crop arrives (June to September)','🐐',d=>{const m=d.getMonth()+1,y=d.getFullYear();return m>=6&&m<=9?{...months(y,6,9),key:y}:null},w=>[+addedIn(w).some(b=>b.origin==='ethiopia'),1]],
   ['kencrop','Kenyan new crop','Add a Kenyan coffee while the new crop arrives (April to July)','🦁',d=>{const m=d.getMonth()+1,y=d.getFullYear();return m>=4&&m<=7?{...months(y,4,7),key:y}:null},w=>[+addedIn(w).some(b=>b.origin==='kenya'),1]],
@@ -758,7 +758,7 @@ const BVIEWS={coffees:()=>renderCoffees(),diary:()=>renderDiaryView(),passport:(
 // The journal's season, in the corner of the Beans header (northern-hemisphere seasons, as the seasonal trophies).
 const seasonTag=()=>{const m=new Date().getMonth();return ['❄️ Winter','❄️ Winter','🌸 Spring','🌸 Spring','🌸 Spring','☀️ Summer','☀️ Summer','☀️ Summer','🍂 Autumn','🍂 Autumn','🍂 Autumn','❄️ Winter'][m]+' · '};
 function renderBeanHero(){const cy=new Date().getFullYear(),N=BEANS.length,rated=BEANS.filter(b=>b.rating),avg=rated.length?rated.reduce((s,b)=>s+b.rating,0)/rated.length:0,
-    roasters=new Set(BEANS.map(b=>b.roaster.toLowerCase()).filter(Boolean)).size,origins=new Set(BEANS.map(b=>b.origin).filter(Boolean)).size,
+    roasters=new Set(BEANS.map(b=>b.roaster.toLowerCase()).filter(Boolean)).size,origins=new Set(BEANS.map(realO).filter(Boolean)).size,
     last=[...BEANS].sort((a,b)=>beanDay(b).localeCompare(beanDay(a))||b.ts-a.ts).slice(0,3);
   const h=$('bg-hero');h.className='bg-hero'+(N?'':' empty');
   h.innerHTML='<div class="bgh-tx"><span class="bgh-k">'+seasonTag()+(window.PROFILE_OK&&PROFILE?esc(PROFILE.nick)+'’s coffee journal':'Your coffee journal')+'</span>'+

@@ -5,7 +5,7 @@
 const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const c=await b.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});const p=await c.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
 const ok=(n,v,x)=>console.log((v?'ok  ':'FAIL')+' '+n+(v||x===undefined?'':'  ('+JSON.stringify(x)+')'));
 await p.addInitScript(()=>sessionStorage.setItem('bb-splashed','1'));await p.goto('http://localhost:8099/index.html');await p.evaluate(require('./seed2.cjs'));await p.reload();await p.waitForTimeout(1500);
-const before=await p.evaluate(()=>{const st=cabStats();return{o:st.o.size,regs:st.regs.size}});
+const before=await p.evaluate(()=>{const st=cabStats();return{o:st.o.size,regs:st.regs.size,prof:profileStats().find(x=>/origin/.test(x[1]))[0]}});
 // The form: one origin to start; adding a second makes it a blend, adding a third keeps it one.
 await p.evaluate(()=>{goTab('beans');openBeanEditor(null)});await p.waitForTimeout(600);
 const one=await p.evaluate(()=>({n:$('be-origins').querySelectorAll('select').length,lbl:$('be-olbl').textContent,blendOpt:!!document.querySelector('#be-origins option[value="blend"]')}));
@@ -27,6 +27,7 @@ const pp=await p.evaluate(()=>{const st=cabStats();renderPassport();const el=$('
 ok('the passport has a Blends region with the count',/Blends\s*1/.test((pp.blendReg||'').replace(/\s+/g,' ')),pp.blendReg);
 ok('one universal blend stamp, drawn',pp.stamp&&pp.stampURL.startsWith('data:image/png'),pp);
 ok('a blend doesn’t add origins or regions to the count',pp.o===before.o&&pp.regs===before.regs,{before,pp});
+const prof=await p.evaluate(()=>profileStats().find(x=>/origin/.test(x[1]))[0]);ok('nor to the profile’s origins',prof===before.prof,{before:before.prof,prof});
 ok('and isn’t counted as a country off the map',!pp.more,pp);
 // Trophies of its own.
 const tro=await p.evaluate(()=>{checkTrophies();const T=TGOT||{};return['blend1','blendworld','blendcont','blend5'].map(k=>!!T[k])});
