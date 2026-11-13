@@ -135,9 +135,49 @@ const cupsLeft=b=>{const g=gramsLeft(b);return g==null?null:Math.floor(g/beanDos
 // Where a bag is in its life, from the roast date: resting (still degassing), at its peak, still lovely, then fading.
 const FRESH={rest:['Resting','Give it a few more days: fresh coffee is gassy and brews uneven.'],peak:['At its peak','Brew it now: these are its best weeks.'],
   good:['Still lovely','Past its peak but still sweet. A touch finer if it tastes flat.'],fade:['Fading','Getting tired: grind finer and brew a little hotter to wake it up.']};
-function fresh(b){if(!b.roastDate)return null;const d=daysAgo(b.roastDate);if(d<0)return null;const k=d<4?'rest':d<=21?'peak':d<=45?'good':'fade';return{d,k,label:FRESH[k][0],tip:FRESH[k][1]}}
-// The freshness line: 0 to 60 days, its four stretches coloured, a marker on today.
-const freshBar=f=>'<span class="fbar" role="img" aria-label="Day '+f.d+' off roast: '+f.label+'"><i class="fz1"></i><i class="fz2"></i><i class="fz3"></i><i class="fz4"></i><b style="left:'+Math.min(100,f.d/60*100).toFixed(1)+'%"></b></span>';
+// The stretches follow the roast. A light roast is dense and lets its gas out slowly: it tastes muted in its first
+// week, is at its best from about day 7 to 30 and stays good for two months. A dark roast is ready in two or three
+// days and fades after about a month. A medium roast (or one whose roast isn't set) sits between: resting to day 3,
+// at its peak 4 to 21, still lovely to 45. Each is [peak from, peak to, still lovely to].
+const FWIN={light:[7,30,60],medium:[4,21,45],dark:[3,14,30]};
+// Then the bean itself moves the window by a few days. Dense beans (grown high, or a dense variety such as Geisha,
+// the SL types or Ethiopian and Yemeni landraces) let their gas out more slowly: a longer rest and a longer peak. Soft,
+// low-grown or large beans (Maragogype, Pacamara) are ready sooner and tire sooner. Naturals, honeys and fermented
+// coffees keep their fruit for less long; decaf stales fastest. Brewed mostly as espresso, a coffee wants about five
+// more days of rest. And once the bag is open (an "Opened the bag" diary entry) it ages faster: its peak and its
+// still-lovely stretch end a few weeks after opening, whatever the roast date says.
+const F_DENSE_V=new Set(['geisha','sl28','sl34','sl14','landrace','jarc','kurume','dega','wolisho','wushwush','yemenia','udaini','dawairi','tufahi','jaadi','mokka']),
+  F_SOFT_V=new Set(['maragogype','pacamara','maracaturra']),
+  F_FRUIT_P=new Set(['natural','pulpednatural','honey','redhoney','blackhoney','hydrohoney','anaerobic','anaerobicnatural','anaerobicwashed','anaerobichoney','doubleanaerobic','carbonic','lactic','yeast','koji','extended','thermalshock','mossto','supernatural','coldferment','nitro','raisin','coferment','infused','barrelaged']),
+  F_DECAF_P=new Set(['swisswater','sugarcane','mountainwater','mcdecaf']),F_OPEN={light:[21,35],medium:[14,28],dark:[10,21]};
+// How high the origin grows: the middle of its altitude range ("1,500 to 2,300 m"), or 0 when it isn't given in metres.
+const altOf=k=>{const o=k&&oInfo(k),a=o&&o.alt;if(!a)return 0;if(/low/i.test(a))return 900;const n=(a.match(/\d[\d,]*/g)||[]).map(x=>+x.replace(/,/g,'')).filter(x=>x>=100);return n.length?(Math.min(...n)+Math.max(...n))/2:0};
+const vBase=v=>String(v||'').split(':')[0];
+function freshWin(b){const w=(FWIN[b&&b.roast]||FWIN.medium).slice(),why=[];if(!b)return{w,why};
+  const vs=[b.variety,...(b.vars||[])].map(vBase).filter(Boolean),alt=altOf(b.origin);
+  const dense=vs.some(v=>F_DENSE_V.has(v))||alt>=1700,soft=!dense&&(vs.some(v=>F_SOFT_V.has(v))||(alt&&alt<1200));
+  if(dense){w[0]+=2;w[1]+=3;w[2]+=5;why.push(vs.some(v=>F_DENSE_V.has(v))?'dense bean':'high-grown')}
+  else if(soft){w[0]=Math.max(2,w[0]-1);w[1]-=3;w[2]-=5;why.push(alt&&alt<1200?'low-grown':'large, soft bean')}
+  if(F_DECAF_P.has(b.process)){w[0]=Math.max(2,w[0]-1);w[1]=Math.round(w[1]*.75);w[2]=Math.round(w[2]*.7);why.push('decaf')}
+  else if(F_FRUIT_P.has(b.process)){w[1]=Math.round(w[1]*.9);w[2]=Math.round(w[2]*.8);why.push(/honey/.test(b.process)?'honey':b.process==='natural'||b.process==='pulpednatural'?'natural':'fermented')}
+  // Brewed mostly as espresso (half the brews or more, of at least two): espresso wants a longer rest.
+  const br=typeof LOG!=='undefined'?beanBrews(b):[],esp=br.filter(l=>CANONB((l.snap&&l.snap.b)||l.brewer||'')==='espresso').length;
+  if(br.length>=2&&esp*2>=br.length){w[0]+=5;w[1]+=5;w[2]+=5;why.push('espresso')}
+  // Opened: the bag's clock runs faster from then on.
+  const op=b.roastDate&&(b.diary||[]).filter(e=>e.k==='opened'&&e.d>=b.roastDate).map(e=>e.d).sort().pop();
+  if(op){const od=Math.round((Date.parse(op+'T12:00')-Date.parse(b.roastDate+'T12:00'))/864e5),cap=F_OPEN[b.roast]||F_OPEN.medium;
+    const p2=Math.min(w[1],od+cap[0]),g2=Math.min(w[2],od+cap[1]);if(p2<w[1]||g2<w[2]){w[1]=p2;w[2]=g2;why.push('opened '+fmtD(op).replace(/,? \d{4}$/,''))}}
+  // Always in order: a peak at least a few days long, and still lovely after it.
+  w[1]=Math.max(w[1],w[0]+2);w[2]=Math.max(w[2],w[1]+3);return{w,why}}
+function fresh(b){if(!b.roastDate)return null;const d=daysAgo(b.roastDate);if(d<0)return null;const {w,why}=freshWin(b),k=d<w[0]?'rest':d<=w[1]?'peak':d<=w[2]?'good':'fade';
+  return{d,k,w,why,roast:b.roast||'',label:FRESH[k][0],tip:FRESH[k][1]}}
+// The bag's window in words, under the line, with what shaped it: so the label isn't a mystery, and a missing roast
+// can be set.
+const freshWinLine=f=>{const by=[f.roast?f.roast[0].toUpperCase()+f.roast.slice(1)+' roast':'',...f.why].filter(Boolean),lead=by.length?by.join(', ').replace(/^./,c=>c.toUpperCase())+': best':'Best';
+  return lead+' from day '+f.w[0]+' to '+f.w[1]+', still lovely to day '+f.w[2]+(f.roast?'':' (set the roast for a closer window)')};
+// The freshness line: its four stretches coloured in proportion (with a little room past "still lovely"), a marker on today.
+const freshBar=f=>{const [a,b,c]=f.w,S=c+15,pc=n=>(n/S*100).toFixed(1)+'%';
+  return '<span class="fbar" role="img" aria-label="Day '+f.d+' off roast: '+f.label+'"><i class="fz1" style="width:'+pc(a)+'"></i><i class="fz2" style="width:'+pc(b-a+1)+'"></i><i class="fz3" style="width:'+pc(c-b)+'"></i><i class="fz4"></i><b style="left:'+Math.min(100,f.d/S*100).toFixed(1)+'%"></b></span>'};
 const freshPill=f=>'<span class="fpill f-'+f.k+'">'+f.label+' · day '+f.d+'</span>';
 const bagLine=b=>{const g=gramsLeft(b);if(g==null)return '';const pct=b.bag?clamp(g/b.bag*100,0,100):null;
   return '<span class="bagl">'+(pct!=null?'<span class="bagm"><i style="width:'+pct.toFixed(0)+'%"></i></span>':'')+'<small>'+(g?g+' g left'+(b.bag?' of '+b.bag+' g':''):'Bag empty')+'</small></span>'};
@@ -494,11 +534,11 @@ function checkTrophies(){const st=cabStats(),first=!TGOT||typeof TGOT!=='object'
 function cabinetDay(when){const day=when||new Date(),iso=day.getFullYear()+'-'+String(day.getMonth()+1).padStart(2,'0')+'-'+String(day.getDate()).padStart(2,'0');
   const seed=Math.floor(Date.parse(iso+'T12:00')/864e5),pick=l=>l[((seed%l.length)+l.length)%l.length],at=t=>Math.round((Date.parse(iso+'T12:00')-Date.parse(t+'T12:00'))/864e5);
   if(!BEANS.length)return null;const shelf=BEANS.filter(b=>b.shelf),need=[];
-  for(const b of shelf){const d=b.roastDate?at(b.roastDate):null,c=cupsLeft(b);
+  for(const b of shelf){const d=b.roastDate?at(b.roastDate):null,c=cupsLeft(b),fw=freshWin(b).w;
     // Each nudge comes on a few days, not every day: the peak on days 4 and 5, fading once a week, running low every third day.
-    if(d!=null&&d>=4&&d<=5)need.push({b,k:'peak',title:beanTitle(b)+' is at its peak',text:'Day '+d+' off roast: its best weeks start now. Brew it today.'});
+    if(d!=null&&d>=fw[0]&&d<=fw[0]+1)need.push({b,k:'peak',title:beanTitle(b)+' is at its peak',text:'Day '+d+' off roast: its best weeks start now. Brew it today.'});
     else if(c!=null&&c<=2&&seed%3===0)need.push({b,k:'low',title:c?'Only '+gramsLeft(b)+' g of '+beanTitle(b)+' left':beanTitle(b)+' is empty',text:c?'Make the last of it count, or note how it ended in its diary.':'Finish the bag in its page to move it into the cabinet.'});
-    else if(d!=null&&d>45&&d<=75&&(d-46)%7===0)need.push({b,k:'fade',title:beanTitle(b)+' is fading',text:'Day '+d+' off roast. Brew it soon: a little finer and hotter brings it back.'})}
+    else if(d!=null&&d>fw[2]&&d<=fw[2]+30&&(d-fw[2]-1)%7===0)need.push({b,k:'fade',title:beanTitle(b)+' is fading',text:'Day '+d+' off roast. Brew it soon: a little finer and hotter brings it back.'})}
   if(need.length)return pick(need);
   const md=iso.slice(5),ago=BEANS.filter(b=>b.tried&&b.tried.slice(5)===md&&b.tried<iso);
   if(ago.length){const b=pick(ago),y=+iso.slice(0,4)-+b.tried.slice(0,4);return{b,k:'ago',title:(y===1?'A year':y+' years')+' ago today',text:'You tried '+beanTitle(b)+(b.roaster?' from '+b.roaster:'')+(b.rating?' and gave it '+String(b.rating).replace('.5','½')+' beans.':'.')}}
@@ -524,8 +564,19 @@ async function setReminder(on,t){const ln=LN();if(t)REMIND.t=t;
   if(on&&!REMIND.on){if(!ln){toast('Phone reminders work in the Android app');return false}
     try{let p=await ln.checkPermissions();if(p.display!=='granted')p=await ln.requestPermissions();if(p.display!=='granted'){toast('Allow notifications for Brew Bench in your phone’s settings first');return false}}catch(e){toast('Couldn’t turn on reminders');return false}}
   REMIND.on=on;save('bb-remind',REMIND);await scheduleReminders();if(on)toast('Your coffee of the day arrives at '+REMIND.t);return true}
-// Tapping the notification opens that coffee.
-(()=>{const ln=LN();if(!ln)return;try{ln.addListener('localNotificationActionPerformed',a=>{const id=a&&a.notification&&a.notification.extra&&a.notification.extra.bean;if(id&&beanById(id)){showTab('beans');openBean(id)}})}catch(e){}
+// Tapping a notification takes you to what it's about, whether the app was closed or in the background: the coffee of
+// the day opens that coffee (or the Beans page when the day's note has no coffee), a coffee fact opens what it's about
+// (or Today in coffee on Explore). The listener is set up as the app loads, so the tap that opened the app isn't
+// missed, and the tap is acted on once the app has finished opening (after the splash and the start page), so the
+// start page doesn't land on top of it. Older notifications already on the phone are told apart by their ids.
+(()=>{const ln=LN();if(!ln)return;let pend=null;
+  const go=n=>{const x=(n&&n.extra)||{},id=+(n&&n.id)||0;document.querySelectorAll('dialog[open]').forEach(d=>d.close());
+    if(x.bean&&beanById(x.bean)){showTab('beans');openBean(x.bean);return}
+    if(x.fact||(id>=7201&&id<7215)){if(goFact(x.fact))return;goTab('explore');setTimeout(()=>{const t=document.querySelector('#explore .today');if(t)t.scrollIntoView({block:'start',behavior:'smooth'})},400);return}
+    if(id>=7101&&id<7115||x.bean)showTab('beans')};
+  const ready=()=>NAV_READY&&!document.documentElement.classList.contains('splashing');
+  const run=()=>{if(!pend)return;if(!ready()){setTimeout(run,150);return}const n=pend;pend=null;try{go(n)}catch(e){}};
+  try{ln.addListener('localNotificationActionPerformed',a=>{pend=a&&a.notification;run()})}catch(e){}
   if(REMIND.on)setTimeout(scheduleReminders,3000)})();
 function cabinetDayHTML(){const c=cabinetDay();if(!c)return '';
   return '<button type="button" class="cday k-'+c.k+'" data-bean="'+c.b.id+'">'+beanPic(c.b,'cd')+'<span class="cd-tx"><small>'+(c.k==='fav'?'From your cabinet':'From your cabinet · '+DAYK[c.k])+'</small><b>'+esc(c.title)+'</b><span>'+esc(c.text)+'</span></span></button>'}
@@ -891,7 +942,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;const d=$('vd'),rk
   $('vd-in').innerHTML='<div class="vd-head" style="--c:'+(rk?MEDAL[rk]:'var(--cherry)')+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button>'+(calBack?'<button type="button" class="vd-back adv-back" id="bd-advback">‹ Calendar</button>':from?'<button type="button" class="vd-back" id="vd-back">‹ '+esc(originName(from))+'</button>':'')+'<span class="vd-tools"><button type="button" class="vd-tool" id="bd-share" aria-label="Share this coffee" title="Share">'+lIc('share')+'</button><button type="button" class="vd-tool" id="bd-edit" aria-label="Edit this coffee" title="Edit">'+lIc('edit')+'</button></span><span class="pill"><i style="background:'+(rk?MEDAL[rk]:'var(--cherry)')+'"></i>'+(rk?placeLine(rk,beanYear(b)):beanMention(b)?'Honourable mention · '+beanYear(b):b.shelf?'Drinking now':'Your coffees')+'</span><h2 id="vd-title">'+esc(beanTitle(b))+'</h2>'+(b.roaster?'<p class="vd-sub">'+esc(b.roaster)+'</p>':'')+'</div>'+
     '<div class="vd-body"><div class="bd-hero">'+beanPic(b,'hero')+(b.rating?'<span class="bglass">'+beanSVG+b.rating.toString().replace('.5','½')+'<small>'+rateWord(b.rating)+'</small></span>':'')+'</div>'+
     // The bag now: how fresh it is, what's left, and finishing it.
-    (b.shelf?'<div class="bd-shelf">'+(f?'<div class="bd-f"><div class="bd-fh"><b>'+f.label+'</b><span>Day '+f.d+' off roast</span></div>'+freshBar(f)+'<p>'+f.tip+'</p></div>':'<label class="bd-addrd"><span><b>When was it roasted?</b><small>Add the date on the bag to see how fresh it is.</small></span><input type="date" id="bd-rd" class="dateinp" max="'+todayISO()+'" aria-label="Roast date"></label>')+
+    (b.shelf?'<div class="bd-shelf">'+(f?'<div class="bd-f"><div class="bd-fh"><b>'+f.label+'</b><span>Day '+f.d+' off roast</span></div>'+freshBar(f)+'<p>'+f.tip+'</p><small class="bd-fw">'+freshWinLine(f)+'</small></div>':'<label class="bd-addrd"><span><b>When was it roasted?</b><small>Add the date on the bag to see how fresh it is.</small></span><input type="date" id="bd-rd" class="dateinp" max="'+todayISO()+'" aria-label="Roast date"></label>')+
       (g!=null?'<div class="bd-bag"><div class="bd-bagh">'+bagLine(b)+'<button type="button" class="linkbtn" id="bd-left">Set what’s left</button></div><div class="bd-cupr"><span class="bd-cupl">Brewed a cup with</span><span class="bd-step"><button type="button" id="bd-cm" aria-label="Less coffee">−</button><b id="bd-cg">'+dose+' g</b><button type="button" id="bd-cp" aria-label="More coffee">+</button></span><button type="button" class="btn" id="bd-cup">Take it off</button></div>'+
         '<p class="bd-auto">Brews you log or finish with the dial-in’s timer come off on their own.</p></div>'
         :'<p class="hint" style="margin:8px 0 0">Add the bag size in Edit to see what’s left as you log brews.</p>')+

@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * The home-screen icon follows the app's look: its logo, in the vibe's colours, light or dark. Each combination is an
  * activity-alias in AndroidManifest.xml (listed in IconNames, made by tools/gen-app-icons.py) and exactly one is
- * enabled. The app says which one it wants with set({name, vibe, mode}); the switch happens in apply(), called when the
+ * enabled. The app says which one it wants with set({name, vibe, mode}), mode being light, dark or auto; the switch happens in apply(), called when the
  * app goes to the background, because changing the launcher entry of a running app can close it.
  */
 @CapacitorPlugin(name = "AppIcon")
@@ -38,7 +38,10 @@ public class AppIconPlugin extends Plugin {
 
     @PluginMethod
     public void set(PluginCall call) {
-        String mode = "dark".equals(call.getString("mode", "light")) ? "d" : "l";
+        // "auto" (the app follows the phone): an icon with a light and a dark version, which the launcher swaps itself
+        // when the phone switches, so it never waits for the app to be opened.
+        String m = call.getString("mode", "light");
+        String mode = "auto".equals(m) ? "a" : "dark".equals(m) ? "d" : "l";
         String key = norm(call.getString("name", "bean") + ":" + call.getString("vibe", "roastery") + ":" + mode);
         // An unknown vibe falls back to the same logo in the house look, not to the bean.
         if (key.equals(DEFAULT) && !"bean".equals(call.getString("name", "bean"))) key = norm(call.getString("name", "bean"));

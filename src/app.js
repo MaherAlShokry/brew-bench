@@ -3341,7 +3341,8 @@ function applyUI(){const d=document.documentElement;themeSwap();d.setAttribute('
   // app is now. The app swaps it when you next leave it.
   setAppIcon();
   const pap=(VIBES.find(v=>v[0]===UI.vibe)||VIBES[0])[curTheme()==='dark'?4:3].paper;document.querySelectorAll('meta[name="theme-color"]').forEach(m=>{if(d.hasAttribute('data-theme')||UI.vibe!=='roastery')m.content=pap});(window.requestIdleCallback||(f=>setTimeout(f,300)))(setFavicon)}
-function setAppIcon(){const ai=plugin('AppIcon');if(ai)ai.set({name:UI.logo,vibe:UI.vibe,mode:curTheme()==='dark'?'dark':'light'}).catch(()=>{})}
+// Light or dark picked in the app: that icon. Auto (follow the phone): the icon that follows the phone by itself.
+function setAppIcon(){const ai=plugin('AppIcon');if(ai)ai.set({name:UI.logo,vibe:UI.vibe,mode:document.documentElement.hasAttribute('data-theme')?(curTheme()==='dark'?'dark':'light'):'auto'}).catch(()=>{})}
 // Auto theme follows the phone, so the icon follows it too.
 try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{themeSwap();setAppIcon()})}catch(e){}
 function saveUI(){save('bb-ui',UI);applyUI()}
@@ -3545,8 +3546,9 @@ function todayCard(day,w){const f=factFor(day),chev='<svg class="td-go" viewBox=
   return '<div class="today panel" role="region" aria-label="Today in coffee"><div class="td-head"><h2>Today in coffee</h2><span>'+esc(new Date().toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'short'}))+'</span></div>'+
     row('data-word="'+esc(w[0])+'"',FACT_TILE.word,'Word of the day',w[0],sentences(w[2],150))+
     (f.k==='word'?'':row('data-fact="'+day+'"',FACT_TILE[f.k]||FACT_TILE.word,esc(f.tag==='From history'?'From history':'Did you know · '+f.tag),f.title,sentences(ft,150),yr))+'</div>'}
-function goFact(g){if(!g)return;if(g.word)openWord(g.word);else if(g.variety)openVariety(g.variety);else if(g.origin){goTab('map');selectOrigin(g.origin,true)}
-  else if(g.process)openProcess(g.process);else if(g.champ!=null&&CHAMPS[g.champ]){showTab('champs');openChamp(CHAMPS[g.champ])}else if(g.tab)showTab(g.tab)}
+// Opens what a fact is about; false when there is nothing to open for it.
+function goFact(g){if(!g)return false;if(g.word){if(!GBY[g.word])return false;openWord(g.word)}else if(g.variety)openVariety(g.variety);else if(g.origin){goTab('map');selectOrigin(g.origin,true)}
+  else if(g.process)openProcess(g.process);else if(g.champ!=null&&CHAMPS[g.champ]){showTab('champs');openChamp(CHAMPS[g.champ])}else if(g.tab)showTab(g.tab);else return false;return true}
 $('explore-in').addEventListener('click',e=>{const f=e.target.closest('[data-fact]');if(f){e.stopPropagation();goFact(factFor(+f.dataset.fact).go)}},true);
 // In the Android app it can also arrive as a notification: the next two weeks are scheduled ahead, and again on opening.
 let LEARN=(v=>({on:!!(v&&v.on),t:v&&/^\d\d:\d\d$/.test(v.t)?v.t:'19:00'}))(load('bb-learn',null));
@@ -3561,9 +3563,7 @@ async function setLearn(on){const ln=window.BEANS_OK&&LN();
   if(on&&!LEARN.on){if(!ln){toast('Phone reminders work in the Android app');return false}
     try{let p=await ln.checkPermissions();if(p.display!=='granted')p=await ln.requestPermissions();if(p.display!=='granted'){toast('Allow notifications for Brew Bench in your phone’s settings first');return false}}catch(e){toast('Couldn’t turn on reminders');return false}}
   LEARN.on=on;save('bb-learn',LEARN);await scheduleFacts();if(on)toast('Your coffee fact arrives at '+LEARN.t);return true}
-setTimeout(()=>{const ln=window.BEANS_OK&&LN();if(!ln)return;
-  try{ln.addListener('localNotificationActionPerformed',a=>{const g=a&&a.notification&&a.notification.extra&&a.notification.extra.fact;if(g)goFact(g)})}catch(e){}
-  if(LEARN.on)scheduleFacts()},3200);
+setTimeout(()=>{const ln=window.BEANS_OK&&LN();if(!ln)return;if(LEARN.on)scheduleFacts()},3200);
 
 // The pour and steam on the hero play once per launch. Coming back to a page would otherwise restart them (a hidden
 // element's animations start over when it shows again), keeping the phone busy for seconds on every visit.

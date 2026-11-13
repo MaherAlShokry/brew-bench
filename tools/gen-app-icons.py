@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Make the Android home-screen icons: every app logo in every vibe, light and dark.
+"""Make the Android home-screen icons: every app logo in every vibe, light, dark and auto (follows the phone).
 
 Usage: python3 tools/gen-app-icons.py
 
@@ -31,7 +31,7 @@ def key_of(logo, vibe, mode):
     return logo if (vibe == 'roastery' and mode == 'l') else f'{logo}_{vibe}_{mode}'
 
 def alias_of(logo, vibe, mode):
-    return '.Icon' + logo.capitalize() + ('' if (vibe == 'roastery' and mode == 'l') else f'_{vibe}_{mode}')
+    return '.Icon' + logo.capitalize() + ('' if (vibe == 'roastery' and mode == 'l') else f'_{vibe}_{mode}')  # mode: l, d or a (auto)
 
 def path(p):
     if 'c' in p:
@@ -100,6 +100,34 @@ for v in vibes:
     '    <color name="ic_logo_background">#FBF7F0</color>\n' + '\n'.join(colors) + '\n</resources>\n')
 # Old per-logo files from before vibes, with the same names as the Roastery light ones, are simply overwritten above.
 
+# "Auto": the icon for an app that follows the phone's light or dark setting. One alias per logo × vibe whose icon has
+# a light version (mipmap-…) and a dark one (mipmap-night-…): the launcher picks between them itself whenever the
+# phone switches, so the icon changes with the phone without the app having to be opened.
+def adaptive(bg, logo_key):
+    return ('<?xml version="1.0" encoding="utf-8"?>\n<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">\n'
+            f'    <background android:drawable="@color/{bg}"/>\n    <foreground android:drawable="@drawable/ic_logo_{logo_key}"/>\n'
+            f'    <monochrome android:drawable="@drawable/ic_logo_{logo_key}"/>\n</adaptive-icon>\n')
+def flat(bg, logo_key):
+    return ('<?xml version="1.0" encoding="utf-8"?>\n<layer-list xmlns:android="http://schemas.android.com/apk/res/android">\n'
+            f'    <item><shape android:shape="rectangle"><corners android:radius="22dp"/><solid android:color="@color/{bg}"/>'
+            '<size android:width="108dp" android:height="108dp"/></shape></item>\n'
+            f'    <item android:drawable="@drawable/ic_logo_{logo_key}"/>\n</layer-list>\n')
+for d in ('mipmap-night', 'mipmap-night-anydpi-v26'):
+    (res / d).mkdir(exist_ok=True)
+for v in vibes:
+    vibe = v[0]
+    for logo in LOGO_KEYS:
+        kl, kd, ka = key_of(logo, vibe, 'l'), key_of(logo, vibe, 'd'), f'{logo}_{vibe}_a'
+        if kl == 'bean':  # the original launcher bean has no vector of its own: draw one for the light half
+            kl = 'bean_roastery_l'
+            (res / 'drawable' / f'ic_logo_{kl}.xml').write_text(vector('bean', {k: v[3][k] for k in ('cherry', 'honey', 'leaf', 'paper')}))
+        (res / 'mipmap-anydpi-v26' / f'ic_launcher_{ka}.xml').write_text(adaptive(f'ic_bg_{vibe}_l', kl))
+        (res / 'mipmap-night-anydpi-v26' / f'ic_launcher_{ka}.xml').write_text(adaptive(f'ic_bg_{vibe}_d', kd))
+        (res / 'mipmap' / f'ic_launcher_{ka}.xml').write_text(flat(f'ic_bg_{vibe}_l', kl))
+        (res / 'mipmap-night' / f'ic_launcher_{ka}.xml').write_text(flat(f'ic_bg_{vibe}_d', kd))
+        names.append(f'{logo}:{vibe}:a')
+        aliases.append((alias_of(logo, vibe, 'a'), f'@mipmap/ic_launcher_{ka}', f'@mipmap/ic_launcher_{ka}', False))
+
 m = manifest.read_text()
 block = '\n'.join(f'        <activity-alias android:name="{a}" android:targetActivity=".MainActivity" android:enabled="{"true" if on else "false"}" '
                   f'android:exported="true" android:icon="{ic}" android:roundIcon="{rd}" android:label="@string/app_name"><intent-filter>'
@@ -116,4 +144,4 @@ java.write_text('package io.github.maheralshokry.brewbench;\n\n'
     'final class IconNames {\n    private IconNames() {}\n'
     '    static final String[] KEYS = {' + ', '.join(f'"{n}"' for n in names) + '};\n'
     '    static final String[] ALIASES = {' + ', '.join(f'"{alias_of(*n.split(":"))}"' for n in names) + '};\n}\n')
-print(f'{len(LOGO_KEYS)} logos x {len(vibes)} vibes x 2 modes = {len(names)} icons')
+print(f'{len(LOGO_KEYS)} logos x {len(vibes)} vibes x 3 modes (light, dark, auto) = {len(names)} icons')
