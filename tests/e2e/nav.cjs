@@ -1,4 +1,4 @@
-const {chromium}=require('playwright');const S='nav/';require('fs').mkdirSync(S,{recursive:true});
+const {chromium}=require('playwright');const S=__dirname+'/out/nav/';require('fs').mkdirSync(S,{recursive:true});require('fs').mkdirSync(S,{recursive:true});
 const ok=(c,m,x)=>console.log((c?'  ok  ':'  FAIL')+' '+m+(x!==undefined?'  ('+x+')':''));
 (async()=>{const b=await chromium.launch();const ctx=await b.newContext({viewport:{width:390,height:844},deviceScaleFactor:2,isMobile:true,hasTouch:true,serviceWorkers:'block'});
  await ctx.route(/.*/,r=>r.request().url().startsWith('http://localhost')?r.continue():r.abort());
