@@ -191,6 +191,8 @@ details.cal summary{cursor:pointer;font-weight:600}
 .vcard{text-align:left;cursor:pointer;border-top:5px solid var(--c);font:inherit;color:inherit}
 .vcard:hover{border-color:var(--ink);border-top-color:var(--c)}
 .vcard h3{margin:.2rem 0 .1rem}
+
+.vopen{all:unset;cursor:pointer}.vopen:focus-visible{outline:2px solid var(--cherry);outline-offset:3px;border-radius:4px}
 .vcard .fam{font-family:var(--display);font-size:.8rem;color:var(--muted)}
 .vcard p{font-size:.92rem;margin:.4rem 0}
 dialog#vd{border:0;border-radius:16px;padding:0;max-width:620px;width:calc(100% - 24px);background:var(--surface);color:var(--ink);max-height:88vh}
@@ -671,6 +673,10 @@ input[type=range]{touch-action:pan-y}
 .gpick-search{width:100%;margin-top:4px}
 .gpick-btn{display:inline-grid;place-items:center;width:34px;height:34px;margin:-6px 0;border-radius:50%;border:0;background:var(--tonal);color:var(--cherry);cursor:pointer;transition:background .15s,transform .15s}
 .gpick-btn:hover{background:var(--tonal-hover)}.gpick-btn:active{transform:scale(.92)}.gpick-btn:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
+.s-mb{display:flex;align-items:center;gap:10px;margin:10px 0 0;padding:12px;border-radius:var(--r-lg);border:1px solid color-mix(in srgb,#4F8A74 35%,var(--hair));background:color-mix(in srgb,#4F8A74 8%,var(--surface));box-shadow:var(--shadow)}
+.s-mb[hidden]{display:none}.s-mb-ic{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,#4F8A74 16%,var(--surface))}.s-mb-ic svg{width:20px;height:20px}
+.s-mb-tx{flex:1;min-width:0;display:grid;gap:1px}.s-mb-tx b{font-size:.95rem;white-space:nowrap}.s-mb-tx small{color:var(--muted);font-size:.8rem;line-height:1.3}
+.s-mb-go{flex:none;padding:8px 14px;border-radius:999px;border:0;background:#3F7A62;color:#fff;font:600 .85rem var(--body);cursor:pointer;transition:transform .15s,filter .15s}.s-mb-go:active{transform:scale(.96)}.s-mb-go:hover{filter:brightness(1.08)}
 .linkbtn{background:none;border:0;padding:2px 0;font:inherit;font-weight:600;color:var(--cherry);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .mswap{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:end}.mswap>*{min-width:0}.mswap select{width:100%;padding-left:12px;padding-right:26px}
 .mswap .field{margin-bottom:0}.gpick-btn.mswapbtn{width:46px;height:46px;margin:0}.mswap+.field{margin-top:14px}
@@ -938,10 +944,10 @@ dialog#selsheet.pop .selgrp h4{margin:2px 2px 4px;padding:6px 10px}
 .selopt{display:flex;align-items:center;gap:10px;width:100%;min-height:46px;padding:10px 12px;border:0;border-radius:var(--r-md,12px);background:none;color:var(--ink);font:500 1rem var(--body);text-align:left;cursor:pointer;transition:background-color .15s}
 .selopt span{flex:1;min-width:0}
 .selopt i{font-style:normal;color:var(--cherry);font-weight:700;opacity:0}
-.selopt[aria-selected="true"]{background:color-mix(in srgb,var(--cherry) 12%,transparent);color:var(--cherry);font-weight:600}
-.selopt[aria-selected="true"] i{opacity:1}
+.selopt:is([aria-selected="true"],[aria-checked="true"]){background:color-mix(in srgb,var(--cherry) 12%,transparent);color:var(--cherry);font-weight:600}
+.selopt:is([aria-selected="true"],[aria-checked="true"]) i{opacity:1}
 .selopt:hover,.selopt:focus-visible{background:var(--surface2);outline:none}
-.selopt[aria-selected="true"]:hover{background:color-mix(in srgb,var(--cherry) 16%,transparent)}
+.selopt:is([aria-selected="true"],[aria-checked="true"]):hover{background:color-mix(in srgb,var(--cherry) 16%,transparent)}
 .selopt:disabled{opacity:.45;cursor:default}
 .selnone{padding:0 20px 16px}
 dialog#selsheet.pop .sellist{padding:6px}
@@ -1235,7 +1241,7 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
   html{scroll-padding-top:calc(var(--sa-top) + 90px)}
 }
 
-.btn.ghost,.btn.ghost:hover,.selopt[aria-selected="true"],.linkbtn{color:var(--cherry-ink)}
+.btn.ghost,.btn.ghost:hover,.selopt:is([aria-selected="true"],[aria-checked="true"]),.linkbtn{color:var(--cherry-ink)}
 .dir{color:var(--leaf-ink)}
 .fbr em{color:var(--honey-ink)!important}
 .fphase>.fph{color:color-mix(in srgb,var(--c) 45%,var(--ink))}
@@ -1991,6 +1997,11 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 
 .passport{position:relative;padding:18px 14px 16px;border-radius:24px;color:#2A1A10;margin-bottom:8px;
   background:repeating-linear-gradient(0deg,transparent 0 27px,rgba(90,60,30,.06) 27px 28px),radial-gradient(120% 90% at 50% 0%,#FBF3E4,#EFE1C8);box-shadow:inset 0 0 0 1.5px rgba(120,80,40,.18),var(--shadow)}
+.pp-h{position:relative}
+.sp-list{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px}.sp-row{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:14px;background:color-mix(in srgb,var(--ink) 5%,transparent)}
+.sp-row span{display:grid;min-width:0}.sp-row span b{overflow-wrap:anywhere}.sp-row small{color:var(--muted)}.sp-ms{min-width:64px;font:800 1.15rem var(--body);font-variant-numeric:tabular-nums;color:#2E7D5B}.sp-ms small{font-size:.7rem;margin-left:2px}
+.sp-ms.meh{color:#9A6A12}.sp-ms.bad{color:#B3402E}
+:root[data-theme="dark"] .sp-ms{color:#6FCB9F}:root[data-theme="dark"] .sp-ms.meh{color:#E2B866}:root[data-theme="dark"] .sp-ms.bad{color:#F08A75}.pp-share{position:absolute;top:-4px;right:-4px}
 .pp-k{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:#7A4A26}
 .pp-h h3{margin:4px 0 0;font-family:var(--display);font-size:1.45rem;color:#2A1A10}.pp-h h3 em{font-style:normal;font-size:.7em;color:#6B4A30}
 .pp-regs{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px 14px;margin-top:12px}
@@ -2060,7 +2071,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .shsw[aria-pressed="true"]{color:var(--sa);font-weight:700}.shsw[aria-pressed="true"] i{box-shadow:0 0 0 2.5px var(--surface2),0 0 0 4.5px var(--sa)}
 .shsw:focus-visible i,.shmode button:focus-visible{outline:2px solid var(--sa);outline-offset:2px}
 .shcard-pv.busy{position:relative}.shcard-pv.busy::after{content:'';position:absolute;inset:0;background:color-mix(in srgb,var(--paper) 45%,transparent);animation:bfade .2s ease}
-.steps.tl .t.est{background:transparent;border:1px dashed color-mix(in srgb,var(--ink) 30%,transparent);opacity:.85}
+.steps.tl .t.est{background:transparent;border:1px dashed color-mix(in srgb,var(--ink) 30%,transparent);color:var(--cherry-ink,var(--cherry))}
 
 .av-note{grid-column:1/-1;margin:0;font-size:.8rem}.getapp a.btn{text-decoration:none;display:flex;justify-content:center;align-items:center;text-align:center}
 
@@ -2532,7 +2543,7 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="e70d897faf14"</script>
+<script>const BUILD_ID="9460fe493545"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -2799,7 +2810,7 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
       <h3>Coffee details</h3>
       <div class="two stackm"><div class="field"><label for="s-name">Coffee name</label><input id="s-name" style="width:100%" maxlength="60" autocomplete="off"></div>
         <div class="field"><label for="s-roaster">Roastery</label><div class="acw"><input id="s-roaster" style="width:100%" maxlength="50" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="s-rsug"><div class="acl" id="s-rsug" role="listbox" aria-label="Roasteries you’ve had" hidden></div></div></div></div>
-      <div class="field"><label for="s-origin">Origin</label><select id="s-origin"></select></div>
+      <div class="field"><label for="s-origin">Origin</label><select id="s-origin"></select><div class="s-mb" id="s-mb" hidden><span class="s-mb-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M3 12h18 M12 3c3 3.5 3 14.5 0 18 M12 3c-3 3.5-3 14.5 0 18" fill="none" stroke="#3F7A62" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="s-mb-tx"><b>Looks like a blend</b><small></small></span><button type="button" class="s-mb-go" id="s-mbgo">Make blend</button></div></div>
       <div class="field"><label for="s-process">Process</label><select id="s-process"></select></div>
       <div class="field"><label for="s-variety">Variety</label><select id="s-variety"></select></div>
       <div class="field"><div class="lbl">Roast</div><div class="seg" id="s-roast"></div></div>
@@ -2831,8 +2842,8 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
   <h2>Gear and dials</h2>
   <p class="lede">Your grinders, brewers and grind settings.</p>
   <div class="card kit" id="gear-kit"></div>
-  <div class="seg filters scrollrow gtabs" id="gear-tabs" role="tablist" aria-label="Gear and dials">
-    <button type="button" role="tab" data-gtab="set">Grind</button><button type="button" role="tab" data-gtab="dials">Dials</button><button type="button" role="tab" data-gtab="brew">Brewers</button><button type="button" role="tab" data-gtab="lib">Grinders</button><button type="button" role="tab" data-gtab="acc">More</button>
+  <div class="seg filters scrollrow gtabs" id="gear-tabs" role="group" aria-label="Gear and dials">
+    <button type="button" data-gtab="set">Grind</button><button type="button" data-gtab="dials">Dials</button><button type="button" data-gtab="brew">Brewers</button><button type="button" data-gtab="lib">Grinders</button><button type="button" data-gtab="acc">More</button>
   </div>
   <div class="gpanel" data-gpanel="set" role="tabpanel">
     <div id="st-grind"></div>
@@ -2951,7 +2962,7 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
   <h3>The coffee family tree</h3>
   <p class="hint">Tap any variety to trace its ancestors and read its story. Families follow genetics, not names: Pink Bourbon sits with the Ethiopian landraces because DNA tests show that is where it comes from.</p>
   <div class="legend" id="treelegend"></div>
-  <div class="treewrap"><div class="treebox"><svg id="tree" role="img" aria-label="Coffee variety family tree"></svg></div></div><p class="treehint" aria-hidden="true">Drag sideways to follow the family across seven generations →</p><ul class="treenotes" id="treenotes" aria-label="Notes on the tree" hidden></ul>
+  <div class="treewrap"><div class="treebox"><svg id="tree" role="group" aria-label="Coffee variety family tree"></svg></div></div><p class="treehint" aria-hidden="true">Drag sideways to follow the family across seven generations →</p><ul class="treenotes" id="treenotes" aria-label="Notes on the tree" hidden></ul>
 
   <h3 style="margin-top:2rem">The coffee species</h3>
   <p class="hint">More than 130 species of Coffea exist. These are the ones that matter in your cup.</p>
@@ -3952,12 +3963,12 @@ function pr(o){return Object.assign({funk:0,sweet:0,body:0,acid:0,t:0,dir:'basel
 const PROCESSES={
  washed:pr({name:'Washed',cat:'classic',t:0.25,acid:1,body:-0.3,notes:['clean','crisp acidity'],dir:'finer',char:'Skin and fruit removed, the sticky mucilage fermented off in water, then the beans dried. Clean, transparent, acid-forward.',brew:'Slightly finer than baseline, 93 to 95°C, a 45s bloom. Tolerates agitation well.'}),
  doublewashed:pr({name:'Double washed (Kenyan style)',cat:'classic',t:0.2,acid:1.3,body:-0.2,sweet:0.1,notes:['juicy','bright','very clean'],dir:'baseline',char:'Fermented, washed, then fermented or soaked again in clean water. Common in Kenya. Extra clarity and juicy acidity.',brew:'Baseline grind, 92 to 94°C. Coarsen if the acidity turns sharp.'}),
- ecopulped:pr({name:'Eco-pulped (mechanically demucilaged)',cat:'classic',t:0.15,acid:0.6,body:0,notes:['clean','balanced'],dir:'baseline',char:'The mucilage is scrubbed off by machine instead of fermented away, saving water. Tastes like a slightly softer washed coffee.',brew:'Treat like washed, a touch coarser.'}),
+ ecopulped:pr({name:'Eco-pulped (mechanically demucilaged)',cat:'classic',t:0.15,acid:0.6,body:0,notes:['clean','balanced'],dir:'baseline',char:'The mucilage is scrubbed off by machine instead of fermented away, saving water. Tastes like a slightly softer washed coffee.',brew:'Baseline grind, a touch coarser than your washed setting, 93 to 94°C.'}),
  natural:pr({name:'Natural (dry)',cat:'classic',t:-0.35,acid:-0.4,body:1,sweet:0.6,funk:0.6,notes:['jammy','ripe fruit'],dir:'coarser',char:'The whole cherry is dried with the bean inside, on patios or raised beds. Jammy, sweet, sometimes boozy, lower acidity.',brew:'Coarser, 90 to 92°C, gentler pours. You are chasing definition.'}),
  pulpednatural:pr({name:'Pulped natural',cat:'classic',t:-0.1,acid:0,body:0.6,sweet:0.5,funk:0.2,notes:['nutty','caramel','round'],dir:'baseline',char:'Brazil\u2019s version of honey: the skin is removed and the bean dried with its mucilage. Sweet, round, low acidity.',brew:'Baseline grind, 92 to 93°C.'}),
  wethulled:pr({name:'Wet-hulled (giling basah)',cat:'regional',t:-0.3,acid:-1.2,body:1.3,sweet:0.2,funk:0.8,notes:['earthy','herbal'],dir:'coarser',char:'Indonesian: the parchment is removed while the bean is still wet, then dried. Earthy, herbal, cedar, heavy body, very low acidity.',brew:'Coarser and cooler, 90 to 92°C.'}),
- honey:pr({name:'Honey (general)',cat:'honey',t:0,acid:0.3,body:0.3,sweet:0.3,funk:0.2,notes:['honeyed','rounded'],dir:'baseline',char:'Skin removed, some or all of the sticky mucilage left on while drying. Sweeter than washed, cleaner than natural.',brew:'Just coarse of your washed setting, 92 to 93°C.'}),
- whitehoney:pr({name:'White and yellow honey',cat:'honey',t:0.1,acid:0.6,body:0.1,sweet:0.2,funk:0.1,notes:['clean','honeyed'],dir:'baseline',char:'Little mucilage left and quick drying. Very close to washed, with a touch more sweetness.',brew:'Treat almost like washed.'}),
+ honey:pr({name:'Honey (general)',cat:'honey',t:0,acid:0.3,body:0.3,sweet:0.3,funk:0.2,notes:['honeyed','rounded'],dir:'baseline',char:'Skin removed, some or all of the sticky mucilage left on while drying. Sweeter than washed, cleaner than natural.',brew:'Baseline grind, a touch coarser than your washed setting, 92 to 93°C.'}),
+ whitehoney:pr({name:'White and yellow honey',cat:'honey',t:0.1,acid:0.6,body:0.1,sweet:0.2,funk:0.1,notes:['clean','honeyed'],dir:'baseline',char:'Little mucilage left and quick drying. Very close to washed, with a touch more sweetness.',brew:'Baseline grind, much like washed, 93 to 94°C.'}),
  redhoney:pr({name:'Red honey',cat:'honey',t:-0.05,acid:0.3,body:0.4,sweet:0.4,funk:0.3,notes:['red fruit','honey'],dir:'baseline',char:'More mucilage and slower, shaded drying. Fruitier and heavier.',brew:'Baseline, 92°C.'}),
  blackhoney:pr({name:'Black honey',cat:'honey',t:-0.25,acid:0,body:0.8,sweet:0.6,funk:0.5,notes:['dark fruit','molasses'],dir:'coarser',char:'Maximum mucilage, slow drying, often covered. Closest to a natural: dark fruit, syrupy.',brew:'Treat almost like a natural: coarser, 91 to 92°C.'}),
  hydrohoney:pr({name:'Hydro honey',cat:'honey',t:-0.15,acid:0.4,body:0.4,sweet:0.7,funk:0.4,notes:['juicy','stone fruit','sweet'],dir:'baseline',char:'A hybrid that starts like a natural and ends like a honey. Whole cherries rest on shaded beds for about two days, ferment in tanks (often open first, then sealed), and are then pulped and dried with their mucilage on for around three to four weeks. Producers vary the timings; an older Colombian style instead rehydrates fully dried cherries in water before pulping. Expect a natural’s fruit with a honey’s cleaner finish.',brew:'Baseline to slightly coarse, 91 to 93°C. Coarsen a step if the fruit turns heavy.'}),
@@ -5724,7 +5735,7 @@ function openChoices(o){const d=$('selsheet'),secs=o.secs().filter(x=>x&&x.opts.
     secs.map(x=>{const lab=esc(x.h||o.title),role=x.multi?'group':'radiogroup',r=x.multi?'checkbox':'radio';
       return '<div class="rs-sec">'+(x.h?'<h4>'+esc(x.h)+(x.multi?' <small>Pick any</small>':'')+'</h4>':'')+(x.chips
         ?'<div class="rs-chips" role="'+role+'" aria-label="'+lab+'">'+x.opts.map(([v,n])=>'<button type="button" role="'+r+'" class="chip rs-chip" data-ck="'+x.key+'" data-v="'+esc(String(v))+'" aria-checked="'+isOn(x,String(v))+'">'+esc(n)+'</button>').join('')+'</div>'
-        :'<div class="sellist" role="'+role+'" aria-label="'+lab+'">'+x.opts.map(([v,n,h])=>{const on=isOn(x,String(v));return '<button type="button" role="'+r+'" class="selopt'+(x.multi?' multi':'')+'" data-ck="'+x.key+'" data-v="'+esc(String(v))+'" aria-checked="'+on+'" aria-selected="'+on+'"><span>'+esc(n)+(h?'<small>'+esc(h)+'</small>':'')+'</span><i aria-hidden="true">✓</i></button>'}).join('')+'</div>')+'</div>'}).join('')+
+        :'<div class="sellist" role="'+role+'" aria-label="'+lab+'">'+x.opts.map(([v,n,h])=>{const on=isOn(x,String(v));return '<button type="button" role="'+r+'" class="selopt'+(x.multi?' multi':'')+'" data-ck="'+x.key+'" data-v="'+esc(String(v))+'" aria-checked="'+on+'"><span>'+esc(n)+(h?'<small>'+esc(h)+'</small>':'')+'</span><i aria-hidden="true">✓</i></button>'}).join('')+'</div>')+'</div>'}).join('')+
     '<div class="rs-done">'+(secs.some(x=>x.multi)?'<button type="button" class="btn ghost" id="rs-clear"'+(anyOn()?'':' disabled')+'>Clear</button>':'')+'<button type="button" class="btn" id="rs-done">Show '+nOf(cnt(),o.one,o.many)+'</button></div>'};
   draw();
   $('sel-in').onclick=e=>{if(e.target.closest('#sel-x')){d.close();return}
@@ -6712,6 +6723,7 @@ function openPlanLink(code){let x;try{x=b64u.dec(code)}catch(e){}goTab('dial');
   if(!canGrind(S.grinder,S.brewer))S.grinder=capable(S.brewer);tune('Opened the shared brew')}
 // Opens whatever a link points at. Returns false for plain tab links.
 function openRoute(h){let m;try{h=decodeURIComponent(h)}catch(e){}
+  if(h==='speed'){goTab('settings');openSpeed();return true}
   const gone=()=>toast('That link points to something that isn\u2019t in this version of the app');
   if((m=/^recipe=([A-Za-z0-9_-]+)$/.exec(h))){goTab('recipes');importRecipe(m[1]);return true}
   if((m=/^r=([a-z0-9-]+)$/.exec(h))){goTab('recipes');const i=RECIPES.findIndex((r,k)=>k<BUILTIN_N&&slug(r.name)===m[1]);if(i>=0)openRecipe(i);else toast('That recipe isn\u2019t in this version of the app');return true}
@@ -6780,7 +6792,7 @@ let GF=vwGet('gf',[],vwStrs);const TYCOL={};Object.values(BREWERS).forEach(b=>{i
 // Gear and dials is split into tabs: Grind settings, Dials, Brewers, Grinders, More gear.
 let GTAB=(()=>{try{return sessionStorage.getItem('bb-gtab')||'set'}catch(e){return 'set'}})();
 function gearTab(t){if(!document.querySelector('[data-gpanel="'+t+'"]'))t='set';GTAB=t;try{sessionStorage.setItem('bb-gtab',t)}catch(e){}
-  document.querySelectorAll('#gear-tabs [data-gtab]').forEach(b=>{const on=b.dataset.gtab===t;b.setAttribute('aria-pressed',on);b.setAttribute('aria-selected',on)});
+  document.querySelectorAll('#gear-tabs [data-gtab]').forEach(b=>{const on=b.dataset.gtab===t;b.setAttribute('aria-pressed',on)});
   document.querySelectorAll('#gear [data-gpanel]').forEach(p=>{p.hidden=p.dataset.gpanel!==t})}
 // Open Gear and dials on a tab (and optionally scroll to something on it).
 function goGear(t,el){if(!BUILT.gear){BUILT.gear=1;buildGear()}gearTab(t);showTab('gear');if(el)requestAnimationFrame(()=>{const x=$(el);if(x)x.scrollIntoView({behavior:RM()?'auto':'smooth',block:'start'})})}
@@ -7000,7 +7012,7 @@ function renderVarieties(){VF=VF.filter(k=>FAM[k]);vwSet('vf',VF);
   ltSync('vlt',{on:VF.length>0,filter:selName(VF,k=>FAM[k].name,'All families')});
   const q=VQ.trim().toLowerCase();
   const list=V.filter(v=>inSel(VF,v.fam)&&(!q||(v.name+' '+(v.origin||'')+' '+v.notes.join(' ')+' '+(v.grown||[]).map(originName).join(' ')+' '+(v.subs||[]).map(s=>s.name).join(' ')).toLowerCase().includes(q)));
-  $('vgrid').innerHTML=(list.length?list.map(v=>'<div class="card vcard" data-v="'+v.id+'" style="--c:'+FAM[v.fam].color+'" tabindex="0" role="button"><button type="button" class="addcmp" data-cmp="'+v.id+'" aria-pressed="'+CMP.includes(v.id)+'">'+(CMP.includes(v.id)?'Comparing':'+ Compare')+'</button><span class="fam">'+FAM[v.fam].name+'</span><h3>'+esc(v.name)+'</h3>'+
+  $('vgrid').innerHTML=(list.length?list.map(v=>'<div class="card vcard" data-v="'+v.id+'" style="--c:'+FAM[v.fam].color+'"><button type="button" class="addcmp" data-cmp="'+v.id+'" aria-pressed="'+CMP.includes(v.id)+'">'+(CMP.includes(v.id)?'Comparing':'+ Compare')+'</button><span class="fam">'+FAM[v.fam].name+'</span><h3><button type="button" class="vopen">'+esc(v.name)+'</button></h3>'+
     '<div class="meta">'+(v.origin?'<span title="'+esc(v.origin)+'">'+esc(v.origin.match(/^[^,(]*(\([^)]*\))?[^,]*/)[0])+'</span>':'')+(v.year?'<span>'+esc(v.year)+'</span>':'')+(v.subs?'<span>'+v.subs.length+' types</span>':'')+'</div>'+
     '<p>'+esc(v.cup)+'</p>'+dirTag(v.dir)+'</div>').join(''):'<p class="hint">No varieties match. Try a country, a family or a flavour.</p>');
   renderCompare();
@@ -7019,7 +7031,6 @@ $('vsearch').oninput=e=>{VQ=e.target.value;soon(renderVarieties)};
 $('vlt-f').onclick=()=>pickOne('Filter varieties','variety',[['all','All families'],...Object.entries(FAM).map(([k,f])=>[k,f.name])],()=>VF,v=>{VF=v},renderVarieties,()=>V.filter(v=>inSel(VF,v.fam)).length,'varieties');
 $('vgrid').onclick=e=>{const c=e.target.closest('[data-cmp]');if(c){e.stopPropagation();const id=c.dataset.cmp;if(CMP.includes(id))CMP=CMP.filter(x=>x!==id);else{if(CMP.length>=3){toast('Compare up to three at a time');return}CMP.push(id)}renderVarieties();return}
   const b=e.target.closest('[data-v]');if(b)openVariety(b.dataset.v)};
-$('vgrid').onkeydown=e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('.vcard')){e.preventDefault();openVariety(e.target.dataset.v)}};
 
 /* ================= MAP ================= */
 let SEL=null,VIEW=[0,0,1000,520],HL=null;
@@ -7108,7 +7119,7 @@ function drawTree(){
   // the tree, so none runs into the next generation or off the edge.
   const noted=Object.keys(TREE.notes||{}).filter(id=>pos[id]).sort((a,b)=>pos[a].x-pos[b].x||pos[a].y-pos[b].y);
   noted.forEach((id,k)=>{const p=pos[id],cx=p.x+p.w+13,cy=p.y+p.h/2;W=Math.max(W,cx+12);
-    t+='<g class="tmark" data-id="'+id+'" role="button" tabindex="-1" aria-label="Note '+(k+1)+' on '+esc(p.lab)+'"><circle class="tm-hit" cx="'+(cx+7)+'" cy="'+cy+'" r="16"/><circle cx="'+cx+'" cy="'+cy+'" r="9"/><text x="'+cx+'" y="'+(cy+4)+'">'+(k+1)+'</text></g>'});
+    t+='<g class="tmark" data-id="'+id+'"><circle class="tm-hit" cx="'+(cx+7)+'" cy="'+cy+'" r="16"/><circle cx="'+cx+'" cy="'+cy+'" r="9"/><text x="'+cx+'" y="'+(cy+4)+'">'+(k+1)+'</text></g>'});
   {const ul=$('treenotes');if(ul){ul.innerHTML=noted.map((id,k)=>'<li data-id="'+id+'"><span class="tn-k">'+(k+1)+'</span><span><b>'+esc(pos[id].lab)+'</b>'+esc(TREE.notes[id])+'</span></li>').join('');ul.hidden=!noted.length}}
   W=Math.ceil(W+24);H=Math.ceil(H+28);
   // Generation bands with their headings.
@@ -7492,14 +7503,14 @@ $('l-csv').onclick=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';cons
 /* ================= SCAN ================= */
 let SC=Object.assign({origin:'',process:'washed',variety:'pinkbourbon',roast:'light',date:'',brewer:'v60',grinder:'zp6',info:null,name:'',roaster:''},load('bb-scan',{}));SC.name=str(SC.name,60);SC.roaster=str(SC.roaster,50);if(!MYG.includes(SC.grinder))SC.grinder=MYG[0];
 // Each new scan starts from a blank coffee: nothing from the last bag (its roast date, process or roastery) carries over.
-const SC_BLANK={origin:'',blend:[],process:'washed',variety:'arabica',roast:'light',date:'',info:null,name:'',roaster:'',id:''};
+const SC_BLANK={origin:'',blend:[],maybeBlend:[],process:'washed',variety:'arabica',roast:'light',date:'',info:null,name:'',roaster:'',id:''};
 const clearScanData=()=>Object.assign(SC,SC_BLANK);
 // Reopening the app starts the scan and the dial-in fresh (your gear and calibration stay), unless Settings says to
 // pick up where you left off. A reload in the same session keeps everything.
 const FRESH_OPEN=(()=>{try{const first=!sessionStorage.getItem('bb-open');sessionStorage.setItem('bb-open','1');return first&&(load('bb-ui',{}).resume||'fresh')==='fresh'}catch(e){return false}})();
 if(FRESH_OPEN){clearScanData();SC.blank=true;
   Object.assign(S,{rec:null,reck:null,temp:93,ratio:15,bloom:45,agit:'med',roast:'light',process:'washed',variety:'caturra',region:'',dose:15,goal:'balance',amt:'mid',age:14,tuned:null,bean:null});S.fresh=1}
-if(!PROCESSES[SC.process])SC.process='washed';if(!vById(SC.variety))SC.variety='pinkbourbon';if(!['light','medium','dark'].includes(SC.roast))SC.roast='light';if(!/^\d{4}-\d{2}-\d{2}$/.test(SC.date||''))SC.date='';SC.origin=okOrigin(SC.origin);SC.blend=SC.origin==='blend'?okBlend(SC.blend):[];if(!PBREWERS.includes(SC.brewer))SC.brewer='v60';
+if(!PROCESSES[SC.process])SC.process='washed';if(!vById(SC.variety))SC.variety='pinkbourbon';if(!['light','medium','dark'].includes(SC.roast))SC.roast='light';if(!/^\d{4}-\d{2}-\d{2}$/.test(SC.date||''))SC.date='';SC.origin=okOrigin(SC.origin);SC.blend=SC.origin==='blend'?okBlend(SC.blend):[];SC.maybeBlend=[];if(!PBREWERS.includes(SC.brewer))SC.brewer='v60';
 // Saved scans come from storage, a backup or another device: keep only well-formed ones, with known keys.
 const okScan=x=>{if(!x||typeof x!=='object'||!x.sc||typeof x.sc!=='object')return null;const c=x.sc;
   if(!PROCESSES[c.process])c.process='washed';if(!vById(c.variety))c.variety='pinkbourbon';c.origin=okOrigin(c.origin);c.blend=c.origin==='blend'?okBlend(c.blend):[];if(!['light','medium','dark'].includes(c.roast))c.roast='light';
@@ -7511,6 +7522,7 @@ function daysSince(d){if(!d)return 14;const t=Date.parse(d);if(isNaN(t))return 1
 function initScan(){
   $('s-origin').innerHTML='<option value="">Not sure</option>'+originOptions();
   $('s-brewer').innerHTML=brewerOptions(PBREWERS);
+  $('s-mbgo').onclick=()=>{if((SC.maybeBlend||[]).length<2)return;SC.origin='blend';SC.blend=SC.maybeBlend;SC.maybeBlend=[];SC.blank=false;renderScan()};
   for(const [id,key] of [['s-origin','origin'],['s-process','process'],['s-variety','variety'],['s-brewer','brewer'],['s-date','date']])$(id).onchange=e=>{if(key!=='brewer')SC.blank=false;SC[key]=key==='variety'?effVariety(e.target.value,SC.origin):e.target.value;if(key==='brewer'&&!canGrind(SC.grinder,SC.brewer))SC.grinder=capable(SC.brewer);renderScan()};
   // Two ways in: the camera straight away, or a photo already on the phone. Typing or pasting the text is below.
   $('scan-pick').onclick=()=>openCamera();$('scan-choose').onclick=()=>$('scan-file').click();
@@ -7783,6 +7795,8 @@ function parseLabel(raw,geo){const L=lexicon(),t=(' '+fold(raw).replace(/[|_~*]+
   // countries in the order they're named (on the Origin line if there is one), up to four.
   if(/\b(blend|mezcla|blended)\b/.test(t)){const cs=src=>[...new Set(findAll(src,L.countries).map(x=>x.val))];let all=kO?cs(fold(kO.val)):[];if(all.length<2)all=cs(t);
     if(all.length>=2){info.origin_key='blend';info.blend=all.slice(0,4).map(o=>({o}))}}
+  // Two or more countries but no word "blend": maybe a blend, maybe a story about where the roaster buys. Asked, not assumed.
+  else{const cs=src=>[...new Set(findAll(src,L.countries).map(x=>x.val))];let all=kO?cs(fold(kO.val)):[];if(all.length<2)all=cs(t);if(all.length>=2)info.maybe_blend=all.slice(0,4).map(o=>({o}))}
   if(r&&(!c||r.val===c.val))info.region=r.alias.replace(/\b\w/g,x=>x.toUpperCase());
   let vs=kV?findAll(kV.val,L.varsLine):[];if(!vs.length)vs=findAll(t,L.vars);if(!vs.length){const f=findFuzzy(t,L.vars);if(f)vs=[f]}if(vs.length){info.variety_key=vs[0].val;info.variety_keys=[...new Set(vs.map(x=>x.val))].slice(0,4);info.varieties=[...new Set(vs.map(x=>VBY[x.val].name.replace(/\s*\(.*$/,'')))];hits++}
   const pr=(kP&&findBest(kP.val,L.procs))||findBest(noNotes,L.procs)||findFuzzy(noNotes,L.procs)||(kN?null:findBest(t,L.procs));if(pr){info.process_key=pr.val;info.process=PROCESSES[pr.val].name;hits++}
@@ -7902,7 +7916,7 @@ function findRoaster(lines,t,geo){const clean=lines.map(cleanLine),L=lexicon(),c
   if(!cands.length)return null;cands.sort((a,b)=>b.score-a.score);const best=cands[0];
   // Names in capitals come back in normal case; a known roaster keeps its own spelling.
   return{name:best.score>=100?best.name:niceName(best.name).replace(/\s+/g,' ').slice(0,50),line:best.line}}
-function applyInfo(j){clearScanData();SC.blank=false;SC.origin=okOrigin(j.origin_key);SC.blend=SC.origin==='blend'?okBlend(j.blend):[];if(j.process_key&&PROCESSES[j.process_key])SC.process=j.process_key;
+function applyInfo(j){clearScanData();SC.blank=false;SC.origin=okOrigin(j.origin_key);SC.blend=SC.origin==='blend'?okBlend(j.blend):[];SC.maybeBlend=SC.origin!=='blend'?okBlend(j.maybe_blend):[];if(SC.maybeBlend.length<2)SC.maybeBlend=[];if(j.process_key&&PROCESSES[j.process_key])SC.process=j.process_key;
   // A label that names no variety gets plain arabica (neutral in the plan), not whatever the last bag was.
   SC.variety=j.variety_key&&vById(j.variety_key)?j.variety_key:'arabica';if(['light','medium','dark'].includes(j.roast_level))SC.roast=j.roast_level;if(/^\d{4}-\d{2}-\d{2}$/.test(j.roast_date||''))SC.date=j.roast_date;SC.name=plausibleName(j.coffee_name)?niceName(j.coffee_name).slice(0,60):'';SC.roaster=plausibleName(j.roaster)?niceName(j.roaster).slice(0,50):'';SC.info=j}
 async function runLocalScan(useImg){
@@ -8129,7 +8143,8 @@ function beanProfileHTML(){const b=beanProfile();
     '<h4 class="bp-h">How to brew it</h4><ul class="bp-tips">'+b.tips.map(t=>'<li>'+esc(t)+'</li>').join('')+'</ul>'+
     '<p class="hint" style="margin:10px 0 0">For exact grind and water settings on your gear, open it in the dial-in.</p></div>'}
 function renderScan(){
-  {const so=$('s-origin');let bo=so.querySelector('option[value="blend"]');if(SC.origin==='blend'){if(!bo){bo=document.createElement('option');bo.value='blend';so.prepend(bo)}bo.textContent='\u{1F30D} Blend of '+((SC.blend||[]).map(x=>originName(x.o)).join(', ')||'several origins')}else if(bo)bo.remove();so.value=SC.origin}$('s-process').value=SC.process;$('s-variety').value=String(SC.variety).split(':')[0];$('s-date').value=SC.date||'';$('s-brewer').value=SC.brewer;
+  {const so=$('s-origin');let bo=so.querySelector('option[value="blend"]');if(SC.origin==='blend'){if(!bo){bo=document.createElement('option');bo.value='blend';so.prepend(bo)}bo.textContent='\u{1F30D} Blend of '+((SC.blend||[]).map(x=>originName(x.o)).join(', ')||'several origins')}else if(bo)bo.remove();so.value=SC.origin}
+  {const mb=$('s-mb'),l=SC.origin!=='blend'&&SC.maybeBlend||[];mb.hidden=l.length<2;if(l.length>1){const n=l.map(x=>originName(x.o));mb.querySelector('small').textContent='The label names '+n.slice(0,-1).join(', ')+' and '+n[n.length-1]+'.'}}$('s-process').value=SC.process;$('s-variety').value=String(SC.variety).split(':')[0];$('s-date').value=SC.date||'';$('s-brewer').value=SC.brewer;
   seg('s-roast',[['light','Light'],['medium','Medium'],['dark','Dark']],()=>SC.roast,v=>{SC.roast=v;SC.blank=false;renderScan()});
   grinderSeg('s-grinder',(SC.brewer),()=>SC.grinder,v=>{SC.grinder=v;renderScan()});
   const age=daysSince(SC.date);const c={brewer:SC.brewer,grinder:SC.grinder,tech:techList(SC.brewer)[0][1],process:SC.process,variety:SC.variety,roast:SC.roast,age,goal:'balance'};
@@ -9031,6 +9046,34 @@ if(window.claude&&window.claude.use){
   window.claude.use('downloads').then(d=>{DL=d;renderLog()}).catch(()=>{});
 }else{$('scan-status').hidden=true;$('scan-lede').textContent='Snap a bag and get its details and a brew plan for your gear. The label is read on your phone.'}
 
+/* ---------- The speed log: the slowest taps, kept on this phone ----------
+   The phone's own measure of each tap (Event Timing): from the touch to the next frame on screen. The 40 slowest are
+   kept here only (never synced or sent anywhere), with what was tapped and on which page, so a slow spot can be found on
+   the real phone and shared as a list. Hidden: tap "Settings" at the top of Settings five times, or open #speed. */
+const SPEED_K='bb-speed';let SPEED=(()=>{try{const a=JSON.parse(localStorage.getItem(SPEED_K)||'[]');return Array.isArray(a)?a.filter(x=>x&&+x.d>0).slice(0,40):[]}catch(e){return[]}})(),SPEED_T=null;
+function spWhat(el){if(!el||el.nodeType!==1)return'';const b=el.closest('button,a,[role=button],[role=tab],input,select,textarea,label,summary,.tile,.card,[data-v],[data-bean]')||el;
+  const lab=(b.getAttribute('aria-label')||b.textContent||b.value||'').replace(/\s+/g,' ').trim().slice(0,32);
+  return b.tagName.toLowerCase()+(b.id?'#'+b.id:b.classList[0]?'.'+b.classList[0]:'')+(lab?' “'+lab+'”':'')}
+function spPage(){const d=document.querySelector('dialog[open]'),t=d&&d.querySelector('h2');const sec=document.querySelector('main section.on');return (sec?sec.id:'')+(d?' › '+(t?t.textContent.trim().slice(0,28):d.id||'sheet'):'')}
+try{if(window.PerformanceObserver&&(PerformanceObserver.supportedEntryTypes||[]).includes('event'))
+  new PerformanceObserver(l=>{let got=false;for(const e of l.getEntries()){if(!/^(pointerdown|pointerup|click|keydown|keyup|input|change)$/.test(e.name)||e.duration<64)continue;
+      SPEED.push({d:Math.round(e.duration),w:Math.round(Math.max(0,e.processingStart-e.startTime)),p:Math.round(Math.max(0,e.processingEnd-e.processingStart)),k:e.name,el:spWhat(e.target),pg:spPage(),at:Date.now(),v:appVersion()||'web'});got=true}
+    if(!got)return;SPEED.sort((a,b)=>b.d-a.d);SPEED=SPEED.slice(0,40);clearTimeout(SPEED_T);SPEED_T=setTimeout(()=>{try{localStorage.setItem(SPEED_K,JSON.stringify(SPEED))}catch(e){}},2000)}).observe({type:'event',durationThreshold:64,buffered:true})}catch(e){}
+function speedText(){return 'Brew Bench speed log ('+(appVersion()||'web')+', '+navigator.userAgent.replace(/^.*?\(([^)]*)\).*$/,'$1').slice(0,60)+')\n'+
+  (SPEED.length?SPEED.map((x,i)=>(i+1)+'. '+x.d+' ms  '+x.k+'  '+x.el+'  on '+x.pg+'  (wait '+x.w+', run '+x.p+', '+new Date(x.at).toLocaleString()+')').join('\n'):'No slow taps yet.')}
+function openSpeed(){const d=$('vd');
+  const row=x=>'<li class="sp-row"><b class="sp-ms'+(x.d>=200?' bad':x.d>=120?' meh':'')+'">'+x.d+'<small>ms</small></b><span><b>'+esc(x.el||x.k)+'</b><small>'+esc(x.k+' on '+(x.pg||'?')+' · waited '+x.w+' ms, ran '+x.p+' ms · '+fmtAgo(x.at))+'</small></span></li>';
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:#4F8A74"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:#4F8A74"></i>Speed log</span><h2 id="vd-title">The slowest taps</h2>'+
+    '<p class="hint" style="margin:0">From the tap to the next frame on screen, measured by this phone. Under 100 ms feels instant; over 200 ms feels slow. Kept on this phone only.</p></div>'+
+    '<div class="vd-body">'+(SPEED.length?'<ol class="sp-list">'+SPEED.map(row).join('')+'</ol>':'<p class="hint">No slow taps yet. Use the app as usual and come back.</p>')+
+    '<div class="actions"><button type="button" class="btn" id="sp-share"'+(SPEED.length?'':' disabled')+'>Share the list</button><button type="button" class="btn ghost" id="sp-clear"'+(SPEED.length?'':' disabled')+'>Clear</button></div></div>';
+  $('vd-x').onclick=()=>d.close();
+  $('sp-share').onclick=async()=>{const t=speedText();try{if(navigator.share){await navigator.share({title:'Brew Bench speed log',text:t});return}}catch(e){if(e&&e.name==='AbortError')return}
+    try{await navigator.clipboard.writeText(t);toast('Copied the list')}catch(e){saveFile('brew-bench-speed.txt',new Blob([t],{type:'text/plain'}))}};
+  $('sp-clear').onclick=()=>{SPEED=[];try{localStorage.removeItem(SPEED_K)}catch(e){}openSpeed();toast('Cleared')};
+  showDlg(d);d.scrollTop=0}
+{let n=0,t0=0;document.querySelector('#settings > h2').addEventListener('click',()=>{const now=Date.now();if(now-t0>3000)n=0;t0=now;if(++n>=5){n=0;openSpeed()}})}
+
 /* ================= BEAN GALLERY ================= */
 // Every coffee you've had, with a photo and a rating in beans. Each year you can crown a top 3, and past years stay
 // as your history. It is the Beans tab, with Scan as a page inside it: scanning is how most beans arrive.
@@ -9106,6 +9149,16 @@ function rebuyBean(b,rd,g){const opened=b.diary.find(e=>e.k==='opened'),last=b.d
 const fmtD=s=>s?new Date(s+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'';
 const ordinal=n=>n+(n%100>10&&n%100<14?'th':['th','st','nd','rd'][n%10]||'th');
 let BEANS=load('bb-beans',[]);BEANS=Array.isArray(BEANS)?BEANS.map(okBean).filter(Boolean):[];
+// Blends are kept twice: in the coffee, and in a list of their own that versions of the app from before blends never
+// read or write. An older version on another device turns a blend into a coffee with no origin (it doesn't know the
+// word), and the sync brings that back here; the list puts the blend back. A coffee given a real origin there stays as it was.
+const blendsSide=()=>{const o={};for(const b of BEANS)if(b.origin==='blend'&&b.blend&&b.blend.length)o[b.id]=b.blend;return o};
+let BLENDS_TXT=localStorage.getItem('bb-blends')||'';
+const BLENDS_BACK=(()=>{let side;try{side=JSON.parse(BLENDS_TXT||'{}')}catch(e){side={}}if(!side||typeof side!=='object')return 0;let n=0;
+  for(const b of BEANS)if(!b.origin&&Array.isArray(side[b.id])){const parts=okBlend(side[b.id]);if(parts.length>1){b.origin='blend';b.blend=parts;n++}}return n})();
+function saveBlendsSide(){const t=JSON.stringify(blendsSide());if(t===BLENDS_TXT)return;try{localStorage.setItem('bb-blends',t);BLENDS_TXT=t}catch(e){}}
+// Put back: saved again so the account has the blend too, and a word that a device still has the older app.
+setTimeout(()=>{if(BLENDS_BACK){saveBeans();try{toast(BLENDS_BACK===1?'A blend an older version of the app flattened is back. Update the app on your other devices':BLENDS_BACK+' blends an older version of the app flattened are back. Update the app on your other devices')}catch(e){}}else saveBlendsSide()},1500);
 // Top 3 per year: three places (gold, silver, bronze), each a bean id or '' while open, plus a snapshot so a podium
 // survives the bean being deleted later.
 let TOP3=(t=>{const o={};if(t&&typeof t==='object')for(const [y,v] of Object.entries(t))if(/^\d{4}$/.test(y)&&v&&Array.isArray(v.ids)){
@@ -9119,7 +9172,7 @@ let BQ='',BSORT=vwGet('bsort','recent',v=>['recent','rated','roaster','origin'].
 const bfAny=b=>!BF.length||BF.some(f=>bfKeep(b,f));
 // Cards slide in the first time you see them, not every time the list is sorted or searched.
 const BSEEN=new Set();
-function saveBeans(){try{localStorage.setItem('bb-beans',JSON.stringify(BEANS));BREV++;reschedule();return true}catch(e){toast('Couldn’t save: this device’s storage is full');return false}}
+function saveBeans(){try{localStorage.setItem('bb-beans',JSON.stringify(BEANS));saveBlendsSide();BREV++;reschedule();return true}catch(e){toast('Couldn’t save: this device’s storage is full');return false}}
 const saveTop3=()=>{BREV++;save('bb-top3',TOP3)};
 // Changes to the gallery, the log or the scans; opening the tab again with none of them redraws nothing.
 let BREV=0,BSIG='';
@@ -9961,6 +10014,18 @@ function openTrophies(){const d=$('vd'),T=TGOT||{},earned=TROPHIES.filter(t=>T[t
   $('vd-in').innerHTML='<div class="vd-head" style="--c:#C9964A"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:#C9964A"></i>Your trophies</span><h2 id="vd-title">'+earned+' of '+TROPHIES.length+' earned</h2>'+
     '<p class="hint" style="margin:0">Earned by what you add, brew and buy again. Seasonal ones come round each year.</p></div><div class="vd-body tro-page">'+trophiesHTML()+'</div>';
   $('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
+// What the passport shows, for the page and its share card: the origins you've had (first had first), each region's
+// count, blends, and how many of the map's origins you've collected.
+function passportData(){const total=Object.keys(ALLO()).length,by={};for(const b of BEANS)if(b.origin)(by[b.origin]=by[b.origin]||[]).push(b);
+  const nBags=k=>by[k].reduce((a,b)=>a+buys(b),0),first=k=>by[k].map(beanFirst).sort()[0],got=Object.keys(by).sort((a,b)=>first(a).localeCompare(first(b)));
+  const regs=Object.entries(REG).map(([rk,r])=>({k:rk,name:r.name.replace(' and Caribbean','').replace(' and Pacific',''),color:r.color,all:Object.keys(ALLO()).filter(k=>ALLO()[k].reg===rk).length,have:got.filter(k=>ALLO()[k]&&ALLO()[k].reg===rk).length}));
+  const onMap=got.filter(k=>ALLO()[k]).length,off=got.filter(k=>k!=='blend').length-onMap;
+  return{total,by,got,nBags,first,regs,onMap,off,nbl:(by.blend||[]).length}}
+function passportDoc(){const D=passportData(),mon=iso=>new Date(iso+'T12:00').toLocaleDateString(undefined,{month:'short',year:'numeric'});
+  return{title:'My coffee passport',sub:D.onMap+' of '+D.total+' origins',file:'coffee-passport',heavy:D.got.length>16,
+    card:()=>passportCardImg(),cardTheme:()=>originTheme(D.got[D.got.length-1]),cardName:'coffee-passport',cardTitle:'Passport card',cardSub:'Your passport as one image: a stamp for every origin you’ve had, how far you are in each region, and your blends.',
+    blocks:[{h:'Regions',kv:D.regs.map(r=>[r.name,r.have+' of '+r.all]).concat(D.nbl?[['Blends',String(D.nbl)]]:[])},
+      {h:'Stamps',list:D.got.map(k=>originName(k)+' ('+(k==='blend'?D.nbl+' blend'+(D.nbl===1?'':'s'):D.nBags(k)+' bag'+(D.nBags(k)===1?'':'s'))+', since '+mon(D.first(k))+')')}]}}
 function renderPassport(){const p=$('bv-passport');if(!p)return;const st=cabStats(),total=Object.keys(ALLO()).length,by={};
   for(const b of BEANS)if(b.origin)(by[b.origin]=by[b.origin]||[]).push(b);
   // Every bag counts, bought-again ones included; "since" is the first of them.
@@ -9976,7 +10041,7 @@ function renderPassport(){const p=$('bv-passport');if(!p)return;const st=cabStat
   const todo=Object.keys(ALLO()).filter(k=>!by[k]),seed=Math.floor(Date.now()/864e5),next=[];for(let i=0;i<Math.min(6,todo.length);i++)next.push(todo[(seed*7+i*11)%todo.length]);
   // The count is of the map's origins; countries off the map still get a stamp, counted on their own.
   const onMap=got.filter(k=>ALLO()[k]).length,T=TGOT||{},earned=TROPHIES.filter(t=>T[t[0]]).length;
-  p.innerHTML='<div class="passport"><div class="pp-h"><span class="pp-k">Coffee passport</span><h3>'+onMap+' <em>of '+total+' origins'+(got.filter(k=>k!=='blend').length>onMap?' · +'+(got.filter(k=>k!=='blend').length-onMap)+' more':'')+'</em></h3><div class="pp-regs">'+regs+blendReg+'</div></div>'+
+  p.innerHTML='<div class="passport"><div class="pp-h"><span class="pp-k">Coffee passport</span>'+(got.length?'<button type="button" class="sh-mini ic pp-share" data-ppshare aria-label="Share your passport" title="Share">'+SH_ICO+'</button>':'')+'<h3>'+onMap+' <em>of '+total+' origins'+(got.filter(k=>k!=='blend').length>onMap?' · +'+(got.filter(k=>k!=='blend').length-onMap)+' more':'')+'</em></h3><div class="pp-regs">'+regs+blendReg+'</div></div>'+
     (got.length?'<div class="pp-grid">'+got.map((k,i)=>'<button type="button" class="pp-st" data-ppo="'+k+'" style="--r:'+(((i*37)%15)-7)+'deg"><img alt="" src="'+(STAMPS.get(k)||STAMP_WAIT)+'" data-stamp="'+k+'"><b>'+esc(originName(k))+'</b><small>'+(k==='blend'?by.blend.length+' blend'+(by.blend.length===1?'':'s'):nBags(k)+' bag'+(nBags(k)===1?'':'s'))+' · since '+mon(first(k))+'</small></button>').join('')+'</div>'
       :'<p class="pp-empty">Your first stamp arrives with your first coffee.</p>')+
     (next.length?'<div class="pp-next"><b>Still to discover</b><div class="chips">'+[...new Set(next)].map(k=>'<button type="button" class="chip" data-o="'+k+'">'+(ALLO()[k].flag||'')+' '+esc(originName(k))+'</button>').join('')+'</div></div>':'')+'</div>'+
@@ -10009,6 +10074,7 @@ $('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-add')){openB
   const t5=e.target.closest('[data-t5share]');if(t5){openShare(top5Doc(+t5.dataset.t5share));return}
   if(e.target.closest('[data-shelfshare]')){openShare(shelfDoc());return}
   if(e.target.closest('[data-galshare]')){openShare(galleryDoc());return}
+  if(e.target.closest('[data-ppshare]')){openShare(passportDoc());return}
   const t=e.target.closest('[data-top3]');if(t){openTop3(+t.dataset.top3,t.dataset.slot==='hm'?'hm':+(t.dataset.slot||0));return}
   const sa=e.target.closest('[data-scanadd]');if(sa){addScanToGallery(+sa.dataset.scanadd);return}
   const sc=e.target.closest('[data-scan]');if(sc){openSavedScan(+sc.dataset.scan);return}
@@ -11196,6 +11262,36 @@ async function galleryCardImg(full){const style=Object.assign({},CARD_STYLE),nic
     if(orc.size){Y+=64;bcLabel(x,'Where they’re from',P,Y);Y=bcChips(x,[...orc].sort((a,b)=>b[1]-a[1]).slice(0,12).map(([k,v])=>originName(k)+(v>1?'  ×'+v:'')),Y+26)}
     return bcFoot(x,c,Y,'From my bean gallery')}})}
 
+// Your passport: a stamp for every origin you've had, inked in its own colours and set at a slight angle as if pressed
+// by hand, with the bags and since when under each; then how far you are in each region, and your blends.
+// Four stamps to a row; past 40 stamps, the latest 39 and how many more.
+async function passportCardImg(){const style=Object.assign({},CARD_STYLE),D=passportData(),nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick;
+  const CAP=40,shown=D.got.length>CAP?D.got.slice(-(CAP-1)):D.got,more=D.got.length-shown.length,cols=4,rows=Math.ceil(shown.length/cols);
+  const regs=D.regs.filter(r=>r.have).concat(D.nbl?[{name:'Blends',color:'#4F8A74',have:D.nbl,all:0}]:[]),rowH=226+92;
+  const minH=130+118+40+58+56+(regs.length?80+regs.length*62:0)+64+rows*rowH+(more?70:0)+BC_FOOT+60;
+  const mon=iso=>new Date(iso+'T12:00').toLocaleDateString(undefined,{month:'short',year:'numeric'});
+  return bcBlob({style,theme:originTheme(D.got[D.got.length-1]),minH,draw:(x,c)=>{const W=BC.W,P=BC.PAD,IW=W-2*P;
+    let Y=bcHead(x,nick?nick+'’s coffee passport':'My coffee passport',new Date().toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}));
+    Y+=118;x.font='800 100px '+BC.F;x.fillStyle=BC.INK;x.fillText('Coffee',P-4,Y);const cw0=x.measureText('Coffee ').width;x.fillStyle=BC.HONEY;x.fillText('passport',P-4+cw0,Y);
+    const nr=D.regs.filter(r=>r.have).length;
+    Y+=40;bcStatPills(x,P,Y,[[D.onMap,'of '+D.total+' origins'],[nr,nr===1?'region':'regions']].concat(D.nbl?[[D.nbl,D.nbl===1?'blend':'blends']]:[]));Y+=58+56;
+    // Regions: a bar each, filled by how many of its origins you've had.
+    if(regs.length){bcLabel(x,'Regions',P,Y);Y+=26;const ph=regs.length*62+28;bcPane(x,P,Y,IW,ph,28);
+      regs.forEach((r,i)=>{const ry=Y+14+i*62+31,bx=P+250,bw=IW-250-120;x.font='600 26px '+BC.F;x.fillStyle=BC.INK;x.fillText(bcWrap(x,r.name,220,1)[0],P+28,ry+9);
+        bcRound(x,bx,ry-7,bw,14,7);x.fillStyle=bcI(.12);x.fill();const f=r.all?Math.min(1,r.have/r.all):1;if(f>0){bcRound(x,bx,ry-7,Math.max(14,bw*f),14,7);x.fillStyle=r.color;x.fill()}
+        x.font='800 26px '+BC.F;x.fillStyle=BC.HONEY;x.textAlign='right';x.fillText(r.all?r.have+' / '+r.all:String(r.have),W-P-28,ry+9);x.textAlign='left'});
+      Y+=ph+64}
+    // The stamps.
+    bcLabel(x,'Stamps',P,Y);Y+=30;const cw=IW/cols;
+    shown.forEach((k,i)=>{const col=i%cols,row=Math.floor(i/cols),cx=P+col*cw+cw/2,top=Y+row*rowH,cy=top+113,sc=0.96;
+      x.save();x.translate(cx,cy);x.rotate((((i*37)%15)-7)*Math.PI/180);x.scale(sc,sc);bcStamp(x,0,0,cardStyle(originTheme(k),style));x.restore();
+      x.textAlign='center';x.font='700 25px '+BC.F;x.fillStyle=BC.INK;x.fillText(bcWrap(x,originName(k),cw-16,1)[0],cx,top+226+30);
+      const n=k==='blend'?D.nbl:D.nBags(k),sub=(k==='blend'?n+' blend'+(n===1?'':'s'):n+' bag'+(n===1?'':'s'))+' · '+mon(D.first(k));
+      x.font='500 20px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(bcWrap(x,sub,cw-16,1)[0],cx,top+226+60);x.textAlign='left';if(col===cols-1)bcBrk(top+rowH)});
+    Y+=rows*rowH;
+    if(more){Y+=20;x.font='600 26px '+BC.F;x.fillStyle=BC.MUTED;x.textAlign='center';x.fillText('and '+more+' more stamp'+(more===1?'':'s')+' in the passport',W/2,Y);x.textAlign='left';Y+=30}
+    return bcFoot(x,c,Y,'From my coffee passport')}})}
+
 /* ---------- Sharing and saving the image ---------- */
 // Share where the phone can (WhatsApp, Instagram, Photos). Otherwise, and for Save on a phone, the card opens full size,
 // where press-and-hold saves it: phone browsers can refuse a script-started download (Chrome on Android reports it as
@@ -11922,7 +12018,7 @@ window.PROFILE_OK=true;profileChanged();
 //   users/<uid>/data/img/<key>        {t, s: a fingerprint of the photo} or {t, del:1}
 //   userimg/<uid>/<key>               the photo itself
 const SYNC_COLS=['bb-beans','bb-log','bb-scans','bb-myrecipes'];
-const SYNC_KEYS=['bb-top3','bb-advent','bb-trophies','bb-favs','bb-custom-grinders','bb-mygrinders','bb-mybrewers','bb-base3','bb-calc','bb-ui','bb-theme','bb-cardstyle','bb-group','bb-name'];
+const SYNC_KEYS=['bb-top3','bb-advent','bb-trophies','bb-favs','bb-custom-grinders','bb-mygrinders','bb-mybrewers','bb-base3','bb-calc','bb-ui','bb-theme','bb-cardstyle','bb-group','bb-name','bb-blends'];
 const SYNC_ID=/^[A-Za-z0-9_:-]{1,40}$/;
 const fnv=s=>{let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)}return(h>>>0).toString(36)+'.'+s.length.toString(36)};
 // Photos are large: their fingerprint is taken from the length and both ends.

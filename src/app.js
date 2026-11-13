@@ -549,7 +549,7 @@ function openChoices(o){const d=$('selsheet'),secs=o.secs().filter(x=>x&&x.opts.
     secs.map(x=>{const lab=esc(x.h||o.title),role=x.multi?'group':'radiogroup',r=x.multi?'checkbox':'radio';
       return '<div class="rs-sec">'+(x.h?'<h4>'+esc(x.h)+(x.multi?' <small>Pick any</small>':'')+'</h4>':'')+(x.chips
         ?'<div class="rs-chips" role="'+role+'" aria-label="'+lab+'">'+x.opts.map(([v,n])=>'<button type="button" role="'+r+'" class="chip rs-chip" data-ck="'+x.key+'" data-v="'+esc(String(v))+'" aria-checked="'+isOn(x,String(v))+'">'+esc(n)+'</button>').join('')+'</div>'
-        :'<div class="sellist" role="'+role+'" aria-label="'+lab+'">'+x.opts.map(([v,n,h])=>{const on=isOn(x,String(v));return '<button type="button" role="'+r+'" class="selopt'+(x.multi?' multi':'')+'" data-ck="'+x.key+'" data-v="'+esc(String(v))+'" aria-checked="'+on+'" aria-selected="'+on+'"><span>'+esc(n)+(h?'<small>'+esc(h)+'</small>':'')+'</span><i aria-hidden="true">✓</i></button>'}).join('')+'</div>')+'</div>'}).join('')+
+        :'<div class="sellist" role="'+role+'" aria-label="'+lab+'">'+x.opts.map(([v,n,h])=>{const on=isOn(x,String(v));return '<button type="button" role="'+r+'" class="selopt'+(x.multi?' multi':'')+'" data-ck="'+x.key+'" data-v="'+esc(String(v))+'" aria-checked="'+on+'"><span>'+esc(n)+(h?'<small>'+esc(h)+'</small>':'')+'</span><i aria-hidden="true">✓</i></button>'}).join('')+'</div>')+'</div>'}).join('')+
     '<div class="rs-done">'+(secs.some(x=>x.multi)?'<button type="button" class="btn ghost" id="rs-clear"'+(anyOn()?'':' disabled')+'>Clear</button>':'')+'<button type="button" class="btn" id="rs-done">Show '+nOf(cnt(),o.one,o.many)+'</button></div>'};
   draw();
   $('sel-in').onclick=e=>{if(e.target.closest('#sel-x')){d.close();return}
@@ -1537,6 +1537,7 @@ function openPlanLink(code){let x;try{x=b64u.dec(code)}catch(e){}goTab('dial');
   if(!canGrind(S.grinder,S.brewer))S.grinder=capable(S.brewer);tune('Opened the shared brew')}
 // Opens whatever a link points at. Returns false for plain tab links.
 function openRoute(h){let m;try{h=decodeURIComponent(h)}catch(e){}
+  if(h==='speed'){goTab('settings');openSpeed();return true}
   const gone=()=>toast('That link points to something that isn\u2019t in this version of the app');
   if((m=/^recipe=([A-Za-z0-9_-]+)$/.exec(h))){goTab('recipes');importRecipe(m[1]);return true}
   if((m=/^r=([a-z0-9-]+)$/.exec(h))){goTab('recipes');const i=RECIPES.findIndex((r,k)=>k<BUILTIN_N&&slug(r.name)===m[1]);if(i>=0)openRecipe(i);else toast('That recipe isn\u2019t in this version of the app');return true}
@@ -1605,7 +1606,7 @@ let GF=vwGet('gf',[],vwStrs);const TYCOL={};Object.values(BREWERS).forEach(b=>{i
 // Gear and dials is split into tabs: Grind settings, Dials, Brewers, Grinders, More gear.
 let GTAB=(()=>{try{return sessionStorage.getItem('bb-gtab')||'set'}catch(e){return 'set'}})();
 function gearTab(t){if(!document.querySelector('[data-gpanel="'+t+'"]'))t='set';GTAB=t;try{sessionStorage.setItem('bb-gtab',t)}catch(e){}
-  document.querySelectorAll('#gear-tabs [data-gtab]').forEach(b=>{const on=b.dataset.gtab===t;b.setAttribute('aria-pressed',on);b.setAttribute('aria-selected',on)});
+  document.querySelectorAll('#gear-tabs [data-gtab]').forEach(b=>{const on=b.dataset.gtab===t;b.setAttribute('aria-pressed',on)});
   document.querySelectorAll('#gear [data-gpanel]').forEach(p=>{p.hidden=p.dataset.gpanel!==t})}
 // Open Gear and dials on a tab (and optionally scroll to something on it).
 function goGear(t,el){if(!BUILT.gear){BUILT.gear=1;buildGear()}gearTab(t);showTab('gear');if(el)requestAnimationFrame(()=>{const x=$(el);if(x)x.scrollIntoView({behavior:RM()?'auto':'smooth',block:'start'})})}
@@ -1825,7 +1826,7 @@ function renderVarieties(){VF=VF.filter(k=>FAM[k]);vwSet('vf',VF);
   ltSync('vlt',{on:VF.length>0,filter:selName(VF,k=>FAM[k].name,'All families')});
   const q=VQ.trim().toLowerCase();
   const list=V.filter(v=>inSel(VF,v.fam)&&(!q||(v.name+' '+(v.origin||'')+' '+v.notes.join(' ')+' '+(v.grown||[]).map(originName).join(' ')+' '+(v.subs||[]).map(s=>s.name).join(' ')).toLowerCase().includes(q)));
-  $('vgrid').innerHTML=(list.length?list.map(v=>'<div class="card vcard" data-v="'+v.id+'" style="--c:'+FAM[v.fam].color+'" tabindex="0" role="button"><button type="button" class="addcmp" data-cmp="'+v.id+'" aria-pressed="'+CMP.includes(v.id)+'">'+(CMP.includes(v.id)?'Comparing':'+ Compare')+'</button><span class="fam">'+FAM[v.fam].name+'</span><h3>'+esc(v.name)+'</h3>'+
+  $('vgrid').innerHTML=(list.length?list.map(v=>'<div class="card vcard" data-v="'+v.id+'" style="--c:'+FAM[v.fam].color+'"><button type="button" class="addcmp" data-cmp="'+v.id+'" aria-pressed="'+CMP.includes(v.id)+'">'+(CMP.includes(v.id)?'Comparing':'+ Compare')+'</button><span class="fam">'+FAM[v.fam].name+'</span><h3><button type="button" class="vopen">'+esc(v.name)+'</button></h3>'+
     '<div class="meta">'+(v.origin?'<span title="'+esc(v.origin)+'">'+esc(v.origin.match(/^[^,(]*(\([^)]*\))?[^,]*/)[0])+'</span>':'')+(v.year?'<span>'+esc(v.year)+'</span>':'')+(v.subs?'<span>'+v.subs.length+' types</span>':'')+'</div>'+
     '<p>'+esc(v.cup)+'</p>'+dirTag(v.dir)+'</div>').join(''):'<p class="hint">No varieties match. Try a country, a family or a flavour.</p>');
   renderCompare();
@@ -1844,7 +1845,6 @@ $('vsearch').oninput=e=>{VQ=e.target.value;soon(renderVarieties)};
 $('vlt-f').onclick=()=>pickOne('Filter varieties','variety',[['all','All families'],...Object.entries(FAM).map(([k,f])=>[k,f.name])],()=>VF,v=>{VF=v},renderVarieties,()=>V.filter(v=>inSel(VF,v.fam)).length,'varieties');
 $('vgrid').onclick=e=>{const c=e.target.closest('[data-cmp]');if(c){e.stopPropagation();const id=c.dataset.cmp;if(CMP.includes(id))CMP=CMP.filter(x=>x!==id);else{if(CMP.length>=3){toast('Compare up to three at a time');return}CMP.push(id)}renderVarieties();return}
   const b=e.target.closest('[data-v]');if(b)openVariety(b.dataset.v)};
-$('vgrid').onkeydown=e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('.vcard')){e.preventDefault();openVariety(e.target.dataset.v)}};
 
 /* ================= MAP ================= */
 let SEL=null,VIEW=[0,0,1000,520],HL=null;
@@ -1933,7 +1933,7 @@ function drawTree(){
   // the tree, so none runs into the next generation or off the edge.
   const noted=Object.keys(TREE.notes||{}).filter(id=>pos[id]).sort((a,b)=>pos[a].x-pos[b].x||pos[a].y-pos[b].y);
   noted.forEach((id,k)=>{const p=pos[id],cx=p.x+p.w+13,cy=p.y+p.h/2;W=Math.max(W,cx+12);
-    t+='<g class="tmark" data-id="'+id+'" role="button" tabindex="-1" aria-label="Note '+(k+1)+' on '+esc(p.lab)+'"><circle class="tm-hit" cx="'+(cx+7)+'" cy="'+cy+'" r="16"/><circle cx="'+cx+'" cy="'+cy+'" r="9"/><text x="'+cx+'" y="'+(cy+4)+'">'+(k+1)+'</text></g>'});
+    t+='<g class="tmark" data-id="'+id+'"><circle class="tm-hit" cx="'+(cx+7)+'" cy="'+cy+'" r="16"/><circle cx="'+cx+'" cy="'+cy+'" r="9"/><text x="'+cx+'" y="'+(cy+4)+'">'+(k+1)+'</text></g>'});
   {const ul=$('treenotes');if(ul){ul.innerHTML=noted.map((id,k)=>'<li data-id="'+id+'"><span class="tn-k">'+(k+1)+'</span><span><b>'+esc(pos[id].lab)+'</b>'+esc(TREE.notes[id])+'</span></li>').join('');ul.hidden=!noted.length}}
   W=Math.ceil(W+24);H=Math.ceil(H+28);
   // Generation bands with their headings.
@@ -2317,14 +2317,14 @@ $('l-csv').onclick=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';cons
 /* ================= SCAN ================= */
 let SC=Object.assign({origin:'',process:'washed',variety:'pinkbourbon',roast:'light',date:'',brewer:'v60',grinder:'zp6',info:null,name:'',roaster:''},load('bb-scan',{}));SC.name=str(SC.name,60);SC.roaster=str(SC.roaster,50);if(!MYG.includes(SC.grinder))SC.grinder=MYG[0];
 // Each new scan starts from a blank coffee: nothing from the last bag (its roast date, process or roastery) carries over.
-const SC_BLANK={origin:'',blend:[],process:'washed',variety:'arabica',roast:'light',date:'',info:null,name:'',roaster:'',id:''};
+const SC_BLANK={origin:'',blend:[],maybeBlend:[],process:'washed',variety:'arabica',roast:'light',date:'',info:null,name:'',roaster:'',id:''};
 const clearScanData=()=>Object.assign(SC,SC_BLANK);
 // Reopening the app starts the scan and the dial-in fresh (your gear and calibration stay), unless Settings says to
 // pick up where you left off. A reload in the same session keeps everything.
 const FRESH_OPEN=(()=>{try{const first=!sessionStorage.getItem('bb-open');sessionStorage.setItem('bb-open','1');return first&&(load('bb-ui',{}).resume||'fresh')==='fresh'}catch(e){return false}})();
 if(FRESH_OPEN){clearScanData();SC.blank=true;
   Object.assign(S,{rec:null,reck:null,temp:93,ratio:15,bloom:45,agit:'med',roast:'light',process:'washed',variety:'caturra',region:'',dose:15,goal:'balance',amt:'mid',age:14,tuned:null,bean:null});S.fresh=1}
-if(!PROCESSES[SC.process])SC.process='washed';if(!vById(SC.variety))SC.variety='pinkbourbon';if(!['light','medium','dark'].includes(SC.roast))SC.roast='light';if(!/^\d{4}-\d{2}-\d{2}$/.test(SC.date||''))SC.date='';SC.origin=okOrigin(SC.origin);SC.blend=SC.origin==='blend'?okBlend(SC.blend):[];if(!PBREWERS.includes(SC.brewer))SC.brewer='v60';
+if(!PROCESSES[SC.process])SC.process='washed';if(!vById(SC.variety))SC.variety='pinkbourbon';if(!['light','medium','dark'].includes(SC.roast))SC.roast='light';if(!/^\d{4}-\d{2}-\d{2}$/.test(SC.date||''))SC.date='';SC.origin=okOrigin(SC.origin);SC.blend=SC.origin==='blend'?okBlend(SC.blend):[];SC.maybeBlend=[];if(!PBREWERS.includes(SC.brewer))SC.brewer='v60';
 // Saved scans come from storage, a backup or another device: keep only well-formed ones, with known keys.
 const okScan=x=>{if(!x||typeof x!=='object'||!x.sc||typeof x.sc!=='object')return null;const c=x.sc;
   if(!PROCESSES[c.process])c.process='washed';if(!vById(c.variety))c.variety='pinkbourbon';c.origin=okOrigin(c.origin);c.blend=c.origin==='blend'?okBlend(c.blend):[];if(!['light','medium','dark'].includes(c.roast))c.roast='light';
@@ -2336,6 +2336,7 @@ function daysSince(d){if(!d)return 14;const t=Date.parse(d);if(isNaN(t))return 1
 function initScan(){
   $('s-origin').innerHTML='<option value="">Not sure</option>'+originOptions();
   $('s-brewer').innerHTML=brewerOptions(PBREWERS);
+  $('s-mbgo').onclick=()=>{if((SC.maybeBlend||[]).length<2)return;SC.origin='blend';SC.blend=SC.maybeBlend;SC.maybeBlend=[];SC.blank=false;renderScan()};
   for(const [id,key] of [['s-origin','origin'],['s-process','process'],['s-variety','variety'],['s-brewer','brewer'],['s-date','date']])$(id).onchange=e=>{if(key!=='brewer')SC.blank=false;SC[key]=key==='variety'?effVariety(e.target.value,SC.origin):e.target.value;if(key==='brewer'&&!canGrind(SC.grinder,SC.brewer))SC.grinder=capable(SC.brewer);renderScan()};
   // Two ways in: the camera straight away, or a photo already on the phone. Typing or pasting the text is below.
   $('scan-pick').onclick=()=>openCamera();$('scan-choose').onclick=()=>$('scan-file').click();
@@ -2608,6 +2609,8 @@ function parseLabel(raw,geo){const L=lexicon(),t=(' '+fold(raw).replace(/[|_~*]+
   // countries in the order they're named (on the Origin line if there is one), up to four.
   if(/\b(blend|mezcla|blended)\b/.test(t)){const cs=src=>[...new Set(findAll(src,L.countries).map(x=>x.val))];let all=kO?cs(fold(kO.val)):[];if(all.length<2)all=cs(t);
     if(all.length>=2){info.origin_key='blend';info.blend=all.slice(0,4).map(o=>({o}))}}
+  // Two or more countries but no word "blend": maybe a blend, maybe a story about where the roaster buys. Asked, not assumed.
+  else{const cs=src=>[...new Set(findAll(src,L.countries).map(x=>x.val))];let all=kO?cs(fold(kO.val)):[];if(all.length<2)all=cs(t);if(all.length>=2)info.maybe_blend=all.slice(0,4).map(o=>({o}))}
   if(r&&(!c||r.val===c.val))info.region=r.alias.replace(/\b\w/g,x=>x.toUpperCase());
   let vs=kV?findAll(kV.val,L.varsLine):[];if(!vs.length)vs=findAll(t,L.vars);if(!vs.length){const f=findFuzzy(t,L.vars);if(f)vs=[f]}if(vs.length){info.variety_key=vs[0].val;info.variety_keys=[...new Set(vs.map(x=>x.val))].slice(0,4);info.varieties=[...new Set(vs.map(x=>VBY[x.val].name.replace(/\s*\(.*$/,'')))];hits++}
   const pr=(kP&&findBest(kP.val,L.procs))||findBest(noNotes,L.procs)||findFuzzy(noNotes,L.procs)||(kN?null:findBest(t,L.procs));if(pr){info.process_key=pr.val;info.process=PROCESSES[pr.val].name;hits++}
@@ -2727,7 +2730,7 @@ function findRoaster(lines,t,geo){const clean=lines.map(cleanLine),L=lexicon(),c
   if(!cands.length)return null;cands.sort((a,b)=>b.score-a.score);const best=cands[0];
   // Names in capitals come back in normal case; a known roaster keeps its own spelling.
   return{name:best.score>=100?best.name:niceName(best.name).replace(/\s+/g,' ').slice(0,50),line:best.line}}
-function applyInfo(j){clearScanData();SC.blank=false;SC.origin=okOrigin(j.origin_key);SC.blend=SC.origin==='blend'?okBlend(j.blend):[];if(j.process_key&&PROCESSES[j.process_key])SC.process=j.process_key;
+function applyInfo(j){clearScanData();SC.blank=false;SC.origin=okOrigin(j.origin_key);SC.blend=SC.origin==='blend'?okBlend(j.blend):[];SC.maybeBlend=SC.origin!=='blend'?okBlend(j.maybe_blend):[];if(SC.maybeBlend.length<2)SC.maybeBlend=[];if(j.process_key&&PROCESSES[j.process_key])SC.process=j.process_key;
   // A label that names no variety gets plain arabica (neutral in the plan), not whatever the last bag was.
   SC.variety=j.variety_key&&vById(j.variety_key)?j.variety_key:'arabica';if(['light','medium','dark'].includes(j.roast_level))SC.roast=j.roast_level;if(/^\d{4}-\d{2}-\d{2}$/.test(j.roast_date||''))SC.date=j.roast_date;SC.name=plausibleName(j.coffee_name)?niceName(j.coffee_name).slice(0,60):'';SC.roaster=plausibleName(j.roaster)?niceName(j.roaster).slice(0,50):'';SC.info=j}
 async function runLocalScan(useImg){
@@ -2954,7 +2957,8 @@ function beanProfileHTML(){const b=beanProfile();
     '<h4 class="bp-h">How to brew it</h4><ul class="bp-tips">'+b.tips.map(t=>'<li>'+esc(t)+'</li>').join('')+'</ul>'+
     '<p class="hint" style="margin:10px 0 0">For exact grind and water settings on your gear, open it in the dial-in.</p></div>'}
 function renderScan(){
-  {const so=$('s-origin');let bo=so.querySelector('option[value="blend"]');if(SC.origin==='blend'){if(!bo){bo=document.createElement('option');bo.value='blend';so.prepend(bo)}bo.textContent='\u{1F30D} Blend of '+((SC.blend||[]).map(x=>originName(x.o)).join(', ')||'several origins')}else if(bo)bo.remove();so.value=SC.origin}$('s-process').value=SC.process;$('s-variety').value=String(SC.variety).split(':')[0];$('s-date').value=SC.date||'';$('s-brewer').value=SC.brewer;
+  {const so=$('s-origin');let bo=so.querySelector('option[value="blend"]');if(SC.origin==='blend'){if(!bo){bo=document.createElement('option');bo.value='blend';so.prepend(bo)}bo.textContent='\u{1F30D} Blend of '+((SC.blend||[]).map(x=>originName(x.o)).join(', ')||'several origins')}else if(bo)bo.remove();so.value=SC.origin}
+  {const mb=$('s-mb'),l=SC.origin!=='blend'&&SC.maybeBlend||[];mb.hidden=l.length<2;if(l.length>1){const n=l.map(x=>originName(x.o));mb.querySelector('small').textContent='The label names '+n.slice(0,-1).join(', ')+' and '+n[n.length-1]+'.'}}$('s-process').value=SC.process;$('s-variety').value=String(SC.variety).split(':')[0];$('s-date').value=SC.date||'';$('s-brewer').value=SC.brewer;
   seg('s-roast',[['light','Light'],['medium','Medium'],['dark','Dark']],()=>SC.roast,v=>{SC.roast=v;SC.blank=false;renderScan()});
   grinderSeg('s-grinder',(SC.brewer),()=>SC.grinder,v=>{SC.grinder=v;renderScan()});
   const age=daysSince(SC.date);const c={brewer:SC.brewer,grinder:SC.grinder,tech:techList(SC.brewer)[0][1],process:SC.process,variety:SC.variety,roast:SC.roast,age,goal:'balance'};
@@ -3855,3 +3859,31 @@ if(window.claude&&window.claude.use){
     $('scan-go').disabled=!SFILE}).catch(()=>{});
   window.claude.use('downloads').then(d=>{DL=d;renderLog()}).catch(()=>{});
 }else{$('scan-status').hidden=true;$('scan-lede').textContent='Snap a bag and get its details and a brew plan for your gear. The label is read on your phone.'}
+
+/* ---------- The speed log: the slowest taps, kept on this phone ----------
+   The phone's own measure of each tap (Event Timing): from the touch to the next frame on screen. The 40 slowest are
+   kept here only (never synced or sent anywhere), with what was tapped and on which page, so a slow spot can be found on
+   the real phone and shared as a list. Hidden: tap "Settings" at the top of Settings five times, or open #speed. */
+const SPEED_K='bb-speed';let SPEED=(()=>{try{const a=JSON.parse(localStorage.getItem(SPEED_K)||'[]');return Array.isArray(a)?a.filter(x=>x&&+x.d>0).slice(0,40):[]}catch(e){return[]}})(),SPEED_T=null;
+function spWhat(el){if(!el||el.nodeType!==1)return'';const b=el.closest('button,a,[role=button],[role=tab],input,select,textarea,label,summary,.tile,.card,[data-v],[data-bean]')||el;
+  const lab=(b.getAttribute('aria-label')||b.textContent||b.value||'').replace(/\s+/g,' ').trim().slice(0,32);
+  return b.tagName.toLowerCase()+(b.id?'#'+b.id:b.classList[0]?'.'+b.classList[0]:'')+(lab?' “'+lab+'”':'')}
+function spPage(){const d=document.querySelector('dialog[open]'),t=d&&d.querySelector('h2');const sec=document.querySelector('main section.on');return (sec?sec.id:'')+(d?' › '+(t?t.textContent.trim().slice(0,28):d.id||'sheet'):'')}
+try{if(window.PerformanceObserver&&(PerformanceObserver.supportedEntryTypes||[]).includes('event'))
+  new PerformanceObserver(l=>{let got=false;for(const e of l.getEntries()){if(!/^(pointerdown|pointerup|click|keydown|keyup|input|change)$/.test(e.name)||e.duration<64)continue;
+      SPEED.push({d:Math.round(e.duration),w:Math.round(Math.max(0,e.processingStart-e.startTime)),p:Math.round(Math.max(0,e.processingEnd-e.processingStart)),k:e.name,el:spWhat(e.target),pg:spPage(),at:Date.now(),v:appVersion()||'web'});got=true}
+    if(!got)return;SPEED.sort((a,b)=>b.d-a.d);SPEED=SPEED.slice(0,40);clearTimeout(SPEED_T);SPEED_T=setTimeout(()=>{try{localStorage.setItem(SPEED_K,JSON.stringify(SPEED))}catch(e){}},2000)}).observe({type:'event',durationThreshold:64,buffered:true})}catch(e){}
+function speedText(){return 'Brew Bench speed log ('+(appVersion()||'web')+', '+navigator.userAgent.replace(/^.*?\(([^)]*)\).*$/,'$1').slice(0,60)+')\n'+
+  (SPEED.length?SPEED.map((x,i)=>(i+1)+'. '+x.d+' ms  '+x.k+'  '+x.el+'  on '+x.pg+'  (wait '+x.w+', run '+x.p+', '+new Date(x.at).toLocaleString()+')').join('\n'):'No slow taps yet.')}
+function openSpeed(){const d=$('vd');
+  const row=x=>'<li class="sp-row"><b class="sp-ms'+(x.d>=200?' bad':x.d>=120?' meh':'')+'">'+x.d+'<small>ms</small></b><span><b>'+esc(x.el||x.k)+'</b><small>'+esc(x.k+' on '+(x.pg||'?')+' · waited '+x.w+' ms, ran '+x.p+' ms · '+fmtAgo(x.at))+'</small></span></li>';
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:#4F8A74"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:#4F8A74"></i>Speed log</span><h2 id="vd-title">The slowest taps</h2>'+
+    '<p class="hint" style="margin:0">From the tap to the next frame on screen, measured by this phone. Under 100 ms feels instant; over 200 ms feels slow. Kept on this phone only.</p></div>'+
+    '<div class="vd-body">'+(SPEED.length?'<ol class="sp-list">'+SPEED.map(row).join('')+'</ol>':'<p class="hint">No slow taps yet. Use the app as usual and come back.</p>')+
+    '<div class="actions"><button type="button" class="btn" id="sp-share"'+(SPEED.length?'':' disabled')+'>Share the list</button><button type="button" class="btn ghost" id="sp-clear"'+(SPEED.length?'':' disabled')+'>Clear</button></div></div>';
+  $('vd-x').onclick=()=>d.close();
+  $('sp-share').onclick=async()=>{const t=speedText();try{if(navigator.share){await navigator.share({title:'Brew Bench speed log',text:t});return}}catch(e){if(e&&e.name==='AbortError')return}
+    try{await navigator.clipboard.writeText(t);toast('Copied the list')}catch(e){saveFile('brew-bench-speed.txt',new Blob([t],{type:'text/plain'}))}};
+  $('sp-clear').onclick=()=>{SPEED=[];try{localStorage.removeItem(SPEED_K)}catch(e){}openSpeed();toast('Cleared')};
+  showDlg(d);d.scrollTop=0}
+{let n=0,t0=0;document.querySelector('#settings > h2').addEventListener('click',()=>{const now=Date.now();if(now-t0>3000)n=0;t0=now;if(++n>=5){n=0;openSpeed()}})}

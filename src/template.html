@@ -191,6 +191,8 @@ details.cal summary{cursor:pointer;font-weight:600}
 .vcard{text-align:left;cursor:pointer;border-top:5px solid var(--c);font:inherit;color:inherit}
 .vcard:hover{border-color:var(--ink);border-top-color:var(--c)}
 .vcard h3{margin:.2rem 0 .1rem}
+/* The card opens from its name, a real button (the Compare button inside can't sit in another button). */
+.vopen{all:unset;cursor:pointer}.vopen:focus-visible{outline:2px solid var(--cherry);outline-offset:3px;border-radius:4px}
 .vcard .fam{font-family:var(--display);font-size:.8rem;color:var(--muted)}
 .vcard p{font-size:.92rem;margin:.4rem 0}
 dialog#vd{border:0;border-radius:16px;padding:0;max-width:620px;width:calc(100% - 24px);background:var(--surface);color:var(--ink);max-height:88vh}
@@ -673,6 +675,10 @@ input[type=range]{touch-action:pan-y}
 .gpick-search{width:100%;margin-top:4px}
 .gpick-btn{display:inline-grid;place-items:center;width:34px;height:34px;margin:-6px 0;border-radius:50%;border:0;background:var(--tonal);color:var(--cherry);cursor:pointer;transition:background .15s,transform .15s}
 .gpick-btn:hover{background:var(--tonal-hover)}.gpick-btn:active{transform:scale(.92)}.gpick-btn:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
+.s-mb{display:flex;align-items:center;gap:10px;margin:10px 0 0;padding:12px;border-radius:var(--r-lg);border:1px solid color-mix(in srgb,#4F8A74 35%,var(--hair));background:color-mix(in srgb,#4F8A74 8%,var(--surface));box-shadow:var(--shadow)}
+.s-mb[hidden]{display:none}.s-mb-ic{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,#4F8A74 16%,var(--surface))}.s-mb-ic svg{width:20px;height:20px}
+.s-mb-tx{flex:1;min-width:0;display:grid;gap:1px}.s-mb-tx b{font-size:.95rem;white-space:nowrap}.s-mb-tx small{color:var(--muted);font-size:.8rem;line-height:1.3}
+.s-mb-go{flex:none;padding:8px 14px;border-radius:999px;border:0;background:#3F7A62;color:#fff;font:600 .85rem var(--body);cursor:pointer;transition:transform .15s,filter .15s}.s-mb-go:active{transform:scale(.96)}.s-mb-go:hover{filter:brightness(1.08)}
 .linkbtn{background:none;border:0;padding:2px 0;font:inherit;font-weight:600;color:var(--cherry);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .mswap{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:end}.mswap>*{min-width:0}.mswap select{width:100%;padding-left:12px;padding-right:26px}
 .mswap .field{margin-bottom:0}.gpick-btn.mswapbtn{width:46px;height:46px;margin:0}.mswap+.field{margin-top:14px}
@@ -943,10 +949,10 @@ dialog#selsheet.pop .selgrp h4{margin:2px 2px 4px;padding:6px 10px}
 .selopt{display:flex;align-items:center;gap:10px;width:100%;min-height:46px;padding:10px 12px;border:0;border-radius:var(--r-md,12px);background:none;color:var(--ink);font:500 1rem var(--body);text-align:left;cursor:pointer;transition:background-color .15s}
 .selopt span{flex:1;min-width:0}
 .selopt i{font-style:normal;color:var(--cherry);font-weight:700;opacity:0}
-.selopt[aria-selected="true"]{background:color-mix(in srgb,var(--cherry) 12%,transparent);color:var(--cherry);font-weight:600}
-.selopt[aria-selected="true"] i{opacity:1}
+.selopt:is([aria-selected="true"],[aria-checked="true"]){background:color-mix(in srgb,var(--cherry) 12%,transparent);color:var(--cherry);font-weight:600}
+.selopt:is([aria-selected="true"],[aria-checked="true"]) i{opacity:1}
 .selopt:hover,.selopt:focus-visible{background:var(--surface2);outline:none}
-.selopt[aria-selected="true"]:hover{background:color-mix(in srgb,var(--cherry) 16%,transparent)}
+.selopt:is([aria-selected="true"],[aria-checked="true"]):hover{background:color-mix(in srgb,var(--cherry) 16%,transparent)}
 .selopt:disabled{opacity:.45;cursor:default}
 .selnone{padding:0 20px 16px}
 dialog#selsheet.pop .sellist{padding:6px}
@@ -1250,7 +1256,7 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
   html{scroll-padding-top:calc(var(--sa-top) + 90px)}
 }
 /* Review fixes: readable accent text, visible empty stars, and touch targets of at least ~40px. */
-.btn.ghost,.btn.ghost:hover,.selopt[aria-selected="true"],.linkbtn{color:var(--cherry-ink)}
+.btn.ghost,.btn.ghost:hover,.selopt:is([aria-selected="true"],[aria-checked="true"]),.linkbtn{color:var(--cherry-ink)}
 .dir{color:var(--leaf-ink)}
 .fbr em{color:var(--honey-ink)!important}
 .fphase>.fph{color:color-mix(in srgb,var(--c) 45%,var(--ink))}
@@ -2011,6 +2017,11 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 /* ---------- The passport ---------- */
 .passport{position:relative;padding:18px 14px 16px;border-radius:24px;color:#2A1A10;margin-bottom:8px;
   background:repeating-linear-gradient(0deg,transparent 0 27px,rgba(90,60,30,.06) 27px 28px),radial-gradient(120% 90% at 50% 0%,#FBF3E4,#EFE1C8);box-shadow:inset 0 0 0 1.5px rgba(120,80,40,.18),var(--shadow)}
+.pp-h{position:relative}
+.sp-list{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px}.sp-row{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:14px;background:color-mix(in srgb,var(--ink) 5%,transparent)}
+.sp-row span{display:grid;min-width:0}.sp-row span b{overflow-wrap:anywhere}.sp-row small{color:var(--muted)}.sp-ms{min-width:64px;font:800 1.15rem var(--body);font-variant-numeric:tabular-nums;color:#2E7D5B}.sp-ms small{font-size:.7rem;margin-left:2px}
+.sp-ms.meh{color:#9A6A12}.sp-ms.bad{color:#B3402E}
+:root[data-theme="dark"] .sp-ms{color:#6FCB9F}:root[data-theme="dark"] .sp-ms.meh{color:#E2B866}:root[data-theme="dark"] .sp-ms.bad{color:#F08A75}.pp-share{position:absolute;top:-4px;right:-4px}
 .pp-k{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:#7A4A26}
 .pp-h h3{margin:4px 0 0;font-family:var(--display);font-size:1.45rem;color:#2A1A10}.pp-h h3 em{font-style:normal;font-size:.7em;color:#6B4A30}
 .pp-regs{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px 14px;margin-top:12px}
@@ -2080,7 +2091,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .shsw[aria-pressed="true"]{color:var(--sa);font-weight:700}.shsw[aria-pressed="true"] i{box-shadow:0 0 0 2.5px var(--surface2),0 0 0 4.5px var(--sa)}
 .shsw:focus-visible i,.shmode button:focus-visible{outline:2px solid var(--sa);outline-offset:2px}
 .shcard-pv.busy{position:relative}.shcard-pv.busy::after{content:'';position:absolute;inset:0;background:color-mix(in srgb,var(--paper) 45%,transparent);animation:bfade .2s ease}
-.steps.tl .t.est{background:transparent;border:1px dashed color-mix(in srgb,var(--ink) 30%,transparent);opacity:.85}
+.steps.tl .t.est{background:transparent;border:1px dashed color-mix(in srgb,var(--ink) 30%,transparent);color:var(--cherry-ink,var(--cherry))}
 
 .av-note{grid-column:1/-1;margin:0;font-size:.8rem}.getapp a.btn{text-decoration:none;display:flex;justify-content:center;align-items:center;text-align:center}
 /* A long coffee list: rows off screen skip layout and paint until you scroll near them (opening Beans was slow). */
@@ -2829,7 +2840,7 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
       <h3>Coffee details</h3>
       <div class="two stackm"><div class="field"><label for="s-name">Coffee name</label><input id="s-name" style="width:100%" maxlength="60" autocomplete="off"></div>
         <div class="field"><label for="s-roaster">Roastery</label><div class="acw"><input id="s-roaster" style="width:100%" maxlength="50" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="s-rsug"><div class="acl" id="s-rsug" role="listbox" aria-label="Roasteries you’ve had" hidden></div></div></div></div>
-      <div class="field"><label for="s-origin">Origin</label><select id="s-origin"></select></div>
+      <div class="field"><label for="s-origin">Origin</label><select id="s-origin"></select><div class="s-mb" id="s-mb" hidden><span class="s-mb-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M3 12h18 M12 3c3 3.5 3 14.5 0 18 M12 3c-3 3.5-3 14.5 0 18" fill="none" stroke="#3F7A62" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="s-mb-tx"><b>Looks like a blend</b><small></small></span><button type="button" class="s-mb-go" id="s-mbgo">Make blend</button></div></div>
       <div class="field"><label for="s-process">Process</label><select id="s-process"></select></div>
       <div class="field"><label for="s-variety">Variety</label><select id="s-variety"></select></div>
       <div class="field"><div class="lbl">Roast</div><div class="seg" id="s-roast"></div></div>
@@ -2861,8 +2872,8 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
   <h2>Gear and dials</h2>
   <p class="lede">Your grinders, brewers and grind settings.</p>
   <div class="card kit" id="gear-kit"></div>
-  <div class="seg filters scrollrow gtabs" id="gear-tabs" role="tablist" aria-label="Gear and dials">
-    <button type="button" role="tab" data-gtab="set">Grind</button><button type="button" role="tab" data-gtab="dials">Dials</button><button type="button" role="tab" data-gtab="brew">Brewers</button><button type="button" role="tab" data-gtab="lib">Grinders</button><button type="button" role="tab" data-gtab="acc">More</button>
+  <div class="seg filters scrollrow gtabs" id="gear-tabs" role="group" aria-label="Gear and dials">
+    <button type="button" data-gtab="set">Grind</button><button type="button" data-gtab="dials">Dials</button><button type="button" data-gtab="brew">Brewers</button><button type="button" data-gtab="lib">Grinders</button><button type="button" data-gtab="acc">More</button>
   </div>
   <div class="gpanel" data-gpanel="set" role="tabpanel">
     <div id="st-grind"></div>
@@ -2981,7 +2992,7 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
   <h3>The coffee family tree</h3>
   <p class="hint">Tap any variety to trace its ancestors and read its story. Families follow genetics, not names: Pink Bourbon sits with the Ethiopian landraces because DNA tests show that is where it comes from.</p>
   <div class="legend" id="treelegend"></div>
-  <div class="treewrap"><div class="treebox"><svg id="tree" role="img" aria-label="Coffee variety family tree"></svg></div></div><p class="treehint" aria-hidden="true">Drag sideways to follow the family across seven generations →</p><ul class="treenotes" id="treenotes" aria-label="Notes on the tree" hidden></ul>
+  <div class="treewrap"><div class="treebox"><svg id="tree" role="group" aria-label="Coffee variety family tree"></svg></div></div><p class="treehint" aria-hidden="true">Drag sideways to follow the family across seven generations →</p><ul class="treenotes" id="treenotes" aria-label="Notes on the tree" hidden></ul>
 
   <h3 style="margin-top:2rem">The coffee species</h3>
   <p class="hint">More than 130 species of Coffea exist. These are the ones that matter in your cup.</p>

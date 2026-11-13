@@ -813,6 +813,36 @@ async function galleryCardImg(full){const style=Object.assign({},CARD_STYLE),nic
     if(orc.size){Y+=64;bcLabel(x,'Where they’re from',P,Y);Y=bcChips(x,[...orc].sort((a,b)=>b[1]-a[1]).slice(0,12).map(([k,v])=>originName(k)+(v>1?'  ×'+v:'')),Y+26)}
     return bcFoot(x,c,Y,'From my bean gallery')}})}
 
+// Your passport: a stamp for every origin you've had, inked in its own colours and set at a slight angle as if pressed
+// by hand, with the bags and since when under each; then how far you are in each region, and your blends.
+// Four stamps to a row; past 40 stamps, the latest 39 and how many more.
+async function passportCardImg(){const style=Object.assign({},CARD_STYLE),D=passportData(),nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick;
+  const CAP=40,shown=D.got.length>CAP?D.got.slice(-(CAP-1)):D.got,more=D.got.length-shown.length,cols=4,rows=Math.ceil(shown.length/cols);
+  const regs=D.regs.filter(r=>r.have).concat(D.nbl?[{name:'Blends',color:'#4F8A74',have:D.nbl,all:0}]:[]),rowH=226+92;
+  const minH=130+118+40+58+56+(regs.length?80+regs.length*62:0)+64+rows*rowH+(more?70:0)+BC_FOOT+60;
+  const mon=iso=>new Date(iso+'T12:00').toLocaleDateString(undefined,{month:'short',year:'numeric'});
+  return bcBlob({style,theme:originTheme(D.got[D.got.length-1]),minH,draw:(x,c)=>{const W=BC.W,P=BC.PAD,IW=W-2*P;
+    let Y=bcHead(x,nick?nick+'’s coffee passport':'My coffee passport',new Date().toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}));
+    Y+=118;x.font='800 100px '+BC.F;x.fillStyle=BC.INK;x.fillText('Coffee',P-4,Y);const cw0=x.measureText('Coffee ').width;x.fillStyle=BC.HONEY;x.fillText('passport',P-4+cw0,Y);
+    const nr=D.regs.filter(r=>r.have).length;
+    Y+=40;bcStatPills(x,P,Y,[[D.onMap,'of '+D.total+' origins'],[nr,nr===1?'region':'regions']].concat(D.nbl?[[D.nbl,D.nbl===1?'blend':'blends']]:[]));Y+=58+56;
+    // Regions: a bar each, filled by how many of its origins you've had.
+    if(regs.length){bcLabel(x,'Regions',P,Y);Y+=26;const ph=regs.length*62+28;bcPane(x,P,Y,IW,ph,28);
+      regs.forEach((r,i)=>{const ry=Y+14+i*62+31,bx=P+250,bw=IW-250-120;x.font='600 26px '+BC.F;x.fillStyle=BC.INK;x.fillText(bcWrap(x,r.name,220,1)[0],P+28,ry+9);
+        bcRound(x,bx,ry-7,bw,14,7);x.fillStyle=bcI(.12);x.fill();const f=r.all?Math.min(1,r.have/r.all):1;if(f>0){bcRound(x,bx,ry-7,Math.max(14,bw*f),14,7);x.fillStyle=r.color;x.fill()}
+        x.font='800 26px '+BC.F;x.fillStyle=BC.HONEY;x.textAlign='right';x.fillText(r.all?r.have+' / '+r.all:String(r.have),W-P-28,ry+9);x.textAlign='left'});
+      Y+=ph+64}
+    // The stamps.
+    bcLabel(x,'Stamps',P,Y);Y+=30;const cw=IW/cols;
+    shown.forEach((k,i)=>{const col=i%cols,row=Math.floor(i/cols),cx=P+col*cw+cw/2,top=Y+row*rowH,cy=top+113,sc=0.96;
+      x.save();x.translate(cx,cy);x.rotate((((i*37)%15)-7)*Math.PI/180);x.scale(sc,sc);bcStamp(x,0,0,cardStyle(originTheme(k),style));x.restore();
+      x.textAlign='center';x.font='700 25px '+BC.F;x.fillStyle=BC.INK;x.fillText(bcWrap(x,originName(k),cw-16,1)[0],cx,top+226+30);
+      const n=k==='blend'?D.nbl:D.nBags(k),sub=(k==='blend'?n+' blend'+(n===1?'':'s'):n+' bag'+(n===1?'':'s'))+' · '+mon(D.first(k));
+      x.font='500 20px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(bcWrap(x,sub,cw-16,1)[0],cx,top+226+60);x.textAlign='left';if(col===cols-1)bcBrk(top+rowH)});
+    Y+=rows*rowH;
+    if(more){Y+=20;x.font='600 26px '+BC.F;x.fillStyle=BC.MUTED;x.textAlign='center';x.fillText('and '+more+' more stamp'+(more===1?'':'s')+' in the passport',W/2,Y);x.textAlign='left';Y+=30}
+    return bcFoot(x,c,Y,'From my coffee passport')}})}
+
 /* ---------- Sharing and saving the image ---------- */
 // Share where the phone can (WhatsApp, Instagram, Photos). Otherwise, and for Save on a phone, the card opens full size,
 // where press-and-hold saves it: phone browsers can refuse a script-started download (Chrome on Android reports it as

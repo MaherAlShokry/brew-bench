@@ -46,7 +46,32 @@ ok('stored blends keep four known, different parts; single origins keep none',JS
 // A label that says blend and names two countries.
 const lab=await p.evaluate(()=>{const i=parseLabel('HOUSE ESPRESSO\nA blend of Brazil and Ethiopia\nRoast: medium');const s=parseLabel('KENYA NYERI\nWashed SL28');return{o:i.origin_key,parts:(i.blend||[]).map(x=>x.o),single:s.origin_key}});
 ok('a label naming a blend of two countries is read as a blend',lab.o==='blend'&&lab.parts.join()==='brazil,ethiopia'&&lab.single==='kenya',lab);
+// Two countries but no word "blend": not assumed, but offered, and one tap makes it a blend.
+const mb=await p.evaluate(async()=>{goTab('scan');await new Promise(r=>setTimeout(r,400));applyInfo(parseLabel('SUNRISE\nOrigin: Brazil, Ethiopia\nWashed'));renderScan();
+  const h=$('s-mb'),before={o:SC.origin,shown:!h.hidden,text:h.textContent};$('s-mbgo').click();return{before,after:{o:SC.origin,parts:SC.blend.map(x=>x.o),hidden:h.hidden,opt:$('s-origin').selectedOptions[0].textContent}}});
+ok('a label naming two countries without the word blend offers to make it one',mb.before.o==='brazil'&&mb.before.shown&&/Brazil and Ethiopia/.test(mb.before.text),mb.before);
+ok('and one tap makes it a blend of both',mb.after.o==='blend'&&mb.after.parts.join()==='brazil,ethiopia'&&mb.after.hidden&&/Blend of Brazil, Ethiopia/.test(mb.after.opt),mb.after);
+const single=await p.evaluate(()=>{applyInfo(parseLabel('KENYA NYERI\nWashed SL28'));renderScan();return $('s-mb').hidden});ok('a single-country label offers nothing',single);
+// The passport shares as an image and a PDF, with its blends.
+const pps=await p.evaluate(async()=>{renderPassport();const btn=!!document.querySelector('#bv-passport [data-ppshare]'),d=passportDoc();const bl=await shCardFor(d,{mode:'dark',col:'origin'}),pdf=await docPDF(d);
+  return{btn,card:bl&&bl.size,pdf:pdf&&pdf.size,blends:JSON.stringify(d.blocks).includes('Blends')}});
+ok('the passport shares as an image and a PDF, blends included',pps.btn&&pps.card>50000&&pps.pdf>20000&&pps.blends,pps);
 // Its share card draws.
 const card=await p.evaluate(async id=>{try{const bl=await shCardFor(beanDoc(beanById(id)),{mode:'dark',col:'origin'});return bl&&bl.size}catch(e){return 'error '+e.message}},saved.id);
 ok('its share card draws',card>10000,card);
+// An older version of the app (from before blends) on another device flattens the blend to a coffee with no origin;
+// the sync brings that copy here. The side list (which older versions never touch) puts the blend back on opening.
+await p.waitForTimeout(1700);
+const side=await p.evaluate(id=>JSON.parse(localStorage.getItem('bb-blends')||'{}')[id],saved.id);
+ok('the blend is kept in a side list too, which the sync carries',Array.isArray(side)&&side.length===3&&await p.evaluate(()=>SYNC_KEYS.includes('bb-blends')),side);
+await p.evaluate(id=>{const l=JSON.parse(localStorage.getItem('bb-beans'));const b=l.find(x=>x.id===id);b.origin='';delete b.blend;
+  const k=l.find(x=>x.id!==id&&x.origin);if(k){window.__k=k.id}localStorage.setItem('bb-beans',JSON.stringify(l))},saved.id);
+await p.reload();await p.waitForTimeout(2200);
+const rest=await p.evaluate(id=>{const b=beanById(id),st=JSON.parse(localStorage.getItem('bb-beans')).find(x=>x.id===id);return{o:b.origin,parts:(b.blend||[]).map(x=>x.o),stored:st.origin,toast:(document.querySelector('.toast,#toast')||{}).textContent||''}},saved.id);
+ok('a blend flattened by an older version comes back, and is saved again',rest.o==='blend'&&rest.parts.join()==='brazil,ethiopia,colombia'&&rest.stored==='blend',rest);
+// Given a real origin on the older version, it stays a single-origin coffee, and leaves the side list.
+await p.evaluate(id=>{const l=JSON.parse(localStorage.getItem('bb-beans'));const b=l.find(x=>x.id===id);b.origin='kenya';delete b.blend;localStorage.setItem('bb-beans',JSON.stringify(l))},saved.id);
+await p.reload();await p.waitForTimeout(2200);
+const kept=await p.evaluate(id=>({o:beanById(id).origin,side:id in JSON.parse(localStorage.getItem('bb-blends')||'{}')}),saved.id);
+ok('one given a real origin there stays as it was',kept.o==='kenya'&&!kept.side,kept);
 ok('no errors',!errs.length,errs);await b.close()})();
