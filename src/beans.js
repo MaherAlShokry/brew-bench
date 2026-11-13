@@ -149,7 +149,7 @@ const FWIN={light:[7,30,60],medium:[4,21,45],dark:[3,14,30]};
 // still-lovely stretch end a few weeks after opening, whatever the roast date says.
 const F_DENSE_V=new Set(['geisha','sl28','sl34','sl14','landrace','jarc','kurume','dega','wolisho','wushwush','yemenia','udaini','dawairi','tufahi','jaadi','mokka']),
   F_SOFT_V=new Set(['maragogype','pacamara','maracaturra']),
-  F_FRUIT_P=new Set(['natural','pulpednatural','honey','redhoney','blackhoney','hydrohoney','anaerobic','anaerobicnatural','anaerobicwashed','anaerobichoney','doubleanaerobic','carbonic','lactic','yeast','koji','extended','thermalshock','mossto','supernatural','coldferment','nitro','raisin','coferment','infused','barrelaged']),
+  F_FRUIT_P=new Set(['natural','pulpednatural','honey','redhoney','blackhoney','hydrohoney','anaerobic','anaerobicnatural','anaerobicwashed','anaerobichoney','doubleanaerobic','carbonic','alchemy','lactic','yeast','koji','extended','thermalshock','mossto','supernatural','coldferment','nitro','raisin','coferment','infused','barrelaged']),
   F_DECAF_P=new Set(['swisswater','sugarcane','mountainwater','mcdecaf']),F_OPEN={light:[21,35],medium:[14,28],dark:[10,21]};
 // How high the origin grows: the middle of its altitude range ("1,500 to 2,300 m"), or 0 when it isn't given in metres.
 const altOf=k=>{const o=k&&oInfo(k),a=o&&o.alt;if(!a)return 0;if(/low/i.test(a))return 900;const n=(a.match(/\d[\d,]*/g)||[]).map(x=>+x.replace(/,/g,'')).filter(x=>x>=100);return n.length?(Math.min(...n)+Math.max(...n))/2:0};
@@ -398,7 +398,7 @@ function makeRecipe(bean,bk,goal,seed){const B=BREWERS[bk],t=tasteOf(BEANS,LOG.f
   const doses=LOG.filter(l=>isMine(l)&&l.snap&&(BREWERS[l.snap.b]||{}).of===(B.of||bk)||isMine(l)&&l.snap&&l.snap.b===bk).map(l=>+l.snap.dose).filter(v=>v>0).sort((a,b)=>a-b);
   const imm=B.type==='Immersion and pressure',valve=B.type==='Valve and hybrid',aero=/aeropress/i.test(B.name);
   const dose=Math.min(doses.length?doses[doses.length>>1]:imm&&!aero?18:15,aero?16:99);
-  const fer=/natural|anaerobic|honey|carbonic|ferment|thermal|yeast|koji/i.test(bean.process||''),roast=bean.roast||'medium',fresh=bean.roastDate&&daysAgo(bean.roastDate)<10;
+  const fer=/natural|anaerobic|honey|carbonic|alchemy|ferment|thermal|yeast|koji/i.test(bean.process||''),roast=bean.roast||'medium',fresh=bean.roastDate&&daysAgo(bean.roastDate)<10;
   const ratio=clamp(({balanced:16,sweet:15.5,bright:16.5,clear:17,body:14.5})[goal]-(roast==='dark'?.5:0)+(rnd()-.5)*.4,13,18);
   const water=Math.min(Math.round(dose*ratio/5)*5,aero?230:3000);
   let temp=({light:95,medium:92,dark:89})[roast]||92;if(fer)temp-=2;if(goal==='bright')temp-=1;if(goal==='sweet'||goal==='clear')temp+=1;temp=clamp(Math.round(temp),86,97);
@@ -463,7 +463,7 @@ function openMakeRecipe(bid){const d=$('vd'),beans=[...BEANS.filter(b=>b.shelf),
 
 /* ---------- Trophies ---------- */
 // Earned from the cabinet as it is: each has a goal and counts towards it. The day one is first earned is kept.
-const WILD=['anaerobic','anaerobicnatural','anaerobicwashed','anaerobichoney','doubleanaerobic','carbonic','lactic','yeast','koji','extended','thermalshock','mossto','coferment','infused','barrelaged'];
+const WILD=['anaerobic','anaerobicnatural','anaerobicwashed','anaerobichoney','doubleanaerobic','carbonic','alchemy','lactic','yeast','koji','extended','thermalshock','mossto','coferment','infused','barrelaged'];
 function cabStats(){const o=new Set(BEANS.map(b=>b.origin).filter(Boolean)),ml=MYLOG();
   return{n:BEANS.length,bags:BEANS.reduce((a,b)=>a+buys(b),0),o,regs:new Set([...o].map(k=>(oInfo(k)||{}).reg).filter(Boolean)),procs:new Set(BEANS.map(b=>b.process).filter(Boolean)),
     roasters:new Set(BEANS.map(b=>b.roaster.toLowerCase()).filter(Boolean)),diary:BEANS.reduce((a,b)=>a+b.diary.length,0),done:BEANS.filter(b=>!b.shelf).length+BEANS.reduce((a,b)=>a+(b.bags||[]).length+(b.prior||0),0),rebought:BEANS.filter(b=>buys(b)>1).length,maxBuys:BEANS.reduce((a,b)=>Math.max(a,buys(b)),0),
