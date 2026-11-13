@@ -19,7 +19,7 @@ const calLive=c=>{const t=new Date();return t.getFullYear()===c.year&&t.getMonth
 // The day a door belongs to: 1 December onwards, or today if that day hasn't come yet.
 const calDay=(c,d)=>{const iso=c.year+'-12-'+String(d).padStart(2,'0');return iso<=todayISO()?iso:todayISO()};
 function calStats(c){const doors=calDoors(c),bs=[...doors.values()],rated=bs.filter(b=>b.rating);
-  return{doors,open:bs.length,rated:rated.length,avg:rated.length?rated.reduce((s,b)=>s+b.rating,0)/rated.length:0,origins:new Set(bs.map(b=>b.origin).filter(Boolean)).size,
+  return{doors,open:bs.length,rated:rated.length,avg:rated.length?rated.reduce((s,b)=>s+b.rating,0)/rated.length:0,origins:new Set(bs.map(realO).filter(Boolean)).size,
     best:rated.slice().sort((a,b)=>b.rating-a.rating||a.cal.d-b.cal.d).slice(0,3)}}
 // The calendar's total rating: the average of the coffees you've rated from it.
 function calScore(c,st){const s=st||calStats(c);return{v:s.avg?Math.round(s.avg*10)/10:0,n:s.rated}}

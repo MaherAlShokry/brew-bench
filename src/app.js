@@ -34,7 +34,8 @@ function fromTap(fn){const ev=window.event;if(!ev||ev.type!=='click'||!ev.isTrus
   afterPaint(fn);return true}
 const pickNow=(sel,el)=>{document.querySelectorAll(sel).forEach(x=>x.setAttribute('aria-pressed',String(x===el)))};
 // A tapped row stays lit (a tap ends before its click, so :active is already gone) until its sheet is up.
-const tapOpen=(el,fn)=>{el.classList.add('tapped');afterPaint(()=>{try{fn()}finally{setTimeout(()=>el.classList.remove('tapped'),350)}})};
+// From code (a click() with no person behind it) there's nothing to answer first, so it opens at once.
+const tapOpen=(el,fn)=>{const ev=window.event;if(!ev||!ev.isTrusted){fn();return}el.classList.add('tapped');afterPaint(()=>{try{fn()}finally{setTimeout(()=>el.classList.remove('tapped'),350)}})};
 const MQ=q=>!!(window.matchMedia&&window.matchMedia(q).matches);const RM=()=>MQ('(prefers-reduced-motion: reduce)')||document.documentElement.getAttribute('data-motion')==='reduced';
 /* Drawn icons in place of emoji: one line style (24-grid, round strokes in the text colour) across stats, trophies,
    seasons, moments and greetings. emoIc() swaps every known emoji in a bit of HTML for its icon; anything unknown
@@ -407,8 +408,15 @@ function regionOptions(){const O=ALLO();return '<option value="">Not sure</optio
 function processOptions(){return Object.entries(PCAT).map(([c,n])=>'<optgroup label="'+n+'">'+Object.entries(PROCESSES).filter(([,p])=>p.cat===c).sort(([,a],[,b])=>byShort(a.name,b.name)).map(([k,p])=>'<option value="'+k+'">'+esc(shortName(p.name))+'</option>').join('')+'</optgroup>').join('')}
 const ALLO=()=>({...O,...PTS});
 // Any origin, on the map (ALLO) or off it (XO). A stored origin that is neither becomes '' ("not sure").
-const oInfo=k=>ALLO()[k]||XO[k]||null;
+// A blend is a coffee of several origins: its origin is 'blend' and its parts are in b.blend. It isn't a country, so it
+// stays out of ALLO and XO (the map, the origin lists and the label reader's countries).
+const BLEND_O={name:'Blend',flag:'\u{1F30D}',reg:'blend',subs:['Many origins']};
+const oInfo=k=>ALLO()[k]||XO[k]||(k==='blend'?BLEND_O:null);
+// A coffee's country, for counting origins: a blend has several, so it counts as none (it has its own stamp).
+const realO=b=>b&&b.origin&&b.origin!=='blend'?b.origin:'';
 const okOrigin=k=>typeof k==='string'&&oInfo(k)?k:'';
+// A blend's parts: up to four, each an origin (not another blend) and an optional region, no repeats.
+const okBlend=l=>{const out=[],seen=new Set();for(const p of Array.isArray(l)?l:[]){const o=p&&okOrigin(p.o);if(!o||o==='blend')continue;const r=String(p.r==null?'':p.r).replace(/[\u0000-\u001f]/g,' ').trim().slice(0,40),k=o+'|'+r.toLowerCase();if(seen.has(k))continue;seen.add(k);out.push(r?{o,r}:{o});if(out.length>=4)break}return out};
 const originName=k=>(oInfo(k)||{}).name||k;
 // The origin key for a country as written ("Oman", "oman", "Côte d'Ivoire"), or ''.
 const originByName=n=>{const f=fold(String(n||'')).replace(/\(.*$/,'').trim();if(!f)return '';const all={...ALLO(),...XO};
@@ -425,7 +433,7 @@ const okSBean=b=>{if(!b||typeof b!=='object')return null;const id=/^[a-z0-9]{4,2
 S.bean=okSBean(S.bean);
 S.setting=num(S.setting,56);S.temp=num(S.temp,93);S.ratio=num(S.ratio,15);S.bloom=num(S.bloom,45);if(S.rec!=null&&!RECIPES[S.rec])S.rec=null;
 S.dose=num(S.dose,15,3,120);S.age=Math.round(num(S.age,14,0,90));if(!S.tuned||typeof S.tuned!=='object')S.tuned=null;
-if(typeof S.variety!=='string'||!vById(S.variety))S.variety='caturra';S.region=okOrigin(S.region)||(S.variety.includes(':')?okOrigin(S.variety.split(':')[1]):'');S.brewer=CANONB(S.brewer);if(!BREWERS[S.brewer]||!BREWERS[S.brewer].model)S.brewer='v60';if(!PROCESSES[S.process])S.process='washed';
+if(typeof S.variety!=='string'||!vById(S.variety))S.variety='caturra';S.region=(S.region!=='blend'&&okOrigin(S.region))||(S.variety.includes(':')?okOrigin(S.variety.split(':')[1]):'');S.brewer=CANONB(S.brewer);if(!BREWERS[S.brewer]||!BREWERS[S.brewer].model)S.brewer='v60';if(!PROCESSES[S.process])S.process='washed';
 if(S.grinder==='kultra'&&S.setting<30&&S.setting>5&&S.setting%1)S.setting=Math.round(S.setting*10);
 // If the saved grinder is gone or can't do this brewer, move to one of yours and carry the grind across, never the raw click number.
 if(!MYG.includes(S.grinder)||!canGrind(S.grinder,S.brewer)){const g=MYG.find(x=>canGrind(x,S.brewer))||capable(S.brewer);
@@ -706,7 +714,7 @@ function beanSync(){const b=S.bean,gb=b&&b.id&&window.BEANS_OK&&beanById(b.id);i
   const sig=[gb.process,gb.variety,gb.roast,gb.origin,gb.roastDate].join('|'),day=todayISO();
   if(S.bsig!==sig){S.bsig=sig;ch=true;S.bday='';
     if(PROCESSES[gb.process])S.process=gb.process;if(ROASTS.includes(gb.roast))S.roast=gb.roast;
-    if(okOrigin(gb.origin))S.region=gb.origin;if(gb.variety&&vById(gb.variety))S.variety=effVariety(String(gb.variety).split(':')[0],S.region);
+    if(okOrigin(gb.origin))S.region=gb.origin==='blend'?'':gb.origin;if(gb.variety&&vById(gb.variety))S.variety=effVariety(String(gb.variety).split(':')[0],S.region);
     S.bean=okSBean({name:beanTitle(gb),roaster:gb.roaster,origin:gb.origin,id:gb.id})||S.bean}
   if(gb.roastDate&&S.bday!==day){S.bday=day;const a=clamp(ISO_D.test(gb.roastDate)?daysAgo(gb.roastDate):daysSince(gb.roastDate),3,60);if(a!==S.age){S.age=a;ch=true}}
   return ch}
@@ -1925,7 +1933,7 @@ function drawTree(){
   // the tree, so none runs into the next generation or off the edge.
   const noted=Object.keys(TREE.notes||{}).filter(id=>pos[id]).sort((a,b)=>pos[a].x-pos[b].x||pos[a].y-pos[b].y);
   noted.forEach((id,k)=>{const p=pos[id],cx=p.x+p.w+13,cy=p.y+p.h/2;W=Math.max(W,cx+12);
-    t+='<g class="tmark" data-id="'+id+'" role="button" tabindex="-1" aria-label="Note '+(k+1)+' on '+esc(p.lab)+'"><circle class="tm-hit" cx="'+cx+'" cy="'+cy+'" r="20"/><circle cx="'+cx+'" cy="'+cy+'" r="9"/><text x="'+cx+'" y="'+(cy+4)+'">'+(k+1)+'</text></g>'});
+    t+='<g class="tmark" data-id="'+id+'" role="button" tabindex="-1" aria-label="Note '+(k+1)+' on '+esc(p.lab)+'"><circle class="tm-hit" cx="'+(cx+7)+'" cy="'+cy+'" r="16"/><circle cx="'+cx+'" cy="'+cy+'" r="9"/><text x="'+cx+'" y="'+(cy+4)+'">'+(k+1)+'</text></g>'});
   {const ul=$('treenotes');if(ul){ul.innerHTML=noted.map((id,k)=>'<li data-id="'+id+'"><span class="tn-k">'+(k+1)+'</span><span><b>'+esc(pos[id].lab)+'</b>'+esc(TREE.notes[id])+'</span></li>').join('');ul.hidden=!noted.length}}
   W=Math.ceil(W+24);H=Math.ceil(H+28);
   // Generation bands with their headings.
@@ -2309,17 +2317,17 @@ $('l-csv').onclick=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';cons
 /* ================= SCAN ================= */
 let SC=Object.assign({origin:'',process:'washed',variety:'pinkbourbon',roast:'light',date:'',brewer:'v60',grinder:'zp6',info:null,name:'',roaster:''},load('bb-scan',{}));SC.name=str(SC.name,60);SC.roaster=str(SC.roaster,50);if(!MYG.includes(SC.grinder))SC.grinder=MYG[0];
 // Each new scan starts from a blank coffee: nothing from the last bag (its roast date, process or roastery) carries over.
-const SC_BLANK={origin:'',process:'washed',variety:'arabica',roast:'light',date:'',info:null,name:'',roaster:'',id:''};
+const SC_BLANK={origin:'',blend:[],process:'washed',variety:'arabica',roast:'light',date:'',info:null,name:'',roaster:'',id:''};
 const clearScanData=()=>Object.assign(SC,SC_BLANK);
 // Reopening the app starts the scan and the dial-in fresh (your gear and calibration stay), unless Settings says to
 // pick up where you left off. A reload in the same session keeps everything.
 const FRESH_OPEN=(()=>{try{const first=!sessionStorage.getItem('bb-open');sessionStorage.setItem('bb-open','1');return first&&(load('bb-ui',{}).resume||'fresh')==='fresh'}catch(e){return false}})();
 if(FRESH_OPEN){clearScanData();SC.blank=true;
   Object.assign(S,{rec:null,reck:null,temp:93,ratio:15,bloom:45,agit:'med',roast:'light',process:'washed',variety:'caturra',region:'',dose:15,goal:'balance',amt:'mid',age:14,tuned:null,bean:null});S.fresh=1}
-if(!PROCESSES[SC.process])SC.process='washed';if(!vById(SC.variety))SC.variety='pinkbourbon';if(!['light','medium','dark'].includes(SC.roast))SC.roast='light';if(!/^\d{4}-\d{2}-\d{2}$/.test(SC.date||''))SC.date='';SC.origin=okOrigin(SC.origin);if(!PBREWERS.includes(SC.brewer))SC.brewer='v60';
+if(!PROCESSES[SC.process])SC.process='washed';if(!vById(SC.variety))SC.variety='pinkbourbon';if(!['light','medium','dark'].includes(SC.roast))SC.roast='light';if(!/^\d{4}-\d{2}-\d{2}$/.test(SC.date||''))SC.date='';SC.origin=okOrigin(SC.origin);SC.blend=SC.origin==='blend'?okBlend(SC.blend):[];if(!PBREWERS.includes(SC.brewer))SC.brewer='v60';
 // Saved scans come from storage, a backup or another device: keep only well-formed ones, with known keys.
 const okScan=x=>{if(!x||typeof x!=='object'||!x.sc||typeof x.sc!=='object')return null;const c=x.sc;
-  if(!PROCESSES[c.process])c.process='washed';if(!vById(c.variety))c.variety='pinkbourbon';c.origin=okOrigin(c.origin);if(!['light','medium','dark'].includes(c.roast))c.roast='light';
+  if(!PROCESSES[c.process])c.process='washed';if(!vById(c.variety))c.variety='pinkbourbon';c.origin=okOrigin(c.origin);c.blend=c.origin==='blend'?okBlend(c.blend):[];if(!['light','medium','dark'].includes(c.roast))c.roast='light';
   for(const k of ['name','roaster','date'])if(typeof c[k]!=='string')c[k]='';
   // The thumbnail goes into an <img>: only an inline picture is allowed.
   if(typeof x.t!=='string'||!/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(x.t))x.t='';if(x.info&&typeof x.info!=='object')x.info=null;return x};
@@ -2596,6 +2604,10 @@ function parseLabel(raw,geo){const L=lexicon(),t=(' '+fold(raw).replace(/[|_~*]+
   // A tasting note like "honey" must not decide the process, so the notes line is left out when looking for one.
   const noNotes=kN?t.replace(fold(kN.line),' '):t;
   const c=(kO&&(findFirst(kO.val,L.countries)||findFirst(kO.val,L.hubs)))||findFirst(t,L.countries)||findFuzzy(t,L.countries),r=findBest(t,L.regions);if(c){info.origin_key=c.val;hits++}else if(r){info.origin_key=r.val;hits++}
+  // A blend: the label says so (blend, mezcla) and names two or more countries. Its origin is the blend, its parts the
+  // countries in the order they're named (on the Origin line if there is one), up to four.
+  if(/\b(blend|mezcla|blended)\b/.test(t)){const cs=src=>[...new Set(findAll(src,L.countries).map(x=>x.val))];let all=kO?cs(fold(kO.val)):[];if(all.length<2)all=cs(t);
+    if(all.length>=2){info.origin_key='blend';info.blend=all.slice(0,4).map(o=>({o}))}}
   if(r&&(!c||r.val===c.val))info.region=r.alias.replace(/\b\w/g,x=>x.toUpperCase());
   let vs=kV?findAll(kV.val,L.varsLine):[];if(!vs.length)vs=findAll(t,L.vars);if(!vs.length){const f=findFuzzy(t,L.vars);if(f)vs=[f]}if(vs.length){info.variety_key=vs[0].val;info.variety_keys=[...new Set(vs.map(x=>x.val))].slice(0,4);info.varieties=[...new Set(vs.map(x=>VBY[x.val].name.replace(/\s*\(.*$/,'')))];hits++}
   const pr=(kP&&findBest(kP.val,L.procs))||findBest(noNotes,L.procs)||findFuzzy(noNotes,L.procs)||(kN?null:findBest(t,L.procs));if(pr){info.process_key=pr.val;info.process=PROCESSES[pr.val].name;hits++}
@@ -2715,7 +2727,7 @@ function findRoaster(lines,t,geo){const clean=lines.map(cleanLine),L=lexicon(),c
   if(!cands.length)return null;cands.sort((a,b)=>b.score-a.score);const best=cands[0];
   // Names in capitals come back in normal case; a known roaster keeps its own spelling.
   return{name:best.score>=100?best.name:niceName(best.name).replace(/\s+/g,' ').slice(0,50),line:best.line}}
-function applyInfo(j){clearScanData();SC.blank=false;SC.origin=okOrigin(j.origin_key);if(j.process_key&&PROCESSES[j.process_key])SC.process=j.process_key;
+function applyInfo(j){clearScanData();SC.blank=false;SC.origin=okOrigin(j.origin_key);SC.blend=SC.origin==='blend'?okBlend(j.blend):[];if(j.process_key&&PROCESSES[j.process_key])SC.process=j.process_key;
   // A label that names no variety gets plain arabica (neutral in the plan), not whatever the last bag was.
   SC.variety=j.variety_key&&vById(j.variety_key)?j.variety_key:'arabica';if(['light','medium','dark'].includes(j.roast_level))SC.roast=j.roast_level;if(/^\d{4}-\d{2}-\d{2}$/.test(j.roast_date||''))SC.date=j.roast_date;SC.name=plausibleName(j.coffee_name)?niceName(j.coffee_name).slice(0,60):'';SC.roaster=plausibleName(j.roaster)?niceName(j.roaster).slice(0,50):'';SC.info=j}
 async function runLocalScan(useImg){
@@ -2781,7 +2793,7 @@ function thumb(cb){if(!SFILE){cb('');return}const img=new Image();img.onload=()=
 function saveScan(){SC.id='s'+Date.now().toString(36);const sid=SC.id;
   // A sharp copy of the photo is kept for the gallery; the list itself keeps only a small thumbnail.
   if(SFILE&&$('scan-prev').src)shrinkPhoto($('scan-prev').src,900).then(u=>BIMG.put(sid,u)).catch(()=>{});
-  thumb(t=>{SCANS.unshift({id:SC.id,t,info:SC.info,sc:{origin:SC.origin,process:SC.process,variety:SC.variety,roast:SC.roast,date:SC.date,name:SC.name,roaster:SC.roaster},when:new Date().toLocaleDateString()});for(const x of SCANS.slice(12))if(x.id)BIMG.del(x.id);SCANS=SCANS.slice(0,12);save('bb-scans',SCANS);renderScanList()})}
+  thumb(t=>{SCANS.unshift({id:SC.id,t,info:SC.info,sc:{origin:SC.origin,...(SC.origin==='blend'?{blend:SC.blend||[]}:{}),process:SC.process,variety:SC.variety,roast:SC.roast,date:SC.date,name:SC.name,roaster:SC.roaster},when:new Date().toLocaleDateString()});for(const x of SCANS.slice(12))if(x.id)BIMG.del(x.id);SCANS=SCANS.slice(0,12);save('bb-scans',SCANS);renderScanList()})}
 // A saved scan reopens on the Scan page with its details.
 function openSavedScan(i){const s=SCANS[i];if(!s)return;clearScanData();SC.blank=false;Object.assign(SC,{name:'',roaster:''},s.sc);SC.id=s.id;SC.info=s.info;if(typeof s.sc.name!=='string'&&s.info&&plausibleName(s.info.coffee_name))SC.name=niceName(s.info.coffee_name);if(typeof s.sc.roaster!=='string')SC.roaster=scRoaster(s)&&niceName(scRoaster(s));renderScan();showTab('scan')}
 // Scans are listed on the Beans page.
@@ -2808,7 +2820,7 @@ function scanVars(sc,inf){const k=inf&&Array.isArray(inf.variety_keys)?inf.varie
 function scanTitle(sc,inf){const n=sc.name||(inf&&plausibleName(inf.coffee_name)?niceName(inf.coffee_name):'')||(inf&&inf.producer_or_farm)||'';const o=sc.origin?originName(sc.origin):'',v=sc.variety!=='arabica'?vName(sc.variety):'';return n||(o&&v?o+' '+v:o?o+' coffee':v||'A coffee')}
 // The roastery gets its own spotlight card, with how many of their coffees you've scanned.
 function renderScanHead(){const h=$('scan-head');if(!h)return;const r=SC.roaster,n=r?SCANS.filter(x=>scRoaster(x).toLowerCase()===r.toLowerCase()).length:0;
-  const ti=scanTitle(SC,SC.info),sub=[SC.origin&&originName(SC.origin),SC.variety!=='arabica'&&vName(SC.variety)].filter(Boolean).join(' · ');
+  const ti=scanTitle(SC,SC.info),sub=[SC.origin&&(SC.origin==='blend'&&(SC.blend||[]).length?'Blend of '+SC.blend.map(x=>originName(x.o)).join(', '):originName(SC.origin)),SC.variety!=='arabica'&&vName(SC.variety)].filter(Boolean).join(' · ');
   h.innerHTML='<h2 style="margin-bottom:.2rem">'+esc(ti)+'</h2>'+(SC.name&&sub&&sub!==ti?'<p class="scan-sub">'+esc(sub)+'</p>':'')+
     (r?'<div class="roastery"><span class="ri"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 10h13v4a6 6 0 0 1-6 6h-1a6 6 0 0 1-6-6z M18 11h1.5a2.5 2.5 0 0 1 0 5H17 M9 3c-1 1.5 1 2.5 0 4 M13 3c-1 1.5 1 2.5 0 4"/></svg></span><div><small>Roasted by</small><b>'+esc(r)+'</b>'+(n>1?'<small>'+n+' of their coffees in your scans</small>':'')+'</div></div>':'<p class="hint" style="margin:.2rem 0 .6rem">Add the roastery below to give them credit.</p>')}
 /* A scanned coffee's profile, in words: how it should taste, what its origin, variety and process bring, and how to
@@ -2942,7 +2954,7 @@ function beanProfileHTML(){const b=beanProfile();
     '<h4 class="bp-h">How to brew it</h4><ul class="bp-tips">'+b.tips.map(t=>'<li>'+esc(t)+'</li>').join('')+'</ul>'+
     '<p class="hint" style="margin:10px 0 0">For exact grind and water settings on your gear, open it in the dial-in.</p></div>'}
 function renderScan(){
-  $('s-origin').value=SC.origin;$('s-process').value=SC.process;$('s-variety').value=String(SC.variety).split(':')[0];$('s-date').value=SC.date||'';$('s-brewer').value=SC.brewer;
+  {const so=$('s-origin');let bo=so.querySelector('option[value="blend"]');if(SC.origin==='blend'){if(!bo){bo=document.createElement('option');bo.value='blend';so.prepend(bo)}bo.textContent='\u{1F30D} Blend of '+((SC.blend||[]).map(x=>originName(x.o)).join(', ')||'several origins')}else if(bo)bo.remove();so.value=SC.origin}$('s-process').value=SC.process;$('s-variety').value=String(SC.variety).split(':')[0];$('s-date').value=SC.date||'';$('s-brewer').value=SC.brewer;
   seg('s-roast',[['light','Light'],['medium','Medium'],['dark','Dark']],()=>SC.roast,v=>{SC.roast=v;SC.blank=false;renderScan()});
   grinderSeg('s-grinder',(SC.brewer),()=>SC.grinder,v=>{SC.grinder=v;renderScan()});
   const age=daysSince(SC.date);const c={brewer:SC.brewer,grinder:SC.grinder,tech:techList(SC.brewer)[0][1],process:SC.process,variety:SC.variety,roast:SC.roast,age,goal:'balance'};
@@ -2964,7 +2976,7 @@ function renderScan(){
   $('sc-gallery').onclick=async()=>{let photo=null;if(SFILE&&$('scan-prev').src)try{photo=await shrinkPhoto($('scan-prev').src,900)}catch(e){}
     // A scan reopened from the list has no file, so its kept photo (or thumbnail) is used.
     if(!photo&&SC.id){photo=await BIMG.get(SC.id);if(!photo){const x=SCANS.find(q=>q.id===SC.id);photo=x&&x.t||null}}
-    openBeanEditor(null,{name:SC.name||(inf&&plausibleName(inf.coffee_name)?niceName(inf.coffee_name):''),roaster:SC.roaster,origin:SC.origin,process:SC.process,variety:SC.variety,vars:scanVars(SC,inf),roast:SC.roast,roastDate:SC.date||'',
+    openBeanEditor(null,{name:SC.name||(inf&&plausibleName(inf.coffee_name)?niceName(inf.coffee_name):''),roaster:SC.roaster,origin:SC.origin,blend:SC.blend||[],process:SC.process,variety:SC.variety,vars:scanVars(SC,inf),roast:SC.roast,roastDate:SC.date||'',
       flavours:inf&&Array.isArray(inf.tasting_notes)?inf.tasting_notes.join(', ').slice(0,160):'',photo,scan:SC.id||''})};
   $('sc-dial').onclick=()=>{S.bean=okSBean({name:SC.name||scanTitle(SC,SC.info),roaster:SC.roaster,origin:SC.origin,scan:SC.id||''});Object.assign(S,{brewer:p.st.brewer,rec:c.tech,process:c.process,variety:c.variety,roast:c.roast,age:c.age,goal:c.goal,amt:c.amt||'mid',dose:p.r.dose,grinder:p.grinder});showTab('dial');tune('Tuned for this coffee')};
   $('sc-share').onclick=()=>openShare(scanDoc(p,c));$('sc-new').onclick=()=>{newScan();scrollTo({top:0,behavior:RM()?'auto':'smooth'})};

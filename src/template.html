@@ -2145,9 +2145,12 @@ body.t-dial.dial-ready .herowrap{display:none}
 .bvars{display:grid;gap:8px}.bvar{display:flex;gap:8px;align-items:stretch}.bvar select{flex:1 1 auto;min-width:0}
 .bvar-x{flex:none;width:44px;min-height:44px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--muted);display:grid;place-items:center;cursor:pointer;padding:0}
 .bvar-x:hover{color:var(--cherry-ink);border-color:color-mix(in srgb,var(--cherry) 40%,var(--line))}
-.bvar-x svg,.bv-add svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
-.bv-add{margin-top:8px;display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:6px 14px;border-radius:var(--r-pill);border:1px dashed color-mix(in srgb,var(--cherry) 45%,var(--line));background:transparent;color:var(--cherry-ink);font:inherit;font-weight:600;font-size:.86rem;cursor:pointer}
-.bv-add[hidden]{display:none}
+.bvar-x svg,/* Adding another origin or variety: a small round + beside the field's name. */
+.bvar-x svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+.bv-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}.bv-head .lbl{margin:0;font-size:.92rem;font-weight:600}
+.bv-plus{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;padding:0;cursor:pointer;border:1px solid color-mix(in srgb,var(--cherry) 40%,var(--line));background:color-mix(in srgb,var(--cherry) 10%,var(--surface));color:var(--cherry-ink);transition:transform .15s,background-color .15s}
+.bv-plus svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
+.bv-plus:active{transform:scale(.9)}.bv-plus[hidden]{display:none}
 /* The dialog header stays above anything that scrolls under it (the rating beans drew over it). */
 .vd-head{z-index:4}
 .bvar select{width:100%}

@@ -7,7 +7,7 @@ await c.addInitScript(t=>{sessionStorage.setItem('bb-splashed','1');localStorage
 await p.goto('http://localhost:8099/index.html');await p.evaluate(require('./seed2.cjs'));await p.reload();await p.waitForTimeout(800);
 
 await p.evaluate(()=>openBeanEditor());await p.waitForTimeout(400);
-await p.selectOption('#be-origin','ethiopia');await p.selectOption('#be-process','natural');await p.waitForTimeout(200);
+await p.selectOption('#be-origins select','ethiopia');await p.selectOption('#be-process','natural');await p.waitForTimeout(200);
 const sug=await p.$$eval('#tn-sug [data-add]',l=>l.map(x=>x.textContent));ok(sug.length>=3,'suggestions for Ethiopia natural',sug);
 await p.click('#tn-sug [data-add]');
 await p.fill('#tn-q','berg');await p.waitForTimeout(200);const o=await p.$$eval('#tn-list [role=option]',l=>l.map(x=>x.textContent));ok(o.some(x=>/Bergamot/.test(x)),'search finds bergamot',o);

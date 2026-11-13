@@ -16,7 +16,7 @@ ok(await p.$$eval('.adv-door',l=>l.length)===24,'24 doors');
 await p.click('[data-door="1"]');await p.waitForTimeout(400);
 ok(await p.evaluate(()=>document.getElementById('vd-title').textContent.startsWith('Door 1')),'editor titled for door 1');
 ok(await p.evaluate(()=>$('be-roaster').value==='Archers'&&$('be-bag').value==='50'),'roaster and 50 g filled in');
-await p.fill('#be-name','Kenya Kiambu');await p.selectOption('#be-origin',{index:5});await p.click('#be-save');await p.waitForTimeout(600);
+await p.fill('#be-name','Kenya Kiambu');await p.selectOption('#be-origins select',{index:5});await p.click('#be-save');await p.waitForTimeout(600);
 ok(await p.$('.adv-door.on[data-door="1"]'),'door 1 shows as opened');
 ok(await p.evaluate(()=>{const b=BEANS.find(x=>x.cal);return b&&b.cal.d===1&&b.tried==='2026-12-01'||b.tried===todayISO()}),'coffee linked to door 1');
 // add door 2 with rating via data
