@@ -2725,10 +2725,9 @@ main section.on:has(>.fab){padding-bottom:160px!important}
 
 #l-stats>div:last-child:nth-child(odd){grid-column:1/-1}
 .l-head{margin-top:16px}
-.le-fladd{border:1.5px dashed color-mix(in srgb,var(--muted) 45%,transparent);background:none;color:var(--muted);cursor:pointer;gap:3px;padding:4px 10px;font:inherit}
-.le-fladd svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.le-fladd svg.pl{width:11px;height:11px;stroke-width:2.6}
-.le-fladd:hover,.le-fladd:focus-visible{color:var(--cherry);border-color:var(--cherry)}
+.le-fladd{border:0;cursor:pointer;font:inherit;font-size:.8rem;font-weight:600;color:var(--cherry);background:color-mix(in srgb,var(--cherry) 10%,var(--surface2))}
+.le-fladd svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round}
+.le-fladd:hover,.le-fladd:focus-visible{background:color-mix(in srgb,var(--cherry) 18%,var(--surface2))}
 .figs b{white-space:nowrap}
 
 .rscale{display:flex;align-items:center;gap:10px;margin:0 0 14px;padding:10px 12px;border-radius:var(--r-lg);background:color-mix(in srgb,var(--ink) 4%,var(--surface));box-shadow:inset 0 0 0 1px var(--hair)}
@@ -2779,7 +2778,7 @@ main section.on:has(>.fab){padding-bottom:160px!important}
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="7f6812cf7904"</script>
+<script>const BUILD_ID="945b6042874c"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -7867,7 +7866,7 @@ function logGroup(l){const d=new Date(l.ts||Date.parse(l.date));if(isNaN(d))retu
 function logEntryHTML(l,i){const ag=againPlan(l),st=clamp(Math.round(+l.stars||0),0,5),{pills,rest}=logPills(l),who=GROUP&&l.by&&!(window.BEANS_OK?isMine(l):l.by===ME)?l.by:'';
   const rate=st?'<span class="le-stars" role="img" aria-label="'+st+' of 5 beans, '+STARW[st]+'">'+beanRate(st)+'<b>'+st+'</b></span>':'<span class="le-stars none">Not rated</span>';
   return '<article class="logentry le2"><div class="le-top">'+logThumb(l)+'<div class="le-tt"><b>'+esc(l.coffee||'Untitled')+'</b><div class="le-sub"><span class="le-meta">'+(who?'<span class="le-who">'+esc(who)+'</span><span aria-hidden="true">·</span>':'')+esc(fmtDate(l))+(l.edited?' · edited':'')+'</span>'+rate+'</div></div></div>'+
-    (pills.length||!flOf(l).length?'<div class="le-pills">'+pills.map(([k,t])=>'<span class="le-pill k-'+k+'">'+(LSI[k==='ratio'?'water':k]?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+LSI[k==='ratio'?'water':k]+'"/></svg>':'')+esc(t)+'</span>').join('')+(flOf(l).length?'':'<button type="button" class="le-pill le-fladd" data-fledit="'+i+'" aria-label="Add flavour notes" title="Add flavour notes"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v8.5l7.4 4.2M12 12l-7.4 4.2"/></svg><svg class="pl" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v12M6 12h12"/></svg></button>')+'</div>':'')+
+    (pills.length||!flOf(l).length?'<div class="le-pills">'+pills.map(([k,t])=>'<span class="le-pill k-'+k+'">'+(LSI[k==='ratio'?'water':k]?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+LSI[k==='ratio'?'water':k]+'"/></svg>':'')+esc(t)+'</span>').join('')+(flOf(l).length?'':'<button type="button" class="le-pill le-fladd" data-fledit="'+i+'" aria-label="Add flavour notes" title="Add flavour notes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v12M6 12h12"/></svg>Flavours</button>')+'</div>':'')+
     (rest?'<p class="le-rest">'+esc(rest)+'</p>':'')+(l.pred?'<p class="le-pred">Expected <b>'+esc(l.pred)+'</b></p>':'')+(l.notes?'<blockquote class="le-notes">'+esc(l.notes)+'</blockquote>':'')+flEntry(l,i)+
     '<div class="le-act'+(ag?' has-again':'')+'">'+(ag?'<button type="button" class="le-b again" data-again="'+i+'" aria-label="Brew this again" title="Brew this again">'+lIc('again')+'</button>':'')+'<button type="button" class="le-b" data-lshare="'+i+'" aria-label="Share this brew" title="Share">'+lIc('share')+'</button>'+(canEdit(l)?'<button type="button" class="le-b" data-edit="'+i+'" aria-label="Edit this brew" title="Edit">'+lIc('edit')+'</button>':'')+'<button type="button" class="le-b del" data-del="'+i+'" aria-label="Delete this brew" title="Delete this brew">'+lIc('del')+'</button></div></article>'}
 // Search, then a filter and a sort button, as on Recipes: each opens a sheet. A dot on the filter says one is on.
