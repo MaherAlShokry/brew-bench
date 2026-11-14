@@ -1236,6 +1236,7 @@ function showTab(id,fromHistory,pure){NAV_AT=performance.now();ensureTab(id);
     // Every change first, then the scroll (which lays the page out): one layout pass instead of two.
     // Highlights that waited for this page (select.js loads after the first page is shown, so it may not be there yet).
     syncShell(id,backY==null);if(backY!=null)window.scrollTo({top:backY});try{segShown($(id))}catch(e){}
+    if(kind&&NAV_READY)spSlide(id);
     if(kind&&NAV_READY){const sec=$(id);if(!vt){replay(sec,'nav-in');clearTimeout(sec._nav);sec._nav=setTimeout(()=>sec.classList.remove('nav-in'),480);
       // The Brew page's hero sits above the page itself: it comes in with it.
       const hw=id==='dial'&&document.querySelector('.herowrap');if(hw){replay(hw,'nav-in');clearTimeout(hw._nav);hw._nav=setTimeout(()=>hw.classList.remove('nav-in'),480)}
@@ -4175,10 +4176,17 @@ try{if(window.PerformanceObserver&&(PerformanceObserver.supportedEntryTypes||[])
     if(!got)return;SPEED.sort((a,b)=>b.d-a.d);SPEED=SPEED.slice(0,40);clearTimeout(SPEED_T);SPEED_T=setTimeout(()=>{try{localStorage.setItem(SPEED_K,JSON.stringify(SPEED))}catch(e){}},2000)}).observe({type:'event',durationThreshold:64,buffered:true})}catch(e){}
 function speedText(){return 'Brew Bench speed log ('+(appVersion()||'web')+', '+navigator.userAgent.replace(/^.*?\(([^)]*)\).*$/,'$1').slice(0,60)+')\n'+
   (SPEED.length?SPEED.map((x,i)=>(i+1)+'. '+x.d+' ms  '+x.k+'  '+x.el+'  on '+x.pg+'  (wait '+x.w+', run '+x.p+', '+new Date(x.at).toLocaleString()+')').join('\n'):'No slow taps yet.')}
+// How smoothly a page slid in: the frames in the half second after a tab change. A frame over 50 ms is a visible stutter;
+// those go in the speed log with the slowest frame and how many were dropped, so a phone's own numbers can be shared.
+function spSlide(id){if(!window.requestAnimationFrame||document.hidden)return;let last=performance.now();const t0=last,fr=[];
+  const f=n=>{fr.push(n-last);last=n;if(n-t0<480)requestAnimationFrame(f);else{const worst=Math.round(Math.max(0,...fr)),drop=fr.reduce((a,x)=>a+Math.max(0,Math.round(x/16.7)-1),0);
+    if(worst<50||document.hidden)return;SPEED.push({d:worst,w:drop,p:Math.round(fr.reduce((a,x)=>a+x,0)),k:'slide',el:'Opening '+(($('ab-title')||{}).textContent||id),pg:id,at:Date.now(),v:appVersion()||'web'});
+    SPEED.sort((a,b)=>b.d-a.d);SPEED=SPEED.slice(0,40);clearTimeout(SPEED_T);SPEED_T=setTimeout(()=>{try{localStorage.setItem(SPEED_K,JSON.stringify(SPEED))}catch(e){}},2000)}};
+  requestAnimationFrame(f)}
 function openSpeed(){const d=$('vd');
-  const row=x=>'<li class="sp-row"><b class="sp-ms'+(x.d>=200?' bad':x.d>=120?' meh':'')+'">'+x.d+'<small>ms</small></b><span><b>'+esc(x.el||x.k)+'</b><small>'+esc(x.k+' on '+(x.pg||'?')+' · waited '+x.w+' ms, ran '+x.p+' ms · '+fmtAgo(x.at))+'</small></span></li>';
+  const row=x=>'<li class="sp-row"><b class="sp-ms'+(x.d>=200?' bad':x.d>=120?' meh':'')+'">'+x.d+'<small>ms</small></b><span><b>'+esc(x.el||x.k)+'</b><small>'+esc((x.k==='slide'?'Slowest frame of the slide on '+(x.pg||'?')+' · '+x.w+' frame'+(x.w===1?'':'s')+' dropped':x.k+' on '+(x.pg||'?')+' · waited '+x.w+' ms, ran '+x.p+' ms')+' · '+fmtAgo(x.at))+'</small></span></li>';
   $('vd-in').innerHTML='<div class="vd-head" style="--c:#4F8A74"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:#4F8A74"></i>Speed log</span><h2 id="vd-title">The slowest taps</h2>'+
-    '<p class="hint" style="margin:0">From the tap to the next frame on screen, measured by this phone. Under 100 ms feels instant; over 200 ms feels slow. Kept on this phone only.</p></div>'+
+    '<p class="hint" style="margin:0">From the tap to the next frame on screen, and the slowest frame while a page slides in, measured by this phone. Under 100 ms feels instant; over 200 ms feels slow. Kept on this phone only.</p></div>'+
     '<div class="vd-body">'+(SPEED.length?'<ol class="sp-list">'+SPEED.map(row).join('')+'</ol>':'<p class="hint">No slow taps yet. Use the app as usual and come back.</p>')+
     '<div class="actions"><button type="button" class="btn" id="sp-share"'+(SPEED.length?'':' disabled')+'>Share the list</button><button type="button" class="btn ghost" id="sp-clear"'+(SPEED.length?'':' disabled')+'>Clear</button></div></div>';
   $('vd-x').onclick=()=>d.close();
