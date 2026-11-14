@@ -640,7 +640,9 @@ function widgetRecipe(){const since=Date.now()-60*864e5,n=new Map();for(const l 
   let i=-1;const top=[...n].sort((a,b)=>b[1]-a[1])[0];if(top)i=rByKey(top[0]);
   if(i<0&&typeof RECENT!=='undefined'&&RECENT.length)i=rByKey(RECENT[0]);if(i<0)return{};
   const r=RECIPES[i],sc=scaled(r),B=BREWERS[r.b];
-  return{key:rkey(r),name:r.name,brewer:B?B.name:'',dose:gfmt(sc.dose)+' g',water:gfmt(sc.water)+' g',temp:r.temp?r.temp+'°C':'',line:[B&&B.name,gfmt(sc.dose)+' g : '+gfmt(sc.water)+' g',r.temp?r.temp+'°C':''].filter(Boolean).join(' · ')}}
+  // The steps and length too, so the widget's Start can run the brew without opening the app.
+  let steps=[],total=0;try{const ev=parseSteps(sc.steps);total=Math.round(clockTotal(sc.steps,ev)*1000);steps=total?tmSteps(ev):[]}catch(e){}
+  return{key:rkey(r),name:r.name,steps,total,brewer:B?B.name:'',dose:gfmt(sc.dose)+' g',water:gfmt(sc.water)+' g',temp:r.temp?r.temp+'°C':'',line:[B&&B.name,gfmt(sc.dose)+' g : '+gfmt(sc.water)+' g',r.temp?r.temp+'°C':''].filter(Boolean).join(' · ')}}
 function widgetWords(){const d0=Math.floor(Date.now()/864e5),out=[];for(let d=d0;d<d0+42;d++){const w=GLOSSARY[d%GLOSSARY.length];out.push([d,w[0],w[2],(GCAT[w[1]]||[''])[0]])}return out}
 // Drinking now shows the coffee's photo (a small copy, 192 px) or, without one, its origin's flag.
 async function updWidget(){const w=plugin('Widget');if(!w)return;try{const b=widgetBean();let rc={},photo='';try{rc=widgetRecipe()}catch(e){}
@@ -648,7 +650,12 @@ async function updWidget(){const w=plugin('Widget');if(!w)return;try{const b=wid
   w.update(Object.assign(b?{id:b.id,title:beanTitle(b),sub:[b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '),flag:b.origin?flagOf(b.origin):'',photo,
     roastDate:b.roastDate||'',win:freshWin(b).w.join(','),left:wLeft(b)}:{id:''},{cabinet:JSON.stringify(await (async()=>{const l=widgetCabinet();for(const x of l.slice(0,6))x.ph=await widgetThumb(beanById(x.id));return l})()),brew:JSON.stringify(rc.key&&b?Object.assign({},rc,{bean:{id:b.id,title:beanTitle(b),flag:isBlend(b)?BLEND_O.flag:b.origin?flagOf(b.origin):'',ph:await widgetThumb(b)}}):rc),words:JSON.stringify(widgetWords())})).catch(()=>{})}catch(e){}}
 (()=>{if(!plugin('Widget'))return;setTimeout(updWidget,2500);document.addEventListener('visibilitychange',()=>{if(document.hidden)updWidget()});
-  const go=o=>{const [k,id]=String(o||'').split(':');document.querySelectorAll('dialog[open]').forEach(d=>d.close());
+  const go=o=>{const [k,id]=String(o||'').split(':');
+    // The brew timer's notification or widget: back to the timer as it is (reopened where the brew is if it was closed).
+    if(k==='resume'){if(!$('timer').open)tmResume(false);return}
+    // "Log this brew" on a finished brew's notification, with its timer still open: the timer's own log, with the brew.
+    if(k==='log'&&!id&&$('timer').open&&TM&&TM.fin&&$('tm-log')){$('tm-log').click();return}
+    document.querySelectorAll('dialog[open]').forEach(d=>d.close());
     if(k==='bean'&&beanById(id)){showTab('beans');openBean(id);return}
     if(k==='log'){if(LEDIT)endEdit();LBEAN=id&&beanById(id)?id:null;renderLBean();renderFlForm();showTab('log');setTimeout(()=>$('l-form').scrollIntoView({block:'start'}),60);return}
     // Recipe keys hold a colon themselves ("r:kasuya-4-6"), so the rest of the request is the key.
@@ -658,13 +665,13 @@ async function updWidget(){const w=plugin('Widget');if(!w)return;try{const b=wid
     // From the icon's long-press shortcuts: a brew (your go-to recipe's timer, else the dial-in), a scan, the log.
     if(k==='brew'){const rc=widgetRecipe(),i=rc&&rc.key?rByKey(rc.key):-1;if(i>=0){showTab('recipes');openTimer(i)}else showTab('dial');return}
     if(k==='scan'){showTab('scan');try{newScan()}catch(e){}scrollTo(0,0);return}
-    if(k==='resume')return;
     if(k==='word'&&GBY[rest]){openWord(rest);return}
     if(k==='word'||k==='explore'){goTab('explore');return}
     showTab('beans')};
   const ready=()=>NAV_READY&&!document.documentElement.classList.contains('splashing');
   // Asked on start (a tap that opened the app) and by the app when a tap arrives while it's running.
-  const ask=()=>{if(!ready()){setTimeout(ask,150);return}plugin('Widget').pending().then(r=>{if(r&&r.open)go(r.open)}).catch(()=>{})};
+  // Started from the icon with a brew still running on the phone: its timer opens where the brew is.
+  let first=true;const ask=()=>{if(!ready()){setTimeout(ask,150);return}const cold=first;first=false;plugin('Widget').pending().then(r=>{if(r&&r.open)go(r.open);else if(cold)tmResume(true)}).catch(()=>{})};
   window.bbWidget=ask;ask()})();
 function cabinetDayHTML(){const c=cabinetDay();if(!c)return '';
   return '<button type="button" class="cday k-'+c.k+'" data-bean="'+c.b.id+'">'+beanPic(c.b,'cd')+'<span class="cd-tx"><small>'+(c.k==='fav'?'From your cabinet':'From your cabinet · '+DAYK[c.k])+'</small><b>'+esc(c.title)+'</b><span>'+esc(c.text)+'</span></span></button>'}

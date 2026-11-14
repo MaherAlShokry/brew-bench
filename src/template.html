@@ -323,6 +323,11 @@ button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.a
 .dateinp{width:100%;padding:9px 10px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:12px;font-family:var(--body)}
 .scanning{position:relative;overflow:hidden}
 .scanning::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(var(--honey),var(--honey)) 0 0/100% 3px no-repeat,linear-gradient(color-mix(in srgb,var(--honey) 35%,transparent),transparent) 0 3px/100% 12px no-repeat;animation:scanline 1.4s ease-in-out infinite alternate;will-change:transform}
+.drop.photo-in img{animation:photoin .5s cubic-bezier(.2,.8,.2,1) both}
+.drop.photo-in::before{content:"";position:absolute;inset:0;background:#fff;pointer-events:none;z-index:1;animation:photoflash .45s ease-out both}
+.drop.photo-in{position:relative}
+@keyframes photoin{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
+@keyframes photoflash{from{opacity:.75}to{opacity:0}}
 /* The line sweeps by moving the whole layer (transform), so the page isn't laid out again on every frame. */
 @keyframes scanline{from{transform:translateY(0)}to{transform:translateY(calc(100% - 3px))}}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.93rem;margin:10px 0}
@@ -1214,6 +1219,9 @@ button.chip:hover{background:var(--tonal-hover)}
 .le-act{display:flex;justify-content:flex-end;gap:4px;margin-top:8px;padding-top:8px;border-top:1px solid var(--hair,var(--line))}
 .le-b{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border:0;border-radius:999px;background:none;color:var(--muted);font:600 .82rem var(--display);cursor:pointer}
 .le-b:hover,.le-b:focus-visible{background:var(--surface2);color:var(--ink)}.le-b svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.le-b.again{margin-right:auto;white-space:nowrap;flex:none;color:var(--cherry);background:color-mix(in srgb,var(--cherry) 12%,transparent)}.le-b.again:hover{background:color-mix(in srgb,var(--cherry) 20%,transparent);color:var(--cherry)}.le-b.again svg{fill:currentColor;stroke:none;width:14px;height:14px}
+/* With Brew again in the row, Share and Edit are icons only (as Delete is), so the row fits a phone. */
+.le-act.has-again .le-bl{display:none}.le-act.has-again .le-b:not(.again){padding:0 10px}
 .le-b.del{padding:0 10px}.le-b.del:hover{color:var(--cherry)}
 .le-day{margin:18px 4px 8px;font:700 .76rem var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .le-count{margin:4px 4px 0;font-size:.82rem;color:var(--muted)}

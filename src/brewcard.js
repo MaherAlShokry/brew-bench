@@ -865,6 +865,8 @@ function cardViewer(blob,file,title){const d=$('vd'),u=URL.createObjectURL(blob)
   d.addEventListener('close',()=>setTimeout(()=>URL.revokeObjectURL(u),60000),{once:true});showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
 // The brew log's cards read snapshots with okSnap above; the log drew before this file ran, so it draws again now.
 window.CARD_OK=true;
+// The log's Brew again buttons need this file, so the log is drawn again now it's here.
+try{if(typeof renderLogList==='function')renderLogList()}catch(e){}
 // Once: brews logged before entries kept their recipe's key get it now, from the name they have, so renaming the
 // recipe later keeps them linked. Only your own brews (a shared log's others are theirs to update).
 try{if(!localStorage.getItem('bb-lrk')){let n=0;for(const l of LOG)if(l&&l.snap&&l.snap.rec&&!l.snap.rk&&isMine(l)){const i=RECIPES.findIndex(r=>r.name===l.snap.rec);if(i>=0){l.snap.rk=rkey(RECIPES[i]);n++}}

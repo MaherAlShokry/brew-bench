@@ -1012,7 +1012,7 @@ function openTimerNow(idx,p){noteRecent(RECIPES[idx]);
   $('tm-x').onclick=()=>d.close();
   // However the timer is closed (X, back, Escape, backdrop), stop it and let the screen sleep again.
   d.onclose=()=>{if(TM&&TM.iv)clearInterval(TM.iv);if(TM){TM.run=false;TM.closed=true;tmWidget()}wake(false)};
-  if(total){$('tm-go').onclick=()=>{if(TM.el>=TM.total||TM.fin){TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;TM.fin=false}if(!TM.ctx){try{TM.ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}TM.run=!TM.run;setPlay();wake(TM.run);
+  if(total){$('tm-go').onclick=()=>{if(TM.el>=TM.total||TM.fin){TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;TM.fin=false}if(!TM.ctx){try{TM.ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}TM.run=!TM.run;setPlay();wake(TM.run);if(TM.run)tmNotePerm();
       if(TM.run){TM.t0=performance.now()-TM.el*1000;TM.iv=setInterval(tick,200);tick()}else clearInterval(TM.iv);tmWidget()};
     $('tm-reset').onclick=()=>{clearInterval(TM.iv);TM.run=false;wake(false);TM.fin=false;TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;setPlay();paint();tmWidget()};
     // Skip jumps to the next step's time (handy when you pour faster than the recipe).
@@ -1042,13 +1042,38 @@ function beep(soft){if(!TM.ctx)return;try{const o=TM.ctx.createOscillator(),g=TM
 function tick(){TM.el=(performance.now()-TM.t0)/1000;if(TM.el>=TM.total){TM.el=TM.total;finishBrew();return}paint()}
 // The end of a brew, on time or early: the clock stops where you are and the cup is yours.
 const TMI=d=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+d+'"/></svg>';
-// The Quick brew widget follows a running brew (Android): the recipe, a clock the phone keeps itself, the step now and
-// the next one. Sent when the timer starts, pauses, moves to a new step, finishes or closes.
-function tmWidget(){const w=plugin('Widget');if(!w||!w.timer||!TM)return;try{
+// The Quick brew widget, the lock-screen notification and the status-bar chip follow a running brew (Android; see
+// BrewTimer.java): the recipe, a clock the phone keeps itself, the step now and the next, and every step's time, so the
+// phone can carry on (and run its pause and next-step buttons) while the app is closed. Sent when the timer starts,
+// pauses, moves to a new step, finishes or closes.
+let TM_QUIET=false;
+const tmSteps=ev=>ev.filter(e=>e.t>=0).map(e=>[Math.round(e.t*1000),capS(stepTxt(e.s))]);
+// What the timer was opened with (dose, water, steps, grind), so a brew left running can be reopened the same way.
+function tmPlan(){const p=TM&&TM.p;if(!p)return'';try{return JSON.stringify({r:{dose:p.r&&p.r.dose},water:p.water,steps:p.steps,grinder:p.grinder,set:p.set,temp:p.temp,brewer:p.brewer||p.st&&p.st.brewer,bean:p.bean})}catch(e){return''}}
+function tmWidget(){const w=plugin('Widget');if(!w||!w.timer||!TM||TM_QUIET)return;try{
   const r=TM.r||RECIPES[TM.idx]||{},el=TM.run?(performance.now()-TM.t0)/1000:TM.el;let cur=-1;TM.ev.forEach((e,i)=>{if(e.t>=0&&e.t<=el)cur=i});
-  const nx=TM.ev.find(e=>e.t>el),txt=e=>{const t=stepTxt(e.s);return t.charAt(0).toUpperCase()+t.slice(1)};
+  const nx=TM.ev.find(e=>e.t>el),txt=e=>capS(stepTxt(e.s));
   const state=TM.closed?'stop':TM.fin?'done':TM.run?'run':el>0?'pause':'stop';
-  w.timer({state,name:r.name||'Brew',elapsed:Math.round(el*1000),total:Math.round(TM.total*1000),step:cur>=0?txt(TM.ev[cur]):'Get ready',next:nx?'Next at '+mmss(nx.t)+': '+txt(nx):'Last step'}).catch(()=>{})}catch(e){}}
+  w.timer({state,name:r.name||'Brew',key:RECIPES[TM.idx]?rkey(RECIPES[TM.idx]):'',elapsed:Math.round(el*1000),total:Math.round(TM.total*1000),
+    step:cur>=0?txt(TM.ev[cur]):'Get ready',next:nx?'Next at '+mmss(nx.t)+': '+txt(nx):'Last step',steps:tmSteps(TM.ev),plan:tmPlan()}).catch(()=>{})}catch(e){}}
+// A button on the notification or the widget changed the brew while the timer is open: the timer follows.
+function tmSync(n){if(!n||!TM||TM.closed||!$('timer').open||!TM.total)return;const el=clamp((+n.elapsed||0)/1000,0,TM.total);
+  if(n.state==='done'){if(!TM.fin){TM.el=el;if(TM.run)TM.t0=performance.now()-el*1000;finishBrew()}return}
+  if(n.state==='stop'){clearInterval(TM.iv);TM.run=false;wake(false);if(TM.fin&&$('tm-again')){TM.cup=null;$('tm-card').classList.remove('fin')}TM.fin=false;TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;setPlay();paint();return}
+  if(n.state==='run'&&TM.fin&&$('tm-again')){$('tm-again').click();return}
+  TM.fin=false;TM.el=el;
+  if(n.state==='run'){TM.t0=performance.now()-el*1000;if(!TM.run){TM.run=true;clearInterval(TM.iv);TM.iv=setInterval(tick,200);wake(true)}setPlay();tick();return}
+  if(n.state==='pause'){if(TM.run){clearInterval(TM.iv);TM.run=false;wake(false)}setPlay();paint()}}
+// A brew running on the phone with no timer open (the app was closed, or it was started from the widget): the timer
+// opens on it, where it is. Tapping the notification or the widget lands here.
+async function tmResume(cold){const w=plugin('Widget');if(!w||!w.timerState)return false;if(TM&&!TM.closed&&$('timer').open)return true;
+  let n;try{n=await w.timerState()}catch(e){return false}if(!n||!(cold?['run','pause']:['run','pause','done']).includes(n.state))return false;
+  const i=n.key?rByKey(n.key):-1;if(i<0)return false;let p;try{p=n.plan?JSON.parse(n.plan):undefined}catch(e){}if(p&&!(p.r&&p.r.dose))p=undefined;
+  showTab('recipes');TM_QUIET=true;try{openTimerNow(i,p);tmSync(n)}finally{TM_QUIET=false}return true}
+// The first brew timer you start asks once for notifications, so the brew can show on the lock screen and status bar.
+async function tmNotePerm(){const ln=plugin('LocalNotifications');if(!ln||!plugin('Widget'))return;try{if(localStorage.getItem('bb-tmperm'))return;const p=await ln.checkPermissions();
+  if(p.display==='granted')return;localStorage.setItem('bb-tmperm','1');if(String(p.display).startsWith('prompt')){const r=await ln.requestPermissions();if(r.display==='granted')tmWidget()}}catch(e){}}
+setTimeout(()=>{const w=plugin('Widget');if(w&&w.addListener)try{w.addListener('timer',n=>tmSync(n))}catch(e){}},0);
 function finishBrew(){if(TM.fin)return;if(TM.run){cueSay('Brew complete. Enjoy your coffee.');cueBuzz([220,120,220])}if(TM.run)TM.el=Math.min(TM.total,(performance.now()-TM.t0)/1000);clearInterval(TM.iv);TM.run=false;TM.fin=true;wake(false);tmWidget();
   setPlay();paint();$('tm-arc').setAttribute('stroke-dashoffset','0');$('tm-big').textContent=mmss(TM.el);$('tm-card').classList.remove('warn');
   $('tm-list').querySelectorAll('li').forEach(li=>li.className='done');done();beep();beans(26)}
@@ -2315,7 +2340,7 @@ function renderLastBrew(){const el=$('lastbrew');if(!el)return;const l=LOG.find(
 /* ---------- The list of brews: search, filters, sort, and each brew as a card ---------- */
 let LF=Object.assign({q:'',who:[],min:0,sort:'new'},VW_KEEP?load('bb-logfilter',{}):{});LF.q='';if(!Array.isArray(LF.who))LF.who=LF.who&&LF.who!=='all'?[LF.who]:[];
 const LOG_SORTS=[['new','Newest'],['old','Oldest'],['top','Highest rated'],['az','Coffee A–Z']];
-const LI={share:'M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5',edit:'M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4',del:'M5 7h14 M10 7V4.8h4V7 M7 7l.8 12.2a1.6 1.6 0 0 0 1.6 1.5h5.2a1.6 1.6 0 0 0 1.6-1.5L17 7',search:'M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4',plus:'M12 5v14 M5 12h14'};
+const LI={again:'M8 5v14l11-7z',share:'M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5',edit:'M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4',del:'M5 7h14 M10 7V4.8h4V7 M7 7l.8 12.2a1.6 1.6 0 0 0 1.6 1.5h5.2a1.6 1.6 0 0 0 1.6-1.5L17 7',search:'M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4',plus:'M12 5v14 M5 12h14'};
 const lIc=k=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+LI[k]+'"/></svg>';
 const lHue=n=>{let h=0;for(const c of String(n))h=(h*31+c.charCodeAt(0))%360;return h};
 const lWho=l=>l.by&&l.by!==ME?l.by:'me';
@@ -2338,7 +2363,7 @@ function logEntryHTML(l,i){const st=clamp(Math.round(+l.stars||0),0,5),{pills,re
   return '<article class="logentry le2"><div class="le-top">'+logThumb(l)+'<div class="le-tt"><b>'+esc(l.coffee||'Untitled')+'</b><div class="le-sub"><span class="le-meta">'+(who?'<span class="le-who">'+esc(who)+'</span><span aria-hidden="true">·</span>':'')+esc(fmtDate(l))+(l.edited?' · edited':'')+'</span>'+rate+'</div></div></div>'+
     (pills.length?'<div class="le-pills">'+pills.map(([k,t])=>'<span class="le-pill k-'+k+'">'+(LSI[k==='ratio'?'water':k]?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+LSI[k==='ratio'?'water':k]+'"/></svg>':'')+esc(t)+'</span>').join('')+'</div>':'')+
     (rest?'<p class="le-rest">'+esc(rest)+'</p>':'')+(l.pred?'<p class="le-pred">Expected <b>'+esc(l.pred)+'</b></p>':'')+(l.notes?'<blockquote class="le-notes">'+esc(l.notes)+'</blockquote>':'')+flEntry(l,i)+
-    '<div class="le-act"><button type="button" class="le-b" data-lshare="'+i+'" aria-label="Share this brew">'+lIc('share')+'Share</button>'+(canEdit(l)?'<button type="button" class="le-b" data-edit="'+i+'" aria-label="Edit this brew">'+lIc('edit')+'Edit</button>':'')+'<button type="button" class="le-b del" data-del="'+i+'" aria-label="Delete this brew">'+lIc('del')+'</button></div></article>'}
+    '<div class="le-act'+(againPlan(l)?' has-again':'')+'">'+(againPlan(l)?'<button type="button" class="le-b again" data-again="'+i+'" aria-label="Brew this again">'+lIc('again')+'Brew again</button>':'')+'<button type="button" class="le-b" data-lshare="'+i+'" aria-label="Share this brew" title="Share">'+lIc('share')+'<span class="le-bl">Share</span></button>'+(canEdit(l)?'<button type="button" class="le-b" data-edit="'+i+'" aria-label="Edit this brew" title="Edit">'+lIc('edit')+'<span class="le-bl">Edit</span></button>':'')+'<button type="button" class="le-b del" data-del="'+i+'" aria-label="Delete this brew">'+lIc('del')+'</button></div></article>'}
 // Search, then a filter and a sort button, as on Recipes: each opens a sheet. A dot on the filter says one is on.
 let LLN=0;const saveLF=()=>save('bb-logfilter',{min:LF.min,who:LF.who,sort:LF.sort});
 const lfName=()=>[LF.min?(LF.min===5?'5 beans':LF.min+' beans and up'):'',LF.who.length?selName(LF.who,w=>w==='me'?'Me':w,''):''].filter(Boolean).join(', ')||'All brews';
@@ -2431,7 +2456,22 @@ $('l-save').onclick=()=>{const k=LEDIT?LOG.findIndex(x=>x.id===LEDIT):-1;
   if(!e.coffee&&!e.settings&&!e.notes&&!LFL.length){toast('Add a coffee name or some notes first');return}LOG.unshift(e);save('bb-log',LOG);if(window.BEANS_OK){
     // The first brew with a bag you hadn't tried yet is the day you tried it.
     const gid=(e.snap&&e.snap.bean&&e.snap.bean.id)||e.beanId,gb=gid&&beanById(gid);if(gb&&!gb.tried){gb.tried=todayISO();saveBeans()}checkTrophies()}queue('put',e.id,e);['l-coffee','l-settings','l-pred','l-notes'].forEach(id=>$(id).value='');delete $('l-settings').dataset.brewer;STAR=0;LFL=[];LBEAN=null;renderFlForm();renderStars();renderLBean();renderPred();renderLog();toastAct(GROUP?'Brew saved and shared':'Brew saved','Share it',()=>openShare(logEntryDoc(e)));beans()};
-$('l-list').onclick=e=>{const ls=e.target.closest('[data-lshare]');if(ls){const l=LOG[+ls.dataset.lshare];if(l)openShare(logEntryDoc(l));return}
+// A logged brew made again: the timer on the same recipe with the same coffee, dose, water, grind and temperature.
+// If the dial-in helper kept a change for that coffee on that brewer, the change is used and said so. (It needs the
+// brew card's code, loaded a moment after start; the log is drawn again then.)
+function againPlan(l){const s=l&&window.CARD_OK?okSnap(l.snap):null;if(!s)return null;const r=snapRecipe(s);if(!r)return null;const idx=RECIPES.indexOf(r),b=s.b||r.b;
+  const rb=l.snap.bean,beanId=s.bean&&s.bean.id||l.beanId||(rb&&typeof rb.id==='string'?rb.id:''),dn=dialNextFor(beanId),sg=s.g&&canGrind(s.g,b)&&s.c!=null;
+  // The grinder and setting it was brewed at; an older entry without one gets your grinder's setting for the recipe.
+  const g=sg?s.g:MYG.find(x=>canGrind(x,b))||null;let set=sg?s.c:g?settingFor(g,b,r.off||0):null,temp=s.t||r.temp,why='';
+  if(dn&&dn.brewer===b&&dn.taste!=='good'){const parts=[];
+    if(g&&dn.g===g&&dn.set!=null&&dn.set!==set){set=dn.set;parts.push(gLabel(g,set))}
+    if(dn.temp&&dn.temp!==temp){temp=dn.temp;parts.push(temp+'°C')}
+    if(parts.length)why='With your dial-in change: '+parts.join(' and ')}
+  const dose=s.dose||r.dose,water=s.water||r.water,steps=s.steps.length&&s.steps.length<14?s.steps:scaleSteps(r,dose,water);
+  return{idx,why,p:{r:{dose},water,steps,grinder:g||undefined,set:g?{[g]:set}:{},temp,brewer:b,bean:beanId}}}
+function brewAgain(l){const a=againPlan(l);if(!a)return;openTimer(a.idx,a.p);if(a.why)setTimeout(()=>toast(a.why),350)}
+$('l-list').onclick=e=>{const ag=e.target.closest('[data-again]');if(ag){const l=LOG[+ag.dataset.again];if(l)brewAgain(l);return}
+  const ls=e.target.closest('[data-lshare]');if(ls){const l=LOG[+ls.dataset.lshare];if(l)openShare(logEntryDoc(l));return}
   const fe=e.target.closest('[data-fledit]'),fv=e.target.closest('[data-flview]'),ed=e.target.closest('[data-edit]');
   if(ed){const l=LOG[+ed.dataset.edit];if(l&&canEdit(l))editBrew(l);return}
   if(fe){const l=LOG[+fe.dataset.fledit];if(l)openNotesPicker(l);return}
@@ -2471,7 +2511,8 @@ function initScan(){
   $('s-mbgo').onclick=()=>{if((SC.maybeBlend||[]).length<2)return;SC.origin='blend';SC.blend=SC.maybeBlend;SC.maybeBlend=[];SC.blank=false;renderScan()};
   for(const [id,key] of [['s-origin','origin'],['s-process','process'],['s-variety','variety'],['s-brewer','brewer'],['s-date','date']])$(id).onchange=e=>{if(key!=='brewer')SC.blank=false;SC[key]=key==='variety'?effVariety(e.target.value,SC.origin):e.target.value;if(key==='brewer'&&!canGrind(SC.grinder,SC.brewer))SC.grinder=capable(SC.brewer);renderScan()};
   // Two ways in: the camera straight away, or a photo already on the phone. Typing or pasting the text is below.
-  $('scan-pick').onclick=()=>openCamera();$('scan-choose').onclick=()=>$('scan-file').click();
+  // Both show the tap first, then open the camera or the photo picker.
+  $('scan-pick').onclick=()=>{if(!fromTap(openCamera))openCamera()};$('scan-choose').onclick=()=>{const go=()=>$('scan-file').click();if(!fromTap(go))go()};
   $('scan-drop').onclick=e=>{if(e.target.tagName!=='INPUT')openCamera()}; /* the hidden inputs sit inside the box, so their clicks bubble up to it */
   $('scan-cam').onchange=$('scan-file').onchange=e=>{const f=e.target.files[0];e.target.value='';if(f)usePhoto(f)};
   $('scan-go').onclick=()=>runScan(true);$('scan-text-go').onclick=()=>runScan(false);$('scan-stop').onclick=()=>SCTL&&SCTL.abort();
@@ -2911,7 +2952,9 @@ async function runLocalScan(useImg){
 async function uprightPreview(rot){try{const img=await loadImage(SFILE),k=Math.min(1,1200/Math.max(img.width,img.height)),w=img.width*k,h=img.height*k,c=document.createElement('canvas'),side=rot%180!==0;
   c.width=side?h:w;c.height=side?w:h;const x=c.getContext('2d');x.translate(c.width/2,c.height/2);x.rotate(rot*Math.PI/180);x.drawImage(img,-w/2,-h/2,w,h);$('scan-prev').src=c.toDataURL('image/jpeg',.85)}catch(e){}}
 function usePhoto(f){SFILE=f;clearScanData();SC.blank=true;renderScan();if($('scan-prev').src.startsWith('blob:'))URL.revokeObjectURL($('scan-prev').src);
-  $('scan-prev').src=URL.createObjectURL(f);$('scan-prev').hidden=false;$('scan-empty').hidden=true;$('scan-go').disabled=false;$('scan-again').hidden=false;$('scan-status').hidden=false;runScan(true)}
+  $('scan-prev').src=URL.createObjectURL(f);$('scan-prev').hidden=false;photoIn($('scan-drop'));$('scan-empty').hidden=true;$('scan-go').disabled=false;$('scan-again').hidden=false;$('scan-status').hidden=false;runScan(true)}
+// A photo arriving, taken or chosen: a quick flash and the picture settles into place, before the scan line runs.
+function photoIn(box){if(!box||RM())return;box.classList.remove('photo-in');void box.offsetWidth;box.classList.add('photo-in');setTimeout(()=>box.classList.remove('photo-in'),700)}
 /* In-app camera. Some phones answer a file input's "use the camera" request with the gallery anyway, so the
    camera runs inside the app: a live viewfinder with a frame for the label and a shutter. If the camera can't
    start (no permission, no camera), the phone's own picker opens instead. */

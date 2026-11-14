@@ -30,6 +30,8 @@
             <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_brew_info" />
         </receiver>
+        <!-- The brew timer's buttons on its notification and on the Quick brew widget. -->
+        <receiver android:name=".TimerReceiver" android:exported="false" />
         <receiver android:name=".WordWidget" android:exported="false" android:label="@string/widget_word_name">
             <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_word_info" />
@@ -453,6 +455,8 @@
     <!-- The Scan tab's in-app camera. Optional, so phones without a camera can still install the app. -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Android 16: the running brew timer may show as a Live Update (a clock chip in the status bar and on the lock screen). -->
+    <uses-permission android:name="android.permission.POST_PROMOTED_NOTIFICATIONS" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <!-- The daily coffee reminder doesn't need to land on the exact minute, and Google Play restricts exact alarms
          to alarm and calendar apps, so the notifications plugin's request for them is removed. -->

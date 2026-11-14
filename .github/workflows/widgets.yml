@@ -1,9 +1,10 @@
 name: Widget pictures
 
 # Draws every home-screen widget on an Android emulator (android/app/src/androidTest/.../WidgetShots.java): each at the
-# sizes people use, light and dark, with a coffee, empty, and mid-brew. The pictures are kept as the run's
-# "widget-shots" artifact, so a change to a widget can be looked at without a phone. Runs when the Android code or the
-# widget data the app sends changes, and on request.
+# sizes people use, light and dark, with a coffee, empty, and mid-brew. It also runs the brew timer's buttons
+# (TimerTest.java) and takes a picture of its notification, on Android 12 and on Android 16, where the brew shows as a
+# Live Update (a clock chip in the status bar). The pictures are kept as the run's "widget-shots" artifacts, so a change
+# can be looked at without a phone. Runs when the Android code or the widget data the app sends changes, and on request.
 on:
   push:
     branches: ['**']
@@ -24,6 +25,13 @@ jobs:
   shots:
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        # 31: the widgets and the timer. 36 (Android 16): the timer's Live Update; a newer emulator image, so a hiccup
+        # starting it doesn't fail the run.
+        api: [31, 36]
+    continue-on-error: ${{ matrix.api == 36 }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -66,7 +74,7 @@ jobs:
       - name: Draw the widgets on an emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 31
+          api-level: ${{ matrix.api }}
           arch: x86_64
           target: google_apis
           profile: pixel_6
@@ -75,14 +83,24 @@ jobs:
           script: |
             adb install -r android/app/build/outputs/apk/debug/app-debug.apk
             adb install -r android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
-            adb shell am instrument -w -e class io.github.maheralshokry.brewbench.WidgetShots io.github.maheralshokry.brewbench.test/androidx.test.runner.AndroidJUnitRunner | tee instrument.txt
+            adb shell pm grant io.github.maheralshokry.brewbench android.permission.POST_NOTIFICATIONS || true
+            if [ "${{ matrix.api }}" = "31" ]; then CLS=io.github.maheralshokry.brewbench.WidgetShots,io.github.maheralshokry.brewbench.TimerTest; else CLS=io.github.maheralshokry.brewbench.TimerTest; fi
+            adb shell am instrument -w -e class $CLS io.github.maheralshokry.brewbench.test/androidx.test.runner.AndroidJUnitRunner | tee instrument.txt
             grep -q '^OK (' instrument.txt
-            adb pull /sdcard/Android/data/io.github.maheralshokry.brewbench/files/widget-shots widget-shots
+            adb logcat -d -s TimerTest | tee -a instrument.txt || true
+            mkdir -p widget-shots
+            if [ "${{ matrix.api }}" = "31" ]; then adb pull /sdcard/Android/data/io.github.maheralshokry.brewbench/files/widget-shots widget-shots; fi
+            # The brew the timer test left running: the status bar (its chip on Android 16), then the notification shade.
+            adb shell input keyevent KEYCODE_HOME; sleep 2
+            adb exec-out screencap -p > widget-shots/timer-statusbar-api${{ matrix.api }}.png
+            adb shell cmd statusbar expand-notifications; sleep 3
+            adb exec-out screencap -p > widget-shots/timer-notification-api${{ matrix.api }}.png
+            adb shell cmd statusbar collapse || true
             ls widget-shots | wc -l
       - uses: actions/upload-artifact@v5
         if: always()
         with:
-          name: widget-shots
+          name: widget-shots-api${{ matrix.api }}
           path: |
             widget-shots
             instrument.txt

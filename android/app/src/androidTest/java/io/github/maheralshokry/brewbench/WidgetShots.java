@@ -80,7 +80,8 @@ public class WidgetShots {
         if (brewing) {
             long now = System.currentTimeMillis();
             e.putString("t_state", "run").putString("t_name", "Tetsu Kasuya 4:6").putString("t_step", "Pour to 120 g")
-                .putString("t_next", "1:30 pour to 180 g").putLong("t_start", now - 75000).putLong("t_el", 75000).putLong("t_total", 210000).putLong("t_at", now);
+                .putString("t_next", "1:30 pour to 180 g").putLong("t_start", now - 75000).putLong("t_el", 75000).putLong("t_total", 210000).putLong("t_at", now)
+                .putString("t_steps", "[[0,\"Bloom with 50 g\"],[45000,\"Pour to 120 g\"],[90000,\"Pour to 180 g\"],[135000,\"Pour to 300 g\"]]");
         }
         e.commit();
     }

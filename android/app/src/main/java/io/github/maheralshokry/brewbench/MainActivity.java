@@ -20,6 +20,8 @@ public class MainActivity extends BridgeActivity {
         // Opened from the home-screen widget: the app asks what to open once it has started (WidgetPlugin.pending).
         WidgetPlugin.take(getIntent());
         addShortcuts();
+        // A brew started or left running while the app was closed: its notification and clock carry on.
+        BrewTimer.sync(this, false);
         // The back gesture (or button) steps back inside the app: it closes the open sheet or returns to the previous
         // screen. Only when there is nowhere left to go does the app go to the background.
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
