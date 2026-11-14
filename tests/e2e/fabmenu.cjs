@@ -14,6 +14,14 @@ for(const k of ['scan','bean','advent','roastery']){await p.evaluate(()=>{docume
 ok(sc+': each item opens its form',got.scan==='scan'&&got.bean==='Add a coffee'&&got.advent==='Add an advent calendar'&&got.roastery==='Add a roastery',got);
 await p.evaluate(()=>{document.querySelectorAll('dialog[open]').forEach(d=>d.close());goTab('beans')});await p.click('#b-fab-add');await p.waitForTimeout(200);await p.keyboard.press('Escape');await p.waitForTimeout(200);
 ok(sc+': Escape closes it',await p.evaluate(()=>$('b-fab-menu').hidden));
+// While open the page stays put, and back only closes the menu (the tab stays).
+await p.evaluate(()=>{scrollTo(0,300)});await p.click('#b-fab-add');await p.waitForTimeout(250);
+const y0=await p.evaluate(()=>scrollY);await p.mouse.wheel(0,600);await p.waitForTimeout(300);
+ok(sc+': the page doesn\'t scroll under the open menu',await p.evaluate(y=>Math.abs(scrollY-y)<2&&document.documentElement.classList.contains('fab-lock'),y0));
+await p.goBack();await p.waitForTimeout(400);
+ok(sc+': back closes the menu and stays on Beans',await p.evaluate(()=>$('b-fab-menu').hidden&&document.querySelector('main section.on').id==='beans'&&!document.documentElement.classList.contains('fab-lock')));
+await p.click('#b-fab-add');await p.waitForTimeout(250);await p.click('[data-fab=bean]');await p.waitForTimeout(600);await p.goBack();await p.waitForTimeout(600);
+ok(sc+': after a pick, back closes its sheet and stays on Beans',await p.evaluate(()=>!document.querySelector('dialog[open]')&&document.querySelector('main section.on').id==='beans'));
 ok(sc+': no new-recipe button on Recipes',await p.evaluate(()=>{goTab('recipes');return !document.querySelector('#recipes .fab')}));
 await p.evaluate(()=>{CARD_STYLE.mode='light';openShare(recipeDoc(0))});await p.waitForTimeout(500);
 ok(sc+': a share image follows the app\'s look',await p.evaluate(m=>CARD_STYLE.mode===m,sc));

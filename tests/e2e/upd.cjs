@@ -20,7 +20,9 @@ const ok=(c,m,x)=>console.log((c?'  ok  ':'  FAIL')+' '+m+(x!==undefined?'  ('+x
  ok(await p.evaluate(()=>document.querySelector('#settings-in').firstElementChild.nextElementSibling.classList.contains('appver')),'right under the quick tools');
  await p.locator('.appver').screenshot({path:S+'upd-settings.png'});
  await p.evaluate(()=>{window.__nav=null;openLink=u=>{__nav=u}});await p.click('#st-updgo');ok(/brew-bench\.apk/.test(await p.evaluate(()=>__nav)),'Update button downloads the new version');
- tag='v1.0.207';await p.evaluate(()=>document.getElementById('st-upd').click());await p.waitForTimeout(600);ok(/latest version/.test(await p.textContent('#toast'))&&!(await p.$('#updcard')),'Check for updates: up to date',await p.textContent('#toast'));
+ tag='v1.0.207';await p.evaluate(()=>{window.__seg=document.getElementById('st-mode');document.getElementById('st-upd').click()});await p.waitForTimeout(600);
+ ok(await p.evaluate(()=>document.getElementById('st-mode')===window.__seg),'Check for updates leaves the switches above alone (no redraw, no glitch)');
+ ok(/latest version/.test(await p.textContent('#toast'))&&!(await p.$('#updcard')),'Check for updates: up to date',await p.textContent('#toast'));
  ok(await p.evaluate(()=>!dataKeys().includes('bb-upd')),'not in backups');await ctx.close();
  // same version: nothing
  ({ctx,p}=await mk('1.0.211'));tag='v1.0.211';await p.goto('http://localhost:8099/index.html');await p.waitForTimeout(4800);ok(!(await p.$('#updcard')),'up to date: no card');await ctx.close();

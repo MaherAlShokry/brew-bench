@@ -1571,7 +1571,7 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .au-forgot{display:block;margin:-6px 0 12px auto}.au-who{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px;padding:10px 14px;border-radius:999px;background:var(--surface2);font-weight:600;font-size:.92rem}.au-who span{min-width:0;overflow-wrap:anywhere}.au-who .linkbtn{flex:none}
 .au-bio{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:56px;text-align:left}.au-bio svg{flex:none;width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}.au-bio span{display:flex;flex-direction:column;line-height:1.25}.au-bio small{font-weight:500;opacity:.8;font-size:.8rem}
 .au-gbtn{display:inline-flex;align-items:center;justify-content:center;gap:12px;width:min(100%,360px);min-height:44px;padding:0 18px;border-radius:999px;border:1px solid #DADCE0;background:#fff;color:#1F1F1F;font:500 .95rem/1 inherit;font-family:inherit;cursor:pointer}.au-gbtn svg{width:20px;height:20px;flex:none}.au-gbtn:disabled{opacity:.6}
-.appver{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:10px 12px;margin:0 0 18px;padding:14px;border-radius:20px;background:var(--surface);border:1px solid color-mix(in srgb,var(--line) 80%,transparent)}
+.appver{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start;gap:10px 12px;margin:0 0 18px;padding:14px;border-radius:20px;background:var(--surface);border:1px solid color-mix(in srgb,var(--line) 80%,transparent)}
 .appver.new{border-color:color-mix(in srgb,var(--leaf) 55%,var(--line));background:color-mix(in srgb,var(--leaf) 7%,var(--surface))}
 .appver>.ic{width:42px;height:42px;border-radius:13px;display:grid;place-items:center}.appver>.ic svg{width:22px;height:22px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .av-tx{display:flex;flex-direction:column;min-width:0}.av-tx b{font-family:var(--display);font-size:1rem}.av-tx small{color:var(--muted);font-size:.84rem}
@@ -1904,7 +1904,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .bd-step b{min-width:52px;text-align:center;font:700 .95rem var(--display);font-variant-numeric:tabular-nums}
 .bd-cupr .btn{min-height:40px;padding:0 16px;font-size:.88rem}
 .bd-auto{margin:8px 0 0;font-size:.8rem;color:var(--muted)}
-.bd-done{width:100%;margin-top:12px}
+.bd-done{width:100%;margin-top:14px}
 
 .vd-tools{position:absolute;right:62px;top:12px;display:flex;gap:8px}
 .vd-tool{width:40px;height:40px;border-radius:999px;border:0;background:var(--surface2);color:var(--ink);display:grid;place-items:center;cursor:pointer;padding:0}
@@ -2793,15 +2793,34 @@ main section.on>.fab .ib+.ib{animation-delay:.05s}
 .fab-scrim{position:fixed;inset:0;z-index:27;background:color-mix(in srgb,var(--bg) 55%,transparent);backdrop-filter:blur(2px);animation:fabScrim .2s both}
 @keyframes fabScrim{from{opacity:0}to{opacity:1}}
 body:has(.fab-dial.open) #toast{opacity:0!important;pointer-events:none}
+
+html.fab-lock,html.fab-lock body{overflow:hidden!important;overscroll-behavior:none}
+.fab-scrim{touch-action:none}
 @media (prefers-reduced-motion:reduce){main section.on>.fab .ib,.fab-mi,.fab-scrim{animation:none}.fab-main svg{transition:none}}
 
 textarea{resize:none}
+
+
+.pbtn{text-decoration:none!important;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:0 18px 0 14px;border:0;border-radius:999px;background:var(--surface2);color:var(--ink);font:700 .9rem var(--display);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .15s,background-color .15s}
+.pbtn:active{transform:scale(.97)}.pbtn:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
+.pbtn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.pbtn.main{background:var(--cherry);color:var(--surface)}
+.pbtn.quiet{background:none;box-shadow:inset 0 0 0 1.5px var(--line)}
+
+.setrow.setlink{all:unset;box-sizing:border-box;display:block;width:100%;padding:14px 16px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.setgroup>.setlink+.setrow,.setgroup>.setrow+.setlink{border-top:1px solid var(--line)}
+.setlink:focus-visible{outline:2px solid var(--cherry);outline-offset:-2px;border-radius:inherit}
+.setlink:active{background:color-mix(in srgb,var(--ink) 4%,transparent)}
+.setlink .sl{align-items:center}
+.setchev{flex:none;color:var(--muted);display:grid;place-items:center}.setchev svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.setrow .setbtns{display:flex;flex-wrap:wrap;gap:8px}
+.setrow>.setnote,.setrow>.setbtns{margin-left:48px!important}
 </style>
 <script>const JSPDF_SRC="vendor/jspdf.umd.min.js"</script>
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="2d282901518b"</script>
+<script>const BUILD_ID="a3a5e13ae7a6"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -3045,7 +3064,8 @@ textarea{resize:none}
   </div>
   <div class="panel drecipe" id="d-recipe" hidden></div>
 <!-- The page's actions, as icons, at the bottom within reach of your thumb (above the tab bar). -->
-<div class="fab" role="group" aria-label="Brew actions"><button type="button" class="ib" id="dial-share" aria-label="Share this brew" title="Share this brew" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg></button><button type="button" class="ib" id="tosave" aria-label="Save as recipe" title="Save as recipe"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10a1 1 0 0 1 1 1v15l-6-4-6 4V5a1 1 0 0 1 1-1z"/></svg></button><button type="button" class="ib main" id="tolog" aria-label="Log this brew" title="Log this brew"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14 M5 12h14"/></svg></button></div>
+<div class="fab fab-dial" id="d-fab" role="group" aria-label="Brew actions"><div class="fab-menu" role="menu" hidden></div><button type="button" class="ib main fab-main" id="d-fab-add" aria-label="Brew shortcuts" title="Brew shortcuts" aria-haspopup="menu" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14 M5 12h14"/></svg></button></div>
+<div class="fab-acts" hidden><button type="button" class="ib" id="dial-share" aria-label="Share this brew" title="Share this brew" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg></button><button type="button" class="ib" id="tosave" aria-label="Save as recipe" title="Save as recipe"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10a1 1 0 0 1 1 1v15l-6-4-6 4V5a1 1 0 0 1 1-1z"/></svg></button><button type="button" class="ib main" id="tolog" aria-label="Log this brew" title="Log this brew"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14 M5 12h14"/></svg></button></div>
 </section>
 
 <!-- SCAN -->
@@ -6777,14 +6797,19 @@ document.addEventListener('cancel',e=>{if(e.target.tagName==='DIALOG'){e.prevent
 // Open a dialog; reopening one that is sliding away just keeps it.
 // Opening a sheet: background building waits (NAV_AT), and the slide starts two frames after the sheet is shown, once
 // its content is laid out, so the first frames of the slide aren't skipped while the browser catches up.
+let KEYNAV=false;addEventListener('keydown',e=>{if(e.key==='Tab')KEYNAV=true},true);addEventListener('pointerdown',()=>{KEYNAV=false},true);
 function showDlg(d){NAV_AT=performance.now();if(d.classList.contains('closing')){d.classList.remove('closing');return}
-  if(!d.open){d.classList.add('dlg-pre');try{d.showModal()}catch(e){d.setAttribute('open','')}requestAnimationFrame(()=>requestAnimationFrame(()=>d.classList.remove('dlg-pre')))}}
-addEventListener('popstate',()=>{const open=[...document.querySelectorAll('dialog[open]:not(.closing)')];
+  if(!d.open){d.classList.add('dlg-pre');try{d.showModal()}catch(e){d.setAttribute('open','')}
+    // Opening a sheet focuses its first button (Close), which drew its focus ring before anything was pressed.
+    {const f=document.activeElement;if(f&&d.contains(f)&&f.matches('.vd-close,.vd-tool,button')&&!KEYNAV)f.blur()}requestAnimationFrame(()=>requestAnimationFrame(()=>d.classList.remove('dlg-pre')))}}
+addEventListener('popstate',()=>{if(FAB_POP())return;const open=[...document.querySelectorAll('dialog[open]:not(.closing)')];
   if(BACKING){BACKING=false;try{if(PEND_TAB&&location.hash!=='#'+PEND_TAB)history.pushState(null,'','#'+PEND_TAB);if(open.length)history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}PEND_TAB=null;return}
   if(open.length){const top=DSTACK.filter(d=>d.open&&!d.classList.contains('closing')).pop();
     if(top&&top.id==='vd'&&VD_HIST.length){const e=VD_HIST.pop();if(VD_BACK){const f=VD_BACK;VD_BACK=null;VD_RESTORING=true;try{f()}finally{VD_RESTORING=false}VD_CUR=e.f;VD_KEY=e.k;const d=$('vd');d.scrollTop=e.y;requestAnimationFrame(()=>{d.scrollTop=e.y})}else vdRestore(e);return}
     if(top&&top.id==='vd'&&VD_BACK){const f=VD_BACK;VD_BACK=null;try{history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}VD_RESTORING=true;try{f()}finally{VD_RESTORING=false}return}
     if(top){top.dataset.popped=1;top.close()}else open.forEach(d=>d.close());return}
+  // Inside Beans, back from another view returns to Coffees first.
+  if(typeof bvBack==='function'&&location.hash==='#beans'&&bvBack())return;
   let h=location.hash.slice(1);if(h==='more')h='settings';if(openRoute(h))return;const id=h&&$(h)&&$(h).tagName==='SECTION'?h:'dial';if(!$(id).classList.contains('on')){NAVD=Math.max(0,NAVD-1);showTab(id,true,true)}});
 document.querySelector('[role=tablist]').onclick=e=>{const t=e.target.closest('.tab');if(t)showTab(t.dataset.t,false,true)};
 
@@ -7140,17 +7165,35 @@ function openRecipeEditor(r,fresh){const isNew=!r||fresh;r=Object.assign({b:'v60
   const d=$('vd');showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
 // The Brew log and Beans pages' own floating buttons: log a brew (up to the form, ready to type) and add a coffee.
 $('l-fab-new').onclick=()=>{const f=$('l-form');f.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});setTimeout(()=>{const c=$('l-coffee-f').hidden?null:$('l-coffee');if(c)c.focus({preventScroll:true})},350)};
-// The Beans + opens a small menu of what you can add here (a shortcut for the tab).
-{const FAB_ITEMS=[['scan','Scan a bag','scan',()=>{showTab('scan');newScan();scrollTo(0,0)}],['bean','Add a coffee','bag',()=>openBeanEditor(null)],
-    ['advent','Add an advent calendar','gift',()=>openCalEditor(null)],['roastery','Add a roastery','store',()=>openAddRoastery()]];
-  const f=$('b-fab'),m=$('b-fab-menu'),b=$('b-fab-add');let scrim=null;
-  const close=()=>{if(m.hidden)return;m.hidden=true;f.classList.remove('open');b.setAttribute('aria-expanded','false');if(scrim){scrim.remove();scrim=null}};
-  const open=()=>{m.innerHTML=FAB_ITEMS.map(([k,l,ic],i)=>'<button type="button" class="fab-mi" role="menuitem" data-fab="'+k+'" style="--k:'+(FAB_ITEMS.length-1-i)+'"><span>'+l+'</span><i aria-hidden="true">'+lIc(ic)+'</i></button>').join('');
-    m.hidden=false;f.classList.add('open');b.setAttribute('aria-expanded','true');scrim=document.createElement('div');scrim.className='fab-scrim';scrim.onclick=close;f.before(scrim);const x=m.querySelector('.fab-mi');if(x)x.focus({preventScroll:true})};
+// A page's + is a shortcut menu of what you can do or add there. While it's open the page underneath stays put, and
+// back (the gesture or button) only closes it. One menu is open at a time.
+let FAB_OPEN=null,FAB_BACKING=false,FAB_AFTER=null;
+function fabMenu(fabId,items){const f=$(fabId),m=f.querySelector('.fab-menu'),b=f.querySelector('.fab-main');let scrim=null;
+  const lockOn=on=>document.documentElement.classList.toggle('fab-lock',on);
+  const close=(fromPop,after)=>{if(m.hidden)return;m.hidden=true;f.classList.remove('open');b.setAttribute('aria-expanded','false');lockOn(false);if(scrim){scrim.remove();scrim=null}FAB_OPEN=null;
+    // Closed by a tap or a pick: take back the step it added, then do the pick once history has settled.
+    if(!fromPop&&history.state&&history.state.fab){FAB_BACKING=true;FAB_AFTER=after||null;history.back()}else if(after)after()};
+  const open=()=>{if(FAB_OPEN)FAB_OPEN();m.innerHTML=items().map(([k,l,ic],i,a)=>'<button type="button" class="fab-mi" role="menuitem" data-fab="'+k+'" style="--k:'+(a.length-1-i)+'"><span>'+l+'</span><i aria-hidden="true">'+lIc(ic)+'</i></button>').join('');
+    m.hidden=false;f.classList.add('open');b.setAttribute('aria-expanded','true');lockOn(true);
+    scrim=document.createElement('div');scrim.className='fab-scrim';scrim.onclick=()=>close();
+    // A finger dragging on the scrim doesn't scroll the page behind it.
+    scrim.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});scrim.addEventListener('wheel',e=>e.preventDefault(),{passive:false});
+    f.before(scrim);FAB_OPEN=()=>close(true);try{history.pushState({fab:1},'',location.hash||'#dial')}catch(e){}
+    const x=m.querySelector('.fab-mi');if(x)x.focus({preventScroll:true})};
   b.onclick=()=>m.hidden?open():close();
-  m.onclick=e=>{const it=e.target.closest('[data-fab]');if(!it)return;const go=FAB_ITEMS.find(x=>x[0]===it.dataset.fab);close();if(go)go[3]()};
-  document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
-  window.addEventListener('hashchange',close);window.closeBeansFab=close}
+  m.onclick=e=>{const it=e.target.closest('[data-fab]');if(!it)return;const go=items().find(x=>x[0]===it.dataset.fab);close(false,go&&go[3])};
+  return{close:()=>close()}}
+// The menu's part of going back: true when back only closed it (or was its own step being taken back).
+function FAB_POP(){if(FAB_BACKING){FAB_BACKING=false;const a=FAB_AFTER;FAB_AFTER=null;if(a)setTimeout(a,0);return true}
+  if(FAB_OPEN){FAB_OPEN();return true}return false}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&FAB_OPEN){e.preventDefault();history.state&&history.state.fab?history.back():FAB_OPEN()}});
+window.closeBeansFab=()=>{if(FAB_OPEN)FAB_OPEN()};
+// Beans: add to your collection.
+fabMenu('b-fab',()=>[['scan','Scan a bag','scan',()=>{showTab('scan');newScan();scrollTo(0,0)}],['bean','Add a coffee','bag',()=>openBeanEditor(null)],
+  ['advent','Add an advent calendar','gift',()=>openCalEditor(null)],['roastery','Add a roastery','store',()=>openAddRoastery()]]);
+// Brew: log or keep this brew, write a recipe, or scan a bag to brew.
+fabMenu('d-fab',()=>[['log','Log this brew','log',()=>$('tolog').click()],['save','Save as a recipe','mark',()=>$('tosave').click()],
+  ['recipe','Create a recipe','edit',()=>openRecipeEditor(null)],['scan','Scan a bag','scan',()=>{showTab('scan');newScan();scrollTo(0,0)}]]);
 // Save the current dial-in as a starting recipe.
 $('tosave').onclick=()=>{const dp=dialPlan();
   if(dp){const off=Math.round(stepsBetween(S.grinder,baseX(S.grinder,S.brewer),S.setting)*10)/10;
@@ -7872,9 +7915,11 @@ function renderLastBrew(){const el=$('lastbrew');if(!el)return;const l=LOG.find(
 /* ---------- The list of brews: search, filters, sort, and each brew as a card ---------- */
 let LF=Object.assign({q:'',who:[],min:0,sort:'new'},VW_KEEP?load('bb-logfilter',{}):{});LF.q='';if(!Array.isArray(LF.who))LF.who=LF.who&&LF.who!=='all'?[LF.who]:[];
 const LOG_SORTS=[['new','Newest'],['old','Oldest'],['top','Highest rated'],['az','Coffee A–Z']];
-const LI={again:'M8 5v14l11-7z',share:'M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5',edit:'M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4',del:'M5 7h14 M10 7V4.8h4V7 M7 7l.8 12.2a1.6 1.6 0 0 0 1.6 1.5h5.2a1.6 1.6 0 0 0 1.6-1.5L17 7',search:'M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4',plus:'M12 5v14 M5 12h14',dl:'M12 4v11 M7.5 10.5L12 15l4.5-4.5 M5 19.5h14',ul:'M12 15V4 M7.5 8.5L12 4l4.5 4.5 M5 19.5h14',mark:'M7 4h10a1 1 0 0 1 1 1v15l-6-4-6 4V5a1 1 0 0 1 1-1z',log:'M6 4h11a1 1 0 0 1 1 1v15H8a2 2 0 0 1-2-2z M12 8v6 M9 11h6',cam:'M4 8h3l2-2.5h6L17 8h3v11H4z M12 10.5a3 3 0 1 0 0 6a3 3 0 1 0 0-6z',reset:'M4 12a8 8 0 1 0 2.3-5.6 M4 4v5h5',swap:'M7 7h13 M16 3l4 4-4 4 M17 17H4 M8 13l-4 4 4 4',cmp:'M9 4H5v16h4 M15 4h4v16h-4 M12 2v20',bulb:'M9 18h6 M10 21h4 M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z',open:'M14 4h6v6 M20 4l-9 9 M18 14v6H4V6h6',x:'M6 6l12 12 M18 6L6 18',minus:'M5 12h14',bag:'M6 8h12l-1.2 12H7.2z M9 8V6.5a3 3 0 0 1 6 0V8',gift:'M4 11h16v9H4z M3 7.5h18V11H3z M12 7.5V20 M12 7.5C10.5 4 7 4 7 6s3 1.5 5 1.5 M12 7.5C13.5 4 17 4 17 6s-3 1.5-5 1.5',store:'M4 10l1.5-5h13L20 10 M5 10v9h14v-9 M4 10a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0 M10 19v-4h4v4',wheel:'M12 3.5a8.5 8.5 0 1 0 0 17a8.5 8.5 0 1 0 0-17z M12 3.5v8.5l7.4 4.2M12 12l-7.4 4.2',sweep:'M20 4l-8.5 8.5 M13.5 14.5l-4-4-2.5 1.5c-1.5 1-3 3.5-3.5 8.5 5-.5 7.5-2 8.5-3.5z M7 17l2-2',ice:'M12 3v18 M4.2 7.5l15.6 9 M4.2 16.5l15.6-9 M9.5 4.5L12 7l2.5-2.5 M9.5 19.5L12 17l2.5 2.5',info:'M21 12a9 9 0 1 1-18 0a9 9 0 1 1 18 0z M12 11v5 M12 8h.01',ok:'M5 12.5l4.5 4.5L19 7.5',flag:'M5 21V4 M5 4h12l-2.5 4 2.5 4H5',timer:'M12 9v4l2.5 1.5 M9.5 2.5h5 M12 21a8 8 0 1 0 0-16a8 8 0 1 0 0 16z',scan:'M4 8V6a2 2 0 0 1 2-2h2 M16 4h2a2 2 0 0 1 2 2v2 M20 16v2a2 2 0 0 1-2 2h-2 M8 20H6a2 2 0 0 1-2-2v-2 M12 8.5c2 0 3.5 1.6 3.5 3.5S14 15.5 12 15.5 8.5 14 8.5 12 10 8.5 12 8.5z',cup:'M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z M16 10h2a2 2 0 0 1 0 4h-2 M9 3v3 M12 3v3'};
+const LI={again:'M8 5v14l11-7z',share:'M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5',edit:'M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4',del:'M5 7h14 M10 7V4.8h4V7 M7 7l.8 12.2a1.6 1.6 0 0 0 1.6 1.5h5.2a1.6 1.6 0 0 0 1.6-1.5L17 7',search:'M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4',plus:'M12 5v14 M5 12h14',dl:'M12 4v11 M7.5 10.5L12 15l4.5-4.5 M5 19.5h14',ul:'M12 15V4 M7.5 8.5L12 4l4.5 4.5 M5 19.5h14',mark:'M7 4h10a1 1 0 0 1 1 1v15l-6-4-6 4V5a1 1 0 0 1 1-1z',log:'M6 4h11a1 1 0 0 1 1 1v15H8a2 2 0 0 1-2-2z M12 8v6 M9 11h6',cam:'M4 8h3l2-2.5h6L17 8h3v11H4z M12 10.5a3 3 0 1 0 0 6a3 3 0 1 0 0-6z',reset:'M4 12a8 8 0 1 0 2.3-5.6 M4 4v5h5',swap:'M7 7h13 M16 3l4 4-4 4 M17 17H4 M8 13l-4 4 4 4',cmp:'M9 4H5v16h4 M15 4h4v16h-4 M12 2v20',bulb:'M9 18h6 M10 21h4 M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z',open:'M14 4h6v6 M20 4l-9 9 M18 14v6H4V6h6',x:'M6 6l12 12 M18 6L6 18',minus:'M5 12h14',chev:'M9 6l6 6-6 6',bag:'M6 8h12l-1.2 12H7.2z M9 8V6.5a3 3 0 0 1 6 0V8',gift:'M4 11h16v9H4z M3 7.5h18V11H3z M12 7.5V20 M12 7.5C10.5 4 7 4 7 6s3 1.5 5 1.5 M12 7.5C13.5 4 17 4 17 6s-3 1.5-5 1.5',store:'M4 10l1.5-5h13L20 10 M5 10v9h14v-9 M4 10a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0 M10 19v-4h4v4',wheel:'M12 3.5a8.5 8.5 0 1 0 0 17a8.5 8.5 0 1 0 0-17z M12 3.5v8.5l7.4 4.2M12 12l-7.4 4.2',sweep:'M20 4l-8.5 8.5 M13.5 14.5l-4-4-2.5 1.5c-1.5 1-3 3.5-3.5 8.5 5-.5 7.5-2 8.5-3.5z M7 17l2-2',ice:'M12 3v18 M4.2 7.5l15.6 9 M4.2 16.5l15.6-9 M9.5 4.5L12 7l2.5-2.5 M9.5 19.5L12 17l2.5 2.5',info:'M21 12a9 9 0 1 1-18 0a9 9 0 1 1 18 0z M12 11v5 M12 8h.01',ok:'M5 12.5l4.5 4.5L19 7.5',flag:'M5 21V4 M5 4h12l-2.5 4 2.5 4H5',timer:'M12 9v4l2.5 1.5 M9.5 2.5h5 M12 21a8 8 0 1 0 0-16a8 8 0 1 0 0 16z',scan:'M4 8V6a2 2 0 0 1 2-2h2 M16 4h2a2 2 0 0 1 2 2v2 M20 16v2a2 2 0 0 1-2 2h-2 M8 20H6a2 2 0 0 1-2-2v-2 M12 8.5c2 0 3.5 1.6 3.5 3.5S14 15.5 12 15.5 8.5 14 8.5 12 10 8.5 12 8.5z',cup:'M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z M16 10h2a2 2 0 0 1 0 4h-2 M9 3v3 M12 3v3'};
 // Every action is a round icon (adding, filtering, sharing, deleting…): what it does is its label, read out and shown on
 // hover, not a word on the button. A form's own Save keeps its word. cls: 'main' for the one to press, 'danger' to delete.
+// A labelled pill (an icon and a word) for an action an icon alone wouldn't make clear.
+function pbtn(k,attrs,label,cls){return '<button type="button" class="pbtn'+(cls?' '+cls:'')+'" '+(attrs||'')+'>'+lIc(k)+'<span>'+esc(label)+'</span></button>'}
 function ib(k,attrs,label,cls){return '<button type="button" class="ib'+(cls?' '+cls:'')+'" '+(attrs||'')+' aria-label="'+esc(label)+'" title="'+esc(label)+'">'+lIc(k)+'</button>'}
 const lIc=k=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+LI[k]+'"/></svg>';
 const lHue=n=>{let h=0;for(const c of String(n))h=(h*31+c.charCodeAt(0))%360;return h};
@@ -9411,16 +9456,20 @@ function settingsSync(){const own=document.querySelector('#settings-in .swatch[d
   pr('.vibe[data-vibe]','vibe',UI.vibe);pr('.swatch[data-accent]','accent',UI.accent);pr('.logopick[data-logo]','logo',UI.logo);
   if($('st-rtime'))$('st-rtime').disabled=!REMIND.on;if($('st-ltime'))$('st-ltime').disabled=!LEARN.on}
 let SET_H='';
+// The Android app's version card: its version, whether a newer one is out, update and check buttons.
+const appverHTML=()=>(appVersion()?'<div class="appver'+(updLatest()?' new':'')+'">'+ico('download','#4F8A74')+'<span class="av-tx"><b>Brew Bench '+esc(appVersion())+'</b><small>'+esc(updNote())+'</small></span>'+
+      '<div class="av-btns">'+(updLatest()?pbtn('dl','id="st-updgo"','Update to '+updLatest(),'main'):'')+pbtn('reset','id="st-upd"','Check for updates',updLatest()?'quiet':'')+'</div></div>':'');
 function renderSettings(soft){const t=document.documentElement.getAttribute('data-theme')||'auto',fresh=!(soft&&$('st-mode'));
   const row=(icon,bg,title,sub,body)=>'<div class="setrow"><div class="sl">'+ico(icon,bg)+'<span class="mt"><b>'+title+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</span></div>'+(body||'')+'</div>';
+  // A row that is itself the action (a chevron at its end), for a row with one thing to do.
+  const linkRow=(attrs,icon,bg,title,sub)=>'<button type="button" class="setrow setlink" '+attrs+'><span class="sl">'+ico(icon,bg)+'<span class="mt"><b>'+title+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</span><i class="setchev" aria-hidden="true">'+lIc('chev')+'</i></span></button>';
   const qt=(k,n,d)=>'<button type="button" class="qtool" data-go="'+k+'">'+ico(hubItem(k)[4],hubItem(k)[3])+'<span><b>'+n+'</b><small>'+d+'</small></span></button>';
   if(!fresh)settingsSync();else{const h='<div class="quicktools">'+qt('gear','Gear',MYG.length+' grinder'+(MYG.length>1?'s':'')+(MYB.length?', '+MYB.length+' brewer'+(MYB.length>1?'s':''):''))+qt('log','Brew log',LOG.length?LOG.length+' brew'+(LOG.length>1?'s':''):'Rate and keep your brews')+qt('guide','Guide','Ratios, fixes')+'</div>'+
     // In the Android app: its version, whether a newer one is out, and a button to check now (the website updates itself).
-    (appVersion()?'<div class="appver'+(updLatest()?' new':'')+'">'+ico('download','#4F8A74')+'<span class="av-tx"><b>Brew Bench '+esc(appVersion())+'</b><small>'+esc(updNote())+'</small></span>'+
-      '<div class="av-btns">'+(updLatest()?'<button type="button" class="btn" id="st-updgo">Update to '+esc(updLatest())+'</button>':'')+'<button type="button" class="btn'+(updLatest()?' ghost':'')+'" id="st-upd">Check for updates</button></div></div>':'')+
+    appverHTML()+
     // On the website (not iPhone, where there's no Android app to get): the Android app, one tap to download.
     (!window.Capacitor&&!IOS()?'<div class="appver getapp">'+ico('download','#4F8A74')+'<span class="av-tx"><b>Get the Android app</b><small>The same Brew Bench, plus daily reminders. Sign in to bring your coffees and brews with you.</small></span>'+
-      '<div class="av-btns"><a class="ib main" id="st-getapk" href="'+APK_URL+'" rel="noopener" aria-label="Download for Android" title="Download for Android">'+lIc('dl')+'</a></div><p class="setnote av-note">Open the downloaded file to install it. Android may ask you to allow installs from your browser the first time.</p></div>':'')+
+      '<div class="av-btns"><a class="pbtn main" id="st-getapk" href="'+APK_URL+'" rel="noopener">'+lIc('dl')+'<span>Download for Android</span></a></div><p class="setnote av-note">Open the downloaded file to install it. Android may ask you to allow installs from your browser the first time.</p></div>':'')+
     '<h3 class="rh">Appearance</h3><div class="setgroup">'+
     row(curTheme()==='dark'?'moon':'sun','#5B5F66','Light or dark','Bright cream, cosy espresso, or follow your phone','<div class="seg" id="st-mode"></div>')+
     row('drop','var(--cherry)','Vibe','A whole look, in light and in dark','<div class="vibes">'+VIBES.map(([k,n,d,L,D])=>'<button type="button" class="vibe" data-vibe="'+k+'" aria-pressed="'+(UI.vibe===k)+'" style="--l-p:'+L.paper+';--l-s:'+L.surface+';--l-i:'+L.ink+';--l-c:'+L.cherry+';--l-h:'+L.honey+';--d-p:'+D.paper+';--d-s:'+D.surface+';--d-i:'+D.ink+';--d-c:'+D.cherry+';--d-h:'+D.honey+'"><span class="vb-pv" aria-hidden="true"><i class="vb-l"><u></u><s></s><em></em></i><i class="vb-d"><u></u><s></s><em></em></i></span><b>'+n+'</b><small>'+d+'</small></button>').join('')+'</div>')+
@@ -9432,7 +9481,6 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
     row('hourglass','#8A5A3B','When you reopen the app','Scan and Brew start fresh, or pick up where you left off','<div class="seg" id="st-resume"></div>')+
     row('sliders','#4F8A74','Sorts and filters','The order and filters you pick for each list, next time you open the app','<div class="seg" id="st-views"></div>')+'</div>'+
    // The coffee of the day: always on the Beans and Explore pages; in the Android app, also as a notification.
-   '<h3 class="rh">Grind settings</h3><div class="setgroup">'+row('cog','#6E8FA8','Grind settings','Each grinder\u2019s setting for every brewer, and a nudge for all its recipes. Now in Gear and dials.','<div class="actions gs-shortcut" style="margin:0">'+ib('open','data-gearto="set"','Open grind settings')+'</div>')+'</div>'+
 
    '<h3 class="rh">Reminders</h3><div class="setgroup">'+row('bell','#8A5A3B','Coffee of the day','A coffee from your cabinet each day: a bag at its peak or running low, one from this day in an earlier year, or a memory from your diary.',
      window.BEANS_OK&&LN()?'<div class="setbtns rem"><div class="seg" id="st-remind"></div><input type="time" id="st-rtime" class="dateinp" value="'+REMIND.t+'" aria-label="Reminder time"'+(REMIND.on?'':' disabled')+'></div>'
@@ -9442,9 +9490,9 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
          :'<p class="setnote" style="margin:0">Today’s is on the Explore page. In the Android app it can also arrive as a notification at the time you choose.</p>')+'</div>'+
    /* Gear, Guide and the Log are the buttons at the top. */
    '<h3 class="rh">Your data</h3><div class="setgroup">'+row('download','#8A5A3B','Back up and restore','Everything you’ve saved stays on this device: '+esc(dataSummary())+'. Save it as a file, photos included, to keep it safe or move it to another phone.',
-     '<p class="setnote" id="st-lastbak" style="margin:0 0 8px">'+lastBakText()+'</p><div class="setbtns ib-row">'+ib('dl','id="st-export"','Export my data','main')+ib('ul','id="st-import"','Import a backup')+'<input type="file" id="st-file" accept="application/json,.json" hidden></div>')+'</div>'+
+     '<p class="setnote" id="st-lastbak" style="margin:0 0 8px">'+lastBakText()+'</p><div class="setbtns">'+pbtn('dl','id="st-export"','Back up','main')+pbtn('ul','id="st-import"','Restore')+'<input type="file" id="st-file" accept="application/json,.json" hidden></div>')+'</div>'+
    (installed()?'':'<h3 class="rh">Install</h3><div class="setgroup">'+row('phone','#9A7390','Add to your home screen','Use it like an app, offline too','<p class="setnote" style="margin:0"><b>iPhone (Safari):</b> tap the Share button, then <b>Add to Home Screen</b>.<br><b>Android (Chrome):</b> tap the ⋮ menu, then <b>Add to Home screen</b>.</p>')+'</div>')+
-   '<h3 class="rh">About</h3><div class="setgroup">'+row('bulb','#C9964A','Good to know','Undo, backups, sharing'+(NATIVE?', widgets':'')+' and more, in a minute','<div class="setbtns ib-row">'+ib('bulb','id="st-tips"','Show the tips')+'</div>')+row('info','#8A5A3B','The Brew Bench','A coffee field guide and dial-in tool. What you save stays on this device, or syncs with your account if you sign in.','<p class="setnote" style="margin:0"><a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a> · <a href="'+SITE_URL+'delete-account.html" target="_blank" rel="noopener">Delete your account</a></p>')+
+   '<h3 class="rh">About</h3><div class="setgroup">'+linkRow('id="st-tips"','bulb','#C9964A','Good to know','Undo, backups, sharing'+(NATIVE?', widgets':'')+' and more, in a minute')+row('info','#8A5A3B','The Brew Bench','A coffee field guide and dial-in tool. What you save stays on this device, or syncs with your account if you sign in.','<p class="setnote" style="margin:0"><a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a> · <a href="'+SITE_URL+'delete-account.html" target="_blank" rel="noopener">Delete your account</a></p>')+
      '</div>';
     // Built each visit, but only put in when something changed: redrawing the whole page on every visit laid it out again.
     if(h!==SET_H||!$('st-mode')){$('settings-in').innerHTML=h;SET_H=h}}
@@ -9545,8 +9593,10 @@ function showUpdate(force){const l=updLatest(),old=$('updcard');if(!l||(!force&&
   $('upd-later').onclick=()=>{UPD.later=l;UPD.laterAt=Date.now();save('bb-upd',UPD);c.classList.add('out');setTimeout(()=>c.remove(),260)}}
 if(appVersion()){setTimeout(()=>checkUpdate(),4000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate()})}
 document.addEventListener('click',e=>{if(e.target.closest('#st-updgo')){toast('Downloading the new version. Open it when it finishes to install');openLink(APK_URL);return}
-  if(e.target.closest('#st-upd')){const b=e.target.closest('#st-upd');b.disabled=true;b.textContent='Checking…';
-  checkUpdate(true).then(l=>{if(l===null)toast('Couldn’t check just now. Try again when you’re online');else if(!l)toast('You have the latest version');SET_H='';renderSettings()})}});
+  if(e.target.closest('#st-upd')){const b=e.target.closest('#st-upd');b.disabled=true;b.querySelector('span').textContent='Checking…';
+  checkUpdate(true).then(l=>{if(l===null)toast('Couldn’t check just now. Try again when you’re online');else if(!l)toast('You have the latest version');
+    // Only the version card is drawn again (redrawing the whole page replayed the switches above it).
+    const card=document.querySelector('#settings-in .appver:not(.getapp)');if(card)card.outerHTML=appverHTML()})}});
 
 /* ================= A COFFEE FACT A DAY ================= */
 // One thing worth knowing from Explore each day, taking the kinds in turn (a word, a variety, an origin, a process, a
@@ -10588,8 +10638,13 @@ function renderBeanHero(){const cy=new Date().getFullYear(),N=BEANS.length,rated
     '<div class="bgh-acts"><button type="button" class="bgh-btn main" id="bg-scan" aria-label="Scan a bag" title="Scan a bag">'+SCAN_ICO+'</button><button type="button" class="bgh-btn" id="bg-add" aria-label="Add a coffee" title="Add a coffee">'+PLUS_ICO+'</button>'+
       (SCANS.length?'<button type="button" class="bgh-btn" data-view="scans" aria-label="Your scans" title="Your scans"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v5l3 2M3.5 12a8.5 8.5 0 1 0 2.5-6M3 4v4h4"/></svg></button>':'')+'</div>';
   hydrateImgs(h)}
+// Going from Coffees into another view (Roastery, Diary, Passport, Top 5, your scans) is one step: back returns to
+// Coffees rather than leaving Beans. Moving between the other views replaces that step, so back is still one step.
+let BV_SILENT=false;
+function bvStep(from,to){if(from===to)return;try{if(from==='coffees'&&to!=='coffees')history.pushState({bv:1},'',location.hash||'#beans');else if(to==='coffees'&&history.state&&history.state.bv){BV_SILENT=true;history.back()}}catch(e){}}
+function bvBack(){if(BV_SILENT){BV_SILENT=false;return true}if(!$('beans')||!$('beans').classList.contains('on')||BVIEW==='coffees')return false;BVDIR=-1;BVIEW='coffees';renderBeanViews();return true}
 function renderBeanViews(){const cy=new Date().getFullYear();
-  seg('bg-views',BVTABS,()=>BVIEW,v=>{if(v===BVIEW)return;const K=Object.keys(BVIEWS);BVDIR=K.indexOf(v)>K.indexOf(BVIEW)?1:-1;BVIEW=v;
+  seg('bg-views',BVTABS,()=>BVIEW,v=>{if(v===BVIEW)return;bvStep(BVIEW,v);const K=Object.keys(BVIEWS);BVDIR=K.indexOf(v)>K.indexOf(BVIEW)?1:-1;BVIEW=v;
     // The strip shows the pick at once (seg); the view, already built in the background, follows in the next frame.
     renderBeanViews()});
   if(BDIRTY.has(BVIEW)){BDIRTY.delete(BVIEW);BVIEWS[BVIEW]()}
@@ -10822,7 +10877,7 @@ async function addScanToGallery(i){const s=SCANS[i];if(!s)return;const inf=s.inf
 $('beans-in').addEventListener('input',e=>{if(e.target.id!=='bg-q')return;BQ=e.target.value;renderGrid()});
 $('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-lt-f'))openBeanFilter();else if(e.target.closest('#bg-lt-s'))openBeanSort();else if(e.target.closest('#dy-lt-f'))openDiaryFilter()});
 $('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-add')){openBeanEditor();return}if(e.target.closest('#bg-scan,#bg-scan2')){showTab('scan');newScan();scrollTo(0,0);return} /* the Scan page offers taking or choosing a photo */
-  const v=e.target.closest('[data-view]');if(v){BVIEW=v.dataset.view;if(BVIEW==='scans')BDIRTY.add('scans');renderBeanViews();if(v.classList.contains('tshelf'))$('bg-views').scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'});return}
+  const v=e.target.closest('[data-view]');if(v){bvStep(BVIEW,v.dataset.view);BVIEW=v.dataset.view;if(BVIEW==='scans')BDIRTY.add('scans');renderBeanViews();if(v.classList.contains('tshelf'))$('bg-views').scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'});return}
   if(e.target.closest('[data-advnew]')){openCalEditor();return}const adv=e.target.closest('[data-adv]');if(adv){openCal(adv.dataset.adv);return}
   const dyb=e.target.closest('[data-dyb]');if(dyb){if(dyb.dataset.dyb==='more')openDiaryPick();else setDyBean(dyb.dataset.dyb);return}
   if(e.target.closest('#dy-more')){DLIM+=60;renderDiaryList();return}
@@ -11009,7 +11064,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.be
       (g!=null?'<div class="bd-bag"><div class="bd-bagh">'+bagLine(b)+''+ib('edit','id="bd-left"','Set what’s left','sm')+'</div><div class="bd-cupr"><span class="bd-cupl">Brewed a cup with</span><span class="bd-step"><button type="button" id="bd-cm" aria-label="Less coffee">−</button><b id="bd-cg">'+dose+' g</b><button type="button" id="bd-cp" aria-label="More coffee">+</button></span>'+ib('ok','id="bd-cup"','Take it off the bag','main sm')+'</div>'+
         '<p class="bd-auto">Brews you log or finish with the dial-in’s timer come off on their own.</p></div>'
         :'<p class="hint" style="margin:8px 0 0">Add the bag size in Edit to see what’s left as you log brews.</p>')+
-      ib('flag','id="bd-done"','Finish the bag','bd-done')+'</div>'
+      pbtn('flag','id="bd-done"','Finish this bag','quiet bd-done')+'</div>'
      :'')+
     (kv.length?'<div class="specs">'+kv.map(([k,v])=>'<div><b>'+k+'</b><span class="bd-v">'+esc(v)+'</span></div>').join('')+'</div>':'')+
     (dialNextFor(b.id)?'<div class="bd-dnext"><span class="bd-dni" aria-hidden="true">🎯</span><span><b>'+(dialNextFor(b.id).taste==='good'?'What worked':'Try next time')+'</b><small>'+esc(dialNextLine(dialNextFor(b.id)))+' · '+esc(fmt(dialNextFor(b.id).at))+(dialNextFor(b.id).taste&&dialNextFor(b.id).taste!=='good'?' · after a '+dialNextFor(b.id).taste+' cup':'')+'</small></span></div>':'')+
