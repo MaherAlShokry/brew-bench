@@ -13,6 +13,11 @@ const route=async r=>{const u=new URL(r.request().url()),parts=u.pathname.replac
   if(m==='DELETE'){setPath(parts.slice(),null);return r.fulfill({status:200,contentType:'application/json',body:'null'})}
   return r.fulfill({status:400,body:''})};
 const phone=async()=>{const c=await b.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});const p=await c.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
+  // The app reloads itself when a sync brings something in (and a page that just reloaded syncs once more a few seconds
+  // later): a step caught by one is tried again once the page is back.
+  const ev0=p.evaluate.bind(p);p.evaluate=async(f,arg)=>{for(let i=0;;i++){try{return await ev0(f,arg)}catch(e){
+    if(i>=4||!/context was destroyed|navigat|Target closed|not defined/i.test(String(e&&e.message)))throw e;
+    for(let k=0;k<20;k++){await p.waitForTimeout(400);try{if(await ev0(()=>typeof goTab==='function'&&typeof SYNC_BUSY!=='undefined'&&!SYNC_BUSY&&document.readyState==='complete'))break}catch(_){}}}}};
   await p.route(u=>u.href.startsWith('https://fake-db.test'),route);await p.route(u=>!u.href.startsWith('http://localhost')&&!u.href.startsWith('https://fake-db.test'),r=>r.abort());
   await p.addInitScript(()=>{sessionStorage.setItem('bb-splashed','1');localStorage.setItem('bb-syncdb','https://fake-db.test');
     // A sync already running makes sync() return at once (it only asks for another run afterwards): wait for it, then sync.

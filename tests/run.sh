@@ -29,7 +29,7 @@ one() {
   s0=$SECONDS; out=$(cd "$OUT" && timeout 300 node "$f" 2>&1); code=$?; dt=$((SECONDS-s0))
   n=$(printf '%s\n' "$out" | grep -c FAIL)
   if [ "$code" != 0 ] || [ "$n" != 0 ]; then
-    echo "FAILED $t (exit $code, $n FAIL lines, ${dt}s)"; printf '%s\n' "$out" | grep -m8 -E 'FAIL|Error|rror:' | sed 's/^/    /'
+    echo "FAILED $t (exit $code, $n FAIL lines, ${dt}s)"; printf '%s\n' "$out" | grep -m8 -E 'FAIL|Error|rror:|^[a-zA-Z.]+: ' | sed 's/^/    /'
   else printf 'ok     %-14s %4ss\n' "$t" "$dt"; fi
 }
 export -f one; export E2E OUT
