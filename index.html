@@ -2239,7 +2239,7 @@ body.t-dial.dial-ready .herowrap{display:none}
 .bpct{flex:none;position:relative;display:flex;align-items:center}.bvars .bpct input{width:78px;min-width:0;flex:none;padding-right:22px;text-align:right;font-variant-numeric:tabular-nums}
 .bpct span{position:absolute;right:10px;color:var(--muted);font-size:.85rem;pointer-events:none}.bpct-note{margin:6px 0 0;color:#9A6A12}
 .bv-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}.bv-head .lbl{margin:0;font-size:.92rem;font-weight:600}
-.bv-plus{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;padding:0;cursor:pointer;border:1px solid color-mix(in srgb,var(--cherry) 40%,var(--line));background:color-mix(in srgb,var(--cherry) 10%,var(--surface));color:var(--cherry-ink);transition:transform .15s,background-color .15s}
+.bv-plus{flex:none;height:30px;border-radius:999px;display:inline-flex;align-items:center;gap:4px;padding:0 12px 0 9px;margin-left:auto;font:700 .8rem var(--display);cursor:pointer;border:1px solid color-mix(in srgb,var(--cherry) 40%,var(--line));background:color-mix(in srgb,var(--cherry) 10%,var(--surface));color:var(--cherry-ink);transition:transform .15s,background-color .15s}
 .bv-plus svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
 .bv-plus:active{transform:scale(.9)}.bv-plus[hidden]{display:none}
 
@@ -2821,7 +2821,7 @@ textarea{resize:none}
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="64772e6ee24d"</script>
+<script>const BUILD_ID="59b1eab8184f"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -11186,11 +11186,11 @@ function openBeanEditorNow(b,pre){const isNew=!b;const B=Object.assign({name:'',
    '<div class="field"><div class="lbl">Your rating</div><div class="beanrate" id="be-rate"></div></div>'+
    '<div class="two stackm"><div class="field"><label for="be-name">Coffee name</label><input id="be-name" maxlength="60" value="'+esc(B.name)+'" autocomplete="off"></div>'+
    '<div class="field"><label for="be-roaster">Roastery</label><div class="acw"><input id="be-roaster" maxlength="50" value="'+esc(B.roaster)+'" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="be-rsug"><div class="acl" id="be-rsug" role="listbox" aria-label="Roasteries you’ve had" hidden></div></div></div></div>'+
-   '<div class="field"><div class="bv-head"><span class="lbl" id="be-olbl">Origin</span><button type="button" class="bv-plus" id="be-addo" aria-label="Add another origin" title="Add another origin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div><div class="bvars" id="be-origins" role="group" aria-labelledby="be-olbl"></div><p class="hint bpct-note" id="be-opct" hidden></p>'+
+   '<div class="field"><div class="bv-head"><span class="lbl" id="be-olbl">Origin</span><button type="button" class="bv-plus" id="be-addo" aria-label="Add another origin" title="Add another origin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Add</span></button></div><div class="bvars" id="be-origins" role="group" aria-labelledby="be-olbl"></div><p class="hint bpct-note" id="be-opct" hidden></p>'+
    // A second origin makes it a blend (up to four), the same way varieties are added.
    '</div>'+
    '<div class="field"><label for="be-process">Process</label><select id="be-process">'+opt(processOptions(),'Not sure')+'</select></div>'+
-   '<div class="field"><div class="bv-head"><span class="lbl" id="be-vlbl">Variety</span><button type="button" class="bv-plus" id="be-addv" aria-label="Add another variety" title="Add another variety"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div><div class="bvars" id="be-vars" role="group" aria-labelledby="be-vlbl"></div>'+
+   '<div class="field"><div class="bv-head"><span class="lbl" id="be-vlbl">Variety</span><button type="button" class="bv-plus" id="be-addv" aria-label="Add another variety" title="Add another variety"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Add</span></button></div><div class="bvars" id="be-vars" role="group" aria-labelledby="be-vlbl"></div>'+
    '</div>'+
    '<div class="field"><div class="lbl">Roast</div><div class="seg" id="be-roast"></div></div>'+
    '<div class="two"><div class="field"><label for="be-rdate">Roasted on</label><input type="date" id="be-rdate" class="dateinp" value="'+B.roastDate+'" max="'+todayISO()+'"></div><div class="field"><label for="be-tried">Tried on</label><input type="date" id="be-tried" class="dateinp" value="'+B.tried+'" max="'+todayISO()+'"></div></div>'+
