@@ -1728,7 +1728,7 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
 .srow-pic svg{width:26px}.srow-pic .bo{fill:color-mix(in srgb,var(--cherry) 25%,var(--surface))}.srow-pic .bc{fill:none;stroke:var(--cherry);stroke-width:1.4}
 .srow-tx{min-width:0;display:flex;flex-direction:column;gap:2px}.srow-tx b{font-family:var(--display);font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.srow-tx small{font-size:.76rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .srow-add,.srow-in{flex:none;display:inline-flex;align-items:center;gap:4px;min-height:36px;padding:6px 12px;border-radius:var(--r-pill);border:0;font:inherit;font-size:.8rem;font-weight:700;cursor:pointer}
-.srow-add{background:var(--cherry);color:var(--surface)}.srow-in{background:color-mix(in srgb,var(--leaf) 16%,var(--surface2));color:var(--leaf-ink,var(--leaf))}
+.srow-add{background:var(--cherry);color:var(--surface)}.srow .srow-del{flex:none;margin-left:2px}.srow-in{background:color-mix(in srgb,var(--leaf) 16%,var(--surface2));color:var(--leaf-ink,var(--leaf))}
 .srow-add svg,.srow-in svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 .pm-ph{flex-direction:column;gap:6px}.pm-ph small{font-size:.7rem;font-weight:700;color:rgba(255,248,238,.55)}
 button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.96)}.pm.empty .pm-card{transition:transform .15s}
@@ -1907,7 +1907,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .tl-bean .bpic{flex:none;width:26px;height:32px;border-radius:7px}.tl-bean b{font-size:.82rem;font-family:var(--display)}
 /* A coffee's page: the bag now, buying again, writing */
 .bd-shelf{margin:6px 0 14px;padding:14px;border-radius:var(--r-lg);background:var(--surface2)}
-.bd-fh{display:flex;align-items:baseline;justify-content:space-between;gap:8px}.bd-fh b{font-family:var(--display);font-size:1.05rem}.bd-fh span{font-size:.82rem;color:var(--muted)}
+.bd-fh{display:flex;align-items:baseline;justify-content:space-between;gap:8px}.bd-fh b{font-family:var(--display);font-size:1.05rem}.bd-fh span{font-size:.82rem;color:var(--muted)}.bd-fh .bd-frz{margin-left:auto;align-self:center}.bd-frz[aria-pressed=true]{background:#4F86A8;color:#fff}
 .bd-f p{margin:8px 0 0;font-size:.88rem;line-height:1.45}.bd-fw{display:block;margin-top:6px;font-size:.76rem;color:var(--muted);line-height:1.4}
 .fbar{position:relative;display:flex;height:10px;margin:10px 0 4px;border-radius:5px;overflow:visible}
 .fbar i{display:block;height:100%}.fbar .fz1{width:6.7%;background:#B8AFA6;border-radius:5px 0 0 5px}.fbar .fz2{width:28.3%;background:#5E9A63}.fbar .fz3{width:40%;background:#C9964A}.fbar .fz4{flex:1;background:#A8432F;border-radius:0 5px 5px 0;opacity:.75}
@@ -2764,22 +2764,28 @@ main section.on:has(>.fab){padding-bottom:160px!important}
 /* A logged brew's actions: icons only. */
 .le-b{width:40px;padding:0!important;justify-content:center}.le-b.again{width:auto;padding:0 14px!important}
 .figs b{white-space:nowrap}
+/* Scale a recipe: less or more coffee either side of the amounts, and Iced beside them. */
+.rscale{display:flex;align-items:center;gap:10px;margin:0 0 14px;padding:10px 12px;border-radius:var(--r-lg);background:color-mix(in srgb,var(--ink) 4%,var(--surface));box-shadow:inset 0 0 0 1px var(--hair)}
+.rs-v{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center}.rs-v b{font:800 1.05rem var(--display);font-variant-numeric:tabular-nums}.rs-v small{font-size:.78rem;color:var(--muted)}
+.rs-ice[aria-pressed="true"]{background:#4F86A8;color:#fff}
 /* The way to the sweet spot: a card with a target, then each option as a row you tap to apply, its settings as chips and
    how far they move underneath; the other notes as quiet rows with an info mark. */
 .oplan{margin:14px 0 0;padding:14px;border-radius:var(--r-lg);background:color-mix(in srgb,var(--honey) 13%,var(--surface));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--honey) 30%,transparent)}
 .oplan-h{display:flex;align-items:center;gap:10px;margin-bottom:12px}.oplan-h>span{display:flex;flex-direction:column;min-width:0}.oplan-h b{font:800 1rem var(--display);color:var(--ink)}.oplan-h small{font-size:.78rem;color:var(--muted)}
 .otip-ic{flex:none;width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:var(--honey);color:#fff}
 .otip-ic svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.oplan-o{all:unset;box-sizing:border-box;position:relative;width:100%;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;align-items:center;column-gap:14px;padding:14px 12px 14px 16px;border-radius:16px;background:var(--surface);box-shadow:var(--shadow),inset 0 0 0 1px var(--hair);cursor:pointer;transition:transform .15s,box-shadow .15s}
 .oplan-o:active{transform:scale(.985)}.oplan-o:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
-.oplan-o{all:unset;box-sizing:border-box;width:100%;display:flex;align-items:center;gap:12px;padding:12px 12px 12px 16px;border-radius:16px;background:var(--surface);box-shadow:var(--shadow),inset 0 0 0 1px var(--hair);cursor:pointer;transition:transform .15s}
-.oplan-o:active{transform:scale(.985)}.oplan-o:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
-.oplan-rows{flex:1;min-width:0;display:grid;grid-template-columns:3.6em minmax(0,1fr) auto;align-items:baseline;column-gap:12px;row-gap:8px}
-.oplan-rows small{font-size:.68rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.oplan-rows b{font:800 .98rem var(--display);color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.oplan-rows em{font-style:normal;font-size:.8rem;font-weight:700;color:var(--cherry);text-align:right;white-space:nowrap}.oplan-rows em.same{color:var(--muted);font-weight:500}
-.oplan-go{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--cherry);color:var(--surface)}
+.oplan-o:has(.oplan-best){box-shadow:var(--shadow),inset 0 0 0 1.5px color-mix(in srgb,var(--leaf) 55%,transparent);margin-top:8px}
+.oplan-best{position:absolute;top:0;left:14px;transform:translateY(-50%);padding:3px 9px;border-radius:var(--r-pill);background:var(--leaf);color:var(--surface);font-size:.64rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;line-height:1.2}
+.oplan-m{display:flex;flex-direction:column;gap:2px;min-width:0}
+.oplan-m+.oplan-m{padding-left:14px;border-left:1px solid var(--line)}
+.oplan-m small{font-size:.64rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.oplan-m b{font:800 1.2rem/1.15 var(--display);color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.oplan-m em{font-style:normal;font-size:.74rem;font-weight:700;color:var(--cherry);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.oplan-m em.same{color:var(--muted);font-weight:500}
+.oplan-go{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--cherry) 12%,var(--surface));color:var(--cherry)}
 .oplan-go svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
-.oplan-or{display:flex;align-items:center;gap:10px;margin:8px 4px;font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.oplan-or{display:flex;align-items:center;gap:10px;margin:6px 4px;font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .oplan-or::before,.oplan-or::after{content:"";flex:1;height:1px;background:var(--line)}
 .onotes{display:grid;gap:8px;margin-top:12px}.onote{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:14px;background:var(--surface2);font-size:.88rem;line-height:1.45}
 .onote>i{flex:none;display:grid;place-items:center;width:20px;height:20px;margin-top:1px;color:var(--muted)}.onote>i svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
@@ -3092,6 +3098,7 @@ main section.on:has(>.fab){padding-bottom:160px!important}
   <h2>Beans</h2>
   <p class="lede">Scan a bag, keep every coffee you’ve had, and crown your favourites.</p>
   <div id="beans-in"></div>
+<div class="fab" role="group" aria-label="Beans actions"><button type="button" class="ib main" id="b-fab-add" aria-label="Add a coffee" title="Add a coffee"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14 M5 12h14"/></svg></button></div>
 </section>
 
 <!-- TECHNIQUES -->
@@ -3340,6 +3347,7 @@ main section.on:has(>.fab){padding-bottom:160px!important}
   <div class="actions" style="margin-bottom:10px"><button type="button" class="sh-mini ic" id="l-pdf" aria-label="Share my log" title="Share"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg></button><button type="button" class="ib" id="l-csv" aria-label="Download the log as CSV" title="Download the log as CSV" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11 M7.5 10.5L12 15l4.5-4.5 M5 19.5h14"/></svg></button></div>
   <div class="lf" id="l-filter" hidden></div>
   <div id="l-list"></div>
+<div class="fab" role="group" aria-label="Log actions"><button type="button" class="ib main" id="l-fab-new" aria-label="Log a brew" title="Log a brew"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14 M5 12h14"/></svg></button></div>
 </section>
 <!-- EXPLORE (the phone's Explore tab) -->
 <section id="explore">

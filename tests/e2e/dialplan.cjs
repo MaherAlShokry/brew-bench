@@ -9,5 +9,15 @@ const n=await p.evaluate(()=>document.querySelectorAll('#o-tips [data-plan]').le
 ok('the way to the sweet spot is offered as options',n>=1,n);
 if(n){await p.evaluate(()=>document.querySelector('#o-tips [data-plan]').click());await p.waitForTimeout(300);
   ok('tapping one applies it and lands in the sweet spot',await p.evaluate(()=>Math.abs(compute(S).D)<=0.45));}
+// It learns: the kind of change whose brews you rated higher comes first next time.
+const two=await p.evaluate(()=>{for(const st of [1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40]){S.setting=st;S.temp=93;render();if(PLAN&&PLAN.opts.length>1)return st}return 0});
+if(two){const k0=await p.evaluate(()=>PLAN.opts.map(o=>o.k));
+  await p.evaluate(()=>{localStorage.setItem('bb-planlearn',JSON.stringify({grind:[2,6],water:[2,9]}));render()});
+  ok('what worked for you comes first, marked',await p.evaluate(()=>PLAN.opts[0].k==='water'&&!!document.querySelector('#o-tips .oplan-o .oplan-best')),k0);
+  await p.screenshot({path:'shots/planbest.png'});
+  await p.evaluate(()=>{localStorage.removeItem('bb-planlearn');document.querySelector('#o-tips [data-plan="1"]').click()});
+  const pk=await p.evaluate(()=>JSON.parse(localStorage.getItem('bb-planpend')||'{}').k);ok('applying one remembers it until the brew is rated',pk==='water'||pk==='grind',pk);
+  await p.evaluate(()=>{planRated(5)});ok('the rating counts for it',await p.evaluate(k=>JSON.parse(localStorage.getItem('bb-planlearn'))[k][1]===5&&!localStorage.getItem('bb-planpend'),pk))}
+else ok('found a spot with two options',false);
 ok('log and save float as icons',await p.evaluate(()=>{const f=$('tolog').closest('.fab');return !!f&&getComputedStyle(f).position==='fixed'&&!$('tolog').textContent.trim()&&$('tolog').getAttribute('aria-label')==='Log this brew'}));
 ok('no errors',!errs.length,errs);await b.close()})();
