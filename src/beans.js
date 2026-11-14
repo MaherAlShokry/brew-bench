@@ -845,7 +845,8 @@ function openBeanFilter(){const years=beanYears(),fs=BFILTERS.filter(([f])=>f===
     secs:()=>[fs.length>1?{h:'Show',key:'bf',multi:true,opts:fs.map(([f,n])=>[f,f==='all'?'All coffees':n])}:null,years.length>1?{h:'Year',key:'year',multi:true,chips:1,opts:[['all','All years'],...years.map(y=>[String(y),String(y)])]}:null]})}
 function openBeanSort(){openChoices({title:'Sort coffees',one:'coffee',get:()=>BSORT,set:(k,v)=>{BSORT=v},render:renderBeanSort,count:()=>beanList().length,secs:()=>[{key:'sort',opts:BSORTS}]})}
 // Idle time after the page has opened (the tab swing takes about a third of a second), or soon anyway.
-const whenIdle=fn=>window.requestIdleCallback?requestIdleCallback(fn,{timeout:450}):setTimeout(fn,180);
+// Later parts of a list: drawn in idle time, never in the middle of a page sliding in.
+const whenIdle=fn=>{const go=()=>afterSlide(fn);window.requestIdleCallback?requestIdleCallback(go,{timeout:450}):setTimeout(go,180)};
 // The first rows are drawn at once; the rest of a long gallery follows when the phone is idle.
 let GRID_GEN=0;
 function renderGrid(){const g=$('bg-grid');if(!g)return;const list=beanList(),gen=++GRID_GEN;let n=0;const FIRST=8;

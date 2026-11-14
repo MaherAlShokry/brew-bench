@@ -2644,7 +2644,7 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="bfb8dd74541f"</script>
+<script>const BUILD_ID="a2216747fab2"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -6467,6 +6467,10 @@ const ALWAYS={explore:()=>renderExplore(),settings:()=>renderSettings(),beans:()
 // Pages are built the first time they're opened. So that first tap isn't slow, the rest are built ahead, one per
 // idle moment, a few seconds after the app opens (never while it's in the background).
 // The last time you touched, typed or scrolled: work done ahead waits for a quiet moment.
+// A page is sliding in for this long after a tab change: work that can wait, waits until it's done (a task in the middle
+// of the slide is what shows as a stutter).
+const SLIDE_MS=450,sliding=()=>performance.now()-NAV_AT<SLIDE_MS;
+function afterSlide(fn){const left=SLIDE_MS-(performance.now()-NAV_AT);if(left>0)setTimeout(()=>afterSlide(fn),left+30);else fn()}
 let USER_AT=0;for(const ev of ['pointerdown','keydown','wheel','touchmove'])addEventListener(ev,()=>{USER_AT=performance.now()},{capture:true,passive:true});
 addEventListener('scroll',()=>{USER_AT=performance.now()},{capture:true,passive:true});
 // The first coffee or recipe sheet of a visit took about twice as long to open as later ones: the browser laying its
@@ -6479,20 +6483,26 @@ function warmSheets(){if(SHEETS_WARM>=2)return;const step=SHEETS_WARM++;const d=
     if(step===0&&window.BEANS_OK&&BEANS.length){openBean(BEANS[0].id);d.offsetHeight}
     if(step===1&&RECIPES.length){openRecipe(0);d.offsetHeight}}catch(e){}
   finally{showDlg=keep;d.classList.remove('warm');if(!d.open){$('vd-in').innerHTML='';delete d.dataset.bean}}}
+let EXPLORE_PRE=0;
 function prebuildTabs(){const ids=['recipes','gear','variety','process','map','words','history','flow','wheel','champs','tech'].filter(k=>LAZY[k]);
-  // A step only starts in a real idle moment (not one the timeout forced), and not within 3 s of a touch, a key or a
-  // scroll: building a page takes a while on a phone, and one started just after a tap held that tap's answer back.
-  // (The wait has an end: after 6 s a step goes ahead in whatever idle time there is, or the rest would never be built.)
+  // A step only starts in a real idle moment (not one the timeout forced). (The wait has an end: after 6 s a step goes
+  // ahead in whatever idle time there is, or the rest would never be built.)
   const idle=window.requestIdleCallback?(f,t0=performance.now())=>requestIdleCallback(d=>{if(!d.didTimeout&&d.timeRemaining()<25&&performance.now()-t0<6000)idle(f,t0);else f()},{timeout:6000}):f=>setTimeout(f,200);
   // Beans comes first (it's opened most and has the most to draw). Each step waits while you're moving between tabs,
   // so building ahead never competes with the page you just opened.
   let beans=false;
-  const next=()=>{if(document.hidden){setTimeout(()=>idle(next),2000);return}if(performance.now()-Math.max(NAV_AT,USER_AT)<3000){setTimeout(()=>idle(next),900);return}
+  // Every page is built soon after the app opens, even while you're already tapping around, so no first visit has to
+  // build its page on the tap: a step only waits for a slide to finish and for a moment with no touch (0.8 s).
+  const next=()=>{if(document.hidden){setTimeout(()=>idle(next),2000);return}if(sliding()||performance.now()-USER_AT<800){setTimeout(()=>idle(next),300);return}
     if(!beans&&window.BEANS_OK){beans=true;try{renderBeansIfChanged();warmBeanPhotos();roLearnGallery()}catch(e){}idle(next);return}
+    // Then the other bottom-bar sections, then the sheets, then the pages inside sections.
+    if(!BUILT.recipes){BUILT.recipes=1;try{renderRecipes()}catch(e){BUILT.recipes=0}idle(next);return}
+    if(!EXPLORE_PRE&&!$('explore').classList.contains('on')){EXPLORE_PRE=1;try{renderExplore()}catch(e){}idle(next);return}
+    if(!$('st-mode')&&!$('settings').classList.contains('on')){try{renderSettings()}catch(e){}idle(next);return}
     if(SHEETS_WARM<2&&window.BEANS_OK){warmSheets();idle(next);return}
     if(LOGL_STALE&&BUILT.recipes){try{renderLogList(1)}catch(e){}idle(next);return}
-    const id=ids.find(k=>!BUILT[k]);if(!id){if(!$('st-mode')&&!$('settings').classList.contains('on')){try{renderSettings()}catch(e){}idle(next);return}if(SHEETS_WARM<2){warmSheets();idle(next)}return}BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
-  setTimeout(()=>idle(next),2500)}
+    const id=ids.find(k=>!BUILT[k]);if(!id){if(SHEETS_WARM<2){warmSheets();idle(next)}return}BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
+  setTimeout(()=>idle(next),1500)}
 function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove());if(LAZY[id]&&!BUILT[id]){BUILT[id]=1;LAZY[id]()}if(ALWAYS[id])ALWAYS[id]()}
 // NAVD counts tab changes you can step back through, so the app bar can offer a back button.
 let BACKING=false,PEND_TAB=null,NAVD=0;
@@ -10331,7 +10341,8 @@ function openBeanFilter(){const years=beanYears(),fs=BFILTERS.filter(([f])=>f===
     secs:()=>[fs.length>1?{h:'Show',key:'bf',multi:true,opts:fs.map(([f,n])=>[f,f==='all'?'All coffees':n])}:null,years.length>1?{h:'Year',key:'year',multi:true,chips:1,opts:[['all','All years'],...years.map(y=>[String(y),String(y)])]}:null]})}
 function openBeanSort(){openChoices({title:'Sort coffees',one:'coffee',get:()=>BSORT,set:(k,v)=>{BSORT=v},render:renderBeanSort,count:()=>beanList().length,secs:()=>[{key:'sort',opts:BSORTS}]})}
 // Idle time after the page has opened (the tab swing takes about a third of a second), or soon anyway.
-const whenIdle=fn=>window.requestIdleCallback?requestIdleCallback(fn,{timeout:450}):setTimeout(fn,180);
+// Later parts of a list: drawn in idle time, never in the middle of a page sliding in.
+const whenIdle=fn=>{const go=()=>afterSlide(fn);window.requestIdleCallback?requestIdleCallback(go,{timeout:450}):setTimeout(go,180)};
 // The first rows are drawn at once; the rest of a long gallery follows when the phone is idle.
 let GRID_GEN=0;
 function renderGrid(){const g=$('bg-grid');if(!g)return;const list=beanList(),gen=++GRID_GEN;let n=0;const FIRST=8;
