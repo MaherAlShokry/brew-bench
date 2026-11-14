@@ -1293,10 +1293,20 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 /* Recipes: search, brewer and collection shelves, and a compact list grouped by brewer. */
 .rsearchw{margin:0 0 14px}/* The same search box as Beans, the log and Words. */
 #rhome>.qlinks{margin-top:4px}
-.bshelf,.colshelf{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:none;scroll-snap-type:x proximity}.bshelf::-webkit-scrollbar,.colshelf::-webkit-scrollbar{display:none}
+.bshelf,.colshelf{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:none;scroll-snap-type:x proximity}.bshelf::-webkit-scrollbar,.colshelf::-webkit-scrollbar{display:none}
 .bshelf button{flex:none;scroll-snap-align:start;width:112px;display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:12px;border-radius:16px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;text-align:left;cursor:pointer}
 .bshelf .bi,.rgrp h4 .bi{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:color-mix(in srgb,var(--cherry) 12%,var(--surface));color:var(--cherry)}.bshelf .bi svg,.rgrp h4 .bi svg{width:20px;height:20px}
 .bshelf b{font-size:.88rem;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.bshelf small{color:var(--muted);font-size:.76rem}
+/* By brewer: tiles of one size, a soft tint, the icon with its recipe count on top and the name at the foot. */
+.bshelf button{width:136px;min-height:128px;justify-content:space-between;gap:14px;padding:14px;border-radius:20px;border-color:var(--hair,var(--line));
+  background:linear-gradient(155deg,color-mix(in srgb,var(--cherry) 9%,var(--surface)),var(--surface) 70%);box-shadow:var(--e1,0 1px 2px rgba(0,0,0,.05));transition:transform .15s ease,border-color .15s ease}
+.bshelf button:active{transform:scale(.97)}
+.bshelf .bs-top{display:flex;align-items:center;justify-content:space-between;width:100%}
+.bshelf .bs-top .bi{width:40px;height:40px;border-radius:13px;background:color-mix(in srgb,var(--cherry) 14%,var(--surface))}
+.bshelf .bs-top .bi svg{width:22px;height:22px}
+
+.bshelf .bs-tx{display:flex;flex-direction:column;gap:3px;min-width:0;width:100%}
+.bshelf .bs-tx b{font-size:.95rem;letter-spacing:-.01em}
 /* The picked card is ringed inside its own edge, so a sideways-scrolling row can't cut the ring off. */
 .bshelf button[aria-pressed="true"],.colshelf button[aria-pressed="true"]{outline:none;border-color:var(--cherry);box-shadow:inset 0 0 0 2px var(--cherry)}
 .colshelf button{flex:none;scroll-snap-align:start;width:168px;position:relative;display:flex;flex-direction:column;gap:3px;padding:14px 14px 30px;border-radius:18px;border:0;color:#fff;font:inherit;text-align:left;cursor:pointer;
@@ -1375,7 +1385,7 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 @media (max-width:359px){#rhome .cupcard b{font-size:.72rem;padding:7px 6px 9px}}
 #rhome .cupcard .cc{top:6px;right:6px;font-size:.66rem;padding:1px 6px}
 @media (min-width:1000px){#rgrid{columns:2;column-gap:16px}#rgrid .rgrp{break-inside:avoid;display:inline-block;width:100%;content-visibility:visible}}
-@media (min-width:760px){.bshelf button{width:128px}.colshelf button{width:200px}}
+@media (min-width:760px){.bshelf button{width:148px}.colshelf button{width:200px}}
 /* A collection's count sits in the top corner, as on the cup-type cards, clear of the title and the line under it. */
 .colshelf button{padding:14px 14px 16px;min-height:118px}
 /* The recipe maker sheet. */
@@ -1461,6 +1471,13 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .hubcard:active{transform:scale(.98)}
 .hubcard .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none;margin-bottom:4px}.hubcard .ic svg{width:22px;height:22px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .hubcard b{font-family:var(--display);font-size:1rem;line-height:1.2}.hubcard small{color:var(--muted);font-size:.82rem;line-height:1.35}
+.hubcard{justify-content:space-between;gap:14px;border-color:color-mix(in srgb,var(--hc,var(--cherry)) 16%,var(--line));
+  background:linear-gradient(155deg,color-mix(in srgb,var(--hc,var(--cherry)) 10%,var(--surface)),var(--surface) 72%);transition:transform .15s ease}
+.hubcard .ic{margin-bottom:0}
+.hubcard .hc-top,.bshelf .bs-top{display:flex;align-items:flex-start;justify-content:space-between;width:100%}
+.hubcard .hc-tx{display:flex;flex-direction:column;gap:4px;min-width:0;width:100%}
+/* The small arrow on a tile: it opens something. */
+.hc-arr{width:18px;height:18px;flex:none;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.7;margin:2px -2px 0 0}
 .hubcard .hn{position:absolute;top:14px;right:14px;font-size:.74rem;font-weight:700;color:var(--muted);background:var(--surface2);border-radius:99px;padding:2px 8px}
 
 /* The map's region buttons are easier to tap on phones. */
@@ -2030,7 +2047,12 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 /* The taste facts sit in a grid of three that wraps, so every fact shows in full (a sideways strip hid the third one
    behind its fade and cut its name off). Names can take two lines. */
 .me-tiles{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible!important;padding:0!important;-webkit-mask-image:none!important;mask-image:none!important}
-.me-tiles>div{width:auto!important}.me-tiles b{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:break-word;hyphens:auto}
+.me-tiles>div{width:auto!important}
+/* Your coffee profile's tiles, in the same style as the other tiles: the icon in a tinted square on top, the words at the foot. */
+.me-tiles>div{justify-content:space-between;gap:10px;min-height:112px;padding:12px;border-radius:18px;background:linear-gradient(155deg,color-mix(in srgb,var(--cherry) 7%,var(--surface)),var(--surface) 72%);border:1px solid color-mix(in srgb,var(--cherry) 10%,var(--line))}
+.me-tiles i{display:grid;place-items:center;flex:none;align-self:flex-start;width:36px!important;height:36px!important;line-height:1!important;border-radius:12px;margin:0;background:color-mix(in srgb,var(--cherry) 11%,var(--surface));font-size:1.1rem}
+.me-tiles i svg{width:20px;height:20px}
+.me-tiles>div>small{margin-top:auto}.me-tiles b{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:break-word;hyphens:auto}
 .yic-notes .chip,.me-notes .chip{background:var(--surface);border:1px solid var(--line)}.me-notes{margin:12px 0 0}
 .yic-k{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:var(--muted)}
 .yic-row{display:flex;gap:8px 20px;flex-wrap:wrap;margin-top:6px}.yic-row span{display:flex;flex-direction:column;min-width:0}
