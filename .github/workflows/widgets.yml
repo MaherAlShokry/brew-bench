@@ -30,7 +30,11 @@ jobs:
       matrix:
         # 31: the widgets and the timer. 36 (Android 16): the timer's Live Update; a newer emulator image, so a hiccup
         # starting it doesn't fail the run.
-        api: [31, 36]
+        include:
+          - api: 31
+            tests: io.github.maheralshokry.brewbench.WidgetShots,io.github.maheralshokry.brewbench.TimerTest
+          - api: 36
+            tests: io.github.maheralshokry.brewbench.TimerTest
     continue-on-error: ${{ matrix.api == 36 }}
     steps:
       - uses: actions/checkout@v5
@@ -84,12 +88,12 @@ jobs:
             adb install -r android/app/build/outputs/apk/debug/app-debug.apk
             adb install -r android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
             adb shell pm grant io.github.maheralshokry.brewbench android.permission.POST_NOTIFICATIONS || true
-            if [ "${{ matrix.api }}" = "31" ]; then CLS=io.github.maheralshokry.brewbench.WidgetShots,io.github.maheralshokry.brewbench.TimerTest; else CLS=io.github.maheralshokry.brewbench.TimerTest; fi
-            adb shell am instrument -w -e class $CLS io.github.maheralshokry.brewbench.test/androidx.test.runner.AndroidJUnitRunner | tee instrument.txt
+            # (The emulator action runs each line in its own shell, so nothing is carried from one line to the next.)
+            adb shell am instrument -w -e class ${{ matrix.tests }} io.github.maheralshokry.brewbench.test/androidx.test.runner.AndroidJUnitRunner | tee instrument.txt
             grep -q '^OK (' instrument.txt
             adb logcat -d -s TimerTest | tee -a instrument.txt || true
-            mkdir -p widget-shots
             if [ "${{ matrix.api }}" = "31" ]; then adb pull /sdcard/Android/data/io.github.maheralshokry.brewbench/files/widget-shots widget-shots; fi
+            mkdir -p widget-shots
             # The brew the timer test left running: the status bar (its chip on Android 16), then the notification shade.
             adb shell input keyevent KEYCODE_HOME; sleep 2
             adb exec-out screencap -p > widget-shots/timer-statusbar-api${{ matrix.api }}.png
