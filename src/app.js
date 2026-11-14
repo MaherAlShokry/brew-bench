@@ -147,7 +147,7 @@ try{if(navigator.serviceWorker&&typeof BUILD_ID!=='undefined'){navigator.service
   addEventListener('load',()=>setTimeout(chkNewBuild,4000));document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(chkNewBuild,1500)})}}catch(e){}
 // Share and Edit are the same round icon button everywhere (with its name for screen readers and on hover).
 const IB_SVG={share:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>',edit:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4"/></svg>'};
-function icoBtn(kind,attrs,label){return '<button type="button" class="sh-mini ic" '+attrs+' aria-label="'+esc(label)+'" title="'+(kind==='edit'?'Edit':'Share')+'">'+IB_SVG[kind]+'</button>'}
+function icoBtn(kind,attrs,label){return ib(kind==='edit'?'edit':'share',attrs,label)}
 // A toast with a button, kept up a little longer so there is time to tap it.
 function toastAct(m,label,fn){const t=$('toast');t.textContent='';t.classList.add('act');const sp=document.createElement('span');sp.textContent=m;const b=document.createElement('button');b.type='button';b.className='tact';b.textContent=label;
   b.onclick=()=>{t.classList.remove('show');fn()};t.append(sp,b);t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),6000)}
@@ -552,7 +552,7 @@ function openChoicesNow(o){const d=$('selsheet'),secs=o.secs().filter(x=>x&&x.op
       return '<div class="rs-sec">'+(x.h?'<h4>'+esc(x.h)+(x.multi?' <small>Pick any</small>':'')+'</h4>':'')+(x.chips
         ?'<div class="rs-chips" role="'+role+'" aria-label="'+lab+'">'+x.opts.map(([v,n])=>'<button type="button" role="'+r+'" class="chip rs-chip" data-ck="'+x.key+'" data-v="'+esc(String(v))+'" aria-checked="'+isOn(x,String(v))+'">'+esc(n)+'</button>').join('')+'</div>'
         :'<div class="sellist" role="'+role+'" aria-label="'+lab+'">'+x.opts.map(([v,n,h])=>{const on=isOn(x,String(v));return '<button type="button" role="'+r+'" class="selopt'+(x.multi?' multi':'')+'" data-ck="'+x.key+'" data-v="'+esc(String(v))+'" aria-checked="'+on+'"><span>'+esc(n)+(h?'<small>'+esc(h)+'</small>':'')+'</span><i aria-hidden="true">✓</i></button>'}).join('')+'</div>')+'</div>'}).join('')+
-    '<div class="rs-done">'+(secs.some(x=>x.multi)?'<button type="button" class="btn ghost" id="rs-clear"'+(anyOn()?'':' disabled')+'>Clear</button>':'')+'<button type="button" class="btn" id="rs-done">Show '+nOf(cnt(),o.one,o.many)+'</button></div>'};
+    '<div class="rs-done">'+(secs.some(x=>x.multi)?ib('reset','id="rs-clear"'+(anyOn()?'':' disabled'),'Clear the choices'):'')+'<button type="button" class="btn" id="rs-done">Show '+nOf(cnt(),o.one,o.many)+'</button></div>'};
   draw();
   $('sel-in').onclick=e=>{if(e.target.closest('#sel-x')){d.close();return}
     if(e.target.closest('#rs-clear')){for(const x of secs)if(x.multi)dr[x.key]=[];draw();return}
@@ -737,6 +737,7 @@ function dialSteps(){const r=dialRec(),sb=S.bean;
   document.body.classList.toggle('dial-ready',!!r)}
 function initSteps(){const def={gear:false,coffee:!S.bean,recipe:true,tune:true},st=Object.assign(def,DSTEPS||{});
   document.querySelectorAll('#dial .dstep').forEach(d=>{d.open=!!st[d.dataset.step];d.addEventListener('toggle',()=>{DSTEPS=Object.assign({},def,DSTEPS||{},{[d.dataset.step]:d.open});save('bb-dsteps',DSTEPS)})})}
+let PLAN=null;
 function render(){
   const G=GRINDERS[S.grinder],B=BREWERS[S.brewer];
   grinderSeg('g-grinder',(S.brewer),()=>S.grinder,v=>{if(v!==S.grinder){const was=isTuned();S.setting=swapGrinder(v);S.grinder=v;
@@ -760,7 +761,7 @@ function render(){
   drawCup(r);
   const P=PROCESSES[S.process];
   $('o-chips').innerHTML=cupNotes(S,r).map(c=>'<span class="chip">'+esc(c)+'</span>').join('');
-  const tips=[];
+  const tips=[];PLAN=null;
   {const bx=baseX(S.grinder,S.brewer),off=bx==null?0:stepsBetween(S.grinder,bx,S.setting);
     if(Math.abs(off)>2.5)tips.push('<b>'+esc(gLabel(S.grinder,S.setting))+' is much '+(off>0?'finer':'coarser')+' than '+art(brewName(B.name))+' '+esc(brewName(B.name))+' usually needs.</b> Most brews start around '+esc(dial(S.grinder,Math.round(bx)))+'. <button type="button" class="linkbtn" data-reset-grind>Reset to '+esc(dial(S.grinder,Math.round(bx)))+'</button>')}
   if(Math.abs(r.D)>0.45){const bx0=baseX(S.grinder,S.brewer);let t=roundG(S.grinder,shift(S.grinder,S.setting,r.D/KG*160));
@@ -776,10 +777,14 @@ function render(){
     // Each option is checked against the model, so what's offered really lands in the sweet spot.
     const lands=(set,temp)=>Math.abs(compute(Object.assign({},S,{setting:set,temp})).D)<=0.45;
     const gOk=diff&&lands(t,S.temp),cOk=ta!==S.temp&&lands(waterOnly?S.setting:t2,ta);
-    const combo=()=>waterOnly?'keep the grind and use water at <b>'+ta+'°C</b>':(d2?'go '+d2+' '+units(d2)+' '+way+' (<b>'+gLabel(S.grinder,t2)+'</b>) ':'keep the grind ')+'with water at <b>'+ta+'°C</b>';
-    if(gOk)tips.push('To land in the sweet spot, try <b>'+gLabel(S.grinder,t)+'</b> ('+diff+' '+units(diff)+' '+way+')'+(cOk&&(waterOnly||d2<diff)?', or '+combo()+'.':'.'));
-    else if(cOk)tips.push('To land in the sweet spot, '+combo()+'.');
-    else if(diff)tips.push('To get closer to the sweet spot, try <b>'+gLabel(S.grinder,t)+'</b> ('+diff+' '+units(diff)+' '+way+')'+(ta!==S.temp?' with water at <b>'+ta+'°C</b>':'')+'. This coffee may suit '+(r.D<0?'a hotter, longer':'a cooler, shorter')+' recipe better.');
+    // The way to the sweet spot as options you can tap: each shows the settings it changes and how far, and applies them.
+    // Every option has the same two rows, grind and water, so they line up: the setting, then how far it moves (or "same").
+    const gOpt=(set,temp)=>({set,temp,rows:[['Grind',dial(S.grinder,set),set!==S.setting?Math.abs(set-S.setting)+' '+units(Math.abs(set-S.setting))+' '+way:'same'],
+      ['Water',temp+'°C',temp!==S.temp?(temp>S.temp?'+':'−')+Math.abs(temp-S.temp)+'°C':'same']]});
+    const cOpt=()=>gOpt(waterOnly?S.setting:t2,ta);
+    if(gOk)PLAN={title:'Reach the sweet spot',opts:[gOpt(t,S.temp)].concat(cOk&&(waterOnly||d2<diff)?[cOpt()]:[])};
+    else if(cOk)PLAN={title:'Reach the sweet spot',opts:[cOpt()]};
+    else if(diff){PLAN={title:'Get closer to the sweet spot',opts:[gOpt(t,ta)]};tips.push('This coffee may suit '+(r.D<0?'a hotter, longer':'a cooler, shorter')+' recipe better.')}
     else tips.push('The '+esc(G.name)+' is at the '+(r.D>0?'coarse':'fine')+' end of its range here'+(ta!==S.temp?', so move the water to <b>'+ta+'°C</b> instead.':'. Try another grinder or brewer.'))}
   if(r.clarity<4&&r.body>6.5&&B.ratio.ref>10)tips.push('Body is crowding out detail. The ZP6 Special, V60 or Chemex will separate the flavours more.');
   if(r.body<3.5&&r.D>-0.45&&B.ratio.ref>10)tips.push('Balanced but light. The K-Ultra, an immersion brewer or a tighter ratio will add weight.');
@@ -787,9 +792,14 @@ function render(){
   if(vParams(S.variety).clarity>=0.8&&S.agit==='high')tips.push('Vigorous agitation flattens delicate aromatics. Go gentle.');
   if(S.roast==='dark'&&S.temp>92)tips.push('Dark roasts extract fast. 88 to 90°C keeps bitterness down.');
   if(P.cat==='decaf')tips.push('Decaf extracts faster than regular coffee. Start a few clicks coarser.');
-  if(!tips.length)tips.push('Nothing to change on paper. Brew it, then adjust by taste.');
-  $('o-tips').innerHTML=tips.map(t=>'<div class="tip">'+t+'</div>').join('');
-  $('o-tips').onclick=e=>{if(e.target.closest('[data-reset-grind]')){S.setting=roundG(S.grinder,baseX(S.grinder,S.brewer));render();toast('Grind reset to '+dial(S.grinder,S.setting))}};
+  if(!tips.length&&!PLAN)tips.push('Nothing to change on paper. Brew it, then adjust by taste.');
+  const target='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M12 7.5a4.5 4.5 0 1 0 0 9a4.5 4.5 0 1 0 0-9z M12 11a1 1 0 1 0 0 2a1 1 0 1 0 0-2z"/></svg>';
+  $('o-tips').innerHTML=(PLAN?'<div class="oplan"><div class="oplan-h"><i class="otip-ic" aria-hidden="true">'+target+'</i><span><b>'+PLAN.title+'</b><small>On your '+esc(G.full||G.name)+'</small></span></div>'+
+      PLAN.opts.map((o,k)=>(k?'<div class="oplan-or"><span>or</span></div>':'')+'<button type="button" class="oplan-o" data-plan="'+k+'" aria-label="Use '+esc(o.rows.map(c=>c[0]+' '+c[1]).join(', '))+'">'+
+        '<span class="oplan-rows">'+o.rows.map(c=>'<small>'+c[0]+'</small><b>'+esc(c[1])+'</b><em'+(c[2]==='same'?' class="same"':'')+'>'+esc(c[2])+'</em>').join('')+'</span><i class="oplan-go" aria-hidden="true">'+lIc('ok')+'</i></button>').join('')+'</div>':'')+
+    (tips.length?'<div class="onotes">'+tips.map(t=>'<div class="onote"><i aria-hidden="true">'+lIc('info')+'</i><span>'+t+'</span></div>').join('')+'</div>':'');
+  $('o-tips').onclick=e=>{const pl=e.target.closest('[data-plan]');if(pl&&PLAN){const o=PLAN.opts[+pl.dataset.plan];S.setting=o.set;S.temp=o.temp;render();toast('Set to '+[gLabel(S.grinder,S.setting),S.temp+'°C'].join(', '));return}
+    if(e.target.closest('[data-reset-grind]')){S.setting=roundG(S.grinder,baseX(S.grinder,S.brewer));render();toast('Grind reset to '+dial(S.grinder,S.setting))}};
   // The recipe is kept by its key too: its place in the list moves when recipes are added or folded together.
   S.reck=S.rec!=null&&RECIPES[S.rec]?rkey(RECIPES[S.rec]):null;save('bb-state',S);
   try{dialSteps()}catch(e){}
@@ -1086,7 +1096,7 @@ function done(){const r=TM.r||RECIPES[TM.idx],d=Math.floor(TM.el)-Math.floor(TM.
     '<span class="tm-thsub">Your '+esc(r.name)+(bean?' with '+esc(bean):'')+' is ready. '+TM_THANKS[Math.floor(Math.random()*TM_THANKS.length)]+'</span>'+
     '<span class="tm-time">Brewed in <b>'+mmss(TM.el)+'</b>'+(when?' · '+when:'')+'</span>';
   $('tm-barfill').style.transform='none';
-  $('tm-next').innerHTML='<div class="tm-done"><button class="btn" id="tm-log">Log this brew</button><button class="btn ghost" id="tm-again">Brew again</button></div>';
+  $('tm-next').innerHTML='<div class="tm-done ib-row">'+ib('log','id="tm-log"','Log this brew','main')+ib('again','id="tm-again"','Brew again')+'</div>';
   // Brewed from the dial-in with a coffee from the gallery: this cup comes off its bag (once, however the brew ends).
   const gb=TM.p&&TM.p.bean&&window.BEANS_OK?beanById(TM.p.bean):null,dz=TM.p&&TM.p.r&&+TM.p.r.dose;
   // A brew ended in its first 20 seconds was most likely started by mistake, so it isn't counted.
@@ -1353,7 +1363,7 @@ function recipeBody(r,i,compact,inSheet){const B=BREWERS[r.b],sc=compact?{dose:r
        '<div><b>'+(r.temp?r.temp+'°C':'–')+'</b><small>'+(r.temp2?'Then '+r.temp2+'°C':'Water')+'</small></div><div><b>'+(m.time!=null?mmss(m.time):'By eye')+'</b><small>Total time</small></div><div><b>'+m.level+'</b><small>'+m.pours+' pour'+(m.pours===1?'':'s')+'</small></div></div>')+
    '<div class="meta">'+gs.map(([g,v])=>'<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>').join('')+'</div>'+
    (r.why?'<p>'+esc(r.why)+'</p>':'')+(compact?'<details class="rsteps"><summary>Steps ('+r.steps.length+')</summary>':'')+(compact?'':pourGraph(sc.steps,sc.water))+stepList(sc.steps)+(r.tip?'<p class="hint">'+esc(r.tip)+'</p>':'')+(compact?'</details>':'')+
-   '<div class="actions">'+(B.model?'<button class="btn" data-load="'+i+'">Brew in the dial-in</button><button class="btn ghost" data-timer="'+i+'">Start timer</button>':'<button class="btn" data-timer="'+i+'">Start timer</button>')+(inSheet?'':icoBtn('share','data-rshare="'+i+'"','Share this recipe')+(r.custom?icoBtn('edit','data-redit="'+esc(r.id)+'"','Edit this recipe'):''))+'</div>'}
+   '<div class="actions ib-row">'+(B.model?ib('timer','data-timer="'+i+'"','Start the timer','main')+ib('cup','data-load="'+i+'"','Brew in the dial-in'):ib('timer','data-timer="'+i+'"','Start the timer','main'))+(inSheet?'':icoBtn('share','data-rshare="'+i+'"','Share this recipe')+(r.custom?icoBtn('edit','data-redit="'+esc(r.id)+'"','Edit this recipe'):''))+'</div>'}
 let RF=vwGet('rf',[],vwStrs).map(String),RQ='',RLIST=[];
 // The recipe filter is a set of picks: "fav", "mine", "champ", "b:<brewer>", "cup:<type>", "col:<collection>". Picks of
 // one kind widen the list (V60 or Switch); picks of different kinds narrow it (a Switch recipe that's also a champion's).
@@ -1577,7 +1587,7 @@ function openCompareNow(i,j){const d=$('vd'),a=RECIPES[i],b=RECIPES[j],A=recipeF
       '<table class="rc-tab"><thead><tr><th scope="col"><span class="sr">Detail</span></th><th scope="col"><button type="button" class="rc-open" data-rco="'+i+'">'+esc(a.name)+'</button></th><th scope="col"><button type="button" class="rc-open" data-rco="'+j+'">'+esc(b.name)+'</button></th></tr></thead><tbody>'+
       rows.map(([k,x,y])=>'<tr'+(x!==y?' class="diff"':'')+'><th scope="row">'+esc(k)+'</th><td>'+esc(x)+'</td><td>'+esc(y)+'</td></tr>').join('')+'</tbody></table>'+
       '<h3 class="rcp-h">Steps</h3><div class="rc-steps"><div><b>'+esc(a.name)+'</b><ol>'+A.steps.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol></div><div><b>'+esc(b.name)+'</b><ol>'+B.steps.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol></div></div>'+
-      '<div class="actions"><button type="button" class="btn ghost" id="rc-swap">⇄ Swap sides</button><button type="button" class="btn ghost" id="rc-other">Compare another</button></div></div>';
+      '<div class="actions ib-row">'+ib('swap','id="rc-swap"','Swap sides')+ib('cmp','id="rc-other"','Compare another recipe')+'</div></div>';
   $('vd-in').onclick=e=>{const o=e.target.closest('[data-rco]');if(o){openRecipe(+o.dataset.rco);return}};
   $('rc-back').onclick=()=>openRecipe(i);$('rc-swap').onclick=()=>openCompare(j,i);$('rc-other').onclick=()=>openComparePick(i);$('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
 function openRecipe(i){const r=RECIPES[i],B=BREWERS[r.b],d=$('vd');
@@ -1629,7 +1639,7 @@ function openRecipeEditor(r,fresh){const isNew=!r||fresh;r=Object.assign({b:'v60
    card(5,'The story','<div class="field"><label for="re-why">Why it works <span class="hint">optional</span></label><textarea id="re-why" rows="2" placeholder="What this recipe does differently">'+esc(r.why)+'</textarea></div>'+
      '<div class="field"><label for="re-tip">Tip <span class="hint">optional</span></label><input id="re-tip" maxlength="300" value="'+esc(r.tip)+'" placeholder="One thing to try next time"></div>'+
      '<div class="field"><label for="re-by">Credit <span class="hint">optional</span></label><input id="re-by" maxlength="60" value="'+esc(r.by)+'"></div>')+
-   '<div class="re-check" id="re-check" hidden role="status"></div><div class="actions"><button class="btn" id="re-save">'+(isNew?'Save recipe':'Save changes')+'</button>'+(!isNew?'<button class="btn ghost" id="re-del">Delete</button>':'')+'</div>'+
+   '<div class="re-check" id="re-check" hidden role="status"></div><div class="actions"><button class="btn" id="re-save">'+(isNew?'Save recipe':'Save changes')+'</button>'+(!isNew?ib('del','id="re-del"','Delete this recipe','danger'):'')+'</div>'+
    (GROUP&&SYNC_DB?'<p class="hint">Saved recipes are shared with your group ('+GROUP.code+').</p>':'<p class="hint">Share it from its card'+(SYNC_DB?', or start a shared log in the Log tab to share all your recipes with your team':'')+'.</p>')+'</div>';
   $('re-b').value=BREWERS[r.b].of||r.b;let method=imm?'im':'hy';
   const SE=stepEditor($('re-steps'),r.steps,{water:r.water,dose:r.dose});
@@ -1726,7 +1736,7 @@ function importRecipe(code){let r;try{r=sanRec(b64u.dec(code))}catch(e){r=null}i
   $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Shared recipe'+(r.author?' from '+esc(r.author):'')+'</span><h2 id="vd-title">'+esc(r.name)+'</h2>'+
    '<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C</span>':'')+'</div></div><div class="vd-body">'+(r.why?'<p>'+esc(r.why)+'</p>':'')+stepList(r.steps)+(r.tip?'<p class="hint">'+esc(r.tip)+'</p>':'')+
    '<div class="meta">'+MYG.map(g=>{const v=settingFor(g,r.b,r.off);return '<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>'}).join('')+'</div>'+
-   '<div class="actions"><button class="btn" id="imp-add">Add to my recipes</button><button class="btn ghost" id="imp-no">Not now</button></div></div>';
+   '<div class="actions ib-row">'+ib('plus','id="imp-add"','Add to my recipes','main')+ib('x','id="imp-no"','Not now')+'</div></div>';
   const d=$('vd');showDlg(d);d.scrollTop=0;$('vd-x').onclick=$('imp-no').onclick=()=>d.close();
   $('imp-add').onclick=()=>{saveRecipe(r);d.close();RF=['mine'];showTab('recipes');toast('Added to your recipes')}}
 
@@ -1850,7 +1860,7 @@ function renderLibrary(){GLF=GLF.filter(k=>['manual','electric','custom'].includ
     for(const br of brands){const bk=ks.filter(g=>(GRINDERS[g].brand||'Other')===br);
       html+=(t==='custom'?'':'<div class="gbrand">'+esc(br)+'<small>'+bk.length+'</small></div>')+'<div class="grid">'+bk.map(g=>{const G=GRINDERS[g],mine=MYG.includes(g),v6=base(g,'v60'),ap=base(g,'aeropress'),fp=base(g,'frenchpress'),es=base(g,'espresso');
         return '<div class="card gcard"><div class="gtop">'+gicon(gkind(g))+'<span class="hint">'+esc(G.brand||gtype(g))+' · '+(t==='custom'?'your grinder':t)+(G.espresso?' · espresso':'')+'</span>'+(mine?'<span class="mine-tag">✓ Yours</span>':'')+'</div>'+
-          '<div class="ghead"><h3 style="margin:.35rem 0 0">'+esc(G.full)+'</h3>'+(G.custom?'<button type="button" class="chip" data-gdel="'+g+'">Delete</button>':'')+'</div>'+
+          '<div class="ghead"><h3 style="margin:.35rem 0 0">'+esc(G.full)+'</h3>'+(G.custom?ib('del','data-gdel="'+g+'"','Delete this grinder','danger sm'):'')+'</div>'+
           '<div class="meta">'+[['Espresso',G.espresso?es:null],['AeroPress',ap],['V60',v6],['French press',fp]].filter(([n,v])=>n!=='Espresso'||v!=null).map(([n,v])=>'<span>'+n+' '+(v!=null?esc(dial(g,v)):'n/a')+'</span>').join('')+'</div>'+specList(g)+
           '<div class="actions"><button type="button" class="btn'+(mine?' ghost':'')+'" data-gmine="'+g+'">'+(mine?'Remove from mine':'Add to my grinders')+'</button><button type="button" class="btn ghost" data-gcmp="'+g+'" aria-pressed="'+GCMP.includes(g)+'">'+(GCMP.includes(g)?'✓ Comparing':'Compare')+'</button></div></div>'}).join('')+'</div>'}}
   $('glib').innerHTML=html||'<p class="hint">No grinders match. Try a brand name, or pick All.</p>';
@@ -1866,7 +1876,7 @@ $('glib').onclick=e=>{const m=e.target.closest('[data-gmine]'),c=e.target.closes
 function renderGCompare(){if(!GCMP.length){$('gcmp').innerHTML='';return}
   const rows=[['Type',g=>gtype(g)],['Burrs',g=>GRINDERS[g].burr||'–'],['Dial',g=>GRINDERS[g].adjust||'–'],['Microns per step',g=>GRINDERS[g].um?'about '+GRINDERS[g].um:'–'],['Espresso',g=>GRINDERS[g].espresso?'Yes':'No'],
     ['Espresso setting',g=>{const v=base(g,'espresso');return v!=null?dial(g,v):'n/a'}],['AeroPress',g=>{const v=base(g,'aeropress');return v!=null?dial(g,v):'n/a'}],['V60',g=>{const v=base(g,'v60');return v!=null?dial(g,v):'n/a'}],['French press',g=>{const v=base(g,'frenchpress');return v!=null?dial(g,v):'n/a'}],['In the cup',g=>GRINDERS[g].cup||'–']];
-  $('gcmp').innerHTML='<div class="card cmpcard"><div class="ghead"><h3 style="margin:0">Side by side</h3><button type="button" class="chip" id="gcmp-clear">Clear</button></div><div class="scroll-x"><table class="gtable"><thead><tr><th></th>'+GCMP.map(g=>'<th>'+esc(GRINDERS[g].name)+'</th>').join('')+'</tr></thead><tbody>'+
+  $('gcmp').innerHTML='<div class="card cmpcard"><div class="ghead"><h3 style="margin:0">Side by side</h3>'+ib('reset','id="gcmp-clear"','Clear the comparison','sm')+'</div><div class="scroll-x"><table class="gtable"><thead><tr><th></th>'+GCMP.map(g=>'<th>'+esc(GRINDERS[g].name)+'</th>').join('')+'</tr></thead><tbody>'+
    rows.map(([n,f])=>'<tr><th>'+n+'</th>'+GCMP.map(g=>'<td>'+esc(f(g))+'</td>').join('')+'</tr>').join('')+'</tbody></table></div></div>';
   $('gcmp-clear').onclick=()=>{GCMP=[];renderLibrary()}}
 function setMine(g,on,quiet){if(on&&!MYG.includes(g))MYG.push(g);if(!on){if(MYG.length<=1&&!quiet){toast('Keep at least one grinder');return}MYG=MYG.filter(x=>x!==g)}if(!MYG.length)MYG=['kultra'];save('bb-mygrinders',MYG);
@@ -1932,7 +1942,7 @@ function renderCustomForm(){
    '<div class="field"><label for="cg-ref">And one more you know</label><div class="joinrow"><select id="cg-reft" aria-label="Brewer for this setting"><option value="espresso">Espresso</option><option value="aeropress">AeroPress</option><option value="frenchpress" selected>French press</option></select><input id="cg-ref" inputmode="decimal" placeholder="optional"></div></div></div>'+
    '<div class="field"><label for="cg-burr">Burrs (optional)</label><input id="cg-burr" maxlength="80"></div>'+
    '<p class="hint">The V60 setting anchors it; the second setting tells the app how far apart the settings are. Without it, the app assumes a typical spacing.</p>'+
-   '<div class="actions"><button type="button" class="btn" id="cg-save">Add grinder</button></div></div>';
+   '<div class="actions ib-row">'+ib('plus','id="cg-save"','Add this grinder','main')+'</div></div>';
   $('cg-save').onclick=()=>{const name=$('cg-name').value.trim(),fmt=$('cg-fmt').value;if(!name){toast('Give the grinder a name');return}
     const G={custom:true,name,full:name,type:$('cg-type').value,burr:$('cg-burr').value.trim(),adjust:{clicks:'Clicks counted from fully closed',num1:'Numbered dial',num10:'Numbered dial, 10 steps per number',num3:'Numbered dial with thirds',rot:'Ring read as rotation.number.click'}[fmt],
       fmt:fmt==='rot'?'rot':'num',per:fmt==='rot'?100:undefined,sub:{num10:10,num3:3}[fmt]||1,first:0,unit:fmt==='clicks'?'clicks':undefined,body:0,clarity:0};
@@ -2009,7 +2019,7 @@ function renderCompare(){
   if(!CMP.length){$('vcompare').innerHTML='<div class="actions" style="margin:0 0 14px"><button class="btn ghost" id="vsurprise">Surprise me</button><span class="hint" style="align-self:center">Tap "+ Compare" on up to three varieties to see them side by side.</span></div>';$('vsurprise').onclick=()=>openVariety(V[Math.floor(Math.random()*V.length)].id);return}
   const vs=CMP.map(id=>VBY[id]);const m=vs.map(v=>vParams(v.id));const sc=x=>clamp((x+2)*2.5,0.3,10);
   const rows=[['Acidity','acid'],['Body','body'],['Sweetness','sweet'],['Clarity','clarity']];
-  $('vcompare').innerHTML='<div class="card" style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><h3 style="margin:0">Side by side</h3><button type="button" class="chip" id="vclear">Clear</button></div>'+
+  $('vcompare').innerHTML='<div class="card" style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><h3 style="margin:0">Side by side</h3>'+ib('reset','id="vclear"','Clear the comparison','sm')+'</div>'+
    '<div class="cmpbar" style="--n:'+vs.length+';margin-top:10px"><span></span>'+vs.map(v=>'<b style="color:'+FAM[v.fam].color+'">'+esc(v.name.replace(/\s*\(.*$/,''))+'</b>').join('')+
    rows.map(([n,k])=>'<span>'+n+'</span>'+m.map((p,i)=>'<div class="t" title="'+sc(p[k]).toFixed(1)+' / 10"><b style="width:'+(sc(p[k])*10)+'%;background:'+FAM[vs[i].fam].color+'"></b><i>'+sc(p[k]).toFixed(1)+'</i></div>').join('')).join('')+
    '<span>Grind</span>'+vs.map(v=>'<span>'+dirTag(v.dir)+'</span>').join('')+'<span>Family</span>'+vs.map(v=>'<span class="hint">'+FAM[v.fam].name+'</span>').join('')+'</div></div>';
@@ -2294,7 +2304,7 @@ let LBEAN=null;
 const lBean=()=>LBEAN&&window.BEANS_OK?beanById(LBEAN):null;
 const STARW=['Tap a bean to rate','Not for me','Just okay','A good cup','Lovely','Outstanding'];
 function renderLBean(){renderLSet();const el=$('l-bean'),b=lBean();
-  if(b){$('l-coffee').value=beanTitle(b);el.innerHTML='<div class="l-beancard">'+beanPic(b,'xs')+'<span class="lb-tx"><b>'+esc(beanTitle(b))+'</b><small>'+esc([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '))+'</small></span><button type="button" class="btn ghost" id="l-beanchg">Change</button></div>';
+  if(b){$('l-coffee').value=beanTitle(b);el.innerHTML='<div class="l-beancard">'+beanPic(b,'xs')+'<span class="lb-tx"><b>'+esc(beanTitle(b))+'</b><small>'+esc([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '))+'</small></span>'+ib('edit','id="l-beanchg"','Change the coffee','sm')+'</div>';
     hydrateImgs(el);$('l-coffee-f').hidden=true}
   else{const n=window.BEANS_OK?BEANS.length:0;
     // No bean picked: one tile, shaped like the bean card it turns into, and the name box below as the other way in.
@@ -2379,7 +2389,10 @@ function renderLastBrew(){const el=$('lastbrew');if(!el)return;const l=LOG.find(
 /* ---------- The list of brews: search, filters, sort, and each brew as a card ---------- */
 let LF=Object.assign({q:'',who:[],min:0,sort:'new'},VW_KEEP?load('bb-logfilter',{}):{});LF.q='';if(!Array.isArray(LF.who))LF.who=LF.who&&LF.who!=='all'?[LF.who]:[];
 const LOG_SORTS=[['new','Newest'],['old','Oldest'],['top','Highest rated'],['az','Coffee A–Z']];
-const LI={again:'M8 5v14l11-7z',share:'M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5',edit:'M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4',del:'M5 7h14 M10 7V4.8h4V7 M7 7l.8 12.2a1.6 1.6 0 0 0 1.6 1.5h5.2a1.6 1.6 0 0 0 1.6-1.5L17 7',search:'M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4',plus:'M12 5v14 M5 12h14'};
+const LI={again:'M8 5v14l11-7z',share:'M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5',edit:'M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4',del:'M5 7h14 M10 7V4.8h4V7 M7 7l.8 12.2a1.6 1.6 0 0 0 1.6 1.5h5.2a1.6 1.6 0 0 0 1.6-1.5L17 7',search:'M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4',plus:'M12 5v14 M5 12h14',dl:'M12 4v11 M7.5 10.5L12 15l4.5-4.5 M5 19.5h14',ul:'M12 15V4 M7.5 8.5L12 4l4.5 4.5 M5 19.5h14',mark:'M7 4h10a1 1 0 0 1 1 1v15l-6-4-6 4V5a1 1 0 0 1 1-1z',log:'M6 4h11a1 1 0 0 1 1 1v15H8a2 2 0 0 1-2-2z M12 8v6 M9 11h6',cam:'M4 8h3l2-2.5h6L17 8h3v11H4z M12 10.5a3 3 0 1 0 0 6a3 3 0 1 0 0-6z',reset:'M4 12a8 8 0 1 0 2.3-5.6 M4 4v5h5',swap:'M7 7h13 M16 3l4 4-4 4 M17 17H4 M8 13l-4 4 4 4',cmp:'M9 4H5v16h4 M15 4h4v16h-4 M12 2v20',bulb:'M9 18h6 M10 21h4 M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z',open:'M14 4h6v6 M20 4l-9 9 M18 14v6H4V6h6',x:'M6 6l12 12 M18 6L6 18',info:'M21 12a9 9 0 1 1-18 0a9 9 0 1 1 18 0z M12 11v5 M12 8h.01',ok:'M5 12.5l4.5 4.5L19 7.5',flag:'M5 21V4 M5 4h12l-2.5 4 2.5 4H5',timer:'M12 9v4l2.5 1.5 M9.5 2.5h5 M12 21a8 8 0 1 0 0-16a8 8 0 1 0 0 16z',scan:'M4 8V6a2 2 0 0 1 2-2h2 M16 4h2a2 2 0 0 1 2 2v2 M20 16v2a2 2 0 0 1-2 2h-2 M8 20H6a2 2 0 0 1-2-2v-2 M12 8.5c2 0 3.5 1.6 3.5 3.5S14 15.5 12 15.5 8.5 14 8.5 12 10 8.5 12 8.5z',cup:'M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z M16 10h2a2 2 0 0 1 0 4h-2 M9 3v3 M12 3v3'};
+// Every action is a round icon (adding, filtering, sharing, deleting…): what it does is its label, read out and shown on
+// hover, not a word on the button. A form's own Save keeps its word. cls: 'main' for the one to press, 'danger' to delete.
+function ib(k,attrs,label,cls){return '<button type="button" class="ib'+(cls?' '+cls:'')+'" '+(attrs||'')+' aria-label="'+esc(label)+'" title="'+esc(label)+'">'+lIc(k)+'</button>'}
 const lIc=k=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+LI[k]+'"/></svg>';
 const lHue=n=>{let h=0;for(const c of String(n))h=(h*31+c.charCodeAt(0))%360;return h};
 const lWho=l=>l.by&&l.by!==ME?l.by:'me';
@@ -2402,7 +2415,7 @@ function logEntryHTML(l,i){const ag=againPlan(l),st=clamp(Math.round(+l.stars||0
   return '<article class="logentry le2"><div class="le-top">'+logThumb(l)+'<div class="le-tt"><b>'+esc(l.coffee||'Untitled')+'</b><div class="le-sub"><span class="le-meta">'+(who?'<span class="le-who">'+esc(who)+'</span><span aria-hidden="true">·</span>':'')+esc(fmtDate(l))+(l.edited?' · edited':'')+'</span>'+rate+'</div></div></div>'+
     (pills.length?'<div class="le-pills">'+pills.map(([k,t])=>'<span class="le-pill k-'+k+'">'+(LSI[k==='ratio'?'water':k]?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+LSI[k==='ratio'?'water':k]+'"/></svg>':'')+esc(t)+'</span>').join('')+'</div>':'')+
     (rest?'<p class="le-rest">'+esc(rest)+'</p>':'')+(l.pred?'<p class="le-pred">Expected <b>'+esc(l.pred)+'</b></p>':'')+(l.notes?'<blockquote class="le-notes">'+esc(l.notes)+'</blockquote>':'')+flEntry(l,i)+
-    '<div class="le-act'+(ag?' has-again':'')+'">'+(ag?'<button type="button" class="le-b again" data-again="'+i+'" aria-label="Brew this again">'+lIc('again')+'Brew again</button>':'')+'<button type="button" class="le-b" data-lshare="'+i+'" aria-label="Share this brew" title="Share">'+lIc('share')+'<span class="le-bl">Share</span></button>'+(canEdit(l)?'<button type="button" class="le-b" data-edit="'+i+'" aria-label="Edit this brew" title="Edit">'+lIc('edit')+'<span class="le-bl">Edit</span></button>':'')+'<button type="button" class="le-b del" data-del="'+i+'" aria-label="Delete this brew">'+lIc('del')+'</button></div></article>'}
+    '<div class="le-act'+(ag?' has-again':'')+'">'+(ag?'<button type="button" class="le-b again" data-again="'+i+'" aria-label="Brew this again" title="Brew this again">'+lIc('again')+'</button>':'')+'<button type="button" class="le-b" data-lshare="'+i+'" aria-label="Share this brew" title="Share">'+lIc('share')+'</button>'+(canEdit(l)?'<button type="button" class="le-b" data-edit="'+i+'" aria-label="Edit this brew" title="Edit">'+lIc('edit')+'</button>':'')+'<button type="button" class="le-b del" data-del="'+i+'" aria-label="Delete this brew" title="Delete this brew">'+lIc('del')+'</button></div></article>'}
 // Search, then a filter and a sort button, as on Recipes: each opens a sheet. A dot on the filter says one is on.
 let LLN=0;const saveLF=()=>save('bb-logfilter',{min:LF.min,who:LF.who,sort:LF.sort});
 const lfName=()=>[LF.min?(LF.min===5?'5 beans':LF.min+' beans and up'):'',LF.who.length?selName(LF.who,w=>w==='me'?'Me':w,''):''].filter(Boolean).join(', ')||'All brews';
@@ -2456,7 +2469,7 @@ function renderLog(){renderShare();renderLastBrew();
   $('l-csv').hidden=!LOG.length;
 }
 // Flavour notes: a little profile wheel on each brew, and the notes as chips.
-function flEntry(l,i){const fl=flOf(l);if(!fl.length)return'<button type="button" class="linkbtn fl-edit" data-fledit="'+i+'">+ Add flavour notes</button>';
+function flEntry(l,i){const fl=flOf(l);if(!fl.length)return ib('plus','data-fledit="'+i+'"','Add flavour notes','sm fl-edit');
   return'<div class="fl-entry"><button type="button" class="fl-mini" data-flview="'+i+'" aria-label="Open the flavour profile">'+fwStatic(fl)+'</button><div><div class="chips" style="margin:0 0 4px">'+flChips(fl)+'</div>'+icoBtn('edit','data-fledit="'+i+'"','Edit the flavour notes')+'</div></div>'}
 function renderFlForm(){$('l-flchips').innerHTML=flChips(LFL);$('l-fl').querySelector('span').textContent=LFL.length?'Add more from the flavour wheel':'Find it on the flavour wheel';
   // What the bag promised: tap a note you tasted to add it to your cup. Words that aren't on the wheel are shown, not added.
@@ -3283,8 +3296,8 @@ function renderScan(){
    // Only an origin on the map opens its page; one off the map is a plain chip.
    '<div class="chips">'+(!o?'':ALLO()[SC.origin]?'<button class="chip" data-o="'+SC.origin+'">'+(o.flag||'')+' '+esc(o.name)+'</button>':'<span class="chip">'+(o.flag||'')+' '+esc(o.name)+'</span>')+vbtn(SC.variety.split(':')[0])+scanVars(SC,SC.info).map(vbtn).join('')+'<span class="chip">'+esc(P.name)+'</span><span class="chip">'+age+' days off roast</span></div>'+
    '<h3>Coffee profile</h3>'+beanProfileHTML()+
-   '<div class="actions"><button class="btn" id="sc-dial">Brew it in the dial-in</button><button class="btn ghost" id="sc-gallery">Add to the bean gallery</button>'+icoBtn('share','id="sc-share"','Share this coffee profile')+'</div>'+
-   '<button type="button" class="linkbtn sc-new" id="sc-new">Scan another bag</button>';
+   '<div class="actions ib-row">'+ib('cup','id="sc-dial"','Brew it in the dial-in','main')+ib('plus','id="sc-gallery"','Add to the bean gallery')+ib('share','id="sc-share"','Share this coffee profile')+'</div>'+
+   ib('scan','id="sc-new"','Scan another bag','sc-new');
   renderScanHead();
   const oc=$('scan-out').querySelector('[data-o]');if(oc)oc.onclick=()=>{showTab('map');selectOrigin(SC.origin,true)};
   $('sc-gallery').onclick=async()=>{let photo=null;if(SFILE&&$('scan-prev').src)try{photo=await shrinkPhoto($('scan-prev').src,900)}catch(e){}
@@ -3917,7 +3930,7 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
       '<div class="av-btns">'+(updLatest()?'<button type="button" class="btn" id="st-updgo">Update to '+esc(updLatest())+'</button>':'')+'<button type="button" class="btn'+(updLatest()?' ghost':'')+'" id="st-upd">Check for updates</button></div></div>':'')+
     // On the website (not iPhone, where there's no Android app to get): the Android app, one tap to download.
     (!window.Capacitor&&!IOS()?'<div class="appver getapp">'+ico('download','#4F8A74')+'<span class="av-tx"><b>Get the Android app</b><small>The same Brew Bench, plus daily reminders. Sign in to bring your coffees and brews with you.</small></span>'+
-      '<div class="av-btns"><a class="btn" id="st-getapk" href="'+APK_URL+'" rel="noopener">Download for Android</a></div><p class="setnote av-note">Open the downloaded file to install it. Android may ask you to allow installs from your browser the first time.</p></div>':'')+
+      '<div class="av-btns"><a class="ib main" id="st-getapk" href="'+APK_URL+'" rel="noopener" aria-label="Download for Android" title="Download for Android">'+lIc('dl')+'</a></div><p class="setnote av-note">Open the downloaded file to install it. Android may ask you to allow installs from your browser the first time.</p></div>':'')+
     '<h3 class="rh">Appearance</h3><div class="setgroup">'+
     row(curTheme()==='dark'?'moon':'sun','#5B5F66','Light or dark','Bright cream, cosy espresso, or follow your phone','<div class="seg" id="st-mode"></div>')+
     row('drop','var(--cherry)','Vibe','A whole look, in light and in dark','<div class="vibes">'+VIBES.map(([k,n,d,L,D])=>'<button type="button" class="vibe" data-vibe="'+k+'" aria-pressed="'+(UI.vibe===k)+'" style="--l-p:'+L.paper+';--l-s:'+L.surface+';--l-i:'+L.ink+';--l-c:'+L.cherry+';--l-h:'+L.honey+';--d-p:'+D.paper+';--d-s:'+D.surface+';--d-i:'+D.ink+';--d-c:'+D.cherry+';--d-h:'+D.honey+'"><span class="vb-pv" aria-hidden="true"><i class="vb-l"><u></u><s></s><em></em></i><i class="vb-d"><u></u><s></s><em></em></i></span><b>'+n+'</b><small>'+d+'</small></button>').join('')+'</div>')+
@@ -3929,7 +3942,7 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
     row('hourglass','#8A5A3B','When you reopen the app','Scan and Brew start fresh, or pick up where you left off','<div class="seg" id="st-resume"></div>')+
     row('sliders','#4F8A74','Sorts and filters','The order and filters you pick for each list, next time you open the app','<div class="seg" id="st-views"></div>')+'</div>'+
    // The coffee of the day: always on the Beans and Explore pages; in the Android app, also as a notification.
-   '<h3 class="rh">Grind settings</h3><div class="setgroup">'+row('cog','#6E8FA8','Grind settings','Each grinder\u2019s setting for every brewer, and a nudge for all its recipes. Now in Gear and dials.','<div class="actions gs-shortcut" style="margin:0"><button type="button" class="btn ghost" data-gearto="set">Open grind settings</button></div>')+'</div>'+
+   '<h3 class="rh">Grind settings</h3><div class="setgroup">'+row('cog','#6E8FA8','Grind settings','Each grinder\u2019s setting for every brewer, and a nudge for all its recipes. Now in Gear and dials.','<div class="actions gs-shortcut" style="margin:0">'+ib('open','data-gearto="set"','Open grind settings')+'</div>')+'</div>'+
 
    '<h3 class="rh">Reminders</h3><div class="setgroup">'+row('bell','#8A5A3B','Coffee of the day','A coffee from your cabinet each day: a bag at its peak or running low, one from this day in an earlier year, or a memory from your diary.',
      window.BEANS_OK&&LN()?'<div class="setbtns rem"><div class="seg" id="st-remind"></div><input type="time" id="st-rtime" class="dateinp" value="'+REMIND.t+'" aria-label="Reminder time"'+(REMIND.on?'':' disabled')+'></div>'
@@ -3939,9 +3952,9 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
          :'<p class="setnote" style="margin:0">Today’s is on the Explore page. In the Android app it can also arrive as a notification at the time you choose.</p>')+'</div>'+
    /* Gear, Guide and the Log are the buttons at the top. */
    '<h3 class="rh">Your data</h3><div class="setgroup">'+row('download','#8A5A3B','Back up and restore','Everything you’ve saved stays on this device: '+esc(dataSummary())+'. Save it as a file, photos included, to keep it safe or move it to another phone.',
-     '<p class="setnote" id="st-lastbak" style="margin:0 0 8px">'+lastBakText()+'</p><div class="setbtns"><button type="button" class="btn" id="st-export">Export my data</button><button type="button" class="btn ghost" id="st-import">Import a backup</button><input type="file" id="st-file" accept="application/json,.json" hidden></div>')+'</div>'+
+     '<p class="setnote" id="st-lastbak" style="margin:0 0 8px">'+lastBakText()+'</p><div class="setbtns ib-row">'+ib('dl','id="st-export"','Export my data','main')+ib('ul','id="st-import"','Import a backup')+'<input type="file" id="st-file" accept="application/json,.json" hidden></div>')+'</div>'+
    (installed()?'':'<h3 class="rh">Install</h3><div class="setgroup">'+row('phone','#9A7390','Add to your home screen','Use it like an app, offline too','<p class="setnote" style="margin:0"><b>iPhone (Safari):</b> tap the Share button, then <b>Add to Home Screen</b>.<br><b>Android (Chrome):</b> tap the ⋮ menu, then <b>Add to Home screen</b>.</p>')+'</div>')+
-   '<h3 class="rh">About</h3><div class="setgroup">'+row('bulb','#C9964A','Good to know','Undo, backups, sharing'+(NATIVE?', widgets':'')+' and more, in a minute','<div class="setbtns"><button type="button" class="btn ghost" id="st-tips">Show the tips</button></div>')+row('info','#8A5A3B','The Brew Bench','A coffee field guide and dial-in tool. What you save stays on this device, or syncs with your account if you sign in.','<p class="setnote" style="margin:0"><a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a> · <a href="'+SITE_URL+'delete-account.html" target="_blank" rel="noopener">Delete your account</a></p>')+
+   '<h3 class="rh">About</h3><div class="setgroup">'+row('bulb','#C9964A','Good to know','Undo, backups, sharing'+(NATIVE?', widgets':'')+' and more, in a minute','<div class="setbtns ib-row">'+ib('bulb','id="st-tips"','Show the tips')+'</div>')+row('info','#8A5A3B','The Brew Bench','A coffee field guide and dial-in tool. What you save stays on this device, or syncs with your account if you sign in.','<p class="setnote" style="margin:0"><a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a> · <a href="'+SITE_URL+'delete-account.html" target="_blank" rel="noopener">Delete your account</a></p>')+
      '</div>';
     // Built each visit, but only put in when something changed: redrawing the whole page on every visit laid it out again.
     if(h!==SET_H||!$('st-mode')){$('settings-in').innerHTML=h;SET_H=h}}
@@ -4209,7 +4222,7 @@ function openSpeed(){const d=$('vd');
   $('vd-in').innerHTML='<div class="vd-head" style="--c:#4F8A74"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:#4F8A74"></i>Speed log</span><h2 id="vd-title">The slowest taps</h2>'+
     '<p class="hint" style="margin:0">From the tap to the next frame on screen, and the slowest frame while a page slides in, measured by this phone. Under 100 ms feels instant; over 200 ms feels slow. Kept on this phone only.</p></div>'+
     '<div class="vd-body">'+(SPEED.length?'<ol class="sp-list">'+SPEED.map(row).join('')+'</ol>':'<p class="hint">No slow taps yet. Use the app as usual and come back.</p>')+
-    '<div class="actions"><button type="button" class="btn" id="sp-share"'+(SPEED.length?'':' disabled')+'>Share the list</button><button type="button" class="btn ghost" id="sp-clear"'+(SPEED.length?'':' disabled')+'>Clear</button></div></div>';
+    '<div class="actions ib-row">'+ib('share','id="sp-share"'+(SPEED.length?'':' disabled'),'Share the list','main')+ib('reset','id="sp-clear"'+(SPEED.length?'':' disabled'),'Clear the list')+'</div></div>';
   $('vd-x').onclick=()=>d.close();
   $('sp-share').onclick=async()=>{const t=speedText();try{if(navigator.share){await navigator.share({title:'Brew Bench speed log',text:t});return}}catch(e){if(e&&e.name==='AbortError')return}
     try{await navigator.clipboard.writeText(t);toast('Copied the list')}catch(e){saveFile('brew-bench-speed.txt',new Blob([t],{type:'text/plain'}))}};

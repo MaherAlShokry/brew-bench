@@ -2743,7 +2743,56 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 .ra-body{display:grid;gap:14px}.ra-logo{justify-self:start;padding:0;border:0;background:none;cursor:pointer;border-radius:22px}
 .ra-logo .ro-mark.big{width:96px;height:96px;font-size:1.8rem}.ra-ph{width:96px;height:96px;border-radius:22px;display:grid;place-items:center;align-content:center;gap:4px;border:2px dashed var(--line);color:var(--muted)}
 .ra-ph svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}.ra-ph small{font-size:.74rem;font-weight:700}
-.figs b{white-space:nowrap}.figs.yic-big>span{flex-direction:column;align-items:flex-start;gap:8px;padding:12px}
+/* Actions as round icons, the same everywhere (ib() in app.js): plain, the main one filled, delete in red, a smaller one
+   inside cards and lists. */
+.ib{flex:none;width:44px;height:44px;min-height:0;padding:0!important;display:inline-grid;place-items:center;border:0;border-radius:50%;background:var(--surface2);color:var(--ink);cursor:pointer;text-decoration:none;
+  box-shadow:inset 0 0 0 1px var(--hair);transition:transform .15s,background .15s}
+.ib svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ib:active{transform:scale(.92)}.ib:disabled{opacity:.45;cursor:default;transform:none}.ib:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
+.ib.main{background:var(--cherry);color:var(--surface);box-shadow:0 6px 16px -8px color-mix(in srgb,var(--cherry) 75%,transparent)}
+.ib.danger{color:#B4472E}.ib.sm{width:36px;height:36px}.ib.sm svg{width:17px;height:17px}
+.ib-row{display:flex!important;flex-wrap:wrap;align-items:center;gap:10px}.tm-done.ib-row{justify-content:center}
+.crown-btn.ib{width:40px;height:40px}.sc-new.ib{display:grid;margin:14px auto 0}.fl-edit.ib{margin-top:10px}
+/* A page's own actions float at the bottom right, above the tab bar, so they're in reach and never at the end of a
+   long page. They show only while their page is open (the pages you've left aren't drawn). */
+.fab{position:fixed;right:16px;bottom:calc(var(--sa-bottom) + 24px);z-index:28;display:flex;align-items:center;gap:10px}
+@media (max-width:759px){.fab{bottom:calc(var(--sa-bottom) + 96px)}}
+.fab .ib{width:56px;height:56px;background:var(--surface);box-shadow:0 10px 24px -10px rgba(0,0,0,.5),inset 0 0 0 1px var(--hair)}
+.fab .ib.main{background:var(--cherry);color:var(--surface)}.fab .ib svg{width:24px;height:24px;stroke-width:2.2}.fab .ib.main svg{stroke-width:2.6}
+main section.on:has(>.fab){padding-bottom:160px!important}
+@media (max-width:759px){body:has(main section.on>.fab) #toast{bottom:calc(var(--sa-bottom) + 166px)}}
+/* A logged brew's actions: icons only. */
+.le-b{width:40px;padding:0!important;justify-content:center}.le-b.again{width:auto;padding:0 14px!important}
+.figs b{white-space:nowrap}
+/* The way to the sweet spot: a card with a target, then each option as a row you tap to apply, its settings as chips and
+   how far they move underneath; the other notes as quiet rows with an info mark. */
+.oplan{margin:14px 0 0;padding:14px;border-radius:var(--r-lg);background:color-mix(in srgb,var(--honey) 13%,var(--surface));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--honey) 30%,transparent)}
+.oplan-h{display:flex;align-items:center;gap:10px;margin-bottom:12px}.oplan-h>span{display:flex;flex-direction:column;min-width:0}.oplan-h b{font:800 1rem var(--display);color:var(--ink)}.oplan-h small{font-size:.78rem;color:var(--muted)}
+.otip-ic{flex:none;width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:var(--honey);color:#fff}
+.otip-ic svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.oplan-o:active{transform:scale(.985)}.oplan-o:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
+.oplan-o{all:unset;box-sizing:border-box;width:100%;display:flex;align-items:center;gap:12px;padding:12px 12px 12px 16px;border-radius:16px;background:var(--surface);box-shadow:var(--shadow),inset 0 0 0 1px var(--hair);cursor:pointer;transition:transform .15s}
+.oplan-o:active{transform:scale(.985)}.oplan-o:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
+.oplan-rows{flex:1;min-width:0;display:grid;grid-template-columns:3.6em minmax(0,1fr) auto;align-items:baseline;column-gap:12px;row-gap:8px}
+.oplan-rows small{font-size:.68rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.oplan-rows b{font:800 .98rem var(--display);color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.oplan-rows em{font-style:normal;font-size:.8rem;font-weight:700;color:var(--cherry);text-align:right;white-space:nowrap}.oplan-rows em.same{color:var(--muted);font-weight:500}
+.oplan-go{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--cherry);color:var(--surface)}
+.oplan-go svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.oplan-or{display:flex;align-items:center;gap:10px;margin:8px 4px;font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.oplan-or::before,.oplan-or::after{content:"";flex:1;height:1px;background:var(--line)}
+.onotes{display:grid;gap:8px;margin-top:12px}.onote{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:14px;background:var(--surface2);font-size:.88rem;line-height:1.45}
+.onote>i{flex:none;display:grid;place-items:center;width:20px;height:20px;margin-top:1px;color:var(--muted)}.onote>i svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+/* Content fits: a coffee's notes wrap onto a second line instead of being cut off at the edge, and a logo sits inside its
+   square with room around it (nothing cropped, the edit badge clear of it). */
+.cr-notes{flex-wrap:wrap;row-gap:5px;overflow:visible;-webkit-mask-image:none!important;mask-image:none!important}
+.ro-mark.logo{padding:9%!important}.ro-mark.logo img{object-fit:contain}
+/* The brew's predicted cup: the taste bars on a soft inset panel, the notes under a small label, the tip as a card
+   with its own icon, and the fine print quiet at the end. */
+.tvars .bars{margin:14px 0 0;padding:14px 16px;gap:11px;border-radius:var(--r-lg);background:color-mix(in srgb,var(--ink) 4%,var(--surface));box-shadow:inset 0 0 0 1px var(--hair)}
+.tvars .notes{margin-top:18px;padding-top:0;border-top:0}
+.o-k{margin:0 0 10px;font:800 .72rem var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.o-disc{display:flex;gap:8px;align-items:flex-start;margin:16px 0 0;font-size:.76rem;line-height:1.45}.o-disc svg{flex:none;width:15px;height:15px;margin-top:1px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}.figs.yic-big>span{flex-direction:column;align-items:flex-start;gap:8px;padding:12px}
 .figs.ro-stats{margin:2px 0 8px}.figs.yic-big{margin:12px 0 0}.figs.me-stats{margin:0}
 
 /* Beans' view strip (and Gear's tabs, made the same way): a soft tinted track; the picked view is a raised white pill
@@ -2993,13 +3042,15 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
         <div class="gauge" aria-hidden="true"><i id="o-marker"></i></div>
         <div class="gscale"><span>Under</span><span>Sweet spot</span><span>Over</span></div>
         <div class="bars" id="o-bars"></div>
-        <div class="notes"><h3 style="margin-top:0">Likely in the cup</h3><div class="chips" id="o-chips"></div><div id="o-tips"></div></div>
-        <div class="actions"><button class="btn" id="tolog">Log this brew</button><button class="btn ghost" id="tosave">Save as recipe</button><button type="button" class="sh-mini ic" id="dial-share" aria-label="Share this brew" title="Share" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg></button></div>
-        <p class="disclaim">An estimate from brewing rules of thumb, not a measurement. Beans, water and freshness move things more than any model can. Taste wins.</p>
+        <div class="notes"><h3 class="o-k">Likely in the cup</h3><div class="chips" id="o-chips"></div><div id="o-tips"></div></div>
+        
+        <p class="disclaim o-disc"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-18 0a9 9 0 1 1 18 0z M12 11v5 M12 8h.01"/></svg><span>An estimate from brewing rules of thumb, not a measurement. Beans, water and freshness move things more than any model can. Taste wins.</span></p>
       </div>
     </div>
   </div>
   <div class="panel drecipe" id="d-recipe" hidden></div>
+<!-- The page's actions, as icons, at the bottom within reach of your thumb (above the tab bar). -->
+<div class="fab" role="group" aria-label="Brew actions"><button type="button" class="ib" id="dial-share" aria-label="Share this brew" title="Share this brew" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg></button><button type="button" class="ib" id="tosave" aria-label="Save as recipe" title="Save as recipe"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10a1 1 0 0 1 1 1v15l-6-4-6 4V5a1 1 0 0 1 1-1z"/></svg></button><button type="button" class="ib main" id="tolog" aria-label="Log this brew" title="Log this brew"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14 M5 12h14"/></svg></button></div>
 </section>
 
 <!-- SCAN -->
@@ -3165,7 +3216,7 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
     </div>
     <div class="fw-side">
       <div class="card fw-info" id="fw-info" aria-live="polite"></div>
-      <div class="actions"><button type="button" class="btn" id="fw-dl">Download the wheel</button><button type="button" class="btn ghost" id="fw-log">Note what you tasted</button></div>
+      <div class="actions"><button type="button" class="ib main" id="fw-dl" aria-label="Download the wheel" title="Download the wheel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11 M7.5 10.5L12 15l4.5-4.5 M5 19.5h14"/></svg></button><button type="button" class="ib" id="fw-log" aria-label="Note what you tasted" title="Note what you tasted"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h11a1 1 0 0 1 1 1v15H8a2 2 0 0 1-2-2z M12 8v6 M9 11h6"/></svg></button></div>
       <p class="hint">Built on the Coffee Taster’s Flavor Wheel by the SCA and World Coffee Research, drawn in our own design, with more speciality notes so every group has notes of its own.</p>
     </div>
   </div>
@@ -3197,8 +3248,9 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
   <p class="lede">Pick a brewer or collection, or search. Grind settings follow your calibration.</p>
   <div class="rsearchw"><label class="lf-q"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4"/></svg><input type="search" id="rsearch" placeholder="Search recipes" aria-label="Search recipes"></label></div>
   <div id="rhome"></div>
-  <div class="rhead"><h3 class="rh" id="rall">All recipes</h3><div class="rhtools"><button type="button" class="rsortw" id="rfiltbtn" aria-label="Filter recipes" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button><button type="button" class="rsortw" id="rsortbtn" aria-label="Sort recipes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h11M4 12h8M4 17h5M18 6v12M15 15l3 3 3-3"/></svg></button><button type="button" class="btn ghost" id="r-new" aria-label="New recipe">+ New<span class="rn-w"> recipe</span></button></div></div>
+  <div class="rhead"><h3 class="rh" id="rall">All recipes</h3><div class="rhtools"><button type="button" class="rsortw" id="rfiltbtn" aria-label="Filter recipes" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button><button type="button" class="rsortw" id="rsortbtn" aria-label="Sort recipes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h11M4 12h8M4 17h5M18 6v12M15 15l3 3 3-3"/></svg></button></div></div>
   <div id="rgrid"></div>
+<div class="fab" role="group" aria-label="Recipe actions"><button type="button" class="ib main" id="r-new" aria-label="New recipe" title="New recipe"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14 M5 12h14"/></svg></button></div>
 </section>
 
 <!-- PROCESSES -->
@@ -3285,7 +3337,7 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
   </div>
   <div class="specs" id="l-stats"></div>
   <div class="panel palate" id="l-palate" hidden></div>
-  <div class="actions" style="margin-bottom:10px"><button type="button" class="sh-mini ic" id="l-pdf" aria-label="Share my log" title="Share"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg></button><button class="btn ghost" id="l-csv" hidden>Download log as CSV</button></div>
+  <div class="actions" style="margin-bottom:10px"><button type="button" class="sh-mini ic" id="l-pdf" aria-label="Share my log" title="Share"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg></button><button type="button" class="ib" id="l-csv" aria-label="Download the log as CSV" title="Download the log as CSV" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11 M7.5 10.5L12 15l4.5-4.5 M5 19.5h14"/></svg></button></div>
   <div class="lf" id="l-filter" hidden></div>
   <div id="l-list"></div>
 </section>
