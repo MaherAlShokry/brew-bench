@@ -106,7 +106,10 @@ public class TimerTest {
         assertEquals("it can be swiped away once done", 0, n.getNotification().flags & Notification.FLAG_ONGOING_EVENT);
 
         BrewTimer.act(ctx, BrewTimer.STOP);
-        assertNull("stop takes the notification away", note(ctx));
+        // The notification service applies posts and cancels in its own time: wait up to 3 s for it to go.
+        StatusBarNotification left = note(ctx);
+        for (int i = 0; i < 13 && left != null; i++) left = note(ctx);
+        assertNull("stop takes the notification away", left);
 
         // A brew left running for CI's picture of the notification and the status bar.
         BrewTimer.act(ctx, BrewTimer.START);
