@@ -845,7 +845,8 @@ function openBeanFilter(){const years=beanYears(),fs=BFILTERS.filter(([f])=>f===
     secs:()=>[fs.length>1?{h:'Show',key:'bf',multi:true,opts:fs.map(([f,n])=>[f,f==='all'?'All coffees':n])}:null,years.length>1?{h:'Year',key:'year',multi:true,chips:1,opts:[['all','All years'],...years.map(y=>[String(y),String(y)])]}:null]})}
 function openBeanSort(){openChoices({title:'Sort coffees',one:'coffee',get:()=>BSORT,set:(k,v)=>{BSORT=v},render:renderBeanSort,count:()=>beanList().length,secs:()=>[{key:'sort',opts:BSORTS}]})}
 // Idle time after the page has opened (the tab swing takes about a third of a second), or soon anyway.
-const whenIdle=fn=>window.requestIdleCallback?requestIdleCallback(fn,{timeout:450}):setTimeout(fn,180);
+// Later parts of a list: drawn in idle time, never in the middle of a page sliding in.
+const whenIdle=fn=>{const go=()=>afterSlide(fn);window.requestIdleCallback?requestIdleCallback(go,{timeout:450}):setTimeout(go,180)};
 // The first rows are drawn at once; the rest of a long gallery follows when the phone is idle.
 let GRID_GEN=0;
 function renderGrid(){const g=$('bg-grid');if(!g)return;const list=beanList(),gen=++GRID_GEN;let n=0;const FIRST=8;
@@ -1104,7 +1105,7 @@ function openRoasterNow(name,fromList){const d=$('vd'),k=roKey(name),r=roasterie
   hydrateImgs($('vd-in'));
   $('vd-in').onclick=e=>{const b=e.target.closest('#vd-in [data-bean]');if(b){RFROM={name:r.name,list:!!fromList};openBean(b.dataset.bean);return}
     if(e.target.closest('#ro-add')){openBeanEditor(null,{roaster:r.name});return}
-    if(e.target.closest('#ro-back')){openRoasters();return}
+    if(e.target.closest('#ro-back')){vdBack(openRoasters);return}
     // With a logo, the pen opens a small menu (change or remove); without one, it goes straight to the picture.
     if(e.target.closest('#ro-logo')){const m=$('ro-logo-menu');if(m){m.hidden=!m.hidden;$('ro-logo').setAttribute('aria-expanded',!m.hidden)}else $('ro-logo-f').click();return}
     if(e.target.closest('#ro-logo-ch')){$('ro-logo-menu').hidden=true;$('ro-logo-f').click();return}
@@ -1194,7 +1195,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.be
     const i=BEANS.findIndex(x=>x.id===b.id);if(i<0)return;BEANS=BEANS.filter(x=>x.id!==b.id);saveBeans();d.close();renderBeans();
     undoToast('Removed “'+beanTitle(b)+'”',()=>{if(BEANS.some(x=>x.id===b.id))return;BEANS.splice(Math.min(i,BEANS.length),0,b);saveBeans();renderBeans()},
       ()=>{if(BEANS.some(x=>x.id===b.id))return;if(!inTop)BIMG.del(b.id);dropDiaryPhotos(b.diary||[])})};
-  showDlg(d);$('vd-x').onclick=()=>d.close();if($('vd-back'))$('vd-back').onclick=()=>openOrigin(from);if($('bd-advback'))$('bd-advback').onclick=()=>openCal(cal.id,{back:b.cal.d});if($('bd-roback'))$('bd-roback').onclick=()=>openRoaster(roBack.name,roBack.list);if($('bd-ro'))$('bd-ro').onclick=()=>openRoaster(b.roaster);
+  showDlg(d);$('vd-x').onclick=()=>d.close();if($('vd-back'))$('vd-back').onclick=()=>vdBack(()=>openOrigin(from));if($('bd-advback'))$('bd-advback').onclick=()=>vdBack(()=>openCal(cal.id,{back:b.cal.d}));if($('bd-roback'))$('bd-roback').onclick=()=>vdBack(()=>openRoaster(roBack.name,roBack.list));if($('bd-ro'))$('bd-ro').onclick=()=>openRoaster(b.roaster);
   if(write)setTimeout(()=>{const h=$('bd-dh');if(h){h.scrollIntoView({block:'start'});$('bd-dt').focus({preventScroll:true})}},80);else d.scrollTop=0}
 function beanDoc(b){const P=b.process&&PROCESSES[b.process];
   return{title:beanTitle(b),sub:(b.roaster?b.roaster+' | ':'')+'Rated '+(b.rating||'–')+' of 5',file:'coffee-'+beanTitle(b),

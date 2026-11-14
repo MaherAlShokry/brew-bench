@@ -1179,6 +1179,10 @@ const ALWAYS={explore:()=>renderExplore(),settings:()=>renderSettings(),beans:()
 // Pages are built the first time they're opened. So that first tap isn't slow, the rest are built ahead, one per
 // idle moment, a few seconds after the app opens (never while it's in the background).
 // The last time you touched, typed or scrolled: work done ahead waits for a quiet moment.
+// A page is sliding in for this long after a tab change: work that can wait, waits until it's done (a task in the middle
+// of the slide is what shows as a stutter).
+const SLIDE_MS=450,sliding=()=>performance.now()-NAV_AT<SLIDE_MS;
+function afterSlide(fn){const left=SLIDE_MS-(performance.now()-NAV_AT);if(left>0)setTimeout(()=>afterSlide(fn),left+30);else fn()}
 let USER_AT=0;for(const ev of ['pointerdown','keydown','wheel','touchmove'])addEventListener(ev,()=>{USER_AT=performance.now()},{capture:true,passive:true});
 addEventListener('scroll',()=>{USER_AT=performance.now()},{capture:true,passive:true});
 // The first coffee or recipe sheet of a visit took about twice as long to open as later ones: the browser laying its
@@ -1191,20 +1195,26 @@ function warmSheets(){if(SHEETS_WARM>=2)return;const step=SHEETS_WARM++;const d=
     if(step===0&&window.BEANS_OK&&BEANS.length){openBean(BEANS[0].id);d.offsetHeight}
     if(step===1&&RECIPES.length){openRecipe(0);d.offsetHeight}}catch(e){}
   finally{showDlg=keep;d.classList.remove('warm');if(!d.open){$('vd-in').innerHTML='';delete d.dataset.bean}}}
+let EXPLORE_PRE=0;
 function prebuildTabs(){const ids=['recipes','gear','variety','process','map','words','history','flow','wheel','champs','tech'].filter(k=>LAZY[k]);
-  // A step only starts in a real idle moment (not one the timeout forced), and not within 3 s of a touch, a key or a
-  // scroll: building a page takes a while on a phone, and one started just after a tap held that tap's answer back.
-  // (The wait has an end: after 6 s a step goes ahead in whatever idle time there is, or the rest would never be built.)
+  // A step only starts in a real idle moment (not one the timeout forced). (The wait has an end: after 6 s a step goes
+  // ahead in whatever idle time there is, or the rest would never be built.)
   const idle=window.requestIdleCallback?(f,t0=performance.now())=>requestIdleCallback(d=>{if(!d.didTimeout&&d.timeRemaining()<25&&performance.now()-t0<6000)idle(f,t0);else f()},{timeout:6000}):f=>setTimeout(f,200);
   // Beans comes first (it's opened most and has the most to draw). Each step waits while you're moving between tabs,
   // so building ahead never competes with the page you just opened.
   let beans=false;
-  const next=()=>{if(document.hidden){setTimeout(()=>idle(next),2000);return}if(performance.now()-Math.max(NAV_AT,USER_AT)<3000){setTimeout(()=>idle(next),900);return}
+  // Every page is built soon after the app opens, even while you're already tapping around, so no first visit has to
+  // build its page on the tap: a step only waits for a slide to finish and for a moment with no touch (0.8 s).
+  const next=()=>{if(document.hidden){setTimeout(()=>idle(next),2000);return}if(sliding()||performance.now()-USER_AT<800){setTimeout(()=>idle(next),300);return}
     if(!beans&&window.BEANS_OK){beans=true;try{renderBeansIfChanged();warmBeanPhotos();roLearnGallery()}catch(e){}idle(next);return}
+    // Then the other bottom-bar sections, then the sheets, then the pages inside sections.
+    if(!BUILT.recipes){BUILT.recipes=1;try{renderRecipes()}catch(e){BUILT.recipes=0}idle(next);return}
+    if(!EXPLORE_PRE&&!$('explore').classList.contains('on')){EXPLORE_PRE=1;try{renderExplore()}catch(e){}idle(next);return}
+    if(!$('st-mode')&&!$('settings').classList.contains('on')){try{renderSettings()}catch(e){}idle(next);return}
     if(SHEETS_WARM<2&&window.BEANS_OK){warmSheets();idle(next);return}
     if(LOGL_STALE&&BUILT.recipes){try{renderLogList(1)}catch(e){}idle(next);return}
-    const id=ids.find(k=>!BUILT[k]);if(!id){if(!$('st-mode')&&!$('settings').classList.contains('on')){try{renderSettings()}catch(e){}idle(next);return}if(SHEETS_WARM<2){warmSheets();idle(next)}return}BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
-  setTimeout(()=>idle(next),2500)}
+    const id=ids.find(k=>!BUILT[k]);if(!id){if(SHEETS_WARM<2){warmSheets();idle(next)}return}BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
+  setTimeout(()=>idle(next),1500)}
 function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove());if(LAZY[id]&&!BUILT[id]){BUILT[id]=1;LAZY[id]()}if(ALWAYS[id])ALWAYS[id]()}
 // NAVD counts tab changes you can step back through, so the app bar can offer a back button.
 let BACKING=false,PEND_TAB=null,NAVD=0;
@@ -1236,6 +1246,7 @@ function showTab(id,fromHistory,pure){NAV_AT=performance.now();ensureTab(id);
     // Every change first, then the scroll (which lays the page out): one layout pass instead of two.
     // Highlights that waited for this page (select.js loads after the first page is shown, so it may not be there yet).
     syncShell(id,backY==null);if(backY!=null)window.scrollTo({top:backY});try{segShown($(id))}catch(e){}
+    if(kind&&NAV_READY)spSlide(id);
     if(kind&&NAV_READY){const sec=$(id);if(!vt){replay(sec,'nav-in');clearTimeout(sec._nav);sec._nav=setTimeout(()=>sec.classList.remove('nav-in'),480);
       // The Brew page's hero sits above the page itself: it comes in with it.
       const hw=id==='dial'&&document.querySelector('.herowrap');if(hw){replay(hw,'nav-in');clearTimeout(hw._nav);hw._nav=setTimeout(()=>hw.classList.remove('nav-in'),480)}
@@ -1270,9 +1281,27 @@ try{history.scrollRestoration='manual'}catch(e){}
 const DSTACK=[];
 // A page inside the sheet that back should leave for the page it came from (a calendar's door back to the calendar).
 let VD_BACK=null;
+// The sheet's own pages: opening one page of the sheet from another (a roastery from your roasteries, a coffee from its
+// roastery, its origin from a coffee) adds a step to history, so back returns to the page before, where you were on it,
+// just as back between screens does. VD_CUR re-draws the page showing now; VD_HIST holds the pages before it and how far
+// down each was scrolled.
+let VD_CUR=null,VD_KEY='',VD_RESTORING=false;const VD_HIST=[];
+// In the sheet, its own Back button steps back the same way when there's a page to go back to.
+function vdBack(fallback){if(VD_HIST.length)history.back();else fallback()}
+function vdRestore(e){const d=$('vd');VD_RESTORING=true;try{e.f()}finally{VD_RESTORING=false}VD_KEY=e.k;
+  const y=e.y;d.scrollTop=y;requestAnimationFrame(()=>{d.scrollTop=y})}
+{const names=['openTips','openComparePickNow','openCompareNow','openRecipe','flowSheet','openSpeed','openMakeRecipe','openDiaryPick','openTrophies',
+  'openRoastersNow','openRoasterNow','openOrigin','openBean','openBeanPick','openCalEditor','openCal','cardViewer','openMe','openNotesPicker','openProfile'];
+  for(const n of names){let f;try{f=eval(n)}catch(e){continue}if(typeof f!=='function')continue;
+    const w=function(...a){const d=$('vd'),k=n+'|'+(()=>{try{return JSON.stringify(a)}catch(e){return String(Math.random())}})();
+      // Drawn again as it is (after an edit) or while stepping back: no new step.
+      if(!VD_RESTORING&&d.open&&!d.classList.contains('closing')&&VD_CUR&&k!==VD_KEY){VD_HIST.push({f:VD_CUR,k:VD_KEY,y:d.scrollTop});try{history.pushState({dlg:1,vd:1},'',location.hash||'#dial')}catch(e){}}
+      if(!VD_RESTORING){VD_CUR=()=>f.apply(this,a);VD_KEY=k}return f.apply(this,a)};
+    eval(n+'=w')}}
 {const sm=HTMLDialogElement.prototype.showModal;HTMLDialogElement.prototype.showModal=function(){if(!this.open){if(!BACKING)try{history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}DSTACK.push(this);document.body.classList.add('dlg-open');
   this.addEventListener('close',()=>{const i=DSTACK.indexOf(this);if(i>=0)DSTACK.splice(i,1);if(!document.querySelector('dialog[open]'))document.body.classList.remove('dlg-open');if(this.dataset.popped){delete this.dataset.popped;return}
-    if(!BACKING&&history.state&&history.state.dlg){BACKING=true;history.back()}},{once:true})}return sm.call(this)}}
+    const extra=this.id==='vd'?VD_HIST.length:0;if(this.id==='vd'){VD_HIST.length=0;VD_CUR=null}
+    if(!BACKING&&history.state&&history.state.dlg){BACKING=true;history.go(-(1+extra))}},{once:true})}return sm.call(this)}}
 // Sheets slide away before they close (the CSS animates .closing), so nothing vanishes abruptly.
 {const cl=HTMLDialogElement.prototype.close;HTMLDialogElement.prototype.close=function(v){if(!this.open||this.classList.contains('closing'))return;
   if(RM()||document.hidden)return cl.call(this,v);this.classList.add('closing');
@@ -1287,7 +1316,8 @@ function showDlg(d){NAV_AT=performance.now();if(d.classList.contains('closing'))
 addEventListener('popstate',()=>{const open=[...document.querySelectorAll('dialog[open]:not(.closing)')];
   if(BACKING){BACKING=false;try{if(PEND_TAB&&location.hash!=='#'+PEND_TAB)history.pushState(null,'','#'+PEND_TAB);if(open.length)history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}PEND_TAB=null;return}
   if(open.length){const top=DSTACK.filter(d=>d.open&&!d.classList.contains('closing')).pop();
-    if(top&&top.id==='vd'&&VD_BACK){const f=VD_BACK;VD_BACK=null;try{history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}f();return}
+    if(top&&top.id==='vd'&&VD_HIST.length){const e=VD_HIST.pop();if(VD_BACK){const f=VD_BACK;VD_BACK=null;VD_RESTORING=true;try{f()}finally{VD_RESTORING=false}VD_CUR=e.f;VD_KEY=e.k;const d=$('vd');d.scrollTop=e.y;requestAnimationFrame(()=>{d.scrollTop=e.y})}else vdRestore(e);return}
+    if(top&&top.id==='vd'&&VD_BACK){const f=VD_BACK;VD_BACK=null;try{history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}VD_RESTORING=true;try{f()}finally{VD_RESTORING=false}return}
     if(top){top.dataset.popped=1;top.close()}else open.forEach(d=>d.close());return}
   let h=location.hash.slice(1);if(h==='more')h='settings';if(openRoute(h))return;const id=h&&$(h)&&$(h).tagName==='SECTION'?h:'dial';if(!$(id).classList.contains('on')){NAVD=Math.max(0,NAVD-1);showTab(id,true,true)}});
 document.querySelector('[role=tablist]').onclick=e=>{const t=e.target.closest('.tab');if(t)showTab(t.dataset.t,false,true)};
@@ -1403,7 +1433,7 @@ function renderRHome(){const QI=(c,p)=>'<span class="qi" style="background:'+c+'
     '<button type="button" data-q="fav">'+QI('#E0445A','M7 3.5h10a1.5 1.5 0 0 1 1.5 1.5v15.2a.6.6 0 0 1-.95.5L12 16.8l-5.55 3.9a.6.6 0 0 1-.95-.5V5A1.5 1.5 0 0 1 7 3.5z')+'<b>Saved</b></button></div>'+
     (again.length?'<h3 class="rh">Brew again</h3><div class="again">'+again.map(i=>'<button type="button" data-again="'+i+'"><b>'+esc(RECIPES[i].name)+'</b><small>'+esc(famName(RECIPES[i].b))+'</small></button>').join('')+'</div>':'')+
     '<h3 class="rh">By brewer</h3><div class="bshelf">'+RBREWERS().map(k=>{const B=BREWERS[k],n=RECIPES.filter(r=>RFAM(r.b)===k).length;
-      return '<button type="button" data-rb="'+k+'" aria-pressed="'+RF.includes('b:'+k)+'"><span class="bi">'+bIcon(B.type)+'</span><b>'+esc(famName(k))+'</b><small>'+esc(B.type)+'</small></button>'}).join('')+'</div>'+
+      return '<button type="button" data-rb="'+k+'" aria-pressed="'+RF.includes('b:'+k)+'"><span class="bs-top"><span class="bi">'+bIcon(B.type)+'</span>'+HC_ARR+'</span><span class="bs-tx"><b>'+esc(famName(k))+'</b><small>'+esc(B.type)+'</small></span></button>'}).join('')+'</div>'+
     '<h3 class="rh">Collections</h3><div class="colshelf">'+COLS.map(([k,n,d,c,f])=>'<button type="button" data-col="'+k+'" aria-pressed="'+RF.includes('col:'+k)+'" style="--cc:'+c+'"><b>'+esc(n)+'</b><small>'+esc(d)+'</small></button>').join('')+'</div>'+
     '<h3 class="rh">Cup types</h3><div class="cups">'+CUPS.map(([k,n,d,g,f,ic])=>'<button type="button" class="cupcard" data-cup="'+k+'" aria-pressed="'+RF.includes('cup:'+k)+'"><span class="cupart" style="--g:'+g+'">'+ic()+'</span><b>'+esc(n)+'</b><small>'+esc(d)+'</small></button>').join('')+'</div>'}
 // A random recipe for the brewers you have (a family counts), never the last pick twice running.
@@ -3764,7 +3794,9 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-jump]');if
   if(!el){toast('Nothing to show there yet');return}el.style.scrollMarginTop='96px';el.scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'})});
 const hubItem=k=>[...SHEETS.explore,...SHEETS.more].find(x=>x[0]===k);
 // No count badges on cards (Recipes, Explore and the rest): the number shows once you open the section.
-const hubCard=k=>{const [,n,d,c,ic]=hubItem(k);return '<button type="button" class="hubcard" data-go="'+k+'">'+ico(ic,c)+'<b>'+n+'</b><small>'+d+'</small></button>'};
+// A row in a grouped list: its icon in a solid square of its colour, the name and what's inside, and an arrow.
+const HC_ARR='<svg class="hc-arr" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+const hubCard=k=>{const [,n,d,c,ic]=hubItem(k);return '<button type="button" class="hubcard" data-go="'+k+'" style="--hc:'+c+'"><span class="hc-top">'+ico(ic,c)+HC_ARR+'</span><span class="hc-tx"><b>'+n+'</b><small>'+d+'</small></span></button>'};
 function renderExplore(){const day=Math.floor(Date.now()/864e5),w=GLOSSARY[day%GLOSSARY.length];
   $('explore-in').innerHTML=todayCard(day,w)+(window.BEANS_OK?cabinetDayHTML():'')+
     HUB.explore.map(([h,ks])=>'<h3 class="rh">'+h+'</h3><div class="hubgrid">'+ks.map(hubCard).join('')+'</div>').join('');if(window.BEANS_OK)hydrateImgs($('explore-in'))}
@@ -4145,26 +4177,35 @@ if(window.claude&&window.claude.use){
    The phone's own measure of each tap (Event Timing): from the touch to the next frame on screen. The 40 slowest are
    kept here only (never synced or sent anywhere), with what was tapped and on which page, so a slow spot can be found on
    the real phone and shared as a list. Hidden: tap "Settings" at the top of Settings five times, or open #speed. */
+let SP_GEN=0,SP_CLEAR_T=-1;
 const SPEED_K='bb-speed';let SPEED=(()=>{try{const a=JSON.parse(localStorage.getItem(SPEED_K)||'[]');return Array.isArray(a)?a.filter(x=>x&&+x.d>0).slice(0,40):[]}catch(e){return[]}})(),SPEED_T=null;
 function spWhat(el){if(!el||el.nodeType!==1)return'';const b=el.closest('button,a,[role=button],[role=tab],input,select,textarea,label,summary,.tile,.card,[data-v],[data-bean]')||el;
   const lab=(b.getAttribute('aria-label')||b.textContent||b.value||'').replace(/\s+/g,' ').trim().slice(0,32);
   return b.tagName.toLowerCase()+(b.id?'#'+b.id:b.classList[0]?'.'+b.classList[0]:'')+(lab?' “'+lab+'”':'')}
 function spPage(){const d=document.querySelector('dialog[open]'),t=d&&d.querySelector('h2');const sec=document.querySelector('main section.on');return (sec?sec.id:'')+(d?' › '+(t?t.textContent.trim().slice(0,28):d.id||'sheet'):'')}
 try{if(window.PerformanceObserver&&(PerformanceObserver.supportedEntryTypes||[]).includes('event'))
-  new PerformanceObserver(l=>{let got=false;for(const e of l.getEntries()){if(!/^(pointerdown|pointerup|click|keydown|keyup|input|change)$/.test(e.name)||e.duration<64)continue;
+  new PerformanceObserver(l=>{let got=false;for(const e of l.getEntries()){if(!/^(pointerdown|pointerup|click|keydown|keyup|input|change)$/.test(e.name)||e.duration<64||e.startTime<=SP_CLEAR_T)continue;
       SPEED.push({d:Math.round(e.duration),w:Math.round(Math.max(0,e.processingStart-e.startTime)),p:Math.round(Math.max(0,e.processingEnd-e.processingStart)),k:e.name,el:spWhat(e.target),pg:spPage(),at:Date.now(),v:appVersion()||'web'});got=true}
     if(!got)return;SPEED.sort((a,b)=>b.d-a.d);SPEED=SPEED.slice(0,40);clearTimeout(SPEED_T);SPEED_T=setTimeout(()=>{try{localStorage.setItem(SPEED_K,JSON.stringify(SPEED))}catch(e){}},2000)}).observe({type:'event',durationThreshold:64,buffered:true})}catch(e){}
 function speedText(){return 'Brew Bench speed log ('+(appVersion()||'web')+', '+navigator.userAgent.replace(/^.*?\(([^)]*)\).*$/,'$1').slice(0,60)+')\n'+
   (SPEED.length?SPEED.map((x,i)=>(i+1)+'. '+x.d+' ms  '+x.k+'  '+x.el+'  on '+x.pg+'  (wait '+x.w+', run '+x.p+', '+new Date(x.at).toLocaleString()+')').join('\n'):'No slow taps yet.')}
+// How smoothly a page slid in: the frames in the half second after a tab change. A frame over 50 ms is a visible stutter;
+// those go in the speed log with the slowest frame and how many were dropped, so a phone's own numbers can be shared.
+function spSlide(id){if(!window.requestAnimationFrame||document.hidden)return;let last=performance.now();const t0=last,fr=[],gen=SP_GEN;
+  const f=n=>{fr.push(n-last);last=n;if(n-t0<480)requestAnimationFrame(f);else{const worst=Math.round(Math.max(0,...fr)),drop=fr.reduce((a,x)=>a+Math.max(0,Math.round(x/16.7)-1),0);
+    // (A slide measured before the log was cleared isn't added to the cleared log.)
+    if(worst<50||document.hidden||gen!==SP_GEN)return;SPEED.push({d:worst,w:drop,p:Math.round(fr.reduce((a,x)=>a+x,0)),k:'slide',el:'Opening '+(($('ab-title')||{}).textContent||id),pg:id,at:Date.now(),v:appVersion()||'web'});
+    SPEED.sort((a,b)=>b.d-a.d);SPEED=SPEED.slice(0,40);clearTimeout(SPEED_T);SPEED_T=setTimeout(()=>{try{localStorage.setItem(SPEED_K,JSON.stringify(SPEED))}catch(e){}},2000)}};
+  requestAnimationFrame(f)}
 function openSpeed(){const d=$('vd');
-  const row=x=>'<li class="sp-row"><b class="sp-ms'+(x.d>=200?' bad':x.d>=120?' meh':'')+'">'+x.d+'<small>ms</small></b><span><b>'+esc(x.el||x.k)+'</b><small>'+esc(x.k+' on '+(x.pg||'?')+' · waited '+x.w+' ms, ran '+x.p+' ms · '+fmtAgo(x.at))+'</small></span></li>';
+  const row=x=>'<li class="sp-row"><b class="sp-ms'+(x.d>=200?' bad':x.d>=120?' meh':'')+'">'+x.d+'<small>ms</small></b><span><b>'+esc(x.el||x.k)+'</b><small>'+esc((x.k==='slide'?'Slowest frame of the slide on '+(x.pg||'?')+' · '+x.w+' frame'+(x.w===1?'':'s')+' dropped':x.k+' on '+(x.pg||'?')+' · waited '+x.w+' ms, ran '+x.p+' ms')+' · '+fmtAgo(x.at))+'</small></span></li>';
   $('vd-in').innerHTML='<div class="vd-head" style="--c:#4F8A74"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:#4F8A74"></i>Speed log</span><h2 id="vd-title">The slowest taps</h2>'+
-    '<p class="hint" style="margin:0">From the tap to the next frame on screen, measured by this phone. Under 100 ms feels instant; over 200 ms feels slow. Kept on this phone only.</p></div>'+
+    '<p class="hint" style="margin:0">From the tap to the next frame on screen, and the slowest frame while a page slides in, measured by this phone. Under 100 ms feels instant; over 200 ms feels slow. Kept on this phone only.</p></div>'+
     '<div class="vd-body">'+(SPEED.length?'<ol class="sp-list">'+SPEED.map(row).join('')+'</ol>':'<p class="hint">No slow taps yet. Use the app as usual and come back.</p>')+
     '<div class="actions"><button type="button" class="btn" id="sp-share"'+(SPEED.length?'':' disabled')+'>Share the list</button><button type="button" class="btn ghost" id="sp-clear"'+(SPEED.length?'':' disabled')+'>Clear</button></div></div>';
   $('vd-x').onclick=()=>d.close();
   $('sp-share').onclick=async()=>{const t=speedText();try{if(navigator.share){await navigator.share({title:'Brew Bench speed log',text:t});return}}catch(e){if(e&&e.name==='AbortError')return}
     try{await navigator.clipboard.writeText(t);toast('Copied the list')}catch(e){saveFile('brew-bench-speed.txt',new Blob([t],{type:'text/plain'}))}};
-  $('sp-clear').onclick=()=>{SPEED=[];try{localStorage.removeItem(SPEED_K)}catch(e){}openSpeed();toast('Cleared')};
+  $('sp-clear').onclick=()=>{SPEED=[];SP_GEN++;SP_CLEAR_T=performance.now();try{localStorage.removeItem(SPEED_K)}catch(e){}openSpeed();toast('Cleared')};
   showDlg(d);d.scrollTop=0}
 {let n=0,t0=0;document.querySelector('#settings > h2').addEventListener('click',()=>{const now=Date.now();if(now-t0>3000)n=0;t0=now;if(++n>=5){n=0;openSpeed()}})}

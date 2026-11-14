@@ -409,7 +409,7 @@ button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.a
 #tm-list li.cur{background:color-mix(in srgb,var(--cherry) 12%,var(--surface));color:var(--ink);font-weight:600}#tm-list li.done{opacity:.55;text-decoration:line-through}
 @media (max-width:759px){html dialog#timer{margin:0;width:100%;max-width:100%;height:100%;max-height:100%;border-radius:0;border:0}}
 
-.rhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 0 10px}.rhead .rh{margin:0}.rhead .btn{flex:none;padding:8px 14px;font-size:.88rem}
+.rhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 0 10px}.rhead .rh{margin:0}.rhead .btn{flex:none;padding:8px 14px}
 .rsteps{margin:.2rem 0 .4rem}.rsteps summary{cursor:pointer;font-weight:600;color:var(--cherry);padding:4px 0}.rsteps[open] summary{margin-bottom:.2rem}
 .rh{margin:22px 0 10px;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-family:var(--body);font-weight:700}
 .qlinks{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow)}
@@ -911,7 +911,7 @@ svg .bo{fill:currentColor}svg .bc{fill:none;stroke:var(--surface);stroke-width:1
 .sync[data-s="live"]{color:var(--leaf)}.sync[data-s="live"]::before{background:var(--leaf);box-shadow:0 0 0 3px color-mix(in srgb,var(--leaf) 25%,transparent)}
 .sync[data-s="offline"]::before{background:var(--honey)}
 .code{font-family:var(--display);letter-spacing:.08em;font-variant-numeric:tabular-nums}
-.joinrow{display:flex;gap:8px}.joinrow input{flex:1;min-width:0;text-transform:uppercase;letter-spacing:.08em;font-family:var(--display)}.joinrow .btn{flex:0 0 auto}
+.joinrow{display:flex;gap:8px;align-items:center}.joinrow input{flex:1;min-width:0;text-transform:uppercase;letter-spacing:.08em;font-family:var(--display)}.joinrow .btn{flex:0 0 auto}
 
 .hm-ic{width:1.05em;height:1.05em;vertical-align:-.18em;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linejoin:round;stroke-linecap:round}
 .bd-addrd .dateinp{flex:1 1 100%;width:100%}
@@ -1080,8 +1080,9 @@ html[data-nav=left]::view-transition-new(abtitle),html[data-nav=pop]::view-trans
 @keyframes vt-t-in-r{from{transform:translateX(34px)}}@keyframes vt-t-in-l{from{transform:translateX(-34px)}}
 
 @media (prefers-reduced-motion:no-preference){
-  html[data-nav=right] :is(main section,.herowrap).nav-in{animation:sec-in-r .36s cubic-bezier(.2,.9,.3,1) both,vt-show .18s ease-out both}
-  html[data-nav=left] :is(main section,.herowrap).nav-in{animation:sec-in-l .36s cubic-bezier(.2,.9,.3,1) both,vt-show .18s ease-out both}
+  
+  html[data-nav=right] :is(main section,.herowrap).nav-in{animation:sec-in-r .36s cubic-bezier(.2,.9,.3,1) both}
+  html[data-nav=left] :is(main section,.herowrap).nav-in{animation:sec-in-l .36s cubic-bezier(.2,.9,.3,1) both}
   html[data-nav=push] :is(main section,.herowrap).nav-in{animation:sec-rise .4s cubic-bezier(.2,.9,.3,1) both,vt-show .18s ease-out both}
   html[data-nav=pop] :is(main section,.herowrap).nav-in{animation:sec-surface .48s var(--spring) both,vt-show .22s ease-out both}
 }
@@ -1275,12 +1276,13 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 @media (pointer:coarse){button.chip,.vbtn,.legend button{min-height:36px}.legend button::after{content:"";position:absolute;inset:-6px 0}}
 
 
-.rsearchw{margin:0 0 14px}.rsearchw input{width:100%;box-shadow:var(--shadow)}
+.rsearchw{margin:0 0 14px}
 #rhome>.qlinks{margin-top:4px}
-.bshelf,.colshelf{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:none;scroll-snap-type:x proximity}.bshelf::-webkit-scrollbar,.colshelf::-webkit-scrollbar{display:none}
+.bshelf,.colshelf{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:none;scroll-snap-type:x proximity}.bshelf::-webkit-scrollbar,.colshelf::-webkit-scrollbar{display:none}
 .bshelf button{flex:none;scroll-snap-align:start;width:112px;display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:12px;border-radius:16px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;text-align:left;cursor:pointer}
 .bshelf .bi,.rgrp h4 .bi{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:color-mix(in srgb,var(--cherry) 12%,var(--surface));color:var(--cherry)}.bshelf .bi svg,.rgrp h4 .bi svg{width:20px;height:20px}
 .bshelf b{font-size:.88rem;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.bshelf small{color:var(--muted);font-size:.76rem}
+
 
 .bshelf button[aria-pressed="true"],.colshelf button[aria-pressed="true"]{outline:none;border-color:var(--cherry);box-shadow:inset 0 0 0 2px var(--cherry)}
 .colshelf button{flex:none;scroll-snap-align:start;width:168px;position:relative;display:flex;flex-direction:column;gap:3px;padding:14px 14px 30px;border-radius:18px;border:0;color:#fff;font:inherit;text-align:left;cursor:pointer;
@@ -1357,7 +1359,7 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 @media (max-width:359px){#rhome .cupcard b{font-size:.72rem;padding:7px 6px 9px}}
 #rhome .cupcard .cc{top:6px;right:6px;font-size:.66rem;padding:1px 6px}
 @media (min-width:1000px){#rgrid{columns:2;column-gap:16px}#rgrid .rgrp{break-inside:avoid;display:inline-block;width:100%;content-visibility:visible}}
-@media (min-width:760px){.bshelf button{width:128px}.colshelf button{width:200px}}
+@media (min-width:760px){.colshelf button{width:200px}}
 
 .colshelf button{padding:14px 14px 16px;min-height:118px}
 
@@ -1437,11 +1439,13 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 
 
 .hubgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-@media (min-width:760px){.hubgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}@media (min-width:1100px){.hubgrid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+
 .hubcard{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:14px 14px 16px;border-radius:18px;border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow);color:var(--ink);font:inherit;text-align:left;cursor:pointer;min-height:132px}
 .hubcard:active{transform:scale(.98)}
 .hubcard .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none;margin-bottom:4px}.hubcard .ic svg{width:22px;height:22px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .hubcard b{font-family:var(--display);font-size:1rem;line-height:1.2}.hubcard small{color:var(--muted);font-size:.82rem;line-height:1.35}
+
 .hubcard .hn{position:absolute;top:14px;right:14px;font-size:.74rem;font-weight:700;color:var(--muted);background:var(--surface2);border-radius:99px;padding:2px 8px}
 
 
@@ -2009,7 +2013,12 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .me-tiles b{font:650 .9rem/1.2 var(--display);color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 .me-tiles{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible!important;padding:0!important;-webkit-mask-image:none!important;mask-image:none!important}
-.me-tiles>div{width:auto!important}.me-tiles b{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:break-word;hyphens:auto}
+.me-tiles>div{width:auto!important}
+
+.me-tiles>div{justify-content:space-between;gap:10px;min-height:112px;padding:12px;border-radius:18px;background:linear-gradient(155deg,color-mix(in srgb,var(--cherry) 7%,var(--surface)),var(--surface) 72%);border:1px solid color-mix(in srgb,var(--cherry) 10%,var(--line))}
+.me-tiles i{display:grid;place-items:center;flex:none;align-self:flex-start;width:36px!important;height:36px!important;line-height:1!important;border-radius:12px;margin:0;background:color-mix(in srgb,var(--cherry) 11%,var(--surface));font-size:1.1rem}
+.me-tiles i svg{width:20px;height:20px}
+.me-tiles>div>small{margin-top:auto}.me-tiles b{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:break-word;hyphens:auto}
 .yic-notes .chip,.me-notes .chip{background:var(--surface);border:1px solid var(--line)}.me-notes{margin:12px 0 0}
 .yic-k{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:var(--muted)}
 .yic-row{display:flex;gap:8px 20px;flex-wrap:wrap;margin-top:6px}.yic-row span{display:flex;flex-direction:column;min-width:0}
@@ -2082,8 +2091,8 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .bg-gh.ro-gh{all:unset;box-sizing:border-box;width:calc(100% - 4px);cursor:pointer;display:flex;align-items:center;gap:8px;margin:18px 2px 10px}.bg-gh.ro-gh:focus-visible{outline:2px solid var(--cherry);outline-offset:3px;border-radius:6px}.ro-gh i{font-style:normal;color:var(--muted);margin-left:6px}
 .bgh-ro{all:unset;cursor:pointer;display:flex;flex-direction:column;font-size:.72rem;opacity:.8;border-radius:10px}.bgh-ro:focus-visible{outline:2px solid currentColor;outline-offset:3px}
 .sp-list{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px}.sp-row{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:14px;background:color-mix(in srgb,var(--ink) 5%,transparent)}
-.sp-row span{display:grid;min-width:0}.sp-row span b{overflow-wrap:anywhere}.sp-row small{color:var(--muted)}.sp-ms{min-width:64px;font:800 1.15rem var(--body);font-variant-numeric:tabular-nums;color:#2E7D5B}.sp-ms small{font-size:.7rem;margin-left:2px}
-.sp-ms.meh{color:#9A6A12}.sp-ms.bad{color:#B3402E}
+.sp-row span{display:grid;min-width:0}.sp-row span b{overflow-wrap:anywhere}.sp-row small{color:var(--muted)}.sp-ms{min-width:64px;font:800 1.15rem var(--body);font-variant-numeric:tabular-nums;color:#276B4E}.sp-ms small{font-size:.7rem;margin-left:2px}
+.sp-ms.meh{color:#7A5208}.sp-ms.bad{color:#B3402E}
 :root[data-theme="dark"] .sp-ms{color:#6FCB9F}:root[data-theme="dark"] .sp-ms.meh{color:#E2B866}:root[data-theme="dark"] .sp-ms.bad{color:#F08A75}.pp-share{position:absolute;top:-4px;right:-4px}
 .pp-k{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:#7A4A26}
 .pp-h h3{margin:4px 0 0;font-family:var(--display);font-size:1.45rem;color:#2A1A10}.pp-h h3 em{font-style:normal;font-size:.7em;color:#6B4A30}
@@ -2638,12 +2647,30 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 }
 @keyframes vt-push-old{to{transform:translateX(-18%);opacity:.7}}
 @keyframes vt-pop-new{from{transform:translateX(-18%);opacity:.7}}
+
+
+.hubgrid{grid-template-columns:1fr;gap:0;background:var(--surface);border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:var(--shadow)}
+.hubcard{flex-direction:row;align-items:center;min-height:0;border:0;border-radius:0;box-shadow:none;background:none;padding:14px 16px;gap:14px}
+.hubcard+.hubcard{border-top:1px solid var(--line)}
+.hubcard:active{transform:none;background:color-mix(in srgb,var(--ink) 4%,transparent)}
+.hubcard .hc-top{display:flex}
+.hubcard .hc-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.hubcard .hc-arr,.bshelf .hc-arr{display:none}
+.hubcard::after{content:'';width:8px;height:8px;border-right:2px solid var(--muted);border-top:2px solid var(--muted);transform:rotate(45deg);opacity:.55;flex:none;margin-right:4px}
+.hubcard .ic[class*=" t-"]{width:42px;height:42px;border-radius:13px;margin:0;background:var(--t)!important;box-shadow:none}
+.hubcard .ic[class*=" t-"] svg{stroke:var(--surface)!important}
+.bshelf button{width:auto;flex-direction:row;align-items:center;gap:10px;padding:8px 18px 8px 8px;border-radius:999px}
+.bshelf .bs-top{display:flex}
+.bshelf .bs-top .bi{width:40px;height:40px;border-radius:999px;background:var(--cherry-ink,var(--cherry));color:var(--surface)}
+.bshelf .bs-tx{display:flex;flex-direction:column;min-width:0}
+.bshelf .bs-tx b{white-space:nowrap!important;display:block!important}
+@media (min-width:760px){.hubgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.hubgrid .hubcard:nth-child(2){border-top:0}.hubgrid .hubcard:nth-child(even){border-left:1px solid var(--line)}}
 </style>
 <script>const JSPDF_SRC="vendor/jspdf.umd.min.js"</script>
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="f1b81209671b"</script>
+<script>const BUILD_ID="aa5662afa0cc"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -3081,7 +3108,7 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 <section id="recipes">
   <h2>Recipes</h2>
   <p class="lede">Pick a brewer or collection, or search. Grind settings follow your calibration.</p>
-  <div class="rsearchw"><input type="search" id="rsearch" placeholder="Search recipes" aria-label="Search recipes"></div>
+  <div class="rsearchw"><label class="lf-q"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4"/></svg><input type="search" id="rsearch" placeholder="Search recipes" aria-label="Search recipes"></label></div>
   <div id="rhome"></div>
   <div class="rhead"><h3 class="rh" id="rall">All recipes</h3><div class="rhtools"><button type="button" class="rsortw" id="rfiltbtn" aria-label="Filter recipes" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button><button type="button" class="rsortw" id="rsortbtn" aria-label="Sort recipes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h11M4 12h8M4 17h5M18 6v12M15 15l3 3 3-3"/></svg></button><button type="button" class="btn ghost" id="r-new" aria-label="New recipe">+ New<span class="rn-w"> recipe</span></button></div></div>
   <div id="rgrid"></div>
@@ -6466,6 +6493,10 @@ const ALWAYS={explore:()=>renderExplore(),settings:()=>renderSettings(),beans:()
 // Pages are built the first time they're opened. So that first tap isn't slow, the rest are built ahead, one per
 // idle moment, a few seconds after the app opens (never while it's in the background).
 // The last time you touched, typed or scrolled: work done ahead waits for a quiet moment.
+// A page is sliding in for this long after a tab change: work that can wait, waits until it's done (a task in the middle
+// of the slide is what shows as a stutter).
+const SLIDE_MS=450,sliding=()=>performance.now()-NAV_AT<SLIDE_MS;
+function afterSlide(fn){const left=SLIDE_MS-(performance.now()-NAV_AT);if(left>0)setTimeout(()=>afterSlide(fn),left+30);else fn()}
 let USER_AT=0;for(const ev of ['pointerdown','keydown','wheel','touchmove'])addEventListener(ev,()=>{USER_AT=performance.now()},{capture:true,passive:true});
 addEventListener('scroll',()=>{USER_AT=performance.now()},{capture:true,passive:true});
 // The first coffee or recipe sheet of a visit took about twice as long to open as later ones: the browser laying its
@@ -6478,20 +6509,26 @@ function warmSheets(){if(SHEETS_WARM>=2)return;const step=SHEETS_WARM++;const d=
     if(step===0&&window.BEANS_OK&&BEANS.length){openBean(BEANS[0].id);d.offsetHeight}
     if(step===1&&RECIPES.length){openRecipe(0);d.offsetHeight}}catch(e){}
   finally{showDlg=keep;d.classList.remove('warm');if(!d.open){$('vd-in').innerHTML='';delete d.dataset.bean}}}
+let EXPLORE_PRE=0;
 function prebuildTabs(){const ids=['recipes','gear','variety','process','map','words','history','flow','wheel','champs','tech'].filter(k=>LAZY[k]);
-  // A step only starts in a real idle moment (not one the timeout forced), and not within 3 s of a touch, a key or a
-  // scroll: building a page takes a while on a phone, and one started just after a tap held that tap's answer back.
-  // (The wait has an end: after 6 s a step goes ahead in whatever idle time there is, or the rest would never be built.)
+  // A step only starts in a real idle moment (not one the timeout forced). (The wait has an end: after 6 s a step goes
+  // ahead in whatever idle time there is, or the rest would never be built.)
   const idle=window.requestIdleCallback?(f,t0=performance.now())=>requestIdleCallback(d=>{if(!d.didTimeout&&d.timeRemaining()<25&&performance.now()-t0<6000)idle(f,t0);else f()},{timeout:6000}):f=>setTimeout(f,200);
   // Beans comes first (it's opened most and has the most to draw). Each step waits while you're moving between tabs,
   // so building ahead never competes with the page you just opened.
   let beans=false;
-  const next=()=>{if(document.hidden){setTimeout(()=>idle(next),2000);return}if(performance.now()-Math.max(NAV_AT,USER_AT)<3000){setTimeout(()=>idle(next),900);return}
+  // Every page is built soon after the app opens, even while you're already tapping around, so no first visit has to
+  // build its page on the tap: a step only waits for a slide to finish and for a moment with no touch (0.8 s).
+  const next=()=>{if(document.hidden){setTimeout(()=>idle(next),2000);return}if(sliding()||performance.now()-USER_AT<800){setTimeout(()=>idle(next),300);return}
     if(!beans&&window.BEANS_OK){beans=true;try{renderBeansIfChanged();warmBeanPhotos();roLearnGallery()}catch(e){}idle(next);return}
+    // Then the other bottom-bar sections, then the sheets, then the pages inside sections.
+    if(!BUILT.recipes){BUILT.recipes=1;try{renderRecipes()}catch(e){BUILT.recipes=0}idle(next);return}
+    if(!EXPLORE_PRE&&!$('explore').classList.contains('on')){EXPLORE_PRE=1;try{renderExplore()}catch(e){}idle(next);return}
+    if(!$('st-mode')&&!$('settings').classList.contains('on')){try{renderSettings()}catch(e){}idle(next);return}
     if(SHEETS_WARM<2&&window.BEANS_OK){warmSheets();idle(next);return}
     if(LOGL_STALE&&BUILT.recipes){try{renderLogList(1)}catch(e){}idle(next);return}
-    const id=ids.find(k=>!BUILT[k]);if(!id){if(!$('st-mode')&&!$('settings').classList.contains('on')){try{renderSettings()}catch(e){}idle(next);return}if(SHEETS_WARM<2){warmSheets();idle(next)}return}BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
-  setTimeout(()=>idle(next),2500)}
+    const id=ids.find(k=>!BUILT[k]);if(!id){if(SHEETS_WARM<2){warmSheets();idle(next)}return}BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
+  setTimeout(()=>idle(next),1500)}
 function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove());if(LAZY[id]&&!BUILT[id]){BUILT[id]=1;LAZY[id]()}if(ALWAYS[id])ALWAYS[id]()}
 // NAVD counts tab changes you can step back through, so the app bar can offer a back button.
 let BACKING=false,PEND_TAB=null,NAVD=0;
@@ -6523,6 +6560,7 @@ function showTab(id,fromHistory,pure){NAV_AT=performance.now();ensureTab(id);
     // Every change first, then the scroll (which lays the page out): one layout pass instead of two.
     // Highlights that waited for this page (select.js loads after the first page is shown, so it may not be there yet).
     syncShell(id,backY==null);if(backY!=null)window.scrollTo({top:backY});try{segShown($(id))}catch(e){}
+    if(kind&&NAV_READY)spSlide(id);
     if(kind&&NAV_READY){const sec=$(id);if(!vt){replay(sec,'nav-in');clearTimeout(sec._nav);sec._nav=setTimeout(()=>sec.classList.remove('nav-in'),480);
       // The Brew page's hero sits above the page itself: it comes in with it.
       const hw=id==='dial'&&document.querySelector('.herowrap');if(hw){replay(hw,'nav-in');clearTimeout(hw._nav);hw._nav=setTimeout(()=>hw.classList.remove('nav-in'),480)}
@@ -6557,9 +6595,27 @@ try{history.scrollRestoration='manual'}catch(e){}
 const DSTACK=[];
 // A page inside the sheet that back should leave for the page it came from (a calendar's door back to the calendar).
 let VD_BACK=null;
+// The sheet's own pages: opening one page of the sheet from another (a roastery from your roasteries, a coffee from its
+// roastery, its origin from a coffee) adds a step to history, so back returns to the page before, where you were on it,
+// just as back between screens does. VD_CUR re-draws the page showing now; VD_HIST holds the pages before it and how far
+// down each was scrolled.
+let VD_CUR=null,VD_KEY='',VD_RESTORING=false;const VD_HIST=[];
+// In the sheet, its own Back button steps back the same way when there's a page to go back to.
+function vdBack(fallback){if(VD_HIST.length)history.back();else fallback()}
+function vdRestore(e){const d=$('vd');VD_RESTORING=true;try{e.f()}finally{VD_RESTORING=false}VD_KEY=e.k;
+  const y=e.y;d.scrollTop=y;requestAnimationFrame(()=>{d.scrollTop=y})}
+{const names=['openTips','openComparePickNow','openCompareNow','openRecipe','flowSheet','openSpeed','openMakeRecipe','openDiaryPick','openTrophies',
+  'openRoastersNow','openRoasterNow','openOrigin','openBean','openBeanPick','openCalEditor','openCal','cardViewer','openMe','openNotesPicker','openProfile'];
+  for(const n of names){let f;try{f=eval(n)}catch(e){continue}if(typeof f!=='function')continue;
+    const w=function(...a){const d=$('vd'),k=n+'|'+(()=>{try{return JSON.stringify(a)}catch(e){return String(Math.random())}})();
+      // Drawn again as it is (after an edit) or while stepping back: no new step.
+      if(!VD_RESTORING&&d.open&&!d.classList.contains('closing')&&VD_CUR&&k!==VD_KEY){VD_HIST.push({f:VD_CUR,k:VD_KEY,y:d.scrollTop});try{history.pushState({dlg:1,vd:1},'',location.hash||'#dial')}catch(e){}}
+      if(!VD_RESTORING){VD_CUR=()=>f.apply(this,a);VD_KEY=k}return f.apply(this,a)};
+    eval(n+'=w')}}
 {const sm=HTMLDialogElement.prototype.showModal;HTMLDialogElement.prototype.showModal=function(){if(!this.open){if(!BACKING)try{history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}DSTACK.push(this);document.body.classList.add('dlg-open');
   this.addEventListener('close',()=>{const i=DSTACK.indexOf(this);if(i>=0)DSTACK.splice(i,1);if(!document.querySelector('dialog[open]'))document.body.classList.remove('dlg-open');if(this.dataset.popped){delete this.dataset.popped;return}
-    if(!BACKING&&history.state&&history.state.dlg){BACKING=true;history.back()}},{once:true})}return sm.call(this)}}
+    const extra=this.id==='vd'?VD_HIST.length:0;if(this.id==='vd'){VD_HIST.length=0;VD_CUR=null}
+    if(!BACKING&&history.state&&history.state.dlg){BACKING=true;history.go(-(1+extra))}},{once:true})}return sm.call(this)}}
 // Sheets slide away before they close (the CSS animates .closing), so nothing vanishes abruptly.
 {const cl=HTMLDialogElement.prototype.close;HTMLDialogElement.prototype.close=function(v){if(!this.open||this.classList.contains('closing'))return;
   if(RM()||document.hidden)return cl.call(this,v);this.classList.add('closing');
@@ -6574,7 +6630,8 @@ function showDlg(d){NAV_AT=performance.now();if(d.classList.contains('closing'))
 addEventListener('popstate',()=>{const open=[...document.querySelectorAll('dialog[open]:not(.closing)')];
   if(BACKING){BACKING=false;try{if(PEND_TAB&&location.hash!=='#'+PEND_TAB)history.pushState(null,'','#'+PEND_TAB);if(open.length)history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}PEND_TAB=null;return}
   if(open.length){const top=DSTACK.filter(d=>d.open&&!d.classList.contains('closing')).pop();
-    if(top&&top.id==='vd'&&VD_BACK){const f=VD_BACK;VD_BACK=null;try{history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}f();return}
+    if(top&&top.id==='vd'&&VD_HIST.length){const e=VD_HIST.pop();if(VD_BACK){const f=VD_BACK;VD_BACK=null;VD_RESTORING=true;try{f()}finally{VD_RESTORING=false}VD_CUR=e.f;VD_KEY=e.k;const d=$('vd');d.scrollTop=e.y;requestAnimationFrame(()=>{d.scrollTop=e.y})}else vdRestore(e);return}
+    if(top&&top.id==='vd'&&VD_BACK){const f=VD_BACK;VD_BACK=null;try{history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}VD_RESTORING=true;try{f()}finally{VD_RESTORING=false}return}
     if(top){top.dataset.popped=1;top.close()}else open.forEach(d=>d.close());return}
   let h=location.hash.slice(1);if(h==='more')h='settings';if(openRoute(h))return;const id=h&&$(h)&&$(h).tagName==='SECTION'?h:'dial';if(!$(id).classList.contains('on')){NAVD=Math.max(0,NAVD-1);showTab(id,true,true)}});
 document.querySelector('[role=tablist]').onclick=e=>{const t=e.target.closest('.tab');if(t)showTab(t.dataset.t,false,true)};
@@ -6690,7 +6747,7 @@ function renderRHome(){const QI=(c,p)=>'<span class="qi" style="background:'+c+'
     '<button type="button" data-q="fav">'+QI('#E0445A','M7 3.5h10a1.5 1.5 0 0 1 1.5 1.5v15.2a.6.6 0 0 1-.95.5L12 16.8l-5.55 3.9a.6.6 0 0 1-.95-.5V5A1.5 1.5 0 0 1 7 3.5z')+'<b>Saved</b></button></div>'+
     (again.length?'<h3 class="rh">Brew again</h3><div class="again">'+again.map(i=>'<button type="button" data-again="'+i+'"><b>'+esc(RECIPES[i].name)+'</b><small>'+esc(famName(RECIPES[i].b))+'</small></button>').join('')+'</div>':'')+
     '<h3 class="rh">By brewer</h3><div class="bshelf">'+RBREWERS().map(k=>{const B=BREWERS[k],n=RECIPES.filter(r=>RFAM(r.b)===k).length;
-      return '<button type="button" data-rb="'+k+'" aria-pressed="'+RF.includes('b:'+k)+'"><span class="bi">'+bIcon(B.type)+'</span><b>'+esc(famName(k))+'</b><small>'+esc(B.type)+'</small></button>'}).join('')+'</div>'+
+      return '<button type="button" data-rb="'+k+'" aria-pressed="'+RF.includes('b:'+k)+'"><span class="bs-top"><span class="bi">'+bIcon(B.type)+'</span>'+HC_ARR+'</span><span class="bs-tx"><b>'+esc(famName(k))+'</b><small>'+esc(B.type)+'</small></span></button>'}).join('')+'</div>'+
     '<h3 class="rh">Collections</h3><div class="colshelf">'+COLS.map(([k,n,d,c,f])=>'<button type="button" data-col="'+k+'" aria-pressed="'+RF.includes('col:'+k)+'" style="--cc:'+c+'"><b>'+esc(n)+'</b><small>'+esc(d)+'</small></button>').join('')+'</div>'+
     '<h3 class="rh">Cup types</h3><div class="cups">'+CUPS.map(([k,n,d,g,f,ic])=>'<button type="button" class="cupcard" data-cup="'+k+'" aria-pressed="'+RF.includes('cup:'+k)+'"><span class="cupart" style="--g:'+g+'">'+ic()+'</span><b>'+esc(n)+'</b><small>'+esc(d)+'</small></button>').join('')+'</div>'}
 // A random recipe for the brewers you have (a family counts), never the last pick twice running.
@@ -9051,7 +9108,9 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-jump]');if
   if(!el){toast('Nothing to show there yet');return}el.style.scrollMarginTop='96px';el.scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'})});
 const hubItem=k=>[...SHEETS.explore,...SHEETS.more].find(x=>x[0]===k);
 // No count badges on cards (Recipes, Explore and the rest): the number shows once you open the section.
-const hubCard=k=>{const [,n,d,c,ic]=hubItem(k);return '<button type="button" class="hubcard" data-go="'+k+'">'+ico(ic,c)+'<b>'+n+'</b><small>'+d+'</small></button>'};
+// A row in a grouped list: its icon in a solid square of its colour, the name and what's inside, and an arrow.
+const HC_ARR='<svg class="hc-arr" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+const hubCard=k=>{const [,n,d,c,ic]=hubItem(k);return '<button type="button" class="hubcard" data-go="'+k+'" style="--hc:'+c+'"><span class="hc-top">'+ico(ic,c)+HC_ARR+'</span><span class="hc-tx"><b>'+n+'</b><small>'+d+'</small></span></button>'};
 function renderExplore(){const day=Math.floor(Date.now()/864e5),w=GLOSSARY[day%GLOSSARY.length];
   $('explore-in').innerHTML=todayCard(day,w)+(window.BEANS_OK?cabinetDayHTML():'')+
     HUB.explore.map(([h,ks])=>'<h3 class="rh">'+h+'</h3><div class="hubgrid">'+ks.map(hubCard).join('')+'</div>').join('');if(window.BEANS_OK)hydrateImgs($('explore-in'))}
@@ -9432,27 +9491,36 @@ if(window.claude&&window.claude.use){
    The phone's own measure of each tap (Event Timing): from the touch to the next frame on screen. The 40 slowest are
    kept here only (never synced or sent anywhere), with what was tapped and on which page, so a slow spot can be found on
    the real phone and shared as a list. Hidden: tap "Settings" at the top of Settings five times, or open #speed. */
+let SP_GEN=0,SP_CLEAR_T=-1;
 const SPEED_K='bb-speed';let SPEED=(()=>{try{const a=JSON.parse(localStorage.getItem(SPEED_K)||'[]');return Array.isArray(a)?a.filter(x=>x&&+x.d>0).slice(0,40):[]}catch(e){return[]}})(),SPEED_T=null;
 function spWhat(el){if(!el||el.nodeType!==1)return'';const b=el.closest('button,a,[role=button],[role=tab],input,select,textarea,label,summary,.tile,.card,[data-v],[data-bean]')||el;
   const lab=(b.getAttribute('aria-label')||b.textContent||b.value||'').replace(/\s+/g,' ').trim().slice(0,32);
   return b.tagName.toLowerCase()+(b.id?'#'+b.id:b.classList[0]?'.'+b.classList[0]:'')+(lab?' “'+lab+'”':'')}
 function spPage(){const d=document.querySelector('dialog[open]'),t=d&&d.querySelector('h2');const sec=document.querySelector('main section.on');return (sec?sec.id:'')+(d?' › '+(t?t.textContent.trim().slice(0,28):d.id||'sheet'):'')}
 try{if(window.PerformanceObserver&&(PerformanceObserver.supportedEntryTypes||[]).includes('event'))
-  new PerformanceObserver(l=>{let got=false;for(const e of l.getEntries()){if(!/^(pointerdown|pointerup|click|keydown|keyup|input|change)$/.test(e.name)||e.duration<64)continue;
+  new PerformanceObserver(l=>{let got=false;for(const e of l.getEntries()){if(!/^(pointerdown|pointerup|click|keydown|keyup|input|change)$/.test(e.name)||e.duration<64||e.startTime<=SP_CLEAR_T)continue;
       SPEED.push({d:Math.round(e.duration),w:Math.round(Math.max(0,e.processingStart-e.startTime)),p:Math.round(Math.max(0,e.processingEnd-e.processingStart)),k:e.name,el:spWhat(e.target),pg:spPage(),at:Date.now(),v:appVersion()||'web'});got=true}
     if(!got)return;SPEED.sort((a,b)=>b.d-a.d);SPEED=SPEED.slice(0,40);clearTimeout(SPEED_T);SPEED_T=setTimeout(()=>{try{localStorage.setItem(SPEED_K,JSON.stringify(SPEED))}catch(e){}},2000)}).observe({type:'event',durationThreshold:64,buffered:true})}catch(e){}
 function speedText(){return 'Brew Bench speed log ('+(appVersion()||'web')+', '+navigator.userAgent.replace(/^.*?\(([^)]*)\).*$/,'$1').slice(0,60)+')\n'+
   (SPEED.length?SPEED.map((x,i)=>(i+1)+'. '+x.d+' ms  '+x.k+'  '+x.el+'  on '+x.pg+'  (wait '+x.w+', run '+x.p+', '+new Date(x.at).toLocaleString()+')').join('\n'):'No slow taps yet.')}
+// How smoothly a page slid in: the frames in the half second after a tab change. A frame over 50 ms is a visible stutter;
+// those go in the speed log with the slowest frame and how many were dropped, so a phone's own numbers can be shared.
+function spSlide(id){if(!window.requestAnimationFrame||document.hidden)return;let last=performance.now();const t0=last,fr=[],gen=SP_GEN;
+  const f=n=>{fr.push(n-last);last=n;if(n-t0<480)requestAnimationFrame(f);else{const worst=Math.round(Math.max(0,...fr)),drop=fr.reduce((a,x)=>a+Math.max(0,Math.round(x/16.7)-1),0);
+    // (A slide measured before the log was cleared isn't added to the cleared log.)
+    if(worst<50||document.hidden||gen!==SP_GEN)return;SPEED.push({d:worst,w:drop,p:Math.round(fr.reduce((a,x)=>a+x,0)),k:'slide',el:'Opening '+(($('ab-title')||{}).textContent||id),pg:id,at:Date.now(),v:appVersion()||'web'});
+    SPEED.sort((a,b)=>b.d-a.d);SPEED=SPEED.slice(0,40);clearTimeout(SPEED_T);SPEED_T=setTimeout(()=>{try{localStorage.setItem(SPEED_K,JSON.stringify(SPEED))}catch(e){}},2000)}};
+  requestAnimationFrame(f)}
 function openSpeed(){const d=$('vd');
-  const row=x=>'<li class="sp-row"><b class="sp-ms'+(x.d>=200?' bad':x.d>=120?' meh':'')+'">'+x.d+'<small>ms</small></b><span><b>'+esc(x.el||x.k)+'</b><small>'+esc(x.k+' on '+(x.pg||'?')+' · waited '+x.w+' ms, ran '+x.p+' ms · '+fmtAgo(x.at))+'</small></span></li>';
+  const row=x=>'<li class="sp-row"><b class="sp-ms'+(x.d>=200?' bad':x.d>=120?' meh':'')+'">'+x.d+'<small>ms</small></b><span><b>'+esc(x.el||x.k)+'</b><small>'+esc((x.k==='slide'?'Slowest frame of the slide on '+(x.pg||'?')+' · '+x.w+' frame'+(x.w===1?'':'s')+' dropped':x.k+' on '+(x.pg||'?')+' · waited '+x.w+' ms, ran '+x.p+' ms')+' · '+fmtAgo(x.at))+'</small></span></li>';
   $('vd-in').innerHTML='<div class="vd-head" style="--c:#4F8A74"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:#4F8A74"></i>Speed log</span><h2 id="vd-title">The slowest taps</h2>'+
-    '<p class="hint" style="margin:0">From the tap to the next frame on screen, measured by this phone. Under 100 ms feels instant; over 200 ms feels slow. Kept on this phone only.</p></div>'+
+    '<p class="hint" style="margin:0">From the tap to the next frame on screen, and the slowest frame while a page slides in, measured by this phone. Under 100 ms feels instant; over 200 ms feels slow. Kept on this phone only.</p></div>'+
     '<div class="vd-body">'+(SPEED.length?'<ol class="sp-list">'+SPEED.map(row).join('')+'</ol>':'<p class="hint">No slow taps yet. Use the app as usual and come back.</p>')+
     '<div class="actions"><button type="button" class="btn" id="sp-share"'+(SPEED.length?'':' disabled')+'>Share the list</button><button type="button" class="btn ghost" id="sp-clear"'+(SPEED.length?'':' disabled')+'>Clear</button></div></div>';
   $('vd-x').onclick=()=>d.close();
   $('sp-share').onclick=async()=>{const t=speedText();try{if(navigator.share){await navigator.share({title:'Brew Bench speed log',text:t});return}}catch(e){if(e&&e.name==='AbortError')return}
     try{await navigator.clipboard.writeText(t);toast('Copied the list')}catch(e){saveFile('brew-bench-speed.txt',new Blob([t],{type:'text/plain'}))}};
-  $('sp-clear').onclick=()=>{SPEED=[];try{localStorage.removeItem(SPEED_K)}catch(e){}openSpeed();toast('Cleared')};
+  $('sp-clear').onclick=()=>{SPEED=[];SP_GEN++;SP_CLEAR_T=performance.now();try{localStorage.removeItem(SPEED_K)}catch(e){}openSpeed();toast('Cleared')};
   showDlg(d);d.scrollTop=0}
 {let n=0,t0=0;document.querySelector('#settings > h2').addEventListener('click',()=>{const now=Date.now();if(now-t0>3000)n=0;t0=now;if(++n>=5){n=0;openSpeed()}})}
 
@@ -10303,7 +10371,8 @@ function openBeanFilter(){const years=beanYears(),fs=BFILTERS.filter(([f])=>f===
     secs:()=>[fs.length>1?{h:'Show',key:'bf',multi:true,opts:fs.map(([f,n])=>[f,f==='all'?'All coffees':n])}:null,years.length>1?{h:'Year',key:'year',multi:true,chips:1,opts:[['all','All years'],...years.map(y=>[String(y),String(y)])]}:null]})}
 function openBeanSort(){openChoices({title:'Sort coffees',one:'coffee',get:()=>BSORT,set:(k,v)=>{BSORT=v},render:renderBeanSort,count:()=>beanList().length,secs:()=>[{key:'sort',opts:BSORTS}]})}
 // Idle time after the page has opened (the tab swing takes about a third of a second), or soon anyway.
-const whenIdle=fn=>window.requestIdleCallback?requestIdleCallback(fn,{timeout:450}):setTimeout(fn,180);
+// Later parts of a list: drawn in idle time, never in the middle of a page sliding in.
+const whenIdle=fn=>{const go=()=>afterSlide(fn);window.requestIdleCallback?requestIdleCallback(go,{timeout:450}):setTimeout(go,180)};
 // The first rows are drawn at once; the rest of a long gallery follows when the phone is idle.
 let GRID_GEN=0;
 function renderGrid(){const g=$('bg-grid');if(!g)return;const list=beanList(),gen=++GRID_GEN;let n=0;const FIRST=8;
@@ -10562,7 +10631,7 @@ function openRoasterNow(name,fromList){const d=$('vd'),k=roKey(name),r=roasterie
   hydrateImgs($('vd-in'));
   $('vd-in').onclick=e=>{const b=e.target.closest('#vd-in [data-bean]');if(b){RFROM={name:r.name,list:!!fromList};openBean(b.dataset.bean);return}
     if(e.target.closest('#ro-add')){openBeanEditor(null,{roaster:r.name});return}
-    if(e.target.closest('#ro-back')){openRoasters();return}
+    if(e.target.closest('#ro-back')){vdBack(openRoasters);return}
     // With a logo, the pen opens a small menu (change or remove); without one, it goes straight to the picture.
     if(e.target.closest('#ro-logo')){const m=$('ro-logo-menu');if(m){m.hidden=!m.hidden;$('ro-logo').setAttribute('aria-expanded',!m.hidden)}else $('ro-logo-f').click();return}
     if(e.target.closest('#ro-logo-ch')){$('ro-logo-menu').hidden=true;$('ro-logo-f').click();return}
@@ -10652,7 +10721,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.be
     const i=BEANS.findIndex(x=>x.id===b.id);if(i<0)return;BEANS=BEANS.filter(x=>x.id!==b.id);saveBeans();d.close();renderBeans();
     undoToast('Removed “'+beanTitle(b)+'”',()=>{if(BEANS.some(x=>x.id===b.id))return;BEANS.splice(Math.min(i,BEANS.length),0,b);saveBeans();renderBeans()},
       ()=>{if(BEANS.some(x=>x.id===b.id))return;if(!inTop)BIMG.del(b.id);dropDiaryPhotos(b.diary||[])})};
-  showDlg(d);$('vd-x').onclick=()=>d.close();if($('vd-back'))$('vd-back').onclick=()=>openOrigin(from);if($('bd-advback'))$('bd-advback').onclick=()=>openCal(cal.id,{back:b.cal.d});if($('bd-roback'))$('bd-roback').onclick=()=>openRoaster(roBack.name,roBack.list);if($('bd-ro'))$('bd-ro').onclick=()=>openRoaster(b.roaster);
+  showDlg(d);$('vd-x').onclick=()=>d.close();if($('vd-back'))$('vd-back').onclick=()=>vdBack(()=>openOrigin(from));if($('bd-advback'))$('bd-advback').onclick=()=>vdBack(()=>openCal(cal.id,{back:b.cal.d}));if($('bd-roback'))$('bd-roback').onclick=()=>vdBack(()=>openRoaster(roBack.name,roBack.list));if($('bd-ro'))$('bd-ro').onclick=()=>openRoaster(b.roaster);
   if(write)setTimeout(()=>{const h=$('bd-dh');if(h){h.scrollIntoView({block:'start'});$('bd-dt').focus({preventScroll:true})}},80);else d.scrollTop=0}
 function beanDoc(b){const P=b.process&&PROCESSES[b.process];
   return{title:beanTitle(b),sub:(b.roaster?b.roaster+' | ':'')+'Rated '+(b.rating||'–')+' of 5',file:'coffee-'+beanTitle(b),
@@ -12529,7 +12598,7 @@ window.PROFILE_OK=true;profileChanged();
 
 /* ================= SYNC ================= */
 // Signed in, what you keep follows your account to every phone and the website: your coffees with their diaries,
-// brews, recipes, scans and photos, your Top 5, trophies and favourites, your gear and calibration, and the app's look.
+// brews, recipes, scans and photos (and roastery logos), the scanner's memory of roasteries, your Top 5, trophies and favourites, your gear and calibration, and the app's look.
 // Each item is compared three ways: this device, the account, and how both looked at the last sync. So a coffee
 // edited on the phone and a brew logged on the website both survive; the same item changed in two places keeps this
 // device's version, except when a device joins the account for the first time, where the account's copy wins.
@@ -12543,6 +12612,15 @@ window.PROFILE_OK=true;profileChanged();
 const SYNC_COLS=['bb-beans','bb-log','bb-scans','bb-myrecipes'];
 const SYNC_KEYS=['bb-top3','bb-advent','bb-trophies','bb-favs','bb-custom-grinders','bb-mygrinders','bb-mybrewers','bb-base3','bb-calc','bb-ui','bb-theme','bb-cardstyle','bb-group','bb-name','bb-blends','bb-dialnext'];
 const SYNC_ID=/^[A-Za-z0-9_:-]{1,40}$/;
+// Photos sync by id; a roastery's logo is kept under its name ("logo:kuf roastery"), so it gets its own rule (anything a
+// database key can hold).
+const syncImgKey=k=>SYNC_ID.test(k)||/^logo:[^.$#\[\]\/\u0000-\u001f\u007f]{1,60}$/.test(k);
+// The scanner's memory (the words on each roastery's bags and the look of its bags) is learnt on each phone from its own
+// scans, so two copies are put together rather than one replacing the other: each word keeps the higher count, and
+// every bag's look is kept (this device's where both have one).
+function romemMerge(a,b){let A,B;try{A=JSON.parse(a)||{};B=JSON.parse(b)||{}}catch(e){return a}const t={},v=Object.assign({},B.v||{},A.v||{});
+  for(const src of [B.t||{},A.t||{}])for(const r in src){const o=t[r]||(t[r]={});for(const w in src[r])o[w]=Math.max(o[w]||0,+src[r][w]||0)}
+  return JSON.stringify({t,v})}
 const fnv=s=>{let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)}return(h>>>0).toString(36)+'.'+s.length.toString(36)};
 // Photos are large: their fingerprint is taken from the length and both ends.
 const imgSig=v=>fnv(v.length+v.slice(0,4000)+v.slice(-4000));
@@ -12601,10 +12679,15 @@ async function sync(apply){if(!syncOn())return false;if(SYNC_BUSY){SYNC_MORE=Mat
       if(sets.size||dels.size){const out=[];for(const x of L.a){const id=x&&x.id;if(dels.has(id))continue;if(sets.has(id)){out.push(JSON.parse(sets.get(id)));sets.delete(id)}else out.push(x)}
         for(const v of sets.values())out.unshift(JSON.parse(v));pulls.push([k,JSON.stringify(out)])}}
     // Settings, each as a whole.
+    // The scanner's memory: both copies put together, here and in the account.
+    {const k='bb-romem',l=localStorage.getItem(k),r=txt(R.kv&&R.kv[k]);
+      if(l!=null&&r!=null&&l!==r){const m=romemMerge(l,r);if(m!==r)up['kv/'+k]={t:now,d:m};// (safe without the page reloading: the memory in use is updated in place)
+      if(m!==l){localStorage.setItem(k,m);try{const o=JSON.parse(m);RMEM.t=o.t;RMEM.v=o.v}catch(e){}}done.push(['k|'+k,m])}
+      else{const a=syncMerge(H,'k|'+k,l,r);if(a==='push'){up['kv/'+k]=l==null?{t:now,del:1}:{t:now,d:l};done.push(['k|'+k,l])}else if(a==='pull'&&apply){pulls.push([k,r]);done.push(['k|'+k,r])}}}
     for(const k of SYNC_KEYS){const l=localStorage.getItem(k),r=txt(R.kv&&R.kv[k]),a=syncMerge(H,'k|'+k,l,r);
       if(a==='push'){up['kv/'+k]=l==null?{t:now,del:1}:{t:now,d:l};done.push(['k|'+k,l])}else if(a==='pull'&&apply){pulls.push([k,r]);done.push(['k|'+k,r])}}
     // Photos: uploaded and fetched one by one, their fingerprints listed with the rest.
-    const imgs=await BIMG.all(),RI=R.img||{},keys=new Set([...Object.keys(imgs).filter(i=>SYNC_ID.test(i)),...Object.keys(RI).filter(i=>SYNC_ID.test(i)),...Object.keys(H).filter(x=>x.startsWith('i|')).map(x=>x.slice(2))]);
+    const imgs=await BIMG.all(),RI=R.img||{},keys=new Set([...Object.keys(imgs).filter(syncImgKey),...Object.keys(RI).filter(syncImgKey),...Object.keys(H).filter(x=>x.startsWith('i|')).map(x=>x.slice(2))]);
     const imgUrl=k=>syncBase()+'/userimg/'+uid+'/'+encodeURIComponent(k)+q;
     for(const k of keys){const l=typeof imgs[k]==='string'?imgSig(imgs[k]):null,r=RI[k]&&!RI[k].del?RI[k].s:null,a=syncMerge(H,'i|'+k,l,r);
       if(a==='push'){const w=await fetch(imgUrl(k),l==null?{method:'DELETE'}:{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(imgs[k])});
