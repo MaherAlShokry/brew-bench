@@ -1214,15 +1214,17 @@ button.chip:hover{background:var(--tonal-hover)}
 .le-who{font-weight:600;color:var(--ink)}
 .le-sub{display:flex;align-items:center;justify-content:space-between;gap:4px 10px;flex-wrap:wrap}.le-stars{flex:none;display:flex;align-items:center;gap:6px}.le-stars .brate{font-size:14px}.le-stars b{font:800 .95rem var(--display);color:var(--ink)}
 .le-stars.none{font-size:.74rem;color:var(--muted);letter-spacing:0}
-.le-pills{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 0}
-.le-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 10px 5px 8px;border-radius:999px;background:var(--surface2);font-size:.8rem;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
-.le-pill svg{width:14px;height:14px;fill:none;stroke:var(--cherry);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
-.le-pill.k-rec{background:color-mix(in srgb,var(--honey) 20%,var(--surface2))}
+.le-pills{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0}
+.le-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px 4px 8px;border-radius:999px;background:var(--surface2);font-size:.76rem;font-weight:600;line-height:1.35;color:var(--ink);font-variant-numeric:tabular-nums;max-width:100%;min-width:0}
+.le-pill svg{width:13px;height:13px;fill:none;stroke:var(--muted);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
 .le-rest{margin:8px 0 0!important;font-size:.84rem;color:var(--muted)}
 .le-pred{margin:8px 0 0!important;font-size:.84rem;color:var(--muted)}.le-pred b{color:var(--ink);font-weight:600}
 .le-notes{margin:10px 0 0;padding:8px 12px;border-left:3px solid var(--honey);background:color-mix(in srgb,var(--honey) 8%,transparent);border-radius:0 10px 10px 0;font-style:italic;line-height:1.45}
 .le2 .fl-entry,.le2 .fl-edit{margin-top:10px}.le2 .fl-entry .linkbtn,.le2 .fl-edit{font-size:.86rem}
-.le-act{display:flex;justify-content:flex-end;gap:4px;margin-top:8px;padding-top:8px;border-top:1px solid var(--hair,var(--line))}
+.le-act{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--hair,var(--line))}
+.le-acts{margin-left:auto;display:flex;gap:8px}
+.le-act .ib.sm svg{width:17px;height:17px}
 .le-b{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border:0;border-radius:999px;background:none;color:var(--muted);font:600 .82rem var(--display);cursor:pointer}
 .le-b:hover,.le-b:focus-visible{background:var(--surface2);color:var(--ink)}.le-b svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .le-b.again{margin-right:auto;white-space:nowrap;flex:none;color:var(--cherry);background:color-mix(in srgb,var(--cherry) 12%,transparent)}.le-b.again:hover{background:color-mix(in srgb,var(--cherry) 20%,transparent);color:var(--cherry)}.le-b.again svg{fill:currentColor;stroke:none;width:14px;height:14px}
@@ -2769,9 +2771,6 @@ main section.on:has(>.fab){padding-bottom:160px!important}
    heading; a brew's add-flavours plus sits in its row of pills. */
 #l-stats>div:last-child:nth-child(odd){grid-column:1/-1}
 .l-head{margin-top:16px}
-.le-fladd{border:0;cursor:pointer;font:inherit;font-size:.8rem;font-weight:600;color:var(--ink);background:color-mix(in srgb,var(--cherry) 10%,var(--surface2))}.le-fladd svg{color:var(--cherry)}
-.le-fladd svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round}
-.le-fladd:hover,.le-fladd:focus-visible{background:color-mix(in srgb,var(--cherry) 18%,var(--surface2))}
 .figs b{white-space:nowrap}
 /* Scale a recipe: less or more coffee either side of the amounts, and Iced beside them. */
 .rscale{display:flex;align-items:center;gap:10px;margin:0 0 14px;padding:10px 12px;border-radius:var(--r-lg);background:color-mix(in srgb,var(--ink) 4%,var(--surface));box-shadow:inset 0 0 0 1px var(--hair)}
