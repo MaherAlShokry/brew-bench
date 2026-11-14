@@ -44,7 +44,8 @@ public class WidgetPlugin extends Plugin {
         // The other widgets' data, as JSON text: the cabinet's coffees, the go-to recipe and the coming words.
         for (String k : new String[] {"cabinet", "brew", "words"}) {
             String v = call.getString(k, null);
-            if (v != null && v.length() < 60000) e.putString(k, v);
+            // The cabinet carries a small photo per coffee, so it may be longer.
+            if (v != null && v.length() < (k.equals("cabinet") ? 400000 : 60000)) e.putString(k, v);
         }
         e.apply();
         BrewWidget.refresh(ctx);

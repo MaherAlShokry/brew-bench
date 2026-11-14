@@ -147,18 +147,36 @@ public class BrewWidget extends AppWidgetProvider {
         return photoBm;
     }
 
-    private static Bitmap make(Context ctx, String dataUrl, int sizeDp, int radiusDp) {
+    /**
+     * A cabinet coffee's photo, made once per coffee and photo and kept, so the layouts for every height share the same
+     * pictures (Android sends each to the launcher once). At most about 96 px across: a few of them stay small.
+     */
+    private static final java.util.LinkedHashMap<String, Bitmap> THUMBS = new java.util.LinkedHashMap<String, Bitmap>(8, 0.75f, true) {
+        @Override protected boolean removeEldestEntry(java.util.Map.Entry<String, Bitmap> e) { return size() > 8; }
+    };
+
+    static Bitmap thumb(Context ctx, String id, String dataUrl, int sizeDp, int radiusDp) {
+        if (dataUrl == null || dataUrl.isEmpty()) return null;
+        String key = id + ":" + dataUrl.length() + ":" + dataUrl.hashCode();
+        Bitmap b = THUMBS.get(key);
+        if (b == null) { b = make(ctx, dataUrl, sizeDp, radiusDp, 96); if (b != null) THUMBS.put(key, b); }
+        return b;
+    }
+
+    private static Bitmap make(Context ctx, String dataUrl, int sizeDp, int radiusDp) { return make(ctx, dataUrl, sizeDp, radiusDp, 0); }
+
+    private static Bitmap make(Context ctx, String dataUrl, int sizeDp, int radiusDp, int maxPx) {
         try {
             int c = dataUrl.indexOf(',');
             byte[] b = Base64.decode(c >= 0 ? dataUrl.substring(c + 1) : dataUrl, Base64.DEFAULT);
             Bitmap src = BitmapFactory.decodeByteArray(b, 0, b.length);
             if (src == null) return null;
-            int s = Math.min(src.getWidth(), src.getHeight()), px = dp(ctx, sizeDp);
+            int s = Math.min(src.getWidth(), src.getHeight()), px = maxPx > 0 ? Math.min(maxPx, dp(ctx, sizeDp)) : dp(ctx, sizeDp);
             Bitmap sq = Bitmap.createScaledBitmap(Bitmap.createBitmap(src, (src.getWidth() - s) / 2, (src.getHeight() - s) / 2, s, s), px, px, true);
             Bitmap out = Bitmap.createBitmap(px, px, Bitmap.Config.ARGB_8888);
             Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
             p.setShader(new BitmapShader(sq, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP));
-            float r = dp(ctx, radiusDp);
+            float r = Math.min(px / 2f, dp(ctx, radiusDp) * (px / (float) dp(ctx, sizeDp)));
             new Canvas(out).drawRoundRect(new RectF(0, 0, px, px), r, r, p);
             return out;
         } catch (Exception e) { return null; }

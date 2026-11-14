@@ -13,8 +13,10 @@ function enhanceSelect(s){if(s.dataset.ui||s.multiple||s.size>1||s.closest('#sel
   s.addEventListener('keydown',e=>{if(['Enter',' ','ArrowDown','ArrowUp'].includes(e.key)||(e.altKey&&e.key==='ArrowDown')){e.preventDefault();openSelect(s)}});
   // Some browsers still open their list on mouse down; stop it here.
   s.addEventListener('mousedown',e=>{e.preventDefault();s.focus()})}
-function openSelect(s){const d=$('selsheet'),opts=[...s.options],long=opts.length>=SEL_SEARCH_AT,cur=s.value;
-  const row=o=>'<button type="button" role="option" class="selopt" data-v="'+esc(o.value)+'" aria-selected="'+(o.value===cur&&o.selected)+'"'+(o.disabled?' disabled':'')+'><span>'+esc(o.textContent)+'</span><i aria-hidden="true">✓</i></button>';
+// A tap shows as pressed first; the sheet opens in the next frame (see fromTap).
+function openSelect(s){if(fromTap(()=>openSelectNow(s)))return;openSelectNow(s)}
+function openSelectNow(s){const d=$('selsheet'),opts=[...s.options],long=opts.length>=SEL_SEARCH_AT,cur=s.value;
+  const row=o=>'<button type="button" role="option" class="selopt" data-v="'+esc(o.value)+'" data-oi="'+o.index+'" aria-selected="'+(o.index===s.selectedIndex)+'"'+(o.disabled?' disabled':'')+'><span>'+esc(o.textContent)+'</span><i aria-hidden="true">✓</i></button>';
   let body='';for(const k of s.children){if(k.tagName==='OPTGROUP'){const kids=[...k.children].filter(o=>o.tagName==='OPTION');if(kids.length)body+='<div class="selgrp" role="group" aria-label="'+esc(k.label)+'"><h4><span>'+esc(k.label)+'</span><small>'+kids.length+'</small></h4>'+kids.map(row).join('')+'</div>'}else if(k.tagName==='OPTION')body+=row(k)}
   $('sel-in').innerHTML='<div class="selhead"><div class="grab"></div><h3 id="sel-title">'+esc(selLabel(s))+'</h3><button type="button" class="vd-close" id="sel-x" aria-label="Close">✕</button></div>'+
     (long?'<input type="search" id="sel-q" placeholder="Search" aria-label="Search the list" autocomplete="off">':'')+'<div class="sellist" role="listbox" aria-labelledby="sel-title">'+body+'</div><p class="hint selnone" hidden>Nothing matches.</p>';
@@ -22,15 +24,16 @@ function openSelect(s){const d=$('selsheet'),opts=[...s.options],long=opts.lengt
   if(!narrow){const r=s.getBoundingClientRect(),W=Math.max(r.width,260),below=innerHeight-r.bottom,up=below<320&&r.top>below;
     Object.assign(d.style,{left:Math.min(Math.max(8,r.left),innerWidth-W-8)+'px',width:W+'px',top:up?'auto':(r.bottom+6)+'px',bottom:up?(innerHeight-r.top+6)+'px':'auto',maxHeight:Math.max(220,(up?r.top:below)-24)+'px'})}
   else Object.assign(d.style,{left:'',width:'',top:'',bottom:'',maxHeight:''});
-  const pick=v=>{if(s.value!==v){s.value=v;s.dispatchEvent(new Event('input',{bubbles:true}));s.dispatchEvent(new Event('change',{bubbles:true}))}d.close();setTimeout(()=>s.focus({preventScroll:true}),0)};
-  d.querySelector('.sellist').onclick=e=>{const b=e.target.closest('.selopt');if(b&&!b.disabled)pick(b.dataset.v)};
+  // The exact option tapped is chosen (by its place in the list, so two with the same value can't swap).
+  const pick=b=>{const i=+b.dataset.oi;if(s.selectedIndex!==i){s.selectedIndex=i;s.dispatchEvent(new Event('input',{bubbles:true}));s.dispatchEvent(new Event('change',{bubbles:true}))}d.close();setTimeout(()=>s.focus({preventScroll:true}),0)};
+  d.querySelector('.sellist').onclick=e=>{const b=e.target.closest('.selopt');if(b&&!b.disabled)pick(b)};
   $('sel-x').onclick=()=>d.close();
   const q=$('sel-q');if(q)q.oninput=()=>{const t=fold(q.value.trim());let n=0;d.querySelectorAll('.selopt').forEach(b=>{const hit=!t||fold(b.textContent).includes(t);b.hidden=!hit;if(hit)n++});
     d.querySelectorAll('.selgrp').forEach(g=>g.hidden=![...g.querySelectorAll('.selopt')].some(b=>!b.hidden));d.querySelector('.selnone').hidden=n>0};
   // Arrow keys move through the choices; typing jumps to the search.
   d.onkeydown=e=>{const all=[...d.querySelectorAll('.selopt:not([hidden]):not([disabled])')],i=all.indexOf(document.activeElement);
     if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();const n=all[Math.max(0,Math.min(all.length-1,i<0?0:i+(e.key==='ArrowDown'?1:-1)))];if(n)n.focus()}
-    else if(e.key==='Enter'&&document.activeElement===q){const f=all[0];if(f){e.preventDefault();pick(f.dataset.v)}}
+    else if(e.key==='Enter'&&document.activeElement===q){const f=all[0];if(f){e.preventDefault();pick(f)}}
     else if(q&&e.key.length===1&&document.activeElement!==q&&!e.ctrlKey&&!e.metaKey){q.focus()}};
   showDlg(d);const on=d.querySelector('.selopt[aria-selected="true"]')||d.querySelector('.selopt');
   if(on)on.scrollIntoView({block:'center'});
@@ -139,7 +142,7 @@ function rngEnhance(i){if(i.dataset.rng)return;i.dataset.rng='1';
 // Every one-line strip glides, the Gear tabs included; wrapping filter chips can't, so they get the plain pick instead.
 const SEG_SEL='.seg:not(.filters),.seg.gtabs';
 // Only one-line strips (SEG_SEL) get one: wrapping chip rows keep their own pick, so a highlight never floats loose.
-function segBatch(list){const items=[];
+function segBatch(list,instant){const items=[];
   for(const el of new Set(list)){if(!el||!el.isConnected||!el.matches(SEG_SEL))continue;
     // A strip on a page that isn't shown waits until that page opens: measuring it would lay out the hidden page.
     if(el.closest('main section:not(.on)')){el._stale=1;continue}const on=el.querySelector(':scope>button[aria-pressed="true"]');items.push({el,on,ind:el.querySelector(':scope>.seg-ind')})}
@@ -157,16 +160,27 @@ function segBatch(list){const items=[];
   let fresh=false;
   for(const it of items){if(!it.ok){if(it.ind)it.ind.style.opacity='0';continue}
     if(!it.ind){const ind=it.ind=document.createElement('span');ind.className='seg-ind';ind.setAttribute('aria-hidden','true');it.el.append(ind);
-      const ip=it.el._ip||(it.el.id&&SEG_IP.get(it.el.id));if(ip){ind.style.transition='none';Object.assign(ind.style,ip);fresh=true;it.reset=true}}}
+      // A highlight that appears because its page is opening goes straight to its option: gliding from where it was
+      // last time would trail the page as it slides in. A strip redrawn under your finger still glides from there.
+      const ip=!instant&&(it.el._ip||(it.el.id&&SEG_IP.get(it.el.id)));if(ip){ind.style.transition='none';Object.assign(ind.style,ip);fresh=true;it.reset=true}else it.snap=true}
+    // One that was hidden (its page or sheet wasn't showing) comes back at its option too, not gliding in from where it was.
+    else if(instant||it.ind.style.opacity==='0')it.snap=true}
   if(fresh)document.body.offsetWidth;
   const rm=RM();
   for(const it of live){const el=it.el,ind=it.ind;if(it.reset)ind.style.transition='';el.classList.add('has-ind');
     // Moved with a transform (the compositor animates it without laying the page out again); only the size changes width.
-    if(rm)ind.style.transition='none';Object.assign(ind.style,it.look,it.pos,{opacity:'1'});el._ip=it.pos;if(el.id)SEG_IP.set(el.id,it.pos)}
+    if(rm||it.snap)ind.style.transition='none';Object.assign(ind.style,it.look,it.pos,{opacity:'1'});el._ip=it.pos;if(el.id)SEG_IP.set(el.id,it.pos);
+    if(it.snap&&!rm)requestAnimationFrame(()=>requestAnimationFrame(()=>{ind.style.transition=''}))}
   for(const it of items)if(SEG_RO&&!it.el._ro){it.el._ro=1;SEG_RO.observe(it.el)}}
 function segUpdate(el){segBatch([el])}
 // A page coming into view places the highlights that waited for it (after a change of look or text size).
-function segShown(sec){const l=[...sec.querySelectorAll(SEG_SEL)].filter(x=>x._stale);if(l.length){l.forEach(x=>x._stale=0);segBatch(l)}}
+// Every strip on it is placed then, before the page paints, straight at its option: one kept from before would show
+// for a frame where it was last (off by however much the layout moved since).
+// Strips further down the page are placed a moment later, when the phone is idle (still straight at their option), so
+// opening a long page like Settings doesn't lay out its far end first.
+function segShown(sec){const all=[...sec.querySelectorAll(SEG_SEL)];if(!all.length)return;all.forEach(x=>x._stale=0);
+  const H=innerHeight+120,near=[],far=[];for(const x of all){const t=x.offsetParent?x.getBoundingClientRect().top:H+1;(t<H?near:far).push(x)}
+  if(near.length)segBatch(near,true);if(far.length){const go=()=>{if(sec.classList.contains('on'))segBatch(far.filter(x=>x.isConnected),true)};window.requestIdleCallback?requestIdleCallback(go,{timeout:400}):setTimeout(go,120)}}
 // One watcher for every control's size (a tab coming into view, the phone turning); controls that have left the page are dropped.
 const SEG_RO=window.ResizeObserver?new ResizeObserver(es=>es.forEach(e=>{if(e.target.isConnected)segQueue(e.target);else SEG_RO.unobserve(e.target)})):null;
 const SEG_Q=new Set(),SEG_IP=new Map();let SEG_RAF=0;

@@ -206,6 +206,8 @@ function setLeft(b,g){b.left=gramsOrNull(g);b.leftAt=Date.now()}
 // Notes are kept as words ("Jasmine, Peach"), so a scan, a backup or an older save reads the same. A word on the
 // flavour wheel takes its family's colour; anything else (a roaster's "Turkish delight") is kept as you wrote it.
 const TN_MAX=12,TN_LEN=300;
+// A label's notes as the coffee's notes: whole notes only (never one cut short), up to the most a coffee keeps.
+function scanNotes(l){const out=[];for(const n of (Array.isArray(l)?l:[]).map(x=>String(x).trim()).filter(Boolean)){if(out.length>=TN_MAX)break;if([...out,n].join(', ').length>TN_LEN)continue;if(!out.some(x=>x.toLowerCase()===n.toLowerCase()))out.push(n)}return out.join(', ')}
 const tnFams=()=>FW.roots.filter(r=>r.n!=='Other');
 // Words bags use that the wheel doesn't have, each with the wheel note whose colour and family it takes.
 const TN_X={Caramel:'Caramelized','Brown sugar':'Molasses','Cane sugar':'Panela',Sugarcane:'Panela',Cocoa:'Cocoa nib',Cacao:'Cocoa nib',Butterscotch:'Toffee',Fudge:'Brownie',
@@ -223,8 +225,11 @@ let TN_ALL=null;
 const tnNotes=()=>TN_ALL||(TN_ALL=(()=>{const base=FW.leaves.filter(n=>n.cat.n!=='Other'),by=Object.fromEntries(base.map(n=>[n.n,n]));
   return[...base.map(n=>({n:n.n,c:n.c,id:n.id,g:n.parent?n.parent.n:''})),...Object.entries(TN_X).filter(([x,w])=>by[w]&&!by[x]).map(([x,w])=>({n:x,c:by[w].c,id:by[w].id,g:by[w].parent?by[w].parent.n:''}))]})());
 const tnLeaves=()=>FW.leaves.filter(n=>n.cat.n!=='Other');
-const tnLeaf=w=>{const f=fold(String(w).trim());return f?tnNotes().find(n=>fold(n.n)===f)||null:null};
-const tnSplit=s=>{const seen=new Set();return String(s||'').split(/\s*[,;·]\s*/).map(x=>x.trim()).filter(x=>x&&!seen.has(fold(x))&&seen.add(fold(x)))};
+// A note's identity keeps its accents (Rosé the wine and Rose the flower are two notes); typing without accents
+// still finds the accented one when nothing matches exactly.
+const tnKey=t=>String(t).trim().normalize('NFC').toLowerCase().replace(/[’']/g,"'");
+const tnLeaf=w=>{const k=tnKey(w),f=fold(String(w).trim());if(!f)return null;const ns=tnNotes();return ns.find(n=>tnKey(n.n)===k)||ns.find(n=>fold(n.n)===f)||null};
+const tnSplit=s=>{const seen=new Set();return String(s||'').split(/\s*[,;·]\s*/).map(x=>x.trim()).filter(x=>x&&!seen.has(tnKey(x))&&seen.add(tnKey(x)))};
 const tnEsc=w=>w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 // Notes a coffee is known for: the words in its varieties' and origin's cup descriptions, then the notes the wheel
 // links to its process and varieties.
@@ -243,7 +248,7 @@ function tasteInput(host,init,ctx){let L=tnSplit(init),fam=null,at=-1,opts=[];
     '<div class="tn-sug" id="tn-sug"></div>'+
     '<div class="tn-lbl">Browse the flavour wheel</div><div class="tn-fams" id="tn-fams">'+tnFams().map(r=>'<button type="button" class="tn-f" data-fam="'+r.id+'" aria-expanded="false" style="--fc:'+r.c+'"><i></i>'+esc(r.n)+'</button>').join('')+'</div>'+
     '<div class="tn-fam" id="tn-fam" hidden></div>';
-  const q=$('tn-q'),box=$('tn-list'),has=w=>L.some(x=>fold(x)===fold(w));
+  const q=$('tn-q'),box=$('tn-list'),has=w=>L.some(x=>tnKey(x)===tnKey(w));
   const chip=(n,on)=>'<button type="button" class="tn-c'+(on?' on':'')+'" data-add="'+esc(n.n)+'" aria-pressed="'+on+'" style="--fc:'+n.c+'"><i></i>'+esc(n.n)+'</button>';
   const drawSel=()=>{const wl=L.map(tnLeaf);
     $('tn-sel').innerHTML=(L.length?'<div class="tn-chips">'+L.map((w,i)=>{const n=wl[i];return'<span class="tn-x" style="--fc:'+(n?n.c:'var(--muted)')+'"><i></i>'+esc(n?n.n:w)+'<button type="button" data-rm="'+i+'" aria-label="Remove '+esc(w)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></button></span>'}).join('')+'</div>':
@@ -255,17 +260,23 @@ function tasteInput(host,init,ctx){let L=tnSplit(init),fam=null,at=-1,opts=[];
   const drawFam=()=>{const f=fam&&FW.byId[fam];$('tn-fam').hidden=!f;document.querySelectorAll('#tn-fams [data-fam]').forEach(b=>{const on=b.dataset.fam===fam;b.setAttribute('aria-expanded',on);b.classList.toggle('on',on)});
     if(!f)return;$('tn-fam').style.setProperty('--fc',f.c);
     $('tn-fam').innerHTML='<p class="tn-fd">'+esc(f.d)+'</p>'+f.kids.map(g=>{const ls=g.leaf?[g]:g.kids.flatMap(k=>k.leaf?[k]:k.kids);return'<div class="tn-g"><small>'+esc(g.n)+'</small><div class="tn-cs">'+ls.map(n=>chip(n,has(n.n))).join('')+'</div></div>'}).join('')};
-  const add=w=>{w=String(w).trim().replace(/\s+/g,' ');if(!w)return false;const n=tnLeaf(w);if(n)w=n.n;else w=w[0].toUpperCase()+w.slice(1);
-    if(has(w)){L=L.filter(x=>fold(x)!==fold(w));drawSel();return true}
+  // A chip on the wheel toggles (tap it again to take it off); a note typed or picked from the search never removes
+  // one you already have: it's shown as already there.
+  const add=(w,toggle)=>{w=String(w).trim().replace(/\s+/g,' ');if(!w)return false;const n=tnLeaf(w);if(n)w=n.n;else w=w[0].toUpperCase()+w.slice(1);
+    if(has(w)){if(toggle){L=L.filter(x=>tnKey(x)!==tnKey(w));drawSel()}else flashNote(w);return true}
     if(L.length>=TN_MAX){toast('That’s '+TN_MAX+' notes, plenty for one bag');return false}
     if([...L,w].join(', ').length>TN_LEN){toast('That’s as many notes as fit');return false}
     L.push(w);drawSel();return true};
+  const flashNote=w=>{const i=L.findIndex(x=>tnKey(x)===tnKey(w)),el=$('tn-sel').querySelectorAll('.tn-x')[i];if(el){el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash')}toast(w+' is already in')};
+  // Backspace in the empty box takes the last note off only on a second press (the first marks it), so a stray key
+  // on a phone keyboard can't remove one.
+  let bsArm=false;const unarm=()=>{if(!bsArm)return;bsArm=false;const x=$('tn-sel').querySelector('.tn-x.arm');if(x)x.classList.remove('arm')};
   const close=()=>{box.hidden=true;at=-1;q.setAttribute('aria-expanded','false');q.removeAttribute('aria-activedescendant')};
   const hl=()=>box.querySelectorAll('[role=option]').forEach((o,i)=>{o.setAttribute('aria-selected',i===at);if(i===at){q.setAttribute('aria-activedescendant',o.id);o.scrollIntoView({block:'nearest'})}});
   const draw=()=>{const t=q.value.trim(),f=fold(t);at=-1;if(!f||document.activeElement!==q){close();return}
-    const m=tnNotes().filter(n=>fold(n.n).includes(f)).sort((a,b)=>fold(a.n).indexOf(f)-fold(b.n).indexOf(f)||a.n.length-b.n.length).slice(0,6);
+    const m=tnNotes().filter(n=>fold(n.n).includes(f)).sort((a,b)=>(tnKey(b.n)===tnKey(t))-(tnKey(a.n)===tnKey(t))||fold(a.n).indexOf(f)-fold(b.n).indexOf(f)||a.n.length-b.n.length).slice(0,6);
     opts=m.map(n=>({w:n.n,h:'<i class="dot" style="background:'+n.c+'"></i><span class="tn-on">'+esc(n.n)+'</span>'+(has(n.n)?'<em>Added</em>':'<small>'+esc(n.g)+'</small>')}));
-    if(!m.some(n=>fold(n.n)===f))opts.push({w:t,h:'<span class="tn-new" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 6v12M6 12h12"/></svg></span><span class="tn-on">Add “'+esc(t)+'”</span>'});
+    if(!m.some(n=>tnKey(n.n)===tnKey(t)||fold(n.n)===f))opts.push({w:t,h:'<span class="tn-new" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 6v12M6 12h12"/></svg></span><span class="tn-on">Add “'+esc(t)+'”</span>'});
     box.innerHTML=opts.map((o,i)=>'<div role="option" class="aco tn-o" id="tn-o'+i+'" data-i="'+i+'" aria-selected="false">'+o.h+'</div>').join('');box.hidden=false;q.setAttribute('aria-expanded','true');
     // The closest note on the wheel is ready for Enter; your own words are one step down.
     if(m.length){at=0;hl()}};
@@ -274,12 +285,14 @@ function tasteInput(host,init,ctx){let L=tnSplit(init),fam=null,at=-1,opts=[];
   q.addEventListener('keydown',e=>{if(e.key==='ArrowDown'||e.key==='ArrowUp'){if(box.hidden)return;e.preventDefault();at=(at+(e.key==='ArrowDown'?1:-1)+opts.length)%opts.length;hl()}
     else if(e.key==='Enter'||e.key===','){if(!q.value.trim())return;e.preventDefault();take(at>=0&&!box.hidden?opts[at].w:q.value)}
     else if(e.key==='Escape'&&!box.hidden){e.preventDefault();e.stopPropagation();close()}
-    else if(e.key==='Backspace'&&!q.value&&L.length){L.pop();drawSel()}});
+    else if(e.key==='Backspace'&&!q.value&&L.length){if(bsArm){bsArm=false;L.pop();drawSel()}else{bsArm=true;const xs=$('tn-sel').querySelectorAll('.tn-x');if(xs.length)xs[xs.length-1].classList.add('arm')}return}
+    if(e.key!=='Backspace')unarm()});
+  q.addEventListener('blur',unarm);
   // A pasted list ("cherry, cocoa, honey") becomes its notes.
   q.addEventListener('paste',e=>{const t=(e.clipboardData||{}).getData?.('text')||'';if(/[,;·\n]/.test(t)){e.preventDefault();t.split(/\s*[,;·\n]\s*/).forEach(w=>w.trim()&&!has(w)&&add(w));close()}});
   box.addEventListener('pointerdown',e=>e.preventDefault());box.addEventListener('click',e=>{const o=e.target.closest('[data-i]');if(o)take(opts[+o.dataset.i].w)});
   host.addEventListener('click',e=>{const a=e.target.closest('[data-add]'),r=e.target.closest('[data-rm]'),f=e.target.closest('[data-fam]');
-    if(a){add(a.dataset.add);return}if(r){L.splice(+r.dataset.rm,1);drawSel();return}
+    if(a){add(a.dataset.add,true);return}if(r){L.splice(+r.dataset.rm,1);drawSel();return}
     if(f){fam=fam===f.dataset.fam?null:f.dataset.fam;drawFam();if(fam)$('tn-fam').scrollIntoView({block:'nearest',behavior:'smooth'})}});
   drawSel();
   // Whatever is still in the box when you save counts too.
@@ -352,7 +365,7 @@ function tasteOf(bs,ls){const top=(items,f,w)=>{const m=new Map();for(const x of
   const t={origin:top(bs,realO,buys),region:top(bs,b=>{const o=b.origin&&b.origin!=='blend'&&oInfo(b.origin);return o&&o.reg},buys),variety:top(bs,b=>beanVars(b).map(v=>v.split(':')[0]),buys),
     process:top(bs,b=>b.process,buys),roast:top(bs,b=>b.roast,buys),roaster:top(bs,b=>b.roaster&&b.roaster.trim(),buys),
     likedOrigin:best(bs,realO),likedProcess:best(bs,b=>b.process),
-    brewer:top(ls,l=>{const b=(l.snap&&l.snap.b)||l.brewer;return b&&CANONB(b)}),regionOrigin:null,recipe:top(ls,l=>l.snap&&l.snap.rec),goal:top(ls,l=>l.snap&&l.snap.goal)};
+    brewer:top(ls,l=>{const b=(l.snap&&l.snap.b)||l.brewer;return b&&CANONB(b)}),regionOrigin:null,recipe:top(ls,l=>{if(!l.snap||!l.snap.rec)return'';const r=typeof snapRecipe==='function'?snapRecipe(l.snap):null;return r?r.name:l.snap.rec}),goal:top(ls,l=>l.snap&&l.snap.goal)};
   // Flavours: the families of the notes on the bags you liked and of what you tasted in your brews.
   const fam=new Map(),note=new Map();
   for(const b of bs){const w=like(b);for(const wd of tnSplit(b.flavours)){const n=tnLeaf(wd),leaf=n&&FW.byId[n.id];if(!leaf)continue;fam.set(leaf.cat.id,(fam.get(leaf.cat.id)||0)+w);note.set(leaf.id,(note.get(leaf.id)||0)+w)}}
@@ -618,9 +631,13 @@ const wLeft=b=>{const c=cupsLeft(b);return c==null?'':c?c+(c===1?' cup left':' c
 const wCups=b=>{const c=cupsLeft(b);return c==null?'':c?c+(c===1?' cup':' cups'):'Empty'};
 function widgetCabinet(){const last=b=>beanBrews(b).reduce((m,l)=>Math.max(m,+l.ts||0),0);
   return BEANS.filter(b=>b.shelf).map(b=>[b,last(b)]).sort((a,c)=>c[1]-a[1]||(+c[0].ts||0)-(+a[0].ts||0)).slice(0,30)
-    .map(([b])=>({id:b.id,title:beanTitle(b),roastDate:b.roastDate||'',win:freshWin(b).w.join(','),cups:wCups(b)}))}
-function widgetRecipe(){const since=Date.now()-60*864e5,n=new Map();for(const l of LOG)if(isMine(l)&&(+l.ts||0)>=since&&l.snap&&l.snap.rec)n.set(l.snap.rec,(n.get(l.snap.rec)||0)+1);
-  let i=-1;const top=[...n].sort((a,b)=>b[1]-a[1])[0];if(top)i=RECIPES.findIndex(r=>r.name===top[0]);
+    .map(([b])=>({id:b.id,title:beanTitle(b),roastDate:b.roastDate||'',win:freshWin(b).w.join(','),cups:wCups(b),flag:isBlend(b)?BLEND_O.flag:b.origin?flagOf(b.origin):''}))}
+// The cabinet's first six coffees carry a small photo (112 px). Made once per photo and kept, so a widget update
+// doesn't redo them.
+const WTHUMB=new Map();
+async function widgetThumb(b){if(!b||!b.img)return'';try{const t=await BIMG.thumb(b.id);if(!t)return'';const k=b.id+':'+t.length;if(WTHUMB.has(k))return WTHUMB.get(k);const u=await shrinkPhoto(t,112);WTHUMB.set(k,u||'');return u||''}catch(e){return''}}
+function widgetRecipe(){const since=Date.now()-60*864e5,n=new Map();for(const l of LOG)if(isMine(l)&&(+l.ts||0)>=since&&l.snap&&l.snap.rec){const r=snapRecipe(l.snap);if(r){const k=rkey(r);n.set(k,(n.get(k)||0)+1)}}
+  let i=-1;const top=[...n].sort((a,b)=>b[1]-a[1])[0];if(top)i=rByKey(top[0]);
   if(i<0&&typeof RECENT!=='undefined'&&RECENT.length)i=rByKey(RECENT[0]);if(i<0)return{};
   const r=RECIPES[i],sc=scaled(r),B=BREWERS[r.b];
   return{key:rkey(r),name:r.name,brewer:B?B.name:'',dose:gfmt(sc.dose)+' g',water:gfmt(sc.water)+' g',temp:r.temp?r.temp+'°C':'',line:[B&&B.name,gfmt(sc.dose)+' g : '+gfmt(sc.water)+' g',r.temp?r.temp+'°C':''].filter(Boolean).join(' · ')}}
@@ -629,7 +646,7 @@ function widgetWords(){const d0=Math.floor(Date.now()/864e5),out=[];for(let d=d0
 async function updWidget(){const w=plugin('Widget');if(!w)return;try{const b=widgetBean();let rc={},photo='';try{rc=widgetRecipe()}catch(e){}
   if(b&&b.img)try{const t=await BIMG.thumb(b.id);if(t)photo=await shrinkPhoto(t,192)}catch(e){}
   w.update(Object.assign(b?{id:b.id,title:beanTitle(b),sub:[b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '),flag:b.origin?flagOf(b.origin):'',photo,
-    roastDate:b.roastDate||'',win:freshWin(b).w.join(','),left:wLeft(b)}:{id:''},{cabinet:JSON.stringify(widgetCabinet()),brew:JSON.stringify(rc),words:JSON.stringify(widgetWords())})).catch(()=>{})}catch(e){}}
+    roastDate:b.roastDate||'',win:freshWin(b).w.join(','),left:wLeft(b)}:{id:''},{cabinet:JSON.stringify(await (async()=>{const l=widgetCabinet();for(const x of l.slice(0,6))x.ph=await widgetThumb(beanById(x.id));return l})()),brew:JSON.stringify(rc.key&&b?Object.assign({},rc,{bean:{id:b.id,title:beanTitle(b),flag:isBlend(b)?BLEND_O.flag:b.origin?flagOf(b.origin):'',ph:await widgetThumb(b)}}):rc),words:JSON.stringify(widgetWords())})).catch(()=>{})}catch(e){}}
 (()=>{if(!plugin('Widget'))return;setTimeout(updWidget,2500);document.addEventListener('visibilitychange',()=>{if(document.hidden)updWidget()});
   const go=o=>{const [k,id]=String(o||'').split(':');document.querySelectorAll('dialog[open]').forEach(d=>d.close());
     if(k==='bean'&&beanById(id)){showTab('beans');openBean(id);return}
@@ -638,6 +655,9 @@ async function updWidget(){const w=plugin('Widget');if(!w)return;try{const b=wid
     const rest=String(o).slice(k.length+1);
     if(k==='recipe'||k==='timer'){const i=rByKey(rest);if(i>=0){showTab('recipes');if(k==='timer')openTimer(i);else openRecipe(i);return}showTab('recipes');return}
     if(k==='recipes'){showTab('recipes');return}
+    // From the icon's long-press shortcuts: a brew (your go-to recipe's timer, else the dial-in), a scan, the log.
+    if(k==='brew'){const rc=widgetRecipe(),i=rc&&rc.key?rByKey(rc.key):-1;if(i>=0){showTab('recipes');openTimer(i)}else showTab('dial');return}
+    if(k==='scan'){showTab('scan');try{newScan()}catch(e){}scrollTo(0,0);return}
     if(k==='resume')return;
     if(k==='word'&&GBY[rest]){openWord(rest);return}
     if(k==='word'||k==='explore'){goTab('explore');return}
@@ -984,7 +1004,7 @@ function renderBeanScans(){const p=$('bv-scans');if(!p)return;
 // A saved scan opens the gallery editor with its details and photo (the full photo when kept, else its thumbnail).
 async function addScanToGallery(i){const s=SCANS[i];if(!s)return;const inf=s.info,full=await BIMG.get(s.id),photo=full||s.t||null;
   openBeanEditor(null,{name:scanTitle(s.sc,inf),roaster:scRoaster(s)||'',origin:s.sc.origin,blend:s.sc.blend||[],process:s.sc.process,variety:s.sc.variety,vars:scanVars(s.sc,inf),roast:s.sc.roast,roastDate:s.sc.date||'',bag:s.sc.bag||0,
-    flavours:inf&&Array.isArray(inf.tasting_notes)?inf.tasting_notes.slice(0,TN_MAX).reduce((t,n)=>{const x=t?t+', '+n:String(n);return x.length<=TN_LEN?x:t},''):'',photo,scan:s.id,lowres:!full&&!!s.t})}
+    flavours:inf&&Array.isArray(inf.tasting_notes)?scanNotes(inf.tasting_notes):'',photo,scan:s.id,lowres:!full&&!!s.t})}
 $('beans-in').addEventListener('input',e=>{if(e.target.id!=='bg-q')return;BQ=e.target.value;renderGrid()});
 $('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-lt-f'))openBeanFilter();else if(e.target.closest('#bg-lt-s'))openBeanSort();else if(e.target.closest('#dy-lt-f'))openDiaryFilter()});
 $('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-add')){openBeanEditor();return}if(e.target.closest('#bg-scan,#bg-scan2')){showTab('scan');newScan();scrollTo(0,0);return} /* the Scan page offers taking or choosing a photo */
@@ -1026,12 +1046,16 @@ function roasteries(){const m=new Map();for(const b of BEANS){const k=roKey(b.ro
 function roMark(name,big){let h=0;for(const ch of roKey(name))h=(h*31+ch.charCodeAt(0))%360;const ini=name.replace(/&/g,' ').split(/\s+/).filter(w=>/^[\p{L}\p{N}]/u.test(w)&&!/^(coffee|roasters?|roastery|roasting|co\.?|the|and|of)$/i.test(w)).slice(0,2).map(w=>w[0].toUpperCase()).join('')||name[0].toUpperCase();
   return '<span class="ro-mark'+(big?' big':'')+'" style="--h:'+h+'" aria-hidden="true">'+esc(ini)+'</span>'}
 const roRateHTML=v=>v?'<span class="ro-rate">'+beanSVG+'<b>'+v.toFixed(1)+'</b></span>':'<span class="ro-rate none">Not rated</span>';
-function openRoasters(){const d=$('vd'),all=roasteries();
+// A tap shows as pressed first; the sheet opens in the next frame (see fromTap).
+function openRoasters(){if(fromTap(()=>openRoastersNow()))return;openRoastersNow()}
+function openRoastersNow(){const d=$('vd'),all=roasteries();
   $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Your roasteries</span><h2 id="vd-title">'+all.length+' roaster'+(all.length===1?'y':'ies')+'</h2><p class="hint" style="margin:0">Most coffees first. Tap one to see everything you’ve had from it.</p></div>'+
     '<div class="vd-body">'+(all.length?'<div class="ro-list">'+all.map(r=>'<button type="button" class="ro-row" data-ro="'+esc(r.name)+'">'+roMark(r.name)+'<span class="ro-tx"><b>'+esc(r.name)+'</b><small>'+r.list.length+' coffee'+(r.list.length===1?'':'s')+(r.bags>r.list.length?' · '+r.bags+' bags':'')+'</small></span>'+roRateHTML(r.avg)+'<span class="ro-chev" aria-hidden="true">›</span></button>').join('')+'</div>'
       :'<p class="hint">Add the roastery to your coffees and they’ll gather here.</p>')+'</div>';
   $('vd-in').onclick=e=>{const r=e.target.closest('[data-ro]');if(r)openRoaster(r.dataset.ro,true)};$('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
-function openRoaster(name,fromList){const d=$('vd'),k=roKey(name),r=roasteries().find(x=>roKey(x.name)===k);if(!r){openRoasters();return}
+// A tap shows as pressed first; the sheet opens in the next frame (see fromTap).
+function openRoaster(name,fromList){if(fromTap(()=>openRoasterNow(name,fromList)))return;openRoasterNow(name,fromList)}
+function openRoasterNow(name,fromList){const d=$('vd'),k=roKey(name),r=roasteries().find(x=>roKey(x.name)===k);if(!r){openRoasters();return}
   RFROM={name:r.name,list:!!fromList};
   const list=[...r.list].sort((a,b)=>(b.rating||0)-(a.rating||0)||beanDay(b).localeCompare(beanDay(a))),best=list.find(b=>b.rating)||null;
   const first=r.list.map(beanFirst).filter(Boolean).sort()[0],mon=iso=>new Date(iso+'T12:00').toLocaleDateString(undefined,{month:'short',year:'numeric'});
@@ -1185,7 +1209,9 @@ document.addEventListener('click',e=>{if(e.target.closest('#d-bean [data-dbpick]
 
 /* ---------- Adding and editing ---------- */
 // pre: details to start from (a scan); its photo comes as a data URL in pre.photo.
-function openBeanEditor(b,pre){const isNew=!b;const B=Object.assign({name:'',roaster:'',origin:'',blend:[],process:'',variety:'',vars:[],roast:'',roastDate:'',tried:'',rating:0,flavours:'',notes:'',img:false,shelf:true,bag:0},b||{},pre||{});
+// A tap shows as pressed first; the sheet opens in the next frame (see fromTap).
+function openBeanEditor(b,pre){if(fromTap(()=>openBeanEditorNow(b,pre)))return;openBeanEditorNow(b,pre)}
+function openBeanEditorNow(b,pre){const isNew=!b;const B=Object.assign({name:'',roaster:'',origin:'',blend:[],process:'',variety:'',vars:[],roast:'',roastDate:'',tried:'',rating:0,flavours:'',notes:'',img:false,shelf:true,bag:0},b||{},pre||{});
   let photo=null,photoChanged=false,rating=B.rating;const d=$('vd');
   const opt=(h,none)=>'<option value="">'+none+'</option>'+h;
   const roasters=[...new Set([...BEANS.map(x=>x.roaster),...SCANS.map(scRoaster)].filter(Boolean))].sort();

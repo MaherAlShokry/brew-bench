@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The little square behind a coffee's photo or flag in the cabinet: a shade deeper than its row. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle"><solid android:color="@color/widget_pic" /><corners android:radius="10dp" /></shape>

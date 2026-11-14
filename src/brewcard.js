@@ -554,12 +554,15 @@ function brewCard(){const r=compute(S),[vt,vs]=verdict(r.D),B=BREWERS[S.brewer],
 // What Log this brew keeps, so the log's card can show the dial, the cup and the pours later.
 function brewSnap(){const r=compute(S),dp=dialPlan();
   return{g:S.grinder,c:S.setting,b:S.brewer,t:S.temp,ra:S.ratio,bl:S.bloom,ag:S.agit,dose:S.dose,water:dp?dp.water:+gfmt(S.dose*S.ratio),v:S.variety,p:S.process,ro:S.roast,
-    bean:S.bean?Object.assign({},S.bean):null,age:S.age,rec:dp?dp.r.name:'',by:dp&&bcBy(dp.r.by)||'',goal:dp?goalLabel(S.goal,S.amt):'',steps:dp?dp.steps.slice(0,14):[],
+    bean:S.bean?Object.assign({},S.bean):null,age:S.age,rec:dp?dp.r.name:'',rk:dp?rkey(dp.r):'',by:dp&&bcBy(dp.r.by)||'',goal:dp?goalLabel(S.goal,S.amt):'',steps:dp?dp.steps.slice(0,14):[],
     r:{D:+r.D.toFixed(3),sweet:+r.sweet.toFixed(2),acid:+r.acid.toFixed(2),body:+r.body.toFixed(2),clarity:+r.clarity.toFixed(2),bitter:+r.bitter.toFixed(2)}}}
+// The recipe a logged brew used, as it is now: by its key (your own recipes keep theirs when renamed; renamed
+// built-in ones have an alias), else by the name it had then. Null when it's no longer in the app.
+function snapRecipe(s){if(!s)return null;let i=s.rk?rByKey(s.rk):-1;if(i<0&&s.rec){i=RECIPES.findIndex(r=>r.name===s.rec);if(i<0)i=rByKey('r:'+slug(s.rec))}return i>=0?RECIPES[i]:null}
 // A snapshot can come from another phone in a shared log, so every field is checked before it is drawn.
 function okSnap(s){if(!s||typeof s!=='object')return null;const n=(v,a,b)=>typeof v==='number'&&isFinite(v)?clamp(v,a,b):null,r=s.r||{};
   const o={g:GRINDERS[s.g]?s.g:null,c:n(s.c,0,400),b:BREWERS[s.b]?s.b:null,t:n(s.t,0,100),ra:n(s.ra,0.5,30),bl:n(s.bl,0,600),ag:AGITW[s.ag]?s.ag:'med',dose:n(s.dose,1,200),water:n(s.water,1,3000),
-    v:typeof s.v==='string'&&VBY[s.v.split(':')[0]]?s.v:null,p:PROCESSES[s.p]?s.p:null,ro:['light','medium','dark'].includes(s.ro)?s.ro:null,bean:okSBean(s.bean),age:n(s.age,0,400),rec:str(s.rec,80),by:str(s.by,80),goal:str(s.goal,40),
+    v:typeof s.v==='string'&&VBY[s.v.split(':')[0]]?s.v:null,p:PROCESSES[s.p]?s.p:null,ro:['light','medium','dark'].includes(s.ro)?s.ro:null,bean:okSBean(s.bean),age:n(s.age,0,400),rec:str(s.rec,80),rk:typeof s.rk==='string'&&/^[cr]:[\w-]{1,64}$/.test(s.rk)?s.rk:'',by:str(s.by,80),goal:str(s.goal,40),
     steps:(Array.isArray(s.steps)?s.steps:[]).filter(t=>typeof t==='string').map(t=>t.slice(0,160)).slice(0,14),
     r:['D','sweet','acid','body','clarity','bitter'].every(k=>typeof r[k]==='number'&&isFinite(r[k]))?{D:clamp(r.D,-5,5),sweet:clamp(r.sweet,0,10),acid:clamp(r.acid,0,10),body:clamp(r.body,0,10),clarity:clamp(r.clarity,0,10),bitter:clamp(r.bitter,0,10)}:null};
   return o.b?o:null}
@@ -576,7 +579,7 @@ function logModel(l){const s=okSnap(l.snap),fl=flOf(l).filter(([id])=>FW.byId[id
     if(s.g&&s.c!=null)m.grind={g:s.g,c:s.c,line:(B?B.bloom.label:'Bloom')+' '+(s.bl||0)+' s  ·  '+AGITW[s.ag]+' pours'};
     if(s.r){const [vt,vs]=verdict(s.r.D);m.cup={r:s.r,vt,vs}}
     // Brews logged before the steps followed the brewing temperature: the recipe's own temperature is put right here.
-    const rr=s.rec&&RECIPES.find(x=>x.name===s.rec);let st=s.steps;
+    const rr=snapRecipe(s);let st=s.steps;
     // Brews logged before a recipe's steps were corrected (Matt Winton's two pours in one step): the card is drawn from
     // the recipe as it is now, at the brew's own dose, water and bloom.
     if(rr&&rr.kind!=='46'&&s.dose&&s.water&&st.length&&st.length!==rr.steps.length){const sc=scaleSteps(rr,s.dose,s.water);st=s.bl&&BREWERS[rr.b]&&BREWERS[rr.b].bloom.label==='Bloom'?bloomShift(sc,s.bl).steps:sc}
@@ -861,7 +864,12 @@ function cardViewer(blob,file,title){const d=$('vd'),u=URL.createObjectURL(blob)
   const sb=$('cv-share');if(sb)sb.onclick=async()=>{const f=new File([blob],file,{type:'image/jpeg'});try{if(navigator.canShare({files:[f]}))await navigator.share({files:[f],title});else toast('This browser can’t share images. Press and hold the image to save it')}catch(e){if(!e||e.name!=='AbortError')toast('Sharing was blocked. Press and hold the image to save it')}};
   d.addEventListener('close',()=>setTimeout(()=>URL.revokeObjectURL(u),60000),{once:true});showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
 // The brew log's cards read snapshots with okSnap above; the log drew before this file ran, so it draws again now.
-window.CARD_OK=true;try{renderLogList()}catch(e){}
+window.CARD_OK=true;
+// Once: brews logged before entries kept their recipe's key get it now, from the name they have, so renaming the
+// recipe later keeps them linked. Only your own brews (a shared log's others are theirs to update).
+try{if(!localStorage.getItem('bb-lrk')){let n=0;for(const l of LOG)if(l&&l.snap&&l.snap.rec&&!l.snap.rk&&isMine(l)){const i=RECIPES.findIndex(r=>r.name===l.snap.rec);if(i>=0){l.snap.rk=rkey(RECIPES[i]);n++}}
+  if(n)save('bb-log',LOG);localStorage.setItem('bb-lrk','1')}}catch(e){}
+try{renderLogList()}catch(e){}
 
 /* ---------- A share without a card of its own: its text, set in the cards' style ---------- */
 // The same header, panes, labels and footer as every other card, so a PDF of a list or a guide looks like the rest.

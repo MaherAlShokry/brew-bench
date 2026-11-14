@@ -710,8 +710,8 @@ input[type=range]{touch-action:pan-y}
 
 
 html.app{--nav-bg:color-mix(in srgb,var(--surface) 97%,transparent);--glass:color-mix(in srgb,var(--surface) 96%,transparent)}
-html.app .appbar,html.app .bottomnav,html.app .minires,html.app nav.tabs,html.app nav.tabs .wrap,html.app #toast,html.app .themebtn,html.app .bglass,html.app dialog::backdrop{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
-html.app .appbar{background:color-mix(in srgb,var(--paper) 97%,transparent)}html.app #toast{background:color-mix(in srgb,var(--ink) 96%,transparent)}html.app .bglass{background:rgba(30,18,11,.78)}
+html.app .appbar,html.app .bottomnav,html.app .minires,html.app nav.tabs,html.app nav.tabs .wrap,html.app #toast,html.app .themebtn,html.app .bglass,html.app dialog::backdrop,html.app .gtabs,html.app .seg.bviews,html.app .cupcard .cc,html.app .colshelf .cn{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+html.app .appbar{background:color-mix(in srgb,var(--paper) 97%,transparent)}html.app .gtabs{background:color-mix(in srgb,var(--surface2) 97%,var(--paper))!important}html.app #toast{background:color-mix(in srgb,var(--ink) 96%,transparent)}html.app .bglass{background:rgba(30,18,11,.78)}
 html.app .bg-hero::after,html.app .me-hero::after,html.app .pp-st img{mix-blend-mode:normal}
 
 .hero-art .stream{animation-iteration-count:2}.hero-art .steam{animation-iteration-count:1}.me-steam path{animation-iteration-count:2}.deco-rest .hero-art .stream,.deco-rest .hero-art .steam,.deco-rest .me-steam path{animation:none}html.app .bg-hero::after,html.app .me-hero::after{opacity:.06}
@@ -2003,6 +2003,14 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .passport{position:relative;padding:18px 14px 16px;border-radius:24px;color:#2A1A10;margin-bottom:8px;
   background:repeating-linear-gradient(0deg,transparent 0 27px,rgba(90,60,30,.06) 27px 28px),radial-gradient(120% 90% at 50% 0%,#FBF3E4,#EFE1C8);box-shadow:inset 0 0 0 1.5px rgba(120,80,40,.18),var(--shadow)}
 .pp-h{position:relative}
+
+#recipes .rrow{content-visibility:auto;contain-intrinsic-size:auto 160px}
+#beans .clist>.crow{content-visibility:auto;contain-intrinsic-size:auto 100px}
+#variety .grid>.card,#process .grid>.card{content-visibility:auto;contain-intrinsic-size:auto 200px}
+#words .wcard{content-visibility:auto;contain-intrinsic-size:auto 190px}
+#champs .timeline>li{content-visibility:auto;contain-intrinsic-size:auto 600px}
+#settings .setgroup:nth-of-type(n+3){content-visibility:auto;contain-intrinsic-size:auto 300px}
+.tn-x.arm{outline:2px solid var(--cherry);outline-offset:1px}.tn-x.flash{animation:tnflash .7s ease}@keyframes tnflash{0%,100%{transform:none}30%{transform:scale(1.08);box-shadow:0 0 0 3px color-mix(in srgb,var(--cherry) 30%,transparent)}}
 .tm-why{font-size:.82rem;color:var(--muted);margin:4px 0 8px}
 .dnext{margin:8px 0 0;padding:8px 12px;border-radius:12px;background:color-mix(in srgb,#4F8A74 10%,var(--surface));font-size:.85rem}.dnext b{color:#3F7A62;margin-right:6px}
 :root[data-theme="dark"] .dnext b{color:#7FC4A3}
@@ -2589,7 +2597,7 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="f39049596ef0"</script>
+<script>const BUILD_ID="fa7f061a662f"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -4289,7 +4297,7 @@ const CHAMPS=[
  {c:'wbc',y:2000,city:'Monte Carlo, Monaco',who:'Robert Thoresen',dev:'Espresso machine',from:'Norway',note:'The first World Barista Champion.',coffee:'',rec:{b:'espresso',grind:{label:'Not published'},gear:[],why:'The details of this routine were not published.',steps:null,start:'Classic espresso 1:2'}}
 ];
 // Years with no world final.
-const CH_GAPS=[[2020,'wbrc','No World Brewers Cup: cancelled during the pandemic.'],[2020,'wbc','No World Barista Championship: cancelled during the pandemic.']];
+const CH_GAPS=[[2020,'wbrc','No World Brewers Cup: cancelled during the pandemic.'],[2020,'wbc','No World Barista Championship: cancelled during the pandemic.'],[2020,'wac','No World AeroPress Championship final: cancelled during the pandemic (it came back online in March 2021).']];
 // Upcoming finals live in events.json at the site root, so they can be updated without a new app release.
 
 /* ================= COFFEE WORDS (glossary) and FROM SEED TO CUP (flow) ================= */
@@ -4736,13 +4744,13 @@ const ROASTERS=[
  // UK and Ireland
  'Square Mile Coffee Roasters|square mile coffee|square mile','Origin Coffee|origin coffee roasters','Workshop Coffee','Caravan Coffee Roasters|caravan coffee','Ozone Coffee','Dark Arts Coffee','Climpson & Sons|climpson and sons','Union Hand-Roasted|union coffee','Extract Coffee Roasters|extract coffee','Dark Woods Coffee','Clifton Coffee','Has Bean|hasbean','Colonna Coffee|colonna','Rave Coffee','Assembly Coffee','Round Hill Roastery|round hill','Crankhouse Coffee','Girls Who Grind','Dear Green Coffee','Curve Coffee','Plot Roasting','Sweven Coffee','Manumit Coffee','Obadiah Coffee','Cast Iron Coffee','3FE|third floor espresso','Roasted Brown','Full Circle Roasters','Steampunk Coffee','Pact Coffee','Grind Coffee',
  // Europe
- 'The Barn|the barn coffee roasters|barn coffee','Bonanza Coffee|bonanza coffee roasters','Five Elephant','JB Kaffee','Father Carpenter','Elbgold','19grams','Machhörndl|machhorndl','Fjord Coffee','Friedhats','White Label Coffee','Man Met Bril','Manhattan Coffee Roasters|manhattan coffee','DAK Coffee Roasters|dak coffee','Rum Baba','Nomad Coffee','Right Side Coffee','Hola Coffee','Syra Coffee','Puchero Coffee','Satan\'s Coffee Corner','Three Marks Coffee','Gardelli Specialty Coffees|gardelli','Ditta Artigianale','His Majesty the Barista','Orsonero','Lot Sixty One|lot61','Bocca Coffee','Coffee Circle','Belleville Brûlerie|belleville brulerie','Café Lomi|cafe lomi','Terres de Café|terres de cafe','KB Coffee Roasters','Hexagone Café|hexagone cafe','Kawa Coffee','Tanat Coffee','Nuance Café|nuance cafe','Coutume Café|coutume','Mok Coffee','OR Coffee','Hayb Coffee|hayb','Coffeelab|coffee lab poland','Audun Coffee','Doubleshot','Candycane Coffee','Fragments Coffee','Vienna Coffee Company','Kaffeefabrik','Balthasar Kaffee','Gota Coffee','Collective Coffee','Kaffeine','Röstbar|rostbar',
+ 'The Barn|the barn coffee roasters|barn coffee','Bonanza Coffee|bonanza coffee roasters','Five Elephant|fiveelephant','JB Kaffee','Father Carpenter','Elbgold','19grams','Machhörndl|machhorndl','Fjord Coffee','Friedhats','White Label Coffee','Man Met Bril','Manhattan Coffee Roasters|manhattan coffee','DAK Coffee Roasters|dak coffee','Rum Baba','Nomad Coffee','Right Side Coffee','Hola Coffee','Syra Coffee','Puchero Coffee','Satan\'s Coffee Corner','Three Marks Coffee','Gardelli Specialty Coffees|gardelli','Ditta Artigianale','His Majesty the Barista','Orsonero','Lot Sixty One|lot61','Bocca Coffee','Coffee Circle','Belleville Brûlerie|belleville brulerie','Café Lomi|cafe lomi','Terres de Café|terres de cafe','KB Coffee Roasters','Hexagone Café|hexagone cafe','Kawa Coffee','Tanat Coffee','Nuance Café|nuance cafe','Coutume Café|coutume','Mok Coffee','OR Coffee','Hayb Coffee|hayb','Coffeelab|coffee lab poland','Audun Coffee','Doubleshot','Candycane Coffee','Fragments Coffee','Vienna Coffee Company','Kaffeefabrik','Balthasar Kaffee','Gota Coffee','Collective Coffee','Kaffeine','Röstbar|rostbar',
  // North America
  'Onyx Coffee Lab|onyx coffee','Sey Coffee|sey','Counter Culture Coffee|counter culture','Intelligentsia','Stumptown Coffee Roasters|stumptown','Blue Bottle Coffee|blue bottle','George Howell Coffee|george howell','Heart Coffee Roasters|heart coffee','Coava Coffee|coava','Sightglass Coffee|sightglass','Ritual Coffee Roasters|ritual coffee','Verve Coffee Roasters|verve coffee','Passenger Coffee','Black & White Coffee Roasters|black & white coffee|black and white coffee','Methodical Coffee','Madcap Coffee|madcap','Olympia Coffee','Little Wolf Coffee','Prodigal Coffee','Perc Coffee','Greater Goods Coffee','Equator Coffees','Partners Coffee','Devoción|devocion','Variety Coffee Roasters','Corvus Coffee','Wonderstate Coffee','Brandywine Coffee Roasters|brandywine coffee','Dogwood Coffee','Huckleberry Roasters','Ruby Coffee Roasters|ruby coffee','Tandem Coffee','Proud Mary Coffee|proud mary','Kuma Coffee','Vibrant Coffee','Archetype Coffee','Hydrangea Coffee','Moonwake Coffee','Picky Chemist','Flower Child Coffee','Rose Coffee','Luminous Coffee','Botz Coffee','DAK','Pilot Coffee Roasters|pilot coffee','Phil & Sebastian|phil and sebastian','49th Parallel','Rogue Wave Coffee','Subtext Coffee','De Mello Palheta|de mello','Detour Coffee','September Coffee','Monogram Coffee','Elm Coffee Roasters|elm coffee','Bird Rock Coffee','Klatch Coffee','Temple Coffee','Philz Coffee','Peet\'s Coffee|peets coffee','La Colombe','Joe Coffee','Café Grumpy|cafe grumpy','Parlor Coffee','Gimme! Coffee|gimme coffee','Ceremony Coffee','Vigilante Coffee','Panther Coffee','Messenger Coffee','Sweet Bloom Coffee|sweet bloom','Cat & Cloud|cat and cloud','Mostra Coffee','Dayglow','Apollon\'s Gold|apollons gold','Hatch Coffee','Revolver Coffee','Nemesis Coffee','Pirates of Coffee','Café Imports|cafe imports',
  // Asia and Oceania
  'Glitch Coffee|glitch coffee & roasters','Onibus Coffee','Leaves Coffee','Kurasu','Unlimited Coffee Roasters|unlimited coffee','Light Up Coffee','Maruyama Coffee','Switch Coffee Tokyo','Lilo Coffee Roasters|lilo coffee','Weekenders Coffee','Single O','Fritz Coffee Company|fritz coffee','Coffee Libre','Momos Coffee','Anthracite Coffee','Center Coffee','Namusairo','Seesaw Coffee','Simple Kaffa','% Arabica|arabica kyoto','Common Man Coffee Roasters|common man coffee','Nylon Coffee Roasters|nylon coffee','PPP Coffee','Tiong Hoe','Market Lane Coffee|market lane','Ona Coffee','Seven Seeds','Small Batch Roasting|small batch coffee','Axil Coffee Roasters|axil coffee','Code Black Coffee','Toby\'s Estate|tobys estate','Allpress Espresso|allpress','Coffee Supreme','Flight Coffee','Patricia Coffee Brewers','St Ali|st. ali','Industry Beans','Proud Mary','Rumble Coffee','Sample Coffee','Mecca Coffee','Artificer Coffee','Wide Open Road','Gridlock Coffee','Kokako','Ozone Coffee Roasters NZ','Eight Ounce Coffee','Nomadic Coffee','Blue Tokai','Subko','Third Wave Coffee',
  // Middle East and Africa
- 'Spirit Hub|spirithub|spirit hub roastery','Brew92|brew 92','Camel Step','Archers Coffee|archers','Elixir Bunn','Half Million','Barn\'s|barns cafe','Medd Café|medd cafe','Raw Coffee Company|raw coffee','Seven Fortunes Coffee Roasters|seven fortunes','Boon Coffee','Nightjar Coffee','Specialty Batch','Kava Coffee Roasters','Il Caffè di Roma','Coffee Architecture','Cupagahwa','Rumble Coffee Kuwait','Kayan Coffee','Fiveelephant','Golden Ratio Coffee','Bloom Coffee Roasters','Origin Roasters','Sumo Coffee','Coffee Island','Taf Coffee','Mi Kafe','Truth Coffee','Rosetta Roastery','Origin Coffee Roasting','Deluxe Coffeeworks','Bean There Coffee','Tomoca'
+ 'Spirit Hub|spirithub|spirit hub roastery','Brew92|brew 92','Camel Step','Archers Coffee|archers','Elixir Bunn','Half Million','Barn\'s|barns cafe','Medd Café|medd cafe','Raw Coffee Company|raw coffee','Seven Fortunes Coffee Roasters|seven fortunes','Boon Coffee','Nightjar Coffee','Specialty Batch','Kava Coffee Roasters','Il Caffè di Roma','Coffee Architecture','Cupagahwa','Rumble Coffee Kuwait','Kayan Coffee','Golden Ratio Coffee','Bloom Coffee Roasters','Origin Roasters','Sumo Coffee','Coffee Island','Taf Coffee','Mi Kafe','Truth Coffee','Rosetta Roastery','Origin Coffee Roasting','Deluxe Coffeeworks','Bean There Coffee','Tomoca'
 ];
 
 const EVENTS_DEFAULT={
@@ -5773,7 +5781,9 @@ function ltSync(id,o){const f=$(id+'-f'),s=$(id+'-s'),k=$(id+'-k');
 // how many will show; closing with ✕ leaves the list as it was. "Clear" empties the filters in one tap.
 // o: {title, secs:()=>[{h,key,multi,chips,opts:[[v,name,hint]]}], get:k=>value (an array for multi), set:(k,v)=>void
 // (state only, no drawing), render:()=>void, count:()=>n, one:'recipe', many}
-function openChoices(o){const d=$('selsheet'),secs=o.secs().filter(x=>x&&x.opts.length),dr={};
+// A tap shows as pressed first; the sheet opens in the next frame (see fromTap).
+function openChoices(o){if(fromTap(()=>openChoicesNow(o)))return;openChoicesNow(o)}
+function openChoicesNow(o){const d=$('selsheet'),secs=o.secs().filter(x=>x&&x.opts.length),dr={};
   for(const x of secs){const v=o.get(x.key);dr[x.key]=x.multi?[...(v||[])]:v}
   const cnt=()=>{const old={};for(const k in dr){const v=o.get(k);old[k]=Array.isArray(v)?[...v]:v;o.set(k,dr[k])}const n=o.count();for(const k in old)o.set(k,old[k]);return n};
   const isOn=(x,v)=>x.multi?(v==='all'?!dr[x.key].length:dr[x.key].includes(v)):String(dr[x.key])===v;
@@ -6390,11 +6400,12 @@ addEventListener('scroll',()=>{USER_AT=performance.now()},{capture:true,passive:
 // The first coffee or recipe sheet of a visit took about twice as long to open as later ones: the browser laying its
 // parts out for the first time. Right after the Beans page is built, one of each is drawn off screen in a quiet moment
 // (never shown, nothing saved) and cleared, so the first real one opens like the rest.
-let SHEETS_WARM=false;
-function warmSheets(){if(SHEETS_WARM)return;SHEETS_WARM=true;const d=$('vd');if(!d||d.open)return;const keep=showDlg;
+let SHEETS_WARM=0;
+// One sheet per idle moment (a coffee's page, then a recipe's): both at once was one long stretch a tap could land in.
+function warmSheets(){if(SHEETS_WARM>=2)return;const step=SHEETS_WARM++;const d=$('vd');if(!d||d.open)return;const keep=showDlg;
   try{showDlg=()=>{};d.classList.add('warm');
-    if(window.BEANS_OK&&BEANS.length){openBean(BEANS[0].id);d.offsetHeight}
-    if(RECIPES.length){openRecipe(0);d.offsetHeight}}catch(e){}
+    if(step===0&&window.BEANS_OK&&BEANS.length){openBean(BEANS[0].id);d.offsetHeight}
+    if(step===1&&RECIPES.length){openRecipe(0);d.offsetHeight}}catch(e){}
   finally{showDlg=keep;d.classList.remove('warm');if(!d.open){$('vd-in').innerHTML='';delete d.dataset.bean}}}
 function prebuildTabs(){const ids=['recipes','gear','variety','process','map','words','history','flow','wheel','champs','tech'].filter(k=>LAZY[k]);
   // A step only starts in a real idle moment (not one the timeout forced), and not within 1.5 s of a touch, a key or a
@@ -6406,9 +6417,9 @@ function prebuildTabs(){const ids=['recipes','gear','variety','process','map','w
   let beans=false;
   const next=()=>{if(document.hidden){setTimeout(()=>idle(next),2000);return}if(performance.now()-Math.max(NAV_AT,USER_AT)<1500){setTimeout(()=>idle(next),900);return}
     if(!beans&&window.BEANS_OK){beans=true;try{renderBeansIfChanged();warmBeanPhotos()}catch(e){}idle(next);return}
-    if(!SHEETS_WARM&&window.BEANS_OK){warmSheets();idle(next);return}
+    if(SHEETS_WARM<2&&window.BEANS_OK){warmSheets();idle(next);return}
     if(LOGL_STALE&&BUILT.recipes){try{renderLogList(1)}catch(e){}idle(next);return}
-    const id=ids.find(k=>!BUILT[k]);if(!id){warmSheets();return}BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
+    const id=ids.find(k=>!BUILT[k]);if(!id){if(!$('st-mode')&&!$('settings').classList.contains('on')){try{renderSettings()}catch(e){}idle(next);return}if(SHEETS_WARM<2){warmSheets();idle(next)}return}BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
   setTimeout(()=>idle(next),2500)}
 function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove());if(LAZY[id]&&!BUILT[id]){BUILT[id]=1;LAZY[id]()}if(ALWAYS[id])ALWAYS[id]()}
 // NAVD counts tab changes you can step back through, so the app bar can offer a back button.
@@ -6723,7 +6734,9 @@ function compareSummary(a,b){const A=recipeFacts(a),B=recipeFacts(b),out=[],n=(v
   if(B.pours!==A.pours&&A.pours&&B.pours)out.push(Math.abs(B.pours-A.pours)+' '+(B.pours>A.pours?'more':'fewer')+' pour'+(Math.abs(B.pours-A.pours)===1?'':'s'));
   if(A.time&&B.time&&Math.abs(B.time-A.time)>=15)out.push('finishes '+rcTime(Math.abs(B.time-A.time))+' '+(B.time>A.time?'later':'sooner'));
   return out}
-function openComparePick(i){const d=$('vd'),r=RECIPES[i];let q='';
+// A tap shows as pressed first; the sheet opens in the next frame (see fromTap).
+function openComparePick(i){if(fromTap(()=>openComparePickNow(i)))return;openComparePickNow(i)}
+function openComparePickNow(i){const d=$('vd'),r=RECIPES[i];let q='';
   const list=()=>RECIPES.map((x,k)=>[x,k]).filter(([x,k])=>k!==i&&(!q||(x.name+' '+(x.by||'')+' '+((BREWERS[x.b]||{}).name||'')).toLowerCase().includes(q))).sort((a,b)=>(b[0].b===r.b)-(a[0].b===r.b));
   const rows=()=>{const l=list(),same=l.filter(([x])=>x.b===r.b),rest=l.filter(([x])=>x.b!==r.b),row=([x,k])=>'<button type="button" class="rcp-row" data-rcp="'+k+'"><b>'+esc(x.name)+'</b><small>'+esc([(BREWERS[x.b]||{}).name,x.dose+' g : '+x.water+' g',x.temp?x.temp+'°C':''].filter(Boolean).join(' · '))+'</small></button>';
     return(same.length?'<h3 class="rcp-h">Same brewer</h3>'+same.map(row).join(''):'')+(rest.length?'<h3 class="rcp-h">Other brewers</h3>'+rest.map(row).join(''):'')+(!l.length?'<p class="hint">No recipe matches.</p>':'')};
@@ -6732,7 +6745,9 @@ function openComparePick(i){const d=$('vd'),r=RECIPES[i];let q='';
   $('rcp-q').oninput=e=>{q=e.target.value.trim().toLowerCase();$('rcp-list').innerHTML=rows()};
   $('rcp-list').onclick=e=>{const b=e.target.closest('[data-rcp]');if(b)openCompare(i,+b.dataset.rcp)};
   $('rcp-back').onclick=()=>openRecipe(i);$('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
-function openCompare(i,j){const d=$('vd'),a=RECIPES[i],b=RECIPES[j],A=recipeFacts(a),B=recipeFacts(b),sum=compareSummary(a,b);
+// A tap shows as pressed first; the sheet opens in the next frame (see fromTap).
+function openCompare(i,j){if(fromTap(()=>openCompareNow(i,j)))return;openCompareNow(i,j)}
+function openCompareNow(i,j){const d=$('vd'),a=RECIPES[i],b=RECIPES[j],A=recipeFacts(a),B=recipeFacts(b),sum=compareSummary(a,b);
   const rows=[['Brewer',A.brewer,B.brewer],['Coffee',A.dose+' g',B.dose+' g'],['Water',A.water+' g',B.water+' g'],['Ratio','1:'+A.ratio.toFixed(1),'1:'+B.ratio.toFixed(1)],
     ['Water temp',A.temp?A.temp+'°C'+(A.temp2?' → '+A.temp2+'°C':''):'–',B.temp?B.temp+'°C'+(B.temp2?' → '+B.temp2+'°C':''):'–'],
     ...(A.grind||B.grind?[['Grind'+(A.gname?' · '+A.gname:''),A.grind||'–',B.grind||'–']]:[]),['Pours',A.pours?String(A.pours):'–',B.pours?String(B.pours):'–'],['Total time',rcTime(A.time),rcTime(B.time)]];
@@ -6942,7 +6957,9 @@ function gearTab(t){if(!document.querySelector('[data-gpanel="'+t+'"]'))t='set';
   document.querySelectorAll('#gear [data-gpanel]').forEach(p=>{p.hidden=p.dataset.gpanel!==t})}
 // Open Gear and dials on a tab (and optionally scroll to something on it).
 function goGear(t,el){if(!BUILT.gear){BUILT.gear=1;buildGear()}gearTab(t);showTab('gear');if(el)requestAnimationFrame(()=>{const x=$(el);if(x)x.scrollIntoView({behavior:RM()?'auto':'smooth',block:'start'})})}
-document.addEventListener('click',e=>{const b=e.target.closest('#gear-tabs [data-gtab]');if(b){gearTab(b.dataset.gtab);const t=$('gear-tabs');if(t.getBoundingClientRect().top<0||scrollY>t.offsetTop)t.scrollIntoView({block:'start'});return}
+document.addEventListener('click',e=>{const b=e.target.closest('#gear-tabs [data-gtab]');if(b){
+    // The tab shows as picked at once; the page under it is drawn in the next frame.
+    pickNow('#gear-tabs [data-gtab]',b);const go=()=>{gearTab(b.dataset.gtab);const t=$('gear-tabs');if(t.getBoundingClientRect().top<0||scrollY>t.offsetTop)t.scrollIntoView({block:'start'})};if(!fromTap(go))go();return}
   const g=e.target.closest('[data-gearto]');if(g)goGear(g.dataset.gearto)});
 function buildGear(){
   gearTab(GTAB);renderGrindSet();
@@ -7036,7 +7053,9 @@ const SWAP_ICON='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" str
 // The brewers you own. Empty means you haven't said yet, and recipes are shown as the champion brewed them.
 let MYB=(()=>{try{const v=JSON.parse(localStorage.getItem('bb-mybrewers'));return Array.isArray(v)?[...new Set(v.filter(b=>typeof b==='string'&&BREWERS[b]).map(b=>CANONB(BREWERS[b].of||b)))]:[]}catch(e){return[]}})();
 function setMyBrewer(b,on){MYB=on?[...new Set([...MYB,b])]:MYB.filter(x=>x!==b);save('bb-mybrewers',MYB)}
-function openGearPicker(tab,after){let q='',T=tab==='brewers'?'brewers':'grinders';const d=$('vd');
+// A tap shows as pressed first; the sheet opens in the next frame (see fromTap).
+function openGearPicker(tab,after){if(fromTap(()=>openGearPickerNow(tab,after)))return;openGearPickerNow(tab,after)}
+function openGearPickerNow(tab,after){let q='',T=tab==='brewers'?'brewers':'grinders';const d=$('vd');
   const row=(k,on,title,sub,ic)=>'<button type="button" data-gp="'+k+'" aria-pressed="'+on+'">'+(ic||'')+'<span><b>'+esc(title)+'</b><small>'+esc(sub)+'</small></span><i class="tick" aria-hidden="true">'+(on?'✓':'')+'</i></button>';
   const grow=g=>{const G=GRINDERS[g];return row(g,MYG.includes(g),G.full,(G.brand||gtype(g))+(G.espresso?' · espresso capable':''),gicon(gkind(g)))};
   const brow=b=>row(b,MYB.includes(b),BREWERS[b].name,BREWERS[b].type);
@@ -7071,7 +7090,7 @@ function renderMyBrewers(){const el=$('gear-kit');if(!el)return;
     row(KIT_IC.g,'Grinders','Settings everywhere are shown for these','Add or change','data-gpick',MYG.map(g=>'<button type="button" class="chip" data-kitg="'+g+'">'+esc(gname(g))+'</button>').join(''))+
     row(KIT_IC.b,'Brewers','Recipes and champion brews adapt to these',MYB.length?'Add or change':'Choose','data-gpick-b',MYB.length?MYB.map(b=>'<button type="button" class="chip" data-kitb="'+b+'">'+esc(BREWERS[b].name)+'</button>').join(''):'<p class="hint">None picked yet. Choose the brewers you own so recipes fit your kit.</p>');
   el.onclick=e=>{const g=e.target.closest('[data-kitg]'),b=e.target.closest('[data-kitb]');
-    if(g){GDIAL=g.dataset.kitg;renderMyGrinders();gearTab('dials');$('g-dials').scrollIntoView({behavior:RM()?'auto':'smooth',block:'start'})}
+    if(g){const go=()=>{GDIAL=g.dataset.kitg;renderMyGrinders();gearTab('dials');$('g-dials').scrollIntoView({behavior:RM()?'auto':'smooth',block:'start'})};if(!fromTap(go))go()}
     if(b){GF=[];renderGearBrewers();const c=$('gb-'+b.dataset.kitb);if(c){c.style.scrollMarginTop='16px';c.scrollIntoView({block:'start'});
       // Cards further down are laid out only when near the screen, so settle once they are, then land exactly.
       requestAnimationFrame(()=>requestAnimationFrame(()=>c.scrollIntoView({block:'start'})));c.classList.add('flash');setTimeout(()=>c.classList.remove('flash'),1400)}}}}
@@ -7543,7 +7562,7 @@ const lHue=n=>{let h=0;for(const c of String(n))h=(h*31+c.charCodeAt(0))%360;ret
 const lWho=l=>l.by&&l.by!==ME?l.by:'me';
 // What the card shows as pills: from the dial-in's snapshot when there is one, otherwise read back from the settings line.
 function logPills(l){const s=window.CARD_OK?okSnap(l.snap):null,out=[];
-  if(s){if(s.rec)out.push(['rec',s.rec]);if(s.b)out.push(['brew',BREWERS[s.b].name]);if(s.dose!=null&&s.water!=null)out.push(['dose',gfmt(s.dose)+' g : '+gfmt(s.water)+' g']);if(s.t!=null)out.push(['temp',s.t+'°C']);if(s.g&&s.c!=null)out.push(['grind',gname(s.g)+' '+dial(s.g,s.c)]);if(s.ra)out.push(['ratio','1:'+rr1(s.ra)]);return{pills:out,rest:''}}
+  if(s){if(s.rec){const rr=snapRecipe(s);out.push(['rec',rr?rr.name:s.rec+' (no longer in the app)'])}if(s.b)out.push(['brew',BREWERS[s.b].name]);if(s.dose!=null&&s.water!=null)out.push(['dose',gfmt(s.dose)+' g : '+gfmt(s.water)+' g']);if(s.t!=null)out.push(['temp',s.t+'°C']);if(s.g&&s.c!=null)out.push(['grind',gname(s.g)+' '+dial(s.g,s.c)]);if(s.ra)out.push(['ratio','1:'+rr1(s.ra)]);return{pills:out,rest:''}}
   const q=parseSettings(l.settings||''),B=BREWERS[l.brewer]||q.brewer;
   if(q.rec)out.push(['rec',q.rec.name]);if(B)out.push(['brew',B.name]);if(q.dose&&q.water)out.push(['dose',gfmt(q.dose)+' g : '+gfmt(q.water)+' g']);if(q.temp)out.push(['temp',q.temp+'°C']);if(q.grind)out.push(['grind',q.grind.replace(' · ',' ')]);if(q.ratio)out.push(['ratio','1:'+rr1(q.ratio)]);
   return{pills:out,rest:out.length?q.rest:(l.settings||'')}}
@@ -8348,7 +8367,7 @@ function renderScan(){
     // A scan reopened from the list has no file, so its kept photo (or thumbnail) is used.
     if(!photo&&SC.id){photo=await BIMG.get(SC.id);if(!photo){const x=SCANS.find(q=>q.id===SC.id);photo=x&&x.t||null}}
     openBeanEditor(null,{name:SC.name||(inf&&plausibleName(inf.coffee_name)?niceName(inf.coffee_name):''),roaster:SC.roaster,origin:SC.origin,blend:SC.blend||[],process:SC.process,variety:SC.variety,vars:scanVars(SC,inf),roast:SC.roast,roastDate:SC.date||'',bag:SC.bag||0,
-      flavours:inf&&Array.isArray(inf.tasting_notes)?inf.tasting_notes.join(', ').slice(0,160):'',photo,scan:SC.id||''})};
+      flavours:inf&&Array.isArray(inf.tasting_notes)?scanNotes(inf.tasting_notes):'',photo,scan:SC.id||''})};
   $('sc-dial').onclick=()=>{S.bean=okSBean({name:SC.name||scanTitle(SC,SC.info),roaster:SC.roaster,origin:SC.origin,scan:SC.id||''});Object.assign(S,{brewer:p.st.brewer,rec:c.tech,process:c.process,variety:c.variety,roast:c.roast,age:c.age,goal:c.goal,amt:c.amt||'mid',dose:p.r.dose,grinder:p.grinder});showTab('dial');tune('Tuned for this coffee')};
   $('sc-share').onclick=()=>openShare(scanDoc(p,c));$('sc-new').onclick=()=>{newScan();scrollTo({top:0,behavior:RM()?'auto':'smooth'})};
   const cp=Object.assign({},SC);save('bb-scan',cp);renderScanList();
@@ -9463,6 +9482,8 @@ function setLeft(b,g){b.left=gramsOrNull(g);b.leftAt=Date.now()}
 // Notes are kept as words ("Jasmine, Peach"), so a scan, a backup or an older save reads the same. A word on the
 // flavour wheel takes its family's colour; anything else (a roaster's "Turkish delight") is kept as you wrote it.
 const TN_MAX=12,TN_LEN=300;
+// A label's notes as the coffee's notes: whole notes only (never one cut short), up to the most a coffee keeps.
+function scanNotes(l){const out=[];for(const n of (Array.isArray(l)?l:[]).map(x=>String(x).trim()).filter(Boolean)){if(out.length>=TN_MAX)break;if([...out,n].join(', ').length>TN_LEN)continue;if(!out.some(x=>x.toLowerCase()===n.toLowerCase()))out.push(n)}return out.join(', ')}
 const tnFams=()=>FW.roots.filter(r=>r.n!=='Other');
 // Words bags use that the wheel doesn't have, each with the wheel note whose colour and family it takes.
 const TN_X={Caramel:'Caramelized','Brown sugar':'Molasses','Cane sugar':'Panela',Sugarcane:'Panela',Cocoa:'Cocoa nib',Cacao:'Cocoa nib',Butterscotch:'Toffee',Fudge:'Brownie',
@@ -9480,8 +9501,11 @@ let TN_ALL=null;
 const tnNotes=()=>TN_ALL||(TN_ALL=(()=>{const base=FW.leaves.filter(n=>n.cat.n!=='Other'),by=Object.fromEntries(base.map(n=>[n.n,n]));
   return[...base.map(n=>({n:n.n,c:n.c,id:n.id,g:n.parent?n.parent.n:''})),...Object.entries(TN_X).filter(([x,w])=>by[w]&&!by[x]).map(([x,w])=>({n:x,c:by[w].c,id:by[w].id,g:by[w].parent?by[w].parent.n:''}))]})());
 const tnLeaves=()=>FW.leaves.filter(n=>n.cat.n!=='Other');
-const tnLeaf=w=>{const f=fold(String(w).trim());return f?tnNotes().find(n=>fold(n.n)===f)||null:null};
-const tnSplit=s=>{const seen=new Set();return String(s||'').split(/\s*[,;·]\s*/).map(x=>x.trim()).filter(x=>x&&!seen.has(fold(x))&&seen.add(fold(x)))};
+// A note's identity keeps its accents (Rosé the wine and Rose the flower are two notes); typing without accents
+// still finds the accented one when nothing matches exactly.
+const tnKey=t=>String(t).trim().normalize('NFC').toLowerCase().replace(/[’']/g,"'");
+const tnLeaf=w=>{const k=tnKey(w),f=fold(String(w).trim());if(!f)return null;const ns=tnNotes();return ns.find(n=>tnKey(n.n)===k)||ns.find(n=>fold(n.n)===f)||null};
+const tnSplit=s=>{const seen=new Set();return String(s||'').split(/\s*[,;·]\s*/).map(x=>x.trim()).filter(x=>x&&!seen.has(tnKey(x))&&seen.add(tnKey(x)))};
 const tnEsc=w=>w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 // Notes a coffee is known for: the words in its varieties' and origin's cup descriptions, then the notes the wheel
 // links to its process and varieties.
@@ -9500,7 +9524,7 @@ function tasteInput(host,init,ctx){let L=tnSplit(init),fam=null,at=-1,opts=[];
     '<div class="tn-sug" id="tn-sug"></div>'+
     '<div class="tn-lbl">Browse the flavour wheel</div><div class="tn-fams" id="tn-fams">'+tnFams().map(r=>'<button type="button" class="tn-f" data-fam="'+r.id+'" aria-expanded="false" style="--fc:'+r.c+'"><i></i>'+esc(r.n)+'</button>').join('')+'</div>'+
     '<div class="tn-fam" id="tn-fam" hidden></div>';
-  const q=$('tn-q'),box=$('tn-list'),has=w=>L.some(x=>fold(x)===fold(w));
+  const q=$('tn-q'),box=$('tn-list'),has=w=>L.some(x=>tnKey(x)===tnKey(w));
   const chip=(n,on)=>'<button type="button" class="tn-c'+(on?' on':'')+'" data-add="'+esc(n.n)+'" aria-pressed="'+on+'" style="--fc:'+n.c+'"><i></i>'+esc(n.n)+'</button>';
   const drawSel=()=>{const wl=L.map(tnLeaf);
     $('tn-sel').innerHTML=(L.length?'<div class="tn-chips">'+L.map((w,i)=>{const n=wl[i];return'<span class="tn-x" style="--fc:'+(n?n.c:'var(--muted)')+'"><i></i>'+esc(n?n.n:w)+'<button type="button" data-rm="'+i+'" aria-label="Remove '+esc(w)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></button></span>'}).join('')+'</div>':
@@ -9512,17 +9536,23 @@ function tasteInput(host,init,ctx){let L=tnSplit(init),fam=null,at=-1,opts=[];
   const drawFam=()=>{const f=fam&&FW.byId[fam];$('tn-fam').hidden=!f;document.querySelectorAll('#tn-fams [data-fam]').forEach(b=>{const on=b.dataset.fam===fam;b.setAttribute('aria-expanded',on);b.classList.toggle('on',on)});
     if(!f)return;$('tn-fam').style.setProperty('--fc',f.c);
     $('tn-fam').innerHTML='<p class="tn-fd">'+esc(f.d)+'</p>'+f.kids.map(g=>{const ls=g.leaf?[g]:g.kids.flatMap(k=>k.leaf?[k]:k.kids);return'<div class="tn-g"><small>'+esc(g.n)+'</small><div class="tn-cs">'+ls.map(n=>chip(n,has(n.n))).join('')+'</div></div>'}).join('')};
-  const add=w=>{w=String(w).trim().replace(/\s+/g,' ');if(!w)return false;const n=tnLeaf(w);if(n)w=n.n;else w=w[0].toUpperCase()+w.slice(1);
-    if(has(w)){L=L.filter(x=>fold(x)!==fold(w));drawSel();return true}
+  // A chip on the wheel toggles (tap it again to take it off); a note typed or picked from the search never removes
+  // one you already have: it's shown as already there.
+  const add=(w,toggle)=>{w=String(w).trim().replace(/\s+/g,' ');if(!w)return false;const n=tnLeaf(w);if(n)w=n.n;else w=w[0].toUpperCase()+w.slice(1);
+    if(has(w)){if(toggle){L=L.filter(x=>tnKey(x)!==tnKey(w));drawSel()}else flashNote(w);return true}
     if(L.length>=TN_MAX){toast('That’s '+TN_MAX+' notes, plenty for one bag');return false}
     if([...L,w].join(', ').length>TN_LEN){toast('That’s as many notes as fit');return false}
     L.push(w);drawSel();return true};
+  const flashNote=w=>{const i=L.findIndex(x=>tnKey(x)===tnKey(w)),el=$('tn-sel').querySelectorAll('.tn-x')[i];if(el){el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash')}toast(w+' is already in')};
+  // Backspace in the empty box takes the last note off only on a second press (the first marks it), so a stray key
+  // on a phone keyboard can't remove one.
+  let bsArm=false;const unarm=()=>{if(!bsArm)return;bsArm=false;const x=$('tn-sel').querySelector('.tn-x.arm');if(x)x.classList.remove('arm')};
   const close=()=>{box.hidden=true;at=-1;q.setAttribute('aria-expanded','false');q.removeAttribute('aria-activedescendant')};
   const hl=()=>box.querySelectorAll('[role=option]').forEach((o,i)=>{o.setAttribute('aria-selected',i===at);if(i===at){q.setAttribute('aria-activedescendant',o.id);o.scrollIntoView({block:'nearest'})}});
   const draw=()=>{const t=q.value.trim(),f=fold(t);at=-1;if(!f||document.activeElement!==q){close();return}
-    const m=tnNotes().filter(n=>fold(n.n).includes(f)).sort((a,b)=>fold(a.n).indexOf(f)-fold(b.n).indexOf(f)||a.n.length-b.n.length).slice(0,6);
+    const m=tnNotes().filter(n=>fold(n.n).includes(f)).sort((a,b)=>(tnKey(b.n)===tnKey(t))-(tnKey(a.n)===tnKey(t))||fold(a.n).indexOf(f)-fold(b.n).indexOf(f)||a.n.length-b.n.length).slice(0,6);
     opts=m.map(n=>({w:n.n,h:'<i class="dot" style="background:'+n.c+'"></i><span class="tn-on">'+esc(n.n)+'</span>'+(has(n.n)?'<em>Added</em>':'<small>'+esc(n.g)+'</small>')}));
-    if(!m.some(n=>fold(n.n)===f))opts.push({w:t,h:'<span class="tn-new" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 6v12M6 12h12"/></svg></span><span class="tn-on">Add “'+esc(t)+'”</span>'});
+    if(!m.some(n=>tnKey(n.n)===tnKey(t)||fold(n.n)===f))opts.push({w:t,h:'<span class="tn-new" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 6v12M6 12h12"/></svg></span><span class="tn-on">Add “'+esc(t)+'”</span>'});
     box.innerHTML=opts.map((o,i)=>'<div role="option" class="aco tn-o" id="tn-o'+i+'" data-i="'+i+'" aria-selected="false">'+o.h+'</div>').join('');box.hidden=false;q.setAttribute('aria-expanded','true');
     // The closest note on the wheel is ready for Enter; your own words are one step down.
     if(m.length){at=0;hl()}};
@@ -9531,12 +9561,14 @@ function tasteInput(host,init,ctx){let L=tnSplit(init),fam=null,at=-1,opts=[];
   q.addEventListener('keydown',e=>{if(e.key==='ArrowDown'||e.key==='ArrowUp'){if(box.hidden)return;e.preventDefault();at=(at+(e.key==='ArrowDown'?1:-1)+opts.length)%opts.length;hl()}
     else if(e.key==='Enter'||e.key===','){if(!q.value.trim())return;e.preventDefault();take(at>=0&&!box.hidden?opts[at].w:q.value)}
     else if(e.key==='Escape'&&!box.hidden){e.preventDefault();e.stopPropagation();close()}
-    else if(e.key==='Backspace'&&!q.value&&L.length){L.pop();drawSel()}});
+    else if(e.key==='Backspace'&&!q.value&&L.length){if(bsArm){bsArm=false;L.pop();drawSel()}else{bsArm=true;const xs=$('tn-sel').querySelectorAll('.tn-x');if(xs.length)xs[xs.length-1].classList.add('arm')}return}
+    if(e.key!=='Backspace')unarm()});
+  q.addEventListener('blur',unarm);
   // A pasted list ("cherry, cocoa, honey") becomes its notes.
   q.addEventListener('paste',e=>{const t=(e.clipboardData||{}).getData?.('text')||'';if(/[,;·\n]/.test(t)){e.preventDefault();t.split(/\s*[,;·\n]\s*/).forEach(w=>w.trim()&&!has(w)&&add(w));close()}});
   box.addEventListener('pointerdown',e=>e.preventDefault());box.addEventListener('click',e=>{const o=e.target.closest('[data-i]');if(o)take(opts[+o.dataset.i].w)});
   host.addEventListener('click',e=>{const a=e.target.closest('[data-add]'),r=e.target.closest('[data-rm]'),f=e.target.closest('[data-fam]');
-    if(a){add(a.dataset.add);return}if(r){L.splice(+r.dataset.rm,1);drawSel();return}
+    if(a){add(a.dataset.add,true);return}if(r){L.splice(+r.dataset.rm,1);drawSel();return}
     if(f){fam=fam===f.dataset.fam?null:f.dataset.fam;drawFam();if(fam)$('tn-fam').scrollIntoView({block:'nearest',behavior:'smooth'})}});
   drawSel();
   // Whatever is still in the box when you save counts too.
@@ -9609,7 +9641,7 @@ function tasteOf(bs,ls){const top=(items,f,w)=>{const m=new Map();for(const x of
   const t={origin:top(bs,realO,buys),region:top(bs,b=>{const o=b.origin&&b.origin!=='blend'&&oInfo(b.origin);return o&&o.reg},buys),variety:top(bs,b=>beanVars(b).map(v=>v.split(':')[0]),buys),
     process:top(bs,b=>b.process,buys),roast:top(bs,b=>b.roast,buys),roaster:top(bs,b=>b.roaster&&b.roaster.trim(),buys),
     likedOrigin:best(bs,realO),likedProcess:best(bs,b=>b.process),
-    brewer:top(ls,l=>{const b=(l.snap&&l.snap.b)||l.brewer;return b&&CANONB(b)}),regionOrigin:null,recipe:top(ls,l=>l.snap&&l.snap.rec),goal:top(ls,l=>l.snap&&l.snap.goal)};
+    brewer:top(ls,l=>{const b=(l.snap&&l.snap.b)||l.brewer;return b&&CANONB(b)}),regionOrigin:null,recipe:top(ls,l=>{if(!l.snap||!l.snap.rec)return'';const r=typeof snapRecipe==='function'?snapRecipe(l.snap):null;return r?r.name:l.snap.rec}),goal:top(ls,l=>l.snap&&l.snap.goal)};
   // Flavours: the families of the notes on the bags you liked and of what you tasted in your brews.
   const fam=new Map(),note=new Map();
   for(const b of bs){const w=like(b);for(const wd of tnSplit(b.flavours)){const n=tnLeaf(wd),leaf=n&&FW.byId[n.id];if(!leaf)continue;fam.set(leaf.cat.id,(fam.get(leaf.cat.id)||0)+w);note.set(leaf.id,(note.get(leaf.id)||0)+w)}}
@@ -9875,9 +9907,13 @@ const wLeft=b=>{const c=cupsLeft(b);return c==null?'':c?c+(c===1?' cup left':' c
 const wCups=b=>{const c=cupsLeft(b);return c==null?'':c?c+(c===1?' cup':' cups'):'Empty'};
 function widgetCabinet(){const last=b=>beanBrews(b).reduce((m,l)=>Math.max(m,+l.ts||0),0);
   return BEANS.filter(b=>b.shelf).map(b=>[b,last(b)]).sort((a,c)=>c[1]-a[1]||(+c[0].ts||0)-(+a[0].ts||0)).slice(0,30)
-    .map(([b])=>({id:b.id,title:beanTitle(b),roastDate:b.roastDate||'',win:freshWin(b).w.join(','),cups:wCups(b)}))}
-function widgetRecipe(){const since=Date.now()-60*864e5,n=new Map();for(const l of LOG)if(isMine(l)&&(+l.ts||0)>=since&&l.snap&&l.snap.rec)n.set(l.snap.rec,(n.get(l.snap.rec)||0)+1);
-  let i=-1;const top=[...n].sort((a,b)=>b[1]-a[1])[0];if(top)i=RECIPES.findIndex(r=>r.name===top[0]);
+    .map(([b])=>({id:b.id,title:beanTitle(b),roastDate:b.roastDate||'',win:freshWin(b).w.join(','),cups:wCups(b),flag:isBlend(b)?BLEND_O.flag:b.origin?flagOf(b.origin):''}))}
+// The cabinet's first six coffees carry a small photo (112 px). Made once per photo and kept, so a widget update
+// doesn't redo them.
+const WTHUMB=new Map();
+async function widgetThumb(b){if(!b||!b.img)return'';try{const t=await BIMG.thumb(b.id);if(!t)return'';const k=b.id+':'+t.length;if(WTHUMB.has(k))return WTHUMB.get(k);const u=await shrinkPhoto(t,112);WTHUMB.set(k,u||'');return u||''}catch(e){return''}}
+function widgetRecipe(){const since=Date.now()-60*864e5,n=new Map();for(const l of LOG)if(isMine(l)&&(+l.ts||0)>=since&&l.snap&&l.snap.rec){const r=snapRecipe(l.snap);if(r){const k=rkey(r);n.set(k,(n.get(k)||0)+1)}}
+  let i=-1;const top=[...n].sort((a,b)=>b[1]-a[1])[0];if(top)i=rByKey(top[0]);
   if(i<0&&typeof RECENT!=='undefined'&&RECENT.length)i=rByKey(RECENT[0]);if(i<0)return{};
   const r=RECIPES[i],sc=scaled(r),B=BREWERS[r.b];
   return{key:rkey(r),name:r.name,brewer:B?B.name:'',dose:gfmt(sc.dose)+' g',water:gfmt(sc.water)+' g',temp:r.temp?r.temp+'°C':'',line:[B&&B.name,gfmt(sc.dose)+' g : '+gfmt(sc.water)+' g',r.temp?r.temp+'°C':''].filter(Boolean).join(' · ')}}
@@ -9886,7 +9922,7 @@ function widgetWords(){const d0=Math.floor(Date.now()/864e5),out=[];for(let d=d0
 async function updWidget(){const w=plugin('Widget');if(!w)return;try{const b=widgetBean();let rc={},photo='';try{rc=widgetRecipe()}catch(e){}
   if(b&&b.img)try{const t=await BIMG.thumb(b.id);if(t)photo=await shrinkPhoto(t,192)}catch(e){}
   w.update(Object.assign(b?{id:b.id,title:beanTitle(b),sub:[b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '),flag:b.origin?flagOf(b.origin):'',photo,
-    roastDate:b.roastDate||'',win:freshWin(b).w.join(','),left:wLeft(b)}:{id:''},{cabinet:JSON.stringify(widgetCabinet()),brew:JSON.stringify(rc),words:JSON.stringify(widgetWords())})).catch(()=>{})}catch(e){}}
+    roastDate:b.roastDate||'',win:freshWin(b).w.join(','),left:wLeft(b)}:{id:''},{cabinet:JSON.stringify(await (async()=>{const l=widgetCabinet();for(const x of l.slice(0,6))x.ph=await widgetThumb(beanById(x.id));return l})()),brew:JSON.stringify(rc.key&&b?Object.assign({},rc,{bean:{id:b.id,title:beanTitle(b),flag:isBlend(b)?BLEND_O.flag:b.origin?flagOf(b.origin):'',ph:await widgetThumb(b)}}):rc),words:JSON.stringify(widgetWords())})).catch(()=>{})}catch(e){}}
 (()=>{if(!plugin('Widget'))return;setTimeout(updWidget,2500);document.addEventListener('visibilitychange',()=>{if(document.hidden)updWidget()});
   const go=o=>{const [k,id]=String(o||'').split(':');document.querySelectorAll('dialog[open]').forEach(d=>d.close());
     if(k==='bean'&&beanById(id)){showTab('beans');openBean(id);return}
@@ -9895,6 +9931,9 @@ async function updWidget(){const w=plugin('Widget');if(!w)return;try{const b=wid
     const rest=String(o).slice(k.length+1);
     if(k==='recipe'||k==='timer'){const i=rByKey(rest);if(i>=0){showTab('recipes');if(k==='timer')openTimer(i);else openRecipe(i);return}showTab('recipes');return}
     if(k==='recipes'){showTab('recipes');return}
+    // From the icon's long-press shortcuts: a brew (your go-to recipe's timer, else the dial-in), a scan, the log.
+    if(k==='brew'){const rc=widgetRecipe(),i=rc&&rc.key?rByKey(rc.key):-1;if(i>=0){showTab('recipes');openTimer(i)}else showTab('dial');return}
+    if(k==='scan'){showTab('scan');try{newScan()}catch(e){}scrollTo(0,0);return}
     if(k==='resume')return;
     if(k==='word'&&GBY[rest]){openWord(rest);return}
     if(k==='word'||k==='explore'){goTab('explore');return}
@@ -10241,7 +10280,7 @@ function renderBeanScans(){const p=$('bv-scans');if(!p)return;
 // A saved scan opens the gallery editor with its details and photo (the full photo when kept, else its thumbnail).
 async function addScanToGallery(i){const s=SCANS[i];if(!s)return;const inf=s.info,full=await BIMG.get(s.id),photo=full||s.t||null;
   openBeanEditor(null,{name:scanTitle(s.sc,inf),roaster:scRoaster(s)||'',origin:s.sc.origin,blend:s.sc.blend||[],process:s.sc.process,variety:s.sc.variety,vars:scanVars(s.sc,inf),roast:s.sc.roast,roastDate:s.sc.date||'',bag:s.sc.bag||0,
-    flavours:inf&&Array.isArray(inf.tasting_notes)?inf.tasting_notes.slice(0,TN_MAX).reduce((t,n)=>{const x=t?t+', '+n:String(n);return x.length<=TN_LEN?x:t},''):'',photo,scan:s.id,lowres:!full&&!!s.t})}
+    flavours:inf&&Array.isArray(inf.tasting_notes)?scanNotes(inf.tasting_notes):'',photo,scan:s.id,lowres:!full&&!!s.t})}
 $('beans-in').addEventListener('input',e=>{if(e.target.id!=='bg-q')return;BQ=e.target.value;renderGrid()});
 $('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-lt-f'))openBeanFilter();else if(e.target.closest('#bg-lt-s'))openBeanSort();else if(e.target.closest('#dy-lt-f'))openDiaryFilter()});
 $('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-add')){openBeanEditor();return}if(e.target.closest('#bg-scan,#bg-scan2')){showTab('scan');newScan();scrollTo(0,0);return} /* the Scan page offers taking or choosing a photo */
@@ -10283,12 +10322,16 @@ function roasteries(){const m=new Map();for(const b of BEANS){const k=roKey(b.ro
 function roMark(name,big){let h=0;for(const ch of roKey(name))h=(h*31+ch.charCodeAt(0))%360;const ini=name.replace(/&/g,' ').split(/\s+/).filter(w=>/^[\p{L}\p{N}]/u.test(w)&&!/^(coffee|roasters?|roastery|roasting|co\.?|the|and|of)$/i.test(w)).slice(0,2).map(w=>w[0].toUpperCase()).join('')||name[0].toUpperCase();
   return '<span class="ro-mark'+(big?' big':'')+'" style="--h:'+h+'" aria-hidden="true">'+esc(ini)+'</span>'}
 const roRateHTML=v=>v?'<span class="ro-rate">'+beanSVG+'<b>'+v.toFixed(1)+'</b></span>':'<span class="ro-rate none">Not rated</span>';
-function openRoasters(){const d=$('vd'),all=roasteries();
+// A tap shows as pressed first; the sheet opens in the next frame (see fromTap).
+function openRoasters(){if(fromTap(()=>openRoastersNow()))return;openRoastersNow()}
+function openRoastersNow(){const d=$('vd'),all=roasteries();
   $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Your roasteries</span><h2 id="vd-title">'+all.length+' roaster'+(all.length===1?'y':'ies')+'</h2><p class="hint" style="margin:0">Most coffees first. Tap one to see everything you’ve had from it.</p></div>'+
     '<div class="vd-body">'+(all.length?'<div class="ro-list">'+all.map(r=>'<button type="button" class="ro-row" data-ro="'+esc(r.name)+'">'+roMark(r.name)+'<span class="ro-tx"><b>'+esc(r.name)+'</b><small>'+r.list.length+' coffee'+(r.list.length===1?'':'s')+(r.bags>r.list.length?' · '+r.bags+' bags':'')+'</small></span>'+roRateHTML(r.avg)+'<span class="ro-chev" aria-hidden="true">›</span></button>').join('')+'</div>'
       :'<p class="hint">Add the roastery to your coffees and they’ll gather here.</p>')+'</div>';
   $('vd-in').onclick=e=>{const r=e.target.closest('[data-ro]');if(r)openRoaster(r.dataset.ro,true)};$('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
-function openRoaster(name,fromList){const d=$('vd'),k=roKey(name),r=roasteries().find(x=>roKey(x.name)===k);if(!r){openRoasters();return}
+// A tap shows as pressed first; the sheet opens in the next frame (see fromTap).
+function openRoaster(name,fromList){if(fromTap(()=>openRoasterNow(name,fromList)))return;openRoasterNow(name,fromList)}
+function openRoasterNow(name,fromList){const d=$('vd'),k=roKey(name),r=roasteries().find(x=>roKey(x.name)===k);if(!r){openRoasters();return}
   RFROM={name:r.name,list:!!fromList};
   const list=[...r.list].sort((a,b)=>(b.rating||0)-(a.rating||0)||beanDay(b).localeCompare(beanDay(a))),best=list.find(b=>b.rating)||null;
   const first=r.list.map(beanFirst).filter(Boolean).sort()[0],mon=iso=>new Date(iso+'T12:00').toLocaleDateString(undefined,{month:'short',year:'numeric'});
@@ -10442,7 +10485,9 @@ document.addEventListener('click',e=>{if(e.target.closest('#d-bean [data-dbpick]
 
 /* ---------- Adding and editing ---------- */
 // pre: details to start from (a scan); its photo comes as a data URL in pre.photo.
-function openBeanEditor(b,pre){const isNew=!b;const B=Object.assign({name:'',roaster:'',origin:'',blend:[],process:'',variety:'',vars:[],roast:'',roastDate:'',tried:'',rating:0,flavours:'',notes:'',img:false,shelf:true,bag:0},b||{},pre||{});
+// A tap shows as pressed first; the sheet opens in the next frame (see fromTap).
+function openBeanEditor(b,pre){if(fromTap(()=>openBeanEditorNow(b,pre)))return;openBeanEditorNow(b,pre)}
+function openBeanEditorNow(b,pre){const isNew=!b;const B=Object.assign({name:'',roaster:'',origin:'',blend:[],process:'',variety:'',vars:[],roast:'',roastDate:'',tried:'',rating:0,flavours:'',notes:'',img:false,shelf:true,bag:0},b||{},pre||{});
   let photo=null,photoChanged=false,rating=B.rating;const d=$('vd');
   const opt=(h,none)=>'<option value="">'+none+'</option>'+h;
   const roasters=[...new Set([...BEANS.map(x=>x.roaster),...SCANS.map(scRoaster)].filter(Boolean))].sort();
@@ -11239,12 +11284,15 @@ function brewCard(){const r=compute(S),[vt,vs]=verdict(r.D),B=BREWERS[S.brewer],
 // What Log this brew keeps, so the log's card can show the dial, the cup and the pours later.
 function brewSnap(){const r=compute(S),dp=dialPlan();
   return{g:S.grinder,c:S.setting,b:S.brewer,t:S.temp,ra:S.ratio,bl:S.bloom,ag:S.agit,dose:S.dose,water:dp?dp.water:+gfmt(S.dose*S.ratio),v:S.variety,p:S.process,ro:S.roast,
-    bean:S.bean?Object.assign({},S.bean):null,age:S.age,rec:dp?dp.r.name:'',by:dp&&bcBy(dp.r.by)||'',goal:dp?goalLabel(S.goal,S.amt):'',steps:dp?dp.steps.slice(0,14):[],
+    bean:S.bean?Object.assign({},S.bean):null,age:S.age,rec:dp?dp.r.name:'',rk:dp?rkey(dp.r):'',by:dp&&bcBy(dp.r.by)||'',goal:dp?goalLabel(S.goal,S.amt):'',steps:dp?dp.steps.slice(0,14):[],
     r:{D:+r.D.toFixed(3),sweet:+r.sweet.toFixed(2),acid:+r.acid.toFixed(2),body:+r.body.toFixed(2),clarity:+r.clarity.toFixed(2),bitter:+r.bitter.toFixed(2)}}}
+// The recipe a logged brew used, as it is now: by its key (your own recipes keep theirs when renamed; renamed
+// built-in ones have an alias), else by the name it had then. Null when it's no longer in the app.
+function snapRecipe(s){if(!s)return null;let i=s.rk?rByKey(s.rk):-1;if(i<0&&s.rec){i=RECIPES.findIndex(r=>r.name===s.rec);if(i<0)i=rByKey('r:'+slug(s.rec))}return i>=0?RECIPES[i]:null}
 // A snapshot can come from another phone in a shared log, so every field is checked before it is drawn.
 function okSnap(s){if(!s||typeof s!=='object')return null;const n=(v,a,b)=>typeof v==='number'&&isFinite(v)?clamp(v,a,b):null,r=s.r||{};
   const o={g:GRINDERS[s.g]?s.g:null,c:n(s.c,0,400),b:BREWERS[s.b]?s.b:null,t:n(s.t,0,100),ra:n(s.ra,0.5,30),bl:n(s.bl,0,600),ag:AGITW[s.ag]?s.ag:'med',dose:n(s.dose,1,200),water:n(s.water,1,3000),
-    v:typeof s.v==='string'&&VBY[s.v.split(':')[0]]?s.v:null,p:PROCESSES[s.p]?s.p:null,ro:['light','medium','dark'].includes(s.ro)?s.ro:null,bean:okSBean(s.bean),age:n(s.age,0,400),rec:str(s.rec,80),by:str(s.by,80),goal:str(s.goal,40),
+    v:typeof s.v==='string'&&VBY[s.v.split(':')[0]]?s.v:null,p:PROCESSES[s.p]?s.p:null,ro:['light','medium','dark'].includes(s.ro)?s.ro:null,bean:okSBean(s.bean),age:n(s.age,0,400),rec:str(s.rec,80),rk:typeof s.rk==='string'&&/^[cr]:[\w-]{1,64}$/.test(s.rk)?s.rk:'',by:str(s.by,80),goal:str(s.goal,40),
     steps:(Array.isArray(s.steps)?s.steps:[]).filter(t=>typeof t==='string').map(t=>t.slice(0,160)).slice(0,14),
     r:['D','sweet','acid','body','clarity','bitter'].every(k=>typeof r[k]==='number'&&isFinite(r[k]))?{D:clamp(r.D,-5,5),sweet:clamp(r.sweet,0,10),acid:clamp(r.acid,0,10),body:clamp(r.body,0,10),clarity:clamp(r.clarity,0,10),bitter:clamp(r.bitter,0,10)}:null};
   return o.b?o:null}
@@ -11261,7 +11309,7 @@ function logModel(l){const s=okSnap(l.snap),fl=flOf(l).filter(([id])=>FW.byId[id
     if(s.g&&s.c!=null)m.grind={g:s.g,c:s.c,line:(B?B.bloom.label:'Bloom')+' '+(s.bl||0)+' s  ·  '+AGITW[s.ag]+' pours'};
     if(s.r){const [vt,vs]=verdict(s.r.D);m.cup={r:s.r,vt,vs}}
     // Brews logged before the steps followed the brewing temperature: the recipe's own temperature is put right here.
-    const rr=s.rec&&RECIPES.find(x=>x.name===s.rec);let st=s.steps;
+    const rr=snapRecipe(s);let st=s.steps;
     // Brews logged before a recipe's steps were corrected (Matt Winton's two pours in one step): the card is drawn from
     // the recipe as it is now, at the brew's own dose, water and bloom.
     if(rr&&rr.kind!=='46'&&s.dose&&s.water&&st.length&&st.length!==rr.steps.length){const sc=scaleSteps(rr,s.dose,s.water);st=s.bl&&BREWERS[rr.b]&&BREWERS[rr.b].bloom.label==='Bloom'?bloomShift(sc,s.bl).steps:sc}
@@ -11546,7 +11594,12 @@ function cardViewer(blob,file,title){const d=$('vd'),u=URL.createObjectURL(blob)
   const sb=$('cv-share');if(sb)sb.onclick=async()=>{const f=new File([blob],file,{type:'image/jpeg'});try{if(navigator.canShare({files:[f]}))await navigator.share({files:[f],title});else toast('This browser can’t share images. Press and hold the image to save it')}catch(e){if(!e||e.name!=='AbortError')toast('Sharing was blocked. Press and hold the image to save it')}};
   d.addEventListener('close',()=>setTimeout(()=>URL.revokeObjectURL(u),60000),{once:true});showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
 // The brew log's cards read snapshots with okSnap above; the log drew before this file ran, so it draws again now.
-window.CARD_OK=true;try{renderLogList()}catch(e){}
+window.CARD_OK=true;
+// Once: brews logged before entries kept their recipe's key get it now, from the name they have, so renaming the
+// recipe later keeps them linked. Only your own brews (a shared log's others are theirs to update).
+try{if(!localStorage.getItem('bb-lrk')){let n=0;for(const l of LOG)if(l&&l.snap&&l.snap.rec&&!l.snap.rk&&isMine(l)){const i=RECIPES.findIndex(r=>r.name===l.snap.rec);if(i>=0){l.snap.rk=rkey(RECIPES[i]);n++}}
+  if(n)save('bb-log',LOG);localStorage.setItem('bb-lrk','1')}}catch(e){}
+try{renderLogList()}catch(e){}
 
 /* ---------- A share without a card of its own: its text, set in the cards' style ---------- */
 // The same header, panes, labels and footer as every other card, so a PDF of a list or a guide looks like the rest.
@@ -11704,8 +11757,10 @@ function enhanceSelect(s){if(s.dataset.ui||s.multiple||s.size>1||s.closest('#sel
   s.addEventListener('keydown',e=>{if(['Enter',' ','ArrowDown','ArrowUp'].includes(e.key)||(e.altKey&&e.key==='ArrowDown')){e.preventDefault();openSelect(s)}});
   // Some browsers still open their list on mouse down; stop it here.
   s.addEventListener('mousedown',e=>{e.preventDefault();s.focus()})}
-function openSelect(s){const d=$('selsheet'),opts=[...s.options],long=opts.length>=SEL_SEARCH_AT,cur=s.value;
-  const row=o=>'<button type="button" role="option" class="selopt" data-v="'+esc(o.value)+'" aria-selected="'+(o.value===cur&&o.selected)+'"'+(o.disabled?' disabled':'')+'><span>'+esc(o.textContent)+'</span><i aria-hidden="true">✓</i></button>';
+// A tap shows as pressed first; the sheet opens in the next frame (see fromTap).
+function openSelect(s){if(fromTap(()=>openSelectNow(s)))return;openSelectNow(s)}
+function openSelectNow(s){const d=$('selsheet'),opts=[...s.options],long=opts.length>=SEL_SEARCH_AT,cur=s.value;
+  const row=o=>'<button type="button" role="option" class="selopt" data-v="'+esc(o.value)+'" data-oi="'+o.index+'" aria-selected="'+(o.index===s.selectedIndex)+'"'+(o.disabled?' disabled':'')+'><span>'+esc(o.textContent)+'</span><i aria-hidden="true">✓</i></button>';
   let body='';for(const k of s.children){if(k.tagName==='OPTGROUP'){const kids=[...k.children].filter(o=>o.tagName==='OPTION');if(kids.length)body+='<div class="selgrp" role="group" aria-label="'+esc(k.label)+'"><h4><span>'+esc(k.label)+'</span><small>'+kids.length+'</small></h4>'+kids.map(row).join('')+'</div>'}else if(k.tagName==='OPTION')body+=row(k)}
   $('sel-in').innerHTML='<div class="selhead"><div class="grab"></div><h3 id="sel-title">'+esc(selLabel(s))+'</h3><button type="button" class="vd-close" id="sel-x" aria-label="Close">✕</button></div>'+
     (long?'<input type="search" id="sel-q" placeholder="Search" aria-label="Search the list" autocomplete="off">':'')+'<div class="sellist" role="listbox" aria-labelledby="sel-title">'+body+'</div><p class="hint selnone" hidden>Nothing matches.</p>';
@@ -11713,15 +11768,16 @@ function openSelect(s){const d=$('selsheet'),opts=[...s.options],long=opts.lengt
   if(!narrow){const r=s.getBoundingClientRect(),W=Math.max(r.width,260),below=innerHeight-r.bottom,up=below<320&&r.top>below;
     Object.assign(d.style,{left:Math.min(Math.max(8,r.left),innerWidth-W-8)+'px',width:W+'px',top:up?'auto':(r.bottom+6)+'px',bottom:up?(innerHeight-r.top+6)+'px':'auto',maxHeight:Math.max(220,(up?r.top:below)-24)+'px'})}
   else Object.assign(d.style,{left:'',width:'',top:'',bottom:'',maxHeight:''});
-  const pick=v=>{if(s.value!==v){s.value=v;s.dispatchEvent(new Event('input',{bubbles:true}));s.dispatchEvent(new Event('change',{bubbles:true}))}d.close();setTimeout(()=>s.focus({preventScroll:true}),0)};
-  d.querySelector('.sellist').onclick=e=>{const b=e.target.closest('.selopt');if(b&&!b.disabled)pick(b.dataset.v)};
+  // The exact option tapped is chosen (by its place in the list, so two with the same value can't swap).
+  const pick=b=>{const i=+b.dataset.oi;if(s.selectedIndex!==i){s.selectedIndex=i;s.dispatchEvent(new Event('input',{bubbles:true}));s.dispatchEvent(new Event('change',{bubbles:true}))}d.close();setTimeout(()=>s.focus({preventScroll:true}),0)};
+  d.querySelector('.sellist').onclick=e=>{const b=e.target.closest('.selopt');if(b&&!b.disabled)pick(b)};
   $('sel-x').onclick=()=>d.close();
   const q=$('sel-q');if(q)q.oninput=()=>{const t=fold(q.value.trim());let n=0;d.querySelectorAll('.selopt').forEach(b=>{const hit=!t||fold(b.textContent).includes(t);b.hidden=!hit;if(hit)n++});
     d.querySelectorAll('.selgrp').forEach(g=>g.hidden=![...g.querySelectorAll('.selopt')].some(b=>!b.hidden));d.querySelector('.selnone').hidden=n>0};
   // Arrow keys move through the choices; typing jumps to the search.
   d.onkeydown=e=>{const all=[...d.querySelectorAll('.selopt:not([hidden]):not([disabled])')],i=all.indexOf(document.activeElement);
     if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();const n=all[Math.max(0,Math.min(all.length-1,i<0?0:i+(e.key==='ArrowDown'?1:-1)))];if(n)n.focus()}
-    else if(e.key==='Enter'&&document.activeElement===q){const f=all[0];if(f){e.preventDefault();pick(f.dataset.v)}}
+    else if(e.key==='Enter'&&document.activeElement===q){const f=all[0];if(f){e.preventDefault();pick(f)}}
     else if(q&&e.key.length===1&&document.activeElement!==q&&!e.ctrlKey&&!e.metaKey){q.focus()}};
   showDlg(d);const on=d.querySelector('.selopt[aria-selected="true"]')||d.querySelector('.selopt');
   if(on)on.scrollIntoView({block:'center'});
@@ -11830,7 +11886,7 @@ function rngEnhance(i){if(i.dataset.rng)return;i.dataset.rng='1';
 // Every one-line strip glides, the Gear tabs included; wrapping filter chips can't, so they get the plain pick instead.
 const SEG_SEL='.seg:not(.filters),.seg.gtabs';
 // Only one-line strips (SEG_SEL) get one: wrapping chip rows keep their own pick, so a highlight never floats loose.
-function segBatch(list){const items=[];
+function segBatch(list,instant){const items=[];
   for(const el of new Set(list)){if(!el||!el.isConnected||!el.matches(SEG_SEL))continue;
     // A strip on a page that isn't shown waits until that page opens: measuring it would lay out the hidden page.
     if(el.closest('main section:not(.on)')){el._stale=1;continue}const on=el.querySelector(':scope>button[aria-pressed="true"]');items.push({el,on,ind:el.querySelector(':scope>.seg-ind')})}
@@ -11848,16 +11904,27 @@ function segBatch(list){const items=[];
   let fresh=false;
   for(const it of items){if(!it.ok){if(it.ind)it.ind.style.opacity='0';continue}
     if(!it.ind){const ind=it.ind=document.createElement('span');ind.className='seg-ind';ind.setAttribute('aria-hidden','true');it.el.append(ind);
-      const ip=it.el._ip||(it.el.id&&SEG_IP.get(it.el.id));if(ip){ind.style.transition='none';Object.assign(ind.style,ip);fresh=true;it.reset=true}}}
+      // A highlight that appears because its page is opening goes straight to its option: gliding from where it was
+      // last time would trail the page as it slides in. A strip redrawn under your finger still glides from there.
+      const ip=!instant&&(it.el._ip||(it.el.id&&SEG_IP.get(it.el.id)));if(ip){ind.style.transition='none';Object.assign(ind.style,ip);fresh=true;it.reset=true}else it.snap=true}
+    // One that was hidden (its page or sheet wasn't showing) comes back at its option too, not gliding in from where it was.
+    else if(instant||it.ind.style.opacity==='0')it.snap=true}
   if(fresh)document.body.offsetWidth;
   const rm=RM();
   for(const it of live){const el=it.el,ind=it.ind;if(it.reset)ind.style.transition='';el.classList.add('has-ind');
     // Moved with a transform (the compositor animates it without laying the page out again); only the size changes width.
-    if(rm)ind.style.transition='none';Object.assign(ind.style,it.look,it.pos,{opacity:'1'});el._ip=it.pos;if(el.id)SEG_IP.set(el.id,it.pos)}
+    if(rm||it.snap)ind.style.transition='none';Object.assign(ind.style,it.look,it.pos,{opacity:'1'});el._ip=it.pos;if(el.id)SEG_IP.set(el.id,it.pos);
+    if(it.snap&&!rm)requestAnimationFrame(()=>requestAnimationFrame(()=>{ind.style.transition=''}))}
   for(const it of items)if(SEG_RO&&!it.el._ro){it.el._ro=1;SEG_RO.observe(it.el)}}
 function segUpdate(el){segBatch([el])}
 // A page coming into view places the highlights that waited for it (after a change of look or text size).
-function segShown(sec){const l=[...sec.querySelectorAll(SEG_SEL)].filter(x=>x._stale);if(l.length){l.forEach(x=>x._stale=0);segBatch(l)}}
+// Every strip on it is placed then, before the page paints, straight at its option: one kept from before would show
+// for a frame where it was last (off by however much the layout moved since).
+// Strips further down the page are placed a moment later, when the phone is idle (still straight at their option), so
+// opening a long page like Settings doesn't lay out its far end first.
+function segShown(sec){const all=[...sec.querySelectorAll(SEG_SEL)];if(!all.length)return;all.forEach(x=>x._stale=0);
+  const H=innerHeight+120,near=[],far=[];for(const x of all){const t=x.offsetParent?x.getBoundingClientRect().top:H+1;(t<H?near:far).push(x)}
+  if(near.length)segBatch(near,true);if(far.length){const go=()=>{if(sec.classList.contains('on'))segBatch(far.filter(x=>x.isConnected),true)};window.requestIdleCallback?requestIdleCallback(go,{timeout:400}):setTimeout(go,120)}}
 // One watcher for every control's size (a tab coming into view, the phone turning); controls that have left the page are dropped.
 const SEG_RO=window.ResizeObserver?new ResizeObserver(es=>es.forEach(e=>{if(e.target.isConnected)segQueue(e.target);else SEG_RO.unobserve(e.target)})):null;
 const SEG_Q=new Set(),SEG_IP=new Map();let SEG_RAF=0;
