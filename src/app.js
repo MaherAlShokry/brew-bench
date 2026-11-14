@@ -3794,7 +3794,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-jump]');if
   if(!el){toast('Nothing to show there yet');return}el.style.scrollMarginTop='96px';el.scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'})});
 const hubItem=k=>[...SHEETS.explore,...SHEETS.more].find(x=>x[0]===k);
 // No count badges on cards (Recipes, Explore and the rest): the number shows once you open the section.
-// A tile tinted in its own colour: the icon and an arrow on top, the name and what's inside at the foot.
+// A row in a grouped list: its icon in a solid square of its colour, the name and what's inside, and an arrow.
 const HC_ARR='<svg class="hc-arr" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
 const hubCard=k=>{const [,n,d,c,ic]=hubItem(k);return '<button type="button" class="hubcard" data-go="'+k+'" style="--hc:'+c+'"><span class="hc-top">'+ico(ic,c)+HC_ARR+'</span><span class="hc-tx"><b>'+n+'</b><small>'+d+'</small></span></button>'};
 function renderExplore(){const day=Math.floor(Date.now()/864e5),w=GLOSSARY[day%GLOSSARY.length];

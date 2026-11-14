@@ -1283,15 +1283,6 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .bshelf .bi,.rgrp h4 .bi{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:color-mix(in srgb,var(--cherry) 12%,var(--surface));color:var(--cherry)}.bshelf .bi svg,.rgrp h4 .bi svg{width:20px;height:20px}
 .bshelf b{font-size:.88rem;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.bshelf small{color:var(--muted);font-size:.76rem}
 
-.bshelf button{width:136px;min-height:128px;justify-content:space-between;gap:14px;padding:14px;border-radius:20px;border-color:var(--hair,var(--line));
-  background:linear-gradient(155deg,color-mix(in srgb,var(--cherry) 9%,var(--surface)),var(--surface) 70%);box-shadow:var(--e1,0 1px 2px rgba(0,0,0,.05));transition:transform .15s ease,border-color .15s ease}
-.bshelf button:active{transform:scale(.97)}
-.bshelf .bs-top{display:flex;align-items:center;justify-content:space-between;width:100%}
-.bshelf .bs-top .bi{width:40px;height:40px;border-radius:13px;background:color-mix(in srgb,var(--cherry) 14%,var(--surface))}
-.bshelf .bs-top .bi svg{width:22px;height:22px}
-
-.bshelf .bs-tx{display:flex;flex-direction:column;gap:3px;min-width:0;width:100%}
-.bshelf .bs-tx b{font-size:.95rem;letter-spacing:-.01em}
 
 .bshelf button[aria-pressed="true"],.colshelf button[aria-pressed="true"]{outline:none;border-color:var(--cherry);box-shadow:inset 0 0 0 2px var(--cherry)}
 .colshelf button{flex:none;scroll-snap-align:start;width:168px;position:relative;display:flex;flex-direction:column;gap:3px;padding:14px 14px 30px;border-radius:18px;border:0;color:#fff;font:inherit;text-align:left;cursor:pointer;
@@ -1368,7 +1359,7 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 @media (max-width:359px){#rhome .cupcard b{font-size:.72rem;padding:7px 6px 9px}}
 #rhome .cupcard .cc{top:6px;right:6px;font-size:.66rem;padding:1px 6px}
 @media (min-width:1000px){#rgrid{columns:2;column-gap:16px}#rgrid .rgrp{break-inside:avoid;display:inline-block;width:100%;content-visibility:visible}}
-@media (min-width:760px){.bshelf button{width:148px}.colshelf button{width:200px}}
+@media (min-width:760px){.colshelf button{width:200px}}
 
 .colshelf button{padding:14px 14px 16px;min-height:118px}
 
@@ -1448,18 +1439,13 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 
 
 .hubgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-@media (min-width:760px){.hubgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}@media (min-width:1100px){.hubgrid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+
 .hubcard{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:14px 14px 16px;border-radius:18px;border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow);color:var(--ink);font:inherit;text-align:left;cursor:pointer;min-height:132px}
 .hubcard:active{transform:scale(.98)}
 .hubcard .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none;margin-bottom:4px}.hubcard .ic svg{width:22px;height:22px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .hubcard b{font-family:var(--display);font-size:1rem;line-height:1.2}.hubcard small{color:var(--muted);font-size:.82rem;line-height:1.35}
-.hubcard{justify-content:space-between;gap:14px;border-color:color-mix(in srgb,var(--hc,var(--cherry)) 16%,var(--line));
-  background:linear-gradient(155deg,color-mix(in srgb,var(--hc,var(--cherry)) 10%,var(--surface)),var(--surface) 72%);transition:transform .15s ease}
-.hubcard .ic{margin-bottom:0}
-.hubcard .hc-top,.bshelf .bs-top{display:flex;align-items:flex-start;justify-content:space-between;width:100%}
-.hubcard .hc-tx{display:flex;flex-direction:column;gap:4px;min-width:0;width:100%}
 
-.hc-arr{width:18px;height:18px;flex:none;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.7;margin:2px -2px 0 0}
 .hubcard .hn{position:absolute;top:14px;right:14px;font-size:.74rem;font-weight:700;color:var(--muted);background:var(--surface2);border-radius:99px;padding:2px 8px}
 
 
@@ -2661,12 +2647,30 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 }
 @keyframes vt-push-old{to{transform:translateX(-18%);opacity:.7}}
 @keyframes vt-pop-new{from{transform:translateX(-18%);opacity:.7}}
+
+
+.hubgrid{grid-template-columns:1fr;gap:0;background:var(--surface);border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:var(--shadow)}
+.hubcard{flex-direction:row;align-items:center;min-height:0;border:0;border-radius:0;box-shadow:none;background:none;padding:14px 16px;gap:14px}
+.hubcard+.hubcard{border-top:1px solid var(--line)}
+.hubcard:active{transform:none;background:color-mix(in srgb,var(--ink) 4%,transparent)}
+.hubcard .hc-top{display:flex}
+.hubcard .hc-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.hubcard .hc-arr,.bshelf .hc-arr{display:none}
+.hubcard::after{content:'';width:8px;height:8px;border-right:2px solid var(--muted);border-top:2px solid var(--muted);transform:rotate(45deg);opacity:.55;flex:none;margin-right:4px}
+.hubcard .ic[class*=" t-"]{width:42px;height:42px;border-radius:13px;margin:0;background:var(--t)!important;box-shadow:none}
+.hubcard .ic[class*=" t-"] svg{stroke:var(--surface)!important}
+.bshelf button{width:auto;flex-direction:row;align-items:center;gap:10px;padding:8px 18px 8px 8px;border-radius:999px}
+.bshelf .bs-top{display:flex}
+.bshelf .bs-top .bi{width:40px;height:40px;border-radius:999px;background:var(--cherry-ink,var(--cherry));color:var(--surface)}
+.bshelf .bs-tx{display:flex;flex-direction:column;min-width:0}
+.bshelf .bs-tx b{white-space:nowrap!important;display:block!important}
+@media (min-width:760px){.hubgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.hubgrid .hubcard:nth-child(2){border-top:0}.hubgrid .hubcard:nth-child(even){border-left:1px solid var(--line)}}
 </style>
 <script>const JSPDF_SRC="vendor/jspdf.umd.min.js"</script>
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="6c1518c7e087"</script>
+<script>const BUILD_ID="fcb3677b93b5"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -9104,7 +9108,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-jump]');if
   if(!el){toast('Nothing to show there yet');return}el.style.scrollMarginTop='96px';el.scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'})});
 const hubItem=k=>[...SHEETS.explore,...SHEETS.more].find(x=>x[0]===k);
 // No count badges on cards (Recipes, Explore and the rest): the number shows once you open the section.
-// A tile tinted in its own colour: the icon and an arrow on top, the name and what's inside at the foot.
+// A row in a grouped list: its icon in a solid square of its colour, the name and what's inside, and an arrow.
 const HC_ARR='<svg class="hc-arr" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
 const hubCard=k=>{const [,n,d,c,ic]=hubItem(k);return '<button type="button" class="hubcard" data-go="'+k+'" style="--hc:'+c+'"><span class="hc-top">'+ico(ic,c)+HC_ARR+'</span><span class="hc-tx"><b>'+n+'</b><small>'+d+'</small></span></button>'};
 function renderExplore(){const day=Math.floor(Date.now()/864e5),w=GLOSSARY[day%GLOSSARY.length];
