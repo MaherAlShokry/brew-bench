@@ -801,14 +801,27 @@ let BVPRE=0;function prebuildBViews(){if(BVPRE)return;BVPRE=1;const next=()=>{BV
 let BDIRTY=new Set();
 const BVIEWS={coffees:()=>renderCoffees(),roasteries:()=>renderRoasteriesView(),diary:()=>renderDiaryView(),passport:()=>renderPassport(),top3:()=>renderTop3View(),scans:()=>renderBeanScans()};
 // The views in the strip, in order.
-const BVTABS=[['coffees','Coffees'],['roasteries','Roasteries'],['diary','Diary'],['passport','Passport'],['top3','Top 5'],['scans','Scans']];
-// Your roasteries: every roastery you have coffee from, most coffees first, with its logo, how many coffees (and bags)
-// and your average; a tap opens its page.
+const BVTABS=[['coffees','Coffees'],['roasteries','Roastery'],['diary','Diary'],['passport','Passport'],['top3','Top 5'],['scans','Scans']];
+// Roastery: the roasteries you have coffee from, laid out like Drinking now. A heading with how many coffees, three
+// figures (roasteries, origins, your favourite), then one card with a row per roastery, most coffees first: its logo, name and
+// your average, how many coffees and where from, and its bags in small pictures. A tap opens its page.
 function renderRoasteriesView(){const p=$('bv-roasteries');if(!p)return;const all=roasteries();
   if(!all.length){p.innerHTML='<div class="bg-empty">'+beanSVG+'<b>No roasteries yet</b><p>Add the roastery to your coffees and they gather here, each with its own page.</p></div>';return}
-  const coffees=all.reduce((n,r)=>n+r.list.length,0);
-  p.innerHTML='<p class="rov-k">'+all.length+' roaster'+(all.length===1?'y':'ies')+' · '+coffees+' coffee'+(coffees===1?'':'s')+' · most coffees first</p>'+
-    '<div class="ro-list rov">'+all.map(r=>'<button type="button" class="ro-row" data-ro="'+esc(r.name)+'">'+roMark(r.name)+'<span class="ro-tx"><b>'+esc(r.name)+'</b><small>'+r.list.length+' coffee'+(r.list.length===1?'':'s')+(r.bags>r.list.length?' · '+r.bags+' bags':'')+'</small></span>'+roRateHTML(r.avg)+'<span class="ro-chev" aria-hidden="true">›</span></button>').join('')+'</div>'}
+  const coffees=all.reduce((n,r)=>n+r.list.length,0),fav=all.filter(r=>r.avg).sort((a,b)=>b.avg-a.avg||b.list.length-a.list.length)[0];
+  const half=v=>String(Math.round(v*2)/2).replace('.5','½');
+  const row=(r,i)=>{const os=[...new Set(r.list.map(b=>b.origin?beanFlags(b)+' '+beanOrigin(b):'').filter(Boolean))],
+      pics=r.list.filter(b=>b.img).slice(0,4),more=r.list.length-pics.length;
+    return '<button type="button" class="crow rov-row" data-ro="'+esc(r.name)+'" style="--i:'+Math.min(i,12)+'">'+roMark(r.name,true)+
+      '<span class="cr-tx"><span class="cr-top"><b>'+esc(r.name)+'</b>'+(r.avg?'<span class="cr-end"><span class="cr-rate">'+beanSVG+half(r.avg)+'</span></span>':'')+'</span>'+
+      '<small>'+r.list.length+' coffee'+(r.list.length===1?'':'s')+(r.bags>r.list.length?' · '+r.bags+' bags':'')+(os.length?' · '+esc(os.slice(0,2).join(', '))+(os.length>2?' +'+(os.length-2):''):'')+'</small>'+
+      (pics.length?'<span class="rov-bags">'+pics.map(b=>beanPic(b,'rw')).join('')+(more>0?'<span class="rov-more">+'+more+'</span>':'')+'</span>':'')+
+      '</span></button>'};
+  const origins=new Set(all.flatMap(r=>r.list.map(realO)).filter(Boolean)).size;
+  p.innerHTML='<div class="shelf-h"><b>Your roasteries</b><span>'+coffees+' coffee'+(coffees===1?'':'s')+'</span></div>'+
+    '<div class="rov-stats"><span><b>'+all.length+'</b>roaster'+(all.length===1?'y':'ies')+'</span><span><b>'+origins+'</b>origin'+(origins===1?'':'s')+'</span>'+
+      (fav?'<span class="rov-fav">'+roMark(fav.name)+'<b>'+esc(fav.name)+'</b>favourite</span>':'<span><b>–</b>favourite</span>')+'</div>'+
+    '<div class="clist rov">'+all.map(row).join('')+'</div>';
+  hydrateImgs(p)}
 // The journal's season, in the corner of the Beans header (northern-hemisphere seasons, as the seasonal trophies).
 const seasonTag=()=>{const m=new Date().getMonth();return ['❄️ Winter','❄️ Winter','🌸 Spring','🌸 Spring','🌸 Spring','☀️ Summer','☀️ Summer','☀️ Summer','🍂 Autumn','🍂 Autumn','🍂 Autumn','❄️ Winter'][m]+' · '};
 function renderBeanHero(){const cy=new Date().getFullYear(),N=BEANS.length,rated=BEANS.filter(b=>b.rating),avg=rated.length?rated.reduce((s,b)=>s+b.rating,0)/rated.length:0,
