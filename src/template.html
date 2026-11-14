@@ -667,6 +667,7 @@ button,a,.tab,.chip,[role=button]{touch-action:manipulation}
 /* On touch screens a slider moves only when you grab its thumb and drag sideways; a swipe that starts on
    the track, or goes up and down, scrolls the page instead of changing the setting. */
 input[type=range]{touch-action:pan-y}
+.rng-b{touch-action:pan-y;-webkit-user-select:none;user-select:none}
 @media (pointer:coarse){input[type=range]{pointer-events:none}input[type=range]::-webkit-slider-thumb{pointer-events:auto}input[type=range]::-moz-range-thumb{pointer-events:auto}}
 /* Long lists: the browser skips layout and paint for cards that are off screen. */
 #rgrid>.card,#pgrid>.card,#tgrid>.card,#vgrid>.card,#gear-brewers>.card,#people>.card{content-visibility:auto;contain-intrinsic-block-size:auto 420px}
@@ -1214,15 +1215,17 @@ button.chip:hover{background:var(--tonal-hover)}
 .le-who{font-weight:600;color:var(--ink)}
 .le-sub{display:flex;align-items:center;justify-content:space-between;gap:4px 10px;flex-wrap:wrap}.le-stars{flex:none;display:flex;align-items:center;gap:6px}.le-stars .brate{font-size:14px}.le-stars b{font:800 .95rem var(--display);color:var(--ink)}
 .le-stars.none{font-size:.74rem;color:var(--muted);letter-spacing:0}
-.le-pills{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 0}
-.le-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 10px 5px 8px;border-radius:999px;background:var(--surface2);font-size:.8rem;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
-.le-pill svg{width:14px;height:14px;fill:none;stroke:var(--cherry);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
-.le-pill.k-rec{background:color-mix(in srgb,var(--honey) 20%,var(--surface2))}
+.le-pills{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0}
+.le-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px 4px 8px;border-radius:999px;background:var(--surface2);font-size:.76rem;font-weight:600;line-height:1.35;color:var(--ink);font-variant-numeric:tabular-nums;max-width:100%;min-width:0}
+.le-pill svg{width:13px;height:13px;fill:none;stroke:var(--muted);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
 .le-rest{margin:8px 0 0!important;font-size:.84rem;color:var(--muted)}
 .le-pred{margin:8px 0 0!important;font-size:.84rem;color:var(--muted)}.le-pred b{color:var(--ink);font-weight:600}
 .le-notes{margin:10px 0 0;padding:8px 12px;border-left:3px solid var(--honey);background:color-mix(in srgb,var(--honey) 8%,transparent);border-radius:0 10px 10px 0;font-style:italic;line-height:1.45}
 .le2 .fl-entry,.le2 .fl-edit{margin-top:10px}.le2 .fl-entry .linkbtn,.le2 .fl-edit{font-size:.86rem}
-.le-act{display:flex;justify-content:flex-end;gap:4px;margin-top:8px;padding-top:8px;border-top:1px solid var(--hair,var(--line))}
+.le-act{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--hair,var(--line))}
+.le-acts{margin-left:auto;display:flex;gap:8px}
+.le-act .ib.sm svg{width:17px;height:17px}
 .le-b{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border:0;border-radius:999px;background:none;color:var(--muted);font:600 .82rem var(--display);cursor:pointer}
 .le-b:hover,.le-b:focus-visible{background:var(--surface2);color:var(--ink)}.le-b svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .le-b.again{margin-right:auto;white-space:nowrap;flex:none;color:var(--cherry);background:color-mix(in srgb,var(--cherry) 12%,transparent)}.le-b.again:hover{background:color-mix(in srgb,var(--cherry) 20%,transparent);color:var(--cherry)}.le-b.again svg{fill:currentColor;stroke:none;width:14px;height:14px}
@@ -1340,8 +1343,8 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 /* The dot sits on the middle of the lower-case letters, on the same baseline as the rest of the line. */
 .rr-by .lv i{display:inline-block;width:7px;height:7px;margin-right:6px;border-radius:50%;background:currentColor;vertical-align:calc((1ex - 7px) / 2)}
 .rr-sep{margin:0 7px;color:var(--muted)}.rr-bw{color:var(--ink);font-weight:600}
-.rr-m{align-self:flex-start;display:inline-flex;align-items:center;max-width:100%;margin-top:2px;padding:0 2px;border-radius:10px;background:var(--surface2);font-size:.8rem;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
-.rr-m>span{display:inline-flex;align-items:center;gap:4px;padding:6px 8px;line-height:1}.rr-m>span+span{border-left:1px solid color-mix(in srgb,var(--line) 80%,transparent)}
+.rr-m{align-self:flex-start;display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px;max-width:100%;margin-top:4px;font-size:.74rem;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+.rr-m>span{display:inline-flex;align-items:center;gap:3px;padding:5px 8px;line-height:1;border-radius:999px;background:var(--surface2)}
 .rr-m em{font-style:normal;font-weight:500;color:var(--muted);margin-left:.18em}.rr-m .rr-dose i{font-style:normal;color:var(--muted);margin:0 2px;font-weight:500}
 .rr-m svg{width:13px;height:13px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
 /* Icons sit on the middle of the digits (cap height), not the middle of the line, whatever font the phone uses. */
@@ -1728,7 +1731,7 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
 .srow-pic svg{width:26px}.srow-pic .bo{fill:color-mix(in srgb,var(--cherry) 25%,var(--surface))}.srow-pic .bc{fill:none;stroke:var(--cherry);stroke-width:1.4}
 .srow-tx{min-width:0;display:flex;flex-direction:column;gap:2px}.srow-tx b{font-family:var(--display);font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.srow-tx small{font-size:.76rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .srow-add,.srow-in{flex:none;display:inline-flex;align-items:center;gap:4px;min-height:36px;padding:6px 12px;border-radius:var(--r-pill);border:0;font:inherit;font-size:.8rem;font-weight:700;cursor:pointer}
-.srow-add{background:var(--cherry);color:var(--surface)}.srow .srow-del{flex:none;margin-left:2px}.srow-in{background:color-mix(in srgb,var(--leaf) 16%,var(--surface2));color:var(--leaf-ink,var(--leaf))}
+.srow-add{background:var(--cherry);color:var(--surface)}.srow-acts{display:flex;gap:8px;flex:none}.srow-acts .ib.srow-in{background:color-mix(in srgb,var(--leaf) 18%,var(--surface2));color:var(--leaf-ink,var(--leaf))}.srow .srow-del{flex:none;margin-left:2px}.srow-in{background:color-mix(in srgb,var(--leaf) 16%,var(--surface2));color:var(--leaf-ink,var(--leaf))}
 .srow-add svg,.srow-in svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 .pm-ph{flex-direction:column;gap:6px}.pm-ph small{font-size:.7rem;font-weight:700;color:rgba(255,248,238,.55)}
 button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.96)}.pm.empty .pm-card{transition:transform .15s}
@@ -2764,7 +2767,11 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 main section.on:has(>.fab){padding-bottom:160px!important}
 @media (max-width:759px){body:has(main section.on>.fab) #toast{bottom:calc(var(--sa-bottom) + 166px)}}
 /* A logged brew's actions: icons only. */
-.le-b{width:40px;padding:0!important;justify-content:center}.le-b.again{width:auto;padding:0 14px!important}
+.le-b{width:40px;padding:0!important;justify-content:center}.le-b.again{width:40px;height:40px;padding:0!important}
+/* The log page: an odd last total (Top coffee) takes the whole row; the list's own share and download sit on its
+   heading; a brew's add-flavours plus sits in its row of pills. */
+#l-stats>div:last-child:nth-child(odd){grid-column:1/-1}
+.l-head{margin-top:16px}
 .figs b{white-space:nowrap}
 /* Scale a recipe: less or more coffee either side of the amounts, and Iced beside them. */
 .rscale{display:flex;align-items:center;gap:10px;margin:0 0 14px;padding:10px 12px;border-radius:var(--r-lg);background:color-mix(in srgb,var(--ink) 4%,var(--surface));box-shadow:inset 0 0 0 1px var(--hair)}
@@ -2794,7 +2801,9 @@ main section.on:has(>.fab){padding-bottom:160px!important}
 /* Content fits: a coffee's notes wrap onto a second line instead of being cut off at the edge, and a logo sits inside its
    square with room around it (nothing cropped, the edit badge clear of it). */
 .cr-notes{flex-wrap:wrap;row-gap:5px;overflow:visible;-webkit-mask-image:none!important;mask-image:none!important}
-.ro-mark.logo{padding:9%!important}.ro-mark.logo img{object-fit:contain}
+/* A logo sits inside its square with room around it (placed absolutely: a percentage size inside the padded grid
+   square came out 0×0 and the logo vanished). */
+.ro-mark.logo{position:relative;padding:0!important}.ro-mark.logo img{position:absolute;inset:9%;width:82%;height:82%;object-fit:contain}
 /* The brew's predicted cup: the taste bars on a soft inset panel, the notes under a small label, the tip as a card
    with its own icon, and the fine print quiet at the end. */
 .tvars .bars{margin:14px 0 0;padding:14px 16px;gap:11px;border-radius:var(--r-lg);background:color-mix(in srgb,var(--ink) 4%,var(--surface));box-shadow:inset 0 0 0 1px var(--hair)}
@@ -2813,6 +2822,29 @@ main section.on:has(>.fab){padding-bottom:160px!important}
 /* In dark, the picked view is a lighter pill on the dark track. */
 :root[data-theme="dark"] :is(#bg-views.seg.bviews>button[aria-pressed="true"],.gtabs>button[aria-pressed="true"],#bg-views .seg-ind,.gtabs .seg-ind){background:color-mix(in srgb,var(--ink) 18%,var(--surface))!important;box-shadow:0 1px 2px rgba(0,0,0,.35)!important}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(#bg-views.seg.bviews>button[aria-pressed="true"],.gtabs>button[aria-pressed="true"],#bg-views .seg-ind,.gtabs .seg-ind){background:color-mix(in srgb,var(--ink) 18%,var(--surface))!important;box-shadow:0 1px 2px rgba(0,0,0,.35)!important}}
+
+/* A page's floating buttons come in with the page. */
+@keyframes fabIn{from{opacity:0;transform:translateY(14px) scale(.7)}to{opacity:1;transform:none}}
+main section.on>.fab .ib{animation:fabIn .32s cubic-bezier(.2,.8,.3,1.15) both}
+main section.on>.fab .ib+.ib{animation-delay:.05s}
+/* The Beans + is a shortcut menu: scan, a coffee, an advent calendar, a roastery. */
+.fab-dial{flex-direction:column;align-items:flex-end}
+.fab-main svg{transition:transform .25s cubic-bezier(.2,.8,.3,1)}
+.fab-dial.open .fab-main svg{transform:rotate(45deg)}
+.fab-menu{display:flex;flex-direction:column;align-items:flex-end;gap:10px;margin-bottom:12px}
+.fab-menu[hidden]{display:none}
+.fab-mi{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:10px;cursor:pointer;animation:fabMi .26s cubic-bezier(.2,.8,.3,1.1) both;animation-delay:calc(var(--k) * 35ms)}
+.fab-mi>span{padding:7px 12px;border-radius:999px;background:var(--surface);box-shadow:0 8px 20px -10px rgba(0,0,0,.45),inset 0 0 0 1px var(--hair);font:700 .84rem var(--display);color:var(--ink);white-space:nowrap}
+.fab-mi>i{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:var(--surface);color:var(--cherry);box-shadow:0 8px 20px -10px rgba(0,0,0,.45),inset 0 0 0 1px var(--hair)}
+.fab-mi>i svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fab-mi:focus-visible>i{outline:2px solid var(--cherry);outline-offset:2px}
+@keyframes fabMi{from{opacity:0;transform:translateY(10px) scale(.9)}to{opacity:1;transform:none}}
+.fab-scrim{position:fixed;inset:0;z-index:27;background:color-mix(in srgb,var(--bg) 55%,transparent);backdrop-filter:blur(2px);animation:fabScrim .2s both}
+@keyframes fabScrim{from{opacity:0}to{opacity:1}}
+body:has(.fab-dial.open) #toast{opacity:0!important;pointer-events:none}
+@media (prefers-reduced-motion:reduce){main section.on>.fab .ib,.fab-mi,.fab-scrim{animation:none}.fab-main svg{transition:none}}
+/* Text boxes keep their size: no resize handle. */
+textarea{resize:none}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
@@ -3100,7 +3132,7 @@ main section.on:has(>.fab){padding-bottom:160px!important}
   <h2>Beans</h2>
   <p class="lede">Scan a bag, keep every coffee you’ve had, and crown your favourites.</p>
   <div id="beans-in"></div>
-<div class="fab" role="group" aria-label="Beans actions"><button type="button" class="ib main" id="b-fab-add" aria-label="Add a coffee" title="Add a coffee"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14 M5 12h14"/></svg></button></div>
+<div class="fab fab-dial" id="b-fab" role="group" aria-label="Beans actions"><div class="fab-menu" id="b-fab-menu" role="menu" hidden></div><button type="button" class="ib main fab-main" id="b-fab-add" aria-label="Add to your beans" title="Add" aria-haspopup="menu" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14 M5 12h14"/></svg></button></div>
 </section>
 
 <!-- TECHNIQUES -->
@@ -3259,7 +3291,6 @@ main section.on:has(>.fab){padding-bottom:160px!important}
   <div id="rhome"></div>
   <div class="rhead"><h3 class="rh" id="rall">All recipes</h3><div class="rhtools"><button type="button" class="rsortw" id="rfiltbtn" aria-label="Filter recipes" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button><button type="button" class="rsortw" id="rsortbtn" aria-label="Sort recipes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h11M4 12h8M4 17h5M18 6v12M15 15l3 3 3-3"/></svg></button></div></div>
   <div id="rgrid"></div>
-<div class="fab" role="group" aria-label="Recipe actions"><button type="button" class="ib main" id="r-new" aria-label="New recipe" title="New recipe"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14 M5 12h14"/></svg></button></div>
 </section>
 
 <!-- PROCESSES -->
@@ -3346,7 +3377,7 @@ main section.on:has(>.fab){padding-bottom:160px!important}
   </div>
   <div class="specs" id="l-stats"></div>
   <div class="panel palate" id="l-palate" hidden></div>
-  <div class="actions" style="margin-bottom:10px"><button type="button" class="sh-mini ic" id="l-pdf" aria-label="Share my log" title="Share"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg></button><button type="button" class="ib" id="l-csv" aria-label="Download the log as CSV" title="Download the log as CSV" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11 M7.5 10.5L12 15l4.5-4.5 M5 19.5h14"/></svg></button></div>
+  <div class="shelf-h l-head"><b>Your brews</b><span class="rov-acts"><button type="button" class="sh-mini ic" id="l-csv" aria-label="Download the log as CSV" title="Download the log as CSV" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11 M7.5 10.5L12 15l4.5-4.5 M5 19.5h14"/></svg></button></span></div>
   <div class="lf" id="l-filter" hidden></div>
   <div id="l-list"></div>
 <div class="fab" role="group" aria-label="Log actions"><button type="button" class="ib main" id="l-fab-new" aria-label="Log a brew" title="Log a brew"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14 M5 12h14"/></svg></button></div>

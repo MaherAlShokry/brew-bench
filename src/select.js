@@ -122,9 +122,15 @@ function rngStep(i,dir){if(i.disabled)return;const before=i.value;try{dir>0?i.st
   if(i.value===before)return;rngFill(i);rngBuzz();rngPop(i);i.dispatchEvent(new Event('input',{bubbles:true}));i.dispatchEvent(new Event('change',{bubbles:true}))}
 function rngButton(i,dir){const b=document.createElement('button');b.type='button';b.className='rng-b';b.setAttribute('aria-label',(dir>0?'Increase ':'Decrease ')+((i.labels&&i.labels[0]&&i.labels[0].firstChild&&i.labels[0].firstChild.textContent.trim())||'value'));
   b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+(dir>0?'M12 6v12M6 12h12':'M6 12h12')+'"/></svg>';
-  let t1=0,t2=0;const stop=()=>{clearTimeout(t1);clearInterval(t2)};
-  b.addEventListener('pointerdown',e=>{if(e.button)return;e.preventDefault();rngStep(i,dir);t1=setTimeout(()=>{t2=setInterval(()=>rngStep(i,dir),85)},380)});
-  ['pointerup','pointerleave','pointercancel'].forEach(k=>b.addEventListener(k,stop));
+  // A mouse steps at once. A finger only steps on a real tap (lifted where it landed) or a hold: a touch that turns into
+  // a scroll changes nothing, and the page still scrolls from here.
+  let t1=0,t2=0,P=null,held=false;const stop=()=>{clearTimeout(t1);clearInterval(t2);P=null};
+  b.addEventListener('pointerdown',e=>{if(e.button)return;stop();held=false;
+    if(e.pointerType==='mouse'){e.preventDefault();rngStep(i,dir);t1=setTimeout(()=>{t2=setInterval(()=>rngStep(i,dir),85)},380);return}
+    P={x:e.clientX,y:e.clientY,id:e.pointerId};t1=setTimeout(()=>{if(!P)return;held=true;rngStep(i,dir);t2=setInterval(()=>rngStep(i,dir),110)},450)});
+  b.addEventListener('pointermove',e=>{if(P&&e.pointerId===P.id&&Math.hypot(e.clientX-P.x,e.clientY-P.y)>8)stop()});
+  b.addEventListener('pointerup',e=>{const tap=P&&!held&&e.pointerType!=='mouse'&&Math.hypot(e.clientX-P.x,e.clientY-P.y)<=8;stop();if(tap)rngStep(i,dir)});
+  ['pointerleave','pointercancel'].forEach(k=>b.addEventListener(k,stop));
   b.addEventListener('click',e=>{if(e.detail===0)rngStep(i,dir)});// keyboard
   b.addEventListener('contextmenu',e=>e.preventDefault());return b}
 function rngEnhance(i){if(i.dataset.rng)return;i.dataset.rng='1';
