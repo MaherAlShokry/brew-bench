@@ -2085,13 +2085,6 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .ro-rate{flex:none;display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:999px;background:color-mix(in srgb,var(--cherry) 10%,var(--surface));color:var(--cherry-ink);font-size:.85rem}.ro-rate svg{width:14px;height:14px}.ro-rate.none{background:none;color:var(--muted);padding:0}
 .ro-list{display:grid;gap:8px}
 
-.rov-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 12px}
-.rov-stats>span{display:flex;flex-direction:column;justify-content:flex-end;gap:2px;min-height:72px;padding:12px;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--shadow),inset 0 0 0 1px var(--hair);font-size:.76rem;color:var(--muted);min-width:0}
-.rov-stats>span>b{font-family:var(--display);font-size:1.45rem;line-height:1.05;color:var(--ink);font-variant-numeric:tabular-nums}
-
-.rov-stats .rov-fav>b{font-size:.95rem;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.rov-stats .rov-fav .ro-mark{width:26px;height:26px;border-radius:8px;font-size:.62rem;margin-bottom:auto}
-
 .rov-row>.ro-mark{margin-top:2px}
 .rov-bags{display:flex;align-items:center;gap:6px;margin-top:8px}
 .rov-bags .bpic{flex:none;width:30px!important;height:38px!important;border-radius:8px!important}
@@ -2681,12 +2674,43 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 #bg-views.seg.bviews{overflow-x:auto!important;overflow-y:hidden!important;scrollbar-width:none;overscroll-behavior-x:contain}
 #bg-views::-webkit-scrollbar{display:none}
 #bg-views.seg.bviews>button{flex-shrink:0!important}
+
+
+.rov-hero{all:unset;box-sizing:border-box;width:100%;display:flex;align-items:center;gap:14px;margin:0 0 10px;padding:16px;border-radius:var(--r-lg);cursor:pointer;
+  background:radial-gradient(120% 140% at 0% 0%,#6E4128 0%,#3A2216 55%,#24150D 100%);color:#FBF3EA;box-shadow:var(--shadow)}
+.rov-hero:focus-visible{outline:2px solid var(--cherry);outline-offset:3px}
+.rov-hero:active{transform:scale(.99)}
+.rov-hero .ro-mark{width:58px;height:58px;border-radius:18px;font-size:1.2rem;box-shadow:0 0 0 3px rgba(255,255,255,.14)}
+.rov-h-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.rov-h-k{display:inline-flex;align-items:center;gap:6px;font-size:.7rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#F0C98A}
+.rov-h-k svg{width:14px;height:14px;fill:#F0C98A;stroke:none}
+.rov-h-tx b{font-family:var(--display);font-size:1.25rem;line-height:1.15;letter-spacing:-.01em;overflow-wrap:anywhere}
+.rov-h-tx small{font-size:.8rem;color:#D9C8B8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rov-h-rate{flex:none;display:inline-flex;align-items:center;gap:4px;padding:6px 11px;border-radius:var(--r-pill);background:rgba(255,255,255,.12);font:800 .95rem var(--display);font-variant-numeric:tabular-nums}
+.rov-h-rate svg{width:15px;height:15px}
+.rov-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 12px}
+.rov-stats>span{display:flex;align-items:center;gap:10px;min-width:0;padding:12px 10px;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--shadow),inset 0 0 0 1px var(--hair)}
+.rov-stats>span>span{display:flex;flex-direction:column;min-width:0;font-size:.74rem;color:var(--muted);line-height:1.2}
+.rov-stats b{font-family:var(--display);font-size:1.3rem;line-height:1.05;color:var(--ink);font-variant-numeric:tabular-nums}
+.rov-ic{flex:none;width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:var(--c)}
+.rov-ic svg{width:18px;height:18px;fill:none;stroke:var(--surface);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:359px){.rov-stats>span{flex-direction:column;align-items:flex-start;gap:6px}}
+
+
+#bg-views.seg.bviews,.gtabs{background:color-mix(in srgb,var(--ink) 6%,var(--paper))!important;border:0!important;padding:4px!important}
+#bg-views.seg.bviews>button,.gtabs>button{min-height:38px;font-weight:600!important;color:color-mix(in srgb,var(--ink) 78%,var(--paper))!important}
+#bg-views.seg.bviews>button[aria-pressed="true"],.gtabs>button[aria-pressed="true"]{background:var(--surface)!important;color:var(--ink)!important;font-weight:750!important;
+  box-shadow:0 1px 2px rgba(40,24,14,.10),0 6px 14px -8px rgba(40,24,14,.40)!important}
+#bg-views .seg-ind,.gtabs .seg-ind{background:var(--surface)!important;box-shadow:0 1px 2px rgba(40,24,14,.10),0 6px 14px -8px rgba(40,24,14,.40)!important}
+
+:root[data-theme="dark"] :is(#bg-views.seg.bviews>button[aria-pressed="true"],.gtabs>button[aria-pressed="true"],#bg-views .seg-ind,.gtabs .seg-ind){background:color-mix(in srgb,var(--ink) 18%,var(--surface))!important;box-shadow:0 1px 2px rgba(0,0,0,.35)!important}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(#bg-views.seg.bviews>button[aria-pressed="true"],.gtabs>button[aria-pressed="true"],#bg-views .seg-ind,.gtabs .seg-ind){background:color-mix(in srgb,var(--ink) 18%,var(--surface))!important;box-shadow:0 1px 2px rgba(0,0,0,.35)!important}}
 </style>
 <script>const JSPDF_SRC="vendor/jspdf.umd.min.js"</script>
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="a2d4bf13c3d4"</script>
+<script>const BUILD_ID="8dfd6f9fc37b"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -10358,10 +10382,18 @@ function renderRoasteriesView(){const p=$('bv-roasteries');if(!p)return;const al
       '<small>'+r.list.length+' coffee'+(r.list.length===1?'':'s')+(r.bags>r.list.length?' · '+r.bags+' bags':'')+(os.length?' · '+esc(os.slice(0,2).join(', '))+(os.length>2?' +'+(os.length-2):''):'')+'</small>'+
       (pics.length?'<span class="rov-bags">'+pics.map(b=>beanPic(b,'rw')).join('')+(more>0?'<span class="rov-more">+'+more+'</span>':'')+'</span>':'')+
       '</span></button>'};
-  const origins=new Set(all.flatMap(r=>r.list.map(realO)).filter(Boolean)).size;
+  const origins=new Set(all.flatMap(r=>r.list.map(realO)).filter(Boolean)).size,rated=BEANS.filter(b=>b.roaster&&b.rating),avg=rated.length?rated.reduce((n,b)=>n+b.rating,0)/rated.length:0;
+  const ic=d=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+d+'"/></svg>';
+  // Your favourite roastery leads, on the dark card the Beans page opens with; three small figures follow.
+  const favOs=fav?[...new Set(fav.list.map(b=>b.origin?beanFlags(b)+' '+beanOrigin(b):'').filter(Boolean))]:[];
   p.innerHTML='<div class="shelf-h"><b>Your roasteries</b><span>'+coffees+' coffee'+(coffees===1?'':'s')+'</span></div>'+
-    '<div class="rov-stats"><span><b>'+all.length+'</b>roaster'+(all.length===1?'y':'ies')+'</span><span><b>'+origins+'</b>origin'+(origins===1?'':'s')+'</span>'+
-      (fav?'<span class="rov-fav">'+roMark(fav.name)+'<b>'+esc(fav.name)+'</b>favourite</span>':'<span><b>–</b>favourite</span>')+'</div>'+
+    (fav?'<button type="button" class="rov-hero" data-ro="'+esc(fav.name)+'">'+roMark(fav.name,true)+'<span class="rov-h-tx"><span class="rov-h-k">'+ic('M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z')+'Favourite roastery</span><b>'+esc(fav.name)+'</b>'+
+        '<small>'+fav.list.length+' coffee'+(fav.list.length===1?'':'s')+(favOs.length?' · '+esc(favOs.slice(0,2).join(', ')):'')+'</small></span><span class="rov-h-rate">'+beanSVG+half(fav.avg)+'</span></button>':'')+
+    '<div class="rov-stats">'+
+      '<span><i class="rov-ic" style="--c:var(--cherry)">'+ic('M4 10l1.5-5h13L20 10M4 10v9h16v-9M4 10h16M9 19v-5h6v5')+'</i><span><b>'+all.length+'</b>roaster'+(all.length===1?'y':'ies')+'</span></span>'+
+      '<span><i class="rov-ic" style="--c:var(--leaf)">'+ic(ICO.globe)+'</i><span><b>'+origins+'</b>origin'+(origins===1?'':'s')+'</span></span>'+
+      '<span><i class="rov-ic" style="--c:var(--honey)">'+ic('M12 3c-4 3-6 6.5-6 10a6 6 0 0 0 12 0c0-3.5-2-7-6-10z M12 8c-1.5 2-1.5 6 0 9')+'</i><span><b>'+(avg?half(avg):'–')+'</b>average</span></span>'+
+    '</div>'+
     '<div class="clist rov">'+all.map(row).join('')+'</div>';
   hydrateImgs(p)}
 // The journal's season, in the corner of the Beans header (northern-hemisphere seasons, as the seasonal trophies).
