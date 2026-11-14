@@ -409,7 +409,7 @@ button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.a
 #tm-list li.cur{background:color-mix(in srgb,var(--cherry) 12%,var(--surface));color:var(--ink);font-weight:600}#tm-list li.done{opacity:.55;text-decoration:line-through}
 @media (max-width:759px){html dialog#timer{margin:0;width:100%;max-width:100%;height:100%;max-height:100%;border-radius:0;border:0}}
 
-.rhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 0 10px}.rhead .rh{margin:0}.rhead .btn{flex:none;padding:8px 14px;font-size:.88rem}
+.rhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 0 10px}.rhead .rh{margin:0}.rhead .btn{flex:none;padding:8px 14px}
 .rsteps{margin:.2rem 0 .4rem}.rsteps summary{cursor:pointer;font-weight:600;color:var(--cherry);padding:4px 0}.rsteps[open] summary{margin-bottom:.2rem}
 .rh{margin:22px 0 10px;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-family:var(--body);font-weight:700}
 .qlinks{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow)}
@@ -911,7 +911,7 @@ svg .bo{fill:currentColor}svg .bc{fill:none;stroke:var(--surface);stroke-width:1
 .sync[data-s="live"]{color:var(--leaf)}.sync[data-s="live"]::before{background:var(--leaf);box-shadow:0 0 0 3px color-mix(in srgb,var(--leaf) 25%,transparent)}
 .sync[data-s="offline"]::before{background:var(--honey)}
 .code{font-family:var(--display);letter-spacing:.08em;font-variant-numeric:tabular-nums}
-.joinrow{display:flex;gap:8px}.joinrow input{flex:1;min-width:0;text-transform:uppercase;letter-spacing:.08em;font-family:var(--display)}.joinrow .btn{flex:0 0 auto}
+.joinrow{display:flex;gap:8px;align-items:center}.joinrow input{flex:1;min-width:0;text-transform:uppercase;letter-spacing:.08em;font-family:var(--display)}.joinrow .btn{flex:0 0 auto}
 
 .hm-ic{width:1.05em;height:1.05em;vertical-align:-.18em;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linejoin:round;stroke-linecap:round}
 .bd-addrd .dateinp{flex:1 1 100%;width:100%}
@@ -1276,7 +1276,7 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 @media (pointer:coarse){button.chip,.vbtn,.legend button{min-height:36px}.legend button::after{content:"";position:absolute;inset:-6px 0}}
 
 
-.rsearchw{margin:0 0 14px}.rsearchw input{width:100%;box-shadow:var(--shadow)}
+.rsearchw{margin:0 0 14px}
 #rhome>.qlinks{margin-top:4px}
 .bshelf,.colshelf{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:none;scroll-snap-type:x proximity}.bshelf::-webkit-scrollbar,.colshelf::-webkit-scrollbar{display:none}
 .bshelf button{flex:none;scroll-snap-align:start;width:112px;display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:12px;border-radius:16px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;text-align:left;cursor:pointer}
@@ -2644,7 +2644,7 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="a2216747fab2"</script>
+<script>const BUILD_ID="af32449bc0b9"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -3082,7 +3082,7 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 <section id="recipes">
   <h2>Recipes</h2>
   <p class="lede">Pick a brewer or collection, or search. Grind settings follow your calibration.</p>
-  <div class="rsearchw"><input type="search" id="rsearch" placeholder="Search recipes" aria-label="Search recipes"></div>
+  <div class="rsearchw"><label class="lf-q"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4"/></svg><input type="search" id="rsearch" placeholder="Search recipes" aria-label="Search recipes"></label></div>
   <div id="rhome"></div>
   <div class="rhead"><h3 class="rh" id="rall">All recipes</h3><div class="rhtools"><button type="button" class="rsortw" id="rfiltbtn" aria-label="Filter recipes" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button><button type="button" class="rsortw" id="rsortbtn" aria-label="Sort recipes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h11M4 12h8M4 17h5M18 6v12M15 15l3 3 3-3"/></svg></button><button type="button" class="btn ghost" id="r-new" aria-label="New recipe">+ New<span class="rn-w"> recipe</span></button></div></div>
   <div id="rgrid"></div>
@@ -12568,7 +12568,7 @@ window.PROFILE_OK=true;profileChanged();
 
 /* ================= SYNC ================= */
 // Signed in, what you keep follows your account to every phone and the website: your coffees with their diaries,
-// brews, recipes, scans and photos, your Top 5, trophies and favourites, your gear and calibration, and the app's look.
+// brews, recipes, scans and photos (and roastery logos), the scanner's memory of roasteries, your Top 5, trophies and favourites, your gear and calibration, and the app's look.
 // Each item is compared three ways: this device, the account, and how both looked at the last sync. So a coffee
 // edited on the phone and a brew logged on the website both survive; the same item changed in two places keeps this
 // device's version, except when a device joins the account for the first time, where the account's copy wins.
@@ -12582,6 +12582,15 @@ window.PROFILE_OK=true;profileChanged();
 const SYNC_COLS=['bb-beans','bb-log','bb-scans','bb-myrecipes'];
 const SYNC_KEYS=['bb-top3','bb-advent','bb-trophies','bb-favs','bb-custom-grinders','bb-mygrinders','bb-mybrewers','bb-base3','bb-calc','bb-ui','bb-theme','bb-cardstyle','bb-group','bb-name','bb-blends','bb-dialnext'];
 const SYNC_ID=/^[A-Za-z0-9_:-]{1,40}$/;
+// Photos sync by id; a roastery's logo is kept under its name ("logo:kuf roastery"), so it gets its own rule (anything a
+// database key can hold).
+const syncImgKey=k=>SYNC_ID.test(k)||/^logo:[^.$#\[\]\/\u0000-\u001f\u007f]{1,60}$/.test(k);
+// The scanner's memory (the words on each roastery's bags and the look of its bags) is learnt on each phone from its own
+// scans, so two copies are put together rather than one replacing the other: each word keeps the higher count, and
+// every bag's look is kept (this device's where both have one).
+function romemMerge(a,b){let A,B;try{A=JSON.parse(a)||{};B=JSON.parse(b)||{}}catch(e){return a}const t={},v=Object.assign({},B.v||{},A.v||{});
+  for(const src of [B.t||{},A.t||{}])for(const r in src){const o=t[r]||(t[r]={});for(const w in src[r])o[w]=Math.max(o[w]||0,+src[r][w]||0)}
+  return JSON.stringify({t,v})}
 const fnv=s=>{let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)}return(h>>>0).toString(36)+'.'+s.length.toString(36)};
 // Photos are large: their fingerprint is taken from the length and both ends.
 const imgSig=v=>fnv(v.length+v.slice(0,4000)+v.slice(-4000));
@@ -12640,10 +12649,15 @@ async function sync(apply){if(!syncOn())return false;if(SYNC_BUSY){SYNC_MORE=Mat
       if(sets.size||dels.size){const out=[];for(const x of L.a){const id=x&&x.id;if(dels.has(id))continue;if(sets.has(id)){out.push(JSON.parse(sets.get(id)));sets.delete(id)}else out.push(x)}
         for(const v of sets.values())out.unshift(JSON.parse(v));pulls.push([k,JSON.stringify(out)])}}
     // Settings, each as a whole.
+    // The scanner's memory: both copies put together, here and in the account.
+    {const k='bb-romem',l=localStorage.getItem(k),r=txt(R.kv&&R.kv[k]);
+      if(l!=null&&r!=null&&l!==r){const m=romemMerge(l,r);if(m!==r)up['kv/'+k]={t:now,d:m};// (safe without the page reloading: the memory in use is updated in place)
+      if(m!==l){localStorage.setItem(k,m);try{const o=JSON.parse(m);RMEM.t=o.t;RMEM.v=o.v}catch(e){}}done.push(['k|'+k,m])}
+      else{const a=syncMerge(H,'k|'+k,l,r);if(a==='push'){up['kv/'+k]=l==null?{t:now,del:1}:{t:now,d:l};done.push(['k|'+k,l])}else if(a==='pull'&&apply){pulls.push([k,r]);done.push(['k|'+k,r])}}}
     for(const k of SYNC_KEYS){const l=localStorage.getItem(k),r=txt(R.kv&&R.kv[k]),a=syncMerge(H,'k|'+k,l,r);
       if(a==='push'){up['kv/'+k]=l==null?{t:now,del:1}:{t:now,d:l};done.push(['k|'+k,l])}else if(a==='pull'&&apply){pulls.push([k,r]);done.push(['k|'+k,r])}}
     // Photos: uploaded and fetched one by one, their fingerprints listed with the rest.
-    const imgs=await BIMG.all(),RI=R.img||{},keys=new Set([...Object.keys(imgs).filter(i=>SYNC_ID.test(i)),...Object.keys(RI).filter(i=>SYNC_ID.test(i)),...Object.keys(H).filter(x=>x.startsWith('i|')).map(x=>x.slice(2))]);
+    const imgs=await BIMG.all(),RI=R.img||{},keys=new Set([...Object.keys(imgs).filter(syncImgKey),...Object.keys(RI).filter(syncImgKey),...Object.keys(H).filter(x=>x.startsWith('i|')).map(x=>x.slice(2))]);
     const imgUrl=k=>syncBase()+'/userimg/'+uid+'/'+encodeURIComponent(k)+q;
     for(const k of keys){const l=typeof imgs[k]==='string'?imgSig(imgs[k]):null,r=RI[k]&&!RI[k].del?RI[k].s:null,a=syncMerge(H,'i|'+k,l,r);
       if(a==='push'){const w=await fetch(imgUrl(k),l==null?{method:'DELETE'}:{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(imgs[k])});

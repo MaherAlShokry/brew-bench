@@ -409,7 +409,7 @@ button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.a
 #tm-list li.cur{background:color-mix(in srgb,var(--cherry) 12%,var(--surface));color:var(--ink);font-weight:600}#tm-list li.done{opacity:.55;text-decoration:line-through}
 @media (max-width:759px){html dialog#timer{margin:0;width:100%;max-width:100%;height:100%;max-height:100%;border-radius:0;border:0}}
 /* Recipes home: quick links and cup types */
-.rhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 0 10px}.rhead .rh{margin:0}.rhead .btn{flex:none;padding:8px 14px;font-size:.88rem}
+.rhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 0 10px}.rhead .rh{margin:0}.rhead .btn{flex:none;padding:8px 14px}
 .rsteps{margin:.2rem 0 .4rem}.rsteps summary{cursor:pointer;font-weight:600;color:var(--cherry);padding:4px 0}.rsteps[open] summary{margin-bottom:.2rem}
 .rh{margin:22px 0 10px;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-family:var(--body);font-weight:700}
 .qlinks{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow)}
@@ -916,7 +916,7 @@ svg .bo{fill:currentColor}svg .bc{fill:none;stroke:var(--surface);stroke-width:1
 .sync[data-s="live"]{color:var(--leaf)}.sync[data-s="live"]::before{background:var(--leaf);box-shadow:0 0 0 3px color-mix(in srgb,var(--leaf) 25%,transparent)}
 .sync[data-s="offline"]::before{background:var(--honey)}
 .code{font-family:var(--display);letter-spacing:.08em;font-variant-numeric:tabular-nums}
-.joinrow{display:flex;gap:8px}.joinrow input{flex:1;min-width:0;text-transform:uppercase;letter-spacing:.08em;font-family:var(--display)}.joinrow .btn{flex:0 0 auto}
+.joinrow{display:flex;gap:8px;align-items:center}.joinrow input{flex:1;min-width:0;text-transform:uppercase;letter-spacing:.08em;font-family:var(--display)}.joinrow .btn{flex:0 0 auto}
 /* Bean ratings outside the gallery: a row of small beans, filled to the rating. */
 .hm-ic{width:1.05em;height:1.05em;vertical-align:-.18em;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linejoin:round;stroke-linecap:round}
 .bd-addrd .dateinp{flex:1 1 100%;width:100%}
@@ -1291,7 +1291,7 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 @media (pointer:coarse){button.chip,.vbtn,.legend button{min-height:36px}.legend button::after{content:"";position:absolute;inset:-6px 0}}
 
 /* Recipes: search, brewer and collection shelves, and a compact list grouped by brewer. */
-.rsearchw{margin:0 0 14px}.rsearchw input{width:100%;box-shadow:var(--shadow)}
+.rsearchw{margin:0 0 14px}/* The same search box as Beans, the log and Words. */
 #rhome>.qlinks{margin-top:4px}
 .bshelf,.colshelf{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:none;scroll-snap-type:x proximity}.bshelf::-webkit-scrollbar,.colshelf::-webkit-scrollbar{display:none}
 .bshelf button{flex:none;scroll-snap-align:start;width:112px;display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:12px;border-radius:16px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;text-align:left;cursor:pointer}
@@ -3114,7 +3114,7 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 <section id="recipes">
   <h2>Recipes</h2>
   <p class="lede">Pick a brewer or collection, or search. Grind settings follow your calibration.</p>
-  <div class="rsearchw"><input type="search" id="rsearch" placeholder="Search recipes" aria-label="Search recipes"></div>
+  <div class="rsearchw"><label class="lf-q"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4"/></svg><input type="search" id="rsearch" placeholder="Search recipes" aria-label="Search recipes"></label></div>
   <div id="rhome"></div>
   <div class="rhead"><h3 class="rh" id="rall">All recipes</h3><div class="rhtools"><button type="button" class="rsortw" id="rfiltbtn" aria-label="Filter recipes" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button><button type="button" class="rsortw" id="rsortbtn" aria-label="Sort recipes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h11M4 12h8M4 17h5M18 6v12M15 15l3 3 3-3"/></svg></button><button type="button" class="btn ghost" id="r-new" aria-label="New recipe">+ New<span class="rn-w"> recipe</span></button></div></div>
   <div id="rgrid"></div>

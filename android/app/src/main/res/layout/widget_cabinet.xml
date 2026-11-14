@@ -31,6 +31,7 @@
                     <TextView android:id="@+id/c_f0" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:ellipsize="end" android:maxLines="1" android:textColor="@color/widget_muted" android:textSize="12sp" />
                 </LinearLayout>
             </LinearLayout>
+            <ImageView android:id="@+id/c_l0" android:layout_width="36dp" android:layout_height="36dp" android:layout_marginStart="8dp" android:background="@drawable/widget_btn2" android:contentDescription="Log a brew with this coffee" android:padding="9dp" android:src="@drawable/wic_log" />
         </LinearLayout>
         <LinearLayout android:id="@+id/c_row1" android:layout_width="match_parent" android:layout_height="54dp" android:layout_weight="1" android:layout_marginTop="6dp" android:background="@drawable/widget_tile" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="8dp" android:paddingEnd="12dp" android:visibility="gone">
             <FrameLayout android:id="@+id/c_fr1" android:layout_width="38dp" android:layout_height="38dp" android:layout_marginEnd="10dp" android:background="@drawable/widget_pic">
@@ -44,6 +45,7 @@
                     <TextView android:id="@+id/c_f1" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:ellipsize="end" android:maxLines="1" android:textColor="@color/widget_muted" android:textSize="12sp" />
                 </LinearLayout>
             </LinearLayout>
+            <ImageView android:id="@+id/c_l1" android:layout_width="36dp" android:layout_height="36dp" android:layout_marginStart="8dp" android:background="@drawable/widget_btn2" android:contentDescription="Log a brew with this coffee" android:padding="9dp" android:src="@drawable/wic_log" />
         </LinearLayout>
         <LinearLayout android:id="@+id/c_row2" android:layout_width="match_parent" android:layout_height="54dp" android:layout_weight="1" android:layout_marginTop="6dp" android:background="@drawable/widget_tile" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="8dp" android:paddingEnd="12dp" android:visibility="gone">
             <FrameLayout android:id="@+id/c_fr2" android:layout_width="38dp" android:layout_height="38dp" android:layout_marginEnd="10dp" android:background="@drawable/widget_pic">
@@ -57,6 +59,7 @@
                     <TextView android:id="@+id/c_f2" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:ellipsize="end" android:maxLines="1" android:textColor="@color/widget_muted" android:textSize="12sp" />
                 </LinearLayout>
             </LinearLayout>
+            <ImageView android:id="@+id/c_l2" android:layout_width="36dp" android:layout_height="36dp" android:layout_marginStart="8dp" android:background="@drawable/widget_btn2" android:contentDescription="Log a brew with this coffee" android:padding="9dp" android:src="@drawable/wic_log" />
         </LinearLayout>
         <LinearLayout android:id="@+id/c_row3" android:layout_width="match_parent" android:layout_height="54dp" android:layout_weight="1" android:layout_marginTop="6dp" android:background="@drawable/widget_tile" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="8dp" android:paddingEnd="12dp" android:visibility="gone">
             <FrameLayout android:id="@+id/c_fr3" android:layout_width="38dp" android:layout_height="38dp" android:layout_marginEnd="10dp" android:background="@drawable/widget_pic">
@@ -70,6 +73,7 @@
                     <TextView android:id="@+id/c_f3" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:ellipsize="end" android:maxLines="1" android:textColor="@color/widget_muted" android:textSize="12sp" />
                 </LinearLayout>
             </LinearLayout>
+            <ImageView android:id="@+id/c_l3" android:layout_width="36dp" android:layout_height="36dp" android:layout_marginStart="8dp" android:background="@drawable/widget_btn2" android:contentDescription="Log a brew with this coffee" android:padding="9dp" android:src="@drawable/wic_log" />
         </LinearLayout>
         <LinearLayout android:id="@+id/c_row4" android:layout_width="match_parent" android:layout_height="54dp" android:layout_weight="1" android:layout_marginTop="6dp" android:background="@drawable/widget_tile" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="8dp" android:paddingEnd="12dp" android:visibility="gone">
             <FrameLayout android:id="@+id/c_fr4" android:layout_width="38dp" android:layout_height="38dp" android:layout_marginEnd="10dp" android:background="@drawable/widget_pic">
@@ -83,6 +87,7 @@
                     <TextView android:id="@+id/c_f4" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:ellipsize="end" android:maxLines="1" android:textColor="@color/widget_muted" android:textSize="12sp" />
                 </LinearLayout>
             </LinearLayout>
+            <ImageView android:id="@+id/c_l4" android:layout_width="36dp" android:layout_height="36dp" android:layout_marginStart="8dp" android:background="@drawable/widget_btn2" android:contentDescription="Log a brew with this coffee" android:padding="9dp" android:src="@drawable/wic_log" />
         </LinearLayout>
         <LinearLayout android:id="@+id/c_row5" android:layout_width="match_parent" android:layout_height="54dp" android:layout_weight="1" android:layout_marginTop="6dp" android:background="@drawable/widget_tile" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="8dp" android:paddingEnd="12dp" android:visibility="gone">
             <FrameLayout android:id="@+id/c_fr5" android:layout_width="38dp" android:layout_height="38dp" android:layout_marginEnd="10dp" android:background="@drawable/widget_pic">
@@ -96,6 +101,7 @@
                     <TextView android:id="@+id/c_f5" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:ellipsize="end" android:maxLines="1" android:textColor="@color/widget_muted" android:textSize="12sp" />
                 </LinearLayout>
             </LinearLayout>
+            <ImageView android:id="@+id/c_l5" android:layout_width="36dp" android:layout_height="36dp" android:layout_marginStart="8dp" android:background="@drawable/widget_btn2" android:contentDescription="Log a brew with this coffee" android:padding="9dp" android:src="@drawable/wic_log" />
         </LinearLayout>
         <!-- When the rows have reached their tallest and space is left: a tile to scan a new bag, taking the rest. -->
         <TextView android:id="@+id/c_more" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1000" android:layout_marginTop="6dp" android:background="@drawable/widget_tile" android:gravity="center" android:text="+  Scan a new bag" android:textColor="@color/widget_accent" android:textSize="13sp" android:textStyle="bold" android:visibility="gone" />

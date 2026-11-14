@@ -115,3 +115,5 @@ livetimer 25
 romem 40
 backspot 20
 sheetback 20
+syncro 30
+consistency 60

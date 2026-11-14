@@ -14,7 +14,7 @@ import org.json.JSONObject;
 /**
  * "Your cabinet": the coffees on your shelf, most recently brewed first, as many as the widget's height holds (and how
  * many more). Each row has a dot in its freshness colour, the coffee's name and today's day off roast and cups left,
- * and opens that coffee; the heading opens the Beans page.
+ * and opens that coffee; its cup button logs a brew with it. The heading opens the Beans page.
  */
 public class CabinetWidget extends AppWidgetProvider {
     static final int[] ROWS = {R.id.c_row0, R.id.c_row1, R.id.c_row2, R.id.c_row3, R.id.c_row4, R.id.c_row5};
@@ -24,6 +24,7 @@ public class CabinetWidget extends AppWidgetProvider {
     static final int[] PICS = {R.id.c_p0, R.id.c_p1, R.id.c_p2, R.id.c_p3, R.id.c_p4, R.id.c_p5};
     static final int[] FLAGS = {R.id.c_g0, R.id.c_g1, R.id.c_g2, R.id.c_g3, R.id.c_g4, R.id.c_g5};
     static final int[] FRAMES = {R.id.c_fr0, R.id.c_fr1, R.id.c_fr2, R.id.c_fr3, R.id.c_fr4, R.id.c_fr5};
+    static final int[] LOGS = {R.id.c_l0, R.id.c_l1, R.id.c_l2, R.id.c_l3, R.id.c_l4, R.id.c_l5};
 
     @Override
     public void onUpdate(Context ctx, AppWidgetManager m, int[] ids) {
@@ -80,6 +81,8 @@ public class CabinetWidget extends AppWidgetProvider {
             v.setImageViewResource(DOTS[i], s < 0 ? R.drawable.wdot_rest : BrewWidget.STAGE_DOT[s]);
             v.setContentDescription(DOTS[i], s < 0 ? "No roast date" : BrewWidget.STAGES[s]);
             v.setOnClickPendingIntent(ROWS[i], BrewWidget.open(ctx, "bean:" + o.optString("id", ""), 11 + i));
+            // The cup button logs a brew with this coffee (the app opens on the log, the coffee picked).
+            v.setOnClickPendingIntent(LOGS[i], BrewWidget.open(ctx, "log:" + o.optString("id", ""), 60 + i));
         }
         return v;
     }

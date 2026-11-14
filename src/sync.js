@@ -1,6 +1,6 @@
 /* ================= SYNC ================= */
 // Signed in, what you keep follows your account to every phone and the website: your coffees with their diaries,
-// brews, recipes, scans and photos, your Top 5, trophies and favourites, your gear and calibration, and the app's look.
+// brews, recipes, scans and photos (and roastery logos), the scanner's memory of roasteries, your Top 5, trophies and favourites, your gear and calibration, and the app's look.
 // Each item is compared three ways: this device, the account, and how both looked at the last sync. So a coffee
 // edited on the phone and a brew logged on the website both survive; the same item changed in two places keeps this
 // device's version, except when a device joins the account for the first time, where the account's copy wins.
@@ -14,6 +14,15 @@
 const SYNC_COLS=['bb-beans','bb-log','bb-scans','bb-myrecipes'];
 const SYNC_KEYS=['bb-top3','bb-advent','bb-trophies','bb-favs','bb-custom-grinders','bb-mygrinders','bb-mybrewers','bb-base3','bb-calc','bb-ui','bb-theme','bb-cardstyle','bb-group','bb-name','bb-blends','bb-dialnext'];
 const SYNC_ID=/^[A-Za-z0-9_:-]{1,40}$/;
+// Photos sync by id; a roastery's logo is kept under its name ("logo:kuf roastery"), so it gets its own rule (anything a
+// database key can hold).
+const syncImgKey=k=>SYNC_ID.test(k)||/^logo:[^.$#\[\]\/\u0000-\u001f\u007f]{1,60}$/.test(k);
+// The scanner's memory (the words on each roastery's bags and the look of its bags) is learnt on each phone from its own
+// scans, so two copies are put together rather than one replacing the other: each word keeps the higher count, and
+// every bag's look is kept (this device's where both have one).
+function romemMerge(a,b){let A,B;try{A=JSON.parse(a)||{};B=JSON.parse(b)||{}}catch(e){return a}const t={},v=Object.assign({},B.v||{},A.v||{});
+  for(const src of [B.t||{},A.t||{}])for(const r in src){const o=t[r]||(t[r]={});for(const w in src[r])o[w]=Math.max(o[w]||0,+src[r][w]||0)}
+  return JSON.stringify({t,v})}
 const fnv=s=>{let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)}return(h>>>0).toString(36)+'.'+s.length.toString(36)};
 // Photos are large: their fingerprint is taken from the length and both ends.
 const imgSig=v=>fnv(v.length+v.slice(0,4000)+v.slice(-4000));
@@ -72,10 +81,15 @@ async function sync(apply){if(!syncOn())return false;if(SYNC_BUSY){SYNC_MORE=Mat
       if(sets.size||dels.size){const out=[];for(const x of L.a){const id=x&&x.id;if(dels.has(id))continue;if(sets.has(id)){out.push(JSON.parse(sets.get(id)));sets.delete(id)}else out.push(x)}
         for(const v of sets.values())out.unshift(JSON.parse(v));pulls.push([k,JSON.stringify(out)])}}
     // Settings, each as a whole.
+    // The scanner's memory: both copies put together, here and in the account.
+    {const k='bb-romem',l=localStorage.getItem(k),r=txt(R.kv&&R.kv[k]);
+      if(l!=null&&r!=null&&l!==r){const m=romemMerge(l,r);if(m!==r)up['kv/'+k]={t:now,d:m};// (safe without the page reloading: the memory in use is updated in place)
+      if(m!==l){localStorage.setItem(k,m);try{const o=JSON.parse(m);RMEM.t=o.t;RMEM.v=o.v}catch(e){}}done.push(['k|'+k,m])}
+      else{const a=syncMerge(H,'k|'+k,l,r);if(a==='push'){up['kv/'+k]=l==null?{t:now,del:1}:{t:now,d:l};done.push(['k|'+k,l])}else if(a==='pull'&&apply){pulls.push([k,r]);done.push(['k|'+k,r])}}}
     for(const k of SYNC_KEYS){const l=localStorage.getItem(k),r=txt(R.kv&&R.kv[k]),a=syncMerge(H,'k|'+k,l,r);
       if(a==='push'){up['kv/'+k]=l==null?{t:now,del:1}:{t:now,d:l};done.push(['k|'+k,l])}else if(a==='pull'&&apply){pulls.push([k,r]);done.push(['k|'+k,r])}}
     // Photos: uploaded and fetched one by one, their fingerprints listed with the rest.
-    const imgs=await BIMG.all(),RI=R.img||{},keys=new Set([...Object.keys(imgs).filter(i=>SYNC_ID.test(i)),...Object.keys(RI).filter(i=>SYNC_ID.test(i)),...Object.keys(H).filter(x=>x.startsWith('i|')).map(x=>x.slice(2))]);
+    const imgs=await BIMG.all(),RI=R.img||{},keys=new Set([...Object.keys(imgs).filter(syncImgKey),...Object.keys(RI).filter(syncImgKey),...Object.keys(H).filter(x=>x.startsWith('i|')).map(x=>x.slice(2))]);
     const imgUrl=k=>syncBase()+'/userimg/'+uid+'/'+encodeURIComponent(k)+q;
     for(const k of keys){const l=typeof imgs[k]==='string'?imgSig(imgs[k]):null,r=RI[k]&&!RI[k].del?RI[k].s:null,a=syncMerge(H,'i|'+k,l,r);
       if(a==='push'){const w=await fetch(imgUrl(k),l==null?{method:'DELETE'}:{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(imgs[k])});
