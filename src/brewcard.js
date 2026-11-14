@@ -299,7 +299,7 @@ function bcDraw(m){const W=BC.W,P=BC.PAD,IW=W-2*P;BC.BRK=[];if(!BC_CV){BC_CV=doc
   // very tall gallery a little less to keep memory in hand;
   // everything is laid out in the card's own 1080-wide units and scaled once here.
   // A card that knows its height draws on a canvas just that tall (the background is most of the drawing work).
-  const H0=m.minH?Math.ceil(m.minH):4400,S=BC.S=Math.min(1.5,Math.sqrt(26e6/(W*H0)));
+  const H0=m.minH?Math.ceil(m.minH):4400,S=BC.S=Math.min((m.style||CARD_STYLE).pdf?1:1.5,Math.sqrt(26e6/(W*H0)));
   // Recording (see bcRec): the same drawing, written down to be painted in the background instead of on this canvas.
   let c,x;if(m.rec){c={width:Math.round(W*S),height:Math.round(H0*S),rec:true};x=bcRec(c)}
   else{if(BC_CV.width!==Math.round(W*S)||BC_CV.height!==Math.round(H0*S)){BC_CV.width=Math.round(W*S);BC_CV.height=Math.round(H0*S)}c=BC_CV;x=c.getContext('2d')}
@@ -474,8 +474,8 @@ function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
 const bcBlob=m=>{const st=m.style||Object.assign({},CARD_STYLE);return (async()=>{if(document.fonts&&document.fonts.ready)await document.fonts.ready;
   const w=await bcWorker();
   if(w){try{const r=bcDraw(Object.assign({},m,{style:st,rec:true})),brk=(BC.BRK||[]).map(y=>Math.round(y*BC.S));
-      if(r&&r.recOut){const b=await w.paint(r);if(b){b._brk=brk;BC.BGN=(BC.BGN||0)+1;return b}}}catch(e){}}
-  const cv=bcDraw(Object.assign({},m,{style:st})),brk=(BC.BRK||[]).map(y=>Math.round(y*BC.S));return new Promise(res=>cv.toBlob(b=>{if(b)b._brk=brk;res(b)},'image/jpeg',0.94))})()};
+      if(r&&r.recOut){r.q=st.pdf?0.9:0.94;const b=await w.paint(r);if(b){b._brk=brk;BC.BGN=(BC.BGN||0)+1;return b}}}catch(e){}}
+  const cv=bcDraw(Object.assign({},m,{style:st})),brk=(BC.BRK||[]).map(y=>Math.round(y*BC.S));return new Promise(res=>cv.toBlob(b=>{if(b)b._brk=brk;res(b)},'image/jpeg',st.pdf?0.9:0.94))})()};
 // The drawn part of the card, trimmed: copied here, or (recording) the size to trim to in the worker.
 function bcOut(c,w,h){if(c.rec)return{recOut:true,ops:c.ops,bms:c.bms,width:c.width,height:c.height,cw:Math.min(w,c.width),ch:Math.min(h,c.height)};
   const out=document.createElement('canvas');out.width=w;out.height=h;out.getContext('2d').drawImage(c,0,0);return out}
@@ -523,7 +523,7 @@ self.onmessage=async e=>{const q=e.data;if(q.fonts){await load(q.fonts);self.pos
         else if(k==='p')R[o[1]]=x.createPattern(B[o[2]],o[3])}};
     play(c.getContext('2d'),q.ops);
     const out=new OffscreenCanvas(q.cw,q.ch);out.getContext('2d').drawImage(c,0,0);
-    const blob=await out.convertToBlob({type:'image/jpeg',quality:0.94});B.forEach(b=>b.close&&b.close());self.postMessage({id:q.id,blob})}
+    const blob=await out.convertToBlob({type:'image/jpeg',quality:q.q||0.94});B.forEach(b=>b.close&&b.close());self.postMessage({id:q.id,blob})}
   catch(err){self.postMessage({id:q.id,err:String(err&&err.message||err)})}};`;
     const w=new Worker(URL.createObjectURL(new Blob([code],{type:'text/javascript'})));const wait=new Map();let seq=0;
     const ok=await new Promise(res=>{const t=setTimeout(()=>res(false),8000);w.onmessage=e=>{clearTimeout(t);res(!!e.data.ok)};w.onerror=()=>{clearTimeout(t);res(false)};w.postMessage({fonts})});
@@ -531,7 +531,7 @@ self.onmessage=async e=>{const q=e.data;if(q.fonts){await load(q.fonts);self.pos
     w.onmessage=e=>{const p=wait.get(e.data.id);if(!p)return;wait.delete(e.data.id);e.data.blob?p.ok(e.data.blob):p.no(new Error(e.data.err||'card'))};
     w.onerror=e=>{e.preventDefault&&e.preventDefault();for(const p of wait.values())p.no(new Error('worker'));wait.clear()};
     return{paint:async r=>{const bms=await Promise.all(r.bms);const id=++seq;
-      return new Promise((ok,no)=>{wait.set(id,{ok,no});w.postMessage({id,ops:r.ops,bms,width:r.width,height:r.height,cw:r.cw,ch:r.ch},bms)})}}}
+      return new Promise((ok,no)=>{wait.set(id,{ok,no});w.postMessage({id,ops:r.ops,bms,width:r.width,height:r.height,cw:r.cw,ch:r.ch,q:r.q},bms)})}}}
   catch(e){return false}})();
   return BCW}
 // Where a PDF page may end: between rows, never through one (in the card's own units).
@@ -991,14 +991,16 @@ async function pdfCore(J,bm,title,brk0,mk,jpg){
   // A card up to about one and a half pages tall goes on one page, scaled to fit and framed in its own colour; only a
   // long one (a big gallery, a long list) runs over several.
   if(ih<=pageH*1.5){const k=Math.min(PW/iw,PH/ih),w=iw*k,h=ih*k,bg=colAt(Math.round(ih/2));pdf.setFillColor(...bg);pdf.rect(0,0,PW,PH,'F');
-    pdf.addImage(await jpg(full,0.88),'JPEG',(PW-w)/2,(PH-h)/2,w,h,undefined,'FAST');return pdf.output('blob')}
+    pdf.addImage(await jpg(full,0.82),'JPEG',(PW-w)/2,(PH-h)/2,w,h,undefined,'FAST');return pdf.output('blob')}
   // Pages after the first start a little down the page, so a pane carried over doesn't touch the top edge.
   const brk=(brk0||[]).filter(v=>v>0&&v<ih).sort((a,b)=>a-b),TOP=Math.round(iw*30/PW);
+  // Pages of a long PDF are kept to 900 px across (about 150 dpi on A4): sharp text, a third of the file.
+  const pk=Math.min(1,900/iw);
   let y=0,n=0;while(y<ih-2){const room=pageH-(n?TOP:0);let end=Math.min(ih,y+room);
     if(end<ih){const ok=brk.filter(v=>v>y+room*0.45&&v<=end);end=ok.length?ok[ok.length-1]:calm(Math.max(y+Math.floor(room*0.7),end-Math.floor(room*0.22)),end)}
-    const sh=end-y,cv=mk(iw,sh);cv.getContext('2d').drawImage(full,0,y,iw,sh,0,0,iw,sh);
+    const sh=end-y,cv=mk(Math.round(iw*pk),Math.max(1,Math.round(sh*pk)));{const cx=cv.getContext('2d');cx.imageSmoothingQuality='high';cx.drawImage(full,0,y,iw,sh,0,0,cv.width,cv.height)}
     const bg=colAt(n?y+2:end-1);if(n)pdf.addPage();pdf.setFillColor(...bg);pdf.rect(0,0,PW,PH,'F');
-    pdf.addImage(await jpg(cv,0.86),'JPEG',0,n?TOP*PW/iw:0,PW,sh*PW/iw,undefined,'FAST');n++;y=end}
+    pdf.addImage(await jpg(cv,0.74),'JPEG',0,n?TOP*PW/iw:0,PW,sh*PW/iw,undefined,'FAST');n++;y=end}
   return pdf.output('blob')}
 // The PDF is put together in a background worker, so the screen doesn't freeze while it's made: the card's image is
 // decoded, cut into pages and each page encoded there. Where workers can't do that (no OffscreenCanvas), or the

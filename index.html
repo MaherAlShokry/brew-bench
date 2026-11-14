@@ -1875,6 +1875,8 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 
 .rrow,.chwin,.gcard,#gear-brewers>.hovercard,#words article.card,#vgrid>.card,#tech .card,#process article.card{content-visibility:auto;contain-intrinsic-size:auto 160px}
 .dy-more{display:block;margin:14px auto 0}
+
+.dy-grp{content-visibility:auto;contain-intrinsic-size:auto 640px}
 .tline::before{content:"";position:absolute;left:21px;top:8px;bottom:8px;width:2px;border-radius:1px;background:var(--line)}
 .tl-e{position:relative;display:flex;gap:12px;padding:6px 0}
 .tl-ic{position:relative;z-index:1;flex:none;width:32px;height:32px;display:grid;place-items:center;border-radius:50%;background:var(--surface);box-shadow:0 0 0 2px var(--line);font-size:.95rem}
@@ -2769,7 +2771,7 @@ main section.on:has(>.fab){padding-bottom:160px!important}
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="effb0d52602b"</script>
+<script>const BUILD_ID="65aee17c4266"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -8765,8 +8767,8 @@ function docText(doc,noLink){let t='# '+doc.title+'\n';if(doc.sub)t+=doc.sub+'\n
 // look is picked for the image.
 async function docPDF(doc){try{const st=pdfStyle();let bl=null;
     // A share whose image is a short version (coffee words) has its full card for the PDF.
-    if(doc.pdfCard){if(!doc._pdfBl){const keep=Object.assign({},CARD_STYLE);Object.assign(CARD_STYLE,st);let pr;try{pr=doc.pdfCard()}finally{Object.assign(CARD_STYLE,keep)}doc._pdfBl=Promise.resolve(pr)}bl=await doc._pdfBl.catch(()=>null)}
-    else if(doc.card)bl=await shCardFor(doc,st).catch(()=>null);if(!bl)bl=await(doc._pdfBl||docCardImg(doc));const out=await cardPDF(bl,doc.title);if(out)return out}catch(e){}
+    if(doc.pdfCard){if(!doc._pdfBl){const keep=Object.assign({},CARD_STYLE);Object.assign(CARD_STYLE,st);let pr;try{pr=doc.pdfCard()}finally{Object.assign(CARD_STYLE,keep);if(!('pdf' in keep))delete CARD_STYLE.pdf}doc._pdfBl=Promise.resolve(pr)}bl=await doc._pdfBl.catch(()=>null)}
+    else if(doc.card)bl=await shCardFor(doc,st).catch(()=>null);if(!bl)bl=await(doc._pdfBl||docCardImg(doc));const out=await(doc._pdfOut&&doc._pdfOut.bl===bl?doc._pdfOut.p.catch(()=>null):cardPDF(bl,doc.title));if(out)return out}catch(e){}
   return docPDFText(doc)}
 function docPDFText(doc){
   const J=(window.jspdf||{}).jsPDF;if(!J)return null;
@@ -8868,15 +8870,19 @@ function openShareNow(doc){SHDOC=doc;loadPDF().catch(()=>{});const pdfOK=true;
 const shIdle=f=>(window.requestIdleCallback?requestIdleCallback(f,{timeout:1500}):setTimeout(f,300));
 // The PDF's first page, small, on its row: in the app's look (as the PDF is), so it's clear it can differ from the image.
 // Drawn in the background after the image's preview; the PDF itself then reuses the same card.
-const pdfStyle=()=>({mode:curTheme()==='dark'?'dark':'light',col:'classic'});
+// A PDF's card is drawn at the page's own sharpness (1080 wide, about 180 dpi on A4), not the share image's 1.5×.
+const pdfStyle=()=>({mode:curTheme()==='dark'?'dark':'light',col:'classic',pdf:true});
 // The card painter (a worker with the app's fonts) starts quietly a little after the app opens, so the first share
 // doesn't wait for it.
 addEventListener('load',()=>setTimeout(()=>shIdle(()=>{try{bcWorker()}catch(e){}}),6000));
 async function shPdfThumb(doc){const el=$('sharesheet').querySelector('.sh-pdfpv');if(!el||SHDOC!==doc)return;
   try{const st=pdfStyle();let bl;
-    if(doc.pdfCard){if(!doc._pdfBl){const keep=Object.assign({},CARD_STYLE);Object.assign(CARD_STYLE,st);let pr;try{pr=doc.pdfCard()}finally{Object.assign(CARD_STYLE,keep)}doc._pdfBl=Promise.resolve(pr)}bl=await doc._pdfBl}
+    if(doc.pdfCard){if(!doc._pdfBl){const keep=Object.assign({},CARD_STYLE);Object.assign(CARD_STYLE,st);let pr;try{pr=doc.pdfCard()}finally{Object.assign(CARD_STYLE,keep);if(!('pdf' in keep))delete CARD_STYLE.pdf}doc._pdfBl=Promise.resolve(pr)}bl=await doc._pdfBl}
     else if(doc.card)bl=await shCardFor(doc,st);else{doc._pdfBl=doc._pdfBl||docCardImg(doc);bl=await doc._pdfBl}
-    if(!bl||SHDOC!==doc||!el.isConnected)return;const bm=await createImageBitmap(bl),W=96,H=136,c=document.createElement('canvas');c.width=W;c.height=H;
+    if(!bl||SHDOC!==doc||!el.isConnected)return;
+    // The PDF itself is made now too, in the background worker, so tapping PDF hands it over at once.
+    if(!doc._pdfOut||doc._pdfOut.bl!==bl)doc._pdfOut={bl,p:loadPDF().then(()=>cardPDF(bl,doc.title))};
+    const bm=await createImageBitmap(bl),W=96,H=136,c=document.createElement('canvas');c.width=W;c.height=H;
     // As the PDF lays it out: a card up to one and a half pages tall fits on one page, framed in its own colour; a longer
     // one starts at the top of the first page.
     const x=c.getContext('2d',{willReadFrequently:true}),iw=bm.width,ih=bm.height,pageH=iw*841.89/595.28;
@@ -8888,9 +8894,9 @@ let SHCARD=null,SHN=0;
 // The preview, redrawn whenever the style changes; an older drawing that finishes late is dropped.
 // Each look is drawn once per share: switching back to one you've seen is instant, and once a card is up the other
 // mode (dark or light) is drawn while the sheet sits idle, so the first switch is quick too.
-const shKey=st=>st.mode+'|'+st.col;
+const shKey=st=>st.mode+'|'+st.col+(st.pdf?'|pdf':'');
 function shCardFor(doc,st){const c=doc._cards||(doc._cards=new Map()),k=shKey(st);if(c.has(k))return c.get(k);
-  const keep=Object.assign({},CARD_STYLE);Object.assign(CARD_STYLE,st);let pr;try{pr=doc.card()}finally{Object.assign(CARD_STYLE,keep)}
+  const keep=Object.assign({},CARD_STYLE);Object.assign(CARD_STYLE,st);let pr;try{pr=doc.card()}finally{Object.assign(CARD_STYLE,keep);if(!('pdf' in keep))delete CARD_STYLE.pdf}
   pr=Promise.resolve(pr).then(bl=>{if(!bl)c.delete(k);return bl},e=>{c.delete(k);throw e});c.set(k,pr);return pr}
 function drawShCard(first){const d=$('sharesheet'),doc=SHDOC,n=++SHN;SHCARD=null;const pv=d.querySelector('.shcard-pv');if(pv)pv.classList.add('busy');
   const st={mode:CARD_STYLE.mode,col:CARD_STYLE.col};
@@ -10672,11 +10678,16 @@ const dyName=()=>selName(DYF,f=>(DYFILTERS.find(x=>x[0]===f)||[,f])[1],'Everythi
 function dySync(){const n=DYI.filter(dyAny).length;ltSync('dy-lt',{on:DYF.length>0,filter:dyName(),k:dyName()+' · '+nOf(n,'item')})}
 function openDiaryFilter(){openChoices({title:'Filter the diary',one:'item',get:()=>DYF,count:()=>DYI.filter(dyAny).length,
   set:(k,v)=>{DYF=v},render:()=>{DLIM=40;dySync();renderDiaryList()},secs:()=>[{key:'dyf',multi:true,opts:DYFILTERS.filter(([f])=>f==='all'||DYI.some(it=>dyKeep(it,f))).map(([f,n])=>[f,f==='all'?'Everything':n])}]})}
-function renderDiaryList(){vwSet('dyf',DYF);const p=$('dy-list');if(!p)return;const items=DYI.filter(dyAny),months=new Map();
-  for(const it of items.slice(0,DLIM)){const m=new Date(it.t).toLocaleDateString(undefined,{month:'long',year:'numeric'});if(!months.has(m))months.set(m,[]);months.get(m).push(it)}
-  p.innerHTML=items.length?[...months].map(([m,l])=>'<h4 class="dy-m">'+esc(m)+'</h4>'+timelineHTML(l,true)).join('')+(items.length>DLIM?'<button type="button" class="btn ghost dy-more" id="dy-more">Show '+Math.min(60,items.length-DLIM)+' more</button>':'')
-    :DYI.length?'<p class="hint">Nothing here yet.</p>':'<div class="bg-empty">'+beanSVG+'<b>Nothing written yet</b><p>'+(BEANS.length?'Write the first entry above, or log a brew with the coffee picked on the dial-in.':'Add a coffee first, then its story starts here.')+'</p></div>';
-  hydrateImgs(p)}
+// The first dozen rows are drawn at once; the rest of the page's 40 follow a frame later, so the view opens at once.
+let DYTOK=0;
+function renderDiaryList(){vwSet('dyf',DYF);const p=$('dy-list');if(!p)return;const items=DYI.filter(dyAny),tok=++DYTOK;
+  const mk=(list,prev)=>{const g=[];for(const it of list){const m=new Date(it.t).toLocaleDateString(undefined,{month:'long',year:'numeric'});if(!g.length||g[g.length-1][0]!==m)g.push([m,[]]);g[g.length-1][1].push(it)}
+    return g.map(([m,l],i)=>'<div class="dy-grp">'+(i||m!==prev?'<h4 class="dy-m">'+esc(m)+'</h4>':'')+timelineHTML(l,true)+'</div>').join('')};
+  const shown=items.slice(0,DLIM),FIRST=DLIM>40?1e9:12,more=items.length>DLIM?'<button type="button" class="btn ghost dy-more" id="dy-more">Show '+Math.min(60,items.length-DLIM)+' more</button>':'';
+  if(!items.length){p.innerHTML=DYI.length?'<p class="hint">Nothing here yet.</p>':'<div class="bg-empty">'+beanSVG+'<b>Nothing written yet</b><p>'+(BEANS.length?'Write the first entry above, or log a brew with the coffee picked on the dial-in.':'Add a coffee first, then its story starts here.')+'</p></div>';return}
+  const mo=it=>new Date(it.t).toLocaleDateString(undefined,{month:'long',year:'numeric'});
+  p.innerHTML=mk(shown.slice(0,FIRST))+(shown.length>FIRST?'':more);hydrateImgs(p);
+  if(shown.length>FIRST)afterPaint(()=>{if(tok!==DYTOK||!p.isConnected)return;p.insertAdjacentHTML('beforeend',mk(shown.slice(FIRST),mo(shown[FIRST-1]))+more);hydrateImgs(p)})}
 // All your coffees, to choose which one the entry is about (open bags first).
 function openDiaryPick(){const d=$('vd'),list=[...BEANS].sort((a,c)=>(c.shelf-a.shelf)||beanDay(c).localeCompare(beanDay(a)));
   $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Your diary</span><h2 id="vd-title">Which coffee is this about?</h2></div>'+
@@ -11608,7 +11619,7 @@ function bcDraw(m){const W=BC.W,P=BC.PAD,IW=W-2*P;BC.BRK=[];if(!BC_CV){BC_CV=doc
   // very tall gallery a little less to keep memory in hand;
   // everything is laid out in the card's own 1080-wide units and scaled once here.
   // A card that knows its height draws on a canvas just that tall (the background is most of the drawing work).
-  const H0=m.minH?Math.ceil(m.minH):4400,S=BC.S=Math.min(1.5,Math.sqrt(26e6/(W*H0)));
+  const H0=m.minH?Math.ceil(m.minH):4400,S=BC.S=Math.min((m.style||CARD_STYLE).pdf?1:1.5,Math.sqrt(26e6/(W*H0)));
   // Recording (see bcRec): the same drawing, written down to be painted in the background instead of on this canvas.
   let c,x;if(m.rec){c={width:Math.round(W*S),height:Math.round(H0*S),rec:true};x=bcRec(c)}
   else{if(BC_CV.width!==Math.round(W*S)||BC_CV.height!==Math.round(H0*S)){BC_CV.width=Math.round(W*S);BC_CV.height=Math.round(H0*S)}c=BC_CV;x=c.getContext('2d')}
@@ -11783,8 +11794,8 @@ function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
 const bcBlob=m=>{const st=m.style||Object.assign({},CARD_STYLE);return (async()=>{if(document.fonts&&document.fonts.ready)await document.fonts.ready;
   const w=await bcWorker();
   if(w){try{const r=bcDraw(Object.assign({},m,{style:st,rec:true})),brk=(BC.BRK||[]).map(y=>Math.round(y*BC.S));
-      if(r&&r.recOut){const b=await w.paint(r);if(b){b._brk=brk;BC.BGN=(BC.BGN||0)+1;return b}}}catch(e){}}
-  const cv=bcDraw(Object.assign({},m,{style:st})),brk=(BC.BRK||[]).map(y=>Math.round(y*BC.S));return new Promise(res=>cv.toBlob(b=>{if(b)b._brk=brk;res(b)},'image/jpeg',0.94))})()};
+      if(r&&r.recOut){r.q=st.pdf?0.9:0.94;const b=await w.paint(r);if(b){b._brk=brk;BC.BGN=(BC.BGN||0)+1;return b}}}catch(e){}}
+  const cv=bcDraw(Object.assign({},m,{style:st})),brk=(BC.BRK||[]).map(y=>Math.round(y*BC.S));return new Promise(res=>cv.toBlob(b=>{if(b)b._brk=brk;res(b)},'image/jpeg',st.pdf?0.9:0.94))})()};
 // The drawn part of the card, trimmed: copied here, or (recording) the size to trim to in the worker.
 function bcOut(c,w,h){if(c.rec)return{recOut:true,ops:c.ops,bms:c.bms,width:c.width,height:c.height,cw:Math.min(w,c.width),ch:Math.min(h,c.height)};
   const out=document.createElement('canvas');out.width=w;out.height=h;out.getContext('2d').drawImage(c,0,0);return out}
@@ -11832,7 +11843,7 @@ self.onmessage=async e=>{const q=e.data;if(q.fonts){await load(q.fonts);self.pos
         else if(k==='p')R[o[1]]=x.createPattern(B[o[2]],o[3])}};
     play(c.getContext('2d'),q.ops);
     const out=new OffscreenCanvas(q.cw,q.ch);out.getContext('2d').drawImage(c,0,0);
-    const blob=await out.convertToBlob({type:'image/jpeg',quality:0.94});B.forEach(b=>b.close&&b.close());self.postMessage({id:q.id,blob})}
+    const blob=await out.convertToBlob({type:'image/jpeg',quality:q.q||0.94});B.forEach(b=>b.close&&b.close());self.postMessage({id:q.id,blob})}
   catch(err){self.postMessage({id:q.id,err:String(err&&err.message||err)})}};`;
     const w=new Worker(URL.createObjectURL(new Blob([code],{type:'text/javascript'})));const wait=new Map();let seq=0;
     const ok=await new Promise(res=>{const t=setTimeout(()=>res(false),8000);w.onmessage=e=>{clearTimeout(t);res(!!e.data.ok)};w.onerror=()=>{clearTimeout(t);res(false)};w.postMessage({fonts})});
@@ -11840,7 +11851,7 @@ self.onmessage=async e=>{const q=e.data;if(q.fonts){await load(q.fonts);self.pos
     w.onmessage=e=>{const p=wait.get(e.data.id);if(!p)return;wait.delete(e.data.id);e.data.blob?p.ok(e.data.blob):p.no(new Error(e.data.err||'card'))};
     w.onerror=e=>{e.preventDefault&&e.preventDefault();for(const p of wait.values())p.no(new Error('worker'));wait.clear()};
     return{paint:async r=>{const bms=await Promise.all(r.bms);const id=++seq;
-      return new Promise((ok,no)=>{wait.set(id,{ok,no});w.postMessage({id,ops:r.ops,bms,width:r.width,height:r.height,cw:r.cw,ch:r.ch},bms)})}}}
+      return new Promise((ok,no)=>{wait.set(id,{ok,no});w.postMessage({id,ops:r.ops,bms,width:r.width,height:r.height,cw:r.cw,ch:r.ch,q:r.q},bms)})}}}
   catch(e){return false}})();
   return BCW}
 // Where a PDF page may end: between rows, never through one (in the card's own units).
@@ -12300,14 +12311,16 @@ async function pdfCore(J,bm,title,brk0,mk,jpg){
   // A card up to about one and a half pages tall goes on one page, scaled to fit and framed in its own colour; only a
   // long one (a big gallery, a long list) runs over several.
   if(ih<=pageH*1.5){const k=Math.min(PW/iw,PH/ih),w=iw*k,h=ih*k,bg=colAt(Math.round(ih/2));pdf.setFillColor(...bg);pdf.rect(0,0,PW,PH,'F');
-    pdf.addImage(await jpg(full,0.88),'JPEG',(PW-w)/2,(PH-h)/2,w,h,undefined,'FAST');return pdf.output('blob')}
+    pdf.addImage(await jpg(full,0.82),'JPEG',(PW-w)/2,(PH-h)/2,w,h,undefined,'FAST');return pdf.output('blob')}
   // Pages after the first start a little down the page, so a pane carried over doesn't touch the top edge.
   const brk=(brk0||[]).filter(v=>v>0&&v<ih).sort((a,b)=>a-b),TOP=Math.round(iw*30/PW);
+  // Pages of a long PDF are kept to 900 px across (about 150 dpi on A4): sharp text, a third of the file.
+  const pk=Math.min(1,900/iw);
   let y=0,n=0;while(y<ih-2){const room=pageH-(n?TOP:0);let end=Math.min(ih,y+room);
     if(end<ih){const ok=brk.filter(v=>v>y+room*0.45&&v<=end);end=ok.length?ok[ok.length-1]:calm(Math.max(y+Math.floor(room*0.7),end-Math.floor(room*0.22)),end)}
-    const sh=end-y,cv=mk(iw,sh);cv.getContext('2d').drawImage(full,0,y,iw,sh,0,0,iw,sh);
+    const sh=end-y,cv=mk(Math.round(iw*pk),Math.max(1,Math.round(sh*pk)));{const cx=cv.getContext('2d');cx.imageSmoothingQuality='high';cx.drawImage(full,0,y,iw,sh,0,0,cv.width,cv.height)}
     const bg=colAt(n?y+2:end-1);if(n)pdf.addPage();pdf.setFillColor(...bg);pdf.rect(0,0,PW,PH,'F');
-    pdf.addImage(await jpg(cv,0.86),'JPEG',0,n?TOP*PW/iw:0,PW,sh*PW/iw,undefined,'FAST');n++;y=end}
+    pdf.addImage(await jpg(cv,0.74),'JPEG',0,n?TOP*PW/iw:0,PW,sh*PW/iw,undefined,'FAST');n++;y=end}
   return pdf.output('blob')}
 // The PDF is put together in a background worker, so the screen doesn't freeze while it's made: the card's image is
 // decoded, cut into pages and each page encoded there. Where workers can't do that (no OffscreenCanvas), or the

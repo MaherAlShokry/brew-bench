@@ -15,6 +15,7 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.os.Build;
+import android.util.TypedValue;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.SizeF;
@@ -203,7 +204,7 @@ public class BrewWidget extends AppWidgetProvider {
             v.setViewVisibility(R.id.w_photo, View.GONE);
             v.setViewVisibility(R.id.w_flag, View.VISIBLE);
             v.setTextViewText(R.id.w_fresh, "");
-            v.setTextViewText(R.id.w_log, "Add a coffee");
+            v.setTextViewText(R.id.w_log_tx, "Add a coffee");
             v.setOnClickPendingIntent(R.id.w_root, open(ctx, "beans", 1));
             v.setOnClickPendingIntent(R.id.w_log, open(ctx, "beans", 2));
             return v;
@@ -224,10 +225,18 @@ public class BrewWidget extends AppWidgetProvider {
             v.setViewVisibility(pbs[s], View.VISIBLE);
             v.setProgressBar(pbs[s], 100, Math.max(3, Math.min(100, Math.round(d * 100f / Math.max(1, w[2])))), false);
         }
-        Bitmap ph = h < 100 ? null : photo(ctx, p.getString("photo", ""), 64, 16);
+        // A taller widget gives the coffee more room: a bigger picture and name, so it fills its space.
+        int pic = h >= 200 ? 92 : h >= 160 ? 76 : 64;
+        if (Build.VERSION.SDK_INT >= 31 && pic != 64) {
+            v.setViewLayoutWidth(R.id.w_pic, pic, TypedValue.COMPLEX_UNIT_DIP);
+            v.setViewLayoutHeight(R.id.w_pic, pic, TypedValue.COMPLEX_UNIT_DIP);
+            v.setTextViewTextSize(R.id.w_flag, TypedValue.COMPLEX_UNIT_SP, pic * 0.47f);
+            v.setTextViewTextSize(R.id.w_title, TypedValue.COMPLEX_UNIT_SP, h >= 200 ? 23 : 21);
+        } else pic = 64;
+        Bitmap ph = h < 100 ? null : photo(ctx, p.getString("photo", ""), pic, 16);
         if (ph != null) { v.setImageViewBitmap(R.id.w_photo, ph); v.setViewVisibility(R.id.w_photo, View.VISIBLE); v.setViewVisibility(R.id.w_flag, View.GONE); }
         else { v.setViewVisibility(R.id.w_photo, View.GONE); v.setViewVisibility(R.id.w_flag, View.VISIBLE); String f = p.getString("flag", ""); v.setTextViewText(R.id.w_flag, f.isEmpty() ? "☕" : f); }
-        v.setTextViewText(R.id.w_log, "Log brew");
+        v.setTextViewText(R.id.w_log_tx, "Log brew");
         v.setOnClickPendingIntent(R.id.w_root, open(ctx, "bean:" + id, 1));
         v.setOnClickPendingIntent(R.id.w_log, open(ctx, "log:" + id, 2));
         return v;

@@ -1895,6 +1895,8 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 /* The same for the long lists elsewhere: recipes, grinders, brewers, champions, words, varieties, techniques, processes. */
 .rrow,.chwin,.gcard,#gear-brewers>.hovercard,#words article.card,#vgrid>.card,#tech .card,#process article.card{content-visibility:auto;contain-intrinsic-size:auto 160px}
 .dy-more{display:block;margin:14px auto 0}
+/* Diary months off the screen are laid out only when scrolled near (a long diary shows at once). */
+.dy-grp{content-visibility:auto;contain-intrinsic-size:auto 640px}
 .tline::before{content:"";position:absolute;left:21px;top:8px;bottom:8px;width:2px;border-radius:1px;background:var(--line)}
 .tl-e{position:relative;display:flex;gap:12px;padding:6px 0}
 .tl-ic{position:relative;z-index:1;flex:none;width:32px;height:32px;display:grid;place-items:center;border-radius:50%;background:var(--surface);box-shadow:0 0 0 2px var(--line);font-size:.95rem}

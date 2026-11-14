@@ -3347,8 +3347,8 @@ function docText(doc,noLink){let t='# '+doc.title+'\n';if(doc.sub)t+=doc.sub+'\n
 // look is picked for the image.
 async function docPDF(doc){try{const st=pdfStyle();let bl=null;
     // A share whose image is a short version (coffee words) has its full card for the PDF.
-    if(doc.pdfCard){if(!doc._pdfBl){const keep=Object.assign({},CARD_STYLE);Object.assign(CARD_STYLE,st);let pr;try{pr=doc.pdfCard()}finally{Object.assign(CARD_STYLE,keep)}doc._pdfBl=Promise.resolve(pr)}bl=await doc._pdfBl.catch(()=>null)}
-    else if(doc.card)bl=await shCardFor(doc,st).catch(()=>null);if(!bl)bl=await(doc._pdfBl||docCardImg(doc));const out=await cardPDF(bl,doc.title);if(out)return out}catch(e){}
+    if(doc.pdfCard){if(!doc._pdfBl){const keep=Object.assign({},CARD_STYLE);Object.assign(CARD_STYLE,st);let pr;try{pr=doc.pdfCard()}finally{Object.assign(CARD_STYLE,keep);if(!('pdf' in keep))delete CARD_STYLE.pdf}doc._pdfBl=Promise.resolve(pr)}bl=await doc._pdfBl.catch(()=>null)}
+    else if(doc.card)bl=await shCardFor(doc,st).catch(()=>null);if(!bl)bl=await(doc._pdfBl||docCardImg(doc));const out=await(doc._pdfOut&&doc._pdfOut.bl===bl?doc._pdfOut.p.catch(()=>null):cardPDF(bl,doc.title));if(out)return out}catch(e){}
   return docPDFText(doc)}
 function docPDFText(doc){
   const J=(window.jspdf||{}).jsPDF;if(!J)return null;
@@ -3450,15 +3450,19 @@ function openShareNow(doc){SHDOC=doc;loadPDF().catch(()=>{});const pdfOK=true;
 const shIdle=f=>(window.requestIdleCallback?requestIdleCallback(f,{timeout:1500}):setTimeout(f,300));
 // The PDF's first page, small, on its row: in the app's look (as the PDF is), so it's clear it can differ from the image.
 // Drawn in the background after the image's preview; the PDF itself then reuses the same card.
-const pdfStyle=()=>({mode:curTheme()==='dark'?'dark':'light',col:'classic'});
+// A PDF's card is drawn at the page's own sharpness (1080 wide, about 180 dpi on A4), not the share image's 1.5×.
+const pdfStyle=()=>({mode:curTheme()==='dark'?'dark':'light',col:'classic',pdf:true});
 // The card painter (a worker with the app's fonts) starts quietly a little after the app opens, so the first share
 // doesn't wait for it.
 addEventListener('load',()=>setTimeout(()=>shIdle(()=>{try{bcWorker()}catch(e){}}),6000));
 async function shPdfThumb(doc){const el=$('sharesheet').querySelector('.sh-pdfpv');if(!el||SHDOC!==doc)return;
   try{const st=pdfStyle();let bl;
-    if(doc.pdfCard){if(!doc._pdfBl){const keep=Object.assign({},CARD_STYLE);Object.assign(CARD_STYLE,st);let pr;try{pr=doc.pdfCard()}finally{Object.assign(CARD_STYLE,keep)}doc._pdfBl=Promise.resolve(pr)}bl=await doc._pdfBl}
+    if(doc.pdfCard){if(!doc._pdfBl){const keep=Object.assign({},CARD_STYLE);Object.assign(CARD_STYLE,st);let pr;try{pr=doc.pdfCard()}finally{Object.assign(CARD_STYLE,keep);if(!('pdf' in keep))delete CARD_STYLE.pdf}doc._pdfBl=Promise.resolve(pr)}bl=await doc._pdfBl}
     else if(doc.card)bl=await shCardFor(doc,st);else{doc._pdfBl=doc._pdfBl||docCardImg(doc);bl=await doc._pdfBl}
-    if(!bl||SHDOC!==doc||!el.isConnected)return;const bm=await createImageBitmap(bl),W=96,H=136,c=document.createElement('canvas');c.width=W;c.height=H;
+    if(!bl||SHDOC!==doc||!el.isConnected)return;
+    // The PDF itself is made now too, in the background worker, so tapping PDF hands it over at once.
+    if(!doc._pdfOut||doc._pdfOut.bl!==bl)doc._pdfOut={bl,p:loadPDF().then(()=>cardPDF(bl,doc.title))};
+    const bm=await createImageBitmap(bl),W=96,H=136,c=document.createElement('canvas');c.width=W;c.height=H;
     // As the PDF lays it out: a card up to one and a half pages tall fits on one page, framed in its own colour; a longer
     // one starts at the top of the first page.
     const x=c.getContext('2d',{willReadFrequently:true}),iw=bm.width,ih=bm.height,pageH=iw*841.89/595.28;
@@ -3470,9 +3474,9 @@ let SHCARD=null,SHN=0;
 // The preview, redrawn whenever the style changes; an older drawing that finishes late is dropped.
 // Each look is drawn once per share: switching back to one you've seen is instant, and once a card is up the other
 // mode (dark or light) is drawn while the sheet sits idle, so the first switch is quick too.
-const shKey=st=>st.mode+'|'+st.col;
+const shKey=st=>st.mode+'|'+st.col+(st.pdf?'|pdf':'');
 function shCardFor(doc,st){const c=doc._cards||(doc._cards=new Map()),k=shKey(st);if(c.has(k))return c.get(k);
-  const keep=Object.assign({},CARD_STYLE);Object.assign(CARD_STYLE,st);let pr;try{pr=doc.card()}finally{Object.assign(CARD_STYLE,keep)}
+  const keep=Object.assign({},CARD_STYLE);Object.assign(CARD_STYLE,st);let pr;try{pr=doc.card()}finally{Object.assign(CARD_STYLE,keep);if(!('pdf' in keep))delete CARD_STYLE.pdf}
   pr=Promise.resolve(pr).then(bl=>{if(!bl)c.delete(k);return bl},e=>{c.delete(k);throw e});c.set(k,pr);return pr}
 function drawShCard(first){const d=$('sharesheet'),doc=SHDOC,n=++SHN;SHCARD=null;const pv=d.querySelector('.shcard-pv');if(pv)pv.classList.add('busy');
   const st={mode:CARD_STYLE.mode,col:CARD_STYLE.col};
