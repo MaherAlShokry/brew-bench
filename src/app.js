@@ -1192,15 +1192,15 @@ function warmSheets(){if(SHEETS_WARM>=2)return;const step=SHEETS_WARM++;const d=
     if(step===1&&RECIPES.length){openRecipe(0);d.offsetHeight}}catch(e){}
   finally{showDlg=keep;d.classList.remove('warm');if(!d.open){$('vd-in').innerHTML='';delete d.dataset.bean}}}
 function prebuildTabs(){const ids=['recipes','gear','variety','process','map','words','history','flow','wheel','champs','tech'].filter(k=>LAZY[k]);
-  // A step only starts in a real idle moment (not one the timeout forced), and not within 1.5 s of a touch, a key or a
+  // A step only starts in a real idle moment (not one the timeout forced), and not within 3 s of a touch, a key or a
   // scroll: building a page takes a while on a phone, and one started just after a tap held that tap's answer back.
   // (The wait has an end: after 6 s a step goes ahead in whatever idle time there is, or the rest would never be built.)
   const idle=window.requestIdleCallback?(f,t0=performance.now())=>requestIdleCallback(d=>{if(!d.didTimeout&&d.timeRemaining()<25&&performance.now()-t0<6000)idle(f,t0);else f()},{timeout:6000}):f=>setTimeout(f,200);
   // Beans comes first (it's opened most and has the most to draw). Each step waits while you're moving between tabs,
   // so building ahead never competes with the page you just opened.
   let beans=false;
-  const next=()=>{if(document.hidden){setTimeout(()=>idle(next),2000);return}if(performance.now()-Math.max(NAV_AT,USER_AT)<1500){setTimeout(()=>idle(next),900);return}
-    if(!beans&&window.BEANS_OK){beans=true;try{renderBeansIfChanged();warmBeanPhotos()}catch(e){}idle(next);return}
+  const next=()=>{if(document.hidden){setTimeout(()=>idle(next),2000);return}if(performance.now()-Math.max(NAV_AT,USER_AT)<3000){setTimeout(()=>idle(next),900);return}
+    if(!beans&&window.BEANS_OK){beans=true;try{renderBeansIfChanged();warmBeanPhotos();roLearnGallery()}catch(e){}idle(next);return}
     if(SHEETS_WARM<2&&window.BEANS_OK){warmSheets();idle(next);return}
     if(LOGL_STALE&&BUILT.recipes){try{renderLogList(1)}catch(e){}idle(next);return}
     const id=ids.find(k=>!BUILT[k]);if(!id){if(!$('st-mode')&&!$('settings').classList.contains('on')){try{renderSettings()}catch(e){}idle(next);return}if(SHEETS_WARM<2){warmSheets();idle(next)}return}BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
@@ -1217,7 +1217,14 @@ const BNORD=['dial','recipes','beans','explore','settings'];
 // runs right after showTab finds the new page in place, and only the new page animates in.
 let NAV_READY=false;
 let NAV_AT=-1e9;
-function showTab(id,fromHistory,pure){NAV_AT=performance.now();ensureTab(id);const cur=document.querySelector('main section.on');let kind='';
+const PAGE_Y={};
+function showTab(id,fromHistory,pure){NAV_AT=performance.now();ensureTab(id);
+  // The page on show, for the few styles that depend on it (a class here, not a :has() over the whole page, which
+  // made the browser recheck every style on each change while a big page was drawn).
+  if(document.documentElement.dataset.tab!==id)document.documentElement.dataset.tab=id;
+  // Each page keeps where you were in it: going back returns to that spot, not the top (a new visit starts at the top).
+  {const was=document.querySelector('main section.on');if(was&&was.id!==id)PAGE_Y[was.id]=scrollY}
+  const backY=fromHistory&&PAGE_Y[id]!=null?PAGE_Y[id]:null;const cur=document.querySelector('main section.on');let kind='';
   if(cur&&cur.id!==id){const a=BNORD.indexOf(BNGROUP[cur.id]),b=BNORD.indexOf(BNGROUP[id]);
     kind=a!==b&&a>=0&&b>=0?(b<a?'left':'right'):fromHistory?'pop':'push'}
   // Each tab gets a history entry, so the back button (browser or Android) returns to the last tab.
@@ -1228,7 +1235,7 @@ function showTab(id,fromHistory,pure){NAV_AT=performance.now();ensureTab(id);con
     document.querySelectorAll('main section').forEach(s=>s.classList.toggle('on',s.id===id));
     // Every change first, then the scroll (which lays the page out): one layout pass instead of two.
     // Highlights that waited for this page (select.js loads after the first page is shown, so it may not be there yet).
-    syncShell(id,true);try{segShown($(id))}catch(e){}
+    syncShell(id,backY==null);if(backY!=null)window.scrollTo({top:backY});try{segShown($(id))}catch(e){}
     if(kind&&NAV_READY){const sec=$(id);if(!vt){replay(sec,'nav-in');clearTimeout(sec._nav);sec._nav=setTimeout(()=>sec.classList.remove('nav-in'),480);
       // The Brew page's hero sits above the page itself: it comes in with it.
       const hw=id==='dial'&&document.querySelector('.herowrap');if(hw){replay(hw,'nav-in');clearTimeout(hw._nav);hw._nav=setTimeout(()=>hw.classList.remove('nav-in'),480)}
@@ -1263,8 +1270,8 @@ try{history.scrollRestoration='manual'}catch(e){}
 const DSTACK=[];
 // A page inside the sheet that back should leave for the page it came from (a calendar's door back to the calendar).
 let VD_BACK=null;
-{const sm=HTMLDialogElement.prototype.showModal;HTMLDialogElement.prototype.showModal=function(){if(!this.open){if(!BACKING)try{history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}DSTACK.push(this);
-  this.addEventListener('close',()=>{const i=DSTACK.indexOf(this);if(i>=0)DSTACK.splice(i,1);if(this.dataset.popped){delete this.dataset.popped;return}
+{const sm=HTMLDialogElement.prototype.showModal;HTMLDialogElement.prototype.showModal=function(){if(!this.open){if(!BACKING)try{history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}DSTACK.push(this);document.body.classList.add('dlg-open');
+  this.addEventListener('close',()=>{const i=DSTACK.indexOf(this);if(i>=0)DSTACK.splice(i,1);if(!document.querySelector('dialog[open]'))document.body.classList.remove('dlg-open');if(this.dataset.popped){delete this.dataset.popped;return}
     if(!BACKING&&history.state&&history.state.dlg){BACKING=true;history.back()}},{once:true})}return sm.call(this)}}
 // Sheets slide away before they close (the CSS animates .closing), so nothing vanishes abruptly.
 {const cl=HTMLDialogElement.prototype.close;HTMLDialogElement.prototype.close=function(v){if(!this.open||this.classList.contains('closing'))return;
@@ -1604,6 +1611,8 @@ function openRecipeEditor(r,fresh){const isNew=!r||fresh;r=Object.assign({b:'v60
   const ratio=()=>{const d=+$('re-dose').value,w=+$('re-water').value;$('re-ratio').innerHTML=d>0&&w>0?'Ratio <b>1:'+rr1(w/d)+'</b>':'';SE.set({water:w>0?w:250,dose:d>0?d:15})};
   $('re-off').oninput=gs;$('re-b').onchange=()=>{meth();gs()};$('re-m').onclick=e=>{const x=e.target.closest('[data-m]');if(!x)return;method=x.dataset.m;meth();gs()};meth();gs();ratio();
   $('re-dose').oninput=$('re-water').oninput=ratio;
+  // Each number is as wide as its digits, so its unit sits right beside it.
+  {const fit=i=>{i.style.width=Math.max(1,String(i.value).length)+.4+'ch'};['re-dose','re-water','re-temp'].forEach(id=>{const i=$(id);fit(i);i.addEventListener('input',()=>fit(i))})}
   document.querySelectorAll('.re-pm').forEach(x=>x.onclick=()=>{const i=$(x.dataset.pm),v=(+i.value||0)+(+x.dataset.d);i.value=Math.max(0,Math.round(v*10)/10);i.dispatchEvent(new Event('input'))});
   const draft=()=>({b:bOf(),name:$('re-name').value,dose:+$('re-dose').value,water:+$('re-water').value,temp:+$('re-temp').value,temp2:r.temp2,steps:SE.value(),why:$('re-why').value});
   const check=()=>{const l=recipeIssues(draft()),c=$('re-check');c.hidden=!l.length;c.innerHTML=l.length?'<b>Worth a look</b><ul>'+l.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'';return l};
@@ -2544,8 +2553,8 @@ async function runScan(useImg){
     if(['light','medium','dark'].includes(j.roast_level))SC.roast=j.roast_level;
     if(/^\d{4}-\d{2}-\d{2}$/.test(j.roast_date||''))SC.date=j.roast_date;SC.bag=okBagG(j.bag_g);
     SC.name=plausibleName(j.coffee_name)?niceName(j.coffee_name).slice(0,60):'';SC.roaster=plausibleName(j.roaster)?niceName(j.roaster).slice(0,50):'';
-    SC.info=j;$('scan-status').textContent='Done'+(j.confidence==='low'?'. Low confidence: check the details below.':'. Check the details below and adjust anything that looks off.');
-    renderScan();saveScan();toast('Label read');
+    SC.info=j;await scanRoasterHelp(useImg?'':txt);$('scan-status').textContent='Done'+(j.confidence==='low'?'. Low confidence: check the details below.':'. Check the details below and adjust anything that looks off.')+roHowText();
+    renderScan();saveScan();roLearnScan();toast('Label read');
   }catch(e){const c=e&&e.code;$('scan-status').textContent=c==='cancelled'?'Stopped.':c==='not_granted'||c==='sampling_disabled'?'Claude access for this page was declined, so fill in the details by hand.':c==='images_unavailable'?'Photo reading isn\u2019t available here; paste the label text instead.':c==='image_rejected'?'That image couldn\u2019t be read. Try a clearer, smaller photo.':c==='rate_limited'?'Too many requests right now. Try again in a little while.':c==='invalid_json'?'The label couldn\u2019t be turned into details. Try again or paste the text.':'Something went wrong reading the label. Try again.'}
   finally{$('scan-stop').hidden=true;$('scan-go').disabled=!SFILE;$('scan-drop').classList.remove('scanning')}
 }
@@ -2768,6 +2777,67 @@ function findDate(raw){const t=fold(raw),now=new Date(),cands=[];
 const cleanLine=x=>String(x||'').replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}).]+$/gu,'').replace(/\s+/g,' ').trim()
 const niceName=x=>{x=cleanLine(x);return /\p{Ll}/u.test(x)?x:x.toLowerCase().replace(/(^|[\s\-'’.&(])(\p{L})/gu,(m,a,c)=>a+c.toUpperCase())};
 const scRoaster=x=>x.sc&&typeof x.sc.roaster==='string'?x.sc.roaster:(x.info&&x.info.roaster)||'';
+/* ---------- The scanner's memory of roasteries ----------
+   A scan should know a roastery you've had before, even when the label hides its name.
+   1. Your spelling: a name read as "KUF ROASTERY" or "Kuf" becomes the "Kuf Roastery" you already have.
+   2. The words on its bags: each roastery keeps the distinctive words its scanned bags carried (its web address,
+      handle, brand mark, the line under its logo). A new label sharing them is that roastery's.
+   3. The look of its bags: a tiny colour layout of each bag photo in your gallery (8×8, made once, kept here). A new
+      bag laid out and coloured like one you've had, from the same maker, is very likely theirs, even for another coffee.
+   Kept in bb-romem: t = roastery → {word: times seen}, v = coffee id → [roastery, colour layout]. */
+const RO_GENERIC=new Set(['coffee','coffees','roastery','roasters','roaster','roasting','roasted','co','company','cafe','caffe','the','and','specialty','speciality','lab','house','beans','bean']);
+let RMEM=(()=>{const o=load('bb-romem',null);return{t:o&&o.t&&typeof o.t==='object'?o.t:{},v:o&&o.v&&typeof o.v==='object'?o.v:{}}})();
+const saveRmem=()=>save('bb-romem',RMEM);
+const roNorm=n=>fold(String(n||'')).replace(/&/g,' and ').replace(/[^a-z0-9 ]+/g,' ').split(' ').filter(w=>w&&!RO_GENERIC.has(w)).join('');
+function knownRoasters(){const m=new Map();for(const b of (typeof BEANS!=='undefined'?BEANS:[]))if(b.roaster&&b.roaster.trim())m.set(b.roaster.trim(),(m.get(b.roaster.trim())||0)+1);
+  for(const x of SCANS){const r=scRoaster(x);if(r&&!m.has(r.trim()))m.set(r.trim(),0)}return [...m.keys()].sort((a,b)=>m.get(b)-m.get(a))}
+// 1. A name read off a label, in the spelling you already use for that roastery (or as read, if it's new to you).
+function roCanon(name){const k=roNorm(name);if(k.length<2)return name;
+  // The same once "Roastery", "Coffee" and the like are set aside; or one a long start of the other ("Spirit Hub" and
+  // "Spirithub Coffee"), never a short one ("Kuf" is not "Kufa").
+  const same=(a,b)=>a===b||(Math.min(a.length,b.length)>=5&&(a.startsWith(b)||b.startsWith(a))&&Math.min(a.length,b.length)/Math.max(a.length,b.length)>=.7);
+  for(const n of knownRoasters()){const m=roNorm(n);if(m&&same(m,k))return n}return name}
+// The words of a label worth remembering: not numbers, coffee words or anything every bag says.
+const RO_COMMON=/^(roast(ed|ing)?|date|best|before|net|weight|wt|grams?|kg|oz|altitude|masl|metres?|meters?|process(ed)?|notes?|tasting|cupping|farm|finca|region|producer|variety|varietal|harvest|crop|lot|origin|country|light|medium|dark|filter|espresso|omni|whole|ground|natural|washed|honey|anaerobic|arabica|single|blend|fruity|sweet|floral|chocolate|cocoa|caramel|berry|citrus|with|from|for|our|your|this|that|www|http|https|com|net)$/;
+function roWords(text){const out=new Set(),raw=String(text||'');
+  for(const h of raw.match(/(?:www\.|https?:\/\/)?[\w\-]+\.(?:com|coffee|cafe|co|shop|sa|ae|kw|om|qa|bh)\b|@[a-z0-9_.]{3,30}/gi)||[])out.add('#'+fold(h).replace(/^(https?:\/\/)?(www\.)?/,''));
+  for(const w of fold(raw).split(/[^a-z0-9؀-ۿ]+/))if(w.length>=3&&!/^\d+$/.test(w)&&!RO_COMMON.test(w)&&!RO_GENERIC.has(w)&&!(typeof ALLO==='function'&&ALLO()[w]))out.add(w);
+  return out}
+function roLearnWords(name,text){if(!name||!text)return;const k=name.trim(),t=RMEM.t[k]||(RMEM.t[k]={});for(const w of roWords(text))t[w]=(t[w]||0)+1;
+  // Keep the words seen most (a roastery's own words come back on every bag).
+  const e=Object.entries(t);if(e.length>160){e.sort((a,b)=>b[1]-a[1]);RMEM.t[k]=Object.fromEntries(e.slice(0,160))}saveRmem()}
+// 2. The roastery whose bags share this label's words. A word counts less the more roasteries have it, and a web
+// address or handle counts most. Nothing unless one roastery clearly leads.
+function roByWords(text){const W=roWords(text);if(!W.size)return'';const has={};for(const [r,t] of Object.entries(RMEM.t))for(const w in t)if(W.has(w))(has[w]=has[w]||[]).push(r);
+  const sc={};for(const [w,rs] of Object.entries(has))for(const r of rs)sc[r]=(sc[r]||0)+(w[0]==='#'?3:1)/rs.length;
+  const top=Object.entries(sc).sort((a,b)=>b[1]-a[1]);if(!top.length||top[0][1]<2)return'';if(top[1]&&top[1][1]*1.5>top[0][1])return'';return top[0][0]}
+// 3. A photo's colour layout: the middle of the picture shrunk to 8×8, three numbers a square.
+const roImg=src=>new Promise((ok,no)=>{const img=new Image(),u=typeof src==='string'?src:URL.createObjectURL(src);img.onload=()=>{if(u!==src)URL.revokeObjectURL(u);ok(img)};img.onerror=()=>no(new Error('image'));img.src=u});
+async function roLook(src){try{const img=await roImg(src),c=document.createElement('canvas');c.width=c.height=8;const x=c.getContext('2d',{willReadFrequently:true});
+  const m=Math.min(img.width,img.height)*.86,sx=(img.width-m)/2,sy=(img.height-m)/2;x.drawImage(img,sx,sy,m,m,0,0,8,8);const d=x.getImageData(0,0,8,8).data,v=[];
+  for(let i=0;i<d.length;i+=4)v.push(d[i],d[i+1],d[i+2]);return btoa(String.fromCharCode(...v))}catch(e){return''}}
+const roLookDist=(a,b)=>{const x=atob(a),y=atob(b);if(x.length!==y.length)return 1;let s=0;for(let i=0;i<x.length;i++)s+=Math.abs(x.charCodeAt(i)-y.charCodeAt(i));return s/x.length/255};
+// The roastery whose bags look most like this one, if it's close and no other roastery's bag is nearly as close.
+async function roByLook(src){const v=await roLook(src);if(!v)return'';const best={};for(const [r,lv] of Object.values(RMEM.v)){if(!r||!lv)continue;const d=roLookDist(v,lv);if(best[r]==null||d<best[r])best[r]=d}
+  const top=Object.entries(best).sort((a,b)=>a[1]-b[1]);if(!top.length||top[0][1]>.085)return'';if(top[1]&&top[1][1]-top[0][1]<.03)return'';return top[0][0]}
+// The gallery's bag photos are learnt a few at a time while the phone is idle: each coffee once (and again if its
+// photo or roastery changes, see roForget).
+function roLearnGallery(){if(typeof BEANS==='undefined'||!window.BEANS_OK)return;const ids=new Set(BEANS.map(b=>b.id));let ch=false;
+  for(const k of Object.keys(RMEM.v))if(!k.startsWith('s:')&&!ids.has(k)){delete RMEM.v[k];ch=true}
+  for(const b of BEANS){const e=RMEM.v[b.id];if(e&&e[0]!==(b.roaster||'').trim()){e[0]=(b.roaster||'').trim();ch=true}}if(ch)saveRmem();
+  const todo=BEANS.filter(b=>b.img&&b.roaster&&b.roaster.trim()&&!RMEM.v[b.id]).slice(0,6);if(!todo.length)return;
+  (async()=>{for(const b of todo){const u=await BIMG.thumb(b.id).catch(()=>null);if(!u)continue;const v=await roLook(u);if(v)RMEM.v[b.id]=[b.roaster.trim(),v];
+    await new Promise(r=>(window.requestIdleCallback||setTimeout)(r,{timeout:800}))}saveRmem();(window.requestIdleCallback||setTimeout)(roLearnGallery,{timeout:4000})})()}
+const roForget=id=>{if(RMEM.v[id]){delete RMEM.v[id];saveRmem()}};
+// After a label is read: settle the roastery from all three, and say how when it wasn't read off the label.
+async function scanRoasterHelp(text){SC.roHow='';
+  if(SC.roaster){const c=roCanon(SC.roaster);if(c!==SC.roaster){SC.roaster=c;SC.roHow='yours'}return}
+  const w=roByWords(text);if(w){SC.roaster=w;SC.roHow='words';return}
+  const src=$('scan-prev')&&$('scan-prev').src;if(src&&SFILE){const l=await roByLook(src);if(l){SC.roaster=l;SC.roHow='look'}}}
+const roHowText=()=>SC.roHow==='look'?' Roastery: '+SC.roaster+', from the look of the bag (change it if that’s wrong).':SC.roHow==='words'?' Roastery: '+SC.roaster+', from words on its other bags.':SC.roHow==='yours'?' Roastery: '+SC.roaster+', as you’ve saved it before.':'';
+// What a scan taught: the roastery's words, and the bag's look, once you've confirmed the roastery.
+async function roLearnScan(){const r=(SC.roaster||'').trim();if(!r)return;roLearnWords(r,$('scan-text')&&$('scan-text').value);
+  const src=$('scan-prev')&&$('scan-prev').src;if(src&&SC.id&&SFILE){const v=await roLook(src);if(v){RMEM.v['s:'+SC.id]=[r,v];const sk=Object.keys(RMEM.v).filter(k=>k.startsWith('s:'));for(const k of sk.slice(0,Math.max(0,sk.length-40)))delete RMEM.v[k];saveRmem()}}}
 function plausibleName(x){x=cleanLine(x);if(x.length<3||x.length>60)return false;const chars=x.replace(/\s/g,''),letters=(chars.match(/\p{L}/gu)||[]).length,words=x.split(' ');
     // Short words count against it, except the little words names are made of ("La Palma y El Tucán", "Finca de la Sierra").
   return letters/chars.length>=0.75&&words.some(w=>(w.match(/\p{L}/gu)||[]).length>=3)&&words.filter(w=>w.replace(/\W/g,'').length<=2&&!NAME_SMALL.test(w)).length<=Math.floor(words.length/2)}
@@ -2935,8 +3005,8 @@ async function runLocalScan(useImg){
     // A photo's reading already chose the name and roastery from the type sizes; pasted text is read here.
     if(!j)j=parseLabel(text);if(!j.origin_key&&!j.variety_key&&!j.process_key&&!j.roast_date){st.textContent=useImg?'Couldn’t find coffee details in that photo. Try again with the label filling most of the photo, in sharp focus, or fill in the details below.':'No coffee details found in that text.';return}
     if(rot)await uprightPreview(rot);
-    applyInfo(j);const found=[okOrigin(j.origin_key)&&originName(j.origin_key),j.process_key&&PROCESSES[j.process_key].name,j.variety_key&&vName(j.variety_key),j.roast_date&&'roasted '+fmtDate({date:j.roast_date})].filter(Boolean);
-    st.textContent=(j.confidence==='low'?'Found a few details: ':'Label read: ')+found.join(' · ')+'. Your brew plan is below; adjust anything that looks off.';renderScan();saveScan();toast('Label read');
+    applyInfo(j);await scanRoasterHelp(text);const found=[okOrigin(j.origin_key)&&originName(j.origin_key),j.process_key&&PROCESSES[j.process_key].name,j.variety_key&&vName(j.variety_key),j.roast_date&&'roasted '+fmtDate({date:j.roast_date})].filter(Boolean);
+    st.textContent=(j.confidence==='low'?'Found a few details: ':'Label read: ')+found.join(' · ')+'. Your brew plan is below; adjust anything that looks off.'+roHowText();renderScan();saveScan();roLearnScan();toast('Label read');
     // Show the result: it sits below the form, out of sight on a phone.
     setTimeout(()=>{const h=$('scan-head');if(h)scrollTo({top:h.getBoundingClientRect().top+scrollY-90,behavior:RM()?'auto':'smooth'})},250)}
   catch(e){const c=e&&e.code;if(useImg&&(c==='cancelled'||c==='slow'))resetOcr();st.textContent=c==='cancelled'?'Stopped.'
@@ -2952,9 +3022,11 @@ async function runLocalScan(useImg){
 async function uprightPreview(rot){try{const img=await loadImage(SFILE),k=Math.min(1,1200/Math.max(img.width,img.height)),w=img.width*k,h=img.height*k,c=document.createElement('canvas'),side=rot%180!==0;
   c.width=side?h:w;c.height=side?w:h;const x=c.getContext('2d');x.translate(c.width/2,c.height/2);x.rotate(rot*Math.PI/180);x.drawImage(img,-w/2,-h/2,w,h);$('scan-prev').src=c.toDataURL('image/jpeg',.85)}catch(e){}}
 function usePhoto(f){SFILE=f;clearScanData();SC.blank=true;renderScan();if($('scan-prev').src.startsWith('blob:'))URL.revokeObjectURL($('scan-prev').src);
-  $('scan-prev').src=URL.createObjectURL(f);$('scan-prev').hidden=false;photoIn($('scan-drop'));$('scan-empty').hidden=true;$('scan-go').disabled=false;$('scan-again').hidden=false;$('scan-status').hidden=false;runScan(true)}
+  const pv=$('scan-prev');pv.src=URL.createObjectURL(f);pv.hidden=false;
+  // The photo pops in as soon as it's decoded (a big one from the gallery takes a moment), never before.
+  (pv.decode?pv.decode().catch(()=>{}):Promise.resolve()).then(()=>photoIn($('scan-drop')));$('scan-empty').hidden=true;$('scan-go').disabled=false;$('scan-again').hidden=false;$('scan-status').hidden=false;runScan(true)}
 // A photo arriving, taken or chosen: a quick flash and the picture settles into place, before the scan line runs.
-function photoIn(box){if(!box||RM())return;box.classList.remove('photo-in');void box.offsetWidth;box.classList.add('photo-in');setTimeout(()=>box.classList.remove('photo-in'),700)}
+function photoIn(box){if(!box||RM())return;box.classList.remove('photo-in');void box.offsetWidth;box.classList.add('photo-in');setTimeout(()=>box.classList.remove('photo-in'),300)}
 /* In-app camera. Some phones answer a file input's "use the camera" request with the gallery anyway, so the
    camera runs inside the app: a live viewfinder with a frame for the label and a shutter. If the camera can't
    start (no permission, no camera), the phone's own picker opens instead. */
@@ -2994,18 +3066,36 @@ function newScan(){clearScanData();SC.blank=true;SFILE=null;const pv=$('scan-pre
 function renderScanList(){if(window.BEANS_OK&&$('bv-scans')){renderBeanScans();renderBeanViews()}}
 // What to call the coffee: its name if we have a real one, else origin and variety ("Colombia Pink Bourbon").
 // Suggestions under a text box, drawn by the app (the phone's own list draws see-through over the form in some web views).
-function autoList(inp,box,all){if(inp.dataset.ac)return;inp.dataset.ac=1;let at=-1,l=[];
+// all: a list of names, or a function. A function that takes the typed text (rich lists such as roasteries) returns
+// the rows to show itself: names, or {v,h} with the value to fill in and the row's HTML.
+function autoList(inp,box,all){if(inp.dataset.ac)return;inp.dataset.ac=1;let at=-1,l=[];const rich=typeof all==='function'&&all.length>0;
+  const val=r=>typeof r==='string'?r:r.v;
   const close=()=>{box.hidden=true;at=-1;inp.setAttribute('aria-expanded','false');inp.removeAttribute('aria-activedescendant')};
   const pick=v=>{inp.value=v;close();inp.dispatchEvent(new Event('input',{bubbles:true}))};
   const hl=()=>box.querySelectorAll('[role=option]').forEach((o,i)=>{o.setAttribute('aria-selected',i===at);if(i===at){inp.setAttribute('aria-activedescendant',o.id);o.scrollIntoView({block:'nearest'})}});
-  const draw=()=>{const q=inp.value.trim().toLowerCase();l=(typeof all==='function'?all():all).filter(r=>r.toLowerCase()!==q&&(!q||r.toLowerCase().includes(q))).slice(0,6);at=-1;
+  const draw=()=>{const q=inp.value.trim().toLowerCase();
+    l=rich?all(inp.value.trim()).filter(r=>val(r).toLowerCase()!==q).slice(0,8):(typeof all==='function'?all():all).filter(r=>r.toLowerCase()!==q&&(!q||r.toLowerCase().includes(q))).slice(0,6);at=-1;
     if(!l.length||document.activeElement!==inp){close();return}
-    box.innerHTML=l.map((r,i)=>'<div role="option" class="aco" id="'+box.id+'-'+i+'" data-i="'+i+'" aria-selected="false">'+esc(r)+'</div>').join('');box.hidden=false;inp.setAttribute('aria-expanded','true')};
+    box.innerHTML=l.map((r,i)=>'<div role="option" class="aco'+(typeof r==='string'?'':' rich')+'" id="'+box.id+'-'+i+'" data-i="'+i+'" aria-selected="false">'+(typeof r==='string'?esc(r):r.h)+'</div>').join('');box.hidden=false;inp.setAttribute('aria-expanded','true')};
   inp.addEventListener('focus',draw);inp.addEventListener('input',e=>{if(e.isTrusted)draw()});inp.addEventListener('blur',()=>setTimeout(()=>{if(document.activeElement!==inp)close()},120));
   inp.addEventListener('keydown',e=>{if(box.hidden)return;if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();at=(at+(e.key==='ArrowDown'?1:-1)+l.length)%l.length;hl()}
-    else if(e.key==='Enter'&&at>=0){e.preventDefault();pick(l[at])}else if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close()}});
+    else if(e.key==='Enter'&&at>=0){e.preventDefault();pick(val(l[at]))}else if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close()}});
   // pointerdown keeps the focus in the box, so the tap lands before the list closes.
-  box.addEventListener('pointerdown',e=>e.preventDefault());box.addEventListener('click',e=>{const o=e.target.closest('[data-i]');if(o)pick(l[+o.dataset.i])})}
+  box.addEventListener('pointerdown',e=>e.preventDefault());box.addEventListener('click',e=>{const o=e.target.closest('[data-i]');if(o)pick(val(l[+o.dataset.i]))})}
+/* The roastery box's suggestions: your roasteries first (the ones with most coffees on top), each with its logo or
+   initials and how many of its coffees you have; while you type, roasteries from the app's list that match too. The
+   letters you typed are picked out. */
+function roasterRows(extra){const own=new Map();const add=(n,c)=>{n=String(n||'').trim();if(!n)return;const k=n.toLowerCase();const o=own.get(k);if(o)o.c+=c;else own.set(k,{n,c})};
+  for(const b of (typeof BEANS!=='undefined'?BEANS:[]))add(b.roaster,1);for(const x of SCANS)add(scRoaster(x),0);for(const n of extra||[])add(n,0);
+  const mine=[...own.values()].sort((a,b)=>b.c-a.c||a.n.localeCompare(b.n));
+  const mark=n=>typeof roMark==='function'?roMark(n):'<span class="ro-mark" aria-hidden="true">'+esc(n[0].toUpperCase())+'</span>';
+  return q=>{const f=fold(q).trim(),hit=n=>!f||fold(n).includes(f);
+    const hi=n=>{if(!f)return esc(n);const i=fold(n).indexOf(f);return i<0?esc(n):esc(n.slice(0,i))+'<mark>'+esc(n.slice(i,i+f.length))+'</mark>'+esc(n.slice(i+f.length))};
+    const row=(n,sub)=>({v:n,h:mark(n)+'<span class="aco-tx"><b>'+hi(n)+'</b><small>'+sub+'</small></span>'});
+    const out=mine.filter(r=>hit(r.n)).map(r=>row(r.n,r.c?r.c+' coffee'+(r.c===1?'':'s'):'From your scans'));
+    if(f.length>=2){const seen=new Set(mine.map(r=>fold(r.n)));for(const e of (typeof ROASTERS!=='undefined'?ROASTERS:[])){const n=e.split('|')[0];if(out.length>=8)break;
+      if(!seen.has(fold(n))&&fold(n).split(/[^a-z0-9]+/).some(w=>w.startsWith(f))||(!seen.has(fold(n))&&f.length>=3&&fold(n).includes(f))){seen.add(fold(n));out.push(row(n,'In the roastery list'))}}}
+    return out}}
 // The other varieties a label named, beside the one the scan settled on.
 function scanVars(sc,inf){const k=inf&&Array.isArray(inf.variety_keys)?inf.variety_keys:[],b=String(sc.variety||'').split(':')[0];return k.filter(v=>typeof v==='string'&&VBY[v]&&v!==b).slice(0,3)}
 function scanTitle(sc,inf){const n=sc.name||(inf&&plausibleName(inf.coffee_name)?niceName(inf.coffee_name):'')||(inf&&inf.producer_or_farm)||'';const o=sc.origin?originName(sc.origin):'',v=sc.variety!=='arabica'?vName(sc.variety):'';return n||(o&&v?o+' '+v:o?o+' coffee':v||'A coffee')}
@@ -3154,7 +3244,9 @@ function renderScan(){
   const tl=techList(SC.brewer);const pref=tl.find(([r])=>P.funk>=1.2?(r.kind==='kh1'||r.kind==='imm'||r.kind==='kh2'):Vp.clarity>=0.8?(r.kind==='46'||r.kind==='neo'||r.kind==='pulse'):true);if(pref)c.tech=pref[1];
   const p=plan(c);const o=oInfo(SC.origin),inf=SC.info;
   const kv=inf?[['Producer or farm',inf.producer_or_farm],['Region',inf.region],['Altitude',inf.altitude],['Varieties',(inf.varieties||[]).join(', ')],['Process',inf.process],['Notes',(inf.tasting_notes||[]).join(', ')],['Bag',SC.bag?SC.bag+' g':'']].filter(x=>x[1]):[];
-  $('s-name').value=SC.name||'';$('s-roaster').value=SC.roaster||'';autoList($('s-roaster'),$('s-rsug'),()=>[...new Set([...SCANS.map(scRoaster),...(typeof BEANS!=='undefined'?BEANS:[]).map(x=>x.roaster)].filter(Boolean))].sort());
+  $('s-name').value=SC.name||'';$('s-roaster').value=SC.roaster||'';autoList($('s-roaster'),$('s-rsug'),q=>roasterRows()(q));
+  // A roastery you correct by hand teaches the scanner too (its words and its bag's look).
+  if(!$('s-roaster').dataset.learn){$('s-roaster').dataset.learn=1;$('s-roaster').addEventListener('change',()=>{if(SC.roaster)roLearnScan()})}
   if(SC.blank){$('scan-out').innerHTML='<div class="scan-wait"><span class="sw-ic" aria-hidden="true">'+CI(BT_ICON['Cone dripper'])+'</span><b>Your coffee shows here</b><p class="hint">Scan a bag or type its label, and its profile, notes and how to brew it appear here.</p></div>';
     save('bb-scan',Object.assign({},SC));return}
   $('scan-out').innerHTML='<div id="scan-head"></div>'+(inf?(inf.summary?'<p class="hint">'+esc(inf.summary)+'</p>':'')+(kv.length?'<dl class="kv">'+kv.map(([k,v])=>'<dt>'+k+'</dt><dd>'+esc(v)+'</dd>').join('')+'</dl>':''):'<p class="hint">Scan a bag or fill in the details to get a plan.</p>')+
@@ -3801,10 +3893,10 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
    '<h3 class="rh">Grind settings</h3><div class="setgroup">'+row('cog','#6E8FA8','Grind settings','Each grinder\u2019s setting for every brewer, and a nudge for all its recipes. Now in Gear and dials.','<div class="actions gs-shortcut" style="margin:0"><button type="button" class="btn ghost" data-gearto="set">Open grind settings</button></div>')+'</div>'+
 
    '<h3 class="rh">Reminders</h3><div class="setgroup">'+row('bell','#8A5A3B','Coffee of the day','A coffee from your cabinet each day: a bag at its peak or running low, one from this day in an earlier year, or a memory from your diary.',
-     window.BEANS_OK&&LN()?'<div class="setbtns"><div class="seg" id="st-remind"></div><input type="time" id="st-rtime" class="dateinp" value="'+REMIND.t+'" aria-label="Reminder time"'+(REMIND.on?'':' disabled')+'></div>'
+     window.BEANS_OK&&LN()?'<div class="setbtns rem"><div class="seg" id="st-remind"></div><input type="time" id="st-rtime" class="dateinp" value="'+REMIND.t+'" aria-label="Reminder time"'+(REMIND.on?'':' disabled')+'></div>'
        :'<p class="setnote" style="margin:0">It’s at the top of Beans and Explore each day. In the Android app it can also arrive as a notification at the time you choose.</p>')+
      row('bulb','#9A7390','Coffee fact of the day','Something worth knowing from Explore each day, in turn: a coffee word, a variety, an origin, a process, a brewing technique, a moment in history or a champion.',
-       window.BEANS_OK&&LN()?'<div class="setbtns"><div class="seg" id="st-learn"></div><input type="time" id="st-ltime" class="dateinp" value="'+LEARN.t+'" aria-label="Fact time"'+(LEARN.on?'':' disabled')+'></div>'
+       window.BEANS_OK&&LN()?'<div class="setbtns rem"><div class="seg" id="st-learn"></div><input type="time" id="st-ltime" class="dateinp" value="'+LEARN.t+'" aria-label="Fact time"'+(LEARN.on?'':' disabled')+'></div>'
          :'<p class="setnote" style="margin:0">Today’s is on the Explore page. In the Android app it can also arrive as a notification at the time you choose.</p>')+'</div>'+
    /* Gear, Guide and the Log are the buttons at the top. */
    '<h3 class="rh">Your data</h3><div class="setgroup">'+row('download','#8A5A3B','Back up and restore','Everything you’ve saved stays on this device: '+esc(dataSummary())+'. Save it as a file, photos included, to keep it safe or move it to another phone.',
@@ -3864,13 +3956,14 @@ $('ab-share').onclick=()=>{const id=(document.querySelector('main section.on')||
   if(id==='dial')openShare(dialDoc());else if(id==='scan')$('sc-share').click();else if(id==='history')openShare(historyDoc());else if(id==='log')openShare(logDoc());else if(id==='map'){if(SEL)openShare(originDoc(SEL));else toast('Pick an origin first')}else if(id==='recipes'&&rListed())openShare(recipesDoc());else if(id==='words')openShare(wordsDoc());else if(id==='flow')openShare(flowDoc());else if(id==='wheel')openShare(wheelDoc())};
 $('dial-share').onclick=()=>openShare(dialDoc());
 $('ab-back').onclick=()=>history.back();
-// The Android back gesture asks here first: close the top sheet, scroll the page back to its top, or step back a screen. False means there is nothing
+// The Android back gesture asks here first: close the top sheet, step back a screen, or scroll the first screen to its top. False means there is nothing
 // left to go back to, so the app goes to the background like any other.
 window.bbBack=()=>{const d=[...document.querySelectorAll('dialog[open]:not(.closing)')].pop();
   if(d){if(history.state&&history.state.dlg)history.back();else d.close();return true}
-  // Scrolled down a page: the first back goes to its top; the next one goes back a screen.
-  if(scrollY>80){scrollTo({top:0,behavior:RM()?'auto':'smooth'});return true}
+  // A screen to go back to: back goes there at once, to where you were on it.
   if(NAVD>0){history.back();return true}
+  // On the first screen, scrolled down: back goes to its top before it leaves the app.
+  if(scrollY>80){scrollTo({top:0,behavior:RM()?'auto':'smooth'});return true}
   if(!document.getElementById('dial').classList.contains('on')){showTab('dial');NAVD=0;syncShell('dial');return true}
   return false};
 $('hist-share').onclick=()=>openShare(historyDoc());
@@ -3944,7 +4037,7 @@ function todayCard(day,w){const f=factFor(day),chev='<svg class="td-go" viewBox=
     row('data-word="'+esc(w[0])+'"',FACT_TILE.word,'Word of the day',w[0],sentences(w[2],150))+
     (f.k==='word'?'':row('data-fact="'+day+'"',FACT_TILE[f.k]||FACT_TILE.word,esc(f.tag==='From history'?'From history':'Did you know · '+f.tag),f.title,sentences(ft,150),yr))+'</div>'}
 // Opens what a fact is about; false when there is nothing to open for it.
-function goFact(g){if(!g)return false;if(g.word){if(!GBY[g.word])return false;openWord(g.word)}else if(g.variety)openVariety(g.variety);else if(g.origin){goTab('map');selectOrigin(g.origin,true)}
+function goFact(g){if(!g)return false;if(g.word){if(!GBY[g.word])return false;openWord(g.word)}else if(g.variety)openVariety(g.variety);else if(g.origin){showTab('map');selectOrigin(g.origin,true)}
   else if(g.process)openProcess(g.process);else if(g.champ!=null&&CHAMPS[g.champ]){showTab('champs');openChamp(CHAMPS[g.champ])}else if(g.tab)showTab(g.tab);else return false;return true}
 $('explore-in').addEventListener('click',e=>{const f=e.target.closest('[data-fact]');if(f){e.stopPropagation();goFact(factFor(+f.dataset.fact).go)}},true);
 // In the Android app it can also arrive as a notification: the next two weeks are scheduled ahead, and again on opening.

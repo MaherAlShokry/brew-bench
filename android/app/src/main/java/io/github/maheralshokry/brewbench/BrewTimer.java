@@ -240,7 +240,14 @@ final class BrewTimer {
         NotificationManager nm = ctx.getSystemService(NotificationManager.class);
         if (nm == null) return;
         boolean run = "run".equals(s.state), pause = "pause".equals(s.state), done = s.showDone(now);
-        if (!(s.live(now) || done) || !allowed(ctx)) { nm.cancel(NOTE_ID); return; }
+        if (!(s.live(now) || done) || !allowed(ctx)) {
+            nm.cancel(NOTE_ID);
+            // Android queues posts and cancels; a cancel right after a post (Next on the last step, then Stop) can be lost
+            // while that post is still queued. Once it has landed, take it away again if the brew is still over.
+            final Context app = ctx.getApplicationContext();
+            H.postDelayed(() -> { long t = System.currentTimeMillis(); St x = read(app); if (!(x.live(t) || x.showDone(t))) nm.cancel(NOTE_ID); }, 600);
+            return;
+        }
         channel(ctx);
         long e = s.elapsed(now);
         Notification.Builder b = Build.VERSION.SDK_INT >= 26 ? new Notification.Builder(ctx, CHANNEL) : new Notification.Builder(ctx);

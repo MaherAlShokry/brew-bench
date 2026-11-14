@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Your cabinet: a heading, then a compact row per coffee on the shelf (its photo or flag, its name, and a dot in its
-     freshness colour with the countdown and cups left). Rows keep their size; what doesn't fit is counted in the heading. -->
+     freshness colour with the countdown and cups left). Rows share the height (their photos grow with them); what doesn't fit is counted in the heading. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/c_root"
     android:layout_width="match_parent"
@@ -19,8 +19,8 @@
     </LinearLayout>
     <TextView android:id="@+id/c_empty" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:gravity="center_vertical" android:text="@string/widget_cabinet_empty" android:textColor="@color/widget_ink" android:textSize="15sp" android:visibility="gone" />
     <LinearLayout android:id="@+id/c_rows" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:orientation="vertical">
-        <LinearLayout android:id="@+id/c_row0" android:layout_width="match_parent" android:layout_height="54dp" android:layout_marginTop="6dp" android:background="@drawable/widget_tile" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="8dp" android:paddingEnd="12dp" android:visibility="gone">
-            <FrameLayout android:layout_width="38dp" android:layout_height="38dp" android:layout_marginEnd="10dp" android:background="@drawable/widget_pic">
+        <LinearLayout android:id="@+id/c_row0" android:layout_width="match_parent" android:layout_height="54dp" android:layout_weight="1" android:layout_marginTop="6dp" android:background="@drawable/widget_tile" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="8dp" android:paddingEnd="12dp" android:visibility="gone">
+            <FrameLayout android:id="@+id/c_fr0" android:layout_width="38dp" android:layout_height="38dp" android:layout_marginEnd="10dp" android:background="@drawable/widget_pic">
                 <TextView android:id="@+id/c_g0" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:textSize="19sp" />
                 <ImageView android:id="@+id/c_p0" android:layout_width="match_parent" android:layout_height="match_parent" android:importantForAccessibility="no" android:scaleType="centerCrop" android:visibility="gone" />
             </FrameLayout>
@@ -32,8 +32,8 @@
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
-        <LinearLayout android:id="@+id/c_row1" android:layout_width="match_parent" android:layout_height="54dp" android:layout_marginTop="6dp" android:background="@drawable/widget_tile" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="8dp" android:paddingEnd="12dp" android:visibility="gone">
-            <FrameLayout android:layout_width="38dp" android:layout_height="38dp" android:layout_marginEnd="10dp" android:background="@drawable/widget_pic">
+        <LinearLayout android:id="@+id/c_row1" android:layout_width="match_parent" android:layout_height="54dp" android:layout_weight="1" android:layout_marginTop="6dp" android:background="@drawable/widget_tile" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="8dp" android:paddingEnd="12dp" android:visibility="gone">
+            <FrameLayout android:id="@+id/c_fr1" android:layout_width="38dp" android:layout_height="38dp" android:layout_marginEnd="10dp" android:background="@drawable/widget_pic">
                 <TextView android:id="@+id/c_g1" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:textSize="19sp" />
                 <ImageView android:id="@+id/c_p1" android:layout_width="match_parent" android:layout_height="match_parent" android:importantForAccessibility="no" android:scaleType="centerCrop" android:visibility="gone" />
             </FrameLayout>
@@ -45,8 +45,8 @@
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
-        <LinearLayout android:id="@+id/c_row2" android:layout_width="match_parent" android:layout_height="54dp" android:layout_marginTop="6dp" android:background="@drawable/widget_tile" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="8dp" android:paddingEnd="12dp" android:visibility="gone">
-            <FrameLayout android:layout_width="38dp" android:layout_height="38dp" android:layout_marginEnd="10dp" android:background="@drawable/widget_pic">
+        <LinearLayout android:id="@+id/c_row2" android:layout_width="match_parent" android:layout_height="54dp" android:layout_weight="1" android:layout_marginTop="6dp" android:background="@drawable/widget_tile" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="8dp" android:paddingEnd="12dp" android:visibility="gone">
+            <FrameLayout android:id="@+id/c_fr2" android:layout_width="38dp" android:layout_height="38dp" android:layout_marginEnd="10dp" android:background="@drawable/widget_pic">
                 <TextView android:id="@+id/c_g2" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:textSize="19sp" />
                 <ImageView android:id="@+id/c_p2" android:layout_width="match_parent" android:layout_height="match_parent" android:importantForAccessibility="no" android:scaleType="centerCrop" android:visibility="gone" />
             </FrameLayout>
@@ -58,8 +58,8 @@
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
-        <LinearLayout android:id="@+id/c_row3" android:layout_width="match_parent" android:layout_height="54dp" android:layout_marginTop="6dp" android:background="@drawable/widget_tile" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="8dp" android:paddingEnd="12dp" android:visibility="gone">
-            <FrameLayout android:layout_width="38dp" android:layout_height="38dp" android:layout_marginEnd="10dp" android:background="@drawable/widget_pic">
+        <LinearLayout android:id="@+id/c_row3" android:layout_width="match_parent" android:layout_height="54dp" android:layout_weight="1" android:layout_marginTop="6dp" android:background="@drawable/widget_tile" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="8dp" android:paddingEnd="12dp" android:visibility="gone">
+            <FrameLayout android:id="@+id/c_fr3" android:layout_width="38dp" android:layout_height="38dp" android:layout_marginEnd="10dp" android:background="@drawable/widget_pic">
                 <TextView android:id="@+id/c_g3" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:textSize="19sp" />
                 <ImageView android:id="@+id/c_p3" android:layout_width="match_parent" android:layout_height="match_parent" android:importantForAccessibility="no" android:scaleType="centerCrop" android:visibility="gone" />
             </FrameLayout>
@@ -71,8 +71,8 @@
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
-        <LinearLayout android:id="@+id/c_row4" android:layout_width="match_parent" android:layout_height="54dp" android:layout_marginTop="6dp" android:background="@drawable/widget_tile" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="8dp" android:paddingEnd="12dp" android:visibility="gone">
-            <FrameLayout android:layout_width="38dp" android:layout_height="38dp" android:layout_marginEnd="10dp" android:background="@drawable/widget_pic">
+        <LinearLayout android:id="@+id/c_row4" android:layout_width="match_parent" android:layout_height="54dp" android:layout_weight="1" android:layout_marginTop="6dp" android:background="@drawable/widget_tile" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="8dp" android:paddingEnd="12dp" android:visibility="gone">
+            <FrameLayout android:id="@+id/c_fr4" android:layout_width="38dp" android:layout_height="38dp" android:layout_marginEnd="10dp" android:background="@drawable/widget_pic">
                 <TextView android:id="@+id/c_g4" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:textSize="19sp" />
                 <ImageView android:id="@+id/c_p4" android:layout_width="match_parent" android:layout_height="match_parent" android:importantForAccessibility="no" android:scaleType="centerCrop" android:visibility="gone" />
             </FrameLayout>
@@ -84,8 +84,8 @@
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
-        <LinearLayout android:id="@+id/c_row5" android:layout_width="match_parent" android:layout_height="54dp" android:layout_marginTop="6dp" android:background="@drawable/widget_tile" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="8dp" android:paddingEnd="12dp" android:visibility="gone">
-            <FrameLayout android:layout_width="38dp" android:layout_height="38dp" android:layout_marginEnd="10dp" android:background="@drawable/widget_pic">
+        <LinearLayout android:id="@+id/c_row5" android:layout_width="match_parent" android:layout_height="54dp" android:layout_weight="1" android:layout_marginTop="6dp" android:background="@drawable/widget_tile" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="8dp" android:paddingEnd="12dp" android:visibility="gone">
+            <FrameLayout android:id="@+id/c_fr5" android:layout_width="38dp" android:layout_height="38dp" android:layout_marginEnd="10dp" android:background="@drawable/widget_pic">
                 <TextView android:id="@+id/c_g5" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:textSize="19sp" />
                 <ImageView android:id="@+id/c_p5" android:layout_width="match_parent" android:layout_height="match_parent" android:importantForAccessibility="no" android:scaleType="centerCrop" android:visibility="gone" />
             </FrameLayout>
@@ -97,6 +97,7 @@
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
+        <!-- When the rows have reached their tallest and space is left: a tile to scan a new bag, taking the rest. -->
+        <TextView android:id="@+id/c_more" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1000" android:layout_marginTop="6dp" android:background="@drawable/widget_tile" android:gravity="center" android:text="+  Scan a new bag" android:textColor="@color/widget_accent" android:textSize="13sp" android:textStyle="bold" android:visibility="gone" />
     </LinearLayout>
-    <TextView android:id="@+id/c_more" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:gravity="center" android:textColor="@color/widget_accent" android:textSize="12sp" android:textStyle="bold" android:visibility="gone" />
 </LinearLayout>

@@ -323,11 +323,11 @@ button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.a
 .dateinp{width:100%;padding:9px 10px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:12px;font-family:var(--body)}
 .scanning{position:relative;overflow:hidden}
 .scanning::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(var(--honey),var(--honey)) 0 0/100% 3px no-repeat,linear-gradient(color-mix(in srgb,var(--honey) 35%,transparent),transparent) 0 3px/100% 12px no-repeat;animation:scanline 1.4s ease-in-out infinite alternate;will-change:transform}
-.drop.photo-in img{animation:photoin .5s cubic-bezier(.2,.8,.2,1) both}
-.drop.photo-in::before{content:"";position:absolute;inset:0;background:#fff;pointer-events:none;z-index:1;animation:photoflash .45s ease-out both}
+.drop.photo-in img{animation:photoin .22s cubic-bezier(.2,.9,.25,1) both}
+.drop.photo-in::before{content:"";position:absolute;inset:0;background:#fff;pointer-events:none;z-index:1;animation:photoflash .18s ease-out both}
 .drop.photo-in{position:relative}
-@keyframes photoin{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
-@keyframes photoflash{from{opacity:.75}to{opacity:0}}
+@keyframes photoin{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+@keyframes photoflash{from{opacity:.6}to{opacity:0}}
 /* The line sweeps by moving the whole layer (transform), so the page isn't laid out again on every frame. */
 @keyframes scanline{from{transform:translateY(0)}to{transform:translateY(calc(100% - 3px))}}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.93rem;margin:10px 0}
@@ -869,14 +869,16 @@ svg .bo{fill:currentColor}svg .bc{fill:none;stroke:var(--surface);stroke-width:1
 .re-h small{flex-basis:100%;font:400 .8rem var(--body);color:var(--muted);padding-left:34px;margin-top:-2px}
 .re2 .field>.lab{display:block;font-size:.88rem;font-weight:600;margin-bottom:6px}
 .re-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.re-tile{background:color-mix(in srgb,var(--cherry) 5%,var(--paper));border-radius:16px;padding:10px 6px 8px;text-align:center}
+.re-tile{background:color-mix(in srgb,var(--cherry) 5%,var(--paper));border-radius:16px;padding:12px 8px 8px;text-align:center;display:flex;flex-direction:column;align-items:stretch}
 .re-tile label{display:block;font-size:.74rem;font-weight:600;color:var(--muted);margin-bottom:4px}
-.re-num{display:flex;align-items:baseline;justify-content:center;gap:2px}.re-pms{display:flex;justify-content:center;gap:10px;margin-top:6px}
-.recform .re-num input{width:4.2ch;min-width:0;border:0;background:none;padding:0;text-align:center;font:700 1.25rem var(--display);font-variant-numeric:tabular-nums;color:var(--ink);-moz-appearance:textfield}
+.re-num{display:flex;align-items:baseline;justify-content:center;gap:3px;min-height:2rem}/* − and + as one stepper across the tile. */
+.re-pms{display:grid;grid-template-columns:1fr 1fr;margin-top:8px;height:34px;border-radius:999px;background:var(--surface);border:1px solid var(--line);overflow:hidden}
+.recform .re-num input{width:4.2ch;max-width:6ch;min-width:0;border:0;background:none;padding:0;text-align:center;font:700 1.25rem var(--display);font-variant-numeric:tabular-nums;color:var(--ink);-moz-appearance:textfield}
 .re-num input::-webkit-inner-spin-button,.re-num input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
-.re-num span{font-size:.74rem;color:var(--muted);margin-right:2px}
-.re-pm{flex:none;width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:1rem;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0}
-.re-pm:active{transform:scale(.9)}
+.re-num span{font-size:.8rem;font-weight:600;color:var(--muted)}
+
+.re-pm{min-width:0;height:100%;border:0;border-radius:0;background:none;color:var(--ink);font-size:1rem;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0}
+.re-pm+.re-pm{border-left:1px solid var(--line)}.re-pm:active{background:var(--surface2)}
 .re-ratio{text-align:center;margin:10px 0 8px;font-size:.88rem;color:var(--muted)}.re-ratio b{color:var(--cherry-ink);font-variant-numeric:tabular-nums}
 @media (max-width:340px){.re-tiles{grid-template-columns:1fr}}
 /* Step kinds share one colour each, on the rail, the chips and the chart. */
@@ -1351,7 +1353,7 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 @media (max-width:759px){
   body::before,body::after{content:'';position:fixed;left:0;right:0;pointer-events:none}
   body::before{top:0;height:calc(var(--sa-top) + 84px);z-index:19;background:linear-gradient(var(--paper) calc(100% - 18px),color-mix(in srgb,var(--paper) 0%,transparent))}
-  body:has(dialog[open])::before,body:has(dialog[open])::after{display:none}
+  body.dlg-open::before,body.dlg-open::after{display:none}
   body::after{bottom:0;height:calc(var(--sa-bottom) + 56px);z-index:29;background:linear-gradient(color-mix(in srgb,var(--paper) 0%,transparent),var(--paper) 62%)}
 }
 .lv{font-weight:700;border-radius:6px;padding:0 6px}.lv-e{color:#256B42;background:color-mix(in srgb,#2F7A4F 12%,transparent)}.lv-i{color:#85550C;background:color-mix(in srgb,#C8891E 14%,transparent)}.lv-a{color:#A53A2A;background:color-mix(in srgb,#A53A2A 12%,transparent)}
@@ -1619,7 +1621,7 @@ dialog#vd:has(.me-hero){overflow-x:hidden}
 :root[data-theme="dark"] .au-err{color:#F5A08B}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .au-err{color:#F5A08B}}
 .auth>.linkbtn{display:block;margin:6px auto 0}
 .setrow{padding:14px 16px}.setrow+.setrow{border-top:1px solid var(--line)}
-.setrow>.sl{display:flex;align-items:center;gap:12px;margin-bottom:10px}.setrow>.sl:last-child{margin-bottom:0}
+.setrow>.sl{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}.setrow>.sl:last-child{margin-bottom:0}
 /* Logos in light mode: their gold parts a touch deeper (towards the vibe's darker gold) so they read on pale tiles.
    --honey-base carries the vibe's own gold down, since a variable can't refer to itself. */
 :root{--honey-base:var(--honey)}
@@ -1632,7 +1634,9 @@ html.thx *,html.thx *::before,html.thx *::after{transition-property:transform,tr
 .ic.t-cl{--t:color-mix(in srgb,var(--cherry-ink,var(--cherry)) 52%,var(--leaf-ink,var(--leaf)))}.ic.t-ch{--t:color-mix(in srgb,var(--cherry-ink,var(--cherry)) 58%,var(--honey-ink,var(--honey)))}
 .ic[class*=" t-"]{background:color-mix(in srgb,var(--t) 15%,var(--surface))!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--t) 20%,transparent)}
 .ic[class*=" t-"] svg{stroke:var(--t)!important}
-.setrow .ic{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;flex:none}.setrow .ic svg{width:20px;height:20px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.setrow .ic{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;flex:none;margin-top:1px}
+/* A short row (just a title) keeps its icon level with it; a long description doesn't pull the icon down the middle. */
+.setrow .mt{min-height:36px;display:flex;flex-direction:column;justify-content:center}.setrow .ic svg{width:20px;height:20px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .setrow .mt{flex:1;min-width:0}.setrow .mt b{display:block;font-weight:600}.setrow .mt small{display:block;color:var(--muted);font-size:.84rem;line-height:1.35}
 .setrow .seg{display:flex;flex-wrap:nowrap}.setrow .seg button{flex:1 1 auto;min-width:0;white-space:nowrap;text-overflow:clip}
 @media (max-width:399px){.setrow .seg button{padding-left:6px!important;padding-right:6px!important}}
@@ -1656,7 +1660,11 @@ html.thx *,html.thx *::before,html.thx *::after{transition-property:transform,tr
 .logopick .lg-tile{display:grid;place-items:center;width:58px;height:58px;border-radius:17px;background:linear-gradient(160deg,var(--surface),var(--surface2));box-shadow:inset 0 0 0 1px var(--line),0 4px 12px -6px rgba(0,0,0,.25);transition:transform .15s,box-shadow .15s}
 .logopick svg{width:36px;height:36px}.logopick:active .lg-tile{transform:scale(.94)}
 .logopick[aria-pressed="true"]{color:var(--ink)}.logopick[aria-pressed="true"] .lg-tile{box-shadow:0 0 0 2px var(--surface),0 0 0 4.5px var(--cherry),0 6px 16px -6px rgba(0,0,0,.3)}
-.setbtns{display:flex;flex-wrap:wrap;gap:8px}.setnote{font-size:.82rem;color:var(--muted);margin:.5rem 0 0}
+.setbtns{display:flex;flex-wrap:wrap;gap:8px}
+/* A reminder: Off / Every day and its time side by side, the same height and shape. */
+.setbtns.rem{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:8px;align-items:stretch}
+.setbtns.rem .seg{margin:0}.setbtns.rem .dateinp{min-height:0;height:auto;border-radius:999px!important;text-align:center;padding:0 14px;font-family:var(--display);font-weight:600;background:var(--surface2);border-color:transparent}
+.setbtns.rem .dateinp:disabled{opacity:.5}.setnote{font-size:.82rem;color:var(--muted);margin:.5rem 0 0}
 #ab-logo{display:inline-flex}#ab-logo svg{width:24px;height:24px}
 
 /* One heading scale everywhere: the page title (h2), section headings inside a page (h3.sec), card and panel titles. */
@@ -1816,7 +1824,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 /* Your coffees */
 .bg-tools{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;margin-bottom:4px}.bg-tools .seg.filters{margin:0}
 .bg-gh{display:flex;align-items:center;gap:8px;margin:18px 2px 10px}.bg-gh b{font-family:var(--display);font-size:1.1rem}
-.bg-gh span{font-size:.74rem;font-weight:700;color:var(--muted);padding:1px 8px;border-radius:var(--r-pill);background:var(--surface2)}
+.bg-gh>span:not(.ro-mark){font-size:.74rem;font-weight:700;color:var(--muted);padding:1px 8px;border-radius:var(--r-pill);background:var(--surface2)}
   transition:transform .25s var(--ease-out),box-shadow .25s}
 @keyframes bin{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
   background:linear-gradient(135deg,color-mix(in srgb,var(--m) 45%,#fff),var(--m));box-shadow:0 4px 10px rgba(0,0,0,.3)}
@@ -2026,7 +2034,10 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .yic-k{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:var(--muted)}
 .yic-row{display:flex;gap:8px 20px;flex-wrap:wrap;margin-top:6px}.yic-row span{display:flex;flex-direction:column;min-width:0}
 .yic-row b{font-family:var(--display);font-size:1.2rem;line-height:1.2;color:var(--ink)}.yic-row small{font-size:.76rem;color:var(--muted);max-width:16ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cr-notes{font-style:italic}
+.cr-notes{display:flex;gap:5px;margin-top:6px;overflow:hidden;min-width:0;mask-image:linear-gradient(90deg,#000 88%,transparent);-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent)}
+/* Tasting notes as small pills, each with its flavour's colour (as in the notes picker). */
+.cr-fl{flex:none;display:inline-flex;align-items:center;gap:5px;padding:2px 8px 2px 6px;border-radius:999px;font-size:.72rem;font-weight:600;line-height:1.5;color:var(--ink);background:color-mix(in srgb,var(--fc) 13%,var(--surface2));white-space:nowrap}
+.cr-fl i{width:6px;height:6px;border-radius:50%;background:var(--fc);flex:none}
 /* ---------- The passport ---------- */
 .passport{position:relative;padding:18px 14px 16px;border-radius:24px;color:#2A1A10;margin-bottom:8px;
   background:repeating-linear-gradient(0deg,transparent 0 27px,rgba(90,60,30,.06) 27px 28px),radial-gradient(120% 90% at 50% 0%,#FBF3E4,#EFE1C8);box-shadow:inset 0 0 0 1.5px rgba(120,80,40,.18),var(--shadow)}
@@ -2063,6 +2074,18 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 /* Roasteries */
 .ro-mark{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font:800 .95rem var(--body);letter-spacing:.02em;color:hsl(var(--h) 45% 26%);background:hsl(var(--h) 45% 88%);border:1px solid hsl(var(--h) 35% 76%)}
 .ro-mark.big{width:56px;height:56px;border-radius:16px;font-size:1.25rem}
+/* A roastery's own logo in place of its initials: on white, so dark and light logos both read. */
+.ro-mark.logo{background:#fff;border-color:var(--line);overflow:hidden;padding:0}.ro-mark.logo img{width:100%;height:100%;object-fit:contain;display:block}
+.ro-gh .ro-mark{width:28px;height:28px;border-radius:9px;font-size:.72rem}
+/* The roastery page's mark is a button: tap to add or change the logo (a small badge says which). */
+.ro-logo-btn{position:relative;flex:none;padding:0;border:0;background:none;cursor:pointer;border-radius:16px}
+.ro-logo-ed{position:absolute;right:-5px;bottom:-5px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--cherry);color:var(--surface);box-shadow:0 0 0 2px var(--surface)}
+.ro-logo-ed svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.ro-title{position:relative}
+/* The logo's menu, under the pen: change it or remove it. */
+.ro-logo-menu{position:absolute;left:0;top:calc(100% + 8px);z-index:4;display:flex;flex-direction:column;min-width:170px;padding:6px;border-radius:var(--r-md);background:var(--surface);border:1px solid var(--line);box-shadow:0 14px 34px -12px rgba(0,0,0,.4)}
+.ro-logo-menu button{border:0;background:none;text-align:left;padding:10px 12px;border-radius:10px;font:600 .92rem var(--display);color:var(--ink);cursor:pointer}
+.ro-logo-menu button:hover,.ro-logo-menu button:focus-visible{background:var(--surface2)}.ro-logo-menu .danger{color:var(--cherry-ink,var(--cherry))}
 :root[data-theme="dark"] .ro-mark{color:hsl(var(--h) 55% 84%);background:hsl(var(--h) 28% 22%);border-color:hsl(var(--h) 25% 34%)}
 .ro-title{display:flex;align-items:center;gap:14px;margin-top:6px}.ro-title h2{margin:0}.ro-title .vd-sub{margin:2px 0 0}
 .ro-link{all:unset;cursor:pointer;color:var(--cherry-ink);font-weight:600;border-bottom:1px solid color-mix(in srgb,var(--cherry) 35%,transparent)}.ro-link:focus-visible{outline:2px solid var(--cherry);outline-offset:3px;border-radius:4px}
@@ -2190,6 +2213,8 @@ body.t-dial.dial-ready .herowrap{display:none}
 .ssn-next{margin:8px 0 0;font-size:.82rem;color:var(--muted)}.ssn-got{margin-bottom:6px}
 /* Coffee rows, cleaned up. */
 .crow{align-items:flex-start;gap:12px;padding:12px 14px 12px 12px}
+/* A coffee's photo sits level with its text block (name, where it's from, notes). */
+.crow:not(.now){align-items:center}
 .crow .bpic,.clist.now .crow .bpic{width:52px;height:52px;border-radius:14px}
 .cr-top{display:flex;align-items:center;gap:8px;min-width:0}.cr-top b{flex:1;min-width:0;-webkit-line-clamp:1!important}
 .cr-top .cr-end{gap:6px}.cr-top .cr-medal{width:22px;height:22px}
@@ -2229,6 +2254,11 @@ body.t-dial.dial-ready .herowrap{display:none}
 /* The dialog header stays above anything that scrolls under it (the rating beans drew over it). */
 .vd-head{z-index:4}
 .bvar select{width:100%}
+/* The dropdown is wrapped (select.js) so the wrapper, not the select, is the row's item: it fills the row too. */
+.bvar>.selw{flex:1 1 auto;min-width:0}.bvar>.selw>select{width:100%}
+/* The coffee form: room under the photo buttons, and the rating as wide as the fields under it. */
+.beform>.actions.two-up{margin:12px 0 20px}
+.beform .beanrate{width:100%;box-sizing:border-box;justify-content:space-between}
 @media (max-width:399px){.two.bagrow{grid-template-columns:1fr!important;display:grid}}
 .beform .seg button{min-width:0;white-space:nowrap;overflow:visible;text-overflow:clip;padding-left:6px;padding-right:6px}
 /* Tasting notes in the editor: chosen notes as chips in their wheel colours, a find-or-type box, notes the coffee is
@@ -2268,6 +2298,14 @@ body.t-dial.dial-ready .herowrap{display:none}
 .acl[hidden]{display:none}
 .aco{padding:11px 12px;border-radius:10px;cursor:pointer;color:var(--ink);font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .aco:hover,.aco[aria-selected="true"]{background:var(--surface2)}
+/* Rich suggestions (roasteries): the mark or logo, the name with the typed letters picked out, a line under it. */
+.aco.rich{display:flex;align-items:center;gap:12px;padding:8px 10px;white-space:normal}
+.aco.rich .ro-mark{width:34px;height:34px;border-radius:10px;font-size:.78rem}
+.aco-tx{display:flex;flex-direction:column;min-width:0}.aco-tx b{font-family:var(--display);font-weight:600;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aco-tx b mark{background:none;color:var(--cherry);font-weight:800}.aco-tx small{font-size:.76rem;color:var(--muted)}
+/* In a two-column row (name and roastery side by side) the list spans the whole row, not just its half. */
+.two{position:relative}.two>.field>.acw{position:static}
+.two>.field>.acw>.acl{top:calc(100% + 6px);max-height:320px}
 /* Explore's "Today in coffee": the panel the app uses everywhere, two rows with the hub tiles' icons. */
 .today{padding:14px 14px 6px;margin:4px 0 8px}
 .td-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:2px 4px 8px}
@@ -2608,7 +2646,7 @@ button.yic-t{cursor:pointer;-webkit-tap-highlight-color:transparent;transition:t
   /* The gap between the top bar and the stuck strip is filled with the page colour, so the list never peeks through. */
   .seg.bviews::before{content:'';position:absolute;left:-12px;right:-12px;bottom:calc(100% + 1px);height:8px;background:var(--paper);pointer-events:none}
   /* On Beans the top bar casts no shadow, so the bar and the stuck strip are two clean, solid pieces. */
-  @media (max-width:759px){html:has(main section#beans.on) .appbar{box-shadow:none!important}}
+  @media (max-width:759px){html[data-tab="beans"] .appbar{box-shadow:none!important}}
   .seg.bviews .seg-ind,.seg.bviews button[aria-pressed="true"]{box-shadow:none!important}
 #ab-title{transition:opacity .2s ease,transform .2s ease}.appbar.title-off #ab-title{opacity:0;transform:translateY(6px)}
 @media (min-width:760px){.appbar.title-off #ab-title{opacity:1;transform:none}}
