@@ -225,8 +225,11 @@ let TN_ALL=null;
 const tnNotes=()=>TN_ALL||(TN_ALL=(()=>{const base=FW.leaves.filter(n=>n.cat.n!=='Other'),by=Object.fromEntries(base.map(n=>[n.n,n]));
   return[...base.map(n=>({n:n.n,c:n.c,id:n.id,g:n.parent?n.parent.n:''})),...Object.entries(TN_X).filter(([x,w])=>by[w]&&!by[x]).map(([x,w])=>({n:x,c:by[w].c,id:by[w].id,g:by[w].parent?by[w].parent.n:''}))]})());
 const tnLeaves=()=>FW.leaves.filter(n=>n.cat.n!=='Other');
-const tnLeaf=w=>{const f=fold(String(w).trim());return f?tnNotes().find(n=>fold(n.n)===f)||null:null};
-const tnSplit=s=>{const seen=new Set();return String(s||'').split(/\s*[,;·]\s*/).map(x=>x.trim()).filter(x=>x&&!seen.has(fold(x))&&seen.add(fold(x)))};
+// A note's identity keeps its accents (Rosé the wine and Rose the flower are two notes); typing without accents
+// still finds the accented one when nothing matches exactly.
+const tnKey=t=>String(t).trim().normalize('NFC').toLowerCase().replace(/[’']/g,"'");
+const tnLeaf=w=>{const k=tnKey(w),f=fold(String(w).trim());if(!f)return null;const ns=tnNotes();return ns.find(n=>tnKey(n.n)===k)||ns.find(n=>fold(n.n)===f)||null};
+const tnSplit=s=>{const seen=new Set();return String(s||'').split(/\s*[,;·]\s*/).map(x=>x.trim()).filter(x=>x&&!seen.has(tnKey(x))&&seen.add(tnKey(x)))};
 const tnEsc=w=>w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 // Notes a coffee is known for: the words in its varieties' and origin's cup descriptions, then the notes the wheel
 // links to its process and varieties.
@@ -245,7 +248,7 @@ function tasteInput(host,init,ctx){let L=tnSplit(init),fam=null,at=-1,opts=[];
     '<div class="tn-sug" id="tn-sug"></div>'+
     '<div class="tn-lbl">Browse the flavour wheel</div><div class="tn-fams" id="tn-fams">'+tnFams().map(r=>'<button type="button" class="tn-f" data-fam="'+r.id+'" aria-expanded="false" style="--fc:'+r.c+'"><i></i>'+esc(r.n)+'</button>').join('')+'</div>'+
     '<div class="tn-fam" id="tn-fam" hidden></div>';
-  const q=$('tn-q'),box=$('tn-list'),has=w=>L.some(x=>fold(x)===fold(w));
+  const q=$('tn-q'),box=$('tn-list'),has=w=>L.some(x=>tnKey(x)===tnKey(w));
   const chip=(n,on)=>'<button type="button" class="tn-c'+(on?' on':'')+'" data-add="'+esc(n.n)+'" aria-pressed="'+on+'" style="--fc:'+n.c+'"><i></i>'+esc(n.n)+'</button>';
   const drawSel=()=>{const wl=L.map(tnLeaf);
     $('tn-sel').innerHTML=(L.length?'<div class="tn-chips">'+L.map((w,i)=>{const n=wl[i];return'<span class="tn-x" style="--fc:'+(n?n.c:'var(--muted)')+'"><i></i>'+esc(n?n.n:w)+'<button type="button" data-rm="'+i+'" aria-label="Remove '+esc(w)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></button></span>'}).join('')+'</div>':
@@ -260,20 +263,20 @@ function tasteInput(host,init,ctx){let L=tnSplit(init),fam=null,at=-1,opts=[];
   // A chip on the wheel toggles (tap it again to take it off); a note typed or picked from the search never removes
   // one you already have: it's shown as already there.
   const add=(w,toggle)=>{w=String(w).trim().replace(/\s+/g,' ');if(!w)return false;const n=tnLeaf(w);if(n)w=n.n;else w=w[0].toUpperCase()+w.slice(1);
-    if(has(w)){if(toggle){L=L.filter(x=>fold(x)!==fold(w));drawSel()}else flashNote(w);return true}
+    if(has(w)){if(toggle){L=L.filter(x=>tnKey(x)!==tnKey(w));drawSel()}else flashNote(w);return true}
     if(L.length>=TN_MAX){toast('That’s '+TN_MAX+' notes, plenty for one bag');return false}
     if([...L,w].join(', ').length>TN_LEN){toast('That’s as many notes as fit');return false}
     L.push(w);drawSel();return true};
-  const flashNote=w=>{const i=L.findIndex(x=>fold(x)===fold(w)),el=$('tn-sel').querySelectorAll('.tn-x')[i];if(el){el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash')}toast(w+' is already in')};
+  const flashNote=w=>{const i=L.findIndex(x=>tnKey(x)===tnKey(w)),el=$('tn-sel').querySelectorAll('.tn-x')[i];if(el){el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash')}toast(w+' is already in')};
   // Backspace in the empty box takes the last note off only on a second press (the first marks it), so a stray key
   // on a phone keyboard can't remove one.
   let bsArm=false;const unarm=()=>{if(!bsArm)return;bsArm=false;const x=$('tn-sel').querySelector('.tn-x.arm');if(x)x.classList.remove('arm')};
   const close=()=>{box.hidden=true;at=-1;q.setAttribute('aria-expanded','false');q.removeAttribute('aria-activedescendant')};
   const hl=()=>box.querySelectorAll('[role=option]').forEach((o,i)=>{o.setAttribute('aria-selected',i===at);if(i===at){q.setAttribute('aria-activedescendant',o.id);o.scrollIntoView({block:'nearest'})}});
   const draw=()=>{const t=q.value.trim(),f=fold(t);at=-1;if(!f||document.activeElement!==q){close();return}
-    const m=tnNotes().filter(n=>fold(n.n).includes(f)).sort((a,b)=>fold(a.n).indexOf(f)-fold(b.n).indexOf(f)||a.n.length-b.n.length).slice(0,6);
+    const m=tnNotes().filter(n=>fold(n.n).includes(f)).sort((a,b)=>(tnKey(b.n)===tnKey(t))-(tnKey(a.n)===tnKey(t))||fold(a.n).indexOf(f)-fold(b.n).indexOf(f)||a.n.length-b.n.length).slice(0,6);
     opts=m.map(n=>({w:n.n,h:'<i class="dot" style="background:'+n.c+'"></i><span class="tn-on">'+esc(n.n)+'</span>'+(has(n.n)?'<em>Added</em>':'<small>'+esc(n.g)+'</small>')}));
-    if(!m.some(n=>fold(n.n)===f))opts.push({w:t,h:'<span class="tn-new" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 6v12M6 12h12"/></svg></span><span class="tn-on">Add “'+esc(t)+'”</span>'});
+    if(!m.some(n=>tnKey(n.n)===tnKey(t)||fold(n.n)===f))opts.push({w:t,h:'<span class="tn-new" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 6v12M6 12h12"/></svg></span><span class="tn-on">Add “'+esc(t)+'”</span>'});
     box.innerHTML=opts.map((o,i)=>'<div role="option" class="aco tn-o" id="tn-o'+i+'" data-i="'+i+'" aria-selected="false">'+o.h+'</div>').join('');box.hidden=false;q.setAttribute('aria-expanded','true');
     // The closest note on the wheel is ready for Enter; your own words are one step down.
     if(m.length){at=0;hl()}};

@@ -13,4 +13,11 @@ await p.fill('#tn-q','');await p.focus('#tn-q');await p.keyboard.press('Backspac
 const t2=await p.evaluate(()=>({n:document.querySelectorAll('#tn-sel .tn-x').length,arm:!!document.querySelector('#tn-sel .tn-x.arm')}));ok('one Backspace only marks the last note',t2.n===2&&t2.arm,t2);
 await p.keyboard.press('Backspace');await p.waitForTimeout(100);ok('a second removes it',await p.evaluate(()=>document.querySelectorAll('#tn-sel .tn-x').length===1));
 await p.click('#tn-sel .tn-x button');await p.waitForTimeout(100);ok('the × still removes a note at once',await p.evaluate(()=>document.querySelectorAll('#tn-sel .tn-x').length===0));
+// Notes that differ only by an accent are two notes: picking Rose (the flower) from the list adds Rose, not Rosé.
+await p.focus('#tn-q');await p.fill('#tn-q','rose');await p.waitForTimeout(150);
+const ro=await p.evaluate(()=>[...document.querySelectorAll('#tn-list [role=option] .tn-on')].map(x=>x.textContent));
+ok('typing rose puts Rose first',ro[0]==='Rose'&&ro.includes('Rosé'),ro);
+await p.tap('#tn-list [data-i="'+ro.indexOf('Rosé')+'"]');await p.waitForTimeout(150);
+await p.focus('#tn-q');await p.fill('#tn-q','rose');await p.waitForTimeout(150);await p.tap('#tn-list [data-i="0"]');await p.waitForTimeout(150);
+const t3=await p.evaluate(()=>[...document.querySelectorAll('#tn-sel .tn-x')].map(x=>x.textContent.trim()));ok('the picked option is the one added, and Rosé and Rose sit side by side',t3.join()==='Rosé,Rose',t3);
 ok('no errors',!errs.length,errs);await b.close()})();
