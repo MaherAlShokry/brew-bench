@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.view.View;
 import android.widget.RemoteViews;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -134,7 +135,8 @@ public class QuickBrewWidget extends AppWidgetProvider {
         v.setOnClickPendingIntent(R.id.q_root, BrewWidget.open(ctx, "recipe:" + key, 20));
         // Starts the brew from here: the clock, the notification and the buttons run without opening the app (which
         // opens on the timer instead if it hasn't sent this recipe's steps yet).
-        v.setOnClickPendingIntent(R.id.q_go, o.has("steps") ? BrewTimer.action(ctx, BrewTimer.START, 21) : BrewWidget.open(ctx, "timer:" + key, 21));
+        JSONArray steps = o.optJSONArray("steps");
+        v.setOnClickPendingIntent(R.id.q_go, steps != null && steps.length() > 0 && o.optLong("total", 0L) > 0 ? BrewTimer.action(ctx, BrewTimer.START, 21) : BrewWidget.open(ctx, "timer:" + key, 21));
         return v;
     }
 }

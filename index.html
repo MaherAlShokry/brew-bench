@@ -2605,7 +2605,7 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="7bf2ee2c088a"</script>
+<script>const BUILD_ID="5862a27afee7"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -7607,12 +7607,12 @@ function logThumb(l){const b=logBean(l);
 function logGroup(l){const d=new Date(l.ts||Date.parse(l.date));if(isNaN(d))return'Earlier';const t=new Date();t.setHours(0,0,0,0);const dd=new Date(d);dd.setHours(0,0,0,0);const n=Math.round((t-dd)/864e5);
   return n<=0?'Today':n===1?'Yesterday':n<7?'This week':n<14?'Last week':d.getFullYear()===t.getFullYear()?new Intl.DateTimeFormat(undefined,{month:'long'}).format(d):new Intl.DateTimeFormat(undefined,{month:'long',year:'numeric'}).format(d)}
 // The bag's photo leads each brew. Your own brews carry just the date; a teammate's brew says whose it is, by name.
-function logEntryHTML(l,i){const st=clamp(Math.round(+l.stars||0),0,5),{pills,rest}=logPills(l),who=GROUP&&l.by&&!(window.BEANS_OK?isMine(l):l.by===ME)?l.by:'';
+function logEntryHTML(l,i){const ag=againPlan(l),st=clamp(Math.round(+l.stars||0),0,5),{pills,rest}=logPills(l),who=GROUP&&l.by&&!(window.BEANS_OK?isMine(l):l.by===ME)?l.by:'';
   const rate=st?'<span class="le-stars" role="img" aria-label="'+st+' of 5 beans, '+STARW[st]+'">'+beanRate(st)+'<b>'+st+'</b></span>':'<span class="le-stars none">Not rated</span>';
   return '<article class="logentry le2"><div class="le-top">'+logThumb(l)+'<div class="le-tt"><b>'+esc(l.coffee||'Untitled')+'</b><div class="le-sub"><span class="le-meta">'+(who?'<span class="le-who">'+esc(who)+'</span><span aria-hidden="true">·</span>':'')+esc(fmtDate(l))+(l.edited?' · edited':'')+'</span>'+rate+'</div></div></div>'+
     (pills.length?'<div class="le-pills">'+pills.map(([k,t])=>'<span class="le-pill k-'+k+'">'+(LSI[k==='ratio'?'water':k]?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+LSI[k==='ratio'?'water':k]+'"/></svg>':'')+esc(t)+'</span>').join('')+'</div>':'')+
     (rest?'<p class="le-rest">'+esc(rest)+'</p>':'')+(l.pred?'<p class="le-pred">Expected <b>'+esc(l.pred)+'</b></p>':'')+(l.notes?'<blockquote class="le-notes">'+esc(l.notes)+'</blockquote>':'')+flEntry(l,i)+
-    '<div class="le-act'+(againPlan(l)?' has-again':'')+'">'+(againPlan(l)?'<button type="button" class="le-b again" data-again="'+i+'" aria-label="Brew this again">'+lIc('again')+'Brew again</button>':'')+'<button type="button" class="le-b" data-lshare="'+i+'" aria-label="Share this brew" title="Share">'+lIc('share')+'<span class="le-bl">Share</span></button>'+(canEdit(l)?'<button type="button" class="le-b" data-edit="'+i+'" aria-label="Edit this brew" title="Edit">'+lIc('edit')+'<span class="le-bl">Edit</span></button>':'')+'<button type="button" class="le-b del" data-del="'+i+'" aria-label="Delete this brew">'+lIc('del')+'</button></div></article>'}
+    '<div class="le-act'+(ag?' has-again':'')+'">'+(ag?'<button type="button" class="le-b again" data-again="'+i+'" aria-label="Brew this again">'+lIc('again')+'Brew again</button>':'')+'<button type="button" class="le-b" data-lshare="'+i+'" aria-label="Share this brew" title="Share">'+lIc('share')+'<span class="le-bl">Share</span></button>'+(canEdit(l)?'<button type="button" class="le-b" data-edit="'+i+'" aria-label="Edit this brew" title="Edit">'+lIc('edit')+'<span class="le-bl">Edit</span></button>':'')+'<button type="button" class="le-b del" data-del="'+i+'" aria-label="Delete this brew">'+lIc('del')+'</button></div></article>'}
 // Search, then a filter and a sort button, as on Recipes: each opens a sheet. A dot on the filter says one is on.
 let LLN=0;const saveLF=()=>save('bb-logfilter',{min:LF.min,who:LF.who,sort:LF.sort});
 const lfName=()=>[LF.min?(LF.min===5?'5 beans':LF.min+' beans and up'):'',LF.who.length?selName(LF.who,w=>w==='me'?'Me':w,''):''].filter(Boolean).join(', ')||'All brews';
