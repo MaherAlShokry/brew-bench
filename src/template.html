@@ -1569,9 +1569,7 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .me-brief{position:relative;margin:0;padding:4px 4px 0 30px;font-family:var(--display);font-size:1.05rem;line-height:1.45;color:var(--ink);overflow-wrap:anywhere}
 .me-brief::before{content:"“";position:absolute;left:0;top:-10px;font-size:2.8rem;line-height:1;color:var(--c,var(--honey));opacity:.8}
 .me-add{padding:12px 14px;border-radius:14px;border:1.5px dashed var(--line);background:none;color:var(--muted);font:inherit;font-size:.88rem;text-align:left;cursor:pointer}
-.me-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.me-stats span{display:flex;flex-direction:column;align-items:center;padding:10px 4px;border-radius:14px;background:var(--surface2);font-size:.72rem;color:var(--muted)}
-.me-stats b{font-family:var(--display);font-size:1.3rem;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.2}.me-flag{font-size:1.3rem}
+.me-flag{font-size:1.3rem}
 .me-acct{border-radius:16px;background:var(--surface2);overflow:hidden}
 .me-row{display:flex;align-items:center;gap:12px;padding:12px 14px}.me-row+.me-row{border-top:1px solid var(--line)}
 .me-rt{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start}.me-rt b{font-size:.92rem}.me-rt small{font-size:.8rem;color:var(--muted);overflow-wrap:anywhere}
@@ -2013,8 +2011,6 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .yic{margin:14px 0 4px;padding:12px 14px;border-radius:var(--r-lg);background:var(--surface2)}
 /* The year card: a line that sums up the year, three big numbers, then what you bought and brewed most, and your notes. */
 .yic{padding:16px 16px 14px}.yic-line{margin:6px 0 0;font:600 1rem/1.4 var(--display);color:var(--ink)}
-.yic-big{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.yic-big span{display:flex;flex-direction:column;padding:10px 12px;border-radius:14px;background:var(--surface);min-width:0}
-.yic-big b{font:800 1.45rem/1.1 var(--display);color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}.yic-big small{font-size:.76rem;color:var(--muted);margin-top:2px}
 .yic-facts{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;margin-top:14px}
 .yic-facts>div{display:flex;gap:9px;align-items:flex-start;min-width:0}.yic-facts i{flex:none;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--surface);font-style:normal;font-size:.95rem}
 .yic-facts span{display:flex;flex-direction:column;min-width:0}.yic-facts small{font-size:.7rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
@@ -2098,8 +2094,6 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 :root[data-theme="dark"] .ro-mark{color:hsl(var(--h) 55% 84%);background:hsl(var(--h) 28% 22%);border-color:hsl(var(--h) 25% 34%)}
 .ro-title{display:flex;align-items:center;gap:14px;margin-top:6px}.ro-title h2{margin:0}.ro-title .vd-sub{margin:2px 0 0}
 .ro-link{all:unset;cursor:pointer;color:var(--cherry-ink);font-weight:600;border-bottom:1px solid color-mix(in srgb,var(--cherry) 35%,transparent)}.ro-link:focus-visible{outline:2px solid var(--cherry);outline-offset:3px;border-radius:4px}
-.ro-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:2px 0 6px}.ro-stats div{display:grid;justify-items:center;gap:2px;padding:12px 4px;border-radius:16px;background:color-mix(in srgb,var(--ink) 5%,var(--surface));border:1px solid var(--hair)}
-.ro-stats b{font:800 1.35rem var(--display);font-variant-numeric:tabular-nums;color:var(--ink)}.ro-stats small{font-size:.72rem;color:var(--muted);text-align:center;line-height:1.2}
 .ro-h{margin:18px 0 8px;font-size:1rem}.ro-h .hint{font-weight:500;font-size:.8rem;margin-left:4px}
 .ro-best,.ro-row{all:unset;box-sizing:border-box;width:100%;display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:18px;background:var(--surface);border:1px solid var(--hair);box-shadow:var(--shadow);cursor:pointer;transition:transform .15s}
 .ro-best:active,.ro-row:active{transform:scale(.985)}.ro-best:focus-visible,.ro-row:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
@@ -2559,10 +2553,6 @@ button[aria-pressed]:active{transform:scale(.95)}
 .me-id .me-k{color:var(--cherry);font-size:.68rem}
 .me-id h2{margin:2px 0 0;font:700 1.6rem/1.15 var(--display);color:var(--ink);overflow-wrap:anywhere}
 .me-id .me-name{font-size:.86rem;color:var(--muted);opacity:1}
-.me-body .me-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;padding:12px 0;border-radius:16px;background:var(--surface2)}
-.me-body .me-stats span{padding:2px 4px;border-radius:0;background:none;font-size:.74rem}
-.me-body .me-stats span+span{border-left:1px solid var(--line)}
-.me-body .me-stats b{font-size:1.35rem}
 .me-sec{display:flex;flex-direction:column;gap:10px}
 .me-sh{margin:6px 0 0;font:700 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .me-body .me-brief{margin:0;padding:0;font:400 1rem/1.5 var(--body);color:var(--ink)}.me-body .me-brief::before{content:none}
@@ -2727,13 +2717,17 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 .rov-h-tx small{font-size:.8rem;color:#D9C8B8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rov-h-rate{flex:none;display:inline-flex;align-items:center;gap:4px;padding:6px 11px;border-radius:var(--r-pill);background:rgba(255,255,255,.12);font:800 .95rem var(--display);font-variant-numeric:tabular-nums}
 .rov-h-rate svg{width:15px;height:15px}
-.rov-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 12px}
-.rov-stats>span{display:flex;align-items:center;gap:10px;min-width:0;padding:12px 10px;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--shadow),inset 0 0 0 1px var(--hair)}
-.rov-stats>span>span{display:flex;flex-direction:column;min-width:0;font-size:.74rem;color:var(--muted);line-height:1.2}
-.rov-stats b{font-family:var(--display);font-size:1.3rem;line-height:1.05;color:var(--ink);font-variant-numeric:tabular-nums}
-.rov-ic{flex:none;width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:var(--c)}
-.rov-ic svg{width:18px;height:18px;fill:none;stroke:var(--surface);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-@media (max-width:359px){.rov-stats>span{flex-direction:column;align-items:flex-start;gap:6px}}
+.figs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 12px}
+.figs>span{display:flex;align-items:center;gap:10px;min-width:0;padding:12px 10px;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--shadow),inset 0 0 0 1px var(--hair)}
+.figs>span>span{display:flex;flex-direction:column;min-width:0;font-size:.74rem;color:var(--muted);line-height:1.2}
+.figs b{font-family:var(--display);font-size:1.3rem;line-height:1.05;color:var(--ink);font-variant-numeric:tabular-nums}
+.fig-ic{flex:none;width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:var(--c)}
+.fig-ic svg{width:18px;height:18px;fill:none;stroke:var(--surface);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:359px){.figs>span{flex-direction:column;align-items:flex-start;gap:6px}}
+.figs.f2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.ro-best.rov-hero{margin:4px 0 6px;border:0;padding:14px}.ro-best.rov-hero .bpic{width:62px;height:62px;border-radius:16px;box-shadow:0 0 0 3px rgba(255,255,255,.14)}
+.figs b{white-space:nowrap}.figs.yic-big>span{flex-direction:column;align-items:flex-start;gap:8px;padding:12px}
+.figs.ro-stats{margin:2px 0 8px}.figs.yic-big{margin:12px 0 0}.figs.me-stats{margin:0}
 
 /* Beans' view strip (and Gear's tabs, made the same way): a soft tinted track; the picked view is a raised white pill
    with dark bold text, the others quieter. */
