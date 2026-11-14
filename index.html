@@ -2670,7 +2670,7 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="fcb3677b93b5"</script>
+<script>const BUILD_ID="aa5662afa0cc"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -9491,22 +9491,24 @@ if(window.claude&&window.claude.use){
    The phone's own measure of each tap (Event Timing): from the touch to the next frame on screen. The 40 slowest are
    kept here only (never synced or sent anywhere), with what was tapped and on which page, so a slow spot can be found on
    the real phone and shared as a list. Hidden: tap "Settings" at the top of Settings five times, or open #speed. */
+let SP_GEN=0,SP_CLEAR_T=-1;
 const SPEED_K='bb-speed';let SPEED=(()=>{try{const a=JSON.parse(localStorage.getItem(SPEED_K)||'[]');return Array.isArray(a)?a.filter(x=>x&&+x.d>0).slice(0,40):[]}catch(e){return[]}})(),SPEED_T=null;
 function spWhat(el){if(!el||el.nodeType!==1)return'';const b=el.closest('button,a,[role=button],[role=tab],input,select,textarea,label,summary,.tile,.card,[data-v],[data-bean]')||el;
   const lab=(b.getAttribute('aria-label')||b.textContent||b.value||'').replace(/\s+/g,' ').trim().slice(0,32);
   return b.tagName.toLowerCase()+(b.id?'#'+b.id:b.classList[0]?'.'+b.classList[0]:'')+(lab?' “'+lab+'”':'')}
 function spPage(){const d=document.querySelector('dialog[open]'),t=d&&d.querySelector('h2');const sec=document.querySelector('main section.on');return (sec?sec.id:'')+(d?' › '+(t?t.textContent.trim().slice(0,28):d.id||'sheet'):'')}
 try{if(window.PerformanceObserver&&(PerformanceObserver.supportedEntryTypes||[]).includes('event'))
-  new PerformanceObserver(l=>{let got=false;for(const e of l.getEntries()){if(!/^(pointerdown|pointerup|click|keydown|keyup|input|change)$/.test(e.name)||e.duration<64)continue;
+  new PerformanceObserver(l=>{let got=false;for(const e of l.getEntries()){if(!/^(pointerdown|pointerup|click|keydown|keyup|input|change)$/.test(e.name)||e.duration<64||e.startTime<=SP_CLEAR_T)continue;
       SPEED.push({d:Math.round(e.duration),w:Math.round(Math.max(0,e.processingStart-e.startTime)),p:Math.round(Math.max(0,e.processingEnd-e.processingStart)),k:e.name,el:spWhat(e.target),pg:spPage(),at:Date.now(),v:appVersion()||'web'});got=true}
     if(!got)return;SPEED.sort((a,b)=>b.d-a.d);SPEED=SPEED.slice(0,40);clearTimeout(SPEED_T);SPEED_T=setTimeout(()=>{try{localStorage.setItem(SPEED_K,JSON.stringify(SPEED))}catch(e){}},2000)}).observe({type:'event',durationThreshold:64,buffered:true})}catch(e){}
 function speedText(){return 'Brew Bench speed log ('+(appVersion()||'web')+', '+navigator.userAgent.replace(/^.*?\(([^)]*)\).*$/,'$1').slice(0,60)+')\n'+
   (SPEED.length?SPEED.map((x,i)=>(i+1)+'. '+x.d+' ms  '+x.k+'  '+x.el+'  on '+x.pg+'  (wait '+x.w+', run '+x.p+', '+new Date(x.at).toLocaleString()+')').join('\n'):'No slow taps yet.')}
 // How smoothly a page slid in: the frames in the half second after a tab change. A frame over 50 ms is a visible stutter;
 // those go in the speed log with the slowest frame and how many were dropped, so a phone's own numbers can be shared.
-function spSlide(id){if(!window.requestAnimationFrame||document.hidden)return;let last=performance.now();const t0=last,fr=[];
+function spSlide(id){if(!window.requestAnimationFrame||document.hidden)return;let last=performance.now();const t0=last,fr=[],gen=SP_GEN;
   const f=n=>{fr.push(n-last);last=n;if(n-t0<480)requestAnimationFrame(f);else{const worst=Math.round(Math.max(0,...fr)),drop=fr.reduce((a,x)=>a+Math.max(0,Math.round(x/16.7)-1),0);
-    if(worst<50||document.hidden)return;SPEED.push({d:worst,w:drop,p:Math.round(fr.reduce((a,x)=>a+x,0)),k:'slide',el:'Opening '+(($('ab-title')||{}).textContent||id),pg:id,at:Date.now(),v:appVersion()||'web'});
+    // (A slide measured before the log was cleared isn't added to the cleared log.)
+    if(worst<50||document.hidden||gen!==SP_GEN)return;SPEED.push({d:worst,w:drop,p:Math.round(fr.reduce((a,x)=>a+x,0)),k:'slide',el:'Opening '+(($('ab-title')||{}).textContent||id),pg:id,at:Date.now(),v:appVersion()||'web'});
     SPEED.sort((a,b)=>b.d-a.d);SPEED=SPEED.slice(0,40);clearTimeout(SPEED_T);SPEED_T=setTimeout(()=>{try{localStorage.setItem(SPEED_K,JSON.stringify(SPEED))}catch(e){}},2000)}};
   requestAnimationFrame(f)}
 function openSpeed(){const d=$('vd');
@@ -9518,7 +9520,7 @@ function openSpeed(){const d=$('vd');
   $('vd-x').onclick=()=>d.close();
   $('sp-share').onclick=async()=>{const t=speedText();try{if(navigator.share){await navigator.share({title:'Brew Bench speed log',text:t});return}}catch(e){if(e&&e.name==='AbortError')return}
     try{await navigator.clipboard.writeText(t);toast('Copied the list')}catch(e){saveFile('brew-bench-speed.txt',new Blob([t],{type:'text/plain'}))}};
-  $('sp-clear').onclick=()=>{SPEED=[];try{localStorage.removeItem(SPEED_K)}catch(e){}openSpeed();toast('Cleared')};
+  $('sp-clear').onclick=()=>{SPEED=[];SP_GEN++;SP_CLEAR_T=performance.now();try{localStorage.removeItem(SPEED_K)}catch(e){}openSpeed();toast('Cleared')};
   showDlg(d);d.scrollTop=0}
 {let n=0,t0=0;document.querySelector('#settings > h2').addEventListener('click',()=>{const now=Date.now();if(now-t0>3000)n=0;t0=now;if(++n>=5){n=0;openSpeed()}})}
 
