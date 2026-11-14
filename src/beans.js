@@ -281,7 +281,8 @@ function tasteInput(host,init,ctx){let L=tnSplit(init),fam=null,at=-1,opts=[];
     // The closest note on the wheel is ready for Enter; your own words are one step down.
     if(m.length){at=0;hl()}};
   const take=w=>{if(add(w)){q.value='';close()}};
-  q.addEventListener('input',draw);q.addEventListener('focus',draw);q.addEventListener('blur',()=>setTimeout(close,120));
+  q.addEventListener('input',draw);q.addEventListener('focus',draw);// Closes a moment after the box loses focus (so a tap on the list lands), unless it has the focus back by then.
+  q.addEventListener('blur',()=>setTimeout(()=>{if(document.activeElement!==q)close()},120));
   q.addEventListener('keydown',e=>{if(e.key==='ArrowDown'||e.key==='ArrowUp'){if(box.hidden)return;e.preventDefault();at=(at+(e.key==='ArrowDown'?1:-1)+opts.length)%opts.length;hl()}
     else if(e.key==='Enter'||e.key===','){if(!q.value.trim())return;e.preventDefault();take(at>=0&&!box.hidden?opts[at].w:q.value)}
     else if(e.key==='Escape'&&!box.hidden){e.preventDefault();e.stopPropagation();close()}

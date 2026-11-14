@@ -13,6 +13,8 @@ const {chromium}=require('playwright');const demo=require('./seed2.cjs');(async(
  await sel('i-variety','caturra');ok('Caturra ignores region',await p.evaluate(()=>S.variety==='caturra'));
  // picker title
  await p.evaluate(()=>{showTab('dial');openSelect(document.getElementById('i-variety'))});await p.waitForTimeout(300);ok('variety picker title',await p.evaluate(()=>document.getElementById('sel-title').textContent),'Variety');
+ // Close the picker and let its history step finish, so a later reload isn't cut short by it.
+ await p.evaluate(()=>document.getElementById('selsheet').close());await p.waitForFunction(()=>!(history.state&&history.state.dlg));await p.waitForTimeout(150);
  await p.evaluate(()=>document.getElementById('selsheet').close());
  // a gallery coffee drives the dial-in
  const bid=await p.evaluate(()=>{const g=BEANS[0];g.process='anaerobicnatural' in PROCESSES?'anaerobicnatural':Object.keys(PROCESSES)[5];g.variety='geisha';g.origin='colombia';g.roast='light';const d=new Date(Date.now()-10*864e5);g.roastDate=d.toISOString().slice(0,10);saveBeans();useBean(g);render();return g.id});
