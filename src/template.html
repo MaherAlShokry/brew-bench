@@ -667,6 +667,7 @@ button,a,.tab,.chip,[role=button]{touch-action:manipulation}
 /* On touch screens a slider moves only when you grab its thumb and drag sideways; a swipe that starts on
    the track, or goes up and down, scrolls the page instead of changing the setting. */
 input[type=range]{touch-action:pan-y}
+.rng-b{touch-action:pan-y;-webkit-user-select:none;user-select:none}
 @media (pointer:coarse){input[type=range]{pointer-events:none}input[type=range]::-webkit-slider-thumb{pointer-events:auto}input[type=range]::-moz-range-thumb{pointer-events:auto}}
 /* Long lists: the browser skips layout and paint for cards that are off screen. */
 #rgrid>.card,#pgrid>.card,#tgrid>.card,#vgrid>.card,#gear-brewers>.card,#people>.card{content-visibility:auto;contain-intrinsic-block-size:auto 420px}
