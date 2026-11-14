@@ -1713,8 +1713,6 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
 .seg.bviews button{flex:1 1 auto;min-width:0;white-space:nowrap;padding-left:8px;padding-right:8px}.seg.bviews i{font-style:normal;font-size:.72rem;font-weight:700;margin-left:4px;padding:0 6px;border-radius:var(--r-pill);background:color-mix(in srgb,currentColor 14%,transparent)}.seg.bviews button:not([aria-pressed="true"]) i{color:var(--ink)}.seg.bviews button[aria-pressed="true"] i{background:color-mix(in srgb,var(--paper) 40%,transparent)}
 /* Switching Beans views: one simple, quick fade, the same whichever way you go. */
 /* Switching Beans views: the new one is already partly there on the first frame (no blank flash) and drifts in from the side you moved towards. */
-.bview.bv-in-r{--bvx:10px}.bview.bv-in-l{--bvx:-10px}
-.bview.bv-in-r,.bview.bv-in-l{animation:bvin .2s cubic-bezier(.2,.8,.3,1)}@keyframes bvin{from{opacity:.4;transform:translateX(var(--bvx))}to{opacity:1;transform:none}}
 /* Scans */
 .scan-cta{display:flex;align-items:center;gap:12px;padding:14px;border-radius:var(--r-lg);border:1px solid var(--hair);background:var(--surface);box-shadow:var(--shadow)}
 .scan-cta>span:nth-child(2){flex:1;min-width:0}.scan-cta b{display:block;font-family:var(--display)}.scan-cta small{display:block;font-size:.8rem;color:var(--muted);line-height:1.3}
