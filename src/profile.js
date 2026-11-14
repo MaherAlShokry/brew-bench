@@ -109,7 +109,7 @@ function accountHTML(){
 // yet, the header fills the page.
 const blankAny=()=>profileStats().some(([n])=>+n>0);
 function blankBody(){if(!blankAny())return ACCT?'<div class="me-body">'+accountHTML()+'</div>':'';
-  return '<div class="me-body"><section class="me-sec" aria-label="Your coffee so far"><h3 class="me-sh">Your coffee so far</h3><div class="me-stats">'+profileStats().map(([n,l])=>'<span><b>'+n+'</b>'+l+'</span>').join('')+'</div></section>'+tasteHTML()+
+  return '<div class="me-body"><section class="me-sec" aria-label="Your coffee so far"><h3 class="me-sh">Your coffee so far</h3>'+figsHTML('me-stats f2',profileStats().map(([n,l],i)=>[['bag','cup','globe','trophy'][i],n,l]))+'</section>'+tasteHTML()+
     (ACCT?accountHTML():'')+'</div>'}
 function meHTML(){const p=PROFILE,x='<button class="vd-close me-x" id="vd-x" aria-label="Close">✕</button>';
   if(!p)return '<div class="me-hero blank'+(blankAny()?'':' full')+'">'+x+CUP_SVG+'<span class="me-k">The Brew Bench</span><h2 id="vd-title">Who’s brewing?</h2>'+
@@ -126,7 +126,7 @@ function meHTML(){const p=PROFILE,x='<button class="vd-close me-x" id="vd-x" ari
       '<small class="me-name">'+(p.name?esc(p.name)+' · ':'')+'Brewing since '+since+'</small></div>'+
     '<div class="me-body">'+
       // The numbers first, as one bar.
-      '<div class="me-stats">'+profileStats().map(([n,l])=>'<span><b>'+n+'</b>'+l+'</span>').join('')+'</div>'+
+      figsHTML('me-stats f2',profileStats().map(([n,l],i)=>[['bag','cup','globe','trophy'][i],n,l]))+
       // About you: your words, and what you told us as squares.
       '<section class="me-sec" aria-label="About you"><h3 class="me-sh">About</h3>'+
         (p.brief?'<p class="me-brief">'+esc(p.brief)+'</p>':'<button type="button" class="me-add" id="pf-edit2">Add a few words about how you take your coffee</button>')+

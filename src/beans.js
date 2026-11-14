@@ -415,7 +415,7 @@ function yearInCoffeeHTML0(){const cy=new Date().getFullYear(),bs=BEANS.filter(b
   const wide=[t.regular&&['🔁','Your regular',beanTitle(t.regular),t.regular.id],t.best&&['🏆','Best of the year',beanTitle(t.best),t.best.id]].filter(Boolean);
   const tile=([ic,k,vv,id],w)=>(id?'<button type="button" class="yic-t w" data-bean="'+id+'">':'<div class="yic-t'+(w?' w':'')+'">')+'<i aria-hidden="true">'+ic+'</i><span><small>'+k+'</small><b>'+esc(vv)+'</b></span>'+(id?'<svg class="yic-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>':'</div>');
   return '<div class="yic" role="region" aria-label="'+cy+' in coffee"><div class="yic-h"><h3>'+cy+' in coffee</h3></div>'+(bs.length>1?'<p class="yic-line">'+esc(tasteLine(t))+'</p>':'')+
-    '<div class="yic-big">'+big.map(([n,l])=>'<span><b>'+esc(String(n))+'</b><small>'+esc(l)+'</small></span>').join('')+'</div>'+
+    figsHTML('yic-big',big.map(([n,l],i)=>[['bag','cup',g?'bean':'globe'][i],esc(String(n)),esc(l)]))+
     (half.length||wide.length?'<div class="yic-grid">'+half.map((f,i)=>tile(f,half.length%2===1&&i===half.length-1)).join('')+wide.map(f=>tile(f,true)).join('')+'</div>':'')+
     (t.notes.length?'<div class="yic-notes"><small>Notes you keep coming back to</small><div class="chips">'+t.notes.map(n=>'<span class="chip"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'</span>').join('')+'</div></div>':'')+'</div>'}
 
@@ -783,13 +783,13 @@ addEventListener('resize',setAbBottom);
 // The page: a compact hero with the two ways in, then one of three views (your coffees, the top 3, your scans).
 function renderBeans(){const el=$('beans-in');if(!el)return;BSIG=beansSig();setAbBottom();
   if(!el.firstChild)el.innerHTML='<div id="bg-hero"></div><div class="seg bviews scrollrow" id="bg-views" role="group" aria-label="Show"></div>'+
-    '<div class="bview" id="bv-coffees" aria-label="Your coffees"></div><div class="bview" id="bv-diary" aria-label="Your coffee diary"></div><div class="bview" id="bv-passport" aria-label="Your coffee passport"></div>'+
+    '<div class="bview" id="bv-coffees" aria-label="Your coffees"></div><div class="bview" id="bv-roasteries" aria-label="Your roasteries"></div><div class="bview" id="bv-diary" aria-label="Your coffee diary"></div><div class="bview" id="bv-passport" aria-label="Your coffee passport"></div>'+
     '<div class="bview" id="bv-top3" aria-label="Top 3"></div><div class="bview" id="bv-scans" aria-label="Your scans"></div>';
   // "From your cabinet" lives on Explore only.
   // Only the view on screen is drawn now; the others are drawn when you switch to them.
   // The top shows at once; the long list follows a frame later, so the tab opens without a pause.
   renderBeanHero();BDIRTY=new Set(Object.keys(BVIEWS));
-  if(!$('bv-'+BVIEW).firstChild&&!BVPEND){BVPEND=1;seg('bg-views',[['coffees','Coffees'],['diary','Diary'],['passport','Passport'],['top3','Top 5'],['scans','Scans']],()=>BVIEW,()=>{});
+  if(!$('bv-'+BVIEW).firstChild&&!BVPEND){BVPEND=1;seg('bg-views',BVTABS,()=>BVIEW,()=>{});
     requestAnimationFrame(()=>setTimeout(()=>{BVPEND=0;renderBeanViews()},16))}
   else if(!BVPEND)renderBeanViews()}
 let BVPEND=0,BVDIR=0;
@@ -799,7 +799,34 @@ let BVPRE=0;function prebuildBViews(){if(BVPRE)return;BVPRE=1;const next=()=>{BV
     if(performance.now()-NAV_AT<800||document.hidden){BVPRE=1;setTimeout(()=>whenIdle(next),600);return}
     BDIRTY.delete(v);try{BVIEWS[v]()}catch(e){}BVPRE=1;whenIdle(next)};whenIdle(next)}
 let BDIRTY=new Set();
-const BVIEWS={coffees:()=>renderCoffees(),diary:()=>renderDiaryView(),passport:()=>renderPassport(),top3:()=>renderTop3View(),scans:()=>renderBeanScans()};
+const BVIEWS={coffees:()=>renderCoffees(),roasteries:()=>renderRoasteriesView(),diary:()=>renderDiaryView(),passport:()=>renderPassport(),top3:()=>renderTop3View(),scans:()=>renderBeanScans()};
+// The views in the strip, in order.
+const BVTABS=[['coffees','Coffees'],['roasteries','Roastery'],['diary','Diary'],['passport','Passport'],['top3','Top 5'],['scans','Scans']];
+// Roastery: the roasteries you have coffee from, laid out like Drinking now. A heading with how many coffees, three
+// figures (roasteries, origins, your favourite), then one card with a row per roastery, most coffees first: its logo, name and
+// your average, how many coffees and where from, and its bags in small pictures. A tap opens its page.
+function renderRoasteriesView(){const p=$('bv-roasteries');if(!p)return;const all=roasteries();
+  if(!all.length){p.innerHTML='<div class="bg-empty">'+beanSVG+'<b>No roasteries yet</b><p>Add the roastery to your coffees and they gather here, each with its own page.</p></div>';return}
+  const coffees=all.reduce((n,r)=>n+r.list.length,0),fav=all.filter(r=>r.avg).sort((a,b)=>b.avg-a.avg||b.list.length-a.list.length)[0];
+  const half=v=>String(Math.round(v*2)/2).replace('.5','½');
+  // Each roastery in plain words: how many coffees and how many origins, no flags or names.
+  const cnt=(n,w)=>n+' '+w+(n===1?'':'s'),line=r=>{const o=new Set(r.list.map(realO).filter(Boolean)).size;return cnt(r.list.length,'coffee')+(o?' · '+cnt(o,'origin'):'')};
+  const row=(r,i)=>{const
+      pics=r.list.filter(b=>b.img).slice(0,4),more=r.list.length-pics.length;
+    return '<button type="button" class="crow rov-row" data-ro="'+esc(r.name)+'" style="--i:'+Math.min(i,12)+'">'+roMark(r.name,true)+
+      '<span class="cr-tx"><span class="cr-top"><b>'+esc(r.name)+'</b>'+(r.avg?'<span class="cr-end"><span class="cr-rate">'+beanSVG+half(r.avg)+'</span></span>':'')+'</span>'+
+      '<small>'+line(r)+'</small>'+
+      (pics.length?'<span class="rov-bags">'+pics.map(b=>beanPic(b,'rw')).join('')+(more>0?'<span class="rov-more">+'+more+'</span>':'')+'</span>':'')+
+      '</span></button>'};
+  const origins=new Set(all.flatMap(r=>r.list.map(realO)).filter(Boolean)).size,rated=BEANS.filter(b=>b.roaster&&b.rating),avg=rated.length?rated.reduce((n,b)=>n+b.rating,0)/rated.length:0;
+  const ic=d=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+d+'"/></svg>';
+  // Your favourite roastery leads, on the dark card the Beans page opens with; three small figures follow.
+  p.innerHTML='<div class="shelf-h"><b>Your roasteries</b><span>'+coffees+' coffee'+(coffees===1?'':'s')+'</span></div>'+
+    (fav?'<button type="button" class="rov-hero" data-ro="'+esc(fav.name)+'">'+roMark(fav.name,true)+'<span class="rov-h-tx"><span class="rov-h-k">'+ic('M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z')+'Favourite roastery</span><b>'+esc(fav.name)+'</b>'+
+        '<small>'+line(fav)+'</small></span><span class="rov-h-rate">'+beanSVG+half(fav.avg)+'</span></button>':'')+
+    figsHTML('rov-figs',[['roastery',all.length,'roaster'+(all.length===1?'y':'ies')],['globe',origins,'origin'+(origins===1?'':'s')],['bean',avg?half(avg):'–','average']])+
+    '<div class="clist rov">'+all.map(row).join('')+'</div>';
+  hydrateImgs(p)}
 // The journal's season, in the corner of the Beans header (northern-hemisphere seasons, as the seasonal trophies).
 const seasonTag=()=>{const m=new Date().getMonth();return ['❄️ Winter','❄️ Winter','🌸 Spring','🌸 Spring','🌸 Spring','☀️ Summer','☀️ Summer','☀️ Summer','🍂 Autumn','🍂 Autumn','🍂 Autumn','❄️ Winter'][m]+' · '};
 function renderBeanHero(){const cy=new Date().getFullYear(),N=BEANS.length,rated=BEANS.filter(b=>b.rating),avg=rated.length?rated.reduce((s,b)=>s+b.rating,0)/rated.length:0,
@@ -814,16 +841,24 @@ function renderBeanHero(){const cy=new Date().getFullYear(),N=BEANS.length,rated
     '<div class="bgh-acts"><button type="button" class="bgh-btn main" id="bg-scan">'+SCAN_ICO+'Scan a bag</button><button type="button" class="bgh-btn" id="bg-add">'+PLUS_ICO+'Add a coffee</button></div>';
   hydrateImgs(h)}
 function renderBeanViews(){const cy=new Date().getFullYear();
-  seg('bg-views',[['coffees','Coffees'],['diary','Diary'],['passport','Passport'],['top3','Top 5'],['scans','Scans']],()=>BVIEW,v=>{if(v===BVIEW)return;const K=Object.keys(BVIEWS);BVDIR=K.indexOf(v)>K.indexOf(BVIEW)?1:-1;BVIEW=v;
+  seg('bg-views',BVTABS,()=>BVIEW,v=>{if(v===BVIEW)return;const K=Object.keys(BVIEWS);BVDIR=K.indexOf(v)>K.indexOf(BVIEW)?1:-1;BVIEW=v;
     // The strip shows the pick at once (seg); the view, already built in the background, follows in the next frame.
     renderBeanViews()});
   if(BDIRTY.has(BVIEW)){BDIRTY.delete(BVIEW);BVIEWS[BVIEW]()}
   if(BDIRTY.size)prebuildBViews();
   requestAnimationFrame(()=>setTimeout(()=>loadNear($('bv-'+BVIEW)),30));
-  for(const v of ['coffees','diary','passport','top3','scans']){const p=$('bv-'+v),on=v===BVIEW;if(p.hidden===!on)continue;p.hidden=!on;if(on&&!RM()&&BVDIR){p.classList.remove('bv-in-r','bv-in-l');void p.offsetWidth;p.classList.add(BVDIR>0?'bv-in-r':'bv-in-l')}}BVDIR=0;
+  for(const [v] of BVTABS){const p=$('bv-'+v),on=v===BVIEW;if(p.hidden===!on)continue;p.hidden=!on;
+    // The view slides in a little from the side it comes from. An animation started from script needs no layout first
+    // (restarting a CSS animation by class does: the whole page laid out once more in the middle of the switch).
+    if(on&&!RM()&&BVDIR&&p.animate)p.animate([{opacity:.4,transform:'translateX('+(BVDIR>0?10:-10)+'px)'},{opacity:1,transform:'none'}],{duration:200,easing:'cubic-bezier(.2,.8,.3,1)'})}BVDIR=0;
   // Switched while scrolled down: the new view starts just under the stuck tab strip, not partway down or with the page
   // jumping back up (each view is at least a screen tall, so a short one can't pull the page up).
   // Only when the strip is stuck (scrolled past where it sits): at the top of the page there is nothing to measure.
+  // At the larger text sizes the six views can be wider than the strip: the picked one is scrolled fully into view.
+  // Measured just after the switch is drawn, when the layout is already done and reading it costs nothing (reading it
+  // here would lay the whole page out early, in the middle of the switch).
+  requestAnimationFrame(()=>setTimeout(()=>{const st=$('bg-views');if(!st||st.scrollWidth<=st.clientWidth+1)return;const b=st.querySelector(':scope>button[aria-pressed="true"]');
+    if(b){const l=b.offsetLeft-8,r=b.offsetLeft+b.offsetWidth+8;if(l<st.scrollLeft||r>st.scrollLeft+st.clientWidth)st.scrollTo({left:l<st.scrollLeft?l:r-st.clientWidth,behavior:RM()?'auto':'smooth'})}},0));
   {const st=$('bg-views'),p=$('bv-'+BVIEW);if(st&&p){if(st._y==null)st._y=st.getBoundingClientRect().top+scrollY;if(scrollY>st._y-120){const sb=st.getBoundingClientRect().bottom,pt=p.getBoundingClientRect().top;if(pt<sb)scrollBy(0,pt-sb-8)}}}}
 function renderCoffees(){const p=$('bv-coffees'),years=beanYears();BYEAR=BYEAR.filter(y=>years.includes(+y));
   if(!BEANS.length){p.innerHTML='<div class="bg-empty">'+beanSVG+'<b>No coffees yet</b><p>Scan a bag or add one by hand. Your earlier scans are under <button type="button" class="linkbtn" data-view="scans">Scans</button>, ready to add.</p></div>';return}
@@ -1085,19 +1120,16 @@ function openRoaster(name,fromList){if(fromTap(()=>openRoasterNow(name,fromList)
 function openRoasterNow(name,fromList){const d=$('vd'),k=roKey(name),r=roasteries().find(x=>roKey(x.name)===k);if(!r){openRoasters();return}
   RFROM={name:r.name,list:!!fromList};
   const list=[...r.list].sort((a,b)=>(b.rating||0)-(a.rating||0)||beanDay(b).localeCompare(beanDay(a))),best=list.find(b=>b.rating)||null;
-  const first=r.list.map(beanFirst).filter(Boolean).sort()[0],mon=iso=>new Date(iso+'T12:00').toLocaleDateString(undefined,{month:'short',year:'numeric'});
   const count=(f)=>{const m=new Map();for(const b of r.list)for(const v of f(b))if(v)m.set(v,(m.get(v)||0)+1);return [...m].sort((a,b)=>b[1]-a[1])};
   const ors=count(b=>isBlend(b)?['blend']:[b.origin]),prs=count(b=>[b.process]),rls=count(b=>[b.roast]);
-  const again=r.list.filter(b=>buys(b)>1).length,onShelf=r.list.filter(b=>b.shelf).length;
-  // Your verdict on the roastery, in a word, from the average and how often you go back.
-  const verdict=r.avg>=4.5?'A favourite of yours':r.avg>=4?'Reliably good for you':r.avg>=3?'Hit and miss for you':r.avg?'Not quite your style':'Not rated yet';
+  const nO=new Set(r.list.map(realO).filter(Boolean)).size,onShelf=r.list.filter(b=>b.shelf).length;
   const bar=(l,tot,lab)=>l.length?'<div class="ro-dist"><b class="ro-dl">'+lab+'</b>'+l.slice(0,5).map(([v,n])=>'<div class="ro-di"><span>'+esc(v)+'</span><i><em style="width:'+Math.round(n/tot*100)+'%"></em></i><small>'+n+'</small></div>').join('')+'</div>':'';
   const tot=r.list.length;
   $('vd-in').innerHTML='<div class="vd-head ro-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button>'+(fromList?'<button type="button" class="vd-back" id="ro-back">‹ Roasteries</button>':'')+
-      '<span class="pill"><i style="background:var(--cherry)"></i>Roastery</span><div class="ro-title"><button type="button" class="ro-logo-btn" id="ro-logo" aria-label="'+(roLogo(r.name)?'Change':'Add')+' the logo of '+esc(r.name)+'" title="'+(roLogo(r.name)?'Change the logo':'Add a logo')+'">'+roMark(r.name,true)+'<span class="ro-logo-ed" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="'+(roLogo(r.name)?'M4 20h4L19 9l-4-4L4 16z':'M12 5v14M5 12h14')+'"/></svg></span></button><input type="file" id="ro-logo-f" accept="image/*" hidden><span><h2 id="vd-title">'+esc(r.name)+'</h2><p class="vd-sub">'+verdict+(first?' · since '+mon(first):'')+'</p>'+'</span>'+(roLogo(r.name)?'<div class="ro-logo-menu" id="ro-logo-menu" role="menu" hidden><button type="button" role="menuitem" id="ro-logo-ch">Change logo</button><button type="button" role="menuitem" class="danger" id="ro-logo-rm">Remove logo</button></div>':'')+'</div></div>'+
+      '<span class="pill"><i style="background:var(--cherry)"></i>Roastery</span><div class="ro-title"><button type="button" class="ro-logo-btn" id="ro-logo" aria-label="'+(roLogo(r.name)?'Change':'Add')+' the logo of '+esc(r.name)+'" title="'+(roLogo(r.name)?'Change the logo':'Add a logo')+'">'+roMark(r.name,true)+'<span class="ro-logo-ed" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="'+(roLogo(r.name)?'M4 20h4L19 9l-4-4L4 16z':'M12 5v14M5 12h14')+'"/></svg></span></button><input type="file" id="ro-logo-f" accept="image/*" hidden><span><h2 id="vd-title">'+esc(r.name)+'</h2></span>'+(roLogo(r.name)?'<div class="ro-logo-menu" id="ro-logo-menu" role="menu" hidden><button type="button" role="menuitem" id="ro-logo-ch">Change logo</button><button type="button" role="menuitem" class="danger" id="ro-logo-rm">Remove logo</button></div>':'')+'</div></div>'+
     '<div class="vd-body">'+
-      '<div class="ro-stats"><div><b>'+tot+'</b><small>coffee'+(tot===1?'':'s')+'</small></div><div><b>'+(r.avg?r.avg.toFixed(1):'–')+'</b><small>average</small></div><div><b>'+r.bags+'</b><small>bag'+(r.bags===1?'':'s')+' bought</small></div><div><b>'+again+'</b><small>bought again</small></div></div>'+
-      (best?'<h3 class="ro-h">Your favourite from them</h3><button type="button" class="ro-best" data-bean="'+best.id+'">'+beanPic(best)+'<span class="ro-tx"><b>'+esc(beanTitle(best))+'</b><small>'+esc([beanOrigin(best),best.process&&PROCESSES[best.process]?PROCESSES[best.process].name:''].filter(Boolean).join(' · '))+'</small></span>'+roRateHTML(best.rating)+'</button>':'')+
+      figsHTML('ro-stats f2',[['bag',tot,'coffee'+(tot===1?'':'s')],['bean',r.avg?r.avg.toFixed(1):'–','average'],['buy',r.bags,'bag'+(r.bags===1?'':'s')+' bought'],['globe',nO,'origin'+(nO===1?'':'s')]])+
+      (best?'<button type="button" class="ro-best rov-hero" data-bean="'+best.id+'">'+beanPic(best)+'<span class="rov-h-tx"><span class="rov-h-k"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/></svg>Your favourite</span><b>'+esc(beanTitle(best))+'</b><small>'+esc([beanOrigin(best),best.process&&PROCESSES[best.process]?PROCESSES[best.process].name:''].filter(Boolean).join(' · '))+'</small></span><span class="rov-h-rate">'+beanSVG+best.rating.toFixed(1)+'</span></button>':'')+
       ((ors.length||prs.length)?'<h3 class="ro-h">What they roast for you</h3><div class="ro-dists">'+bar(ors.map(([o,n])=>[(o==='blend'?BLEND_O.flag:flagOf(o))+' '+originName(o),n]),tot,'Origins')+bar(prs.map(([p,n])=>[PROCESSES[p]?PROCESSES[p].name:p,n]),tot,'Processes')+bar(rls.map(([v,n])=>[v[0].toUpperCase()+v.slice(1),n]),tot,'Roast')+'</div>':'')+
       '<h3 class="ro-h">Your coffees <span class="hint">'+(onShelf?onShelf+' on the shelf':'best rated first')+'</span></h3><div class="clist ro-cl">'+list.map((b,i)=>coffeeRow(b,false,i)).join('')+'</div>'+
       '<div class="actions"><button type="button" class="btn" id="ro-add">Add a coffee from '+esc(r.name)+'</button>'+icoBtn('share','id="ro-share"','Share this roastery')+'</div>'+
