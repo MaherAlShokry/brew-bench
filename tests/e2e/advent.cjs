@@ -4,9 +4,8 @@ const {chromium}=require('playwright');(async()=>{const b=await chromium.launch(
 for(const [mode,w] of [['light',390],['dark',320]]){const c=await b.newContext({viewport:{width:w,height:844},colorScheme:mode});const p=await c.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
 await p.addInitScript(()=>sessionStorage.setItem('bb-splashed','1'));await p.route(u=>!u.href.startsWith('http://localhost'),r=>r.abort());
 await p.goto('http://localhost:8099/index.html');await p.evaluate(require('./seed2.cjs'));await p.reload();await p.waitForTimeout(1200);await p.evaluate(()=>showTab('beans'));await p.waitForTimeout(800);
-ok(await p.$('.adv-invite'),'invite shows in season ('+mode+')');
-await (await p.$('.adv-invite')).scrollIntoViewIfNeeded();await p.screenshot({path:'adv-inv-'+mode+'.png'});
-await p.click('.adv-invite');await p.waitForTimeout(400);
+ok(!(await p.$('.adv-invite')),'no separate invite card: it is in the + menu ('+mode+')');
+await p.click('#b-fab-add');await p.waitForTimeout(300);await p.click('[data-fab=advent]');await p.waitForTimeout(600);
 await p.fill('#ac-name','Coffee Advent 2026');await p.fill('#ac-roaster','Archers');await p.fill('#ac-year','2026');
 await p.screenshot({path:'adv-ed-'+mode+'.png'});
 await p.click('#ac-save');await p.waitForTimeout(500);

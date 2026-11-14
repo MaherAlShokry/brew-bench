@@ -2765,7 +2765,7 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 .fab .ib{width:56px;height:56px;background:var(--surface);box-shadow:0 10px 24px -10px rgba(0,0,0,.5),inset 0 0 0 1px var(--hair)}
 .fab .ib.main{background:var(--cherry);color:var(--surface)}.fab .ib svg{width:24px;height:24px;stroke-width:2.2}.fab .ib.main svg{stroke-width:2.6}
 main section.on:has(>.fab){padding-bottom:160px!important}
-@media (max-width:759px){body:has(main section.on>.fab) #toast{bottom:calc(var(--sa-bottom) + 166px)}}
+@media (max-width:759px){body.has-fab #toast{bottom:calc(var(--sa-bottom) + 166px)}}
 /* A logged brew's actions: icons only. */
 .le-b{width:40px;padding:0!important;justify-content:center}.le-b.again{width:40px;height:40px;padding:0!important}
 /* The log page: an odd last total (Top coffee) takes the whole row; the list's own share and download sit on its
@@ -2841,7 +2841,7 @@ main section.on>.fab .ib+.ib{animation-delay:.05s}
 @keyframes fabMi{from{opacity:0;transform:translateY(10px) scale(.9)}to{opacity:1;transform:none}}
 .fab-scrim{position:fixed;inset:0;z-index:27;background:color-mix(in srgb,var(--bg) 55%,transparent);backdrop-filter:blur(2px);animation:fabScrim .2s both}
 @keyframes fabScrim{from{opacity:0}to{opacity:1}}
-body:has(.fab-dial.open) #toast{opacity:0!important;pointer-events:none}
+html.fab-lock #toast{opacity:0!important;pointer-events:none}
 /* An open + menu holds the page still. */
 html.fab-lock,html.fab-lock body{overflow:hidden!important;overscroll-behavior:none}
 .fab-scrim{touch-action:none}
@@ -2855,6 +2855,7 @@ textarea{resize:none}
 .pbtn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .pbtn.main{background:var(--cherry);color:var(--surface)}
 .pbtn.quiet{background:none;box-shadow:inset 0 0 0 1.5px var(--line)}
+.pbtn.danger{color:color-mix(in srgb,#D24B33 72%,var(--ink))}
 /* Settings: a row with one thing to do is the button itself, with a chevron; a row's own buttons line up with its text. */
 .setrow.setlink{all:unset;box-sizing:border-box;display:block;width:100%;padding:14px 16px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .setgroup>.setlink+.setrow,.setgroup>.setrow+.setlink{border-top:1px solid var(--line)}
@@ -3078,7 +3079,7 @@ textarea{resize:none}
       </div>
 </div></details>
 <details class="dstep" data-step="tune" open><summary><span class="dn">4</span><span class="dst"><b>Fine-tune</b><small id="ds-tune"></small></span><span class="dchev" aria-hidden="true"></span></summary><div class="dstep-in"><p class="hint dstep-lead">Tuned for your coffee and target. Adjust by taste.</p>
-      <div class="field"><label for="i-grind">Grind <span><span class="num" id="v-grind"></span></span></label><input type="range" id="i-grind"><div class="dialrow"><svg id="dialsvg" class="dialmini" viewBox="0 0 160 160" aria-hidden="true"></svg><p class="hint" style="margin:0">Dials read number.click. Tap <b>Gear and dials</b> for how each grinder works.</p></div></div>
+      <div class="field"><label for="i-grind">Grind <span><span class="num" id="v-grind"></span></span></label><input type="range" id="i-grind"><div class="dialrow"><svg id="dialsvg" class="dialmini" viewBox="0 0 160 160" aria-hidden="true"></svg><p class="hint" style="margin:0">Dials read number.click. <button type="button" class="linkbtn" data-gearto="dials">How each grinder reads</button></p></div></div>
       <div class="two">
         <div class="field"><label for="i-temp">Water <span class="num" id="v-temp"></span></label><input type="range" id="i-temp" min="85" max="100" step="1"></div>
         <div class="field"><label for="i-ratio">Ratio <span class="num" id="v-ratio"></span></label><input type="range" id="i-ratio" min="13" max="18" step="0.5"></div>

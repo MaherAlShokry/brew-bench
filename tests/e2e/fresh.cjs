@@ -18,7 +18,7 @@ ok(bl.w&&!bl.t&&bl.pv&&!bl.o&&!bl.d&&!bl.n&&!bl.rs&&!bl.sd,'Scan another bag cle
 await p.evaluate(()=>{document.getElementById('scan-text').value='Origin: Colombia\nVariety: Caturra';runLocalScan(false)});await p.waitForTimeout(900);
 const s2=await p.evaluate(()=>({o:SC.origin,p:SC.process,r:SC.roast,d:SC.date,rs:SC.roaster}));ok(s2.o==='colombia'&&s2.d===''&&s2.p==='washed'&&s2.r==='light'&&!s2.rs,'second scan keeps nothing from the first',s2);
 // Beans "Scan a bag" opens a blank scanner
-await p.evaluate(()=>goTab('beans'));await p.waitForTimeout(700);await p.click('#bg-scan');await p.waitForTimeout(500);
+await p.evaluate(()=>goTab('beans'));await p.waitForTimeout(700);await p.click('#b-fab-add');await p.waitForTimeout(300);await p.click('[data-fab=scan]');await p.waitForTimeout(600);
 ok(await p.evaluate(()=>!!document.querySelector('#scan-out .scan-wait')&&!SC.origin),'Beans "Scan a bag" opens blank');
 // manual form edit reveals the profile
 await p.selectOption('#s-origin','ethiopia').catch(async()=>{await p.evaluate(()=>{const s=document.getElementById('s-origin');s.value='ethiopia';s.dispatchEvent(new Event('change'))})});await p.waitForTimeout(400);

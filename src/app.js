@@ -1245,7 +1245,7 @@ const BNORD=['dial','recipes','beans','explore','settings'];
 let NAV_READY=false;
 let NAV_AT=-1e9;
 const PAGE_Y={};
-function showTab(id,fromHistory,pure){NAV_AT=performance.now();if(window.closeBeansFab)closeBeansFab();ensureTab(id);
+function showTab(id,fromHistory,pure){NAV_AT=performance.now();if(window.closeBeansFab)closeBeansFab();ensureTab(id);{const sec=$(id);document.body.classList.toggle('has-fab',!!(sec&&sec.querySelector(':scope>.fab')))}
   // The page on show, for the few styles that depend on it (a class here, not a :has() over the whole page, which
   // made the browser recheck every style on each change while a big page was drawn).
   if(document.documentElement.dataset.tab!==id)document.documentElement.dataset.tab=id;
@@ -1721,7 +1721,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&FAB_OPEN){e.prevent
 window.closeBeansFab=()=>{if(FAB_OPEN)FAB_OPEN()};
 // Beans: add to your collection.
 fabMenu('b-fab',()=>[['scan','Scan a bag','scan',()=>{showTab('scan');newScan();scrollTo(0,0)}],['bean','Add a coffee','bag',()=>openBeanEditor(null)],
-  ['advent','Add an advent calendar','gift',()=>openCalEditor(null)],['roastery','Add a roastery','store',()=>openAddRoastery()]]);
+  ['advent','Add an advent calendar','gift',()=>openCalEditor(null)],['roastery','Add a roastery','store',()=>openAddRoastery()]].concat(SCANS.length?[['scans','Your scans','timer',()=>{goTab('beans');bvStep(BVIEW,'scans');BVIEW='scans';BDIRTY.add('scans');renderBeanViews()}]]:[]));
 // Brew: log or keep this brew, write a recipe, or scan a bag to brew.
 fabMenu('d-fab',()=>[['log','Log this brew','log',()=>$('tolog').click()],['save','Save as a recipe','mark',()=>$('tosave').click()],
   ['recipe','Create a recipe','edit',()=>openRecipeEditor(null)],['scan','Scan a bag','scan',()=>{showTab('scan');newScan();scrollTo(0,0)}]]);
@@ -2408,7 +2408,7 @@ function drawLSet(){const el=$('lset');if(!el)return;const o=LS,B=o.b&&BREWERS[o
     // The ratio: its name on the left, the ratio and what it tastes like on the right, then where it sits from strong to light.
     '<div class="ls-ratio'+(ra?'':' empty')+'"><div class="ls-rtop"><span class="ls-l">Ratio</span>'+(ra?'<span class="ls-rv"><b>1:'+rr1(ra)+'</b><em>'+lsWord(ra)+'</em></span>':'<span class="ls-rv"><small>Set coffee and water</small></span>')+'</div>'+
     '<div class="ls-bar"><i style="left:'+pos.toFixed(1)+'%"></i></div><div class="ls-ends"><span>Stronger</span><span>Lighter</span></div></div>'+
-    '<input id="ls-x" class="ls-x" placeholder="Anything else? Bloom 45 s, two swirls…" value="'+esc(o.extra)+'" aria-label="Other settings">'}
+    '<input id="ls-x" class="ls-x" placeholder="Anything else? Two swirls…" value="'+esc(o.extra)+'" aria-label="Other settings">'}
 function lsDefault(k){const o=LS,r=o.rec;
   if(k==='dose')return r?r.dose:15;if(k==='water')return r?r.water:Math.round((o.dose||15)*16);if(k==='temp')return r&&r.temp?r.temp:93;return null}
 $('lset').addEventListener('click',e=>{const bt=e.target.closest('[data-ls]');if(!bt)return;const k=bt.dataset.ls,d=+bt.dataset.d,o=LS;

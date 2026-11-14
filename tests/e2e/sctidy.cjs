@@ -7,7 +7,7 @@ await p.goto('http://localhost:8099/index.html');await p.evaluate(require('./see
 await p.evaluate(()=>{const B=JSON.parse(localStorage.getItem('bb-beans'));const mk=(i,name,roaster)=>({id:'scan'+i+'aaaa',t:'',info:{},sc:{origin:'ethiopia',process:'washed',variety:'arabica',roast:'light',date:'',name,roaster},when:'1/1/2026'});
   localStorage.setItem('bb-scans',JSON.stringify([mk(1,B[0].name,B[0].roaster),mk(2,'Not in gallery','Nobody'),mk(3,B[1].name,B[1].roaster),mk(4,'Another','Nobody')]))});
 await p.reload();await p.waitForTimeout(1500);await p.evaluate(()=>goTab('beans'));await p.waitForFunction(()=>window.BEANS_OK);
-await p.evaluate(()=>document.querySelector('#bg-hero [data-view="scans"]').click());await p.waitForTimeout(600);
+await p.click('#b-fab-add');await p.waitForTimeout(300);ok('your scans are in the + menu',await p.evaluate(()=>!!document.querySelector('[data-fab=scans]')));await p.click('[data-fab=scans]');await p.waitForTimeout(700);
 const n0=await p.evaluate(()=>[SCANS.length,SCANS.filter(scanBean).length]);
 ok('the scans list offers to clear the ones in your gallery',await p.evaluate(()=>!!$('sc-tidy')),n0);
 await p.evaluate(()=>$('sc-tidy').click());await p.waitForTimeout(300);
