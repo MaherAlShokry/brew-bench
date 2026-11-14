@@ -50,7 +50,8 @@ ok('Stop stops and resets it, the timer still open',!t.run&&t.el===0&&t.open,t);
 await p.evaluate(()=>$('tm-go').click());await p.waitForTimeout(300);
 await p.evaluate(()=>{window.__w.open='resume';window.bbWidget()});await p.waitForTimeout(500);t=await tm();
 ok('tapping the notification keeps the running timer open',t.open&&t.run,t);
-await p.evaluate(()=>$('timer').close());await p.waitForTimeout(300);
+// The dialog's close event comes as its own task, which can wait behind other work: wait for the message, not a fixed time.
+await p.evaluate(()=>$('timer').close());await p.waitForFunction(()=>(window.__w.tm.slice(-1)[0]||{}).state==='stop',null,{timeout:5000}).catch(()=>{});
 ok('closing the timer tells the phone to stop',(await last()).state==='stop');
 ok('no errors',!errs.length,errs);await c.close();
 
