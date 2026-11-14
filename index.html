@@ -2772,12 +2772,35 @@ main section.on:has(>.fab){padding-bottom:160px!important}
 
 :root[data-theme="dark"] :is(#bg-views.seg.bviews>button[aria-pressed="true"],.gtabs>button[aria-pressed="true"],#bg-views .seg-ind,.gtabs .seg-ind){background:color-mix(in srgb,var(--ink) 18%,var(--surface))!important;box-shadow:0 1px 2px rgba(0,0,0,.35)!important}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(#bg-views.seg.bviews>button[aria-pressed="true"],.gtabs>button[aria-pressed="true"],#bg-views .seg-ind,.gtabs .seg-ind){background:color-mix(in srgb,var(--ink) 18%,var(--surface))!important;box-shadow:0 1px 2px rgba(0,0,0,.35)!important}}
+
+
+@keyframes fabIn{from{opacity:0;transform:translateY(14px) scale(.7)}to{opacity:1;transform:none}}
+main section.on>.fab .ib{animation:fabIn .32s cubic-bezier(.2,.8,.3,1.15) both}
+main section.on>.fab .ib+.ib{animation-delay:.05s}
+
+.fab-dial{flex-direction:column;align-items:flex-end}
+.fab-main svg{transition:transform .25s cubic-bezier(.2,.8,.3,1)}
+.fab-dial.open .fab-main svg{transform:rotate(45deg)}
+.fab-menu{display:flex;flex-direction:column;align-items:flex-end;gap:10px;margin-bottom:12px}
+.fab-menu[hidden]{display:none}
+.fab-mi{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:10px;cursor:pointer;animation:fabMi .26s cubic-bezier(.2,.8,.3,1.1) both;animation-delay:calc(var(--k) * 35ms)}
+.fab-mi>span{padding:7px 12px;border-radius:999px;background:var(--surface);box-shadow:0 8px 20px -10px rgba(0,0,0,.45),inset 0 0 0 1px var(--hair);font:700 .84rem var(--display);color:var(--ink);white-space:nowrap}
+.fab-mi>i{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:var(--surface);color:var(--cherry);box-shadow:0 8px 20px -10px rgba(0,0,0,.45),inset 0 0 0 1px var(--hair)}
+.fab-mi>i svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fab-mi:focus-visible>i{outline:2px solid var(--cherry);outline-offset:2px}
+@keyframes fabMi{from{opacity:0;transform:translateY(10px) scale(.9)}to{opacity:1;transform:none}}
+.fab-scrim{position:fixed;inset:0;z-index:27;background:color-mix(in srgb,var(--bg) 55%,transparent);backdrop-filter:blur(2px);animation:fabScrim .2s both}
+@keyframes fabScrim{from{opacity:0}to{opacity:1}}
+body:has(.fab-dial.open) #toast{opacity:0!important;pointer-events:none}
+@media (prefers-reduced-motion:reduce){main section.on>.fab .ib,.fab-mi,.fab-scrim{animation:none}.fab-main svg{transition:none}}
+
+textarea{resize:none}
 </style>
 <script>const JSPDF_SRC="vendor/jspdf.umd.min.js"</script>
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="6355c0a191b5"</script>
+<script>const BUILD_ID="43a7a537eca3"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -3063,7 +3086,7 @@ main section.on:has(>.fab){padding-bottom:160px!important}
   <h2>Beans</h2>
   <p class="lede">Scan a bag, keep every coffee you’ve had, and crown your favourites.</p>
   <div id="beans-in"></div>
-<div class="fab" role="group" aria-label="Beans actions"><button type="button" class="ib main" id="b-fab-add" aria-label="Add a coffee" title="Add a coffee"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14 M5 12h14"/></svg></button></div>
+<div class="fab fab-dial" id="b-fab" role="group" aria-label="Beans actions"><div class="fab-menu" id="b-fab-menu" role="menu" hidden></div><button type="button" class="ib main fab-main" id="b-fab-add" aria-label="Add to your beans" title="Add" aria-haspopup="menu" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14 M5 12h14"/></svg></button></div>
 </section>
 
 <!-- TECHNIQUES -->
@@ -3222,7 +3245,6 @@ main section.on:has(>.fab){padding-bottom:160px!important}
   <div id="rhome"></div>
   <div class="rhead"><h3 class="rh" id="rall">All recipes</h3><div class="rhtools"><button type="button" class="rsortw" id="rfiltbtn" aria-label="Filter recipes" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button><button type="button" class="rsortw" id="rsortbtn" aria-label="Sort recipes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h11M4 12h8M4 17h5M18 6v12M15 15l3 3 3-3"/></svg></button></div></div>
   <div id="rgrid"></div>
-<div class="fab" role="group" aria-label="Recipe actions"><button type="button" class="ib main" id="r-new" aria-label="New recipe" title="New recipe"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14 M5 12h14"/></svg></button></div>
 </section>
 
 <!-- PROCESSES -->
@@ -6671,7 +6693,7 @@ const BNORD=['dial','recipes','beans','explore','settings'];
 let NAV_READY=false;
 let NAV_AT=-1e9;
 const PAGE_Y={};
-function showTab(id,fromHistory,pure){NAV_AT=performance.now();ensureTab(id);
+function showTab(id,fromHistory,pure){NAV_AT=performance.now();if(window.closeBeansFab)closeBeansFab();ensureTab(id);
   // The page on show, for the few styles that depend on it (a class here, not a :has() over the whole page, which
   // made the browser recheck every style on each change while a big page was drawn).
   if(document.documentElement.dataset.tab!==id)document.documentElement.dataset.tab=id;
@@ -7115,10 +7137,19 @@ function openRecipeEditor(r,fresh){const isNew=!r||fresh;r=Object.assign({b:'v60
       undoToast('Recipe deleted',()=>{CREC.splice(Math.min(i,CREC.length),0,keep);save('bb-myrecipes',CREC);queue('put',keep.id,keep,'recipes');recipesChanged()});return}
     askConfirm('This removes '+r.author+'’s recipe for everyone in your shared log.','Delete',true,'Delete for everyone?').then(y=>{if(!y)return;deleteRecipe(r);$('vd').close();toast('Recipe deleted')})};
   const d=$('vd');showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
-$('r-new').onclick=()=>openRecipeEditor(null);
 // The Brew log and Beans pages' own floating buttons: log a brew (up to the form, ready to type) and add a coffee.
 $('l-fab-new').onclick=()=>{const f=$('l-form');f.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});setTimeout(()=>{const c=$('l-coffee-f').hidden?null:$('l-coffee');if(c)c.focus({preventScroll:true})},350)};
-$('b-fab-add').onclick=()=>openBeanEditor(null);
+// The Beans + opens a small menu of what you can add here (a shortcut for the tab).
+{const FAB_ITEMS=[['scan','Scan a bag','scan',()=>{showTab('scan');newScan();scrollTo(0,0)}],['bean','Add a coffee','bag',()=>openBeanEditor(null)],
+    ['advent','Add an advent calendar','gift',()=>openCalEditor(null)],['roastery','Add a roastery','store',()=>openAddRoastery()]];
+  const f=$('b-fab'),m=$('b-fab-menu'),b=$('b-fab-add');let scrim=null;
+  const close=()=>{if(m.hidden)return;m.hidden=true;f.classList.remove('open');b.setAttribute('aria-expanded','false');if(scrim){scrim.remove();scrim=null}};
+  const open=()=>{m.innerHTML=FAB_ITEMS.map(([k,l,ic],i)=>'<button type="button" class="fab-mi" role="menuitem" data-fab="'+k+'" style="--k:'+(FAB_ITEMS.length-1-i)+'"><span>'+l+'</span><i aria-hidden="true">'+lIc(ic)+'</i></button>').join('');
+    m.hidden=false;f.classList.add('open');b.setAttribute('aria-expanded','true');scrim=document.createElement('div');scrim.className='fab-scrim';scrim.onclick=close;f.before(scrim);const x=m.querySelector('.fab-mi');if(x)x.focus({preventScroll:true})};
+  b.onclick=()=>m.hidden?open():close();
+  m.onclick=e=>{const it=e.target.closest('[data-fab]');if(!it)return;const go=FAB_ITEMS.find(x=>x[0]===it.dataset.fab);close();if(go)go[3]()};
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+  window.addEventListener('hashchange',close);window.closeBeansFab=close}
 // Save the current dial-in as a starting recipe.
 $('tosave').onclick=()=>{const dp=dialPlan();
   if(dp){const off=Math.round(stepsBetween(S.grinder,baseX(S.grinder,S.brewer),S.setting)*10)/10;
@@ -7840,7 +7871,7 @@ function renderLastBrew(){const el=$('lastbrew');if(!el)return;const l=LOG.find(
 /* ---------- The list of brews: search, filters, sort, and each brew as a card ---------- */
 let LF=Object.assign({q:'',who:[],min:0,sort:'new'},VW_KEEP?load('bb-logfilter',{}):{});LF.q='';if(!Array.isArray(LF.who))LF.who=LF.who&&LF.who!=='all'?[LF.who]:[];
 const LOG_SORTS=[['new','Newest'],['old','Oldest'],['top','Highest rated'],['az','Coffee A–Z']];
-const LI={again:'M8 5v14l11-7z',share:'M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5',edit:'M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4',del:'M5 7h14 M10 7V4.8h4V7 M7 7l.8 12.2a1.6 1.6 0 0 0 1.6 1.5h5.2a1.6 1.6 0 0 0 1.6-1.5L17 7',search:'M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4',plus:'M12 5v14 M5 12h14',dl:'M12 4v11 M7.5 10.5L12 15l4.5-4.5 M5 19.5h14',ul:'M12 15V4 M7.5 8.5L12 4l4.5 4.5 M5 19.5h14',mark:'M7 4h10a1 1 0 0 1 1 1v15l-6-4-6 4V5a1 1 0 0 1 1-1z',log:'M6 4h11a1 1 0 0 1 1 1v15H8a2 2 0 0 1-2-2z M12 8v6 M9 11h6',cam:'M4 8h3l2-2.5h6L17 8h3v11H4z M12 10.5a3 3 0 1 0 0 6a3 3 0 1 0 0-6z',reset:'M4 12a8 8 0 1 0 2.3-5.6 M4 4v5h5',swap:'M7 7h13 M16 3l4 4-4 4 M17 17H4 M8 13l-4 4 4 4',cmp:'M9 4H5v16h4 M15 4h4v16h-4 M12 2v20',bulb:'M9 18h6 M10 21h4 M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z',open:'M14 4h6v6 M20 4l-9 9 M18 14v6H4V6h6',x:'M6 6l12 12 M18 6L6 18',minus:'M5 12h14',wheel:'M12 3.5a8.5 8.5 0 1 0 0 17a8.5 8.5 0 1 0 0-17z M12 3.5v8.5l7.4 4.2M12 12l-7.4 4.2',sweep:'M20 4l-8.5 8.5 M13.5 14.5l-4-4-2.5 1.5c-1.5 1-3 3.5-3.5 8.5 5-.5 7.5-2 8.5-3.5z M7 17l2-2',ice:'M12 3v18 M4.2 7.5l15.6 9 M4.2 16.5l15.6-9 M9.5 4.5L12 7l2.5-2.5 M9.5 19.5L12 17l2.5 2.5',info:'M21 12a9 9 0 1 1-18 0a9 9 0 1 1 18 0z M12 11v5 M12 8h.01',ok:'M5 12.5l4.5 4.5L19 7.5',flag:'M5 21V4 M5 4h12l-2.5 4 2.5 4H5',timer:'M12 9v4l2.5 1.5 M9.5 2.5h5 M12 21a8 8 0 1 0 0-16a8 8 0 1 0 0 16z',scan:'M4 8V6a2 2 0 0 1 2-2h2 M16 4h2a2 2 0 0 1 2 2v2 M20 16v2a2 2 0 0 1-2 2h-2 M8 20H6a2 2 0 0 1-2-2v-2 M12 8.5c2 0 3.5 1.6 3.5 3.5S14 15.5 12 15.5 8.5 14 8.5 12 10 8.5 12 8.5z',cup:'M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z M16 10h2a2 2 0 0 1 0 4h-2 M9 3v3 M12 3v3'};
+const LI={again:'M8 5v14l11-7z',share:'M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5',edit:'M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4',del:'M5 7h14 M10 7V4.8h4V7 M7 7l.8 12.2a1.6 1.6 0 0 0 1.6 1.5h5.2a1.6 1.6 0 0 0 1.6-1.5L17 7',search:'M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4',plus:'M12 5v14 M5 12h14',dl:'M12 4v11 M7.5 10.5L12 15l4.5-4.5 M5 19.5h14',ul:'M12 15V4 M7.5 8.5L12 4l4.5 4.5 M5 19.5h14',mark:'M7 4h10a1 1 0 0 1 1 1v15l-6-4-6 4V5a1 1 0 0 1 1-1z',log:'M6 4h11a1 1 0 0 1 1 1v15H8a2 2 0 0 1-2-2z M12 8v6 M9 11h6',cam:'M4 8h3l2-2.5h6L17 8h3v11H4z M12 10.5a3 3 0 1 0 0 6a3 3 0 1 0 0-6z',reset:'M4 12a8 8 0 1 0 2.3-5.6 M4 4v5h5',swap:'M7 7h13 M16 3l4 4-4 4 M17 17H4 M8 13l-4 4 4 4',cmp:'M9 4H5v16h4 M15 4h4v16h-4 M12 2v20',bulb:'M9 18h6 M10 21h4 M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z',open:'M14 4h6v6 M20 4l-9 9 M18 14v6H4V6h6',x:'M6 6l12 12 M18 6L6 18',minus:'M5 12h14',bag:'M6 8h12l-1.2 12H7.2z M9 8V6.5a3 3 0 0 1 6 0V8',gift:'M4 11h16v9H4z M3 7.5h18V11H3z M12 7.5V20 M12 7.5C10.5 4 7 4 7 6s3 1.5 5 1.5 M12 7.5C13.5 4 17 4 17 6s-3 1.5-5 1.5',store:'M4 10l1.5-5h13L20 10 M5 10v9h14v-9 M4 10a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0 M10 19v-4h4v4',wheel:'M12 3.5a8.5 8.5 0 1 0 0 17a8.5 8.5 0 1 0 0-17z M12 3.5v8.5l7.4 4.2M12 12l-7.4 4.2',sweep:'M20 4l-8.5 8.5 M13.5 14.5l-4-4-2.5 1.5c-1.5 1-3 3.5-3.5 8.5 5-.5 7.5-2 8.5-3.5z M7 17l2-2',ice:'M12 3v18 M4.2 7.5l15.6 9 M4.2 16.5l15.6-9 M9.5 4.5L12 7l2.5-2.5 M9.5 19.5L12 17l2.5 2.5',info:'M21 12a9 9 0 1 1-18 0a9 9 0 1 1 18 0z M12 11v5 M12 8h.01',ok:'M5 12.5l4.5 4.5L19 7.5',flag:'M5 21V4 M5 4h12l-2.5 4 2.5 4H5',timer:'M12 9v4l2.5 1.5 M9.5 2.5h5 M12 21a8 8 0 1 0 0-16a8 8 0 1 0 0 16z',scan:'M4 8V6a2 2 0 0 1 2-2h2 M16 4h2a2 2 0 0 1 2 2v2 M20 16v2a2 2 0 0 1-2 2h-2 M8 20H6a2 2 0 0 1-2-2v-2 M12 8.5c2 0 3.5 1.6 3.5 3.5S14 15.5 12 15.5 8.5 14 8.5 12 10 8.5 12 8.5z',cup:'M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z M16 10h2a2 2 0 0 1 0 4h-2 M9 3v3 M12 3v3'};
 // Every action is a round icon (adding, filtering, sharing, deleting…): what it does is its label, read out and shown on
 // hover, not a word on the button. A form's own Save keeps its word. cls: 'main' for the one to press, 'danger' to delete.
 function ib(k,attrs,label,cls){return '<button type="button" class="ib'+(cls?' '+cls:'')+'" '+(attrs||'')+' aria-label="'+esc(label)+'" title="'+esc(label)+'">'+lIc(k)+'</button>'}
@@ -8855,7 +8886,9 @@ function shareText(doc){const link=doc.link||SITE_URL,t=docText(doc,true).replac
 let PDFP=null;
 const loadPDF=()=>window.jspdf&&window.jspdf.jsPDF?Promise.resolve():(PDFP=PDFP||loadScript(typeof JSPDF_SRC==='string'?JSPDF_SRC:'vendor/jspdf.umd.min.js').catch(e=>{PDFP=null;throw e}));
 function openShare(doc){if(fromTap(()=>openShareNow(doc)))return;openShareNow(doc)}
-function openShareNow(doc){SHDOC=doc;loadPDF().catch(()=>{});const pdfOK=true;
+function openShareNow(doc){SHDOC=doc;
+  // The image follows the app's light or dark look by default (it can still be switched here, for this share).
+  CARD_STYLE.mode=curTheme()==='dark'?'dark':'light';loadPDF().catch(()=>{});const pdfOK=true;
   $('sh-in').innerHTML='<div class="sheet"><div class="grab"></div><button class="vd-close" id="sh-x" aria-label="Close">\u2715</button><h2 id="sh-title" style="margin:0 40px 2px 0">Share</h2><p class="hint" style="margin:0">'+esc(doc.title)+'</p>'+
    // A brew can also go out as a designed image card: shown first, with a preview drawn as the sheet opens.
    (doc.card?'<div class="shcard"><button type="button" class="shcard-pv" data-sh="img" aria-label="Share the '+esc((doc.cardTitle||'Brew card').toLowerCase())+' image"><span class="shcard-ph">Drawing your '+esc((doc.cardTitle||'Brew card').toLowerCase())+'…</span></button>'+

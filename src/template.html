@@ -2821,6 +2821,29 @@ main section.on:has(>.fab){padding-bottom:160px!important}
 /* In dark, the picked view is a lighter pill on the dark track. */
 :root[data-theme="dark"] :is(#bg-views.seg.bviews>button[aria-pressed="true"],.gtabs>button[aria-pressed="true"],#bg-views .seg-ind,.gtabs .seg-ind){background:color-mix(in srgb,var(--ink) 18%,var(--surface))!important;box-shadow:0 1px 2px rgba(0,0,0,.35)!important}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(#bg-views.seg.bviews>button[aria-pressed="true"],.gtabs>button[aria-pressed="true"],#bg-views .seg-ind,.gtabs .seg-ind){background:color-mix(in srgb,var(--ink) 18%,var(--surface))!important;box-shadow:0 1px 2px rgba(0,0,0,.35)!important}}
+
+/* A page's floating buttons come in with the page. */
+@keyframes fabIn{from{opacity:0;transform:translateY(14px) scale(.7)}to{opacity:1;transform:none}}
+main section.on>.fab .ib{animation:fabIn .32s cubic-bezier(.2,.8,.3,1.15) both}
+main section.on>.fab .ib+.ib{animation-delay:.05s}
+/* The Beans + is a shortcut menu: scan, a coffee, an advent calendar, a roastery. */
+.fab-dial{flex-direction:column;align-items:flex-end}
+.fab-main svg{transition:transform .25s cubic-bezier(.2,.8,.3,1)}
+.fab-dial.open .fab-main svg{transform:rotate(45deg)}
+.fab-menu{display:flex;flex-direction:column;align-items:flex-end;gap:10px;margin-bottom:12px}
+.fab-menu[hidden]{display:none}
+.fab-mi{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:10px;cursor:pointer;animation:fabMi .26s cubic-bezier(.2,.8,.3,1.1) both;animation-delay:calc(var(--k) * 35ms)}
+.fab-mi>span{padding:7px 12px;border-radius:999px;background:var(--surface);box-shadow:0 8px 20px -10px rgba(0,0,0,.45),inset 0 0 0 1px var(--hair);font:700 .84rem var(--display);color:var(--ink);white-space:nowrap}
+.fab-mi>i{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:var(--surface);color:var(--cherry);box-shadow:0 8px 20px -10px rgba(0,0,0,.45),inset 0 0 0 1px var(--hair)}
+.fab-mi>i svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fab-mi:focus-visible>i{outline:2px solid var(--cherry);outline-offset:2px}
+@keyframes fabMi{from{opacity:0;transform:translateY(10px) scale(.9)}to{opacity:1;transform:none}}
+.fab-scrim{position:fixed;inset:0;z-index:27;background:color-mix(in srgb,var(--bg) 55%,transparent);backdrop-filter:blur(2px);animation:fabScrim .2s both}
+@keyframes fabScrim{from{opacity:0}to{opacity:1}}
+body:has(.fab-dial.open) #toast{opacity:0!important;pointer-events:none}
+@media (prefers-reduced-motion:reduce){main section.on>.fab .ib,.fab-mi,.fab-scrim{animation:none}.fab-main svg{transition:none}}
+/* Text boxes keep their size: no resize handle. */
+textarea{resize:none}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
@@ -3108,7 +3131,7 @@ main section.on:has(>.fab){padding-bottom:160px!important}
   <h2>Beans</h2>
   <p class="lede">Scan a bag, keep every coffee you’ve had, and crown your favourites.</p>
   <div id="beans-in"></div>
-<div class="fab" role="group" aria-label="Beans actions"><button type="button" class="ib main" id="b-fab-add" aria-label="Add a coffee" title="Add a coffee"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14 M5 12h14"/></svg></button></div>
+<div class="fab fab-dial" id="b-fab" role="group" aria-label="Beans actions"><div class="fab-menu" id="b-fab-menu" role="menu" hidden></div><button type="button" class="ib main fab-main" id="b-fab-add" aria-label="Add to your beans" title="Add" aria-haspopup="menu" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14 M5 12h14"/></svg></button></div>
 </section>
 
 <!-- TECHNIQUES -->
@@ -3267,7 +3290,6 @@ main section.on:has(>.fab){padding-bottom:160px!important}
   <div id="rhome"></div>
   <div class="rhead"><h3 class="rh" id="rall">All recipes</h3><div class="rhtools"><button type="button" class="rsortw" id="rfiltbtn" aria-label="Filter recipes" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button><button type="button" class="rsortw" id="rsortbtn" aria-label="Sort recipes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h11M4 12h8M4 17h5M18 6v12M15 15l3 3 3-3"/></svg></button></div></div>
   <div id="rgrid"></div>
-<div class="fab" role="group" aria-label="Recipe actions"><button type="button" class="ib main" id="r-new" aria-label="New recipe" title="New recipe"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14 M5 12h14"/></svg></button></div>
 </section>
 
 <!-- PROCESSES -->
