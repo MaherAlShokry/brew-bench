@@ -816,10 +816,18 @@ function renderRoasteriesView(){const p=$('bv-roasteries');if(!p)return;const al
       '<small>'+r.list.length+' coffee'+(r.list.length===1?'':'s')+(r.bags>r.list.length?' · '+r.bags+' bags':'')+(os.length?' · '+esc(os.slice(0,2).join(', '))+(os.length>2?' +'+(os.length-2):''):'')+'</small>'+
       (pics.length?'<span class="rov-bags">'+pics.map(b=>beanPic(b,'rw')).join('')+(more>0?'<span class="rov-more">+'+more+'</span>':'')+'</span>':'')+
       '</span></button>'};
-  const origins=new Set(all.flatMap(r=>r.list.map(realO)).filter(Boolean)).size;
+  const origins=new Set(all.flatMap(r=>r.list.map(realO)).filter(Boolean)).size,rated=BEANS.filter(b=>b.roaster&&b.rating),avg=rated.length?rated.reduce((n,b)=>n+b.rating,0)/rated.length:0;
+  const ic=d=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+d+'"/></svg>';
+  // Your favourite roastery leads, on the dark card the Beans page opens with; three small figures follow.
+  const favOs=fav?[...new Set(fav.list.map(b=>b.origin?beanFlags(b)+' '+beanOrigin(b):'').filter(Boolean))]:[];
   p.innerHTML='<div class="shelf-h"><b>Your roasteries</b><span>'+coffees+' coffee'+(coffees===1?'':'s')+'</span></div>'+
-    '<div class="rov-stats"><span><b>'+all.length+'</b>roaster'+(all.length===1?'y':'ies')+'</span><span><b>'+origins+'</b>origin'+(origins===1?'':'s')+'</span>'+
-      (fav?'<span class="rov-fav">'+roMark(fav.name)+'<b>'+esc(fav.name)+'</b>favourite</span>':'<span><b>–</b>favourite</span>')+'</div>'+
+    (fav?'<button type="button" class="rov-hero" data-ro="'+esc(fav.name)+'">'+roMark(fav.name,true)+'<span class="rov-h-tx"><span class="rov-h-k">'+ic('M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z')+'Favourite roastery</span><b>'+esc(fav.name)+'</b>'+
+        '<small>'+fav.list.length+' coffee'+(fav.list.length===1?'':'s')+(favOs.length?' · '+esc(favOs.slice(0,2).join(', ')):'')+'</small></span><span class="rov-h-rate">'+beanSVG+half(fav.avg)+'</span></button>':'')+
+    '<div class="rov-stats">'+
+      '<span><i class="rov-ic" style="--c:var(--cherry)">'+ic('M4 10l1.5-5h13L20 10M4 10v9h16v-9M4 10h16M9 19v-5h6v5')+'</i><span><b>'+all.length+'</b>roaster'+(all.length===1?'y':'ies')+'</span></span>'+
+      '<span><i class="rov-ic" style="--c:var(--leaf)">'+ic(ICO.globe)+'</i><span><b>'+origins+'</b>origin'+(origins===1?'':'s')+'</span></span>'+
+      '<span><i class="rov-ic" style="--c:var(--honey)">'+ic('M12 3c-4 3-6 6.5-6 10a6 6 0 0 0 12 0c0-3.5-2-7-6-10z M12 8c-1.5 2-1.5 6 0 9')+'</i><span><b>'+(avg?half(avg):'–')+'</b>average</span></span>'+
+    '</div>'+
     '<div class="clist rov">'+all.map(row).join('')+'</div>';
   hydrateImgs(p)}
 // The journal's season, in the corner of the Beans header (northern-hemisphere seasons, as the seasonal trophies).
