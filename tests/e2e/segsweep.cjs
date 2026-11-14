@@ -8,7 +8,8 @@ await p.addInitScript(()=>sessionStorage.setItem('bb-splashed','1'));await p.got
 await p.evaluate(()=>localStorage.setItem('bb-ui',JSON.stringify({vibe:'pure'})));await p.reload();await p.waitForTimeout(1500);
 await p.evaluate(()=>{loadRecipe(0);document.querySelectorAll('#dial details.dstep').forEach(d=>d.open=true)});await p.waitForTimeout(400);
 const F=[];let seen=0;
-const audit=async where=>{await p.waitForTimeout(220);const r=await p.evaluate(()=>{const out=[];let n=0;const vis=e=>{const r=e.getBoundingClientRect();return r.width>0&&r.height>0&&r.bottom>0&&r.top<innerHeight};
+const audit=async where=>{await p.waitForTimeout(220);const r=await p.evaluate(()=>{const out=[];let n=0;// On screen: inside the page that is showing (a hidden page's sticky strip still reports a place on screen) or an open sheet.
+  const vis=e=>{const r=e.getBoundingClientRect();const sec=e.closest('main section');return r.width>0&&r.height>0&&r.bottom>0&&r.top<innerHeight&&(!sec||sec.classList.contains('on')||!!e.closest('dialog[open]'))};
   for(const s of document.querySelectorAll('.seg')){if(!vis(s))continue;const on=s.querySelector(':scope>button[aria-pressed="true"]'),ind=s.querySelector(':scope>.seg-ind'),id=s.id||s.className;n++;
     if(s.matches('.seg.filters:not(.gtabs)')&&(ind||s.classList.contains('has-ind'))){out.push(id+': chip row has a gliding highlight');continue}
     if(!on)continue;const showsInd=ind&&getComputedStyle(ind).opacity!=='0';

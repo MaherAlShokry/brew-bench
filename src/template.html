@@ -2105,7 +2105,9 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .ro-best:active,.ro-row:active{transform:scale(.985)}.ro-best:focus-visible,.ro-row:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
 .ro-best .bpic{flex:none;width:58px;height:58px}.ro-tx{flex:1;min-width:0;display:grid;gap:2px}.ro-tx b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ro-tx small{color:var(--muted);font-size:.8rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ro-rate{flex:none;display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:999px;background:color-mix(in srgb,var(--cherry) 10%,var(--surface));color:var(--cherry-ink);font-size:.85rem}.ro-rate svg{width:14px;height:14px}.ro-rate.none{background:none;color:var(--muted);padding:0}
-.ro-list{display:grid;gap:8px}.ro-chev{color:var(--muted);font-size:1.3rem;line-height:1}
+.ro-list{display:grid;gap:8px}
+/* The Roasteries view in Beans. */
+.rov-k{margin:4px 4px 10px;font-size:.86rem;color:var(--muted)}.ro-chev{color:var(--muted);font-size:1.3rem;line-height:1}
 .ro-dists{display:grid;gap:14px;padding:14px;border-radius:18px;background:color-mix(in srgb,var(--ink) 4%,var(--surface));border:1px solid var(--hair)}
 .ro-dl{display:block;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
 .ro-di{display:grid;grid-template-columns:minmax(0,1.3fr) 1fr 22px;align-items:center;gap:10px;font-size:.88rem;margin:4px 0}.ro-di span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -2702,6 +2704,11 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 .bshelf .bs-tx{display:flex;flex-direction:column;min-width:0}
 .bshelf .bs-tx b{white-space:nowrap!important;display:block!important}
 @media (min-width:760px){.hubgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.hubgrid .hubcard:nth-child(2){border-top:0}.hubgrid .hubcard:nth-child(even){border-left:1px solid var(--line)}}
+/* Beans' view strip scrolls sideways when its views are wider than the screen (larger text sizes), instead of running
+   out of its pill; the picked view is scrolled into sight (renderBeanViews). */
+#bg-views.seg.bviews{overflow-x:auto!important;overflow-y:hidden!important;scrollbar-width:none;overscroll-behavior-x:contain}
+#bg-views::-webkit-scrollbar{display:none}
+#bg-views.seg.bviews>button{flex-shrink:0!important}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>

@@ -783,13 +783,13 @@ addEventListener('resize',setAbBottom);
 // The page: a compact hero with the two ways in, then one of three views (your coffees, the top 3, your scans).
 function renderBeans(){const el=$('beans-in');if(!el)return;BSIG=beansSig();setAbBottom();
   if(!el.firstChild)el.innerHTML='<div id="bg-hero"></div><div class="seg bviews scrollrow" id="bg-views" role="group" aria-label="Show"></div>'+
-    '<div class="bview" id="bv-coffees" aria-label="Your coffees"></div><div class="bview" id="bv-diary" aria-label="Your coffee diary"></div><div class="bview" id="bv-passport" aria-label="Your coffee passport"></div>'+
+    '<div class="bview" id="bv-coffees" aria-label="Your coffees"></div><div class="bview" id="bv-roasteries" aria-label="Your roasteries"></div><div class="bview" id="bv-diary" aria-label="Your coffee diary"></div><div class="bview" id="bv-passport" aria-label="Your coffee passport"></div>'+
     '<div class="bview" id="bv-top3" aria-label="Top 3"></div><div class="bview" id="bv-scans" aria-label="Your scans"></div>';
   // "From your cabinet" lives on Explore only.
   // Only the view on screen is drawn now; the others are drawn when you switch to them.
   // The top shows at once; the long list follows a frame later, so the tab opens without a pause.
   renderBeanHero();BDIRTY=new Set(Object.keys(BVIEWS));
-  if(!$('bv-'+BVIEW).firstChild&&!BVPEND){BVPEND=1;seg('bg-views',[['coffees','Coffees'],['diary','Diary'],['passport','Passport'],['top3','Top 5'],['scans','Scans']],()=>BVIEW,()=>{});
+  if(!$('bv-'+BVIEW).firstChild&&!BVPEND){BVPEND=1;seg('bg-views',BVTABS,()=>BVIEW,()=>{});
     requestAnimationFrame(()=>setTimeout(()=>{BVPEND=0;renderBeanViews()},16))}
   else if(!BVPEND)renderBeanViews()}
 let BVPEND=0,BVDIR=0;
@@ -799,7 +799,16 @@ let BVPRE=0;function prebuildBViews(){if(BVPRE)return;BVPRE=1;const next=()=>{BV
     if(performance.now()-NAV_AT<800||document.hidden){BVPRE=1;setTimeout(()=>whenIdle(next),600);return}
     BDIRTY.delete(v);try{BVIEWS[v]()}catch(e){}BVPRE=1;whenIdle(next)};whenIdle(next)}
 let BDIRTY=new Set();
-const BVIEWS={coffees:()=>renderCoffees(),diary:()=>renderDiaryView(),passport:()=>renderPassport(),top3:()=>renderTop3View(),scans:()=>renderBeanScans()};
+const BVIEWS={coffees:()=>renderCoffees(),roasteries:()=>renderRoasteriesView(),diary:()=>renderDiaryView(),passport:()=>renderPassport(),top3:()=>renderTop3View(),scans:()=>renderBeanScans()};
+// The views in the strip, in order.
+const BVTABS=[['coffees','Coffees'],['roasteries','Roasteries'],['diary','Diary'],['passport','Passport'],['top3','Top 5'],['scans','Scans']];
+// Your roasteries: every roastery you have coffee from, most coffees first, with its logo, how many coffees (and bags)
+// and your average; a tap opens its page.
+function renderRoasteriesView(){const p=$('bv-roasteries');if(!p)return;const all=roasteries();
+  if(!all.length){p.innerHTML='<div class="bg-empty">'+beanSVG+'<b>No roasteries yet</b><p>Add the roastery to your coffees and they gather here, each with its own page.</p></div>';return}
+  const coffees=all.reduce((n,r)=>n+r.list.length,0);
+  p.innerHTML='<p class="rov-k">'+all.length+' roaster'+(all.length===1?'y':'ies')+' · '+coffees+' coffee'+(coffees===1?'':'s')+' · most coffees first</p>'+
+    '<div class="ro-list rov">'+all.map(r=>'<button type="button" class="ro-row" data-ro="'+esc(r.name)+'">'+roMark(r.name)+'<span class="ro-tx"><b>'+esc(r.name)+'</b><small>'+r.list.length+' coffee'+(r.list.length===1?'':'s')+(r.bags>r.list.length?' · '+r.bags+' bags':'')+'</small></span>'+roRateHTML(r.avg)+'<span class="ro-chev" aria-hidden="true">›</span></button>').join('')+'</div>'}
 // The journal's season, in the corner of the Beans header (northern-hemisphere seasons, as the seasonal trophies).
 const seasonTag=()=>{const m=new Date().getMonth();return ['❄️ Winter','❄️ Winter','🌸 Spring','🌸 Spring','🌸 Spring','☀️ Summer','☀️ Summer','☀️ Summer','🍂 Autumn','🍂 Autumn','🍂 Autumn','❄️ Winter'][m]+' · '};
 function renderBeanHero(){const cy=new Date().getFullYear(),N=BEANS.length,rated=BEANS.filter(b=>b.rating),avg=rated.length?rated.reduce((s,b)=>s+b.rating,0)/rated.length:0,
@@ -814,13 +823,15 @@ function renderBeanHero(){const cy=new Date().getFullYear(),N=BEANS.length,rated
     '<div class="bgh-acts"><button type="button" class="bgh-btn main" id="bg-scan">'+SCAN_ICO+'Scan a bag</button><button type="button" class="bgh-btn" id="bg-add">'+PLUS_ICO+'Add a coffee</button></div>';
   hydrateImgs(h)}
 function renderBeanViews(){const cy=new Date().getFullYear();
-  seg('bg-views',[['coffees','Coffees'],['diary','Diary'],['passport','Passport'],['top3','Top 5'],['scans','Scans']],()=>BVIEW,v=>{if(v===BVIEW)return;const K=Object.keys(BVIEWS);BVDIR=K.indexOf(v)>K.indexOf(BVIEW)?1:-1;BVIEW=v;
+  seg('bg-views',BVTABS,()=>BVIEW,v=>{if(v===BVIEW)return;const K=Object.keys(BVIEWS);BVDIR=K.indexOf(v)>K.indexOf(BVIEW)?1:-1;BVIEW=v;
     // The strip shows the pick at once (seg); the view, already built in the background, follows in the next frame.
     renderBeanViews()});
+  // At the larger text sizes the six views can be wider than the strip: the picked one is scrolled fully into view.
+  {const st=$('bg-views'),b=st&&st.querySelector(':scope>button[aria-pressed="true"]');if(b&&st.scrollWidth>st.clientWidth+1){const l=b.offsetLeft-8,r=b.offsetLeft+b.offsetWidth+8;if(l<st.scrollLeft||r>st.scrollLeft+st.clientWidth)st.scrollTo({left:l<st.scrollLeft?l:r-st.clientWidth,behavior:RM()?'auto':'smooth'})}}
   if(BDIRTY.has(BVIEW)){BDIRTY.delete(BVIEW);BVIEWS[BVIEW]()}
   if(BDIRTY.size)prebuildBViews();
   requestAnimationFrame(()=>setTimeout(()=>loadNear($('bv-'+BVIEW)),30));
-  for(const v of ['coffees','diary','passport','top3','scans']){const p=$('bv-'+v),on=v===BVIEW;if(p.hidden===!on)continue;p.hidden=!on;if(on&&!RM()&&BVDIR){p.classList.remove('bv-in-r','bv-in-l');void p.offsetWidth;p.classList.add(BVDIR>0?'bv-in-r':'bv-in-l')}}BVDIR=0;
+  for(const [v] of BVTABS){const p=$('bv-'+v),on=v===BVIEW;if(p.hidden===!on)continue;p.hidden=!on;if(on&&!RM()&&BVDIR){p.classList.remove('bv-in-r','bv-in-l');void p.offsetWidth;p.classList.add(BVDIR>0?'bv-in-r':'bv-in-l')}}BVDIR=0;
   // Switched while scrolled down: the new view starts just under the stuck tab strip, not partway down or with the page
   // jumping back up (each view is at least a screen tall, so a short one can't pull the page up).
   // Only when the strip is stuck (scrolled past where it sits): at the top of the page there is nothing to measure.
