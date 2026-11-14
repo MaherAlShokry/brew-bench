@@ -1551,9 +1551,7 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .me-brief{position:relative;margin:0;padding:4px 4px 0 30px;font-family:var(--display);font-size:1.05rem;line-height:1.45;color:var(--ink);overflow-wrap:anywhere}
 .me-brief::before{content:"“";position:absolute;left:0;top:-10px;font-size:2.8rem;line-height:1;color:var(--c,var(--honey));opacity:.8}
 .me-add{padding:12px 14px;border-radius:14px;border:1.5px dashed var(--line);background:none;color:var(--muted);font:inherit;font-size:.88rem;text-align:left;cursor:pointer}
-.me-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.me-stats span{display:flex;flex-direction:column;align-items:center;padding:10px 4px;border-radius:14px;background:var(--surface2);font-size:.72rem;color:var(--muted)}
-.me-stats b{font-family:var(--display);font-size:1.3rem;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.2}.me-flag{font-size:1.3rem}
+.me-flag{font-size:1.3rem}
 .me-acct{border-radius:16px;background:var(--surface2);overflow:hidden}
 .me-row{display:flex;align-items:center;gap:12px;padding:12px 14px}.me-row+.me-row{border-top:1px solid var(--line)}
 .me-rt{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start}.me-rt b{font-size:.92rem}.me-rt small{font-size:.8rem;color:var(--muted);overflow-wrap:anywhere}
@@ -1696,8 +1694,6 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
 .seg.bviews button{flex:1 1 auto;min-width:0;white-space:nowrap;padding-left:8px;padding-right:8px}.seg.bviews i{font-style:normal;font-size:.72rem;font-weight:700;margin-left:4px;padding:0 6px;border-radius:var(--r-pill);background:color-mix(in srgb,currentColor 14%,transparent)}.seg.bviews button:not([aria-pressed="true"]) i{color:var(--ink)}.seg.bviews button[aria-pressed="true"] i{background:color-mix(in srgb,var(--paper) 40%,transparent)}
 
 
-.bview.bv-in-r{--bvx:10px}.bview.bv-in-l{--bvx:-10px}
-.bview.bv-in-r,.bview.bv-in-l{animation:bvin .2s cubic-bezier(.2,.8,.3,1)}@keyframes bvin{from{opacity:.4;transform:translateX(var(--bvx))}to{opacity:1;transform:none}}
 
 .scan-cta{display:flex;align-items:center;gap:12px;padding:14px;border-radius:var(--r-lg);border:1px solid var(--hair);background:var(--surface);box-shadow:var(--shadow)}
 .scan-cta>span:nth-child(2){flex:1;min-width:0}.scan-cta b{display:block;font-family:var(--display)}.scan-cta small{display:block;font-size:.8rem;color:var(--muted);line-height:1.3}
@@ -1994,8 +1990,6 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .yic{margin:14px 0 4px;padding:12px 14px;border-radius:var(--r-lg);background:var(--surface2)}
 
 .yic{padding:16px 16px 14px}.yic-line{margin:6px 0 0;font:600 1rem/1.4 var(--display);color:var(--ink)}
-.yic-big{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.yic-big span{display:flex;flex-direction:column;padding:10px 12px;border-radius:14px;background:var(--surface);min-width:0}
-.yic-big b{font:800 1.45rem/1.1 var(--display);color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}.yic-big small{font-size:.76rem;color:var(--muted);margin-top:2px}
 .yic-facts{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;margin-top:14px}
 .yic-facts>div{display:flex;gap:9px;align-items:flex-start;min-width:0}.yic-facts i{flex:none;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--surface);font-style:normal;font-size:.95rem}
 .yic-facts span{display:flex;flex-direction:column;min-width:0}.yic-facts small{font-size:.7rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
@@ -2076,14 +2070,17 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 :root[data-theme="dark"] .ro-mark{color:hsl(var(--h) 55% 84%);background:hsl(var(--h) 28% 22%);border-color:hsl(var(--h) 25% 34%)}
 .ro-title{display:flex;align-items:center;gap:14px;margin-top:6px}.ro-title h2{margin:0}.ro-title .vd-sub{margin:2px 0 0}
 .ro-link{all:unset;cursor:pointer;color:var(--cherry-ink);font-weight:600;border-bottom:1px solid color-mix(in srgb,var(--cherry) 35%,transparent)}.ro-link:focus-visible{outline:2px solid var(--cherry);outline-offset:3px;border-radius:4px}
-.ro-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:2px 0 6px}.ro-stats div{display:grid;justify-items:center;gap:2px;padding:12px 4px;border-radius:16px;background:color-mix(in srgb,var(--ink) 5%,var(--surface));border:1px solid var(--hair)}
-.ro-stats b{font:800 1.35rem var(--display);font-variant-numeric:tabular-nums;color:var(--ink)}.ro-stats small{font-size:.72rem;color:var(--muted);text-align:center;line-height:1.2}
 .ro-h{margin:18px 0 8px;font-size:1rem}.ro-h .hint{font-weight:500;font-size:.8rem;margin-left:4px}
 .ro-best,.ro-row{all:unset;box-sizing:border-box;width:100%;display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:18px;background:var(--surface);border:1px solid var(--hair);box-shadow:var(--shadow);cursor:pointer;transition:transform .15s}
 .ro-best:active,.ro-row:active{transform:scale(.985)}.ro-best:focus-visible,.ro-row:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
 .ro-best .bpic{flex:none;width:58px;height:58px}.ro-tx{flex:1;min-width:0;display:grid;gap:2px}.ro-tx b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ro-tx small{color:var(--muted);font-size:.8rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ro-rate{flex:none;display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:999px;background:color-mix(in srgb,var(--cherry) 10%,var(--surface));color:var(--cherry-ink);font-size:.85rem}.ro-rate svg{width:14px;height:14px}.ro-rate.none{background:none;color:var(--muted);padding:0}
-.ro-list{display:grid;gap:8px}.ro-chev{color:var(--muted);font-size:1.3rem;line-height:1}
+.ro-list{display:grid;gap:8px}
+
+.rov-row>.ro-mark{margin-top:2px}
+.rov-bags{display:flex;align-items:center;gap:6px;margin-top:8px}
+.rov-bags .bpic{flex:none;width:30px!important;height:38px!important;border-radius:8px!important}
+.rov-more{font-size:.76rem;font-weight:700;color:var(--muted);padding:2px 8px;border-radius:var(--r-pill);background:var(--surface2)}.ro-chev{color:var(--muted);font-size:1.3rem;line-height:1}
 .ro-dists{display:grid;gap:14px;padding:14px;border-radius:18px;background:color-mix(in srgb,var(--ink) 4%,var(--surface));border:1px solid var(--hair)}
 .ro-dl{display:block;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
 .ro-di{display:grid;grid-template-columns:minmax(0,1.3fr) 1fr 22px;align-items:center;gap:10px;font-size:.88rem;margin:4px 0}.ro-di span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -2526,10 +2523,6 @@ button[aria-pressed]:active{transform:scale(.95)}
 .me-id .me-k{color:var(--cherry);font-size:.68rem}
 .me-id h2{margin:2px 0 0;font:700 1.6rem/1.15 var(--display);color:var(--ink);overflow-wrap:anywhere}
 .me-id .me-name{font-size:.86rem;color:var(--muted);opacity:1}
-.me-body .me-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;padding:12px 0;border-radius:16px;background:var(--surface2)}
-.me-body .me-stats span{padding:2px 4px;border-radius:0;background:none;font-size:.74rem}
-.me-body .me-stats span+span{border-left:1px solid var(--line)}
-.me-body .me-stats b{font-size:1.35rem}
 .me-sec{display:flex;flex-direction:column;gap:10px}
 .me-sh{margin:6px 0 0;font:700 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .me-body .me-brief{margin:0;padding:0;font:400 1rem/1.5 var(--body);color:var(--ink)}.me-body .me-brief::before{content:none}
@@ -2665,12 +2658,51 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 .bshelf .bs-tx{display:flex;flex-direction:column;min-width:0}
 .bshelf .bs-tx b{white-space:nowrap!important;display:block!important}
 @media (min-width:760px){.hubgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.hubgrid .hubcard:nth-child(2){border-top:0}.hubgrid .hubcard:nth-child(even){border-left:1px solid var(--line)}}
+
+#bg-views.seg.bviews{overflow-x:auto!important;overflow-y:hidden!important;scrollbar-width:none;overscroll-behavior-x:contain}
+#bg-views::-webkit-scrollbar{display:none}
+#bg-views.seg.bviews>button{flex-shrink:0!important}
+
+
+.rov-hero{all:unset;box-sizing:border-box;width:100%;display:flex;align-items:center;gap:14px;margin:0 0 10px;padding:16px;border-radius:var(--r-lg);cursor:pointer;
+  background:radial-gradient(120% 140% at 0% 0%,#6E4128 0%,#3A2216 55%,#24150D 100%);color:#FBF3EA;box-shadow:var(--shadow)}
+.rov-hero:focus-visible{outline:2px solid var(--cherry);outline-offset:3px}
+.rov-hero:active{transform:scale(.99)}
+.rov-hero .ro-mark{width:58px;height:58px;border-radius:18px;font-size:1.2rem;box-shadow:0 0 0 3px rgba(255,255,255,.14)}
+.rov-h-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.rov-h-k{display:inline-flex;align-items:center;gap:6px;font-size:.7rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#F0C98A}
+.rov-h-k svg{width:14px;height:14px;fill:#F0C98A;stroke:none}
+.rov-h-tx b{font-family:var(--display);font-size:1.25rem;line-height:1.15;letter-spacing:-.01em;overflow-wrap:anywhere}
+.rov-h-tx small{font-size:.8rem;color:#D9C8B8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rov-h-rate{flex:none;display:inline-flex;align-items:center;gap:4px;padding:6px 11px;border-radius:var(--r-pill);background:rgba(255,255,255,.12);font:800 .95rem var(--display);font-variant-numeric:tabular-nums}
+.rov-h-rate svg{width:15px;height:15px}
+.figs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 12px}
+.figs>span{display:flex;align-items:center;gap:10px;min-width:0;padding:12px 10px;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--shadow),inset 0 0 0 1px var(--hair)}
+.figs>span>span{display:flex;flex-direction:column;min-width:0;font-size:.74rem;color:var(--muted);line-height:1.2}
+.figs b{font-family:var(--display);font-size:1.3rem;line-height:1.05;color:var(--ink);font-variant-numeric:tabular-nums}
+.fig-ic{flex:none;width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:var(--c)}
+.fig-ic svg{width:18px;height:18px;fill:none;stroke:var(--surface);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:359px){.figs>span{flex-direction:column;align-items:flex-start;gap:6px}}
+.figs.f2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.ro-best.rov-hero{margin:4px 0 6px;border:0;padding:14px}.ro-best.rov-hero .bpic{width:62px;height:62px;border-radius:16px;box-shadow:0 0 0 3px rgba(255,255,255,.14)}
+.figs b{white-space:nowrap}.figs.yic-big>span{flex-direction:column;align-items:flex-start;gap:8px;padding:12px}
+.figs.ro-stats{margin:2px 0 8px}.figs.yic-big{margin:12px 0 0}.figs.me-stats{margin:0}
+
+
+#bg-views.seg.bviews,.gtabs{background:color-mix(in srgb,var(--ink) 6%,var(--paper))!important;border:0!important;padding:4px!important}
+#bg-views.seg.bviews>button,.gtabs>button{min-height:38px;font-weight:600!important;color:color-mix(in srgb,var(--ink) 78%,var(--paper))!important}
+#bg-views.seg.bviews>button[aria-pressed="true"],.gtabs>button[aria-pressed="true"]{background:var(--surface)!important;color:var(--ink)!important;font-weight:750!important;
+  box-shadow:0 1px 2px rgba(40,24,14,.10),0 6px 14px -8px rgba(40,24,14,.40)!important}
+#bg-views .seg-ind,.gtabs .seg-ind{background:var(--surface)!important;box-shadow:0 1px 2px rgba(40,24,14,.10),0 6px 14px -8px rgba(40,24,14,.40)!important}
+
+:root[data-theme="dark"] :is(#bg-views.seg.bviews>button[aria-pressed="true"],.gtabs>button[aria-pressed="true"],#bg-views .seg-ind,.gtabs .seg-ind){background:color-mix(in srgb,var(--ink) 18%,var(--surface))!important;box-shadow:0 1px 2px rgba(0,0,0,.35)!important}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(#bg-views.seg.bviews>button[aria-pressed="true"],.gtabs>button[aria-pressed="true"],#bg-views .seg-ind,.gtabs .seg-ind){background:color-mix(in srgb,var(--ink) 18%,var(--surface))!important;box-shadow:0 1px 2px rgba(0,0,0,.35)!important}}
 </style>
 <script>const JSPDF_SRC="vendor/jspdf.umd.min.js"</script>
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="aa5662afa0cc"</script>
+<script>const BUILD_ID="1be7dbeb98b4"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -9051,6 +9083,13 @@ const installed=()=>!!window.Capacitor||MQ('(display-mode: standalone)')||naviga
 // Icon tiles take the vibe's colours: the colour an icon is given only says which role it plays, by its hue (browns
 // and reds the vibe's main colour, golds its honey, greens its leaf, blues and purples a blend of them), and the tile
 // is a soft tint of that colour with the symbol drawn in it, so every vibe, light or dark, gets icons in its own palette.
+// Figures: a number and a word beside a solid coloured icon square, two or three to a row (the Roastery view, a
+// roastery's page, your profile and the year in coffee).
+const FIG={roastery:'M4 10l1.5-5h13L20 10M4 10v9h16v-9M4 10h16M9 19v-5h6v5',bean:'M12 3c-4 3-6 6.5-6 10a6 6 0 0 0 12 0c0-3.5-2-7-6-10z M12 8c-1.5 2-1.5 6 0 9',
+  bag:'M7 4h10l1.5 4v12h-13V8z M5.5 8h13 M10 12h4',buy:'M5 8h14l-1 12H6z M9 8V6a3 3 0 0 1 6 0v2',again:'M4 11a7 7 0 0 1 12-4l2 2 M18 4v5h-5 M20 13a7 7 0 0 1-12 4l-2-2 M6 20v-5h5',
+  cup:'M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z M16 10h2a2 2 0 0 1 0 4h-2 M9 3v3 M12 3v3',trophy:'M8 4h8v5a4 4 0 0 1-8 0z M8 6H5a3 3 0 0 0 3 4 M16 6h3a3 3 0 0 1-3 4 M12 13v4 M9 20h6'};
+const FIG_C=['var(--cherry)','var(--leaf)','var(--honey)','#6E8FA8'];
+function figsHTML(cls,items,label){return '<div class="figs '+cls+'"'+(label?' role="group" aria-label="'+label+'"':'')+'>'+items.map(([d,n,l],i)=>'<span><i class="fig-ic" style="--c:'+FIG_C[i%4]+'" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="'+(FIG[d]||ICO[d]||d)+'"/></svg></i><span><b>'+n+'</b>'+l+'</span></span>').join('')+'</div>'}
 const ICO_TONE=new Map();
 function icoTone(bg){if(ICO_TONE.has(bg))return ICO_TONE.get(bg);let t='c';const m=/^#([0-9a-f]{6})$/i.exec(bg||'');
   if(/var\(--honey/.test(bg))t='h';else if(/var\(--leaf/.test(bg))t='l';else if(m){const n=parseInt(m[1],16),r=(n>>16)/255,g=(n>>8&255)/255,b=(n&255)/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn;
@@ -9941,7 +9980,7 @@ function yearInCoffeeHTML0(){const cy=new Date().getFullYear(),bs=BEANS.filter(b
   const wide=[t.regular&&['🔁','Your regular',beanTitle(t.regular),t.regular.id],t.best&&['🏆','Best of the year',beanTitle(t.best),t.best.id]].filter(Boolean);
   const tile=([ic,k,vv,id],w)=>(id?'<button type="button" class="yic-t w" data-bean="'+id+'">':'<div class="yic-t'+(w?' w':'')+'">')+'<i aria-hidden="true">'+ic+'</i><span><small>'+k+'</small><b>'+esc(vv)+'</b></span>'+(id?'<svg class="yic-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>':'</div>');
   return '<div class="yic" role="region" aria-label="'+cy+' in coffee"><div class="yic-h"><h3>'+cy+' in coffee</h3></div>'+(bs.length>1?'<p class="yic-line">'+esc(tasteLine(t))+'</p>':'')+
-    '<div class="yic-big">'+big.map(([n,l])=>'<span><b>'+esc(String(n))+'</b><small>'+esc(l)+'</small></span>').join('')+'</div>'+
+    figsHTML('yic-big',big.map(([n,l],i)=>[['bag','cup',g?'bean':'globe'][i],esc(String(n)),esc(l)]))+
     (half.length||wide.length?'<div class="yic-grid">'+half.map((f,i)=>tile(f,half.length%2===1&&i===half.length-1)).join('')+wide.map(f=>tile(f,true)).join('')+'</div>':'')+
     (t.notes.length?'<div class="yic-notes"><small>Notes you keep coming back to</small><div class="chips">'+t.notes.map(n=>'<span class="chip"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'</span>').join('')+'</div></div>':'')+'</div>'}
 
@@ -10309,13 +10348,13 @@ addEventListener('resize',setAbBottom);
 // The page: a compact hero with the two ways in, then one of three views (your coffees, the top 3, your scans).
 function renderBeans(){const el=$('beans-in');if(!el)return;BSIG=beansSig();setAbBottom();
   if(!el.firstChild)el.innerHTML='<div id="bg-hero"></div><div class="seg bviews scrollrow" id="bg-views" role="group" aria-label="Show"></div>'+
-    '<div class="bview" id="bv-coffees" aria-label="Your coffees"></div><div class="bview" id="bv-diary" aria-label="Your coffee diary"></div><div class="bview" id="bv-passport" aria-label="Your coffee passport"></div>'+
+    '<div class="bview" id="bv-coffees" aria-label="Your coffees"></div><div class="bview" id="bv-roasteries" aria-label="Your roasteries"></div><div class="bview" id="bv-diary" aria-label="Your coffee diary"></div><div class="bview" id="bv-passport" aria-label="Your coffee passport"></div>'+
     '<div class="bview" id="bv-top3" aria-label="Top 3"></div><div class="bview" id="bv-scans" aria-label="Your scans"></div>';
   // "From your cabinet" lives on Explore only.
   // Only the view on screen is drawn now; the others are drawn when you switch to them.
   // The top shows at once; the long list follows a frame later, so the tab opens without a pause.
   renderBeanHero();BDIRTY=new Set(Object.keys(BVIEWS));
-  if(!$('bv-'+BVIEW).firstChild&&!BVPEND){BVPEND=1;seg('bg-views',[['coffees','Coffees'],['diary','Diary'],['passport','Passport'],['top3','Top 5'],['scans','Scans']],()=>BVIEW,()=>{});
+  if(!$('bv-'+BVIEW).firstChild&&!BVPEND){BVPEND=1;seg('bg-views',BVTABS,()=>BVIEW,()=>{});
     requestAnimationFrame(()=>setTimeout(()=>{BVPEND=0;renderBeanViews()},16))}
   else if(!BVPEND)renderBeanViews()}
 let BVPEND=0,BVDIR=0;
@@ -10325,7 +10364,34 @@ let BVPRE=0;function prebuildBViews(){if(BVPRE)return;BVPRE=1;const next=()=>{BV
     if(performance.now()-NAV_AT<800||document.hidden){BVPRE=1;setTimeout(()=>whenIdle(next),600);return}
     BDIRTY.delete(v);try{BVIEWS[v]()}catch(e){}BVPRE=1;whenIdle(next)};whenIdle(next)}
 let BDIRTY=new Set();
-const BVIEWS={coffees:()=>renderCoffees(),diary:()=>renderDiaryView(),passport:()=>renderPassport(),top3:()=>renderTop3View(),scans:()=>renderBeanScans()};
+const BVIEWS={coffees:()=>renderCoffees(),roasteries:()=>renderRoasteriesView(),diary:()=>renderDiaryView(),passport:()=>renderPassport(),top3:()=>renderTop3View(),scans:()=>renderBeanScans()};
+// The views in the strip, in order.
+const BVTABS=[['coffees','Coffees'],['roasteries','Roastery'],['diary','Diary'],['passport','Passport'],['top3','Top 5'],['scans','Scans']];
+// Roastery: the roasteries you have coffee from, laid out like Drinking now. A heading with how many coffees, three
+// figures (roasteries, origins, your favourite), then one card with a row per roastery, most coffees first: its logo, name and
+// your average, how many coffees and where from, and its bags in small pictures. A tap opens its page.
+function renderRoasteriesView(){const p=$('bv-roasteries');if(!p)return;const all=roasteries();
+  if(!all.length){p.innerHTML='<div class="bg-empty">'+beanSVG+'<b>No roasteries yet</b><p>Add the roastery to your coffees and they gather here, each with its own page.</p></div>';return}
+  const coffees=all.reduce((n,r)=>n+r.list.length,0),fav=all.filter(r=>r.avg).sort((a,b)=>b.avg-a.avg||b.list.length-a.list.length)[0];
+  const half=v=>String(Math.round(v*2)/2).replace('.5','½');
+  // Each roastery in plain words: how many coffees and how many origins, no flags or names.
+  const cnt=(n,w)=>n+' '+w+(n===1?'':'s'),line=r=>{const o=new Set(r.list.map(realO).filter(Boolean)).size;return cnt(r.list.length,'coffee')+(o?' · '+cnt(o,'origin'):'')};
+  const row=(r,i)=>{const
+      pics=r.list.filter(b=>b.img).slice(0,4),more=r.list.length-pics.length;
+    return '<button type="button" class="crow rov-row" data-ro="'+esc(r.name)+'" style="--i:'+Math.min(i,12)+'">'+roMark(r.name,true)+
+      '<span class="cr-tx"><span class="cr-top"><b>'+esc(r.name)+'</b>'+(r.avg?'<span class="cr-end"><span class="cr-rate">'+beanSVG+half(r.avg)+'</span></span>':'')+'</span>'+
+      '<small>'+line(r)+'</small>'+
+      (pics.length?'<span class="rov-bags">'+pics.map(b=>beanPic(b,'rw')).join('')+(more>0?'<span class="rov-more">+'+more+'</span>':'')+'</span>':'')+
+      '</span></button>'};
+  const origins=new Set(all.flatMap(r=>r.list.map(realO)).filter(Boolean)).size,rated=BEANS.filter(b=>b.roaster&&b.rating),avg=rated.length?rated.reduce((n,b)=>n+b.rating,0)/rated.length:0;
+  const ic=d=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+d+'"/></svg>';
+  // Your favourite roastery leads, on the dark card the Beans page opens with; three small figures follow.
+  p.innerHTML='<div class="shelf-h"><b>Your roasteries</b><span>'+coffees+' coffee'+(coffees===1?'':'s')+'</span></div>'+
+    (fav?'<button type="button" class="rov-hero" data-ro="'+esc(fav.name)+'">'+roMark(fav.name,true)+'<span class="rov-h-tx"><span class="rov-h-k">'+ic('M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z')+'Favourite roastery</span><b>'+esc(fav.name)+'</b>'+
+        '<small>'+line(fav)+'</small></span><span class="rov-h-rate">'+beanSVG+half(fav.avg)+'</span></button>':'')+
+    figsHTML('rov-figs',[['roastery',all.length,'roaster'+(all.length===1?'y':'ies')],['globe',origins,'origin'+(origins===1?'':'s')],['bean',avg?half(avg):'–','average']])+
+    '<div class="clist rov">'+all.map(row).join('')+'</div>';
+  hydrateImgs(p)}
 // The journal's season, in the corner of the Beans header (northern-hemisphere seasons, as the seasonal trophies).
 const seasonTag=()=>{const m=new Date().getMonth();return ['❄️ Winter','❄️ Winter','🌸 Spring','🌸 Spring','🌸 Spring','☀️ Summer','☀️ Summer','☀️ Summer','🍂 Autumn','🍂 Autumn','🍂 Autumn','❄️ Winter'][m]+' · '};
 function renderBeanHero(){const cy=new Date().getFullYear(),N=BEANS.length,rated=BEANS.filter(b=>b.rating),avg=rated.length?rated.reduce((s,b)=>s+b.rating,0)/rated.length:0,
@@ -10340,16 +10406,24 @@ function renderBeanHero(){const cy=new Date().getFullYear(),N=BEANS.length,rated
     '<div class="bgh-acts"><button type="button" class="bgh-btn main" id="bg-scan">'+SCAN_ICO+'Scan a bag</button><button type="button" class="bgh-btn" id="bg-add">'+PLUS_ICO+'Add a coffee</button></div>';
   hydrateImgs(h)}
 function renderBeanViews(){const cy=new Date().getFullYear();
-  seg('bg-views',[['coffees','Coffees'],['diary','Diary'],['passport','Passport'],['top3','Top 5'],['scans','Scans']],()=>BVIEW,v=>{if(v===BVIEW)return;const K=Object.keys(BVIEWS);BVDIR=K.indexOf(v)>K.indexOf(BVIEW)?1:-1;BVIEW=v;
+  seg('bg-views',BVTABS,()=>BVIEW,v=>{if(v===BVIEW)return;const K=Object.keys(BVIEWS);BVDIR=K.indexOf(v)>K.indexOf(BVIEW)?1:-1;BVIEW=v;
     // The strip shows the pick at once (seg); the view, already built in the background, follows in the next frame.
     renderBeanViews()});
   if(BDIRTY.has(BVIEW)){BDIRTY.delete(BVIEW);BVIEWS[BVIEW]()}
   if(BDIRTY.size)prebuildBViews();
   requestAnimationFrame(()=>setTimeout(()=>loadNear($('bv-'+BVIEW)),30));
-  for(const v of ['coffees','diary','passport','top3','scans']){const p=$('bv-'+v),on=v===BVIEW;if(p.hidden===!on)continue;p.hidden=!on;if(on&&!RM()&&BVDIR){p.classList.remove('bv-in-r','bv-in-l');void p.offsetWidth;p.classList.add(BVDIR>0?'bv-in-r':'bv-in-l')}}BVDIR=0;
+  for(const [v] of BVTABS){const p=$('bv-'+v),on=v===BVIEW;if(p.hidden===!on)continue;p.hidden=!on;
+    // The view slides in a little from the side it comes from. An animation started from script needs no layout first
+    // (restarting a CSS animation by class does: the whole page laid out once more in the middle of the switch).
+    if(on&&!RM()&&BVDIR&&p.animate)p.animate([{opacity:.4,transform:'translateX('+(BVDIR>0?10:-10)+'px)'},{opacity:1,transform:'none'}],{duration:200,easing:'cubic-bezier(.2,.8,.3,1)'})}BVDIR=0;
   // Switched while scrolled down: the new view starts just under the stuck tab strip, not partway down or with the page
   // jumping back up (each view is at least a screen tall, so a short one can't pull the page up).
   // Only when the strip is stuck (scrolled past where it sits): at the top of the page there is nothing to measure.
+  // At the larger text sizes the six views can be wider than the strip: the picked one is scrolled fully into view.
+  // Measured just after the switch is drawn, when the layout is already done and reading it costs nothing (reading it
+  // here would lay the whole page out early, in the middle of the switch).
+  requestAnimationFrame(()=>setTimeout(()=>{const st=$('bg-views');if(!st||st.scrollWidth<=st.clientWidth+1)return;const b=st.querySelector(':scope>button[aria-pressed="true"]');
+    if(b){const l=b.offsetLeft-8,r=b.offsetLeft+b.offsetWidth+8;if(l<st.scrollLeft||r>st.scrollLeft+st.clientWidth)st.scrollTo({left:l<st.scrollLeft?l:r-st.clientWidth,behavior:RM()?'auto':'smooth'})}},0));
   {const st=$('bg-views'),p=$('bv-'+BVIEW);if(st&&p){if(st._y==null)st._y=st.getBoundingClientRect().top+scrollY;if(scrollY>st._y-120){const sb=st.getBoundingClientRect().bottom,pt=p.getBoundingClientRect().top;if(pt<sb)scrollBy(0,pt-sb-8)}}}}
 function renderCoffees(){const p=$('bv-coffees'),years=beanYears();BYEAR=BYEAR.filter(y=>years.includes(+y));
   if(!BEANS.length){p.innerHTML='<div class="bg-empty">'+beanSVG+'<b>No coffees yet</b><p>Scan a bag or add one by hand. Your earlier scans are under <button type="button" class="linkbtn" data-view="scans">Scans</button>, ready to add.</p></div>';return}
@@ -10611,19 +10685,16 @@ function openRoaster(name,fromList){if(fromTap(()=>openRoasterNow(name,fromList)
 function openRoasterNow(name,fromList){const d=$('vd'),k=roKey(name),r=roasteries().find(x=>roKey(x.name)===k);if(!r){openRoasters();return}
   RFROM={name:r.name,list:!!fromList};
   const list=[...r.list].sort((a,b)=>(b.rating||0)-(a.rating||0)||beanDay(b).localeCompare(beanDay(a))),best=list.find(b=>b.rating)||null;
-  const first=r.list.map(beanFirst).filter(Boolean).sort()[0],mon=iso=>new Date(iso+'T12:00').toLocaleDateString(undefined,{month:'short',year:'numeric'});
   const count=(f)=>{const m=new Map();for(const b of r.list)for(const v of f(b))if(v)m.set(v,(m.get(v)||0)+1);return [...m].sort((a,b)=>b[1]-a[1])};
   const ors=count(b=>isBlend(b)?['blend']:[b.origin]),prs=count(b=>[b.process]),rls=count(b=>[b.roast]);
-  const again=r.list.filter(b=>buys(b)>1).length,onShelf=r.list.filter(b=>b.shelf).length;
-  // Your verdict on the roastery, in a word, from the average and how often you go back.
-  const verdict=r.avg>=4.5?'A favourite of yours':r.avg>=4?'Reliably good for you':r.avg>=3?'Hit and miss for you':r.avg?'Not quite your style':'Not rated yet';
+  const nO=new Set(r.list.map(realO).filter(Boolean)).size,onShelf=r.list.filter(b=>b.shelf).length;
   const bar=(l,tot,lab)=>l.length?'<div class="ro-dist"><b class="ro-dl">'+lab+'</b>'+l.slice(0,5).map(([v,n])=>'<div class="ro-di"><span>'+esc(v)+'</span><i><em style="width:'+Math.round(n/tot*100)+'%"></em></i><small>'+n+'</small></div>').join('')+'</div>':'';
   const tot=r.list.length;
   $('vd-in').innerHTML='<div class="vd-head ro-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button>'+(fromList?'<button type="button" class="vd-back" id="ro-back">‹ Roasteries</button>':'')+
-      '<span class="pill"><i style="background:var(--cherry)"></i>Roastery</span><div class="ro-title"><button type="button" class="ro-logo-btn" id="ro-logo" aria-label="'+(roLogo(r.name)?'Change':'Add')+' the logo of '+esc(r.name)+'" title="'+(roLogo(r.name)?'Change the logo':'Add a logo')+'">'+roMark(r.name,true)+'<span class="ro-logo-ed" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="'+(roLogo(r.name)?'M4 20h4L19 9l-4-4L4 16z':'M12 5v14M5 12h14')+'"/></svg></span></button><input type="file" id="ro-logo-f" accept="image/*" hidden><span><h2 id="vd-title">'+esc(r.name)+'</h2><p class="vd-sub">'+verdict+(first?' · since '+mon(first):'')+'</p>'+'</span>'+(roLogo(r.name)?'<div class="ro-logo-menu" id="ro-logo-menu" role="menu" hidden><button type="button" role="menuitem" id="ro-logo-ch">Change logo</button><button type="button" role="menuitem" class="danger" id="ro-logo-rm">Remove logo</button></div>':'')+'</div></div>'+
+      '<span class="pill"><i style="background:var(--cherry)"></i>Roastery</span><div class="ro-title"><button type="button" class="ro-logo-btn" id="ro-logo" aria-label="'+(roLogo(r.name)?'Change':'Add')+' the logo of '+esc(r.name)+'" title="'+(roLogo(r.name)?'Change the logo':'Add a logo')+'">'+roMark(r.name,true)+'<span class="ro-logo-ed" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="'+(roLogo(r.name)?'M4 20h4L19 9l-4-4L4 16z':'M12 5v14M5 12h14')+'"/></svg></span></button><input type="file" id="ro-logo-f" accept="image/*" hidden><span><h2 id="vd-title">'+esc(r.name)+'</h2></span>'+(roLogo(r.name)?'<div class="ro-logo-menu" id="ro-logo-menu" role="menu" hidden><button type="button" role="menuitem" id="ro-logo-ch">Change logo</button><button type="button" role="menuitem" class="danger" id="ro-logo-rm">Remove logo</button></div>':'')+'</div></div>'+
     '<div class="vd-body">'+
-      '<div class="ro-stats"><div><b>'+tot+'</b><small>coffee'+(tot===1?'':'s')+'</small></div><div><b>'+(r.avg?r.avg.toFixed(1):'–')+'</b><small>average</small></div><div><b>'+r.bags+'</b><small>bag'+(r.bags===1?'':'s')+' bought</small></div><div><b>'+again+'</b><small>bought again</small></div></div>'+
-      (best?'<h3 class="ro-h">Your favourite from them</h3><button type="button" class="ro-best" data-bean="'+best.id+'">'+beanPic(best)+'<span class="ro-tx"><b>'+esc(beanTitle(best))+'</b><small>'+esc([beanOrigin(best),best.process&&PROCESSES[best.process]?PROCESSES[best.process].name:''].filter(Boolean).join(' · '))+'</small></span>'+roRateHTML(best.rating)+'</button>':'')+
+      figsHTML('ro-stats f2',[['bag',tot,'coffee'+(tot===1?'':'s')],['bean',r.avg?r.avg.toFixed(1):'–','average'],['buy',r.bags,'bag'+(r.bags===1?'':'s')+' bought'],['globe',nO,'origin'+(nO===1?'':'s')]])+
+      (best?'<button type="button" class="ro-best rov-hero" data-bean="'+best.id+'">'+beanPic(best)+'<span class="rov-h-tx"><span class="rov-h-k"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/></svg>Your favourite</span><b>'+esc(beanTitle(best))+'</b><small>'+esc([beanOrigin(best),best.process&&PROCESSES[best.process]?PROCESSES[best.process].name:''].filter(Boolean).join(' · '))+'</small></span><span class="rov-h-rate">'+beanSVG+best.rating.toFixed(1)+'</span></button>':'')+
       ((ors.length||prs.length)?'<h3 class="ro-h">What they roast for you</h3><div class="ro-dists">'+bar(ors.map(([o,n])=>[(o==='blend'?BLEND_O.flag:flagOf(o))+' '+originName(o),n]),tot,'Origins')+bar(prs.map(([p,n])=>[PROCESSES[p]?PROCESSES[p].name:p,n]),tot,'Processes')+bar(rls.map(([v,n])=>[v[0].toUpperCase()+v.slice(1),n]),tot,'Roast')+'</div>':'')+
       '<h3 class="ro-h">Your coffees <span class="hint">'+(onShelf?onShelf+' on the shelf':'best rated first')+'</span></h3><div class="clist ro-cl">'+list.map((b,i)=>coffeeRow(b,false,i)).join('')+'</div>'+
       '<div class="actions"><button type="button" class="btn" id="ro-add">Add a coffee from '+esc(r.name)+'</button>'+icoBtn('share','id="ro-share"','Share this roastery')+'</div>'+
@@ -12353,7 +12424,7 @@ function accountHTML(){
 // yet, the header fills the page.
 const blankAny=()=>profileStats().some(([n])=>+n>0);
 function blankBody(){if(!blankAny())return ACCT?'<div class="me-body">'+accountHTML()+'</div>':'';
-  return '<div class="me-body"><section class="me-sec" aria-label="Your coffee so far"><h3 class="me-sh">Your coffee so far</h3><div class="me-stats">'+profileStats().map(([n,l])=>'<span><b>'+n+'</b>'+l+'</span>').join('')+'</div></section>'+tasteHTML()+
+  return '<div class="me-body"><section class="me-sec" aria-label="Your coffee so far"><h3 class="me-sh">Your coffee so far</h3>'+figsHTML('me-stats f2',profileStats().map(([n,l],i)=>[['bag','cup','globe','trophy'][i],n,l]))+'</section>'+tasteHTML()+
     (ACCT?accountHTML():'')+'</div>'}
 function meHTML(){const p=PROFILE,x='<button class="vd-close me-x" id="vd-x" aria-label="Close">✕</button>';
   if(!p)return '<div class="me-hero blank'+(blankAny()?'':' full')+'">'+x+CUP_SVG+'<span class="me-k">The Brew Bench</span><h2 id="vd-title">Who’s brewing?</h2>'+
@@ -12370,7 +12441,7 @@ function meHTML(){const p=PROFILE,x='<button class="vd-close me-x" id="vd-x" ari
       '<small class="me-name">'+(p.name?esc(p.name)+' · ':'')+'Brewing since '+since+'</small></div>'+
     '<div class="me-body">'+
       // The numbers first, as one bar.
-      '<div class="me-stats">'+profileStats().map(([n,l])=>'<span><b>'+n+'</b>'+l+'</span>').join('')+'</div>'+
+      figsHTML('me-stats f2',profileStats().map(([n,l],i)=>[['bag','cup','globe','trophy'][i],n,l]))+
       // About you: your words, and what you told us as squares.
       '<section class="me-sec" aria-label="About you"><h3 class="me-sh">About</h3>'+
         (p.brief?'<p class="me-brief">'+esc(p.brief)+'</p>':'<button type="button" class="me-add" id="pf-edit2">Add a few words about how you take your coffee</button>')+

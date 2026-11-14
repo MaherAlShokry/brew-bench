@@ -3737,6 +3737,13 @@ const installed=()=>!!window.Capacitor||MQ('(display-mode: standalone)')||naviga
 // Icon tiles take the vibe's colours: the colour an icon is given only says which role it plays, by its hue (browns
 // and reds the vibe's main colour, golds its honey, greens its leaf, blues and purples a blend of them), and the tile
 // is a soft tint of that colour with the symbol drawn in it, so every vibe, light or dark, gets icons in its own palette.
+// Figures: a number and a word beside a solid coloured icon square, two or three to a row (the Roastery view, a
+// roastery's page, your profile and the year in coffee).
+const FIG={roastery:'M4 10l1.5-5h13L20 10M4 10v9h16v-9M4 10h16M9 19v-5h6v5',bean:'M12 3c-4 3-6 6.5-6 10a6 6 0 0 0 12 0c0-3.5-2-7-6-10z M12 8c-1.5 2-1.5 6 0 9',
+  bag:'M7 4h10l1.5 4v12h-13V8z M5.5 8h13 M10 12h4',buy:'M5 8h14l-1 12H6z M9 8V6a3 3 0 0 1 6 0v2',again:'M4 11a7 7 0 0 1 12-4l2 2 M18 4v5h-5 M20 13a7 7 0 0 1-12 4l-2-2 M6 20v-5h5',
+  cup:'M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z M16 10h2a2 2 0 0 1 0 4h-2 M9 3v3 M12 3v3',trophy:'M8 4h8v5a4 4 0 0 1-8 0z M8 6H5a3 3 0 0 0 3 4 M16 6h3a3 3 0 0 1-3 4 M12 13v4 M9 20h6'};
+const FIG_C=['var(--cherry)','var(--leaf)','var(--honey)','#6E8FA8'];
+function figsHTML(cls,items,label){return '<div class="figs '+cls+'"'+(label?' role="group" aria-label="'+label+'"':'')+'>'+items.map(([d,n,l],i)=>'<span><i class="fig-ic" style="--c:'+FIG_C[i%4]+'" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="'+(FIG[d]||ICO[d]||d)+'"/></svg></i><span><b>'+n+'</b>'+l+'</span></span>').join('')+'</div>'}
 const ICO_TONE=new Map();
 function icoTone(bg){if(ICO_TONE.has(bg))return ICO_TONE.get(bg);let t='c';const m=/^#([0-9a-f]{6})$/i.exec(bg||'');
   if(/var\(--honey/.test(bg))t='h';else if(/var\(--leaf/.test(bg))t='l';else if(m){const n=parseInt(m[1],16),r=(n>>16)/255,g=(n>>8&255)/255,b=(n&255)/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn;
