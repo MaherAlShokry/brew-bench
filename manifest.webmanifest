@@ -24,5 +24,46 @@
       "type": "image/png",
       "purpose": "maskable"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "Start a brew",
+      "short_name": "Brew",
+      "description": "Start your usual brew",
+      "url": "./?open=brew",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Scan a bag",
+      "short_name": "Scan",
+      "description": "Scan a bag of coffee",
+      "url": "./?open=scan",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Log a brew",
+      "short_name": "Log",
+      "description": "Log a brew",
+      "url": "./?open=log",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
   ]
 }

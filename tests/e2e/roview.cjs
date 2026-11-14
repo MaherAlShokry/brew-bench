@@ -16,4 +16,22 @@ await p.evaluate(()=>document.querySelector('#bv-roasteries .rov-row').click());
 ok('a tap opens its page',await p.evaluate(n=>$('vd').open&&($('vd-title')||{}).textContent===n,v.names[0]));
 await p.evaluate(()=>bbBack());await p.waitForTimeout(700);
 ok('back returns to the list where you were',await p.evaluate(y=>!$('vd').open&&!$('bv-roasteries').hidden&&Math.abs(scrollY-y)<4,y));
+// Your favourite: the highest rated until you star one at the top of its page.
+const auto=await p.evaluate(()=>document.querySelector('.rov-hero b').textContent);
+const other=await p.evaluate(a=>roasteries().map(r=>r.name).find(n=>n!==a),auto);
+await p.evaluate(o=>openRoasterNow(o,true),other);await p.waitForTimeout(700);
+ok('a roastery page has its star, add and share at the top',await p.evaluate(()=>!!document.querySelector('.vd-head .vd-tools #ro-fav')&&!!document.querySelector('.vd-tools #ro-add')&&!!document.querySelector('.vd-tools #ro-share')&&!document.querySelector('#vd-in .actions #ro-add')));
+await p.evaluate(()=>$('ro-fav').click());await p.waitForTimeout(200);
+// The favourite coffee from them: the star on one of its coffees.
+const pick=await p.evaluate(()=>{const s=[...document.querySelectorAll('.ro-bstar')];const t=s.find(x=>x.getAttribute('aria-pressed')!=='true')||s[0];t.click();return t.dataset.rofav});await p.waitForTimeout(600);
+ok('starring a coffee makes it your favourite from them',await p.evaluate(id=>document.querySelector('.ro-best').dataset.bean===id&&document.querySelector('.ro-bstar[data-rofav="'+id+'"]').getAttribute('aria-pressed')==='true',pick));
+const card=await p.evaluate(async()=>{const b=await roasteryCardImg($('vd-title').textContent);return b&&b.size});ok('the roastery shares as an image',card>20000,card);
+await p.evaluate(()=>$('vd').close());await p.waitForTimeout(800);
+ok('the starred roastery leads the view',await p.evaluate(o=>document.querySelector('.rov-hero b').textContent===o,other),other);
+const card2=await p.evaluate(async()=>{const b=await roasteriesCardImg();return b&&b.size});ok('your roasteries share as an image',card2>20000,card2);
+// Add a roastery: it's listed, and offered when you type a roastery.
+await p.evaluate(()=>$('rov-add').click());await p.waitForTimeout(700);await p.fill('#ra-name','Bonanza Coffee');await p.evaluate(()=>$('ra-save').click());await p.waitForTimeout(900);
+ok('an added roastery is listed',await p.evaluate(()=>[...document.querySelectorAll('#bv-roasteries .rov-row')].some(x=>x.dataset.ro==='Bonanza Coffee')));
+ok('and offered in the roastery picklist',await p.evaluate(()=>roasterRows()('bonan').some(x=>x.v==='Bonanza Coffee')));
+ok('the stars and added roasteries go to the account',await p.evaluate(()=>['bb-favro','bb-roasteries','bb-rofavbean'].every(k=>SYNC_KEYS.includes(k))));
 ok('no errors',!errs.length,errs);await b.close()})();

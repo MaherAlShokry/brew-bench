@@ -12,7 +12,7 @@
 //   users/<uid>/data/img/<key>        {t, s: a fingerprint of the photo} or {t, del:1}
 //   userimg/<uid>/<key>               the photo itself
 const SYNC_COLS=['bb-beans','bb-log','bb-scans','bb-myrecipes'];
-const SYNC_KEYS=['bb-top3','bb-advent','bb-trophies','bb-favs','bb-custom-grinders','bb-mygrinders','bb-mybrewers','bb-base3','bb-calc','bb-ui','bb-theme','bb-cardstyle','bb-group','bb-name','bb-blends','bb-dialnext'];
+const SYNC_KEYS=['bb-top3','bb-advent','bb-trophies','bb-favs','bb-custom-grinders','bb-mygrinders','bb-mybrewers','bb-base3','bb-calc','bb-ui','bb-theme','bb-cardstyle','bb-group','bb-name','bb-blends','bb-dialnext','bb-favro','bb-rosort','bb-planlearn','bb-roasteries','bb-rofavbean'];
 const SYNC_ID=/^[A-Za-z0-9_:-]{1,40}$/;
 // Photos sync by id; a roastery's logo is kept under its name ("logo:kuf roastery"), so it gets its own rule (anything a
 // database key can hold).

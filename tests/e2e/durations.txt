@@ -119,3 +119,4 @@ syncro 30
 consistency 60
 roview 12
 keyframes 1
+dialplan 4

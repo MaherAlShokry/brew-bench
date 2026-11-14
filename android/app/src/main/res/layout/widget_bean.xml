@@ -44,6 +44,10 @@
         <ProgressBar android:id="@+id/w_pb3" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="6dp" android:max="100" android:progressDrawable="@drawable/wpb_fade" android:visibility="gone" />
             <TextView android:id="@+id/w_fresh" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:ellipsize="end" android:maxLines="1" android:textColor="@color/widget_muted" android:textSize="12sp" />
         </LinearLayout>
-        <TextView android:id="@+id/w_log" android:layout_width="wrap_content" android:layout_height="40dp" android:background="@drawable/widget_btn" android:gravity="center" android:paddingStart="18dp" android:paddingEnd="18dp" android:text="Log brew" android:textColor="@color/widget_btn_ink" android:textSize="14sp" android:textStyle="bold" />
+        <!-- An icon and a label centred together, as on the Quick brew widget. -->
+        <LinearLayout android:id="@+id/w_log" android:layout_width="wrap_content" android:layout_height="42dp" android:background="@drawable/widget_btn" android:gravity="center" android:orientation="horizontal" android:paddingStart="14dp" android:paddingEnd="16dp">
+            <ImageView android:id="@+id/w_log_ic" android:layout_width="18dp" android:layout_height="18dp" android:layout_marginEnd="6dp" android:importantForAccessibility="no" android:src="@drawable/wic_log_btn" />
+            <TextView android:id="@+id/w_log_tx" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:text="Log brew" android:textColor="@color/widget_btn_ink" android:textSize="14sp" android:textStyle="bold" />
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

@@ -45,6 +45,22 @@ public class TimerTest {
         return null;
     }
 
+    /** The timer's notification once the notification service has shown it: it applies posts in its own time (on a
+     *  slow emulator well past the first look), so wait up to 3 s, as for a cancel below. */
+    static StatusBarNotification shown(Context ctx) throws Exception {
+        StatusBarNotification s = note(ctx);
+        for (int i = 0; i < 13 && s == null; i++) s = note(ctx);
+        return s;
+    }
+
+    /** The timer's notification once it shows a title starting with the given text: an update to a notification already
+     *  showing (paused, then done) reaches the notification service in its own time too, so wait up to 3 s for it. */
+    static StatusBarNotification titled(Context ctx, String start) throws Exception {
+        StatusBarNotification s = note(ctx);
+        for (int i = 0; i < 13 && (s == null || !title(s).startsWith(start)); i++) s = note(ctx);
+        return s;
+    }
+
     /** A no-argument method the public SDK doesn't list, for the log. */
     static Object hidden(Object o, String m) {
         try { return o.getClass().getMethod(m).invoke(o); } catch (Exception e) { return "n/a"; }
@@ -63,7 +79,7 @@ public class TimerTest {
         assertEquals("Tetsu Kasuya 4:6", s.name);
         assertEquals(STEPS[0], s.step);
         assertTrue(s.next.startsWith("Next at 0:45"));
-        StatusBarNotification n = note(ctx);
+        StatusBarNotification n = shown(ctx);
         assertNotNull("a running brew shows a notification", n);
         assertTrue("it stays while brewing", (n.getNotification().flags & Notification.FLAG_ONGOING_EVENT) != 0);
         assertEquals(STEPS[0], title(n));
@@ -90,7 +106,7 @@ public class TimerTest {
         long held = s.el;
         Thread.sleep(600);
         assertEquals("paused, the clock holds", held, BrewTimer.read(ctx).elapsed(System.currentTimeMillis()));
-        assertTrue(title(note(ctx)).startsWith("Paused at 0:4"));
+        assertTrue(title(titled(ctx, "Paused at 0:4")).startsWith("Paused at 0:4"));
 
         BrewTimer.act(ctx, BrewTimer.TOGGLE);
         assertEquals("run", BrewTimer.read(ctx).state);
@@ -100,7 +116,7 @@ public class TimerTest {
         BrewTimer.act(ctx, BrewTimer.NEXT);
         s = BrewTimer.read(ctx);
         assertEquals("next after the last step finishes the brew", "done", s.state);
-        n = note(ctx);
+        n = titled(ctx, "Brew complete");
         assertNotNull(n);
         assertEquals("Brew complete", title(n));
         assertEquals("it can be swiped away once done", 0, n.getNotification().flags & Notification.FLAG_ONGOING_EVENT);
@@ -114,6 +130,6 @@ public class TimerTest {
         // A brew left running for CI's picture of the notification and the status bar.
         BrewTimer.act(ctx, BrewTimer.START);
         BrewTimer.act(ctx, BrewTimer.NEXT);
-        assertNotNull(note(ctx));
+        assertNotNull(shown(ctx));
     }
 }

@@ -299,7 +299,7 @@ function bcDraw(m){const W=BC.W,P=BC.PAD,IW=W-2*P;BC.BRK=[];if(!BC_CV){BC_CV=doc
   // very tall gallery a little less to keep memory in hand;
   // everything is laid out in the card's own 1080-wide units and scaled once here.
   // A card that knows its height draws on a canvas just that tall (the background is most of the drawing work).
-  const H0=m.minH?Math.ceil(m.minH):4400,S=BC.S=Math.min(1.5,Math.sqrt(26e6/(W*H0)));
+  const H0=m.minH?Math.ceil(m.minH):4400,S=BC.S=Math.min((m.style||CARD_STYLE).pdf?1:1.5,Math.sqrt(26e6/(W*H0)));
   // Recording (see bcRec): the same drawing, written down to be painted in the background instead of on this canvas.
   let c,x;if(m.rec){c={width:Math.round(W*S),height:Math.round(H0*S),rec:true};x=bcRec(c)}
   else{if(BC_CV.width!==Math.round(W*S)||BC_CV.height!==Math.round(H0*S)){BC_CV.width=Math.round(W*S);BC_CV.height=Math.round(H0*S)}c=BC_CV;x=c.getContext('2d')}
@@ -474,8 +474,8 @@ function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
 const bcBlob=m=>{const st=m.style||Object.assign({},CARD_STYLE);return (async()=>{if(document.fonts&&document.fonts.ready)await document.fonts.ready;
   const w=await bcWorker();
   if(w){try{const r=bcDraw(Object.assign({},m,{style:st,rec:true})),brk=(BC.BRK||[]).map(y=>Math.round(y*BC.S));
-      if(r&&r.recOut){const b=await w.paint(r);if(b){b._brk=brk;BC.BGN=(BC.BGN||0)+1;return b}}}catch(e){}}
-  const cv=bcDraw(Object.assign({},m,{style:st})),brk=(BC.BRK||[]).map(y=>Math.round(y*BC.S));return new Promise(res=>cv.toBlob(b=>{if(b)b._brk=brk;res(b)},'image/jpeg',0.94))})()};
+      if(r&&r.recOut){r.q=st.pdf?0.9:0.94;const b=await w.paint(r);if(b){b._brk=brk;BC.BGN=(BC.BGN||0)+1;return b}}}catch(e){}}
+  const cv=bcDraw(Object.assign({},m,{style:st})),brk=(BC.BRK||[]).map(y=>Math.round(y*BC.S));return new Promise(res=>cv.toBlob(b=>{if(b)b._brk=brk;res(b)},'image/jpeg',st.pdf?0.9:0.94))})()};
 // The drawn part of the card, trimmed: copied here, or (recording) the size to trim to in the worker.
 function bcOut(c,w,h){if(c.rec)return{recOut:true,ops:c.ops,bms:c.bms,width:c.width,height:c.height,cw:Math.min(w,c.width),ch:Math.min(h,c.height)};
   const out=document.createElement('canvas');out.width=w;out.height=h;out.getContext('2d').drawImage(c,0,0);return out}
@@ -523,7 +523,7 @@ self.onmessage=async e=>{const q=e.data;if(q.fonts){await load(q.fonts);self.pos
         else if(k==='p')R[o[1]]=x.createPattern(B[o[2]],o[3])}};
     play(c.getContext('2d'),q.ops);
     const out=new OffscreenCanvas(q.cw,q.ch);out.getContext('2d').drawImage(c,0,0);
-    const blob=await out.convertToBlob({type:'image/jpeg',quality:0.94});B.forEach(b=>b.close&&b.close());self.postMessage({id:q.id,blob})}
+    const blob=await out.convertToBlob({type:'image/jpeg',quality:q.q||0.94});B.forEach(b=>b.close&&b.close());self.postMessage({id:q.id,blob})}
   catch(err){self.postMessage({id:q.id,err:String(err&&err.message||err)})}};`;
     const w=new Worker(URL.createObjectURL(new Blob([code],{type:'text/javascript'})));const wait=new Map();let seq=0;
     const ok=await new Promise(res=>{const t=setTimeout(()=>res(false),8000);w.onmessage=e=>{clearTimeout(t);res(!!e.data.ok)};w.onerror=()=>{clearTimeout(t);res(false)};w.postMessage({fonts})});
@@ -531,7 +531,7 @@ self.onmessage=async e=>{const q=e.data;if(q.fonts){await load(q.fonts);self.pos
     w.onmessage=e=>{const p=wait.get(e.data.id);if(!p)return;wait.delete(e.data.id);e.data.blob?p.ok(e.data.blob):p.no(new Error(e.data.err||'card'))};
     w.onerror=e=>{e.preventDefault&&e.preventDefault();for(const p of wait.values())p.no(new Error('worker'));wait.clear()};
     return{paint:async r=>{const bms=await Promise.all(r.bms);const id=++seq;
-      return new Promise((ok,no)=>{wait.set(id,{ok,no});w.postMessage({id,ops:r.ops,bms,width:r.width,height:r.height,cw:r.cw,ch:r.ch},bms)})}}}
+      return new Promise((ok,no)=>{wait.set(id,{ok,no});w.postMessage({id,ops:r.ops,bms,width:r.width,height:r.height,cw:r.cw,ch:r.ch,q:r.q},bms)})}}}
   catch(e){return false}})();
   return BCW}
 // Where a PDF page may end: between rows, never through one (in the card's own units).
@@ -770,6 +770,57 @@ async function shelfCardImg(){const style=Object.assign({},CARD_STYLE),sh=shelfO
     Y+=ph;
     if(notes.length){Y+=64;bcLabel(x,'In my cups',P,Y);bcChipLine(x,notes,Y+26);Y+=26+56}
     return bcFoot(x,c,Y,'From my bean gallery')}})}
+// A roastery's mark on a card: its logo on white, or its initials on its own colour (as in the app).
+function bcRoMark(x,img,name,X,Y,s){x.save();bcRound(x,X,Y,s,s,s*.26);x.clip();
+  if(img){x.fillStyle='#FFFFFF';x.fillRect(X,Y,s,s);const k=Math.min(s/img.width,s/img.height)*.84,dw=img.width*k,dh=img.height*k;x.drawImage(img,X+(s-dw)/2,Y+(s-dh)/2,dw,dh)}
+  else{const h=roHue(name);x.fillStyle='hsl('+h+',38%,30%)';x.fillRect(X,Y,s,s);x.fillStyle='hsl('+h+',60%,88%)';x.font='800 '+Math.round(s*.36)+'px '+BC.F;x.textAlign='center';x.fillText(roIni(name),X+s/2,Y+s/2+s*.13);x.textAlign='left'}
+  x.restore();bcRound(x,X,Y,s,s,s*.26);x.lineWidth=2;x.strokeStyle=bcI(.16);x.stroke()}
+const bcCount=(n,w)=>n+' '+w+(n===1?'':'s');
+// One roastery: its logo and name, your average in beans, the counts, then its coffees (your favourite from them first,
+// then the best rated) with their photos and ratings, and the flavours you found in them.
+async function roasteryCardImg(name){const r=roFind(name);if(!r)return null;const style=Object.assign({},CARD_STYLE),nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick;
+  const pid=roFavBeans()[roKey(r.name)],list=[...r.list].sort((a,b)=>(b.id===pid)-(a.id===pid)||(b.rating||0)-(a.rating||0)||String(beanDay(b)).localeCompare(String(beanDay(a))));
+  const many=list.length>10,shown=many?list.slice(0,9):list,more=list.length-shown.length;
+  const [logo,...imgs]=await Promise.all([bcLoad(roLogo(r.name)),...shown.map(async b=>b.img?bcLoad(BIMG.peekThumb(b.id)||await BIMG.thumb(b.id)):null)]);
+  const ors=new Set(list.map(realO).filter(Boolean)).size,notes=[];list.forEach(b=>(b.flavours||'').split(/\s*[,;·]\s*/).filter(Boolean).forEach(f=>{if(notes.length<12&&!notes.some(q=>q.toLowerCase()===f.toLowerCase()))notes.push(f)}));
+  const rh=170,minH=130+40+170+48+58+48+shown.length*rh+(more?64:0)+(notes.length?146:0)+BC_FOOT+40;
+  return bcBlob({style,theme:originTheme(list[0]&&list[0].origin),minH,draw:(x,c)=>{const W=BC.W,P=BC.PAD,IW=W-2*P;
+    let Y=bcHead(x,nick?'From '+nick+'’s roasteries':'From my roasteries',new Date().toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}));
+    Y+=40;const S=170;bcRoMark(x,logo,r.name,P,Y,S);const tx=P+S+36,tw=W-P-tx;
+    x.font='800 64px '+BC.F;const nl=bcWrap(x,r.name,tw,2);x.fillStyle=BC.INK;const top=Y+(r.avg?(nl.length>1?52:74):(nl.length>1?78:104));nl.forEach((l,i)=>x.fillText(l,tx,top+i*70));
+    if(r.avg)bcRating(x,'beans',r.avg,tx,top+(nl.length-1)*70+52,30);
+    Y+=S+48;bcStatPills(x,P,Y,[[list.length,list.length===1?'coffee':'coffees'],[ors,ors===1?'origin':'origins'],[r.bags,r.bags===1?'bag':'bags']]);Y+=58+48;
+    const ph=shown.length*rh+(more?64:0);if(shown.length)bcPane(x,P,Y,IW,ph,30);
+    shown.forEach((b,i)=>{const ry=Y+i*rh,s=rh-40;if(i){x.fillStyle=bcI(.09);x.fillRect(P+28,ry,IW-56,1.5)}
+      bcPic(x,imgs[i],b.origin,P+22,ry+20,s,s,22);const tx2=P+22+s+28,tw2=W-P-28-tx2;
+      x.font='800 32px '+BC.F;x.fillStyle=BC.INK;x.fillText(bcWrap(x,beanTitle(b),tw2-(b.id===pid?44:0),1)[0],tx2,ry+62);
+      if(b.id===pid){const nw=x.measureText(bcWrap(x,beanTitle(b),tw2-44,1)[0]).width;x.font='700 30px '+BC.F;x.fillStyle=BC.HONEY;x.fillText('★',tx2+nw+12,ry+62)}
+      const meta=[b.origin?originName(b.origin):'',b.process&&PROCESSES[b.process]?PROCESSES[b.process].name.replace(/\s*\(.*\)$/,''):''].filter(Boolean).join('  ·  ');
+      if(meta){x.font='500 23px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(bcWrap(x,meta,tw2,1)[0],tx2,ry+98)}
+      if(b.rating)bcRating(x,'beans',b.rating,tx2,ry+132,20);bcBrk(ry+rh)});
+    if(more){const my=Y+shown.length*rh;x.fillStyle=bcI(.09);x.fillRect(P+28,my,IW-56,1.5);x.font='600 26px '+BC.F;x.fillStyle=BC.MUTED;x.textAlign='center';x.fillText('and '+bcCount(more,'more coffee'),W/2,my+42);x.textAlign='left'}
+    Y+=ph;if(notes.length){Y+=64;bcLabel(x,'In their coffees',P,Y);bcChipLine(x,notes,Y+26);Y+=26+56}
+    return bcFoot(x,c,Y,'From my bean gallery')}})}
+// All your roasteries: your favourite first on its own, then every one, most coffees first, with its logo, how many
+// coffees and origins, and your average in beans.
+async function roasteriesCardImg(){const style=Object.assign({},CARD_STYLE),nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick,all=roasteries();
+  const many=all.length>14,shown=many?all.slice(0,13):all,more=all.length-shown.length,fk=roKey(favRo()),fav=all.find(r=>roKey(r.name)===fk)||all.filter(r=>r.avg).sort((a,b)=>b.avg-a.avg||b.list.length-a.list.length)[0];
+  const logos=await Promise.all(shown.map(r=>bcLoad(roLogo(r.name)))),coffees=all.reduce((a,r)=>a+r.list.length,0),ors=new Set(all.flatMap(r=>r.list.map(realO)).filter(Boolean)).size;
+  const rh=132,minH=130+118+40+58+48+shown.length*rh+(more?64:0)+BC_FOOT+40;
+  return bcBlob({style,theme:originTheme(all[0]&&all[0].list[0]&&all[0].list[0].origin),minH,draw:(x,c)=>{const W=BC.W,P=BC.PAD,IW=W-2*P;
+    let Y=bcHead(x,nick?nick+'’s coffee journal':'My coffee journal',new Date().toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}));
+    Y+=118;x.font='800 104px '+BC.F;x.fillStyle=BC.INK;x.fillText('My',P-4,Y);const dw=x.measureText('My ').width;x.fillStyle=BC.HONEY;x.fillText('roasteries',P-4+dw,Y);
+    Y+=40;bcStatPills(x,P,Y,[[all.length,all.length===1?'roastery':'roasteries'],[coffees,coffees===1?'coffee':'coffees'],[ors,ors===1?'origin':'origins']]);Y+=58+48;
+    const ph=shown.length*rh+(more?64:0);bcPane(x,P,Y,IW,ph,30);
+    shown.forEach((r,i)=>{const ry=Y+i*rh,cy=ry+rh/2,s=rh-40;if(i){x.fillStyle=bcI(.09);x.fillRect(P+28,ry,IW-56,1.5)}
+      bcRoMark(x,logos[i],r.name,P+22,ry+20,s);const tx=P+22+s+28,rw=r.avg?5*22*1.18+8:0,tw=W-P-28-rw-tx;
+      const o=new Set(r.list.map(realO).filter(Boolean)).size,star=r===fav;
+      x.font='800 32px '+BC.F;x.fillStyle=BC.INK;const nm=bcWrap(x,r.name,tw-(star?44:0),1)[0];x.fillText(nm,tx,cy-6);
+      if(star){const nw=x.measureText(nm).width;x.font='700 30px '+BC.F;x.fillStyle=BC.HONEY;x.fillText('★',tx+nw+12,cy-6)}
+      x.font='500 23px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(bcCount(r.list.length,'coffee')+(o?'  ·  '+bcCount(o,'origin'):''),tx,cy+30);
+      if(r.avg)bcRating(x,'beans',r.avg,W-P-28-rw+8,cy,22);bcBrk(ry+rh)});
+    if(more){const my=Y+shown.length*rh;x.fillStyle=bcI(.09);x.fillRect(P+28,my,IW-56,1.5);x.font='600 26px '+BC.F;x.fillStyle=BC.MUTED;x.textAlign='center';x.fillText('and '+bcCount(more,'more roaster').replace(/roasters$/,'roasteries').replace(/roaster$/,'roastery'),W/2,my+42);x.textAlign='left'}
+    Y+=ph;return bcFoot(x,c,Y,'From my bean gallery')}})}
 // How tall a set of chips will be once wrapped (the same measure bcChips uses).
 function hmH(x,items){const W=BC.W,P=BC.PAD;x.font='500 27px '+BC.F;let px=P,rows=1;for(const t of items){const w=x.measureText(t).width+48;if(px+w>W-P){px=P;rows++}px+=w+12}return 48+56+(rows-1)*70}
 // Counts as pills: the figure in the accent, the word after it.
@@ -940,14 +991,16 @@ async function pdfCore(J,bm,title,brk0,mk,jpg){
   // A card up to about one and a half pages tall goes on one page, scaled to fit and framed in its own colour; only a
   // long one (a big gallery, a long list) runs over several.
   if(ih<=pageH*1.5){const k=Math.min(PW/iw,PH/ih),w=iw*k,h=ih*k,bg=colAt(Math.round(ih/2));pdf.setFillColor(...bg);pdf.rect(0,0,PW,PH,'F');
-    pdf.addImage(await jpg(full,0.88),'JPEG',(PW-w)/2,(PH-h)/2,w,h,undefined,'FAST');return pdf.output('blob')}
+    pdf.addImage(await jpg(full,0.82),'JPEG',(PW-w)/2,(PH-h)/2,w,h,undefined,'FAST');return pdf.output('blob')}
   // Pages after the first start a little down the page, so a pane carried over doesn't touch the top edge.
   const brk=(brk0||[]).filter(v=>v>0&&v<ih).sort((a,b)=>a-b),TOP=Math.round(iw*30/PW);
+  // Pages of a long PDF are kept to 900 px across (about 150 dpi on A4): sharp text, a third of the file.
+  const pk=Math.min(1,900/iw);
   let y=0,n=0;while(y<ih-2){const room=pageH-(n?TOP:0);let end=Math.min(ih,y+room);
     if(end<ih){const ok=brk.filter(v=>v>y+room*0.45&&v<=end);end=ok.length?ok[ok.length-1]:calm(Math.max(y+Math.floor(room*0.7),end-Math.floor(room*0.22)),end)}
-    const sh=end-y,cv=mk(iw,sh);cv.getContext('2d').drawImage(full,0,y,iw,sh,0,0,iw,sh);
+    const sh=end-y,cv=mk(Math.round(iw*pk),Math.max(1,Math.round(sh*pk)));{const cx=cv.getContext('2d');cx.imageSmoothingQuality='high';cx.drawImage(full,0,y,iw,sh,0,0,cv.width,cv.height)}
     const bg=colAt(n?y+2:end-1);if(n)pdf.addPage();pdf.setFillColor(...bg);pdf.rect(0,0,PW,PH,'F');
-    pdf.addImage(await jpg(cv,0.86),'JPEG',0,n?TOP*PW/iw:0,PW,sh*PW/iw,undefined,'FAST');n++;y=end}
+    pdf.addImage(await jpg(cv,0.74),'JPEG',0,n?TOP*PW/iw:0,PW,sh*PW/iw,undefined,'FAST');n++;y=end}
   return pdf.output('blob')}
 // The PDF is put together in a background worker, so the screen doesn't freeze while it's made: the card's image is
 // decoded, cut into pages and each page encoded there. Where workers can't do that (no OffscreenCanvas), or the

@@ -64,7 +64,7 @@ function openCal(id,o){const c=calById(id);if(!c)return;ADVFROM=id;VD_BACK=null;
     '<p class="hint adv-tip">Open the doors in any order: add the coffee behind each, then rate it. The total rating is the average of the ones you’ve rated.</p>'+
     (s.best.length>1?'<h3>Best of the box</h3><div class="clist">'+s.best.map((b,i)=>coffeeRow(b,false,i)).join('')+'</div>':'')+
     '<h3>Your review of the box</h3><div class="adv-rev"><textarea id="adv-notes" rows="3" maxlength="600" placeholder="The box as a whole: the range of coffees, the surprises, would you get it again?">'+esc(c.notes)+'</textarea></div>'+
-    '<button type="button" class="linkbtn danger" id="adv-del">Remove the calendar</button></div>';
+    ib('del','id="adv-del"','Remove the calendar','danger')+'</div>';
   hydrateImgs($('vd-in'));
   let nt=0;$('adv-notes').oninput=e=>{clearTimeout(nt);nt=setTimeout(()=>{c.notes=str(e.target.value,600);saveCals()},400)};
   $('adv-notes').onchange=e=>{clearTimeout(nt);c.notes=str(e.target.value,600);saveCals()};

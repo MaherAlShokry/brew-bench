@@ -194,7 +194,7 @@ function openNotesPicker(entry){const d=$('vd'),sel=flMap(entry?flOf(entry):LFL.
   $('vd-in').innerHTML='<div class="vd-head" style="--c:#C4473F"><button class="vd-close" id="vd-x" aria-label="Done">✕</button><span class="pill"><i style="background:#C4473F"></i>Tasting notes</span>'+
     '<h2 id="vd-title">'+(entry&&entry.coffee?esc(entry.coffee):'What did you taste?')+'</h2><p class="hint" style="margin:0">Start in the middle: tap a family to open it, then tap the notes you taste. Tap a note again to remove it.</p></div>'+
     '<div class="vd-body fl-pick"><input type="search" id="fl-q" placeholder="Find a note" aria-label="Find a flavour note" style="width:100%"><div class="chips fw-res" id="fl-res"></div>'+
-    '<div class="fw-box" id="fl-box"></div><div class="fl-sel" id="fl-sel"></div><div class="actions"><button type="button" class="btn" id="fl-done">Done</button><button type="button" class="btn ghost" id="fl-clear">Clear all</button></div></div>';
+    '<div class="fw-box" id="fl-box"></div><div class="fl-sel" id="fl-sel"></div><div class="actions"><button type="button" class="btn" id="fl-done">Done</button>'+ib('reset','id="fl-clear"','Clear all')+'</div></div>';
   const list=()=>{$('fl-sel').innerHTML=sel.size?[...sel].map(([id,v])=>{const n=FW.byId[id];return'<div class="fl-selrow"><i style="background:'+n.c+'"></i><span><b>'+esc(n.n)+'</b> <small class="hint">'+esc(n.parent?n.parent.n:'')+'</small></span>'+
       '<div class="fl-lv" role="group" aria-label="How strong">'+[1,2,3].map(k=>'<button type="button" data-lv="'+k+'" data-id="'+id+'" aria-pressed="'+(v===k)+'">'+FL_LV[k]+'</button>').join('')+'</div><button type="button" class="x" data-rm="'+id+'" aria-label="Remove '+esc(n.n)+'">✕</button></div>'}).join(''):'<p class="hint" style="margin:0">No notes yet.</p>'};
   const W=makeWheel($('fl-box'),{mode:'pick',sel,center:'Your cup',hint:sel.size?'tap to add':'tap a colour',label:'Flavour wheel: tap the notes you taste',onChange:()=>list()});list();
@@ -213,7 +213,7 @@ function openNotesPicker(entry){const d=$('vd'),sel=flMap(entry?flOf(entry):LFL.
 function openProfile(title,sub,fl,entry){const d=$('vd');
   $('vd-in').innerHTML='<div class="vd-head" style="--c:#C4473F"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:#C4473F"></i>Flavour profile</span>'+
     '<h2 id="vd-title">'+esc(title)+'</h2>'+(sub?'<p class="hint" style="margin:0">'+esc(sub)+'</p>':'')+'</div><div class="vd-body"><div class="fw-box" id="fp-box" style="max-width:460px"></div>'+
-    flBar(fl)+'<div class="chips" style="margin-top:12px">'+flChips(fl)+'</div><div class="actions"><button type="button" class="btn" id="fp-dl">Download image</button>'+(entry?icoBtn('edit','id="fp-edit"','Edit the flavour notes'):'')+'</div></div>';
+    flBar(fl)+'<div class="chips" style="margin-top:12px">'+flChips(fl)+'</div><div class="actions ib-row">'+ib('dl','id="fp-dl"','Download the image','main')+(entry?ib('edit','id="fp-edit"','Edit the flavour notes'):'')+'</div></div>';
   makeWheel($('fp-box'),{mode:'profile',sel:flMap(fl),center:'Profile',hint:'tap a family',label:'Flavour profile of '+title});
   $('vd-x').onclick=()=>d.close();
   $('fp-dl').onclick=()=>fwExport({title,sub,mode:'profile',sel:flMap(fl),notes:fl,center:'Flavour',centerSub:'profile'},fname(title)+'-flavour-profile');
