@@ -1043,12 +1043,16 @@ function roasteries(){const m=new Map();for(const b of BEANS){const k=roKey(b.ro
 function roMark(name,big){let h=0;for(const ch of roKey(name))h=(h*31+ch.charCodeAt(0))%360;const ini=name.replace(/&/g,' ').split(/\s+/).filter(w=>/^[\p{L}\p{N}]/u.test(w)&&!/^(coffee|roasters?|roastery|roasting|co\.?|the|and|of)$/i.test(w)).slice(0,2).map(w=>w[0].toUpperCase()).join('')||name[0].toUpperCase();
   return '<span class="ro-mark'+(big?' big':'')+'" style="--h:'+h+'" aria-hidden="true">'+esc(ini)+'</span>'}
 const roRateHTML=v=>v?'<span class="ro-rate">'+beanSVG+'<b>'+v.toFixed(1)+'</b></span>':'<span class="ro-rate none">Not rated</span>';
-function openRoasters(){const d=$('vd'),all=roasteries();
+// A tap shows as pressed first; the sheet opens in the next frame (see fromTap).
+function openRoasters(){if(fromTap(()=>openRoastersNow()))return;openRoastersNow()}
+function openRoastersNow(){const d=$('vd'),all=roasteries();
   $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Your roasteries</span><h2 id="vd-title">'+all.length+' roaster'+(all.length===1?'y':'ies')+'</h2><p class="hint" style="margin:0">Most coffees first. Tap one to see everything you’ve had from it.</p></div>'+
     '<div class="vd-body">'+(all.length?'<div class="ro-list">'+all.map(r=>'<button type="button" class="ro-row" data-ro="'+esc(r.name)+'">'+roMark(r.name)+'<span class="ro-tx"><b>'+esc(r.name)+'</b><small>'+r.list.length+' coffee'+(r.list.length===1?'':'s')+(r.bags>r.list.length?' · '+r.bags+' bags':'')+'</small></span>'+roRateHTML(r.avg)+'<span class="ro-chev" aria-hidden="true">›</span></button>').join('')+'</div>'
       :'<p class="hint">Add the roastery to your coffees and they’ll gather here.</p>')+'</div>';
   $('vd-in').onclick=e=>{const r=e.target.closest('[data-ro]');if(r)openRoaster(r.dataset.ro,true)};$('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
-function openRoaster(name,fromList){const d=$('vd'),k=roKey(name),r=roasteries().find(x=>roKey(x.name)===k);if(!r){openRoasters();return}
+// A tap shows as pressed first; the sheet opens in the next frame (see fromTap).
+function openRoaster(name,fromList){if(fromTap(()=>openRoasterNow(name,fromList)))return;openRoasterNow(name,fromList)}
+function openRoasterNow(name,fromList){const d=$('vd'),k=roKey(name),r=roasteries().find(x=>roKey(x.name)===k);if(!r){openRoasters();return}
   RFROM={name:r.name,list:!!fromList};
   const list=[...r.list].sort((a,b)=>(b.rating||0)-(a.rating||0)||beanDay(b).localeCompare(beanDay(a))),best=list.find(b=>b.rating)||null;
   const first=r.list.map(beanFirst).filter(Boolean).sort()[0],mon=iso=>new Date(iso+'T12:00').toLocaleDateString(undefined,{month:'short',year:'numeric'});
@@ -1202,7 +1206,9 @@ document.addEventListener('click',e=>{if(e.target.closest('#d-bean [data-dbpick]
 
 /* ---------- Adding and editing ---------- */
 // pre: details to start from (a scan); its photo comes as a data URL in pre.photo.
-function openBeanEditor(b,pre){const isNew=!b;const B=Object.assign({name:'',roaster:'',origin:'',blend:[],process:'',variety:'',vars:[],roast:'',roastDate:'',tried:'',rating:0,flavours:'',notes:'',img:false,shelf:true,bag:0},b||{},pre||{});
+// A tap shows as pressed first; the sheet opens in the next frame (see fromTap).
+function openBeanEditor(b,pre){if(fromTap(()=>openBeanEditorNow(b,pre)))return;openBeanEditorNow(b,pre)}
+function openBeanEditorNow(b,pre){const isNew=!b;const B=Object.assign({name:'',roaster:'',origin:'',blend:[],process:'',variety:'',vars:[],roast:'',roastDate:'',tried:'',rating:0,flavours:'',notes:'',img:false,shelf:true,bag:0},b||{},pre||{});
   let photo=null,photoChanged=false,rating=B.rating;const d=$('vd');
   const opt=(h,none)=>'<option value="">'+none+'</option>'+h;
   const roasters=[...new Set([...BEANS.map(x=>x.roaster),...SCANS.map(scRoaster)].filter(Boolean))].sort();

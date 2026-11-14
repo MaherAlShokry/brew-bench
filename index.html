@@ -2597,7 +2597,7 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="d86bc8f48082"</script>
+<script>const BUILD_ID="e291cdb564d8"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -5781,7 +5781,9 @@ function ltSync(id,o){const f=$(id+'-f'),s=$(id+'-s'),k=$(id+'-k');
 // how many will show; closing with ✕ leaves the list as it was. "Clear" empties the filters in one tap.
 // o: {title, secs:()=>[{h,key,multi,chips,opts:[[v,name,hint]]}], get:k=>value (an array for multi), set:(k,v)=>void
 // (state only, no drawing), render:()=>void, count:()=>n, one:'recipe', many}
-function openChoices(o){const d=$('selsheet'),secs=o.secs().filter(x=>x&&x.opts.length),dr={};
+// A tap shows as pressed first; the sheet opens in the next frame (see fromTap).
+function openChoices(o){if(fromTap(()=>openChoicesNow(o)))return;openChoicesNow(o)}
+function openChoicesNow(o){const d=$('selsheet'),secs=o.secs().filter(x=>x&&x.opts.length),dr={};
   for(const x of secs){const v=o.get(x.key);dr[x.key]=x.multi?[...(v||[])]:v}
   const cnt=()=>{const old={};for(const k in dr){const v=o.get(k);old[k]=Array.isArray(v)?[...v]:v;o.set(k,dr[k])}const n=o.count();for(const k in old)o.set(k,old[k]);return n};
   const isOn=(x,v)=>x.multi?(v==='all'?!dr[x.key].length:dr[x.key].includes(v)):String(dr[x.key])===v;
@@ -6417,7 +6419,7 @@ function prebuildTabs(){const ids=['recipes','gear','variety','process','map','w
     if(!beans&&window.BEANS_OK){beans=true;try{renderBeansIfChanged();warmBeanPhotos()}catch(e){}idle(next);return}
     if(SHEETS_WARM<2&&window.BEANS_OK){warmSheets();idle(next);return}
     if(LOGL_STALE&&BUILT.recipes){try{renderLogList(1)}catch(e){}idle(next);return}
-    const id=ids.find(k=>!BUILT[k]);if(!id){if(SHEETS_WARM<2){warmSheets();idle(next)}return}BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
+    const id=ids.find(k=>!BUILT[k]);if(!id){if(!$('st-mode')&&!$('settings').classList.contains('on')){try{renderSettings()}catch(e){}idle(next);return}if(SHEETS_WARM<2){warmSheets();idle(next)}return}BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
   setTimeout(()=>idle(next),2500)}
 function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove());if(LAZY[id]&&!BUILT[id]){BUILT[id]=1;LAZY[id]()}if(ALWAYS[id])ALWAYS[id]()}
 // NAVD counts tab changes you can step back through, so the app bar can offer a back button.
@@ -6732,7 +6734,9 @@ function compareSummary(a,b){const A=recipeFacts(a),B=recipeFacts(b),out=[],n=(v
   if(B.pours!==A.pours&&A.pours&&B.pours)out.push(Math.abs(B.pours-A.pours)+' '+(B.pours>A.pours?'more':'fewer')+' pour'+(Math.abs(B.pours-A.pours)===1?'':'s'));
   if(A.time&&B.time&&Math.abs(B.time-A.time)>=15)out.push('finishes '+rcTime(Math.abs(B.time-A.time))+' '+(B.time>A.time?'later':'sooner'));
   return out}
-function openComparePick(i){const d=$('vd'),r=RECIPES[i];let q='';
+// A tap shows as pressed first; the sheet opens in the next frame (see fromTap).
+function openComparePick(i){if(fromTap(()=>openComparePickNow(i)))return;openComparePickNow(i)}
+function openComparePickNow(i){const d=$('vd'),r=RECIPES[i];let q='';
   const list=()=>RECIPES.map((x,k)=>[x,k]).filter(([x,k])=>k!==i&&(!q||(x.name+' '+(x.by||'')+' '+((BREWERS[x.b]||{}).name||'')).toLowerCase().includes(q))).sort((a,b)=>(b[0].b===r.b)-(a[0].b===r.b));
   const rows=()=>{const l=list(),same=l.filter(([x])=>x.b===r.b),rest=l.filter(([x])=>x.b!==r.b),row=([x,k])=>'<button type="button" class="rcp-row" data-rcp="'+k+'"><b>'+esc(x.name)+'</b><small>'+esc([(BREWERS[x.b]||{}).name,x.dose+' g : '+x.water+' g',x.temp?x.temp+'°C':''].filter(Boolean).join(' · '))+'</small></button>';
     return(same.length?'<h3 class="rcp-h">Same brewer</h3>'+same.map(row).join(''):'')+(rest.length?'<h3 class="rcp-h">Other brewers</h3>'+rest.map(row).join(''):'')+(!l.length?'<p class="hint">No recipe matches.</p>':'')};
@@ -6741,7 +6745,9 @@ function openComparePick(i){const d=$('vd'),r=RECIPES[i];let q='';
   $('rcp-q').oninput=e=>{q=e.target.value.trim().toLowerCase();$('rcp-list').innerHTML=rows()};
   $('rcp-list').onclick=e=>{const b=e.target.closest('[data-rcp]');if(b)openCompare(i,+b.dataset.rcp)};
   $('rcp-back').onclick=()=>openRecipe(i);$('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
-function openCompare(i,j){const d=$('vd'),a=RECIPES[i],b=RECIPES[j],A=recipeFacts(a),B=recipeFacts(b),sum=compareSummary(a,b);
+// A tap shows as pressed first; the sheet opens in the next frame (see fromTap).
+function openCompare(i,j){if(fromTap(()=>openCompareNow(i,j)))return;openCompareNow(i,j)}
+function openCompareNow(i,j){const d=$('vd'),a=RECIPES[i],b=RECIPES[j],A=recipeFacts(a),B=recipeFacts(b),sum=compareSummary(a,b);
   const rows=[['Brewer',A.brewer,B.brewer],['Coffee',A.dose+' g',B.dose+' g'],['Water',A.water+' g',B.water+' g'],['Ratio','1:'+A.ratio.toFixed(1),'1:'+B.ratio.toFixed(1)],
     ['Water temp',A.temp?A.temp+'°C'+(A.temp2?' → '+A.temp2+'°C':''):'–',B.temp?B.temp+'°C'+(B.temp2?' → '+B.temp2+'°C':''):'–'],
     ...(A.grind||B.grind?[['Grind'+(A.gname?' · '+A.gname:''),A.grind||'–',B.grind||'–']]:[]),['Pours',A.pours?String(A.pours):'–',B.pours?String(B.pours):'–'],['Total time',rcTime(A.time),rcTime(B.time)]];
@@ -6951,7 +6957,9 @@ function gearTab(t){if(!document.querySelector('[data-gpanel="'+t+'"]'))t='set';
   document.querySelectorAll('#gear [data-gpanel]').forEach(p=>{p.hidden=p.dataset.gpanel!==t})}
 // Open Gear and dials on a tab (and optionally scroll to something on it).
 function goGear(t,el){if(!BUILT.gear){BUILT.gear=1;buildGear()}gearTab(t);showTab('gear');if(el)requestAnimationFrame(()=>{const x=$(el);if(x)x.scrollIntoView({behavior:RM()?'auto':'smooth',block:'start'})})}
-document.addEventListener('click',e=>{const b=e.target.closest('#gear-tabs [data-gtab]');if(b){gearTab(b.dataset.gtab);const t=$('gear-tabs');if(t.getBoundingClientRect().top<0||scrollY>t.offsetTop)t.scrollIntoView({block:'start'});return}
+document.addEventListener('click',e=>{const b=e.target.closest('#gear-tabs [data-gtab]');if(b){
+    // The tab shows as picked at once; the page under it is drawn in the next frame.
+    pickNow('#gear-tabs [data-gtab]',b);const go=()=>{gearTab(b.dataset.gtab);const t=$('gear-tabs');if(t.getBoundingClientRect().top<0||scrollY>t.offsetTop)t.scrollIntoView({block:'start'})};if(!fromTap(go))go();return}
   const g=e.target.closest('[data-gearto]');if(g)goGear(g.dataset.gearto)});
 function buildGear(){
   gearTab(GTAB);renderGrindSet();
@@ -7045,7 +7053,9 @@ const SWAP_ICON='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" str
 // The brewers you own. Empty means you haven't said yet, and recipes are shown as the champion brewed them.
 let MYB=(()=>{try{const v=JSON.parse(localStorage.getItem('bb-mybrewers'));return Array.isArray(v)?[...new Set(v.filter(b=>typeof b==='string'&&BREWERS[b]).map(b=>CANONB(BREWERS[b].of||b)))]:[]}catch(e){return[]}})();
 function setMyBrewer(b,on){MYB=on?[...new Set([...MYB,b])]:MYB.filter(x=>x!==b);save('bb-mybrewers',MYB)}
-function openGearPicker(tab,after){let q='',T=tab==='brewers'?'brewers':'grinders';const d=$('vd');
+// A tap shows as pressed first; the sheet opens in the next frame (see fromTap).
+function openGearPicker(tab,after){if(fromTap(()=>openGearPickerNow(tab,after)))return;openGearPickerNow(tab,after)}
+function openGearPickerNow(tab,after){let q='',T=tab==='brewers'?'brewers':'grinders';const d=$('vd');
   const row=(k,on,title,sub,ic)=>'<button type="button" data-gp="'+k+'" aria-pressed="'+on+'">'+(ic||'')+'<span><b>'+esc(title)+'</b><small>'+esc(sub)+'</small></span><i class="tick" aria-hidden="true">'+(on?'✓':'')+'</i></button>';
   const grow=g=>{const G=GRINDERS[g];return row(g,MYG.includes(g),G.full,(G.brand||gtype(g))+(G.espresso?' · espresso capable':''),gicon(gkind(g)))};
   const brow=b=>row(b,MYB.includes(b),BREWERS[b].name,BREWERS[b].type);
@@ -7080,7 +7090,7 @@ function renderMyBrewers(){const el=$('gear-kit');if(!el)return;
     row(KIT_IC.g,'Grinders','Settings everywhere are shown for these','Add or change','data-gpick',MYG.map(g=>'<button type="button" class="chip" data-kitg="'+g+'">'+esc(gname(g))+'</button>').join(''))+
     row(KIT_IC.b,'Brewers','Recipes and champion brews adapt to these',MYB.length?'Add or change':'Choose','data-gpick-b',MYB.length?MYB.map(b=>'<button type="button" class="chip" data-kitb="'+b+'">'+esc(BREWERS[b].name)+'</button>').join(''):'<p class="hint">None picked yet. Choose the brewers you own so recipes fit your kit.</p>');
   el.onclick=e=>{const g=e.target.closest('[data-kitg]'),b=e.target.closest('[data-kitb]');
-    if(g){GDIAL=g.dataset.kitg;renderMyGrinders();gearTab('dials');$('g-dials').scrollIntoView({behavior:RM()?'auto':'smooth',block:'start'})}
+    if(g){const go=()=>{GDIAL=g.dataset.kitg;renderMyGrinders();gearTab('dials');$('g-dials').scrollIntoView({behavior:RM()?'auto':'smooth',block:'start'})};if(!fromTap(go))go()}
     if(b){GF=[];renderGearBrewers();const c=$('gb-'+b.dataset.kitb);if(c){c.style.scrollMarginTop='16px';c.scrollIntoView({block:'start'});
       // Cards further down are laid out only when near the screen, so settle once they are, then land exactly.
       requestAnimationFrame(()=>requestAnimationFrame(()=>c.scrollIntoView({block:'start'})));c.classList.add('flash');setTimeout(()=>c.classList.remove('flash'),1400)}}}}
@@ -10309,12 +10319,16 @@ function roasteries(){const m=new Map();for(const b of BEANS){const k=roKey(b.ro
 function roMark(name,big){let h=0;for(const ch of roKey(name))h=(h*31+ch.charCodeAt(0))%360;const ini=name.replace(/&/g,' ').split(/\s+/).filter(w=>/^[\p{L}\p{N}]/u.test(w)&&!/^(coffee|roasters?|roastery|roasting|co\.?|the|and|of)$/i.test(w)).slice(0,2).map(w=>w[0].toUpperCase()).join('')||name[0].toUpperCase();
   return '<span class="ro-mark'+(big?' big':'')+'" style="--h:'+h+'" aria-hidden="true">'+esc(ini)+'</span>'}
 const roRateHTML=v=>v?'<span class="ro-rate">'+beanSVG+'<b>'+v.toFixed(1)+'</b></span>':'<span class="ro-rate none">Not rated</span>';
-function openRoasters(){const d=$('vd'),all=roasteries();
+// A tap shows as pressed first; the sheet opens in the next frame (see fromTap).
+function openRoasters(){if(fromTap(()=>openRoastersNow()))return;openRoastersNow()}
+function openRoastersNow(){const d=$('vd'),all=roasteries();
   $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Your roasteries</span><h2 id="vd-title">'+all.length+' roaster'+(all.length===1?'y':'ies')+'</h2><p class="hint" style="margin:0">Most coffees first. Tap one to see everything you’ve had from it.</p></div>'+
     '<div class="vd-body">'+(all.length?'<div class="ro-list">'+all.map(r=>'<button type="button" class="ro-row" data-ro="'+esc(r.name)+'">'+roMark(r.name)+'<span class="ro-tx"><b>'+esc(r.name)+'</b><small>'+r.list.length+' coffee'+(r.list.length===1?'':'s')+(r.bags>r.list.length?' · '+r.bags+' bags':'')+'</small></span>'+roRateHTML(r.avg)+'<span class="ro-chev" aria-hidden="true">›</span></button>').join('')+'</div>'
       :'<p class="hint">Add the roastery to your coffees and they’ll gather here.</p>')+'</div>';
   $('vd-in').onclick=e=>{const r=e.target.closest('[data-ro]');if(r)openRoaster(r.dataset.ro,true)};$('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
-function openRoaster(name,fromList){const d=$('vd'),k=roKey(name),r=roasteries().find(x=>roKey(x.name)===k);if(!r){openRoasters();return}
+// A tap shows as pressed first; the sheet opens in the next frame (see fromTap).
+function openRoaster(name,fromList){if(fromTap(()=>openRoasterNow(name,fromList)))return;openRoasterNow(name,fromList)}
+function openRoasterNow(name,fromList){const d=$('vd'),k=roKey(name),r=roasteries().find(x=>roKey(x.name)===k);if(!r){openRoasters();return}
   RFROM={name:r.name,list:!!fromList};
   const list=[...r.list].sort((a,b)=>(b.rating||0)-(a.rating||0)||beanDay(b).localeCompare(beanDay(a))),best=list.find(b=>b.rating)||null;
   const first=r.list.map(beanFirst).filter(Boolean).sort()[0],mon=iso=>new Date(iso+'T12:00').toLocaleDateString(undefined,{month:'short',year:'numeric'});
@@ -10468,7 +10482,9 @@ document.addEventListener('click',e=>{if(e.target.closest('#d-bean [data-dbpick]
 
 /* ---------- Adding and editing ---------- */
 // pre: details to start from (a scan); its photo comes as a data URL in pre.photo.
-function openBeanEditor(b,pre){const isNew=!b;const B=Object.assign({name:'',roaster:'',origin:'',blend:[],process:'',variety:'',vars:[],roast:'',roastDate:'',tried:'',rating:0,flavours:'',notes:'',img:false,shelf:true,bag:0},b||{},pre||{});
+// A tap shows as pressed first; the sheet opens in the next frame (see fromTap).
+function openBeanEditor(b,pre){if(fromTap(()=>openBeanEditorNow(b,pre)))return;openBeanEditorNow(b,pre)}
+function openBeanEditorNow(b,pre){const isNew=!b;const B=Object.assign({name:'',roaster:'',origin:'',blend:[],process:'',variety:'',vars:[],roast:'',roastDate:'',tried:'',rating:0,flavours:'',notes:'',img:false,shelf:true,bag:0},b||{},pre||{});
   let photo=null,photoChanged=false,rating=B.rating;const d=$('vd');
   const opt=(h,none)=>'<option value="">'+none+'</option>'+h;
   const roasters=[...new Set([...BEANS.map(x=>x.roaster),...SCANS.map(scRoaster)].filter(Boolean))].sort();
@@ -11738,7 +11754,9 @@ function enhanceSelect(s){if(s.dataset.ui||s.multiple||s.size>1||s.closest('#sel
   s.addEventListener('keydown',e=>{if(['Enter',' ','ArrowDown','ArrowUp'].includes(e.key)||(e.altKey&&e.key==='ArrowDown')){e.preventDefault();openSelect(s)}});
   // Some browsers still open their list on mouse down; stop it here.
   s.addEventListener('mousedown',e=>{e.preventDefault();s.focus()})}
-function openSelect(s){const d=$('selsheet'),opts=[...s.options],long=opts.length>=SEL_SEARCH_AT,cur=s.value;
+// A tap shows as pressed first; the sheet opens in the next frame (see fromTap).
+function openSelect(s){if(fromTap(()=>openSelectNow(s)))return;openSelectNow(s)}
+function openSelectNow(s){const d=$('selsheet'),opts=[...s.options],long=opts.length>=SEL_SEARCH_AT,cur=s.value;
   const row=o=>'<button type="button" role="option" class="selopt" data-v="'+esc(o.value)+'" aria-selected="'+(o.value===cur&&o.selected)+'"'+(o.disabled?' disabled':'')+'><span>'+esc(o.textContent)+'</span><i aria-hidden="true">✓</i></button>';
   let body='';for(const k of s.children){if(k.tagName==='OPTGROUP'){const kids=[...k.children].filter(o=>o.tagName==='OPTION');if(kids.length)body+='<div class="selgrp" role="group" aria-label="'+esc(k.label)+'"><h4><span>'+esc(k.label)+'</span><small>'+kids.length+'</small></h4>'+kids.map(row).join('')+'</div>'}else if(k.tagName==='OPTION')body+=row(k)}
   $('sel-in').innerHTML='<div class="selhead"><div class="grab"></div><h3 id="sel-title">'+esc(selLabel(s))+'</h3><button type="button" class="vd-close" id="sel-x" aria-label="Close">✕</button></div>'+

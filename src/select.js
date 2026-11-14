@@ -13,7 +13,9 @@ function enhanceSelect(s){if(s.dataset.ui||s.multiple||s.size>1||s.closest('#sel
   s.addEventListener('keydown',e=>{if(['Enter',' ','ArrowDown','ArrowUp'].includes(e.key)||(e.altKey&&e.key==='ArrowDown')){e.preventDefault();openSelect(s)}});
   // Some browsers still open their list on mouse down; stop it here.
   s.addEventListener('mousedown',e=>{e.preventDefault();s.focus()})}
-function openSelect(s){const d=$('selsheet'),opts=[...s.options],long=opts.length>=SEL_SEARCH_AT,cur=s.value;
+// A tap shows as pressed first; the sheet opens in the next frame (see fromTap).
+function openSelect(s){if(fromTap(()=>openSelectNow(s)))return;openSelectNow(s)}
+function openSelectNow(s){const d=$('selsheet'),opts=[...s.options],long=opts.length>=SEL_SEARCH_AT,cur=s.value;
   const row=o=>'<button type="button" role="option" class="selopt" data-v="'+esc(o.value)+'" aria-selected="'+(o.value===cur&&o.selected)+'"'+(o.disabled?' disabled':'')+'><span>'+esc(o.textContent)+'</span><i aria-hidden="true">✓</i></button>';
   let body='';for(const k of s.children){if(k.tagName==='OPTGROUP'){const kids=[...k.children].filter(o=>o.tagName==='OPTION');if(kids.length)body+='<div class="selgrp" role="group" aria-label="'+esc(k.label)+'"><h4><span>'+esc(k.label)+'</span><small>'+kids.length+'</small></h4>'+kids.map(row).join('')+'</div>'}else if(k.tagName==='OPTION')body+=row(k)}
   $('sel-in').innerHTML='<div class="selhead"><div class="grab"></div><h3 id="sel-title">'+esc(selLabel(s))+'</h3><button type="button" class="vd-close" id="sel-x" aria-label="Close">✕</button></div>'+

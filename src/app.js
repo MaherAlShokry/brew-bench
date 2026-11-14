@@ -540,7 +540,9 @@ function ltSync(id,o){const f=$(id+'-f'),s=$(id+'-s'),k=$(id+'-k');
 // how many will show; closing with ✕ leaves the list as it was. "Clear" empties the filters in one tap.
 // o: {title, secs:()=>[{h,key,multi,chips,opts:[[v,name,hint]]}], get:k=>value (an array for multi), set:(k,v)=>void
 // (state only, no drawing), render:()=>void, count:()=>n, one:'recipe', many}
-function openChoices(o){const d=$('selsheet'),secs=o.secs().filter(x=>x&&x.opts.length),dr={};
+// A tap shows as pressed first; the sheet opens in the next frame (see fromTap).
+function openChoices(o){if(fromTap(()=>openChoicesNow(o)))return;openChoicesNow(o)}
+function openChoicesNow(o){const d=$('selsheet'),secs=o.secs().filter(x=>x&&x.opts.length),dr={};
   for(const x of secs){const v=o.get(x.key);dr[x.key]=x.multi?[...(v||[])]:v}
   const cnt=()=>{const old={};for(const k in dr){const v=o.get(k);old[k]=Array.isArray(v)?[...v]:v;o.set(k,dr[k])}const n=o.count();for(const k in old)o.set(k,old[k]);return n};
   const isOn=(x,v)=>x.multi?(v==='all'?!dr[x.key].length:dr[x.key].includes(v)):String(dr[x.key])===v;
@@ -1176,7 +1178,7 @@ function prebuildTabs(){const ids=['recipes','gear','variety','process','map','w
     if(!beans&&window.BEANS_OK){beans=true;try{renderBeansIfChanged();warmBeanPhotos()}catch(e){}idle(next);return}
     if(SHEETS_WARM<2&&window.BEANS_OK){warmSheets();idle(next);return}
     if(LOGL_STALE&&BUILT.recipes){try{renderLogList(1)}catch(e){}idle(next);return}
-    const id=ids.find(k=>!BUILT[k]);if(!id){if(SHEETS_WARM<2){warmSheets();idle(next)}return}BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
+    const id=ids.find(k=>!BUILT[k]);if(!id){if(!$('st-mode')&&!$('settings').classList.contains('on')){try{renderSettings()}catch(e){}idle(next);return}if(SHEETS_WARM<2){warmSheets();idle(next)}return}BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
   setTimeout(()=>idle(next),2500)}
 function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove());if(LAZY[id]&&!BUILT[id]){BUILT[id]=1;LAZY[id]()}if(ALWAYS[id])ALWAYS[id]()}
 // NAVD counts tab changes you can step back through, so the app bar can offer a back button.
@@ -1491,7 +1493,9 @@ function compareSummary(a,b){const A=recipeFacts(a),B=recipeFacts(b),out=[],n=(v
   if(B.pours!==A.pours&&A.pours&&B.pours)out.push(Math.abs(B.pours-A.pours)+' '+(B.pours>A.pours?'more':'fewer')+' pour'+(Math.abs(B.pours-A.pours)===1?'':'s'));
   if(A.time&&B.time&&Math.abs(B.time-A.time)>=15)out.push('finishes '+rcTime(Math.abs(B.time-A.time))+' '+(B.time>A.time?'later':'sooner'));
   return out}
-function openComparePick(i){const d=$('vd'),r=RECIPES[i];let q='';
+// A tap shows as pressed first; the sheet opens in the next frame (see fromTap).
+function openComparePick(i){if(fromTap(()=>openComparePickNow(i)))return;openComparePickNow(i)}
+function openComparePickNow(i){const d=$('vd'),r=RECIPES[i];let q='';
   const list=()=>RECIPES.map((x,k)=>[x,k]).filter(([x,k])=>k!==i&&(!q||(x.name+' '+(x.by||'')+' '+((BREWERS[x.b]||{}).name||'')).toLowerCase().includes(q))).sort((a,b)=>(b[0].b===r.b)-(a[0].b===r.b));
   const rows=()=>{const l=list(),same=l.filter(([x])=>x.b===r.b),rest=l.filter(([x])=>x.b!==r.b),row=([x,k])=>'<button type="button" class="rcp-row" data-rcp="'+k+'"><b>'+esc(x.name)+'</b><small>'+esc([(BREWERS[x.b]||{}).name,x.dose+' g : '+x.water+' g',x.temp?x.temp+'°C':''].filter(Boolean).join(' · '))+'</small></button>';
     return(same.length?'<h3 class="rcp-h">Same brewer</h3>'+same.map(row).join(''):'')+(rest.length?'<h3 class="rcp-h">Other brewers</h3>'+rest.map(row).join(''):'')+(!l.length?'<p class="hint">No recipe matches.</p>':'')};
@@ -1500,7 +1504,9 @@ function openComparePick(i){const d=$('vd'),r=RECIPES[i];let q='';
   $('rcp-q').oninput=e=>{q=e.target.value.trim().toLowerCase();$('rcp-list').innerHTML=rows()};
   $('rcp-list').onclick=e=>{const b=e.target.closest('[data-rcp]');if(b)openCompare(i,+b.dataset.rcp)};
   $('rcp-back').onclick=()=>openRecipe(i);$('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
-function openCompare(i,j){const d=$('vd'),a=RECIPES[i],b=RECIPES[j],A=recipeFacts(a),B=recipeFacts(b),sum=compareSummary(a,b);
+// A tap shows as pressed first; the sheet opens in the next frame (see fromTap).
+function openCompare(i,j){if(fromTap(()=>openCompareNow(i,j)))return;openCompareNow(i,j)}
+function openCompareNow(i,j){const d=$('vd'),a=RECIPES[i],b=RECIPES[j],A=recipeFacts(a),B=recipeFacts(b),sum=compareSummary(a,b);
   const rows=[['Brewer',A.brewer,B.brewer],['Coffee',A.dose+' g',B.dose+' g'],['Water',A.water+' g',B.water+' g'],['Ratio','1:'+A.ratio.toFixed(1),'1:'+B.ratio.toFixed(1)],
     ['Water temp',A.temp?A.temp+'°C'+(A.temp2?' → '+A.temp2+'°C':''):'–',B.temp?B.temp+'°C'+(B.temp2?' → '+B.temp2+'°C':''):'–'],
     ...(A.grind||B.grind?[['Grind'+(A.gname?' · '+A.gname:''),A.grind||'–',B.grind||'–']]:[]),['Pours',A.pours?String(A.pours):'–',B.pours?String(B.pours):'–'],['Total time',rcTime(A.time),rcTime(B.time)]];
@@ -1710,7 +1716,9 @@ function gearTab(t){if(!document.querySelector('[data-gpanel="'+t+'"]'))t='set';
   document.querySelectorAll('#gear [data-gpanel]').forEach(p=>{p.hidden=p.dataset.gpanel!==t})}
 // Open Gear and dials on a tab (and optionally scroll to something on it).
 function goGear(t,el){if(!BUILT.gear){BUILT.gear=1;buildGear()}gearTab(t);showTab('gear');if(el)requestAnimationFrame(()=>{const x=$(el);if(x)x.scrollIntoView({behavior:RM()?'auto':'smooth',block:'start'})})}
-document.addEventListener('click',e=>{const b=e.target.closest('#gear-tabs [data-gtab]');if(b){gearTab(b.dataset.gtab);const t=$('gear-tabs');if(t.getBoundingClientRect().top<0||scrollY>t.offsetTop)t.scrollIntoView({block:'start'});return}
+document.addEventListener('click',e=>{const b=e.target.closest('#gear-tabs [data-gtab]');if(b){
+    // The tab shows as picked at once; the page under it is drawn in the next frame.
+    pickNow('#gear-tabs [data-gtab]',b);const go=()=>{gearTab(b.dataset.gtab);const t=$('gear-tabs');if(t.getBoundingClientRect().top<0||scrollY>t.offsetTop)t.scrollIntoView({block:'start'})};if(!fromTap(go))go();return}
   const g=e.target.closest('[data-gearto]');if(g)goGear(g.dataset.gearto)});
 function buildGear(){
   gearTab(GTAB);renderGrindSet();
@@ -1804,7 +1812,9 @@ const SWAP_ICON='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" str
 // The brewers you own. Empty means you haven't said yet, and recipes are shown as the champion brewed them.
 let MYB=(()=>{try{const v=JSON.parse(localStorage.getItem('bb-mybrewers'));return Array.isArray(v)?[...new Set(v.filter(b=>typeof b==='string'&&BREWERS[b]).map(b=>CANONB(BREWERS[b].of||b)))]:[]}catch(e){return[]}})();
 function setMyBrewer(b,on){MYB=on?[...new Set([...MYB,b])]:MYB.filter(x=>x!==b);save('bb-mybrewers',MYB)}
-function openGearPicker(tab,after){let q='',T=tab==='brewers'?'brewers':'grinders';const d=$('vd');
+// A tap shows as pressed first; the sheet opens in the next frame (see fromTap).
+function openGearPicker(tab,after){if(fromTap(()=>openGearPickerNow(tab,after)))return;openGearPickerNow(tab,after)}
+function openGearPickerNow(tab,after){let q='',T=tab==='brewers'?'brewers':'grinders';const d=$('vd');
   const row=(k,on,title,sub,ic)=>'<button type="button" data-gp="'+k+'" aria-pressed="'+on+'">'+(ic||'')+'<span><b>'+esc(title)+'</b><small>'+esc(sub)+'</small></span><i class="tick" aria-hidden="true">'+(on?'✓':'')+'</i></button>';
   const grow=g=>{const G=GRINDERS[g];return row(g,MYG.includes(g),G.full,(G.brand||gtype(g))+(G.espresso?' · espresso capable':''),gicon(gkind(g)))};
   const brow=b=>row(b,MYB.includes(b),BREWERS[b].name,BREWERS[b].type);
@@ -1839,7 +1849,7 @@ function renderMyBrewers(){const el=$('gear-kit');if(!el)return;
     row(KIT_IC.g,'Grinders','Settings everywhere are shown for these','Add or change','data-gpick',MYG.map(g=>'<button type="button" class="chip" data-kitg="'+g+'">'+esc(gname(g))+'</button>').join(''))+
     row(KIT_IC.b,'Brewers','Recipes and champion brews adapt to these',MYB.length?'Add or change':'Choose','data-gpick-b',MYB.length?MYB.map(b=>'<button type="button" class="chip" data-kitb="'+b+'">'+esc(BREWERS[b].name)+'</button>').join(''):'<p class="hint">None picked yet. Choose the brewers you own so recipes fit your kit.</p>');
   el.onclick=e=>{const g=e.target.closest('[data-kitg]'),b=e.target.closest('[data-kitb]');
-    if(g){GDIAL=g.dataset.kitg;renderMyGrinders();gearTab('dials');$('g-dials').scrollIntoView({behavior:RM()?'auto':'smooth',block:'start'})}
+    if(g){const go=()=>{GDIAL=g.dataset.kitg;renderMyGrinders();gearTab('dials');$('g-dials').scrollIntoView({behavior:RM()?'auto':'smooth',block:'start'})};if(!fromTap(go))go()}
     if(b){GF=[];renderGearBrewers();const c=$('gb-'+b.dataset.kitb);if(c){c.style.scrollMarginTop='16px';c.scrollIntoView({block:'start'});
       // Cards further down are laid out only when near the screen, so settle once they are, then land exactly.
       requestAnimationFrame(()=>requestAnimationFrame(()=>c.scrollIntoView({block:'start'})));c.classList.add('flash');setTimeout(()=>c.classList.remove('flash'),1400)}}}}
