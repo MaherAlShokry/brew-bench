@@ -22,7 +22,9 @@ const phone=async()=>{const c=await b.newContext({viewport:{width:390,height:844
   // Signed in, the app syncs as it opens and reloads once if it brought anything in: wait until it has settled.
   const settled=async()=>{for(let i=0;i<40;i++){try{await p.waitForTimeout(500);if(await p.evaluate(()=>typeof goTab==='function'&&!SYNC_BUSY&&document.readyState==='complete'))return}catch(e){}}};
   await settled();await p.waitForTimeout(1500);await settled();
-  await p.evaluate(()=>goTab('beans'));await p.waitForFunction(()=>window.BEANS_OK);return{p,c,errs}};
+  // On a slow machine the app's one reload after its first sync can still land here: try again once it has.
+  for(let i=0;;i++){try{await p.evaluate(()=>goTab('beans'));await p.waitForFunction(()=>window.BEANS_OK);break}catch(e){if(i>=3)throw e;await settled()}}
+  return{p,c,errs}};
 const A=await phone();
 await A.p.evaluate(async()=>{const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d');g.fillStyle='#1d3f8f';g.fillRect(0,0,64,64);
   await setRoLogo('Kuf Roastery',c.toDataURL('image/png'));roLearnWords('Kuf Roastery','KUF\nkufroastery.com\nRiyadh');await __syncDone()});
