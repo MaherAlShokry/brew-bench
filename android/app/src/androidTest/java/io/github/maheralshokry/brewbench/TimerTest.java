@@ -45,6 +45,11 @@ public class TimerTest {
         return null;
     }
 
+    /** A no-argument method the public SDK doesn't list, for the log. */
+    static Object hidden(Object o, String m) {
+        try { return o.getClass().getMethod(m).invoke(o); } catch (Exception e) { return "n/a"; }
+    }
+
     static String title(StatusBarNotification s) { return String.valueOf(s.getNotification().extras.getCharSequence(Notification.EXTRA_TITLE)); }
 
     @Test
@@ -63,10 +68,15 @@ public class TimerTest {
         assertTrue("it stays while brewing", (n.getNotification().flags & Notification.FLAG_ONGOING_EVENT) != 0);
         assertEquals(STEPS[0], title(n));
         assertEquals("Pause, Next step and Stop", 3, n.getNotification().actions.length);
+        // What Android asks of a Live Update (all public): ongoing, a title, a progress style, not colourised, and the
+        // request to be promoted. Whether the phone then promoted it is logged (those calls aren't in the public SDK).
+        Notification nn = n.getNotification();
+        assertTrue("asks to be a Live Update", nn.extras.getBoolean("android.requestPromotedOngoing"));
+        assertTrue("not colourised", !nn.extras.getBoolean(Notification.EXTRA_COLORIZED));
         if (Build.VERSION.SDK_INT >= 36) {
-            assertTrue("qualifies as a Live Update", n.getNotification().hasPromotableCharacteristics());
-            Log.i("TimerTest", "promoted=" + n.getNotification().isPromotedOngoing()
-                + " canPost=" + ctx.getSystemService(NotificationManager.class).canPostPromotedNotifications());
+            assertEquals("a progress-style notification", Notification.ProgressStyle.class.getName(), nn.extras.getString(Notification.EXTRA_TEMPLATE));
+            Log.i("TimerTest", "promotable=" + hidden(nn, "hasPromotableCharacteristics") + " promoted=" + hidden(nn, "isPromotedOngoing")
+                + " canPost=" + hidden(ctx.getSystemService(NotificationManager.class), "canPostPromotedNotifications"));
         }
 
         BrewTimer.act(ctx, BrewTimer.NEXT);
