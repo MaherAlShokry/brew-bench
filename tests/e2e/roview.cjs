@@ -34,4 +34,12 @@ await p.evaluate(()=>$('rov-add').click());await p.waitForTimeout(700);await p.f
 ok('an added roastery is listed',await p.evaluate(()=>[...document.querySelectorAll('#bv-roasteries .rov-row')].some(x=>x.dataset.ro==='Bonanza Coffee')));
 ok('and offered in the roastery picklist',await p.evaluate(()=>roasterRows()('bonan').some(x=>x.v==='Bonanza Coffee')));
 ok('the stars and added roasteries go to the account',await p.evaluate(()=>['bb-favro','bb-roasteries','bb-rofavbean'].every(k=>SYNC_KEYS.includes(k))));
+// A roastery's logo shows (it once came out 0×0 inside its padded square): in the view, its hero and on its page.
+await p.evaluate(()=>document.querySelectorAll('dialog[open]').forEach(d=>d.close()));
+await p.evaluate(async()=>{for(const r of roasteries()){const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d');g.fillStyle='#c33';g.fillRect(0,0,64,64);await setRoLogo(r.name,c.toDataURL('image/png'))}renderRoasteriesView()});await p.waitForTimeout(400);
+const lg=await p.evaluate(()=>[...document.querySelectorAll('#bv-roasteries .ro-mark.logo img')].map(i=>{const R=i.getBoundingClientRect();return Math.min(R.width,R.height)}));
+ok('roastery logos show in the view',lg.length>0&&lg.every(v=>v>20),lg);
+await p.evaluate(()=>openRoasterNow(roasteries()[0].name));await p.waitForTimeout(500);
+const lg2=await p.evaluate(()=>{const i=document.querySelector('#vd-in .ro-mark.logo img');const R=i&&i.getBoundingClientRect();return R?Math.min(R.width,R.height):0});
+ok('and on its page',lg2>20,lg2);
 ok('no errors',!errs.length,errs);await b.close()})();

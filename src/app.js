@@ -2439,7 +2439,7 @@ function logGroup(l){const d=new Date(l.ts||Date.parse(l.date));if(isNaN(d))retu
 function logEntryHTML(l,i){const ag=againPlan(l),st=clamp(Math.round(+l.stars||0),0,5),{pills,rest}=logPills(l),who=GROUP&&l.by&&!(window.BEANS_OK?isMine(l):l.by===ME)?l.by:'';
   const rate=st?'<span class="le-stars" role="img" aria-label="'+st+' of 5 beans, '+STARW[st]+'">'+beanRate(st)+'<b>'+st+'</b></span>':'<span class="le-stars none">Not rated</span>';
   return '<article class="logentry le2"><div class="le-top">'+logThumb(l)+'<div class="le-tt"><b>'+esc(l.coffee||'Untitled')+'</b><div class="le-sub"><span class="le-meta">'+(who?'<span class="le-who">'+esc(who)+'</span><span aria-hidden="true">·</span>':'')+esc(fmtDate(l))+(l.edited?' · edited':'')+'</span>'+rate+'</div></div></div>'+
-    (pills.length?'<div class="le-pills">'+pills.map(([k,t])=>'<span class="le-pill k-'+k+'">'+(LSI[k==='ratio'?'water':k]?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+LSI[k==='ratio'?'water':k]+'"/></svg>':'')+esc(t)+'</span>').join('')+'</div>':'')+
+    (pills.length||!flOf(l).length?'<div class="le-pills">'+pills.map(([k,t])=>'<span class="le-pill k-'+k+'">'+(LSI[k==='ratio'?'water':k]?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+LSI[k==='ratio'?'water':k]+'"/></svg>':'')+esc(t)+'</span>').join('')+(flOf(l).length?'':'<button type="button" class="le-pill le-fladd" data-fledit="'+i+'" aria-label="Add flavour notes" title="Add flavour notes"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v8.5l7.4 4.2M12 12l-7.4 4.2"/></svg><svg class="pl" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v12M6 12h12"/></svg></button>')+'</div>':'')+
     (rest?'<p class="le-rest">'+esc(rest)+'</p>':'')+(l.pred?'<p class="le-pred">Expected <b>'+esc(l.pred)+'</b></p>':'')+(l.notes?'<blockquote class="le-notes">'+esc(l.notes)+'</blockquote>':'')+flEntry(l,i)+
     '<div class="le-act'+(ag?' has-again':'')+'">'+(ag?'<button type="button" class="le-b again" data-again="'+i+'" aria-label="Brew this again" title="Brew this again">'+lIc('again')+'</button>':'')+'<button type="button" class="le-b" data-lshare="'+i+'" aria-label="Share this brew" title="Share">'+lIc('share')+'</button>'+(canEdit(l)?'<button type="button" class="le-b" data-edit="'+i+'" aria-label="Edit this brew" title="Edit">'+lIc('edit')+'</button>':'')+'<button type="button" class="le-b del" data-del="'+i+'" aria-label="Delete this brew" title="Delete this brew">'+lIc('del')+'</button></div></article>'}
 // Search, then a filter and a sort button, as on Recipes: each opens a sheet. A dot on the filter says one is on.
@@ -2448,7 +2448,7 @@ const lfName=()=>[LF.min?(LF.min===5?'5 beans':LF.min+' beans and up'):'',LF.who
 // A brew shows when it has the rating, is by one of the picked people (none picked: anyone) and matches the search.
 const lfKeep=l=>{const q=LF.q.trim().toLowerCase();return (+l.stars||0)>=LF.min&&inSel(LF.who,lWho(l))&&(!q||[l.coffee,l.settings,l.notes,l.by,flText(flOf(l))].join(' ').toLowerCase().includes(q))};
 function renderLogFilter(){const el=$('l-filter');if(!el)return;el.hidden=LOG.length<2;if(el.hidden)return;
-  if(!$('lf-q'))el.innerHTML=ltHTML('lf',{q:{id:'lf-q',ph:'Search coffee, recipe, notes',label:'Search your brews',value:LF.q},filter:true,sort:true});
+  if(!$('lf-q'))el.innerHTML=ltHTML('lf',{q:{id:'lf-q',ph:'Search your brews',label:'Search your brews: coffee, recipe or notes',value:LF.q},filter:true,sort:true});
   ltSync('lf',{on:!!LF.min||LF.who.length>0,filter:lfName(),sort:LOG_SORTS.find(x=>x[0]===LF.sort)[1]})}
 function openLogFilter(){openChoices({title:'Filter brews',one:'brew',get:k=>LF[k],set:(k,v)=>{LF[k]=k==='min'?+v:v},render:()=>{saveLF();renderLogList()},count:()=>LOG.filter(lfKeep).length,
   secs:()=>{const people=GROUP?[...new Set(LOG.map(lWho))]:[];return [{h:'Rating',key:'min',opts:[[0,'All brews'],[4,'4 beans and up'],[5,'5 beans']]},
@@ -2495,7 +2495,8 @@ function renderLog(){renderShare();renderLastBrew();
   $('l-csv').hidden=!LOG.length;
 }
 // Flavour notes: a little profile wheel on each brew, and the notes as chips.
-function flEntry(l,i){const fl=flOf(l);if(!fl.length)return ib('plus','data-fledit="'+i+'"','Add flavour notes','sm fl-edit');
+// With none yet, the add button sits in the brew's row of pills (see logEntryHTML).
+function flEntry(l,i){const fl=flOf(l);if(!fl.length)return '';
   return'<div class="fl-entry"><button type="button" class="fl-mini" data-flview="'+i+'" aria-label="Open the flavour profile">'+fwStatic(fl)+'</button><div><div class="chips" style="margin:0 0 4px">'+flChips(fl)+'</div>'+icoBtn('edit','data-fledit="'+i+'"','Edit the flavour notes')+'</div></div>'}
 function renderFlForm(){$('l-flchips').innerHTML=flChips(LFL);$('l-fl').querySelector('span').textContent=LFL.length?'Add more from the flavour wheel':'Find it on the flavour wheel';
   // What the bag promised: tap a note you tasted to add it to your cup. Words that aren't on the wheel are shown, not added.
@@ -4049,7 +4050,7 @@ window.bbBack=()=>{const d=[...document.querySelectorAll('dialog[open]:not(.clos
   if(!document.getElementById('dial').classList.contains('on')){showTab('dial');NAVD=0;syncShell('dial');return true}
   return false};
 $('hist-share').onclick=()=>openShare(historyDoc());
-$('l-pdf').onclick=()=>openShare(logDoc());
+// The log is shared from the top bar's share (see ab-share).
 
 /* ================= THEME ================= */
 function curTheme(){return document.documentElement.getAttribute('data-theme')||(MQ('(prefers-color-scheme: dark)')?'dark':'light')}

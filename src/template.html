@@ -2764,7 +2764,15 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 main section.on:has(>.fab){padding-bottom:160px!important}
 @media (max-width:759px){body:has(main section.on>.fab) #toast{bottom:calc(var(--sa-bottom) + 166px)}}
 /* A logged brew's actions: icons only. */
-.le-b{width:40px;padding:0!important;justify-content:center}.le-b.again{width:auto;padding:0 14px!important}
+.le-b{width:40px;padding:0!important;justify-content:center}.le-b.again{width:40px;height:40px;padding:0!important}
+/* The log page: an odd last total (Top coffee) takes the whole row; the list's own share and download sit on its
+   heading; a brew's add-flavours plus sits in its row of pills. */
+#l-stats>div:last-child:nth-child(odd){grid-column:1/-1}
+.l-head{margin-top:16px}
+.le-fladd{border:1.5px dashed color-mix(in srgb,var(--muted) 45%,transparent);background:none;color:var(--muted);cursor:pointer;gap:3px;padding:4px 10px;font:inherit}
+.le-fladd svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.le-fladd svg.pl{width:11px;height:11px;stroke-width:2.6}
+.le-fladd:hover,.le-fladd:focus-visible{color:var(--cherry);border-color:var(--cherry)}
 .figs b{white-space:nowrap}
 /* Scale a recipe: less or more coffee either side of the amounts, and Iced beside them. */
 .rscale{display:flex;align-items:center;gap:10px;margin:0 0 14px;padding:10px 12px;border-radius:var(--r-lg);background:color-mix(in srgb,var(--ink) 4%,var(--surface));box-shadow:inset 0 0 0 1px var(--hair)}
@@ -2794,7 +2802,9 @@ main section.on:has(>.fab){padding-bottom:160px!important}
 /* Content fits: a coffee's notes wrap onto a second line instead of being cut off at the edge, and a logo sits inside its
    square with room around it (nothing cropped, the edit badge clear of it). */
 .cr-notes{flex-wrap:wrap;row-gap:5px;overflow:visible;-webkit-mask-image:none!important;mask-image:none!important}
-.ro-mark.logo{padding:9%!important}.ro-mark.logo img{object-fit:contain}
+/* A logo sits inside its square with room around it (placed absolutely: a percentage size inside the padded grid
+   square came out 0×0 and the logo vanished). */
+.ro-mark.logo{position:relative;padding:0!important}.ro-mark.logo img{position:absolute;inset:9%;width:82%;height:82%;object-fit:contain}
 /* The brew's predicted cup: the taste bars on a soft inset panel, the notes under a small label, the tip as a card
    with its own icon, and the fine print quiet at the end. */
 .tvars .bars{margin:14px 0 0;padding:14px 16px;gap:11px;border-radius:var(--r-lg);background:color-mix(in srgb,var(--ink) 4%,var(--surface));box-shadow:inset 0 0 0 1px var(--hair)}
@@ -3346,7 +3356,7 @@ main section.on:has(>.fab){padding-bottom:160px!important}
   </div>
   <div class="specs" id="l-stats"></div>
   <div class="panel palate" id="l-palate" hidden></div>
-  <div class="actions" style="margin-bottom:10px"><button type="button" class="sh-mini ic" id="l-pdf" aria-label="Share my log" title="Share"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg></button><button type="button" class="ib" id="l-csv" aria-label="Download the log as CSV" title="Download the log as CSV" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11 M7.5 10.5L12 15l4.5-4.5 M5 19.5h14"/></svg></button></div>
+  <div class="shelf-h l-head"><b>Your brews</b><span class="rov-acts"><button type="button" class="sh-mini ic" id="l-csv" aria-label="Download the log as CSV" title="Download the log as CSV" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11 M7.5 10.5L12 15l4.5-4.5 M5 19.5h14"/></svg></button></span></div>
   <div class="lf" id="l-filter" hidden></div>
   <div id="l-list"></div>
 <div class="fab" role="group" aria-label="Log actions"><button type="button" class="ib main" id="l-fab-new" aria-label="Log a brew" title="Log a brew"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14 M5 12h14"/></svg></button></div>
