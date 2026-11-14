@@ -110,3 +110,4 @@ kas2 2
 pourcheck 2
 recaudit 2
 content 1
+pickright 12
