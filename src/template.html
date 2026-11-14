@@ -44,6 +44,9 @@
   --ocean:#1B2420; --land:#3B2F27; --belt:rgba(226,184,102,.08); --shadow:none;}
 *,*::before,*::after{box-sizing:inherit}
 [hidden]{display:none!important}
+/* The Beans views you've left stay laid out but aren't drawn (like the pages, below), so switching back to one doesn't
+   lay a long list out again in the middle of the tap. They keep the hidden attribute, so nothing else changes. */
+.bview[hidden]{display:block!important;content-visibility:hidden;height:0;min-height:0!important;overflow:hidden;margin:0!important;padding:0!important}
 html{scroll-padding-top:calc(var(--sa-top) + 64px)}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:1rem;line-height:1.6}
 h1,h2,h3,.tab,button,label,.num,.pill,.chip,summary{font-family:var(--display)}
@@ -2724,6 +2727,22 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 @media (max-width:359px){.figs>span{flex-direction:column;align-items:flex-start;gap:6px}}
 .figs.f2{grid-template-columns:repeat(2,minmax(0,1fr))}
 .ro-best.rov-hero{margin:4px 0 6px;border:0;padding:14px}.ro-best.rov-hero .bpic{width:62px;height:62px;border-radius:16px;box-shadow:0 0 0 3px rgba(255,255,255,.14)}
+/* The Beans card's actions as round icons: Scan a bag (the light one), Add a coffee, Your scans. */
+.bgh-acts{display:flex!important;gap:10px;flex:1 0 100%!important;margin-top:12px}.bgh-btn{width:46px;height:46px;min-height:0;padding:0!important;border-radius:50%;gap:0}.bgh-btn svg{width:20px!important;height:20px!important}
+/* A strip with a gliding highlight: the picked option's own pill stays hidden while the highlight moves under it (it
+   appeared at once otherwise, ahead of the glide). */
+:root :is(#bg-views.seg.bviews.has-ind,.gtabs.has-ind)>button[aria-pressed="true"]:not([data-peek]){background:transparent!important;box-shadow:none!important}
+.rov-acts{margin-left:auto;display:flex;gap:8px;align-self:center}.rov-acts .sh-mini{margin-left:0!important}
+/* Stars: your favourite roastery (at the top of its page) and your favourite coffee from it (on each of its coffees). */
+.ro-star svg,.ro-bstar svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round}
+.ro-star[aria-pressed="true"],.ro-bstar[aria-pressed="true"]{color:var(--honey)!important}.ro-star[aria-pressed="true"] svg,.ro-bstar[aria-pressed="true"] svg{fill:var(--honey)}
+.ro-cw{position:relative}.ro-cw+.ro-cw>.crow{box-shadow:inset 0 1px 0 var(--hair)}.ro-cw>.crow .cr-top{padding-right:34px}
+.ro-bstar{position:absolute;top:8px;right:6px;z-index:1;width:40px;height:40px;display:grid;place-items:center;border:0;border-radius:50%;background:none;color:var(--muted);cursor:pointer;transition:transform .15s,color .15s}
+.ro-bstar svg{width:20px;height:20px}.ro-bstar:active{transform:scale(.88)}.ro-bstar:focus-visible{outline:2px solid var(--cherry);outline-offset:-2px}
+/* Add a roastery: the logo as a big square to tap, then the name. */
+.ra-body{display:grid;gap:14px}.ra-logo{justify-self:start;padding:0;border:0;background:none;cursor:pointer;border-radius:22px}
+.ra-logo .ro-mark.big{width:96px;height:96px;font-size:1.8rem}.ra-ph{width:96px;height:96px;border-radius:22px;display:grid;place-items:center;align-content:center;gap:4px;border:2px dashed var(--line);color:var(--muted)}
+.ra-ph svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}.ra-ph small{font-size:.74rem;font-weight:700}
 .figs b{white-space:nowrap}.figs.yic-big>span{flex-direction:column;align-items:flex-start;gap:8px;padding:12px}
 .figs.ro-stats{margin:2px 0 8px}.figs.yic-big{margin:12px 0 0}.figs.me-stats{margin:0}
 

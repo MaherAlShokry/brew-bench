@@ -2820,7 +2820,7 @@ let RMEM=(()=>{const o=load('bb-romem',null);return{t:o&&o.t&&typeof o.t==='obje
 const saveRmem=()=>save('bb-romem',RMEM);
 const roNorm=n=>fold(String(n||'')).replace(/&/g,' and ').replace(/[^a-z0-9 ]+/g,' ').split(' ').filter(w=>w&&!RO_GENERIC.has(w)).join('');
 function knownRoasters(){const m=new Map();for(const b of (typeof BEANS!=='undefined'?BEANS:[]))if(b.roaster&&b.roaster.trim())m.set(b.roaster.trim(),(m.get(b.roaster.trim())||0)+1);
-  for(const x of SCANS){const r=scRoaster(x);if(r&&!m.has(r.trim()))m.set(r.trim(),0)}return [...m.keys()].sort((a,b)=>m.get(b)-m.get(a))}
+  for(const x of SCANS){const r=scRoaster(x);if(r&&!m.has(r.trim()))m.set(r.trim(),0)}for(const n of (typeof roAdded==='function'?roAdded():[]))if(!m.has(n))m.set(n,0);return [...m.keys()].sort((a,b)=>m.get(b)-m.get(a))}
 // 1. A name read off a label, in the spelling you already use for that roastery (or as read, if it's new to you).
 function roCanon(name){const k=roNorm(name);if(k.length<2)return name;
   // The same once "Roastery", "Coffee" and the like are set aside; or one a long start of the other ("Spirit Hub" and
@@ -3116,7 +3116,7 @@ function autoList(inp,box,all){if(inp.dataset.ac)return;inp.dataset.ac=1;let at=
    initials and how many of its coffees you have; while you type, roasteries from the app's list that match too. The
    letters you typed are picked out. */
 function roasterRows(extra){const own=new Map();const add=(n,c)=>{n=String(n||'').trim();if(!n)return;const k=n.toLowerCase();const o=own.get(k);if(o)o.c+=c;else own.set(k,{n,c})};
-  for(const b of (typeof BEANS!=='undefined'?BEANS:[]))add(b.roaster,1);for(const x of SCANS)add(scRoaster(x),0);for(const n of extra||[])add(n,0);
+  for(const b of (typeof BEANS!=='undefined'?BEANS:[]))add(b.roaster,1);for(const x of SCANS)add(scRoaster(x),0);for(const n of extra||[])add(n,0);for(const n of (typeof roAdded==='function'?roAdded():[]))add(n,0);
   const mine=[...own.values()].sort((a,b)=>b.c-a.c||a.n.localeCompare(b.n));
   const mark=n=>typeof roMark==='function'?roMark(n):'<span class="ro-mark" aria-hidden="true">'+esc(n[0].toUpperCase())+'</span>';
   return q=>{const f=fold(q).trim(),hit=n=>!f||fold(n).includes(f);

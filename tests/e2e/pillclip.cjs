@@ -10,7 +10,7 @@ const tabs=await p.evaluate(()=>[...document.querySelectorAll('main section')].m
 for(const t of tabs){try{await p.evaluate(t=>goTab(t),t)}catch(e){continue}await p.waitForTimeout(700);
  await p.evaluate(()=>document.querySelectorAll('main section.on details').forEach(d=>d.open=true));await p.waitForTimeout(300);
  if(t==='gear'){for(const g of ['set','dials','brew','lib','acc']){await p.evaluate(g=>gearTab(g),g);await p.waitForTimeout(250);await chk(t+':'+g)}}
- else if(t==='beans'){for(const v of ['coffees','diary','passport','top3','scans']){await p.evaluate(v=>document.querySelector('#bg-views [data-v="'+v+'"],#bg-views button:nth-child('+(['coffees','diary','passport','top3','scans'].indexOf(v)+1)+')').click(),v);await p.waitForTimeout(400);await chk(t+':'+v)}}
+ else if(t==='beans'){for(const v of ['coffees','roasteries','diary','passport','top3']){await p.evaluate(v=>document.querySelector('#bg-views [data-v="'+v+'"]').click(),v);await p.waitForTimeout(400);await chk(t+':'+v)}}
  else await chk(t);
  async function chk(lbl){const r=await p.evaluate(()=>[...document.querySelectorAll('main section.on .seg button, main section.on button.chip, main section.on [role=tab]')].filter(x=>x.offsetParent&&x.getBoundingClientRect().width>0).filter(x=>{const cs=getComputedStyle(x);return x.scrollWidth>x.clientWidth+1&&cs.overflowX!=='visible'||(cs.textOverflow==='ellipsis'&&x.scrollWidth>x.clientWidth+1)}).map(x=>x.innerText.replace(/\s+/g,' ').slice(0,30)));r.forEach(x=>bad.add(lbl+' @'+w+': '+x))}
 }await c.close()}

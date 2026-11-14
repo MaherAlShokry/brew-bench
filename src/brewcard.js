@@ -770,6 +770,57 @@ async function shelfCardImg(){const style=Object.assign({},CARD_STYLE),sh=shelfO
     Y+=ph;
     if(notes.length){Y+=64;bcLabel(x,'In my cups',P,Y);bcChipLine(x,notes,Y+26);Y+=26+56}
     return bcFoot(x,c,Y,'From my bean gallery')}})}
+// A roastery's mark on a card: its logo on white, or its initials on its own colour (as in the app).
+function bcRoMark(x,img,name,X,Y,s){x.save();bcRound(x,X,Y,s,s,s*.26);x.clip();
+  if(img){x.fillStyle='#FFFFFF';x.fillRect(X,Y,s,s);const k=Math.min(s/img.width,s/img.height)*.84,dw=img.width*k,dh=img.height*k;x.drawImage(img,X+(s-dw)/2,Y+(s-dh)/2,dw,dh)}
+  else{const h=roHue(name);x.fillStyle='hsl('+h+',38%,30%)';x.fillRect(X,Y,s,s);x.fillStyle='hsl('+h+',60%,88%)';x.font='800 '+Math.round(s*.36)+'px '+BC.F;x.textAlign='center';x.fillText(roIni(name),X+s/2,Y+s/2+s*.13);x.textAlign='left'}
+  x.restore();bcRound(x,X,Y,s,s,s*.26);x.lineWidth=2;x.strokeStyle=bcI(.16);x.stroke()}
+const bcCount=(n,w)=>n+' '+w+(n===1?'':'s');
+// One roastery: its logo and name, your average in beans, the counts, then its coffees (your favourite from them first,
+// then the best rated) with their photos and ratings, and the flavours you found in them.
+async function roasteryCardImg(name){const r=roFind(name);if(!r)return null;const style=Object.assign({},CARD_STYLE),nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick;
+  const pid=roFavBeans()[roKey(r.name)],list=[...r.list].sort((a,b)=>(b.id===pid)-(a.id===pid)||(b.rating||0)-(a.rating||0)||String(beanDay(b)).localeCompare(String(beanDay(a))));
+  const many=list.length>10,shown=many?list.slice(0,9):list,more=list.length-shown.length;
+  const [logo,...imgs]=await Promise.all([bcLoad(roLogo(r.name)),...shown.map(async b=>b.img?bcLoad(BIMG.peekThumb(b.id)||await BIMG.thumb(b.id)):null)]);
+  const ors=new Set(list.map(realO).filter(Boolean)).size,notes=[];list.forEach(b=>(b.flavours||'').split(/\s*[,;·]\s*/).filter(Boolean).forEach(f=>{if(notes.length<12&&!notes.some(q=>q.toLowerCase()===f.toLowerCase()))notes.push(f)}));
+  const rh=170,minH=130+40+170+48+58+48+shown.length*rh+(more?64:0)+(notes.length?146:0)+BC_FOOT+40;
+  return bcBlob({style,theme:originTheme(list[0]&&list[0].origin),minH,draw:(x,c)=>{const W=BC.W,P=BC.PAD,IW=W-2*P;
+    let Y=bcHead(x,nick?'From '+nick+'’s roasteries':'From my roasteries',new Date().toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}));
+    Y+=40;const S=170;bcRoMark(x,logo,r.name,P,Y,S);const tx=P+S+36,tw=W-P-tx;
+    x.font='800 64px '+BC.F;const nl=bcWrap(x,r.name,tw,2);x.fillStyle=BC.INK;const top=Y+(r.avg?(nl.length>1?52:74):(nl.length>1?78:104));nl.forEach((l,i)=>x.fillText(l,tx,top+i*70));
+    if(r.avg)bcRating(x,'beans',r.avg,tx,top+(nl.length-1)*70+52,30);
+    Y+=S+48;bcStatPills(x,P,Y,[[list.length,list.length===1?'coffee':'coffees'],[ors,ors===1?'origin':'origins'],[r.bags,r.bags===1?'bag':'bags']]);Y+=58+48;
+    const ph=shown.length*rh+(more?64:0);if(shown.length)bcPane(x,P,Y,IW,ph,30);
+    shown.forEach((b,i)=>{const ry=Y+i*rh,s=rh-40;if(i){x.fillStyle=bcI(.09);x.fillRect(P+28,ry,IW-56,1.5)}
+      bcPic(x,imgs[i],b.origin,P+22,ry+20,s,s,22);const tx2=P+22+s+28,tw2=W-P-28-tx2;
+      x.font='800 32px '+BC.F;x.fillStyle=BC.INK;x.fillText(bcWrap(x,beanTitle(b),tw2-(b.id===pid?44:0),1)[0],tx2,ry+62);
+      if(b.id===pid){const nw=x.measureText(bcWrap(x,beanTitle(b),tw2-44,1)[0]).width;x.font='700 30px '+BC.F;x.fillStyle=BC.HONEY;x.fillText('★',tx2+nw+12,ry+62)}
+      const meta=[b.origin?originName(b.origin):'',b.process&&PROCESSES[b.process]?PROCESSES[b.process].name.replace(/\s*\(.*\)$/,''):''].filter(Boolean).join('  ·  ');
+      if(meta){x.font='500 23px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(bcWrap(x,meta,tw2,1)[0],tx2,ry+98)}
+      if(b.rating)bcRating(x,'beans',b.rating,tx2,ry+132,20);bcBrk(ry+rh)});
+    if(more){const my=Y+shown.length*rh;x.fillStyle=bcI(.09);x.fillRect(P+28,my,IW-56,1.5);x.font='600 26px '+BC.F;x.fillStyle=BC.MUTED;x.textAlign='center';x.fillText('and '+bcCount(more,'more coffee'),W/2,my+42);x.textAlign='left'}
+    Y+=ph;if(notes.length){Y+=64;bcLabel(x,'In their coffees',P,Y);bcChipLine(x,notes,Y+26);Y+=26+56}
+    return bcFoot(x,c,Y,'From my bean gallery')}})}
+// All your roasteries: your favourite first on its own, then every one, most coffees first, with its logo, how many
+// coffees and origins, and your average in beans.
+async function roasteriesCardImg(){const style=Object.assign({},CARD_STYLE),nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick,all=roasteries();
+  const many=all.length>14,shown=many?all.slice(0,13):all,more=all.length-shown.length,fk=roKey(favRo()),fav=all.find(r=>roKey(r.name)===fk)||all.filter(r=>r.avg).sort((a,b)=>b.avg-a.avg||b.list.length-a.list.length)[0];
+  const logos=await Promise.all(shown.map(r=>bcLoad(roLogo(r.name)))),coffees=all.reduce((a,r)=>a+r.list.length,0),ors=new Set(all.flatMap(r=>r.list.map(realO)).filter(Boolean)).size;
+  const rh=132,minH=130+118+40+58+48+shown.length*rh+(more?64:0)+BC_FOOT+40;
+  return bcBlob({style,theme:originTheme(all[0]&&all[0].list[0]&&all[0].list[0].origin),minH,draw:(x,c)=>{const W=BC.W,P=BC.PAD,IW=W-2*P;
+    let Y=bcHead(x,nick?nick+'’s coffee journal':'My coffee journal',new Date().toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}));
+    Y+=118;x.font='800 104px '+BC.F;x.fillStyle=BC.INK;x.fillText('My',P-4,Y);const dw=x.measureText('My ').width;x.fillStyle=BC.HONEY;x.fillText('roasteries',P-4+dw,Y);
+    Y+=40;bcStatPills(x,P,Y,[[all.length,all.length===1?'roastery':'roasteries'],[coffees,coffees===1?'coffee':'coffees'],[ors,ors===1?'origin':'origins']]);Y+=58+48;
+    const ph=shown.length*rh+(more?64:0);bcPane(x,P,Y,IW,ph,30);
+    shown.forEach((r,i)=>{const ry=Y+i*rh,cy=ry+rh/2,s=rh-40;if(i){x.fillStyle=bcI(.09);x.fillRect(P+28,ry,IW-56,1.5)}
+      bcRoMark(x,logos[i],r.name,P+22,ry+20,s);const tx=P+22+s+28,rw=r.avg?5*22*1.18+8:0,tw=W-P-28-rw-tx;
+      const o=new Set(r.list.map(realO).filter(Boolean)).size,star=r===fav;
+      x.font='800 32px '+BC.F;x.fillStyle=BC.INK;const nm=bcWrap(x,r.name,tw-(star?44:0),1)[0];x.fillText(nm,tx,cy-6);
+      if(star){const nw=x.measureText(nm).width;x.font='700 30px '+BC.F;x.fillStyle=BC.HONEY;x.fillText('★',tx+nw+12,cy-6)}
+      x.font='500 23px '+BC.F;x.fillStyle=BC.MUTED;x.fillText(bcCount(r.list.length,'coffee')+(o?'  ·  '+bcCount(o,'origin'):''),tx,cy+30);
+      if(r.avg)bcRating(x,'beans',r.avg,W-P-28-rw+8,cy,22);bcBrk(ry+rh)});
+    if(more){const my=Y+shown.length*rh;x.fillStyle=bcI(.09);x.fillRect(P+28,my,IW-56,1.5);x.font='600 26px '+BC.F;x.fillStyle=BC.MUTED;x.textAlign='center';x.fillText('and '+bcCount(more,'more roaster').replace(/roasters$/,'roasteries').replace(/roaster$/,'roastery'),W/2,my+42);x.textAlign='left'}
+    Y+=ph;return bcFoot(x,c,Y,'From my bean gallery')}})}
 // How tall a set of chips will be once wrapped (the same measure bcChips uses).
 function hmH(x,items){const W=BC.W,P=BC.PAD;x.font='500 27px '+BC.F;let px=P,rows=1;for(const t of items){const w=x.measureText(t).width+48;if(px+w>W-P){px=P;rows++}px+=w+12}return 48+56+(rows-1)*70}
 // Counts as pills: the figure in the accent, the word after it.
