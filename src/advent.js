@@ -86,7 +86,7 @@ function advSub(c,s,sc,rk,pos){return [sc.n?'Average of the '+sc.n+' coffee'+(sc
   rk.length>1&&pos>=0?'#'+(pos+1)+' of your '+rk.length+' calendars':''].filter(Boolean).join(' · ')}
 // Adding or editing the box itself.
 function openCalEditor(c){const d=$('vd'),isNew=!c,C=c||{name:'',roaster:'',year:new Date().getMonth()<6?new Date().getFullYear()-1:new Date().getFullYear(),n:24,g:50};
-  const roasters=[...new Set(BEANS.map(x=>x.roaster).filter(Boolean))].sort();
+
   $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Advent calendar</span><h2 id="vd-title">'+(isNew?'Add an advent calendar':'Edit '+esc(calName(C)))+'</h2></div>'+
     '<div class="vd-body beform"><div class="be-photo" id="ac-photo"><span class="bph">'+advBoxSVG+'<small>Add a photo of the box</small></span></div>'+
     '<div class="actions two-up"><button type="button" class="btn ghost" id="ac-cam">Take a photo</button><button type="button" class="btn ghost" id="ac-pick">Choose a photo</button></div>'+
@@ -98,7 +98,7 @@ function openCalEditor(c){const d=$('vd'),isNew=!c,C=c||{name:'',roaster:'',year
     '<div class="field"><label for="ac-g">Each <span class="hint">grams</span></label><input id="ac-g" type="number" inputmode="numeric" min="1" max="500" value="'+C.g+'"></div></div>'+
     '<p class="hint">Each door you open becomes a coffee in your gallery, with its own rating, notes and diary.</p>'+
     '<div class="actions"><button class="btn" id="ac-save">'+(isNew?'Add the calendar':'Save changes')+'</button><button class="btn ghost" id="ac-cancel">Cancel</button></div></div>';
-  autoList($('ac-roaster'),$('ac-rsug'),roasters);
+  {const rows=roasterRows();autoList($('ac-roaster'),$('ac-rsug'),q=>rows(q))}
   let photo=null,changed=false;
   const show=u=>{const p=$('ac-photo');p.classList.toggle('has',!!u);p.querySelector('img')?.remove();if(u){const i=new Image();i.alt='Photo of the calendar';i.src=u;p.prepend(i)}
     let rm=$('ac-rm');if(u&&!rm){p.insertAdjacentHTML('beforeend','<button type="button" class="be-rm" id="ac-rm" aria-label="Remove the photo">✕</button>');$('ac-rm').onclick=e=>{e.stopPropagation();photo=null;changed=true;show(null)}}else if(!u&&rm)rm.remove()};

@@ -323,11 +323,11 @@ button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.a
 .dateinp{width:100%;padding:9px 10px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:12px;font-family:var(--body)}
 .scanning{position:relative;overflow:hidden}
 .scanning::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(var(--honey),var(--honey)) 0 0/100% 3px no-repeat,linear-gradient(color-mix(in srgb,var(--honey) 35%,transparent),transparent) 0 3px/100% 12px no-repeat;animation:scanline 1.4s ease-in-out infinite alternate;will-change:transform}
-.drop.photo-in img{animation:photoin .5s cubic-bezier(.2,.8,.2,1) both}
-.drop.photo-in::before{content:"";position:absolute;inset:0;background:#fff;pointer-events:none;z-index:1;animation:photoflash .45s ease-out both}
+.drop.photo-in img{animation:photoin .22s cubic-bezier(.2,.9,.25,1) both}
+.drop.photo-in::before{content:"";position:absolute;inset:0;background:#fff;pointer-events:none;z-index:1;animation:photoflash .18s ease-out both}
 .drop.photo-in{position:relative}
-@keyframes photoin{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
-@keyframes photoflash{from{opacity:.75}to{opacity:0}}
+@keyframes photoin{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+@keyframes photoflash{from{opacity:.6}to{opacity:0}}
 
 @keyframes scanline{from{transform:translateY(0)}to{transform:translateY(calc(100% - 3px))}}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.93rem;margin:10px 0}
@@ -864,14 +864,16 @@ svg .bo{fill:currentColor}svg .bc{fill:none;stroke:var(--surface);stroke-width:1
 .re-h small{flex-basis:100%;font:400 .8rem var(--body);color:var(--muted);padding-left:34px;margin-top:-2px}
 .re2 .field>.lab{display:block;font-size:.88rem;font-weight:600;margin-bottom:6px}
 .re-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.re-tile{background:color-mix(in srgb,var(--cherry) 5%,var(--paper));border-radius:16px;padding:10px 6px 8px;text-align:center}
+.re-tile{background:color-mix(in srgb,var(--cherry) 5%,var(--paper));border-radius:16px;padding:12px 8px 8px;text-align:center;display:flex;flex-direction:column;align-items:stretch}
 .re-tile label{display:block;font-size:.74rem;font-weight:600;color:var(--muted);margin-bottom:4px}
-.re-num{display:flex;align-items:baseline;justify-content:center;gap:2px}.re-pms{display:flex;justify-content:center;gap:10px;margin-top:6px}
-.recform .re-num input{width:4.2ch;min-width:0;border:0;background:none;padding:0;text-align:center;font:700 1.25rem var(--display);font-variant-numeric:tabular-nums;color:var(--ink);-moz-appearance:textfield}
+.re-num{display:flex;align-items:baseline;justify-content:center;gap:3px;min-height:2rem}
+.re-pms{display:grid;grid-template-columns:1fr 1fr;margin-top:8px;height:34px;border-radius:999px;background:var(--surface);border:1px solid var(--line);overflow:hidden}
+.recform .re-num input{width:4.2ch;max-width:6ch;min-width:0;border:0;background:none;padding:0;text-align:center;font:700 1.25rem var(--display);font-variant-numeric:tabular-nums;color:var(--ink);-moz-appearance:textfield}
 .re-num input::-webkit-inner-spin-button,.re-num input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
-.re-num span{font-size:.74rem;color:var(--muted);margin-right:2px}
-.re-pm{flex:none;width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:1rem;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0}
-.re-pm:active{transform:scale(.9)}
+.re-num span{font-size:.8rem;font-weight:600;color:var(--muted)}
+
+.re-pm{min-width:0;height:100%;border:0;border-radius:0;background:none;color:var(--ink);font-size:1rem;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0}
+.re-pm+.re-pm{border-left:1px solid var(--line)}.re-pm:active{background:var(--surface2)}
 .re-ratio{text-align:center;margin:10px 0 8px;font-size:.88rem;color:var(--muted)}.re-ratio b{color:var(--cherry-ink);font-variant-numeric:tabular-nums}
 @media (max-width:340px){.re-tiles{grid-template-columns:1fr}}
 
@@ -1334,7 +1336,7 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 @media (max-width:759px){
   body::before,body::after{content:'';position:fixed;left:0;right:0;pointer-events:none}
   body::before{top:0;height:calc(var(--sa-top) + 84px);z-index:19;background:linear-gradient(var(--paper) calc(100% - 18px),color-mix(in srgb,var(--paper) 0%,transparent))}
-  body:has(dialog[open])::before,body:has(dialog[open])::after{display:none}
+  body.dlg-open::before,body.dlg-open::after{display:none}
   body::after{bottom:0;height:calc(var(--sa-bottom) + 56px);z-index:29;background:linear-gradient(color-mix(in srgb,var(--paper) 0%,transparent),var(--paper) 62%)}
 }
 .lv{font-weight:700;border-radius:6px;padding:0 6px}.lv-e{color:#256B42;background:color-mix(in srgb,#2F7A4F 12%,transparent)}.lv-i{color:#85550C;background:color-mix(in srgb,#C8891E 14%,transparent)}.lv-a{color:#A53A2A;background:color-mix(in srgb,#A53A2A 12%,transparent)}
@@ -1601,7 +1603,7 @@ dialog#vd:has(.me-hero){overflow-x:hidden}
 :root[data-theme="dark"] .au-err{color:#F5A08B}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .au-err{color:#F5A08B}}
 .auth>.linkbtn{display:block;margin:6px auto 0}
 .setrow{padding:14px 16px}.setrow+.setrow{border-top:1px solid var(--line)}
-.setrow>.sl{display:flex;align-items:center;gap:12px;margin-bottom:10px}.setrow>.sl:last-child{margin-bottom:0}
+.setrow>.sl{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}.setrow>.sl:last-child{margin-bottom:0}
 
 :root{--honey-base:var(--honey)}
 :root[data-theme="light"] :is(#ab-logo,.logopick,#splash,.lg-tile){--honey:color-mix(in srgb,var(--honey-base) 68%,var(--honey-ink,var(--honey-base)))}
@@ -1613,7 +1615,9 @@ html.thx *,html.thx *::before,html.thx *::after{transition-property:transform,tr
 .ic.t-cl{--t:color-mix(in srgb,var(--cherry-ink,var(--cherry)) 52%,var(--leaf-ink,var(--leaf)))}.ic.t-ch{--t:color-mix(in srgb,var(--cherry-ink,var(--cherry)) 58%,var(--honey-ink,var(--honey)))}
 .ic[class*=" t-"]{background:color-mix(in srgb,var(--t) 15%,var(--surface))!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--t) 20%,transparent)}
 .ic[class*=" t-"] svg{stroke:var(--t)!important}
-.setrow .ic{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;flex:none}.setrow .ic svg{width:20px;height:20px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.setrow .ic{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;flex:none;margin-top:1px}
+
+.setrow .mt{min-height:36px;display:flex;flex-direction:column;justify-content:center}.setrow .ic svg{width:20px;height:20px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .setrow .mt{flex:1;min-width:0}.setrow .mt b{display:block;font-weight:600}.setrow .mt small{display:block;color:var(--muted);font-size:.84rem;line-height:1.35}
 .setrow .seg{display:flex;flex-wrap:nowrap}.setrow .seg button{flex:1 1 auto;min-width:0;white-space:nowrap;text-overflow:clip}
 @media (max-width:399px){.setrow .seg button{padding-left:6px!important;padding-right:6px!important}}
@@ -1637,7 +1641,11 @@ html.thx *,html.thx *::before,html.thx *::after{transition-property:transform,tr
 .logopick .lg-tile{display:grid;place-items:center;width:58px;height:58px;border-radius:17px;background:linear-gradient(160deg,var(--surface),var(--surface2));box-shadow:inset 0 0 0 1px var(--line),0 4px 12px -6px rgba(0,0,0,.25);transition:transform .15s,box-shadow .15s}
 .logopick svg{width:36px;height:36px}.logopick:active .lg-tile{transform:scale(.94)}
 .logopick[aria-pressed="true"]{color:var(--ink)}.logopick[aria-pressed="true"] .lg-tile{box-shadow:0 0 0 2px var(--surface),0 0 0 4.5px var(--cherry),0 6px 16px -6px rgba(0,0,0,.3)}
-.setbtns{display:flex;flex-wrap:wrap;gap:8px}.setnote{font-size:.82rem;color:var(--muted);margin:.5rem 0 0}
+.setbtns{display:flex;flex-wrap:wrap;gap:8px}
+
+.setbtns.rem{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:8px;align-items:stretch}
+.setbtns.rem .seg{margin:0}.setbtns.rem .dateinp{min-height:0;height:auto;border-radius:999px!important;text-align:center;padding:0 14px;font-family:var(--display);font-weight:600;background:var(--surface2);border-color:transparent}
+.setbtns.rem .dateinp:disabled{opacity:.5}.setnote{font-size:.82rem;color:var(--muted);margin:.5rem 0 0}
 #ab-logo{display:inline-flex}#ab-logo svg{width:24px;height:24px}
 
 
@@ -1797,7 +1805,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 
 .bg-tools{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;margin-bottom:4px}.bg-tools .seg.filters{margin:0}
 .bg-gh{display:flex;align-items:center;gap:8px;margin:18px 2px 10px}.bg-gh b{font-family:var(--display);font-size:1.1rem}
-.bg-gh span{font-size:.74rem;font-weight:700;color:var(--muted);padding:1px 8px;border-radius:var(--r-pill);background:var(--surface2)}
+.bg-gh>span:not(.ro-mark){font-size:.74rem;font-weight:700;color:var(--muted);padding:1px 8px;border-radius:var(--r-pill);background:var(--surface2)}
   transition:transform .25s var(--ease-out),box-shadow .25s}
 @keyframes bin{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
   background:linear-gradient(135deg,color-mix(in srgb,var(--m) 45%,#fff),var(--m));box-shadow:0 4px 10px rgba(0,0,0,.3)}
@@ -2006,7 +2014,10 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .yic-k{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:var(--muted)}
 .yic-row{display:flex;gap:8px 20px;flex-wrap:wrap;margin-top:6px}.yic-row span{display:flex;flex-direction:column;min-width:0}
 .yic-row b{font-family:var(--display);font-size:1.2rem;line-height:1.2;color:var(--ink)}.yic-row small{font-size:.76rem;color:var(--muted);max-width:16ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cr-notes{font-style:italic}
+.cr-notes{display:flex;gap:5px;margin-top:6px;overflow:hidden;min-width:0;mask-image:linear-gradient(90deg,#000 88%,transparent);-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent)}
+
+.cr-fl{flex:none;display:inline-flex;align-items:center;gap:5px;padding:2px 8px 2px 6px;border-radius:999px;font-size:.72rem;font-weight:600;line-height:1.5;color:var(--ink);background:color-mix(in srgb,var(--fc) 13%,var(--surface2));white-space:nowrap}
+.cr-fl i{width:6px;height:6px;border-radius:50%;background:var(--fc);flex:none}
 
 .passport{position:relative;padding:18px 14px 16px;border-radius:24px;color:#2A1A10;margin-bottom:8px;
   background:repeating-linear-gradient(0deg,transparent 0 27px,rgba(90,60,30,.06) 27px 28px),radial-gradient(120% 90% at 50% 0%,#FBF3E4,#EFE1C8);box-shadow:inset 0 0 0 1.5px rgba(120,80,40,.18),var(--shadow)}
@@ -2041,6 +2052,18 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 
 .ro-mark{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font:800 .95rem var(--body);letter-spacing:.02em;color:hsl(var(--h) 45% 26%);background:hsl(var(--h) 45% 88%);border:1px solid hsl(var(--h) 35% 76%)}
 .ro-mark.big{width:56px;height:56px;border-radius:16px;font-size:1.25rem}
+
+.ro-mark.logo{background:#fff;border-color:var(--line);overflow:hidden;padding:0}.ro-mark.logo img{width:100%;height:100%;object-fit:contain;display:block}
+.ro-gh .ro-mark{width:28px;height:28px;border-radius:9px;font-size:.72rem}
+
+.ro-logo-btn{position:relative;flex:none;padding:0;border:0;background:none;cursor:pointer;border-radius:16px}
+.ro-logo-ed{position:absolute;right:-5px;bottom:-5px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--cherry);color:var(--surface);box-shadow:0 0 0 2px var(--surface)}
+.ro-logo-ed svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.ro-title{position:relative}
+
+.ro-logo-menu{position:absolute;left:0;top:calc(100% + 8px);z-index:4;display:flex;flex-direction:column;min-width:170px;padding:6px;border-radius:var(--r-md);background:var(--surface);border:1px solid var(--line);box-shadow:0 14px 34px -12px rgba(0,0,0,.4)}
+.ro-logo-menu button{border:0;background:none;text-align:left;padding:10px 12px;border-radius:10px;font:600 .92rem var(--display);color:var(--ink);cursor:pointer}
+.ro-logo-menu button:hover,.ro-logo-menu button:focus-visible{background:var(--surface2)}.ro-logo-menu .danger{color:var(--cherry-ink,var(--cherry))}
 :root[data-theme="dark"] .ro-mark{color:hsl(var(--h) 55% 84%);background:hsl(var(--h) 28% 22%);border-color:hsl(var(--h) 25% 34%)}
 .ro-title{display:flex;align-items:center;gap:14px;margin-top:6px}.ro-title h2{margin:0}.ro-title .vd-sub{margin:2px 0 0}
 .ro-link{all:unset;cursor:pointer;color:var(--cherry-ink);font-weight:600;border-bottom:1px solid color-mix(in srgb,var(--cherry) 35%,transparent)}.ro-link:focus-visible{outline:2px solid var(--cherry);outline-offset:3px;border-radius:4px}
@@ -2168,6 +2191,8 @@ body.t-dial.dial-ready .herowrap{display:none}
 .ssn-next{margin:8px 0 0;font-size:.82rem;color:var(--muted)}.ssn-got{margin-bottom:6px}
 
 .crow{align-items:flex-start;gap:12px;padding:12px 14px 12px 12px}
+
+.crow:not(.now){align-items:center}
 .crow .bpic,.clist.now .crow .bpic{width:52px;height:52px;border-radius:14px}
 .cr-top{display:flex;align-items:center;gap:8px;min-width:0}.cr-top b{flex:1;min-width:0;-webkit-line-clamp:1!important}
 .cr-top .cr-end{gap:6px}.cr-top .cr-medal{width:22px;height:22px}
@@ -2207,6 +2232,11 @@ body.t-dial.dial-ready .herowrap{display:none}
 
 .vd-head{z-index:4}
 .bvar select{width:100%}
+
+.bvar>.selw{flex:1 1 auto;min-width:0}.bvar>.selw>select{width:100%}
+
+.beform>.actions.two-up{margin:12px 0 20px}
+.beform .beanrate{width:100%;box-sizing:border-box;justify-content:space-between}
 @media (max-width:399px){.two.bagrow{grid-template-columns:1fr!important;display:grid}}
 .beform .seg button{min-width:0;white-space:nowrap;overflow:visible;text-overflow:clip;padding-left:6px;padding-right:6px}
 
@@ -2245,6 +2275,14 @@ body.t-dial.dial-ready .herowrap{display:none}
 .acl[hidden]{display:none}
 .aco{padding:11px 12px;border-radius:10px;cursor:pointer;color:var(--ink);font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .aco:hover,.aco[aria-selected="true"]{background:var(--surface2)}
+
+.aco.rich{display:flex;align-items:center;gap:12px;padding:8px 10px;white-space:normal}
+.aco.rich .ro-mark{width:34px;height:34px;border-radius:10px;font-size:.78rem}
+.aco-tx{display:flex;flex-direction:column;min-width:0}.aco-tx b{font-family:var(--display);font-weight:600;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aco-tx b mark{background:none;color:var(--cherry);font-weight:800}.aco-tx small{font-size:.76rem;color:var(--muted)}
+
+.two{position:relative}.two>.field>.acw{position:static}
+.two>.field>.acw>.acl{top:calc(100% + 6px);max-height:320px}
 
 .today{padding:14px 14px 6px;margin:4px 0 8px}
 .td-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:2px 4px 8px}
@@ -2575,7 +2613,7 @@ button.yic-t{cursor:pointer;-webkit-tap-highlight-color:transparent;transition:t
   
   .seg.bviews::before{content:'';position:absolute;left:-12px;right:-12px;bottom:calc(100% + 1px);height:8px;background:var(--paper);pointer-events:none}
   
-  @media (max-width:759px){html:has(main section#beans.on) .appbar{box-shadow:none!important}}
+  @media (max-width:759px){html[data-tab="beans"] .appbar{box-shadow:none!important}}
   .seg.bviews .seg-ind,.seg.bviews button[aria-pressed="true"]{box-shadow:none!important}
 #ab-title{transition:opacity .2s ease,transform .2s ease}.appbar.title-off #ab-title{opacity:0;transform:translateY(6px)}
 @media (min-width:760px){.appbar.title-off #ab-title{opacity:1;transform:none}}
@@ -2605,7 +2643,7 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="c08eefb3ed7a"</script>
+<script>const BUILD_ID="f1b81209671b"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -6441,15 +6479,15 @@ function warmSheets(){if(SHEETS_WARM>=2)return;const step=SHEETS_WARM++;const d=
     if(step===1&&RECIPES.length){openRecipe(0);d.offsetHeight}}catch(e){}
   finally{showDlg=keep;d.classList.remove('warm');if(!d.open){$('vd-in').innerHTML='';delete d.dataset.bean}}}
 function prebuildTabs(){const ids=['recipes','gear','variety','process','map','words','history','flow','wheel','champs','tech'].filter(k=>LAZY[k]);
-  // A step only starts in a real idle moment (not one the timeout forced), and not within 1.5 s of a touch, a key or a
+  // A step only starts in a real idle moment (not one the timeout forced), and not within 3 s of a touch, a key or a
   // scroll: building a page takes a while on a phone, and one started just after a tap held that tap's answer back.
   // (The wait has an end: after 6 s a step goes ahead in whatever idle time there is, or the rest would never be built.)
   const idle=window.requestIdleCallback?(f,t0=performance.now())=>requestIdleCallback(d=>{if(!d.didTimeout&&d.timeRemaining()<25&&performance.now()-t0<6000)idle(f,t0);else f()},{timeout:6000}):f=>setTimeout(f,200);
   // Beans comes first (it's opened most and has the most to draw). Each step waits while you're moving between tabs,
   // so building ahead never competes with the page you just opened.
   let beans=false;
-  const next=()=>{if(document.hidden){setTimeout(()=>idle(next),2000);return}if(performance.now()-Math.max(NAV_AT,USER_AT)<1500){setTimeout(()=>idle(next),900);return}
-    if(!beans&&window.BEANS_OK){beans=true;try{renderBeansIfChanged();warmBeanPhotos()}catch(e){}idle(next);return}
+  const next=()=>{if(document.hidden){setTimeout(()=>idle(next),2000);return}if(performance.now()-Math.max(NAV_AT,USER_AT)<3000){setTimeout(()=>idle(next),900);return}
+    if(!beans&&window.BEANS_OK){beans=true;try{renderBeansIfChanged();warmBeanPhotos();roLearnGallery()}catch(e){}idle(next);return}
     if(SHEETS_WARM<2&&window.BEANS_OK){warmSheets();idle(next);return}
     if(LOGL_STALE&&BUILT.recipes){try{renderLogList(1)}catch(e){}idle(next);return}
     const id=ids.find(k=>!BUILT[k]);if(!id){if(!$('st-mode')&&!$('settings').classList.contains('on')){try{renderSettings()}catch(e){}idle(next);return}if(SHEETS_WARM<2){warmSheets();idle(next)}return}BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
@@ -6466,7 +6504,14 @@ const BNORD=['dial','recipes','beans','explore','settings'];
 // runs right after showTab finds the new page in place, and only the new page animates in.
 let NAV_READY=false;
 let NAV_AT=-1e9;
-function showTab(id,fromHistory,pure){NAV_AT=performance.now();ensureTab(id);const cur=document.querySelector('main section.on');let kind='';
+const PAGE_Y={};
+function showTab(id,fromHistory,pure){NAV_AT=performance.now();ensureTab(id);
+  // The page on show, for the few styles that depend on it (a class here, not a :has() over the whole page, which
+  // made the browser recheck every style on each change while a big page was drawn).
+  if(document.documentElement.dataset.tab!==id)document.documentElement.dataset.tab=id;
+  // Each page keeps where you were in it: going back returns to that spot, not the top (a new visit starts at the top).
+  {const was=document.querySelector('main section.on');if(was&&was.id!==id)PAGE_Y[was.id]=scrollY}
+  const backY=fromHistory&&PAGE_Y[id]!=null?PAGE_Y[id]:null;const cur=document.querySelector('main section.on');let kind='';
   if(cur&&cur.id!==id){const a=BNORD.indexOf(BNGROUP[cur.id]),b=BNORD.indexOf(BNGROUP[id]);
     kind=a!==b&&a>=0&&b>=0?(b<a?'left':'right'):fromHistory?'pop':'push'}
   // Each tab gets a history entry, so the back button (browser or Android) returns to the last tab.
@@ -6477,7 +6522,7 @@ function showTab(id,fromHistory,pure){NAV_AT=performance.now();ensureTab(id);con
     document.querySelectorAll('main section').forEach(s=>s.classList.toggle('on',s.id===id));
     // Every change first, then the scroll (which lays the page out): one layout pass instead of two.
     // Highlights that waited for this page (select.js loads after the first page is shown, so it may not be there yet).
-    syncShell(id,true);try{segShown($(id))}catch(e){}
+    syncShell(id,backY==null);if(backY!=null)window.scrollTo({top:backY});try{segShown($(id))}catch(e){}
     if(kind&&NAV_READY){const sec=$(id);if(!vt){replay(sec,'nav-in');clearTimeout(sec._nav);sec._nav=setTimeout(()=>sec.classList.remove('nav-in'),480);
       // The Brew page's hero sits above the page itself: it comes in with it.
       const hw=id==='dial'&&document.querySelector('.herowrap');if(hw){replay(hw,'nav-in');clearTimeout(hw._nav);hw._nav=setTimeout(()=>hw.classList.remove('nav-in'),480)}
@@ -6512,8 +6557,8 @@ try{history.scrollRestoration='manual'}catch(e){}
 const DSTACK=[];
 // A page inside the sheet that back should leave for the page it came from (a calendar's door back to the calendar).
 let VD_BACK=null;
-{const sm=HTMLDialogElement.prototype.showModal;HTMLDialogElement.prototype.showModal=function(){if(!this.open){if(!BACKING)try{history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}DSTACK.push(this);
-  this.addEventListener('close',()=>{const i=DSTACK.indexOf(this);if(i>=0)DSTACK.splice(i,1);if(this.dataset.popped){delete this.dataset.popped;return}
+{const sm=HTMLDialogElement.prototype.showModal;HTMLDialogElement.prototype.showModal=function(){if(!this.open){if(!BACKING)try{history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}DSTACK.push(this);document.body.classList.add('dlg-open');
+  this.addEventListener('close',()=>{const i=DSTACK.indexOf(this);if(i>=0)DSTACK.splice(i,1);if(!document.querySelector('dialog[open]'))document.body.classList.remove('dlg-open');if(this.dataset.popped){delete this.dataset.popped;return}
     if(!BACKING&&history.state&&history.state.dlg){BACKING=true;history.back()}},{once:true})}return sm.call(this)}}
 // Sheets slide away before they close (the CSS animates .closing), so nothing vanishes abruptly.
 {const cl=HTMLDialogElement.prototype.close;HTMLDialogElement.prototype.close=function(v){if(!this.open||this.classList.contains('closing'))return;
@@ -6853,6 +6898,8 @@ function openRecipeEditor(r,fresh){const isNew=!r||fresh;r=Object.assign({b:'v60
   const ratio=()=>{const d=+$('re-dose').value,w=+$('re-water').value;$('re-ratio').innerHTML=d>0&&w>0?'Ratio <b>1:'+rr1(w/d)+'</b>':'';SE.set({water:w>0?w:250,dose:d>0?d:15})};
   $('re-off').oninput=gs;$('re-b').onchange=()=>{meth();gs()};$('re-m').onclick=e=>{const x=e.target.closest('[data-m]');if(!x)return;method=x.dataset.m;meth();gs()};meth();gs();ratio();
   $('re-dose').oninput=$('re-water').oninput=ratio;
+  // Each number is as wide as its digits, so its unit sits right beside it.
+  {const fit=i=>{i.style.width=Math.max(1,String(i.value).length)+.4+'ch'};['re-dose','re-water','re-temp'].forEach(id=>{const i=$(id);fit(i);i.addEventListener('input',()=>fit(i))})}
   document.querySelectorAll('.re-pm').forEach(x=>x.onclick=()=>{const i=$(x.dataset.pm),v=(+i.value||0)+(+x.dataset.d);i.value=Math.max(0,Math.round(v*10)/10);i.dispatchEvent(new Event('input'))});
   const draft=()=>({b:bOf(),name:$('re-name').value,dose:+$('re-dose').value,water:+$('re-water').value,temp:+$('re-temp').value,temp2:r.temp2,steps:SE.value(),why:$('re-why').value});
   const check=()=>{const l=recipeIssues(draft()),c=$('re-check');c.hidden=!l.length;c.innerHTML=l.length?'<b>Worth a look</b><ul>'+l.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'';return l};
@@ -7793,8 +7840,8 @@ async function runScan(useImg){
     if(['light','medium','dark'].includes(j.roast_level))SC.roast=j.roast_level;
     if(/^\d{4}-\d{2}-\d{2}$/.test(j.roast_date||''))SC.date=j.roast_date;SC.bag=okBagG(j.bag_g);
     SC.name=plausibleName(j.coffee_name)?niceName(j.coffee_name).slice(0,60):'';SC.roaster=plausibleName(j.roaster)?niceName(j.roaster).slice(0,50):'';
-    SC.info=j;$('scan-status').textContent='Done'+(j.confidence==='low'?'. Low confidence: check the details below.':'. Check the details below and adjust anything that looks off.');
-    renderScan();saveScan();toast('Label read');
+    SC.info=j;await scanRoasterHelp(useImg?'':txt);$('scan-status').textContent='Done'+(j.confidence==='low'?'. Low confidence: check the details below.':'. Check the details below and adjust anything that looks off.')+roHowText();
+    renderScan();saveScan();roLearnScan();toast('Label read');
   }catch(e){const c=e&&e.code;$('scan-status').textContent=c==='cancelled'?'Stopped.':c==='not_granted'||c==='sampling_disabled'?'Claude access for this page was declined, so fill in the details by hand.':c==='images_unavailable'?'Photo reading isn\u2019t available here; paste the label text instead.':c==='image_rejected'?'That image couldn\u2019t be read. Try a clearer, smaller photo.':c==='rate_limited'?'Too many requests right now. Try again in a little while.':c==='invalid_json'?'The label couldn\u2019t be turned into details. Try again or paste the text.':'Something went wrong reading the label. Try again.'}
   finally{$('scan-stop').hidden=true;$('scan-go').disabled=!SFILE;$('scan-drop').classList.remove('scanning')}
 }
@@ -8017,6 +8064,67 @@ function findDate(raw){const t=fold(raw),now=new Date(),cands=[];
 const cleanLine=x=>String(x||'').replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}).]+$/gu,'').replace(/\s+/g,' ').trim()
 const niceName=x=>{x=cleanLine(x);return /\p{Ll}/u.test(x)?x:x.toLowerCase().replace(/(^|[\s\-'’.&(])(\p{L})/gu,(m,a,c)=>a+c.toUpperCase())};
 const scRoaster=x=>x.sc&&typeof x.sc.roaster==='string'?x.sc.roaster:(x.info&&x.info.roaster)||'';
+/* ---------- The scanner's memory of roasteries ----------
+   A scan should know a roastery you've had before, even when the label hides its name.
+   1. Your spelling: a name read as "KUF ROASTERY" or "Kuf" becomes the "Kuf Roastery" you already have.
+   2. The words on its bags: each roastery keeps the distinctive words its scanned bags carried (its web address,
+      handle, brand mark, the line under its logo). A new label sharing them is that roastery's.
+   3. The look of its bags: a tiny colour layout of each bag photo in your gallery (8×8, made once, kept here). A new
+      bag laid out and coloured like one you've had, from the same maker, is very likely theirs, even for another coffee.
+   Kept in bb-romem: t = roastery → {word: times seen}, v = coffee id → [roastery, colour layout]. */
+const RO_GENERIC=new Set(['coffee','coffees','roastery','roasters','roaster','roasting','roasted','co','company','cafe','caffe','the','and','specialty','speciality','lab','house','beans','bean']);
+let RMEM=(()=>{const o=load('bb-romem',null);return{t:o&&o.t&&typeof o.t==='object'?o.t:{},v:o&&o.v&&typeof o.v==='object'?o.v:{}}})();
+const saveRmem=()=>save('bb-romem',RMEM);
+const roNorm=n=>fold(String(n||'')).replace(/&/g,' and ').replace(/[^a-z0-9 ]+/g,' ').split(' ').filter(w=>w&&!RO_GENERIC.has(w)).join('');
+function knownRoasters(){const m=new Map();for(const b of (typeof BEANS!=='undefined'?BEANS:[]))if(b.roaster&&b.roaster.trim())m.set(b.roaster.trim(),(m.get(b.roaster.trim())||0)+1);
+  for(const x of SCANS){const r=scRoaster(x);if(r&&!m.has(r.trim()))m.set(r.trim(),0)}return [...m.keys()].sort((a,b)=>m.get(b)-m.get(a))}
+// 1. A name read off a label, in the spelling you already use for that roastery (or as read, if it's new to you).
+function roCanon(name){const k=roNorm(name);if(k.length<2)return name;
+  // The same once "Roastery", "Coffee" and the like are set aside; or one a long start of the other ("Spirit Hub" and
+  // "Spirithub Coffee"), never a short one ("Kuf" is not "Kufa").
+  const same=(a,b)=>a===b||(Math.min(a.length,b.length)>=5&&(a.startsWith(b)||b.startsWith(a))&&Math.min(a.length,b.length)/Math.max(a.length,b.length)>=.7);
+  for(const n of knownRoasters()){const m=roNorm(n);if(m&&same(m,k))return n}return name}
+// The words of a label worth remembering: not numbers, coffee words or anything every bag says.
+const RO_COMMON=/^(roast(ed|ing)?|date|best|before|net|weight|wt|grams?|kg|oz|altitude|masl|metres?|meters?|process(ed)?|notes?|tasting|cupping|farm|finca|region|producer|variety|varietal|harvest|crop|lot|origin|country|light|medium|dark|filter|espresso|omni|whole|ground|natural|washed|honey|anaerobic|arabica|single|blend|fruity|sweet|floral|chocolate|cocoa|caramel|berry|citrus|with|from|for|our|your|this|that|www|http|https|com|net)$/;
+function roWords(text){const out=new Set(),raw=String(text||'');
+  for(const h of raw.match(/(?:www\.|https?:\/\/)?[\w\-]+\.(?:com|coffee|cafe|co|shop|sa|ae|kw|om|qa|bh)\b|@[a-z0-9_.]{3,30}/gi)||[])out.add('#'+fold(h).replace(/^(https?:\/\/)?(www\.)?/,''));
+  for(const w of fold(raw).split(/[^a-z0-9؀-ۿ]+/))if(w.length>=3&&!/^\d+$/.test(w)&&!RO_COMMON.test(w)&&!RO_GENERIC.has(w)&&!(typeof ALLO==='function'&&ALLO()[w]))out.add(w);
+  return out}
+function roLearnWords(name,text){if(!name||!text)return;const k=name.trim(),t=RMEM.t[k]||(RMEM.t[k]={});for(const w of roWords(text))t[w]=(t[w]||0)+1;
+  // Keep the words seen most (a roastery's own words come back on every bag).
+  const e=Object.entries(t);if(e.length>160){e.sort((a,b)=>b[1]-a[1]);RMEM.t[k]=Object.fromEntries(e.slice(0,160))}saveRmem()}
+// 2. The roastery whose bags share this label's words. A word counts less the more roasteries have it, and a web
+// address or handle counts most. Nothing unless one roastery clearly leads.
+function roByWords(text){const W=roWords(text);if(!W.size)return'';const has={};for(const [r,t] of Object.entries(RMEM.t))for(const w in t)if(W.has(w))(has[w]=has[w]||[]).push(r);
+  const sc={};for(const [w,rs] of Object.entries(has))for(const r of rs)sc[r]=(sc[r]||0)+(w[0]==='#'?3:1)/rs.length;
+  const top=Object.entries(sc).sort((a,b)=>b[1]-a[1]);if(!top.length||top[0][1]<2)return'';if(top[1]&&top[1][1]*1.5>top[0][1])return'';return top[0][0]}
+// 3. A photo's colour layout: the middle of the picture shrunk to 8×8, three numbers a square.
+const roImg=src=>new Promise((ok,no)=>{const img=new Image(),u=typeof src==='string'?src:URL.createObjectURL(src);img.onload=()=>{if(u!==src)URL.revokeObjectURL(u);ok(img)};img.onerror=()=>no(new Error('image'));img.src=u});
+async function roLook(src){try{const img=await roImg(src),c=document.createElement('canvas');c.width=c.height=8;const x=c.getContext('2d',{willReadFrequently:true});
+  const m=Math.min(img.width,img.height)*.86,sx=(img.width-m)/2,sy=(img.height-m)/2;x.drawImage(img,sx,sy,m,m,0,0,8,8);const d=x.getImageData(0,0,8,8).data,v=[];
+  for(let i=0;i<d.length;i+=4)v.push(d[i],d[i+1],d[i+2]);return btoa(String.fromCharCode(...v))}catch(e){return''}}
+const roLookDist=(a,b)=>{const x=atob(a),y=atob(b);if(x.length!==y.length)return 1;let s=0;for(let i=0;i<x.length;i++)s+=Math.abs(x.charCodeAt(i)-y.charCodeAt(i));return s/x.length/255};
+// The roastery whose bags look most like this one, if it's close and no other roastery's bag is nearly as close.
+async function roByLook(src){const v=await roLook(src);if(!v)return'';const best={};for(const [r,lv] of Object.values(RMEM.v)){if(!r||!lv)continue;const d=roLookDist(v,lv);if(best[r]==null||d<best[r])best[r]=d}
+  const top=Object.entries(best).sort((a,b)=>a[1]-b[1]);if(!top.length||top[0][1]>.085)return'';if(top[1]&&top[1][1]-top[0][1]<.03)return'';return top[0][0]}
+// The gallery's bag photos are learnt a few at a time while the phone is idle: each coffee once (and again if its
+// photo or roastery changes, see roForget).
+function roLearnGallery(){if(typeof BEANS==='undefined'||!window.BEANS_OK)return;const ids=new Set(BEANS.map(b=>b.id));let ch=false;
+  for(const k of Object.keys(RMEM.v))if(!k.startsWith('s:')&&!ids.has(k)){delete RMEM.v[k];ch=true}
+  for(const b of BEANS){const e=RMEM.v[b.id];if(e&&e[0]!==(b.roaster||'').trim()){e[0]=(b.roaster||'').trim();ch=true}}if(ch)saveRmem();
+  const todo=BEANS.filter(b=>b.img&&b.roaster&&b.roaster.trim()&&!RMEM.v[b.id]).slice(0,6);if(!todo.length)return;
+  (async()=>{for(const b of todo){const u=await BIMG.thumb(b.id).catch(()=>null);if(!u)continue;const v=await roLook(u);if(v)RMEM.v[b.id]=[b.roaster.trim(),v];
+    await new Promise(r=>(window.requestIdleCallback||setTimeout)(r,{timeout:800}))}saveRmem();(window.requestIdleCallback||setTimeout)(roLearnGallery,{timeout:4000})})()}
+const roForget=id=>{if(RMEM.v[id]){delete RMEM.v[id];saveRmem()}};
+// After a label is read: settle the roastery from all three, and say how when it wasn't read off the label.
+async function scanRoasterHelp(text){SC.roHow='';
+  if(SC.roaster){const c=roCanon(SC.roaster);if(c!==SC.roaster){SC.roaster=c;SC.roHow='yours'}return}
+  const w=roByWords(text);if(w){SC.roaster=w;SC.roHow='words';return}
+  const src=$('scan-prev')&&$('scan-prev').src;if(src&&SFILE){const l=await roByLook(src);if(l){SC.roaster=l;SC.roHow='look'}}}
+const roHowText=()=>SC.roHow==='look'?' Roastery: '+SC.roaster+', from the look of the bag (change it if that’s wrong).':SC.roHow==='words'?' Roastery: '+SC.roaster+', from words on its other bags.':SC.roHow==='yours'?' Roastery: '+SC.roaster+', as you’ve saved it before.':'';
+// What a scan taught: the roastery's words, and the bag's look, once you've confirmed the roastery.
+async function roLearnScan(){const r=(SC.roaster||'').trim();if(!r)return;roLearnWords(r,$('scan-text')&&$('scan-text').value);
+  const src=$('scan-prev')&&$('scan-prev').src;if(src&&SC.id&&SFILE){const v=await roLook(src);if(v){RMEM.v['s:'+SC.id]=[r,v];const sk=Object.keys(RMEM.v).filter(k=>k.startsWith('s:'));for(const k of sk.slice(0,Math.max(0,sk.length-40)))delete RMEM.v[k];saveRmem()}}}
 function plausibleName(x){x=cleanLine(x);if(x.length<3||x.length>60)return false;const chars=x.replace(/\s/g,''),letters=(chars.match(/\p{L}/gu)||[]).length,words=x.split(' ');
     // Short words count against it, except the little words names are made of ("La Palma y El Tucán", "Finca de la Sierra").
   return letters/chars.length>=0.75&&words.some(w=>(w.match(/\p{L}/gu)||[]).length>=3)&&words.filter(w=>w.replace(/\W/g,'').length<=2&&!NAME_SMALL.test(w)).length<=Math.floor(words.length/2)}
@@ -8184,8 +8292,8 @@ async function runLocalScan(useImg){
     // A photo's reading already chose the name and roastery from the type sizes; pasted text is read here.
     if(!j)j=parseLabel(text);if(!j.origin_key&&!j.variety_key&&!j.process_key&&!j.roast_date){st.textContent=useImg?'Couldn’t find coffee details in that photo. Try again with the label filling most of the photo, in sharp focus, or fill in the details below.':'No coffee details found in that text.';return}
     if(rot)await uprightPreview(rot);
-    applyInfo(j);const found=[okOrigin(j.origin_key)&&originName(j.origin_key),j.process_key&&PROCESSES[j.process_key].name,j.variety_key&&vName(j.variety_key),j.roast_date&&'roasted '+fmtDate({date:j.roast_date})].filter(Boolean);
-    st.textContent=(j.confidence==='low'?'Found a few details: ':'Label read: ')+found.join(' · ')+'. Your brew plan is below; adjust anything that looks off.';renderScan();saveScan();toast('Label read');
+    applyInfo(j);await scanRoasterHelp(text);const found=[okOrigin(j.origin_key)&&originName(j.origin_key),j.process_key&&PROCESSES[j.process_key].name,j.variety_key&&vName(j.variety_key),j.roast_date&&'roasted '+fmtDate({date:j.roast_date})].filter(Boolean);
+    st.textContent=(j.confidence==='low'?'Found a few details: ':'Label read: ')+found.join(' · ')+'. Your brew plan is below; adjust anything that looks off.'+roHowText();renderScan();saveScan();roLearnScan();toast('Label read');
     // Show the result: it sits below the form, out of sight on a phone.
     setTimeout(()=>{const h=$('scan-head');if(h)scrollTo({top:h.getBoundingClientRect().top+scrollY-90,behavior:RM()?'auto':'smooth'})},250)}
   catch(e){const c=e&&e.code;if(useImg&&(c==='cancelled'||c==='slow'))resetOcr();st.textContent=c==='cancelled'?'Stopped.'
@@ -8201,9 +8309,11 @@ async function runLocalScan(useImg){
 async function uprightPreview(rot){try{const img=await loadImage(SFILE),k=Math.min(1,1200/Math.max(img.width,img.height)),w=img.width*k,h=img.height*k,c=document.createElement('canvas'),side=rot%180!==0;
   c.width=side?h:w;c.height=side?w:h;const x=c.getContext('2d');x.translate(c.width/2,c.height/2);x.rotate(rot*Math.PI/180);x.drawImage(img,-w/2,-h/2,w,h);$('scan-prev').src=c.toDataURL('image/jpeg',.85)}catch(e){}}
 function usePhoto(f){SFILE=f;clearScanData();SC.blank=true;renderScan();if($('scan-prev').src.startsWith('blob:'))URL.revokeObjectURL($('scan-prev').src);
-  $('scan-prev').src=URL.createObjectURL(f);$('scan-prev').hidden=false;photoIn($('scan-drop'));$('scan-empty').hidden=true;$('scan-go').disabled=false;$('scan-again').hidden=false;$('scan-status').hidden=false;runScan(true)}
+  const pv=$('scan-prev');pv.src=URL.createObjectURL(f);pv.hidden=false;
+  // The photo pops in as soon as it's decoded (a big one from the gallery takes a moment), never before.
+  (pv.decode?pv.decode().catch(()=>{}):Promise.resolve()).then(()=>photoIn($('scan-drop')));$('scan-empty').hidden=true;$('scan-go').disabled=false;$('scan-again').hidden=false;$('scan-status').hidden=false;runScan(true)}
 // A photo arriving, taken or chosen: a quick flash and the picture settles into place, before the scan line runs.
-function photoIn(box){if(!box||RM())return;box.classList.remove('photo-in');void box.offsetWidth;box.classList.add('photo-in');setTimeout(()=>box.classList.remove('photo-in'),700)}
+function photoIn(box){if(!box||RM())return;box.classList.remove('photo-in');void box.offsetWidth;box.classList.add('photo-in');setTimeout(()=>box.classList.remove('photo-in'),300)}
 /* In-app camera. Some phones answer a file input's "use the camera" request with the gallery anyway, so the
    camera runs inside the app: a live viewfinder with a frame for the label and a shutter. If the camera can't
    start (no permission, no camera), the phone's own picker opens instead. */
@@ -8243,18 +8353,36 @@ function newScan(){clearScanData();SC.blank=true;SFILE=null;const pv=$('scan-pre
 function renderScanList(){if(window.BEANS_OK&&$('bv-scans')){renderBeanScans();renderBeanViews()}}
 // What to call the coffee: its name if we have a real one, else origin and variety ("Colombia Pink Bourbon").
 // Suggestions under a text box, drawn by the app (the phone's own list draws see-through over the form in some web views).
-function autoList(inp,box,all){if(inp.dataset.ac)return;inp.dataset.ac=1;let at=-1,l=[];
+// all: a list of names, or a function. A function that takes the typed text (rich lists such as roasteries) returns
+// the rows to show itself: names, or {v,h} with the value to fill in and the row's HTML.
+function autoList(inp,box,all){if(inp.dataset.ac)return;inp.dataset.ac=1;let at=-1,l=[];const rich=typeof all==='function'&&all.length>0;
+  const val=r=>typeof r==='string'?r:r.v;
   const close=()=>{box.hidden=true;at=-1;inp.setAttribute('aria-expanded','false');inp.removeAttribute('aria-activedescendant')};
   const pick=v=>{inp.value=v;close();inp.dispatchEvent(new Event('input',{bubbles:true}))};
   const hl=()=>box.querySelectorAll('[role=option]').forEach((o,i)=>{o.setAttribute('aria-selected',i===at);if(i===at){inp.setAttribute('aria-activedescendant',o.id);o.scrollIntoView({block:'nearest'})}});
-  const draw=()=>{const q=inp.value.trim().toLowerCase();l=(typeof all==='function'?all():all).filter(r=>r.toLowerCase()!==q&&(!q||r.toLowerCase().includes(q))).slice(0,6);at=-1;
+  const draw=()=>{const q=inp.value.trim().toLowerCase();
+    l=rich?all(inp.value.trim()).filter(r=>val(r).toLowerCase()!==q).slice(0,8):(typeof all==='function'?all():all).filter(r=>r.toLowerCase()!==q&&(!q||r.toLowerCase().includes(q))).slice(0,6);at=-1;
     if(!l.length||document.activeElement!==inp){close();return}
-    box.innerHTML=l.map((r,i)=>'<div role="option" class="aco" id="'+box.id+'-'+i+'" data-i="'+i+'" aria-selected="false">'+esc(r)+'</div>').join('');box.hidden=false;inp.setAttribute('aria-expanded','true')};
+    box.innerHTML=l.map((r,i)=>'<div role="option" class="aco'+(typeof r==='string'?'':' rich')+'" id="'+box.id+'-'+i+'" data-i="'+i+'" aria-selected="false">'+(typeof r==='string'?esc(r):r.h)+'</div>').join('');box.hidden=false;inp.setAttribute('aria-expanded','true')};
   inp.addEventListener('focus',draw);inp.addEventListener('input',e=>{if(e.isTrusted)draw()});inp.addEventListener('blur',()=>setTimeout(()=>{if(document.activeElement!==inp)close()},120));
   inp.addEventListener('keydown',e=>{if(box.hidden)return;if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();at=(at+(e.key==='ArrowDown'?1:-1)+l.length)%l.length;hl()}
-    else if(e.key==='Enter'&&at>=0){e.preventDefault();pick(l[at])}else if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close()}});
+    else if(e.key==='Enter'&&at>=0){e.preventDefault();pick(val(l[at]))}else if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close()}});
   // pointerdown keeps the focus in the box, so the tap lands before the list closes.
-  box.addEventListener('pointerdown',e=>e.preventDefault());box.addEventListener('click',e=>{const o=e.target.closest('[data-i]');if(o)pick(l[+o.dataset.i])})}
+  box.addEventListener('pointerdown',e=>e.preventDefault());box.addEventListener('click',e=>{const o=e.target.closest('[data-i]');if(o)pick(val(l[+o.dataset.i]))})}
+/* The roastery box's suggestions: your roasteries first (the ones with most coffees on top), each with its logo or
+   initials and how many of its coffees you have; while you type, roasteries from the app's list that match too. The
+   letters you typed are picked out. */
+function roasterRows(extra){const own=new Map();const add=(n,c)=>{n=String(n||'').trim();if(!n)return;const k=n.toLowerCase();const o=own.get(k);if(o)o.c+=c;else own.set(k,{n,c})};
+  for(const b of (typeof BEANS!=='undefined'?BEANS:[]))add(b.roaster,1);for(const x of SCANS)add(scRoaster(x),0);for(const n of extra||[])add(n,0);
+  const mine=[...own.values()].sort((a,b)=>b.c-a.c||a.n.localeCompare(b.n));
+  const mark=n=>typeof roMark==='function'?roMark(n):'<span class="ro-mark" aria-hidden="true">'+esc(n[0].toUpperCase())+'</span>';
+  return q=>{const f=fold(q).trim(),hit=n=>!f||fold(n).includes(f);
+    const hi=n=>{if(!f)return esc(n);const i=fold(n).indexOf(f);return i<0?esc(n):esc(n.slice(0,i))+'<mark>'+esc(n.slice(i,i+f.length))+'</mark>'+esc(n.slice(i+f.length))};
+    const row=(n,sub)=>({v:n,h:mark(n)+'<span class="aco-tx"><b>'+hi(n)+'</b><small>'+sub+'</small></span>'});
+    const out=mine.filter(r=>hit(r.n)).map(r=>row(r.n,r.c?r.c+' coffee'+(r.c===1?'':'s'):'From your scans'));
+    if(f.length>=2){const seen=new Set(mine.map(r=>fold(r.n)));for(const e of (typeof ROASTERS!=='undefined'?ROASTERS:[])){const n=e.split('|')[0];if(out.length>=8)break;
+      if(!seen.has(fold(n))&&fold(n).split(/[^a-z0-9]+/).some(w=>w.startsWith(f))||(!seen.has(fold(n))&&f.length>=3&&fold(n).includes(f))){seen.add(fold(n));out.push(row(n,'In the roastery list'))}}}
+    return out}}
 // The other varieties a label named, beside the one the scan settled on.
 function scanVars(sc,inf){const k=inf&&Array.isArray(inf.variety_keys)?inf.variety_keys:[],b=String(sc.variety||'').split(':')[0];return k.filter(v=>typeof v==='string'&&VBY[v]&&v!==b).slice(0,3)}
 function scanTitle(sc,inf){const n=sc.name||(inf&&plausibleName(inf.coffee_name)?niceName(inf.coffee_name):'')||(inf&&inf.producer_or_farm)||'';const o=sc.origin?originName(sc.origin):'',v=sc.variety!=='arabica'?vName(sc.variety):'';return n||(o&&v?o+' '+v:o?o+' coffee':v||'A coffee')}
@@ -8403,7 +8531,9 @@ function renderScan(){
   const tl=techList(SC.brewer);const pref=tl.find(([r])=>P.funk>=1.2?(r.kind==='kh1'||r.kind==='imm'||r.kind==='kh2'):Vp.clarity>=0.8?(r.kind==='46'||r.kind==='neo'||r.kind==='pulse'):true);if(pref)c.tech=pref[1];
   const p=plan(c);const o=oInfo(SC.origin),inf=SC.info;
   const kv=inf?[['Producer or farm',inf.producer_or_farm],['Region',inf.region],['Altitude',inf.altitude],['Varieties',(inf.varieties||[]).join(', ')],['Process',inf.process],['Notes',(inf.tasting_notes||[]).join(', ')],['Bag',SC.bag?SC.bag+' g':'']].filter(x=>x[1]):[];
-  $('s-name').value=SC.name||'';$('s-roaster').value=SC.roaster||'';autoList($('s-roaster'),$('s-rsug'),()=>[...new Set([...SCANS.map(scRoaster),...(typeof BEANS!=='undefined'?BEANS:[]).map(x=>x.roaster)].filter(Boolean))].sort());
+  $('s-name').value=SC.name||'';$('s-roaster').value=SC.roaster||'';autoList($('s-roaster'),$('s-rsug'),q=>roasterRows()(q));
+  // A roastery you correct by hand teaches the scanner too (its words and its bag's look).
+  if(!$('s-roaster').dataset.learn){$('s-roaster').dataset.learn=1;$('s-roaster').addEventListener('change',()=>{if(SC.roaster)roLearnScan()})}
   if(SC.blank){$('scan-out').innerHTML='<div class="scan-wait"><span class="sw-ic" aria-hidden="true">'+CI(BT_ICON['Cone dripper'])+'</span><b>Your coffee shows here</b><p class="hint">Scan a bag or type its label, and its profile, notes and how to brew it appear here.</p></div>';
     save('bb-scan',Object.assign({},SC));return}
   $('scan-out').innerHTML='<div id="scan-head"></div>'+(inf?(inf.summary?'<p class="hint">'+esc(inf.summary)+'</p>':'')+(kv.length?'<dl class="kv">'+kv.map(([k,v])=>'<dt>'+k+'</dt><dd>'+esc(v)+'</dd>').join('')+'</dl>':''):'<p class="hint">Scan a bag or fill in the details to get a plan.</p>')+
@@ -9050,10 +9180,10 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
    '<h3 class="rh">Grind settings</h3><div class="setgroup">'+row('cog','#6E8FA8','Grind settings','Each grinder\u2019s setting for every brewer, and a nudge for all its recipes. Now in Gear and dials.','<div class="actions gs-shortcut" style="margin:0"><button type="button" class="btn ghost" data-gearto="set">Open grind settings</button></div>')+'</div>'+
 
    '<h3 class="rh">Reminders</h3><div class="setgroup">'+row('bell','#8A5A3B','Coffee of the day','A coffee from your cabinet each day: a bag at its peak or running low, one from this day in an earlier year, or a memory from your diary.',
-     window.BEANS_OK&&LN()?'<div class="setbtns"><div class="seg" id="st-remind"></div><input type="time" id="st-rtime" class="dateinp" value="'+REMIND.t+'" aria-label="Reminder time"'+(REMIND.on?'':' disabled')+'></div>'
+     window.BEANS_OK&&LN()?'<div class="setbtns rem"><div class="seg" id="st-remind"></div><input type="time" id="st-rtime" class="dateinp" value="'+REMIND.t+'" aria-label="Reminder time"'+(REMIND.on?'':' disabled')+'></div>'
        :'<p class="setnote" style="margin:0">It’s at the top of Beans and Explore each day. In the Android app it can also arrive as a notification at the time you choose.</p>')+
      row('bulb','#9A7390','Coffee fact of the day','Something worth knowing from Explore each day, in turn: a coffee word, a variety, an origin, a process, a brewing technique, a moment in history or a champion.',
-       window.BEANS_OK&&LN()?'<div class="setbtns"><div class="seg" id="st-learn"></div><input type="time" id="st-ltime" class="dateinp" value="'+LEARN.t+'" aria-label="Fact time"'+(LEARN.on?'':' disabled')+'></div>'
+       window.BEANS_OK&&LN()?'<div class="setbtns rem"><div class="seg" id="st-learn"></div><input type="time" id="st-ltime" class="dateinp" value="'+LEARN.t+'" aria-label="Fact time"'+(LEARN.on?'':' disabled')+'></div>'
          :'<p class="setnote" style="margin:0">Today’s is on the Explore page. In the Android app it can also arrive as a notification at the time you choose.</p>')+'</div>'+
    /* Gear, Guide and the Log are the buttons at the top. */
    '<h3 class="rh">Your data</h3><div class="setgroup">'+row('download','#8A5A3B','Back up and restore','Everything you’ve saved stays on this device: '+esc(dataSummary())+'. Save it as a file, photos included, to keep it safe or move it to another phone.',
@@ -9113,13 +9243,14 @@ $('ab-share').onclick=()=>{const id=(document.querySelector('main section.on')||
   if(id==='dial')openShare(dialDoc());else if(id==='scan')$('sc-share').click();else if(id==='history')openShare(historyDoc());else if(id==='log')openShare(logDoc());else if(id==='map'){if(SEL)openShare(originDoc(SEL));else toast('Pick an origin first')}else if(id==='recipes'&&rListed())openShare(recipesDoc());else if(id==='words')openShare(wordsDoc());else if(id==='flow')openShare(flowDoc());else if(id==='wheel')openShare(wheelDoc())};
 $('dial-share').onclick=()=>openShare(dialDoc());
 $('ab-back').onclick=()=>history.back();
-// The Android back gesture asks here first: close the top sheet, scroll the page back to its top, or step back a screen. False means there is nothing
+// The Android back gesture asks here first: close the top sheet, step back a screen, or scroll the first screen to its top. False means there is nothing
 // left to go back to, so the app goes to the background like any other.
 window.bbBack=()=>{const d=[...document.querySelectorAll('dialog[open]:not(.closing)')].pop();
   if(d){if(history.state&&history.state.dlg)history.back();else d.close();return true}
-  // Scrolled down a page: the first back goes to its top; the next one goes back a screen.
-  if(scrollY>80){scrollTo({top:0,behavior:RM()?'auto':'smooth'});return true}
+  // A screen to go back to: back goes there at once, to where you were on it.
   if(NAVD>0){history.back();return true}
+  // On the first screen, scrolled down: back goes to its top before it leaves the app.
+  if(scrollY>80){scrollTo({top:0,behavior:RM()?'auto':'smooth'});return true}
   if(!document.getElementById('dial').classList.contains('on')){showTab('dial');NAVD=0;syncShell('dial');return true}
   return false};
 $('hist-share').onclick=()=>openShare(historyDoc());
@@ -9193,7 +9324,7 @@ function todayCard(day,w){const f=factFor(day),chev='<svg class="td-go" viewBox=
     row('data-word="'+esc(w[0])+'"',FACT_TILE.word,'Word of the day',w[0],sentences(w[2],150))+
     (f.k==='word'?'':row('data-fact="'+day+'"',FACT_TILE[f.k]||FACT_TILE.word,esc(f.tag==='From history'?'From history':'Did you know · '+f.tag),f.title,sentences(ft,150),yr))+'</div>'}
 // Opens what a fact is about; false when there is nothing to open for it.
-function goFact(g){if(!g)return false;if(g.word){if(!GBY[g.word])return false;openWord(g.word)}else if(g.variety)openVariety(g.variety);else if(g.origin){goTab('map');selectOrigin(g.origin,true)}
+function goFact(g){if(!g)return false;if(g.word){if(!GBY[g.word])return false;openWord(g.word)}else if(g.variety)openVariety(g.variety);else if(g.origin){showTab('map');selectOrigin(g.origin,true)}
   else if(g.process)openProcess(g.process);else if(g.champ!=null&&CHAMPS[g.champ]){showTab('champs');openChamp(CHAMPS[g.champ])}else if(g.tab)showTab(g.tab);else return false;return true}
 $('explore-in').addEventListener('click',e=>{const f=e.target.closest('[data-fact]');if(f){e.stopPropagation();goFact(factFor(+f.dataset.fact).go)}},true);
 // In the Android app it can also arrive as a notification: the next two weeks are scheduled ahead, and again on opening.
@@ -9343,10 +9474,15 @@ const BIMG=(()=>{let dbp=null;const cache=new Map();
   return{peek:id=>cache.get(id),peekThumb:id=>cache.get(T(id)),get,thumb,
     put:(id,v)=>{cache.set(id,v);cache.delete(T(id));return tx('readwrite',s=>{s.delete(T(id));return s.put(v,id)}).then(()=>true).catch(()=>false)},
     del:id=>{cache.delete(id);cache.delete(T(id));return tx('readwrite',s=>{s.delete(T(id));return s.delete(id)}).then(()=>true).catch(()=>false)},
-    // Every photo, for the backup file.
+    // Every photo, for the backup file (not the list copies or the passport stamps, which are made again).
     all:()=>db().then(d=>new Promise(ok=>{const t=d.transaction('img','readonly'),s=t.objectStore('img'),k=s.getAllKeys(),v=s.getAll();
-      t.oncomplete=()=>ok(Object.fromEntries(k.result.map((x,i)=>[x,v.result[i]]).filter(([x,u])=>typeof u==='string'&&!/#t$/.test(x))));t.onerror=()=>ok({})})).catch(()=>({})),
+      t.oncomplete=()=>ok(Object.fromEntries(k.result.map((x,i)=>[x,v.result[i]]).filter(([x,u])=>typeof u==='string'&&!/#t$/.test(x)&&!/^stamp:/.test(x))));t.onerror=()=>ok({})})).catch(()=>({})),
+    // Everything kept under a prefix ("logo:"), in one read.
+    prefix:p=>db().then(d=>new Promise(ok=>{const t=d.transaction('img','readonly'),st=t.objectStore('img'),r=IDBKeyRange.bound(p,p+'\uffff'),k=st.getAllKeys(r),v=st.getAll(r);
+      t.oncomplete=()=>ok(Object.fromEntries(k.result.map((x,i)=>[x,v.result[i]]).filter(([,u])=>typeof u==='string')));t.onerror=()=>ok({})})).catch(()=>({})),
     clear:()=>{cache.clear();return tx('readwrite',s=>s.clear()).catch(()=>{})}}})();
+// Roastery logos (see roLogo); here so everything that draws the gallery can read them from the start.
+const RO_LOGOS=new Map();let LOGOV=0;
 
 const ISO_D=/^\d{4}-\d{2}-\d{2}$/;
 const todayISO=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
@@ -9429,7 +9565,7 @@ const saveTop3=()=>{BREV++;save('bb-top3',TOP3)};
 let BREV=0,BSIG='';
 // What the Beans page shows depends on: your coffees, every change to the brew log (not just new brews), scans, the
 // day, trophies and who you are (your brews are the ones under your name).
-const beansSig=()=>[BREV,LOGV,LOG.length,SCANS.length,todayISO(),Object.keys(TGOT||{}).length,typeof ME==='string'?ME:''].join('|');
+const beansSig=()=>[BREV,LOGOV,LOGV,LOG.length,SCANS.length,todayISO(),Object.keys(TGOT||{}).length,typeof ME==='string'?ME:''].join('|');
 // Every cup you made: brews in your log, plus cups finished with the dial-in's timer that weren't logged. `year` keeps
 // it to one year. Each comes with its grams of coffee.
 function myCups(year){const inY=ts=>!year||new Date(ts).getFullYear()===year;const used=new Set(LOG.map(l=>l&&l.cup).filter(Boolean));
@@ -10047,11 +10183,12 @@ async function warmBeanPhotos(){const root=$('beans');if(!root)return;const orde
     if(u){try{const i=new Image();i.src=u;await i.decode()}catch(e){}root.querySelectorAll('[data-bimg="'+b.id+'"]').forEach(el=>{if(!el.classList.contains('hero'))loadImg(el)})}
     await new Promise(r=>(window.requestIdleCallback||setTimeout)(r,{timeout:500}))}}
 function hydrateImgs(root){root.querySelectorAll('[data-bimg]').forEach(el=>{if(BIMG.peekThumb(el.dataset.bimg)||!BIO||root.closest&&root.closest('dialog'))loadImg(el);else BIO.observe(el)});requestAnimationFrame(()=>loadNear(root))}
-// Photos already on screen (or close) load straight away. A list drawn while its tab was hidden never hears from the
-// observer when the tab is shown, so its first rows stayed blank until you scrolled.
-// Every photo is measured first, then the near ones load: loading one between measurements re-laid the page out each time.
-function loadNear(root){if(!root)return;const H=innerHeight+400,near=[...root.querySelectorAll('[data-bimg]')].filter(el=>{const r=el.getBoundingClientRect();return r.width&&r.bottom>-400&&r.top<H});
-  near.forEach(el=>{if(BIO)BIO.unobserve(el);loadImg(el)})}
+// Photos already on screen (or close) load straight away. A list drawn while its tab was hidden never heard from the
+// observer when the tab was shown, so its first rows stayed blank until you scrolled. Watching them again fixes that:
+// the observer always reports where a newly watched photo is. (Measuring each photo here instead made the browser lay
+// out the whole page in the middle of drawing it, a long stall on a phone with a big gallery.)
+function loadNear(root){if(!root)return;const els=root.querySelectorAll('[data-bimg]');
+  if(!BIO){els.forEach(loadImg);return}els.forEach(el=>{BIO.unobserve(el);BIO.observe(el)})}
 // The photo area: a placeholder in the origin's flag and coffee tones until the photo loads (or when there isn't one).
 // Without a photo, a coffee gets a tile in its origin region's colour (the map's colours) with a large bean.
 const regCol=k=>{const o=oInfo(k);return o&&REG[o.reg]?REG[o.reg].color:'var(--cherry)'};
@@ -10172,7 +10309,7 @@ let GRID_GEN=0;
 function renderGrid(){const g=$('bg-grid');if(!g)return;const list=beanList(),gen=++GRID_GEN;let n=0;const FIRST=8;
   if(!list.length){g.innerHTML='<p class="hint">'+(BQ.trim()?'No coffees match that search.':'No coffees here yet.')+'</p>';return}
   const groups=beanGroups(list),later=[];
-  g.innerHTML=groups.map(([h,l],gi)=>(h?(BSORT==='roaster'&&l[0].roaster?'<button type="button" class="bg-gh ro-gh" data-ro="'+esc(l[0].roaster.trim())+'"><b>'+esc(h)+'</b><span>'+l.length+'</span><i aria-hidden="true">›</i></button>':'<div class="bg-gh"><b>'+esc(h)+'</b><span>'+l.length+'</span></div>'):'')+'<div class="clist" data-g="'+gi+'">'+l.map(b=>{const i=n++;if(i<FIRST)return coffeeRow(b,false,i);later.push([gi,b,i]);return ''}).join('')+'</div>').join('');
+  g.innerHTML=groups.map(([h,l],gi)=>(h?(BSORT==='roaster'&&l[0].roaster?'<button type="button" class="bg-gh ro-gh" data-ro="'+esc(l[0].roaster.trim())+'">'+roMark(l[0].roaster.trim())+'<b>'+esc(h)+'</b><span>'+l.length+'</span><i aria-hidden="true">›</i></button>':'<div class="bg-gh"><b>'+esc(h)+'</b><span>'+l.length+'</span></div>'):'')+'<div class="clist" data-g="'+gi+'">'+l.map(b=>{const i=n++;if(i<FIRST)return coffeeRow(b,false,i);later.push([gi,b,i]);return ''}).join('')+'</div>').join('');
   hydrateImgs(g);if(!later.length)return;
   whenIdle(()=>{if(gen!==GRID_GEN)return;const by=new Map();for(const [gi,b,i] of later){if(!by.has(gi))by.set(gi,'');by.set(gi,by.get(gi)+coffeeRow(b,false,i))}
     for(const [gi,h] of by){const c=g.querySelector('.clist[data-g="'+gi+'"]');if(c)c.insertAdjacentHTML('beforeend',emoIc(h))}hydrateImgs(g)})}
@@ -10187,7 +10324,7 @@ function coffeeRow(b,now,i){const rk=beanRank(b),f=now&&fresh(b),g=now?gramsLeft
   const bagPct=now&&g!=null&&b.bag>0?Math.max(0,Math.min(100,g/b.bag*100)):null;
   return '<button type="button" class="crow'+(now?' now':'')+(isNew?' enter':'')+'" data-bean="'+b.id+'" style="--i:'+Math.min(i||0,12)+'">'+beanPic(b,'rw')+
     '<span class="cr-tx"><span class="cr-top"><b>'+esc(beanTitle(b))+'</b>'+(end?'<span class="cr-end">'+end+'</span>':'')+'</span>'+(meta?'<small>'+esc(meta)+'</small>':'')+
-      (!now&&b.flavours?'<small class="cr-notes">'+esc(b.flavours.split(/\s*[,;·]\s*/).filter(Boolean).slice(0,3).join(' · '))+'</small>':'')+
+      (!now&&b.flavours?'<span class="cr-notes">'+b.flavours.split(/\s*[,;·]\s*/).filter(Boolean).slice(0,3).map(w=>{const n=tnLeaf(w);return '<span class="cr-fl" style="--fc:'+(n?n.c:'var(--muted)')+'"><i aria-hidden="true"></i>'+esc(n?n.n:w)+'</span>'}).join('')+'</span>':'')+
       (now?'<span class="cr-now">'+(f?'<span class="cr-fresh f-'+f.k+'"><i aria-hidden="true"></i>Day '+f.d+' · '+esc(f.label)+'</span>':'<span class="cr-fresh none"><i aria-hidden="true"></i>No roast date</span>')+(g!=null?'<span class="cr-left">'+(g?g+' g':'Bag empty')+'</span>':'')+'</span>'+
         (bagPct!=null?'<span class="cr-bar" aria-hidden="true"><i style="width:'+bagPct.toFixed(0)+'%"></i></span>':''):'')+'</span></button>'}
 // The bags you're drinking now, each with its freshness and what's left.
@@ -10279,8 +10416,14 @@ const STAMP_WAIT='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://ww
 const idle=f=>window.requestIdleCallback?requestIdleCallback(f,{timeout:300}):setTimeout(f,16);
 function fillStamps(root){const left=[...root.querySelectorAll('img[data-stamp]')].filter(i=>!STAMPS.has(i.dataset.stamp));
   // Each stamp is a canvas drawing, so none is drawn while you're moving between pages.
-  const next=()=>{if(performance.now()-NAV_AT<800){setTimeout(()=>idle(next),400);return}const im=left.shift();if(!im||!im.isConnected)return;const u=stampURL(im.dataset.stamp);root.querySelectorAll('img[data-stamp="'+im.dataset.stamp+'"]').forEach(x=>{if(u)x.src=u});if(left.length)idle(next)};
+  // A stamp drawn before is kept on the phone (with the photos), so it's read back rather than drawn again each time
+  // the app opens; the key holds the app's version, so a redesigned stamp is drawn afresh.
+  const show=(k,u)=>root.querySelectorAll('img[data-stamp="'+k+'"]').forEach(x=>{if(u)x.src=u});
+  const next=()=>{if(performance.now()-NAV_AT<800){setTimeout(()=>idle(next),400);return}const im=left.shift();if(!im||!im.isConnected)return;const k=im.dataset.stamp;
+    if(STAMPS.has(k)){show(k,STAMPS.get(k));if(left.length)idle(next);return}
+    BIMG.get(stampKey(k)).then(saved=>{if(saved){STAMPS.set(k,saved);show(k,saved)}else{const u=stampURL(k);show(k,u);if(u)BIMG.put(stampKey(k),u)}if(left.length)idle(next)})};
   root.querySelectorAll('img[data-stamp]').forEach(i=>{if(STAMPS.has(i.dataset.stamp))i.src=STAMPS.get(i.dataset.stamp)});if(left.length)idle(next)}
+const stampKey=k=>'stamp:'+k+':'+(typeof BUILD_ID==='string'?BUILD_ID:'')
 /* Trophies have their own page (a sheet), opened from the trophy row and "All trophies": the season, seasonal
    trophies and the medal grid. The passport keeps to stamps and origins. */
 function trophiesHTML(){const st=cabStats(),T=TGOT||{},earned=TROPHIES.filter(t=>T[t[0]]).length;
@@ -10377,8 +10520,14 @@ const roKey=r=>String(r||'').trim().toLowerCase();
 function roasteries(){const m=new Map();for(const b of BEANS){const k=roKey(b.roaster);if(!k)continue;if(!m.has(k))m.set(k,{name:b.roaster.trim(),list:[]});m.get(k).list.push(b)}
   for(const r of m.values()){const rated=r.list.filter(b=>b.rating);r.avg=rated.length?rated.reduce((a,b)=>a+b.rating,0)/rated.length:0;r.bags=r.list.reduce((a,b)=>a+buys(b),0);r.last=r.list.map(beanDay).sort().pop()||''}
   return [...m.values()].sort((a,b)=>b.list.length-a.list.length||b.avg-a.avg||a.name.localeCompare(b.name))}
-// A roastery's mark: its initials on a colour taken from its name, the same every time.
-function roMark(name,big){let h=0;for(const ch of roKey(name))h=(h*31+ch.charCodeAt(0))%360;const ini=name.replace(/&/g,' ').split(/\s+/).filter(w=>/^[\p{L}\p{N}]/u.test(w)&&!/^(coffee|roasters?|roastery|roasting|co\.?|the|and|of)$/i.test(w)).slice(0,2).map(w=>w[0].toUpperCase()).join('')||name[0].toUpperCase();
+/* Roastery logos: one picture per roastery, added on its page, kept with the photos (and in backups) under
+   "logo:" and its name. Read all at once when the app starts; the gallery is drawn again once they're in. */
+BIMG.prefix('logo:').then(o=>{for(const [k,v] of Object.entries(o))RO_LOGOS.set(k.slice(5),v);if(RO_LOGOS.size){LOGOV++;if($('beans')&&$('beans').classList.contains('on'))renderBeansIfChanged()}});
+const roLogo=name=>RO_LOGOS.get(roKey(name))||'';
+function setRoLogo(name,url){const k=roKey(name);if(!k)return Promise.resolve(false);LOGOV++;
+  if(url){RO_LOGOS.set(k,url);return BIMG.put('logo:'+k,url)}RO_LOGOS.delete(k);return BIMG.del('logo:'+k)}
+// A roastery's mark: its logo when you've added one, else its initials on a colour taken from its name, the same every time.
+function roMark(name,big){const lg=roLogo(name);if(lg)return '<span class="ro-mark logo'+(big?' big':'')+'" aria-hidden="true"><img alt="" src="'+lg+'"></span>';let h=0;for(const ch of roKey(name))h=(h*31+ch.charCodeAt(0))%360;const ini=name.replace(/&/g,' ').split(/\s+/).filter(w=>/^[\p{L}\p{N}]/u.test(w)&&!/^(coffee|roasters?|roastery|roasting|co\.?|the|and|of)$/i.test(w)).slice(0,2).map(w=>w[0].toUpperCase()).join('')||name[0].toUpperCase();
   return '<span class="ro-mark'+(big?' big':'')+'" style="--h:'+h+'" aria-hidden="true">'+esc(ini)+'</span>'}
 const roRateHTML=v=>v?'<span class="ro-rate">'+beanSVG+'<b>'+v.toFixed(1)+'</b></span>':'<span class="ro-rate none">Not rated</span>';
 // A tap shows as pressed first; the sheet opens in the next frame (see fromTap).
@@ -10402,7 +10551,7 @@ function openRoasterNow(name,fromList){const d=$('vd'),k=roKey(name),r=roasterie
   const bar=(l,tot,lab)=>l.length?'<div class="ro-dist"><b class="ro-dl">'+lab+'</b>'+l.slice(0,5).map(([v,n])=>'<div class="ro-di"><span>'+esc(v)+'</span><i><em style="width:'+Math.round(n/tot*100)+'%"></em></i><small>'+n+'</small></div>').join('')+'</div>':'';
   const tot=r.list.length;
   $('vd-in').innerHTML='<div class="vd-head ro-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button>'+(fromList?'<button type="button" class="vd-back" id="ro-back">‹ Roasteries</button>':'')+
-      '<span class="pill"><i style="background:var(--cherry)"></i>Roastery</span><div class="ro-title">'+roMark(r.name,true)+'<span><h2 id="vd-title">'+esc(r.name)+'</h2><p class="vd-sub">'+verdict+(first?' · since '+mon(first):'')+'</p></span></div></div>'+
+      '<span class="pill"><i style="background:var(--cherry)"></i>Roastery</span><div class="ro-title"><button type="button" class="ro-logo-btn" id="ro-logo" aria-label="'+(roLogo(r.name)?'Change':'Add')+' the logo of '+esc(r.name)+'" title="'+(roLogo(r.name)?'Change the logo':'Add a logo')+'">'+roMark(r.name,true)+'<span class="ro-logo-ed" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="'+(roLogo(r.name)?'M4 20h4L19 9l-4-4L4 16z':'M12 5v14M5 12h14')+'"/></svg></span></button><input type="file" id="ro-logo-f" accept="image/*" hidden><span><h2 id="vd-title">'+esc(r.name)+'</h2><p class="vd-sub">'+verdict+(first?' · since '+mon(first):'')+'</p>'+'</span>'+(roLogo(r.name)?'<div class="ro-logo-menu" id="ro-logo-menu" role="menu" hidden><button type="button" role="menuitem" id="ro-logo-ch">Change logo</button><button type="button" role="menuitem" class="danger" id="ro-logo-rm">Remove logo</button></div>':'')+'</div></div>'+
     '<div class="vd-body">'+
       '<div class="ro-stats"><div><b>'+tot+'</b><small>coffee'+(tot===1?'':'s')+'</small></div><div><b>'+(r.avg?r.avg.toFixed(1):'–')+'</b><small>average</small></div><div><b>'+r.bags+'</b><small>bag'+(r.bags===1?'':'s')+' bought</small></div><div><b>'+again+'</b><small>bought again</small></div></div>'+
       (best?'<h3 class="ro-h">Your favourite from them</h3><button type="button" class="ro-best" data-bean="'+best.id+'">'+beanPic(best)+'<span class="ro-tx"><b>'+esc(beanTitle(best))+'</b><small>'+esc([beanOrigin(best),best.process&&PROCESSES[best.process]?PROCESSES[best.process].name:''].filter(Boolean).join(' · '))+'</small></span>'+roRateHTML(best.rating)+'</button>':'')+
@@ -10414,8 +10563,18 @@ function openRoasterNow(name,fromList){const d=$('vd'),k=roKey(name),r=roasterie
   $('vd-in').onclick=e=>{const b=e.target.closest('#vd-in [data-bean]');if(b){RFROM={name:r.name,list:!!fromList};openBean(b.dataset.bean);return}
     if(e.target.closest('#ro-add')){openBeanEditor(null,{roaster:r.name});return}
     if(e.target.closest('#ro-back')){openRoasters();return}
+    // With a logo, the pen opens a small menu (change or remove); without one, it goes straight to the picture.
+    if(e.target.closest('#ro-logo')){const m=$('ro-logo-menu');if(m){m.hidden=!m.hidden;$('ro-logo').setAttribute('aria-expanded',!m.hidden)}else $('ro-logo-f').click();return}
+    if(e.target.closest('#ro-logo-ch')){$('ro-logo-menu').hidden=true;$('ro-logo-f').click();return}
+    if($('ro-logo-menu')&&!$('ro-logo-menu').hidden&&!e.target.closest('#ro-logo-menu'))$('ro-logo-menu').hidden=true;
+    if(e.target.closest('#ro-logo-rm')){setRoLogo(r.name,'').then(()=>{toast('Logo removed');openRoasterNow(r.name,fromList);renderBeansIfChanged()});return}
     if(e.target.closest('#ro-share')){openShare(roasterDoc(r.name));return}};
+  // A logo: any picture, kept small (256 px) and as a PNG so a logo on a clear background stays clear.
+  $('ro-logo-f').onchange=async e=>{const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;
+    try{const u=await logoPicture(f);await setRoLogo(r.name,u);toast('Logo added for '+r.name);openRoasterNow(r.name,fromList);renderBeansIfChanged()}catch(err){toast('Couldn’t use that picture. Try another.')}};
   $('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
+function logoPicture(f){return fileURL(f).then(src=>new Promise((ok,no)=>{const img=new Image();img.onload=()=>{const k=Math.min(1,256/Math.max(img.width,img.height)),c=document.createElement('canvas');
+  c.width=Math.max(1,Math.round(img.width*k));c.height=Math.max(1,Math.round(img.height*k));c.getContext('2d').drawImage(img,0,0,c.width,c.height);try{ok(c.toDataURL('image/png'))}catch(err){no(err)}};img.onerror=()=>no(new Error('image'));img.src=src}))}
 function roasterDoc(name){const r=roasteries().find(x=>roKey(x.name)===roKey(name));const list=[...r.list].sort((a,b)=>(b.rating||0)-(a.rating||0));
   return{title:r.name,sub:r.list.length+' coffee'+(r.list.length===1?'':'s')+(r.avg?' · rated '+r.avg.toFixed(1)+' on average':''),file:'roastery-'+r.name,
     blocks:[{kv:[['Coffees',String(r.list.length)],['Bags bought',String(r.bags)],['Average rating',r.avg?r.avg.toFixed(1)+' of 5':'Not rated']]},{h:'Coffees',list:list.map(b=>beanTitle(b)+(beanOrigin(b)?' ('+beanOrigin(b)+')':'')+(b.rating?' · '+b.rating+' of 5':''))}]}}
@@ -10549,7 +10708,7 @@ function openBeanEditor(b,pre){if(fromTap(()=>openBeanEditorNow(b,pre)))return;o
 function openBeanEditorNow(b,pre){const isNew=!b;const B=Object.assign({name:'',roaster:'',origin:'',blend:[],process:'',variety:'',vars:[],roast:'',roastDate:'',tried:'',rating:0,flavours:'',notes:'',img:false,shelf:true,bag:0},b||{},pre||{});
   let photo=null,photoChanged=false,rating=B.rating;const d=$('vd');
   const opt=(h,none)=>'<option value="">'+none+'</option>'+h;
-  const roasters=[...new Set([...BEANS.map(x=>x.roaster),...SCANS.map(scRoaster)].filter(Boolean))].sort();
+
   $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Bean gallery</span><h2 id="vd-title">'+(isNew?(B.cal?'Door '+B.cal.d+': add its coffee':'Add a coffee'):'Edit '+esc(beanTitle(B)))+'</h2></div>'+
    '<div class="vd-body beform"><div class="be-photo" id="be-photo"><span class="bph">'+beanSVG+'<small>Add a photo of the bag</small></span></div>'+
    '<div class="actions two-up"><button type="button" class="btn ghost" id="be-cam">Take a photo</button><button type="button" class="btn ghost" id="be-pick">Choose a photo</button></div>'+
@@ -10571,7 +10730,7 @@ function openBeanEditorNow(b,pre){const isNew=!b;const B=Object.assign({name:'',
    '<div class="field"><label for="be-notes">Your notes</label><textarea id="be-notes" rows="3" maxlength="600" placeholder="How you brewed it, what you loved, would you buy it again?">'+esc(B.notes)+'</textarea></div>'+
    '<div class="actions"><button class="btn" id="be-save">'+(isNew?'Add to the gallery':'Save changes')+'</button><button class="btn ghost" id="be-cancel">Cancel</button></div></div>';
   $('be-process').value=B.process;
-  autoList($('be-roaster'),$('be-rsug'),roasters);
+  {const rows=roasterRows();autoList($('be-roaster'),$('be-rsug'),q=>rows(q))}
   // Origins: one picker to start; adding a second makes the coffee a blend (up to four), each removable.
   const oOpts=opt(originOptions(),'Not sure');let OL=isBlend(B)?blendParts(B).map(x=>x.o):[B.origin==='blend'?'':B.origin||''],PL=isBlend(B)?blendParts(B).map(x=>x.p?String(x.p):''):[''];if(!OL.length){OL=[''];PL=['']}
   const RL=isBlend(B)?blendParts(B):[];
@@ -10616,7 +10775,7 @@ function openBeanEditorNow(b,pre){const isNew=!b;const B=Object.assign({name:'',
       roast:B.roast,roastDate:$('be-rdate').value,tried:$('be-tried').value,rating,flavours:TN.val(),notes:$('be-notes').value,img:photoChanged?!!photo:B.img,scan:B.scan||'',ts:b?b.ts:Date.now(),
       shelf:B.shelf,bag:$('be-bag').value,left:b?b.left:null,leftAt:b?b.leftAt:0,again:b?b.again:'',diary:b?b.diary:[],cups:b?b.cups:[],bags:b?b.bags:[],prior:b?b.prior:0,cal:B.cal});
     if(!n.name&&!n.origin&&!photo){toast('Add a name, an origin or a photo first');$('be-name').focus();return}
-    let note='';if(photoChanged){if(photo){if(!await BIMG.put(n.id,photo)){n.img=false;note=', but the photo couldn’t be saved on this device'}}else if(!inAnyTop(n.id))BIMG.del(n.id)}
+    let note='';if(photoChanged){roForget(n.id);if(photo){if(!await BIMG.put(n.id,photo)){n.img=false;note=', but the photo couldn’t be saved on this device'}}else if(!inAnyTop(n.id))BIMG.del(n.id)}
     // Moved to another year: it leaves the old year's top 3, where it no longer belongs.
     if(b&&beanYear(b)!==beanYear(n)){const t=TOP3[beanYear(b)],k=t?t.ids.indexOf(n.id):-1,h=t?(t.hm||[]).indexOf(n.id):-1;if(k>=0||h>=0){if(k>=0)t.ids[k]='';else (t.hm||[]).splice(h,1);t.snap=(t.snap||[]).filter(x=>x.id!==n.id);if(!t3has(t))delete TOP3[beanYear(b)];note+='. It left your favourites of '+beanYear(b)}}
     const i=BEANS.findIndex(x=>x.id===n.id);if(i>=0)BEANS[i]=n;else BEANS.unshift(n);if(!saveBeans())return;
@@ -10748,7 +10907,7 @@ function advSub(c,s,sc,rk,pos){return [sc.n?'Average of the '+sc.n+' coffee'+(sc
   rk.length>1&&pos>=0?'#'+(pos+1)+' of your '+rk.length+' calendars':''].filter(Boolean).join(' · ')}
 // Adding or editing the box itself.
 function openCalEditor(c){const d=$('vd'),isNew=!c,C=c||{name:'',roaster:'',year:new Date().getMonth()<6?new Date().getFullYear()-1:new Date().getFullYear(),n:24,g:50};
-  const roasters=[...new Set(BEANS.map(x=>x.roaster).filter(Boolean))].sort();
+
   $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Advent calendar</span><h2 id="vd-title">'+(isNew?'Add an advent calendar':'Edit '+esc(calName(C)))+'</h2></div>'+
     '<div class="vd-body beform"><div class="be-photo" id="ac-photo"><span class="bph">'+advBoxSVG+'<small>Add a photo of the box</small></span></div>'+
     '<div class="actions two-up"><button type="button" class="btn ghost" id="ac-cam">Take a photo</button><button type="button" class="btn ghost" id="ac-pick">Choose a photo</button></div>'+
@@ -10760,7 +10919,7 @@ function openCalEditor(c){const d=$('vd'),isNew=!c,C=c||{name:'',roaster:'',year
     '<div class="field"><label for="ac-g">Each <span class="hint">grams</span></label><input id="ac-g" type="number" inputmode="numeric" min="1" max="500" value="'+C.g+'"></div></div>'+
     '<p class="hint">Each door you open becomes a coffee in your gallery, with its own rating, notes and diary.</p>'+
     '<div class="actions"><button class="btn" id="ac-save">'+(isNew?'Add the calendar':'Save changes')+'</button><button class="btn ghost" id="ac-cancel">Cancel</button></div></div>';
-  autoList($('ac-roaster'),$('ac-rsug'),roasters);
+  {const rows=roasterRows();autoList($('ac-roaster'),$('ac-rsug'),q=>rows(q))}
   let photo=null,changed=false;
   const show=u=>{const p=$('ac-photo');p.classList.toggle('has',!!u);p.querySelector('img')?.remove();if(u){const i=new Image();i.alt='Photo of the calendar';i.src=u;p.prepend(i)}
     let rm=$('ac-rm');if(u&&!rm){p.insertAdjacentHTML('beforeend','<button type="button" class="be-rm" id="ac-rm" aria-label="Remove the photo">✕</button>');$('ac-rm').onclick=e=>{e.stopPropagation();photo=null;changed=true;show(null)}}else if(!u&&rm)rm.remove()};

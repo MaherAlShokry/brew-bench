@@ -12,7 +12,7 @@ const n=await p.locator('#be-rsug [role=option]').count();ok(n>0,'suggestions sh
 const bx=await p.evaluate(()=>{const l=document.getElementById('be-rsug'),r=l.getBoundingClientRect(),cs=getComputedStyle(l);return {bg:cs.backgroundColor,r:r.right,l:r.left,vw:innerWidth}});
 ok(!/rgba\(.*, 0\)|transparent/.test(bx.bg)&&bx.r<=bx.vw&&bx.l>=0,'solid card inside the screen',bx);
 await p.screenshot({path:`shots/acl-${w}.png`});
-const first=await p.locator('#be-rsug [role=option]').first().textContent();
+const first=await p.locator('#be-rsug [role=option] b').first().textContent();
 await p.locator('#be-rsug [role=option]').first().tap();await p.waitForTimeout(250);
 ok(await p.inputValue('#be-roaster')===first,'tap fills it',first);ok(await p.isHidden('#be-rsug'),'list closes');
 await p.fill('#be-roaster','');await p.focus('#be-roaster');await p.keyboard.type('ar');await p.keyboard.press('ArrowDown');await p.keyboard.press('Enter');

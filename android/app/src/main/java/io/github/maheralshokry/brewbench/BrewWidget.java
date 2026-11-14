@@ -45,8 +45,11 @@ public class BrewWidget extends AppWidgetProvider {
 
     interface Maker { RemoteViews make(Context ctx, int heightDp); }
 
-    /** The heights (dp) a widget has a layout for; the launcher uses the tallest that fits. */
-    static final int[] HEIGHTS = {60, 100, 130, 170, 220, 280, 360};
+    /**
+     * The heights (dp) a widget has a layout for; the launcher uses the tallest that fits. Close together (16, Android's
+     * most), so a resized widget gets a layout made for about its own height and fills it, not one for a smaller size.
+     */
+    static final int[] HEIGHTS = {60, 80, 100, 115, 130, 150, 170, 190, 210, 230, 250, 280, 310, 340, 380, 430};
 
     static void push(Context ctx, AppWidgetManager m, int id, Maker mk) {
         if (Build.VERSION.SDK_INT >= 31) {
@@ -149,7 +152,7 @@ public class BrewWidget extends AppWidgetProvider {
 
     /**
      * A cabinet coffee's photo, made once per coffee and photo and kept, so the layouts for every height share the same
-     * pictures (Android sends each to the launcher once). At most about 96 px across: a few of them stay small.
+     * pictures (Android sends each to the launcher once). At most 160 px across (the cabinet's photos grow with its rows): a few of them stay small.
      */
     private static final java.util.LinkedHashMap<String, Bitmap> THUMBS = new java.util.LinkedHashMap<String, Bitmap>(8, 0.75f, true) {
         @Override protected boolean removeEldestEntry(java.util.Map.Entry<String, Bitmap> e) { return size() > 8; }
@@ -159,7 +162,7 @@ public class BrewWidget extends AppWidgetProvider {
         if (dataUrl == null || dataUrl.isEmpty()) return null;
         String key = id + ":" + dataUrl.length() + ":" + dataUrl.hashCode();
         Bitmap b = THUMBS.get(key);
-        if (b == null) { b = make(ctx, dataUrl, sizeDp, radiusDp, 96); if (b != null) THUMBS.put(key, b); }
+        if (b == null) { b = make(ctx, dataUrl, sizeDp, radiusDp, 160); if (b != null) THUMBS.put(key, b); }
         return b;
     }
 
