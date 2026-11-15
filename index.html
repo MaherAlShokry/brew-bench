@@ -2891,7 +2891,7 @@ textarea{resize:none}
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="d4d7f14bc942"</script>
+<script>const BUILD_ID="b4f307cbdc9e"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -6840,7 +6840,12 @@ let NAV_READY=false;
 let NAV_AT=-1e9;
 const PAGE_Y={};
 let NAV_FORCE='';
-function showTab(id,fromHistory,pure){NAV_AT=performance.now();if(window.closeBeansFab)closeBeansFab();ensureTab(id);
+function showTab(id,fromHistory,pure){NAV_AT=performance.now();if(window.closeBeansFab)closeBeansFab();
+  // Each page keeps where you were in it: going back returns to that spot, not the top (a new visit starts at the top).
+  // The scroll to the top happens first, while the page you're leaving is still the one laid out: done after the new
+  // page was shown, it made the browser lay that page out on the spot, inside the tap (about a third of its cost).
+  {const was=document.querySelector('main section.on');if(was&&was.id!==id)PAGE_Y[was.id]=scrollY;if(!(fromHistory&&PAGE_Y[id]!=null)&&scrollY)window.scrollTo({top:0})}
+  ensureTab(id);
   // A page with a + keeps room for it at its foot, and the toast sits above it. Marked on the page and the toast, not on
   // <body>: a class on <body> restyled the whole app on every tab change.
   {const sec=$(id),f=!!(sec&&sec.querySelector(':scope>.fab'));if(sec&&sec.classList.contains('fabbed')!==f)sec.classList.toggle('fabbed',f);$('toast').classList.toggle('lift',f);
@@ -6849,8 +6854,6 @@ function showTab(id,fromHistory,pure){NAV_AT=performance.now();if(window.closeBe
   // The page on show, for the few styles that depend on it (a class here, not a :has() over the whole page, which
   // made the browser recheck every style on each change while a big page was drawn).
   if(document.documentElement.dataset.tab!==id)document.documentElement.dataset.tab=id;
-  // Each page keeps where you were in it: going back returns to that spot, not the top (a new visit starts at the top).
-  {const was=document.querySelector('main section.on');if(was&&was.id!==id)PAGE_Y[was.id]=scrollY}
   const backY=fromHistory&&PAGE_Y[id]!=null?PAGE_Y[id]:null;const cur=document.querySelector('main section.on');let kind='';
   if(cur&&cur.id!==id){const a=BNORD.indexOf(BNGROUP[cur.id]),b=BNORD.indexOf(BNGROUP[id]);
     kind=a!==b&&a>=0&&b>=0?(b<a?'left':'right'):fromHistory?'pop':'push'}
@@ -6865,7 +6868,10 @@ function showTab(id,fromHistory,pure){NAV_AT=performance.now();if(window.closeBe
     document.querySelectorAll('main section').forEach(s=>s.classList.toggle('on',s.id===id));
     // Every change first, then the scroll (which lays the page out): one layout pass instead of two.
     // Highlights that waited for this page (select.js loads after the first page is shown, so it may not be there yet).
-    syncShell(id,backY==null);if(backY!=null)window.scrollTo({top:backY});try{segShown($(id))}catch(e){}
+    syncShell(id,backY==null?'done':false);if(backY!=null)window.scrollTo({top:backY});
+    // The page's strip highlights are checked just before the next frame, after every other change of the tap, so the
+    // page is laid out once (measured inside the tap, it was laid out there and again for the frame).
+    requestAnimationFrame(()=>{try{if($(id).classList.contains('on'))segShown($(id))}catch(e){}});
     if(kind&&NAV_READY)spSlide(id);
     if(kind&&NAV_READY){const sec=$(id);if(!vt){
       // The slide waits, held on its first frame, until the page has been drawn once. Drawing a page (above all the
@@ -6873,17 +6879,18 @@ function showTab(id,fromHistory,pure){NAV_AT=performance.now();if(window.closeBe
       // lost to it and the page jumped part of the way in: the stutter on a section's first visit.
       // While a page moves in it holds its + button (a moving page carries anything fixed inside it along), which put the
       // button at the foot of the whole page, out of sight, until the slide ended: it came in late. For that time the
-      // button is shifted back to its usual place on the screen, so it's there from the slide's first frame.
+      // button is shifted back to its usual place on the screen, so it's there from the slide's first frame. The shift
+      // is worked out when the page has just been laid out (a ResizeObserver: also each time its size changes while it
+      // slides, photos coming in), never by asking for a layout: measuring every frame cost a phone more than the slide.
       const fb=el=>el.matches('main section')&&el.querySelector(':scope>.fab');
-      const unpin=el=>{const f=fb(el);if(f&&f.style.translate)f.style.translate=''};
-      // (Followed frame by frame: the page's height can still change as it's drawn.)
-      const pin=el=>{const f=fb(el);if(!f||!el.classList.contains('nav-in'))return;
-        const b=el.offsetTop+el.offsetHeight-scrollY,r=el.offsetLeft+el.offsetWidth,v=Math.round(document.documentElement.clientWidth-r)+'px '+Math.round(innerHeight-b)+'px';
-        if(f.style.translate!==v)f.style.translate=v;if(!el.classList.contains('nav-hold'))requestAnimationFrame(()=>pin(el))};
+      const unpin=el=>{const f=fb(el);if(NAV_RO)NAV_RO.unobserve(el);if(f&&f.style.translate)f.style.translate=''};
       const end=el=>{clearTimeout(el._nav);el.classList.remove('nav-in','nav-hold');unpin(el)};
       const go=el=>{el.classList.add('nav-hold');unpin(el);replay(el,'nav-in');clearTimeout(el._nav);el._nav=setTimeout(()=>end(el),640);
         if(!el._navEnd){el._navEnd=e=>{if(e.target===el&&/^sec-|^page-in|^vt-pop/.test(e.animationName))end(el)};el.addEventListener('animationend',el._navEnd)}
-        pin(el);requestAnimationFrame(()=>requestAnimationFrame(()=>{el.classList.remove('nav-hold');pin(el)}))};
+        if(fb(el)&&window.ResizeObserver){if(!NAV_RO)NAV_RO=new ResizeObserver(es=>{for(const e of es){const s=e.target,f=fb(s);if(!f||!s.classList.contains('nav-in'))continue;
+            const v=Math.round(document.documentElement.clientWidth-(s.offsetLeft+s.offsetWidth))+'px '+Math.round(innerHeight-(s.offsetTop+s.offsetHeight-scrollY))+'px';if(f.style.translate!==v)f.style.translate=v}});
+          NAV_RO.observe(el)}
+        requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.remove('nav-hold')))};
       go(sec);
       // The Brew page's hero sits above the page itself: it comes in with it.
       const hw=id==='dial'&&document.querySelector('.herowrap');if(hw)go(hw)
@@ -7321,7 +7328,7 @@ function openRecipeEditor(r,fresh){const isNew=!r||fresh;r=Object.assign({b:'v60
 $('l-fab-new').onclick=()=>{const f=$('l-form');f.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});setTimeout(()=>{const c=$('l-coffee-f').hidden?null:$('l-coffee');if(c)c.focus({preventScroll:true})},350)};
 // A page's + is a shortcut menu of what you can do or add there. While it's open the page underneath stays put, and
 // back (the gesture or button) only closes it. One menu is open at a time.
-let FAB_OPEN=null,FAB_BACKING=false,FAB_AFTER=null,FAB_SHOW=()=>{};
+let NAV_RO=null,FAB_OPEN=null,FAB_BACKING=false,FAB_AFTER=null,FAB_SHOW=()=>{};
 function fabMenu(fabId,items){const f=$(fabId),m=f.querySelector('.fab-menu'),b=f.querySelector('.fab-main');let scrim=null;
   const lockOn=on=>document.documentElement.classList.toggle('fab-lock',on);
   // Closing plays the opening in reverse (the panel sinks back into the + and the veil fades), then hides it; everything
@@ -9495,13 +9502,15 @@ addEventListener('resize',()=>{TFIT.clear();requestAnimationFrame(fitTitle)});
 // The page's own heading says where you are, so the top bar's title waits until that heading scrolls up under the bar,
 // then takes over (and hands back on the way down). Pages without a heading keep the bar's title.
 let TIO_T=null;const TIO='IntersectionObserver' in window?new IntersectionObserver(es=>{for(const e of es)if(e.target===TIO_T)$('appbar').classList.toggle('title-off',e.isIntersecting)},{rootMargin:'-84px 0px 0px 0px'}):null;
-function watchTitle(id){const ab=$('appbar');if(!ab)return;if(TIO&&TIO_T)TIO.unobserve(TIO_T);const s=$(id);TIO_T=s&&s.querySelector(':scope > h2');
-  if(!TIO||!TIO_T){ab.classList.remove('title-off');return}const r=TIO_T.getBoundingClientRect();ab.classList.toggle('title-off',r.bottom>84&&r.top<innerHeight);TIO.observe(TIO_T)}
+// atTop: the page was just scrolled to its top, where its heading shows below the bar; no need to measure (measuring
+// there laid the new page out inside the tap). The observer corrects it once the page is drawn if that's wrong.
+function watchTitle(id,atTop){const ab=$('appbar');if(!ab)return;if(TIO&&TIO_T)TIO.unobserve(TIO_T);const s=$(id);TIO_T=s&&s.querySelector(':scope > h2');
+  if(!TIO||!TIO_T){ab.classList.remove('title-off');return}if(atTop)ab.classList.add('title-off');else{const r=TIO_T.getBoundingClientRect();ab.classList.toggle('title-off',r.bottom>84&&r.top<innerHeight)}TIO.observe(TIO_T)}
 // The shell's writes come first and its one measurement (where the page title sits) last, so a tab switch lays the
 // page out once. top: scroll to the top first (a tab switch), so the title is measured where it will be.
 function syncShell(id,top){TITLE_ID=id;$('ab-title').textContent=TABNAMES[id]||'Brew Bench';requestAnimationFrame(fitTitle);$('ab-back').hidden=NAVD<1;{const hw=document.querySelector('.herowrap');if(hw&&hw.classList.contains('on')!==(id==='dial'))hw.classList.toggle('on',id==='dial')}
   document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));requestAnimationFrame(movePill);
-  if(top&&scrollY)window.scrollTo({top:0});watchTitle(id);
+  if(top===true&&scrollY)window.scrollTo({top:0});watchTitle(id,top==='done');
   updShare(id)}
 // The app bar's Share only shows when the page has something to share: a picked origin on the map, a list of recipes.
 function updShare(id){id=id||(document.querySelector('main section.on')||{}).id;
