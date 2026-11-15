@@ -2,7 +2,9 @@ package io.github.maheralshokry.brewbench;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.webkit.RenderProcessGoneDetail;
 import android.webkit.WebView;
+import com.getcapacitor.WebViewListener;
 import androidx.activity.OnBackPressedCallback;
 import com.getcapacitor.BridgeActivity;
 
@@ -22,6 +24,19 @@ public class MainActivity extends BridgeActivity {
         addShortcuts();
         // A brew started or left running while the app was closed: its notification and clock carry on.
         BrewTimer.sync(this, false);
+        // When Android reclaims the page's memory (its renderer is stopped), the WebView would take the whole app down
+        // with it. Instead the screen starts again with a fresh page: the app reopens where your saved choices put it.
+        if (getBridge() != null) getBridge().addWebViewListener(new WebViewListener() {
+            @Override
+            @android.annotation.TargetApi(26)
+            public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
+                try {
+                    if (view.getParent() instanceof android.view.ViewGroup) ((android.view.ViewGroup) view.getParent()).removeView(view);
+                } catch (Exception ignored) { }
+                getWindow().getDecorView().post(MainActivity.this::recreate);
+                return true;
+            }
+        });
         // The back gesture (or button) steps back inside the app: it closes the open sheet or returns to the previous
         // screen. Only when there is nowhere left to go does the app go to the background.
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {

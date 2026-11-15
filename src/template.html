@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>try{var t=localStorage.getItem("bb-theme"),d=document.documentElement;if(window.Capacitor)d.classList.add("app");if(t)d.setAttribute("data-theme",t);var u=JSON.parse(localStorage.getItem("bb-ui")||"{}");if(u&&typeof u==="object"){if(u.accent)d.setAttribute("data-accent",u.accent);if(u.vibe)d.setAttribute("data-vibe",u.vibe);if(u.text)d.setAttribute("data-text",u.text);if(u.motion)d.setAttribute("data-motion",u.motion)}}catch(e){}</script>
+<script>try{var t=localStorage.getItem("bb-theme"),d=document.documentElement;if(window.Capacitor)d.classList.add("app");if(t)d.setAttribute("data-theme",t);var u=JSON.parse(localStorage.getItem("bb-ui")||"{}");if(u&&typeof u==="object"){if(u.accent)d.setAttribute("data-accent",u.accent);if(u.vibe&&/^(pure|black|nordic)$/.test(u.vibe))d.setAttribute("data-vibe",u.vibe);if(u.glass||u.vibe==="glass"){d.setAttribute("data-glass","");d.style.setProperty("--g",(u.glassAmt==null?60:u.glassAmt)/100)}if(u.text)d.setAttribute("data-text",u.text);if(u.motion)d.setAttribute("data-motion",u.motion)}}catch(e){}</script>
 <meta name="theme-color" content="#FBF7F0" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1F1814" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -911,6 +911,7 @@ svg .bo{fill:currentColor}svg .bc{fill:none;stroke:var(--surface);stroke-width:1
 .se-chip svg{color:var(--k);width:16px;height:16px}.se-chip:active{transform:scale(.95)}
 .se-sum{margin:6px 0 10px;font-size:.8rem;color:var(--muted)}.se-sum.warn{color:var(--honey-ink)}
 .rangeends{display:flex;justify-content:space-between;font-family:var(--display);font-size:.74rem;color:var(--muted);margin-top:-2px}
+.glassamt{margin-top:12px;width:100%}.glassamt input[type=range]{width:100%;display:block}
 .pill.ours{background:color-mix(in srgb,var(--cherry) 14%,var(--surface));color:var(--cherry);margin-bottom:6px}
 /* Shared log */
 .sharepanel h3{margin:0 0 .3rem}
@@ -1105,6 +1106,8 @@ html[data-nav=left]::view-transition-new(abtitle),html[data-nav=pop]::view-trans
 main{overflow-x:clip}
 /* A page can be many screens tall: it moves by a fixed distance, and turns and scales about the part on screen. */
 main section.nav-in{transform-origin:50% 40vh}
+/* Held on its first frame until the page has been drawn (see showTab). */
+:is(main section,.herowrap).nav-hold{animation-play-state:paused!important}
 @keyframes sec-rise{from{transform:translate3d(0,48px,0) scale(.97)}}@keyframes sec-surface{from{transform:scale(1.04)}}
 /* A short slide without a turn: turning a page that is many screens tall is costly to draw on phones. */
 @keyframes sec-in-r{from{transform:translate3d(14%,0,0)}}@keyframes sec-in-l{from{transform:translate3d(-14%,0,0)}}
@@ -1480,27 +1483,9 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 
 /* Coffee colour themes: the accent, with the soft surfaces and lines tinted to match. */
 /* Vibes: whole palettes for light and dark (Settings → Appearance). The colour swatches below still change just the accent. */
-:root[data-vibe="oat"]{--paper:#F6F0E8;--surface:#FFFCF7;--surface2:#EDE3D6;--ink:#3A3029;--muted:#6E6055;--line:#E3D7C8;--cherry:#855735;--leaf:#5F7F49;--honey:#B98A3E;--cherry-ink:#855735;--leaf-ink:#4D673B;--honey-ink:#7B5C29;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}
-@media (prefers-color-scheme:dark){:root[data-vibe="oat"]:not([data-theme="light"]){--paper:#2F2A26;--surface:#3C3631;--surface2:#4A433D;--ink:#F5EFE8;--muted:#D3C7BA;--line:#5B524B;--cherry:#E9C29E;--leaf:#BCD1A6;--honey:#EDCB91;--cherry-ink:#E9C29E;--leaf-ink:#BCD1A6;--honey-ink:#EDCB91;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}}
-:root[data-vibe="oat"][data-theme="dark"]{--paper:#2F2A26;--surface:#3C3631;--surface2:#4A433D;--ink:#F5EFE8;--muted:#D3C7BA;--line:#5B524B;--cherry:#E9C29E;--leaf:#BCD1A6;--honey:#EDCB91;--cherry-ink:#E9C29E;--leaf-ink:#BCD1A6;--honey-ink:#EDCB91;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}
-:root[data-vibe="matcha"]{--paper:#F1F5EB;--surface:#FCFEF8;--surface2:#E1E9D4;--ink:#24301D;--muted:#566650;--line:#D5DFC6;--cherry:#3F6E2E;--leaf:#4E7A3A;--honey:#9C7A26;--cherry-ink:#3F6E2E;--leaf-ink:#466E34;--honey-ink:#795E1D;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}
-@media (prefers-color-scheme:dark){:root[data-vibe="matcha"]:not([data-theme="light"]){--paper:#0D2216;--surface:#143020;--surface2:#1C3F2B;--ink:#E6F4E3;--muted:#A9C7AD;--line:#2A513A;--cherry:#9FDB82;--leaf:#9FDB82;--honey:#E3CF7C;--cherry-ink:#9FDB82;--leaf-ink:#9FDB82;--honey-ink:#E3CF7C;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}}
-:root[data-vibe="matcha"][data-theme="dark"]{--paper:#0D2216;--surface:#143020;--surface2:#1C3F2B;--ink:#E6F4E3;--muted:#A9C7AD;--line:#2A513A;--cherry:#9FDB82;--leaf:#9FDB82;--honey:#E3CF7C;--cherry-ink:#9FDB82;--leaf-ink:#9FDB82;--honey-ink:#E3CF7C;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}
-:root[data-vibe="blossom"]{--paper:#FBF3F3;--surface:#FFFBFB;--surface2:#F4E0E2;--ink:#3D2328;--muted:#7A5860;--line:#EED6D9;--cherry:#A8324F;--leaf:#5E8A5A;--honey:#B47E3A;--cherry-ink:#A8324F;--leaf-ink:#496B46;--honey-ink:#845D2B;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}
-@media (prefers-color-scheme:dark){:root[data-vibe="blossom"]:not([data-theme="light"]){--paper:#2A0D1D;--surface:#3A1429;--surface2:#4B1D36;--ink:#FCE9F0;--muted:#E1AFC4;--line:#5E2A45;--cherry:#FF93B6;--leaf:#B4DDA8;--honey:#F3C98A;--cherry-ink:#FF93B6;--leaf-ink:#B4DDA8;--honey-ink:#F3C98A;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}}
-:root[data-vibe="blossom"][data-theme="dark"]{--paper:#2A0D1D;--surface:#3A1429;--surface2:#4B1D36;--ink:#FCE9F0;--muted:#E1AFC4;--line:#5E2A45;--cherry:#FF93B6;--leaf:#B4DDA8;--honey:#F3C98A;--cherry-ink:#FF93B6;--leaf-ink:#B4DDA8;--honey-ink:#F3C98A;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}
 :root[data-vibe="nordic"]{--paper:#F3F6F8;--surface:#FFFFFF;--surface2:#E5EBF0;--ink:#1E2833;--muted:#566375;--line:#DAE1E8;--cherry:#2C5A80;--leaf:#4F7C69;--honey:#9A7A3A;--cherry-ink:#2C5A80;--leaf-ink:#47705F;--honey-ink:#7D632F;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}
 @media (prefers-color-scheme:dark){:root[data-vibe="nordic"]:not([data-theme="light"]){--paper:#0A1A2E;--surface:#11253F;--surface2:#19324F;--ink:#E5EEF8;--muted:#A6BBD3;--line:#24405F;--cherry:#8FC4F2;--leaf:#93D1B8;--honey:#E3C68D;--cherry-ink:#8FC4F2;--leaf-ink:#93D1B8;--honey-ink:#E3C68D;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}}
 :root[data-vibe="nordic"][data-theme="dark"]{--paper:#0A1A2E;--surface:#11253F;--surface2:#19324F;--ink:#E5EEF8;--muted:#A6BBD3;--line:#24405F;--cherry:#8FC4F2;--leaf:#93D1B8;--honey:#E3C68D;--cherry-ink:#8FC4F2;--leaf-ink:#93D1B8;--honey-ink:#E3C68D;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}
-:root[data-vibe="desert"]{--paper:#F8F0E3;--surface:#FFFAF1;--surface2:#EEDEC6;--ink:#3A2618;--muted:#765A41;--line:#E6D2B5;--cherry:#9A4522;--leaf:#6E7F3E;--honey:#B87E25;--cherry-ink:#9A4522;--leaf-ink:#5A6732;--honey-ink:#80581A;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}
-@media (prefers-color-scheme:dark){:root[data-vibe="desert"]:not([data-theme="light"]){--paper:#2E140A;--surface:#3E1D0F;--surface2:#4F2715;--ink:#FBE9D8;--muted:#E1B796;--line:#63321C;--cherry:#FFA06E;--leaf:#CFD593;--honey:#F5C77A;--cherry-ink:#FFA06E;--leaf-ink:#CFD593;--honey-ink:#F5C77A;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}}
-:root[data-vibe="desert"][data-theme="dark"]{--paper:#2E140A;--surface:#3E1D0F;--surface2:#4F2715;--ink:#FBE9D8;--muted:#E1B796;--line:#63321C;--cherry:#FFA06E;--leaf:#CFD593;--honey:#F5C77A;--cherry-ink:#FFA06E;--leaf-ink:#CFD593;--honey-ink:#F5C77A;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}
-:root[data-vibe="neon"]{--paper:#F6F2FF;--surface:#FFFFFF;--surface2:#EBE3FF;--ink:#24183A;--muted:#5F5080;--line:#DED3F8;--cherry:#6A30D6;--leaf:#13896A;--honey:#C2357E;--cherry-ink:#6A30D6;--leaf-ink:#0F7056;--honey-ink:#AF3072;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}
-@media (prefers-color-scheme:dark){:root[data-vibe="neon"]:not([data-theme="light"]){--paper:#130A33;--surface:#1E1250;--surface2:#2A1B66;--ink:#F3EEFF;--muted:#BDB0EC;--line:#3A2A80;--cherry:#D0A5FF;--leaf:#5FF0BE;--honey:#FF8BD0;--cherry-ink:#D0A5FF;--leaf-ink:#5FF0BE;--honey-ink:#FF8BD0;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}}
-:root[data-vibe="neon"][data-theme="dark"]{--paper:#130A33;--surface:#1E1250;--surface2:#2A1B66;--ink:#F3EEFF;--muted:#BDB0EC;--line:#3A2A80;--cherry:#D0A5FF;--leaf:#5FF0BE;--honey:#FF8BD0;--cherry-ink:#D0A5FF;--leaf-ink:#5FF0BE;--honey-ink:#FF8BD0;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}
-:root[data-vibe="caramel"]{--paper:#FFF5EA;--surface:#FFFDF8;--surface2:#FBE4CC;--ink:#3B2412;--muted:#7B5734;--line:#F2D8BA;--cherry:#9C4913;--leaf:#5E8040;--honey:#B97A15;--cherry-ink:#9C4913;--leaf-ink:#516E37;--honey-ink:#885A0F;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}
-@media (prefers-color-scheme:dark){:root[data-vibe="caramel"]:not([data-theme="light"]){--paper:#2A1A06;--surface:#3A250B;--surface2:#4A3012;--ink:#FFF0DC;--muted:#E2C196;--line:#5C3E1A;--cherry:#FFB061;--leaf:#C3DA93;--honey:#FFD27A;--cherry-ink:#FFB061;--leaf-ink:#C3DA93;--honey-ink:#FFD27A;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}}
-:root[data-vibe="caramel"][data-theme="dark"]{--paper:#2A1A06;--surface:#3A250B;--surface2:#4A3012;--ink:#FFF0DC;--muted:#E2C196;--line:#5C3E1A;--cherry:#FFB061;--leaf:#C3DA93;--honey:#FFD27A;--cherry-ink:#FFB061;--leaf-ink:#C3DA93;--honey-ink:#FFD27A;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}
 :root[data-vibe="pure"]{--paper:#FFFFFF;--surface:#FFFFFF;--surface2:#F2F2F4;--ink:#0B0B0C;--muted:#5D5D66;--line:#E6E6EA;--cherry:#141416;--leaf:#2F7A45;--honey:#8A6A2C;--cherry-ink:#141416;--leaf-ink:#276A3B;--honey-ink:#735823;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}
 @media (prefers-color-scheme:dark){:root[data-vibe="pure"]:not([data-theme="light"]){--paper:#000000;--surface:#0E0E10;--surface2:#1A1A1D;--ink:#FFFFFF;--muted:#A6A6AE;--line:#2A2A2F;--cherry:#F4F4F5;--leaf:#7FD08F;--honey:#E3C17E;--cherry-ink:#F4F4F5;--leaf-ink:#7FD08F;--honey-ink:#E3C17E;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}}
 :root[data-vibe="pure"][data-theme="dark"]{--paper:#000000;--surface:#0E0E10;--surface2:#1A1A1D;--ink:#FFFFFF;--muted:#A6A6AE;--line:#2A2A2F;--cherry:#F4F4F5;--leaf:#7FD08F;--honey:#E3C17E;--cherry-ink:#F4F4F5;--leaf-ink:#7FD08F;--honey-ink:#E3C17E;--ocean:color-mix(in srgb,var(--cherry) 6%,var(--paper));--land:var(--surface2);--belt:color-mix(in srgb,var(--honey) 12%,transparent)}
@@ -2866,39 +2851,62 @@ textarea{resize:none}
 .setrow .setbtns{display:flex;flex-wrap:wrap;gap:8px}
 .setrow>.setnote,.setrow>.setbtns{margin-left:48px!important}
 
-/* ---------- Liquid glass (a vibe): frosted, see-through panels over soft colour, a bright edge on each pane. ---------- */
-:root[data-vibe="glass"]{--paper:#EDEFF5;--surface:rgba(255,255,255,.62);--surface2:rgba(255,255,255,.46);--ink:#15171C;--muted:#555B6B;--line:rgba(24,30,52,.11);--cherry:#A05A28;--leaf:#2B7A4E;--honey:#A9771F;--cherry-ink:#93511F;--leaf-ink:#286C45;--honey-ink:#83601C;--surface-ink:#FFFFFF;--glass-edge:rgba(255,255,255,.78);--glass-shade:0 10px 30px -14px rgba(30,40,80,.30);--glass-bg:rgba(255,255,255,.55);--ocean:color-mix(in srgb,var(--cherry) 6%,#F4F6FB);--land:#E4E8F1;--belt:color-mix(in srgb,var(--honey) 12%,transparent)}
-@media (prefers-color-scheme:dark){:root[data-vibe="glass"]:not([data-theme="light"]){--paper:#0A0B10;--surface:rgba(44,46,58,.52);--surface2:rgba(255,255,255,.08);--ink:#F2F3F7;--muted:#A7ACBB;--line:rgba(255,255,255,.11);--cherry:#F0B27A;--leaf:#86D9A8;--honey:#F2C46B;--cherry-ink:#F0B27A;--leaf-ink:#86D9A8;--honey-ink:#F2C46B;--surface-ink:#1A1410;--glass-edge:rgba(255,255,255,.16);--glass-shade:0 14px 36px -14px rgba(0,0,0,.65);--glass-bg:rgba(38,40,52,.50);--ocean:color-mix(in srgb,var(--cherry) 6%,#12141B);--land:#262934;--belt:color-mix(in srgb,var(--honey) 12%,transparent)}}
-:root[data-vibe="glass"][data-theme="dark"]{--paper:#0A0B10;--surface:rgba(44,46,58,.52);--surface2:rgba(255,255,255,.08);--ink:#F2F3F7;--muted:#A7ACBB;--line:rgba(255,255,255,.11);--cherry:#F0B27A;--leaf:#86D9A8;--honey:#F2C46B;--cherry-ink:#F0B27A;--leaf-ink:#86D9A8;--honey-ink:#F2C46B;--surface-ink:#1A1410;--glass-edge:rgba(255,255,255,.16);--glass-shade:0 14px 36px -14px rgba(0,0,0,.65);--glass-bg:rgba(38,40,52,.50);--ocean:color-mix(in srgb,var(--cherry) 6%,#12141B);--land:#262934;--belt:color-mix(in srgb,var(--honey) 12%,transparent)}
-:root[data-vibe="glass"]{background:var(--paper)}
-:root[data-vibe="glass"] body{background:transparent}
-/* The colour the glass bends: soft glows behind everything, fixed so scrolling doesn't redraw them. */
-:root[data-vibe="glass"]::before{content:'';position:fixed;inset:-12%;z-index:-1;pointer-events:none;background:
-  radial-gradient(38% 30% at 12% 8%,color-mix(in srgb,var(--cherry) 42%,transparent),transparent 72%),
-  radial-gradient(42% 34% at 92% 26%,rgba(110,140,255,.34),transparent 72%),
-  radial-gradient(46% 38% at 22% 70%,rgba(255,130,180,.24),transparent 72%),
-  radial-gradient(40% 36% at 86% 88%,color-mix(in srgb,var(--leaf) 34%,transparent),transparent 72%)}
-:root[data-vibe="glass"] body::before,:root[data-vibe="glass"] body::after{display:none}
-/* Panes: frosted, with a light top edge and a soft shadow. Only the outer panes blur (nested ones are just tinted),
-   which keeps scrolling smooth on a phone. */
-:root[data-vibe="glass"] :is(.panel,.setgroup,.clist,.logentry,.rgrp,.qtool,.cupcard,.appver,.card,.oplan,.hubgrid,.yic,.tshelf,.specs>div,.bd-shelf,.lastbrew,.today,.welcome,.rrow,.crow.rov-row,.qlinks,.oplan-o,.re-card,.dwrite,.bg-gh,.seg,.ls-t){
-  background-color:var(--surface)!important;border-color:var(--glass-edge)!important;box-shadow:inset 0 1px 0 var(--glass-edge),var(--glass-shade)!important}
-:root[data-vibe="glass"] :is(.panel,.setgroup,.clist,.logentry,.qtool,.cupcard,.appver,.card,.hubgrid,.yic,.bd-shelf,.lastbrew,.today,.welcome,.rgrp,.qlinks){-webkit-backdrop-filter:blur(22px) saturate(170%);backdrop-filter:blur(22px) saturate(170%)}
-:root[data-vibe="glass"] :is(.panel,.setgroup,.clist,.rgrp) :is(.re-card,.oplan-o,.seg,.dwrite,.ls-t,.rrow){box-shadow:inset 0 1px 0 var(--glass-edge)!important;-webkit-backdrop-filter:none;backdrop-filter:none}
-/* Bars, sheets and floating buttons: clearer glass. */
-:root[data-vibe="glass"] :is(.appbar,.bottomnav){background:var(--glass-bg)!important;-webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%);border-color:var(--glass-edge)!important;box-shadow:inset 0 1px 0 var(--glass-edge),var(--glass-shade)!important}
-:root[data-vibe="glass"] :is(dialog#vd,dialog#sharesheet,dialog#selsheet){background:var(--glass-bg)!important;-webkit-backdrop-filter:blur(34px) saturate(180%);backdrop-filter:blur(34px) saturate(180%);box-shadow:inset 0 1px 0 var(--glass-edge),0 -10px 40px -16px rgba(0,0,0,.35)!important}
-:root[data-vibe="glass"] dialog#timer{background:color-mix(in srgb,var(--paper) 70%,transparent)!important;-webkit-backdrop-filter:blur(30px) saturate(170%);backdrop-filter:blur(30px) saturate(170%)}
-:root[data-vibe="glass"] :is(.fab .ib:not(.main),.fab-mi>span,.fab-mi>i,.ib:not(.main),.pbtn:not(.main):not(.quiet),.vd-tool,.vd-close,.sh-mini){background:var(--glass-bg)!important;-webkit-backdrop-filter:blur(16px) saturate(170%);backdrop-filter:blur(16px) saturate(170%);box-shadow:inset 0 1px 0 var(--glass-edge),0 6px 16px -10px rgba(0,0,0,.35)!important}
-:root[data-vibe="glass"] :is(.ib.main,.pbtn.main,.btn:not(.ghost)){box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 8px 20px -10px color-mix(in srgb,var(--cherry) 70%,transparent)!important}
-:root[data-vibe="glass"] #toast{background:var(--glass-bg)!important;color:var(--ink)!important;-webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);box-shadow:inset 0 1px 0 var(--glass-edge),var(--glass-shade)!important}
-:root[data-vibe="glass"] :is(input:not([type=range]):not([type=checkbox]):not([type=radio]),select,textarea){background-color:var(--surface2)!important;border-color:var(--glass-edge)!important}
-:root[data-vibe="glass"] .dir.coarse{color:var(--cherry-ink)}
-@media (prefers-reduced-transparency:reduce){:root[data-vibe="glass"]{--surface:var(--paper)}}
+/* ---------- Liquid glass: a switch over any vibe, with a strength (--g, 0 to 1, from Settings). ----------
+   Behind everything, soft glows in the vibe's own colours (fixed, so scrolling never redraws them). Panes on the page
+   are tinted see-through over those glows, with a bright rim and a soft sheen at the top, the way light catches the
+   edge of glass; they don't blur (what's behind a card is only the glows, so a blur would cost and show nothing).
+   What floats over the page, the bars, the + menu, sheets and notices, is frosted: blurred and brightened, and opaque
+   enough that the text under it never reads through. */
+html[data-glass]{--g:.6;
+  /* Thick glass lit from the top left: a bright specular edge there, a dimmer one bottom right, a soft glow inside the
+     rim and a touch of shade at the foot, so a pane reads as a raised, rounded slab rather than a flat tint. */
+  --gl-3d:inset 1.5px 1.5px 1px -1px rgba(255,255,255,calc(.55 + var(--g) * .4)),inset -1.5px -1.5px 1px -1px rgba(255,255,255,calc(.25 + var(--g) * .4)),
+    inset 0 0 calc(4px + var(--g) * 12px) rgba(255,255,255,calc(var(--g) * .3)),inset 0 calc(-4px - var(--g) * 6px) calc(10px + var(--g) * 8px) calc(-8px - var(--g) * 4px) rgba(0,0,0,calc(var(--g) * .10));
+  /* What floats is clearer the stronger the glass (less frost, more of the bend at its rim). */
+  --gl-frost:blur(calc(8px + (1 - var(--g)) * 12px)) saturate(calc(150% + var(--g) * 60%)) brightness(1.03);--gl-line:rgba(30,36,64,calc(.05 + var(--g) * .04));
+  --gl-pane:color-mix(in srgb,var(--surface) calc(90% - var(--g) * 42%),transparent);
+  --gl-chrome:color-mix(in srgb,var(--surface) calc(86% - var(--g) * 38%),transparent);
+  --gl-sheet:color-mix(in srgb,var(--surface) calc(94% - var(--g) * 24%),transparent);
+  --gl-rim:rgba(255,255,255,calc(.45 + var(--g) * .45));--gl-rim2:rgba(255,255,255,calc(var(--g) * .22));
+  --gl-sheen:linear-gradient(180deg,rgba(255,255,255,calc(var(--g) * .34)),rgba(255,255,255,0) 42%);
+  --gl-shade:0 calc(6px + var(--g) * 8px) calc(18px + var(--g) * 16px) -14px rgba(20,24,40,calc(.16 + var(--g) * .16));
+  --gl-blur:blur(calc(10px + var(--g) * 18px)) saturate(calc(140% + var(--g) * 60%));background:var(--paper)}
+@media (prefers-color-scheme:dark){html[data-glass]:not([data-theme="light"]){--gl-3d:inset 1.5px 1.5px 1px -1px rgba(255,255,255,calc(.18 + var(--g) * .3)),inset -1.5px -1.5px 1px -1px rgba(255,255,255,calc(.08 + var(--g) * .18)),inset 0 0 calc(4px + var(--g) * 12px) rgba(255,255,255,calc(var(--g) * .08)),inset 0 calc(-4px - var(--g) * 6px) calc(10px + var(--g) * 8px) calc(-8px - var(--g) * 4px) rgba(0,0,0,calc(.2 + var(--g) * .2));--gl-line:rgba(255,255,255,calc(.06 + var(--g) * .06));--gl-rim:rgba(255,255,255,calc(.07 + var(--g) * .13));--gl-rim2:rgba(255,255,255,calc(var(--g) * .06));
+  --gl-sheen:linear-gradient(180deg,rgba(255,255,255,calc(var(--g) * .09)),rgba(255,255,255,0) 40%);--gl-shade:0 calc(8px + var(--g) * 8px) calc(22px + var(--g) * 16px) -14px rgba(0,0,0,calc(.45 + var(--g) * .25))}}
+html[data-glass][data-theme="dark"]{--gl-3d:inset 1.5px 1.5px 1px -1px rgba(255,255,255,calc(.18 + var(--g) * .3)),inset -1.5px -1.5px 1px -1px rgba(255,255,255,calc(.08 + var(--g) * .18)),inset 0 0 calc(4px + var(--g) * 12px) rgba(255,255,255,calc(var(--g) * .08)),inset 0 calc(-4px - var(--g) * 6px) calc(10px + var(--g) * 8px) calc(-8px - var(--g) * 4px) rgba(0,0,0,calc(.2 + var(--g) * .2));--gl-line:rgba(255,255,255,calc(.06 + var(--g) * .06));--gl-rim:rgba(255,255,255,calc(.07 + var(--g) * .13));--gl-rim2:rgba(255,255,255,calc(var(--g) * .06));
+  --gl-sheen:linear-gradient(180deg,rgba(255,255,255,calc(var(--g) * .09)),rgba(255,255,255,0) 40%);--gl-shade:0 calc(8px + var(--g) * 8px) calc(22px + var(--g) * 16px) -14px rgba(0,0,0,calc(.45 + var(--g) * .25))}
+html[data-glass] body{background:transparent}
+html[data-glass]::before{content:'';position:fixed;inset:-10%;z-index:-1;pointer-events:none;opacity:calc(.3 + var(--g) * .7);background:
+  radial-gradient(42% 30% at 8% 4%,color-mix(in srgb,var(--cherry) 34%,transparent),transparent 72%),
+  radial-gradient(46% 34% at 96% 20%,rgba(120,160,255,.30),transparent 72%),
+  radial-gradient(50% 36% at 14% 62%,color-mix(in srgb,var(--honey) 30%,transparent),transparent 72%),
+  radial-gradient(44% 34% at 90% 74%,rgba(255,140,190,.22),transparent 72%),
+  radial-gradient(40% 30% at 40% 102%,color-mix(in srgb,var(--leaf) 30%,transparent),transparent 72%)}
+html[data-glass] body::before,html[data-glass] body::after{display:none}
+/* Panes on the page. */
+html[data-glass] :is(.panel,.setgroup,.clist,.logentry,.rgrp,.qtool,.cupcard,.appver,.card,.oplan,.hubgrid,.yic,.tshelf,.specs>div,.bd-shelf,.lastbrew,.today,.welcome,.rrow,.crow.rov-row,.qlinks){
+  background-color:var(--gl-pane)!important;background-image:var(--gl-sheen);border-color:var(--gl-line)!important;box-shadow:var(--gl-3d),var(--gl-shade)!important}
+html[data-glass] :is(.panel,.setgroup,.clist,.rgrp,.hubgrid) :is(.re-card,.oplan-o,.seg,.dwrite,.ls-t,.rrow,.bg-gh){background-color:color-mix(in srgb,var(--surface) calc(70% - var(--g) * 30%),transparent)!important;box-shadow:inset 0 1px 0 var(--gl-rim2)!important}
+/* What floats: frosted. In the app too (the switch is yours: it costs a little smoothness while scrolling). */
+/* What floats bends what's under its rim like a thick lens (an SVG filter, #lg-bar and #lg-btn in the page; its
+   strength follows the slider), then frosts it a little. Browsers without lensing behind an element keep the frost. */
+html[data-glass] :is(.appbar,.bottomnav,.minires,nav.tabs .wrap){background-color:var(--gl-chrome)!important;background-image:var(--gl-sheen);-webkit-backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost) url(#lg-bar)!important;border-color:var(--gl-line)!important;box-shadow:var(--gl-3d),var(--gl-shade)!important}
+html[data-glass] :is(dialog#vd,dialog#sharesheet,dialog#selsheet){background-color:var(--gl-sheet)!important;background-image:var(--gl-sheen);-webkit-backdrop-filter:var(--gl-blur);backdrop-filter:var(--gl-blur);box-shadow:var(--gl-3d),0 -10px 40px -16px rgba(0,0,0,.35)!important}
+html[data-glass] dialog#timer{background:color-mix(in srgb,var(--paper) calc(92% - var(--g) * 22%),transparent)!important;-webkit-backdrop-filter:var(--gl-blur);backdrop-filter:var(--gl-blur)}
+html[data-glass] :is(.fab .ib:not(.main),.fab-mi>span,.fab-mi>i,.vd-tool,.vd-close,.sh-mini,#toast){background-color:var(--gl-chrome)!important;background-image:var(--gl-sheen);-webkit-backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost) url(#lg-btn)!important;box-shadow:var(--gl-3d),0 8px 20px -10px rgba(0,0,0,.35)!important}
+html[data-glass] #toast{-webkit-backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost) url(#lg-bar)!important}
+html[data-glass] #toast{color:var(--ink)!important}
+html[data-glass] :is(.ib.main,.pbtn.main,.btn:not(.ghost),.fab-main){background-image:radial-gradient(120% 90% at 30% 0%,rgba(255,255,255,calc(var(--g) * .38)),rgba(255,255,255,0) 55%),linear-gradient(0deg,rgba(0,0,0,calc(var(--g) * .12)),rgba(0,0,0,0) 45%);box-shadow:inset 1.5px 1.5px 1px -1px rgba(255,255,255,calc(.3 + var(--g) * .5)),inset -1px -1px 1px -.5px rgba(255,255,255,calc(var(--g) * .3)),0 10px 22px -10px color-mix(in srgb,var(--cherry) 75%,transparent)!important}
+html[data-glass] .tab[aria-selected=true]{background-image:var(--gl-sheen);box-shadow:inset 0 1px 0 var(--gl-rim2)}
+html[data-glass] .bn-pill{background:color-mix(in srgb,var(--surface) calc(40% + var(--g) * 20%),color-mix(in srgb,var(--cherry) 10%,transparent));box-shadow:var(--gl-3d),0 4px 12px -6px rgba(0,0,0,.25)}
+@media (prefers-reduced-transparency:reduce){html[data-glass]{--g:0!important}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
 <body>
+<!-- Liquid glass: the lens behind floating bars (lg-bar, a thin rim along wide shapes) and round buttons (lg-btn).
+     Their maps and strength are set by the app (glassLens in app.js). -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><filter id="lg-bar" primitiveUnits="objectBoundingBox" x="0" y="0" width="1" height="1" color-interpolation-filters="sRGB"><feImage preserveAspectRatio="none" x="0" y="0" width="1" height="1" result="m"/><feDisplacementMap in="SourceGraphic" in2="m" scale="0" xChannelSelector="R" yChannelSelector="G"/></filter><filter id="lg-btn" primitiveUnits="objectBoundingBox" x="0" y="0" width="1" height="1" color-interpolation-filters="sRGB"><feImage preserveAspectRatio="none" x="0" y="0" width="1" height="1" result="m"/><feDisplacementMap in="SourceGraphic" in2="m" scale="0" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
      coffee drips and fills, the dripper lifts off as steam rises, and the name comes up; then it all lifts away.
      About 2 s; a tap skips it. -->

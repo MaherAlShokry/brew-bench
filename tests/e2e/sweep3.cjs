@@ -2,7 +2,7 @@
 {const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 // Every page, every vibe x light/dark: text that's hard to read, things wider than a small phone, unlabelled controls.
 const {chromium}=require('playwright');const demo=require('./seed2.cjs');(async()=>{const b=await chromium.launch();const R={};const add=(k,v)=>{(R[k]=R[k]||new Set()).add(v)};
- const vibes=['roastery','oat','matcha','blossom','nordic','desert','neon','caramel','pure','black'];
+ const vibes=['roastery','pure','black','nordic'];
  // Four looks at a time (each visits every page with a pause): one after another took about 2.5 minutes.
  const jobs=[];for(const v of vibes)for(const m of ['light','dark'])jobs.push([v,m]);
  const one=async([v,m])=>{const w=v==='roastery'&&m==='light'?320:390;
