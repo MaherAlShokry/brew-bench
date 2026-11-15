@@ -50,7 +50,7 @@ ok('wiped',await p.evaluate(()=>BEANS.length===0));
 await p.evaluate(()=>showTab('settings'));await p.setInputFiles('#st-file',path);await p.waitForTimeout(700);await p.click('#ask-ok');await p.waitForTimeout(400);await p.waitForLoadState('networkidle');await p.waitForTimeout(1500);
 const after=await p.evaluate(()=>JSON.stringify([BEANS.length,LOG.length,Object.keys(TOP3).length,PROFILE&&PROFILE.nick]));ok('restored to the same state',after===before,before+' → '+after);
 // Theme and colour
-// A pick shows at once and the new look follows a frame later.
-const th=await p.evaluate(async()=>{const frame=()=>new Promise(r=>requestAnimationFrame(()=>setTimeout(()=>requestAnimationFrame(r),0)));showTab('settings');document.querySelector('#st-mode [data-v="dark"]').click();await frame();const t1=curTheme();document.querySelector('.swatch[data-accent="leaf"]').click();await frame();const a=document.documentElement.dataset.accent;document.querySelector('#st-mode [data-v="auto"]').click();await frame();return t1+' '+a});
+// A pick shows at once and the new look follows a moment later (it crossfades in under a view transition).
+const th=await p.evaluate(async()=>{const frame=()=>new Promise(r=>requestAnimationFrame(()=>setTimeout(()=>requestAnimationFrame(()=>setTimeout(r,150)),0)));showTab('settings');document.querySelector('#st-mode [data-v="dark"]').click();await frame();const t1=curTheme();document.querySelector('.swatch[data-accent="leaf"]').click();await frame();const a=document.documentElement.dataset.accent;document.querySelector('#st-mode [data-v="auto"]').click();await frame();return t1+' '+a});
 ok('theme and colour switch',th==='dark leaf',th);
 console.log('errors',errs.length?errs:'none');await b.close()})();
