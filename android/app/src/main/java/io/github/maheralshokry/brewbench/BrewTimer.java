@@ -280,7 +280,7 @@ final class BrewTimer {
             String nx = s.next.replaceFirst("^Next at \\d+:\\d\\d: ", "Next: ");
             String step = s.step.isEmpty() ? "Brewing" : s.step.replaceAll("\\.$", "");
             b.setOngoing(true)
-                .setContentTitle(pause ? "Paused · " + step : step)
+                .setContentTitle(pause ? "Paused at " + clock(e) : step)  // paused, no clock runs: the title holds the time
                 .setContentText(nx.replaceAll("\\.$", ""))
                 // The recipe's name without the brewer it's made on ("Tetsu Kasuya 10-pour", not "... on the NEO"), so the
                 // header stays one short line next to the countdown.
