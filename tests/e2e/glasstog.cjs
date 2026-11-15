@@ -28,6 +28,11 @@ st=await p.evaluate(()=>({glass:document.documentElement.hasAttribute('data-glas
 ok('glass stays on over Nordic roast',st.glass&&st.vibe==='nordic',st);
 const bar=await p.evaluate(()=>{const s=getComputedStyle(document.querySelector('.bottomnav'));return s.backdropFilter||s.webkitBackdropFilter});
 ok('the bars are frosted',/blur/.test(bar),bar);
+// While the page scrolls the bars drop the blur (redrawing it under a moving page every frame was the lag), then frost again.
+const mv=await p.evaluate(()=>new Promise(res=>{scrollTo(0,300);requestAnimationFrame(()=>{const s=getComputedStyle(document.querySelector('.bottomnav'));const during=document.documentElement.classList.contains('gl-move')&&!/blur/.test(s.backdropFilter||'');
+  setTimeout(()=>{const a=getComputedStyle(document.querySelector('.bottomnav'));res({during,after:!document.documentElement.classList.contains('gl-move')&&/blur/.test(a.backdropFilter||'')})},450)})}));
+ok('no blur while scrolling, frosted again once still',mv.during&&mv.after,mv);
+ok('no lens filter left behind the bars',await p.evaluate(()=>!document.getElementById('lg-bar')&&!/url\(/.test(getComputedStyle(document.querySelector('.appbar')).backdropFilter)));
 await p.click('#st-glass button:has-text("Off")');await p.waitForTimeout(400);
 st=await p.evaluate(()=>({glass:document.documentElement.hasAttribute('data-glass'),hidden:$('st-glamt-w').hidden}));
 ok('off removes the glass and hides the slider',!st.glass&&st.hidden,st);

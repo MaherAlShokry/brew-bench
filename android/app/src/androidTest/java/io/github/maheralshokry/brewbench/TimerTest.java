@@ -87,6 +87,9 @@ public class TimerTest {
         // What Android asks of a Live Update (all public): ongoing, a title, a progress style, not colourised, and the
         // request to be promoted. Whether the phone then promoted it is logged (those calls aren't in the public SDK).
         Notification nn = n.getNotification();
+        // The clock counts down to the next step, live; the text says which step of how many and what's next.
+        assertTrue("the clock counts down to the next step", nn.extras.getBoolean(Notification.EXTRA_CHRONOMETER_COUNT_DOWN) && nn.extras.getBoolean(Notification.EXTRA_SHOW_CHRONOMETER));
+        assertTrue("which step of how many", String.valueOf(nn.extras.getCharSequence(Notification.EXTRA_TEXT)).startsWith("Step 1 of " + STEPS.length + " · Next: "));
         assertTrue("asks to be a Live Update", nn.extras.getBoolean("android.requestPromotedOngoing"));
         assertTrue("not colourised", !nn.extras.getBoolean(Notification.EXTRA_COLORIZED));
         if (Build.VERSION.SDK_INT >= 36) {

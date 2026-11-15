@@ -2706,7 +2706,7 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 @media (max-width:759px){.fab{bottom:calc(var(--sa-bottom) + 96px)}}
 .fab .ib{width:56px;height:56px;background:var(--surface);box-shadow:0 10px 24px -10px rgba(0,0,0,.5),inset 0 0 0 1px var(--hair)}
 .fab .ib.main{background:var(--cherry);color:var(--surface-ink,var(--surface))}.fab .ib svg{width:24px;height:24px;stroke-width:2.2}.fab .ib.main svg{stroke-width:2.6}
-main section.on:has(>.fab){padding-bottom:160px!important}
+body.has-fab main section.on{padding-bottom:160px!important}
 @media (max-width:759px){body.has-fab #toast{bottom:calc(var(--sa-bottom) + 166px)}}
 
 .le-b{width:40px;padding:0!important;justify-content:center}.le-b.again{width:40px;height:40px;padding:0!important}
@@ -2808,14 +2808,14 @@ html[data-glass]{--g:.6;
   --gl-3d:inset 1.5px 1.5px 1px -1px rgba(255,255,255,calc(.55 + var(--g) * .4)),inset -1.5px -1.5px 1px -1px rgba(255,255,255,calc(.25 + var(--g) * .4)),
     inset 0 0 calc(4px + var(--g) * 12px) rgba(255,255,255,calc(var(--g) * .3)),inset 0 calc(-4px - var(--g) * 6px) calc(10px + var(--g) * 8px) calc(-8px - var(--g) * 4px) rgba(0,0,0,calc(var(--g) * .10));
   
-  --gl-frost:blur(calc(8px + (1 - var(--g)) * 12px)) saturate(calc(150% + var(--g) * 60%)) brightness(1.03);--gl-line:rgba(30,36,64,calc(.05 + var(--g) * .04));
+  --gl-frost:blur(calc(8px + (1 - var(--g)) * 12px)) saturate(calc(150% + var(--g) * 60%));
+  --gl-still:color-mix(in srgb,var(--surface) calc(97% - var(--g) * 9%),transparent);--gl-line:rgba(30,36,64,calc(.05 + var(--g) * .04));
   --gl-pane:color-mix(in srgb,var(--surface) calc(90% - var(--g) * 42%),transparent);
   --gl-chrome:color-mix(in srgb,var(--surface) calc(86% - var(--g) * 38%),transparent);
-  --gl-sheet:color-mix(in srgb,var(--surface) calc(94% - var(--g) * 24%),transparent);
+  --gl-sheet:color-mix(in srgb,var(--surface) calc(97% - var(--g) * 10%),transparent);
   --gl-rim:rgba(255,255,255,calc(.45 + var(--g) * .45));--gl-rim2:rgba(255,255,255,calc(var(--g) * .22));
   --gl-sheen:linear-gradient(180deg,rgba(255,255,255,calc(var(--g) * .34)),rgba(255,255,255,0) 42%);
-  --gl-shade:0 calc(6px + var(--g) * 8px) calc(18px + var(--g) * 16px) -14px rgba(20,24,40,calc(.16 + var(--g) * .16));
-  --gl-blur:blur(calc(10px + var(--g) * 18px)) saturate(calc(140% + var(--g) * 60%));background:var(--paper)}
+  --gl-shade:0 calc(6px + var(--g) * 8px) calc(18px + var(--g) * 16px) -14px rgba(20,24,40,calc(.16 + var(--g) * .16));background:var(--paper)}
 @media (prefers-color-scheme:dark){html[data-glass]:not([data-theme="light"]){--gl-3d:inset 1.5px 1.5px 1px -1px rgba(255,255,255,calc(.18 + var(--g) * .3)),inset -1.5px -1.5px 1px -1px rgba(255,255,255,calc(.08 + var(--g) * .18)),inset 0 0 calc(4px + var(--g) * 12px) rgba(255,255,255,calc(var(--g) * .08)),inset 0 calc(-4px - var(--g) * 6px) calc(10px + var(--g) * 8px) calc(-8px - var(--g) * 4px) rgba(0,0,0,calc(.2 + var(--g) * .2));--gl-line:rgba(255,255,255,calc(.06 + var(--g) * .06));--gl-rim:rgba(255,255,255,calc(.07 + var(--g) * .13));--gl-rim2:rgba(255,255,255,calc(var(--g) * .06));
   --gl-sheen:linear-gradient(180deg,rgba(255,255,255,calc(var(--g) * .09)),rgba(255,255,255,0) 40%);--gl-shade:0 calc(8px + var(--g) * 8px) calc(22px + var(--g) * 16px) -14px rgba(0,0,0,calc(.45 + var(--g) * .25))}}
 html[data-glass][data-theme="dark"]{--gl-3d:inset 1.5px 1.5px 1px -1px rgba(255,255,255,calc(.18 + var(--g) * .3)),inset -1.5px -1.5px 1px -1px rgba(255,255,255,calc(.08 + var(--g) * .18)),inset 0 0 calc(4px + var(--g) * 12px) rgba(255,255,255,calc(var(--g) * .08)),inset 0 calc(-4px - var(--g) * 6px) calc(10px + var(--g) * 8px) calc(-8px - var(--g) * 4px) rgba(0,0,0,calc(.2 + var(--g) * .2));--gl-line:rgba(255,255,255,calc(.06 + var(--g) * .06));--gl-rim:rgba(255,255,255,calc(.07 + var(--g) * .13));--gl-rim2:rgba(255,255,255,calc(var(--g) * .06));
@@ -2834,12 +2834,13 @@ html[data-glass] :is(.panel,.setgroup,.clist,.logentry,.rgrp,.qtool,.cupcard,.ap
 html[data-glass] :is(.panel,.setgroup,.clist,.rgrp,.hubgrid) :is(.re-card,.oplan-o,.seg,.dwrite,.ls-t,.rrow,.bg-gh){background-color:color-mix(in srgb,var(--surface) calc(70% - var(--g) * 30%),transparent)!important;box-shadow:inset 0 1px 0 var(--gl-rim2)!important}
 
 
-html[data-glass] :is(.appbar,.bottomnav,.minires,nav.tabs .wrap){background-color:var(--gl-chrome)!important;background-image:var(--gl-sheen);-webkit-backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost) url(#lg-bar)!important;border-color:var(--gl-line)!important;box-shadow:var(--gl-3d),var(--gl-shade)!important}
-html[data-glass] :is(dialog#vd,dialog#sharesheet,dialog#selsheet){background-color:var(--gl-sheet)!important;background-image:var(--gl-sheen);-webkit-backdrop-filter:var(--gl-blur);backdrop-filter:var(--gl-blur);box-shadow:var(--gl-3d),0 -10px 40px -16px rgba(0,0,0,.35)!important}
-html[data-glass] dialog#timer{background:color-mix(in srgb,var(--paper) calc(92% - var(--g) * 22%),transparent)!important;-webkit-backdrop-filter:var(--gl-blur);backdrop-filter:var(--gl-blur)}
-html[data-glass] :is(.fab .ib:not(.main),.fab-mi>span,.fab-mi>i,.vd-tool,.vd-close,.sh-mini,#toast){background-color:var(--gl-chrome)!important;background-image:var(--gl-sheen);-webkit-backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost) url(#lg-btn)!important;box-shadow:var(--gl-3d),0 8px 20px -10px rgba(0,0,0,.35)!important}
-html[data-glass] #toast{-webkit-backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost) url(#lg-bar)!important}
+html[data-glass] :is(.appbar,.bottomnav,.minires,nav.tabs .wrap){background-color:var(--gl-chrome)!important;background-image:var(--gl-sheen);-webkit-backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost)!important;border-color:var(--gl-line)!important;box-shadow:var(--gl-3d),var(--gl-shade)!important}
+html[data-glass] :is(dialog#vd,dialog#sharesheet,dialog#selsheet){background-color:var(--gl-sheet)!important;background-image:var(--gl-sheen);box-shadow:var(--gl-3d),0 -10px 40px -16px rgba(0,0,0,.35)!important}
+html[data-glass] dialog#timer{background:color-mix(in srgb,var(--paper) calc(97% - var(--g) * 10%),transparent)!important}
+html[data-glass] :is(.fab .ib:not(.main),.fab-mi>span,.fab-mi>i,.vd-tool,.vd-close,.sh-mini,#toast){background-color:var(--gl-chrome)!important;background-image:var(--gl-sheen);-webkit-backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost)!important;box-shadow:var(--gl-3d),0 8px 20px -10px rgba(0,0,0,.35)!important}
+html[data-glass] #toast{-webkit-backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost)!important}
 html[data-glass] #toast{color:var(--ink)!important}
+html[data-glass].gl-move :is(.appbar,.bottomnav,.minires,nav.tabs .wrap,.fab .ib:not(.main),#toast){-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background-color:var(--gl-still)!important}
 html[data-glass] :is(.ib.main,.pbtn.main,.btn:not(.ghost),.fab-main){background-image:radial-gradient(120% 90% at 30% 0%,rgba(255,255,255,calc(var(--g) * .38)),rgba(255,255,255,0) 55%),linear-gradient(0deg,rgba(0,0,0,calc(var(--g) * .12)),rgba(0,0,0,0) 45%);box-shadow:inset 1.5px 1.5px 1px -1px rgba(255,255,255,calc(.3 + var(--g) * .5)),inset -1px -1px 1px -.5px rgba(255,255,255,calc(var(--g) * .3)),0 10px 22px -10px color-mix(in srgb,var(--cherry) 75%,transparent)!important}
 html[data-glass] .tab[aria-selected=true]{background-image:var(--gl-sheen);box-shadow:inset 0 1px 0 var(--gl-rim2)}
 html[data-glass] .bn-pill{background:color-mix(in srgb,var(--surface) calc(40% + var(--g) * 20%),color-mix(in srgb,var(--cherry) 10%,transparent));box-shadow:var(--gl-3d),0 4px 12px -6px rgba(0,0,0,.25)}
@@ -2849,12 +2850,9 @@ html[data-glass] .bn-pill{background:color-mix(in srgb,var(--surface) calc(40% +
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="4b8a1e568c9b"</script>
+<script>const BUILD_ID="3a6acecdb710"</script>
 </head>
 <body>
-<!-- Liquid glass: the lens behind floating bars (lg-bar, a thin rim along wide shapes) and round buttons (lg-btn).
-     Their maps and strength are set by the app (glassLens in app.js). -->
-<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><filter id="lg-bar" primitiveUnits="objectBoundingBox" x="0" y="0" width="1" height="1" color-interpolation-filters="sRGB"><feImage preserveAspectRatio="none" x="0" y="0" width="1" height="1" result="m"/><feDisplacementMap in="SourceGraphic" in2="m" scale="0" xChannelSelector="R" yChannelSelector="G"/></filter><filter id="lg-btn" primitiveUnits="objectBoundingBox" x="0" y="0" width="1" height="1" color-interpolation-filters="sRGB"><feImage preserveAspectRatio="none" x="0" y="0" width="1" height="1" result="m"/><feDisplacementMap in="SourceGraphic" in2="m" scale="0" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
      coffee drips and fills, the dripper lifts off as steam rises, and the name comes up; then it all lifts away.
      About 2 s; a tap skips it. -->
@@ -9427,7 +9425,7 @@ function setFavicon(){try{const cs=getComputedStyle($('ab-logo')),col=v=>cs.getP
 function themeSwap(){const d=document.documentElement;d.classList.add('thx');clearTimeout(themeSwap.t);
   requestAnimationFrame(()=>requestAnimationFrame(()=>{themeSwap.t=setTimeout(()=>d.classList.remove('thx'),60)}))}
 function applyUI(){const d=document.documentElement;themeSwap();d.setAttribute('data-accent',UI.accent);if(UI.vibe==='roastery')d.removeAttribute('data-vibe');else d.setAttribute('data-vibe',UI.vibe);d.setAttribute('data-text',UI.text);d.setAttribute('data-motion',UI.motion);
-  if(UI.glass){d.setAttribute('data-glass','');d.style.setProperty('--g',UI.glassAmt/100)}else{d.removeAttribute('data-glass');d.style.removeProperty('--g')}glassLens()
+  if(UI.glass){d.setAttribute('data-glass','');d.style.setProperty('--g',UI.glassAmt/100)}else{d.removeAttribute('data-glass');d.style.removeProperty('--g')}
   $('ab-logo').innerHTML=logoSVG(UI.logo,24);
   // In the Android app the home-screen icon follows the look: the logo in the vibe's colours, light or dark as the
   // app is now. The app swaps it when you next leave it.
@@ -9437,17 +9435,10 @@ function applyUI(){const d=document.documentElement;themeSwap();d.setAttribute('
 function setAppIcon(){const ai=plugin('AppIcon');if(ai)ai.set({name:UI.logo,vibe:UI.vibe,mode:document.documentElement.hasAttribute('data-theme')?(curTheme()==='dark'?'dark':'light'):'auto'}).catch(()=>{})}
 // Auto theme follows the phone, so the icon follows it too.
 try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{themeSwap();setAppIcon()})}catch(e){}
-// Liquid glass's lens: a map that is neutral in the middle and bends toward the rim (red across, green down), eased
-// so the bend gathers at the very edge as it does in thick glass. Bars bend in a thin band (their width is large); round
-// buttons all the way round. Its strength follows the slider; off, or reduced transparency, it doesn't bend at all.
-var LENS_MAP=false;
-function glassLens(){const on=UI.glass&&!MQ('(prefers-reduced-transparency: reduce)'),g=on?UI.glassAmt/100:0;
-  const map=(bx,by)=>{const st=(id,ch,b)=>{const c=v=>ch==='r'?'rgb('+v+',0,0)':'rgb(0,'+v+',0)',e=[[0,255],[b*.35,190],[b*.7,148],[b,128],[1-b,128],[1-b*.7,108],[1-b*.35,66],[1,0]];
-      return '<linearGradient id="'+id+'"'+(ch==='g'?' x2="0" y2="1"':'')+'>'+e.map(([o,v])=>'<stop offset="'+o.toFixed(3)+'" stop-color="'+c(v)+'"/>').join('')+'</linearGradient>'};
-    return 'data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><defs>'+st('r','r',bx)+st('g','g',by)+'</defs><rect width="100" height="100" fill="url(#r)"/><rect width="100" height="100" fill="url(#g)" style="mix-blend-mode:screen"/></svg>')};
-  for(const [id,bx,by,k] of [['lg-bar',.07,.3,.09],['lg-btn',.3,.3,.22]]){const f=document.getElementById(id);if(!f)continue;
-    if(!LENS_MAP)f.querySelector('feImage').setAttribute('href',map(bx,by));f.querySelector('feDisplacementMap').setAttribute('scale',String(+(g*k).toFixed(3)))}
-  LENS_MAP=true}
+// Liquid glass: while the page scrolls, the bars and floating buttons drop their frost for a near-solid tint (gl-move)
+// and frost again once it settles; a blur redrawn under a moving page on every frame was the lag.
+{let t=0,on=false;addEventListener('scroll',()=>{if(!UI.glass)return;if(!on){on=true;document.documentElement.classList.add('gl-move')}
+  clearTimeout(t);t=setTimeout(()=>{on=false;document.documentElement.classList.remove('gl-move')},180)},{passive:true,capture:true})}
 function saveUI(){save('bb-ui',UI);applyUI()}
 /* Your data: everything the app saves on this device, in one file you can keep or move to another phone. */
 // Sign-in tokens never go into a backup file.
@@ -9562,7 +9553,7 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
   seg('st-glass',[['0','Off'],['1','On']],()=>UI.glass?'1':'0',v=>{UI.glass=v==='1';saveUI();renderSettings(1);toast(UI.glass?'Liquid glass on':'Liquid glass off')});
   // The strength follows your finger as you slide (no redraw of the page) and is kept when you let go.
   {const gr=$('st-glamt'),w=$('st-glamt-w');w.hidden=!UI.glass;if(+gr.value!==UI.glassAmt)gr.value=UI.glassAmt;
-    gr.oninput=()=>{UI.glassAmt=+gr.value;document.documentElement.style.setProperty('--g',UI.glassAmt/100);glassLens()};gr.onchange=()=>save('bb-ui',UI)}
+    gr.oninput=()=>{UI.glassAmt=+gr.value;if(gr._f)return;gr._f=requestAnimationFrame(()=>{gr._f=0;document.documentElement.style.setProperty('--g',UI.glassAmt/100)})};gr.onchange=()=>{document.documentElement.style.setProperty('--g',UI.glassAmt/100);save('bb-ui',UI)}}
   if($('st-remind')){seg('st-remind',[['0','Off'],['1','Every day']],()=>REMIND.on?'1':'0',async v=>{await setReminder(v==='1');renderSettings(1)});
     $('st-rtime').onchange=async e=>{if(/^\d\d:\d\d$/.test(e.target.value)){REMIND.t=e.target.value;save('bb-remind',REMIND);await scheduleReminders();toast('Your coffee of the day arrives at '+REMIND.t)}}}
   if($('st-learn')){seg('st-learn',[['0','Off'],['1','Every day']],()=>LEARN.on?'1':'0',async v=>{await setLearn(v==='1');renderSettings(1)});

@@ -195,7 +195,8 @@ final class BrewTimer {
         if (widgets) refreshQuick(ctx);
         H.removeCallbacks(TICK);
         if ("run".equals(s.state) && s.live(now)) {
-            long e = s.elapsed(now), wait = 5000;
+            // Every second: the bar and the time readout move with the brew (the clocks tick on their own).
+            long e = s.elapsed(now), wait = 1000 - (e % 1000) + 20;
             for (long x : s.t) if (x > e) { wait = Math.min(wait, x - e + 60); break; }
             if (s.total > 0) wait = Math.min(wait, s.total - e + 60);
             H.postDelayed(TICK, Math.max(250, wait));
@@ -268,10 +269,23 @@ final class BrewTimer {
             b.addAction(new Notification.Action.Builder(null, "Log this brew", BrewWidget.open(ctx, "log", 41)).build());
             b.addAction(new Notification.Action.Builder(null, "Brew again", action(ctx, TOGGLE, 42)).build());
         } else {
+            // The step now as the title, which step of how many and what comes next under it, and the recipe with where
+            // the brew is ("0:24 / 3:30") beside the app's name. The clock counts down to the next step (on the last, to
+            // the end), ticking by itself: it is also what the status-bar chip and the Now Bar show.
+            int c = s.cur(e), n = s.t.length;
+            long nextAt = -1;
+            for (long x : s.t) if (x > e) { nextAt = x; break; }
+            if (nextAt < 0 && s.total > e) nextAt = s.total;
+            String where = clock(e) + (s.total > 0 ? " / " + clock(s.total) : "");
+            String stepOf = n > 0 && c >= 0 ? "Step " + (c + 1) + " of " + n : "";
+            // The clock already counts down to the next step, so its time isn't repeated in the text.
+            String nx = s.next.replaceFirst("^Next at \\d+:\\d\\d: ", "Next: ");
             b.setOngoing(true)
                 .setContentTitle(pause ? "Paused at " + clock(e) : (s.step.isEmpty() ? "Brewing" : s.step))
-                .setContentText(pause ? s.step : s.next);
-            if (run) b.setWhen(now - e).setUsesChronometer(true).setShowWhen(true);
+                .setContentText(pause ? (stepOf.isEmpty() ? s.step : stepOf + " · " + s.step) : (stepOf.isEmpty() ? nx : stepOf + " · " + nx))
+                .setSubText((s.name.isEmpty() ? "Brew" : s.name) + " · " + where);
+            if (run && nextAt > 0 && Build.VERSION.SDK_INT >= 24) b.setWhen(now + (nextAt - e)).setUsesChronometer(true).setChronometerCountDown(true).setShowWhen(true);
+            else if (run) b.setWhen(now - e).setUsesChronometer(true).setShowWhen(true);
             else b.setShowWhen(false);
             b.addAction(new Notification.Action.Builder(null, run ? "Pause" : "Resume", action(ctx, TOGGLE, 43)).build());
             if (s.t.length > 0) b.addAction(new Notification.Action.Builder(null, "Next step", action(ctx, NEXT, 44)).build());
@@ -302,7 +316,9 @@ final class BrewTimer {
                 if (p > 0 && p < max) pts.add(new Notification.ProgressStyle.Point(p).setColor(0xFF6B3F24));
             }
             if (max > last) segs.add(new Notification.ProgressStyle.Segment(max - last).setColor(ACCENT));
-            ps.setProgressSegments(segs).setProgressPoints(pts).setStyledByProgress(true).setProgress(at);
+            ps.setProgressSegments(segs).setProgressPoints(pts).setStyledByProgress(true).setProgress(at)
+                // A bean rides along the bar to where the brew is.
+                .setProgressTrackerIcon(android.graphics.drawable.Icon.createWithResource(PKG, R.drawable.ic_stat_bean));
             b.setStyle(ps);
         } else {
             b.setProgress(max, at, false);

@@ -3926,7 +3926,7 @@ function setFavicon(){try{const cs=getComputedStyle($('ab-logo')),col=v=>cs.getP
 function themeSwap(){const d=document.documentElement;d.classList.add('thx');clearTimeout(themeSwap.t);
   requestAnimationFrame(()=>requestAnimationFrame(()=>{themeSwap.t=setTimeout(()=>d.classList.remove('thx'),60)}))}
 function applyUI(){const d=document.documentElement;themeSwap();d.setAttribute('data-accent',UI.accent);if(UI.vibe==='roastery')d.removeAttribute('data-vibe');else d.setAttribute('data-vibe',UI.vibe);d.setAttribute('data-text',UI.text);d.setAttribute('data-motion',UI.motion);
-  if(UI.glass){d.setAttribute('data-glass','');d.style.setProperty('--g',UI.glassAmt/100)}else{d.removeAttribute('data-glass');d.style.removeProperty('--g')}glassLens()
+  if(UI.glass){d.setAttribute('data-glass','');d.style.setProperty('--g',UI.glassAmt/100)}else{d.removeAttribute('data-glass');d.style.removeProperty('--g')}
   $('ab-logo').innerHTML=logoSVG(UI.logo,24);
   // In the Android app the home-screen icon follows the look: the logo in the vibe's colours, light or dark as the
   // app is now. The app swaps it when you next leave it.
@@ -3936,17 +3936,10 @@ function applyUI(){const d=document.documentElement;themeSwap();d.setAttribute('
 function setAppIcon(){const ai=plugin('AppIcon');if(ai)ai.set({name:UI.logo,vibe:UI.vibe,mode:document.documentElement.hasAttribute('data-theme')?(curTheme()==='dark'?'dark':'light'):'auto'}).catch(()=>{})}
 // Auto theme follows the phone, so the icon follows it too.
 try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{themeSwap();setAppIcon()})}catch(e){}
-// Liquid glass's lens: a map that is neutral in the middle and bends toward the rim (red across, green down), eased
-// so the bend gathers at the very edge as it does in thick glass. Bars bend in a thin band (their width is large); round
-// buttons all the way round. Its strength follows the slider; off, or reduced transparency, it doesn't bend at all.
-var LENS_MAP=false;
-function glassLens(){const on=UI.glass&&!MQ('(prefers-reduced-transparency: reduce)'),g=on?UI.glassAmt/100:0;
-  const map=(bx,by)=>{const st=(id,ch,b)=>{const c=v=>ch==='r'?'rgb('+v+',0,0)':'rgb(0,'+v+',0)',e=[[0,255],[b*.35,190],[b*.7,148],[b,128],[1-b,128],[1-b*.7,108],[1-b*.35,66],[1,0]];
-      return '<linearGradient id="'+id+'"'+(ch==='g'?' x2="0" y2="1"':'')+'>'+e.map(([o,v])=>'<stop offset="'+o.toFixed(3)+'" stop-color="'+c(v)+'"/>').join('')+'</linearGradient>'};
-    return 'data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><defs>'+st('r','r',bx)+st('g','g',by)+'</defs><rect width="100" height="100" fill="url(#r)"/><rect width="100" height="100" fill="url(#g)" style="mix-blend-mode:screen"/></svg>')};
-  for(const [id,bx,by,k] of [['lg-bar',.07,.3,.09],['lg-btn',.3,.3,.22]]){const f=document.getElementById(id);if(!f)continue;
-    if(!LENS_MAP)f.querySelector('feImage').setAttribute('href',map(bx,by));f.querySelector('feDisplacementMap').setAttribute('scale',String(+(g*k).toFixed(3)))}
-  LENS_MAP=true}
+// Liquid glass: while the page scrolls, the bars and floating buttons drop their frost for a near-solid tint (gl-move)
+// and frost again once it settles; a blur redrawn under a moving page on every frame was the lag.
+{let t=0,on=false;addEventListener('scroll',()=>{if(!UI.glass)return;if(!on){on=true;document.documentElement.classList.add('gl-move')}
+  clearTimeout(t);t=setTimeout(()=>{on=false;document.documentElement.classList.remove('gl-move')},180)},{passive:true,capture:true})}
 function saveUI(){save('bb-ui',UI);applyUI()}
 /* Your data: everything the app saves on this device, in one file you can keep or move to another phone. */
 // Sign-in tokens never go into a backup file.
@@ -4061,7 +4054,7 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
   seg('st-glass',[['0','Off'],['1','On']],()=>UI.glass?'1':'0',v=>{UI.glass=v==='1';saveUI();renderSettings(1);toast(UI.glass?'Liquid glass on':'Liquid glass off')});
   // The strength follows your finger as you slide (no redraw of the page) and is kept when you let go.
   {const gr=$('st-glamt'),w=$('st-glamt-w');w.hidden=!UI.glass;if(+gr.value!==UI.glassAmt)gr.value=UI.glassAmt;
-    gr.oninput=()=>{UI.glassAmt=+gr.value;document.documentElement.style.setProperty('--g',UI.glassAmt/100);glassLens()};gr.onchange=()=>save('bb-ui',UI)}
+    gr.oninput=()=>{UI.glassAmt=+gr.value;if(gr._f)return;gr._f=requestAnimationFrame(()=>{gr._f=0;document.documentElement.style.setProperty('--g',UI.glassAmt/100)})};gr.onchange=()=>{document.documentElement.style.setProperty('--g',UI.glassAmt/100);save('bb-ui',UI)}}
   if($('st-remind')){seg('st-remind',[['0','Off'],['1','Every day']],()=>REMIND.on?'1':'0',async v=>{await setReminder(v==='1');renderSettings(1)});
     $('st-rtime').onchange=async e=>{if(/^\d\d:\d\d$/.test(e.target.value)){REMIND.t=e.target.value;save('bb-remind',REMIND);await scheduleReminders();toast('Your coffee of the day arrives at '+REMIND.t)}}}
   if($('st-learn')){seg('st-learn',[['0','Off'],['1','Every day']],()=>LEARN.on?'1':'0',async v=>{await setLearn(v==='1');renderSettings(1)});
