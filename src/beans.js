@@ -1018,6 +1018,7 @@ function openDiaryPick(){const d=$('vd'),list=[...BEANS].sort((a,c)=>(c.shelf-a.
 /* ---------- The passport: a stamp for every origin you've had ---------- */
 // Stamps are drawn once with the card's stamp, inked in the origin's colours as on a light card, and kept.
 const STAMPS=new Map();
+const PP_GLOBE='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.6 2.4 3.9 5.2 3.9 8.5s-1.3 6.1-3.9 8.5c-2.6-2.4-3.9-5.2-3.9-8.5S9.4 5.9 12 3.5z"/></svg>';
 function stampURL(k){if(STAMPS.has(k))return STAMPS.get(k);let u='';
   try{const c=document.createElement('canvas');c.width=c.height=240;const x=c.getContext('2d');BC.F=getComputedStyle(document.body).fontFamily;
     bcStamp(x,120,120,cardStyle(originTheme(k),{mode:'light',col:'origin'}));u=c.toDataURL('image/png')}catch(e){}
@@ -1075,11 +1076,15 @@ function renderPassport(){const p=$('bv-passport');if(!p)return;const st=cabStat
   const todo=Object.keys(ALLO()).filter(k=>!by[k]),seed=Math.floor(Date.now()/864e5),next=[];for(let i=0;i<Math.min(6,todo.length);i++)next.push(todo[(seed*7+i*11)%todo.length]);
   // The count is of the map's origins; countries off the map still get a stamp, counted on their own.
   const onMap=got.filter(k=>ALLO()[k]).length,T=TGOT||{},earned=TROPHIES.filter(t=>T[t[0]]).length;
-  p.innerHTML='<div class="passport"><div class="pp-h"><span class="pp-k">Coffee passport</span>'+(got.length?'<button type="button" class="sh-mini ic pp-share" data-ppshare aria-label="Share your passport" title="Share">'+SH_ICO+'</button>':'')+'<h3>'+onMap+' <em>of '+total+' origins'+(got.filter(k=>k!=='blend').length>onMap?' · +'+(got.filter(k=>k!=='blend').length-onMap)+' more':'')+'</em></h3><div class="pp-regs">'+regs+blendReg+'</div></div>'+
-    (got.length?'<div class="pp-grid">'+got.map((k,i)=>'<button type="button" class="pp-st" data-ppo="'+k+'" style="--r:'+(((i*37)%15)-7)+'deg"><img alt="" src="'+(STAMPS.get(k)||STAMP_WAIT)+'" data-stamp="'+k+'"><b>'+esc(originName(k))+'</b><small>'+(k==='blend'?by.blend.length+' blend'+(by.blend.length===1?'':'s'):nBags(k)+' bag'+(nBags(k)===1?'':'s'))+' · since '+mon(first(k))+'</small></button>').join('')+'</div>'
+  // A leather cover (how far you are, by region) over cream pages holding the stamps.
+  const pct=total?Math.round(onMap/total*100):0,off=got.filter(k=>k!=='blend').length-onMap;
+  p.innerHTML='<div class="passport"><div class="pp-cover"><div class="pp-h"><span class="pp-k">'+PP_GLOBE+'Coffee passport</span>'+(got.length?'<button type="button" class="sh-mini ic pp-share" data-ppshare aria-label="Share your passport" title="Share">'+SH_ICO+'</button>':'')+'</div>'+
+    '<div class="pp-sum"><h3><b>'+onMap+'</b><em>of '+total+' origins'+(off>0?' · +'+off+' more':'')+'</em></h3>'+
+    '<span class="pp-ring" role="img" aria-label="'+pct+'% of origins collected"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="27" pathLength="100"/><circle class="on" cx="32" cy="32" r="27" pathLength="100" stroke-dasharray="'+pct+' 100"/></svg><b>'+pct+'<small>%</small></b></span></div>'+
+    '<div class="pp-regs">'+regs+blendReg+'</div></div><div class="pp-pages">'+
+    (got.length?'<div class="pp-ph"><span>Stamps</span><b>'+got.length+'</b></div><div class="pp-grid">'+got.map((k,i)=>'<button type="button" class="pp-st" data-ppo="'+k+'" style="--r:'+(((i*37)%15)-7)+'deg"><img alt="" src="'+(STAMPS.get(k)||STAMP_WAIT)+'" data-stamp="'+k+'"><b>'+esc(originName(k))+'</b><small>'+(k==='blend'?by.blend.length+' blend'+(by.blend.length===1?'':'s'):nBags(k)+' bag'+(nBags(k)===1?'':'s'))+' · since '+mon(first(k))+'</small></button>').join('')+'</div>'
       :'<p class="pp-empty">Your first stamp arrives with your first coffee.</p>')+
-    (next.length?'<div class="pp-next"><b>Still to discover</b><div class="chips">'+[...new Set(next)].map(k=>'<button type="button" class="chip" data-o="'+k+'">'+(ALLO()[k].flag||'')+' '+esc(originName(k))+'</button>').join('')+'</div></div>':'')+'</div>'+
-    '';fillStamps(p)}
+    (next.length?'<div class="pp-next"><b>Still to discover</b><div class="chips">'+[...new Set(next)].map(k=>'<button type="button" class="chip" data-o="'+k+'">'+(ALLO()[k].flag||'')+' '+esc(originName(k))+'</button>').join('')+'</div></div>':'')+'</div></div>';fillStamps(p)}
 
 /* Your scans, each one a tap away from the gallery. A scan counts as added when a gallery coffee came from it or has
    the same name and roastery. */

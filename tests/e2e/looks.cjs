@@ -26,5 +26,8 @@ const nav=p.evaluate(()=>new Promise(res=>{const o=new MutationObserver(()=>{con
 await p.evaluate(()=>{document.documentElement.dataset.nav=''});
 await p.click('.fab-mi[data-fab="log"]');const kind=await nav;await p.waitForTimeout(700);
 ok('Log this brew opens the log as a page rising in',kind==='push'&&await p.evaluate(()=>$('log').classList.contains('on')),kind);
+// A ranked coffee opened as a full page has no coloured rule across the top (it sat under the status bar).
+const rule=await p.evaluate(async()=>{showTab('beans');openBean(BEANS[0].id);await new Promise(r=>setTimeout(r,500));const h=document.querySelector('#vd .vd-head'),w=getComputedStyle(h).borderTopWidth;$('vd').close();return w});
+ok('a coffee page has no stray line at the top',rule==='0px',rule);
 ok('no page errors',!errs.length,errs);
 await b.close()})();

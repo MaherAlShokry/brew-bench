@@ -2014,9 +2014,24 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .cr-fl{flex:none;display:inline-flex;align-items:center;gap:5px;padding:2px 8px 2px 6px;border-radius:999px;font-size:.72rem;font-weight:600;line-height:1.5;color:var(--ink);background:color-mix(in srgb,var(--fc) 13%,var(--surface2));white-space:nowrap}
 .cr-fl i{width:6px;height:6px;border-radius:50%;background:var(--fc);flex:none}
 
-.passport{position:relative;padding:18px 14px 16px;border-radius:24px;color:#2A1A10;margin-bottom:8px;
-  background:repeating-linear-gradient(0deg,transparent 0 27px,rgba(90,60,30,.06) 27px 28px),radial-gradient(120% 90% at 50% 0%,#FBF3E4,#EFE1C8);box-shadow:inset 0 0 0 1.5px rgba(120,80,40,.18),var(--shadow)}
-.pp-h{position:relative}
+.passport{position:relative;border-radius:var(--r-xl,28px);overflow:hidden;margin-bottom:8px;box-shadow:var(--shadow);isolation:isolate}
+
+.pp-cover{position:relative;padding:18px 16px 24px;color:#FFF8EE;
+  background:repeating-radial-gradient(circle at 104% -6%,transparent 0 6px,rgba(226,184,102,.075) 6px 7px),radial-gradient(90% 70% at 0% 0%,rgba(226,184,102,.22),transparent 60%),linear-gradient(160deg,#3A2216,#1B100A 70%)}
+.pp-cover::after{content:"";position:absolute;inset:7px;border:1.5px dashed rgba(226,184,102,.28);border-radius:calc(var(--r-xl,28px) - 7px) calc(var(--r-xl,28px) - 7px) 12px 12px;pointer-events:none}
+.pp-h{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:38px}
+.pp-k svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;margin-right:7px;vertical-align:-3px}
+.pp-sum{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:6px}
+.pp-ring{position:relative;flex:none;width:68px;height:68px;display:grid;place-items:center}
+.pp-ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.pp-ring circle{fill:none;stroke:rgba(255,248,238,.12);stroke-width:6}.pp-ring circle.on{stroke:#E2B866;stroke-linecap:round}
+.pp-ring b{font-family:var(--display);font-size:1.05rem;color:#FFF8EE}.pp-ring small{font-size:.62em;opacity:.75;margin-left:1px}
+
+.pp-pages{position:relative;padding:14px 14px 16px;color:#2A1A10;
+  background:radial-gradient(rgba(120,80,40,.13) 1px,transparent 1.4px) 0 0/16px 16px,linear-gradient(180deg,#F6EDDF,#FBF6EE 40%)}
+:root[data-theme="dark"] .pp-pages{background:radial-gradient(rgba(90,60,30,.16) 1px,transparent 1.4px) 0 0/16px 16px,linear-gradient(180deg,#E6D9C5,#EFE6D7 40%)}
+.pp-ph{display:flex;align-items:center;gap:8px;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:#7A4A26}
+.pp-ph b{display:grid;place-items:center;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:rgba(122,74,38,.12);letter-spacing:0;font-size:.72rem}
 
 #recipes .rrow{content-visibility:auto;contain-intrinsic-size:auto 160px}
 #beans .clist>.crow{content-visibility:auto;contain-intrinsic-size:auto 100px}
@@ -2082,19 +2097,21 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .sp-list{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px}.sp-row{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:14px;background:color-mix(in srgb,var(--ink) 5%,transparent)}
 .sp-row span{display:grid;min-width:0}.sp-row span b{overflow-wrap:anywhere}.sp-row small{color:var(--muted)}.sp-ms{min-width:64px;font:800 1.15rem var(--body);font-variant-numeric:tabular-nums;color:#276B4E}.sp-ms small{font-size:.7rem;margin-left:2px}
 .sp-ms.meh{color:#7A5208}.sp-ms.bad{color:#B3402E}
-:root[data-theme="dark"] .sp-ms{color:#6FCB9F}:root[data-theme="dark"] .sp-ms.meh{color:#E2B866}:root[data-theme="dark"] .sp-ms.bad{color:#F08A75}.pp-share{position:absolute;top:-4px;right:-4px}
-.pp-k{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:#7A4A26}
-.pp-h h3{margin:4px 0 0;font-family:var(--display);font-size:1.45rem;color:#2A1A10}.pp-h h3 em{font-style:normal;font-size:.7em;color:#6B4A30}
-.pp-regs{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px 14px;margin-top:12px}
-.pp-reg{display:grid;grid-template-columns:1fr auto;align-items:center;gap:3px 10px}.pp-reg small{grid-column:1;grid-row:1;font-size:.74rem;color:#5A3E2A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pp-reg .pp-rb{grid-column:1;grid-row:2}.pp-reg b{grid-column:2;grid-row:1/3;font-family:var(--display);font-size:1.05rem;color:#2A1A10}.pp-rb{display:block;height:5px;border-radius:3px;background:rgba(90,60,30,.12);overflow:hidden}.pp-rb i{display:block;height:100%}
-.pp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:10px 6px;margin-top:16px}
+:root[data-theme="dark"] .sp-ms{color:#6FCB9F}:root[data-theme="dark"] .sp-ms.meh{color:#E2B866}:root[data-theme="dark"] .sp-ms.bad{color:#F08A75}.pp-share{width:38px;padding:0;justify-content:center;background:rgba(255,248,238,.1);border-color:rgba(255,248,238,.2);color:#FFF8EE}
+.pp-k{display:inline-flex;align-items:center;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:#E2B866}
+.pp-sum h3{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;margin:0;font-family:var(--display);color:#FFF8EE;line-height:1}
+.pp-sum h3 b{font-size:3rem;font-weight:800;letter-spacing:-.02em;background:linear-gradient(180deg,#FFF1D2,#E2B866);-webkit-background-clip:text;background-clip:text;color:transparent}
+.pp-sum h3 em{font-style:normal;font-size:.98rem;font-weight:600;color:rgba(255,248,238,.72)}
+.pp-regs{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,248,238,.1)}
+.pp-reg{display:grid;grid-template-columns:1fr auto;align-items:center;gap:5px 10px;min-width:0}.pp-reg small{grid-column:1;grid-row:1;font-size:.76rem;color:rgba(255,248,238,.72);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pp-reg .pp-rb{grid-column:1/3;grid-row:2}.pp-reg b{grid-column:2;grid-row:1;font-family:var(--display);font-size:.9rem;color:#FFF8EE}.pp-rb{display:block;height:6px;border-radius:3px;background:rgba(255,248,238,.1);overflow:hidden}.pp-rb i{display:block;height:100%;border-radius:3px;min-width:0;filter:saturate(1.15) brightness(1.15)}
+.pp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:10px 6px;margin-top:10px}
 .pp-st{display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:none;padding:4px 2px;font:inherit;color:#2A1A10;cursor:pointer;text-align:center}
 .pp-st img{width:92px;height:92px;transform:rotate(var(--r));mix-blend-mode:multiply;opacity:.92;transition:transform .3s var(--ease-spring)}.pp-st:hover img,.pp-st:focus-visible img{transform:rotate(0) scale(1.06)}
 .pp-st b{font-size:.82rem;font-family:var(--display);line-height:1.2}.pp-st small{font-size:.7rem;color:#5A3E2A;line-height:1.25}
 .pp-empty{margin:16px 0 4px;font-size:.9rem;color:#5A3E2A}
-.pp-next{margin-top:14px;padding-top:12px;border-top:1px dashed rgba(90,60,30,.25)}.pp-next b{display:block;font-size:.82rem;margin-bottom:6px;color:#5A3E2A}
-.pp-next .chip{cursor:pointer;background:rgba(255,255,255,.65);color:#2A1A10;box-shadow:inset 0 0 0 1px rgba(90,60,30,.18)}
+.pp-next{margin-top:14px;padding-top:14px;border-top:1px dashed rgba(90,60,30,.25)}.pp-next b{display:block;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:800;margin-bottom:8px;color:#7A4A26}
+.pp-next .chip{cursor:pointer;background:rgba(255,255,255,.55);color:#2A1A10;box-shadow:none;border:1.5px dashed rgba(122,74,38,.32)}
 
 .trophies{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px}
 .tro{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--r-md);background:var(--surface);box-shadow:var(--shadow)}
@@ -2561,7 +2578,8 @@ dialog.dlg-pre[open]::backdrop{animation:none!important;opacity:0}
 @media (max-width:759px){
   html dialog#vd:not(.camdlg){position:fixed;inset:0;margin:0;width:100%;max-width:100%;height:100%;max-height:100%;border-radius:0;border:0;box-shadow:none;will-change:transform}
   html dialog#vd:not(.camdlg)::backdrop{background:rgba(15,10,6,.3)}
-  html dialog#vd:not(.camdlg) .vd-head{padding-top:calc(18px + var(--sa-top,0px))}
+  
+  html dialog#vd:not(.camdlg) .vd-head{padding-top:calc(18px + var(--sa-top,0px));border-top:0}
   html dialog#vd:not(.camdlg) .vd-close{top:calc(12px + var(--sa-top,0px))}
 }
 .ask{padding:2px 20px 6px}.ask-t{margin:0 0 14px;color:var(--muted);font-size:.95rem;line-height:1.45}
@@ -2811,7 +2829,7 @@ textarea{resize:none}
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="fbcd26a78bf7"</script>
+<script>const BUILD_ID="dd48e0be3024"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -10813,6 +10831,7 @@ function openDiaryPick(){const d=$('vd'),list=[...BEANS].sort((a,c)=>(c.shelf-a.
 /* ---------- The passport: a stamp for every origin you've had ---------- */
 // Stamps are drawn once with the card's stamp, inked in the origin's colours as on a light card, and kept.
 const STAMPS=new Map();
+const PP_GLOBE='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.6 2.4 3.9 5.2 3.9 8.5s-1.3 6.1-3.9 8.5c-2.6-2.4-3.9-5.2-3.9-8.5S9.4 5.9 12 3.5z"/></svg>';
 function stampURL(k){if(STAMPS.has(k))return STAMPS.get(k);let u='';
   try{const c=document.createElement('canvas');c.width=c.height=240;const x=c.getContext('2d');BC.F=getComputedStyle(document.body).fontFamily;
     bcStamp(x,120,120,cardStyle(originTheme(k),{mode:'light',col:'origin'}));u=c.toDataURL('image/png')}catch(e){}
@@ -10870,11 +10889,15 @@ function renderPassport(){const p=$('bv-passport');if(!p)return;const st=cabStat
   const todo=Object.keys(ALLO()).filter(k=>!by[k]),seed=Math.floor(Date.now()/864e5),next=[];for(let i=0;i<Math.min(6,todo.length);i++)next.push(todo[(seed*7+i*11)%todo.length]);
   // The count is of the map's origins; countries off the map still get a stamp, counted on their own.
   const onMap=got.filter(k=>ALLO()[k]).length,T=TGOT||{},earned=TROPHIES.filter(t=>T[t[0]]).length;
-  p.innerHTML='<div class="passport"><div class="pp-h"><span class="pp-k">Coffee passport</span>'+(got.length?'<button type="button" class="sh-mini ic pp-share" data-ppshare aria-label="Share your passport" title="Share">'+SH_ICO+'</button>':'')+'<h3>'+onMap+' <em>of '+total+' origins'+(got.filter(k=>k!=='blend').length>onMap?' · +'+(got.filter(k=>k!=='blend').length-onMap)+' more':'')+'</em></h3><div class="pp-regs">'+regs+blendReg+'</div></div>'+
-    (got.length?'<div class="pp-grid">'+got.map((k,i)=>'<button type="button" class="pp-st" data-ppo="'+k+'" style="--r:'+(((i*37)%15)-7)+'deg"><img alt="" src="'+(STAMPS.get(k)||STAMP_WAIT)+'" data-stamp="'+k+'"><b>'+esc(originName(k))+'</b><small>'+(k==='blend'?by.blend.length+' blend'+(by.blend.length===1?'':'s'):nBags(k)+' bag'+(nBags(k)===1?'':'s'))+' · since '+mon(first(k))+'</small></button>').join('')+'</div>'
+  // A leather cover (how far you are, by region) over cream pages holding the stamps.
+  const pct=total?Math.round(onMap/total*100):0,off=got.filter(k=>k!=='blend').length-onMap;
+  p.innerHTML='<div class="passport"><div class="pp-cover"><div class="pp-h"><span class="pp-k">'+PP_GLOBE+'Coffee passport</span>'+(got.length?'<button type="button" class="sh-mini ic pp-share" data-ppshare aria-label="Share your passport" title="Share">'+SH_ICO+'</button>':'')+'</div>'+
+    '<div class="pp-sum"><h3><b>'+onMap+'</b><em>of '+total+' origins'+(off>0?' · +'+off+' more':'')+'</em></h3>'+
+    '<span class="pp-ring" role="img" aria-label="'+pct+'% of origins collected"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="27" pathLength="100"/><circle class="on" cx="32" cy="32" r="27" pathLength="100" stroke-dasharray="'+pct+' 100"/></svg><b>'+pct+'<small>%</small></b></span></div>'+
+    '<div class="pp-regs">'+regs+blendReg+'</div></div><div class="pp-pages">'+
+    (got.length?'<div class="pp-ph"><span>Stamps</span><b>'+got.length+'</b></div><div class="pp-grid">'+got.map((k,i)=>'<button type="button" class="pp-st" data-ppo="'+k+'" style="--r:'+(((i*37)%15)-7)+'deg"><img alt="" src="'+(STAMPS.get(k)||STAMP_WAIT)+'" data-stamp="'+k+'"><b>'+esc(originName(k))+'</b><small>'+(k==='blend'?by.blend.length+' blend'+(by.blend.length===1?'':'s'):nBags(k)+' bag'+(nBags(k)===1?'':'s'))+' · since '+mon(first(k))+'</small></button>').join('')+'</div>'
       :'<p class="pp-empty">Your first stamp arrives with your first coffee.</p>')+
-    (next.length?'<div class="pp-next"><b>Still to discover</b><div class="chips">'+[...new Set(next)].map(k=>'<button type="button" class="chip" data-o="'+k+'">'+(ALLO()[k].flag||'')+' '+esc(originName(k))+'</button>').join('')+'</div></div>':'')+'</div>'+
-    '';fillStamps(p)}
+    (next.length?'<div class="pp-next"><b>Still to discover</b><div class="chips">'+[...new Set(next)].map(k=>'<button type="button" class="chip" data-o="'+k+'">'+(ALLO()[k].flag||'')+' '+esc(originName(k))+'</button>').join('')+'</div></div>':'')+'</div></div>';fillStamps(p)}
 
 /* Your scans, each one a tap away from the gallery. A scan counts as added when a gallery coffee came from it or has
    the same name and roastery. */
