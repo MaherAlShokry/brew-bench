@@ -2043,14 +2043,16 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .pp-h{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:38px}
 .pp-k svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;margin-right:7px;vertical-align:-3px}
 .pp-sum{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:6px}
-.pp-ring{position:relative;flex:none;width:68px;height:68px;display:grid;place-items:center}
+.pp-ring{position:relative;flex:none;width:92px;height:92px;margin:4px 26px 0 0;display:grid;place-items:center}
 .pp-ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
-.pp-ring circle{fill:none;stroke:rgba(255,248,238,.12);stroke-width:6}.pp-ring circle.on{stroke:#E2B866;stroke-linecap:round}
-.pp-ring b{font-family:var(--display);font-size:1.05rem;color:#FFF8EE}.pp-ring small{font-size:.62em;opacity:.75;margin-left:1px}
+.pp-ring circle{fill:none;stroke:rgba(255,248,238,.12);stroke-width:5}.pp-ring circle.on{stroke:#E2B866;stroke-linecap:round}
+.pp-ring b{font-family:var(--display);font-size:1.4rem;font-weight:800;color:#FFF8EE;letter-spacing:-.01em}.pp-ring small{font-size:.55em;font-weight:700;opacity:.7;margin-left:1px}
 /* The pages: warm paper with a faint dot grid, the stamps inked on it. */
-.pp-pages{position:relative;padding:14px 14px 16px;color:#2A1A10;
-  background:radial-gradient(rgba(120,80,40,.13) 1px,transparent 1.4px) 0 0/16px 16px,linear-gradient(180deg,#F6EDDF,#FBF6EE 40%)}
-:root[data-theme="dark"] .pp-pages{background:radial-gradient(rgba(90,60,30,.16) 1px,transparent 1.4px) 0 0/16px 16px,linear-gradient(180deg,#E6D9C5,#EFE6D7 40%)}
+.passport{--pp-p1:#F6EDDF;--pp-p2:#FBF6EE;--pp-dot:rgba(120,80,40,.13)}
+:root[data-theme="dark"] .passport{--pp-p1:#E2D4BE;--pp-p2:#EAE0CF;--pp-dot:rgba(90,60,30,.17)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .passport{--pp-p1:#E2D4BE;--pp-p2:#EAE0CF;--pp-dot:rgba(90,60,30,.17)}}
+.pp-pages{position:relative;padding:16px 16px 18px;color:#2A1A10;
+  background:radial-gradient(var(--pp-dot) 1px,transparent 1.4px) 0 0/16px 16px,linear-gradient(180deg,var(--pp-p1),var(--pp-p2) 40%)}
 .pp-ph{display:flex;align-items:center;gap:8px;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:#7A4A26}
 .pp-ph b{display:grid;place-items:center;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:rgba(122,74,38,.12);letter-spacing:0;font-size:.72rem}
 /* Long lists lay out only what's near the screen: cards further down keep a placeholder of their usual height (then
@@ -2126,12 +2128,12 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .pp-sum h3 b{font-size:3rem;font-weight:800;letter-spacing:-.02em;background:linear-gradient(180deg,#FFF1D2,#E2B866);-webkit-background-clip:text;background-clip:text;color:transparent}
 .pp-sum h3 em{font-style:normal;font-size:.98rem;font-weight:600;color:rgba(255,248,238,.72)}
 .pp-regs{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,248,238,.1)}
-.pp-reg{display:grid;grid-template-columns:1fr auto;align-items:center;gap:5px 10px;min-width:0}.pp-reg small{grid-column:1;grid-row:1;font-size:.76rem;color:rgba(255,248,238,.72);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pp-reg .pp-rb{grid-column:1/3;grid-row:2}.pp-reg b{grid-column:2;grid-row:1;font-family:var(--display);font-size:.9rem;color:#FFF8EE}.pp-rb{display:block;height:6px;border-radius:3px;background:rgba(255,248,238,.1);overflow:hidden}.pp-rb i{display:block;height:100%;border-radius:3px;min-width:0;filter:saturate(1.15) brightness(1.15)}
-.pp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:10px 6px;margin-top:10px}
-.pp-st{display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:none;padding:4px 2px;font:inherit;color:#2A1A10;cursor:pointer;text-align:center}
-.pp-st img{width:92px;height:92px;transform:rotate(var(--r));mix-blend-mode:multiply;opacity:.92;transition:transform .3s var(--ease-spring)}.pp-st:hover img,.pp-st:focus-visible img{transform:rotate(0) scale(1.06)}
-.pp-st b{font-size:.82rem;font-family:var(--display);line-height:1.2}.pp-st small{font-size:.7rem;color:#5A3E2A;line-height:1.25}
+.pp-reg{display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:6px 10px;min-width:0}.pp-reg small{grid-column:1;grid-row:1;font-size:.76rem;color:rgba(255,248,238,.72);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pp-reg .pp-rb{grid-column:1/3;grid-row:2}.pp-reg b{grid-column:2;grid-row:1;font-family:var(--display);font-size:.8rem;font-weight:700;color:#FFF8EE;font-variant-numeric:tabular-nums}.pp-reg b small{font-size:1em;font-weight:500;color:rgba(255,248,238,.5)}.pp-rb{display:block;height:6px;border-radius:3px;background:rgba(255,248,238,.1);overflow:hidden}.pp-rb i{display:block;height:100%;border-radius:3px;min-width:0;filter:saturate(1.15) brightness(1.15)}
+.pp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:14px 8px;margin-top:12px}
+.pp-st{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:0;border:0;background:none;padding:4px 2px;font:inherit;color:#2A1A10;cursor:pointer;text-align:center}
+.pp-st img{width:min(84px,100%);height:auto;aspect-ratio:1;margin-bottom:6px;transform:rotate(var(--r));mix-blend-mode:multiply;opacity:.92;transition:transform .3s var(--ease-spring)}.pp-st:hover img,.pp-st:focus-visible img{transform:rotate(0) scale(1.06)}
+.pp-st b{max-width:100%;font-size:.84rem;font-family:var(--display);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pp-st small{max-width:100%;font-size:.72rem;color:#5A3E2A;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pp-empty{margin:16px 0 4px;font-size:.9rem;color:#5A3E2A}
 .pp-next{margin-top:14px;padding-top:14px;border-top:1px dashed rgba(90,60,30,.25)}.pp-next b{display:block;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:800;margin-bottom:8px;color:#7A4A26}
 .pp-next .chip{cursor:pointer;background:rgba(255,255,255,.55);color:#2A1A10;box-shadow:none;border:1.5px dashed rgba(122,74,38,.32)}

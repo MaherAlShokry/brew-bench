@@ -1068,7 +1068,7 @@ function renderPassport(){const p=$('bv-passport');if(!p)return;const st=cabStat
   const first=k=>by[k].map(beanFirst).sort()[0],got=Object.keys(by).sort((a,b)=>first(a).localeCompare(first(b)));
   const mon=iso=>new Date(iso+'T12:00').toLocaleDateString(undefined,{month:'short',year:'numeric'});
   const regs=Object.entries(REG).map(([rk,r])=>{const all=Object.keys(ALLO()).filter(k=>ALLO()[k].reg===rk),have=got.filter(k=>ALLO()[k]&&ALLO()[k].reg===rk).length;
-    return '<span class="pp-reg"><small>'+esc(r.name.replace(' and Caribbean','').replace(' and Pacific',''))+'</small><span class="pp-rb"><i style="width:'+Math.min(100,have/all.length*100).toFixed(0)+'%;background:'+r.color+'"></i></span><b>'+have+'</b></span>'}).join('');
+    return '<span class="pp-reg"><small>'+esc(r.name.replace(' and Caribbean','').replace(' and Pacific',''))+'</small><span class="pp-rb"><i style="width:'+Math.min(100,have/all.length*100).toFixed(0)+'%;background:'+r.color+'"></i></span><b>'+have+'<small>/'+all.length+'</small></b></span>'}).join('');
   // Blends: a region of their own, counted in coffees (one universal stamp for all of them).
   const nbl=(by.blend||[]).length;
   const blendReg='<span class="pp-reg pp-blend"><small>Blends</small><span class="pp-rb"><i style="width:'+(nbl?100:0)+'%;background:#4F8A74"></i></span><b>'+nbl+'</b></span>';
@@ -1082,7 +1082,7 @@ function renderPassport(){const p=$('bv-passport');if(!p)return;const st=cabStat
     '<div class="pp-sum"><h3><b>'+onMap+'</b><em>of '+total+' origins'+(off>0?' · +'+off+' more':'')+'</em></h3>'+
     '<span class="pp-ring" role="img" aria-label="'+pct+'% of origins collected"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="27" pathLength="100"/><circle class="on" cx="32" cy="32" r="27" pathLength="100" stroke-dasharray="'+pct+' 100"/></svg><b>'+pct+'<small>%</small></b></span></div>'+
     '<div class="pp-regs">'+regs+blendReg+'</div></div><div class="pp-pages">'+
-    (got.length?'<div class="pp-ph"><span>Stamps</span><b>'+got.length+'</b></div><div class="pp-grid">'+got.map((k,i)=>'<button type="button" class="pp-st" data-ppo="'+k+'" style="--r:'+(((i*37)%15)-7)+'deg"><img alt="" src="'+(STAMPS.get(k)||STAMP_WAIT)+'" data-stamp="'+k+'"><b>'+esc(originName(k))+'</b><small>'+(k==='blend'?by.blend.length+' blend'+(by.blend.length===1?'':'s'):nBags(k)+' bag'+(nBags(k)===1?'':'s'))+' · since '+mon(first(k))+'</small></button>').join('')+'</div>'
+    (got.length?'<div class="pp-ph"><span>Stamps</span><b>'+got.length+'</b></div><div class="pp-grid">'+got.map((k,i)=>'<button type="button" class="pp-st" data-ppo="'+k+'" style="--r:'+(((i*37)%15)-7)+'deg"><img alt="" src="'+(STAMPS.get(k)||STAMP_WAIT)+'" data-stamp="'+k+'"><b>'+esc(originName(k))+'</b><small>'+(k==='blend'?by.blend.length+' blend'+(by.blend.length===1?'':'s'):nBags(k)+' bag'+(nBags(k)===1?'':'s'))+'</small><small>Since '+mon(first(k))+'</small></button>').join('')+'</div>'
       :'<p class="pp-empty">Your first stamp arrives with your first coffee.</p>')+
     (next.length?'<div class="pp-next"><b>Still to discover</b><div class="chips">'+[...new Set(next)].map(k=>'<button type="button" class="chip" data-o="'+k+'">'+(ALLO()[k].flag||'')+' '+esc(originName(k))+'</button>').join('')+'</div></div>':'')+'</div></div>';fillStamps(p)}
 
