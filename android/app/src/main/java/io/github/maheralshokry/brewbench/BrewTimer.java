@@ -269,26 +269,28 @@ final class BrewTimer {
             b.addAction(new Notification.Action.Builder(null, "Log this brew", BrewWidget.open(ctx, "log", 41)).build());
             b.addAction(new Notification.Action.Builder(null, "Brew again", action(ctx, TOGGLE, 42)).build());
         } else {
-            // The step now as the title, which step of how many and what comes next under it, and the recipe with where
-            // the brew is ("0:24 / 3:30") beside the app's name. The clock counts down to the next step (on the last, to
-            // the end), ticking by itself: it is also what the status-bar chip and the Now Bar show.
+            // The clock counts down to the next step (on the last, to the end), ticking by itself: it is also what the
+            // status-bar chip and the Now Bar show.
             int c = s.cur(e), n = s.t.length;
             long nextAt = -1;
             for (long x : s.t) if (x > e) { nextAt = x; break; }
             if (nextAt < 0 && s.total > e) nextAt = s.total;
-            String where = clock(e) + (s.total > 0 ? " / " + clock(s.total) : "");
-            String stepOf = n > 0 && c >= 0 ? "Step " + (c + 1) + " of " + n : "";
-            // The clock already counts down to the next step, so its time isn't repeated in the text.
+            // One thing per line: the step as the title, what's next under it, the recipe beside the app's name, and
+            // the clock counting down to the next pour. The amount to pour and the step count sit in a round badge.
             String nx = s.next.replaceFirst("^Next at \\d+:\\d\\d: ", "Next: ");
+            String step = s.step.isEmpty() ? "Brewing" : s.step.replaceAll("\\.$", "");
             b.setOngoing(true)
-                .setContentTitle(pause ? "Paused at " + clock(e) : (s.step.isEmpty() ? "Brewing" : s.step))
-                .setContentText(pause ? (stepOf.isEmpty() ? s.step : stepOf + " · " + s.step) : (stepOf.isEmpty() ? nx : stepOf + " · " + nx))
-                .setSubText((s.name.isEmpty() ? "Brew" : s.name) + " · " + where);
+                .setContentTitle(pause ? "Paused · " + step : step)
+                .setContentText(nx.replaceAll("\\.$", ""))
+                // The recipe's name without the brewer it's made on ("Tetsu Kasuya 10-pour", not "... on the NEO"), so the
+                // header stays one short line next to the countdown.
+                .setSubText(s.name.isEmpty() ? "Brew" : s.name.replaceFirst("\\s+on (the |an? )?\\S.*$", ""));
+            if (n > 0 && c >= 0) try { b.setLargeIcon(badge(s.step, c + 1, n)); } catch (Exception ignored) { }
             if (run && nextAt > 0 && Build.VERSION.SDK_INT >= 24) b.setWhen(now + (nextAt - e)).setUsesChronometer(true).setChronometerCountDown(true).setShowWhen(true);
             else if (run) b.setWhen(now - e).setUsesChronometer(true).setShowWhen(true);
             else b.setShowWhen(false);
             b.addAction(new Notification.Action.Builder(null, run ? "Pause" : "Resume", action(ctx, TOGGLE, 43)).build());
-            if (s.t.length > 0) b.addAction(new Notification.Action.Builder(null, "Next step", action(ctx, NEXT, 44)).build());
+            if (s.t.length > 0) b.addAction(new Notification.Action.Builder(null, "Next", action(ctx, NEXT, 44)).build());
             b.addAction(new Notification.Action.Builder(null, "Stop", action(ctx, STOP, 45)).build());
             progress(b, s, e);
             // Android 16: ask to be a Live Update (the clock in a status-bar chip, on the lock screen and in Samsung's
@@ -299,6 +301,34 @@ final class BrewTimer {
             if (Build.VERSION.SDK_INT >= 36 && pause) b.setShortCriticalText("Paused");
         }
         nm.notify(NOTE_ID, b.build());
+    }
+
+    /**
+     * The round badge on the right of the notification: the amount this step pours large ("+30g", or "150g" for a pour
+     * up to a total on the scale), and which step of how many under it ("1 of 10"), in the app's coffee colours.
+     */
+    static android.graphics.Bitmap badge(String step, int i, int n) {
+        int z = 192;
+        android.graphics.Bitmap bm = android.graphics.Bitmap.createBitmap(z, z, android.graphics.Bitmap.Config.ARGB_8888);
+        android.graphics.Canvas cv = new android.graphics.Canvas(bm);
+        android.graphics.Paint bg = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
+        bg.setShader(new android.graphics.LinearGradient(0, 0, z, z, 0xFFC98A52, 0xFF8A5230, android.graphics.Shader.TileMode.CLAMP));
+        cv.drawCircle(z / 2f, z / 2f, z / 2f, bg);
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("(?i)(to\\s*)?(\\d+(?:\\.\\d+)?)\\s?(g|ml)\\b").matcher(step == null ? "" : step);
+        boolean f = m.find();
+        String big = f ? (m.group(1) != null ? "" : "+") + m.group(2) + m.group(3).toLowerCase(Locale.US) : String.valueOf(i);
+        String small = f ? i + " of " + n : "of " + n;
+        android.graphics.Paint t = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
+        t.setColor(0xFFFFFFFF);
+        t.setTextAlign(android.graphics.Paint.Align.CENTER);
+        t.setTypeface(android.graphics.Typeface.create(android.graphics.Typeface.DEFAULT, android.graphics.Typeface.BOLD));
+        t.setTextSize(big.length() > 5 ? 46 : big.length() > 4 ? 54 : 62);
+        cv.drawText(big, z / 2f, z * 0.52f, t);
+        t.setTypeface(android.graphics.Typeface.DEFAULT);
+        t.setTextSize(28);
+        t.setAlpha(225);
+        cv.drawText(small, z / 2f, z * 0.74f, t);
+        return bm;
     }
 
     /** The bar: one segment per step, a dot where each starts (Android 16), else a plain progress bar. In seconds. */
