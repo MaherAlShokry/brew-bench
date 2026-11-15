@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>try{var t=localStorage.getItem("bb-theme"),d=document.documentElement;if(window.Capacitor)d.classList.add("app");if(t)d.setAttribute("data-theme",t);var u=JSON.parse(localStorage.getItem("bb-ui")||"{}");if(u&&typeof u==="object"){if(u.accent)d.setAttribute("data-accent",u.accent);if(u.vibe&&/^(pure|black|nordic)$/.test(u.vibe))d.setAttribute("data-vibe",u.vibe);if(u.glass||u.vibe==="glass"){d.setAttribute("data-glass","");d.style.setProperty("--g",(u.glassAmt==null?60:u.glassAmt)/100)}if(u.text)d.setAttribute("data-text",u.text);if(u.motion)d.setAttribute("data-motion",u.motion)}}catch(e){}</script>
+<script>try{var t=localStorage.getItem("bb-theme"),d=document.documentElement;if(window.Capacitor)d.classList.add("app");if(t)d.setAttribute("data-theme",t);var u=JSON.parse(localStorage.getItem("bb-ui")||"{}");if(u&&typeof u==="object"){if(u.accent)d.setAttribute("data-accent",u.accent);if(u.vibe&&/^(pure|black|nordic)$/.test(u.vibe))d.setAttribute("data-vibe",u.vibe);if(u.text)d.setAttribute("data-text",u.text);if(u.motion==="reduced")d.setAttribute("data-motion","reduced")}}catch(e){}</script>
 <meta name="theme-color" content="#FBF7F0" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1F1814" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -418,8 +418,8 @@ button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.a
 .qlinks{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow)}
 .qlinks button{display:flex;align-items:center;gap:14px;width:100%;padding:13px 16px;border:0;background:none;color:var(--ink);font:inherit;text-align:left;cursor:pointer}
 .qlinks button+button{border-top:1px solid var(--line)}.qlinks button:active{background:var(--surface2)}
-.qlinks .qi{flex:none;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;color:#fff}.qlinks .qi svg{width:21px;height:21px}
-.qlinks b{display:block;font-weight:600}.qlinks small{display:block;color:var(--muted);font-size:.86rem}.qlinks .qn{margin-left:auto;color:var(--muted);font-size:.85rem}
+.qlinks .qi{flex:none;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;color:#fff}.qlinks .qi svg{width:21px;height:21px}
+.qlinks b{display:block;font-weight:600}.qlinks small{display:block;color:var(--muted);font-size:.86rem}
 .again{display:flex;gap:8px;overflow-x:auto;padding:2px 0 4px;scrollbar-width:none}.again::-webkit-scrollbar{display:none}
 .again button{flex:none;display:flex;flex-direction:column;align-items:flex-start;gap:2px;max-width:200px;padding:10px 14px;border-radius:14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;text-align:left;cursor:pointer}
 .again b{font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px}.again small{color:var(--muted);font-size:.78rem}
@@ -547,13 +547,13 @@ mark.wq{background:color-mix(in srgb,var(--honey) 40%,transparent);color:inherit
 .qprog b{display:block;height:100%;background:var(--cherry);transition:width .3s}
 dialog#timer{border:0;border-radius:22px;padding:0;max-width:460px;width:calc(100% - 24px);background:var(--surface);color:var(--ink);max-height:92vh;overflow:auto}
 dialog#timer::backdrop{background:rgba(30,20,14,.6)}
-.tm{padding:20px;text-align:center;position:relative}
-.tm .ring{width:220px;height:220px;margin:6px auto;display:block}
-.tm .big{font-family:var(--display);font-weight:800;font-size:2.6rem;font-variant-numeric:tabular-nums}
-.tm .now{font-family:var(--display);font-size:1.1rem;font-weight:600;min-height:2.6em;margin:.4rem 0}
-.tm ol{text-align:left;padding-left:1.3rem;font-size:.92rem}
-.tm li.done{color:var(--muted);text-decoration:line-through}
-.tm li.cur{color:var(--cherry);font-weight:600}
+
+
+
+
+
+
+
 .stars{display:flex;gap:4px;align-items:center}
 .stars button{background:none;border:0;font-size:1.7rem;cursor:pointer;color:var(--line);padding:0 2px;line-height:1}
 .stars button.on{color:var(--honey)}
@@ -911,7 +911,6 @@ svg .bo{fill:currentColor}svg .bc{fill:none;stroke:var(--surface);stroke-width:1
 .se-chip svg{color:var(--k);width:16px;height:16px}.se-chip:active{transform:scale(.95)}
 .se-sum{margin:6px 0 10px;font-size:.8rem;color:var(--muted)}.se-sum.warn{color:var(--honey-ink)}
 .rangeends{display:flex;justify-content:space-between;font-family:var(--display);font-size:.74rem;color:var(--muted);margin-top:-2px}
-.glassamt{margin-top:12px;width:100%}.glassamt input[type=range]{width:100%;display:block}
 .pill.ours{background:color-mix(in srgb,var(--cherry) 14%,var(--surface));color:var(--cherry);margin-bottom:6px}
 /* Shared log */
 .sharepanel h3{margin:0 0 .3rem}
@@ -1009,7 +1008,7 @@ dialog#selsheet.pop .selopt{min-height:40px;padding:8px 12px;font-size:.95rem}
 @keyframes fw-in{from{opacity:0;transform:scale(.86) rotate(-24deg)}to{opacity:1;transform:none}}
 /* Tasting notes on brews */
 .fl-add{flex:0 0 auto!important;display:inline-flex;align-items:center;gap:8px}
-.fl-add svg,.fl-edit svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.fl-add svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
 .flchip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:var(--surface2);font-size:.85rem}
 .flchip i{width:9px;height:9px;border-radius:50%;flex:none}.flchip b{font-weight:500}.flchip .lv{color:var(--muted);letter-spacing:-1px;font-size:.7rem}
 .fl-entry{display:flex;gap:12px;align-items:flex-start;margin-top:8px}
@@ -1062,24 +1061,24 @@ dialog#selsheet.pop .selopt{min-height:40px;padding:8px 12px;font-size:.95rem}
    blocks arrive one after another. A spring curve gives each a small, soft overshoot. */
 :root{--spring:cubic-bezier(.34,1.45,.5,1)}
 @supports (animation-timing-function:linear(0,1)){:root{--spring:linear(0,.006,.025 2.8%,.101 6.1%,.539 18.9%,.721 25.3%,.849 31.5%,.937 38.1%,.968 41.8%,.991 45.7%,1.006 50.1%,1.015 55%,1.017 63.9%,1.001 85.9%,1)}}
-html.vt .appbar{view-transition-name:appbar}html.vt #ab-title{view-transition-name:abtitle}html.vt .bottomnav{view-transition-name:bnav}html.vt nav.tabs{view-transition-name:navtabs}
-::view-transition-group(appbar),::view-transition-group(bnav),::view-transition-group(navtabs),::view-transition-group(abtitle),::view-transition-group(root){animation:none}
-::view-transition-old(appbar),::view-transition-old(bnav),::view-transition-old(navtabs){display:none}
-::view-transition-new(appbar),::view-transition-new(bnav),::view-transition-new(navtabs){animation:none}
-::view-transition-old(abtitle),::view-transition-new(abtitle){inline-size:auto;block-size:auto}
-::view-transition-old(root){animation:vt-fade .26s ease-in both}::view-transition-new(root){animation:vt-fade .2s ease-out reverse both}
-html[data-nav=right]::view-transition-old(root){animation:vt-out-l .34s cubic-bezier(.4,0,.7,.2) both}
-html[data-nav=right]::view-transition-new(root){animation:vt-in-r .62s var(--spring) both,vt-show .18s ease-out both}
-html[data-nav=left]::view-transition-old(root){animation:vt-out-r .34s cubic-bezier(.4,0,.7,.2) both}
-html[data-nav=left]::view-transition-new(root){animation:vt-in-l .62s var(--spring) both,vt-show .18s ease-out both}
-html[data-nav=push]::view-transition-old(root){animation:vt-sink .36s cubic-bezier(.4,0,.6,1) both}
-html[data-nav=push]::view-transition-new(root){animation:vt-rise .6s var(--spring) both,vt-show .2s ease-out both}
-html[data-nav=pop]::view-transition-old(root){z-index:2;animation:vt-drop .32s cubic-bezier(.5,0,.75,0) both}
-html[data-nav=pop]::view-transition-new(root){animation:vt-surface .5s var(--spring) both,vt-show .22s ease-out both}
-html[data-nav=right]::view-transition-old(abtitle),html[data-nav=push]::view-transition-old(abtitle){animation:vt-t-out-l .13s ease-in both}
-html[data-nav=right]::view-transition-new(abtitle),html[data-nav=push]::view-transition-new(abtitle){animation:vt-t-in-r .5s var(--spring) .08s both,vt-show .2s ease-out .08s both}
-html[data-nav=left]::view-transition-old(abtitle),html[data-nav=pop]::view-transition-old(abtitle){animation:vt-t-out-r .13s ease-in both}
-html[data-nav=left]::view-transition-new(abtitle),html[data-nav=pop]::view-transition-new(abtitle){animation:vt-t-in-l .5s var(--spring) .08s both,vt-show .2s ease-out .08s both}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* A page coming in starts part-visible: the old one is already gone, so starting from nothing flashed an empty screen. */
 @keyframes vt-fade{to{opacity:0}}@keyframes vt-show{from{opacity:.45}}
 @keyframes vt-out-l{to{transform:translateX(-30%) scale(.94) rotate(-1.5deg);opacity:0}}
@@ -1112,7 +1111,7 @@ main section.nav-in{transform-origin:50% 40vh}
 /* A short slide without a turn: turning a page that is many screens tall is costly to draw on phones. */
 @keyframes sec-in-r{from{transform:translate3d(14%,0,0)}}@keyframes sec-in-l{from{transform:translate3d(-14%,0,0)}}
 
-:root[data-motion="reduced"]::view-transition-group(*),:root[data-motion="reduced"]::view-transition-old(*),:root[data-motion="reduced"]::view-transition-new(*){animation:none!important}
+
 /* The nav highlight is one pill that moves between buttons. */
 .bn-pill{display:none}
 @media (max-width:759px){
@@ -1225,7 +1224,7 @@ button.chip:hover{background:var(--tonal-hover)}
 .le-rest{margin:8px 0 0!important;font-size:.84rem;color:var(--muted)}
 .le-pred{margin:8px 0 0!important;font-size:.84rem;color:var(--muted)}.le-pred b{color:var(--ink);font-weight:600}
 .le-notes{margin:10px 0 0;padding:8px 12px;border-left:3px solid var(--honey);background:color-mix(in srgb,var(--honey) 8%,transparent);border-radius:0 10px 10px 0;font-style:italic;line-height:1.45}
-.le2 .fl-entry,.le2 .fl-edit{margin-top:10px}.le2 .fl-entry .linkbtn,.le2 .fl-edit{font-size:.86rem}
+.le2 .fl-entry{margin-top:10px}.le2 .fl-entry .linkbtn{font-size:.86rem}
 .le-act{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--hair,var(--line))}
 .le-acts{margin-left:auto;display:flex;gap:8px}
 .le-act .ib.sm svg{width:17px;height:17px}
@@ -1233,7 +1232,7 @@ button.chip:hover{background:var(--tonal-hover)}
 .le-b:hover,.le-b:focus-visible{background:var(--surface2);color:var(--ink)}.le-b svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .le-b.again{margin-right:auto;white-space:nowrap;flex:none;color:var(--cherry);background:color-mix(in srgb,var(--cherry) 12%,transparent)}.le-b.again:hover{background:color-mix(in srgb,var(--cherry) 20%,transparent);color:var(--cherry)}.le-b.again svg{fill:currentColor;stroke:none;width:14px;height:14px}
 /* With Brew again in the row, Share and Edit are icons only (as Delete is), so the row fits a phone. */
-.le-act.has-again .le-bl{display:none}.le-act.has-again .le-b:not(.again){padding:0 10px}
+
 .le-b.del{padding:0 10px}.le-b.del:hover{color:var(--cherry)}
 .le-day{margin:18px 4px 8px;font:700 .76rem var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .le-count{margin:4px 4px 0;font-size:.82rem;color:var(--muted)}
@@ -1378,7 +1377,7 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .qlinks button{position:relative;flex-direction:column;justify-content:center;gap:6px;padding:12px 6px;text-align:center}
 .qlinks button+button{border-top:0;border-left:1px solid var(--line)}
 .qlinks b{font-size:.86rem;line-height:1.2}.qlinks small{display:none}
-.qlinks .qn{position:absolute;top:8px;right:8px;margin:0;font-size:.72rem;font-weight:700}
+
 #rhome .cups{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 #rhome .cupcard{border-radius:14px}#rhome .cupart{height:52px}#rhome .cuptile{width:34px;height:34px;border-radius:10px}#rhome .cuptile svg{width:22px;height:22px}
 #rhome .cupcard b{padding:7px 9px 9px;font-size:.8rem;line-height:1.2;overflow-wrap:normal;hyphens:auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#rhome .cupcard small{display:none}
@@ -1473,7 +1472,7 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .hubcard .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none;margin-bottom:4px}.hubcard .ic svg{width:22px;height:22px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .hubcard b{font-family:var(--display);font-size:1rem;line-height:1.2}.hubcard small{color:var(--muted);font-size:.82rem;line-height:1.35}
 
-.hubcard .hn{position:absolute;top:14px;right:14px;font-size:.74rem;font-weight:700;color:var(--muted);background:var(--surface2);border-radius:99px;padding:2px 8px}
+
 
 /* The map's region buttons are easier to tap on phones. */
 @media (max-width:759px){.mapbar.seg.filters button{min-height:34px}}
@@ -1533,9 +1532,9 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .pav{position:relative;flex:none;display:grid;place-items:center;width:var(--s);height:var(--s);border-radius:50%;overflow:hidden;background:var(--c,#8A5A3B);color:#fff;box-shadow:0 0 0 3px var(--surface),0 0 0 4.5px color-mix(in srgb,var(--c,#8A5A3B) 45%,transparent)}
 .pav img{width:100%;height:100%;object-fit:cover}.pav b{font-family:var(--display);font-size:calc(var(--s)*.38);font-weight:700;letter-spacing:.02em}.pav i{font-style:normal;font-size:calc(var(--s)*.48);line-height:1}
 .pav.none{background:var(--surface2);color:var(--muted);box-shadow:inset 0 0 0 1.5px var(--line)}.pav.none svg{width:55%;height:55%;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round}
-.pcard{margin:0 0 18px;padding:18px;border-radius:var(--r-xl,24px);background:linear-gradient(160deg,color-mix(in srgb,var(--c,var(--cherry)) 14%,var(--surface)),var(--surface) 70%);border:1px solid var(--line);box-shadow:var(--shadow)}
-.pcard.empty{--c:var(--honey)}
-.pcard .setbtns{margin-top:14px}
+
+
+
 /* The profile sheet and sign-in: a dark-roast hero in your colour, like the Beans page */
 .me-hero{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding:34px 20px 24px;color:#FFF8EE;overflow:hidden}
 /* The standard roast banner, tinted with your colour; other banners and photos replace it (see BANNERS). */
@@ -1579,11 +1578,12 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .appver.new{border-color:color-mix(in srgb,var(--leaf) 55%,var(--line));background:color-mix(in srgb,var(--leaf) 7%,var(--surface))}
 .appver>.ic{width:42px;height:42px;border-radius:13px;display:grid;place-items:center}.appver>.ic svg{width:22px;height:22px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .av-tx{display:flex;flex-direction:column;min-width:0}.av-tx b{font-family:var(--display);font-size:1rem}.av-tx small{color:var(--muted);font-size:.84rem}
-.av-btns{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap}.av-btns .btn{flex:1 1 auto}
-.updcard{position:fixed;z-index:35;left:12px;right:12px;bottom:calc(var(--sa-bottom) + 92px);display:flex;align-items:center;gap:12px;max-width:520px;margin:0 auto;padding:12px 10px 12px 14px;border-radius:20px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--e2,0 10px 30px rgba(0,0,0,.18));animation:upd-in .5s var(--spring,cubic-bezier(.34,1.45,.5,1)) both}
+.av-btns{grid-column:1/-1;display:flex;gap:8px}.av-btns .pbtn{flex:1 1 0;justify-content:center;margin:0;min-width:0}.av-btns .pbtn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* The update notice drops in under the top bar, clear of the page's + and the tab bar. */
+.updcard{position:fixed;z-index:35;left:12px;right:12px;top:calc(var(--sa-top) + 78px);display:flex;align-items:center;gap:12px;max-width:520px;margin:0 auto;padding:10px 10px 10px 12px;border-radius:22px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--e2,0 10px 30px rgba(0,0,0,.18));animation:upd-in .5s var(--spring,cubic-bezier(.34,1.45,.5,1)) both}
 .updcard.out{animation:upd-out .24s ease-in both}.upd-ic{flex:none}.upd-ic .ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center}.upd-ic .ic svg{width:21px;height:21px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}.upd-tx{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3}.upd-tx b{font-family:var(--display);font-size:.95rem}.upd-tx small{color:var(--muted);font-size:.8rem}
-.updcard .btn{flex:none;min-height:40px;padding:0 16px}.upd-x{flex:none;width:36px;height:36px;border:0;border-radius:50%;background:var(--surface2);color:var(--muted);font-size:.9rem;cursor:pointer}
-@keyframes upd-in{from{opacity:0;transform:translateY(24px) scale(.96)}}@keyframes upd-out{to{opacity:0;transform:translateY(16px)}}
+.updcard .pbtn{flex:none;margin:0}.upd-x{display:grid;place-items:center}.upd-x svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}.upd-x{flex:none;width:36px;height:36px;border:0;border-radius:50%;background:var(--surface2);color:var(--muted);font-size:.9rem;cursor:pointer}
+@keyframes upd-in{from{opacity:0;transform:translateY(-18px) scale(.96)}}@keyframes upd-out{to{opacity:0;transform:translateY(-14px)}}
 .au-hint{margin:0 0 12px;font-size:.86rem;color:var(--muted)}.au-hero .pav{margin:0 auto 10px}.au-switch{margin:14px 0 6px;text-align:center;font-size:.9rem;color:var(--muted)}
 .auth{padding-top:18px!important}
 dialog#vd:has(.me-hero){overflow-x:hidden}
@@ -1591,7 +1591,7 @@ dialog#vd:has(.me-hero){overflow-x:hidden}
 .me-btn{flex:none;display:grid;place-items:center;width:40px;height:40px;margin:-4px -6px -4px 0;padding:0;border:0;border-radius:50%;background:none;cursor:pointer}
 .me-btn .pav{box-shadow:0 0 0 2px var(--surface),0 0 0 3.5px color-mix(in srgb,var(--c,#8A5A3B) 40%,transparent)}.me-btn .pav.none{box-shadow:inset 0 0 0 1.5px var(--line)}
 .me-btn:active .pav{transform:scale(.94)}.me-tab{width:38px;height:38px;margin:0 0 0 6px;align-self:center}
-.me-body .pcard{margin:4px 0 0;box-shadow:none}
+
 .pf-cover{position:relative;display:grid;place-items:center;height:150px;margin:6px 0 10px;border-radius:20px;overflow:hidden;background-color:#1E120C}
 .pf-cover .pav{box-shadow:0 0 0 4px rgba(255,248,238,.9),0 10px 30px -8px rgba(0,0,0,.6)}
 .pf-photo{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px 14px;margin:0 0 18px}
@@ -1625,9 +1625,9 @@ html.thx *,html.thx *::before,html.thx *::after{transition-property:transform,tr
 /* Tinted icon tiles in the vibe's colours (see ico in app.js): a soft tint with the symbol in the colour itself. */
 .ic.t-c{--t:var(--cherry-ink,var(--cherry))}.ic.t-h{--t:var(--honey-ink,var(--honey))}.ic.t-l{--t:var(--leaf-ink,var(--leaf))}
 .ic.t-cl{--t:color-mix(in srgb,var(--cherry-ink,var(--cherry)) 52%,var(--leaf-ink,var(--leaf)))}.ic.t-ch{--t:color-mix(in srgb,var(--cherry-ink,var(--cherry)) 58%,var(--honey-ink,var(--honey)))}
-.ic[class*=" t-"]{background:color-mix(in srgb,var(--t) 15%,var(--surface))!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--t) 20%,transparent)}
+.ic[class*=" t-"]{background:color-mix(in srgb,var(--t) 13%,var(--surface))!important;box-shadow:none}
 .ic[class*=" t-"] svg{stroke:var(--t)!important}
-.setrow .ic{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;flex:none;margin-top:1px}
+.setrow .ic{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;flex:none;margin-top:1px}
 /* A short row (just a title) keeps its icon level with it; a long description doesn't pull the icon down the middle. */
 .setrow .mt{min-height:36px;display:flex;flex-direction:column;justify-content:center}.setrow .ic svg{width:20px;height:20px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .setrow .mt{flex:1;min-width:0}.setrow .mt b{display:block;font-weight:600}.setrow .mt small{display:block;color:var(--muted);font-size:.84rem;line-height:1.35}
@@ -1656,7 +1656,7 @@ html.thx *,html.thx *::before,html.thx *::after{transition-property:transform,tr
 .setbtns{display:flex;flex-wrap:wrap;gap:8px}
 /* A reminder: Off / Every day and its time side by side, the same height and shape. */
 .setbtns.rem{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:8px;align-items:stretch}
-.setbtns.rem .seg{margin:0}.setbtns.rem .dateinp{min-height:0;height:auto;border-radius:999px!important;text-align:center;padding:0 14px;font-family:var(--display);font-weight:600;background:var(--surface2);border-color:transparent}
+.setbtns.rem .seg{margin:0}.setbtns.rem .dateinp{min-height:0;height:auto;width:100%;border-radius:999px!important;text-align:center;padding:0 12px;font:600 .95rem var(--display);color:var(--ink);background:var(--surface2);border:0;box-shadow:none}
 .setbtns.rem .dateinp:disabled{opacity:.5}.setnote{font-size:.82rem;color:var(--muted);margin:.5rem 0 0}
 #ab-logo{display:inline-flex}#ab-logo svg{width:24px;height:24px}
 
@@ -1923,10 +1923,10 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .bd-shelf .bagm{background:color-mix(in srgb,var(--ink) 10%,var(--surface))}
 .vd-head:has(.vd-tools) .vd-back{position:static;display:inline-flex;margin:0 0 10px}
 /* Advent calendars: the boxes on the Coffees page, and a calendar's page of numbered doors. */
-.adv-invite{display:flex;align-items:center;gap:12px;width:100%;margin:14px 0 4px;padding:12px 14px;border:1px dashed color-mix(in srgb,var(--cherry) 40%,var(--line));border-radius:var(--r-lg);background:color-mix(in srgb,var(--cherry) 5%,var(--surface));color:var(--ink);font:inherit;text-align:left;cursor:pointer}
-.adv-invite b{display:block;font-family:var(--display);font-size:.95rem}.adv-invite small{display:block;color:var(--muted);font-size:.8rem;line-height:1.35;margin-top:2px}
-.adv-ii{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb,var(--cherry) 14%,var(--surface));color:var(--cherry-ink,var(--cherry))}.adv-ii svg{width:22px;height:22px}
-.adv-plus{margin-left:auto;flex:none;width:32px;height:32px;border-radius:999px;display:grid;place-items:center;background:var(--surface2);font-size:1.2rem;font-weight:700}
+
+
+
+
 .adv-h{margin-top:18px}.adv-h .sh-mini{margin-left:auto}
 .adv-list{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 8px;margin:0 -2px;scrollbar-width:none}.adv-list::-webkit-scrollbar{display:none}
 .adv-card{flex:0 0 min(78%,280px);scroll-snap-align:start;display:flex;gap:12px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface);color:var(--ink);font:inherit;text-align:left;cursor:pointer;box-shadow:var(--shadow-sm,none)}
@@ -2002,10 +2002,10 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .yic{margin:14px 0 4px;padding:12px 14px;border-radius:var(--r-lg);background:var(--surface2)}
 /* The year card: a line that sums up the year, three big numbers, then what you bought and brewed most, and your notes. */
 .yic{padding:16px 16px 14px}.yic-line{margin:6px 0 0;font:600 1rem/1.4 var(--display);color:var(--ink)}
-.yic-facts{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;margin-top:14px}
-.yic-facts>div{display:flex;gap:9px;align-items:flex-start;min-width:0}.yic-facts i{flex:none;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--surface);font-style:normal;font-size:.95rem}
-.yic-facts span{display:flex;flex-direction:column;min-width:0}.yic-facts small{font-size:.7rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
-.yic-facts b{font:650 .92rem/1.25 var(--display);color:var(--ink);overflow-wrap:anywhere}.yic-facts em{font-style:normal;font-size:.74rem;color:var(--muted)}
+
+
+
+
 .yic-fl{font-size:1.05rem}
 .yic-notes{margin-top:14px}.yic-notes small,.me-notes small{display:block;font-size:.7rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}.yic-notes .chips{margin:0}
 /* Your coffee taste, on the profile. */
@@ -2027,17 +2027,34 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .me-tiles i svg{width:20px;height:20px}
 .me-tiles>div>small{margin-top:auto}.me-tiles b{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:break-word;hyphens:auto}
 .yic-notes .chip,.me-notes .chip{background:var(--surface);border:1px solid var(--line)}.me-notes{margin:12px 0 0}
-.yic-k{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:var(--muted)}
-.yic-row{display:flex;gap:8px 20px;flex-wrap:wrap;margin-top:6px}.yic-row span{display:flex;flex-direction:column;min-width:0}
-.yic-row b{font-family:var(--display);font-size:1.2rem;line-height:1.2;color:var(--ink)}.yic-row small{font-size:.76rem;color:var(--muted);max-width:16ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+
+
 .cr-notes{display:flex;gap:5px;margin-top:6px;overflow:hidden;min-width:0;mask-image:linear-gradient(90deg,#000 88%,transparent);-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent)}
 /* Tasting notes as small pills, each with its flavour's colour (as in the notes picker). */
 .cr-fl{flex:none;display:inline-flex;align-items:center;gap:5px;padding:2px 8px 2px 6px;border-radius:999px;font-size:.72rem;font-weight:600;line-height:1.5;color:var(--ink);background:color-mix(in srgb,var(--fc) 13%,var(--surface2));white-space:nowrap}
 .cr-fl i{width:6px;height:6px;border-radius:50%;background:var(--fc);flex:none}
 /* ---------- The passport ---------- */
-.passport{position:relative;padding:18px 14px 16px;border-radius:24px;color:#2A1A10;margin-bottom:8px;
-  background:repeating-linear-gradient(0deg,transparent 0 27px,rgba(90,60,30,.06) 27px 28px),radial-gradient(120% 90% at 50% 0%,#FBF3E4,#EFE1C8);box-shadow:inset 0 0 0 1.5px rgba(120,80,40,.18),var(--shadow)}
-.pp-h{position:relative}
+.passport{position:relative;border-radius:var(--r-xl,28px);overflow:hidden;margin-bottom:8px;box-shadow:var(--shadow);isolation:isolate}
+/* The cover: dark leather, a gold glow, fine engraved rings from one corner and a stitched edge. */
+.pp-cover{position:relative;padding:18px 16px 24px;color:#FFF8EE;
+  background:repeating-radial-gradient(circle at 104% -6%,transparent 0 6px,rgba(226,184,102,.075) 6px 7px),radial-gradient(90% 70% at 0% 0%,rgba(226,184,102,.22),transparent 60%),linear-gradient(160deg,#3A2216,#1B100A 70%)}
+.pp-cover::after{content:"";position:absolute;inset:7px;border:1.5px dashed rgba(226,184,102,.28);border-radius:calc(var(--r-xl,28px) - 7px) calc(var(--r-xl,28px) - 7px) 12px 12px;pointer-events:none}
+.pp-h{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:38px}
+.pp-k svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;margin-right:7px;vertical-align:-3px}
+.pp-sum{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:6px}
+.pp-ring{position:relative;flex:none;width:92px;height:92px;margin:4px 26px 0 0;display:grid;place-items:center}
+.pp-ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.pp-ring circle{fill:none;stroke:rgba(255,248,238,.12);stroke-width:5}.pp-ring circle.on{stroke:#E2B866;stroke-linecap:round}
+.pp-ring b{font-family:var(--display);font-size:1.4rem;font-weight:800;color:#FFF8EE;letter-spacing:-.01em}.pp-ring small{font-size:.55em;font-weight:700;opacity:.7;margin-left:1px}
+/* The pages: warm paper with a faint dot grid, the stamps inked on it. */
+.passport{--pp-p1:#F6EDDF;--pp-p2:#FBF6EE;--pp-dot:rgba(120,80,40,.13)}
+:root[data-theme="dark"] .passport{--pp-p1:#E2D4BE;--pp-p2:#EAE0CF;--pp-dot:rgba(90,60,30,.17)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .passport{--pp-p1:#E2D4BE;--pp-p2:#EAE0CF;--pp-dot:rgba(90,60,30,.17)}}
+.pp-pages{position:relative;padding:16px 16px 18px;color:#2A1A10;
+  background:radial-gradient(var(--pp-dot) 1px,transparent 1.4px) 0 0/16px 16px,linear-gradient(180deg,var(--pp-p1),var(--pp-p2) 40%)}
+.pp-ph{display:flex;align-items:center;gap:8px;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:#7A4A26}
+.pp-ph b{display:grid;place-items:center;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:rgba(122,74,38,.12);letter-spacing:0;font-size:.72rem}
 /* Long lists lay out only what's near the screen: cards further down keep a placeholder of their usual height (then
    their real one, once seen) and are laid out as you scroll to them. Opening Recipes, Beans or an Explore page no
    longer lays out every card on it before the page can slide in. */
@@ -2105,19 +2122,26 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .sp-list{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px}.sp-row{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:14px;background:color-mix(in srgb,var(--ink) 5%,transparent)}
 .sp-row span{display:grid;min-width:0}.sp-row span b{overflow-wrap:anywhere}.sp-row small{color:var(--muted)}.sp-ms{min-width:64px;font:800 1.15rem var(--body);font-variant-numeric:tabular-nums;color:#276B4E}.sp-ms small{font-size:.7rem;margin-left:2px}
 .sp-ms.meh{color:#7A5208}.sp-ms.bad{color:#B3402E}
-:root[data-theme="dark"] .sp-ms{color:#6FCB9F}:root[data-theme="dark"] .sp-ms.meh{color:#E2B866}:root[data-theme="dark"] .sp-ms.bad{color:#F08A75}.pp-share{position:absolute;top:-4px;right:-4px}
-.pp-k{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:#7A4A26}
-.pp-h h3{margin:4px 0 0;font-family:var(--display);font-size:1.45rem;color:#2A1A10}.pp-h h3 em{font-style:normal;font-size:.7em;color:#6B4A30}
-.pp-regs{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px 14px;margin-top:12px}
-.pp-reg{display:grid;grid-template-columns:1fr auto;align-items:center;gap:3px 10px}.pp-reg small{grid-column:1;grid-row:1;font-size:.74rem;color:#5A3E2A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pp-reg .pp-rb{grid-column:1;grid-row:2}.pp-reg b{grid-column:2;grid-row:1/3;font-family:var(--display);font-size:1.05rem;color:#2A1A10}.pp-rb{display:block;height:5px;border-radius:3px;background:rgba(90,60,30,.12);overflow:hidden}.pp-rb i{display:block;height:100%}
-.pp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:10px 6px;margin-top:16px}
-.pp-st{display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:none;padding:4px 2px;font:inherit;color:#2A1A10;cursor:pointer;text-align:center}
-.pp-st img{width:92px;height:92px;transform:rotate(var(--r));mix-blend-mode:multiply;opacity:.92;transition:transform .3s var(--ease-spring)}.pp-st:hover img,.pp-st:focus-visible img{transform:rotate(0) scale(1.06)}
-.pp-st b{font-size:.82rem;font-family:var(--display);line-height:1.2}.pp-st small{font-size:.7rem;color:#5A3E2A;line-height:1.25}
+:root[data-theme="dark"] .sp-ms{color:#6FCB9F}:root[data-theme="dark"] .sp-ms.meh{color:#E2B866}:root[data-theme="dark"] .sp-ms.bad{color:#F08A75}.pp-share{width:38px;padding:0;justify-content:center;background:rgba(255,248,238,.1);border-color:rgba(255,248,238,.2);color:#FFF8EE}
+.pp-k{display:inline-flex;align-items:center;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:#E2B866}
+.pp-sum h3{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;margin:0;font-family:var(--display);color:#FFF8EE;line-height:1}
+.pp-sum h3 b{font-size:3rem;font-weight:800;letter-spacing:-.02em;background:linear-gradient(180deg,#FFF1D2,#E2B866);-webkit-background-clip:text;background-clip:text;color:transparent}
+.pp-sum h3 em{font-style:normal;font-size:.98rem;font-weight:600;color:rgba(255,248,238,.72)}
+.pp-regs{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,248,238,.1)}
+.pp-reg{display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:6px 10px;min-width:0}.pp-reg small{grid-column:1;grid-row:1;font-size:.76rem;color:rgba(255,248,238,.72);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pp-reg .pp-rb{grid-column:1/3;grid-row:2}.pp-reg b{grid-column:2;grid-row:1;font-family:var(--display);font-size:.8rem;font-weight:700;color:#FFF8EE;font-variant-numeric:tabular-nums}.pp-reg b small{font-size:1em;font-weight:500;color:rgba(255,248,238,.5)}.pp-rb{display:block;height:6px;border-radius:3px;background:rgba(255,248,238,.1);overflow:hidden}.pp-rb i{display:block;height:100%;border-radius:3px;min-width:0;filter:saturate(1.15) brightness(1.15)}
+.pp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:14px 8px;margin-top:12px}
+.pp-st{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:0;border:0;background:none;padding:4px 2px;font:inherit;color:#2A1A10;cursor:pointer;text-align:center}
+.pp-st img{width:min(84px,100%);height:auto;aspect-ratio:1;margin-bottom:6px;transform:rotate(var(--r));mix-blend-mode:multiply;opacity:.92;transition:transform .3s var(--ease-spring)}.pp-st:hover img,.pp-st:focus-visible img{transform:rotate(0) scale(1.06)}
+.pp-st b{max-width:100%;font-size:.84rem;font-family:var(--display);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pp-st small{max-width:100%;font-size:.72rem;color:#5A3E2A;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pp-empty{margin:16px 0 4px;font-size:.9rem;color:#5A3E2A}
-.pp-next{margin-top:14px;padding-top:12px;border-top:1px dashed rgba(90,60,30,.25)}.pp-next b{display:block;font-size:.82rem;margin-bottom:6px;color:#5A3E2A}
-.pp-next .chip{cursor:pointer;background:rgba(255,255,255,.65);color:#2A1A10;box-shadow:inset 0 0 0 1px rgba(90,60,30,.18)}
+.pp-next{margin-top:16px;padding-top:16px;border-top:1px dashed rgba(90,60,30,.25)}
+/* Empty stamp spaces: a dashed ring with the flag, waiting for its stamp. */
+.pp-slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:12px 8px;margin-top:12px}
+.pp-slot{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:0;border:0;background:none;padding:4px 2px;font:inherit;color:#2A1A10;cursor:pointer;text-align:center}
+.pp-sc{display:grid;place-items:center;width:64px;height:64px;margin-bottom:6px;border-radius:50%;border:2px dashed rgba(122,74,38,.3);background:rgba(255,255,255,.45);font-size:1.6rem;line-height:1;transition:transform .25s var(--ease-spring),border-color .2s}
+.pp-slot:hover .pp-sc,.pp-slot:focus-visible .pp-sc{transform:scale(1.06);border-color:rgba(122,74,38,.55)}.pp-slot:active .pp-sc{transform:scale(.95)}
+.pp-slot b{max-width:100%;font-size:.8rem;font-family:var(--display);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pp-slot small{max-width:100%;font-size:.7rem;color:#6B4A30;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* ---------- Trophies ---------- */
 .trophies{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px}
 .tro{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--r-md);background:var(--surface);box-shadow:var(--shadow)}
@@ -2227,8 +2251,8 @@ body.t-dial.dial-ready .herowrap{display:none}
 .cr-bar i{display:block;height:100%;border-radius:4px;background:color-mix(in srgb,var(--cherry) 70%,var(--honey))}
 .crow,.crow.now{contain-intrinsic-size:auto 80px}
 /* The year in coffee: even tiles. */
-.yic-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:12px 14px}
-.yic-row span{min-width:0}.yic-row b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:1.1rem}
+
+
 /* No clipping: the journal label wraps beside the bag picture, and the view tabs share the width. */
 .bgh-k{white-space:normal!important;display:block;line-height:1.4;padding-right:4px}
 /* One tab track for Beans and Gear: a soft rail, tabs sized to their words, the chosen one filled. */
@@ -2594,7 +2618,8 @@ dialog.dlg-pre[open]::backdrop{animation:none!important;opacity:0}
 @media (max-width:759px){
   html dialog#vd:not(.camdlg){position:fixed;inset:0;margin:0;width:100%;max-width:100%;height:100%;max-height:100%;border-radius:0;border:0;box-shadow:none;will-change:transform}
   html dialog#vd:not(.camdlg)::backdrop{background:rgba(15,10,6,.3)}
-  html dialog#vd:not(.camdlg) .vd-head{padding-top:calc(18px + var(--sa-top,0px))}
+  /* No coloured rule across the top: on a full page it sits under the status bar and reads as a stray line. */
+  html dialog#vd:not(.camdlg) .vd-head{padding-top:calc(18px + var(--sa-top,0px));border-top:0}
   html dialog#vd:not(.camdlg) .vd-close{top:calc(12px + var(--sa-top,0px))}
 }
 .ask{padding:2px 20px 6px}.ask-t{margin:0 0 14px;color:var(--muted);font-size:.95rem;line-height:1.45}
@@ -2628,11 +2653,11 @@ button.yic-t{cursor:pointer;-webkit-tap-highlight-color:transparent;transition:t
 .yic-t small{font-size:.66rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
 .yic-t b{font:650 .95rem/1.25 var(--display);color:var(--ink);overflow-wrap:anywhere}
 .yic-go{flex:none;width:18px;height:18px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.yic-list{list-style:none;margin:14px 0 0;padding:4px 12px;border-radius:14px;background:var(--surface)}
-.yic-list li{display:grid;grid-template-columns:30px minmax(0,1fr) auto;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}.yic-list li:first-child{border-top:0}
-.yic-list i{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--surface2);font-style:normal;font-size:.95rem}
-.yic-list span{display:flex;flex-direction:column;gap:1px;min-width:0}.yic-list small{font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
-.yic-list b{font:650 .95rem/1.3 var(--display);color:var(--ink);overflow-wrap:anywhere}.yic-list em{font-style:normal;font-size:.8rem;font-weight:600;color:var(--muted);white-space:nowrap;text-align:right}
+
+
+
+
+
 /* The Beans tab strip, when it sticks under the top bar, matches the bar: the same nearly solid surface, hairline and
    shadow, the same width, and an even gap, so the two read as one header instead of a see-through second bar. */
 @media (max-width:759px){
@@ -2660,10 +2685,10 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
    map) slides in from the right over the one you were on, which eases a little to the left; going back is the reverse.
    No zoom or bounce, so even a heavy page like the map moves as one flat layer. */
 @media (prefers-reduced-motion:no-preference){
-  html[data-nav=push]::view-transition-old(root){animation:vt-push-old .34s var(--ease-sheet) both}
-  html[data-nav=push]::view-transition-new(root){animation:page-in .34s var(--ease-sheet) both}
-  html[data-nav=pop]::view-transition-old(root){z-index:2;animation:page-out .28s cubic-bezier(.4,0,.6,1) both}
-  html[data-nav=pop]::view-transition-new(root){animation:vt-pop-new .28s cubic-bezier(.4,0,.6,1) both}
+
+
+
+
   html[data-nav=push] :is(main section,.herowrap).nav-in{animation:page-in .34s var(--ease-sheet) both}
   html[data-nav=pop] :is(main section,.herowrap).nav-in{animation:vt-pop-new .28s cubic-bezier(.4,0,.6,1) both}
 }
@@ -2742,14 +2767,14 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 .ib.main{background:var(--cherry);color:var(--surface-ink,var(--surface));box-shadow:0 6px 16px -8px color-mix(in srgb,var(--cherry) 75%,transparent)}
 .ib.danger{color:#B4472E}.ib.sm{width:36px;height:36px}.ib.sm svg{width:17px;height:17px}
 .ib-row{display:flex!important;flex-wrap:wrap;align-items:center;gap:10px}.tm-done.ib-row{justify-content:center}
-.crown-btn.ib{width:40px;height:40px}.sc-new.ib{display:grid;margin:14px auto 0}.fl-edit.ib{margin-top:10px}
+.crown-btn.ib{width:40px;height:40px}.sc-new.ib{display:grid;margin:14px auto 0}
 /* A page's own actions float at the bottom right, above the tab bar, so they're in reach and never at the end of a
    long page. They show only while their page is open (the pages you've left aren't drawn). */
 .fab{position:fixed;right:16px;bottom:calc(var(--sa-bottom) + 24px);z-index:28;display:flex;align-items:center;gap:10px}
 @media (max-width:759px){.fab{bottom:calc(var(--sa-bottom) + 96px)}}
 .fab .ib{width:56px;height:56px;background:var(--surface);box-shadow:0 10px 24px -10px rgba(0,0,0,.5),inset 0 0 0 1px var(--hair)}
 .fab .ib.main{background:var(--cherry);color:var(--surface-ink,var(--surface))}.fab .ib svg{width:24px;height:24px;stroke-width:2.2}.fab .ib.main svg{stroke-width:2.6}
-main section.on:has(>.fab){padding-bottom:160px!important}
+body.has-fab main section.on{padding-bottom:160px!important}
 @media (max-width:759px){body.has-fab #toast{bottom:calc(var(--sa-bottom) + 166px)}}
 /* A logged brew's actions: icons only. */
 .le-b{width:40px;padding:0!important;justify-content:center}.le-b.again{width:40px;height:40px;padding:0!important}
@@ -2816,13 +2841,17 @@ main section.on>.fab .ib+.ib{animation-delay:.05s}
 .fab-dial{flex-direction:column;align-items:flex-end}
 .fab-main svg{transition:transform .25s cubic-bezier(.2,.8,.3,1)}
 .fab-dial.open .fab-main svg{transform:rotate(45deg)}
-.fab-menu{display:flex;flex-direction:column;align-items:flex-end;gap:10px;margin-bottom:12px}
+/* The + menu: one rounded panel of rows (icon and label), opening out of the + itself. */
+.fab-menu{display:flex;flex-direction:column;align-items:stretch;gap:2px;margin-bottom:12px;min-width:232px;padding:6px;border-radius:24px;background:var(--surface);
+  box-shadow:0 18px 44px -14px rgba(0,0,0,.42),0 2px 8px rgba(0,0,0,.06),inset 0 0 0 1px var(--hair);transform-origin:calc(100% - 28px) 100%;animation:fabPanel .28s cubic-bezier(.2,.9,.3,1.15) both}
+@keyframes fabPanel{from{opacity:0;transform:translateY(10px) scale(.86)}}
 .fab-menu[hidden]{display:none}
-.fab-mi{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:10px;cursor:pointer;animation:fabMi .26s cubic-bezier(.2,.8,.3,1.1) both;animation-delay:calc(var(--k) * 35ms)}
-.fab-mi>span{padding:7px 12px;border-radius:999px;background:var(--surface);box-shadow:0 8px 20px -10px rgba(0,0,0,.45),inset 0 0 0 1px var(--hair);font:700 .84rem var(--display);color:var(--ink);white-space:nowrap}
-.fab-mi>i{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:var(--surface);color:var(--cherry);box-shadow:0 8px 20px -10px rgba(0,0,0,.45),inset 0 0 0 1px var(--hair)}
-.fab-mi>i svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.fab-mi:focus-visible{outline:none}.fab-mi:focus-visible>i{outline:2px solid var(--cherry);outline-offset:2px}
+.fab-mi{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:12px;min-height:50px;padding:6px 14px 6px 6px;border-radius:18px;cursor:pointer;animation:fabMi .26s cubic-bezier(.2,.8,.3,1.1) both;animation-delay:calc(var(--k) * 30ms + 40ms);-webkit-tap-highlight-color:transparent}
+.fab-mi:hover,.fab-mi:active{background:var(--surface2)}
+.fab-mi>span{order:2;font:600 .95rem var(--display);color:var(--ink);white-space:nowrap}
+.fab-mi>i{order:1;width:38px;height:38px;flex:none;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb,var(--cherry) 12%,var(--surface));color:var(--cherry-ink,var(--cherry))}
+.fab-mi>i svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fab-mi:focus-visible{outline:2px solid var(--cherry);outline-offset:-2px}
 @keyframes fabMi{from{opacity:0;transform:translateY(10px) scale(.9)}to{opacity:1;transform:none}}
 .fab-scrim{position:fixed;inset:0;z-index:27;background:color-mix(in srgb,var(--bg) 55%,transparent);backdrop-filter:blur(2px);animation:fabScrim .2s both}
 @keyframes fabScrim{from{opacity:0}to{opacity:1}}
@@ -2830,7 +2859,7 @@ html.fab-lock #toast{opacity:0!important;pointer-events:none}
 /* An open + menu holds the page still. */
 html.fab-lock,html.fab-lock body{overflow:hidden!important;overscroll-behavior:none}
 .fab-scrim{touch-action:none}
-@media (prefers-reduced-motion:reduce){main section.on>.fab .ib,.fab-mi,.fab-scrim{animation:none}.fab-main svg{transition:none}}
+@media (prefers-reduced-motion:reduce){main section.on>.fab .ib,.fab-mi,.fab-menu,.fab-scrim{animation:none}.fab-main svg{transition:none}}
 /* Text boxes keep their size: no resize handle. */
 textarea{resize:none}
 
@@ -2848,65 +2877,13 @@ textarea{resize:none}
 .setlink:active{background:color-mix(in srgb,var(--ink) 4%,transparent)}
 .setlink .sl{align-items:center}
 .setchev{flex:none;color:var(--muted);display:grid;place-items:center}.setchev svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-.setrow .setbtns{display:flex;flex-wrap:wrap;gap:8px}
+.setrow .setbtns{display:flex;flex-wrap:wrap;gap:8px}.setrow .setbtns.rem{display:grid}
 .setrow>.setnote,.setrow>.setbtns{margin-left:48px!important}
 
-/* ---------- Liquid glass: a switch over any vibe, with a strength (--g, 0 to 1, from Settings). ----------
-   Behind everything, soft glows in the vibe's own colours (fixed, so scrolling never redraws them). Panes on the page
-   are tinted see-through over those glows, with a bright rim and a soft sheen at the top, the way light catches the
-   edge of glass; they don't blur (what's behind a card is only the glows, so a blur would cost and show nothing).
-   What floats over the page, the bars, the + menu, sheets and notices, is frosted: blurred and brightened, and opaque
-   enough that the text under it never reads through. */
-html[data-glass]{--g:.6;
-  /* Thick glass lit from the top left: a bright specular edge there, a dimmer one bottom right, a soft glow inside the
-     rim and a touch of shade at the foot, so a pane reads as a raised, rounded slab rather than a flat tint. */
-  --gl-3d:inset 1.5px 1.5px 1px -1px rgba(255,255,255,calc(.55 + var(--g) * .4)),inset -1.5px -1.5px 1px -1px rgba(255,255,255,calc(.25 + var(--g) * .4)),
-    inset 0 0 calc(4px + var(--g) * 12px) rgba(255,255,255,calc(var(--g) * .3)),inset 0 calc(-4px - var(--g) * 6px) calc(10px + var(--g) * 8px) calc(-8px - var(--g) * 4px) rgba(0,0,0,calc(var(--g) * .10));
-  /* What floats is clearer the stronger the glass (less frost, more of the bend at its rim). */
-  --gl-frost:blur(calc(8px + (1 - var(--g)) * 12px)) saturate(calc(150% + var(--g) * 60%)) brightness(1.03);--gl-line:rgba(30,36,64,calc(.05 + var(--g) * .04));
-  --gl-pane:color-mix(in srgb,var(--surface) calc(90% - var(--g) * 42%),transparent);
-  --gl-chrome:color-mix(in srgb,var(--surface) calc(86% - var(--g) * 38%),transparent);
-  --gl-sheet:color-mix(in srgb,var(--surface) calc(94% - var(--g) * 24%),transparent);
-  --gl-rim:rgba(255,255,255,calc(.45 + var(--g) * .45));--gl-rim2:rgba(255,255,255,calc(var(--g) * .22));
-  --gl-sheen:linear-gradient(180deg,rgba(255,255,255,calc(var(--g) * .34)),rgba(255,255,255,0) 42%);
-  --gl-shade:0 calc(6px + var(--g) * 8px) calc(18px + var(--g) * 16px) -14px rgba(20,24,40,calc(.16 + var(--g) * .16));
-  --gl-blur:blur(calc(10px + var(--g) * 18px)) saturate(calc(140% + var(--g) * 60%));background:var(--paper)}
-@media (prefers-color-scheme:dark){html[data-glass]:not([data-theme="light"]){--gl-3d:inset 1.5px 1.5px 1px -1px rgba(255,255,255,calc(.18 + var(--g) * .3)),inset -1.5px -1.5px 1px -1px rgba(255,255,255,calc(.08 + var(--g) * .18)),inset 0 0 calc(4px + var(--g) * 12px) rgba(255,255,255,calc(var(--g) * .08)),inset 0 calc(-4px - var(--g) * 6px) calc(10px + var(--g) * 8px) calc(-8px - var(--g) * 4px) rgba(0,0,0,calc(.2 + var(--g) * .2));--gl-line:rgba(255,255,255,calc(.06 + var(--g) * .06));--gl-rim:rgba(255,255,255,calc(.07 + var(--g) * .13));--gl-rim2:rgba(255,255,255,calc(var(--g) * .06));
-  --gl-sheen:linear-gradient(180deg,rgba(255,255,255,calc(var(--g) * .09)),rgba(255,255,255,0) 40%);--gl-shade:0 calc(8px + var(--g) * 8px) calc(22px + var(--g) * 16px) -14px rgba(0,0,0,calc(.45 + var(--g) * .25))}}
-html[data-glass][data-theme="dark"]{--gl-3d:inset 1.5px 1.5px 1px -1px rgba(255,255,255,calc(.18 + var(--g) * .3)),inset -1.5px -1.5px 1px -1px rgba(255,255,255,calc(.08 + var(--g) * .18)),inset 0 0 calc(4px + var(--g) * 12px) rgba(255,255,255,calc(var(--g) * .08)),inset 0 calc(-4px - var(--g) * 6px) calc(10px + var(--g) * 8px) calc(-8px - var(--g) * 4px) rgba(0,0,0,calc(.2 + var(--g) * .2));--gl-line:rgba(255,255,255,calc(.06 + var(--g) * .06));--gl-rim:rgba(255,255,255,calc(.07 + var(--g) * .13));--gl-rim2:rgba(255,255,255,calc(var(--g) * .06));
-  --gl-sheen:linear-gradient(180deg,rgba(255,255,255,calc(var(--g) * .09)),rgba(255,255,255,0) 40%);--gl-shade:0 calc(8px + var(--g) * 8px) calc(22px + var(--g) * 16px) -14px rgba(0,0,0,calc(.45 + var(--g) * .25))}
-html[data-glass] body{background:transparent}
-html[data-glass]::before{content:'';position:fixed;inset:-10%;z-index:-1;pointer-events:none;opacity:calc(.3 + var(--g) * .7);background:
-  radial-gradient(42% 30% at 8% 4%,color-mix(in srgb,var(--cherry) 34%,transparent),transparent 72%),
-  radial-gradient(46% 34% at 96% 20%,rgba(120,160,255,.30),transparent 72%),
-  radial-gradient(50% 36% at 14% 62%,color-mix(in srgb,var(--honey) 30%,transparent),transparent 72%),
-  radial-gradient(44% 34% at 90% 74%,rgba(255,140,190,.22),transparent 72%),
-  radial-gradient(40% 30% at 40% 102%,color-mix(in srgb,var(--leaf) 30%,transparent),transparent 72%)}
-html[data-glass] body::before,html[data-glass] body::after{display:none}
-/* Panes on the page. */
-html[data-glass] :is(.panel,.setgroup,.clist,.logentry,.rgrp,.qtool,.cupcard,.appver,.card,.oplan,.hubgrid,.yic,.tshelf,.specs>div,.bd-shelf,.lastbrew,.today,.welcome,.rrow,.crow.rov-row,.qlinks){
-  background-color:var(--gl-pane)!important;background-image:var(--gl-sheen);border-color:var(--gl-line)!important;box-shadow:var(--gl-3d),var(--gl-shade)!important}
-html[data-glass] :is(.panel,.setgroup,.clist,.rgrp,.hubgrid) :is(.re-card,.oplan-o,.seg,.dwrite,.ls-t,.rrow,.bg-gh){background-color:color-mix(in srgb,var(--surface) calc(70% - var(--g) * 30%),transparent)!important;box-shadow:inset 0 1px 0 var(--gl-rim2)!important}
-/* What floats: frosted. In the app too (the switch is yours: it costs a little smoothness while scrolling). */
-/* What floats bends what's under its rim like a thick lens (an SVG filter, #lg-bar and #lg-btn in the page; its
-   strength follows the slider), then frosts it a little. Browsers without lensing behind an element keep the frost. */
-html[data-glass] :is(.appbar,.bottomnav,.minires,nav.tabs .wrap){background-color:var(--gl-chrome)!important;background-image:var(--gl-sheen);-webkit-backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost) url(#lg-bar)!important;border-color:var(--gl-line)!important;box-shadow:var(--gl-3d),var(--gl-shade)!important}
-html[data-glass] :is(dialog#vd,dialog#sharesheet,dialog#selsheet){background-color:var(--gl-sheet)!important;background-image:var(--gl-sheen);-webkit-backdrop-filter:var(--gl-blur);backdrop-filter:var(--gl-blur);box-shadow:var(--gl-3d),0 -10px 40px -16px rgba(0,0,0,.35)!important}
-html[data-glass] dialog#timer{background:color-mix(in srgb,var(--paper) calc(92% - var(--g) * 22%),transparent)!important;-webkit-backdrop-filter:var(--gl-blur);backdrop-filter:var(--gl-blur)}
-html[data-glass] :is(.fab .ib:not(.main),.fab-mi>span,.fab-mi>i,.vd-tool,.vd-close,.sh-mini,#toast){background-color:var(--gl-chrome)!important;background-image:var(--gl-sheen);-webkit-backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost) url(#lg-btn)!important;box-shadow:var(--gl-3d),0 8px 20px -10px rgba(0,0,0,.35)!important}
-html[data-glass] #toast{-webkit-backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost) url(#lg-bar)!important}
-html[data-glass] #toast{color:var(--ink)!important}
-html[data-glass] :is(.ib.main,.pbtn.main,.btn:not(.ghost),.fab-main){background-image:radial-gradient(120% 90% at 30% 0%,rgba(255,255,255,calc(var(--g) * .38)),rgba(255,255,255,0) 55%),linear-gradient(0deg,rgba(0,0,0,calc(var(--g) * .12)),rgba(0,0,0,0) 45%);box-shadow:inset 1.5px 1.5px 1px -1px rgba(255,255,255,calc(.3 + var(--g) * .5)),inset -1px -1px 1px -.5px rgba(255,255,255,calc(var(--g) * .3)),0 10px 22px -10px color-mix(in srgb,var(--cherry) 75%,transparent)!important}
-html[data-glass] .tab[aria-selected=true]{background-image:var(--gl-sheen);box-shadow:inset 0 1px 0 var(--gl-rim2)}
-html[data-glass] .bn-pill{background:color-mix(in srgb,var(--surface) calc(40% + var(--g) * 20%),color-mix(in srgb,var(--cherry) 10%,transparent));box-shadow:var(--gl-3d),0 4px 12px -6px rgba(0,0,0,.25)}
-@media (prefers-reduced-transparency:reduce){html[data-glass]{--g:0!important}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
 <body>
-<!-- Liquid glass: the lens behind floating bars (lg-bar, a thin rim along wide shapes) and round buttons (lg-btn).
-     Their maps and strength are set by the app (glassLens in app.js). -->
-<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><filter id="lg-bar" primitiveUnits="objectBoundingBox" x="0" y="0" width="1" height="1" color-interpolation-filters="sRGB"><feImage preserveAspectRatio="none" x="0" y="0" width="1" height="1" result="m"/><feDisplacementMap in="SourceGraphic" in2="m" scale="0" xChannelSelector="R" yChannelSelector="G"/></filter><filter id="lg-btn" primitiveUnits="objectBoundingBox" x="0" y="0" width="1" height="1" color-interpolation-filters="sRGB"><feImage preserveAspectRatio="none" x="0" y="0" width="1" height="1" result="m"/><feDisplacementMap in="SourceGraphic" in2="m" scale="0" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
      coffee drips and fills, the dripper lifts off as steam rises, and the name comes up; then it all lifts away.
      About 2 s; a tap skips it. -->

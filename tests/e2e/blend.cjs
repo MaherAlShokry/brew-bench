@@ -23,7 +23,7 @@ const shown=await p.evaluate(id=>{renderBeans&&renderBeans();const row=document.
 ok('the list shows its flags and Blend',/🇧🇷🇪🇹🇨🇴/.test(shown.row||'')&&/Blend/.test(shown.row||''),shown.row);
 ok('its page lists the origins',/Blend of/.test(shown.page)&&/Brazil/.test(shown.page)&&/Ethiopia/.test(shown.page)&&/Colombia/.test(shown.page),shown.page.slice(0,300));
 // Passport: a Blends region and one stamp; the countries in it don't count as origins.
-const pp=await p.evaluate(()=>{const st=cabStats();renderPassport();const el=$('bv-passport');return{o:st.o.size,regs:st.regs.size,blendReg:(el.querySelector('.pp-blend')||{}).textContent,stamp:!!el.querySelector('[data-ppo="blend"]'),more:/more/.test(el.querySelector('.pp-h h3').textContent),stampURL:stampURL('blend').slice(0,22)}});
+const pp=await p.evaluate(()=>{const st=cabStats();renderPassport();const el=$('bv-passport');return{o:st.o.size,regs:st.regs.size,blendReg:(el.querySelector('.pp-blend')||{}).textContent,stamp:!!el.querySelector('[data-ppo="blend"]'),more:/more/.test(el.querySelector('.pp-sum h3').textContent),stampURL:stampURL('blend').slice(0,22)}});
 ok('the passport has a Blends region with the count',/Blends\s*1/.test((pp.blendReg||'').replace(/\s+/g,' ')),pp.blendReg);
 ok('one universal blend stamp, drawn',pp.stamp&&pp.stampURL.startsWith('data:image/png'),pp);
 ok('a blend doesn’t add origins or regions to the count',pp.o===before.o&&pp.regs===before.regs,{before,pp});

@@ -146,7 +146,6 @@ let UPD_SEEN='';const chkNewBuild=()=>{try{if(typeof BUILD_ID==='undefined'||!wi
 try{if(navigator.serviceWorker&&typeof BUILD_ID!=='undefined'){navigator.serviceWorker.addEventListener('message',e=>{if(e.data&&e.data.type==='bb-updated')setTimeout(chkNewBuild,800)});
   addEventListener('load',()=>setTimeout(chkNewBuild,4000));document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(chkNewBuild,1500)})}}catch(e){}
 // Share and Edit are the same round icon button everywhere (with its name for screen readers and on hover).
-const IB_SVG={share:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>',edit:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4"/></svg>'};
 function icoBtn(kind,attrs,label){return ib(kind==='edit'?'edit':'share',attrs,label)}
 // A toast with a button, kept up a little longer so there is time to tap it.
 function toastAct(m,label,fn){const t=$('toast');t.textContent='';t.classList.add('act');const sp=document.createElement('span');sp.textContent=m;const b=document.createElement('button');b.type='button';b.className='tact';b.textContent=label;
@@ -743,7 +742,7 @@ let PLAN=null;
 const planLearn=()=>{const v=load('bb-planlearn',{});return v&&typeof v==='object'&&!Array.isArray(v)?v:{}};
 function planWins(){const m=planLearn(),a=x=>Array.isArray(m[x])&&m[x][0]>0?m[x][1]/m[x][0]:null,g=a('grind'),w=a('water');if(g==null||w==null||Math.abs(g-w)<0.25)return '';return w>g?'water':'grind'}
 function planRated(stars){const p=load('bb-planpend',null);if(!p||!p.k||!stars||Date.now()-p.t>12*3600e3)return;const m=planLearn(),c=Array.isArray(m[p.k])?m[p.k]:[0,0];m[p.k]=[c[0]+1,c[1]+stars];save('bb-planlearn',m);localStorage.removeItem('bb-planpend')}
-function render(){
+function render(){schedulePreCard();
   const G=GRINDERS[S.grinder],B=BREWERS[S.brewer];
   grinderSeg('g-grinder',(S.brewer),()=>S.grinder,v=>{if(v!==S.grinder){const was=isTuned();S.setting=swapGrinder(v);S.grinder=v;
     // Same grind on another grinder is not a change of yours, so a tuned brew stays tuned.
@@ -975,21 +974,6 @@ function plan(c){
   if(k==='single'||k==='hoff1'||k==='flash'||k==='pulsar')tw.push(pick('Pour a little faster and gentler.','Pour slower for more contact time.','Follow as written.'));
   return {r,grinder,temp,bloom,agit,ratio,water,dose,set,st,why,held,tw:k==='46'?[]:tw.filter(t=>gl!=='balance'),steps:ps.steps,changes:ps.changes,goal:c.goal,amt:c.amt};
 }
-function planHTML(p,c){
-  const res=compute(p.st),[vt]=verdict(res.D),B=BREWERS[p.r.b];
-  const others=Object.keys(p.set).filter(g=>g!==p.grinder);const agl={low:'Gentle',med:'Normal',high:'Vigorous'}[p.agit];
-  const gcell=g=>p.set[g]==null?'<div><b>'+GRINDERS[g].name+'</b><span>n/a</span><small>can\u2019t grind this fine</small></div>':'<div><b>'+GRINDERS[g].name+'</b><span>'+dial(g,p.set[g])+'</span><small>'+esc(dialHint(g,p.set[g]))+'</small></div>';
-  return '<p class="hint" style="margin:0">'+esc(B.name)+' with '+GRINDERS[p.grinder].name+'</p><h2>'+esc(p.r.name)+'</h2><p class="hint" style="margin-top:0">'+esc(p.r.by)+'</p>'+
-   '<p>'+esc(PROCESSES[c.process].name)+' '+esc(vName(c.variety))+', '+c.roast+' roast. Predicted: <b>'+vt+'</b>.</p>'+
-   '<div class="specs">'+gcell(p.grinder)+others.map(gcell).join('')+
-    '<div><b>Water</b><span>'+p.temp+'°C</span>'+(p.r.temp2?'<small>then about '+p.r.temp2+'°C</small>':'')+'</div>'+
-    '<div><b>Dose : water</b><span>'+p.r.dose+'g : '+p.water+'g</span><small>1:'+p.ratio+'</small></div>'+
-    '<div><b>'+B.bloom.label+'</b><span>'+p.bloom+'s</span></div><div><b>Agitation</b><span>'+agl+'</span></div></div>'+
-   '<h3>Steps</h3>'+pourGraph(p.steps,p.water)+stepList(p.steps)+
-   (p.tw.length?'<div class="tip">'+p.tw.join(' ')+'</div>':'')+
-   '<h3>Why these settings</h3><ul class="why">'+(p.why.length?p.why.map(w=>'<li>'+w+'</li>').join(''):'<li>The recipe already suits this coffee.</li>')+
-   '<li>Grind starts from the recipe\u2019s setting on your calibration, then moves to land the predicted extraction on your goal.</li></ul>';
-}
 /* ================= BREW TIMER ================= */
 let TM=null;
 // Each step's moment on the clock: its own time, or for a pour without one the recipe page's estimate, so the timer and
@@ -1029,13 +1013,20 @@ function openTimerNow(idx,p){noteRecent(RECIPES[idx]);
   $('tm-x').onclick=()=>d.close();
   // However the timer is closed (X, back, Escape, backdrop), stop it and let the screen sleep again.
   d.onclose=()=>{if(TM&&TM.iv)clearInterval(TM.iv);if(TM){TM.run=false;TM.closed=true;tmWidget()}wake(false)};
-  if(total){$('tm-go').onclick=()=>{if(TM.el>=TM.total||TM.fin){TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;TM.fin=false}if(!TM.ctx){try{TM.ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}TM.run=!TM.run;setPlay();wake(TM.run);if(TM.run)tmNotePerm();
+  if(total){$('tm-go').onclick=()=>{if(TM.el>=TM.total||TM.fin){TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;tmUnfinish()}if(!TM.ctx){try{TM.ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}TM.run=!TM.run;setPlay();wake(TM.run);if(TM.run)tmNotePerm();
       if(TM.run){TM.t0=performance.now()-TM.el*1000;TM.iv=setInterval(tick,200);tick()}else clearInterval(TM.iv);tmWidget()};
-    $('tm-reset').onclick=()=>{clearInterval(TM.iv);TM.run=false;wake(false);TM.fin=false;TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;setPlay();paint();tmWidget()};
+    $('tm-reset').onclick=()=>{clearInterval(TM.iv);TM.run=false;wake(false);if(TM.fin)tmUnfinish();TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;setPlay();paint();tmWidget()};
     // Skip jumps to the next step's time (handy when you pour faster than the recipe).
-    $('tm-skip').onclick=()=>{if(TM.fin)return;const n=TM.ev.find(e=>e.t>TM.el+0.5);if(!n){if(TM.el>0||TM.run)finishBrew();return}TM.el=n.t;if(TM.run)TM.t0=performance.now()-TM.el*1000;paint()};paint()}
+    $('tm-skip').onclick=()=>{if(TM.fin)return;const n=TM.ev.find(e=>e.t>TM.el+0.5);if(!n){if(TM.el>0||TM.run)finishBrew();return}TM.el=n.t;if(TM.run)TM.t0=performance.now()-TM.el*1000;paint()};
+    // A step in the list jumps the clock to it (running or not), like Next step does for the next one.
+    $('tm-list').onclick=e=>{const li=e.target.closest('li[data-i]');if(!li||TM.fin)return;const ev=TM.ev[+li.dataset.i];if(!ev||ev.t<0)return;
+      TM.el=ev.t;TM.lastIdx=-1;TM.lastWarn=-1;if(TM.run)TM.t0=performance.now()-TM.el*1000;paint();tmWidget()};paint()}
 }
-function setPlay(){const b=$('tm-go');b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+(TM.run?'M7 5h4v14H7z M13 5h4v14h-4z':'M8 5v14l11-7z')+'"/></svg>';b.setAttribute('aria-label',TM.run?'Pause':TM.el>0?'Resume':'Start');b.classList.toggle('on',TM.run)}
+// Out of the finished screen (Start again, Reset or Brew again): the card goes back to the steps. The cup taken off the
+// bag stays taken (that brew happened); the next finish takes the next one.
+function tmUnfinish(){TM.fin=false;TM.cup=null;TM.dd=null;TM.tasteDraw=null;const c=$('tm-card');if(c)c.classList.remove('fin');const nx=$('tm-next');if(nx)nx.innerHTML='';
+  const l=$('tm-list');if(l)l.querySelectorAll('li').forEach(li=>li.className='')}
+function setPlay(){const b=$('tm-go');b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+(TM.run?'M7 5h4v14H7z M13 5h4v14h-4z':'M8 5v14l11-7z')+'"/></svg>';b.setAttribute('aria-label',TM.run?'Pause':TM.fin?'Start again':TM.el>0?'Resume':'Start');b.classList.toggle('on',TM.run)}
 // Keep the screen on while a brew timer runs (where the browser supports it).
 let WL=null;function wake(on){try{if(on&&!WL&&navigator.wakeLock)navigator.wakeLock.request('screen').then(l=>{WL=l;l.addEventListener('release',()=>{WL=null})}).catch(()=>{});else if(!on&&WL){WL.release();WL=null}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&TM&&TM.run)wake(true)});
@@ -1111,8 +1102,8 @@ function done(){const r=TM.r||RECIPES[TM.idx],d=Math.floor(TM.el)-Math.floor(TM.
   if(gb&&TM.cup){const bag=document.createElement('div');bag.className='tm-bag';const draw=()=>{const g=gramsLeft(gb);bag.innerHTML=TM.cup?'<span>'+gfmt(dz)+' g off your <b>'+esc(beanTitle(gb))+'</b> bag · '+(g?g+' g left':'bag empty')+'</span><button type="button" class="linkbtn" id="tm-bagundo">Undo</button>':'<span>Not taken off the bag.</span>';
       const u=bag.querySelector('#tm-bagundo');if(u)u.onclick=()=>{untakeCup(gb,TM.cup.id);if(LAST_CUP&&LAST_CUP.id===TM.cup.id)LAST_CUP=null;TM.cup=null;draw();if(window.BEANS_OK)renderBeans()}};draw();$('tm-next').prepend(bag);if(window.BEANS_OK)renderBeans()}
   // From the dial-in, the log is filled in from the dial-in itself: the coffee, the full settings and the cup.
-  $('tm-log').onclick=()=>{const p=TM.p,B=BREWERS[r.b];$('timer').close();if(p&&'bean' in p){setTimeout(()=>$('tolog').click(),250);return}setTimeout(()=>{showTab('log');$('l-settings').value=r.name+', '+(p?p.r.dose:r.dose)+'g : '+(p?p.water:r.water)+'g'+((p?p.temp:r.temp)?', '+(p?p.temp:r.temp)+'°C':'');$('l-settings').dataset.brewer=r.b;renderLSet();$('l-coffee').focus()},250)};
-  $('tm-again').onclick=()=>{TM.cup=null;$('tm-card').classList.remove('fin');TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;TM.fin=false;paint();$('tm-go').click()};TM.dd=null;TM.tasteDraw=null;drawCheck();tasteCheck();
+  $('tm-log').onclick=()=>{const p=TM.p,B=BREWERS[r.b];$('timer').close();if(p&&'bean' in p){setTimeout(()=>$('tolog').click(),250);return}setTimeout(()=>{NAV_FORCE='push';showTab('log');$('l-settings').value=r.name+', '+(p?p.r.dose:r.dose)+'g : '+(p?p.water:r.water)+'g'+((p?p.temp:r.temp)?', '+(p?p.temp:r.temp)+'°C':'');$('l-settings').dataset.brewer=r.b;renderLSet();if(!MQ('(pointer: coarse)'))setTimeout(()=>$('l-coffee').focus({preventScroll:true}),480)},250)};
+  $('tm-again').onclick=()=>{TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;tmUnfinish();paint();$('tm-go').click()};TM.dd=null;TM.tasteDraw=null;drawCheck();tasteCheck();
   // Finished early by a tap: that tap is when the drawdown ended, so the nearest answer is already picked.
   if(d<=-8){const opt=[-30,-15].reduce((a,b)=>Math.abs(b-d)<Math.abs(a-d)?b:a),bt=document.querySelector('.tm-dseg [data-dd="'+opt+'"]');if(bt)bt.click()}}
 // How long the drawdown took is the most reliable grind signal there is: a dripper that finishes early wants a finer
@@ -1319,22 +1310,31 @@ function vdRestore(e){const d=$('vd');VD_RESTORING=true;try{e.f()}finally{VD_RES
       if(!VD_RESTORING&&d.open&&!d.classList.contains('closing')&&VD_CUR&&k!==VD_KEY){VD_HIST.push({f:VD_CUR,k:VD_KEY,y:d.scrollTop});try{history.pushState({dlg:1,vd:1},'',location.hash||'#dial')}catch(e){}}
       if(!VD_RESTORING){VD_CUR=()=>f.apply(this,a);VD_KEY=k}return f.apply(this,a)};
     eval(n+'=w')}}
-{const sm=HTMLDialogElement.prototype.showModal;HTMLDialogElement.prototype.showModal=function(){if(!this.open){if(!BACKING)try{history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}DSTACK.push(this);document.body.classList.add('dlg-open');
+// Opening any sheet (as a modal or, see openTop, as a popover): a history step, the stack, and on close the way back.
+function dlgOpened(d){if(!d.open)(function(){if(!BACKING)try{history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}DSTACK.push(this);document.body.classList.add('dlg-open');
   this.addEventListener('close',()=>{const i=DSTACK.indexOf(this);if(i>=0)DSTACK.splice(i,1);if(!document.querySelector('dialog[open]'))document.body.classList.remove('dlg-open');if(this.dataset.popped){delete this.dataset.popped;return}
     const extra=this.id==='vd'?VD_HIST.length:0;if(this.id==='vd'){VD_HIST.length=0;VD_CUR=null}
-    if(!BACKING&&history.state&&history.state.dlg){BACKING=true;history.go(-(1+extra))}},{once:true})}return sm.call(this)}}
+    if(!BACKING&&history.state&&history.state.dlg){BACKING=true;history.go(-(1+extra))}},{once:true})}).call(d)}
+{const sm=HTMLDialogElement.prototype.showModal;HTMLDialogElement.prototype.showModal=function(){dlgOpened(this);return sm.call(this)}}
 // Sheets slide away before they close (the CSS animates .closing), so nothing vanishes abruptly.
 {const cl=HTMLDialogElement.prototype.close;HTMLDialogElement.prototype.close=function(v){if(!this.open||this.classList.contains('closing'))return;
-  if(RM()||document.hidden)return cl.call(this,v);this.classList.add('closing');
-  const done=()=>{clearTimeout(t);this.removeEventListener('animationend',end);if(!this.classList.contains('closing'))return;this.classList.remove('closing');cl.call(this,v)},
+  const shut=()=>{cl.call(this,v);if(this.hasAttribute('popover'))try{this.hidePopover()}catch(e){}};
+  if(RM()||document.hidden)return shut();this.classList.add('closing');
+  const done=()=>{clearTimeout(t);this.removeEventListener('animationend',end);if(!this.classList.contains('closing'))return;this.classList.remove('closing');shut()},
     end=e=>{if(e.target===this)done()},t=setTimeout(done,380);this.addEventListener('animationend',end)}}
 document.addEventListener('cancel',e=>{if(e.target.tagName==='DIALOG'){e.preventDefault();e.target.close()}},true);
 // Open a dialog; reopening one that is sliding away just keeps it.
 // Opening a sheet: background building waits (NAV_AT), and the slide starts two frames after the sheet is shown, once
 // its content is laid out, so the first frames of the slide aren't skipped while the browser catches up.
 let KEYNAV=false;addEventListener('keydown',e=>{if(e.key==='Tab')KEYNAV=true},true);addEventListener('pointerdown',()=>{KEYNAV=false},true);
+// A sheet opens in the top layer as a popover (with its own backdrop), not as a modal dialog: a modal makes the browser
+// mark the whole app inert, restyling every element of every page (some 12,000), the main cost of opening a sheet on a
+// phone. The backdrop still takes every tap outside the sheet, Escape and back close it, and keyboard focus moves in.
+function openTop(d){if(d.showPopover){try{if(!d.hasAttribute('popover'))d.setAttribute('popover','manual');d.setAttribute('aria-modal','true');dlgOpened(d);d.setAttribute('open','');d.showPopover();return}catch(e){d.removeAttribute('popover')}}
+  try{d.showModal()}catch(e){d.setAttribute('open','')}}
+addEventListener('keydown',e=>{if(e.key!=='Escape'||e.defaultPrevented)return;const top=DSTACK.filter(d=>d.open&&d.hasAttribute('popover')&&!d.classList.contains('closing')).pop();if(top){e.preventDefault();top.close()}});
 function showDlg(d){NAV_AT=performance.now();if(d.classList.contains('closing')){d.classList.remove('closing');return}
-  if(!d.open){d.classList.add('dlg-pre');try{d.showModal()}catch(e){d.setAttribute('open','')}
+  if(!d.open){d.classList.add('dlg-pre');openTop(d);if(KEYNAV){const f=d.querySelector('button,[href],input,select,textarea');if(f)f.focus()}
     // Opening a sheet focuses its first button (Close), which drew its focus ring before anything was pressed.
     {const f=document.activeElement;if(f&&d.contains(f)&&f.matches('.vd-close,.vd-tool,button')&&!KEYNAV)f.blur()}requestAnimationFrame(()=>requestAnimationFrame(()=>d.classList.remove('dlg-pre')))}}
 addEventListener('popstate',()=>{if(FAB_POP())return;const open=[...document.querySelectorAll('dialog[open]:not(.closing)')];
@@ -1451,7 +1451,7 @@ const BT_ICON={'Cone dripper':'M4.5 4.5h15 M6 4.5l4 6.5h4l4-6.5 M9.6 7.6h4.8 M12
   'Immersion and pressure':'M6.5 7.5h9v10.5a2 2 0 0 1-2 2h-5a2 2 0 0 1-2-2z M15.5 9.5h1.3a1.7 1.7 0 0 1 1.7 1.7v3.6a1.7 1.7 0 0 1-1.7 1.7h-1.3 M5.5 7.5h11 M11 3.5v8 M8.5 11.5h5 M8.5 15h5','Espresso and stovetop':'M6 10h10v3a5 5 0 0 1-10 0z M16 11h2a2 2 0 0 1 0 4h-2 M4 20h14 M9 4c-1 1.5 1 2.5 0 4 M13 4c-1 1.5 1 2.5 0 4',
   'Boiled':'M6.5 9.5h9.5l-1 8.6a2 2 0 0 1-2 1.9H9.5a2 2 0 0 1-2-1.9z M16 11.5l4.5-2.5 M6 9.5h10.5 M9.5 3.5c-1 1.2 1 2 0 3.2 M13 3.5c-1 1.2 1 2 0 3.2','Cold':'M6 6.5h12l-1.5 12.2a1.6 1.6 0 0 1-1.6 1.4H9.1a1.6 1.6 0 0 1-1.6-1.4z M9.2 10.5l2.4-.8.8 2.4-2.4.8z M12.4 14.2l2.4.4-.4 2.4-2.4-.4z M14 6.5l1.6-3.5h2.4','Machine':'M5 3.5h14v5H5z M8 8.5v3 M7 12.5h7v5.5a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z M14 14h.8a1.4 1.4 0 0 1 0 2.8H14 M17.5 8.5v11.5 M4.5 20h15 M8 6h2'};
 const bIcon=t=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+(BT_ICON[t]||BT_ICON['Cone dripper'])+'"/></svg>';
-function renderRHome(){const QI=(c,p)=>'<span class="qi" style="background:'+c+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+p+'"/></svg></span>';
+function renderRHome(){const QI=(c,p)=>'<span class="qi ic t-'+({'#2F80ED':'h','#C8741F':'c','#E0445A':'l'})[c]+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+p+'"/></svg></span>';
   const again=RECENT.map(rByKey).filter(i=>i>=0).slice(0,6);
   $('rhome').innerHTML='<div class="qlinks">'+
     '<button type="button" data-q="surprise">'+QI('#2F80ED','M12 3l1.9 5.6L19.5 10l-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.4z M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z')+'<b>Surprise me</b></button>'+
@@ -2724,7 +2724,6 @@ function prepCanvas(img,rot=0,max=2000){const k=Math.min(2,max/Math.max(img.widt
   const mid=(lo+hi)/2,W=c.width,H=c.height;let dark=0,n=0;for(let y=Math.round(H*.25);y<H*.75;y+=2)for(let i=Math.round(W*.25);i<W*.75;i+=2){n++;if(px[(y*W+i)*4]<mid)dark++}
   const inv=dark>n*.5,span=Math.max(1,hi-lo);
   for(let q=0;q<px.length;q+=4){let v=(px[q]-lo)*255/span;v=v<0?0:v>255?255:v;if(inv)v=255-v;px[q]=px[q+1]=px[q+2]=v}x.putImageData(d,0,0);return c}
-async function prepImage(file){return prepCanvas(await loadImage(file))}
 // Uneven light (glare, a shadow across the bag): compare each pixel with its own neighbourhood instead of the whole
 // photo, so text under a bright patch keeps its contrast. Works on a canvas prepared above (dark text on light).
 function evenLight(c){const x=c.getContext('2d'),W=c.width,H=c.height,d=x.getImageData(0,0,W,H),px=d.data,I=new Float64Array((W+1)*(H+1)),r=Math.max(12,Math.round(Math.min(W,H)/28));
@@ -3435,6 +3434,17 @@ function dialDoc(){const r=compute(S),[vt,vs]=verdict(r.D),B=BREWERS[S.brewer],d
   // The share sheet offers this brew as a designed card image too.
   doc.card=brewCard;doc.cardName='brew-card';doc.cardTheme=()=>originTheme(S.bean&&S.bean.origin);
   return doc}
+// The Brew page's card is drawn ahead, in the background, once the dial-in has stood still a moment (and only in a
+// quiet moment: not while you touch, scroll or a page slides in). Its painting happens in the card worker, off the page.
+// Opening Share with the same brew then shows the card at once; any change draws it again next time things are still.
+var PRE_CARD=null,PRE_T=0;
+const dialKey=doc=>doc.link+'|'+doc.title+'|'+JSON.stringify(doc.blocks)+'|'+(S.bean&&S.bean.id||'')+'|'+CARD_STYLE.col;
+function schedulePreCard(){clearTimeout(PRE_T);PRE_T=setTimeout(preDrawDial,2500)}
+function preDrawDial(){const quiet=()=>!document.hidden&&!sliding()&&performance.now()-USER_AT>1200&&!document.querySelector('dialog[open]');
+  if(!quiet()){PRE_T=setTimeout(preDrawDial,1500);return}if(!$('dial').classList.contains('on'))return;
+  (window.requestIdleCallback||(f=>setTimeout(f,50)))(()=>{if(!quiet())return schedulePreCard();let doc;try{doc=dialDoc()}catch(e){return}const k=dialKey(doc);
+    if(PRE_CARD&&PRE_CARD.key===k)return;doc._cards=new Map();PRE_CARD={key:k,cards:doc._cards};
+    shCardFor(doc,{mode:curTheme()==='dark'?'dark':'light',col:CARD_STYLE.col}).catch(()=>{PRE_CARD=null})},{timeout:3000})}
 function varietyDoc(id){const v=VBY[id];const b=[{kv:[['Family',FAM[v.fam].name],['Origin',v.origin||'-'],['Year',v.year||'-'],['Parentage',v.parents||'-']]},{h:'Story',p:v.story},{h:'In the cup',p:v.cup+' ('+v.notes.join(', ')+')'},{h:'How to brew it',p:v.brew}];
   if(v.subs)b.push({h:'Types',list:v.subs.map(s=>s.name+': '+s.cup)});return{link:SITE_URL+'#v='+id,title:v.name,sub:'Variety guide',blocks:b,file:'variety-'+v.name}}
 function originDoc(k){const o=ALLO()[k];return{link:SITE_URL+'#o='+k,title:o.name,sub:'Coffee origin | '+REG[o.reg].name,file:'origin-'+o.name,
@@ -3471,6 +3481,8 @@ let PDFP=null;
 const loadPDF=()=>window.jspdf&&window.jspdf.jsPDF?Promise.resolve():(PDFP=PDFP||loadScript(typeof JSPDF_SRC==='string'?JSPDF_SRC:'vendor/jspdf.umd.min.js').catch(e=>{PDFP=null;throw e}));
 function openShare(doc){if(fromTap(()=>openShareNow(doc)))return;openShareNow(doc)}
 function openShareNow(doc){SHDOC=doc;
+  // The Brew page's card drawn ahead for this very brew: the preview is there at once.
+  if(doc.card===brewCard&&PRE_CARD&&!doc._cards){try{if(PRE_CARD.key===dialKey(doc))doc._cards=PRE_CARD.cards}catch(e){}}
   // The image follows the app's light or dark look by default (it can still be switched here, for this share).
   CARD_STYLE.mode=curTheme()==='dark'?'dark':'light';loadPDF().catch(()=>{});const pdfOK=true;
   $('sh-in').innerHTML='<div class="sheet"><div class="grab"></div><button class="vd-close" id="sh-x" aria-label="Close">\u2715</button><h2 id="sh-title" style="margin:0 40px 2px 0">Share</h2><p class="hint" style="margin:0">'+esc(doc.title)+'</p>'+
@@ -3489,7 +3501,7 @@ function openShareNow(doc){SHDOC=doc;
   const d=$('sharesheet');showDlg(d);$('sh-x').onclick=()=>d.close();
   // Nothing is drawn while the sheet slides up (0.44 s), so it moves smoothly; the card's preview comes right after,
   // then (when the phone is idle) the PDF's thumbnail and the other look.
-  setTimeout(()=>{if(SHDOC!==doc||!d.open)return;if(doc.card)drawShCard(true);else shIdle(()=>shPdfThumb(doc))},460)}
+  const ready=doc.card&&doc._cards&&doc._cards.size;setTimeout(()=>{if(SHDOC!==doc||!d.open)return;if(doc.card)drawShCard(true);else shIdle(()=>shPdfThumb(doc))},ready?60:460)}
 const shIdle=f=>(window.requestIdleCallback?requestIdleCallback(f,{timeout:1500}):setTimeout(f,300));
 // The PDF's first page, small, on its row: in the app's look (as the PDF is), so it's clear it can differ from the image.
 // Drawn in the background after the image's preview; the PDF itself then reuses the same card.
@@ -3898,10 +3910,10 @@ function renderExplore(){const day=Math.floor(Date.now()/864e5),w=GLOSSARY[day%G
 // holds the retired ones: tools/gen-app-icons.py keeps their home-screen icons, so a phone showing one keeps a way in.
 const VIBES_ALL=[["roastery","Roastery","The house look: cream and roasted brown",{"paper":"#FBF7F0","surface":"#FFFDF9","surface2":"#F3EADC","ink":"#3B2A20","cherry":"#8A5A3B","honey":"#C9964A","leaf":"#6B8E4E"},{"paper":"#1F1814","surface":"#2A211B","surface2":"#362A22","ink":"#F3EADF","cherry":"#D9A06B","honey":"#E2B866","leaf":"#A7C084"}],["oat","Oat latte","Soft, milky and calm",{"paper":"#F6F0E8","surface":"#FFFCF7","surface2":"#EDE3D6","ink":"#3A3029","cherry":"#855735","honey":"#B98A3E","leaf":"#5F7F49"},{"paper":"#2F2A26","surface":"#3C3631","surface2":"#4A433D","ink":"#F5EFE8","cherry":"#E9C29E","honey":"#EDCB91","leaf":"#BCD1A6"}],["matcha","Matcha café","Fresh greens, easy on the eyes",{"paper":"#F1F5EB","surface":"#FCFEF8","surface2":"#E1E9D4","ink":"#24301D","cherry":"#3F6E2E","honey":"#9C7A26","leaf":"#4E7A3A"},{"paper":"#0D2216","surface":"#143020","surface2":"#1C3F2B","ink":"#E6F4E3","cherry":"#9FDB82","honey":"#E3CF7C","leaf":"#9FDB82"}],["blossom","Coffee blossom","Pink like the flowers on the tree",{"paper":"#FBF3F3","surface":"#FFFBFB","surface2":"#F4E0E2","ink":"#3D2328","cherry":"#A8324F","honey":"#B47E3A","leaf":"#5E8A5A"},{"paper":"#2A0D1D","surface":"#3A1429","surface2":"#4B1D36","ink":"#FCE9F0","cherry":"#FF93B6","honey":"#F3C98A","leaf":"#B4DDA8"}],["nordic","Nordic roast","Cool, light and minimal",{"paper":"#F3F6F8","surface":"#FFFFFF","surface2":"#E5EBF0","ink":"#1E2833","cherry":"#2C5A80","honey":"#9A7A3A","leaf":"#4F7C69"},{"paper":"#0A1A2E","surface":"#11253F","surface2":"#19324F","ink":"#E5EEF8","cherry":"#8FC4F2","honey":"#E3C68D","leaf":"#93D1B8"}],["desert","Desert mocha","Sand and terracotta, Yemen at dusk",{"paper":"#F8F0E3","surface":"#FFFAF1","surface2":"#EEDEC6","ink":"#3A2618","cherry":"#9A4522","honey":"#B87E25","leaf":"#6E7F3E"},{"paper":"#2E140A","surface":"#3E1D0F","surface2":"#4F2715","ink":"#FBE9D8","cherry":"#FFA06E","honey":"#F5C77A","leaf":"#CFD593"}],["neon","Neon espresso","Late-night café, a little loud",{"paper":"#F6F2FF","surface":"#FFFFFF","surface2":"#EBE3FF","ink":"#24183A","cherry":"#6A30D6","honey":"#C2357E","leaf":"#13896A"},{"paper":"#130A33","surface":"#1E1250","surface2":"#2A1B66","ink":"#F3EEFF","cherry":"#D0A5FF","honey":"#FF8BD0","leaf":"#5FF0BE"}],["caramel","Caramel pop","Warm, sweet and sunny",{"paper":"#FFF5EA","surface":"#FFFDF8","surface2":"#FBE4CC","ink":"#3B2412","cherry":"#9C4913","honey":"#B97A15","leaf":"#5E8040"},{"paper":"#2A1A06","surface":"#3A250B","surface2":"#4A3012","ink":"#FFF0DC","cherry":"#FFB061","honey":"#FFD27A","leaf":"#C3DA93"}],["pure","Pure","Crisp white by day, true black by night",{"paper":"#FFFFFF","surface":"#FFFFFF","surface2":"#F2F2F4","ink":"#0B0B0C","cherry":"#141416","honey":"#8A6A2C","leaf":"#2F7A45"},{"paper":"#000000","surface":"#0E0E10","surface2":"#1A1A1D","ink":"#FFFFFF","cherry":"#F4F4F5","honey":"#E3C17E","leaf":"#7FD08F"}],["black","Black coffee","White or pitch black, with a crema accent",{"paper":"#FFFFFF","surface":"#FFFFFF","surface2":"#F4F1EE","ink":"#121212","cherry":"#7A4A2C","honey":"#9A6B1F","leaf":"#4E7A3A"},{"paper":"#000000","surface":"#0F0D0C","surface2":"#1C1916","ink":"#FFFFFF","cherry":"#E2A877","honey":"#F0C477","leaf":"#A5CC86"}],["glass","Liquid glass","Frosted glass over soft colour, light and clear",{"paper":"#EDEFF5","surface":"#F9FAFD","surface2":"#E4E8F1","ink":"#15171C","cherry":"#A8612E","honey":"#B7832A","leaf":"#2F7D52"},{"paper":"#0A0B10","surface":"#1C1E26","surface2":"#262934","ink":"#F2F3F7","cherry":"#F0B27A","honey":"#F2C46B","leaf":"#86D9A8"}]];
 const VIBES=['roastery','pure','black','nordic'].map(k=>VIBES_ALL.find(v=>v[0]===k));
-let UI=Object.assign({accent:'classic',vibe:'roastery',glass:false,glassAmt:60,logo:'bean',text:'m',motion:'full',start:'dial',resume:'fresh'},load('bb-ui',{}));
-// Liquid glass was a vibe; now it's a switch over any vibe (on, for whoever had picked it).
-if(UI.vibe==='glass'){UI.vibe='roastery';UI.glass=true}
-if(!VIBES.some(v=>v[0]===UI.vibe))UI.vibe='roastery';if(!(UI.glassAmt>=10&&UI.glassAmt<=100))UI.glassAmt=60;
+let UI=Object.assign({accent:'classic',vibe:'roastery',logo:'bean',text:'m',motion:'full',start:'dial',resume:'fresh'},load('bb-ui',{}));
+// Liquid glass is gone: whoever had it keeps their vibe, without the glass.
+delete UI.glass;delete UI.glassAmt;
+if(!VIBES.some(v=>v[0]===UI.vibe))UI.vibe='roastery';
 const ACCENTS=[['classic','Vibe’s own','#8A5A3B'],['espresso','Espresso','#5E3B2A'],['cascara','Cascara','#A3392E'],['kenya','Kenya','#7B2D4E'],['honey','Honey','#A8741C'],['leaf','Coffee leaf','#4F7A45'],['coldbrew','Cold brew','#2E5C7A'],['geisha','Geisha','#76588C']];
 if(!ACCENTS.some(a=>a[0]===UI.accent))UI.accent='classic';
 // The logos: the bean drawn in the top bar's own markup, the rest from data/logos.json (which also makes the Android
@@ -3909,7 +3921,7 @@ if(!ACCENTS.some(a=>a[0]===UI.accent))UI.accent='classic';
 const logoParts=parts=>parts.map(p=>{const col='var(--'+(p.fill||p.stroke)+')',op=p.op!=null?' opacity="'+p.op+'"':'';
   const paint=p.fill?'fill="'+col+'"':'fill="none" stroke="'+col+'" stroke-width="'+p.w+'" stroke-linecap="round" stroke-linejoin="round"';
   return p.c?'<circle cx="'+p.c[0]+'" cy="'+p.c[1]+'" r="'+p.c[2]+'" '+paint+op+'/>':'<path d="'+p.d+'" '+paint+op+'/>'}).join('');
-const LOGOS=Object.assign({bean:['Bean',null]},Object.fromEntries(['bench','benchtop','cherry'].filter(k=>LOGO_DATA[k]).map(k=>[k,LOGO_DATA[k]]).map(([k,v])=>[k,[v.name,logoParts(v.parts)]])));
+const LOGOS=Object.assign({bean:['Bean',null]},Object.fromEntries(['bench','dripper','cherry'].filter(k=>LOGO_DATA[k]).map(k=>[k,LOGO_DATA[k]]).map(([k,v])=>[k,[v.name,logoParts(v.parts)]])));
 if(!LOGOS[UI.logo])UI.logo='bean';delete UI.name;if(!['s','m','l','xl'].includes(UI.text))UI.text='m';if(!['full','reduced'].includes(UI.motion))UI.motion='full';if(UI.start==='scan')UI.start='beans';if(!['dial','recipes','beans','explore'].includes(UI.start))UI.start='dial';
 const BEAN_SVG=$('ab-logo').innerHTML;
 // Each copy of the bean gets its own clip id: two elements with one id can draw the wrong (or no) bean.
@@ -3923,10 +3935,15 @@ function setFavicon(){try{const cs=getComputedStyle($('ab-logo')),col=v=>cs.getP
 // Switching look (light or dark, vibe, accent): every colour changes at once. Colour transitions would otherwise run
 // from the old look's colours for a moment (buttons and pills flashed blank or in the old colours), so they're held off
 // for two frames; movement (a toggle's pill sliding) still animates.
+// A change of look (light or dark, a vibe, an accent) restyles the whole visible page once, in the frame of the tap.
+// (A crossfade under a view transition was tried: capturing the old look cost more frames than it hid.)
+function lookSwap(fn){fn()}
 function themeSwap(){const d=document.documentElement;d.classList.add('thx');clearTimeout(themeSwap.t);
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{themeSwap.t=setTimeout(()=>d.classList.remove('thx'),60)}))}
-function applyUI(){const d=document.documentElement;themeSwap();d.setAttribute('data-accent',UI.accent);if(UI.vibe==='roastery')d.removeAttribute('data-vibe');else d.setAttribute('data-vibe',UI.vibe);d.setAttribute('data-text',UI.text);d.setAttribute('data-motion',UI.motion);
-  if(UI.glass){d.setAttribute('data-glass','');d.style.setProperty('--g',UI.glassAmt/100)}else{d.removeAttribute('data-glass');d.style.removeProperty('--g')}glassLens()
+  // (Lifted a moment later, in a quiet moment: lifting it restyles the page again, so it waits until nothing is moving.)
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{themeSwap.t=setTimeout(()=>{const off=()=>d.classList.remove('thx');if(window.requestIdleCallback)requestIdleCallback(off,{timeout:900});else off()},420)}))}
+function applyUI(){const d=document.documentElement;themeSwap();d.setAttribute('data-accent',UI.accent);if(UI.vibe==='roastery')d.removeAttribute('data-vibe');else d.setAttribute('data-vibe',UI.vibe);d.setAttribute('data-text',UI.text);// Only reduced motion is marked: the reduced-motion rules apply to every element, and an attribute always present
+  // on the page made the browser test each of them against every element on each restyle.
+  if(UI.motion==='reduced')d.setAttribute('data-motion','reduced');else d.removeAttribute('data-motion');
   $('ab-logo').innerHTML=logoSVG(UI.logo,24);
   // In the Android app the home-screen icon follows the look: the logo in the vibe's colours, light or dark as the
   // app is now. The app swaps it when you next leave it.
@@ -3936,17 +3953,6 @@ function applyUI(){const d=document.documentElement;themeSwap();d.setAttribute('
 function setAppIcon(){const ai=plugin('AppIcon');if(ai)ai.set({name:UI.logo,vibe:UI.vibe,mode:document.documentElement.hasAttribute('data-theme')?(curTheme()==='dark'?'dark':'light'):'auto'}).catch(()=>{})}
 // Auto theme follows the phone, so the icon follows it too.
 try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{themeSwap();setAppIcon()})}catch(e){}
-// Liquid glass's lens: a map that is neutral in the middle and bends toward the rim (red across, green down), eased
-// so the bend gathers at the very edge as it does in thick glass. Bars bend in a thin band (their width is large); round
-// buttons all the way round. Its strength follows the slider; off, or reduced transparency, it doesn't bend at all.
-var LENS_MAP=false;
-function glassLens(){const on=UI.glass&&!MQ('(prefers-reduced-transparency: reduce)'),g=on?UI.glassAmt/100:0;
-  const map=(bx,by)=>{const st=(id,ch,b)=>{const c=v=>ch==='r'?'rgb('+v+',0,0)':'rgb(0,'+v+',0)',e=[[0,255],[b*.35,190],[b*.7,148],[b,128],[1-b,128],[1-b*.7,108],[1-b*.35,66],[1,0]];
-      return '<linearGradient id="'+id+'"'+(ch==='g'?' x2="0" y2="1"':'')+'>'+e.map(([o,v])=>'<stop offset="'+o.toFixed(3)+'" stop-color="'+c(v)+'"/>').join('')+'</linearGradient>'};
-    return 'data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><defs>'+st('r','r',bx)+st('g','g',by)+'</defs><rect width="100" height="100" fill="url(#r)"/><rect width="100" height="100" fill="url(#g)" style="mix-blend-mode:screen"/></svg>')};
-  for(const [id,bx,by,k] of [['lg-bar',.07,.3,.09],['lg-btn',.3,.3,.22]]){const f=document.getElementById(id);if(!f)continue;
-    if(!LENS_MAP)f.querySelector('feImage').setAttribute('href',map(bx,by));f.querySelector('feDisplacementMap').setAttribute('scale',String(+(g*k).toFixed(3)))}
-  LENS_MAP=true}
 function saveUI(){save('bb-ui',UI);applyUI()}
 /* Your data: everything the app saves on this device, in one file you can keep or move to another phone. */
 // Sign-in tokens never go into a backup file.
@@ -4012,7 +4018,7 @@ function settingsSync(){const own=document.querySelector('#settings-in .swatch[d
 let SET_H='';
 // The Android app's version card: its version, whether a newer one is out, update and check buttons.
 const appverHTML=()=>(appVersion()?'<div class="appver'+(updLatest()?' new':'')+'">'+ico('download','#4F8A74')+'<span class="av-tx"><b>Brew Bench '+esc(appVersion())+'</b><small>'+esc(updNote())+'</small></span>'+
-      '<div class="av-btns">'+(updLatest()?pbtn('dl','id="st-updgo"','Update to '+updLatest(),'main'):'')+pbtn('reset','id="st-upd"','Check for updates',updLatest()?'quiet':'')+'</div></div>':'');
+      '<div class="av-btns">'+(updLatest()?pbtn('dl','id="st-updgo"','Update now','main'):'')+pbtn('reset','id="st-upd"',updLatest()?'Check again':'Check for updates',updLatest()?'quiet':'')+'</div></div>':'');
 function renderSettings(soft){const t=document.documentElement.getAttribute('data-theme')||'auto',fresh=!(soft&&$('st-mode'));
   const row=(icon,bg,title,sub,body)=>'<div class="setrow"><div class="sl">'+ico(icon,bg)+'<span class="mt"><b>'+title+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</span></div>'+(body||'')+'</div>';
   // A row that is itself the action (a chevron at its end), for a row with one thing to do.
@@ -4027,7 +4033,6 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
     '<h3 class="rh">Appearance</h3><div class="setgroup">'+
     row(curTheme()==='dark'?'moon':'sun','#5B5F66','Light or dark','Bright cream, cosy espresso, or follow your phone','<div class="seg" id="st-mode"></div>')+
     row('drop','var(--cherry)','Vibe','A whole look, in light and in dark','<div class="vibes">'+VIBES.map(([k,n,d,L,D])=>'<button type="button" class="vibe" data-vibe="'+k+'" aria-pressed="'+(UI.vibe===k)+'" style="--l-p:'+L.paper+';--l-s:'+L.surface+';--l-i:'+L.ink+';--l-c:'+L.cherry+';--l-h:'+L.honey+';--d-p:'+D.paper+';--d-s:'+D.surface+';--d-i:'+D.ink+';--d-c:'+D.cherry+';--d-h:'+D.honey+'"><span class="vb-pv" aria-hidden="true"><i class="vb-l"><u></u><s></s><em></em></i><i class="vb-d"><u></u><s></s><em></em></i></span><b>'+n+'</b><small>'+d+'</small></button>').join('')+'</div>')+
-    row('drop','#6E8FA8','Liquid glass','Frosted, see-through panes over your vibe','<div class="seg" id="st-glass"></div><div class="glassamt" id="st-glamt-w"><input type="range" id="st-glamt" min="10" max="100" step="1" aria-label="How strong the glass is"><div class="rangeends"><span>Subtle</span><span>Strong</span></div></div>')+
     row('palette','var(--cherry)','Accent','Change just the highlight colour (Vibe’s own keeps the vibe’s)','<div class="swatches">'+ACCENTS.map(([k,n,c])=>'<button type="button" class="swatch" data-accent="'+k+'" aria-pressed="'+(UI.accent===k)+'"><i style="background:'+(k==='classic'?ownAccent():c)+'"></i>'+n+'</button>').join('')+'</div>')+
     row('leaf','#6B8E4E','App logo','In the top bar, the tab and on your home screen','<div class="logos">'+Object.entries(LOGOS).map(([k,[n]])=>'<button type="button" class="logopick" data-logo="'+k+'" aria-pressed="'+(UI.logo===k)+'"><span class="lg-tile">'+logoSVG(k,36)+'</span>'+n+'</button>').join('')+'</div><p class="setnote">'+(NATIVE&&plugin('AppIcon')?'Your home-screen icon changes to match a moment after you leave the app.':NATIVE?'The home-screen icon follows the logo from the next app update.':'The browser tab shows it too. In the Android app, the home-screen icon follows it.')+'</p>')+
     row('text','#C9964A','Text size','','<div class="seg" id="st-text"></div>')+
@@ -4051,17 +4056,13 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
      '</div>';
     // Built each visit, but only put in when something changed: redrawing the whole page on every visit laid it out again.
     if(h!==SET_H||!$('st-mode')){$('settings-in').innerHTML=h;SET_H=h}}
-  seg('st-mode',[['light','Light'],['dark','Dark'],['auto','Auto']],()=>t,v=>setMode(v));
+  seg('st-mode',[['light','Light'],['dark','Dark'],['auto','Auto']],()=>t,v=>lookSwap(()=>setMode(v)));
   const setMode=v=>{themeSwap();if(v==='auto'){document.documentElement.removeAttribute('data-theme');try{localStorage.removeItem('bb-theme')}catch(e){}}
     else{document.documentElement.setAttribute('data-theme',v);try{localStorage.setItem('bb-theme',v)}catch(e){}}syncThemeBtn();applyUI();renderSettings(1)};
   seg('st-text',[['s','Small'],['m','Standard'],['l','Large'],['xl','Larger']],()=>UI.text,v=>{const st=$('st-text'),y0=st.getBoundingClientRect().top;UI.text=v;saveUI();renderSettings(1);
     // New text size: the strip you tapped stays under your finger, and every highlight (strips and the nav bar) is measured again.
     scrollBy(0,st.getBoundingClientRect().top-y0);PILLPOS.clear();movePill();document.querySelectorAll(SEG_SEL).forEach(x=>segQueue(x))});
   seg('st-motion',[['full','Full'],['reduced','Reduced']],()=>UI.motion,v=>{UI.motion=v;saveUI();renderSettings(1)});
-  seg('st-glass',[['0','Off'],['1','On']],()=>UI.glass?'1':'0',v=>{UI.glass=v==='1';saveUI();renderSettings(1);toast(UI.glass?'Liquid glass on':'Liquid glass off')});
-  // The strength follows your finger as you slide (no redraw of the page) and is kept when you let go.
-  {const gr=$('st-glamt'),w=$('st-glamt-w');w.hidden=!UI.glass;if(+gr.value!==UI.glassAmt)gr.value=UI.glassAmt;
-    gr.oninput=()=>{UI.glassAmt=+gr.value;document.documentElement.style.setProperty('--g',UI.glassAmt/100);glassLens()};gr.onchange=()=>save('bb-ui',UI)}
   if($('st-remind')){seg('st-remind',[['0','Off'],['1','Every day']],()=>REMIND.on?'1':'0',async v=>{await setReminder(v==='1');renderSettings(1)});
     $('st-rtime').onchange=async e=>{if(/^\d\d:\d\d$/.test(e.target.value)){REMIND.t=e.target.value;save('bb-remind',REMIND);await scheduleReminders();toast('Your coffee of the day arrives at '+REMIND.t)}}}
   if($('st-learn')){seg('st-learn',[['0','Off'],['1','Every day']],()=>LEARN.on?'1':'0',async v=>{await setLearn(v==='1');renderSettings(1)});
@@ -4069,15 +4070,13 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
   seg('st-start',[['dial','Brew'],['recipes','Recipes'],['beans','Beans'],['explore','Explore']],()=>UI.start,v=>{UI.start=v;saveUI();renderSettings(1);toast('The app will open on '+TABNAMES[v])});
   seg('st-views',[['keep','Keep my choices'],['reset','Reset each time']],()=>UI.views||'keep',v=>{UI.views=v;saveUI();renderSettings(1);toast(v==='keep'?'Your sorts and filters will stay as you set them':'Lists will open in their default order next time')});
   seg('st-resume',[['fresh','Start fresh'],['keep','Where I left off']],()=>UI.resume||'fresh',v=>{UI.resume=v;saveUI();renderSettings(1);toast(v==='fresh'?'Scan and Brew will start fresh next time':'The app will remember your last scan and dial-in')})}
-$('settings-in').addEventListener('click',e=>{if(e.target.closest('#st-tips')){openTips();return}const vb=e.target.closest('.vibe[data-vibe]');if(vb){const v=vb.dataset.vibe;pickNow('.vibe[data-vibe]',vb);afterPaint(()=>{UI.vibe=v;UI.accent='classic';saveUI();renderSettings(1);toast((VIBES.find(x=>x[0]===UI.vibe)||[])[1]+' on')});return}const a=e.target.closest('.swatch[data-accent]');if(a){const k=a.dataset.accent;pickNow('.swatch[data-accent]',a);afterPaint(()=>{UI.accent=k;saveUI();renderSettings(1)});return}
+$('settings-in').addEventListener('click',e=>{if(e.target.closest('#st-tips')){openTips();return}const vb=e.target.closest('.vibe[data-vibe]');if(vb){const v=vb.dataset.vibe;pickNow('.vibe[data-vibe]',vb);afterPaint(()=>{lookSwap(()=>{UI.vibe=v;UI.accent='classic';saveUI();renderSettings(1)});toast((VIBES.find(x=>x[0]===UI.vibe)||[])[1]+' on')});return}const a=e.target.closest('.swatch[data-accent]');if(a){const k=a.dataset.accent;pickNow('.swatch[data-accent]',a);afterPaint(()=>lookSwap(()=>{UI.accent=k;saveUI();renderSettings(1)}));return}
   const l=e.target.closest('.logopick[data-logo]');if(l){UI.logo=l.dataset.logo;saveUI();renderSettings(1);return}
   if(e.target.closest('#st-export')){exportData();return}if(e.target.closest('#st-import')){$('st-file').click();return}});
 $('settings-in').addEventListener('change',e=>{if(e.target.id==='st-file'){importData(e.target.files[0]);e.target.value=''}});
 for(const id of ['explore-in','settings-in'])$(id).addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g){const t=g.dataset.go;tapOpen(g,()=>showTab(t,false,true));return}
   const cb=e.target.closest('.cday[data-bean]');if(cb){openBean(cb.dataset.bean);return}
   const w=e.target.closest('[data-word]');if(w)openWord(w.dataset.word)});
-// Older code and links may still ask for the sheets; they are pages now.
-const openSheet=which=>showTab(which);
 // The highlight behind the current nav button glides to the next one.
 // The highlight under the current bottom-bar button moves like a drop of liquid: its leading edge reaches the new
 // button first and the rest follows, stretching and settling on the way.
@@ -4128,7 +4127,7 @@ function curTheme(){return document.documentElement.getAttribute('data-theme')||
 function syncThemeBtn(){const t=curTheme();$('themebtn').textContent=t==='dark'?'Light':'Dark';
   // Once a theme is chosen by hand, the browser bar follows it rather than the system setting.
   if(document.documentElement.hasAttribute('data-theme'))document.querySelectorAll('meta[name="theme-color"]').forEach(m=>m.content=t==='dark'?'#1F1814':'#FBF7F0')}
-$('themebtn').onclick=()=>{themeSwap();const n=curTheme()==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);try{localStorage.setItem('bb-theme',n)}catch(e){}syncThemeBtn();setAppIcon()};
+$('themebtn').onclick=()=>{lookSwap(()=>{themeSwap();const n=curTheme()==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);try{localStorage.setItem('bb-theme',n)}catch(e){}syncThemeBtn();setAppIcon()})};
 syncThemeBtn();
 
 /* ================= APP UPDATES ================= */
@@ -4150,8 +4149,8 @@ async function checkUpdate(force){if(!appVersion()||navigator.onLine===false)ret
 // A small card above the bottom bar. "Later" hides it until a newer version still, or for three days.
 function showUpdate(force){const l=updLatest(),old=$('updcard');if(!l||(!force&&UPD.later===l&&Date.now()-(UPD.laterAt||0)<3*864e5)){if(old)old.remove();return}
   if(old)return;const c=document.createElement('div');c.id='updcard';c.className='updcard';c.setAttribute('role','status');
-  c.innerHTML='<span class="upd-ic" aria-hidden="true">'+ico('download','#4F8A74')+'</span><span class="upd-tx"><b>A new version is ready</b><small>Version '+esc(l)+' · you have '+esc(appVersion())+'</small></span>'+
-    '<button type="button" class="btn" id="upd-go">Update</button><button type="button" class="upd-x" id="upd-later" aria-label="Later">✕</button>';
+  c.innerHTML='<span class="upd-ic" aria-hidden="true">'+ico('download','#4F8A74')+'</span><span class="upd-tx"><b>Update ready</b><small>'+esc(appVersion())+' → '+esc(l)+'</small></span>'+
+    pbtn('dl','id="upd-go"','Update','main')+'<button type="button" class="upd-x" id="upd-later" aria-label="Later">'+lIc('x')+'</button>';
   document.body.appendChild(c);
   $('upd-go').onclick=()=>{c.remove();toast('Downloading the new version. Open it when it finishes to install');openLink(APK_URL)};
   $('upd-later').onclick=()=>{UPD.later=l;UPD.laterAt=Date.now();save('bb-upd',UPD);c.classList.add('out');setTimeout(()=>c.remove(),260)}}

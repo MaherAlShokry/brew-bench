@@ -178,7 +178,6 @@ function segBatch(list,instant){const items=[];
     if(rm||it.snap)ind.style.transition='none';Object.assign(ind.style,it.look,it.pos,{opacity:'1'});el._ip=it.pos;if(el.id)SEG_IP.set(el.id,it.pos);
     if(it.snap&&!rm)requestAnimationFrame(()=>requestAnimationFrame(()=>{ind.style.transition=''}))}
   for(const it of items)if(SEG_RO&&!it.el._ro){it.el._ro=1;SEG_RO.observe(it.el)}}
-function segUpdate(el){segBatch([el])}
 // A page coming into view places the highlights that waited for it (after a change of look or text size).
 // Every strip on it is placed then, before the page paints, straight at its option: one kept from before would show
 // for a frame where it was last (off by however much the layout moved since).
