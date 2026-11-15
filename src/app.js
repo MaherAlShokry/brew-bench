@@ -1249,7 +1249,7 @@ let EXPLORE_PRE=0;
 // on the tap: the stall on a section's first visit. Warming lays a hidden page out once in a quiet moment, still
 // unseen (it keeps no height), and a hidden page keeps that layout, so the first visit costs what a later one does.
 // A change of look restyles every page, so each is warmed again after one.
-const WARM=new Set();
+const WARM=new Set(),WARMED=new Set();
 function warmPage(id){const s=$(id);if(!s||s.classList.contains('on')||WARM.has(id))return false;WARM.add(id);
   // The first photos go in now too (from their small copies already read): put in as the page appeared, they laid it out a second time.
   if(typeof loadImg==='function'&&window.BIMG)[...s.querySelectorAll('[data-bimg]')].slice(0,10).forEach(el=>{if((SMALLPIC(el)?BIMG.peekSmall:BIMG.peekThumb)(el.dataset.bimg)&&!el.closest('dialog'))loadImg(el)});
@@ -1276,7 +1276,10 @@ function prebuildTabs(){const ids=['recipes','gear','variety','process','map','w
     if(LOGL_STALE&&BUILT.recipes){try{renderLogList(1)}catch(e){}idle(next);return}
     // The bottom-bar pages are warmed first (the ones a first visit lands on), then the pages inside sections as they're built.
     const cold=['recipes','beans','explore','settings','dial','log'].find(k=>(BUILT[k]||!LAZY[k])&&!WARM.has(k)&&$(k)&&!$(k).classList.contains('on'));
-    if(cold){warmPage(cold);idle(next);return}
+    // A page's first warming comes soon (you may tap it any moment after the app opens); warming it again (after it
+    // changed, or the look did) waits for 3 s without a touch, so it doesn't land just before your next tap.
+    if(cold&&WARMED.has(cold)&&performance.now()-USER_AT<3000){setTimeout(()=>idle(next),600);return}
+    if(cold){WARMED.add(cold);warmPage(cold);idle(next);return}
     const id=ids.find(k=>!BUILT[k]);if(!id){if(SHEETS_WARM<2){warmSheets();idle(next);return}const w=[...ids,'guide','scan'].find(k=>BUILT[k]&&!WARM.has(k)&&$(k)&&!$(k).classList.contains('on'));
       // The pages inside sections are warmed only after 3 s without a touch: each costs a phone a few dozen ms, which
       // landed on the next tap while you were using the app (opening a coffee measured slower for it).
