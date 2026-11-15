@@ -726,11 +726,12 @@ const ROLL_IO='IntersectionObserver' in window?new IntersectionObserver(es=>es.f
 function rollNow(el){const v=el.dataset.roll,to=parseFloat(v),dp=(v.split('.')[1]||'').length;if(!(to>0)){el.textContent=v;return}
   // A page still sliding in waits for the slide to finish: each step of the count lays the numbers out again, which
   // in every frame of the slide made it stutter on a phone.
-  const sec=el.closest('main section');if(sec&&sec.classList.contains('nav-in')&&!el._rw){el._rw=1;setTimeout(()=>{el._rw=0;rollNow(el)},Math.max(120,420-(performance.now()-NAV_AT)));return}
+  // A page sliding in shows its numbers as they are: counted up after the slide, it slid in showing zeros.
+  const sec=el.closest('main section');if(sec&&(sec.classList.contains('nav-in')||performance.now()-NAV_AT<700)){el.textContent=v;return}
   const box=el.closest('.pp-cover,.bg-hero');if(box)replay(box,'filling');const t0=performance.now(),D=Math.min(900,420+to*40);
-  el.textContent=(0).toFixed(dp);const f=n=>{const k=Math.min(1,(n-t0)/D),e=1-Math.pow(1-k,3);el.textContent=(to*e).toFixed(dp);if(k<1)requestAnimationFrame(f)};requestAnimationFrame(f)}
+  el.textContent=(0).toFixed(dp);const f=n=>{const k=Math.max(0,Math.min(1,(n-t0)/D)),e=1-Math.pow(1-k,3);el.textContent=(to*e).toFixed(dp);if(k<1)requestAnimationFrame(f)};requestAnimationFrame(f)}
 function rollIn(root){if(!root||!ROLL_IO||RM())return;root.querySelectorAll('[data-roll]').forEach((el,i)=>{const k=root.id+':'+i;
-  if(ROLLED.has(k))return;ROLLED.add(k);if(parseFloat(el.dataset.roll)>0)el.textContent=(0).toFixed((el.dataset.roll.split('.')[1]||'').length);ROLL_IO.observe(el)})}
+  if(ROLLED.has(k))return;ROLLED.add(k);ROLL_IO.observe(el)})}
 // An empty list's one action (see .bg-empty): add a coffee, scan a bag, or go and brew.
 document.addEventListener('click',e=>{const b=e.target.closest('[data-empty]');if(!b)return;const k=b.dataset.empty;
   if(k==='bean')openBeanEditor();else if(k==='scan'){showTab('scan');newScan();scrollTo(0,0)}else if(k==='dial')goTab('dial')});
@@ -1308,7 +1309,16 @@ let NAV_READY=false;
 let NAV_AT=-1e9;
 const PAGE_Y={};
 let NAV_FORCE='';
+// The page being left: drawn where it was, at most a screen tall. Opening a page, it eases left under the new one;
+// going back, it slides off to the right over the page beneath.
+function navOut(L,kind,y){const el=L.el;if(el._out)clearTimeout(el._out);el.style.top=(L.top+y)+'px';el.style.left=L.left+'px';el.style.width=L.w+'px';
+  el.style.height=Math.max(0,innerHeight-L.top)+'px';el.style.setProperty('padding-top',L.pt,'important');el.dataset.out=kind;el.classList.add('nav-out');
+  const end=()=>{clearTimeout(el._out);el._out=0;el.removeEventListener('animationend',onEnd);el.classList.remove('nav-out');delete el.dataset.out;for(const k of ['top','left','width','height','padding-top'])el.style.removeProperty(k)},
+    onEnd=e=>{if(e.target===el)end()};el.addEventListener('animationend',onEnd);el._out=setTimeout(end,400)}
 function showTab(id,fromHistory,pure){NAV_AT=performance.now();if(window.closeBeansFab)closeBeansFab();
+  // The page you leave animates out as the new one comes in (the opposite way), held where it was on the screen: its
+  // place is read here, before anything changes, while it is still laid out (no extra layout).
+  let LV=null;if(NAV_READY&&!RM()){const lv=document.querySelector('main section.on');if(lv&&lv.id!==id){const r=lv.getBoundingClientRect(),cs=getComputedStyle(lv);LV={el:lv,top:r.top,left:r.left+scrollX,w:r.width,pt:cs.paddingTop}}}
   // Each page keeps where you were in it: going back returns to that spot, not the top (a new visit starts at the top).
   // The scroll to the top happens first, while the page you're leaving is still the one laid out: done after the new
   // page was shown, it made the browser lay that page out on the spot, inside the tap (about a third of its cost).
@@ -1341,6 +1351,10 @@ function showTab(id,fromHistory,pure){NAV_AT=performance.now();if(window.closeBe
     // page is laid out once (measured inside the tap, it was laid out there and again for the frame).
     requestAnimationFrame(()=>{try{if($(id).classList.contains('on'))segShown($(id))}catch(e){}});
     if(kind&&NAV_READY)spSlide(id);
+    // Opening a page inside a section slides it over the one you were on, which eases a little to the left; back is the
+    // reverse (the page slides off to the right over the one beneath). Not on a bottom-bar tab switch: drawing the page
+    // being left there tripled the dropped frames of the slide on a phone, so tabs keep their one-way slide.
+    if((kind==='pop'||kind==='push')&&LV&&NAV_READY)navOut(LV,kind,backY!=null?backY:0);
     if(kind&&NAV_READY){const sec=$(id);if(!vt){
       // The slide waits, held on its first frame, until the page has been drawn once. Drawing a page (above all the
       // first time it's shown) can take a phone longer than a frame; started at once, the slide's first frames were
@@ -3894,7 +3908,8 @@ function ptreeHTML(nodes,depth){return '<div class="ptree'+(depth?' kids':'')+'"
 function togglePnode(e){const h=e.target.closest('.pn-h');if(!h)return false;const n=h.parentElement,o=!n.classList.contains('open');n.classList.toggle('open',o);h.setAttribute('aria-expanded',o);return true}
 // Tapping a path opens its tree right under it (and closes any other).
 function toggleBranch(btn){const i=+btn.dataset.fb,box=btn.parentElement,cur=box.querySelector('.fbx'),same=cur&&+cur.dataset.fb===i;
-  if(cur)cur.remove();box.querySelectorAll('.fbr').forEach(b=>b.setAttribute('aria-expanded','false'));if(same)return;
+  // The open path folds away as it unfolded (if another path opens, the new one takes its place at once).
+  if(cur){if(same&&!RM()){cur.classList.add('out');setTimeout(()=>cur.remove(),180)}else cur.remove()}box.querySelectorAll('.fbr').forEach(b=>b.setAttribute('aria-expanded','false'));if(same)return;
   const b=FLOW_BRANCH[i],el=document.createElement('div');el.className='fbx';el.dataset.fb=i;
   el.innerHTML='<div class="fbx-h"><b>The '+esc(b.t.toLowerCase())+' path</b><span class="hint">Tap a process to learn more; those with variations open to show them.</span></div>'+ptreeHTML(b.tree,0);
   btn.after(el);btn.setAttribute('aria-expanded','true');const r=el.getBoundingClientRect();if(r.bottom>innerHeight)el.scrollIntoView({block:'nearest',behavior:RM()?'auto':'smooth'})}
@@ -3976,7 +3991,10 @@ function watchTitle(id,atTop){const ab=$('appbar');if(!ab)return;if(TIO&&TIO_T)T
   if(!TIO||!TIO_T){ab.classList.remove('title-off');return}if(atTop)ab.classList.add('title-off');else{const r=TIO_T.getBoundingClientRect();ab.classList.toggle('title-off',r.bottom>84&&r.top<innerHeight)}TIO.observe(TIO_T)}
 // The shell's writes come first and its one measurement (where the page title sits) last, so a tab switch lays the
 // page out once. top: scroll to the top first (a tab switch), so the title is measured where it will be.
-function syncShell(id,top){TITLE_ID=id;$('ab-title').textContent=TABNAMES[id]||'Brew Bench';requestAnimationFrame(fitTitle);$('ab-back').hidden=NAVD<1;{const hw=document.querySelector('.herowrap');if(hw&&hw.classList.contains('on')!==(id==='dial'))hw.classList.toggle('on',id==='dial')}
+// The back button pops in when there's somewhere to go back to and shrinks away when there isn't (it used to vanish).
+function setBack(on){const b=$('ab-back');if(!b)return;clearTimeout(b._t);if(on){b.classList.remove('out');b.hidden=false;return}if(b.hidden)return;
+  if(RM()){b.hidden=true;return}b.classList.add('out');b._t=setTimeout(()=>{b.hidden=true;b.classList.remove('out')},160)}
+function syncShell(id,top){TITLE_ID=id;$('ab-title').textContent=TABNAMES[id]||'Brew Bench';requestAnimationFrame(fitTitle);setBack(NAVD>=1);{const hw=document.querySelector('.herowrap');if(hw&&hw.classList.contains('on')!==(id==='dial'))hw.classList.toggle('on',id==='dial')}
   document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));requestAnimationFrame(movePill);
   if(top===true&&scrollY)window.scrollTo({top:0});watchTitle(id,top==='done');
   updShare(id)}

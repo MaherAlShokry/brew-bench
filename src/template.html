@@ -1048,17 +1048,12 @@ dialog#selsheet.pop .selopt{min-height:40px;padding:8px 12px;font-size:.95rem}
      out the same way, so nothing behind it has to move or lock. */
   html dialog#vd[open]{animation:page-in .34s var(--ease-sheet) both}
   html dialog#vd.closing{animation:page-out .26s cubic-bezier(.4,0,.6,1) both}
-  /* Opened from a coffee's picture: the page fades in while the picture grows into place (see zoomFrom). */
-  html dialog#vd.zoom[open]{animation:zoom-fade .26s ease-out both}
   html dialog#timer[open]{animation:page-in .34s var(--ease-sheet) both}
   html dialog#timer.closing{animation:page-out .26s cubic-bezier(.4,0,.6,1) both}
 }
 @keyframes dlg-in{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
 @keyframes dlg-out{to{opacity:0;transform:translateY(10px) scale(.97)}}
 @keyframes sheet-up{from{transform:translateY(100%)}to{transform:none}}
-@keyframes zoom-fade{from{opacity:0}}
-.zoom-pic{position:fixed;inset:auto;margin:0;padding:0;border:0;overflow:hidden;transform-origin:0 0;pointer-events:none;z-index:2147483647;background:var(--surface2)}
-.zoom-pic>img{width:100%;height:100%;object-fit:cover}
 @keyframes page-in{from{transform:translateX(100%)}to{transform:none}}
 @keyframes page-out{from{transform:none}to{transform:translateX(100%)}}
 @keyframes sheet-down{from{transform:none}to{transform:translateY(100%)}}
@@ -2223,6 +2218,9 @@ i.rl{font-style:inherit;font-variant-numeric:tabular-nums}
 .av-note{grid-column:1/-1;margin:0;font-size:.8rem}.getapp a.btn{text-decoration:none;display:flex;justify-content:center;align-items:center;text-align:center}
 /* A long coffee list: rows off screen skip layout and paint until you scroll near them (opening Beans was slow). */
 #bg-grid .crow,#log .logentry{content-visibility:auto;contain-intrinsic-size:auto 76px}
+/* The first rows of a list are drawn with the page: left to draw themselves near the screen, they came a frame after
+   the page as it slid in (an empty card for a moment). */
+:is(.crow,.logentry,.tl-e):nth-child(-n+4){content-visibility:visible}
 .gs-lead{margin:-2px 2px 10px}.setgroup.gs{margin-bottom:12px}
 .gs .gs-all{width:132px;flex:none}.gs .stepper output{font-size:.95rem}
 .gs-each{border-top:1px solid var(--line);padding:0 14px}.gs-each>summary{cursor:pointer;padding:12px 0;font-weight:600;font-size:.9rem;color:var(--cherry-ink,var(--cherry))}
@@ -2939,6 +2937,18 @@ textarea{resize:none}
 .me-tiles>div>b{grid-row:2;grid-column:1/-1;align-self:start;font-size:1.02rem!important;line-height:1.25!important}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .me-tiles>div{background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 26%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 13%,var(--surface))!important}:root:not([data-theme="light"]) .me-tiles>div>i .di{color:color-mix(in srgb,var(--tc) 70%,#fff)!important}:root:not([data-theme="light"]) .me-tiles>div>small{color:color-mix(in srgb,var(--tc) 45%,var(--muted))!important}}
 :root[data-theme="dark"] .me-tiles>div{background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 26%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 13%,var(--surface))!important}:root[data-theme="dark"] .me-tiles>div>i .di{color:color-mix(in srgb,var(--tc) 70%,#fff)!important}:root[data-theme="dark"] .me-tiles>div>small{color:color-mix(in srgb,var(--tc) 45%,var(--muted))!important}
+
+/* Pages inside a section move like a stack (see navOut): opening one, it slides in from the right over the page you
+   were on, which eases a little to the left underneath; going back, it slides off to the right over the page beneath,
+   which eases back in. The page on top has the page's own background, so the one beneath never shows through it. */
+html{overflow-x:clip}
+main section.nav-out{content-visibility:visible!important;position:absolute!important;z-index:1;overflow:hidden!important;pointer-events:none;margin:0!important;padding-bottom:0!important;padding-left:0!important;padding-right:0!important;background:var(--paper);animation:vt-push-old .34s var(--ease-sheet) both}
+main section.nav-out[data-out=pop]{z-index:4;animation:page-out .28s cubic-bezier(.4,0,.6,1) both}
+html[data-nav=push] main section.nav-in{position:relative;z-index:3;background:var(--paper)}
+.ab-back.out{animation:pop-out .16s cubic-bezier(.4,0,1,1) both}
+.fbx.out{animation:pop-out .18s cubic-bezier(.4,0,1,1) both}
+@keyframes pop-out{to{opacity:0;transform:translateY(-6px) scale(.96)}}
+@media (prefers-reduced-motion:reduce){main section.nav-out{display:none}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
