@@ -3957,7 +3957,7 @@ function setFavicon(){try{const cs=getComputedStyle($('ab-logo')),col=v=>cs.getP
 function lookSwap(fn){fn()}
 function themeSwap(){const d=document.documentElement;d.classList.add('thx');clearTimeout(themeSwap.t);
   // (Lifted a moment later, in a quiet moment: lifting it restyles the page again, so it waits until nothing is moving.)
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{themeSwap.t=setTimeout(()=>(window.requestIdleCallback||setTimeout)(()=>d.classList.remove('thx'),{timeout:900}),420)}))}
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{themeSwap.t=setTimeout(()=>{const off=()=>d.classList.remove('thx');if(window.requestIdleCallback)requestIdleCallback(off,{timeout:900});else off()},420)}))}
 function applyUI(){const d=document.documentElement;themeSwap();d.setAttribute('data-accent',UI.accent);if(UI.vibe==='roastery')d.removeAttribute('data-vibe');else d.setAttribute('data-vibe',UI.vibe);d.setAttribute('data-text',UI.text);d.setAttribute('data-motion',UI.motion);
   $('ab-logo').innerHTML=logoSVG(UI.logo,24);
   // In the Android app the home-screen icon follows the look: the logo in the vibe's colours, light or dark as the
