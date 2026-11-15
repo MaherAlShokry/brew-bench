@@ -1264,7 +1264,8 @@ function prebuildTabs(){const ids=['recipes','gear','variety','process','map','w
   let beans=false;
   // Every page is built soon after the app opens, even while you're already tapping around, so no first visit has to
   // build its page on the tap: a step only waits for a slide to finish and for a moment with no touch (0.8 s).
-  const busy=()=>sliding()||performance.now()-USER_AT<1200||performance.now()-NAV_AT<1200||(navigator.scheduling&&navigator.scheduling.isInputPending&&navigator.scheduling.isInputPending());
+  // It also waits while a sheet is open: laying out a hidden page then landed in the sheet's opening frames.
+  const busy=()=>sliding()||!!document.querySelector('dialog[open]')||performance.now()-USER_AT<1200||performance.now()-NAV_AT<1200||(navigator.scheduling&&navigator.scheduling.isInputPending&&navigator.scheduling.isInputPending());
   const next=()=>{if(document.hidden){setTimeout(()=>idle(next),2000);return}if(busy()){setTimeout(()=>idle(next),300);return}
     if(!beans&&window.BEANS_OK){beans=true;try{renderBeansIfChanged();warmBeanPhotos();roLearnGallery()}catch(e){}idle(next);return}
     // Then the other bottom-bar sections, then the sheets, then the pages inside sections.
@@ -1276,7 +1277,10 @@ function prebuildTabs(){const ids=['recipes','gear','variety','process','map','w
     // The bottom-bar pages are warmed first (the ones a first visit lands on), then the pages inside sections as they're built.
     const cold=['recipes','beans','explore','settings','dial','log'].find(k=>(BUILT[k]||!LAZY[k])&&!WARM.has(k)&&$(k)&&!$(k).classList.contains('on'));
     if(cold){warmPage(cold);idle(next);return}
-    const id=ids.find(k=>!BUILT[k]);if(!id){if(SHEETS_WARM<2){warmSheets();idle(next);return}const w=[...ids,'guide','scan'].find(k=>BUILT[k]&&!WARM.has(k)&&$(k)&&!$(k).classList.contains('on'));if(w){warmPage(w);idle(next)}return}BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
+    const id=ids.find(k=>!BUILT[k]);if(!id){if(SHEETS_WARM<2){warmSheets();idle(next);return}const w=[...ids,'guide','scan'].find(k=>BUILT[k]&&!WARM.has(k)&&$(k)&&!$(k).classList.contains('on'));
+      // The pages inside sections are warmed only after 3 s without a touch: each costs a phone a few dozen ms, which
+      // landed on the next tap while you were using the app (opening a coffee measured slower for it).
+      if(w&&performance.now()-USER_AT<3000){setTimeout(()=>idle(next),600);return}if(w){warmPage(w);idle(next)}return}BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
   let againT=0;prebuildTabs.again=all=>{if(all)WARM.clear();clearTimeout(againT);againT=setTimeout(()=>idle(next),1500)};
   // A hidden page drawn again (a saved brew updates the log, a new coffee the gallery) is cold again: warm it later.
   try{new MutationObserver(l=>{let any=false;for(const m of l){const s=m.target.closest&&m.target.closest('main>section');if(s&&!s.classList.contains('on')&&WARM.delete(s.id))any=true}if(any)prebuildTabs.again()})
