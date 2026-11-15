@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>try{var t=localStorage.getItem("bb-theme"),d=document.documentElement;if(window.Capacitor)d.classList.add("app");if(t)d.setAttribute("data-theme",t);var u=JSON.parse(localStorage.getItem("bb-ui")||"{}");if(u&&typeof u==="object"){if(u.accent)d.setAttribute("data-accent",u.accent);if(u.vibe&&/^(pure|black|nordic)$/.test(u.vibe))d.setAttribute("data-vibe",u.vibe);if(u.glass||u.vibe==="glass"){d.setAttribute("data-glass","");d.style.setProperty("--g",(u.glassAmt==null?60:u.glassAmt)/100)}if(u.text)d.setAttribute("data-text",u.text);if(u.motion)d.setAttribute("data-motion",u.motion)}}catch(e){}</script>
+<script>try{var t=localStorage.getItem("bb-theme"),d=document.documentElement;if(window.Capacitor)d.classList.add("app");if(t)d.setAttribute("data-theme",t);var u=JSON.parse(localStorage.getItem("bb-ui")||"{}");if(u&&typeof u==="object"){if(u.accent)d.setAttribute("data-accent",u.accent);if(u.vibe&&/^(pure|black|nordic)$/.test(u.vibe))d.setAttribute("data-vibe",u.vibe);if(u.text)d.setAttribute("data-text",u.text);if(u.motion)d.setAttribute("data-motion",u.motion)}}catch(e){}</script>
 <meta name="theme-color" content="#FBF7F0" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1F1814" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -905,7 +905,6 @@ svg .bo{fill:currentColor}svg .bc{fill:none;stroke:var(--surface);stroke-width:1
 .se-chip svg{color:var(--k);width:16px;height:16px}.se-chip:active{transform:scale(.95)}
 .se-sum{margin:6px 0 10px;font-size:.8rem;color:var(--muted)}.se-sum.warn{color:var(--honey-ink)}
 .rangeends{display:flex;justify-content:space-between;font-family:var(--display);font-size:.74rem;color:var(--muted);margin-top:-2px}
-.glassamt{margin-top:12px;width:100%}.glassamt input[type=range]{width:100%;display:block}
 .pill.ours{background:color-mix(in srgb,var(--cherry) 14%,var(--surface));color:var(--cherry);margin-bottom:6px}
 
 .sharepanel h3{margin:0 0 .3rem}
@@ -1066,8 +1065,6 @@ html[data-nav=push]::view-transition-old(root){animation:vt-sink .36s cubic-bezi
 html[data-nav=push]::view-transition-new(root){animation:vt-rise .6s var(--spring) both,vt-show .2s ease-out both}
 html[data-nav=pop]::view-transition-old(root){z-index:2;animation:vt-drop .32s cubic-bezier(.5,0,.75,0) both}
 html[data-nav=pop]::view-transition-new(root){animation:vt-surface .5s var(--spring) both,vt-show .22s ease-out both}
-
-html.vt-look::view-transition-old(root){z-index:2;animation:vt-fade .3s ease-in-out both!important}html.vt-look::view-transition-new(root){animation:none!important}
 html[data-nav=right]::view-transition-old(abtitle),html[data-nav=push]::view-transition-old(abtitle){animation:vt-t-out-l .13s ease-in both}
 html[data-nav=right]::view-transition-new(abtitle),html[data-nav=push]::view-transition-new(abtitle){animation:vt-t-in-r .5s var(--spring) .08s both,vt-show .2s ease-out .08s both}
 html[data-nav=left]::view-transition-old(abtitle),html[data-nav=pop]::view-transition-old(abtitle){animation:vt-t-out-r .13s ease-in both}
@@ -2809,55 +2806,12 @@ textarea{resize:none}
 .setrow .setbtns{display:flex;flex-wrap:wrap;gap:8px}.setrow .setbtns.rem{display:grid}
 .setrow>.setnote,.setrow>.setbtns{margin-left:48px!important}
 
-
-html[data-glass]{--g:.6;
-  
-  --gl-3d:inset 1.5px 1.5px 1px -1px rgba(255,255,255,calc(.55 + var(--g) * .4)),inset -1.5px -1.5px 1px -1px rgba(255,255,255,calc(.25 + var(--g) * .4)),
-    inset 0 0 calc(4px + var(--g) * 12px) rgba(255,255,255,calc(var(--g) * .3)),inset 0 calc(-4px - var(--g) * 6px) calc(10px + var(--g) * 8px) calc(-8px - var(--g) * 4px) rgba(0,0,0,calc(var(--g) * .10));
-  
-  --gl-frost:blur(calc(8px + (1 - var(--g)) * 12px)) saturate(calc(150% + var(--g) * 60%));
-  --gl-still:color-mix(in srgb,var(--surface) calc(97% - var(--g) * 9%),transparent);--gl-line:rgba(30,36,64,calc(.05 + var(--g) * .04));
-  --gl-pane:color-mix(in srgb,var(--surface) calc(90% - var(--g) * 42%),transparent);
-  --gl-chrome:color-mix(in srgb,var(--surface) calc(86% - var(--g) * 38%),transparent);
-  --gl-sheet:color-mix(in srgb,var(--surface) calc(97% - var(--g) * 10%),transparent);
-  --gl-rim:rgba(255,255,255,calc(.45 + var(--g) * .45));--gl-rim2:rgba(255,255,255,calc(var(--g) * .22));
-  --gl-sheen:linear-gradient(180deg,rgba(255,255,255,calc(var(--g) * .34)),rgba(255,255,255,0) 42%);
-  --gl-shade:0 calc(6px + var(--g) * 8px) calc(18px + var(--g) * 16px) -14px rgba(20,24,40,calc(.16 + var(--g) * .16));background:var(--paper)}
-@media (prefers-color-scheme:dark){html[data-glass]:not([data-theme="light"]){--gl-3d:inset 1.5px 1.5px 1px -1px rgba(255,255,255,calc(.18 + var(--g) * .3)),inset -1.5px -1.5px 1px -1px rgba(255,255,255,calc(.08 + var(--g) * .18)),inset 0 0 calc(4px + var(--g) * 12px) rgba(255,255,255,calc(var(--g) * .08)),inset 0 calc(-4px - var(--g) * 6px) calc(10px + var(--g) * 8px) calc(-8px - var(--g) * 4px) rgba(0,0,0,calc(.2 + var(--g) * .2));--gl-line:rgba(255,255,255,calc(.06 + var(--g) * .06));--gl-rim:rgba(255,255,255,calc(.07 + var(--g) * .13));--gl-rim2:rgba(255,255,255,calc(var(--g) * .06));
-  --gl-sheen:linear-gradient(180deg,rgba(255,255,255,calc(var(--g) * .09)),rgba(255,255,255,0) 40%);--gl-shade:0 calc(8px + var(--g) * 8px) calc(22px + var(--g) * 16px) -14px rgba(0,0,0,calc(.45 + var(--g) * .25))}}
-html[data-glass][data-theme="dark"]{--gl-3d:inset 1.5px 1.5px 1px -1px rgba(255,255,255,calc(.18 + var(--g) * .3)),inset -1.5px -1.5px 1px -1px rgba(255,255,255,calc(.08 + var(--g) * .18)),inset 0 0 calc(4px + var(--g) * 12px) rgba(255,255,255,calc(var(--g) * .08)),inset 0 calc(-4px - var(--g) * 6px) calc(10px + var(--g) * 8px) calc(-8px - var(--g) * 4px) rgba(0,0,0,calc(.2 + var(--g) * .2));--gl-line:rgba(255,255,255,calc(.06 + var(--g) * .06));--gl-rim:rgba(255,255,255,calc(.07 + var(--g) * .13));--gl-rim2:rgba(255,255,255,calc(var(--g) * .06));
-  --gl-sheen:linear-gradient(180deg,rgba(255,255,255,calc(var(--g) * .09)),rgba(255,255,255,0) 40%);--gl-shade:0 calc(8px + var(--g) * 8px) calc(22px + var(--g) * 16px) -14px rgba(0,0,0,calc(.45 + var(--g) * .25))}
-html[data-glass] body{background:transparent}
-html[data-glass]::before{content:'';position:fixed;inset:-10%;z-index:-1;pointer-events:none;opacity:calc(.3 + var(--g) * .7);background:
-  radial-gradient(42% 30% at 8% 4%,color-mix(in srgb,var(--cherry) 34%,transparent),transparent 72%),
-  radial-gradient(46% 34% at 96% 20%,rgba(120,160,255,.30),transparent 72%),
-  radial-gradient(50% 36% at 14% 62%,color-mix(in srgb,var(--honey) 30%,transparent),transparent 72%),
-  radial-gradient(44% 34% at 90% 74%,rgba(255,140,190,.22),transparent 72%),
-  radial-gradient(40% 30% at 40% 102%,color-mix(in srgb,var(--leaf) 30%,transparent),transparent 72%)}
-html[data-glass] body::before,html[data-glass] body::after{display:none}
-
-html[data-glass] :is(.panel,.setgroup,.clist,.logentry,.rgrp,.qtool,.cupcard,.appver,.card,.oplan,.hubgrid,.yic,.tshelf,.specs>div,.bd-shelf,.lastbrew,.today,.welcome,.rrow,.crow.rov-row,.qlinks){
-  background-color:var(--gl-pane)!important;background-image:var(--gl-sheen);border-color:var(--gl-line)!important;box-shadow:var(--gl-3d),var(--gl-shade)!important}
-html[data-glass] :is(.panel,.setgroup,.clist,.rgrp,.hubgrid) :is(.re-card,.oplan-o,.seg,.dwrite,.ls-t,.rrow,.bg-gh){background-color:color-mix(in srgb,var(--surface) calc(70% - var(--g) * 30%),transparent)!important;box-shadow:inset 0 1px 0 var(--gl-rim2)!important}
-
-
-html[data-glass] :is(.appbar,.bottomnav,.minires,nav.tabs .wrap){background-color:var(--gl-chrome)!important;background-image:var(--gl-sheen);-webkit-backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost)!important;border-color:var(--gl-line)!important;box-shadow:var(--gl-3d),var(--gl-shade)!important}
-html[data-glass] :is(dialog#vd,dialog#sharesheet,dialog#selsheet){background-color:var(--gl-sheet)!important;background-image:var(--gl-sheen);box-shadow:var(--gl-3d),0 -10px 40px -16px rgba(0,0,0,.35)!important}
-html[data-glass] dialog#timer{background:color-mix(in srgb,var(--paper) calc(97% - var(--g) * 10%),transparent)!important}
-html[data-glass] :is(.fab .ib:not(.main),.fab-menu,.vd-tool,.vd-close,.sh-mini,#toast){background-color:var(--gl-chrome)!important;background-image:var(--gl-sheen);-webkit-backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost)!important;box-shadow:var(--gl-3d),0 8px 20px -10px rgba(0,0,0,.35)!important}
-html[data-glass] #toast{-webkit-backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost)!important}
-html[data-glass] #toast{color:var(--ink)!important}
-html[data-glass].gl-move :is(.appbar,.bottomnav,.minires,nav.tabs .wrap,.fab .ib:not(.main),#toast){-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background-color:var(--gl-still)!important}
-html[data-glass] :is(.ib.main,.pbtn.main,.btn:not(.ghost),.fab-main){background-image:radial-gradient(120% 90% at 30% 0%,rgba(255,255,255,calc(var(--g) * .38)),rgba(255,255,255,0) 55%),linear-gradient(0deg,rgba(0,0,0,calc(var(--g) * .12)),rgba(0,0,0,0) 45%);box-shadow:inset 1.5px 1.5px 1px -1px rgba(255,255,255,calc(.3 + var(--g) * .5)),inset -1px -1px 1px -.5px rgba(255,255,255,calc(var(--g) * .3)),0 10px 22px -10px color-mix(in srgb,var(--cherry) 75%,transparent)!important}
-html[data-glass] .tab[aria-selected=true]{background-image:var(--gl-sheen);box-shadow:inset 0 1px 0 var(--gl-rim2)}
-html[data-glass] .bn-pill{background:color-mix(in srgb,var(--surface) calc(40% + var(--g) * 20%),color-mix(in srgb,var(--cherry) 10%,transparent));box-shadow:var(--gl-3d),0 4px 12px -6px rgba(0,0,0,.25)}
-@media (prefers-reduced-transparency:reduce){html[data-glass]{--g:0!important}}
 </style>
 <script>const JSPDF_SRC="vendor/jspdf.umd.min.js"</script>
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="0a49f5ac5310"</script>
+<script>const BUILD_ID="053bd0d6c01d"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -6832,22 +6786,31 @@ function vdRestore(e){const d=$('vd');VD_RESTORING=true;try{e.f()}finally{VD_RES
       if(!VD_RESTORING&&d.open&&!d.classList.contains('closing')&&VD_CUR&&k!==VD_KEY){VD_HIST.push({f:VD_CUR,k:VD_KEY,y:d.scrollTop});try{history.pushState({dlg:1,vd:1},'',location.hash||'#dial')}catch(e){}}
       if(!VD_RESTORING){VD_CUR=()=>f.apply(this,a);VD_KEY=k}return f.apply(this,a)};
     eval(n+'=w')}}
-{const sm=HTMLDialogElement.prototype.showModal;HTMLDialogElement.prototype.showModal=function(){if(!this.open){if(!BACKING)try{history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}DSTACK.push(this);document.body.classList.add('dlg-open');
+// Opening any sheet (as a modal or, see openTop, as a popover): a history step, the stack, and on close the way back.
+function dlgOpened(d){if(!d.open)(function(){if(!BACKING)try{history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}DSTACK.push(this);document.body.classList.add('dlg-open');
   this.addEventListener('close',()=>{const i=DSTACK.indexOf(this);if(i>=0)DSTACK.splice(i,1);if(!document.querySelector('dialog[open]'))document.body.classList.remove('dlg-open');if(this.dataset.popped){delete this.dataset.popped;return}
     const extra=this.id==='vd'?VD_HIST.length:0;if(this.id==='vd'){VD_HIST.length=0;VD_CUR=null}
-    if(!BACKING&&history.state&&history.state.dlg){BACKING=true;history.go(-(1+extra))}},{once:true})}return sm.call(this)}}
+    if(!BACKING&&history.state&&history.state.dlg){BACKING=true;history.go(-(1+extra))}},{once:true})}).call(d)}
+{const sm=HTMLDialogElement.prototype.showModal;HTMLDialogElement.prototype.showModal=function(){dlgOpened(this);return sm.call(this)}}
 // Sheets slide away before they close (the CSS animates .closing), so nothing vanishes abruptly.
 {const cl=HTMLDialogElement.prototype.close;HTMLDialogElement.prototype.close=function(v){if(!this.open||this.classList.contains('closing'))return;
-  if(RM()||document.hidden)return cl.call(this,v);this.classList.add('closing');
-  const done=()=>{clearTimeout(t);this.removeEventListener('animationend',end);if(!this.classList.contains('closing'))return;this.classList.remove('closing');cl.call(this,v)},
+  const shut=()=>{cl.call(this,v);if(this.hasAttribute('popover'))try{this.hidePopover()}catch(e){}};
+  if(RM()||document.hidden)return shut();this.classList.add('closing');
+  const done=()=>{clearTimeout(t);this.removeEventListener('animationend',end);if(!this.classList.contains('closing'))return;this.classList.remove('closing');shut()},
     end=e=>{if(e.target===this)done()},t=setTimeout(done,380);this.addEventListener('animationend',end)}}
 document.addEventListener('cancel',e=>{if(e.target.tagName==='DIALOG'){e.preventDefault();e.target.close()}},true);
 // Open a dialog; reopening one that is sliding away just keeps it.
 // Opening a sheet: background building waits (NAV_AT), and the slide starts two frames after the sheet is shown, once
 // its content is laid out, so the first frames of the slide aren't skipped while the browser catches up.
 let KEYNAV=false;addEventListener('keydown',e=>{if(e.key==='Tab')KEYNAV=true},true);addEventListener('pointerdown',()=>{KEYNAV=false},true);
+// A sheet opens in the top layer as a popover (with its own backdrop), not as a modal dialog: a modal makes the browser
+// mark the whole app inert, restyling every element of every page (some 12,000), the main cost of opening a sheet on a
+// phone. The backdrop still takes every tap outside the sheet, Escape and back close it, and keyboard focus moves in.
+function openTop(d){if(d.showPopover){try{if(!d.hasAttribute('popover'))d.setAttribute('popover','manual');d.setAttribute('aria-modal','true');dlgOpened(d);d.setAttribute('open','');d.showPopover();return}catch(e){d.removeAttribute('popover')}}
+  try{d.showModal()}catch(e){d.setAttribute('open','')}}
+addEventListener('keydown',e=>{if(e.key!=='Escape'||e.defaultPrevented)return;const top=DSTACK.filter(d=>d.open&&d.hasAttribute('popover')&&!d.classList.contains('closing')).pop();if(top){e.preventDefault();top.close()}});
 function showDlg(d){NAV_AT=performance.now();if(d.classList.contains('closing')){d.classList.remove('closing');return}
-  if(!d.open){d.classList.add('dlg-pre');try{d.showModal()}catch(e){d.setAttribute('open','')}
+  if(!d.open){d.classList.add('dlg-pre');openTop(d);if(KEYNAV){const f=d.querySelector('button,[href],input,select,textarea');if(f)f.focus()}
     // Opening a sheet focuses its first button (Close), which drew its focus ring before anything was pressed.
     {const f=document.activeElement;if(f&&d.contains(f)&&f.matches('.vd-close,.vd-tool,button')&&!KEYNAV)f.blur()}requestAnimationFrame(()=>requestAnimationFrame(()=>d.classList.remove('dlg-pre')))}}
 addEventListener('popstate',()=>{if(FAB_POP())return;const open=[...document.querySelectorAll('dialog[open]:not(.closing)')];
@@ -9424,10 +9387,10 @@ function renderExplore(){const day=Math.floor(Date.now()/864e5),w=GLOSSARY[day%G
 // holds the retired ones: tools/gen-app-icons.py keeps their home-screen icons, so a phone showing one keeps a way in.
 const VIBES_ALL=[["roastery","Roastery","The house look: cream and roasted brown",{"paper":"#FBF7F0","surface":"#FFFDF9","surface2":"#F3EADC","ink":"#3B2A20","cherry":"#8A5A3B","honey":"#C9964A","leaf":"#6B8E4E"},{"paper":"#1F1814","surface":"#2A211B","surface2":"#362A22","ink":"#F3EADF","cherry":"#D9A06B","honey":"#E2B866","leaf":"#A7C084"}],["oat","Oat latte","Soft, milky and calm",{"paper":"#F6F0E8","surface":"#FFFCF7","surface2":"#EDE3D6","ink":"#3A3029","cherry":"#855735","honey":"#B98A3E","leaf":"#5F7F49"},{"paper":"#2F2A26","surface":"#3C3631","surface2":"#4A433D","ink":"#F5EFE8","cherry":"#E9C29E","honey":"#EDCB91","leaf":"#BCD1A6"}],["matcha","Matcha café","Fresh greens, easy on the eyes",{"paper":"#F1F5EB","surface":"#FCFEF8","surface2":"#E1E9D4","ink":"#24301D","cherry":"#3F6E2E","honey":"#9C7A26","leaf":"#4E7A3A"},{"paper":"#0D2216","surface":"#143020","surface2":"#1C3F2B","ink":"#E6F4E3","cherry":"#9FDB82","honey":"#E3CF7C","leaf":"#9FDB82"}],["blossom","Coffee blossom","Pink like the flowers on the tree",{"paper":"#FBF3F3","surface":"#FFFBFB","surface2":"#F4E0E2","ink":"#3D2328","cherry":"#A8324F","honey":"#B47E3A","leaf":"#5E8A5A"},{"paper":"#2A0D1D","surface":"#3A1429","surface2":"#4B1D36","ink":"#FCE9F0","cherry":"#FF93B6","honey":"#F3C98A","leaf":"#B4DDA8"}],["nordic","Nordic roast","Cool, light and minimal",{"paper":"#F3F6F8","surface":"#FFFFFF","surface2":"#E5EBF0","ink":"#1E2833","cherry":"#2C5A80","honey":"#9A7A3A","leaf":"#4F7C69"},{"paper":"#0A1A2E","surface":"#11253F","surface2":"#19324F","ink":"#E5EEF8","cherry":"#8FC4F2","honey":"#E3C68D","leaf":"#93D1B8"}],["desert","Desert mocha","Sand and terracotta, Yemen at dusk",{"paper":"#F8F0E3","surface":"#FFFAF1","surface2":"#EEDEC6","ink":"#3A2618","cherry":"#9A4522","honey":"#B87E25","leaf":"#6E7F3E"},{"paper":"#2E140A","surface":"#3E1D0F","surface2":"#4F2715","ink":"#FBE9D8","cherry":"#FFA06E","honey":"#F5C77A","leaf":"#CFD593"}],["neon","Neon espresso","Late-night café, a little loud",{"paper":"#F6F2FF","surface":"#FFFFFF","surface2":"#EBE3FF","ink":"#24183A","cherry":"#6A30D6","honey":"#C2357E","leaf":"#13896A"},{"paper":"#130A33","surface":"#1E1250","surface2":"#2A1B66","ink":"#F3EEFF","cherry":"#D0A5FF","honey":"#FF8BD0","leaf":"#5FF0BE"}],["caramel","Caramel pop","Warm, sweet and sunny",{"paper":"#FFF5EA","surface":"#FFFDF8","surface2":"#FBE4CC","ink":"#3B2412","cherry":"#9C4913","honey":"#B97A15","leaf":"#5E8040"},{"paper":"#2A1A06","surface":"#3A250B","surface2":"#4A3012","ink":"#FFF0DC","cherry":"#FFB061","honey":"#FFD27A","leaf":"#C3DA93"}],["pure","Pure","Crisp white by day, true black by night",{"paper":"#FFFFFF","surface":"#FFFFFF","surface2":"#F2F2F4","ink":"#0B0B0C","cherry":"#141416","honey":"#8A6A2C","leaf":"#2F7A45"},{"paper":"#000000","surface":"#0E0E10","surface2":"#1A1A1D","ink":"#FFFFFF","cherry":"#F4F4F5","honey":"#E3C17E","leaf":"#7FD08F"}],["black","Black coffee","White or pitch black, with a crema accent",{"paper":"#FFFFFF","surface":"#FFFFFF","surface2":"#F4F1EE","ink":"#121212","cherry":"#7A4A2C","honey":"#9A6B1F","leaf":"#4E7A3A"},{"paper":"#000000","surface":"#0F0D0C","surface2":"#1C1916","ink":"#FFFFFF","cherry":"#E2A877","honey":"#F0C477","leaf":"#A5CC86"}],["glass","Liquid glass","Frosted glass over soft colour, light and clear",{"paper":"#EDEFF5","surface":"#F9FAFD","surface2":"#E4E8F1","ink":"#15171C","cherry":"#A8612E","honey":"#B7832A","leaf":"#2F7D52"},{"paper":"#0A0B10","surface":"#1C1E26","surface2":"#262934","ink":"#F2F3F7","cherry":"#F0B27A","honey":"#F2C46B","leaf":"#86D9A8"}]];
 const VIBES=['roastery','pure','black','nordic'].map(k=>VIBES_ALL.find(v=>v[0]===k));
-let UI=Object.assign({accent:'classic',vibe:'roastery',glass:false,glassAmt:60,logo:'bean',text:'m',motion:'full',start:'dial',resume:'fresh'},load('bb-ui',{}));
-// Liquid glass was a vibe; now it's a switch over any vibe (on, for whoever had picked it).
-if(UI.vibe==='glass'){UI.vibe='roastery';UI.glass=true}
-if(!VIBES.some(v=>v[0]===UI.vibe))UI.vibe='roastery';if(!(UI.glassAmt>=10&&UI.glassAmt<=100))UI.glassAmt=60;
+let UI=Object.assign({accent:'classic',vibe:'roastery',logo:'bean',text:'m',motion:'full',start:'dial',resume:'fresh'},load('bb-ui',{}));
+// Liquid glass is gone: whoever had it keeps their vibe, without the glass.
+delete UI.glass;delete UI.glassAmt;
+if(!VIBES.some(v=>v[0]===UI.vibe))UI.vibe='roastery';
 const ACCENTS=[['classic','Vibe’s own','#8A5A3B'],['espresso','Espresso','#5E3B2A'],['cascara','Cascara','#A3392E'],['kenya','Kenya','#7B2D4E'],['honey','Honey','#A8741C'],['leaf','Coffee leaf','#4F7A45'],['coldbrew','Cold brew','#2E5C7A'],['geisha','Geisha','#76588C']];
 if(!ACCENTS.some(a=>a[0]===UI.accent))UI.accent='classic';
 // The logos: the bean drawn in the top bar's own markup, the rest from data/logos.json (which also makes the Android
@@ -9435,7 +9398,7 @@ if(!ACCENTS.some(a=>a[0]===UI.accent))UI.accent='classic';
 const logoParts=parts=>parts.map(p=>{const col='var(--'+(p.fill||p.stroke)+')',op=p.op!=null?' opacity="'+p.op+'"':'';
   const paint=p.fill?'fill="'+col+'"':'fill="none" stroke="'+col+'" stroke-width="'+p.w+'" stroke-linecap="round" stroke-linejoin="round"';
   return p.c?'<circle cx="'+p.c[0]+'" cy="'+p.c[1]+'" r="'+p.c[2]+'" '+paint+op+'/>':'<path d="'+p.d+'" '+paint+op+'/>'}).join('');
-const LOGOS=Object.assign({bean:['Bean',null]},Object.fromEntries(['bench','benchtop','cherry'].filter(k=>LOGO_DATA[k]).map(k=>[k,LOGO_DATA[k]]).map(([k,v])=>[k,[v.name,logoParts(v.parts)]])));
+const LOGOS=Object.assign({bean:['Bean',null]},Object.fromEntries(['bench','dripper','cherry'].filter(k=>LOGO_DATA[k]).map(k=>[k,LOGO_DATA[k]]).map(([k,v])=>[k,[v.name,logoParts(v.parts)]])));
 if(!LOGOS[UI.logo])UI.logo='bean';delete UI.name;if(!['s','m','l','xl'].includes(UI.text))UI.text='m';if(!['full','reduced'].includes(UI.motion))UI.motion='full';if(UI.start==='scan')UI.start='beans';if(!['dial','recipes','beans','explore'].includes(UI.start))UI.start='dial';
 const BEAN_SVG=$('ab-logo').innerHTML;
 // Each copy of the bean gets its own clip id: two elements with one id can draw the wrong (or no) bean.
@@ -9449,16 +9412,13 @@ function setFavicon(){try{const cs=getComputedStyle($('ab-logo')),col=v=>cs.getP
 // Switching look (light or dark, vibe, accent): every colour changes at once. Colour transitions would otherwise run
 // from the old look's colours for a moment (buttons and pills flashed blank or in the old colours), so they're held off
 // for two frames; movement (a toggle's pill sliding) still animates.
-// A change of look (light or dark, a vibe, an accent, Liquid glass) restyles the whole app, which takes a phone longer
-// than a frame. Done under a view transition, the old look stays on screen as a picture while the new one is worked
-// out, then fades across: a smooth crossfade instead of a stutter. (Skipped with reduced motion or a sheet open.)
-function lookSwap(fn){const d=document.documentElement;if(!document.startViewTransition||RM()||document.hidden||document.querySelector('dialog[open]')){fn();return}
-  d.classList.add('vt-look');try{document.startViewTransition(()=>{fn()}).finished.finally(()=>d.classList.remove('vt-look'))}catch(e){d.classList.remove('vt-look');fn()}}
+// A change of look (light or dark, a vibe, an accent) restyles the whole visible page once, in the frame of the tap.
+// (A crossfade under a view transition was tried: capturing the old look cost more frames than it hid.)
+function lookSwap(fn){fn()}
 function themeSwap(){const d=document.documentElement;d.classList.add('thx');clearTimeout(themeSwap.t);
-  // (Lifted once the crossfade of lookSwap is over: lifting it restyles the whole app again, which mid-fade was a stall.)
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{themeSwap.t=setTimeout(()=>d.classList.remove('thx'),d.classList.contains('vt-look')?420:60)}))}
+  // (Lifted a moment later, in a quiet moment: lifting it restyles the page again, so it waits until nothing is moving.)
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{themeSwap.t=setTimeout(()=>(window.requestIdleCallback||setTimeout)(()=>d.classList.remove('thx'),{timeout:900}),420)}))}
 function applyUI(){const d=document.documentElement;themeSwap();d.setAttribute('data-accent',UI.accent);if(UI.vibe==='roastery')d.removeAttribute('data-vibe');else d.setAttribute('data-vibe',UI.vibe);d.setAttribute('data-text',UI.text);d.setAttribute('data-motion',UI.motion);
-  if(UI.glass){d.setAttribute('data-glass','');d.style.setProperty('--g',UI.glassAmt/100)}else{d.removeAttribute('data-glass');d.style.removeProperty('--g')}
   $('ab-logo').innerHTML=logoSVG(UI.logo,24);
   // In the Android app the home-screen icon follows the look: the logo in the vibe's colours, light or dark as the
   // app is now. The app swaps it when you next leave it.
@@ -9468,10 +9428,6 @@ function applyUI(){const d=document.documentElement;themeSwap();d.setAttribute('
 function setAppIcon(){const ai=plugin('AppIcon');if(ai)ai.set({name:UI.logo,vibe:UI.vibe,mode:document.documentElement.hasAttribute('data-theme')?(curTheme()==='dark'?'dark':'light'):'auto'}).catch(()=>{})}
 // Auto theme follows the phone, so the icon follows it too.
 try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{themeSwap();setAppIcon()})}catch(e){}
-// Liquid glass: while the page scrolls, the bars and floating buttons drop their frost for a near-solid tint (gl-move)
-// and frost again once it settles; a blur redrawn under a moving page on every frame was the lag.
-{let t=0,on=false;addEventListener('scroll',()=>{if(!UI.glass)return;if(!on){on=true;document.documentElement.classList.add('gl-move')}
-  clearTimeout(t);t=setTimeout(()=>{on=false;document.documentElement.classList.remove('gl-move')},180)},{passive:true,capture:true})}
 function saveUI(){save('bb-ui',UI);applyUI()}
 /* Your data: everything the app saves on this device, in one file you can keep or move to another phone. */
 // Sign-in tokens never go into a backup file.
@@ -9552,7 +9508,6 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
     '<h3 class="rh">Appearance</h3><div class="setgroup">'+
     row(curTheme()==='dark'?'moon':'sun','#5B5F66','Light or dark','Bright cream, cosy espresso, or follow your phone','<div class="seg" id="st-mode"></div>')+
     row('drop','var(--cherry)','Vibe','A whole look, in light and in dark','<div class="vibes">'+VIBES.map(([k,n,d,L,D])=>'<button type="button" class="vibe" data-vibe="'+k+'" aria-pressed="'+(UI.vibe===k)+'" style="--l-p:'+L.paper+';--l-s:'+L.surface+';--l-i:'+L.ink+';--l-c:'+L.cherry+';--l-h:'+L.honey+';--d-p:'+D.paper+';--d-s:'+D.surface+';--d-i:'+D.ink+';--d-c:'+D.cherry+';--d-h:'+D.honey+'"><span class="vb-pv" aria-hidden="true"><i class="vb-l"><u></u><s></s><em></em></i><i class="vb-d"><u></u><s></s><em></em></i></span><b>'+n+'</b><small>'+d+'</small></button>').join('')+'</div>')+
-    row('drop','#6E8FA8','Liquid glass','Frosted, see-through panes over your vibe','<div class="seg" id="st-glass"></div><div class="glassamt" id="st-glamt-w"><input type="range" id="st-glamt" min="10" max="100" step="1" aria-label="How strong the glass is"><div class="rangeends"><span>Subtle</span><span>Strong</span></div></div>')+
     row('palette','var(--cherry)','Accent','Change just the highlight colour (Vibe’s own keeps the vibe’s)','<div class="swatches">'+ACCENTS.map(([k,n,c])=>'<button type="button" class="swatch" data-accent="'+k+'" aria-pressed="'+(UI.accent===k)+'"><i style="background:'+(k==='classic'?ownAccent():c)+'"></i>'+n+'</button>').join('')+'</div>')+
     row('leaf','#6B8E4E','App logo','In the top bar, the tab and on your home screen','<div class="logos">'+Object.entries(LOGOS).map(([k,[n]])=>'<button type="button" class="logopick" data-logo="'+k+'" aria-pressed="'+(UI.logo===k)+'"><span class="lg-tile">'+logoSVG(k,36)+'</span>'+n+'</button>').join('')+'</div><p class="setnote">'+(NATIVE&&plugin('AppIcon')?'Your home-screen icon changes to match a moment after you leave the app.':NATIVE?'The home-screen icon follows the logo from the next app update.':'The browser tab shows it too. In the Android app, the home-screen icon follows it.')+'</p>')+
     row('text','#C9964A','Text size','','<div class="seg" id="st-text"></div>')+
@@ -9583,10 +9538,6 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
     // New text size: the strip you tapped stays under your finger, and every highlight (strips and the nav bar) is measured again.
     scrollBy(0,st.getBoundingClientRect().top-y0);PILLPOS.clear();movePill();document.querySelectorAll(SEG_SEL).forEach(x=>segQueue(x))});
   seg('st-motion',[['full','Full'],['reduced','Reduced']],()=>UI.motion,v=>{UI.motion=v;saveUI();renderSettings(1)});
-  seg('st-glass',[['0','Off'],['1','On']],()=>UI.glass?'1':'0',v=>{lookSwap(()=>{UI.glass=v==='1';saveUI();renderSettings(1)});toast(UI.glass?'Liquid glass on':'Liquid glass off')});
-  // The strength follows your finger as you slide (no redraw of the page) and is kept when you let go.
-  {const gr=$('st-glamt'),w=$('st-glamt-w');w.hidden=!UI.glass;if(+gr.value!==UI.glassAmt)gr.value=UI.glassAmt;
-    gr.oninput=()=>{UI.glassAmt=+gr.value;if(gr._f)return;gr._f=requestAnimationFrame(()=>{gr._f=0;document.documentElement.style.setProperty('--g',UI.glassAmt/100)})};gr.onchange=()=>{document.documentElement.style.setProperty('--g',UI.glassAmt/100);save('bb-ui',UI)}}
   if($('st-remind')){seg('st-remind',[['0','Off'],['1','Every day']],()=>REMIND.on?'1':'0',async v=>{await setReminder(v==='1');renderSettings(1)});
     $('st-rtime').onchange=async e=>{if(/^\d\d:\d\d$/.test(e.target.value)){REMIND.t=e.target.value;save('bb-remind',REMIND);await scheduleReminders();toast('Your coffee of the day arrives at '+REMIND.t)}}}
   if($('st-learn')){seg('st-learn',[['0','Off'],['1','Every day']],()=>LEARN.on?'1':'0',async v=>{await setLearn(v==='1');renderSettings(1)});

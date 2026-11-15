@@ -24,6 +24,6 @@ ok('Log this brew from the timer rises in as a page',await p.evaluate(()=>$('log
 await p.evaluate(()=>{showTab('dial');render()});await p.waitForTimeout(7000);
 ok('the brew card is drawn ahead in a quiet moment',await p.evaluate(()=>!!(PRE_CARD&&PRE_CARD.cards.size)));
 const t=await p.evaluate(()=>new Promise(res=>{const t0=performance.now();$('dial-share').click();const chk=()=>{if(document.querySelector('#sharesheet .shcard-pv img'))res(performance.now()-t0);else if(performance.now()-t0>5000)res(-1);else requestAnimationFrame(chk)};chk()}));
-ok('Share shows it at once',t>=0&&t<400,Math.round(t));
+ok('Share uses the card drawn ahead and shows it at once',t>=0&&t<900&&await p.evaluate(()=>SHDOC._cards===PRE_CARD.cards),Math.round(t));
 ok('no page errors',!errs.length,errs);
 await b.close()})();

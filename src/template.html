@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>try{var t=localStorage.getItem("bb-theme"),d=document.documentElement;if(window.Capacitor)d.classList.add("app");if(t)d.setAttribute("data-theme",t);var u=JSON.parse(localStorage.getItem("bb-ui")||"{}");if(u&&typeof u==="object"){if(u.accent)d.setAttribute("data-accent",u.accent);if(u.vibe&&/^(pure|black|nordic)$/.test(u.vibe))d.setAttribute("data-vibe",u.vibe);if(u.glass||u.vibe==="glass"){d.setAttribute("data-glass","");d.style.setProperty("--g",(u.glassAmt==null?60:u.glassAmt)/100)}if(u.text)d.setAttribute("data-text",u.text);if(u.motion)d.setAttribute("data-motion",u.motion)}}catch(e){}</script>
+<script>try{var t=localStorage.getItem("bb-theme"),d=document.documentElement;if(window.Capacitor)d.classList.add("app");if(t)d.setAttribute("data-theme",t);var u=JSON.parse(localStorage.getItem("bb-ui")||"{}");if(u&&typeof u==="object"){if(u.accent)d.setAttribute("data-accent",u.accent);if(u.vibe&&/^(pure|black|nordic)$/.test(u.vibe))d.setAttribute("data-vibe",u.vibe);if(u.text)d.setAttribute("data-text",u.text);if(u.motion)d.setAttribute("data-motion",u.motion)}}catch(e){}</script>
 <meta name="theme-color" content="#FBF7F0" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1F1814" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -911,7 +911,6 @@ svg .bo{fill:currentColor}svg .bc{fill:none;stroke:var(--surface);stroke-width:1
 .se-chip svg{color:var(--k);width:16px;height:16px}.se-chip:active{transform:scale(.95)}
 .se-sum{margin:6px 0 10px;font-size:.8rem;color:var(--muted)}.se-sum.warn{color:var(--honey-ink)}
 .rangeends{display:flex;justify-content:space-between;font-family:var(--display);font-size:.74rem;color:var(--muted);margin-top:-2px}
-.glassamt{margin-top:12px;width:100%}.glassamt input[type=range]{width:100%;display:block}
 .pill.ours{background:color-mix(in srgb,var(--cherry) 14%,var(--surface));color:var(--cherry);margin-bottom:6px}
 /* Shared log */
 .sharepanel h3{margin:0 0 .3rem}
@@ -1076,8 +1075,6 @@ html[data-nav=push]::view-transition-old(root){animation:vt-sink .36s cubic-bezi
 html[data-nav=push]::view-transition-new(root){animation:vt-rise .6s var(--spring) both,vt-show .2s ease-out both}
 html[data-nav=pop]::view-transition-old(root){z-index:2;animation:vt-drop .32s cubic-bezier(.5,0,.75,0) both}
 html[data-nav=pop]::view-transition-new(root){animation:vt-surface .5s var(--spring) both,vt-show .22s ease-out both}
-/* A change of look: the old look fades into the new (see lookSwap). */
-html.vt-look::view-transition-old(root){z-index:2;animation:vt-fade .3s ease-in-out both!important}html.vt-look::view-transition-new(root){animation:none!important}
 html[data-nav=right]::view-transition-old(abtitle),html[data-nav=push]::view-transition-old(abtitle){animation:vt-t-out-l .13s ease-in both}
 html[data-nav=right]::view-transition-new(abtitle),html[data-nav=push]::view-transition-new(abtitle){animation:vt-t-in-r .5s var(--spring) .08s both,vt-show .2s ease-out .08s both}
 html[data-nav=left]::view-transition-old(abtitle),html[data-nav=pop]::view-transition-old(abtitle){animation:vt-t-out-r .13s ease-in both}
@@ -2858,57 +2855,6 @@ textarea{resize:none}
 .setrow .setbtns{display:flex;flex-wrap:wrap;gap:8px}.setrow .setbtns.rem{display:grid}
 .setrow>.setnote,.setrow>.setbtns{margin-left:48px!important}
 
-/* ---------- Liquid glass: a switch over any vibe, with a strength (--g, 0 to 1, from Settings). ----------
-   Behind everything, soft glows in the vibe's own colours (fixed, so scrolling never redraws them). Panes on the page
-   are tinted see-through over those glows, with a bright rim and a soft sheen at the top, the way light catches the
-   edge of glass; they don't blur (what's behind a card is only the glows, so a blur would cost and show nothing).
-   What floats over the page, the bars, the + menu, sheets and notices, is frosted: blurred and brightened, and opaque
-   enough that the text under it never reads through. */
-html[data-glass]{--g:.6;
-  /* Thick glass lit from the top left: a bright specular edge there, a dimmer one bottom right, a soft glow inside the
-     rim and a touch of shade at the foot, so a pane reads as a raised, rounded slab rather than a flat tint. */
-  --gl-3d:inset 1.5px 1.5px 1px -1px rgba(255,255,255,calc(.55 + var(--g) * .4)),inset -1.5px -1.5px 1px -1px rgba(255,255,255,calc(.25 + var(--g) * .4)),
-    inset 0 0 calc(4px + var(--g) * 12px) rgba(255,255,255,calc(var(--g) * .3)),inset 0 calc(-4px - var(--g) * 6px) calc(10px + var(--g) * 8px) calc(-8px - var(--g) * 4px) rgba(0,0,0,calc(var(--g) * .10));
-  /* What floats is clearer the stronger the glass (less frost, more of the bend at its rim). */
-  --gl-frost:blur(calc(8px + (1 - var(--g)) * 12px)) saturate(calc(150% + var(--g) * 60%));
-  --gl-still:color-mix(in srgb,var(--surface) calc(97% - var(--g) * 9%),transparent);--gl-line:rgba(30,36,64,calc(.05 + var(--g) * .04));
-  --gl-pane:color-mix(in srgb,var(--surface) calc(90% - var(--g) * 42%),transparent);
-  --gl-chrome:color-mix(in srgb,var(--surface) calc(86% - var(--g) * 38%),transparent);
-  --gl-sheet:color-mix(in srgb,var(--surface) calc(97% - var(--g) * 10%),transparent);
-  --gl-rim:rgba(255,255,255,calc(.45 + var(--g) * .45));--gl-rim2:rgba(255,255,255,calc(var(--g) * .22));
-  --gl-sheen:linear-gradient(180deg,rgba(255,255,255,calc(var(--g) * .34)),rgba(255,255,255,0) 42%);
-  --gl-shade:0 calc(6px + var(--g) * 8px) calc(18px + var(--g) * 16px) -14px rgba(20,24,40,calc(.16 + var(--g) * .16));background:var(--paper)}
-@media (prefers-color-scheme:dark){html[data-glass]:not([data-theme="light"]){--gl-3d:inset 1.5px 1.5px 1px -1px rgba(255,255,255,calc(.18 + var(--g) * .3)),inset -1.5px -1.5px 1px -1px rgba(255,255,255,calc(.08 + var(--g) * .18)),inset 0 0 calc(4px + var(--g) * 12px) rgba(255,255,255,calc(var(--g) * .08)),inset 0 calc(-4px - var(--g) * 6px) calc(10px + var(--g) * 8px) calc(-8px - var(--g) * 4px) rgba(0,0,0,calc(.2 + var(--g) * .2));--gl-line:rgba(255,255,255,calc(.06 + var(--g) * .06));--gl-rim:rgba(255,255,255,calc(.07 + var(--g) * .13));--gl-rim2:rgba(255,255,255,calc(var(--g) * .06));
-  --gl-sheen:linear-gradient(180deg,rgba(255,255,255,calc(var(--g) * .09)),rgba(255,255,255,0) 40%);--gl-shade:0 calc(8px + var(--g) * 8px) calc(22px + var(--g) * 16px) -14px rgba(0,0,0,calc(.45 + var(--g) * .25))}}
-html[data-glass][data-theme="dark"]{--gl-3d:inset 1.5px 1.5px 1px -1px rgba(255,255,255,calc(.18 + var(--g) * .3)),inset -1.5px -1.5px 1px -1px rgba(255,255,255,calc(.08 + var(--g) * .18)),inset 0 0 calc(4px + var(--g) * 12px) rgba(255,255,255,calc(var(--g) * .08)),inset 0 calc(-4px - var(--g) * 6px) calc(10px + var(--g) * 8px) calc(-8px - var(--g) * 4px) rgba(0,0,0,calc(.2 + var(--g) * .2));--gl-line:rgba(255,255,255,calc(.06 + var(--g) * .06));--gl-rim:rgba(255,255,255,calc(.07 + var(--g) * .13));--gl-rim2:rgba(255,255,255,calc(var(--g) * .06));
-  --gl-sheen:linear-gradient(180deg,rgba(255,255,255,calc(var(--g) * .09)),rgba(255,255,255,0) 40%);--gl-shade:0 calc(8px + var(--g) * 8px) calc(22px + var(--g) * 16px) -14px rgba(0,0,0,calc(.45 + var(--g) * .25))}
-html[data-glass] body{background:transparent}
-html[data-glass]::before{content:'';position:fixed;inset:-10%;z-index:-1;pointer-events:none;opacity:calc(.3 + var(--g) * .7);background:
-  radial-gradient(42% 30% at 8% 4%,color-mix(in srgb,var(--cherry) 34%,transparent),transparent 72%),
-  radial-gradient(46% 34% at 96% 20%,rgba(120,160,255,.30),transparent 72%),
-  radial-gradient(50% 36% at 14% 62%,color-mix(in srgb,var(--honey) 30%,transparent),transparent 72%),
-  radial-gradient(44% 34% at 90% 74%,rgba(255,140,190,.22),transparent 72%),
-  radial-gradient(40% 30% at 40% 102%,color-mix(in srgb,var(--leaf) 30%,transparent),transparent 72%)}
-html[data-glass] body::before,html[data-glass] body::after{display:none}
-/* Panes on the page. */
-html[data-glass] :is(.panel,.setgroup,.clist,.logentry,.rgrp,.qtool,.cupcard,.appver,.card,.oplan,.hubgrid,.yic,.tshelf,.specs>div,.bd-shelf,.lastbrew,.today,.welcome,.rrow,.crow.rov-row,.qlinks){
-  background-color:var(--gl-pane)!important;background-image:var(--gl-sheen);border-color:var(--gl-line)!important;box-shadow:var(--gl-3d),var(--gl-shade)!important}
-html[data-glass] :is(.panel,.setgroup,.clist,.rgrp,.hubgrid) :is(.re-card,.oplan-o,.seg,.dwrite,.ls-t,.rrow,.bg-gh){background-color:color-mix(in srgb,var(--surface) calc(70% - var(--g) * 30%),transparent)!important;box-shadow:inset 0 1px 0 var(--gl-rim2)!important}
-/* What floats: frosted. In the app too (the switch is yours: it costs a little smoothness while scrolling). */
-/* What floats is frosted while the page is still. Frosting what moves under a bar makes a phone redraw the blur on
-   every frame of a scroll (three times the drawing work, the lag), so while you scroll (gl-move, set by the app) the
-   bars and floating buttons turn to a near-solid tint of the same glass, and frost again once the page settles. */
-html[data-glass] :is(.appbar,.bottomnav,.minires,nav.tabs .wrap){background-color:var(--gl-chrome)!important;background-image:var(--gl-sheen);-webkit-backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost)!important;border-color:var(--gl-line)!important;box-shadow:var(--gl-3d),var(--gl-shade)!important}
-html[data-glass] :is(dialog#vd,dialog#sharesheet,dialog#selsheet){background-color:var(--gl-sheet)!important;background-image:var(--gl-sheen);box-shadow:var(--gl-3d),0 -10px 40px -16px rgba(0,0,0,.35)!important}
-html[data-glass] dialog#timer{background:color-mix(in srgb,var(--paper) calc(97% - var(--g) * 10%),transparent)!important}
-html[data-glass] :is(.fab .ib:not(.main),.fab-menu,.vd-tool,.vd-close,.sh-mini,#toast){background-color:var(--gl-chrome)!important;background-image:var(--gl-sheen);-webkit-backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost)!important;box-shadow:var(--gl-3d),0 8px 20px -10px rgba(0,0,0,.35)!important}
-html[data-glass] #toast{-webkit-backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost)!important}
-html[data-glass] #toast{color:var(--ink)!important}
-html[data-glass].gl-move :is(.appbar,.bottomnav,.minires,nav.tabs .wrap,.fab .ib:not(.main),#toast){-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background-color:var(--gl-still)!important}
-html[data-glass] :is(.ib.main,.pbtn.main,.btn:not(.ghost),.fab-main){background-image:radial-gradient(120% 90% at 30% 0%,rgba(255,255,255,calc(var(--g) * .38)),rgba(255,255,255,0) 55%),linear-gradient(0deg,rgba(0,0,0,calc(var(--g) * .12)),rgba(0,0,0,0) 45%);box-shadow:inset 1.5px 1.5px 1px -1px rgba(255,255,255,calc(.3 + var(--g) * .5)),inset -1px -1px 1px -.5px rgba(255,255,255,calc(var(--g) * .3)),0 10px 22px -10px color-mix(in srgb,var(--cherry) 75%,transparent)!important}
-html[data-glass] .tab[aria-selected=true]{background-image:var(--gl-sheen);box-shadow:inset 0 1px 0 var(--gl-rim2)}
-html[data-glass] .bn-pill{background:color-mix(in srgb,var(--surface) calc(40% + var(--g) * 20%),color-mix(in srgb,var(--cherry) 10%,transparent));box-shadow:var(--gl-3d),0 4px 12px -6px rgba(0,0,0,.25)}
-@media (prefers-reduced-transparency:reduce){html[data-glass]{--g:0!important}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
