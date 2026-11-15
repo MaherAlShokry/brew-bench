@@ -1325,7 +1325,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.be
         :'<p class="hint" style="margin:8px 0 0">Add the bag size in Edit to see what’s left as you log brews.</p>')+
       pbtn('flag','id="bd-done"','Finish this bag','quiet bd-done')+'</div>'
      :'')+
-    (kv.length?'<div class="specs">'+kv.map(([k,v])=>'<div><b>'+k+'</b><span class="bd-v">'+esc(v)+'</span></div>').join('')+'</div>':'')+
+    (kv.length?'<div class="specs">'+kv.map(([k,v])=>{const [a,ic]=tileOf(k,v);return '<div'+a+'>'+ic+'<b>'+k+'</b><span class="bd-v">'+esc(v)+'</span></div>'}).join('')+'</div>':'')+
     (dialNextFor(b.id)?'<div class="bd-dnext"><span class="bd-dni" aria-hidden="true">🎯</span><span><b>'+(dialNextFor(b.id).taste==='good'?'What worked':'Try next time')+'</b><small>'+esc(dialNextLine(dialNextFor(b.id)))+' · '+esc(fmt(dialNextFor(b.id).at))+(dialNextFor(b.id).taste&&dialNextFor(b.id).taste!=='good'?' · after a '+dialNextFor(b.id).taste+' cup':'')+'</small></span></div>':'')+
     (b.flavours?'<h3>Tasting notes</h3><div class="chips">'+tnSplit(b.flavours).map(f=>{const n=tnLeaf(f);return'<span class="chip">'+(n?'<i class="dot" style="background:'+n.c+'"></i>':'')+esc(f)+'</span>'}).join('')+'</div>':'')+
     (b.notes?'<h3>Your notes</h3><p>'+esc(b.notes)+'</p>':'')+

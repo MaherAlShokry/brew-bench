@@ -731,6 +731,29 @@ function rollIn(root){if(!root||!ROLL_IO||RM())return;root.querySelectorAll('[da
 // An empty list's one action (see .bg-empty): add a coffee, scan a bag, or go and brew.
 document.addEventListener('click',e=>{const b=e.target.closest('[data-empty]');if(!b)return;const k=b.dataset.empty;
   if(k==='bean')openBeanEditor();else if(k==='scan'){showTab('scan');newScan();scrollTo(0,0)}else if(k==='dial')goTab('dial')});
+/* Stat tiles with character: each one takes a colour and a small drawn icon from what it holds (coffee in brown with a
+   bean, water in blue with a drop, the ratio in gold, temperature in terracotta, time in green, pours in violet, and on a
+   coffee's page origin, process, variety, roast and dates), so a row of figures reads at a glance. */
+const TILE_K=[[/^(coffee|dose|shot weight|bag)/i,'#8A5A3B','M12 3.2c3.5 0 6 3.9 6 8.8s-2.5 8.8-6 8.8-6-3.9-6-8.8 2.5-8.8 6-8.8z M12.9 3.6C10.4 6.3 14.3 9 12 12s1.6 5.9-.9 8.4'],
+  [/water|in the cup|bloom water/i,'#3F86B5','M12 3.5s5.8 6.3 5.8 10.6a5.8 5.8 0 0 1-11.6 0C6.2 9.8 12 3.5 12 3.5z'],
+  [/ratio/i,'#B88A2E','M12 4.5v15 M8 19.5h8 M5 7.5h14 M12 4.5v3 M5 7.5l-2.5 5.5a2.5 2.5 0 0 0 5 0z M19 7.5l-2.5 5.5a2.5 2.5 0 0 0 5 0z'],
+  [/°c|temp/i,'#C8603F','M10 13.5V5.5a2 2 0 0 1 4 0v8a4 4 0 1 1-4 0z M12 9v6.5'],
+  [/time|steep/i,'#3E8A68','M12 3.5a8.5 8.5 0 1 0 0 17a8.5 8.5 0 1 0 0-17z M12 7.5V12l3 2'],
+  [/pour/i,'#8763B0','M3.5 9c2.8-2.6 5.7 2.6 8.5 0s5.7 2.6 8.5 0 M3.5 15c2.8-2.6 5.7 2.6 8.5 0s5.7 2.6 8.5 0'],
+  [/origin|blend/i,'#3E8A68','M12 3.5a8.5 8.5 0 1 0 0 17a8.5 8.5 0 1 0 0-17z M3.5 12h17 M12 3.5c2.6 2.4 3.9 5.2 3.9 8.5s-1.3 6.1-3.9 8.5c-2.6-2.4-3.9-5.2-3.9-8.5S9.4 5.9 12 3.5z'],
+  [/altitude/i,'#5F82A3','M3 19l6.5-11 4 6.5 2.5-3.5L21 19z'],
+  [/harvest/i,'#B5533C','M9 14a3.5 3.5 0 1 0 0 .01z M15.5 15a3 3 0 1 0 0 .01z M10 10.5c0-3 1.5-5.5 4-6.5 M14 4c-.5 2 .5 4.5 2 7'],
+  [/process/i,'#B88A2E','M12 5v3 M12 16v3 M5 12h3 M16 12h3 M7 7l2 2 M15 15l2 2 M17 7l-2 2 M9 15l-2 2 M12 9.5a2.5 2.5 0 1 0 0 5a2.5 2.5 0 1 0 0-5z'],
+  [/variet/i,'#5E8C3E','M5 19c0-8 6-14 14-14 0 8-6 14-14 14z M5 19l8-8'],
+  [/^roast$/i,'#B5533C','M12 3.5c1 4 5 5.2 5 10a5 5 0 0 1-10 0c0-3 2-4.2 2-7 1.6 1 2.6 2.4 3-3z'],
+  [/roasted|tried|advent|since/i,'#5F82A3','M4.5 6.5h15v13h-15z M4.5 10.5h15 M8.5 4v4 M15.5 4v4'],
+  [/brewed|brews|cup/i,'#8A5A3B','M5 9h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z M16 10h1.5a2.5 2.5 0 0 1 0 5H16'],
+  [/rating|average/i,'#B88A2E','M12 4l2.4 5 5.6.8-4 3.9.9 5.5L12 16.6 7.1 19.2l.9-5.5-4-3.9 5.6-.8z'],
+  [/brewer/i,'#5F82A3','M5 6h14l-5 8h-4z M10 14v3h4v-3 M7.5 20h9'],
+  [/top coffee|favourite/i,'#B5533C','M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z']];
+// The attributes and icon for a tile from its label (and, for the strength row, its value).
+function tileOf(label,val){const s=String(label||'')+' '+String(val||'');const m=TILE_K.find(([re])=>re.test(String(label||'')))||(/light|medium|strong|gentle|vigorous/i.test(String(val||''))?TILE_K[5]:null);
+  return m?[' class="tl" style="--tc:'+m[1]+'"','<svg class="st-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="'+m[2]+'"/></svg>']:['','']}
 // Sets a block's HTML only when it differs from what it last set: drawing the same thing again on each visit made the
 // browser restyle and lay it out again, part of what a tab change cost.
 function setHTML(el,h){if(el._h===h)return false;el._h=h;el.innerHTML=h;return true}
@@ -1415,8 +1438,8 @@ const stepList=steps=>{const c=pourCurve(steps);return '<ol class="steps tl">'+s
 function recipeBody(r,i,compact,inSheet){const B=BREWERS[r.b],sc=compact?{dose:r.dose,water:r.water,steps:r.steps,off:r.off,ratio:r.water/r.dose}:scaled(r);const gs=MYG.map(g=>[g,settingFor(g,r.b,sc.off)]);
   const m=rmeta(r);
   return (compact?'<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span>':'')+'</div>'
-     :'<p class="hint" style="margin:0 0 .2rem">'+esc(B.name)+' · '+esc(B.type)+'</p>'+'<div class="rstats"><div><b>'+r.dose+'g</b><small>Coffee</small></div><div><b>'+r.water+'g</b><small>'+(r.iced?'Hot water':'Water')+'</small></div><div><b>'+(r.iced?'1:'+Math.round(r.total/r.dose*10)/10:m.ratio||'–')+'</b><small>Ratio'+(r.iced?' with ice':'')+'</small></div>'+
-       '<div><b>'+(r.temp?r.temp+'°C':'–')+'</b><small>'+(r.temp2?'Then '+r.temp2+'°C':'Water')+'</small></div><div><b>'+(m.time!=null?mmss(m.time):'By eye')+'</b><small>Total time</small></div><div><b>'+m.level+'</b><small>'+m.pours+' pour'+(m.pours===1?'':'s')+'</small></div></div>')+
+     :'<p class="hint" style="margin:0 0 .2rem">'+esc(B.name)+' · '+esc(B.type)+'</p>'+'<div class="rstats tinted">'+[[r.dose+'g','Coffee'],[r.water+'g',r.iced?'Hot water':'Water'],[r.iced?'1:'+Math.round(r.total/r.dose*10)/10:m.ratio||'–','Ratio'+(r.iced?' with ice':'')],
+       [r.temp?r.temp+'°C':'–',r.temp2?'Then '+r.temp2+'°C':'Temperature'],[m.time!=null?mmss(m.time):'By eye','Total time'],[m.level,m.pours+' pour'+(m.pours===1?'':'s')]].map(([v,l])=>{const [a,ic]=tileOf(l,v);return '<div'+a+'>'+ic+'<b>'+v+'</b><small>'+l+'</small></div>'}).join('')+'</div>')+
    '<div class="meta">'+gs.map(([g,v])=>'<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>').join('')+'</div>'+
    (r.why?'<p>'+esc(r.why)+'</p>':'')+(compact?'<details class="rsteps"><summary>Steps ('+r.steps.length+')</summary>':'')+(compact?'':pourGraph(sc.steps,sc.water))+stepList(sc.steps)+(r.tip?'<p class="hint">'+esc(r.tip)+'</p>':'')+(compact?'</details>':'')+
    '<div class="actions ib-row">'+(B.model?ib('timer','data-timer="'+i+'"','Start the timer','main')+ib('cup','data-load="'+i+'"','Brew in the dial-in'):ib('timer','data-timer="'+i+'"','Start the timer','main'))+(inSheet?'':icoBtn('share','data-rshare="'+i+'"','Share this recipe')+(r.custom?icoBtn('edit','data-redit="'+esc(r.id)+'"','Edit this recipe'):''))+'</div>'}
@@ -1745,10 +1768,14 @@ $('l-fab-new').onclick=()=>{const f=$('l-form');f.scrollIntoView({behavior:match
 let FAB_OPEN=null,FAB_BACKING=false,FAB_AFTER=null,FAB_SHOW=()=>{};
 function fabMenu(fabId,items){const f=$(fabId),m=f.querySelector('.fab-menu'),b=f.querySelector('.fab-main');let scrim=null;
   const lockOn=on=>document.documentElement.classList.toggle('fab-lock',on);
-  const close=(fromPop,after)=>{if(m.hidden)return;m.hidden=true;f.classList.remove('open');b.setAttribute('aria-expanded','false');lockOn(false);if(scrim){scrim.remove();scrim=null}FAB_OPEN=null;
+  // Closing plays the opening in reverse (the panel sinks back into the + and the veil fades), then hides it; everything
+  // else (the + itself, the scroll lock, back) is settled at once.
+  const close=(fromPop,after)=>{if(m.hidden||!f.classList.contains('open'))return;f.classList.remove('open');b.setAttribute('aria-expanded','false');lockOn(false);FAB_OPEN=null;
+    const sc=scrim;scrim=null;const gone=()=>{m.hidden=true;m.classList.remove('closing');if(sc)sc.remove()};
+    if(RM())gone();else{m.classList.add('closing');if(sc)sc.classList.add('closing');clearTimeout(m._ct);m._ct=setTimeout(gone,190)}
     // Closed by a tap or a pick: take back the step it added, then do the pick once history has settled.
     if(!fromPop&&history.state&&history.state.fab){FAB_BACKING=true;FAB_AFTER=after||null;history.back()}else if(after)after()};
-  const open=()=>{if(FAB_OPEN)FAB_OPEN();m.innerHTML=items().map(([k,l,ic],i,a)=>'<button type="button" class="fab-mi" role="menuitem" data-fab="'+k+'" style="--k:'+(a.length-1-i)+'"><span>'+l+'</span><i aria-hidden="true">'+lIc(ic)+'</i></button>').join('');
+  const open=()=>{if(FAB_OPEN)FAB_OPEN();if(m._ct){clearTimeout(m._ct);m._ct=0;m.classList.remove('closing');document.querySelectorAll('.fab-scrim.closing').forEach(s=>s.remove())}m.innerHTML=items().map(([k,l,ic],i,a)=>'<button type="button" class="fab-mi" role="menuitem" data-fab="'+k+'" style="--k:'+(a.length-1-i)+'"><span>'+l+'</span><i aria-hidden="true">'+lIc(ic)+'</i></button>').join('');
     m.hidden=false;f.classList.add('open');b.setAttribute('aria-expanded','true');lockOn(true);
     scrim=document.createElement('div');scrim.className='fab-scrim';scrim.onclick=()=>close();
     // A finger dragging on the scrim doesn't scroll the page behind it.
@@ -2217,7 +2244,7 @@ function selectOrigin(k,zoom){
   const r=REG[o.reg];
   $('info').innerHTML='<div class="info-top"><div class="flag" aria-hidden="true">'+o.flag+'</div>'+icoBtn('share','data-oshare="'+k+'"','Share this origin')+'</div><h2>'+esc(o.name)+'</h2><span class="pill"><i style="background:'+r.color+'"></i>'+r.name+'</span>'+
    '<h3>Regions</h3><div class="chips">'+o.subs.map(s=>'<span class="chip">'+esc(s)+'</span>').join('')+'</div>'+
-   '<div class="stats"><div><b>Altitude</b>'+esc(o.alt)+'</div><div><b>Harvest</b>'+esc(o.harvest)+'</div><div><b>Processing</b>'+esc(o.process)+'</div></div>'+
+   '<div class="stats">'+[['Altitude',o.alt],['Harvest',o.harvest],['Processing',o.process]].map(([k,v])=>{const [a,ic]=tileOf(k);return '<div'+a+'>'+ic+'<b>'+k+'</b>'+esc(v)+'</div>'}).join('')+'</div>'+
    '<h3>In the cup</h3><p>'+esc(o.cup)+'</p><h3>Story</h3><p>'+esc(o.hist)+'</p>'+
    '<h3>Varieties grown here</h3><div class="chips">'+o.vars.map(vbtn).join('')+'</div>'+
    '<div class="fact"><b>Did you know?</b> '+esc(o.fact)+'</div>';
@@ -2300,7 +2327,7 @@ function renderCalc(){
   seg('c-pre',[['1','1 cup'],['2','2 cups'],['esp','Espresso'],['cold','Cold brew']],()=>CALC.pre,v=>{CALC.pre=v;Object.assign(CALC,{'1':{dose:15,ratio:16.5},'2':{dose:30,ratio:16.5},'esp':{dose:18,ratio:2},'cold':{dose:50,ratio:8}}[v]);renderCalc()});
   // Espresso ratios are written as the shot's weight in the cup, not the water that went through, so there is nothing to
   // take off for the grounds. Elsewhere the grounds hold back about twice their weight. Blooms and 4:6 pours are for filter.
-  const cell=(k,v,n)=>'<div><b>'+k+'</b><span>'+v+'</span><small>'+n+'</small></div>';
+  const cell=(k,v,n)=>{const [a,ic]=tileOf(k,v);return '<div'+a+'>'+ic+'<b>'+k+'</b><span>'+v+'</span><small>'+n+'</small></div>'};
   $('c-out').innerHTML=CALC.ratio<=4?cell('Shot weight',w+'g','in the cup, from '+CALC.dose+'g of coffee')+cell('Shot time','25 to 30s','from the moment the pump starts')
     :cell('Water',w+'g','about '+w+' ml')+cell('In the cup',Math.round(w-CALC.dose*2)+'g','after the grounds hold some back')+
      (CALC.ratio<10?cell('Steep','12 to 18 hours','in the fridge, then filter. Dilute to taste'):cell('Bloom water',Math.round(CALC.dose*2.5)+'g','about 2.5 times the dose')+cell('4:6 pours',Math.round(w/5)+'g','five equal pours'));
@@ -2567,7 +2594,7 @@ function renderLog(){renderShare();renderLastBrew();
   const rated=LOG.filter(l=>+l.stars>0),avg=rated.length?(rated.reduce((a,l)=>a+ +l.stars,0)/rated.length).toFixed(1):'–';
   const cnt={};LOG.forEach(l=>{if(l.brewer)cnt[l.brewer]=(cnt[l.brewer]||0)+1});const fav=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];
   const best=rated.slice().sort((a,b)=>b.stars-a.stars||b.ts-a.ts)[0];
-  const stat=(k,v,small)=>'<div><b>'+k+'</b><span'+(String(v).length>6?' style="font-size:1rem"':'')+'>'+v+'</span>'+(small?'<small>'+small+'</small>':'')+'</div>';
+  const stat=(k,v,small)=>{const [a,ic]=tileOf(k,v);return '<div'+a+'>'+ic+'<b>'+k+'</b><span'+(String(v).length>6?' style="font-size:1rem"':'')+'>'+v+'</span>'+(small?'<small>'+small+'</small>':'')+'</div>'};
   $('l-stats').innerHTML=LOG.length?stat('Brews logged',LOG.length)+stat('Average rating',avg,rated.length?'out of 5':'no ratings yet')+(fav?stat('Favourite brewer',esc(BREWERS[fav[0]]?BREWERS[fav[0]].name:fav[0])):'')+(best?stat('Top coffee',esc(best.coffee||'Untitled')):''):'';
   $('l-csv').hidden=!LOG.length;
 }
