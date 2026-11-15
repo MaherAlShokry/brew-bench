@@ -1855,11 +1855,15 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .bagl{display:flex;flex-direction:column;gap:4px;margin-top:auto}.bagl small{font-size:.76rem;color:var(--muted);font-variant-numeric:tabular-nums}
 .bagm{display:block;height:6px;border-radius:3px;background:var(--surface2);overflow:hidden}.bagm i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#8A5A3B,#C9964A)}
 .bg-empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;margin:8px 0 18px;padding:28px 20px 24px;border-radius:var(--r-lg,22px);border:1.5px dashed var(--line);background:color-mix(in srgb,var(--cherry) 4%,var(--surface))}
-.bg-empty svg{width:72px;height:72px;padding:14px;margin-bottom:6px;border-radius:50%;background:color-mix(in srgb,var(--cherry) 14%,var(--surface));animation:bgfloat 4s ease-in-out infinite}
+.bg-empty>svg{width:72px;height:72px;padding:14px;margin-bottom:6px;border-radius:50%;background:color-mix(in srgb,var(--cherry) 14%,var(--surface));animation:bgfloat 4s ease-in-out infinite}
 .bg-empty .bo{fill:var(--cherry)}.bg-empty .bc{fill:none;stroke:var(--surface);stroke-width:1.6;stroke-linecap:round}
+.bg-empty.ic>svg{fill:none;stroke:var(--cherry);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;padding:18px}
+/* Its one action, under the text. */
+.bg-empty .empty-go{margin-top:12px}
+.pp-none{color:#2A1A10;background:rgba(255,255,255,.5);border-color:rgba(122,74,38,.3)}.pp-none p{color:#5A3E2A}.pp-none>svg{background:rgba(122,74,38,.12);stroke:#7A4A26}
 .bg-empty b{font-family:var(--display);font-size:1.1rem}.bg-empty p{margin:0;max-width:36ch;font-size:.9rem;color:var(--muted)}
 @keyframes bgfloat{50%{transform:translateY(-4px) rotate(-6deg)}}
-@media (prefers-reduced-motion:reduce){.bg-empty svg{animation:none}}
+@media (prefers-reduced-motion:reduce){.bg-empty>svg{animation:none}}
 .shelf-empty{margin:0 2px 14px;padding:12px 14px;border-radius:var(--r-md);border:1.5px dashed var(--line);font-size:.86rem;color:var(--muted)}
 /* The trophies along the top of the cabinet */
 .tshelf{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;margin:4px 0 4px;border-radius:var(--r-md);border:0;font:inherit;cursor:pointer;text-align:left;color:var(--ink);background:var(--surface2)}
@@ -2899,6 +2903,18 @@ textarea{resize:none}
 .setrow .setbtns{display:flex;flex-wrap:wrap;gap:8px}.setrow .setbtns.rem{display:grid}
 .setrow>.setnote,.setrow>.setbtns{margin-left:48px!important}
 
+
+/* ---------- One card system ----------
+   Every top-level card is the same shape: 22px corners (var(--r-lg)) and 16px inside, with the same hairline and
+   shadow; heroes (the covers at the top of Beans, Top 5, the passport) keep their larger 28px. */
+.qlinks,.rgrp,.setgroup,.hubgrid,.season,.re-card,.cday,.today{border-radius:var(--r-lg)}
+.season{padding:16px}.re-card{padding:16px 16px 6px}.cday{padding:14px 16px 14px 14px}.today{padding:16px 16px 8px}
+/* Dark mode depth: cards catch a faint light along their top edge and a whisper of warmth from above, so they lift off
+   the page instead of sitting flat on it (in every vibe: the tint is the vibe's own ink). */
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(.panel,.card,.welcome,.lastbrew,.clist,.qlinks,.rgrp,.setgroup,.hubgrid,.today,.re-card,.logentry){
+  background-image:linear-gradient(180deg,color-mix(in srgb,var(--ink) 3.5%,transparent),transparent 72px);box-shadow:inset 0 1px 0 color-mix(in srgb,var(--ink) 7%,transparent),0 14px 30px -18px rgba(0,0,0,.75)}}
+:root[data-theme="dark"] :is(.panel,.card,.welcome,.lastbrew,.clist,.qlinks,.rgrp,.setgroup,.hubgrid,.today,.re-card,.logentry){
+  background-image:linear-gradient(180deg,color-mix(in srgb,var(--ink) 3.5%,transparent),transparent 72px);box-shadow:inset 0 1px 0 color-mix(in srgb,var(--ink) 7%,transparent),0 14px 30px -18px rgba(0,0,0,.75)}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>

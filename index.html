@@ -1835,11 +1835,15 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .bagl{display:flex;flex-direction:column;gap:4px;margin-top:auto}.bagl small{font-size:.76rem;color:var(--muted);font-variant-numeric:tabular-nums}
 .bagm{display:block;height:6px;border-radius:3px;background:var(--surface2);overflow:hidden}.bagm i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#8A5A3B,#C9964A)}
 .bg-empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;margin:8px 0 18px;padding:28px 20px 24px;border-radius:var(--r-lg,22px);border:1.5px dashed var(--line);background:color-mix(in srgb,var(--cherry) 4%,var(--surface))}
-.bg-empty svg{width:72px;height:72px;padding:14px;margin-bottom:6px;border-radius:50%;background:color-mix(in srgb,var(--cherry) 14%,var(--surface));animation:bgfloat 4s ease-in-out infinite}
+.bg-empty>svg{width:72px;height:72px;padding:14px;margin-bottom:6px;border-radius:50%;background:color-mix(in srgb,var(--cherry) 14%,var(--surface));animation:bgfloat 4s ease-in-out infinite}
 .bg-empty .bo{fill:var(--cherry)}.bg-empty .bc{fill:none;stroke:var(--surface);stroke-width:1.6;stroke-linecap:round}
+.bg-empty.ic>svg{fill:none;stroke:var(--cherry);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;padding:18px}
+
+.bg-empty .empty-go{margin-top:12px}
+.pp-none{color:#2A1A10;background:rgba(255,255,255,.5);border-color:rgba(122,74,38,.3)}.pp-none p{color:#5A3E2A}.pp-none>svg{background:rgba(122,74,38,.12);stroke:#7A4A26}
 .bg-empty b{font-family:var(--display);font-size:1.1rem}.bg-empty p{margin:0;max-width:36ch;font-size:.9rem;color:var(--muted)}
 @keyframes bgfloat{50%{transform:translateY(-4px) rotate(-6deg)}}
-@media (prefers-reduced-motion:reduce){.bg-empty svg{animation:none}}
+@media (prefers-reduced-motion:reduce){.bg-empty>svg{animation:none}}
 .shelf-empty{margin:0 2px 14px;padding:12px 14px;border-radius:var(--r-md);border:1.5px dashed var(--line);font-size:.86rem;color:var(--muted)}
 
 .tshelf{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;margin:4px 0 4px;border-radius:var(--r-md);border:0;font:inherit;cursor:pointer;text-align:left;color:var(--ink);background:var(--surface2)}
@@ -2850,12 +2854,21 @@ textarea{resize:none}
 .setrow .setbtns{display:flex;flex-wrap:wrap;gap:8px}.setrow .setbtns.rem{display:grid}
 .setrow>.setnote,.setrow>.setbtns{margin-left:48px!important}
 
+
+
+.qlinks,.rgrp,.setgroup,.hubgrid,.season,.re-card,.cday,.today{border-radius:var(--r-lg)}
+.season{padding:16px}.re-card{padding:16px 16px 6px}.cday{padding:14px 16px 14px 14px}.today{padding:16px 16px 8px}
+
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(.panel,.card,.welcome,.lastbrew,.clist,.qlinks,.rgrp,.setgroup,.hubgrid,.today,.re-card,.logentry){
+  background-image:linear-gradient(180deg,color-mix(in srgb,var(--ink) 3.5%,transparent),transparent 72px);box-shadow:inset 0 1px 0 color-mix(in srgb,var(--ink) 7%,transparent),0 14px 30px -18px rgba(0,0,0,.75)}}
+:root[data-theme="dark"] :is(.panel,.card,.welcome,.lastbrew,.clist,.qlinks,.rgrp,.setgroup,.hubgrid,.today,.re-card,.logentry){
+  background-image:linear-gradient(180deg,color-mix(in srgb,var(--ink) 3.5%,transparent),transparent 72px);box-shadow:inset 0 1px 0 color-mix(in srgb,var(--ink) 7%,transparent),0 14px 30px -18px rgba(0,0,0,.75)}
 </style>
 <script>const JSPDF_SRC="vendor/jspdf.umd.min.js"</script>
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="eb168e75b81a"</script>
+<script>const BUILD_ID="8cc66ccf16b2"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -6232,6 +6245,9 @@ function rollNow(el){const v=el.dataset.roll,to=parseFloat(v),dp=(v.split('.')[1
   el.textContent=(0).toFixed(dp);const f=n=>{const k=Math.min(1,(n-t0)/D),e=1-Math.pow(1-k,3);el.textContent=(to*e).toFixed(dp);if(k<1)requestAnimationFrame(f)};requestAnimationFrame(f)}
 function rollIn(root){if(!root||!ROLL_IO||RM())return;root.querySelectorAll('[data-roll]').forEach((el,i)=>{const k=root.id+':'+i;
   if(ROLLED.has(k))return;ROLLED.add(k);if(parseFloat(el.dataset.roll)>0)el.textContent=(0).toFixed((el.dataset.roll.split('.')[1]||'').length);ROLL_IO.observe(el)})}
+// An empty list's one action (see .bg-empty): add a coffee, scan a bag, or go and brew.
+document.addEventListener('click',e=>{const b=e.target.closest('[data-empty]');if(!b)return;const k=b.dataset.empty;
+  if(k==='bean')openBeanEditor();else if(k==='scan'){showTab('scan');newScan();scrollTo(0,0)}else if(k==='dial')goTab('dial')});
 // Sets a block's HTML only when it differs from what it last set: drawing the same thing again on each visit made the
 // browser restyle and lay it out again, part of what a tab change cost.
 function setHTML(el,h){if(el._h===h)return false;el._h=h;el.innerHTML=h;return true}
@@ -8047,8 +8063,8 @@ function renderLogList(force){const sec=$('log');if(!force&&sec&&!sec.classList.
   for(let k=0;k<rows.length;k++)h+='<div class="le-slide" data-k="'+k+'"></div>';h+='</div>';
   // Keep your place in the slider when the list is redrawn (a rating, an edit, a deletion).
   const keepX=$('l-track')?$('l-track').scrollLeft:0;
-  $('l-list').innerHTML=!LOG.length?'<div class="le-empty">'+lIc('edit')+'<b>No brews yet</b><p>Dial one in, then tap “Log this brew”, or fill in the form above.</p></div>':
-    rows.length?(rows.length<LOG.length?'<p class="le-count">Showing '+rows.length+' of '+LOG.length+' brews</p>':'')+h:'<div class="le-empty">'+lIc('search')+'<b>No brews match</b><p><button type="button" class="linkbtn" id="lf-clear">Clear the filters</button></p></div>';
+  $('l-list').innerHTML=!LOG.length?'<div class="bg-empty ic">'+lIc('cup')+'<b>No brews yet</b><p>Dial one in and brew it, then tap “Log this brew”. Or fill in the form above.</p>'+pbtn('again','data-empty="dial"','Dial in a brew','main empty-go')+'</div>':
+    rows.length?(rows.length<LOG.length?'<p class="le-count">Showing '+rows.length+' of '+LOG.length+' brews</p>':'')+h:'<div class="bg-empty ic">'+lIc('search')+'<b>No brews match</b><p>Nothing in your log fits these filters.</p><button type="button" class="pbtn empty-go" id="lf-clear">Clear the filters</button></div>';
   const c=$('lf-clear');if(c)c.onclick=()=>{LF.q='';const qi=$('lf-q');if(qi)qi.value='';LF.min=0;LF.who=[];saveLF();renderLogList()};
   const tr=$('l-track');
   const fill=k=>{if(!tr)return;for(let j=Math.max(0,k-2);j<=Math.min(rows.length-1,k+3);j++){const sl=tr.children[j];if(!sl||sl.dataset.f)continue;const [l,i]=rows[j];sl.dataset.f=1;
@@ -10717,7 +10733,7 @@ function renderRoasteriesView(){const p=$('bv-roasteries');if(!p)return;const al
   const acts='<span class="rov-acts">'+(all.length>1?'<button type="button" class="sh-mini ic" id="rov-sort" aria-label="Sort: '+ROSORTS.find(x=>x[0]===ROSORT)[1]+'" title="Sort: '+ROSORTS.find(x=>x[0]===ROSORT)[1]+'">'+IC_SORT+'</button>':'')+'<button type="button" class="sh-mini ic" id="rov-add" aria-label="Add a roastery" title="Add a roastery">'+PLUS_ICO+'</button>'+(all.length?'<button type="button" class="sh-mini ic" id="rov-share" aria-label="Share your roasteries" title="Share">'+SH_ICO+'</button>':'')+'</span>';
   const xrow=n=>'<button type="button" class="crow rov-row" data-ro="'+esc(n)+'">'+roMark(n,true)+'<span class="cr-tx"><span class="cr-top"><b>'+esc(n)+'</b></span><small>No coffees yet</small></span></button>';
   p.onclick=e=>{if(e.target.closest('#rov-sort')){e.stopPropagation();openChoices({title:'Sort roasteries',one:'roastery',get:()=>ROSORT,set:(k,v)=>{ROSORT=v;save('bb-rosort',v)},render:renderRoasteriesView,count:()=>roasteries().length,secs:()=>[{key:'sort',opts:ROSORTS}]});return}if(e.target.closest('#rov-add')){e.stopPropagation();openAddRoastery();return}if(e.target.closest('#rov-share')){e.stopPropagation();openShare(roasteriesDoc())}};
-  if(!all.length){p.innerHTML='<div class="shelf-h"><b>Your roasteries</b>'+acts+'</div>'+(extra.length?'<div class="clist rov">'+extra.map(xrow).join('')+'</div>':'<div class="bg-empty">'+beanSVG+'<b>No roasteries yet</b><p>Add the roastery to your coffees and they gather here, each with its own page.</p></div>');return}
+  if(!all.length){p.innerHTML='<div class="shelf-h"><b>Your roasteries</b>'+acts+'</div>'+(extra.length?'<div class="clist rov">'+extra.map(xrow).join('')+'</div>':'<div class="bg-empty">'+beanSVG+'<b>No roasteries yet</b><p>Add the roastery to your coffees and they gather here, each with its own page.</p>'+pbtn('plus','data-empty="bean"','Add a coffee','main empty-go')+'</div>');return}
   const coffees=all.reduce((n,r)=>n+r.list.length,0),top=all.filter(r=>r.avg).sort((a,b)=>b.avg-a.avg||b.list.length-a.list.length)[0],pick=favRo(),
     picked=pick&&all.find(r=>roKey(r.name)===roKey(pick)),fav=picked||top;
   const half=v=>String(Math.round(v*2)/2).replace('.5','½');
@@ -10896,7 +10912,7 @@ function renderDiaryList(){vwSet('dyf',DYF);const p=$('dy-list');if(!p)return;co
   const mk=(list,prev)=>{const g=[];for(const it of list){const m=new Date(it.t).toLocaleDateString(undefined,{month:'long',year:'numeric'});if(!g.length||g[g.length-1][0]!==m)g.push([m,[]]);g[g.length-1][1].push(it)}
     return g.map(([m,l],i)=>'<div class="dy-grp">'+(i||m!==prev?'<h4 class="dy-m">'+esc(m)+'</h4>':'')+timelineHTML(l,true)+'</div>').join('')};
   const shown=items.slice(0,DLIM),FIRST=DLIM>40?1e9:12,more=items.length>DLIM?'<button type="button" class="btn ghost dy-more" id="dy-more">Show '+Math.min(60,items.length-DLIM)+' more</button>':'';
-  if(!items.length){p.innerHTML=DYI.length?'<p class="hint">Nothing here yet.</p>':'<div class="bg-empty">'+beanSVG+'<b>Nothing written yet</b><p>'+(BEANS.length?'Write the first entry above, or log a brew with the coffee picked on the dial-in.':'Add a coffee first, then its story starts here.')+'</p></div>';return}
+  if(!items.length){p.innerHTML=DYI.length?'<p class="hint">Nothing here yet.</p>':'<div class="bg-empty">'+beanSVG+'<b>Nothing written yet</b><p>'+(BEANS.length?'Write the first entry above, or log a brew with the coffee picked on the dial-in.':'Add a coffee first, then its story starts here.')+'</p>'+(BEANS.length?'':pbtn('plus','data-empty="bean"','Add a coffee','main empty-go'))+'</div>';return}
   const mo=it=>new Date(it.t).toLocaleDateString(undefined,{month:'long',year:'numeric'});
   p.innerHTML=mk(shown.slice(0,FIRST))+(shown.length>FIRST?'':more);hydrateImgs(p);
   if(shown.length>FIRST)afterPaint(()=>{if(tok!==DYTOK||!p.isConnected)return;p.insertAdjacentHTML('beforeend',mk(shown.slice(FIRST),mo(shown[FIRST-1]))+more);hydrateImgs(p)})}
@@ -10971,10 +10987,10 @@ function renderPassport(){const p=$('bv-passport');if(!p)return;const st=cabStat
   const pct=total?Math.round(onMap/total*100):0,off=got.filter(k=>k!=='blend').length-onMap;
   p.innerHTML='<div class="passport"><div class="pp-cover"><div class="pp-h"><span class="pp-k">'+PP_GLOBE+'Coffee passport</span>'+(got.length?'<button type="button" class="sh-mini ic pp-share" data-ppshare aria-label="Share your passport" title="Share">'+SH_ICO+'</button>':'')+'</div>'+
     '<div class="pp-sum"><h3><b>'+'<i class="rl" data-roll="'+onMap+'">'+onMap+'</i>'+'</b><em>of '+total+' origins'+(off>0?' · +'+off+' more':'')+'</em></h3>'+
-    '<span class="pp-ring" role="img" aria-label="'+pct+'% of origins collected"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="27" pathLength="100"/><circle class="on" cx="32" cy="32" r="27" pathLength="100" stroke-dasharray="'+pct+' 100"/></svg><b>'+'<i class="rl" data-roll="'+pct+'">'+pct+'</i>'+'<small>%</small></b></span></div>'+
+    '<span class="pp-ring" role="img" aria-label="'+pct+'% of origins collected"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="27" pathLength="100"/>'+(pct?'<circle class="on" cx="32" cy="32" r="27" pathLength="100" stroke-dasharray="'+pct+' 100"/>':'')+'</svg><b>'+'<i class="rl" data-roll="'+pct+'">'+pct+'</i>'+'<small>%</small></b></span></div>'+
     '<div class="pp-regs">'+regs+blendReg+'</div></div><div class="pp-pages">'+
     (got.length?'<div class="pp-ph"><span>Stamps</span><b>'+got.length+'</b></div><div class="pp-grid">'+got.map((k,i)=>'<button type="button" class="pp-st" data-ppo="'+k+'" style="--r:'+(((i*37)%15)-7)+'deg"><img alt="" src="'+(STAMPS.get(k)||STAMP_WAIT)+'" data-stamp="'+k+'"><b>'+esc(originName(k))+'</b><small>'+(k==='blend'?by.blend.length+' blend'+(by.blend.length===1?'':'s'):nBags(k)+' bag'+(nBags(k)===1?'':'s'))+' · '+first(k).slice(0,4)+'</small></button>').join('')+'</div>'
-      :'<p class="pp-empty">Your first stamp arrives with your first coffee.</p>')+
+      :'<div class="bg-empty ic pp-none">'+PP_GLOBE+'<b>No stamps yet</b><p>Your first stamp arrives with your first coffee, one for every origin you try.</p>'+pbtn('plus','data-empty="bean"','Add a coffee','main empty-go')+'</div>')+
     // Origins still to collect: empty stamp spaces with the country's flag, each opening it on the map.
     (next.length?'<div class="pp-next"><div class="pp-ph"><span>Still to discover</span></div><div class="pp-slots">'+[...new Set(next)].map(k=>{const o=ALLO()[k],r=REG[o.reg];
       return '<button type="button" class="pp-slot" data-o="'+k+'" aria-label="'+esc(originName(k))+': see it on the map"><span class="pp-sc" aria-hidden="true">'+(o.flag||'')+'</span><b>'+esc(originName(k))+'</b><small>'+esc(r?r.name.replace(' and Caribbean','').replace(' and Pacific',''):'')+'</small></button>'}).join('')+'</div></div>':'')+'</div></div>';fillStamps(p);rollIn(p)}

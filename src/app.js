@@ -728,6 +728,9 @@ function rollNow(el){const v=el.dataset.roll,to=parseFloat(v),dp=(v.split('.')[1
   el.textContent=(0).toFixed(dp);const f=n=>{const k=Math.min(1,(n-t0)/D),e=1-Math.pow(1-k,3);el.textContent=(to*e).toFixed(dp);if(k<1)requestAnimationFrame(f)};requestAnimationFrame(f)}
 function rollIn(root){if(!root||!ROLL_IO||RM())return;root.querySelectorAll('[data-roll]').forEach((el,i)=>{const k=root.id+':'+i;
   if(ROLLED.has(k))return;ROLLED.add(k);if(parseFloat(el.dataset.roll)>0)el.textContent=(0).toFixed((el.dataset.roll.split('.')[1]||'').length);ROLL_IO.observe(el)})}
+// An empty list's one action (see .bg-empty): add a coffee, scan a bag, or go and brew.
+document.addEventListener('click',e=>{const b=e.target.closest('[data-empty]');if(!b)return;const k=b.dataset.empty;
+  if(k==='bean')openBeanEditor();else if(k==='scan'){showTab('scan');newScan();scrollTo(0,0)}else if(k==='dial')goTab('dial')});
 // Sets a block's HTML only when it differs from what it last set: drawing the same thing again on each visit made the
 // browser restyle and lay it out again, part of what a tab change cost.
 function setHTML(el,h){if(el._h===h)return false;el._h=h;el.innerHTML=h;return true}
@@ -2543,8 +2546,8 @@ function renderLogList(force){const sec=$('log');if(!force&&sec&&!sec.classList.
   for(let k=0;k<rows.length;k++)h+='<div class="le-slide" data-k="'+k+'"></div>';h+='</div>';
   // Keep your place in the slider when the list is redrawn (a rating, an edit, a deletion).
   const keepX=$('l-track')?$('l-track').scrollLeft:0;
-  $('l-list').innerHTML=!LOG.length?'<div class="le-empty">'+lIc('edit')+'<b>No brews yet</b><p>Dial one in, then tap “Log this brew”, or fill in the form above.</p></div>':
-    rows.length?(rows.length<LOG.length?'<p class="le-count">Showing '+rows.length+' of '+LOG.length+' brews</p>':'')+h:'<div class="le-empty">'+lIc('search')+'<b>No brews match</b><p><button type="button" class="linkbtn" id="lf-clear">Clear the filters</button></p></div>';
+  $('l-list').innerHTML=!LOG.length?'<div class="bg-empty ic">'+lIc('cup')+'<b>No brews yet</b><p>Dial one in and brew it, then tap “Log this brew”. Or fill in the form above.</p>'+pbtn('again','data-empty="dial"','Dial in a brew','main empty-go')+'</div>':
+    rows.length?(rows.length<LOG.length?'<p class="le-count">Showing '+rows.length+' of '+LOG.length+' brews</p>':'')+h:'<div class="bg-empty ic">'+lIc('search')+'<b>No brews match</b><p>Nothing in your log fits these filters.</p><button type="button" class="pbtn empty-go" id="lf-clear">Clear the filters</button></div>';
   const c=$('lf-clear');if(c)c.onclick=()=>{LF.q='';const qi=$('lf-q');if(qi)qi.value='';LF.min=0;LF.who=[];saveLF();renderLogList()};
   const tr=$('l-track');
   const fill=k=>{if(!tr)return;for(let j=Math.max(0,k-2);j<=Math.min(rows.length-1,k+3);j++){const sl=tr.children[j];if(!sl||sl.dataset.f)continue;const [l,i]=rows[j];sl.dataset.f=1;
