@@ -307,7 +307,12 @@ final class BrewTimer {
      * The round badge on the right of the notification: the amount this step pours large ("+30g", or "150g" for a pour
      * up to a total on the scale), and which step of how many under it ("1 of 10"), in the app's coffee colours.
      */
+    // The notification is redrawn every second; the badge only changes with the step, so it is drawn once per step.
+    private static String BADGE_KEY = null;
+    private static android.graphics.Bitmap BADGE = null;
     static android.graphics.Bitmap badge(String step, int i, int n) {
+        String key = step + "|" + i + "|" + n;
+        if (key.equals(BADGE_KEY) && BADGE != null) return BADGE;
         int z = 192;
         android.graphics.Bitmap bm = android.graphics.Bitmap.createBitmap(z, z, android.graphics.Bitmap.Config.ARGB_8888);
         android.graphics.Canvas cv = new android.graphics.Canvas(bm);
@@ -316,39 +321,82 @@ final class BrewTimer {
         cv.drawCircle(z / 2f, z / 2f, z / 2f, bg);
         java.util.regex.Matcher m = java.util.regex.Pattern.compile("(?i)(to\\s*)?(\\d+(?:\\.\\d+)?)\\s?(g|ml)\\b").matcher(step == null ? "" : step);
         boolean f = m.find();
-        String big = f ? (m.group(1) != null ? "" : "+") + m.group(2) + m.group(3).toLowerCase(Locale.US) : String.valueOf(i);
+        // The amount large and bold with its unit small beside it ("+30" "g"), the step under it ("1 of 10"); the pair is
+        // centred on the circle from the real text metrics and kept to 60% of its width, well clear of the edge.
+        String num = f ? (m.group(1) != null ? "" : "+") + m.group(2) : String.valueOf(i);
+        String unit = f ? m.group(3).toLowerCase(Locale.US) : "";
         String small = f ? i + " of " + n : "of " + n;
-        android.graphics.Paint t = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
-        t.setColor(0xFFFFFFFF);
-        t.setTextAlign(android.graphics.Paint.Align.CENTER);
-        t.setTypeface(android.graphics.Typeface.create(android.graphics.Typeface.DEFAULT, android.graphics.Typeface.BOLD));
-        t.setTextSize(big.length() > 5 ? 46 : big.length() > 4 ? 54 : 62);
-        cv.drawText(big, z / 2f, z * 0.52f, t);
-        t.setTypeface(android.graphics.Typeface.DEFAULT);
-        t.setTextSize(28);
-        t.setAlpha(225);
-        cv.drawText(small, z / 2f, z * 0.74f, t);
+        android.graphics.Paint pn = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG), pu = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG), ps = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
+        pn.setColor(0xFFFFFFFF); pu.setColor(0xEBFFFFFF); ps.setColor(0xD1FFFFFF);
+        pn.setTypeface(android.graphics.Typeface.create(android.graphics.Typeface.DEFAULT, android.graphics.Typeface.BOLD));
+        float s1 = 58;
+        pn.setTextSize(s1); pu.setTextSize(s1 * .5f); ps.setTextSize(24);
+        float gapU = unit.isEmpty() ? 0 : 2, max = z * 0.6f;
+        while (s1 > 20 && pn.measureText(num) + gapU + pu.measureText(unit) > max) { s1 -= 2; pn.setTextSize(s1); pu.setTextSize(s1 * .5f); }
+        android.graphics.Rect rn = new android.graphics.Rect(), rs = new android.graphics.Rect();
+        pn.getTextBounds(num, 0, num.length(), rn);
+        ps.getTextBounds("0 of 10", 0, 7, rs);
+        float gap = 14, block = -rn.top + gap + rs.height(), top = (z - block) / 2f, base = top - rn.top;
+        float w = pn.measureText(num) + gapU + pu.measureText(unit), x0 = z / 2f - w / 2f;
+        cv.drawText(num, x0, base, pn);
+        if (!unit.isEmpty()) cv.drawText(unit, x0 + pn.measureText(num) + gapU, base, pu);
+        ps.setTextAlign(android.graphics.Paint.Align.CENTER);
+        cv.drawText(small, z / 2f, base + gap - rs.top, ps);
+        BADGE_KEY = key; BADGE = bm;
         return bm;
     }
 
-    /** The bar: one segment per step, a dot where each starts (Android 16), else a plain progress bar. In seconds. */
+    /**
+     * The marker that rides the bar: a white disc with a thin ring, a coffee-coloured centre and a bean in it, drawn
+     * centred in a square (the status-bar icon, white on a pale bar, could vanish or sit off the line).
+     */
+    private static android.graphics.Bitmap TRACKER = null;
+    static android.graphics.Bitmap tracker() {
+        if (TRACKER != null) return TRACKER;
+        int z = 96;
+        float c = z / 2f;
+        android.graphics.Bitmap bm = android.graphics.Bitmap.createBitmap(z, z, android.graphics.Bitmap.Config.ARGB_8888);
+        android.graphics.Canvas cv = new android.graphics.Canvas(bm);
+        android.graphics.Paint p = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
+        p.setColor(0x33000000);
+        cv.drawCircle(c, c + 2, c - 2, p);
+        p.setColor(0xFFFFFFFF);
+        cv.drawCircle(c, c, c - 4, p);
+        p.setColor(ACCENT);
+        cv.drawCircle(c, c, c - 14, p);
+        cv.save();
+        cv.rotate(-38, c, c);
+        p.setColor(0xFFFFFFFF);
+        cv.drawOval(new android.graphics.RectF(c - 11, c - 16, c + 11, c + 16), p);
+        p.setColor(ACCENT);
+        p.setStyle(android.graphics.Paint.Style.STROKE);
+        p.setStrokeWidth(3.5f);
+        p.setStrokeCap(android.graphics.Paint.Cap.ROUND);
+        android.graphics.Path crease = new android.graphics.Path();
+        crease.moveTo(c - 1, c - 13);
+        crease.cubicTo(c + 6, c - 4, c - 6, c + 4, c + 1, c + 13);
+        cv.drawPath(crease, p);
+        cv.restore();
+        TRACKER = bm;
+        return bm;
+    }
+
+    /** The bar: one segment per step, the gaps between them marking each pour (Android 16), else a plain bar. In seconds. */
     static void progress(Notification.Builder b, St s, long e) {
         int max = (int) Math.max(1, s.total / 1000), at = (int) Math.min(max, e / 1000);
         if (s.total <= 0) return;
         if (Build.VERSION.SDK_INT >= 36) {
             Notification.ProgressStyle ps = new Notification.ProgressStyle();
             List<Notification.ProgressStyle.Segment> segs = new ArrayList<>();
-            List<Notification.ProgressStyle.Point> pts = new ArrayList<>();
             int last = 0;
             for (long t : s.t) {
                 int p = (int) Math.min(max, t / 1000);
                 if (p > last) { segs.add(new Notification.ProgressStyle.Segment(p - last).setColor(ACCENT)); last = p; }
-                if (p > 0 && p < max) pts.add(new Notification.ProgressStyle.Point(p).setColor(0xFF6B3F24));
             }
             if (max > last) segs.add(new Notification.ProgressStyle.Segment(max - last).setColor(ACCENT));
-            ps.setProgressSegments(segs).setProgressPoints(pts).setStyledByProgress(true).setProgress(at)
+            ps.setProgressSegments(segs).setStyledByProgress(true).setProgress(at)
                 // A bean rides along the bar to where the brew is.
-                .setProgressTrackerIcon(android.graphics.drawable.Icon.createWithResource(PKG, R.drawable.ic_stat_bean));
+                .setProgressTrackerIcon(android.graphics.drawable.Icon.createWithBitmap(tracker()));
             b.setStyle(ps);
         } else {
             b.setProgress(max, at, false);
