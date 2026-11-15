@@ -1351,7 +1351,7 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 @media (max-width:759px){
   body::before,body::after{content:'';position:fixed;left:0;right:0;pointer-events:none}
   body::before{top:0;height:calc(var(--sa-top) + 84px);z-index:19;background:linear-gradient(var(--paper) calc(100% - 18px),color-mix(in srgb,var(--paper) 0%,transparent))}
-  body.dlg-open::before,body.dlg-open::after{display:none}
+  
   body::after{bottom:0;height:calc(var(--sa-bottom) + 56px);z-index:29;background:linear-gradient(color-mix(in srgb,var(--paper) 0%,transparent),var(--paper) 62%)}
 }
 .lv{font-weight:700;border-radius:6px;padding:0 6px}.lv-e{color:#256B42;background:color-mix(in srgb,#2F7A4F 12%,transparent)}.lv-i{color:#85550C;background:color-mix(in srgb,#C8891E 14%,transparent)}.lv-a{color:#A53A2A;background:color-mix(in srgb,#A53A2A 12%,transparent)}
@@ -2886,7 +2886,7 @@ textarea{resize:none}
 
 
 html{overflow-x:clip}
-main section.nav-out{content-visibility:visible!important;position:absolute!important;z-index:1;overflow:hidden!important;pointer-events:none;margin:0!important;padding-bottom:0!important;padding-left:0!important;padding-right:0!important;background:var(--paper);animation:vt-push-old .34s var(--ease-sheet) both}
+main section.nav-out{overflow-anchor:none;content-visibility:visible!important;position:absolute!important;z-index:1;height:auto!important;overflow:visible!important;pointer-events:none;margin:0!important;padding-bottom:0!important;padding-left:0!important;padding-right:0!important;background:var(--paper);animation:vt-push-old .34s var(--ease-sheet) both}
 main section.nav-out[data-out=pop]{z-index:4;animation:page-out .28s cubic-bezier(.4,0,.6,1) both}
 html[data-nav=push] main section.nav-in{position:relative;z-index:3;background:var(--paper)}
 .ab-back.out{animation:pop-out .16s cubic-bezier(.4,0,1,1) both}
@@ -2898,7 +2898,7 @@ html[data-nav=push] main section.nav-in{position:relative;z-index:3;background:v
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="0d152cd9ddcd"</script>
+<script>const BUILD_ID="71d2ac9127f3"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -6856,11 +6856,12 @@ let NAV_READY=false;
 let NAV_AT=-1e9;
 const PAGE_Y={};
 let NAV_FORCE='';
-// The page being left: drawn where it was, at most a screen tall. Opening a page, it eases left under the new one;
+// The page being left: drawn where it was, at its full height (cut to a screen's height inside a box that clips it,
+// the page beneath jumped from where you were to its top as the slide ended). Opening a page, it eases left under the new one;
 // going back, it slides off to the right over the page beneath.
 function navOut(L,kind,y){const el=L.el;if(el._out)clearTimeout(el._out);el.style.top=(L.top+y)+'px';el.style.left=L.left+'px';el.style.width=L.w+'px';
-  el.style.height=Math.max(0,innerHeight-L.top)+'px';el.style.setProperty('padding-top',L.pt,'important');el.dataset.out=kind;el.classList.add('nav-out');
-  const end=()=>{clearTimeout(el._out);el._out=0;el.removeEventListener('animationend',onEnd);el.classList.remove('nav-out');delete el.dataset.out;for(const k of ['top','left','width','height','padding-top'])el.style.removeProperty(k)},
+  el.style.setProperty('padding-top',L.pt,'important');el.dataset.out=kind;el.classList.add('nav-out');
+  const end=()=>{clearTimeout(el._out);el._out=0;el.removeEventListener('animationend',onEnd);el.classList.remove('nav-out');delete el.dataset.out;for(const k of ['top','left','width','padding-top'])el.style.removeProperty(k)},
     onEnd=e=>{if(e.target===el)end()};el.addEventListener('animationend',onEnd);el._out=setTimeout(end,400)}
 function showTab(id,fromHistory,pure){NAV_AT=performance.now();if(window.closeBeansFab)closeBeansFab();
   // The page you leave animates out as the new one comes in (the opposite way), held where it was on the screen: its
@@ -6989,7 +6990,9 @@ function openTop(d){if(d.showPopover){try{if(!d.hasAttribute('popover'))d.setAtt
   try{d.showModal()}catch(e){d.setAttribute('open','')}}
 addEventListener('keydown',e=>{if(e.key!=='Escape'||e.defaultPrevented)return;const top=DSTACK.filter(d=>d.open&&d.hasAttribute('popover')&&!d.classList.contains('closing')).pop();if(top){e.preventDefault();top.close()}});
 function showDlg(d){NAV_AT=performance.now();if(d.classList.contains('closing')){d.classList.remove('closing');return}
-  if(!d.open){d.classList.add('dlg-pre');openTop(d);if(KEYNAV){const f=d.querySelector('button,[href],input,select,textarea');if(f)f.focus()}
+  // A sheet opened afresh starts at its top (a closed sheet kept where it was last scrolled, so a coffee opened after
+  // another came up halfway down). Redrawing one already open keeps its place, and back within a sheet restores it.
+  if(!d.open){d.classList.add('dlg-pre');openTop(d);d.scrollTop=0;if(KEYNAV){const f=d.querySelector('button,[href],input,select,textarea');if(f)f.focus()}
     // Opening a sheet focuses its first button (Close), which drew its focus ring before anything was pressed.
     {const f=document.activeElement;if(f&&d.contains(f)&&f.matches('.vd-close,.vd-tool,button')&&!KEYNAV)f.blur()}requestAnimationFrame(()=>requestAnimationFrame(()=>d.classList.remove('dlg-pre')))}}
 addEventListener('popstate',()=>{if(FAB_POP())return;const open=[...document.querySelectorAll('dialog[open]:not(.closing)')];

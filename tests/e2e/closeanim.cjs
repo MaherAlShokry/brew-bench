@@ -28,4 +28,12 @@ if(has){await p.click('.fbr >> nth=0');await p.waitForTimeout(300);ok('a process
   await p.click('.fbr >> nth=0');ok('it folds away',await p.evaluate(()=>{const x=document.querySelector('.fbx');return !!x&&x.classList.contains('out')}));
   await p.waitForTimeout(300);ok('and is gone',await p.evaluate(()=>!document.querySelector('.fbx')))}
 else ok('flow page has process paths',false);
+// Back returns to the same spot on the page you came from (it jumped up as the closing page slid away).
+await p.click('.bottomnav [data-bn="explore"]');await p.waitForTimeout(800);await p.evaluate(()=>scrollTo(0,500));await p.waitForTimeout(300);
+const y0=await p.evaluate(()=>scrollY);await p.click('#explore .hubgrid button >> nth=0');await p.waitForTimeout(900);await p.click('#ab-back');await p.waitForTimeout(1000);
+ok('back returns to the same spot',Math.abs(await p.evaluate(()=>scrollY)-y0)<3,[y0,await p.evaluate(()=>scrollY)]);
+// A sheet opened afresh starts at its top, wherever the last one was left.
+await p.click('.bottomnav [data-bn="beans"]');await p.waitForTimeout(800);await p.evaluate(()=>openBean(BEANS[0].id));await p.waitForTimeout(600);
+await p.evaluate(()=>$('vd').scrollTop=600);await p.evaluate(()=>$('vd').close());await p.waitForTimeout(600);await p.evaluate(()=>openBean(BEANS[1].id));await p.waitForTimeout(300);
+ok('the next coffee opens at its top',await p.evaluate(()=>$('vd').scrollTop)===0,await p.evaluate(()=>$('vd').scrollTop));
 ok('no page errors',!errs.length,errs);await b.close()})();
