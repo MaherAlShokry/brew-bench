@@ -67,7 +67,7 @@ public class BrewWidget extends AppWidgetProvider {
     /** Redraws every Brew Bench widget on the home screen. */
     static void refresh(Context ctx) {
         AppWidgetManager m = AppWidgetManager.getInstance(ctx);
-        AppWidgetProvider[] all = {new BrewWidget(), new CabinetWidget(), new QuickBrewWidget(), new WordWidget()};
+        AppWidgetProvider[] all = {new BrewWidget(), new CabinetWidget(), new QuickBrewWidget(), new WordWidget(), new PassportWidget()};
         for (AppWidgetProvider w : all) {
             int[] ids = m.getAppWidgetIds(new ComponentName(ctx, w.getClass()));
             if (ids != null && ids.length > 0) w.onUpdate(ctx, m, ids);

@@ -29,6 +29,10 @@ public class MainActivity extends BridgeActivity {
         if (getBridge() != null) getBridge().addWebViewListener(new WebViewListener() {
             @Override
             @android.annotation.TargetApi(26)
+            public void onPageLoaded(WebView view) { sendCutout(); }
+
+            @Override
+            @android.annotation.TargetApi(26)
             public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
                 try {
                     if (view.getParent() instanceof android.view.ViewGroup) ((android.view.ViewGroup) view.getParent()).removeView(view);
@@ -93,6 +97,40 @@ public class MainActivity extends BridgeActivity {
     public void onResume() {
         super.onResume();
         opened = false;
+        hideStatusBar();
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) hideStatusBar();
+    }
+
+    /**
+     * The phone's clock and notification icons hide while the app is open, so they don't sit over the app's own top bar
+     * and photos; a swipe down from the top edge shows them for a moment. The navigation bar stays.
+     */
+    private void hideStatusBar() {
+        try {
+            androidx.core.view.WindowInsetsControllerCompat c = androidx.core.view.WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+            c.setSystemBarsBehavior(androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+            c.hide(androidx.core.view.WindowInsetsCompat.Type.statusBars());
+        } catch (Exception ignored) { }
+        getWindow().getDecorView().postDelayed(this::sendCutout, 300);
+    }
+
+    /**
+     * With the status bar hidden the camera's cut-out is still at the top of the screen: its height goes to the page as
+     * --cut-top (CSS pixels), which the page keeps its top bar below, so nothing sits under the camera.
+     */
+    private void sendCutout() {
+        try {
+            android.view.WindowInsets wi = getWindow().getDecorView().getRootWindowInsets();
+            if (wi == null || getBridge() == null || getBridge().getWebView() == null) return;
+            int px = androidx.core.view.WindowInsetsCompat.toWindowInsetsCompat(wi).getInsets(androidx.core.view.WindowInsetsCompat.Type.displayCutout()).top;
+            float css = px / getResources().getDisplayMetrics().density;
+            getBridge().getWebView().evaluateJavascript("document.documentElement.style.setProperty('--cut-top','" + Math.round(css) + "px')", null);
+        } catch (Exception ignored) { }
     }
 
     // The home-screen icon changes to the chosen logo once you've left the app (see AppIconPlugin). Changing it while

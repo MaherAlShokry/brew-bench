@@ -10,15 +10,19 @@ const BIMG=(()=>{let dbp=null;const cache=new Map();
   const get=id=>cache.has(id)?Promise.resolve(cache.get(id)):tx('readonly',s=>s.get(id)).then(v=>{if(typeof v==='string')cache.set(id,v);return v||null}).catch(()=>null);
   // Lists show a small copy (360px) of each photo, made once from the full one and kept beside it: decoding a full
   // photo for every row is what made long lists slow on a phone.
-  const T=id=>id+'#t';
+  const T=id=>id+'#t',S=id=>id+'#s';
   const thumb=id=>{const k=T(id);if(cache.has(k))return Promise.resolve(cache.get(k));
     return get(k).then(v=>v||get(id).then(full=>full?shrinkPhoto(full,360).then(t=>{cache.set(k,t);tx('readwrite',s=>s.put(t,k)).catch(()=>{});return t}).catch(()=>full):null))};
-  return{peek:id=>cache.get(id),peekThumb:id=>cache.get(T(id)),get,thumb,
-    put:(id,v)=>{cache.set(id,v);cache.delete(T(id));return tx('readwrite',s=>{s.delete(T(id));return s.put(v,id)}).then(()=>true).catch(()=>false)},
-    del:id=>{cache.delete(id);cache.delete(T(id));return tx('readwrite',s=>{s.delete(T(id));return s.delete(id)}).then(()=>true).catch(()=>false)},
+  // The tiny round pictures (a row's avatar, a podium chip) use a still smaller copy (160px), made from the list copy:
+  // decoding a 360px photo for a 44px circle cost memory and time for nothing.
+  const small=id=>{const k=S(id);if(cache.has(k))return Promise.resolve(cache.get(k));
+    return get(k).then(v=>v||thumb(id).then(t=>t?shrinkPhoto(t,160).then(u=>{cache.set(k,u);tx('readwrite',s=>s.put(u,k)).catch(()=>{});return u}).catch(()=>t):null))};
+  return{peek:id=>cache.get(id),peekThumb:id=>cache.get(T(id)),peekSmall:id=>cache.get(S(id)),get,thumb,small,
+    put:(id,v)=>{cache.set(id,v);cache.delete(T(id));cache.delete(S(id));return tx('readwrite',s=>{s.delete(T(id));s.delete(S(id));return s.put(v,id)}).then(()=>true).catch(()=>false)},
+    del:id=>{cache.delete(id);cache.delete(T(id));cache.delete(S(id));return tx('readwrite',s=>{s.delete(T(id));s.delete(S(id));return s.delete(id)}).then(()=>true).catch(()=>false)},
     // Every photo, for the backup file (not the list copies or the passport stamps, which are made again).
     all:()=>db().then(d=>new Promise(ok=>{const t=d.transaction('img','readonly'),s=t.objectStore('img'),k=s.getAllKeys(),v=s.getAll();
-      t.oncomplete=()=>ok(Object.fromEntries(k.result.map((x,i)=>[x,v.result[i]]).filter(([x,u])=>typeof u==='string'&&!/#t$/.test(x)&&!/^stamp:/.test(x))));t.onerror=()=>ok({})})).catch(()=>({})),
+      t.oncomplete=()=>ok(Object.fromEntries(k.result.map((x,i)=>[x,v.result[i]]).filter(([x,u])=>typeof u==='string'&&!/#[ts]$/.test(x)&&!/^stamp:/.test(x))));t.onerror=()=>ok({})})).catch(()=>({})),
     // Everything kept under a prefix ("logo:"), in one read.
     prefix:p=>db().then(d=>new Promise(ok=>{const t=d.transaction('img','readonly'),st=t.objectStore('img'),r=IDBKeyRange.bound(p,p+'\uffff'),k=st.getAllKeys(r),v=st.getAll(r);
       t.oncomplete=()=>ok(Object.fromEntries(k.result.map((x,i)=>[x,v.result[i]]).filter(([,u])=>typeof u==='string')));t.onerror=()=>ok({})})).catch(()=>({})),
@@ -652,12 +656,18 @@ function widgetRecipe(){const since=Date.now()-60*864e5,n=new Map();for(const l 
   // The steps and length too, so the widget's Start can run the brew without opening the app.
   let steps=[],total=0;try{const ev=parseSteps(sc.steps);total=Math.round(clockTotal(sc.steps,ev)*1000);steps=total?tmSteps(ev):[]}catch(e){}
   return{key:rkey(r),name:r.name,steps,total,brewer:B?B.name:'',dose:gfmt(sc.dose)+' g',water:gfmt(sc.water)+' g',temp:r.temp?r.temp+'°C':'',line:[B&&B.name,gfmt(sc.dose)+' g : '+gfmt(sc.water)+' g',r.temp?r.temp+'°C':''].filter(Boolean).join(' · ')}}
+// The passport for its home-screen widget: origins had (on the map) out of all, the share, each region's count and the
+// next origin to try (the passport's own first "still to discover" of the day).
+function widgetPassport(){const by={};for(const b of BEANS)if(b.origin)by[b.origin]=1;const all=Object.keys(ALLO()),got=all.filter(k=>by[k]),n=got.length,total=all.length;
+  const regs=Object.entries(REG).map(([rk,r])=>{const a=all.filter(k=>ALLO()[k].reg===rk);return [r.name.replace(' and Caribbean','').replace(' and Pacific',''),a.filter(k=>by[k]).length,a.length,r.color]});
+  const todo=all.filter(k=>!by[k]),seed=Math.floor(Date.now()/864e5),nx=todo.length?todo[(seed*7)%todo.length]:null;
+  return {n,total,pct:total?Math.round(n/total*100):0,stamps:Object.keys(by).length,regs,next:nx?[ALLO()[nx].flag||'',originName(nx)]:null}}
 function widgetWords(){const d0=Math.floor(Date.now()/864e5),out=[];for(let d=d0;d<d0+42;d++){const w=GLOSSARY[d%GLOSSARY.length];out.push([d,w[0],w[2],(GCAT[w[1]]||[''])[0]])}return out}
 // Drinking now shows the coffee's photo (a small copy, 192 px) or, without one, its origin's flag.
 async function updWidget(){const w=plugin('Widget');if(!w)return;try{const b=widgetBean();let rc={},photo='';try{rc=widgetRecipe()}catch(e){}
   if(b&&b.img)try{const t=await BIMG.thumb(b.id);if(t)photo=await shrinkPhoto(t,192)}catch(e){}
   w.update(Object.assign(b?{id:b.id,title:beanTitle(b),sub:[b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '),flag:b.origin?flagOf(b.origin):'',photo,
-    roastDate:b.roastDate||'',win:freshWin(b).w.join(','),left:wLeft(b)}:{id:''},{cabinet:JSON.stringify(await (async()=>{const l=widgetCabinet();for(const x of l.slice(0,6))x.ph=await widgetThumb(beanById(x.id));return l})()),brew:JSON.stringify(rc.key&&b?Object.assign({},rc,{bean:{id:b.id,title:beanTitle(b),flag:isBlend(b)?BLEND_O.flag:b.origin?flagOf(b.origin):'',ph:await widgetThumb(b)}}):rc),words:JSON.stringify(widgetWords())})).catch(()=>{})}catch(e){}}
+    roastDate:b.roastDate||'',win:freshWin(b).w.join(','),left:wLeft(b)}:{id:''},{cabinet:JSON.stringify(await (async()=>{const l=widgetCabinet();for(const x of l.slice(0,6))x.ph=await widgetThumb(beanById(x.id));return l})()),brew:JSON.stringify(rc.key&&b?Object.assign({},rc,{bean:{id:b.id,title:beanTitle(b),flag:isBlend(b)?BLEND_O.flag:b.origin?flagOf(b.origin):'',ph:await widgetThumb(b)}}):rc),words:JSON.stringify(widgetWords()),passport:JSON.stringify(widgetPassport())})).catch(()=>{})}catch(e){}}
 (()=>{const W=!!plugin('Widget');if(W){setTimeout(updWidget,2500);document.addEventListener('visibilitychange',()=>{if(document.hidden)updWidget()})}
   const go=o=>{const [k,id]=String(o||'').split(':');
     // The brew timer's notification or widget: back to the timer as it is (reopened where the brew is if it was closed).
@@ -674,6 +684,7 @@ async function updWidget(){const w=plugin('Widget');if(!w)return;try{const b=wid
     // From the icon's long-press shortcuts: a brew (your go-to recipe's timer, else the dial-in), a scan, the log.
     if(k==='brew'){const rc=widgetRecipe(),i=rc&&rc.key?rByKey(rc.key):-1;if(i>=0){showTab('recipes');openTimer(i)}else showTab('dial');return}
     if(k==='scan'){showTab('scan');try{newScan()}catch(e){}scrollTo(0,0);return}
+    if(k==='passport'){showTab('beans');bvStep(BVIEW,'passport');BVIEW='passport';BDIRTY.add('passport');renderBeanViews();setTimeout(()=>{const e=$('bv-passport');if(e)e.scrollIntoView({block:'start'})},80);return}
     if(k==='word'&&GBY[rest]){openWord(rest);return}
     if(k==='word'||k==='explore'){goTab('explore');return}
     showTab('beans')};
@@ -702,35 +713,44 @@ function beanRateInput(id,get,set){const el=$(id);
   const draw=()=>{const r=get();el.innerHTML=beanRow(r,'big')+'<span class="br-w">'+(r?r.toString().replace('.5','½')+' · ':'')+rateWord(r)+'</span>';el.setAttribute('aria-valuenow',r);el.setAttribute('aria-valuetext',r?r+' beans, '+rateWord(r):'Not rated')};
   el.setAttribute('role','slider');el.tabIndex=0;el.setAttribute('aria-valuemin','0');el.setAttribute('aria-valuemax','5');el.setAttribute('aria-label','Your rating');
   el.onclick=e=>{const rb=e.target.closest('.rb');if(!rb)return;const i=[...el.querySelectorAll('.beans-r>.rb')].indexOf(rb)+1,box=rb.getBoundingClientRect();
-    let v=e.clientX-box.left<box.width/2?i-0.5:i;if(v===get())v=v===i?i-0.5:0;set(v);draw()};
+    let v=e.clientX-box.left<box.width/2?i-0.5:i;if(v===get())v=v===i?i-0.5:0;set(v);draw();
+    // The beans up to the new rating pop in turn, with a light tap.
+    if(v){const r=el.querySelector('.beans-r');if(r){r.querySelectorAll(':scope>.rb').forEach((x,k)=>x.style.setProperty('--i',k));r.classList.add('pop')}if(typeof tapBuzz==='function')tapBuzz()}};
   el.onkeydown=e=>{const k=e.key,r=get();let v=null;if(k==='ArrowRight'||k==='ArrowUp')v=Math.min(5,r+0.5);else if(k==='ArrowLeft'||k==='ArrowDown')v=Math.max(0,r-0.5);
     else if(k==='Home')v=0;else if(k==='End')v=5;else if(/^[0-5]$/.test(k))v=+k;if(v==null)return;e.preventDefault();set(v);draw()};
   draw()}
 
 /* Photos are shrunk to fit 900px and saved as JPEG: sharp on a phone, small enough to keep hundreds. */
+// Photos are kept as WebP where the phone can make it (about a third smaller than JPEG at the same look), JPEG elsewhere.
+const WEBP=(()=>{try{const c=document.createElement('canvas');c.width=c.height=1;return c.toDataURL('image/webp',.8).startsWith('data:image/webp')}catch(e){return false}})();
 function shrinkPhoto(src,max){return new Promise((ok,no)=>{const img=new Image();img.onload=()=>{const s=Math.min(1,(max||900)/Math.max(img.width,img.height)),c=document.createElement('canvas');
-  c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);c.getContext('2d').drawImage(img,0,0,c.width,c.height);try{ok(c.toDataURL('image/jpeg',0.8))}catch(e){no(e)}};
+  c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);c.getContext('2d').drawImage(img,0,0,c.width,c.height);try{ok(WEBP?c.toDataURL('image/webp',0.8):c.toDataURL('image/jpeg',0.8))}catch(e){no(e)}};
   img.onerror=()=>no(new Error('image'));img.src=src})}
 const fileURL=f=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=()=>no(r.error);r.readAsDataURL(f)});
 // Fill in the photos once the cards are on the page. Photos already read show at once, with no fade, so sorting and
 // searching don't flicker.
 // Photos not yet read load as they come near the screen, so a long gallery (or a view you haven't opened) costs nothing.
 // Only the large photo on a coffee's page uses the full image; every list uses the small copy.
+// Pictures drawn no bigger than about 80px (round avatars, list rows) take the small copy.
+const SMALLPIC=el=>el.matches('.xs,.av')||!!el.closest('.crow');
 function loadImg(el){const id=el.dataset.bimg;if(!id)return;el.removeAttribute('data-bimg');const big=el.classList.contains('hero');
   const put=(u,now)=>{const i=new Image();i.alt='';i.decoding='async';i.src=u;if(now){i.className='now';el.classList.add('has');el.prepend(i)}else i.onload=()=>{el.classList.add('has');el.prepend(i)}};
   // A coffee's big picture shows its thumbnail at once and the full photo once the sheet has finished opening, so
   // decoding a camera-sized photo doesn't stall the slide.
   if(big){const t=BIMG.peekThumb(id),f=BIMG.peek(id);if(f&&!t){put(f,true);return}if(t)put(t,true);
     setTimeout(()=>(f?Promise.resolve(f):BIMG.get(id)).then(u=>{if(!u||!el.isConnected)return;const i=new Image();i.alt='';i.decoding='async';i.src=u;(i.decode?i.decode():Promise.resolve()).then(()=>{if(!el.isConnected)return;i.className='now hi';const old=el.querySelector(':scope>img');if(old)old.after(i);else el.prepend(i);el.classList.add('has');if(old)setTimeout(()=>old.remove(),300)}).catch(()=>{})}),620);return}
+  // A tiny picture takes the small copy.
+  if(SMALLPIC(el)){const s=BIMG.peekSmall(id);if(s){put(s,true);return}BIMG.small(id).then(u=>{if(u)put(u,false)});return}
   const c=BIMG.peekThumb(id);if(c){put(c,true);return}BIMG.thumb(id).then(u=>{if(u)put(u,false);else if(el.classList.contains('tl-pic'))(el.closest('.tl-ph,.otd-pic')||el).remove()})}
 const BIO='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){BIO.unobserve(e.target);loadImg(e.target)}}),{rootMargin:'400px 0px'}):null;
 // Before the Beans tab is first opened, the small photos of its first coffees are read and decoded in the background, one
 // at a time, and put into the page that was built ahead: opening the tab then shows them at once instead of filling in.
 async function warmBeanPhotos(){const root=$('beans');if(!root)return;const order=[...BEANS.filter(b=>b.shelf),...BEANS.filter(b=>!b.shelf)].filter(b=>b.img).slice(0,24);
   for(const b of order){if(document.hidden)await new Promise(r=>setTimeout(r,1500));let u=BIMG.peekThumb(b.id);if(!u)try{u=await BIMG.thumb(b.id)}catch(e){u=null}
+    if(u)try{await BIMG.small(b.id)}catch(e){}
     if(u){try{const i=new Image();i.src=u;await i.decode()}catch(e){}root.querySelectorAll('[data-bimg="'+b.id+'"]').forEach(el=>{if(!el.classList.contains('hero'))loadImg(el)})}
     await new Promise(r=>(window.requestIdleCallback||setTimeout)(r,{timeout:500}))}}
-function hydrateImgs(root){root.querySelectorAll('[data-bimg]').forEach(el=>{if(BIMG.peekThumb(el.dataset.bimg)||!BIO||root.closest&&root.closest('dialog'))loadImg(el);else BIO.observe(el)});requestAnimationFrame(()=>loadNear(root))}
+function hydrateImgs(root){root.querySelectorAll('[data-bimg]').forEach(el=>{if(BIMG.peekThumb(el.dataset.bimg)&&!SMALLPIC(el)||BIMG.peekSmall(el.dataset.bimg)&&SMALLPIC(el)||!BIO||root.closest&&root.closest('dialog'))loadImg(el);else BIO.observe(el)});requestAnimationFrame(()=>loadNear(root))}
 // Photos already on screen (or close) load straight away. A list drawn while its tab was hidden never heard from the
 // observer when the tab was shown, so its first rows stayed blank until you scrolled. Watching them again fixes that:
 // the observer always reports where a newly watched photo is. (Measuring each photo here instead made the browser lay
@@ -825,7 +845,7 @@ function renderRoasteriesView(){const p=$('bv-roasteries');if(!p)return;const al
   const acts='<span class="rov-acts">'+(all.length>1?'<button type="button" class="sh-mini ic" id="rov-sort" aria-label="Sort: '+ROSORTS.find(x=>x[0]===ROSORT)[1]+'" title="Sort: '+ROSORTS.find(x=>x[0]===ROSORT)[1]+'">'+IC_SORT+'</button>':'')+'<button type="button" class="sh-mini ic" id="rov-add" aria-label="Add a roastery" title="Add a roastery">'+PLUS_ICO+'</button>'+(all.length?'<button type="button" class="sh-mini ic" id="rov-share" aria-label="Share your roasteries" title="Share">'+SH_ICO+'</button>':'')+'</span>';
   const xrow=n=>'<button type="button" class="crow rov-row" data-ro="'+esc(n)+'">'+roMark(n,true)+'<span class="cr-tx"><span class="cr-top"><b>'+esc(n)+'</b></span><small>No coffees yet</small></span></button>';
   p.onclick=e=>{if(e.target.closest('#rov-sort')){e.stopPropagation();openChoices({title:'Sort roasteries',one:'roastery',get:()=>ROSORT,set:(k,v)=>{ROSORT=v;save('bb-rosort',v)},render:renderRoasteriesView,count:()=>roasteries().length,secs:()=>[{key:'sort',opts:ROSORTS}]});return}if(e.target.closest('#rov-add')){e.stopPropagation();openAddRoastery();return}if(e.target.closest('#rov-share')){e.stopPropagation();openShare(roasteriesDoc())}};
-  if(!all.length){p.innerHTML='<div class="shelf-h"><b>Your roasteries</b>'+acts+'</div>'+(extra.length?'<div class="clist rov">'+extra.map(xrow).join('')+'</div>':'<div class="bg-empty">'+beanSVG+'<b>No roasteries yet</b><p>Add the roastery to your coffees and they gather here, each with its own page.</p></div>');return}
+  if(!all.length){p.innerHTML='<div class="shelf-h"><b>Your roasteries</b>'+acts+'</div>'+(extra.length?'<div class="clist rov">'+extra.map(xrow).join('')+'</div>':'<div class="bg-empty">'+beanSVG+'<b>No roasteries yet</b><p>Add the roastery to your coffees and they gather here, each with its own page.</p>'+pbtn('plus','data-empty="bean"','Add a coffee','main empty-go')+'</div>');return}
   const coffees=all.reduce((n,r)=>n+r.list.length,0),top=all.filter(r=>r.avg).sort((a,b)=>b.avg-a.avg||b.list.length-a.list.length)[0],pick=favRo(),
     picked=pick&&all.find(r=>roKey(r.name)===roKey(pick)),fav=picked||top;
   const half=v=>String(Math.round(v*2)/2).replace('.5','½');
@@ -855,14 +875,14 @@ function renderBeanHero(){const cy=new Date().getFullYear(),N=BEANS.length,rated
     last=[...BEANS].sort((a,b)=>beanDay(b).localeCompare(beanDay(a))||b.ts-a.ts).slice(0,3);
   const h=$('bg-hero');h.className='bg-hero'+(N?'':' empty');
   h.innerHTML='<div class="bgh-tx"><span class="bgh-k">'+seasonTag()+(window.PROFILE_OK&&PROFILE?esc(PROFILE.nick)+'’s coffee journal':'Your coffee journal')+'</span>'+
-      (N?'<h3>'+N+' coffee'+(N===1?'':'s')+(origins?' <em>· '+origins+' origin'+(origins===1?'':'s')+'</em>':'')+'</h3>'+
-        '<div class="bgh-stats"><button type="button" class="bgh-ro" id="bg-ros" aria-label="Your roasteries"><b>'+roasters+'</b>'+(roasters===1?'roastery':'roasteries')+'</button><span><b>'+(avg?avg.toFixed(1):'–')+beanSVG+'</b>average</span><span><b>'+BEANS.filter(b=>beanYear(b)===cy).length+'</b>in '+cy+'</span></div>'
+      (N?'<h3>'+'<i class="rl" data-roll="'+N+'">'+N+'</i>'+' coffee'+(N===1?'':'s')+(origins?' <em>· '+'<i class="rl" data-roll="'+origins+'">'+origins+'</i>'+' origin'+(origins===1?'':'s')+'</em>':'')+'</h3>'+
+        '<div class="bgh-stats"><button type="button" class="bgh-ro" id="bg-ros" aria-label="Your roasteries"><b>'+'<i class="rl" data-roll="'+roasters+'">'+roasters+'</i>'+'</b>'+(roasters===1?'roastery':'roasteries')+'</button><span><b>'+(avg?'<i class="rl" data-roll="'+avg.toFixed(1)+'">'+avg.toFixed(1)+'</i>':'–')+beanSVG+'</b>average</span><span><b>'+'<i class="rl" data-roll="'+BEANS.filter(b=>beanYear(b)===cy).length+'">'+BEANS.filter(b=>beanYear(b)===cy).length+'</i>'+'</b>in '+cy+'</span></div>'
         :'<h3>Start your <em>coffee journal</em></h3><p>Scan a bag or add one by hand, then rate it in beans.</p>')+
       '</div><div class="bgh-fan" aria-hidden="true">'+(last.length?last.map(b=>beanPic(b)).join(''):'<span class="bpic"><span class="bph">'+beanSVG+'</span></span>')+'</div>'+
     // An empty collection gets scan and add right here; once there are coffees the page's + has them (and your scans).
     (N?'':'<div class="bgh-acts"><button type="button" class="bgh-btn main" id="bg-scan" aria-label="Scan a bag" title="Scan a bag">'+SCAN_ICO+'</button><button type="button" class="bgh-btn" id="bg-add" aria-label="Add a coffee" title="Add a coffee">'+PLUS_ICO+'</button>'+
       '</div>');
-  hydrateImgs(h)}
+  hydrateImgs(h);rollIn(h)}
 // Going from Coffees into another view (Roastery, Diary, Passport, Top 5, your scans) is one step: back returns to
 // Coffees rather than leaving Beans. Moving between the other views replaces that step, so back is still one step.
 let BV_SILENT=false;
@@ -946,7 +966,7 @@ function shelfHTML(){const sh=shelfOrder();
 // The trophies you've earned, along the top of the cabinet.
 // This season's challenges: what's running, how far along you are and how long is left.
 function seasonCardHTML(full){const now=seasonNow(),nx=seasonNext();if(!now.length&&!nx)return '';
-  const row=t=>'<div class="ssn'+(t.done?' on':'')+'"><span class="ssn-ic" aria-hidden="true">'+t.ic+'</span><span class="ssn-tx"><b>'+esc(t.w.label?t.n+': '+t.w.label:t.n)+'</b><small>'+(t.done?'Earned '+dfmt(Date.parse(TGOT[t.key]+'T12:00')):esc(t.desc))+'</small>'+
+  const row=t=>'<div class="ssn'+(t.done?' lit':'')+'"><span class="ssn-ic" aria-hidden="true">'+t.ic+'</span><span class="ssn-tx"><b>'+esc(t.w.label?t.n+': '+t.w.label:t.n)+'</b><small>'+(t.done?'Earned '+dfmt(Date.parse(TGOT[t.key]+'T12:00')):esc(t.desc))+'</small>'+
     (t.done?'':'<span class="tro-p" role="img" aria-label="'+t.h+' of '+t.need+'"><i style="width:'+(t.h/t.need*100).toFixed(0)+'%"></i></span>')+'</span><span class="ssn-n">'+(t.done?'✓':t.h+'/'+t.need)+'<small>'+(t.left?t.left+' day'+(t.left===1?'':'s')+' left':'Last day')+'</small></span></div>';
   const list=full?now:now.filter(t=>!t.done).slice(0,2);
   return '<div class="season"><div class="ssn-h"><span class="pp-k">This season</span>'+(full?'':'<button type="button" class="linkbtn" data-tro="1">All trophies</button>')+'</div>'+
@@ -1004,7 +1024,7 @@ function renderDiaryList(){vwSet('dyf',DYF);const p=$('dy-list');if(!p)return;co
   const mk=(list,prev)=>{const g=[];for(const it of list){const m=new Date(it.t).toLocaleDateString(undefined,{month:'long',year:'numeric'});if(!g.length||g[g.length-1][0]!==m)g.push([m,[]]);g[g.length-1][1].push(it)}
     return g.map(([m,l],i)=>'<div class="dy-grp">'+(i||m!==prev?'<h4 class="dy-m">'+esc(m)+'</h4>':'')+timelineHTML(l,true)+'</div>').join('')};
   const shown=items.slice(0,DLIM),FIRST=DLIM>40?1e9:12,more=items.length>DLIM?'<button type="button" class="btn ghost dy-more" id="dy-more">Show '+Math.min(60,items.length-DLIM)+' more</button>':'';
-  if(!items.length){p.innerHTML=DYI.length?'<p class="hint">Nothing here yet.</p>':'<div class="bg-empty">'+beanSVG+'<b>Nothing written yet</b><p>'+(BEANS.length?'Write the first entry above, or log a brew with the coffee picked on the dial-in.':'Add a coffee first, then its story starts here.')+'</p></div>';return}
+  if(!items.length){p.innerHTML=DYI.length?'<p class="hint">Nothing here yet.</p>':'<div class="bg-empty">'+beanSVG+'<b>Nothing written yet</b><p>'+(BEANS.length?'Write the first entry above, or log a brew with the coffee picked on the dial-in.':'Add a coffee first, then its story starts here.')+'</p>'+(BEANS.length?'':pbtn('plus','data-empty="bean"','Add a coffee','main empty-go'))+'</div>';return}
   const mo=it=>new Date(it.t).toLocaleDateString(undefined,{month:'long',year:'numeric'});
   p.innerHTML=mk(shown.slice(0,FIRST))+(shown.length>FIRST?'':more);hydrateImgs(p);
   if(shown.length>FIRST)afterPaint(()=>{if(tok!==DYTOK||!p.isConnected)return;p.insertAdjacentHTML('beforeend',mk(shown.slice(FIRST),mo(shown[FIRST-1]))+more);hydrateImgs(p)})}
@@ -1042,7 +1062,7 @@ function trophiesHTML(){const st=cabStats(),T=TGOT||{},earned=TROPHIES.filter(t=
   return seasonCardHTML(true)+(seasonEarned().length?'<h3 class="rh">Seasonal trophies <span class="hint">'+seasonEarned().length+' earned</span></h3><div class="chips ssn-got">'+seasonEarned().map(t=>'<span class="chip" title="Earned '+esc(dfmt(Date.parse(t.at+'T12:00')))+'">'+t.ic+' '+esc(t.n)+' '+esc(t.y)+'</span>').join('')+'</div>':'')+
     '<h3 class="rh">Trophies <span class="hint">'+earned+' of '+TROPHIES.length+'</span></h3><div class="trophies">'+[...TROPHIES].sort((a,b)=>(!!T[b[0]])-(!!T[a[0]])).map(([id,n,desc,ic,f])=>{const [h,need]=f(st),on=!!T[id];
       // A medal grid: earned ones in gold with the date, the rest in quiet grey with how far along you are.
-      return '<div class="tro'+(on?' on':'')+'" title="'+esc(desc)+'"><span class="tro-ic" aria-hidden="true">'+ic+'</span><b>'+n+'</b>'+
+      return '<div class="tro'+(on?' lit':'')+'" title="'+esc(desc)+'"><span class="tro-ic" aria-hidden="true">'+ic+'</span><b>'+n+'</b>'+
         (on?'<small>'+new Date(T[id]+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'})+'</small>'
           :'<small>'+esc(desc)+'</small><span class="tro-p" role="img" aria-label="'+Math.min(h,need)+' of '+need+'"><i style="width:'+Math.min(100,h/need*100).toFixed(0)+'%"></i></span>')+'</div>'}).join('')+'</div>'}
 function openTrophies(){const d=$('vd'),T=TGOT||{},earned=TROPHIES.filter(t=>T[t[0]]).length;
@@ -1078,14 +1098,14 @@ function renderPassport(){const p=$('bv-passport');if(!p)return;const st=cabStat
   // A leather cover (how far you are, by region) over cream pages holding the stamps.
   const pct=total?Math.round(onMap/total*100):0,off=got.filter(k=>k!=='blend').length-onMap;
   p.innerHTML='<div class="passport"><div class="pp-cover"><div class="pp-h"><span class="pp-k">'+PP_GLOBE+'Coffee passport</span>'+(got.length?'<button type="button" class="sh-mini ic pp-share" data-ppshare aria-label="Share your passport" title="Share">'+SH_ICO+'</button>':'')+'</div>'+
-    '<div class="pp-sum"><h3><b>'+onMap+'</b><em>of '+total+' origins'+(off>0?' · +'+off+' more':'')+'</em></h3>'+
-    '<span class="pp-ring" role="img" aria-label="'+pct+'% of origins collected"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="27" pathLength="100"/><circle class="on" cx="32" cy="32" r="27" pathLength="100" stroke-dasharray="'+pct+' 100"/></svg><b>'+pct+'<small>%</small></b></span></div>'+
+    '<div class="pp-sum"><h3><b>'+'<i class="rl" data-roll="'+onMap+'">'+onMap+'</i>'+'</b><em>of '+total+' origins'+(off>0?' · +'+off+' more':'')+'</em></h3>'+
+    '<span class="pp-ring" role="img" aria-label="'+pct+'% of origins collected"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="27" pathLength="100"/>'+(pct?'<circle class="on" cx="32" cy="32" r="27" pathLength="100" stroke-dasharray="'+pct+' 100"/>':'')+'</svg><b>'+'<i class="rl" data-roll="'+pct+'">'+pct+'</i>'+'<small>%</small></b></span></div>'+
     '<div class="pp-regs">'+regs+blendReg+'</div></div><div class="pp-pages">'+
     (got.length?'<div class="pp-ph"><span>Stamps</span><b>'+got.length+'</b></div><div class="pp-grid">'+got.map((k,i)=>'<button type="button" class="pp-st" data-ppo="'+k+'" style="--r:'+(((i*37)%15)-7)+'deg"><img alt="" src="'+(STAMPS.get(k)||STAMP_WAIT)+'" data-stamp="'+k+'"><b>'+esc(originName(k))+'</b><small>'+(k==='blend'?by.blend.length+' blend'+(by.blend.length===1?'':'s'):nBags(k)+' bag'+(nBags(k)===1?'':'s'))+' · '+first(k).slice(0,4)+'</small></button>').join('')+'</div>'
-      :'<p class="pp-empty">Your first stamp arrives with your first coffee.</p>')+
+      :'<div class="bg-empty ic pp-none">'+PP_GLOBE+'<b>No stamps yet</b><p>Your first stamp arrives with your first coffee, one for every origin you try.</p>'+pbtn('plus','data-empty="bean"','Add a coffee','main empty-go')+'</div>')+
     // Origins still to collect: empty stamp spaces with the country's flag, each opening it on the map.
     (next.length?'<div class="pp-next"><div class="pp-ph"><span>Still to discover</span></div><div class="pp-slots">'+[...new Set(next)].map(k=>{const o=ALLO()[k],r=REG[o.reg];
-      return '<button type="button" class="pp-slot" data-o="'+k+'" aria-label="'+esc(originName(k))+': see it on the map"><span class="pp-sc" aria-hidden="true">'+(o.flag||'')+'</span><b>'+esc(originName(k))+'</b><small>'+esc(r?r.name.replace(' and Caribbean','').replace(' and Pacific',''):'')+'</small></button>'}).join('')+'</div></div>':'')+'</div></div>';fillStamps(p)}
+      return '<button type="button" class="pp-slot" data-o="'+k+'" aria-label="'+esc(originName(k))+': see it on the map"><span class="pp-sc" aria-hidden="true">'+(o.flag||'')+'</span><b>'+esc(originName(k))+'</b><small>'+esc(r?r.name.replace(' and Caribbean','').replace(' and Pacific',''):'')+'</small></button>'}).join('')+'</div></div>':'')+'</div></div>';fillStamps(p);rollIn(p)}
 
 /* Your scans, each one a tap away from the gallery. A scan counts as added when a gallery coffee came from it or has
    the same name and roastery. */
@@ -1281,7 +1301,20 @@ function openOrigin(k){const d=$('vd'),o=oInfo(k);if(!o)return;BFROM=k;const lis
     '<h2 id="vd-title"><span class="og-fl">'+flagOf(k)+'</span> '+esc(originName(k))+'</h2><p class="hint" style="margin:0">'+list.length+' coffee'+(list.length===1?'':'s')+(bags>list.length?' · '+bags+' bags':'')+(first?' · since '+new Date(first+'T12:00').toLocaleDateString(undefined,{month:'short',year:'numeric'}):'')+(avg?' · rated '+avg.toFixed(1)+' on average':'')+'</p></div>'+
     '<div class="vd-body"><div class="clist og-list">'+list.map((b,i)=>coffeeRow(b,false,i)).join('')+'</div>'+(k==='blend'?'':'<div class="actions"><button type="button" class="btn ghost" id="og-map">'+esc(originName(k))+' on the map</button></div>')+'</div>';
   hydrateImgs($('vd-in'));$('vd-in').onclick=e=>{if(!$('vd-in').querySelector('.og-list'))return;const r=e.target.closest('#vd-in [data-bean]');if(r){BFROM=k;openBean(r.dataset.bean);return}if(e.target.closest('#og-map')){d.close();goTab('map');setTimeout(()=>{try{selectOrigin(k,true)}catch(x){}},350)}};
-  $('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
+  $('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0;zoomFrom(d)}
+/* Opening a coffee from its picture: the picture grows from where you tapped it into the page's big photo, while the
+   page fades in behind it (instead of sliding in from the side). Phones only, and not with reduced motion. */
+let ZOOM_SRC=null;
+document.addEventListener('click',e=>{const t=e.target.closest('[data-bean]');const pic=t&&!t.closest('dialog')&&t.querySelector('.bpic');ZOOM_SRC=pic?{el:pic,t:performance.now()}:null},true);
+function zoomFrom(d){const s=ZOOM_SRC;ZOOM_SRC=null;if(!s||performance.now()-s.t>700||RM()||innerWidth>759||!s.el.isConnected)return;
+  const hero=d.querySelector('.bd-hero .bpic');if(!hero)return;const a=s.el.getBoundingClientRect();if(!a.width||a.bottom<0||a.top>innerHeight)return;
+  d.classList.add('zoom');const b=hero.getBoundingClientRect();const c=s.el.cloneNode(true);c.removeAttribute('data-bimg');c.classList.add('zoom-pic');
+  c.setAttribute('popover','manual');c.setAttribute('aria-hidden','true');c.style.cssText+=';left:'+b.left+'px;top:'+b.top+'px;width:'+b.width+'px;height:'+b.height+'px;border-radius:'+getComputedStyle(hero).borderRadius;
+  document.body.appendChild(c);try{c.showPopover()}catch(e){c.remove();d.classList.remove('zoom');return}hero.style.visibility='hidden';
+  const r0=getComputedStyle(s.el).borderRadius,sx=a.width/b.width,sy=a.height/b.height;
+  const an=c.animate([{transform:'translate('+(a.left-b.left)+'px,'+(a.top-b.top)+'px) scale('+sx+','+sy+')',borderRadius:r0},{transform:'none',borderRadius:c.style.borderRadius}],{duration:380,easing:'cubic-bezier(.2,.8,.2,1)'});
+  const end=()=>{hero.style.visibility='';try{c.hidePopover()}catch(e){}c.remove()};an.onfinish=end;an.oncancel=end;
+  d.addEventListener('close',()=>d.classList.remove('zoom'),{once:true})}
 function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.bean=b.id;
   // To the top before the page is drawn: scrolling after it forced the whole new page to be laid out at once.
   if(!write&&$('vd').scrollTop)$('vd').scrollTop=0;const d=$('vd'),rk=beanRank(b),P=b.process&&PROCESSES[b.process],ls=beanLogStats(b),f=b.shelf&&fresh(b);
@@ -1299,7 +1332,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.be
         :'<p class="hint" style="margin:8px 0 0">Add the bag size in Edit to see what’s left as you log brews.</p>')+
       pbtn('flag','id="bd-done"','Finish this bag','quiet bd-done')+'</div>'
      :'')+
-    (kv.length?'<div class="specs">'+kv.map(([k,v])=>'<div><b>'+k+'</b><span class="bd-v">'+esc(v)+'</span></div>').join('')+'</div>':'')+
+    (kv.length?'<div class="specs">'+kv.map(([k,v])=>{const [a,ic]=tileOf(k,v);return '<div'+a+'>'+ic+'<b>'+k+'</b><span class="bd-v">'+esc(v)+'</span></div>'}).join('')+'</div>':'')+
     (dialNextFor(b.id)?'<div class="bd-dnext"><span class="bd-dni" aria-hidden="true">🎯</span><span><b>'+(dialNextFor(b.id).taste==='good'?'What worked':'Try next time')+'</b><small>'+esc(dialNextLine(dialNextFor(b.id)))+' · '+esc(fmt(dialNextFor(b.id).at))+(dialNextFor(b.id).taste&&dialNextFor(b.id).taste!=='good'?' · after a '+dialNextFor(b.id).taste+' cup':'')+'</small></span></div>':'')+
     (b.flavours?'<h3>Tasting notes</h3><div class="chips">'+tnSplit(b.flavours).map(f=>{const n=tnLeaf(f);return'<span class="chip">'+(n?'<i class="dot" style="background:'+n.c+'"></i>':'')+esc(f)+'</span>'}).join('')+'</div>':'')+
     (b.notes?'<h3>Your notes</h3><p>'+esc(b.notes)+'</p>':'')+
@@ -1352,7 +1385,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.be
     const i=BEANS.findIndex(x=>x.id===b.id);if(i<0)return;BEANS=BEANS.filter(x=>x.id!==b.id);saveBeans();d.close();renderBeans();
     undoToast('Removed “'+beanTitle(b)+'”',()=>{if(BEANS.some(x=>x.id===b.id))return;BEANS.splice(Math.min(i,BEANS.length),0,b);saveBeans();renderBeans()},
       ()=>{if(BEANS.some(x=>x.id===b.id))return;if(!inTop)BIMG.del(b.id);dropDiaryPhotos(b.diary||[])})};
-  showDlg(d);$('vd-x').onclick=()=>d.close();if($('vd-back'))$('vd-back').onclick=()=>vdBack(()=>openOrigin(from));if($('bd-advback'))$('bd-advback').onclick=()=>vdBack(()=>openCal(cal.id,{back:b.cal.d}));if($('bd-roback'))$('bd-roback').onclick=()=>vdBack(()=>openRoaster(roBack.name,roBack.list));if($('bd-ro'))$('bd-ro').onclick=()=>openRoaster(b.roaster);
+  showDlg(d);zoomFrom(d);$('vd-x').onclick=()=>d.close();if($('vd-back'))$('vd-back').onclick=()=>vdBack(()=>openOrigin(from));if($('bd-advback'))$('bd-advback').onclick=()=>vdBack(()=>openCal(cal.id,{back:b.cal.d}));if($('bd-roback'))$('bd-roback').onclick=()=>vdBack(()=>openRoaster(roBack.name,roBack.list));if($('bd-ro'))$('bd-ro').onclick=()=>openRoaster(b.roaster);
   if(write)setTimeout(()=>{const h=$('bd-dh');if(h){h.scrollIntoView({block:'start'});$('bd-dt').focus({preventScroll:true})}},80)}
 function beanDoc(b){const P=b.process&&PROCESSES[b.process];
   return{title:beanTitle(b),sub:(b.roaster?b.roaster+' | ':'')+'Rated '+(b.rating||'–')+' of 5',file:'coffee-'+beanTitle(b),
@@ -1390,7 +1423,7 @@ function useBean(b){S.bean=okSBean({name:beanTitle(b),roaster:b.roaster,origin:b
 function openBeanPick(pick){const d=$('vd'),list=[...BEANS].sort((a,c)=>beanDay(c).localeCompare(beanDay(a))||c.ts-a.ts);
   // A bag you're drinking shows how fresh it is and what's left, which matter more than its rating when you pick one.
   const pkMeta=b=>{const f=fresh(b),g=gramsLeft(b),m=[f?freshPill(f):'',g!=null?'<span class="pk-left">'+(g?g+' g left':'Bag empty')+'</span>':''].join('');return m?'<span class="pk-meta">'+m+'</span>':''};
-  const opt=b=>'<button type="button" class="t3opt'+(S.bean&&S.bean.id===b.id?' on':'')+'" data-usebean="'+b.id+'" style="--m:var(--cherry)">'+beanPic(b,'xs')+'<span class="t3o-tx"><b>'+esc(beanTitle(b))+'</b><small>'+esc([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '))+'</small>'+(b.shelf&&pkMeta(b)||beanRow(b.rating,'sm'))+'</span></button>';
+  const opt=b=>'<button type="button" class="t3opt'+(S.bean&&S.bean.id===b.id?' lit':'')+'" data-usebean="'+b.id+'" style="--m:var(--cherry)">'+beanPic(b,'xs')+'<span class="t3o-tx"><b>'+esc(beanTitle(b))+'</b><small>'+esc([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '))+'</small>'+(b.shelf&&pkMeta(b)||beanRow(b.rating,'sm'))+'</span></button>';
   const now=list.filter(b=>b.shelf),rest=list.filter(b=>!b.shelf);
   // With both kinds of coffee, each gets a heading; with only one kind, the list stands on its own.
   const grp=(h,l)=>l.length?(now.length&&rest.length?'<div class="bg-gh bp-gh"><b>'+h+'</b><span>'+l.length+'</span></div>':'')+'<div class="t3list">'+l.map(opt).join('')+'</div>':'';
@@ -1499,7 +1532,7 @@ function openTop3(y,start){const d=$('vd'),pool=BEANS.filter(b=>beanYear(b)===y)
       '<span class="t3s-pic">'+(b?beanPic(b,'xs'):'<span class="t3s-n">'+(i+1)+'</span>')+'</span><span class="t3s-tx"><small>'+MEDALN[i+1]+'</small><b>'+(b?esc(beanTitle(b)):'Open')+'</b></span></button>'+(b?'<button type="button" class="t3s-x" data-unset="'+i+'" aria-label="Clear '+MEDALN[i+1]+'">✕</button>':'')+'</div>'}).join('');
     // Mentions only offer coffees that aren't already in the top five.
     $('t3-list').innerHTML=(mode==='hm'?pool.filter(b=>!slots.includes(b.id)):pool).map(b=>{const r=slots.indexOf(b.id)+1,m=hm.includes(b.id),on=mode==='places'?!!r:m;
-      return '<button type="button" class="t3opt'+(on?' on':'')+'" data-t3="'+b.id+'" aria-pressed="'+on+'" style="--m:'+(mode==='places'?(MEDAL[r]||'var(--line)'):(m?'var(--honey)':'var(--line)'))+'">'+beanPic(b,'xs')+
+      return '<button type="button" class="t3opt'+(on?' lit':'')+'" data-t3="'+b.id+'" aria-pressed="'+on+'" style="--m:'+(mode==='places'?(MEDAL[r]||'var(--line)'):(m?'var(--honey)':'var(--line)'))+'">'+beanPic(b,'xs')+
       '<span class="t3o-tx"><b>'+esc(beanTitle(b))+'</b><small>'+esc([b.roaster,mode==='places'&&m?'Honourable mention':''].filter(Boolean).join(' · '))+'</small>'+beanRow(b.rating,'sm')+'</span><span class="t3o-r">'+(mode==='places'?(r||''):(m?HM_SVG:''))+'</span></button>'}).join('');
     $('t3-msg').innerHTML=mode==='places'?'Choose your <b style="color:color-mix(in srgb,'+MEDAL[act+1]+' 55%,var(--ink))">'+(act<3?MEDALN[act+1].toLowerCase():MEDALN[act+1]+' place')+'</b> coffee'+(slots[act]?', or tap it again to clear the place.':'.')
       :'Tap the coffees that nearly made it. Up to three'+(hm.length?': '+Math.min(hm.length,HM_MAX)+' of 3 chosen'+(hm.length>HM_MAX?'. Remove '+(hm.length-HM_MAX)+' to keep it to three.':'.'):'.');

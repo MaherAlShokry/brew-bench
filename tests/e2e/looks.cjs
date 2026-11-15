@@ -29,5 +29,11 @@ ok('Log this brew opens the log as a page rising in',kind==='push'&&await p.eval
 // A ranked coffee opened as a full page has no coloured rule across the top (it sat under the status bar).
 const rule=await p.evaluate(async()=>{showTab('beans');openBean(BEANS[0].id);await new Promise(r=>setTimeout(r,500));const h=document.querySelector('#vd .vd-head'),w=getComputedStyle(h).borderTopWidth;$('vd').close();return w});
 ok('a coffee page has no stray line at the top',rule==='0px',rule);
+// Numbers count up once: the passport's origin count ends on its value.
+const roll=await p.evaluate(async()=>{showTab('beans');bvStep(BVIEW,'passport');BVIEW='passport';BDIRTY.add('passport');renderBeanViews();await new Promise(r=>setTimeout(r,1800));const e=document.querySelector('.pp-sum [data-roll]');return e?[e.textContent,e.dataset.roll]:null});
+ok('the passport count rolls up to its value',roll&&roll[0]===roll[1],roll);
+// Rating: the beans up to the pick pop in turn.
+const pop=await p.evaluate(()=>{showTab('log');const b=document.querySelector('#l-stars [data-s="4"]');b.click();return document.querySelectorAll('#l-stars button.pop').length});
+ok('rating 4 pops four beans',pop===4,pop);
 ok('no page errors',!errs.length,errs);
 await b.close()})();

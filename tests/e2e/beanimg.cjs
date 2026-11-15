@@ -8,4 +8,8 @@ const {chromium}=require('playwright');(async()=>{const b=await chromium.launch(
  for(const mode of ['fresh-start-wait','fresh-start-tap']){await p.reload();await p.waitForTimeout(mode==='fresh-start-wait'?6000:800);await p.evaluate(()=>showTab('beans'));await p.waitForTimeout(1500);
   await p.evaluate(()=>{const l=document.querySelector('#bv-coffees .clist');if(l)l.scrollIntoView({block:'start'})});await p.waitForTimeout(1500);await check(mode+': rows on screen');
   await p.evaluate(()=>scrollBy(0,900));await p.waitForTimeout(1500);await check(mode+': after scrolling');}
+ // Rows' tiny round pictures use the small copy (160px), kept as WebP where the browser can make it.
+ const sm=await p.evaluate(async()=>{const el=document.querySelector('#bv-coffees .crow .bpic img');const id=BEANS.find(b=>b.img).id;const s=await BIMG.small(id),t=await BIMG.thumb(id);
+   const i=new Image();i.src=s;await i.decode();return {w:Math.max(i.naturalWidth,i.naturalHeight),webp:s.startsWith('data:image/webp'),smaller:s.length<t.length,rowUsesSmall:!!el&&(el.src===BIMG.peekSmall(el.closest('[data-bean]')&&el.closest('[data-bean]').dataset.bean)||el.naturalWidth<=160)}});
+ if(!(sm.w<=160&&sm.webp&&sm.smaller&&sm.rowUsesSmall)){console.log('FAIL small copies',JSON.stringify(sm));process.exitCode=1}else console.log('ok small copies',JSON.stringify(sm));
  console.log('errors',errs);await b.close()})();

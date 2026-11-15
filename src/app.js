@@ -719,11 +719,52 @@ function beanSync(){const b=S.bean,gb=b&&b.id&&window.BEANS_OK&&beanById(b.id);i
     S.bean=okSBean({name:beanTitle(gb),roaster:gb.roaster,origin:gb.origin,id:gb.id})||S.bean}
   if(gb.roastDate&&S.bday!==day){S.bday=day;const a=clamp(ISO_D.test(gb.roastDate)?daysAgo(gb.roastDate):daysSince(gb.roastDate),3,60);if(a!==S.age){S.age=a;ch=true}}
   return ch}
+/* Numbers that count up (a passport's origins, the Beans page's totals), once each per visit of the app: the first
+   time one comes into view it climbs from zero to its value (and its bars and ring fill), later it simply shows. */
+const ROLLED=new Set();
+const ROLL_IO='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;ROLL_IO.unobserve(e.target);rollNow(e.target)}),{threshold:.5}):null;
+function rollNow(el){const v=el.dataset.roll,to=parseFloat(v),dp=(v.split('.')[1]||'').length;if(!(to>0)){el.textContent=v;return}
+  // A page still sliding in waits for the slide to finish: each step of the count lays the numbers out again, which
+  // in every frame of the slide made it stutter on a phone.
+  const sec=el.closest('main section');if(sec&&sec.classList.contains('nav-in')&&!el._rw){el._rw=1;setTimeout(()=>{el._rw=0;rollNow(el)},Math.max(120,420-(performance.now()-NAV_AT)));return}
+  const box=el.closest('.pp-cover,.bg-hero');if(box)replay(box,'filling');const t0=performance.now(),D=Math.min(900,420+to*40);
+  el.textContent=(0).toFixed(dp);const f=n=>{const k=Math.min(1,(n-t0)/D),e=1-Math.pow(1-k,3);el.textContent=(to*e).toFixed(dp);if(k<1)requestAnimationFrame(f)};requestAnimationFrame(f)}
+function rollIn(root){if(!root||!ROLL_IO||RM())return;root.querySelectorAll('[data-roll]').forEach((el,i)=>{const k=root.id+':'+i;
+  if(ROLLED.has(k))return;ROLLED.add(k);if(parseFloat(el.dataset.roll)>0)el.textContent=(0).toFixed((el.dataset.roll.split('.')[1]||'').length);ROLL_IO.observe(el)})}
+// An empty list's one action (see .bg-empty): add a coffee, scan a bag, or go and brew.
+document.addEventListener('click',e=>{const b=e.target.closest('[data-empty]');if(!b)return;const k=b.dataset.empty;
+  if(k==='bean')openBeanEditor();else if(k==='scan'){showTab('scan');newScan();scrollTo(0,0)}else if(k==='dial')goTab('dial')});
+/* Stat tiles with character: each one takes a colour and a small drawn icon from what it holds (coffee in brown with a
+   bean, water in blue with a drop, the ratio in gold, temperature in terracotta, time in green, pours in violet, and on a
+   coffee's page origin, process, variety, roast and dates), so a row of figures reads at a glance. */
+const TILE_K=[[/^(coffee|dose|shot weight|bag)/i,'#8A5A3B','M12 3.2c3.5 0 6 3.9 6 8.8s-2.5 8.8-6 8.8-6-3.9-6-8.8 2.5-8.8 6-8.8z M12.9 3.6C10.4 6.3 14.3 9 12 12s1.6 5.9-.9 8.4'],
+  [/water|in the cup|bloom water/i,'#3F86B5','M12 3.5s5.8 6.3 5.8 10.6a5.8 5.8 0 0 1-11.6 0C6.2 9.8 12 3.5 12 3.5z'],
+  [/ratio/i,'#B88A2E','M12 4.5v15 M8 19.5h8 M5 7.5h14 M12 4.5v3 M5 7.5l-2.5 5.5a2.5 2.5 0 0 0 5 0z M19 7.5l-2.5 5.5a2.5 2.5 0 0 0 5 0z'],
+  [/°c|temp/i,'#C8603F','M10 13.5V5.5a2 2 0 0 1 4 0v8a4 4 0 1 1-4 0z M12 9v6.5'],
+  [/time|steep/i,'#3E8A68','M12 3.5a8.5 8.5 0 1 0 0 17a8.5 8.5 0 1 0 0-17z M12 7.5V12l3 2'],
+  [/pour/i,'#8763B0','M3.5 9c2.8-2.6 5.7 2.6 8.5 0s5.7 2.6 8.5 0 M3.5 15c2.8-2.6 5.7 2.6 8.5 0s5.7 2.6 8.5 0'],
+  [/origin|blend/i,'#3E8A68','M12 3.5a8.5 8.5 0 1 0 0 17a8.5 8.5 0 1 0 0-17z M3.5 12h17 M12 3.5c2.6 2.4 3.9 5.2 3.9 8.5s-1.3 6.1-3.9 8.5c-2.6-2.4-3.9-5.2-3.9-8.5S9.4 5.9 12 3.5z'],
+  [/altitude/i,'#5F82A3','M3 19l6.5-11 4 6.5 2.5-3.5L21 19z'],
+  [/harvest/i,'#B5533C','M9 14a3.5 3.5 0 1 0 0 .01z M15.5 15a3 3 0 1 0 0 .01z M10 10.5c0-3 1.5-5.5 4-6.5 M14 4c-.5 2 .5 4.5 2 7'],
+  [/process/i,'#B88A2E','M12 5v3 M12 16v3 M5 12h3 M16 12h3 M7 7l2 2 M15 15l2 2 M17 7l-2 2 M9 15l-2 2 M12 9.5a2.5 2.5 0 1 0 0 5a2.5 2.5 0 1 0 0-5z'],
+  [/variet/i,'#5E8C3E','M5 19c0-8 6-14 14-14 0 8-6 14-14 14z M5 19l8-8'],
+  [/^roast$/i,'#B5533C','M12 3.5c1 4 5 5.2 5 10a5 5 0 0 1-10 0c0-3 2-4.2 2-7 1.6 1 2.6 2.4 3-3z'],
+  [/roasted|tried|advent|since/i,'#5F82A3','M4.5 6.5h15v13h-15z M4.5 10.5h15 M8.5 4v4 M15.5 4v4'],
+  [/brewed|brews|cup/i,'#8A5A3B','M5 9h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z M16 10h1.5a2.5 2.5 0 0 1 0 5H16'],
+  [/rating|average/i,'#B88A2E','M12 4l2.4 5 5.6.8-4 3.9.9 5.5L12 16.6 7.1 19.2l.9-5.5-4-3.9 5.6-.8z'],
+  [/brewer/i,'#5F82A3','M5 6h14l-5 8h-4z M10 14v3h4v-3 M7.5 20h9'],
+  [/top coffee|favourite/i,'#B5533C','M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z']];
+// The attributes and icon for a tile from its label (and, for the strength row, its value).
+function tileOf(label,val){const s=String(label||'')+' '+String(val||'');const m=TILE_K.find(([re])=>re.test(String(label||'')))||(/light|medium|strong|gentle|vigorous/i.test(String(val||''))?TILE_K[5]:null);
+  return m?[' class="tl" style="--tc:'+m[1]+'"','<svg class="st-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="'+m[2]+'"/></svg>']:['','']}
+// Sets a block's HTML only when it differs from what it last set: drawing the same thing again on each visit made the
+// browser restyle and lay it out again, part of what a tab change cost.
+function setHTML(el,h){if(el._h===h)return false;el._h=h;el.innerHTML=h;return true}
 function renderDBean(){const el=$('d-bean');if(!el||!window.BEANS_OK)return;const b=S.bean,gb=b&&b.id&&beanById(b.id);
-  if(b){el.innerHTML='<div class="dbean">'+(gb?beanPic(gb,'xs'):'<span class="bpic xs" style="--rc:'+regCol(b.origin)+'"><span class="bph">'+beanSVG+'</span></span>')+
+  if(b){setHTML(el,'<div class="dbean">'+(gb?beanPic(gb,'xs'):'<span class="bpic xs" style="--rc:'+regCol(b.origin)+'"><span class="bph">'+beanSVG+'</span></span>')+
       '<button type="button" class="dbean-tx" data-dbpick><b>'+esc(b.name)+'</b><small>'+esc([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · ')||'Tap to change')+'</small></button>'+
-      '<button type="button" class="dbean-x" data-dbclear aria-label="Clear the beans">✕</button></div>'+(b.id&&dialNextFor(b.id)?'<p class="dnext"><b>'+(dialNextFor(b.id).taste==='good'?'What worked last time':'Try this time')+'</b> '+esc(dialNextLine(dialNextFor(b.id)))+'</p>':'');hydrateImgs(el)}
-  else el.innerHTML=BEANS.length?'<button type="button" class="btn ghost dbean-pick" data-dbpick>'+beanSVG+'Pick from your bean gallery</button>':'<p class="hint" style="margin:0">Add coffees under Beans (or scan a bag) and they show here and on your shared brew cards.</p>'}
+      '<button type="button" class="dbean-x" data-dbclear aria-label="Clear the beans">✕</button></div>'+(b.id&&dialNextFor(b.id)?'<p class="dnext"><b>'+(dialNextFor(b.id).taste==='good'?'What worked last time':'Try this time')+'</b> '+esc(dialNextLine(dialNextFor(b.id)))+'</p>':''))&&hydrateImgs(el)}
+  else setHTML(el,BEANS.length?'<button type="button" class="btn ghost dbean-pick" data-dbpick>'+beanSVG+'Pick from your bean gallery</button>':'<p class="hint" style="margin:0">Add coffees under Beans (or scan a bag) and they show here and on your shared brew cards.</p>')}
 // The four steps of the dial-in each fold to a line saying what's set. Which are open is remembered; at first, the
 // gear is folded (it's always set) and your coffee is folded once you've picked one from your gallery.
 let DSTEPS=load('bb-dsteps',null);
@@ -1017,7 +1058,8 @@ function openTimerNow(idx,p){noteRecent(RECIPES[idx]);
       if(TM.run){TM.t0=performance.now()-TM.el*1000;TM.iv=setInterval(tick,200);tick()}else clearInterval(TM.iv);tmWidget()};
     $('tm-reset').onclick=()=>{clearInterval(TM.iv);TM.run=false;wake(false);if(TM.fin)tmUnfinish();TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;setPlay();paint();tmWidget()};
     // Skip jumps to the next step's time (handy when you pour faster than the recipe).
-    $('tm-skip').onclick=()=>{if(TM.fin)return;const n=TM.ev.find(e=>e.t>TM.el+0.5);if(!n){if(TM.el>0||TM.run)finishBrew();return}TM.el=n.t;if(TM.run)TM.t0=performance.now()-TM.el*1000;paint()};
+    // Once the brew is finished the tick is Done: it closes the timer (it used to do nothing).
+    $('tm-skip').onclick=()=>{if(TM.fin){$('timer').close();return}const n=TM.ev.find(e=>e.t>TM.el+0.5);if(!n){if(TM.el>0||TM.run)finishBrew();return}TM.el=n.t;if(TM.run)TM.t0=performance.now()-TM.el*1000;paint()};
     // A step in the list jumps the clock to it (running or not), like Next step does for the next one.
     $('tm-list').onclick=e=>{const li=e.target.closest('li[data-i]');if(!li||TM.fin)return;const ev=TM.ev[+li.dataset.i];if(!ev||ev.t<0)return;
       TM.el=ev.t;TM.lastIdx=-1;TM.lastWarn=-1;if(TM.run)TM.t0=performance.now()-TM.el*1000;paint();tmWidget()};paint()}
@@ -1041,6 +1083,8 @@ document.addEventListener('click',e=>{const b=e.target.closest('.tm-cue');if(!b)
   if(CUES[k]){if(k==='voice')cueSay('Voice on. I will read each step.');else cueBuzz([60])}toast(k==='voice'?(CUES.voice?'Each step will be read aloud':'Voice off'):(CUES.buzz?'The phone will buzz at each step':'Vibrate off'))});
 function cueSay(t){if(!CUES.voice||!t)return;const c=plugin('Cues');if(c&&c.speak){c.speak({text:t}).catch(()=>{});return}
   try{const s=window.speechSynthesis;if(!s||!window.SpeechSynthesisUtterance)return;s.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=1.05;s.speak(u)}catch(e){}}
+// A light tap under the finger for a choice made (a rating), whatever the timer's own cue settings.
+function tapBuzz(){try{if(RM())return;const c=plugin('Cues');if(c&&c.vibrate){c.vibrate({pattern:[12]}).catch(()=>{});return}if(navigator.vibrate)navigator.vibrate(12)}catch(e){}}
 function cueBuzz(p){if(!CUES.buzz)return;const c=plugin('Cues');if(c&&c.vibrate){c.vibrate({pattern:p}).catch(()=>{});return}try{if(navigator.vibrate)navigator.vibrate(p)}catch(e){}}
 // A step as it's said: "pour 60g (to 120g)" → "Pour 60 grams, to 120 grams."
 function cueText(s){let t=String(s||'').replace(/^\s*\d+:\d\d\s*/,'').replace(/\((to|until)\s+(\d+)\s?g\)/gi,', $1 $2 grams').replace(/(\d+)\s?g\b/g,'$1 grams').replace(/(\d+)\s?°C/g,'$1 degrees').replace(/\s+/g,' ').replace(/ ,/g,',').trim();
@@ -1156,13 +1200,13 @@ function drawCheck(){const p=TM.p,r=TM.r||RECIPES[TM.idx],b=(p&&(p.brewer||p.st&
 function paint(){const el=TM.el,C=2*Math.PI*96;$('tm-big').textContent=mmss(el);
   $('tm-arc').setAttribute('stroke-dashoffset',(C*(1-el/TM.total)).toFixed(1));
   let cur=-1;TM.ev.forEach((e,i)=>{if(e.t>=0&&e.t<=el)cur=i});
-  if(cur!==TM.lastIdx&&TM.run&&cur>=0){beep();cueStep(TM.ev[cur],TM.ev[TM.ev.findIndex(e=>e.t>TM.ev[cur].t)]);TM.lastIdx=cur}
+  if(cur!==TM.lastIdx&&TM.run&&cur>=0){replay(document.querySelector('#timer .tm-ringwrap'),'tm-pulse');beep();cueStep(TM.ev[cur],TM.ev[TM.ev.findIndex(e=>e.t>TM.ev[cur].t)]);TM.lastIdx=cur}
   if(TM.wIdx!==cur+':'+TM.run){TM.wIdx=cur+':'+TM.run;tmWidget()}
   const ni=TM.ev.findIndex(e=>e.t>el),next=ni>=0?TM.ev[ni]:null,left=next?next.t-el:TM.total-el;
   // Three soft beeps before the next step, so you can get the kettle ready.
   if(TM.run&&next&&left<=3&&left>0){const w=Math.ceil(left);if(TM.lastWarn!==ni*10+w){TM.lastWarn=ni*10+w;beep(true);cueBuzz([35])}}
   $('tm-list').querySelectorAll('li').forEach((li,i)=>{li.className=i<cur?'done':i===cur?'cur':''});
-  const sk=$('tm-skip'),last=el>0&&!TM.ev.some(e=>e.t>el+0.5);if(sk&&sk.dataset.last!==String(last)){sk.dataset.last=last;sk.innerHTML=TMI(last?'M5 12.5l4.5 4.5L19 7':'M6 5l9 7-9 7z M18 5v14');sk.setAttribute('aria-label',last?'Finish brew':'Next step')}
+  const sk=$('tm-skip'),last=el>0&&!TM.ev.some(e=>e.t>el+0.5);if(sk&&sk.dataset.last!==String(last)){sk.dataset.last=last;sk.innerHTML=TMI(last?'M5 12.5l4.5 4.5L19 7':'M6 5l9 7-9 7z M18 5v14');sk.setAttribute('aria-label',last?'Finish brew':'Next step')}if(sk)sk.setAttribute('aria-label',TM.fin?'Done':last?'Finish brew':'Next step');
   const nTimed=TM.ev.filter(e=>e.t>=0).length,stepNo=cur>=0?TM.ev.slice(0,cur+1).filter(e=>e.t>=0).length:0;
   if(el>0&&el<TM.total||TM.run){const txt=cur>=0?TM.ev[cur].s.replace(/^\s*\d+:\d\d\s*/,''):'Get ready.',pr=cur>=0?pourOf(TM.ev[cur].s):null;
     $('tm-step').textContent=cur>=0?'Step '+stepNo+' of '+nTimed:'Starting';$('tm-now').textContent=txt.charAt(0).toUpperCase()+txt.slice(1);
@@ -1204,6 +1248,16 @@ function warmSheets(){if(SHEETS_WARM>=2)return;const step=SHEETS_WARM++;const d=
     if(step===1&&RECIPES.length){openRecipe(0);d.offsetHeight}}catch(e){}
   finally{showDlg=keep;d.classList.remove('warm');if(!d.open){$('vd-in').innerHTML='';delete d.dataset.bean}}}
 let EXPLORE_PRE=0;
+// A page built while hidden was never styled or laid out (a hidden page skips both), so the first visit did all of it
+// on the tap: the stall on a section's first visit. Warming lays a hidden page out once in a quiet moment, still
+// unseen (it keeps no height), and a hidden page keeps that layout, so the first visit costs what a later one does.
+// A change of look restyles every page, so each is warmed again after one.
+const WARM=new Set(),WARMED=new Set();
+function warmPage(id){const s=$(id);if(!s||s.classList.contains('on')||WARM.has(id))return false;WARM.add(id);
+  // The first photos go in now too (from their small copies already read): put in as the page appeared, they laid it out a second time.
+  if(typeof loadImg==='function'&&window.BIMG)[...s.querySelectorAll('[data-bimg]')].slice(0,10).forEach(el=>{if((SMALLPIC(el)?BIMG.peekSmall:BIMG.peekThumb)(el.dataset.bimg)&&!el.closest('dialog'))loadImg(el)});
+  // The strips' highlights are placed while it's laid out, so showing the page later moves none of them.
+  s.classList.add('warm');try{s.getBoundingClientRect();const l=s.lastElementChild;if(l)l.getBoundingClientRect();if(typeof segBatch==='function'){const g=[...s.querySelectorAll(SEG_SEL)];if(g.length)segBatch(g,true)}}finally{s.classList.remove('warm')}return true}
 function prebuildTabs(){const ids=['recipes','gear','variety','process','map','words','history','flow','wheel','champs','tech'].filter(k=>LAZY[k]);
   // A step only starts in a real idle moment (not one the timeout forced). (The wait has an end: after 6 s a step goes
   // ahead in whatever idle time there is, or the rest would never be built.)
@@ -1213,15 +1267,32 @@ function prebuildTabs(){const ids=['recipes','gear','variety','process','map','w
   let beans=false;
   // Every page is built soon after the app opens, even while you're already tapping around, so no first visit has to
   // build its page on the tap: a step only waits for a slide to finish and for a moment with no touch (0.8 s).
-  const next=()=>{if(document.hidden){setTimeout(()=>idle(next),2000);return}if(sliding()||performance.now()-USER_AT<800){setTimeout(()=>idle(next),300);return}
+  // It also waits while a sheet is open: laying out a hidden page then landed in the sheet's opening frames.
+  const busy=()=>sliding()||!!document.querySelector('dialog[open]')||performance.now()-USER_AT<1200||performance.now()-NAV_AT<1200||(navigator.scheduling&&navigator.scheduling.isInputPending&&navigator.scheduling.isInputPending());
+  const next=()=>{if(document.hidden){setTimeout(()=>idle(next),2000);return}if(busy()){setTimeout(()=>idle(next),300);return}
     if(!beans&&window.BEANS_OK){beans=true;try{renderBeansIfChanged();warmBeanPhotos();roLearnGallery()}catch(e){}idle(next);return}
     // Then the other bottom-bar sections, then the sheets, then the pages inside sections.
     if(!BUILT.recipes){BUILT.recipes=1;try{renderRecipes()}catch(e){BUILT.recipes=0}idle(next);return}
     if(!EXPLORE_PRE&&!$('explore').classList.contains('on')){EXPLORE_PRE=1;try{renderExplore()}catch(e){}idle(next);return}
     if(!$('st-mode')&&!$('settings').classList.contains('on')){try{renderSettings()}catch(e){}idle(next);return}
-    if(SHEETS_WARM<2&&window.BEANS_OK){warmSheets();idle(next);return}
     if(LOGL_STALE&&BUILT.recipes){try{renderLogList(1)}catch(e){}idle(next);return}
-    const id=ids.find(k=>!BUILT[k]);if(!id){if(SHEETS_WARM<2){warmSheets();idle(next)}return}BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
+    // The bottom-bar pages are warmed first (the ones a first visit lands on), then the pages inside sections as they're built.
+    const cold=['recipes','beans','explore','settings','dial','log'].find(k=>(BUILT[k]||!LAZY[k])&&!WARM.has(k)&&$(k)&&!$(k).classList.contains('on'));
+    // A page's first warming comes soon (you may tap it any moment after the app opens); warming it again (after it
+    // changed, or the look did) waits for 3 s without a touch, so it doesn't land just before your next tap.
+    if(cold&&WARMED.has(cold)&&performance.now()-USER_AT<3000){setTimeout(()=>idle(next),600);return}
+    if(cold){WARMED.add(cold);warmPage(cold);idle(next);return}
+    // Then the sheets are opened once out of sight (so the first real one opens quickly): after the bottom-bar pages,
+    // and only after 3 s without a touch, as each costs a phone a few dozen ms.
+    if(SHEETS_WARM<2&&window.BEANS_OK){if(performance.now()-USER_AT<3000){setTimeout(()=>idle(next),600);return}warmSheets();idle(next);return}
+    const id=ids.find(k=>!BUILT[k]);if(!id){if(SHEETS_WARM<2){warmSheets();idle(next);return}const w=[...ids,'guide','scan'].find(k=>BUILT[k]&&!WARM.has(k)&&$(k)&&!$(k).classList.contains('on'));
+      // The pages inside sections are warmed only after 3 s without a touch: each costs a phone a few dozen ms, which
+      // landed on the next tap while you were using the app (opening a coffee measured slower for it).
+      if(w&&performance.now()-USER_AT<3000){setTimeout(()=>idle(next),600);return}if(w){warmPage(w);idle(next)}return}BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
+  let againT=0;prebuildTabs.again=all=>{if(all)WARM.clear();clearTimeout(againT);againT=setTimeout(()=>idle(next),1500)};
+  // A hidden page drawn again (a saved brew updates the log, a new coffee the gallery) is cold again: warm it later.
+  try{new MutationObserver(l=>{let any=false;for(const m of l){const s=m.target.closest&&m.target.closest('main>section');if(s&&!s.classList.contains('on')&&WARM.delete(s.id))any=true}if(any)prebuildTabs.again()})
+    .observe(document.querySelector('main'),{childList:true,subtree:true})}catch(e){}
   setTimeout(()=>idle(next),1500)}
 function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove());if(LAZY[id]&&!BUILT[id]){BUILT[id]=1;LAZY[id]()}if(ALWAYS[id])ALWAYS[id]()}
 // NAVD counts tab changes you can step back through, so the app bar can offer a back button.
@@ -1237,12 +1308,20 @@ let NAV_READY=false;
 let NAV_AT=-1e9;
 const PAGE_Y={};
 let NAV_FORCE='';
-function showTab(id,fromHistory,pure){NAV_AT=performance.now();if(window.closeBeansFab)closeBeansFab();ensureTab(id);{const sec=$(id);document.body.classList.toggle('has-fab',!!(sec&&sec.querySelector(':scope>.fab')))}
+function showTab(id,fromHistory,pure){NAV_AT=performance.now();if(window.closeBeansFab)closeBeansFab();
+  // Each page keeps where you were in it: going back returns to that spot, not the top (a new visit starts at the top).
+  // The scroll to the top happens first, while the page you're leaving is still the one laid out: done after the new
+  // page was shown, it made the browser lay that page out on the spot, inside the tap (about a third of its cost).
+  {const was=document.querySelector('main section.on');if(was&&was.id!==id)PAGE_Y[was.id]=scrollY;if(!(fromHistory&&PAGE_Y[id]!=null)&&scrollY)window.scrollTo({top:0})}
+  ensureTab(id);
+  // A page with a + keeps room for it at its foot, and the toast sits above it. Marked on the page and the toast, not on
+  // <body>: a class on <body> restyled the whole app on every tab change.
+  {const sec=$(id),f=!!(sec&&sec.querySelector(':scope>.fab'));if(sec&&sec.classList.contains('fabbed')!==f)sec.classList.toggle('fabbed',f);$('toast').classList.toggle('lift',f);
+    // The + pops in each time its page opens (a class on the + itself: one on the page restyled all of its contents).
+    FAB_SHOW();if(f)replay(sec.querySelector(':scope>.fab'),'fab-in')}
   // The page on show, for the few styles that depend on it (a class here, not a :has() over the whole page, which
   // made the browser recheck every style on each change while a big page was drawn).
   if(document.documentElement.dataset.tab!==id)document.documentElement.dataset.tab=id;
-  // Each page keeps where you were in it: going back returns to that spot, not the top (a new visit starts at the top).
-  {const was=document.querySelector('main section.on');if(was&&was.id!==id)PAGE_Y[was.id]=scrollY}
   const backY=fromHistory&&PAGE_Y[id]!=null?PAGE_Y[id]:null;const cur=document.querySelector('main section.on');let kind='';
   if(cur&&cur.id!==id){const a=BNORD.indexOf(BNGROUP[cur.id]),b=BNORD.indexOf(BNGROUP[id]);
     kind=a!==b&&a>=0&&b>=0?(b<a?'left':'right'):fromHistory?'pop':'push'}
@@ -1257,13 +1336,28 @@ function showTab(id,fromHistory,pure){NAV_AT=performance.now();if(window.closeBe
     document.querySelectorAll('main section').forEach(s=>s.classList.toggle('on',s.id===id));
     // Every change first, then the scroll (which lays the page out): one layout pass instead of two.
     // Highlights that waited for this page (select.js loads after the first page is shown, so it may not be there yet).
-    syncShell(id,backY==null);if(backY!=null)window.scrollTo({top:backY});try{segShown($(id))}catch(e){}
+    syncShell(id,backY==null?'done':false);if(backY!=null)window.scrollTo({top:backY});
+    // The page's strip highlights are checked just before the next frame, after every other change of the tap, so the
+    // page is laid out once (measured inside the tap, it was laid out there and again for the frame).
+    requestAnimationFrame(()=>{try{if($(id).classList.contains('on'))segShown($(id))}catch(e){}});
     if(kind&&NAV_READY)spSlide(id);
     if(kind&&NAV_READY){const sec=$(id);if(!vt){
       // The slide waits, held on its first frame, until the page has been drawn once. Drawing a page (above all the
       // first time it's shown) can take a phone longer than a frame; started at once, the slide's first frames were
       // lost to it and the page jumped part of the way in: the stutter on a section's first visit.
-      const go=el=>{el.classList.add('nav-hold');replay(el,'nav-in');clearTimeout(el._nav);el._nav=setTimeout(()=>el.classList.remove('nav-in','nav-hold'),640);
+      // While a page moves in it holds its + button (a moving page carries anything fixed inside it along), which put the
+      // button at the foot of the whole page, out of sight, until the slide ended: it came in late. For that time the
+      // button is shifted back to its usual place on the screen, so it's there from the slide's first frame. The shift
+      // is worked out when the page has just been laid out (a ResizeObserver: also each time its size changes while it
+      // slides, photos coming in), never by asking for a layout: measuring every frame cost a phone more than the slide.
+      const fb=el=>el.matches('main section')&&el.querySelector(':scope>.fab');
+      const unpin=el=>{const f=fb(el);if(NAV_RO)NAV_RO.unobserve(el);if(f&&f.style.translate)f.style.translate=''};
+      const end=el=>{clearTimeout(el._nav);el.classList.remove('nav-in','nav-hold');unpin(el)};
+      const go=el=>{el.classList.add('nav-hold');unpin(el);replay(el,'nav-in');clearTimeout(el._nav);el._nav=setTimeout(()=>end(el),640);
+        if(!el._navEnd){el._navEnd=e=>{if(e.target===el&&/^sec-|^page-in|^vt-pop/.test(e.animationName))end(el)};el.addEventListener('animationend',el._navEnd)}
+        if(fb(el)&&window.ResizeObserver){if(!NAV_RO)NAV_RO=new ResizeObserver(es=>{for(const e of es){const s=e.target,f=fb(s);if(!f||!s.classList.contains('nav-in'))continue;
+            const v=Math.round(document.documentElement.clientWidth-(s.offsetLeft+s.offsetWidth))+'px '+Math.round(innerHeight-(s.offsetTop+s.offsetHeight-scrollY))+'px';if(f.style.translate!==v)f.style.translate=v}});
+          NAV_RO.observe(el)}
         requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.remove('nav-hold')))};
       go(sec);
       // The Brew page's hero sits above the page itself: it comes in with it.
@@ -1375,8 +1469,8 @@ const stepList=steps=>{const c=pourCurve(steps);return '<ol class="steps tl">'+s
 function recipeBody(r,i,compact,inSheet){const B=BREWERS[r.b],sc=compact?{dose:r.dose,water:r.water,steps:r.steps,off:r.off,ratio:r.water/r.dose}:scaled(r);const gs=MYG.map(g=>[g,settingFor(g,r.b,sc.off)]);
   const m=rmeta(r);
   return (compact?'<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span>':'')+'</div>'
-     :'<p class="hint" style="margin:0 0 .2rem">'+esc(B.name)+' · '+esc(B.type)+'</p>'+'<div class="rstats"><div><b>'+r.dose+'g</b><small>Coffee</small></div><div><b>'+r.water+'g</b><small>'+(r.iced?'Hot water':'Water')+'</small></div><div><b>'+(r.iced?'1:'+Math.round(r.total/r.dose*10)/10:m.ratio||'–')+'</b><small>Ratio'+(r.iced?' with ice':'')+'</small></div>'+
-       '<div><b>'+(r.temp?r.temp+'°C':'–')+'</b><small>'+(r.temp2?'Then '+r.temp2+'°C':'Water')+'</small></div><div><b>'+(m.time!=null?mmss(m.time):'By eye')+'</b><small>Total time</small></div><div><b>'+m.level+'</b><small>'+m.pours+' pour'+(m.pours===1?'':'s')+'</small></div></div>')+
+     :'<p class="hint" style="margin:0 0 .2rem">'+esc(B.name)+' · '+esc(B.type)+'</p>'+'<div class="rstats tinted">'+[[r.dose+'g','Coffee'],[r.water+'g',r.iced?'Hot water':'Water'],[r.iced?'1:'+Math.round(r.total/r.dose*10)/10:m.ratio||'–','Ratio'+(r.iced?' with ice':'')],
+       [r.temp?r.temp+'°C':'–',r.temp2?'Then '+r.temp2+'°C':'Temperature'],[m.time!=null?mmss(m.time):'By eye','Total time'],[m.level,m.pours+' pour'+(m.pours===1?'':'s')]].map(([v,l])=>{const [a,ic]=tileOf(l,v);return '<div'+a+'>'+ic+'<b>'+v+'</b><small>'+l+'</small></div>'}).join('')+'</div>')+
    '<div class="meta">'+gs.map(([g,v])=>'<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>').join('')+'</div>'+
    (r.why?'<p>'+esc(r.why)+'</p>':'')+(compact?'<details class="rsteps"><summary>Steps ('+r.steps.length+')</summary>':'')+(compact?'':pourGraph(sc.steps,sc.water))+stepList(sc.steps)+(r.tip?'<p class="hint">'+esc(r.tip)+'</p>':'')+(compact?'</details>':'')+
    '<div class="actions ib-row">'+(B.model?ib('timer','data-timer="'+i+'"','Start the timer','main')+ib('cup','data-load="'+i+'"','Brew in the dial-in'):ib('timer','data-timer="'+i+'"','Start the timer','main'))+(inSheet?'':icoBtn('share','data-rshare="'+i+'"','Share this recipe')+(r.custom?icoBtn('edit','data-redit="'+esc(r.id)+'"','Edit this recipe'):''))+'</div>'}
@@ -1702,13 +1796,17 @@ function openRecipeEditor(r,fresh){const isNew=!r||fresh;r=Object.assign({b:'v60
 $('l-fab-new').onclick=()=>{const f=$('l-form');f.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});setTimeout(()=>{const c=$('l-coffee-f').hidden?null:$('l-coffee');if(c)c.focus({preventScroll:true})},350)};
 // A page's + is a shortcut menu of what you can do or add there. While it's open the page underneath stays put, and
 // back (the gesture or button) only closes it. One menu is open at a time.
-let FAB_OPEN=null,FAB_BACKING=false,FAB_AFTER=null;
+let NAV_RO=null,FAB_OPEN=null,FAB_BACKING=false,FAB_AFTER=null,FAB_SHOW=()=>{};
 function fabMenu(fabId,items){const f=$(fabId),m=f.querySelector('.fab-menu'),b=f.querySelector('.fab-main');let scrim=null;
   const lockOn=on=>document.documentElement.classList.toggle('fab-lock',on);
-  const close=(fromPop,after)=>{if(m.hidden)return;m.hidden=true;f.classList.remove('open');b.setAttribute('aria-expanded','false');lockOn(false);if(scrim){scrim.remove();scrim=null}FAB_OPEN=null;
+  // Closing plays the opening in reverse (the panel sinks back into the + and the veil fades), then hides it; everything
+  // else (the + itself, the scroll lock, back) is settled at once.
+  const close=(fromPop,after)=>{if(m.hidden||!f.classList.contains('open'))return;f.classList.remove('open');b.setAttribute('aria-expanded','false');lockOn(false);FAB_OPEN=null;
+    const sc=scrim;scrim=null;const gone=()=>{m.hidden=true;m.classList.remove('closing');if(sc)sc.remove()};
+    if(RM())gone();else{m.classList.add('closing');if(sc)sc.classList.add('closing');clearTimeout(m._ct);m._ct=setTimeout(gone,190)}
     // Closed by a tap or a pick: take back the step it added, then do the pick once history has settled.
     if(!fromPop&&history.state&&history.state.fab){FAB_BACKING=true;FAB_AFTER=after||null;history.back()}else if(after)after()};
-  const open=()=>{if(FAB_OPEN)FAB_OPEN();m.innerHTML=items().map(([k,l,ic],i,a)=>'<button type="button" class="fab-mi" role="menuitem" data-fab="'+k+'" style="--k:'+(a.length-1-i)+'"><span>'+l+'</span><i aria-hidden="true">'+lIc(ic)+'</i></button>').join('');
+  const open=()=>{if(FAB_OPEN)FAB_OPEN();if(m._ct){clearTimeout(m._ct);m._ct=0;m.classList.remove('closing');document.querySelectorAll('.fab-scrim.closing').forEach(s=>s.remove())}m.innerHTML=items().map(([k,l,ic],i,a)=>'<button type="button" class="fab-mi" role="menuitem" data-fab="'+k+'" style="--k:'+(a.length-1-i)+'"><span>'+l+'</span><i aria-hidden="true">'+lIc(ic)+'</i></button>').join('');
     m.hidden=false;f.classList.add('open');b.setAttribute('aria-expanded','true');lockOn(true);
     scrim=document.createElement('div');scrim.className='fab-scrim';scrim.onclick=()=>close();
     // A finger dragging on the scrim doesn't scroll the page behind it.
@@ -2177,7 +2275,7 @@ function selectOrigin(k,zoom){
   const r=REG[o.reg];
   $('info').innerHTML='<div class="info-top"><div class="flag" aria-hidden="true">'+o.flag+'</div>'+icoBtn('share','data-oshare="'+k+'"','Share this origin')+'</div><h2>'+esc(o.name)+'</h2><span class="pill"><i style="background:'+r.color+'"></i>'+r.name+'</span>'+
    '<h3>Regions</h3><div class="chips">'+o.subs.map(s=>'<span class="chip">'+esc(s)+'</span>').join('')+'</div>'+
-   '<div class="stats"><div><b>Altitude</b>'+esc(o.alt)+'</div><div><b>Harvest</b>'+esc(o.harvest)+'</div><div><b>Processing</b>'+esc(o.process)+'</div></div>'+
+   '<div class="stats">'+[['Altitude',o.alt],['Harvest',o.harvest],['Processing',o.process]].map(([k,v])=>{const [a,ic]=tileOf(k);return '<div'+a+'>'+ic+'<b>'+k+'</b>'+esc(v)+'</div>'}).join('')+'</div>'+
    '<h3>In the cup</h3><p>'+esc(o.cup)+'</p><h3>Story</h3><p>'+esc(o.hist)+'</p>'+
    '<h3>Varieties grown here</h3><div class="chips">'+o.vars.map(vbtn).join('')+'</div>'+
    '<div class="fact"><b>Did you know?</b> '+esc(o.fact)+'</div>';
@@ -2260,7 +2358,7 @@ function renderCalc(){
   seg('c-pre',[['1','1 cup'],['2','2 cups'],['esp','Espresso'],['cold','Cold brew']],()=>CALC.pre,v=>{CALC.pre=v;Object.assign(CALC,{'1':{dose:15,ratio:16.5},'2':{dose:30,ratio:16.5},'esp':{dose:18,ratio:2},'cold':{dose:50,ratio:8}}[v]);renderCalc()});
   // Espresso ratios are written as the shot's weight in the cup, not the water that went through, so there is nothing to
   // take off for the grounds. Elsewhere the grounds hold back about twice their weight. Blooms and 4:6 pours are for filter.
-  const cell=(k,v,n)=>'<div><b>'+k+'</b><span>'+v+'</span><small>'+n+'</small></div>';
+  const cell=(k,v,n)=>{const [a,ic]=tileOf(k,v);return '<div'+a+'>'+ic+'<b>'+k+'</b><span>'+v+'</span><small>'+n+'</small></div>'};
   $('c-out').innerHTML=CALC.ratio<=4?cell('Shot weight',w+'g','in the cup, from '+CALC.dose+'g of coffee')+cell('Shot time','25 to 30s','from the moment the pump starts')
     :cell('Water',w+'g','about '+w+' ml')+cell('In the cup',Math.round(w-CALC.dose*2)+'g','after the grounds hold some back')+
      (CALC.ratio<10?cell('Steep','12 to 18 hours','in the fridge, then filter. Dilute to taste'):cell('Bloom water',Math.round(CALC.dose*2.5)+'g','about 2.5 times the dose')+cell('4:6 pours',Math.round(w/5)+'g','five equal pours'));
@@ -2292,9 +2390,9 @@ $('ts-chips').onclick=e=>{const b=e.target.closest('[data-ts]');if(!b)return;ren
 
 /* ================= LOG ================= */
 let STAR=0,DL=null;
-function renderStars(){const w=$('l-starword');if(w){w.textContent=STARW[STAR]||'';w.classList.toggle('none',!STAR)}$('l-stars').innerHTML=[1,2,3,4,5].map(n=>'<button type="button" class="'+(n<=STAR?'on':'')+(n===STAR&&LSPOP?' pop':'')+'" data-s="'+n+'" role="radio" aria-checked="'+(n===STAR)+'" aria-label="'+n+' bean'+(n>1?'s':'')+(STARW[n]?', '+STARW[n]:'')+'">'+RB_SVG+'</button>').join('');LSPOP=false}
+function renderStars(){const w=$('l-starword');if(w){w.textContent=STARW[STAR]||'';w.classList.toggle('none',!STAR)}$('l-stars').innerHTML=[1,2,3,4,5].map(n=>'<button type="button" class="'+(n<=STAR?'lit':'')+(n<=STAR&&LSPOP?' pop':'')+'" style="--i:'+(n-1)+'" data-s="'+n+'" role="radio" aria-checked="'+(n===STAR)+'" aria-label="'+n+' bean'+(n>1?'s':'')+(STARW[n]?', '+STARW[n]:'')+'">'+RB_SVG+'</button>').join('');LSPOP=false}
 let LSPOP=false;
-$('l-stars').onclick=e=>{const b=e.target.closest('[data-s]');if(b){STAR=+b.dataset.s;LSPOP=true;renderStars()}};
+$('l-stars').onclick=e=>{const b=e.target.closest('[data-s]');if(b){STAR=+b.dataset.s;LSPOP=true;renderStars();tapBuzz()}};
 /* ---------- Shared log (Firebase Realtime Database over REST, no SDK) ---------- */
 // The Realtime Database URL of the Firebase project that holds shared logs (see README).
 // Empty means shared logs are switched off. A 'bb-syncdb' value in localStorage overrides it, for testing.
@@ -2440,12 +2538,12 @@ function renderLastBrew(){const el=$('lastbrew');if(!el)return;const l=LOG.find(
   // The full coffee name, then how it was brewed in one line, with the bag's picture when the brew is tied to one.
   const q=typeof parseSettings==='function'?parseSettings(l.settings||''):{},bk=CANONB((l.snap&&l.snap.b)||l.brewer||''),bean=logBean(l);
   const how=[BREWERS[bk]?famName(bk):(q.brewer||''),(l.snap&&l.snap.dose)||q.dose?((l.snap&&l.snap.dose)||q.dose)+' g'+(q.water?' : '+q.water+' g':''):'',q.temp?q.temp+'°C':''].filter(Boolean);
-  el.innerHTML='<button type="button" class="lb-open" id="lb-open" aria-label="Open your brew log">'+
+  const fresh=setHTML(el,'<button type="button" class="lb-open" id="lb-open" aria-label="Open your brew log">'+
     (bean?'<span class="lb-pic">'+beanPic(bean,'xs')+'</span>':'<span class="lb-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z M16 10h1.5a2.5 2.5 0 0 1 0 5H16 M8 3c-1 1 1 2 0 3 M11.5 3c-1 1 1 2 0 3"/></svg></span>')+
     '<span class="lb-tx"><small>Your last brew · '+esc(fmtDate(l))+'</small><b>'+esc(l.coffee||'A brew')+'</b>'+(how.length?'<span class="lb-how">'+esc(how.join(' · '))+'</span>':'')+
     (st?'<i class="st" role="img" aria-label="'+st+' of 5 beans">'+beanRate(st)+'</i>':'')+'</span></button>'+
-    '<div class="lb-act">'+icoBtn('share','id="lb-share"','Share this brew')+'<button type="button" class="btn ghost" id="lb-all">All '+n+' brew'+(n===1?'':'s')+'</button></div>';
-  if(bean&&typeof hydrateImgs==='function')hydrateImgs(el);
+    '<div class="lb-act">'+icoBtn('share','id="lb-share"','Share this brew')+'<button type="button" class="btn ghost" id="lb-all">All '+n+' brew'+(n===1?'':'s')+'</button></div>');
+  if(fresh&&bean&&typeof hydrateImgs==='function')hydrateImgs(el);
   $('lb-open').onclick=$('lb-all').onclick=()=>goTab('log');$('lb-share').onclick=()=>openShare(logEntryDoc(l))}
 /* ---------- The list of brews: search, filters, sort, and each brew as a card ---------- */
 let LF=Object.assign({q:'',who:[],min:0,sort:'new'},VW_KEEP?load('bb-logfilter',{}):{});LF.q='';if(!Array.isArray(LF.who))LF.who=LF.who&&LF.who!=='all'?[LF.who]:[];
@@ -2506,8 +2604,8 @@ function renderLogList(force){const sec=$('log');if(!force&&sec&&!sec.classList.
   for(let k=0;k<rows.length;k++)h+='<div class="le-slide" data-k="'+k+'"></div>';h+='</div>';
   // Keep your place in the slider when the list is redrawn (a rating, an edit, a deletion).
   const keepX=$('l-track')?$('l-track').scrollLeft:0;
-  $('l-list').innerHTML=!LOG.length?'<div class="le-empty">'+lIc('edit')+'<b>No brews yet</b><p>Dial one in, then tap “Log this brew”, or fill in the form above.</p></div>':
-    rows.length?(rows.length<LOG.length?'<p class="le-count">Showing '+rows.length+' of '+LOG.length+' brews</p>':'')+h:'<div class="le-empty">'+lIc('search')+'<b>No brews match</b><p><button type="button" class="linkbtn" id="lf-clear">Clear the filters</button></p></div>';
+  $('l-list').innerHTML=!LOG.length?'<div class="bg-empty ic">'+lIc('cup')+'<b>No brews yet</b><p>Dial one in and brew it, then tap “Log this brew”. Or fill in the form above.</p>'+pbtn('again','data-empty="dial"','Dial in a brew','main empty-go')+'</div>':
+    rows.length?(rows.length<LOG.length?'<p class="le-count">Showing '+rows.length+' of '+LOG.length+' brews</p>':'')+h:'<div class="bg-empty ic">'+lIc('search')+'<b>No brews match</b><p>Nothing in your log fits these filters.</p><button type="button" class="pbtn empty-go" id="lf-clear">Clear the filters</button></div>';
   const c=$('lf-clear');if(c)c.onclick=()=>{LF.q='';const qi=$('lf-q');if(qi)qi.value='';LF.min=0;LF.who=[];saveLF();renderLogList()};
   const tr=$('l-track');
   const fill=k=>{if(!tr)return;for(let j=Math.max(0,k-2);j<=Math.min(rows.length-1,k+3);j++){const sl=tr.children[j];if(!sl||sl.dataset.f)continue;const [l,i]=rows[j];sl.dataset.f=1;
@@ -2527,7 +2625,7 @@ function renderLog(){renderShare();renderLastBrew();
   const rated=LOG.filter(l=>+l.stars>0),avg=rated.length?(rated.reduce((a,l)=>a+ +l.stars,0)/rated.length).toFixed(1):'–';
   const cnt={};LOG.forEach(l=>{if(l.brewer)cnt[l.brewer]=(cnt[l.brewer]||0)+1});const fav=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];
   const best=rated.slice().sort((a,b)=>b.stars-a.stars||b.ts-a.ts)[0];
-  const stat=(k,v,small)=>'<div><b>'+k+'</b><span'+(String(v).length>6?' style="font-size:1rem"':'')+'>'+v+'</span>'+(small?'<small>'+small+'</small>':'')+'</div>';
+  const stat=(k,v,small)=>{const [a,ic]=tileOf(k,v);return '<div'+a+'>'+ic+'<b>'+k+'</b><span'+(String(v).length>6?' style="font-size:1rem"':'')+'>'+v+'</span>'+(small?'<small>'+small+'</small>':'')+'</div>'};
   $('l-stats').innerHTML=LOG.length?stat('Brews logged',LOG.length)+stat('Average rating',avg,rated.length?'out of 5':'no ratings yet')+(fav?stat('Favourite brewer',esc(BREWERS[fav[0]]?BREWERS[fav[0]].name:fav[0])):'')+(best?stat('Top coffee',esc(best.coffee||'Untitled')):''):'';
   $('l-csv').hidden=!LOG.length;
 }
@@ -3336,7 +3434,7 @@ function cupShapeSVG(m){const n=m.length,c=60,R=40,pt=(i,r)=>{const a=-Math.PI/2
     '<ellipse class="cs-saucer" cx="60" cy="60" rx="58" ry="58"/><path class="cs-handle" d="M112 50c14 0 14 20 0 20"/><circle class="cs-rim" cx="60" cy="60" r="50"/><circle class="cs-coffee" cx="60" cy="60" r="45"/>'+grid+
     '<polygon class="cs-crema" points="'+poly+'"/>'+m.map(([k,v],i)=>{const [x,y]=pt(i,R*(.18+.82*v/5));return '<circle class="cs-dot t-'+CUPT[k][0]+'" cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3.6"/>'}).join('')+'</svg>'}
 function beanProfileHTML(){const b=beanProfile();
-  const beans=(k,n)=>'<span class="cb-row t-'+CUPT[k][0]+'" aria-hidden="true">'+[1,2,3,4,5].map(i=>'<i'+(i<=n?' class="on"':'')+'>'+CUP_BEAN+'</i>').join('')+'</span>';
+  const beans=(k,n)=>'<span class="cb-row t-'+CUPT[k][0]+'" aria-hidden="true">'+[1,2,3,4,5].map(i=>'<i'+(i<=n?' class="lit"':'')+'>'+CUP_BEAN+'</i>').join('')+'</span>';
   return '<div class="bprof"><p class="bp-head">'+esc(b.head)+'</p><div class="cupprof">'+cupShapeSVG(b.meters)+'<ul class="cuptraits">'+
     b.meters.map(([k,n])=>'<li><b>'+k+'</b>'+beans(k,n)+'<em class="t-'+CUPT[k][0]+'">'+CUPT[k][1][n-1]+'</em><span class="sr">'+n+' of 5</span></li>').join('')+'</ul></div>'+
     (b.notes.length?'<h4 class="bp-h">In the cup</h4><div class="chips">'+b.notes.map(n=>'<span class="chip">'+esc(n)+'</span>').join('')+'</div>':'')+
@@ -3616,7 +3714,9 @@ function renderCountdown(){const ev=upcoming().filter(e=>inSel(CHF,e.c)),box=$('
    '<div class="cdclock" id="cd-clock" aria-live="off"></div>'+(n.note?'<p class="hint" style="margin:.4rem 0 0">'+esc(n.note)+'</p>':'')+'</div>'+
    (rest.length?'<div class="cdnext">'+rest.map(e=>'<div><span class="pill"><i style="background:'+COMPS[e.c].color+'"></i>'+COMPS[e.c].short+' '+e.y+'</span><b>'+esc(e.city)+'</b><small>'+new Date(e.sd+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'})+' · in '+Math.max(0,Math.ceil((e.start-Date.now())/864e5))+' days</small></div>').join('')+'</div>':'');
   // The clock is drawn at once, even while the page is still opening; it stops ticking once you leave the page.
-  let first=true;const tick=()=>{const el=$('cd-clock');if(!el||(!first&&!document.getElementById('champs').classList.contains('on'))){clearInterval(CDT);CDT=null;return}first=false;
+  let first=true;const tick=()=>{const el=$('cd-clock');if(!el||(!first&&!document.getElementById('champs').classList.contains('on'))){if(el)el.classList.remove('tick');clearInterval(CDT);CDT=null;return}
+    // The seconds pulse only while the clock ticks (the page open), not on a hidden page.
+    if(first||!el.classList.contains('tick'))el.classList.add('tick');first=false;
     const now=Date.now();if(now>=n.end){clearInterval(CDT);CDT=null;renderCountdown();return}
     if(now>=n.start){el.innerHTML='<div class="cdlive"><i></i>Happening now in '+esc(n.city.split(',')[0])+'</div>';return}
     let s=Math.floor((n.start-now)/1e3);const d=Math.floor(s/86400);s%=86400;const h=Math.floor(s/3600);s%=3600;const m=Math.floor(s/60);s%=60;
@@ -3820,7 +3920,7 @@ function flowDoc(){const txt=f=>f.d.replace(/\s*Tap [^.]*\./g,'')+(f.branch?' Pa
 
 /* ================= APP SHELL ================= */
 /* Line icons for the sheets, drawn to match the bottom navigation. */
-const ICO={sliders:'M4 7h9 M17 7h3 M4 17h3 M11 17h9 M15 5v4 M9 15v4',motion:'M3 12c2.5-5 5-5 7.5 0s5 5 7.5 0 M3 6h4 M17 18h4',bell:'M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15z M10 20a2 2 0 0 0 4 0',
+const ICO={flag:'M6 21V4 M6 4h11.5l-2.2 4.2 2.2 4.3H6',sliders:'M4 7h9 M17 7h3 M4 17h3 M11 17h9 M15 5v4 M9 15v4',motion:'M3 12c2.5-5 5-5 7.5 0s5 5 7.5 0 M3 6h4 M17 18h4',bell:'M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15z M10 20a2 2 0 0 0 4 0',
   bulb:'M9 18h6 M10 21h4 M12 3a6 6 0 0 0-3.5 10.9V16h7v-2.1A6 6 0 0 0 12 3z',palette:'M12 3a9 9 0 1 0 0 18c1.1 0 1.6-.9 1.2-1.8c-.5-1 .2-2.2 1.3-2.2H17a4 4 0 0 0 4-4c0-5.5-4-10-9-10z M7.5 11.5h.01 M10.5 7.5h.01 M15.5 8.5h.01',
   info:'M21 12a9 9 0 1 1-18 0a9 9 0 1 1 18 0z M12 11v5 M12 8h.01',phone:'M8 3h8a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z M11 18h2',wheel:'M21 12a9 9 0 1 1-18 0a9 9 0 1 1 18 0z M12 3v9l7.8 4.5 M12 12l-7.8 4.5',trophy:'M8 4h8v5a4 4 0 0 1-8 0z M8 6H5a3 3 0 0 0 3 4 M16 6h3a3 3 0 0 1-3 4 M12 13v4 M8 21h8 M9 17h6',globe:'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M3 12h18 M12 3c3 3.5 3 14.5 0 18 M12 3c-3 3.5-3 14.5 0 18',leaf:'M5 19c0-8 5-14 14-14c0 9-6 14-14 14z M5 19l8-8',
   hourglass:'M7 3h10 M7 21h10 M8 3v3l4 6 4-6V3 M8 21v-3l4-6 4 6v3',flask:'M9 3h6 M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3 M7.5 15h9',drop:'M12 3c3 4 6 7.5 6 11a6 6 0 0 1-12 0c0-3.5 3-7 6-11z',
@@ -3870,13 +3970,15 @@ addEventListener('resize',()=>{TFIT.clear();requestAnimationFrame(fitTitle)});
 // The page's own heading says where you are, so the top bar's title waits until that heading scrolls up under the bar,
 // then takes over (and hands back on the way down). Pages without a heading keep the bar's title.
 let TIO_T=null;const TIO='IntersectionObserver' in window?new IntersectionObserver(es=>{for(const e of es)if(e.target===TIO_T)$('appbar').classList.toggle('title-off',e.isIntersecting)},{rootMargin:'-84px 0px 0px 0px'}):null;
-function watchTitle(id){const ab=$('appbar');if(!ab)return;if(TIO&&TIO_T)TIO.unobserve(TIO_T);const s=$(id);TIO_T=s&&s.querySelector(':scope > h2');
-  if(!TIO||!TIO_T){ab.classList.remove('title-off');return}const r=TIO_T.getBoundingClientRect();ab.classList.toggle('title-off',r.bottom>84&&r.top<innerHeight);TIO.observe(TIO_T)}
+// atTop: the page was just scrolled to its top, where its heading shows below the bar; no need to measure (measuring
+// there laid the new page out inside the tap). The observer corrects it once the page is drawn if that's wrong.
+function watchTitle(id,atTop){const ab=$('appbar');if(!ab)return;if(TIO&&TIO_T)TIO.unobserve(TIO_T);const s=$(id);TIO_T=s&&s.querySelector(':scope > h2');
+  if(!TIO||!TIO_T){ab.classList.remove('title-off');return}if(atTop)ab.classList.add('title-off');else{const r=TIO_T.getBoundingClientRect();ab.classList.toggle('title-off',r.bottom>84&&r.top<innerHeight)}TIO.observe(TIO_T)}
 // The shell's writes come first and its one measurement (where the page title sits) last, so a tab switch lays the
 // page out once. top: scroll to the top first (a tab switch), so the title is measured where it will be.
-function syncShell(id,top){TITLE_ID=id;$('ab-title').textContent=TABNAMES[id]||'Brew Bench';requestAnimationFrame(fitTitle);$('ab-back').hidden=NAVD<1;document.body.classList.toggle('t-dial',id==='dial');
+function syncShell(id,top){TITLE_ID=id;$('ab-title').textContent=TABNAMES[id]||'Brew Bench';requestAnimationFrame(fitTitle);$('ab-back').hidden=NAVD<1;{const hw=document.querySelector('.herowrap');if(hw&&hw.classList.contains('on')!==(id==='dial'))hw.classList.toggle('on',id==='dial')}
   document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));requestAnimationFrame(movePill);
-  if(top)window.scrollTo({top:0});watchTitle(id);
+  if(top===true&&scrollY)window.scrollTo({top:0});watchTitle(id,top==='done');
   updShare(id)}
 // The app bar's Share only shows when the page has something to share: a picked origin on the map, a list of recipes.
 function updShare(id){id=id||(document.querySelector('main section.on')||{}).id;
@@ -3903,8 +4005,8 @@ const hubItem=k=>[...SHEETS.explore,...SHEETS.more].find(x=>x[0]===k);
 const HC_ARR='<svg class="hc-arr" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
 const hubCard=k=>{const [,n,d,c,ic]=hubItem(k);return '<button type="button" class="hubcard" data-go="'+k+'" style="--hc:'+c+'"><span class="hc-top">'+ico(ic,c)+HC_ARR+'</span><span class="hc-tx"><b>'+n+'</b><small>'+d+'</small></span></button>'};
 function renderExplore(){const day=Math.floor(Date.now()/864e5),w=GLOSSARY[day%GLOSSARY.length];
-  $('explore-in').innerHTML=todayCard(day,w)+(window.BEANS_OK?cabinetDayHTML():'')+
-    HUB.explore.map(([h,ks])=>'<h3 class="rh">'+h+'</h3><div class="hubgrid">'+ks.map(hubCard).join('')+'</div>').join('');if(window.BEANS_OK)hydrateImgs($('explore-in'))}
+  if(setHTML($('explore-in'),todayCard(day,w)+(window.BEANS_OK?cabinetDayHTML():'')+
+    HUB.explore.map(([h,ks])=>'<h3 class="rh">'+h+'</h3><div class="hubgrid">'+ks.map(hubCard).join('')+'</div>').join('')))if(window.BEANS_OK)hydrateImgs($('explore-in'))}
 /* ---------- Settings: the app's look, name and your data ---------- */
 // Vibes: whole palettes, light and dark (their colours live in the styles; these are for the previews). VIBES_ALL also
 // holds the retired ones: tools/gen-app-icons.py keeps their home-screen icons, so a phone showing one keeps a way in.
@@ -3940,7 +4042,7 @@ function setFavicon(){try{const cs=getComputedStyle($('ab-logo')),col=v=>cs.getP
 function lookSwap(fn){fn()}
 function themeSwap(){const d=document.documentElement;d.classList.add('thx');clearTimeout(themeSwap.t);
   // (Lifted a moment later, in a quiet moment: lifting it restyles the page again, so it waits until nothing is moving.)
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{themeSwap.t=setTimeout(()=>{const off=()=>d.classList.remove('thx');if(window.requestIdleCallback)requestIdleCallback(off,{timeout:900});else off()},420)}))}
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{themeSwap.t=setTimeout(()=>{const off=()=>{d.classList.remove('thx');if(prebuildTabs.again)prebuildTabs.again(true)};if(window.requestIdleCallback)requestIdleCallback(off,{timeout:900});else off()},420)}))}
 function applyUI(){const d=document.documentElement;themeSwap();d.setAttribute('data-accent',UI.accent);if(UI.vibe==='roastery')d.removeAttribute('data-vibe');else d.setAttribute('data-vibe',UI.vibe);d.setAttribute('data-text',UI.text);// Only reduced motion is marked: the reduced-motion rules apply to every element, and an attribute always present
   // on the page made the browser test each of them against every element on each restyle.
   if(UI.motion==='reduced')d.setAttribute('data-motion','reduced');else d.removeAttribute('data-motion');
@@ -4052,7 +4154,10 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
    '<h3 class="rh">Your data</h3><div class="setgroup">'+row('download','#8A5A3B','Back up and restore','Everything you’ve saved stays on this device: '+esc(dataSummary())+'. Save it as a file, photos included, to keep it safe or move it to another phone.',
      '<p class="setnote" id="st-lastbak" style="margin:0 0 8px">'+lastBakText()+'</p><div class="setbtns">'+pbtn('dl','id="st-export"','Back up','main')+pbtn('ul','id="st-import"','Restore')+'<input type="file" id="st-file" accept="application/json,.json" hidden></div>')+'</div>'+
    (installed()?'':'<h3 class="rh">Install</h3><div class="setgroup">'+row('phone','#9A7390','Add to your home screen','Use it like an app, offline too','<p class="setnote" style="margin:0"><b>iPhone (Safari):</b> tap the Share button, then <b>Add to Home Screen</b>.<br><b>Android (Chrome):</b> tap the ⋮ menu, then <b>Add to Home screen</b>.</p>')+'</div>')+
-   '<h3 class="rh">About</h3><div class="setgroup">'+linkRow('id="st-tips"','bulb','#C9964A','Good to know','Undo, backups, sharing'+(NATIVE?', widgets':'')+' and more, in a minute')+row('info','#8A5A3B','The Brew Bench','A coffee field guide and dial-in tool. What you save stays on this device, or syncs with your account if you sign in.','<p class="setnote" style="margin:0"><a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a> · <a href="'+SITE_URL+'delete-account.html" target="_blank" rel="noopener">Delete your account</a></p>')+
+   '<h3 class="rh">About</h3><div class="setgroup">'+linkRow('id="st-tips"','bulb','#C9964A','Good to know','Undo, backups, sharing'+(NATIVE?', widgets':'')+' and more, in a minute')+
+     row('flag','#B5533C','Problem reports',UI.reports?'If the app stalls, shows an error or closes by itself, a short note about it is kept on this phone. Nothing is sent unless you send it.':'Off. Turn on to keep a short note when the app stalls, shows an error or closes by itself, to send to us if something goes wrong.',
+       '<div class="seg" id="st-rep" role="group" aria-label="Problem reports"></div>'+
+       (UI.reports?'<div class="setbtns">'+pbtn('share','id="st-repsend"','Send report'+((REPORTS||[]).length?' ('+REPORTS.length+')':''))+'</div>':''))+row('info','#8A5A3B','The Brew Bench','A coffee field guide and dial-in tool. What you save stays on this device, or syncs with your account if you sign in.','<p class="setnote" style="margin:0"><a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a> · <a href="'+SITE_URL+'delete-account.html" target="_blank" rel="noopener">Delete your account</a></p>')+
      '</div>';
     // Built each visit, but only put in when something changed: redrawing the whole page on every visit laid it out again.
     if(h!==SET_H||!$('st-mode')){$('settings-in').innerHTML=h;SET_H=h}}
@@ -4067,11 +4172,13 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
     $('st-rtime').onchange=async e=>{if(/^\d\d:\d\d$/.test(e.target.value)){REMIND.t=e.target.value;save('bb-remind',REMIND);await scheduleReminders();toast('Your coffee of the day arrives at '+REMIND.t)}}}
   if($('st-learn')){seg('st-learn',[['0','Off'],['1','Every day']],()=>LEARN.on?'1':'0',async v=>{await setLearn(v==='1');renderSettings(1)});
     $('st-ltime').onchange=async e=>{if(/^\d\d:\d\d$/.test(e.target.value)){LEARN.t=e.target.value;save('bb-learn',LEARN);await scheduleFacts();toast('Your coffee fact arrives at '+LEARN.t)}}}
+  seg('st-rep',[['0','Off'],['1','On']],()=>UI.reports?'1':'0',v=>{UI.reports=v==='1';if(!UI.reports){REPORTS=[];saveReports()}saveUI();renderSettings(1)});
   seg('st-start',[['dial','Brew'],['recipes','Recipes'],['beans','Beans'],['explore','Explore']],()=>UI.start,v=>{UI.start=v;saveUI();renderSettings(1);toast('The app will open on '+TABNAMES[v])});
   seg('st-views',[['keep','Keep my choices'],['reset','Reset each time']],()=>UI.views||'keep',v=>{UI.views=v;saveUI();renderSettings(1);toast(v==='keep'?'Your sorts and filters will stay as you set them':'Lists will open in their default order next time')});
   seg('st-resume',[['fresh','Start fresh'],['keep','Where I left off']],()=>UI.resume||'fresh',v=>{UI.resume=v;saveUI();renderSettings(1);toast(v==='fresh'?'Scan and Brew will start fresh next time':'The app will remember your last scan and dial-in')})}
 $('settings-in').addEventListener('click',e=>{if(e.target.closest('#st-tips')){openTips();return}const vb=e.target.closest('.vibe[data-vibe]');if(vb){const v=vb.dataset.vibe;pickNow('.vibe[data-vibe]',vb);afterPaint(()=>{lookSwap(()=>{UI.vibe=v;UI.accent='classic';saveUI();renderSettings(1)});toast((VIBES.find(x=>x[0]===UI.vibe)||[])[1]+' on')});return}const a=e.target.closest('.swatch[data-accent]');if(a){const k=a.dataset.accent;pickNow('.swatch[data-accent]',a);afterPaint(()=>lookSwap(()=>{UI.accent=k;saveUI();renderSettings(1)}));return}
   const l=e.target.closest('.logopick[data-logo]');if(l){UI.logo=l.dataset.logo;saveUI();renderSettings(1);return}
+  if(e.target.closest('#st-repsend')){sendReport();return}
   if(e.target.closest('#st-export')){exportData();return}if(e.target.closest('#st-import')){$('st-file').click();return}});
 $('settings-in').addEventListener('change',e=>{if(e.target.id==='st-file'){importData(e.target.files[0]);e.target.value=''}});
 for(const id of ['explore-in','settings-in'])$(id).addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g){const t=g.dataset.go;tapOpen(g,()=>showTab(t,false,true));return}
@@ -4287,6 +4394,20 @@ applyUI();
 {let h=location.hash.slice(1);if(h==='more')h='settings';if(!openRoute(h)){if(h&&$(h)&&$(h).tagName==='SECTION')showTab(h,true);else if(!h&&UI.start!=='dial'&&$(UI.start))showTab(UI.start,true);else syncShell('dial')}}
 // Moves animate only once the app has opened: the first page appears in place.
 requestAnimationFrame(()=>{NAV_READY=true});
+// The + on a page slips away while you scroll down through it and comes back as soon as you scroll up, stop near the
+// end of the page, or change page; never while its menu is open. One read of the scroll per frame at most.
+// Only a scroll you make (a finger or the wheel) moves it: the app's own scrolls (back to a page's place) leave it be.
+{let lastY=scrollY,raf=0,acc=0,gest=-1e9;for(const ev of ['touchmove','wheel'])addEventListener(ev,()=>{gest=performance.now()},{capture:true,passive:true});const fabOf=()=>{const s=document.querySelector('main>section.on');return s&&s.querySelector(':scope>.fab')};
+  const set=(f,away)=>{if(f&&f.classList.contains('away')!==away)f.classList.toggle('away',away)};
+  addEventListener('scroll',()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;const y=scrollY,d=y-lastY;lastY=y;const f=fabOf();if(!f||FAB_OPEN)return;
+    if(performance.now()-gest>700){acc=0;return}
+    acc=Math.sign(d)===Math.sign(acc)?acc+d:d;
+    const end=y+innerHeight>=document.documentElement.scrollHeight-80;
+    if(y<80||end||acc<-12)set(f,false);else if(acc>24)set(f,true)})},{passive:true});
+  FAB_SHOW=()=>{lastY=scrollY;acc=0;document.querySelectorAll('.fab.away').forEach(f=>f.classList.remove('away'))}}
+// Pages with a + are marked once here (and again by showTab), so the first page has its room too.
+document.querySelectorAll('main>section').forEach(s=>{if(s.querySelector(':scope>.fab'))s.classList.add('fabbed')});
+{const s=document.querySelector('main>section.on');$('toast').classList.toggle('lift',!!(s&&s.classList.contains('fabbed')))}
 prebuildTabs();
 if(GROUP)startStream();
 if(window.claude&&window.claude.use){
@@ -4310,6 +4431,22 @@ try{if(window.PerformanceObserver&&(PerformanceObserver.supportedEntryTypes||[])
   new PerformanceObserver(l=>{let got=false;for(const e of l.getEntries()){if(!/^(pointerdown|pointerup|click|keydown|keyup|input|change)$/.test(e.name)||e.duration<64||e.startTime<=SP_CLEAR_T)continue;
       SPEED.push({d:Math.round(e.duration),w:Math.round(Math.max(0,e.processingStart-e.startTime)),p:Math.round(Math.max(0,e.processingEnd-e.processingStart)),k:e.name,el:spWhat(e.target),pg:spPage(),at:Date.now(),v:appVersion()||'web'});got=true}
     if(!got)return;SPEED.sort((a,b)=>b.d-a.d);SPEED=SPEED.slice(0,40);clearTimeout(SPEED_T);SPEED_T=setTimeout(()=>{try{localStorage.setItem(SPEED_K,JSON.stringify(SPEED))}catch(e){}},2000)}).observe({type:'event',durationThreshold:64,buffered:true})}catch(e){}
+/* Problem reports (opt-in, Settings › About): errors the page raised, an app that closed without being put away
+   (the next start notices), and the slowest taps from the speed log, kept here only (40 at most) and sent only if you
+   choose to, as text through the phone's own share sheet. Off by default; turning it off clears what was kept. */
+var REPORTS=(()=>{try{const a=JSON.parse(localStorage.getItem('bb-reports')||'[]');return Array.isArray(a)?a.slice(0,40):[]}catch(e){return[]}})();
+function saveReports(){try{if(REPORTS.length)localStorage.setItem('bb-reports',JSON.stringify(REPORTS));else localStorage.removeItem('bb-reports')}catch(e){}}
+function noteProblem(k,msg){if(!UI.reports)return;REPORTS.unshift({k,m:String(msg||'').slice(0,240),pg:spPage(),at:Date.now(),v:appVersion()||'web'});REPORTS=REPORTS.slice(0,40);saveReports()}
+addEventListener('error',e=>{if(e&&e.message)noteProblem('error',e.message+(e.filename?' ('+String(e.filename).split('/').pop()+':'+e.lineno+')':''))});
+addEventListener('unhandledrejection',e=>{const r=e&&e.reason;noteProblem('error',r&&(r.message||String(r))||'A promise failed')});
+// A start that finds the last visit wasn't put away (the page hidden) means it closed by itself.
+try{if(localStorage.getItem('bb-running')==='1')noteProblem('restart','The app closed by itself, or was restarted by the phone');localStorage.setItem('bb-running','1')}catch(e){}
+addEventListener('visibilitychange',()=>{try{localStorage.setItem('bb-running',document.hidden?'0':'1')}catch(e){}});
+addEventListener('pagehide',()=>{try{localStorage.setItem('bb-running','0')}catch(e){}});
+function reportText(){return 'Brew Bench problem report ('+(appVersion()||'web')+', '+navigator.userAgent.replace(/^.*?\(([^)]*)\).*$/,'$1').slice(0,60)+')\n\n'+
+  (REPORTS.length?REPORTS.map((x,i)=>(i+1)+'. '+(x.k==='restart'?'Closed by itself':'Error')+': '+x.m+'  on '+(x.pg||'?')+'  ('+new Date(x.at).toLocaleString()+', '+x.v+')').join('\n'):'No problems noted.')+'\n\n'+speedText()}
+async function sendReport(){const t=reportText();try{if(navigator.share){await navigator.share({title:'Brew Bench problem report',text:t});return}}catch(e){if(e&&e.name==='AbortError')return}
+  try{await navigator.clipboard.writeText(t);toast('Copied the report')}catch(e){saveFile('brew-bench-report.txt',new Blob([t],{type:'text/plain'}))}}
 function speedText(){return 'Brew Bench speed log ('+(appVersion()||'web')+', '+navigator.userAgent.replace(/^.*?\(([^)]*)\).*$/,'$1').slice(0,60)+')\n'+
   (SPEED.length?SPEED.map((x,i)=>(i+1)+'. '+x.d+' ms  '+x.k+'  '+x.el+'  on '+x.pg+'  (wait '+x.w+', run '+x.p+', '+new Date(x.at).toLocaleString()+')').join('\n'):'No slow taps yet.')}
 // How smoothly a page slid in: the frames in the half second after a tab change. A frame over 50 ms is a visible stutter;

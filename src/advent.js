@@ -60,7 +60,7 @@ function openCal(id,o){const c=calById(id);if(!c)return;ADVFROM=id;VD_BACK=null;
     '<div class="adv-score"><div class="adv-sh"><span class="adv-big">'+(sc.v?sc.v.toFixed(1):'–')+'<small>/5</small></span><span class="adv-sl"><b>Total rating</b><small>'+advSub(c,s,sc,rk,pos)+'</small></span></div></div>'+
     '<div class="adv-prog"><div class="adv-ph"><b>'+s.open+' of '+c.n+' opened</b><span>'+(s.open===c.n?'All done':s.origins?s.origins+' origin'+(s.origins===1?'':'s'):'')+'</span></div><span class="bagm"><i style="width:'+(s.open/c.n*100).toFixed(0)+'%"></i></span></div>'+
     '<h3>The doors</h3><div class="adv-grid">'+Array.from({length:c.n},(_,i)=>{const n=i+1,b=s.doors.get(n);
-      return b?'<button type="button" class="adv-door on" data-door="'+n+'" aria-label="Door '+n+': '+esc(beanTitle(b))+'">'+beanPic(b,'adv')+'<span class="adv-n">'+n+'</span>'+(b.rating?'<span class="adv-dr">'+String(b.rating).replace('.5','½')+'</span>':'')+'</button>'
+      return b?'<button type="button" class="adv-door lit" data-door="'+n+'" aria-label="Door '+n+': '+esc(beanTitle(b))+'">'+beanPic(b,'adv')+'<span class="adv-n">'+n+'</span>'+(b.rating?'<span class="adv-dr">'+String(b.rating).replace('.5','½')+'</span>':'')+'</button>'
         :'<button type="button" class="adv-door'+(n===t?' now':'')+'" data-door="'+n+'" aria-label="Door '+n+': add its coffee"><span class="adv-n">'+n+'</span>'+(n===t?'<small>Today</small>':'')+'</button>'}).join('')+'</div>'+
     '<p class="hint adv-tip">Open the doors in any order: add the coffee behind each, then rate it. The total rating is the average of the ones you’ve rated.</p>'+
     (s.best.length>1?'<h3>Best of the box</h3><div class="clist">'+s.best.map((b,i)=>coffeeRow(b,false,i)).join('')+'</div>':'')+

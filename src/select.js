@@ -151,7 +151,7 @@ const SEG_SEL='.seg:not(.filters),.seg.gtabs';
 function segBatch(list,instant){const items=[];
   for(const el of new Set(list)){if(!el||!el.isConnected||!el.matches(SEG_SEL))continue;
     // A strip on a page that isn't shown waits until that page opens: measuring it would lay out the hidden page.
-    if(el.closest('main section:not(.on)')){el._stale=1;continue}const on=el.querySelector(':scope>button[aria-pressed="true"]');items.push({el,on,ind:el.querySelector(':scope>.seg-ind')})}
+    if(el.closest('main section:not(.on):not(.warm)')){el._stale=1;continue}const on=el.querySelector(':scope>button[aria-pressed="true"]');items.push({el,on,ind:el.querySelector(':scope>.seg-ind')})}
   if(!items.length)return;
   // Reads, part 1: which strips are shown, and which need a positioned parent for their highlight.
   for(const it of items){it.ok=!!(it.on&&it.on.offsetWidth);if(it.ok&&!it.el.classList.contains('ind-rel'))it.stat=getComputedStyle(it.el).position==='static'}
@@ -185,7 +185,9 @@ function segBatch(list,instant){const items=[];
 // opening a long page like Settings doesn't lay out its far end first.
 function segShown(sec){const all=[...sec.querySelectorAll(SEG_SEL)];if(!all.length)return;all.forEach(x=>x._stale=0);
   const H=innerHeight+120,near=[],far=[];for(const x of all){const t=x.offsetParent?x.getBoundingClientRect().top:H+1;(t<H?near:far).push(x)}
-  if(near.length)segBatch(near,true);if(far.length){const go=()=>{if(sec.classList.contains('on'))segBatch(far.filter(x=>x.isConnected),true)};window.requestIdleCallback?requestIdleCallback(go,{timeout:400}):setTimeout(go,120)}}
+  if(near.length)segBatch(near,true);if(far.length){const go=()=>{if(sec.classList.contains('on'))segBatch(far.filter(x=>x.isConnected),true)};
+    // Strips below the screen are placed after the page has finished sliding in, not during it.
+    setTimeout(()=>window.requestIdleCallback?requestIdleCallback(go,{timeout:600}):go(),650)}}
 // One watcher for every control's size (a tab coming into view, the phone turning); controls that have left the page are dropped.
 const SEG_RO=window.ResizeObserver?new ResizeObserver(es=>es.forEach(e=>{if(e.target.isConnected)segQueue(e.target);else SEG_RO.unobserve(e.target)})):null;
 const SEG_Q=new Set(),SEG_IP=new Map();let SEG_RAF=0;

@@ -74,6 +74,7 @@ public class WidgetShots {
                 .put("dose", "20 g").put("water", "300 g").put("temp", "92°C").put("line", "Hario V60 · 20 g : 300 g · 92°C")
                 .put("bean", new JSONObject().put("id", "w1").put("title", "Kenya Nyeri AA").put("flag", "\uD83C\uDDF0\uD83C\uDDEA").put("ph", fakePhoto(0xFF6B3A2A, 0xFFC9964A))).toString());
         }
+        e.putString("passport", full ? "{\"n\":7,\"total\":51,\"pct\":14,\"stamps\":7,\"regs\":[[\"Africa\",3,16,\"#D0563A\"],[\"Arabia\",1,3,\"#E8A93A\"],[\"Asia\",0,14,\"#B5533C\"],[\"Central America\",2,12,\"#7FA84A\"],[\"South America\",1,6,\"#A8673E\"]],\"next\":[\"\uD83C\uDDF5\uD83C\uDDEA\",\"Peru\"]}" : "{}");
         long day = System.currentTimeMillis() / 86400000L;
         e.putString("words", new JSONArray().put(new JSONArray().put(day).put("Bloom")
             .put("The first small pour that wets the grounds and lets trapped gas escape before the main pours.").put("Brewing")).toString());
@@ -128,7 +129,7 @@ public class WidgetShots {
         for (File f : dir.listFiles()) f.delete();
         Object[][] widgets = {
             {"drinking-now", (Maker) BrewWidget::views}, {"cabinet", (Maker) CabinetWidget::views},
-            {"quick-brew", (Maker) QuickBrewWidget::views}, {"word", (Maker) WordWidget::views}};
+            {"quick-brew", (Maker) QuickBrewWidget::views}, {"word", (Maker) WordWidget::views}, {"passport", (Maker) PassportWidget::views}};
         int n = 0;
         for (String state : new String[] {"full", "empty", "brewing"}) {
             seed(ctx, !state.equals("empty"), state.equals("brewing"));

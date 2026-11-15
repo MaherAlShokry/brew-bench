@@ -12,5 +12,7 @@
     <string name="widget_brew_name">Quick brew</string>
     <string name="widget_brew_desc">Your go-to recipe, one tap from the brew timer</string>
     <string name="widget_word_name">Coffee word of the day</string>
+    <string name="widget_passport_name">Coffee passport</string>
+    <string name="widget_passport_desc">How many coffee origins you\'ve had, by region, and the next to discover</string>
     <string name="widget_word_desc">A new coffee word each day, the same as Today in coffee</string>
 </resources>

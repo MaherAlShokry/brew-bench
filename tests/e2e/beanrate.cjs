@@ -5,7 +5,7 @@ await p.addInitScript(()=>{sessionStorage.setItem('bb-splashed','1');localStorag
 const ok=(n,c,x)=>console.log((c?'ok  ':'FAIL')+' '+n+(x!==undefined?'  ('+JSON.stringify(x)+')':''));
 await p.evaluate(()=>{goTab('log')});await p.waitForTimeout(400);
 await p.click('#l-stars [data-s="4"]');await p.waitForTimeout(120);
-ok('bean rating picks 4',await p.evaluate(()=>STAR===4&&document.querySelectorAll('#l-stars button.on').length===4&&!!document.querySelector('#l-stars button svg .bo')));
+ok('bean rating picks 4',await p.evaluate(()=>STAR===4&&document.querySelectorAll('#l-stars button.lit').length===4&&!!document.querySelector('#l-stars button svg .bo')));
 await p.evaluate(()=>{document.querySelector('.l-rate').scrollIntoView({block:'center'})});await p.screenshot({path:'br-form.png',clip:{x:0,y:250,width:390,height:330}});
 await p.evaluate(()=>{$('l-filter').scrollIntoView({block:'start'});scrollBy(0,-90)});await p.waitForTimeout(200);await p.screenshot({path:'br-list.png'});
 ok('no star glyphs in log',await p.evaluate(()=>!/★/.test($('log').textContent)));

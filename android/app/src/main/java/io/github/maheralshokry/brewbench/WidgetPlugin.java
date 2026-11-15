@@ -44,7 +44,7 @@ public class WidgetPlugin extends Plugin {
         String ph = call.getString("photo", "");
         e.putString("photo", ph != null && ph.length() < 250000 ? ph : "");
         // The other widgets' data, as JSON text: the cabinet's coffees, the go-to recipe and the coming words.
-        for (String k : new String[] {"cabinet", "brew", "words"}) {
+        for (String k : new String[] {"cabinet", "brew", "words", "passport"}) {
             String v = call.getString(k, null);
             // The cabinet carries a small photo per coffee, so it may be longer.
             if (v != null && v.length() < (k.equals("cabinet") ? 400000 : 60000)) e.putString(k, v);

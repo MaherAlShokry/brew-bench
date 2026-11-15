@@ -32,6 +32,10 @@
         </receiver>
         <!-- The brew timer's buttons on its notification and on the Quick brew widget. -->
         <receiver android:name=".TimerReceiver" android:exported="false" />
+        <receiver android:name=".PassportWidget" android:exported="false" android:label="@string/widget_passport_name">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_passport_info" />
+        </receiver>
         <receiver android:name=".WordWidget" android:exported="false" android:label="@string/widget_word_name">
             <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_word_info" />
