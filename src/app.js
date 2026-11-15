@@ -3555,7 +3555,7 @@ function dialDoc(){const r=compute(S),[vt,vs]=verdict(r.D),B=BREWERS[S.brewer],d
 var PRE_CARD=null,PRE_T=0;
 const dialKey=doc=>doc.link+'|'+doc.title+'|'+JSON.stringify(doc.blocks)+'|'+(S.bean&&S.bean.id||'')+'|'+CARD_STYLE.col;
 function schedulePreCard(){clearTimeout(PRE_T);PRE_T=setTimeout(preDrawDial,2500)}
-function preDrawDial(){const quiet=()=>!document.hidden&&!sliding()&&performance.now()-USER_AT>1200&&!document.querySelector('dialog[open]');
+function preDrawDial(){const quiet=()=>!document.hidden&&!document.documentElement.classList.contains('splashing')&&!sliding()&&performance.now()-USER_AT>1200&&!document.querySelector('dialog[open]');
   if(!quiet()){PRE_T=setTimeout(preDrawDial,1500);return}if(!$('dial').classList.contains('on'))return;
   (window.requestIdleCallback||(f=>setTimeout(f,50)))(()=>{if(!quiet())return schedulePreCard();let doc;try{doc=dialDoc()}catch(e){return}const k=dialKey(doc);
     if(PRE_CARD&&PRE_CARD.key===k)return;doc._cards=new Map();PRE_CARD={key:k,cards:doc._cards};

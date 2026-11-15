@@ -13,8 +13,21 @@ public class MainActivity extends BridgeActivity {
     // Those stop this screen too, but you haven't left the app, so the home-screen icon mustn't change then.
     private boolean opened = false;
 
+    // The system's launch screen stays until the page has loaded (at most 2 s), then fades into the app's own opening
+    // scene: it used to go as soon as the window drew, leaving a blank moment before the scene popped in.
+    private volatile boolean webReady = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        androidx.core.splashscreen.SplashScreen sp = null;
+        try { sp = androidx.core.splashscreen.SplashScreen.installSplashScreen(this); } catch (Exception ignored) { }
+        if (sp != null) {
+            final long t0 = android.os.SystemClock.uptimeMillis();
+            sp.setKeepOnScreenCondition(() -> !webReady && android.os.SystemClock.uptimeMillis() - t0 < 2000);
+            sp.setOnExitAnimationListener(v -> {
+                try { v.getView().animate().alpha(0f).setDuration(220).withEndAction(v::remove).start(); } catch (Exception e) { v.remove(); }
+            });
+        }
         registerPlugin(AppIconPlugin.class);
         registerPlugin(WidgetPlugin.class);
         registerPlugin(CuesPlugin.class);
@@ -29,7 +42,7 @@ public class MainActivity extends BridgeActivity {
         if (getBridge() != null) getBridge().addWebViewListener(new WebViewListener() {
             @Override
             @android.annotation.TargetApi(26)
-            public void onPageLoaded(WebView view) { sendCutout(); }
+            public void onPageLoaded(WebView view) { webReady = true; sendCutout(); }
 
             @Override
             @android.annotation.TargetApi(26)

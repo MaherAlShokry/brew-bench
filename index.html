@@ -731,9 +731,13 @@ html.app .bg-hero::after,html.app .me-hero::after,html.app .pp-st img{mix-blend-
 .splashing #splash{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;overflow:hidden;background:var(--paper);color:var(--ink);touch-action:none}
 .splashing body{overflow:hidden}
 .splashing #splash{animation:sp-bail .42s 4s ease-in forwards}@keyframes sp-bail{to{opacity:0;visibility:hidden}}
-.splashing #splash.out{animation:sp-out .42s cubic-bezier(.5,0,.75,0) both;pointer-events:none}
-#splash.out{animation:sp-out .42s cubic-bezier(.5,0,.75,0) both}
-@keyframes sp-out{to{opacity:0;transform:scale(1.06)}}
+
+.splashing #splash:not(.sp-go) *{animation-play-state:paused!important}
+.splashing #splash.out{animation:sp-out .4s cubic-bezier(.4,0,.2,1) both;pointer-events:none}
+#splash.out{animation:sp-out .4s cubic-bezier(.4,0,.2,1) both}
+#splash.out .sp-stage{animation:sp-leave .4s cubic-bezier(.4,0,.2,1) both}
+@keyframes sp-out{to{opacity:0}}
+@keyframes sp-leave{to{transform:translateY(-16px) scale(.98)}}
 .sp-glow{position:absolute;inset:-20%;background:radial-gradient(42% 32% at 50% 44%,color-mix(in srgb,var(--honey) 30%,transparent),transparent 70%);animation:sp-glow 1.8s ease-out both}
 @keyframes sp-glow{from{opacity:0;transform:scale(.7)}}
 .sp-beans{position:absolute;inset:0;width:100%;height:100%;opacity:.16}
@@ -2898,7 +2902,7 @@ html[data-nav=push] main section.nav-in{position:relative;z-index:3;background:v
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="71d2ac9127f3"</script>
+<script>const BUILD_ID="23aca35d683f"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -2948,7 +2952,12 @@ html[data-nav=push] main section.nav-in{position:relative;z-index:3;background:v
 <script>(function(){var h=document.documentElement,s=document.getElementById("splash");if(!h.classList.contains("splashing")){s.remove();return}
   // Whatever the scene does, it always leaves: on a timer, on a tap, and (in CSS) after 4 s even if this script fails.
   var done=false,end=function(){if(done)return;done=true;s.classList.add("out");setTimeout(function(){s.remove();h.classList.remove("splashing")},420)};
-  s.addEventListener("pointerdown",function(e){e.preventDefault();end()});setTimeout(end,2100);
+  s.addEventListener("pointerdown",function(e){e.preventDefault();end()});
+  // The scene plays once the app has started underneath (its scripts run, the first page drawn), so nothing competes
+  // with it; then 2.1 s to the end. (Never later than 1.2 s after the page began, so a slow start doesn't hold it.)
+  var went=false,go=function(){if(went)return;went=true;s.classList.add("sp-go");setTimeout(end,2100)},
+    ready=function(){requestAnimationFrame(function(){requestAnimationFrame(function(){setTimeout(go,60)})})};
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",ready);else ready();setTimeout(go,1200);
   try{(function(){
   // The scene follows the chosen logo: the V60 pour for the dripper; for the others the logo builds itself piece by
   // piece, then does what it does (the grinder's crank turns, the kettle pours, the moka puffs...).
@@ -9102,7 +9111,7 @@ function dialDoc(){const r=compute(S),[vt,vs]=verdict(r.D),B=BREWERS[S.brewer],d
 var PRE_CARD=null,PRE_T=0;
 const dialKey=doc=>doc.link+'|'+doc.title+'|'+JSON.stringify(doc.blocks)+'|'+(S.bean&&S.bean.id||'')+'|'+CARD_STYLE.col;
 function schedulePreCard(){clearTimeout(PRE_T);PRE_T=setTimeout(preDrawDial,2500)}
-function preDrawDial(){const quiet=()=>!document.hidden&&!sliding()&&performance.now()-USER_AT>1200&&!document.querySelector('dialog[open]');
+function preDrawDial(){const quiet=()=>!document.hidden&&!document.documentElement.classList.contains('splashing')&&!sliding()&&performance.now()-USER_AT>1200&&!document.querySelector('dialog[open]');
   if(!quiet()){PRE_T=setTimeout(preDrawDial,1500);return}if(!$('dial').classList.contains('on'))return;
   (window.requestIdleCallback||(f=>setTimeout(f,50)))(()=>{if(!quiet())return schedulePreCard();let doc;try{doc=dialDoc()}catch(e){return}const k=dialKey(doc);
     if(PRE_CARD&&PRE_CARD.key===k)return;doc._cards=new Map();PRE_CARD={key:k,cards:doc._cards};
