@@ -12,7 +12,7 @@ for(const k of ['scan','bean','advent','roastery']){await p.evaluate(()=>{docume
   await p.click('#b-fab-add');await p.waitForTimeout(250);if(k==='scan')ok(sc+': the + opens a menu of four',await p.evaluate(()=>!$('b-fab-menu').hidden&&document.querySelectorAll('#b-fab-menu .fab-mi').length===4&&$('b-fab-add').getAttribute('aria-expanded')==='true'));
   await p.click('[data-fab='+k+']');await p.waitForTimeout(500);got[k]=await p.evaluate(()=>(document.querySelector('dialog[open] #vd-title')||{}).textContent||document.querySelector('main section.on').id);}
 ok(sc+': each item opens its form',got.scan==='scan'&&got.bean==='Add a coffee'&&got.advent==='Add an advent calendar'&&got.roastery==='Add a roastery',got);
-await p.evaluate(()=>{document.querySelectorAll('dialog[open]').forEach(d=>d.close());goTab('beans')});await p.click('#b-fab-add');await p.waitForTimeout(200);await p.keyboard.press('Escape');await p.waitForTimeout(200);
+await p.evaluate(()=>{document.querySelectorAll('dialog[open]').forEach(d=>d.close());goTab('beans')});await p.click('#b-fab-add');await p.waitForTimeout(200);await p.keyboard.press('Escape');await p.waitForTimeout(450);
 ok(sc+': Escape closes it',await p.evaluate(()=>$('b-fab-menu').hidden));
 // While open the page stays put, and back only closes the menu (the tab stays).
 // The app's own scroll leaves the + where it is; scrolling down yourself tucks it away, a small scroll up brings it back.

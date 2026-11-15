@@ -12,4 +12,7 @@
     <color name="widget_peak">#7FB59E</color>
     <color name="widget_good">#D7A86E</color>
     <color name="widget_fade">#E08A72</color>
+    <color name="widget_glow">#24D7A86E</color>
+    <color name="widget_hair">#1FF3EADC</color>
+    <color name="widget_mark">#14D7A86E</color>
 </resources>

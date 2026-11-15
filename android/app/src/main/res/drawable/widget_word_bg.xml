@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The word card: the widget's own colour with a warm glow in its top corner, like light on a page, and a hairline edge. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/widget_bg" />
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <gradient android:type="radial" android:centerX="1" android:centerY="0" android:gradientRadius="260dp" android:startColor="@color/widget_glow" android:endColor="#00000000" />
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <stroke android:width="1dp" android:color="@color/widget_hair" />
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+</layer-list>

@@ -1309,11 +1309,12 @@ let NAV_READY=false;
 let NAV_AT=-1e9;
 const PAGE_Y={};
 let NAV_FORCE='';
-// The page being left: drawn where it was, at most a screen tall. Opening a page, it eases left under the new one;
+// The page being left: drawn where it was, at its full height (cut to a screen's height inside a box that clips it,
+// the page beneath jumped from where you were to its top as the slide ended). Opening a page, it eases left under the new one;
 // going back, it slides off to the right over the page beneath.
 function navOut(L,kind,y){const el=L.el;if(el._out)clearTimeout(el._out);el.style.top=(L.top+y)+'px';el.style.left=L.left+'px';el.style.width=L.w+'px';
-  el.style.height=Math.max(0,innerHeight-L.top)+'px';el.style.setProperty('padding-top',L.pt,'important');el.dataset.out=kind;el.classList.add('nav-out');
-  const end=()=>{clearTimeout(el._out);el._out=0;el.removeEventListener('animationend',onEnd);el.classList.remove('nav-out');delete el.dataset.out;for(const k of ['top','left','width','height','padding-top'])el.style.removeProperty(k)},
+  el.style.setProperty('padding-top',L.pt,'important');el.dataset.out=kind;el.classList.add('nav-out');
+  const end=()=>{clearTimeout(el._out);el._out=0;el.removeEventListener('animationend',onEnd);el.classList.remove('nav-out');delete el.dataset.out;for(const k of ['top','left','width','padding-top'])el.style.removeProperty(k)},
     onEnd=e=>{if(e.target===el)end()};el.addEventListener('animationend',onEnd);el._out=setTimeout(end,400)}
 function showTab(id,fromHistory,pure){NAV_AT=performance.now();if(window.closeBeansFab)closeBeansFab();
   // The page you leave animates out as the new one comes in (the opposite way), held where it was on the screen: its
@@ -1442,7 +1443,9 @@ function openTop(d){if(d.showPopover){try{if(!d.hasAttribute('popover'))d.setAtt
   try{d.showModal()}catch(e){d.setAttribute('open','')}}
 addEventListener('keydown',e=>{if(e.key!=='Escape'||e.defaultPrevented)return;const top=DSTACK.filter(d=>d.open&&d.hasAttribute('popover')&&!d.classList.contains('closing')).pop();if(top){e.preventDefault();top.close()}});
 function showDlg(d){NAV_AT=performance.now();if(d.classList.contains('closing')){d.classList.remove('closing');return}
-  if(!d.open){d.classList.add('dlg-pre');openTop(d);if(KEYNAV){const f=d.querySelector('button,[href],input,select,textarea');if(f)f.focus()}
+  // A sheet opened afresh starts at its top (a closed sheet kept where it was last scrolled, so a coffee opened after
+  // another came up halfway down). Redrawing one already open keeps its place, and back within a sheet restores it.
+  if(!d.open){d.classList.add('dlg-pre');openTop(d);d.scrollTop=0;if(KEYNAV){const f=d.querySelector('button,[href],input,select,textarea');if(f)f.focus()}
     // Opening a sheet focuses its first button (Close), which drew its focus ring before anything was pressed.
     {const f=document.activeElement;if(f&&d.contains(f)&&f.matches('.vd-close,.vd-tool,button')&&!KEYNAV)f.blur()}requestAnimationFrame(()=>requestAnimationFrame(()=>d.classList.remove('dlg-pre')))}}
 addEventListener('popstate',()=>{if(FAB_POP())return;const open=[...document.querySelectorAll('dialog[open]:not(.closing)')];
@@ -3552,7 +3555,7 @@ function dialDoc(){const r=compute(S),[vt,vs]=verdict(r.D),B=BREWERS[S.brewer],d
 var PRE_CARD=null,PRE_T=0;
 const dialKey=doc=>doc.link+'|'+doc.title+'|'+JSON.stringify(doc.blocks)+'|'+(S.bean&&S.bean.id||'')+'|'+CARD_STYLE.col;
 function schedulePreCard(){clearTimeout(PRE_T);PRE_T=setTimeout(preDrawDial,2500)}
-function preDrawDial(){const quiet=()=>!document.hidden&&!sliding()&&performance.now()-USER_AT>1200&&!document.querySelector('dialog[open]');
+function preDrawDial(){const quiet=()=>!document.hidden&&!document.documentElement.classList.contains('splashing')&&!sliding()&&performance.now()-USER_AT>1200&&!document.querySelector('dialog[open]');
   if(!quiet()){PRE_T=setTimeout(preDrawDial,1500);return}if(!$('dial').classList.contains('on'))return;
   (window.requestIdleCallback||(f=>setTimeout(f,50)))(()=>{if(!quiet())return schedulePreCard();let doc;try{doc=dialDoc()}catch(e){return}const k=dialKey(doc);
     if(PRE_CARD&&PRE_CARD.key===k)return;doc._cards=new Map();PRE_CARD={key:k,cards:doc._cards};
