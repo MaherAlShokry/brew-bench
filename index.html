@@ -75,6 +75,8 @@ nav.tabs .wrap{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
 
 main section{display:block;content-visibility:hidden;height:0;overflow:hidden;padding:0!important}
 main section.on{content-visibility:visible;height:auto;overflow:visible;padding:22px 0 64px!important}
+
+main section.warm{content-visibility:visible}
 button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
 .lede{color:var(--muted);margin-bottom:1.2rem}
 .hint{font-family:var(--body);font-weight:400;color:var(--muted);font-size:.84rem}
@@ -274,11 +276,12 @@ dialog#vd::backdrop{background:rgba(20,14,10,.55)}
 .cdclock>div{background:var(--surface);border-radius:var(--r-md,16px);padding:10px 4px;text-align:center;box-shadow:var(--e1)}
 .cdclock b{display:block;font-family:var(--display);font-size:1.9rem;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--c)}
 .cdclock small{color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em}
-.cdclock>div:last-child b{animation:cdpulse 1s ease-in-out infinite}
+
+.cdclock.tick>div:last-child b{animation:cdpulse 1s ease-in-out infinite}
 @keyframes cdpulse{0%{transform:scale(1)}15%{transform:scale(1.08)}30%{transform:scale(1)}}
 @media (prefers-reduced-motion:reduce){.cdclock>div:last-child b{animation:none}}
 .cdlive{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:10px;font-family:var(--display);font-weight:800;font-size:1.2rem;padding:10px;color:var(--c)}
-.cdlive i{width:12px;height:12px;border-radius:50%;background:#d9443a;animation:cdpulse 1.2s infinite}
+.cdlive i{width:12px;height:12px;border-radius:50%;background:#d9443a;}.cdclock.tick .cdlive i{animation:cdpulse 1.2s infinite}
 .cdnext{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));margin-top:10px}.cdnext>div{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md,16px);padding:10px 12px}
 .cdnext b{display:block;margin-top:6px;font-family:var(--display)}.cdnext small{color:var(--muted)}
 .chpills{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.chpills .pill{font-size:.72rem;line-height:1.4;padding:3px 10px;margin:0}.pill.chdev.ours{background:color-mix(in srgb,var(--leaf) 18%,var(--surface));color:var(--ink)}
@@ -554,7 +557,7 @@ dialog#timer::backdrop{background:rgba(30,20,14,.6)}
 
 .stars{display:flex;gap:4px;align-items:center}
 .stars button{background:none;border:0;font-size:1.7rem;cursor:pointer;color:var(--line);padding:0 2px;line-height:1}
-.stars button.on{color:var(--honey)}
+.stars button.lit{color:var(--honey)}
 .mapname{position:absolute;left:12px;top:10px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-family:var(--display);font-size:.85rem;pointer-events:none;opacity:0;transition:opacity .15s}
 .mapname.show{opacity:1}
 
@@ -585,7 +588,7 @@ dialog#navsheet::backdrop,dialog#sharesheet::backdrop{background:rgba(30,20,14,.
 @media (max-width:379px){#ab-share:not([hidden]){width:40px;height:40px;padding:0;display:grid;place-items:center}#ab-share svg{display:block}#ab-share span{display:none}}
   .ab-btn{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-family:var(--display);font-size:.88rem;color:var(--cherry);cursor:pointer}
   .herowrap{display:none}
-  body.t-dial .herowrap{display:block}
+  .herowrap.on{display:block}
   header.hero{grid-template-columns:1fr 120px;padding:14px 16px 12px;gap:8px}
   .hero h1{font-size:1.7rem}
   .hero p{font-size:.92rem;margin-top:.4rem}
@@ -923,7 +926,7 @@ svg .bo{fill:currentColor}svg .bc{fill:none;stroke:var(--surface);stroke-width:1
 .stars button svg{width:1em;height:1em;overflow:visible}
 .stars button svg .bo{fill:color-mix(in srgb,var(--line) 45%,var(--surface2));stroke:color-mix(in srgb,var(--cherry) 55%,var(--line));stroke-width:1.4;transition:fill .2s}
 .stars button svg .bc{fill:none;stroke:color-mix(in srgb,var(--cherry) 40%,var(--line));stroke-width:1.5;stroke-linecap:round}
-.stars button.on svg .bo{fill:var(--cherry);stroke:var(--cherry)}.stars button.on svg .bc{stroke:color-mix(in srgb,var(--surface) 75%,var(--honey))}
+.stars button.lit svg .bo{fill:var(--cherry);stroke:var(--cherry)}.stars button.lit svg .bc{stroke:color-mix(in srgb,var(--surface) 75%,var(--honey))}
 .stars button.pop svg{animation:bean-pop .45s var(--ease-spring,cubic-bezier(.3,1.5,.5,1))}@keyframes bean-pop{0%{transform:scale(.6) rotate(-25deg)}60%{transform:scale(1.18) rotate(8deg)}100%{transform:none}}
 @media (prefers-reduced-motion:reduce){.stars button.pop svg{animation:none}}
 
@@ -1932,8 +1935,8 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .adv-door .adv-n{font-family:var(--display);font-weight:800;font-size:1.35rem;line-height:1;font-variant-numeric:tabular-nums}
 .adv-door small{font-size:.66rem;font-weight:700;margin-top:3px;text-transform:uppercase;letter-spacing:.04em}
 .adv-door.now{border:2px solid var(--honey-ink,var(--honey));background:color-mix(in srgb,var(--honey) 14%,var(--surface));color:var(--honey-ink,var(--honey))}
-.adv-door.on{border:0}.adv-door .bpic.adv{position:absolute;inset:0;width:100%;height:100%;border-radius:0}
-.adv-door.on .adv-n{position:absolute;left:6px;top:6px;font-size:.8rem;min-width:22px;height:22px;padding:0 5px;border-radius:999px;display:grid;place-items:center;background:rgba(20,12,8,.66);color:#FFF8EE;z-index:2}
+.adv-door.lit{border:0}.adv-door .bpic.adv{position:absolute;inset:0;width:100%;height:100%;border-radius:0}
+.adv-door.lit .adv-n{position:absolute;left:6px;top:6px;font-size:.8rem;min-width:22px;height:22px;padding:0 5px;border-radius:999px;display:grid;place-items:center;background:rgba(20,12,8,.66);color:#FFF8EE;z-index:2}
 .adv-dr{position:absolute;right:6px;bottom:6px;z-index:2;font-family:var(--display);font-weight:800;font-size:.74rem;padding:2px 7px;border-radius:999px;background:rgba(20,12,8,.66);color:#FFF8EE}
 .adv-tip{margin:4px 0 8px}
 
@@ -2123,7 +2126,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .trophies{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px}
 .tro{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--r-md);background:var(--surface);box-shadow:var(--shadow)}
 .tro-ic{flex:none;width:44px;height:44px;display:grid;place-items:center;border-radius:50%;font-size:1.35rem;background:var(--surface2);filter:grayscale(1);opacity:.55}
-.tro.on .tro-ic{filter:none;opacity:1;background:radial-gradient(circle at 35% 30%,#FFF1C9,#E2B866 60%,#B07D35);box-shadow:0 4px 10px -4px rgba(176,125,53,.8)}
+.tro.lit .tro-ic{filter:none;opacity:1;background:radial-gradient(circle at 35% 30%,#FFF1C9,#E2B866 60%,#B07D35);box-shadow:0 4px 10px -4px rgba(176,125,53,.8)}
 .tro-p{display:block;height:5px;margin-top:4px;border-radius:3px;background:var(--surface2);overflow:hidden}.tro-p i{display:block;height:100%;background:var(--cherry);border-radius:3px}
 .vd-sub{margin:.1rem 0 0;color:var(--muted)}
 .linkbtn.danger{display:block;margin:16px auto 0;color:#A8432F!important}
@@ -2143,11 +2146,11 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .t3list{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;margin:4px 0 6px}
 .bp-gh{margin:4px 2px 8px}.t3list+.bp-gh{margin-top:20px;padding-top:16px;border-top:1px solid var(--hair)}
 .t3opt{display:flex;align-items:center;gap:12px;padding:8px 12px 8px 8px;border-radius:var(--r-md);border:1.5px solid var(--hair);background:var(--surface);font:inherit;color:var(--ink);text-align:left;cursor:pointer;transition:border-color .2s,background .2s,transform .2s var(--ease-spring)}
-.t3opt:active{transform:scale(.98)}.t3opt.on{border-color:var(--m);background:color-mix(in srgb,var(--m) 12%,var(--surface))}
+.t3opt:active{transform:scale(.98)}.t3opt.lit{border-color:var(--m);background:color-mix(in srgb,var(--m) 12%,var(--surface))}
 .t3opt .bpic{width:52px;height:64px;border-radius:12px;flex:none}
 .t3o-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.t3o-tx b{font-family:var(--display);font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.t3o-tx small{font-size:.78rem;color:var(--muted)}
 .t3o-r{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:800;color:#2C1B12;border:2px solid var(--line)}
-.t3opt.on .t3o-r{background:linear-gradient(135deg,color-mix(in srgb,var(--m) 45%,#fff),var(--m));border-color:var(--m)}
+.t3opt.lit .t3o-r{background:linear-gradient(135deg,color-mix(in srgb,var(--m) 45%,#fff),var(--m));border-color:var(--m)}
 
 .dbean{display:flex;align-items:center;gap:12px;padding:8px 8px 8px 8px;border-radius:var(--r-md);background:var(--surface2)}
 .dbean .bpic{width:46px;height:58px;border-radius:12px;flex:none}
@@ -2203,11 +2206,11 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .dchev{flex:none;width:9px;height:9px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg) translateY(-3px);transition:transform .2s}
 .dstep[open] .dchev{transform:rotate(-135deg) translateY(-2px)}
 .dstep-in{padding:0 2px 16px}.dstep-in,.dstep-in *{box-sizing:border-box}.dstep-in>.field:first-child{margin-top:0}.dstep-lead{margin:0 0 10px}.dcal-link{margin:14px 0 0}
-body.t-dial.dial-ready .herowrap{display:none}
+body.dial-ready .herowrap.on{display:none}
 .season{margin:14px 0;padding:14px;border-radius:20px;background:linear-gradient(135deg,color-mix(in srgb,var(--honey) 16%,var(--surface)),var(--surface));border:1px solid color-mix(in srgb,var(--honey) 30%,var(--line))}
 .ssn-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
 .ssn{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid color-mix(in srgb,var(--line) 70%,transparent)}.ssn:first-of-type{border-top:0}
-.ssn-ic{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:1.25rem;background:var(--surface2)}.ssn.on .ssn-ic{background:radial-gradient(circle at 35% 30%,#FFF1C9,#E2B866 60%,#B07D35)}
+.ssn-ic{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:1.25rem;background:var(--surface2)}.ssn.lit .ssn-ic{background:radial-gradient(circle at 35% 30%,#FFF1C9,#E2B866 60%,#B07D35)}
 .ssn-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.ssn-tx b{font-family:var(--display);font-size:.95rem}.ssn-tx small{color:var(--muted);font-size:.8rem}
 .ssn-n{flex:none;text-align:right;font:700 .9rem var(--display);display:flex;flex-direction:column;align-items:flex-end}.ssn-n small{font:500 .72rem var(--body);color:var(--muted)}
 .ssn-next{margin:8px 0 0;font-size:.82rem;color:var(--muted)}.ssn-got{margin-bottom:6px}
@@ -2417,7 +2420,7 @@ details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{
 .cb-row svg{width:100%;height:100%;display:block}
 .cb-row ellipse{fill:color-mix(in srgb,var(--ink) 9%,transparent);stroke:color-mix(in srgb,var(--ink) 20%,transparent);stroke-width:1.3}
 .cb-row path{fill:none;stroke:color-mix(in srgb,var(--ink) 18%,transparent);stroke-width:1.3;stroke-linecap:round}
-.cb-row i.on ellipse{fill:var(--t);stroke:color-mix(in srgb,var(--t) 70%,#000)}.cb-row i.on path{stroke:rgba(40,20,10,.55)}
+.cb-row i.lit ellipse{fill:var(--t);stroke:color-mix(in srgb,var(--t) 70%,#000)}.cb-row i.lit path{stroke:rgba(40,20,10,.55)}
 @media (max-width:359px){.cuptraits li{gap:8px;grid-template-columns:6.4em auto 1fr;font-size:.8rem}.cb-row i{width:13px;height:16px}}
 @media (max-width:379px){.bprof .bp-from{grid-template-columns:1fr;gap:2px}.bprof .bp-from dd{margin-bottom:8px}}
 .bp-h{margin:16px 0 8px;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--muted)}
@@ -2514,9 +2517,9 @@ button[aria-pressed]:active{transform:scale(.95)}
 .tro small{font-size:.72rem;line-height:1.3;color:var(--muted)}
 .tro-ic{width:56px;height:56px;margin-bottom:4px;filter:none;opacity:1;background:var(--surface2);color:color-mix(in srgb,var(--ink) 38%,transparent);box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--ink) 10%,transparent)}
 .tro .tro-ic .di{color:inherit;width:26px;height:26px;stroke-width:1.8}
-.tro.on .tro-ic{color:#5A3A12;background:radial-gradient(circle at 34% 28%,#FFF4D6,#EBC27A 52%,#B9853E);box-shadow:inset 0 0 0 2px rgba(255,248,230,.55),inset 0 -3px 6px rgba(120,80,20,.25),0 6px 14px -8px rgba(150,100,30,.9)}
-.tro.on .tro-ic .di{color:#5A3A12;stroke-width:2}
-.tro:not(.on) b{color:color-mix(in srgb,var(--ink) 75%,transparent)}
+.tro.lit .tro-ic{color:#5A3A12;background:radial-gradient(circle at 34% 28%,#FFF4D6,#EBC27A 52%,#B9853E);box-shadow:inset 0 0 0 2px rgba(255,248,230,.55),inset 0 -3px 6px rgba(120,80,20,.25),0 6px 14px -8px rgba(150,100,30,.9)}
+.tro.lit .tro-ic .di{color:#5A3A12;stroke-width:2}
+.tro:not(.lit) b{color:color-mix(in srgb,var(--ink) 75%,transparent)}
 .tro .tro-p{width:72%;margin:6px auto 0}
 
 
@@ -2729,10 +2732,14 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 
 .fab{position:fixed;right:16px;bottom:calc(var(--sa-bottom) + 24px);z-index:28;display:flex;align-items:center;gap:10px}
 @media (max-width:759px){.fab{bottom:calc(var(--sa-bottom) + 96px)}}
+
+.fab{transition:transform .28s cubic-bezier(.2,.8,.3,1),opacity .2s ease}
+.fab.away{transform:translateY(calc(100% + 110px));opacity:0;pointer-events:none}
+@media (prefers-reduced-motion:reduce){.fab{transition:opacity .15s}.fab.away{transform:none}}
 .fab .ib{width:56px;height:56px;background:var(--surface);box-shadow:0 10px 24px -10px rgba(0,0,0,.5),inset 0 0 0 1px var(--hair)}
 .fab .ib.main{background:var(--cherry);color:var(--surface-ink,var(--surface))}.fab .ib svg{width:24px;height:24px;stroke-width:2.2}.fab .ib.main svg{stroke-width:2.6}
-body.has-fab main section.on{padding-bottom:160px!important}
-@media (max-width:759px){body.has-fab #toast{bottom:calc(var(--sa-bottom) + 166px)}}
+main section.on.fabbed{padding-bottom:160px!important}
+@media (max-width:759px){#toast.lift{bottom:calc(var(--sa-bottom) + 166px)}}
 
 .le-b{width:40px;padding:0!important;justify-content:center}.le-b.again{width:40px;height:40px;padding:0!important}
 
@@ -2786,8 +2793,8 @@ body.has-fab main section.on{padding-bottom:160px!important}
 
 
 @keyframes fabIn{from{opacity:0;transform:translateY(14px) scale(.7)}to{opacity:1;transform:none}}
-main section.on>.fab .ib{animation:fabIn .32s cubic-bezier(.2,.8,.3,1.15) both}
-main section.on>.fab .ib+.ib{animation-delay:.05s}
+.fab.fab-in .ib{animation:fabIn .32s cubic-bezier(.2,.8,.3,1.15) both}
+.fab.fab-in .ib+.ib{animation-delay:.05s}
 
 .fab-dial{flex-direction:column;align-items:flex-end}
 .fab-main svg{transition:transform .25s cubic-bezier(.2,.8,.3,1)}
@@ -2810,7 +2817,7 @@ html.fab-lock #toast{opacity:0!important;pointer-events:none}
 
 html.fab-lock,html.fab-lock body{overflow:hidden!important;overscroll-behavior:none}
 .fab-scrim{touch-action:none}
-@media (prefers-reduced-motion:reduce){main section.on>.fab .ib,.fab-mi,.fab-menu,.fab-scrim{animation:none}.fab-main svg{transition:none}}
+@media (prefers-reduced-motion:reduce){.fab.fab-in .ib,.fab-mi,.fab-menu,.fab-scrim{animation:none}.fab-main svg{transition:none}}
 
 textarea{resize:none}
 
@@ -2836,7 +2843,7 @@ textarea{resize:none}
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="5fcd115a6f1c"</script>
+<script>const BUILD_ID="82efd07d031a"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -6204,11 +6211,14 @@ function beanSync(){const b=S.bean,gb=b&&b.id&&window.BEANS_OK&&beanById(b.id);i
     S.bean=okSBean({name:beanTitle(gb),roaster:gb.roaster,origin:gb.origin,id:gb.id})||S.bean}
   if(gb.roastDate&&S.bday!==day){S.bday=day;const a=clamp(ISO_D.test(gb.roastDate)?daysAgo(gb.roastDate):daysSince(gb.roastDate),3,60);if(a!==S.age){S.age=a;ch=true}}
   return ch}
+// Sets a block's HTML only when it differs from what it last set: drawing the same thing again on each visit made the
+// browser restyle and lay it out again, part of what a tab change cost.
+function setHTML(el,h){if(el._h===h)return false;el._h=h;el.innerHTML=h;return true}
 function renderDBean(){const el=$('d-bean');if(!el||!window.BEANS_OK)return;const b=S.bean,gb=b&&b.id&&beanById(b.id);
-  if(b){el.innerHTML='<div class="dbean">'+(gb?beanPic(gb,'xs'):'<span class="bpic xs" style="--rc:'+regCol(b.origin)+'"><span class="bph">'+beanSVG+'</span></span>')+
+  if(b){setHTML(el,'<div class="dbean">'+(gb?beanPic(gb,'xs'):'<span class="bpic xs" style="--rc:'+regCol(b.origin)+'"><span class="bph">'+beanSVG+'</span></span>')+
       '<button type="button" class="dbean-tx" data-dbpick><b>'+esc(b.name)+'</b><small>'+esc([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · ')||'Tap to change')+'</small></button>'+
-      '<button type="button" class="dbean-x" data-dbclear aria-label="Clear the beans">✕</button></div>'+(b.id&&dialNextFor(b.id)?'<p class="dnext"><b>'+(dialNextFor(b.id).taste==='good'?'What worked last time':'Try this time')+'</b> '+esc(dialNextLine(dialNextFor(b.id)))+'</p>':'');hydrateImgs(el)}
-  else el.innerHTML=BEANS.length?'<button type="button" class="btn ghost dbean-pick" data-dbpick>'+beanSVG+'Pick from your bean gallery</button>':'<p class="hint" style="margin:0">Add coffees under Beans (or scan a bag) and they show here and on your shared brew cards.</p>'}
+      '<button type="button" class="dbean-x" data-dbclear aria-label="Clear the beans">✕</button></div>'+(b.id&&dialNextFor(b.id)?'<p class="dnext"><b>'+(dialNextFor(b.id).taste==='good'?'What worked last time':'Try this time')+'</b> '+esc(dialNextLine(dialNextFor(b.id)))+'</p>':''))&&hydrateImgs(el)}
+  else setHTML(el,BEANS.length?'<button type="button" class="btn ghost dbean-pick" data-dbpick>'+beanSVG+'Pick from your bean gallery</button>':'<p class="hint" style="margin:0">Add coffees under Beans (or scan a bag) and they show here and on your shared brew cards.</p>')}
 // The four steps of the dial-in each fold to a line saying what's set. Which are open is remembered; at first, the
 // gear is folded (it's always set) and your coffee is folded once you've picked one from your gallery.
 let DSTEPS=load('bb-dsteps',null);
@@ -6689,6 +6699,16 @@ function warmSheets(){if(SHEETS_WARM>=2)return;const step=SHEETS_WARM++;const d=
     if(step===1&&RECIPES.length){openRecipe(0);d.offsetHeight}}catch(e){}
   finally{showDlg=keep;d.classList.remove('warm');if(!d.open){$('vd-in').innerHTML='';delete d.dataset.bean}}}
 let EXPLORE_PRE=0;
+// A page built while hidden was never styled or laid out (a hidden page skips both), so the first visit did all of it
+// on the tap: the stall on a section's first visit. Warming lays a hidden page out once in a quiet moment, still
+// unseen (it keeps no height), and a hidden page keeps that layout, so the first visit costs what a later one does.
+// A change of look restyles every page, so each is warmed again after one.
+const WARM=new Set();
+function warmPage(id){const s=$(id);if(!s||s.classList.contains('on')||WARM.has(id))return false;WARM.add(id);
+  // The first photos go in now too (from their small copies already read): put in as the page appeared, they laid it out a second time.
+  if(typeof loadImg==='function'&&window.BIMG)[...s.querySelectorAll('[data-bimg]')].slice(0,10).forEach(el=>{if(BIMG.peekThumb(el.dataset.bimg)&&!el.closest('dialog'))loadImg(el)});
+  // The strips' highlights are placed while it's laid out, so showing the page later moves none of them.
+  s.classList.add('warm');try{s.getBoundingClientRect();const l=s.lastElementChild;if(l)l.getBoundingClientRect();if(typeof segBatch==='function'){const g=[...s.querySelectorAll(SEG_SEL)];if(g.length)segBatch(g,true)}}finally{s.classList.remove('warm')}return true}
 function prebuildTabs(){const ids=['recipes','gear','variety','process','map','words','history','flow','wheel','champs','tech'].filter(k=>LAZY[k]);
   // A step only starts in a real idle moment (not one the timeout forced). (The wait has an end: after 6 s a step goes
   // ahead in whatever idle time there is, or the rest would never be built.)
@@ -6698,7 +6718,8 @@ function prebuildTabs(){const ids=['recipes','gear','variety','process','map','w
   let beans=false;
   // Every page is built soon after the app opens, even while you're already tapping around, so no first visit has to
   // build its page on the tap: a step only waits for a slide to finish and for a moment with no touch (0.8 s).
-  const next=()=>{if(document.hidden){setTimeout(()=>idle(next),2000);return}if(sliding()||performance.now()-USER_AT<800){setTimeout(()=>idle(next),300);return}
+  const busy=()=>sliding()||performance.now()-USER_AT<1200||performance.now()-NAV_AT<1200||(navigator.scheduling&&navigator.scheduling.isInputPending&&navigator.scheduling.isInputPending());
+  const next=()=>{if(document.hidden){setTimeout(()=>idle(next),2000);return}if(busy()){setTimeout(()=>idle(next),300);return}
     if(!beans&&window.BEANS_OK){beans=true;try{renderBeansIfChanged();warmBeanPhotos();roLearnGallery()}catch(e){}idle(next);return}
     // Then the other bottom-bar sections, then the sheets, then the pages inside sections.
     if(!BUILT.recipes){BUILT.recipes=1;try{renderRecipes()}catch(e){BUILT.recipes=0}idle(next);return}
@@ -6706,7 +6727,14 @@ function prebuildTabs(){const ids=['recipes','gear','variety','process','map','w
     if(!$('st-mode')&&!$('settings').classList.contains('on')){try{renderSettings()}catch(e){}idle(next);return}
     if(SHEETS_WARM<2&&window.BEANS_OK){warmSheets();idle(next);return}
     if(LOGL_STALE&&BUILT.recipes){try{renderLogList(1)}catch(e){}idle(next);return}
-    const id=ids.find(k=>!BUILT[k]);if(!id){if(SHEETS_WARM<2){warmSheets();idle(next)}return}BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
+    // The bottom-bar pages are warmed first (the ones a first visit lands on), then the pages inside sections as they're built.
+    const cold=['recipes','beans','explore','settings','dial','log'].find(k=>(BUILT[k]||!LAZY[k])&&!WARM.has(k)&&$(k)&&!$(k).classList.contains('on'));
+    if(cold){warmPage(cold);idle(next);return}
+    const id=ids.find(k=>!BUILT[k]);if(!id){if(SHEETS_WARM<2){warmSheets();idle(next);return}const w=[...ids,'guide','scan'].find(k=>BUILT[k]&&!WARM.has(k)&&$(k)&&!$(k).classList.contains('on'));if(w){warmPage(w);idle(next)}return}BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
+  let againT=0;prebuildTabs.again=all=>{if(all)WARM.clear();clearTimeout(againT);againT=setTimeout(()=>idle(next),1500)};
+  // A hidden page drawn again (a saved brew updates the log, a new coffee the gallery) is cold again: warm it later.
+  try{new MutationObserver(l=>{let any=false;for(const m of l){const s=m.target.closest&&m.target.closest('main>section');if(s&&!s.classList.contains('on')&&WARM.delete(s.id))any=true}if(any)prebuildTabs.again()})
+    .observe(document.querySelector('main'),{childList:true,subtree:true})}catch(e){}
   setTimeout(()=>idle(next),1500)}
 function ensureTab(id){document.querySelectorAll('.bean-fx').forEach(b=>b.remove());if(LAZY[id]&&!BUILT[id]){BUILT[id]=1;LAZY[id]()}if(ALWAYS[id])ALWAYS[id]()}
 // NAVD counts tab changes you can step back through, so the app bar can offer a back button.
@@ -6722,7 +6750,12 @@ let NAV_READY=false;
 let NAV_AT=-1e9;
 const PAGE_Y={};
 let NAV_FORCE='';
-function showTab(id,fromHistory,pure){NAV_AT=performance.now();if(window.closeBeansFab)closeBeansFab();ensureTab(id);{const sec=$(id);document.body.classList.toggle('has-fab',!!(sec&&sec.querySelector(':scope>.fab')))}
+function showTab(id,fromHistory,pure){NAV_AT=performance.now();if(window.closeBeansFab)closeBeansFab();ensureTab(id);
+  // A page with a + keeps room for it at its foot, and the toast sits above it. Marked on the page and the toast, not on
+  // <body>: a class on <body> restyled the whole app on every tab change.
+  {const sec=$(id),f=!!(sec&&sec.querySelector(':scope>.fab'));if(sec&&sec.classList.contains('fabbed')!==f)sec.classList.toggle('fabbed',f);$('toast').classList.toggle('lift',f);
+    // The + pops in each time its page opens (a class on the + itself: one on the page restyled all of its contents).
+    FAB_SHOW();if(f)replay(sec.querySelector(':scope>.fab'),'fab-in')}
   // The page on show, for the few styles that depend on it (a class here, not a :has() over the whole page, which
   // made the browser recheck every style on each change while a big page was drawn).
   if(document.documentElement.dataset.tab!==id)document.documentElement.dataset.tab=id;
@@ -7187,7 +7220,7 @@ function openRecipeEditor(r,fresh){const isNew=!r||fresh;r=Object.assign({b:'v60
 $('l-fab-new').onclick=()=>{const f=$('l-form');f.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});setTimeout(()=>{const c=$('l-coffee-f').hidden?null:$('l-coffee');if(c)c.focus({preventScroll:true})},350)};
 // A page's + is a shortcut menu of what you can do or add there. While it's open the page underneath stays put, and
 // back (the gesture or button) only closes it. One menu is open at a time.
-let FAB_OPEN=null,FAB_BACKING=false,FAB_AFTER=null;
+let FAB_OPEN=null,FAB_BACKING=false,FAB_AFTER=null,FAB_SHOW=()=>{};
 function fabMenu(fabId,items){const f=$(fabId),m=f.querySelector('.fab-menu'),b=f.querySelector('.fab-main');let scrim=null;
   const lockOn=on=>document.documentElement.classList.toggle('fab-lock',on);
   const close=(fromPop,after)=>{if(m.hidden)return;m.hidden=true;f.classList.remove('open');b.setAttribute('aria-expanded','false');lockOn(false);if(scrim){scrim.remove();scrim=null}FAB_OPEN=null;
@@ -7777,7 +7810,7 @@ $('ts-chips').onclick=e=>{const b=e.target.closest('[data-ts]');if(!b)return;ren
 
 /* ================= LOG ================= */
 let STAR=0,DL=null;
-function renderStars(){const w=$('l-starword');if(w){w.textContent=STARW[STAR]||'';w.classList.toggle('none',!STAR)}$('l-stars').innerHTML=[1,2,3,4,5].map(n=>'<button type="button" class="'+(n<=STAR?'on':'')+(n===STAR&&LSPOP?' pop':'')+'" data-s="'+n+'" role="radio" aria-checked="'+(n===STAR)+'" aria-label="'+n+' bean'+(n>1?'s':'')+(STARW[n]?', '+STARW[n]:'')+'">'+RB_SVG+'</button>').join('');LSPOP=false}
+function renderStars(){const w=$('l-starword');if(w){w.textContent=STARW[STAR]||'';w.classList.toggle('none',!STAR)}$('l-stars').innerHTML=[1,2,3,4,5].map(n=>'<button type="button" class="'+(n<=STAR?'lit':'')+(n===STAR&&LSPOP?' pop':'')+'" data-s="'+n+'" role="radio" aria-checked="'+(n===STAR)+'" aria-label="'+n+' bean'+(n>1?'s':'')+(STARW[n]?', '+STARW[n]:'')+'">'+RB_SVG+'</button>').join('');LSPOP=false}
 let LSPOP=false;
 $('l-stars').onclick=e=>{const b=e.target.closest('[data-s]');if(b){STAR=+b.dataset.s;LSPOP=true;renderStars()}};
 /* ---------- Shared log (Firebase Realtime Database over REST, no SDK) ---------- */
@@ -7925,12 +7958,12 @@ function renderLastBrew(){const el=$('lastbrew');if(!el)return;const l=LOG.find(
   // The full coffee name, then how it was brewed in one line, with the bag's picture when the brew is tied to one.
   const q=typeof parseSettings==='function'?parseSettings(l.settings||''):{},bk=CANONB((l.snap&&l.snap.b)||l.brewer||''),bean=logBean(l);
   const how=[BREWERS[bk]?famName(bk):(q.brewer||''),(l.snap&&l.snap.dose)||q.dose?((l.snap&&l.snap.dose)||q.dose)+' g'+(q.water?' : '+q.water+' g':''):'',q.temp?q.temp+'°C':''].filter(Boolean);
-  el.innerHTML='<button type="button" class="lb-open" id="lb-open" aria-label="Open your brew log">'+
+  const fresh=setHTML(el,'<button type="button" class="lb-open" id="lb-open" aria-label="Open your brew log">'+
     (bean?'<span class="lb-pic">'+beanPic(bean,'xs')+'</span>':'<span class="lb-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z M16 10h1.5a2.5 2.5 0 0 1 0 5H16 M8 3c-1 1 1 2 0 3 M11.5 3c-1 1 1 2 0 3"/></svg></span>')+
     '<span class="lb-tx"><small>Your last brew · '+esc(fmtDate(l))+'</small><b>'+esc(l.coffee||'A brew')+'</b>'+(how.length?'<span class="lb-how">'+esc(how.join(' · '))+'</span>':'')+
     (st?'<i class="st" role="img" aria-label="'+st+' of 5 beans">'+beanRate(st)+'</i>':'')+'</span></button>'+
-    '<div class="lb-act">'+icoBtn('share','id="lb-share"','Share this brew')+'<button type="button" class="btn ghost" id="lb-all">All '+n+' brew'+(n===1?'':'s')+'</button></div>';
-  if(bean&&typeof hydrateImgs==='function')hydrateImgs(el);
+    '<div class="lb-act">'+icoBtn('share','id="lb-share"','Share this brew')+'<button type="button" class="btn ghost" id="lb-all">All '+n+' brew'+(n===1?'':'s')+'</button></div>');
+  if(fresh&&bean&&typeof hydrateImgs==='function')hydrateImgs(el);
   $('lb-open').onclick=$('lb-all').onclick=()=>goTab('log');$('lb-share').onclick=()=>openShare(logEntryDoc(l))}
 /* ---------- The list of brews: search, filters, sort, and each brew as a card ---------- */
 let LF=Object.assign({q:'',who:[],min:0,sort:'new'},VW_KEEP?load('bb-logfilter',{}):{});LF.q='';if(!Array.isArray(LF.who))LF.who=LF.who&&LF.who!=='all'?[LF.who]:[];
@@ -8821,7 +8854,7 @@ function cupShapeSVG(m){const n=m.length,c=60,R=40,pt=(i,r)=>{const a=-Math.PI/2
     '<ellipse class="cs-saucer" cx="60" cy="60" rx="58" ry="58"/><path class="cs-handle" d="M112 50c14 0 14 20 0 20"/><circle class="cs-rim" cx="60" cy="60" r="50"/><circle class="cs-coffee" cx="60" cy="60" r="45"/>'+grid+
     '<polygon class="cs-crema" points="'+poly+'"/>'+m.map(([k,v],i)=>{const [x,y]=pt(i,R*(.18+.82*v/5));return '<circle class="cs-dot t-'+CUPT[k][0]+'" cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3.6"/>'}).join('')+'</svg>'}
 function beanProfileHTML(){const b=beanProfile();
-  const beans=(k,n)=>'<span class="cb-row t-'+CUPT[k][0]+'" aria-hidden="true">'+[1,2,3,4,5].map(i=>'<i'+(i<=n?' class="on"':'')+'>'+CUP_BEAN+'</i>').join('')+'</span>';
+  const beans=(k,n)=>'<span class="cb-row t-'+CUPT[k][0]+'" aria-hidden="true">'+[1,2,3,4,5].map(i=>'<i'+(i<=n?' class="lit"':'')+'>'+CUP_BEAN+'</i>').join('')+'</span>';
   return '<div class="bprof"><p class="bp-head">'+esc(b.head)+'</p><div class="cupprof">'+cupShapeSVG(b.meters)+'<ul class="cuptraits">'+
     b.meters.map(([k,n])=>'<li><b>'+k+'</b>'+beans(k,n)+'<em class="t-'+CUPT[k][0]+'">'+CUPT[k][1][n-1]+'</em><span class="sr">'+n+' of 5</span></li>').join('')+'</ul></div>'+
     (b.notes.length?'<h4 class="bp-h">In the cup</h4><div class="chips">'+b.notes.map(n=>'<span class="chip">'+esc(n)+'</span>').join('')+'</div>':'')+
@@ -9101,7 +9134,9 @@ function renderCountdown(){const ev=upcoming().filter(e=>inSel(CHF,e.c)),box=$('
    '<div class="cdclock" id="cd-clock" aria-live="off"></div>'+(n.note?'<p class="hint" style="margin:.4rem 0 0">'+esc(n.note)+'</p>':'')+'</div>'+
    (rest.length?'<div class="cdnext">'+rest.map(e=>'<div><span class="pill"><i style="background:'+COMPS[e.c].color+'"></i>'+COMPS[e.c].short+' '+e.y+'</span><b>'+esc(e.city)+'</b><small>'+new Date(e.sd+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'})+' · in '+Math.max(0,Math.ceil((e.start-Date.now())/864e5))+' days</small></div>').join('')+'</div>':'');
   // The clock is drawn at once, even while the page is still opening; it stops ticking once you leave the page.
-  let first=true;const tick=()=>{const el=$('cd-clock');if(!el||(!first&&!document.getElementById('champs').classList.contains('on'))){clearInterval(CDT);CDT=null;return}first=false;
+  let first=true;const tick=()=>{const el=$('cd-clock');if(!el||(!first&&!document.getElementById('champs').classList.contains('on'))){if(el)el.classList.remove('tick');clearInterval(CDT);CDT=null;return}
+    // The seconds pulse only while the clock ticks (the page open), not on a hidden page.
+    if(first||!el.classList.contains('tick'))el.classList.add('tick');first=false;
     const now=Date.now();if(now>=n.end){clearInterval(CDT);CDT=null;renderCountdown();return}
     if(now>=n.start){el.innerHTML='<div class="cdlive"><i></i>Happening now in '+esc(n.city.split(',')[0])+'</div>';return}
     let s=Math.floor((n.start-now)/1e3);const d=Math.floor(s/86400);s%=86400;const h=Math.floor(s/3600);s%=3600;const m=Math.floor(s/60);s%=60;
@@ -9359,9 +9394,9 @@ function watchTitle(id){const ab=$('appbar');if(!ab)return;if(TIO&&TIO_T)TIO.uno
   if(!TIO||!TIO_T){ab.classList.remove('title-off');return}const r=TIO_T.getBoundingClientRect();ab.classList.toggle('title-off',r.bottom>84&&r.top<innerHeight);TIO.observe(TIO_T)}
 // The shell's writes come first and its one measurement (where the page title sits) last, so a tab switch lays the
 // page out once. top: scroll to the top first (a tab switch), so the title is measured where it will be.
-function syncShell(id,top){TITLE_ID=id;$('ab-title').textContent=TABNAMES[id]||'Brew Bench';requestAnimationFrame(fitTitle);$('ab-back').hidden=NAVD<1;document.body.classList.toggle('t-dial',id==='dial');
+function syncShell(id,top){TITLE_ID=id;$('ab-title').textContent=TABNAMES[id]||'Brew Bench';requestAnimationFrame(fitTitle);$('ab-back').hidden=NAVD<1;{const hw=document.querySelector('.herowrap');if(hw&&hw.classList.contains('on')!==(id==='dial'))hw.classList.toggle('on',id==='dial')}
   document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));requestAnimationFrame(movePill);
-  if(top)window.scrollTo({top:0});watchTitle(id);
+  if(top&&scrollY)window.scrollTo({top:0});watchTitle(id);
   updShare(id)}
 // The app bar's Share only shows when the page has something to share: a picked origin on the map, a list of recipes.
 function updShare(id){id=id||(document.querySelector('main section.on')||{}).id;
@@ -9388,8 +9423,8 @@ const hubItem=k=>[...SHEETS.explore,...SHEETS.more].find(x=>x[0]===k);
 const HC_ARR='<svg class="hc-arr" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
 const hubCard=k=>{const [,n,d,c,ic]=hubItem(k);return '<button type="button" class="hubcard" data-go="'+k+'" style="--hc:'+c+'"><span class="hc-top">'+ico(ic,c)+HC_ARR+'</span><span class="hc-tx"><b>'+n+'</b><small>'+d+'</small></span></button>'};
 function renderExplore(){const day=Math.floor(Date.now()/864e5),w=GLOSSARY[day%GLOSSARY.length];
-  $('explore-in').innerHTML=todayCard(day,w)+(window.BEANS_OK?cabinetDayHTML():'')+
-    HUB.explore.map(([h,ks])=>'<h3 class="rh">'+h+'</h3><div class="hubgrid">'+ks.map(hubCard).join('')+'</div>').join('');if(window.BEANS_OK)hydrateImgs($('explore-in'))}
+  if(setHTML($('explore-in'),todayCard(day,w)+(window.BEANS_OK?cabinetDayHTML():'')+
+    HUB.explore.map(([h,ks])=>'<h3 class="rh">'+h+'</h3><div class="hubgrid">'+ks.map(hubCard).join('')+'</div>').join('')))if(window.BEANS_OK)hydrateImgs($('explore-in'))}
 /* ---------- Settings: the app's look, name and your data ---------- */
 // Vibes: whole palettes, light and dark (their colours live in the styles; these are for the previews). VIBES_ALL also
 // holds the retired ones: tools/gen-app-icons.py keeps their home-screen icons, so a phone showing one keeps a way in.
@@ -9425,7 +9460,7 @@ function setFavicon(){try{const cs=getComputedStyle($('ab-logo')),col=v=>cs.getP
 function lookSwap(fn){fn()}
 function themeSwap(){const d=document.documentElement;d.classList.add('thx');clearTimeout(themeSwap.t);
   // (Lifted a moment later, in a quiet moment: lifting it restyles the page again, so it waits until nothing is moving.)
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{themeSwap.t=setTimeout(()=>{const off=()=>d.classList.remove('thx');if(window.requestIdleCallback)requestIdleCallback(off,{timeout:900});else off()},420)}))}
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{themeSwap.t=setTimeout(()=>{const off=()=>{d.classList.remove('thx');if(prebuildTabs.again)prebuildTabs.again(true)};if(window.requestIdleCallback)requestIdleCallback(off,{timeout:900});else off()},420)}))}
 function applyUI(){const d=document.documentElement;themeSwap();d.setAttribute('data-accent',UI.accent);if(UI.vibe==='roastery')d.removeAttribute('data-vibe');else d.setAttribute('data-vibe',UI.vibe);d.setAttribute('data-text',UI.text);// Only reduced motion is marked: the reduced-motion rules apply to every element, and an attribute always present
   // on the page made the browser test each of them against every element on each restyle.
   if(UI.motion==='reduced')d.setAttribute('data-motion','reduced');else d.removeAttribute('data-motion');
@@ -9772,6 +9807,18 @@ applyUI();
 {let h=location.hash.slice(1);if(h==='more')h='settings';if(!openRoute(h)){if(h&&$(h)&&$(h).tagName==='SECTION')showTab(h,true);else if(!h&&UI.start!=='dial'&&$(UI.start))showTab(UI.start,true);else syncShell('dial')}}
 // Moves animate only once the app has opened: the first page appears in place.
 requestAnimationFrame(()=>{NAV_READY=true});
+// The + on a page slips away while you scroll down through it and comes back as soon as you scroll up, stop near the
+// end of the page, or change page; never while its menu is open. One read of the scroll per frame at most.
+{let lastY=scrollY,raf=0,acc=0;const fabOf=()=>{const s=document.querySelector('main>section.on');return s&&s.querySelector(':scope>.fab')};
+  const set=(f,away)=>{if(f&&f.classList.contains('away')!==away)f.classList.toggle('away',away)};
+  addEventListener('scroll',()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;const y=scrollY,d=y-lastY;lastY=y;const f=fabOf();if(!f||FAB_OPEN)return;
+    acc=Math.sign(d)===Math.sign(acc)?acc+d:d;
+    const end=y+innerHeight>=document.documentElement.scrollHeight-80;
+    if(y<80||end||acc<-12)set(f,false);else if(acc>24)set(f,true)})},{passive:true});
+  FAB_SHOW=()=>{lastY=scrollY;acc=0;document.querySelectorAll('.fab.away').forEach(f=>f.classList.remove('away'))}}
+// Pages with a + are marked once here (and again by showTab), so the first page has its room too.
+document.querySelectorAll('main>section').forEach(s=>{if(s.querySelector(':scope>.fab'))s.classList.add('fabbed')});
+{const s=document.querySelector('main>section.on');$('toast').classList.toggle('lift',!!(s&&s.classList.contains('fabbed')))}
 prebuildTabs();
 if(GROUP)startStream();
 if(window.claude&&window.claude.use){
@@ -10766,7 +10813,7 @@ function shelfHTML(){const sh=shelfOrder();
 // The trophies you've earned, along the top of the cabinet.
 // This season's challenges: what's running, how far along you are and how long is left.
 function seasonCardHTML(full){const now=seasonNow(),nx=seasonNext();if(!now.length&&!nx)return '';
-  const row=t=>'<div class="ssn'+(t.done?' on':'')+'"><span class="ssn-ic" aria-hidden="true">'+t.ic+'</span><span class="ssn-tx"><b>'+esc(t.w.label?t.n+': '+t.w.label:t.n)+'</b><small>'+(t.done?'Earned '+dfmt(Date.parse(TGOT[t.key]+'T12:00')):esc(t.desc))+'</small>'+
+  const row=t=>'<div class="ssn'+(t.done?' lit':'')+'"><span class="ssn-ic" aria-hidden="true">'+t.ic+'</span><span class="ssn-tx"><b>'+esc(t.w.label?t.n+': '+t.w.label:t.n)+'</b><small>'+(t.done?'Earned '+dfmt(Date.parse(TGOT[t.key]+'T12:00')):esc(t.desc))+'</small>'+
     (t.done?'':'<span class="tro-p" role="img" aria-label="'+t.h+' of '+t.need+'"><i style="width:'+(t.h/t.need*100).toFixed(0)+'%"></i></span>')+'</span><span class="ssn-n">'+(t.done?'✓':t.h+'/'+t.need)+'<small>'+(t.left?t.left+' day'+(t.left===1?'':'s')+' left':'Last day')+'</small></span></div>';
   const list=full?now:now.filter(t=>!t.done).slice(0,2);
   return '<div class="season"><div class="ssn-h"><span class="pp-k">This season</span>'+(full?'':'<button type="button" class="linkbtn" data-tro="1">All trophies</button>')+'</div>'+
@@ -10862,7 +10909,7 @@ function trophiesHTML(){const st=cabStats(),T=TGOT||{},earned=TROPHIES.filter(t=
   return seasonCardHTML(true)+(seasonEarned().length?'<h3 class="rh">Seasonal trophies <span class="hint">'+seasonEarned().length+' earned</span></h3><div class="chips ssn-got">'+seasonEarned().map(t=>'<span class="chip" title="Earned '+esc(dfmt(Date.parse(t.at+'T12:00')))+'">'+t.ic+' '+esc(t.n)+' '+esc(t.y)+'</span>').join('')+'</div>':'')+
     '<h3 class="rh">Trophies <span class="hint">'+earned+' of '+TROPHIES.length+'</span></h3><div class="trophies">'+[...TROPHIES].sort((a,b)=>(!!T[b[0]])-(!!T[a[0]])).map(([id,n,desc,ic,f])=>{const [h,need]=f(st),on=!!T[id];
       // A medal grid: earned ones in gold with the date, the rest in quiet grey with how far along you are.
-      return '<div class="tro'+(on?' on':'')+'" title="'+esc(desc)+'"><span class="tro-ic" aria-hidden="true">'+ic+'</span><b>'+n+'</b>'+
+      return '<div class="tro'+(on?' lit':'')+'" title="'+esc(desc)+'"><span class="tro-ic" aria-hidden="true">'+ic+'</span><b>'+n+'</b>'+
         (on?'<small>'+new Date(T[id]+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'})+'</small>'
           :'<small>'+esc(desc)+'</small><span class="tro-p" role="img" aria-label="'+Math.min(h,need)+' of '+need+'"><i style="width:'+Math.min(100,h/need*100).toFixed(0)+'%"></i></span>')+'</div>'}).join('')+'</div>'}
 function openTrophies(){const d=$('vd'),T=TGOT||{},earned=TROPHIES.filter(t=>T[t[0]]).length;
@@ -11210,7 +11257,7 @@ function useBean(b){S.bean=okSBean({name:beanTitle(b),roaster:b.roaster,origin:b
 function openBeanPick(pick){const d=$('vd'),list=[...BEANS].sort((a,c)=>beanDay(c).localeCompare(beanDay(a))||c.ts-a.ts);
   // A bag you're drinking shows how fresh it is and what's left, which matter more than its rating when you pick one.
   const pkMeta=b=>{const f=fresh(b),g=gramsLeft(b),m=[f?freshPill(f):'',g!=null?'<span class="pk-left">'+(g?g+' g left':'Bag empty')+'</span>':''].join('');return m?'<span class="pk-meta">'+m+'</span>':''};
-  const opt=b=>'<button type="button" class="t3opt'+(S.bean&&S.bean.id===b.id?' on':'')+'" data-usebean="'+b.id+'" style="--m:var(--cherry)">'+beanPic(b,'xs')+'<span class="t3o-tx"><b>'+esc(beanTitle(b))+'</b><small>'+esc([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '))+'</small>'+(b.shelf&&pkMeta(b)||beanRow(b.rating,'sm'))+'</span></button>';
+  const opt=b=>'<button type="button" class="t3opt'+(S.bean&&S.bean.id===b.id?' lit':'')+'" data-usebean="'+b.id+'" style="--m:var(--cherry)">'+beanPic(b,'xs')+'<span class="t3o-tx"><b>'+esc(beanTitle(b))+'</b><small>'+esc([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '))+'</small>'+(b.shelf&&pkMeta(b)||beanRow(b.rating,'sm'))+'</span></button>';
   const now=list.filter(b=>b.shelf),rest=list.filter(b=>!b.shelf);
   // With both kinds of coffee, each gets a heading; with only one kind, the list stands on its own.
   const grp=(h,l)=>l.length?(now.length&&rest.length?'<div class="bg-gh bp-gh"><b>'+h+'</b><span>'+l.length+'</span></div>':'')+'<div class="t3list">'+l.map(opt).join('')+'</div>':'';
@@ -11319,7 +11366,7 @@ function openTop3(y,start){const d=$('vd'),pool=BEANS.filter(b=>beanYear(b)===y)
       '<span class="t3s-pic">'+(b?beanPic(b,'xs'):'<span class="t3s-n">'+(i+1)+'</span>')+'</span><span class="t3s-tx"><small>'+MEDALN[i+1]+'</small><b>'+(b?esc(beanTitle(b)):'Open')+'</b></span></button>'+(b?'<button type="button" class="t3s-x" data-unset="'+i+'" aria-label="Clear '+MEDALN[i+1]+'">✕</button>':'')+'</div>'}).join('');
     // Mentions only offer coffees that aren't already in the top five.
     $('t3-list').innerHTML=(mode==='hm'?pool.filter(b=>!slots.includes(b.id)):pool).map(b=>{const r=slots.indexOf(b.id)+1,m=hm.includes(b.id),on=mode==='places'?!!r:m;
-      return '<button type="button" class="t3opt'+(on?' on':'')+'" data-t3="'+b.id+'" aria-pressed="'+on+'" style="--m:'+(mode==='places'?(MEDAL[r]||'var(--line)'):(m?'var(--honey)':'var(--line)'))+'">'+beanPic(b,'xs')+
+      return '<button type="button" class="t3opt'+(on?' lit':'')+'" data-t3="'+b.id+'" aria-pressed="'+on+'" style="--m:'+(mode==='places'?(MEDAL[r]||'var(--line)'):(m?'var(--honey)':'var(--line)'))+'">'+beanPic(b,'xs')+
       '<span class="t3o-tx"><b>'+esc(beanTitle(b))+'</b><small>'+esc([b.roaster,mode==='places'&&m?'Honourable mention':''].filter(Boolean).join(' · '))+'</small>'+beanRow(b.rating,'sm')+'</span><span class="t3o-r">'+(mode==='places'?(r||''):(m?HM_SVG:''))+'</span></button>'}).join('');
     $('t3-msg').innerHTML=mode==='places'?'Choose your <b style="color:color-mix(in srgb,'+MEDAL[act+1]+' 55%,var(--ink))">'+(act<3?MEDALN[act+1].toLowerCase():MEDALN[act+1]+' place')+'</b> coffee'+(slots[act]?', or tap it again to clear the place.':'.')
       :'Tap the coffees that nearly made it. Up to three'+(hm.length?': '+Math.min(hm.length,HM_MAX)+' of 3 chosen'+(hm.length>HM_MAX?'. Remove '+(hm.length-HM_MAX)+' to keep it to three.':'.'):'.');
@@ -11401,7 +11448,7 @@ function openCal(id,o){const c=calById(id);if(!c)return;ADVFROM=id;VD_BACK=null;
     '<div class="adv-score"><div class="adv-sh"><span class="adv-big">'+(sc.v?sc.v.toFixed(1):'–')+'<small>/5</small></span><span class="adv-sl"><b>Total rating</b><small>'+advSub(c,s,sc,rk,pos)+'</small></span></div></div>'+
     '<div class="adv-prog"><div class="adv-ph"><b>'+s.open+' of '+c.n+' opened</b><span>'+(s.open===c.n?'All done':s.origins?s.origins+' origin'+(s.origins===1?'':'s'):'')+'</span></div><span class="bagm"><i style="width:'+(s.open/c.n*100).toFixed(0)+'%"></i></span></div>'+
     '<h3>The doors</h3><div class="adv-grid">'+Array.from({length:c.n},(_,i)=>{const n=i+1,b=s.doors.get(n);
-      return b?'<button type="button" class="adv-door on" data-door="'+n+'" aria-label="Door '+n+': '+esc(beanTitle(b))+'">'+beanPic(b,'adv')+'<span class="adv-n">'+n+'</span>'+(b.rating?'<span class="adv-dr">'+String(b.rating).replace('.5','½')+'</span>':'')+'</button>'
+      return b?'<button type="button" class="adv-door lit" data-door="'+n+'" aria-label="Door '+n+': '+esc(beanTitle(b))+'">'+beanPic(b,'adv')+'<span class="adv-n">'+n+'</span>'+(b.rating?'<span class="adv-dr">'+String(b.rating).replace('.5','½')+'</span>':'')+'</button>'
         :'<button type="button" class="adv-door'+(n===t?' now':'')+'" data-door="'+n+'" aria-label="Door '+n+': add its coffee"><span class="adv-n">'+n+'</span>'+(n===t?'<small>Today</small>':'')+'</button>'}).join('')+'</div>'+
     '<p class="hint adv-tip">Open the doors in any order: add the coffee behind each, then rate it. The total rating is the average of the ones you’ve rated.</p>'+
     (s.best.length>1?'<h3>Best of the box</h3><div class="clist">'+s.best.map((b,i)=>coffeeRow(b,false,i)).join('')+'</div>':'')+
@@ -12687,7 +12734,7 @@ const SEG_SEL='.seg:not(.filters),.seg.gtabs';
 function segBatch(list,instant){const items=[];
   for(const el of new Set(list)){if(!el||!el.isConnected||!el.matches(SEG_SEL))continue;
     // A strip on a page that isn't shown waits until that page opens: measuring it would lay out the hidden page.
-    if(el.closest('main section:not(.on)')){el._stale=1;continue}const on=el.querySelector(':scope>button[aria-pressed="true"]');items.push({el,on,ind:el.querySelector(':scope>.seg-ind')})}
+    if(el.closest('main section:not(.on):not(.warm)')){el._stale=1;continue}const on=el.querySelector(':scope>button[aria-pressed="true"]');items.push({el,on,ind:el.querySelector(':scope>.seg-ind')})}
   if(!items.length)return;
   // Reads, part 1: which strips are shown, and which need a positioned parent for their highlight.
   for(const it of items){it.ok=!!(it.on&&it.on.offsetWidth);if(it.ok&&!it.el.classList.contains('ind-rel'))it.stat=getComputedStyle(it.el).position==='static'}
@@ -12721,7 +12768,9 @@ function segBatch(list,instant){const items=[];
 // opening a long page like Settings doesn't lay out its far end first.
 function segShown(sec){const all=[...sec.querySelectorAll(SEG_SEL)];if(!all.length)return;all.forEach(x=>x._stale=0);
   const H=innerHeight+120,near=[],far=[];for(const x of all){const t=x.offsetParent?x.getBoundingClientRect().top:H+1;(t<H?near:far).push(x)}
-  if(near.length)segBatch(near,true);if(far.length){const go=()=>{if(sec.classList.contains('on'))segBatch(far.filter(x=>x.isConnected),true)};window.requestIdleCallback?requestIdleCallback(go,{timeout:400}):setTimeout(go,120)}}
+  if(near.length)segBatch(near,true);if(far.length){const go=()=>{if(sec.classList.contains('on'))segBatch(far.filter(x=>x.isConnected),true)};
+    // Strips below the screen are placed after the page has finished sliding in, not during it.
+    setTimeout(()=>window.requestIdleCallback?requestIdleCallback(go,{timeout:600}):go(),650)}}
 // One watcher for every control's size (a tab coming into view, the phone turning); controls that have left the page are dropped.
 const SEG_RO=window.ResizeObserver?new ResizeObserver(es=>es.forEach(e=>{if(e.target.isConnected)segQueue(e.target);else SEG_RO.unobserve(e.target)})):null;
 const SEG_Q=new Set(),SEG_IP=new Map();let SEG_RAF=0;

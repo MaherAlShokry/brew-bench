@@ -15,7 +15,11 @@ ok(sc+': each item opens its form',got.scan==='scan'&&got.bean==='Add a coffee'&
 await p.evaluate(()=>{document.querySelectorAll('dialog[open]').forEach(d=>d.close());goTab('beans')});await p.click('#b-fab-add');await p.waitForTimeout(200);await p.keyboard.press('Escape');await p.waitForTimeout(200);
 ok(sc+': Escape closes it',await p.evaluate(()=>$('b-fab-menu').hidden));
 // While open the page stays put, and back only closes the menu (the tab stays).
-await p.evaluate(()=>{scrollTo(0,300)});await p.click('#b-fab-add');await p.waitForTimeout(250);
+await p.evaluate(()=>{scrollTo(0,300)});await p.waitForTimeout(150);
+// Scrolling down tucks the + away; a small scroll up brings it back.
+ok('scrolling down hides the +',await p.evaluate(()=>$('b-fab').classList.contains('away')));
+await p.evaluate(()=>scrollBy(0,-40));await p.waitForTimeout(350);ok('scrolling up brings the + back',await p.evaluate(()=>!$('b-fab').classList.contains('away')));
+await p.click('#b-fab-add');await p.waitForTimeout(250);
 const y0=await p.evaluate(()=>scrollY);await p.mouse.wheel(0,600);await p.waitForTimeout(300);
 ok(sc+': the page doesn\'t scroll under the open menu',await p.evaluate(y=>Math.abs(scrollY-y)<2&&document.documentElement.classList.contains('fab-lock'),y0));
 await p.goBack();await p.waitForTimeout(400);

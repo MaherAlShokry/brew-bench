@@ -16,11 +16,11 @@ await p.click('[data-door="1"]');await p.waitForTimeout(400);
 ok(await p.evaluate(()=>document.getElementById('vd-title').textContent.startsWith('Door 1')),'editor titled for door 1');
 ok(await p.evaluate(()=>$('be-roaster').value==='Archers'&&$('be-bag').value==='50'),'roaster and 50 g filled in');
 await p.fill('#be-name','Kenya Kiambu');await p.selectOption('#be-origins select',{index:5});await p.click('#be-save');await p.waitForTimeout(600);
-ok(await p.$('.adv-door.on[data-door="1"]'),'door 1 shows as opened');
+ok(await p.$('.adv-door.lit[data-door="1"]'),'door 1 shows as opened');
 ok(await p.evaluate(()=>{const b=BEANS.find(x=>x.cal);return b&&b.cal.d===1&&b.tried==='2026-12-01'||b.tried===todayISO()}),'coffee linked to door 1');
 // add door 2 with rating via data
 await p.evaluate(()=>{const c=CALS[0];BEANS.unshift(okBean({id:'advtest2',name:'Ethiopia Guji',roaster:'Archers',origin:BEANS.find(x=>x.cal).origin,rating:4.5,cal:{id:c.id,d:2},ts:Date.now()}));BEANS.find(x=>x.cal&&x.cal.d===1).rating=3.5;saveBeans();openCal(c.id)});await p.waitForTimeout(400);
-ok(await p.$('.adv-door.on[data-door="2"] .adv-dr'),'door 2 shows its rating');
+ok(await p.$('.adv-door.lit[data-door="2"] .adv-dr'),'door 2 shows its rating');
 ok(await p.evaluate(()=>/2 of 24/.test(document.querySelector('.adv-ph b').textContent)),'progress 2 of 24');
 ok(await p.$$eval('#vd-in .clist .crow',l=>l.length)===2,'best of the box lists 2');
 // box review
