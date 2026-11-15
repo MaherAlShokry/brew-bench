@@ -1,5 +1,5 @@
-// Closing animations match the opening ones: a page inside a section closing (back) sinks away while the page beneath
-// comes back, the back button shrinks away when there's nowhere to go back to, and a process path folds away. Each
+// Pages inside a section move like a stack: opening one, the page you were on eases left beneath it; back, it slides
+// off to the right over the page beneath. The back button shrinks away when there's nowhere to go back to, the back button shrinks away when there's nowhere to go back to, and a process path folds away. Each
 // leaves nothing behind once done.
 {const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();
@@ -8,10 +8,12 @@ const p=await b.newPage({viewport:{width:390,height:844}});const errs=[];p.on('p
 await p.route(u=>!u.href.startsWith('http://localhost'),r=>r.abort());await p.addInitScript(()=>sessionStorage.setItem('bb-splashed','1'));
 await p.goto('http://localhost:8099/index.html');await p.evaluate(require('./seed2.cjs'));await p.reload();await p.waitForTimeout(2500);
 await p.click('.bottomnav [data-bn="beans"]');await p.waitForTimeout(700);await p.click('.bottomnav [data-bn="explore"]');await p.waitForTimeout(700);
-await p.click('#explore .hubgrid button >> nth=0');await p.waitForTimeout(900);const sub=await p.evaluate(()=>document.querySelector('main section.on').id);
+await p.click('#explore .hubgrid button >> nth=0');await p.waitForTimeout(60);
+const op=await p.evaluate(()=>{const o=document.querySelector('main section.nav-out');return {out:o&&o.id,anim:o&&getComputedStyle(o).animationName}});
+ok('opening a page: the one you were on eases left beneath it',op.out==='explore'&&op.anim==='vt-push-old',op);await p.waitForTimeout(840);const sub=await p.evaluate(()=>document.querySelector('main section.on').id);
 await p.click('#ab-back');await p.waitForTimeout(60);
 const mid=await p.evaluate(()=>{const o=document.querySelector('main section.nav-out');return {out:o&&o.id,on:document.querySelector('main section.on').id,anim:o&&getComputedStyle(o).animationName}});
-ok('back from a page inside a section: it sinks away over the page beneath',mid.out===sub&&mid.on==='explore'&&mid.anim==='nav-out-pop',mid);
+ok('back from a page inside a section: it slides off over the page beneath',mid.out===sub&&mid.on==='explore'&&mid.anim==='page-out',mid);
 await p.waitForTimeout(500);
 ok('and leaves nothing behind',await p.evaluate(s=>!document.querySelector('.nav-out')&&!$(s).getAttribute('style'),sub));
 // The back button: shown with somewhere to go back to, shrinking away (not vanishing) when there isn't.

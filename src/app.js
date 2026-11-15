@@ -726,11 +726,12 @@ const ROLL_IO='IntersectionObserver' in window?new IntersectionObserver(es=>es.f
 function rollNow(el){const v=el.dataset.roll,to=parseFloat(v),dp=(v.split('.')[1]||'').length;if(!(to>0)){el.textContent=v;return}
   // A page still sliding in waits for the slide to finish: each step of the count lays the numbers out again, which
   // in every frame of the slide made it stutter on a phone.
-  const sec=el.closest('main section');if(sec&&sec.classList.contains('nav-in')&&!el._rw){el._rw=1;setTimeout(()=>{el._rw=0;rollNow(el)},Math.max(120,420-(performance.now()-NAV_AT)));return}
+  // A page sliding in shows its numbers as they are: counted up after the slide, it slid in showing zeros.
+  const sec=el.closest('main section');if(sec&&(sec.classList.contains('nav-in')||performance.now()-NAV_AT<700)){el.textContent=v;return}
   const box=el.closest('.pp-cover,.bg-hero');if(box)replay(box,'filling');const t0=performance.now(),D=Math.min(900,420+to*40);
-  el.textContent=(0).toFixed(dp);const f=n=>{const k=Math.min(1,(n-t0)/D),e=1-Math.pow(1-k,3);el.textContent=(to*e).toFixed(dp);if(k<1)requestAnimationFrame(f)};requestAnimationFrame(f)}
+  el.textContent=(0).toFixed(dp);const f=n=>{const k=Math.max(0,Math.min(1,(n-t0)/D)),e=1-Math.pow(1-k,3);el.textContent=(to*e).toFixed(dp);if(k<1)requestAnimationFrame(f)};requestAnimationFrame(f)}
 function rollIn(root){if(!root||!ROLL_IO||RM())return;root.querySelectorAll('[data-roll]').forEach((el,i)=>{const k=root.id+':'+i;
-  if(ROLLED.has(k))return;ROLLED.add(k);if(parseFloat(el.dataset.roll)>0)el.textContent=(0).toFixed((el.dataset.roll.split('.')[1]||'').length);ROLL_IO.observe(el)})}
+  if(ROLLED.has(k))return;ROLLED.add(k);ROLL_IO.observe(el)})}
 // An empty list's one action (see .bg-empty): add a coffee, scan a bag, or go and brew.
 document.addEventListener('click',e=>{const b=e.target.closest('[data-empty]');if(!b)return;const k=b.dataset.empty;
   if(k==='bean')openBeanEditor();else if(k==='scan'){showTab('scan');newScan();scrollTo(0,0)}else if(k==='dial')goTab('dial')});
@@ -1308,8 +1309,8 @@ let NAV_READY=false;
 let NAV_AT=-1e9;
 const PAGE_Y={};
 let NAV_FORCE='';
-// The page being left: drawn where it was, at most a screen tall, over the incoming one, and faded and moved out the
-// opposite way to the new page's arrival (back from a page inside a section sinks away, as it rose in).
+// The page being left: drawn where it was, at most a screen tall. Opening a page, it eases left under the new one;
+// going back, it slides off to the right over the page beneath.
 function navOut(L,kind,y){const el=L.el;if(el._out)clearTimeout(el._out);el.style.top=(L.top+y)+'px';el.style.left=L.left+'px';el.style.width=L.w+'px';
   el.style.height=Math.max(0,innerHeight-L.top)+'px';el.style.setProperty('padding-top',L.pt,'important');el.dataset.out=kind;el.classList.add('nav-out');
   const end=()=>{clearTimeout(el._out);el._out=0;el.removeEventListener('animationend',onEnd);el.classList.remove('nav-out');delete el.dataset.out;for(const k of ['top','left','width','height','padding-top'])el.style.removeProperty(k)},
@@ -1350,9 +1351,10 @@ function showTab(id,fromHistory,pure){NAV_AT=performance.now();if(window.closeBe
     // page is laid out once (measured inside the tap, it was laid out there and again for the frame).
     requestAnimationFrame(()=>{try{if($(id).classList.contains('on'))segShown($(id))}catch(e){}});
     if(kind&&NAV_READY)spSlide(id);
-    // Only when a page inside a section closes (back): on a tab switch, drawing the page being left as well tripled the
-    // dropped frames of the slide on a phone, so the bottom-bar tabs keep their one-way slide.
-    if(kind==='pop'&&LV&&NAV_READY)navOut(LV,kind,backY!=null?backY:0);
+    // Opening a page inside a section slides it over the one you were on, which eases a little to the left; back is the
+    // reverse (the page slides off to the right over the one beneath). Not on a bottom-bar tab switch: drawing the page
+    // being left there tripled the dropped frames of the slide on a phone, so tabs keep their one-way slide.
+    if((kind==='pop'||kind==='push')&&LV&&NAV_READY)navOut(LV,kind,backY!=null?backY:0);
     if(kind&&NAV_READY){const sec=$(id);if(!vt){
       // The slide waits, held on its first frame, until the page has been drawn once. Drawing a page (above all the
       // first time it's shown) can take a phone longer than a frame; started at once, the slide's first frames were

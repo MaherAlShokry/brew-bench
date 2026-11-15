@@ -1301,20 +1301,7 @@ function openOrigin(k){const d=$('vd'),o=oInfo(k);if(!o)return;BFROM=k;const lis
     '<h2 id="vd-title"><span class="og-fl">'+flagOf(k)+'</span> '+esc(originName(k))+'</h2><p class="hint" style="margin:0">'+list.length+' coffee'+(list.length===1?'':'s')+(bags>list.length?' · '+bags+' bags':'')+(first?' · since '+new Date(first+'T12:00').toLocaleDateString(undefined,{month:'short',year:'numeric'}):'')+(avg?' · rated '+avg.toFixed(1)+' on average':'')+'</p></div>'+
     '<div class="vd-body"><div class="clist og-list">'+list.map((b,i)=>coffeeRow(b,false,i)).join('')+'</div>'+(k==='blend'?'':'<div class="actions"><button type="button" class="btn ghost" id="og-map">'+esc(originName(k))+' on the map</button></div>')+'</div>';
   hydrateImgs($('vd-in'));$('vd-in').onclick=e=>{if(!$('vd-in').querySelector('.og-list'))return;const r=e.target.closest('#vd-in [data-bean]');if(r){BFROM=k;openBean(r.dataset.bean);return}if(e.target.closest('#og-map')){d.close();goTab('map');setTimeout(()=>{try{selectOrigin(k,true)}catch(x){}},350)}};
-  $('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0;zoomFrom(d)}
-/* Opening a coffee from its picture: the picture grows from where you tapped it into the page's big photo, while the
-   page fades in behind it (instead of sliding in from the side). Phones only, and not with reduced motion. */
-let ZOOM_SRC=null;
-document.addEventListener('click',e=>{const t=e.target.closest('[data-bean]');const pic=t&&!t.closest('dialog')&&t.querySelector('.bpic');ZOOM_SRC=pic?{el:pic,t:performance.now()}:null},true);
-function zoomFrom(d){const s=ZOOM_SRC;ZOOM_SRC=null;if(!s||performance.now()-s.t>700||RM()||innerWidth>759||!s.el.isConnected)return;
-  const hero=d.querySelector('.bd-hero .bpic');if(!hero)return;const a=s.el.getBoundingClientRect();if(!a.width||a.bottom<0||a.top>innerHeight)return;
-  d.classList.add('zoom');const b=hero.getBoundingClientRect();const c=s.el.cloneNode(true);c.removeAttribute('data-bimg');c.classList.add('zoom-pic');
-  c.setAttribute('popover','manual');c.setAttribute('aria-hidden','true');c.style.cssText+=';left:'+b.left+'px;top:'+b.top+'px;width:'+b.width+'px;height:'+b.height+'px;border-radius:'+getComputedStyle(hero).borderRadius;
-  document.body.appendChild(c);try{c.showPopover()}catch(e){c.remove();d.classList.remove('zoom');return}hero.style.visibility='hidden';
-  const r0=getComputedStyle(s.el).borderRadius,sx=a.width/b.width,sy=a.height/b.height;
-  const an=c.animate([{transform:'translate('+(a.left-b.left)+'px,'+(a.top-b.top)+'px) scale('+sx+','+sy+')',borderRadius:r0},{transform:'none',borderRadius:c.style.borderRadius}],{duration:380,easing:'cubic-bezier(.2,.8,.2,1)'});
-  const end=()=>{hero.style.visibility='';try{c.hidePopover()}catch(e){}c.remove()};an.onfinish=end;an.oncancel=end;
-  d.addEventListener('close',()=>d.classList.remove('zoom'),{once:true})}
+  $('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
 function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.bean=b.id;
   // To the top before the page is drawn: scrolling after it forced the whole new page to be laid out at once.
   if(!write&&$('vd').scrollTop)$('vd').scrollTop=0;const d=$('vd'),rk=beanRank(b),P=b.process&&PROCESSES[b.process],ls=beanLogStats(b),f=b.shelf&&fresh(b);
@@ -1385,7 +1372,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.be
     const i=BEANS.findIndex(x=>x.id===b.id);if(i<0)return;BEANS=BEANS.filter(x=>x.id!==b.id);saveBeans();d.close();renderBeans();
     undoToast('Removed “'+beanTitle(b)+'”',()=>{if(BEANS.some(x=>x.id===b.id))return;BEANS.splice(Math.min(i,BEANS.length),0,b);saveBeans();renderBeans()},
       ()=>{if(BEANS.some(x=>x.id===b.id))return;if(!inTop)BIMG.del(b.id);dropDiaryPhotos(b.diary||[])})};
-  showDlg(d);zoomFrom(d);$('vd-x').onclick=()=>d.close();if($('vd-back'))$('vd-back').onclick=()=>vdBack(()=>openOrigin(from));if($('bd-advback'))$('bd-advback').onclick=()=>vdBack(()=>openCal(cal.id,{back:b.cal.d}));if($('bd-roback'))$('bd-roback').onclick=()=>vdBack(()=>openRoaster(roBack.name,roBack.list));if($('bd-ro'))$('bd-ro').onclick=()=>openRoaster(b.roaster);
+  showDlg(d);$('vd-x').onclick=()=>d.close();if($('vd-back'))$('vd-back').onclick=()=>vdBack(()=>openOrigin(from));if($('bd-advback'))$('bd-advback').onclick=()=>vdBack(()=>openCal(cal.id,{back:b.cal.d}));if($('bd-roback'))$('bd-roback').onclick=()=>vdBack(()=>openRoaster(roBack.name,roBack.list));if($('bd-ro'))$('bd-ro').onclick=()=>openRoaster(b.roaster);
   if(write)setTimeout(()=>{const h=$('bd-dh');if(h){h.scrollIntoView({block:'start'});$('bd-dt').focus({preventScroll:true})}},80)}
 function beanDoc(b){const P=b.process&&PROCESSES[b.process];
   return{title:beanTitle(b),sub:(b.roaster?b.roaster+' | ':'')+'Rated '+(b.rating||'–')+' of 5',file:'coffee-'+beanTitle(b),
