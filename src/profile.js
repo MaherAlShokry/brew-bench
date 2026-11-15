@@ -95,8 +95,10 @@ function tasteHTML(){if(!window.BEANS_OK||BEANS.length<2)return '';const t=taste
   if(!rows.length&&!t.families.length)return '';
   return '<div class="me-taste"><div class="me-th"><b>Your coffee taste</b><small>From all '+BEANS.length+' coffees and '+myCups().length+' cups, all time</small></div>'+
     (tasteLine(t)?'<p class="me-tl">'+esc(tasteLine(t))+'</p>':'')+
-    (rows.length?'<div class="me-tiles">'+rows.map(([i,k,vv])=>'<div><i aria-hidden="true">'+i+'</i><small>'+k+'</small><b>'+esc(vv)+'</b></div>').join('')+'</div>':'')+
+    (rows.length?'<div class="me-tiles">'+rows.map(([i,k,vv])=>'<div style="--tc:'+(TASTE_C[k]||'#8A5A3B')+'"><i aria-hidden="true">'+i+'</i><small>'+k+'</small><b>'+esc(vv)+'</b></div>').join('')+'</div>':'')+
     (t.notes.length?'<div class="me-notes chips">'+t.notes.slice(0,5).map(n=>'<span class="chip"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'</span>').join('')+'</div>':'')+'</div>'}
+// Each taste tile has its own colour, the same family as the stat tiles elsewhere.
+const TASTE_C={Origin:'#3E8A68',Region:'#3F86B5',Variety:'#5E8C3E',Process:'#B88A2E',Roast:'#B5533C','Rated best':'#C2622F',Brewer:'#5F82A3'};
 function shortBrewer(n){return n.replace(/^Hario\s+|^Kalita\s+|^Origami\s+/,'')}
 // Who you're signed in as, and the sync; or, signed out, what an account brings.
 function accountHTML(){

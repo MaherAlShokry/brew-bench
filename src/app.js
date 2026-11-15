@@ -4363,9 +4363,11 @@ applyUI();
 requestAnimationFrame(()=>{NAV_READY=true});
 // The + on a page slips away while you scroll down through it and comes back as soon as you scroll up, stop near the
 // end of the page, or change page; never while its menu is open. One read of the scroll per frame at most.
-{let lastY=scrollY,raf=0,acc=0;const fabOf=()=>{const s=document.querySelector('main>section.on');return s&&s.querySelector(':scope>.fab')};
+// Only a scroll you make (a finger or the wheel) moves it: the app's own scrolls (back to a page's place) leave it be.
+{let lastY=scrollY,raf=0,acc=0,gest=-1e9;for(const ev of ['touchmove','wheel'])addEventListener(ev,()=>{gest=performance.now()},{capture:true,passive:true});const fabOf=()=>{const s=document.querySelector('main>section.on');return s&&s.querySelector(':scope>.fab')};
   const set=(f,away)=>{if(f&&f.classList.contains('away')!==away)f.classList.toggle('away',away)};
   addEventListener('scroll',()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;const y=scrollY,d=y-lastY;lastY=y;const f=fabOf();if(!f||FAB_OPEN)return;
+    if(performance.now()-gest>700){acc=0;return}
     acc=Math.sign(d)===Math.sign(acc)?acc+d:d;
     const end=y+innerHeight>=document.documentElement.scrollHeight-80;
     if(y<80||end||acc<-12)set(f,false);else if(acc>24)set(f,true)})},{passive:true});
