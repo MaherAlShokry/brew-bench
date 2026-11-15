@@ -3862,7 +3862,7 @@ function flowDoc(){const txt=f=>f.d.replace(/\s*Tap [^.]*\./g,'')+(f.branch?' Pa
 
 /* ================= APP SHELL ================= */
 /* Line icons for the sheets, drawn to match the bottom navigation. */
-const ICO={sliders:'M4 7h9 M17 7h3 M4 17h3 M11 17h9 M15 5v4 M9 15v4',motion:'M3 12c2.5-5 5-5 7.5 0s5 5 7.5 0 M3 6h4 M17 18h4',bell:'M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15z M10 20a2 2 0 0 0 4 0',
+const ICO={flag:'M6 21V4 M6 4h11.5l-2.2 4.2 2.2 4.3H6',sliders:'M4 7h9 M17 7h3 M4 17h3 M11 17h9 M15 5v4 M9 15v4',motion:'M3 12c2.5-5 5-5 7.5 0s5 5 7.5 0 M3 6h4 M17 18h4',bell:'M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15z M10 20a2 2 0 0 0 4 0',
   bulb:'M9 18h6 M10 21h4 M12 3a6 6 0 0 0-3.5 10.9V16h7v-2.1A6 6 0 0 0 12 3z',palette:'M12 3a9 9 0 1 0 0 18c1.1 0 1.6-.9 1.2-1.8c-.5-1 .2-2.2 1.3-2.2H17a4 4 0 0 0 4-4c0-5.5-4-10-9-10z M7.5 11.5h.01 M10.5 7.5h.01 M15.5 8.5h.01',
   info:'M21 12a9 9 0 1 1-18 0a9 9 0 1 1 18 0z M12 11v5 M12 8h.01',phone:'M8 3h8a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z M11 18h2',wheel:'M21 12a9 9 0 1 1-18 0a9 9 0 1 1 18 0z M12 3v9l7.8 4.5 M12 12l-7.8 4.5',trophy:'M8 4h8v5a4 4 0 0 1-8 0z M8 6H5a3 3 0 0 0 3 4 M16 6h3a3 3 0 0 1-3 4 M12 13v4 M8 21h8 M9 17h6',globe:'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M3 12h18 M12 3c3 3.5 3 14.5 0 18 M12 3c-3 3.5-3 14.5 0 18',leaf:'M5 19c0-8 5-14 14-14c0 9-6 14-14 14z M5 19l8-8',
   hourglass:'M7 3h10 M7 21h10 M8 3v3l4 6 4-6V3 M8 21v-3l4-6 4 6v3',flask:'M9 3h6 M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3 M7.5 15h9',drop:'M12 3c3 4 6 7.5 6 11a6 6 0 0 1-12 0c0-3.5 3-7 6-11z',
@@ -4094,7 +4094,10 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
    '<h3 class="rh">Your data</h3><div class="setgroup">'+row('download','#8A5A3B','Back up and restore','Everything you’ve saved stays on this device: '+esc(dataSummary())+'. Save it as a file, photos included, to keep it safe or move it to another phone.',
      '<p class="setnote" id="st-lastbak" style="margin:0 0 8px">'+lastBakText()+'</p><div class="setbtns">'+pbtn('dl','id="st-export"','Back up','main')+pbtn('ul','id="st-import"','Restore')+'<input type="file" id="st-file" accept="application/json,.json" hidden></div>')+'</div>'+
    (installed()?'':'<h3 class="rh">Install</h3><div class="setgroup">'+row('phone','#9A7390','Add to your home screen','Use it like an app, offline too','<p class="setnote" style="margin:0"><b>iPhone (Safari):</b> tap the Share button, then <b>Add to Home Screen</b>.<br><b>Android (Chrome):</b> tap the ⋮ menu, then <b>Add to Home screen</b>.</p>')+'</div>')+
-   '<h3 class="rh">About</h3><div class="setgroup">'+linkRow('id="st-tips"','bulb','#C9964A','Good to know','Undo, backups, sharing'+(NATIVE?', widgets':'')+' and more, in a minute')+row('info','#8A5A3B','The Brew Bench','A coffee field guide and dial-in tool. What you save stays on this device, or syncs with your account if you sign in.','<p class="setnote" style="margin:0"><a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a> · <a href="'+SITE_URL+'delete-account.html" target="_blank" rel="noopener">Delete your account</a></p>')+
+   '<h3 class="rh">About</h3><div class="setgroup">'+linkRow('id="st-tips"','bulb','#C9964A','Good to know','Undo, backups, sharing'+(NATIVE?', widgets':'')+' and more, in a minute')+
+     row('flag','#B5533C','Problem reports',UI.reports?'If the app stalls, shows an error or closes by itself, a short note about it is kept on this phone. Nothing is sent unless you send it.':'Off. Turn on to keep a short note when the app stalls, shows an error or closes by itself, to send to us if something goes wrong.',
+       '<div class="setbtns"><div class="seg" id="st-rep" role="group" aria-label="Problem reports"><button type="button" data-rep="0" aria-pressed="'+!UI.reports+'">Off</button><button type="button" data-rep="1" aria-pressed="'+!!UI.reports+'">On</button></div>'+
+       (UI.reports?pbtn('share','id="st-repsend"','Send report'+((REPORTS||[]).length?' ('+REPORTS.length+')':'')):'')+'</div>')+row('info','#8A5A3B','The Brew Bench','A coffee field guide and dial-in tool. What you save stays on this device, or syncs with your account if you sign in.','<p class="setnote" style="margin:0"><a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a> · <a href="'+SITE_URL+'delete-account.html" target="_blank" rel="noopener">Delete your account</a></p>')+
      '</div>';
     // Built each visit, but only put in when something changed: redrawing the whole page on every visit laid it out again.
     if(h!==SET_H||!$('st-mode')){$('settings-in').innerHTML=h;SET_H=h}}
@@ -4114,6 +4117,8 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
   seg('st-resume',[['fresh','Start fresh'],['keep','Where I left off']],()=>UI.resume||'fresh',v=>{UI.resume=v;saveUI();renderSettings(1);toast(v==='fresh'?'Scan and Brew will start fresh next time':'The app will remember your last scan and dial-in')})}
 $('settings-in').addEventListener('click',e=>{if(e.target.closest('#st-tips')){openTips();return}const vb=e.target.closest('.vibe[data-vibe]');if(vb){const v=vb.dataset.vibe;pickNow('.vibe[data-vibe]',vb);afterPaint(()=>{lookSwap(()=>{UI.vibe=v;UI.accent='classic';saveUI();renderSettings(1)});toast((VIBES.find(x=>x[0]===UI.vibe)||[])[1]+' on')});return}const a=e.target.closest('.swatch[data-accent]');if(a){const k=a.dataset.accent;pickNow('.swatch[data-accent]',a);afterPaint(()=>lookSwap(()=>{UI.accent=k;saveUI();renderSettings(1)}));return}
   const l=e.target.closest('.logopick[data-logo]');if(l){UI.logo=l.dataset.logo;saveUI();renderSettings(1);return}
+  const rp=e.target.closest('[data-rep]');if(rp){UI.reports=rp.dataset.rep==='1';if(!UI.reports){REPORTS=[];saveReports()}saveUI();renderSettings();return}
+  if(e.target.closest('#st-repsend')){sendReport();return}
   if(e.target.closest('#st-export')){exportData();return}if(e.target.closest('#st-import')){$('st-file').click();return}});
 $('settings-in').addEventListener('change',e=>{if(e.target.id==='st-file'){importData(e.target.files[0]);e.target.value=''}});
 for(const id of ['explore-in','settings-in'])$(id).addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g){const t=g.dataset.go;tapOpen(g,()=>showTab(t,false,true));return}
@@ -4364,6 +4369,22 @@ try{if(window.PerformanceObserver&&(PerformanceObserver.supportedEntryTypes||[])
   new PerformanceObserver(l=>{let got=false;for(const e of l.getEntries()){if(!/^(pointerdown|pointerup|click|keydown|keyup|input|change)$/.test(e.name)||e.duration<64||e.startTime<=SP_CLEAR_T)continue;
       SPEED.push({d:Math.round(e.duration),w:Math.round(Math.max(0,e.processingStart-e.startTime)),p:Math.round(Math.max(0,e.processingEnd-e.processingStart)),k:e.name,el:spWhat(e.target),pg:spPage(),at:Date.now(),v:appVersion()||'web'});got=true}
     if(!got)return;SPEED.sort((a,b)=>b.d-a.d);SPEED=SPEED.slice(0,40);clearTimeout(SPEED_T);SPEED_T=setTimeout(()=>{try{localStorage.setItem(SPEED_K,JSON.stringify(SPEED))}catch(e){}},2000)}).observe({type:'event',durationThreshold:64,buffered:true})}catch(e){}
+/* Problem reports (opt-in, Settings › About): errors the page raised, an app that closed without being put away
+   (the next start notices), and the slowest taps from the speed log, kept here only (40 at most) and sent only if you
+   choose to, as text through the phone's own share sheet. Off by default; turning it off clears what was kept. */
+var REPORTS=(()=>{try{const a=JSON.parse(localStorage.getItem('bb-reports')||'[]');return Array.isArray(a)?a.slice(0,40):[]}catch(e){return[]}})();
+function saveReports(){try{if(REPORTS.length)localStorage.setItem('bb-reports',JSON.stringify(REPORTS));else localStorage.removeItem('bb-reports')}catch(e){}}
+function noteProblem(k,msg){if(!UI.reports)return;REPORTS.unshift({k,m:String(msg||'').slice(0,240),pg:spPage(),at:Date.now(),v:appVersion()||'web'});REPORTS=REPORTS.slice(0,40);saveReports()}
+addEventListener('error',e=>{if(e&&e.message)noteProblem('error',e.message+(e.filename?' ('+String(e.filename).split('/').pop()+':'+e.lineno+')':''))});
+addEventListener('unhandledrejection',e=>{const r=e&&e.reason;noteProblem('error',r&&(r.message||String(r))||'A promise failed')});
+// A start that finds the last visit wasn't put away (the page hidden) means it closed by itself.
+try{if(localStorage.getItem('bb-running')==='1')noteProblem('restart','The app closed by itself, or was restarted by the phone');localStorage.setItem('bb-running','1')}catch(e){}
+addEventListener('visibilitychange',()=>{try{localStorage.setItem('bb-running',document.hidden?'0':'1')}catch(e){}});
+addEventListener('pagehide',()=>{try{localStorage.setItem('bb-running','0')}catch(e){}});
+function reportText(){return 'Brew Bench problem report ('+(appVersion()||'web')+', '+navigator.userAgent.replace(/^.*?\(([^)]*)\).*$/,'$1').slice(0,60)+')\n\n'+
+  (REPORTS.length?REPORTS.map((x,i)=>(i+1)+'. '+(x.k==='restart'?'Closed by itself':'Error')+': '+x.m+'  on '+(x.pg||'?')+'  ('+new Date(x.at).toLocaleString()+', '+x.v+')').join('\n'):'No problems noted.')+'\n\n'+speedText()}
+async function sendReport(){const t=reportText();try{if(navigator.share){await navigator.share({title:'Brew Bench problem report',text:t});return}}catch(e){if(e&&e.name==='AbortError')return}
+  try{await navigator.clipboard.writeText(t);toast('Copied the report')}catch(e){saveFile('brew-bench-report.txt',new Blob([t],{type:'text/plain'}))}}
 function speedText(){return 'Brew Bench speed log ('+(appVersion()||'web')+', '+navigator.userAgent.replace(/^.*?\(([^)]*)\).*$/,'$1').slice(0,60)+')\n'+
   (SPEED.length?SPEED.map((x,i)=>(i+1)+'. '+x.d+' ms  '+x.k+'  '+x.el+'  on '+x.pg+'  (wait '+x.w+', run '+x.p+', '+new Date(x.at).toLocaleString()+')').join('\n'):'No slow taps yet.')}
 // How smoothly a page slid in: the frames in the half second after a tab change. A frame over 50 ms is a visible stutter;
