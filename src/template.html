@@ -2857,17 +2857,23 @@ textarea{resize:none}
    edge of glass; they don't blur (what's behind a card is only the glows, so a blur would cost and show nothing).
    What floats over the page, the bars, the + menu, sheets and notices, is frosted: blurred and brightened, and opaque
    enough that the text under it never reads through. */
-html[data-glass]{--g:.6;--gl-line:rgba(30,36,64,calc(.05 + var(--g) * .04));
+html[data-glass]{--g:.6;
+  /* Thick glass lit from the top left: a bright specular edge there, a dimmer one bottom right, a soft glow inside the
+     rim and a touch of shade at the foot, so a pane reads as a raised, rounded slab rather than a flat tint. */
+  --gl-3d:inset 1.5px 1.5px 1px -1px rgba(255,255,255,calc(.55 + var(--g) * .4)),inset -1.5px -1.5px 1px -1px rgba(255,255,255,calc(.25 + var(--g) * .4)),
+    inset 0 0 calc(4px + var(--g) * 12px) rgba(255,255,255,calc(var(--g) * .3)),inset 0 calc(-4px - var(--g) * 6px) calc(10px + var(--g) * 8px) calc(-8px - var(--g) * 4px) rgba(0,0,0,calc(var(--g) * .10));
+  /* What floats is clearer the stronger the glass (less frost, more of the bend at its rim). */
+  --gl-frost:blur(calc(8px + (1 - var(--g)) * 12px)) saturate(calc(150% + var(--g) * 60%)) brightness(1.03);--gl-line:rgba(30,36,64,calc(.05 + var(--g) * .04));
   --gl-pane:color-mix(in srgb,var(--surface) calc(90% - var(--g) * 42%),transparent);
-  --gl-chrome:color-mix(in srgb,var(--surface) calc(90% - var(--g) * 26%),transparent);
+  --gl-chrome:color-mix(in srgb,var(--surface) calc(86% - var(--g) * 38%),transparent);
   --gl-sheet:color-mix(in srgb,var(--surface) calc(94% - var(--g) * 24%),transparent);
   --gl-rim:rgba(255,255,255,calc(.45 + var(--g) * .45));--gl-rim2:rgba(255,255,255,calc(var(--g) * .22));
   --gl-sheen:linear-gradient(180deg,rgba(255,255,255,calc(var(--g) * .34)),rgba(255,255,255,0) 42%);
   --gl-shade:0 calc(6px + var(--g) * 8px) calc(18px + var(--g) * 16px) -14px rgba(20,24,40,calc(.16 + var(--g) * .16));
   --gl-blur:blur(calc(10px + var(--g) * 18px)) saturate(calc(140% + var(--g) * 60%));background:var(--paper)}
-@media (prefers-color-scheme:dark){html[data-glass]:not([data-theme="light"]){--gl-line:rgba(255,255,255,calc(.06 + var(--g) * .06));--gl-rim:rgba(255,255,255,calc(.07 + var(--g) * .13));--gl-rim2:rgba(255,255,255,calc(var(--g) * .06));
+@media (prefers-color-scheme:dark){html[data-glass]:not([data-theme="light"]){--gl-3d:inset 1.5px 1.5px 1px -1px rgba(255,255,255,calc(.18 + var(--g) * .3)),inset -1.5px -1.5px 1px -1px rgba(255,255,255,calc(.08 + var(--g) * .18)),inset 0 0 calc(4px + var(--g) * 12px) rgba(255,255,255,calc(var(--g) * .08)),inset 0 calc(-4px - var(--g) * 6px) calc(10px + var(--g) * 8px) calc(-8px - var(--g) * 4px) rgba(0,0,0,calc(.2 + var(--g) * .2));--gl-line:rgba(255,255,255,calc(.06 + var(--g) * .06));--gl-rim:rgba(255,255,255,calc(.07 + var(--g) * .13));--gl-rim2:rgba(255,255,255,calc(var(--g) * .06));
   --gl-sheen:linear-gradient(180deg,rgba(255,255,255,calc(var(--g) * .09)),rgba(255,255,255,0) 40%);--gl-shade:0 calc(8px + var(--g) * 8px) calc(22px + var(--g) * 16px) -14px rgba(0,0,0,calc(.45 + var(--g) * .25))}}
-html[data-glass][data-theme="dark"]{--gl-line:rgba(255,255,255,calc(.06 + var(--g) * .06));--gl-rim:rgba(255,255,255,calc(.07 + var(--g) * .13));--gl-rim2:rgba(255,255,255,calc(var(--g) * .06));
+html[data-glass][data-theme="dark"]{--gl-3d:inset 1.5px 1.5px 1px -1px rgba(255,255,255,calc(.18 + var(--g) * .3)),inset -1.5px -1.5px 1px -1px rgba(255,255,255,calc(.08 + var(--g) * .18)),inset 0 0 calc(4px + var(--g) * 12px) rgba(255,255,255,calc(var(--g) * .08)),inset 0 calc(-4px - var(--g) * 6px) calc(10px + var(--g) * 8px) calc(-8px - var(--g) * 4px) rgba(0,0,0,calc(.2 + var(--g) * .2));--gl-line:rgba(255,255,255,calc(.06 + var(--g) * .06));--gl-rim:rgba(255,255,255,calc(.07 + var(--g) * .13));--gl-rim2:rgba(255,255,255,calc(var(--g) * .06));
   --gl-sheen:linear-gradient(180deg,rgba(255,255,255,calc(var(--g) * .09)),rgba(255,255,255,0) 40%);--gl-shade:0 calc(8px + var(--g) * 8px) calc(22px + var(--g) * 16px) -14px rgba(0,0,0,calc(.45 + var(--g) * .25))}
 html[data-glass] body{background:transparent}
 html[data-glass]::before{content:'';position:fixed;inset:-10%;z-index:-1;pointer-events:none;opacity:calc(.3 + var(--g) * .7);background:
@@ -2879,21 +2885,28 @@ html[data-glass]::before{content:'';position:fixed;inset:-10%;z-index:-1;pointer
 html[data-glass] body::before,html[data-glass] body::after{display:none}
 /* Panes on the page. */
 html[data-glass] :is(.panel,.setgroup,.clist,.logentry,.rgrp,.qtool,.cupcard,.appver,.card,.oplan,.hubgrid,.yic,.tshelf,.specs>div,.bd-shelf,.lastbrew,.today,.welcome,.rrow,.crow.rov-row,.qlinks){
-  background-color:var(--gl-pane)!important;background-image:var(--gl-sheen);border-color:var(--gl-line)!important;box-shadow:inset 0 1px 0 var(--gl-rim),inset 0 -1px 0 var(--gl-rim2),var(--gl-shade)!important}
+  background-color:var(--gl-pane)!important;background-image:var(--gl-sheen);border-color:var(--gl-line)!important;box-shadow:var(--gl-3d),var(--gl-shade)!important}
 html[data-glass] :is(.panel,.setgroup,.clist,.rgrp,.hubgrid) :is(.re-card,.oplan-o,.seg,.dwrite,.ls-t,.rrow,.bg-gh){background-color:color-mix(in srgb,var(--surface) calc(70% - var(--g) * 30%),transparent)!important;box-shadow:inset 0 1px 0 var(--gl-rim2)!important}
 /* What floats: frosted. In the app too (the switch is yours: it costs a little smoothness while scrolling). */
-html[data-glass] :is(.appbar,.bottomnav,.minires,nav.tabs .wrap){background-color:var(--gl-chrome)!important;background-image:var(--gl-sheen);-webkit-backdrop-filter:var(--gl-blur)!important;backdrop-filter:var(--gl-blur)!important;border-color:var(--gl-rim2)!important;box-shadow:inset 0 1px 0 var(--gl-rim),inset 0 -1px 0 var(--gl-rim2),var(--gl-shade)!important}
-html[data-glass] :is(dialog#vd,dialog#sharesheet,dialog#selsheet){background-color:var(--gl-sheet)!important;background-image:var(--gl-sheen);-webkit-backdrop-filter:var(--gl-blur);backdrop-filter:var(--gl-blur);box-shadow:inset 0 1px 0 var(--gl-rim),0 -10px 40px -16px rgba(0,0,0,.35)!important}
+/* What floats bends what's under its rim like a thick lens (an SVG filter, #lg-bar and #lg-btn in the page; its
+   strength follows the slider), then frosts it a little. Browsers without lensing behind an element keep the frost. */
+html[data-glass] :is(.appbar,.bottomnav,.minires,nav.tabs .wrap){background-color:var(--gl-chrome)!important;background-image:var(--gl-sheen);-webkit-backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost) url(#lg-bar)!important;border-color:var(--gl-line)!important;box-shadow:var(--gl-3d),var(--gl-shade)!important}
+html[data-glass] :is(dialog#vd,dialog#sharesheet,dialog#selsheet){background-color:var(--gl-sheet)!important;background-image:var(--gl-sheen);-webkit-backdrop-filter:var(--gl-blur);backdrop-filter:var(--gl-blur);box-shadow:var(--gl-3d),0 -10px 40px -16px rgba(0,0,0,.35)!important}
 html[data-glass] dialog#timer{background:color-mix(in srgb,var(--paper) calc(92% - var(--g) * 22%),transparent)!important;-webkit-backdrop-filter:var(--gl-blur);backdrop-filter:var(--gl-blur)}
-html[data-glass] :is(.fab .ib:not(.main),.fab-mi>span,.fab-mi>i,.vd-tool,.vd-close,.sh-mini,#toast){background-color:var(--gl-chrome)!important;background-image:var(--gl-sheen);-webkit-backdrop-filter:var(--gl-blur)!important;backdrop-filter:var(--gl-blur)!important;box-shadow:inset 0 1px 0 var(--gl-rim),0 6px 16px -10px rgba(0,0,0,.35)!important}
+html[data-glass] :is(.fab .ib:not(.main),.fab-mi>span,.fab-mi>i,.vd-tool,.vd-close,.sh-mini,#toast){background-color:var(--gl-chrome)!important;background-image:var(--gl-sheen);-webkit-backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost) url(#lg-btn)!important;box-shadow:var(--gl-3d),0 8px 20px -10px rgba(0,0,0,.35)!important}
+html[data-glass] #toast{-webkit-backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost)!important;backdrop-filter:var(--gl-frost) url(#lg-bar)!important}
 html[data-glass] #toast{color:var(--ink)!important}
-html[data-glass] :is(.ib.main,.pbtn.main,.btn:not(.ghost),.fab-main){background-image:linear-gradient(180deg,rgba(255,255,255,calc(var(--g) * .22)),rgba(255,255,255,0) 55%);box-shadow:inset 0 1px 0 rgba(255,255,255,calc(.15 + var(--g) * .35)),0 8px 20px -10px color-mix(in srgb,var(--cherry) 70%,transparent)!important}
+html[data-glass] :is(.ib.main,.pbtn.main,.btn:not(.ghost),.fab-main){background-image:radial-gradient(120% 90% at 30% 0%,rgba(255,255,255,calc(var(--g) * .38)),rgba(255,255,255,0) 55%),linear-gradient(0deg,rgba(0,0,0,calc(var(--g) * .12)),rgba(0,0,0,0) 45%);box-shadow:inset 1.5px 1.5px 1px -1px rgba(255,255,255,calc(.3 + var(--g) * .5)),inset -1px -1px 1px -.5px rgba(255,255,255,calc(var(--g) * .3)),0 10px 22px -10px color-mix(in srgb,var(--cherry) 75%,transparent)!important}
 html[data-glass] .tab[aria-selected=true]{background-image:var(--gl-sheen);box-shadow:inset 0 1px 0 var(--gl-rim2)}
+html[data-glass] .bn-pill{background:color-mix(in srgb,var(--surface) calc(40% + var(--g) * 20%),color-mix(in srgb,var(--cherry) 10%,transparent));box-shadow:var(--gl-3d),0 4px 12px -6px rgba(0,0,0,.25)}
 @media (prefers-reduced-transparency:reduce){html[data-glass]{--g:0!important}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
 <body>
+<!-- Liquid glass: the lens behind floating bars (lg-bar, a thin rim along wide shapes) and round buttons (lg-btn).
+     Their maps and strength are set by the app (glassLens in app.js). -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><filter id="lg-bar" primitiveUnits="objectBoundingBox" x="0" y="0" width="1" height="1" color-interpolation-filters="sRGB"><feImage preserveAspectRatio="none" x="0" y="0" width="1" height="1" result="m"/><feDisplacementMap in="SourceGraphic" in2="m" scale="0" xChannelSelector="R" yChannelSelector="G"/></filter><filter id="lg-btn" primitiveUnits="objectBoundingBox" x="0" y="0" width="1" height="1" color-interpolation-filters="sRGB"><feImage preserveAspectRatio="none" x="0" y="0" width="1" height="1" result="m"/><feDisplacementMap in="SourceGraphic" in2="m" scale="0" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
      coffee drips and fills, the dripper lifts off as steam rises, and the name comes up; then it all lifts away.
      About 2 s; a tap skips it. -->
