@@ -3,7 +3,7 @@
 // Open each dialog and sheet, in every vibe x light/dark: errors, text and icons that are hard to see, overflow.
 const {chromium}=require('playwright');const demo=require('./seed2.cjs');(async()=>{const b=await chromium.launch();const R={};const add=(k,v)=>{(R[k]=R[k]||new Set()).add(v)};
  const OPEN={bean:()=>openBean(BEANS[0].id),beanEditor:()=>openBeanEditor(),beanPick:()=>openBeanPick(),explore:()=>document.querySelector('.bottomnav [data-sheet="explore"],.bottomnav [data-tab="explore"]')&&0};
- const vibes=['roastery','oat','matcha','blossom','nordic','desert','neon','caramel','pure','black'];
+ const vibes=['roastery','pure','black','nordic'];
  for(const v of vibes)for(const m of ['light','dark']){const c=await b.newContext({viewport:{width:360,height:740},serviceWorkers:'block'});await c.addInitScript(([v,m])=>{localStorage.setItem('bb-ui',JSON.stringify({vibe:v}));localStorage.setItem('bb-theme',m);sessionStorage.setItem('bb-splashed','1')},[v,m]);
   const p=await c.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));p.on('dialog',d=>d.dismiss());await p.route(u=>!u.href.startsWith('http://localhost'),r=>r.abort());await p.goto('http://localhost:8099/index.html');await p.evaluate(demo);await p.reload();await p.waitForTimeout(800);
   for(const [name,fn] of Object.entries(OPEN)){const before=errs.length;

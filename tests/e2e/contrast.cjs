@@ -2,7 +2,7 @@
 {const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 const {chromium}=require('playwright');
 (async()=>{const b=await chromium.launch();const bad=[];
-for(const th of ['light','dark'])for(const vibe of ['roastery','oat','matcha','blossom','nordic','desert','neon','caramel','pure','black']){const c=await b.newContext({viewport:{width:390,height:900},serviceWorkers:'block'});
+for(const th of ['light','dark'])for(const vibe of ['roastery','pure','black','nordic']){const c=await b.newContext({viewport:{width:390,height:900},serviceWorkers:'block'});
 await c.addInitScript(([t,v])=>{sessionStorage.setItem('bb-splashed','1');localStorage.setItem('bb-theme',t);localStorage.setItem('bb-ui',JSON.stringify({vibe:v}))},[th,vibe]);const p=await c.newPage();
 await p.goto('http://localhost:8099/index.html');await p.waitForTimeout(700);
 await p.evaluate(()=>{showTab('scan');document.getElementById('scan-text').value='Origin: Colombia\nVariety: Pink Bourbon\nProcess: Anaerobic natural\nRoast: light';runLocalScan(false)});await p.waitForTimeout(800);

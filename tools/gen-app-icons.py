@@ -4,7 +4,8 @@
 Usage: python3 tools/gen-app-icons.py
 
 The logos come from src/data/logos.json (and the bean from the top bar's markup, drawn here); the colours from each
-vibe's light and dark palette in src/app.js (VIBES). For each logo × vibe × mode it writes, under android/app/src/main/res:
+vibe's light and dark palette in src/app.js (VIBES_ALL: retired vibes and logos stay, so the icon a phone shows
+now never disappears in an update). For each logo × vibe × mode it writes, under android/app/src/main/res:
   drawable/ic_logo_<key>.xml               the logo as a vector, centred in the 108dp adaptive-icon canvas
   mipmap-anydpi-v26/ic_launcher_<key>.xml  the adaptive icon (Android 8 and up; also a monochrome layer)
   mipmap/ic_launcher_<key>.xml             a round-cornered icon for Android 7
@@ -22,7 +23,7 @@ res = root / 'android' / 'app' / 'src' / 'main' / 'res'
 manifest = root / 'android' / 'app' / 'src' / 'main' / 'AndroidManifest.xml'
 java = root / 'android' / 'app' / 'src' / 'main' / 'java' / 'io' / 'github' / 'maheralshokry' / 'brewbench' / 'IconNames.java'
 logos = {k: v for k, v in json.loads((root / 'src' / 'data' / 'logos.json').read_text()).items() if k != '_'}
-vibes = json.loads(re.search(r'const VIBES=(\[.*?\]);\n', (root / 'src' / 'app.js').read_text()).group(1))
+vibes = json.loads(re.search(r'const VIBES_ALL=(\[.*?\]);\n', (root / 'src' / 'app.js').read_text()).group(1))
 LOGO_KEYS = ['bean'] + list(logos)
 MODES = {'l': 3, 'd': 4}  # light and dark palettes in each VIBES entry
 SCALE, OFF = 2.25, 27     # the 24-unit logo drawn 2.25x into the 108dp canvas, inside the 66dp area every mask keeps

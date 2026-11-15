@@ -1245,6 +1245,7 @@ const BNORD=['dial','recipes','beans','explore','settings'];
 let NAV_READY=false;
 let NAV_AT=-1e9;
 const PAGE_Y={};
+let NAV_FORCE='';
 function showTab(id,fromHistory,pure){NAV_AT=performance.now();if(window.closeBeansFab)closeBeansFab();ensureTab(id);{const sec=$(id);document.body.classList.toggle('has-fab',!!(sec&&sec.querySelector(':scope>.fab')))}
   // The page on show, for the few styles that depend on it (a class here, not a :has() over the whole page, which
   // made the browser recheck every style on each change while a big page was drawn).
@@ -1254,6 +1255,9 @@ function showTab(id,fromHistory,pure){NAV_AT=performance.now();if(window.closeBe
   const backY=fromHistory&&PAGE_Y[id]!=null?PAGE_Y[id]:null;const cur=document.querySelector('main section.on');let kind='';
   if(cur&&cur.id!==id){const a=BNORD.indexOf(BNGROUP[cur.id]),b=BNORD.indexOf(BNGROUP[id]);
     kind=a!==b&&a>=0&&b>=0?(b<a?'left':'right'):fromHistory?'pop':'push'}
+  // A page opened from a shortcut on another page (the Brew page's "Log this brew") rises over it like a sub-page, not
+  // a slide across to its own tab: it belongs to what you were doing there.
+  if(kind&&NAV_FORCE&&!fromHistory)kind=NAV_FORCE;NAV_FORCE='';
   // Each tab gets a history entry, so the back button (browser or Android) returns to the last tab.
   if(!fromHistory&&location.hash!=='#'+id){NAVD++;if(BACKING)PEND_TAB=id;else try{history.pushState(null,'','#'+id)}catch(e){}}
   const swap=vt=>{
@@ -1264,23 +1268,23 @@ function showTab(id,fromHistory,pure){NAV_AT=performance.now();if(window.closeBe
     // Highlights that waited for this page (select.js loads after the first page is shown, so it may not be there yet).
     syncShell(id,backY==null);if(backY!=null)window.scrollTo({top:backY});try{segShown($(id))}catch(e){}
     if(kind&&NAV_READY)spSlide(id);
-    if(kind&&NAV_READY){const sec=$(id);if(!vt){replay(sec,'nav-in');clearTimeout(sec._nav);sec._nav=setTimeout(()=>sec.classList.remove('nav-in'),480);
+    if(kind&&NAV_READY){const sec=$(id);if(!vt){
+      // The slide waits, held on its first frame, until the page has been drawn once. Drawing a page (above all the
+      // first time it's shown) can take a phone longer than a frame; started at once, the slide's first frames were
+      // lost to it and the page jumped part of the way in: the stutter on a section's first visit.
+      const go=el=>{el.classList.add('nav-hold');replay(el,'nav-in');clearTimeout(el._nav);el._nav=setTimeout(()=>el.classList.remove('nav-in','nav-hold'),640);
+        requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.remove('nav-hold')))};
+      go(sec);
       // The Brew page's hero sits above the page itself: it comes in with it.
-      const hw=id==='dial'&&document.querySelector('.herowrap');if(hw){replay(hw,'nav-in');clearTimeout(hw._nav);hw._nav=setTimeout(()=>hw.classList.remove('nav-in'),480)}
+      const hw=id==='dial'&&document.querySelector('.herowrap');if(hw)go(hw)
       // Pages slide in as one piece, the same as every other page (no block-by-block cascade on top).
       }}};
   // Set only when it changes: a new value on <html> makes the browser re-check styles across the whole app.
   {const nv=NAV_READY?kind:'';if(document.documentElement.dataset.nav!==nv)document.documentElement.dataset.nav=nv}
   // The bottom-bar highlight answers the tap at once, before the page itself changes.
   if(kind){document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));movePill()}
-  // Moving deeper or back uses a view transition (both pages move). Between bottom-bar sections only the new page
-  // swings in: capturing the whole old page first held each tap back by a frame or two on phones.
-  // Pages inside a section slide in on the tap itself: a view transition first captures the old page, which held the
-  // start back (most of all on a heavy page like the map). Only the new page moves, the same as every other page.
-  if(false&&(kind==='push'||kind==='pop')&&pure&&NAV_READY&&document.startViewTransition&&!RM()&&!document.hidden&&!document.querySelector('dialog[open]')){
-    const h=document.documentElement;h.classList.add('vt');
-    try{document.startViewTransition(()=>swap(true)).finished.finally(()=>h.classList.remove('vt'))}catch(e){h.classList.remove('vt');swap()}}
-  else swap()}
+  // Only the new page moves (a view transition, capturing the old page first, held each tap back on phones).
+  swap()}
 try{history.scrollRestoration='manual'}catch(e){}
 // Lock the page behind any open dialog or sheet so it can't scroll underneath.
 // The page behind a sheet stops scrolling once the sheet has finished opening, not at the start: locking it straight
@@ -2550,7 +2554,10 @@ $('tolog').onclick=()=>{const r=compute(S),dp=dialPlan();if(LEDIT)endEdit();
   // The coffee picked on the dial-in is the coffee being logged: it shows as its card, with its bag's notes.
   LBEAN=S.bean&&S.bean.id&&window.BEANS_OK&&beanById(S.bean.id)?S.bean.id:null;
   if(S.bean&&!LBEAN&&!$('l-coffee').value.trim())$('l-coffee').value=S.bean.name;
-  renderLBean();renderPred();renderFlForm();showTab('log');if(!LBEAN)$('l-coffee').focus()};
+  renderLBean();renderPred();renderFlForm();NAV_FORCE='push';showTab('log');
+  // The coffee box gets the cursor once the page has come in, and not on a phone, where the keyboard would jump up
+  // over the page as it arrives.
+  if(!LBEAN&&!MQ('(pointer: coarse)'))setTimeout(()=>$('l-coffee').focus({preventScroll:true}),480)};
 // The brew as it was on the dial-in, kept with the entry so its card can show the dial, the cup and the pours.
 let LSNAP=null,LAST_CUP=null;
 // The cup a brew being logged already took off the bag, if any (the timer's cup, logged within three hours).
@@ -3887,10 +3894,14 @@ function renderExplore(){const day=Math.floor(Date.now()/864e5),w=GLOSSARY[day%G
   $('explore-in').innerHTML=todayCard(day,w)+(window.BEANS_OK?cabinetDayHTML():'')+
     HUB.explore.map(([h,ks])=>'<h3 class="rh">'+h+'</h3><div class="hubgrid">'+ks.map(hubCard).join('')+'</div>').join('');if(window.BEANS_OK)hydrateImgs($('explore-in'))}
 /* ---------- Settings: the app's look, name and your data ---------- */
-// Vibes: whole palettes, light and dark (their colours live in the styles; these are for the previews).
-const VIBES=[["roastery","Roastery","The house look: cream and roasted brown",{"paper":"#FBF7F0","surface":"#FFFDF9","surface2":"#F3EADC","ink":"#3B2A20","cherry":"#8A5A3B","honey":"#C9964A","leaf":"#6B8E4E"},{"paper":"#1F1814","surface":"#2A211B","surface2":"#362A22","ink":"#F3EADF","cherry":"#D9A06B","honey":"#E2B866","leaf":"#A7C084"}],["oat","Oat latte","Soft, milky and calm",{"paper":"#F6F0E8","surface":"#FFFCF7","surface2":"#EDE3D6","ink":"#3A3029","cherry":"#855735","honey":"#B98A3E","leaf":"#5F7F49"},{"paper":"#2F2A26","surface":"#3C3631","surface2":"#4A433D","ink":"#F5EFE8","cherry":"#E9C29E","honey":"#EDCB91","leaf":"#BCD1A6"}],["matcha","Matcha café","Fresh greens, easy on the eyes",{"paper":"#F1F5EB","surface":"#FCFEF8","surface2":"#E1E9D4","ink":"#24301D","cherry":"#3F6E2E","honey":"#9C7A26","leaf":"#4E7A3A"},{"paper":"#0D2216","surface":"#143020","surface2":"#1C3F2B","ink":"#E6F4E3","cherry":"#9FDB82","honey":"#E3CF7C","leaf":"#9FDB82"}],["blossom","Coffee blossom","Pink like the flowers on the tree",{"paper":"#FBF3F3","surface":"#FFFBFB","surface2":"#F4E0E2","ink":"#3D2328","cherry":"#A8324F","honey":"#B47E3A","leaf":"#5E8A5A"},{"paper":"#2A0D1D","surface":"#3A1429","surface2":"#4B1D36","ink":"#FCE9F0","cherry":"#FF93B6","honey":"#F3C98A","leaf":"#B4DDA8"}],["nordic","Nordic roast","Cool, light and minimal",{"paper":"#F3F6F8","surface":"#FFFFFF","surface2":"#E5EBF0","ink":"#1E2833","cherry":"#2C5A80","honey":"#9A7A3A","leaf":"#4F7C69"},{"paper":"#0A1A2E","surface":"#11253F","surface2":"#19324F","ink":"#E5EEF8","cherry":"#8FC4F2","honey":"#E3C68D","leaf":"#93D1B8"}],["desert","Desert mocha","Sand and terracotta, Yemen at dusk",{"paper":"#F8F0E3","surface":"#FFFAF1","surface2":"#EEDEC6","ink":"#3A2618","cherry":"#9A4522","honey":"#B87E25","leaf":"#6E7F3E"},{"paper":"#2E140A","surface":"#3E1D0F","surface2":"#4F2715","ink":"#FBE9D8","cherry":"#FFA06E","honey":"#F5C77A","leaf":"#CFD593"}],["neon","Neon espresso","Late-night café, a little loud",{"paper":"#F6F2FF","surface":"#FFFFFF","surface2":"#EBE3FF","ink":"#24183A","cherry":"#6A30D6","honey":"#C2357E","leaf":"#13896A"},{"paper":"#130A33","surface":"#1E1250","surface2":"#2A1B66","ink":"#F3EEFF","cherry":"#D0A5FF","honey":"#FF8BD0","leaf":"#5FF0BE"}],["caramel","Caramel pop","Warm, sweet and sunny",{"paper":"#FFF5EA","surface":"#FFFDF8","surface2":"#FBE4CC","ink":"#3B2412","cherry":"#9C4913","honey":"#B97A15","leaf":"#5E8040"},{"paper":"#2A1A06","surface":"#3A250B","surface2":"#4A3012","ink":"#FFF0DC","cherry":"#FFB061","honey":"#FFD27A","leaf":"#C3DA93"}],["pure","Pure","Crisp white by day, true black by night",{"paper":"#FFFFFF","surface":"#FFFFFF","surface2":"#F2F2F4","ink":"#0B0B0C","cherry":"#141416","honey":"#8A6A2C","leaf":"#2F7A45"},{"paper":"#000000","surface":"#0E0E10","surface2":"#1A1A1D","ink":"#FFFFFF","cherry":"#F4F4F5","honey":"#E3C17E","leaf":"#7FD08F"}],["black","Black coffee","White or pitch black, with a crema accent",{"paper":"#FFFFFF","surface":"#FFFFFF","surface2":"#F4F1EE","ink":"#121212","cherry":"#7A4A2C","honey":"#9A6B1F","leaf":"#4E7A3A"},{"paper":"#000000","surface":"#0F0D0C","surface2":"#1C1916","ink":"#FFFFFF","cherry":"#E2A877","honey":"#F0C477","leaf":"#A5CC86"}],["glass","Liquid glass","Frosted glass over soft colour, light and clear",{"paper":"#EDEFF5","surface":"#F9FAFD","surface2":"#E4E8F1","ink":"#15171C","cherry":"#A8612E","honey":"#B7832A","leaf":"#2F7D52"},{"paper":"#0A0B10","surface":"#1C1E26","surface2":"#262934","ink":"#F2F3F7","cherry":"#F0B27A","honey":"#F2C46B","leaf":"#86D9A8"}]];
-let UI=Object.assign({accent:'classic',vibe:'roastery',logo:'bean',text:'m',motion:'full',start:'dial',resume:'fresh'},load('bb-ui',{}));
-if(!VIBES.some(v=>v[0]===UI.vibe))UI.vibe='roastery';
+// Vibes: whole palettes, light and dark (their colours live in the styles; these are for the previews). VIBES_ALL also
+// holds the retired ones: tools/gen-app-icons.py keeps their home-screen icons, so a phone showing one keeps a way in.
+const VIBES_ALL=[["roastery","Roastery","The house look: cream and roasted brown",{"paper":"#FBF7F0","surface":"#FFFDF9","surface2":"#F3EADC","ink":"#3B2A20","cherry":"#8A5A3B","honey":"#C9964A","leaf":"#6B8E4E"},{"paper":"#1F1814","surface":"#2A211B","surface2":"#362A22","ink":"#F3EADF","cherry":"#D9A06B","honey":"#E2B866","leaf":"#A7C084"}],["oat","Oat latte","Soft, milky and calm",{"paper":"#F6F0E8","surface":"#FFFCF7","surface2":"#EDE3D6","ink":"#3A3029","cherry":"#855735","honey":"#B98A3E","leaf":"#5F7F49"},{"paper":"#2F2A26","surface":"#3C3631","surface2":"#4A433D","ink":"#F5EFE8","cherry":"#E9C29E","honey":"#EDCB91","leaf":"#BCD1A6"}],["matcha","Matcha café","Fresh greens, easy on the eyes",{"paper":"#F1F5EB","surface":"#FCFEF8","surface2":"#E1E9D4","ink":"#24301D","cherry":"#3F6E2E","honey":"#9C7A26","leaf":"#4E7A3A"},{"paper":"#0D2216","surface":"#143020","surface2":"#1C3F2B","ink":"#E6F4E3","cherry":"#9FDB82","honey":"#E3CF7C","leaf":"#9FDB82"}],["blossom","Coffee blossom","Pink like the flowers on the tree",{"paper":"#FBF3F3","surface":"#FFFBFB","surface2":"#F4E0E2","ink":"#3D2328","cherry":"#A8324F","honey":"#B47E3A","leaf":"#5E8A5A"},{"paper":"#2A0D1D","surface":"#3A1429","surface2":"#4B1D36","ink":"#FCE9F0","cherry":"#FF93B6","honey":"#F3C98A","leaf":"#B4DDA8"}],["nordic","Nordic roast","Cool, light and minimal",{"paper":"#F3F6F8","surface":"#FFFFFF","surface2":"#E5EBF0","ink":"#1E2833","cherry":"#2C5A80","honey":"#9A7A3A","leaf":"#4F7C69"},{"paper":"#0A1A2E","surface":"#11253F","surface2":"#19324F","ink":"#E5EEF8","cherry":"#8FC4F2","honey":"#E3C68D","leaf":"#93D1B8"}],["desert","Desert mocha","Sand and terracotta, Yemen at dusk",{"paper":"#F8F0E3","surface":"#FFFAF1","surface2":"#EEDEC6","ink":"#3A2618","cherry":"#9A4522","honey":"#B87E25","leaf":"#6E7F3E"},{"paper":"#2E140A","surface":"#3E1D0F","surface2":"#4F2715","ink":"#FBE9D8","cherry":"#FFA06E","honey":"#F5C77A","leaf":"#CFD593"}],["neon","Neon espresso","Late-night café, a little loud",{"paper":"#F6F2FF","surface":"#FFFFFF","surface2":"#EBE3FF","ink":"#24183A","cherry":"#6A30D6","honey":"#C2357E","leaf":"#13896A"},{"paper":"#130A33","surface":"#1E1250","surface2":"#2A1B66","ink":"#F3EEFF","cherry":"#D0A5FF","honey":"#FF8BD0","leaf":"#5FF0BE"}],["caramel","Caramel pop","Warm, sweet and sunny",{"paper":"#FFF5EA","surface":"#FFFDF8","surface2":"#FBE4CC","ink":"#3B2412","cherry":"#9C4913","honey":"#B97A15","leaf":"#5E8040"},{"paper":"#2A1A06","surface":"#3A250B","surface2":"#4A3012","ink":"#FFF0DC","cherry":"#FFB061","honey":"#FFD27A","leaf":"#C3DA93"}],["pure","Pure","Crisp white by day, true black by night",{"paper":"#FFFFFF","surface":"#FFFFFF","surface2":"#F2F2F4","ink":"#0B0B0C","cherry":"#141416","honey":"#8A6A2C","leaf":"#2F7A45"},{"paper":"#000000","surface":"#0E0E10","surface2":"#1A1A1D","ink":"#FFFFFF","cherry":"#F4F4F5","honey":"#E3C17E","leaf":"#7FD08F"}],["black","Black coffee","White or pitch black, with a crema accent",{"paper":"#FFFFFF","surface":"#FFFFFF","surface2":"#F4F1EE","ink":"#121212","cherry":"#7A4A2C","honey":"#9A6B1F","leaf":"#4E7A3A"},{"paper":"#000000","surface":"#0F0D0C","surface2":"#1C1916","ink":"#FFFFFF","cherry":"#E2A877","honey":"#F0C477","leaf":"#A5CC86"}],["glass","Liquid glass","Frosted glass over soft colour, light and clear",{"paper":"#EDEFF5","surface":"#F9FAFD","surface2":"#E4E8F1","ink":"#15171C","cherry":"#A8612E","honey":"#B7832A","leaf":"#2F7D52"},{"paper":"#0A0B10","surface":"#1C1E26","surface2":"#262934","ink":"#F2F3F7","cherry":"#F0B27A","honey":"#F2C46B","leaf":"#86D9A8"}]];
+const VIBES=['roastery','pure','black','nordic'].map(k=>VIBES_ALL.find(v=>v[0]===k));
+let UI=Object.assign({accent:'classic',vibe:'roastery',glass:false,glassAmt:60,logo:'bean',text:'m',motion:'full',start:'dial',resume:'fresh'},load('bb-ui',{}));
+// Liquid glass was a vibe; now it's a switch over any vibe (on, for whoever had picked it).
+if(UI.vibe==='glass'){UI.vibe='roastery';UI.glass=true}
+if(!VIBES.some(v=>v[0]===UI.vibe))UI.vibe='roastery';if(!(UI.glassAmt>=10&&UI.glassAmt<=100))UI.glassAmt=60;
 const ACCENTS=[['classic','Vibe’s own','#8A5A3B'],['espresso','Espresso','#5E3B2A'],['cascara','Cascara','#A3392E'],['kenya','Kenya','#7B2D4E'],['honey','Honey','#A8741C'],['leaf','Coffee leaf','#4F7A45'],['coldbrew','Cold brew','#2E5C7A'],['geisha','Geisha','#76588C']];
 if(!ACCENTS.some(a=>a[0]===UI.accent))UI.accent='classic';
 // The logos: the bean drawn in the top bar's own markup, the rest from data/logos.json (which also makes the Android
@@ -3898,7 +3909,7 @@ if(!ACCENTS.some(a=>a[0]===UI.accent))UI.accent='classic';
 const logoParts=parts=>parts.map(p=>{const col='var(--'+(p.fill||p.stroke)+')',op=p.op!=null?' opacity="'+p.op+'"':'';
   const paint=p.fill?'fill="'+col+'"':'fill="none" stroke="'+col+'" stroke-width="'+p.w+'" stroke-linecap="round" stroke-linejoin="round"';
   return p.c?'<circle cx="'+p.c[0]+'" cy="'+p.c[1]+'" r="'+p.c[2]+'" '+paint+op+'/>':'<path d="'+p.d+'" '+paint+op+'/>'}).join('');
-const LOGOS=Object.assign({bean:['Bean',null]},Object.fromEntries(Object.entries(LOGO_DATA).filter(([k])=>k!=='_').map(([k,v])=>[k,[v.name,logoParts(v.parts)]])));
+const LOGOS=Object.assign({bean:['Bean',null]},Object.fromEntries(['bench','benchtop','cherry'].filter(k=>LOGO_DATA[k]).map(k=>[k,LOGO_DATA[k]]).map(([k,v])=>[k,[v.name,logoParts(v.parts)]])));
 if(!LOGOS[UI.logo])UI.logo='bean';delete UI.name;if(!['s','m','l','xl'].includes(UI.text))UI.text='m';if(!['full','reduced'].includes(UI.motion))UI.motion='full';if(UI.start==='scan')UI.start='beans';if(!['dial','recipes','beans','explore'].includes(UI.start))UI.start='dial';
 const BEAN_SVG=$('ab-logo').innerHTML;
 // Each copy of the bean gets its own clip id: two elements with one id can draw the wrong (or no) bean.
@@ -3915,6 +3926,7 @@ function setFavicon(){try{const cs=getComputedStyle($('ab-logo')),col=v=>cs.getP
 function themeSwap(){const d=document.documentElement;d.classList.add('thx');clearTimeout(themeSwap.t);
   requestAnimationFrame(()=>requestAnimationFrame(()=>{themeSwap.t=setTimeout(()=>d.classList.remove('thx'),60)}))}
 function applyUI(){const d=document.documentElement;themeSwap();d.setAttribute('data-accent',UI.accent);if(UI.vibe==='roastery')d.removeAttribute('data-vibe');else d.setAttribute('data-vibe',UI.vibe);d.setAttribute('data-text',UI.text);d.setAttribute('data-motion',UI.motion);
+  if(UI.glass){d.setAttribute('data-glass','');d.style.setProperty('--g',UI.glassAmt/100)}else{d.removeAttribute('data-glass');d.style.removeProperty('--g')}
   $('ab-logo').innerHTML=logoSVG(UI.logo,24);
   // In the Android app the home-screen icon follows the look: the logo in the vibe's colours, light or dark as the
   // app is now. The app swaps it when you next leave it.
@@ -4004,6 +4016,7 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
     '<h3 class="rh">Appearance</h3><div class="setgroup">'+
     row(curTheme()==='dark'?'moon':'sun','#5B5F66','Light or dark','Bright cream, cosy espresso, or follow your phone','<div class="seg" id="st-mode"></div>')+
     row('drop','var(--cherry)','Vibe','A whole look, in light and in dark','<div class="vibes">'+VIBES.map(([k,n,d,L,D])=>'<button type="button" class="vibe" data-vibe="'+k+'" aria-pressed="'+(UI.vibe===k)+'" style="--l-p:'+L.paper+';--l-s:'+L.surface+';--l-i:'+L.ink+';--l-c:'+L.cherry+';--l-h:'+L.honey+';--d-p:'+D.paper+';--d-s:'+D.surface+';--d-i:'+D.ink+';--d-c:'+D.cherry+';--d-h:'+D.honey+'"><span class="vb-pv" aria-hidden="true"><i class="vb-l"><u></u><s></s><em></em></i><i class="vb-d"><u></u><s></s><em></em></i></span><b>'+n+'</b><small>'+d+'</small></button>').join('')+'</div>')+
+    row('drop','#6E8FA8','Liquid glass','Frosted, see-through panes over your vibe','<div class="seg" id="st-glass"></div><div class="glassamt" id="st-glamt-w"><input type="range" id="st-glamt" min="10" max="100" step="1" aria-label="How strong the glass is"><div class="rangeends"><span>Subtle</span><span>Strong</span></div></div>')+
     row('palette','var(--cherry)','Accent','Change just the highlight colour (Vibe’s own keeps the vibe’s)','<div class="swatches">'+ACCENTS.map(([k,n,c])=>'<button type="button" class="swatch" data-accent="'+k+'" aria-pressed="'+(UI.accent===k)+'"><i style="background:'+(k==='classic'?ownAccent():c)+'"></i>'+n+'</button>').join('')+'</div>')+
     row('leaf','#6B8E4E','App logo','In the top bar, the tab and on your home screen','<div class="logos">'+Object.entries(LOGOS).map(([k,[n]])=>'<button type="button" class="logopick" data-logo="'+k+'" aria-pressed="'+(UI.logo===k)+'"><span class="lg-tile">'+logoSVG(k,36)+'</span>'+n+'</button>').join('')+'</div><p class="setnote">'+(NATIVE&&plugin('AppIcon')?'Your home-screen icon changes to match a moment after you leave the app.':NATIVE?'The home-screen icon follows the logo from the next app update.':'The browser tab shows it too. In the Android app, the home-screen icon follows it.')+'</p>')+
     row('text','#C9964A','Text size','','<div class="seg" id="st-text"></div>')+
@@ -4034,6 +4047,10 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
     // New text size: the strip you tapped stays under your finger, and every highlight (strips and the nav bar) is measured again.
     scrollBy(0,st.getBoundingClientRect().top-y0);PILLPOS.clear();movePill();document.querySelectorAll(SEG_SEL).forEach(x=>segQueue(x))});
   seg('st-motion',[['full','Full'],['reduced','Reduced']],()=>UI.motion,v=>{UI.motion=v;saveUI();renderSettings(1)});
+  seg('st-glass',[['0','Off'],['1','On']],()=>UI.glass?'1':'0',v=>{UI.glass=v==='1';saveUI();renderSettings(1);toast(UI.glass?'Liquid glass on':'Liquid glass off')});
+  // The strength follows your finger as you slide (no redraw of the page) and is kept when you let go.
+  {const gr=$('st-glamt'),w=$('st-glamt-w');w.hidden=!UI.glass;if(+gr.value!==UI.glassAmt)gr.value=UI.glassAmt;
+    gr.oninput=()=>{UI.glassAmt=+gr.value;document.documentElement.style.setProperty('--g',UI.glassAmt/100)};gr.onchange=()=>save('bb-ui',UI)}
   if($('st-remind')){seg('st-remind',[['0','Off'],['1','Every day']],()=>REMIND.on?'1':'0',async v=>{await setReminder(v==='1');renderSettings(1)});
     $('st-rtime').onchange=async e=>{if(/^\d\d:\d\d$/.test(e.target.value)){REMIND.t=e.target.value;save('bb-remind',REMIND);await scheduleReminders();toast('Your coffee of the day arrives at '+REMIND.t)}}}
   if($('st-learn')){seg('st-learn',[['0','Off'],['1','Every day']],()=>LEARN.on?'1':'0',async v=>{await setLearn(v==='1');renderSettings(1)});
@@ -4079,10 +4096,15 @@ $('dial-share').onclick=()=>openShare(dialDoc());
 $('ab-back').onclick=()=>history.back();
 // The Android back gesture asks here first: close the top sheet, step back a screen, or scroll the first screen to its top. False means there is nothing
 // left to go back to, so the app goes to the background like any other.
-window.bbBack=()=>{const d=[...document.querySelectorAll('dialog[open]:not(.closing)')].pop();
+window.bbBack=()=>{
+  // An open + menu: back closes only it (before, back here found nothing to go back to and left the app).
+  if(FAB_OPEN){history.state&&history.state.fab?history.back():FAB_OPEN();return true}
+  const d=[...document.querySelectorAll('dialog[open]:not(.closing)')].pop();
   if(d){if(history.state&&history.state.dlg)history.back();else d.close();return true}
   // A screen to go back to: back goes there at once, to where you were on it.
   if(NAVD>0){history.back();return true}
+  // A step inside a page (a Beans view) that has its own history entry, even on the first page.
+  if(history.state&&history.state.bv){history.back();return true}
   // On the first screen, scrolled down: back goes to its top before it leaves the app.
   if(scrollY>80){scrollTo({top:0,behavior:RM()?'auto':'smooth'});return true}
   if(!document.getElementById('dial').classList.contains('on')){showTab('dial');NAVD=0;syncShell('dial');return true}
