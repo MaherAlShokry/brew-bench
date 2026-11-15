@@ -1252,12 +1252,24 @@ let EXPLORE_PRE=0;
 // on the tap: the stall on a section's first visit. Warming lays a hidden page out once in a quiet moment, still
 // unseen (it keeps no height), and a hidden page keeps that layout, so the first visit costs what a later one does.
 // A change of look restyles every page, so each is warmed again after one.
-const WARM=new Set(),WARMED=new Set();
+const WARM=new Set(),WARMED=new Set(),WARM_AUTO='.crow,.tl-e,.rgrp,.rrow,#bg-yic,.season,.tshelf,.bg-tools,.setgroup,.dy-grp,.card,.logentry,.wcard';
 function warmPage(id){const s=$(id);if(!s||s.classList.contains('on')||WARM.has(id))return false;WARM.add(id);
+  if(s._wvq&&!s._wvq.every(e=>e.isConnected))s._wvq=null;const more=!!s._wvq;
   // The first photos go in now too (from their small copies already read): put in as the page appeared, they laid it out a second time.
-  if(typeof loadImg==='function'&&window.BIMG)[...s.querySelectorAll('[data-bimg]')].slice(0,10).forEach(el=>{if((SMALLPIC(el)?BIMG.peekSmall:BIMG.peekThumb)(el.dataset.bimg)&&!el.closest('dialog'))loadImg(el)});
-  // The strips' highlights are placed while it's laid out, so showing the page later moves none of them.
-  s.classList.add('warm');try{s.getBoundingClientRect();const l=s.lastElementChild;if(l)l.getBoundingClientRect();if(typeof segBatch==='function'){const g=[...s.querySelectorAll(SEG_SEL)];if(g.length)segBatch(g,true)}}finally{s.classList.remove('warm')}return true}
+  if(!more&&typeof loadImg==='function'&&window.BIMG)[...s.querySelectorAll('[data-bimg]')].slice(0,10).forEach(el=>{if((SMALLPIC(el)?BIMG.peekSmall:BIMG.peekThumb)(el.dataset.bimg)&&!el.closest('dialog'))loadImg(el)});
+  s.classList.add('warm');let wv=[];try{const l=s.lastElementChild;
+    if(!more){s.getBoundingClientRect();if(l)l.getBoundingClientRect();
+      // Blocks that draw themselves only near the screen (content-visibility:auto: the coffee rows, the season and stats
+      // cards) were skipped here, so the first visit still styled and laid out every one in view, inside the slide. Those
+      // in the first screen and a half are laid out too, a few per quiet moment; they keep it while out of sight.
+      const top=s.getBoundingClientRect().top,lim=innerHeight*1.5;s._wvq=[...s.querySelectorAll(WARM_AUTO)].filter(e=>e.offsetParent&&e.getBoundingClientRect().top-top<lim).slice(0,40)}
+    wv=s._wvq.splice(0,3);if(!s._wvq.length)s._wvq=null;
+    if(wv.length){wv.forEach(e=>e.classList.add('wv'));s.getBoundingClientRect();if(l)l.getBoundingClientRect()}
+    // The strips' highlights are placed while it's laid out, so showing the page later moves none of them.
+    if(!more&&typeof segBatch==='function'){const g=[...s.querySelectorAll(SEG_SEL)];if(g.length)segBatch(g,true)}}
+  finally{s.classList.remove('warm');wv.forEach(e=>e.classList.remove('wv'))}
+  // More blocks to lay out: the page comes up again in the next quiet moment.
+  if(s._wvq)WARM.delete(id);return true}
 function prebuildTabs(){const ids=['recipes','gear','variety','process','map','words','history','flow','wheel','champs','tech'].filter(k=>LAZY[k]);
   // A step only starts in a real idle moment (not one the timeout forced). (The wait has an end: after 6 s a step goes
   // ahead in whatever idle time there is, or the rest would never be built.)
@@ -1280,7 +1292,7 @@ function prebuildTabs(){const ids=['recipes','gear','variety','process','map','w
     const cold=['recipes','beans','explore','settings','dial','log'].find(k=>(BUILT[k]||!LAZY[k])&&!WARM.has(k)&&$(k)&&!$(k).classList.contains('on'));
     // A page's first warming comes soon (you may tap it any moment after the app opens); warming it again (after it
     // changed, or the look did) waits for 3 s without a touch, so it doesn't land just before your next tap.
-    if(cold&&WARMED.has(cold)&&performance.now()-USER_AT<3000){setTimeout(()=>idle(next),600);return}
+    if(cold&&WARMED.has(cold)&&!$(cold)._wvq&&performance.now()-USER_AT<3000){setTimeout(()=>idle(next),600);return}
     if(cold){WARMED.add(cold);warmPage(cold);idle(next);return}
     // Then the sheets are opened once out of sight (so the first real one opens quickly): after the bottom-bar pages,
     // and only after 3 s without a touch, as each costs a phone a few dozen ms.
