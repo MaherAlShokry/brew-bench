@@ -2939,6 +2939,16 @@ textarea{resize:none}
 .me-tiles>div>b{grid-row:2;grid-column:1/-1;align-self:start;font-size:1.02rem!important;line-height:1.25!important}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .me-tiles>div{background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 26%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 13%,var(--surface))!important}:root:not([data-theme="light"]) .me-tiles>div>i .di{color:color-mix(in srgb,var(--tc) 70%,#fff)!important}:root:not([data-theme="light"]) .me-tiles>div>small{color:color-mix(in srgb,var(--tc) 45%,var(--muted))!important}}
 :root[data-theme="dark"] .me-tiles>div{background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 26%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 13%,var(--surface))!important}:root[data-theme="dark"] .me-tiles>div>i .di{color:color-mix(in srgb,var(--tc) 70%,#fff)!important}:root[data-theme="dark"] .me-tiles>div>small{color:color-mix(in srgb,var(--tc) 45%,var(--muted))!important}
+
+/* Closing animations to match the opening ones. A page inside a section closing (back) sinks away as it rose in,
+   on the page's own background, fading through to the page beneath (see navOut). */
+html{overflow-x:clip}
+main section.nav-out{content-visibility:visible!important;position:absolute!important;z-index:2;overflow:hidden!important;pointer-events:none;margin:0!important;padding-bottom:0!important;padding-left:0!important;padding-right:0!important;background:var(--paper);animation:nav-out-pop .26s cubic-bezier(.4,0,.8,.6) both}
+@keyframes nav-out-pop{to{opacity:0;transform:translate3d(0,48px,0) scale(.97)}}
+.ab-back.out{animation:pop-out .16s cubic-bezier(.4,0,1,1) both}
+.fbx.out{animation:pop-out .18s cubic-bezier(.4,0,1,1) both}
+@keyframes pop-out{to{opacity:0;transform:translateY(-6px) scale(.96)}}
+@media (prefers-reduced-motion:reduce){main section.nav-out{display:none}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
