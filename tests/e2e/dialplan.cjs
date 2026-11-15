@@ -19,5 +19,7 @@ if(two){const k0=await p.evaluate(()=>PLAN.opts.map(o=>o.k));
   const pk=await p.evaluate(()=>JSON.parse(localStorage.getItem('bb-planpend')||'{}').k);ok('applying one remembers it until the brew is rated',pk==='water'||pk==='grind',pk);
   await p.evaluate(()=>{planRated(5)});ok('the rating counts for it',await p.evaluate(k=>JSON.parse(localStorage.getItem('bb-planlearn'))[k][1]===5&&!localStorage.getItem('bb-planpend'),pk))}
 else ok('found a spot with two options',false);
-ok('log and save float as icons',await p.evaluate(()=>{const f=$('tolog').closest('.fab');return !!f&&getComputedStyle(f).position==='fixed'&&!$('tolog').textContent.trim()&&$('tolog').getAttribute('aria-label')==='Log this brew'}));
+ok('one + floats, its menu has log, save, a new recipe and scan',await p.evaluate(()=>{const f=$('d-fab');if(!f||getComputedStyle(f).position!=='fixed'||document.querySelectorAll('#dial .fab .ib').length!==1)return false;$('d-fab-add').click();return [...document.querySelectorAll('#d-fab .fab-mi')].map(x=>x.dataset.fab).join()==='log,save,recipe,scan'}));
+await p.evaluate(()=>document.querySelector('#d-fab [data-fab=log]').click());await p.waitForTimeout(700);
+ok('Log this brew from the menu goes to the log form',await p.evaluate(()=>document.querySelector('main section.on').id==='log'&&$('d-fab-menu')===null||document.querySelector('main section.on').id==='log'));
 ok('no errors',!errs.length,errs);await b.close()})();

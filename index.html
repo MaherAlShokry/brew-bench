@@ -90,12 +90,12 @@ button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visi
 
 .seg.scrollrow{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin-left:-4px;margin-right:-4px;padding:4px 28px 4px 4px;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}
 .seg.scrollrow::-webkit-scrollbar{display:none}
-.seg button[aria-pressed="true"]{background:var(--cherry);color:var(--surface);border-color:var(--cherry)}
+.seg button[aria-pressed="true"]{background:var(--cherry);color:var(--surface-ink,var(--surface));border-color:var(--cherry)}
 select,input[type=search],input[type=number],textarea,.logform input{width:100%;padding:9px 10px;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-family:var(--body);font-size:.95rem}
 input[type=range]{width:100%;accent-color:var(--cherry);height:28px}
 select,input[type=search],input[type=number],textarea{border-radius:12px!important}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.btn{padding:10px 16px;border-radius:999px;border:1px solid var(--cherry);background:var(--cherry);color:var(--surface);font-size:.92rem;cursor:pointer}
+.btn{padding:10px 16px;border-radius:999px;border:1px solid var(--cherry);background:var(--cherry);color:var(--surface-ink,var(--surface));font-size:.92rem;cursor:pointer}
 .btn.ghost{background:transparent;color:var(--cherry)}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .actions.two-up>.btn{flex:1 1 0;min-width:0;padding-left:10px;padding-right:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -310,7 +310,7 @@ dialog#vd::backdrop{background:rgba(20,14,10,.55)}
 .btn:active{transform:scale(.97)}
 button.chip,.seg button,.fstep,.fbr,.pn-h,.wcard,.ab-back{transition:transform .12s ease}
 button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.ab-back:active{transform:scale(.97)}
-#ts-chips .chip[aria-pressed="true"]{background:var(--cherry);color:var(--surface)}
+#ts-chips .chip[aria-pressed="true"]{background:var(--cherry);color:var(--surface-ink,var(--surface))}
 #toast{position:fixed;left:50%;bottom:calc(var(--sa-bottom) + 22px);transform:translate(-50%,30px);opacity:0;background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:999px;font-family:var(--display);font-size:.92rem;z-index:50;pointer-events:none;transition:opacity .25s,transform .25s;max-width:90vw;text-align:center}
 #toast.show{opacity:1;transform:translate(-50%,0)}
 
@@ -352,13 +352,13 @@ button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.a
 #pmap .pd:hover{r:9}
 .card.flash{animation:flash 1.2s ease}
 .roastery{display:flex;align-items:center;gap:12px;margin:10px 0 12px;padding:12px 14px;border-radius:16px;background:color-mix(in srgb,var(--honey) 14%,var(--surface));border:1px solid color-mix(in srgb,var(--honey) 35%,var(--line))}
-.roastery .ri{flex:none;width:40px;height:40px;border-radius:12px;background:var(--cherry);color:var(--surface);display:grid;place-items:center}.roastery .ri svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.roastery .ri{flex:none;width:40px;height:40px;border-radius:12px;background:var(--cherry);color:var(--surface-ink,var(--surface));display:grid;place-items:center}.roastery .ri svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .roastery small{display:block;color:var(--muted);font-size:.78rem}.roastery b{display:block;font-family:var(--display);font-size:1.05rem}
 .scan-sub{margin:-.1rem 0 .4rem;color:var(--muted)}
 
 .tm2{display:flex;flex-direction:column;gap:14px;padding:calc(var(--sa-top) + 14px) 18px calc(var(--sa-bottom) + 18px);min-height:100%}
 .tm-top{display:flex;align-items:flex-start;gap:12px}
-.tm-cues{display:flex;gap:8px;margin-left:auto;flex:none}.tm-cue svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.tm-cue[aria-pressed="true"]{background:var(--cherry);color:var(--surface)}
+.tm-cues{display:flex;gap:8px;margin-left:auto;flex:none}.tm-cue svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.tm-cue[aria-pressed="true"]{background:var(--cherry);color:var(--surface-ink,var(--surface))}
 .tm-head{flex:1;min-width:0}.tm-head h2{margin:2px 0 6px;font-size:1.25rem;line-height:1.25}
 .tm-meta{display:flex;flex-wrap:wrap;gap:6px}.tm-meta span{font-size:.8rem;font-weight:600;background:var(--surface2);border-radius:999px;padding:3px 10px;color:var(--ink)}
 .tm-ic{flex:none;width:42px;height:42px;border-radius:50%;border:0;background:var(--surface2);color:var(--ink);display:grid;place-items:center;cursor:pointer;transition:transform .12s}
@@ -401,7 +401,7 @@ button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.a
 .tm-dseg{display:flex;flex-wrap:wrap;gap:6px}.tm-dseg button{flex:1 1 28%;min-height:40px;font-size:.82rem;white-space:nowrap;overflow:visible;text-overflow:clip;padding:8px 6px}
 .tm-dres p,.tm-tres p{margin:10px 0 6px;font-size:.9rem;white-space:normal}.tm-dres .btn,.tm-tres .btn{width:100%}
 .tm-ctl{display:flex;align-items:center;justify-content:center;gap:26px;margin-top:2px}
-.tm-play{width:84px;height:84px;border-radius:50%;border:0;background:var(--cherry);color:var(--surface);display:grid;place-items:center;cursor:pointer;box-shadow:0 10px 26px color-mix(in srgb,var(--cherry) 40%,transparent);transition:transform .12s}
+.tm-play{width:84px;height:84px;border-radius:50%;border:0;background:var(--cherry);color:var(--surface-ink,var(--surface));display:grid;place-items:center;cursor:pointer;box-shadow:0 10px 26px color-mix(in srgb,var(--cherry) 40%,transparent);transition:transform .12s}
 .tm-play svg{width:34px;height:34px;fill:currentColor}.tm-play:active{transform:scale(.93)}
 .tm-all{border-top:1px solid var(--line);padding-top:10px}.tm-all summary{cursor:pointer;font-weight:600;color:var(--cherry)}
 #tm-list{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}
@@ -532,7 +532,7 @@ mark.wq{background:color-mix(in srgb,var(--honey) 40%,transparent);color:inherit
 .cmpbar .t i{position:absolute;left:calc(100% + 5px);top:50%;transform:translateY(-50%);font-style:normal;font-size:.72rem;color:var(--muted);font-variant-numeric:tabular-nums}
 .cmpbar .t b{display:block;height:100%;border-radius:4px}
 .addcmp{position:absolute;right:12px;top:10px;background:var(--surface2);border:0;border-radius:999px;padding:3px 10px;min-height:28px;font-family:var(--display);font-size:.78rem;cursor:pointer;color:var(--ink)}
-.addcmp[aria-pressed="true"]{background:var(--cherry);color:var(--surface)}
+.addcmp[aria-pressed="true"]{background:var(--cherry);color:var(--surface-ink,var(--surface))}
 .vcard{position:relative}
 .timeline li{opacity:1}
 .js-anim .timeline li{opacity:0;transform:translateX(-10px);transition:opacity .5s ease,transform .5s ease}
@@ -567,7 +567,7 @@ dialog#timer::backdrop{background:rgba(30,20,14,.6)}
 .sheetlist button{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:14px;border-radius:14px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-family:var(--display);font-size:1rem;cursor:pointer}
 .sheetlist button small{display:block;font-family:var(--body);color:var(--muted);font-size:.84rem}
 .sheetlist button .ic svg{width:21px;height:21px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.sheetlist button .ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex:none;color:var(--surface);font-size:1.1rem}
+.sheetlist button .ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex:none;color:var(--surface-ink,var(--surface));font-size:1.1rem}
 dialog#navsheet,dialog#sharesheet{border:0;border-radius:22px;padding:0;max-width:460px;width:calc(100% - 24px);background:var(--surface);color:var(--ink)}
 dialog#navsheet::backdrop,dialog#sharesheet::backdrop{background:rgba(30,20,14,.5)}
 .sheet{padding:18px 18px calc(18px + var(--sa-bottom));position:relative}
@@ -653,7 +653,7 @@ nav.tabs{background:none;border:0;backdrop-filter:none;-webkit-backdrop-filter:n
 nav.tabs .wrap{pointer-events:auto;width:fit-content;max-width:calc(100% - 24px);gap:2px;padding:5px;border-radius:999px;background:var(--nav-bg);backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4);border:1px solid color-mix(in srgb,var(--line) 70%,transparent);box-shadow:var(--float)}
 .tab{border:0;border-radius:999px;padding:8px 14px;font-size:.92rem;transition:background .2s,color .2s}
 .tab:hover{color:var(--ink);background:color-mix(in srgb,var(--surface2) 70%,transparent)}
-.tab[aria-selected="true"]{background:var(--cherry);color:var(--surface);border:0}
+.tab[aria-selected="true"]{background:var(--cherry);color:var(--surface-ink,var(--surface));border:0}
 
 
 .sharerow{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin:16px -6px 6px;padding-bottom:14px;border-bottom:1px solid var(--line)}
@@ -680,7 +680,7 @@ input[type=range]{touch-action:pan-y}
 .gpick{display:grid;gap:6px;margin-top:8px}.gpick h4{margin:.8rem 0 .2rem;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .gpick button{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:11px 14px;border-radius:var(--r-sm,12px);border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;cursor:pointer}
 .gpick button b{display:block;font-weight:600}.gpick button small{color:var(--muted)}.gpick button span{flex:1;min-width:0}
-.gpick .tick{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:.8rem;color:var(--surface)}
+.gpick .tick{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:.8rem;color:var(--surface-ink,var(--surface))}
 .gpick button[aria-pressed="true"]{border-color:var(--cherry);background:color-mix(in srgb,var(--cherry) 9%,var(--surface))}
 .gpick button[aria-pressed="true"] .tick{background:var(--cherry);border-color:var(--cherry)}
 .gpick-search{width:100%;margin-top:4px}
@@ -1168,7 +1168,7 @@ input[type=range]{accent-color:var(--cherry)}
 
 .seg.filters{gap:8px}
 .seg.filters button{border:0;background:var(--surface2);border-radius:var(--r-pill);padding:8px 14px;color:var(--ink);font-weight:500}
-.seg.filters button[aria-pressed="true"]{background:var(--cherry);color:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.14)}
+.seg.filters button[aria-pressed="true"]{background:var(--cherry);color:var(--surface-ink,var(--surface));box-shadow:0 1px 3px rgba(0,0,0,.14)}
 
 
 .mapbar{border-top:1px solid var(--hair)}
@@ -1335,7 +1335,7 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .rr-side{grid-column:2;display:flex;flex-direction:column;justify-content:space-between;align-items:center;gap:10px;padding:14px 14px 14px 4px}
 .rr-side .favbtn{position:static;width:40px;height:40px;background:var(--surface2)}.rr-side .favbtn svg{width:19px;height:19px}
 .rr-side .favbtn[aria-pressed="true"]{background:color-mix(in srgb,var(--cherry) 14%,var(--surface))}
-.rr-play{width:40px;height:40px;border-radius:50%;border:0;display:grid;place-items:center;background:var(--cherry);color:var(--surface);cursor:pointer;box-shadow:0 4px 12px -4px color-mix(in srgb,var(--cherry) 60%,transparent)}.rr-play svg{width:17px;height:17px;fill:currentColor;margin-left:2px}
+.rr-play{width:40px;height:40px;border-radius:50%;border:0;display:grid;place-items:center;background:var(--cherry);color:var(--surface-ink,var(--surface));cursor:pointer;box-shadow:0 4px 12px -4px color-mix(in srgb,var(--cherry) 60%,transparent)}.rr-play svg{width:17px;height:17px;fill:currentColor;margin-left:2px}
 .rr-play:active{transform:scale(.92)}
 @media (max-width:379px){.rr-m svg{display:none}.rr-m>span{padding:6px 7px}}
 @media (max-width:339px){.rr-open{padding-left:12px}.rr-side{padding-right:8px}.rr-m{font-size:.76rem}.rr-m>span{padding:6px 6px}}
@@ -1440,7 +1440,7 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .drecipe{margin-top:18px}.drecipe h2{margin:.1rem 0 .1rem}.drecipe .dr-meta{display:flex;flex-wrap:wrap;gap:6px;margin:.5rem 0 .8rem}
 .drecipe .dr-meta span{font-size:.8rem;border-radius:99px;padding:3px 10px;background:var(--surface2)}.drecipe .dr-meta .gl{background:color-mix(in srgb,var(--cherry) 15%,var(--surface));color:var(--cherry);font-weight:700}
 .drecipe .why li{margin:.25rem 0}.dr-cols{display:grid;gap:4px 28px}@media (min-width:900px){.dr-cols{grid-template-columns:1.1fr 1fr}}
-.mr-play{flex:none;width:36px;height:36px;border-radius:50%;border:0;display:grid;place-items:center;background:var(--cherry);color:var(--surface);cursor:pointer;margin-left:8px}.mr-play svg{width:16px;height:16px;fill:currentColor;margin-left:2px}
+.mr-play{flex:none;width:36px;height:36px;border-radius:50%;border:0;display:grid;place-items:center;background:var(--cherry);color:var(--surface-ink,var(--surface));cursor:pointer;margin-left:8px}.mr-play svg{width:16px;height:16px;fill:currentColor;margin-left:2px}
 
 
 .hubgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
@@ -1571,7 +1571,7 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .au-forgot{display:block;margin:-6px 0 12px auto}.au-who{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px;padding:10px 14px;border-radius:999px;background:var(--surface2);font-weight:600;font-size:.92rem}.au-who span{min-width:0;overflow-wrap:anywhere}.au-who .linkbtn{flex:none}
 .au-bio{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:56px;text-align:left}.au-bio svg{flex:none;width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}.au-bio span{display:flex;flex-direction:column;line-height:1.25}.au-bio small{font-weight:500;opacity:.8;font-size:.8rem}
 .au-gbtn{display:inline-flex;align-items:center;justify-content:center;gap:12px;width:min(100%,360px);min-height:44px;padding:0 18px;border-radius:999px;border:1px solid #DADCE0;background:#fff;color:#1F1F1F;font:500 .95rem/1 inherit;font-family:inherit;cursor:pointer}.au-gbtn svg{width:20px;height:20px;flex:none}.au-gbtn:disabled{opacity:.6}
-.appver{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:10px 12px;margin:0 0 18px;padding:14px;border-radius:20px;background:var(--surface);border:1px solid color-mix(in srgb,var(--line) 80%,transparent)}
+.appver{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start;gap:10px 12px;margin:0 0 18px;padding:14px;border-radius:20px;background:var(--surface);border:1px solid color-mix(in srgb,var(--line) 80%,transparent)}
 .appver.new{border-color:color-mix(in srgb,var(--leaf) 55%,var(--line));background:color-mix(in srgb,var(--leaf) 7%,var(--surface))}
 .appver>.ic{width:42px;height:42px;border-radius:13px;display:grid;place-items:center}.appver>.ic svg{width:22px;height:22px;fill:none;stroke:#FFFDF9;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .av-tx{display:flex;flex-direction:column;min-width:0}.av-tx b{font-family:var(--display);font-size:1rem}.av-tx small{color:var(--muted);font-size:.84rem}
@@ -1711,7 +1711,7 @@ h3.sec{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;ma
 .srow-pic svg{width:26px}.srow-pic .bo{fill:color-mix(in srgb,var(--cherry) 25%,var(--surface))}.srow-pic .bc{fill:none;stroke:var(--cherry);stroke-width:1.4}
 .srow-tx{min-width:0;display:flex;flex-direction:column;gap:2px}.srow-tx b{font-family:var(--display);font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.srow-tx small{font-size:.76rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .srow-add,.srow-in{flex:none;display:inline-flex;align-items:center;gap:4px;min-height:36px;padding:6px 12px;border-radius:var(--r-pill);border:0;font:inherit;font-size:.8rem;font-weight:700;cursor:pointer}
-.srow-add{background:var(--cherry);color:var(--surface)}.srow-acts{display:flex;gap:8px;flex:none}.srow-acts .ib.srow-in{background:color-mix(in srgb,var(--leaf) 18%,var(--surface2));color:var(--leaf-ink,var(--leaf))}.srow .srow-del{flex:none;margin-left:2px}.srow-in{background:color-mix(in srgb,var(--leaf) 16%,var(--surface2));color:var(--leaf-ink,var(--leaf))}
+.srow-add{background:var(--cherry);color:var(--surface-ink,var(--surface))}.srow-acts{display:flex;gap:8px;flex:none}.srow-acts .ib.srow-in{background:color-mix(in srgb,var(--leaf) 18%,var(--surface2));color:var(--leaf-ink,var(--leaf))}.srow .srow-del{flex:none;margin-left:2px}.srow-in{background:color-mix(in srgb,var(--leaf) 16%,var(--surface2));color:var(--leaf-ink,var(--leaf))}
 .srow-add svg,.srow-in svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 .pm-ph{flex-direction:column;gap:6px}.pm-ph small{font-size:.7rem;font-weight:700;color:rgba(255,248,238,.55)}
 button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.96)}.pm.empty .pm-card{transition:transform .15s}
@@ -1904,7 +1904,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .bd-step b{min-width:52px;text-align:center;font:700 .95rem var(--display);font-variant-numeric:tabular-nums}
 .bd-cupr .btn{min-height:40px;padding:0 16px;font-size:.88rem}
 .bd-auto{margin:8px 0 0;font-size:.8rem;color:var(--muted)}
-.bd-done{width:100%;margin-top:12px}
+.bd-done{width:100%;margin-top:14px}
 
 .vd-tools{position:absolute;right:62px;top:12px;display:flex;gap:8px}
 .vd-tool{width:40px;height:40px;border-radius:999px;border:0;background:var(--surface2);color:var(--ink);display:grid;place-items:center;cursor:pointer;padding:0}
@@ -1969,7 +1969,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .dwrite{padding:12px;border-radius:var(--r-lg);background:var(--surface2);margin-bottom:12px}
 .dmoms{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -12px 10px;padding:0 12px}.dmoms::-webkit-scrollbar{display:none}
 .dmoms button{flex:none;display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--r-pill);border:0;font:inherit;font-size:.82rem;font-weight:600;cursor:pointer;background:var(--surface);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
-.dmoms button[aria-pressed="true"]{background:var(--cherry);color:var(--surface);box-shadow:none}
+.dmoms button[aria-pressed="true"]{background:var(--cherry);color:var(--surface-ink,var(--surface));box-shadow:none}
 .dwrite textarea{width:100%;box-sizing:border-box;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r-md);padding:10px 12px}
 .dw-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}.dw-row input{flex:1 1 140px;min-width:0}.dw-row .btn{flex:1 1 auto}
 .dw-cam{display:inline-flex;align-items:center;justify-content:center;gap:6px}.dw-cam svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round}
@@ -2067,7 +2067,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .ro-gh .ro-mark{width:28px;height:28px;border-radius:9px;font-size:.72rem}
 
 .ro-logo-btn{position:relative;flex:none;padding:0;border:0;background:none;cursor:pointer;border-radius:16px}
-.ro-logo-ed{position:absolute;right:-5px;bottom:-5px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--cherry);color:var(--surface);box-shadow:0 0 0 2px var(--surface)}
+.ro-logo-ed{position:absolute;right:-5px;bottom:-5px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--cherry);color:var(--surface-ink,var(--surface));box-shadow:0 0 0 2px var(--surface)}
 .ro-logo-ed svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 .ro-title{position:relative}
 
@@ -2226,7 +2226,7 @@ body.t-dial.dial-ready .herowrap{display:none}
 
 .seg.bviews,.gtabs{display:flex!important;flex-wrap:nowrap!important;gap:2px!important;padding:4px!important;margin-left:0!important;margin-right:0!important;border-radius:var(--r-pill);background:color-mix(in srgb,var(--surface2) 88%,transparent)!important;border:1px solid color-mix(in srgb,var(--line) 60%,transparent);overflow:visible!important;-webkit-mask-image:none!important;mask-image:none!important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .seg.bviews button,.gtabs button{flex:1 1 auto!important;min-width:0;min-height:38px;display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:0 10px!important;border:0!important;border-radius:var(--r-pill)!important;background:transparent!important;box-shadow:none!important;color:var(--muted)!important;font-size:.84rem!important;font-weight:600;letter-spacing:0!important;white-space:nowrap;overflow:visible;text-overflow:clip}
-.seg.bviews button[aria-pressed="true"],.gtabs button[aria-pressed="true"]{background:var(--cherry)!important;color:var(--surface)!important;box-shadow:0 1px 3px rgba(0,0,0,.14)!important}
+.seg.bviews button[aria-pressed="true"],.gtabs button[aria-pressed="true"]{background:var(--cherry)!important;color:var(--surface-ink,var(--surface))!important;box-shadow:0 1px 3px rgba(0,0,0,.14)!important}
 .seg.bviews button i{margin:0!important;padding:0!important;background:none!important;color:inherit!important;font-size:.7rem!important;font-weight:700;opacity:.7;font-variant-numeric:tabular-nums}
 @media (max-width:399px){.seg.bviews button,.gtabs button{padding:0 6px!important;font-size:.8rem!important}}
 @media (max-width:359px){.seg.bviews button,.gtabs button{padding:0 4px!important;font-size:.74rem!important}.seg.bviews button i{display:none}}
@@ -2239,7 +2239,7 @@ body.t-dial.dial-ready .herowrap{display:none}
 .bpct{flex:none;position:relative;display:flex;align-items:center}.bvars .bpct input{width:78px;min-width:0;flex:none;padding-right:22px;text-align:right;font-variant-numeric:tabular-nums}
 .bpct span{position:absolute;right:10px;color:var(--muted);font-size:.85rem;pointer-events:none}.bpct-note{margin:6px 0 0;color:#9A6A12}
 .bv-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}.bv-head .lbl{margin:0;font-size:.92rem;font-weight:600}
-.bv-plus{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;padding:0;cursor:pointer;border:1px solid color-mix(in srgb,var(--cherry) 40%,var(--line));background:color-mix(in srgb,var(--cherry) 10%,var(--surface));color:var(--cherry-ink);transition:transform .15s,background-color .15s}
+.bv-plus{flex:none;height:30px;border-radius:999px;display:inline-flex;align-items:center;gap:4px;padding:0 12px 0 9px;margin-left:auto;font:700 .8rem var(--display);cursor:pointer;border:1px solid color-mix(in srgb,var(--cherry) 40%,var(--line));background:color-mix(in srgb,var(--cherry) 10%,var(--surface));color:var(--cherry-ink);transition:transform .15s,background-color .15s}
 .bv-plus svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
 .bv-plus:active{transform:scale(.9)}.bv-plus[hidden]{display:none}
 
@@ -2269,7 +2269,7 @@ body.t-dial.dial-ready .herowrap{display:none}
 .tn-o .tn-on{flex:1 1 auto;min-width:0;white-space:normal;overflow-wrap:anywhere}
 .tn-o small{color:var(--muted);font-size:.8rem;flex:none;text-align:right}.tn-o em{font-style:normal;font-size:.76rem;font-weight:700;color:var(--cherry-ink);flex:none}
 .tn-o{white-space:normal}
-.tn-new{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--cherry);color:var(--surface);flex:none}
+.tn-new{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--cherry);color:var(--surface-ink,var(--surface));flex:none}
 .tn-new svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;display:block}
 .tn-lbl{font-size:.74rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:2px 2px 6px}
 .tn-cs,.tn-fams{display:flex;flex-wrap:wrap;gap:6px}
@@ -2326,11 +2326,11 @@ body.t-dial.dial-ready .herowrap{display:none}
 .cal .cd{all:unset;box-sizing:border-box;display:grid;place-items:center;width:100%;max-width:44px;aspect-ratio:1;justify-self:center;border-radius:50%;color:var(--ink);font-family:var(--body);font-size:.95rem;font-variant-numeric:tabular-nums;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .cal .cd:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
 .cal .cd:hover{background:var(--surface2)}.cal .cd.today{box-shadow:inset 0 0 0 1.5px var(--cherry);color:var(--cherry-ink,var(--cherry));font-weight:700}
-.cal .cd[aria-pressed="true"]{background:var(--cherry);color:var(--surface);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.14)}
+.cal .cd[aria-pressed="true"]{background:var(--cherry);color:var(--surface-ink,var(--surface));font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.14)}
 .cal .cd:disabled{color:var(--muted);opacity:.4;cursor:default;background:none}
 .calmonths{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:4px 0}
 .cal .cm{box-shadow:none;padding:0;min-height:48px;border:0;border-radius:14px;background:var(--surface2);color:var(--ink);font:inherit;font-weight:600;cursor:pointer}
-.cm[aria-pressed="true"]{background:var(--cherry);color:var(--surface)}.cm:disabled{opacity:.35;cursor:default}
+.cm[aria-pressed="true"]{background:var(--cherry);color:var(--surface-ink,var(--surface))}.cm:disabled{opacity:.35;cursor:default}
 .calq{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}.calq .chip{cursor:pointer}.calq .calclear{margin-left:auto}.calq .chip:disabled{opacity:.4}
 dialog#selsheet.pop.dates .selhead{display:none}
 
@@ -2661,7 +2661,7 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 .hubcard .ic[class*=" t-"] svg{stroke:var(--surface)!important}
 .bshelf button{width:auto;flex-direction:row;align-items:center;gap:10px;padding:8px 18px 8px 8px;border-radius:999px}
 .bshelf .bs-top{display:flex}
-.bshelf .bs-top .bi{width:40px;height:40px;border-radius:999px;background:var(--cherry-ink,var(--cherry));color:var(--surface)}
+.bshelf .bs-top .bi{width:40px;height:40px;border-radius:999px;background:var(--cherry-ink,var(--cherry));color:var(--surface-ink,var(--surface))}
 .bshelf .bs-tx{display:flex;flex-direction:column;min-width:0}
 .bshelf .bs-tx b{white-space:nowrap!important;display:block!important}
 @media (min-width:760px){.hubgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.hubgrid .hubcard:nth-child(2){border-top:0}.hubgrid .hubcard:nth-child(even){border-left:1px solid var(--line)}}
@@ -2712,7 +2712,7 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
   box-shadow:inset 0 0 0 1px var(--hair);transition:transform .15s,background .15s}
 .ib svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .ib:active{transform:scale(.92)}.ib:disabled{opacity:.45;cursor:default;transform:none}.ib:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
-.ib.main{background:var(--cherry);color:var(--surface);box-shadow:0 6px 16px -8px color-mix(in srgb,var(--cherry) 75%,transparent)}
+.ib.main{background:var(--cherry);color:var(--surface-ink,var(--surface));box-shadow:0 6px 16px -8px color-mix(in srgb,var(--cherry) 75%,transparent)}
 .ib.danger{color:#B4472E}.ib.sm{width:36px;height:36px}.ib.sm svg{width:17px;height:17px}
 .ib-row{display:flex!important;flex-wrap:wrap;align-items:center;gap:10px}.tm-done.ib-row{justify-content:center}
 .crown-btn.ib{width:40px;height:40px}.sc-new.ib{display:grid;margin:14px auto 0}.fl-edit.ib{margin-top:10px}
@@ -2720,9 +2720,9 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 .fab{position:fixed;right:16px;bottom:calc(var(--sa-bottom) + 24px);z-index:28;display:flex;align-items:center;gap:10px}
 @media (max-width:759px){.fab{bottom:calc(var(--sa-bottom) + 96px)}}
 .fab .ib{width:56px;height:56px;background:var(--surface);box-shadow:0 10px 24px -10px rgba(0,0,0,.5),inset 0 0 0 1px var(--hair)}
-.fab .ib.main{background:var(--cherry);color:var(--surface)}.fab .ib svg{width:24px;height:24px;stroke-width:2.2}.fab .ib.main svg{stroke-width:2.6}
+.fab .ib.main{background:var(--cherry);color:var(--surface-ink,var(--surface))}.fab .ib svg{width:24px;height:24px;stroke-width:2.2}.fab .ib.main svg{stroke-width:2.6}
 main section.on:has(>.fab){padding-bottom:160px!important}
-@media (max-width:759px){body:has(main section.on>.fab) #toast{bottom:calc(var(--sa-bottom) + 166px)}}
+@media (max-width:759px){body.has-fab #toast{bottom:calc(var(--sa-bottom) + 166px)}}
 
 .le-b{width:40px;padding:0!important;justify-content:center}.le-b.again{width:40px;height:40px;padding:0!important}
 
@@ -2741,7 +2741,7 @@ main section.on:has(>.fab){padding-bottom:160px!important}
 .oplan-o{all:unset;box-sizing:border-box;position:relative;width:100%;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;align-items:center;column-gap:14px;padding:14px 12px 14px 16px;border-radius:16px;background:var(--surface);box-shadow:var(--shadow),inset 0 0 0 1px var(--hair);cursor:pointer;transition:transform .15s,box-shadow .15s}
 .oplan-o:active{transform:scale(.985)}.oplan-o:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
 .oplan-o:has(.oplan-best){box-shadow:var(--shadow),inset 0 0 0 1.5px color-mix(in srgb,var(--leaf) 55%,transparent);margin-top:8px}
-.oplan-best{position:absolute;top:0;left:14px;transform:translateY(-50%);padding:3px 9px;border-radius:var(--r-pill);background:var(--leaf);color:var(--surface);font-size:.64rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;line-height:1.2}
+.oplan-best{position:absolute;top:0;left:14px;transform:translateY(-50%);padding:3px 9px;border-radius:var(--r-pill);background:var(--leaf);color:var(--surface-ink,var(--surface));font-size:.64rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;line-height:1.2}
 .oplan-m{display:flex;flex-direction:column;gap:2px;min-width:0}
 .oplan-m+.oplan-m{padding-left:14px;border-left:1px solid var(--line)}
 .oplan-m small{font-size:.64rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
@@ -2788,20 +2788,69 @@ main section.on>.fab .ib+.ib{animation-delay:.05s}
 .fab-mi>span{padding:7px 12px;border-radius:999px;background:var(--surface);box-shadow:0 8px 20px -10px rgba(0,0,0,.45),inset 0 0 0 1px var(--hair);font:700 .84rem var(--display);color:var(--ink);white-space:nowrap}
 .fab-mi>i{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:var(--surface);color:var(--cherry);box-shadow:0 8px 20px -10px rgba(0,0,0,.45),inset 0 0 0 1px var(--hair)}
 .fab-mi>i svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.fab-mi:focus-visible>i{outline:2px solid var(--cherry);outline-offset:2px}
+.fab-mi:focus-visible{outline:none}.fab-mi:focus-visible>i{outline:2px solid var(--cherry);outline-offset:2px}
 @keyframes fabMi{from{opacity:0;transform:translateY(10px) scale(.9)}to{opacity:1;transform:none}}
 .fab-scrim{position:fixed;inset:0;z-index:27;background:color-mix(in srgb,var(--bg) 55%,transparent);backdrop-filter:blur(2px);animation:fabScrim .2s both}
 @keyframes fabScrim{from{opacity:0}to{opacity:1}}
-body:has(.fab-dial.open) #toast{opacity:0!important;pointer-events:none}
+html.fab-lock #toast{opacity:0!important;pointer-events:none}
+
+html.fab-lock,html.fab-lock body{overflow:hidden!important;overscroll-behavior:none}
+.fab-scrim{touch-action:none}
 @media (prefers-reduced-motion:reduce){main section.on>.fab .ib,.fab-mi,.fab-scrim{animation:none}.fab-main svg{transition:none}}
 
 textarea{resize:none}
+
+
+.pbtn{text-decoration:none!important;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:0 18px 0 14px;border:0;border-radius:999px;background:var(--surface2);color:var(--ink);font:700 .9rem var(--display);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .15s,background-color .15s}
+.pbtn:active{transform:scale(.97)}.pbtn:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
+.pbtn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.pbtn.main{background:var(--cherry);color:var(--surface-ink,var(--surface))}
+.pbtn.quiet{background:none;box-shadow:inset 0 0 0 1.5px var(--line)}
+.pbtn.danger{color:color-mix(in srgb,#D24B33 72%,var(--ink))}
+
+.setrow.setlink{all:unset;box-sizing:border-box;display:block;width:100%;padding:14px 16px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.setgroup>.setlink+.setrow,.setgroup>.setrow+.setlink{border-top:1px solid var(--line)}
+.setlink:focus-visible{outline:2px solid var(--cherry);outline-offset:-2px;border-radius:inherit}
+.setlink:active{background:color-mix(in srgb,var(--ink) 4%,transparent)}
+.setlink .sl{align-items:center}
+.setchev{flex:none;color:var(--muted);display:grid;place-items:center}.setchev svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.setrow .setbtns{display:flex;flex-wrap:wrap;gap:8px}
+.setrow>.setnote,.setrow>.setbtns{margin-left:48px!important}
+
+
+:root[data-vibe="glass"]{--paper:#EDEFF5;--surface:rgba(255,255,255,.62);--surface2:rgba(255,255,255,.46);--ink:#15171C;--muted:#555B6B;--line:rgba(24,30,52,.11);--cherry:#A05A28;--leaf:#2B7A4E;--honey:#A9771F;--cherry-ink:#93511F;--leaf-ink:#286C45;--honey-ink:#83601C;--surface-ink:#FFFFFF;--glass-edge:rgba(255,255,255,.78);--glass-shade:0 10px 30px -14px rgba(30,40,80,.30);--glass-bg:rgba(255,255,255,.55);--ocean:color-mix(in srgb,var(--cherry) 6%,#F4F6FB);--land:#E4E8F1;--belt:color-mix(in srgb,var(--honey) 12%,transparent)}
+@media (prefers-color-scheme:dark){:root[data-vibe="glass"]:not([data-theme="light"]){--paper:#0A0B10;--surface:rgba(44,46,58,.52);--surface2:rgba(255,255,255,.08);--ink:#F2F3F7;--muted:#A7ACBB;--line:rgba(255,255,255,.11);--cherry:#F0B27A;--leaf:#86D9A8;--honey:#F2C46B;--cherry-ink:#F0B27A;--leaf-ink:#86D9A8;--honey-ink:#F2C46B;--surface-ink:#1A1410;--glass-edge:rgba(255,255,255,.16);--glass-shade:0 14px 36px -14px rgba(0,0,0,.65);--glass-bg:rgba(38,40,52,.50);--ocean:color-mix(in srgb,var(--cherry) 6%,#12141B);--land:#262934;--belt:color-mix(in srgb,var(--honey) 12%,transparent)}}
+:root[data-vibe="glass"][data-theme="dark"]{--paper:#0A0B10;--surface:rgba(44,46,58,.52);--surface2:rgba(255,255,255,.08);--ink:#F2F3F7;--muted:#A7ACBB;--line:rgba(255,255,255,.11);--cherry:#F0B27A;--leaf:#86D9A8;--honey:#F2C46B;--cherry-ink:#F0B27A;--leaf-ink:#86D9A8;--honey-ink:#F2C46B;--surface-ink:#1A1410;--glass-edge:rgba(255,255,255,.16);--glass-shade:0 14px 36px -14px rgba(0,0,0,.65);--glass-bg:rgba(38,40,52,.50);--ocean:color-mix(in srgb,var(--cherry) 6%,#12141B);--land:#262934;--belt:color-mix(in srgb,var(--honey) 12%,transparent)}
+:root[data-vibe="glass"]{background:var(--paper)}
+:root[data-vibe="glass"] body{background:transparent}
+
+:root[data-vibe="glass"]::before{content:'';position:fixed;inset:-12%;z-index:-1;pointer-events:none;background:
+  radial-gradient(38% 30% at 12% 8%,color-mix(in srgb,var(--cherry) 42%,transparent),transparent 72%),
+  radial-gradient(42% 34% at 92% 26%,rgba(110,140,255,.34),transparent 72%),
+  radial-gradient(46% 38% at 22% 70%,rgba(255,130,180,.24),transparent 72%),
+  radial-gradient(40% 36% at 86% 88%,color-mix(in srgb,var(--leaf) 34%,transparent),transparent 72%)}
+:root[data-vibe="glass"] body::before,:root[data-vibe="glass"] body::after{display:none}
+
+:root[data-vibe="glass"] :is(.panel,.setgroup,.clist,.logentry,.rgrp,.qtool,.cupcard,.appver,.card,.oplan,.hubgrid,.yic,.tshelf,.specs>div,.bd-shelf,.lastbrew,.today,.welcome,.rrow,.crow.rov-row,.qlinks,.oplan-o,.re-card,.dwrite,.bg-gh,.seg,.ls-t){
+  background-color:var(--surface)!important;border-color:var(--glass-edge)!important;box-shadow:inset 0 1px 0 var(--glass-edge),var(--glass-shade)!important}
+:root[data-vibe="glass"] :is(.panel,.setgroup,.clist,.logentry,.qtool,.cupcard,.appver,.card,.hubgrid,.yic,.bd-shelf,.lastbrew,.today,.welcome,.rgrp,.qlinks){-webkit-backdrop-filter:blur(22px) saturate(170%);backdrop-filter:blur(22px) saturate(170%)}
+:root[data-vibe="glass"] :is(.panel,.setgroup,.clist,.rgrp) :is(.re-card,.oplan-o,.seg,.dwrite,.ls-t,.rrow){box-shadow:inset 0 1px 0 var(--glass-edge)!important;-webkit-backdrop-filter:none;backdrop-filter:none}
+
+:root[data-vibe="glass"] :is(.appbar,.bottomnav){background:var(--glass-bg)!important;-webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%);border-color:var(--glass-edge)!important;box-shadow:inset 0 1px 0 var(--glass-edge),var(--glass-shade)!important}
+:root[data-vibe="glass"] :is(dialog#vd,dialog#sharesheet,dialog#selsheet){background:var(--glass-bg)!important;-webkit-backdrop-filter:blur(34px) saturate(180%);backdrop-filter:blur(34px) saturate(180%);box-shadow:inset 0 1px 0 var(--glass-edge),0 -10px 40px -16px rgba(0,0,0,.35)!important}
+:root[data-vibe="glass"] dialog#timer{background:color-mix(in srgb,var(--paper) 70%,transparent)!important;-webkit-backdrop-filter:blur(30px) saturate(170%);backdrop-filter:blur(30px) saturate(170%)}
+:root[data-vibe="glass"] :is(.fab .ib:not(.main),.fab-mi>span,.fab-mi>i,.ib:not(.main),.pbtn:not(.main):not(.quiet),.vd-tool,.vd-close,.sh-mini){background:var(--glass-bg)!important;-webkit-backdrop-filter:blur(16px) saturate(170%);backdrop-filter:blur(16px) saturate(170%);box-shadow:inset 0 1px 0 var(--glass-edge),0 6px 16px -10px rgba(0,0,0,.35)!important}
+:root[data-vibe="glass"] :is(.ib.main,.pbtn.main,.btn:not(.ghost)){box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 8px 20px -10px color-mix(in srgb,var(--cherry) 70%,transparent)!important}
+:root[data-vibe="glass"] #toast{background:var(--glass-bg)!important;color:var(--ink)!important;-webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);box-shadow:inset 0 1px 0 var(--glass-edge),var(--glass-shade)!important}
+:root[data-vibe="glass"] :is(input:not([type=range]):not([type=checkbox]):not([type=radio]),select,textarea){background-color:var(--surface2)!important;border-color:var(--glass-edge)!important}
+:root[data-vibe="glass"] .dir.coarse{color:var(--cherry-ink)}
+@media (prefers-reduced-transparency:reduce){:root[data-vibe="glass"]{--surface:var(--paper)}}
 </style>
 <script>const JSPDF_SRC="vendor/jspdf.umd.min.js"</script>
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="2d282901518b"</script>
+<script>const BUILD_ID="39e91fa907e2"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -3014,7 +3063,7 @@ textarea{resize:none}
       </div>
 </div></details>
 <details class="dstep" data-step="tune" open><summary><span class="dn">4</span><span class="dst"><b>Fine-tune</b><small id="ds-tune"></small></span><span class="dchev" aria-hidden="true"></span></summary><div class="dstep-in"><p class="hint dstep-lead">Tuned for your coffee and target. Adjust by taste.</p>
-      <div class="field"><label for="i-grind">Grind <span><span class="num" id="v-grind"></span></span></label><input type="range" id="i-grind"><div class="dialrow"><svg id="dialsvg" class="dialmini" viewBox="0 0 160 160" aria-hidden="true"></svg><p class="hint" style="margin:0">Dials read number.click. Tap <b>Gear and dials</b> for how each grinder works.</p></div></div>
+      <div class="field"><label for="i-grind">Grind <span><span class="num" id="v-grind"></span></span></label><input type="range" id="i-grind"><div class="dialrow"><svg id="dialsvg" class="dialmini" viewBox="0 0 160 160" aria-hidden="true"></svg><p class="hint" style="margin:0">Dials read number.click. <button type="button" class="linkbtn" data-gearto="dials">How each grinder reads</button></p></div></div>
       <div class="two">
         <div class="field"><label for="i-temp">Water <span class="num" id="v-temp"></span></label><input type="range" id="i-temp" min="85" max="100" step="1"></div>
         <div class="field"><label for="i-ratio">Ratio <span class="num" id="v-ratio"></span></label><input type="range" id="i-ratio" min="13" max="18" step="0.5"></div>
@@ -3045,7 +3094,8 @@ textarea{resize:none}
   </div>
   <div class="panel drecipe" id="d-recipe" hidden></div>
 <!-- The page's actions, as icons, at the bottom within reach of your thumb (above the tab bar). -->
-<div class="fab" role="group" aria-label="Brew actions"><button type="button" class="ib" id="dial-share" aria-label="Share this brew" title="Share this brew" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg></button><button type="button" class="ib" id="tosave" aria-label="Save as recipe" title="Save as recipe"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10a1 1 0 0 1 1 1v15l-6-4-6 4V5a1 1 0 0 1 1-1z"/></svg></button><button type="button" class="ib main" id="tolog" aria-label="Log this brew" title="Log this brew"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14 M5 12h14"/></svg></button></div>
+<div class="fab fab-dial" id="d-fab" role="group" aria-label="Brew actions"><div class="fab-menu" role="menu" hidden></div><button type="button" class="ib main fab-main" id="d-fab-add" aria-label="Brew shortcuts" title="Brew shortcuts" aria-haspopup="menu" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14 M5 12h14"/></svg></button></div>
+<div class="fab-acts" hidden><button type="button" class="ib" id="dial-share" aria-label="Share this brew" title="Share this brew" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg></button><button type="button" class="ib" id="tosave" aria-label="Save as recipe" title="Save as recipe"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10a1 1 0 0 1 1 1v15l-6-4-6 4V5a1 1 0 0 1 1-1z"/></svg></button><button type="button" class="ib main" id="tolog" aria-label="Log this brew" title="Log this brew"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14 M5 12h14"/></svg></button></div>
 </section>
 
 <!-- SCAN -->
@@ -6694,7 +6744,7 @@ const BNORD=['dial','recipes','beans','explore','settings'];
 let NAV_READY=false;
 let NAV_AT=-1e9;
 const PAGE_Y={};
-function showTab(id,fromHistory,pure){NAV_AT=performance.now();if(window.closeBeansFab)closeBeansFab();ensureTab(id);
+function showTab(id,fromHistory,pure){NAV_AT=performance.now();if(window.closeBeansFab)closeBeansFab();ensureTab(id);{const sec=$(id);document.body.classList.toggle('has-fab',!!(sec&&sec.querySelector(':scope>.fab')))}
   // The page on show, for the few styles that depend on it (a class here, not a :has() over the whole page, which
   // made the browser recheck every style on each change while a big page was drawn).
   if(document.documentElement.dataset.tab!==id)document.documentElement.dataset.tab=id;
@@ -6777,14 +6827,19 @@ document.addEventListener('cancel',e=>{if(e.target.tagName==='DIALOG'){e.prevent
 // Open a dialog; reopening one that is sliding away just keeps it.
 // Opening a sheet: background building waits (NAV_AT), and the slide starts two frames after the sheet is shown, once
 // its content is laid out, so the first frames of the slide aren't skipped while the browser catches up.
+let KEYNAV=false;addEventListener('keydown',e=>{if(e.key==='Tab')KEYNAV=true},true);addEventListener('pointerdown',()=>{KEYNAV=false},true);
 function showDlg(d){NAV_AT=performance.now();if(d.classList.contains('closing')){d.classList.remove('closing');return}
-  if(!d.open){d.classList.add('dlg-pre');try{d.showModal()}catch(e){d.setAttribute('open','')}requestAnimationFrame(()=>requestAnimationFrame(()=>d.classList.remove('dlg-pre')))}}
-addEventListener('popstate',()=>{const open=[...document.querySelectorAll('dialog[open]:not(.closing)')];
+  if(!d.open){d.classList.add('dlg-pre');try{d.showModal()}catch(e){d.setAttribute('open','')}
+    // Opening a sheet focuses its first button (Close), which drew its focus ring before anything was pressed.
+    {const f=document.activeElement;if(f&&d.contains(f)&&f.matches('.vd-close,.vd-tool,button')&&!KEYNAV)f.blur()}requestAnimationFrame(()=>requestAnimationFrame(()=>d.classList.remove('dlg-pre')))}}
+addEventListener('popstate',()=>{if(FAB_POP())return;const open=[...document.querySelectorAll('dialog[open]:not(.closing)')];
   if(BACKING){BACKING=false;try{if(PEND_TAB&&location.hash!=='#'+PEND_TAB)history.pushState(null,'','#'+PEND_TAB);if(open.length)history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}PEND_TAB=null;return}
   if(open.length){const top=DSTACK.filter(d=>d.open&&!d.classList.contains('closing')).pop();
     if(top&&top.id==='vd'&&VD_HIST.length){const e=VD_HIST.pop();if(VD_BACK){const f=VD_BACK;VD_BACK=null;VD_RESTORING=true;try{f()}finally{VD_RESTORING=false}VD_CUR=e.f;VD_KEY=e.k;const d=$('vd');d.scrollTop=e.y;requestAnimationFrame(()=>{d.scrollTop=e.y})}else vdRestore(e);return}
     if(top&&top.id==='vd'&&VD_BACK){const f=VD_BACK;VD_BACK=null;try{history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}VD_RESTORING=true;try{f()}finally{VD_RESTORING=false}return}
     if(top){top.dataset.popped=1;top.close()}else open.forEach(d=>d.close());return}
+  // Inside Beans, back from another view returns to Coffees first.
+  if(typeof bvBack==='function'&&location.hash==='#beans'&&bvBack())return;
   let h=location.hash.slice(1);if(h==='more')h='settings';if(openRoute(h))return;const id=h&&$(h)&&$(h).tagName==='SECTION'?h:'dial';if(!$(id).classList.contains('on')){NAVD=Math.max(0,NAVD-1);showTab(id,true,true)}});
 document.querySelector('[role=tablist]').onclick=e=>{const t=e.target.closest('.tab');if(t)showTab(t.dataset.t,false,true)};
 
@@ -7140,17 +7195,35 @@ function openRecipeEditor(r,fresh){const isNew=!r||fresh;r=Object.assign({b:'v60
   const d=$('vd');showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
 // The Brew log and Beans pages' own floating buttons: log a brew (up to the form, ready to type) and add a coffee.
 $('l-fab-new').onclick=()=>{const f=$('l-form');f.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});setTimeout(()=>{const c=$('l-coffee-f').hidden?null:$('l-coffee');if(c)c.focus({preventScroll:true})},350)};
-// The Beans + opens a small menu of what you can add here (a shortcut for the tab).
-{const FAB_ITEMS=[['scan','Scan a bag','scan',()=>{showTab('scan');newScan();scrollTo(0,0)}],['bean','Add a coffee','bag',()=>openBeanEditor(null)],
-    ['advent','Add an advent calendar','gift',()=>openCalEditor(null)],['roastery','Add a roastery','store',()=>openAddRoastery()]];
-  const f=$('b-fab'),m=$('b-fab-menu'),b=$('b-fab-add');let scrim=null;
-  const close=()=>{if(m.hidden)return;m.hidden=true;f.classList.remove('open');b.setAttribute('aria-expanded','false');if(scrim){scrim.remove();scrim=null}};
-  const open=()=>{m.innerHTML=FAB_ITEMS.map(([k,l,ic],i)=>'<button type="button" class="fab-mi" role="menuitem" data-fab="'+k+'" style="--k:'+(FAB_ITEMS.length-1-i)+'"><span>'+l+'</span><i aria-hidden="true">'+lIc(ic)+'</i></button>').join('');
-    m.hidden=false;f.classList.add('open');b.setAttribute('aria-expanded','true');scrim=document.createElement('div');scrim.className='fab-scrim';scrim.onclick=close;f.before(scrim);const x=m.querySelector('.fab-mi');if(x)x.focus({preventScroll:true})};
+// A page's + is a shortcut menu of what you can do or add there. While it's open the page underneath stays put, and
+// back (the gesture or button) only closes it. One menu is open at a time.
+let FAB_OPEN=null,FAB_BACKING=false,FAB_AFTER=null;
+function fabMenu(fabId,items){const f=$(fabId),m=f.querySelector('.fab-menu'),b=f.querySelector('.fab-main');let scrim=null;
+  const lockOn=on=>document.documentElement.classList.toggle('fab-lock',on);
+  const close=(fromPop,after)=>{if(m.hidden)return;m.hidden=true;f.classList.remove('open');b.setAttribute('aria-expanded','false');lockOn(false);if(scrim){scrim.remove();scrim=null}FAB_OPEN=null;
+    // Closed by a tap or a pick: take back the step it added, then do the pick once history has settled.
+    if(!fromPop&&history.state&&history.state.fab){FAB_BACKING=true;FAB_AFTER=after||null;history.back()}else if(after)after()};
+  const open=()=>{if(FAB_OPEN)FAB_OPEN();m.innerHTML=items().map(([k,l,ic],i,a)=>'<button type="button" class="fab-mi" role="menuitem" data-fab="'+k+'" style="--k:'+(a.length-1-i)+'"><span>'+l+'</span><i aria-hidden="true">'+lIc(ic)+'</i></button>').join('');
+    m.hidden=false;f.classList.add('open');b.setAttribute('aria-expanded','true');lockOn(true);
+    scrim=document.createElement('div');scrim.className='fab-scrim';scrim.onclick=()=>close();
+    // A finger dragging on the scrim doesn't scroll the page behind it.
+    scrim.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});scrim.addEventListener('wheel',e=>e.preventDefault(),{passive:false});
+    f.before(scrim);FAB_OPEN=()=>close(true);try{history.pushState({fab:1},'',location.hash||'#dial')}catch(e){}
+    const x=m.querySelector('.fab-mi');if(x)x.focus({preventScroll:true})};
   b.onclick=()=>m.hidden?open():close();
-  m.onclick=e=>{const it=e.target.closest('[data-fab]');if(!it)return;const go=FAB_ITEMS.find(x=>x[0]===it.dataset.fab);close();if(go)go[3]()};
-  document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
-  window.addEventListener('hashchange',close);window.closeBeansFab=close}
+  m.onclick=e=>{const it=e.target.closest('[data-fab]');if(!it)return;const go=items().find(x=>x[0]===it.dataset.fab);close(false,go&&go[3])};
+  return{close:()=>close()}}
+// The menu's part of going back: true when back only closed it (or was its own step being taken back).
+function FAB_POP(){if(FAB_BACKING){FAB_BACKING=false;const a=FAB_AFTER;FAB_AFTER=null;if(a)setTimeout(a,0);return true}
+  if(FAB_OPEN){FAB_OPEN();return true}return false}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&FAB_OPEN){e.preventDefault();history.state&&history.state.fab?history.back():FAB_OPEN()}});
+window.closeBeansFab=()=>{if(FAB_OPEN)FAB_OPEN()};
+// Beans: add to your collection.
+fabMenu('b-fab',()=>[['scan','Scan a bag','scan',()=>{showTab('scan');newScan();scrollTo(0,0)}],['bean','Add a coffee','bag',()=>openBeanEditor(null)],
+  ['advent','Add an advent calendar','gift',()=>openCalEditor(null)],['roastery','Add a roastery','store',()=>openAddRoastery()]].concat(SCANS.length?[['scans','Your scans','timer',()=>{goTab('beans');bvStep(BVIEW,'scans');BVIEW='scans';BDIRTY.add('scans');renderBeanViews()}]]:[]));
+// Brew: log or keep this brew, write a recipe, or scan a bag to brew.
+fabMenu('d-fab',()=>[['log','Log this brew','log',()=>$('tolog').click()],['save','Save as a recipe','mark',()=>$('tosave').click()],
+  ['recipe','Create a recipe','edit',()=>openRecipeEditor(null)],['scan','Scan a bag','scan',()=>{showTab('scan');newScan();scrollTo(0,0)}]]);
 // Save the current dial-in as a starting recipe.
 $('tosave').onclick=()=>{const dp=dialPlan();
   if(dp){const off=Math.round(stepsBetween(S.grinder,baseX(S.grinder,S.brewer),S.setting)*10)/10;
@@ -7834,7 +7907,7 @@ function drawLSet(){const el=$('lset');if(!el)return;const o=LS,B=o.b&&BREWERS[o
     // The ratio: its name on the left, the ratio and what it tastes like on the right, then where it sits from strong to light.
     '<div class="ls-ratio'+(ra?'':' empty')+'"><div class="ls-rtop"><span class="ls-l">Ratio</span>'+(ra?'<span class="ls-rv"><b>1:'+rr1(ra)+'</b><em>'+lsWord(ra)+'</em></span>':'<span class="ls-rv"><small>Set coffee and water</small></span>')+'</div>'+
     '<div class="ls-bar"><i style="left:'+pos.toFixed(1)+'%"></i></div><div class="ls-ends"><span>Stronger</span><span>Lighter</span></div></div>'+
-    '<input id="ls-x" class="ls-x" placeholder="Anything else? Bloom 45 s, two swirls…" value="'+esc(o.extra)+'" aria-label="Other settings">'}
+    '<input id="ls-x" class="ls-x" placeholder="Anything else? Two swirls…" value="'+esc(o.extra)+'" aria-label="Other settings">'}
 function lsDefault(k){const o=LS,r=o.rec;
   if(k==='dose')return r?r.dose:15;if(k==='water')return r?r.water:Math.round((o.dose||15)*16);if(k==='temp')return r&&r.temp?r.temp:93;return null}
 $('lset').addEventListener('click',e=>{const bt=e.target.closest('[data-ls]');if(!bt)return;const k=bt.dataset.ls,d=+bt.dataset.d,o=LS;
@@ -7872,9 +7945,11 @@ function renderLastBrew(){const el=$('lastbrew');if(!el)return;const l=LOG.find(
 /* ---------- The list of brews: search, filters, sort, and each brew as a card ---------- */
 let LF=Object.assign({q:'',who:[],min:0,sort:'new'},VW_KEEP?load('bb-logfilter',{}):{});LF.q='';if(!Array.isArray(LF.who))LF.who=LF.who&&LF.who!=='all'?[LF.who]:[];
 const LOG_SORTS=[['new','Newest'],['old','Oldest'],['top','Highest rated'],['az','Coffee A–Z']];
-const LI={again:'M8 5v14l11-7z',share:'M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5',edit:'M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4',del:'M5 7h14 M10 7V4.8h4V7 M7 7l.8 12.2a1.6 1.6 0 0 0 1.6 1.5h5.2a1.6 1.6 0 0 0 1.6-1.5L17 7',search:'M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4',plus:'M12 5v14 M5 12h14',dl:'M12 4v11 M7.5 10.5L12 15l4.5-4.5 M5 19.5h14',ul:'M12 15V4 M7.5 8.5L12 4l4.5 4.5 M5 19.5h14',mark:'M7 4h10a1 1 0 0 1 1 1v15l-6-4-6 4V5a1 1 0 0 1 1-1z',log:'M6 4h11a1 1 0 0 1 1 1v15H8a2 2 0 0 1-2-2z M12 8v6 M9 11h6',cam:'M4 8h3l2-2.5h6L17 8h3v11H4z M12 10.5a3 3 0 1 0 0 6a3 3 0 1 0 0-6z',reset:'M4 12a8 8 0 1 0 2.3-5.6 M4 4v5h5',swap:'M7 7h13 M16 3l4 4-4 4 M17 17H4 M8 13l-4 4 4 4',cmp:'M9 4H5v16h4 M15 4h4v16h-4 M12 2v20',bulb:'M9 18h6 M10 21h4 M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z',open:'M14 4h6v6 M20 4l-9 9 M18 14v6H4V6h6',x:'M6 6l12 12 M18 6L6 18',minus:'M5 12h14',bag:'M6 8h12l-1.2 12H7.2z M9 8V6.5a3 3 0 0 1 6 0V8',gift:'M4 11h16v9H4z M3 7.5h18V11H3z M12 7.5V20 M12 7.5C10.5 4 7 4 7 6s3 1.5 5 1.5 M12 7.5C13.5 4 17 4 17 6s-3 1.5-5 1.5',store:'M4 10l1.5-5h13L20 10 M5 10v9h14v-9 M4 10a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0 M10 19v-4h4v4',wheel:'M12 3.5a8.5 8.5 0 1 0 0 17a8.5 8.5 0 1 0 0-17z M12 3.5v8.5l7.4 4.2M12 12l-7.4 4.2',sweep:'M20 4l-8.5 8.5 M13.5 14.5l-4-4-2.5 1.5c-1.5 1-3 3.5-3.5 8.5 5-.5 7.5-2 8.5-3.5z M7 17l2-2',ice:'M12 3v18 M4.2 7.5l15.6 9 M4.2 16.5l15.6-9 M9.5 4.5L12 7l2.5-2.5 M9.5 19.5L12 17l2.5 2.5',info:'M21 12a9 9 0 1 1-18 0a9 9 0 1 1 18 0z M12 11v5 M12 8h.01',ok:'M5 12.5l4.5 4.5L19 7.5',flag:'M5 21V4 M5 4h12l-2.5 4 2.5 4H5',timer:'M12 9v4l2.5 1.5 M9.5 2.5h5 M12 21a8 8 0 1 0 0-16a8 8 0 1 0 0 16z',scan:'M4 8V6a2 2 0 0 1 2-2h2 M16 4h2a2 2 0 0 1 2 2v2 M20 16v2a2 2 0 0 1-2 2h-2 M8 20H6a2 2 0 0 1-2-2v-2 M12 8.5c2 0 3.5 1.6 3.5 3.5S14 15.5 12 15.5 8.5 14 8.5 12 10 8.5 12 8.5z',cup:'M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z M16 10h2a2 2 0 0 1 0 4h-2 M9 3v3 M12 3v3'};
+const LI={again:'M8 5v14l11-7z',share:'M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5',edit:'M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4',del:'M5 7h14 M10 7V4.8h4V7 M7 7l.8 12.2a1.6 1.6 0 0 0 1.6 1.5h5.2a1.6 1.6 0 0 0 1.6-1.5L17 7',search:'M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4',plus:'M12 5v14 M5 12h14',dl:'M12 4v11 M7.5 10.5L12 15l4.5-4.5 M5 19.5h14',ul:'M12 15V4 M7.5 8.5L12 4l4.5 4.5 M5 19.5h14',mark:'M7 4h10a1 1 0 0 1 1 1v15l-6-4-6 4V5a1 1 0 0 1 1-1z',log:'M6 4h11a1 1 0 0 1 1 1v15H8a2 2 0 0 1-2-2z M12 8v6 M9 11h6',cam:'M4 8h3l2-2.5h6L17 8h3v11H4z M12 10.5a3 3 0 1 0 0 6a3 3 0 1 0 0-6z',reset:'M4 12a8 8 0 1 0 2.3-5.6 M4 4v5h5',swap:'M7 7h13 M16 3l4 4-4 4 M17 17H4 M8 13l-4 4 4 4',cmp:'M9 4H5v16h4 M15 4h4v16h-4 M12 2v20',bulb:'M9 18h6 M10 21h4 M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z',open:'M14 4h6v6 M20 4l-9 9 M18 14v6H4V6h6',x:'M6 6l12 12 M18 6L6 18',minus:'M5 12h14',chev:'M9 6l6 6-6 6',bag:'M6 8h12l-1.2 12H7.2z M9 8V6.5a3 3 0 0 1 6 0V8',gift:'M4 11h16v9H4z M3 7.5h18V11H3z M12 7.5V20 M12 7.5C10.5 4 7 4 7 6s3 1.5 5 1.5 M12 7.5C13.5 4 17 4 17 6s-3 1.5-5 1.5',store:'M4 10l1.5-5h13L20 10 M5 10v9h14v-9 M4 10a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0 M10 19v-4h4v4',wheel:'M12 3.5a8.5 8.5 0 1 0 0 17a8.5 8.5 0 1 0 0-17z M12 3.5v8.5l7.4 4.2M12 12l-7.4 4.2',sweep:'M20 4l-8.5 8.5 M13.5 14.5l-4-4-2.5 1.5c-1.5 1-3 3.5-3.5 8.5 5-.5 7.5-2 8.5-3.5z M7 17l2-2',ice:'M12 3v18 M4.2 7.5l15.6 9 M4.2 16.5l15.6-9 M9.5 4.5L12 7l2.5-2.5 M9.5 19.5L12 17l2.5 2.5',info:'M21 12a9 9 0 1 1-18 0a9 9 0 1 1 18 0z M12 11v5 M12 8h.01',ok:'M5 12.5l4.5 4.5L19 7.5',flag:'M5 21V4 M5 4h12l-2.5 4 2.5 4H5',timer:'M12 9v4l2.5 1.5 M9.5 2.5h5 M12 21a8 8 0 1 0 0-16a8 8 0 1 0 0 16z',scan:'M4 8V6a2 2 0 0 1 2-2h2 M16 4h2a2 2 0 0 1 2 2v2 M20 16v2a2 2 0 0 1-2 2h-2 M8 20H6a2 2 0 0 1-2-2v-2 M12 8.5c2 0 3.5 1.6 3.5 3.5S14 15.5 12 15.5 8.5 14 8.5 12 10 8.5 12 8.5z',cup:'M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z M16 10h2a2 2 0 0 1 0 4h-2 M9 3v3 M12 3v3'};
 // Every action is a round icon (adding, filtering, sharing, deleting…): what it does is its label, read out and shown on
 // hover, not a word on the button. A form's own Save keeps its word. cls: 'main' for the one to press, 'danger' to delete.
+// A labelled pill (an icon and a word) for an action an icon alone wouldn't make clear.
+function pbtn(k,attrs,label,cls){return '<button type="button" class="pbtn'+(cls?' '+cls:'')+'" '+(attrs||'')+'>'+lIc(k)+'<span>'+esc(label)+'</span></button>'}
 function ib(k,attrs,label,cls){return '<button type="button" class="ib'+(cls?' '+cls:'')+'" '+(attrs||'')+' aria-label="'+esc(label)+'" title="'+esc(label)+'">'+lIc(k)+'</button>'}
 const lIc=k=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+LI[k]+'"/></svg>';
 const lHue=n=>{let h=0;for(const c of String(n))h=(h*31+c.charCodeAt(0))%360;return h};
@@ -9312,7 +9387,7 @@ function renderExplore(){const day=Math.floor(Date.now()/864e5),w=GLOSSARY[day%G
     HUB.explore.map(([h,ks])=>'<h3 class="rh">'+h+'</h3><div class="hubgrid">'+ks.map(hubCard).join('')+'</div>').join('');if(window.BEANS_OK)hydrateImgs($('explore-in'))}
 /* ---------- Settings: the app's look, name and your data ---------- */
 // Vibes: whole palettes, light and dark (their colours live in the styles; these are for the previews).
-const VIBES=[["roastery","Roastery","The house look: cream and roasted brown",{"paper":"#FBF7F0","surface":"#FFFDF9","surface2":"#F3EADC","ink":"#3B2A20","cherry":"#8A5A3B","honey":"#C9964A","leaf":"#6B8E4E"},{"paper":"#1F1814","surface":"#2A211B","surface2":"#362A22","ink":"#F3EADF","cherry":"#D9A06B","honey":"#E2B866","leaf":"#A7C084"}],["oat","Oat latte","Soft, milky and calm",{"paper":"#F6F0E8","surface":"#FFFCF7","surface2":"#EDE3D6","ink":"#3A3029","cherry":"#855735","honey":"#B98A3E","leaf":"#5F7F49"},{"paper":"#2F2A26","surface":"#3C3631","surface2":"#4A433D","ink":"#F5EFE8","cherry":"#E9C29E","honey":"#EDCB91","leaf":"#BCD1A6"}],["matcha","Matcha caf\u00e9","Fresh greens, easy on the eyes",{"paper":"#F1F5EB","surface":"#FCFEF8","surface2":"#E1E9D4","ink":"#24301D","cherry":"#3F6E2E","honey":"#9C7A26","leaf":"#4E7A3A"},{"paper":"#0D2216","surface":"#143020","surface2":"#1C3F2B","ink":"#E6F4E3","cherry":"#9FDB82","honey":"#E3CF7C","leaf":"#9FDB82"}],["blossom","Coffee blossom","Pink like the flowers on the tree",{"paper":"#FBF3F3","surface":"#FFFBFB","surface2":"#F4E0E2","ink":"#3D2328","cherry":"#A8324F","honey":"#B47E3A","leaf":"#5E8A5A"},{"paper":"#2A0D1D","surface":"#3A1429","surface2":"#4B1D36","ink":"#FCE9F0","cherry":"#FF93B6","honey":"#F3C98A","leaf":"#B4DDA8"}],["nordic","Nordic roast","Cool, light and minimal",{"paper":"#F3F6F8","surface":"#FFFFFF","surface2":"#E5EBF0","ink":"#1E2833","cherry":"#2C5A80","honey":"#9A7A3A","leaf":"#4F7C69"},{"paper":"#0A1A2E","surface":"#11253F","surface2":"#19324F","ink":"#E5EEF8","cherry":"#8FC4F2","honey":"#E3C68D","leaf":"#93D1B8"}],["desert","Desert mocha","Sand and terracotta, Yemen at dusk",{"paper":"#F8F0E3","surface":"#FFFAF1","surface2":"#EEDEC6","ink":"#3A2618","cherry":"#9A4522","honey":"#B87E25","leaf":"#6E7F3E"},{"paper":"#2E140A","surface":"#3E1D0F","surface2":"#4F2715","ink":"#FBE9D8","cherry":"#FFA06E","honey":"#F5C77A","leaf":"#CFD593"}],["neon","Neon espresso","Late-night caf\u00e9, a little loud",{"paper":"#F6F2FF","surface":"#FFFFFF","surface2":"#EBE3FF","ink":"#24183A","cherry":"#6A30D6","honey":"#C2357E","leaf":"#13896A"},{"paper":"#130A33","surface":"#1E1250","surface2":"#2A1B66","ink":"#F3EEFF","cherry":"#D0A5FF","honey":"#FF8BD0","leaf":"#5FF0BE"}],["caramel","Caramel pop","Warm, sweet and sunny",{"paper":"#FFF5EA","surface":"#FFFDF8","surface2":"#FBE4CC","ink":"#3B2412","cherry":"#9C4913","honey":"#B97A15","leaf":"#5E8040"},{"paper":"#2A1A06","surface":"#3A250B","surface2":"#4A3012","ink":"#FFF0DC","cherry":"#FFB061","honey":"#FFD27A","leaf":"#C3DA93"}],["pure","Pure","Crisp white by day, true black by night",{"paper":"#FFFFFF","surface":"#FFFFFF","surface2":"#F2F2F4","ink":"#0B0B0C","cherry":"#141416","honey":"#8A6A2C","leaf":"#2F7A45"},{"paper":"#000000","surface":"#0E0E10","surface2":"#1A1A1D","ink":"#FFFFFF","cherry":"#F4F4F5","honey":"#E3C17E","leaf":"#7FD08F"}],["black","Black coffee","White or pitch black, with a crema accent",{"paper":"#FFFFFF","surface":"#FFFFFF","surface2":"#F4F1EE","ink":"#121212","cherry":"#7A4A2C","honey":"#9A6B1F","leaf":"#4E7A3A"},{"paper":"#000000","surface":"#0F0D0C","surface2":"#1C1916","ink":"#FFFFFF","cherry":"#E2A877","honey":"#F0C477","leaf":"#A5CC86"}]];
+const VIBES=[["roastery","Roastery","The house look: cream and roasted brown",{"paper":"#FBF7F0","surface":"#FFFDF9","surface2":"#F3EADC","ink":"#3B2A20","cherry":"#8A5A3B","honey":"#C9964A","leaf":"#6B8E4E"},{"paper":"#1F1814","surface":"#2A211B","surface2":"#362A22","ink":"#F3EADF","cherry":"#D9A06B","honey":"#E2B866","leaf":"#A7C084"}],["oat","Oat latte","Soft, milky and calm",{"paper":"#F6F0E8","surface":"#FFFCF7","surface2":"#EDE3D6","ink":"#3A3029","cherry":"#855735","honey":"#B98A3E","leaf":"#5F7F49"},{"paper":"#2F2A26","surface":"#3C3631","surface2":"#4A433D","ink":"#F5EFE8","cherry":"#E9C29E","honey":"#EDCB91","leaf":"#BCD1A6"}],["matcha","Matcha café","Fresh greens, easy on the eyes",{"paper":"#F1F5EB","surface":"#FCFEF8","surface2":"#E1E9D4","ink":"#24301D","cherry":"#3F6E2E","honey":"#9C7A26","leaf":"#4E7A3A"},{"paper":"#0D2216","surface":"#143020","surface2":"#1C3F2B","ink":"#E6F4E3","cherry":"#9FDB82","honey":"#E3CF7C","leaf":"#9FDB82"}],["blossom","Coffee blossom","Pink like the flowers on the tree",{"paper":"#FBF3F3","surface":"#FFFBFB","surface2":"#F4E0E2","ink":"#3D2328","cherry":"#A8324F","honey":"#B47E3A","leaf":"#5E8A5A"},{"paper":"#2A0D1D","surface":"#3A1429","surface2":"#4B1D36","ink":"#FCE9F0","cherry":"#FF93B6","honey":"#F3C98A","leaf":"#B4DDA8"}],["nordic","Nordic roast","Cool, light and minimal",{"paper":"#F3F6F8","surface":"#FFFFFF","surface2":"#E5EBF0","ink":"#1E2833","cherry":"#2C5A80","honey":"#9A7A3A","leaf":"#4F7C69"},{"paper":"#0A1A2E","surface":"#11253F","surface2":"#19324F","ink":"#E5EEF8","cherry":"#8FC4F2","honey":"#E3C68D","leaf":"#93D1B8"}],["desert","Desert mocha","Sand and terracotta, Yemen at dusk",{"paper":"#F8F0E3","surface":"#FFFAF1","surface2":"#EEDEC6","ink":"#3A2618","cherry":"#9A4522","honey":"#B87E25","leaf":"#6E7F3E"},{"paper":"#2E140A","surface":"#3E1D0F","surface2":"#4F2715","ink":"#FBE9D8","cherry":"#FFA06E","honey":"#F5C77A","leaf":"#CFD593"}],["neon","Neon espresso","Late-night café, a little loud",{"paper":"#F6F2FF","surface":"#FFFFFF","surface2":"#EBE3FF","ink":"#24183A","cherry":"#6A30D6","honey":"#C2357E","leaf":"#13896A"},{"paper":"#130A33","surface":"#1E1250","surface2":"#2A1B66","ink":"#F3EEFF","cherry":"#D0A5FF","honey":"#FF8BD0","leaf":"#5FF0BE"}],["caramel","Caramel pop","Warm, sweet and sunny",{"paper":"#FFF5EA","surface":"#FFFDF8","surface2":"#FBE4CC","ink":"#3B2412","cherry":"#9C4913","honey":"#B97A15","leaf":"#5E8040"},{"paper":"#2A1A06","surface":"#3A250B","surface2":"#4A3012","ink":"#FFF0DC","cherry":"#FFB061","honey":"#FFD27A","leaf":"#C3DA93"}],["pure","Pure","Crisp white by day, true black by night",{"paper":"#FFFFFF","surface":"#FFFFFF","surface2":"#F2F2F4","ink":"#0B0B0C","cherry":"#141416","honey":"#8A6A2C","leaf":"#2F7A45"},{"paper":"#000000","surface":"#0E0E10","surface2":"#1A1A1D","ink":"#FFFFFF","cherry":"#F4F4F5","honey":"#E3C17E","leaf":"#7FD08F"}],["black","Black coffee","White or pitch black, with a crema accent",{"paper":"#FFFFFF","surface":"#FFFFFF","surface2":"#F4F1EE","ink":"#121212","cherry":"#7A4A2C","honey":"#9A6B1F","leaf":"#4E7A3A"},{"paper":"#000000","surface":"#0F0D0C","surface2":"#1C1916","ink":"#FFFFFF","cherry":"#E2A877","honey":"#F0C477","leaf":"#A5CC86"}],["glass","Liquid glass","Frosted glass over soft colour, light and clear",{"paper":"#EDEFF5","surface":"#F9FAFD","surface2":"#E4E8F1","ink":"#15171C","cherry":"#A8612E","honey":"#B7832A","leaf":"#2F7D52"},{"paper":"#0A0B10","surface":"#1C1E26","surface2":"#262934","ink":"#F2F3F7","cherry":"#F0B27A","honey":"#F2C46B","leaf":"#86D9A8"}]];
 let UI=Object.assign({accent:'classic',vibe:'roastery',logo:'bean',text:'m',motion:'full',start:'dial',resume:'fresh'},load('bb-ui',{}));
 if(!VIBES.some(v=>v[0]===UI.vibe))UI.vibe='roastery';
 const ACCENTS=[['classic','Vibe’s own','#8A5A3B'],['espresso','Espresso','#5E3B2A'],['cascara','Cascara','#A3392E'],['kenya','Kenya','#7B2D4E'],['honey','Honey','#A8741C'],['leaf','Coffee leaf','#4F7A45'],['coldbrew','Cold brew','#2E5C7A'],['geisha','Geisha','#76588C']];
@@ -9411,16 +9486,20 @@ function settingsSync(){const own=document.querySelector('#settings-in .swatch[d
   pr('.vibe[data-vibe]','vibe',UI.vibe);pr('.swatch[data-accent]','accent',UI.accent);pr('.logopick[data-logo]','logo',UI.logo);
   if($('st-rtime'))$('st-rtime').disabled=!REMIND.on;if($('st-ltime'))$('st-ltime').disabled=!LEARN.on}
 let SET_H='';
+// The Android app's version card: its version, whether a newer one is out, update and check buttons.
+const appverHTML=()=>(appVersion()?'<div class="appver'+(updLatest()?' new':'')+'">'+ico('download','#4F8A74')+'<span class="av-tx"><b>Brew Bench '+esc(appVersion())+'</b><small>'+esc(updNote())+'</small></span>'+
+      '<div class="av-btns">'+(updLatest()?pbtn('dl','id="st-updgo"','Update to '+updLatest(),'main'):'')+pbtn('reset','id="st-upd"','Check for updates',updLatest()?'quiet':'')+'</div></div>':'');
 function renderSettings(soft){const t=document.documentElement.getAttribute('data-theme')||'auto',fresh=!(soft&&$('st-mode'));
   const row=(icon,bg,title,sub,body)=>'<div class="setrow"><div class="sl">'+ico(icon,bg)+'<span class="mt"><b>'+title+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</span></div>'+(body||'')+'</div>';
+  // A row that is itself the action (a chevron at its end), for a row with one thing to do.
+  const linkRow=(attrs,icon,bg,title,sub)=>'<button type="button" class="setrow setlink" '+attrs+'><span class="sl">'+ico(icon,bg)+'<span class="mt"><b>'+title+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</span><i class="setchev" aria-hidden="true">'+lIc('chev')+'</i></span></button>';
   const qt=(k,n,d)=>'<button type="button" class="qtool" data-go="'+k+'">'+ico(hubItem(k)[4],hubItem(k)[3])+'<span><b>'+n+'</b><small>'+d+'</small></span></button>';
   if(!fresh)settingsSync();else{const h='<div class="quicktools">'+qt('gear','Gear',MYG.length+' grinder'+(MYG.length>1?'s':'')+(MYB.length?', '+MYB.length+' brewer'+(MYB.length>1?'s':''):''))+qt('log','Brew log',LOG.length?LOG.length+' brew'+(LOG.length>1?'s':''):'Rate and keep your brews')+qt('guide','Guide','Ratios, fixes')+'</div>'+
     // In the Android app: its version, whether a newer one is out, and a button to check now (the website updates itself).
-    (appVersion()?'<div class="appver'+(updLatest()?' new':'')+'">'+ico('download','#4F8A74')+'<span class="av-tx"><b>Brew Bench '+esc(appVersion())+'</b><small>'+esc(updNote())+'</small></span>'+
-      '<div class="av-btns">'+(updLatest()?'<button type="button" class="btn" id="st-updgo">Update to '+esc(updLatest())+'</button>':'')+'<button type="button" class="btn'+(updLatest()?' ghost':'')+'" id="st-upd">Check for updates</button></div></div>':'')+
+    appverHTML()+
     // On the website (not iPhone, where there's no Android app to get): the Android app, one tap to download.
     (!window.Capacitor&&!IOS()?'<div class="appver getapp">'+ico('download','#4F8A74')+'<span class="av-tx"><b>Get the Android app</b><small>The same Brew Bench, plus daily reminders. Sign in to bring your coffees and brews with you.</small></span>'+
-      '<div class="av-btns"><a class="ib main" id="st-getapk" href="'+APK_URL+'" rel="noopener" aria-label="Download for Android" title="Download for Android">'+lIc('dl')+'</a></div><p class="setnote av-note">Open the downloaded file to install it. Android may ask you to allow installs from your browser the first time.</p></div>':'')+
+      '<div class="av-btns"><a class="pbtn main" id="st-getapk" href="'+APK_URL+'" rel="noopener">'+lIc('dl')+'<span>Download for Android</span></a></div><p class="setnote av-note">Open the downloaded file to install it. Android may ask you to allow installs from your browser the first time.</p></div>':'')+
     '<h3 class="rh">Appearance</h3><div class="setgroup">'+
     row(curTheme()==='dark'?'moon':'sun','#5B5F66','Light or dark','Bright cream, cosy espresso, or follow your phone','<div class="seg" id="st-mode"></div>')+
     row('drop','var(--cherry)','Vibe','A whole look, in light and in dark','<div class="vibes">'+VIBES.map(([k,n,d,L,D])=>'<button type="button" class="vibe" data-vibe="'+k+'" aria-pressed="'+(UI.vibe===k)+'" style="--l-p:'+L.paper+';--l-s:'+L.surface+';--l-i:'+L.ink+';--l-c:'+L.cherry+';--l-h:'+L.honey+';--d-p:'+D.paper+';--d-s:'+D.surface+';--d-i:'+D.ink+';--d-c:'+D.cherry+';--d-h:'+D.honey+'"><span class="vb-pv" aria-hidden="true"><i class="vb-l"><u></u><s></s><em></em></i><i class="vb-d"><u></u><s></s><em></em></i></span><b>'+n+'</b><small>'+d+'</small></button>').join('')+'</div>')+
@@ -9432,7 +9511,6 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
     row('hourglass','#8A5A3B','When you reopen the app','Scan and Brew start fresh, or pick up where you left off','<div class="seg" id="st-resume"></div>')+
     row('sliders','#4F8A74','Sorts and filters','The order and filters you pick for each list, next time you open the app','<div class="seg" id="st-views"></div>')+'</div>'+
    // The coffee of the day: always on the Beans and Explore pages; in the Android app, also as a notification.
-   '<h3 class="rh">Grind settings</h3><div class="setgroup">'+row('cog','#6E8FA8','Grind settings','Each grinder\u2019s setting for every brewer, and a nudge for all its recipes. Now in Gear and dials.','<div class="actions gs-shortcut" style="margin:0">'+ib('open','data-gearto="set"','Open grind settings')+'</div>')+'</div>'+
 
    '<h3 class="rh">Reminders</h3><div class="setgroup">'+row('bell','#8A5A3B','Coffee of the day','A coffee from your cabinet each day: a bag at its peak or running low, one from this day in an earlier year, or a memory from your diary.',
      window.BEANS_OK&&LN()?'<div class="setbtns rem"><div class="seg" id="st-remind"></div><input type="time" id="st-rtime" class="dateinp" value="'+REMIND.t+'" aria-label="Reminder time"'+(REMIND.on?'':' disabled')+'></div>'
@@ -9442,9 +9520,9 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
          :'<p class="setnote" style="margin:0">Today’s is on the Explore page. In the Android app it can also arrive as a notification at the time you choose.</p>')+'</div>'+
    /* Gear, Guide and the Log are the buttons at the top. */
    '<h3 class="rh">Your data</h3><div class="setgroup">'+row('download','#8A5A3B','Back up and restore','Everything you’ve saved stays on this device: '+esc(dataSummary())+'. Save it as a file, photos included, to keep it safe or move it to another phone.',
-     '<p class="setnote" id="st-lastbak" style="margin:0 0 8px">'+lastBakText()+'</p><div class="setbtns ib-row">'+ib('dl','id="st-export"','Export my data','main')+ib('ul','id="st-import"','Import a backup')+'<input type="file" id="st-file" accept="application/json,.json" hidden></div>')+'</div>'+
+     '<p class="setnote" id="st-lastbak" style="margin:0 0 8px">'+lastBakText()+'</p><div class="setbtns">'+pbtn('dl','id="st-export"','Back up','main')+pbtn('ul','id="st-import"','Restore')+'<input type="file" id="st-file" accept="application/json,.json" hidden></div>')+'</div>'+
    (installed()?'':'<h3 class="rh">Install</h3><div class="setgroup">'+row('phone','#9A7390','Add to your home screen','Use it like an app, offline too','<p class="setnote" style="margin:0"><b>iPhone (Safari):</b> tap the Share button, then <b>Add to Home Screen</b>.<br><b>Android (Chrome):</b> tap the ⋮ menu, then <b>Add to Home screen</b>.</p>')+'</div>')+
-   '<h3 class="rh">About</h3><div class="setgroup">'+row('bulb','#C9964A','Good to know','Undo, backups, sharing'+(NATIVE?', widgets':'')+' and more, in a minute','<div class="setbtns ib-row">'+ib('bulb','id="st-tips"','Show the tips')+'</div>')+row('info','#8A5A3B','The Brew Bench','A coffee field guide and dial-in tool. What you save stays on this device, or syncs with your account if you sign in.','<p class="setnote" style="margin:0"><a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a> · <a href="'+SITE_URL+'delete-account.html" target="_blank" rel="noopener">Delete your account</a></p>')+
+   '<h3 class="rh">About</h3><div class="setgroup">'+linkRow('id="st-tips"','bulb','#C9964A','Good to know','Undo, backups, sharing'+(NATIVE?', widgets':'')+' and more, in a minute')+row('info','#8A5A3B','The Brew Bench','A coffee field guide and dial-in tool. What you save stays on this device, or syncs with your account if you sign in.','<p class="setnote" style="margin:0"><a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a> · <a href="'+SITE_URL+'delete-account.html" target="_blank" rel="noopener">Delete your account</a></p>')+
      '</div>';
     // Built each visit, but only put in when something changed: redrawing the whole page on every visit laid it out again.
     if(h!==SET_H||!$('st-mode')){$('settings-in').innerHTML=h;SET_H=h}}
@@ -9545,8 +9623,10 @@ function showUpdate(force){const l=updLatest(),old=$('updcard');if(!l||(!force&&
   $('upd-later').onclick=()=>{UPD.later=l;UPD.laterAt=Date.now();save('bb-upd',UPD);c.classList.add('out');setTimeout(()=>c.remove(),260)}}
 if(appVersion()){setTimeout(()=>checkUpdate(),4000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate()})}
 document.addEventListener('click',e=>{if(e.target.closest('#st-updgo')){toast('Downloading the new version. Open it when it finishes to install');openLink(APK_URL);return}
-  if(e.target.closest('#st-upd')){const b=e.target.closest('#st-upd');b.disabled=true;b.textContent='Checking…';
-  checkUpdate(true).then(l=>{if(l===null)toast('Couldn’t check just now. Try again when you’re online');else if(!l)toast('You have the latest version');SET_H='';renderSettings()})}});
+  if(e.target.closest('#st-upd')){const b=e.target.closest('#st-upd');b.disabled=true;b.querySelector('span').textContent='Checking…';
+  checkUpdate(true).then(l=>{if(l===null)toast('Couldn’t check just now. Try again when you’re online');else if(!l)toast('You have the latest version');
+    // Only the version card is drawn again (redrawing the whole page replayed the switches above it).
+    const card=document.querySelector('#settings-in .appver:not(.getapp)');if(card)card.outerHTML=appverHTML()})}});
 
 /* ================= A COFFEE FACT A DAY ================= */
 // One thing worth knowing from Explore each day, taking the kinds in turn (a word, a variety, an origin, a process, a
@@ -10060,7 +10140,7 @@ function dwriteHTML(p,st,top){return '<div class="dwrite" id="'+p+'-write">'+(to
     Object.entries(MOMENTS).map(([k,[n,ic]])=>'<button type="button" data-mom="'+k+'" aria-pressed="'+(k===st.mom)+'"><span aria-hidden="true">'+ic+'</span>'+n+'</button>').join('')+'</div>'+
     '<textarea id="'+p+'-dt" rows="3" maxlength="600" aria-label="Diary entry" placeholder="'+esc(MOMENTS[st.mom][2])+'">'+esc(st.t||'')+'</textarea><div class="dw-ph" id="'+p+'-phv"'+(st.ph?'':' hidden')+'>'+dwPh(st)+'</div>'+
     '<div class="dw-row"><input type="date" id="'+p+'-dd" class="dateinp" value="'+(st.d||todayISO())+'" max="'+todayISO()+'" aria-label="Date" required><input type="file" accept="image/*" id="'+p+'-ph" hidden>'+
-      ib('cam','id="'+p+'-cam"',st.ph?'Change the photo':'Add a photo','dw-cam')+ib('plus','id="'+p+'-dadd"','Add to the diary','main')+'</div></div>'}
+      ib('cam','id="'+p+'-cam"',st.ph?'Change the photo':'Add a photo','dw-cam')+pbtn('plus','id="'+p+'-dadd"','Add to the diary','main')+'</div></div>'}
 const dwPh=st=>st.ph?'<img src="'+st.ph+'" alt="The photo for this entry"><button type="button" class="dw-phx" aria-label="Remove the photo">✕</button>':'';
 // bean(): the coffee it's about. done(b): save and redraw.
 function wireDwrite(p,st,bean,done){const w=$(p+'-write');if(!w)return;
@@ -10584,12 +10664,17 @@ function renderBeanHero(){const cy=new Date().getFullYear(),N=BEANS.length,rated
         '<div class="bgh-stats"><button type="button" class="bgh-ro" id="bg-ros" aria-label="Your roasteries"><b>'+roasters+'</b>'+(roasters===1?'roastery':'roasteries')+'</button><span><b>'+(avg?avg.toFixed(1):'–')+beanSVG+'</b>average</span><span><b>'+BEANS.filter(b=>beanYear(b)===cy).length+'</b>in '+cy+'</span></div>'
         :'<h3>Start your <em>coffee journal</em></h3><p>Scan a bag or add one by hand, then rate it in beans.</p>')+
       '</div><div class="bgh-fan" aria-hidden="true">'+(last.length?last.map(b=>beanPic(b)).join(''):'<span class="bpic"><span class="bph">'+beanSVG+'</span></span>')+'</div>'+
-    // Scan, add and your scans, as icons.
-    '<div class="bgh-acts"><button type="button" class="bgh-btn main" id="bg-scan" aria-label="Scan a bag" title="Scan a bag">'+SCAN_ICO+'</button><button type="button" class="bgh-btn" id="bg-add" aria-label="Add a coffee" title="Add a coffee">'+PLUS_ICO+'</button>'+
-      (SCANS.length?'<button type="button" class="bgh-btn" data-view="scans" aria-label="Your scans" title="Your scans"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v5l3 2M3.5 12a8.5 8.5 0 1 0 2.5-6M3 4v4h4"/></svg></button>':'')+'</div>';
+    // An empty collection gets scan and add right here; once there are coffees the page's + has them (and your scans).
+    (N?'':'<div class="bgh-acts"><button type="button" class="bgh-btn main" id="bg-scan" aria-label="Scan a bag" title="Scan a bag">'+SCAN_ICO+'</button><button type="button" class="bgh-btn" id="bg-add" aria-label="Add a coffee" title="Add a coffee">'+PLUS_ICO+'</button>'+
+      '</div>');
   hydrateImgs(h)}
+// Going from Coffees into another view (Roastery, Diary, Passport, Top 5, your scans) is one step: back returns to
+// Coffees rather than leaving Beans. Moving between the other views replaces that step, so back is still one step.
+let BV_SILENT=false;
+function bvStep(from,to){if(from===to)return;try{if(from==='coffees'&&to!=='coffees')history.pushState({bv:1},'',location.hash||'#beans');else if(to==='coffees'&&history.state&&history.state.bv){BV_SILENT=true;history.back()}}catch(e){}}
+function bvBack(){if(BV_SILENT){BV_SILENT=false;return true}if(!$('beans')||!$('beans').classList.contains('on')||BVIEW==='coffees')return false;BVDIR=-1;BVIEW='coffees';renderBeanViews();return true}
 function renderBeanViews(){const cy=new Date().getFullYear();
-  seg('bg-views',BVTABS,()=>BVIEW,v=>{if(v===BVIEW)return;const K=Object.keys(BVIEWS);BVDIR=K.indexOf(v)>K.indexOf(BVIEW)?1:-1;BVIEW=v;
+  seg('bg-views',BVTABS,()=>BVIEW,v=>{if(v===BVIEW)return;bvStep(BVIEW,v);const K=Object.keys(BVIEWS);BVDIR=K.indexOf(v)>K.indexOf(BVIEW)?1:-1;BVIEW=v;
     // The strip shows the pick at once (seg); the view, already built in the background, follows in the next frame.
     renderBeanViews()});
   if(BDIRTY.has(BVIEW)){BDIRTY.delete(BVIEW);BVIEWS[BVIEW]()}
@@ -10611,7 +10696,7 @@ function renderBeanViews(){const cy=new Date().getFullYear();
 function renderCoffees(){const p=$('bv-coffees'),years=beanYears();BYEAR=BYEAR.filter(y=>years.includes(+y));
   if(!BEANS.length){p.innerHTML='<div class="bg-empty">'+beanSVG+'<b>No coffees yet</b><p>Scan a bag or add one by hand. Your earlier scans are under <button type="button" class="linkbtn" data-view="scans">Scans</button>, ready to add.</p></div>';return}
   const fs=BFILTERS.filter(([f])=>f==='all'||BEANS.some(b=>bfKeep(b,f)));BF=BF.filter(f=>fs.some(([x])=>x===f));
-  p.innerHTML=shelfHTML()+advHTML()+seasonCardHTML()+'<div id="bg-yic"></div>'+trophyRowHTML()+'<div class="rhead cab-h"><h3 class="rh">All your coffees</h3><button type="button" class="sh-mini ic" data-galshare aria-label="Share your coffee gallery" title="Share">'+SH_ICO+'</button></div><div class="bg-tools">'+ltHTML('bg-lt',{q:{id:'bg-q',ph:'Search coffees, roasters, origins, notes',label:'Search your coffees',value:BQ},filter:fs.length>1||years.length>1,sort:true})+'</div><div id="bg-grid"></div>';
+  p.innerHTML=shelfHTML()+advHTML()+seasonCardHTML()+'<div id="bg-yic"></div>'+trophyRowHTML()+'<div class="rhead cab-h"><h3 class="rh">All your coffees</h3><button type="button" class="sh-mini ic" data-galshare aria-label="Share your coffee gallery" title="Share">'+SH_ICO+'</button></div><div class="bg-tools">'+ltHTML('bg-lt',{q:{id:'bg-q',ph:'Search your coffees',label:'Search your coffees',value:BQ},filter:fs.length>1||years.length>1,sort:true})+'</div><div id="bg-grid"></div>';
   // The shelf, season card and trophies above the grid have photos too: they're watched like the grid's, so a redraw
   // (after adding or editing a coffee) shows them again instead of leaving the ones off screen blank until a restart.
   hydrateImgs(p);
@@ -10822,7 +10907,7 @@ async function addScanToGallery(i){const s=SCANS[i];if(!s)return;const inf=s.inf
 $('beans-in').addEventListener('input',e=>{if(e.target.id!=='bg-q')return;BQ=e.target.value;renderGrid()});
 $('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-lt-f'))openBeanFilter();else if(e.target.closest('#bg-lt-s'))openBeanSort();else if(e.target.closest('#dy-lt-f'))openDiaryFilter()});
 $('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-add')){openBeanEditor();return}if(e.target.closest('#bg-scan,#bg-scan2')){showTab('scan');newScan();scrollTo(0,0);return} /* the Scan page offers taking or choosing a photo */
-  const v=e.target.closest('[data-view]');if(v){BVIEW=v.dataset.view;if(BVIEW==='scans')BDIRTY.add('scans');renderBeanViews();if(v.classList.contains('tshelf'))$('bg-views').scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'});return}
+  const v=e.target.closest('[data-view]');if(v){bvStep(BVIEW,v.dataset.view);BVIEW=v.dataset.view;if(BVIEW==='scans')BDIRTY.add('scans');renderBeanViews();if(v.classList.contains('tshelf'))$('bg-views').scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'});return}
   if(e.target.closest('[data-advnew]')){openCalEditor();return}const adv=e.target.closest('[data-adv]');if(adv){openCal(adv.dataset.adv);return}
   const dyb=e.target.closest('[data-dyb]');if(dyb){if(dyb.dataset.dyb==='more')openDiaryPick();else setDyBean(dyb.dataset.dyb);return}
   if(e.target.closest('#dy-more')){DLIM+=60;renderDiaryList();return}
@@ -10981,7 +11066,7 @@ function openAddRoasteryNow(){const d=$('vd');let logo='';
   $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Roastery</span><h2 id="vd-title">Add a roastery</h2></div>'+
     '<div class="vd-body ra-body"><button type="button" class="ro-logo-btn ra-logo" id="ra-pick" aria-label="Add a logo"><span id="ra-mark"><span class="ra-ph">'+PLUS_ICO+'<small>Logo</small></span></span><span class="ro-logo-ed" id="ra-ed" aria-hidden="true" hidden><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></button><input type="file" id="ra-file" accept="image/*" hidden>'+
       '<div class="field"><label for="ra-name">Name</label><input id="ra-name" maxlength="50" autocomplete="off" placeholder="The roastery’s name"></div>'+
-      '<div class="actions ib-row">'+ib('plus','id="ra-save"','Add this roastery','main')+'</div></div>';
+      '<div class="actions ib-row">'+pbtn('plus','id="ra-save"','Add this roastery','main')+'</div></div>';
   const mark=()=>{const n=$('ra-name').value.trim();$('ra-ed').hidden=!(n||logo);$('ra-mark').innerHTML=logo?'<span class="ro-mark logo big"><img alt="" src="'+logo+'"></span>':n?roMark(n,true):'<span class="ra-ph">'+PLUS_ICO+'<small>Logo</small></span>'};
   $('ra-name').oninput=mark;$('ra-pick').onclick=()=>$('ra-file').click();
   $('ra-file').onchange=async e=>{const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;try{logo=await logoPicture(f);mark();$('ra-pick').setAttribute('aria-label','Change the logo')}catch(err){toast('Couldn’t use that picture. Try another.')}};
@@ -10996,7 +11081,9 @@ function openOrigin(k){const d=$('vd'),o=oInfo(k);if(!o)return;BFROM=k;const lis
     '<div class="vd-body"><div class="clist og-list">'+list.map((b,i)=>coffeeRow(b,false,i)).join('')+'</div>'+(k==='blend'?'':'<div class="actions"><button type="button" class="btn ghost" id="og-map">'+esc(originName(k))+' on the map</button></div>')+'</div>';
   hydrateImgs($('vd-in'));$('vd-in').onclick=e=>{if(!$('vd-in').querySelector('.og-list'))return;const r=e.target.closest('#vd-in [data-bean]');if(r){BFROM=k;openBean(r.dataset.bean);return}if(e.target.closest('#og-map')){d.close();goTab('map');setTimeout(()=>{try{selectOrigin(k,true)}catch(x){}},350)}};
   $('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
-function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.bean=b.id;const d=$('vd'),rk=beanRank(b),P=b.process&&PROCESSES[b.process],ls=beanLogStats(b),f=b.shelf&&fresh(b);
+function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.bean=b.id;
+  // To the top before the page is drawn: scrolling after it forced the whole new page to be laid out at once.
+  if(!write&&$('vd').scrollTop)$('vd').scrollTop=0;const d=$('vd'),rk=beanRank(b),P=b.process&&PROCESSES[b.process],ls=beanLogStats(b),f=b.shelf&&fresh(b);
   const cal=b.cal&&calById(b.cal.id);
   const fmt=s=>s?new Date(s+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'';
   const kv=[isBlend(b)?['Blend of',blendParts(b).map(x=>flagOf(x.o)+' '+originName(x.o)+(x.r?' ('+x.r+')':'')+blendPct(x)).join(', ')||'Several origins']:['Origin',b.origin?flagOf(b.origin)+' '+originName(b.origin):''],['Process',P?P.name:''],[b.vars?'Varieties':'Variety',b.variety?varsName(b):''],['Roast',b.roast?b.roast[0].toUpperCase()+b.roast.slice(1):''],['Roasted',fmt(b.roastDate)],['Tried',b.tried?fmt(b.tried):'Not yet'],...(cal?[['Advent','Door '+b.cal.d+' · '+calName(cal)]]:[]),['Brewed',ls?ls.n+' time'+(ls.n===1?'':'s'):'']].filter(x=>x[1]);
@@ -11009,7 +11096,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.be
       (g!=null?'<div class="bd-bag"><div class="bd-bagh">'+bagLine(b)+''+ib('edit','id="bd-left"','Set what’s left','sm')+'</div><div class="bd-cupr"><span class="bd-cupl">Brewed a cup with</span><span class="bd-step"><button type="button" id="bd-cm" aria-label="Less coffee">−</button><b id="bd-cg">'+dose+' g</b><button type="button" id="bd-cp" aria-label="More coffee">+</button></span>'+ib('ok','id="bd-cup"','Take it off the bag','main sm')+'</div>'+
         '<p class="bd-auto">Brews you log or finish with the dial-in’s timer come off on their own.</p></div>'
         :'<p class="hint" style="margin:8px 0 0">Add the bag size in Edit to see what’s left as you log brews.</p>')+
-      ib('flag','id="bd-done"','Finish the bag','bd-done')+'</div>'
+      pbtn('flag','id="bd-done"','Finish this bag','quiet bd-done')+'</div>'
      :'')+
     (kv.length?'<div class="specs">'+kv.map(([k,v])=>'<div><b>'+k+'</b><span class="bd-v">'+esc(v)+'</span></div>').join('')+'</div>':'')+
     (dialNextFor(b.id)?'<div class="bd-dnext"><span class="bd-dni" aria-hidden="true">🎯</span><span><b>'+(dialNextFor(b.id).taste==='good'?'What worked':'Try next time')+'</b><small>'+esc(dialNextLine(dialNextFor(b.id)))+' · '+esc(fmt(dialNextFor(b.id).at))+(dialNextFor(b.id).taste&&dialNextFor(b.id).taste!=='good'?' · after a '+dialNextFor(b.id).taste+' cup':'')+'</small></span></div>':'')+
@@ -11022,15 +11109,15 @@ function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.be
       (b.shelf?'':'<div class="bd-rbrow"><button type="button" class="btn ghost" id="bd-rbopen" aria-expanded="false">Bought it again</button><button type="button" class="btn ghost" id="bd-shelf">Back on the shelf</button></div>'+
         '<div class="bd-rbform" id="bd-rbform" hidden><div class="two"><div class="field"><label for="bd-rb-rd">New roast date</label><input type="date" id="bd-rb-rd" max="'+todayISO()+'"></div>'+
         '<div class="field"><label for="bd-rb-g">Bag size (g)</label><input type="number" id="bd-rb-g" inputmode="numeric" min="50" max="5000" step="10" value="'+(b.bag||'')+'" placeholder="250"></div></div>'+
-        ib('plus','id="bd-rebuy"','Add the new bag','main')+'</div>')+
+        pbtn('plus','id="bd-rebuy"','Add the new bag','main')+'</div>')+
       (b.bags&&b.bags.length?'<details class="bd-bagsd"><summary>Earlier bags ('+b.bags.length+')</summary><ol class="bd-bags">'+b.bags.slice().reverse().map((x,i)=>'<li><b>'+ordinal(b.bags.length-i)+' bag</b><span>'+[x.rd?'Roasted '+fmtD(x.rd):'',x.g?x.g+' g':'',x.off?'finished '+fmtD(x.off):''].filter(Boolean).join(' · ')+'</span></li>').join('')+'</ol></details>':'')+'</div>'+
-    '<div class="actions bd-acts ib-row">'+ib('cup','id="bd-brew"','Brew it in the dial-in','main')+ib('mark','id="bd-mkrec"','Create a recipe')+'</div>'+
+    '<div class="actions bd-acts ib-row">'+pbtn('cup','id="bd-brew"','Brew it','main')+pbtn('mark','id="bd-mkrec"','Make a recipe')+'</div>'+
     // Its diary: a moment, a few words, the day.
     '<h3 id="bd-dh">Diary</h3>'+dwriteHTML('bd',st)+
     '<div id="bd-tl">'+timelineHTML(beanTimeline(b),false)+'</div>'+
     // Android: keep this coffee on the Drinking now widget instead of the one brewed most recently.
     (plugin('Widget')&&b.shelf?'<button type="button" class="btn ghost bd-wpin" id="bd-wpin">'+(wPinned()===b.id?'On your Drinking now widget · Let it choose again':'Show on the Drinking now widget')+'</button>':'')+
-    ib('del','id="bd-del"','Remove from the gallery','danger')+'</div>';
+    pbtn('del','id="bd-del"','Remove from the gallery','quiet danger')+'</div>';
   hydrateImgs($('vd-in'));
   if($('bd-wpin'))$('bd-wpin').onclick=()=>{const on=wPinned()!==b.id;try{on?localStorage.setItem('bb-wbean',b.id):localStorage.removeItem('bb-wbean')}catch(e){}updWidget();
     $('bd-wpin').textContent=on?'On your Drinking now widget · Let it choose again':'Show on the Drinking now widget';toast(on?'Drinking now shows '+beanTitle(b):'Drinking now shows the coffee you brewed last')};
@@ -11065,7 +11152,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.be
     undoToast('Removed “'+beanTitle(b)+'”',()=>{if(BEANS.some(x=>x.id===b.id))return;BEANS.splice(Math.min(i,BEANS.length),0,b);saveBeans();renderBeans()},
       ()=>{if(BEANS.some(x=>x.id===b.id))return;if(!inTop)BIMG.del(b.id);dropDiaryPhotos(b.diary||[])})};
   showDlg(d);$('vd-x').onclick=()=>d.close();if($('vd-back'))$('vd-back').onclick=()=>vdBack(()=>openOrigin(from));if($('bd-advback'))$('bd-advback').onclick=()=>vdBack(()=>openCal(cal.id,{back:b.cal.d}));if($('bd-roback'))$('bd-roback').onclick=()=>vdBack(()=>openRoaster(roBack.name,roBack.list));if($('bd-ro'))$('bd-ro').onclick=()=>openRoaster(b.roaster);
-  if(write)setTimeout(()=>{const h=$('bd-dh');if(h){h.scrollIntoView({block:'start'});$('bd-dt').focus({preventScroll:true})}},80);else d.scrollTop=0}
+  if(write)setTimeout(()=>{const h=$('bd-dh');if(h){h.scrollIntoView({block:'start'});$('bd-dt').focus({preventScroll:true})}},80)}
 function beanDoc(b){const P=b.process&&PROCESSES[b.process];
   return{title:beanTitle(b),sub:(b.roaster?b.roaster+' | ':'')+'Rated '+(b.rating||'–')+' of 5',file:'coffee-'+beanTitle(b),
     card:()=>beanCardImg(b),cardTheme:()=>originTheme(b.origin),cardName:'coffee-card',cardTitle:'Coffee card',cardSub:'This coffee as one image: the bag, your rating in beans, where it’s from and what you tasted.',
@@ -11128,11 +11215,11 @@ function openBeanEditorNow(b,pre){const isNew=!b;const B=Object.assign({name:'',
    '<div class="field"><div class="lbl">Your rating</div><div class="beanrate" id="be-rate"></div></div>'+
    '<div class="two stackm"><div class="field"><label for="be-name">Coffee name</label><input id="be-name" maxlength="60" value="'+esc(B.name)+'" autocomplete="off"></div>'+
    '<div class="field"><label for="be-roaster">Roastery</label><div class="acw"><input id="be-roaster" maxlength="50" value="'+esc(B.roaster)+'" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="be-rsug"><div class="acl" id="be-rsug" role="listbox" aria-label="Roasteries you’ve had" hidden></div></div></div></div>'+
-   '<div class="field"><div class="bv-head"><span class="lbl" id="be-olbl">Origin</span><button type="button" class="bv-plus" id="be-addo" aria-label="Add another origin" title="Add another origin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div><div class="bvars" id="be-origins" role="group" aria-labelledby="be-olbl"></div><p class="hint bpct-note" id="be-opct" hidden></p>'+
+   '<div class="field"><div class="bv-head"><span class="lbl" id="be-olbl">Origin</span><button type="button" class="bv-plus" id="be-addo" aria-label="Add another origin" title="Add another origin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Add</span></button></div><div class="bvars" id="be-origins" role="group" aria-labelledby="be-olbl"></div><p class="hint bpct-note" id="be-opct" hidden></p>'+
    // A second origin makes it a blend (up to four), the same way varieties are added.
    '</div>'+
    '<div class="field"><label for="be-process">Process</label><select id="be-process">'+opt(processOptions(),'Not sure')+'</select></div>'+
-   '<div class="field"><div class="bv-head"><span class="lbl" id="be-vlbl">Variety</span><button type="button" class="bv-plus" id="be-addv" aria-label="Add another variety" title="Add another variety"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div><div class="bvars" id="be-vars" role="group" aria-labelledby="be-vlbl"></div>'+
+   '<div class="field"><div class="bv-head"><span class="lbl" id="be-vlbl">Variety</span><button type="button" class="bv-plus" id="be-addv" aria-label="Add another variety" title="Add another variety"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Add</span></button></div><div class="bvars" id="be-vars" role="group" aria-labelledby="be-vlbl"></div>'+
    '</div>'+
    '<div class="field"><div class="lbl">Roast</div><div class="seg" id="be-roast"></div></div>'+
    '<div class="two"><div class="field"><label for="be-rdate">Roasted on</label><input type="date" id="be-rdate" class="dateinp" value="'+B.roastDate+'" max="'+todayISO()+'"></div><div class="field"><label for="be-tried">Tried on</label><input type="date" id="be-tried" class="dateinp" value="'+B.tried+'" max="'+todayISO()+'"></div></div>'+
@@ -11270,7 +11357,8 @@ function calEnter(c,n,go){const r=document.querySelector('.adv-door[data-door="'
 
 // On the Coffees page: your calendars, each a little box of doors. With none yet, an invitation in the season.
 function advHTML(){const m=new Date().getMonth();
-  if(!CALS.length)return m>=9||m===0?'<button type="button" class="adv-invite" data-advnew><span class="adv-ii" aria-hidden="true">'+advBoxSVG+'</span><span><b>Got an advent calendar?</b><small>Add the box and review each numbered coffee as you open it.</small></span><span class="adv-plus" aria-hidden="true">+</span></button>':'';
+  // No calendars yet: nothing here (Add an advent calendar is in the Beans + menu).
+  if(!CALS.length)return '';
   const list=CALS.slice().sort((a,b)=>b.year-a.year||b.ts-a.ts),rk=calRanked();
   return '<div class="rhead adv-h"><h3 class="rh">Advent calendars</h3><button type="button" class="sh-mini ic" data-advnew aria-label="Add an advent calendar" title="Add">'+lIc('plus')+'</button></div>'+
     '<div class="adv-list">'+list.map(c=>{const s=calStats(c),t=calToday(c),sc=calScore(c,s);

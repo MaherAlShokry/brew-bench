@@ -21,4 +21,6 @@
     <color name="ic_bg_pure_d">#000000</color>
     <color name="ic_bg_black_l">#FFFFFF</color>
     <color name="ic_bg_black_d">#000000</color>
+    <color name="ic_bg_glass_l">#EDEFF5</color>
+    <color name="ic_bg_glass_d">#0A0B10</color>
 </resources>

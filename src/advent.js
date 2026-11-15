@@ -37,7 +37,8 @@ function calEnter(c,n,go){const r=document.querySelector('.adv-door[data-door="'
 
 // On the Coffees page: your calendars, each a little box of doors. With none yet, an invitation in the season.
 function advHTML(){const m=new Date().getMonth();
-  if(!CALS.length)return m>=9||m===0?'<button type="button" class="adv-invite" data-advnew><span class="adv-ii" aria-hidden="true">'+advBoxSVG+'</span><span><b>Got an advent calendar?</b><small>Add the box and review each numbered coffee as you open it.</small></span><span class="adv-plus" aria-hidden="true">+</span></button>':'';
+  // No calendars yet: nothing here (Add an advent calendar is in the Beans + menu).
+  if(!CALS.length)return '';
   const list=CALS.slice().sort((a,b)=>b.year-a.year||b.ts-a.ts),rk=calRanked();
   return '<div class="rhead adv-h"><h3 class="rh">Advent calendars</h3><button type="button" class="sh-mini ic" data-advnew aria-label="Add an advent calendar" title="Add">'+lIc('plus')+'</button></div>'+
     '<div class="adv-list">'+list.map(c=>{const s=calStats(c),t=calToday(c),sc=calScore(c,s);
