@@ -3958,7 +3958,9 @@ function lookSwap(fn){fn()}
 function themeSwap(){const d=document.documentElement;d.classList.add('thx');clearTimeout(themeSwap.t);
   // (Lifted a moment later, in a quiet moment: lifting it restyles the page again, so it waits until nothing is moving.)
   requestAnimationFrame(()=>requestAnimationFrame(()=>{themeSwap.t=setTimeout(()=>{const off=()=>d.classList.remove('thx');if(window.requestIdleCallback)requestIdleCallback(off,{timeout:900});else off()},420)}))}
-function applyUI(){const d=document.documentElement;themeSwap();d.setAttribute('data-accent',UI.accent);if(UI.vibe==='roastery')d.removeAttribute('data-vibe');else d.setAttribute('data-vibe',UI.vibe);d.setAttribute('data-text',UI.text);d.setAttribute('data-motion',UI.motion);
+function applyUI(){const d=document.documentElement;themeSwap();d.setAttribute('data-accent',UI.accent);if(UI.vibe==='roastery')d.removeAttribute('data-vibe');else d.setAttribute('data-vibe',UI.vibe);d.setAttribute('data-text',UI.text);// Only reduced motion is marked: the reduced-motion rules apply to every element, and an attribute always present
+  // on the page made the browser test each of them against every element on each restyle.
+  if(UI.motion==='reduced')d.setAttribute('data-motion','reduced');else d.removeAttribute('data-motion');
   $('ab-logo').innerHTML=logoSVG(UI.logo,24);
   // In the Android app the home-screen icon follows the look: the logo in the vibe's colours, light or dark as the
   // app is now. The app swaps it when you next leave it.
