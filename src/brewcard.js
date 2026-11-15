@@ -675,14 +675,12 @@ function bcPic(x,img,origin,X,Y,w,h,r,edge,ew){x.save();bcRound(x,X,Y,w,h,r);x.c
     if(L){x.fillStyle='rgba(60,36,20,.05)';x.fillRect(X,Y,w,h)}
     bcBean(x,X+w/2,Y+h/2,Math.min(w,h)*0.42,L?'rgba(60,36,20,.16)':'rgba(255,248,238,.22)',L?'rgba(255,255,255,.35)':'rgba(0,0,0,.18)')}
   x.restore();if(edge){bcRound(x,X,Y,w,h,r);x.lineWidth=ew||3;x.strokeStyle=edge;x.stroke()}}
-// Centred text on up to `max` lines; returns the y below it.
-function bcCenter(x,t,cx,y,w,font,col,lh,max){x.font=font;x.fillStyle=col;x.textAlign='center';const L=bcWrap(x,t,w,max||2);L.forEach((l,i)=>x.fillText(l,cx,y+i*lh));x.textAlign='left';return y+(L.length-1)*lh}
 // The crown over the winner.
 function bcCrown(x,cx,cy,s,col){x.save();x.translate(cx-s/2,cy-s/2);x.scale(s/24,s/24);x.beginPath();x.moveTo(3,8);x.lineTo(7.5,12);x.lineTo(12,5);x.lineTo(16.5,12);x.lineTo(21,8);x.lineTo(19,19);x.lineTo(5,19);x.closePath();x.fillStyle=col;x.fill();x.restore()}
 const BC_FRESH={rest:'#8FB3D6',peak:'#7CC48A',good:'#E2B866',fade:'#D08A6A'};
 
 // Story-sized cards (1080 × 1920, the brew card's size): the footer sits at the bottom, the content above it.
-const BC_STORY=1920,BC_FOOT=244;
+const BC_FOOT=244;
 // Chips on one line only: as many as fit, then "+N more".
 function bcChipLine(x,items,y){const W=BC.W,P=BC.PAD;x.font='500 27px '+BC.F;let used=P,k=0;
   for(;k<items.length;k++){const w=x.measureText(items[k]).width+48,more=items.length-k-1,mw=more?x.measureText('+'+more+' more').width+48+12:0;if(used+w+mw>W-P)break;used+=w+12}

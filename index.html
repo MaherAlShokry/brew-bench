@@ -1002,7 +1002,7 @@ dialog#selsheet.pop .selopt{min-height:40px;padding:8px 12px;font-size:.95rem}
 @keyframes fw-in{from{opacity:0;transform:scale(.86) rotate(-24deg)}to{opacity:1;transform:none}}
 
 .fl-add{flex:0 0 auto!important;display:inline-flex;align-items:center;gap:8px}
-.fl-add svg,.fl-edit svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.fl-add svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
 .flchip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:var(--surface2);font-size:.85rem}
 .flchip i{width:9px;height:9px;border-radius:50%;flex:none}.flchip b{font-weight:500}.flchip .lv{color:var(--muted);letter-spacing:-1px;font-size:.7rem}
 .fl-entry{display:flex;gap:12px;align-items:flex-start;margin-top:8px}
@@ -1208,7 +1208,7 @@ button.chip:hover{background:var(--tonal-hover)}
 .le-rest{margin:8px 0 0!important;font-size:.84rem;color:var(--muted)}
 .le-pred{margin:8px 0 0!important;font-size:.84rem;color:var(--muted)}.le-pred b{color:var(--ink);font-weight:600}
 .le-notes{margin:10px 0 0;padding:8px 12px;border-left:3px solid var(--honey);background:color-mix(in srgb,var(--honey) 8%,transparent);border-radius:0 10px 10px 0;font-style:italic;line-height:1.45}
-.le2 .fl-entry,.le2 .fl-edit{margin-top:10px}.le2 .fl-entry .linkbtn,.le2 .fl-edit{font-size:.86rem}
+.le2 .fl-entry{margin-top:10px}.le2 .fl-entry .linkbtn{font-size:.86rem}
 .le-act{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--hair,var(--line))}
 .le-acts{margin-left:auto;display:flex;gap:8px}
 .le-act .ib.sm svg{width:17px;height:17px}
@@ -2811,7 +2811,7 @@ textarea{resize:none}
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="1c6716dc837d"</script>
+<script>const BUILD_ID="fbcd26a78bf7"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -5606,7 +5606,6 @@ let UPD_SEEN='';const chkNewBuild=()=>{try{if(typeof BUILD_ID==='undefined'||!wi
 try{if(navigator.serviceWorker&&typeof BUILD_ID!=='undefined'){navigator.serviceWorker.addEventListener('message',e=>{if(e.data&&e.data.type==='bb-updated')setTimeout(chkNewBuild,800)});
   addEventListener('load',()=>setTimeout(chkNewBuild,4000));document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(chkNewBuild,1500)})}}catch(e){}
 // Share and Edit are the same round icon button everywhere (with its name for screen readers and on hover).
-const IB_SVG={share:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>',edit:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4"/></svg>'};
 function icoBtn(kind,attrs,label){return ib(kind==='edit'?'edit':'share',attrs,label)}
 // A toast with a button, kept up a little longer so there is time to tap it.
 function toastAct(m,label,fn){const t=$('toast');t.textContent='';t.classList.add('act');const sp=document.createElement('span');sp.textContent=m;const b=document.createElement('button');b.type='button';b.className='tact';b.textContent=label;
@@ -6434,21 +6433,6 @@ function plan(c){
   if(k==='esp')tw.push(pick('Stretch the ratio a little longer.','Pull a touch shorter and hotter.','Aim for 25 to 30 seconds.'));
   if(k==='single'||k==='hoff1'||k==='flash'||k==='pulsar')tw.push(pick('Pour a little faster and gentler.','Pour slower for more contact time.','Follow as written.'));
   return {r,grinder,temp,bloom,agit,ratio,water,dose,set,st,why,held,tw:k==='46'?[]:tw.filter(t=>gl!=='balance'),steps:ps.steps,changes:ps.changes,goal:c.goal,amt:c.amt};
-}
-function planHTML(p,c){
-  const res=compute(p.st),[vt]=verdict(res.D),B=BREWERS[p.r.b];
-  const others=Object.keys(p.set).filter(g=>g!==p.grinder);const agl={low:'Gentle',med:'Normal',high:'Vigorous'}[p.agit];
-  const gcell=g=>p.set[g]==null?'<div><b>'+GRINDERS[g].name+'</b><span>n/a</span><small>can\u2019t grind this fine</small></div>':'<div><b>'+GRINDERS[g].name+'</b><span>'+dial(g,p.set[g])+'</span><small>'+esc(dialHint(g,p.set[g]))+'</small></div>';
-  return '<p class="hint" style="margin:0">'+esc(B.name)+' with '+GRINDERS[p.grinder].name+'</p><h2>'+esc(p.r.name)+'</h2><p class="hint" style="margin-top:0">'+esc(p.r.by)+'</p>'+
-   '<p>'+esc(PROCESSES[c.process].name)+' '+esc(vName(c.variety))+', '+c.roast+' roast. Predicted: <b>'+vt+'</b>.</p>'+
-   '<div class="specs">'+gcell(p.grinder)+others.map(gcell).join('')+
-    '<div><b>Water</b><span>'+p.temp+'°C</span>'+(p.r.temp2?'<small>then about '+p.r.temp2+'°C</small>':'')+'</div>'+
-    '<div><b>Dose : water</b><span>'+p.r.dose+'g : '+p.water+'g</span><small>1:'+p.ratio+'</small></div>'+
-    '<div><b>'+B.bloom.label+'</b><span>'+p.bloom+'s</span></div><div><b>Agitation</b><span>'+agl+'</span></div></div>'+
-   '<h3>Steps</h3>'+pourGraph(p.steps,p.water)+stepList(p.steps)+
-   (p.tw.length?'<div class="tip">'+p.tw.join(' ')+'</div>':'')+
-   '<h3>Why these settings</h3><ul class="why">'+(p.why.length?p.why.map(w=>'<li>'+w+'</li>').join(''):'<li>The recipe already suits this coffee.</li>')+
-   '<li>Grind starts from the recipe\u2019s setting on your calibration, then moves to land the predicted extraction on your goal.</li></ul>';
 }
 /* ================= BREW TIMER ================= */
 let TM=null;
@@ -8200,7 +8184,6 @@ function prepCanvas(img,rot=0,max=2000){const k=Math.min(2,max/Math.max(img.widt
   const mid=(lo+hi)/2,W=c.width,H=c.height;let dark=0,n=0;for(let y=Math.round(H*.25);y<H*.75;y+=2)for(let i=Math.round(W*.25);i<W*.75;i+=2){n++;if(px[(y*W+i)*4]<mid)dark++}
   const inv=dark>n*.5,span=Math.max(1,hi-lo);
   for(let q=0;q<px.length;q+=4){let v=(px[q]-lo)*255/span;v=v<0?0:v>255?255:v;if(inv)v=255-v;px[q]=px[q+1]=px[q+2]=v}x.putImageData(d,0,0);return c}
-async function prepImage(file){return prepCanvas(await loadImage(file))}
 // Uneven light (glare, a shadow across the bag): compare each pixel with its own neighbourhood instead of the whole
 // photo, so text under a bright patch keeps its contrast. Works on a canvas prepared above (dark text on light).
 function evenLight(c){const x=c.getContext('2d'),W=c.width,H=c.height,d=x.getImageData(0,0,W,H),px=d.data,I=new Float64Array((W+1)*(H+1)),r=Math.max(12,Math.round(Math.min(W,H)/28));
@@ -9554,8 +9537,6 @@ $('settings-in').addEventListener('change',e=>{if(e.target.id==='st-file'){impor
 for(const id of ['explore-in','settings-in'])$(id).addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g){const t=g.dataset.go;tapOpen(g,()=>showTab(t,false,true));return}
   const cb=e.target.closest('.cday[data-bean]');if(cb){openBean(cb.dataset.bean);return}
   const w=e.target.closest('[data-word]');if(w)openWord(w.dataset.word)});
-// Older code and links may still ask for the sheets; they are pages now.
-const openSheet=which=>showTab(which);
 // The highlight behind the current nav button glides to the next one.
 // The highlight under the current bottom-bar button moves like a drop of liquid: its leading edge reaches the new
 // button first and the rest follows, stretching and settling on the way.
@@ -10048,7 +10029,6 @@ const TN_X={Caramel:'Caramelized','Brown sugar':'Molasses','Cane sugar':'Panela'
 let TN_ALL=null;
 const tnNotes=()=>TN_ALL||(TN_ALL=(()=>{const base=FW.leaves.filter(n=>n.cat.n!=='Other'),by=Object.fromEntries(base.map(n=>[n.n,n]));
   return[...base.map(n=>({n:n.n,c:n.c,id:n.id,g:n.parent?n.parent.n:''})),...Object.entries(TN_X).filter(([x,w])=>by[w]&&!by[x]).map(([x,w])=>({n:x,c:by[w].c,id:by[w].id,g:by[w].parent?by[w].parent.n:''}))]})());
-const tnLeaves=()=>FW.leaves.filter(n=>n.cat.n!=='Other');
 // A note's identity keeps its accents (Rosé the wine and Rose the flower are two notes); typing without accents
 // still finds the accented one when nothing matches exactly.
 const tnKey=t=>String(t).trim().normalize('NFC').toLowerCase().replace(/[’']/g,"'");
@@ -10147,7 +10127,6 @@ function openPhoto(key){let d=$('phv');if(!d){d=document.createElement('dialog')
 document.addEventListener('click',e=>{const x=e.target.closest('[data-dyph]');if(x)openPhoto(DPH(x.dataset.dyph))});
 // The diary's composer, on a coffee's page (bd) and in the Diary view (dy): the moment, a few words, the day and a photo.
 // st keeps what's chosen so far, so a redraw doesn't lose it.
-const CAM_ICO='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-2.5h6L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.6"/></svg>';
 function dwriteHTML(p,st,top){return '<div class="dwrite" id="'+p+'-write">'+(top?'<p class="dw-lab">Coffee</p>'+top+'<p class="dw-lab">Moment</p>':'')+'<div class="dmoms" role="group" aria-label="What kind of moment">'+
     Object.entries(MOMENTS).map(([k,[n,ic]])=>'<button type="button" data-mom="'+k+'" aria-pressed="'+(k===st.mom)+'"><span aria-hidden="true">'+ic+'</span>'+n+'</button>').join('')+'</div>'+
     '<textarea id="'+p+'-dt" rows="3" maxlength="600" aria-label="Diary entry" placeholder="'+esc(MOMENTS[st.mom][2])+'">'+esc(st.t||'')+'</textarea><div class="dw-ph" id="'+p+'-phv"'+(st.ph?'':' hidden')+'>'+dwPh(st)+'</div>'+
@@ -10557,7 +10536,6 @@ function loadNear(root){if(!root)return;const els=root.querySelectorAll('[data-b
 // Without a photo, a coffee gets a tile in its origin region's colour (the map's colours) with a large bean.
 const regCol=k=>{const o=oInfo(k);return o&&REG[o.reg]?REG[o.reg].color:'var(--cherry)'};
 const beanPic=(b,cls)=>'<span class="bpic'+(cls?' '+cls:'')+'" style="--rc:'+regCol(b.origin)+'"'+(b.img?' data-bimg="'+b.id+'"':'')+'><span class="bph">'+beanSVG+(b.origin?'<span class="bfl">'+flagOf(b.origin)+'</span>':'')+'</span></span>';
-const glassRate=r=>'<span class="bglass">'+beanSVG+(r?r.toString().replace('.5','½'):'–')+'</span>';
 const CROWN='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/></svg>';
 
 /* ---------- The Beans page ---------- */
@@ -12135,14 +12113,12 @@ function bcPic(x,img,origin,X,Y,w,h,r,edge,ew){x.save();bcRound(x,X,Y,w,h,r);x.c
     if(L){x.fillStyle='rgba(60,36,20,.05)';x.fillRect(X,Y,w,h)}
     bcBean(x,X+w/2,Y+h/2,Math.min(w,h)*0.42,L?'rgba(60,36,20,.16)':'rgba(255,248,238,.22)',L?'rgba(255,255,255,.35)':'rgba(0,0,0,.18)')}
   x.restore();if(edge){bcRound(x,X,Y,w,h,r);x.lineWidth=ew||3;x.strokeStyle=edge;x.stroke()}}
-// Centred text on up to `max` lines; returns the y below it.
-function bcCenter(x,t,cx,y,w,font,col,lh,max){x.font=font;x.fillStyle=col;x.textAlign='center';const L=bcWrap(x,t,w,max||2);L.forEach((l,i)=>x.fillText(l,cx,y+i*lh));x.textAlign='left';return y+(L.length-1)*lh}
 // The crown over the winner.
 function bcCrown(x,cx,cy,s,col){x.save();x.translate(cx-s/2,cy-s/2);x.scale(s/24,s/24);x.beginPath();x.moveTo(3,8);x.lineTo(7.5,12);x.lineTo(12,5);x.lineTo(16.5,12);x.lineTo(21,8);x.lineTo(19,19);x.lineTo(5,19);x.closePath();x.fillStyle=col;x.fill();x.restore()}
 const BC_FRESH={rest:'#8FB3D6',peak:'#7CC48A',good:'#E2B866',fade:'#D08A6A'};
 
 // Story-sized cards (1080 × 1920, the brew card's size): the footer sits at the bottom, the content above it.
-const BC_STORY=1920,BC_FOOT=244;
+const BC_FOOT=244;
 // Chips on one line only: as many as fit, then "+N more".
 function bcChipLine(x,items,y){const W=BC.W,P=BC.PAD;x.font='500 27px '+BC.F;let used=P,k=0;
   for(;k<items.length;k++){const w=x.measureText(items[k]).width+48,more=items.length-k-1,mw=more?x.measureText('+'+more+' more').width+48+12:0;if(used+w+mw>W-P)break;used+=w+12}
@@ -12707,7 +12683,6 @@ function segBatch(list,instant){const items=[];
     if(rm||it.snap)ind.style.transition='none';Object.assign(ind.style,it.look,it.pos,{opacity:'1'});el._ip=it.pos;if(el.id)SEG_IP.set(el.id,it.pos);
     if(it.snap&&!rm)requestAnimationFrame(()=>requestAnimationFrame(()=>{ind.style.transition=''}))}
   for(const it of items)if(SEG_RO&&!it.el._ro){it.el._ro=1;SEG_RO.observe(it.el)}}
-function segUpdate(el){segBatch([el])}
 // A page coming into view places the highlights that waited for it (after a change of look or text size).
 // Every strip on it is placed then, before the page paints, straight at its option: one kept from before would show
 // for a frame where it was last (off by however much the layout moved since).

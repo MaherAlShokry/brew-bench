@@ -146,7 +146,6 @@ let UPD_SEEN='';const chkNewBuild=()=>{try{if(typeof BUILD_ID==='undefined'||!wi
 try{if(navigator.serviceWorker&&typeof BUILD_ID!=='undefined'){navigator.serviceWorker.addEventListener('message',e=>{if(e.data&&e.data.type==='bb-updated')setTimeout(chkNewBuild,800)});
   addEventListener('load',()=>setTimeout(chkNewBuild,4000));document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(chkNewBuild,1500)})}}catch(e){}
 // Share and Edit are the same round icon button everywhere (with its name for screen readers and on hover).
-const IB_SVG={share:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>',edit:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4"/></svg>'};
 function icoBtn(kind,attrs,label){return ib(kind==='edit'?'edit':'share',attrs,label)}
 // A toast with a button, kept up a little longer so there is time to tap it.
 function toastAct(m,label,fn){const t=$('toast');t.textContent='';t.classList.add('act');const sp=document.createElement('span');sp.textContent=m;const b=document.createElement('button');b.type='button';b.className='tact';b.textContent=label;
@@ -974,21 +973,6 @@ function plan(c){
   if(k==='esp')tw.push(pick('Stretch the ratio a little longer.','Pull a touch shorter and hotter.','Aim for 25 to 30 seconds.'));
   if(k==='single'||k==='hoff1'||k==='flash'||k==='pulsar')tw.push(pick('Pour a little faster and gentler.','Pour slower for more contact time.','Follow as written.'));
   return {r,grinder,temp,bloom,agit,ratio,water,dose,set,st,why,held,tw:k==='46'?[]:tw.filter(t=>gl!=='balance'),steps:ps.steps,changes:ps.changes,goal:c.goal,amt:c.amt};
-}
-function planHTML(p,c){
-  const res=compute(p.st),[vt]=verdict(res.D),B=BREWERS[p.r.b];
-  const others=Object.keys(p.set).filter(g=>g!==p.grinder);const agl={low:'Gentle',med:'Normal',high:'Vigorous'}[p.agit];
-  const gcell=g=>p.set[g]==null?'<div><b>'+GRINDERS[g].name+'</b><span>n/a</span><small>can\u2019t grind this fine</small></div>':'<div><b>'+GRINDERS[g].name+'</b><span>'+dial(g,p.set[g])+'</span><small>'+esc(dialHint(g,p.set[g]))+'</small></div>';
-  return '<p class="hint" style="margin:0">'+esc(B.name)+' with '+GRINDERS[p.grinder].name+'</p><h2>'+esc(p.r.name)+'</h2><p class="hint" style="margin-top:0">'+esc(p.r.by)+'</p>'+
-   '<p>'+esc(PROCESSES[c.process].name)+' '+esc(vName(c.variety))+', '+c.roast+' roast. Predicted: <b>'+vt+'</b>.</p>'+
-   '<div class="specs">'+gcell(p.grinder)+others.map(gcell).join('')+
-    '<div><b>Water</b><span>'+p.temp+'°C</span>'+(p.r.temp2?'<small>then about '+p.r.temp2+'°C</small>':'')+'</div>'+
-    '<div><b>Dose : water</b><span>'+p.r.dose+'g : '+p.water+'g</span><small>1:'+p.ratio+'</small></div>'+
-    '<div><b>'+B.bloom.label+'</b><span>'+p.bloom+'s</span></div><div><b>Agitation</b><span>'+agl+'</span></div></div>'+
-   '<h3>Steps</h3>'+pourGraph(p.steps,p.water)+stepList(p.steps)+
-   (p.tw.length?'<div class="tip">'+p.tw.join(' ')+'</div>':'')+
-   '<h3>Why these settings</h3><ul class="why">'+(p.why.length?p.why.map(w=>'<li>'+w+'</li>').join(''):'<li>The recipe already suits this coffee.</li>')+
-   '<li>Grind starts from the recipe\u2019s setting on your calibration, then moves to land the predicted extraction on your goal.</li></ul>';
 }
 /* ================= BREW TIMER ================= */
 let TM=null;
@@ -2740,7 +2724,6 @@ function prepCanvas(img,rot=0,max=2000){const k=Math.min(2,max/Math.max(img.widt
   const mid=(lo+hi)/2,W=c.width,H=c.height;let dark=0,n=0;for(let y=Math.round(H*.25);y<H*.75;y+=2)for(let i=Math.round(W*.25);i<W*.75;i+=2){n++;if(px[(y*W+i)*4]<mid)dark++}
   const inv=dark>n*.5,span=Math.max(1,hi-lo);
   for(let q=0;q<px.length;q+=4){let v=(px[q]-lo)*255/span;v=v<0?0:v>255?255:v;if(inv)v=255-v;px[q]=px[q+1]=px[q+2]=v}x.putImageData(d,0,0);return c}
-async function prepImage(file){return prepCanvas(await loadImage(file))}
 // Uneven light (glare, a shadow across the bag): compare each pixel with its own neighbourhood instead of the whole
 // photo, so text under a bright patch keeps its contrast. Works on a canvas prepared above (dark text on light).
 function evenLight(c){const x=c.getContext('2d'),W=c.width,H=c.height,d=x.getImageData(0,0,W,H),px=d.data,I=new Float64Array((W+1)*(H+1)),r=Math.max(12,Math.round(Math.min(W,H)/28));
@@ -4094,8 +4077,6 @@ $('settings-in').addEventListener('change',e=>{if(e.target.id==='st-file'){impor
 for(const id of ['explore-in','settings-in'])$(id).addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g){const t=g.dataset.go;tapOpen(g,()=>showTab(t,false,true));return}
   const cb=e.target.closest('.cday[data-bean]');if(cb){openBean(cb.dataset.bean);return}
   const w=e.target.closest('[data-word]');if(w)openWord(w.dataset.word)});
-// Older code and links may still ask for the sheets; they are pages now.
-const openSheet=which=>showTab(which);
 // The highlight behind the current nav button glides to the next one.
 // The highlight under the current bottom-bar button moves like a drop of liquid: its leading edge reaches the new
 // button first and the rest follows, stretching and settling on the way.
