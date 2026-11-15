@@ -933,8 +933,11 @@ svg .bo{fill:currentColor}svg .bc{fill:none;stroke:var(--surface);stroke-width:1
 .stars button svg .bo{fill:color-mix(in srgb,var(--line) 45%,var(--surface2));stroke:color-mix(in srgb,var(--cherry) 55%,var(--line));stroke-width:1.4;transition:fill .2s}
 .stars button svg .bc{fill:none;stroke:color-mix(in srgb,var(--cherry) 40%,var(--line));stroke-width:1.5;stroke-linecap:round}
 .stars button.lit svg .bo{fill:var(--cherry);stroke:var(--cherry)}.stars button.lit svg .bc{stroke:color-mix(in srgb,var(--surface) 75%,var(--honey))}
-.stars button.pop svg{animation:bean-pop .45s var(--ease-spring,cubic-bezier(.3,1.5,.5,1))}@keyframes bean-pop{0%{transform:scale(.6) rotate(-25deg)}60%{transform:scale(1.18) rotate(8deg)}100%{transform:none}}
-@media (prefers-reduced-motion:reduce){.stars button.pop svg{animation:none}}
+.stars button.pop svg,.beanrate .beans-r.pop>.rb{animation:bean-pop .45s var(--ease-spring,cubic-bezier(.3,1.5,.5,1)) both;animation-delay:calc(var(--i,0)*45ms)}@keyframes bean-pop{0%{transform:scale(.6) rotate(-25deg)}60%{transform:scale(1.18) rotate(8deg)}100%{transform:none}}
+@media (prefers-reduced-motion:reduce){.stars button.pop svg,.beanrate .beans-r.pop>.rb{animation:none}}
+/* The timer's ring breathes once as each pour starts (the design itself is unchanged). */
+.tm-ringwrap.tm-pulse{animation:tmPulse .55s cubic-bezier(.3,1.4,.5,1)}@keyframes tmPulse{40%{transform:scale(1.035)}}
+@media (prefers-reduced-motion:reduce){.tm-ringwrap.tm-pulse{animation:none}}
 /* Open dialogs and sheets lock the page behind them. */
 dialog{overscroll-behavior:contain}
 dialog{overscroll-behavior:contain;overflow:auto}
@@ -1045,12 +1048,17 @@ dialog#selsheet.pop .selopt{min-height:40px;padding:8px 12px;font-size:.95rem}
      out the same way, so nothing behind it has to move or lock. */
   html dialog#vd[open]{animation:page-in .34s var(--ease-sheet) both}
   html dialog#vd.closing{animation:page-out .26s cubic-bezier(.4,0,.6,1) both}
+  /* Opened from a coffee's picture: the page fades in while the picture grows into place (see zoomFrom). */
+  html dialog#vd.zoom[open]{animation:zoom-fade .26s ease-out both}
   html dialog#timer[open]{animation:page-in .34s var(--ease-sheet) both}
   html dialog#timer.closing{animation:page-out .26s cubic-bezier(.4,0,.6,1) both}
 }
 @keyframes dlg-in{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
 @keyframes dlg-out{to{opacity:0;transform:translateY(10px) scale(.97)}}
 @keyframes sheet-up{from{transform:translateY(100%)}to{transform:none}}
+@keyframes zoom-fade{from{opacity:0}}
+.zoom-pic{position:fixed;inset:auto;margin:0;padding:0;border:0;overflow:hidden;transform-origin:0 0;pointer-events:none;z-index:2147483647;background:var(--surface2)}
+.zoom-pic>img{width:100%;height:100%;object-fit:cover}
 @keyframes page-in{from{transform:translateX(100%)}to{transform:none}}
 @keyframes page-out{from{transform:none}to{transform:translateX(100%)}}
 @keyframes sheet-down{from{transform:none}to{transform:translateY(100%)}}
@@ -2049,6 +2057,10 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .pp-ring{position:relative;flex:none;width:92px;height:92px;margin:4px 26px 0 0;display:grid;place-items:center}
 .pp-ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
 .pp-ring circle{fill:none;stroke:rgba(255,248,238,.12);stroke-width:5}.pp-ring circle.on{stroke:#E2B866;stroke-linecap:round}
+/* Counting up: the first time the cover comes into view its bars and ring fill with the numbers. */
+.pp-rb i{transform-origin:0 50%}.pp-cover.filling .pp-rb i{animation:ppBar .9s cubic-bezier(.2,.8,.3,1) both}.pp-cover.filling .pp-ring circle.on{animation:ppRing 1s cubic-bezier(.2,.8,.3,1) both}
+@keyframes ppBar{from{transform:scaleX(0)}}@keyframes ppRing{from{stroke-dasharray:0 100}}
+i.rl{font-style:inherit;font-variant-numeric:tabular-nums}
 .pp-ring b{font-family:var(--display);font-size:1.4rem;font-weight:800;color:#FFF8EE;letter-spacing:-.01em}.pp-ring small{font-size:.55em;font-weight:700;opacity:.7;margin-left:1px}
 /* The pages: warm paper with a faint dot grid, the stamps inked on it. */
 .passport{--pp-p1:#F6EDDF;--pp-p2:#FBF6EE;--pp-dot:rgba(120,80,40,.13)}

@@ -702,7 +702,9 @@ function beanRateInput(id,get,set){const el=$(id);
   const draw=()=>{const r=get();el.innerHTML=beanRow(r,'big')+'<span class="br-w">'+(r?r.toString().replace('.5','½')+' · ':'')+rateWord(r)+'</span>';el.setAttribute('aria-valuenow',r);el.setAttribute('aria-valuetext',r?r+' beans, '+rateWord(r):'Not rated')};
   el.setAttribute('role','slider');el.tabIndex=0;el.setAttribute('aria-valuemin','0');el.setAttribute('aria-valuemax','5');el.setAttribute('aria-label','Your rating');
   el.onclick=e=>{const rb=e.target.closest('.rb');if(!rb)return;const i=[...el.querySelectorAll('.beans-r>.rb')].indexOf(rb)+1,box=rb.getBoundingClientRect();
-    let v=e.clientX-box.left<box.width/2?i-0.5:i;if(v===get())v=v===i?i-0.5:0;set(v);draw()};
+    let v=e.clientX-box.left<box.width/2?i-0.5:i;if(v===get())v=v===i?i-0.5:0;set(v);draw();
+    // The beans up to the new rating pop in turn, with a light tap.
+    if(v){const r=el.querySelector('.beans-r');if(r){r.querySelectorAll(':scope>.rb').forEach((x,k)=>x.style.setProperty('--i',k));r.classList.add('pop')}if(typeof tapBuzz==='function')tapBuzz()}};
   el.onkeydown=e=>{const k=e.key,r=get();let v=null;if(k==='ArrowRight'||k==='ArrowUp')v=Math.min(5,r+0.5);else if(k==='ArrowLeft'||k==='ArrowDown')v=Math.max(0,r-0.5);
     else if(k==='Home')v=0;else if(k==='End')v=5;else if(/^[0-5]$/.test(k))v=+k;if(v==null)return;e.preventDefault();set(v);draw()};
   draw()}
@@ -855,14 +857,14 @@ function renderBeanHero(){const cy=new Date().getFullYear(),N=BEANS.length,rated
     last=[...BEANS].sort((a,b)=>beanDay(b).localeCompare(beanDay(a))||b.ts-a.ts).slice(0,3);
   const h=$('bg-hero');h.className='bg-hero'+(N?'':' empty');
   h.innerHTML='<div class="bgh-tx"><span class="bgh-k">'+seasonTag()+(window.PROFILE_OK&&PROFILE?esc(PROFILE.nick)+'’s coffee journal':'Your coffee journal')+'</span>'+
-      (N?'<h3>'+N+' coffee'+(N===1?'':'s')+(origins?' <em>· '+origins+' origin'+(origins===1?'':'s')+'</em>':'')+'</h3>'+
-        '<div class="bgh-stats"><button type="button" class="bgh-ro" id="bg-ros" aria-label="Your roasteries"><b>'+roasters+'</b>'+(roasters===1?'roastery':'roasteries')+'</button><span><b>'+(avg?avg.toFixed(1):'–')+beanSVG+'</b>average</span><span><b>'+BEANS.filter(b=>beanYear(b)===cy).length+'</b>in '+cy+'</span></div>'
+      (N?'<h3>'+'<i class="rl" data-roll="'+N+'">'+N+'</i>'+' coffee'+(N===1?'':'s')+(origins?' <em>· '+'<i class="rl" data-roll="'+origins+'">'+origins+'</i>'+' origin'+(origins===1?'':'s')+'</em>':'')+'</h3>'+
+        '<div class="bgh-stats"><button type="button" class="bgh-ro" id="bg-ros" aria-label="Your roasteries"><b>'+'<i class="rl" data-roll="'+roasters+'">'+roasters+'</i>'+'</b>'+(roasters===1?'roastery':'roasteries')+'</button><span><b>'+(avg?'<i class="rl" data-roll="'+avg.toFixed(1)+'">'+avg.toFixed(1)+'</i>':'–')+beanSVG+'</b>average</span><span><b>'+'<i class="rl" data-roll="'+BEANS.filter(b=>beanYear(b)===cy).length+'">'+BEANS.filter(b=>beanYear(b)===cy).length+'</i>'+'</b>in '+cy+'</span></div>'
         :'<h3>Start your <em>coffee journal</em></h3><p>Scan a bag or add one by hand, then rate it in beans.</p>')+
       '</div><div class="bgh-fan" aria-hidden="true">'+(last.length?last.map(b=>beanPic(b)).join(''):'<span class="bpic"><span class="bph">'+beanSVG+'</span></span>')+'</div>'+
     // An empty collection gets scan and add right here; once there are coffees the page's + has them (and your scans).
     (N?'':'<div class="bgh-acts"><button type="button" class="bgh-btn main" id="bg-scan" aria-label="Scan a bag" title="Scan a bag">'+SCAN_ICO+'</button><button type="button" class="bgh-btn" id="bg-add" aria-label="Add a coffee" title="Add a coffee">'+PLUS_ICO+'</button>'+
       '</div>');
-  hydrateImgs(h)}
+  hydrateImgs(h);rollIn(h)}
 // Going from Coffees into another view (Roastery, Diary, Passport, Top 5, your scans) is one step: back returns to
 // Coffees rather than leaving Beans. Moving between the other views replaces that step, so back is still one step.
 let BV_SILENT=false;
@@ -1078,14 +1080,14 @@ function renderPassport(){const p=$('bv-passport');if(!p)return;const st=cabStat
   // A leather cover (how far you are, by region) over cream pages holding the stamps.
   const pct=total?Math.round(onMap/total*100):0,off=got.filter(k=>k!=='blend').length-onMap;
   p.innerHTML='<div class="passport"><div class="pp-cover"><div class="pp-h"><span class="pp-k">'+PP_GLOBE+'Coffee passport</span>'+(got.length?'<button type="button" class="sh-mini ic pp-share" data-ppshare aria-label="Share your passport" title="Share">'+SH_ICO+'</button>':'')+'</div>'+
-    '<div class="pp-sum"><h3><b>'+onMap+'</b><em>of '+total+' origins'+(off>0?' · +'+off+' more':'')+'</em></h3>'+
-    '<span class="pp-ring" role="img" aria-label="'+pct+'% of origins collected"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="27" pathLength="100"/><circle class="on" cx="32" cy="32" r="27" pathLength="100" stroke-dasharray="'+pct+' 100"/></svg><b>'+pct+'<small>%</small></b></span></div>'+
+    '<div class="pp-sum"><h3><b>'+'<i class="rl" data-roll="'+onMap+'">'+onMap+'</i>'+'</b><em>of '+total+' origins'+(off>0?' · +'+off+' more':'')+'</em></h3>'+
+    '<span class="pp-ring" role="img" aria-label="'+pct+'% of origins collected"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="27" pathLength="100"/><circle class="on" cx="32" cy="32" r="27" pathLength="100" stroke-dasharray="'+pct+' 100"/></svg><b>'+'<i class="rl" data-roll="'+pct+'">'+pct+'</i>'+'<small>%</small></b></span></div>'+
     '<div class="pp-regs">'+regs+blendReg+'</div></div><div class="pp-pages">'+
     (got.length?'<div class="pp-ph"><span>Stamps</span><b>'+got.length+'</b></div><div class="pp-grid">'+got.map((k,i)=>'<button type="button" class="pp-st" data-ppo="'+k+'" style="--r:'+(((i*37)%15)-7)+'deg"><img alt="" src="'+(STAMPS.get(k)||STAMP_WAIT)+'" data-stamp="'+k+'"><b>'+esc(originName(k))+'</b><small>'+(k==='blend'?by.blend.length+' blend'+(by.blend.length===1?'':'s'):nBags(k)+' bag'+(nBags(k)===1?'':'s'))+' · '+first(k).slice(0,4)+'</small></button>').join('')+'</div>'
       :'<p class="pp-empty">Your first stamp arrives with your first coffee.</p>')+
     // Origins still to collect: empty stamp spaces with the country's flag, each opening it on the map.
     (next.length?'<div class="pp-next"><div class="pp-ph"><span>Still to discover</span></div><div class="pp-slots">'+[...new Set(next)].map(k=>{const o=ALLO()[k],r=REG[o.reg];
-      return '<button type="button" class="pp-slot" data-o="'+k+'" aria-label="'+esc(originName(k))+': see it on the map"><span class="pp-sc" aria-hidden="true">'+(o.flag||'')+'</span><b>'+esc(originName(k))+'</b><small>'+esc(r?r.name.replace(' and Caribbean','').replace(' and Pacific',''):'')+'</small></button>'}).join('')+'</div></div>':'')+'</div></div>';fillStamps(p)}
+      return '<button type="button" class="pp-slot" data-o="'+k+'" aria-label="'+esc(originName(k))+': see it on the map"><span class="pp-sc" aria-hidden="true">'+(o.flag||'')+'</span><b>'+esc(originName(k))+'</b><small>'+esc(r?r.name.replace(' and Caribbean','').replace(' and Pacific',''):'')+'</small></button>'}).join('')+'</div></div>':'')+'</div></div>';fillStamps(p);rollIn(p)}
 
 /* Your scans, each one a tap away from the gallery. A scan counts as added when a gallery coffee came from it or has
    the same name and roastery. */
@@ -1281,7 +1283,20 @@ function openOrigin(k){const d=$('vd'),o=oInfo(k);if(!o)return;BFROM=k;const lis
     '<h2 id="vd-title"><span class="og-fl">'+flagOf(k)+'</span> '+esc(originName(k))+'</h2><p class="hint" style="margin:0">'+list.length+' coffee'+(list.length===1?'':'s')+(bags>list.length?' · '+bags+' bags':'')+(first?' · since '+new Date(first+'T12:00').toLocaleDateString(undefined,{month:'short',year:'numeric'}):'')+(avg?' · rated '+avg.toFixed(1)+' on average':'')+'</p></div>'+
     '<div class="vd-body"><div class="clist og-list">'+list.map((b,i)=>coffeeRow(b,false,i)).join('')+'</div>'+(k==='blend'?'':'<div class="actions"><button type="button" class="btn ghost" id="og-map">'+esc(originName(k))+' on the map</button></div>')+'</div>';
   hydrateImgs($('vd-in'));$('vd-in').onclick=e=>{if(!$('vd-in').querySelector('.og-list'))return;const r=e.target.closest('#vd-in [data-bean]');if(r){BFROM=k;openBean(r.dataset.bean);return}if(e.target.closest('#og-map')){d.close();goTab('map');setTimeout(()=>{try{selectOrigin(k,true)}catch(x){}},350)}};
-  $('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
+  $('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0;zoomFrom(d)}
+/* Opening a coffee from its picture: the picture grows from where you tapped it into the page's big photo, while the
+   page fades in behind it (instead of sliding in from the side). Phones only, and not with reduced motion. */
+let ZOOM_SRC=null;
+document.addEventListener('click',e=>{const t=e.target.closest('[data-bean]');const pic=t&&!t.closest('dialog')&&t.querySelector('.bpic');ZOOM_SRC=pic?{el:pic,t:performance.now()}:null},true);
+function zoomFrom(d){const s=ZOOM_SRC;ZOOM_SRC=null;if(!s||performance.now()-s.t>700||RM()||innerWidth>759||!s.el.isConnected)return;
+  const hero=d.querySelector('.bd-hero .bpic');if(!hero)return;const a=s.el.getBoundingClientRect();if(!a.width||a.bottom<0||a.top>innerHeight)return;
+  d.classList.add('zoom');const b=hero.getBoundingClientRect();const c=s.el.cloneNode(true);c.removeAttribute('data-bimg');c.classList.add('zoom-pic');
+  c.setAttribute('popover','manual');c.setAttribute('aria-hidden','true');c.style.cssText+=';left:'+b.left+'px;top:'+b.top+'px;width:'+b.width+'px;height:'+b.height+'px;border-radius:'+getComputedStyle(hero).borderRadius;
+  document.body.appendChild(c);try{c.showPopover()}catch(e){c.remove();d.classList.remove('zoom');return}hero.style.visibility='hidden';
+  const r0=getComputedStyle(s.el).borderRadius,sx=a.width/b.width,sy=a.height/b.height;
+  const an=c.animate([{transform:'translate('+(a.left-b.left)+'px,'+(a.top-b.top)+'px) scale('+sx+','+sy+')',borderRadius:r0},{transform:'none',borderRadius:c.style.borderRadius}],{duration:380,easing:'cubic-bezier(.2,.8,.2,1)'});
+  const end=()=>{hero.style.visibility='';try{c.hidePopover()}catch(e){}c.remove()};an.onfinish=end;an.oncancel=end;
+  d.addEventListener('close',()=>d.classList.remove('zoom'),{once:true})}
 function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.bean=b.id;
   // To the top before the page is drawn: scrolling after it forced the whole new page to be laid out at once.
   if(!write&&$('vd').scrollTop)$('vd').scrollTop=0;const d=$('vd'),rk=beanRank(b),P=b.process&&PROCESSES[b.process],ls=beanLogStats(b),f=b.shelf&&fresh(b);
@@ -1352,7 +1367,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.be
     const i=BEANS.findIndex(x=>x.id===b.id);if(i<0)return;BEANS=BEANS.filter(x=>x.id!==b.id);saveBeans();d.close();renderBeans();
     undoToast('Removed “'+beanTitle(b)+'”',()=>{if(BEANS.some(x=>x.id===b.id))return;BEANS.splice(Math.min(i,BEANS.length),0,b);saveBeans();renderBeans()},
       ()=>{if(BEANS.some(x=>x.id===b.id))return;if(!inTop)BIMG.del(b.id);dropDiaryPhotos(b.diary||[])})};
-  showDlg(d);$('vd-x').onclick=()=>d.close();if($('vd-back'))$('vd-back').onclick=()=>vdBack(()=>openOrigin(from));if($('bd-advback'))$('bd-advback').onclick=()=>vdBack(()=>openCal(cal.id,{back:b.cal.d}));if($('bd-roback'))$('bd-roback').onclick=()=>vdBack(()=>openRoaster(roBack.name,roBack.list));if($('bd-ro'))$('bd-ro').onclick=()=>openRoaster(b.roaster);
+  showDlg(d);zoomFrom(d);$('vd-x').onclick=()=>d.close();if($('vd-back'))$('vd-back').onclick=()=>vdBack(()=>openOrigin(from));if($('bd-advback'))$('bd-advback').onclick=()=>vdBack(()=>openCal(cal.id,{back:b.cal.d}));if($('bd-roback'))$('bd-roback').onclick=()=>vdBack(()=>openRoaster(roBack.name,roBack.list));if($('bd-ro'))$('bd-ro').onclick=()=>openRoaster(b.roaster);
   if(write)setTimeout(()=>{const h=$('bd-dh');if(h){h.scrollIntoView({block:'start'});$('bd-dt').focus({preventScroll:true})}},80)}
 function beanDoc(b){const P=b.process&&PROCESSES[b.process];
   return{title:beanTitle(b),sub:(b.roaster?b.roaster+' | ':'')+'Rated '+(b.rating||'–')+' of 5',file:'coffee-'+beanTitle(b),

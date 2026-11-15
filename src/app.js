@@ -719,6 +719,15 @@ function beanSync(){const b=S.bean,gb=b&&b.id&&window.BEANS_OK&&beanById(b.id);i
     S.bean=okSBean({name:beanTitle(gb),roaster:gb.roaster,origin:gb.origin,id:gb.id})||S.bean}
   if(gb.roastDate&&S.bday!==day){S.bday=day;const a=clamp(ISO_D.test(gb.roastDate)?daysAgo(gb.roastDate):daysSince(gb.roastDate),3,60);if(a!==S.age){S.age=a;ch=true}}
   return ch}
+/* Numbers that count up (a passport's origins, the Beans page's totals), once each per visit of the app: the first
+   time one comes into view it climbs from zero to its value (and its bars and ring fill), later it simply shows. */
+const ROLLED=new Set();
+const ROLL_IO='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;ROLL_IO.unobserve(e.target);rollNow(e.target)}),{threshold:.5}):null;
+function rollNow(el){const v=el.dataset.roll,to=parseFloat(v),dp=(v.split('.')[1]||'').length;if(!(to>0)){el.textContent=v;return}
+  const box=el.closest('.pp-cover,.bg-hero');if(box)replay(box,'filling');const t0=performance.now(),D=Math.min(900,420+to*40);
+  el.textContent=(0).toFixed(dp);const f=n=>{const k=Math.min(1,(n-t0)/D),e=1-Math.pow(1-k,3);el.textContent=(to*e).toFixed(dp);if(k<1)requestAnimationFrame(f)};requestAnimationFrame(f)}
+function rollIn(root){if(!root||!ROLL_IO||RM())return;root.querySelectorAll('[data-roll]').forEach((el,i)=>{const k=root.id+':'+i;
+  if(ROLLED.has(k))return;ROLLED.add(k);if(parseFloat(el.dataset.roll)>0)el.textContent=(0).toFixed((el.dataset.roll.split('.')[1]||'').length);ROLL_IO.observe(el)})}
 // Sets a block's HTML only when it differs from what it last set: drawing the same thing again on each visit made the
 // browser restyle and lay it out again, part of what a tab change cost.
 function setHTML(el,h){if(el._h===h)return false;el._h=h;el.innerHTML=h;return true}
@@ -1044,6 +1053,8 @@ document.addEventListener('click',e=>{const b=e.target.closest('.tm-cue');if(!b)
   if(CUES[k]){if(k==='voice')cueSay('Voice on. I will read each step.');else cueBuzz([60])}toast(k==='voice'?(CUES.voice?'Each step will be read aloud':'Voice off'):(CUES.buzz?'The phone will buzz at each step':'Vibrate off'))});
 function cueSay(t){if(!CUES.voice||!t)return;const c=plugin('Cues');if(c&&c.speak){c.speak({text:t}).catch(()=>{});return}
   try{const s=window.speechSynthesis;if(!s||!window.SpeechSynthesisUtterance)return;s.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=1.05;s.speak(u)}catch(e){}}
+// A light tap under the finger for a choice made (a rating), whatever the timer's own cue settings.
+function tapBuzz(){try{if(RM())return;const c=plugin('Cues');if(c&&c.vibrate){c.vibrate({pattern:[12]}).catch(()=>{});return}if(navigator.vibrate)navigator.vibrate(12)}catch(e){}}
 function cueBuzz(p){if(!CUES.buzz)return;const c=plugin('Cues');if(c&&c.vibrate){c.vibrate({pattern:p}).catch(()=>{});return}try{if(navigator.vibrate)navigator.vibrate(p)}catch(e){}}
 // A step as it's said: "pour 60g (to 120g)" → "Pour 60 grams, to 120 grams."
 function cueText(s){let t=String(s||'').replace(/^\s*\d+:\d\d\s*/,'').replace(/\((to|until)\s+(\d+)\s?g\)/gi,', $1 $2 grams').replace(/(\d+)\s?g\b/g,'$1 grams').replace(/(\d+)\s?°C/g,'$1 degrees').replace(/\s+/g,' ').replace(/ ,/g,',').trim();
@@ -1159,7 +1170,7 @@ function drawCheck(){const p=TM.p,r=TM.r||RECIPES[TM.idx],b=(p&&(p.brewer||p.st&
 function paint(){const el=TM.el,C=2*Math.PI*96;$('tm-big').textContent=mmss(el);
   $('tm-arc').setAttribute('stroke-dashoffset',(C*(1-el/TM.total)).toFixed(1));
   let cur=-1;TM.ev.forEach((e,i)=>{if(e.t>=0&&e.t<=el)cur=i});
-  if(cur!==TM.lastIdx&&TM.run&&cur>=0){beep();cueStep(TM.ev[cur],TM.ev[TM.ev.findIndex(e=>e.t>TM.ev[cur].t)]);TM.lastIdx=cur}
+  if(cur!==TM.lastIdx&&TM.run&&cur>=0){replay(document.querySelector('#timer .tm-ringwrap'),'tm-pulse');beep();cueStep(TM.ev[cur],TM.ev[TM.ev.findIndex(e=>e.t>TM.ev[cur].t)]);TM.lastIdx=cur}
   if(TM.wIdx!==cur+':'+TM.run){TM.wIdx=cur+':'+TM.run;tmWidget()}
   const ni=TM.ev.findIndex(e=>e.t>el),next=ni>=0?TM.ev[ni]:null,left=next?next.t-el:TM.total-el;
   // Three soft beeps before the next step, so you can get the kettle ready.
@@ -2318,9 +2329,9 @@ $('ts-chips').onclick=e=>{const b=e.target.closest('[data-ts]');if(!b)return;ren
 
 /* ================= LOG ================= */
 let STAR=0,DL=null;
-function renderStars(){const w=$('l-starword');if(w){w.textContent=STARW[STAR]||'';w.classList.toggle('none',!STAR)}$('l-stars').innerHTML=[1,2,3,4,5].map(n=>'<button type="button" class="'+(n<=STAR?'lit':'')+(n===STAR&&LSPOP?' pop':'')+'" data-s="'+n+'" role="radio" aria-checked="'+(n===STAR)+'" aria-label="'+n+' bean'+(n>1?'s':'')+(STARW[n]?', '+STARW[n]:'')+'">'+RB_SVG+'</button>').join('');LSPOP=false}
+function renderStars(){const w=$('l-starword');if(w){w.textContent=STARW[STAR]||'';w.classList.toggle('none',!STAR)}$('l-stars').innerHTML=[1,2,3,4,5].map(n=>'<button type="button" class="'+(n<=STAR?'lit':'')+(n<=STAR&&LSPOP?' pop':'')+'" style="--i:'+(n-1)+'" data-s="'+n+'" role="radio" aria-checked="'+(n===STAR)+'" aria-label="'+n+' bean'+(n>1?'s':'')+(STARW[n]?', '+STARW[n]:'')+'">'+RB_SVG+'</button>').join('');LSPOP=false}
 let LSPOP=false;
-$('l-stars').onclick=e=>{const b=e.target.closest('[data-s]');if(b){STAR=+b.dataset.s;LSPOP=true;renderStars()}};
+$('l-stars').onclick=e=>{const b=e.target.closest('[data-s]');if(b){STAR=+b.dataset.s;LSPOP=true;renderStars();tapBuzz()}};
 /* ---------- Shared log (Firebase Realtime Database over REST, no SDK) ---------- */
 // The Realtime Database URL of the Firebase project that holds shared logs (see README).
 // Empty means shared logs are switched off. A 'bb-syncdb' value in localStorage overrides it, for testing.
