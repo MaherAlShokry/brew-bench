@@ -2876,14 +2876,14 @@ textarea{resize:none}
 :root[data-theme="dark"] :is(.specs,.rstats,.stats)>div.tl{background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 26%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 13%,var(--surface))}:root[data-theme="dark"] :is(.specs,.rstats,.stats)>div.tl .st-ic{stroke:color-mix(in srgb,var(--tc) 70%,#fff)}:root[data-theme="dark"] .rstats>div.tl>small,:root[data-theme="dark"] :is(.specs,.stats)>div.tl>b{color:color-mix(in srgb,var(--tc) 45%,var(--muted))}
 
 
-.me-tiles{gap:8px!important}
-.me-tiles>div{display:grid!important;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto 1fr;align-content:start;justify-items:start;row-gap:0;min-height:0!important;padding:11px 11px 12px!important;border-radius:16px!important;border:0!important;
+.me-tiles{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+.me-tiles>div{display:grid!important;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto 1fr;align-items:center;align-content:start;column-gap:9px;row-gap:10px;min-height:0!important;padding:12px 12px 13px!important;border-radius:18px!important;border:0!important;
   background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 20%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 9%,var(--surface))!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tc) 16%,transparent)}
-.me-tiles>div>i{grid-row:1;width:30px!important;height:30px!important;margin:0 0 10px!important;border-radius:9px!important;background:color-mix(in srgb,var(--tc) 18%,transparent)!important;font-size:.95rem!important;display:grid!important;place-items:center}
-.me-tiles>div>i .me-flag{font-size:1rem!important}
-.me-tiles>div>i .di{width:16px!important;height:16px!important;color:var(--tc)!important}
-.me-tiles>div>small{grid-row:2;margin:0 0 2px!important;font-size:.64rem!important;line-height:1.2;white-space:nowrap;color:color-mix(in srgb,var(--tc) 55%,var(--muted))!important;overflow-wrap:anywhere}
-.me-tiles>div>b{grid-row:3;align-self:start;font-size:.92rem!important;line-height:1.2!important}
+.me-tiles>div>i{grid-row:1;grid-column:1;width:32px!important;height:32px!important;margin:0!important;border-radius:11px!important;background:color-mix(in srgb,var(--tc) 18%,transparent)!important;font-size:1.05rem!important;display:grid!important;place-items:center}
+.me-tiles>div>i .me-flag{font-size:1.15rem!important}
+.me-tiles>div>i .di{width:18px!important;height:18px!important;color:var(--tc)!important}
+.me-tiles>div>small{grid-row:1;grid-column:2;margin:0!important;font-size:.72rem!important;line-height:1.2;letter-spacing:.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:color-mix(in srgb,var(--tc) 55%,var(--muted))!important}
+.me-tiles>div>b{grid-row:2;grid-column:1/-1;align-self:start;font-size:1.02rem!important;line-height:1.25!important}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .me-tiles>div{background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 26%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 13%,var(--surface))!important}:root:not([data-theme="light"]) .me-tiles>div>i .di{color:color-mix(in srgb,var(--tc) 70%,#fff)!important}:root:not([data-theme="light"]) .me-tiles>div>small{color:color-mix(in srgb,var(--tc) 45%,var(--muted))!important}}
 :root[data-theme="dark"] .me-tiles>div{background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 26%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 13%,var(--surface))!important}:root[data-theme="dark"] .me-tiles>div>i .di{color:color-mix(in srgb,var(--tc) 70%,#fff)!important}:root[data-theme="dark"] .me-tiles>div>small{color:color-mix(in srgb,var(--tc) 45%,var(--muted))!important}
 </style>
@@ -2891,7 +2891,7 @@ textarea{resize:none}
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="c836ae0c03a7"</script>
+<script>const BUILD_ID="92875829ad96"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -6867,8 +6867,19 @@ function showTab(id,fromHistory,pure){NAV_AT=performance.now();if(window.closeBe
       // The slide waits, held on its first frame, until the page has been drawn once. Drawing a page (above all the
       // first time it's shown) can take a phone longer than a frame; started at once, the slide's first frames were
       // lost to it and the page jumped part of the way in: the stutter on a section's first visit.
-      const go=el=>{el.classList.add('nav-hold');replay(el,'nav-in');clearTimeout(el._nav);el._nav=setTimeout(()=>el.classList.remove('nav-in','nav-hold'),640);
-        requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.remove('nav-hold')))};
+      // While a page moves in it holds its + button (a moving page carries anything fixed inside it along), which put the
+      // button at the foot of the whole page, out of sight, until the slide ended: it came in late. For that time the
+      // button is shifted back to its usual place on the screen, so it's there from the slide's first frame.
+      const fb=el=>el.matches('main section')&&el.querySelector(':scope>.fab');
+      const unpin=el=>{const f=fb(el);if(f&&f.style.translate)f.style.translate=''};
+      // (Followed frame by frame: the page's height can still change as it's drawn.)
+      const pin=el=>{const f=fb(el);if(!f||!el.classList.contains('nav-in'))return;
+        const b=el.offsetTop+el.offsetHeight-scrollY,r=el.offsetLeft+el.offsetWidth,v=Math.round(document.documentElement.clientWidth-r)+'px '+Math.round(innerHeight-b)+'px';
+        if(f.style.translate!==v)f.style.translate=v;if(!el.classList.contains('nav-hold'))requestAnimationFrame(()=>pin(el))};
+      const end=el=>{clearTimeout(el._nav);el.classList.remove('nav-in','nav-hold');unpin(el)};
+      const go=el=>{el.classList.add('nav-hold');unpin(el);replay(el,'nav-in');clearTimeout(el._nav);el._nav=setTimeout(()=>end(el),640);
+        if(!el._navEnd){el._navEnd=e=>{if(e.target===el&&/^sec-|^page-in|^vt-pop/.test(e.animationName))end(el)};el.addEventListener('animationend',el._navEnd)}
+        pin(el);requestAnimationFrame(()=>requestAnimationFrame(()=>{el.classList.remove('nav-hold');pin(el)}))};
       go(sec);
       // The Brew page's hero sits above the page itself: it comes in with it.
       const hw=id==='dial'&&document.querySelector('.herowrap');if(hw)go(hw)
@@ -13033,19 +13044,20 @@ function tasteHTML(){if(!window.BEANS_OK||BEANS.length<2)return '';const t=taste
   const o=t.origin&&oInfo(t.origin.k),R=t.region&&REG[t.region.k],v=t.variety&&VBY[t.variety.k],pr=t.process&&PROCESSES[t.process.k],B=t.brewer&&BREWERS[t.brewer.k],lo=t.likedOrigin&&oInfo(t.likedOrigin.k);
   const ro=t.regionOrigin&&oInfo(t.regionOrigin.k);
   const fl=k=>'<span class="me-flag">'+flagOf(k)+'</span>';
-  // A few short tiles in one row you can swipe, not a long list.
+  // Up to six tiles, two to a row.
   // Each tile's icon matches its own value: the flag sits with the country, the map with the region.
   const rows=[o&&[fl(t.origin.k),'Origin',o.name],R&&['🗺️','Region',R.name],
     v&&['🌱','Variety',shortName(v.name)],pr&&['🧪','Process',pr.name.replace(/\s*\(.*\)$/,'')],
     t.roast&&['🔥','Roast',t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1)],
-    lo&&lo!==o&&[fl(t.likedOrigin.k),'Rated best',lo.name],B&&['☕','Brewer',shortBrewer(B.name)]].filter(Boolean).slice(0,6);
+    lo&&lo!==o&&[fl(t.likedOrigin.k),'Rated best',lo.name],B&&['☕','Brewer',shortBrewer(B.name)],
+    t.roaster&&['🏷','Roastery',t.roaster.k],t.recipe&&['🎯','Recipe',t.recipe.k]].filter(Boolean).slice(0,6);
   if(!rows.length&&!t.families.length)return '';
   return '<div class="me-taste"><div class="me-th"><b>Your coffee taste</b><small>From all '+BEANS.length+' coffees and '+myCups().length+' cups, all time</small></div>'+
     (tasteLine(t)?'<p class="me-tl">'+esc(tasteLine(t))+'</p>':'')+
     (rows.length?'<div class="me-tiles">'+rows.map(([i,k,vv])=>'<div style="--tc:'+(TASTE_C[k]||'#8A5A3B')+'"><i aria-hidden="true">'+i+'</i><small>'+k+'</small><b>'+esc(vv)+'</b></div>').join('')+'</div>':'')+
     (t.notes.length?'<div class="me-notes chips">'+t.notes.slice(0,5).map(n=>'<span class="chip"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'</span>').join('')+'</div>':'')+'</div>'}
 // Each taste tile has its own colour, the same family as the stat tiles elsewhere.
-const TASTE_C={Origin:'#3E8A68',Region:'#3F86B5',Variety:'#5E8C3E',Process:'#B88A2E',Roast:'#B5533C','Rated best':'#C2622F',Brewer:'#5F82A3'};
+const TASTE_C={Origin:'#3E8A68',Region:'#3F86B5',Variety:'#5E8C3E',Process:'#B88A2E',Roast:'#B5533C','Rated best':'#C2622F',Brewer:'#5F82A3',Roastery:'#8A5A3B',Recipe:'#8763B0'};
 function shortBrewer(n){return n.replace(/^Hario\s+|^Kalita\s+|^Origami\s+/,'')}
 // Who you're signed in as, and the sync; or, signed out, what an account brings.
 function accountHTML(){

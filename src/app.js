@@ -1327,8 +1327,19 @@ function showTab(id,fromHistory,pure){NAV_AT=performance.now();if(window.closeBe
       // The slide waits, held on its first frame, until the page has been drawn once. Drawing a page (above all the
       // first time it's shown) can take a phone longer than a frame; started at once, the slide's first frames were
       // lost to it and the page jumped part of the way in: the stutter on a section's first visit.
-      const go=el=>{el.classList.add('nav-hold');replay(el,'nav-in');clearTimeout(el._nav);el._nav=setTimeout(()=>el.classList.remove('nav-in','nav-hold'),640);
-        requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.remove('nav-hold')))};
+      // While a page moves in it holds its + button (a moving page carries anything fixed inside it along), which put the
+      // button at the foot of the whole page, out of sight, until the slide ended: it came in late. For that time the
+      // button is shifted back to its usual place on the screen, so it's there from the slide's first frame.
+      const fb=el=>el.matches('main section')&&el.querySelector(':scope>.fab');
+      const unpin=el=>{const f=fb(el);if(f&&f.style.translate)f.style.translate=''};
+      // (Followed frame by frame: the page's height can still change as it's drawn.)
+      const pin=el=>{const f=fb(el);if(!f||!el.classList.contains('nav-in'))return;
+        const b=el.offsetTop+el.offsetHeight-scrollY,r=el.offsetLeft+el.offsetWidth,v=Math.round(document.documentElement.clientWidth-r)+'px '+Math.round(innerHeight-b)+'px';
+        if(f.style.translate!==v)f.style.translate=v;if(!el.classList.contains('nav-hold'))requestAnimationFrame(()=>pin(el))};
+      const end=el=>{clearTimeout(el._nav);el.classList.remove('nav-in','nav-hold');unpin(el)};
+      const go=el=>{el.classList.add('nav-hold');unpin(el);replay(el,'nav-in');clearTimeout(el._nav);el._nav=setTimeout(()=>end(el),640);
+        if(!el._navEnd){el._navEnd=e=>{if(e.target===el&&/^sec-|^page-in|^vt-pop/.test(e.animationName))end(el)};el.addEventListener('animationend',el._navEnd)}
+        pin(el);requestAnimationFrame(()=>requestAnimationFrame(()=>{el.classList.remove('nav-hold');pin(el)}))};
       go(sec);
       // The Brew page's hero sits above the page itself: it comes in with it.
       const hw=id==='dial'&&document.querySelector('.herowrap');if(hw)go(hw)

@@ -2927,16 +2927,16 @@ textarea{resize:none}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(.specs,.rstats,.stats)>div.tl{background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 26%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 13%,var(--surface))}:root:not([data-theme="light"]) :is(.specs,.rstats,.stats)>div.tl .st-ic{stroke:color-mix(in srgb,var(--tc) 70%,#fff)}:root:not([data-theme="light"]) .rstats>div.tl>small,:root:not([data-theme="light"]) :is(.specs,.stats)>div.tl>b{color:color-mix(in srgb,var(--tc) 45%,var(--muted))}}
 :root[data-theme="dark"] :is(.specs,.rstats,.stats)>div.tl{background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 26%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 13%,var(--surface))}:root[data-theme="dark"] :is(.specs,.rstats,.stats)>div.tl .st-ic{stroke:color-mix(in srgb,var(--tc) 70%,#fff)}:root[data-theme="dark"] .rstats>div.tl>small,:root[data-theme="dark"] :is(.specs,.stats)>div.tl>b{color:color-mix(in srgb,var(--tc) 45%,var(--muted))}
 
-/* "Your coffee taste" tiles: one tinted tile per kind, the icon, then the label, then the value, all from the top, so every
-   label lines up whatever the value's length. Same colour system as the stat tiles. */
-.me-tiles{gap:8px!important}
-.me-tiles>div{display:grid!important;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto 1fr;align-content:start;justify-items:start;row-gap:0;min-height:0!important;padding:11px 11px 12px!important;border-radius:16px!important;border:0!important;
+/* "Your coffee taste" tiles: two to a row, each tinted by kind (the stat tiles' colours). The icon and its label share
+   the top line, so every label sits at the same height; the value is below, larger. */
+.me-tiles{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+.me-tiles>div{display:grid!important;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto 1fr;align-items:center;align-content:start;column-gap:9px;row-gap:10px;min-height:0!important;padding:12px 12px 13px!important;border-radius:18px!important;border:0!important;
   background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 20%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 9%,var(--surface))!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tc) 16%,transparent)}
-.me-tiles>div>i{grid-row:1;width:30px!important;height:30px!important;margin:0 0 10px!important;border-radius:9px!important;background:color-mix(in srgb,var(--tc) 18%,transparent)!important;font-size:.95rem!important;display:grid!important;place-items:center}
-.me-tiles>div>i .me-flag{font-size:1rem!important}
-.me-tiles>div>i .di{width:16px!important;height:16px!important;color:var(--tc)!important}
-.me-tiles>div>small{grid-row:2;margin:0 0 2px!important;font-size:.64rem!important;line-height:1.2;white-space:nowrap;color:color-mix(in srgb,var(--tc) 55%,var(--muted))!important;overflow-wrap:anywhere}
-.me-tiles>div>b{grid-row:3;align-self:start;font-size:.92rem!important;line-height:1.2!important}
+.me-tiles>div>i{grid-row:1;grid-column:1;width:32px!important;height:32px!important;margin:0!important;border-radius:11px!important;background:color-mix(in srgb,var(--tc) 18%,transparent)!important;font-size:1.05rem!important;display:grid!important;place-items:center}
+.me-tiles>div>i .me-flag{font-size:1.15rem!important}
+.me-tiles>div>i .di{width:18px!important;height:18px!important;color:var(--tc)!important}
+.me-tiles>div>small{grid-row:1;grid-column:2;margin:0!important;font-size:.72rem!important;line-height:1.2;letter-spacing:.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:color-mix(in srgb,var(--tc) 55%,var(--muted))!important}
+.me-tiles>div>b{grid-row:2;grid-column:1/-1;align-self:start;font-size:1.02rem!important;line-height:1.25!important}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .me-tiles>div{background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 26%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 13%,var(--surface))!important}:root:not([data-theme="light"]) .me-tiles>div>i .di{color:color-mix(in srgb,var(--tc) 70%,#fff)!important}:root:not([data-theme="light"]) .me-tiles>div>small{color:color-mix(in srgb,var(--tc) 45%,var(--muted))!important}}
 :root[data-theme="dark"] .me-tiles>div{background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 26%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 13%,var(--surface))!important}:root[data-theme="dark"] .me-tiles>div>i .di{color:color-mix(in srgb,var(--tc) 70%,#fff)!important}:root[data-theme="dark"] .me-tiles>div>small{color:color-mix(in srgb,var(--tc) 45%,var(--muted))!important}
 </style>

@@ -86,19 +86,20 @@ function tasteHTML(){if(!window.BEANS_OK||BEANS.length<2)return '';const t=taste
   const o=t.origin&&oInfo(t.origin.k),R=t.region&&REG[t.region.k],v=t.variety&&VBY[t.variety.k],pr=t.process&&PROCESSES[t.process.k],B=t.brewer&&BREWERS[t.brewer.k],lo=t.likedOrigin&&oInfo(t.likedOrigin.k);
   const ro=t.regionOrigin&&oInfo(t.regionOrigin.k);
   const fl=k=>'<span class="me-flag">'+flagOf(k)+'</span>';
-  // A few short tiles in one row you can swipe, not a long list.
+  // Up to six tiles, two to a row.
   // Each tile's icon matches its own value: the flag sits with the country, the map with the region.
   const rows=[o&&[fl(t.origin.k),'Origin',o.name],R&&['🗺️','Region',R.name],
     v&&['🌱','Variety',shortName(v.name)],pr&&['🧪','Process',pr.name.replace(/\s*\(.*\)$/,'')],
     t.roast&&['🔥','Roast',t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1)],
-    lo&&lo!==o&&[fl(t.likedOrigin.k),'Rated best',lo.name],B&&['☕','Brewer',shortBrewer(B.name)]].filter(Boolean).slice(0,6);
+    lo&&lo!==o&&[fl(t.likedOrigin.k),'Rated best',lo.name],B&&['☕','Brewer',shortBrewer(B.name)],
+    t.roaster&&['🏷','Roastery',t.roaster.k],t.recipe&&['🎯','Recipe',t.recipe.k]].filter(Boolean).slice(0,6);
   if(!rows.length&&!t.families.length)return '';
   return '<div class="me-taste"><div class="me-th"><b>Your coffee taste</b><small>From all '+BEANS.length+' coffees and '+myCups().length+' cups, all time</small></div>'+
     (tasteLine(t)?'<p class="me-tl">'+esc(tasteLine(t))+'</p>':'')+
     (rows.length?'<div class="me-tiles">'+rows.map(([i,k,vv])=>'<div style="--tc:'+(TASTE_C[k]||'#8A5A3B')+'"><i aria-hidden="true">'+i+'</i><small>'+k+'</small><b>'+esc(vv)+'</b></div>').join('')+'</div>':'')+
     (t.notes.length?'<div class="me-notes chips">'+t.notes.slice(0,5).map(n=>'<span class="chip"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'</span>').join('')+'</div>':'')+'</div>'}
 // Each taste tile has its own colour, the same family as the stat tiles elsewhere.
-const TASTE_C={Origin:'#3E8A68',Region:'#3F86B5',Variety:'#5E8C3E',Process:'#B88A2E',Roast:'#B5533C','Rated best':'#C2622F',Brewer:'#5F82A3'};
+const TASTE_C={Origin:'#3E8A68',Region:'#3F86B5',Variety:'#5E8C3E',Process:'#B88A2E',Roast:'#B5533C','Rated best':'#C2622F',Brewer:'#5F82A3',Roastery:'#8A5A3B',Recipe:'#8763B0'};
 function shortBrewer(n){return n.replace(/^Hario\s+|^Kalita\s+|^Origami\s+/,'')}
 // Who you're signed in as, and the sync; or, signed out, what an account brings.
 function accountHTML(){
