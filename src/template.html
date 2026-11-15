@@ -730,7 +730,7 @@ html.app .appbar{background:color-mix(in srgb,var(--paper) 97%,transparent)}html
 html.app .bg-hero::after,html.app .me-hero::after,html.app .pp-st img{mix-blend-mode:normal}
 /* The kettle's pour and the steam on the Dial-in drawing, and the steam over the profile, play a few times and rest,
    rather than redrawing for as long as they're on screen. */
-/* Decorations play a few times, then rest (website and app): an endless loop keeps the screen repainting. */.hero-art .stream{animation-iteration-count:2}.hero-art .steam{animation-iteration-count:1}.me-steam path{animation-iteration-count:2}.deco-rest .hero-art .stream,.deco-rest .hero-art .steam,.deco-rest .me-steam path{animation:none}html.app .bg-hero::after,html.app .me-hero::after{opacity:.06}
+/* Decorations play a few times, then rest (website and app): an endless loop keeps the screen repainting. */.hero-art .stream{animation-iteration-count:2}.herowrap.nav-in .hero-art :is(.stream,.steam){animation-play-state:paused}.hero-art .steam{animation-iteration-count:1}.me-steam path{animation-iteration-count:2}.deco-rest .hero-art .stream,.deco-rest .hero-art .steam,.deco-rest .me-steam path{animation:none}html.app .bg-hero::after,html.app .me-hero::after{opacity:.06}
 /* ================= OPENING SCENE ================= */
 #splash{display:none}
 .splashing #splash{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;overflow:hidden;background:var(--paper);color:var(--ink);touch-action:none}

@@ -725,7 +725,7 @@ html.app .appbar,html.app .bottomnav,html.app .minires,html.app nav.tabs,html.ap
 html.app .appbar{background:color-mix(in srgb,var(--paper) 97%,transparent)}html.app .gtabs{background:color-mix(in srgb,var(--surface2) 97%,var(--paper))!important}html.app #toast{background:color-mix(in srgb,var(--ink) 96%,transparent)}html.app .bglass{background:rgba(30,18,11,.78)}
 html.app .bg-hero::after,html.app .me-hero::after,html.app .pp-st img{mix-blend-mode:normal}
 
-.hero-art .stream{animation-iteration-count:2}.hero-art .steam{animation-iteration-count:1}.me-steam path{animation-iteration-count:2}.deco-rest .hero-art .stream,.deco-rest .hero-art .steam,.deco-rest .me-steam path{animation:none}html.app .bg-hero::after,html.app .me-hero::after{opacity:.06}
+.hero-art .stream{animation-iteration-count:2}.herowrap.nav-in .hero-art :is(.stream,.steam){animation-play-state:paused}.hero-art .steam{animation-iteration-count:1}.me-steam path{animation-iteration-count:2}.deco-rest .hero-art .stream,.deco-rest .hero-art .steam,.deco-rest .me-steam path{animation:none}html.app .bg-hero::after,html.app .me-hero::after{opacity:.06}
 
 #splash{display:none}
 .splashing #splash{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;overflow:hidden;background:var(--paper);color:var(--ink);touch-action:none}
@@ -2891,7 +2891,7 @@ textarea{resize:none}
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="ad27352c64e3"</script>
+<script>const BUILD_ID="3b9d6bd54859"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -6264,6 +6264,9 @@ function beanSync(){const b=S.bean,gb=b&&b.id&&window.BEANS_OK&&beanById(b.id);i
 const ROLLED=new Set();
 const ROLL_IO='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;ROLL_IO.unobserve(e.target);rollNow(e.target)}),{threshold:.5}):null;
 function rollNow(el){const v=el.dataset.roll,to=parseFloat(v),dp=(v.split('.')[1]||'').length;if(!(to>0)){el.textContent=v;return}
+  // A page still sliding in waits for the slide to finish: each step of the count lays the numbers out again, which
+  // in every frame of the slide made it stutter on a phone.
+  const sec=el.closest('main section');if(sec&&sec.classList.contains('nav-in')&&!el._rw){el._rw=1;setTimeout(()=>{el._rw=0;rollNow(el)},Math.max(120,420-(performance.now()-NAV_AT)));return}
   const box=el.closest('.pp-cover,.bg-hero');if(box)replay(box,'filling');const t0=performance.now(),D=Math.min(900,420+to*40);
   el.textContent=(0).toFixed(dp);const f=n=>{const k=Math.min(1,(n-t0)/D),e=1-Math.pow(1-k,3);el.textContent=(to*e).toFixed(dp);if(k<1)requestAnimationFrame(f)};requestAnimationFrame(f)}
 function rollIn(root){if(!root||!ROLL_IO||RM())return;root.querySelectorAll('[data-roll]').forEach((el,i)=>{const k=root.id+':'+i;
@@ -6812,7 +6815,6 @@ function prebuildTabs(){const ids=['recipes','gear','variety','process','map','w
     if(!BUILT.recipes){BUILT.recipes=1;try{renderRecipes()}catch(e){BUILT.recipes=0}idle(next);return}
     if(!EXPLORE_PRE&&!$('explore').classList.contains('on')){EXPLORE_PRE=1;try{renderExplore()}catch(e){}idle(next);return}
     if(!$('st-mode')&&!$('settings').classList.contains('on')){try{renderSettings()}catch(e){}idle(next);return}
-    if(SHEETS_WARM<2&&window.BEANS_OK){warmSheets();idle(next);return}
     if(LOGL_STALE&&BUILT.recipes){try{renderLogList(1)}catch(e){}idle(next);return}
     // The bottom-bar pages are warmed first (the ones a first visit lands on), then the pages inside sections as they're built.
     const cold=['recipes','beans','explore','settings','dial','log'].find(k=>(BUILT[k]||!LAZY[k])&&!WARM.has(k)&&$(k)&&!$(k).classList.contains('on'));
@@ -6820,6 +6822,9 @@ function prebuildTabs(){const ids=['recipes','gear','variety','process','map','w
     // changed, or the look did) waits for 3 s without a touch, so it doesn't land just before your next tap.
     if(cold&&WARMED.has(cold)&&performance.now()-USER_AT<3000){setTimeout(()=>idle(next),600);return}
     if(cold){WARMED.add(cold);warmPage(cold);idle(next);return}
+    // Then the sheets are opened once out of sight (so the first real one opens quickly): after the bottom-bar pages,
+    // and only after 3 s without a touch, as each costs a phone a few dozen ms.
+    if(SHEETS_WARM<2&&window.BEANS_OK){if(performance.now()-USER_AT<3000){setTimeout(()=>idle(next),600);return}warmSheets();idle(next);return}
     const id=ids.find(k=>!BUILT[k]);if(!id){if(SHEETS_WARM<2){warmSheets();idle(next);return}const w=[...ids,'guide','scan'].find(k=>BUILT[k]&&!WARM.has(k)&&$(k)&&!$(k).classList.contains('on'));
       // The pages inside sections are warmed only after 3 s without a touch: each costs a phone a few dozen ms, which
       // landed on the next tap while you were using the app (opening a coffee measured slower for it).
