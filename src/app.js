@@ -1228,7 +1228,7 @@ let EXPLORE_PRE=0;
 const WARM=new Set();
 function warmPage(id){const s=$(id);if(!s||s.classList.contains('on')||WARM.has(id))return false;WARM.add(id);
   // The first photos go in now too (from their small copies already read): put in as the page appeared, they laid it out a second time.
-  if(typeof loadImg==='function'&&window.BIMG)[...s.querySelectorAll('[data-bimg]')].slice(0,10).forEach(el=>{if(BIMG.peekThumb(el.dataset.bimg)&&!el.closest('dialog'))loadImg(el)});
+  if(typeof loadImg==='function'&&window.BIMG)[...s.querySelectorAll('[data-bimg]')].slice(0,10).forEach(el=>{if((SMALLPIC(el)?BIMG.peekSmall:BIMG.peekThumb)(el.dataset.bimg)&&!el.closest('dialog'))loadImg(el)});
   // The strips' highlights are placed while it's laid out, so showing the page later moves none of them.
   s.classList.add('warm');try{s.getBoundingClientRect();const l=s.lastElementChild;if(l)l.getBoundingClientRect();if(typeof segBatch==='function'){const g=[...s.querySelectorAll(SEG_SEL)];if(g.length)segBatch(g,true)}}finally{s.classList.remove('warm')}return true}
 function prebuildTabs(){const ids=['recipes','gear','variety','process','map','words','history','flow','wheel','champs','tech'].filter(k=>LAZY[k]);
