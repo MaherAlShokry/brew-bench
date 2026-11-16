@@ -1337,11 +1337,11 @@ function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.be
     '<h3 id="bd-dh">Diary</h3>'+dwriteHTML('bd',st)+
     '<div id="bd-tl">'+timelineHTML(beanTimeline(b),false)+'</div>'+
     // Android: keep this coffee on the Drinking now widget instead of the one brewed most recently.
-    (plugin('Widget')&&b.shelf?'<button type="button" class="btn ghost bd-wpin" id="bd-wpin">'+(wPinned()===b.id?'On your Drinking now widget · Let it choose again':'Show on the Drinking now widget')+'</button>':'')+
-    pbtn('del','id="bd-del"','Remove from the gallery','quiet danger')+'</div>';
+    '<div class="bd-end">'+(plugin('Widget')&&b.shelf?pbtn('phone','id="bd-wpin" aria-pressed="'+(wPinned()===b.id)+'" title="Keep this coffee on the Drinking now widget"',wPinned()===b.id?'Unpin from widget':'Pin to widget','bd-wpin'):'')+
+    pbtn('del','id="bd-del" aria-label="Remove from the gallery"','Remove','quiet danger')+'</div></div>';
   hydrateImgs($('vd-in'));
   if($('bd-wpin'))$('bd-wpin').onclick=()=>{const on=wPinned()!==b.id;try{on?localStorage.setItem('bb-wbean',b.id):localStorage.removeItem('bb-wbean')}catch(e){}updWidget();
-    $('bd-wpin').textContent=on?'On your Drinking now widget · Let it choose again':'Show on the Drinking now widget';toast(on?'Drinking now shows '+beanTitle(b):'Drinking now shows the coffee you brewed last')};
+    $('bd-wpin').lastChild.textContent=on?'Unpin from widget':'Pin to widget';$('bd-wpin').setAttribute('aria-pressed',on);toast(on?'Drinking now shows '+beanTitle(b):'Drinking now shows the coffee you brewed last')};
   const refresh=(msg)=>{saveBeans();checkTrophies();renderBeans();openBean(b.id);if(msg)toast(msg)};
   if($('bd-rd'))$('bd-rd').onchange=e=>{const v=e.target.value;if(!/^\d{4}-\d\d-\d\d$/.test(v)||v>todayISO())return;b.roastDate=v;refresh('Roast date added')};
   $('bd-edit').onclick=()=>{if(calBack)ADVRET=cal.id;openBeanEditor(b)};
