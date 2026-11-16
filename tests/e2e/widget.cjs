@@ -40,7 +40,7 @@ ok('the word opens in full',await p.evaluate(()=>document.querySelector('main se
 // Choosing the coffee for Drinking now, from its page
 const other=await p.evaluate(id=>{const b=BEANS.find(x=>x.shelf&&x.id!==id);openBean(b.id);return b.id},want.id);await p.waitForTimeout(700);
 await p.evaluate(()=>$('bd-wpin').click());await p.waitForTimeout(300);
-ok('a chosen coffee stays on Drinking now',await p.evaluate(id=>window.__w.sent.slice(-1)[0].id===id&&/Let it choose/.test($('bd-wpin').textContent),other));
+ok('a chosen coffee stays on Drinking now',await p.evaluate(id=>window.__w.sent.slice(-1)[0].id===id&&/Unpin/.test($('bd-wpin').textContent),other));
 await p.evaluate(()=>$('bd-wpin').click());await p.waitForTimeout(300);
 ok('letting it choose again goes back to the last brewed',await p.evaluate(id=>window.__w.sent.slice(-1)[0].id===id,want.id));
 await p.evaluate(()=>$('vd').close());
