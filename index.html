@@ -2747,7 +2747,11 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 .ib.main{background:var(--cherry);color:var(--surface-ink,var(--surface));box-shadow:0 6px 16px -8px color-mix(in srgb,var(--cherry) 75%,transparent)}
 .ib.danger{color:#B4472E}.ib.sm{width:36px;height:36px}.ib.sm svg{width:17px;height:17px}
 .ib-row{display:flex!important;flex-wrap:wrap;align-items:center;gap:10px}
-.sheet-acts{position:sticky;bottom:calc(14px + var(--sa-bottom,0px));z-index:3;flex-wrap:nowrap;width:max-content;max-width:100%;box-sizing:border-box;margin:20px auto 4px;padding:6px;border-radius:999px;background:color-mix(in srgb,var(--surface) 86%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--hair);box-shadow:0 10px 28px -10px rgba(0,0,0,.35)}.sheet-acts .pbtn,.sheet-acts .ib{margin:0;flex:none}.tm-done.ib-row{justify-content:center}
+.sheet-acts{position:sticky;bottom:calc(14px + var(--sa-bottom,0px));z-index:3;flex-wrap:nowrap;width:max-content;max-width:100%;box-sizing:border-box;margin:20px auto 4px;padding:6px;border-radius:999px;background:var(--surface);border:1px solid var(--hair);box-shadow:0 10px 28px -10px rgba(0,0,0,.35);transition:transform .28s var(--ease-sheet,cubic-bezier(.2,.8,.2,1)),opacity .2s ease}.sheet-acts .pbtn,.sheet-acts .ib{margin:0;flex:none}
+
+
+.sheet-acts{transform-origin:50% 100%}.sheet-acts.sa-off{transform:scale(.9);opacity:0;pointer-events:none;visibility:hidden;transition:transform .2s ease,opacity .16s ease,visibility 0s .2s}
+@media (prefers-reduced-motion:reduce){.sheet-acts{transition:opacity .15s}.sheet-acts.sa-off{transform:none}}.tm-done.ib-row{justify-content:center}
 .crown-btn.ib{width:40px;height:40px}.sc-new.ib{display:grid;margin:14px auto 0}
 
 .fab{position:fixed;right:16px;bottom:calc(var(--sa-bottom) + 24px);z-index:28;display:flex;align-items:center;gap:10px}
@@ -2905,7 +2909,7 @@ html[data-nav=push] main section.nav-in{position:relative;z-index:3;background:v
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="06981f14165e"</script>
+<script>const BUILD_ID="220bb98e032b"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -7746,6 +7750,12 @@ function openVariety(id){
   const d=$('vd');showDlg(d);d.scrollTop=0;
   $('vd-x').onclick=()=>d.close();
 }
+// A sheet's pinned action bar steps aside while you scroll down to read, so it never sits over what you're reading,
+// and comes back as soon as you scroll up or reach the end (where it rests below everything).
+{let y=0;$('vd').addEventListener('scroll',()=>{const d=$('vd'),t=d.scrollTop,a=d.querySelector('.sheet-acts');if(a){
+  const end=t+d.clientHeight>=d.scrollHeight-40,off=a.classList.contains('sa-off');
+  if(!end&&t>y+6&&t>60){if(!off)a.classList.add('sa-off')}else if((end||t<y-6)&&off)a.classList.remove('sa-off')}
+  if(Math.abs(t-y)>6||t<=0)y=t},{passive:true})}
 $('vd').addEventListener('click',e=>{const d=$('vd');if(e.target===d){d.close();return}
   const u=e.target.closest('[data-use]');if(u){S.variety=u.dataset.use;render();d.close();showTab('dial');toast('Variety set to '+vName(S.variety));return}
   const vs=e.target.closest('[data-vshare]');if(vs){d.close();openShare(varietyDoc(vs.dataset.vshare));return}

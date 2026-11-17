@@ -2176,6 +2176,12 @@ function openVariety(id){
   const d=$('vd');showDlg(d);d.scrollTop=0;
   $('vd-x').onclick=()=>d.close();
 }
+// A sheet's pinned action bar steps aside while you scroll down to read, so it never sits over what you're reading,
+// and comes back as soon as you scroll up or reach the end (where it rests below everything).
+{let y=0;$('vd').addEventListener('scroll',()=>{const d=$('vd'),t=d.scrollTop,a=d.querySelector('.sheet-acts');if(a){
+  const end=t+d.clientHeight>=d.scrollHeight-40,off=a.classList.contains('sa-off');
+  if(!end&&t>y+6&&t>60){if(!off)a.classList.add('sa-off')}else if((end||t<y-6)&&off)a.classList.remove('sa-off')}
+  if(Math.abs(t-y)>6||t<=0)y=t},{passive:true})}
 $('vd').addEventListener('click',e=>{const d=$('vd');if(e.target===d){d.close();return}
   const u=e.target.closest('[data-use]');if(u){S.variety=u.dataset.use;render();d.close();showTab('dial');toast('Variety set to '+vName(S.variety));return}
   const vs=e.target.closest('[data-vshare]');if(vs){d.close();openShare(varietyDoc(vs.dataset.vshare));return}
