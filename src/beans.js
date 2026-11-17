@@ -513,7 +513,7 @@ function openMakeRecipe(bid){const d=$('vd'),beans=[...BEANS.filter(b=>b.shelf),
   $('vd-in').onclick=e=>{const c=e.target.closest('[data-mk]');if(c){st[c.dataset.mk]=c.dataset.v;st.rec=null;draw();return}
     if(e.target.closest('#mk-go')){go();return}if(e.target.closest('#mk-rand')){d.close();setTimeout(surpriseRecipe,200);return}if(e.target.closest('#mk-again')){st.seed++;st.rec=null;go();return}
     if(e.target.closest('#mk-save')){const r=Object.assign({},st.rec,{id:'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),author:ME||'',ts:Date.now()});saveRecipe(r);
-      const i=RECIPES.findIndex(x=>x.id===r.id);d.close();toast('Saved to your recipes');if(i>=0)setTimeout(()=>openRecipe(i),250)}};
+      const i=RECIPES.findIndex(x=>x.id===r.id);d.close();okBuzz();toast('Saved to your recipes');if(i>=0)setTimeout(()=>openRecipe(i),250)}};
   draw();showDlg(d);d.scrollTop=0}
 
 /* ---------- Trophies ---------- */
@@ -587,7 +587,7 @@ let TGOT=load('bb-trophies',null);
 function checkTrophies(){const st=cabStats(),first=!TGOT||typeof TGOT!=='object';if(first)TGOT={};const news=[];
   for(const [id,n,,ic,f] of TROPHIES){const [h,need]=f(st);if(h>=need&&!TGOT[id]){TGOT[id]=todayISO();news.push(ic+' '+n)}}
   for(const t of seasonNow())if(t.h>=t.need&&!TGOT[t.key]){TGOT[t.key]=todayISO();news.push(t.ic+' '+t.n)}
-  save('bb-trophies',TGOT);if(!first&&news.length)setTimeout(()=>toast((news.length>1?'Trophies unlocked: ':'Trophy unlocked: ')+(news.length>3?news.slice(0,3).join(', ')+' and '+(news.length-3)+' more':news.join(', '))),600)}
+  save('bb-trophies',TGOT);if(!first&&news.length)setTimeout(()=>(okBuzz([12,50,12,50,22]),toast((news.length>1?'Trophies unlocked: ':'Trophy unlocked: ')+(news.length>3?news.slice(0,3).join(', ')+' and '+(news.length-3)+' more':news.join(', ')))),600)}
 
 /* ---------- From your cabinet: one coffee a day ---------- */
 // Like the word of the day: a coffee from your cabinet, chosen for the date. A bag that needs you comes first (just at
@@ -1369,7 +1369,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.be
   if($('bd-cup'))$('bd-cup').onclick=()=>{setLeft(b,Math.max(0,(gramsLeft(b)||0)-cupG));refresh('Took '+gfmt(cupG)+' g off the bag')};
   if($('bd-left'))$('bd-left').onclick=()=>askSheet({title:'What’s left in the bag?',text:'Weigh the bag, or a good guess. Brews from here on come off this.',ok:'Save',input:{value:gramsLeft(b)??'',unit:'g',step:5,min:0,max:5000,label:'Grams left'}}).then(n=>{if(n==null)return;setLeft(b,n);refresh('Updated')});
   if($('bd-frz'))$('bd-frz').onclick=()=>{const f=b.frz=(b.frz||[]).slice(-11);if(isFrozen(b))f[f.length-1]=[f[f.length-1][0],todayISO()];else f.push([todayISO(),'']);refresh(isFrozen(b)?'In the freezer: its freshness is on hold':'Out of the freezer: its freshness counts again')};
-  if($('bd-done'))$('bd-done').onclick=()=>{b.shelf=false;const ol=b.diary.find(e=>e.k==='opened'||e.k==='last');if(!ol||ol.k!=='last')b.diary.unshift(okEntry({k:'last',d:todayISO(),t:''}));refresh('Finished: it’s in the cabinet now. Add how it ended in its diary')};
+  if($('bd-done'))$('bd-done').onclick=()=>{b.shelf=false;okBuzz();const ol=b.diary.find(e=>e.k==='opened'||e.k==='last');if(!ol||ol.k!=='last')b.diary.unshift(okEntry({k:'last',d:todayISO(),t:''}));refresh('Finished: it’s in the cabinet now. Add how it ended in its diary')};
   if($('bd-shelf'))$('bd-shelf').onclick=()=>{b.shelf=true;refresh('Back on the shelf')};
   if($('bd-rbopen'))$('bd-rbopen').onclick=e=>{const f=$('bd-rbform'),o=f.hidden;f.hidden=!o;e.currentTarget.setAttribute('aria-expanded',o);if(o)f.scrollIntoView({block:'nearest',behavior:RM()?'auto':'smooth'})};
   const setPrior=v=>{b.prior=Math.max(0,Math.min(99,v));saveBeans();checkTrophies();renderBeans();const n=buys(b);$('bd-bn').textContent=n;$('bd-bm').disabled=!b.prior;

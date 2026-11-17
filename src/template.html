@@ -3039,6 +3039,17 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 
 /* The bag's freshness on a coffee's page: the same clean card as its facts. */
 .bd-shelf{background:var(--surface)!important;border-radius:22px!important;box-shadow:inset 0 0 0 1px var(--line)}
+
+/* ===== One motion system: the same three speeds and curves for every press, bar, chip and sheet move. Fast for a
+   press, medium for a bar or chip, slow for a sheet or page. */
+:root{--dur-1:.14s;--dur-2:.24s;--dur-3:.36s}
+/* Every tappable card and row presses in a touch and lifts back, like the pills do. */
+:is(button.bf,.hubcard,.setlink,.crow,.cday,.otd,.t45c,.pm,.rov-hero,.ro-best,.hc-mini,.tl-bean){transition:transform var(--dur-1) var(--ease-out),background-color var(--dur-1) ease}
+:is(button.bf,.hubcard,.setlink,.crow,.cday,.otd,.t45c,.pm,.rov-hero,.ro-best,.tl-bean):active{transform:scale(.982)}
+.sheet-acts{transition:transform var(--dur-3) var(--ease-sheet),opacity var(--dur-2) ease}
+@media (max-width:759px){.bottomnav{transition:transform var(--dur-3) var(--ease-sheet),opacity var(--dur-2) ease}}
+@media (prefers-reduced-motion:reduce){:is(button.bf,.hubcard,.setlink,.crow,.cday,.otd,.t45c,.pm,.rov-hero,.ro-best,.tl-bean):active{transform:none}}
+:root[data-motion="reduced"] :is(button.bf,.hubcard,.setlink,.crow,.cday,.otd,.t45c,.pm,.rov-hero,.ro-best,.tl-bean):active{transform:none}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>

@@ -1084,6 +1084,8 @@ document.addEventListener('click',e=>{const b=e.target.closest('.tm-cue');if(!b)
 function cueSay(t){if(!CUES.voice||!t)return;const c=plugin('Cues');if(c&&c.speak){c.speak({text:t}).catch(()=>{});return}
   try{const s=window.speechSynthesis;if(!s||!window.SpeechSynthesisUtterance)return;s.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=1.05;s.speak(u)}catch(e){}}
 // A light tap under the finger for a choice made (a rating), whatever the timer's own cue settings.
+// A short success feel (two light taps) for things done: a brew saved, a bag finished, a trophy earned.
+function okBuzz(p){try{if(RM())return;p=p||[10,45,16];const c=plugin('Cues');if(c&&c.vibrate){c.vibrate({pattern:p}).catch(()=>{});return}if(navigator.vibrate)navigator.vibrate(p)}catch(e){}}
 function tapBuzz(){try{if(RM())return;const c=plugin('Cues');if(c&&c.vibrate){c.vibrate({pattern:[12]}).catch(()=>{});return}if(navigator.vibrate)navigator.vibrate(12)}catch(e){}}
 function cueBuzz(p){if(!CUES.buzz)return;const c=plugin('Cues');if(c&&c.vibrate){c.vibrate({pattern:p}).catch(()=>{});return}try{if(navigator.vibrate)navigator.vibrate(p)}catch(e){}}
 // A step as it's said: "pour 60g (to 120g)" → "Pour 60 grams, to 120 grams."
@@ -1429,10 +1431,28 @@ function dlgOpened(d){if(!d.open)(function(){if(!BACKING)try{history.pushState({
 // Sheets slide away before they close (the CSS animates .closing), so nothing vanishes abruptly.
 {const cl=HTMLDialogElement.prototype.close;HTMLDialogElement.prototype.close=function(v){if(!this.open||this.classList.contains('closing'))return;
   const shut=()=>{cl.call(this,v);if(this.hasAttribute('popover'))try{this.hidePopover()}catch(e){}};
+  // A sheet already swiped away (see the sheet gestures) is shut at once, with no second slide.
+  if(this._swiped){this._swiped=false;shut();this.style.transform='';this.style.transition='';return}
   if(RM()||document.hidden)return shut();this.classList.add('closing');
   const done=()=>{clearTimeout(t);this.removeEventListener('animationend',end);if(!this.classList.contains('closing'))return;this.classList.remove('closing');shut()},
     end=e=>{if(e.target===this)done()},t=setTimeout(done,380);this.addEventListener('animationend',end)}}
 document.addEventListener('cancel',e=>{if(e.target.tagName==='DIALOG'){e.preventDefault();e.target.close()}},true);
+// Sheet gestures on phones, where a sheet fills the screen: from the left edge, swipe right to go back (to the sheet
+// before, or closed when there's none), the sheet following your finger; at the top of a sheet, pull down to close it.
+// Let go before a third of the way (and not flicked) and it springs back. Transform only, so nothing is laid out.
+{const d=$('vd');let g=null;const W=()=>innerWidth,ph=()=>innerWidth<760&&!d.classList.contains('camdlg');
+  const set=(tx,ty,anim)=>{d.style.transition=anim?'transform .24s var(--ease-sheet)':'none';d.style.transform=tx||ty?'translate3d('+tx+'px,'+ty+'px,0)':''};
+  d.addEventListener('touchstart',e=>{if(!d.open||!ph()||e.touches.length!==1||d.classList.contains('closing')){g=null;return}const t=e.touches[0];
+    const inField=e.target.closest('input,textarea,select,[contenteditable],.scrollrow,.seg,.chips,canvas,.rng-row');
+    g={x:t.clientX,y:t.clientY,t:performance.now(),edge:t.clientX<26&&!inField,top:d.scrollTop<=0&&!inField,m:null,dx:0,dy:0}},{passive:true});
+  d.addEventListener('touchmove',e=>{if(!g)return;const t=e.touches[0],dx=t.clientX-g.x,dy=t.clientY-g.y;
+    if(!g.m){if(g.edge&&dx>10&&Math.abs(dx)>Math.abs(dy)*1.2)g.m='x';else if(g.top&&dy>10&&dy>Math.abs(dx)*1.2&&d.scrollTop<=0)g.m='y';else if(Math.abs(dx)>10||Math.abs(dy)>10){g=null;return}else return}
+    e.preventDefault();g.dx=Math.max(0,dx);g.dy=Math.max(0,dy);if(g.m==='x')set(g.dx,0);else set(0,g.dy<160?g.dy:160+(g.dy-160)*.5)},{passive:false});
+  const end=()=>{if(!g||!g.m){g=null;return}const m=g.m,v=(m==='x'?g.dx:g.dy)/Math.max(1,performance.now()-g.t),far=m==='x'?g.dx>W()*.33:g.dy>140;g=null;
+    if(!(far||v>.6)){set(0,0,true);return}
+    if(m==='x'){set(W(),0,true);setTimeout(()=>{if(VD_HIST.length){history.back();set(0,0)}else{d._swiped=true;d.close()}},230)}
+    else{set(0,innerHeight,true);setTimeout(()=>{d._swiped=true;d.close()},230)}};
+  d.addEventListener('touchend',end);d.addEventListener('touchcancel',end)}
 // Open a dialog; reopening one that is sliding away just keeps it.
 // Opening a sheet: background building waits (NAV_AT), and the slide starts two frames after the sheet is shown, once
 // its content is laid out, so the first frames of the slide aren't skipped while the browser catches up.
@@ -2696,7 +2716,7 @@ $('l-save').onclick=()=>{const k=LEDIT?LOG.findIndex(x=>x.id===LEDIT):-1;
   const e={id:uid(),ts:Date.now(),date:new Date().toLocaleDateString(),coffee:$('l-coffee').value.trim(),settings:$('l-settings').value.trim(),stars:STAR,pred:$('l-pred').value.trim(),notes:$('l-notes').value.trim(),brewer:$('l-settings').dataset.brewer||''};if(LFL.length)e.fl=LFL.slice();if(LSNAP)e.snap=LSNAP;LSNAP=null;{const cb=(e.snap&&e.snap.bean&&e.snap.bean.id)||LBEAN,cid=cb&&lastCupFor(cb);if(cid){e.cup=cid;LAST_CUP=null}}
   if(LBEAN&&!(e.snap&&e.snap.bean&&e.snap.bean.id===LBEAN))e.beanId=LBEAN;
   if(GROUP)e.by=ME;
-  if(!e.coffee&&!e.settings&&!e.notes&&!LFL.length){toast('Add a coffee name or some notes first');return}LOG.unshift(e);save('bb-log',LOG);planRated(e.stars);if(window.BEANS_OK){
+  if(!e.coffee&&!e.settings&&!e.notes&&!LFL.length){toast('Add a coffee name or some notes first');return}LOG.unshift(e);save('bb-log',LOG);okBuzz();planRated(e.stars);if(window.BEANS_OK){
     // The first brew with a bag you hadn't tried yet is the day you tried it.
     const gid=(e.snap&&e.snap.bean&&e.snap.bean.id)||e.beanId,gb=gid&&beanById(gid);if(gb&&!gb.tried){gb.tried=todayISO();saveBeans()}checkTrophies()}queue('put',e.id,e);['l-coffee','l-settings','l-pred','l-notes'].forEach(id=>$(id).value='');delete $('l-settings').dataset.brewer;STAR=0;LFL=[];LBEAN=null;renderFlForm();renderStars();renderLBean();renderPred();renderLog();toastAct(GROUP?'Brew saved and shared':'Brew saved','Share it',()=>openShare(logEntryDoc(e)));beans()};
 // A logged brew made again: the timer on the same recipe with the same coffee, dose, water, grind and temperature.

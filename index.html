@@ -2974,12 +2974,22 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 
 
 .bd-shelf{background:var(--surface)!important;border-radius:22px!important;box-shadow:inset 0 0 0 1px var(--line)}
+
+
+:root{--dur-1:.14s;--dur-2:.24s;--dur-3:.36s}
+
+:is(button.bf,.hubcard,.setlink,.crow,.cday,.otd,.t45c,.pm,.rov-hero,.ro-best,.hc-mini,.tl-bean){transition:transform var(--dur-1) var(--ease-out),background-color var(--dur-1) ease}
+:is(button.bf,.hubcard,.setlink,.crow,.cday,.otd,.t45c,.pm,.rov-hero,.ro-best,.tl-bean):active{transform:scale(.982)}
+.sheet-acts{transition:transform var(--dur-3) var(--ease-sheet),opacity var(--dur-2) ease}
+@media (max-width:759px){.bottomnav{transition:transform var(--dur-3) var(--ease-sheet),opacity var(--dur-2) ease}}
+@media (prefers-reduced-motion:reduce){:is(button.bf,.hubcard,.setlink,.crow,.cday,.otd,.t45c,.pm,.rov-hero,.ro-best,.tl-bean):active{transform:none}}
+:root[data-motion="reduced"] :is(button.bf,.hubcard,.setlink,.crow,.cday,.otd,.t45c,.pm,.rov-hero,.ro-best,.tl-bean):active{transform:none}
 </style>
 <script>const JSPDF_SRC="vendor/jspdf.umd.min.js"</script>
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="9d6d5402ceaa"</script>
+<script>const BUILD_ID="e46344ae8d40"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -6728,6 +6738,8 @@ document.addEventListener('click',e=>{const b=e.target.closest('.tm-cue');if(!b)
 function cueSay(t){if(!CUES.voice||!t)return;const c=plugin('Cues');if(c&&c.speak){c.speak({text:t}).catch(()=>{});return}
   try{const s=window.speechSynthesis;if(!s||!window.SpeechSynthesisUtterance)return;s.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=1.05;s.speak(u)}catch(e){}}
 // A light tap under the finger for a choice made (a rating), whatever the timer's own cue settings.
+// A short success feel (two light taps) for things done: a brew saved, a bag finished, a trophy earned.
+function okBuzz(p){try{if(RM())return;p=p||[10,45,16];const c=plugin('Cues');if(c&&c.vibrate){c.vibrate({pattern:p}).catch(()=>{});return}if(navigator.vibrate)navigator.vibrate(p)}catch(e){}}
 function tapBuzz(){try{if(RM())return;const c=plugin('Cues');if(c&&c.vibrate){c.vibrate({pattern:[12]}).catch(()=>{});return}if(navigator.vibrate)navigator.vibrate(12)}catch(e){}}
 function cueBuzz(p){if(!CUES.buzz)return;const c=plugin('Cues');if(c&&c.vibrate){c.vibrate({pattern:p}).catch(()=>{});return}try{if(navigator.vibrate)navigator.vibrate(p)}catch(e){}}
 // A step as it's said: "pour 60g (to 120g)" → "Pour 60 grams, to 120 grams."
@@ -7073,10 +7085,28 @@ function dlgOpened(d){if(!d.open)(function(){if(!BACKING)try{history.pushState({
 // Sheets slide away before they close (the CSS animates .closing), so nothing vanishes abruptly.
 {const cl=HTMLDialogElement.prototype.close;HTMLDialogElement.prototype.close=function(v){if(!this.open||this.classList.contains('closing'))return;
   const shut=()=>{cl.call(this,v);if(this.hasAttribute('popover'))try{this.hidePopover()}catch(e){}};
+  // A sheet already swiped away (see the sheet gestures) is shut at once, with no second slide.
+  if(this._swiped){this._swiped=false;shut();this.style.transform='';this.style.transition='';return}
   if(RM()||document.hidden)return shut();this.classList.add('closing');
   const done=()=>{clearTimeout(t);this.removeEventListener('animationend',end);if(!this.classList.contains('closing'))return;this.classList.remove('closing');shut()},
     end=e=>{if(e.target===this)done()},t=setTimeout(done,380);this.addEventListener('animationend',end)}}
 document.addEventListener('cancel',e=>{if(e.target.tagName==='DIALOG'){e.preventDefault();e.target.close()}},true);
+// Sheet gestures on phones, where a sheet fills the screen: from the left edge, swipe right to go back (to the sheet
+// before, or closed when there's none), the sheet following your finger; at the top of a sheet, pull down to close it.
+// Let go before a third of the way (and not flicked) and it springs back. Transform only, so nothing is laid out.
+{const d=$('vd');let g=null;const W=()=>innerWidth,ph=()=>innerWidth<760&&!d.classList.contains('camdlg');
+  const set=(tx,ty,anim)=>{d.style.transition=anim?'transform .24s var(--ease-sheet)':'none';d.style.transform=tx||ty?'translate3d('+tx+'px,'+ty+'px,0)':''};
+  d.addEventListener('touchstart',e=>{if(!d.open||!ph()||e.touches.length!==1||d.classList.contains('closing')){g=null;return}const t=e.touches[0];
+    const inField=e.target.closest('input,textarea,select,[contenteditable],.scrollrow,.seg,.chips,canvas,.rng-row');
+    g={x:t.clientX,y:t.clientY,t:performance.now(),edge:t.clientX<26&&!inField,top:d.scrollTop<=0&&!inField,m:null,dx:0,dy:0}},{passive:true});
+  d.addEventListener('touchmove',e=>{if(!g)return;const t=e.touches[0],dx=t.clientX-g.x,dy=t.clientY-g.y;
+    if(!g.m){if(g.edge&&dx>10&&Math.abs(dx)>Math.abs(dy)*1.2)g.m='x';else if(g.top&&dy>10&&dy>Math.abs(dx)*1.2&&d.scrollTop<=0)g.m='y';else if(Math.abs(dx)>10||Math.abs(dy)>10){g=null;return}else return}
+    e.preventDefault();g.dx=Math.max(0,dx);g.dy=Math.max(0,dy);if(g.m==='x')set(g.dx,0);else set(0,g.dy<160?g.dy:160+(g.dy-160)*.5)},{passive:false});
+  const end=()=>{if(!g||!g.m){g=null;return}const m=g.m,v=(m==='x'?g.dx:g.dy)/Math.max(1,performance.now()-g.t),far=m==='x'?g.dx>W()*.33:g.dy>140;g=null;
+    if(!(far||v>.6)){set(0,0,true);return}
+    if(m==='x'){set(W(),0,true);setTimeout(()=>{if(VD_HIST.length){history.back();set(0,0)}else{d._swiped=true;d.close()}},230)}
+    else{set(0,innerHeight,true);setTimeout(()=>{d._swiped=true;d.close()},230)}};
+  d.addEventListener('touchend',end);d.addEventListener('touchcancel',end)}
 // Open a dialog; reopening one that is sliding away just keeps it.
 // Opening a sheet: background building waits (NAV_AT), and the slide starts two frames after the sheet is shown, once
 // its content is laid out, so the first frames of the slide aren't skipped while the browser catches up.
@@ -8340,7 +8370,7 @@ $('l-save').onclick=()=>{const k=LEDIT?LOG.findIndex(x=>x.id===LEDIT):-1;
   const e={id:uid(),ts:Date.now(),date:new Date().toLocaleDateString(),coffee:$('l-coffee').value.trim(),settings:$('l-settings').value.trim(),stars:STAR,pred:$('l-pred').value.trim(),notes:$('l-notes').value.trim(),brewer:$('l-settings').dataset.brewer||''};if(LFL.length)e.fl=LFL.slice();if(LSNAP)e.snap=LSNAP;LSNAP=null;{const cb=(e.snap&&e.snap.bean&&e.snap.bean.id)||LBEAN,cid=cb&&lastCupFor(cb);if(cid){e.cup=cid;LAST_CUP=null}}
   if(LBEAN&&!(e.snap&&e.snap.bean&&e.snap.bean.id===LBEAN))e.beanId=LBEAN;
   if(GROUP)e.by=ME;
-  if(!e.coffee&&!e.settings&&!e.notes&&!LFL.length){toast('Add a coffee name or some notes first');return}LOG.unshift(e);save('bb-log',LOG);planRated(e.stars);if(window.BEANS_OK){
+  if(!e.coffee&&!e.settings&&!e.notes&&!LFL.length){toast('Add a coffee name or some notes first');return}LOG.unshift(e);save('bb-log',LOG);okBuzz();planRated(e.stars);if(window.BEANS_OK){
     // The first brew with a bag you hadn't tried yet is the day you tried it.
     const gid=(e.snap&&e.snap.bean&&e.snap.bean.id)||e.beanId,gb=gid&&beanById(gid);if(gb&&!gb.tried){gb.tried=todayISO();saveBeans()}checkTrophies()}queue('put',e.id,e);['l-coffee','l-settings','l-pred','l-notes'].forEach(id=>$(id).value='');delete $('l-settings').dataset.brewer;STAR=0;LFL=[];LBEAN=null;renderFlForm();renderStars();renderLBean();renderPred();renderLog();toastAct(GROUP?'Brew saved and shared':'Brew saved','Share it',()=>openShare(logEntryDoc(e)));beans()};
 // A logged brew made again: the timer on the same recipe with the same coffee, dose, water, grind and temperature.
@@ -10675,7 +10705,7 @@ function openMakeRecipe(bid){const d=$('vd'),beans=[...BEANS.filter(b=>b.shelf),
   $('vd-in').onclick=e=>{const c=e.target.closest('[data-mk]');if(c){st[c.dataset.mk]=c.dataset.v;st.rec=null;draw();return}
     if(e.target.closest('#mk-go')){go();return}if(e.target.closest('#mk-rand')){d.close();setTimeout(surpriseRecipe,200);return}if(e.target.closest('#mk-again')){st.seed++;st.rec=null;go();return}
     if(e.target.closest('#mk-save')){const r=Object.assign({},st.rec,{id:'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),author:ME||'',ts:Date.now()});saveRecipe(r);
-      const i=RECIPES.findIndex(x=>x.id===r.id);d.close();toast('Saved to your recipes');if(i>=0)setTimeout(()=>openRecipe(i),250)}};
+      const i=RECIPES.findIndex(x=>x.id===r.id);d.close();okBuzz();toast('Saved to your recipes');if(i>=0)setTimeout(()=>openRecipe(i),250)}};
   draw();showDlg(d);d.scrollTop=0}
 
 /* ---------- Trophies ---------- */
@@ -10749,7 +10779,7 @@ let TGOT=load('bb-trophies',null);
 function checkTrophies(){const st=cabStats(),first=!TGOT||typeof TGOT!=='object';if(first)TGOT={};const news=[];
   for(const [id,n,,ic,f] of TROPHIES){const [h,need]=f(st);if(h>=need&&!TGOT[id]){TGOT[id]=todayISO();news.push(ic+' '+n)}}
   for(const t of seasonNow())if(t.h>=t.need&&!TGOT[t.key]){TGOT[t.key]=todayISO();news.push(t.ic+' '+t.n)}
-  save('bb-trophies',TGOT);if(!first&&news.length)setTimeout(()=>toast((news.length>1?'Trophies unlocked: ':'Trophy unlocked: ')+(news.length>3?news.slice(0,3).join(', ')+' and '+(news.length-3)+' more':news.join(', '))),600)}
+  save('bb-trophies',TGOT);if(!first&&news.length)setTimeout(()=>(okBuzz([12,50,12,50,22]),toast((news.length>1?'Trophies unlocked: ':'Trophy unlocked: ')+(news.length>3?news.slice(0,3).join(', ')+' and '+(news.length-3)+' more':news.join(', ')))),600)}
 
 /* ---------- From your cabinet: one coffee a day ---------- */
 // Like the word of the day: a coffee from your cabinet, chosen for the date. A bag that needs you comes first (just at
@@ -11531,7 +11561,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.be
   if($('bd-cup'))$('bd-cup').onclick=()=>{setLeft(b,Math.max(0,(gramsLeft(b)||0)-cupG));refresh('Took '+gfmt(cupG)+' g off the bag')};
   if($('bd-left'))$('bd-left').onclick=()=>askSheet({title:'What’s left in the bag?',text:'Weigh the bag, or a good guess. Brews from here on come off this.',ok:'Save',input:{value:gramsLeft(b)??'',unit:'g',step:5,min:0,max:5000,label:'Grams left'}}).then(n=>{if(n==null)return;setLeft(b,n);refresh('Updated')});
   if($('bd-frz'))$('bd-frz').onclick=()=>{const f=b.frz=(b.frz||[]).slice(-11);if(isFrozen(b))f[f.length-1]=[f[f.length-1][0],todayISO()];else f.push([todayISO(),'']);refresh(isFrozen(b)?'In the freezer: its freshness is on hold':'Out of the freezer: its freshness counts again')};
-  if($('bd-done'))$('bd-done').onclick=()=>{b.shelf=false;const ol=b.diary.find(e=>e.k==='opened'||e.k==='last');if(!ol||ol.k!=='last')b.diary.unshift(okEntry({k:'last',d:todayISO(),t:''}));refresh('Finished: it’s in the cabinet now. Add how it ended in its diary')};
+  if($('bd-done'))$('bd-done').onclick=()=>{b.shelf=false;okBuzz();const ol=b.diary.find(e=>e.k==='opened'||e.k==='last');if(!ol||ol.k!=='last')b.diary.unshift(okEntry({k:'last',d:todayISO(),t:''}));refresh('Finished: it’s in the cabinet now. Add how it ended in its diary')};
   if($('bd-shelf'))$('bd-shelf').onclick=()=>{b.shelf=true;refresh('Back on the shelf')};
   if($('bd-rbopen'))$('bd-rbopen').onclick=e=>{const f=$('bd-rbform'),o=f.hidden;f.hidden=!o;e.currentTarget.setAttribute('aria-expanded',o);if(o)f.scrollIntoView({block:'nearest',behavior:RM()?'auto':'smooth'})};
   const setPrior=v=>{b.prior=Math.max(0,Math.min(99,v));saveBeans();checkTrophies();renderBeans();const n=buys(b);$('bd-bn').textContent=n;$('bd-bm').disabled=!b.prior;
