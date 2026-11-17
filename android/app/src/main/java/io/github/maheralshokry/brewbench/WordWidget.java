@@ -66,15 +66,15 @@ public class WordWidget extends AppWidgetProvider {
         return v;
     }
 
-    /** The colour of a word's part of coffee, as in the app's Coffee words (GCAT); a warm brown for anything else. */
+    /** The colour of a word's part of coffee, from the app's modern palette (as its fact cards); caramel for anything else. */
     static int catColor(String cat) {
         switch (cat) {
-            case "The plant and farm": return 0xFF6B8E4E;
-            case "Harvest and processing": return 0xFFC9964A;
-            case "Green coffee and trade": return 0xFF4F8A74;
-            case "Roasting": return 0xFFB5533C;
-            case "Tasting and quality": return 0xFF9A7390;
-            default: return 0xFFA9714B;
+            case "The plant and farm": return 0xFF22C55E;
+            case "Harvest and processing": return 0xFFF59E0B;
+            case "Green coffee and trade": return 0xFF14B8A6;
+            case "Roasting": return 0xFFF43F5E;
+            case "Tasting and quality": return 0xFF8B5CF6;
+            default: return 0xFFD2793A;
         }
     }
 }

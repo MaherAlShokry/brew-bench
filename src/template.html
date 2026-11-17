@@ -3050,6 +3050,34 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 @media (max-width:759px){.bottomnav{transition:transform var(--dur-3) var(--ease-sheet),opacity var(--dur-2) ease}}
 @media (prefers-reduced-motion:reduce){:is(button.bf,.hubcard,.setlink,.crow,.cday,.otd,.t45c,.pm,.rov-hero,.ro-best,.tl-bean):active{transform:none}}
 :root[data-motion="reduced"] :is(button.bf,.hubcard,.setlink,.crow,.cday,.otd,.t45c,.pm,.rov-hero,.ro-best,.tl-bean):active{transform:none}
+
+/* ===== Section headers, one style everywhere: small spaced capitals in grey with the same room above and below, in
+   pages and in sheets ("Tasting notes", "Diary", "In the cup", "Regions", "Same brewer", "Your coffee so far"…). */
+:is(.rh,.rcp-h,.me-sh,.ro-h,.vd-body>h3:not([class]),#info>h3:not([class]),.yic-notes>small,.me-notes-h){margin:22px 0 10px!important;font:700 .76rem/1.3 var(--body)!important;letter-spacing:.08em!important;text-transform:uppercase;color:var(--muted)!important}
+.vd-body>h3:not([class]):first-child{margin-top:6px!important}
+.ro-h .hint{text-transform:none;letter-spacing:0;font-weight:500}
+
+/* A coffee's pinned header: its photo, small, once the big one has scrolled past (scroll-driven, so no script). */
+.bd-mini{display:none}
+@supports (animation-timeline:scroll()){
+  .bd-mini{display:block;position:absolute;right:20px;bottom:12px;width:44px;height:44px;border-radius:14px;overflow:hidden;box-shadow:0 0 0 1px var(--line);opacity:0;pointer-events:none;
+    animation:bd-mini linear both;animation-timeline:scroll(nearest);animation-range:150px 230px}
+  .bd-mini .bpic{width:100%!important;height:100%!important;margin:0!important;border-radius:inherit!important}
+  /* Room kept for it, so a long name or roastery never runs under it. */
+  .vd-head:has(.bd-mini) .vd-sub,.vd-head:has(.bd-mini) h2{margin-right:52px!important}
+}
+@keyframes bd-mini{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:none}}
+
+/* Empty pages: a small illustration in the theme's colours above the words, then what to do. */
+.bg-empty.il-on{border-style:solid;border-width:1px;background:var(--surface)}
+.bg-empty.il-on>svg.il{width:160px;height:104px;padding:0;margin:0 0 6px;border-radius:0;background:none;animation:bgfloat 5s ease-in-out infinite}
+.il .il-sh{fill:color-mix(in srgb,var(--ink) 7%,transparent)}
+.il .il-a{fill:color-mix(in srgb,var(--cherry) 26%,var(--surface))}.il .il-b{fill:color-mix(in srgb,var(--honey) 34%,var(--surface))}
+.il .il-t{fill:var(--surface);opacity:.92}.il .il-s{fill:color-mix(in srgb,var(--leaf) 30%,var(--surface))}
+.il .il-k{fill:var(--cherry)}
+.il .il-l{fill:none;stroke:color-mix(in srgb,var(--cherry) 70%,var(--ink));stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.il .il-sw{stroke:color-mix(in srgb,var(--leaf) 80%,var(--ink));stroke-width:2.6}
+.empty-acts{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:14px}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
