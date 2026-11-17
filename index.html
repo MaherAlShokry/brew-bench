@@ -3016,12 +3016,24 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 .empty-acts{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:14px}
 
 .dnext .dn-use{margin-left:6px;font-weight:700}.dnext .dn-on{margin-left:6px;font-size:.78rem;font-weight:700;color:var(--leaf-ink,var(--leaf))}
+
+
+:root{--pill-in:cubic-bezier(.2,1.12,.32,1);--pill-out:cubic-bezier(.45,0,.75,.4)}
+.fab{transition:transform .44s var(--pill-in) .04s,opacity .22s ease .04s}
+.fab.away{transform:translateY(calc(100% + 110px)) scale(.92);opacity:0;pointer-events:none;transition:transform .26s var(--pill-out) .03s,opacity .18s ease .06s}
+.sheet-acts{transition:transform .44s var(--pill-in),opacity .22s ease,visibility 0s}
+.sheet-acts.sa-off{transform:translateY(10px) scale(.86);opacity:0;pointer-events:none;visibility:hidden;transition:transform .26s var(--pill-out),opacity .18s ease .06s,visibility 0s .3s}
+@media (max-width:759px){
+  .bottomnav{transition:transform .44s var(--pill-in),opacity .22s ease}
+  html.nav-away .bottomnav{transition:transform .26s var(--pill-out),opacity .18s ease .06s}
+}
+@media (prefers-reduced-motion:reduce){.fab,.fab.away,.sheet-acts,.sheet-acts.sa-off,.bottomnav,html.nav-away .bottomnav{transition:opacity .15s!important}.fab.away,.sheet-acts.sa-off,html.nav-away .bottomnav{transform:none!important}}
 </style>
 <script>const JSPDF_SRC="vendor/jspdf.umd.min.js"</script>
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="a51001a79334"</script>
+<script>const BUILD_ID="088e3708b9d7"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -3428,7 +3440,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <!-- FLAVOUR WHEEL -->
 <section id="wheel">
   <h2>Flavour wheel</h2>
-  <p class="lede">164 tasting notes in 9 families. Tap a colour to open it up.</p>
+  <p class="lede">275 tasting notes in 9 families. Tap a colour to open it up.</p>
   <div class="fw-layout">
     <div class="fw-main">
       <input type="search" id="fw-q" placeholder="Find a note" aria-label="Find a flavour note">
@@ -3845,7 +3857,40 @@ const V=[
  cup:'Floral, citrus, sweet, clean.',brew:'Mid-coarse, 93°C.',dir:'baseline',notes:['floral','citrus','sweet'],grown:['nicaragua','honduras']},
 {id:'starmaya',name:'Starmaya',fam:'f1',origin:'Central America, ECOM and CIRAD',year:'2010s',parents:'Marsellesa x a male-sterile wild Ethiopian Arabica',
  story:'The first F1 hybrid that can be grown from seed. Most F1 hybrids have to be cloned in a lab, which makes them expensive; Starmaya uses a male-sterile parent, so the cross can be made in an open field by pollinating insects. It brings hybrid vigour, rust tolerance and a fine cup to small farmers.',
- cup:'Sweet, floral, citrus, clean.',brew:'Baseline to slightly coarse, 92 to 93°C.',dir:'baseline',notes:['floral','citrus','sweet'],grown:['nicaragua','honduras','costarica']}
+ cup:'Sweet, floral, citrus, clean.',brew:'Baseline to slightly coarse, 92 to 93°C.',dir:'baseline',notes:['floral','citrus','sweet'],grown:['nicaragua','honduras','costarica']},
+{id:'mayaguez',name:'Bourbon Mayaguez',fam:'bourbon',origin:'Rwanda and Burundi, by way of Puerto Rico',parents:'Bourbon selection',
+ story:'A Bourbon line named after the Mayagüez research station in Puerto Rico and spread through Central and East Africa in the 20th century. Selections such as Mayaguez 71 and 139 are still planted on many Rwandan and Burundian hills beside Jackson and Mibirizi.',
+ cup:'Red fruit, black tea, orange, clean and juicy.',brew:'Baseline grind, 93 to 94°C. A clean washed coffee that takes normal agitation.',dir:'baseline',notes:['red fruit','black tea','orange'],grown:['rwanda','burundi']},
+{id:'tekisic',name:'Tekisic',fam:'bourbon',origin:'El Salvador, ISIC',year:'1977',parents:'Selection from Salvadoran Bourbon',
+ story:'Released by El Salvador’s coffee research institute after decades of selecting the best local Bourbon plants. The name means "work" in Nahuatl, a nod to how long the selection took. Small-yielding but prized for sweetness at high altitude.',
+ cup:'Brown sugar, caramel, red apple, round and sweet.',brew:'Baseline grind, 93 to 94°C.',dir:'baseline',notes:['brown sugar','caramel','red apple'],grown:['elsalvador']},
+{id:'arusha',name:'Arusha',fam:'typica',origin:'Mount Meru, Tanzania',parents:'Typica-related (some sources link it to French Mission)',
+ story:'A tall, old variety grown on the slopes of Mount Meru near Arusha, and one of the main varieties of Papua New Guinea’s highlands. Low yields and taller trees mean it is mostly kept by smallholders.',
+ cup:'Floral, citrus, light body, delicate sweetness.',brew:'Baseline to slightly finer, 93 to 94°C. A light body that likes a little more extraction.',dir:'baseline',notes:['floral','citrus','delicate'],grown:['tanzania','png']},
+{id:'nyasaland',name:'Nyasaland',fam:'typica',origin:'Malawi',year:'1870s',parents:'Typica brought by Scottish missionaries',
+ story:'Named after Malawi’s colonial name. Typica seed brought by missionaries in the 1870s became the root of Malawi’s coffee; trees descended from it also grow in Uganda and Zambia.',
+ cup:'Black tea, stone fruit, gentle acidity, clean.',brew:'Baseline grind, 93°C.',dir:'baseline',notes:['black tea','stone fruit','clean'],grown:['malawi','uganda']},
+{id:'icatu',name:'Icatu',fam:'timor',origin:'Brazil, IAC (Campinas)',year:'1990s',parents:'Robusta x Bourbon, then crossed back to Mundo Novo and Catuai',
+ story:'A Brazilian variety from the Instituto Agronômico, built from a cross between Robusta and Bourbon that was crossed back several times to Arabica. It brings some rust resistance and big yields; red and yellow forms exist.',
+ cup:'Chocolate, nuts, caramel, round body.',brew:'Baseline grind, 92 to 93°C.',dir:'baseline',notes:['chocolate','nutty','caramel'],grown:['brazil']},
+{id:'topazio',name:'Topázio',fam:'cross',origin:'Brazil, IAC (Campinas)',year:'1990s',parents:'Mundo Novo x Catuai (yellow)',
+ story:'A yellow-fruited Brazilian variety selected for even ripening and good yields. Common on Brazilian specialty farms, often as a pulped natural or natural.',
+ cup:'Sweet, nutty, milk chocolate, low acidity.',brew:'Baseline grind, 92 to 93°C.',dir:'baseline',notes:['nutty','milk chocolate','sweet'],grown:['brazil']},
+{id:'garnica',name:'Garnica',fam:'cross',origin:'Mexico, INMECAFE',year:'1960s',parents:'Mundo Novo x Caturra (yellow)',
+ story:'Bred by Mexico’s former national coffee institute to give a compact, productive plant with the height of Caturra and the vigour of Mundo Novo. Found across Veracruz, Puebla and Chiapas.',
+ cup:'Caramel, cocoa, soft citrus.',brew:'Baseline grind, 92 to 93°C.',dir:'baseline',notes:['caramel','cocoa','citrus'],grown:['mexico']},
+{id:'costarica95',name:'Costa Rica 95',fam:'timor',origin:'Costa Rica, ICAFE',year:'1995',parents:'Caturra x Timor Hybrid (a Catimor)',
+ story:'Costa Rica’s answer to leaf rust: a compact Catimor released in 1995 and planted widely. At high altitude and with good processing it can be clean and sweet; lower down it can taste flat.',
+ cup:'Clean, chocolate, mild citrus.',brew:'Baseline to slightly finer, 93 to 94°C.',dir:'baseline',notes:['chocolate','clean','citrus'],grown:['costarica','honduras']},
+{id:'sigarar',name:'Sigarar Utang',fam:'timor',origin:'North Sumatra, Indonesia',parents:'Timor Hybrid lineage',
+ story:'A Sumatran variety that grows fast and fruits early, so it spread widely among smallholders around Lake Toba. Most of it is wet-hulled, which gives the earthy, herbal cup Sumatra is known for.',
+ cup:'Herbal, cedar, dark chocolate, heavy body.',brew:'Coarser and cooler, 90 to 92°C, especially for wet-hulled lots.',dir:'coarser',notes:['herbal','cedar','dark chocolate'],grown:['indonesia']},
+{id:'abyssinia',name:'Abyssinia',fam:'landrace',origin:'Java and Aceh, Indonesia',year:'1920s',parents:'Ethiopian Arabica brought to Java',
+ story:'Seed brought from Ethiopia to Java in the 1920s and kept on a few estates in Java and in Aceh. Rare outside Indonesia, it shows more florals than the usual Indonesian cup, especially when washed.',
+ cup:'Floral, spice, citrus, lighter body than most Indonesians.',brew:'Mid to slightly coarse, 92 to 93°C, gentle pours.',dir:'coarser',notes:['floral','spice','citrus'],grown:['indonesia']},
+{id:'villalobos',name:'Villalobos',fam:'typica',origin:'Costa Rica',parents:'A natural dwarf mutation of Typica',
+ story:'A short Typica found in Costa Rica, a little like Villa Sarchi is to Bourbon. It does well at high altitude in poor soils and wind, and is still grown on a few specialty farms.',
+ cup:'Clean, sweet, citrus and stone fruit.',brew:'Baseline grind, 93 to 94°C.',dir:'baseline',notes:['clean','citrus','stone fruit'],grown:['costarica']}
 ];
 const VBY=Object.fromEntries(V.map(v=>[v.id,v]));
 
@@ -4475,6 +4520,9 @@ const PROCESSES={
  thermalshock:pr({name:'Thermal shock',cat:'ferment',t:-0.5,acid:0.3,body:0.8,sweet:0.8,funk:1,notes:['intense aroma','tropical','candy'],dir:'coarser',char:'After fermentation the beans are rinsed with hot water, then cold water. The idea is to open the parchment to absorb aromatics and then lock them in. Popularised in Colombia, often combined with anaerobic or co-fermentation; details vary by producer.',brew:'Coarse and cool, 89 to 91°C, gentle pours.'}),
  mossto:pr({name:'Mossto',cat:'ferment',t:-0.55,acid:0,body:1,sweet:0.7,funk:1.2,notes:['concentrated fruit','boozy'],dir:'coarser',char:'A Colombian technique: juice (must) from an earlier fermentation is added to start a new one, amplifying fruit.',brew:'Coarse and cool, 88 to 91°C.'}),
  supernatural:pr({name:'Supernatural',cat:'ferment',t:-0.45,acid:0.1,body:0.9,sweet:0.9,funk:0.7,notes:['ripe fruit','jammy','clean'],dir:'coarser',char:'A roaster\u2019s name, not a fixed method: a tightly controlled natural. Usually only the ripest, sugar-rich cherries are picked, often given a short sealed ferment (around 36 hours), then dried slowly on raised beds. Fruit-forward like a big natural, but cleaner. Steps vary by producer, so read the bag.',brew:'Coarser and a little cooler, 90 to 92°C, gentle pours to keep it clean.'}),
+ dryferment:pr({name:'Dry fermented washed',cat:'classic',t:0.15,acid:0.8,body:-0.1,sweet:0.2,notes:['clean','sweet','bright'],dir:'baseline',char:'Pulped, then left to ferment in its own mucilage without water before being washed off. Common in Central America. A touch sweeter and rounder than a water-fermented washed coffee.',brew:'Baseline grind, 93 to 94°C, as for a washed coffee.'}),
+ aerobic:pr({name:'Aerobic fermentation',cat:'ferment',t:-0.2,acid:0.3,body:0.5,sweet:0.5,funk:0.5,notes:['ripe fruit','sweet','juicy'],dir:'coarser',char:'Cherries or pulped beans ferment open to the air, in tanks or bags, for longer than usual, before drying. Fruitier than a classic process, gentler than an anaerobic one.',brew:'Slightly coarser, 91 to 93°C, gentle pours.'}),
+ wine:pr({name:'Wine process',cat:'ferment',t:-0.45,acid:0,body:1,sweet:0.6,funk:1,notes:['winey','dark fruit','boozy'],dir:'coarser',char:'A natural taken further: whole cherries ferment for days, often in sealed bags or tanks, then dry slowly until the fruit tastes of red wine. Seen in Ethiopia, Ecuador and Southeast Asia.',brew:'Coarse and cooler, 89 to 91°C, minimal agitation.'}),
  coldferment:pr({name:'Cold fermentation',cat:'ferment',t:-0.3,acid:0.4,body:0.4,sweet:0.6,funk:0.4,notes:['clean fruit','sweet','delicate'],dir:'coarser',char:'Cherries or beans are fermented at low temperature, often chilled or at altitude, so the fermentation runs slowly over days. Fruit and sweetness build without the boozy edge of a warm ferment.',brew:'Slightly coarser, 91 to 93°C.'}),
  nitro:pr({name:'Nitrogen fermentation',cat:'ferment',t:-0.4,acid:0.2,body:0.7,sweet:0.7,funk:0.7,notes:['tropical','sweet','clean ferment'],dir:'coarser',char:'Tanks are flushed with nitrogen to push out oxygen, an anaerobic fermentation with tighter control. Often sold as nitro washed or nitro natural. Usually cleaner than a classic anaerobic.',brew:'Coarser and cooler, 90 to 92°C.'}),
  slowdry:pr({name:'Slow dry (dark room)',cat:'ferment',t:-0.2,acid:0.1,body:0.4,sweet:0.6,funk:0.2,notes:['sweet','rounded','stable'],dir:'baseline',char:'Coffee is dried slowly in shade or in dark rooms with controlled airflow, over weeks instead of days. The slow, even drying keeps sweetness and helps the coffee age well. Used in Colombia, Panama and Ethiopia, often after another process.',brew:'Baseline grind, 92 to 93°C.'}),
@@ -4938,36 +4986,58 @@ const FWHEEL=[
    ['Dried apricot','Concentrated, chewy stone fruit. Honeys and Yemeni coffees.',['p:honey','v:yemenia']],
    ['Dried cherry','Sweet-tart and dense. Naturals and anaerobic naturals.',['p:natural']],
    ['Dried mango','Chewy, sweet tropical fruit. Naturals and anaerobics.',['p:anaerobicnatural']]]},
-  {n:'Other fruit',d:'Tree fruit and tropical fruit: the sweet middle of many speciality coffees.',k:[
-   ['Coconut','Creamy, nutty tropical note. Shows up in some anaerobic and Central American lots.',['p:anaerobic']],
-   ['Cherry','Red cherry, from fresh to cola-like. Common in Central and South American coffees.',['v:bourbon']],
-   ['Pomegranate','Tart, juicy and tannic red fruit. Typical of bright Kenyan and Rwandan coffees.',['v:sl28']],
-   ['Pineapple','Sweet-sour tropical fruit. Often in anaerobic and carbonic-maceration coffees.',['p:carbonic','p:anaerobic']],
-   ['Grape','Juicy, winey sweetness. Common in Kenyans and in naturals.',['p:natural']],
-   ['Apple','Crisp malic acidity, like a fresh green or red apple. Classic in washed Central Americans.',['p:washed','v:caturra']],
-   ['Peach','Soft, floral stone fruit. Typical of Geisha and washed Ethiopians.',['v:geisha','p:washed']],
-   ['Pear','Delicate, sweet and juicy. Common in clean washed coffees.',['p:washed']],
-   ['Apricot','Soft, tangy stone fruit. Washed Ethiopians and Central Americans.',['p:washed']],
-   ['Plum','Dark, juicy stone fruit. Naturals and fuller washed coffees.',['p:natural']],
+  {n:'Tropical fruit',c:'#F59E0B',d:'Lush, ripe and exotic. Naturals, anaerobics and Pink Bourbon, Geisha and Sidra lots.',k:[
    ['Mango','Ripe, lush tropical fruit. Naturals and anaerobic coffees.',['p:anaerobic']],
    ['Passion fruit','Tart, tropical and aromatic. Anaerobic and some Kenyan coffees.',['p:anaerobic']],
+   ['Pineapple','Sweet-sour tropical fruit. Often in anaerobic and carbonic-maceration coffees.',['p:carbonic','p:anaerobic']],
    ['Lychee','Floral, juicy tropical fruit. Some Geisha and anaerobic lots.',['v:geisha']],
-   ['Melon','Light, juicy and fresh. Some washed Ethiopians and honeys.',['p:honey']],
-   ['Nectarine','Juicy stone fruit with a bright skin. Washed Ethiopians and Geishas.',['v:geisha']],
    ['Papaya','Soft, ripe tropical fruit. Naturals and anaerobics.',['p:anaerobic']],
    ['Guava','Perfumed, sweet-tart tropical fruit. Experimental lots and Pink Bourbon.',['v:pinkbourbon','p:thermalshock']],
+   ['Coconut','Creamy, nutty tropical note. Shows up in some anaerobic and Central American lots.',['p:anaerobic']],
+   ['Banana','Ripe, soft and sweet. Naturals and some anaerobics.',['p:natural']],
    ['Kiwi','Green, tart and juicy. Kenyans and some Rwandans.',['v:sl28']],
+   ['Starfruit','Tart, light and juicy. Bright washed coffees.',['p:washed']],
+   ['Dragon fruit','Mild and sweet with a floral edge. Experimental lots.',['p:coferment']],
+   ['Jackfruit','Ripe, candy-like tropical fruit. Anaerobic naturals.',['p:anaerobicnatural']],
+   ['Tamarind','Sweet-sour and date-like. Naturals from Yemen and India.',['v:yemenia']],
+   ['Mangosteen','Sweet, floral and gently tart. Some Geisha and Sidra lots.',['v:sidra']],
+   ['Soursop','Creamy, sweet and tangy, like custard with citrus. Anaerobic naturals.',['p:anaerobicnatural']],
+   ['Rambutan','Juicy and floral, close to lychee. Washed and honey Geishas.',['v:geisha']],
+   ['Longan','Sweet and musky, a deeper lychee. Naturals and honeys.',['p:honey']],
+   ['Feijoa','Perfumed, tangy and minty-sweet. Experimental fermentations.',['p:yeast']],
+   ['Maracuya','Intense, sour-sweet passion fruit, as Latin American cuppers call it. Colombian anaerobics.',['p:anaerobic']],
+   ['Tropical punch','A blend of ripe tropical fruit juices. Co-ferments and thermal shock lots.',['p:coferment']],
+   ['Piña colada','Pineapple and coconut, creamy and sweet. Anaerobic naturals.',['p:anaerobicnatural']],
+   ['Acerola','Small, sharp red tropical cherry. Bright Brazilian and Colombian naturals.',['p:natural']]]},
+  {n:'Stone fruit',c:'#F97316',d:'Soft, juicy fruit with a pit. Floral washed coffees, Geishas and good honeys.',k:[
+   ['Peach','Soft, floral stone fruit. Typical of Geisha and washed Ethiopians.',['v:geisha','p:washed']],
+   ['Nectarine','Juicy stone fruit with a bright skin. Washed Ethiopians and Geishas.',['v:geisha']],
+   ['Apricot','Soft, tangy stone fruit. Washed Ethiopians and Central Americans.',['p:washed']],
+   ['Plum','Dark, juicy stone fruit. Naturals and fuller washed coffees.',['p:natural']],
+   ['Cherry','Red cherry, from fresh to cola-like. Common in Central and South American coffees.',['v:bourbon']],
+   ['White peach','Delicate, perfumed and very sweet. Washed Geishas and Ethiopians.',['v:geisha']],
+   ['Yellow peach','Ripe, round and juicy. Honeys and washed Central Americans.',['p:honey']],
+   ['Black cherry','Dark, rich and sweet. Naturals and fuller Bourbons.',['v:bourbon']],
+   ['Sour cherry','Tart, red and juicy. Bright washed Kenyans and Colombians.',['v:sl28']],
+   ['Greengage','Sweet, honeyed green plum. Washed Rwandans and Burundians.',['v:jackson']],
+   ['Mirabelle','Small, golden and honey-sweet plum. Yellow Bourbons and honeys.',['v:yellowbourbon']]]},
+  {n:'Orchard and vine',d:'Apples, pears, grapes and melons: crisp, juicy and clean.',k:[
+   ['Pomegranate','Tart, juicy and tannic red fruit. Typical of bright Kenyan and Rwandan coffees.',['v:sl28']],
+   ['Grape','Juicy, winey sweetness. Common in Kenyans and in naturals.',['p:natural']],
+   ['Apple','Crisp malic acidity, like a fresh green or red apple. Classic in washed Central Americans.',['p:washed','v:caturra']],
+   ['Pear','Delicate, sweet and juicy. Common in clean washed coffees.',['p:washed']],
+   ['Melon','Light, juicy and fresh. Some washed Ethiopians and honeys.',['p:honey']],
    ['Watermelon','Light, juicy and sweet. Washed Colombians and Ethiopians.',['p:washed']],
    ['Red apple','Sweet, crisp apple. Washed Central Americans.',['p:washed']],
    ['Green apple','Tart, crisp malic acidity. Washed Colombians and Kenyans.',['p:washed']],
    ['Quince','Fragrant, honeyed orchard fruit. Honeys and Yemeni coffees.',['p:honey']],
    ['Persimmon','Soft, honeyed and lightly spiced. Naturals.',['p:natural']],
-   ['Starfruit','Tart, light and juicy. Bright washed coffees.',['p:washed']],
-   ['Dragon fruit','Mild and sweet with a floral edge. Experimental lots.',['p:coferment']],
-   ['Jackfruit','Ripe, candy-like tropical fruit. Anaerobic naturals.',['p:anaerobicnatural']],
-   ['Tamarind','Sweet-sour and date-like. Naturals from Yemen and India.',['v:yemenia']],
-   ['Banana','Ripe, soft and sweet. Naturals and some anaerobics.',['p:natural']],
-   ['Rhubarb','Tart, red and juicy. Bright washed coffees.',['p:washed']]]},
+   ['Rhubarb','Tart, red and juicy. Bright washed coffees.',['p:washed']],
+   ['Asian pear','Crisp, watery and lightly sweet. Clean washed coffees.',['p:washed']],
+   ['Muscat grape','Floral, perfumed white grape. Washed Geishas and Ethiopians.',['v:geisha']],
+   ['Concord grape','Dark, grapey and jammy, like grape jelly. Naturals.',['p:natural']],
+   ['Honeydew','Pale, sweet and juicy melon. Washed Ethiopians and honeys.',['p:honey']],
+   ['Cantaloupe','Ripe, orange and musky-sweet melon. Honeys and naturals.',['p:honey']]]},
   {n:'Citrus fruit',d:'Bright, zesty acidity. Mostly citric acid, at its clearest in light, washed coffees.',k:[
    ['Grapefruit','Tart and a little bitter. Kenyans and some Ethiopians.',['p:doublewashed']],
    ['Orange','Sweet citrus, from juice to marmalade. Common in washed Latin American coffees.',['p:washed']],
@@ -5014,9 +5084,9 @@ const FWHEEL=[
    ['Dark green','Cooked greens, like spinach. Under-roasting or old green coffee.',[]],
    ['Vegetative','Vegetable-like, from celery to cooked veg. Underdeveloped roasts.',['k:Underdeveloped']],
    ['Hay-like','Dry grass and straw. Old or poorly stored green coffee.',['k:Crop year']],
-   ['Herb-like','Fresh herbs like basil or mint. Some Ethiopians and Kenyans.',[]]]},
+   ['Herb-like','Fresh herbs like basil or mint. Some Ethiopians and Kenyans.',[]],
    ['Lemongrass','Bright, citrusy herb. Geishas and washed Ethiopians.',['v:geisha']],
-   ['Mint','Cool and fresh. Some Ethiopians and Kenyans.',[]]]},
+   ['Mint','Cool and fresh. Some Ethiopians and Kenyans.',[]]]}]},
  {n:'Other',c:'#6C8DA0',d:'Papery, musty and chemical notes. Mostly defects from storage, roasting or water.',k:[
   {n:'Papery/Musty',d:'Stale, damp and dusty. Usually from storage, packaging or the filter.',k:[
    ['Stale','Flat and dull. Coffee roasted too long ago or ground too early.',['k:Resting']],
@@ -5102,14 +5172,27 @@ const FWHEEL=[
    ['Custard','Eggy, creamy vanilla sweetness. Rich naturals and honeys.',['p:honey']],
    ['Butter','Rich, round and smooth. Brazils and pulped naturals.',['p:pulpednatural']],
    ['Cream','Soft, milky body. Honeys and pulped naturals.',['p:honey']]]},
-  {n:'Candy',d:'Sugary, sweet-shop sweetness, from general to very specific.',k:[
+  {n:'Candy',c:'#EC4899',d:'Sugary, sweet-shop sweetness, from general to very specific.',k:[
    ['Overall sweet','General sweetness without a specific note. A sign of ripe fruit and good extraction.',['k:Sweetness']],
    ['Sweet aromatics','Sweet-smelling, like candy or cake. Aroma more than taste.',['k:Fragrance and aroma']],
    ['Cotton candy','Light, airy spun sugar. Some washed and honey coffees.',['p:honey']],
    ['Bubblegum','Fruity, pink candy. Anaerobic and carbonic-maceration coffees.',['p:carbonic']],
    ['Marshmallow','Soft, vanilla-sugar sweetness. Sweet honeys and naturals.',['p:honey']],
    ['Nougat','Honey, nuts and soft sugar. Brazils and honeys.',['p:pulpednatural']],
-   ['Candied fruit','Sugary, glacé fruit. Anaerobic naturals and co-ferments.',['p:anaerobicnatural']]]},
+   ['Candied fruit','Sugary, glacé fruit. Anaerobic naturals and co-ferments.',['p:anaerobicnatural']],
+   ['Jelly beans','Chewy, fruity sugar in many flavours. Co-ferments and anaerobic naturals.',['p:coferment']],
+   ['Gummy bears','Soft, fruity, chewy candy. Carbonic maceration and anaerobic lots.',['p:carbonic']],
+   ['Fruit gums','Firm, glossy fruit candy. Anaerobic washed coffees.',['p:anaerobicwashed']],
+   ['Hard candy','Clear, boiled-sugar sweetness. Sweet washed and honey coffees.',['p:honey']],
+   ['Lollipop','Bright, fruity boiled sugar. Thermal shock and yeast lots.',['p:thermalshock']],
+   ['Sour candy','Sweet with a sharp citric fizz. Lactic and bright anaerobic coffees.',['p:lactic']],
+   ['Sherbet','Fizzy, sweet and tangy powder. Bright washed Kenyans and lactic lots.',['p:lactic']],
+   ['Rock candy','Crystalline, clean sugar. Very clean washed coffees.',['p:washed']],
+   ['Licorice','Dark, sweet and aniseed. Wet-hulled and aged coffees.',['p:wethulled']],
+   ['Candied ginger','Sugary heat. Some Yemeni and spiced naturals.',['v:yemenia']],
+   ['Candied orange peel','Sweet, bitter-edged citrus. Washed Ethiopians and honeys.',['p:honey']],
+   ['Caramel apple','Toffee over tart apple. Washed Central Americans.',['p:washed']],
+   ['Fruit punch','Sweet, mixed red fruit drink. Co-ferments and anaerobics.',['p:coferment']]]},
   {n:'Drinks',d:'Soft drinks and juices: sweetness with a lift of acidity, often a little spice or sparkle.',k:[
    ['Ginger ale','Sweet and lightly spicy with a crisp, fizzy-tasting finish. Some Kenyans, honeys and co-fermented lots.',['p:honey','p:coferment']],
    ['Cola','Dark sugar, a little spice and citrus. Fuller Central and South American coffees.',['v:bourbon','p:pulpednatural']],
@@ -5121,7 +5204,12 @@ const FWHEEL=[
    ['Grape juice','Sweet, dark grape. Naturals and Kenyans.',['p:natural','v:sl28']],
    ['Kombucha','Tart, fizzy and fermented tea. Yeast and anaerobic coffees.',['p:yeast','p:anaerobic']],
    ['Tonic water','Bitter-sweet and crisp, with a clean finish. Some washed and anaerobic washed lots.',['p:anaerobicwashed']],
-   ['Sangria','Red wine, fruit and spice. Carbonic and long natural fermentations.',['p:carbonic','p:extended']]]},
+   ['Sangria','Red wine, fruit and spice. Carbonic and long natural fermentations.',['p:carbonic','p:extended']],
+   ['Pink lemonade','Sweet, tart and berried. Washed Colombians and bright honeys.',['p:honey']],
+   ['Passion fruit soda','Fizzy and tropical. Anaerobic and thermal shock lots.',['p:thermalshock']],
+   ['Hibiscus tea','Tart, red and floral. Bright washed Ethiopians.',['p:washed']],
+   ['Mulled wine','Red wine with warm spice. Barrel-aged and long-fermented coffees.',['p:barrelaged']],
+   ['Cocktail cherry','Sweet, almond-scented red cherry. Anaerobic naturals.',['p:anaerobicnatural']]]},
   {n:'Desserts',d:'Baked and sweet-shop flavours: sugar, fruit and fat together, as roasters describe whole impressions.',k:[
    ['Apple pie','Baked apple, cinnamon and pastry. Washed Central Americans at medium roast.',['v:caturra','p:washed']],
    ['Brownie','Rich, fudgy chocolate. Brazilians and fuller medium roasts.',['p:pulpednatural']],
@@ -5135,7 +5223,16 @@ const FWHEEL=[
    ['Praline','Caramelised nuts. Brazils and Central Americans.',['p:pulpednatural']],
    ['Marzipan','Sweet almond paste. Some Yemeni and honey lots.',['p:honey']],
    ['Crème brûlée','Vanilla custard under burnt sugar. Sweet Geishas and honeys.',['p:honey']],
-   ['Tiramisu','Coffee, cocoa and cream. Rich, sweet naturals.',['p:natural']]]}]},
+   ['Tiramisu','Coffee, cocoa and cream. Rich, sweet naturals.',['p:natural']],
+   ['Banana bread','Warm, ripe banana and baked sugar. Naturals and anaerobic naturals.',['p:natural']],
+   ['Carrot cake','Spiced, moist and sweet. Medium-roast naturals.',['p:natural']],
+   ['Lemon tart','Buttery pastry with bright lemon. Washed Kenyans and Ethiopians.',['p:washed']],
+   ['Panna cotta','Silky cream and vanilla. Sweet honeys.',['p:honey']],
+   ['Pavlova','Crisp meringue, cream and red fruit. Bright, sweet naturals.',['p:natural']],
+   ['Strawberry shortcake','Sweet berries and cream. Anaerobic naturals.',['p:anaerobicnatural']],
+   ['Mango sticky rice','Ripe mango with sweet coconut cream. Anaerobic and co-fermented lots.',['p:coferment']],
+   ['Churros','Fried dough, cinnamon and sugar. Brazils and pulped naturals.',['p:pulpednatural']],
+   ['Flan','Caramel and set custard. Honeys and pulped naturals.',['p:pulpednatural']]]}]},
  {n:'Floral',c:'#B4688F',d:'Flowers and tea. Delicate notes that need light roasting and careful brewing.',k:[
   {n:'Tea-like',d:'Tea flavours and a light, tea-like body. Washed Ethiopians, Kenyans and Geisha.',k:[
    ['Black tea','Tea-like body and gentle tannin. Washed Ethiopians and Kenyans.',['p:washed']],
@@ -5148,7 +5245,13 @@ const FWHEEL=[
    ['Peach iced tea','Sweet stone fruit over light tea. Washed Ethiopians, Geisha and many light honeys.',['v:geisha','p:honey']],
    ['Lemon iced tea','Citrus over light tea, sweet and crisp. Washed East African coffees.',['p:washed']],
    ['Rooibos','Red bush tea: sweet, woody and a little honeyed. Some naturals and honeys.',['p:honey']],
-   ['Darjeeling','Light, muscatel black tea. Washed Ethiopians and Geishas.',['v:geisha']]]},
+   ['Darjeeling','Light, muscatel black tea. Washed Ethiopians and Geishas.',['v:geisha']],
+   ['Matcha','Grassy, sweet and umami green tea. Some washed Ethiopians and Geishas.',['v:geisha']],
+   ['Hojicha','Roasted green tea: toasty and sweet. Washed coffees at medium roast.',['p:washed']],
+   ['Genmaicha','Green tea with toasted rice. Clean washed coffees.',['p:washed']],
+   ['Chai','Black tea with warm spice. Spiced naturals and Yemeni coffees.',['v:yemenia']],
+   ['Lapsang souchong','Smoky black tea. Some wet-hulled and darker roasts.',['p:wethulled']],
+   ['Assam','Malty, strong black tea. Fuller washed coffees.',['p:washed']]]},
   {n:'Floral',d:'Fragrant flowers. Geisha and washed Ethiopians are the classic examples.',k:[
    ['Chamomile','Gentle, herbal and honeyed. Some Ethiopian and Colombian coffees.',[]],
    ['Rose','Rose petal and rose water. Some Ethiopians and anaerobic lots.',['p:anaerobic']],
@@ -5166,7 +5269,13 @@ const FWHEEL=[
    ['Lily','Fresh, sweet and green-floral. Light washed coffees.',['p:washed']],
    ['Peony','Light, rosy and fresh. Some Ethiopian and Colombian lots.',[]],
    ['Geranium','Leafy, rose-like and a little green. Some Ethiopians and Kenyans.',['v:landrace']],
-   ['Lemon blossom','Bright, zesty flower. Washed Ethiopians, especially Yirgacheffe.',['v:landrace','p:washed']]]}]}
+   ['Lemon blossom','Bright, zesty flower. Washed Ethiopians, especially Yirgacheffe.',['v:landrace','p:washed']],
+   ['Frangipani','Creamy, tropical blossom. Washed Geishas.',['v:geisha']],
+   ['Osmanthus','Apricot-scented blossom. Washed Ethiopians and Sidra.',['v:sidra']],
+   ['Ylang-ylang','Heady, sweet tropical flower. Geisha and Ethiopian landraces.',['v:landrace']],
+   ['Tuberose','Rich, creamy white flower. Anaerobic washed Geishas.',['p:anaerobicwashed']],
+   ['Acacia','Light, honeyed blossom. White honeys.',['p:whitehoney']],
+   ['Cherry blossom','Faint, sweet and powdery. Washed Geishas and Ethiopians.',['p:washed']]]}]}
 ];
 
 /* ================= ROASTERS ================= */
@@ -5346,7 +5455,9 @@ const FW=(()=>{const all=[],byId={},slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/
   const count=x=>Array.isArray(x)?1:x.k.reduce((s,k)=>s+count(k),0),total=FWHEEL.reduce((s,c)=>s+count(c),0);let at=0;
   function walk(x,parent,i){const arr=Array.isArray(x),n={n:arr?x[0]:x.n,d:arr?x[1]:x.d,l:arr?(x[2]||[]):[],parent,depth:parent?parent.depth+1:0,kids:[],leaf:arr};
     n.id=(parent?parent.id+'.':'')+slug(n.n);n.cat=parent?parent.cat:n;
-    n.c=!parent?x.c:arr?tint(n.cat.c,'#FFFFFF',[0.2,0.34,0.1,0.42][i%4]):tint(n.cat.c,i%2?'#000000':'#FFFFFF',i%2?0.12:0.14);
+    // A group can carry its own colour (Tropical fruit, Candy): its notes are shades of that, not of the family's.
+    n.hue=!parent?x.c:!arr&&x.c?x.c:parent.hue;n.own=!!(parent&&!arr&&x.c);
+    n.c=!parent?x.c:arr?tint(parent.hue,'#FFFFFF',[0.2,0.34,0.1,0.42][i%4]):x.c||tint(n.cat.c,i%2?'#000000':'#FFFFFF',i%2?0.12:0.14);
     n.a0=at/total;if(!arr)x.k.forEach((k,j)=>n.kids.push(walk(k,n,j)));else at++;n.a1=at/total;all.push(n);byId[n.id]=n;return n}
   const roots=FWHEEL.map((c,i)=>walk(c,null,i));
   const lum=c=>{const [r,g,b]=hex(c).map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*r+.7152*g+.0722*b};
@@ -5500,7 +5611,9 @@ function fwGo(id){const n=FW.byId[id];if(!n||!FWX)return;FWX.zoom(n.leaf?(n.pare
   if(matchMedia('(max-width:759px)').matches)$('fw-box').scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'})}
 function renderWheelTab(){
   FWX=makeWheel($('fw-box'),{mode:'explore',onSelect:n=>fwInfo(n)});fwInfo(null);
-  $('fw-cats').innerHTML=FW.roots.map(c=>'<button type="button" class="chip" data-fz="'+c.id+'"><i class="dot" style="background:'+c.c+'"></i>'+esc(c.n)+'<small>'+FW.count(c)+'</small></button>').join('');
+  {const l=document.querySelector('#wheel .lede');if(l)l.textContent=FW.leaves.length+' tasting notes in '+FW.roots.length+' families. Tap a colour to open it up.'}
+  // The families, then the groups with a colour of their own (Tropical fruit, Stone fruit, Candy).
+  $('fw-cats').innerHTML=FW.roots.concat(FW.all.filter(n=>n.own)).map(c=>'<button type="button" class="chip" data-fz="'+c.id+'"><i class="dot" style="background:'+c.c+'"></i>'+esc(c.n)+'<small>'+FW.count(c)+'</small></button>').join('');
   const res=$('fw-res'),find=()=>{const q=fold($('fw-q').value.trim());if(!q){res.innerHTML='';return}
     const hits=FW.all.filter(n=>fold(n.n).includes(q)).sort((a,b)=>(fold(a.n).startsWith(q)?0:1)-(fold(b.n).startsWith(q)?0:1)||b.depth-a.depth).slice(0,8);
     res.innerHTML=hits.length?hits.map(n=>'<button type="button" class="chip" data-fz="'+n.id+'"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+(n.parent?' <small>'+esc(n.parent.n)+'</small>':'')+'</button>').join(''):'<p class="hint" style="margin:0">No note by that name. Try a shorter word.</p>'};
@@ -6043,7 +6156,12 @@ function baseX(g,b){const v=BASE[g]&&BASE[g][b],x=v==null?calX(g,b):v;return x==
 const canGrind=(g,b)=>!!GRINDERS[g]&&base(g,b)!=null;
 // First of your grinders that can do this brewer (falls back to any grinder in the library).
 const capable=b=>MYG.find(g=>canGrind(g,b))||Object.keys(GRINDERS).find(g=>canGrind(g,b));
-function settingFor(g,b,off){const bb=baseX(g,b);return bb==null?null:roundG(g,shift(g,bb,-off*160))}
+// Pour-overs (and the Switch and Clever) never go coarser than 7.0 on the ZP6 (70 clicks, the top of its filter range)
+// or the same size on any other grinder: past that a dripper drains too fast to taste of much. The coarsest offset, in
+// recipe grind steps (negative is coarser).
+const COARSE_CAP_T=['Cone dripper','Flat-bottom dripper','Valve and hybrid'];
+function coarseCap(b){const B=BREWERS[b];if(!B||!COARSE_CAP_T.includes(B.type))return -Infinity;const zb=baseX('zp6',b),bs=zb!=null?sizeOf('zp6',zb):brewSize(b);return bs==null?-Infinity:(bs-sizeOf('zp6',70))/160}
+function settingFor(g,b,off){const bb=baseX(g,b);return bb==null?null:roundG(g,shift(g,bb,-Math.max(off,coarseCap(b))*160))}
 function gLabel(g,v){const G=GRINDERS[g];return G.name+' '+dial(g,v)+(G.unit==='clicks'?' clicks':'')}
 /* ================= YOUR RECIPES ================= */
 // Recipes you or your team create sit after the built-in ones in RECIPES, so the timer and dial-in work with them.
@@ -6684,6 +6802,9 @@ function plan(c){
   {const lo=Math.min(-1.5,r.off-1),hi=Math.max(1.5,r.off+1);if(step>hi||step<lo){const tgt=clamp(step,lo,hi),want=step-tgt;
     const up=Math.max(temp,Math.min(B.temp.max,96,temp+3)),down=Math.max(B.temp.min,temp-3),t1=clamp(Math.round(temp+want*KG/KT),down,up),dt=t1-temp;
     step=tgt;held=true;why.push('The grind stays within the usual range for '+art(brewName(B.name))+' '+esc(brewName(B.name))+' rather than going '+(want>0?'finer':'coarser')+(dt?'; the water is '+Math.abs(dt)+'°C '+(dt<0?'cooler':'warmer')+' ('+t1+'°C) instead.':'. Taste and adjust from here.'));temp=t1}}
+  // At most ZP6 7.0 on a pour-over (see coarseCap): a coffee and target that ask for coarser get up to 2°C cooler water.
+  {const cap=coarseCap(bb);if(step<cap){const want=cap-step,t1=Math.max(B.temp.min,temp-2,Math.round(temp-want*KG/KT)),dt=t1-temp;
+    step=cap;held=true;why.push('The grind stays at the coarse end for '+art(brewName(B.name))+' '+esc(brewName(B.name))+' (ZP6 7.0 or its match) rather than going coarser'+(dt?'; the water is '+Math.abs(dt)+'°C cooler ('+t1+'°C) instead.':'.'));temp=t1}}
   const set={};for(const g of new Set([...MYG,grinder]))set[g]=canGrind(g,bb)?roundG(g,shift(g,baseX(g,bb),-step*160)):null;
   const water=+gfmt(dose*ratio);
   const st={grinder,setting:set[grinder],brewer:bb,temp,ratio,bloom,agit,roast:c.roast,process:c.process,variety:c.variety,rec:c.tech};
@@ -7894,11 +8015,13 @@ function openVariety(id){
   $('vd-x').onclick=()=>d.close();
 }
 // A sheet's pinned action bar steps aside while you scroll down to read, so it never sits over what you're reading,
-// and comes back as soon as you scroll up or reach the end (where it rests below everything).
-{let y=0;$('vd').addEventListener('scroll',()=>{const d=$('vd'),t=d.scrollTop,a=d.querySelector('.sheet-acts');if(a){
+// and comes back as soon as you scroll up, go back near the top or reach the end (where it rests below everything).
+// Like the tab bar: it counts the distance scrolled one way (so a small wobble does nothing) and reads once a frame.
+{let y=0,acc=0,raf=0;const d=$('vd');d.addEventListener('scroll',()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;
+  const t=d.scrollTop,a=d.querySelector('.sheet-acts'),dy=t-y;y=t;if(!a)return;acc=Math.sign(dy)===Math.sign(acc)?acc+dy:dy;
   const end=t+d.clientHeight>=d.scrollHeight-40,off=a.classList.contains('sa-off');
-  if(!end&&t>y+6&&t>60){if(!off)a.classList.add('sa-off')}else if((end||t<y-6)&&off)a.classList.remove('sa-off')}
-  if(Math.abs(t-y)>6||t<=0)y=t},{passive:true})}
+  if(t<60||end||acc<-14){if(off)a.classList.remove('sa-off')}else if(acc>28&&!off)a.classList.add('sa-off')})},{passive:true});
+  d.addEventListener('close',()=>{y=0;acc=0})}
 $('vd').addEventListener('click',e=>{const d=$('vd');if(e.target===d){d.close();return}
   const u=e.target.closest('[data-use]');if(u){S.variety=u.dataset.use;render();d.close();showTab('dial');toast('Variety set to '+vName(S.variety));return}
   const vs=e.target.closest('[data-vshare]');if(vs){d.close();openShare(varietyDoc(vs.dataset.vshare));return}
@@ -8673,7 +8796,7 @@ function lexicon(){if(LEX)return LEX;
   const V_EXTRA={geisha:['geisha','gesha'],landrace:['heirloom','ethiopian landrace','ethiopian landraces','ethiopian heirloom','landrace'],jarc:['jarc','74110','74112','74158'],robusta:['robusta','canephora'],
     liberica:['liberica','excelsa'],yemenia:['yemenia','yemeni landrace'],udaini:['udaini','odaini','oudaini','udayni','udeini'],dawairi:['dawairi','dawayri','dawairy','duwairi','dawari'],tufahi:['tufahi','tuffahi','tofahi','tufahy','tuffahy'],jaadi:['jaadi',"ja'adi",'ja’adi','ja adi','jaady'],kent:['kent','s795','s 795'],laurina:['laurina','bourbon pointu'],catuai:['catuai','red catuai','yellow catuai'],
     castillo:['castillo'],ruiru:['ruiru 11','ruiru','batian'],jackson:['jackson','mibirizi'],centroamericano:['centroamericano','h1'],bourbon:['bourbon','red bourbon','borbon','bourbon rojo','bourbon vermelho'],kona:['kona typica'],
-    sl28:['sl28','sl 28','sl-28'],aji:['bourbon aji','aji bourbon','aji'],ombligon:['ombligon'],typicamejorado:['typica mejorado'],rumesudan:['rume sudan'],mokka:['mokka','maui mokka'],obata:['obata'],sl34:['sl34','sl 34','sl-34'],pinkbourbon:['pink bourbon','bourbon rosado','borbon rosado'],yellowbourbon:['yellow bourbon','bourbon amarelo','bourbon amarillo'],caturra:['caturra'],catuai:['catuai','red catuai','yellow catuai','catuai amarelo','catuai vermelho'],
+    sl28:['sl28','sl 28','sl-28'],aji:['bourbon aji','aji bourbon','aji'],ombligon:['ombligon'],mayaguez:['bourbon mayaguez','mayaguez'],sigarar:['sigarar utang','sigararutang'],costarica95:['costa rica 95','cr95','cr 95'],topazio:['topazio'],typicamejorado:['typica mejorado'],rumesudan:['rume sudan'],mokka:['mokka','maui mokka'],obata:['obata'],sl34:['sl34','sl 34','sl-34'],pinkbourbon:['pink bourbon','bourbon rosado','borbon rosado'],yellowbourbon:['yellow bourbon','bourbon amarelo','bourbon amarillo'],caturra:['caturra'],catuai:['catuai','red catuai','yellow catuai','catuai amarelo','catuai vermelho'],
     kurume:['kurume'],wolisho:['wolisho','welisho','wolicho'],papayo:['papayo','typica papayo'],sl14:['sl14','sl 14','sl-14'],k7:['k7','k 7','k-7'],aruzi:['bourbon aruzi','aruzi'],acaia:['acaia'],cenicafe1:['cenicafe 1','cenicafe1','cenicafe uno'],ihcafe90:['ihcafe 90','ihcafe90','ihcafe-90'],anacafe14:['anacafe 14','anacafe14','anacafe-14'],paraiso:['paraiso'],kimono:['kimono'],
     // Also a place: Lempira is a Honduran region and Dega an Ethiopian word for the highlands, so these count only on a Variety line.
     lempira:[],dega:[]};
@@ -8683,7 +8806,7 @@ function lexicon(){if(LEX)return LEX;
   const P_EXTRA={washed:['washed','fully washed','wet process','wet processed','lavado','lavada','lave'],doublewashed:['double washed','kenyan process','kenya process'],ecopulped:['eco pulped','eco-pulped','demucilaged'],
     natural:['natural','dry process','dry processed','sun dried','sun-dried','natural seco','secado al sol'],pulpednatural:['pulped natural','cereja descascada','descascado'],wethulled:['wet hulled','wet-hulled','giling basah'],honey:['honey','miel','honey process'],hydrohoney:['hydro honey','hydro honey process','hydro-honey','hydrohoney'],anaerobichoney:['anaerobic honey','honey anaerobic','miel anaerobico'],doubleanaerobic:['double anaerobic','doble anaerobico','double anaerobico'],mountainwater:['mountain water'],
     whitehoney:['white honey','yellow honey','miel amarilla','miel blanca'],redhoney:['red honey','miel roja'],blackhoney:['black honey','miel negra'],anaerobic:['anaerobic','anaerobico','anaerobica','anaerobio'],anaerobicnatural:['anaerobic natural','natural anaerobico','natural anaerobic'],anaerobicwashed:['anaerobic washed','lavado anaerobico'],
-    carbonic:['carbonic maceration','carbonic'],alchemy:['alchemy process','alchemy'],lactic:['lactic'],yeast:['yeast'],koji:['koji'],extended:['extended fermentation'],thermalshock:['thermal shock'],mossto:['mossto'],supernatural:['supernatural','super natural'],coldferment:['cold fermentation','cold ferment','cold fermented','fermentacion en frio'],nitro:['nitro washed','nitro natural','nitrogen fermentation','nitro fermentation','nitrogen flushed'],slowdry:['dark room','slow dry','slow dried','dark room dried'],raisin:['raisin process','raisin natural','passa','uva pasa','dried on the branch','dried on the tree'],
+    carbonic:['carbonic maceration','carbonic'],alchemy:['alchemy process','alchemy'],lactic:['lactic'],yeast:['yeast'],koji:['koji'],extended:['extended fermentation'],thermalshock:['thermal shock'],mossto:['mossto'],supernatural:['supernatural','super natural'],dryferment:['dry fermented','dry fermentation','dry ferment'],aerobic:['aerobic fermentation','aerobic natural','aerobic washed','aerobic'],wine:['wine process','winey natural','wine natural'],coldferment:['cold fermentation','cold ferment','cold fermented','fermentacion en frio'],nitro:['nitro washed','nitro natural','nitrogen fermentation','nitro fermentation','nitrogen flushed'],slowdry:['dark room','slow dry','slow dried','dark room dried'],raisin:['raisin process','raisin natural','passa','uva pasa','dried on the branch','dried on the tree'],
     coferment:['co-ferment','co-fermented','coferment','cofermented','co ferment'],infused:['infused'],barrelaged:['barrel aged','barrel-aged'],monsooned:['monsooned'],aged:['aged green'],
     swisswater:['swiss water'],sugarcane:['sugarcane','sugar cane','ethyl acetate','ea decaf'],co2decaf:['co2 decaf','co2 process'],mcdecaf:['methylene chloride']};
   const procs=[];for(const k in PROCESSES)for(const a of (P_EXTRA[k]||[strip(PROCESSES[k].name)]))procs.push([a,k]);
@@ -10413,7 +10536,7 @@ const FWIN={light:[7,30,60],medium:[4,21,45],dark:[3,14,30]};
 // still-lovely stretch end a few weeks after opening, whatever the roast date says.
 const F_DENSE_V=new Set(['geisha','sl28','sl34','sl14','landrace','jarc','kurume','dega','wolisho','wushwush','yemenia','udaini','dawairi','tufahi','jaadi','mokka']),
   F_SOFT_V=new Set(['maragogype','pacamara','maracaturra']),
-  F_FRUIT_P=new Set(['natural','pulpednatural','honey','redhoney','blackhoney','hydrohoney','anaerobic','anaerobicnatural','anaerobicwashed','anaerobichoney','doubleanaerobic','carbonic','alchemy','lactic','yeast','koji','extended','thermalshock','mossto','supernatural','coldferment','nitro','raisin','coferment','infused','barrelaged']),
+  F_FRUIT_P=new Set(['natural','pulpednatural','honey','redhoney','blackhoney','hydrohoney','anaerobic','anaerobicnatural','anaerobicwashed','anaerobichoney','doubleanaerobic','carbonic','alchemy','lactic','yeast','koji','extended','thermalshock','mossto','supernatural','coldferment','nitro','raisin','coferment','infused','barrelaged','aerobic','wine']),
   F_DECAF_P=new Set(['swisswater','sugarcane','mountainwater','mcdecaf']),F_OPEN={light:[21,35],medium:[14,28],dark:[10,21]};
 // How high the origin grows: the middle of its altitude range ("1,500 to 2,300 m"), or 0 when it isn't given in metres.
 const altOf=k=>{const o=k&&oInfo(k),a=o&&o.alt;if(!a)return 0;if(/low/i.test(a))return 900;const n=(a.match(/\d[\d,]*/g)||[]).map(x=>+x.replace(/,/g,'')).filter(x=>x>=100);return n.length?(Math.min(...n)+Math.max(...n))/2:0};
@@ -10480,7 +10603,8 @@ const tnKey=t=>String(t).trim().normalize('NFC').toLowerCase().replace(/[’']/g
 const tnLeaf=w=>{const k=tnKey(w),f=fold(String(w).trim());if(!f)return null;const ns=tnNotes();return ns.find(n=>tnKey(n.n)===k)||ns.find(n=>fold(n.n)===f)||null};
 // Every note gets a colour: its own on the wheel, or, for one the wheel doesn't name ("candy", "cherry blossom"), the
 // colour of the family its words point to (sweet, fruity, floral…), and a quiet grey only when nothing fits.
-const TN_FAM=[[/candy|sugar|sweet|syrup|honey|caramel|toffee|molasses|treacle|marshmallow|nougat|fudge|jam|marmalade|cane/i,'Sweet'],
+const TN_FAM=[[/candy|gumm|lolli|bubblegum|sherbet|jelly bean|sweets/i,'Candy'],[/tropical|exotic|passion|maracuy|pineapple|mango|lychee|guava|papaya|coconut|banana/i,'Tropical fruit'],
+  [/stone fruit|peach|apricot|nectarine|plum/i,'Stone fruit'],[/sugar|sweet|syrup|honey|caramel|toffee|molasses|treacle|marshmallow|nougat|fudge|jam|marmalade|cane/i,'Sweet'],
   [/berry|cherry|grape|apple|pear|peach|apricot|plum|mango|melon|lime|lemon|orange|citrus|tropical|fruit|lychee|guava|papaya|kiwi|fig|date|raisin/i,'Fruity'],
   [/blossom|flower|floral|jasmine|rose|lavender|hibiscus|chamomile|bergamot|violet|elder/i,'Floral'],
   [/choc|cocoa|cacao|nut|almond|hazel|peanut|walnut|pecan|praline/i,'Nutty/Cocoa'],
@@ -10488,7 +10612,7 @@ const TN_FAM=[[/candy|sugar|sweet|syrup|honey|caramel|toffee|molasses|treacle|ma
   [/wine|winey|boozy|rum|whisk|ferment|vinegar|sour|kombucha|sake/i,'Sour/Fermented'],
   [/tea|herb|grass|green|vegetal|mint|tomato|olive|leaf/i,'Green/Vegetative'],
   [/roast|smok|toast|tobacco|cedar|wood|malt|cereal|bread|biscuit/i,'Roasted']];
-const tnColor=w=>{const n=tnLeaf(w);if(n)return n.c;const f=TN_FAM.find(([re])=>re.test(w)),r=f&&FWHEEL.find(x=>x.n===f[1]);return r?r.c:'#9AA0A8'};
+const tnColor=w=>{const n=tnLeaf(w);if(n)return n.c;const f=TN_FAM.find(([re])=>re.test(w)),r=f&&(FWHEEL.find(x=>x.n===f[1])||FWHEEL.flatMap(x=>x.k).find(x=>x.n===f[1]&&x.c));return r?r.c:'#9AA0A8'};
 const tnSplit=s=>{const seen=new Set();return String(s||'').split(/\s*[,;·]\s*/).map(x=>x.trim()).filter(x=>x&&!seen.has(tnKey(x))&&seen.add(tnKey(x)))};
 const tnEsc=w=>w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 // Notes a coffee is known for: the words in its varieties' and origin's cup descriptions, then the notes the wheel

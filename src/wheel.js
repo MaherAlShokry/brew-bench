@@ -8,7 +8,9 @@ const FW=(()=>{const all=[],byId={},slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/
   const count=x=>Array.isArray(x)?1:x.k.reduce((s,k)=>s+count(k),0),total=FWHEEL.reduce((s,c)=>s+count(c),0);let at=0;
   function walk(x,parent,i){const arr=Array.isArray(x),n={n:arr?x[0]:x.n,d:arr?x[1]:x.d,l:arr?(x[2]||[]):[],parent,depth:parent?parent.depth+1:0,kids:[],leaf:arr};
     n.id=(parent?parent.id+'.':'')+slug(n.n);n.cat=parent?parent.cat:n;
-    n.c=!parent?x.c:arr?tint(n.cat.c,'#FFFFFF',[0.2,0.34,0.1,0.42][i%4]):tint(n.cat.c,i%2?'#000000':'#FFFFFF',i%2?0.12:0.14);
+    // A group can carry its own colour (Tropical fruit, Candy): its notes are shades of that, not of the family's.
+    n.hue=!parent?x.c:!arr&&x.c?x.c:parent.hue;n.own=!!(parent&&!arr&&x.c);
+    n.c=!parent?x.c:arr?tint(parent.hue,'#FFFFFF',[0.2,0.34,0.1,0.42][i%4]):x.c||tint(n.cat.c,i%2?'#000000':'#FFFFFF',i%2?0.12:0.14);
     n.a0=at/total;if(!arr)x.k.forEach((k,j)=>n.kids.push(walk(k,n,j)));else at++;n.a1=at/total;all.push(n);byId[n.id]=n;return n}
   const roots=FWHEEL.map((c,i)=>walk(c,null,i));
   const lum=c=>{const [r,g,b]=hex(c).map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*r+.7152*g+.0722*b};
@@ -162,7 +164,9 @@ function fwGo(id){const n=FW.byId[id];if(!n||!FWX)return;FWX.zoom(n.leaf?(n.pare
   if(matchMedia('(max-width:759px)').matches)$('fw-box').scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'})}
 function renderWheelTab(){
   FWX=makeWheel($('fw-box'),{mode:'explore',onSelect:n=>fwInfo(n)});fwInfo(null);
-  $('fw-cats').innerHTML=FW.roots.map(c=>'<button type="button" class="chip" data-fz="'+c.id+'"><i class="dot" style="background:'+c.c+'"></i>'+esc(c.n)+'<small>'+FW.count(c)+'</small></button>').join('');
+  {const l=document.querySelector('#wheel .lede');if(l)l.textContent=FW.leaves.length+' tasting notes in '+FW.roots.length+' families. Tap a colour to open it up.'}
+  // The families, then the groups with a colour of their own (Tropical fruit, Stone fruit, Candy).
+  $('fw-cats').innerHTML=FW.roots.concat(FW.all.filter(n=>n.own)).map(c=>'<button type="button" class="chip" data-fz="'+c.id+'"><i class="dot" style="background:'+c.c+'"></i>'+esc(c.n)+'<small>'+FW.count(c)+'</small></button>').join('');
   const res=$('fw-res'),find=()=>{const q=fold($('fw-q').value.trim());if(!q){res.innerHTML='';return}
     const hits=FW.all.filter(n=>fold(n.n).includes(q)).sort((a,b)=>(fold(a.n).startsWith(q)?0:1)-(fold(b.n).startsWith(q)?0:1)||b.depth-a.depth).slice(0,8);
     res.innerHTML=hits.length?hits.map(n=>'<button type="button" class="chip" data-fz="'+n.id+'"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+(n.parent?' <small>'+esc(n.parent.n)+'</small>':'')+'</button>').join(''):'<p class="hint" style="margin:0">No note by that name. Try a shorter word.</p>'};

@@ -3083,6 +3083,21 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 .empty-acts{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:14px}
 
 .dnext .dn-use{margin-left:6px;font-weight:700}.dnext .dn-on{margin-left:6px;font-size:.78rem;font-weight:700;color:var(--leaf-ink,var(--leaf))}
+
+/* ===== Floating pills, one motion: the tab bar, the + and a sheet's action bar slide down out of the way as you scroll
+   down and spring back as you scroll up. Going away is quick and eases in; coming back is a touch slower with a small
+   settle, the + a beat behind the tab bar. Transform and opacity only. A sheet's bar only drops a little and shrinks
+   toward its bottom edge: sliding it further would make the sheet's scroll area taller. */
+:root{--pill-in:cubic-bezier(.2,1.12,.32,1);--pill-out:cubic-bezier(.45,0,.75,.4)}
+.fab{transition:transform .44s var(--pill-in) .04s,opacity .22s ease .04s}
+.fab.away{transform:translateY(calc(100% + 110px)) scale(.92);opacity:0;pointer-events:none;transition:transform .26s var(--pill-out) .03s,opacity .18s ease .06s}
+.sheet-acts{transition:transform .44s var(--pill-in),opacity .22s ease,visibility 0s}
+.sheet-acts.sa-off{transform:translateY(10px) scale(.86);opacity:0;pointer-events:none;visibility:hidden;transition:transform .26s var(--pill-out),opacity .18s ease .06s,visibility 0s .3s}
+@media (max-width:759px){
+  .bottomnav{transition:transform .44s var(--pill-in),opacity .22s ease}
+  html.nav-away .bottomnav{transition:transform .26s var(--pill-out),opacity .18s ease .06s}
+}
+@media (prefers-reduced-motion:reduce){.fab,.fab.away,.sheet-acts,.sheet-acts.sa-off,.bottomnav,html.nav-away .bottomnav{transition:opacity .15s!important}.fab.away,.sheet-acts.sa-off,html.nav-away .bottomnav{transform:none!important}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
@@ -3491,7 +3506,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <!-- FLAVOUR WHEEL -->
 <section id="wheel">
   <h2>Flavour wheel</h2>
-  <p class="lede">164 tasting notes in 9 families. Tap a colour to open it up.</p>
+  <p class="lede">275 tasting notes in 9 families. Tap a colour to open it up.</p>
   <div class="fw-layout">
     <div class="fw-main">
       <input type="search" id="fw-q" placeholder="Find a note" aria-label="Find a flavour note">

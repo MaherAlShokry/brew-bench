@@ -357,7 +357,12 @@ function baseX(g,b){const v=BASE[g]&&BASE[g][b],x=v==null?calX(g,b):v;return x==
 const canGrind=(g,b)=>!!GRINDERS[g]&&base(g,b)!=null;
 // First of your grinders that can do this brewer (falls back to any grinder in the library).
 const capable=b=>MYG.find(g=>canGrind(g,b))||Object.keys(GRINDERS).find(g=>canGrind(g,b));
-function settingFor(g,b,off){const bb=baseX(g,b);return bb==null?null:roundG(g,shift(g,bb,-off*160))}
+// Pour-overs (and the Switch and Clever) never go coarser than 7.0 on the ZP6 (70 clicks, the top of its filter range)
+// or the same size on any other grinder: past that a dripper drains too fast to taste of much. The coarsest offset, in
+// recipe grind steps (negative is coarser).
+const COARSE_CAP_T=['Cone dripper','Flat-bottom dripper','Valve and hybrid'];
+function coarseCap(b){const B=BREWERS[b];if(!B||!COARSE_CAP_T.includes(B.type))return -Infinity;const zb=baseX('zp6',b),bs=zb!=null?sizeOf('zp6',zb):brewSize(b);return bs==null?-Infinity:(bs-sizeOf('zp6',70))/160}
+function settingFor(g,b,off){const bb=baseX(g,b);return bb==null?null:roundG(g,shift(g,bb,-Math.max(off,coarseCap(b))*160))}
 function gLabel(g,v){const G=GRINDERS[g];return G.name+' '+dial(g,v)+(G.unit==='clicks'?' clicks':'')}
 /* ================= YOUR RECIPES ================= */
 // Recipes you or your team create sit after the built-in ones in RECIPES, so the timer and dial-in work with them.
@@ -998,6 +1003,9 @@ function plan(c){
   {const lo=Math.min(-1.5,r.off-1),hi=Math.max(1.5,r.off+1);if(step>hi||step<lo){const tgt=clamp(step,lo,hi),want=step-tgt;
     const up=Math.max(temp,Math.min(B.temp.max,96,temp+3)),down=Math.max(B.temp.min,temp-3),t1=clamp(Math.round(temp+want*KG/KT),down,up),dt=t1-temp;
     step=tgt;held=true;why.push('The grind stays within the usual range for '+art(brewName(B.name))+' '+esc(brewName(B.name))+' rather than going '+(want>0?'finer':'coarser')+(dt?'; the water is '+Math.abs(dt)+'°C '+(dt<0?'cooler':'warmer')+' ('+t1+'°C) instead.':'. Taste and adjust from here.'));temp=t1}}
+  // At most ZP6 7.0 on a pour-over (see coarseCap): a coffee and target that ask for coarser get up to 2°C cooler water.
+  {const cap=coarseCap(bb);if(step<cap){const want=cap-step,t1=Math.max(B.temp.min,temp-2,Math.round(temp-want*KG/KT)),dt=t1-temp;
+    step=cap;held=true;why.push('The grind stays at the coarse end for '+art(brewName(B.name))+' '+esc(brewName(B.name))+' (ZP6 7.0 or its match) rather than going coarser'+(dt?'; the water is '+Math.abs(dt)+'°C cooler ('+t1+'°C) instead.':'.'));temp=t1}}
   const set={};for(const g of new Set([...MYG,grinder]))set[g]=canGrind(g,bb)?roundG(g,shift(g,baseX(g,bb),-step*160)):null;
   const water=+gfmt(dose*ratio);
   const st={grinder,setting:set[grinder],brewer:bb,temp,ratio,bloom,agit,roast:c.roast,process:c.process,variety:c.variety,rec:c.tech};
@@ -2208,11 +2216,13 @@ function openVariety(id){
   $('vd-x').onclick=()=>d.close();
 }
 // A sheet's pinned action bar steps aside while you scroll down to read, so it never sits over what you're reading,
-// and comes back as soon as you scroll up or reach the end (where it rests below everything).
-{let y=0;$('vd').addEventListener('scroll',()=>{const d=$('vd'),t=d.scrollTop,a=d.querySelector('.sheet-acts');if(a){
+// and comes back as soon as you scroll up, go back near the top or reach the end (where it rests below everything).
+// Like the tab bar: it counts the distance scrolled one way (so a small wobble does nothing) and reads once a frame.
+{let y=0,acc=0,raf=0;const d=$('vd');d.addEventListener('scroll',()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;
+  const t=d.scrollTop,a=d.querySelector('.sheet-acts'),dy=t-y;y=t;if(!a)return;acc=Math.sign(dy)===Math.sign(acc)?acc+dy:dy;
   const end=t+d.clientHeight>=d.scrollHeight-40,off=a.classList.contains('sa-off');
-  if(!end&&t>y+6&&t>60){if(!off)a.classList.add('sa-off')}else if((end||t<y-6)&&off)a.classList.remove('sa-off')}
-  if(Math.abs(t-y)>6||t<=0)y=t},{passive:true})}
+  if(t<60||end||acc<-14){if(off)a.classList.remove('sa-off')}else if(acc>28&&!off)a.classList.add('sa-off')})},{passive:true});
+  d.addEventListener('close',()=>{y=0;acc=0})}
 $('vd').addEventListener('click',e=>{const d=$('vd');if(e.target===d){d.close();return}
   const u=e.target.closest('[data-use]');if(u){S.variety=u.dataset.use;render();d.close();showTab('dial');toast('Variety set to '+vName(S.variety));return}
   const vs=e.target.closest('[data-vshare]');if(vs){d.close();openShare(varietyDoc(vs.dataset.vshare));return}
@@ -2987,7 +2997,7 @@ function lexicon(){if(LEX)return LEX;
   const V_EXTRA={geisha:['geisha','gesha'],landrace:['heirloom','ethiopian landrace','ethiopian landraces','ethiopian heirloom','landrace'],jarc:['jarc','74110','74112','74158'],robusta:['robusta','canephora'],
     liberica:['liberica','excelsa'],yemenia:['yemenia','yemeni landrace'],udaini:['udaini','odaini','oudaini','udayni','udeini'],dawairi:['dawairi','dawayri','dawairy','duwairi','dawari'],tufahi:['tufahi','tuffahi','tofahi','tufahy','tuffahy'],jaadi:['jaadi',"ja'adi",'ja’adi','ja adi','jaady'],kent:['kent','s795','s 795'],laurina:['laurina','bourbon pointu'],catuai:['catuai','red catuai','yellow catuai'],
     castillo:['castillo'],ruiru:['ruiru 11','ruiru','batian'],jackson:['jackson','mibirizi'],centroamericano:['centroamericano','h1'],bourbon:['bourbon','red bourbon','borbon','bourbon rojo','bourbon vermelho'],kona:['kona typica'],
-    sl28:['sl28','sl 28','sl-28'],aji:['bourbon aji','aji bourbon','aji'],ombligon:['ombligon'],typicamejorado:['typica mejorado'],rumesudan:['rume sudan'],mokka:['mokka','maui mokka'],obata:['obata'],sl34:['sl34','sl 34','sl-34'],pinkbourbon:['pink bourbon','bourbon rosado','borbon rosado'],yellowbourbon:['yellow bourbon','bourbon amarelo','bourbon amarillo'],caturra:['caturra'],catuai:['catuai','red catuai','yellow catuai','catuai amarelo','catuai vermelho'],
+    sl28:['sl28','sl 28','sl-28'],aji:['bourbon aji','aji bourbon','aji'],ombligon:['ombligon'],mayaguez:['bourbon mayaguez','mayaguez'],sigarar:['sigarar utang','sigararutang'],costarica95:['costa rica 95','cr95','cr 95'],topazio:['topazio'],typicamejorado:['typica mejorado'],rumesudan:['rume sudan'],mokka:['mokka','maui mokka'],obata:['obata'],sl34:['sl34','sl 34','sl-34'],pinkbourbon:['pink bourbon','bourbon rosado','borbon rosado'],yellowbourbon:['yellow bourbon','bourbon amarelo','bourbon amarillo'],caturra:['caturra'],catuai:['catuai','red catuai','yellow catuai','catuai amarelo','catuai vermelho'],
     kurume:['kurume'],wolisho:['wolisho','welisho','wolicho'],papayo:['papayo','typica papayo'],sl14:['sl14','sl 14','sl-14'],k7:['k7','k 7','k-7'],aruzi:['bourbon aruzi','aruzi'],acaia:['acaia'],cenicafe1:['cenicafe 1','cenicafe1','cenicafe uno'],ihcafe90:['ihcafe 90','ihcafe90','ihcafe-90'],anacafe14:['anacafe 14','anacafe14','anacafe-14'],paraiso:['paraiso'],kimono:['kimono'],
     // Also a place: Lempira is a Honduran region and Dega an Ethiopian word for the highlands, so these count only on a Variety line.
     lempira:[],dega:[]};
@@ -2997,7 +3007,7 @@ function lexicon(){if(LEX)return LEX;
   const P_EXTRA={washed:['washed','fully washed','wet process','wet processed','lavado','lavada','lave'],doublewashed:['double washed','kenyan process','kenya process'],ecopulped:['eco pulped','eco-pulped','demucilaged'],
     natural:['natural','dry process','dry processed','sun dried','sun-dried','natural seco','secado al sol'],pulpednatural:['pulped natural','cereja descascada','descascado'],wethulled:['wet hulled','wet-hulled','giling basah'],honey:['honey','miel','honey process'],hydrohoney:['hydro honey','hydro honey process','hydro-honey','hydrohoney'],anaerobichoney:['anaerobic honey','honey anaerobic','miel anaerobico'],doubleanaerobic:['double anaerobic','doble anaerobico','double anaerobico'],mountainwater:['mountain water'],
     whitehoney:['white honey','yellow honey','miel amarilla','miel blanca'],redhoney:['red honey','miel roja'],blackhoney:['black honey','miel negra'],anaerobic:['anaerobic','anaerobico','anaerobica','anaerobio'],anaerobicnatural:['anaerobic natural','natural anaerobico','natural anaerobic'],anaerobicwashed:['anaerobic washed','lavado anaerobico'],
-    carbonic:['carbonic maceration','carbonic'],alchemy:['alchemy process','alchemy'],lactic:['lactic'],yeast:['yeast'],koji:['koji'],extended:['extended fermentation'],thermalshock:['thermal shock'],mossto:['mossto'],supernatural:['supernatural','super natural'],coldferment:['cold fermentation','cold ferment','cold fermented','fermentacion en frio'],nitro:['nitro washed','nitro natural','nitrogen fermentation','nitro fermentation','nitrogen flushed'],slowdry:['dark room','slow dry','slow dried','dark room dried'],raisin:['raisin process','raisin natural','passa','uva pasa','dried on the branch','dried on the tree'],
+    carbonic:['carbonic maceration','carbonic'],alchemy:['alchemy process','alchemy'],lactic:['lactic'],yeast:['yeast'],koji:['koji'],extended:['extended fermentation'],thermalshock:['thermal shock'],mossto:['mossto'],supernatural:['supernatural','super natural'],dryferment:['dry fermented','dry fermentation','dry ferment'],aerobic:['aerobic fermentation','aerobic natural','aerobic washed','aerobic'],wine:['wine process','winey natural','wine natural'],coldferment:['cold fermentation','cold ferment','cold fermented','fermentacion en frio'],nitro:['nitro washed','nitro natural','nitrogen fermentation','nitro fermentation','nitrogen flushed'],slowdry:['dark room','slow dry','slow dried','dark room dried'],raisin:['raisin process','raisin natural','passa','uva pasa','dried on the branch','dried on the tree'],
     coferment:['co-ferment','co-fermented','coferment','cofermented','co ferment'],infused:['infused'],barrelaged:['barrel aged','barrel-aged'],monsooned:['monsooned'],aged:['aged green'],
     swisswater:['swiss water'],sugarcane:['sugarcane','sugar cane','ethyl acetate','ea decaf'],co2decaf:['co2 decaf','co2 process'],mcdecaf:['methylene chloride']};
   const procs=[];for(const k in PROCESSES)for(const a of (P_EXTRA[k]||[strip(PROCESSES[k].name)]))procs.push([a,k]);

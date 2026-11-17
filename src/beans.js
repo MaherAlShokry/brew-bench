@@ -177,7 +177,7 @@ const FWIN={light:[7,30,60],medium:[4,21,45],dark:[3,14,30]};
 // still-lovely stretch end a few weeks after opening, whatever the roast date says.
 const F_DENSE_V=new Set(['geisha','sl28','sl34','sl14','landrace','jarc','kurume','dega','wolisho','wushwush','yemenia','udaini','dawairi','tufahi','jaadi','mokka']),
   F_SOFT_V=new Set(['maragogype','pacamara','maracaturra']),
-  F_FRUIT_P=new Set(['natural','pulpednatural','honey','redhoney','blackhoney','hydrohoney','anaerobic','anaerobicnatural','anaerobicwashed','anaerobichoney','doubleanaerobic','carbonic','alchemy','lactic','yeast','koji','extended','thermalshock','mossto','supernatural','coldferment','nitro','raisin','coferment','infused','barrelaged']),
+  F_FRUIT_P=new Set(['natural','pulpednatural','honey','redhoney','blackhoney','hydrohoney','anaerobic','anaerobicnatural','anaerobicwashed','anaerobichoney','doubleanaerobic','carbonic','alchemy','lactic','yeast','koji','extended','thermalshock','mossto','supernatural','coldferment','nitro','raisin','coferment','infused','barrelaged','aerobic','wine']),
   F_DECAF_P=new Set(['swisswater','sugarcane','mountainwater','mcdecaf']),F_OPEN={light:[21,35],medium:[14,28],dark:[10,21]};
 // How high the origin grows: the middle of its altitude range ("1,500 to 2,300 m"), or 0 when it isn't given in metres.
 const altOf=k=>{const o=k&&oInfo(k),a=o&&o.alt;if(!a)return 0;if(/low/i.test(a))return 900;const n=(a.match(/\d[\d,]*/g)||[]).map(x=>+x.replace(/,/g,'')).filter(x=>x>=100);return n.length?(Math.min(...n)+Math.max(...n))/2:0};
@@ -244,7 +244,8 @@ const tnKey=t=>String(t).trim().normalize('NFC').toLowerCase().replace(/[’']/g
 const tnLeaf=w=>{const k=tnKey(w),f=fold(String(w).trim());if(!f)return null;const ns=tnNotes();return ns.find(n=>tnKey(n.n)===k)||ns.find(n=>fold(n.n)===f)||null};
 // Every note gets a colour: its own on the wheel, or, for one the wheel doesn't name ("candy", "cherry blossom"), the
 // colour of the family its words point to (sweet, fruity, floral…), and a quiet grey only when nothing fits.
-const TN_FAM=[[/candy|sugar|sweet|syrup|honey|caramel|toffee|molasses|treacle|marshmallow|nougat|fudge|jam|marmalade|cane/i,'Sweet'],
+const TN_FAM=[[/candy|gumm|lolli|bubblegum|sherbet|jelly bean|sweets/i,'Candy'],[/tropical|exotic|passion|maracuy|pineapple|mango|lychee|guava|papaya|coconut|banana/i,'Tropical fruit'],
+  [/stone fruit|peach|apricot|nectarine|plum/i,'Stone fruit'],[/sugar|sweet|syrup|honey|caramel|toffee|molasses|treacle|marshmallow|nougat|fudge|jam|marmalade|cane/i,'Sweet'],
   [/berry|cherry|grape|apple|pear|peach|apricot|plum|mango|melon|lime|lemon|orange|citrus|tropical|fruit|lychee|guava|papaya|kiwi|fig|date|raisin/i,'Fruity'],
   [/blossom|flower|floral|jasmine|rose|lavender|hibiscus|chamomile|bergamot|violet|elder/i,'Floral'],
   [/choc|cocoa|cacao|nut|almond|hazel|peanut|walnut|pecan|praline/i,'Nutty/Cocoa'],
@@ -252,7 +253,7 @@ const TN_FAM=[[/candy|sugar|sweet|syrup|honey|caramel|toffee|molasses|treacle|ma
   [/wine|winey|boozy|rum|whisk|ferment|vinegar|sour|kombucha|sake/i,'Sour/Fermented'],
   [/tea|herb|grass|green|vegetal|mint|tomato|olive|leaf/i,'Green/Vegetative'],
   [/roast|smok|toast|tobacco|cedar|wood|malt|cereal|bread|biscuit/i,'Roasted']];
-const tnColor=w=>{const n=tnLeaf(w);if(n)return n.c;const f=TN_FAM.find(([re])=>re.test(w)),r=f&&FWHEEL.find(x=>x.n===f[1]);return r?r.c:'#9AA0A8'};
+const tnColor=w=>{const n=tnLeaf(w);if(n)return n.c;const f=TN_FAM.find(([re])=>re.test(w)),r=f&&(FWHEEL.find(x=>x.n===f[1])||FWHEEL.flatMap(x=>x.k).find(x=>x.n===f[1]&&x.c));return r?r.c:'#9AA0A8'};
 const tnSplit=s=>{const seen=new Set();return String(s||'').split(/\s*[,;·]\s*/).map(x=>x.trim()).filter(x=>x&&!seen.has(tnKey(x))&&seen.add(tnKey(x)))};
 const tnEsc=w=>w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 // Notes a coffee is known for: the words in its varieties' and origin's cup descriptions, then the notes the wheel
