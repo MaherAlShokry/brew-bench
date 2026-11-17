@@ -2989,25 +2989,32 @@ html[data-nav=push] main section.nav-in{position:relative;z-index:3;background:v
 }
 @media (prefers-reduced-motion:reduce){html.nav-away .bottomnav{transform:none}}
 
-/* ===== Tiles, one modern look everywhere: a clean card with a soft wash and glow of its colour, a vivid gradient icon
-   chip with a white glyph, a quiet grey name and the answer in ink. */
+/* ===== Tiles, one modern look everywhere: a clean card with a faint wash of its colour (no glow), a soft chip of the
+   same colour holding the icon drawn in a deeper shade (clear in light and dark), a quiet grey name and the answer in ink.
+   Each tile's colour is blended with the theme's own, so the tiles follow the vibe: warm on Roastery, cool on Nordic,
+   deep on Black, near-monochrome on Pure. */
+:root{--tk-amt:80%;--tk-mix:var(--cherry)}
+:root[data-vibe="nordic"]{--tk-amt:66%}
+:root[data-vibe="black"]{--tk-amt:74%}
+:root[data-vibe="pure"]{--tk-amt:28%;--tk-mix:var(--ink)}
+:is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl,.fig-ic){--tk:color-mix(in oklab,var(--tc,var(--c)) var(--tk-amt),var(--tk-mix));--tk-ink:color-mix(in oklab,var(--tk) 78%,var(--ink))}
 :is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl){
-  background:linear-gradient(150deg,color-mix(in srgb,var(--tc) 11%,var(--surface)) 0%,var(--surface) 58%)!important;
-  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tc) 14%,var(--hair)),0 1px 2px rgba(20,12,6,.04),0 10px 22px -16px color-mix(in srgb,var(--tc) 70%,transparent)!important;
-  border:0!important;border-radius:20px!important}
-:is(.yic-t>i,.me-sq i,.me-tiles>div>i){background:linear-gradient(140deg,color-mix(in srgb,var(--tc) 70%,#fff),var(--tc))!important;border-radius:12px!important;box-shadow:0 6px 14px -8px var(--tc)}
-:is(.yic-t>i,.me-sq i,.me-tiles>div>i) .di{color:#fff!important;stroke-width:2!important}
-/* Flags keep a soft chip, so their own colours show. */
-:is(.yic-t>i,.me-sq i,.me-tiles>div>i):has(.me-flag,.yic-fl){background:color-mix(in srgb,var(--tc) 14%,var(--surface))!important;box-shadow:none}
-:is(.specs,.rstats,.stats)>div.tl .st-ic{box-sizing:border-box;width:26px!important;height:26px!important;padding:5px;top:8px!important;right:8px!important;border-radius:9px;stroke:#fff!important;stroke-width:2.2!important;opacity:1!important;
-  background:linear-gradient(140deg,color-mix(in srgb,var(--tc) 70%,#fff),var(--tc));box-shadow:0 6px 12px -8px var(--tc)}
+  background:linear-gradient(160deg,color-mix(in srgb,var(--tk) 7%,var(--surface)),var(--surface) 70%)!important;
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tk) 12%,var(--line))!important;border:0!important;border-radius:20px!important}
+:is(.yic-t>i,.me-sq i,.me-tiles>div>i){background:color-mix(in srgb,var(--tk) 15%,var(--surface))!important;border-radius:12px!important;box-shadow:none!important}
+:is(.yic-t>i,.me-sq i,.me-tiles>div>i) .di{color:var(--tk-ink)!important;stroke-width:1.9!important;opacity:1!important}
+:is(.specs,.rstats,.stats)>div.tl .st-ic{box-sizing:border-box;width:26px!important;height:26px!important;padding:5px;top:8px!important;right:8px!important;border-radius:9px;
+  background:color-mix(in srgb,var(--tk) 15%,var(--surface));stroke:var(--tk-ink)!important;stroke-width:2!important;opacity:1!important;box-shadow:none}
 :is(.specs,.rstats,.stats)>div.tl>b,:is(.specs,.rstats,.stats)>div.tl>span{padding-right:30px}
-:is(.yic-t>small,.yic-c small,.me-sq small,.me-tiles>div>small,.rstats>div.tl>small,:is(.specs,.stats)>div.tl>b){color:var(--muted)!important;letter-spacing:.04em}
-.fig-ic{background:linear-gradient(140deg,color-mix(in srgb,var(--c) 70%,#fff),var(--c));box-shadow:0 6px 14px -8px var(--c)}.fig-ic svg{stroke:#fff}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl){
-  background:linear-gradient(150deg,color-mix(in srgb,var(--tc) 18%,var(--surface)) 0%,var(--surface) 62%)!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tc) 22%,transparent)!important}}
-:root[data-theme="dark"] :is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl){
-  background:linear-gradient(150deg,color-mix(in srgb,var(--tc) 18%,var(--surface)) 0%,var(--surface) 62%)!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tc) 22%,transparent)!important}
+:root:is([data-theme],:not([data-theme])) :is(.yic-t>small,.yic-c small,.me-sq small,.me-tiles>div>small,.rstats>div.tl>small,:is(.specs,.stats)>div.tl>b){color:var(--muted)!important;letter-spacing:.04em}
+.fig-ic{background:color-mix(in srgb,var(--tk) 15%,var(--surface))!important;box-shadow:none}.fig-ic svg{stroke:var(--tk-ink)!important}
+/* Dark: a touch more colour in the wash and chip, the icon in a lighter shade. */
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl,.fig-ic){--tk-ink:color-mix(in oklab,var(--tk) 72%,#fff)}
+  :root:not([data-theme="light"]) :is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl){background:linear-gradient(160deg,color-mix(in srgb,var(--tk) 14%,var(--surface)),var(--surface) 70%)!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tk) 20%,transparent)!important}
+  :root:not([data-theme="light"]) :is(.yic-t>i,.me-sq i,.me-tiles>div>i,.fig-ic),:root:not([data-theme="light"]) :is(.specs,.rstats,.stats)>div.tl .st-ic{background:color-mix(in srgb,var(--tk) 24%,var(--surface))!important}}
+:root[data-theme="dark"] :is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl,.fig-ic){--tk-ink:color-mix(in oklab,var(--tk) 72%,#fff)}
+:root[data-theme="dark"] :is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl){background:linear-gradient(160deg,color-mix(in srgb,var(--tk) 14%,var(--surface)),var(--surface) 70%)!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tk) 20%,transparent)!important}
+:root[data-theme="dark"] :is(.yic-t>i,.me-sq i,.me-tiles>div>i,.fig-ic),:root[data-theme="dark"] :is(.specs,.rstats,.stats)>div.tl .st-ic{background:color-mix(in srgb,var(--tk) 24%,var(--surface))!important}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
