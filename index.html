@@ -3011,12 +3011,14 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 .il .il-l{fill:none;stroke:color-mix(in srgb,var(--cherry) 70%,var(--ink));stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .il .il-sw{stroke:color-mix(in srgb,var(--leaf) 80%,var(--ink));stroke-width:2.6}
 .empty-acts{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:14px}
+
+.dnext .dn-use{margin-left:6px;font-weight:700}.dnext .dn-on{margin-left:6px;font-size:.78rem;font-weight:700;color:var(--leaf-ink,var(--leaf))}
 </style>
 <script>const JSPDF_SRC="vendor/jspdf.umd.min.js"</script>
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="2915e8a5292a"</script>
+<script>const BUILD_ID="76d08992394f"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -6444,7 +6446,7 @@ function setHTML(el,h){if(el._h===h)return false;el._h=h;el.innerHTML=h;return t
 function renderDBean(){const el=$('d-bean');if(!el||!window.BEANS_OK)return;const b=S.bean,gb=b&&b.id&&beanById(b.id);
   if(b){setHTML(el,'<div class="dbean">'+(gb?beanPic(gb,'xs'):'<span class="bpic xs" style="--rc:'+regCol(b.origin)+'"><span class="bph">'+beanSVG+'</span></span>')+
       '<button type="button" class="dbean-tx" data-dbpick><b>'+esc(b.name)+'</b><small>'+esc([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · ')||'Tap to change')+'</small></button>'+
-      '<button type="button" class="dbean-x" data-dbclear aria-label="Clear the beans">✕</button></div>'+(b.id&&dialNextFor(b.id)?'<p class="dnext"><b>'+(dialNextFor(b.id).taste==='good'?'What worked last time':'Try this time')+'</b> '+esc(dialNextLine(dialNextFor(b.id)))+'</p>':''))&&hydrateImgs(el)}
+      '<button type="button" class="dbean-x" data-dbclear aria-label="Clear the beans">✕</button></div>'+dnextHTML(b.id))&&hydrateImgs(el)}
   else setHTML(el,BEANS.length?'<button type="button" class="btn ghost dbean-pick" data-dbpick>'+beanSVG+'Pick from your bean gallery</button>':'<p class="hint" style="margin:0">Add coffees under Beans (or scan a bag) and they show here and on your shared brew cards.</p>')}
 // The four steps of the dial-in each fold to a line saying what's set. Which are open is remembered; at first, the
 // gear is folded (it's always set) and your coffee is folded once you've picked one from your gallery.
@@ -6843,6 +6845,18 @@ const DRAW_S=35;
    its page and the dial-in show it the next time you brew it. Balanced keeps what you did as what worked. */
 const TASTE_DS=40;
 let DIALNEXT=(()=>{const o=load('bb-dialnext',{});return o&&typeof o==='object'&&!Array.isArray(o)?o:{}})();
+// Grind memory: what a coffee was last brewed at (its newest logged brew with a grind), so the Brew page can offer it.
+function lastBrewFor(id){if(!id)return null;const l=LOG.find(l=>l&&l.snap&&l.snap.bean&&l.snap.bean.id===id&&l.snap.g&&l.snap.c!=null);
+  return l?{g:l.snap.g,set:l.snap.c,temp:l.snap.t,brewer:l.snap.b,at:l.ts}:null}
+// The Brew page's line under the coffee: what you saved to try next (or what worked), else what you last brewed it at,
+// with Use it to set the grinder, setting, temperature and brewer in one tap (shown only when they differ from now).
+function dnextHTML(id){if(!id)return'';const x=dialNextFor(id),y=x||lastBrewFor(id);if(!y||!y.g||!GRINDERS[y.g])return'';
+  const same=S.grinder===y.g&&Math.abs(S.setting-y.set)<1e-6&&(!y.temp||S.temp===y.temp)&&(!y.brewer||S.brewer===y.brewer);
+  return '<p class="dnext"><b>'+(x?(x.taste==='good'?'What worked last time':'Try this time'):'Last time')+'</b> '+esc(dialNextLine(y))+
+    (same?' <span class="dn-on">In use</span>':(MYG.includes(y.g)?' <button type="button" class="linkbtn dn-use" data-dnuse="'+esc(id)+'">Use it</button>':''))+'</p>'}
+document.addEventListener('click',e=>{const u=e.target.closest('[data-dnuse]');if(!u)return;const id=u.dataset.dnuse,y=dialNextFor(id)||lastBrewFor(id);if(!y||!MYG.includes(y.g))return;
+  if(y.brewer&&BREWERS[y.brewer])S.brewer=y.brewer;S.grinder=y.g;S.setting=roundG(y.g,y.set);if(y.temp&&BREWERS[S.brewer]){const T=BREWERS[S.brewer].temp;S.temp=clamp(y.temp,T.min,T.max)}
+  render();if(window.BEANS_OK)renderDBean();tapBuzz();toast('Set to '+dialNextLine(y))});
 function dialNextFor(id){const x=id&&DIALNEXT[id];return x&&typeof x==='object'?x:null}
 function dialNextLine(x){if(!x)return'';const G=x.g&&GRINDERS[x.g];return [G&&x.set!=null?gLabel(x.g,x.set):'',x.temp?x.temp+'°C':'',x.brewer&&BREWERS[x.brewer]?BREWERS[x.brewer].name:''].filter(Boolean).join(' · ')}
 function tasteCheck(){const p=TM.p,r=TM.r||RECIPES[TM.idx],b=(p&&(p.brewer||p.st&&p.st.brewer))||r.b,B=BREWERS[b];if(!B)return;
@@ -11174,8 +11188,12 @@ function renderGrid(){const g=$('bg-grid');if(!g)return;const list=beanList(),ge
   const groups=beanGroups(list),later=[];
   g.innerHTML=groups.map(([h,l],gi)=>(h?(BSORT==='roaster'&&l[0].roaster?'<button type="button" class="bg-gh ro-gh" data-ro="'+esc(l[0].roaster.trim())+'">'+roMark(l[0].roaster.trim())+'<b>'+esc(h)+'</b><span>'+l.length+'</span><i aria-hidden="true">›</i></button>':'<div class="bg-gh"><b>'+esc(h)+'</b><span>'+l.length+'</span></div>'):'')+'<div class="clist" data-g="'+gi+'">'+l.map(b=>{const i=n++;if(i<FIRST)return coffeeRow(b,false,i);later.push([gi,b,i]);return ''}).join('')+'</div>').join('');
   hydrateImgs(g);if(!later.length)return;
-  whenIdle(()=>{if(gen!==GRID_GEN)return;const by=new Map();for(const [gi,b,i] of later){if(!by.has(gi))by.set(gi,'');by.set(gi,by.get(gi)+coffeeRow(b,false,i))}
-    for(const [gi,h] of by){const c=g.querySelector('.clist[data-g="'+gi+'"]');if(c)c.insertAdjacentHTML('beforeend',emoIc(h))}hydrateImgs(g)})}
+  // The rest follow in small batches, each in its own idle moment, so a long gallery (hundreds of coffees) never holds
+  // the phone for one long stretch; a newer drawing of the list stops the old one.
+  let at=0;const step=()=>{if(gen!==GRID_GEN)return;const part=later.slice(at,at+40);at+=part.length;const by=new Map();
+    for(const [gi,b,i] of part){if(!by.has(gi))by.set(gi,'');by.set(gi,by.get(gi)+coffeeRow(b,false,i))}
+    for(const [gi,h] of by){const c=g.querySelector('.clist[data-g="'+gi+'"]');if(c)c.insertAdjacentHTML('beforeend',emoIc(h))}hydrateImgs(g);if(at<later.length)whenIdle(step)};
+  whenIdle(step)}
 // One coffee as a row: the bag, its name, where it's from, and your rating. Bags you're drinking now (now=true) also
 // show how fresh they are and what's left.
 function coffeeRow(b,now,i){const rk=beanRank(b),f=now&&fresh(b),g=now?gramsLeft(b):null,isNew=!BSEEN.has(b.id)&&(i||0)<12;BSEEN.add(b.id);

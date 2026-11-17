@@ -763,7 +763,7 @@ function setHTML(el,h){if(el._h===h)return false;el._h=h;el.innerHTML=h;return t
 function renderDBean(){const el=$('d-bean');if(!el||!window.BEANS_OK)return;const b=S.bean,gb=b&&b.id&&beanById(b.id);
   if(b){setHTML(el,'<div class="dbean">'+(gb?beanPic(gb,'xs'):'<span class="bpic xs" style="--rc:'+regCol(b.origin)+'"><span class="bph">'+beanSVG+'</span></span>')+
       '<button type="button" class="dbean-tx" data-dbpick><b>'+esc(b.name)+'</b><small>'+esc([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · ')||'Tap to change')+'</small></button>'+
-      '<button type="button" class="dbean-x" data-dbclear aria-label="Clear the beans">✕</button></div>'+(b.id&&dialNextFor(b.id)?'<p class="dnext"><b>'+(dialNextFor(b.id).taste==='good'?'What worked last time':'Try this time')+'</b> '+esc(dialNextLine(dialNextFor(b.id)))+'</p>':''))&&hydrateImgs(el)}
+      '<button type="button" class="dbean-x" data-dbclear aria-label="Clear the beans">✕</button></div>'+dnextHTML(b.id))&&hydrateImgs(el)}
   else setHTML(el,BEANS.length?'<button type="button" class="btn ghost dbean-pick" data-dbpick>'+beanSVG+'Pick from your bean gallery</button>':'<p class="hint" style="margin:0">Add coffees under Beans (or scan a bag) and they show here and on your shared brew cards.</p>')}
 // The four steps of the dial-in each fold to a line saying what's set. Which are open is remembered; at first, the
 // gear is folded (it's always set) and your coffee is folded once you've picked one from your gallery.
@@ -1162,6 +1162,18 @@ const DRAW_S=35;
    its page and the dial-in show it the next time you brew it. Balanced keeps what you did as what worked. */
 const TASTE_DS=40;
 let DIALNEXT=(()=>{const o=load('bb-dialnext',{});return o&&typeof o==='object'&&!Array.isArray(o)?o:{}})();
+// Grind memory: what a coffee was last brewed at (its newest logged brew with a grind), so the Brew page can offer it.
+function lastBrewFor(id){if(!id)return null;const l=LOG.find(l=>l&&l.snap&&l.snap.bean&&l.snap.bean.id===id&&l.snap.g&&l.snap.c!=null);
+  return l?{g:l.snap.g,set:l.snap.c,temp:l.snap.t,brewer:l.snap.b,at:l.ts}:null}
+// The Brew page's line under the coffee: what you saved to try next (or what worked), else what you last brewed it at,
+// with Use it to set the grinder, setting, temperature and brewer in one tap (shown only when they differ from now).
+function dnextHTML(id){if(!id)return'';const x=dialNextFor(id),y=x||lastBrewFor(id);if(!y||!y.g||!GRINDERS[y.g])return'';
+  const same=S.grinder===y.g&&Math.abs(S.setting-y.set)<1e-6&&(!y.temp||S.temp===y.temp)&&(!y.brewer||S.brewer===y.brewer);
+  return '<p class="dnext"><b>'+(x?(x.taste==='good'?'What worked last time':'Try this time'):'Last time')+'</b> '+esc(dialNextLine(y))+
+    (same?' <span class="dn-on">In use</span>':(MYG.includes(y.g)?' <button type="button" class="linkbtn dn-use" data-dnuse="'+esc(id)+'">Use it</button>':''))+'</p>'}
+document.addEventListener('click',e=>{const u=e.target.closest('[data-dnuse]');if(!u)return;const id=u.dataset.dnuse,y=dialNextFor(id)||lastBrewFor(id);if(!y||!MYG.includes(y.g))return;
+  if(y.brewer&&BREWERS[y.brewer])S.brewer=y.brewer;S.grinder=y.g;S.setting=roundG(y.g,y.set);if(y.temp&&BREWERS[S.brewer]){const T=BREWERS[S.brewer].temp;S.temp=clamp(y.temp,T.min,T.max)}
+  render();if(window.BEANS_OK)renderDBean();tapBuzz();toast('Set to '+dialNextLine(y))});
 function dialNextFor(id){const x=id&&DIALNEXT[id];return x&&typeof x==='object'?x:null}
 function dialNextLine(x){if(!x)return'';const G=x.g&&GRINDERS[x.g];return [G&&x.set!=null?gLabel(x.g,x.set):'',x.temp?x.temp+'°C':'',x.brewer&&BREWERS[x.brewer]?BREWERS[x.brewer].name:''].filter(Boolean).join(' · ')}
 function tasteCheck(){const p=TM.p,r=TM.r||RECIPES[TM.idx],b=(p&&(p.brewer||p.st&&p.st.brewer))||r.b,B=BREWERS[b];if(!B)return;
