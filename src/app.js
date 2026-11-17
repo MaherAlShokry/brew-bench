@@ -3973,9 +3973,9 @@ const FIG_C=['#F97316','#14B8A6','#8B5CF6','#3B82F6'];
 // [icon html, name, answer html, colour, attributes]; with attributes it's a button that opens something.
 const svgI=d=>'<svg viewBox="0 0 24 24"><path d="'+d+'"/></svg>';
 function factCard(items,opt){opt=opt||{};const cols=opt.cols||2;
-  return '<div class="bfacts c'+cols+(opt.num?' num':'')+(opt.cls?' '+opt.cls:'')+'"'+(opt.label?' role="group" aria-label="'+opt.label+'"':'')+'>'+items.map(([ic,k,v,c,at])=>{const tag=at?'button':'div';
-    return '<'+tag+(at?' type="button" '+at:'')+' class="bf" style="--tc:'+(c||'#8B8F98')+'"><i class="bf-i" aria-hidden="true">'+ic+'</i><span>'+(opt.num?'<b>'+v+'</b><small>'+k+'</small>':'<small>'+k+'</small><b>'+v+'</b>')+'</span>'+
-      (at?'<svg class="bf-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>':'')+'</'+tag+'>'}).join('')+'</div>'}
+  return '<div class="bfacts c'+cols+(opt.num?' num':'')+(opt.top?' top':'')+(opt.cls?' '+opt.cls:'')+'"'+(opt.label?' role="group" aria-label="'+opt.label+'"':'')+'>'+items.map(([ic,k,v,c,at])=>{const tag=at?'button':'div';
+    return '<'+tag+(at?' type="button" '+at:'')+' class="bf" style="--tc:'+(c||'#8B8F98')+'"><i class="bf-i" aria-hidden="true">'+ic+'</i><span>'+(opt.num||opt.top?'<b>'+v+'</b><small>'+k+'</small>':'<small>'+k+'</small><b>'+v+'</b>')+'</span>'+
+      (at&&cols<3?'<svg class="bf-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>':'')+'</'+tag+'>'}).join('')+'</div>'}
 // Counts (coffees, cups, origins…): the same card, the number first.
 function figsHTML(cls,items,label){const n=items.length;return factCard(items.map(([d,nn,l],i)=>[svgI(FIG[d]||ICO[d]||d),l,nn,FIG_C[i%4]]),{num:true,cols:n===3?3:2,cls,label})}
 const ICO_TONE=new Map();
@@ -3984,7 +3984,12 @@ function icoTone(bg){if(ICO_TONE.has(bg))return ICO_TONE.get(bg);let t='c';const
     let h=0;if(d){h=mx===r?((g-b)/d)%6:mx===g?(b-r)/d+2:(r-g)/d+4;h=(h*60+360)%360}
     t=d/(mx||1)<0.18?'cl':h<38||h>=340?'c':h<62?'h':h<170?'l':h<265?'cl':'ch'}
   ICO_TONE.set(bg,t);return t}
-const ico=(n,bg)=>'<span class="ic t-'+icoTone(bg)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+ICO[n]+'"/></svg></span>';
+// Icon chips everywhere take the same look as the fact cards: a soft chip of a modern colour (blended with the theme's,
+// see --tk) with the icon drawn in a deeper shade. The house's older earthy colours map onto the modern palette.
+const ICO_MOD={'#5B5F66':'#64748B','#6B8E4E':'#22C55E','#C9964A':'#F59E0B','#D2A04A':'#F59E0B','#6E8FA8':'#3B82F6','#4F8A74':'#14B8A6','#8A5A3B':'#D2793A','#9A7390':'#8B5CF6','#B5533C':'#F43F5E','#C4473F':'#EC4899'};
+// Each place in Explore and Settings has its own colour.
+const HUB_C={map:'#14B8A6',variety:'#22C55E',process:'#F59E0B',flow:'#0EA5E9',tech:'#3B82F6',wheel:'#EC4899',words:'#8B5CF6',history:'#F97316',champs:'#EAB308',gear:'#6366F1',guide:'#0EA5E9',log:'#D2793A'};
+const ico=(n,bg)=>'<span class="ic tk-i" style="--tc:'+(ICO_MOD[String(bg).toUpperCase()]||bg||'#64748B')+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+ICO[n]+'"/></svg></span>';
 
 const TABNAMES={explore:'Explore',settings:'Settings',champs:'World championships',words:'Coffee words',wheel:'Flavour wheel',flow:'From seed to cup',dial:'Dial-in',scan:'Scan beans',gear:'Gear and dials',recipes:'Recipes',tech:'Techniques',process:'Processes',map:'Origins map',variety:'Varieties',history:'History',guide:'Guide',log:'Brew log',beans:'Beans'};
 const BNGROUP={explore:'explore',settings:'settings',champs:'explore',words:'explore',wheel:'explore',flow:'explore',dial:'dial',recipes:'recipes',scan:'beans',map:'explore',variety:'explore',history:'explore',process:'explore',tech:'explore',gear:'settings',guide:'settings',log:'settings',beans:'beans'};
@@ -4042,7 +4047,7 @@ const hubItem=k=>[...SHEETS.explore,...SHEETS.more].find(x=>x[0]===k);
 // No count badges on cards (Recipes, Explore and the rest): the number shows once you open the section.
 // A row in a grouped list: its icon in a solid square of its colour, the name and what's inside, and an arrow.
 const HC_ARR='<svg class="hc-arr" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
-const hubCard=k=>{const [,n,d,c,ic]=hubItem(k);return '<button type="button" class="hubcard" data-go="'+k+'" style="--hc:'+c+'"><span class="hc-top">'+ico(ic,c)+HC_ARR+'</span><span class="hc-tx"><b>'+n+'</b><small>'+d+'</small></span></button>'};
+const hubCard=k=>{const [,n,d,c,ic]=hubItem(k);return '<button type="button" class="hubcard" data-go="'+k+'" style="--hc:'+c+'"><span class="hc-top">'+ico(ic,HUB_C[k]||c)+HC_ARR+'</span><span class="hc-tx"><b>'+n+'</b><small>'+d+'</small></span></button>'};
 function renderExplore(){const day=Math.floor(Date.now()/864e5),w=GLOSSARY[day%GLOSSARY.length];
   if(setHTML($('explore-in'),todayCard(day,w)+(window.BEANS_OK?cabinetDayHTML():'')+
     HUB.explore.map(([h,ks])=>'<h3 class="rh">'+h+'</h3><div class="hubgrid">'+ks.map(hubCard).join('')+'</div>').join('')))if(window.BEANS_OK)hydrateImgs($('explore-in'))}
@@ -4164,8 +4169,8 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
   const row=(icon,bg,title,sub,body)=>'<div class="setrow"><div class="sl">'+ico(icon,bg)+'<span class="mt"><b>'+title+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</span></div>'+(body||'')+'</div>';
   // A row that is itself the action (a chevron at its end), for a row with one thing to do.
   const linkRow=(attrs,icon,bg,title,sub)=>'<button type="button" class="setrow setlink" '+attrs+'><span class="sl">'+ico(icon,bg)+'<span class="mt"><b>'+title+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</span><i class="setchev" aria-hidden="true">'+lIc('chev')+'</i></span></button>';
-  const qt=(k,n,d)=>'<button type="button" class="qtool" data-go="'+k+'">'+ico(hubItem(k)[4],hubItem(k)[3])+'<span><b>'+n+'</b><small>'+d+'</small></span></button>';
-  if(!fresh)settingsSync();else{const h='<div class="quicktools">'+qt('gear','Gear',MYG.length+' grinder'+(MYG.length>1?'s':'')+(MYB.length?', '+MYB.length+' brewer'+(MYB.length>1?'s':''):''))+qt('log','Brew log',LOG.length?LOG.length+' brew'+(LOG.length>1?'s':''):'Rate and keep your brews')+qt('guide','Guide','Ratios, fixes')+'</div>'+
+  const qt=(k,n,d)=>[svgI(ICO[hubItem(k)[4]]),esc(d),n,HUB_C[k],'data-go="'+k+'"'];
+  if(!fresh)settingsSync();else{const h=factCard([qt('gear','Gear',MYG.length+' grinder'+(MYG.length>1?'s':'')+(MYB.length?', '+MYB.length+' brewer'+(MYB.length>1?'s':''):'')),qt('log','Brew log',LOG.length?LOG.length+' brew'+(LOG.length>1?'s':''):'Rate and keep your brews'),qt('guide','Guide','Ratios, fixes')],{cols:3,top:true,cls:'qtools'})+
     // In the Android app: its version, whether a newer one is out, and a button to check now (the website updates itself).
     appverHTML()+
     // On the website (not iPhone, where there's no Android app to get): the Android app, one tap to download.

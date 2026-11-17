@@ -2988,7 +2988,7 @@ html[data-nav=push] main section.nav-in{position:relative;z-index:3;background:v
 :root[data-vibe="nordic"]{--tk-amt:66%}
 :root[data-vibe="black"]{--tk-amt:74%}
 :root[data-vibe="pure"]{--tk-amt:82%;--tk-mix:var(--ink)}
-:is(.bf){--tk:color-mix(in oklab,var(--tc,var(--c)) var(--tk-amt),var(--tk-mix));--tk-ink:color-mix(in oklab,var(--tk) 78%,var(--ink))}
+:is(.bf,.tk-i){--tk:color-mix(in oklab,var(--tc,var(--c)) var(--tk-amt),var(--tk-mix));--tk-ink:color-mix(in oklab,var(--tk) 78%,var(--ink))}
 
 
 
@@ -3029,6 +3029,16 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 .bf-go{flex:none;width:18px;height:18px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .bf{--tk-ink:color-mix(in oklab,var(--tk) 72%,#fff)}:root:not([data-theme="light"]) .bf-i{background:color-mix(in srgb,var(--tk) 26%,var(--surface))}}
 :root[data-theme="dark"] .bf{--tk-ink:color-mix(in oklab,var(--tk) 72%,#fff)}:root[data-theme="dark"] .bf-i{background:color-mix(in srgb,var(--tk) 26%,var(--surface))}
+
+/* Icon chips app-wide (Explore, Settings, sheets): the fact cards' chip, any size the place gives it. */
+.ic.tk-i{background:color-mix(in srgb,var(--tk) 16%,var(--surface))!important;box-shadow:none!important}
+.ic.tk-i svg{stroke:var(--tk-ink)!important}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tk-i{--tk-ink:color-mix(in oklab,var(--tk) 72%,#fff)}:root:not([data-theme="light"]) .ic.tk-i{background:color-mix(in srgb,var(--tk) 26%,var(--surface))!important}}
+:root[data-theme="dark"] .tk-i{--tk-ink:color-mix(in oklab,var(--tk) 72%,#fff)}:root[data-theme="dark"] .ic.tk-i{background:color-mix(in srgb,var(--tk) 26%,var(--surface))!important}
+.bfacts.qtools{margin:4px 0 18px}.bfacts.top.c3 .bf b{font-size:1rem}
+
+/* The bag's freshness on a coffee's page: the same clean card as its facts. */
+.bd-shelf{background:var(--surface)!important;border-radius:22px!important;box-shadow:inset 0 0 0 1px var(--line)}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>

@@ -2925,7 +2925,7 @@ html[data-nav=push] main section.nav-in{position:relative;z-index:3;background:v
 :root[data-vibe="nordic"]{--tk-amt:66%}
 :root[data-vibe="black"]{--tk-amt:74%}
 :root[data-vibe="pure"]{--tk-amt:82%;--tk-mix:var(--ink)}
-:is(.bf){--tk:color-mix(in oklab,var(--tc,var(--c)) var(--tk-amt),var(--tk-mix));--tk-ink:color-mix(in oklab,var(--tk) 78%,var(--ink))}
+:is(.bf,.tk-i){--tk:color-mix(in oklab,var(--tc,var(--c)) var(--tk-amt),var(--tk-mix));--tk-ink:color-mix(in oklab,var(--tk) 78%,var(--ink))}
 
 
 
@@ -2964,12 +2964,22 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 .bf-go{flex:none;width:18px;height:18px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .bf{--tk-ink:color-mix(in oklab,var(--tk) 72%,#fff)}:root:not([data-theme="light"]) .bf-i{background:color-mix(in srgb,var(--tk) 26%,var(--surface))}}
 :root[data-theme="dark"] .bf{--tk-ink:color-mix(in oklab,var(--tk) 72%,#fff)}:root[data-theme="dark"] .bf-i{background:color-mix(in srgb,var(--tk) 26%,var(--surface))}
+
+
+.ic.tk-i{background:color-mix(in srgb,var(--tk) 16%,var(--surface))!important;box-shadow:none!important}
+.ic.tk-i svg{stroke:var(--tk-ink)!important}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tk-i{--tk-ink:color-mix(in oklab,var(--tk) 72%,#fff)}:root:not([data-theme="light"]) .ic.tk-i{background:color-mix(in srgb,var(--tk) 26%,var(--surface))!important}}
+:root[data-theme="dark"] .tk-i{--tk-ink:color-mix(in oklab,var(--tk) 72%,#fff)}:root[data-theme="dark"] .ic.tk-i{background:color-mix(in srgb,var(--tk) 26%,var(--surface))!important}
+.bfacts.qtools{margin:4px 0 18px}.bfacts.top.c3 .bf b{font-size:1rem}
+
+
+.bd-shelf{background:var(--surface)!important;border-radius:22px!important;box-shadow:inset 0 0 0 1px var(--line)}
 </style>
 <script>const JSPDF_SRC="vendor/jspdf.umd.min.js"</script>
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="552dcf7d9f91"</script>
+<script>const BUILD_ID="9d6d5402ceaa"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -9607,9 +9617,9 @@ const FIG_C=['#F97316','#14B8A6','#8B5CF6','#3B82F6'];
 // [icon html, name, answer html, colour, attributes]; with attributes it's a button that opens something.
 const svgI=d=>'<svg viewBox="0 0 24 24"><path d="'+d+'"/></svg>';
 function factCard(items,opt){opt=opt||{};const cols=opt.cols||2;
-  return '<div class="bfacts c'+cols+(opt.num?' num':'')+(opt.cls?' '+opt.cls:'')+'"'+(opt.label?' role="group" aria-label="'+opt.label+'"':'')+'>'+items.map(([ic,k,v,c,at])=>{const tag=at?'button':'div';
-    return '<'+tag+(at?' type="button" '+at:'')+' class="bf" style="--tc:'+(c||'#8B8F98')+'"><i class="bf-i" aria-hidden="true">'+ic+'</i><span>'+(opt.num?'<b>'+v+'</b><small>'+k+'</small>':'<small>'+k+'</small><b>'+v+'</b>')+'</span>'+
-      (at?'<svg class="bf-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>':'')+'</'+tag+'>'}).join('')+'</div>'}
+  return '<div class="bfacts c'+cols+(opt.num?' num':'')+(opt.top?' top':'')+(opt.cls?' '+opt.cls:'')+'"'+(opt.label?' role="group" aria-label="'+opt.label+'"':'')+'>'+items.map(([ic,k,v,c,at])=>{const tag=at?'button':'div';
+    return '<'+tag+(at?' type="button" '+at:'')+' class="bf" style="--tc:'+(c||'#8B8F98')+'"><i class="bf-i" aria-hidden="true">'+ic+'</i><span>'+(opt.num||opt.top?'<b>'+v+'</b><small>'+k+'</small>':'<small>'+k+'</small><b>'+v+'</b>')+'</span>'+
+      (at&&cols<3?'<svg class="bf-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>':'')+'</'+tag+'>'}).join('')+'</div>'}
 // Counts (coffees, cups, origins…): the same card, the number first.
 function figsHTML(cls,items,label){const n=items.length;return factCard(items.map(([d,nn,l],i)=>[svgI(FIG[d]||ICO[d]||d),l,nn,FIG_C[i%4]]),{num:true,cols:n===3?3:2,cls,label})}
 const ICO_TONE=new Map();
@@ -9618,7 +9628,12 @@ function icoTone(bg){if(ICO_TONE.has(bg))return ICO_TONE.get(bg);let t='c';const
     let h=0;if(d){h=mx===r?((g-b)/d)%6:mx===g?(b-r)/d+2:(r-g)/d+4;h=(h*60+360)%360}
     t=d/(mx||1)<0.18?'cl':h<38||h>=340?'c':h<62?'h':h<170?'l':h<265?'cl':'ch'}
   ICO_TONE.set(bg,t);return t}
-const ico=(n,bg)=>'<span class="ic t-'+icoTone(bg)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+ICO[n]+'"/></svg></span>';
+// Icon chips everywhere take the same look as the fact cards: a soft chip of a modern colour (blended with the theme's,
+// see --tk) with the icon drawn in a deeper shade. The house's older earthy colours map onto the modern palette.
+const ICO_MOD={'#5B5F66':'#64748B','#6B8E4E':'#22C55E','#C9964A':'#F59E0B','#D2A04A':'#F59E0B','#6E8FA8':'#3B82F6','#4F8A74':'#14B8A6','#8A5A3B':'#D2793A','#9A7390':'#8B5CF6','#B5533C':'#F43F5E','#C4473F':'#EC4899'};
+// Each place in Explore and Settings has its own colour.
+const HUB_C={map:'#14B8A6',variety:'#22C55E',process:'#F59E0B',flow:'#0EA5E9',tech:'#3B82F6',wheel:'#EC4899',words:'#8B5CF6',history:'#F97316',champs:'#EAB308',gear:'#6366F1',guide:'#0EA5E9',log:'#D2793A'};
+const ico=(n,bg)=>'<span class="ic tk-i" style="--tc:'+(ICO_MOD[String(bg).toUpperCase()]||bg||'#64748B')+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+ICO[n]+'"/></svg></span>';
 
 const TABNAMES={explore:'Explore',settings:'Settings',champs:'World championships',words:'Coffee words',wheel:'Flavour wheel',flow:'From seed to cup',dial:'Dial-in',scan:'Scan beans',gear:'Gear and dials',recipes:'Recipes',tech:'Techniques',process:'Processes',map:'Origins map',variety:'Varieties',history:'History',guide:'Guide',log:'Brew log',beans:'Beans'};
 const BNGROUP={explore:'explore',settings:'settings',champs:'explore',words:'explore',wheel:'explore',flow:'explore',dial:'dial',recipes:'recipes',scan:'beans',map:'explore',variety:'explore',history:'explore',process:'explore',tech:'explore',gear:'settings',guide:'settings',log:'settings',beans:'beans'};
@@ -9676,7 +9691,7 @@ const hubItem=k=>[...SHEETS.explore,...SHEETS.more].find(x=>x[0]===k);
 // No count badges on cards (Recipes, Explore and the rest): the number shows once you open the section.
 // A row in a grouped list: its icon in a solid square of its colour, the name and what's inside, and an arrow.
 const HC_ARR='<svg class="hc-arr" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
-const hubCard=k=>{const [,n,d,c,ic]=hubItem(k);return '<button type="button" class="hubcard" data-go="'+k+'" style="--hc:'+c+'"><span class="hc-top">'+ico(ic,c)+HC_ARR+'</span><span class="hc-tx"><b>'+n+'</b><small>'+d+'</small></span></button>'};
+const hubCard=k=>{const [,n,d,c,ic]=hubItem(k);return '<button type="button" class="hubcard" data-go="'+k+'" style="--hc:'+c+'"><span class="hc-top">'+ico(ic,HUB_C[k]||c)+HC_ARR+'</span><span class="hc-tx"><b>'+n+'</b><small>'+d+'</small></span></button>'};
 function renderExplore(){const day=Math.floor(Date.now()/864e5),w=GLOSSARY[day%GLOSSARY.length];
   if(setHTML($('explore-in'),todayCard(day,w)+(window.BEANS_OK?cabinetDayHTML():'')+
     HUB.explore.map(([h,ks])=>'<h3 class="rh">'+h+'</h3><div class="hubgrid">'+ks.map(hubCard).join('')+'</div>').join('')))if(window.BEANS_OK)hydrateImgs($('explore-in'))}
@@ -9798,8 +9813,8 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
   const row=(icon,bg,title,sub,body)=>'<div class="setrow"><div class="sl">'+ico(icon,bg)+'<span class="mt"><b>'+title+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</span></div>'+(body||'')+'</div>';
   // A row that is itself the action (a chevron at its end), for a row with one thing to do.
   const linkRow=(attrs,icon,bg,title,sub)=>'<button type="button" class="setrow setlink" '+attrs+'><span class="sl">'+ico(icon,bg)+'<span class="mt"><b>'+title+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</span><i class="setchev" aria-hidden="true">'+lIc('chev')+'</i></span></button>';
-  const qt=(k,n,d)=>'<button type="button" class="qtool" data-go="'+k+'">'+ico(hubItem(k)[4],hubItem(k)[3])+'<span><b>'+n+'</b><small>'+d+'</small></span></button>';
-  if(!fresh)settingsSync();else{const h='<div class="quicktools">'+qt('gear','Gear',MYG.length+' grinder'+(MYG.length>1?'s':'')+(MYB.length?', '+MYB.length+' brewer'+(MYB.length>1?'s':''):''))+qt('log','Brew log',LOG.length?LOG.length+' brew'+(LOG.length>1?'s':''):'Rate and keep your brews')+qt('guide','Guide','Ratios, fixes')+'</div>'+
+  const qt=(k,n,d)=>[svgI(ICO[hubItem(k)[4]]),esc(d),n,HUB_C[k],'data-go="'+k+'"'];
+  if(!fresh)settingsSync();else{const h=factCard([qt('gear','Gear',MYG.length+' grinder'+(MYG.length>1?'s':'')+(MYB.length?', '+MYB.length+' brewer'+(MYB.length>1?'s':''):'')),qt('log','Brew log',LOG.length?LOG.length+' brew'+(LOG.length>1?'s':''):'Rate and keep your brews'),qt('guide','Guide','Ratios, fixes')],{cols:3,top:true,cls:'qtools'})+
     // In the Android app: its version, whether a newer one is out, and a button to check now (the website updates itself).
     appverHTML()+
     // On the website (not iPhone, where there's no Android app to get): the Android app, one tap to download.
@@ -11844,6 +11859,12 @@ function bcWrap(x,t,w,max){const words=String(t).split(/\s+/).filter(Boolean);co
   return out}
 // A panel: a soft gradient pane with a fine edge.
 function bcPane(x,X,Y,w,h,r){bcRound(x,X,Y,w,h,r||28);x.fillStyle=BC.PANE;x.fill();const g=x.createLinearGradient(0,Y,0,Y+h);g.addColorStop(0,bcI(.085));g.addColorStop(1,bcI(.035));x.fillStyle=g;x.fill();x.lineWidth=1.5;x.strokeStyle=bcI(.13);x.stroke()}
+// A figure's icon chip, as in the app's fact cards: a soft rounded square of the figure's colour (coffee, water,
+// temperature, ratio…) with its icon drawn in that colour, lightened on a dark card so it reads.
+function bcChip(x,k,cx,cy){const t=typeof tileKey==='function'?(tileKey(k)||tileKey('rating')):null;if(!t)return;const c=t[1],s=54,h=c.replace('#','');
+  const rgb=[0,2,4].map(i=>parseInt(h.slice(i,i+2),16)),mix=f=>'rgb('+rgb.map(v=>Math.round(v+(255-v)*f)).join(',')+')';
+  bcRound(x,cx-s/2,cy-s/2,s,s,17);x.fillStyle='rgba('+rgb.join(',')+','+(BC.LIGHT?.16:.24)+')';x.fill();
+  x.save();x.translate(cx-15,cy-15);x.scale(30/24,30/24);x.strokeStyle=BC.LIGHT?c:mix(.35);x.lineWidth=1.9;x.lineCap='round';x.lineJoin='round';x.stroke(x.bcPath?x.bcPath(t[2]):new Path2D(t[2]));x.restore()}
 function bcLabel(x,t,X,Y,col){x.font='700 22px '+BC.F;x.fillStyle=col||BC.HONEY;x.letterSpacing='3px';x.fillText(t.toUpperCase(),X,Y);x.letterSpacing='0px'}
 const bcCap=t=>t?t.charAt(0).toUpperCase()+t.slice(1):t;
 // The app's bean mark.
@@ -12225,12 +12246,12 @@ function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
       // The figures are one line each: as large as the widest one allows.
       if(big){const fit=()=>{x.font='800 '+fs+'px '+BC.F;return r.every(([,v])=>x.measureText(v||'–').width<=cw-52)};while(!fit()&&fs>30)fs-=2}
       
-      if(!big)x.font='700 '+fs+'px '+BC.F;const cells=r.map(([k,v])=>[k,bcWrap(x,v||'–',cw-44,2)]),lines=Math.max(...cells.map(cc=>cc[1].length));return{n,cw,fs,cells,big,h:big?(lines>1?190:150):(lines>1?150:118)}});
+      if(!big)x.font='700 '+fs+'px '+BC.F;const cells=r.map(([k,v])=>[k,bcWrap(x,v||'–',cw-44,2)]),lines=Math.max(...cells.map(cc=>cc[1].length));return{n,cw,fs,cells,big,h:big?(lines>1?262:222):(lines>1?150:118)}});
     const H=rows.reduce((a,r)=>a+r.h,0);bcPane(x,P,y,IW,H,28);let ry=y;
     rows.forEach((r,ri)=>{if(ri){x.fillStyle=bcI(.10);x.fillRect(P+24,ry,IW-48,1.5)}
       r.cells.forEach(([k,ls],i)=>{const X=P+i*r.cw;if(i){x.fillStyle=bcI(.09);x.fillRect(X,ry+22,1.5,r.h-44)}
         // The numbers sit centred in their column, the figure large in the accent; the coffee's row reads left to right.
-        if(r.big){x.textAlign='center';bcLabel(x,k,X+r.cw/2,ry+46,BC.MUTED);x.font='800 '+r.fs+'px '+BC.F;x.fillStyle=BC.HONEY;ls.forEach((l,j)=>x.fillText(l,X+r.cw/2,ry+112+j*(r.fs+8)));x.textAlign='left'}
+        if(r.big){bcChip(x,k,X+r.cw/2,ry+56);x.textAlign='center';bcLabel(x,k,X+r.cw/2,ry+118,BC.MUTED);x.font='800 '+r.fs+'px '+BC.F;x.fillStyle=BC.HONEY;ls.forEach((l,j)=>x.fillText(l,X+r.cw/2,ry+184+j*(r.fs+8)));x.textAlign='left'}
         else{bcLabel(x,k,X+24,ry+44,BC.HONEY);x.font='700 '+r.fs+'px '+BC.F;x.fillStyle=BC.INK;ls.forEach((l,j)=>x.fillText(l,X+24,ry+90+j*(r.fs+8)))}});ry+=r.h});
     y+=H+20}
   // Grind, with the dial drawn at the setting
@@ -12319,6 +12340,8 @@ function bcRec(c,sh){sh=sh||{bms:[],imgIx:new Map()};const ops=c.ops=[],bms=c.bm
   const P=CanvasRenderingContext2D.prototype,isFn=k=>{const d=Object.getOwnPropertyDescriptor(P,k);return!!(d&&typeof d.value==='function')};
   return new Proxy({},{get(t,k){
       if(k==='canvas')return c;
+      // A shape (an icon's outline) travels as its text and is rebuilt where it's painted.
+      if(k==='bcPath')return d=>({__path:d});
       if(k==='measureText')return s=>meas.measureText(s);
       if(k==='createLinearGradient')return(...a)=>grad('l',a);
       if(k==='createRadialGradient')return(...a)=>grad('r',a);
@@ -12344,7 +12367,7 @@ function bcWorker(){if(BCW!==null)return BCW;
 const load=fonts=>ready||(ready=Promise.all(fonts.map(f=>{try{const ff=new FontFace(f.family,f.src,f.d);self.fonts.add(ff);return ff.load().catch(()=>{})}catch(e){}})));
 self.onmessage=async e=>{const q=e.data;if(q.fonts){await load(q.fonts);self.postMessage({ok:'letterSpacing' in OffscreenCanvasRenderingContext2D.prototype});return}
   try{await ready;const c=new OffscreenCanvas(q.width,q.height),B=q.bms;
-    const play=(x,ops)=>{const R=[],val=v=>v&&typeof v==='object'&&v.__ref!=null?R[v.__ref]:v;
+    const play=(x,ops)=>{const R=[],val=v=>v&&typeof v==='object'?(v.__ref!=null?R[v.__ref]:v.__path!=null?new Path2D(v.__path):v):v;
       for(const o of ops){const k=o[0];
         if(k==='s')x[o[1]]=val(o[2]);else if(k==='c')x[o[1]](...o[2].map(val));else if(k==='d')x.drawImage(B[o[1]],...o[2]);
         else if(k==='dl'){const l=new OffscreenCanvas(o[2],o[3]);play(l.getContext('2d'),o[1]);x.drawImage(l,...o[4])}
