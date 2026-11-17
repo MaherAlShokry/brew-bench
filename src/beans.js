@@ -412,21 +412,19 @@ function yearInCoffeeHTML0(){const cy=new Date().getFullYear(),bs=BEANS.filter(b
   // The counts are this year's: coffees first tried or added this year (and the bags of them, when some were bought
   // again), every cup made (logged brews and timer cups), and the coffee those cups used.
   const cups=myCups(cy);if(!bs.length&&!cups.length)return '';const g=Math.round(cups.reduce((s,c)=>s+(c.g||0),0)),t=tasteOf(bs,ls),origins=new Set(bs.map(realO).filter(Boolean)).size,bags=bagsIn(cy);
-  const big=[[bs.length,(bs.length===1?'coffee':'coffees')+(bags>bs.length?' · '+bags+' bags':'')],[cups.length,cups.length===1?'cup brewed':'cups brewed'],g?[g>=1000?(g/1000).toFixed(g>=10000?0:1)+' kg':g+' g','of coffee']:[origins,origins===1?'origin':'origins']];
+  const big=[[bs.length,(bs.length===1?'Coffee':'Coffees')+(bags>bs.length?' · '+bags+' bags':'')],[cups.length,cups.length===1?'Cup brewed':'Cups brewed'],g?[g>=1000?(g/1000).toFixed(g>=10000?0:1)+' kg':g+' g','Coffee used']:[origins,origins===1?'origin':'origins']];
   const o=t.origin&&oInfo(t.origin.k),R=t.region&&REG[t.region.k],v=t.variety&&VBY[t.variety.k],pr=t.process&&PROCESSES[t.process.k],B=t.brewer&&BREWERS[t.brewer.k];
   // The facts, without counts: short ones as tiles two to a row, then the coffees (your regular, the best of the year)
   // full width, each opening its coffee. An odd tile out at the end of the short ones spans the row too.
   // Each fact in its own colour, the same as the taste tiles on your profile: icon and name on top, the answer below,
   // every tile the same size. Your regular and the best of the year follow full width, with the coffee's photo.
-  const half=[o&&['<span class="yic-fl">'+flagOf(t.origin.k)+'</span>','Origin',o.name],R&&['🗺️','Region',R.name+(t.regionOrigin&&t.regionOrigin.k!==(t.origin&&t.origin.k)?' · mostly '+oInfo(t.regionOrigin.k).name:'')],
+  const half=[o&&['<span class="yic-fl">'+flagOf(t.origin.k)+'</span>','Origin',o.name],R&&['🗺️','Region',R.name,t.regionOrigin&&t.regionOrigin.k!==(t.origin&&t.origin.k)?'Mostly '+oInfo(t.regionOrigin.k).name:''],
     v&&['🌱','Variety',shortName(v.name)],pr&&['🧪','Process',pr.name.replace(/\s*\(.*\)$/,'')],t.roast&&['🔥','Roast',t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1)],
     t.roaster&&['🏷️','Roastery',t.roaster.k],B&&['☕','Brewer',B.name]].filter(Boolean);
   const wide=[t.regular&&[t.regular,'Your regular','#0EA5E9'],t.best&&[t.best,'Best of the year',TASTE_C['Rated best']]].filter(Boolean);
-  const tile=([ic,k,vv],w)=>'<div class="yic-t'+(w?' w':'')+'" style="--tc:'+(TASTE_C[k]||'#8A5A3B')+'"><i aria-hidden="true">'+ic+'</i><small>'+k+'</small><b>'+esc(vv)+'</b></div>';
-  const coffee=([b,k,c])=>'<button type="button" class="yic-c" data-bean="'+b.id+'" style="--tc:'+c+'"><span class="yic-ph">'+beanPic(b,'xs')+'</span><span><small>'+k+'</small><b>'+esc(beanTitle(b))+'</b></span><svg class="yic-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>';
   return '<div class="yic" role="region" aria-label="'+cy+' in coffee"><div class="yic-h"><h3>'+cy+' in coffee</h3></div>'+(bs.length>1?'<p class="yic-line">'+esc(tasteLine(t))+'</p>':'')+
     figsHTML('yic-big',big.map(([n,l],i)=>[['bag','cup',g?'bean':'globe'][i],esc(String(n)),esc(l)]))+
-    (half.length?'<div class="yic-grid">'+half.map((f,i)=>tile(f,half.length%2===1&&i===half.length-1)).join('')+'</div>':'')+(wide.length?'<div class="yic-cs">'+wide.map(coffee).join('')+'</div>':'')+
+    (half.length?factCard(half.map(([ic,k,vv,sub])=>[ic,k,esc(vv)+(sub?'<em class="bf-sub">'+esc(sub)+'</em>':''),TASTE_C[k]]),{cls:'yic-f'}):'')+(wide.length?factCard(wide.map(([b,k,c])=>[beanPic(b,'xs'),k,esc(beanTitle(b)),c,'data-bean="'+b.id+'"']),{cols:1,cls:'yic-f photo'}):'')+
     (t.notes.length?'<div class="yic-notes"><small>Notes you keep coming back to</small><div class="chips">'+t.notes.map(n=>'<span class="chip"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'</span>').join('')+'</div></div>':'')+'</div>'}
 
 /* ================= FOR YOU ================= */
@@ -1323,7 +1321,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.be
       pbtn('flag','id="bd-done"','Finish this bag','quiet bd-done')+'</div>'
      :'')+
         // The coffee's facts in one card, two to a row: a coloured icon chip, then the name and the answer.
-    (kv.length?'<div class="bfacts">'+kv.map(([k,v])=>{const m=tileKey(k,v);return '<div class="bf" style="--tc:'+(m?m[1]:'#8B8F98')+'"><i class="bf-i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="'+(m?m[2]:'M12 7v6 M12 16.5v.5')+'"/></svg></i><span><small>'+k+'</small><b class="bd-v">'+esc(v)+'</b></span></div>'}).join('')+'</div>':'')+
+    (kv.length?factCard(kv.map(([k,v])=>{const m=tileKey(k,v);return [svgI(m?m[2]:'M12 7v6 M12 16.5v.5'),k,esc(v),m&&m[1]]})):'')+
     (dialNextFor(b.id)?'<div class="bd-dnext"><span class="bd-dni" aria-hidden="true">🎯</span><span><b>'+(dialNextFor(b.id).taste==='good'?'What worked':'Try next time')+'</b><small>'+esc(dialNextLine(dialNextFor(b.id)))+' · '+esc(fmt(dialNextFor(b.id).at))+(dialNextFor(b.id).taste&&dialNextFor(b.id).taste!=='good'?' · after a '+dialNextFor(b.id).taste+' cup':'')+'</small></span></div>':'')+
     (b.flavours?'<h3>Tasting notes</h3><div class="chips">'+tnSplit(b.flavours).map(f=>{const n=tnLeaf(f);return'<span class="chip">'+(n?'<i class="dot" style="background:'+n.c+'"></i>':'')+esc(f)+'</span>'}).join('')+'</div>':'')+
     (b.notes?'<h3>Your notes</h3><p>'+esc(b.notes)+'</p>':'')+

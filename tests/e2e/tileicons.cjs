@@ -17,14 +17,14 @@ for(const vibe of ['roastery','pure','black','nordic'])for(const theme of ['ligh
     const cr=(a,b)=>{const x=L(a),y=L(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)};
     const out=[],root=[...document.querySelectorAll('dialog[open]')].pop()||document;
     // [glyph element, chip element]
-    const pairs=[...root.querySelectorAll('.yic-t>i .di,.me-sq i .di,.me-tiles>div>i .di')].map(g=>[g,g.closest('i'),'color'])
+    const pairs=[...root.querySelectorAll('.bf-i .di')].map(g=>[g,g.closest('.bf-i'),'color'])
       .concat([...root.querySelectorAll(':is(.specs,.rstats,.stats)>div.tl .st-ic')].map(g=>[g,g,'stroke']))
-      .concat([...root.querySelectorAll('.fig-ic svg')].map(g=>[g,g.closest('.fig-ic'),'stroke'])).concat([...root.querySelectorAll('.bf-i svg')].map(g=>[g,g.closest('.bf-i'),'stroke']));
+      .concat([...root.querySelectorAll('.fig-ic svg')].map(g=>[g,g.closest('.fig-ic'),'stroke'])).concat([...root.querySelectorAll('.bf-i svg:not(.di)')].map(g=>[g,g.closest('.bf-i'),'stroke']));
     for(const [g,c,prop] of pairs){if(!g.getClientRects().length)continue;const gc=getComputedStyle(g)[prop],bc=getComputedStyle(c).backgroundColor;if(/rgba\(0, 0, 0, 0\)|transparent/.test(bc)){out.push({tile:(c.textContent||'').trim().slice(0,24),chip:'none'});continue}const r=cr(rgb(gc),rgb(bc));
       const t=g.getBoundingClientRect(),tile=c.closest('.yic-t,.me-sq>div,.me-tiles>div,div.tl,.figs>span,.bf')||c,tr=tile.getBoundingClientRect();
       const inside=t.left>=tr.left-1&&t.right<=tr.right+1&&t.top>=tr.top-1&&t.bottom<=tr.bottom+1;
       if(r<3||!inside)out.push({tile:(tile.textContent||'').trim().slice(0,24),contrast:+r.toFixed(2),inside})}
-    const glow=[...root.querySelectorAll('.yic-t,.me-sq>div,.me-tiles>div,div.tl')].filter(e=>/-1[0-9]px/.test(getComputedStyle(e).boxShadow)).length;
+    const glow=[...root.querySelectorAll('.bfacts,.bf')].filter(e=>/-1[0-9]px/.test(getComputedStyle(e).boxShadow)).length;
     return {n:pairs.length,bad:out,glow}});
   const views=[['recipe',"openRecipe(3)"],['coffee',"openBean(BEANS[0].id)"],['profile',"openMe()"],['beans',"goTab('beans');const e=$('bg-yic');if(e&&!e.firstChild){e.innerHTML=yearInCoffeeHTML();hydrateImgs(e)}"]];
   for(const [n,js] of views){await p.evaluate(()=>document.querySelectorAll('dialog[open]').forEach(d=>d.close()));await p.waitForTimeout(300);await p.evaluate(js);await p.waitForTimeout(800);
