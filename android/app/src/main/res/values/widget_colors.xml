@@ -9,10 +9,10 @@
     <color name="widget_btn_ink">#2A1A10</color>
     <color name="widget_row">#F3EADC</color>
     <color name="widget_pic">#E7D9C6</color>
-    <color name="widget_rest">#9A8B7E</color>
-    <color name="widget_peak">#3F7A5E</color>
-    <color name="widget_good">#B07F2E</color>
-    <color name="widget_fade">#B5533C</color>
+    <color name="widget_rest">#475569</color>
+    <color name="widget_peak">#047857</color>
+    <color name="widget_good">#B45309</color>
+    <color name="widget_fade">#BE123C</color>
     <color name="widget_glow">#2EC9964A</color>
     <color name="widget_hair">#1A2A1A10</color>
     <color name="widget_mark">#148A5A3B</color>

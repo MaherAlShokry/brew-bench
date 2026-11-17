@@ -15,6 +15,12 @@ function bcWrap(x,t,w,max){const words=String(t).split(/\s+/).filter(Boolean);co
   return out}
 // A panel: a soft gradient pane with a fine edge.
 function bcPane(x,X,Y,w,h,r){bcRound(x,X,Y,w,h,r||28);x.fillStyle=BC.PANE;x.fill();const g=x.createLinearGradient(0,Y,0,Y+h);g.addColorStop(0,bcI(.085));g.addColorStop(1,bcI(.035));x.fillStyle=g;x.fill();x.lineWidth=1.5;x.strokeStyle=bcI(.13);x.stroke()}
+// A figure's icon chip, as in the app's fact cards: a soft rounded square of the figure's colour (coffee, water,
+// temperature, ratio…) with its icon drawn in that colour, lightened on a dark card so it reads.
+function bcChip(x,k,cx,cy){const t=typeof tileKey==='function'?(tileKey(k)||tileKey('rating')):null;if(!t)return;const c=t[1],s=54,h=c.replace('#','');
+  const rgb=[0,2,4].map(i=>parseInt(h.slice(i,i+2),16)),mix=f=>'rgb('+rgb.map(v=>Math.round(v+(255-v)*f)).join(',')+')';
+  bcRound(x,cx-s/2,cy-s/2,s,s,17);x.fillStyle='rgba('+rgb.join(',')+','+(BC.LIGHT?.16:.24)+')';x.fill();
+  x.save();x.translate(cx-15,cy-15);x.scale(30/24,30/24);x.strokeStyle=BC.LIGHT?c:mix(.35);x.lineWidth=1.9;x.lineCap='round';x.lineJoin='round';x.stroke(x.bcPath?x.bcPath(t[2]):new Path2D(t[2]));x.restore()}
 function bcLabel(x,t,X,Y,col){x.font='700 22px '+BC.F;x.fillStyle=col||BC.HONEY;x.letterSpacing='3px';x.fillText(t.toUpperCase(),X,Y);x.letterSpacing='0px'}
 const bcCap=t=>t?t.charAt(0).toUpperCase()+t.slice(1):t;
 // The app's bean mark.
@@ -396,12 +402,12 @@ function bcBody(x,c,m,T){const W=BC.W,P=BC.PAD,IW=W-2*P;
       // The figures are one line each: as large as the widest one allows.
       if(big){const fit=()=>{x.font='800 '+fs+'px '+BC.F;return r.every(([,v])=>x.measureText(v||'–').width<=cw-52)};while(!fit()&&fs>30)fs-=2}
       
-      if(!big)x.font='700 '+fs+'px '+BC.F;const cells=r.map(([k,v])=>[k,bcWrap(x,v||'–',cw-44,2)]),lines=Math.max(...cells.map(cc=>cc[1].length));return{n,cw,fs,cells,big,h:big?(lines>1?190:150):(lines>1?150:118)}});
+      if(!big)x.font='700 '+fs+'px '+BC.F;const cells=r.map(([k,v])=>[k,bcWrap(x,v||'–',cw-44,2)]),lines=Math.max(...cells.map(cc=>cc[1].length));return{n,cw,fs,cells,big,h:big?(lines>1?262:222):(lines>1?150:118)}});
     const H=rows.reduce((a,r)=>a+r.h,0);bcPane(x,P,y,IW,H,28);let ry=y;
     rows.forEach((r,ri)=>{if(ri){x.fillStyle=bcI(.10);x.fillRect(P+24,ry,IW-48,1.5)}
       r.cells.forEach(([k,ls],i)=>{const X=P+i*r.cw;if(i){x.fillStyle=bcI(.09);x.fillRect(X,ry+22,1.5,r.h-44)}
         // The numbers sit centred in their column, the figure large in the accent; the coffee's row reads left to right.
-        if(r.big){x.textAlign='center';bcLabel(x,k,X+r.cw/2,ry+46,BC.MUTED);x.font='800 '+r.fs+'px '+BC.F;x.fillStyle=BC.HONEY;ls.forEach((l,j)=>x.fillText(l,X+r.cw/2,ry+112+j*(r.fs+8)));x.textAlign='left'}
+        if(r.big){bcChip(x,k,X+r.cw/2,ry+56);x.textAlign='center';bcLabel(x,k,X+r.cw/2,ry+118,BC.MUTED);x.font='800 '+r.fs+'px '+BC.F;x.fillStyle=BC.HONEY;ls.forEach((l,j)=>x.fillText(l,X+r.cw/2,ry+184+j*(r.fs+8)));x.textAlign='left'}
         else{bcLabel(x,k,X+24,ry+44,BC.HONEY);x.font='700 '+r.fs+'px '+BC.F;x.fillStyle=BC.INK;ls.forEach((l,j)=>x.fillText(l,X+24,ry+90+j*(r.fs+8)))}});ry+=r.h});
     y+=H+20}
   // Grind, with the dial drawn at the setting
@@ -490,6 +496,8 @@ function bcRec(c,sh){sh=sh||{bms:[],imgIx:new Map()};const ops=c.ops=[],bms=c.bm
   const P=CanvasRenderingContext2D.prototype,isFn=k=>{const d=Object.getOwnPropertyDescriptor(P,k);return!!(d&&typeof d.value==='function')};
   return new Proxy({},{get(t,k){
       if(k==='canvas')return c;
+      // A shape (an icon's outline) travels as its text and is rebuilt where it's painted.
+      if(k==='bcPath')return d=>({__path:d});
       if(k==='measureText')return s=>meas.measureText(s);
       if(k==='createLinearGradient')return(...a)=>grad('l',a);
       if(k==='createRadialGradient')return(...a)=>grad('r',a);
@@ -515,7 +523,7 @@ function bcWorker(){if(BCW!==null)return BCW;
 const load=fonts=>ready||(ready=Promise.all(fonts.map(f=>{try{const ff=new FontFace(f.family,f.src,f.d);self.fonts.add(ff);return ff.load().catch(()=>{})}catch(e){}})));
 self.onmessage=async e=>{const q=e.data;if(q.fonts){await load(q.fonts);self.postMessage({ok:'letterSpacing' in OffscreenCanvasRenderingContext2D.prototype});return}
   try{await ready;const c=new OffscreenCanvas(q.width,q.height),B=q.bms;
-    const play=(x,ops)=>{const R=[],val=v=>v&&typeof v==='object'&&v.__ref!=null?R[v.__ref]:v;
+    const play=(x,ops)=>{const R=[],val=v=>v&&typeof v==='object'?(v.__ref!=null?R[v.__ref]:v.__path!=null?new Path2D(v.__path):v):v;
       for(const o of ops){const k=o[0];
         if(k==='s')x[o[1]]=val(o[2]);else if(k==='c')x[o[1]](...o[2].map(val));else if(k==='d')x.drawImage(B[o[1]],...o[2]);
         else if(k==='dl'){const l=new OffscreenCanvas(o[2],o[3]);play(l.getContext('2d'),o[1]);x.drawImage(l,...o[4])}
@@ -640,7 +648,7 @@ function logSumCard(){const L=LOG.filter(l=>l&&!(l.by&&l.by!==ME)),rated=L.filte
   return bcBlob({kicker:'My brew log',title:nick?nick+'’s brew log':'My brew log',sub:L.length+(L.length===1?' brew':' brews')+'  ·  '+coffees.size+(coffees.size===1?' coffee':' coffees'),
     rating:avg?{kind:'beans',v:Math.round(avg*2)/2,word:'average'}:null,
     pills:[...(best?[['Favourite: '+(best.coffee||'a brew'),1]]:[]),...(top?[['Most brewed on '+top[0]]]:[])],
-    tiles:[['Brews',String(L.length)],['Coffees',String(coffees.size)],['Rated',String(rated.length)],['5 stars',String(rated.filter(l=>+l.stars===5).length)]],
+    tiles:[['Brews',String(L.length)],['Coffees',String(coffees.size)],['Rated',String(rated.length)]],
     expect:P?{label:'My palate',items:P.fl.slice(0,8).map(([id,v])=>({t:FW.byId[id].n,c:FW.byId[id].c})),bar:flFamilies(P.fl)}:null,
     list:{label:'Latest cups',items:L.slice(0,6).map(l=>({t:l.coffee||'A brew',d:fmtDate(l),s:clamp(Math.round(+l.stars||0),0,5)}))},
     footer:'Logged with The Brew Bench'})}

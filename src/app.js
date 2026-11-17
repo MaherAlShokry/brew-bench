@@ -357,7 +357,12 @@ function baseX(g,b){const v=BASE[g]&&BASE[g][b],x=v==null?calX(g,b):v;return x==
 const canGrind=(g,b)=>!!GRINDERS[g]&&base(g,b)!=null;
 // First of your grinders that can do this brewer (falls back to any grinder in the library).
 const capable=b=>MYG.find(g=>canGrind(g,b))||Object.keys(GRINDERS).find(g=>canGrind(g,b));
-function settingFor(g,b,off){const bb=baseX(g,b);return bb==null?null:roundG(g,shift(g,bb,-off*160))}
+// Pour-overs (and the Switch and Clever) never go coarser than 7.0 on the ZP6 (70 clicks, the top of its filter range)
+// or the same size on any other grinder: past that a dripper drains too fast to taste of much. The coarsest offset, in
+// recipe grind steps (negative is coarser).
+const COARSE_CAP_T=['Cone dripper','Flat-bottom dripper','Valve and hybrid'];
+function coarseCap(b){const B=BREWERS[b];if(!B||!COARSE_CAP_T.includes(B.type))return -Infinity;const zb=baseX('zp6',b),bs=zb!=null?sizeOf('zp6',zb):brewSize(b);return bs==null?-Infinity:(bs-sizeOf('zp6',70))/160}
+function settingFor(g,b,off){const bb=baseX(g,b);return bb==null?null:roundG(g,shift(g,bb,-Math.max(off,coarseCap(b))*160))}
 function gLabel(g,v){const G=GRINDERS[g];return G.name+' '+dial(g,v)+(G.unit==='clicks'?' clicks':'')}
 /* ================= YOUR RECIPES ================= */
 // Recipes you or your team create sit after the built-in ones in RECIPES, so the timer and dial-in work with them.
@@ -757,15 +762,13 @@ const TILE_K=[[/^(coffee|dose|shot weight|bag)/i,'#D2793A','M12 3.2c3.5 0 6 3.9 
   [/top coffee|favourite/i,'#F43F5E','M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z']];
 // The attributes and icon for a tile from its label (and, for the strength row, its value).
 const tileKey=(label,val)=>TILE_K.find(([re])=>re.test(String(label||'')))||(/light|medium|strong|gentle|vigorous/i.test(String(val||''))?TILE_K[5]:null);
-function tileOf(label,val){const m=tileKey(label,val);
-  return m?[' class="tl" style="--tc:'+m[1]+'"','<svg class="st-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="'+m[2]+'"/></svg>']:['','']}
 // Sets a block's HTML only when it differs from what it last set: drawing the same thing again on each visit made the
 // browser restyle and lay it out again, part of what a tab change cost.
 function setHTML(el,h){if(el._h===h)return false;el._h=h;el.innerHTML=h;return true}
 function renderDBean(){const el=$('d-bean');if(!el||!window.BEANS_OK)return;const b=S.bean,gb=b&&b.id&&beanById(b.id);
   if(b){setHTML(el,'<div class="dbean">'+(gb?beanPic(gb,'xs'):'<span class="bpic xs" style="--rc:'+regCol(b.origin)+'"><span class="bph">'+beanSVG+'</span></span>')+
       '<button type="button" class="dbean-tx" data-dbpick><b>'+esc(b.name)+'</b><small>'+esc([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · ')||'Tap to change')+'</small></button>'+
-      '<button type="button" class="dbean-x" data-dbclear aria-label="Clear the beans">✕</button></div>'+(b.id&&dialNextFor(b.id)?'<p class="dnext"><b>'+(dialNextFor(b.id).taste==='good'?'What worked last time':'Try this time')+'</b> '+esc(dialNextLine(dialNextFor(b.id)))+'</p>':''))&&hydrateImgs(el)}
+      '<button type="button" class="dbean-x" data-dbclear aria-label="Clear the beans">✕</button></div>'+dnextHTML(b.id))&&hydrateImgs(el)}
   else setHTML(el,BEANS.length?'<button type="button" class="btn ghost dbean-pick" data-dbpick>'+beanSVG+'Pick from your bean gallery</button>':'<p class="hint" style="margin:0">Add coffees under Beans (or scan a bag) and they show here and on your shared brew cards.</p>')}
 // The four steps of the dial-in each fold to a line saying what's set. Which are open is remembered; at first, the
 // gear is folded (it's always set) and your coffee is folded once you've picked one from your gallery.
@@ -1000,6 +1003,9 @@ function plan(c){
   {const lo=Math.min(-1.5,r.off-1),hi=Math.max(1.5,r.off+1);if(step>hi||step<lo){const tgt=clamp(step,lo,hi),want=step-tgt;
     const up=Math.max(temp,Math.min(B.temp.max,96,temp+3)),down=Math.max(B.temp.min,temp-3),t1=clamp(Math.round(temp+want*KG/KT),down,up),dt=t1-temp;
     step=tgt;held=true;why.push('The grind stays within the usual range for '+art(brewName(B.name))+' '+esc(brewName(B.name))+' rather than going '+(want>0?'finer':'coarser')+(dt?'; the water is '+Math.abs(dt)+'°C '+(dt<0?'cooler':'warmer')+' ('+t1+'°C) instead.':'. Taste and adjust from here.'));temp=t1}}
+  // At most ZP6 7.0 on a pour-over (see coarseCap): a coffee and target that ask for coarser get up to 2°C cooler water.
+  {const cap=coarseCap(bb);if(step<cap){const want=cap-step,t1=Math.max(B.temp.min,temp-2,Math.round(temp-want*KG/KT)),dt=t1-temp;
+    step=cap;held=true;why.push('The grind stays at the coarse end for '+art(brewName(B.name))+' '+esc(brewName(B.name))+' (ZP6 7.0 or its match) rather than going coarser'+(dt?'; the water is '+Math.abs(dt)+'°C cooler ('+t1+'°C) instead.':'.'));temp=t1}}
   const set={};for(const g of new Set([...MYG,grinder]))set[g]=canGrind(g,bb)?roundG(g,shift(g,baseX(g,bb),-step*160)):null;
   const water=+gfmt(dose*ratio);
   const st={grinder,setting:set[grinder],brewer:bb,temp,ratio,bloom,agit,roast:c.roast,process:c.process,variety:c.variety,rec:c.tech};
@@ -1086,6 +1092,8 @@ document.addEventListener('click',e=>{const b=e.target.closest('.tm-cue');if(!b)
 function cueSay(t){if(!CUES.voice||!t)return;const c=plugin('Cues');if(c&&c.speak){c.speak({text:t}).catch(()=>{});return}
   try{const s=window.speechSynthesis;if(!s||!window.SpeechSynthesisUtterance)return;s.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=1.05;s.speak(u)}catch(e){}}
 // A light tap under the finger for a choice made (a rating), whatever the timer's own cue settings.
+// A short success feel (two light taps) for things done: a brew saved, a bag finished, a trophy earned.
+function okBuzz(p){try{if(RM())return;p=p||[10,45,16];const c=plugin('Cues');if(c&&c.vibrate){c.vibrate({pattern:p}).catch(()=>{});return}if(navigator.vibrate)navigator.vibrate(p)}catch(e){}}
 function tapBuzz(){try{if(RM())return;const c=plugin('Cues');if(c&&c.vibrate){c.vibrate({pattern:[12]}).catch(()=>{});return}if(navigator.vibrate)navigator.vibrate(12)}catch(e){}}
 function cueBuzz(p){if(!CUES.buzz)return;const c=plugin('Cues');if(c&&c.vibrate){c.vibrate({pattern:p}).catch(()=>{});return}try{if(navigator.vibrate)navigator.vibrate(p)}catch(e){}}
 // A step as it's said: "pour 60g (to 120g)" → "Pour 60 grams, to 120 grams."
@@ -1162,6 +1170,18 @@ const DRAW_S=35;
    its page and the dial-in show it the next time you brew it. Balanced keeps what you did as what worked. */
 const TASTE_DS=40;
 let DIALNEXT=(()=>{const o=load('bb-dialnext',{});return o&&typeof o==='object'&&!Array.isArray(o)?o:{}})();
+// Grind memory: what a coffee was last brewed at (its newest logged brew with a grind), so the Brew page can offer it.
+function lastBrewFor(id){if(!id)return null;const l=LOG.find(l=>l&&l.snap&&l.snap.bean&&l.snap.bean.id===id&&l.snap.g&&l.snap.c!=null);
+  return l?{g:l.snap.g,set:l.snap.c,temp:l.snap.t,brewer:l.snap.b,at:l.ts}:null}
+// The Brew page's line under the coffee: what you saved to try next (or what worked), else what you last brewed it at,
+// with Use it to set the grinder, setting, temperature and brewer in one tap (shown only when they differ from now).
+function dnextHTML(id){if(!id)return'';const x=dialNextFor(id),y=x||lastBrewFor(id);if(!y||!y.g||!GRINDERS[y.g])return'';
+  const same=S.grinder===y.g&&Math.abs(S.setting-y.set)<1e-6&&(!y.temp||S.temp===y.temp)&&(!y.brewer||S.brewer===y.brewer);
+  return '<p class="dnext"><b>'+(x?(x.taste==='good'?'What worked last time':'Try this time'):'Last time')+'</b> '+esc(dialNextLine(y))+
+    (same?' <span class="dn-on">In use</span>':(MYG.includes(y.g)?' <button type="button" class="linkbtn dn-use" data-dnuse="'+esc(id)+'">Use it</button>':''))+'</p>'}
+document.addEventListener('click',e=>{const u=e.target.closest('[data-dnuse]');if(!u)return;const id=u.dataset.dnuse,y=dialNextFor(id)||lastBrewFor(id);if(!y||!MYG.includes(y.g))return;
+  if(y.brewer&&BREWERS[y.brewer])S.brewer=y.brewer;S.grinder=y.g;S.setting=roundG(y.g,y.set);if(y.temp&&BREWERS[S.brewer]){const T=BREWERS[S.brewer].temp;S.temp=clamp(y.temp,T.min,T.max)}
+  render();if(window.BEANS_OK)renderDBean();tapBuzz();toast('Set to '+dialNextLine(y))});
 function dialNextFor(id){const x=id&&DIALNEXT[id];return x&&typeof x==='object'?x:null}
 function dialNextLine(x){if(!x)return'';const G=x.g&&GRINDERS[x.g];return [G&&x.set!=null?gLabel(x.g,x.set):'',x.temp?x.temp+'°C':'',x.brewer&&BREWERS[x.brewer]?BREWERS[x.brewer].name:''].filter(Boolean).join(' · ')}
 function tasteCheck(){const p=TM.p,r=TM.r||RECIPES[TM.idx],b=(p&&(p.brewer||p.st&&p.st.brewer))||r.b,B=BREWERS[b];if(!B)return;
@@ -1431,10 +1451,28 @@ function dlgOpened(d){if(!d.open)(function(){if(!BACKING)try{history.pushState({
 // Sheets slide away before they close (the CSS animates .closing), so nothing vanishes abruptly.
 {const cl=HTMLDialogElement.prototype.close;HTMLDialogElement.prototype.close=function(v){if(!this.open||this.classList.contains('closing'))return;
   const shut=()=>{cl.call(this,v);if(this.hasAttribute('popover'))try{this.hidePopover()}catch(e){}};
+  // A sheet already swiped away (see the sheet gestures) is shut at once, with no second slide.
+  if(this._swiped){this._swiped=false;shut();this.style.transform='';this.style.transition='';return}
   if(RM()||document.hidden)return shut();this.classList.add('closing');
   const done=()=>{clearTimeout(t);this.removeEventListener('animationend',end);if(!this.classList.contains('closing'))return;this.classList.remove('closing');shut()},
     end=e=>{if(e.target===this)done()},t=setTimeout(done,380);this.addEventListener('animationend',end)}}
 document.addEventListener('cancel',e=>{if(e.target.tagName==='DIALOG'){e.preventDefault();e.target.close()}},true);
+// Sheet gestures on phones, where a sheet fills the screen: from the left edge, swipe right to go back (to the sheet
+// before, or closed when there's none), the sheet following your finger; at the top of a sheet, pull down to close it.
+// Let go before a third of the way (and not flicked) and it springs back. Transform only, so nothing is laid out.
+{const d=$('vd');let g=null;const W=()=>innerWidth,ph=()=>innerWidth<760&&!d.classList.contains('camdlg');
+  const set=(tx,ty,anim)=>{d.style.transition=anim?'transform .24s var(--ease-sheet)':'none';d.style.transform=tx||ty?'translate3d('+tx+'px,'+ty+'px,0)':''};
+  d.addEventListener('touchstart',e=>{if(!d.open||!ph()||e.touches.length!==1||d.classList.contains('closing')){g=null;return}const t=e.touches[0];
+    const inField=e.target.closest('input,textarea,select,[contenteditable],.scrollrow,.seg,.chips,canvas,.rng-row');
+    g={x:t.clientX,y:t.clientY,t:performance.now(),edge:t.clientX<26&&!inField,top:d.scrollTop<=0&&!inField,m:null,dx:0,dy:0}},{passive:true});
+  d.addEventListener('touchmove',e=>{if(!g)return;const t=e.touches[0],dx=t.clientX-g.x,dy=t.clientY-g.y;
+    if(!g.m){if(g.edge&&dx>10&&Math.abs(dx)>Math.abs(dy)*1.2)g.m='x';else if(g.top&&dy>10&&dy>Math.abs(dx)*1.2&&d.scrollTop<=0)g.m='y';else if(Math.abs(dx)>10||Math.abs(dy)>10){g=null;return}else return}
+    e.preventDefault();g.dx=Math.max(0,dx);g.dy=Math.max(0,dy);if(g.m==='x')set(g.dx,0);else set(0,g.dy<160?g.dy:160+(g.dy-160)*.5)},{passive:false});
+  const end=()=>{if(!g||!g.m){g=null;return}const m=g.m,v=(m==='x'?g.dx:g.dy)/Math.max(1,performance.now()-g.t),far=m==='x'?g.dx>W()*.33:g.dy>140;g=null;
+    if(!(far||v>.6)){set(0,0,true);return}
+    if(m==='x'){set(W(),0,true);setTimeout(()=>{if(VD_HIST.length){history.back();set(0,0)}else{d._swiped=true;d.close()}},230)}
+    else{set(0,innerHeight,true);setTimeout(()=>{d._swiped=true;d.close()},230)}};
+  d.addEventListener('touchend',end);d.addEventListener('touchcancel',end)}
 // Open a dialog; reopening one that is sliding away just keeps it.
 // Opening a sheet: background building waits (NAV_AT), and the slide starts two frames after the sheet is shown, once
 // its content is laid out, so the first frames of the slide aren't skipped while the browser catches up.
@@ -2178,11 +2216,13 @@ function openVariety(id){
   $('vd-x').onclick=()=>d.close();
 }
 // A sheet's pinned action bar steps aside while you scroll down to read, so it never sits over what you're reading,
-// and comes back as soon as you scroll up or reach the end (where it rests below everything).
-{let y=0;$('vd').addEventListener('scroll',()=>{const d=$('vd'),t=d.scrollTop,a=d.querySelector('.sheet-acts');if(a){
+// and comes back as soon as you scroll up, go back near the top or reach the end (where it rests below everything).
+// Like the tab bar: it counts the distance scrolled one way (so a small wobble does nothing) and reads once a frame.
+{let y=0,acc=0,raf=0;const d=$('vd');d.addEventListener('scroll',()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;
+  const t=d.scrollTop,a=d.querySelector('.sheet-acts'),dy=t-y;y=t;if(!a)return;acc=Math.sign(dy)===Math.sign(acc)?acc+dy:dy;
   const end=t+d.clientHeight>=d.scrollHeight-40,off=a.classList.contains('sa-off');
-  if(!end&&t>y+6&&t>60){if(!off)a.classList.add('sa-off')}else if((end||t<y-6)&&off)a.classList.remove('sa-off')}
-  if(Math.abs(t-y)>6||t<=0)y=t},{passive:true})}
+  if(t<60||end||acc<-14){if(off)a.classList.remove('sa-off')}else if(acc>28&&!off)a.classList.add('sa-off')})},{passive:true});
+  d.addEventListener('close',()=>{y=0;acc=0})}
 $('vd').addEventListener('click',e=>{const d=$('vd');if(e.target===d){d.close();return}
   const u=e.target.closest('[data-use]');if(u){S.variety=u.dataset.use;render();d.close();showTab('dial');toast('Variety set to '+vName(S.variety));return}
   const vs=e.target.closest('[data-vshare]');if(vs){d.close();openShare(varietyDoc(vs.dataset.vshare));return}
@@ -2385,10 +2425,11 @@ function renderCalc(){
   seg('c-pre',[['1','1 cup'],['2','2 cups'],['esp','Espresso'],['cold','Cold brew']],()=>CALC.pre,v=>{CALC.pre=v;Object.assign(CALC,{'1':{dose:15,ratio:16.5},'2':{dose:30,ratio:16.5},'esp':{dose:18,ratio:2},'cold':{dose:50,ratio:8}}[v]);renderCalc()});
   // Espresso ratios are written as the shot's weight in the cup, not the water that went through, so there is nothing to
   // take off for the grounds. Elsewhere the grounds hold back about twice their weight. Blooms and 4:6 pours are for filter.
-  const cell=(k,v,n)=>{const [a,ic]=tileOf(k,v);return '<div'+a+'>'+ic+'<b>'+k+'</b><span>'+v+'</span><small>'+n+'</small></div>'};
-  $('c-out').innerHTML=CALC.ratio<=4?cell('Shot weight',w+'g','in the cup, from '+CALC.dose+'g of coffee')+cell('Shot time','25 to 30s','from the moment the pump starts')
-    :cell('Water',w+'g','about '+w+' ml')+cell('In the cup',Math.round(w-CALC.dose*2)+'g','after the grounds hold some back')+
-     (CALC.ratio<10?cell('Steep','12 to 18 hours','in the fridge, then filter. Dilute to taste'):cell('Bloom water',Math.round(CALC.dose*2.5)+'g','about 2.5 times the dose')+cell('4:6 pours',Math.round(w/5)+'g','five equal pours'));
+  // The results in the same fact card as everywhere: the figure, and what it means beneath.
+  const cell=(k,v,n)=>{const t=tileKey(k,v);return [svgI(t?t[2]:'M12 7v6 M12 16.5v.5'),k,esc(v)+'<em class="bf-sub">'+esc(n)+'</em>',t&&t[1]]};
+  $('c-out').innerHTML=factCard(CALC.ratio<=4?[cell('Shot weight',w+'g','In the cup, from '+CALC.dose+'g of coffee'),cell('Shot time','25 to 30s','From the moment the pump starts')]
+    :[cell('Water',w+'g','About '+w+' ml'),cell('In the cup',Math.round(w-CALC.dose*2)+'g','After the grounds hold some back'),
+     ...(CALC.ratio<10?[cell('Steep','12 to 18 hours','In the fridge, then filter. Dilute to taste')]:[cell('Bloom water',Math.round(CALC.dose*2.5)+'g','About 2.5 times the dose'),cell('4:6 pours',Math.round(w/5)+'g','Five equal pours')])]);
   save('bb-calc',CALC);
 }
 $('c-dose').oninput=e=>{CALC.dose=+e.target.value;CALC.pre=null;soon(renderCalc)};
@@ -2652,8 +2693,8 @@ function renderLog(){renderShare();renderLastBrew();
   const rated=LOG.filter(l=>+l.stars>0),avg=rated.length?(rated.reduce((a,l)=>a+ +l.stars,0)/rated.length).toFixed(1):'–';
   const cnt={};LOG.forEach(l=>{if(l.brewer)cnt[l.brewer]=(cnt[l.brewer]||0)+1});const fav=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];
   const best=rated.slice().sort((a,b)=>b.stars-a.stars||b.ts-a.ts)[0];
-  const stat=(k,v,small)=>{const [a,ic]=tileOf(k,v);return '<div'+a+'>'+ic+'<b>'+k+'</b><span'+(String(v).length>6?' style="font-size:1rem"':'')+'>'+v+'</span>'+(small?'<small>'+small+'</small>':'')+'</div>'};
-  $('l-stats').innerHTML=LOG.length?stat('Brews logged',LOG.length)+stat('Average rating',avg,rated.length?'out of 5':'no ratings yet')+(fav?stat('Favourite brewer',esc(BREWERS[fav[0]]?BREWERS[fav[0]].name:fav[0])):'')+(best?stat('Top coffee',esc(best.coffee||'Untitled')):''):'';
+  const stat=(k,v,small)=>{const t=tileKey(k,v);return [svgI(t?t[2]:'M12 7v6 M12 16.5v.5'),k,v+(small?'<em class="bf-sub">'+small+'</em>':''),t&&t[1]]};
+  $('l-stats').innerHTML=LOG.length?factCard([stat('Brews logged',LOG.length),stat('Average rating',avg,rated.length?'Out of 5':'No ratings yet'),...(fav?[stat('Favourite brewer',esc(BREWERS[fav[0]]?BREWERS[fav[0]].name:fav[0]))]:[]),...(best?[stat('Top coffee',esc(best.coffee||'Untitled'))]:[])]):'';
   $('l-csv').hidden=!LOG.length;
 }
 // Flavour notes: a little profile wheel on each brew, and the notes as chips.
@@ -2697,7 +2738,7 @@ $('l-save').onclick=()=>{const k=LEDIT?LOG.findIndex(x=>x.id===LEDIT):-1;
   const e={id:uid(),ts:Date.now(),date:new Date().toLocaleDateString(),coffee:$('l-coffee').value.trim(),settings:$('l-settings').value.trim(),stars:STAR,pred:$('l-pred').value.trim(),notes:$('l-notes').value.trim(),brewer:$('l-settings').dataset.brewer||''};if(LFL.length)e.fl=LFL.slice();if(LSNAP)e.snap=LSNAP;LSNAP=null;{const cb=(e.snap&&e.snap.bean&&e.snap.bean.id)||LBEAN,cid=cb&&lastCupFor(cb);if(cid){e.cup=cid;LAST_CUP=null}}
   if(LBEAN&&!(e.snap&&e.snap.bean&&e.snap.bean.id===LBEAN))e.beanId=LBEAN;
   if(GROUP)e.by=ME;
-  if(!e.coffee&&!e.settings&&!e.notes&&!LFL.length){toast('Add a coffee name or some notes first');return}LOG.unshift(e);save('bb-log',LOG);planRated(e.stars);if(window.BEANS_OK){
+  if(!e.coffee&&!e.settings&&!e.notes&&!LFL.length){toast('Add a coffee name or some notes first');return}LOG.unshift(e);save('bb-log',LOG);okBuzz();planRated(e.stars);if(window.BEANS_OK){
     // The first brew with a bag you hadn't tried yet is the day you tried it.
     const gid=(e.snap&&e.snap.bean&&e.snap.bean.id)||e.beanId,gb=gid&&beanById(gid);if(gb&&!gb.tried){gb.tried=todayISO();saveBeans()}checkTrophies()}queue('put',e.id,e);['l-coffee','l-settings','l-pred','l-notes'].forEach(id=>$(id).value='');delete $('l-settings').dataset.brewer;STAR=0;LFL=[];LBEAN=null;renderFlForm();renderStars();renderLBean();renderPred();renderLog();toastAct(GROUP?'Brew saved and shared':'Brew saved','Share it',()=>openShare(logEntryDoc(e)));beans()};
 // A logged brew made again: the timer on the same recipe with the same coffee, dose, water, grind and temperature.
@@ -2956,7 +2997,7 @@ function lexicon(){if(LEX)return LEX;
   const V_EXTRA={geisha:['geisha','gesha'],landrace:['heirloom','ethiopian landrace','ethiopian landraces','ethiopian heirloom','landrace'],jarc:['jarc','74110','74112','74158'],robusta:['robusta','canephora'],
     liberica:['liberica','excelsa'],yemenia:['yemenia','yemeni landrace'],udaini:['udaini','odaini','oudaini','udayni','udeini'],dawairi:['dawairi','dawayri','dawairy','duwairi','dawari'],tufahi:['tufahi','tuffahi','tofahi','tufahy','tuffahy'],jaadi:['jaadi',"ja'adi",'ja’adi','ja adi','jaady'],kent:['kent','s795','s 795'],laurina:['laurina','bourbon pointu'],catuai:['catuai','red catuai','yellow catuai'],
     castillo:['castillo'],ruiru:['ruiru 11','ruiru','batian'],jackson:['jackson','mibirizi'],centroamericano:['centroamericano','h1'],bourbon:['bourbon','red bourbon','borbon','bourbon rojo','bourbon vermelho'],kona:['kona typica'],
-    sl28:['sl28','sl 28','sl-28'],aji:['bourbon aji','aji bourbon','aji'],ombligon:['ombligon'],typicamejorado:['typica mejorado'],rumesudan:['rume sudan'],mokka:['mokka','maui mokka'],obata:['obata'],sl34:['sl34','sl 34','sl-34'],pinkbourbon:['pink bourbon','bourbon rosado','borbon rosado'],yellowbourbon:['yellow bourbon','bourbon amarelo','bourbon amarillo'],caturra:['caturra'],catuai:['catuai','red catuai','yellow catuai','catuai amarelo','catuai vermelho'],
+    sl28:['sl28','sl 28','sl-28'],aji:['bourbon aji','aji bourbon','aji'],ombligon:['ombligon'],mayaguez:['bourbon mayaguez','mayaguez'],sigarar:['sigarar utang','sigararutang'],costarica95:['costa rica 95','cr95','cr 95'],topazio:['topazio'],typicamejorado:['typica mejorado'],rumesudan:['rume sudan'],mokka:['mokka','maui mokka'],obata:['obata'],sl34:['sl34','sl 34','sl-34'],pinkbourbon:['pink bourbon','bourbon rosado','borbon rosado'],yellowbourbon:['yellow bourbon','bourbon amarelo','bourbon amarillo'],caturra:['caturra'],catuai:['catuai','red catuai','yellow catuai','catuai amarelo','catuai vermelho'],
     kurume:['kurume'],wolisho:['wolisho','welisho','wolicho'],papayo:['papayo','typica papayo'],sl14:['sl14','sl 14','sl-14'],k7:['k7','k 7','k-7'],aruzi:['bourbon aruzi','aruzi'],acaia:['acaia'],cenicafe1:['cenicafe 1','cenicafe1','cenicafe uno'],ihcafe90:['ihcafe 90','ihcafe90','ihcafe-90'],anacafe14:['anacafe 14','anacafe14','anacafe-14'],paraiso:['paraiso'],kimono:['kimono'],
     // Also a place: Lempira is a Honduran region and Dega an Ethiopian word for the highlands, so these count only on a Variety line.
     lempira:[],dega:[]};
@@ -2966,7 +3007,7 @@ function lexicon(){if(LEX)return LEX;
   const P_EXTRA={washed:['washed','fully washed','wet process','wet processed','lavado','lavada','lave'],doublewashed:['double washed','kenyan process','kenya process'],ecopulped:['eco pulped','eco-pulped','demucilaged'],
     natural:['natural','dry process','dry processed','sun dried','sun-dried','natural seco','secado al sol'],pulpednatural:['pulped natural','cereja descascada','descascado'],wethulled:['wet hulled','wet-hulled','giling basah'],honey:['honey','miel','honey process'],hydrohoney:['hydro honey','hydro honey process','hydro-honey','hydrohoney'],anaerobichoney:['anaerobic honey','honey anaerobic','miel anaerobico'],doubleanaerobic:['double anaerobic','doble anaerobico','double anaerobico'],mountainwater:['mountain water'],
     whitehoney:['white honey','yellow honey','miel amarilla','miel blanca'],redhoney:['red honey','miel roja'],blackhoney:['black honey','miel negra'],anaerobic:['anaerobic','anaerobico','anaerobica','anaerobio'],anaerobicnatural:['anaerobic natural','natural anaerobico','natural anaerobic'],anaerobicwashed:['anaerobic washed','lavado anaerobico'],
-    carbonic:['carbonic maceration','carbonic'],alchemy:['alchemy process','alchemy'],lactic:['lactic'],yeast:['yeast'],koji:['koji'],extended:['extended fermentation'],thermalshock:['thermal shock'],mossto:['mossto'],supernatural:['supernatural','super natural'],coldferment:['cold fermentation','cold ferment','cold fermented','fermentacion en frio'],nitro:['nitro washed','nitro natural','nitrogen fermentation','nitro fermentation','nitrogen flushed'],slowdry:['dark room','slow dry','slow dried','dark room dried'],raisin:['raisin process','raisin natural','passa','uva pasa','dried on the branch','dried on the tree'],
+    carbonic:['carbonic maceration','carbonic'],alchemy:['alchemy process','alchemy'],lactic:['lactic'],yeast:['yeast'],koji:['koji'],extended:['extended fermentation'],thermalshock:['thermal shock'],mossto:['mossto'],supernatural:['supernatural','super natural'],dryferment:['dry fermented','dry fermentation','dry ferment'],aerobic:['aerobic fermentation','aerobic natural','aerobic washed','aerobic'],wine:['wine process','winey natural','wine natural'],coldferment:['cold fermentation','cold ferment','cold fermented','fermentacion en frio'],nitro:['nitro washed','nitro natural','nitrogen fermentation','nitro fermentation','nitrogen flushed'],slowdry:['dark room','slow dry','slow dried','dark room dried'],raisin:['raisin process','raisin natural','passa','uva pasa','dried on the branch','dried on the tree'],
     coferment:['co-ferment','co-fermented','coferment','cofermented','co ferment'],infused:['infused'],barrelaged:['barrel aged','barrel-aged'],monsooned:['monsooned'],aged:['aged green'],
     swisswater:['swiss water'],sugarcane:['sugarcane','sugar cane','ethyl acetate','ea decaf'],co2decaf:['co2 decaf','co2 process'],mcdecaf:['methylene chloride']};
   const procs=[];for(const k in PROCESSES)for(const a of (P_EXTRA[k]||[strip(PROCESSES[k].name)]))procs.push([a,k]);
@@ -3974,9 +4015,9 @@ const FIG_C=['#F97316','#14B8A6','#8B5CF6','#3B82F6'];
 // [icon html, name, answer html, colour, attributes]; with attributes it's a button that opens something.
 const svgI=d=>'<svg viewBox="0 0 24 24"><path d="'+d+'"/></svg>';
 function factCard(items,opt){opt=opt||{};const cols=opt.cols||2;
-  return '<div class="bfacts c'+cols+(opt.num?' num':'')+(opt.cls?' '+opt.cls:'')+'"'+(opt.label?' role="group" aria-label="'+opt.label+'"':'')+'>'+items.map(([ic,k,v,c,at])=>{const tag=at?'button':'div';
-    return '<'+tag+(at?' type="button" '+at:'')+' class="bf" style="--tc:'+(c||'#8B8F98')+'"><i class="bf-i" aria-hidden="true">'+ic+'</i><span>'+(opt.num?'<b>'+v+'</b><small>'+k+'</small>':'<small>'+k+'</small><b>'+v+'</b>')+'</span>'+
-      (at?'<svg class="bf-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>':'')+'</'+tag+'>'}).join('')+'</div>'}
+  return '<div class="bfacts c'+cols+(opt.num?' num':'')+(opt.top?' top':'')+(opt.cls?' '+opt.cls:'')+'"'+(opt.label?' role="group" aria-label="'+opt.label+'"':'')+'>'+items.map(([ic,k,v,c,at])=>{const tag=at?'button':'div';
+    return '<'+tag+(at?' type="button" '+at:'')+' class="bf" style="--tc:'+(c||'#8B8F98')+'"><i class="bf-i" aria-hidden="true">'+ic+'</i><span>'+(opt.num||opt.top?'<b>'+v+'</b><small>'+k+'</small>':'<small>'+k+'</small><b>'+v+'</b>')+'</span>'+
+      (at&&cols<3?'<svg class="bf-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>':'')+'</'+tag+'>'}).join('')+'</div>'}
 // Counts (coffees, cups, origins…): the same card, the number first.
 function figsHTML(cls,items,label){const n=items.length;return factCard(items.map(([d,nn,l],i)=>[svgI(FIG[d]||ICO[d]||d),l,nn,FIG_C[i%4]]),{num:true,cols:n===3?3:2,cls,label})}
 const ICO_TONE=new Map();
@@ -3985,7 +4026,12 @@ function icoTone(bg){if(ICO_TONE.has(bg))return ICO_TONE.get(bg);let t='c';const
     let h=0;if(d){h=mx===r?((g-b)/d)%6:mx===g?(b-r)/d+2:(r-g)/d+4;h=(h*60+360)%360}
     t=d/(mx||1)<0.18?'cl':h<38||h>=340?'c':h<62?'h':h<170?'l':h<265?'cl':'ch'}
   ICO_TONE.set(bg,t);return t}
-const ico=(n,bg)=>'<span class="ic t-'+icoTone(bg)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+ICO[n]+'"/></svg></span>';
+// Icon chips everywhere take the same look as the fact cards: a soft chip of a modern colour (blended with the theme's,
+// see --tk) with the icon drawn in a deeper shade. The house's older earthy colours map onto the modern palette.
+const ICO_MOD={'#5B5F66':'#64748B','#6B8E4E':'#22C55E','#C9964A':'#F59E0B','#D2A04A':'#F59E0B','#6E8FA8':'#3B82F6','#4F8A74':'#14B8A6','#8A5A3B':'#D2793A','#9A7390':'#8B5CF6','#B5533C':'#F43F5E','#C4473F':'#EC4899'};
+// Each place in Explore and Settings has its own colour.
+const HUB_C={map:'#14B8A6',variety:'#22C55E',process:'#F59E0B',flow:'#0EA5E9',tech:'#3B82F6',wheel:'#EC4899',words:'#8B5CF6',history:'#F97316',champs:'#EAB308',gear:'#6366F1',guide:'#0EA5E9',log:'#D2793A'};
+const ico=(n,bg)=>'<span class="ic tk-i" style="--tc:'+(ICO_MOD[String(bg).toUpperCase()]||bg||'#64748B')+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+ICO[n]+'"/></svg></span>';
 
 const TABNAMES={explore:'Explore',settings:'Settings',champs:'World championships',words:'Coffee words',wheel:'Flavour wheel',flow:'From seed to cup',dial:'Dial-in',scan:'Scan beans',gear:'Gear and dials',recipes:'Recipes',tech:'Techniques',process:'Processes',map:'Origins map',variety:'Varieties',history:'History',guide:'Guide',log:'Brew log',beans:'Beans'};
 const BNGROUP={explore:'explore',settings:'settings',champs:'explore',words:'explore',wheel:'explore',flow:'explore',dial:'dial',recipes:'recipes',scan:'beans',map:'explore',variety:'explore',history:'explore',process:'explore',tech:'explore',gear:'settings',guide:'settings',log:'settings',beans:'beans'};
@@ -4043,7 +4089,7 @@ const hubItem=k=>[...SHEETS.explore,...SHEETS.more].find(x=>x[0]===k);
 // No count badges on cards (Recipes, Explore and the rest): the number shows once you open the section.
 // A row in a grouped list: its icon in a solid square of its colour, the name and what's inside, and an arrow.
 const HC_ARR='<svg class="hc-arr" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
-const hubCard=k=>{const [,n,d,c,ic]=hubItem(k);return '<button type="button" class="hubcard" data-go="'+k+'" style="--hc:'+c+'"><span class="hc-top">'+ico(ic,c)+HC_ARR+'</span><span class="hc-tx"><b>'+n+'</b><small>'+d+'</small></span></button>'};
+const hubCard=k=>{const [,n,d,c,ic]=hubItem(k);return '<button type="button" class="hubcard" data-go="'+k+'" style="--hc:'+c+'"><span class="hc-top">'+ico(ic,HUB_C[k]||c)+HC_ARR+'</span><span class="hc-tx"><b>'+n+'</b><small>'+d+'</small></span></button>'};
 function renderExplore(){const day=Math.floor(Date.now()/864e5),w=GLOSSARY[day%GLOSSARY.length];
   if(setHTML($('explore-in'),todayCard(day,w)+(window.BEANS_OK?cabinetDayHTML():'')+
     HUB.explore.map(([h,ks])=>'<h3 class="rh">'+h+'</h3><div class="hubgrid">'+ks.map(hubCard).join('')+'</div>').join('')))if(window.BEANS_OK)hydrateImgs($('explore-in'))}
@@ -4165,8 +4211,8 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
   const row=(icon,bg,title,sub,body)=>'<div class="setrow"><div class="sl">'+ico(icon,bg)+'<span class="mt"><b>'+title+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</span></div>'+(body||'')+'</div>';
   // A row that is itself the action (a chevron at its end), for a row with one thing to do.
   const linkRow=(attrs,icon,bg,title,sub)=>'<button type="button" class="setrow setlink" '+attrs+'><span class="sl">'+ico(icon,bg)+'<span class="mt"><b>'+title+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</span><i class="setchev" aria-hidden="true">'+lIc('chev')+'</i></span></button>';
-  const qt=(k,n,d)=>'<button type="button" class="qtool" data-go="'+k+'">'+ico(hubItem(k)[4],hubItem(k)[3])+'<span><b>'+n+'</b><small>'+d+'</small></span></button>';
-  if(!fresh)settingsSync();else{const h='<div class="quicktools">'+qt('gear','Gear',MYG.length+' grinder'+(MYG.length>1?'s':'')+(MYB.length?', '+MYB.length+' brewer'+(MYB.length>1?'s':''):''))+qt('log','Brew log',LOG.length?LOG.length+' brew'+(LOG.length>1?'s':''):'Rate and keep your brews')+qt('guide','Guide','Ratios, fixes')+'</div>'+
+  const qt=(k,n,d)=>[svgI(ICO[hubItem(k)[4]]),esc(d),n,HUB_C[k],'data-go="'+k+'"'];
+  if(!fresh)settingsSync();else{const h=factCard([qt('gear','Gear',MYG.length+' grinder'+(MYG.length>1?'s':'')+(MYB.length?', '+MYB.length+' brewer'+(MYB.length>1?'s':''):'')),qt('log','Brew log',LOG.length?LOG.length+' brew'+(LOG.length>1?'s':''):'Rate and keep your brews'),qt('guide','Guide','Ratios, fixes')],{cols:3,top:true,cls:'qtools'})+
     // In the Android app: its version, whether a newer one is out, and a button to check now (the website updates itself).
     appverHTML()+
     // On the website (not iPhone, where there's no Android app to get): the Android app, one tap to download.

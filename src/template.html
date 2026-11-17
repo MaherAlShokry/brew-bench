@@ -293,11 +293,11 @@ dialog#vd::backdrop{background:rgba(20,14,10,.55)}
 @media (min-width:960px){.twocol{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}}
 
 /* brew plan (Scan) */
-.specs{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin:12px 0}
-.specs div{background:var(--paper);border-radius:10px;padding:10px}
-.specs b{display:block;font-family:var(--display);font-size:.76rem;color:var(--muted);font-weight:600}
-.specs span{font-family:var(--display);font-weight:800;font-size:1.15rem;font-variant-numeric:tabular-nums}
-.specs small{display:block;font-size:.78rem;color:var(--muted)}
+
+
+
+
+
 .why li{margin:.25rem 0}
 
 /* log */
@@ -625,7 +625,7 @@ dialog#navsheet::backdrop,dialog#sharesheet::backdrop{background:rgba(30,20,14,.
   .mapbar button{flex:1 1 45%}
   .bar{grid-template-columns:84px 1fr 30px}
   .caltable input{width:64px}
-  .specs{grid-template-columns:repeat(2,1fr)}
+  
   .twocol{gap:18px}
 }
 
@@ -1167,8 +1167,8 @@ main section.nav-in{transform-origin:50% 40vh}
 /* Surfaces */
 .panel,.card,.treebox,.mapbox,#vcompare>.card{border-radius:var(--r-lg);border:1px solid var(--hair);box-shadow:var(--e1);background:var(--surface)}
 .card{padding:18px}
-.specs div,.stats div,.sub,.drop,.cal{border-radius:var(--r-md)}
-.specs div,.stats div{background:var(--surface2);border:0}
+.stats div,.sub,.drop,.cal{border-radius:var(--r-md)}
+.stats div{background:var(--surface2);border:0}
 .tip,.fact{border-left:0;border-radius:var(--r-md);background:color-mix(in srgb,var(--honey) 12%,var(--surface));padding:12px 14px}
 .fact{background:color-mix(in srgb,var(--cherry) 9%,var(--surface))}
 section>h2,section>.twocol h2{font-size:1.55rem}
@@ -1410,8 +1410,8 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .mk-h b{display:block;font:800 1.2rem/1.25 var(--display)}.mk-h small{font-size:.8rem;color:var(--muted)}.mk-res .le-pill{background:var(--surface)}.mk-res .le-pills{margin-top:10px}.colshelf b{padding-right:42px}
 .colshelf .cn{left:auto;bottom:auto;top:12px;right:12px;font-size:.74rem;background:rgba(0,0,0,.24);padding:2px 9px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
 /* A recipe at a glance, and its steps as a timeline. */
-.rstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:.4rem 0 .8rem}
-.rstats div{background:var(--surface2);border-radius:12px;padding:8px 10px}.rstats b{display:block;font:700 1.02rem var(--display);font-variant-numeric:tabular-nums}.rstats small{color:var(--muted);font-size:.74rem}
+
+
 .steps.tl{list-style:none;padding:0;margin:.4rem 0 .6rem;position:relative}
 /* A step: its time, the kind of move and the instruction in three columns. The time and the icon are one text line tall,
    so they sit on the middle of the first line however the instruction wraps. */
@@ -1933,7 +1933,9 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .vd-tool svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .vd-tool:active{transform:scale(.94)}
 @media (max-width:759px){html dialog#vd:not(.camdlg) .vd-head .vd-tools{top:calc(12px + var(--sa-top,0px))}}
-.vd-head:has(.vd-tools) .pill{max-width:calc(100% - 170px)}
+.vd-head:has(.vd-tools) .pill{max-width:calc(100% - 170px);overflow:hidden;text-overflow:ellipsis;display:block;width:max-content;line-height:1.9}.vd-head:has(.vd-tools) .pill>i{display:inline-block;vertical-align:middle;margin:-2px 6px 0 0}
+/* The pill stops short of the buttons, however many there are (each 40px, 8px apart). */
+.vd-head:has(.vd-tools>:nth-child(3)) .pill{max-width:calc(100% - 186px)}.vd-head:has(.vd-tools>:nth-child(4)) .pill{max-width:calc(100% - 234px)}
 /* What's left: the bar across, the grams and "Set what's left" on one line under it. */
 .bd-bagh{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px}.bd-bagh .bagl{display:contents}
 .bd-bagh .bagm{flex:1 0 100%}.bd-bagh .linkbtn{font-size:.84rem;font-weight:700;padding:4px 0}
@@ -2030,19 +2032,19 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .me-th{display:flex;flex-direction:column;gap:2px}.me-th b{font:700 1.02rem var(--display)}.me-th small{font-size:.78rem;color:var(--muted)}
 .me-tl{margin:8px 0 0;font:600 .98rem/1.4 var(--display);color:var(--ink)}
 /* Swipeable rows start flush with the text above them and fade out at the right edge, so nothing looks cut at the start. */
-.me-tiles{display:flex;gap:8px;margin:12px 0 0;padding:0 24px 2px 0;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 24px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 24px),transparent)}.me-tiles::-webkit-scrollbar{display:none}
-.me-tiles>div{flex:none;width:104px;scroll-snap-align:start;display:flex;flex-direction:column;gap:2px;padding:10px;border-radius:14px;background:var(--surface)}
-.me-tiles i{font-style:normal;font-size:1.15rem;line-height:1;margin-bottom:4px}.me-tiles small{font-size:.68rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
-.me-tiles b{font:650 .9rem/1.2 var(--display);color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+
+
+
 /* The taste facts sit in a grid of three that wraps, so every fact shows in full (a sideways strip hid the third one
    behind its fade and cut its name off). Names can take two lines. */
-.me-tiles{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible!important;padding:0!important;-webkit-mask-image:none!important;mask-image:none!important}
-.me-tiles>div{width:auto!important}
+
+
 /* Your coffee profile's tiles, in the same style as the other tiles: the icon in a tinted square on top, the words at the foot. */
-.me-tiles>div{justify-content:space-between;gap:10px;min-height:112px;padding:12px;border-radius:18px;background:linear-gradient(155deg,color-mix(in srgb,var(--cherry) 7%,var(--surface)),var(--surface) 72%);border:1px solid color-mix(in srgb,var(--cherry) 10%,var(--line))}
-.me-tiles i{display:grid;place-items:center;flex:none;align-self:flex-start;width:36px!important;height:36px!important;line-height:1!important;border-radius:12px;margin:0;background:color-mix(in srgb,var(--cherry) 11%,var(--surface));font-size:1.1rem}
-.me-tiles i svg{width:20px;height:20px}
-.me-tiles>div>small{margin-top:auto}.me-tiles b{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:break-word;hyphens:auto}
+
+
+
+
 .yic-notes .chip,.me-notes .chip{background:var(--surface);border:1px solid var(--line)}.me-notes{margin:12px 0 0}
 
 
@@ -2404,7 +2406,7 @@ details:not(.dstep)[open]>summary::after{transform:rotate(-135deg) translateY(-1
 details.card>summary,#gcustom>summary{flex-wrap:wrap}details.card>summary .hint{flex-basis:100%;order:2}
 /* Words are never cut short: titles, meta lines, notes and previews wrap instead of ending in "…" or a clamp.
    (Dropdown boxes, segmented tabs and the date field size themselves to fit instead.) */
-:is(.srow-tx small,.t45t small,.ts-row em,.actions.two-up>.btn,.meta span,.tm-nx,.again b,.wcard .wdef,.gcard .gtop .hint,.bshelf b,.rr-by,.me-dna b,.srow-tx b,.t45t b,.t3hm-i small,.t3s-tx b,.pm b,.pm small,.t3tile small,.cr-tx b,.cr-tx>small,.cr-notes,.dbeans button span:last-child,.otd-tx small,.yic-row small,.yic-row b,.pp-reg small,.t3o-tx b,.dbean-tx b,.dbean-tx small,.shsw span,.dst small,.cr-top b,.aco,.fit-head b){white-space:normal!important;overflow:visible!important;text-overflow:clip!important;-webkit-line-clamp:unset!important;line-clamp:none!important;overflow-wrap:anywhere}
+:is(.srow-tx small,.t45t small,.ts-row em,.actions.two-up>.btn,.meta span,.tm-nx,.again b,.wcard .wdef,.gcard .gtop .hint,.bshelf b,.rr-by,.srow-tx b,.t45t b,.t3hm-i small,.t3s-tx b,.pm b,.pm small,.t3tile small,.cr-tx b,.cr-tx>small,.cr-notes,.dbeans button span:last-child,.otd-tx small,.yic-row small,.yic-row b,.pp-reg small,.t3o-tx b,.dbean-tx b,.dbean-tx small,.shsw span,.dst small,.cr-top b,.aco,.fit-head b){white-space:normal!important;overflow:visible!important;text-overflow:clip!important;-webkit-line-clamp:unset!important;line-clamp:none!important;overflow-wrap:anywhere}
 .actions.two-up>.btn{line-height:1.2;padding-top:8px;padding-bottom:8px}
 /* Two date fields side by side on a narrow phone: the words get the room, the icon steps aside. */
 @media (max-width:399px){.two .datew{padding:0 10px;gap:6px}.two .datew svg{display:none}.two .datew .dw-t{font-size:.95rem}}
@@ -2522,8 +2524,8 @@ label[for=i-grind]>span{display:flex;flex-direction:column;align-items:flex-end;
 .lastbrew .lb-tx .st{margin-top:2px;font-style:normal}
 .lastbrew .lb-act{flex-direction:row;gap:8px}.lastbrew .lb-act .btn{flex:1;min-height:40px}
 .di{width:1.15em;height:1.15em;display:inline-block;vertical-align:-.2em;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
-:is([class^="yic"],.me-tiles,.me-dna,.me-sq,.tro-ic,.ssn-ic,.tl-ic,.tshelf,.ssn-got,.bd-rbh,.wel-ic,.fact-ic) .di{color:var(--cherry);stroke-width:1.7}
-.tro-ic .di,.ssn-ic .di{width:1.5em;height:1.5em}.me-tiles .di{width:1.35em;height:1.35em}
+:is([class^="yic"],.tro-ic,.ssn-ic,.tl-ic,.tshelf,.ssn-got,.bd-rbh,.wel-ic,.fact-ic) .di{color:var(--cherry);stroke-width:1.7}
+.tro-ic .di,.ssn-ic .di{width:1.5em;height:1.5em}
 #toast .di{width:1.05em;height:1.05em;vertical-align:-.18em;margin:0 .1em}
 /* Brew steps: icons a size up, in even tinted circles, and a small dot on the line for steps without a time. */
 .steps.tl li{grid-template-columns:52px 28px minmax(0,1fr);--row:1.75rem}
@@ -2542,10 +2544,10 @@ input[type=range].pop::-moz-range-thumb{animation:rngpop .26s cubic-bezier(.3,1.
 button[aria-pressed]{transition:background-color .22s,color .22s,border-color .22s,box-shadow .22s,transform .15s}
 button[aria-pressed]:active{transform:scale(.95)}
 .chip-on{animation:chipon .2s ease-out}@keyframes chipon{from{opacity:.6}to{opacity:1}}
-.me-tiles>div{width:auto;min-width:104px;max-width:168px}
-.me-tiles b{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:break-word;hyphens:auto}
+
+
 /* Names are shown in full everywhere: they wrap rather than being cut short (secondary details may still shorten). */
-:is(.again b,.me-dna b,.srow-tx b,.t3o-tx b,.dbean-tx b,.yic-row b,.ls-sel b,.t3s-tx b,.me-tiles b){white-space:normal!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:anywhere;max-width:none}
+:is(.again b,.srow-tx b,.t3o-tx b,.dbean-tx b,.yic-row b,.ls-sel b,.t3s-tx b){white-space:normal!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:anywhere;max-width:none}
 .t3s-tx b{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden!important}
 /* Your bags, low on the coffee's page and compact. */
 .bd-buys{margin:14px 0 4px;padding:12px 14px;border-radius:var(--r-lg);border:1px solid var(--line)}
@@ -2597,17 +2599,15 @@ button[aria-pressed]:active{transform:scale(.95)}
 .me-sec{display:flex;flex-direction:column;gap:10px}
 .me-sh{margin:6px 0 0;font:700 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .me-body .me-brief{margin:0;padding:0;font:400 1rem/1.5 var(--body);color:var(--ink)}.me-body .me-brief::before{content:none}
-.me-sq{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:1fr;gap:8px}
+
 /* The same coloured tiles as Your coffee taste, stacked: icon, name, answer. */
-.me-sq>div{min-width:0;display:flex;flex-direction:column;gap:3px;padding:12px 11px 13px;border-radius:18px;
-  background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 20%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 9%,var(--surface));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tc) 16%,transparent)}
-.me-sq i{width:32px;height:32px;display:grid;place-items:center;margin-bottom:9px;border-radius:11px;background:color-mix(in srgb,var(--tc) 18%,transparent);font-style:normal;font-size:1.05rem}
-.me-sq i .di{width:18px;height:18px;color:var(--tc)!important}
-.me-sq .me-flag{font-size:1.15rem}
-.me-sq small{font-size:.66rem;line-height:1.2;font-weight:700;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:color-mix(in srgb,var(--tc) 55%,var(--muted))}
-.me-sq b{font:650 .98rem/1.22 var(--display);color:var(--ink);overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .me-sq>div{background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 26%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 13%,var(--surface))}:root:not([data-theme="light"]) .me-sq i .di{color:color-mix(in srgb,var(--tc) 70%,#fff)!important}:root:not([data-theme="light"]) .me-sq small{color:color-mix(in srgb,var(--tc) 45%,var(--muted))}}
-:root[data-theme="dark"] .me-sq>div{background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 26%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 13%,var(--surface))}:root[data-theme="dark"] .me-sq i .di{color:color-mix(in srgb,var(--tc) 70%,#fff)!important}:root[data-theme="dark"] .me-sq small{color:color-mix(in srgb,var(--tc) 45%,var(--muted))}
+
+
+
+
+
+
+
 .me-body .me-taste{margin:6px 0 0}
 /* The profile header (and the cover) end in soft, rounded corners. With nothing below it yet, it fills the page as one
    solid block, with no corners and no gap. */
@@ -2675,27 +2675,24 @@ dialog.dlg-pre[open]::backdrop{animation:none!important;opacity:0}
 .gk-tip .ic svg{width:19px;height:19px;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .bd-end{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}.bd-end .pbtn{margin:0}.gk-tip{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:14px;background:var(--surface)}
 .gk-tip>span{display:flex;flex-direction:column;gap:3px;min-width:0}.gk-tip b{font:650 .98rem/1.3 var(--display);color:var(--ink)}.gk-tip small{font-size:.88rem;line-height:1.45;color:var(--muted)}
-.yic-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:1fr;gap:8px;margin:14px 0 0}
+
 /* Each fact in its own colour, like the taste tiles on your profile: icon and name on top, the answer below. */
-.yic-t{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto 1fr;align-items:center;align-content:start;column-gap:9px;row-gap:10px;min-width:0;padding:12px 12px 13px;border-radius:18px;color:var(--ink);
-  background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 20%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 9%,var(--surface));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tc) 16%,transparent)}
-.yic-t.w{grid-column:1/-1}
-.yic-t>i{grid-row:1;grid-column:1;width:32px;height:32px;border-radius:11px;display:grid;place-items:center;background:color-mix(in srgb,var(--tc) 18%,transparent);font-style:normal;font-size:1.05rem}
-.yic-t>i .di{width:18px;height:18px;color:var(--tc)!important}
-.yic-t>small{grid-row:1;grid-column:2;font-size:.72rem;font-weight:700;line-height:1.2;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:color-mix(in srgb,var(--tc) 55%,var(--muted))}
-.yic-t>b{grid-row:2;grid-column:1/-1;align-self:start;font:650 1.02rem/1.25 var(--display);color:var(--ink);overflow-wrap:anywhere}
+
+
+
+
+
+
 /* The coffees: your regular and the best of the year, with their photo. */
-.yic-cs{display:grid;gap:8px;margin-top:8px}
-.yic-c{display:flex;align-items:center;gap:12px;width:100%;min-width:0;padding:10px 12px 10px 10px;border:0;border-radius:18px;font:inherit;text-align:left;color:var(--ink);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .15s;
-  background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 18%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 8%,var(--surface));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tc) 16%,transparent)}
-.yic-c:active{transform:scale(.985)}
-.yic-ph{flex:none;width:48px;height:48px;border-radius:13px;overflow:hidden;display:block}.yic-ph .bpic{width:100%!important;height:100%!important;border-radius:inherit!important;margin:0!important}
-.yic-c>span:nth-child(2){display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
-.yic-c small{font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:color-mix(in srgb,var(--tc) 55%,var(--muted))}
-.yic-c b{font:650 1.02rem/1.25 var(--display);color:var(--ink);overflow-wrap:anywhere}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(.yic-t,.yic-c){background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 26%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 13%,var(--surface))}:root:not([data-theme="light"]) .yic-t>i .di{color:color-mix(in srgb,var(--tc) 70%,#fff)!important}:root:not([data-theme="light"]) :is(.yic-t>small,.yic-c small){color:color-mix(in srgb,var(--tc) 45%,var(--muted))}}
-:root[data-theme="dark"] :is(.yic-t,.yic-c){background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 26%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 13%,var(--surface))}:root[data-theme="dark"] .yic-t>i .di{color:color-mix(in srgb,var(--tc) 70%,#fff)!important}:root[data-theme="dark"] :is(.yic-t>small,.yic-c small){color:color-mix(in srgb,var(--tc) 45%,var(--muted))}
-.yic-go{flex:none;width:18px;height:18px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2713,7 +2710,7 @@ dialog.dlg-pre[open]::backdrop{animation:none!important;opacity:0}
   .seg.bviews .seg-ind,.seg.bviews button[aria-pressed="true"]{box-shadow:none!important}
 #ab-title{transition:opacity .2s ease,transform .2s ease}.appbar.title-off #ab-title{opacity:0;transform:translateY(6px)}
 @media (min-width:760px){.appbar.title-off #ab-title{opacity:1;transform:none}}
-.me-tiles>div>i{height:26px;display:flex;align-items:center;margin-bottom:4px}.me-tiles>div>i .me-flag{font-size:1.25rem;line-height:1}
+
 /* No browser tap highlight anywhere (Arc and others paint a blue-grey patch over a tapped tab while the highlight glides). */
 html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visible){outline:none}
 /* Each Beans view and gear tab is at least a screen tall, so switching to a short one never shortens the page under you. */
@@ -2776,14 +2773,13 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 .rov-h-tx small{font-size:.8rem;color:#D9C8B8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rov-h-rate{flex:none;display:inline-flex;align-items:center;gap:4px;padding:6px 11px;border-radius:var(--r-pill);background:rgba(255,255,255,.12);font:800 .95rem var(--display);font-variant-numeric:tabular-nums}
 .rov-h-rate svg{width:15px;height:15px}
-.figs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 12px}
-.figs>span{display:flex;align-items:center;gap:10px;min-width:0;padding:12px 10px;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--shadow),inset 0 0 0 1px var(--hair)}
-.figs>span>span{display:flex;flex-direction:column;min-width:0;font-size:.74rem;color:var(--muted);line-height:1.2}
-.figs b{font-family:var(--display);font-size:1.3rem;line-height:1.05;color:var(--ink);font-variant-numeric:tabular-nums}
-.fig-ic{flex:none;width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:var(--c)}
-.fig-ic svg{width:18px;height:18px;fill:none;stroke:var(--surface);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-@media (max-width:359px){.figs>span{flex-direction:column;align-items:flex-start;gap:6px}}
-.figs.f2{grid-template-columns:repeat(2,minmax(0,1fr))}
+
+
+
+
+
+
+
 .ro-best.rov-hero{margin:4px 0 6px;border:0;padding:14px}.ro-best.rov-hero .bpic{width:62px;height:62px;border-radius:16px;box-shadow:0 0 0 3px rgba(255,255,255,.14)}
 /* The Beans card's actions as round icons: Scan a bag (the light one), Add a coffee, Your scans. */
 .bgh-acts{display:flex!important;gap:10px;flex:1 0 100%!important;margin-top:12px}.bgh-btn{width:46px;height:46px;min-height:0;padding:0!important;border-radius:50%;gap:0}.bgh-btn svg{width:20px!important;height:20px!important}
@@ -2834,7 +2830,7 @@ main section.on.fabbed{padding-bottom:160px!important}
    heading; a brew's add-flavours plus sits in its row of pills. */
 #l-stats>div:last-child:nth-child(odd){grid-column:1/-1}
 .l-head{margin-top:16px}
-.figs b{white-space:nowrap}
+
 /* Scale a recipe: less or more coffee either side of the amounts, and Iced beside them. */
 .rscale{display:flex;align-items:center;gap:10px;margin:0 0 14px;padding:10px 12px;border-radius:var(--r-lg);background:color-mix(in srgb,var(--ink) 4%,var(--surface));box-shadow:inset 0 0 0 1px var(--hair)}
 .rs-v{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center}.rs-v b{font:800 1.05rem var(--display);font-variant-numeric:tabular-nums}.rs-v small{font-size:.78rem;color:var(--muted)}
@@ -2871,8 +2867,8 @@ main section.on.fabbed{padding-bottom:160px!important}
 .tvars .bars{margin:14px 0 0;padding:14px 16px;gap:11px;border-radius:var(--r-lg);background:color-mix(in srgb,var(--ink) 4%,var(--surface));box-shadow:inset 0 0 0 1px var(--hair)}
 .tvars .notes{margin-top:18px;padding-top:0;border-top:0}
 .o-k{margin:0 0 10px;font:800 .72rem var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.o-disc{display:flex;gap:8px;align-items:flex-start;margin:16px 0 0;font-size:.76rem;line-height:1.45}.o-disc svg{flex:none;width:15px;height:15px;margin-top:1px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}.figs.yic-big>span{flex-direction:column;align-items:flex-start;gap:8px;padding:12px}
-.figs.ro-stats{margin:2px 0 8px}.figs.yic-big{margin:12px 0 0}.figs.me-stats{margin:0}
+.o-disc{display:flex;gap:8px;align-items:flex-start;margin:16px 0 0;font-size:.76rem;line-height:1.45}.o-disc svg{flex:none;width:15px;height:15px;margin-top:1px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+
 
 /* Beans' view strip (and Gear's tabs, made the same way): a soft tinted track; the picked view is a raised white pill
    with dark bold text, the others quieter. */
@@ -2933,7 +2929,8 @@ textarea{resize:none}
 .setlink .sl{align-items:center}
 .setchev{flex:none;color:var(--muted);display:grid;place-items:center}.setchev svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .setrow .setbtns{display:flex;flex-wrap:wrap;gap:8px}.setrow .setbtns.rem{display:grid}
-.setrow>.setnote,.setrow>.setbtns{margin-left:48px!important}
+/* Everything under a row's title starts at one left edge (the row's), with room between stacked controls. */
+.setrow>.setnote,.setrow>.setbtns{margin-left:0!important}.setrow>:not(.sl)+:not(.sl){margin-top:10px!important}
 
 
 /* ---------- One card system ----------
@@ -2949,25 +2946,22 @@ textarea{resize:none}
   background-image:linear-gradient(180deg,color-mix(in srgb,var(--ink) 3.5%,transparent),transparent 72px);box-shadow:inset 0 1px 0 color-mix(in srgb,var(--ink) 7%,transparent),0 14px 30px -18px rgba(0,0,0,.75)}
 
 /* Stat tiles with character (see tileOf): a wash of the tile's own colour, a soft glow from its corner and its icon. */
-:is(.specs,.rstats,.stats)>div.tl{position:relative;overflow:hidden;background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 20%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 9%,var(--surface));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tc) 16%,transparent)}
-:is(.specs,.rstats,.stats)>div.tl .st-ic{position:absolute;top:9px;right:9px;width:18px;height:18px;fill:none;stroke:var(--tc);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;opacity:.9}
-:is(.specs,.rstats,.stats)>div.tl>b,:is(.specs,.rstats,.stats)>div.tl>span{padding-right:20px}
-.rstats>div.tl>small,:is(.specs,.stats)>div.tl>b{color:color-mix(in srgb,var(--tc) 55%,var(--muted))}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(.specs,.rstats,.stats)>div.tl{background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 26%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 13%,var(--surface))}:root:not([data-theme="light"]) :is(.specs,.rstats,.stats)>div.tl .st-ic{stroke:color-mix(in srgb,var(--tc) 70%,#fff)}:root:not([data-theme="light"]) .rstats>div.tl>small,:root:not([data-theme="light"]) :is(.specs,.stats)>div.tl>b{color:color-mix(in srgb,var(--tc) 45%,var(--muted))}}
-:root[data-theme="dark"] :is(.specs,.rstats,.stats)>div.tl{background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 26%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 13%,var(--surface))}:root[data-theme="dark"] :is(.specs,.rstats,.stats)>div.tl .st-ic{stroke:color-mix(in srgb,var(--tc) 70%,#fff)}:root[data-theme="dark"] .rstats>div.tl>small,:root[data-theme="dark"] :is(.specs,.stats)>div.tl>b{color:color-mix(in srgb,var(--tc) 45%,var(--muted))}
+
+
+
+
+
 
 /* "Your coffee taste" tiles: two to a row, each tinted by kind (the stat tiles' colours). The icon and its label share
    the top line, so every label sits at the same height; the value is below, larger. */
-.me-tiles{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
-.me-tiles>div{display:grid!important;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto 1fr;align-items:center;align-content:start;column-gap:9px;row-gap:10px;min-height:0!important;padding:12px 12px 13px!important;border-radius:18px!important;border:0!important;
-  background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 20%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 9%,var(--surface))!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tc) 16%,transparent)}
-.me-tiles>div>i{grid-row:1;grid-column:1;width:32px!important;height:32px!important;margin:0!important;border-radius:11px!important;background:color-mix(in srgb,var(--tc) 18%,transparent)!important;font-size:1.05rem!important;display:grid!important;place-items:center}
-.me-tiles>div>i .me-flag{font-size:1.15rem!important}
-.me-tiles>div>i .di{width:18px!important;height:18px!important;color:var(--tc)!important}
-.me-tiles>div>small{grid-row:1;grid-column:2;margin:0!important;font-size:.72rem!important;line-height:1.2;letter-spacing:.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:color-mix(in srgb,var(--tc) 55%,var(--muted))!important}
-.me-tiles>div>b{grid-row:2;grid-column:1/-1;align-self:start;font-size:1.02rem!important;line-height:1.25!important}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .me-tiles>div{background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 26%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 13%,var(--surface))!important}:root:not([data-theme="light"]) .me-tiles>div>i .di{color:color-mix(in srgb,var(--tc) 70%,#fff)!important}:root:not([data-theme="light"]) .me-tiles>div>small{color:color-mix(in srgb,var(--tc) 45%,var(--muted))!important}}
-:root[data-theme="dark"] .me-tiles>div{background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 26%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 13%,var(--surface))!important}:root[data-theme="dark"] .me-tiles>div>i .di{color:color-mix(in srgb,var(--tc) 70%,#fff)!important}:root[data-theme="dark"] .me-tiles>div>small{color:color-mix(in srgb,var(--tc) 45%,var(--muted))!important}
+
+
+
+
+
+
+
+
 
 /* Pages inside a section move like a stack (see navOut): opening one, it slides in from the right over the page you
    were on, which eases a little to the left underneath; going back, it slides off to the right over the page beneath,
@@ -2997,24 +2991,19 @@ html[data-nav=push] main section.nav-in{position:relative;z-index:3;background:v
 :root[data-vibe="nordic"]{--tk-amt:66%}
 :root[data-vibe="black"]{--tk-amt:74%}
 :root[data-vibe="pure"]{--tk-amt:82%;--tk-mix:var(--ink)}
-:is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl,.fig-ic,.bf){--tk:color-mix(in oklab,var(--tc,var(--c)) var(--tk-amt),var(--tk-mix));--tk-ink:color-mix(in oklab,var(--tk) 78%,var(--ink))}
-:is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl){
-  background:linear-gradient(160deg,color-mix(in srgb,var(--tk) 7%,var(--surface)),var(--surface) 70%)!important;
-  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tk) 12%,var(--line))!important;border:0!important;border-radius:20px!important}
-:is(.yic-t>i,.me-sq i,.me-tiles>div>i){background:color-mix(in srgb,var(--tk) 15%,var(--surface))!important;border-radius:12px!important;box-shadow:none!important}
-:is(.yic-t>i,.me-sq i,.me-tiles>div>i) .di{color:var(--tk-ink)!important;stroke-width:1.9!important;opacity:1!important}
-:is(.specs,.rstats,.stats)>div.tl .st-ic{box-sizing:border-box;width:26px!important;height:26px!important;padding:5px;top:8px!important;right:8px!important;border-radius:9px;
-  background:color-mix(in srgb,var(--tk) 15%,var(--surface));stroke:var(--tk-ink)!important;stroke-width:2!important;opacity:1!important;box-shadow:none}
-:is(.specs,.rstats,.stats)>div.tl>b,:is(.specs,.rstats,.stats)>div.tl>span{padding-right:30px}
-:root:is([data-theme],:not([data-theme])) :is(.yic-t>small,.yic-c small,.me-sq small,.me-tiles>div>small,.rstats>div.tl>small,:is(.specs,.stats)>div.tl>b){color:var(--muted)!important;letter-spacing:.04em}
-.fig-ic{background:color-mix(in srgb,var(--tk) 15%,var(--surface))!important;box-shadow:none}.fig-ic svg{stroke:var(--tk-ink)!important}
+:is(.bf,.tk-i){--tk:color-mix(in oklab,var(--tc,var(--c)) var(--tk-amt),var(--tk-mix));--tk-ink:color-mix(in oklab,var(--tk) 78%,var(--ink))}
+
+
+
+
+
+
+
 /* Dark: a touch more colour in the wash and chip, the icon in a lighter shade. */
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl,.fig-ic){--tk-ink:color-mix(in oklab,var(--tk) 72%,#fff)}
-  :root:not([data-theme="light"]) :is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl){background:linear-gradient(160deg,color-mix(in srgb,var(--tk) 14%,var(--surface)),var(--surface) 70%)!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tk) 20%,transparent)!important}
-  :root:not([data-theme="light"]) :is(.yic-t>i,.me-sq i,.me-tiles>div>i,.fig-ic),:root:not([data-theme="light"]) :is(.specs,.rstats,.stats)>div.tl .st-ic{background:color-mix(in srgb,var(--tk) 24%,var(--surface))!important}}
-:root[data-theme="dark"] :is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl,.fig-ic){--tk-ink:color-mix(in oklab,var(--tk) 72%,#fff)}
-:root[data-theme="dark"] :is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl){background:linear-gradient(160deg,color-mix(in srgb,var(--tk) 14%,var(--surface)),var(--surface) 70%)!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tk) 20%,transparent)!important}
-:root[data-theme="dark"] :is(.yic-t>i,.me-sq i,.me-tiles>div>i,.fig-ic),:root[data-theme="dark"] :is(.specs,.rstats,.stats)>div.tl .st-ic{background:color-mix(in srgb,var(--tk) 24%,var(--surface))!important}
+
+
+
+
 
 /* ===== Fact cards, the same everywhere (a coffee, a recipe, an origin, your profile, a year in coffee): one card,
    cells two to a row (three for short counts, one for coffees) with fine dividers between rows; each cell a coloured
@@ -3043,6 +3032,72 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 .bf-go{flex:none;width:18px;height:18px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .bf{--tk-ink:color-mix(in oklab,var(--tk) 72%,#fff)}:root:not([data-theme="light"]) .bf-i{background:color-mix(in srgb,var(--tk) 26%,var(--surface))}}
 :root[data-theme="dark"] .bf{--tk-ink:color-mix(in oklab,var(--tk) 72%,#fff)}:root[data-theme="dark"] .bf-i{background:color-mix(in srgb,var(--tk) 26%,var(--surface))}
+
+/* Icon chips app-wide (Explore, Settings, sheets): the fact cards' chip, any size the place gives it. */
+.ic.tk-i{background:color-mix(in srgb,var(--tk) 16%,var(--surface))!important;box-shadow:none!important}
+.ic.tk-i svg{stroke:var(--tk-ink)!important}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tk-i{--tk-ink:color-mix(in oklab,var(--tk) 72%,#fff)}:root:not([data-theme="light"]) .ic.tk-i{background:color-mix(in srgb,var(--tk) 26%,var(--surface))!important}}
+:root[data-theme="dark"] .tk-i{--tk-ink:color-mix(in oklab,var(--tk) 72%,#fff)}:root[data-theme="dark"] .ic.tk-i{background:color-mix(in srgb,var(--tk) 26%,var(--surface))!important}
+.bfacts.qtools{margin:4px 0 18px}.bfacts.top.c3 .bf b{font-size:1rem}
+
+/* The bag's freshness on a coffee's page: the same clean card as its facts. */
+.bd-shelf{background:var(--surface)!important;border-radius:22px!important;box-shadow:inset 0 0 0 1px var(--line)}
+
+/* ===== One motion system: the same three speeds and curves for every press, bar, chip and sheet move. Fast for a
+   press, medium for a bar or chip, slow for a sheet or page. */
+:root{--dur-1:.14s;--dur-2:.24s;--dur-3:.36s}
+/* Every tappable card and row presses in a touch and lifts back, like the pills do. */
+:is(button.bf,.hubcard,.setlink,.crow,.cday,.otd,.t45c,.pm,.rov-hero,.ro-best,.hc-mini,.tl-bean){transition:transform var(--dur-1) var(--ease-out),background-color var(--dur-1) ease}
+:is(button.bf,.hubcard,.setlink,.crow,.cday,.otd,.t45c,.pm,.rov-hero,.ro-best,.tl-bean):active{transform:scale(.982)}
+.sheet-acts{transition:transform var(--dur-3) var(--ease-sheet),opacity var(--dur-2) ease}
+@media (max-width:759px){.bottomnav{transition:transform var(--dur-3) var(--ease-sheet),opacity var(--dur-2) ease}}
+@media (prefers-reduced-motion:reduce){:is(button.bf,.hubcard,.setlink,.crow,.cday,.otd,.t45c,.pm,.rov-hero,.ro-best,.tl-bean):active{transform:none}}
+:root[data-motion="reduced"] :is(button.bf,.hubcard,.setlink,.crow,.cday,.otd,.t45c,.pm,.rov-hero,.ro-best,.tl-bean):active{transform:none}
+
+/* ===== Section headers, one style everywhere: small spaced capitals in grey with the same room above and below, in
+   pages and in sheets ("Tasting notes", "Diary", "In the cup", "Regions", "Same brewer", "Your coffee so far"…). */
+:is(.rh,.rcp-h,.me-sh,.ro-h,.vd-body>h3:not([class]),#info>h3:not([class]),.yic-notes>small,.me-notes-h){margin:22px 0 10px!important;font:700 .76rem/1.3 var(--body)!important;letter-spacing:.08em!important;text-transform:uppercase;color:var(--muted)!important}
+.vd-body>h3:not([class]):first-child{margin-top:6px!important}
+.ro-h .hint{text-transform:none;letter-spacing:0;font-weight:500}
+
+/* A coffee's pinned header: its photo, small, once the big one has scrolled past (scroll-driven, so no script). */
+.bd-mini{display:none}
+@supports (animation-timeline:scroll()){
+  .bd-mini{display:block;position:absolute;right:20px;bottom:12px;width:44px;height:44px;border-radius:14px;overflow:hidden;box-shadow:0 0 0 1px var(--line);opacity:0;pointer-events:none;
+    animation:bd-mini linear both;animation-timeline:scroll(nearest);animation-range:150px 230px}
+  .bd-mini .bpic{width:100%!important;height:100%!important;margin:0!important;border-radius:inherit!important}
+  /* Room kept for it, so a long name or roastery never runs under it. */
+  .vd-head:has(.bd-mini) .vd-sub,.vd-head:has(.bd-mini) h2{margin-right:52px!important}
+}
+@keyframes bd-mini{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:none}}
+
+/* Empty pages: a small illustration in the theme's colours above the words, then what to do. */
+.bg-empty.il-on{border-style:solid;border-width:1px;background:var(--surface)}
+.bg-empty.il-on>svg.il{width:160px;height:104px;padding:0;margin:0 0 6px;border-radius:0;background:none;animation:bgfloat 5s ease-in-out infinite}
+.il .il-sh{fill:color-mix(in srgb,var(--ink) 7%,transparent)}
+.il .il-a{fill:color-mix(in srgb,var(--cherry) 26%,var(--surface))}.il .il-b{fill:color-mix(in srgb,var(--honey) 34%,var(--surface))}
+.il .il-t{fill:var(--surface);opacity:.92}.il .il-s{fill:color-mix(in srgb,var(--leaf) 30%,var(--surface))}
+.il .il-k{fill:var(--cherry)}
+.il .il-l{fill:none;stroke:color-mix(in srgb,var(--cherry) 70%,var(--ink));stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.il .il-sw{stroke:color-mix(in srgb,var(--leaf) 80%,var(--ink));stroke-width:2.6}
+.empty-acts{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:14px}
+
+.dnext .dn-use{margin-left:6px;font-weight:700}.dnext .dn-on{margin-left:6px;font-size:.78rem;font-weight:700;color:var(--leaf-ink,var(--leaf))}
+
+/* ===== Floating pills, one motion: the tab bar, the + and a sheet's action bar slide down out of the way as you scroll
+   down and spring back as you scroll up. Going away is quick and eases in; coming back is a touch slower with a small
+   settle, the + a beat behind the tab bar. Transform and opacity only. A sheet's bar only drops a little and shrinks
+   toward its bottom edge: sliding it further would make the sheet's scroll area taller. */
+:root{--pill-in:cubic-bezier(.2,1.12,.32,1);--pill-out:cubic-bezier(.45,0,.75,.4)}
+.fab{transition:transform .44s var(--pill-in) .04s,opacity .22s ease .04s}
+.fab.away{transform:translateY(calc(100% + 110px)) scale(.92);opacity:0;pointer-events:none;transition:transform .26s var(--pill-out) .03s,opacity .18s ease .06s}
+.sheet-acts{transition:transform .44s var(--pill-in),opacity .22s ease,visibility 0s}
+.sheet-acts.sa-off{transform:translateY(10px) scale(.86);opacity:0;pointer-events:none;visibility:hidden;transition:transform .26s var(--pill-out),opacity .18s ease .06s,visibility 0s .3s}
+@media (max-width:759px){
+  .bottomnav{transition:transform .44s var(--pill-in),opacity .22s ease}
+  html.nav-away .bottomnav{transition:transform .26s var(--pill-out),opacity .18s ease .06s}
+}
+@media (prefers-reduced-motion:reduce){.fab,.fab.away,.sheet-acts,.sheet-acts.sa-off,.bottomnav,html.nav-away .bottomnav{transition:opacity .15s!important}.fab.away,.sheet-acts.sa-off,html.nav-away .bottomnav{transform:none!important}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
@@ -3451,7 +3506,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <!-- FLAVOUR WHEEL -->
 <section id="wheel">
   <h2>Flavour wheel</h2>
-  <p class="lede">164 tasting notes in 9 families. Tap a colour to open it up.</p>
+  <p class="lede">275 tasting notes in 9 families. Tap a colour to open it up.</p>
   <div class="fw-layout">
     <div class="fw-main">
       <input type="search" id="fw-q" placeholder="Find a note" aria-label="Find a flavour note">
@@ -3515,7 +3570,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
       <div class="two"><div class="field"><label for="c-dose">Coffee <span class="num" id="cv-dose"></span></label><input type="range" id="c-dose" min="7" max="60" step="0.5"></div>
       <div class="field"><label for="c-ratio">Ratio <span class="num" id="cv-ratio"></span></label><input type="range" id="c-ratio" min="1" max="20" step="0.5"></div></div>
       <div class="seg filters scrollrow" id="c-pre"></div>
-      <div class="specs" id="c-out"></div></div>
+      <div id="c-out"></div></div>
     <div class="panel"><h2>What does it taste like?</h2><p class="hint" style="margin-top:0">Pick what you taste. Fixes start from your current dial-in and stay inside the usual range for your brewer.</p><div class="chips" id="ts-chips"></div><div id="ts-out"></div></div>
   </div>
   <h3 class="sec">The bloom</h3>
@@ -3579,7 +3634,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
     </div>
     <div class="actions"><button class="btn" id="l-save">Save to my log</button><button class="btn ghost" id="l-cancel" hidden>Cancel</button></div>
   </div>
-  <div class="specs" id="l-stats"></div>
+  <div id="l-stats"></div>
   <div class="panel palate" id="l-palate" hidden></div>
   <div class="shelf-h l-head"><b>Your brews</b><span class="rov-acts"><button type="button" class="sh-mini ic" id="l-csv" aria-label="Download the log as CSV" title="Download the log as CSV" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11 M7.5 10.5L12 15l4.5-4.5 M5 19.5h14"/></svg></button></span></div>
   <div class="lf" id="l-filter" hidden></div>
