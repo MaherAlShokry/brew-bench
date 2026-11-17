@@ -2746,7 +2746,8 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 .ib:active{transform:scale(.92)}.ib:disabled{opacity:.45;cursor:default;transform:none}.ib:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
 .ib.main{background:var(--cherry);color:var(--surface-ink,var(--surface));box-shadow:0 6px 16px -8px color-mix(in srgb,var(--cherry) 75%,transparent)}
 .ib.danger{color:#B4472E}.ib.sm{width:36px;height:36px}.ib.sm svg{width:17px;height:17px}
-.ib-row{display:flex!important;flex-wrap:wrap;align-items:center;gap:10px}.tm-done.ib-row{justify-content:center}
+.ib-row{display:flex!important;flex-wrap:wrap;align-items:center;gap:10px}
+.rs-acts{position:sticky;bottom:calc(14px + var(--sa-bottom,0px));z-index:3;flex-wrap:nowrap;width:max-content;max-width:100%;box-sizing:border-box;margin:20px auto 4px;padding:6px;border-radius:999px;background:color-mix(in srgb,var(--surface) 86%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--hair);box-shadow:0 10px 28px -10px rgba(0,0,0,.35)}.rs-acts .pbtn{margin:0}.tm-done.ib-row{justify-content:center}
 .crown-btn.ib{width:40px;height:40px}.sc-new.ib{display:grid;margin:14px auto 0}
 
 .fab{position:fixed;right:16px;bottom:calc(var(--sa-bottom) + 24px);z-index:28;display:flex;align-items:center;gap:10px}
@@ -2904,7 +2905,7 @@ html[data-nav=push] main section.nav-in{position:relative;z-index:3;background:v
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="9ccf191f690e"</script>
+<script>const BUILD_ID="3489c3116b28"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -5471,6 +5472,17 @@ const stepKind=s=>{const x=String(s).replace(/^\s*\d+:\d\d\s*/,'');for(const k o
 const SKICO=k=>{const z=SK.find(x=>x[0]===k);return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+(z?z[3]:'M6 12h12 M12 6v12')+'"/></svg>'};
 const SKNAME=k=>{const z=SK.find(x=>x[0]===k);return z?z[2]:'Note'};
 
+// What the scale reads after each step: {to, add} for a pour, null otherwise. "Pour 30g (to 300g)" and "pour to 340g"
+// say it; "pour the last 70g" only says the amount, so the reading follows from the pours before it.
+function pourLevels(steps){let lvl=0;return steps.map(s=>{const x=String(s).replace(/^\s*\d+:\d\d\s*/,''),tos=[...x.matchAll(/(?<!\d\s?)\b(?:to|until)\s+(\d{2,4})\s?g\b/gi)].map(m=>+m[1]),p=pourOf(x);
+  if(tos.length){const to=tos[tos.length-1],add=p&&p.add&&tos.length===1?p.add:to-lvl;lvl=Math.max(lvl,to);return{to,add:add>0?add:null}}
+  if(p&&p.add){lvl+=p.add;return{to:lvl,add:p.add,said:false}}return null})}
+// Steps that give only an amount get the scale reading too, as the others do: "Pour the last 70g (to 220g) at 80°C."
+// Not the first pour, where the two are the same, nor a step naming other amounts too ("60g of hot and 40g of cold",
+// "220g (270g in total)"), which already says it or is water added after the brew.
+const POUR_AMT=/\b(?:pour(?:ing)?|add|bloom with)\s+(?:(?:the|another|all)\s+)?(?:(?:last|remaining|rest of the|final|first)\s+)?\d{2,4}\s?g\b/i;
+function withTotals(steps){const lv=pourLevels(steps);return steps.map((s,i)=>{const v=lv[i];return v&&v.said===false&&v.to!==v.add&&(String(s).match(/\d\s?g\b/gi)||[]).length===1?String(s).replace(POUR_AMT,m=>m+' (to '+v.to+'g)'):s})}
+
 // How the water builds: [time, grams on the scale] at the start and end of each pour. Pours take about 10 s, or run
 // to the next step when that comes sooner. Null when the steps don't say how much is poured, or when.
 // Steps written without a time ("when the bed has drained, pour 60g") get one estimated from the recipe's own pace (its
@@ -6593,7 +6605,7 @@ function openTimer(idx,p){if(fromTap(()=>openTimerNow(idx,p)))return;openTimerNo
 function openTimerNow(idx,p){noteRecent(RECIPES[idx]);
   // The steps follow the dose and water being brewed (the dial-in and Scan pass their own).
   const r0=RECIPES[idx],sc=scaled(r0),dose=p&&p.r&&p.r.dose||sc.dose,water=p&&p.water||sc.water;
-  const r=Object.assign({},r0,{dose,water,steps:p&&p.steps||(p?scaleSteps(r0,dose,water):sc.steps),off:sc.off});const ev=parseSteps(r.steps);const timed=ev.filter(e=>e.t>=0);
+  const r=Object.assign({},r0,{dose,water,steps:withTotals(p&&p.steps||(p?scaleSteps(r0,dose,water):sc.steps)),off:sc.off});const ev=parseSteps(r.steps);const timed=ev.filter(e=>e.t>=0);
   const total=clockTotal(r.steps,ev);
   if(TM&&TM.iv)clearInterval(TM.iv);
   TM={idx,r,p,ev,total,el:0,run:false,iv:null,lastIdx:-1,lastWarn:-1,ctx:null,cup:null};
@@ -6767,7 +6779,9 @@ function paint(){const el=TM.el,C=2*Math.PI*96;$('tm-big').textContent=mmss(el);
   $('tm-list').querySelectorAll('li').forEach((li,i)=>{li.className=i<cur?'done':i===cur?'cur':''});
   const sk=$('tm-skip'),last=el>0&&!TM.ev.some(e=>e.t>el+0.5);if(sk&&sk.dataset.last!==String(last)){sk.dataset.last=last;sk.innerHTML=TMI(last?'M5 12.5l4.5 4.5L19 7':'M6 5l9 7-9 7z M18 5v14');sk.setAttribute('aria-label',last?'Finish brew':'Next step')}if(sk)sk.setAttribute('aria-label',TM.fin?'Done':last?'Finish brew':'Next step');
   const nTimed=TM.ev.filter(e=>e.t>=0).length,stepNo=cur>=0?TM.ev.slice(0,cur+1).filter(e=>e.t>=0).length:0;
-  if(el>0&&el<TM.total||TM.run){const txt=cur>=0?TM.ev[cur].s.replace(/^\s*\d+:\d\d\s*/,''):'Get ready.',pr=cur>=0?pourOf(TM.ev[cur].s):null;
+  if(el>0&&el<TM.total||TM.run){const txt=cur>=0?TM.ev[cur].s.replace(/^\s*\d+:\d\d\s*/,''):'Get ready.';let pr=cur>=0?pourOf(TM.ev[cur].s):null;
+    // A pour that gives only its amount (the first one) still shows what the scale should read.
+    if(pr&&!pr.to&&pr.add&&(TM.ev[cur].s.match(/\d\s?g\b/gi)||[]).length===1){TM.lv=TM.lv||pourLevels(TM.ev.map(e=>e.s));const v=TM.lv[cur];if(v&&v.to)pr={to:v.to,add:v.to===pr.add?null:pr.add}}
     $('tm-step').textContent=cur>=0?'Step '+stepNo+' of '+nTimed:'Starting';$('tm-now').textContent=txt.charAt(0).toUpperCase()+txt.slice(1);
     $('tm-target').innerHTML=pr?(pr.to?'<b>'+pr.to+'</b><small> g on the scale</small>'+(pr.add?'<em>+'+pr.add+' g</em>':''):'<b>+'+pr.add+'</b><small> g</small>'):'';
     const from=cur>=0?TM.ev[cur].t:0,span=(next?next.t:TM.total)-from;$('tm-barfill').style.transform='translateX('+((span>0?Math.min(100,(el-from)/span*100):100)-100)+'%)';
@@ -7040,7 +7054,7 @@ const rr1=v=>Math.round(v*10)/10;
 // Steps as a timeline: the time each one starts in a badge, the instruction beside it.
 // Each step also shows what kind of move it is (pour, swirl, valve…) as a small coloured icon; see steps.js.
 // An untimed pour shows the time the chart estimated for it ("~1:00"), so the list and the chart agree.
-const stepList=steps=>{const c=pourCurve(steps);return '<ol class="steps tl">'+steps.map((x,i)=>{const m=/^\s*(\d+:\d\d)\s*/.exec(x),k=stepKind(x),d=!m&&c&&c.dots[i];return '<li class="k-'+k+'">'+(m?'<span class="t">'+m[1]+'</span>':d&&d.e?'<span class="t est" title="Estimated from the recipe\'s pace">~'+mmss(d.t)+'</span>':'<span class="t dot"></span>')+'<i class="tk" title="'+SKNAME(k)+'">'+SKICO(k)+'</i><span class="sx">'+esc(capS(m?x.slice(m[0].length):x))+'</span></li>'}).join('')+'</ol>'};
+const stepList=steps=>{steps=withTotals(steps);const c=pourCurve(steps);return '<ol class="steps tl">'+steps.map((x,i)=>{const m=/^\s*(\d+:\d\d)\s*/.exec(x),k=stepKind(x),d=!m&&c&&c.dots[i];return '<li class="k-'+k+'">'+(m?'<span class="t">'+m[1]+'</span>':d&&d.e?'<span class="t est" title="Estimated from the recipe\'s pace">~'+mmss(d.t)+'</span>':'<span class="t dot"></span>')+'<i class="tk" title="'+SKNAME(k)+'">'+SKICO(k)+'</i><span class="sx">'+esc(capS(m?x.slice(m[0].length):x))+'</span></li>'}).join('')+'</ol>'};
 function recipeBody(r,i,compact,inSheet){const B=BREWERS[r.b],sc=compact?{dose:r.dose,water:r.water,steps:r.steps,off:r.off,ratio:r.water/r.dose}:scaled(r);const gs=MYG.map(g=>[g,settingFor(g,r.b,sc.off)]);
   const m=rmeta(r);
   return (compact?'<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span>':'')+'</div>'
@@ -7048,7 +7062,8 @@ function recipeBody(r,i,compact,inSheet){const B=BREWERS[r.b],sc=compact?{dose:r
        [r.temp?r.temp+'°C':'–',r.temp2?'Then '+r.temp2+'°C':'Temperature'],[m.time!=null?mmss(m.time):'By eye','Total time'],[m.level,m.pours+' pour'+(m.pours===1?'':'s')]].map(([v,l])=>{const [a,ic]=tileOf(l,v);return '<div'+a+'>'+ic+'<b>'+v+'</b><small>'+l+'</small></div>'}).join('')+'</div>')+
    '<div class="meta">'+gs.map(([g,v])=>'<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>').join('')+'</div>'+
    (r.why?'<p>'+esc(r.why)+'</p>':'')+(compact?'<details class="rsteps"><summary>Steps ('+r.steps.length+')</summary>':'')+(compact?'':pourGraph(sc.steps,sc.water))+stepList(sc.steps)+(r.tip?'<p class="hint">'+esc(r.tip)+'</p>':'')+(compact?'</details>':'')+
-   '<div class="actions ib-row">'+(B.model?ib('timer','data-timer="'+i+'"','Start the timer','main')+ib('cup','data-load="'+i+'"','Brew in the dial-in'):ib('timer','data-timer="'+i+'"','Start the timer','main'))+(inSheet?'':icoBtn('share','data-rshare="'+i+'"','Share this recipe')+(r.custom?icoBtn('edit','data-redit="'+esc(r.id)+'"','Edit this recipe'):''))+'</div>'}
+   // In the recipe sheet the actions ride along at the bottom, always in reach however far down you are.
+   '<div class="actions ib-row'+(inSheet?' rs-acts':'')+'">'+(inSheet?pbtn('timer','data-timer="'+i+'"','Start timer','main'):ib('timer','data-timer="'+i+'"','Start the timer','main'))+(B.model?ib('cup','data-load="'+i+'"','Brew in the dial-in'):'')+(inSheet?'':icoBtn('share','data-rshare="'+i+'"','Share this recipe')+(r.custom?icoBtn('edit','data-redit="'+esc(r.id)+'"','Edit this recipe'):''))+'</div>'}
 let RF=vwGet('rf',[],vwStrs).map(String),RQ='',RLIST=[];
 // The recipe filter is a set of picks: "fav", "mine", "champ", "b:<brewer>", "cup:<type>", "col:<collection>". Picks of
 // one kind widen the list (V60 or Switch); picks of different kinds narrow it (a Switch recipe that's also a champion's).

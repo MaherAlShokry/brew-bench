@@ -18,6 +18,17 @@ const stepKind=s=>{const x=String(s).replace(/^\s*\d+:\d\d\s*/,'');for(const k o
 const SKICO=k=>{const z=SK.find(x=>x[0]===k);return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+(z?z[3]:'M6 12h12 M12 6v12')+'"/></svg>'};
 const SKNAME=k=>{const z=SK.find(x=>x[0]===k);return z?z[2]:'Note'};
 
+// What the scale reads after each step: {to, add} for a pour, null otherwise. "Pour 30g (to 300g)" and "pour to 340g"
+// say it; "pour the last 70g" only says the amount, so the reading follows from the pours before it.
+function pourLevels(steps){let lvl=0;return steps.map(s=>{const x=String(s).replace(/^\s*\d+:\d\d\s*/,''),tos=[...x.matchAll(/(?<!\d\s?)\b(?:to|until)\s+(\d{2,4})\s?g\b/gi)].map(m=>+m[1]),p=pourOf(x);
+  if(tos.length){const to=tos[tos.length-1],add=p&&p.add&&tos.length===1?p.add:to-lvl;lvl=Math.max(lvl,to);return{to,add:add>0?add:null}}
+  if(p&&p.add){lvl+=p.add;return{to:lvl,add:p.add,said:false}}return null})}
+// Steps that give only an amount get the scale reading too, as the others do: "Pour the last 70g (to 220g) at 80°C."
+// Not the first pour, where the two are the same, nor a step naming other amounts too ("60g of hot and 40g of cold",
+// "220g (270g in total)"), which already says it or is water added after the brew.
+const POUR_AMT=/\b(?:pour(?:ing)?|add|bloom with)\s+(?:(?:the|another|all)\s+)?(?:(?:last|remaining|rest of the|final|first)\s+)?\d{2,4}\s?g\b/i;
+function withTotals(steps){const lv=pourLevels(steps);return steps.map((s,i)=>{const v=lv[i];return v&&v.said===false&&v.to!==v.add&&(String(s).match(/\d\s?g\b/gi)||[]).length===1?String(s).replace(POUR_AMT,m=>m+' (to '+v.to+'g)'):s})}
+
 // How the water builds: [time, grams on the scale] at the start and end of each pour. Pours take about 10 s, or run
 // to the next step when that comes sooner. Null when the steps don't say how much is poured, or when.
 // Steps written without a time ("when the bed has drained, pour 60g") get one estimated from the recipe's own pace (its
