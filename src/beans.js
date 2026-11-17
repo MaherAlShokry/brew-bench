@@ -416,14 +416,17 @@ function yearInCoffeeHTML0(){const cy=new Date().getFullYear(),bs=BEANS.filter(b
   const o=t.origin&&oInfo(t.origin.k),R=t.region&&REG[t.region.k],v=t.variety&&VBY[t.variety.k],pr=t.process&&PROCESSES[t.process.k],B=t.brewer&&BREWERS[t.brewer.k];
   // The facts, without counts: short ones as tiles two to a row, then the coffees (your regular, the best of the year)
   // full width, each opening its coffee. An odd tile out at the end of the short ones spans the row too.
-  const half=[o&&['<span class="yic-fl">'+flagOf(t.origin.k)+'</span>','Mostly from',o.name],R&&['🗺️','Favourite region',R.name+(t.regionOrigin&&t.regionOrigin.k!==(t.origin&&t.origin.k)?' · mostly '+oInfo(t.regionOrigin.k).name:'')],
-    v&&['🌱','Top variety',shortName(v.name)],pr&&['🧪','Top process',pr.name.replace(/\s*\(.*\)$/,'')],t.roast&&['🔥','Usual roast',t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1)],
-    t.roaster&&['🏷️','Roastery most often',t.roaster.k],B&&['☕','Brewed most on',B.name]].filter(Boolean);
-  const wide=[t.regular&&['🔁','Your regular',beanTitle(t.regular),t.regular.id],t.best&&['🏆','Best of the year',beanTitle(t.best),t.best.id]].filter(Boolean);
-  const tile=([ic,k,vv,id],w)=>(id?'<button type="button" class="yic-t w" data-bean="'+id+'">':'<div class="yic-t'+(w?' w':'')+'">')+'<i aria-hidden="true">'+ic+'</i><span><small>'+k+'</small><b>'+esc(vv)+'</b></span>'+(id?'<svg class="yic-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>':'</div>');
+  // Each fact in its own colour, the same as the taste tiles on your profile: icon and name on top, the answer below,
+  // every tile the same size. Your regular and the best of the year follow full width, with the coffee's photo.
+  const half=[o&&['<span class="yic-fl">'+flagOf(t.origin.k)+'</span>','Origin',o.name],R&&['🗺️','Region',R.name+(t.regionOrigin&&t.regionOrigin.k!==(t.origin&&t.origin.k)?' · mostly '+oInfo(t.regionOrigin.k).name:'')],
+    v&&['🌱','Variety',shortName(v.name)],pr&&['🧪','Process',pr.name.replace(/\s*\(.*\)$/,'')],t.roast&&['🔥','Roast',t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1)],
+    t.roaster&&['🏷️','Roastery',t.roaster.k],B&&['☕','Brewer',B.name]].filter(Boolean);
+  const wide=[t.regular&&[t.regular,'Your regular','#0EA5E9'],t.best&&[t.best,'Best of the year',TASTE_C['Rated best']]].filter(Boolean);
+  const tile=([ic,k,vv],w)=>'<div class="yic-t'+(w?' w':'')+'" style="--tc:'+(TASTE_C[k]||'#8A5A3B')+'"><i aria-hidden="true">'+ic+'</i><small>'+k+'</small><b>'+esc(vv)+'</b></div>';
+  const coffee=([b,k,c])=>'<button type="button" class="yic-c" data-bean="'+b.id+'" style="--tc:'+c+'"><span class="yic-ph">'+beanPic(b,'xs')+'</span><span><small>'+k+'</small><b>'+esc(beanTitle(b))+'</b></span><svg class="yic-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>';
   return '<div class="yic" role="region" aria-label="'+cy+' in coffee"><div class="yic-h"><h3>'+cy+' in coffee</h3></div>'+(bs.length>1?'<p class="yic-line">'+esc(tasteLine(t))+'</p>':'')+
     figsHTML('yic-big',big.map(([n,l],i)=>[['bag','cup',g?'bean':'globe'][i],esc(String(n)),esc(l)]))+
-    (half.length||wide.length?'<div class="yic-grid">'+half.map((f,i)=>tile(f,half.length%2===1&&i===half.length-1)).join('')+wide.map(f=>tile(f,true)).join('')+'</div>':'')+
+    (half.length?'<div class="yic-grid">'+half.map((f,i)=>tile(f,half.length%2===1&&i===half.length-1)).join('')+'</div>':'')+(wide.length?'<div class="yic-cs">'+wide.map(coffee).join('')+'</div>':'')+
     (t.notes.length?'<div class="yic-notes"><small>Notes you keep coming back to</small><div class="chips">'+t.notes.map(n=>'<span class="chip"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'</span>').join('')+'</div></div>':'')+'</div>'}
 
 /* ================= FOR YOU ================= */
@@ -491,8 +494,8 @@ function openMakeRecipe(bid){const d=$('vd'),beans=[...BEANS.filter(b=>b.shelf),
       '<div class="lbl">The cup you want'+(t.families.length?' <span class="hint">your taste leans '+(lean==='bright'?'bright and fruity':lean==='round'?'sweet and round':'balanced')+'</span>':'')+'</div>'+chips('goal',MK_GOALS,st.goal)+
       (r?'<div class="mk-res"><div class="mk-h"><b>'+esc(r.name)+'</b><small>'+esc(r.by)+'</small></div>'+
         // The same stats, grind settings, pour graph and steps as every recipe page.
-        recipeBody(r,-1).replace(/<div class="actions">[\s\S]*$/,'')+
-        '<div class="actions"><button type="button" class="btn" id="mk-save">Save and brew it</button><button type="button" class="btn ghost" id="mk-again">Another one</button></div></div>'
+        recipeBody(r,-1).replace(/<div class="actions[^"]*">[\s\S]*$/,'')+
+        '<div class="actions ib-row sheet-acts">'+pbtn('timer','id="mk-save"','Save and brew it','main')+ib('reset','id="mk-again"','Another one')+'</div></div>'
        :'<div class="actions"><button type="button" class="btn" id="mk-go"'+(st.busy?' disabled':'')+'>'+(st.busy?'Writing your recipe…':'Create the recipe')+'</button></div><button type="button" class="linkbtn mk-rand" id="mk-rand">Or open a random recipe from the list</button>')+'</div>';
     hydrateImgs($('vd-in'));$('vd-x').onclick=()=>d.close()};
   const go=async()=>{const bean=beanById(st.bean);if(!bean)return;st.busy=true;draw();let r=null;
@@ -917,7 +920,7 @@ function renderCoffees(){const p=$('bv-coffees'),years=beanYears();BYEAR=BYEAR.f
   hydrateImgs(p);
   renderBeanSort();
   // The year in coffee is the costliest block and sits below the fold: it's drawn once the page has opened.
-  whenIdle(()=>{const e=$('bg-yic');if(e&&!e.firstChild)e.innerHTML=yearInCoffeeHTML()})}
+  whenIdle(()=>{const e=$('bg-yic');if(e&&!e.firstChild){e.innerHTML=yearInCoffeeHTML();hydrateImgs(e)}})}
 // Sorting and filtering redraw only the cards and the chips' state, so the page doesn't jump.
 // The coffee list's filter and sort, in the same sheet as every other list.
 const BSORTS=[['recent','Recent'],['rated','Top rated'],['roaster','Roastery'],['origin','Origin']];

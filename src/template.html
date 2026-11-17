@@ -2597,12 +2597,17 @@ button[aria-pressed]:active{transform:scale(.95)}
 .me-sec{display:flex;flex-direction:column;gap:10px}
 .me-sh{margin:6px 0 0;font:700 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .me-body .me-brief{margin:0;padding:0;font:400 1rem/1.5 var(--body);color:var(--ink)}.me-body .me-brief::before{content:none}
-.me-sq{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.me-sq>div{min-height:104px;min-width:0;overflow-wrap:anywhere;display:flex;flex-direction:column;justify-content:flex-start;gap:2px;padding:12px;border-radius:16px;background:var(--surface2)}
-.me-sq i{width:34px;height:34px;display:grid;place-items:center;margin-bottom:8px;border-radius:50%;background:var(--surface);font-style:normal;font-size:1.05rem}
+.me-sq{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:1fr;gap:8px}
+/* The same coloured tiles as Your coffee taste, stacked: icon, name, answer. */
+.me-sq>div{min-width:0;display:flex;flex-direction:column;gap:3px;padding:12px 11px 13px;border-radius:18px;
+  background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 20%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 9%,var(--surface));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tc) 16%,transparent)}
+.me-sq i{width:32px;height:32px;display:grid;place-items:center;margin-bottom:9px;border-radius:11px;background:color-mix(in srgb,var(--tc) 18%,transparent);font-style:normal;font-size:1.05rem}
+.me-sq i .di{width:18px;height:18px;color:var(--tc)!important}
 .me-sq .me-flag{font-size:1.15rem}
-.me-sq small{font-size:.66rem;line-height:1.3;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
-.me-sq b{font:650 .92rem/1.2 var(--display);color:var(--ink);overflow-wrap:anywhere}
+.me-sq small{font-size:.66rem;line-height:1.2;font-weight:700;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:color-mix(in srgb,var(--tc) 55%,var(--muted))}
+.me-sq b{font:650 .98rem/1.22 var(--display);color:var(--ink);overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .me-sq>div{background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 26%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 13%,var(--surface))}:root:not([data-theme="light"]) .me-sq i .di{color:color-mix(in srgb,var(--tc) 70%,#fff)!important}:root:not([data-theme="light"]) .me-sq small{color:color-mix(in srgb,var(--tc) 45%,var(--muted))}}
+:root[data-theme="dark"] .me-sq>div{background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 26%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 13%,var(--surface))}:root[data-theme="dark"] .me-sq i .di{color:color-mix(in srgb,var(--tc) 70%,#fff)!important}:root[data-theme="dark"] .me-sq small{color:color-mix(in srgb,var(--tc) 45%,var(--muted))}
 .me-body .me-taste{margin:6px 0 0}
 /* The profile header (and the cover) end in soft, rounded corners. With nothing below it yet, it fills the page as one
    solid block, with no corners and no gap. */
@@ -2670,14 +2675,26 @@ dialog.dlg-pre[open]::backdrop{animation:none!important;opacity:0}
 .gk-tip .ic svg{width:19px;height:19px;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .bd-end{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}.bd-end .pbtn{margin:0}.gk-tip{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:14px;background:var(--surface)}
 .gk-tip>span{display:flex;flex-direction:column;gap:3px;min-width:0}.gk-tip b{font:650 .98rem/1.3 var(--display);color:var(--ink)}.gk-tip small{font-size:.88rem;line-height:1.45;color:var(--muted)}
-.yic-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:14px 0 0}
-.yic-t{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0;padding:12px;border:0;border-radius:14px;background:var(--surface);color:var(--ink);font:inherit;text-align:left}
-.yic-t.w{grid-column:1/-1;flex-direction:row;align-items:center;gap:12px}
-button.yic-t{cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .15s}button.yic-t:active{transform:scale(.985)}
-.yic-t>i{flex:none;width:28px;height:28px;border-radius:10px;display:grid;place-items:center;background:var(--surface2);font-style:normal;font-size:1rem}
-.yic-t>span{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
-.yic-t small{font-size:.66rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
-.yic-t b{font:650 .95rem/1.25 var(--display);color:var(--ink);overflow-wrap:anywhere}
+.yic-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:1fr;gap:8px;margin:14px 0 0}
+/* Each fact in its own colour, like the taste tiles on your profile: icon and name on top, the answer below. */
+.yic-t{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto 1fr;align-items:center;align-content:start;column-gap:9px;row-gap:10px;min-width:0;padding:12px 12px 13px;border-radius:18px;color:var(--ink);
+  background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 20%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 9%,var(--surface));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tc) 16%,transparent)}
+.yic-t.w{grid-column:1/-1}
+.yic-t>i{grid-row:1;grid-column:1;width:32px;height:32px;border-radius:11px;display:grid;place-items:center;background:color-mix(in srgb,var(--tc) 18%,transparent);font-style:normal;font-size:1.05rem}
+.yic-t>i .di{width:18px;height:18px;color:var(--tc)!important}
+.yic-t>small{grid-row:1;grid-column:2;font-size:.72rem;font-weight:700;line-height:1.2;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:color-mix(in srgb,var(--tc) 55%,var(--muted))}
+.yic-t>b{grid-row:2;grid-column:1/-1;align-self:start;font:650 1.02rem/1.25 var(--display);color:var(--ink);overflow-wrap:anywhere}
+/* The coffees: your regular and the best of the year, with their photo. */
+.yic-cs{display:grid;gap:8px;margin-top:8px}
+.yic-c{display:flex;align-items:center;gap:12px;width:100%;min-width:0;padding:10px 12px 10px 10px;border:0;border-radius:18px;font:inherit;text-align:left;color:var(--ink);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .15s;
+  background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 18%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 8%,var(--surface));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tc) 16%,transparent)}
+.yic-c:active{transform:scale(.985)}
+.yic-ph{flex:none;width:48px;height:48px;border-radius:13px;overflow:hidden;display:block}.yic-ph .bpic{width:100%!important;height:100%!important;border-radius:inherit!important;margin:0!important}
+.yic-c>span:nth-child(2){display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
+.yic-c small{font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:color-mix(in srgb,var(--tc) 55%,var(--muted))}
+.yic-c b{font:650 1.02rem/1.25 var(--display);color:var(--ink);overflow-wrap:anywhere}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(.yic-t,.yic-c){background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 26%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 13%,var(--surface))}:root:not([data-theme="light"]) .yic-t>i .di{color:color-mix(in srgb,var(--tc) 70%,#fff)!important}:root:not([data-theme="light"]) :is(.yic-t>small,.yic-c small){color:color-mix(in srgb,var(--tc) 45%,var(--muted))}}
+:root[data-theme="dark"] :is(.yic-t,.yic-c){background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 26%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 13%,var(--surface))}:root[data-theme="dark"] .yic-t>i .di{color:color-mix(in srgb,var(--tc) 70%,#fff)!important}:root[data-theme="dark"] :is(.yic-t>small,.yic-c small){color:color-mix(in srgb,var(--tc) 45%,var(--muted))}
 .yic-go{flex:none;width:18px;height:18px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
 
@@ -2792,7 +2809,12 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 .ib:active{transform:scale(.92)}.ib:disabled{opacity:.45;cursor:default;transform:none}.ib:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
 .ib.main{background:var(--cherry);color:var(--surface-ink,var(--surface));box-shadow:0 6px 16px -8px color-mix(in srgb,var(--cherry) 75%,transparent)}
 .ib.danger{color:#B4472E}.ib.sm{width:36px;height:36px}.ib.sm svg{width:17px;height:17px}
-.ib-row{display:flex!important;flex-wrap:wrap;align-items:center;gap:10px}.tm-done.ib-row{justify-content:center}
+.ib-row{display:flex!important;flex-wrap:wrap;align-items:center;gap:10px}
+.sheet-acts{position:sticky;bottom:calc(14px + var(--sa-bottom,0px));z-index:3;flex-wrap:nowrap;width:max-content;max-width:100%;box-sizing:border-box;margin:20px auto 4px;padding:6px;border-radius:999px;background:var(--surface);border:1px solid var(--hair);box-shadow:0 10px 28px -10px rgba(0,0,0,.35);transition:transform .28s var(--ease-sheet,cubic-bezier(.2,.8,.2,1)),opacity .2s ease}.sheet-acts .pbtn,.sheet-acts .ib{margin:0;flex:none}
+/* Out of the way while you scroll down to read; back when you scroll up or reach the end. */
+/* It shrinks and fades rather than sliding off: moving down would make the sheet itself taller. */
+.sheet-acts{transform-origin:50% 100%}.sheet-acts.sa-off{transform:scale(.9);opacity:0;pointer-events:none;visibility:hidden;transition:transform .2s ease,opacity .16s ease,visibility 0s .2s}
+@media (prefers-reduced-motion:reduce){.sheet-acts{transition:opacity .15s}.sheet-acts.sa-off{transform:none}}.tm-done.ib-row{justify-content:center}
 .crown-btn.ib{width:40px;height:40px}.sc-new.ib{display:grid;margin:14px auto 0}
 /* A page's own actions float at the bottom right, above the tab bar, so they're in reach and never at the end of a
    long page. They show only while their page is open (the pages you've left aren't drawn). */
@@ -2959,6 +2981,40 @@ html[data-nav=push] main section.nav-in{position:relative;z-index:3;background:v
 .fbx.out{animation:pop-out .18s cubic-bezier(.4,0,1,1) both}
 @keyframes pop-out{to{opacity:0;transform:translateY(-6px) scale(.96)}}
 @media (prefers-reduced-motion:reduce){main section.nav-out{display:none}}
+
+/* ===== The tab bar moves with your scroll, like the + and a sheet's action bar (phones). Transform and opacity only. */
+@media (max-width:759px){
+  .bottomnav{transition:transform .36s var(--ease-sheet),opacity .26s ease}
+  html.nav-away .bottomnav{transform:translateY(calc(100% + 18px + var(--sa-bottom)));opacity:0;pointer-events:none}
+}
+@media (prefers-reduced-motion:reduce){html.nav-away .bottomnav{transform:none}}
+
+/* ===== Tiles, one modern look everywhere: a clean card with a faint wash of its colour (no glow), a soft chip of the
+   same colour holding the icon drawn in a deeper shade (clear in light and dark), a quiet grey name and the answer in ink.
+   Each tile's colour is blended with the theme's own, so the tiles follow the vibe: warm on Roastery, cool on Nordic,
+   deep on Black, near-monochrome on Pure. */
+:root{--tk-amt:80%;--tk-mix:var(--cherry)}
+:root[data-vibe="nordic"]{--tk-amt:66%}
+:root[data-vibe="black"]{--tk-amt:74%}
+:root[data-vibe="pure"]{--tk-amt:28%;--tk-mix:var(--ink)}
+:is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl,.fig-ic){--tk:color-mix(in oklab,var(--tc,var(--c)) var(--tk-amt),var(--tk-mix));--tk-ink:color-mix(in oklab,var(--tk) 78%,var(--ink))}
+:is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl){
+  background:linear-gradient(160deg,color-mix(in srgb,var(--tk) 7%,var(--surface)),var(--surface) 70%)!important;
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tk) 12%,var(--line))!important;border:0!important;border-radius:20px!important}
+:is(.yic-t>i,.me-sq i,.me-tiles>div>i){background:color-mix(in srgb,var(--tk) 15%,var(--surface))!important;border-radius:12px!important;box-shadow:none!important}
+:is(.yic-t>i,.me-sq i,.me-tiles>div>i) .di{color:var(--tk-ink)!important;stroke-width:1.9!important;opacity:1!important}
+:is(.specs,.rstats,.stats)>div.tl .st-ic{box-sizing:border-box;width:26px!important;height:26px!important;padding:5px;top:8px!important;right:8px!important;border-radius:9px;
+  background:color-mix(in srgb,var(--tk) 15%,var(--surface));stroke:var(--tk-ink)!important;stroke-width:2!important;opacity:1!important;box-shadow:none}
+:is(.specs,.rstats,.stats)>div.tl>b,:is(.specs,.rstats,.stats)>div.tl>span{padding-right:30px}
+:root:is([data-theme],:not([data-theme])) :is(.yic-t>small,.yic-c small,.me-sq small,.me-tiles>div>small,.rstats>div.tl>small,:is(.specs,.stats)>div.tl>b){color:var(--muted)!important;letter-spacing:.04em}
+.fig-ic{background:color-mix(in srgb,var(--tk) 15%,var(--surface))!important;box-shadow:none}.fig-ic svg{stroke:var(--tk-ink)!important}
+/* Dark: a touch more colour in the wash and chip, the icon in a lighter shade. */
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl,.fig-ic){--tk-ink:color-mix(in oklab,var(--tk) 72%,#fff)}
+  :root:not([data-theme="light"]) :is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl){background:linear-gradient(160deg,color-mix(in srgb,var(--tk) 14%,var(--surface)),var(--surface) 70%)!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tk) 20%,transparent)!important}
+  :root:not([data-theme="light"]) :is(.yic-t>i,.me-sq i,.me-tiles>div>i,.fig-ic),:root:not([data-theme="light"]) :is(.specs,.rstats,.stats)>div.tl .st-ic{background:color-mix(in srgb,var(--tk) 24%,var(--surface))!important}}
+:root[data-theme="dark"] :is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl,.fig-ic){--tk-ink:color-mix(in oklab,var(--tk) 72%,#fff)}
+:root[data-theme="dark"] :is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl){background:linear-gradient(160deg,color-mix(in srgb,var(--tk) 14%,var(--surface)),var(--surface) 70%)!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tk) 20%,transparent)!important}
+:root[data-theme="dark"] :is(.yic-t>i,.me-sq i,.me-tiles>div>i,.fig-ic),:root[data-theme="dark"] :is(.specs,.rstats,.stats)>div.tl .st-ic{background:color-mix(in srgb,var(--tk) 24%,var(--surface))!important}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
