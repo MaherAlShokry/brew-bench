@@ -757,8 +757,6 @@ const TILE_K=[[/^(coffee|dose|shot weight|bag)/i,'#D2793A','M12 3.2c3.5 0 6 3.9 
   [/top coffee|favourite/i,'#F43F5E','M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z']];
 // The attributes and icon for a tile from its label (and, for the strength row, its value).
 const tileKey=(label,val)=>TILE_K.find(([re])=>re.test(String(label||'')))||(/light|medium|strong|gentle|vigorous/i.test(String(val||''))?TILE_K[5]:null);
-function tileOf(label,val){const m=tileKey(label,val);
-  return m?[' class="tl" style="--tc:'+m[1]+'"','<svg class="st-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="'+m[2]+'"/></svg>']:['','']}
 // Sets a block's HTML only when it differs from what it last set: drawing the same thing again on each visit made the
 // browser restyle and lay it out again, part of what a tab change cost.
 function setHTML(el,h){if(el._h===h)return false;el._h=h;el.innerHTML=h;return true}
@@ -2385,10 +2383,11 @@ function renderCalc(){
   seg('c-pre',[['1','1 cup'],['2','2 cups'],['esp','Espresso'],['cold','Cold brew']],()=>CALC.pre,v=>{CALC.pre=v;Object.assign(CALC,{'1':{dose:15,ratio:16.5},'2':{dose:30,ratio:16.5},'esp':{dose:18,ratio:2},'cold':{dose:50,ratio:8}}[v]);renderCalc()});
   // Espresso ratios are written as the shot's weight in the cup, not the water that went through, so there is nothing to
   // take off for the grounds. Elsewhere the grounds hold back about twice their weight. Blooms and 4:6 pours are for filter.
-  const cell=(k,v,n)=>{const [a,ic]=tileOf(k,v);return '<div'+a+'>'+ic+'<b>'+k+'</b><span>'+v+'</span><small>'+n+'</small></div>'};
-  $('c-out').innerHTML=CALC.ratio<=4?cell('Shot weight',w+'g','in the cup, from '+CALC.dose+'g of coffee')+cell('Shot time','25 to 30s','from the moment the pump starts')
-    :cell('Water',w+'g','about '+w+' ml')+cell('In the cup',Math.round(w-CALC.dose*2)+'g','after the grounds hold some back')+
-     (CALC.ratio<10?cell('Steep','12 to 18 hours','in the fridge, then filter. Dilute to taste'):cell('Bloom water',Math.round(CALC.dose*2.5)+'g','about 2.5 times the dose')+cell('4:6 pours',Math.round(w/5)+'g','five equal pours'));
+  // The results in the same fact card as everywhere: the figure, and what it means beneath.
+  const cell=(k,v,n)=>{const t=tileKey(k,v);return [svgI(t?t[2]:'M12 7v6 M12 16.5v.5'),k,esc(v)+'<em class="bf-sub">'+esc(n)+'</em>',t&&t[1]]};
+  $('c-out').innerHTML=factCard(CALC.ratio<=4?[cell('Shot weight',w+'g','In the cup, from '+CALC.dose+'g of coffee'),cell('Shot time','25 to 30s','From the moment the pump starts')]
+    :[cell('Water',w+'g','About '+w+' ml'),cell('In the cup',Math.round(w-CALC.dose*2)+'g','After the grounds hold some back'),
+     ...(CALC.ratio<10?[cell('Steep','12 to 18 hours','In the fridge, then filter. Dilute to taste')]:[cell('Bloom water',Math.round(CALC.dose*2.5)+'g','About 2.5 times the dose'),cell('4:6 pours',Math.round(w/5)+'g','Five equal pours')])]);
   save('bb-calc',CALC);
 }
 $('c-dose').oninput=e=>{CALC.dose=+e.target.value;CALC.pre=null;soon(renderCalc)};
@@ -2652,8 +2651,8 @@ function renderLog(){renderShare();renderLastBrew();
   const rated=LOG.filter(l=>+l.stars>0),avg=rated.length?(rated.reduce((a,l)=>a+ +l.stars,0)/rated.length).toFixed(1):'–';
   const cnt={};LOG.forEach(l=>{if(l.brewer)cnt[l.brewer]=(cnt[l.brewer]||0)+1});const fav=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];
   const best=rated.slice().sort((a,b)=>b.stars-a.stars||b.ts-a.ts)[0];
-  const stat=(k,v,small)=>{const [a,ic]=tileOf(k,v);return '<div'+a+'>'+ic+'<b>'+k+'</b><span'+(String(v).length>6?' style="font-size:1rem"':'')+'>'+v+'</span>'+(small?'<small>'+small+'</small>':'')+'</div>'};
-  $('l-stats').innerHTML=LOG.length?stat('Brews logged',LOG.length)+stat('Average rating',avg,rated.length?'out of 5':'no ratings yet')+(fav?stat('Favourite brewer',esc(BREWERS[fav[0]]?BREWERS[fav[0]].name:fav[0])):'')+(best?stat('Top coffee',esc(best.coffee||'Untitled')):''):'';
+  const stat=(k,v,small)=>{const t=tileKey(k,v);return [svgI(t?t[2]:'M12 7v6 M12 16.5v.5'),k,v+(small?'<em class="bf-sub">'+small+'</em>':''),t&&t[1]]};
+  $('l-stats').innerHTML=LOG.length?factCard([stat('Brews logged',LOG.length),stat('Average rating',avg,rated.length?'Out of 5':'No ratings yet'),...(fav?[stat('Favourite brewer',esc(BREWERS[fav[0]]?BREWERS[fav[0]].name:fav[0]))]:[]),...(best?[stat('Top coffee',esc(best.coffee||'Untitled'))]:[])]):'';
   $('l-csv').hidden=!LOG.length;
 }
 // Flavour notes: a little profile wheel on each brew, and the notes as chips.

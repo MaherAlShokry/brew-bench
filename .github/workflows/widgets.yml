@@ -60,15 +60,20 @@ jobs:
           path: |
             ~/.gradle/wrapper
             ~/.gradle/caches
-          key: gradle-${{ runner.os }}-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties', 'android/**/*.gradle') }}
-          restore-keys: gradle-${{ runner.os }}-
+          # Its own cache: the widget test needs test libraries (Espresso, Hamcrest) the APK build never fetches, so
+          # sharing that cache meant downloading them every run, and Maven Central sometimes refuses (429).
+          key: gradle-widgets-${{ runner.os }}-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties', 'android/**/*.gradle') }}
+          restore-keys: |
+            gradle-widgets-${{ runner.os }}-
+            gradle-${{ runner.os }}-
       - name: Build the app and the widget test
         working-directory: android
         run: |
           chmod +x gradlew
           for i in 1 2 3; do ./gradlew --version --no-daemon >/dev/null && break; sleep $((i*20)); done
           # Only the app has a widget test; the library modules' own test builds are left out.
-          ./gradlew :app:assembleDebug :app:assembleDebugAndroidTest --no-daemon
+          # A refused download (Maven Central's 429) is retried after a pause rather than failing the run.
+          for i in 1 2 3; do ./gradlew :app:assembleDebug :app:assembleDebugAndroidTest --no-daemon && break; [ $i = 3 ] && exit 1; sleep $((i*45)); done
       # The emulator needs hardware acceleration, which GitHub's Linux runners allow once KVM is opened up.
       - name: Allow the emulator to use KVM
         run: |

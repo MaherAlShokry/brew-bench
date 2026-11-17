@@ -7,7 +7,7 @@ const c=await b.newContext({viewport:{width:390,height:844},serviceWorkers:'bloc
 await p.route(u=>!u.href.startsWith('http://localhost'),r=>r.abort());await p.goto('http://localhost:8099/index.html',{waitUntil:'networkidle'});await p.evaluate(demo);await p.reload({waitUntil:'networkidle'});
 // Ratio calculator
 // A strip shows the pick at once; what it changes follows a frame later.
-const calc=await p.evaluate(async()=>{const frame=()=>new Promise(r=>requestAnimationFrame(()=>setTimeout(()=>requestAnimationFrame(r),0)));showTab('guide');const out={};for(const k of ['1','2','esp','cold']){document.querySelector('#c-pre [data-v="'+k+'"]').click();await frame();out[k]=[...document.querySelectorAll('#c-out > div')].map(d=>d.querySelector('b').textContent+'='+d.querySelector('span').textContent).join(', ')}return out});
+const calc=await p.evaluate(async()=>{const frame=()=>new Promise(r=>requestAnimationFrame(()=>setTimeout(()=>requestAnimationFrame(r),0)));showTab('guide');const out={};for(const k of ['1','2','esp','cold']){document.querySelector('#c-pre [data-v="'+k+'"]').click();await frame();out[k]=[...document.querySelectorAll('#c-out .bf')].map(d=>d.querySelector('small').textContent+'='+d.querySelector('b').firstChild.textContent).join(', ')}return out});
 ok('1 cup: 15 g at 1:16.5 → 248 g water, 218 g in the cup',/Water=248g/.test(calc['1'])&&/In the cup=218g/.test(calc['1']),calc['1']);
 ok('2 cups → 495 g water',/Water=495g/.test(calc['2']),calc['2']);
 ok('espresso: 18 g at 1:2 → a 36 g shot, no bloom or 4:6',/Shot weight=36g/.test(calc.esp)&&!/Bloom|4:6/.test(calc.esp),calc.esp);
