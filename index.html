@@ -1910,7 +1910,9 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .vd-tool svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .vd-tool:active{transform:scale(.94)}
 @media (max-width:759px){html dialog#vd:not(.camdlg) .vd-head .vd-tools{top:calc(12px + var(--sa-top,0px))}}
-.vd-head:has(.vd-tools) .pill{max-width:calc(100% - 170px)}
+.vd-head:has(.vd-tools) .pill{max-width:calc(100% - 170px);overflow:hidden;text-overflow:ellipsis;display:block;width:max-content;line-height:1.9}.vd-head:has(.vd-tools) .pill>i{display:inline-block;vertical-align:middle;margin:-2px 6px 0 0}
+
+.vd-head:has(.vd-tools>:nth-child(3)) .pill{max-width:calc(100% - 186px)}.vd-head:has(.vd-tools>:nth-child(4)) .pill{max-width:calc(100% - 234px)}
 
 .bd-bagh{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px}.bd-bagh .bagl{display:contents}
 .bd-bagh .bagm{flex:1 0 100%}.bd-bagh .linkbtn{font-size:.84rem;font-weight:700;padding:4px 0}
@@ -2874,7 +2876,8 @@ textarea{resize:none}
 .setlink .sl{align-items:center}
 .setchev{flex:none;color:var(--muted);display:grid;place-items:center}.setchev svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .setrow .setbtns{display:flex;flex-wrap:wrap;gap:8px}.setrow .setbtns.rem{display:grid}
-.setrow>.setnote,.setrow>.setbtns{margin-left:48px!important}
+
+.setrow>.setnote,.setrow>.setbtns{margin-left:0!important}.setrow>:not(.sl)+:not(.sl){margin-top:10px!important}
 
 
 
@@ -3018,7 +3021,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="76d08992394f"</script>
+<script>const BUILD_ID="a51001a79334"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -12575,7 +12578,7 @@ function logSumCard(){const L=LOG.filter(l=>l&&!(l.by&&l.by!==ME)),rated=L.filte
   return bcBlob({kicker:'My brew log',title:nick?nick+'’s brew log':'My brew log',sub:L.length+(L.length===1?' brew':' brews')+'  ·  '+coffees.size+(coffees.size===1?' coffee':' coffees'),
     rating:avg?{kind:'beans',v:Math.round(avg*2)/2,word:'average'}:null,
     pills:[...(best?[['Favourite: '+(best.coffee||'a brew'),1]]:[]),...(top?[['Most brewed on '+top[0]]]:[])],
-    tiles:[['Brews',String(L.length)],['Coffees',String(coffees.size)],['Rated',String(rated.length)],['5 stars',String(rated.filter(l=>+l.stars===5).length)]],
+    tiles:[['Brews',String(L.length)],['Coffees',String(coffees.size)],['Rated',String(rated.length)]],
     expect:P?{label:'My palate',items:P.fl.slice(0,8).map(([id,v])=>({t:FW.byId[id].n,c:FW.byId[id].c})),bar:flFamilies(P.fl)}:null,
     list:{label:'Latest cups',items:L.slice(0,6).map(l=>({t:l.coffee||'A brew',d:fmtDate(l),s:clamp(Math.round(+l.stars||0),0,5)}))},
     footer:'Logged with The Brew Bench'})}

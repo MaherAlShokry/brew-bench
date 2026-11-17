@@ -1933,7 +1933,9 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .vd-tool svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .vd-tool:active{transform:scale(.94)}
 @media (max-width:759px){html dialog#vd:not(.camdlg) .vd-head .vd-tools{top:calc(12px + var(--sa-top,0px))}}
-.vd-head:has(.vd-tools) .pill{max-width:calc(100% - 170px)}
+.vd-head:has(.vd-tools) .pill{max-width:calc(100% - 170px);overflow:hidden;text-overflow:ellipsis;display:block;width:max-content;line-height:1.9}.vd-head:has(.vd-tools) .pill>i{display:inline-block;vertical-align:middle;margin:-2px 6px 0 0}
+/* The pill stops short of the buttons, however many there are (each 40px, 8px apart). */
+.vd-head:has(.vd-tools>:nth-child(3)) .pill{max-width:calc(100% - 186px)}.vd-head:has(.vd-tools>:nth-child(4)) .pill{max-width:calc(100% - 234px)}
 /* What's left: the bar across, the grams and "Set what's left" on one line under it. */
 .bd-bagh{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px}.bd-bagh .bagl{display:contents}
 .bd-bagh .bagm{flex:1 0 100%}.bd-bagh .linkbtn{font-size:.84rem;font-weight:700;padding:4px 0}
@@ -2927,7 +2929,8 @@ textarea{resize:none}
 .setlink .sl{align-items:center}
 .setchev{flex:none;color:var(--muted);display:grid;place-items:center}.setchev svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .setrow .setbtns{display:flex;flex-wrap:wrap;gap:8px}.setrow .setbtns.rem{display:grid}
-.setrow>.setnote,.setrow>.setbtns{margin-left:48px!important}
+/* Everything under a row's title starts at one left edge (the row's), with room between stacked controls. */
+.setrow>.setnote,.setrow>.setbtns{margin-left:0!important}.setrow>:not(.sl)+:not(.sl){margin-top:10px!important}
 
 
 /* ---------- One card system ----------
