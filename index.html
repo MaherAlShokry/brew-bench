@@ -2633,14 +2633,26 @@ dialog.dlg-pre[open]::backdrop{animation:none!important;opacity:0}
 .gk-tip .ic svg{width:19px;height:19px;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .bd-end{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}.bd-end .pbtn{margin:0}.gk-tip{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:14px;background:var(--surface)}
 .gk-tip>span{display:flex;flex-direction:column;gap:3px;min-width:0}.gk-tip b{font:650 .98rem/1.3 var(--display);color:var(--ink)}.gk-tip small{font-size:.88rem;line-height:1.45;color:var(--muted)}
-.yic-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:14px 0 0}
-.yic-t{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0;padding:12px;border:0;border-radius:14px;background:var(--surface);color:var(--ink);font:inherit;text-align:left}
-.yic-t.w{grid-column:1/-1;flex-direction:row;align-items:center;gap:12px}
-button.yic-t{cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .15s}button.yic-t:active{transform:scale(.985)}
-.yic-t>i{flex:none;width:28px;height:28px;border-radius:10px;display:grid;place-items:center;background:var(--surface2);font-style:normal;font-size:1rem}
-.yic-t>span{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
-.yic-t small{font-size:.66rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
-.yic-t b{font:650 .95rem/1.25 var(--display);color:var(--ink);overflow-wrap:anywhere}
+.yic-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:1fr;gap:8px;margin:14px 0 0}
+
+.yic-t{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto 1fr;align-items:center;align-content:start;column-gap:9px;row-gap:10px;min-width:0;padding:12px 12px 13px;border-radius:18px;color:var(--ink);
+  background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 20%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 9%,var(--surface));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tc) 16%,transparent)}
+.yic-t.w{grid-column:1/-1}
+.yic-t>i{grid-row:1;grid-column:1;width:32px;height:32px;border-radius:11px;display:grid;place-items:center;background:color-mix(in srgb,var(--tc) 18%,transparent);font-style:normal;font-size:1.05rem}
+.yic-t>i .di{width:18px;height:18px;color:var(--tc)!important}
+.yic-t>small{grid-row:1;grid-column:2;font-size:.72rem;font-weight:700;line-height:1.2;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:color-mix(in srgb,var(--tc) 55%,var(--muted))}
+.yic-t>b{grid-row:2;grid-column:1/-1;align-self:start;font:650 1.02rem/1.25 var(--display);color:var(--ink);overflow-wrap:anywhere}
+
+.yic-cs{display:grid;gap:8px;margin-top:8px}
+.yic-c{display:flex;align-items:center;gap:12px;width:100%;min-width:0;padding:10px 12px 10px 10px;border:0;border-radius:18px;font:inherit;text-align:left;color:var(--ink);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .15s;
+  background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 18%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 8%,var(--surface));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tc) 16%,transparent)}
+.yic-c:active{transform:scale(.985)}
+.yic-ph{flex:none;width:48px;height:48px;border-radius:13px;overflow:hidden;display:block}.yic-ph .bpic{width:100%!important;height:100%!important;border-radius:inherit!important;margin:0!important}
+.yic-c>span:nth-child(2){display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
+.yic-c small{font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:color-mix(in srgb,var(--tc) 55%,var(--muted))}
+.yic-c b{font:650 1.02rem/1.25 var(--display);color:var(--ink);overflow-wrap:anywhere}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(.yic-t,.yic-c){background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 26%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 13%,var(--surface))}:root:not([data-theme="light"]) .yic-t>i .di{color:color-mix(in srgb,var(--tc) 70%,#fff)!important}:root:not([data-theme="light"]) :is(.yic-t>small,.yic-c small){color:color-mix(in srgb,var(--tc) 45%,var(--muted))}}
+:root[data-theme="dark"] :is(.yic-t,.yic-c){background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 26%,transparent),transparent 62%),color-mix(in srgb,var(--tc) 13%,var(--surface))}:root[data-theme="dark"] .yic-t>i .di{color:color-mix(in srgb,var(--tc) 70%,#fff)!important}:root[data-theme="dark"] :is(.yic-t>small,.yic-c small){color:color-mix(in srgb,var(--tc) 45%,var(--muted))}
 .yic-go{flex:none;width:18px;height:18px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
 
@@ -2909,7 +2921,7 @@ html[data-nav=push] main section.nav-in{position:relative;z-index:3;background:v
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="220bb98e032b"</script>
+<script>const BUILD_ID="7fac7e6afcd2"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -10492,14 +10504,17 @@ function yearInCoffeeHTML0(){const cy=new Date().getFullYear(),bs=BEANS.filter(b
   const o=t.origin&&oInfo(t.origin.k),R=t.region&&REG[t.region.k],v=t.variety&&VBY[t.variety.k],pr=t.process&&PROCESSES[t.process.k],B=t.brewer&&BREWERS[t.brewer.k];
   // The facts, without counts: short ones as tiles two to a row, then the coffees (your regular, the best of the year)
   // full width, each opening its coffee. An odd tile out at the end of the short ones spans the row too.
-  const half=[o&&['<span class="yic-fl">'+flagOf(t.origin.k)+'</span>','Mostly from',o.name],R&&['🗺️','Favourite region',R.name+(t.regionOrigin&&t.regionOrigin.k!==(t.origin&&t.origin.k)?' · mostly '+oInfo(t.regionOrigin.k).name:'')],
-    v&&['🌱','Top variety',shortName(v.name)],pr&&['🧪','Top process',pr.name.replace(/\s*\(.*\)$/,'')],t.roast&&['🔥','Usual roast',t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1)],
-    t.roaster&&['🏷️','Roastery most often',t.roaster.k],B&&['☕','Brewed most on',B.name]].filter(Boolean);
-  const wide=[t.regular&&['🔁','Your regular',beanTitle(t.regular),t.regular.id],t.best&&['🏆','Best of the year',beanTitle(t.best),t.best.id]].filter(Boolean);
-  const tile=([ic,k,vv,id],w)=>(id?'<button type="button" class="yic-t w" data-bean="'+id+'">':'<div class="yic-t'+(w?' w':'')+'">')+'<i aria-hidden="true">'+ic+'</i><span><small>'+k+'</small><b>'+esc(vv)+'</b></span>'+(id?'<svg class="yic-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>':'</div>');
+  // Each fact in its own colour, the same as the taste tiles on your profile: icon and name on top, the answer below,
+  // every tile the same size. Your regular and the best of the year follow full width, with the coffee's photo.
+  const half=[o&&['<span class="yic-fl">'+flagOf(t.origin.k)+'</span>','Origin',o.name],R&&['🗺️','Region',R.name+(t.regionOrigin&&t.regionOrigin.k!==(t.origin&&t.origin.k)?' · mostly '+oInfo(t.regionOrigin.k).name:'')],
+    v&&['🌱','Variety',shortName(v.name)],pr&&['🧪','Process',pr.name.replace(/\s*\(.*\)$/,'')],t.roast&&['🔥','Roast',t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1)],
+    t.roaster&&['🏷️','Roastery',t.roaster.k],B&&['☕','Brewer',B.name]].filter(Boolean);
+  const wide=[t.regular&&[t.regular,'Your regular','#3F86B5'],t.best&&[t.best,'Best of the year',TASTE_C['Rated best']]].filter(Boolean);
+  const tile=([ic,k,vv],w)=>'<div class="yic-t'+(w?' w':'')+'" style="--tc:'+(TASTE_C[k]||'#8A5A3B')+'"><i aria-hidden="true">'+ic+'</i><small>'+k+'</small><b>'+esc(vv)+'</b></div>';
+  const coffee=([b,k,c])=>'<button type="button" class="yic-c" data-bean="'+b.id+'" style="--tc:'+c+'"><span class="yic-ph">'+beanPic(b,'xs')+'</span><span><small>'+k+'</small><b>'+esc(beanTitle(b))+'</b></span><svg class="yic-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>';
   return '<div class="yic" role="region" aria-label="'+cy+' in coffee"><div class="yic-h"><h3>'+cy+' in coffee</h3></div>'+(bs.length>1?'<p class="yic-line">'+esc(tasteLine(t))+'</p>':'')+
     figsHTML('yic-big',big.map(([n,l],i)=>[['bag','cup',g?'bean':'globe'][i],esc(String(n)),esc(l)]))+
-    (half.length||wide.length?'<div class="yic-grid">'+half.map((f,i)=>tile(f,half.length%2===1&&i===half.length-1)).join('')+wide.map(f=>tile(f,true)).join('')+'</div>':'')+
+    (half.length?'<div class="yic-grid">'+half.map((f,i)=>tile(f,half.length%2===1&&i===half.length-1)).join('')+'</div>':'')+(wide.length?'<div class="yic-cs">'+wide.map(coffee).join('')+'</div>':'')+
     (t.notes.length?'<div class="yic-notes"><small>Notes you keep coming back to</small><div class="chips">'+t.notes.map(n=>'<span class="chip"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'</span>').join('')+'</div></div>':'')+'</div>'}
 
 /* ================= FOR YOU ================= */
@@ -10993,7 +11008,7 @@ function renderCoffees(){const p=$('bv-coffees'),years=beanYears();BYEAR=BYEAR.f
   hydrateImgs(p);
   renderBeanSort();
   // The year in coffee is the costliest block and sits below the fold: it's drawn once the page has opened.
-  whenIdle(()=>{const e=$('bg-yic');if(e&&!e.firstChild)e.innerHTML=yearInCoffeeHTML()})}
+  whenIdle(()=>{const e=$('bg-yic');if(e&&!e.firstChild){e.innerHTML=yearInCoffeeHTML();hydrateImgs(e)}})}
 // Sorting and filtering redraw only the cards and the chips' state, so the page doesn't jump.
 // The coffee list's filter and sort, in the same sheet as every other list.
 const BSORTS=[['recent','Recent'],['rated','Top rated'],['roaster','Roastery'],['origin','Origin']];
