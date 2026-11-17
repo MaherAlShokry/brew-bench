@@ -2996,8 +2996,8 @@ html[data-nav=push] main section.nav-in{position:relative;z-index:3;background:v
 :root{--tk-amt:80%;--tk-mix:var(--cherry)}
 :root[data-vibe="nordic"]{--tk-amt:66%}
 :root[data-vibe="black"]{--tk-amt:74%}
-:root[data-vibe="pure"]{--tk-amt:28%;--tk-mix:var(--ink)}
-:is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl,.fig-ic){--tk:color-mix(in oklab,var(--tc,var(--c)) var(--tk-amt),var(--tk-mix));--tk-ink:color-mix(in oklab,var(--tk) 78%,var(--ink))}
+:root[data-vibe="pure"]{--tk-amt:82%;--tk-mix:var(--ink)}
+:is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl,.fig-ic,.bf){--tk:color-mix(in oklab,var(--tc,var(--c)) var(--tk-amt),var(--tk-mix));--tk-ink:color-mix(in oklab,var(--tk) 78%,var(--ink))}
 :is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl){
   background:linear-gradient(160deg,color-mix(in srgb,var(--tk) 7%,var(--surface)),var(--surface) 70%)!important;
   box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tk) 12%,var(--line))!important;border:0!important;border-radius:20px!important}
@@ -3015,6 +3015,34 @@ html[data-nav=push] main section.nav-in{position:relative;z-index:3;background:v
 :root[data-theme="dark"] :is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl,.fig-ic){--tk-ink:color-mix(in oklab,var(--tk) 72%,#fff)}
 :root[data-theme="dark"] :is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl){background:linear-gradient(160deg,color-mix(in srgb,var(--tk) 14%,var(--surface)),var(--surface) 70%)!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tk) 20%,transparent)!important}
 :root[data-theme="dark"] :is(.yic-t>i,.me-sq i,.me-tiles>div>i,.fig-ic),:root[data-theme="dark"] :is(.specs,.rstats,.stats)>div.tl .st-ic{background:color-mix(in srgb,var(--tk) 24%,var(--surface))!important}
+
+/* ===== Fact cards, the same everywhere (a coffee, a recipe, an origin, your profile, a year in coffee): one card,
+   cells two to a row (three for short counts, one for coffees) with fine dividers between rows; each cell a coloured
+   icon chip with its name above the answer (counts: the number above its name). An odd one out takes the full row. */
+.bfacts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin:14px 0;padding:2px 10px;border-radius:22px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.bfacts.c3{grid-template-columns:repeat(3,minmax(0,1fr))}.bfacts.c1{grid-template-columns:minmax(0,1fr)}
+.bf{position:relative;display:flex;align-items:flex-start;gap:10px;min-width:0;padding:14px 10px 14px 4px;margin:0;border:0;background:none;font:inherit;color:var(--ink);text-align:left}
+/* A clean grid: row lines run edge to edge of each cell and meet the column lines. */
+.bfacts.c2>.bf:nth-child(n+3)::before,.bfacts.c3>.bf:nth-child(n+4)::before,.bfacts.c1>.bf:nth-child(n+2)::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;background:var(--line)}
+.bfacts.c2>.bf:nth-child(odd):not(:last-child)::after,.bfacts.c3>.bf:not(:nth-child(3n)):not(:last-child)::after{content:'';position:absolute;right:0;top:12px;bottom:12px;width:1px;background:var(--line)}
+.bfacts.c2>.bf:nth-child(even),.bfacts.c3>.bf:not(:nth-child(3n+1)){padding-left:14px}
+.bfacts.c2>.bf:last-child:nth-child(odd){grid-column:1/-1}
+.bfacts.c3>.bf{flex-direction:column;align-items:flex-start;gap:9px}
+button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:16px;transition:background-color .15s}button.bf:active{background:color-mix(in srgb,var(--ink) 5%,transparent)}
+.bf-i{flex:none;width:34px;height:34px;border-radius:12px;display:grid;place-items:center;overflow:hidden;font-style:normal;font-size:1.15rem;line-height:1;background:color-mix(in srgb,var(--tk) 16%,var(--surface))}
+.bf-i svg{width:18px;height:18px;fill:none;stroke:var(--tk-ink)!important;color:var(--tk-ink)!important;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.bf-i .bpic{width:100%!important;height:100%!important;margin:0!important;border-radius:inherit!important}
+.bfacts.photo .bf{align-items:center}.bfacts.photo .bf-i{width:46px;height:46px}
+.bfacts.c2 .bf>span,.bfacts.c1 .bf>span{padding-top:1px}
+.bf>span{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.bf small{font-size:.72rem;font-weight:600;letter-spacing:.02em;color:var(--muted);line-height:1.2}
+.bf b{display:block;font:650 .98rem/1.25 var(--display);color:var(--ink);overflow-wrap:anywhere}
+.bf-sub{display:block;margin-top:2px;font:500 .74rem/1.25 var(--body,inherit);font-style:normal;color:var(--muted)}
+.bfacts.num small::first-letter{text-transform:uppercase}
+.bfacts.num .bf b{font-size:1.3rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.bf-go{flex:none;width:18px;height:18px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .bf{--tk-ink:color-mix(in oklab,var(--tk) 72%,#fff)}:root:not([data-theme="light"]) .bf-i{background:color-mix(in srgb,var(--tk) 26%,var(--surface))}}
+:root[data-theme="dark"] .bf{--tk-ink:color-mix(in oklab,var(--tk) 72%,#fff)}:root[data-theme="dark"] .bf-i{background:color-mix(in srgb,var(--tk) 26%,var(--surface))}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>

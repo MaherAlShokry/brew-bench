@@ -79,7 +79,7 @@ const SYNC_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 
 const ROLE={bright:'Florals chaser',sweet:'Sweet-cup seeker',choc:'Comfort-cup brewer',wild:'Ferment explorer',espresso:'Espresso devotee',milk:'Milk-drink maker'};
 // All-time counts: every coffee, every cup made (logged brews and unlogged timer cups), origins and trophies.
 function profileStats(){const mine=window.BEANS_OK?myCups().length:LOG.filter(l=>l&&(!l.by||l.by===ME)).length,b=window.BEANS_OK?BEANS:[],o=new Set(b.map(realO).filter(Boolean)).size,t=window.BEANS_OK&&TGOT?Object.keys(TGOT).length:0;
-  return [[b.length,b.length===1?'coffee':'coffees'],[mine,mine===1?'cup':'cups'],[o,o===1?'origin':'origins'],[t,t===1?'trophy':'trophies']]}
+  return [[b.length,b.length===1?'Coffee':'Coffees'],[mine,mine===1?'Cup brewed':'Cups brewed'],[o,o===1?'Origin':'Origins'],[t,t===1?'Trophy':'Trophies']]}
 // Your taste, read from your coffees and brews (not typed in): where you buy from, the variety, process and roast you
 // come back to, the flavours you like most and how you brew. It fills in as the gallery and the log grow.
 function tasteHTML(){if(!window.BEANS_OK||BEANS.length<2)return '';const t=tasteOf(BEANS,LOG.filter(isMine));
@@ -96,7 +96,7 @@ function tasteHTML(){if(!window.BEANS_OK||BEANS.length<2)return '';const t=taste
   if(!rows.length&&!t.families.length)return '';
   return '<div class="me-taste"><div class="me-th"><b>Your coffee taste</b><small>From all '+BEANS.length+' coffees and '+myCups().length+' cups, all time</small></div>'+
     (tasteLine(t)?'<p class="me-tl">'+esc(tasteLine(t))+'</p>':'')+
-    (rows.length?'<div class="me-tiles">'+rows.map(([i,k,vv])=>'<div style="--tc:'+(TASTE_C[k]||'#8A5A3B')+'"><i aria-hidden="true">'+i+'</i><small>'+k+'</small><b>'+esc(vv)+'</b></div>').join('')+'</div>':'')+
+    (rows.length?factCard(rows.map(([i,k,vv])=>[i,k,esc(vv),TASTE_C[k]]),{cls:'me-tf'}):'')+
     (t.notes.length?'<div class="me-notes chips">'+t.notes.slice(0,5).map(n=>'<span class="chip"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'</span>').join('')+'</div>':'')+'</div>'}
 // Each taste tile has its own colour, the same family as the stat tiles elsewhere.
 // A modern, bright palette shared by every tile in the app.
@@ -122,7 +122,7 @@ function meHTML(){const p=PROFILE,x='<button class="vd-close me-x" id="vd-x" ari
   // What you told us about yourself sits with who you are (under your words), as one line of plain facts. The numbers
   // and "Your coffee taste" below are what your coffees and cups show.
   // Your picks, in short names (one line at any text size) and the same colours as Your coffee taste.
-  const dna=[p.city&&['📍','Brews in',p.city,'#0EA5E9'],p.brewer&&['☕','Brewer',BREWERS[p.brewer].name,TASTE_C.Brewer],
+  const dna=[p.city&&['📍','Based in',p.city,'#0EA5E9'],p.brewer&&['☕','Brewer',BREWERS[p.brewer].name,TASTE_C.Brewer],
     p.origin&&['<span class="me-flag">'+flagOf(p.origin)+'</span>','Origin',originName(p.origin),TASTE_C.Origin]].filter(Boolean);
   const bg=bannerBg(p),since=new Date(p.since).toLocaleDateString(undefined,{month:'long',year:'numeric'});
   // A cover strip (your banner), your picture overlapping its edge, and who you are on the page under it.
@@ -135,7 +135,7 @@ function meHTML(){const p=PROFILE,x='<button class="vd-close me-x" id="vd-x" ari
       // About you: your words, and what you told us as squares.
       '<section class="me-sec" aria-label="About you"><h3 class="me-sh">About</h3>'+
         (p.brief?'<p class="me-brief">'+esc(p.brief)+'</p>':'<button type="button" class="me-add" id="pf-edit2">Add a few words about how you take your coffee</button>')+
-        (dna.length?'<div class="me-sq">'+dna.map(([i,k,v,c])=>'<div style="--tc:'+c+'"><i aria-hidden="true">'+i+'</i><small>'+k+'</small><b>'+esc(v)+'</b></div>').join('')+'</div>'
+        (dna.length?factCard(dna.map(([i,k,v,c])=>[i,k,esc(v),c]),{cols:dna.length===3?3:2,cls:'me-picks'})
           :'<button type="button" class="me-add" id="pf-edit3">Add where you brew, your brewer and your favourite origin</button>')+'</section>'+
       tasteHTML()+accountHTML()+'</div>'}
 $('vd').addEventListener('click',e=>{if(e.target.closest('#pf-new,#pf-edit,#pf-edit2,#pf-edit3')){delete $('vd').dataset.me;openProfileEditor();return}if(e.target.closest('#pf-signin')){delete $('vd').dataset.me;openSignIn();return}

@@ -756,7 +756,8 @@ const TILE_K=[[/^(coffee|dose|shot weight|bag)/i,'#D2793A','M12 3.2c3.5 0 6 3.9 
   [/brewer/i,'#6366F1','M5 6h14l-5 8h-4z M10 14v3h4v-3 M7.5 20h9'],
   [/top coffee|favourite/i,'#F43F5E','M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z']];
 // The attributes and icon for a tile from its label (and, for the strength row, its value).
-function tileOf(label,val){const s=String(label||'')+' '+String(val||'');const m=TILE_K.find(([re])=>re.test(String(label||'')))||(/light|medium|strong|gentle|vigorous/i.test(String(val||''))?TILE_K[5]:null);
+const tileKey=(label,val)=>TILE_K.find(([re])=>re.test(String(label||'')))||(/light|medium|strong|gentle|vigorous/i.test(String(val||''))?TILE_K[5]:null);
+function tileOf(label,val){const m=tileKey(label,val);
   return m?[' class="tl" style="--tc:'+m[1]+'"','<svg class="st-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="'+m[2]+'"/></svg>']:['','']}
 // Sets a block's HTML only when it differs from what it last set: drawing the same thing again on each visit made the
 // browser restyle and lay it out again, part of what a tab change cost.
@@ -1488,8 +1489,8 @@ const stepList=steps=>{steps=withTotals(steps);const c=pourCurve(steps);return '
 function recipeBody(r,i,compact,inSheet){const B=BREWERS[r.b],sc=compact?{dose:r.dose,water:r.water,steps:r.steps,off:r.off,ratio:r.water/r.dose}:scaled(r);const gs=MYG.map(g=>[g,settingFor(g,r.b,sc.off)]);
   const m=rmeta(r);
   return (compact?'<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span>':'')+'</div>'
-     :'<p class="hint" style="margin:0 0 .2rem">'+esc(B.name)+' · '+esc(B.type)+'</p>'+'<div class="rstats tinted">'+[[r.dose+'g','Coffee'],[r.water+'g',r.iced?'Hot water':'Water'],[r.iced?'1:'+Math.round(r.total/r.dose*10)/10:m.ratio||'–','Ratio'+(r.iced?' with ice':'')],
-       [r.temp?r.temp+'°C':'–',r.temp2?'Then '+r.temp2+'°C':'Temperature'],[m.time!=null?mmss(m.time):'By eye','Total time'],[m.level,m.pours+' pour'+(m.pours===1?'':'s')]].map(([v,l])=>{const [a,ic]=tileOf(l,v);return '<div'+a+'>'+ic+'<b>'+v+'</b><small>'+l+'</small></div>'}).join('')+'</div>')+
+     :'<p class="hint" style="margin:0 0 .2rem">'+esc(B.name)+' · '+esc(B.type)+'</p>'+factCard([[r.dose+'g','Coffee'],[r.water+'g',r.iced?'Hot water':'Water'],[r.iced?'1:'+Math.round(r.total/r.dose*10)/10:m.ratio||'–','Ratio'+(r.iced?' with ice':'')],
+       [r.temp?r.temp+'°C':'–','Temperature',r.temp2?'Then '+r.temp2+'°C':''],[m.time!=null?mmss(m.time):'By eye','Total time'],[m.level,'Level',m.pours+' pour'+(m.pours===1?'':'s')]].map(([v,l,sub])=>{const t=tileKey(l,v);return [svgI(t?t[2]:'M12 7v6 M12 16.5v.5'),l,esc(String(v))+(sub?'<em class="bf-sub">'+esc(sub)+'</em>':''),t&&t[1]]}),{cls:'rfacts'}))+
    '<div class="meta">'+gs.map(([g,v])=>'<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>').join('')+'</div>'+
    (r.why?'<p>'+esc(r.why)+'</p>':'')+(compact?'<details class="rsteps"><summary>Steps ('+r.steps.length+')</summary>':'')+(compact?'':pourGraph(sc.steps,sc.water))+stepList(sc.steps)+(r.tip?'<p class="hint">'+esc(r.tip)+'</p>':'')+(compact?'</details>':'')+
    // In the recipe sheet the actions ride along at the bottom, always in reach however far down you are.
@@ -2301,7 +2302,7 @@ function selectOrigin(k,zoom){
   const r=REG[o.reg];
   $('info').innerHTML='<div class="info-top"><div class="flag" aria-hidden="true">'+o.flag+'</div>'+icoBtn('share','data-oshare="'+k+'"','Share this origin')+'</div><h2>'+esc(o.name)+'</h2><span class="pill"><i style="background:'+r.color+'"></i>'+r.name+'</span>'+
    '<h3>Regions</h3><div class="chips">'+o.subs.map(s=>'<span class="chip">'+esc(s)+'</span>').join('')+'</div>'+
-   '<div class="stats">'+[['Altitude',o.alt],['Harvest',o.harvest],['Processing',o.process]].map(([k,v])=>{const [a,ic]=tileOf(k);return '<div'+a+'>'+ic+'<b>'+k+'</b>'+esc(v)+'</div>'}).join('')+'</div>'+
+   factCard([['Altitude',o.alt],['Harvest',o.harvest],['Processing',o.process]].map(([k,v])=>{const t=tileKey(k);return [svgI(t?t[2]:'M12 7v6 M12 16.5v.5'),k,esc(v),t&&t[1]]}))+
    '<h3>In the cup</h3><p>'+esc(o.cup)+'</p><h3>Story</h3><p>'+esc(o.hist)+'</p>'+
    '<h3>Varieties grown here</h3><div class="chips">'+o.vars.map(vbtn).join('')+'</div>'+
    '<div class="fact"><b>Did you know?</b> '+esc(o.fact)+'</div>';
@@ -3968,7 +3969,16 @@ const FIG={roastery:'M4 10l1.5-5h13L20 10M4 10v9h16v-9M4 10h16M9 19v-5h6v5',bean
   bag:'M7 4h10l1.5 4v12h-13V8z M5.5 8h13 M10 12h4',buy:'M5 8h14l-1 12H6z M9 8V6a3 3 0 0 1 6 0v2',again:'M4 11a7 7 0 0 1 12-4l2 2 M18 4v5h-5 M20 13a7 7 0 0 1-12 4l-2-2 M6 20v-5h5',
   cup:'M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z M16 10h2a2 2 0 0 1 0 4h-2 M9 3v3 M12 3v3',trophy:'M8 4h8v5a4 4 0 0 1-8 0z M8 6H5a3 3 0 0 0 3 4 M16 6h3a3 3 0 0 1-3 4 M12 13v4 M9 20h6'};
 const FIG_C=['#F97316','#14B8A6','#8B5CF6','#3B82F6'];
-function figsHTML(cls,items,label){return '<div class="figs '+cls+'"'+(label?' role="group" aria-label="'+label+'"':'')+'>'+items.map(([d,n,l],i)=>'<span><i class="fig-ic" style="--c:'+FIG_C[i%4]+'" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="'+(FIG[d]||ICO[d]||d)+'"/></svg></i><span><b>'+n+'</b>'+l+'</span></span>').join('')+'</div>'}
+// One card of facts, the same everywhere in the app (a coffee, a recipe, an origin, your profile, a year in coffee):
+// two to a row with fine dividers (three for counts), each a coloured icon chip with its name and answer. An item is
+// [icon html, name, answer html, colour, attributes]; with attributes it's a button that opens something.
+const svgI=d=>'<svg viewBox="0 0 24 24"><path d="'+d+'"/></svg>';
+function factCard(items,opt){opt=opt||{};const cols=opt.cols||2;
+  return '<div class="bfacts c'+cols+(opt.num?' num':'')+(opt.cls?' '+opt.cls:'')+'"'+(opt.label?' role="group" aria-label="'+opt.label+'"':'')+'>'+items.map(([ic,k,v,c,at])=>{const tag=at?'button':'div';
+    return '<'+tag+(at?' type="button" '+at:'')+' class="bf" style="--tc:'+(c||'#8B8F98')+'"><i class="bf-i" aria-hidden="true">'+ic+'</i><span>'+(opt.num?'<b>'+v+'</b><small>'+k+'</small>':'<small>'+k+'</small><b>'+v+'</b>')+'</span>'+
+      (at?'<svg class="bf-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>':'')+'</'+tag+'>'}).join('')+'</div>'}
+// Counts (coffees, cups, origins…): the same card, the number first.
+function figsHTML(cls,items,label){const n=items.length;return factCard(items.map(([d,nn,l],i)=>[svgI(FIG[d]||ICO[d]||d),l,nn,FIG_C[i%4]]),{num:true,cols:n===3?3:2,cls,label})}
 const ICO_TONE=new Map();
 function icoTone(bg){if(ICO_TONE.has(bg))return ICO_TONE.get(bg);let t='c';const m=/^#([0-9a-f]{6})$/i.exec(bg||'');
   if(/var\(--honey/.test(bg))t='h';else if(/var\(--leaf/.test(bg))t='l';else if(m){const n=parseInt(m[1],16),r=(n>>16)/255,g=(n>>8&255)/255,b=(n&255)/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn;

@@ -32,7 +32,7 @@ await p.screenshot({path:'adv-cal-'+mode+'.png'});await p.setViewportSize({width
 await p.click('[data-door="2"]');await p.waitForTimeout(500);
 ok(await p.$('#bd-advback'),'door coffee has a back-to-calendar button');
 const ov=await p.evaluate(()=>{const a=document.getElementById('bd-advback').getBoundingClientRect(),t=document.querySelector('.vd-tools').getBoundingClientRect();return a.right<=t.left||a.bottom<=t.top||a.top>=t.bottom});ok(ov,'back button clear of header icons');
-ok(await p.evaluate(()=>[...document.querySelectorAll('.specs b')].some(x=>x.textContent==='Advent')),'Advent fact shown');
+ok(await p.evaluate(()=>[...document.querySelectorAll('.bf small')].some(x=>x.textContent==='Advent')),'Advent fact shown');
 await p.screenshot({path:'adv-bean-'+mode+'.png'});
 await p.click('#bd-advback');await p.waitForTimeout(400);ok(await p.$('.adv-grid'),'back returns to the calendar');
 await p.click('#adv-share');await p.waitForTimeout(600);ok(await p.evaluate(()=>SHDOC&&SHDOC.blocks.some(b=>b.list&&b.list.length===2)&&!/undefined|NaN/.test(JSON.stringify(SHDOC.blocks))),'share doc lists the doors');

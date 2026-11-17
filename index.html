@@ -2933,8 +2933,8 @@ html[data-nav=push] main section.nav-in{position:relative;z-index:3;background:v
 :root{--tk-amt:80%;--tk-mix:var(--cherry)}
 :root[data-vibe="nordic"]{--tk-amt:66%}
 :root[data-vibe="black"]{--tk-amt:74%}
-:root[data-vibe="pure"]{--tk-amt:28%;--tk-mix:var(--ink)}
-:is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl,.fig-ic){--tk:color-mix(in oklab,var(--tc,var(--c)) var(--tk-amt),var(--tk-mix));--tk-ink:color-mix(in oklab,var(--tk) 78%,var(--ink))}
+:root[data-vibe="pure"]{--tk-amt:82%;--tk-mix:var(--ink)}
+:is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl,.fig-ic,.bf){--tk:color-mix(in oklab,var(--tc,var(--c)) var(--tk-amt),var(--tk-mix));--tk-ink:color-mix(in oklab,var(--tk) 78%,var(--ink))}
 :is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl){
   background:linear-gradient(160deg,color-mix(in srgb,var(--tk) 7%,var(--surface)),var(--surface) 70%)!important;
   box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tk) 12%,var(--line))!important;border:0!important;border-radius:20px!important}
@@ -2952,12 +2952,38 @@ html[data-nav=push] main section.nav-in{position:relative;z-index:3;background:v
 :root[data-theme="dark"] :is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl,.fig-ic){--tk-ink:color-mix(in oklab,var(--tk) 72%,#fff)}
 :root[data-theme="dark"] :is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl){background:linear-gradient(160deg,color-mix(in srgb,var(--tk) 14%,var(--surface)),var(--surface) 70%)!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tk) 20%,transparent)!important}
 :root[data-theme="dark"] :is(.yic-t>i,.me-sq i,.me-tiles>div>i,.fig-ic),:root[data-theme="dark"] :is(.specs,.rstats,.stats)>div.tl .st-ic{background:color-mix(in srgb,var(--tk) 24%,var(--surface))!important}
+
+
+.bfacts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin:14px 0;padding:2px 10px;border-radius:22px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.bfacts.c3{grid-template-columns:repeat(3,minmax(0,1fr))}.bfacts.c1{grid-template-columns:minmax(0,1fr)}
+.bf{position:relative;display:flex;align-items:flex-start;gap:10px;min-width:0;padding:14px 10px 14px 4px;margin:0;border:0;background:none;font:inherit;color:var(--ink);text-align:left}
+
+.bfacts.c2>.bf:nth-child(n+3)::before,.bfacts.c3>.bf:nth-child(n+4)::before,.bfacts.c1>.bf:nth-child(n+2)::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;background:var(--line)}
+.bfacts.c2>.bf:nth-child(odd):not(:last-child)::after,.bfacts.c3>.bf:not(:nth-child(3n)):not(:last-child)::after{content:'';position:absolute;right:0;top:12px;bottom:12px;width:1px;background:var(--line)}
+.bfacts.c2>.bf:nth-child(even),.bfacts.c3>.bf:not(:nth-child(3n+1)){padding-left:14px}
+.bfacts.c2>.bf:last-child:nth-child(odd){grid-column:1/-1}
+.bfacts.c3>.bf{flex-direction:column;align-items:flex-start;gap:9px}
+button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:16px;transition:background-color .15s}button.bf:active{background:color-mix(in srgb,var(--ink) 5%,transparent)}
+.bf-i{flex:none;width:34px;height:34px;border-radius:12px;display:grid;place-items:center;overflow:hidden;font-style:normal;font-size:1.15rem;line-height:1;background:color-mix(in srgb,var(--tk) 16%,var(--surface))}
+.bf-i svg{width:18px;height:18px;fill:none;stroke:var(--tk-ink)!important;color:var(--tk-ink)!important;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.bf-i .bpic{width:100%!important;height:100%!important;margin:0!important;border-radius:inherit!important}
+.bfacts.photo .bf{align-items:center}.bfacts.photo .bf-i{width:46px;height:46px}
+.bfacts.c2 .bf>span,.bfacts.c1 .bf>span{padding-top:1px}
+.bf>span{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.bf small{font-size:.72rem;font-weight:600;letter-spacing:.02em;color:var(--muted);line-height:1.2}
+.bf b{display:block;font:650 .98rem/1.25 var(--display);color:var(--ink);overflow-wrap:anywhere}
+.bf-sub{display:block;margin-top:2px;font:500 .74rem/1.25 var(--body,inherit);font-style:normal;color:var(--muted)}
+.bfacts.num small::first-letter{text-transform:uppercase}
+.bfacts.num .bf b{font-size:1.3rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.bf-go{flex:none;width:18px;height:18px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .bf{--tk-ink:color-mix(in oklab,var(--tk) 72%,#fff)}:root:not([data-theme="light"]) .bf-i{background:color-mix(in srgb,var(--tk) 26%,var(--surface))}}
+:root[data-theme="dark"] .bf{--tk-ink:color-mix(in oklab,var(--tk) 72%,#fff)}:root[data-theme="dark"] .bf-i{background:color-mix(in srgb,var(--tk) 26%,var(--surface))}
 </style>
 <script>const JSPDF_SRC="vendor/jspdf.umd.min.js"</script>
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="6f470ba75e0c"</script>
+<script>const BUILD_ID="7c6046c2899d"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -6378,7 +6404,8 @@ const TILE_K=[[/^(coffee|dose|shot weight|bag)/i,'#D2793A','M12 3.2c3.5 0 6 3.9 
   [/brewer/i,'#6366F1','M5 6h14l-5 8h-4z M10 14v3h4v-3 M7.5 20h9'],
   [/top coffee|favourite/i,'#F43F5E','M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z']];
 // The attributes and icon for a tile from its label (and, for the strength row, its value).
-function tileOf(label,val){const s=String(label||'')+' '+String(val||'');const m=TILE_K.find(([re])=>re.test(String(label||'')))||(/light|medium|strong|gentle|vigorous/i.test(String(val||''))?TILE_K[5]:null);
+const tileKey=(label,val)=>TILE_K.find(([re])=>re.test(String(label||'')))||(/light|medium|strong|gentle|vigorous/i.test(String(val||''))?TILE_K[5]:null);
+function tileOf(label,val){const m=tileKey(label,val);
   return m?[' class="tl" style="--tc:'+m[1]+'"','<svg class="st-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="'+m[2]+'"/></svg>']:['','']}
 // Sets a block's HTML only when it differs from what it last set: drawing the same thing again on each visit made the
 // browser restyle and lay it out again, part of what a tab change cost.
@@ -7110,8 +7137,8 @@ const stepList=steps=>{steps=withTotals(steps);const c=pourCurve(steps);return '
 function recipeBody(r,i,compact,inSheet){const B=BREWERS[r.b],sc=compact?{dose:r.dose,water:r.water,steps:r.steps,off:r.off,ratio:r.water/r.dose}:scaled(r);const gs=MYG.map(g=>[g,settingFor(g,r.b,sc.off)]);
   const m=rmeta(r);
   return (compact?'<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span>':'')+'</div>'
-     :'<p class="hint" style="margin:0 0 .2rem">'+esc(B.name)+' · '+esc(B.type)+'</p>'+'<div class="rstats tinted">'+[[r.dose+'g','Coffee'],[r.water+'g',r.iced?'Hot water':'Water'],[r.iced?'1:'+Math.round(r.total/r.dose*10)/10:m.ratio||'–','Ratio'+(r.iced?' with ice':'')],
-       [r.temp?r.temp+'°C':'–',r.temp2?'Then '+r.temp2+'°C':'Temperature'],[m.time!=null?mmss(m.time):'By eye','Total time'],[m.level,m.pours+' pour'+(m.pours===1?'':'s')]].map(([v,l])=>{const [a,ic]=tileOf(l,v);return '<div'+a+'>'+ic+'<b>'+v+'</b><small>'+l+'</small></div>'}).join('')+'</div>')+
+     :'<p class="hint" style="margin:0 0 .2rem">'+esc(B.name)+' · '+esc(B.type)+'</p>'+factCard([[r.dose+'g','Coffee'],[r.water+'g',r.iced?'Hot water':'Water'],[r.iced?'1:'+Math.round(r.total/r.dose*10)/10:m.ratio||'–','Ratio'+(r.iced?' with ice':'')],
+       [r.temp?r.temp+'°C':'–','Temperature',r.temp2?'Then '+r.temp2+'°C':''],[m.time!=null?mmss(m.time):'By eye','Total time'],[m.level,'Level',m.pours+' pour'+(m.pours===1?'':'s')]].map(([v,l,sub])=>{const t=tileKey(l,v);return [svgI(t?t[2]:'M12 7v6 M12 16.5v.5'),l,esc(String(v))+(sub?'<em class="bf-sub">'+esc(sub)+'</em>':''),t&&t[1]]}),{cls:'rfacts'}))+
    '<div class="meta">'+gs.map(([g,v])=>'<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>').join('')+'</div>'+
    (r.why?'<p>'+esc(r.why)+'</p>':'')+(compact?'<details class="rsteps"><summary>Steps ('+r.steps.length+')</summary>':'')+(compact?'':pourGraph(sc.steps,sc.water))+stepList(sc.steps)+(r.tip?'<p class="hint">'+esc(r.tip)+'</p>':'')+(compact?'</details>':'')+
    // In the recipe sheet the actions ride along at the bottom, always in reach however far down you are.
@@ -7923,7 +7950,7 @@ function selectOrigin(k,zoom){
   const r=REG[o.reg];
   $('info').innerHTML='<div class="info-top"><div class="flag" aria-hidden="true">'+o.flag+'</div>'+icoBtn('share','data-oshare="'+k+'"','Share this origin')+'</div><h2>'+esc(o.name)+'</h2><span class="pill"><i style="background:'+r.color+'"></i>'+r.name+'</span>'+
    '<h3>Regions</h3><div class="chips">'+o.subs.map(s=>'<span class="chip">'+esc(s)+'</span>').join('')+'</div>'+
-   '<div class="stats">'+[['Altitude',o.alt],['Harvest',o.harvest],['Processing',o.process]].map(([k,v])=>{const [a,ic]=tileOf(k);return '<div'+a+'>'+ic+'<b>'+k+'</b>'+esc(v)+'</div>'}).join('')+'</div>'+
+   factCard([['Altitude',o.alt],['Harvest',o.harvest],['Processing',o.process]].map(([k,v])=>{const t=tileKey(k);return [svgI(t?t[2]:'M12 7v6 M12 16.5v.5'),k,esc(v),t&&t[1]]}))+
    '<h3>In the cup</h3><p>'+esc(o.cup)+'</p><h3>Story</h3><p>'+esc(o.hist)+'</p>'+
    '<h3>Varieties grown here</h3><div class="chips">'+o.vars.map(vbtn).join('')+'</div>'+
    '<div class="fact"><b>Did you know?</b> '+esc(o.fact)+'</div>';
@@ -9590,7 +9617,16 @@ const FIG={roastery:'M4 10l1.5-5h13L20 10M4 10v9h16v-9M4 10h16M9 19v-5h6v5',bean
   bag:'M7 4h10l1.5 4v12h-13V8z M5.5 8h13 M10 12h4',buy:'M5 8h14l-1 12H6z M9 8V6a3 3 0 0 1 6 0v2',again:'M4 11a7 7 0 0 1 12-4l2 2 M18 4v5h-5 M20 13a7 7 0 0 1-12 4l-2-2 M6 20v-5h5',
   cup:'M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z M16 10h2a2 2 0 0 1 0 4h-2 M9 3v3 M12 3v3',trophy:'M8 4h8v5a4 4 0 0 1-8 0z M8 6H5a3 3 0 0 0 3 4 M16 6h3a3 3 0 0 1-3 4 M12 13v4 M9 20h6'};
 const FIG_C=['#F97316','#14B8A6','#8B5CF6','#3B82F6'];
-function figsHTML(cls,items,label){return '<div class="figs '+cls+'"'+(label?' role="group" aria-label="'+label+'"':'')+'>'+items.map(([d,n,l],i)=>'<span><i class="fig-ic" style="--c:'+FIG_C[i%4]+'" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="'+(FIG[d]||ICO[d]||d)+'"/></svg></i><span><b>'+n+'</b>'+l+'</span></span>').join('')+'</div>'}
+// One card of facts, the same everywhere in the app (a coffee, a recipe, an origin, your profile, a year in coffee):
+// two to a row with fine dividers (three for counts), each a coloured icon chip with its name and answer. An item is
+// [icon html, name, answer html, colour, attributes]; with attributes it's a button that opens something.
+const svgI=d=>'<svg viewBox="0 0 24 24"><path d="'+d+'"/></svg>';
+function factCard(items,opt){opt=opt||{};const cols=opt.cols||2;
+  return '<div class="bfacts c'+cols+(opt.num?' num':'')+(opt.cls?' '+opt.cls:'')+'"'+(opt.label?' role="group" aria-label="'+opt.label+'"':'')+'>'+items.map(([ic,k,v,c,at])=>{const tag=at?'button':'div';
+    return '<'+tag+(at?' type="button" '+at:'')+' class="bf" style="--tc:'+(c||'#8B8F98')+'"><i class="bf-i" aria-hidden="true">'+ic+'</i><span>'+(opt.num?'<b>'+v+'</b><small>'+k+'</small>':'<small>'+k+'</small><b>'+v+'</b>')+'</span>'+
+      (at?'<svg class="bf-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>':'')+'</'+tag+'>'}).join('')+'</div>'}
+// Counts (coffees, cups, origins…): the same card, the number first.
+function figsHTML(cls,items,label){const n=items.length;return factCard(items.map(([d,nn,l],i)=>[svgI(FIG[d]||ICO[d]||d),l,nn,FIG_C[i%4]]),{num:true,cols:n===3?3:2,cls,label})}
 const ICO_TONE=new Map();
 function icoTone(bg){if(ICO_TONE.has(bg))return ICO_TONE.get(bg);let t='c';const m=/^#([0-9a-f]{6})$/i.exec(bg||'');
   if(/var\(--honey/.test(bg))t='h';else if(/var\(--leaf/.test(bg))t='l';else if(m){const n=parseInt(m[1],16),r=(n>>16)/255,g=(n>>8&255)/255,b=(n&255)/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn;
@@ -10538,21 +10574,19 @@ function yearInCoffeeHTML0(){const cy=new Date().getFullYear(),bs=BEANS.filter(b
   // The counts are this year's: coffees first tried or added this year (and the bags of them, when some were bought
   // again), every cup made (logged brews and timer cups), and the coffee those cups used.
   const cups=myCups(cy);if(!bs.length&&!cups.length)return '';const g=Math.round(cups.reduce((s,c)=>s+(c.g||0),0)),t=tasteOf(bs,ls),origins=new Set(bs.map(realO).filter(Boolean)).size,bags=bagsIn(cy);
-  const big=[[bs.length,(bs.length===1?'coffee':'coffees')+(bags>bs.length?' · '+bags+' bags':'')],[cups.length,cups.length===1?'cup brewed':'cups brewed'],g?[g>=1000?(g/1000).toFixed(g>=10000?0:1)+' kg':g+' g','of coffee']:[origins,origins===1?'origin':'origins']];
+  const big=[[bs.length,(bs.length===1?'Coffee':'Coffees')+(bags>bs.length?' · '+bags+' bags':'')],[cups.length,cups.length===1?'Cup brewed':'Cups brewed'],g?[g>=1000?(g/1000).toFixed(g>=10000?0:1)+' kg':g+' g','Coffee used']:[origins,origins===1?'origin':'origins']];
   const o=t.origin&&oInfo(t.origin.k),R=t.region&&REG[t.region.k],v=t.variety&&VBY[t.variety.k],pr=t.process&&PROCESSES[t.process.k],B=t.brewer&&BREWERS[t.brewer.k];
   // The facts, without counts: short ones as tiles two to a row, then the coffees (your regular, the best of the year)
   // full width, each opening its coffee. An odd tile out at the end of the short ones spans the row too.
   // Each fact in its own colour, the same as the taste tiles on your profile: icon and name on top, the answer below,
   // every tile the same size. Your regular and the best of the year follow full width, with the coffee's photo.
-  const half=[o&&['<span class="yic-fl">'+flagOf(t.origin.k)+'</span>','Origin',o.name],R&&['🗺️','Region',R.name+(t.regionOrigin&&t.regionOrigin.k!==(t.origin&&t.origin.k)?' · mostly '+oInfo(t.regionOrigin.k).name:'')],
+  const half=[o&&['<span class="yic-fl">'+flagOf(t.origin.k)+'</span>','Origin',o.name],R&&['🗺️','Region',R.name,t.regionOrigin&&t.regionOrigin.k!==(t.origin&&t.origin.k)?'Mostly '+oInfo(t.regionOrigin.k).name:''],
     v&&['🌱','Variety',shortName(v.name)],pr&&['🧪','Process',pr.name.replace(/\s*\(.*\)$/,'')],t.roast&&['🔥','Roast',t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1)],
     t.roaster&&['🏷️','Roastery',t.roaster.k],B&&['☕','Brewer',B.name]].filter(Boolean);
   const wide=[t.regular&&[t.regular,'Your regular','#0EA5E9'],t.best&&[t.best,'Best of the year',TASTE_C['Rated best']]].filter(Boolean);
-  const tile=([ic,k,vv],w)=>'<div class="yic-t'+(w?' w':'')+'" style="--tc:'+(TASTE_C[k]||'#8A5A3B')+'"><i aria-hidden="true">'+ic+'</i><small>'+k+'</small><b>'+esc(vv)+'</b></div>';
-  const coffee=([b,k,c])=>'<button type="button" class="yic-c" data-bean="'+b.id+'" style="--tc:'+c+'"><span class="yic-ph">'+beanPic(b,'xs')+'</span><span><small>'+k+'</small><b>'+esc(beanTitle(b))+'</b></span><svg class="yic-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>';
   return '<div class="yic" role="region" aria-label="'+cy+' in coffee"><div class="yic-h"><h3>'+cy+' in coffee</h3></div>'+(bs.length>1?'<p class="yic-line">'+esc(tasteLine(t))+'</p>':'')+
     figsHTML('yic-big',big.map(([n,l],i)=>[['bag','cup',g?'bean':'globe'][i],esc(String(n)),esc(l)]))+
-    (half.length?'<div class="yic-grid">'+half.map((f,i)=>tile(f,half.length%2===1&&i===half.length-1)).join('')+'</div>':'')+(wide.length?'<div class="yic-cs">'+wide.map(coffee).join('')+'</div>':'')+
+    (half.length?factCard(half.map(([ic,k,vv,sub])=>[ic,k,esc(vv)+(sub?'<em class="bf-sub">'+esc(sub)+'</em>':''),TASTE_C[k]]),{cls:'yic-f'}):'')+(wide.length?factCard(wide.map(([b,k,c])=>[beanPic(b,'xs'),k,esc(beanTitle(b)),c,'data-bean="'+b.id+'"']),{cols:1,cls:'yic-f photo'}):'')+
     (t.notes.length?'<div class="yic-notes"><small>Notes you keep coming back to</small><div class="chips">'+t.notes.map(n=>'<span class="chip"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'</span>').join('')+'</div></div>':'')+'</div>'}
 
 /* ================= FOR YOU ================= */
@@ -11448,7 +11482,8 @@ function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.be
         :'<p class="hint" style="margin:8px 0 0">Add the bag size in Edit to see what’s left as you log brews.</p>')+
       pbtn('flag','id="bd-done"','Finish this bag','quiet bd-done')+'</div>'
      :'')+
-    (kv.length?'<div class="specs">'+kv.map(([k,v])=>{const [a,ic]=tileOf(k,v);return '<div'+a+'>'+ic+'<b>'+k+'</b><span class="bd-v">'+esc(v)+'</span></div>'}).join('')+'</div>':'')+
+        // The coffee's facts in one card, two to a row: a coloured icon chip, then the name and the answer.
+    (kv.length?factCard(kv.map(([k,v])=>{const m=tileKey(k,v);return [svgI(m?m[2]:'M12 7v6 M12 16.5v.5'),k,esc(v),m&&m[1]]})):'')+
     (dialNextFor(b.id)?'<div class="bd-dnext"><span class="bd-dni" aria-hidden="true">🎯</span><span><b>'+(dialNextFor(b.id).taste==='good'?'What worked':'Try next time')+'</b><small>'+esc(dialNextLine(dialNextFor(b.id)))+' · '+esc(fmt(dialNextFor(b.id).at))+(dialNextFor(b.id).taste&&dialNextFor(b.id).taste!=='good'?' · after a '+dialNextFor(b.id).taste+' cup':'')+'</small></span></div>':'')+
     (b.flavours?'<h3>Tasting notes</h3><div class="chips">'+tnSplit(b.flavours).map(f=>{const n=tnLeaf(f);return'<span class="chip">'+(n?'<i class="dot" style="background:'+n.c+'"></i>':'')+esc(f)+'</span>'}).join('')+'</div>':'')+
     (b.notes?'<h3>Your notes</h3><p>'+esc(b.notes)+'</p>':'')+
@@ -13162,7 +13197,7 @@ const SYNC_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 
 const ROLE={bright:'Florals chaser',sweet:'Sweet-cup seeker',choc:'Comfort-cup brewer',wild:'Ferment explorer',espresso:'Espresso devotee',milk:'Milk-drink maker'};
 // All-time counts: every coffee, every cup made (logged brews and unlogged timer cups), origins and trophies.
 function profileStats(){const mine=window.BEANS_OK?myCups().length:LOG.filter(l=>l&&(!l.by||l.by===ME)).length,b=window.BEANS_OK?BEANS:[],o=new Set(b.map(realO).filter(Boolean)).size,t=window.BEANS_OK&&TGOT?Object.keys(TGOT).length:0;
-  return [[b.length,b.length===1?'coffee':'coffees'],[mine,mine===1?'cup':'cups'],[o,o===1?'origin':'origins'],[t,t===1?'trophy':'trophies']]}
+  return [[b.length,b.length===1?'Coffee':'Coffees'],[mine,mine===1?'Cup brewed':'Cups brewed'],[o,o===1?'Origin':'Origins'],[t,t===1?'Trophy':'Trophies']]}
 // Your taste, read from your coffees and brews (not typed in): where you buy from, the variety, process and roast you
 // come back to, the flavours you like most and how you brew. It fills in as the gallery and the log grow.
 function tasteHTML(){if(!window.BEANS_OK||BEANS.length<2)return '';const t=tasteOf(BEANS,LOG.filter(isMine));
@@ -13179,7 +13214,7 @@ function tasteHTML(){if(!window.BEANS_OK||BEANS.length<2)return '';const t=taste
   if(!rows.length&&!t.families.length)return '';
   return '<div class="me-taste"><div class="me-th"><b>Your coffee taste</b><small>From all '+BEANS.length+' coffees and '+myCups().length+' cups, all time</small></div>'+
     (tasteLine(t)?'<p class="me-tl">'+esc(tasteLine(t))+'</p>':'')+
-    (rows.length?'<div class="me-tiles">'+rows.map(([i,k,vv])=>'<div style="--tc:'+(TASTE_C[k]||'#8A5A3B')+'"><i aria-hidden="true">'+i+'</i><small>'+k+'</small><b>'+esc(vv)+'</b></div>').join('')+'</div>':'')+
+    (rows.length?factCard(rows.map(([i,k,vv])=>[i,k,esc(vv),TASTE_C[k]]),{cls:'me-tf'}):'')+
     (t.notes.length?'<div class="me-notes chips">'+t.notes.slice(0,5).map(n=>'<span class="chip"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'</span>').join('')+'</div>':'')+'</div>'}
 // Each taste tile has its own colour, the same family as the stat tiles elsewhere.
 // A modern, bright palette shared by every tile in the app.
@@ -13205,7 +13240,7 @@ function meHTML(){const p=PROFILE,x='<button class="vd-close me-x" id="vd-x" ari
   // What you told us about yourself sits with who you are (under your words), as one line of plain facts. The numbers
   // and "Your coffee taste" below are what your coffees and cups show.
   // Your picks, in short names (one line at any text size) and the same colours as Your coffee taste.
-  const dna=[p.city&&['📍','Brews in',p.city,'#0EA5E9'],p.brewer&&['☕','Brewer',BREWERS[p.brewer].name,TASTE_C.Brewer],
+  const dna=[p.city&&['📍','Based in',p.city,'#0EA5E9'],p.brewer&&['☕','Brewer',BREWERS[p.brewer].name,TASTE_C.Brewer],
     p.origin&&['<span class="me-flag">'+flagOf(p.origin)+'</span>','Origin',originName(p.origin),TASTE_C.Origin]].filter(Boolean);
   const bg=bannerBg(p),since=new Date(p.since).toLocaleDateString(undefined,{month:'long',year:'numeric'});
   // A cover strip (your banner), your picture overlapping its edge, and who you are on the page under it.
@@ -13218,7 +13253,7 @@ function meHTML(){const p=PROFILE,x='<button class="vd-close me-x" id="vd-x" ari
       // About you: your words, and what you told us as squares.
       '<section class="me-sec" aria-label="About you"><h3 class="me-sh">About</h3>'+
         (p.brief?'<p class="me-brief">'+esc(p.brief)+'</p>':'<button type="button" class="me-add" id="pf-edit2">Add a few words about how you take your coffee</button>')+
-        (dna.length?'<div class="me-sq">'+dna.map(([i,k,v,c])=>'<div style="--tc:'+c+'"><i aria-hidden="true">'+i+'</i><small>'+k+'</small><b>'+esc(v)+'</b></div>').join('')+'</div>'
+        (dna.length?factCard(dna.map(([i,k,v,c])=>[i,k,esc(v),c]),{cols:dna.length===3?3:2,cls:'me-picks'})
           :'<button type="button" class="me-add" id="pf-edit3">Add where you brew, your brewer and your favourite origin</button>')+'</section>'+
       tasteHTML()+accountHTML()+'</div>'}
 $('vd').addEventListener('click',e=>{if(e.target.closest('#pf-new,#pf-edit,#pf-edit2,#pf-edit3')){delete $('vd').dataset.me;openProfileEditor();return}if(e.target.closest('#pf-signin')){delete $('vd').dataset.me;openSignIn();return}
