@@ -756,7 +756,8 @@ const TILE_K=[[/^(coffee|dose|shot weight|bag)/i,'#D2793A','M12 3.2c3.5 0 6 3.9 
   [/brewer/i,'#6366F1','M5 6h14l-5 8h-4z M10 14v3h4v-3 M7.5 20h9'],
   [/top coffee|favourite/i,'#F43F5E','M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z']];
 // The attributes and icon for a tile from its label (and, for the strength row, its value).
-function tileOf(label,val){const s=String(label||'')+' '+String(val||'');const m=TILE_K.find(([re])=>re.test(String(label||'')))||(/light|medium|strong|gentle|vigorous/i.test(String(val||''))?TILE_K[5]:null);
+const tileKey=(label,val)=>TILE_K.find(([re])=>re.test(String(label||'')))||(/light|medium|strong|gentle|vigorous/i.test(String(val||''))?TILE_K[5]:null);
+function tileOf(label,val){const m=tileKey(label,val);
   return m?[' class="tl" style="--tc:'+m[1]+'"','<svg class="st-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="'+m[2]+'"/></svg>']:['','']}
 // Sets a block's HTML only when it differs from what it last set: drawing the same thing again on each visit made the
 // browser restyle and lay it out again, part of what a tab change cost.

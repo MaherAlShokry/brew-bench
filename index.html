@@ -2933,8 +2933,8 @@ html[data-nav=push] main section.nav-in{position:relative;z-index:3;background:v
 :root{--tk-amt:80%;--tk-mix:var(--cherry)}
 :root[data-vibe="nordic"]{--tk-amt:66%}
 :root[data-vibe="black"]{--tk-amt:74%}
-:root[data-vibe="pure"]{--tk-amt:28%;--tk-mix:var(--ink)}
-:is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl,.fig-ic){--tk:color-mix(in oklab,var(--tc,var(--c)) var(--tk-amt),var(--tk-mix));--tk-ink:color-mix(in oklab,var(--tk) 78%,var(--ink))}
+:root[data-vibe="pure"]{--tk-amt:82%;--tk-mix:var(--ink)}
+:is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl,.fig-ic,.bf){--tk:color-mix(in oklab,var(--tc,var(--c)) var(--tk-amt),var(--tk-mix));--tk-ink:color-mix(in oklab,var(--tk) 78%,var(--ink))}
 :is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl){
   background:linear-gradient(160deg,color-mix(in srgb,var(--tk) 7%,var(--surface)),var(--surface) 70%)!important;
   box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tk) 12%,var(--line))!important;border:0!important;border-radius:20px!important}
@@ -2952,12 +2952,25 @@ html[data-nav=push] main section.nav-in{position:relative;z-index:3;background:v
 :root[data-theme="dark"] :is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl,.fig-ic){--tk-ink:color-mix(in oklab,var(--tk) 72%,#fff)}
 :root[data-theme="dark"] :is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl){background:linear-gradient(160deg,color-mix(in srgb,var(--tk) 14%,var(--surface)),var(--surface) 70%)!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tk) 20%,transparent)!important}
 :root[data-theme="dark"] :is(.yic-t>i,.me-sq i,.me-tiles>div>i,.fig-ic),:root[data-theme="dark"] :is(.specs,.rstats,.stats)>div.tl .st-ic{background:color-mix(in srgb,var(--tk) 24%,var(--surface))!important}
+
+
+.bfacts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin:14px 0;padding:4px 6px;border-radius:22px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.bf{position:relative;display:flex;align-items:center;gap:11px;min-width:0;padding:13px 8px}
+.bf:nth-child(n+3)::before{content:'';position:absolute;left:8px;right:8px;top:0;height:1px;background:var(--line)}
+.bf:last-child:nth-child(odd){grid-column:1/-1}
+.bf-i{flex:none;width:38px;height:38px;border-radius:13px;display:grid;place-items:center;background:color-mix(in srgb,var(--tk) 16%,var(--surface))}
+.bf-i svg{width:20px;height:20px;fill:none;stroke:var(--tk-ink);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.bf>span{display:flex;flex-direction:column;gap:2px;min-width:0}
+.bf small{font-size:.72rem;font-weight:600;letter-spacing:.02em;color:var(--muted);line-height:1.2}
+.bf b{font:650 .98rem/1.25 var(--display);color:var(--ink);overflow-wrap:anywhere}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .bf{--tk-ink:color-mix(in oklab,var(--tk) 72%,#fff)}:root:not([data-theme="light"]) .bf-i{background:color-mix(in srgb,var(--tk) 26%,var(--surface))}}
+:root[data-theme="dark"] .bf{--tk-ink:color-mix(in oklab,var(--tk) 72%,#fff)}:root[data-theme="dark"] .bf-i{background:color-mix(in srgb,var(--tk) 26%,var(--surface))}
 </style>
 <script>const JSPDF_SRC="vendor/jspdf.umd.min.js"</script>
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="6f470ba75e0c"</script>
+<script>const BUILD_ID="c5a8643576b0"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -6378,7 +6391,8 @@ const TILE_K=[[/^(coffee|dose|shot weight|bag)/i,'#D2793A','M12 3.2c3.5 0 6 3.9 
   [/brewer/i,'#6366F1','M5 6h14l-5 8h-4z M10 14v3h4v-3 M7.5 20h9'],
   [/top coffee|favourite/i,'#F43F5E','M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z']];
 // The attributes and icon for a tile from its label (and, for the strength row, its value).
-function tileOf(label,val){const s=String(label||'')+' '+String(val||'');const m=TILE_K.find(([re])=>re.test(String(label||'')))||(/light|medium|strong|gentle|vigorous/i.test(String(val||''))?TILE_K[5]:null);
+const tileKey=(label,val)=>TILE_K.find(([re])=>re.test(String(label||'')))||(/light|medium|strong|gentle|vigorous/i.test(String(val||''))?TILE_K[5]:null);
+function tileOf(label,val){const m=tileKey(label,val);
   return m?[' class="tl" style="--tc:'+m[1]+'"','<svg class="st-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="'+m[2]+'"/></svg>']:['','']}
 // Sets a block's HTML only when it differs from what it last set: drawing the same thing again on each visit made the
 // browser restyle and lay it out again, part of what a tab change cost.
@@ -11448,7 +11462,8 @@ function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.be
         :'<p class="hint" style="margin:8px 0 0">Add the bag size in Edit to see what’s left as you log brews.</p>')+
       pbtn('flag','id="bd-done"','Finish this bag','quiet bd-done')+'</div>'
      :'')+
-    (kv.length?'<div class="specs">'+kv.map(([k,v])=>{const [a,ic]=tileOf(k,v);return '<div'+a+'>'+ic+'<b>'+k+'</b><span class="bd-v">'+esc(v)+'</span></div>'}).join('')+'</div>':'')+
+        // The coffee's facts in one card, two to a row: a coloured icon chip, then the name and the answer.
+    (kv.length?'<div class="bfacts">'+kv.map(([k,v])=>{const m=tileKey(k,v);return '<div class="bf" style="--tc:'+(m?m[1]:'#8B8F98')+'"><i class="bf-i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="'+(m?m[2]:'M12 7v6 M12 16.5v.5')+'"/></svg></i><span><small>'+k+'</small><b class="bd-v">'+esc(v)+'</b></span></div>'}).join('')+'</div>':'')+
     (dialNextFor(b.id)?'<div class="bd-dnext"><span class="bd-dni" aria-hidden="true">🎯</span><span><b>'+(dialNextFor(b.id).taste==='good'?'What worked':'Try next time')+'</b><small>'+esc(dialNextLine(dialNextFor(b.id)))+' · '+esc(fmt(dialNextFor(b.id).at))+(dialNextFor(b.id).taste&&dialNextFor(b.id).taste!=='good'?' · after a '+dialNextFor(b.id).taste+' cup':'')+'</small></span></div>':'')+
     (b.flavours?'<h3>Tasting notes</h3><div class="chips">'+tnSplit(b.flavours).map(f=>{const n=tnLeaf(f);return'<span class="chip">'+(n?'<i class="dot" style="background:'+n.c+'"></i>':'')+esc(f)+'</span>'}).join('')+'</div>':'')+
     (b.notes?'<h3>Your notes</h3><p>'+esc(b.notes)+'</p>':'')+

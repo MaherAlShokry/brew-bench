@@ -2996,8 +2996,8 @@ html[data-nav=push] main section.nav-in{position:relative;z-index:3;background:v
 :root{--tk-amt:80%;--tk-mix:var(--cherry)}
 :root[data-vibe="nordic"]{--tk-amt:66%}
 :root[data-vibe="black"]{--tk-amt:74%}
-:root[data-vibe="pure"]{--tk-amt:28%;--tk-mix:var(--ink)}
-:is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl,.fig-ic){--tk:color-mix(in oklab,var(--tc,var(--c)) var(--tk-amt),var(--tk-mix));--tk-ink:color-mix(in oklab,var(--tk) 78%,var(--ink))}
+:root[data-vibe="pure"]{--tk-amt:82%;--tk-mix:var(--ink)}
+:is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl,.fig-ic,.bf){--tk:color-mix(in oklab,var(--tc,var(--c)) var(--tk-amt),var(--tk-mix));--tk-ink:color-mix(in oklab,var(--tk) 78%,var(--ink))}
 :is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl){
   background:linear-gradient(160deg,color-mix(in srgb,var(--tk) 7%,var(--surface)),var(--surface) 70%)!important;
   box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tk) 12%,var(--line))!important;border:0!important;border-radius:20px!important}
@@ -3015,6 +3015,20 @@ html[data-nav=push] main section.nav-in{position:relative;z-index:3;background:v
 :root[data-theme="dark"] :is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl,.fig-ic){--tk-ink:color-mix(in oklab,var(--tk) 72%,#fff)}
 :root[data-theme="dark"] :is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl){background:linear-gradient(160deg,color-mix(in srgb,var(--tk) 14%,var(--surface)),var(--surface) 70%)!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tk) 20%,transparent)!important}
 :root[data-theme="dark"] :is(.yic-t>i,.me-sq i,.me-tiles>div>i,.fig-ic),:root[data-theme="dark"] :is(.specs,.rstats,.stats)>div.tl .st-ic{background:color-mix(in srgb,var(--tk) 24%,var(--surface))!important}
+
+/* ===== A coffee's facts: one card, two to a row, fine dividers between rows; each fact a coloured icon chip with its
+   name above the answer. An odd one out at the end takes the full row. */
+.bfacts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin:14px 0;padding:4px 6px;border-radius:22px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.bf{position:relative;display:flex;align-items:center;gap:11px;min-width:0;padding:13px 8px}
+.bf:nth-child(n+3)::before{content:'';position:absolute;left:8px;right:8px;top:0;height:1px;background:var(--line)}
+.bf:last-child:nth-child(odd){grid-column:1/-1}
+.bf-i{flex:none;width:38px;height:38px;border-radius:13px;display:grid;place-items:center;background:color-mix(in srgb,var(--tk) 16%,var(--surface))}
+.bf-i svg{width:20px;height:20px;fill:none;stroke:var(--tk-ink);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.bf>span{display:flex;flex-direction:column;gap:2px;min-width:0}
+.bf small{font-size:.72rem;font-weight:600;letter-spacing:.02em;color:var(--muted);line-height:1.2}
+.bf b{font:650 .98rem/1.25 var(--display);color:var(--ink);overflow-wrap:anywhere}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .bf{--tk-ink:color-mix(in oklab,var(--tk) 72%,#fff)}:root:not([data-theme="light"]) .bf-i{background:color-mix(in srgb,var(--tk) 26%,var(--surface))}}
+:root[data-theme="dark"] .bf{--tk-ink:color-mix(in oklab,var(--tk) 72%,#fff)}:root[data-theme="dark"] .bf-i{background:color-mix(in srgb,var(--tk) 26%,var(--surface))}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>

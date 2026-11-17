@@ -19,9 +19,9 @@ for(const vibe of ['roastery','pure','black','nordic'])for(const theme of ['ligh
     // [glyph element, chip element]
     const pairs=[...root.querySelectorAll('.yic-t>i .di,.me-sq i .di,.me-tiles>div>i .di')].map(g=>[g,g.closest('i'),'color'])
       .concat([...root.querySelectorAll(':is(.specs,.rstats,.stats)>div.tl .st-ic')].map(g=>[g,g,'stroke']))
-      .concat([...root.querySelectorAll('.fig-ic svg')].map(g=>[g,g.closest('.fig-ic'),'stroke']));
+      .concat([...root.querySelectorAll('.fig-ic svg')].map(g=>[g,g.closest('.fig-ic'),'stroke'])).concat([...root.querySelectorAll('.bf-i svg')].map(g=>[g,g.closest('.bf-i'),'stroke']));
     for(const [g,c,prop] of pairs){if(!g.getClientRects().length)continue;const gc=getComputedStyle(g)[prop],bc=getComputedStyle(c).backgroundColor;if(/rgba\(0, 0, 0, 0\)|transparent/.test(bc)){out.push({tile:(c.textContent||'').trim().slice(0,24),chip:'none'});continue}const r=cr(rgb(gc),rgb(bc));
-      const t=g.getBoundingClientRect(),tile=c.closest('.yic-t,.me-sq>div,.me-tiles>div,div.tl,.figs>span')||c,tr=tile.getBoundingClientRect();
+      const t=g.getBoundingClientRect(),tile=c.closest('.yic-t,.me-sq>div,.me-tiles>div,div.tl,.figs>span,.bf')||c,tr=tile.getBoundingClientRect();
       const inside=t.left>=tr.left-1&&t.right<=tr.right+1&&t.top>=tr.top-1&&t.bottom<=tr.bottom+1;
       if(r<3||!inside)out.push({tile:(tile.textContent||'').trim().slice(0,24),contrast:+r.toFixed(2),inside})}
     const glow=[...root.querySelectorAll('.yic-t,.me-sq>div,.me-tiles>div,div.tl')].filter(e=>/-1[0-9]px/.test(getComputedStyle(e).boxShadow)).length;
