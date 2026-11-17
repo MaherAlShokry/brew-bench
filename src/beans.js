@@ -491,8 +491,8 @@ function openMakeRecipe(bid){const d=$('vd'),beans=[...BEANS.filter(b=>b.shelf),
       '<div class="lbl">The cup you want'+(t.families.length?' <span class="hint">your taste leans '+(lean==='bright'?'bright and fruity':lean==='round'?'sweet and round':'balanced')+'</span>':'')+'</div>'+chips('goal',MK_GOALS,st.goal)+
       (r?'<div class="mk-res"><div class="mk-h"><b>'+esc(r.name)+'</b><small>'+esc(r.by)+'</small></div>'+
         // The same stats, grind settings, pour graph and steps as every recipe page.
-        recipeBody(r,-1).replace(/<div class="actions">[\s\S]*$/,'')+
-        '<div class="actions"><button type="button" class="btn" id="mk-save">Save and brew it</button><button type="button" class="btn ghost" id="mk-again">Another one</button></div></div>'
+        recipeBody(r,-1).replace(/<div class="actions[^"]*">[\s\S]*$/,'')+
+        '<div class="actions ib-row sheet-acts">'+pbtn('timer','id="mk-save"','Save and brew it','main')+ib('reset','id="mk-again"','Another one')+'</div></div>'
        :'<div class="actions"><button type="button" class="btn" id="mk-go"'+(st.busy?' disabled':'')+'>'+(st.busy?'Writing your recipe…':'Create the recipe')+'</button></div><button type="button" class="linkbtn mk-rand" id="mk-rand">Or open a random recipe from the list</button>')+'</div>';
     hydrateImgs($('vd-in'));$('vd-x').onclick=()=>d.close()};
   const go=async()=>{const bean=beanById(st.bean);if(!bean)return;st.busy=true;draw();let r=null;
