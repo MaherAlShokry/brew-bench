@@ -421,7 +421,7 @@ function yearInCoffeeHTML0(){const cy=new Date().getFullYear(),bs=BEANS.filter(b
   const half=[o&&['<span class="yic-fl">'+flagOf(t.origin.k)+'</span>','Origin',o.name],R&&['🗺️','Region',R.name+(t.regionOrigin&&t.regionOrigin.k!==(t.origin&&t.origin.k)?' · mostly '+oInfo(t.regionOrigin.k).name:'')],
     v&&['🌱','Variety',shortName(v.name)],pr&&['🧪','Process',pr.name.replace(/\s*\(.*\)$/,'')],t.roast&&['🔥','Roast',t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1)],
     t.roaster&&['🏷️','Roastery',t.roaster.k],B&&['☕','Brewer',B.name]].filter(Boolean);
-  const wide=[t.regular&&[t.regular,'Your regular','#3F86B5'],t.best&&[t.best,'Best of the year',TASTE_C['Rated best']]].filter(Boolean);
+  const wide=[t.regular&&[t.regular,'Your regular','#0EA5E9'],t.best&&[t.best,'Best of the year',TASTE_C['Rated best']]].filter(Boolean);
   const tile=([ic,k,vv],w)=>'<div class="yic-t'+(w?' w':'')+'" style="--tc:'+(TASTE_C[k]||'#8A5A3B')+'"><i aria-hidden="true">'+ic+'</i><small>'+k+'</small><b>'+esc(vv)+'</b></div>';
   const coffee=([b,k,c])=>'<button type="button" class="yic-c" data-bean="'+b.id+'" style="--tc:'+c+'"><span class="yic-ph">'+beanPic(b,'xs')+'</span><span><small>'+k+'</small><b>'+esc(beanTitle(b))+'</b></span><svg class="yic-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>';
   return '<div class="yic" role="region" aria-label="'+cy+' in coffee"><div class="yic-h"><h3>'+cy+' in coffee</h3></div>'+(bs.length>1?'<p class="yic-line">'+esc(tasteLine(t))+'</p>':'')+

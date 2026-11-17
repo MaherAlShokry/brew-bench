@@ -2981,6 +2981,33 @@ html[data-nav=push] main section.nav-in{position:relative;z-index:3;background:v
 .fbx.out{animation:pop-out .18s cubic-bezier(.4,0,1,1) both}
 @keyframes pop-out{to{opacity:0;transform:translateY(-6px) scale(.96)}}
 @media (prefers-reduced-motion:reduce){main section.nav-out{display:none}}
+
+/* ===== The tab bar moves with your scroll, like the + and a sheet's action bar (phones). Transform and opacity only. */
+@media (max-width:759px){
+  .bottomnav{transition:transform .36s var(--ease-sheet),opacity .26s ease}
+  html.nav-away .bottomnav{transform:translateY(calc(100% + 18px + var(--sa-bottom)));opacity:0;pointer-events:none}
+}
+@media (prefers-reduced-motion:reduce){html.nav-away .bottomnav{transform:none}}
+
+/* ===== Tiles, one modern look everywhere: a clean card with a soft wash and glow of its colour, a vivid gradient icon
+   chip with a white glyph, a quiet grey name and the answer in ink. */
+:is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl){
+  background:linear-gradient(150deg,color-mix(in srgb,var(--tc) 11%,var(--surface)) 0%,var(--surface) 58%)!important;
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tc) 14%,var(--hair)),0 1px 2px rgba(20,12,6,.04),0 10px 22px -16px color-mix(in srgb,var(--tc) 70%,transparent)!important;
+  border:0!important;border-radius:20px!important}
+:is(.yic-t>i,.me-sq i,.me-tiles>div>i){background:linear-gradient(140deg,color-mix(in srgb,var(--tc) 70%,#fff),var(--tc))!important;border-radius:12px!important;box-shadow:0 6px 14px -8px var(--tc)}
+:is(.yic-t>i,.me-sq i,.me-tiles>div>i) .di{color:#fff!important;stroke-width:2!important}
+/* Flags keep a soft chip, so their own colours show. */
+:is(.yic-t>i,.me-sq i,.me-tiles>div>i):has(.me-flag,.yic-fl){background:color-mix(in srgb,var(--tc) 14%,var(--surface))!important;box-shadow:none}
+:is(.specs,.rstats,.stats)>div.tl .st-ic{box-sizing:border-box;width:26px!important;height:26px!important;padding:5px;top:8px!important;right:8px!important;border-radius:9px;stroke:#fff!important;stroke-width:2.2!important;opacity:1!important;
+  background:linear-gradient(140deg,color-mix(in srgb,var(--tc) 70%,#fff),var(--tc));box-shadow:0 6px 12px -8px var(--tc)}
+:is(.specs,.rstats,.stats)>div.tl>b,:is(.specs,.rstats,.stats)>div.tl>span{padding-right:30px}
+:is(.yic-t>small,.yic-c small,.me-sq small,.me-tiles>div>small,.rstats>div.tl>small,:is(.specs,.stats)>div.tl>b){color:var(--muted)!important;letter-spacing:.04em}
+.fig-ic{background:linear-gradient(140deg,color-mix(in srgb,var(--c) 70%,#fff),var(--c));box-shadow:0 6px 14px -8px var(--c)}.fig-ic svg{stroke:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl){
+  background:linear-gradient(150deg,color-mix(in srgb,var(--tc) 18%,var(--surface)) 0%,var(--surface) 62%)!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tc) 22%,transparent)!important}}
+:root[data-theme="dark"] :is(.yic-t,.yic-c,.me-sq>div,.me-tiles>div,:is(.specs,.rstats,.stats)>div.tl){
+  background:linear-gradient(150deg,color-mix(in srgb,var(--tc) 18%,var(--surface)) 0%,var(--surface) 62%)!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tc) 22%,transparent)!important}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
