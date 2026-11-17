@@ -120,8 +120,9 @@ function meHTML(){const p=PROFILE,x='<button class="vd-close me-x" id="vd-x" ari
       (AUTH_ON&&!ACCT?'<button type="button" class="btn me-ghost" id="pf-signin">I have an account</button>':'')+'</div></div>'+blankBody();
   // What you told us about yourself sits with who you are (under your words), as one line of plain facts. The numbers
   // and "Your coffee taste" below are what your coffees and cups show.
-  const dna=[p.city&&['📍','Brews in',p.city],p.brewer&&['☕','Favourite brewer',BREWERS[p.brewer].name],
-    p.origin&&['<span class="me-flag">'+flagOf(p.origin)+'</span>','Favourite origin',originName(p.origin)]].filter(Boolean);
+  // Your picks, in short names (one line at any text size) and the same colours as Your coffee taste.
+  const dna=[p.city&&['📍','Brews in',p.city,'#3F86B5'],p.brewer&&['☕','Brewer',BREWERS[p.brewer].name,TASTE_C.Brewer],
+    p.origin&&['<span class="me-flag">'+flagOf(p.origin)+'</span>','Origin',originName(p.origin),TASTE_C.Origin]].filter(Boolean);
   const bg=bannerBg(p),since=new Date(p.since).toLocaleDateString(undefined,{month:'long',year:'numeric'});
   // A cover strip (your banner), your picture overlapping its edge, and who you are on the page under it.
   return '<div class="me-hero me-cover'+(bg?' banner':'')+'" style="--c:'+p.av.c+(bg?';background:'+bg:'')+'">'+x+'<button type="button" class="me-edit" id="pf-edit">'+PEN_SVG+'Edit</button></div>'+
@@ -133,7 +134,7 @@ function meHTML(){const p=PROFILE,x='<button class="vd-close me-x" id="vd-x" ari
       // About you: your words, and what you told us as squares.
       '<section class="me-sec" aria-label="About you"><h3 class="me-sh">About</h3>'+
         (p.brief?'<p class="me-brief">'+esc(p.brief)+'</p>':'<button type="button" class="me-add" id="pf-edit2">Add a few words about how you take your coffee</button>')+
-        (dna.length?'<div class="me-sq">'+dna.map(([i,k,v])=>'<div><i aria-hidden="true">'+i+'</i><small>'+k+'</small><b>'+esc(v)+'</b></div>').join('')+'</div>'
+        (dna.length?'<div class="me-sq">'+dna.map(([i,k,v,c])=>'<div style="--tc:'+c+'"><i aria-hidden="true">'+i+'</i><small>'+k+'</small><b>'+esc(v)+'</b></div>').join('')+'</div>'
           :'<button type="button" class="me-add" id="pf-edit3">Add where you brew, your brewer and your favourite origin</button>')+'</section>'+
       tasteHTML()+accountHTML()+'</div>'}
 $('vd').addEventListener('click',e=>{if(e.target.closest('#pf-new,#pf-edit,#pf-edit2,#pf-edit3')){delete $('vd').dataset.me;openProfileEditor();return}if(e.target.closest('#pf-signin')){delete $('vd').dataset.me;openSignIn();return}
