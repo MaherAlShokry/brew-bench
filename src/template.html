@@ -1033,9 +1033,10 @@ dialog#selsheet.pop .selopt{min-height:40px;padding:8px 12px;font-size:.95rem}
 .fl-lv{display:flex;gap:2px}.fl-lv button{border:0;background:transparent;color:var(--muted);font:600 .75rem var(--display);padding:6px 8px;border-radius:10px;cursor:pointer}
 .fl-lv button[aria-pressed="true"]{background:var(--surface);color:var(--cherry);box-shadow:var(--e1)}
 .fl-selrow .x{border:0;background:none;color:var(--muted);font-size:1rem;padding:6px;cursor:pointer}
-.palate{display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:center;margin-bottom:14px}
-.palate .fl-mini{width:120px;height:120px}
-.palate h3{margin:0 0 4px}
+.palate{display:grid;grid-template-columns:96px minmax(0,1fr);gap:12px 16px;align-items:center;margin-bottom:14px}
+.palate .fl-mini{width:96px;height:96px}
+.palate h3{margin:0 0 4px}.palate .pal-h .hint{margin:0;line-height:1.5}
+.palate .pal-b{grid-column:1/-1;min-width:0}.palate .pal-b .fwbar{margin-top:0}
 /* Motion: sheets rise and settle, then slide away; the backdrop fades; screens slide the way you are going. */
 :root{--ease-sheet:cubic-bezier(.32,.72,0,1);--ease-spring:cubic-bezier(.34,1.4,.5,1);--ease-out:cubic-bezier(.2,.8,.2,1)}
 @media (prefers-reduced-motion:no-preference){
@@ -1922,12 +1923,12 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .fbar i{display:block;height:100%}.fbar .fz1{width:6.7%;background:#B8AFA6;border-radius:5px 0 0 5px}.fbar .fz2{width:28.3%;background:#5E9A63}.fbar .fz3{width:40%;background:#C9964A}.fbar .fz4{flex:1;background:#A8432F;border-radius:0 5px 5px 0;opacity:.75}
 .fbar b{position:absolute;top:50%;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:var(--surface);box-shadow:0 0 0 3px var(--ink),0 3px 8px rgba(0,0,0,.3)}
 .bd-bag{margin-top:12px}.bd-bag .bagm{height:8px}.bd-bag .bagl small{font-size:.86rem;color:var(--ink);font-weight:600}
-.bd-cupr{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}.bd-cupl{font-size:.86rem;color:var(--muted)}
+/* The label takes what's left (two lines if it must); the stepper and the ✓ always sit on the same line, at the right. */
+.bd-cupr{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:8px;margin-top:10px}.bd-cupl{font-size:.86rem;color:var(--muted);line-height:1.3}
 .bd-step{display:inline-flex;align-items:center;gap:2px;padding:3px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line)}
 .bd-step button{width:34px;height:34px;border:0;border-radius:50%;background:var(--surface2);color:var(--ink);font:600 1.1rem/1 var(--display);cursor:pointer}.bd-step button:active{transform:scale(.9)}
 .bd-step b{min-width:52px;text-align:center;font:700 .95rem var(--display);font-variant-numeric:tabular-nums}
 .bd-cupr .btn{min-height:40px;padding:0 16px;font-size:.88rem}
-.bd-auto{margin:8px 0 0;font-size:.8rem;color:var(--muted)}
 .bd-done{width:100%;margin-top:14px}
 /* The coffee page: share and edit as round icons in the header, beside close. */
 .vd-tools{position:absolute;right:62px;top:12px;display:flex;gap:8px}
@@ -1992,6 +1993,9 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .adv-rev{display:flex;flex-direction:column;gap:10px;margin:6px 0 4px}.adv-rev textarea{width:100%}
 .adv-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .bd-acts{display:grid;grid-template-columns:1fr;gap:8px;margin-top:16px}.bd-acts .btn{width:100%;margin:0}
+/* Brew it, Make a recipe and the round Reset grind on one row: the pills share the width and never wrap. */
+.bd-acts.ib-row{flex-wrap:nowrap;gap:8px}.bd-acts .pbtn{flex:1 1 auto;min-width:0;padding:0 14px 0 12px;white-space:nowrap}.bd-acts .pbtn span{overflow:hidden;text-overflow:ellipsis}.bd-acts .ib{flex:none}
+@media (max-width:350px){.bd-acts .pbtn{padding:0 12px;gap:6px}.bd-acts .pbtn svg{width:16px;height:16px}.bd-acts.ib-row{gap:6px}}
 .dwrite{padding:12px;border-radius:var(--r-lg);background:var(--surface2);margin-bottom:12px}
 .dmoms{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -12px 10px;padding:0 12px}.dmoms::-webkit-scrollbar{display:none}
 .dmoms button{flex:none;display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--r-pill);border:0;font:inherit;font-size:.82rem;font-weight:600;cursor:pointer;background:var(--surface);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}

@@ -628,7 +628,7 @@ function recipeCard(i){const r=RECIPES[i];if(!r)return Promise.resolve(null);con
   const m={theme:OT.house,kicker:r.champ?'Champion’s recipe':r.custom?'My recipe':'Recipe',date:famName(r.b),title:r.name,by:r.by||(r.custom&&r.author?'By '+r.author:''),
     pills:[[mt.level,1],[B.type],...(mt.time!=null?[['Done in '+mmss(mt.time)]]:[])],
     tiles:[['Coffee',r.dose+' g'],['Water',r.water+' g'],['Temp',r.temp?r.temp+'°C':'–'],['Ratio',ra?'1:'+rr1(ra):'–']],
-    grind:g&&c!=null?{g,c,line:B.bloom.label+' '+B.bloom.def+' s  ·  '+mt.pours+' pour'+(mt.pours===1?'':'s')}:null,
+    grind:g&&c!=null?{g,c,line:B.bloom.label+' '+B.bloom.def+' s'+(mt.pours?'  ·  '+mt.pours+' pour'+(mt.pours===1?'':'s'):'')}:null,
     text:r.why?[{label:'Why it works',body:r.why}]:[],steps:r.steps.slice(0,14),quote:r.tip?{label:'Tip',text:r.tip}:null,footer:'Shared from The Brew Bench'};
   if(r.temp2)m.pills.push(['Then '+r.temp2+'°C']);
   return bcBlob(m)}

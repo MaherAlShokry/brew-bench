@@ -144,6 +144,8 @@ const SH_ICO='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M7 8l
 const MEDAL=['','#C9964A','#A49C92','#A8673F','#7F8E97','#8C7B6B'],MEDALN=['','Gold','Silver','Bronze','4th','5th'];
 // How a place reads: "Gold · top 3 of 2026", "4th · top 5 of 2026".
 const placeLine=(rk,y)=>MEDALN[rk]+' · top '+(rk<=3?3:5)+' of '+y;
+// The coffee page's pill, short enough to sit beside its three buttons at any text size: "Gold in 2026", "4th in 2026".
+const placeShort=(rk,y)=>MEDALN[rk]+' in '+y;
 
 /* ---------- On the shelf: freshness and what's left in the bag ---------- */
 // The brews you logged from the dial-in with this coffee picked (yours only, in a shared log).
@@ -477,7 +479,8 @@ function makeRecipe(bean,bk,goal,seed){const B=BREWERS[bk],t=tasteOf(BEANS,LOG.f
   why.unshift((fer?beanTitle(bean)+' is a '+(PROCESSES[bean.process]||{name:'fermented'}).name.replace(/\s*\(.*\)$/,'').toLowerCase()+' coffee, so the water is a little cooler ('+temp+'°C) to keep the fruit clean and the ferment in check.':roast==='light'?'A light roast wants hot water ('+temp+'°C) to open up.':roast==='dark'?'A darker roast is brewed cooler ('+temp+'°C) and a little coarser to stay sweet, not bitter.':'Water at '+temp+'°C suits a medium roast.'));
   if(t.families.length)why.push('The 1:'+(Math.round(water/dose*10)/10)+' ratio is set for the '+t.families.slice(0,2).map(f=>f.n.toLowerCase()).join(' and ')+' cups you like.');
   const word=({balanced:'everyday',sweet:'sweet',bright:'bright',clear:'clean',body:'round'})[goal];
-  return sanRec({b:bk,kind,name:shortName(beanTitle(bean)).slice(0,36)+' '+word+' '+style,by:'Made for you by The Brew Bench',dose,water,temp,off,why:why.join(' '),
+  return sanRec({b:bk,kind,// The recipe has its own name ("Everyday three-pour"); the coffee it was made for is its own line under it.
+    name:(word+' '+style).replace(/^./,c=>c.toUpperCase()),by:'For '+shortName(beanTitle(bean)).slice(0,52),dose,water,temp,off,why:why.join(' '),
     tip:'Taste it: sour or thin, go a click finer next time; bitter or dry, a click coarser.',steps})}
 // The model's version: given the same facts, it writes the recipe as JSON, and it's checked like any recipe.
 async function aiRecipe(bean,bk,goal){const B=BREWERS[bk],t=tasteOf(BEANS,LOG.filter(isMine)),P=bean.process&&PROCESSES[bean.process];
@@ -490,7 +493,7 @@ async function aiRecipe(bean,bk,goal){const B=BREWERS[bk],t=tasteOf(BEANS,LOG.fi
     '"steps":["0:00 pour 45g, bloom.","0:40 pour to 150g.","..."],"why":"two or three sentences on why it suits this coffee and this person","tip":"one sentence"}\n'+
     'Each step starts with m:ss and the pours use "pour Xg" or "pour to Xg" with the scale total; the last pour reaches the full water.';
   const j=await SAMPLE.json(prompt,{});if(!j||typeof j!=='object')throw new Error('no reply');
-  const r=sanRec({b:bk,kind:B.type==='Immersion and pressure'?'imm':B.type==='Valve and hybrid'?'hybrid':'pulse',name:j.name,by:'Made for you by AI',dose:j.dose,water:j.water,temp:j.temp,off:j.grind_offset,why:j.why,tip:j.tip,
+  const r=sanRec({b:bk,kind:B.type==='Immersion and pressure'?'imm':B.type==='Valve and hybrid'?'hybrid':'pulse',name:j.name,by:'For '+shortName(beanTitle(bean)).slice(0,52),dose:j.dose,water:j.water,temp:j.temp,off:j.grind_offset,why:j.why,tip:j.tip,
     steps:(Array.isArray(j.steps)?j.steps:[]).filter(s=>/^\s*\d+:\d\d\b/.test(String(s)))});
   if(!r||r.steps.length<2||!(r.water>r.dose*8&&r.water<r.dose*20))throw new Error('unusable');return r}
 // surprise: a coffee from your cabinet (one on the shelf first), one of your brewers and a cup at random, made at once;
@@ -1355,14 +1358,14 @@ function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.be
   const kv=[isBlend(b)?['Blend of',blendParts(b).map(x=>flagOf(x.o)+' '+originName(x.o)+(x.r?' ('+x.r+')':'')+blendPct(x)).join(', ')||'Several origins']:['Origin',b.origin?flagOf(b.origin)+'\u00a0'+originName(b.origin):''],['Process',P?P.name.replace(/\s*\(.*\)$/,''):''],[b.vars?'Varieties':'Variety',b.variety?varsName(b):''],['Roast',b.roast?b.roast[0].toUpperCase()+b.roast.slice(1):''],['Roasted',fmt(b.roastDate)],['Tried',b.tried?fmt(b.tried):'Not yet'],...(cal?[['Advent','Door '+b.cal.d+' · '+calName(cal)]]:[]),['Brewed',ls?ls.n+' time'+(ls.n===1?'':'s'):'']].filter(x=>x[1]);
   const st={mom:'note',ph:null};const g=gramsLeft(b),dose=Math.round(beanDose(b));
   const from=BFROM&&BFROM===b.origin?BFROM:null,calBack=cal&&ADVFROM===cal.id,roBack=!from&&!calBack&&RFROM&&roKey(RFROM.name)===roKey(b.roaster)?RFROM:null;
-  $('vd-in').innerHTML='<div class="vd-head" style="--c:'+(rk?MEDAL[rk]:'var(--cherry)')+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button>'+(calBack?'<button type="button" class="vd-back adv-back" id="bd-advback">‹ Calendar</button>':from?'<button type="button" class="vd-back" id="vd-back">‹ '+esc(originName(from))+'</button>':roBack?'<button type="button" class="vd-back" id="bd-roback">‹ '+esc(roBack.name)+'</button>':'')+'<span class="vd-tools"><button type="button" class="vd-tool" id="bd-share" aria-label="Share this coffee" title="Share">'+lIc('share')+'</button><button type="button" class="vd-tool" id="bd-edit" aria-label="Edit this coffee" title="Edit">'+lIc('edit')+'</button></span><span class="pill"><i style="background:'+(rk?MEDAL[rk]:'var(--cherry)')+'"></i>'+(rk?placeLine(rk,beanYear(b)):beanMention(b)?'Honourable mention · '+beanYear(b):b.shelf?'Drinking now':'Your coffees')+'</span><h2 id="vd-title">'+esc(beanTitle(b))+'</h2>'+(b.roaster?'<p class="vd-sub"><button type="button" class="ro-link" id="bd-ro">'+esc(b.roaster)+'<span aria-hidden="true"> ›</span></button></p>':'')+
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:'+(rk?MEDAL[rk]:'var(--cherry)')+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button>'+(calBack?'<button type="button" class="vd-back adv-back" id="bd-advback">‹ Calendar</button>':from?'<button type="button" class="vd-back" id="vd-back">‹ '+esc(originName(from))+'</button>':roBack?'<button type="button" class="vd-back" id="bd-roback">‹ '+esc(roBack.name)+'</button>':'')+'<span class="vd-tools"><button type="button" class="vd-tool" id="bd-share" aria-label="Share this coffee" title="Share">'+lIc('share')+'</button><button type="button" class="vd-tool" id="bd-edit" aria-label="Edit this coffee" title="Edit">'+lIc('edit')+'</button></span><span class="pill"><i style="background:'+(rk?MEDAL[rk]:'var(--cherry)')+'"></i>'+(rk?placeShort(rk,beanYear(b)):beanMention(b)?'Mentioned in '+beanYear(b):b.shelf?'Drinking now':'Your coffees')+'</span><h2 id="vd-title">'+esc(beanTitle(b))+'</h2>'+(b.roaster?'<p class="vd-sub"><button type="button" class="ro-link" id="bd-ro">'+esc(b.roaster)+'<span aria-hidden="true"> ›</span></button></p>':'')+
     // Once the big photo has scrolled away, a small one shows in the pinned header (driven by the scroll itself).
     '<span class="bd-mini" aria-hidden="true">'+beanPic(b,'xs')+'</span></div>'+
     '<div class="vd-body"><div class="bd-hero">'+beanPic(b,'hero')+(b.rating?'<span class="bglass">'+beanSVG+b.rating.toString().replace('.5','½')+'<small>'+rateWord(b.rating)+'</small></span>':'')+'</div>'+
     // The bag now: how fresh it is, what's left, and finishing it.
     (b.shelf?'<div class="bd-shelf">'+(f?'<div class="bd-f"><div class="bd-fh"><b>'+f.label+'</b><span>Day '+f.d+' off roast'+(b.frz?' · '+frozenDays(b)+' frozen':'')+'</span><button type="button" class="ib sm bd-frz" id="bd-frz" aria-pressed="'+f.fz+'" aria-label="'+(f.fz?'Take it out of the freezer':'Put it in the freezer')+'" title="'+(f.fz?'Take it out of the freezer':'Put it in the freezer')+'">'+lIc('ice')+'</button></div>'+freshBar(f)+'<p>'+f.tip+'</p><small class="bd-fw">'+freshWinLine(f)+'</small></div>':'<label class="bd-addrd"><span><b>When was it roasted?</b><small>Add the date on the bag to see how fresh it is.</small></span><input type="date" id="bd-rd" class="dateinp" max="'+todayISO()+'" aria-label="Roast date"></label>')+
       (g!=null?'<div class="bd-bag"><div class="bd-bagh">'+bagLine(b)+''+ib('edit','id="bd-left"','Set what’s left','sm')+'</div><div class="bd-cupr"><span class="bd-cupl">Brewed a cup with</span><span class="bd-step"><button type="button" id="bd-cm" aria-label="Less coffee">−</button><b id="bd-cg">'+dose+' g</b><button type="button" id="bd-cp" aria-label="More coffee">+</button></span>'+ib('ok','id="bd-cup"','Take it off the bag','main sm')+'</div>'+
-        '<p class="bd-auto">Brews you log or finish with the dial-in’s timer come off on their own.</p></div>'
+        '</div>'
         :'<p class="hint" style="margin:8px 0 0">Add the bag size in Edit to see what’s left as you log brews.</p>')+
       pbtn('flag','id="bd-done"','Finish this bag','quiet bd-done')+'</div>'
      :'')+
@@ -1379,7 +1382,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.be
         '<div class="field"><label for="bd-rb-g">Bag size (g)</label><input type="number" id="bd-rb-g" inputmode="numeric" min="50" max="5000" step="10" value="'+(b.bag||'')+'" placeholder="250"></div></div>'+
         pbtn('plus','id="bd-rebuy"','Add the new bag','main')+'</div>')+
       (b.bags&&b.bags.length?'<details class="bd-bagsd"><summary>Earlier bags ('+b.bags.length+')</summary><ol class="bd-bags">'+b.bags.slice().reverse().map((x,i)=>'<li><b>'+ordinal(b.bags.length-i)+' bag</b><span>'+[x.rd?'Roasted '+fmtD(x.rd):'',x.g?x.g+' g':'',x.off?'finished '+fmtD(x.off):''].filter(Boolean).join(' · ')+'</span></li>').join('')+'</ol></details>':'')+'</div>'+
-    '<div class="actions bd-acts ib-row">'+pbtn('cup','id="bd-brew"','Brew it','main')+pbtn('mark','id="bd-mkrec"','Make a recipe')+(grindMem(b.id)?pbtn('reset','id="bd-greset"','Reset grind'):'')+'</div>'+
+    '<div class="actions bd-acts ib-row">'+pbtn('cup','id="bd-brew"','Brew it','main')+pbtn('mark','id="bd-mkrec"','New recipe')+(grindMem(b.id)?ib('reset','id="bd-greset"','Reset grind'):'')+'</div>'+
     // Its diary: a moment, a few words, the day.
     '<h3 id="bd-dh">Diary</h3>'+dwriteHTML('bd',st)+
     '<div id="bd-tl">'+timelineHTML(beanTimeline(b),false)+'</div>'+

@@ -887,7 +887,7 @@ function render(){schedulePreCard();
   const target='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M12 7.5a4.5 4.5 0 1 0 0 9a4.5 4.5 0 1 0 0-9z M12 11a1 1 0 1 0 0 2a1 1 0 1 0 0-2z"/></svg>';
   $('o-tips').innerHTML=(PLAN?'<div class="oplan"><div class="oplan-h"><i class="otip-ic" aria-hidden="true">'+target+'</i><span><b>'+PLAN.title+'</b><small>On your '+esc(G.full||G.name)+'</small></span></div>'+
       PLAN.opts.map((o,k)=>(k?'<div class="oplan-or"><span>or</span></div>':'')+'<button type="button" class="oplan-o" data-plan="'+k+'" aria-label="Use '+esc(o.rows.map(c=>c[0]+' '+c[1]).join(', '))+'">'+
-        (o.best?'<span class="oplan-best">Best for you</span>':'')+o.rows.map(c=>'<span class="oplan-m"><small>'+c[0]+'</small><b>'+esc(c[1])+'</b><em'+(c[2]==='same'?' class="same">No change':'>'+esc(c[2]))+'</em></span>').join('')+'<i class="oplan-go" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></i></button>').join('')+'</div>':'')+
+        (o.best?'<span class="oplan-best">Best for you</span>':'')+o.rows.map(c=>'<span class="oplan-m"><small>'+c[0]+'</small><b>'+esc(c[1])+'</b><em'+(c[2]==='same'?' class="same">Same':'>'+esc(c[2]))+'</em></span>').join('')+'<i class="oplan-go" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></i></button>').join('')+'</div>':'')+
     (tips.length?'<div class="onotes">'+tips.map(t=>'<div class="onote"><i aria-hidden="true">'+lIc('info')+'</i><span>'+t+'</span></div>').join('')+'</div>':'');
   $('o-tips').onclick=e=>{const pl=e.target.closest('[data-plan]');if(pl&&PLAN){const o=PLAN.opts[+pl.dataset.plan];S.setting=o.set;S.temp=o.temp;if(o.k)save('bb-planpend',{k:o.k,t:Date.now()});render();toast('Set to '+[gLabel(S.grinder,S.setting),S.temp+'°C'].join(', '));return}
     if(e.target.closest('[data-reset-grind]')){S.setting=roundG(S.grinder,baseX(S.grinder,S.brewer));render();toast('Grind reset to '+dial(S.grinder,S.setting))}};
@@ -1559,7 +1559,7 @@ function recipeBody(r,i,compact,inSheet){const B=BREWERS[r.b],sc=compact?{dose:r
   const m=rmeta(r);
   return (compact?'<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span>':'')+'</div>'
      :'<p class="hint" style="margin:0 0 .2rem">'+esc(B.name)+' · '+esc(B.type)+'</p>'+factCard([[r.dose+'g','Coffee'],[r.water+'g',r.iced?'Hot water':'Water'],[r.iced?'1:'+Math.round(r.total/r.dose*10)/10:m.ratio||'–','Ratio'+(r.iced?' with ice':'')],
-       [r.temp?r.temp+'°C':'–','Temperature',r.temp2?'Then '+r.temp2+'°C':''],[m.time!=null?mmss(m.time):'By eye','Total time'],[m.level,'Level',m.pours+' pour'+(m.pours===1?'':'s')]].map(([v,l,sub])=>{const t=tileKey(l,v);return [svgI(t?t[2]:'M12 7v6 M12 16.5v.5'),l,esc(String(v))+(sub?'<em class="bf-sub">'+esc(sub)+'</em>':''),t&&t[1]]}),{cls:'rfacts'}))+
+       [r.temp?r.temp+'°C':'–','Temperature',r.temp2?'Then '+r.temp2+'°C':''],[m.time!=null?mmss(m.time):'By eye','Total time'],[m.level,'Level',m.pours?m.pours+' pour'+(m.pours===1?'':'s'):'']].map(([v,l,sub])=>{const t=tileKey(l,v);return [svgI(t?t[2]:'M12 7v6 M12 16.5v.5'),l,esc(String(v))+(sub?'<em class="bf-sub">'+esc(sub)+'</em>':''),t&&t[1]]}),{cls:'rfacts'}))+
    '<div class="meta">'+gs.map(([g,v])=>'<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>').join('')+'</div>'+
    (r.why?'<p>'+esc(r.why)+'</p>':'')+(compact?'<details class="rsteps"><summary>Steps ('+r.steps.length+')</summary>':'')+(compact?'':pourGraph(sc.steps,sc.water))+stepList(sc.steps)+(r.tip?'<p class="hint">'+esc(r.tip)+'</p>':'')+(compact?'</details>':'')+
    // In the recipe sheet the actions ride along at the bottom, always in reach however far down you are.
@@ -1609,9 +1609,14 @@ const CUPS=[
   ['champ','Champions','Recipes that won world titles','linear-gradient(135deg,#E2B866,#9A6A1E)',r=>!!r.champ,()=>CI(ICO.trophy)]];
 const CUPBY=Object.fromEntries(CUPS.map(c=>[c[0],c]));
 /* What a recipe asks of you, worked out from its steps: how long it takes, how many pours, and how hard it is. */
+// A pour adds water: not a press that ends "and pour", the cup poured out at the end, "the pour should end about here"
+// or adding the coffee itself.
+const isPourStep=s=>{const x=String(s).replace(/^\s*\d+:\d\d\s*/,'');return /\bpour|\badd\b/i.test(x)&&stepKind(x)!=='press'&&!/should end|\bpour (?:everything |it )?out\b|\binto (?:the |your |small )?(?:finjan )?(?:cups?|server|mugs?|carafe|jug)\b|\badd (?:the |fine |crushed |another \d+g of )?(?:cardamom|sugar|milk|coffee)\b/i.test(x)||/^(?:add|pour)\b[^.;]*\b(?:coffee\b[^.;]*\bwater|\d+\s?g)/i.test(x)&&!/\binto\b/i.test(x)}
 const RMETA=new Map();
-function rmeta(r){let m=RMETA.get(r);if(m)return m;const pe=parseSteps(r.steps),ct=pe.some(e=>e.t>0)?clockTotal(r.steps,pe):0,time=ct>0?ct:null,
-    pours=r.steps.filter(s=>/\bpour|\badd\b/i.test(s)).length,k=r.kind,type=BREWERS[r.b].type;
+function rmeta(r){let m=RMETA.get(r);if(m)return m;// The time shown is when the brew is done: the last step's own time when that step ends it ("done", "remove the
+  // dripper"), as the pour graph shows; otherwise the timer's total, which gives a last step still going its 30 seconds.
+  const pe=parseSteps(r.steps),lastT=Math.max(-1,...pe.map(e=>e.t)),endStep=r.steps.length&&stepKind(r.steps[r.steps.length-1])==='end'&&lastT>0,ct=pe.some(e=>e.t>0)?(endStep?lastT:clockTotal(r.steps,pe)):0,time=ct>0?ct:null,
+    pours=r.steps.filter(isPourStep).length,k=r.kind,type=BREWERS[r.b].type;
   const level=r.temp2||['hedrick','kh1','kh2','esp'].includes(k)||pours>=7?'Advanced':pours<=2||['single','imm'].includes(k)||['Valve and hybrid','Immersion and pressure'].includes(type)?'Easy':'Medium';
   const ratio=r.dose&&r.water?'1:'+(Math.round(r.water/r.dose*10)/10):'';
   m={time,pours,level,ratio};RMETA.set(r,m);return m}
@@ -1754,7 +1759,7 @@ $('rgrid').onclick=e=>{const o=e.target.closest('[data-open]');if(o){const i=+o.
 const stepSecs=s=>{const m=String(s).match(/^(\d+):(\d\d)/);return m?+m[1]*60+ +m[2]:null};
 function recipeFacts(r){const st=r.steps||[],ts=st.map(stepSecs).filter(x=>x!=null),g=MYG[0],gv=g?settingFor(g,r.b,r.off):null;
   return{brewer:(BREWERS[r.b]||{}).name||r.b,dose:r.dose,water:r.water,ratio:r.water/r.dose,temp:r.temp||0,temp2:r.temp2||0,off:r.off||0,grind:g&&gv!=null?dial(g,gv):'',gname:g?gname(g):'',
-    pours:st.filter(x=>/\bpour/i.test(x)).length,time:ts.length?Math.max(...ts):0,steps:st}}
+    pours:st.filter(isPourStep).length,time:ts.length?Math.max(...ts):0,steps:st}}
 const rcTime=s=>s?mmss(s):'–';
 function compareSummary(a,b){const A=recipeFacts(a),B=recipeFacts(b),out=[],n=(v,u)=>Math.round(Math.abs(v)*10)/10+u;
   if(A.brewer!==B.brewer)out.push('a '+B.brewer+' instead of a '+A.brewer);
@@ -1790,11 +1795,11 @@ function openCompareNow(i,j){const d=$('vd'),a=RECIPES[i],b=RECIPES[j],A=recipeF
       '<div class="actions ib-row sheet-acts">'+ib('swap','id="rc-swap"','Swap sides')+ib('cmp','id="rc-other"','Compare another recipe')+'</div></div>';
   $('vd-in').onclick=e=>{const o=e.target.closest('[data-rco]');if(o){openRecipe(+o.dataset.rco);return}};
   $('rc-back').onclick=()=>openRecipe(i);$('rc-swap').onclick=()=>openCompare(j,i);$('rc-other').onclick=()=>openComparePick(i);$('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
-function openRecipe(i){const r=RECIPES[i],B=BREWERS[r.b],d=$('vd');
+function openRecipe(i){const r=RECIPES[i],B=BREWERS[r.b],d=$('vd'),shared=!!(r.custom&&r.author&&r.author!==ME);
   // Share and Edit sit in the sheet's header with Save, as on a coffee's page.
   const tools='<span class="vd-tools">'+favBtn(r)+'<button type="button" class="vd-tool" data-rshare="'+i+'" aria-label="Share this recipe" title="Share">'+lIc('share')+'</button>'+
     (r.custom?'<button type="button" class="vd-tool" data-redit="'+esc(r.id)+'" aria-label="Edit this recipe" title="Edit">'+lIc('edit')+'</button>':'')+'</span>';
-  d.querySelector('#vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">\u2715</button>'+tools+'<span class="pill"><i style="background:var(--cherry)"></i>'+(r.custom?(r.author?'Shared recipe':'Your recipe'):'Recipe')+'</span><h2 id="vd-title">'+esc(r.name)+'</h2>'+((r.custom&&r.author)||r.by?'<p class="hint vd-by">'+esc(r.custom&&r.author?'From '+r.author:r.by)+'</p>':'')+'</div>'+
+  d.querySelector('#vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">\u2715</button>'+tools+'<span class="pill"><i style="background:var(--cherry)"></i>'+(r.custom?(shared?'Shared recipe':'Your recipe'):'Recipe')+'</span><h2 id="vd-title">'+esc(r.name)+'</h2>'+(shared||r.by?'<p class="hint vd-by">'+esc(shared?'From '+r.author:r.by)+'</p>':'')+'</div>'+
    '<div class="vd-body"><div class="rscale" role="group" aria-label="Scale this recipe">'+ib('minus','data-rsd="-1"','Less coffee','sm')+'<span class="rs-v"><b id="rs-d"></b><small id="rs-w"></small></span>'+ib('plus','data-rsd="1"','More coffee','sm')+
      '<button type="button" class="ib rs-ice" id="rs-ice" aria-pressed="false" aria-label="Iced: brew over ice" title="Iced: brew over ice">'+lIc('ice')+'</button></div><div id="rs-body"></div>'+'</div>';
   // Scale it: the coffee in 1 g steps (the water, pours and pour chart follow at the recipe's ratio; the times stay),
@@ -2756,7 +2761,9 @@ function renderFlForm(){$('l-flchips').innerHTML=flChips(LFL);$('l-fl').querySel
     '<p class="l-match">'+(can?found?'You found <b>'+found+' of '+can+'</b> '+(can===1?'note':'notes')+' on the bag'+(found===can?'. Spot on.':'.'):'Tap the ones you tasted.':'These notes aren’t on the flavour wheel; add yours below.')+'</p>'}
 $('l-bag').onclick=e=>{const t=e.target.closest('[data-bagfl]');if(!t)return;const id=t.dataset.bagfl,k=LFL.findIndex(x=>x[0]===id);if(k>=0)LFL.splice(k,1);else LFL.push([id,2]);renderFlForm()};
 function renderPalate(){const el=$('l-palate'),P=palate();el.hidden=!P;if(!P)return;
-  el.innerHTML='<button type="button" class="fl-mini" id="pal-open" aria-label="Open your palate">'+fwStatic(P.fl)+'</button><div><h3>Your palate</h3><p class="hint" style="margin:0 0 6px">From '+P.n+(P.n===1?' brew':' brews')+'. You lean '+P.groups.map(g=>'<b class="pal-g" style="--gc:'+g.c+'"><i></i>'+esc(g.n)+'</b>').join(' and ')+'.</p>'+flBar(P.fl)+'<div class="chips" style="margin:0">'+flChips(P.fl.slice(0,6))+'</div></div>';
+  el.innerHTML='<button type="button" class="fl-mini" id="pal-open" aria-label="Open your palate">'+fwStatic(P.fl)+'</button><div class="pal-h"><h3>Your palate</h3><p class="hint">From '+P.n+(P.n===1?' brew':' brews')+'. You lean '+P.groups.map(g=>'<b class="pal-g" style="--gc:'+g.c+'"><i></i>'+esc(g.n)+'</b>').join(' and ')+'.</p></div>'+
+    // The bar and the notes take the card's full width under the wheel and title, so the chips don't squeeze into a column.
+    '<div class="pal-b">'+flBar(P.fl)+'<div class="chips" style="margin:0">'+flChips(P.fl.slice(0,6))+'</div></div>';
   $('pal-open').onclick=()=>openProfile('Your palate','From '+P.n+(P.n===1?' brew':' brews'),P.fl)}
 $('l-fl').onclick=()=>openNotesPicker();
 $('tolog').onclick=()=>{const r=compute(S),dp=dialPlan();if(LEDIT)endEdit();
