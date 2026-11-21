@@ -2054,7 +2054,7 @@ let TC=[],TQ='';const TCOL={bloom:'#C9964A',pour:'#8A5A3B',bed:'#6B8E4E',structu
 function renderTech(){
   ltSync('tlt',{on:TC.length>0,filter:selName(TC,k=>TCAT[k],'All techniques')});
   const q=TQ.toLowerCase();const list=TECH.filter(t=>inSel(TC,t[0])&&(!q||t.join(' ').toLowerCase().includes(q)));
-  $('tgrid').innerHTML=list.length?list.map(t=>'<button type="button" class="card tcard hovercard" aria-expanded="false" style="--c:'+TCOL[t[0]]+'"><span class="cat">'+TCAT[t[0]]+'</span><h3 style="margin:.2rem 0">'+esc(t[1])+'</h3><p style="margin:0">'+esc(t[2])+'</p><p class="more"><b>Why and when.</b> '+esc(t[3])+'</p></button>').join(''):'<p class="hint">Nothing matches. Try a broader word.</p>';
+  $('tgrid').innerHTML=list.length?list.map(t=>'<button type="button" class="card tcard hovercard" aria-expanded="false" style="--c:'+TCOL[t[0]]+'"><span class="pill cat"><i style="background:'+TCOL[t[0]]+'"></i>'+TCAT[t[0]]+'</span><h3>'+esc(t[1])+'</h3><p style="margin:0">'+esc(t[2])+'</p><p class="more"><b>Why and when.</b> '+esc(t[3])+'</p></button>').join(''):'<p class="hint">Nothing matches. Try a broader word.</p>';
 }
 $('tgrid').onclick=e=>{const c=e.target.closest('.tcard');if(c)c.setAttribute('aria-expanded',c.getAttribute('aria-expanded')!=='true')};
 $('tsearch').oninput=e=>{TQ=e.target.value;soon(renderTech)};
@@ -2069,7 +2069,7 @@ let PQ='';const pKeep=p=>inSel(PC,p.cat)&&(!PQ||(p.name+' '+PCAT[p.cat]+' '+p.ch
 function renderProcesses(){PQ=($('psearch')&&$('psearch').value||'').trim().toLowerCase();
   {const n=Object.values(PROCESSES).filter(pKeep).length;{const nm=selName(PC,k=>PCAT[k],'All processes');ltSync('plt',{on:PC.length>0,filter:nm,k:(PQ||PC.length?n+' of '+Object.keys(PROCESSES).length:n)+' processes'})}}
   const pl=Object.entries(PROCESSES).filter(([,p])=>pKeep(p));
-  $('pgrid').innerHTML=pl.length?'':'<p class="hint">No processes match. Try a word like honey, anaerobic or decaf.</p>';if(!pl.length){}else $('pgrid').innerHTML=pl.map(([k,p])=>'<article class="card" id="pc-'+k+'" style="border-top:5px solid '+PCOL[p.cat]+'"><span class="hint">'+PCAT[p.cat]+'</span><h3 style="margin-top:.2rem">'+esc(p.name)+'</h3>'+dirTag(p.dir)+'<p>'+esc(p.char)+'</p><p><b>Brewing it well.</b> '+esc(p.brew)+'</p><div class="chips">'+p.notes.map(n=>'<span class="chip">'+esc(n)+'</span>').join('')+'</div><button class="btn ghost" data-usep="'+k+'">Brew with this process</button></article>').join('');
+  $('pgrid').innerHTML=pl.length?'':'<p class="hint">No processes match. Try a word like honey, anaerobic or decaf.</p>';if(!pl.length){}else $('pgrid').innerHTML=pl.map(([k,p])=>'<article class="card pcard" id="pc-'+k+'"><span class="pill"><i style="background:'+PCOL[p.cat]+'"></i>'+PCAT[p.cat]+'</span><h3>'+esc(p.name)+'</h3>'+dirTag(p.dir)+'<p>'+esc(p.char)+'</p><p><b>Brewing it well.</b> '+esc(p.brew)+'</p><div class="chips">'+p.notes.map(n=>'<span class="chip">'+esc(n)+'</span>').join('')+'</div>'+pbtn('cup','data-usep="'+k+'"','Brew with this process')+'</article>').join('');
   const W=640,H=300,px=f=>60+f/1.7*540,py=a=>150-a/1.6*120;
   let h='<rect x="60" y="20" width="540" height="250" rx="14" fill="var(--paper)"/><line x1="60" y1="150" x2="600" y2="150" stroke="var(--line)"/><line x1="330" y1="20" x2="330" y2="270" stroke="var(--line)"/>'+
    '<text class="ax" x="64" y="292">Clean</text><text class="ax" x="596" y="292" text-anchor="end">Wild and fruity</text>'+
@@ -2174,7 +2174,7 @@ function renderLibrary(){GLF=GLF.filter(k=>['manual','electric','custom'].includ
         return '<div class="card gcard"><div class="gtop">'+gicon(gkind(g))+'<span class="hint">'+esc(G.brand||gtype(g))+' · '+(t==='custom'?'your grinder':t)+(G.espresso?' · espresso':'')+'</span>'+(mine?'<span class="mine-tag">✓ Yours</span>':'')+'</div>'+
           '<div class="ghead"><h3 style="margin:.35rem 0 0">'+esc(G.full)+'</h3>'+(G.custom?ib('del','data-gdel="'+g+'"','Delete this grinder','danger sm'):'')+'</div>'+
           '<div class="meta">'+[['Espresso',G.espresso?es:null],['AeroPress',ap],['V60',v6],['French press',fp]].filter(([n,v])=>n!=='Espresso'||v!=null).map(([n,v])=>'<span>'+n+' '+(v!=null?esc(dial(g,v)):'n/a')+'</span>').join('')+'</div>'+specList(g)+
-          '<div class="actions"><button type="button" class="btn'+(mine?' ghost':'')+'" data-gmine="'+g+'">'+(mine?'Remove from mine':'Add to my grinders')+'</button><button type="button" class="btn ghost" data-gcmp="'+g+'" aria-pressed="'+GCMP.includes(g)+'">'+(GCMP.includes(g)?'✓ Comparing':'Compare')+'</button></div></div>'}).join('')+'</div>'}}
+          '<div class="actions">'+pbtn(mine?'ok':'plus','data-gmine="'+g+'"',mine?'Remove from mine':'Add to my grinders',mine?'':'main')+pbtn('cmp','data-gcmp="'+g+'" aria-pressed="'+GCMP.includes(g)+'"',GCMP.includes(g)?'Comparing':'Compare',GCMP.includes(g)?'on':'')+'</div></div>'}).join('')+'</div>'}}
   $('glib').innerHTML=html||'<p class="hint">No grinders match. Try a brand name, or pick All.</p>';
   renderGCompare()}
 $('glib-search').oninput=e=>{GLQ=e.target.value;soon(renderLibrary)};
@@ -2269,10 +2269,10 @@ function renderGearBrewers(){
   const types=[...new Set(Object.values(BREWERS).map(b=>b.type))];GF=GF.filter(t=>types.includes(t));vwSet('gf',GF);
   {const n=Object.entries(BREWERS).filter(([k,b])=>LISTED(k)&&inSel(GF,b.type)).length;{const nm=selName(GF,k=>k,'All brewers');ltSync('gblt',{on:GF.length>0,filter:nm,k:nm+' · '+n})}
    $('gblt-f').onclick=()=>pickOne('Filter brewers','brewer',[['all','All brewers'],...types.map(t=>[t,t])],()=>GF,v=>{GF=v},renderGearBrewers,()=>Object.entries(BREWERS).filter(([k,b])=>LISTED(k)&&inSel(GF,b.type)).length)}
-  $('gear-brewers').innerHTML=Object.entries(BREWERS).filter(([k,b])=>LISTED(k)&&inSel(GF,b.type)).map(([k,b])=>'<div class="card hovercard" id="gb-'+k+'" style="border-top:5px solid '+TYCOL[b.type]+'"><span class="hint">'+b.type+'</span><h3 style="margin-top:.2rem">'+esc(b.name)+'</h3><p>'+esc(b.desc)+'</p><p><b>How it behaves.</b> '+esc(b.how)+'</p><p><b>Best for.</b> '+esc(b.best)+'</p>'+
+  $('gear-brewers').innerHTML=Object.entries(BREWERS).filter(([k,b])=>LISTED(k)&&inSel(GF,b.type)).map(([k,b])=>'<div class="card hovercard pcard" id="gb-'+k+'"><span class="pill"><i style="background:'+TYCOL[b.type]+'"></i>'+b.type+'</span><h3>'+esc(b.name)+'</h3><p>'+esc(b.desc)+'</p><p><b>How it behaves.</b> '+esc(b.how)+'</p><p><b>Best for.</b> '+esc(b.best)+'</p>'+
    '<div class="meta">'+MYG.map(g=>'<span>'+esc(canGrind(g,k)?gLabel(g,base(g,k)):gname(g)+': n/a')+'</span>').join('')+'</div>'+
    METHODS(k).map(x=>'<p class="hint" style="margin:.5rem 0 .2rem">'+esc(BREWERS[x].method)+'</p><div class="meta">'+MYG.map(g=>'<span>'+esc(canGrind(g,x)?gLabel(g,base(g,x)):gname(g)+': n/a')+'</span>').join('')+'</div>').join('')+
-   '<div class="actions">'+(RECIPES.some(r=>RFAM(r.b)===RFAM(k))?'<button class="btn ghost" data-grec="'+k+'">See recipes</button>':'')+(b.model?'<button class="btn ghost" data-gdial="'+k+'">Dial it in</button>':'')+'</div></div>').join('');
+   '<div class="actions">'+(RECIPES.some(r=>RFAM(r.b)===RFAM(k))?pbtn('log','data-grec="'+k+'"','See recipes'):'')+(b.model?pbtn('cup','data-gdial="'+k+'"','Dial it in'):'')+'</div></div>').join('');
 }
 $('gear-brewers').onclick=e=>{const a=e.target.closest('[data-grec]'),d=e.target.closest('[data-gdial]');
   if(a){RF=['b:'+RFAM(a.dataset.grec)];RQ='';$('rsearch').value='';showTab('recipes');showRecipeList()}
@@ -2302,8 +2302,8 @@ function openVariety(id){
    '<div class="meta">'+(v.origin?'<span>'+esc(v.origin)+'</span>':'')+(v.year?'<span title="'+esc(v.year)+'">'+esc(v.year)+'</span>':'')+'</div></div>'+
    '<div class="vd-body">'+(v.parents?'<p class="hint" style="margin-top:0"><b>Parentage:</b> '+esc(v.parents)+'</p>':'')+
    '<p>'+esc(v.story)+'</p><h3>In the cup</h3><p>'+esc(v.cup)+'</p><div class="chips">'+v.notes.map(n=>'<span class="chip">'+esc(n)+'</span>').join('')+'</div>'+
-   '<h3>Brewing it '+dirTag(v.dir)+'</h3><p>'+esc(v.brew)+'</p>'+
-   (v.subs?'<h3>Types of '+esc(v.name.split(' ')[0])+'</h3>'+v.subs.map(s=>'<details class="sub"><summary>'+esc(s.name)+'</summary><p>'+esc(s.story)+'</p><p><b>Cup:</b> '+esc(s.cup)+'</p><button class="btn ghost" data-use="'+v.id+':'+s.k+'">Brew this in the dial-in</button></details>').join(''):'')+
+   '<h3>Brewing it</h3>'+dirTag(v.dir)+'<p>'+esc(v.brew)+'</p>'+
+   (v.subs?'<h3>Types of '+esc(v.name.split(' ')[0])+'</h3>'+v.subs.map(s=>'<details class="sub"><summary>'+esc(s.name)+'</summary><p>'+esc(s.story)+'</p><p><b>Cup:</b> '+esc(s.cup)+'</p>'+pbtn('cup','data-use="'+v.id+':'+s.k+'"','Brew this in the dial-in')+'</details>').join(''):'')+
    (grown.length?'<h3>Where it grows</h3><div class="chips">'+grown.filter(k=>ALLO()[k]).map(k=>'<button class="chip" data-o="'+k+'">'+(ALLO()[k].flag||'')+' '+esc(originName(k))+'</button>').join('')+'</div>':'')+
    (v.id!=='arabica'?'<div class="actions ib-row sheet-acts">'+pbtn('cup','data-use="'+v.id+'"','Brew this in the dial-in','main')+'</div>':'')+'</div>';
   const d=$('vd');showDlg(d);d.scrollTop=0;
@@ -2339,7 +2339,7 @@ function renderVarieties(){VF=VF.filter(vfOk);vwSet('vf',VF);
   ltSync('vlt',{on:VF.length>0,filter:selName(VF,vfName,'All varieties')});
   const q=VQ.trim().toLowerCase();
   const list=V.filter(v=>vfKeep(v)&&(!q||(v.name+' '+(v.origin||'')+' '+FAM[v.fam].name+' '+v.cup+' '+v.notes.join(' ')+' '+(v.grown||[]).map(originName).join(' ')+' '+(v.subs||[]).map(s=>s.name).join(' ')).toLowerCase().includes(q)));
-  $('vgrid').innerHTML=(list.length?list.map(v=>'<div class="card vcard" data-v="'+v.id+'" style="--c:'+FAM[v.fam].color+'"><button type="button" class="addcmp" data-cmp="'+v.id+'" aria-pressed="'+CMP.includes(v.id)+'">'+(CMP.includes(v.id)?'Comparing':'+ Compare')+'</button><span class="fam">'+FAM[v.fam].name+'</span><h3><button type="button" class="vopen">'+esc(v.name)+'</button></h3>'+
+  $('vgrid').innerHTML=(list.length?list.map(v=>'<div class="card vcard" data-v="'+v.id+'" style="--c:'+FAM[v.fam].color+'">'+ib('cmp','data-cmp="'+v.id+'" aria-pressed="'+CMP.includes(v.id)+'"',CMP.includes(v.id)?'Remove from the comparison':'Compare','sm addcmp')+'<span class="pill fam"><i style="background:'+FAM[v.fam].color+'"></i>'+FAM[v.fam].name+'</span><h3><button type="button" class="vopen">'+esc(v.name)+'</button></h3>'+
     '<div class="meta">'+(v.origin?'<span title="'+esc(v.origin)+'">'+esc(v.origin.match(/^[^,(]*(\([^)]*\))?[^,]*/)[0])+'</span>':'')+(v.year?'<span>'+esc(v.year)+'</span>':'')+(v.subs?'<span>'+v.subs.length+' types</span>':'')+'</div>'+
     '<p>'+esc(v.cup)+'</p>'+dirTag(v.dir)+'</div>').join(''):'<p class="hint">No varieties match. Try a country, a family or a flavour.</p>');
   renderCompare();
@@ -3986,7 +3986,7 @@ function renderChamps(){fetchEvents();CHF=CHF.filter(k=>COMPS[k]);
   const card=ch=>{const C=COMPS[ch.c];return '<div class="chwin"><div class="chpills"><span class="pill"><i style="background:'+C.color+'"></i>'+C.short+'</span>'+(chDev(ch)&&ch.c==='wbrc'?'<span class="pill chdev">'+esc(chDev(ch))+'</span>':'')+'</div>'+
     '<div class="chname"><span class="flag" aria-hidden="true">'+(FLAGS[ch.from]||'')+'</span><b>'+esc(ch.who)+'</b></div>'+
     '<p class="hint">'+esc(ch.from)+' · '+esc(ch.city)+'</p>'+(ch.coffee?'<p class="chcoffee">'+esc(ch.coffee)+'</p>':'')+(ch.note?'<p class="hint">'+esc(ch.note)+'</p>':'')+
-    (ch.rec?'<button type="button" class="btn ghost chbtn" data-champ="'+CHAMPS.indexOf(ch)+'">Winner’s recipe</button>':'')+'</div>'};
+    (ch.rec?pbtn('cup','data-champ="'+CHAMPS.indexOf(ch)+'"','Winner’s recipe','chbtn'):'')+'</div>'};
   const html=years.map(y=>{const w=CHAMPS.filter(x=>x.y===y&&on(x)),gp=!CHB.length?CH_GAPS.filter(g=>g[0]===y&&inSel(CHF,g[1])):[];
     if(!w.length&&!gp.length)return'';
     return '<li><span class="when">'+y+'</span>'+(w.length?'<div class="chrow">'+w.map(card).join('')+'</div>':'')+gp.map(g=>'<p class="hint">'+esc(g[2])+'</p>').join('')+'</li>'}).join('');
@@ -4134,7 +4134,7 @@ function ptreeHTML(nodes,depth){return '<div class="ptree'+(depth?' kids':'')+'"
   return '<div class="pnode" style="--c:'+c+'"><button type="button" class="pn-h" aria-expanded="false"><i aria-hidden="true"></i><span class="pn-t"><b>'+esc(name)+'</b><small'+(n.r?'':' class="dup"')+'>'+esc(sub)+'</small>'+(kn?'<em>'+kn+(kn===1?' variation':' variations')+' inside</em>':'')+'</span>'+
     '<span class="pn-x" aria-hidden="true"></span></button><div class="pn-b">'+
     (P?'<p>'+esc(P.char)+'</p>'+(P.notes&&P.notes.length?'<div class="chips">'+P.notes.map(x=>'<span class="chip">'+esc(x)+'</span>').join('')+'</div>':'')+
-       '<button type="button" class="btn ghost pn-go" data-go-p="'+n.p+'">How it works and how to brew it \u2192</button>':'<p>'+esc(n.d||n.s||'')+'</p>')+
+       pbtn('info','data-go-p="'+n.p+'"','How it works and how to brew it','pn-go'):'<p>'+esc(n.d||n.s||'')+'</p>')+
     (kn?'<p class="pn-kh">'+(P?'Variations of '+esc(P.name.replace(/\s*\(.*$/,'').toLowerCase().replace(/^co2/,'CO2')):'In this group')+'</p>'+ptreeHTML(n.kids,depth+1):'')+'</div></div>'}).join('')+'</div>'}
 function togglePnode(e){const h=e.target.closest('.pn-h');if(!h)return false;const n=h.parentElement,o=!n.classList.contains('open');n.classList.toggle('open',o);h.setAttribute('aria-expanded',o);return true}
 // Tapping a path opens its tree right under it (and closes any other).
@@ -4142,7 +4142,7 @@ function toggleBranch(btn){const i=+btn.dataset.fb,box=btn.parentElement,cur=box
   // The open path folds away as it unfolded (if another path opens, the new one takes its place at once).
   if(cur){if(same&&!RM()){cur.classList.add('out');setTimeout(()=>cur.remove(),180)}else cur.remove()}box.querySelectorAll('.fbr').forEach(b=>b.setAttribute('aria-expanded','false'));if(same)return;
   const b=FLOW_BRANCH[i],el=document.createElement('div');el.className='fbx';el.dataset.fb=i;
-  el.innerHTML='<div class="fbx-h"><b>The '+esc(b.t.toLowerCase())+' path</b><span class="hint">Tap a process to learn more; those with variations open to show them.</span></div>'+ptreeHTML(b.tree,0);
+  el.innerHTML='<div class="fbx-h"><b>The '+esc(b.t.toLowerCase())+' path</b></div>'+ptreeHTML(b.tree,0);
   btn.after(el);btn.setAttribute('aria-expanded','true');const r=el.getBoundingClientRect();if(r.bottom>innerHeight)el.scrollIntoView({block:'nearest',behavior:RM()?'auto':'smooth'})}
 function flowSheet(c,pill,title,sub,body){const d=$('vd');
   d.querySelector('#vd-in').innerHTML='<div class="vd-head" style="--c:'+c+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:'+c+'"></i>'+esc(pill)+'</span><h2 id="vd-title">'+esc(title)+'</h2>'+(sub?'<p class="hint" style="margin:0">'+esc(sub)+'</p>':'')+'</div><div class="vd-body flowd">'+body+'</div>';
@@ -4158,7 +4158,7 @@ function openFlowStep(id){const f=FBY[id];if(!f)return;const [pn,c]=FLOW_PHASES[
     (chips?'<h3>Words to know</h3><div class="chips">'+chips+'</div>':'')+
     '<div class="actions">'+(prev?'<button type="button" class="btn ghost" data-fnav="'+prev.id+'">← '+esc(prev.t)+'</button>':'')+(next?'<button type="button" class="btn" data-fnav="'+next.id+'">'+esc(next.t)+' →</button>':'')+'</div>')}
 function openFlowBranch(i){const b=FLOW_BRANCH[i],c=FLOW_PHASES.mill[1];
-  flowSheet(c,'Processing path',b.t,b.s,'<p><b>In the cup:</b> '+esc(b.d.toLowerCase())+'.</p><h3>'+(treeKeys(b.tree).length>1?'The processes on this path':'The process')+'</h3><p class="hint" style="margin-top:0">Tap a process to learn more; those with variations open to show them.</p>'+ptreeHTML(b.tree,0)+
+  flowSheet(c,'Processing path',b.t,b.s,'<p><b>In the cup:</b> '+esc(b.d.toLowerCase())+'.</p><h3>'+(treeKeys(b.tree).length>1?'The processes on this path':'The process')+'</h3>'+ptreeHTML(b.tree,0)+
     '<div class="actions"><button type="button" class="btn ghost" data-fnav="process">\u2190 Processing</button><button type="button" class="btn" data-fnav="dry">Drying \u2192</button></div>')}
 function flowDoc(){const txt=f=>f.d.replace(/\s*Tap [^.]*\./g,'')+(f.branch?' Paths: '+FLOW_BRANCH.map(b=>b.t+' ('+b.d.toLowerCase()+')').join(', ')+'.':'');
   return withCard({link:SITE_URL+'#flow',title:'From seed to cup',sub:'How coffee is made, step by step',file:'seed-to-cup',cardTitle:'Seed to cup card',cardSub:'Every step from the seed to your cup, in one image.',

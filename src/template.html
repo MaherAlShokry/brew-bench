@@ -3228,6 +3228,38 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
    scroll, the main cause of stutter on Android phones; nearly opaque as they are, it barely showed. */
 .appbar,.minires,.bottomnav,.gtabs,.seg.bviews,nav.tabs,nav.tabs .wrap,.themebtn{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 :root,html.app{--glass:color-mix(in srgb,var(--surface) 98%,transparent);--nav-bg:color-mix(in srgb,var(--surface) 98%,transparent)}
+
+/* One design language: no coloured edge stripes; a dot pill names the family, round icon buttons act, chevrons open. */
+.vcard,.vcard:hover{border-top:0!important;border-top-color:transparent!important}
+.vd-head{border-top:0}
+.tcard{border-left:0}
+.wcard{border-left:0}
+.vcard .pill.fam,.pcard>.pill,.tcard .cat{font:600 .74rem var(--body);color:var(--ink);padding:3px 10px 3px 8px;margin:0 0 6px;max-width:calc(100% - 44px);overflow:hidden;text-overflow:ellipsis}
+.vcard h3,.pcard h3,.tcard h3{margin:.15rem 0 .25rem}
+.vcard .ib.addcmp{position:absolute;top:10px;right:10px;width:34px;height:34px;padding:0;min-height:0;background:var(--surface2);color:var(--ink)}
+.vcard .ib.addcmp[aria-pressed="true"]{background:var(--cherry);color:var(--surface-ink,#fff)}
+.vcard .ib.addcmp::after{inset:-6px}
+.dir{display:inline-flex;align-items:center;gap:6px;width:max-content;font:600 .78rem var(--body);padding:3px 10px;border-radius:999px;background:color-mix(in srgb,var(--leaf) 14%,var(--surface));color:var(--leaf-ink,var(--leaf))}
+.dir.coarse{background:color-mix(in srgb,var(--honey) 18%,var(--surface));color:var(--ink)}
+.wgroup>h3{margin:22px 0 10px;font:700 .78rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.wgroup>h3 i{width:8px;height:8px;border-radius:50%}
+.wcard h4::after{content:"";width:7px;height:7px;flex:none;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:translateY(-2px) rotate(45deg);transition:transform .2s var(--ease-out,ease);align-self:center}
+.wcard.open h4::after{content:"";transform:translateY(2px) rotate(-135deg)}
+.le-notes{border-left:0;border-radius:var(--r-md,14px);background:var(--surface2);font-style:normal;padding:10px 12px}
+.chstart{border-left:0;border-radius:var(--r-md,14px);background:var(--surface2);padding:10px 12px}
+.stepper{border:0;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line);padding:3px;height:auto;gap:2px;overflow:visible}
+.stepper button{width:34px;height:34px;border-radius:50%;background:var(--surface2);color:var(--ink);font:600 1.1rem/1 var(--display)}
+.stepper:focus-within{box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--cherry) 55%,var(--line)),0 0 0 3px color-mix(in srgb,var(--cherry) 14%,transparent)}
+
+.fbr{border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow);border-radius:16px}
+.fbr em{color:var(--ink);display:inline-flex;align-items:center;gap:6px;width:max-content;padding:2px 9px 2px 7px;border-radius:999px;background:var(--surface2);font-size:.74rem}
+.fbr em::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c);flex:none}
+.chwin .pbtn.chbtn{width:auto;align-self:flex-start;margin-top:auto}
+.vcard .meta span{background:none;padding:0;border-radius:0;color:var(--muted);font-size:.84rem;white-space:normal}
+.vcard .meta{gap:4px 12px}
+
+.pbtn.on{background:color-mix(in srgb,var(--cherry) 16%,var(--surface2));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--cherry) 45%,transparent)}
+.pcard>.pbtn,.sub>.pbtn{margin-top:10px}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
@@ -3541,12 +3573,10 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
   </div>
   <div class="gpanel" data-gpanel="dials" role="tabpanel" hidden>
     <h3 id="g-dials" class="gsec">Read your dials</h3>
-    <p class="hint" style="margin-top:0">Drag the slider to see what a setting means and which brew it suits.</p>
     <div class="seg" id="gear-dialpick"></div>
     <div class="grid gdials" id="gear-grinders" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))"></div>
     <div class="card gsec" id="gmatch" style="margin-top:14px"></div>
     <h3 id="g-map" class="gsec" style="margin-top:1.6rem">Where every brewer sits on your dials</h3>
-    <p class="hint">Tap a marker to see the setting. These follow your grind settings.</p>
     <div class="card" id="grindmap"></div>
     <details class="card" style="margin-top:14px"><summary><b>Why grinders need different numbers</b> <span class="hint">How the dials work</span></summary>
     <p>The 1Zpresso grinders use an external ring read as <b>rotation.number.click</b>. Close the burrs until they just touch: that is zero. Turning toward bigger numbers opens the burrs and grinds coarser. Most filter brewing stays inside the first rotation, so the rotation digit is usually dropped: <b>5.6</b> means number 5, click 6.</p>
@@ -3561,7 +3591,6 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
   </div>
   <div class="gpanel" data-gpanel="lib" role="tabpanel" hidden>
     <h3 id="g-lib" class="gsec">Grinder library</h3>
-    <p class="hint" style="margin-top:0">Manual and electric grinders by brand, with their burrs, dials and typical settings. Tap Compare on up to three to see them side by side.</p>
     <div class="lf-top lt" id="glt"><label class="lf-q"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4"/></svg><input type="search" id="glib-search" placeholder="Search grinders" aria-label="Search grinders"></label><button type="button" class="rsortw" id="glt-f" aria-pressed="false" aria-label="Filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
     <div id="gcmp"></div>
     <div id="glib"></div>
