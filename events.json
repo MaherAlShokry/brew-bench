@@ -1,0 +1,42 @@
+{
+ "updated": "2026-09-27",
+ "events": [
+  {
+   "c": "wbc",
+   "y": 2026,
+   "start": "2026-10-22T09:00:00-05:00",
+   "end": "2026-10-25T20:00:00-05:00",
+   "city": "Panama City, Panama",
+   "venue": "Panama Convention Center",
+   "note": "The first World Barista Championship in Central America."
+  },
+  {
+   "c": "wac",
+   "y": 2026,
+   "start": "2026-12-06T10:00:00-06:00",
+   "end": "2026-12-06T20:00:00-06:00",
+   "city": "Mexico City, Mexico",
+   "venue": "Frontón Bucareli",
+   "note": ""
+  },
+  {
+   "c": "wbc",
+   "y": 2027,
+   "start": "2027-04-28T09:00:00+09:00",
+   "end": "2027-05-01T20:00:00+09:00",
+   "city": "Tokyo, Japan",
+   "venue": "Tokyo Big Sight",
+   "note": "Back in Tokyo for the first time since 2007."
+  },
+  {
+   "c": "wbrc",
+   "y": 2027,
+   "start": "2027-09-30T09:00:00-05:00",
+   "end": "2027-10-02T20:00:00-05:00",
+   "city": "Bogotá, Colombia",
+   "venue": "World of Coffee Bogotá",
+   "note": ""
+  }
+ ],
+ "champs": []
+}
