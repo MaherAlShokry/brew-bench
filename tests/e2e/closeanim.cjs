@@ -30,7 +30,7 @@ if(has){await p.click('.fbr >> nth=0');await p.waitForTimeout(300);ok('a process
 else ok('flow page has process paths',false);
 // Back returns to the same spot on the page you came from (it jumped up as the closing page slid away).
 await p.click('.bottomnav [data-bn="explore"]');await p.waitForTimeout(800);await p.evaluate(()=>scrollTo(0,500));await p.waitForTimeout(300);
-const y0=await p.evaluate(()=>scrollY);await p.click('#explore .hubgrid button >> nth=0');await p.waitForTimeout(900);await p.click('#ab-back');await p.waitForTimeout(1000);
+const y0=await p.evaluate(()=>scrollY);await p.evaluate(()=>document.querySelector('#explore .hubgrid button').click());await p.waitForTimeout(900);await p.click('#ab-back');await p.waitForTimeout(1000);
 ok('back returns to the same spot',Math.abs(await p.evaluate(()=>scrollY)-y0)<3,[y0,await p.evaluate(()=>scrollY)]);
 // A sheet opened afresh starts at its top, wherever the last one was left.
 await p.click('.bottomnav [data-bn="beans"]');await p.waitForTimeout(800);await p.evaluate(()=>openBean(BEANS[0].id));await p.waitForTimeout(600);

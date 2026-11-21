@@ -34,8 +34,8 @@ const {chromium}=require('playwright');const S='ed/';
   await p.evaluate(()=>openRecipe(1));await p.waitForTimeout(400);ok('graph in recipe',await p.locator('#vd .pgraph').count()===1);await p.locator('#vd .vd-body').screenshot({path:S+'recipe.png'});await p.evaluate(()=>$('vd').close());await p.waitForTimeout(400);
   // timer drawdown check
   await p.evaluate(()=>{openTimer(2);TM.el=TM.total;paint();done()});await p.waitForTimeout(300);ok('drawdown check shown',await p.locator('.tm-draw').count()===1);
-  await p.click('[data-dd="-30"]');ok('advice',true,await p.locator('.tm-dres').textContent());
-  await p.click('#tm-keep');await p.waitForTimeout(200);ok('saved calibration',await p.evaluate(()=>BASE[MYG[0]]&&BASE[MYG[0]].v60),await p.evaluate(()=>[BASE[MYG[0]],dial(MYG[0],base(MYG[0],'v60'))]));
+  const before=await p.evaluate(()=>JSON.stringify(BASE));await p.click('[data-dd="-30"]');await p.waitForTimeout(200);
+  ok('the drawdown answer shows no message and leaves your grinder calibration alone',await p.evaluate(b=>!document.querySelector('.tm-dres,#tm-keep')&&JSON.stringify(BASE)===b,before));
   await p.locator('#timer .tm2').screenshot({path:S+'timer.png'});
  }
  await ctx.close()}

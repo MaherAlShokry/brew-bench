@@ -403,7 +403,6 @@ button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.a
 .tm-draw,.tm-taste{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);color:var(--ink)}
 .tm-dq{margin:0 0 8px;font-weight:600;font-size:.92rem}.tm-dq small{display:block;font-weight:400;color:var(--muted);font-size:.8rem}
 .tm-dseg{display:flex;flex-wrap:wrap;gap:6px}.tm-dseg button{flex:1 1 28%;min-height:40px;font-size:.82rem;white-space:nowrap;overflow:visible;text-overflow:clip;padding:8px 6px}
-.tm-dres p,.tm-tres p{margin:10px 0 6px;font-size:.9rem;white-space:normal}.tm-dres .btn,.tm-tres .btn{width:100%}
 .tm-ctl{display:flex;align-items:center;justify-content:center;gap:26px;margin-top:2px}
 .tm-play{width:84px;height:84px;border-radius:50%;border:0;background:var(--cherry);color:var(--surface-ink,var(--surface));display:grid;place-items:center;cursor:pointer;box-shadow:0 10px 26px color-mix(in srgb,var(--cherry) 40%,transparent);transition:transform .12s}
 .tm-play svg{width:34px;height:34px;fill:currentColor}.tm-play:active{transform:scale(.93)}
@@ -2089,10 +2088,6 @@ i.rl{font-style:inherit;font-variant-numeric:tabular-nums}
 #settings .setgroup:nth-of-type(n+3){content-visibility:auto;contain-intrinsic-size:auto 300px}
 .tn-x.arm{outline:2px solid var(--cherry);outline-offset:1px}.tn-x.flash{animation:tnflash .7s ease}@keyframes tnflash{0%,100%{transform:none}30%{transform:scale(1.08);box-shadow:0 0 0 3px color-mix(in srgb,var(--cherry) 30%,transparent)}}
 .tm-why{font-size:.82rem;color:var(--muted);margin:4px 0 8px}
-.dnext{margin:8px 0 0;padding:8px 12px;border-radius:12px;background:color-mix(in srgb,#4F8A74 10%,var(--surface));font-size:.85rem}.dnext b{color:#3F7A62;margin-right:6px}
-:root[data-theme="dark"] .dnext b{color:#7FC4A3}
-.bd-dnext{display:flex;gap:12px;align-items:center;margin:12px 0;padding:12px 14px;border-radius:16px;background:color-mix(in srgb,#4F8A74 10%,var(--surface));border:1px solid color-mix(in srgb,#4F8A74 30%,var(--hair))}
-.bd-dnext span:last-child{display:grid}.bd-dnext small{color:var(--muted);font-size:.82rem}.bd-dni{font-size:1.3rem}
 .re-check{margin:12px 0 4px;padding:12px 14px;border-radius:16px;background:color-mix(in srgb,#C08A2A 12%,var(--surface));border:1px solid color-mix(in srgb,#C08A2A 40%,var(--hair))}.re-check ul{margin:6px 0 0;padding-left:18px}.re-check li{margin:3px 0;font-size:.9rem}
 /* Recipe compare */
 .rcmp-go{all:unset;box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin:14px 0 4px;padding:12px;border-radius:16px;border:1px dashed color-mix(in srgb,var(--cherry) 45%,var(--line));color:var(--cherry-ink);font-weight:600;cursor:pointer}
@@ -3024,8 +3019,11 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 .bfacts.photo .bf{align-items:center}.bfacts.photo .bf-i{width:46px;height:46px}
 .bfacts.c2 .bf>span,.bfacts.c1 .bf>span{padding-top:1px}
 .bf>span{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
-.bf small{font-size:.72rem;font-weight:600;letter-spacing:.02em;color:var(--muted);line-height:1.2}
-.bf b{display:block;font:650 .98rem/1.25 var(--display);color:var(--ink);overflow-wrap:anywhere}
+.bf small{font-size:calc(.72rem*(.4 + .6*var(--bfs,1)));font-weight:600;letter-spacing:.02em;color:var(--muted);line-height:1.2}
+.bf b{display:block;font:650 .98rem/1.25 var(--display);color:var(--ink);overflow-wrap:break-word;hyphens:auto}
+/* A date stays on one line. When one doesn't fit, every value in its card steps down together (--bfs, set by
+   fitFacts), so a card's values are always one size. */
+.bf b{font-size:calc(.98rem*var(--bfs,1))}.bfacts.num .bf b{font-size:calc(1.3rem*var(--bfs,1))}.bfacts.top.c3 .bf b{font-size:calc(1rem*var(--bfs,1))}.bf b.nw{white-space:nowrap}.bf>span{min-width:0}
 .bf-sub{display:block;margin-top:2px;font:500 .74rem/1.25 var(--body,inherit);font-style:normal;color:var(--muted)}
 .bfacts.num small::first-letter{text-transform:uppercase}
 .bfacts.num .bf b{font-size:1.3rem;line-height:1.1;font-variant-numeric:tabular-nums}
@@ -3082,7 +3080,6 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 .il .il-sw{stroke:color-mix(in srgb,var(--leaf) 80%,var(--ink));stroke-width:2.6}
 .empty-acts{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:14px}
 
-.dnext .dn-use{margin-left:6px;font-weight:700}.dnext .dn-on{margin-left:6px;font-size:.78rem;font-weight:700;color:var(--leaf-ink,var(--leaf))}
 
 /* ===== Floating pills, one motion: the tab bar, the + and a sheet's action bar slide down out of the way as you scroll
    down and spring back as you scroll up. Going away is quick and eases in; coming back is a touch slower with a small
@@ -3316,15 +3313,15 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
         <p class="hint tuneline" id="d-tuned"></p>
       </div>
 </div></details>
-<details class="dstep" data-step="tune" open><summary><span class="dn">4</span><span class="dst"><b>Fine-tune</b><small id="ds-tune"></small></span><span class="dchev" aria-hidden="true"></span></summary><div class="dstep-in"><p class="hint dstep-lead">Tuned for your coffee and target. Adjust by taste.</p>
-      <div class="field"><label for="i-grind">Grind <span><span class="num" id="v-grind"></span></span></label><input type="range" id="i-grind"><div class="dialrow"><svg id="dialsvg" class="dialmini" viewBox="0 0 160 160" aria-hidden="true"></svg><p class="hint" style="margin:0">Dials read number.click. <button type="button" class="linkbtn" data-gearto="dials">How each grinder reads</button></p></div></div>
+<details class="dstep" data-step="tune" open><summary><span class="dn">4</span><span class="dst"><b>Fine-tune</b><small id="ds-tune"></small></span><span class="dchev" aria-hidden="true"></span></summary><div class="dstep-in">
+      <div class="field"><label for="i-grind">Grind <span><span class="num" id="v-grind"></span></span></label><input type="range" id="i-grind"><div class="dialrow"><svg id="dialsvg" class="dialmini" viewBox="0 0 160 160" aria-hidden="true"></svg><p class="hint" style="margin:0"><button type="button" class="linkbtn" data-gearto="dials">How each grinder reads</button></p></div></div>
       <div class="two">
         <div class="field"><label for="i-temp">Water <span class="num" id="v-temp"></span></label><input type="range" id="i-temp" min="85" max="100" step="1"></div>
         <div class="field"><label for="i-ratio">Ratio <span class="num" id="v-ratio"></span></label><input type="range" id="i-ratio" min="13" max="18" step="0.5"></div>
       </div>
       <div class="field"><label for="i-bloom">Bloom <span class="num" id="v-bloom"></span></label><input type="range" id="i-bloom" min="20" max="180" step="5"></div>
-      <div class="field"><div class="lbl">Agitation <span class="hint">pour force, swirls, stirs</span></div><div class="seg" id="g-agit"></div></div>
-      <p class="hint dcal-link">Grinder runs finer or coarser than the app expects? <button type="button" class="linkbtn" data-gearto="set">Set it in Grind settings</button>.</p>
+      <div class="field"><div class="lbl">Agitation</div><div class="seg" id="g-agit"></div></div>
+      <p class="hint dcal-link"><button type="button" class="linkbtn" data-gearto="set">Grind settings</button></p>
       <div hidden>      <div class="cal">
         <summary>Calibrate to your grinders</summary>
         <p class="hint">Enter, in clicks from zero, the setting that gives you a balanced cup on each brewer. The dial reading shows beside each box. Predictions and recipe grinds are measured from these.</p>
@@ -3355,14 +3352,13 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <!-- SCAN -->
 <section id="scan">
   <h2>Scan your beans</h2>
-  <p class="lede" id="scan-lede">Snap a bag and get its details and a brew plan for your gear.</p>
   <div class="bench">
     <div class="panel">
       <div id="scan-drop" class="drop">
         <input type="file" id="scan-cam" accept="image/*" capture="environment" hidden>
         <input type="file" id="scan-file" accept="image/*" hidden>
         <img id="scan-prev" alt="" hidden>
-        <div id="scan-empty"><div class="dropicon" aria-hidden="true">◎</div><b>Tap to scan a bag</b><p class="hint" style="margin:.2rem 0 0">A clear shot of the label works best.</p></div>
+        <div id="scan-empty"><div class="dropicon" aria-hidden="true">◎</div><b>Tap to scan a bag</b></div>
       </div>
       <div class="actions two-up"><button class="btn" id="scan-pick">Take a photo</button><button class="btn ghost" id="scan-choose">Choose a photo</button></div>
       <div class="actions two-up" id="scan-again" hidden><button class="btn ghost" id="scan-go" disabled>Read again</button><button class="btn ghost" id="scan-stop" hidden>Stop</button></div>
@@ -3389,7 +3385,6 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <!-- BEANS: your own coffee. Scan a bag, keep every coffee you've had, crown your favourites. -->
 <section id="beans">
   <h2>Beans</h2>
-  <p class="lede">Scan a bag, keep every coffee you’ve had, and crown your favourites.</p>
   <div id="beans-in"></div>
 <div class="fab fab-dial" id="b-fab" role="group" aria-label="Beans actions"><div class="fab-menu" id="b-fab-menu" role="menu" hidden></div><button type="button" class="ib main fab-main" id="b-fab-add" aria-label="Add to your beans" title="Add" aria-haspopup="menu" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14 M5 12h14"/></svg></button></div>
 </section>
@@ -3397,7 +3392,6 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <!-- TECHNIQUES -->
 <section id="tech">
   <h2>Techniques</h2>
-  <p class="lede">Every move in the brewing toolbox, and when to use it.</p>
   <div class="lf-top lt" id="tlt"><label class="lf-q"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4"/></svg><input type="search" id="tsearch" placeholder="Search techniques" aria-label="Search techniques"></label><button type="button" class="rsortw" id="tlt-f" aria-pressed="false" aria-label="Filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
   <div class="grid" id="tgrid"></div>
 </section>
@@ -3405,7 +3399,6 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <!-- GEAR -->
 <section id="gear">
   <h2>Gear and dials</h2>
-  <p class="lede">Your grinders, brewers and grind settings.</p>
   <div class="card kit" id="gear-kit"></div>
   <div class="seg filters scrollrow gtabs" id="gear-tabs" role="group" aria-label="Gear and dials">
     <button type="button" data-gtab="set">Grind</button><button type="button" data-gtab="dials">Dials</button><button type="button" data-gtab="brew">Brewers</button><button type="button" data-gtab="lib">Grinders</button><button type="button" data-gtab="acc">More</button>
@@ -3450,7 +3443,6 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <!-- MAP -->
 <section id="map">
   <h2>Origins map</h2>
-  <p class="lede">Coffee grows between the tropics. Tap a country to explore it.</p>
   <div class="atlas">
     <div>
       <div class="mapbox"><div class="mapname" id="mapname"></div>
@@ -3468,7 +3460,6 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <!-- VARIETIES -->
 <section id="variety">
   <h2>Varieties</h2>
-  <p class="lede">Every variety by family: its story, taste and how to brew it.</p>
   <div class="lf-top lt" id="vlt"><label class="lf-q"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4"/></svg><input type="search" id="vsearch" placeholder="Search varieties" aria-label="Search varieties"></label><button type="button" class="rsortw" id="vlt-f" aria-pressed="false" aria-label="Filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
   <div id="vcompare"></div>
   <div class="grid" id="vgrid"></div>
@@ -3477,7 +3468,6 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <!-- HISTORY -->
 <section id="champs">
   <h2>Coffee World Championships</h2>
-  <p class="lede">Every world champion and their winning recipes, set for your grinder.</p>
   <div id="ch-next"></div>
   <div class="lf-top lt" id="chlt"><p class="lt-k" id="chlt-k"></p><button type="button" class="rsortw" id="chlt-f" aria-pressed="false" aria-label="Filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
   <div class="grid" id="ch-about"></div>
@@ -3489,7 +3479,6 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <!-- FROM SEED TO CUP -->
 <section id="flow">
   <h2>From seed to cup</h2>
-  <p class="lede">Every step from a seedling to your cup. Tap one to see why it matters.</p>
   <div class="flowlegend" id="flowlegend"></div>
   <div class="flow" id="flowchart"></div>
 </section>
@@ -3497,7 +3486,6 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <!-- COFFEE WORDS -->
 <section id="words">
   <h2>Coffee words</h2>
-  <p class="lede">The words on bags and menus, from co-fermentation to TDS.</p>
   <div class="lf-top lt" id="wlt"><label class="lf-q"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4"/></svg><input type="search" id="wsearch" placeholder="Search coffee words" aria-label="Search coffee words"></label><button type="button" class="rsortw" id="wlt-f" aria-pressed="false" aria-label="Filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
   <p class="hint" id="wcount" style="margin:0 0 10px"></p>
   <div id="wlist"></div>
@@ -3506,7 +3494,6 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <!-- FLAVOUR WHEEL -->
 <section id="wheel">
   <h2>Flavour wheel</h2>
-  <p class="lede">275 tasting notes in 9 families. Tap a colour to open it up.</p>
   <div class="fw-layout">
     <div class="fw-main">
       <input type="search" id="fw-q" placeholder="Find a note" aria-label="Find a flavour note">
@@ -3524,7 +3511,6 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 
 <section id="history">
   <h2>The story of coffee</h2>
-  <p class="lede">From wild Ethiopian forests to Yemen, and then the world.</p>
   <h3>The coffee family tree</h3>
   <p class="hint">Tap any variety to trace its ancestors and read its story. Families follow genetics, not names: Pink Bourbon sits with the Ethiopian landraces because DNA tests show that is where it comes from.</p>
   <div class="legend" id="treelegend"></div>
@@ -3545,7 +3531,6 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <!-- RECIPES -->
 <section id="recipes">
   <h2>Recipes</h2>
-  <p class="lede">Pick a brewer or collection, or search. Grind settings follow your calibration.</p>
   <div class="rsearchw"><label class="lf-q"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4"/></svg><input type="search" id="rsearch" placeholder="Search recipes" aria-label="Search recipes"></label></div>
   <div id="rhome"></div>
   <div class="rhead"><h3 class="rh" id="rall">All recipes</h3><div class="rhtools"><button type="button" class="rsortw" id="rfiltbtn" aria-label="Filter recipes" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button><button type="button" class="rsortw" id="rsortbtn" aria-label="Sort recipes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h11M4 12h8M4 17h5M18 6v12M15 15l3 3 3-3"/></svg></button></div></div>
@@ -3555,7 +3540,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <!-- PROCESSES -->
 <section id="process">
   <h2>Processes</h2>
-  <p class="lede">How each process shapes the cup, and how to brew it. <button type="button" class="linkbtn" data-go-t="flow">See where processing fits, from seed to cup</button></p>
+  <p class="lede"><button type="button" class="linkbtn" data-go-t="flow">See where processing fits, from seed to cup</button></p>
   <div class="card" style="margin-bottom:16px"><h3 style="margin-top:0">The process map</h3><p class="hint" style="margin-top:0">Left is clean, right is wild; top is bright, bottom is soft. Tap a dot.</p><svg id="pmap" viewBox="0 -14 640 314" role="img" aria-label="Processes plotted by cleanliness and acidity"></svg></div>
   <div class="lf-top lt" id="plt"><p class="lt-k" id="plt-k"></p><button type="button" class="rsortw" id="plt-f" aria-pressed="false" aria-label="Filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
   <div class="grid" id="pgrid"></div>
@@ -3564,7 +3549,6 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <!-- GUIDE -->
 <section id="guide">
   <h2>Guide</h2>
-  <p class="lede">Ratios, fixes for what you taste, and the levers that move extraction.</p>
   <div class="twocol" style="margin-bottom:2rem">
     <div class="panel"><h2>Ratio calculator</h2>
       <div class="two"><div class="field"><label for="c-dose">Coffee <span class="num" id="cv-dose"></span></label><input type="range" id="c-dose" min="7" max="60" step="0.5"></div>
@@ -3614,7 +3598,6 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <!-- LOG -->
 <section id="log">
   <h2>Brew log</h2>
-  <p class="lede">Every cup you brew, how it went and what you tasted.</p>
   <div class="panel sharepanel" id="l-share" style="margin-bottom:14px"></div>
   <div class="panel" id="l-form" style="margin-bottom:18px">
     <p class="hint l-editing" id="l-editing" hidden></p>
@@ -3644,14 +3627,12 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <!-- EXPLORE (the phone's Explore tab) -->
 <section id="explore">
   <h2>Explore</h2>
-  <p class="lede">Where coffee comes from, how it's made and brewed, and the people who shaped it.</p>
   <div id="explore-in"></div>
 </section>
 
 <!-- SETTINGS -->
 <section id="settings">
   <h2>Settings</h2>
-  <p class="lede">Make the app yours: its look, your tools and your data.</p>
   <div id="settings-in"></div>
 </section>
 </main>

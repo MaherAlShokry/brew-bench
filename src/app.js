@@ -481,10 +481,32 @@ function compute(st){
     bitter:clamp(0.8+Math.max(0,D)*2.4+roastBit+Math.max(0,st.temp-96)*0.3)};
 }
 // What the cup should taste of: the variety's and process's notes, shifted by how far the extraction lands from the sweet spot.
-function cupNotes(st,r){const P=PROCESSES[st.process],Vv=vById(st.variety);let ch=[...Vv.notes.slice(0,3),...P.notes];
-  if(r.D<-1.2)ch=['sour','grassy','thin',Vv.notes[0]];else if(r.D<-0.45)ch=['bright',...ch.slice(0,4)];
-  else if(r.D>1.2)ch=['drying','bitter cocoa','papery','muted'];else if(r.D>0.45)ch=['syrupy','brown sugar',...Vv.notes.slice(0,2)];
-  if(P.funk>=1.2&&r.D>0.45)ch.push('harsh ferment');return [...new Set(ch)]}
+// What the cup is likely to taste of, most likely first. Each source adds weight to its notes: the bag's own tasting
+// notes count most, then what you tasted in this coffee's brews (more from the ones you rated well), then the variety
+// and process, the roast, the brewer and the cup you're aiming for. The extraction then leans it: underdone brings the
+// bright, fruity notes forward, heavier brings the sweet and chocolate ones, and far off either way leads with the faults.
+// The tasting-note helpers live in beans.js, which loads after the first render: until then they're skipped.
+const tnReady=()=>{try{return typeof tnLeaf==='function'&&typeof tnSplit==='function'&&typeof tnColor==='function'}catch(e){return false}};
+const CUP_LEAN={Fruity:'bright','Sour/Fermented':'bright',Floral:'bright','Green/Vegetative':'bright',Sweet:'sweet','Nutty/Cocoa':'sweet',Roasted:'sweet',Spices:'sweet'};
+function cupNotes(st,r){const P=PROCESSES[st.process]||{},Vv=vById(st.variety)||{},B=BREWERS[st.brewer]||{},sc=new Map();
+  const gb=window.BEANS_OK&&st.bean&&st.bean.id&&typeof beanById==='function'?beanById(st.bean.id):null;
+  const add=(w,v)=>{w=String(w||'').trim();const k=fold(w);if(!k)return;const o=sc.get(k);sc.set(k,{w:o?o.w:w,v:(o?o.v:0)+v})};
+  if(gb&&gb.flavours&&tnReady())tnSplit(gb.flavours).forEach((w,i)=>add(w,6-i*0.3));
+  if(gb&&typeof flOf==='function')for(const l of LOG){if(!l||!l.snap||!l.snap.bean||l.snap.bean.id!==gb.id)continue;const good=(+l.stars||3)>=4;
+    for(const [id,v] of flOf(l)){const n=FW.byId[id];if(n)add(n.n,1+v*0.6+(good?0.6:0))}}
+  (Vv.notes||[]).slice(0,3).forEach((w,i)=>add(w,2.5-i*0.4));(P.notes||[]).forEach((w,i)=>add(w,2-i*0.3));
+  if(st.roast==='dark'){add('dark chocolate',4);add('roasty',3)}else if(st.roast==='medium'){add('caramel',2);add('milk chocolate',1.6)}
+  if((B.clarity||0)>=0.7)add('clean',0.7);if((B.body||0)>=1)add('round body',0.7);
+  const g=st.goal;if(g==='bright')add('juicy acidity',1);else if(g==='sweet')add('sweet',1);else if(g==='body')add('syrupy',1);else if(g==='clean'||g==='tea')add('tea-like',1);
+  const tr=tnReady(),leanOf=w=>{const n=tr&&tnLeaf(w),f=n&&(FW.byId[n.id]||n);return f&&f.cat?CUP_LEAN[f.cat.n]:null};
+  // A darker roast mutes the bright notes and deepens the sweet ones; so does brewing heavier, and lighter does the opposite.
+  const D=r?r.D:0,rb=st.roast==='dark'?0.7:st.roast==='medium'?0.9:1,rs=st.roast==='dark'?1.2:1,
+    mul={bright:(D<-0.45?1.4:D>0.45?0.75:1)*rb,sweet:(D<-0.45?0.8:D>0.45?1.4:1)*rs};
+  let list=[...sc.values()].map(x=>({w:x.w,v:x.v*(mul[leanOf(x.w)]||1)})).sort((a,b)=>b.v-a.v).map(x=>x.w);
+  if(D<-1.2)list=['sour','thin',...list.slice(0,3)];else if(D<-0.45)list=['bright',...list];
+  else if(D>1.2)list=['bitter','drying',...list.slice(0,3)];else if(D>0.45)list=['syrupy',...list];
+  if((P.funk||0)>=1.2&&D>0.45)list.splice(1,0,'harsh ferment');
+  const seen=new Set();return list.filter(w=>{const k=fold(w);return k&&!seen.has(k)&&seen.add(k)}).slice(0,6)}
 function verdict(D){
   if(D<-1.2)return['Under-extracted','Sour, thin and hollow. The flavours feel unfinished.'];
   if(D<-0.45)return['Bright and light','Lively and clear, a touch lean. Some sweetness left in the bean.'];
@@ -778,7 +800,7 @@ function setHTML(el,h){if(el._h===h)return false;el._h=h;el.innerHTML=h;return t
 function renderDBean(){const el=$('d-bean');if(!el||!window.BEANS_OK)return;const b=S.bean,gb=b&&b.id&&beanById(b.id);
   if(b){setHTML(el,'<div class="dbean">'+(gb?beanPic(gb,'xs'):'<span class="bpic xs" style="--rc:'+regCol(b.origin)+'"><span class="bph">'+beanSVG+'</span></span>')+
       '<button type="button" class="dbean-tx" data-dbpick><b>'+esc(b.name)+'</b><small>'+esc([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · ')||'Tap to change')+'</small></button>'+
-      '<button type="button" class="dbean-x" data-dbclear aria-label="Clear the beans">✕</button></div>'+dnextHTML(b.id))&&hydrateImgs(el)}
+      '<button type="button" class="dbean-x" data-dbclear aria-label="Clear the beans">✕</button></div>')&&hydrateImgs(el)}
   else setHTML(el,BEANS.length?'<button type="button" class="btn ghost dbean-pick" data-dbpick>'+beanSVG+'Pick from your bean gallery</button>':'<p class="hint" style="margin:0">Add coffees under Beans (or scan a bag) and they show here and on your shared brew cards.</p>')}
 // The four steps of the dial-in each fold to a line saying what's set. Which are open is remembered; at first, the
 // gear is folded (it's always set) and your coffee is folded once you've picked one from your gallery.
@@ -820,7 +842,7 @@ function render(){schedulePreCard();
     .map(([n,v,c])=>'<div class="bar tbar t-'+c+(c==='bitt'?' bitter':'')+'"><i class="tdot" aria-hidden="true"></i><span>'+n+'</span><div class="t"><b style="width:'+(v*10)+'%"></b></div><span class="num">'+v.toFixed(1)+'</span></div>').join('');
   drawCup(r);
   const P=PROCESSES[S.process];
-  $('o-chips').innerHTML=cupNotes(S,r).map(c=>'<span class="chip">'+esc(c)+'</span>').join('');
+  $('o-chips').innerHTML=cupNotes(S,r).map(c=>'<span class="chip">'+(tnReady()?'<i class="dot" style="background:'+tnColor(c)+'"></i>':'')+esc(c)+'</span>').join('');
   const tips=[];PLAN=null;
   {const bx=baseX(S.grinder,S.brewer),off=bx==null?0:stepsBetween(S.grinder,bx,S.setting);
     if(Math.abs(off)>2.5)tips.push('<b>'+esc(gLabel(S.grinder,S.setting))+' is much '+(off>0?'finer':'coarser')+' than '+art(brewName(B.name))+' '+esc(brewName(B.name))+' usually needs.</b> Most brews start around '+esc(dial(S.grinder,Math.round(bx)))+'. <button type="button" class="linkbtn" data-reset-grind>Reset to '+esc(dial(S.grinder,Math.round(bx)))+'</button>')}
@@ -1186,34 +1208,25 @@ let DIALNEXT=(()=>{const o=load('bb-dialnext',{});return o&&typeof o==='object'&
 // Grind memory: what a coffee was last brewed at (its newest logged brew with a grind), so the Brew page can offer it.
 function lastBrewFor(id){if(!id)return null;const l=LOG.find(l=>l&&l.snap&&l.snap.bean&&l.snap.bean.id===id&&l.snap.g&&l.snap.c!=null);
   return l?{g:l.snap.g,set:l.snap.c,temp:l.snap.t,brewer:l.snap.b,at:l.ts}:null}
-// The Brew page's line under the coffee: what you saved to try next (or what worked), else what you last brewed it at,
-// with Use it to set the grinder, setting, temperature and brewer in one tap (shown only when they differ from now).
-function dnextHTML(id){if(!id)return'';const x=dialNextFor(id),y=x||lastBrewFor(id);if(!y||!y.g||!GRINDERS[y.g])return'';
-  const same=S.grinder===y.g&&Math.abs(S.setting-y.set)<1e-6&&(!y.temp||S.temp===y.temp)&&(!y.brewer||S.brewer===y.brewer);
-  return '<p class="dnext"><b>'+(x?(x.taste==='good'?'What worked last time':'Try this time'):'Last time')+'</b> '+esc(dialNextLine(y))+
-    (same?' <span class="dn-on">In use</span>':(MYG.includes(y.g)?' <button type="button" class="linkbtn dn-use" data-dnuse="'+esc(id)+'">Use it</button>':''))+'</p>'}
-document.addEventListener('click',e=>{const u=e.target.closest('[data-dnuse]');if(!u)return;const id=u.dataset.dnuse,y=dialNextFor(id)||lastBrewFor(id);if(!y||!MYG.includes(y.g))return;
-  if(y.brewer&&BREWERS[y.brewer])S.brewer=y.brewer;S.grinder=y.g;S.setting=roundG(y.g,y.set);if(y.temp&&BREWERS[S.brewer]){const T=BREWERS[S.brewer].temp;S.temp=clamp(y.temp,T.min,T.max)}
-  render();if(window.BEANS_OK)renderDBean();tapBuzz();toast('Set to '+dialNextLine(y))});
+// Picking a coffee on the Brew page sets what you saved for it after its last brew (from how it tasted), else what you
+// last brewed it at: the grinder and setting, the water and the brewer. Quietly: nothing is shown.
+function memApply(id){const y=dialNextFor(id)||lastBrewFor(id);if(!y||!y.g||!GRINDERS[y.g]||!MYG.includes(y.g)||y.set==null)return false;
+  if(y.brewer&&BREWERS[y.brewer])S.brewer=CANONB(y.brewer);S.grinder=y.g;S.setting=roundG(y.g,y.set);if(y.temp&&BREWERS[S.brewer]){const T=BREWERS[S.brewer].temp;S.temp=clamp(y.temp,T.min,T.max)}return true}
 function dialNextFor(id){const x=id&&DIALNEXT[id];return x&&typeof x==='object'?x:null}
-function dialNextLine(x){if(!x)return'';const G=x.g&&GRINDERS[x.g];return [G&&x.set!=null?gLabel(x.g,x.set):'',x.temp?x.temp+'°C':'',x.brewer&&BREWERS[x.brewer]?BREWERS[x.brewer].name:''].filter(Boolean).join(' · ')}
 function tasteCheck(){const p=TM.p,r=TM.r||RECIPES[TM.idx],b=(p&&(p.brewer||p.st&&p.st.brewer))||r.b,B=BREWERS[b];if(!B)return;
   const g=p&&p.grinder||MYG.find(x=>canGrind(x,b)),v=g&&(p&&p.set&&p.set[g]!=null?p.set[g]:settingFor(g,b,r.off||0)),t0=+(p?p.temp:r.temp)||0;
   const beanId=p&&p.bean||S.bean&&S.bean.id||'',gb=beanId&&window.BEANS_OK?beanById(beanId):null;let taste=null;
   const box=document.createElement('div');box.className='tm-taste';
-  box.innerHTML='<p class="tm-dq">How did it taste?</p><div class="seg tm-tseg" role="group" aria-label="How it tasted"><button type="button" data-tt="sour" aria-pressed="false">Sour</button><button type="button" data-tt="good" aria-pressed="false">Balanced</button><button type="button" data-tt="bitter" aria-pressed="false">Bitter</button></div><div class="tm-tres" aria-live="polite"></div>';
+  box.innerHTML='<p class="tm-dq">How did it taste?</p><div class="seg tm-tseg" role="group" aria-label="How it tasted"><button type="button" data-tt="sour" aria-pressed="false">Sour</button><button type="button" data-tt="good" aria-pressed="false">Balanced</button><button type="button" data-tt="bitter" aria-pressed="false">Bitter</button></div>';
   $('tm-next').appendChild(box);
-  const draw=()=>{const out=box.querySelector('.tm-tres');if(!taste){out.innerHTML='';return}
-    // The grind: the drawdown answer when there is one, else a quarter of a recipe step for the taste.
-    const ds=TM.dd!=null&&TM.dd!==0?TM.dd/DRAW_S*160:taste==='sour'?-TASTE_DS:taste==='bitter'?TASTE_DS:0;
-    const nv=g&&v!=null?roundG(g,shift(g,v,ds)):null,clicks=nv!=null?Math.abs(nv-v):0;
+  // The answer adjusts this coffee's grind and water for next time, kept with the coffee and applied when you pick it
+  // on the Brew page; nothing is shown. The drawdown answer, when given, sets the grind.
+  const draw=()=>{const dd=TM.dd!=null&&TM.dd!==0;if(!taste&&!dd)return;
+    const ds=dd?TM.dd/DRAW_S*160:taste==='sour'?-TASTE_DS:taste==='bitter'?TASTE_DS:0;
+    const nv=g&&v!=null?roundG(g,shift(g,v,ds)):null;
     const nt=t0?clamp(t0+(taste==='sour'?2:taste==='bitter'?-2:0),85,99):0;
-    const rec={brewer:b,recipe:r.name,g:g||'',set:nv!=null?nv:v,temp:nt||t0||0,taste,at:todayISO()};TM.tasteRec=rec;
-    let h;if(taste==='good')h='<p><b>Keep it.</b> '+(g&&v!=null?esc(gLabel(g,v))+(t0?' at '+t0+'°C':''):'This recipe as it is')+' worked'+(gb?' for '+esc(beanTitle(gb)):'')+'.</p>';
-    else{const parts=[clicks?'<b>'+clicks+' click'+(clicks===1?'':'s')+' '+(ds<0?'finer':'coarser')+'</b> ('+esc(gLabel(g,nv))+')':'',nt&&nt!==t0?'<b>'+nt+'°C</b> water ('+(nt>t0?'hotter':'cooler')+')':''].filter(Boolean);
-      h='<p>Next time: '+(parts.length?parts.join(' and '):'keep the grind, and pour a touch '+(taste==='sour'?'slower':'faster'))+'.</p><p class="tm-why">'+(taste==='sour'?'Sour is under-extracted: finer and hotter pull out more of the sweetness.':'Bitter is over-extracted: coarser and cooler pull out less of the harshness.')+'</p>'}
-    out.innerHTML=h+(gb?'<button type="button" class="btn ghost" id="tm-tkeep">'+(taste==='good'?'Remember what worked':'Remember for next time')+'</button>':'');
-    const k=out.querySelector('#tm-tkeep');if(k)k.onclick=()=>{DIALNEXT[gb.id]=rec;save('bb-dialnext',DIALNEXT);k.disabled=true;k.textContent='Saved with '+beanTitle(gb);if(window.BEANS_OK)renderDBean()}};
+    const rec={brewer:b,recipe:r.name,g:g||'',set:nv!=null?nv:v,temp:nt||t0||0,taste:taste||'',at:todayISO()};TM.tasteRec=rec;
+    if(gb&&rec.g){DIALNEXT[gb.id]=rec;save('bb-dialnext',DIALNEXT)}};
   TM.tasteDraw=draw;
   box.querySelector('.tm-tseg').onclick=e=>{const bt=e.target.closest('[data-tt]');if(!bt)return;taste=bt.dataset.tt;box.querySelectorAll('[data-tt]').forEach(x=>x.setAttribute('aria-pressed',x===bt));draw()}}
 function drawCheck(){const p=TM.p,r=TM.r||RECIPES[TM.idx],b=(p&&(p.brewer||p.st&&p.st.brewer))||r.b,B=BREWERS[b];
@@ -1221,17 +1234,10 @@ function drawCheck(){const p=TM.p,r=TM.r||RECIPES[TM.idx],b=(p&&(p.brewer||p.st&
   const g=p&&p.grinder||MYG.find(x=>canGrind(x,b)),v=p&&p.set&&p.set[g]!=null?p.set[g]:g?settingFor(g,b,r.off||0):null;if(g==null||v==null)return;
   const opts=[[-30,'30s early'],[-15,'15s early'],[0,'On time'],[15,'15s late'],[30,'30s late']];
   const box=document.createElement('div');box.className='tm-draw';
-  box.innerHTML='<p class="tm-dq">When did the drawdown finish? <small>The recipe aims for '+mmss(TM.total)+'</small></p><div class="seg tm-dseg" role="group" aria-label="Drawdown timing">'+opts.map(([d,t])=>'<button type="button" data-dd="'+d+'" aria-pressed="false">'+t+'</button>').join('')+'</div><div class="tm-dres" aria-live="polite"></div>';
+  box.innerHTML='<p class="tm-dq">When did the drawdown finish? <small>The recipe aims for '+mmss(TM.total)+'</small></p><div class="seg tm-dseg" role="group" aria-label="Drawdown timing">'+opts.map(([d,t])=>'<button type="button" data-dd="'+d+'" aria-pressed="false">'+t+'</button>').join('')+'</div>';
   $('tm-next').appendChild(box);
-  box.querySelector('.tm-dseg').onclick=e=>{const bt=e.target.closest('[data-dd]');if(!bt)return;const dd=+bt.dataset.dd;TM.dd=dd;if(TM.tasteDraw)TM.tasteDraw();
-    box.querySelectorAll('[data-dd]').forEach(x=>x.setAttribute('aria-pressed',x===bt));const out=box.querySelector('.tm-dres');
-    if(!dd){out.innerHTML='<p>Your grind is right for this brewer. Keep '+esc(gLabel(g,v))+'.</p>';return}
-    // Early means the bed was too open: finer (a smaller size). Late: coarser.
-    const ds=dd/DRAW_S*160,nv=roundG(g,shift(g,v,ds)),n=Math.abs(nv-v),G=GRINDERS[g];
-    if(!n){out.innerHTML='<p>That\u2019s less than one click on the '+esc(G.name)+'. Keep '+esc(gLabel(g,v))+' and pour a touch '+(dd<0?'slower':'faster')+'.</p>';return}
-    out.innerHTML='<p>Go <b>'+n+' click'+(n===1?'':'s')+' '+(dd<0?'finer':'coarser')+'</b> next time: <b>'+esc(gLabel(g,nv))+'</b>.</p><button type="button" class="btn ghost" id="tm-keep">Use this for my '+esc(BREWERS[B.of||b].name)+'</button>';
-    $('tm-keep').onclick=()=>{const cb=B.of||b,bx=baseX(g,cb);if(bx==null)return;(BASE[g]=BASE[g]||{})[cb]=roundG(g,shift(g,bx,ds));BOFF={};save('bb-base3',BASE);
-      render();renderCal();if(BUILT.recipes)renderRecipes();if(BUILT.gear){renderGrindMap();renderMatch()}$('tm-keep').disabled=true;$('tm-keep').textContent='Saved as your '+BREWERS[cb].name+' setting';toast('Your '+G.name+' setting for the '+BREWERS[cb].name+' is now '+dial(g,BASE[g][cb]))}}}
+  box.querySelector('.tm-dseg').onclick=e=>{const bt=e.target.closest('[data-dd]');if(!bt)return;TM.dd=+bt.dataset.dd;if(TM.tasteDraw)TM.tasteDraw();
+    box.querySelectorAll('[data-dd]').forEach(x=>x.setAttribute('aria-pressed',x===bt))}}
 function paint(){const el=TM.el,C=2*Math.PI*96;$('tm-big').textContent=mmss(el);
   $('tm-arc').setAttribute('stroke-dashoffset',(C*(1-el/TM.total)).toFixed(1));
   let cur=-1;TM.ev.forEach((e,i)=>{if(e.t>=0&&e.t<=el)cur=i});
@@ -1831,13 +1837,13 @@ function openRecipeEditor(r,fresh){const isNew=!r||fresh;r=Object.assign({b:'v60
      '<div class="field"><label for="re-b">Brewer</label><select id="re-b">'+brewerOptions(Object.keys(BREWERS).filter(LISTED))+'</select></div>'+
      '<div class="field" id="re-mw" hidden><span class="lab">Method</span><div class="seg" id="re-m" role="group" aria-label="Method"><button type="button" data-m="hy">Hybrid</button><button type="button" data-m="im">Full immersion</button></div></div>')+
    card(2,'Coffee and water','<div class="re-tiles">'+tile('re-dose','Coffee','g',r.dose,0.5)+tile('re-water','Water','g',r.water,10)+tile('re-temp','Water temp','°C',r.temp,1)+'</div><p class="re-ratio" id="re-ratio"></p>')+
-   card(3,'Grind','<div class="field"><label for="re-off" class="sr">Grind</label><input id="re-off" type="range" min="-3" max="3" step="0.1" value="'+(-r.off)+'"><div class="rangeends"><span>Finer</span><span id="re-offl">Brewer baseline</span><span>Coarser</span></div><div class="meta" id="re-gs"></div></div>','relative to the brewer, so it works on any grinder')+
-   card(4,'Steps','<div id="re-steps"></div>','tap a kind of step to add it; times let the timer follow')+
+   card(3,'Grind','<div class="field"><label for="re-off" class="sr">Grind</label><input id="re-off" type="range" min="-3" max="3" step="0.1" value="'+(-r.off)+'"><div class="rangeends"><span>Finer</span><span id="re-offl">Brewer baseline</span><span>Coarser</span></div><div class="meta" id="re-gs"></div></div>')+
+   card(4,'Steps','<div id="re-steps"></div>')+
    card(5,'The story','<div class="field"><label for="re-why">Why it works <span class="hint">optional</span></label><textarea id="re-why" rows="2" placeholder="What this recipe does differently">'+esc(r.why)+'</textarea></div>'+
      '<div class="field"><label for="re-tip">Tip <span class="hint">optional</span></label><input id="re-tip" maxlength="300" value="'+esc(r.tip)+'" placeholder="One thing to try next time"></div>'+
      '<div class="field"><label for="re-by">Credit <span class="hint">optional</span></label><input id="re-by" maxlength="60" value="'+esc(r.by)+'"></div>')+
    '<div class="re-check" id="re-check" hidden role="status"></div><div class="actions"><button class="btn" id="re-save">'+(isNew?'Save recipe':'Save changes')+'</button>'+(!isNew?ib('del','id="re-del"','Delete this recipe','danger'):'')+'</div>'+
-   (GROUP&&SYNC_DB?'<p class="hint">Saved recipes are shared with your group ('+GROUP.code+').</p>':'<p class="hint">Share it from its card'+(SYNC_DB?', or start a shared log in the Log tab to share all your recipes with your team':'')+'.</p>')+'</div>';
+   '</div>';
   $('re-b').value=CANONB(BREWERS[r.b].of||r.b);let method=imm?'im':'hy';
   const SE=stepEditor($('re-steps'),r.steps,{water:r.water,dose:r.dose});
   // The Switch brews as a hybrid or as a full immersion: one brewer to choose; an immersion recipe keeps the immersion's
@@ -2150,10 +2156,10 @@ const openGrinderPicker=()=>openGearPicker('grinders');
 const KIT_IC={g:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10l-1 5H8z"/><path d="M8 9h8v6a4 4 0 0 1-8 0z"/><path d="M12 19v2"/><path d="M17 6h3"/></svg>',
   b:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16l-6 8v4h-4v-4z"/><path d="M8 21h8"/></svg>'};
 function renderMyBrewers(){const el=$('gear-kit');if(!el)return;
-  const row=(ic,title,sub,btn,attr,chips)=>'<div class="kit-row"><div class="kit-h"><span class="kit-ic">'+ic+'</span><div><b>'+title+'</b><small>'+sub+'</small></div><button type="button" class="btn ghost" '+attr+'>'+btn+'</button></div><div class="kit-chips">'+chips+'</div></div>';
+  const row=(ic,title,sub,btn,attr,chips)=>'<div class="kit-row"><div class="kit-h"><span class="kit-ic">'+ic+'</span><div><b>'+title+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</div><button type="button" class="btn ghost" '+attr+'>'+btn+'</button></div><div class="kit-chips">'+chips+'</div></div>';
   el.innerHTML='<h3 style="margin:0">Your kit</h3>'+
-    row(KIT_IC.g,'Grinders','Settings everywhere are shown for these','Add or change','data-gpick',MYG.map(g=>'<button type="button" class="chip" data-kitg="'+g+'">'+esc(gname(g))+'</button>').join(''))+
-    row(KIT_IC.b,'Brewers','Recipes and champion brews adapt to these',MYB.length?'Add or change':'Choose','data-gpick-b',MYB.length?MYB.map(b=>'<button type="button" class="chip" data-kitb="'+b+'">'+esc(BREWERS[b].name)+'</button>').join(''):'<p class="hint">None picked yet. Choose the brewers you own so recipes fit your kit.</p>');
+    row(KIT_IC.g,'Grinders','','Add or change','data-gpick',MYG.map(g=>'<button type="button" class="chip" data-kitg="'+g+'">'+esc(gname(g))+'</button>').join(''))+
+    row(KIT_IC.b,'Brewers','',MYB.length?'Add or change':'Choose','data-gpick-b',MYB.length?MYB.map(b=>'<button type="button" class="chip" data-kitb="'+b+'">'+esc(BREWERS[b].name)+'</button>').join(''):'<p class="hint">None picked yet. Choose the brewers you own so recipes fit your kit.</p>');
   el.onclick=e=>{const g=e.target.closest('[data-kitg]'),b=e.target.closest('[data-kitb]');
     if(g){const go=()=>{GDIAL=g.dataset.kitg;renderMyGrinders();gearTab('dials');$('g-dials').scrollIntoView({behavior:RM()?'auto':'smooth',block:'start'})};if(!fromTap(go))go()}
     if(b){GF=[];renderGearBrewers();const c=$('gb-'+b.dataset.kitb);if(c){c.style.scrollMarginTop='16px';c.scrollIntoView({block:'start'});
@@ -2521,7 +2527,7 @@ function renderShare(){const el=$('l-share');if(!el)return;
   el.hidden=!SYNC_DB;if(!SYNC_DB){el.innerHTML='';return}
   // Your name comes from your profile; only without one does the card ask for it.
   const nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick||'';
-  if(!GROUP){el.innerHTML='<h3>Shared log</h3><p class="hint" style="margin-top:0">Log brews together: everyone in the group sees each other’s entries on their own phone.</p>'+
+  if(!GROUP){el.innerHTML='<h3>Shared log</h3>'+
     (nick?'<div class="sh-me">'+avatarHTML(PROFILE,34)+'<span>Friends will see your brews as <b>'+esc(nick)+'</b></span></div>':'<div class="field"><label for="sh-name">Your name</label><input id="sh-name" maxlength="30" value="'+esc(ME)+'"></div>')+
     '<div class="actions"><button class="btn" id="sh-new">Start a shared log</button></div>'+
     '<div class="field" style="margin:12px 0 0"><label for="sh-code">Or join with a code</label><div class="joinrow"><input id="sh-code" placeholder="ABCD-2345" maxlength="9" autocapitalize="characters" value="'+esc(JOIN_CODE||'')+'"><button class="btn ghost" id="sh-join">Join</button></div></div>';
@@ -4028,9 +4034,19 @@ const FIG_C=['#F97316','#14B8A6','#8B5CF6','#3B82F6'];
 // two to a row with fine dividers (three for counts), each a coloured icon chip with its name and answer. An item is
 // [icon html, name, answer html, colour, attributes]; with attributes it's a button that opens something.
 const svgI=d=>'<svg viewBox="0 0 24 24"><path d="'+d+'"/></svg>';
+// Cards with a date: the values step down together until every date fits on its line (at most to 60%), checked when a
+// card appears or the screen changes width.
+function fitFacts(){document.querySelectorAll('.bfacts').forEach(c=>{const d=c.querySelectorAll('b.nw');if(!d.length||!c.getClientRects().length)return;
+  const w=c.clientWidth;if(c._fw===w)return;c._fw=w;let f=1;c.style.setProperty('--bfs','1');
+  for(let i=0;i<8&&[...d].some(e=>e.scrollWidth>e.clientWidth+1);i++){f=+(f-0.05).toFixed(2);c.style.setProperty('--bfs',String(f))}})}
+{let q=0;const go=()=>{if(q)return;q=requestAnimationFrame(()=>{q=0;fitFacts()})};new MutationObserver(go).observe(document.documentElement,{childList:true,subtree:true});
+  addEventListener('resize',()=>{document.querySelectorAll('.bfacts').forEach(c=>{c._fw=0});go()})}
+const FACT_DATE=/^(\d{1,2} )?[A-Z][a-z]{2,8}\.? (\d{1,2}, )?\d{4}$|^[A-Z][a-z]{2} \d{1,2}$/;
 function factCard(items,opt){opt=opt||{};const cols=opt.cols||2;
   return '<div class="bfacts c'+cols+(opt.num?' num':'')+(opt.top?' top':'')+(opt.cls?' '+opt.cls:'')+'"'+(opt.label?' role="group" aria-label="'+opt.label+'"':'')+'>'+items.map(([ic,k,v,c,at])=>{const tag=at?'button':'div';
-    return '<'+tag+(at?' type="button" '+at:'')+' class="bf" style="--tc:'+(c||'#8B8F98')+'"><i class="bf-i" aria-hidden="true">'+ic+'</i><span>'+(opt.num||opt.top?'<b>'+v+'</b><small>'+k+'</small>':'<small>'+k+'</small><b>'+v+'</b>')+'</span>'+
+    // A date ("Dec 17, 2025", "Oct 2026") stays on one line.
+    const b='<b'+(FACT_DATE.test(String(v).replace(/<[^>]*>/g,'').trim())?' class="nw"':'')+'>'+v+'</b>';
+    return '<'+tag+(at?' type="button" '+at:'')+' class="bf" style="--tc:'+(c||'#8B8F98')+'"><i class="bf-i" aria-hidden="true">'+ic+'</i><span>'+(opt.num||opt.top?b+'<small>'+k+'</small>':'<small>'+k+'</small>'+b)+'</span>'+
       (at&&cols<3?'<svg class="bf-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>':'')+'</'+tag+'>'}).join('')+'</div>'}
 // Counts (coffees, cups, origins…): the same card, the number first.
 function figsHTML(cls,items,label){const n=items.length;return factCard(items.map(([d,nn,l],i)=>[svgI(FIG[d]||ICO[d]||d),l,nn,FIG_C[i%4]]),{num:true,cols:n===3?3:2,cls,label})}
@@ -4222,21 +4238,22 @@ let SET_H='';
 const appverHTML=()=>(appVersion()?'<div class="appver'+(updLatest()?' new':'')+'">'+ico('download','#4F8A74')+'<span class="av-tx"><b>Brew Bench '+esc(appVersion())+'</b><small>'+esc(updNote())+'</small></span>'+
       '<div class="av-btns">'+(updLatest()?pbtn('dl','id="st-updgo"','Update now','main'):'')+pbtn('reset','id="st-upd"',updLatest()?'Check again':'Check for updates',updLatest()?'quiet':'')+'</div></div>':'');
 function renderSettings(soft){const t=document.documentElement.getAttribute('data-theme')||'auto',fresh=!(soft&&$('st-mode'));
-  const row=(icon,bg,title,sub,body)=>'<div class="setrow"><div class="sl">'+ico(icon,bg)+'<span class="mt"><b>'+title+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</span></div>'+(body||'')+'</div>';
+  // Each row is its title and its controls: no description under the title.
+  const row=(icon,bg,title,sub,body)=>'<div class="setrow"><div class="sl">'+ico(icon,bg)+'<span class="mt"><b>'+title+'</b></span></div>'+(body||'')+'</div>';
   // A row that is itself the action (a chevron at its end), for a row with one thing to do.
-  const linkRow=(attrs,icon,bg,title,sub)=>'<button type="button" class="setrow setlink" '+attrs+'><span class="sl">'+ico(icon,bg)+'<span class="mt"><b>'+title+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</span><i class="setchev" aria-hidden="true">'+lIc('chev')+'</i></span></button>';
+  const linkRow=(attrs,icon,bg,title,sub)=>'<button type="button" class="setrow setlink" '+attrs+'><span class="sl">'+ico(icon,bg)+'<span class="mt"><b>'+title+'</b></span><i class="setchev" aria-hidden="true">'+lIc('chev')+'</i></span></button>';
   const qt=(k,n,d)=>[svgI(ICO[hubItem(k)[4]]),esc(d),n,HUB_C[k],'data-go="'+k+'"'];
   if(!fresh)settingsSync();else{const h=factCard([qt('gear','Gear',MYG.length+' grinder'+(MYG.length>1?'s':'')+(MYB.length?', '+MYB.length+' brewer'+(MYB.length>1?'s':''):'')),qt('log','Brew log',LOG.length?LOG.length+' brew'+(LOG.length>1?'s':''):'Rate and keep your brews'),qt('guide','Guide','Ratios, fixes')],{cols:3,top:true,cls:'qtools'})+
     // In the Android app: its version, whether a newer one is out, and a button to check now (the website updates itself).
     appverHTML()+
     // On the website (not iPhone, where there's no Android app to get): the Android app, one tap to download.
-    (!window.Capacitor&&!IOS()?'<div class="appver getapp">'+ico('download','#4F8A74')+'<span class="av-tx"><b>Get the Android app</b><small>The same Brew Bench, plus daily reminders. Sign in to bring your coffees and brews with you.</small></span>'+
-      '<div class="av-btns"><a class="pbtn main" id="st-getapk" href="'+APK_URL+'" rel="noopener">'+lIc('dl')+'<span>Download for Android</span></a></div><p class="setnote av-note">Open the downloaded file to install it. Android may ask you to allow installs from your browser the first time.</p></div>':'')+
+    (!window.Capacitor&&!IOS()?'<div class="appver getapp">'+ico('download','#4F8A74')+'<span class="av-tx"><b>Get the Android app</b></span>'+
+      '<div class="av-btns"><a class="pbtn main" id="st-getapk" href="'+APK_URL+'" rel="noopener">'+lIc('dl')+'<span>Download for Android</span></a></div></div>':'')+
     '<h3 class="rh">Appearance</h3><div class="setgroup">'+
     row(curTheme()==='dark'?'moon':'sun','#5B5F66','Light or dark','Bright cream, cosy espresso, or follow your phone','<div class="seg" id="st-mode"></div>')+
-    row('drop','var(--cherry)','Vibe','A whole look, in light and in dark','<div class="vibes">'+VIBES.map(([k,n,d,L,D])=>'<button type="button" class="vibe" data-vibe="'+k+'" aria-pressed="'+(UI.vibe===k)+'" style="--l-p:'+L.paper+';--l-s:'+L.surface+';--l-i:'+L.ink+';--l-c:'+L.cherry+';--l-h:'+L.honey+';--d-p:'+D.paper+';--d-s:'+D.surface+';--d-i:'+D.ink+';--d-c:'+D.cherry+';--d-h:'+D.honey+'"><span class="vb-pv" aria-hidden="true"><i class="vb-l"><u></u><s></s><em></em></i><i class="vb-d"><u></u><s></s><em></em></i></span><b>'+n+'</b><small>'+d+'</small></button>').join('')+'</div>')+
+    row('drop','var(--cherry)','Vibe','A whole look, in light and in dark','<div class="vibes">'+VIBES.map(([k,n,d,L,D])=>'<button type="button" class="vibe" data-vibe="'+k+'" aria-pressed="'+(UI.vibe===k)+'" style="--l-p:'+L.paper+';--l-s:'+L.surface+';--l-i:'+L.ink+';--l-c:'+L.cherry+';--l-h:'+L.honey+';--d-p:'+D.paper+';--d-s:'+D.surface+';--d-i:'+D.ink+';--d-c:'+D.cherry+';--d-h:'+D.honey+'"><span class="vb-pv" aria-hidden="true"><i class="vb-l"><u></u><s></s><em></em></i><i class="vb-d"><u></u><s></s><em></em></i></span><b>'+n+'</b></button>').join('')+'</div>')+
     row('palette','var(--cherry)','Accent','Change just the highlight colour (Vibe’s own keeps the vibe’s)','<div class="swatches">'+ACCENTS.map(([k,n,c])=>'<button type="button" class="swatch" data-accent="'+k+'" aria-pressed="'+(UI.accent===k)+'"><i style="background:'+(k==='classic'?ownAccent():c)+'"></i>'+n+'</button>').join('')+'</div>')+
-    row('leaf','#6B8E4E','App logo','In the top bar, the tab and on your home screen','<div class="logos">'+Object.entries(LOGOS).map(([k,[n]])=>'<button type="button" class="logopick" data-logo="'+k+'" aria-pressed="'+(UI.logo===k)+'"><span class="lg-tile">'+logoSVG(k,36)+'</span>'+n+'</button>').join('')+'</div><p class="setnote">'+(NATIVE&&plugin('AppIcon')?'Your home-screen icon changes to match a moment after you leave the app.':NATIVE?'The home-screen icon follows the logo from the next app update.':'The browser tab shows it too. In the Android app, the home-screen icon follows it.')+'</p>')+
+    row('leaf','#6B8E4E','App logo','In the top bar, the tab and on your home screen','<div class="logos">'+Object.entries(LOGOS).map(([k,[n]])=>'<button type="button" class="logopick" data-logo="'+k+'" aria-pressed="'+(UI.logo===k)+'"><span class="lg-tile">'+logoSVG(k,36)+'</span>'+n+'</button>').join('')+'</div>'+'')+
     row('text','#C9964A','Text size','','<div class="seg" id="st-text"></div>')+
     row('motion','#6E8FA8','Motion','Animations between pages and sheets','<div class="seg" id="st-motion"></div>')+
     row('globe','#4F8A74','Open the app on','The page you see first','<div class="seg" id="st-start"></div>')+
@@ -4246,10 +4263,10 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
 
    '<h3 class="rh">Reminders</h3><div class="setgroup">'+row('bell','#8A5A3B','Coffee of the day','A coffee from your cabinet each day: a bag at its peak or running low, one from this day in an earlier year, or a memory from your diary.',
      window.BEANS_OK&&LN()?'<div class="setbtns rem"><div class="seg" id="st-remind"></div><input type="time" id="st-rtime" class="dateinp" value="'+REMIND.t+'" aria-label="Reminder time"'+(REMIND.on?'':' disabled')+'></div>'
-       :'<p class="setnote" style="margin:0">It’s at the top of Beans and Explore each day. In the Android app it can also arrive as a notification at the time you choose.</p>')+
+       :'')+
      row('bulb','#9A7390','Coffee fact of the day','Something worth knowing from Explore each day, in turn: a coffee word, a variety, an origin, a process, a brewing technique, a moment in history or a champion.',
        window.BEANS_OK&&LN()?'<div class="setbtns rem"><div class="seg" id="st-learn"></div><input type="time" id="st-ltime" class="dateinp" value="'+LEARN.t+'" aria-label="Fact time"'+(LEARN.on?'':' disabled')+'></div>'
-         :'<p class="setnote" style="margin:0">Today’s is on the Explore page. In the Android app it can also arrive as a notification at the time you choose.</p>')+'</div>'+
+         :'')+'</div>'+
    /* Gear, Guide and the Log are the buttons at the top. */
    '<h3 class="rh">Your data</h3><div class="setgroup">'+row('download','#8A5A3B','Back up and restore','Everything you’ve saved stays on this device: '+esc(dataSummary())+'. Save it as a file, photos included, to keep it safe or move it to another phone.',
      '<p class="setnote" id="st-lastbak" style="margin:0 0 8px">'+lastBakText()+'</p><div class="setbtns">'+pbtn('dl','id="st-export"','Back up','main')+pbtn('ul','id="st-import"','Restore')+'<input type="file" id="st-file" accept="application/json,.json" hidden></div>')+'</div>'+
@@ -4426,7 +4443,7 @@ function grindChanged(){BOFF={};save('bb-base3',BASE);save('bb-goff',GOFF);retun
   if(typeof renderGrindMap==='function'&&BUILT.process)try{renderGrindMap()}catch(e){}if(BUILT.gear)renderMatch();renderCal();renderGrindSet()}
 function renderGrindSet(){const el=$('st-grind');if(!el)return;const open=new Set([...el.querySelectorAll('details[open]')].map(d=>d.dataset.g));
   const nudge=g=>{const n=gOff(g);return n?Math.abs(n)+' click'+(Math.abs(n)===1?'':'s')+' '+(n<0?'finer':'coarser'):'As the app sets them'};
-  el.innerHTML='<p class="setnote gs-lead">Your grinders’ settings for each brewer. Recipes, the dial-in and the timer all follow what you set here. Setting a brewer on one grinder moves your other grinders on that brewer to the same grind size, unless you set them too.</p>'+
+  el.innerHTML=''+
     MYG.filter(g=>GRINDERS[g]).map(g=>{const G=GRINDERS[g],bs=MODEL.filter(LISTED).filter(b=>canGrind(g,b)),mine=bs.filter(b=>BASE[g]&&BASE[g][b]!=null).length;
       return '<div class="setgroup gs" data-g="'+g+'"><div class="setrow"><div class="sl">'+ico('wheel','#6E8FA8')+'<span class="mt"><b>'+esc(G.full||G.name)+'</b><small>All recipes: '+nudge(g)+'</small></span></div>'+
         '<div class="stepper gs-all"><button type="button" data-gall="-1" aria-label="All recipes one click finer">−</button><output>'+(gOff(g)>0?'+':'')+gOff(g)+'</output><button type="button" data-gall="1" aria-label="All recipes one click coarser">+</button></div></div>'+
@@ -4522,7 +4539,7 @@ if(window.claude&&window.claude.use){
     try{const l=await s.limits();IMGS=!!(l&&l.images);if(IMGS)$('scan-file').accept=$('scan-cam').accept=l.images.mediaTypes.join(',')}catch(e){IMGS=false}
     $('scan-go').disabled=!SFILE}).catch(()=>{});
   window.claude.use('downloads').then(d=>{DL=d;renderLog()}).catch(()=>{});
-}else{$('scan-status').hidden=true;$('scan-lede').textContent='Snap a bag and get its details and a brew plan for your gear. The label is read on your phone.'}
+}else{$('scan-status').hidden=true}
 
 /* ---------- The speed log: the slowest taps, kept on this phone ----------
    The phone's own measure of each tap (Event Timing): from the touch to the next frame on screen. The 40 slowest are
