@@ -7,8 +7,8 @@ const ok=(n,v,x)=>console.log((v?'ok   ':'FAIL ')+n+(v||x===undefined?'':'  ('+J
 const p=await b.newPage({viewport:{width:360,height:800}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
 await p.route(u=>!u.href.startsWith('http://localhost'),r=>r.abort());await p.addInitScript(()=>sessionStorage.setItem('bb-splashed','1'));
 await p.goto('http://localhost:8099/index.html');await p.evaluate(require('./seed2.cjs'));await p.reload();await p.waitForTimeout(1800);
-const vis=await p.evaluate(()=>['dial','recipes','beans','explore','settings'].map(t=>{goTab(t);const r=$('ab-search').getBoundingClientRect();return r.width>0&&r.right<=innerWidth}));
-ok('the search button is in the top bar on every tab',vis.every(Boolean),vis);
+const vis=await p.evaluate(()=>['dial','recipes','beans','explore','settings'].map(t=>{goTab(t);const r=$('ab-search').getBoundingClientRect(),i=$('ab-search').querySelector('svg').getBoundingClientRect();return r.width>0&&r.right<=innerWidth&&i.width>=16}));
+ok('the search button, with its icon, is in the top bar on every tab',vis.every(Boolean),vis);
 await p.click('#ab-search');await p.waitForTimeout(600);
 const s=async q=>p.evaluate(async q=>{const i=$('gs-q');i.value=q;i.dispatchEvent(new Event('input'));await new Promise(r=>setTimeout(r,60));
   return{groups:[...document.querySelectorAll('#gs-res .gx-h')].map(h=>h.textContent),first:(document.querySelector('#gs-res .gx-row b')||{}).textContent,mark:!!document.querySelector('#gs-res mark'),text:$('gs-res').textContent}},q);

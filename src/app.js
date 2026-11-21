@@ -2615,8 +2615,15 @@ function cabinetHTML(){const fr=Object.values(CABS||{}).filter(c=>c&&typeof c===
   return '<div class="sh-cabs"><h4 class="sh-ch">On their shelves</h4>'+fr.map(c=>'<div class="sh-cab"><b>'+esc(c.by.slice(0,30))+'</b><div class="sh-cbs">'+c.beans.slice(0,4).filter(x=>x&&typeof x.n==='string').map(x=>{const o=okOrigin(x.o),P=PROCESSES[x.p];
       return '<span class="sh-cb"><span class="sh-cbf" aria-hidden="true">'+(o&&o!=='blend'?flagOf(o):'☕')+'</span><span><b>'+esc(x.n.slice(0,60))+'</b><small>'+esc([String(x.r||'').slice(0,50),o&&o!=='blend'?originName(o):'',P?P.name.replace(/\s*\(.*\)$/,''):''].filter(Boolean).join(' · '))+'</small></span></span>'}).join('')+'</div></div>').join('')+'</div>'}
 function renderCabinets(){const el=$('sh-cab');if(el)el.innerHTML=cabinetHTML()}
-function applyRemote(snap){CABS=snap&&snap.cabinet&&typeof snap.cabinet==='object'?snap.cabinet:{};renderCabinets();LOG=mergeRemote('log',snap.log).sort((a,b)=>(b.ts||0)-(a.ts||0));save('bb-log',LOG);if(window.BEANS_OK)checkTrophies();renderLog();
-  CREC=mergeRemote('recipes',snap.recipes).map(sanRec).filter(Boolean);save('bb-myrecipes',CREC);recipesChanged()}
+// The shared log streams every change (your own saves come back too, and a burst of them when it connects). Each one
+// used to merge, sort, save and redraw the whole log and the recipes, 50 to 100 ms on a phone every time: now a burst
+// is applied once, and only what actually changed (the brews, the recipes, the shelves) is saved and drawn again.
+let REM_SIG={log:'',rec:'',cab:''},REM_SNAP=null,REM_T=0;
+function applyRemote(snap){REM_SNAP=snap;if(REM_T)return;REM_T=setTimeout(()=>{REM_T=0;const sn=REM_SNAP;REM_SNAP=null;if(sn)applyRemoteNow(sn)},120)}
+function applyRemoteNow(snap){const pend=JSON.stringify(PENDING),sl=JSON.stringify(snap.log||{})+pend,sr=JSON.stringify(snap.recipes||{})+pend,sc=JSON.stringify(snap.cabinet||{});
+  if(sc!==REM_SIG.cab){REM_SIG.cab=sc;CABS=snap&&snap.cabinet&&typeof snap.cabinet==='object'?snap.cabinet:{};renderCabinets()}
+  if(sl!==REM_SIG.log){REM_SIG.log=sl;LOG=mergeRemote('log',snap.log).sort((a,b)=>(b.ts||0)-(a.ts||0));save('bb-log',LOG);if(window.BEANS_OK)checkTrophies();renderLog()}
+  if(sr!==REM_SIG.rec){REM_SIG.rec=sr;CREC=mergeRemote('recipes',snap.recipes).map(sanRec).filter(Boolean);save('bb-myrecipes',CREC);recipesChanged()}}
 function startStream(){stopStream();if(!GROUP||!SYNC_DB||typeof EventSource==='undefined')return;setSync('connecting');
   let snap={};const es=STREAM=new EventSource(dbUrl(''));
   // Apply a streamed change at its path, e.g. "/log/abc" or "/recipes/xyz/name".
@@ -2630,7 +2637,7 @@ function startStream(){stopStream();if(!GROUP||!SYNC_DB||typeof EventSource==='u
 function stopStream(){if(STREAM){STREAM.close();STREAM=null}}
 function joinGroup(code,name){ME=name.trim().slice(0,30);try{localStorage.setItem('bb-name',ME)}catch(e){}GROUP={code};save('bb-group',GROUP);try{CAB_REFUSED=localStorage.getItem('bb-cabno')===code}catch(e){}
   LOG.forEach(l=>{if(!l.by)l.by=ME;queue('put',l.id,l)});CREC.forEach(r=>{if(!r.author)r.author=ME;queue('put',r.id,r,'recipes')});pushCabinet.sig='';pushCabinet();renderLog();startStream()}
-function leaveGroup(){stopStream();CABS={};pushCabinet.sig='';GROUP=null;PENDING=[];save('bb-group',null);save('bb-pending',[]);try{localStorage.removeItem('bb-group')}catch(e){}setSync('off');renderLog()}
+function leaveGroup(){stopStream();CABS={};REM_SIG={log:'',rec:'',cab:''};clearTimeout(REM_T);REM_T=0;REM_SNAP=null;pushCabinet.sig='';GROUP=null;PENDING=[];save('bb-group',null);save('bb-pending',[]);try{localStorage.removeItem('bb-group')}catch(e){}setSync('off');renderLog()}
 addEventListener('online',()=>{if(GROUP){flush();if(!STREAM)startStream()}});addEventListener('offline',()=>{if(GROUP)setSync('offline')});
 function inviteDoc(){const link=SITE_URL+'#join='+GROUP.code;return{link,title:'Join my brew log',sub:'Shared log code '+GROUP.code,file:'brew-log-invite',blocks:[{p:'Tap the link to see and add to our shared coffee log in The Brew Bench:'},{p:link},{p:'Or open the app, go to Log and enter the code '+GROUP.code+'.'}]}}
 function renderShare(){const el=$('l-share');if(!el)return;
@@ -2834,7 +2841,7 @@ function renderLogList(force){const sec=$('log');if(!force&&sec&&!sec.classList.
 }
 $('l-filter').addEventListener('click',e=>{if(e.target.closest('#lf-f'))openLogFilter();else if(e.target.closest('#lf-s'))openLogSort()});
 $('l-filter').addEventListener('input',e=>{if(e.target.id!=='lf-q')return;LF.q=e.target.value;renderLogList()});
-function renderLog(){renderShare();renderLastBrew();renderWelcome();
+function renderLog(){renderShare();renderLastBrew();
   renderLogList();
   renderPalate();
   const rated=LOG.filter(l=>+l.stars>0),avg=rated.length?(rated.reduce((a,l)=>a+ +l.stars,0)/rated.length).toFixed(1):'–';
@@ -4683,19 +4690,8 @@ function welcomeHTML(when){const d=when||new Date(),h=d.getHours(),t=h<5?'night'
   return{t,html:'<div class="wl-top"><span class="wl-ic" aria-hidden="true">'+hi[0]+'</span><span class="wl-date">'+esc(d.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'}))+'</span></div>'+
     '<h2 class="wl-hi">'+hi[1]+(nick?', <em>'+esc(nick)+'</em>':'')+'</h2>'+
     '<figure class="wl-qf"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18v-5.5C4 8.4 6.4 5.6 10 5l.6 1.9C8.4 7.6 7.4 9 7.3 11H10v7H4zm10 0v-5.5c0-4.1 2.4-6.9 6-7.5l.6 1.9c-2.2.7-3.2 2.1-3.3 4.1H20v7h-6z"/></svg>'+
-    '<span class="wl-k">Today\u2019s coffee wisdom</span><blockquote class="wl-q">'+esc(q)+'</blockquote>'+(by?'<figcaption class="wl-by">'+esc(by)+'</figcaption>':'')+'</figure>'+wlActs(t)}}
-/* What the time of day calls for, as a row of pills on the welcome: in the morning your last brew again and the timer;
-   in the afternoon a new recipe to try; in the evening (and late) the diary and tomorrow's coffee from your cabinet. */
-function wlActs(t){const a=[],last=LOG.find(x=>x&&(!x.by||x.by===ME)),ag=last&&againPlan(last),bk=window.BEANS_OK;
-  const pill=(k,ic,label)=>'<button type="button" class="wl-a" data-wa="'+k+'">'+lIc(ic)+'<span>'+esc(label)+'</span></button>';
-  if(t==='morning'){if(ag)a.push(pill('again','again','Brew again'));a.push(pill('timer','timer','Start a brew'))}
-  else if(t==='day'){if(bk&&BEANS.length)a.push(pill('make','dice','Surprise me'));if(ag)a.push(pill('again','again','Brew again'))}
-  else{if(bk&&BEANS.length)a.push(pill('diary','log','Write in the diary'));const c=bk&&typeof cabinetDay==='function'?cabinetDay(new Date(Date.now()+864e5)):null;if(c)a.push(pill('tomorrow','bag','Tomorrow’s coffee'))}
-  return a.length?'<div class="wl-acts">'+a.join('')+'</div>':''}
-function renderWelcome(){const el=$('welcome');if(!el)return;const w=welcomeHTML();el.dataset.t=w.t;if(el._h!==w.html){el.innerHTML=w.html;el._h=w.html}}
-$('welcome').addEventListener('click',e=>{const b=e.target.closest('[data-wa]');if(!b)return;const k=b.dataset.wa;
-  if(k==='again'){const l=LOG.find(x=>x&&(!x.by||x.by===ME));if(l)brewAgain(l)}else if(k==='timer'){if(dialPlan())dialTimer();else{toast('Pick a recipe first');const r=$('d-recbox');if(r)r.scrollIntoView({block:'center',behavior:RM()?'auto':'smooth'})}}else if(k==='make')openMakeRecipe(null,true);
-  else if(k==='diary'){goTab('beans');BVIEW='diary';renderBeanViews()}else if(k==='tomorrow'){const c=cabinetDay(new Date(Date.now()+864e5));if(c)openBean(c.b.id)}});
+    '<span class="wl-k">Today\u2019s coffee wisdom</span><blockquote class="wl-q">'+esc(q)+'</blockquote>'+(by?'<figcaption class="wl-by">'+esc(by)+'</figcaption>':'')+'</figure>'}}
+function renderWelcome(){const el=$('welcome');if(!el)return;const w=welcomeHTML();if(el._h!==w.html){el.innerHTML=w.html;el._h=w.html}}
 renderWelcome();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)renderWelcome()});
 /* ================= INIT ================= */
@@ -4737,7 +4733,9 @@ requestAnimationFrame(()=>{NAV_READY=true});
 {let lastY=scrollY,raf=0,acc=0,gest=-1e9;for(const ev of ['touchmove','wheel'])addEventListener(ev,()=>{gest=performance.now()},{capture:true,passive:true});const fabOf=()=>{const s=document.querySelector('main>section.on');return s&&s.querySelector(':scope>.fab')};
   const set=(f,away)=>{if(f&&f.classList.contains('away')!==away)f.classList.toggle('away',away)};
   // The tab bar goes with it on every page (phones): more room to read, back the moment you scroll up.
-  const H=document.documentElement,setNav=away=>{if(H.classList.contains('nav-away')!==away)H.classList.toggle('nav-away',away)};
+  // The class goes on the bar itself, not the page: on <html> it made the browser restyle every element of a long list
+  // each time the bar came or went while you scrolled.
+  const H=document.querySelector('.bottomnav')||document.documentElement,setNav=away=>{if(H.classList.contains('nav-away')!==away)H.classList.toggle('nav-away',away)};
   addEventListener('scroll',()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;const y=scrollY,d=y-lastY;lastY=y;const f=fabOf();if(FAB_OPEN)return;
     if(performance.now()-gest>700){acc=0;return}
     acc=Math.sign(d)===Math.sign(acc)?acc+d:d;
