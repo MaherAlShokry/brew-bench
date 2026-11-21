@@ -10,6 +10,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -160,7 +162,17 @@ public class DailyNotes extends BroadcastReceiver {
             String key = ctx.getSharedPreferences("app_icon", Context.MODE_PRIVATE).getString("icon", "bean:roastery:l");
             int i = Arrays.asList(IconNames.KEYS).indexOf(key);
             if (i < 0) i = 0;
-            Drawable d = ctx.getPackageManager().getActivityIcon(new ComponentName(ctx, ctx.getPackageName() + IconNames.ALIASES[i]));
+            // Only the icon in use is switched on (and the switch waits until the app is left), so the chosen one is
+            // read even while it is off; failing that, the app's own icon.
+            PackageManager pm = ctx.getPackageManager();
+            Drawable d;
+            try {
+                ActivityInfo ai = pm.getActivityInfo(new ComponentName(ctx, ctx.getPackageName() + IconNames.ALIASES[i]),
+                    PackageManager.MATCH_DISABLED_COMPONENTS);
+                d = ai.loadIcon(pm);
+            } catch (Exception e) {
+                d = pm.getApplicationIcon(ctx.getApplicationInfo());
+            }
             int px = BrewWidget.dp(ctx, 64);
             Bitmap bm = Bitmap.createBitmap(px, px, Bitmap.Config.ARGB_8888);
             d.setBounds(0, 0, px, px);
