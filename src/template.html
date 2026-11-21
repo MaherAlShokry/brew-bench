@@ -832,13 +832,22 @@ html.app .bg-hero::after,html.app .me-hero::after,html.app .pp-st img{mix-blend-
 .ls-ic svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .ls-l{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .ls-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.ls-t{position:relative;display:flex;flex-direction:column;gap:4px;padding:12px;border-radius:var(--r-md);background:var(--surface2);min-width:0}
-.ls-t .ls-ic{position:absolute;right:10px;top:10px;width:26px;height:26px;border-radius:8px}.ls-t .ls-ic svg{width:15px;height:15px}
-.ls-v{font:800 1.7rem/1.1 var(--display);letter-spacing:-.02em;font-variant-numeric:tabular-nums}.ls-v small{font-size:.9rem;font-weight:600;color:var(--muted);margin-left:2px}
-.ls-t.empty .ls-v{color:var(--muted);opacity:.6}
-.ls-st{display:flex;gap:6px;margin-top:auto;padding-top:4px}.ls-st button{flex:1;height:36px;border:0;border-radius:10px;background:var(--surface);color:var(--ink);font:600 1.15rem/1 var(--display);cursor:pointer;transition:transform .1s,background .15s}
-.ls-st button:active{transform:scale(.92);background:color-mix(in srgb,var(--honey) 25%,var(--surface))}
-.ls-gsel{position:relative;align-self:flex-start;max-width:100%;font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:underline dotted;text-underline-offset:3px;cursor:pointer}
+/* Brew log settings: one list, a row each: icon, the name (the grinder as a quiet subtitle under "Grind"), and a capsule
+   stepper − value + on the right, the same width in every row so the values line up. */
+.ls-grid{grid-template-columns:1fr!important;gap:0!important;border-radius:var(--r-md);background:var(--surface2);overflow:hidden}
+.ls-t{display:flex;align-items:center;gap:10px;padding:10px 8px 10px 10px;min-width:0;min-height:60px;box-sizing:border-box}.ls-t+.ls-t{border-top:1px solid var(--line)}
+.ls-th{flex:1;display:flex;align-items:center;gap:10px;min-width:0}.ls-th .ls-ic{width:34px;height:34px;border-radius:11px;background:var(--surface)}.ls-th .ls-ic svg{width:18px;height:18px}
+.ls-tt{display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:0}
+.ls-n{font:650 .95rem/1.2 var(--display);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.ls-row{flex:none;display:grid;grid-template-columns:32px 56px 32px;align-items:center;padding:3px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.ls-row button{width:32px;height:32px;padding:0;border:0;border-radius:50%;background:var(--surface2);color:var(--ink);font:600 1.05rem/1 var(--display);cursor:pointer;transition:transform .1s,background-color .15s}
+.ls-row button:active{transform:scale(.88);background:color-mix(in srgb,var(--honey) 30%,var(--surface2))}
+.ls-v{text-align:center;font:750 1.08rem/1 var(--display);font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--ink)}.ls-v small{font-size:.72rem;font-weight:600;color:var(--muted);margin-left:1px}
+.ls-t.empty .ls-v{color:var(--muted);font-weight:600}
+.ls-gsel{position:relative;display:inline-flex;align-items:center;gap:2px;max-width:100%;min-height:22px;font:600 .78rem var(--display);color:var(--muted);cursor:pointer}
+.ls-gsel span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ls-gsel svg{flex:none;width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.ls-gsel:focus-within{color:var(--ink)}
+@media (max-width:374px){.ls-t .ls-th .ls-ic{display:none}.ls-t{padding-left:14px}}
 .ls-gsel select{position:absolute;inset:0;opacity:0;width:100%;font-size:16px;cursor:pointer}
 .ls-ratio{margin-top:8px;padding:12px;border-radius:var(--r-md);background:var(--surface2)}
 .ls-rtop{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:26px}
@@ -846,7 +855,7 @@ html.app .bg-hero::after,html.app .me-hero::after,html.app .pp-st img{mix-blend-
 .ls-rv em{font-style:normal;font-size:.8rem;font-weight:600;color:var(--cherry-ink,var(--cherry));white-space:nowrap}.ls-rv small{font-size:.8rem;color:var(--muted)}
 .ls-bar{position:relative;height:6px;margin:12px 4px 6px;border-radius:3px;background:linear-gradient(90deg,#4A2A18,#7A4524 35%,#C98A3E 70%,#E8C987)}
 .ls-bar i{position:absolute;top:50%;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;background:var(--surface);border:3px solid var(--cherry);box-shadow:0 1px 4px rgba(0,0,0,.25);transition:left .25s}
-.ls-ratio.empty .ls-bar{background:color-mix(in srgb,var(--ink) 12%,transparent)}.ls-ratio.empty .ls-bar i{display:none}
+.ls-ratio.empty .ls-rv b,.ls-ratio.empty .ls-rv em{color:var(--muted);font-weight:600}.ls-ratio.empty .ls-bar i{opacity:.4}
 .ls-ends{display:flex;justify-content:space-between;padding:0 2px;font-size:.72rem;color:var(--muted)}
 .ls-x{margin-top:8px;width:100%}
 .l-bean{margin:0 0 10px}.l-bean:empty{display:none}
@@ -920,7 +929,19 @@ svg .bo{fill:currentColor}svg .bc{fill:none;stroke:var(--surface);stroke-width:1
 .se-sum{margin:6px 0 10px;font-size:.8rem;color:var(--muted)}.se-sum.warn{color:var(--honey-ink)}
 .rangeends{display:flex;justify-content:space-between;font-family:var(--display);font-size:.74rem;color:var(--muted);margin-top:-2px}
 .pill.ours{background:color-mix(in srgb,var(--cherry) 14%,var(--surface));color:var(--cherry);margin-bottom:6px}
+/* Processes: search and filter on top, the map, then the count and the list. */
+.pmapcard{margin:0 0 14px}.pcount{margin:0 2px 10px;font-size:.82rem;font-weight:600;color:var(--muted)}
+/* Origins map, before a pick */
+.mi-empty .mi-k{display:block;font:700 .72rem var(--display);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}.mi-empty h3{margin:4px 0 10px}.mi-empty .chips{margin:0}
 /* Shared log */
+#l-share{padding:12px 14px}
+.sh-row{display:flex;align-items:center;gap:12px;min-height:44px}
+.sh-ic{flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:var(--surface2);color:var(--cherry)}
+.sh-ic svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.sh-av{flex:none;display:grid}.sh-tx{flex:1;min-width:0}.sh-tx b{display:flex;align-items:center;gap:6px;font:700 .98rem var(--display)}
+.sh-tx small{display:block;margin-top:2px;font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sh-tx .code{font-weight:700;color:var(--ink);letter-spacing:.04em}
+.sh-row .pbtn.sm{flex:none;min-height:36px;padding:0 14px;font-size:.84rem}
+.sh-form{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
 .sharepanel h3{margin:0 0 .3rem}
 .sharehead{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .sync{font-family:var(--display);font-size:.78rem;color:var(--muted);display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
@@ -1384,7 +1405,6 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 :root[data-theme="dark"] .lv-e{color:#7FCB9C}:root[data-theme="dark"] .lv-i{color:#E7B060}:root[data-theme="dark"] .lv-a{color:#F08F7E}
 /* Cup types sit lower on the page now, so their cards are shorter. */
 #rhome .cupart{height:76px}
-.mk-rand{display:block;margin:10px auto 0}
 /* Recipes home, kept light: the three quick links side by side, cup types as small tiles. */
 .qlinks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
 .qlinks button{position:relative;flex-direction:column;justify-content:center;gap:6px;padding:12px 6px;text-align:center}
@@ -1401,16 +1421,29 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 /* A collection's count sits in the top corner, as on the cup-type cards, clear of the title and the line under it. */
 .colshelf button{padding:14px 14px 16px;min-height:118px}
 /* The recipe maker sheet. */
-.mk .lbl{margin:14px 0 6px}.mk .mk-lh{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.mk-keep{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 12px 0 9px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:600 .78rem var(--display);cursor:pointer}.mk-keep svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-.mk-keep[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.mk .lbl{margin:14px 0 6px}
+/* Make a recipe / Surprise me: three rows of picks (a small heading and a lock each), then the recipe as one card. */
+.mk-picks{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;margin-top:4px}.mk-row{min-width:0}
+.mk .mk-row .lbl{margin:0;font:700 .74rem var(--display);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.mk-rh{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:32px;margin-bottom:6px}
+.mk-lock{flex:none;display:grid;place-items:center;width:34px;height:34px;padding:0;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer;transition:background-color .15s,color .15s,border-color .15s}
+.mk-lock svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
+.mk-lock[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.mk-chips button.lean::after{content:'';width:6px;height:6px;border-radius:50%;background:var(--cherry);margin-left:-2px}
+.mk-chips button.lean[aria-pressed="true"]::after{background:currentColor}
+.mk-card{margin-top:22px;padding:16px;border-radius:22px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)}
+.mk-hero{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.mk-hero .bpic{flex:none;width:56px;height:56px;border-radius:16px}
+.mk-ht{min-width:0}.mk-ht b{display:block;font:800 1.2rem/1.2 var(--display);color:var(--ink)}.mk-ht span{display:block;margin-top:3px;font-size:.82rem;color:var(--muted);line-height:1.35}
+.mk-wait{display:grid;gap:10px;padding:20px 16px}.mk-wait p{margin:4px 0 0;font-size:.86rem;color:var(--muted)}
+.mk-sk{display:block;height:14px;width:62%;border-radius:7px;background:var(--surface2);animation:mkpulse 1.2s ease-in-out infinite}.mk-sk.s{width:88%}.mk-sk.t{width:40%}
+@keyframes mkpulse{50%{opacity:.45}}@media (prefers-reduced-motion:reduce){.mk-sk{animation:none}}
 .mk .lbl .hint{font-weight:500;margin-left:6px}
 .mk-chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 24px 2px 0;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 24px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 24px),transparent)}.mk-chips::-webkit-scrollbar{display:none}
 .mk-chips button{flex:none;display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:4px 14px 4px 6px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:600 .86rem var(--display);cursor:pointer}
 .mk-chips button:not(:has(.bpic)){padding-left:14px}.mk-chips .bpic{width:30px;height:30px;border-radius:50%}
 .mk-chips button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
-.mk-res{margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}.mk-res .mk-h{margin-bottom:8px}
-.mk-h b{display:block;font:800 1.2rem/1.25 var(--display)}.mk-h small{font-size:.8rem;color:var(--muted)}.mk-res .le-pill{background:var(--surface)}.mk-res .le-pills{margin-top:10px}.colshelf b{padding-right:42px}
+.mk-card .le-pill{background:var(--surface2)}.mk-card .le-pills{margin-top:10px}.colshelf b{padding-right:42px}
 .colshelf .cn{left:auto;bottom:auto;top:12px;right:12px;font-size:.74rem;background:rgba(0,0,0,.24);padding:2px 9px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
 /* A recipe at a glance, and its steps as a timeline. */
 
@@ -3470,7 +3503,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <!-- VARIETIES -->
 <section id="variety">
   <h2>Varieties</h2>
-  <div class="lf-top lt" id="vlt"><label class="lf-q"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4"/></svg><input type="search" id="vsearch" placeholder="Search varieties" aria-label="Search varieties"></label><button type="button" class="rsortw" id="vlt-f" aria-pressed="false" aria-label="Filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
+  <div class="lf-top lt" id="vlt"><label class="lf-q"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4"/></svg><input type="search" id="vsearch" placeholder="Search varieties" aria-label="Search varieties"></label><button type="button" class="rsortw" id="vsurprise" aria-label="Surprise me: a variety at random" title="Surprise me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 4h13a1.5 1.5 0 0 1 1.5 1.5v13a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5v-13A1.5 1.5 0 0 1 5.5 4z M8.6 8.6h.01 M15.4 8.6h.01 M12 12h.01 M8.6 15.4h.01 M15.4 15.4h.01"/></svg></button><button type="button" class="rsortw" id="vlt-f" aria-pressed="false" aria-label="Filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
   <div id="vcompare"></div>
   <div class="grid" id="vgrid"></div>
 </section>
@@ -3550,9 +3583,9 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <!-- PROCESSES -->
 <section id="process">
   <h2>Processes</h2>
-  <p class="lede"><button type="button" class="linkbtn" data-go-t="flow">See where processing fits, from seed to cup</button></p>
-  <div class="card" style="margin-bottom:16px"><h3 style="margin-top:0">The process map</h3><p class="hint" style="margin-top:0">Left is clean, right is wild; top is bright, bottom is soft. Tap a dot.</p><svg id="pmap" viewBox="0 -14 640 314" role="img" aria-label="Processes plotted by cleanliness and acidity"></svg></div>
-  <div class="lf-top lt" id="plt"><p class="lt-k" id="plt-k"></p><button type="button" class="rsortw" id="plt-f" aria-pressed="false" aria-label="Filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
+  <div class="lf-top lt" id="plt"><label class="lf-q"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4"/></svg><input type="search" id="psearch" placeholder="Search processes" aria-label="Search processes"></label><button type="button" class="rsortw" id="plt-f" aria-pressed="false" aria-label="Filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
+  <div class="card pmapcard"><h3 style="margin-top:0">The process map</h3><svg id="pmap" viewBox="0 -14 640 314" role="img" aria-label="Processes plotted by cleanliness and acidity"></svg></div>
+  <p class="lt-k pcount" id="plt-k"></p>
   <div class="grid" id="pgrid"></div>
 </section>
 

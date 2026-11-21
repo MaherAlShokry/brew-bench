@@ -2030,20 +2030,23 @@ $('tlt-f').onclick=()=>pickOne('Filter techniques','technique',[['all','All tech
 let PC=[];const PCOL={classic:'#4F8A74',honey:'#D2A04A',ferment:'#B5533C',regional:'#8A5A3B',decaf:'#6E8FA8'};
 const dirTag=d=>'<span class="dir '+(d==='coarser'?'coarse':'')+'">'+(d==='finer'?'Go finer':d==='coarser'?'Go coarser':'Baseline')+'</span>';
 $('plt-f').onclick=()=>pickOne('Filter processes','process',[['all','All processes'],...Object.entries(PCAT)],()=>PC,v=>{PC=v},renderProcesses,()=>Object.values(PROCESSES).filter(p=>inSel(PC,p.cat)).length,'processes');
-function renderProcesses(){
-  {const n=Object.values(PROCESSES).filter(p=>inSel(PC,p.cat)).length;{const nm=selName(PC,k=>PCAT[k],'All processes');ltSync('plt',{on:PC.length>0,filter:nm,k:nm+' · '+n})}}
-  $('pgrid').innerHTML=Object.entries(PROCESSES).filter(([,p])=>inSel(PC,p.cat)).map(([k,p])=>'<article class="card" id="pc-'+k+'" style="border-top:5px solid '+PCOL[p.cat]+'"><span class="hint">'+PCAT[p.cat]+'</span><h3 style="margin-top:.2rem">'+esc(p.name)+'</h3>'+dirTag(p.dir)+'<p>'+esc(p.char)+'</p><p><b>Brewing it well.</b> '+esc(p.brew)+'</p><div class="chips">'+p.notes.map(n=>'<span class="chip">'+esc(n)+'</span>').join('')+'</div><button class="btn ghost" data-usep="'+k+'">Brew with this process</button></article>').join('');
+// Search: the name, its group, what it is, how to brew it and its notes. The list and the map's dots both follow it.
+let PQ='';const pKeep=p=>inSel(PC,p.cat)&&(!PQ||(p.name+' '+PCAT[p.cat]+' '+p.char+' '+p.brew+' '+p.notes.join(' ')).toLowerCase().includes(PQ));
+function renderProcesses(){PQ=($('psearch')&&$('psearch').value||'').trim().toLowerCase();
+  {const n=Object.values(PROCESSES).filter(pKeep).length;{const nm=selName(PC,k=>PCAT[k],'All processes');ltSync('plt',{on:PC.length>0,filter:nm,k:(PQ||PC.length?n+' of '+Object.keys(PROCESSES).length:n)+' processes'})}}
+  const pl=Object.entries(PROCESSES).filter(([,p])=>pKeep(p));
+  $('pgrid').innerHTML=pl.length?'':'<p class="hint">No processes match. Try a word like honey, anaerobic or decaf.</p>';if(!pl.length){}else $('pgrid').innerHTML=pl.map(([k,p])=>'<article class="card" id="pc-'+k+'" style="border-top:5px solid '+PCOL[p.cat]+'"><span class="hint">'+PCAT[p.cat]+'</span><h3 style="margin-top:.2rem">'+esc(p.name)+'</h3>'+dirTag(p.dir)+'<p>'+esc(p.char)+'</p><p><b>Brewing it well.</b> '+esc(p.brew)+'</p><div class="chips">'+p.notes.map(n=>'<span class="chip">'+esc(n)+'</span>').join('')+'</div><button class="btn ghost" data-usep="'+k+'">Brew with this process</button></article>').join('');
   const W=640,H=300,px=f=>60+f/1.7*540,py=a=>150-a/1.6*120;
   let h='<rect x="60" y="20" width="540" height="250" rx="14" fill="var(--paper)"/><line x1="60" y1="150" x2="600" y2="150" stroke="var(--line)"/><line x1="330" y1="20" x2="330" y2="270" stroke="var(--line)"/>'+
    '<text class="ax" x="64" y="292">Clean</text><text class="ax" x="596" y="292" text-anchor="end">Wild and fruity</text>'+
    '<text class="ax" x="70" y="40">Bright</text><text class="ax" x="70" y="260">Soft</text>';
   const used={};
-  for(const [k,p] of Object.entries(PROCESSES)){if(!inSel(PC,p.cat))continue;let x=px(p.funk),y=py(p.acid);const key=Math.round(x/10)+'_'+Math.round(y/10);used[key]=(used[key]||0)+1;x+=(used[key]-1)*9;
+  for(const [k,p] of Object.entries(PROCESSES)){if(!pKeep(p))continue;let x=px(p.funk),y=py(p.acid);const key=Math.round(x/10)+'_'+Math.round(y/10);used[key]=(used[key]||0)+1;x+=(used[key]-1)*9;
     h+='<g class="pdg" data-k="'+k+'"><circle class="pd" cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="7" fill="'+PCOL[p.cat]+'" stroke="var(--surface)" stroke-width="2"><title>'+esc(p.name)+'</title></circle></g>'}
   h+='<text id="pm-label" x="330" y="8" text-anchor="middle"></text>';
   $('pmap').innerHTML=h;
 }
-document.querySelector('#process .lede').onclick=e=>{goLink(e)};
+$('psearch').oninput=()=>soon(renderProcesses);
 $('pmap').onclick=e=>{const g=e.target.closest('.pdg');if(!g)return;const k=g.dataset.k;$('pm-label').textContent=PROCESSES[k].name;const c=$('pc-'+k);if(c){c.classList.remove('flash');void c.offsetWidth;c.classList.add('flash');c.scrollIntoView({behavior:RM()?'auto':'smooth',block:'center'})}};
 $('pmap').onmousemove=e=>{const g=e.target.closest('.pdg');if(g)$('pm-label').textContent=PROCESSES[g.dataset.k].name};
 $('pgrid').onclick=e=>{const b=e.target.closest('[data-usep]');if(b){S.process=b.dataset.usep;render();showTab('dial');toast('Process set to '+PROCESSES[S.process].name)}};
@@ -2308,7 +2311,7 @@ function renderVarieties(){VF=VF.filter(vfOk);vwSet('vf',VF);
   renderCompare();
 }
 function renderCompare(){
-  if(!CMP.length){$('vcompare').innerHTML='<div class="actions" style="margin:0 0 14px"><button class="btn ghost" id="vsurprise">Surprise me</button><span class="hint" style="align-self:center">Tap "+ Compare" on up to three varieties to see them side by side.</span></div>';$('vsurprise').onclick=()=>openVariety(V[Math.floor(Math.random()*V.length)].id);return}
+  if(!CMP.length){$('vcompare').innerHTML='';return}
   const vs=CMP.map(id=>VBY[id]);const m=vs.map(v=>vParams(v.id));const sc=x=>clamp((x+2)*2.5,0.3,10);
   const rows=[['Acidity','acid'],['Body','body'],['Sweetness','sweet'],['Clarity','clarity']];
   $('vcompare').innerHTML='<div class="card" style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><h3 style="margin:0">Side by side</h3>'+ib('reset','id="vclear"','Clear the comparison','sm')+'</div>'+
@@ -2318,6 +2321,7 @@ function renderCompare(){
   $('vclear').onclick=()=>{CMP=[];renderVarieties()};
 }
 $('vsearch').oninput=e=>{VQ=e.target.value;soon(renderVarieties)};
+$('vsurprise').onclick=()=>openVariety(V[Math.floor(Math.random()*V.length)].id);
 $('vlt-f').onclick=()=>{const part=t=>VF.filter(k=>vfKind(k)===t),cnt=f=>nOf(V.filter(f).length,'variety','varieties'),grown=[...new Set(V.flatMap(v=>v.grown||[]))].filter(o=>originName(o)).sort((a,b)=>originName(a).localeCompare(originName(b)));
   openChoices({title:'Filter varieties',one:'variety',many:'varieties',get:t=>part(t),set:(t,v)=>{VF=[...VF.filter(k=>vfKind(k)!==t),...v]},render:renderVarieties,count:()=>V.filter(vfKeep).length,
     secs:()=>[{h:'Cup',key:'c',multi:true,chips:1,opts:VCUP.map(([k,n])=>['c:'+k,n])},
@@ -2381,7 +2385,7 @@ function harvestShort(k){const r=harvestRanges((ALLO()[k]||{}).harvest);return r
 function seasonList(kind,mo){return Object.keys(ALLO()).filter(k=>{const s=seasonOf(k,mo);return s&&s[kind]}).sort((a,b)=>ALLO()[a].name.localeCompare(ALLO()[b].name))}
 function renderSeason(){const box=$('mapseason');if(!box)return;const mo=new Date().getMonth(),month=new Date().toLocaleDateString(undefined,{month:'long'});
   const now=seasonList('now',mo),arr=seasonList('arriving',mo),list=SEASON==='now'?now:SEASON==='arriving'?arr:[];
-  box.innerHTML='<div class="ms-head"><span class="ms-ic" aria-hidden="true">🌱</span><span><b>In season · '+esc(month)+'</b><small>'+(SEASON==='now'?'Being picked this month.':SEASON==='arriving'?'Picked a few months ago: new-crop bags are reaching roasters now.':'See which origins are being harvested, or freshly arriving.')+'</small></span></div>'+
+  box.innerHTML='<div class="ms-head"><span class="ms-ic" aria-hidden="true">🌱</span><span><b>In season · '+esc(month)+'</b>'+(SEASON?'<small>'+(SEASON==='now'?'Being picked this month.':'Picked a few months ago: new-crop bags are reaching roasters now.')+'</small>':'')+'</span></div>'+
     '<div class="seg filters ms-seg" role="group" aria-label="Harvest season"><button type="button" data-ss="now" aria-pressed="'+(SEASON==='now')+'">Harvest now <span class="ms-n">'+now.length+'</span></button><button type="button" data-ss="arriving" aria-pressed="'+(SEASON==='arriving')+'">New crop <span class="ms-n">'+arr.length+'</span></button></div>'+
     (SEASON?'<div class="chips ms-chips">'+list.map(k=>'<button type="button" class="chip" data-o="'+k+'">'+ALLO()[k].flag+' '+esc(ALLO()[k].name)+'<small>'+harvestShort(k)+'</small></button>').join('')+'</div>':'');
   const svg=$('worldmap');if(SEASON){HL=null;$('legend').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed','false'));const set=new Set(list);svg.classList.add('dim');svg.querySelectorAll('.o').forEach(p=>p.classList.toggle('hl',set.has(p.dataset.k)));svg.querySelectorAll('.dot').forEach(p=>p.classList.toggle('off',!set.has(p.dataset.k)))}
@@ -2402,8 +2406,8 @@ function zoomTo(z){
   requestAnimationFrame(step);
 }
 function emptyInfo(){
-  $('info').innerHTML='<h2>Pick an origin</h2><p>Tap a coloured country or dot. The shaded band is the coffee belt.</p>'+
-  '<div class="stats"><div><b>Where it all began</b><button class="chip" data-o="ethiopia" style="margin-top:4px">🇪🇹 Ethiopia</button> <button class="chip" data-o="yemen">🇾🇪 Yemen</button> <button class="chip" data-o="southsudan">🇸🇸 South Sudan</button></div><div><b>Feeling curious?</b>Tap "Surprise me" under the map.</div></div>';
+  // Before an origin is picked: where coffee began, as three origins to open (the map itself is the way to pick).
+  $('info').innerHTML='<div class="mi-empty"><span class="mi-k">Start here</span><h3>Where coffee began</h3><div class="chips"><button class="chip" data-o="ethiopia">🇪🇹 Ethiopia</button><button class="chip" data-o="yemen">🇾🇪 Yemen</button><button class="chip" data-o="southsudan">🇸🇸 South Sudan</button></div></div>';
 }
 $('info').onclick=e=>{const s=e.target.closest('[data-oshare]');if(s){openShare(originDoc(s.dataset.oshare));return}const b=e.target.closest('[data-o]');if(b)selectOrigin(b.dataset.o,true)};
 function selectOrigin(k,zoom){
@@ -2578,15 +2582,21 @@ function renderShare(){const el=$('l-share');if(!el)return;
   el.hidden=!SYNC_DB;if(!SYNC_DB){el.innerHTML='';return}
   // Your name comes from your profile; only without one does the card ask for it.
   const nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick||'';
-  if(!GROUP){el.innerHTML='<h3>Shared log</h3>'+
+  // One tidy row: what it is and its state, with the action at the end. Not shared yet, "Start or join" opens the form
+  // under it (open already when you came from an invite link); shared, your name and code, Invite and Leave.
+  const ic='<span class="sh-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z M3 20c.6-3.4 3-5.5 6-5.5s5.4 2.1 6 5.5 M16 11a3 3 0 1 0 0-6 M17.5 14.6c1.9.6 3.2 2.5 3.5 5.4"/></svg></span>';
+  if(!GROUP){const open=!!JOIN_CODE||el.dataset.open==='1';
+    el.innerHTML='<div class="sh-row">'+ic+'<span class="sh-tx"><b>Shared log</b><small>Brew together with friends</small></span><button type="button" class="pbtn sm" id="sh-open" aria-expanded="'+open+'">'+(open?'Close':'Start or join')+'</button></div>'+
+    '<div class="sh-form" id="sh-form"'+(open?'':' hidden')+'>'+
     (nick?'<div class="sh-me">'+avatarHTML(PROFILE,34)+'<span>Friends will see your brews as <b>'+esc(nick)+'</b></span></div>':'<div class="field"><label for="sh-name">Your name</label><input id="sh-name" maxlength="30" value="'+esc(ME)+'"></div>')+
     '<div class="actions"><button class="btn" id="sh-new">Start a shared log</button></div>'+
-    '<div class="field" style="margin:12px 0 0"><label for="sh-code">Or join with a code</label><div class="joinrow"><input id="sh-code" placeholder="ABCD-2345" maxlength="9" autocapitalize="characters" value="'+esc(JOIN_CODE||'')+'"><button class="btn ghost" id="sh-join">Join</button></div></div>';
+    '<div class="field" style="margin:12px 0 0"><label for="sh-code">Or join with a code</label><div class="joinrow"><input id="sh-code" placeholder="ABCD-2345" maxlength="9" autocapitalize="characters" value="'+esc(JOIN_CODE||'')+'"><button class="btn ghost" id="sh-join">Join</button></div></div></div>';
+    $('sh-open').onclick=()=>{el.dataset.open=el.dataset.open==='1'?'':'1';renderShare();if(el.dataset.open==='1'){const f=$('sh-name')||$('sh-code');if(f)f.focus({preventScroll:true})}};
     const name=()=>{if(nick)return nick;const n=$('sh-name').value.trim();if(!n){toast('Add your name first, so friends know who logged what');$('sh-name').focus()}return n};
     $('sh-new').onclick=()=>{const n=name();if(n){joinGroup(newCode(),n);toast('Shared log started. Invite your friends.')}};
     $('sh-join').onclick=()=>{const n=name();if(!n)return;const c=$('sh-code').value.toUpperCase().replace(/[^A-Z0-9]/g,'');if(c.length!==8){toast('Codes look like ABCD-2345');return}JOIN_CODE='';joinGroup(c.slice(0,4)+'-'+c.slice(4),n);toast('Joined the shared log')};return}
-  el.innerHTML='<div class="sharehead"><h3 style="margin:0">Shared log</h3><span class="sync" id="sync-state"></span></div><p class="hint sh-you" style="margin:.3rem 0 .8rem">'+(window.PROFILE_OK&&PROFILE?avatarHTML(PROFILE,24):'')+'<span>You are <b>'+esc(ME||'Guest')+'</b>. Code <b class="code">'+GROUP.code+'</b></span></p>'+
-    '<div class="actions"><button class="btn" id="sh-invite">Invite friends</button><button class="btn ghost" id="sh-leave">Leave</button></div>';
+  el.innerHTML='<div class="sh-row">'+(window.PROFILE_OK&&PROFILE?'<span class="sh-av">'+avatarHTML(PROFILE,40)+'</span>':ic)+'<span class="sh-tx"><b>Shared log <span class="sync" id="sync-state"></span></b><small>'+esc(ME||'Guest')+' · <span class="code">'+GROUP.code+'</span></small></span>'+
+    ib('share','id="sh-invite"','Invite friends','sm')+ib('x','id="sh-leave"','Leave the shared log','sm')+'</div>';
   $('sh-invite').onclick=()=>openShare(inviteDoc());
   $('sh-leave').onclick=()=>askConfirm('Your phone keeps a copy of the entries.','Leave',true,'Leave the shared log?').then(y=>{if(y)leaveGroup()});setSync(SYNC_STATE==='off'?'connecting':SYNC_STATE)}
 let JOIN_CODE='';
@@ -2638,16 +2648,22 @@ function drawLSet(){const el=$('lset');if(!el)return;const o=LS,B=o.b&&BREWERS[o
   const bl=[...new Set([...(o.b?[o.b]:[]),...MYB,...Object.keys(BREWERS).filter(LISTED)])];
   const recs=RECIPES.map((r,i)=>[r,i]).filter(([r])=>!o.b||r.b===o.b||(BREWERS[r.b]&&BREWERS[r.b].of===o.b)||r===o.rec);
   const gl=[...new Set([...(o.g?[o.g]:[]),...MYG])];
-  const tile=(k,lab,val,unit,step,sub)=>'<div class="ls-t'+(val==null?' empty':'')+'"><span class="ls-ic">'+lsIc(k)+'</span><span class="ls-l">'+lab+'</span>'+
-    '<b class="ls-v">'+(val==null?'–':esc(String(val)))+(val!=null&&unit?'<small>'+unit+'</small>':'')+'</b>'+(sub||'')+
-    '<span class="ls-st"><button type="button" data-ls="'+k+'" data-d="-1" aria-label="Less '+lab.toLowerCase()+'">−</button><button type="button" data-ls="'+k+'" data-d="1" aria-label="More '+lab.toLowerCase()+'">+</button></span></div>';
-  const ra=o.dose&&o.water?o.water/o.dose:null,pos=ra?clamp((ra-12)/7,0,1)*100:50;
+  // Not set yet: the value a first tap would set shows faded (your recipe's, or the usual), so a tile is never a bare dash.
+  const ra=o.dose&&o.water?o.water/o.dose:null;
+  const phG=o.g||gl[0],phC=phG&&GRINDERS[phG]?settingFor(phG,o.b||(o.rec&&o.rec.b)||'v60',o.rec&&o.rec.off||0):null;
+  const ph={dose:gfmt(lsDefault('dose')),water:gfmt(o.dose?Math.round(o.dose*16):lsDefault('water')),temp:lsDefault('temp'),grind:phC!=null?dial(phG,Math.round(phC)):null};const pos=clamp(((ra||+ph.water/+ph.dose)-12)/7,0,1)*100;
+  // One row each, like a settings list: the icon, the name (the grind's grinder as a quiet subtitle you can tap to change),
+  // and on the right one capsule: − value +.
+  const tile=(k,lab,val,unit,step,sub)=>'<div class="ls-t'+(val==null?' empty':'')+'" data-k="'+k+'"><div class="ls-th"><span class="ls-ic">'+lsIc(k)+'</span><span class="ls-tt"><span class="ls-n">'+lab+'</span>'+(sub||'')+'</span></div>'+
+    '<div class="ls-row"><button type="button" data-ls="'+k+'" data-d="-1" aria-label="Less '+lab.toLowerCase()+'">−</button>'+
+    '<b class="ls-v">'+(val==null?(ph[k]!=null?esc(String(ph[k]))+(unit?'<small>'+unit+'</small>':''):'–'):esc(String(val)))+(val!=null&&unit?'<small>'+unit+'</small>':'')+'</b>'+
+    '<button type="button" data-ls="'+k+'" data-d="1" aria-label="More '+lab.toLowerCase()+'">+</button></div></div>';
   el.innerHTML='<div class="ls-pick"><label class="ls-sel"><span class="ls-ic">'+lsIc('brew')+'</span><span class="ls-l">Brewer</span><b>'+esc(B?B.name:'Choose')+'</b><svg class="ls-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg><select id="ls-b" aria-label="Brewer"><option value="">No brewer</option>'+bl.map(k=>'<option value="'+k+'"'+(k===o.b?' selected':'')+'>'+esc(BREWERS[k].name)+'</option>').join('')+'</select></label>'+
     '<label class="ls-sel"><span class="ls-ic">'+lsIc('rec')+'</span><span class="ls-l">Recipe</span><b>'+esc(o.rec?o.rec.name:'Your own')+'</b><svg class="ls-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg><select id="ls-r" aria-label="Recipe"><option value="">My own recipe</option>'+recs.map(([r,i])=>'<option value="'+i+'"'+(r===o.rec?' selected':'')+'>'+esc(r.name)+'</option>').join('')+'</select></label></div>'+
-    '<div class="ls-grid">'+tile('dose','Coffee',o.dose!=null?gfmt(o.dose):null,' g')+tile('water','Water',o.water!=null?gfmt(o.water):null,' g')+tile('temp','Water temp',o.temp,'°C')+
-    tile('grind','Grind',G&&o.c!=null?dial(o.g,o.c):null,G&&G.unit==='clicks'&&G.fmt!=='rot'?' clicks':'','',G||gl.length?'<label class="ls-gsel">'+esc(G?G.name:gname(gl[0]))+'<select id="ls-g" aria-label="Grinder">'+gl.map(g=>'<option value="'+g+'"'+(g===o.g?' selected':'')+'>'+esc(gname(g))+'</option>').join('')+'</select></label>':'')+'</div>'+
+    '<div class="ls-grid">'+tile('dose','Coffee',o.dose!=null?gfmt(o.dose):null,' g')+tile('water','Water',o.water!=null?gfmt(o.water):null,' g')+tile('temp','Temp',o.temp,'°C')+
+    tile('grind','Grind',G&&o.c!=null?dial(o.g,o.c):null,(G||GRINDERS[phG])&&(G||GRINDERS[phG]).unit==='clicks'&&(G||GRINDERS[phG]).fmt!=='rot'?' clicks':'','',G||gl.length?'<label class="ls-gsel"><span>'+esc(G?G.name:gname(gl[0]))+'</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg><select id="ls-g" aria-label="Grinder">'+gl.map(g=>'<option value="'+g+'"'+(g===o.g?' selected':'')+'>'+esc(gname(g))+'</option>').join('')+'</select></label>':'')+'</div>'+
     // The ratio: its name on the left, the ratio and what it tastes like on the right, then where it sits from strong to light.
-    '<div class="ls-ratio'+(ra?'':' empty')+'"><div class="ls-rtop"><span class="ls-l">Ratio</span>'+(ra?'<span class="ls-rv"><b>1:'+rr1(ra)+'</b><em>'+lsWord(ra)+'</em></span>':'<span class="ls-rv"><small>Set coffee and water</small></span>')+'</div>'+
+    '<div class="ls-ratio'+(ra?'':' empty')+'"><div class="ls-rtop"><span class="ls-l">Ratio</span>'+'<span class="ls-rv"><b>1:'+rr1(ra||+ph.water/+ph.dose)+'</b><em>'+lsWord(ra||+ph.water/+ph.dose)+'</em></span>'+'</div>'+
     '<div class="ls-bar"><i style="left:'+pos.toFixed(1)+'%"></i></div><div class="ls-ends"><span>Stronger</span><span>Lighter</span></div></div>'+
     '<input id="ls-x" class="ls-x" placeholder="Anything else? Two swirls…" value="'+esc(o.extra)+'" aria-label="Other settings">'}
 function lsDefault(k){const o=LS,r=o.rec;
@@ -2687,7 +2703,7 @@ function renderLastBrew(){const el=$('lastbrew');if(!el)return;const l=LOG.find(
 /* ---------- The list of brews: search, filters, sort, and each brew as a card ---------- */
 let LF=Object.assign({q:'',who:[],min:0,sort:'new'},VW_KEEP?load('bb-logfilter',{}):{});LF.q='';if(!Array.isArray(LF.who))LF.who=LF.who&&LF.who!=='all'?[LF.who]:[];
 const LOG_SORTS=[['new','Newest'],['old','Oldest'],['top','Highest rated'],['az','Coffee A–Z']];
-const LI={phone:'M8 3h8a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z M11 18h2',again:'M8 5v14l11-7z',share:'M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5',edit:'M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4',del:'M5 7h14 M10 7V4.8h4V7 M7 7l.8 12.2a1.6 1.6 0 0 0 1.6 1.5h5.2a1.6 1.6 0 0 0 1.6-1.5L17 7',search:'M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4',plus:'M12 5v14 M5 12h14',dl:'M12 4v11 M7.5 10.5L12 15l4.5-4.5 M5 19.5h14',ul:'M12 15V4 M7.5 8.5L12 4l4.5 4.5 M5 19.5h14',mark:'M7 4h10a1 1 0 0 1 1 1v15l-6-4-6 4V5a1 1 0 0 1 1-1z',log:'M6 4h11a1 1 0 0 1 1 1v15H8a2 2 0 0 1-2-2z M12 8v6 M9 11h6',cam:'M4 8h3l2-2.5h6L17 8h3v11H4z M12 10.5a3 3 0 1 0 0 6a3 3 0 1 0 0-6z',reset:'M4 12a8 8 0 1 0 2.3-5.6 M4 4v5h5',swap:'M7 7h13 M16 3l4 4-4 4 M17 17H4 M8 13l-4 4 4 4',cmp:'M9 4H5v16h4 M15 4h4v16h-4 M12 2v20',bulb:'M9 18h6 M10 21h4 M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z',open:'M14 4h6v6 M20 4l-9 9 M18 14v6H4V6h6',x:'M6 6l12 12 M18 6L6 18',minus:'M5 12h14',chev:'M9 6l6 6-6 6',bag:'M6 8h12l-1.2 12H7.2z M9 8V6.5a3 3 0 0 1 6 0V8',gift:'M4 11h16v9H4z M3 7.5h18V11H3z M12 7.5V20 M12 7.5C10.5 4 7 4 7 6s3 1.5 5 1.5 M12 7.5C13.5 4 17 4 17 6s-3 1.5-5 1.5',store:'M4 10l1.5-5h13L20 10 M5 10v9h14v-9 M4 10a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0 M10 19v-4h4v4',wheel:'M12 3.5a8.5 8.5 0 1 0 0 17a8.5 8.5 0 1 0 0-17z M12 3.5v8.5l7.4 4.2M12 12l-7.4 4.2',sweep:'M20 4l-8.5 8.5 M13.5 14.5l-4-4-2.5 1.5c-1.5 1-3 3.5-3.5 8.5 5-.5 7.5-2 8.5-3.5z M7 17l2-2',ice:'M12 3v18 M4.2 7.5l15.6 9 M4.2 16.5l15.6-9 M9.5 4.5L12 7l2.5-2.5 M9.5 19.5L12 17l2.5 2.5',info:'M21 12a9 9 0 1 1-18 0a9 9 0 1 1 18 0z M12 11v5 M12 8h.01',ok:'M5 12.5l4.5 4.5L19 7.5',flag:'M5 21V4 M5 4h12l-2.5 4 2.5 4H5',timer:'M12 9v4l2.5 1.5 M9.5 2.5h5 M12 21a8 8 0 1 0 0-16a8 8 0 1 0 0 16z',scan:'M4 8V6a2 2 0 0 1 2-2h2 M16 4h2a2 2 0 0 1 2 2v2 M20 16v2a2 2 0 0 1-2 2h-2 M8 20H6a2 2 0 0 1-2-2v-2 M12 8.5c2 0 3.5 1.6 3.5 3.5S14 15.5 12 15.5 8.5 14 8.5 12 10 8.5 12 8.5z',cup:'M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z M16 10h2a2 2 0 0 1 0 4h-2 M9 3v3 M12 3v3'};
+const LI={lock:'M7.5 11V8a4.5 4.5 0 0 1 9 0v3 M5.5 11h13v9.5h-13z M12 15v2',unlock:'M7.5 11V8a4.5 4.5 0 0 1 8.7-1.6 M5.5 11h13v9.5h-13z M12 15v2',dice:'M5.5 4h13a1.5 1.5 0 0 1 1.5 1.5v13a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5v-13A1.5 1.5 0 0 1 5.5 4z M8.6 8.6h.01 M15.4 8.6h.01 M12 12h.01 M8.6 15.4h.01 M15.4 15.4h.01',phone:'M8 3h8a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z M11 18h2',again:'M8 5v14l11-7z',share:'M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5',edit:'M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4',del:'M5 7h14 M10 7V4.8h4V7 M7 7l.8 12.2a1.6 1.6 0 0 0 1.6 1.5h5.2a1.6 1.6 0 0 0 1.6-1.5L17 7',search:'M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4',plus:'M12 5v14 M5 12h14',dl:'M12 4v11 M7.5 10.5L12 15l4.5-4.5 M5 19.5h14',ul:'M12 15V4 M7.5 8.5L12 4l4.5 4.5 M5 19.5h14',mark:'M7 4h10a1 1 0 0 1 1 1v15l-6-4-6 4V5a1 1 0 0 1 1-1z',log:'M6 4h11a1 1 0 0 1 1 1v15H8a2 2 0 0 1-2-2z M12 8v6 M9 11h6',cam:'M4 8h3l2-2.5h6L17 8h3v11H4z M12 10.5a3 3 0 1 0 0 6a3 3 0 1 0 0-6z',reset:'M4 12a8 8 0 1 0 2.3-5.6 M4 4v5h5',swap:'M7 7h13 M16 3l4 4-4 4 M17 17H4 M8 13l-4 4 4 4',cmp:'M9 4H5v16h4 M15 4h4v16h-4 M12 2v20',bulb:'M9 18h6 M10 21h4 M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z',open:'M14 4h6v6 M20 4l-9 9 M18 14v6H4V6h6',x:'M6 6l12 12 M18 6L6 18',minus:'M5 12h14',chev:'M9 6l6 6-6 6',bag:'M6 8h12l-1.2 12H7.2z M9 8V6.5a3 3 0 0 1 6 0V8',gift:'M4 11h16v9H4z M3 7.5h18V11H3z M12 7.5V20 M12 7.5C10.5 4 7 4 7 6s3 1.5 5 1.5 M12 7.5C13.5 4 17 4 17 6s-3 1.5-5 1.5',store:'M4 10l1.5-5h13L20 10 M5 10v9h14v-9 M4 10a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0 M10 19v-4h4v4',wheel:'M12 3.5a8.5 8.5 0 1 0 0 17a8.5 8.5 0 1 0 0-17z M12 3.5v8.5l7.4 4.2M12 12l-7.4 4.2',sweep:'M20 4l-8.5 8.5 M13.5 14.5l-4-4-2.5 1.5c-1.5 1-3 3.5-3.5 8.5 5-.5 7.5-2 8.5-3.5z M7 17l2-2',ice:'M12 3v18 M4.2 7.5l15.6 9 M4.2 16.5l15.6-9 M9.5 4.5L12 7l2.5-2.5 M9.5 19.5L12 17l2.5 2.5',info:'M21 12a9 9 0 1 1-18 0a9 9 0 1 1 18 0z M12 11v5 M12 8h.01',ok:'M5 12.5l4.5 4.5L19 7.5',flag:'M5 21V4 M5 4h12l-2.5 4 2.5 4H5',timer:'M12 9v4l2.5 1.5 M9.5 2.5h5 M12 21a8 8 0 1 0 0-16a8 8 0 1 0 0 16z',scan:'M4 8V6a2 2 0 0 1 2-2h2 M16 4h2a2 2 0 0 1 2 2v2 M20 16v2a2 2 0 0 1-2 2h-2 M8 20H6a2 2 0 0 1-2-2v-2 M12 8.5c2 0 3.5 1.6 3.5 3.5S14 15.5 12 15.5 8.5 14 8.5 12 10 8.5 12 8.5z',cup:'M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z M16 10h2a2 2 0 0 1 0 4h-2 M9 3v3 M12 3v3'};
 // Every action is a round icon (adding, filtering, sharing, deleting…): what it does is its label, read out and shown on
 // hover, not a word on the button. A form's own Save keeps its word. cls: 'main' for the one to press, 'danger' to delete.
 // A labelled pill (an icon and a word) for an action an icon alone wouldn't make clear.
