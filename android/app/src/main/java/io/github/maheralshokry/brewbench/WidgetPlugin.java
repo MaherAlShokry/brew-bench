@@ -129,6 +129,21 @@ public class WidgetPlugin extends Plugin {
 
     private static String trim(String v) { return v == null ? "" : v.length() > 120 ? v.substring(0, 120) : v; }
 
+    /** The daily notes of one kind ("cabinet" or "fact"), drawn by the app in its own look (see DailyNotes). */
+    @PluginMethod
+    public void daily(PluginCall call) {
+        JSONArray list = call.getArray("items", new JSArray());
+        DailyNotes.schedule(getContext(), call.getString("kind", "cabinet"), list, call.getString("accent", null));
+        call.resolve();
+    }
+
+    /** The app's look changed: the coming notes take its colour. */
+    @PluginMethod
+    public void dailyLook(PluginCall call) {
+        DailyNotes.accent(getContext(), call.getString("accent", null));
+        call.resolve();
+    }
+
     @PluginMethod
     public void pending(PluginCall call) {
         JSObject r = new JSObject();

@@ -232,4 +232,6 @@ function flBar(fl){const f=flFamilies(fl);if(!f.length)return'';
 function palate(){const sc=new Map();let n=0;for(const l of LOG){const fl=flOf(l);if(!fl.length)continue;n++;fl.forEach(([id,v])=>sc.set(id,(sc.get(id)||0)+v))}
   if(!n)return null;const max=Math.max(...sc.values()),fl=[...sc].sort((a,b)=>b[1]-a[1]).map(([id,v])=>[id,Math.max(1,Math.ceil(3*v/max))]);
   const cats=new Map();sc.forEach((v,id)=>{const c=FW.byId[id].cat.n;cats.set(c,(cats.get(c)||0)+v)});
-  return{n,fl,top:[...cats].sort((a,b)=>b[1]-a[1]).slice(0,2).map(c=>c[0].toLowerCase())}}
+  // And by the wheel's groups (Tropical, Candy, Citrus…), one step finer than the families, with their colours.
+  const grp=new Map();sc.forEach((v,id)=>{const g=FW.byId[id].path[1]||FW.byId[id].cat,e=grp.get(g.id)||{n:g.n,c:g.hue||g.c,v:0};e.v+=v;grp.set(g.id,e)});
+  return{n,fl,top:[...cats].sort((a,b)=>b[1]-a[1]).slice(0,2).map(c=>c[0].toLowerCase()),groups:[...grp.values()].sort((a,b)=>b.v-a.v).slice(0,2)}}

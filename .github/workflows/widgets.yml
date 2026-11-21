@@ -2,7 +2,7 @@ name: Widget pictures
 
 # Draws every home-screen widget on an Android emulator (android/app/src/androidTest/.../WidgetShots.java): each at the
 # sizes people use, light and dark, with a coffee, empty, and mid-brew. It also runs the brew timer's buttons
-# (TimerTest.java) and takes a picture of its notification, on Android 12 and on Android 16, where the brew shows as a
+# (TimerTest.java) and the daily coffee and fact notes (DailyNotesTest.java), and takes a picture of the notifications, on Android 12 and on Android 16, where the brew shows as a
 # Live Update (a clock chip in the status bar). The pictures are kept as the run's "widget-shots" artifacts, so a change
 # can be looked at without a phone. Runs when the Android code or the widget data the app sends changes, and on request.
 on:
@@ -32,9 +32,9 @@ jobs:
         # starting it doesn't fail the run.
         include:
           - api: 31
-            tests: io.github.maheralshokry.brewbench.WidgetShots,io.github.maheralshokry.brewbench.TimerTest
+            tests: io.github.maheralshokry.brewbench.WidgetShots,io.github.maheralshokry.brewbench.TimerTest,io.github.maheralshokry.brewbench.DailyNotesTest
           - api: 36
-            tests: io.github.maheralshokry.brewbench.TimerTest
+            tests: io.github.maheralshokry.brewbench.TimerTest,io.github.maheralshokry.brewbench.DailyNotesTest
     continue-on-error: ${{ matrix.api == 36 }}
     steps:
       - uses: actions/checkout@v5

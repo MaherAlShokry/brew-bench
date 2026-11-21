@@ -10,7 +10,7 @@ const at=()=>p.evaluate(()=>({tab:document.querySelector('main section.on').id,y
 const back=async()=>{await p.evaluate(()=>window.bbBack());await p.waitForTimeout(600)};
 // Explore, scrolled down a little, then the word of the day.
 await p.click('[data-bn="explore"]');await p.waitForTimeout(600);await p.evaluate(()=>scrollTo(0,140));await p.waitForTimeout(200);
-await p.click('#explore-in [data-word]');await p.waitForTimeout(900);let a=await at();
+await p.evaluate(()=>document.querySelector('#explore-in [data-word]').click());await p.waitForTimeout(900);let a=await at();
 ok('the word of the day opens Coffee words, scrolled to the word',a.tab==='words'&&a.y>80,a);
 await back();a=await at();ok('one back returns to Explore, where it was',a.tab==='explore'&&Math.abs(a.y-140)<4,a);
 // A section from Explore's list, scrolled further down.

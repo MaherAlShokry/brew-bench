@@ -24,7 +24,7 @@ const {chromium}=require('playwright');const S='ed/';
   // Switch method
   await p.selectOption('#re-b','sw');ok('method shows for Switch',!(await p.locator('#re-mw').isHidden()));await p.click('[data-m="im"]');
   await p.fill('#re-name','Test immersion');await p.click('#re-save');await p.waitForTimeout(400);
-  const saved=await p.evaluate(()=>{const r=CREC.find(x=>x.name==='Test immersion');return r&&{b:r.b,steps:r.steps,water:r.water}});ok('saved as Switch immersion',saved&&saved.b==='swi',saved);
+  const saved=await p.evaluate(()=>{const r=CREC.find(x=>x.name==='Test immersion');return r&&{b:r.b,kind:r.kind,steps:r.steps,water:r.water}});ok('saved as a Switch full-immersion recipe (its own grind baseline)',saved&&saved.b==='swi'&&saved.kind==='imm',saved);
   // reopen it: brewer shows Switch with immersion pressed
   await p.evaluate(()=>openRecipeEditor(CREC.find(x=>x.name==='Test immersion')));await p.waitForTimeout(300);
   ok('reopens as Switch + immersion',(await p.inputValue('#re-b'))==='sw'&&await p.locator('[data-m="im"]').getAttribute('aria-pressed')==='true');
@@ -34,8 +34,8 @@ const {chromium}=require('playwright');const S='ed/';
   await p.evaluate(()=>openRecipe(1));await p.waitForTimeout(400);ok('graph in recipe',await p.locator('#vd .pgraph').count()===1);await p.locator('#vd .vd-body').screenshot({path:S+'recipe.png'});await p.evaluate(()=>$('vd').close());await p.waitForTimeout(400);
   // timer drawdown check
   await p.evaluate(()=>{openTimer(2);TM.el=TM.total;paint();done()});await p.waitForTimeout(300);ok('drawdown check shown',await p.locator('.tm-draw').count()===1);
-  await p.click('[data-dd="-30"]');ok('advice',true,await p.locator('.tm-dres').textContent());
-  await p.click('#tm-keep');await p.waitForTimeout(200);ok('saved calibration',await p.evaluate(()=>BASE[MYG[0]]&&BASE[MYG[0]].v60),await p.evaluate(()=>[BASE[MYG[0]],dial(MYG[0],base(MYG[0],'v60'))]));
+  const before=await p.evaluate(()=>JSON.stringify(BASE));await p.click('[data-dd="-30"]');await p.waitForTimeout(200);
+  ok('the drawdown answer shows no message and leaves your grinder calibration alone',await p.evaluate(b=>!document.querySelector('.tm-dres,#tm-keep')&&JSON.stringify(BASE)===b,before));
   await p.locator('#timer .tm2').screenshot({path:S+'timer.png'});
  }
  await ctx.close()}

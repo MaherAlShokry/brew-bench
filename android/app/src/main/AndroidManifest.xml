@@ -32,6 +32,13 @@
         </receiver>
         <!-- The brew timer's buttons on its notification and on the Quick brew widget. -->
         <receiver android:name=".TimerReceiver" android:exported="false" />
+        <!-- The daily coffee and fact notes (DailyNotes): their alarms, set again after a restart or an update. -->
+        <receiver android:name=".DailyNotes" android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
         <receiver android:name=".PassportWidget" android:exported="false" android:label="@string/widget_passport_name">
             <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_passport_info" />
@@ -498,6 +505,7 @@
     <!-- The Scan tab's in-app camera. Optional, so phones without a camera can still install the app. -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <!-- Android 16: the running brew timer may show as a Live Update (a clock chip in the status bar and on the lock screen). -->
     <uses-permission android:name="android.permission.POST_PROMOTED_NOTIFICATIONS" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
