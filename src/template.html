@@ -695,7 +695,15 @@ input[type=range]{touch-action:pan-y}
 .s-mb[hidden]{display:none}.s-mb-ic{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,#4F8A74 16%,var(--surface))}.s-mb-ic svg{width:20px;height:20px}
 .s-mb-tx{flex:1;min-width:0;display:grid;gap:1px}.s-mb-tx b{font-size:.95rem;white-space:nowrap}.s-mb-tx small{color:var(--muted);font-size:.8rem;line-height:1.3}
 .s-mb-go{flex:none;padding:8px 14px;border-radius:999px;border:0;background:#3F7A62;color:#fff;font:600 .85rem var(--body);cursor:pointer;transition:transform .15s,filter .15s}.s-mb-go:active{transform:scale(.96)}.s-mb-go:hover{filter:brightness(1.08)}
-.linkbtn{background:none;border:0;padding:2px 0;font:inherit;font-weight:600;color:var(--cherry);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+/* Text actions are small pills, never underlined links: the same rounded shape as every other control, in the accent's
+   ink. An optional icon sits before the words. */
+.linkbtn{display:inline-flex;align-items:center;gap:6px;vertical-align:middle;min-height:32px;padding:0 12px;border:0;border-radius:999px;background:var(--surface2);font:600 .82rem/1.2 var(--display);color:var(--cherry);cursor:pointer;text-decoration:none;white-space:nowrap;transition:transform .12s,background-color .15s}
+.linkbtn:active{transform:scale(.96)}.linkbtn svg{flex:none;width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.linkbtn.danger{background:color-mix(in srgb,#A8432F 12%,var(--surface2))}
+.t3hm-h .linkbtn{background:rgba(255,255,255,.12)}
+/* "About this variety": a small round i beside the Variety label. */
+.v-about{display:inline-grid;place-items:center;width:24px;height:24px;margin-left:6px;padding:0;vertical-align:middle;border:0;border-radius:50%;background:var(--surface2);color:var(--cherry);cursor:pointer}
+.v-about svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .mswap{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:end}.mswap>*{min-width:0}.mswap select{width:100%;padding-left:12px;padding-right:26px}
 .mswap .field{margin-bottom:0}.gpick-btn.mswapbtn{width:46px;height:46px;margin:0}.mswap+.field{margin-top:14px}
 @media (max-width:560px){.mswap{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"from swap" "to swap";row-gap:10px;align-items:center}.mswap>.field:first-child{grid-area:from}.mswap>.field:last-child{grid-area:to}.mswap>.mswapbtn{grid-area:swap;transform:rotate(90deg)}}
@@ -848,6 +856,7 @@ html.app .bg-hero::after,html.app .me-hero::after,html.app .pp-st img{mix-blend-
 .ls-gsel span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ls-gsel svg{flex:none;width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .ls-gsel:focus-within{color:var(--ink)}
 @media (max-width:374px){.ls-t .ls-th .ls-ic{display:none}.ls-t{padding-left:14px}}
+@media (max-width:340px){.ls-row{grid-template-columns:30px 48px 30px}.ls-row button{width:30px;height:30px}.ls-v{font-size:1rem}.sh-tx small{white-space:normal!important}}
 .ls-gsel select{position:absolute;inset:0;opacity:0;width:100%;font-size:16px;cursor:pointer}
 .ls-ratio{margin-top:8px;padding:12px;border-radius:var(--r-md);background:var(--surface2)}
 .ls-rtop{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:26px}
@@ -1620,7 +1629,7 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .me-cta li::before{content:"";display:inline-block;width:6px;height:6px;margin-right:9px;border-radius:50%;background:var(--honey);vertical-align:middle}.me-cta .btn{width:100%}
 .me-fine,.au-fine{margin:0;text-align:center;font-size:.78rem;color:var(--muted)}.au-fine a,.setnote a{color:var(--cherry);font-weight:600}
 .au-hero{padding-bottom:20px}.au-hero .me-cup{width:96px}
-.au-forgot{display:block;margin:-6px 0 12px auto}.au-who{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px;padding:10px 14px;border-radius:999px;background:var(--surface2);font-weight:600;font-size:.92rem}.au-who span{min-width:0;overflow-wrap:anywhere}.au-who .linkbtn{flex:none}
+.au-forgot{display:flex;width:max-content;margin:-6px 0 12px auto}.au-who{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px;padding:10px 14px;border-radius:999px;background:var(--surface2);font-weight:600;font-size:.92rem}.au-who span{min-width:0;overflow-wrap:anywhere}.au-who .linkbtn{flex:none}
 .au-bio{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:56px;text-align:left}.au-bio svg{flex:none;width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}.au-bio span{display:flex;flex-direction:column;line-height:1.25}.au-bio small{font-weight:500;opacity:.8;font-size:.8rem}
 .au-gbtn{display:inline-flex;align-items:center;justify-content:center;gap:12px;width:min(100%,360px);min-height:44px;padding:0 18px;border-radius:999px;border:1px solid #DADCE0;background:#fff;color:#1F1F1F;font:500 .95rem/1 inherit;font-family:inherit;cursor:pointer}.au-gbtn svg{width:20px;height:20px;flex:none}.au-gbtn:disabled{opacity:.6}
 .appver{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start;gap:10px 12px;margin:0 0 18px;padding:14px;border-radius:20px;background:var(--surface);border:1px solid color-mix(in srgb,var(--line) 80%,transparent)}
@@ -1661,7 +1670,7 @@ dialog#vd:has(.me-hero){overflow-x:hidden}
 .auth input{width:100%;box-sizing:border-box;font-size:16px}.au-pw{position:relative}.au-pw input{padding-right:70px!important}.au-pw .linkbtn{position:absolute;right:6px;top:50%;transform:translateY(-50%);min-height:40px;padding:0 10px}
 .au-err{margin:0 0 12px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,#A8432F 12%,var(--surface));color:#8A3222;font-size:.88rem}
 :root[data-theme="dark"] .au-err{color:#F5A08B}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .au-err{color:#F5A08B}}
-.auth>.linkbtn{display:block;margin:6px auto 0}
+.auth>.linkbtn{display:flex;width:max-content;margin:6px auto 0}
 .setrow{padding:14px 16px}.setrow+.setrow{border-top:1px solid var(--line)}
 .setrow>.sl{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}.setrow>.sl:last-child{margin-bottom:0}
 /* Logos in light mode: their gold parts a touch deeper (towards the vibe's darker gold) so they read on pale tiles.
@@ -1974,7 +1983,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .vd-head:has(.vd-tools>:nth-child(3)) .pill{max-width:calc(100% - 186px)}.vd-head:has(.vd-tools>:nth-child(4)) .pill{max-width:calc(100% - 234px)}
 /* What's left: the bar across, the grams and "Set what's left" on one line under it. */
 .bd-bagh{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px}.bd-bagh .bagl{display:contents}
-.bd-bagh .bagm{flex:1 0 100%}.bd-bagh .linkbtn{font-size:.84rem;font-weight:700;padding:4px 0}
+.bd-bagh .bagm{flex:1 0 100%}.bd-bagh .linkbtn{font-size:.84rem;font-weight:700}
 .bd-shelf .bagm{background:color-mix(in srgb,var(--ink) 10%,var(--surface))}
 .vd-head:has(.vd-tools) .vd-back{position:static;display:flex;align-items:center;width:max-content;max-width:calc(100% - 250px);margin:-6px 0 10px}
 /* Advent calendars: the boxes on the Coffees page, and a calendar's page of numbered doors. */
@@ -2207,7 +2216,7 @@ i.rl{font-style:inherit;font-variant-numeric:tabular-nums}
 .tro.lit .tro-ic{filter:none;opacity:1;background:radial-gradient(circle at 35% 30%,#FFF1C9,#E2B866 60%,#B07D35);box-shadow:0 4px 10px -4px rgba(176,125,53,.8)}
 .tro-p{display:block;height:5px;margin-top:4px;border-radius:3px;background:var(--surface2);overflow:hidden}.tro-p i{display:block;height:100%;background:var(--cherry);border-radius:3px}
 .vd-sub{margin:.1rem 0 0;color:var(--muted)}
-.linkbtn.danger{display:block;margin:16px auto 0;color:#A8432F!important}
+.linkbtn.danger{display:flex;width:max-content;margin:16px auto 0;color:#A8432F!important}
 [data-theme="dark"] .linkbtn.danger{color:#EE8A72!important}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .linkbtn.danger{color:#EE8A72!important}}
 /* Adding and editing */
@@ -3344,7 +3353,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <details class="dstep" data-step="coffee" open><summary><span class="dn">2</span><span class="dst"><b>Your coffee</b><small id="ds-coffee"></small></span><span class="dchev" aria-hidden="true"></span></summary><div class="dstep-in">      <div class="field"><div class="lbl">Beans</div><div id="d-bean"></div></div>
       <div class="field"><div class="lbl">Roast</div><div class="seg" id="g-roast"></div></div>
       <div class="field"><label for="i-process">Process</label><select id="i-process"></select></div>
-      <div class="field"><label for="i-variety">Variety <button type="button" class="hint" id="v-about" style="background:none;border:0;cursor:pointer;text-decoration:underline">about this variety</button></label><select id="i-variety"></select></div>
+      <div class="field"><label for="i-variety">Variety <button type="button" class="v-about" id="v-about" aria-label="About this variety" title="About this variety"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5a8.5 8.5 0 1 1 0 17 8.5 8.5 0 0 1 0-17z M12 11v5.2 M12 7.8h.01"/></svg></button></label><select id="i-variety"></select></div>
       <div class="field"><label for="i-region">Region</label><select id="i-region"></select></div>
       <div class="field"><label for="i-age">Days since roast <span class="num" id="v-age"></span></label><input type="range" id="i-age" min="3" max="60" step="1"></div>
 </div></details>
@@ -3357,14 +3366,14 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
       </div>
 </div></details>
 <details class="dstep" data-step="tune" open><summary><span class="dn">4</span><span class="dst"><b>Fine-tune</b><small id="ds-tune"></small></span><span class="dchev" aria-hidden="true"></span></summary><div class="dstep-in">
-      <div class="field"><label for="i-grind">Grind <span><span class="num" id="v-grind"></span></span></label><input type="range" id="i-grind"><div class="dialrow"><svg id="dialsvg" class="dialmini" viewBox="0 0 160 160" aria-hidden="true"></svg><p class="hint" style="margin:0"><button type="button" class="linkbtn" data-gearto="dials">How each grinder reads</button></p></div></div>
+      <div class="field"><label for="i-grind">Grind <span><span class="num" id="v-grind"></span></span></label><input type="range" id="i-grind"><div class="dialrow"><svg id="dialsvg" class="dialmini" viewBox="0 0 160 160" aria-hidden="true"></svg><p class="hint" style="margin:0"><button type="button" class="linkbtn" data-gearto="dials"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5a8.5 8.5 0 1 1 0 17 8.5 8.5 0 0 1 0-17z M12 12l3.5-3.5 M12 6.5v1.5 M17.5 12H16 M6.5 12H8"/></svg>How each grinder reads</button></p></div></div>
       <div class="two">
         <div class="field"><label for="i-temp">Water <span class="num" id="v-temp"></span></label><input type="range" id="i-temp" min="85" max="100" step="1"></div>
         <div class="field"><label for="i-ratio">Ratio <span class="num" id="v-ratio"></span></label><input type="range" id="i-ratio" min="13" max="18" step="0.5"></div>
       </div>
       <div class="field"><label for="i-bloom">Bloom <span class="num" id="v-bloom"></span></label><input type="range" id="i-bloom" min="20" max="180" step="5"></div>
       <div class="field"><div class="lbl">Agitation</div><div class="seg" id="g-agit"></div></div>
-      <p class="hint dcal-link"><button type="button" class="linkbtn" data-gearto="set">Grind settings</button></p>
+      <p class="hint dcal-link"><button type="button" class="linkbtn" data-gearto="set"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9 M15 5v4 M9 15v4"/></svg>Grind settings</button></p>
       <div hidden>      <div class="cal">
         <summary>Calibrate to your grinders</summary>
         <p class="hint">Enter, in clicks from zero, the setting that gives you a balanced cup on each brewer. The dial reading shows beside each box. Predictions and recipe grinds are measured from these.</p>
@@ -3380,7 +3389,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
         <div class="gauge" aria-hidden="true"><i id="o-marker"></i></div>
         <div class="gscale"><span>Under</span><span>Sweet spot</span><span>Over</span></div>
         <div class="bars" id="o-bars"></div>
-        <div class="notes"><h3 class="o-k">Likely in the cup</h3><div class="chips" id="o-chips"></div><div id="o-tips"></div></div>
+        <div class="notes"><div id="o-cup"><h3 class="o-k">Likely in the cup</h3><div class="chips" id="o-chips"></div></div><div id="o-tips"></div></div>
         
         <p class="disclaim o-disc"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-18 0a9 9 0 1 1 18 0z M12 11v5 M12 8h.01"/></svg><span>An estimate from brewing rules of thumb, not a measurement. Beans, water and freshness move things more than any model can. Taste wins.</span></p>
       </div>

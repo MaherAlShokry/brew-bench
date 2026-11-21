@@ -487,33 +487,33 @@ function compute(st){
     clarity:clamp(5.4-0.7*step+G.clarity+B.clarity-P.funk+Vp.clarity-Math.max(0,D)*0.9),
     bitter:clamp(0.8+Math.max(0,D)*2.4+roastBit+Math.max(0,st.temp-96)*0.3)};
 }
-// What the cup should taste of: the variety's and process's notes, shifted by how far the extraction lands from the sweet spot.
-// What the cup is likely to taste of, most likely first. Each source adds weight to its notes: the bag's own tasting
-// notes count most, then what you tasted in this coffee's brews (more from the ones you rated well), then the variety
-// and process, the roast, the brewer and the cup you're aiming for. The extraction then leans it: underdone brings the
-// bright, fruity notes forward, heavier brings the sweet and chocolate ones, and far off either way leads with the faults.
-// The tasting-note helpers live in beans.js, which loads after the first render: until then they're skipped.
+// What the cup is likely to taste of: flavours only, most likely first (the bars and the verdict above already say how
+// bright, sweet or heavy it is). The bag's own tasting notes count most, then what you tasted in this coffee's brews
+// (more from the ones you rated well), then the variety and the process; only notes the flavour wheel knows are kept.
+// The roast adds caramel and chocolate only when it's medium or dark, and a light roast plays down roasty notes. The
+// extraction leans the order: underdone brings the fruity, floral notes forward, heavier the sweet and chocolate ones.
+// The tasting-note helpers live in beans.js, which loads after the first render: until then the list is empty.
 const tnReady=()=>{try{return typeof tnLeaf==='function'&&typeof tnSplit==='function'&&typeof tnColor==='function'}catch(e){return false}};
 const CUP_LEAN={Fruity:'bright','Sour/Fermented':'bright',Floral:'bright','Green/Vegetative':'bright',Sweet:'sweet','Nutty/Cocoa':'sweet',Roasted:'sweet',Spices:'sweet'};
-function cupNotes(st,r){const P=PROCESSES[st.process]||{},Vv=vById(st.variety)||{},B=BREWERS[st.brewer]||{},sc=new Map();
+// Variety and process notes the wheel names differently; the rest (earthy, woody, clean, complex…) are left out.
+const CUP_ALIAS={'tea-like':'black tea',berry:'raspberry',berries:'raspberry','red berries':'raspberry','dark fruit':'plum','white grape':'grape',malty:'malt',whisky:'whiskey',spice:'brown spice','earthy spice':'brown spice',buttery:'butter',honeyed:'honey',jammy:'jam',tropical:'tropical fruit',candied:'candied fruit','candy-like':'candied fruit'};
+function cupNotes(st,r){if(!tnReady())return[];const P=PROCESSES[st.process]||{},Vv=vById(st.variety)||{},sc=new Map();
   const gb=window.BEANS_OK&&st.bean&&st.bean.id&&typeof beanById==='function'?beanById(st.bean.id):null;
-  const add=(w,v)=>{w=String(w||'').trim();const k=fold(w);if(!k)return;const o=sc.get(k);sc.set(k,{w:o?o.w:w,v:(o?o.v:0)+v})};
-  if(gb&&gb.flavours&&tnReady())tnSplit(gb.flavours).forEach((w,i)=>add(w,6-i*0.3));
+  const catOf=w=>{const n=tnLeaf(w),f=n&&(FW.byId[n.id]||n);return f&&f.cat?f.cat.n:null};
+  const add=(w,v,any)=>{w=String(w||'').trim();w=CUP_ALIAS[fold(w)]||w;const k=fold(w);if(!k)return;const c=catOf(w);if(!c&&!any)return;const o=sc.get(k);sc.set(k,{w:o?o.w:w,c:o?o.c:c,v:(o?o.v:0)+v})};
+  if(gb&&gb.flavours)tnSplit(gb.flavours).forEach((w,i)=>add(w,6-i*0.3,1));
   if(gb&&typeof flOf==='function')for(const l of LOG){if(!l||!l.snap||!l.snap.bean||l.snap.bean.id!==gb.id)continue;const good=(+l.stars||3)>=4;
-    for(const [id,v] of flOf(l)){const n=FW.byId[id];if(n)add(n.n,1+v*0.6+(good?0.6:0))}}
-  (Vv.notes||[]).slice(0,3).forEach((w,i)=>add(w,2.5-i*0.4));(P.notes||[]).forEach((w,i)=>add(w,2-i*0.3));
-  if(st.roast==='dark'){add('dark chocolate',4);add('roasty',3)}else if(st.roast==='medium'){add('caramel',2);add('milk chocolate',1.6)}
-  if((B.clarity||0)>=0.7)add('clean',0.7);if((B.body||0)>=1)add('round body',0.7);
-  const g=st.goal;if(g==='bright')add('juicy acidity',1);else if(g==='sweet')add('sweet',1);else if(g==='body')add('syrupy',1);else if(g==='clean'||g==='tea')add('tea-like',1);
-  const tr=tnReady(),leanOf=w=>{const n=tr&&tnLeaf(w),f=n&&(FW.byId[n.id]||n);return f&&f.cat?CUP_LEAN[f.cat.n]:null};
+    for(const [id,v] of flOf(l)){const n=FW.byId[id];if(n)add(n.n,1+v*0.6+(good?0.6:0),1)}}
+  const own=sc.size>0;(Vv.notes||[]).slice(0,4).forEach((w,i)=>add(w,(own?1.2:2.5)-i*0.3));(P.notes||[]).forEach((w,i)=>add(w,(own?1:2)-i*0.3));
+  if(st.roast==='dark'){add('dark chocolate',own?1.5:3)}else if(st.roast==='medium'){add('caramel',own?1:2);add('milk chocolate',own?0.8:1.6)}
   // A darker roast mutes the bright notes and deepens the sweet ones; so does brewing heavier, and lighter does the opposite.
-  const D=r?r.D:0,rb=st.roast==='dark'?0.7:st.roast==='medium'?0.9:1,rs=st.roast==='dark'?1.2:1,
+  const D=r?r.D:0,light=st.roast!=='medium'&&st.roast!=='dark',rb=st.roast==='dark'?0.7:st.roast==='medium'?0.9:1,rs=st.roast==='dark'?1.2:1,
     mul={bright:(D<-0.45?1.4:D>0.45?0.75:1)*rb,sweet:(D<-0.45?0.8:D>0.45?1.4:1)*rs};
-  let list=[...sc.values()].map(x=>({w:x.w,v:x.v*(mul[leanOf(x.w)]||1)})).sort((a,b)=>b.v-a.v).map(x=>x.w);
-  if(D<-1.2)list=['sour','thin',...list.slice(0,3)];else if(D<-0.45)list=['bright',...list];
-  else if(D>1.2)list=['bitter','drying',...list.slice(0,3)];else if(D>0.45)list=['syrupy',...list];
-  if((P.funk||0)>=1.2&&D>0.45)list.splice(1,0,'harsh ferment');
-  const seen=new Set();return list.filter(w=>{const k=fold(w);return k&&!seen.has(k)&&seen.add(k)}).slice(0,6)}
+  return[...sc.values()].map(x=>({w:x.w,v:x.v*(mul[CUP_LEAN[x.c]]||1)*(light&&x.c==='Roasted'?0.5:1)})).sort((a,b)=>b.v-a.v).map(x=>x.w).slice(0,5)}
+// The cup's notes need the tasting-note helpers, so beans.js paints them again once it has loaded.
+function paintCup(r){r=r||LASTR;const cn=r?cupNotes(S,r):[];$('o-cup').hidden=!cn.length;
+  $('o-chips').innerHTML=cn.map(c=>'<span class="chip"><i class="dot" style="background:'+tnColor(c)+'"></i>'+esc(c)+'</span>').join('');LASTR=r}
+let LASTR=null;
 function verdict(D){
   if(D<-1.2)return['Under-extracted','Sour, thin and hollow. The flavours feel unfinished.'];
   if(D<-0.45)return['Bright and light','Lively and clear, a touch lean. Some sweetness left in the bean.'];
@@ -849,7 +849,7 @@ function render(){schedulePreCard();
     .map(([n,v,c])=>'<div class="bar tbar t-'+c+(c==='bitt'?' bitter':'')+'"><i class="tdot" aria-hidden="true"></i><span>'+n+'</span><div class="t"><b style="width:'+(v*10)+'%"></b></div><span class="num">'+v.toFixed(1)+'</span></div>').join('');
   drawCup(r);
   const P=PROCESSES[S.process];
-  $('o-chips').innerHTML=cupNotes(S,r).map(c=>'<span class="chip">'+(tnReady()?'<i class="dot" style="background:'+tnColor(c)+'"></i>':'')+esc(c)+'</span>').join('');
+  paintCup(r);
   const tips=[];PLAN=null;
   {const bx=baseX(S.grinder,S.brewer),off=bx==null?0:stepsBetween(S.grinder,bx,S.setting);
     if(Math.abs(off)>2.5)tips.push('<b>'+esc(gLabel(S.grinder,S.setting))+' is much '+(off>0?'finer':'coarser')+' than '+art(brewName(B.name))+' '+esc(brewName(B.name))+' usually needs.</b> Most brews start around '+esc(dial(S.grinder,Math.round(bx)))+'. <button type="button" class="linkbtn" data-reset-grind>Reset to '+esc(dial(S.grinder,Math.round(bx)))+'</button>')}

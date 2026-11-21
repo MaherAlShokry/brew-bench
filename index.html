@@ -692,7 +692,14 @@ input[type=range]{touch-action:pan-y}
 .s-mb[hidden]{display:none}.s-mb-ic{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,#4F8A74 16%,var(--surface))}.s-mb-ic svg{width:20px;height:20px}
 .s-mb-tx{flex:1;min-width:0;display:grid;gap:1px}.s-mb-tx b{font-size:.95rem;white-space:nowrap}.s-mb-tx small{color:var(--muted);font-size:.8rem;line-height:1.3}
 .s-mb-go{flex:none;padding:8px 14px;border-radius:999px;border:0;background:#3F7A62;color:#fff;font:600 .85rem var(--body);cursor:pointer;transition:transform .15s,filter .15s}.s-mb-go:active{transform:scale(.96)}.s-mb-go:hover{filter:brightness(1.08)}
-.linkbtn{background:none;border:0;padding:2px 0;font:inherit;font-weight:600;color:var(--cherry);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+
+.linkbtn{display:inline-flex;align-items:center;gap:6px;vertical-align:middle;min-height:32px;padding:0 12px;border:0;border-radius:999px;background:var(--surface2);font:600 .82rem/1.2 var(--display);color:var(--cherry);cursor:pointer;text-decoration:none;white-space:nowrap;transition:transform .12s,background-color .15s}
+.linkbtn:active{transform:scale(.96)}.linkbtn svg{flex:none;width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.linkbtn.danger{background:color-mix(in srgb,#A8432F 12%,var(--surface2))}
+.t3hm-h .linkbtn{background:rgba(255,255,255,.12)}
+
+.v-about{display:inline-grid;place-items:center;width:24px;height:24px;margin-left:6px;padding:0;vertical-align:middle;border:0;border-radius:50%;background:var(--surface2);color:var(--cherry);cursor:pointer}
+.v-about svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .mswap{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:end}.mswap>*{min-width:0}.mswap select{width:100%;padding-left:12px;padding-right:26px}
 .mswap .field{margin-bottom:0}.gpick-btn.mswapbtn{width:46px;height:46px;margin:0}.mswap+.field{margin-top:14px}
 @media (max-width:560px){.mswap{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"from swap" "to swap";row-gap:10px;align-items:center}.mswap>.field:first-child{grid-area:from}.mswap>.field:last-child{grid-area:to}.mswap>.mswapbtn{grid-area:swap;transform:rotate(90deg)}}
@@ -840,6 +847,7 @@ html.app .bg-hero::after,html.app .me-hero::after,html.app .pp-st img{mix-blend-
 .ls-gsel span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ls-gsel svg{flex:none;width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .ls-gsel:focus-within{color:var(--ink)}
 @media (max-width:374px){.ls-t .ls-th .ls-ic{display:none}.ls-t{padding-left:14px}}
+@media (max-width:340px){.ls-row{grid-template-columns:30px 48px 30px}.ls-row button{width:30px;height:30px}.ls-v{font-size:1rem}.sh-tx small{white-space:normal!important}}
 .ls-gsel select{position:absolute;inset:0;opacity:0;width:100%;font-size:16px;cursor:pointer}
 .ls-ratio{margin-top:8px;padding:12px;border-radius:var(--r-md);background:var(--surface2)}
 .ls-rtop{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:26px}
@@ -1597,7 +1605,7 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .me-cta li::before{content:"";display:inline-block;width:6px;height:6px;margin-right:9px;border-radius:50%;background:var(--honey);vertical-align:middle}.me-cta .btn{width:100%}
 .me-fine,.au-fine{margin:0;text-align:center;font-size:.78rem;color:var(--muted)}.au-fine a,.setnote a{color:var(--cherry);font-weight:600}
 .au-hero{padding-bottom:20px}.au-hero .me-cup{width:96px}
-.au-forgot{display:block;margin:-6px 0 12px auto}.au-who{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px;padding:10px 14px;border-radius:999px;background:var(--surface2);font-weight:600;font-size:.92rem}.au-who span{min-width:0;overflow-wrap:anywhere}.au-who .linkbtn{flex:none}
+.au-forgot{display:flex;width:max-content;margin:-6px 0 12px auto}.au-who{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px;padding:10px 14px;border-radius:999px;background:var(--surface2);font-weight:600;font-size:.92rem}.au-who span{min-width:0;overflow-wrap:anywhere}.au-who .linkbtn{flex:none}
 .au-bio{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:56px;text-align:left}.au-bio svg{flex:none;width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}.au-bio span{display:flex;flex-direction:column;line-height:1.25}.au-bio small{font-weight:500;opacity:.8;font-size:.8rem}
 .au-gbtn{display:inline-flex;align-items:center;justify-content:center;gap:12px;width:min(100%,360px);min-height:44px;padding:0 18px;border-radius:999px;border:1px solid #DADCE0;background:#fff;color:#1F1F1F;font:500 .95rem/1 inherit;font-family:inherit;cursor:pointer}.au-gbtn svg{width:20px;height:20px;flex:none}.au-gbtn:disabled{opacity:.6}
 .appver{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start;gap:10px 12px;margin:0 0 18px;padding:14px;border-radius:20px;background:var(--surface);border:1px solid color-mix(in srgb,var(--line) 80%,transparent)}
@@ -1638,7 +1646,7 @@ dialog#vd:has(.me-hero){overflow-x:hidden}
 .auth input{width:100%;box-sizing:border-box;font-size:16px}.au-pw{position:relative}.au-pw input{padding-right:70px!important}.au-pw .linkbtn{position:absolute;right:6px;top:50%;transform:translateY(-50%);min-height:40px;padding:0 10px}
 .au-err{margin:0 0 12px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,#A8432F 12%,var(--surface));color:#8A3222;font-size:.88rem}
 :root[data-theme="dark"] .au-err{color:#F5A08B}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .au-err{color:#F5A08B}}
-.auth>.linkbtn{display:block;margin:6px auto 0}
+.auth>.linkbtn{display:flex;width:max-content;margin:6px auto 0}
 .setrow{padding:14px 16px}.setrow+.setrow{border-top:1px solid var(--line)}
 .setrow>.sl{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}.setrow>.sl:last-child{margin-bottom:0}
 
@@ -1950,7 +1958,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .vd-head:has(.vd-tools>:nth-child(3)) .pill{max-width:calc(100% - 186px)}.vd-head:has(.vd-tools>:nth-child(4)) .pill{max-width:calc(100% - 234px)}
 
 .bd-bagh{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px}.bd-bagh .bagl{display:contents}
-.bd-bagh .bagm{flex:1 0 100%}.bd-bagh .linkbtn{font-size:.84rem;font-weight:700;padding:4px 0}
+.bd-bagh .bagm{flex:1 0 100%}.bd-bagh .linkbtn{font-size:.84rem;font-weight:700}
 .bd-shelf .bagm{background:color-mix(in srgb,var(--ink) 10%,var(--surface))}
 .vd-head:has(.vd-tools) .vd-back{position:static;display:flex;align-items:center;width:max-content;max-width:calc(100% - 250px);margin:-6px 0 10px}
 
@@ -2180,7 +2188,7 @@ i.rl{font-style:inherit;font-variant-numeric:tabular-nums}
 .tro.lit .tro-ic{filter:none;opacity:1;background:radial-gradient(circle at 35% 30%,#FFF1C9,#E2B866 60%,#B07D35);box-shadow:0 4px 10px -4px rgba(176,125,53,.8)}
 .tro-p{display:block;height:5px;margin-top:4px;border-radius:3px;background:var(--surface2);overflow:hidden}.tro-p i{display:block;height:100%;background:var(--cherry);border-radius:3px}
 .vd-sub{margin:.1rem 0 0;color:var(--muted)}
-.linkbtn.danger{display:block;margin:16px auto 0;color:#A8432F!important}
+.linkbtn.danger{display:flex;width:max-content;margin:16px auto 0;color:#A8432F!important}
 [data-theme="dark"] .linkbtn.danger{color:#EE8A72!important}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .linkbtn.danger{color:#EE8A72!important}}
 
@@ -3071,7 +3079,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="be3e1a44ace8"</script>
+<script>const BUILD_ID="ebdba6f08c84"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -3276,7 +3284,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <details class="dstep" data-step="coffee" open><summary><span class="dn">2</span><span class="dst"><b>Your coffee</b><small id="ds-coffee"></small></span><span class="dchev" aria-hidden="true"></span></summary><div class="dstep-in">      <div class="field"><div class="lbl">Beans</div><div id="d-bean"></div></div>
       <div class="field"><div class="lbl">Roast</div><div class="seg" id="g-roast"></div></div>
       <div class="field"><label for="i-process">Process</label><select id="i-process"></select></div>
-      <div class="field"><label for="i-variety">Variety <button type="button" class="hint" id="v-about" style="background:none;border:0;cursor:pointer;text-decoration:underline">about this variety</button></label><select id="i-variety"></select></div>
+      <div class="field"><label for="i-variety">Variety <button type="button" class="v-about" id="v-about" aria-label="About this variety" title="About this variety"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5a8.5 8.5 0 1 1 0 17 8.5 8.5 0 0 1 0-17z M12 11v5.2 M12 7.8h.01"/></svg></button></label><select id="i-variety"></select></div>
       <div class="field"><label for="i-region">Region</label><select id="i-region"></select></div>
       <div class="field"><label for="i-age">Days since roast <span class="num" id="v-age"></span></label><input type="range" id="i-age" min="3" max="60" step="1"></div>
 </div></details>
@@ -3289,14 +3297,14 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
       </div>
 </div></details>
 <details class="dstep" data-step="tune" open><summary><span class="dn">4</span><span class="dst"><b>Fine-tune</b><small id="ds-tune"></small></span><span class="dchev" aria-hidden="true"></span></summary><div class="dstep-in">
-      <div class="field"><label for="i-grind">Grind <span><span class="num" id="v-grind"></span></span></label><input type="range" id="i-grind"><div class="dialrow"><svg id="dialsvg" class="dialmini" viewBox="0 0 160 160" aria-hidden="true"></svg><p class="hint" style="margin:0"><button type="button" class="linkbtn" data-gearto="dials">How each grinder reads</button></p></div></div>
+      <div class="field"><label for="i-grind">Grind <span><span class="num" id="v-grind"></span></span></label><input type="range" id="i-grind"><div class="dialrow"><svg id="dialsvg" class="dialmini" viewBox="0 0 160 160" aria-hidden="true"></svg><p class="hint" style="margin:0"><button type="button" class="linkbtn" data-gearto="dials"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5a8.5 8.5 0 1 1 0 17 8.5 8.5 0 0 1 0-17z M12 12l3.5-3.5 M12 6.5v1.5 M17.5 12H16 M6.5 12H8"/></svg>How each grinder reads</button></p></div></div>
       <div class="two">
         <div class="field"><label for="i-temp">Water <span class="num" id="v-temp"></span></label><input type="range" id="i-temp" min="85" max="100" step="1"></div>
         <div class="field"><label for="i-ratio">Ratio <span class="num" id="v-ratio"></span></label><input type="range" id="i-ratio" min="13" max="18" step="0.5"></div>
       </div>
       <div class="field"><label for="i-bloom">Bloom <span class="num" id="v-bloom"></span></label><input type="range" id="i-bloom" min="20" max="180" step="5"></div>
       <div class="field"><div class="lbl">Agitation</div><div class="seg" id="g-agit"></div></div>
-      <p class="hint dcal-link"><button type="button" class="linkbtn" data-gearto="set">Grind settings</button></p>
+      <p class="hint dcal-link"><button type="button" class="linkbtn" data-gearto="set"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9 M15 5v4 M9 15v4"/></svg>Grind settings</button></p>
       <div hidden>      <div class="cal">
         <summary>Calibrate to your grinders</summary>
         <p class="hint">Enter, in clicks from zero, the setting that gives you a balanced cup on each brewer. The dial reading shows beside each box. Predictions and recipe grinds are measured from these.</p>
@@ -3312,7 +3320,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
         <div class="gauge" aria-hidden="true"><i id="o-marker"></i></div>
         <div class="gscale"><span>Under</span><span>Sweet spot</span><span>Over</span></div>
         <div class="bars" id="o-bars"></div>
-        <div class="notes"><h3 class="o-k">Likely in the cup</h3><div class="chips" id="o-chips"></div><div id="o-tips"></div></div>
+        <div class="notes"><div id="o-cup"><h3 class="o-k">Likely in the cup</h3><div class="chips" id="o-chips"></div></div><div id="o-tips"></div></div>
         
         <p class="disclaim o-disc"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-18 0a9 9 0 1 1 18 0z M12 11v5 M12 8h.01"/></svg><span>An estimate from brewing rules of thumb, not a measurement. Beans, water and freshness move things more than any model can. Taste wins.</span></p>
       </div>
@@ -6310,33 +6318,33 @@ function compute(st){
     clarity:clamp(5.4-0.7*step+G.clarity+B.clarity-P.funk+Vp.clarity-Math.max(0,D)*0.9),
     bitter:clamp(0.8+Math.max(0,D)*2.4+roastBit+Math.max(0,st.temp-96)*0.3)};
 }
-// What the cup should taste of: the variety's and process's notes, shifted by how far the extraction lands from the sweet spot.
-// What the cup is likely to taste of, most likely first. Each source adds weight to its notes: the bag's own tasting
-// notes count most, then what you tasted in this coffee's brews (more from the ones you rated well), then the variety
-// and process, the roast, the brewer and the cup you're aiming for. The extraction then leans it: underdone brings the
-// bright, fruity notes forward, heavier brings the sweet and chocolate ones, and far off either way leads with the faults.
-// The tasting-note helpers live in beans.js, which loads after the first render: until then they're skipped.
+// What the cup is likely to taste of: flavours only, most likely first (the bars and the verdict above already say how
+// bright, sweet or heavy it is). The bag's own tasting notes count most, then what you tasted in this coffee's brews
+// (more from the ones you rated well), then the variety and the process; only notes the flavour wheel knows are kept.
+// The roast adds caramel and chocolate only when it's medium or dark, and a light roast plays down roasty notes. The
+// extraction leans the order: underdone brings the fruity, floral notes forward, heavier the sweet and chocolate ones.
+// The tasting-note helpers live in beans.js, which loads after the first render: until then the list is empty.
 const tnReady=()=>{try{return typeof tnLeaf==='function'&&typeof tnSplit==='function'&&typeof tnColor==='function'}catch(e){return false}};
 const CUP_LEAN={Fruity:'bright','Sour/Fermented':'bright',Floral:'bright','Green/Vegetative':'bright',Sweet:'sweet','Nutty/Cocoa':'sweet',Roasted:'sweet',Spices:'sweet'};
-function cupNotes(st,r){const P=PROCESSES[st.process]||{},Vv=vById(st.variety)||{},B=BREWERS[st.brewer]||{},sc=new Map();
+// Variety and process notes the wheel names differently; the rest (earthy, woody, clean, complex…) are left out.
+const CUP_ALIAS={'tea-like':'black tea',berry:'raspberry',berries:'raspberry','red berries':'raspberry','dark fruit':'plum','white grape':'grape',malty:'malt',whisky:'whiskey',spice:'brown spice','earthy spice':'brown spice',buttery:'butter',honeyed:'honey',jammy:'jam',tropical:'tropical fruit',candied:'candied fruit','candy-like':'candied fruit'};
+function cupNotes(st,r){if(!tnReady())return[];const P=PROCESSES[st.process]||{},Vv=vById(st.variety)||{},sc=new Map();
   const gb=window.BEANS_OK&&st.bean&&st.bean.id&&typeof beanById==='function'?beanById(st.bean.id):null;
-  const add=(w,v)=>{w=String(w||'').trim();const k=fold(w);if(!k)return;const o=sc.get(k);sc.set(k,{w:o?o.w:w,v:(o?o.v:0)+v})};
-  if(gb&&gb.flavours&&tnReady())tnSplit(gb.flavours).forEach((w,i)=>add(w,6-i*0.3));
+  const catOf=w=>{const n=tnLeaf(w),f=n&&(FW.byId[n.id]||n);return f&&f.cat?f.cat.n:null};
+  const add=(w,v,any)=>{w=String(w||'').trim();w=CUP_ALIAS[fold(w)]||w;const k=fold(w);if(!k)return;const c=catOf(w);if(!c&&!any)return;const o=sc.get(k);sc.set(k,{w:o?o.w:w,c:o?o.c:c,v:(o?o.v:0)+v})};
+  if(gb&&gb.flavours)tnSplit(gb.flavours).forEach((w,i)=>add(w,6-i*0.3,1));
   if(gb&&typeof flOf==='function')for(const l of LOG){if(!l||!l.snap||!l.snap.bean||l.snap.bean.id!==gb.id)continue;const good=(+l.stars||3)>=4;
-    for(const [id,v] of flOf(l)){const n=FW.byId[id];if(n)add(n.n,1+v*0.6+(good?0.6:0))}}
-  (Vv.notes||[]).slice(0,3).forEach((w,i)=>add(w,2.5-i*0.4));(P.notes||[]).forEach((w,i)=>add(w,2-i*0.3));
-  if(st.roast==='dark'){add('dark chocolate',4);add('roasty',3)}else if(st.roast==='medium'){add('caramel',2);add('milk chocolate',1.6)}
-  if((B.clarity||0)>=0.7)add('clean',0.7);if((B.body||0)>=1)add('round body',0.7);
-  const g=st.goal;if(g==='bright')add('juicy acidity',1);else if(g==='sweet')add('sweet',1);else if(g==='body')add('syrupy',1);else if(g==='clean'||g==='tea')add('tea-like',1);
-  const tr=tnReady(),leanOf=w=>{const n=tr&&tnLeaf(w),f=n&&(FW.byId[n.id]||n);return f&&f.cat?CUP_LEAN[f.cat.n]:null};
+    for(const [id,v] of flOf(l)){const n=FW.byId[id];if(n)add(n.n,1+v*0.6+(good?0.6:0),1)}}
+  const own=sc.size>0;(Vv.notes||[]).slice(0,4).forEach((w,i)=>add(w,(own?1.2:2.5)-i*0.3));(P.notes||[]).forEach((w,i)=>add(w,(own?1:2)-i*0.3));
+  if(st.roast==='dark'){add('dark chocolate',own?1.5:3)}else if(st.roast==='medium'){add('caramel',own?1:2);add('milk chocolate',own?0.8:1.6)}
   // A darker roast mutes the bright notes and deepens the sweet ones; so does brewing heavier, and lighter does the opposite.
-  const D=r?r.D:0,rb=st.roast==='dark'?0.7:st.roast==='medium'?0.9:1,rs=st.roast==='dark'?1.2:1,
+  const D=r?r.D:0,light=st.roast!=='medium'&&st.roast!=='dark',rb=st.roast==='dark'?0.7:st.roast==='medium'?0.9:1,rs=st.roast==='dark'?1.2:1,
     mul={bright:(D<-0.45?1.4:D>0.45?0.75:1)*rb,sweet:(D<-0.45?0.8:D>0.45?1.4:1)*rs};
-  let list=[...sc.values()].map(x=>({w:x.w,v:x.v*(mul[leanOf(x.w)]||1)})).sort((a,b)=>b.v-a.v).map(x=>x.w);
-  if(D<-1.2)list=['sour','thin',...list.slice(0,3)];else if(D<-0.45)list=['bright',...list];
-  else if(D>1.2)list=['bitter','drying',...list.slice(0,3)];else if(D>0.45)list=['syrupy',...list];
-  if((P.funk||0)>=1.2&&D>0.45)list.splice(1,0,'harsh ferment');
-  const seen=new Set();return list.filter(w=>{const k=fold(w);return k&&!seen.has(k)&&seen.add(k)}).slice(0,6)}
+  return[...sc.values()].map(x=>({w:x.w,v:x.v*(mul[CUP_LEAN[x.c]]||1)*(light&&x.c==='Roasted'?0.5:1)})).sort((a,b)=>b.v-a.v).map(x=>x.w).slice(0,5)}
+// The cup's notes need the tasting-note helpers, so beans.js paints them again once it has loaded.
+function paintCup(r){r=r||LASTR;const cn=r?cupNotes(S,r):[];$('o-cup').hidden=!cn.length;
+  $('o-chips').innerHTML=cn.map(c=>'<span class="chip"><i class="dot" style="background:'+tnColor(c)+'"></i>'+esc(c)+'</span>').join('');LASTR=r}
+let LASTR=null;
 function verdict(D){
   if(D<-1.2)return['Under-extracted','Sour, thin and hollow. The flavours feel unfinished.'];
   if(D<-0.45)return['Bright and light','Lively and clear, a touch lean. Some sweetness left in the bean.'];
@@ -6672,7 +6680,7 @@ function render(){schedulePreCard();
     .map(([n,v,c])=>'<div class="bar tbar t-'+c+(c==='bitt'?' bitter':'')+'"><i class="tdot" aria-hidden="true"></i><span>'+n+'</span><div class="t"><b style="width:'+(v*10)+'%"></b></div><span class="num">'+v.toFixed(1)+'</span></div>').join('');
   drawCup(r);
   const P=PROCESSES[S.process];
-  $('o-chips').innerHTML=cupNotes(S,r).map(c=>'<span class="chip">'+(tnReady()?'<i class="dot" style="background:'+tnColor(c)+'"></i>':'')+esc(c)+'</span>').join('');
+  paintCup(r);
   const tips=[];PLAN=null;
   {const bx=baseX(S.grinder,S.brewer),off=bx==null?0:stepsBetween(S.grinder,bx,S.setting);
     if(Math.abs(off)>2.5)tips.push('<b>'+esc(gLabel(S.grinder,S.setting))+' is much '+(off>0?'finer':'coarser')+' than '+art(brewName(B.name))+' '+esc(brewName(B.name))+' usually needs.</b> Most brews start around '+esc(dial(S.grinder,Math.round(bx)))+'. <button type="button" class="linkbtn" data-reset-grind>Reset to '+esc(dial(S.grinder,Math.round(bx)))+'</button>')}
@@ -12102,7 +12110,7 @@ function openTop3(y,start){const d=$('vd'),pool=BEANS.filter(b=>beanYear(b)===y)
     saveTop3();d.close();BPOD=y;BVIEW='top3';checkTrophies();renderBeans();toast(any?'Favourites of '+y+' saved':'Favourites of '+y+' cleared')};
   draw();showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
 // The app may have opened on the Beans page before this part loaded.
-window.BEANS_OK=1;if(beanSync())retuneIfAuto();checkTrophies();renderDBean();if($('beans').classList.contains('on'))renderBeans();if($('settings').classList.contains('on'))renderSettings();
+window.BEANS_OK=1;if(beanSync())retuneIfAuto();paintCup();checkTrophies();renderDBean();if($('beans').classList.contains('on'))renderBeans();if($('settings').classList.contains('on'))renderSettings();
 
 /* ---------- Advent calendars: a box of numbered coffees, one door a day ---------- */
 // A calendar is the box: its name, roaster, year, how many doors and how much coffee is behind each, and your review of

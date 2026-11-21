@@ -32,4 +32,6 @@ ok('Origins map before a pick: where coffee began, three origins, no instruction
 ok('brew log: a row each, − value + in a capsule, on one line at 360px',JSON.stringify(r.log.rows)==='["dose","water","temp","grind"]'&&r.log.capsules&&r.log.oneLine&&!r.log.cut,r.log);
 ok('no bare dashes: the likely value shows, and the first tap sets it',r.log.vals.every(v=>!/^[–-]$/.test(v.trim()))&&r.log.firstTap===r.log.before,r.log);
 ok('the grinder is a subtitle under Grind, in full',r.log.grinderUnder&&r.log.grinderFull,r.log);
+const lk=await p.evaluate(()=>[...document.querySelectorAll('.linkbtn')].map(e=>{const c=getComputedStyle(e);return{t:e.textContent.trim().slice(0,30),u:c.textDecorationLine,r:parseFloat(c.borderRadius)}}).filter(x=>x.u!=='none'||x.r<16));
+ok('text buttons are pills, never underlined links',!lk.length,lk);
 ok('no page errors',!errs.length,errs);await b.close()})();
