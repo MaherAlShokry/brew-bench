@@ -117,7 +117,7 @@ let RNG_BUZZ=0;
 // A step from − or + gives the thumb and the value a small pop, so the change is felt as well as seen.
 function rngPop(i){const lab=i.id&&document.querySelector('label[for="'+i.id+'"]'),n=lab&&lab.querySelector('.num');
   for(const e of [i,n])if(e){replay(e,'pop');clearTimeout(e._pop);e._pop=setTimeout(()=>e.classList.remove('pop'),300)}}
-function rngBuzz(){const t=Date.now();if(t-RNG_BUZZ<40)return;RNG_BUZZ=t;try{navigator.vibrate&&navigator.vibrate(4)}catch(e){}}
+function rngBuzz(){const t=Date.now();if(t-RNG_BUZZ<40)return;RNG_BUZZ=t;try{webBuzz(4)}catch(e){}}
 function rngStep(i,dir){if(i.disabled)return;const before=i.value;try{dir>0?i.stepUp():i.stepDown()}catch(e){return}
   if(i.value===before)return;rngFill(i);rngBuzz();rngPop(i);i.dispatchEvent(new Event('input',{bubbles:true}));i.dispatchEvent(new Event('change',{bubbles:true}))}
 function rngButton(i,dir){const b=document.createElement('button');b.type='button';b.className='rng-b';b.setAttribute('aria-label',(dir>0?'Increase ':'Decrease ')+((i.labels&&i.labels[0]&&i.labels[0].firstChild&&i.labels[0].firstChild.textContent.trim())||'value'));

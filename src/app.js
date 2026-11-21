@@ -1136,9 +1136,11 @@ function cueSay(t){if(!CUES.voice||!t)return;const c=plugin('Cues');if(c&&c.spea
   try{const s=window.speechSynthesis;if(!s||!window.SpeechSynthesisUtterance)return;s.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=1.05;s.speak(u)}catch(e){}}
 // A light tap under the finger for a choice made (a rating), whatever the timer's own cue settings.
 // A short success feel (two light taps) for things done: a brew saved, a bag finished, a trophy earned.
-function okBuzz(p){try{if(RM())return;p=p||[10,45,16];const c=plugin('Cues');if(c&&c.vibrate){c.vibrate({pattern:p}).catch(()=>{});return}if(navigator.vibrate)navigator.vibrate(p)}catch(e){}}
-function tapBuzz(){try{if(RM())return;const c=plugin('Cues');if(c&&c.vibrate){c.vibrate({pattern:[12]}).catch(()=>{});return}if(navigator.vibrate)navigator.vibrate(12)}catch(e){}}
-function cueBuzz(p){if(!CUES.buzz)return;const c=plugin('Cues');if(c&&c.vibrate){c.vibrate({pattern:p}).catch(()=>{});return}try{if(navigator.vibrate)navigator.vibrate(p)}catch(e){}}
+// The web's vibration only after a first tap (before that the browser refuses and logs a warning).
+const webBuzz=p=>{try{if(navigator.vibrate&&(!navigator.userActivation||navigator.userActivation.hasBeenActive))navigator.vibrate(p)}catch(e){}};
+function okBuzz(p){try{if(RM())return;p=p||[10,45,16];const c=plugin('Cues');if(c&&c.vibrate){c.vibrate({pattern:p}).catch(()=>{});return}webBuzz(p)}catch(e){}}
+function tapBuzz(){try{if(RM())return;const c=plugin('Cues');if(c&&c.vibrate){c.vibrate({pattern:[12]}).catch(()=>{});return}webBuzz(12)}catch(e){}}
+function cueBuzz(p){if(!CUES.buzz)return;const c=plugin('Cues');if(c&&c.vibrate){c.vibrate({pattern:p}).catch(()=>{});return}try{webBuzz(p)}catch(e){}}
 // A step as it's said: "pour 60g (to 120g)" → "Pour 60 grams, to 120 grams."
 function cueText(s){let t=String(s||'').replace(/^\s*\d+:\d\d\s*/,'').replace(/\((to|until)\s+(\d+)\s?g\)/gi,', $1 $2 grams').replace(/(\d+)\s?g\b/g,'$1 grams').replace(/(\d+)\s?°C/g,'$1 degrees').replace(/\s+/g,' ').replace(/ ,/g,',').trim();
   return t?t.charAt(0).toUpperCase()+t.slice(1).replace(/[.;]?$/,'.'):''}

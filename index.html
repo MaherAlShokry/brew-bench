@@ -3039,7 +3039,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="b37f7ec3dfda"</script>
+<script>const BUILD_ID="a626fa0892c8"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -6927,9 +6927,11 @@ function cueSay(t){if(!CUES.voice||!t)return;const c=plugin('Cues');if(c&&c.spea
   try{const s=window.speechSynthesis;if(!s||!window.SpeechSynthesisUtterance)return;s.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=1.05;s.speak(u)}catch(e){}}
 // A light tap under the finger for a choice made (a rating), whatever the timer's own cue settings.
 // A short success feel (two light taps) for things done: a brew saved, a bag finished, a trophy earned.
-function okBuzz(p){try{if(RM())return;p=p||[10,45,16];const c=plugin('Cues');if(c&&c.vibrate){c.vibrate({pattern:p}).catch(()=>{});return}if(navigator.vibrate)navigator.vibrate(p)}catch(e){}}
-function tapBuzz(){try{if(RM())return;const c=plugin('Cues');if(c&&c.vibrate){c.vibrate({pattern:[12]}).catch(()=>{});return}if(navigator.vibrate)navigator.vibrate(12)}catch(e){}}
-function cueBuzz(p){if(!CUES.buzz)return;const c=plugin('Cues');if(c&&c.vibrate){c.vibrate({pattern:p}).catch(()=>{});return}try{if(navigator.vibrate)navigator.vibrate(p)}catch(e){}}
+// The web's vibration only after a first tap (before that the browser refuses and logs a warning).
+const webBuzz=p=>{try{if(navigator.vibrate&&(!navigator.userActivation||navigator.userActivation.hasBeenActive))navigator.vibrate(p)}catch(e){}};
+function okBuzz(p){try{if(RM())return;p=p||[10,45,16];const c=plugin('Cues');if(c&&c.vibrate){c.vibrate({pattern:p}).catch(()=>{});return}webBuzz(p)}catch(e){}}
+function tapBuzz(){try{if(RM())return;const c=plugin('Cues');if(c&&c.vibrate){c.vibrate({pattern:[12]}).catch(()=>{});return}webBuzz(12)}catch(e){}}
+function cueBuzz(p){if(!CUES.buzz)return;const c=plugin('Cues');if(c&&c.vibrate){c.vibrate({pattern:p}).catch(()=>{});return}try{webBuzz(p)}catch(e){}}
 // A step as it's said: "pour 60g (to 120g)" → "Pour 60 grams, to 120 grams."
 function cueText(s){let t=String(s||'').replace(/^\s*\d+:\d\d\s*/,'').replace(/\((to|until)\s+(\d+)\s?g\)/gi,', $1 $2 grams').replace(/(\d+)\s?g\b/g,'$1 grams').replace(/(\d+)\s?°C/g,'$1 degrees').replace(/\s+/g,' ').replace(/ ,/g,',').trim();
   return t?t.charAt(0).toUpperCase()+t.slice(1).replace(/[.;]?$/,'.'):''}
@@ -13346,7 +13348,7 @@ let RNG_BUZZ=0;
 // A step from − or + gives the thumb and the value a small pop, so the change is felt as well as seen.
 function rngPop(i){const lab=i.id&&document.querySelector('label[for="'+i.id+'"]'),n=lab&&lab.querySelector('.num');
   for(const e of [i,n])if(e){replay(e,'pop');clearTimeout(e._pop);e._pop=setTimeout(()=>e.classList.remove('pop'),300)}}
-function rngBuzz(){const t=Date.now();if(t-RNG_BUZZ<40)return;RNG_BUZZ=t;try{navigator.vibrate&&navigator.vibrate(4)}catch(e){}}
+function rngBuzz(){const t=Date.now();if(t-RNG_BUZZ<40)return;RNG_BUZZ=t;try{webBuzz(4)}catch(e){}}
 function rngStep(i,dir){if(i.disabled)return;const before=i.value;try{dir>0?i.stepUp():i.stepDown()}catch(e){return}
   if(i.value===before)return;rngFill(i);rngBuzz();rngPop(i);i.dispatchEvent(new Event('input',{bubbles:true}));i.dispatchEvent(new Event('change',{bubbles:true}))}
 function rngButton(i,dir){const b=document.createElement('button');b.type='button';b.className='rng-b';b.setAttribute('aria-label',(dir>0?'Increase ':'Decrease ')+((i.labels&&i.labels[0]&&i.labels[0].firstChild&&i.labels[0].firstChild.textContent.trim())||'value'));
