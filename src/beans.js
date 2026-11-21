@@ -491,15 +491,20 @@ async function aiRecipe(bean,bk,goal){const B=BREWERS[bk],t=tasteOf(BEANS,LOG.fi
   const r=sanRec({b:bk,kind:B.type==='Immersion and pressure'?'imm':B.type==='Valve and hybrid'?'hybrid':'pulse',name:j.name,by:'Made for you by AI',dose:j.dose,water:j.water,temp:j.temp,off:j.grind_offset,why:j.why,tip:j.tip,
     steps:(Array.isArray(j.steps)?j.steps:[]).filter(s=>/^\s*\d+:\d\d\b/.test(String(s)))});
   if(!r||r.steps.length<2||!(r.water>r.dose*8&&r.water<r.dose*20))throw new Error('unusable');return r}
-function openMakeRecipe(bid){const d=$('vd'),beans=[...BEANS.filter(b=>b.shelf),...BEANS.filter(b=>!b.shelf)];if(!beans.length){toast('Add a coffee to your gallery first');return}
-  const brewers=[...new Set([...MYB,'v60','origami','switch','frenchpress'])].filter(k=>BREWERS[k]&&MK_TYPES.includes(BREWERS[k].type)&&!BREWERS[k].of).slice(0,8);
+// surprise: a coffee from your cabinet (one on the shelf first), one of your brewers and a cup at random, made at once;
+// Another one draws all three again.
+function openMakeRecipe(bid,surprise){const d=$('vd'),beans=[...BEANS.filter(b=>b.shelf),...BEANS.filter(b=>!b.shelf)];if(!beans.length){toast('Add a coffee to your gallery first');return}
+  const brewers=[...new Set([...MYB,'v60','origami','sw','frenchpress'].map(CANONB))].filter(k=>BREWERS[k]&&MK_TYPES.includes(BREWERS[k].type)&&!BREWERS[k].of).slice(0,8);
   const t=tasteOf(BEANS,LOG.filter(isMine)),lean=FY_LEAN(t);
   const st={bean:bid&&beanById(bid)?bid:beans[0].id,b:MYB.find(k=>brewers.includes(k))||brewers[0],goal:lean==='bright'?'bright':lean==='round'?'sweet':'balanced',seed:1,rec:null,busy:false};
+  const any=a=>a[Math.floor(Math.random()*a.length)],mine=brewers.filter(k=>MYB.includes(k)),shelf=beans.filter(b=>b.shelf);
+  const roll=()=>{st.bean=any(shelf.length?shelf:beans).id;st.b=any(mine.length?mine:brewers);st.goal=any(MK_GOALS)[0];st.seed=1+Math.floor(Math.random()*999)};
+  if(surprise)roll();
   const chips=(k,list,cur)=>'<div class="mk-chips" role="group">'+list.map(([v,n,pic])=>'<button type="button" data-mk="'+k+'" data-v="'+esc(v)+'" aria-pressed="'+(v===cur)+'">'+(pic||'')+esc(n)+'</button>').join('')+'</div>';
   const draw=()=>{const r=st.rec,bean=beanById(st.bean);
-    $('vd-in').innerHTML='<div class="vd-head" style="--c:#8A5A3B"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:#C9964A"></i>'+(SAMPLE?'Made with AI':'Made for you')+'</span><h2 id="vd-title">A recipe for your coffee</h2>'+
+    $('vd-in').innerHTML='<div class="vd-head" style="--c:#8A5A3B"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:#C9964A"></i>'+(SAMPLE?'Made with AI':surprise?'Surprise':'Made for you')+'</span><h2 id="vd-title">A recipe for your coffee</h2>'+
       '<p class="hint" style="margin:0">'+(SAMPLE?'Written by AI from your coffee, your taste and your brewer.':'Built from your coffee, your taste and your brewer: a new recipe, not one from the list.')+'</p></div><div class="vd-body mk">'+
-      '<div class="lbl">Your coffee</div>'+chips('bean',beans.slice(0,10).map(b=>[b.id,beanTitle(b),beanPic(b,'xs')]),st.bean)+
+      '<div class="lbl">Your coffee</div>'+chips('bean',(l=>l.some(b=>b.id===st.bean)?l:[...l.slice(0,9),beanById(st.bean)])(beans.slice(0,10)).map(b=>[b.id,beanTitle(b),beanPic(b,'xs')]),st.bean)+
       '<div class="lbl">Brewer</div>'+chips('b',brewers.map(k=>[k,BREWERS[k].name]),st.b)+
       '<div class="lbl">The cup you want'+(t.families.length?' <span class="hint">your taste leans '+(lean==='bright'?'bright and fruity':lean==='round'?'sweet and round':'balanced')+'</span>':'')+'</div>'+chips('goal',MK_GOALS,st.goal)+
       (r?'<div class="mk-res"><div class="mk-h"><b>'+esc(r.name)+'</b><small>'+esc(r.by)+'</small></div>'+
@@ -512,10 +517,10 @@ function openMakeRecipe(bid){const d=$('vd'),beans=[...BEANS.filter(b=>b.shelf),
     if(SAMPLE)try{r=await aiRecipe(bean,st.b,st.goal)}catch(e){r=null}
     if(!r)r=makeRecipe(bean,st.b,st.goal,st.seed);st.rec=r;st.busy=false;draw()};
   $('vd-in').onclick=e=>{const c=e.target.closest('[data-mk]');if(c){st[c.dataset.mk]=c.dataset.v;st.rec=null;draw();return}
-    if(e.target.closest('#mk-go')){go();return}if(e.target.closest('#mk-rand')){d.close();setTimeout(surpriseRecipe,200);return}if(e.target.closest('#mk-again')){st.seed++;st.rec=null;go();return}
+    if(e.target.closest('#mk-go')){go();return}if(e.target.closest('#mk-rand')){d.close();setTimeout(surpriseRecipe,200);return}if(e.target.closest('#mk-again')){if(surprise)roll();else st.seed++;st.rec=null;go();return}
     if(e.target.closest('#mk-save')){const r=Object.assign({},st.rec,{id:'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),author:ME||'',ts:Date.now()});saveRecipe(r);
       const i=RECIPES.findIndex(x=>x.id===r.id);d.close();okBuzz();toast('Saved to your recipes');if(i>=0)setTimeout(()=>openRecipe(i),250)}};
-  draw();showDlg(d);d.scrollTop=0}
+  draw();showDlg(d);d.scrollTop=0;if(surprise)go()}
 
 /* ---------- Trophies ---------- */
 // Earned from the cabinet as it is: each has a goal and counts towards it. The day one is first earned is kept.

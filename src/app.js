@@ -379,20 +379,26 @@ for(const ch of CHAMPS){const s=ch.rec&&ch.rec.start;if(s){const i=RECIPES.findI
 const BUILTIN_N=RECIPES.length,RKINDS=['pulse','single','imm','aero','esp','hybrid','46','other'];
 const str=(v,n)=>typeof v==='string'?v.trim().slice(0,n):'';
 // Recipes can arrive from links and other phones, so every field is checked.
+// The NEO is an add-on: a recipe saved for the V60 NEO or the NEO Switch moves to the V60 or the Switch, its grind kept
+// (the offset moves by the gap between the baselines, in recipe grind steps). A full-immersion Switch recipe keeps its
+// own grind baseline behind the scenes; it shows as the Switch everywhere.
+const RMOVE={neo:['v60',0.41],swneo:['sw',0.41]};
 function sanRec(r){if(!r||typeof r!=='object'||!BREWERS[r.b])return null;const name=str(r.name,60);if(!name)return null;
+  const mv=RMOVE[r.b];if(mv)r=Object.assign({},r,{b:mv[0],off:(+r.off||0)+mv[1]});
   const steps=(Array.isArray(r.steps)?r.steps:[]).map(x=>str(x,160)).filter(Boolean).slice(0,20);
   return{id:str(r.id,40)||('r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)),custom:true,b:r.b,kind:RKINDS.includes(r.kind)?r.kind:'other',name,by:str(r.by,60),author:str(r.author,30),
     dose:num(r.dose,15,1,200),water:num(r.water,250,5,3000),temp:num(r.temp,93,0,100),off:num(r.off,0,-4,4),why:str(r.why,400),tip:str(r.tip,300),steps:steps.length?steps:['0:00 brew.'],ts:num(r.ts,Date.now())}}
 let CREC=load('bb-myrecipes',[]).map(sanRec).filter(Boolean);
 function syncRecipes(){RECIPES.length=BUILTIN_N;CREC.slice().sort((a,b)=>a.ts-b.ts).forEach(r=>RECIPES.push(r))}
 syncRecipes();
-// The V60 NEO and NEO Switch are shown as the V60 and the Switch: one name, one choice, their recipes together.
-// Their data stays so old brews and recipes still open, but nothing offers them as a brewer of their own.
-const TWIN={neo:'v60',swneo:'sw'},CANONB=b=>TWIN[b]||b;
-if(BREWERS.neo)BREWERS.neo.name=BREWERS.v60.name;if(BREWERS.swneo)BREWERS.swneo.name=BREWERS.sw.name;
+// The NEO is an add-on, not a brewer: the V60 NEO and NEO Switch are the V60 and the Switch, and the Switch used as a full
+// immersion is the Switch too. One name, one choice, their recipes together. Their data stays so old brews and recipes
+// still open, but nothing offers them as a brewer of their own.
+const TWIN={neo:'v60',swneo:'sw',swi:'sw'},CANONB=b=>TWIN[b]||b;
+for(const k in TWIN)if(BREWERS[k])BREWERS[k].name=BREWERS[TWIN[k]].name;
 const MODEL=Object.keys(BREWERS).filter(k=>BREWERS[k].model&&!TWIN[k]);
 // A method of another brewer (the Switch used as a full immersion) isn't listed as a brewer of its own.
-const LISTED=k=>!BREWERS[k].of&&!TWIN[k],METHODS=k=>Object.keys(BREWERS).filter(x=>BREWERS[x].of===k);
+const LISTED=k=>!BREWERS[k].of&&!TWIN[k],METHODS=k=>Object.keys(BREWERS).filter(x=>BREWERS[x].of===k&&!TWIN[x]);
 function brewerOptions(list){const types=[...new Set(list.map(k=>BREWERS[k].type))];return types.map(t=>'<optgroup label="'+t+'">'+list.filter(k=>BREWERS[k].type===t).map(k=>'<option value="'+k+'">'+esc(BREWERS[k].name)+'</option>').join('')+'</optgroup>').join('')}
 
 /* ================= VARIETY HELPERS ================= */
@@ -1555,7 +1561,7 @@ const rkey=r=>r.custom?'c:'+r.id:'r:'+slug(r.name);
 // Lists of recipe keys (plain strings), which load() would drop as it only keeps saved objects.
 // Recipes that were the same method in another profile, dose or ratio were folded into one (the dial-in sets those);
 // their old keys lead to the recipe they joined.
-const RALIAS={'r:4-6-sweeter':'r:tetsu-kasuya-4-6','r:4-6-lighter-and-cleaner':'r:tetsu-kasuya-4-6','r:4-6-fuller-body':'r:tetsu-kasuya-4-6','r:mugen-small-cup':'r:mugen-one-pour',
+const RALIAS={'r:neo-split-pour':'r:split-pour','r:yuma-kawano-neo-recipe':'r:yuma-kawano-recipe','r:tetsu-kasuya-10-pour-on-the-neo':'r:tetsu-kasuya-10-pour','r:4-6-sweeter':'r:tetsu-kasuya-4-6','r:4-6-lighter-and-cleaner':'r:tetsu-kasuya-4-6','r:4-6-fuller-body':'r:tetsu-kasuya-4-6','r:mugen-small-cup':'r:mugen-one-pour',
   'r:kalita-for-darker-roasts':'r:kalita-pulse-pour','r:kalita-big-batch':'r:kalita-pulse-pour','r:ristretto':'r:classic-espresso-1-2','r:long-shot-allonge':'r:classic-espresso-1-2',
   'r:two-cup-v60':'r:the-ultimate-v60','r:neo-switch-percolate-then-immerse':'r:percolate-then-immerse','r:kasuya-hybrid-on-the-neo':'r:hybrid-method-devil-recipe','r:neo-switch-immersion':'r:full-immersion','r:chemex-for-one':'r:classic-chemex','r:ready-to-drink-cold-brew':'r:cold-brew-concentrate'};
 const loadKeys=k=>{try{const v=JSON.parse(localStorage.getItem(k)||'[]');return Array.isArray(v)?[...new Set(v.filter(x=>typeof x==='string'&&x.length<120).map(x=>RALIAS[x]||x))]:[]}catch(e){return[]}};
@@ -1638,7 +1644,7 @@ $('rhome').onclick=e=>{const q=e.target.closest('[data-q]'),a=e.target.closest('
   // Surprise me draws from recipes for the brewers you have (a family counts: a V60 covers NEO recipes, a Switch its
   // immersion ones), and never repeats the last pick straight away. With no brewers set, it uses every recipe.
   // With coffees in the gallery, Surprise me makes a new recipe for one of them; the maker can still pull a random one from the list.
-  if(k==='surprise'){if(window.BEANS_OK&&BEANS.length)openMakeRecipe();else surpriseRecipe();return}
+  if(k==='surprise'){if(window.BEANS_OK&&BEANS.length)openMakeRecipe(null,true);else surpriseRecipe();return}
   if(k==='mine'){if(!CREC.length){openRecipeEditor(null);return}RF=['mine']}
   if(k==='fav'){if(!favCount()){toast('Tap the bookmark on any recipe to save it here');return}RF=['fav']}
   RQ='';$('rsearch').value='';showRecipeList()};
@@ -1815,7 +1821,7 @@ function recipeIssues(r){const out=[],st=(r.steps||[]).map(String),iced=/\bice|i
   if(r.temp&&(r.temp<70||r.temp>100))out.push('Water at '+r.temp+'°C is outside the usual 70 to 100°C.');
   return out}
 function openRecipeEditor(r,fresh){const isNew=!r||fresh;r=Object.assign({b:'v60',name:'',by:'',dose:15,water:250,temp:93,off:0,steps:['0:00 pour 50g, bloom.','0:45 pour to 150g.','1:30 pour to 250g.','3:00 finished.'],why:'',tip:''},r||{});
-  const own=!r.author||r.author===ME,imm=!!BREWERS[r.b].of;
+  const own=!r.author||r.author===ME,imm=r.b==='swi';
   // A stepper tile: the number is still typed, the buttons nudge it.
   const tile=(id,lab,unit,v,step)=>'<div class="re-tile"><label for="'+id+'">'+lab+'</label><div class="re-num"><input id="'+id+'" type="number" inputmode="decimal" value="'+v+'"><span>'+unit+'</span></div><div class="re-pms"><button type="button" class="re-pm" data-pm="'+id+'" data-d="-'+step+'" aria-label="Less '+lab.toLowerCase()+'">−</button><button type="button" class="re-pm" data-pm="'+id+'" data-d="'+step+'" aria-label="More '+lab.toLowerCase()+'">+</button></div></div>';
   const card=(n,t,body,hint)=>'<div class="re-card"><h3 class="re-h"><i>'+n+'</i>'+t+(hint?'<small>'+hint+'</small>':'')+'</h3>'+body+'</div>';
@@ -1832,11 +1838,12 @@ function openRecipeEditor(r,fresh){const isNew=!r||fresh;r=Object.assign({b:'v60
      '<div class="field"><label for="re-by">Credit <span class="hint">optional</span></label><input id="re-by" maxlength="60" value="'+esc(r.by)+'"></div>')+
    '<div class="re-check" id="re-check" hidden role="status"></div><div class="actions"><button class="btn" id="re-save">'+(isNew?'Save recipe':'Save changes')+'</button>'+(!isNew?ib('del','id="re-del"','Delete this recipe','danger'):'')+'</div>'+
    (GROUP&&SYNC_DB?'<p class="hint">Saved recipes are shared with your group ('+GROUP.code+').</p>':'<p class="hint">Share it from its card'+(SYNC_DB?', or start a shared log in the Log tab to share all your recipes with your team':'')+'.</p>')+'</div>';
-  $('re-b').value=BREWERS[r.b].of||r.b;let method=imm?'im':'hy';
+  $('re-b').value=CANONB(BREWERS[r.b].of||r.b);let method=imm?'im':'hy';
   const SE=stepEditor($('re-steps'),r.steps,{water:r.water,dose:r.dose});
-  // The Switch and the NEO Switch brew as a hybrid or as a full immersion (its own grind baseline).
-  const bOf=()=>{const b=$('re-b').value;return method==='im'&&METHODS(b).length?METHODS(b)[0]:method==='im'&&b==='swneo'?'swi':b};
-  const meth=()=>{const b=$('re-b').value,has=METHODS(b).length>0||b==='swneo';$('re-mw').hidden=!has;$('re-m').querySelectorAll('[data-m]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.m===method))};
+  // The Switch brews as a hybrid or as a full immersion: one brewer to choose; an immersion recipe keeps the immersion's
+  // own grind baseline behind the scenes.
+  const bOf=()=>{const b=$('re-b').value;return method==='im'&&b==='sw'?'swi':b};
+  const meth=()=>{const b=$('re-b').value,has=b==='sw';$('re-mw').hidden=!has;$('re-m').querySelectorAll('[data-m]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.m===method))};
   const gs=()=>{const off=-(+$('re-off').value),b=bOf();$('re-offl').textContent=off===0?'Brewer baseline':(Math.abs(off).toFixed(1)+(off>0?' steps finer':' steps coarser'));
     $('re-gs').innerHTML=MYG.map(g=>{const v=settingFor(g,b,off);return '<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>'}).join('')};
   const ratio=()=>{const d=+$('re-dose').value,w=+$('re-water').value;$('re-ratio').innerHTML=d>0&&w>0?'Ratio <b>1:'+rr1(w/d)+'</b>':'';SE.set({water:w>0?w:250,dose:d>0?d:15})};
@@ -1850,7 +1857,7 @@ function openRecipeEditor(r,fresh){const isNew=!r||fresh;r=Object.assign({b:'v60
   {let t=0;const soon=()=>{clearTimeout(t);t=setTimeout(check,250)};['re-dose','re-water','re-temp'].forEach(id=>$(id).addEventListener('input',soon));$('re-steps').addEventListener('input',soon);$('re-steps').addEventListener('click',soon);document.querySelectorAll('.re-pm').forEach(x=>x.addEventListener('click',soon));check()}
   $('re-save').onclick=()=>{check();
     const n=sanRec({id:isNew?undefined:r.id,b:bOf(),name:$('re-name').value,by:$('re-by').value,author:isNew?(ME||''):r.author,dose:+$('re-dose').value,water:+$('re-water').value,temp:+$('re-temp').value,off:-(+$('re-off').value),
-      steps:SE.value(),why:$('re-why').value,tip:$('re-tip').value,ts:isNew?Date.now():r.ts,kind:r.kind});
+      steps:SE.value(),why:$('re-why').value,tip:$('re-tip').value,ts:isNew?Date.now():r.ts,kind:bOf()==='swi'?'imm':r.kind==='imm'&&bOf()==='sw'?'hybrid':r.kind});
     if(!n){toast('Give the recipe a name');$('re-name').focus();return}saveRecipe(n);$('vd').close();RF=['mine'];if(BUILT.recipes)renderRecipes();showTab('recipes');toast(isNew?'Recipe saved':'Recipe updated')};
   if(!isNew)$('re-del').onclick=()=>{
     // Your own recipe goes at once, with Undo; someone else's in a shared log is gone for everyone, so that still asks.

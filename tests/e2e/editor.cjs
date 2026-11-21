@@ -24,7 +24,7 @@ const {chromium}=require('playwright');const S='ed/';
   // Switch method
   await p.selectOption('#re-b','sw');ok('method shows for Switch',!(await p.locator('#re-mw').isHidden()));await p.click('[data-m="im"]');
   await p.fill('#re-name','Test immersion');await p.click('#re-save');await p.waitForTimeout(400);
-  const saved=await p.evaluate(()=>{const r=CREC.find(x=>x.name==='Test immersion');return r&&{b:r.b,steps:r.steps,water:r.water}});ok('saved as Switch immersion',saved&&saved.b==='swi',saved);
+  const saved=await p.evaluate(()=>{const r=CREC.find(x=>x.name==='Test immersion');return r&&{b:r.b,kind:r.kind,steps:r.steps,water:r.water}});ok('saved as a Switch full-immersion recipe (its own grind baseline)',saved&&saved.b==='swi'&&saved.kind==='imm',saved);
   // reopen it: brewer shows Switch with immersion pressed
   await p.evaluate(()=>openRecipeEditor(CREC.find(x=>x.name==='Test immersion')));await p.waitForTimeout(300);
   ok('reopens as Switch + immersion',(await p.inputValue('#re-b'))==='sw'&&await p.locator('[data-m="im"]').getAttribute('aria-pressed')==='true');
