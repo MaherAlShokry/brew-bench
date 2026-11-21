@@ -1025,12 +1025,12 @@ function plan(c){
   const Dt=clamp(G.Dt*m,-0.33,0.33);
   // Your dose: a smaller bed in a dripper drains faster, so grind finer for it (coarser for a bigger one).
   const dose=c.dose>0?Math.round(c.dose*2)/2:r.dose,f_=dose/r.dose,perc=['Cone dripper','Flat-bottom dripper'].includes(B.type);
-  // The dose doesn't move the grind (as in the first version).
-  const dadj=0;void perc;
-  if(dadj)why.push((dadj>0?'A smaller':'A bigger')+' dose than the recipe\u2019s '+r.dose+'g: grind a little '+(dadj>0?'finer':'coarser')+', because '+(dadj>0?'a shallower bed drains faster.':'a deeper bed drains slower.'));
+  // A different dose than the recipe's moves the grind a little in a dripper (see doseOff).
+  const dadj=doseOff(r,dose);void perc;void f_;
+  if(dadj)why.push((dadj>0?'Less':'More')+' coffee than the recipe\u2019s '+r.dose+'g: grind a little '+(dadj>0?'finer':'coarser')+', because '+(dadj>0?'a shallower bed drains faster':'a deeper bed drains slower')+(timeK(r,dose*r.water/r.dose)!==1?', and the pours '+(dadj>0?'come a little sooner':'spread out a little')+'.':'.'));
   const agv={low:-0.25,med:0,high:0.25}[agit], roastE={light:0,medium:0.25,dark:0.6}[c.roast];
   const rest=(temp-clamp(r.temp||B.temp.def,B.temp.min,B.temp.max))*KT+bloomE(bloom,B)+agv+(ratio-r.water/r.dose)*B.ratio.k+roastE-(P.t+Vp.t);
-  let step=r.off+dadj+(Dt-rest)/KG;
+  let step=r.off+(Dt-rest)/KG;
   // The coffee and the target move the grind only so far from the recipe (about 7 ZP6 clicks either way): a dark,
   // fermented coffee brewed for clarity would otherwise stack its way to the coarsest setting. What's left is taken
   // up by the water, up to 4°C cooler or warmer within the brewer's range, the way a barista would; anything beyond
@@ -1045,6 +1045,8 @@ function plan(c){
   {const lo=Math.min(-1.5,r.off-1),hi=Math.max(1.5,r.off+1);if(step>hi||step<lo){const tgt=clamp(step,lo,hi),want=step-tgt;
     const up=Math.max(temp,Math.min(B.temp.max,96,temp+3)),down=Math.max(B.temp.min,temp-3),t1=clamp(Math.round(temp+want*KG/KT),down,up),dt=t1-temp;
     step=tgt;held=true;why.push('The grind stays within the usual range for '+art(brewName(B.name))+' '+esc(brewName(B.name))+' rather than going '+(want>0?'finer':'coarser')+(dt?'; the water is '+Math.abs(dt)+'°C '+(dt<0?'cooler':'warmer')+' ('+t1+'°C) instead.':'. Taste and adjust from here.'));temp=t1}}
+  // The dose comes last: the limits above are about the coffee and target, and a different dose moves the whole window.
+  step+=dadj;
   // The ZP6 stops at 7.0 on a pour-over (see coarseCap); every other grinder keeps the grind the recipe and coffee ask
   // for. When you brew on the ZP6 and it is held finer than asked, the water is up to 2°C cooler to make up for it.
   const set={};for(const g of new Set([...MYG,grinder]))set[g]=canGrind(g,bb)?roundG(g,shift(g,baseX(g,bb),-Math.max(step,g==='zp6'?coarseCap(bb):-Infinity)*160)):null;
@@ -1537,10 +1539,25 @@ document.querySelector('[role=tablist]').onclick=e=>{const t=e.target.closest('.
 // the recipe page (15 × 190 / 12) says 238.
 const gfmt=v=>(v=+(+v).toFixed(6),v>=10?String(Math.round(v)):String(Math.round(v*10)/10));
 // Every weight in a recipe's steps scaled to another dose and water: water amounts by the water change, the coffee
-// dose by the dose change. Step times stay as written.
+// dose by the dose change. Step times stay as written, except in a dripper (see scaleTimes below).
 // Amounts in the steps follow your dose and water. A range ("150 to 200g") scales at both ends; an amount of coffee
 // ("16g of coffee", or the recipe's dose itself) follows the dose, everything else the water; a rate per litre stays.
+/* Brewing a recipe at another size. In a dripper (cone or flat bottom) the bed is what the water runs through: less
+   coffee makes a shallower bed that drains faster, more makes a deeper one that drains slower. So for a different dose
+   the grind moves a little (finer for less, coarser for more: a ZP6 click or two for 15g instead of 20g, two or
+   three for half the coffee, never more than 0.6 of a recipe step), and the pours after the bloom spread out or close up with the water (by its square
+   root: three quarters of the water takes about 87% of the time). The bloom keeps its own time, and so does a steep, a
+   press, espresso and Kasuya's 4:6, whose timings are the method itself. */
+const doseScales=r=>{const B=BREWERS[r.b];return!!B&&['Cone dripper','Flat-bottom dripper'].includes(B.type)&&!['esp','aero','imm'].includes(r.kind)};
+const doseOff=(r,dose)=>!doseScales(r)||!(dose>0)||!(r.dose>0)||Math.abs(dose-r.dose)<0.25?0:Math.round(clamp(-Math.log2(dose/r.dose)*0.5,-0.6,0.6)*100)/100;
+const timeK=(r,water)=>!doseScales(r)||r.kind==='46'||!(water>0)||!(r.water>0)?1:clamp(Math.sqrt(water/r.water),0.75,1.3);
+function scaleTimes(steps,k){if(Math.abs(k-1)<0.01)return steps;const ts=steps.map(x=>{const m=/^\s*(\d+):(\d\d)/.exec(x);return m?+m[1]*60+ +m[2]:null}).filter(t=>t!=null);
+  // The bloom ends at the second timed step; everything after it is measured from there.
+  const t1=ts.length>1?ts[1]:Infinity,mm=t=>Math.floor(t/60)+':'+String(t%60).padStart(2,'0');
+  return steps.map(x=>x.replace(/\b(\d{1,2}):([0-5]\d)\b/g,(m,a,b)=>{const t=+a*60+ +b;return t<=t1?m:mm(Math.round((t1+(t-t1)*k)/5)*5)}))}
 function scaleSteps(r,dose,water){if(dose===r.dose&&water===r.water)return r.steps;const fd=dose/r.dose,fw=water/r.water;
+  return scaleTimes(scaleGrams(r,fd,fw),timeK(r,water))}
+function scaleGrams(r,fd,fw){
   return r.steps.map(x=>x.replace(/(\d+(?:\.\d+)?)(?:(\s*(?:to|-|\u2013)\s*)(\d+(?:\.\d+)?))?(\s?)(g|ml)\b/gi,(m,a,mid,b,sp,u,at,str)=>{
     const after=str.slice(at+m.length,at+m.length+30);if(/^\s*(?:of\s+)?(?:\w+\s+)?(?:per|a|\/)\s*(?:litre|liter|l)\b/i.test(after))return m;
     const coffee=/^\s*(?:of\s+)?(?:ground\s+|fresh\s+)?(?:coffee|grounds)\b/i.test(after)||(!b&&Math.abs(+a-r.dose)<1e-6&&r.dose!==r.water&&!/^\s*(?:of\s+)?(?:\w+\s+)?water/i.test(after));
@@ -1804,20 +1821,21 @@ function openRecipe(i){const r=RECIPES[i],B=BREWERS[r.b],d=$('vd'),shared=!!(r.c
   d.querySelector('#vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">\u2715</button>'+tools+'<span class="pill"><i style="background:var(--cherry)"></i>'+(r.custom?(shared?'Shared recipe':'Your recipe'):'Recipe')+'</span><h2 id="vd-title">'+esc(r.name)+'</h2>'+(shared||r.by?'<p class="hint vd-by">'+esc(shared?'From '+r.author:r.by)+'</p>':'')+'</div>'+
    '<div class="vd-body"><div class="rscale" role="group" aria-label="Scale this recipe">'+ib('minus','data-rsd="-1"','Less coffee','sm')+'<span class="rs-v"><b id="rs-d"></b><small id="rs-w"></small></span>'+ib('plus','data-rsd="1"','More coffee','sm')+
      '<button type="button" class="ib rs-ice" id="rs-ice" aria-pressed="false" aria-label="Iced: brew over ice" title="Iced: brew over ice">'+lIc('ice')+'</button></div><div id="rs-body"></div>'+'</div>';
-  // Scale it: the coffee in 1 g steps (the water, pours and pour chart follow at the recipe's ratio; the times stay),
+  // Scale it: the coffee in 1 g steps (the water, pours and pour chart follow at the recipe's ratio; in a dripper the
+  // grind and the pour times follow too, see doseOff),
   // and Iced brews the same coffee with 60 % of the water hot, straight onto the rest as ice.
   const RS={d:r.dose,iced:false};
   const rs=()=>{const w=Math.round(RS.d*r.water/r.dose),hot=RS.iced?Math.round(w*.6):w,ice=w-hot;let steps=scaleSteps(r,RS.d,hot);
     if(RS.iced)steps=['Put '+ice+' g of ice in the server, then brew onto it'].concat(steps);
-    return Object.assign({},r,{dose:RS.d,water:hot,steps,ice,iced:RS.iced,total:w})};
+    return Object.assign({},r,{dose:RS.d,water:hot,steps,ice,iced:RS.iced,total:w,off:(r.off||0)+doseOff(r,RS.d)})};
   const paintRS=()=>{const x=rs();$('rs-d').textContent=x.dose+' g coffee';$('rs-w').textContent=x.iced?x.water+' g hot + '+x.ice+' g ice':x.water+' g water';
     $('rs-body').innerHTML=recipeBody(x,i,false,true);{const row=$('rs-body').querySelector('.ib-row');if(row)row.insertAdjacentHTML('beforeend',ib('cmp','data-rcmp="'+i+'"','Compare with another recipe'))}$('rs-ice').setAttribute('aria-pressed',RS.iced)};
   paintRS();
   d.querySelector('.rscale').onclick=e=>{const b=e.target.closest('[data-rsd]');if(b){RS.d=Math.max(6,Math.min(80,RS.d+(+b.dataset.rsd)));paintRS();return}if(e.target.closest('#rs-ice')){RS.iced=!RS.iced;paintRS()}};
   // Brewed as scaled: the timer gets the scaled steps, the dial-in the scaled dose.
   const scaledAct=e=>{if(RS.d===r.dose&&!RS.iced)return false;const t=e.target.closest('[data-timer],[data-load]');if(!t)return false;const x=rs();d.close();
-    if(t.dataset.load){loadRecipe(i);S.dose=x.dose;render();return true}
-    const g=MYG.find(q=>settingFor(q,r.b,r.off)!=null);openTimer(i,{r:{dose:x.dose},water:x.water,steps:x.steps,temp:r.temp,grinder:g,set:g?{[g]:settingFor(g,r.b,r.off)}:{}});return true};
+    if(t.dataset.load){loadRecipe(i);S.dose=x.dose;retuneIfAuto();return true}
+    const g=MYG.find(q=>settingFor(q,r.b,x.off)!=null);openTimer(i,{r:{dose:x.dose},water:x.water,steps:x.steps,temp:r.temp,grinder:g,set:g?{[g]:settingFor(g,r.b,x.off)}:{}});return true};
   d.querySelector('.vd-head').onclick=e=>{const t=e.target.closest('[data-rshare],[data-redit]');if(!t)return;if(t.dataset.redit)d.close();recipeAct(e)};
   d.querySelector('.vd-body').onclick=e=>{const cm=e.target.closest('[data-rcmp]');if(cm){openComparePick(+cm.dataset.rcmp);return}if(e.target.closest('.rscale'))return;if(scaledAct(e))return;if(!e.target.closest('[data-load],[data-plan],[data-timer],[data-rshare],[data-redit]'))return;const sh=e.target.closest('[data-rshare]');if(!sh)d.close();recipeAct(e)};
   $('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
@@ -2802,7 +2820,7 @@ $('l-save').onclick=()=>{const k=LEDIT?LOG.findIndex(x=>x.id===LEDIT):-1;
 function againPlan(l){const s=l&&window.CARD_OK?okSnap(l.snap):null;if(!s)return null;const r=snapRecipe(s);if(!r)return null;const idx=RECIPES.indexOf(r),b=s.b||r.b;
   const rb=l.snap.bean,beanId=s.bean&&s.bean.id||l.beanId||(rb&&typeof rb.id==='string'?rb.id:''),dn=dialNextFor(beanId),sg=s.g&&canGrind(s.g,b)&&s.c!=null;
   // The grinder and setting it was brewed at; an older entry without one gets your grinder's setting for the recipe.
-  const g=sg?s.g:MYG.find(x=>canGrind(x,b))||null;let set=sg?s.c:g?settingFor(g,b,r.off||0):null,temp=s.t||r.temp,why='';
+  const g=sg?s.g:MYG.find(x=>canGrind(x,b))||null;let set=sg?s.c:g?settingFor(g,b,(r.off||0)+doseOff(r,s.dose)):null,temp=s.t||r.temp,why='';
   if(dn&&dn.brewer===b&&dn.taste!=='good'){const parts=[];
     if(g&&dn.g===g&&dn.set!=null&&dn.set!==set){set=dn.set;parts.push(gLabel(g,set))}
     if(dn.temp&&dn.temp!==temp){temp=dn.temp;parts.push(temp+'°C')}

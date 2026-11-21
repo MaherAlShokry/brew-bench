@@ -47,9 +47,13 @@ const R=await p.evaluate(()=>{const F=[];const bad=(k,m)=>{F.push(k+': '+m)};let
        // However the coffee and target pull, the grind stays near the recipe's own.
        const rs=settingFor(P.st.grinder,P.st.brewer,r.off);if(rs!=null&&Math.abs(stepsBetween(P.st.grinder,rs,P.st.setting))>GRIND_SWAY+0.12)bad('plan sway',tag+' '+rs+' -> '+P.st.setting);
        if(capped&&miss>maxCap)maxCap=miss}}}
- // 5. Scaling a recipe: every amount of water scales by the water factor, coffee by the dose factor, times never.
- let scaled=0;for(const r of RECIPES){const s2=scaleSteps(r,r.dose*2,r.water*2);scaled++;
-   r.steps.forEach((s,k)=>{const t1=(s.match(/\d+:\d\d/g)||[]).join(),t2=(s2[k].match(/\d+:\d\d/g)||[]).join();if(t1!==t2)bad('scale times',r.name+': '+s+' -> '+s2[k]);
+ // 5. Scaling a recipe: every amount of water scales by the water factor, coffee by the dose factor. Times stay, except
+ // in a dripper, where the steps after the bloom stretch with the water (timeK; never Kasuya's 4:6): in order, the bloom
+ // untouched, each later time within 5 s of bloom + (t - bloom) x timeK.
+ let scaled=0;for(const r of RECIPES){const s2=scaleSteps(r,r.dose*2,r.water*2);scaled++;const tk=timeK(r,r.water*2),T=x=>{const m=/^(\d+):(\d\d)$/.exec(x);return +m[1]*60+ +m[2]};
+   const lead=r.steps.map(x=>{const m=/^\s*(\d+):(\d\d)/.exec(x);return m?+m[1]*60+ +m[2]:null}).filter(t=>t!=null),t1=lead.length>1?lead[1]:Infinity;
+   r.steps.forEach((s,k)=>{const a=s.match(/\d+:\d\d/g)||[],b2=s2[k].match(/\d+:\d\d/g)||[];
+     if(a.length!==b2.length||a.some((x,j)=>{const t=T(x),u=T(b2[j]);return t<=t1?u!==t:Math.abs(u-(t1+(t-t1)*tk))>5}))bad('scale times',r.name+': '+s+' -> '+s2[k]);
      if(/°C/.test(s)&&(s.match(/\d+\s?°C/g)||[]).join()!==(s2[k].match(/\d+\s?°C/g)||[]).join())bad('scale temps',r.name+': '+s+' -> '+s2[k])});
    const tot=r.steps.join(' ').match(new RegExp('\\b'+r.water+'\\s?(g|ml)\\b'));if(tot){const want=gfmt(r.water*2);if(!s2.join(' ').includes(want))bad('scale total',r.name+' '+r.water+' -> expected '+want)}}
  // 6. 4:6 pours add up to the water and keep Kasuya's timings.
