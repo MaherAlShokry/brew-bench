@@ -194,7 +194,8 @@ function fwStatic(fl){const k=JSON.stringify(fl);let h=FW_MEMO.get(k);if(h==null
 function fwStatic0(fl){const items=fwLayout({a0:0,a1:1,z:0},300,{mode:'profile',sel:flMap(fl),labels:false});
   return'<svg class="fwheel" viewBox="-306 -306 612 612" aria-hidden="true">'+items.map(it=>'<path d="'+it.d+'" fill="'+it.n.c+'" fill-opacity="'+it.op+'"/>'+(it.fill?'<path d="'+it.fill+'" fill="'+it.n.c+'"/>':'')).join('')+'<circle r="57" fill="var(--surface2)" stroke="var(--paper)" stroke-width="2"/></svg>'}
 // The notes picker: tap families to open them and notes to add them; set how strong each one was.
-function openNotesPicker(entry){const d=$('vd'),sel=flMap(entry?flOf(entry):LFL.slice());
+// opts.pre and opts.done: picking for someone else (the timer's quick log), who gets the notes when the sheet closes.
+function openNotesPicker(entry,opts){const d=$('vd'),sel=flMap(opts?opts.pre||[]:entry?flOf(entry):LFL.slice());
   $('vd-in').innerHTML='<div class="vd-head" style="--c:#C4473F"><button class="vd-close" id="vd-x" aria-label="Done">✕</button><span class="pill"><i style="background:#C4473F"></i>Tasting notes</span>'+
     '<h2 id="vd-title">'+(entry&&entry.coffee?esc(entry.coffee):'What did you taste?')+'</h2><p class="hint" style="margin:0">Start in the middle: tap a family to open it, then tap the notes you taste. Tap a note again to remove it.</p></div>'+
     '<div class="vd-body fl-pick"><input type="search" id="fl-q" placeholder="Find a note" aria-label="Find a flavour note" style="width:100%"><div class="chips fw-res" id="fl-res"></div>'+
@@ -211,7 +212,7 @@ function openNotesPicker(entry){const d=$('vd'),sel=flMap(entry?flOf(entry):LFL.
     if(e.target.closest('#fl-done'))d.close()};
   $('vd-x').onclick=()=>d.close();
   // Whatever you leave the sheet with (Done, the cross or back) is kept.
-  d.addEventListener('close',()=>{const fl=[...sel];if(entry){entry.fl=fl;save('bb-log',LOG);queue('put',entry.id,entry);renderLog();toast(fl.length?'Flavour notes saved':'Flavour notes removed')}else{LFL=fl;renderFlForm()}},{once:true});
+  d.addEventListener('close',()=>{const fl=[...sel];if(opts){opts.done(fl);return}if(entry){entry.fl=fl;save('bb-log',LOG);queue('put',entry.id,entry);renderLog();toast(fl.length?'Flavour notes saved':'Flavour notes removed')}else{LFL=fl;renderFlForm()}},{once:true});
   showDlg(d);d.scrollTop=0}
 // A brew's flavour profile, large: zoom into a family to read it, download it as an image.
 function openProfile(title,sub,fl,entry){const d=$('vd');

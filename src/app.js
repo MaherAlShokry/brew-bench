@@ -1191,20 +1191,23 @@ function finishBrew(){if(TM.fin)return;if(TM.run){cueSay('Brew complete. Enjoy y
    brew) stays for everything else, and opens on this entry once it's kept. */
 function quickNotes(){const p=TM.p;let n=[];try{if(p&&'bean' in p)n=cupNotes(S,compute(S));else{const gb=S.bean&&S.bean.id&&window.BEANS_OK?beanById(S.bean.id):null;if(gb&&gb.flavours&&typeof tnSplit==='function')n=tnSplit(gb.flavours)}}catch(e){}
   return n.filter(w=>typeof tnLeaf==='function'&&tnLeaf(w)).slice(0,5)}
-function quickLogBox(){const box=document.createElement('div');box.className='tm-quick';let st=0;const fl=new Set(),notes=quickNotes();
+function quickLogBox(){const box=document.createElement('div');box.className='tm-quick';let st=0;const fl=new Set(),notes=quickNotes();let more=[];
   box.innerHTML='<p class="tm-dq">Rate this cup</p><div class="tm-qstars" role="radiogroup" aria-label="Rating">'+[1,2,3,4,5].map(n=>'<button type="button" data-qs="'+n+'" role="radio" aria-checked="false" aria-label="'+n+' bean'+(n>1?'s':'')+', '+STARW[n]+'">'+RB_SVG+'</button>').join('')+'</div>'+
-    (notes.length?'<div class="tm-qfl" role="group" aria-label="What you taste">'+notes.map(w=>'<button type="button" class="chip" data-qf="'+esc(w)+'" aria-pressed="false"><i class="dot" style="background:'+tnColor(w)+'"></i>'+esc(w)+'</button>').join('')+'</div>':'')+
+    // The coffee's likely notes to tap, and More for anything else, from the flavour wheel.
+    '<div class="tm-qfl" role="group" aria-label="What you taste">'+notes.map(w=>'<button type="button" class="chip" data-qf="'+esc(w)+'" aria-pressed="false"><i class="dot" style="background:'+tnColor(w)+'"></i>'+esc(w)+'</button>').join('')+
+      '<span class="tm-qmore"></span><button type="button" class="chip tm-qadd" id="tm-qadd">'+lIc('plus')+'More</button></div>'+
     '<button type="button" class="pbtn main tm-qsave" id="tm-qsave" disabled>'+lIc('ok')+'<span>Save to the log</span></button>';
   box.onclick=e=>{const q=e.target.closest('[data-qs]');if(q){st=+q.dataset.qs;box.querySelectorAll('[data-qs]').forEach(b=>{b.classList.toggle('lit',+b.dataset.qs<=st);b.setAttribute('aria-checked',b===q)});$('tm-qsave').disabled=false;tapBuzz();return}
+    if(e.target.closest('#tm-qadd')){openNotesPicker(null,{pre:more,done:fl2=>{more=fl2;box.querySelector('.tm-qmore').innerHTML=more.map(([id])=>{const n=FW.byId[id];return n?'<span class="chip on"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'</span>':''}).join('')}});return}
     const f=e.target.closest('[data-qf]');if(f){const w=f.dataset.qf;fl.has(w)?fl.delete(w):fl.add(w);f.setAttribute('aria-pressed',fl.has(w));tapBuzz();return}
-    if(e.target.closest('#tm-qsave')&&st){const en=quickLog(st,[...fl]);if(!en)return;TM.qlog=en;box.classList.add('saved');
+    if(e.target.closest('#tm-qsave')&&st){const en=quickLog(st,[...fl],more);if(!en)return;TM.qlog=en;box.classList.add('saved');
       box.innerHTML='<span class="tm-qdone">'+lIc('ok')+'<span>Saved to your brew log · '+beanRate(st)+'</span></span>'}};
   $('tm-next').appendChild(box)}
-function quickLog(stars,notes){const r=TM.r||RECIPES[TM.idx],p=TM.p,fromDial=p&&'bean' in p;if(!r)return null;
+function quickLog(stars,notes,more){const r=TM.r||RECIPES[TM.idx],p=TM.p,fromDial=p&&'bean' in p;if(!r)return null;
   const e={id:uid(),ts:Date.now(),date:new Date().toLocaleDateString(),coffee:'',settings:'',stars,pred:'',notes:'',brewer:''};
   if(fromDial){const dp=dialPlan();e.settings=dialLine(dp);e.brewer=S.brewer;e.pred=verdict(compute(S).D)[0];e.snap=brewSnap();if(S.bean&&!(S.bean.id&&window.BEANS_OK&&beanById(S.bean.id)))e.coffee=S.bean.name||''}
   else{const dz=p?p.r.dose:r.dose,w=p?p.water:r.water,t=p?p.temp:r.temp;e.settings=r.name+', '+dz+'g : '+w+'g'+(t?', '+t+'°C':'');e.brewer=r.b}
-  const fl=notes.map(w=>{const n=tnLeaf(w);return n&&[n.id,3]}).filter(Boolean);if(fl.length)e.fl=fl;
+  const fl=notes.map(w=>{const n=tnLeaf(w);return n&&[n.id,3]}).filter(Boolean);for(const [id,v] of more||[])if(!fl.some(x=>x[0]===id))fl.push([id,v]);if(fl.length)e.fl=fl;
   const cb=e.snap&&e.snap.bean&&e.snap.bean.id,cid=cb&&lastCupFor(cb);if(cid){e.cup=cid;LAST_CUP=null}
   if(GROUP)e.by=ME;LOG.unshift(e);save('bb-log',LOG);if(window.BEANS_OK)try{reschedule()}catch(x){}okBuzz();planRated(stars);
   if(window.BEANS_OK){const gb=cb&&beanById(cb);if(gb&&!gb.tried){gb.tried=todayISO();saveBeans()}checkTrophies()}queue('put',e.id,e);renderLog();return e}
@@ -2580,10 +2583,16 @@ const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 LOG.forEach(l=>{if(!l.id)l.id=uid();if(!l.ts){const t=Date.parse(l.date);l.ts=isNaN(t)?Date.now():t}});LOG.sort((a,b)=>b.ts-a.ts);save('bb-log',LOG);if(window.BEANS_OK)checkTrophies();
 const dbUrl=path=>SYNC_DB.replace(/\/+$/,'')+'/groups/'+GROUP.code+path+'.json';
 const newCode=()=>{const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let c='';const r=crypto.getRandomValues(new Uint8Array(8));r.forEach((x,i)=>{c+=A[x%A.length];if(i===3)c+='-'});return c};
-function setSync(st){SYNC_STATE=st;const el=$('sync-state');if(el){el.dataset.s=st;el.textContent={live:'Live',connecting:'Connecting…',offline:'Offline: changes will sync later',off:''}[st]||''}}
-async function flush(){if(!GROUP||!SYNC_DB||!navigator.onLine)return;while(PENDING.length){const op=PENDING[0];
-    try{const r=await fetch(dbUrl('/'+(op.col||'log')+'/'+op.id),op.op==='del'?{method:'DELETE'}:{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(op.data)});if(!r.ok)throw new Error(r.status)}
-    catch(e){setSync('offline');return}PENDING.shift();save('bb-pending',PENDING)}}
+function setSync(st){SYNC_STATE=st;const el=$('sync-state');if(el){el.dataset.s=st;el.textContent={live:'Live',connecting:'Connecting…',offline:'Offline',off:''}[st]||'';el.title=st==='offline'?'Changes will sync when you’re back online':''}}
+// A write the server refuses (its rules say no: 400, 401, 403) is dropped, never retried: left at the head of the queue
+// it held back every brew behind it and the card said Offline for good. Only a lost connection or a server hiccup
+// keeps it for later. A refused shelf (a database whose rules predate the shared cabinet) turns the cabinet off.
+async function flush(){if(!GROUP||!SYNC_DB||!navigator.onLine||flush.busy)return;flush.busy=true;try{while(PENDING.length){const op=PENDING[0];let r;
+    try{r=await fetch(dbUrl('/'+(op.col||'log')+'/'+op.id),op.op==='del'?{method:'DELETE'}:{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(op.data)})}
+    catch(e){setSync('offline');return}
+    if(!r.ok&&!(r.status>=400&&r.status<500&&r.status!==408&&r.status!==429)){setSync('offline');return}
+    if(!r.ok&&(op.col||'log')==='cabinet'){CAB_REFUSED=true;try{localStorage.setItem('bb-cabno',GROUP.code)}catch(e){}}
+    PENDING.shift();save('bb-pending',PENDING)}if(SYNC_STATE==='offline')setSync('live')}finally{flush.busy=false}}
 // Shared data lives in collections under the group: 'log' (brews) and 'recipes'.
 function queue(op,id,data,col='log'){if(!GROUP||!SYNC_DB)return;PENDING=PENDING.filter(p=>!(p.id===id&&(p.col||'log')===col));PENDING.push({col,op,id,data});save('bb-pending',PENDING);flush()}
 // Replace a collection with what the server has, keeping local changes that have not been sent yet.
@@ -2593,7 +2602,11 @@ function mergeRemote(col,entries){const pend=new Map(PENDING.filter(p=>(p.col||'
 /* Shared cabinet: in a shared log, each of you also shares the coffees on your shelf (name, roastery, origin, process
    and tasting notes; nothing else), so friends can see what you're drinking now. Kept under 'cabinet', one record each. */
 let CABS={};
-function pushCabinet(){if(!GROUP||!SYNC_DB||!window.BEANS_OK||!ME)return;
+// Sharing your shelf is a switch on the Shared log card (on unless you turn it off). Turned off, your shelf is taken
+// down for the others too.
+let CAB_SHARE=(()=>{try{return localStorage.getItem('bb-cabshare')!=='0'}catch(e){return true}})(),CAB_REFUSED=(()=>{try{return !!GROUP&&localStorage.getItem('bb-cabno')===GROUP.code}catch(e){return false}})();
+function setCabShare(on){CAB_SHARE=on;try{localStorage.setItem('bb-cabshare',on?'1':'0')}catch(e){}pushCabinet.sig='';if(on)pushCabinet();else if(GROUP&&SYNC_DB&&ME&&!CAB_REFUSED)queue('del',slug(ME)||'me',null,'cabinet')}
+function pushCabinet(){if(!GROUP||!SYNC_DB||!window.BEANS_OK||!ME||!CAB_SHARE||CAB_REFUSED)return;
   const list=BEANS.filter(b=>b.shelf).slice(0,8).map(b=>({n:beanTitle(b).slice(0,60),r:String(b.roaster||'').slice(0,50),o:b.origin||'',p:b.process||'',f:String(b.flavours||'').slice(0,80)}));
   const sig=JSON.stringify(list);if(sig===pushCabinet.sig)return;pushCabinet.sig=sig;queue('put',slug(ME)||'me',{by:ME,ts:Date.now(),beans:list},'cabinet')}
 let CAB_T=0;const soonCabinet=()=>{clearTimeout(CAB_T);CAB_T=setTimeout(pushCabinet,1500)};
@@ -2615,7 +2628,7 @@ function startStream(){stopStream();if(!GROUP||!SYNC_DB||typeof EventSource==='u
   es.addEventListener('put',e=>onData(e,false));es.addEventListener('patch',e=>onData(e,true));
   es.addEventListener('cancel',()=>{setSync('offline')});es.onerror=()=>setSync(navigator.onLine?'connecting':'offline')}
 function stopStream(){if(STREAM){STREAM.close();STREAM=null}}
-function joinGroup(code,name){ME=name.trim().slice(0,30);try{localStorage.setItem('bb-name',ME)}catch(e){}GROUP={code};save('bb-group',GROUP);
+function joinGroup(code,name){ME=name.trim().slice(0,30);try{localStorage.setItem('bb-name',ME)}catch(e){}GROUP={code};save('bb-group',GROUP);try{CAB_REFUSED=localStorage.getItem('bb-cabno')===code}catch(e){}
   LOG.forEach(l=>{if(!l.by)l.by=ME;queue('put',l.id,l)});CREC.forEach(r=>{if(!r.author)r.author=ME;queue('put',r.id,r,'recipes')});pushCabinet.sig='';pushCabinet();renderLog();startStream()}
 function leaveGroup(){stopStream();CABS={};pushCabinet.sig='';GROUP=null;PENDING=[];save('bb-group',null);save('bb-pending',[]);try{localStorage.removeItem('bb-group')}catch(e){}setSync('off');renderLog()}
 addEventListener('online',()=>{if(GROUP){flush();if(!STREAM)startStream()}});addEventListener('offline',()=>{if(GROUP)setSync('offline')});
@@ -2638,8 +2651,12 @@ function renderShare(){const el=$('l-share');if(!el)return;
     const name=()=>{if(nick)return nick;const n=$('sh-name').value.trim();if(!n){toast('Add your name first, so friends know who logged what');$('sh-name').focus()}return n};
     $('sh-new').onclick=()=>{const n=name();if(n){joinGroup(newCode(),n);toast('Shared log started. Invite your friends.')}};
     $('sh-join').onclick=()=>{const n=name();if(!n)return;const c=$('sh-code').value.toUpperCase().replace(/[^A-Z0-9]/g,'');if(c.length!==8){toast('Codes look like ABCD-2345');return}JOIN_CODE='';joinGroup(c.slice(0,4)+'-'+c.slice(4),n);toast('Joined the shared log')};return}
-  el.innerHTML='<div class="sh-row">'+(window.PROFILE_OK&&PROFILE?'<span class="sh-av">'+avatarHTML(PROFILE,40)+'</span>':ic)+'<span class="sh-tx"><b>Shared log <span class="sync" id="sync-state"></span></b><small>'+esc(ME||'Guest')+' · <span class="code">'+GROUP.code+'</span></small></span>'+
-    ib('share','id="sh-invite"','Invite friends','sm')+ib('x','id="sh-leave"','Leave the shared log','sm')+'</div><div id="sh-cab">'+cabinetHTML()+'</div>';
+  // The title alone on its line; under it, how the sync is doing and the group's code (both short, never cut); your
+  // name is the picture. Then the switch for sharing your shelf, and your friends' shelves.
+  el.innerHTML='<div class="sh-row">'+(window.PROFILE_OK&&PROFILE?'<span class="sh-av" title="'+esc(ME||'')+'">'+avatarHTML(PROFILE,40)+'</span>':ic)+'<span class="sh-tx"><b>Shared log</b><small class="sh-st"><span class="sync" id="sync-state"></span><span class="code">'+GROUP.code+'</span></small></span>'+
+    ib('share','id="sh-invite"','Invite friends','sm')+ib('x','id="sh-leave"','Leave the shared log','sm')+'</div>'+
+    (CAB_REFUSED?'':'<div class="sh-sw"><span>Share what I’m drinking</span><button type="button" class="tgl" role="switch" id="sh-cabsw" aria-checked="'+CAB_SHARE+'" aria-label="Share what I’m drinking"></button></div>')+'<div id="sh-cab">'+cabinetHTML()+'</div>';
+  if($('sh-cabsw'))$('sh-cabsw').onclick=e=>{const on=e.currentTarget.getAttribute('aria-checked')!=='true';e.currentTarget.setAttribute('aria-checked',on);setCabShare(on);toast(on?'Friends can see the coffees on your shelf':'Your shelf is no longer shared')};
   $('sh-invite').onclick=()=>openShare(inviteDoc());
   $('sh-leave').onclick=()=>askConfirm('Your phone keeps a copy of the entries.','Leave',true,'Leave the shared log?').then(y=>{if(y)leaveGroup()});setSync(SYNC_STATE==='off'?'connecting':SYNC_STATE)}
 let JOIN_CODE='';
@@ -3437,7 +3454,14 @@ function usePhoto(f){SFILE=f;clearScanData();SC.blank=true;SC.code='';SC.link=''
   (pv.decode?pv.decode().catch(()=>{}):Promise.resolve()).then(()=>photoIn($('scan-drop')));$('scan-empty').hidden=true;$('scan-go').disabled=false;$('scan-again').hidden=false;$('scan-status').hidden=false;runScan(true)}
 /* Codes on the bag: a QR code or a barcode in the photo, read with the phone's own barcode reader where it has one.
    A web address becomes a button to the bag's page; a code seen on a bag you scanned before brings that coffee back. */
-async function bagCodes(f){if(!('BarcodeDetector' in window))return null;try{const fm=await BarcodeDetector.getSupportedFormats(),want=['qr_code','ean_13','ean_8','upc_a','upc_e','code_128','data_matrix'].filter(x=>fm.includes(x));if(!want.length)return null;
+// Without the phone's own reader (iPhone, most computers), QR codes are read with jsQR (vendor/jsqr.js, Apache-2.0),
+// loaded the first time it's needed. Barcodes (EAN, UPC) need the phone's reader.
+let JSQRP=null;const loadJsQR=()=>window.jsQR?Promise.resolve():JSQRP||(JSQRP=loadScript('vendor/jsqr.js').catch(e=>{JSQRP=null;throw e}));
+async function qrFallback(f){try{await loadJsQR();if(!window.jsQR)return null;const bmp=await createImageBitmap(f),k=Math.min(1,1400/Math.max(bmp.width,bmp.height)),c=document.createElement('canvas');
+  c.width=Math.round(bmp.width*k);c.height=Math.round(bmp.height*k);const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(bmp,0,0,c.width,c.height);
+  const r=jsQR(x.getImageData(0,0,c.width,c.height).data,c.width,c.height),v=r&&String(r.data||'').trim();if(!v)return null;
+  return/^https?:\/\/[^\s<>"]+$/i.test(v)?{url:v.slice(0,300),code:''}:{url:'',code:v.slice(0,120)}}catch(e){return null}}
+async function bagCodes(f){if(!('BarcodeDetector' in window))return qrFallback(f);try{const fm=await BarcodeDetector.getSupportedFormats(),want=['qr_code','ean_13','ean_8','upc_a','upc_e','code_128','data_matrix'].filter(x=>fm.includes(x));if(!want.length)return null;
   const bmp=await createImageBitmap(f),r=await new BarcodeDetector({formats:want}).detect(bmp);let url='',code='';
   for(const x of r){const v=String(x.rawValue||'').trim();if(!v)continue;if(/^https?:\/\/[^\s<>"]+$/i.test(v)){if(!url)url=v.slice(0,300)}else if(!code)code=v.slice(0,120)}return url||code?{url,code}:null}catch(e){return null}}
 function codeMatch(){const k=SC.code;if(!k)return null;const s=SCANS.find(x=>x.id!==SC.id&&x.sc&&x.sc.code===k);if(!s)return null;
@@ -4479,16 +4503,21 @@ document.querySelector('.bottomnav').onclick=e=>{const b=e.target.closest('[data
 function gsResults(q){const f=fold(q.trim());if(f.length<2)return[];const rank=(name,more)=>{const n=fold(name);return n.startsWith(f)?0:n.split(/[\s\-–(]+/).some(w=>w.startsWith(f))?1:n.includes(f)?2:fold(more||'').includes(f)?3:-1};
   const groups=[],take=(title,items)=>{const l=items.map(x=>Object.assign(x,{r:rank(x.n,x.m)})).filter(x=>x.r>=0).sort((a,b)=>a.r-b.r||a.n.length-b.n.length).slice(0,5);if(l.length)groups.push([title,l])};
   if(window.BEANS_OK)take('Your coffees',BEANS.map(b=>({n:beanTitle(b),s:[b.roaster,b.origin&&originName(b.origin)].filter(Boolean).join(' · '),m:[b.roaster,originName(b.origin||''),b.flavours,b.notes].join(' '),ic:'bag',go:()=>openBean(b.id)})));
+  if(window.BEANS_OK)take('Roasteries',roasteries().map(r=>({n:r.name,s:r.list.length+' coffee'+(r.list.length===1?'':'s'),ic:'store',go:()=>openRoaster(r.name)})));
+  // Your brews: by coffee, notes or settings; a tap shows the log filtered to that coffee.
+  take('Your brews',LOG.filter(l=>l&&(l.coffee||l.notes)).slice(0,400).map(l=>({n:l.coffee||String(l.notes).slice(0,40),s:[fmtDate(l),String(l.settings||'').split(',')[0]].filter(Boolean).join(' · '),m:(l.notes||'')+' '+(l.settings||''),ic:'log',tab:1,
+    go:()=>{showTab('log');LF.q=l.coffee||'';const qi=$('lf-q');if(qi)qi.value=LF.q;renderLogList();setTimeout(()=>{const x=$('l-list');if(x)x.scrollIntoView({block:'start',behavior:RM()?'auto':'smooth'})},120)}})));
   take('Recipes',RECIPES.map((r,i)=>({n:r.name,s:[(BREWERS[r.b]||{}).name,r.by].filter(Boolean).join(' · '),m:(r.by||'')+' '+((BREWERS[r.b]||{}).name||''),ic:'cup',go:()=>openRecipe(i)})));
   take('Origins',Object.entries(ALLO()).map(([k,o])=>({n:o.name,s:(REG[o.reg]||{}).name||'',m:(o.subs||[]).join(' '),fl:flagOf(k),tab:1,go:()=>{showTab('map');selectOrigin(k,true)}})));
   take('Varieties',V.map(v=>({n:v.name,s:(FAM[v.fam]||{}).name||'',m:(v.notes||[]).join(' '),ic:'leaf',go:()=>openVariety(v.id)})));
   take('Processes',Object.entries(PROCESSES).map(([k,p])=>({n:p.name,s:String(p.cat||'').replace(/^./,c=>c.toUpperCase()),m:(p.notes||[]).join(' '),ic:'flask',tab:1,go:()=>openProcess(k)})));
+  take('Champions',CHAMPS.map(ch=>({n:ch.who,s:[(COMPS[ch.c]||{}).short,ch.y,ch.from].filter(Boolean).join(' · '),m:[ch.from,ch.city,ch.coffee,(COMPS[ch.c]||{}).name].join(' '),fl:FLAGS[ch.from]||'',tab:1,go:()=>{showTab('champs');if(ch.rec)openChamp(ch)}})));
   take('Coffee words',GLOSSARY.map(g=>({n:g[0],s:String(g[2]||'').slice(0,80),m:g[2],ic:'text',tab:1,go:()=>openWord(g[0])})));return groups}
 function openSearch(){if(fromTap(()=>openSearchNow()))return;openSearchNow()}
 function openSearchNow(){const d=$('vd');delete d.dataset.bean;let G=[];
   $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Search</span><h2 id="vd-title">Search everything</h2>'+
     '<input type="search" id="gs-q" class="rcp-q gx-q" placeholder="Coffees, recipes, origins, words…" aria-label="Search everything" autocomplete="off"></div><div class="vd-body"><div id="gs-res" role="list"></div></div>';
-  const ICS={bag:LI.bag,cup:LI.cup,leaf:'M5 19c0-8 5-14 14-14 0 9-6 14-14 14z M5 19l7-7',flask:'M9 3h6 M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3',text:'M5 6h14 M12 6v13 M9 19h6'};
+  const ICS={bag:LI.bag,cup:LI.cup,store:LI.store,log:LI.log,leaf:'M5 19c0-8 5-14 14-14 0 9-6 14-14 14z M5 19l7-7',flask:'M9 3h6 M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3',text:'M5 6h14 M12 6v13 M9 19h6'};
   const hi=(t,q)=>{const f=fold(q.trim()),i=fold(t).indexOf(f);return i<0||!f?esc(t):esc(t.slice(0,i))+'<mark>'+esc(t.slice(i,i+f.length))+'</mark>'+esc(t.slice(i+f.length))};
   const draw=()=>{const q=$('gs-q').value;G=gsResults(q);let k=0;
     $('gs-res').innerHTML=!q.trim()||fold(q.trim()).length<2?'':!G.length?'<p class="hint">Nothing matches “'+esc(q.trim())+'”.</p>':G.map(([t,l])=>'<h3 class="gx-h">'+esc(t)+'</h3>'+l.map(x=>'<button type="button" class="gx-row" role="listitem" data-gs="'+(k++)+'"><span class="gx-ic" aria-hidden="true">'+(x.fl||'<svg viewBox="0 0 24 24"><path d="'+(ICS[x.ic]||ICS.text)+'"/></svg>')+'</span><span><b>'+hi(x.n,q)+'</b>'+(x.s?'<small>'+esc(x.s)+'</small>':'')+'</span></button>').join('')).join('')};
@@ -4659,9 +4688,9 @@ function welcomeHTML(when){const d=when||new Date(),h=d.getHours(),t=h<5?'night'
    in the afternoon a new recipe to try; in the evening (and late) the diary and tomorrow's coffee from your cabinet. */
 function wlActs(t){const a=[],last=LOG.find(x=>x&&(!x.by||x.by===ME)),ag=last&&againPlan(last),bk=window.BEANS_OK;
   const pill=(k,ic,label)=>'<button type="button" class="wl-a" data-wa="'+k+'">'+lIc(ic)+'<span>'+esc(label)+'</span></button>';
-  if(t==='morning'){if(ag)a.push(pill('again','again','Brew '+(last.coffee||'it').slice(0,24)+' again'));a.push(pill('timer','timer','Start a brew'))}
+  if(t==='morning'){if(ag)a.push(pill('again','again','Brew again'));a.push(pill('timer','timer','Start a brew'))}
   else if(t==='day'){if(bk&&BEANS.length)a.push(pill('make','dice','Surprise me'));if(ag)a.push(pill('again','again','Brew again'))}
-  else{if(bk&&BEANS.length)a.push(pill('diary','log','Write in the diary'));const c=bk&&typeof cabinetDay==='function'?cabinetDay(new Date(Date.now()+864e5)):null;if(c)a.push(pill('tomorrow','bag','Tomorrow: '+beanTitle(c.b).slice(0,22)))}
+  else{if(bk&&BEANS.length)a.push(pill('diary','log','Write in the diary'));const c=bk&&typeof cabinetDay==='function'?cabinetDay(new Date(Date.now()+864e5)):null;if(c)a.push(pill('tomorrow','bag','Tomorrow’s coffee'))}
   return a.length?'<div class="wl-acts">'+a.join('')+'</div>':''}
 function renderWelcome(){const el=$('welcome');if(!el)return;const w=welcomeHTML();el.dataset.t=w.t;if(el._h!==w.html){el.innerHTML=w.html;el._h=w.html}}
 $('welcome').addEventListener('click',e=>{const b=e.target.closest('[data-wa]');if(!b)return;const k=b.dataset.wa;

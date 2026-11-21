@@ -25,4 +25,13 @@ const r=await p.evaluate(async()=>{const w=t=>new Promise(r=>setTimeout(r,t)),o=
 ok('a QR web address becomes a button to the bag\'s page',r.link&&r.link.shown&&r.link.href==='https://roaster.example/coffee/guji'&&/roaster\.example/.test(r.link.text)&&!r.known1,r);
 ok('a code from a bag you kept brings that coffee back, and opens it',/You have this coffee/.test(r.known||'')&&r.noLink&&r.opened,r);
 ok('only web addresses become links; a new scan clears it',r.bad&&r.cleared,r);
+// Without the phone's reader (iPhone, computers): jsQR is loaded from vendor/ the first time and reads the QR code.
+const p2=await (await b.newContext({viewport:{width:390,height:844},serviceWorkers:'block'})).newPage();p2.on('pageerror',e=>errs.push(e.message));let jsqrLoads=0;
+await p2.route(u=>!u.href.startsWith('http://localhost'),r=>r.abort());
+await p2.route(/vendor\/jsqr\.js/,r=>{jsqrLoads++;r.fulfill({contentType:'text/javascript',body:'window.jsQR=function(d,w,h){return w>0&&h>0&&d.length===w*h*4?{data:"https://roaster.example/qr"}:null}'})});
+await p2.addInitScript(()=>{sessionStorage.setItem('bb-splashed','1');delete window.BarcodeDetector});
+await p2.goto('http://localhost:8099/index.html');await p2.waitForTimeout(1500);
+const f=await p2.evaluate(async()=>{goTab('scan');window.runScan=()=>{};const cv=document.createElement('canvas');cv.width=cv.height=64;cv.getContext('2d').fillRect(8,8,40,40);const png=await new Promise(r=>cv.toBlob(r,'image/png'));
+  usePhoto(new File([png],'q.png',{type:'image/png'}));await new Promise(r=>setTimeout(r,900));return{href:$('sc-link')&&$('sc-link').href,has:'BarcodeDetector' in window}});
+ok('without the phone\'s reader, the QR code is read by the bundled reader, loaded once when needed',!f.has&&f.href==='https://roaster.example/qr'&&jsqrLoads===1,{f,jsqrLoads});
 ok('no page errors',!errs.length,errs);await b.close()})();

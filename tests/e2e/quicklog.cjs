@@ -10,9 +10,15 @@ await p.evaluate(()=>{const bn=BEANS[0];bn.flavours='Peach, jasmine, honey';useB
 await p.click('#tm-go');await p.evaluate(()=>{TM.t0=performance.now()-90000;finishBrew()});await p.waitForTimeout(400);
 const a=await p.evaluate(()=>({box:!!document.querySelector('.tm-quick'),stars:document.querySelectorAll('.tm-qstars [data-qs]').length,fl:[...document.querySelectorAll('.tm-qfl [data-qf]')].map(x=>x.dataset.qf),dis:$('tm-qsave').disabled,n:LOG.length}));
 ok('the finish shows a quick rating, flavours and a save button (off until rated)',a.box&&a.stars===5&&a.fl.length>0&&a.dis,a);
-await p.click('.tm-qstars [data-qs="4"]');await p.click('.tm-qfl [data-qf]');await p.click('#tm-qsave');await p.waitForTimeout(300);
+await p.click('.tm-qstars [data-qs="4"]');await p.click('.tm-qfl [data-qf]');
+// More: the flavour wheel over the timer, for a note the coffee isn't known for; it comes back as a chip.
+await p.click('#tm-qadd');await p.waitForTimeout(600);const wheel=await p.evaluate(()=>!!document.querySelector('dialog#vd[open] #fl-box'));
+await p.evaluate(()=>{const q=$('fl-q');q.value='bergamot';q.dispatchEvent(new Event('input'));document.querySelector('#fl-res [data-fa]').click();$('fl-done').click()});await p.waitForTimeout(500);
+const back=await p.evaluate(()=>({chips:[...document.querySelectorAll('.tm-qmore .chip')].map(c=>c.textContent),timer:$('timer').open}));
+ok('More opens the flavour wheel and brings the note back as a chip',wheel&&back.chips.some(t=>/bergamot/i.test(t))&&back.timer,{wheel,back});
+await p.click('#tm-qsave');await p.waitForTimeout(300);
 const e=await p.evaluate(n=>{const e=LOG[0];return{added:LOG.length===n+1,stars:e.stars,fl:e.fl,snap:!!(e.snap&&e.snap.bean&&e.snap.bean.id===BEANS[0].id),settings:e.settings,saved:!!document.querySelector('.tm-quick.saved')}},a.n);
-ok('one tap saves the brew with its rating, flavour and dial-in',e.added&&e.stars===4&&e.fl&&e.fl.length===1&&e.snap&&/g :/.test(e.settings)&&e.saved,e);
+ok('one tap saves the brew with its rating, flavours (and the wheel\'s) and dial-in',e.added&&e.stars===4&&e.fl&&e.fl.length===2&&e.snap&&/g :/.test(e.settings)&&e.saved,e);
 await p.click('#tm-log');await p.waitForTimeout(900);
 const f=await p.evaluate(n=>({same:LOG.length===n+1,editing:LEDIT===LOG[0].id,tab:document.querySelector('main section.on').id}),a.n);
 ok('Log this brew then opens that entry, not a second one',f.same&&f.editing&&f.tab==='log',f);
