@@ -432,9 +432,9 @@ function yearInCoffeeHTML0(){const cy=new Date().getFullYear(),bs=BEANS.filter(b
   // full width, each opening its coffee. An odd tile out at the end of the short ones spans the row too.
   // Each fact in its own colour, the same as the taste tiles on your profile: icon and name on top, the answer below,
   // every tile the same size. Your regular and the best of the year follow full width, with the coffee's photo.
-  const half=[o&&['<span class="yic-fl">'+flagOf(t.origin.k)+'</span>','Origin',o.name],R&&['🗺️','Region',R.name,t.regionOrigin&&t.regionOrigin.k!==(t.origin&&t.origin.k)?'Mostly '+oInfo(t.regionOrigin.k).name:''],
+  const half=[o&&[flagIc(t.origin.k),'Origin',o.name],R&&['🗺️','Region',R.name,t.regionOrigin&&t.regionOrigin.k!==(t.origin&&t.origin.k)?'Mostly '+oInfo(t.regionOrigin.k).name:''],
     v&&['🌱','Variety',shortName(v.name)],pr&&['🧪','Process',pr.name.replace(/\s*\(.*\)$/,'')],t.roast&&['🔥','Roast',t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1)],
-    t.roaster&&['🏷️','Roastery',t.roaster.k],B&&['☕','Brewer',B.name]].filter(Boolean);
+    t.roaster&&['🏷️','Roastery',t.roaster.k],B&&[tileIc('Brewer'),'Brewer',B.name]].filter(Boolean);
   const wide=[t.regular&&[t.regular,'Your regular','#0EA5E9'],t.best&&[t.best,'Best of the year',TASTE_C['Rated best']]].filter(Boolean);
   return '<div class="yic" role="region" aria-label="'+cy+' in coffee"><div class="yic-h"><h3>'+cy+' in coffee</h3></div>'+(bs.length>1?'<p class="yic-line">'+esc(tasteLine(t))+'</p>':'')+
     figsHTML('yic-big',big.map(([n,l],i)=>[['bag','cup',g?'bean':'globe'][i],esc(String(n)),esc(l)]))+
@@ -1399,7 +1399,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.be
   if(!write&&$('vd').scrollTop)$('vd').scrollTop=0;const d=$('vd'),rk=beanRank(b),P=b.process&&PROCESSES[b.process],ls=beanLogStats(b),f=b.shelf&&fresh(b);
   const cal=b.cal&&calById(b.cal.id);
   const fmt=s=>s?new Date(s+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'';
-  const kv=[isBlend(b)?['Blend of',blendParts(b).map(x=>flagOf(x.o)+' '+originName(x.o)+(x.r?' ('+x.r+')':'')+blendPct(x)).join(', ')||'Several origins']:['Origin',b.origin?flagOf(b.origin)+'\u00a0'+originName(b.origin):''],['Process',P?P.name.replace(/\s*\(.*\)$/,''):''],[b.vars?'Varieties':'Variety',b.variety?varsName(b):''],['Roast',b.roast?b.roast[0].toUpperCase()+b.roast.slice(1):''],['Roasted',fmt(b.roastDate)],['Tried',b.tried?fmt(b.tried):'Not yet'],...(cal?[['Advent','Door '+b.cal.d+' · '+calName(cal)]]:[]),['Brewed',ls?ls.n+' time'+(ls.n===1?'':'s'):'']].filter(x=>x[1]);
+  const kv=[isBlend(b)?['Blend of',blendParts(b).map(x=>flagOf(x.o)+' '+originName(x.o)+(x.r?' ('+x.r+')':'')+blendPct(x)).join(', ')||'Several origins']:['Origin',b.origin?originName(b.origin):''],['Process',P?P.name.replace(/\s*\(.*\)$/,''):''],[b.vars?'Varieties':'Variety',b.variety?varsName(b):''],['Roast',b.roast?b.roast[0].toUpperCase()+b.roast.slice(1):''],['Roasted',fmt(b.roastDate)],['Tried',b.tried?fmt(b.tried):'Not yet'],...(cal?[['Advent','Door '+b.cal.d+' · '+calName(cal)]]:[]),['Brewed',ls?ls.n+' time'+(ls.n===1?'':'s'):'']].filter(x=>x[1]);
   const st={mom:'note',ph:null};const g=gramsLeft(b),dose=Math.round(beanDose(b));
   const from=BFROM&&BFROM===b.origin?BFROM:null,calBack=cal&&ADVFROM===cal.id,roBack=!from&&!calBack&&RFROM&&roKey(RFROM.name)===roKey(b.roaster)?RFROM:null;
   $('vd-in').innerHTML='<div class="vd-head" style="--c:'+(rk?MEDAL[rk]:'var(--cherry)')+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button>'+(calBack?'<button type="button" class="vd-back adv-back" id="bd-advback">‹ Calendar</button>':from?'<button type="button" class="vd-back" id="vd-back">‹ '+esc(originName(from))+'</button>':roBack?'<button type="button" class="vd-back" id="bd-roback">‹ '+esc(roBack.name)+'</button>':'')+'<span class="vd-tools"><button type="button" class="vd-tool" id="bd-share" aria-label="Share this coffee" title="Share">'+lIc('share')+'</button><button type="button" class="vd-tool" id="bd-edit" aria-label="Edit this coffee" title="Edit">'+lIc('edit')+'</button>'+(BEANS.length>1?'<button type="button" class="vd-tool" id="bd-cmp" aria-label="Compare with another coffee" title="Compare">'+lIc('cmp')+'</button>':'')+'</span><span class="pill"><i style="background:'+(rk?MEDAL[rk]:'var(--cherry)')+'"></i>'+(rk?placeShort(rk,beanYear(b)):beanMention(b)?'Mentioned in '+beanYear(b):b.shelf?'Drinking now':'Your coffees')+'</span><h2 id="vd-title">'+esc(beanTitle(b))+'</h2>'+(b.roaster?'<p class="vd-sub"><button type="button" class="ro-link" id="bd-ro">'+esc(b.roaster)+'<span aria-hidden="true"> ›</span></button></p>':'')+
@@ -1414,7 +1414,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.be
       pbtn('flag','id="bd-done"','Finish this bag','quiet bd-done')+'</div>'
      :'')+
         // The coffee's facts in one card, two to a row: a coloured icon chip, then the name and the answer.
-    (kv.length?factCard(kv.map(([k,v])=>{const m=tileKey(k,v);return [svgI(m?m[2]:'M12 7v6 M12 16.5v.5'),k,esc(v),m&&m[1]]})):'')+
+    (kv.length?factCard(kv.map(([k,v])=>{const m=tileKey(k,v);return [k==='Origin'&&b.origin&&flagOf(b.origin)?flagIc(b.origin):svgI(m?m[2]:'M12 7v6 M12 16.5v.5'),k,esc(v),m&&m[1]]})):'')+
     (b.flavours?'<h3>Tasting notes</h3><div class="chips">'+tnSplit(b.flavours).map(f=>'<span class="chip"><i class="dot" style="background:'+tnColor(f)+'"></i>'+esc(f)+'</span>').join('')+'</div>':'')+
     (b.notes?'<h3>Your notes</h3><p>'+esc(b.notes)+'</p>':'')+
     // Your bags: how many times you've bought it (set it for bags from before the app), buying it again when it's

@@ -85,13 +85,13 @@ function profileStats(){const mine=window.BEANS_OK?myCups().length:LOG.filter(l=
 function tasteHTML(){if(!window.BEANS_OK||BEANS.length<2)return '';const t=tasteOf(BEANS,LOG.filter(isMine));
   const o=t.origin&&oInfo(t.origin.k),R=t.region&&REG[t.region.k],v=t.variety&&VBY[t.variety.k],pr=t.process&&PROCESSES[t.process.k],B=t.brewer&&BREWERS[t.brewer.k],lo=t.likedOrigin&&oInfo(t.likedOrigin.k);
   const ro=t.regionOrigin&&oInfo(t.regionOrigin.k);
-  const fl=k=>'<span class="me-flag">'+flagOf(k)+'</span>';
+  const fl=flagIc;
   // Up to six tiles, two to a row.
   // Each tile's icon matches its own value: the flag sits with the country, the map with the region.
   const rows=[o&&[fl(t.origin.k),'Origin',o.name],R&&['🗺️','Region',R.name],
     v&&['🌱','Variety',shortName(v.name)],pr&&['🧪','Process',pr.name.replace(/\s*\(.*\)$/,'')],
     t.roast&&['🔥','Roast',t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1)],
-    lo&&lo!==o&&[fl(t.likedOrigin.k),'Rated best',lo.name],B&&['☕','Brewer',shortBrewer(B.name)],
+    lo&&lo!==o&&[fl(t.likedOrigin.k),'Rated best',lo.name],B&&[tileIc('Brewer'),'Brewer',shortBrewer(B.name)],
     t.roaster&&['🏷','Roastery',t.roaster.k],t.recipe&&['🎯','Recipe',t.recipe.k]].filter(Boolean).slice(0,6);
   if(!rows.length&&!t.families.length)return '';
   return '<div class="me-taste"><div class="me-th"><b>Your coffee taste</b><small>From all '+BEANS.length+' coffees and '+myCups().length+' cups, all time</small></div>'+
@@ -134,8 +134,8 @@ function meHTML(){const p=PROFILE,x='<button class="vd-close me-x" id="vd-x" ari
   // What you told us about yourself sits with who you are (under your words), as one line of plain facts. The numbers
   // and "Your coffee taste" below are what your coffees and cups show.
   // Your picks, in short names (one line at any text size) and the same colours as Your coffee taste.
-  const dna=[p.city&&['📍','Based in',p.city,'#0EA5E9'],p.brewer&&['☕','Brewer',BREWERS[p.brewer].name,TASTE_C.Brewer],
-    p.origin&&['<span class="me-flag">'+flagOf(p.origin)+'</span>','Origin',originName(p.origin),TASTE_C.Origin]].filter(Boolean);
+  const dna=[p.city&&['📍','Based in',p.city,'#0EA5E9'],p.brewer&&[tileIc('Brewer'),'Brewer',BREWERS[p.brewer].name,TASTE_C.Brewer],
+    p.origin&&[flagIc(p.origin),'Origin',originName(p.origin),TASTE_C.Origin]].filter(Boolean);
   const bg=bannerBg(p),since=new Date(p.since).toLocaleDateString(undefined,{month:'long',year:'numeric'});
   // A cover strip (your banner), your picture overlapping its edge, and who you are on the page under it.
   return '<div class="me-hero me-cover'+(bg?' banner':'')+'" style="--c:'+p.av.c+(bg?';background:'+bg:'')+'">'+x+'<button type="button" class="me-edit" id="pf-edit" aria-label="Edit your profile" title="Edit your profile">'+PEN_SVG+'</button></div>'+
