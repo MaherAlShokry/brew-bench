@@ -357,12 +357,12 @@ function baseX(g,b){const v=BASE[g]&&BASE[g][b],x=v==null?calX(g,b):v;return x==
 const canGrind=(g,b)=>!!GRINDERS[g]&&base(g,b)!=null;
 // First of your grinders that can do this brewer (falls back to any grinder in the library).
 const capable=b=>MYG.find(g=>canGrind(g,b))||Object.keys(GRINDERS).find(g=>canGrind(g,b));
-// Pour-overs (and the Switch and Clever) never go coarser than 7.0 on the ZP6 (70 clicks, the top of its filter range)
-// or the same size on any other grinder: past that a dripper drains too fast to taste of much. The coarsest offset, in
-// recipe grind steps (negative is coarser).
+// On a pour-over (and the Switch and Clever) the ZP6 never goes past 7.0 (70 clicks, the top of its filter range):
+// its burrs make so few fines that coarser drains too fast to taste of much. Only the ZP6 is held; other grinders keep
+// their own setting. The coarsest offset, in recipe grind steps (negative is coarser).
 const COARSE_CAP_T=['Cone dripper','Flat-bottom dripper','Valve and hybrid'];
 function coarseCap(b){const B=BREWERS[b];if(!B||!COARSE_CAP_T.includes(B.type))return -Infinity;const zb=baseX('zp6',b),bs=zb!=null?sizeOf('zp6',zb):brewSize(b);return bs==null?-Infinity:(bs-sizeOf('zp6',70))/160}
-function settingFor(g,b,off){const bb=baseX(g,b);return bb==null?null:roundG(g,shift(g,bb,-Math.max(off,coarseCap(b))*160))}
+function settingFor(g,b,off){const bb=baseX(g,b);return bb==null?null:roundG(g,shift(g,bb,-Math.max(off,g==='zp6'?coarseCap(b):-Infinity)*160))}
 function gLabel(g,v){const G=GRINDERS[g];return G.name+' '+dial(g,v)+(G.unit==='clicks'?' clicks':'')}
 /* ================= YOUR RECIPES ================= */
 // Recipes you or your team create sit after the built-in ones in RECIPES, so the timer and dial-in work with them.
@@ -687,6 +687,10 @@ function stepsAtTemp(steps,rt,t){if(!rt||!t||rt===t)return steps;const re=new Re
 // Your bloom sets the second pour: the recipe's own bloom is the time from its first step (at 0:00) to its second, and
 // every step after the first moves by the difference, so the steps, the timer and the brew card follow what you set.
 // Only when that second step is a pour 25 to 90 s in: a stir, a press or the end of a steep isn't the end of a bloom.
+// A recipe's own bloom: the time of its second step when the first is at 0:00 and the second is a pour 25 to 90 s in
+// (the same test bloomShift uses), else null.
+function recBloom(r){const st=r&&r.steps||[],t=s=>{const m=/^(\d+):(\d\d)\b/.exec(s||'');return m?+m[1]*60+ +m[2]:null},t1=t(st[1]);
+  return st.length>1&&t(st[0])===0&&t1!=null&&t1>=25&&t1<=90&&/^\d+:\d\d\s+(pour|add|open the valve)/i.test(st[1])?t1:null}
 function bloomShift(steps,bloom){const t=s=>{const m=/^(\d+):(\d\d)\b/.exec(s);return m?+m[1]*60+ +m[2]:null},fmt=v=>Math.floor(v/60)+':'+String(v%60).padStart(2,'0');
   const t1=t(steps[1]||'');if(!(bloom>0)||steps.length<2||t(steps[0])!==0||t1==null||t1<25||t1>90||!/^\d+:\d\d\s+(pour|add|open the valve)/i.test(steps[1]))return{steps};const d=Math.round(bloom)-t(steps[1]);if(!d)return{steps};
   return{steps:steps.map((s,i)=>{const v=t(s);return i&&v!=null?s.replace(/^\d+:\d\d/,fmt(Math.max(0,v+d))):s}),
@@ -957,10 +961,12 @@ function plan(c){
   if(Vp.t>=0.25&&c.process==='washed'&&c.roast==='light'&&temp<95&&B.ratio.ref>10){temp=95;why.push('Dense washed '+Vv.name+' rewards hotter water, 95°C, to build sweetness.')}
   if(P.cat==='decaf'){temp=Math.min(temp,92);why.push('Decaf extracts fast: a little cooler and coarser.')}
   temp=clamp(temp,B.temp.min,B.temp.max);
-  let bloom=B.bloom.def;
+  // The bloom starts from the recipe's own (the time to its second pour), so picking a recipe keeps its timings; the
+  // brewer's usual bloom is only for a recipe that doesn't time one. The coffee then lengthens or shortens it.
+  const rb=recBloom(r);let bloom=rb!=null?clamp(rb,B.bloom.min,B.bloom.max):B.bloom.def;
   if(B.bloom.label==='Bloom'){
-    if(c.age<=7&&c.roast!=='dark'){bloom=55;why.push('Very fresh beans ('+c.age+' days): longer 55s bloom to let the CO\u2082 out.')}
-    else if(c.age>=30){bloom=30;why.push('Older beans ('+c.age+' days): little gas left, so a short 30s bloom.')}
+    if(c.age<=7&&c.roast!=='dark'){bloom=clamp(bloom+10,B.bloom.min,B.bloom.max);why.push('Very fresh beans ('+c.age+' days): a longer '+bloom+'s bloom to let the CO\u2082 out.')}
+    else if(c.age>=30&&bloom>30){bloom=Math.max(30,bloom-10);why.push('Older beans ('+c.age+' days): little gas left, so a shorter '+bloom+'s bloom.')}
     if(P.funk>=1.2&&bloom>35){bloom=35;why.push('Loud processes get a shorter bloom to avoid early over-extraction.')}
     if(c.roast==='dark'&&bloom>30){bloom=30;why.push('Dark roast: a 30s bloom is enough; dark beans release their gas quickly.')}}
   else if(c.age<=7)why.push('Very fresh beans: expect more crema and gushing; let them rest a few more days if shots are erratic.');
@@ -1003,10 +1009,11 @@ function plan(c){
   {const lo=Math.min(-1.5,r.off-1),hi=Math.max(1.5,r.off+1);if(step>hi||step<lo){const tgt=clamp(step,lo,hi),want=step-tgt;
     const up=Math.max(temp,Math.min(B.temp.max,96,temp+3)),down=Math.max(B.temp.min,temp-3),t1=clamp(Math.round(temp+want*KG/KT),down,up),dt=t1-temp;
     step=tgt;held=true;why.push('The grind stays within the usual range for '+art(brewName(B.name))+' '+esc(brewName(B.name))+' rather than going '+(want>0?'finer':'coarser')+(dt?'; the water is '+Math.abs(dt)+'°C '+(dt<0?'cooler':'warmer')+' ('+t1+'°C) instead.':'. Taste and adjust from here.'));temp=t1}}
-  // At most ZP6 7.0 on a pour-over (see coarseCap): a coffee and target that ask for coarser get up to 2°C cooler water.
-  {const cap=coarseCap(bb);if(step<cap){const want=cap-step,t1=Math.max(B.temp.min,temp-2,Math.round(temp-want*KG/KT)),dt=t1-temp;
-    step=cap;held=true;why.push('The grind stays at the coarse end for '+art(brewName(B.name))+' '+esc(brewName(B.name))+' (ZP6 7.0 or its match) rather than going coarser'+(dt?'; the water is '+Math.abs(dt)+'°C cooler ('+t1+'°C) instead.':'.'));temp=t1}}
-  const set={};for(const g of new Set([...MYG,grinder]))set[g]=canGrind(g,bb)?roundG(g,shift(g,baseX(g,bb),-step*160)):null;
+  // The ZP6 stops at 7.0 on a pour-over (see coarseCap); every other grinder keeps the grind the recipe and coffee ask
+  // for. When you brew on the ZP6 and it is held finer than asked, the water is up to 2°C cooler to make up for it.
+  const set={};for(const g of new Set([...MYG,grinder]))set[g]=canGrind(g,bb)?roundG(g,shift(g,baseX(g,bb),-Math.max(step,g==='zp6'?coarseCap(bb):-Infinity)*160)):null;
+  {const cap=coarseCap(bb);if(grinder==='zp6'&&step<cap){const want=cap-step,t1=Math.max(B.temp.min,temp-2,Math.round(temp-want*KG/KT)),dt=t1-temp;
+    held=true;why.push('The ZP6 stays at 7.0, the top of its range for '+art(brewName(B.name))+' '+esc(brewName(B.name))+', rather than going coarser'+(dt?'; the water is '+Math.abs(dt)+'°C cooler ('+t1+'°C) instead.':'.'));temp=t1}}
   const water=+gfmt(dose*ratio);
   const st={grinder,setting:set[grinder],brewer:bb,temp,ratio,bloom,agit,roast:c.roast,process:c.process,variety:c.variety,rec:c.tech};
   const ps=planSteps(r,dose,water,c.goal);
@@ -4138,7 +4145,7 @@ function applyUI(){const d=document.documentElement;themeSwap();d.setAttribute('
   setAppIcon();
   const pap=(VIBES.find(v=>v[0]===UI.vibe)||VIBES[0])[curTheme()==='dark'?4:3].paper;document.querySelectorAll('meta[name="theme-color"]').forEach(m=>{if(d.hasAttribute('data-theme')||UI.vibe!=='roastery')m.content=pap});(window.requestIdleCallback||(f=>setTimeout(f,300)))(setFavicon)}
 // Light or dark picked in the app: that icon. Auto (follow the phone): the icon that follows the phone by itself.
-function setAppIcon(){const ai=plugin('AppIcon');if(ai)ai.set({name:UI.logo,vibe:UI.vibe,mode:document.documentElement.hasAttribute('data-theme')?(curTheme()==='dark'?'dark':'light'):'auto'}).catch(()=>{})}
+function setAppIcon(){const ai=plugin('AppIcon');if(ai)ai.set({name:UI.logo,vibe:UI.vibe,mode:document.documentElement.hasAttribute('data-theme')?(curTheme()==='dark'?'dark':'light'):'auto'}).catch(()=>{});const w=plugin('Widget');if(w&&w.dailyLook)requestAnimationFrame(()=>w.dailyLook({accent:accentHex()}).catch(()=>{}))}
 // Auto theme follows the phone, so the icon follows it too.
 try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{themeSwap();setAppIcon()})}catch(e){}
 function saveUI(){save('bb-ui',UI);applyUI()}
@@ -4358,7 +4365,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#st-updgo')){toast('D
 // One thing worth knowing from Explore each day, taking the kinds in turn (a word, a variety, an origin, a process, a
 // technique, a moment in history, a champion) and a different one of each kind every time it comes round. The same day
 // gives the same fact, on the Explore page and in the notification.
-const FACT_KINDS=['word','variety','origin','process','tech','history','champ'],FACT_ICON={word:'📖',variety:'🌱',origin:'🗺️',process:'🧪',tech:'☕',history:'📜',champ:'🏆'};
+const FACT_KINDS=['word','variety','origin','process','tech','history','champ'];
 function factFor(day){const k=FACT_KINDS[((day%7)+7)%7],round=Math.floor(day/7),pick=n=>(Math.imul(round+1,2654435761)>>>0)%n;
   const trim=(t,n)=>{t=String(t||'').replace(/\s+/g,' ').trim();if(t.length<=n)return t;const c=t.slice(0,n),i=c.lastIndexOf('. ');return i>n*.45?c.slice(0,i+1):c.slice(0,c.lastIndexOf(' '))+'…'};
   if(k==='word'){const w=GLOSSARY[pick(GLOSSARY.length)];return{k,tag:'Coffee word',title:w[0],text:trim(w[2],230),go:{word:w[0]}}}
@@ -4393,10 +4400,10 @@ let LEARN=(v=>({on:!!(v&&v.on),t:v&&/^\d\d:\d\d$/.test(v.t)?v.t:'19:00'}))(load(
 const FIDS=[...Array(14)].map((_,i)=>7201+i);
 async function scheduleFacts(){const ln=window.BEANS_OK&&LN();if(!ln)return false;
   try{await ln.cancel({notifications:FIDS.map(id=>({id}))})}catch(e){}
-  if(!LEARN.on)return true;const [h,m]=LEARN.t.split(':').map(Number),now=new Date(),list=[];
+  if(!LEARN.on)return dailyNotes('fact',[]);const [h,m]=LEARN.t.split(':').map(Number),now=new Date(),list=[];
   for(let i=0;i<14;i++){const at=new Date(now.getFullYear(),now.getMonth(),now.getDate()+i,h,m);if(at<=now)continue;const day=Math.floor((at-at.getTimezoneOffset()*6e4)/864e5),f=factFor(day);
-    list.push({id:FIDS[i],title:FACT_ICON[f.k]+' '+f.tag+': '+f.title,body:f.text,largeBody:f.text,schedule:{at,allowWhileIdle:true},isExactNotification:false,extra:{fact:f.go}})}
-  try{if(list.length)await ln.schedule({notifications:list});return true}catch(e){return false}}
+    list.push({id:FIDS[i],at,tag:f.tag==='From history'?'From history':'Did you know · '+f.tag,title:f.title,body:f.text,open:'fact:'+JSON.stringify(f.go||null)})}
+  return dailyNotes('fact',list)}
 async function setLearn(on){const ln=window.BEANS_OK&&LN();
   if(on&&!LEARN.on){if(!ln){toast('Phone reminders work in the Android app');return false}
     try{let p=await ln.checkPermissions();if(p.display!=='granted')p=await ln.requestPermissions();if(p.display!=='granted'){toast('Allow notifications for Brew Bench in your phone’s settings first');return false}}catch(e){toast('Couldn’t turn on reminders');return false}}
@@ -4472,6 +4479,11 @@ document.querySelectorAll('table.ref').forEach(t=>{const hs=[...t.querySelectorA
     i=OLD_GONE[st.rec]?rByKey(OLD_GONE[st.rec]):old[j]}
   // A fresh start (reopening the app) begins with no recipe, so the saved one isn't brought back.
   if(!FRESH_OPEN&&(st.rec!=null||st.reck)){S.rec=i!=null&&i>=0&&RECIPES[i]?i:null;if(S.rec==null)S.tuned=null}}
+// Once: a recipe picked before the bloom followed the recipe kept the brewer's usual bloom, which moved every pour later.
+// If you never changed that bloom yourself, it becomes the recipe's own (a bloom you set stays).
+try{if(!localStorage.getItem('bb-bloomfix')){const r=S.rec!=null&&RECIPES[S.rec],rb=r&&recBloom(r);
+  if(rb!=null&&S.tuned&&S.tuned.bloom===S.bloom&&S.bloom!==rb){const B=BREWERS[S.brewer];if(B){S.bloom=clamp(rb,B.bloom.min,B.bloom.max);S.tuned.bloom=S.bloom;save('bb-state',S)}}
+  localStorage.setItem('bb-bloomfix','1')}}catch(e){}
 try{initDial();render();renderCalc();renderTS();renderStars();renderLog();initScan();}
 catch(err){let retried=false;try{retried=sessionStorage.getItem('bb-reset')==='1';sessionStorage.setItem('bb-reset','1')}catch(e){}
   if(!retried){try{['bb-state','bb-plan','bb-scan','bb-calc','bb-base3'].forEach(k=>localStorage.removeItem(k))}catch(e){}location.reload()}throw err}

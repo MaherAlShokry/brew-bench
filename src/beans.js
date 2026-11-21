@@ -617,10 +617,19 @@ let REMIND=(v=>({on:!!(v&&v.on),t:v&&/^\d\d:\d\d$/.test(v.t)?v.t:'09:00'}))(load
 const LN=()=>plugin('LocalNotifications'),RIDS=[...Array(14)].map((_,i)=>7101+i);
 async function scheduleReminders(){const ln=LN();if(!ln)return false;
   try{await ln.cancel({notifications:RIDS.map(id=>({id}))})}catch(e){}
-  if(!REMIND.on)return true;const [h,m]=REMIND.t.split(':').map(Number),now=new Date(),list=[];
+  if(!REMIND.on)return dailyNotes('cabinet',[]);const [h,m]=REMIND.t.split(':').map(Number),now=new Date(),list=[];
   for(let i=0;i<14;i++){const at=new Date(now.getFullYear(),now.getMonth(),now.getDate()+i,h,m);if(at<=now)continue;const c=cabinetDay(at);
-    list.push({id:RIDS[i],title:'☕ '+(c?DAYK[c.k]:'Time for a good cup'),body:c?(c.k==='fav'?c.title+': ':c.title+'. ')+c.text:'Add the bag you’re drinking to your cabinet and keep its story.',schedule:{at,allowWhileIdle:true},isExactNotification:false,extra:c?{bean:c.b.id}:{}})}
-  try{if(list.length)await ln.schedule({notifications:list});return true}catch(e){return false}}
+    list.push(c?{id:RIDS[i],at,tag:c.k==='mem'?'From your diary':DAYK[c.k],title:c.k==='mem'?beanTitle(c.b):c.title,body:c.text,open:'bean:'+c.b.id}:{id:RIDS[i],at,tag:'Coffee of the day',title:'Time for a good cup',body:'Add the bag you’re drinking to your cabinet and keep its story.',open:'beans'})}
+  return dailyNotes('cabinet',list)}
+// The daily notes are drawn by the Android app itself (DailyNotes.java), in the app's look: a header saying what it is
+// ("From your cabinet"), the coffee or fact as the title, your chosen icon as the picture and your vibe's colour.
+// Elsewhere, and in an app from before that, they go through the notifications plugin as before.
+const accentHex=()=>{try{const c=document.createElement('canvas').getContext('2d');c.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--cherry').trim()||'#8A5A3B';return /^#[0-9a-f]{6}$/i.test(c.fillStyle)?c.fillStyle:'#8A5A3B'}catch(e){return '#8A5A3B'}};
+async function dailyNotes(kind,list){const w=plugin('Widget');
+  if(w&&w.daily){try{await w.daily({kind,accent:accentHex(),items:list.map(x=>Object.assign({},x,{at:+x.at}))});return true}catch(e){}}
+  const ln=LN();if(!ln)return false;
+  try{if(list.length)await ln.schedule({notifications:list.map(x=>({id:x.id,title:x.title,body:x.body,largeBody:x.body,summaryText:x.tag,schedule:{at:x.at,allowWhileIdle:true},isExactNotification:false,
+    extra:/^bean:/.test(x.open)?{bean:x.open.slice(5)}:/^fact:/.test(x.open)?{fact:(()=>{try{return JSON.parse(x.open.slice(5))}catch(e){return null}})()}:{}}))});return true}catch(e){return false}}
 let RST=0;function reschedule(){if(!REMIND.on||!LN())return;clearTimeout(RST);RST=setTimeout(scheduleReminders,1200)}
 // Turning it on asks Android for permission to notify, the first time.
 async function setReminder(on,t){const ln=LN();if(t)REMIND.t=t;
@@ -689,6 +698,8 @@ async function updWidget(){const w=plugin('Widget');if(!w)return;try{const b=wid
     if(k==='log'&&!id&&$('timer').open&&TM&&TM.fin&&$('tm-log')){$('tm-log').click();return}
     document.querySelectorAll('dialog[open]').forEach(d=>d.close());
     if(k==='bean'&&beanById(id)){showTab('beans');openBean(id);return}
+    // A coffee fact's note: what it is about, or Today in coffee on Explore.
+    if(k==='fact'){let g=null;try{g=JSON.parse(String(o).slice(5))}catch(e){}if(goFact(g))return;goTab('explore');setTimeout(()=>{const t=document.querySelector('#explore .today');if(t)t.scrollIntoView({block:'start',behavior:'smooth'})},400);return}
     if(k==='log'){if(LEDIT)endEdit();LBEAN=id&&beanById(id)?id:null;renderLBean();renderFlForm();showTab('log');setTimeout(()=>$('l-form').scrollIntoView({block:'start'}),60);return}
     // Recipe keys hold a colon themselves ("r:kasuya-4-6"), so the rest of the request is the key.
     const rest=String(o).slice(k.length+1);
