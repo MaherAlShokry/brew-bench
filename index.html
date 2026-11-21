@@ -2605,6 +2605,16 @@ button[aria-pressed]:active{transform:scale(.95)}
 .me-id .me-k{color:var(--cherry);font-size:.68rem}
 .me-id h2{margin:2px 0 0;font:700 1.6rem/1.15 var(--display);color:var(--ink);overflow-wrap:anywhere}
 .me-id .me-name{font-size:.86rem;color:var(--muted);opacity:1}
+
+.me-edit{left:auto!important;right:60px;top:12px!important;width:38px;height:38px!important;padding:0!important;justify-content:center;border-radius:50%!important;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.me-edit svg{width:17px!important;height:17px!important}
+.me-id h2{margin:4px 0 0!important}
+.me-role{display:inline-flex;align-items:center;margin:6px 0 4px;padding:4px 11px;border-radius:999px;background:color-mix(in srgb,var(--c,var(--cherry)) 14%,var(--surface2));color:var(--ink);font:700 .74rem var(--display);letter-spacing:.02em}
+.me-nums{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin:14px 0 4px;padding:14px 4px;border-radius:22px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.me-nums>span{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0;text-align:center}
+.me-nums>span+span::before{content:"";position:absolute;left:0;top:4px;bottom:4px;width:1px;background:var(--line)}
+.me-nums b{font:700 1.45rem/1.1 var(--display);color:var(--ink);font-variant-numeric:tabular-nums}
+.me-nums small{font-size:.74rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;padding:0 4px}
 .me-sec{display:flex;flex-direction:column;gap:10px}
 .me-sh{margin:6px 0 0;font:700 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .me-body .me-brief{margin:0;padding:0;font:400 1rem/1.5 var(--body);color:var(--ink)}.me-body .me-brief::before{content:none}
@@ -2919,6 +2929,29 @@ textarea{resize:none}
 .setlink:focus-visible{outline:2px solid var(--cherry);outline-offset:-2px;border-radius:inherit}
 .setlink:active{background:color-mix(in srgb,var(--ink) 4%,transparent)}
 .setlink .sl{align-items:center}
+
+.st-me{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:14px;width:100%;margin:0 0 14px;padding:14px 16px;border-radius:20px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .12s}
+.st-me:active{transform:scale(.985)}.st-me:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
+.st-me .pav{flex:none}.st-me .mt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.st-me .mt b{font:700 1.08rem/1.2 var(--display);color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.st-me .mt small{color:var(--muted);font-size:.84rem}
+.setgroup.st-one{margin:0 0 18px}
+.setrow.inl>.sl{align-items:center}.setrow.inl .mt small{margin-top:1px}
+.setrow.inl>.sl+*{margin-top:12px}
+.tgl{flex:none;position:relative;width:50px;height:30px;padding:0;border:0;border-radius:999px;background:color-mix(in srgb,var(--ink) 20%,var(--surface2));cursor:pointer;transition:background-color .2s;-webkit-tap-highlight-color:transparent}
+.tgl::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#FFFDF9;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .22s cubic-bezier(.3,1.3,.5,1)}
+.tgl[aria-checked="true"]{background:var(--cherry)}.tgl[aria-checked="true"]::after{transform:translateX(20px)}
+.tgl:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
+.st-val{margin-left:8px;font:500 .84rem var(--body);color:var(--muted)}
+.st-tag{flex:none;padding:5px 10px;border-radius:999px;background:var(--surface2);color:var(--muted);font:600 .74rem var(--display)}
+.st-acts{flex:none;display:flex;gap:8px}
+.setrow .st-time{display:block;width:auto!important;min-height:36px;height:36px;margin-left:48px!important;padding:0 14px;border:0;border-radius:999px!important;background:var(--surface2);color:var(--ink);font:600 .95rem var(--display);box-shadow:none}
+.setlink.danger b{color:#A8432F}html[data-theme="dark"] .setlink.danger b{color:#E08A74}
+a.setrow.setlink{text-decoration:none;color:inherit}
+.swatches{display:grid!important;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px!important;justify-items:center}
+.swatch{width:100%;max-width:40px;height:auto;aspect-ratio:1;padding:0!important;border:0!important;border-radius:50%!important;background:none!important;display:grid!important;place-items:center}
+.swatch i{width:80%!important;height:80%!important;box-shadow:inset 0 0 0 2px rgba(255,255,255,.25)!important;transition:transform .15s}
+.swatch[aria-pressed="true"]{outline:0!important;box-shadow:0 0 0 2.5px var(--cherry)}.swatch:active i{transform:scale(.9)}
+.st-foot{display:flex;align-items:center;justify-content:center;gap:10px;margin:22px 0 8px;color:var(--muted)}.st-foot svg{width:22px;height:22px}
+.st-foot span{display:flex;flex-direction:column;font:700 .86rem var(--display);color:var(--ink)}.st-foot small{font:500 .74rem var(--body);color:var(--muted)}
 .setchev{flex:none;color:var(--muted);display:grid;place-items:center}.setchev svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .setrow .setbtns{display:flex;flex-wrap:wrap;gap:8px}.setrow .setbtns.rem{display:grid}
 
@@ -3079,7 +3112,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="ebdba6f08c84"</script>
+<script>const BUILD_ID="0b491bddc631"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -3495,9 +3528,8 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <section id="history">
   <h2>The story of coffee</h2>
   <h3>The coffee family tree</h3>
-  <p class="hint">Tap any variety to trace its ancestors and read its story. Families follow genetics, not names: Pink Bourbon sits with the Ethiopian landraces because DNA tests show that is where it comes from.</p>
   <div class="legend" id="treelegend"></div>
-  <div class="treewrap"><div class="treebox"><svg id="tree" role="group" aria-label="Coffee variety family tree"></svg></div></div><p class="treehint" aria-hidden="true">Drag sideways to follow the family across seven generations →</p><ul class="treenotes" id="treenotes" aria-label="Notes on the tree" hidden></ul>
+  <div class="treewrap"><div class="treebox"><svg id="tree" role="group" aria-label="Coffee variety family tree"></svg></div></div><ul class="treenotes" id="treenotes" aria-label="Notes on the tree" hidden></ul>
 
   <h3 style="margin-top:2rem">The coffee species</h3>
   <p class="hint">More than 130 species of Coffea exist. These are the ones that matter in your cup.</p>
@@ -3538,7 +3570,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
       <div class="field"><label for="c-ratio">Ratio <span class="num" id="cv-ratio"></span></label><input type="range" id="c-ratio" min="1" max="20" step="0.5"></div></div>
       <div class="seg filters scrollrow" id="c-pre"></div>
       <div id="c-out"></div></div>
-    <div class="panel"><h2>What does it taste like?</h2><p class="hint" style="margin-top:0">Pick what you taste. Fixes start from your current dial-in and stay inside the usual range for your brewer.</p><div class="chips" id="ts-chips"></div><div id="ts-out"></div></div>
+    <div class="panel"><h2>What does it taste like?</h2><div class="chips" id="ts-chips"></div><div id="ts-out"></div></div>
   </div>
   <h3 class="sec">The bloom</h3>
   <p>The bloom degasses CO2, wets every particle evenly so later pours don't channel, and starts extraction early. Its length is a real variable.</p>
@@ -5627,7 +5659,7 @@ async function fwExport(o,file){if(document.fonts&&document.fonts.ready)await do
 
 /* The Flavour wheel page in Explore. */
 let FWX=null;
-function fwInfo(n){const el=$('fw-info');if(!n){el.innerHTML='<h3 style="margin-top:0">How to taste with the wheel</h3><ol class="fw-how"><li><b>Start in the middle.</b> Is it fruity, sweet, nutty, roasted? Pick the broad family first.</li><li><b>Work outwards.</b> Tap the colour to open it, then look for the closer match: berry, then blueberry.</li><li><b>Trust your first word.</b> If you can’t name it exactly, the group is a good answer.</li></ol><p class="hint" style="margin-bottom:0">Tap any colour on the wheel, or search for a note.</p>';return}
+function fwInfo(n){const el=$('fw-info');if(!n){el.innerHTML='<h3 style="margin-top:0">How to taste with the wheel</h3><ol class="fw-how"><li><b>Start in the middle.</b> Is it fruity, sweet, nutty, roasted? Pick the broad family first.</li><li><b>Work outwards.</b> Tap the colour to open it, then look for the closer match: berry, then blueberry.</li><li><b>Trust your first word.</b> If you can’t name it exactly, the group is a good answer.</li></ol>';return}
   const crumbs=n.path.map((p,i)=>'<button type="button" class="chip fw-crumb" data-fz="'+p.id+'"><i style="background:'+p.c+'"></i>'+esc(p.n)+'</button>'+(i<n.path.length-1?'<span class="fw-sep">›</span>':'')).join('');
   const kids=n.kids.length?'<p class="fw-sub">Inside '+esc(n.n)+'</p><div class="chips">'+n.kids.map(k=>'<button type="button" class="chip" data-fz="'+k.id+'"><i class="dot" style="background:'+k.c+'"></i>'+esc(k.n)+'</button>').join('')+'</div>':'';
   const links=(n.l||[]).map(l=>linkChip(l)).filter(Boolean).join('');
@@ -6440,7 +6472,7 @@ function askSheet(o){return new Promise(res=>{const d=$('selsheet'),I=o.input;le
   $('sel-in').innerHTML='<div class="selhead"><div class="grab"></div><h3 id="sel-title">'+esc(o.title)+'</h3><button type="button" class="vd-close" id="sel-x" aria-label="Cancel">✕</button></div>'+
     '<div class="ask">'+(o.text?'<p class="ask-t">'+esc(o.text)+'</p>':'')+
     (I?'<div class="ask-in"><button type="button" class="ask-b" data-d="-1" aria-label="Less">'+pm(-1)+'</button><label class="ask-f"><input id="ask-v" type="number" inputmode="decimal" min="'+(I.min??0)+'"'+(I.max!=null?' max="'+I.max+'"':'')+' step="any" value="'+esc(I.value==null?'':String(I.value))+'" aria-label="'+esc(I.label||o.title)+'">'+(I.unit?'<span>'+esc(I.unit)+'</span>':'')+'</label><button type="button" class="ask-b" data-d="1" aria-label="More">'+pm(1)+'</button></div>':'')+'</div>'+
-    '<div class="rs-done"><button type="button" class="btn ghost" id="ask-no">'+esc(o.cancel||'Cancel')+'</button><button type="button" class="btn'+(o.danger?' danger':'')+'" id="ask-ok">'+esc(o.ok||'OK')+'</button></div>';
+    '<div class="rs-done">'+(o.solo?'':'<button type="button" class="btn ghost" id="ask-no">'+esc(o.cancel||'Cancel')+'</button>')+'<button type="button" class="btn'+(o.danger?' danger':'')+'" id="ask-ok">'+esc(o.ok||'OK')+'</button></div>';
   const val=()=>{const n=parseFloat($('ask-v').value);return isFinite(n)?n:null};
   $('sel-in').onclick=e=>{if(e.target.closest('#sel-x,#ask-no')){fin(I?null:false);return}
     if(e.target.closest('#ask-ok')){if(!I){fin(true);return}const n=val();if(n==null||n<(I.min??0)||(I.max!=null&&n>I.max)){toast('Enter a number'+(I.unit?' of '+I.unit.trim():''));$('ask-v').focus();return}fin(n);return}
@@ -8030,7 +8062,7 @@ function renderMyBrewers(){const el=$('gear-kit');if(!el)return;
   const row=(ic,title,sub,btn,attr,chips)=>'<div class="kit-row"><div class="kit-h"><span class="kit-ic">'+ic+'</span><div><b>'+title+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</div><button type="button" class="btn ghost" '+attr+'>'+btn+'</button></div><div class="kit-chips">'+chips+'</div></div>';
   el.innerHTML='<h3 style="margin:0">Your kit</h3>'+
     row(KIT_IC.g,'Grinders','','Add or change','data-gpick',MYG.map(g=>'<button type="button" class="chip" data-kitg="'+g+'">'+esc(gname(g))+'</button>').join(''))+
-    row(KIT_IC.b,'Brewers','',MYB.length?'Add or change':'Choose','data-gpick-b',MYB.length?MYB.map(b=>'<button type="button" class="chip" data-kitb="'+b+'">'+esc(BREWERS[b].name)+'</button>').join(''):'<p class="hint">None picked yet. Choose the brewers you own so recipes fit your kit.</p>');
+    row(KIT_IC.b,'Brewers','',MYB.length?'Add or change':'Choose','data-gpick-b',MYB.length?MYB.map(b=>'<button type="button" class="chip" data-kitb="'+b+'">'+esc(BREWERS[b].name)+'</button>').join(''):'');
   el.onclick=e=>{const g=e.target.closest('[data-kitg]'),b=e.target.closest('[data-kitb]');
     if(g){const go=()=>{GDIAL=g.dataset.kitg;renderMyGrinders();gearTab('dials');$('g-dials').scrollIntoView({behavior:RM()?'auto':'smooth',block:'start'})};if(!fromTap(go))go()}
     if(b){GF=[];renderGearBrewers();const c=$('gb-'+b.dataset.kitb);if(c){c.style.scrollMarginTop='16px';c.scrollIntoView({block:'start'});
@@ -10137,45 +10169,53 @@ let SET_H='';
 // The Android app's version card: its version, whether a newer one is out, update and check buttons.
 const appverHTML=()=>(appVersion()?'<div class="appver'+(updLatest()?' new':'')+'">'+ico('download','#4F8A74')+'<span class="av-tx"><b>Brew Bench '+esc(appVersion())+'</b><small>'+esc(updNote())+'</small></span>'+
       '<div class="av-btns">'+(updLatest()?pbtn('dl','id="st-updgo"','Update now','main'):'')+pbtn('reset','id="st-upd"',updLatest()?'Check again':'Check for updates',updLatest()?'quiet':'')+'</div></div>':'');
+// Settings opens with you: your picture and name, a tap from your profile (or a start on one).
+function meRowHTML(){let p=null,a=null,av='';try{p=PROFILE;a=ACCT;av=avatarHTML(p,52)}catch(e){}
+  return '<button type="button" class="st-me" id="st-me">'+av+'<span class="mt"><b>'+(p?esc(p.nick):'Create your profile')+'</b><small>'+(p?(a?'Signed in · ':'')+'Profile, taste and account':'A name, a face and your coffee taste')+'</small></span><i class="setchev" aria-hidden="true">'+lIc('chev')+'</i></button>'}
 function renderSettings(soft){const t=document.documentElement.getAttribute('data-theme')||'auto',fresh=!(soft&&$('st-mode'));
   // Each row is its title and its controls: no description under the title.
   const row=(icon,bg,title,sub,body)=>'<div class="setrow"><div class="sl">'+ico(icon,bg)+'<span class="mt"><b>'+title+'</b></span></div>'+(body||'')+'</div>';
   // A row that is itself the action (a chevron at its end), for a row with one thing to do.
   const linkRow=(attrs,icon,bg,title,sub)=>'<button type="button" class="setrow setlink" '+attrs+'><span class="sl">'+ico(icon,bg)+'<span class="mt"><b>'+title+'</b></span><i class="setchev" aria-hidden="true">'+lIc('chev')+'</i></span></button>';
+  // A row with its control at the end of its line (a switch, a tag or small buttons), and anything more under it.
+  const inl=(icon,bg,title,sub,end,below)=>'<div class="setrow inl"><div class="sl">'+ico(icon,bg)+'<span class="mt"><b>'+title+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</span>'+(end||'')+'</div>'+(below||'')+'</div>';
+  const tg=(id,on,label)=>'<button type="button" class="tgl" role="switch" id="'+id+'" aria-checked="'+!!on+'" aria-label="'+esc(label)+'"></button>';
+  // A row that opens a page on the website.
+  const aRow=(href,icon,bg,title,cls)=>'<a class="setrow setlink'+(cls?' '+cls:'')+'" href="'+href+'" target="_blank" rel="noopener"><span class="sl">'+ico(icon,bg)+'<span class="mt"><b>'+title+'</b></span><i class="setchev" aria-hidden="true">'+lIc('open')+'</i></span></a>';
   const qt=(k,n,d)=>[svgI(ICO[hubItem(k)[4]]),esc(d),n,HUB_C[k],'data-go="'+k+'"'];
-  if(!fresh)settingsSync();else{const h=factCard([qt('gear','Gear',MYG.length+' grinder'+(MYG.length>1?'s':'')+(MYB.length?', '+MYB.length+' brewer'+(MYB.length>1?'s':''):'')),qt('log','Brew log',LOG.length?LOG.length+' brew'+(LOG.length>1?'s':''):'Rate and keep your brews'),qt('guide','Guide','Ratios, fixes')],{cols:3,top:true,cls:'qtools'})+
+  if(!fresh)settingsSync();else{const h=meRowHTML()+factCard([qt('gear','Gear',MYG.length+' grinder'+(MYG.length>1?'s':'')+(MYB.length?', '+MYB.length+' brewer'+(MYB.length>1?'s':''):'')),qt('log','Brew log',LOG.length?LOG.length+' brew'+(LOG.length>1?'s':''):'Rate and keep your brews'),qt('guide','Guide','Ratios, fixes')],{cols:3,top:true,cls:'qtools'})+
     // In the Android app: its version, whether a newer one is out, and a button to check now (the website updates itself).
     appverHTML()+
-    // On the website (not iPhone, where there's no Android app to get): the Android app, one tap to download.
-    (!window.Capacitor&&!IOS()?'<div class="appver getapp">'+ico('download','#4F8A74')+'<span class="av-tx"><b>Get the Android app</b></span>'+
-      '<div class="av-btns"><a class="pbtn main" id="st-getapk" href="'+APK_URL+'" rel="noopener">'+lIc('dl')+'<span>Download for Android</span></a></div></div>':'')+
+    // On the website (not iPhone, where there's no Android app to get): the Android app, one round button to download.
+    (!window.Capacitor&&!IOS()?'<div class="setgroup st-one">'+inl('download','#4F8A74','Get the Android app','Widgets, reminders and a timer on your lock screen','<a class="ib main" id="st-getapk" href="'+APK_URL+'" rel="noopener" aria-label="Download for Android" title="Download for Android">'+lIc('dl')+'</a>')+'</div>':'')+
     '<h3 class="rh">Appearance</h3><div class="setgroup">'+
-    row(curTheme()==='dark'?'moon':'sun','#5B5F66','Light or dark','Bright cream, cosy espresso, or follow your phone','<div class="seg" id="st-mode"></div>')+
-    row('drop','var(--cherry)','Vibe','A whole look, in light and in dark','<div class="vibes">'+VIBES.map(([k,n,d,L,D])=>'<button type="button" class="vibe" data-vibe="'+k+'" aria-pressed="'+(UI.vibe===k)+'" style="--l-p:'+L.paper+';--l-s:'+L.surface+';--l-i:'+L.ink+';--l-c:'+L.cherry+';--l-h:'+L.honey+';--d-p:'+D.paper+';--d-s:'+D.surface+';--d-i:'+D.ink+';--d-c:'+D.cherry+';--d-h:'+D.honey+'"><span class="vb-pv" aria-hidden="true"><i class="vb-l"><u></u><s></s><em></em></i><i class="vb-d"><u></u><s></s><em></em></i></span><b>'+n+'</b></button>').join('')+'</div>')+
-    row('palette','var(--cherry)','Accent','Change just the highlight colour (Vibe’s own keeps the vibe’s)','<div class="swatches">'+ACCENTS.map(([k,n,c])=>'<button type="button" class="swatch" data-accent="'+k+'" aria-pressed="'+(UI.accent===k)+'"><i style="background:'+(k==='classic'?ownAccent():c)+'"></i>'+n+'</button>').join('')+'</div>')+
-    row('leaf','#6B8E4E','App logo','In the top bar, the tab and on your home screen','<div class="logos">'+Object.entries(LOGOS).map(([k,[n]])=>'<button type="button" class="logopick" data-logo="'+k+'" aria-pressed="'+(UI.logo===k)+'"><span class="lg-tile">'+logoSVG(k,36)+'</span>'+n+'</button>').join('')+'</div>'+'')+
-    row('text','#C9964A','Text size','','<div class="seg" id="st-text"></div>')+
-    row('motion','#6E8FA8','Motion','Animations between pages and sheets','<div class="seg" id="st-motion"></div>')+
-    row('globe','#4F8A74','Open the app on','The page you see first','<div class="seg" id="st-start"></div>')+
-    row('hourglass','#8A5A3B','When you reopen the app','Scan and Brew start fresh, or pick up where you left off','<div class="seg" id="st-resume"></div>')+
-    row('sliders','#4F8A74','Sorts and filters','The order and filters you pick for each list, next time you open the app','<div class="seg" id="st-views"></div>')+'</div>'+
-   // The coffee of the day: always on the Beans and Explore pages; in the Android app, also as a notification.
-
-   '<h3 class="rh">Reminders</h3><div class="setgroup">'+row('bell','#8A5A3B','Coffee of the day','A coffee from your cabinet each day: a bag at its peak or running low, one from this day in an earlier year, or a memory from your diary.',
-     window.BEANS_OK&&LN()?'<div class="setbtns rem"><div class="seg" id="st-remind"></div><input type="time" id="st-rtime" class="dateinp" value="'+REMIND.t+'" aria-label="Reminder time"'+(REMIND.on?'':' disabled')+'></div>'
-       :'')+
-     row('bulb','#9A7390','Coffee fact of the day','Something worth knowing from Explore each day, in turn: a coffee word, a variety, an origin, a process, a brewing technique, a moment in history or a champion.',
-       window.BEANS_OK&&LN()?'<div class="setbtns rem"><div class="seg" id="st-learn"></div><input type="time" id="st-ltime" class="dateinp" value="'+LEARN.t+'" aria-label="Fact time"'+(LEARN.on?'':' disabled')+'></div>'
-         :'')+'</div>'+
-   /* Gear, Guide and the Log are the buttons at the top. */
-   '<h3 class="rh">Your data</h3><div class="setgroup">'+row('download','#8A5A3B','Back up and restore','Everything you’ve saved stays on this device: '+esc(dataSummary())+'. Save it as a file, photos included, to keep it safe or move it to another phone.',
-     '<p class="setnote" id="st-lastbak" style="margin:0 0 8px">'+lastBakText()+'</p><div class="setbtns">'+pbtn('dl','id="st-export"','Back up','main')+pbtn('ul','id="st-import"','Restore')+'<input type="file" id="st-file" accept="application/json,.json" hidden></div>')+'</div>'+
-   (installed()?'':'<h3 class="rh">Install</h3><div class="setgroup">'+row('phone','#9A7390','Add to your home screen','Use it like an app, offline too','<p class="setnote" style="margin:0"><b>iPhone (Safari):</b> tap the Share button, then <b>Add to Home Screen</b>.<br><b>Android (Chrome):</b> tap the ⋮ menu, then <b>Add to Home screen</b>.</p>')+'</div>')+
-   '<h3 class="rh">About</h3><div class="setgroup">'+linkRow('id="st-tips"','bulb','#C9964A','Good to know','Undo, backups, sharing'+(NATIVE?', widgets':'')+' and more, in a minute')+
-     row('flag','#B5533C','Problem reports',UI.reports?'If the app stalls, shows an error or closes by itself, a short note about it is kept on this phone. Nothing is sent unless you send it.':'Off. Turn on to keep a short note when the app stalls, shows an error or closes by itself, to send to us if something goes wrong.',
-       '<div class="seg" id="st-rep" role="group" aria-label="Problem reports"></div>'+
-       (UI.reports?'<div class="setbtns">'+pbtn('share','id="st-repsend"','Send report'+((REPORTS||[]).length?' ('+REPORTS.length+')':''))+'</div>':''))+row('info','#8A5A3B','The Brew Bench','A coffee field guide and dial-in tool. What you save stays on this device, or syncs with your account if you sign in.','<p class="setnote" style="margin:0"><a href="'+SITE_URL+'privacy.html" target="_blank" rel="noopener">Privacy policy</a> · <a href="'+SITE_URL+'delete-account.html" target="_blank" rel="noopener">Delete your account</a></p>')+
-     '</div>';
+    row(curTheme()==='dark'?'moon':'sun','#5B5F66','Light or dark','','<div class="seg" id="st-mode"></div>')+
+    row('drop','var(--cherry)','Vibe','','<div class="vibes">'+VIBES.map(([k,n,d,L,D])=>'<button type="button" class="vibe" data-vibe="'+k+'" aria-pressed="'+(UI.vibe===k)+'" style="--l-p:'+L.paper+';--l-s:'+L.surface+';--l-i:'+L.ink+';--l-c:'+L.cherry+';--l-h:'+L.honey+';--d-p:'+D.paper+';--d-s:'+D.surface+';--d-i:'+D.ink+';--d-c:'+D.cherry+';--d-h:'+D.honey+'"><span class="vb-pv" aria-hidden="true"><i class="vb-l"><u></u><s></s><em></em></i><i class="vb-d"><u></u><s></s><em></em></i></span><b>'+n+'</b></button>').join('')+'</div>')+
+    // The accent: a row of colour dots, its name beside the title.
+    row('palette','var(--cherry)','Accent<span class="st-val" id="st-accn">'+esc((ACCENTS.find(x=>x[0]===UI.accent)||ACCENTS[0])[1])+'</span>','','<div class="swatches">'+ACCENTS.map(([k,n,c])=>'<button type="button" class="swatch" data-accent="'+k+'" aria-pressed="'+(UI.accent===k)+'" aria-label="'+esc(n)+'" title="'+esc(n)+'"><i style="background:'+(k==='classic'?ownAccent():c)+'"></i></button>').join('')+'</div>')+
+    row('leaf','#6B8E4E','App logo','','<div class="logos">'+Object.entries(LOGOS).map(([k,[n]])=>'<button type="button" class="logopick" data-logo="'+k+'" aria-pressed="'+(UI.logo===k)+'"><span class="lg-tile">'+logoSVG(k,36)+'</span>'+n+'</button>').join('')+'</div>')+
+    row('text','#C9964A','Text size','','<div class="seg" id="st-text"></div>')+'</div>'+
+    // How the app behaves: where it opens, and the on/off choices as switches.
+    '<h3 class="rh">App</h3><div class="setgroup">'+
+    row('globe','#4F8A74','Open the app on','','<div class="seg" id="st-start"></div>')+
+    inl('hourglass','#8A5A3B','Pick up where I left off','Your last scan and dial-in',tg('st-resume',UI.resume==='keep','Pick up where I left off'))+
+    inl('sliders','#4F8A74','Remember sorts and filters','',tg('st-views',(UI.views||'keep')==='keep','Remember sorts and filters'))+
+    inl('motion','#6E8FA8','Reduce motion','',tg('st-motion',UI.motion==='reduced','Reduce motion'))+'</div>'+
+   // The coffee of the day and the fact of the day: in the Android app, a switch and a time each; on the website, where
+   // there are no notifications, a word that they're in the app.
+   '<h3 class="rh">Reminders</h3><div class="setgroup">'+(window.BEANS_OK&&LN()?
+     inl('bell','#8A5A3B','Coffee of the day',REMIND.on?'Every day at':'',tg('st-remind',REMIND.on,'Coffee of the day'),REMIND.on?'<input type="time" id="st-rtime" class="dateinp st-time" value="'+REMIND.t+'" aria-label="Reminder time">':'')+
+     inl('bulb','#9A7390','Coffee fact of the day',LEARN.on?'Every day at':'',tg('st-learn',LEARN.on,'Coffee fact of the day'),LEARN.on?'<input type="time" id="st-ltime" class="dateinp st-time" value="'+LEARN.t+'" aria-label="Fact time">':'')
+     :inl('bell','#8A5A3B','Coffee of the day','','<span class="st-tag">In the app</span>')+inl('bulb','#9A7390','Coffee fact of the day','','<span class="st-tag">In the app</span>'))+'</div>'+
+   '<h3 class="rh">Your data</h3><div class="setgroup">'+inl('download','#8A5A3B','Back up and restore','<span id="st-lastbak">'+lastBakText()+'</span>',
+     '<span class="st-acts">'+ib('ul','id="st-import"','Restore from a file')+ib('dl','id="st-export"','Back up now','main')+'</span><input type="file" id="st-file" accept="application/json,.json" hidden>')+'</div>'+
+   '<h3 class="rh">About</h3><div class="setgroup">'+
+     (installed()?'':linkRow('id="st-install"','phone','#9A7390','Add to your home screen'))+
+     linkRow('id="st-tips"','bulb','#C9964A','Good to know')+
+     inl('flag','#B5533C','Problem reports',UI.reports?'Kept on this phone until you send them':'',tg('st-rep',UI.reports,'Problem reports'),
+       UI.reports?'<div class="setbtns">'+pbtn('share','id="st-repsend"','Send report'+((REPORTS||[]).length?' ('+REPORTS.length+')':''))+'</div>':'')+
+     aRow(SITE_URL+'privacy.html','info','#8A5A3B','Privacy policy')+aRow(SITE_URL+'delete-account.html','flag','#A8432F','Delete your account','danger')+
+     '</div><p class="st-foot">'+logoSVG(UI.logo,22)+'<span>The Brew Bench<small>'+esc((()=>{try{return verTag()}catch(e){return ''}})())+'</small></span></p>';
     // Built each visit, but only put in when something changed: redrawing the whole page on every visit laid it out again.
     if(h!==SET_H||!$('st-mode')){$('settings-in').innerHTML=h;SET_H=h}}
   seg('st-mode',[['light','Light'],['dark','Dark'],['auto','Auto']],()=>t,v=>lookSwap(()=>setMode(v)));
@@ -10184,16 +10224,21 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
   seg('st-text',[['s','Small'],['m','Standard'],['l','Large'],['xl','Larger']],()=>UI.text,v=>{const st=$('st-text'),y0=st.getBoundingClientRect().top;UI.text=v;saveUI();renderSettings(1);
     // New text size: the strip you tapped stays under your finger, and every highlight (strips and the nav bar) is measured again.
     scrollBy(0,st.getBoundingClientRect().top-y0);PILLPOS.clear();movePill();document.querySelectorAll(SEG_SEL).forEach(x=>segQueue(x))});
-  seg('st-motion',[['full','Full'],['reduced','Reduced']],()=>UI.motion,v=>{UI.motion=v;saveUI();renderSettings(1)});
-  if($('st-remind')){seg('st-remind',[['0','Off'],['1','Every day']],()=>REMIND.on?'1':'0',async v=>{await setReminder(v==='1');renderSettings(1)});
-    $('st-rtime').onchange=async e=>{if(/^\d\d:\d\d$/.test(e.target.value)){REMIND.t=e.target.value;save('bb-remind',REMIND);await scheduleReminders();toast('Your coffee of the day arrives at '+REMIND.t)}}}
-  if($('st-learn')){seg('st-learn',[['0','Off'],['1','Every day']],()=>LEARN.on?'1':'0',async v=>{await setLearn(v==='1');renderSettings(1)});
-    $('st-ltime').onchange=async e=>{if(/^\d\d:\d\d$/.test(e.target.value)){LEARN.t=e.target.value;save('bb-learn',LEARN);await scheduleFacts();toast('Your coffee fact arrives at '+LEARN.t)}}}
-  seg('st-rep',[['0','Off'],['1','On']],()=>UI.reports?'1':'0',v=>{UI.reports=v==='1';if(!UI.reports){REPORTS=[];saveReports()}saveUI();renderSettings(1)});
+  $('st-rtime')&&($('st-rtime').onchange=async e=>{if(/^\d\d:\d\d$/.test(e.target.value)){REMIND.t=e.target.value;save('bb-remind',REMIND);await scheduleReminders();toast('Your coffee of the day arrives at '+REMIND.t)}});
+  $('st-ltime')&&($('st-ltime').onchange=async e=>{if(/^\d\d:\d\d$/.test(e.target.value)){LEARN.t=e.target.value;save('bb-learn',LEARN);await scheduleFacts();toast('Your coffee fact arrives at '+LEARN.t)}});
   seg('st-start',[['dial','Brew'],['recipes','Recipes'],['beans','Beans'],['explore','Explore']],()=>UI.start,v=>{UI.start=v;saveUI();renderSettings(1);toast('The app will open on '+TABNAMES[v])});
-  seg('st-views',[['keep','Keep my choices'],['reset','Reset each time']],()=>UI.views||'keep',v=>{UI.views=v;saveUI();renderSettings(1);toast(v==='keep'?'Your sorts and filters will stay as you set them':'Lists will open in their default order next time')});
-  seg('st-resume',[['fresh','Start fresh'],['keep','Where I left off']],()=>UI.resume||'fresh',v=>{UI.resume=v;saveUI();renderSettings(1);toast(v==='fresh'?'Scan and Brew will start fresh next time':'The app will remember your last scan and dial-in')})}
-$('settings-in').addEventListener('click',e=>{if(e.target.closest('#st-tips')){openTips();return}const vb=e.target.closest('.vibe[data-vibe]');if(vb){const v=vb.dataset.vibe;pickNow('.vibe[data-vibe]',vb);afterPaint(()=>{lookSwap(()=>{UI.vibe=v;UI.accent='classic';saveUI();renderSettings(1)});toast((VIBES.find(x=>x[0]===UI.vibe)||[])[1]+' on')});return}const a=e.target.closest('.swatch[data-accent]');if(a){const k=a.dataset.accent;pickNow('.swatch[data-accent]',a);afterPaint(()=>lookSwap(()=>{UI.accent=k;saveUI();renderSettings(1)}));return}
+}
+// The switches: each flips at once, then does its work.
+const SET_SW={'st-resume':on=>{UI.resume=on?'keep':'fresh';saveUI();toast(on?'The app will remember your last scan and dial-in':'Scan and Brew will start fresh next time')},
+  'st-views':on=>{UI.views=on?'keep':'reset';saveUI();toast(on?'Your sorts and filters will stay as you set them':'Lists will open in their default order next time')},
+  'st-motion':on=>{UI.motion=on?'reduced':'full';saveUI()},
+  'st-rep':on=>{UI.reports=on;if(!on){REPORTS=[];saveReports()}saveUI()},
+  'st-remind':on=>setReminder(on),'st-learn':on=>setLearn(on)};
+$('settings-in').addEventListener('click',e=>{if(e.target.closest('#st-tips')){openTips();return}if(e.target.closest('#st-me')){openMe();return}
+  if(e.target.closest('#st-install')){askSheet({title:'Add to your home screen',text:'On iPhone, in Safari: tap Share, then Add to Home Screen. On Android, in Chrome: tap the ⋮ menu, then Add to Home screen.',ok:'Got it',solo:true});return}
+  const sw=e.target.closest('.tgl[role="switch"]');if(sw&&SET_SW[sw.id]){const on=sw.getAttribute('aria-checked')!=='true';sw.setAttribute('aria-checked',on);
+    // Only the rows that grow (a time to pick, a Send button) are drawn again, once the switch has slid.
+    Promise.resolve(SET_SW[sw.id](on)).then(()=>{if(/st-(remind|learn|rep)$/.test(sw.id))setTimeout(()=>{SET_H='';renderSettings()},220)});return}const vb=e.target.closest('.vibe[data-vibe]');if(vb){const v=vb.dataset.vibe;pickNow('.vibe[data-vibe]',vb);afterPaint(()=>{lookSwap(()=>{UI.vibe=v;UI.accent='classic';saveUI();renderSettings(1)});toast((VIBES.find(x=>x[0]===UI.vibe)||[])[1]+' on')});return}const a=e.target.closest('.swatch[data-accent]');if(a){const k=a.dataset.accent;pickNow('.swatch[data-accent]',a);afterPaint(()=>lookSwap(()=>{UI.accent=k;saveUI();renderSettings(1)}));return}
   const l=e.target.closest('.logopick[data-logo]');if(l){UI.logo=l.dataset.logo;saveUI();renderSettings(1);return}
   if(e.target.closest('#st-repsend')){sendReport();return}
   if(e.target.closest('#st-export')){exportData();return}if(e.target.closest('#st-import')){$('st-file').click();return}});
@@ -11572,7 +11617,7 @@ function renderDiaryView(){const p=$('bv-diary');if(!p)return;const items=[];
   for(const b of BEANS)for(const it of beanTimeline(b))items.push(Object.assign(it,{bean:b}));items.sort((x,y)=>y.t-x.t);DYI=items;
   const n=items.filter(i=>i.kind==='entry').length,fs=DYFILTERS.filter(([f])=>f==='all'||items.some(it=>dyKeep(it,f)));DYF=DYF.filter(f=>fs.some(([x])=>x===f));
   p.innerHTML='<div class="diary-h"><div><span class="crown-k">Your coffee diary</span><h3>'+(n?n+' entr'+(n===1?'y':'ies')+' <em>· '+(items.length-n)+' brew'+(items.length-n===1?'':'s')+'</em>':'Every bag has a story')+'</h3>'+
-      '<p>'+(BEANS.length?'Opening a bag, the cup that clicked, the last one. Your logged brews join in on their own.':'Add a coffee to your gallery, then keep its story here.')+'</p></div></div>'+
+      (BEANS.length?'':'<p>Add a coffee to your gallery, then keep its story here.</p>')+'</div></div>'+
     onThisDayHTML(items)+(BEANS.length?dwriteHTML('dy',DYST,dyBeansHTML()):'')+
     (fs.length>2?ltHTML('dy-lt',{filter:true}):'')+'<div id="dy-list"></div>';
   dySync();
@@ -13583,7 +13628,7 @@ let ACCT=load('bb-account',null);if(!(ACCT&&typeof ACCT.uid==='string'&&typeof A
 // The shared log signs your entries with your nickname unless you gave it another name.
 if(PROFILE&&!ME)ME=PROFILE.nick;
 function saveProfile(p){p.updated=Date.now();PROFILE=p;save('bb-profile',p);if(!ME||ME===p.nick)ME=p.nick;pushProfile();profileChanged()}
-function profileChanged(){renderMe();if(typeof renderShare==='function')renderShare();if(typeof renderWelcome==='function')renderWelcome();const d=$('vd');if(d.open&&d.dataset.me&&!d.classList.contains('closing'))openMe(true);if(window.BEANS_OK&&$('bg-hero'))renderBeanHero()}
+function profileChanged(){renderMe();if(typeof renderShare==='function')renderShare();if(typeof renderWelcome==='function')renderWelcome();const d=$('vd');if(d.open&&d.dataset.me&&!d.classList.contains('closing'))openMe(true);if(window.BEANS_OK&&$('bg-hero'))renderBeanHero();if($('settings').classList.contains('on'))renderSettings()}
 // Your face in the top bar (phones) and at the end of the tab bar (larger screens). It opens your profile.
 function renderMe(){for(const id of ['ab-me','tab-me']){const b=$(id);if(!b)continue;b.innerHTML=avatarHTML(PROFILE,id==='ab-me'?32:30);
   b.setAttribute('aria-label',PROFILE?'Your profile: '+PROFILE.nick:'Create your profile')}}
@@ -13665,12 +13710,13 @@ function meHTML(){const p=PROFILE,x='<button class="vd-close me-x" id="vd-x" ari
     p.origin&&['<span class="me-flag">'+flagOf(p.origin)+'</span>','Origin',originName(p.origin),TASTE_C.Origin]].filter(Boolean);
   const bg=bannerBg(p),since=new Date(p.since).toLocaleDateString(undefined,{month:'long',year:'numeric'});
   // A cover strip (your banner), your picture overlapping its edge, and who you are on the page under it.
-  return '<div class="me-hero me-cover'+(bg?' banner':'')+'" style="--c:'+p.av.c+(bg?';background:'+bg:'')+'">'+x+'<button type="button" class="me-edit" id="pf-edit">'+PEN_SVG+'Edit</button></div>'+
-    '<div class="me-id" style="--c:'+p.av.c+'">'+avatarHTML(p,88)+'<span class="me-k">'+esc(ROLE[p.style]||'Home brewer')+'</span><h2 id="vd-title">'+esc(p.nick)+'</h2>'+
+  return '<div class="me-hero me-cover'+(bg?' banner':'')+'" style="--c:'+p.av.c+(bg?';background:'+bg:'')+'">'+x+'<button type="button" class="me-edit" id="pf-edit" aria-label="Edit your profile" title="Edit your profile">'+PEN_SVG+'</button></div>'+
+    '<div class="me-id" style="--c:'+p.av.c+'">'+avatarHTML(p,88)+'<h2 id="vd-title">'+esc(p.nick)+'</h2><span class="me-role">'+esc(ROLE[p.style]||'Home brewer')+'</span>'+
       '<small class="me-name">'+(p.name?esc(p.name)+' · ':'')+'Brewing since '+since+'</small></div>'+
     '<div class="me-body">'+
       // The numbers first, as one bar.
-      figsHTML('me-stats f2',profileStats().map(([n,l],i)=>[['bag','cup','globe','trophy'][i],n,l]))+
+      // The numbers, as one strip: four counts side by side.
+      '<div class="me-nums" role="group" aria-label="Your numbers">'+profileStats().map(([n,l])=>'<span><b>'+n+'</b><small>'+esc(l.replace(' brewed',''))+'</small></span>').join('')+'</div>'+
       // About you: your words, and what you told us as squares.
       '<section class="me-sec" aria-label="About you"><h3 class="me-sh">About</h3>'+
         (p.brief?'<p class="me-brief">'+esc(p.brief)+'</p>':'<button type="button" class="me-add" id="pf-edit2">Add a few words about how you take your coffee</button>')+

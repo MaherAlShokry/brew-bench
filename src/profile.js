@@ -44,7 +44,7 @@ let ACCT=load('bb-account',null);if(!(ACCT&&typeof ACCT.uid==='string'&&typeof A
 // The shared log signs your entries with your nickname unless you gave it another name.
 if(PROFILE&&!ME)ME=PROFILE.nick;
 function saveProfile(p){p.updated=Date.now();PROFILE=p;save('bb-profile',p);if(!ME||ME===p.nick)ME=p.nick;pushProfile();profileChanged()}
-function profileChanged(){renderMe();if(typeof renderShare==='function')renderShare();if(typeof renderWelcome==='function')renderWelcome();const d=$('vd');if(d.open&&d.dataset.me&&!d.classList.contains('closing'))openMe(true);if(window.BEANS_OK&&$('bg-hero'))renderBeanHero()}
+function profileChanged(){renderMe();if(typeof renderShare==='function')renderShare();if(typeof renderWelcome==='function')renderWelcome();const d=$('vd');if(d.open&&d.dataset.me&&!d.classList.contains('closing'))openMe(true);if(window.BEANS_OK&&$('bg-hero'))renderBeanHero();if($('settings').classList.contains('on'))renderSettings()}
 // Your face in the top bar (phones) and at the end of the tab bar (larger screens). It opens your profile.
 function renderMe(){for(const id of ['ab-me','tab-me']){const b=$(id);if(!b)continue;b.innerHTML=avatarHTML(PROFILE,id==='ab-me'?32:30);
   b.setAttribute('aria-label',PROFILE?'Your profile: '+PROFILE.nick:'Create your profile')}}
@@ -126,12 +126,13 @@ function meHTML(){const p=PROFILE,x='<button class="vd-close me-x" id="vd-x" ari
     p.origin&&['<span class="me-flag">'+flagOf(p.origin)+'</span>','Origin',originName(p.origin),TASTE_C.Origin]].filter(Boolean);
   const bg=bannerBg(p),since=new Date(p.since).toLocaleDateString(undefined,{month:'long',year:'numeric'});
   // A cover strip (your banner), your picture overlapping its edge, and who you are on the page under it.
-  return '<div class="me-hero me-cover'+(bg?' banner':'')+'" style="--c:'+p.av.c+(bg?';background:'+bg:'')+'">'+x+'<button type="button" class="me-edit" id="pf-edit">'+PEN_SVG+'Edit</button></div>'+
-    '<div class="me-id" style="--c:'+p.av.c+'">'+avatarHTML(p,88)+'<span class="me-k">'+esc(ROLE[p.style]||'Home brewer')+'</span><h2 id="vd-title">'+esc(p.nick)+'</h2>'+
+  return '<div class="me-hero me-cover'+(bg?' banner':'')+'" style="--c:'+p.av.c+(bg?';background:'+bg:'')+'">'+x+'<button type="button" class="me-edit" id="pf-edit" aria-label="Edit your profile" title="Edit your profile">'+PEN_SVG+'</button></div>'+
+    '<div class="me-id" style="--c:'+p.av.c+'">'+avatarHTML(p,88)+'<h2 id="vd-title">'+esc(p.nick)+'</h2><span class="me-role">'+esc(ROLE[p.style]||'Home brewer')+'</span>'+
       '<small class="me-name">'+(p.name?esc(p.name)+' · ':'')+'Brewing since '+since+'</small></div>'+
     '<div class="me-body">'+
       // The numbers first, as one bar.
-      figsHTML('me-stats f2',profileStats().map(([n,l],i)=>[['bag','cup','globe','trophy'][i],n,l]))+
+      // The numbers, as one strip: four counts side by side.
+      '<div class="me-nums" role="group" aria-label="Your numbers">'+profileStats().map(([n,l])=>'<span><b>'+n+'</b><small>'+esc(l.replace(' brewed',''))+'</small></span>').join('')+'</div>'+
       // About you: your words, and what you told us as squares.
       '<section class="me-sec" aria-label="About you"><h3 class="me-sh">About</h3>'+
         (p.brief?'<p class="me-brief">'+esc(p.brief)+'</p>':'<button type="button" class="me-add" id="pf-edit2">Add a few words about how you take your coffee</button>')+

@@ -39,10 +39,10 @@ ok(f.rec==null&&f.roast==='light'&&f.goal==='balance'&&!f.scan&&f.blank,'reopeni
 ok(f.g===savedGrinder[0]&&f.b===savedGrinder[1],'your grinder and brewer stay',[f.g,f.b]);
 ok(Math.abs(f.set-f.base)<=1,'grind back on the brewer\'s usual setting',[f.set,f.base]);
 await p.evaluate(()=>goTab('settings'));await p.waitForTimeout(600);
-ok(await p.evaluate(()=>!!document.getElementById('st-resume')&&/Start fresh/.test(document.getElementById('st-resume').textContent)),'Settings has the option');
+ok(await p.evaluate(()=>!!document.getElementById('st-resume')&&document.getElementById('st-resume').getAttribute('aria-checked')==='false'),'Settings has the option');
 await p.evaluate(()=>document.getElementById('st-resume').closest('.setrow').scrollIntoView({block:'center'}));await p.waitForTimeout(200);await p.locator('.setrow:has(#st-resume)').screenshot({path:'shots/resume.png'});
 // choose "Where I left off", set a dial, and reopen
-await p.click('#st-resume button:has-text("Where I left off")');await p.waitForTimeout(300);
+await p.click('#st-resume');await p.waitForTimeout(300);
 await p.evaluate(()=>{Object.assign(S,{roast:'dark',goal:'strong'});save('bb-state',S)});
 const store2=await p.evaluate(()=>JSON.stringify(Object.fromEntries(Object.keys(localStorage).map(k=>[k,localStorage.getItem(k)]))));ok(errs.length===0,'no errors (fresh)',errs);await c.close();
 [c,p,errs]=await mk();await p.addInitScript(st=>{const o=JSON.parse(st);for(const k in o)localStorage.setItem(k,o[k])},store2);

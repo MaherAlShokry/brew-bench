@@ -150,7 +150,7 @@ async function fwExport(o,file){if(document.fonts&&document.fonts.ready)await do
 
 /* The Flavour wheel page in Explore. */
 let FWX=null;
-function fwInfo(n){const el=$('fw-info');if(!n){el.innerHTML='<h3 style="margin-top:0">How to taste with the wheel</h3><ol class="fw-how"><li><b>Start in the middle.</b> Is it fruity, sweet, nutty, roasted? Pick the broad family first.</li><li><b>Work outwards.</b> Tap the colour to open it, then look for the closer match: berry, then blueberry.</li><li><b>Trust your first word.</b> If you can’t name it exactly, the group is a good answer.</li></ol><p class="hint" style="margin-bottom:0">Tap any colour on the wheel, or search for a note.</p>';return}
+function fwInfo(n){const el=$('fw-info');if(!n){el.innerHTML='<h3 style="margin-top:0">How to taste with the wheel</h3><ol class="fw-how"><li><b>Start in the middle.</b> Is it fruity, sweet, nutty, roasted? Pick the broad family first.</li><li><b>Work outwards.</b> Tap the colour to open it, then look for the closer match: berry, then blueberry.</li><li><b>Trust your first word.</b> If you can’t name it exactly, the group is a good answer.</li></ol>';return}
   const crumbs=n.path.map((p,i)=>'<button type="button" class="chip fw-crumb" data-fz="'+p.id+'"><i style="background:'+p.c+'"></i>'+esc(p.n)+'</button>'+(i<n.path.length-1?'<span class="fw-sep">›</span>':'')).join('');
   const kids=n.kids.length?'<p class="fw-sub">Inside '+esc(n.n)+'</p><div class="chips">'+n.kids.map(k=>'<button type="button" class="chip" data-fz="'+k.id+'"><i class="dot" style="background:'+k.c+'"></i>'+esc(k.n)+'</button>').join('')+'</div>':'';
   const links=(n.l||[]).map(l=>linkChip(l)).filter(Boolean).join('');

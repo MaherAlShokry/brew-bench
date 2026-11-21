@@ -2640,6 +2640,17 @@ button[aria-pressed]:active{transform:scale(.95)}
 .me-id .me-k{color:var(--cherry);font-size:.68rem}
 .me-id h2{margin:2px 0 0;font:700 1.6rem/1.15 var(--display);color:var(--ink);overflow-wrap:anywhere}
 .me-id .me-name{font-size:.86rem;color:var(--muted);opacity:1}
+/* Profile, overhauled: round edit and close buttons on the cover, the name with its role as a pill, four numbers in
+   one strip. */
+.me-edit{left:auto!important;right:60px;top:12px!important;width:38px;height:38px!important;padding:0!important;justify-content:center;border-radius:50%!important;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.me-edit svg{width:17px!important;height:17px!important}
+.me-id h2{margin:4px 0 0!important}
+.me-role{display:inline-flex;align-items:center;margin:6px 0 4px;padding:4px 11px;border-radius:999px;background:color-mix(in srgb,var(--c,var(--cherry)) 14%,var(--surface2));color:var(--ink);font:700 .74rem var(--display);letter-spacing:.02em}
+.me-nums{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin:14px 0 4px;padding:14px 4px;border-radius:22px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.me-nums>span{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0;text-align:center}
+.me-nums>span+span::before{content:"";position:absolute;left:0;top:4px;bottom:4px;width:1px;background:var(--line)}
+.me-nums b{font:700 1.45rem/1.1 var(--display);color:var(--ink);font-variant-numeric:tabular-nums}
+.me-nums small{font-size:.74rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;padding:0 4px}
 .me-sec{display:flex;flex-direction:column;gap:10px}
 .me-sh{margin:6px 0 0;font:700 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .me-body .me-brief{margin:0;padding:0;font:400 1rem/1.5 var(--body);color:var(--ink)}.me-body .me-brief::before{content:none}
@@ -2974,6 +2985,29 @@ textarea{resize:none}
 .setlink:focus-visible{outline:2px solid var(--cherry);outline-offset:-2px;border-radius:inherit}
 .setlink:active{background:color-mix(in srgb,var(--ink) 4%,transparent)}
 .setlink .sl{align-items:center}
+/* Settings, overhauled: you at the top, grouped lists, every on/off a switch at the end of its line. */
+.st-me{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:14px;width:100%;margin:0 0 14px;padding:14px 16px;border-radius:20px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .12s}
+.st-me:active{transform:scale(.985)}.st-me:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
+.st-me .pav{flex:none}.st-me .mt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.st-me .mt b{font:700 1.08rem/1.2 var(--display);color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.st-me .mt small{color:var(--muted);font-size:.84rem}
+.setgroup.st-one{margin:0 0 18px}
+.setrow.inl>.sl{align-items:center}.setrow.inl .mt small{margin-top:1px}
+.setrow.inl>.sl+*{margin-top:12px}
+.tgl{flex:none;position:relative;width:50px;height:30px;padding:0;border:0;border-radius:999px;background:color-mix(in srgb,var(--ink) 20%,var(--surface2));cursor:pointer;transition:background-color .2s;-webkit-tap-highlight-color:transparent}
+.tgl::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#FFFDF9;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .22s cubic-bezier(.3,1.3,.5,1)}
+.tgl[aria-checked="true"]{background:var(--cherry)}.tgl[aria-checked="true"]::after{transform:translateX(20px)}
+.tgl:focus-visible{outline:2px solid var(--cherry);outline-offset:2px}
+.st-val{margin-left:8px;font:500 .84rem var(--body);color:var(--muted)}
+.st-tag{flex:none;padding:5px 10px;border-radius:999px;background:var(--surface2);color:var(--muted);font:600 .74rem var(--display)}
+.st-acts{flex:none;display:flex;gap:8px}
+.setrow .st-time{display:block;width:auto!important;min-height:36px;height:36px;margin-left:48px!important;padding:0 14px;border:0;border-radius:999px!important;background:var(--surface2);color:var(--ink);font:600 .95rem var(--display);box-shadow:none}
+.setlink.danger b{color:#A8432F}html[data-theme="dark"] .setlink.danger b{color:#E08A74}
+a.setrow.setlink{text-decoration:none;color:inherit}
+.swatches{display:grid!important;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px!important;justify-items:center}
+.swatch{width:100%;max-width:40px;height:auto;aspect-ratio:1;padding:0!important;border:0!important;border-radius:50%!important;background:none!important;display:grid!important;place-items:center}
+.swatch i{width:80%!important;height:80%!important;box-shadow:inset 0 0 0 2px rgba(255,255,255,.25)!important;transition:transform .15s}
+.swatch[aria-pressed="true"]{outline:0!important;box-shadow:0 0 0 2.5px var(--cherry)}.swatch:active i{transform:scale(.9)}
+.st-foot{display:flex;align-items:center;justify-content:center;gap:10px;margin:22px 0 8px;color:var(--muted)}.st-foot svg{width:22px;height:22px}
+.st-foot span{display:flex;flex-direction:column;font:700 .86rem var(--display);color:var(--ink)}.st-foot small{font:500 .74rem var(--body);color:var(--muted)}
 .setchev{flex:none;color:var(--muted);display:grid;place-items:center}.setchev svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .setrow .setbtns{display:flex;flex-wrap:wrap;gap:8px}.setrow .setbtns.rem{display:grid}
 /* Everything under a row's title starts at one left edge (the row's), with room between stacked controls. */
@@ -3564,9 +3598,8 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <section id="history">
   <h2>The story of coffee</h2>
   <h3>The coffee family tree</h3>
-  <p class="hint">Tap any variety to trace its ancestors and read its story. Families follow genetics, not names: Pink Bourbon sits with the Ethiopian landraces because DNA tests show that is where it comes from.</p>
   <div class="legend" id="treelegend"></div>
-  <div class="treewrap"><div class="treebox"><svg id="tree" role="group" aria-label="Coffee variety family tree"></svg></div></div><p class="treehint" aria-hidden="true">Drag sideways to follow the family across seven generations →</p><ul class="treenotes" id="treenotes" aria-label="Notes on the tree" hidden></ul>
+  <div class="treewrap"><div class="treebox"><svg id="tree" role="group" aria-label="Coffee variety family tree"></svg></div></div><ul class="treenotes" id="treenotes" aria-label="Notes on the tree" hidden></ul>
 
   <h3 style="margin-top:2rem">The coffee species</h3>
   <p class="hint">More than 130 species of Coffea exist. These are the ones that matter in your cup.</p>
@@ -3607,7 +3640,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
       <div class="field"><label for="c-ratio">Ratio <span class="num" id="cv-ratio"></span></label><input type="range" id="c-ratio" min="1" max="20" step="0.5"></div></div>
       <div class="seg filters scrollrow" id="c-pre"></div>
       <div id="c-out"></div></div>
-    <div class="panel"><h2>What does it taste like?</h2><p class="hint" style="margin-top:0">Pick what you taste. Fixes start from your current dial-in and stay inside the usual range for your brewer.</p><div class="chips" id="ts-chips"></div><div id="ts-out"></div></div>
+    <div class="panel"><h2>What does it taste like?</h2><div class="chips" id="ts-chips"></div><div id="ts-out"></div></div>
   </div>
   <h3 class="sec">The bloom</h3>
   <p>The bloom degasses CO2, wets every particle evenly so later pours don't channel, and starts extraction early. Its length is a real variable.</p>

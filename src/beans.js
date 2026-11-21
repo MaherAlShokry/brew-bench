@@ -1069,7 +1069,7 @@ function renderDiaryView(){const p=$('bv-diary');if(!p)return;const items=[];
   for(const b of BEANS)for(const it of beanTimeline(b))items.push(Object.assign(it,{bean:b}));items.sort((x,y)=>y.t-x.t);DYI=items;
   const n=items.filter(i=>i.kind==='entry').length,fs=DYFILTERS.filter(([f])=>f==='all'||items.some(it=>dyKeep(it,f)));DYF=DYF.filter(f=>fs.some(([x])=>x===f));
   p.innerHTML='<div class="diary-h"><div><span class="crown-k">Your coffee diary</span><h3>'+(n?n+' entr'+(n===1?'y':'ies')+' <em>· '+(items.length-n)+' brew'+(items.length-n===1?'':'s')+'</em>':'Every bag has a story')+'</h3>'+
-      '<p>'+(BEANS.length?'Opening a bag, the cup that clicked, the last one. Your logged brews join in on their own.':'Add a coffee to your gallery, then keep its story here.')+'</p></div></div>'+
+      (BEANS.length?'':'<p>Add a coffee to your gallery, then keep its story here.</p>')+'</div></div>'+
     onThisDayHTML(items)+(BEANS.length?dwriteHTML('dy',DYST,dyBeansHTML()):'')+
     (fs.length>2?ltHTML('dy-lt',{filter:true}):'')+'<div id="dy-list"></div>';
   dySync();
