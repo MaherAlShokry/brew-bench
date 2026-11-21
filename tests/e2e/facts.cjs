@@ -16,7 +16,7 @@ const {chromium}=require('playwright');(async()=>{const b=await chromium.launch(
  c=await b.newContext({viewport:{width:390,height:844}});await c.addInitScript(()=>{window.__sched=[];window.Capacitor={isNativePlatform:()=>true,getPlatform:()=>'android',Plugins:{LocalNotifications:{checkPermissions:async()=>({display:'granted'}),requestPermissions:async()=>({display:'granted'}),schedule:async o=>{__sched.push(...o.notifications)},cancel:async()=>{},addListener:()=>{}}}}});
  p=await c.newPage();p.on('pageerror',e=>errs.push(e.message));await p.route(/.*/,r=>r.request().url().startsWith('http://localhost')?r.continue():r.abort());await p.goto('http://localhost:8099/index.html');await p.waitForTimeout(2600);
  await p.evaluate(()=>showTab('settings'));await p.waitForTimeout(400);ok('app: switch shown',await p.evaluate(()=>!!document.getElementById('st-learn')));
- await p.evaluate(()=>[...document.querySelectorAll('#st-learn button')].find(x=>/Every day/.test(x.textContent)).click());await p.waitForTimeout(500);
+ await p.evaluate(()=>document.getElementById('st-learn').click());await p.waitForTimeout(500);
  const s=await p.evaluate(()=>__sched.filter(n=>n.id>=7201&&n.id<=7214).map(n=>({t:n.title,at:new Date(n.schedule.at).getHours()})));ok('two weeks scheduled at 19:00',s.length>=13&&s.every(x=>x.at===19),s.length);console.log(s.slice(0,4).map(x=>'   '+x.t).join('\n'));
  await p.locator('#settings-in').screenshot({path:'facts-settings.png'}).catch(()=>{});
  console.log('errors',errs.length?errs:'none');await b.close()})();

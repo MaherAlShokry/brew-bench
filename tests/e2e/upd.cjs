@@ -17,7 +17,7 @@ const ok=(c,m,x)=>console.log((c?'  ok  ':'  FAIL')+' '+m+(x!==undefined?'  ('+x
  ok(await p.isVisible('#updcard')&&/1\.0\.211/.test(await p.textContent('#updcard')),'an even newer version shows again');
  // settings
  await p.evaluate(()=>{showTab('settings')});await p.waitForTimeout(500);ok(/Brew Bench 1\.0\.207/.test(await p.textContent('#settings .appver'))&&/1\.0\.211 is ready/.test(await p.textContent('#settings .appver')),'Settings opens with the version and what is ready');
- ok(await p.evaluate(()=>document.querySelector('#settings-in').firstElementChild.nextElementSibling.classList.contains('appver')),'right under the quick tools');
+ ok(await p.evaluate(()=>document.querySelector('#settings-in .qtools').nextElementSibling.classList.contains('appver')),'right under the quick tools');
  await p.locator('.appver').screenshot({path:S+'upd-settings.png'});
  await p.evaluate(()=>{window.__nav=null;openLink=u=>{__nav=u}});await p.click('#st-updgo');ok(/brew-bench\.apk/.test(await p.evaluate(()=>__nav)),'Update button downloads the new version');
  tag='v1.0.207';await p.evaluate(()=>{window.__seg=document.getElementById('st-mode');document.getElementById('st-upd').click()});await p.waitForTimeout(600);

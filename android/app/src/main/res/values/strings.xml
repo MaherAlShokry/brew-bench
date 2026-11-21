@@ -10,6 +10,8 @@
     <string name="widget_cabinet_desc">The coffees on your shelf and how fresh each is today</string>
     <string name="widget_cabinet_empty">Nothing in your cabinet yet. Add the bag you\'re drinking.</string>
     <string name="widget_brew_name">Quick brew</string>
+    <string name="tile_brew">Start a brew</string>
+    <string name="tile_log">Log a brew</string>
     <string name="widget_brew_desc">Your go-to recipe, one tap from the brew timer</string>
     <string name="widget_word_name">Coffee word of the day</string>
     <string name="widget_passport_name">Coffee passport</string>

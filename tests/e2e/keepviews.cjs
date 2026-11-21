@@ -22,14 +22,14 @@ const kept=await state();
 for(const k of Object.keys(before))ok('kept after closing: '+k,JSON.stringify(kept[k])===JSON.stringify(before[k]),{before:before[k],after:kept[k]});
 // Settings row, then reset mode
 await p.evaluate(()=>showTab('settings'));await p.waitForTimeout(600);
-ok('Settings has the Sorts and filters choice',await p.evaluate(()=>!!document.querySelector('#st-views [data-v="reset"]')));
-await p.click('#st-views [data-v="reset"]');await p.waitForTimeout(400);
+ok('Settings has the Sorts and filters choice',await p.evaluate(()=>document.querySelector('#st-views').getAttribute('aria-checked')==='true'));
+await p.click('#st-views');await p.waitForTimeout(400);
 await p.reload();await p.waitForTimeout(1500);await p.evaluate(()=>{showTab('recipes');showTab('gear');showTab('variety');showTab('champs');showTab('beans')});await p.waitForTimeout(800);
 const reset=await state();
 const def={RF:[],RSORT:'brewer',RSORT2:'level',LF:{sort:'new',min:0},GF:[],GLF:[],VF:[],CHF:[],BSORT:'recent',BYEAR:[],BF:[],DYF:[]};
 for(const k of Object.keys(def))ok('reset on open: '+k,JSON.stringify(reset[k])===JSON.stringify(def[k]),reset[k]);
 // back to keep: picks made now are kept again
-await p.evaluate(()=>showTab('settings'));await p.waitForTimeout(500);await p.click('#st-views [data-v="keep"]');await p.waitForTimeout(300);
+await p.evaluate(()=>showTab('settings'));await p.waitForTimeout(500);await p.click('#st-views');await p.waitForTimeout(300);
 await p.evaluate(()=>{showTab('beans');BSORT='origin';renderBeanSort()});await p.reload();await p.waitForTimeout(1500);
 ok('switched back to keep: new pick kept',await p.evaluate(()=>BSORT)==='origin');
 ok('no errors',!errs.length,errs);await b.close()})();

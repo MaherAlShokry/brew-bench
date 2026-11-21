@@ -32,6 +32,13 @@
         </receiver>
         <!-- The brew timer's buttons on its notification and on the Quick brew widget. -->
         <receiver android:name=".TimerReceiver" android:exported="false" />
+        <!-- Quick Settings tiles: start a brew or log one from the pull-down panel. -->
+        <service android:name=".BrewTile" android:exported="true" android:label="@string/tile_brew" android:icon="@drawable/qs_brew" android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter><action android:name="android.service.quicksettings.action.QS_TILE" /></intent-filter>
+        </service>
+        <service android:name=".BrewTile$Log" android:exported="true" android:label="@string/tile_log" android:icon="@drawable/qs_log" android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter><action android:name="android.service.quicksettings.action.QS_TILE" /></intent-filter>
+        </service>
         <!-- The daily coffee and fact notes (DailyNotes): their alarms, set again after a restart or an update. -->
         <receiver android:name=".DailyNotes" android:exported="false">
             <intent-filter>

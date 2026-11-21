@@ -144,6 +144,24 @@ public class WidgetPlugin extends Plugin {
         call.resolve();
     }
 
+    /**
+     * The phone's own colours (Material You, from the wallpaper; Android 12 and later): its accent for a light page,
+     * a deeper one for text, and a lighter one for a dark page. Empty on older phones.
+     */
+    @PluginMethod
+    public void wallColors(PluginCall call) {
+        JSObject r = new JSObject();
+        if (android.os.Build.VERSION.SDK_INT >= 31) {
+            Context ctx = getContext();
+            r.put("l", hex(ctx.getColor(android.R.color.system_accent1_600)));
+            r.put("i", hex(ctx.getColor(android.R.color.system_accent1_700)));
+            r.put("d", hex(ctx.getColor(android.R.color.system_accent1_200)));
+        }
+        call.resolve(r);
+    }
+
+    private static String hex(int c) { return String.format("#%06X", 0xFFFFFF & c); }
+
     @PluginMethod
     public void pending(PluginCall call) {
         JSObject r = new JSObject();
