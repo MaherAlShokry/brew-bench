@@ -11,7 +11,9 @@ const {chromium}=require('playwright');(async()=>{const b=await chromium.launch(
   await p.goto('http://localhost:8099/index.html#'+t);await p.waitForTimeout(3600);
   const st=await p.evaluate(t=>[typeof BEANS,(document.querySelector('main section.on')||{}).id],t);
   if(errs.length||st[0]!=='object'){bad++;console.log('FAIL',app?'app':'web',t,st,errs.slice(0,2))}
-  if(t==='settings'&&app){const has=await p.evaluate(()=>!!document.getElementById('st-learn')&&!!document.getElementById('st-remind'));if(!has){bad++;console.log('FAIL app settings: reminder switches missing')}}
+  if(t==='settings'&&app){const has=await p.evaluate(()=>!!document.getElementById('st-learn')&&!!document.getElementById('st-remind'));if(!has){bad++;console.log('FAIL app settings: reminder switches missing')}
+    const chip=await p.evaluate(async()=>{const t=document.getElementById('st-remind');if(!t.checked)t.click();await new Promise(r=>setTimeout(r,400));const i=document.getElementById('st-rtime');if(!i)return 'no time input';const r=i.getBoundingClientRect(),row=i.closest('.setrow').getBoundingClientRect();return r.height<=34&&r.width<row.width*0.6?'':'time chip '+Math.round(r.width)+'x'+Math.round(r.height)+' in row '+Math.round(row.width)});
+    if(chip){bad++;console.log('FAIL app settings reminder time:',chip)}}
   await c.close()};
  const q=[...jobs];await Promise.all(Array.from({length:6},async()=>{while(q.length)await one(q.shift())}));
  console.log(bad?bad+' problems':'every page opens cleanly ('+tabs.length+' pages, web and app)');await b.close()})();

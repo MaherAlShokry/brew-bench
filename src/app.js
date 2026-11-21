@@ -1217,7 +1217,7 @@ function done(){const r=TM.r||RECIPES[TM.idx],d=Math.floor(TM.el)-Math.floor(TM.
   const when=Math.abs(d)<5?'Right on the recipe’s time.':d<0?mmss(-d)+' ahead of the recipe’s '+mmss(TM.total)+'.':'';
   $('tm-card').classList.add('fin');$('tm-step').textContent='Brew complete';$('tm-target').innerHTML='';
   $('tm-now').innerHTML='<span class="tm-thx">'+TMI('M5 9h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z M16 10h1.5a2.5 2.5 0 0 1 0 5H16 M8 3c-1 1 1 2 0 3 M11.5 3c-1 1 1 2 0 3')+'</span><b class="tm-thank">Thank you for brewing</b>'+
-    '<span class="tm-thsub">Your '+esc(r.name)+(bean?' with '+esc(bean):'')+' is ready. '+TM_THANKS[Math.floor(Math.random()*TM_THANKS.length)]+'</span>'+
+    '<span class="tm-thsub">'+(/^(a|an|the|my|your)\s/i.test(r.name||'')?'':'Your ')+esc(r.name)+(bean?' with '+esc(bean):'')+' is ready. '+TM_THANKS[Math.floor(Math.random()*TM_THANKS.length)]+'</span>'+
     '<span class="tm-time">Brewed in <b>'+mmss(TM.el)+'</b>'+(when?' · '+when:'')+'</span>';
   $('tm-barfill').style.transform='none';
   $('tm-next').innerHTML='<div class="tm-done ib-row">'+ib('log','id="tm-log"','Log this brew','main')+ib('again','id="tm-again"','Brew again')+'</div>';TM.qlog=null;quickLogBox();
@@ -4440,8 +4440,8 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
    // The coffee of the day and the fact of the day: in the Android app, a switch and a time each; on the website, where
    // there are no notifications, a word that they're in the app.
    '<h3 class="rh">Reminders</h3><div class="setgroup">'+(window.BEANS_OK&&LN()?
-     inl('bell','#8A5A3B','Coffee of the day',REMIND.on?'Every day at':'',tg('st-remind',REMIND.on,'Coffee of the day'),REMIND.on?'<input type="time" id="st-rtime" class="dateinp st-time" value="'+REMIND.t+'" aria-label="Reminder time">':'')+
-     inl('bulb','#9A7390','Coffee fact of the day',LEARN.on?'Every day at':'',tg('st-learn',LEARN.on,'Coffee fact of the day'),LEARN.on?'<input type="time" id="st-ltime" class="dateinp st-time" value="'+LEARN.t+'" aria-label="Fact time">':'')
+     inl('bell','#8A5A3B','Coffee of the day',REMIND.on?'<span class="st-at"><input type="time" id="st-rtime" class="st-time" value="'+REMIND.t+'" aria-label="Reminder time"></span>':'',tg('st-remind',REMIND.on,'Coffee of the day'))+
+     inl('bulb','#9A7390','Coffee fact of the day',LEARN.on?'<span class="st-at"><input type="time" id="st-ltime" class="st-time" value="'+LEARN.t+'" aria-label="Fact time"></span>':'',tg('st-learn',LEARN.on,'Coffee fact of the day'))
      :inl('bell','#8A5A3B','Coffee of the day','','<span class="st-tag">In the app</span>')+inl('bulb','#9A7390','Coffee fact of the day','','<span class="st-tag">In the app</span>'))+'</div>'+
    '<h3 class="rh">Your data</h3><div class="setgroup">'+inl('download','#8A5A3B','Back up and restore','<span id="st-lastbak">'+lastBakText()+'</span>',
      '<span class="st-acts">'+ib('ul','id="st-import"','Restore from a file')+ib('dl','id="st-export"','Back up now','main')+'</span><input type="file" id="st-file" accept="application/json,.json" hidden>')+'</div>'+
