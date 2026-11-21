@@ -197,7 +197,7 @@ function fwStatic0(fl){const items=fwLayout({a0:0,a1:1,z:0},300,{mode:'profile',
 // opts.pre and opts.done: picking for someone else (the timer's quick log), who gets the notes when the sheet closes.
 function openNotesPicker(entry,opts){const d=$('vd'),sel=flMap(opts?opts.pre||[]:entry?flOf(entry):LFL.slice());
   $('vd-in').innerHTML='<div class="vd-head" style="--c:#C4473F"><button class="vd-close" id="vd-x" aria-label="Done">✕</button><span class="pill"><i style="background:#C4473F"></i>Tasting notes</span>'+
-    '<h2 id="vd-title">'+(entry&&entry.coffee?esc(entry.coffee):'What did you taste?')+'</h2><p class="hint" style="margin:0">Start in the middle: tap a family to open it, then tap the notes you taste. Tap a note again to remove it.</p></div>'+
+    '<h2 id="vd-title">'+(entry&&entry.coffee?esc(entry.coffee):'What did you taste?')+'</h2></div>'+
     '<div class="vd-body fl-pick"><input type="search" id="fl-q" placeholder="Find a note" aria-label="Find a flavour note" style="width:100%"><div class="chips fw-res" id="fl-res"></div>'+
     '<div class="fw-box" id="fl-box"></div><div class="fl-sel" id="fl-sel"></div><div class="actions"><button type="button" class="btn" id="fl-done">Done</button>'+ib('reset','id="fl-clear"','Clear all')+'</div></div>';
   const list=()=>{$('fl-sel').innerHTML=sel.size?[...sel].map(([id,v])=>{const n=FW.byId[id];return'<div class="fl-selrow"><i style="background:'+n.c+'"></i><span><b>'+esc(n.n)+'</b> <small class="hint">'+esc(n.parent?n.parent.n:'')+'</small></span>'+

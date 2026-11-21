@@ -1217,7 +1217,7 @@ function done(){const r=TM.r||RECIPES[TM.idx],d=Math.floor(TM.el)-Math.floor(TM.
   const when=Math.abs(d)<5?'Right on the recipe’s time.':d<0?mmss(-d)+' ahead of the recipe’s '+mmss(TM.total)+'.':'';
   $('tm-card').classList.add('fin');$('tm-step').textContent='Brew complete';$('tm-target').innerHTML='';
   $('tm-now').innerHTML='<span class="tm-thx">'+TMI('M5 9h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z M16 10h1.5a2.5 2.5 0 0 1 0 5H16 M8 3c-1 1 1 2 0 3 M11.5 3c-1 1 1 2 0 3')+'</span><b class="tm-thank">Thank you for brewing</b>'+
-    '<span class="tm-thsub">Your '+esc(r.name)+(bean?' with '+esc(bean):'')+' is ready. '+TM_THANKS[Math.floor(Math.random()*TM_THANKS.length)]+'</span>'+
+    '<span class="tm-thsub">'+(/^(a|an|the|my|your)\s/i.test(r.name||'')?'':'Your ')+esc(r.name)+(bean?' with '+esc(bean):'')+' is ready. '+TM_THANKS[Math.floor(Math.random()*TM_THANKS.length)]+'</span>'+
     '<span class="tm-time">Brewed in <b>'+mmss(TM.el)+'</b>'+(when?' · '+when:'')+'</span>';
   $('tm-barfill').style.transform='none';
   $('tm-next').innerHTML='<div class="tm-done ib-row">'+ib('log','id="tm-log"','Log this brew','main')+ib('again','id="tm-again"','Brew again')+'</div>';TM.qlog=null;quickLogBox();
@@ -2054,7 +2054,7 @@ let TC=[],TQ='';const TCOL={bloom:'#C9964A',pour:'#8A5A3B',bed:'#6B8E4E',structu
 function renderTech(){
   ltSync('tlt',{on:TC.length>0,filter:selName(TC,k=>TCAT[k],'All techniques')});
   const q=TQ.toLowerCase();const list=TECH.filter(t=>inSel(TC,t[0])&&(!q||t.join(' ').toLowerCase().includes(q)));
-  $('tgrid').innerHTML=list.length?list.map(t=>'<button type="button" class="card tcard hovercard" aria-expanded="false" style="--c:'+TCOL[t[0]]+'"><span class="cat">'+TCAT[t[0]]+'</span><h3 style="margin:.2rem 0">'+esc(t[1])+'</h3><p style="margin:0">'+esc(t[2])+'</p><p class="more"><b>Why and when.</b> '+esc(t[3])+'</p></button>').join(''):'<p class="hint">Nothing matches. Try a broader word.</p>';
+  $('tgrid').innerHTML=list.length?list.map(t=>'<button type="button" class="card tcard hovercard" aria-expanded="false" style="--c:'+TCOL[t[0]]+'"><span class="pill cat"><i style="background:'+TCOL[t[0]]+'"></i>'+TCAT[t[0]]+'</span><h3>'+esc(t[1])+'</h3><p style="margin:0">'+esc(t[2])+'</p><p class="more"><b>Why and when.</b> '+esc(t[3])+'</p></button>').join(''):'<p class="hint">Nothing matches. Try a broader word.</p>';
 }
 $('tgrid').onclick=e=>{const c=e.target.closest('.tcard');if(c)c.setAttribute('aria-expanded',c.getAttribute('aria-expanded')!=='true')};
 $('tsearch').oninput=e=>{TQ=e.target.value;soon(renderTech)};
@@ -2069,7 +2069,7 @@ let PQ='';const pKeep=p=>inSel(PC,p.cat)&&(!PQ||(p.name+' '+PCAT[p.cat]+' '+p.ch
 function renderProcesses(){PQ=($('psearch')&&$('psearch').value||'').trim().toLowerCase();
   {const n=Object.values(PROCESSES).filter(pKeep).length;{const nm=selName(PC,k=>PCAT[k],'All processes');ltSync('plt',{on:PC.length>0,filter:nm,k:(PQ||PC.length?n+' of '+Object.keys(PROCESSES).length:n)+' processes'})}}
   const pl=Object.entries(PROCESSES).filter(([,p])=>pKeep(p));
-  $('pgrid').innerHTML=pl.length?'':'<p class="hint">No processes match. Try a word like honey, anaerobic or decaf.</p>';if(!pl.length){}else $('pgrid').innerHTML=pl.map(([k,p])=>'<article class="card" id="pc-'+k+'" style="border-top:5px solid '+PCOL[p.cat]+'"><span class="hint">'+PCAT[p.cat]+'</span><h3 style="margin-top:.2rem">'+esc(p.name)+'</h3>'+dirTag(p.dir)+'<p>'+esc(p.char)+'</p><p><b>Brewing it well.</b> '+esc(p.brew)+'</p><div class="chips">'+p.notes.map(n=>'<span class="chip">'+esc(n)+'</span>').join('')+'</div><button class="btn ghost" data-usep="'+k+'">Brew with this process</button></article>').join('');
+  $('pgrid').innerHTML=pl.length?'':'<p class="hint">No processes match. Try a word like honey, anaerobic or decaf.</p>';if(!pl.length){}else $('pgrid').innerHTML=pl.map(([k,p])=>'<article class="card pcard" id="pc-'+k+'"><span class="pill"><i style="background:'+PCOL[p.cat]+'"></i>'+PCAT[p.cat]+'</span><h3>'+esc(p.name)+'</h3>'+dirTag(p.dir)+'<p>'+esc(p.char)+'</p><p><b>Brewing it well.</b> '+esc(p.brew)+'</p><div class="chips">'+p.notes.map(n=>'<span class="chip">'+esc(n)+'</span>').join('')+'</div>'+pbtn('cup','data-usep="'+k+'"','Brew with this process')+'</article>').join('');
   const W=640,H=300,px=f=>60+f/1.7*540,py=a=>150-a/1.6*120;
   let h='<rect x="60" y="20" width="540" height="250" rx="14" fill="var(--paper)"/><line x1="60" y1="150" x2="600" y2="150" stroke="var(--line)"/><line x1="330" y1="20" x2="330" y2="270" stroke="var(--line)"/>'+
    '<text class="ax" x="64" y="292">Clean</text><text class="ax" x="596" y="292" text-anchor="end">Wild and fruity</text>'+
@@ -2174,7 +2174,7 @@ function renderLibrary(){GLF=GLF.filter(k=>['manual','electric','custom'].includ
         return '<div class="card gcard"><div class="gtop">'+gicon(gkind(g))+'<span class="hint">'+esc(G.brand||gtype(g))+' · '+(t==='custom'?'your grinder':t)+(G.espresso?' · espresso':'')+'</span>'+(mine?'<span class="mine-tag">✓ Yours</span>':'')+'</div>'+
           '<div class="ghead"><h3 style="margin:.35rem 0 0">'+esc(G.full)+'</h3>'+(G.custom?ib('del','data-gdel="'+g+'"','Delete this grinder','danger sm'):'')+'</div>'+
           '<div class="meta">'+[['Espresso',G.espresso?es:null],['AeroPress',ap],['V60',v6],['French press',fp]].filter(([n,v])=>n!=='Espresso'||v!=null).map(([n,v])=>'<span>'+n+' '+(v!=null?esc(dial(g,v)):'n/a')+'</span>').join('')+'</div>'+specList(g)+
-          '<div class="actions"><button type="button" class="btn'+(mine?' ghost':'')+'" data-gmine="'+g+'">'+(mine?'Remove from mine':'Add to my grinders')+'</button><button type="button" class="btn ghost" data-gcmp="'+g+'" aria-pressed="'+GCMP.includes(g)+'">'+(GCMP.includes(g)?'✓ Comparing':'Compare')+'</button></div></div>'}).join('')+'</div>'}}
+          '<div class="actions">'+pbtn(mine?'ok':'plus','data-gmine="'+g+'"',mine?'Remove from mine':'Add to my grinders',mine?'':'main')+pbtn('cmp','data-gcmp="'+g+'" aria-pressed="'+GCMP.includes(g)+'"',GCMP.includes(g)?'Comparing':'Compare',GCMP.includes(g)?'on':'')+'</div></div>'}).join('')+'</div>'}}
   $('glib').innerHTML=html||'<p class="hint">No grinders match. Try a brand name, or pick All.</p>';
   renderGCompare()}
 $('glib-search').oninput=e=>{GLQ=e.target.value;soon(renderLibrary)};
@@ -2269,10 +2269,10 @@ function renderGearBrewers(){
   const types=[...new Set(Object.values(BREWERS).map(b=>b.type))];GF=GF.filter(t=>types.includes(t));vwSet('gf',GF);
   {const n=Object.entries(BREWERS).filter(([k,b])=>LISTED(k)&&inSel(GF,b.type)).length;{const nm=selName(GF,k=>k,'All brewers');ltSync('gblt',{on:GF.length>0,filter:nm,k:nm+' · '+n})}
    $('gblt-f').onclick=()=>pickOne('Filter brewers','brewer',[['all','All brewers'],...types.map(t=>[t,t])],()=>GF,v=>{GF=v},renderGearBrewers,()=>Object.entries(BREWERS).filter(([k,b])=>LISTED(k)&&inSel(GF,b.type)).length)}
-  $('gear-brewers').innerHTML=Object.entries(BREWERS).filter(([k,b])=>LISTED(k)&&inSel(GF,b.type)).map(([k,b])=>'<div class="card hovercard" id="gb-'+k+'" style="border-top:5px solid '+TYCOL[b.type]+'"><span class="hint">'+b.type+'</span><h3 style="margin-top:.2rem">'+esc(b.name)+'</h3><p>'+esc(b.desc)+'</p><p><b>How it behaves.</b> '+esc(b.how)+'</p><p><b>Best for.</b> '+esc(b.best)+'</p>'+
+  $('gear-brewers').innerHTML=Object.entries(BREWERS).filter(([k,b])=>LISTED(k)&&inSel(GF,b.type)).map(([k,b])=>'<div class="card hovercard pcard" id="gb-'+k+'"><span class="pill"><i style="background:'+TYCOL[b.type]+'"></i>'+b.type+'</span><h3>'+esc(b.name)+'</h3><p>'+esc(b.desc)+'</p><p><b>How it behaves.</b> '+esc(b.how)+'</p><p><b>Best for.</b> '+esc(b.best)+'</p>'+
    '<div class="meta">'+MYG.map(g=>'<span>'+esc(canGrind(g,k)?gLabel(g,base(g,k)):gname(g)+': n/a')+'</span>').join('')+'</div>'+
    METHODS(k).map(x=>'<p class="hint" style="margin:.5rem 0 .2rem">'+esc(BREWERS[x].method)+'</p><div class="meta">'+MYG.map(g=>'<span>'+esc(canGrind(g,x)?gLabel(g,base(g,x)):gname(g)+': n/a')+'</span>').join('')+'</div>').join('')+
-   '<div class="actions">'+(RECIPES.some(r=>RFAM(r.b)===RFAM(k))?'<button class="btn ghost" data-grec="'+k+'">See recipes</button>':'')+(b.model?'<button class="btn ghost" data-gdial="'+k+'">Dial it in</button>':'')+'</div></div>').join('');
+   '<div class="actions">'+(RECIPES.some(r=>RFAM(r.b)===RFAM(k))?pbtn('log','data-grec="'+k+'"','See recipes'):'')+(b.model?pbtn('cup','data-gdial="'+k+'"','Dial it in'):'')+'</div></div>').join('');
 }
 $('gear-brewers').onclick=e=>{const a=e.target.closest('[data-grec]'),d=e.target.closest('[data-gdial]');
   if(a){RF=['b:'+RFAM(a.dataset.grec)];RQ='';$('rsearch').value='';showTab('recipes');showRecipeList()}
@@ -2302,8 +2302,8 @@ function openVariety(id){
    '<div class="meta">'+(v.origin?'<span>'+esc(v.origin)+'</span>':'')+(v.year?'<span title="'+esc(v.year)+'">'+esc(v.year)+'</span>':'')+'</div></div>'+
    '<div class="vd-body">'+(v.parents?'<p class="hint" style="margin-top:0"><b>Parentage:</b> '+esc(v.parents)+'</p>':'')+
    '<p>'+esc(v.story)+'</p><h3>In the cup</h3><p>'+esc(v.cup)+'</p><div class="chips">'+v.notes.map(n=>'<span class="chip">'+esc(n)+'</span>').join('')+'</div>'+
-   '<h3>Brewing it '+dirTag(v.dir)+'</h3><p>'+esc(v.brew)+'</p>'+
-   (v.subs?'<h3>Types of '+esc(v.name.split(' ')[0])+'</h3>'+v.subs.map(s=>'<details class="sub"><summary>'+esc(s.name)+'</summary><p>'+esc(s.story)+'</p><p><b>Cup:</b> '+esc(s.cup)+'</p><button class="btn ghost" data-use="'+v.id+':'+s.k+'">Brew this in the dial-in</button></details>').join(''):'')+
+   '<h3>Brewing it</h3>'+dirTag(v.dir)+'<p>'+esc(v.brew)+'</p>'+
+   (v.subs?'<h3>Types of '+esc(v.name.split(' ')[0])+'</h3>'+v.subs.map(s=>'<details class="sub"><summary>'+esc(s.name)+'</summary><p>'+esc(s.story)+'</p><p><b>Cup:</b> '+esc(s.cup)+'</p>'+pbtn('cup','data-use="'+v.id+':'+s.k+'"','Brew this in the dial-in')+'</details>').join(''):'')+
    (grown.length?'<h3>Where it grows</h3><div class="chips">'+grown.filter(k=>ALLO()[k]).map(k=>'<button class="chip" data-o="'+k+'">'+(ALLO()[k].flag||'')+' '+esc(originName(k))+'</button>').join('')+'</div>':'')+
    (v.id!=='arabica'?'<div class="actions ib-row sheet-acts">'+pbtn('cup','data-use="'+v.id+'"','Brew this in the dial-in','main')+'</div>':'')+'</div>';
   const d=$('vd');showDlg(d);d.scrollTop=0;
@@ -2339,7 +2339,7 @@ function renderVarieties(){VF=VF.filter(vfOk);vwSet('vf',VF);
   ltSync('vlt',{on:VF.length>0,filter:selName(VF,vfName,'All varieties')});
   const q=VQ.trim().toLowerCase();
   const list=V.filter(v=>vfKeep(v)&&(!q||(v.name+' '+(v.origin||'')+' '+FAM[v.fam].name+' '+v.cup+' '+v.notes.join(' ')+' '+(v.grown||[]).map(originName).join(' ')+' '+(v.subs||[]).map(s=>s.name).join(' ')).toLowerCase().includes(q)));
-  $('vgrid').innerHTML=(list.length?list.map(v=>'<div class="card vcard" data-v="'+v.id+'" style="--c:'+FAM[v.fam].color+'"><button type="button" class="addcmp" data-cmp="'+v.id+'" aria-pressed="'+CMP.includes(v.id)+'">'+(CMP.includes(v.id)?'Comparing':'+ Compare')+'</button><span class="fam">'+FAM[v.fam].name+'</span><h3><button type="button" class="vopen">'+esc(v.name)+'</button></h3>'+
+  $('vgrid').innerHTML=(list.length?list.map(v=>'<div class="card vcard" data-v="'+v.id+'" style="--c:'+FAM[v.fam].color+'">'+ib('cmp','data-cmp="'+v.id+'" aria-pressed="'+CMP.includes(v.id)+'"',CMP.includes(v.id)?'Remove from the comparison':'Compare','sm addcmp')+'<span class="pill fam"><i style="background:'+FAM[v.fam].color+'"></i>'+FAM[v.fam].name+'</span><h3><button type="button" class="vopen">'+esc(v.name)+'</button></h3>'+
     '<div class="meta">'+(v.origin?'<span title="'+esc(v.origin)+'">'+esc(v.origin.match(/^[^,(]*(\([^)]*\))?[^,]*/)[0])+'</span>':'')+(v.year?'<span>'+esc(v.year)+'</span>':'')+(v.subs?'<span>'+v.subs.length+' types</span>':'')+'</div>'+
     '<p>'+esc(v.cup)+'</p>'+dirTag(v.dir)+'</div>').join(''):'<p class="hint">No varieties match. Try a country, a family or a flavour.</p>');
   renderCompare();
@@ -2615,8 +2615,15 @@ function cabinetHTML(){const fr=Object.values(CABS||{}).filter(c=>c&&typeof c===
   return '<div class="sh-cabs"><h4 class="sh-ch">On their shelves</h4>'+fr.map(c=>'<div class="sh-cab"><b>'+esc(c.by.slice(0,30))+'</b><div class="sh-cbs">'+c.beans.slice(0,4).filter(x=>x&&typeof x.n==='string').map(x=>{const o=okOrigin(x.o),P=PROCESSES[x.p];
       return '<span class="sh-cb"><span class="sh-cbf" aria-hidden="true">'+(o&&o!=='blend'?flagOf(o):'☕')+'</span><span><b>'+esc(x.n.slice(0,60))+'</b><small>'+esc([String(x.r||'').slice(0,50),o&&o!=='blend'?originName(o):'',P?P.name.replace(/\s*\(.*\)$/,''):''].filter(Boolean).join(' · '))+'</small></span></span>'}).join('')+'</div></div>').join('')+'</div>'}
 function renderCabinets(){const el=$('sh-cab');if(el)el.innerHTML=cabinetHTML()}
-function applyRemote(snap){CABS=snap&&snap.cabinet&&typeof snap.cabinet==='object'?snap.cabinet:{};renderCabinets();LOG=mergeRemote('log',snap.log).sort((a,b)=>(b.ts||0)-(a.ts||0));save('bb-log',LOG);if(window.BEANS_OK)checkTrophies();renderLog();
-  CREC=mergeRemote('recipes',snap.recipes).map(sanRec).filter(Boolean);save('bb-myrecipes',CREC);recipesChanged()}
+// The shared log streams every change (your own saves come back too, and a burst of them when it connects). Each one
+// used to merge, sort, save and redraw the whole log and the recipes, 50 to 100 ms on a phone every time: now a burst
+// is applied once, and only what actually changed (the brews, the recipes, the shelves) is saved and drawn again.
+let REM_SIG={log:'',rec:'',cab:''},REM_SNAP=null,REM_T=0;
+function applyRemote(snap){REM_SNAP=snap;if(REM_T)return;REM_T=setTimeout(()=>{REM_T=0;const sn=REM_SNAP;REM_SNAP=null;if(sn)applyRemoteNow(sn)},120)}
+function applyRemoteNow(snap){const pend=JSON.stringify(PENDING),sl=JSON.stringify(snap.log||{})+pend,sr=JSON.stringify(snap.recipes||{})+pend,sc=JSON.stringify(snap.cabinet||{});
+  if(sc!==REM_SIG.cab){REM_SIG.cab=sc;CABS=snap&&snap.cabinet&&typeof snap.cabinet==='object'?snap.cabinet:{};renderCabinets()}
+  if(sl!==REM_SIG.log){REM_SIG.log=sl;LOG=mergeRemote('log',snap.log).sort((a,b)=>(b.ts||0)-(a.ts||0));save('bb-log',LOG);if(window.BEANS_OK)checkTrophies();renderLog()}
+  if(sr!==REM_SIG.rec){REM_SIG.rec=sr;CREC=mergeRemote('recipes',snap.recipes).map(sanRec).filter(Boolean);save('bb-myrecipes',CREC);recipesChanged()}}
 function startStream(){stopStream();if(!GROUP||!SYNC_DB||typeof EventSource==='undefined')return;setSync('connecting');
   let snap={};const es=STREAM=new EventSource(dbUrl(''));
   // Apply a streamed change at its path, e.g. "/log/abc" or "/recipes/xyz/name".
@@ -2630,7 +2637,7 @@ function startStream(){stopStream();if(!GROUP||!SYNC_DB||typeof EventSource==='u
 function stopStream(){if(STREAM){STREAM.close();STREAM=null}}
 function joinGroup(code,name){ME=name.trim().slice(0,30);try{localStorage.setItem('bb-name',ME)}catch(e){}GROUP={code};save('bb-group',GROUP);try{CAB_REFUSED=localStorage.getItem('bb-cabno')===code}catch(e){}
   LOG.forEach(l=>{if(!l.by)l.by=ME;queue('put',l.id,l)});CREC.forEach(r=>{if(!r.author)r.author=ME;queue('put',r.id,r,'recipes')});pushCabinet.sig='';pushCabinet();renderLog();startStream()}
-function leaveGroup(){stopStream();CABS={};pushCabinet.sig='';GROUP=null;PENDING=[];save('bb-group',null);save('bb-pending',[]);try{localStorage.removeItem('bb-group')}catch(e){}setSync('off');renderLog()}
+function leaveGroup(){stopStream();CABS={};REM_SIG={log:'',rec:'',cab:''};clearTimeout(REM_T);REM_T=0;REM_SNAP=null;pushCabinet.sig='';GROUP=null;PENDING=[];save('bb-group',null);save('bb-pending',[]);try{localStorage.removeItem('bb-group')}catch(e){}setSync('off');renderLog()}
 addEventListener('online',()=>{if(GROUP){flush();if(!STREAM)startStream()}});addEventListener('offline',()=>{if(GROUP)setSync('offline')});
 function inviteDoc(){const link=SITE_URL+'#join='+GROUP.code;return{link,title:'Join my brew log',sub:'Shared log code '+GROUP.code,file:'brew-log-invite',blocks:[{p:'Tap the link to see and add to our shared coffee log in The Brew Bench:'},{p:link},{p:'Or open the app, go to Log and enter the code '+GROUP.code+'.'}]}}
 function renderShare(){const el=$('l-share');if(!el)return;
@@ -2834,7 +2841,7 @@ function renderLogList(force){const sec=$('log');if(!force&&sec&&!sec.classList.
 }
 $('l-filter').addEventListener('click',e=>{if(e.target.closest('#lf-f'))openLogFilter();else if(e.target.closest('#lf-s'))openLogSort()});
 $('l-filter').addEventListener('input',e=>{if(e.target.id!=='lf-q')return;LF.q=e.target.value;renderLogList()});
-function renderLog(){renderShare();renderLastBrew();renderWelcome();
+function renderLog(){renderShare();renderLastBrew();
   renderLogList();
   renderPalate();
   const rated=LOG.filter(l=>+l.stars>0),avg=rated.length?(rated.reduce((a,l)=>a+ +l.stars,0)/rated.length).toFixed(1):'–';
@@ -3979,7 +3986,7 @@ function renderChamps(){fetchEvents();CHF=CHF.filter(k=>COMPS[k]);
   const card=ch=>{const C=COMPS[ch.c];return '<div class="chwin"><div class="chpills"><span class="pill"><i style="background:'+C.color+'"></i>'+C.short+'</span>'+(chDev(ch)&&ch.c==='wbrc'?'<span class="pill chdev">'+esc(chDev(ch))+'</span>':'')+'</div>'+
     '<div class="chname"><span class="flag" aria-hidden="true">'+(FLAGS[ch.from]||'')+'</span><b>'+esc(ch.who)+'</b></div>'+
     '<p class="hint">'+esc(ch.from)+' · '+esc(ch.city)+'</p>'+(ch.coffee?'<p class="chcoffee">'+esc(ch.coffee)+'</p>':'')+(ch.note?'<p class="hint">'+esc(ch.note)+'</p>':'')+
-    (ch.rec?'<button type="button" class="btn ghost chbtn" data-champ="'+CHAMPS.indexOf(ch)+'">Winner’s recipe</button>':'')+'</div>'};
+    (ch.rec?pbtn('cup','data-champ="'+CHAMPS.indexOf(ch)+'"','Winner’s recipe','chbtn'):'')+'</div>'};
   const html=years.map(y=>{const w=CHAMPS.filter(x=>x.y===y&&on(x)),gp=!CHB.length?CH_GAPS.filter(g=>g[0]===y&&inSel(CHF,g[1])):[];
     if(!w.length&&!gp.length)return'';
     return '<li><span class="when">'+y+'</span>'+(w.length?'<div class="chrow">'+w.map(card).join('')+'</div>':'')+gp.map(g=>'<p class="hint">'+esc(g[2])+'</p>').join('')+'</li>'}).join('');
@@ -4127,7 +4134,7 @@ function ptreeHTML(nodes,depth){return '<div class="ptree'+(depth?' kids':'')+'"
   return '<div class="pnode" style="--c:'+c+'"><button type="button" class="pn-h" aria-expanded="false"><i aria-hidden="true"></i><span class="pn-t"><b>'+esc(name)+'</b><small'+(n.r?'':' class="dup"')+'>'+esc(sub)+'</small>'+(kn?'<em>'+kn+(kn===1?' variation':' variations')+' inside</em>':'')+'</span>'+
     '<span class="pn-x" aria-hidden="true"></span></button><div class="pn-b">'+
     (P?'<p>'+esc(P.char)+'</p>'+(P.notes&&P.notes.length?'<div class="chips">'+P.notes.map(x=>'<span class="chip">'+esc(x)+'</span>').join('')+'</div>':'')+
-       '<button type="button" class="btn ghost pn-go" data-go-p="'+n.p+'">How it works and how to brew it \u2192</button>':'<p>'+esc(n.d||n.s||'')+'</p>')+
+       pbtn('info','data-go-p="'+n.p+'"','How it works and how to brew it','pn-go'):'<p>'+esc(n.d||n.s||'')+'</p>')+
     (kn?'<p class="pn-kh">'+(P?'Variations of '+esc(P.name.replace(/\s*\(.*$/,'').toLowerCase().replace(/^co2/,'CO2')):'In this group')+'</p>'+ptreeHTML(n.kids,depth+1):'')+'</div></div>'}).join('')+'</div>'}
 function togglePnode(e){const h=e.target.closest('.pn-h');if(!h)return false;const n=h.parentElement,o=!n.classList.contains('open');n.classList.toggle('open',o);h.setAttribute('aria-expanded',o);return true}
 // Tapping a path opens its tree right under it (and closes any other).
@@ -4135,7 +4142,7 @@ function toggleBranch(btn){const i=+btn.dataset.fb,box=btn.parentElement,cur=box
   // The open path folds away as it unfolded (if another path opens, the new one takes its place at once).
   if(cur){if(same&&!RM()){cur.classList.add('out');setTimeout(()=>cur.remove(),180)}else cur.remove()}box.querySelectorAll('.fbr').forEach(b=>b.setAttribute('aria-expanded','false'));if(same)return;
   const b=FLOW_BRANCH[i],el=document.createElement('div');el.className='fbx';el.dataset.fb=i;
-  el.innerHTML='<div class="fbx-h"><b>The '+esc(b.t.toLowerCase())+' path</b><span class="hint">Tap a process to learn more; those with variations open to show them.</span></div>'+ptreeHTML(b.tree,0);
+  el.innerHTML='<div class="fbx-h"><b>The '+esc(b.t.toLowerCase())+' path</b></div>'+ptreeHTML(b.tree,0);
   btn.after(el);btn.setAttribute('aria-expanded','true');const r=el.getBoundingClientRect();if(r.bottom>innerHeight)el.scrollIntoView({block:'nearest',behavior:RM()?'auto':'smooth'})}
 function flowSheet(c,pill,title,sub,body){const d=$('vd');
   d.querySelector('#vd-in').innerHTML='<div class="vd-head" style="--c:'+c+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:'+c+'"></i>'+esc(pill)+'</span><h2 id="vd-title">'+esc(title)+'</h2>'+(sub?'<p class="hint" style="margin:0">'+esc(sub)+'</p>':'')+'</div><div class="vd-body flowd">'+body+'</div>';
@@ -4151,7 +4158,7 @@ function openFlowStep(id){const f=FBY[id];if(!f)return;const [pn,c]=FLOW_PHASES[
     (chips?'<h3>Words to know</h3><div class="chips">'+chips+'</div>':'')+
     '<div class="actions">'+(prev?'<button type="button" class="btn ghost" data-fnav="'+prev.id+'">← '+esc(prev.t)+'</button>':'')+(next?'<button type="button" class="btn" data-fnav="'+next.id+'">'+esc(next.t)+' →</button>':'')+'</div>')}
 function openFlowBranch(i){const b=FLOW_BRANCH[i],c=FLOW_PHASES.mill[1];
-  flowSheet(c,'Processing path',b.t,b.s,'<p><b>In the cup:</b> '+esc(b.d.toLowerCase())+'.</p><h3>'+(treeKeys(b.tree).length>1?'The processes on this path':'The process')+'</h3><p class="hint" style="margin-top:0">Tap a process to learn more; those with variations open to show them.</p>'+ptreeHTML(b.tree,0)+
+  flowSheet(c,'Processing path',b.t,b.s,'<p><b>In the cup:</b> '+esc(b.d.toLowerCase())+'.</p><h3>'+(treeKeys(b.tree).length>1?'The processes on this path':'The process')+'</h3>'+ptreeHTML(b.tree,0)+
     '<div class="actions"><button type="button" class="btn ghost" data-fnav="process">\u2190 Processing</button><button type="button" class="btn" data-fnav="dry">Drying \u2192</button></div>')}
 function flowDoc(){const txt=f=>f.d.replace(/\s*Tap [^.]*\./g,'')+(f.branch?' Paths: '+FLOW_BRANCH.map(b=>b.t+' ('+b.d.toLowerCase()+')').join(', ')+'.':'');
   return withCard({link:SITE_URL+'#flow',title:'From seed to cup',sub:'How coffee is made, step by step',file:'seed-to-cup',cardTitle:'Seed to cup card',cardSub:'Every step from the seed to your cup, in one image.',
@@ -4433,8 +4440,8 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
    // The coffee of the day and the fact of the day: in the Android app, a switch and a time each; on the website, where
    // there are no notifications, a word that they're in the app.
    '<h3 class="rh">Reminders</h3><div class="setgroup">'+(window.BEANS_OK&&LN()?
-     inl('bell','#8A5A3B','Coffee of the day',REMIND.on?'Every day at':'',tg('st-remind',REMIND.on,'Coffee of the day'),REMIND.on?'<input type="time" id="st-rtime" class="dateinp st-time" value="'+REMIND.t+'" aria-label="Reminder time">':'')+
-     inl('bulb','#9A7390','Coffee fact of the day',LEARN.on?'Every day at':'',tg('st-learn',LEARN.on,'Coffee fact of the day'),LEARN.on?'<input type="time" id="st-ltime" class="dateinp st-time" value="'+LEARN.t+'" aria-label="Fact time">':'')
+     inl('bell','#8A5A3B','Coffee of the day',REMIND.on?'<span class="st-at"><input type="time" id="st-rtime" class="st-time" value="'+REMIND.t+'" aria-label="Reminder time"></span>':'',tg('st-remind',REMIND.on,'Coffee of the day'))+
+     inl('bulb','#9A7390','Coffee fact of the day',LEARN.on?'<span class="st-at"><input type="time" id="st-ltime" class="st-time" value="'+LEARN.t+'" aria-label="Fact time"></span>':'',tg('st-learn',LEARN.on,'Coffee fact of the day'))
      :inl('bell','#8A5A3B','Coffee of the day','','<span class="st-tag">In the app</span>')+inl('bulb','#9A7390','Coffee fact of the day','','<span class="st-tag">In the app</span>'))+'</div>'+
    '<h3 class="rh">Your data</h3><div class="setgroup">'+inl('download','#8A5A3B','Back up and restore','<span id="st-lastbak">'+lastBakText()+'</span>',
      '<span class="st-acts">'+ib('ul','id="st-import"','Restore from a file')+ib('dl','id="st-export"','Back up now','main')+'</span><input type="file" id="st-file" accept="application/json,.json" hidden>')+'</div>'+
@@ -4683,19 +4690,8 @@ function welcomeHTML(when){const d=when||new Date(),h=d.getHours(),t=h<5?'night'
   return{t,html:'<div class="wl-top"><span class="wl-ic" aria-hidden="true">'+hi[0]+'</span><span class="wl-date">'+esc(d.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'}))+'</span></div>'+
     '<h2 class="wl-hi">'+hi[1]+(nick?', <em>'+esc(nick)+'</em>':'')+'</h2>'+
     '<figure class="wl-qf"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18v-5.5C4 8.4 6.4 5.6 10 5l.6 1.9C8.4 7.6 7.4 9 7.3 11H10v7H4zm10 0v-5.5c0-4.1 2.4-6.9 6-7.5l.6 1.9c-2.2.7-3.2 2.1-3.3 4.1H20v7h-6z"/></svg>'+
-    '<span class="wl-k">Today\u2019s coffee wisdom</span><blockquote class="wl-q">'+esc(q)+'</blockquote>'+(by?'<figcaption class="wl-by">'+esc(by)+'</figcaption>':'')+'</figure>'+wlActs(t)}}
-/* What the time of day calls for, as a row of pills on the welcome: in the morning your last brew again and the timer;
-   in the afternoon a new recipe to try; in the evening (and late) the diary and tomorrow's coffee from your cabinet. */
-function wlActs(t){const a=[],last=LOG.find(x=>x&&(!x.by||x.by===ME)),ag=last&&againPlan(last),bk=window.BEANS_OK;
-  const pill=(k,ic,label)=>'<button type="button" class="wl-a" data-wa="'+k+'">'+lIc(ic)+'<span>'+esc(label)+'</span></button>';
-  if(t==='morning'){if(ag)a.push(pill('again','again','Brew again'));a.push(pill('timer','timer','Start a brew'))}
-  else if(t==='day'){if(bk&&BEANS.length)a.push(pill('make','dice','Surprise me'));if(ag)a.push(pill('again','again','Brew again'))}
-  else{if(bk&&BEANS.length)a.push(pill('diary','log','Write in the diary'));const c=bk&&typeof cabinetDay==='function'?cabinetDay(new Date(Date.now()+864e5)):null;if(c)a.push(pill('tomorrow','bag','Tomorrow’s coffee'))}
-  return a.length?'<div class="wl-acts">'+a.join('')+'</div>':''}
-function renderWelcome(){const el=$('welcome');if(!el)return;const w=welcomeHTML();el.dataset.t=w.t;if(el._h!==w.html){el.innerHTML=w.html;el._h=w.html}}
-$('welcome').addEventListener('click',e=>{const b=e.target.closest('[data-wa]');if(!b)return;const k=b.dataset.wa;
-  if(k==='again'){const l=LOG.find(x=>x&&(!x.by||x.by===ME));if(l)brewAgain(l)}else if(k==='timer'){if(dialPlan())dialTimer();else{toast('Pick a recipe first');const r=$('d-recbox');if(r)r.scrollIntoView({block:'center',behavior:RM()?'auto':'smooth'})}}else if(k==='make')openMakeRecipe(null,true);
-  else if(k==='diary'){goTab('beans');BVIEW='diary';renderBeanViews()}else if(k==='tomorrow'){const c=cabinetDay(new Date(Date.now()+864e5));if(c)openBean(c.b.id)}});
+    '<span class="wl-k">Today\u2019s coffee wisdom</span><blockquote class="wl-q">'+esc(q)+'</blockquote>'+(by?'<figcaption class="wl-by">'+esc(by)+'</figcaption>':'')+'</figure>'}}
+function renderWelcome(){const el=$('welcome');if(!el)return;const w=welcomeHTML();if(el._h!==w.html){el.innerHTML=w.html;el._h=w.html}}
 renderWelcome();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)renderWelcome()});
 /* ================= INIT ================= */
@@ -4737,7 +4733,9 @@ requestAnimationFrame(()=>{NAV_READY=true});
 {let lastY=scrollY,raf=0,acc=0,gest=-1e9;for(const ev of ['touchmove','wheel'])addEventListener(ev,()=>{gest=performance.now()},{capture:true,passive:true});const fabOf=()=>{const s=document.querySelector('main>section.on');return s&&s.querySelector(':scope>.fab')};
   const set=(f,away)=>{if(f&&f.classList.contains('away')!==away)f.classList.toggle('away',away)};
   // The tab bar goes with it on every page (phones): more room to read, back the moment you scroll up.
-  const H=document.documentElement,setNav=away=>{if(H.classList.contains('nav-away')!==away)H.classList.toggle('nav-away',away)};
+  // The class goes on the bar itself, not the page: on <html> it made the browser restyle every element of a long list
+  // each time the bar came or went while you scrolled.
+  const H=document.querySelector('.bottomnav')||document.documentElement,setNav=away=>{if(H.classList.contains('nav-away')!==away)H.classList.toggle('nav-away',away)};
   addEventListener('scroll',()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;const y=scrollY,d=y-lastY;lastY=y;const f=fabOf();if(FAB_OPEN)return;
     if(performance.now()-gest>700){acc=0;return}
     acc=Math.sign(d)===Math.sign(acc)?acc+d:d;

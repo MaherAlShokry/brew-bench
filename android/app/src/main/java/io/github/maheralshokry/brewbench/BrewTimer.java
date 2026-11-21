@@ -381,11 +381,15 @@ final class BrewTimer {
         return bm;
     }
 
-    /** The bar: one segment per step, the gaps between them marking each pour (Android 16), else a plain bar. In seconds. */
+    /**
+     * The bar: one segment per step, the gaps between them marking each pour (Android 16), else a plain bar. In seconds.
+     * Samsung's One UI draws nothing for the segmented style (the brew showed no progress at all on its lock screen and
+     * in the shade), so Samsung phones get the plain bar, which every Android draws.
+     */
     static void progress(Notification.Builder b, St s, long e) {
         int max = (int) Math.max(1, s.total / 1000), at = (int) Math.min(max, e / 1000);
         if (s.total <= 0) return;
-        if (Build.VERSION.SDK_INT >= 36) {
+        if (Build.VERSION.SDK_INT >= 36 && !"samsung".equalsIgnoreCase(Build.MANUFACTURER)) {
             Notification.ProgressStyle ps = new Notification.ProgressStyle();
             List<Notification.ProgressStyle.Segment> segs = new ArrayList<>();
             int last = 0;

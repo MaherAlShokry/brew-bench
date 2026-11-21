@@ -2171,10 +2171,6 @@ i.rl{font-style:inherit;font-variant-numeric:tabular-nums}
 .sh-cb{flex:none;display:flex;align-items:center;gap:8px;max-width:220px;padding:8px 12px 8px 8px;border-radius:14px;background:var(--surface2)}
 .sh-cbf{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--surface);font-size:1rem;flex:none}
 .sh-cb>span:last-child{display:flex;flex-direction:column;min-width:0}.sh-cb b{font-size:.84rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sh-cb small{font-size:.74rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wl-acts{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}.wl-acts::-webkit-scrollbar{display:none}
-.wl-a{flex:0 1 auto;max-width:100%;display:inline-flex;align-items:center;gap:7px;min-height:38px;padding:0 14px 0 12px;border:0;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);color:var(--ink);font:600 .84rem var(--display);cursor:pointer;white-space:nowrap;transition:transform .12s}
-.wl-a:first-child{background:var(--cherry);color:var(--surface-ink,var(--surface));box-shadow:none}.wl-a:active{transform:scale(.96)}
-.wl-a svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 #ab-search{width:40px;height:40px;padding:0;display:grid;place-items:center;border-radius:50%}#ab-search svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
 .gx-q{width:100%;margin-top:12px}.gx-h{margin:16px 0 4px;font:700 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .gx-row{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:12px;width:100%;padding:10px 4px;border-radius:12px;cursor:pointer}.gx-row+.gx-row{border-top:1px solid var(--line)}
@@ -3043,7 +3039,8 @@ textarea{resize:none}
 .st-val{margin-left:8px;font:500 .84rem var(--body);color:var(--muted)}
 .st-tag{flex:none;padding:5px 10px;border-radius:999px;background:var(--surface2);color:var(--muted);font:600 .74rem var(--display)}
 .st-acts{flex:none;display:flex;gap:8px}
-.setrow .st-time{display:block;width:auto!important;min-height:36px;height:36px;margin-left:48px!important;padding:0 14px;border:0;border-radius:999px!important;background:var(--surface2);color:var(--ink);font:600 .95rem var(--display);box-shadow:none}
+.st-at{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.setrow .st-time{display:inline-block;width:auto;min-height:0;height:30px;margin:0;padding:0 10px;border:0;border-radius:999px;background:var(--surface2);color:var(--ink);font:600 .86rem var(--display);box-shadow:none;color-scheme:light dark}
 .setlink.danger b{color:#A8432F}html[data-theme="dark"] .setlink.danger b{color:#E08A74}
 a.setrow.setlink{text-decoration:none;color:inherit}
 .swatches{display:grid!important;grid-template-columns:repeat(var(--n,8),minmax(0,1fr));gap:4px!important;justify-items:center}
@@ -3104,9 +3101,9 @@ html[data-nav=push] main section.nav-in{position:relative;z-index:3;background:v
 /* ===== The tab bar moves with your scroll, like the + and a sheet's action bar (phones). Transform and opacity only. */
 @media (max-width:759px){
   .bottomnav{transition:transform .36s var(--ease-sheet),opacity .26s ease}
-  html.nav-away .bottomnav{transform:translateY(calc(100% + 18px + var(--sa-bottom)));opacity:0;pointer-events:none}
+  .bottomnav.nav-away{transform:translateY(calc(100% + 18px + var(--sa-bottom)));opacity:0;pointer-events:none}
 }
-@media (prefers-reduced-motion:reduce){html.nav-away .bottomnav{transform:none}}
+@media (prefers-reduced-motion:reduce){.bottomnav.nav-away{transform:none}}
 
 /* ===== Tiles, one modern look everywhere: a clean card with a faint wash of its colour (no glow), a soft chip of the
    same colour holding the icon drawn in a deeper shade (clear in light and dark), a quiet grey name and the answer in ink.
@@ -3222,9 +3219,47 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 .sheet-acts.sa-off{transform:translateY(10px) scale(.86);opacity:0;pointer-events:none;visibility:hidden;transition:transform .26s var(--pill-out),opacity .18s ease .06s,visibility 0s .3s}
 @media (max-width:759px){
   .bottomnav{transition:transform .44s var(--pill-in),opacity .22s ease}
-  html.nav-away .bottomnav{transition:transform .26s var(--pill-out),opacity .18s ease .06s}
+  .bottomnav.nav-away{transition:transform .26s var(--pill-out),opacity .18s ease .06s}
 }
-@media (prefers-reduced-motion:reduce){.fab,.fab.away,.sheet-acts,.sheet-acts.sa-off,.bottomnav,html.nav-away .bottomnav{transition:opacity .15s!important}.fab.away,.sheet-acts.sa-off,html.nav-away .bottomnav{transform:none!important}}
+@media (prefers-reduced-motion:reduce){.fab,.fab.away,.sheet-acts,.sheet-acts.sa-off,.bottomnav,.bottomnav.nav-away{transition:opacity .15s!important}.fab.away,.sheet-acts.sa-off,.bottomnav.nav-away{transform:none!important}}
+
+/* Smooth scrolling: the bars that stay on screen while you scroll (top bar, tab bar, the Brew page's mini result, the
+   sticky tab strips) no longer blur what passes under them. A live blur has to be painted again on every frame of a
+   scroll, the main cause of stutter on Android phones; nearly opaque as they are, it barely showed. */
+.appbar,.minires,.bottomnav,.gtabs,.seg.bviews,nav.tabs,nav.tabs .wrap,.themebtn{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+:root,html.app{--glass:color-mix(in srgb,var(--surface) 98%,transparent);--nav-bg:color-mix(in srgb,var(--surface) 98%,transparent)}
+
+/* One design language: no coloured edge stripes; a dot pill names the family, round icon buttons act, chevrons open. */
+.vcard,.vcard:hover{border-top:0!important;border-top-color:transparent!important}
+.vd-head{border-top:0}
+.tcard{border-left:0}
+.wcard{border-left:0}
+.vcard .pill.fam,.pcard>.pill,.tcard .cat{font:600 .74rem var(--body);color:var(--ink);padding:3px 10px 3px 8px;margin:0 0 6px;max-width:calc(100% - 44px);overflow:hidden;text-overflow:ellipsis}
+.vcard h3,.pcard h3,.tcard h3{margin:.15rem 0 .25rem}
+.vcard .ib.addcmp{position:absolute;top:10px;right:10px;width:34px;height:34px;padding:0;min-height:0;background:var(--surface2);color:var(--ink)}
+.vcard .ib.addcmp[aria-pressed="true"]{background:var(--cherry);color:var(--surface-ink,#fff)}
+.vcard .ib.addcmp::after{inset:-6px}
+.dir{display:inline-flex;align-items:center;gap:6px;width:max-content;font:600 .78rem var(--body);padding:3px 10px;border-radius:999px;background:color-mix(in srgb,var(--leaf) 14%,var(--surface));color:var(--leaf-ink,var(--leaf))}
+.dir.coarse{background:color-mix(in srgb,var(--honey) 18%,var(--surface));color:var(--ink)}
+.wgroup>h3{margin:22px 0 10px;font:700 .78rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.wgroup>h3 i{width:8px;height:8px;border-radius:50%}
+.wcard h4::after{content:"";width:7px;height:7px;flex:none;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:translateY(-2px) rotate(45deg);transition:transform .2s var(--ease-out,ease);align-self:center}
+.wcard.open h4::after{content:"";transform:translateY(2px) rotate(-135deg)}
+.le-notes{border-left:0;border-radius:var(--r-md,14px);background:var(--surface2);font-style:normal;padding:10px 12px}
+.chstart{border-left:0;border-radius:var(--r-md,14px);background:var(--surface2);padding:10px 12px}
+.stepper{border:0;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line);padding:3px;height:auto;gap:2px;overflow:visible}
+.stepper button{width:34px;height:34px;border-radius:50%;background:var(--surface2);color:var(--ink);font:600 1.1rem/1 var(--display)}
+.stepper:focus-within{box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--cherry) 55%,var(--line)),0 0 0 3px color-mix(in srgb,var(--cherry) 14%,transparent)}
+
+.fbr{border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow);border-radius:16px}
+.fbr em{color:var(--ink);display:inline-flex;align-items:center;gap:6px;width:max-content;padding:2px 9px 2px 7px;border-radius:999px;background:var(--surface2);font-size:.74rem}
+.fbr em::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c);flex:none}
+.chwin .pbtn.chbtn{width:auto;align-self:flex-start;margin-top:auto}
+.vcard .meta span{background:none;padding:0;border-radius:0;color:var(--muted);font-size:.84rem;white-space:normal}
+.vcard .meta{gap:4px 12px}
+
+.pbtn.on{background:color-mix(in srgb,var(--cherry) 16%,var(--surface2));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--cherry) 45%,transparent)}
+.pcard>.pbtn,.sub>.pbtn{margin-top:10px}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
@@ -3538,12 +3573,10 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
   </div>
   <div class="gpanel" data-gpanel="dials" role="tabpanel" hidden>
     <h3 id="g-dials" class="gsec">Read your dials</h3>
-    <p class="hint" style="margin-top:0">Drag the slider to see what a setting means and which brew it suits.</p>
     <div class="seg" id="gear-dialpick"></div>
     <div class="grid gdials" id="gear-grinders" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))"></div>
     <div class="card gsec" id="gmatch" style="margin-top:14px"></div>
     <h3 id="g-map" class="gsec" style="margin-top:1.6rem">Where every brewer sits on your dials</h3>
-    <p class="hint">Tap a marker to see the setting. These follow your grind settings.</p>
     <div class="card" id="grindmap"></div>
     <details class="card" style="margin-top:14px"><summary><b>Why grinders need different numbers</b> <span class="hint">How the dials work</span></summary>
     <p>The 1Zpresso grinders use an external ring read as <b>rotation.number.click</b>. Close the burrs until they just touch: that is zero. Turning toward bigger numbers opens the burrs and grinds coarser. Most filter brewing stays inside the first rotation, so the rotation digit is usually dropped: <b>5.6</b> means number 5, click 6.</p>
@@ -3558,7 +3591,6 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
   </div>
   <div class="gpanel" data-gpanel="lib" role="tabpanel" hidden>
     <h3 id="g-lib" class="gsec">Grinder library</h3>
-    <p class="hint" style="margin-top:0">Manual and electric grinders by brand, with their burrs, dials and typical settings. Tap Compare on up to three to see them side by side.</p>
     <div class="lf-top lt" id="glt"><label class="lf-q"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4"/></svg><input type="search" id="glib-search" placeholder="Search grinders" aria-label="Search grinders"></label><button type="button" class="rsortw" id="glt-f" aria-pressed="false" aria-label="Filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
     <div id="gcmp"></div>
     <div id="glib"></div>
@@ -3602,7 +3634,6 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
   <div class="lf-top lt" id="chlt"><p class="lt-k" id="chlt-k"></p><button type="button" class="rsortw" id="chlt-f" aria-pressed="false" aria-label="Filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
   <div class="grid" id="ch-about"></div>
   <h3 class="sec">Timeline</h3>
-  <p class="hint">Newest first. Tap a champion's button for their recipe and gear, and how to brew it with yours.</p>
   <ol class="timeline chtl" id="ch-tl"></ol>
 </section>
 
