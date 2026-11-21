@@ -3189,7 +3189,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="ec0485f4b586"</script>
+<script>const BUILD_ID="9e35ca3f797c"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -7486,6 +7486,18 @@ let KEYNAV=false;addEventListener('keydown',e=>{if(e.key==='Tab')KEYNAV=true},tr
 // phone. The backdrop still takes every tap outside the sheet, Escape and back close it, and keyboard focus moves in.
 function openTop(d){if(d.showPopover){try{if(!d.hasAttribute('popover'))d.setAttribute('popover','manual');d.setAttribute('aria-modal','true');dlgOpened(d);d.setAttribute('open','');d.showPopover();return}catch(e){d.removeAttribute('popover')}}
   try{d.showModal()}catch(e){d.setAttribute('open','')}}
+// A sheet's backdrop as a popover doesn't take taps: they reached the page under it (opening the bean picker behind
+// the Share sheet). So while a sheet is open, every tap outside the top sheet stops here, and a tap outside closes it
+// the way a tap on a modal's backdrop did (a sheet's own backdrop handler runs first; any other sheet just closes). While a sheet slides away its taps
+// still stop here, so a quick second tap doesn't land on the page.
+{const topDlg=()=>{for(let i=DSTACK.length-1;i>=0;i--)if(DSTACK[i].open)return DSTACK[i];return null};
+  const outside=e=>{if(!e.isTrusted)return null;const d=topDlg();if(!d||!d.hasAttribute('popover'))return null;const t=e.target;
+    if(!(t instanceof Node)||d.contains(t))return null;if(t.closest&&t.closest('#toast,[popover]:not(dialog)'))return null;return d};
+  let down=null;
+  const stop=e=>{const d=outside(e);if(!d)return;if(e.cancelable&&e.type!=='touchmove')e.preventDefault();e.stopImmediatePropagation();
+    if(e.type==='pointerdown')down={d,x:e.clientX,y:e.clientY};
+    else if(e.type==='pointerup'){const p=down;down=null;if(p&&p.d===d&&Math.abs(e.clientX-p.x)<12&&Math.abs(e.clientY-p.y)<12&&!d.classList.contains('closing')){const ev=new MouseEvent('click',{bubbles:true,cancelable:true});d.dispatchEvent(ev);if(!ev.defaultPrevented&&d.open&&!d.classList.contains('closing'))d.close()}}};
+  for(const t of ['pointerdown','pointerup','mousedown','mouseup','touchstart','touchend','click','dblclick','contextmenu'])addEventListener(t,stop,{capture:true,passive:false})}
 addEventListener('keydown',e=>{if(e.key!=='Escape'||e.defaultPrevented)return;const top=DSTACK.filter(d=>d.open&&d.hasAttribute('popover')&&!d.classList.contains('closing')).pop();if(top){e.preventDefault();top.close()}});
 function showDlg(d){NAV_AT=performance.now();if(d.classList.contains('closing')){d.classList.remove('closing');return}
   // A sheet opened afresh starts at its top (a closed sheet kept where it was last scrolled, so a coffee opened after
