@@ -18,6 +18,11 @@ const a=await s('kenya');ok('one word finds origins and more, best first, highli
 const g=await s('geisha');ok('varieties are found',a&&g.groups.includes('Varieties'),g);
 const w=await s('bloom');ok('recipes and coffee words are found',w.groups.includes('Coffee words')||w.groups.includes('Recipes'),w);
 const c=await p.evaluate(()=>BEANS[0].name.slice(0,5));const mine=await s(c);ok('your coffees come first',mine.groups[0]==='Your coffees',mine);
+const ro=await p.evaluate(()=>BEANS[0].roaster.slice(0,5));const rr=await s(ro);ok('roasteries are found',rr.groups.includes('Roasteries'),rr);
+const ch=await p.evaluate(()=>CHAMPS[0].who.split(' ')[0]);const cr=await s(ch);ok('champions are found',cr.groups.includes('Champions'),cr);
+const lg=await p.evaluate(()=>{LOG.unshift({id:'gsl1',ts:Date.now(),date:'',coffee:'Zebra Peaberry Lot',settings:'V60, 15g',notes:'stone fruit',stars:4});return 1});const lr=await s('zebra');ok('your brews are found',lr.groups.includes('Your brews'),lr);
+await p.click('#gs-res [data-gs="0"]');await p.waitForTimeout(800);ok('a brew opens the log filtered to its coffee',await p.evaluate(()=>!$('vd').open&&document.querySelector('main section.on').id==='log'&&LF.q==='Zebra Peaberry Lot'));
+await p.evaluate(()=>{LOG.shift();goTab('dial')});await p.waitForTimeout(400);await p.click('#ab-search');await p.waitForTimeout(500);
 const n=await s('zzqqx');ok('nothing matches says so',/Nothing matches/.test(n.text),n);
 await s(c);await p.click('#gs-res [data-gs="0"]');await p.waitForTimeout(700);
 ok('a coffee opens its page',await p.evaluate(()=>$('vd').open&&$('vd').dataset.bean===BEANS[0].id));

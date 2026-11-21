@@ -14,9 +14,11 @@ async function run(port){const b=await chromium.launch();const c=await b.newCont
   await p.goto('http://localhost:'+port+'/index.html');await p.waitForTimeout(2500);await p.reload();
   const cdp=await c.newCDPSession(p);await cdp.send('Emulation.setCPUThrottlingRate',{rate:4});await p.waitForTimeout(4000);
   const out={};const med=a=>a.slice().sort((x,y)=>x-y)[a.length>>1];
-  // First visits of the five bottom-bar pages, soon after opening: dropped-frame time over each slide.
-  {let jank=0;for(const t of ['recipes','beans','explore','settings','dial']){await p.evaluate(()=>{window.__fr=[];let l=performance.now();const f=x=>{__fr.push(x-l);l=x;if(__fr.length<54)requestAnimationFrame(f)};requestAnimationFrame(f)});
-    await p.tap('.bottomnav [data-bn="'+t+'"]');await p.waitForTimeout(1000);jank+=(await p.evaluate(()=>__fr)).reduce((a,x)=>a+Math.max(0,x-16.7),0)}out['first tab visits']=Math.round(jank)}
+  // First visits of the five bottom-bar pages, soon after opening: dropped-frame time over each slide. A first visit
+  // happens once per page load, so one reading swung with whatever else the machine was doing; it's taken three times
+  // (the page reloaded in between, each a true first visit) and the middle one kept.
+  {const tries=[];for(let k=0;k<3;k++){if(k){await p.reload();await p.waitForTimeout(4000)}let jank=0;for(const t of ['recipes','beans','explore','settings','dial']){await p.evaluate(()=>{window.__fr=[];let l=performance.now();const f=x=>{__fr.push(x-l);l=x;if(__fr.length<54)requestAnimationFrame(f)};requestAnimationFrame(f)});
+    await p.tap('.bottomnav [data-bn="'+t+'"]');await p.waitForTimeout(1000);jank+=(await p.evaluate(()=>__fr)).reduce((a,x)=>a+Math.max(0,x-16.7),0)}tries.push(Math.round(jank))}out['first tab visits']=med(tries)}
   await p.waitForTimeout(8000);
   await p.evaluate(()=>{window.__lf=[];new PerformanceObserver(l=>{for(const e of l.getEntries())__lf.push(e.duration)}).observe({type:'long-animation-frame'});window.__ev=[];new PerformanceObserver(l=>{for(const e of l.getEntries())if(e.interactionId)__ev.push(e.duration)}).observe({type:'event',durationThreshold:16})});
   const meas=async(name,fn,n=6,w=700)=>{const r=[];for(let i=0;i<n;i++){await p.evaluate(()=>{__ev=[];__lf=[]});await fn(i);await p.waitForTimeout(w);r.push(await p.evaluate(()=>Math.round(__lf.reduce((a,x)=>a+Math.max(0,x-16),0)+Math.max(0,...__ev))))}out[name]=med(r)};
@@ -35,12 +37,14 @@ async function run(port){const b=await chromium.launch();const c=await b.newCont
 (async()=>{const S={base:{},pr:{}};const add=(k,o)=>{for(const [a,v] of Object.entries(o))(S[k][a]=S[k][a]||[]).push(v)};
   const med=a=>a.slice().sort((x,y)=>x-y)[a.length>>1];
   for(let r=0;r<ROUNDS;r++){add('base',await run(BASE));add('pr',await run(PR))}
-  const slower=a=>{const b=med(S.base[a]),q=med(S.pr[a]);return q>b*1.3&&q-b>30};
+  // First tab visits swing most from run to run (the same build measured against itself moved by 60 ms), so it needs a
+// bigger change to count: 40% and 60 ms.
+  const LIM={'first tab visits':[1.4,60]},slower=a=>{const b=med(S.base[a]),q=med(S.pr[a]),[r,ms]=LIM[a]||[1.3,30];return q>b*r&&q-b>ms};
   let bad=ACTIONS.filter(a=>S.base[a]&&slower(a));
   // A slowdown is only believed if it holds when measured again.
   if(bad.length){for(let r=0;r<ROUNDS;r++){add('base',await run(BASE));add('pr',await run(PR))}bad=bad.filter(slower)}
   const rows=ACTIONS.filter(a=>S.base[a]).map(a=>({action:a,base:med(S.base[a]),pr:med(S.pr[a]),slower:bad.includes(a)}));
   fs.writeFileSync('perfguard.json',JSON.stringify({rows,bad},null,1));
-  const md='### Speed check\nBusy time after each action (ms, median of '+S.base[ACTIONS[0]].length+' interleaved runs, 4x CPU). Lower is better; only a slowdown of 30% and 30 ms that holds when measured again fails.\n\n| Action | Base | This PR | |\n|---|---:|---:|---|\n'+
+  const md='### Speed check\nBusy time after each action (ms, median of '+S.base[ACTIONS[0]].length+' interleaved runs, 4x CPU). Lower is better; only a slowdown of 30% and 30 ms (first tab visits: 40% and 60 ms) that holds when measured again fails.\n\n| Action | Base | This PR | |\n|---|---:|---:|---|\n'+
     rows.map(r=>'| '+r.action+' | '+r.base+' | '+r.pr+' | '+(r.slower?'**slower**':r.pr<r.base*0.8&&r.base-r.pr>20?'faster':'')+' |').join('\n')+'\n';
   fs.writeFileSync('perfguard.md',md);console.log(md);if(bad.length){console.log('Slower: '+bad.join(', '));process.exitCode=1}})();

@@ -123,6 +123,12 @@ The log is stored in a free [Firebase Realtime Database](https://firebase.google
             ".write": "$code.matches(/^[A-Z0-9]{4}-[A-Z0-9]{4}$/)",
             ".validate": "newData.hasChildren(['id', 'name', 'b'])"
           }
+        },
+        "cabinet": {
+          "$who": {
+            ".write": "$code.matches(/^[A-Z0-9]{4}-[A-Z0-9]{4}$/)",
+            ".validate": "newData.hasChildren(['by', 'ts', 'beans'])"
+          }
         }
       }
     },

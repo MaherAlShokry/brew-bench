@@ -19,4 +19,21 @@ ok('friends\' shelves show under On their shelves, not yours',/On their shelves/
 ok('what comes from others is shown as text only',!r.img,r);
 const n0=puts.length;await p.evaluate(()=>{BEANS[0].name=BEANS[0].name+' X';saveBeans()});await p.waitForTimeout(2200);
 ok('changing your coffees shares the shelf again',puts.slice(n0).some(x=>/\/cabinet\//.test(x.u)),puts.slice(n0).map(x=>x.u));
+const n2=puts.length;await p.evaluate(async()=>{goTab('log');await new Promise(r=>setTimeout(r,300));$('sh-cabsw').click()});await p.waitForTimeout(800);
+const dels=await p.evaluate(()=>({share:CAB_SHARE}));
+ok('the switch turns sharing off (and takes your shelf down)',dels.share===false,dels);
+// A database whose rules refuse the shelf: the refusal is dropped, the queue carries on (brews still go up), the card
+// says Live, not Offline, and the shelf stops being sent. The switch takes your shelf down.
+const p3=await b.newPage({viewport:{width:390,height:844}});p3.on('pageerror',e=>errs.push(e.message));const got=[];
+await p3.route(u=>!u.href.startsWith('http://localhost'),async r=>{const u=r.request().url();if(/sync2\.example/.test(u)){const m=r.request().method();got.push(m+' '+u.replace(/^.*\/groups\//,''));return r.fulfill({status:/\/cabinet\//.test(u)?401:200,body:/\/cabinet\//.test(u)?'{"error":"Permission denied"}':'null'})}return r.abort()});
+await p3.addInitScript(()=>{sessionStorage.setItem('bb-splashed','1');localStorage.setItem('bb-syncdb','https://sync2.example');window.EventSource=class{constructor(){}addEventListener(){}close(){}}});
+await p3.goto('http://localhost:8099/index.html');await p3.evaluate(require('./seed2.cjs'));await p3.reload();await p3.waitForTimeout(1800);
+const q=await p3.evaluate(async()=>{joinGroup('WXYZ-2345','Sam');await new Promise(r=>setTimeout(r,1500));const e={id:'cabt1',ts:Date.now(),date:'',coffee:'After',settings:'x',stars:4};LOG.unshift(e);queue('put',e.id,e);await new Promise(r=>setTimeout(r,800));
+  goTab('log');await new Promise(r=>setTimeout(r,400));return{pending:PENDING.length,state:SYNC_STATE,refused:CAB_REFUSED,sw:!!$('sh-cabsw'),label:$('sync-state')&&$('sync-state').textContent}});
+ok('a refused shelf never holds the log back: nothing left waiting, the brew went up, and the card is not Offline',q.pending===0&&got.some(x=>/log\/cabt1/.test(x))&&q.state!=='offline'&&q.refused,{q,got:got.slice(-4)});
+const n1=got.length;await p3.evaluate(()=>{BEANS[0].shelf=true;BEANS[0].name+=' Z';saveBeans()});await p3.waitForTimeout(2200);
+ok('after a refusal the shelf is not sent again',!got.slice(n1).some(x=>/cabinet/.test(x)),got.slice(n1));
+const card=await p3.evaluate(()=>{const t=document.querySelector('#l-share .sh-tx'),b=t.querySelector('b'),st=t.querySelector('.sh-st'),bt=document.querySelector('#sh-invite').getBoundingClientRect(),sr=st.getBoundingClientRect();
+  return{titleH:Math.round(b.getBoundingClientRect().height),codeFull:t.querySelector('.code').scrollWidth<=t.querySelector('.code').clientWidth+1,overlap:sr.right>bt.left+1,code:t.querySelector('.code').textContent}});
+ok('the card: the title on one line, the status and code under it, all of the code, nothing under the buttons',card.titleH<30&&card.codeFull&&!card.overlap&&card.code==='WXYZ-2345',card);
 ok('no page errors',!errs.length,errs);await b.close()})();
