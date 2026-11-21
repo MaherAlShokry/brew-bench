@@ -98,6 +98,18 @@ function tasteHTML(){if(!window.BEANS_OK||BEANS.length<2)return '';const t=taste
     (tasteLine(t)?'<p class="me-tl">'+esc(tasteLine(t))+'</p>':'')+
     (rows.length?factCard(rows.map(([i,k,vv])=>[i,k,esc(vv),TASTE_C[k]]),{cls:'me-tf'}):'')+
     (t.notes.length?'<div class="me-notes chips">'+t.notes.slice(0,5).map(n=>'<span class="chip"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'</span>').join('')+'</div>':'')+'</div>'}
+/* Taste over time: the last six months you brewed in, a bar each for how you rated your cups (beans out of five), the
+   flavour group you tasted most that month as its colour under the bar, and one line on how it's moving. */
+function trendsHTML(){if(typeof flOf!=='function')return '';const mine=LOG.filter(l=>l&&isMine(l)&&+l.ts>0),M=new Map();
+  for(const l of mine){const d=new Date(+l.ts),k=d.getFullYear()*12+d.getMonth();let m=M.get(k);if(!m)M.set(k,m={k,n:0,r:0,rn:0,g:new Map()});m.n++;
+    if(+l.stars>0){m.r+=+l.stars;m.rn++}for(const [id,v] of flOf(l)){const n=FW.byId[id],g=n&&(n.path&&n.path[1]||n.cat);if(!g)continue;const e=m.g.get(g.id)||{n:g.n,c:g.hue||g.c,v:0};e.v+=v;m.g.set(g.id,e)}}
+  const ms=[...M.values()].sort((a,b)=>a.k-b.k).slice(-6);if(ms.length<2||!ms.some(m=>m.rn))return '';
+  const name=k=>new Date(Math.floor(k/12),k%12,1).toLocaleDateString(undefined,{month:'short'}),top=m=>[...m.g.values()].sort((a,b)=>b.v-a.v)[0];
+  const rated=ms.filter(m=>m.rn),first=rated[0],last=rated[rated.length-1],dr=rated.length>1?last.r/last.rn-first.r/first.rn:0,lt=top(ms[ms.length-1]);
+  const line=(Math.abs(dr)>=0.3?'Your ratings are '+(dr>0?'up':'down')+' '+Math.abs(dr).toFixed(1)+' since '+name(first.k)+'.':'Your ratings are steady.')+(lt?' Lately: '+lt.n.toLowerCase()+'.':'');
+  return '<section class="me-sec" aria-label="Taste over time"><h3 class="me-sh">Taste over time</h3><div class="me-trend"><div class="mt-bars">'+ms.map(m=>{const a=m.rn?m.r/m.rn:0,t=top(m);
+      return '<div class="mt-col"><span class="mt-v">'+(a?a.toFixed(1):'–')+'</span><span class="mt-bar"><i style="height:'+Math.round(a/5*100)+'%"></i></span><i class="mt-dot" style="background:'+(t?t.c:'var(--line)')+'" title="'+(t?esc(t.n):'')+'"></i><small>'+name(m.k)+'</small></div>'}).join('')+'</div>'+
+    '<p class="mt-line">'+esc(line)+'</p></div></section>'}
 // Each taste tile has its own colour, the same family as the stat tiles elsewhere.
 // A modern, bright palette shared by every tile in the app.
 const TASTE_C={Origin:'#14B8A6',Region:'#3B82F6',Variety:'#22C55E',Process:'#F59E0B',Roast:'#F43F5E','Rated best':'#EC4899',Brewer:'#6366F1',Roastery:'#D2793A',Recipe:'#8B5CF6'};
@@ -138,7 +150,7 @@ function meHTML(){const p=PROFILE,x='<button class="vd-close me-x" id="vd-x" ari
         (p.brief?'<p class="me-brief">'+esc(p.brief)+'</p>':'<button type="button" class="me-add" id="pf-edit2">Add a few words about how you take your coffee</button>')+
         (dna.length?factCard(dna.map(([i,k,v,c])=>[i,k,esc(v),c]),{cols:dna.length===3?3:2,cls:'me-picks'})
           :'<button type="button" class="me-add" id="pf-edit3">Add where you brew, your brewer and your favourite origin</button>')+'</section>'+
-      tasteHTML()+accountHTML()+'</div>'}
+      tasteHTML()+trendsHTML()+accountHTML()+'</div>'}
 $('vd').addEventListener('click',e=>{if(e.target.closest('#pf-new,#pf-edit,#pf-edit2,#pf-edit3')){delete $('vd').dataset.me;openProfileEditor();return}if(e.target.closest('#pf-signin')){delete $('vd').dataset.me;openSignIn();return}
   if(e.target.closest('#pf-out')){askConfirm('Your profile stays on this phone.','Sign out',false,'Sign out?').then(y=>{if(y)signOut()});return}
   if(e.target.closest('#pf-bio')){const on=BIOM&&BIOM.saved&&BIOM.email===(ACCT&&ACCT.email),w=bioWord();(on?bioOff():bioOn()).then(()=>toast(on?w[0].toUpperCase()+w.slice(1)+' sign-in is off':'Next time, sign in with your '+bioWord()),err=>{if(err&&err.message&&!/cancel/i.test(err.message))toast(err.message)});return}

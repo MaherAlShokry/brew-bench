@@ -107,7 +107,7 @@ let BQ='',BSORT=vwGet('bsort','recent',v=>['recent','rated','roaster','origin'].
 const bfAny=b=>!BF.length||BF.some(f=>bfKeep(b,f));
 // Cards slide in the first time you see them, not every time the list is sorted or searched.
 const BSEEN=new Set();
-function saveBeans(){try{localStorage.setItem('bb-beans',JSON.stringify(BEANS));saveBlendsSide();BREV++;reschedule();return true}catch(e){toast('Couldn’t save: this device’s storage is full');return false}}
+function saveBeans(){try{localStorage.setItem('bb-beans',JSON.stringify(BEANS));saveBlendsSide();BREV++;reschedule();if(typeof soonCabinet==='function')soonCabinet();return true}catch(e){toast('Couldn’t save: this device’s storage is full');return false}}
 const saveTop3=()=>{BREV++;save('bb-top3',TOP3)};
 // Changes to the gallery, the log or the scans; opening the tab again with none of them redraws nothing.
 let BREV=0,BSIG='';
@@ -1215,6 +1215,34 @@ $('beans-in').addEventListener('click',e=>{if(e.target.closest('#bg-add')){openB
 /* ---------- One coffee ---------- */
 function beanLogStats(b){const n=b.name.toLowerCase();if(n.length<3)return null;const l=LOG.filter(x=>(x.coffee||'').toLowerCase().includes(n));if(!l.length)return null;
   const r=l.filter(x=>x.rating);return{n:l.length,avg:r.length?r.reduce((s,x)=>s+x.rating,0)/r.length:0}}
+/* Coffee compare: two bags side by side, like Recipe compare. What they are (roastery, origin, process, variety,
+   roast), how they did with you (rating, cups, the recipe you rated best) and the grind you last used, then each one's
+   tasting notes. */
+function beanCmpFacts(b){const P=b.process&&PROCESSES[b.process],l=beanBrews(b),rated=l.filter(x=>+x.stars>0),best=rated.slice().sort((x,y)=>y.stars-x.stars||y.ts-x.ts)[0];
+  const m=(typeof dialNextFor==='function'&&dialNextFor(b.id))||(typeof lastBrewFor==='function'&&lastBrewFor(b.id));
+  return{Roastery:b.roaster||'–',Origin:isBlend(b)?'Blend':b.origin?originName(b.origin):'–',Process:P?P.name.replace(/\s*\(.*\)$/,''):'–',Variety:b.variety?varsName(b):'–',
+    Roast:b.roast?b.roast[0].toUpperCase()+b.roast.slice(1):'–',Rating:b.rating?b.rating.toString().replace('.5','½')+' · '+rateWord(b.rating):rated.length?(rated.reduce((s,x)=>s+(+x.stars),0)/rated.length).toFixed(1)+' avg':'–',
+    Cups:l.length?String(l.length):'–',
+    'Best recipe':best&&best.settings?best.settings.split(',')[0]:'–',
+    Grind:m&&m.g&&GRINDERS[m.g]?gLabel(m.g,m.set)+(m.brewer&&BREWERS[m.brewer]?' · '+BREWERS[m.brewer].name:''):'–'}}
+function openBeanCmpPick(id){const d=$('vd'),a=beanById(id);if(!a)return;let q='';
+  const rows=()=>{const l=BEANS.filter(x=>x.id!==id&&(!q||(beanTitle(x)+' '+(x.roaster||'')+' '+originName(x.origin||'')).toLowerCase().includes(q)));
+    return l.length?l.map(x=>'<button type="button" class="rcp-row" data-bcp="'+x.id+'"><b>'+esc(beanTitle(x))+'</b><small>'+esc([x.roaster,x.origin&&originName(x.origin),x.process&&PROCESSES[x.process]&&PROCESSES[x.process].name.replace(/\s*\(.*\)$/,'')].filter(Boolean).join(' · '))+'</small></button>').join(''):'<p class="hint">No coffee matches.</p>'};
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><button type="button" class="vd-back" id="bcp-back">‹ '+esc(beanTitle(a))+'</button><span class="pill"><i style="background:var(--cherry)"></i>Compare</span><h2 id="vd-title">Compare with…</h2>'+
+    '<input type="search" id="bcp-q" class="rcp-q" placeholder="Search your coffees" aria-label="Search your coffees" autocomplete="off"></div><div class="vd-body"><div class="rcp-list" id="bcp-list">'+rows()+'</div></div>';
+  $('bcp-q').oninput=e=>{q=e.target.value.trim().toLowerCase();$('bcp-list').innerHTML=rows()};
+  $('bcp-list').onclick=e=>{const b=e.target.closest('[data-bcp]');if(b)openBeanCmp(id,b.dataset.bcp)};
+  $('bcp-back').onclick=()=>openBean(id);$('vd-x').onclick=()=>d.close();delete d.dataset.bean;showDlg(d);d.scrollTop=0}
+function openBeanCmp(i,j){const d=$('vd'),a=beanById(i),b=beanById(j);if(!a||!b)return;const A=beanCmpFacts(a),B=beanCmpFacts(b);
+  const notes=x=>x.flavours&&typeof tnSplit==='function'?'<div class="chips">'+tnSplit(x.flavours).map(f=>'<span class="chip"><i class="dot" style="background:'+tnColor(f)+'"></i>'+esc(f)+'</span>').join('')+'</div>':'<p class="hint">No tasting notes.</p>';
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><button type="button" class="vd-back" id="bc-back">‹ '+esc(beanTitle(a))+'</button><span class="pill"><i style="background:var(--cherry)"></i>Compare</span><h2 id="vd-title" class="rc-title">'+esc(beanTitle(a))+' <span>vs</span> '+esc(beanTitle(b))+'</h2></div>'+
+    '<div class="vd-body"><div class="bc-pics"><button type="button" class="bc-pic" data-bco="'+a.id+'">'+beanPic(a)+'<b>'+esc(beanTitle(a))+'</b></button><button type="button" class="bc-pic" data-bco="'+b.id+'">'+beanPic(b)+'<b>'+esc(beanTitle(b))+'</b></button></div>'+
+      '<table class="rc-tab bc-tab"><thead class="sr"><tr><th scope="col">Detail</th><th scope="col">'+esc(beanTitle(a))+'</th><th scope="col">'+esc(beanTitle(b))+'</th></tr></thead><tbody>'+
+      Object.keys(A).filter(k=>A[k]!=='–'||B[k]!=='–').map(k=>'<tr'+(A[k]!==B[k]?' class="diff"':'')+'><th scope="row">'+esc(k)+'</th><td>'+esc(A[k])+'</td><td>'+esc(B[k])+'</td></tr>').join('')+'</tbody></table>'+
+      '<h3 class="rcp-h">Tasting notes</h3><div class="rc-steps"><div><b>'+esc(beanTitle(a))+'</b>'+notes(a)+'</div><div><b>'+esc(beanTitle(b))+'</b>'+notes(b)+'</div></div>'+
+      '<div class="actions ib-row sheet-acts">'+ib('swap','id="bc-swap"','Swap sides')+ib('cmp','id="bc-other"','Compare another coffee')+'</div></div>';
+  d.querySelectorAll('[data-bco]').forEach(x=>x.onclick=()=>openBean(x.dataset.bco));
+  $('bc-back').onclick=()=>openBean(i);$('bc-swap').onclick=()=>openBeanCmp(j,i);$('bc-other').onclick=()=>openBeanCmpPick(i);$('vd-x').onclick=()=>d.close();delete d.dataset.bean;showDlg(d);d.scrollTop=0}
 // A coffee's page. write: open it at the diary, ready to write.
 /* A stamp in the passport opens its origin: every coffee you've had from there, newest first. A coffee opened from
    here has a "‹ Yemen" button back to the list, and closing the sheet (or the back button) returns to the passport. */
@@ -1374,7 +1402,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.be
   const kv=[isBlend(b)?['Blend of',blendParts(b).map(x=>flagOf(x.o)+' '+originName(x.o)+(x.r?' ('+x.r+')':'')+blendPct(x)).join(', ')||'Several origins']:['Origin',b.origin?flagOf(b.origin)+'\u00a0'+originName(b.origin):''],['Process',P?P.name.replace(/\s*\(.*\)$/,''):''],[b.vars?'Varieties':'Variety',b.variety?varsName(b):''],['Roast',b.roast?b.roast[0].toUpperCase()+b.roast.slice(1):''],['Roasted',fmt(b.roastDate)],['Tried',b.tried?fmt(b.tried):'Not yet'],...(cal?[['Advent','Door '+b.cal.d+' · '+calName(cal)]]:[]),['Brewed',ls?ls.n+' time'+(ls.n===1?'':'s'):'']].filter(x=>x[1]);
   const st={mom:'note',ph:null};const g=gramsLeft(b),dose=Math.round(beanDose(b));
   const from=BFROM&&BFROM===b.origin?BFROM:null,calBack=cal&&ADVFROM===cal.id,roBack=!from&&!calBack&&RFROM&&roKey(RFROM.name)===roKey(b.roaster)?RFROM:null;
-  $('vd-in').innerHTML='<div class="vd-head" style="--c:'+(rk?MEDAL[rk]:'var(--cherry)')+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button>'+(calBack?'<button type="button" class="vd-back adv-back" id="bd-advback">‹ Calendar</button>':from?'<button type="button" class="vd-back" id="vd-back">‹ '+esc(originName(from))+'</button>':roBack?'<button type="button" class="vd-back" id="bd-roback">‹ '+esc(roBack.name)+'</button>':'')+'<span class="vd-tools"><button type="button" class="vd-tool" id="bd-share" aria-label="Share this coffee" title="Share">'+lIc('share')+'</button><button type="button" class="vd-tool" id="bd-edit" aria-label="Edit this coffee" title="Edit">'+lIc('edit')+'</button></span><span class="pill"><i style="background:'+(rk?MEDAL[rk]:'var(--cherry)')+'"></i>'+(rk?placeShort(rk,beanYear(b)):beanMention(b)?'Mentioned in '+beanYear(b):b.shelf?'Drinking now':'Your coffees')+'</span><h2 id="vd-title">'+esc(beanTitle(b))+'</h2>'+(b.roaster?'<p class="vd-sub"><button type="button" class="ro-link" id="bd-ro">'+esc(b.roaster)+'<span aria-hidden="true"> ›</span></button></p>':'')+
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:'+(rk?MEDAL[rk]:'var(--cherry)')+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button>'+(calBack?'<button type="button" class="vd-back adv-back" id="bd-advback">‹ Calendar</button>':from?'<button type="button" class="vd-back" id="vd-back">‹ '+esc(originName(from))+'</button>':roBack?'<button type="button" class="vd-back" id="bd-roback">‹ '+esc(roBack.name)+'</button>':'')+'<span class="vd-tools"><button type="button" class="vd-tool" id="bd-share" aria-label="Share this coffee" title="Share">'+lIc('share')+'</button><button type="button" class="vd-tool" id="bd-edit" aria-label="Edit this coffee" title="Edit">'+lIc('edit')+'</button>'+(BEANS.length>1?'<button type="button" class="vd-tool" id="bd-cmp" aria-label="Compare with another coffee" title="Compare">'+lIc('cmp')+'</button>':'')+'</span><span class="pill"><i style="background:'+(rk?MEDAL[rk]:'var(--cherry)')+'"></i>'+(rk?placeShort(rk,beanYear(b)):beanMention(b)?'Mentioned in '+beanYear(b):b.shelf?'Drinking now':'Your coffees')+'</span><h2 id="vd-title">'+esc(beanTitle(b))+'</h2>'+(b.roaster?'<p class="vd-sub"><button type="button" class="ro-link" id="bd-ro">'+esc(b.roaster)+'<span aria-hidden="true"> ›</span></button></p>':'')+
     // Once the big photo has scrolled away, a small one shows in the pinned header (driven by the scroll itself).
     '<span class="bd-mini" aria-hidden="true">'+beanPic(b,'xs')+'</span></div>'+
     '<div class="vd-body"><div class="bd-hero">'+beanPic(b,'hero')+(b.rating?'<span class="bglass">'+beanSVG+b.rating.toString().replace('.5','½')+'<small>'+rateWord(b.rating)+'</small></span>':'')+'</div>'+
@@ -1411,7 +1439,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.be
   const refresh=(msg)=>{saveBeans();checkTrophies();renderBeans();openBean(b.id);if(msg)toast(msg)};
   if($('bd-rd'))$('bd-rd').onchange=e=>{const v=e.target.value;if(!/^\d{4}-\d\d-\d\d$/.test(v)||v>todayISO())return;b.roastDate=v;refresh('Roast date added')};
   $('bd-edit').onclick=()=>{if(calBack)ADVRET=cal.id;openBeanEditor(b)};
-  $('bd-mkrec').onclick=()=>openMakeRecipe(b.id);
+  $('bd-mkrec').onclick=()=>openMakeRecipe(b.id);if($('bd-cmp'))$('bd-cmp').onclick=()=>openBeanCmpPick(b.id);
   $('bd-share').onclick=()=>{d.close();openShare(beanDoc(b))};
   // Forget what the Brew page remembers for this coffee (the saved suggestion and its last brew's grind): the next brew
   // starts from the recipe again, and brews after this one are remembered as before.
@@ -1607,4 +1635,4 @@ function openTop3(y,start){const d=$('vd'),pool=BEANS.filter(b=>beanYear(b)===y)
     saveTop3();d.close();BPOD=y;BVIEW='top3';checkTrophies();renderBeans();toast(any?'Favourites of '+y+' saved':'Favourites of '+y+' cleared')};
   draw();showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
 // The app may have opened on the Beans page before this part loaded.
-window.BEANS_OK=1;if(beanSync())retuneIfAuto();paintCup();checkTrophies();renderDBean();if($('beans').classList.contains('on'))renderBeans();if($('settings').classList.contains('on'))renderSettings();
+window.BEANS_OK=1;if(beanSync())retuneIfAuto();paintCup();renderWelcome();if(GROUP)soonCabinet();checkTrophies();renderDBean();if($('beans').classList.contains('on'))renderBeans();if($('settings').classList.contains('on'))renderSettings();
