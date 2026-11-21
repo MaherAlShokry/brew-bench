@@ -17,11 +17,20 @@ const r=await p.evaluate(async()=>{const w=t=>new Promise(r=>setTimeout(r,t)),o=
   goTab('process');await w(400);o.proc=!!document.querySelector('#pgrid .pcard>.pill i')&&!!document.querySelector('#pgrid .pcard .pbtn[data-usep]');
   goTab('words');await w(400);o.wh=getComputedStyle(document.querySelector('.wgroup>h3')).textTransform;
   const st=document.querySelector('.stepper');if(st){const s=getComputedStyle(st),bt=getComputedStyle(st.querySelector('button'));o.step=s.borderTopLeftRadius+' '+bt.borderTopLeftRadius}
+  // A country is told by its flag as the tile's icon (not a globe beside a flag in the text), on the coffee page as on
+  // the taste cards; Variety, Process and Brewer tiles share one icon each wherever they show.
+  openBean(BEANS.find(x=>x.origin&&x.origin!=='blend').id);await w(600);{const t=[...document.querySelectorAll('dialog[open] .bf')].find(e=>e.querySelector('small')?.textContent==='Origin');
+    o.flag=!!t&&!!t.querySelector('.bf-i .bf-flag')&&!/\p{Regional_Indicator}/u.test(t.querySelector('b').textContent)}
+  const icon=(root,k)=>{const t=[...root.querySelectorAll('.bf')].find(e=>e.querySelector('small')?.textContent===k);return t&&t.querySelector('.bf-i svg path')?.getAttribute('d')};
+  const cp=document.querySelector('dialog[open]');o.coffeeIc=['Variety','Process'].map(k=>icon(cp,k));document.querySelectorAll('dialog[open]').forEach(d=>d.close());
+  goTab('beans');await w(500);const yi=document.querySelector('.yic-f');o.tasteIc=yi?['Variety','Process'].map(k=>icon(yi,k)):null;
   return o});
 ok('no coloured edge stripes on cards',!r.stripes.length,r.stripes);
 ok('varieties: family dot pill and a round compare button',r.cmp);
 ok('processes: type dot pill and an icon pill to brew',r.proc);
 ok('coffee words: group headings match the app’s section labels',r.wh==='uppercase',r.wh);
 ok('steppers are pills with round buttons',!r.step||/^999px 50%$/.test(r.step),r.step);
+ok('origin tiles show the flag as their icon',r.flag);
+ok('variety and process icons match across cards',!r.tasteIc||JSON.stringify(r.coffeeIc)===JSON.stringify(r.tasteIc),{c:r.coffeeIc,t:r.tasteIc});
 ok('no page errors',!errs.length,errs);
 await b.close()})();

@@ -788,12 +788,12 @@ const TILE_K=[[/^(coffee|dose|shot weight|bag)/i,'#D2793A','M12 3.2c3.5 0 6 3.9 
   [/°c|temp/i,'#F05A3C','M10 13.5V5.5a2 2 0 0 1 4 0v8a4 4 0 1 1-4 0z M12 9v6.5'],
   [/time|steep/i,'#10B981','M12 3.5a8.5 8.5 0 1 0 0 17a8.5 8.5 0 1 0 0-17z M12 7.5V12l3 2'],
   [/pour/i,'#8B5CF6','M3.5 9c2.8-2.6 5.7 2.6 8.5 0s5.7 2.6 8.5 0 M3.5 15c2.8-2.6 5.7 2.6 8.5 0s5.7 2.6 8.5 0'],
-  [/origin|blend/i,'#10B981','M12 3.5a8.5 8.5 0 1 0 0 17a8.5 8.5 0 1 0 0-17z M3.5 12h17 M12 3.5c2.6 2.4 3.9 5.2 3.9 8.5s-1.3 6.1-3.9 8.5c-2.6-2.4-3.9-5.2-3.9-8.5S9.4 5.9 12 3.5z'],
+  [/origin|blend/i,'#14B8A6','M12 3.5a8.5 8.5 0 1 0 0 17a8.5 8.5 0 1 0 0-17z M3.5 12h17 M12 3.5c2.6 2.4 3.9 5.2 3.9 8.5s-1.3 6.1-3.9 8.5c-2.6-2.4-3.9-5.2-3.9-8.5S9.4 5.9 12 3.5z'],
   [/altitude/i,'#6366F1','M3 19l6.5-11 4 6.5 2.5-3.5L21 19z'],
   [/harvest/i,'#F43F5E','M9 14a3.5 3.5 0 1 0 0 .01z M15.5 15a3 3 0 1 0 0 .01z M10 10.5c0-3 1.5-5.5 4-6.5 M14 4c-.5 2 .5 4.5 2 7'],
-  [/process/i,'#F59E0B','M12 5v3 M12 16v3 M5 12h3 M16 12h3 M7 7l2 2 M15 15l2 2 M17 7l-2 2 M9 15l-2 2 M12 9.5a2.5 2.5 0 1 0 0 5a2.5 2.5 0 1 0 0-5z'],
-  [/variet/i,'#22C55E','M5 19c0-8 6-14 14-14 0 8-6 14-14 14z M5 19l8-8'],
-  [/^roast$/i,'#F43F5E','M12 3.5c1 4 5 5.2 5 10a5 5 0 0 1-10 0c0-3 2-4.2 2-7 1.6 1 2.6 2.4 3-3z'],
+  [/process/i,'#F59E0B',EMO_P['🧪']],
+  [/variet/i,'#22C55E',EMO_P['🌱']],
+  [/^roast$/i,'#F43F5E',EMO_P['🔥']],
   [/roasted|tried|advent|since/i,'#6366F1','M4.5 6.5h15v13h-15z M4.5 10.5h15 M8.5 4v4 M15.5 4v4'],
   [/brewed|brews|cup/i,'#D2793A','M5 9h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z M16 10h1.5a2.5 2.5 0 0 1 0 5H16'],
   [/rating|rated|average/i,'#F59E0B','M12 3.2c3.5 0 6 3.9 6 8.8s-2.5 8.8-6 8.8-6-3.9-6-8.8 2.5-8.8 6-8.8z M12.9 3.6C10.4 6.3 14.3 9 12 12s1.6 5.9-.9 8.4'],
@@ -4211,6 +4211,10 @@ function fitFacts(){document.querySelectorAll('.bfacts').forEach(c=>{const d=c.q
 {let q=0;const go=()=>{if(q)return;q=requestAnimationFrame(()=>{q=0;fitFacts()})};new MutationObserver(go).observe(document.documentElement,{childList:true,subtree:true});
   addEventListener('resize',()=>{document.querySelectorAll('.bfacts').forEach(c=>{c._fw=0});go()})}
 const FACT_DATE=/^(\d{1,2} )?[A-Z][a-z]{2,8}\.? (\d{1,2}, )?\d{4}$|^[A-Z][a-z]{2} \d{1,2}$/;
+// A country's flag as a fact tile's icon, the same size everywhere.
+// A fact tile's drawn icon by its label, the same one the coffee page uses.
+function tileIc(label){const t=tileKey(label);return t?svgI(t[2]):''}
+function flagIc(k){return '<span class="bf-flag">'+flagOf(k)+'</span>'}
 function factCard(items,opt){opt=opt||{};const cols=opt.cols||2;
   return '<div class="bfacts c'+cols+(opt.num?' num':'')+(opt.top?' top':'')+(opt.cls?' '+opt.cls:'')+'"'+(opt.label?' role="group" aria-label="'+opt.label+'"':'')+'>'+items.map(([ic,k,v,c,at])=>{const tag=at?'button':'div';
     // A date ("Dec 17, 2025", "Oct 2026") stays on one line.

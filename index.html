@@ -1605,7 +1605,7 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .me-brief{position:relative;margin:0;padding:4px 4px 0 30px;font-family:var(--display);font-size:1.05rem;line-height:1.45;color:var(--ink);overflow-wrap:anywhere}
 .me-brief::before{content:"“";position:absolute;left:0;top:-10px;font-size:2.8rem;line-height:1;color:var(--c,var(--honey));opacity:.8}
 .me-add{padding:12px 14px;border-radius:14px;border:1.5px dashed var(--line);background:none;color:var(--muted);font:inherit;font-size:.88rem;text-align:left;cursor:pointer}
-.me-flag{font-size:1.3rem}
+.bf-flag{display:grid;place-items:center;width:100%;height:100%;font-size:1.3rem;line-height:1;font-style:normal}
 .me-acct{border-radius:16px;background:var(--surface2);overflow:hidden}
 .me-row{display:flex;align-items:center;gap:12px;padding:12px 14px}.me-row+.me-row{border-top:1px solid var(--line)}
 .me-rt{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start}.me-rt b{font-size:.92rem}.me-rt small{font-size:.8rem;color:var(--muted);overflow-wrap:anywhere}
@@ -2060,7 +2060,7 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 
 
 
-.yic-fl{font-size:1.05rem}
+
 .yic-notes{margin-top:14px}.yic-notes small,.me-notes small{display:block;font-size:.7rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}.yic-notes .chips{margin:0}
 
 .me-taste{margin:16px 0 4px;padding:14px;border-radius:var(--r-lg);background:var(--surface2)}
@@ -3189,7 +3189,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="9e35ca3f797c"</script>
+<script>const BUILD_ID="251f76a2747a"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -6725,12 +6725,12 @@ const TILE_K=[[/^(coffee|dose|shot weight|bag)/i,'#D2793A','M12 3.2c3.5 0 6 3.9 
   [/°c|temp/i,'#F05A3C','M10 13.5V5.5a2 2 0 0 1 4 0v8a4 4 0 1 1-4 0z M12 9v6.5'],
   [/time|steep/i,'#10B981','M12 3.5a8.5 8.5 0 1 0 0 17a8.5 8.5 0 1 0 0-17z M12 7.5V12l3 2'],
   [/pour/i,'#8B5CF6','M3.5 9c2.8-2.6 5.7 2.6 8.5 0s5.7 2.6 8.5 0 M3.5 15c2.8-2.6 5.7 2.6 8.5 0s5.7 2.6 8.5 0'],
-  [/origin|blend/i,'#10B981','M12 3.5a8.5 8.5 0 1 0 0 17a8.5 8.5 0 1 0 0-17z M3.5 12h17 M12 3.5c2.6 2.4 3.9 5.2 3.9 8.5s-1.3 6.1-3.9 8.5c-2.6-2.4-3.9-5.2-3.9-8.5S9.4 5.9 12 3.5z'],
+  [/origin|blend/i,'#14B8A6','M12 3.5a8.5 8.5 0 1 0 0 17a8.5 8.5 0 1 0 0-17z M3.5 12h17 M12 3.5c2.6 2.4 3.9 5.2 3.9 8.5s-1.3 6.1-3.9 8.5c-2.6-2.4-3.9-5.2-3.9-8.5S9.4 5.9 12 3.5z'],
   [/altitude/i,'#6366F1','M3 19l6.5-11 4 6.5 2.5-3.5L21 19z'],
   [/harvest/i,'#F43F5E','M9 14a3.5 3.5 0 1 0 0 .01z M15.5 15a3 3 0 1 0 0 .01z M10 10.5c0-3 1.5-5.5 4-6.5 M14 4c-.5 2 .5 4.5 2 7'],
-  [/process/i,'#F59E0B','M12 5v3 M12 16v3 M5 12h3 M16 12h3 M7 7l2 2 M15 15l2 2 M17 7l-2 2 M9 15l-2 2 M12 9.5a2.5 2.5 0 1 0 0 5a2.5 2.5 0 1 0 0-5z'],
-  [/variet/i,'#22C55E','M5 19c0-8 6-14 14-14 0 8-6 14-14 14z M5 19l8-8'],
-  [/^roast$/i,'#F43F5E','M12 3.5c1 4 5 5.2 5 10a5 5 0 0 1-10 0c0-3 2-4.2 2-7 1.6 1 2.6 2.4 3-3z'],
+  [/process/i,'#F59E0B',EMO_P['🧪']],
+  [/variet/i,'#22C55E',EMO_P['🌱']],
+  [/^roast$/i,'#F43F5E',EMO_P['🔥']],
   [/roasted|tried|advent|since/i,'#6366F1','M4.5 6.5h15v13h-15z M4.5 10.5h15 M8.5 4v4 M15.5 4v4'],
   [/brewed|brews|cup/i,'#D2793A','M5 9h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z M16 10h1.5a2.5 2.5 0 0 1 0 5H16'],
   [/rating|rated|average/i,'#F59E0B','M12 3.2c3.5 0 6 3.9 6 8.8s-2.5 8.8-6 8.8-6-3.9-6-8.8 2.5-8.8 6-8.8z M12.9 3.6C10.4 6.3 14.3 9 12 12s1.6 5.9-.9 8.4'],
@@ -10148,6 +10148,10 @@ function fitFacts(){document.querySelectorAll('.bfacts').forEach(c=>{const d=c.q
 {let q=0;const go=()=>{if(q)return;q=requestAnimationFrame(()=>{q=0;fitFacts()})};new MutationObserver(go).observe(document.documentElement,{childList:true,subtree:true});
   addEventListener('resize',()=>{document.querySelectorAll('.bfacts').forEach(c=>{c._fw=0});go()})}
 const FACT_DATE=/^(\d{1,2} )?[A-Z][a-z]{2,8}\.? (\d{1,2}, )?\d{4}$|^[A-Z][a-z]{2} \d{1,2}$/;
+// A country's flag as a fact tile's icon, the same size everywhere.
+// A fact tile's drawn icon by its label, the same one the coffee page uses.
+function tileIc(label){const t=tileKey(label);return t?svgI(t[2]):''}
+function flagIc(k){return '<span class="bf-flag">'+flagOf(k)+'</span>'}
 function factCard(items,opt){opt=opt||{};const cols=opt.cols||2;
   return '<div class="bfacts c'+cols+(opt.num?' num':'')+(opt.top?' top':'')+(opt.cls?' '+opt.cls:'')+'"'+(opt.label?' role="group" aria-label="'+opt.label+'"':'')+'>'+items.map(([ic,k,v,c,at])=>{const tag=at?'button':'div';
     // A date ("Dec 17, 2025", "Oct 2026") stays on one line.
@@ -11193,9 +11197,9 @@ function yearInCoffeeHTML0(){const cy=new Date().getFullYear(),bs=BEANS.filter(b
   // full width, each opening its coffee. An odd tile out at the end of the short ones spans the row too.
   // Each fact in its own colour, the same as the taste tiles on your profile: icon and name on top, the answer below,
   // every tile the same size. Your regular and the best of the year follow full width, with the coffee's photo.
-  const half=[o&&['<span class="yic-fl">'+flagOf(t.origin.k)+'</span>','Origin',o.name],R&&['🗺️','Region',R.name,t.regionOrigin&&t.regionOrigin.k!==(t.origin&&t.origin.k)?'Mostly '+oInfo(t.regionOrigin.k).name:''],
+  const half=[o&&[flagIc(t.origin.k),'Origin',o.name],R&&['🗺️','Region',R.name,t.regionOrigin&&t.regionOrigin.k!==(t.origin&&t.origin.k)?'Mostly '+oInfo(t.regionOrigin.k).name:''],
     v&&['🌱','Variety',shortName(v.name)],pr&&['🧪','Process',pr.name.replace(/\s*\(.*\)$/,'')],t.roast&&['🔥','Roast',t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1)],
-    t.roaster&&['🏷️','Roastery',t.roaster.k],B&&['☕','Brewer',B.name]].filter(Boolean);
+    t.roaster&&['🏷️','Roastery',t.roaster.k],B&&[tileIc('Brewer'),'Brewer',B.name]].filter(Boolean);
   const wide=[t.regular&&[t.regular,'Your regular','#0EA5E9'],t.best&&[t.best,'Best of the year',TASTE_C['Rated best']]].filter(Boolean);
   return '<div class="yic" role="region" aria-label="'+cy+' in coffee"><div class="yic-h"><h3>'+cy+' in coffee</h3></div>'+(bs.length>1?'<p class="yic-line">'+esc(tasteLine(t))+'</p>':'')+
     figsHTML('yic-big',big.map(([n,l],i)=>[['bag','cup',g?'bean':'globe'][i],esc(String(n)),esc(l)]))+
@@ -12160,7 +12164,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.be
   if(!write&&$('vd').scrollTop)$('vd').scrollTop=0;const d=$('vd'),rk=beanRank(b),P=b.process&&PROCESSES[b.process],ls=beanLogStats(b),f=b.shelf&&fresh(b);
   const cal=b.cal&&calById(b.cal.id);
   const fmt=s=>s?new Date(s+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'';
-  const kv=[isBlend(b)?['Blend of',blendParts(b).map(x=>flagOf(x.o)+' '+originName(x.o)+(x.r?' ('+x.r+')':'')+blendPct(x)).join(', ')||'Several origins']:['Origin',b.origin?flagOf(b.origin)+'\u00a0'+originName(b.origin):''],['Process',P?P.name.replace(/\s*\(.*\)$/,''):''],[b.vars?'Varieties':'Variety',b.variety?varsName(b):''],['Roast',b.roast?b.roast[0].toUpperCase()+b.roast.slice(1):''],['Roasted',fmt(b.roastDate)],['Tried',b.tried?fmt(b.tried):'Not yet'],...(cal?[['Advent','Door '+b.cal.d+' · '+calName(cal)]]:[]),['Brewed',ls?ls.n+' time'+(ls.n===1?'':'s'):'']].filter(x=>x[1]);
+  const kv=[isBlend(b)?['Blend of',blendParts(b).map(x=>flagOf(x.o)+' '+originName(x.o)+(x.r?' ('+x.r+')':'')+blendPct(x)).join(', ')||'Several origins']:['Origin',b.origin?originName(b.origin):''],['Process',P?P.name.replace(/\s*\(.*\)$/,''):''],[b.vars?'Varieties':'Variety',b.variety?varsName(b):''],['Roast',b.roast?b.roast[0].toUpperCase()+b.roast.slice(1):''],['Roasted',fmt(b.roastDate)],['Tried',b.tried?fmt(b.tried):'Not yet'],...(cal?[['Advent','Door '+b.cal.d+' · '+calName(cal)]]:[]),['Brewed',ls?ls.n+' time'+(ls.n===1?'':'s'):'']].filter(x=>x[1]);
   const st={mom:'note',ph:null};const g=gramsLeft(b),dose=Math.round(beanDose(b));
   const from=BFROM&&BFROM===b.origin?BFROM:null,calBack=cal&&ADVFROM===cal.id,roBack=!from&&!calBack&&RFROM&&roKey(RFROM.name)===roKey(b.roaster)?RFROM:null;
   $('vd-in').innerHTML='<div class="vd-head" style="--c:'+(rk?MEDAL[rk]:'var(--cherry)')+'"><button class="vd-close" id="vd-x" aria-label="Close">✕</button>'+(calBack?'<button type="button" class="vd-back adv-back" id="bd-advback">‹ Calendar</button>':from?'<button type="button" class="vd-back" id="vd-back">‹ '+esc(originName(from))+'</button>':roBack?'<button type="button" class="vd-back" id="bd-roback">‹ '+esc(roBack.name)+'</button>':'')+'<span class="vd-tools"><button type="button" class="vd-tool" id="bd-share" aria-label="Share this coffee" title="Share">'+lIc('share')+'</button><button type="button" class="vd-tool" id="bd-edit" aria-label="Edit this coffee" title="Edit">'+lIc('edit')+'</button>'+(BEANS.length>1?'<button type="button" class="vd-tool" id="bd-cmp" aria-label="Compare with another coffee" title="Compare">'+lIc('cmp')+'</button>':'')+'</span><span class="pill"><i style="background:'+(rk?MEDAL[rk]:'var(--cherry)')+'"></i>'+(rk?placeShort(rk,beanYear(b)):beanMention(b)?'Mentioned in '+beanYear(b):b.shelf?'Drinking now':'Your coffees')+'</span><h2 id="vd-title">'+esc(beanTitle(b))+'</h2>'+(b.roaster?'<p class="vd-sub"><button type="button" class="ro-link" id="bd-ro">'+esc(b.roaster)+'<span aria-hidden="true"> ›</span></button></p>':'')+
@@ -12175,7 +12179,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.be
       pbtn('flag','id="bd-done"','Finish this bag','quiet bd-done')+'</div>'
      :'')+
         // The coffee's facts in one card, two to a row: a coloured icon chip, then the name and the answer.
-    (kv.length?factCard(kv.map(([k,v])=>{const m=tileKey(k,v);return [svgI(m?m[2]:'M12 7v6 M12 16.5v.5'),k,esc(v),m&&m[1]]})):'')+
+    (kv.length?factCard(kv.map(([k,v])=>{const m=tileKey(k,v);return [k==='Origin'&&b.origin&&flagOf(b.origin)?flagIc(b.origin):svgI(m?m[2]:'M12 7v6 M12 16.5v.5'),k,esc(v),m&&m[1]]})):'')+
     (b.flavours?'<h3>Tasting notes</h3><div class="chips">'+tnSplit(b.flavours).map(f=>'<span class="chip"><i class="dot" style="background:'+tnColor(f)+'"></i>'+esc(f)+'</span>').join('')+'</div>':'')+
     (b.notes?'<h3>Your notes</h3><p>'+esc(b.notes)+'</p>':'')+
     // Your bags: how many times you've bought it (set it for bags from before the app), buying it again when it's
@@ -13910,13 +13914,13 @@ function profileStats(){const mine=window.BEANS_OK?myCups().length:LOG.filter(l=
 function tasteHTML(){if(!window.BEANS_OK||BEANS.length<2)return '';const t=tasteOf(BEANS,LOG.filter(isMine));
   const o=t.origin&&oInfo(t.origin.k),R=t.region&&REG[t.region.k],v=t.variety&&VBY[t.variety.k],pr=t.process&&PROCESSES[t.process.k],B=t.brewer&&BREWERS[t.brewer.k],lo=t.likedOrigin&&oInfo(t.likedOrigin.k);
   const ro=t.regionOrigin&&oInfo(t.regionOrigin.k);
-  const fl=k=>'<span class="me-flag">'+flagOf(k)+'</span>';
+  const fl=flagIc;
   // Up to six tiles, two to a row.
   // Each tile's icon matches its own value: the flag sits with the country, the map with the region.
   const rows=[o&&[fl(t.origin.k),'Origin',o.name],R&&['🗺️','Region',R.name],
     v&&['🌱','Variety',shortName(v.name)],pr&&['🧪','Process',pr.name.replace(/\s*\(.*\)$/,'')],
     t.roast&&['🔥','Roast',t.roast.k.charAt(0).toUpperCase()+t.roast.k.slice(1)],
-    lo&&lo!==o&&[fl(t.likedOrigin.k),'Rated best',lo.name],B&&['☕','Brewer',shortBrewer(B.name)],
+    lo&&lo!==o&&[fl(t.likedOrigin.k),'Rated best',lo.name],B&&[tileIc('Brewer'),'Brewer',shortBrewer(B.name)],
     t.roaster&&['🏷','Roastery',t.roaster.k],t.recipe&&['🎯','Recipe',t.recipe.k]].filter(Boolean).slice(0,6);
   if(!rows.length&&!t.families.length)return '';
   return '<div class="me-taste"><div class="me-th"><b>Your coffee taste</b><small>From all '+BEANS.length+' coffees and '+myCups().length+' cups, all time</small></div>'+
@@ -13959,8 +13963,8 @@ function meHTML(){const p=PROFILE,x='<button class="vd-close me-x" id="vd-x" ari
   // What you told us about yourself sits with who you are (under your words), as one line of plain facts. The numbers
   // and "Your coffee taste" below are what your coffees and cups show.
   // Your picks, in short names (one line at any text size) and the same colours as Your coffee taste.
-  const dna=[p.city&&['📍','Based in',p.city,'#0EA5E9'],p.brewer&&['☕','Brewer',BREWERS[p.brewer].name,TASTE_C.Brewer],
-    p.origin&&['<span class="me-flag">'+flagOf(p.origin)+'</span>','Origin',originName(p.origin),TASTE_C.Origin]].filter(Boolean);
+  const dna=[p.city&&['📍','Based in',p.city,'#0EA5E9'],p.brewer&&[tileIc('Brewer'),'Brewer',BREWERS[p.brewer].name,TASTE_C.Brewer],
+    p.origin&&[flagIc(p.origin),'Origin',originName(p.origin),TASTE_C.Origin]].filter(Boolean);
   const bg=bannerBg(p),since=new Date(p.since).toLocaleDateString(undefined,{month:'long',year:'numeric'});
   // A cover strip (your banner), your picture overlapping its edge, and who you are on the page under it.
   return '<div class="me-hero me-cover'+(bg?' banner':'')+'" style="--c:'+p.av.c+(bg?';background:'+bg:'')+'">'+x+'<button type="button" class="me-edit" id="pf-edit" aria-label="Edit your profile" title="Edit your profile">'+PEN_SVG+'</button></div>'+
