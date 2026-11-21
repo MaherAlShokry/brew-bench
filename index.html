@@ -825,13 +825,21 @@ html.app .bg-hero::after,html.app .me-hero::after,html.app .pp-st img{mix-blend-
 .ls-ic svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .ls-l{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .ls-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.ls-t{position:relative;display:flex;flex-direction:column;gap:4px;padding:12px;border-radius:var(--r-md);background:var(--surface2);min-width:0}
-.ls-t .ls-ic{position:absolute;right:10px;top:10px;width:26px;height:26px;border-radius:8px}.ls-t .ls-ic svg{width:15px;height:15px}
-.ls-v{font:800 1.7rem/1.1 var(--display);letter-spacing:-.02em;font-variant-numeric:tabular-nums}.ls-v small{font-size:.9rem;font-weight:600;color:var(--muted);margin-left:2px}
-.ls-t.empty .ls-v{color:var(--muted);opacity:.6}
-.ls-st{display:flex;gap:6px;margin-top:auto;padding-top:4px}.ls-st button{flex:1;height:36px;border:0;border-radius:10px;background:var(--surface);color:var(--ink);font:600 1.15rem/1 var(--display);cursor:pointer;transition:transform .1s,background .15s}
-.ls-st button:active{transform:scale(.92);background:color-mix(in srgb,var(--honey) 25%,var(--surface))}
-.ls-gsel{position:relative;align-self:flex-start;max-width:100%;font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:underline dotted;text-underline-offset:3px;cursor:pointer}
+
+.ls-grid{grid-template-columns:1fr!important;gap:0!important;border-radius:var(--r-md);background:var(--surface2);overflow:hidden}
+.ls-t{display:flex;align-items:center;gap:10px;padding:10px 8px 10px 10px;min-width:0;min-height:60px;box-sizing:border-box}.ls-t+.ls-t{border-top:1px solid var(--line)}
+.ls-th{flex:1;display:flex;align-items:center;gap:10px;min-width:0}.ls-th .ls-ic{width:34px;height:34px;border-radius:11px;background:var(--surface)}.ls-th .ls-ic svg{width:18px;height:18px}
+.ls-tt{display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:0}
+.ls-n{font:650 .95rem/1.2 var(--display);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.ls-row{flex:none;display:grid;grid-template-columns:32px 56px 32px;align-items:center;padding:3px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.ls-row button{width:32px;height:32px;padding:0;border:0;border-radius:50%;background:var(--surface2);color:var(--ink);font:600 1.05rem/1 var(--display);cursor:pointer;transition:transform .1s,background-color .15s}
+.ls-row button:active{transform:scale(.88);background:color-mix(in srgb,var(--honey) 30%,var(--surface2))}
+.ls-v{text-align:center;font:750 1.08rem/1 var(--display);font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--ink)}.ls-v small{font-size:.72rem;font-weight:600;color:var(--muted);margin-left:1px}
+.ls-t.empty .ls-v{color:var(--muted);font-weight:600}
+.ls-gsel{position:relative;display:inline-flex;align-items:center;gap:2px;max-width:100%;min-height:22px;font:600 .78rem var(--display);color:var(--muted);cursor:pointer}
+.ls-gsel span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ls-gsel svg{flex:none;width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.ls-gsel:focus-within{color:var(--ink)}
+@media (max-width:374px){.ls-t .ls-th .ls-ic{display:none}.ls-t{padding-left:14px}}
 .ls-gsel select{position:absolute;inset:0;opacity:0;width:100%;font-size:16px;cursor:pointer}
 .ls-ratio{margin-top:8px;padding:12px;border-radius:var(--r-md);background:var(--surface2)}
 .ls-rtop{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:26px}
@@ -839,7 +847,7 @@ html.app .bg-hero::after,html.app .me-hero::after,html.app .pp-st img{mix-blend-
 .ls-rv em{font-style:normal;font-size:.8rem;font-weight:600;color:var(--cherry-ink,var(--cherry));white-space:nowrap}.ls-rv small{font-size:.8rem;color:var(--muted)}
 .ls-bar{position:relative;height:6px;margin:12px 4px 6px;border-radius:3px;background:linear-gradient(90deg,#4A2A18,#7A4524 35%,#C98A3E 70%,#E8C987)}
 .ls-bar i{position:absolute;top:50%;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;background:var(--surface);border:3px solid var(--cherry);box-shadow:0 1px 4px rgba(0,0,0,.25);transition:left .25s}
-.ls-ratio.empty .ls-bar{background:color-mix(in srgb,var(--ink) 12%,transparent)}.ls-ratio.empty .ls-bar i{display:none}
+.ls-ratio.empty .ls-rv b,.ls-ratio.empty .ls-rv em{color:var(--muted);font-weight:600}.ls-ratio.empty .ls-bar i{opacity:.4}
 .ls-ends{display:flex;justify-content:space-between;padding:0 2px;font-size:.72rem;color:var(--muted)}
 .ls-x{margin-top:8px;width:100%}
 .l-bean{margin:0 0 10px}.l-bean:empty{display:none}
@@ -913,6 +921,18 @@ svg .bo{fill:currentColor}svg .bc{fill:none;stroke:var(--surface);stroke-width:1
 .rangeends{display:flex;justify-content:space-between;font-family:var(--display);font-size:.74rem;color:var(--muted);margin-top:-2px}
 .pill.ours{background:color-mix(in srgb,var(--cherry) 14%,var(--surface));color:var(--cherry);margin-bottom:6px}
 
+.pmapcard{margin:0 0 14px}.pcount{margin:0 2px 10px;font-size:.82rem;font-weight:600;color:var(--muted)}
+
+.mi-empty .mi-k{display:block;font:700 .72rem var(--display);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}.mi-empty h3{margin:4px 0 10px}.mi-empty .chips{margin:0}
+
+#l-share{padding:12px 14px}
+.sh-row{display:flex;align-items:center;gap:12px;min-height:44px}
+.sh-ic{flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:var(--surface2);color:var(--cherry)}
+.sh-ic svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.sh-av{flex:none;display:grid}.sh-tx{flex:1;min-width:0}.sh-tx b{display:flex;align-items:center;gap:6px;font:700 .98rem var(--display)}
+.sh-tx small{display:block;margin-top:2px;font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sh-tx .code{font-weight:700;color:var(--ink);letter-spacing:.04em}
+.sh-row .pbtn.sm{flex:none;min-height:36px;padding:0 14px;font-size:.84rem}
+.sh-form{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
 .sharepanel h3{margin:0 0 .3rem}
 .sharehead{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .sync{font-family:var(--display);font-size:.78rem;color:var(--muted);display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
@@ -1363,7 +1383,6 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 :root[data-theme="dark"] .lv-e{color:#7FCB9C}:root[data-theme="dark"] .lv-i{color:#E7B060}:root[data-theme="dark"] .lv-a{color:#F08F7E}
 
 #rhome .cupart{height:76px}
-.mk-rand{display:block;margin:10px auto 0}
 
 .qlinks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
 .qlinks button{position:relative;flex-direction:column;justify-content:center;gap:6px;padding:12px 6px;text-align:center}
@@ -1380,16 +1399,29 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 
 .colshelf button{padding:14px 14px 16px;min-height:118px}
 
-.mk .lbl{margin:14px 0 6px}.mk .mk-lh{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.mk-keep{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 12px 0 9px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:600 .78rem var(--display);cursor:pointer}.mk-keep svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-.mk-keep[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.mk .lbl{margin:14px 0 6px}
+
+.mk-picks{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;margin-top:4px}.mk-row{min-width:0}
+.mk .mk-row .lbl{margin:0;font:700 .74rem var(--display);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.mk-rh{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:32px;margin-bottom:6px}
+.mk-lock{flex:none;display:grid;place-items:center;width:34px;height:34px;padding:0;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer;transition:background-color .15s,color .15s,border-color .15s}
+.mk-lock svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
+.mk-lock[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.mk-chips button.lean::after{content:'';width:6px;height:6px;border-radius:50%;background:var(--cherry);margin-left:-2px}
+.mk-chips button.lean[aria-pressed="true"]::after{background:currentColor}
+.mk-card{margin-top:22px;padding:16px;border-radius:22px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)}
+.mk-hero{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.mk-hero .bpic{flex:none;width:56px;height:56px;border-radius:16px}
+.mk-ht{min-width:0}.mk-ht b{display:block;font:800 1.2rem/1.2 var(--display);color:var(--ink)}.mk-ht span{display:block;margin-top:3px;font-size:.82rem;color:var(--muted);line-height:1.35}
+.mk-wait{display:grid;gap:10px;padding:20px 16px}.mk-wait p{margin:4px 0 0;font-size:.86rem;color:var(--muted)}
+.mk-sk{display:block;height:14px;width:62%;border-radius:7px;background:var(--surface2);animation:mkpulse 1.2s ease-in-out infinite}.mk-sk.s{width:88%}.mk-sk.t{width:40%}
+@keyframes mkpulse{50%{opacity:.45}}@media (prefers-reduced-motion:reduce){.mk-sk{animation:none}}
 .mk .lbl .hint{font-weight:500;margin-left:6px}
 .mk-chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 24px 2px 0;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 24px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 24px),transparent)}.mk-chips::-webkit-scrollbar{display:none}
 .mk-chips button{flex:none;display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:4px 14px 4px 6px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:600 .86rem var(--display);cursor:pointer}
 .mk-chips button:not(:has(.bpic)){padding-left:14px}.mk-chips .bpic{width:30px;height:30px;border-radius:50%}
 .mk-chips button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
-.mk-res{margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}.mk-res .mk-h{margin-bottom:8px}
-.mk-h b{display:block;font:800 1.2rem/1.25 var(--display)}.mk-h small{font-size:.8rem;color:var(--muted)}.mk-res .le-pill{background:var(--surface)}.mk-res .le-pills{margin-top:10px}.colshelf b{padding-right:42px}
+.mk-card .le-pill{background:var(--surface2)}.mk-card .le-pills{margin-top:10px}.colshelf b{padding-right:42px}
 .colshelf .cn{left:auto;bottom:auto;top:12px;right:12px;font-size:.74rem;background:rgba(0,0,0,.24);padding:2px 9px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
 
 
@@ -3039,7 +3071,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="f1c950c1ff5f"</script>
+<script>const BUILD_ID="be3e1a44ace8"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -3403,7 +3435,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <!-- VARIETIES -->
 <section id="variety">
   <h2>Varieties</h2>
-  <div class="lf-top lt" id="vlt"><label class="lf-q"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4"/></svg><input type="search" id="vsearch" placeholder="Search varieties" aria-label="Search varieties"></label><button type="button" class="rsortw" id="vlt-f" aria-pressed="false" aria-label="Filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
+  <div class="lf-top lt" id="vlt"><label class="lf-q"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4"/></svg><input type="search" id="vsearch" placeholder="Search varieties" aria-label="Search varieties"></label><button type="button" class="rsortw" id="vsurprise" aria-label="Surprise me: a variety at random" title="Surprise me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 4h13a1.5 1.5 0 0 1 1.5 1.5v13a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5v-13A1.5 1.5 0 0 1 5.5 4z M8.6 8.6h.01 M15.4 8.6h.01 M12 12h.01 M8.6 15.4h.01 M15.4 15.4h.01"/></svg></button><button type="button" class="rsortw" id="vlt-f" aria-pressed="false" aria-label="Filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
   <div id="vcompare"></div>
   <div class="grid" id="vgrid"></div>
 </section>
@@ -3483,9 +3515,9 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <!-- PROCESSES -->
 <section id="process">
   <h2>Processes</h2>
-  <p class="lede"><button type="button" class="linkbtn" data-go-t="flow">See where processing fits, from seed to cup</button></p>
-  <div class="card" style="margin-bottom:16px"><h3 style="margin-top:0">The process map</h3><p class="hint" style="margin-top:0">Left is clean, right is wild; top is bright, bottom is soft. Tap a dot.</p><svg id="pmap" viewBox="0 -14 640 314" role="img" aria-label="Processes plotted by cleanliness and acidity"></svg></div>
-  <div class="lf-top lt" id="plt"><p class="lt-k" id="plt-k"></p><button type="button" class="rsortw" id="plt-f" aria-pressed="false" aria-label="Filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
+  <div class="lf-top lt" id="plt"><label class="lf-q"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4"/></svg><input type="search" id="psearch" placeholder="Search processes" aria-label="Search processes"></label><button type="button" class="rsortw" id="plt-f" aria-pressed="false" aria-label="Filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
+  <div class="card pmapcard"><h3 style="margin-top:0">The process map</h3><svg id="pmap" viewBox="0 -14 640 314" role="img" aria-label="Processes plotted by cleanliness and acidity"></svg></div>
+  <p class="lt-k pcount" id="plt-k"></p>
   <div class="grid" id="pgrid"></div>
 </section>
 
@@ -7821,20 +7853,23 @@ $('tlt-f').onclick=()=>pickOne('Filter techniques','technique',[['all','All tech
 let PC=[];const PCOL={classic:'#4F8A74',honey:'#D2A04A',ferment:'#B5533C',regional:'#8A5A3B',decaf:'#6E8FA8'};
 const dirTag=d=>'<span class="dir '+(d==='coarser'?'coarse':'')+'">'+(d==='finer'?'Go finer':d==='coarser'?'Go coarser':'Baseline')+'</span>';
 $('plt-f').onclick=()=>pickOne('Filter processes','process',[['all','All processes'],...Object.entries(PCAT)],()=>PC,v=>{PC=v},renderProcesses,()=>Object.values(PROCESSES).filter(p=>inSel(PC,p.cat)).length,'processes');
-function renderProcesses(){
-  {const n=Object.values(PROCESSES).filter(p=>inSel(PC,p.cat)).length;{const nm=selName(PC,k=>PCAT[k],'All processes');ltSync('plt',{on:PC.length>0,filter:nm,k:nm+' · '+n})}}
-  $('pgrid').innerHTML=Object.entries(PROCESSES).filter(([,p])=>inSel(PC,p.cat)).map(([k,p])=>'<article class="card" id="pc-'+k+'" style="border-top:5px solid '+PCOL[p.cat]+'"><span class="hint">'+PCAT[p.cat]+'</span><h3 style="margin-top:.2rem">'+esc(p.name)+'</h3>'+dirTag(p.dir)+'<p>'+esc(p.char)+'</p><p><b>Brewing it well.</b> '+esc(p.brew)+'</p><div class="chips">'+p.notes.map(n=>'<span class="chip">'+esc(n)+'</span>').join('')+'</div><button class="btn ghost" data-usep="'+k+'">Brew with this process</button></article>').join('');
+// Search: the name, its group, what it is, how to brew it and its notes. The list and the map's dots both follow it.
+let PQ='';const pKeep=p=>inSel(PC,p.cat)&&(!PQ||(p.name+' '+PCAT[p.cat]+' '+p.char+' '+p.brew+' '+p.notes.join(' ')).toLowerCase().includes(PQ));
+function renderProcesses(){PQ=($('psearch')&&$('psearch').value||'').trim().toLowerCase();
+  {const n=Object.values(PROCESSES).filter(pKeep).length;{const nm=selName(PC,k=>PCAT[k],'All processes');ltSync('plt',{on:PC.length>0,filter:nm,k:(PQ||PC.length?n+' of '+Object.keys(PROCESSES).length:n)+' processes'})}}
+  const pl=Object.entries(PROCESSES).filter(([,p])=>pKeep(p));
+  $('pgrid').innerHTML=pl.length?'':'<p class="hint">No processes match. Try a word like honey, anaerobic or decaf.</p>';if(!pl.length){}else $('pgrid').innerHTML=pl.map(([k,p])=>'<article class="card" id="pc-'+k+'" style="border-top:5px solid '+PCOL[p.cat]+'"><span class="hint">'+PCAT[p.cat]+'</span><h3 style="margin-top:.2rem">'+esc(p.name)+'</h3>'+dirTag(p.dir)+'<p>'+esc(p.char)+'</p><p><b>Brewing it well.</b> '+esc(p.brew)+'</p><div class="chips">'+p.notes.map(n=>'<span class="chip">'+esc(n)+'</span>').join('')+'</div><button class="btn ghost" data-usep="'+k+'">Brew with this process</button></article>').join('');
   const W=640,H=300,px=f=>60+f/1.7*540,py=a=>150-a/1.6*120;
   let h='<rect x="60" y="20" width="540" height="250" rx="14" fill="var(--paper)"/><line x1="60" y1="150" x2="600" y2="150" stroke="var(--line)"/><line x1="330" y1="20" x2="330" y2="270" stroke="var(--line)"/>'+
    '<text class="ax" x="64" y="292">Clean</text><text class="ax" x="596" y="292" text-anchor="end">Wild and fruity</text>'+
    '<text class="ax" x="70" y="40">Bright</text><text class="ax" x="70" y="260">Soft</text>';
   const used={};
-  for(const [k,p] of Object.entries(PROCESSES)){if(!inSel(PC,p.cat))continue;let x=px(p.funk),y=py(p.acid);const key=Math.round(x/10)+'_'+Math.round(y/10);used[key]=(used[key]||0)+1;x+=(used[key]-1)*9;
+  for(const [k,p] of Object.entries(PROCESSES)){if(!pKeep(p))continue;let x=px(p.funk),y=py(p.acid);const key=Math.round(x/10)+'_'+Math.round(y/10);used[key]=(used[key]||0)+1;x+=(used[key]-1)*9;
     h+='<g class="pdg" data-k="'+k+'"><circle class="pd" cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="7" fill="'+PCOL[p.cat]+'" stroke="var(--surface)" stroke-width="2"><title>'+esc(p.name)+'</title></circle></g>'}
   h+='<text id="pm-label" x="330" y="8" text-anchor="middle"></text>';
   $('pmap').innerHTML=h;
 }
-document.querySelector('#process .lede').onclick=e=>{goLink(e)};
+$('psearch').oninput=()=>soon(renderProcesses);
 $('pmap').onclick=e=>{const g=e.target.closest('.pdg');if(!g)return;const k=g.dataset.k;$('pm-label').textContent=PROCESSES[k].name;const c=$('pc-'+k);if(c){c.classList.remove('flash');void c.offsetWidth;c.classList.add('flash');c.scrollIntoView({behavior:RM()?'auto':'smooth',block:'center'})}};
 $('pmap').onmousemove=e=>{const g=e.target.closest('.pdg');if(g)$('pm-label').textContent=PROCESSES[g.dataset.k].name};
 $('pgrid').onclick=e=>{const b=e.target.closest('[data-usep]');if(b){S.process=b.dataset.usep;render();showTab('dial');toast('Process set to '+PROCESSES[S.process].name)}};
@@ -8099,7 +8134,7 @@ function renderVarieties(){VF=VF.filter(vfOk);vwSet('vf',VF);
   renderCompare();
 }
 function renderCompare(){
-  if(!CMP.length){$('vcompare').innerHTML='<div class="actions" style="margin:0 0 14px"><button class="btn ghost" id="vsurprise">Surprise me</button><span class="hint" style="align-self:center">Tap "+ Compare" on up to three varieties to see them side by side.</span></div>';$('vsurprise').onclick=()=>openVariety(V[Math.floor(Math.random()*V.length)].id);return}
+  if(!CMP.length){$('vcompare').innerHTML='';return}
   const vs=CMP.map(id=>VBY[id]);const m=vs.map(v=>vParams(v.id));const sc=x=>clamp((x+2)*2.5,0.3,10);
   const rows=[['Acidity','acid'],['Body','body'],['Sweetness','sweet'],['Clarity','clarity']];
   $('vcompare').innerHTML='<div class="card" style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><h3 style="margin:0">Side by side</h3>'+ib('reset','id="vclear"','Clear the comparison','sm')+'</div>'+
@@ -8109,6 +8144,7 @@ function renderCompare(){
   $('vclear').onclick=()=>{CMP=[];renderVarieties()};
 }
 $('vsearch').oninput=e=>{VQ=e.target.value;soon(renderVarieties)};
+$('vsurprise').onclick=()=>openVariety(V[Math.floor(Math.random()*V.length)].id);
 $('vlt-f').onclick=()=>{const part=t=>VF.filter(k=>vfKind(k)===t),cnt=f=>nOf(V.filter(f).length,'variety','varieties'),grown=[...new Set(V.flatMap(v=>v.grown||[]))].filter(o=>originName(o)).sort((a,b)=>originName(a).localeCompare(originName(b)));
   openChoices({title:'Filter varieties',one:'variety',many:'varieties',get:t=>part(t),set:(t,v)=>{VF=[...VF.filter(k=>vfKind(k)!==t),...v]},render:renderVarieties,count:()=>V.filter(vfKeep).length,
     secs:()=>[{h:'Cup',key:'c',multi:true,chips:1,opts:VCUP.map(([k,n])=>['c:'+k,n])},
@@ -8172,7 +8208,7 @@ function harvestShort(k){const r=harvestRanges((ALLO()[k]||{}).harvest);return r
 function seasonList(kind,mo){return Object.keys(ALLO()).filter(k=>{const s=seasonOf(k,mo);return s&&s[kind]}).sort((a,b)=>ALLO()[a].name.localeCompare(ALLO()[b].name))}
 function renderSeason(){const box=$('mapseason');if(!box)return;const mo=new Date().getMonth(),month=new Date().toLocaleDateString(undefined,{month:'long'});
   const now=seasonList('now',mo),arr=seasonList('arriving',mo),list=SEASON==='now'?now:SEASON==='arriving'?arr:[];
-  box.innerHTML='<div class="ms-head"><span class="ms-ic" aria-hidden="true">🌱</span><span><b>In season · '+esc(month)+'</b><small>'+(SEASON==='now'?'Being picked this month.':SEASON==='arriving'?'Picked a few months ago: new-crop bags are reaching roasters now.':'See which origins are being harvested, or freshly arriving.')+'</small></span></div>'+
+  box.innerHTML='<div class="ms-head"><span class="ms-ic" aria-hidden="true">🌱</span><span><b>In season · '+esc(month)+'</b>'+(SEASON?'<small>'+(SEASON==='now'?'Being picked this month.':'Picked a few months ago: new-crop bags are reaching roasters now.')+'</small>':'')+'</span></div>'+
     '<div class="seg filters ms-seg" role="group" aria-label="Harvest season"><button type="button" data-ss="now" aria-pressed="'+(SEASON==='now')+'">Harvest now <span class="ms-n">'+now.length+'</span></button><button type="button" data-ss="arriving" aria-pressed="'+(SEASON==='arriving')+'">New crop <span class="ms-n">'+arr.length+'</span></button></div>'+
     (SEASON?'<div class="chips ms-chips">'+list.map(k=>'<button type="button" class="chip" data-o="'+k+'">'+ALLO()[k].flag+' '+esc(ALLO()[k].name)+'<small>'+harvestShort(k)+'</small></button>').join('')+'</div>':'');
   const svg=$('worldmap');if(SEASON){HL=null;$('legend').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed','false'));const set=new Set(list);svg.classList.add('dim');svg.querySelectorAll('.o').forEach(p=>p.classList.toggle('hl',set.has(p.dataset.k)));svg.querySelectorAll('.dot').forEach(p=>p.classList.toggle('off',!set.has(p.dataset.k)))}
@@ -8193,8 +8229,8 @@ function zoomTo(z){
   requestAnimationFrame(step);
 }
 function emptyInfo(){
-  $('info').innerHTML='<h2>Pick an origin</h2><p>Tap a coloured country or dot. The shaded band is the coffee belt.</p>'+
-  '<div class="stats"><div><b>Where it all began</b><button class="chip" data-o="ethiopia" style="margin-top:4px">🇪🇹 Ethiopia</button> <button class="chip" data-o="yemen">🇾🇪 Yemen</button> <button class="chip" data-o="southsudan">🇸🇸 South Sudan</button></div><div><b>Feeling curious?</b>Tap "Surprise me" under the map.</div></div>';
+  // Before an origin is picked: where coffee began, as three origins to open (the map itself is the way to pick).
+  $('info').innerHTML='<div class="mi-empty"><span class="mi-k">Start here</span><h3>Where coffee began</h3><div class="chips"><button class="chip" data-o="ethiopia">🇪🇹 Ethiopia</button><button class="chip" data-o="yemen">🇾🇪 Yemen</button><button class="chip" data-o="southsudan">🇸🇸 South Sudan</button></div></div>';
 }
 $('info').onclick=e=>{const s=e.target.closest('[data-oshare]');if(s){openShare(originDoc(s.dataset.oshare));return}const b=e.target.closest('[data-o]');if(b)selectOrigin(b.dataset.o,true)};
 function selectOrigin(k,zoom){
@@ -8369,15 +8405,21 @@ function renderShare(){const el=$('l-share');if(!el)return;
   el.hidden=!SYNC_DB;if(!SYNC_DB){el.innerHTML='';return}
   // Your name comes from your profile; only without one does the card ask for it.
   const nick=window.PROFILE_OK&&PROFILE&&PROFILE.nick||'';
-  if(!GROUP){el.innerHTML='<h3>Shared log</h3>'+
+  // One tidy row: what it is and its state, with the action at the end. Not shared yet, "Start or join" opens the form
+  // under it (open already when you came from an invite link); shared, your name and code, Invite and Leave.
+  const ic='<span class="sh-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z M3 20c.6-3.4 3-5.5 6-5.5s5.4 2.1 6 5.5 M16 11a3 3 0 1 0 0-6 M17.5 14.6c1.9.6 3.2 2.5 3.5 5.4"/></svg></span>';
+  if(!GROUP){const open=!!JOIN_CODE||el.dataset.open==='1';
+    el.innerHTML='<div class="sh-row">'+ic+'<span class="sh-tx"><b>Shared log</b><small>Brew together with friends</small></span><button type="button" class="pbtn sm" id="sh-open" aria-expanded="'+open+'">'+(open?'Close':'Start or join')+'</button></div>'+
+    '<div class="sh-form" id="sh-form"'+(open?'':' hidden')+'>'+
     (nick?'<div class="sh-me">'+avatarHTML(PROFILE,34)+'<span>Friends will see your brews as <b>'+esc(nick)+'</b></span></div>':'<div class="field"><label for="sh-name">Your name</label><input id="sh-name" maxlength="30" value="'+esc(ME)+'"></div>')+
     '<div class="actions"><button class="btn" id="sh-new">Start a shared log</button></div>'+
-    '<div class="field" style="margin:12px 0 0"><label for="sh-code">Or join with a code</label><div class="joinrow"><input id="sh-code" placeholder="ABCD-2345" maxlength="9" autocapitalize="characters" value="'+esc(JOIN_CODE||'')+'"><button class="btn ghost" id="sh-join">Join</button></div></div>';
+    '<div class="field" style="margin:12px 0 0"><label for="sh-code">Or join with a code</label><div class="joinrow"><input id="sh-code" placeholder="ABCD-2345" maxlength="9" autocapitalize="characters" value="'+esc(JOIN_CODE||'')+'"><button class="btn ghost" id="sh-join">Join</button></div></div></div>';
+    $('sh-open').onclick=()=>{el.dataset.open=el.dataset.open==='1'?'':'1';renderShare();if(el.dataset.open==='1'){const f=$('sh-name')||$('sh-code');if(f)f.focus({preventScroll:true})}};
     const name=()=>{if(nick)return nick;const n=$('sh-name').value.trim();if(!n){toast('Add your name first, so friends know who logged what');$('sh-name').focus()}return n};
     $('sh-new').onclick=()=>{const n=name();if(n){joinGroup(newCode(),n);toast('Shared log started. Invite your friends.')}};
     $('sh-join').onclick=()=>{const n=name();if(!n)return;const c=$('sh-code').value.toUpperCase().replace(/[^A-Z0-9]/g,'');if(c.length!==8){toast('Codes look like ABCD-2345');return}JOIN_CODE='';joinGroup(c.slice(0,4)+'-'+c.slice(4),n);toast('Joined the shared log')};return}
-  el.innerHTML='<div class="sharehead"><h3 style="margin:0">Shared log</h3><span class="sync" id="sync-state"></span></div><p class="hint sh-you" style="margin:.3rem 0 .8rem">'+(window.PROFILE_OK&&PROFILE?avatarHTML(PROFILE,24):'')+'<span>You are <b>'+esc(ME||'Guest')+'</b>. Code <b class="code">'+GROUP.code+'</b></span></p>'+
-    '<div class="actions"><button class="btn" id="sh-invite">Invite friends</button><button class="btn ghost" id="sh-leave">Leave</button></div>';
+  el.innerHTML='<div class="sh-row">'+(window.PROFILE_OK&&PROFILE?'<span class="sh-av">'+avatarHTML(PROFILE,40)+'</span>':ic)+'<span class="sh-tx"><b>Shared log <span class="sync" id="sync-state"></span></b><small>'+esc(ME||'Guest')+' · <span class="code">'+GROUP.code+'</span></small></span>'+
+    ib('share','id="sh-invite"','Invite friends','sm')+ib('x','id="sh-leave"','Leave the shared log','sm')+'</div>';
   $('sh-invite').onclick=()=>openShare(inviteDoc());
   $('sh-leave').onclick=()=>askConfirm('Your phone keeps a copy of the entries.','Leave',true,'Leave the shared log?').then(y=>{if(y)leaveGroup()});setSync(SYNC_STATE==='off'?'connecting':SYNC_STATE)}
 let JOIN_CODE='';
@@ -8429,16 +8471,22 @@ function drawLSet(){const el=$('lset');if(!el)return;const o=LS,B=o.b&&BREWERS[o
   const bl=[...new Set([...(o.b?[o.b]:[]),...MYB,...Object.keys(BREWERS).filter(LISTED)])];
   const recs=RECIPES.map((r,i)=>[r,i]).filter(([r])=>!o.b||r.b===o.b||(BREWERS[r.b]&&BREWERS[r.b].of===o.b)||r===o.rec);
   const gl=[...new Set([...(o.g?[o.g]:[]),...MYG])];
-  const tile=(k,lab,val,unit,step,sub)=>'<div class="ls-t'+(val==null?' empty':'')+'"><span class="ls-ic">'+lsIc(k)+'</span><span class="ls-l">'+lab+'</span>'+
-    '<b class="ls-v">'+(val==null?'–':esc(String(val)))+(val!=null&&unit?'<small>'+unit+'</small>':'')+'</b>'+(sub||'')+
-    '<span class="ls-st"><button type="button" data-ls="'+k+'" data-d="-1" aria-label="Less '+lab.toLowerCase()+'">−</button><button type="button" data-ls="'+k+'" data-d="1" aria-label="More '+lab.toLowerCase()+'">+</button></span></div>';
-  const ra=o.dose&&o.water?o.water/o.dose:null,pos=ra?clamp((ra-12)/7,0,1)*100:50;
+  // Not set yet: the value a first tap would set shows faded (your recipe's, or the usual), so a tile is never a bare dash.
+  const ra=o.dose&&o.water?o.water/o.dose:null;
+  const phG=o.g||gl[0],phC=phG&&GRINDERS[phG]?settingFor(phG,o.b||(o.rec&&o.rec.b)||'v60',o.rec&&o.rec.off||0):null;
+  const ph={dose:gfmt(lsDefault('dose')),water:gfmt(o.dose?Math.round(o.dose*16):lsDefault('water')),temp:lsDefault('temp'),grind:phC!=null?dial(phG,Math.round(phC)):null};const pos=clamp(((ra||+ph.water/+ph.dose)-12)/7,0,1)*100;
+  // One row each, like a settings list: the icon, the name (the grind's grinder as a quiet subtitle you can tap to change),
+  // and on the right one capsule: − value +.
+  const tile=(k,lab,val,unit,step,sub)=>'<div class="ls-t'+(val==null?' empty':'')+'" data-k="'+k+'"><div class="ls-th"><span class="ls-ic">'+lsIc(k)+'</span><span class="ls-tt"><span class="ls-n">'+lab+'</span>'+(sub||'')+'</span></div>'+
+    '<div class="ls-row"><button type="button" data-ls="'+k+'" data-d="-1" aria-label="Less '+lab.toLowerCase()+'">−</button>'+
+    '<b class="ls-v">'+(val==null?(ph[k]!=null?esc(String(ph[k]))+(unit?'<small>'+unit+'</small>':''):'–'):esc(String(val)))+(val!=null&&unit?'<small>'+unit+'</small>':'')+'</b>'+
+    '<button type="button" data-ls="'+k+'" data-d="1" aria-label="More '+lab.toLowerCase()+'">+</button></div></div>';
   el.innerHTML='<div class="ls-pick"><label class="ls-sel"><span class="ls-ic">'+lsIc('brew')+'</span><span class="ls-l">Brewer</span><b>'+esc(B?B.name:'Choose')+'</b><svg class="ls-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg><select id="ls-b" aria-label="Brewer"><option value="">No brewer</option>'+bl.map(k=>'<option value="'+k+'"'+(k===o.b?' selected':'')+'>'+esc(BREWERS[k].name)+'</option>').join('')+'</select></label>'+
     '<label class="ls-sel"><span class="ls-ic">'+lsIc('rec')+'</span><span class="ls-l">Recipe</span><b>'+esc(o.rec?o.rec.name:'Your own')+'</b><svg class="ls-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg><select id="ls-r" aria-label="Recipe"><option value="">My own recipe</option>'+recs.map(([r,i])=>'<option value="'+i+'"'+(r===o.rec?' selected':'')+'>'+esc(r.name)+'</option>').join('')+'</select></label></div>'+
-    '<div class="ls-grid">'+tile('dose','Coffee',o.dose!=null?gfmt(o.dose):null,' g')+tile('water','Water',o.water!=null?gfmt(o.water):null,' g')+tile('temp','Water temp',o.temp,'°C')+
-    tile('grind','Grind',G&&o.c!=null?dial(o.g,o.c):null,G&&G.unit==='clicks'&&G.fmt!=='rot'?' clicks':'','',G||gl.length?'<label class="ls-gsel">'+esc(G?G.name:gname(gl[0]))+'<select id="ls-g" aria-label="Grinder">'+gl.map(g=>'<option value="'+g+'"'+(g===o.g?' selected':'')+'>'+esc(gname(g))+'</option>').join('')+'</select></label>':'')+'</div>'+
+    '<div class="ls-grid">'+tile('dose','Coffee',o.dose!=null?gfmt(o.dose):null,' g')+tile('water','Water',o.water!=null?gfmt(o.water):null,' g')+tile('temp','Temp',o.temp,'°C')+
+    tile('grind','Grind',G&&o.c!=null?dial(o.g,o.c):null,(G||GRINDERS[phG])&&(G||GRINDERS[phG]).unit==='clicks'&&(G||GRINDERS[phG]).fmt!=='rot'?' clicks':'','',G||gl.length?'<label class="ls-gsel"><span>'+esc(G?G.name:gname(gl[0]))+'</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg><select id="ls-g" aria-label="Grinder">'+gl.map(g=>'<option value="'+g+'"'+(g===o.g?' selected':'')+'>'+esc(gname(g))+'</option>').join('')+'</select></label>':'')+'</div>'+
     // The ratio: its name on the left, the ratio and what it tastes like on the right, then where it sits from strong to light.
-    '<div class="ls-ratio'+(ra?'':' empty')+'"><div class="ls-rtop"><span class="ls-l">Ratio</span>'+(ra?'<span class="ls-rv"><b>1:'+rr1(ra)+'</b><em>'+lsWord(ra)+'</em></span>':'<span class="ls-rv"><small>Set coffee and water</small></span>')+'</div>'+
+    '<div class="ls-ratio'+(ra?'':' empty')+'"><div class="ls-rtop"><span class="ls-l">Ratio</span>'+'<span class="ls-rv"><b>1:'+rr1(ra||+ph.water/+ph.dose)+'</b><em>'+lsWord(ra||+ph.water/+ph.dose)+'</em></span>'+'</div>'+
     '<div class="ls-bar"><i style="left:'+pos.toFixed(1)+'%"></i></div><div class="ls-ends"><span>Stronger</span><span>Lighter</span></div></div>'+
     '<input id="ls-x" class="ls-x" placeholder="Anything else? Two swirls…" value="'+esc(o.extra)+'" aria-label="Other settings">'}
 function lsDefault(k){const o=LS,r=o.rec;
@@ -8478,7 +8526,7 @@ function renderLastBrew(){const el=$('lastbrew');if(!el)return;const l=LOG.find(
 /* ---------- The list of brews: search, filters, sort, and each brew as a card ---------- */
 let LF=Object.assign({q:'',who:[],min:0,sort:'new'},VW_KEEP?load('bb-logfilter',{}):{});LF.q='';if(!Array.isArray(LF.who))LF.who=LF.who&&LF.who!=='all'?[LF.who]:[];
 const LOG_SORTS=[['new','Newest'],['old','Oldest'],['top','Highest rated'],['az','Coffee A–Z']];
-const LI={phone:'M8 3h8a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z M11 18h2',again:'M8 5v14l11-7z',share:'M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5',edit:'M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4',del:'M5 7h14 M10 7V4.8h4V7 M7 7l.8 12.2a1.6 1.6 0 0 0 1.6 1.5h5.2a1.6 1.6 0 0 0 1.6-1.5L17 7',search:'M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4',plus:'M12 5v14 M5 12h14',dl:'M12 4v11 M7.5 10.5L12 15l4.5-4.5 M5 19.5h14',ul:'M12 15V4 M7.5 8.5L12 4l4.5 4.5 M5 19.5h14',mark:'M7 4h10a1 1 0 0 1 1 1v15l-6-4-6 4V5a1 1 0 0 1 1-1z',log:'M6 4h11a1 1 0 0 1 1 1v15H8a2 2 0 0 1-2-2z M12 8v6 M9 11h6',cam:'M4 8h3l2-2.5h6L17 8h3v11H4z M12 10.5a3 3 0 1 0 0 6a3 3 0 1 0 0-6z',reset:'M4 12a8 8 0 1 0 2.3-5.6 M4 4v5h5',swap:'M7 7h13 M16 3l4 4-4 4 M17 17H4 M8 13l-4 4 4 4',cmp:'M9 4H5v16h4 M15 4h4v16h-4 M12 2v20',bulb:'M9 18h6 M10 21h4 M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z',open:'M14 4h6v6 M20 4l-9 9 M18 14v6H4V6h6',x:'M6 6l12 12 M18 6L6 18',minus:'M5 12h14',chev:'M9 6l6 6-6 6',bag:'M6 8h12l-1.2 12H7.2z M9 8V6.5a3 3 0 0 1 6 0V8',gift:'M4 11h16v9H4z M3 7.5h18V11H3z M12 7.5V20 M12 7.5C10.5 4 7 4 7 6s3 1.5 5 1.5 M12 7.5C13.5 4 17 4 17 6s-3 1.5-5 1.5',store:'M4 10l1.5-5h13L20 10 M5 10v9h14v-9 M4 10a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0 M10 19v-4h4v4',wheel:'M12 3.5a8.5 8.5 0 1 0 0 17a8.5 8.5 0 1 0 0-17z M12 3.5v8.5l7.4 4.2M12 12l-7.4 4.2',sweep:'M20 4l-8.5 8.5 M13.5 14.5l-4-4-2.5 1.5c-1.5 1-3 3.5-3.5 8.5 5-.5 7.5-2 8.5-3.5z M7 17l2-2',ice:'M12 3v18 M4.2 7.5l15.6 9 M4.2 16.5l15.6-9 M9.5 4.5L12 7l2.5-2.5 M9.5 19.5L12 17l2.5 2.5',info:'M21 12a9 9 0 1 1-18 0a9 9 0 1 1 18 0z M12 11v5 M12 8h.01',ok:'M5 12.5l4.5 4.5L19 7.5',flag:'M5 21V4 M5 4h12l-2.5 4 2.5 4H5',timer:'M12 9v4l2.5 1.5 M9.5 2.5h5 M12 21a8 8 0 1 0 0-16a8 8 0 1 0 0 16z',scan:'M4 8V6a2 2 0 0 1 2-2h2 M16 4h2a2 2 0 0 1 2 2v2 M20 16v2a2 2 0 0 1-2 2h-2 M8 20H6a2 2 0 0 1-2-2v-2 M12 8.5c2 0 3.5 1.6 3.5 3.5S14 15.5 12 15.5 8.5 14 8.5 12 10 8.5 12 8.5z',cup:'M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z M16 10h2a2 2 0 0 1 0 4h-2 M9 3v3 M12 3v3'};
+const LI={lock:'M7.5 11V8a4.5 4.5 0 0 1 9 0v3 M5.5 11h13v9.5h-13z M12 15v2',unlock:'M7.5 11V8a4.5 4.5 0 0 1 8.7-1.6 M5.5 11h13v9.5h-13z M12 15v2',dice:'M5.5 4h13a1.5 1.5 0 0 1 1.5 1.5v13a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5v-13A1.5 1.5 0 0 1 5.5 4z M8.6 8.6h.01 M15.4 8.6h.01 M12 12h.01 M8.6 15.4h.01 M15.4 15.4h.01',phone:'M8 3h8a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z M11 18h2',again:'M8 5v14l11-7z',share:'M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5',edit:'M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4',del:'M5 7h14 M10 7V4.8h4V7 M7 7l.8 12.2a1.6 1.6 0 0 0 1.6 1.5h5.2a1.6 1.6 0 0 0 1.6-1.5L17 7',search:'M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4',plus:'M12 5v14 M5 12h14',dl:'M12 4v11 M7.5 10.5L12 15l4.5-4.5 M5 19.5h14',ul:'M12 15V4 M7.5 8.5L12 4l4.5 4.5 M5 19.5h14',mark:'M7 4h10a1 1 0 0 1 1 1v15l-6-4-6 4V5a1 1 0 0 1 1-1z',log:'M6 4h11a1 1 0 0 1 1 1v15H8a2 2 0 0 1-2-2z M12 8v6 M9 11h6',cam:'M4 8h3l2-2.5h6L17 8h3v11H4z M12 10.5a3 3 0 1 0 0 6a3 3 0 1 0 0-6z',reset:'M4 12a8 8 0 1 0 2.3-5.6 M4 4v5h5',swap:'M7 7h13 M16 3l4 4-4 4 M17 17H4 M8 13l-4 4 4 4',cmp:'M9 4H5v16h4 M15 4h4v16h-4 M12 2v20',bulb:'M9 18h6 M10 21h4 M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z',open:'M14 4h6v6 M20 4l-9 9 M18 14v6H4V6h6',x:'M6 6l12 12 M18 6L6 18',minus:'M5 12h14',chev:'M9 6l6 6-6 6',bag:'M6 8h12l-1.2 12H7.2z M9 8V6.5a3 3 0 0 1 6 0V8',gift:'M4 11h16v9H4z M3 7.5h18V11H3z M12 7.5V20 M12 7.5C10.5 4 7 4 7 6s3 1.5 5 1.5 M12 7.5C13.5 4 17 4 17 6s-3 1.5-5 1.5',store:'M4 10l1.5-5h13L20 10 M5 10v9h14v-9 M4 10a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0 M10 19v-4h4v4',wheel:'M12 3.5a8.5 8.5 0 1 0 0 17a8.5 8.5 0 1 0 0-17z M12 3.5v8.5l7.4 4.2M12 12l-7.4 4.2',sweep:'M20 4l-8.5 8.5 M13.5 14.5l-4-4-2.5 1.5c-1.5 1-3 3.5-3.5 8.5 5-.5 7.5-2 8.5-3.5z M7 17l2-2',ice:'M12 3v18 M4.2 7.5l15.6 9 M4.2 16.5l15.6-9 M9.5 4.5L12 7l2.5-2.5 M9.5 19.5L12 17l2.5 2.5',info:'M21 12a9 9 0 1 1-18 0a9 9 0 1 1 18 0z M12 11v5 M12 8h.01',ok:'M5 12.5l4.5 4.5L19 7.5',flag:'M5 21V4 M5 4h12l-2.5 4 2.5 4H5',timer:'M12 9v4l2.5 1.5 M9.5 2.5h5 M12 21a8 8 0 1 0 0-16a8 8 0 1 0 0 16z',scan:'M4 8V6a2 2 0 0 1 2-2h2 M16 4h2a2 2 0 0 1 2 2v2 M20 16v2a2 2 0 0 1-2 2h-2 M8 20H6a2 2 0 0 1-2-2v-2 M12 8.5c2 0 3.5 1.6 3.5 3.5S14 15.5 12 15.5 8.5 14 8.5 12 10 8.5 12 8.5z',cup:'M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z M16 10h2a2 2 0 0 1 0 4h-2 M9 3v3 M12 3v3'};
 // Every action is a round icon (adding, filtering, sharing, deleting…): what it does is its label, read out and shown on
 // hover, not a word on the button. A form's own Save keeps its word. cls: 'main' for the one to press, 'danger' to delete.
 // A labelled pill (an icon and a word) for an action an icon alone wouldn't make clear.
@@ -10943,38 +10991,54 @@ async function aiRecipe(bean,bk,goal){const B=BREWERS[bk],t=tasteOf(BEANS,LOG.fi
   const r=sanRec({b:bk,kind:B.type==='Immersion and pressure'?'imm':B.type==='Valve and hybrid'?'hybrid':'pulse',name:j.name,by:'For '+shortName(beanTitle(bean)).slice(0,52),dose:j.dose,water:j.water,temp:j.temp,off:j.grind_offset,why:j.why,tip:j.tip,
     steps:(Array.isArray(j.steps)?j.steps:[]).filter(s=>/^\s*\d+:\d\d\b/.test(String(s)))});
   if(!r||r.steps.length<2||!(r.water>r.dose*8&&r.water<r.dose*20))throw new Error('unusable');return r}
-// surprise: a coffee from your cabinet (one on the shelf first), one of your brewers and a cup at random, made at once;
-// Another one draws all three again.
+// Make a recipe / Surprise me. One sheet: what it's for (your coffee, a brewer, the cup you want) as three rows of chips,
+// and the recipe under them, made again at once whenever a pick changes (no "create" step). Surprise me starts from a
+// random coffee, brewer and cup; each row has a lock, and Shuffle draws again only the rows that aren't locked. The
+// actions sit in the sheet's floating bar: Save and brew it, and Shuffle (or Another version when you picked).
 function openMakeRecipe(bid,surprise){const d=$('vd'),beans=[...BEANS.filter(b=>b.shelf),...BEANS.filter(b=>!b.shelf)];if(!beans.length){toast('Add a coffee to your gallery first');return}
   const brewers=[...new Set([...MYB,'v60','origami','sw','frenchpress'].map(CANONB))].filter(k=>BREWERS[k]&&MK_TYPES.includes(BREWERS[k].type)&&!BREWERS[k].of).slice(0,8);
-  const t=tasteOf(BEANS,LOG.filter(isMine)),lean=FY_LEAN(t);
-  const st={bean:bid&&beanById(bid)?bid:beans[0].id,b:MYB.find(k=>brewers.includes(k))||brewers[0],goal:lean==='bright'?'bright':lean==='round'?'sweet':'balanced',seed:1,rec:null,busy:false,keep:false};
-  const any=a=>a[Math.floor(Math.random()*a.length)],mine=brewers.filter(k=>MYB.includes(k)),shelf=beans.filter(b=>b.shelf);
-  // Keep this coffee: Another one then draws only a new brewer and cup for the same coffee.
-  const roll=()=>{if(!st.keep)st.bean=any(shelf.length?shelf:beans).id;st.b=any(mine.length?mine:brewers);st.goal=any(MK_GOALS)[0];st.seed=1+Math.floor(Math.random()*999)};
+  const t=tasteOf(BEANS,LOG.filter(isMine)),lean=FY_LEAN(t),leanGoal=t.families.length?(lean==='bright'?'bright':lean==='round'?'sweet':'balanced'):null;
+  const st={bean:bid&&beanById(bid)?bid:beans[0].id,b:MYB.find(k=>brewers.includes(k))||brewers[0],goal:leanGoal||'balanced',seed:1,rec:null,busy:false,lock:{bean:false,b:false,goal:false},job:0};
+  const mine=brewers.filter(k=>MYB.includes(k)),shelf=beans.filter(b=>b.shelf);
+  // A new pick for each unlocked row, a different one where there is a choice, so Shuffle always shows something new.
+  const pickNew=(list,cur)=>{const o=list.filter(v=>v!==cur);return(o.length?o:list)[Math.floor(Math.random()*(o.length?o:list).length)]};
+  const roll=()=>{if(!st.lock.bean)st.bean=pickNew((shelf.length>1?shelf:beans).map(b=>b.id),st.bean);if(!st.lock.b)st.b=pickNew(mine.length>1?mine:brewers,st.b);
+    if(!st.lock.goal)st.goal=pickNew(MK_GOALS.map(g=>g[0]),st.goal);st.seed=1+Math.floor(Math.random()*999)};
   if(surprise)roll();
-  const chips=(k,list,cur)=>'<div class="mk-chips" role="group">'+list.map(([v,n,pic])=>'<button type="button" data-mk="'+k+'" data-v="'+esc(v)+'" aria-pressed="'+(v===cur)+'">'+(pic||'')+esc(n)+'</button>').join('')+'</div>';
-  const draw=()=>{const r=st.rec,bean=beanById(st.bean);
-    $('vd-in').innerHTML='<div class="vd-head" style="--c:#8A5A3B"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:#C9964A"></i>'+(SAMPLE?'Made with AI':surprise?'Surprise':'Made for you')+'</span><h2 id="vd-title">A recipe for your coffee</h2>'+
-      '</div><div class="vd-body mk">'+
-      '<div class="lbl mk-lh">Your coffee'+(surprise?'<button type="button" class="mk-keep" id="mk-keep" aria-pressed="'+st.keep+'">'+lIc(st.keep?'ok':'plus')+'<span>Keep this coffee</span></button>':'')+'</div>'+chips('bean',(l=>l.some(b=>b.id===st.bean)?l:[...l.slice(0,9),beanById(st.bean)])(beans.slice(0,10)).map(b=>[b.id,beanTitle(b),beanPic(b,'xs')]),st.bean)+
-      '<div class="lbl">Brewer</div>'+chips('b',brewers.map(k=>[k,BREWERS[k].name]),st.b)+
-      '<div class="lbl">The cup you want'+(t.families.length?' <span class="hint">your taste leans '+(lean==='bright'?'bright and fruity':lean==='round'?'sweet and round':'balanced')+'</span>':'')+'</div>'+chips('goal',MK_GOALS,st.goal)+
-      (r?'<div class="mk-res"><div class="mk-h"><b>'+esc(r.name)+'</b><small>'+esc(r.by)+'</small></div>'+
-        // The same stats, grind settings, pour graph and steps as every recipe page.
-        recipeBody(r,-1).replace(/<div class="actions[^"]*">[\s\S]*$/,'')+
-        '<div class="actions ib-row sheet-acts">'+pbtn('timer','id="mk-save"','Save and brew it','main')+ib('reset','id="mk-again"','Another one')+'</div></div>'
-       :'<div class="actions"><button type="button" class="btn" id="mk-go"'+(st.busy?' disabled':'')+'>'+(st.busy?'Writing your recipe…':'Create the recipe')+'</button></div><button type="button" class="linkbtn mk-rand" id="mk-rand">Or open a random recipe from the list</button>')+'</div>';
-    hydrateImgs($('vd-in'));$('vd-x').onclick=()=>d.close()};
-  const go=async()=>{const bean=beanById(st.bean);if(!bean)return;st.busy=true;draw();let r=null;
-    if(SAMPLE)try{r=await aiRecipe(bean,st.b,st.goal)}catch(e){r=null}
-    if(!r)r=makeRecipe(bean,st.b,st.goal,st.seed);st.rec=r;st.busy=false;draw()};
-  $('vd-in').onclick=e=>{const c=e.target.closest('[data-mk]');if(c){st[c.dataset.mk]=c.dataset.v;st.rec=null;draw();return}
-    if(e.target.closest('#mk-keep')){st.keep=!st.keep;const k=$('mk-keep');k.setAttribute('aria-pressed',st.keep);k.innerHTML=lIc(st.keep?'ok':'plus')+'<span>Keep this coffee</span>';return}
-    if(e.target.closest('#mk-go')){go();return}if(e.target.closest('#mk-rand')){d.close();setTimeout(surpriseRecipe,200);return}if(e.target.closest('#mk-again')){if(surprise)roll();else st.seed++;st.rec=null;go();return}
-    if(e.target.closest('#mk-save')){const r=Object.assign({},st.rec,{id:'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),author:ME||'',ts:Date.now()});saveRecipe(r);
+  const LOCKN={bean:'coffee',b:'brewer',goal:'cup'};
+  const lockBtn=k=>surprise?'<button type="button" class="mk-lock" data-lock="'+k+'" aria-pressed="'+st.lock[k]+'" aria-label="Keep this '+LOCKN[k]+'" title="Keep this '+LOCKN[k]+'">'+lIc(st.lock[k]?'lock':'unlock')+'</button>':'';
+  const chips=(k,list)=>'<div class="mk-chips" role="group" aria-label="'+LOCKN[k]+'">'+list.map(([v,n,pic,lean])=>'<button type="button" data-mk="'+k+'" data-v="'+esc(v)+'" aria-pressed="'+(v===st[k])+'"'+(lean?' class="lean" title="Your taste leans this way"':'')+'>'+(pic||'')+esc(n)+'</button>').join('')+'</div>';
+  const row=(k,label,list)=>'<div class="mk-row"><div class="mk-rh"><span class="lbl">'+label+'</span>'+lockBtn(k)+'</div>'+chips(k,list)+'</div>';
+  const beanList=()=>(l=>l.some(b=>b.id===st.bean)?l:[...l.slice(0,9),beanById(st.bean)])(beans.slice(0,10)).map(b=>[b.id,beanTitle(b),beanPic(b,'xs')]);
+  // The recipe: a summary card (the coffee's photo, the recipe's name, the coffee and brewer it's for), then the same
+  // stats, grind settings, pour graph and steps as every recipe page. While AI writes one, a quiet placeholder.
+  const resHTML=()=>{const r=st.rec,bean=beanById(st.bean);if(st.busy||!r)return '<div class="mk-card mk-wait" aria-busy="true"><span class="mk-sk"></span><span class="mk-sk s"></span><span class="mk-sk t"></span><p>Writing your recipe…</p></div>';
+    const cup=(MK_GOALS.find(g=>g[0]===st.goal)||[0,''])[1];
+    return '<div class="mk-card"><div class="mk-hero">'+(bean?beanPic(bean,'sm'):'')+'<div class="mk-ht"><b>'+esc(r.name)+'</b><span>'+esc([beanTitle(bean),BREWERS[st.b].name,cup].filter(Boolean).join(' · '))+'</span></div></div>'+
+      recipeBody(r,-1).replace(/<div class="actions[^"]*">[\s\S]*$/,'').replace(/^<p class="hint"[^>]*>[^<]*<\/p>/,'')+'</div>'};
+  const actsHTML=()=>'<div class="actions ib-row sheet-acts mk-acts">'+pbtn('timer','id="mk-save"'+(st.rec&&!st.busy?'':' disabled'),'Save and brew it','main')+(surprise?ib('dice','id="mk-again"','Shuffle'):ib('reset','id="mk-again"','Another version'))+'</div>';
+  const draw=()=>{$('vd-in').innerHTML='<div class="vd-head" style="--c:#8A5A3B"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:#C9964A"></i>'+(SAMPLE?'Made with AI':surprise?'Surprise me':'Made for you')+'</span><h2 id="vd-title">'+(surprise?'A surprise recipe':'A recipe for your coffee')+'</h2></div>'+
+      '<div class="vd-body mk"><div class="mk-picks">'+row('bean','Coffee',beanList())+row('b','Brewer',brewers.map(k=>[k,BREWERS[k].name]))+row('goal','Cup',MK_GOALS.map(([v,n])=>[v,n,'',v===leanGoal]))+'</div>'+
+      '<div id="mk-res">'+resHTML()+'</div>'+actsHTML()+'</div>';
+    hydrateImgs($('vd-in'));$('vd-x').onclick=()=>d.close();centerPicks()};
+  // The picked chip in each row is brought into view (sideways only).
+  const centerPicks=()=>requestAnimationFrame(()=>$('vd-in').querySelectorAll('.mk-chips').forEach(c=>{const on=c.querySelector('[aria-pressed="true"]');if(on)c.scrollTo({left:Math.max(0,on.offsetLeft-(c.clientWidth-on.offsetWidth)/2),behavior:RM()?'auto':'smooth'})}));
+  // A pick changed: the chips and locks show it and the recipe is made again, in place (the sheet keeps its scroll).
+  const paint=()=>{const box=$('vd-in');if(!box.querySelector('.mk-picks')){draw();return}
+    box.querySelectorAll('[data-mk]').forEach(c=>c.setAttribute('aria-pressed',String(c.dataset.v===st[c.dataset.mk])));
+    if(!box.querySelector('[data-mk="bean"][aria-pressed="true"]')){box.querySelector('.mk-row').outerHTML=row('bean','Coffee',beanList());hydrateImgs(box)}
+    box.querySelectorAll('[data-lock]').forEach(l=>{const k=l.dataset.lock;l.setAttribute('aria-pressed',String(st.lock[k]));l.innerHTML=lIc(st.lock[k]?'lock':'unlock')});
+    $('mk-res').innerHTML=resHTML();hydrateImgs($('mk-res'));const s=$('mk-save');if(s)s.disabled=!(st.rec&&!st.busy);centerPicks()};
+  const go=async()=>{const bean=beanById(st.bean);if(!bean)return;const job=++st.job;
+    if(!SAMPLE){st.rec=makeRecipe(bean,st.b,st.goal,st.seed);st.busy=false;paint();return}
+    st.busy=true;paint();let r=null;try{r=await aiRecipe(bean,st.b,st.goal)}catch(e){r=null}if(job!==st.job)return;
+    st.rec=r||makeRecipe(bean,st.b,st.goal,st.seed);st.busy=false;paint()};
+  $('vd-in').onclick=e=>{const c=e.target.closest('[data-mk]');if(c){if(st[c.dataset.mk]===c.dataset.v)return;st[c.dataset.mk]=c.dataset.v;go();return}
+    const l=e.target.closest('[data-lock]');if(l){const k=l.dataset.lock;st.lock[k]=!st.lock[k];paint();tapBuzz();return}
+    if(e.target.closest('#mk-again')){if(surprise){if(st.lock.bean&&st.lock.b&&st.lock.goal)st.seed=1+Math.floor(Math.random()*999);else roll()}else st.seed++;go();return}
+    if(e.target.closest('#mk-save')&&st.rec&&!st.busy){const r=Object.assign({},st.rec,{id:'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),author:ME||'',ts:Date.now()});saveRecipe(r);
       const i=RECIPES.findIndex(x=>x.id===r.id);d.close();okBuzz();toast('Saved to your recipes');if(i>=0)setTimeout(()=>openRecipe(i),250)}};
-  draw();showDlg(d);d.scrollTop=0;if(surprise)go()}
+  st.rec=SAMPLE?null:makeRecipe(beanById(st.bean),st.b,st.goal,st.seed);draw();showDlg(d);d.scrollTop=0;if(SAMPLE)go()}
 
 /* ---------- Trophies ---------- */
 // Earned from the cabinet as it is: each has a goal and counts towards it. The day one is first earned is kept.

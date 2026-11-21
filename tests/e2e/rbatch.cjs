@@ -3,7 +3,7 @@
 // Make a recipe keeps the normal grind (longer ratio, hotter water); your palate names its flavour groups; tasting notes
 // on share cards take their wheel group's colour; Varieties filter by family, cup, grind and where grown; grind
 // settings are kept, not worked out again, and follow a calibration change; a coffee's remembered grind can be reset
-// (and undone); Surprise me can keep its coffee; the daily notes are scheduled again on coming back on a new day;
+// (and undone); Surprise me can lock its coffee; the daily notes are scheduled again on coming back on a new day;
 // problem reports say which build they came from; Carbonic honey is among the processes.
 {const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();
@@ -62,10 +62,10 @@ const rs=await p.evaluate(async()=>{document.querySelectorAll('dialog[open]').fo
 ok('Reset grind forgets what a coffee remembered, and later brews count again',rs.had&&!rs.after.mem&&!rs.after.btn&&rs.later===61,rs);
 // 10. Surprise keep coffee
 const sk=await p.evaluate(async()=>{goTab('recipes');await new Promise(r=>setTimeout(r,300));openMakeRecipe(null,true);await new Promise(r=>setTimeout(r,800));
-  const pick=()=>(document.querySelector('dialog[open] [data-mk="bean"][aria-pressed="true"]')||{}).dataset.v;const first=pick();$('mk-keep').click();
+  const pick=()=>(document.querySelector('dialog[open] [data-mk="bean"][aria-pressed="true"]')||{}).dataset.v;const first=pick();document.querySelector('dialog[open] [data-lock="bean"]').click();
   const seen=new Set();for(let i=0;i<6;i++){$('mk-again').click();await new Promise(r=>setTimeout(r,250));seen.add(pick())}
-  const pressed=$('mk-keep')&&$('mk-keep').getAttribute('aria-pressed');document.querySelectorAll('dialog[open]').forEach(d=>d.close());return{first,seen:[...seen],pressed}});
-ok('Surprise me: Keep this coffee keeps it through Another one',sk.pressed==='true'&&sk.seen.length===1&&sk.seen[0]===sk.first,sk);
+  const lk=document.querySelector('dialog[open] [data-lock="bean"]'),pressed=lk&&lk.getAttribute('aria-pressed');document.querySelectorAll('dialog[open]').forEach(d=>d.close());return{first,seen:[...seen],pressed}});
+ok('Surprise me: locking the coffee keeps it through Shuffle',sk.pressed==='true'&&sk.seen.length===1&&sk.seen[0]===sk.first,sk);
 // 11. Daily notes on resume
 const dn=await p.evaluate(async()=>{await setReminder(true,'08:30');window.__daily=[];const o=Date.prototype.toDateString;Date.prototype.toDateString=function(){return 'next day'};
   document.dispatchEvent(new Event('visibilitychange'));Date.prototype.toDateString=o;await new Promise(r=>setTimeout(r,400));return window.__daily.map(c=>c.kind)});

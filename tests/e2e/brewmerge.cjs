@@ -29,11 +29,11 @@ ok('your own NEO Switch and NEO recipes move to the Switch and the V60',JSON.str
 // Surprise me
 await p.evaluate(()=>goTab('recipes'));await p.waitForTimeout(500);
 await p.click('#rhome [data-q="surprise"]');await p.waitForTimeout(1200);
-const s1=await p.evaluate(()=>({res:!!document.querySelector('dialog[open] .mk-res'),name:(document.querySelector('dialog[open] .mk-res b')||{}).textContent||'',pill:(document.querySelector('dialog[open] .vd-head .pill')||{}).textContent,
+const s1=await p.evaluate(()=>({res:!!document.querySelector('dialog[open] .mk-card'),name:(document.querySelector('dialog[open] .mk-ht b')||{}).textContent||'',pill:(document.querySelector('dialog[open] .vd-head .pill')||{}).textContent,
   brewers:[...document.querySelectorAll('dialog[open] [data-mk="b"]')].map(x=>x.dataset.v),picked:[...document.querySelectorAll('dialog[open] [data-mk][aria-pressed="true"]')].map(x=>x.dataset.mk)}));
 ok('Surprise me shows a recipe at once',s1.res&&s1.name&&/Surprise/.test(s1.pill),s1);
 ok('a coffee, a brewer and a cup are picked and shown',['bean','b','goal'].every(k=>s1.picked.includes(k)),s1.picked);
 ok('the brewers on offer are your own, with no duplicates or NEO',JSON.stringify(s1.brewers)===JSON.stringify([...new Set(s1.brewers)])&&s1.brewers.includes('sw')&&!s1.brewers.some(v=>['neo','swneo','swi','switch'].includes(v)),s1.brewers);
-let changed=false;for(let i=0;i<5&&!changed;i++){await p.click('dialog[open] #mk-again');await p.waitForTimeout(500);changed=await p.evaluate(n=>(document.querySelector('dialog[open] .mk-res b')||{}).textContent!==n,s1.name)}
+let changed=false;for(let i=0;i<5&&!changed;i++){await p.click('dialog[open] #mk-again');await p.waitForTimeout(500);changed=await p.evaluate(n=>(document.querySelector('dialog[open] .mk-ht b')||{}).textContent!==n,s1.name)}
 ok('Another one draws a different recipe',changed);
 ok('no page errors',!errs.length,errs);await b.close()})();
