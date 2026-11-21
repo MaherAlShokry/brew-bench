@@ -114,6 +114,28 @@ public class DailyNotes extends BroadcastReceiver {
             if (o == null) continue;
             if (o.optInt("id") == id) hit = o; else keep.put(o);
         }
+        if (hit != null) {
+            // The app schedules two weeks ahead and again each time it opens. If this was the last note of its kind (the
+            // app hasn't been opened since), the next day's note is set here, at the same time, and opens the app, where
+            // the day's own coffee or fact is waiting and the next two weeks are scheduled afresh.
+            String kind = hit.optString("kind");
+            boolean more = false;
+            for (int i = 0; i < keep.length(); i++) { JSONObject o = keep.optJSONObject(i); if (o != null && kind.equals(o.optString("kind"))) more = true; }
+            if (!more && kind.length() > 0) {
+                try {
+                    boolean fact = "fact".equals(kind);
+                    long at = hit.optLong("at"), now = System.currentTimeMillis();
+                    while (at <= now) at += 24L * 60 * 60 * 1000;
+                    JSONObject next = new JSONObject().put("id", hit.optInt("id")).put("kind", kind).put("at", at).put("filler", true)
+                        .put("tag", fact ? "Coffee fact" : "Coffee of the day")
+                        .put("title", fact ? "A new coffee fact" : "Today\u2019s coffee is waiting")
+                        .put("body", fact ? "Open Brew Bench for today\u2019s fact." : "Open Brew Bench to see which coffee to brew today.")
+                        .put("open", fact ? "fact:null" : "beans");
+                    keep.put(next);
+                    setAlarm(ctx, next);
+                } catch (Exception ignored) { }
+            }
+        }
         prefs(ctx).edit().putString(ITEMS, keep.toString()).apply();
         if (hit != null) post(ctx, hit);
     }

@@ -362,7 +362,14 @@ const capable=b=>MYG.find(g=>canGrind(g,b))||Object.keys(GRINDERS).find(g=>canGr
 // their own setting. The coarsest offset, in recipe grind steps (negative is coarser).
 const COARSE_CAP_T=['Cone dripper','Flat-bottom dripper','Valve and hybrid'];
 function coarseCap(b){const B=BREWERS[b];if(!B||!COARSE_CAP_T.includes(B.type))return -Infinity;const zb=baseX('zp6',b),bs=zb!=null?sizeOf('zp6',zb):brewSize(b);return bs==null?-Infinity:(bs-sizeOf('zp6',70))/160}
-function settingFor(g,b,off){const bb=baseX(g,b);return bb==null?null:roundG(g,shift(g,bb,-Math.max(off,g==='zp6'?coarseCap(b):-Infinity)*160))}
+function settingFor0(g,b,off){const bb=baseX(g,b);return bb==null?null:roundG(g,shift(g,bb,-Math.max(off,g==='zp6'?coarseCap(b):-Infinity)*160))}
+// Kept per grinder, brewer and offset: every recipe card and sheet asks for each of your grinders on each redraw. The
+// keys carry what the answer depends on (your calibration, the grinder's offset, the grinder itself), and the whole
+// memory is dropped when the calibration's brewer offsets are (BOFF starts afresh on every grind change).
+const SF_MEMO=new Map();let SF_OF=null;
+function settingFor(g,b,off){if(SF_OF!==BOFF){SF_MEMO.clear();SF_OF=BOFF}
+  const k=g+'|'+b+'|'+off+'|'+gOff(g)+'|'+(BASE[g]&&BASE[g][b]),G=GRINDERS[g],m=SF_MEMO.get(k);if(m&&m[0]===G)return m[1];
+  const v=settingFor0(g,b,off);SF_MEMO.set(k,[G,v]);return v}
 function gLabel(g,v){const G=GRINDERS[g];return G.name+' '+dial(g,v)+(G.unit==='clicks'?' clicks':'')}
 /* ================= YOUR RECIPES ================= */
 // Recipes you or your team create sit after the built-in ones in RECIPES, so the timer and dial-in work with them.
@@ -789,7 +796,7 @@ const TILE_K=[[/^(coffee|dose|shot weight|bag)/i,'#D2793A','M12 3.2c3.5 0 6 3.9 
   [/^roast$/i,'#F43F5E','M12 3.5c1 4 5 5.2 5 10a5 5 0 0 1-10 0c0-3 2-4.2 2-7 1.6 1 2.6 2.4 3-3z'],
   [/roasted|tried|advent|since/i,'#6366F1','M4.5 6.5h15v13h-15z M4.5 10.5h15 M8.5 4v4 M15.5 4v4'],
   [/brewed|brews|cup/i,'#D2793A','M5 9h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z M16 10h1.5a2.5 2.5 0 0 1 0 5H16'],
-  [/rating|average/i,'#F59E0B','M12 4l2.4 5 5.6.8-4 3.9.9 5.5L12 16.6 7.1 19.2l.9-5.5-4-3.9 5.6-.8z'],
+  [/rating|rated|average/i,'#F59E0B','M12 3.2c3.5 0 6 3.9 6 8.8s-2.5 8.8-6 8.8-6-3.9-6-8.8 2.5-8.8 6-8.8z M12.9 3.6C10.4 6.3 14.3 9 12 12s1.6 5.9-.9 8.4'],
   [/brewer/i,'#6366F1','M5 6h14l-5 8h-4z M10 14v3h4v-3 M7.5 20h9'],
   [/top coffee|favourite/i,'#F43F5E','M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z']];
 // The attributes and icon for a tile from its label (and, for the strength row, its value).
@@ -1009,7 +1016,8 @@ function plan(c){
   if(G.why)why.push(G.why+(c.amt==='low'?' Applied lightly.':c.amt==='high'?' Pushed further.':'')+(moved.length?' For this target: '+moved.join(', ')+'.':''));
   const lo_=Math.min(B.ratio.min,r.water/r.dose),hi_=Math.max(B.ratio.max,r.water/r.dose);
   // As written, the recipe's own ratio is kept exactly; a target that moves it lands on the brewer's steps.
-  ratio=dr?clamp(Math.round(ratio/st_)*st_,lo_,hi_):clamp(ratio,lo_,hi_);ratio=Math.round(ratio*100)/100;
+  // Kept exact (not rounded to two places), so the water for any dose is the recipe page's to the gram.
+  ratio=dr?clamp(Math.round(ratio/st_)*st_,lo_,hi_):clamp(ratio,lo_,hi_);ratio=+ratio.toFixed(10);
   if(r.kind==='hedrick'&&c.roast!=='light')why.unshift('<b>Heads up:</b> this technique is built for light roasts.');
   if(r.temp2)why.unshift('Two temperatures: '+temp+'°C for the first stage, then about '+r.temp2+'°C as the steps say.');
   if(grinder!==c.grinder)why.unshift(gname(c.grinder)+' can\u2019t grind for this brewer, so settings are for '+gname(grinder)+'.');
@@ -1206,13 +1214,15 @@ const DRAW_S=35;
 const TASTE_DS=40;
 let DIALNEXT=(()=>{const o=load('bb-dialnext',{});return o&&typeof o==='object'&&!Array.isArray(o)?o:{}})();
 // Grind memory: what a coffee was last brewed at (its newest logged brew with a grind), so the Brew page can offer it.
-function lastBrewFor(id){if(!id)return null;const l=LOG.find(l=>l&&l.snap&&l.snap.bean&&l.snap.bean.id===id&&l.snap.g&&l.snap.c!=null);
+// A reset on the coffee's page ({reset:time} in its place) forgets the brews before it.
+function lastBrewFor(id){if(!id)return null;const x=DIALNEXT[id],r=x&&x.reset||0;const l=LOG.find(l=>l&&l.snap&&l.snap.bean&&l.snap.bean.id===id&&l.snap.g&&l.snap.c!=null&&(+l.ts||0)>r);
   return l?{g:l.snap.g,set:l.snap.c,temp:l.snap.t,brewer:l.snap.b,at:l.ts}:null}
 // Picking a coffee on the Brew page sets what you saved for it after its last brew (from how it tasted), else what you
 // last brewed it at: the grinder and setting, the water and the brewer. Quietly: nothing is shown.
 function memApply(id){const y=dialNextFor(id)||lastBrewFor(id);if(!y||!y.g||!GRINDERS[y.g]||!MYG.includes(y.g)||y.set==null)return false;
   if(y.brewer&&BREWERS[y.brewer])S.brewer=CANONB(y.brewer);S.grinder=y.g;S.setting=roundG(y.g,y.set);if(y.temp&&BREWERS[S.brewer]){const T=BREWERS[S.brewer].temp;S.temp=clamp(y.temp,T.min,T.max)}return true}
-function dialNextFor(id){const x=id&&DIALNEXT[id];return x&&typeof x==='object'?x:null}
+function dialNextFor(id){const x=id&&DIALNEXT[id];return x&&typeof x==='object'&&x.g?x:null}
+const grindMem=id=>!!(dialNextFor(id)||lastBrewFor(id));
 function tasteCheck(){const p=TM.p,r=TM.r||RECIPES[TM.idx],b=(p&&(p.brewer||p.st&&p.st.brewer))||r.b,B=BREWERS[b];if(!B)return;
   const g=p&&p.grinder||MYG.find(x=>canGrind(x,b)),v=g&&(p&&p.set&&p.set[g]!=null?p.set[g]:settingFor(g,b,r.off||0)),t0=+(p?p.temp:r.temp)||0;
   const beanId=p&&p.bean||S.bean&&S.bean.id||'',gb=beanId&&window.BEANS_OK?beanById(beanId):null;let taste=null;
@@ -1521,7 +1531,9 @@ document.querySelector('[role=tablist]').onclick=e=>{const t=e.target.closest('.
 
 /* ================= RECIPES ================= */
 // A recipe's details and buttons, used on its card and when it opens from a shared link.
-const gfmt=v=>v>=10?String(Math.round(v)):String(Math.round(v*10)/10);
+// Trimmed to 6 places first: 15 × 15.8333… is 237.4999… in floating point, which would round down to 237 while
+// the recipe page (15 × 190 / 12) says 238.
+const gfmt=v=>(v=+(+v).toFixed(6),v>=10?String(Math.round(v)):String(Math.round(v*10)/10));
 // Every weight in a recipe's steps scaled to another dose and water: water amounts by the water change, the coffee
 // dose by the dose change. Step times stay as written.
 // Amounts in the steps follow your dose and water. A range ("150 to 200g") scales at both ends; an amount of coffee
@@ -1567,7 +1579,7 @@ const rkey=r=>r.custom?'c:'+r.id:'r:'+slug(r.name);
 // Lists of recipe keys (plain strings), which load() would drop as it only keeps saved objects.
 // Recipes that were the same method in another profile, dose or ratio were folded into one (the dial-in sets those);
 // their old keys lead to the recipe they joined.
-const RALIAS={'r:neo-split-pour':'r:split-pour','r:yuma-kawano-neo-recipe':'r:yuma-kawano-recipe','r:tetsu-kasuya-10-pour-on-the-neo':'r:tetsu-kasuya-10-pour','r:4-6-sweeter':'r:tetsu-kasuya-4-6','r:4-6-lighter-and-cleaner':'r:tetsu-kasuya-4-6','r:4-6-fuller-body':'r:tetsu-kasuya-4-6','r:mugen-small-cup':'r:mugen-one-pour',
+const RALIAS={'r:switch-neo-percolate-then-immerse':'r:percolate-then-immerse','r:neo-split-pour':'r:split-pour','r:yuma-kawano-neo-recipe':'r:yuma-kawano-recipe','r:tetsu-kasuya-10-pour-on-the-neo':'r:tetsu-kasuya-10-pour','r:4-6-sweeter':'r:tetsu-kasuya-4-6','r:4-6-lighter-and-cleaner':'r:tetsu-kasuya-4-6','r:4-6-fuller-body':'r:tetsu-kasuya-4-6','r:mugen-small-cup':'r:mugen-one-pour',
   'r:kalita-for-darker-roasts':'r:kalita-pulse-pour','r:kalita-big-batch':'r:kalita-pulse-pour','r:ristretto':'r:classic-espresso-1-2','r:long-shot-allonge':'r:classic-espresso-1-2',
   'r:two-cup-v60':'r:the-ultimate-v60','r:neo-switch-percolate-then-immerse':'r:percolate-then-immerse','r:kasuya-hybrid-on-the-neo':'r:hybrid-method-devil-recipe','r:neo-switch-immersion':'r:full-immersion','r:chemex-for-one':'r:classic-chemex','r:ready-to-drink-cold-brew':'r:cold-brew-concentrate'};
 const loadKeys=k=>{try{const v=JSON.parse(localStorage.getItem(k)||'[]');return Array.isArray(v)?[...new Set(v.filter(x=>typeof x==='string'&&x.length<120).map(x=>RALIAS[x]||x))]:[]}catch(e){return[]}};
@@ -1782,7 +1794,7 @@ function openRecipe(i){const r=RECIPES[i],B=BREWERS[r.b],d=$('vd');
   // Share and Edit sit in the sheet's header with Save, as on a coffee's page.
   const tools='<span class="vd-tools">'+favBtn(r)+'<button type="button" class="vd-tool" data-rshare="'+i+'" aria-label="Share this recipe" title="Share">'+lIc('share')+'</button>'+
     (r.custom?'<button type="button" class="vd-tool" data-redit="'+esc(r.id)+'" aria-label="Edit this recipe" title="Edit">'+lIc('edit')+'</button>':'')+'</span>';
-  d.querySelector('#vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">\u2715</button>'+tools+'<span class="pill"><i style="background:var(--cherry)"></i>'+esc(r.custom?(r.author?'From '+r.author:'Your recipe'):'Recipe')+'</span><h2 id="vd-title">'+esc(r.name)+'</h2>'+(r.by?'<p class="hint" style="margin:0">'+esc(r.by)+'</p>':'')+'</div>'+
+  d.querySelector('#vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">\u2715</button>'+tools+'<span class="pill"><i style="background:var(--cherry)"></i>'+(r.custom?(r.author?'Shared recipe':'Your recipe'):'Recipe')+'</span><h2 id="vd-title">'+esc(r.name)+'</h2>'+((r.custom&&r.author)||r.by?'<p class="hint vd-by">'+esc(r.custom&&r.author?'From '+r.author:r.by)+'</p>':'')+'</div>'+
    '<div class="vd-body"><div class="rscale" role="group" aria-label="Scale this recipe">'+ib('minus','data-rsd="-1"','Less coffee','sm')+'<span class="rs-v"><b id="rs-d"></b><small id="rs-w"></small></span>'+ib('plus','data-rsd="1"','More coffee','sm')+
      '<button type="button" class="ib rs-ice" id="rs-ice" aria-pressed="false" aria-label="Iced: brew over ice" title="Iced: brew over ice">'+lIc('ice')+'</button></div><div id="rs-body"></div>'+'</div>';
   // Scale it: the coffee in 1 g steps (the water, pours and pour chart follow at the recipe's ratio; the times stay),
@@ -1971,7 +1983,7 @@ function openRoute(h){let m;try{h=decodeURIComponent(h)}catch(e){}
   return false}
 function importRecipe(code){let r;try{r=sanRec(b64u.dec(code))}catch(e){r=null}if(!r){toast('That recipe link looks broken');return}
   r.id='r'+Date.now().toString(36);r.ts=Date.now();const B=BREWERS[r.b];
-  $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Shared recipe'+(r.author?' from '+esc(r.author):'')+'</span><h2 id="vd-title">'+esc(r.name)+'</h2>'+
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Shared recipe</span><h2 id="vd-title">'+esc(r.name)+'</h2>'+(r.author?'<p class="hint vd-by">From '+esc(r.author)+'</p>':'')+
    '<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C</span>':'')+'</div></div><div class="vd-body">'+(r.why?'<p>'+esc(r.why)+'</p>':'')+stepList(r.steps)+(r.tip?'<p class="hint">'+esc(r.tip)+'</p>':'')+
    '<div class="meta">'+MYG.map(g=>{const v=settingFor(g,r.b,r.off);return '<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>'}).join('')+'</div>'+
    '<div class="actions ib-row">'+ib('plus','id="imp-add"','Add to my recipes','main')+ib('x','id="imp-no"','Not now')+'</div></div>';
@@ -2252,10 +2264,19 @@ document.addEventListener('click',e=>{const b=e.target.closest('.vbtn[data-v]');
 
 /* ================= VARIETIES TAB ================= */
 let VF=vwGet('vf',[],vwStrs),VQ='',CMP=[];
-function renderVarieties(){VF=VF.filter(k=>FAM[k]);vwSet('vf',VF);
-  ltSync('vlt',{on:VF.length>0,filter:selName(VF,k=>FAM[k].name,'All families')});
+// The filters: a family (kept as its bare key, as before), where it's grown ("g:"), the cup it leans to ("c:") and the
+// grind it wants ("d:"). Picks of one kind widen the list; kinds together narrow it.
+const vfKind=k=>/^[gcd]:/.test(k)?k[0]:'f';
+const VCUP=[['acid','Bright'],['sweet','Sweet'],['body','Full body'],['clarity','Clean']];
+const vCup=v=>{const p=vParams(v.id);let best=null;for(const [k] of VCUP)if(p[k]>0.05&&(!best||p[k]>p[best]))best=k;return best};
+const vfName=k=>{const t=vfKind(k),x=k.slice(2);return t==='f'?FAM[k].name:t==='g'?originName(x):t==='c'?(VCUP.find(c=>c[0]===x)||[,x])[1]:x==='finer'?'Go finer':x==='coarser'?'Go coarser':'Baseline grind'};
+const vfOk=k=>{const t=vfKind(k),x=k.slice(2);return t==='f'?!!FAM[k]:t==='g'?V.some(v=>(v.grown||[]).includes(x)):t==='c'?VCUP.some(c=>c[0]===x):['finer','coarser','baseline'].includes(x)};
+const vfKeep=v=>{const by=t=>VF.filter(k=>vfKind(k)===t).map(k=>t==='f'?k:k.slice(2));
+  return inSel(by('f'),v.fam)&&(!by('g').length||by('g').some(o=>(v.grown||[]).includes(o)))&&inSel(by('c'),vCup(v))&&inSel(by('d'),v.dir||'baseline')};
+function renderVarieties(){VF=VF.filter(vfOk);vwSet('vf',VF);
+  ltSync('vlt',{on:VF.length>0,filter:selName(VF,vfName,'All varieties')});
   const q=VQ.trim().toLowerCase();
-  const list=V.filter(v=>inSel(VF,v.fam)&&(!q||(v.name+' '+(v.origin||'')+' '+v.notes.join(' ')+' '+(v.grown||[]).map(originName).join(' ')+' '+(v.subs||[]).map(s=>s.name).join(' ')).toLowerCase().includes(q)));
+  const list=V.filter(v=>vfKeep(v)&&(!q||(v.name+' '+(v.origin||'')+' '+FAM[v.fam].name+' '+v.cup+' '+v.notes.join(' ')+' '+(v.grown||[]).map(originName).join(' ')+' '+(v.subs||[]).map(s=>s.name).join(' ')).toLowerCase().includes(q)));
   $('vgrid').innerHTML=(list.length?list.map(v=>'<div class="card vcard" data-v="'+v.id+'" style="--c:'+FAM[v.fam].color+'"><button type="button" class="addcmp" data-cmp="'+v.id+'" aria-pressed="'+CMP.includes(v.id)+'">'+(CMP.includes(v.id)?'Comparing':'+ Compare')+'</button><span class="fam">'+FAM[v.fam].name+'</span><h3><button type="button" class="vopen">'+esc(v.name)+'</button></h3>'+
     '<div class="meta">'+(v.origin?'<span title="'+esc(v.origin)+'">'+esc(v.origin.match(/^[^,(]*(\([^)]*\))?[^,]*/)[0])+'</span>':'')+(v.year?'<span>'+esc(v.year)+'</span>':'')+(v.subs?'<span>'+v.subs.length+' types</span>':'')+'</div>'+
     '<p>'+esc(v.cup)+'</p>'+dirTag(v.dir)+'</div>').join(''):'<p class="hint">No varieties match. Try a country, a family or a flavour.</p>');
@@ -2272,7 +2293,12 @@ function renderCompare(){
   $('vclear').onclick=()=>{CMP=[];renderVarieties()};
 }
 $('vsearch').oninput=e=>{VQ=e.target.value;soon(renderVarieties)};
-$('vlt-f').onclick=()=>pickOne('Filter varieties','variety',[['all','All families'],...Object.entries(FAM).map(([k,f])=>[k,f.name])],()=>VF,v=>{VF=v},renderVarieties,()=>V.filter(v=>inSel(VF,v.fam)).length,'varieties');
+$('vlt-f').onclick=()=>{const part=t=>VF.filter(k=>vfKind(k)===t),cnt=f=>nOf(V.filter(f).length,'variety','varieties'),grown=[...new Set(V.flatMap(v=>v.grown||[]))].filter(o=>originName(o)).sort((a,b)=>originName(a).localeCompare(originName(b)));
+  openChoices({title:'Filter varieties',one:'variety',many:'varieties',get:t=>part(t),set:(t,v)=>{VF=[...VF.filter(k=>vfKind(k)!==t),...v]},render:renderVarieties,count:()=>V.filter(vfKeep).length,
+    secs:()=>[{h:'Cup',key:'c',multi:true,chips:1,opts:VCUP.map(([k,n])=>['c:'+k,n])},
+      {h:'Grind',key:'d',multi:true,chips:1,opts:[['d:finer','Go finer'],['d:baseline','Baseline'],['d:coarser','Go coarser']]},
+      {h:'Family',key:'f',multi:true,opts:Object.entries(FAM).map(([k,f])=>[k,f.name,cnt(v=>v.fam===k)])},
+      {h:'Grown in',key:'g',multi:true,chips:1,opts:grown.map(o=>['g:'+o,originName(o)])}]})};
 $('vgrid').onclick=e=>{const c=e.target.closest('[data-cmp]');if(c){e.stopPropagation();const id=c.dataset.cmp;if(CMP.includes(id))CMP=CMP.filter(x=>x!==id);else{if(CMP.length>=3){toast('Compare up to three at a time');return}CMP.push(id)}renderVarieties();return}
   const b=e.target.closest('[data-v]');if(b)openVariety(b.dataset.v)};
 
@@ -2730,7 +2756,7 @@ function renderFlForm(){$('l-flchips').innerHTML=flChips(LFL);$('l-fl').querySel
     '<p class="l-match">'+(can?found?'You found <b>'+found+' of '+can+'</b> '+(can===1?'note':'notes')+' on the bag'+(found===can?'. Spot on.':'.'):'Tap the ones you tasted.':'These notes aren’t on the flavour wheel; add yours below.')+'</p>'}
 $('l-bag').onclick=e=>{const t=e.target.closest('[data-bagfl]');if(!t)return;const id=t.dataset.bagfl,k=LFL.findIndex(x=>x[0]===id);if(k>=0)LFL.splice(k,1);else LFL.push([id,2]);renderFlForm()};
 function renderPalate(){const el=$('l-palate'),P=palate();el.hidden=!P;if(!P)return;
-  el.innerHTML='<button type="button" class="fl-mini" id="pal-open" aria-label="Open your palate">'+fwStatic(P.fl)+'</button><div><h3>Your palate</h3><p class="hint" style="margin:0 0 6px">From '+P.n+(P.n===1?' brew':' brews')+' with flavour notes. You notice '+P.top.join(' and ')+' the most.</p>'+flBar(P.fl)+'<div class="chips" style="margin:0">'+flChips(P.fl.slice(0,6))+'</div></div>';
+  el.innerHTML='<button type="button" class="fl-mini" id="pal-open" aria-label="Open your palate">'+fwStatic(P.fl)+'</button><div><h3>Your palate</h3><p class="hint" style="margin:0 0 6px">From '+P.n+(P.n===1?' brew':' brews')+'. You lean '+P.groups.map(g=>'<b class="pal-g" style="--gc:'+g.c+'"><i></i>'+esc(g.n)+'</b>').join(' and ')+'.</p>'+flBar(P.fl)+'<div class="chips" style="margin:0">'+flChips(P.fl.slice(0,6))+'</div></div>';
   $('pal-open').onclick=()=>openProfile('Your palate','From '+P.n+(P.n===1?' brew':' brews'),P.fl)}
 $('l-fl').onclick=()=>openNotesPicker();
 $('tolog').onclick=()=>{const r=compute(S),dp=dialPlan();if(LEDIT)endEdit();
@@ -2758,7 +2784,7 @@ $('l-save').onclick=()=>{const k=LEDIT?LOG.findIndex(x=>x.id===LEDIT):-1;
   const e={id:uid(),ts:Date.now(),date:new Date().toLocaleDateString(),coffee:$('l-coffee').value.trim(),settings:$('l-settings').value.trim(),stars:STAR,pred:$('l-pred').value.trim(),notes:$('l-notes').value.trim(),brewer:$('l-settings').dataset.brewer||''};if(LFL.length)e.fl=LFL.slice();if(LSNAP)e.snap=LSNAP;LSNAP=null;{const cb=(e.snap&&e.snap.bean&&e.snap.bean.id)||LBEAN,cid=cb&&lastCupFor(cb);if(cid){e.cup=cid;LAST_CUP=null}}
   if(LBEAN&&!(e.snap&&e.snap.bean&&e.snap.bean.id===LBEAN))e.beanId=LBEAN;
   if(GROUP)e.by=ME;
-  if(!e.coffee&&!e.settings&&!e.notes&&!LFL.length){toast('Add a coffee name or some notes first');return}LOG.unshift(e);save('bb-log',LOG);okBuzz();planRated(e.stars);if(window.BEANS_OK){
+  if(!e.coffee&&!e.settings&&!e.notes&&!LFL.length){toast('Add a coffee name or some notes first');return}LOG.unshift(e);save('bb-log',LOG);if(window.BEANS_OK)try{reschedule()}catch(x){}okBuzz();planRated(e.stars);if(window.BEANS_OK){
     // The first brew with a bag you hadn't tried yet is the day you tried it.
     const gid=(e.snap&&e.snap.bean&&e.snap.bean.id)||e.beanId,gb=gid&&beanById(gid);if(gb&&!gb.tried){gb.tried=todayISO();saveBeans()}checkTrophies()}queue('put',e.id,e);['l-coffee','l-settings','l-pred','l-notes'].forEach(id=>$(id).value='');delete $('l-settings').dataset.brewer;STAR=0;LFL=[];LBEAN=null;renderFlForm();renderStars();renderLBean();renderPred();renderLog();toastAct(GROUP?'Brew saved and shared':'Brew saved','Share it',()=>openShare(logEntryDoc(e)));beans()};
 // A logged brew made again: the timer on the same recipe with the same coffee, dose, water, grind and temperature.
@@ -3027,7 +3053,7 @@ function lexicon(){if(LEX)return LEX;
   const P_EXTRA={washed:['washed','fully washed','wet process','wet processed','lavado','lavada','lave'],doublewashed:['double washed','kenyan process','kenya process'],ecopulped:['eco pulped','eco-pulped','demucilaged'],
     natural:['natural','dry process','dry processed','sun dried','sun-dried','natural seco','secado al sol'],pulpednatural:['pulped natural','cereja descascada','descascado'],wethulled:['wet hulled','wet-hulled','giling basah'],honey:['honey','miel','honey process'],hydrohoney:['hydro honey','hydro honey process','hydro-honey','hydrohoney'],anaerobichoney:['anaerobic honey','honey anaerobic','miel anaerobico'],doubleanaerobic:['double anaerobic','doble anaerobico','double anaerobico'],mountainwater:['mountain water'],
     whitehoney:['white honey','yellow honey','miel amarilla','miel blanca'],redhoney:['red honey','miel roja'],blackhoney:['black honey','miel negra'],anaerobic:['anaerobic','anaerobico','anaerobica','anaerobio'],anaerobicnatural:['anaerobic natural','natural anaerobico','natural anaerobic'],anaerobicwashed:['anaerobic washed','lavado anaerobico'],
-    carbonic:['carbonic maceration','carbonic'],alchemy:['alchemy process','alchemy'],lactic:['lactic'],yeast:['yeast'],koji:['koji'],extended:['extended fermentation'],thermalshock:['thermal shock'],mossto:['mossto'],supernatural:['supernatural','super natural'],dryferment:['dry fermented','dry fermentation','dry ferment'],aerobic:['aerobic fermentation','aerobic natural','aerobic washed','aerobic'],wine:['wine process','winey natural','wine natural'],coldferment:['cold fermentation','cold ferment','cold fermented','fermentacion en frio'],nitro:['nitro washed','nitro natural','nitrogen fermentation','nitro fermentation','nitrogen flushed'],slowdry:['dark room','slow dry','slow dried','dark room dried'],raisin:['raisin process','raisin natural','passa','uva pasa','dried on the branch','dried on the tree'],
+    carbonichoney:['carbonic honey','carbonic maceration honey','cm honey'],carbonic:['carbonic maceration','carbonic'],alchemy:['alchemy process','alchemy'],lactic:['lactic'],yeast:['yeast'],koji:['koji'],extended:['extended fermentation'],thermalshock:['thermal shock'],mossto:['mossto'],supernatural:['supernatural','super natural'],dryferment:['dry fermented','dry fermentation','dry ferment'],aerobic:['aerobic fermentation','aerobic natural','aerobic washed','aerobic'],wine:['wine process','winey natural','wine natural'],coldferment:['cold fermentation','cold ferment','cold fermented','fermentacion en frio'],nitro:['nitro washed','nitro natural','nitrogen fermentation','nitro fermentation','nitrogen flushed'],slowdry:['dark room','slow dry','slow dried','dark room dried'],raisin:['raisin process','raisin natural','passa','uva pasa','dried on the branch','dried on the tree'],
     coferment:['co-ferment','co-fermented','coferment','cofermented','co ferment'],infused:['infused'],barrelaged:['barrel aged','barrel-aged'],monsooned:['monsooned'],aged:['aged green'],
     swisswater:['swiss water'],sugarcane:['sugarcane','sugar cane','ethyl acetate','ea decaf'],co2decaf:['co2 decaf','co2 process'],mcdecaf:['methylene chloride']};
   const procs=[];for(const k in PROCESSES)for(const a of (P_EXTRA[k]||[strip(PROCESSES[k].name)]))procs.push([a,k]);
@@ -3604,7 +3630,7 @@ function docPDFText(doc){
 }
 
 function recipeDoc(i,p,c){const r=RECIPES[i],B=BREWERS[r.b];const gs=MYG.map(g=>[g,p&&p.set[g]!==undefined?p.set[g]:settingFor(g,r.b,r.off)]);
-  const kv=[['Brewer',B.name],['Dose : water',r.dose+'g : '+(p?p.water:r.water)+'g'+(p?' (1:'+p.ratio+')':'')],['Water temperature',(p?p.temp:r.temp)?(p?p.temp:r.temp)+'°C'+(r.temp2?', then about '+r.temp2+'°C':''):'Cold or not applicable']];
+  const kv=[['Brewer',B.name],['Dose : water',r.dose+'g : '+(p?p.water:r.water)+'g'+(p?' (1:'+rr1(p.ratio)+')':'')],['Water temperature',(p?p.temp:r.temp)?(p?p.temp:r.temp)+'°C'+(r.temp2?', then about '+r.temp2+'°C':''):'Cold or not applicable']];
   for(const [g,v] of gs)if(v!=null)kv.push([gname(g),dial(g,v)+', '+dialHint(g,v)]);
   if(p)kv.push([B.bloom.label,p.bloom+'s']);
   const blocks=[{p:r.why},{h:'Settings',kv},{h:'Steps',num:true,list:r.steps},{h:'Tip',p:r.tip}].filter(x=>!('p' in x)||x.p);
@@ -4433,6 +4459,10 @@ async function setLearn(on){const ln=window.BEANS_OK&&LN();
     try{let p=await ln.checkPermissions();if(p.display!=='granted')p=await ln.requestPermissions();if(p.display!=='granted'){toast('Allow notifications for Brew Bench in your phone’s settings first');return false}}catch(e){toast('Couldn’t turn on reminders');return false}}
   LEARN.on=on;save('bb-learn',LEARN);await scheduleFacts();if(on)toast('Your coffee fact arrives at '+LEARN.t);return true}
 setTimeout(()=>{const ln=window.BEANS_OK&&LN();if(!ln)return;if(LEARN.on)scheduleFacts()},3200);
+// The app can stay open in the background for days: coming back to it on a new day schedules both daily notes again,
+// so they follow your cabinet and brews as they are now (opening it fresh does the same, above).
+{let day=new Date().toDateString();document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible')return;const d=new Date().toDateString();if(d===day)return;day=d;
+  try{if(window.BEANS_OK&&LN()){if(REMIND.on)scheduleReminders();if(LEARN.on)scheduleFacts()}}catch(e){}})}
 
 // The pour and steam on the hero play once per launch. Coming back to a page would otherwise restart them (a hidden
 // element's animations start over when it shows again), keeping the phone busy for seconds on every visit.
@@ -4553,13 +4583,16 @@ function spWhat(el){if(!el||el.nodeType!==1)return'';const b=el.closest('button,
 function spPage(){const d=document.querySelector('dialog[open]'),t=d&&d.querySelector('h2');const sec=document.querySelector('main section.on');return (sec?sec.id:'')+(d?' › '+(t?t.textContent.trim().slice(0,28):d.id||'sheet'):'')}
 try{if(window.PerformanceObserver&&(PerformanceObserver.supportedEntryTypes||[]).includes('event'))
   new PerformanceObserver(l=>{let got=false;for(const e of l.getEntries()){if(!/^(pointerdown|pointerup|click|keydown|keyup|input|change)$/.test(e.name)||e.duration<64||e.startTime<=SP_CLEAR_T)continue;
-      SPEED.push({d:Math.round(e.duration),w:Math.round(Math.max(0,e.processingStart-e.startTime)),p:Math.round(Math.max(0,e.processingEnd-e.processingStart)),k:e.name,el:spWhat(e.target),pg:spPage(),at:Date.now(),v:appVersion()||'web'});got=true}
+      SPEED.push({d:Math.round(e.duration),w:Math.round(Math.max(0,e.processingStart-e.startTime)),p:Math.round(Math.max(0,e.processingEnd-e.processingStart)),k:e.name,el:spWhat(e.target),pg:spPage(),at:Date.now(),v:verTag()});got=true}
     if(!got)return;SPEED.sort((a,b)=>b.d-a.d);SPEED=SPEED.slice(0,40);clearTimeout(SPEED_T);SPEED_T=setTimeout(()=>{try{localStorage.setItem(SPEED_K,JSON.stringify(SPEED))}catch(e){}},2000)}).observe({type:'event',durationThreshold:64,buffered:true})}catch(e){}
 /* Problem reports (opt-in, Settings › About): errors the page raised, an app that closed without being put away
    (the next start notices), and the slowest taps from the speed log, kept here only (40 at most) and sent only if you
    choose to, as text through the phone's own share sheet. Off by default; turning it off clears what was kept. */
 var REPORTS=(()=>{try{const a=JSON.parse(localStorage.getItem('bb-reports')||'[]');return Array.isArray(a)?a.slice(0,40):[]}catch(e){return[]}})();
 function saveReports(){try{if(REPORTS.length)localStorage.setItem('bb-reports',JSON.stringify(REPORTS));else localStorage.removeItem('bb-reports')}catch(e){}}
+// Which build a report comes from: the Android app's version (or "web"), and the page's build stamp, so a report can be
+// matched to the exact code that made it.
+const verTag=()=>(appVersion()||'web')+(typeof BUILD_ID==='string'&&BUILD_ID?' build '+BUILD_ID.slice(0,7):'');
 function noteProblem(k,msg){if(!UI.reports)return;REPORTS.unshift({k,m:String(msg||'').slice(0,240),pg:spPage(),at:Date.now(),v:appVersion()||'web'});REPORTS=REPORTS.slice(0,40);saveReports()}
 addEventListener('error',e=>{if(e&&e.message)noteProblem('error',e.message+(e.filename?' ('+String(e.filename).split('/').pop()+':'+e.lineno+')':''))});
 addEventListener('unhandledrejection',e=>{const r=e&&e.reason;noteProblem('error',r&&(r.message||String(r))||'A promise failed')});
@@ -4567,11 +4600,11 @@ addEventListener('unhandledrejection',e=>{const r=e&&e.reason;noteProblem('error
 try{if(localStorage.getItem('bb-running')==='1')noteProblem('restart','The app closed by itself, or was restarted by the phone');localStorage.setItem('bb-running','1')}catch(e){}
 addEventListener('visibilitychange',()=>{try{localStorage.setItem('bb-running',document.hidden?'0':'1')}catch(e){}});
 addEventListener('pagehide',()=>{try{localStorage.setItem('bb-running','0')}catch(e){}});
-function reportText(){return 'Brew Bench problem report ('+(appVersion()||'web')+', '+navigator.userAgent.replace(/^.*?\(([^)]*)\).*$/,'$1').slice(0,60)+')\n\n'+
+function reportText(){return 'Brew Bench problem report ('+verTag()+', '+navigator.userAgent.replace(/^.*?\(([^)]*)\).*$/,'$1').slice(0,60)+')\n\n'+
   (REPORTS.length?REPORTS.map((x,i)=>(i+1)+'. '+(x.k==='restart'?'Closed by itself':'Error')+': '+x.m+'  on '+(x.pg||'?')+'  ('+new Date(x.at).toLocaleString()+', '+x.v+')').join('\n'):'No problems noted.')+'\n\n'+speedText()}
 async function sendReport(){const t=reportText();try{if(navigator.share){await navigator.share({title:'Brew Bench problem report',text:t});return}}catch(e){if(e&&e.name==='AbortError')return}
   try{await navigator.clipboard.writeText(t);toast('Copied the report')}catch(e){saveFile('brew-bench-report.txt',new Blob([t],{type:'text/plain'}))}}
-function speedText(){return 'Brew Bench speed log ('+(appVersion()||'web')+', '+navigator.userAgent.replace(/^.*?\(([^)]*)\).*$/,'$1').slice(0,60)+')\n'+
+function speedText(){return 'Brew Bench speed log ('+verTag()+', '+navigator.userAgent.replace(/^.*?\(([^)]*)\).*$/,'$1').slice(0,60)+')\n'+
   (SPEED.length?SPEED.map((x,i)=>(i+1)+'. '+x.d+' ms  '+x.k+'  '+x.el+'  on '+x.pg+'  (wait '+x.w+', run '+x.p+', '+new Date(x.at).toLocaleString()+')').join('\n'):'No slow taps yet.')}
 // How smoothly a page slid in: the frames in the half second after a tab change. A frame over 50 ms is a visible stutter;
 // those go in the speed log with the slowest frame and how many were dropped, so a phone's own numbers can be shared.

@@ -455,10 +455,12 @@ function makeRecipe(bean,bk,goal,seed){const B=BREWERS[bk],t=tasteOf(BEANS,LOG.f
   const imm=B.type==='Immersion and pressure',valve=B.type==='Valve and hybrid',aero=/aeropress/i.test(B.name);
   const dose=Math.min(doses.length?doses[doses.length>>1]:imm&&!aero?18:15,aero?16:99);
   const fer=/natural|anaerobic|honey|carbonic|alchemy|ferment|thermal|yeast|koji/i.test(bean.process||''),roast=bean.roast||'medium',fresh=bean.roastDate&&daysAgo(bean.roastDate)<10;
-  const ratio=clamp(({balanced:16,sweet:15.5,bright:16.5,clear:17,body:14.5})[goal]-(roast==='dark'?.5:0)+(rnd()-.5)*.4,13,18);
+  const ratio=clamp(({balanced:16,sweet:15.5,bright:16.5,clear:17.5,body:14.5})[goal]-(roast==='dark'?.5:0)+(rnd()-.5)*.4,13,18);
   const water=Math.min(Math.round(dose*ratio/5)*5,aero?230:3000);
-  let temp=({light:95,medium:92,dark:89})[roast]||92;if(fer)temp-=2;if(goal==='bright')temp-=1;if(goal==='sweet'||goal==='clear')temp+=1;temp=clamp(Math.round(temp),86,97);
-  const off=clamp((roast==='dark'?.5:roast==='light'?-.5:0)+(goal==='clear'?.5:goal==='body'?-.5:0)+(imm?1:0),-2,2);
+  let temp=({light:95,medium:92,dark:89})[roast]||92;if(fer)temp-=2;if(goal==='bright')temp-=1;if(goal==='sweet')temp+=1;if(goal==='clear')temp+=2;temp=clamp(Math.round(temp),86,97);
+  // Clearer keeps the normal grind: clarity comes from a longer ratio, hotter water and two calm pours, not a coarser
+  // grind (that read as too coarse on the ZP6).
+  const off=clamp((roast==='dark'?.5:roast==='light'?-.5:0)+(goal==='body'?-.5:0)+(imm?1:0),-2,2);
   const bloomG=Math.round(dose*(fer?2.5:3)/5)*5,bloomT=fresh?45:fer?40:35,steps=[];let why=[],kind='pulse',style='';
   if(aero){kind='aero';const steep=({balanced:90,sweet:105,bright:75,clear:75,body:120})[goal];
     steps.push('0:00 pour '+water+'g and stir 10 seconds.');steps.push(mmssF(steep-30)+' put the plunger in to hold the brew.');steps.push(mmssF(steep)+' press slowly for about 30 seconds.');steps.push(mmssF(steep+30)+' done: stop at the hiss.');
@@ -496,15 +498,16 @@ async function aiRecipe(bean,bk,goal){const B=BREWERS[bk],t=tasteOf(BEANS,LOG.fi
 function openMakeRecipe(bid,surprise){const d=$('vd'),beans=[...BEANS.filter(b=>b.shelf),...BEANS.filter(b=>!b.shelf)];if(!beans.length){toast('Add a coffee to your gallery first');return}
   const brewers=[...new Set([...MYB,'v60','origami','sw','frenchpress'].map(CANONB))].filter(k=>BREWERS[k]&&MK_TYPES.includes(BREWERS[k].type)&&!BREWERS[k].of).slice(0,8);
   const t=tasteOf(BEANS,LOG.filter(isMine)),lean=FY_LEAN(t);
-  const st={bean:bid&&beanById(bid)?bid:beans[0].id,b:MYB.find(k=>brewers.includes(k))||brewers[0],goal:lean==='bright'?'bright':lean==='round'?'sweet':'balanced',seed:1,rec:null,busy:false};
+  const st={bean:bid&&beanById(bid)?bid:beans[0].id,b:MYB.find(k=>brewers.includes(k))||brewers[0],goal:lean==='bright'?'bright':lean==='round'?'sweet':'balanced',seed:1,rec:null,busy:false,keep:false};
   const any=a=>a[Math.floor(Math.random()*a.length)],mine=brewers.filter(k=>MYB.includes(k)),shelf=beans.filter(b=>b.shelf);
-  const roll=()=>{st.bean=any(shelf.length?shelf:beans).id;st.b=any(mine.length?mine:brewers);st.goal=any(MK_GOALS)[0];st.seed=1+Math.floor(Math.random()*999)};
+  // Keep this coffee: Another one then draws only a new brewer and cup for the same coffee.
+  const roll=()=>{if(!st.keep)st.bean=any(shelf.length?shelf:beans).id;st.b=any(mine.length?mine:brewers);st.goal=any(MK_GOALS)[0];st.seed=1+Math.floor(Math.random()*999)};
   if(surprise)roll();
   const chips=(k,list,cur)=>'<div class="mk-chips" role="group">'+list.map(([v,n,pic])=>'<button type="button" data-mk="'+k+'" data-v="'+esc(v)+'" aria-pressed="'+(v===cur)+'">'+(pic||'')+esc(n)+'</button>').join('')+'</div>';
   const draw=()=>{const r=st.rec,bean=beanById(st.bean);
     $('vd-in').innerHTML='<div class="vd-head" style="--c:#8A5A3B"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:#C9964A"></i>'+(SAMPLE?'Made with AI':surprise?'Surprise':'Made for you')+'</span><h2 id="vd-title">A recipe for your coffee</h2>'+
       '</div><div class="vd-body mk">'+
-      '<div class="lbl">Your coffee</div>'+chips('bean',(l=>l.some(b=>b.id===st.bean)?l:[...l.slice(0,9),beanById(st.bean)])(beans.slice(0,10)).map(b=>[b.id,beanTitle(b),beanPic(b,'xs')]),st.bean)+
+      '<div class="lbl mk-lh">Your coffee'+(surprise?'<button type="button" class="mk-keep" id="mk-keep" aria-pressed="'+st.keep+'">'+lIc(st.keep?'ok':'plus')+'<span>Keep this coffee</span></button>':'')+'</div>'+chips('bean',(l=>l.some(b=>b.id===st.bean)?l:[...l.slice(0,9),beanById(st.bean)])(beans.slice(0,10)).map(b=>[b.id,beanTitle(b),beanPic(b,'xs')]),st.bean)+
       '<div class="lbl">Brewer</div>'+chips('b',brewers.map(k=>[k,BREWERS[k].name]),st.b)+
       '<div class="lbl">The cup you want'+(t.families.length?' <span class="hint">your taste leans '+(lean==='bright'?'bright and fruity':lean==='round'?'sweet and round':'balanced')+'</span>':'')+'</div>'+chips('goal',MK_GOALS,st.goal)+
       (r?'<div class="mk-res"><div class="mk-h"><b>'+esc(r.name)+'</b><small>'+esc(r.by)+'</small></div>'+
@@ -517,6 +520,7 @@ function openMakeRecipe(bid,surprise){const d=$('vd'),beans=[...BEANS.filter(b=>
     if(SAMPLE)try{r=await aiRecipe(bean,st.b,st.goal)}catch(e){r=null}
     if(!r)r=makeRecipe(bean,st.b,st.goal,st.seed);st.rec=r;st.busy=false;draw()};
   $('vd-in').onclick=e=>{const c=e.target.closest('[data-mk]');if(c){st[c.dataset.mk]=c.dataset.v;st.rec=null;draw();return}
+    if(e.target.closest('#mk-keep')){st.keep=!st.keep;const k=$('mk-keep');k.setAttribute('aria-pressed',st.keep);k.innerHTML=lIc(st.keep?'ok':'plus')+'<span>Keep this coffee</span>';return}
     if(e.target.closest('#mk-go')){go();return}if(e.target.closest('#mk-rand')){d.close();setTimeout(surpriseRecipe,200);return}if(e.target.closest('#mk-again')){if(surprise)roll();else st.seed++;st.rec=null;go();return}
     if(e.target.closest('#mk-save')){const r=Object.assign({},st.rec,{id:'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),author:ME||'',ts:Date.now()});saveRecipe(r);
       const i=RECIPES.findIndex(x=>x.id===r.id);d.close();okBuzz();toast('Saved to your recipes');if(i>=0)setTimeout(()=>openRecipe(i),250)}};
@@ -927,6 +931,8 @@ function renderBeanViews(){const cy=new Date().getFullYear();
   seg('bg-views',BVTABS,()=>BVIEW,v=>{if(v===BVIEW)return;bvStep(BVIEW,v);const K=Object.keys(BVIEWS);BVDIR=K.indexOf(v)>K.indexOf(BVIEW)?1:-1;BVIEW=v;
     // The strip shows the pick at once (seg); the view, already built in the background, follows in the next frame.
     renderBeanViews()});
+  // Top 5 has its own change and share buttons; the + would sit on the third coffee's name on a narrow phone.
+  {const f=$('b-fab');if(f)f.classList.toggle('off',BVIEW==='top3')}
   if(BDIRTY.has(BVIEW)){BDIRTY.delete(BVIEW);BVIEWS[BVIEW]()}
   if(BDIRTY.size)prebuildBViews();
   requestAnimationFrame(()=>setTimeout(()=>loadNear($('bv-'+BVIEW)),30));
@@ -1373,7 +1379,7 @@ function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.be
         '<div class="field"><label for="bd-rb-g">Bag size (g)</label><input type="number" id="bd-rb-g" inputmode="numeric" min="50" max="5000" step="10" value="'+(b.bag||'')+'" placeholder="250"></div></div>'+
         pbtn('plus','id="bd-rebuy"','Add the new bag','main')+'</div>')+
       (b.bags&&b.bags.length?'<details class="bd-bagsd"><summary>Earlier bags ('+b.bags.length+')</summary><ol class="bd-bags">'+b.bags.slice().reverse().map((x,i)=>'<li><b>'+ordinal(b.bags.length-i)+' bag</b><span>'+[x.rd?'Roasted '+fmtD(x.rd):'',x.g?x.g+' g':'',x.off?'finished '+fmtD(x.off):''].filter(Boolean).join(' · ')+'</span></li>').join('')+'</ol></details>':'')+'</div>'+
-    '<div class="actions bd-acts ib-row">'+pbtn('cup','id="bd-brew"','Brew it','main')+pbtn('mark','id="bd-mkrec"','Make a recipe')+'</div>'+
+    '<div class="actions bd-acts ib-row">'+pbtn('cup','id="bd-brew"','Brew it','main')+pbtn('mark','id="bd-mkrec"','Make a recipe')+(grindMem(b.id)?pbtn('reset','id="bd-greset"','Reset grind'):'')+'</div>'+
     // Its diary: a moment, a few words, the day.
     '<h3 id="bd-dh">Diary</h3>'+dwriteHTML('bd',st)+
     '<div id="bd-tl">'+timelineHTML(beanTimeline(b),false)+'</div>'+
@@ -1388,6 +1394,10 @@ function openBean(id,write){const b=beanById(id);if(!b)return;$('vd').dataset.be
   $('bd-edit').onclick=()=>{if(calBack)ADVRET=cal.id;openBeanEditor(b)};
   $('bd-mkrec').onclick=()=>openMakeRecipe(b.id);
   $('bd-share').onclick=()=>{d.close();openShare(beanDoc(b))};
+  // Forget what the Brew page remembers for this coffee (the saved suggestion and its last brew's grind): the next brew
+  // starts from the recipe again, and brews after this one are remembered as before.
+  if($('bd-greset'))$('bd-greset').onclick=()=>{const prev=DIALNEXT[b.id];DIALNEXT[b.id]={reset:Date.now()};save('bb-dialnext',DIALNEXT);$('bd-greset').remove();
+    undoToast('Grind reset for this coffee',()=>{if(prev)DIALNEXT[b.id]=prev;else delete DIALNEXT[b.id];save('bb-dialnext',DIALNEXT);if($('vd').open&&$('vd').dataset.bean===b.id)openBean(b.id)})};
   $('bd-brew').onclick=()=>{useBean(b);d.close();showTab('dial');
     if(!dialRec()){const t=techList(S.brewer)[0];if(t)S.rec=t[1]}if(dialRec())tune('Tuned for '+beanTitle(b));else{render();toast('Set up for '+beanTitle(b))}};
   // Tapping the chosen answer again clears it.

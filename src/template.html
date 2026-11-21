@@ -1400,7 +1400,10 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 /* A collection's count sits in the top corner, as on the cup-type cards, clear of the title and the line under it. */
 .colshelf button{padding:14px 14px 16px;min-height:118px}
 /* The recipe maker sheet. */
-.mk .lbl{margin:14px 0 6px}.mk .lbl .hint{font-weight:500;margin-left:6px}
+.mk .lbl{margin:14px 0 6px}.mk .mk-lh{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.mk-keep{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 12px 0 9px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:600 .78rem var(--display);cursor:pointer}.mk-keep svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.mk-keep[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.mk .lbl .hint{font-weight:500;margin-left:6px}
 .mk-chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 24px 2px 0;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 24px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 24px),transparent)}.mk-chips::-webkit-scrollbar{display:none}
 .mk-chips button{flex:none;display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:4px 14px 4px 6px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:600 .86rem var(--display);cursor:pointer}
 .mk-chips button:not(:has(.bpic)){padding-left:14px}.mk-chips .bpic{width:30px;height:30px;border-radius:50%}
@@ -2814,6 +2817,9 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 /* Scrolling down tucks the + away below the bottom bar; scrolling up (or reaching the end) brings it back. */
 .fab{transition:transform .28s cubic-bezier(.2,.8,.3,1),opacity .2s ease}
 .fab.away{transform:translateY(calc(100% + 110px));opacity:0;pointer-events:none}
+.fab.off{display:none}
+.vd-by{margin:0;overflow-wrap:anywhere}
+.pal-g{font-weight:650;color:var(--ink);white-space:nowrap}.pal-g i{display:inline-block;width:.6em;height:.6em;border-radius:50%;background:var(--gc);margin:0 .3em 0 .1em;vertical-align:.05em}
 @media (prefers-reduced-motion:reduce){.fab{transition:opacity .15s}.fab.away{transform:none}}
 .fab .ib{width:56px;height:56px;background:var(--surface);box-shadow:0 10px 24px -10px rgba(0,0,0,.5),inset 0 0 0 1px var(--hair)}
 .fab .ib.main{background:var(--cherry);color:var(--surface-ink,var(--surface))}.fab .ib svg{width:24px;height:24px;stroke-width:2.2}.fab .ib.main svg{stroke-width:2.6}

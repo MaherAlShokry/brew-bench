@@ -558,7 +558,7 @@ function brewCard(){const r=compute(S),[vt,vs]=verdict(r.D),B=BREWERS[S.brewer],
   return bcBlob({theme:originTheme(S.bean&&S.bean.origin),title:dp?dp.r.name:'My '+brewName(B.name)+' brew',by:dp&&bcBy(dp.r.by),coffee:bcCoffee(S.bean,S.variety,S.process,S.roast),
     pills:[...(dp?[[goalLabel(S.goal,S.amt)+' cup',1]]:[]),[B.name],...(S.age?[[S.age+' days off roast']]:[])],
     tiles:[['Coffee',gfmt(S.dose)+' g'],['Water',gfmt(water)+' g'],['Temp',S.temp+'°C'],['Ratio','1:'+rr1(S.ratio)]],
-    grind:{g:S.grinder,c:S.setting,line:BREWERS[S.brewer].bloom.label+' '+S.bloom+' s  ·  '+AGITW[S.agit]+' pours'},cup:{r,vt,vs},steps:dp?dp.steps:[],expect:{label:'Expect',items:cupNotes(S,r).slice(0,8)}})}
+    grind:{g:S.grinder,c:S.setting,line:BREWERS[S.brewer].bloom.label+' '+S.bloom+' s  ·  '+AGITW[S.agit]+' pours'},cup:{r,vt,vs},steps:dp?dp.steps:[],expect:{label:'Expect',items:cupNotes(S,r).slice(0,8).map(bcNote)}})}
 // What Log this brew keeps, so the log's card can show the dial, the cup and the pours later.
 function brewSnap(){const r=compute(S),dp=dialPlan();
   return{g:S.grinder,c:S.setting,b:S.brewer,t:S.temp,ra:S.ratio,bl:S.bloom,ag:S.agit,dose:S.dose,water:dp?dp.water:+gfmt(S.dose*S.ratio),v:S.variety,p:S.process,ro:S.roast,
@@ -604,7 +604,7 @@ function logModel(l){const s=okSnap(l.snap),fl=flOf(l).filter(([id])=>FW.byId[id
     if(l.pred)m.sub='Expected: '+l.pred;
     if(!m.tiles&&l.settings)m.text=[{label:'Settings',body:l.settings}];
     else if(q.rest)m.text=[{label:'Also',body:q.rest}]}
-  if(fl.length)m.expect={label:'What I tasted',items:fl.map(([id,v])=>({t:FW.byId[id].n+(v>1?' '+'●'.repeat(v):''),c:FW.byId[id].c})),bar:flFamilies(fl)};
+  if(fl.length)m.expect={label:'What I tasted',items:fl.map(([id,v])=>({t:FW.byId[id].n+(v>1?' '+'●'.repeat(v):''),c:bcGroupC(id)})),bar:flFamilies(fl)};
   if(l.notes)m.quote={label:'My notes',text:l.notes};
   return m}
 // The settings line, read back: the recipe, the brewer, the grinder, dose : water, temperature and ratio. What isn't
@@ -649,7 +649,7 @@ function logSumCard(){const L=LOG.filter(l=>l&&!(l.by&&l.by!==ME)),rated=L.filte
     rating:avg?{kind:'beans',v:Math.round(avg*2)/2,word:'average'}:null,
     pills:[...(best?[['Favourite: '+(best.coffee||'a brew'),1]]:[]),...(top?[['Most brewed on '+top[0]]]:[])],
     tiles:[['Brews',String(L.length)],['Coffees',String(coffees.size)],['Rated',String(rated.length)]],
-    expect:P?{label:'My palate',items:P.fl.slice(0,8).map(([id,v])=>({t:FW.byId[id].n,c:FW.byId[id].c})),bar:flFamilies(P.fl)}:null,
+    expect:P?{label:'My palate',items:P.fl.slice(0,8).map(([id,v])=>({t:FW.byId[id].n,c:bcGroupC(id)})),bar:flFamilies(P.fl)}:null,
     list:{label:'Latest cups',items:L.slice(0,6).map(l=>({t:l.coffee||'A brew',d:fmtDate(l),s:clamp(Math.round(+l.stars||0),0,5)}))},
     footer:'Logged with The Brew Bench'})}
 // A coffee from the gallery: the bag, your rating in beans, where it is from and what you tasted.
@@ -660,7 +660,7 @@ async function beanCardImg(b){const style=Object.assign({},CARD_STYLE),P=b.proce
     rating:b.rating?{kind:'beans',v:b.rating,word:rateWord(b.rating)}:null,
     pills:rk?[[rk<=3?'#'+rk+' · '+MEDALN[rk]+' of '+beanYear(b):'#'+rk+' of '+beanYear(b),1]]:beanMention(b)?[['Honourable mention · '+beanYear(b),1]]:[],
     tiles:[isBlend(b)?['Blend',(p=>p.length&&p.length<=2?p.map(x=>originName(x.o)).join(', '):p.length?p.length+' origins':'Several origins')(blendParts(b))]:['Origin',b.origin?originName(b.origin):'–'],['Roasted',fmt(b.roastDate)],['Tried',b.tried?fmt(b.tried):'Not yet']],
-    expect:b.flavours?{label:'Tasting notes',items:b.flavours.split(/\s*[,;·]\s*/).filter(Boolean)}:null,
+    expect:b.flavours?{label:'Tasting notes',items:b.flavours.split(/\s*[,;·]\s*/).filter(Boolean).map(bcNote)}:null,
     quote:b.notes?{label:'My notes',text:b.notes}:null,footer:'From my bean gallery'})}
 
 /* ---------- Designed cards: your Top 5 and your shelf ---------- */
@@ -690,8 +690,12 @@ const BC_FRESH={rest:'#8FB3D6',peak:'#7CC48A',good:'#E2B866',fade:'#D08A6A'};
 // Story-sized cards (1080 × 1920, the brew card's size): the footer sits at the bottom, the content above it.
 const BC_FOOT=244;
 // Chips on one line only: as many as fit, then "+N more".
-function bcChipLine(x,items,y){const W=BC.W,P=BC.PAD;x.font='500 27px '+BC.F;let used=P,k=0;
-  for(;k<items.length;k++){const w=x.measureText(items[k]).width+48,more=items.length-k-1,mw=more?x.measureText('+'+more+' more').width+48+12:0;if(used+w+mw>W-P)break;used+=w+12}
+// A tasting note on a card carries its wheel group's colour (Tropical amber, Candy pink…), the same for a bag's words,
+// a brew's notes and your palate.
+const bcGroupC=id=>{const n=FW.byId[id];return n?n.hue||n.c:null};
+const bcNote=w=>{const n=typeof tnLeaf==='function'&&tnLeaf(w);return{t:w,c:(n&&bcGroupC(n.id))||(typeof tnColor==='function'?tnColor(w):null)}};
+function bcChipLine(x,items,y){const W=BC.W,P=BC.PAD;x.font='500 27px '+BC.F;let used=P,k=0;items=items.map(it=>typeof it==='string'?bcNote(it):it);
+  for(;k<items.length;k++){const w=x.measureText(items[k].t).width+48+(items[k].c?26:0),more=items.length-k-1,mw=more?x.measureText('+'+more+' more').width+48+12:0;if(used+w+mw>W-P)break;used+=w+12}
   const shown=items.slice(0,Math.max(1,k)),rest=items.length-shown.length;return bcChips(x,rest?[...shown,'+'+rest+' more']:shown,y)}
 // A ring for what's left in a bag, the grams in the middle.
 function bcLeftRing(x,cx,cy,R,pc,g){x.save();x.lineCap='round';x.lineWidth=Math.max(8,R*0.17);x.beginPath();x.arc(cx,cy,R,0,TAU);x.strokeStyle=bcI(.12);x.stroke();
