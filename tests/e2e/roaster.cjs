@@ -29,4 +29,11 @@ await p.evaluate(()=>$('vd').close());
 await p.evaluate(()=>{BSORT='roaster';renderGrid()});await p.waitForTimeout(300);await p.click('#beans .ro-gh');await p.waitForTimeout(300);
 ok('a roastery heading in the gallery opens its page',await p.evaluate(()=>!!document.querySelector('dialog[open] .ro-stats')));
 ok('it shares',await p.evaluate(()=>{const d=roasterDoc('Archers');return d.blocks[1].list.length===2&&/Archers/.test(d.title)}));
+// What they roast for you lists every origin and process (no top five), each in the aligned key under its bar.
+const all=await p.evaluate(async()=>{const O=['colombia','ethiopia','kenya','panama','costarica','yemen','indonesia','rwanda'];
+  for(let i=0;i<8;i++){const n=JSON.parse(JSON.stringify(BEANS[0]));n.id='ax'+i;n.roaster='Many Origins';n.origin=O[i];n.process=['washed','natural','honey','carbonic','anaerobicnatural','washed','natural','lactic'][i];BEANS.push(n)}
+  document.querySelectorAll('dialog[open]').forEach(d=>d.close());openRoaster('Many Origins');await new Promise(r=>setTimeout(r,600));
+  const m=[...document.querySelectorAll('dialog[open] .ro-mix')].map(x=>x.querySelectorAll('.ro-key').length);
+  const segs=document.querySelector('dialog[open] .ro-stack').children.length;BEANS.splice(BEANS.length-8,8);return {m,segs}});
+ok('every origin and process shows, not just the top five',all.m[0]===8&&all.m[1]===6&&all.segs===8,all);
 ok('no errors',!errs.length,errs);await b.close()})();
