@@ -104,6 +104,10 @@ jobs:
             adb exec-out screencap -p > widget-shots/timer-statusbar-api${{ matrix.api }}.png
             adb shell cmd statusbar expand-notifications; sleep 3
             adb exec-out screencap -p > widget-shots/timer-notification-api${{ matrix.api }}.png
+            # The same shade in dark mode (the notes and the brew follow the phone's theme).
+            adb shell cmd uimode night yes; sleep 3; adb shell cmd statusbar expand-notifications; sleep 2
+            adb exec-out screencap -p > widget-shots/notifications-dark-api${{ matrix.api }}.png
+            adb shell cmd uimode night no || true
             adb shell cmd statusbar collapse || true
             ls widget-shots | wc -l
       - uses: actions/upload-artifact@v5

@@ -4649,7 +4649,8 @@ async function scheduleFacts(){const ln=window.BEANS_OK&&LN();if(!ln)return fals
   try{await ln.cancel({notifications:FIDS.map(id=>({id}))})}catch(e){}
   if(!LEARN.on)return dailyNotes('fact',[]);const [h,m]=LEARN.t.split(':').map(Number),now=new Date(),list=[];
   for(let i=0;i<14;i++){const at=new Date(now.getFullYear(),now.getMonth(),now.getDate()+i,h,m);if(at<=now)continue;const day=Math.floor((at-at.getTimezoneOffset()*6e4)/864e5),f=factFor(day);
-    list.push({id:FIDS[i],at,tag:f.tag==='From history'?'From history':'Did you know · '+f.tag,title:f.title,body:f.text,open:'fact:'+JSON.stringify(f.go||null)})}
+    const t=FACT_TILE[f.k]||FACT_TILE.word,open='fact:'+JSON.stringify(f.go||null);
+    list.push({id:FIDS[i],at,tag:'Coffee fact',title:f.title,body:f.text,open,line:sentences(f.text,90),eyebrow:f.tag==='From history'?'From history':'Did you know · '+f.tag,text:sentences(f.text,260),icon:t[0],tile:t[1],acts:f.go?[['Read more',open]]:[]})}
   return dailyNotes('fact',list)}
 async function setLearn(on){const ln=window.BEANS_OK&&LN();
   if(on&&!LEARN.on){if(!ln){toast('Phone reminders work in the Android app');return false}

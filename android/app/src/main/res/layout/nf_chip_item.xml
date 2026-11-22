@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One tasting note: a coloured dot and its name in a pill. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content" android:layout_height="26dp" android:layout_marginEnd="6dp"
+    android:orientation="horizontal" android:gravity="center_vertical" android:background="@drawable/nf_chip"
+    android:paddingStart="8dp" android:paddingEnd="10dp">
+    <ImageView android:id="@+id/nf_dot" android:layout_width="8dp" android:layout_height="8dp" android:importantForAccessibility="no"/>
+    <TextView android:id="@+id/nf_chip_t" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp"
+        android:textColor="@color/nf_ink" android:textSize="12sp" android:textStyle="bold" android:maxLines="1"/>
+</LinearLayout>
