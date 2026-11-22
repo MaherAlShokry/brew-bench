@@ -1019,16 +1019,20 @@ function renderGrid(){const g=$('bg-grid');if(!g)return;const list=beanList(),ge
   whenIdle(step)}
 // One coffee as a row: the bag, its name, where it's from, and your rating. Bags you're drinking now (now=true) also
 // show how fresh they are and what's left.
-function coffeeRow(b,now,i){const rk=beanRank(b),f=now&&fresh(b),g=now?gramsLeft(b):null,isNew=!BSEEN.has(b.id)&&(i||0)<12;BSEEN.add(b.id);
-  const meta=[b.roaster,b.origin?beanFlags(b)+' '+beanOrigin(b):'',!now&&b.process?shortName(PROCESSES[b.process].name):''].filter(Boolean).join(' · ');
+function coffeeRow(b,now,i,opt){const rk=beanRank(b),f=now&&fresh(b),g=now?gramsLeft(b):null,isNew=!BSEEN.has(b.id)&&(i||0)<12;BSEEN.add(b.id);
+  const meta=[opt&&opt.noRoaster?'':b.roaster,b.origin?beanFlags(b)+' '+beanOrigin(b):'',!now&&b.process?shortName(PROCESSES[b.process].name):''].filter(Boolean).join(' · ');
   // One clean row: name with its medal and rating on the right, roaster and origin below, then (for bags you're
   // drinking) a single line of freshness and what's left, with a thin bar for the bag.
-  const end=(rk?'<span class="cr-medal'+(rk>3?' r45':'')+'" style="--m:'+MEDAL[rk]+'" title="'+placeLine(rk,beanYear(b))+'">'+(rk>3?rk:CROWN)+'</span>':beanMention(b)?'<span class="cr-medal hm" title="Honourable mention, '+beanYear(b)+'">'+HM_SVG+'</span>':'')+
-    (buys(b)>1?'<span class="cr-buys" title="Bought '+buys(b)+' times">'+buys(b)+'×</span>':'')+(b.rating?'<span class="cr-rate">'+beanSVG+String(b.rating).replace('.5','½')+'</span>':'');
+  const badges=(rk?'<span class="cr-medal'+(rk>3?' r45':'')+'" style="--m:'+MEDAL[rk]+'" title="'+placeLine(rk,beanYear(b))+'">'+(rk>3?rk:CROWN)+'</span>':beanMention(b)?'<span class="cr-medal hm" title="Honourable mention, '+beanYear(b)+'">'+HM_SVG+'</span>':'')+
+    (buys(b)>1?'<span class="cr-buys" title="Bought '+buys(b)+' times">'+buys(b)+'×</span>':''),rate=b.rating?'<span class="cr-rate">'+beanSVG+String(b.rating).replace('.5','½')+'</span>':'';
+  // On a roastery's page the name gets the room: only the rating sits beside it, and the medal and times bought lead the
+  // tasting notes below.
+  const low=!!(opt&&opt.noRoaster),end=low?'':badges+rate;
   const bagPct=now&&g!=null&&b.bag>0?Math.max(0,Math.min(100,g/b.bag*100)):null;
   return '<button type="button" class="crow'+(now?' now':'')+(isNew?' enter':'')+'" data-bean="'+b.id+'" style="--i:'+Math.min(i||0,12)+'">'+beanPic(b,'rw')+
-    '<span class="cr-tx"><span class="cr-top"><b>'+esc(beanTitle(b))+'</b>'+(end?'<span class="cr-end">'+end+'</span>':'')+'</span>'+(meta?'<small>'+esc(meta)+'</small>':'')+
-      (!now&&b.flavours?'<span class="cr-notes">'+b.flavours.split(/\s*[,;·]\s*/).filter(Boolean).slice(0,3).map(w=>{const n=tnLeaf(w);return '<span class="cr-fl" style="--fc:'+tnColor(w)+'"><i aria-hidden="true"></i>'+esc(n?n.n:w)+'</span>'}).join('')+'</span>':'')+
+    '<span class="cr-tx"><span class="cr-top"><b>'+esc(beanTitle(b))+'</b>'+(end?'<span class="cr-end">'+end+'</span>':'')+'</span>'+(low&&(rate||meta)?'<small class="cr-meta">'+rate+(rate&&meta?'<span class="cr-sep" aria-hidden="true">·</span>':'')+esc(meta)+'</small>':meta?'<small>'+esc(meta)+'</small>':'')+
+      (low&&badges&&!b.flavours?'<span class="cr-notes">'+badges+'</span>':'')+
+      (!now&&b.flavours?'<span class="cr-notes">'+(low?badges:'')+b.flavours.split(/\s*[,;·]\s*/).filter(Boolean).slice(0,3).map(w=>{const n=tnLeaf(w);return '<span class="cr-fl" style="--fc:'+tnColor(w)+'"><i aria-hidden="true"></i>'+esc(n?n.n:w)+'</span>'}).join('')+'</span>':'')+
       (now?'<span class="cr-now">'+(f?'<span class="cr-fresh f-'+f.k+'"><i aria-hidden="true"></i>Day '+f.d+' · '+esc(f.label)+'</span>':'<span class="cr-fresh none"><i aria-hidden="true"></i>No roast date</span>')+(g!=null?'<span class="cr-left">'+(g?g+' g':'Bag empty')+'</span>':'')+'</span>'+
         (bagPct!=null?'<span class="cr-bar" aria-hidden="true"><i style="width:'+bagPct.toFixed(0)+'%"></i></span>':''):'')+'</span></button>'}
 // The bags you're drinking now, each with its freshness and what's left.
@@ -1312,7 +1316,16 @@ function openRoasterNow(name,fromList){const d=$('vd'),r=roFind(name);if(!r){ope
   const count=(f)=>{const m=new Map();for(const b of r.list)for(const v of f(b))if(v)m.set(v,(m.get(v)||0)+1);return [...m].sort((a,b)=>b[1]-a[1])};
   const ors=count(b=>isBlend(b)?['blend']:[b.origin]),prs=count(b=>[b.process]),rls=count(b=>[b.roast]);
   const nO=new Set(r.list.map(realO).filter(Boolean)).size,onShelf=r.list.filter(b=>b.shelf).length;
-  const bar=(l,tot,lab)=>l.length?'<div class="ro-dist"><b class="ro-dl">'+lab+'</b>'+l.slice(0,5).map(([v,n])=>'<div class="ro-di"><span>'+esc(v)+'</span><i><em style="width:'+Math.round(n/tot*100)+'%"></em></i><small>'+n+'</small></div>').join('')+'</div>':'';
+  // What they roast for you: every origin and every process, each as one bar split by share (largest first) with a key
+  // of coloured pills under it, and the roast on a light-to-dark scale. Origins take a palette in order; processes the
+  // colour of their kind (classic, honey, fermented…), as on the process map.
+  const mix=(lab,l)=>{if(!l.length)return '';const sum=l.reduce((a,x)=>a+x[2],0);
+    return '<section class="ro-mix"><div class="ro-mh"><b>'+lab+'</b><span>'+l.length+'</span></div>'+
+      '<div class="ro-stack" role="img" aria-label="'+esc(lab+': '+l.map(x=>x[1]+' '+x[2]).join(', '))+'">'+l.map(x=>'<i style="flex:'+x[2]+';background:'+x[3]+'"></i>').join('')+'</div>'+
+      '<ul class="ro-keys'+(l.some(x=>x[1].length>15)?' one':'')+'">'+l.map(x=>'<li class="ro-key"><i style="background:'+x[3]+'" aria-hidden="true"></i><span>'+x[0]+'</span><em>'+x[2]+'</em></li>').join('')+'</ul></section>'};
+  const OPAL=['#8A5A3B','#4F8A74','#C9964A','#6E8FA8','#B5533C','#9A7390','#6B8E4E','#D2A04A','#5C6FA6','#C2785B'];
+  const roastMix=l=>{if(!l.length)return '';const m=new Map(l),K=[['light','Light','#D9B48A'],['medium','Medium','#9C6A44'],['dark','Dark','#4A3226']];
+    return '<section class="ro-mix"><div class="ro-mh"><b>Roast</b></div><div class="ro-roast">'+K.map(([k,n,c])=>'<span class="'+(m.get(k)?'on':'')+'" style="--rc:'+c+'"><b>'+(m.get(k)||0)+'</b><small>'+n+'</small></span>').join('')+'</div></section>'};
   const tot=r.list.length;
   // At the top, beside Close: your favourite roastery (a star), add a coffee from them, share (and, for a roastery you
   // added with no coffee from it yet, remove it).
@@ -1327,9 +1340,10 @@ function openRoasterNow(name,fromList){const d=$('vd'),r=roFind(name);if(!r){ope
     '<div class="vd-body">'+
       figsHTML('ro-stats f2',[['bag',tot,'coffee'+(tot===1?'':'s')],['bean',r.avg?r.avg.toFixed(1):'–','average'],['buy',r.bags,'bag'+(r.bags===1?'':'s')+' bought'],['globe',nO,'origin'+(nO===1?'':'s')]])+
       (best?'<button type="button" class="ro-best rov-hero" data-bean="'+best.id+'">'+beanPic(best)+'<span class="rov-h-tx"><span class="rov-h-k"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/></svg>Your favourite</span><b>'+esc(beanTitle(best))+'</b><small>'+esc([beanOrigin(best),best.process&&PROCESSES[best.process]?PROCESSES[best.process].name:''].filter(Boolean).join(' · '))+'</small></span>'+(best.rating?'<span class="rov-h-rate">'+beanSVG+best.rating.toFixed(1)+'</span>':'')+'</button>':'')+
-      ((ors.length||prs.length)?'<h3 class="ro-h">What they roast for you</h3><div class="ro-dists">'+bar(ors.map(([o,n])=>[(o==='blend'?BLEND_O.flag:flagOf(o))+' '+originName(o),n]),tot,'Origins')+bar(prs.map(([p,n])=>[PROCESSES[p]?PROCESSES[p].name:p,n]),tot,'Processes')+bar(rls.map(([v,n])=>[v[0].toUpperCase()+v.slice(1),n]),tot,'Roast')+'</div>':'')+
+      ((ors.length||prs.length)?'<h3 class="ro-h">What they roast for you</h3><div class="ro-dists">'+mix('Origins',ors.map(([o,n],i)=>[esc((o==='blend'?BLEND_O.flag:flagOf(o))+' '+originName(o)),originName(o),n,OPAL[i]||'#A59C93']))+
+        mix('Processes',prs.map(([p,n])=>{const P=PROCESSES[p],nm=P?P.name.replace(/\s*\(.*\)$/,''):p;return [esc(nm),nm,n,P&&PCOL[P.cat]||'#A59C93']}))+roastMix(rls)+'</div>':'')+
       // Each coffee with a star: tap one to make it your favourite from them.
-      (list.length?'<h3 class="ro-h">Your coffees <span class="hint">'+(onShelf?onShelf+' on the shelf':'best rated first')+'</span></h3><div class="clist ro-cl">'+list.map((b,i)=>'<div class="ro-cw">'+coffeeRow(b,false,i)+
+      (list.length?'<h3 class="ro-h">Your coffees <span class="hint">'+(onShelf?onShelf+' on the shelf':'best rated first')+'</span></h3><div class="clist ro-cl">'+list.map((b,i)=>'<div class="ro-cw">'+coffeeRow(b,false,i,{noRoaster:1})+
         '<button type="button" class="ro-bstar" data-rofav="'+b.id+'" aria-pressed="'+(!!best&&best.id===b.id)+'" aria-label="Your favourite from '+esc(r.name)+': '+esc(beanTitle(b))+'">'+RO_STAR+'</button></div>').join('')+'</div>'
         :'<div class="bg-empty">'+beanSVG+'<b>No coffees from them yet</b><p>Add one with the plus at the top and it shows here.</p></div>')+
     '</div>';
