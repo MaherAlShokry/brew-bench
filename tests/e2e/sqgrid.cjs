@@ -6,8 +6,8 @@ await p.addInitScript(()=>{sessionStorage.setItem('bb-splashed','1')});await p.g
 await p.evaluate(t=>{localStorage.setItem('bb-profile',JSON.stringify({nick:'The Coffee Custodian',name:'Sam Rivers',brief:'x',city:'OMAN',brewer:'sw',origin:'yemen',style:'sweet',since:Date.now(),updated:Date.now()}));const u=JSON.parse(localStorage.getItem('bb-ui')||'{}');u.text=t;localStorage.setItem('bb-ui',JSON.stringify(u))},t);await p.reload();await p.waitForTimeout(900);await p.evaluate(()=>openMe());await p.waitForTimeout(700);
 const r=await p.evaluate(()=>{const d=[...document.querySelectorAll('.me-pills>li')].map(x=>x.getBoundingClientRect()),g=document.querySelector('.me-id').getBoundingClientRect();let overlap=false;
  for(let i=0;i<d.length;i++)for(let k=i+1;k<d.length;k++)if(d[i].left<d[k].right-0.5&&d[k].left<d[i].right-0.5&&d[i].top<d[k].bottom-0.5&&d[k].top<d[i].bottom-0.5)overlap=true;
- const inside=d.every(x=>x.right<=g.right+0.5&&x.left>=g.left-0.5),clip=[...document.querySelectorAll('.me-pills>li,.me-nums b,.me-nums small')].some(e=>e.scrollWidth>e.clientWidth+1);
- return {line:d.every(x=>Math.abs(x.top-d[0].top)<1),jr:!!document.querySelector('.me-jr'),n:d.length,overlap,inside,clip,h:d.map(x=>Math.round(x.height)),w:d.map(x=>Math.round(x.width)),t:document.documentElement.dataset.text}});
+ const inside=d.every(x=>x.right<=g.right+0.5&&x.left>=g.left-0.5),clip=[...document.querySelectorAll('.me-pills>li,.me-nums b,.me-nums small,.jr-hl b,.jr-hl small,.jr-tl b,.jr-tl small,.me-rt b,.me-rt small,.mt-axis b,.mt-n,.mt-key span')].some(e=>e.scrollWidth>e.clientWidth+1);
+ return {line:d.every(x=>Math.abs(x.top-d[0].top)<1),jr:!!document.querySelector('.me-jr'),mt:document.querySelectorAll('.mt-panel').length,n:d.length,overlap,inside,clip,h:d.map(x=>Math.round(x.height)),w:d.map(x=>Math.round(x.width)),t:document.documentElement.dataset.text}});
 ok(w+'px text '+t+': picks as pills on one line, inside, same height, numbers not cut',r.n===3&&r.line&&!r.overlap&&r.inside&&!r.clip&&r.h.every(h=>h===r.h[0]),r);
-if(w===392&&t==='m')ok('coffee journey shown',r.jr);
+if(w===392&&t==='m')ok('coffee journey shown',r.jr);ok('taste over time charts shown',r.mt>=1,r.mt);
 if(w===392&&t==='xl')await p.screenshot({path:'sq-xl.png'});await c.close()}await b.close()})()

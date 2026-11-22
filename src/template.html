@@ -1639,7 +1639,7 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .me-row{gap:14px;padding:14px 16px;min-height:72px}.me-rt{gap:2px}.me-rt b{line-height:1.25}
 .me-tile{position:relative;width:40px!important;height:40px;border-radius:50%;background:color-mix(in srgb,var(--ink) 8%,var(--surface));color:var(--ink)}.me-tile svg{width:19px;height:19px}
 .me-tile.g{background:#fff}.me-tile.g svg{width:18px;height:18px}.me-tile.g{color:#3a3a3a}.me-tile.g svg[viewBox="0 0 48 48"]{stroke:none}
-.me-rt .me-mail{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;overflow-wrap:normal}
+.me-rt .me-mail{max-width:100%;overflow-wrap:anywhere}
 .me-on{position:absolute;right:-1px;bottom:-1px;width:12px;height:12px;border-radius:50%;background:#5E9A63;box-shadow:0 0 0 2.5px var(--surface2)}
 .me-cta{margin-top:2px}
 .me-cta b{font-family:var(--display);font-size:1.05rem}.me-cta ul{margin:8px 0 12px;padding:0;list-style:none;display:grid;gap:4px;font-size:.88rem;color:var(--muted)}
@@ -2700,7 +2700,7 @@ button[aria-pressed]:active{transform:scale(.95)}
 .me-nums>span{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0;text-align:center}
 .me-nums>span+span::before{content:"";position:absolute;left:0;top:4px;bottom:4px;width:1px;background:var(--line)}
 .me-nums b{font:700 1.45rem/1.1 var(--display);color:var(--ink);font-variant-numeric:tabular-nums}
-.me-nums small{font-size:.74rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;padding:0 4px}
+.me-nums small{font-size:.74rem;color:var(--muted);max-width:100%;padding:0 4px;overflow-wrap:anywhere;line-height:1.2}
 .me-trend{padding:14px 14px 12px;border-radius:22px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
 .mt-bars{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px;align-items:end}
 .mt-col{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0}
@@ -2735,10 +2735,28 @@ button[aria-pressed]:active{transform:scale(.95)}
 .me-nums b{font-size:1.3rem}
 @media (max-width:359px){.me-nums{grid-template-columns:repeat(2,minmax(0,1fr))}}
 /* Your picks stay on one line: each pill shrinks and a long name ends in an ellipsis. */
-.me-pills{flex-wrap:nowrap;gap:6px;max-width:100%}
-.me-pills li{flex:0 1 auto;min-width:0;padding-right:11px;gap:6px}
-.me-pills li .mp-v{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.me-pills{flex-wrap:nowrap;gap:6px;max-width:100%}.me-pills.wrap{flex-wrap:wrap}
+.me-pills li{flex:none;padding-right:11px;gap:6px;font-size:.82em}
+.me-pills li .mp-v{white-space:nowrap}
 .me-pills i{flex:none}
+/* Taste over time: four charts on one time axis. */
+.mt-wrap{display:flex;flex-direction:column;gap:10px}
+.mt-panel{padding:14px 14px 12px;border-radius:22px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);min-width:0}
+.mt-ph b{font:700 .9rem var(--display);color:var(--ink)}
+.mt-key{display:flex;flex-wrap:wrap;gap:4px 12px;margin:8px 0 10px;font-size:.74rem;color:var(--muted)}
+.mt-key span{display:inline-flex;align-items:center;gap:5px}.mt-key i{width:9px;height:9px;border-radius:50%;background:var(--tc)}
+.mt-key b{color:var(--ink);font-variant-numeric:tabular-nums}.mt-key em{font-style:normal;font-size:.68rem;font-weight:700;background:none!important;padding:0!important;border-radius:0!important;box-shadow:none!important;width:auto!important;height:auto!important;display:inline!important}.mt-key em.up{color:#3E9A5B}.mt-key em.dn{color:#C0563F}
+.mt-svg{display:block;width:100%;height:auto;overflow:visible}.mt-svg .mt-gl{stroke:var(--line);stroke-width:1;stroke-dasharray:3 4}
+.mt-axis{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));margin-top:6px;text-align:center}
+.mt-axis span{display:flex;flex-direction:column;align-items:center;line-height:1.15;min-width:0}
+.mt-axis b{font:600 .7rem var(--body);color:var(--ink)}.mt-axis small{font-size:.62rem;color:var(--muted)}
+.mt-panel .mt-bars{grid-auto-flow:unset;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:6px;margin-top:10px}
+.mt-panel .mt-bar{height:76px;max-width:26px}
+.mt-n{font-size:.62rem;color:var(--muted);white-space:nowrap}
+.mt-stk{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:6px;height:84px}
+.mt-sb{display:flex;flex-direction:column-reverse;justify-self:center;width:100%;max-width:26px;border-radius:9px;overflow:hidden;gap:2px}
+.mt-sb i{display:block;min-height:3px}.mt-sb i.none{flex:1;background:var(--surface2)}
+.mt-panel .mt-line{margin:10px 0 0;font-size:.84rem;color:var(--ink);line-height:1.4}
 /* Your coffee journey. */
 .jr-gs{display:grid;gap:10px}.jr-gs.two{grid-template-columns:repeat(2,minmax(0,1fr))}
 .jr-g{display:flex;flex-direction:column;align-items:center;gap:6px;margin:0;padding:14px 10px 12px;border-radius:20px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);min-width:0}
@@ -2752,15 +2770,15 @@ button[aria-pressed]:active{transform:scale(.95)}
 .jr-g .fwbar{width:100%}.jr-g .fwbar-key{justify-content:center;font-size:.7rem}
 .jr-hl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .jr-hl>div{display:flex;flex-direction:column;gap:2px;min-width:0;padding:12px 14px;border-radius:18px;background:color-mix(in srgb,var(--tc) 12%,var(--surface));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tc) 18%,transparent)}
-.jr-hl b{font:700 1.05rem/1.2 var(--display);color:color-mix(in srgb,var(--tc) 45%,var(--ink));overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.jr-hl small{font-size:.74rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.jr-hl b{font:700 1.02rem/1.25 var(--display);color:color-mix(in srgb,var(--tc) 45%,var(--ink));overflow-wrap:anywhere}
+.jr-hl small{font-size:.74rem;color:var(--muted);overflow-wrap:anywhere}
 .jr-tl{position:relative;margin:2px 0 0;padding:4px 0 0 22px;list-style:none;display:flex;flex-direction:column;gap:14px}
 .jr-tl::before{content:"";position:absolute;left:6px;top:10px;bottom:8px;width:2px;border-radius:1px;background:linear-gradient(var(--c,var(--cherry)),color-mix(in srgb,var(--c,var(--cherry)) 20%,transparent))}
 .jr-tl li{position:relative;display:grid;grid-template-columns:1fr auto;column-gap:10px;align-items:baseline}
 .jr-tl li::before{content:"";position:absolute;left:-21px;top:5px;width:12px;height:12px;border-radius:50%;background:var(--bg,var(--surface));box-shadow:inset 0 0 0 3px var(--c,var(--cherry))}
 .jr-tl b{font:700 .92rem var(--display);color:var(--ink)}
 .jr-tl time{grid-column:2;grid-row:1;font-size:.74rem;color:var(--muted);white-space:nowrap}
-.jr-tl small{grid-column:1/-1;font-size:.8rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.jr-tl small{grid-column:1/-1;font-size:.8rem;color:var(--muted);overflow-wrap:anywhere}
 
 /* The same coloured tiles as Your coffee taste, stacked: icon, name, answer. */
 

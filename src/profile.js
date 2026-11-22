@@ -136,20 +136,65 @@ function journeyHTML(){const ml=LOG.filter(l=>l&&isMine(l)&&+l.ts>0).sort((a,b)=
     (graphs?'<div class="jr-gs'+(rs.length&&fl.length?' two':'')+'">'+graphs+'</div>':'')+
     (hl.length?'<div class="jr-hl">'+hl.map(([c,v,k])=>'<div style="--tc:'+c+'"><b>'+esc(v)+'</b><small>'+esc(k)+'</small></div>').join('')+'</div>':'')+
     (mss.length?'<ol class="jr-tl">'+mss.map(([t,k,v])=>'<li><time>'+md(t)+'</time><b>'+esc(k)+'</b>'+(v?'<small>'+esc(v)+'</small>':'')+'</li>').join('')+'</ol>':'')+'</section>'}
+// Your picks stay on one line: when they don't fit, their text steps down a little at a time; only if they still
+// don't fit at the smallest size do they go onto a second line, so no name is ever cut.
+function fitPills(){const u=document.querySelector('#vd-in .me-pills');if(!u)return;u.classList.remove('wrap');u.style.fontSize='';let f=1;
+  while(u.scrollWidth>u.clientWidth+1&&f>.72){f-=.04;u.style.fontSize=f+'em'}if(u.scrollWidth>u.clientWidth+1){u.style.fontSize='';u.classList.add('wrap')}}
+new MutationObserver(()=>requestAnimationFrame(fitPills)).observe($('vd-in'),{childList:true});addEventListener('resize',()=>requestAnimationFrame(fitPills));
 $('vd').addEventListener('click',e=>{if(e.target.closest('#jr-wheel')){const ml=LOG.filter(isMine),sc=new Map();let n=0;ml.forEach(l=>{const f=flOf(l);if(f.length)n++;f.forEach(([id,v])=>sc.set(id,(sc.get(id)||0)+v))});
   const mx=Math.max(...sc.values()),fl=[...sc].sort((a,b)=>b[1]-a[1]).map(([id,v])=>[id,Math.max(1,Math.ceil(3*v/mx))]);openProfile('Your flavours','From '+n+(n===1?' brew':' brews'),fl)}});
 /* Taste over time: the last six months you brewed in, a bar each for how you rated your cups (beans out of five), the
    flavour group you tasted most that month as its colour under the bar, and one line on how it's moving. */
-function trendsHTML(){if(typeof flOf!=='function')return '';const mine=LOG.filter(l=>l&&isMine(l)&&+l.ts>0),M=new Map();
-  for(const l of mine){const d=new Date(+l.ts),k=d.getFullYear()*12+d.getMonth();let m=M.get(k);if(!m)M.set(k,m={k,n:0,r:0,rn:0,g:new Map()});m.n++;
-    if(+l.stars>0){m.r+=+l.stars;m.rn++}for(const [id,v] of flOf(l)){const n=FW.byId[id],g=n&&(n.path&&n.path[1]||n.cat);if(!g)continue;const e=m.g.get(g.id)||{n:g.n,c:g.hue||g.c,v:0};e.v+=v;m.g.set(g.id,e)}}
-  const ms=[...M.values()].sort((a,b)=>a.k-b.k).slice(-6);if(ms.length<2||!ms.some(m=>m.rn))return '';
-  const name=k=>new Date(Math.floor(k/12),k%12,1).toLocaleDateString(undefined,{month:'short'}),top=m=>[...m.g.values()].sort((a,b)=>b.v-a.v)[0];
-  const rated=ms.filter(m=>m.rn),first=rated[0],last=rated[rated.length-1],dr=rated.length>1?last.r/last.rn-first.r/first.rn:0,lt=top(ms[ms.length-1]);
-  const line=(Math.abs(dr)>=0.3?'Your ratings are '+(dr>0?'up':'down')+' '+Math.abs(dr).toFixed(1)+' since '+name(first.k)+'.':'Your ratings are steady.')+(lt?' Lately: '+lt.n.toLowerCase()+'.':'');
-  return '<section class="me-sec" aria-label="Taste over time"><h3 class="me-sh">Taste over time</h3><div class="me-trend"><div class="mt-bars">'+ms.map(m=>{const a=m.rn?m.r/m.rn:0,t=top(m);
-      return '<div class="mt-col"><span class="mt-v">'+(a?a.toFixed(1):'–')+'</span><span class="mt-bar"><i style="height:'+Math.round(a/5*100)+'%"></i></span><i class="mt-dot" style="background:'+(t?t.c:'var(--line)')+'" title="'+(t?esc(t.n):'')+'"></i><small>'+name(m.k)+'</small></div>'}).join('')+'</div>'+
-    '<p class="mt-line">'+esc(line)+'</p></div></section>'}
+/* Taste over time: your brews grouped by month (by week while you've brewed for under three months), up to eight at
+   a time, in four charts that share one time axis: how your cups taste (five lines, sweet to bitter), how you rated
+   them and how many you brewed, the roasts you brewed, and the flavour families you noted. Each chart says in a line
+   how it moved from the first group to the last. */
+const MT_ROAST=[['light','Light','#E3B27A'],['medium','Medium','#B07A56'],['dark','Dark','#5E3A26']];
+function trendsHTML(){if(typeof flOf!=='function')return '';const mine=LOG.filter(l=>l&&isMine(l)&&+l.ts>0).sort((a,b)=>a.ts-b.ts);if(mine.length<2)return '';
+  const span=(mine[mine.length-1].ts-mine[0].ts)/864e5,byMonth=new Set(mine.map(l=>{const d=new Date(+l.ts);return d.getFullYear()*12+d.getMonth()})).size>=3&&span>=60;
+  const keyOf=t=>{const d=new Date(+t);if(byMonth)return d.getFullYear()*12+d.getMonth();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getTime()};
+  const M=new Map();
+  for(const l of mine){const k=keyOf(l.ts);let m=M.get(k);if(!m)M.set(k,m={k,n:0,r:0,rn:0,tr:{},tn:0,ro:{},fam:new Map()});m.n++;
+    if(+l.stars>0){m.r+=+l.stars;m.rn++}
+    const r=l.snap&&l.snap.r;if(r){m.tn++;JR_TR.forEach(([k])=>{m.tr[k]=(m.tr[k]||0)+(+r[k]||0)})}
+    const ro=l.snap&&(l.snap.ro||(l.snap.bean&&l.snap.bean.roast));if(MT_ROAST.some(x=>x[0]===ro))m.ro[ro]=(m.ro[ro]||0)+1;
+    for(const [id,v] of flOf(l)){const c=FW.byId[id]&&FW.byId[id].cat;if(!c)continue;const e=m.fam.get(c.n)||{n:c.n,c:c.c,v:0};e.v+=v;m.fam.set(c.n,e)}}
+  const ms=[...M.values()].sort((a,b)=>a.k-b.k).slice(-8);if(ms.length<2)return '';
+  const lab=k=>{if(byMonth){const d=new Date(Math.floor(k/12),k%12,1);return '<b>'+d.toLocaleDateString(undefined,{month:'short'})+'</b>'+(k%12===0||k===ms[0].k?'<small>'+d.getFullYear()+'</small>':'')}
+    const d=new Date(k);return '<b>'+d.getDate()+'</b><small>'+d.toLocaleDateString(undefined,{month:'short'})+'</small>'};
+  const since=byMonth?new Date(Math.floor(ms[0].k/12),ms[0].k%12,1).toLocaleDateString(undefined,{month:'long'}):'the week of '+new Date(ms[0].k).toLocaleDateString(undefined,{day:'numeric',month:'short'});
+  const axis='<div class="mt-axis" style="--n:'+ms.length+'">'+ms.map(m=>'<span>'+lab(m.k)+'</span>').join('')+'</div>';
+  const panel=(t,line,body)=>'<div class="mt-panel"><div class="mt-ph"><b>'+t+'</b></div>'+body+axis+(line?'<p class="mt-line">'+line+'</p>':'')+'</div>';
+  const n=ms.length,X=i=>((i+.5)/n*300).toFixed(1),out=[];
+  // 1. How your cups taste: a line per trait.
+  const tm=ms.filter(m=>m.tn);
+  if(tm.length>=2){const av=m=>k=>m.tn?m.tr[k]/m.tn:null;let lo=10,hi=0;ms.forEach(m=>{if(m.tn)JR_TR.forEach(([k])=>{const v=av(m)(k);lo=Math.min(lo,v);hi=Math.max(hi,v)})});
+    lo=Math.max(0,Math.floor(lo-.5));hi=Math.min(10,Math.ceil(hi+.5));if(hi-lo<2)hi=Math.min(10,lo+2);const H=120,Y=v=>(8+(1-(v-lo)/(hi-lo))*(H-16)).toFixed(1);
+    let g='';for(let j=0;j<=2;j++){const y=(8+j*(H-16)/2).toFixed(1);g+='<line x1="0" x2="300" y1="'+y+'" y2="'+y+'" class="mt-gl"/>'}
+    JR_TR.forEach(([k,,c])=>{const pts=ms.map((m,i)=>m.tn?[X(i),Y(av(m)(k))]:null).filter(Boolean);
+      g+='<polyline points="'+pts.map(p=>p.join(',')).join(' ')+'" fill="none" stroke="'+c+'" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>'+pts.map(p=>'<circle cx="'+p[0]+'" cy="'+p[1]+'" r="3" fill="'+c+'"/>').join('')});
+    const f=tm[0],l=tm[tm.length-1],d=JR_TR.map(([k,nm,c])=>[k,nm,c,av(l)(k),av(l)(k)-av(f)(k)]);
+    const key='<div class="mt-key">'+d.map(([k,nm,c,v,dv])=>'<span style="--tc:'+c+'"><i></i>'+nm+' <b>'+v.toFixed(1)+'</b>'+(Math.abs(dv)>=.1?'<em class="'+(dv>0?'up':'dn')+'">'+(dv>0?'▲':'▼')+Math.abs(dv).toFixed(1)+'</em>':'')+'</span>').join('')+'</div>';
+    const WORD={sweet:['sweeter','less sweet'],acid:['brighter','softer'],body:['fuller','lighter'],clarity:['clearer','muddier'],bitter:['more bitter','less bitter']};
+    const big=d.filter(x=>Math.abs(x[4])>=.3).sort((a,b)=>Math.abs(b[4])-Math.abs(a[4])).slice(0,2);
+    out.push(panel('How your cups taste',big.length?'Since '+since+', your cups got '+big.map(x=>WORD[x[0]][x[4]>0?0:1]).join(' and ')+'.':'Your cups taste much the same as in '+since+'.',
+      key+'<svg class="mt-svg" viewBox="0 0 300 '+H+'" role="img" aria-label="How your cups taste over time">'+g+'</svg>'))}
+  // 2. Ratings (bars) and how many cups (under each bar).
+  if(ms.some(m=>m.rn)){const rated=ms.filter(m=>m.rn),dr=rated.length>1?rated[rated.length-1].r/rated[rated.length-1].rn-rated[0].r/rated[0].rn:0,busiest=ms.slice().sort((a,b)=>b.n-a.n)[0];
+    out.push(panel('Ratings and cups',(Math.abs(dr)>=.3?'Your ratings are '+(dr>0?'up':'down')+' '+Math.abs(dr).toFixed(1)+' since '+since+'.':'Your ratings are steady.')+' Busiest: '+busiest.n+' cups.',
+      '<div class="mt-bars" style="--n:'+n+'">'+ms.map(m=>{const a=m.rn?m.r/m.rn:0;return '<div class="mt-col"><span class="mt-v">'+(a?a.toFixed(1):'–')+'</span><span class="mt-bar"><i style="height:'+Math.round(a/5*100)+'%"></i></span><small class="mt-n">'+m.n+' '+(m.n===1?'cup':'cups')+'</small></div>'}).join('')+'</div>'))}
+  // 3 and 4. Share charts: a full-height bar per group, split by roast or by flavour family.
+  const stack=(parts,lbl)=>'<div class="mt-stk" style="--n:'+n+'">'+ms.map((m,i)=>{const p=parts(m),t=p.reduce((a,x)=>a+x[1],0);return '<span class="mt-sb" aria-label="'+lbl(i)+'">'+(t?p.filter(x=>x[1]).map(([nm,v,c])=>'<i style="flex:'+v+';background:'+c+'" title="'+esc(nm)+' '+Math.round(v/t*100)+'%"></i>').join(''):'<i class="none"></i>')+'</span>'}).join('')+'</div>';
+  const keyOfParts=ps=>'<div class="mt-key">'+ps.map(([nm,c])=>'<span style="--tc:'+c+'"><i></i>'+esc(nm)+'</span>').join('')+'</div>';
+  if(ms.filter(m=>Object.keys(m.ro).length).length>=2){const sh=m=>{const t=MT_ROAST.reduce((a,[k])=>a+(m.ro[k]||0),0);return t?(m.ro.light||0)/t:null},f=ms.find(m=>sh(m)!=null),l=[...ms].reverse().find(m=>sh(m)!=null),dl=sh(l)-sh(f);
+    out.push(panel('Roasts you brewed',Math.abs(dl)>=.15?'You brew '+(dl>0?'lighter':'darker')+' roasts than in '+since+'.':'Your roasts are steady.',
+      keyOfParts(MT_ROAST.filter(([k])=>ms.some(m=>m.ro[k])).map(([,nm,c])=>[nm,c]))+stack(m=>MT_ROAST.map(([k,nm,c])=>[nm,m.ro[k]||0,c]),i=>'Roasts')))}
+  if(ms.filter(m=>m.fam.size).length>=2){const all=new Map();ms.forEach(m=>m.fam.forEach(e=>{const a=all.get(e.n)||{n:e.n,c:e.c,v:0};a.v+=e.v;all.set(e.n,a)}));const fams=[...all.values()].sort((a,b)=>b.v-a.v);
+    const topOf=m=>[...m.fam.values()].sort((a,b)=>b.v-a.v)[0],f=ms.find(m=>m.fam.size),l=[...ms].reverse().find(m=>m.fam.size),tf=topOf(f),tl=topOf(l);
+    out.push(panel('Flavours you noted',tf.n===tl.n?'Mostly '+tl.n.toLowerCase()+', all along.':'From '+tf.n.toLowerCase()+' to '+tl.n.toLowerCase()+'.',
+      keyOfParts(fams.slice(0,6).map(x=>[x.n,x.c]))+stack(m=>fams.map(x=>[x.n,(m.fam.get(x.n)||{v:0}).v,x.c]),i=>'Flavours')))}
+  if(!out.length)return '';
+  return '<section class="me-sec" aria-label="Taste over time"><h3 class="me-sh">Taste over time</h3><div class="mt-wrap">'+out.join('')+'</div></section>'}
 // Each taste tile has its own colour, the same family as the stat tiles elsewhere.
 // A modern, bright palette shared by every tile in the app.
 const TASTE_C={Origin:'#14B8A6',Region:'#3B82F6',Variety:'#22C55E',Process:'#F59E0B',Roast:'#F43F5E','Rated best':'#EC4899',Brewer:'#6366F1',Roastery:'#D2793A',Recipe:'#8B5CF6'};
