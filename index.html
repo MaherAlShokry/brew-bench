@@ -1611,7 +1611,12 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .me-rt{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start}.me-rt b{font-size:.92rem}.me-rt small{font-size:.8rem;color:var(--muted);overflow-wrap:anywhere}
 .me-dot{flex:none;width:10px;height:10px;margin:0 3px;border-radius:50%;background:#5E9A63;box-shadow:0 0 0 4px color-mix(in srgb,#5E9A63 22%,transparent)}
 .me-ic{flex:none;display:grid;place-items:center;width:16px;color:var(--muted)}.me-syncrow.off .me-ic{color:#A8432F}
-.me-row .linkbtn{flex:none;min-height:40px}
+.me-row .linkbtn{flex:none;min-height:36px;padding:0 14px;border-radius:999px;background:color-mix(in srgb,var(--cherry) 12%,var(--surface));font-size:.84rem;font-weight:600;text-decoration:none}
+.me-row{gap:14px;padding:14px 16px;min-height:72px}.me-rt{gap:2px}.me-rt b{line-height:1.25}
+.me-tile{position:relative;width:40px!important;height:40px;border-radius:50%;background:color-mix(in srgb,var(--ink) 8%,var(--surface));color:var(--ink)}.me-tile svg{width:19px;height:19px}
+.me-tile.g{background:#fff}.me-tile.g svg{width:18px;height:18px}.me-tile.g{color:#3a3a3a}.me-tile.g svg[viewBox="0 0 48 48"]{stroke:none}
+.me-rt .me-mail{max-width:100%;overflow-wrap:anywhere}
+.me-on{position:absolute;right:-1px;bottom:-1px;width:12px;height:12px;border-radius:50%;background:#5E9A63;box-shadow:0 0 0 2.5px var(--surface2)}
 .me-cta{margin-top:2px}
 .me-cta b{font-family:var(--display);font-size:1.05rem}.me-cta ul{margin:8px 0 12px;padding:0;list-style:none;display:grid;gap:4px;font-size:.88rem;color:var(--muted)}
 .me-cta li::before{content:"";display:inline-block;width:6px;height:6px;margin-right:9px;border-radius:50%;background:var(--honey);vertical-align:middle}.me-cta .btn{width:100%}
@@ -2650,7 +2655,8 @@ button[aria-pressed]:active{transform:scale(.95)}
 .me-id h2{margin:2px 0 0;font:700 1.6rem/1.15 var(--display);color:var(--ink);overflow-wrap:anywhere}
 .me-id .me-name{font-size:.86rem;color:var(--muted);opacity:1}
 
-.me-edit{left:auto!important;right:60px;top:12px!important;width:38px;height:38px!important;padding:0!important;justify-content:center;border-radius:50%!important;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.me-x{width:40px!important;height:40px!important;right:14px!important;display:grid;place-items:center;padding:0;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.me-edit{left:auto!important;right:62px;top:12px!important;width:40px;height:40px!important;padding:0!important;justify-content:center;border-radius:50%!important;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .me-edit svg{width:17px!important;height:17px!important}
 .me-id h2{margin:4px 0 0!important}
 .me-role{display:inline-flex;align-items:center;margin:6px 0 4px;padding:4px 11px;border-radius:999px;background:color-mix(in srgb,var(--c,var(--cherry)) 14%,var(--surface2));color:var(--ink);font:700 .74rem var(--display);letter-spacing:.02em}
@@ -2658,7 +2664,7 @@ button[aria-pressed]:active{transform:scale(.95)}
 .me-nums>span{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0;text-align:center}
 .me-nums>span+span::before{content:"";position:absolute;left:0;top:4px;bottom:4px;width:1px;background:var(--line)}
 .me-nums b{font:700 1.45rem/1.1 var(--display);color:var(--ink);font-variant-numeric:tabular-nums}
-.me-nums small{font-size:.74rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;padding:0 4px}
+.me-nums small{font-size:.74rem;color:var(--muted);max-width:100%;padding:0 4px;overflow-wrap:anywhere;line-height:1.2}
 .me-trend{padding:14px 14px 12px;border-radius:22px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
 .mt-bars{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px;align-items:end}
 .mt-col{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0}
@@ -2670,6 +2676,80 @@ button[aria-pressed]:active{transform:scale(.95)}
 .me-sec{display:flex;flex-direction:column;gap:10px}
 .me-sh{margin:6px 0 0;font:700 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .me-body .me-brief{margin:0;padding:0;font:400 1rem/1.5 var(--body);color:var(--ink)}.me-body .me-brief::before{content:none}
+
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.me-id .pav{margin-bottom:8px}
+.me-tags{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-top:6px}
+.me-tags .me-role{margin:0;padding:5px 11px;background:color-mix(in srgb,var(--c,var(--cherry)) 26%,var(--surface2));color:color-mix(in srgb,var(--c,var(--cherry)) 30%,var(--ink))}
+.me-tags .me-name{font-size:.82rem}
+.me-id .me-brief{position:relative;margin:14px 0 0;padding:2px 0 2px 14px;font:500 .98rem/1.5 var(--body);color:var(--ink);overflow-wrap:anywhere}
+.me-id .me-brief::before{content:"";position:absolute;left:0;top:3px;bottom:3px;width:3px;border-radius:2px;background:var(--c,var(--cherry));font-size:0}
+.me-pills{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0;padding:0;list-style:none}
+.me-pills li{display:inline-flex;align-items:center;gap:7px;min-height:34px;padding:0 13px 0 5px;border-radius:999px;background:color-mix(in srgb,var(--tc) 14%,var(--surface));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tc) 22%,transparent);font:600 .86rem/1.2 var(--display);color:var(--ink)}
+.me-pills i{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:color-mix(in srgb,var(--tc) 26%,var(--surface));color:var(--tc);font-style:normal;font-size:.9rem}
+.me-pills i svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.me-id .me-add{margin-top:12px}
+.me-body{padding-top:18px}
+.me-nums{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0;padding:0;background:none;box-shadow:none;border-radius:0}
+.me-nums>span{gap:1px;padding:12px 2px 10px;border-radius:18px;background:color-mix(in srgb,var(--tc) 12%,var(--surface));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tc) 18%,transparent)}
+.me-nums>span+span::before{content:none}
+.me-nums i{display:grid;place-items:center;width:28px;height:28px;margin-bottom:4px;border-radius:50%;background:color-mix(in srgb,var(--tc) 24%,transparent);color:var(--tc)}
+.me-nums i svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.me-nums b{font-size:1.3rem}
+@media (max-width:359px){.me-nums{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.me-pills{flex-wrap:nowrap;gap:6px;max-width:100%}.me-pills.wrap{flex-wrap:wrap}
+.me-pills li{flex:none;padding-right:11px;gap:6px;font-size:.82em}
+.me-pills li .mp-v{white-space:nowrap}
+.me-pills i{flex:none}
+
+.mt-wrap{display:flex;flex-direction:column;gap:10px}
+.mt-panel{padding:14px 14px 12px;border-radius:22px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);min-width:0}
+.mt-ph b{font:700 .9rem var(--display);color:var(--ink)}
+.mt-key{display:flex;flex-wrap:wrap;gap:4px 12px;margin:8px 0 10px;font-size:.74rem;color:var(--muted)}
+.mt-key span{display:inline-flex;align-items:center;gap:5px}.mt-key i{width:9px;height:9px;border-radius:50%;background:var(--tc)}
+.mt-key b{color:var(--ink);font-variant-numeric:tabular-nums}.mt-key em{font-style:normal;font-size:.68rem;font-weight:700;background:none!important;padding:0!important;border-radius:0!important;box-shadow:none!important;width:auto!important;height:auto!important;display:inline!important}.mt-key em.up{color:#3E9A5B}.mt-key em.dn{color:#C0563F}
+.mt-svg{display:block;width:100%;height:auto;overflow:visible}.mt-svg .mt-gl{stroke:var(--line);stroke-width:1;stroke-dasharray:3 4}
+.mt-axis{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));margin-top:6px;text-align:center}
+.mt-axis span{display:flex;flex-direction:column;align-items:center;line-height:1.15;min-width:0}
+.mt-axis b{font:600 .7rem var(--body);color:var(--ink)}.mt-axis small{font-size:.62rem;color:var(--muted)}
+.mt-panel .mt-bars{grid-auto-flow:unset;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:6px;margin-top:10px}
+.mt-panel .mt-bar{height:76px;max-width:26px}
+.mt-n{font-size:.62rem;color:var(--muted);white-space:nowrap}
+.mt-stk{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:6px;height:84px}
+.mt-sb{display:flex;flex-direction:column-reverse;justify-self:center;width:100%;max-width:26px;border-radius:9px;overflow:hidden;gap:2px}
+.mt-sb i{display:block;min-height:3px}.mt-sb i.none{flex:1;background:var(--surface2)}
+.mt-panel .mt-line{margin:10px 0 0;font-size:.84rem;color:var(--ink);line-height:1.4}
+
+.me-pills .bf-flag{display:grid;place-items:center;width:100%;height:100%;font-size:15px;line-height:1;padding-top:1px}
+.mt-n{display:flex;flex-direction:column;align-items:center;line-height:1.15;font-size:.6rem}.mt-n b{font:700 .78rem var(--display);color:var(--ink)}
+
+.jr-gs{display:grid;gap:10px}
+.jr-g{display:flex;flex-direction:column;gap:10px;margin:0;padding:14px 16px;border-radius:22px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);min-width:0}
+.jr-g figcaption{display:flex;flex-direction:column;gap:2px;font:700 .92rem var(--display);color:var(--ink)}
+.jr-g figcaption small{font:400 .8rem var(--body);color:var(--muted)}
+.jr-row{display:grid;grid-template-columns:minmax(0,44%) minmax(0,1fr);align-items:center;gap:16px}
+.jr-radar{width:100%;height:auto;overflow:visible}
+.jr-radar .jr-grid{fill:none;stroke:var(--line);stroke-width:1}
+.jr-radar .jr-shape{fill:color-mix(in srgb,var(--c,var(--cherry)) 30%,transparent);stroke:var(--c,var(--cherry));stroke-width:2;stroke-linejoin:round}
+.jr-radar text{font:600 9.5px var(--body);fill:var(--muted)}
+.jr-g .jr-wheel{width:100%;max-width:130px;height:auto;aspect-ratio:1;justify-self:center}
+.jr-bars{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none;min-width:0}
+.jr-bars li{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:2px 8px;font-size:.78rem;color:var(--ink)}
+.jr-bars span{min-width:0;overflow-wrap:break-word}.jr-bars em{font:700 .76rem var(--display);font-style:normal;color:var(--ink);font-variant-numeric:tabular-nums}
+.jr-bars i{grid-column:1/-1;height:6px;border-radius:3px;background:var(--surface2);overflow:hidden}.jr-bars i b{display:block;height:100%;border-radius:3px;background:var(--tc)}
+.jr-sub{display:block;margin-top:2px;font:400 .76rem/1.3 var(--body);color:var(--muted)}
+.jr-hl.bfacts{margin:0}
+.jr-tl{margin:0;padding:6px 14px;list-style:none;border-radius:22px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.jr-tl li{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;padding:10px 0}
+.jr-tl li+li::before{content:"";position:absolute;left:17px;top:-10px;height:20px;width:2px;border-radius:1px;background:var(--line)}
+.jr-ic{position:relative;z-index:1;display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:color-mix(in srgb,var(--tc) 20%,var(--surface));color:var(--tc);font-style:normal}
+.jr-ic svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.jr-tx{display:flex;flex-direction:column;gap:1px;min-width:0}
+.jr-tx b{font:700 .92rem/1.25 var(--display);color:var(--ink)}
+.jr-tx small{font-size:.78rem;color:var(--muted);overflow-wrap:anywhere}
+.jr-tl time{display:flex;flex-direction:column;align-items:flex-end;line-height:1.2;white-space:nowrap}
+.jr-tl time b{font:600 .8rem var(--display);color:var(--ink)}.jr-tl time small{font-size:.68rem;color:var(--muted)}
 
 
 
@@ -2719,6 +2799,7 @@ dialog.dlg-pre[open]::backdrop{animation:none!important;opacity:0}
   
   html dialog#vd:not(.camdlg) .vd-head{padding-top:calc(18px + var(--sa-top,0px));border-top:0}
   html dialog#vd:not(.camdlg) .vd-close{top:calc(12px + var(--sa-top,0px))}
+  html dialog#vd:not(.camdlg) .me-edit{top:calc(12px + var(--sa-top,0px))!important}
 }
 .ask{padding:2px 20px 6px}.ask-t{margin:0 0 14px;color:var(--muted);font-size:.95rem;line-height:1.45}
 .ask-in{display:grid;grid-template-columns:48px 1fr 48px;align-items:center;gap:10px;margin:4px 0 8px}
@@ -3205,7 +3286,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="c2550ca4596e"</script>
+<script>const BUILD_ID="2a75b22184d7"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -7483,14 +7564,20 @@ let VD_CUR=null,VD_KEY='',VD_RESTORING=false;const VD_HIST=[];
 // In the sheet, its own Back button steps back the same way when there's a page to go back to.
 function vdBack(fallback){if(VD_HIST.length)history.back();else fallback()}
 // The page restored becomes the one showing, so the next page opened from it steps back to it (not to the one before).
-function vdRestore(e){const d=$('vd');VD_RESTORING=true;try{e.f()}finally{VD_RESTORING=false}VD_CUR=e.f;VD_KEY=e.k;
+// A page opened inside the sheet slides in from the right, as the sheet itself does; stepping back, the page before
+// returns from the left. Redrawing the page showing now (after an edit) doesn't move.
+let VD_TURN=null,VD_TURN_T=0;
+function vdTurn(dir){if(RM())return;VD_TURN=dir;clearTimeout(VD_TURN_T);VD_TURN_T=setTimeout(()=>{VD_TURN=null},1500)}
+new MutationObserver(()=>{const dir=VD_TURN;if(!dir)return;VD_TURN=null;const el=$('vd-in');if(!el.animate)return;
+  el.animate([{opacity:0,transform:'translateX('+(dir==='back'?'-':'')+'24px)'},{opacity:1,transform:'none'}],{duration:280,easing:'cubic-bezier(.32,.72,0,1)'})}).observe($('vd-in'),{childList:true});
+function vdRestore(e){const d=$('vd');vdTurn('back');VD_RESTORING=true;try{e.f()}finally{VD_RESTORING=false}VD_CUR=e.f;VD_KEY=e.k;
   const y=e.y;d.scrollTop=y;requestAnimationFrame(()=>{d.scrollTop=y})}
 {const names=['openTips','openComparePickNow','openCompareNow','openRecipe','flowSheet','openSpeed','openMakeRecipe','openDiaryPick','openTrophies',
   'openRoastersNow','openRoasterNow','openOrigin','openBean','openBeanPick','openCalEditor','openCal','cardViewer','openMe','openNotesPicker','openProfile'];
   for(const n of names){let f;try{f=eval(n)}catch(e){continue}if(typeof f!=='function')continue;
     const w=function(...a){const d=$('vd'),k=n+'|'+(()=>{try{return JSON.stringify(a)}catch(e){return String(Math.random())}})();
       // Drawn again as it is (after an edit) or while stepping back: no new step.
-      if(!VD_RESTORING&&d.open&&!d.classList.contains('closing')&&VD_CUR&&k!==VD_KEY){VD_HIST.push({f:VD_CUR,k:VD_KEY,y:d.scrollTop});try{history.pushState({dlg:1,vd:1},'',location.hash||'#dial')}catch(e){}}
+      if(!VD_RESTORING&&d.open&&!d.classList.contains('closing')&&VD_CUR&&k!==VD_KEY){VD_HIST.push({f:VD_CUR,k:VD_KEY,y:d.scrollTop});vdTurn('fwd');try{history.pushState({dlg:1,vd:1},'',location.hash||'#dial')}catch(e){}}
       if(!VD_RESTORING){VD_CUR=()=>f.apply(this,a);VD_KEY=k}return f.apply(this,a)};
     eval(n+'=w')}}
 // Opening any sheet (as a modal or, see openTop, as a popover): a history step, the stack, and on close the way back.
@@ -7555,7 +7642,7 @@ function showDlg(d){NAV_AT=performance.now();if(d.classList.contains('closing'))
 addEventListener('popstate',()=>{if(FAB_POP())return;const open=[...document.querySelectorAll('dialog[open]:not(.closing)')];
   if(BACKING){BACKING=false;try{if(PEND_TAB&&location.hash!=='#'+PEND_TAB)history.pushState(null,'','#'+PEND_TAB);if(open.length)history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}PEND_TAB=null;return}
   if(open.length){const top=DSTACK.filter(d=>d.open&&!d.classList.contains('closing')).pop();
-    if(top&&top.id==='vd'&&VD_HIST.length){const e=VD_HIST.pop();if(VD_BACK){const f=VD_BACK;VD_BACK=null;VD_RESTORING=true;try{f()}finally{VD_RESTORING=false}VD_CUR=e.f;VD_KEY=e.k;const d=$('vd');d.scrollTop=e.y;requestAnimationFrame(()=>{d.scrollTop=e.y})}else vdRestore(e);return}
+    if(top&&top.id==='vd'&&VD_HIST.length){const e=VD_HIST.pop();if(VD_BACK){const f=VD_BACK;VD_BACK=null;vdTurn('back');VD_RESTORING=true;try{f()}finally{VD_RESTORING=false}VD_CUR=e.f;VD_KEY=e.k;const d=$('vd');d.scrollTop=e.y;requestAnimationFrame(()=>{d.scrollTop=e.y})}else vdRestore(e);return}
     if(top&&top.id==='vd'&&VD_BACK){const f=VD_BACK;VD_BACK=null;try{history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}VD_RESTORING=true;try{f()}finally{VD_RESTORING=false}return}
     if(top){top.dataset.popped=1;top.close()}else open.forEach(d=>d.close());return}
   // Inside Beans, back from another view returns to Coffees first.
@@ -14013,6 +14100,7 @@ function squarePhoto(src,n){return new Promise((ok,no)=>{const img=new Image();i
 const CUP_SVG='<svg class="me-cup" viewBox="0 0 120 92" aria-hidden="true"><g class="me-steam" fill="none" stroke="#F3E3C8" stroke-width="3.2" stroke-linecap="round"><path d="M47 30c-6-8 6-12 0-21"/><path d="M60 27c-6-8 6-12 0-21"/><path d="M73 30c-6-8 6-12 0-21"/></g>'+
   '<path d="M28 40h62v14a25 25 0 0 1-25 25h-12a25 25 0 0 1-25-25z" fill="#F3E3C8"/><path d="M89 46h6a9.5 9.5 0 0 1 0 19h-6" fill="none" stroke="#F3E3C8" stroke-width="5.5"/><ellipse cx="59" cy="41" rx="29" ry="4.2" fill="#5A3420"/><path d="M18 86h82" stroke="#F3E3C8" stroke-opacity=".45" stroke-width="3" stroke-linecap="round"/></svg>';
 const PEN_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4"/></svg>';
+const ACCT_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20a8 8 0 0 1 16 0"/></svg>';
 const FP_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10a5 5 0 0 1 10 0v2a9 9 0 0 1-1.5 5 M12 10v3a10 10 0 0 1-2.5 7 M9.5 10a2.5 2.5 0 0 1 5 0v2.5 M4.5 13.5V10a7.5 7.5 0 0 1 13-5.1 M20 10v1.5"/></svg>';
 const CAM_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l1.6-2.4h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.4" r="3.4"/></svg>';
 const SYNC_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 0 1-14 5.3 M4 12a8 8 0 0 1 14-5.3 M18 3v4h-4 M6 21v-4h4"/></svg>';
@@ -14039,27 +14127,119 @@ function tasteHTML(){if(!window.BEANS_OK||BEANS.length<2)return '';const t=taste
     (tasteLine(t)?'<p class="me-tl">'+esc(tasteLine(t))+'</p>':'')+
     (rows.length?factCard(rows.map(([i,k,vv])=>[i,k,esc(vv),TASTE_C[k]]),{cls:'me-tf'}):'')+
     (t.notes.length?'<div class="me-notes chips">'+t.notes.slice(0,5).map(n=>'<span class="chip"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'</span>').join('')+'</div>':'')+'</div>'}
+/* Your coffee journey: how your cups taste (a five-point graph of sweetness, acidity, body, clarity and bitterness,
+   averaged over your brews), the flavours you noted (the wheel and its families), four highlights and the milestones
+   along the way, in the order they happened. */
+const JR_TR=[['sweet','Sweet','#D9894A'],['acid','Bright','#D4A72C'],['body','Body','#B07A56'],['clarity','Clear','#4E9C97'],['bitter','Bitter','#B5533C']];
+function cupRadar(avg){const W=180,c=W/2,R=58,pt=(i,f)=>{const a=-Math.PI/2+i*2*Math.PI/5;return[c+Math.cos(a)*R*f,c+Math.sin(a)*R*f]},P=a=>a.map(x=>x.map(v=>v.toFixed(1)).join(',')).join(' ');
+  let g='';for(const f of [.33,.66,1])g+='<polygon points="'+P(JR_TR.map((_,i)=>pt(i,f)))+'" class="jr-grid"/>';
+  JR_TR.forEach((_,i)=>{const [x,y]=pt(i,1);g+='<line x1="'+c+'" y1="'+c+'" x2="'+x.toFixed(1)+'" y2="'+y.toFixed(1)+'" class="jr-grid"/>'});
+  const v=JR_TR.map(([k],i)=>pt(i,Math.max(.06,Math.min(1,avg[k]/10))));
+  g+='<polygon points="'+P(v)+'" class="jr-shape"/>'+v.map(([x,y],i)=>'<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3.2" fill="'+JR_TR[i][2]+'"/>').join('');
+  g+=JR_TR.map(([k,n],i)=>{const [x,y]=pt(i,1.32);return '<text x="'+x.toFixed(1)+'" y="'+(y+3.5).toFixed(1)+'" text-anchor="middle">'+n+'</text>'}).join('');
+  return '<svg class="jr-radar" viewBox="0 0 '+W+' '+W+'" role="img" aria-label="'+JR_TR.map(([k,n])=>n+' '+avg[k].toFixed(1)+' of 10').join(', ')+'">'+g+'</svg>'}
+function journeyHTML(){const ml=LOG.filter(l=>l&&isMine(l)&&+l.ts>0).sort((a,b)=>a.ts-b.ts),bs=window.BEANS_OK?BEANS.slice().sort((a,b)=>beanDay(a)<beanDay(b)?-1:1):[];
+  if(!ml.length&&bs.length<2)return '';
+  // How your cups taste.
+  const rs=ml.map(l=>l.snap&&l.snap.r).filter(Boolean),avg={};JR_TR.forEach(([k])=>{avg[k]=rs.length?rs.reduce((a,r)=>a+(+r[k]||0),0)/rs.length:0});
+  const lead=rs.length?JR_TR.slice().sort((a,b)=>avg[b[0]]-avg[a[0]]).slice(0,2).map(x=>x[1].toLowerCase()):[];
+  // The flavours you noted in your brews.
+  const sc=new Map();ml.forEach(l=>flOf(l).forEach(([id,v])=>sc.set(id,(sc.get(id)||0)+v)));const mx=sc.size?Math.max(...sc.values()):1,fl=[...sc].sort((a,b)=>b[1]-a[1]).map(([id,v])=>[id,Math.max(1,Math.ceil(3*v/mx))]);
+  // Each graph has its numbers beside it: the five traits as bars out of ten, the flavour families as shares.
+  const bars=rows=>'<ul class="jr-bars">'+rows.map(([n,c,f,v])=>'<li style="--tc:'+c+'"><span>'+esc(n)+'</span><em>'+v+'</em><i><b style="width:'+Math.round(Math.max(.04,Math.min(1,f))*100)+'%"></b></i></li>').join('')+'</ul>';
+  const fams=fl.length?flFamilies(fl).slice(0,5):[];
+  const graphs=(rs.length?'<figure class="jr-g"><figcaption>Your cup<small>Mostly '+lead.join(' and ')+'</small></figcaption><div class="jr-row">'+cupRadar(avg)+bars(JR_TR.map(([k,n,c])=>[n,c,avg[k]/10,avg[k].toFixed(1)]))+'</div></figure>':'')+
+    (fl.length?'<figure class="jr-g"><figcaption>Your flavours<small>Mostly '+fams.slice(0,2).map(([c])=>c.n.toLowerCase()).join(' and ')+'</small></figcaption><div class="jr-row"><button type="button" class="fl-mini jr-wheel" id="jr-wheel" aria-label="Open your flavours">'+fwStatic(fl)+'</button>'+
+      bars(fams.map(([c,p])=>[c.n,c.c,p/fams[0][1],Math.round(p*100)+'%']))+'</div></figure>':'');
+  // Highlights.
+  const g=ml.reduce((a,l)=>a+(l.snap&&+l.snap.dose||0),0),st=ml.length?brewStreak(ml):0,rated=ml.filter(l=>+l.stars>0),avgR=rated.length?rated.reduce((a,l)=>a+ +l.stars,0)/rated.length:0;
+  const rc=new Map();ml.forEach(l=>{const n=l.snap&&l.snap.rec;if(n)rc.set(n,(rc.get(n)||0)+1)});const fav=[...rc].sort((a,b)=>b[1]-a[1])[0];
+  const best=bs.filter(b=>b.rating).sort((a,b)=>b.rating-a.rating)[0];
+  const sub=t=>'<span class="jr-sub">'+esc(t)+'</span>',nC=n=>n+(n===1?' cup':' cups');
+  const hl=[g>0&&['☕','Coffee brewed',esc(g>=1000?(g/1000).toFixed(g>=10000?0:1)+' kg':Math.round(g)+' g')+sub('over '+nC(ml.length)),'#D2793A'],
+    st>1&&['🔥','Longest streak',esc(st+' days')+sub('in a row'),'#F43F5E'],
+    avgR>0&&['✨','Average cup',esc(avgR.toFixed(1)+' of 5')+sub('from '+nC(rated.length)+' rated'),'#F59E0B'],
+    fav&&['🎯','Go-to recipe',esc(fav[0])+sub(nC(fav[1])),'#8B5CF6'],
+    best&&['🏆','Best rated',esc(beanTitle(best))+sub([best.rating+' of 5',best.roaster].filter(Boolean).join(' · ')),'#14B8A6']].filter(Boolean).slice(0,4);
+  // Milestones, oldest first.
+  const ms=[];if(bs.length)ms.push([Date.parse(beanDay(bs[0])),'First coffee',beanTitle(bs[0]),'🛍','#D2793A']);
+  if(ml.length)ms.push([ml[0].ts,'First cup brewed',(ml[0].snap&&ml[0].snap.rec)||ml[0].coffee||'','☕','#B07A56']);
+  for(const n of [10,25,50,100,250,500])if(ml.length>=n)ms.push([ml[n-1].ts,n+' cups brewed',(ml[n-1].snap&&ml[n-1].snap.rec)||'','🏁','#8B5CF6']);
+  {const seen=new Set();for(const b of bs){const o=realO(b);if(!o||seen.has(o))continue;seen.add(o);if([5,10,15,20].includes(seen.size))ms.push([Date.parse(beanDay(b)),seen.size+' origins',originName(o),'🌍','#14B8A6'])}}
+  const mss=ms.filter(m=>isFinite(m[0])).sort((a,b)=>a[0]-b[0]).slice(-6);
+  return '<section class="me-sec me-jr" aria-label="Your coffee journey"><h3 class="me-sh">Your coffee journey</h3>'+
+    (graphs?'<div class="jr-gs">'+graphs+'</div>':'')+
+    (hl.length?factCard(hl.map(([i,k,v,c])=>[i,k,v,c]),{cols:hl.length===1?1:2,cls:'jr-hl'}):'')+
+    (mss.length?'<ol class="jr-tl" aria-label="Milestones">'+mss.map(([t,k,v,ic,c])=>{const d=new Date(t);return '<li style="--tc:'+c+'"><i class="jr-ic" aria-hidden="true">'+emoIc(ic)+'</i><span class="jr-tx"><b>'+esc(k)+'</b>'+(v?'<small>'+esc(v)+'</small>':'')+'</span>'+
+      '<time datetime="'+d.toISOString().slice(0,10)+'"><b>'+d.toLocaleDateString(undefined,{day:'numeric',month:'short'})+'</b><small>'+d.getFullYear()+'</small></time></li>'}).join('')+'</ol>':'')+'</section>'}
+// Your picks stay on one line: when they don't fit, their text steps down a little at a time; only if they still
+// don't fit at the smallest size do they go onto a second line, so no name is ever cut.
+function fitPills(){const u=document.querySelector('#vd-in .me-pills');if(!u)return;u.classList.remove('wrap');u.style.fontSize='';let f=1;
+  while(u.scrollWidth>u.clientWidth+1&&f>.72){f-=.04;u.style.fontSize=f+'em'}if(u.scrollWidth>u.clientWidth+1){u.style.fontSize='';u.classList.add('wrap')}}
+new MutationObserver(()=>requestAnimationFrame(fitPills)).observe($('vd-in'),{childList:true});addEventListener('resize',()=>requestAnimationFrame(fitPills));
+$('vd').addEventListener('click',e=>{if(e.target.closest('#jr-wheel')){const ml=LOG.filter(isMine),sc=new Map();let n=0;ml.forEach(l=>{const f=flOf(l);if(f.length)n++;f.forEach(([id,v])=>sc.set(id,(sc.get(id)||0)+v))});
+  const mx=Math.max(...sc.values()),fl=[...sc].sort((a,b)=>b[1]-a[1]).map(([id,v])=>[id,Math.max(1,Math.ceil(3*v/mx))]);openProfile('Your flavours','From '+n+(n===1?' brew':' brews'),fl)}});
 /* Taste over time: the last six months you brewed in, a bar each for how you rated your cups (beans out of five), the
    flavour group you tasted most that month as its colour under the bar, and one line on how it's moving. */
-function trendsHTML(){if(typeof flOf!=='function')return '';const mine=LOG.filter(l=>l&&isMine(l)&&+l.ts>0),M=new Map();
-  for(const l of mine){const d=new Date(+l.ts),k=d.getFullYear()*12+d.getMonth();let m=M.get(k);if(!m)M.set(k,m={k,n:0,r:0,rn:0,g:new Map()});m.n++;
-    if(+l.stars>0){m.r+=+l.stars;m.rn++}for(const [id,v] of flOf(l)){const n=FW.byId[id],g=n&&(n.path&&n.path[1]||n.cat);if(!g)continue;const e=m.g.get(g.id)||{n:g.n,c:g.hue||g.c,v:0};e.v+=v;m.g.set(g.id,e)}}
-  const ms=[...M.values()].sort((a,b)=>a.k-b.k).slice(-6);if(ms.length<2||!ms.some(m=>m.rn))return '';
-  const name=k=>new Date(Math.floor(k/12),k%12,1).toLocaleDateString(undefined,{month:'short'}),top=m=>[...m.g.values()].sort((a,b)=>b.v-a.v)[0];
-  const rated=ms.filter(m=>m.rn),first=rated[0],last=rated[rated.length-1],dr=rated.length>1?last.r/last.rn-first.r/first.rn:0,lt=top(ms[ms.length-1]);
-  const line=(Math.abs(dr)>=0.3?'Your ratings are '+(dr>0?'up':'down')+' '+Math.abs(dr).toFixed(1)+' since '+name(first.k)+'.':'Your ratings are steady.')+(lt?' Lately: '+lt.n.toLowerCase()+'.':'');
-  return '<section class="me-sec" aria-label="Taste over time"><h3 class="me-sh">Taste over time</h3><div class="me-trend"><div class="mt-bars">'+ms.map(m=>{const a=m.rn?m.r/m.rn:0,t=top(m);
-      return '<div class="mt-col"><span class="mt-v">'+(a?a.toFixed(1):'–')+'</span><span class="mt-bar"><i style="height:'+Math.round(a/5*100)+'%"></i></span><i class="mt-dot" style="background:'+(t?t.c:'var(--line)')+'" title="'+(t?esc(t.n):'')+'"></i><small>'+name(m.k)+'</small></div>'}).join('')+'</div>'+
-    '<p class="mt-line">'+esc(line)+'</p></div></section>'}
+/* Taste over time: your brews grouped by month (by week while you've brewed for under three months), up to eight at
+   a time, in four charts that share one time axis: how your cups taste (five lines, sweet to bitter), how you rated
+   them and how many you brewed, the roasts you brewed, and the flavour families you noted. Each chart says in a line
+   how it moved from the first group to the last. */
+const MT_ROAST=[['light','Light','#E3B27A'],['medium','Medium','#B07A56'],['dark','Dark','#5E3A26']];
+function trendsHTML(){if(typeof flOf!=='function')return '';const mine=LOG.filter(l=>l&&isMine(l)&&+l.ts>0).sort((a,b)=>a.ts-b.ts);if(mine.length<2)return '';
+  const span=(mine[mine.length-1].ts-mine[0].ts)/864e5,byMonth=new Set(mine.map(l=>{const d=new Date(+l.ts);return d.getFullYear()*12+d.getMonth()})).size>=3&&span>=60;
+  const keyOf=t=>{const d=new Date(+t);if(byMonth)return d.getFullYear()*12+d.getMonth();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getTime()};
+  const M=new Map();
+  for(const l of mine){const k=keyOf(l.ts);let m=M.get(k);if(!m)M.set(k,m={k,n:0,r:0,rn:0,tr:{},tn:0,ro:{},fam:new Map()});m.n++;
+    if(+l.stars>0){m.r+=+l.stars;m.rn++}
+    const r=l.snap&&l.snap.r;if(r){m.tn++;JR_TR.forEach(([k])=>{m.tr[k]=(m.tr[k]||0)+(+r[k]||0)})}
+    const ro=l.snap&&(l.snap.ro||(l.snap.bean&&l.snap.bean.roast));if(MT_ROAST.some(x=>x[0]===ro))m.ro[ro]=(m.ro[ro]||0)+1;
+    for(const [id,v] of flOf(l)){const c=FW.byId[id]&&FW.byId[id].cat;if(!c)continue;const e=m.fam.get(c.n)||{n:c.n,c:c.c,v:0};e.v+=v;m.fam.set(c.n,e)}}
+  const ms=[...M.values()].sort((a,b)=>a.k-b.k).slice(-8);if(ms.length<2)return '';
+  const lab=k=>{if(byMonth){const d=new Date(Math.floor(k/12),k%12,1);return '<b>'+d.toLocaleDateString(undefined,{month:'short'})+'</b>'+(k%12===0||k===ms[0].k?'<small>'+d.getFullYear()+'</small>':'')}
+    const d=new Date(k);return '<b>'+d.getDate()+'</b><small>'+d.toLocaleDateString(undefined,{month:'short'})+'</small>'};
+  const since=byMonth?new Date(Math.floor(ms[0].k/12),ms[0].k%12,1).toLocaleDateString(undefined,{month:'long'}):'the week of '+new Date(ms[0].k).toLocaleDateString(undefined,{day:'numeric',month:'short'});
+  const axis='<div class="mt-axis" style="--n:'+ms.length+'">'+ms.map(m=>'<span>'+lab(m.k)+'</span>').join('')+'</div>';
+  const panel=(t,line,body)=>'<div class="mt-panel"><div class="mt-ph"><b>'+t+'</b></div>'+body+axis+(line?'<p class="mt-line">'+line+'</p>':'')+'</div>';
+  const n=ms.length,X=i=>((i+.5)/n*300).toFixed(1),out=[];
+  // 1. How your cups taste: a line per trait.
+  const tm=ms.filter(m=>m.tn);
+  if(tm.length>=2){const av=m=>k=>m.tn?m.tr[k]/m.tn:null;let lo=10,hi=0;ms.forEach(m=>{if(m.tn)JR_TR.forEach(([k])=>{const v=av(m)(k);lo=Math.min(lo,v);hi=Math.max(hi,v)})});
+    lo=Math.max(0,Math.floor(lo-.5));hi=Math.min(10,Math.ceil(hi+.5));if(hi-lo<2)hi=Math.min(10,lo+2);const H=120,Y=v=>(8+(1-(v-lo)/(hi-lo))*(H-16)).toFixed(1);
+    let g='';for(let j=0;j<=2;j++){const y=(8+j*(H-16)/2).toFixed(1);g+='<line x1="0" x2="300" y1="'+y+'" y2="'+y+'" class="mt-gl"/>'}
+    JR_TR.forEach(([k,,c])=>{const pts=ms.map((m,i)=>m.tn?[X(i),Y(av(m)(k))]:null).filter(Boolean);
+      g+='<polyline points="'+pts.map(p=>p.join(',')).join(' ')+'" fill="none" stroke="'+c+'" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>'+pts.map(p=>'<circle cx="'+p[0]+'" cy="'+p[1]+'" r="3" fill="'+c+'"/>').join('')});
+    const f=tm[0],l=tm[tm.length-1],d=JR_TR.map(([k,nm,c])=>[k,nm,c,av(l)(k),av(l)(k)-av(f)(k)]);
+    const key='<div class="mt-key">'+d.map(([k,nm,c,v,dv])=>'<span style="--tc:'+c+'"><i></i>'+nm+' <b>'+v.toFixed(1)+'</b>'+(Math.abs(dv)>=.1?'<em class="'+(dv>0?'up':'dn')+'">'+(dv>0?'▲':'▼')+Math.abs(dv).toFixed(1)+'</em>':'')+'</span>').join('')+'</div>';
+    const WORD={sweet:['sweeter','less sweet'],acid:['brighter','softer'],body:['fuller','lighter'],clarity:['clearer','muddier'],bitter:['more bitter','less bitter']};
+    const big=d.filter(x=>Math.abs(x[4])>=.3).sort((a,b)=>Math.abs(b[4])-Math.abs(a[4])).slice(0,2);
+    out.push(panel('How your cups taste',big.length?'Since '+since+', your cups got '+big.map(x=>WORD[x[0]][x[4]>0?0:1]).join(' and ')+'.':'Your cups taste much the same as in '+since+'.',
+      key+'<svg class="mt-svg" viewBox="0 0 300 '+H+'" role="img" aria-label="How your cups taste over time">'+g+'</svg>'))}
+  // 2. Ratings (bars) and how many cups (under each bar).
+  if(ms.some(m=>m.rn)){const rated=ms.filter(m=>m.rn),dr=rated.length>1?rated[rated.length-1].r/rated[rated.length-1].rn-rated[0].r/rated[0].rn:0,busiest=ms.slice().sort((a,b)=>b.n-a.n)[0];
+    out.push(panel('Ratings and cups',(Math.abs(dr)>=.3?'Your ratings are '+(dr>0?'up':'down')+' '+Math.abs(dr).toFixed(1)+' since '+since+'.':'Your ratings are steady.')+' Busiest: '+busiest.n+' cups.',
+      '<div class="mt-bars" style="--n:'+n+'">'+ms.map(m=>{const a=m.rn?m.r/m.rn:0;return '<div class="mt-col"><span class="mt-v">'+(a?a.toFixed(1):'–')+'</span><span class="mt-bar"><i style="height:'+Math.round(a/5*100)+'%"></i></span><small class="mt-n"><b>'+m.n+'</b>'+(m.n===1?'cup':'cups')+'</small></div>'}).join('')+'</div>'))}
+  // 3 and 4. Share charts: a full-height bar per group, split by roast or by flavour family.
+  const stack=(parts,lbl)=>'<div class="mt-stk" style="--n:'+n+'">'+ms.map((m,i)=>{const p=parts(m),t=p.reduce((a,x)=>a+x[1],0);return '<span class="mt-sb" aria-label="'+lbl(i)+'">'+(t?p.filter(x=>x[1]).map(([nm,v,c])=>'<i style="flex:'+v+';background:'+c+'" title="'+esc(nm)+' '+Math.round(v/t*100)+'%"></i>').join(''):'<i class="none"></i>')+'</span>'}).join('')+'</div>';
+  const keyOfParts=ps=>'<div class="mt-key">'+ps.map(([nm,c])=>'<span style="--tc:'+c+'"><i></i>'+esc(nm)+'</span>').join('')+'</div>';
+  if(ms.filter(m=>Object.keys(m.ro).length).length>=2){const sh=m=>{const t=MT_ROAST.reduce((a,[k])=>a+(m.ro[k]||0),0);return t?(m.ro.light||0)/t:null},f=ms.find(m=>sh(m)!=null),l=[...ms].reverse().find(m=>sh(m)!=null),dl=sh(l)-sh(f);
+    out.push(panel('Roasts you brewed',Math.abs(dl)>=.15?'You brew '+(dl>0?'lighter':'darker')+' roasts than in '+since+'.':'Your roasts are steady.',
+      keyOfParts(MT_ROAST.filter(([k])=>ms.some(m=>m.ro[k])).map(([,nm,c])=>[nm,c]))+stack(m=>MT_ROAST.map(([k,nm,c])=>[nm,m.ro[k]||0,c]),i=>'Roasts')))}
+  if(ms.filter(m=>m.fam.size).length>=2){const all=new Map();ms.forEach(m=>m.fam.forEach(e=>{const a=all.get(e.n)||{n:e.n,c:e.c,v:0};a.v+=e.v;all.set(e.n,a)}));const fams=[...all.values()].sort((a,b)=>b.v-a.v);
+    const topOf=m=>[...m.fam.values()].sort((a,b)=>b.v-a.v)[0],f=ms.find(m=>m.fam.size),l=[...ms].reverse().find(m=>m.fam.size),tf=topOf(f),tl=topOf(l);
+    out.push(panel('Flavours you noted',tf.n===tl.n?'Mostly '+tl.n.toLowerCase()+', all along.':'From '+tf.n.toLowerCase()+' to '+tl.n.toLowerCase()+'.',
+      keyOfParts(fams.slice(0,6).map(x=>[x.n,x.c]))+stack(m=>fams.map(x=>[x.n,(m.fam.get(x.n)||{v:0}).v,x.c]),i=>'Flavours')))}
+  if(!out.length)return '';
+  return '<section class="me-sec" aria-label="Taste over time"><h3 class="me-sh">Taste over time</h3><div class="mt-wrap">'+out.join('')+'</div></section>'}
 // Each taste tile has its own colour, the same family as the stat tiles elsewhere.
 // A modern, bright palette shared by every tile in the app.
 const TASTE_C={Origin:'#14B8A6',Region:'#3B82F6',Variety:'#22C55E',Process:'#F59E0B',Roast:'#F43F5E','Rated best':'#EC4899',Brewer:'#6366F1',Roastery:'#D2793A',Recipe:'#8B5CF6'};
 function shortBrewer(n){return n.replace(/^Hario\s+|^Kalita\s+|^Origami\s+/,'')}
 // Who you're signed in as, and the sync; or, signed out, what an account brings.
 function accountHTML(){
-  if(ACCT)return '<div class="me-acct"><div class="me-row"><span class="me-dot" aria-hidden="true"></span><span class="me-rt"><b>'+(ACCT.provider==='google.com'?'Signed in with Google':'Signed in')+'</b><small>'+esc(ACCT.email)+'</small>'+
+  if(ACCT)return '<div class="me-acct"><div class="me-row"><span class="me-ic me-tile g" aria-hidden="true">'+(ACCT.provider==='google.com'?G_SVG:ACCT_SVG)+'<i class="me-on"></i></span><span class="me-rt"><b>Signed in</b><small class="me-mail" title="'+esc(ACCT.email)+'">'+esc(ACCT.email)+'</small>'+
       (ACCT.provider==='password'&&!ACCT.verified?'<button type="button" class="linkbtn" id="pf-verify">Confirm your email</button>':'')+'</span><button type="button" class="linkbtn" id="pf-out">Sign out</button></div>'+
-      (BIOM?'<div class="me-row"><span class="me-ic" aria-hidden="true">'+FP_SVG+'</span><span class="me-rt"><b>Sign in with your '+bioWord()+'</b><small>'+(BIOM.saved&&BIOM.email===ACCT.email?'On for this phone':'Off')+'</small></span><button type="button" class="linkbtn" id="pf-bio">'+(BIOM.saved&&BIOM.email===ACCT.email?'Turn off':'Turn on')+'</button></div>':'')+syncLine()+'</div>';
+      (BIOM?'<div class="me-row"><span class="me-ic me-tile" aria-hidden="true">'+FP_SVG+'</span><span class="me-rt"><b>Quick sign-in</b><small>'+(bioWord()==='fingerprint or face'?'Fingerprint or face':bioWord()==='face'?'Face':'Fingerprint')+' · '+(BIOM.saved&&BIOM.email===ACCT.email?'On':'Off')+'</small></span><button type="button" class="linkbtn" id="pf-bio">'+(BIOM.saved&&BIOM.email===ACCT.email?'Turn off':'Turn on')+'</button></div>':'')+syncLine()+'</div>';
   if(!AUTH_ON)return '<p class="me-fine">Saved on this device.</p>';
   return '<div class="me-cta"><button type="button" class="btn" id="pf-signin">Sign in or create an account</button></div>'}
 // No profile yet: under the header, your coffee so far (the numbers and your taste) when there is any. With nothing
@@ -14075,23 +14255,21 @@ function meHTML(){const p=PROFILE,x='<button class="vd-close me-x" id="vd-x" ari
   // What you told us about yourself sits with who you are (under your words), as one line of plain facts. The numbers
   // and "Your coffee taste" below are what your coffees and cups show.
   // Your picks, in short names (one line at any text size) and the same colours as Your coffee taste.
-  const dna=[p.city&&['📍','Based in',p.city,'#0EA5E9'],p.brewer&&[tileIc('Brewer'),'Brewer',BREWERS[p.brewer].name,TASTE_C.Brewer],
+  const dna=[p.city&&['📍','Based in',p.city,'#0EA5E9'],p.brewer&&[tileIc('Brewer'),'Brewer',shortBrewer(BREWERS[p.brewer].name),TASTE_C.Brewer],
     p.origin&&[flagIc(p.origin),'Origin',originName(p.origin),TASTE_C.Origin]].filter(Boolean);
   const bg=bannerBg(p),since=new Date(p.since).toLocaleDateString(undefined,{month:'long',year:'numeric'});
   // A cover strip (your banner), your picture overlapping its edge, and who you are on the page under it.
   return '<div class="me-hero me-cover'+(bg?' banner':'')+'" style="--c:'+p.av.c+(bg?';background:'+bg:'')+'">'+x+'<button type="button" class="me-edit" id="pf-edit" aria-label="Edit your profile" title="Edit your profile">'+PEN_SVG+'</button></div>'+
-    '<div class="me-id" style="--c:'+p.av.c+'">'+avatarHTML(p,88)+'<h2 id="vd-title">'+esc(p.nick)+'</h2><span class="me-role">'+esc(ROLE[p.style]||'Home brewer')+'</span>'+
-      '<small class="me-name">'+(p.name?esc(p.name)+' · ':'')+'Brewing since '+since+'</small></div>'+
-    '<div class="me-body">'+
-      // The numbers first, as one bar.
-      // The numbers, as one strip: four counts side by side.
-      '<div class="me-nums" role="group" aria-label="Your numbers">'+profileStats().map(([n,l])=>'<span><b>'+n+'</b><small>'+esc(l.replace(' brewed',''))+'</small></span>').join('')+'</div>'+
-      // About you: your words, and what you told us as squares.
-      '<section class="me-sec" aria-label="About you"><h3 class="me-sh">About</h3>'+
-        (p.brief?'<p class="me-brief">'+esc(p.brief)+'</p>':'<button type="button" class="me-add" id="pf-edit2">Add a few words about how you take your coffee</button>')+
-        (dna.length?factCard(dna.map(([i,k,v,c])=>[i,k,esc(v),c]),{cols:dna.length===3?3:2,cls:'me-picks'})
-          :'<button type="button" class="me-add" id="pf-edit3">Add where you brew, your brewer and your favourite origin</button>')+'</section>'+
-      tasteHTML()+trendsHTML()+accountHTML()+'</div>'}
+    // Who you are, kept close together: the name, your role and since when, your words, and your picks as pills.
+    '<div class="me-id" style="--c:'+p.av.c+'">'+avatarHTML(p,88)+'<h2 id="vd-title">'+esc(p.nick)+'</h2>'+
+      '<div class="me-tags"><span class="me-role">'+esc(ROLE[p.style]||'Home brewer')+'</span><small class="me-name">'+(p.name?esc(p.name)+' · ':'')+'Since '+since+'</small></div>'+
+      (p.brief?'<p class="me-brief">'+esc(p.brief)+'</p>':'<button type="button" class="me-add" id="pf-edit2">Add a few words about how you take your coffee</button>')+
+      (dna.length?'<ul class="me-pills" aria-label="About you">'+dna.map(([i,k,v,c])=>'<li style="--tc:'+c+'"><i aria-hidden="true">'+emoIc(i)+'</i><span class="vh">'+k+': </span><span class="mp-v">'+esc(v)+'</span></li>').join('')+'</ul>'
+        :'<button type="button" class="me-add" id="pf-edit3">Add where you brew, your brewer and your favourite origin</button>')+'</div>'+
+    '<div class="me-body" style="--c:'+p.av.c+'">'+
+      // The numbers: four tiles, each in its own colour.
+      '<div class="me-nums" role="group" aria-label="Your numbers">'+profileStats().map(([n,l],i)=>'<span style="--tc:'+['#D2793A','#8B5CF6','#14B8A6','#F59E0B'][i]+'"><i aria-hidden="true">'+svgI([LI.bag,LI.cup,ICO.globe,ICO.trophy][i])+'</i><b>'+n+'</b><small>'+esc(l.replace(' brewed',''))+'</small></span>').join('')+'</div>'+
+      journeyHTML()+tasteHTML()+trendsHTML()+accountHTML()+'</div>'}
 $('vd').addEventListener('click',e=>{if(e.target.closest('#pf-new,#pf-edit,#pf-edit2,#pf-edit3')){delete $('vd').dataset.me;openProfileEditor();return}if(e.target.closest('#pf-signin')){delete $('vd').dataset.me;openSignIn();return}
   if(e.target.closest('#pf-out')){askConfirm('Your profile stays on this phone.','Sign out',false,'Sign out?').then(y=>{if(y)signOut()});return}
   if(e.target.closest('#pf-bio')){const on=BIOM&&BIOM.saved&&BIOM.email===(ACCT&&ACCT.email),w=bioWord();(on?bioOff():bioOn()).then(()=>toast(on?w[0].toUpperCase()+w.slice(1)+' sign-in is off':'Next time, sign in with your '+bioWord()),err=>{if(err&&err.message&&!/cancel/i.test(err.message))toast(err.message)});return}
@@ -14452,7 +14630,7 @@ document.addEventListener('close',()=>{if(SYNC_WAIT){SYNC_WAIT=false;setTimeout(
 // Shown only when something is wrong: working sync needs no mention.
 function syncLine(){if(!syncOn()||!SYNC_ERR)return '';const ago=SYNC_AT?Math.round((Date.now()-SYNC_AT)/60000):-1;
   const when=SYNC_ERR==='offline'?'Offline: changes go up when you’re back':SYNC_ERR==='rules'?'The database turned sync away':SYNC_ERR?'Couldn’t sync just now':ago<0?'Not synced yet':ago<1?'Synced just now':'Synced '+(ago<60?ago+' min ago':Math.round(ago/60)+' h ago');
-  return '<div class="me-row me-syncrow'+(SYNC_ERR?' off':'')+'"><span class="me-ic" aria-hidden="true">'+SYNC_SVG+'</span><span class="me-rt"><b>'+when+'</b>'+(SYNC_ERR==='rules'?'<small>Its rules don’t allow saving your data yet. Publish the rules from the README in the Firebase console.</small>':'')+'</span><button type="button" class="linkbtn" id="pf-sync">Sync now</button></div>'}
+  return '<div class="me-row me-syncrow'+(SYNC_ERR?' off':'')+'"><span class="me-ic me-tile" aria-hidden="true">'+SYNC_SVG+'</span><span class="me-rt"><b>'+when+'</b>'+(SYNC_ERR==='rules'?'<small>Its rules don’t allow saving your data yet. Publish the rules from the README in the Firebase console.</small>':'')+'</span><button type="button" class="linkbtn" id="pf-sync">Sync now</button></div>'}
 $('vd').addEventListener('click',e=>{const b=e.target.closest('#pf-sync');if(!b||b.disabled)return;b.disabled=true;b.textContent='Syncing…';
   syncNow(true).then(()=>toast(SYNC_ERR==='offline'?'You’re offline. Your changes go up when you’re back':SYNC_ERR==='rules'?'The database turned sync away: its rules need publishing':SYNC_ERR?'Couldn’t sync. Try again in a moment':'Everything’s in sync'))});
 

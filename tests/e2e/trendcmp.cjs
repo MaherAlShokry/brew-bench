@@ -1,5 +1,5 @@
 // Taste over time on the profile: a bar a month (up to six) for how you rated, the month's main flavour group as a dot,
-// and a line on how it's moving; hidden with one month only. Coffee compare: from a coffee's page, pick another and see
+// and a line on how it's moving; hidden with a single brew. Coffee compare: from a coffee's page, pick another and see
 // them side by side (rows both lack are left out), swap sides, and open either.
 {const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();
@@ -7,12 +7,12 @@ const ok=(n,v,x)=>console.log((v?'ok   ':'FAIL ')+n+(v||x===undefined?'':'  ('+J
 const p=await b.newPage({viewport:{width:390,height:844}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
 await p.route(u=>!u.href.startsWith('http://localhost'),r=>r.abort());await p.addInitScript(()=>sessionStorage.setItem('bb-splashed','1'));
 await p.goto('http://localhost:8099/index.html');await p.evaluate(require('./seed2.cjs'));await p.reload();await p.waitForTimeout(1800);
-const t=await p.evaluate(async()=>{const w=t=>new Promise(r=>setTimeout(r,t)),o={};o.one=trendsHTML()==='';
+const t=await p.evaluate(async()=>{const w=t=>new Promise(r=>setTimeout(r,t)),o={};{const keep=LOG;LOG=keep.filter(l=>l&&l.ts).slice(0,1);o.one=trendsHTML()==='';LOG=keep}
   const d=new Date();for(let i=1;i<=7;i++){const ts=new Date(d.getFullYear(),d.getMonth()-i,10).getTime();LOG.push({id:'tr'+i,ts,date:'',coffee:'X',settings:'',stars:i%2?3:5,fl:[[i<4?'fruity.tropical-fruit.mango':'nutty-cocoa.cocoa.chocolate',3]]})}
-  openMe();await w(700);const bars=[...document.querySelectorAll('.me-trend .mt-col')];o.n=bars.length;o.dots=bars.every(c=>getComputedStyle(c.querySelector('.mt-dot')).backgroundColor!=='rgba(0, 0, 0, 0)');
-  o.line=(document.querySelector('.mt-line')||{}).textContent;document.querySelectorAll('dialog[open]').forEach(x=>x.close());LOG=LOG.filter(l=>!/^tr\d$/.test(l.id));return o});
-ok('one month only: no chart',t.one);
-ok('six months at most, a bar and a group dot each, with a line',t.n===6&&t.dots&&/ratings/.test(t.line||''),t);
+  openMe();await w(700);const bars=[...document.querySelectorAll('.mt-panel .mt-col')];o.n=bars.length;o.dots=[...document.querySelectorAll('.mt-panel')].some(x=>/Flavours/.test(x.textContent)&&x.querySelectorAll('.mt-sb i').length>=bars.length);
+  o.line=[...document.querySelectorAll('.mt-line')].map(x=>x.textContent).join(' ');document.querySelectorAll('dialog[open]').forEach(x=>x.close());LOG=LOG.filter(l=>!/^tr\d$/.test(l.id));return o});
+ok('a single brew: no chart',t.one);
+ok('eight months at most, a bar each, flavours by month, with a line',t.n===8&&t.dots&&/ratings/.test(t.line||''),t);
 const c=await p.evaluate(async()=>{const w=t=>new Promise(r=>setTimeout(r,t)),a=BEANS[0],b=BEANS[1];openBean(a.id);await w(600);const btn=$('bd-cmp');if(!btn)return{btn:false};btn.click();await w(400);
   const rows=document.querySelectorAll('[data-bcp]').length;$('bcp-q').value=b.name.slice(0,4);$('bcp-q').dispatchEvent(new Event('input'));await w(100);
   const found=!!document.querySelector('[data-bcp="'+b.id+'"]');document.querySelector('[data-bcp="'+b.id+'"]').click();await w(500);
