@@ -990,11 +990,13 @@ function plan(c){
   const why=[];let temp=r.temp;
   if(c.roast==='medium'&&temp>93){temp=93;why.push('Medium roast: water capped at 93°C so roasty notes don\u2019t turn bitter.')}
   if(c.roast==='dark'&&temp>90){temp=Math.max(B.temp.min,90);why.push('Dark roast: 90°C or below, because dark beans extract fast.')}
-  if(c.roast==='light'&&temp<93&&!['pulse','kh1','kh2','aero'].includes(r.kind)){temp=93;why.push('Light roast: at least 93°C to get enough out of dense beans.')}
+  // Recipes built on their own water temperature (Kasuya's hybrids, pulse and AeroPress recipes) are never warmed up.
+  const ownT=['pulse','kh1','kh2','aero'].includes(r.kind);
+  if(c.roast==='light'&&temp<93&&!ownT){temp=93;why.push('Light roast: at least 93°C to get enough out of dense beans.')}
   if(P.funk>=1.2&&temp>91){temp=91;why.push(P.name+': 91°C keeps the ferment fruity instead of harsh.')}
   else if(P.funk>=0.6&&temp>93){temp=93;why.push(P.name+': 93°C holds the fruit together without muddiness.')}
   if(Vp.clarity>=0.8&&temp>93&&P.funk<1.2){temp=93;why.push(Vv.name+' is aromatic; hotter water would flatten the florals.')}
-  if(Vp.t>=0.25&&c.process==='washed'&&c.roast==='light'&&temp<95&&B.ratio.ref>10){temp=95;why.push('Dense washed '+Vv.name+' rewards hotter water, 95°C, to build sweetness.')}
+  if(Vp.t>=0.25&&c.process==='washed'&&c.roast==='light'&&temp<95&&B.ratio.ref>10&&!ownT){temp=95;why.push('Dense washed '+Vv.name+' rewards hotter water, 95°C, to build sweetness.')}
   if(P.cat==='decaf'){temp=Math.min(temp,92);why.push('Decaf extracts fast: a little cooler and coarser.')}
   temp=clamp(temp,B.temp.min,B.temp.max);
   // The bloom starts from the recipe's own (the time to its second pour), so picking a recipe keeps its timings; the
@@ -1062,7 +1064,7 @@ function plan(c){
   if(k==='hoff')tw.push(pick('Skip the stir and just swirl.','Keep the stir and swirl.','Follow as written.'));
   if(k==='imm')tw.push(pick('Shorten the steep by 30s.','Add 30s to the steep.','Steep as written.'));
   if(k==='pulse')tw.push(pick('Use fewer, larger pours.','Use smaller, more frequent pours.','Keep the level steady.'));
-  if(k==='kh1'||k==='kh2')tw.push(pick('Keep the immersion water at the cool end (70°C).','Use the warmer end (75 to 80°C) and open 15s later.','Follow the timings as written.'));
+  if(k==='kh1'||k==='kh2')tw.push(pick('Keep the immersion water at the cool end (70°C).','Use warmer water (75 to 80°C) for the last pour.','Follow the timings as written.'));
   if(k==='neo'||k==='swneo')tw.push(pick('Pour a little gentler in the middle stage.','Stir with the stream in the second pour.','Keep strong, steady pours.'));
   if(k==='aero')tw.push(pick('Use a paper filter and press gently.','Try a metal filter or a longer steep.','Press slowly and stop at the hiss.'));
   if(k==='esp')tw.push(pick('Stretch the ratio a little longer.','Pull a touch shorter and hotter.','Aim for 25 to 30 seconds.'));
@@ -1165,7 +1167,7 @@ function tmWidget(){const w=plugin('Widget');if(!w||!w.timer||!TM||TM_QUIET)retu
   const nx=TM.ev.find(e=>e.t>el),txt=e=>capS(stepTxt(e.s));
   const state=TM.closed?'stop':TM.fin?'done':TM.run?'run':el>0?'pause':'stop';
   w.timer({state,name:r.name||'Brew',key:RECIPES[TM.idx]?rkey(RECIPES[TM.idx]):'',elapsed:Math.round(el*1000),total:Math.round(TM.total*1000),
-    step:cur>=0?txt(TM.ev[cur]):'Get ready',next:nx?'Next at '+mmss(nx.t)+': '+txt(nx):'Last step',steps:tmSteps(TM.ev),plan:tmPlan()}).catch(()=>{})}catch(e){}}
+    live:!!UI.live,step:cur>=0?txt(TM.ev[cur]):'Get ready',next:nx?'Next at '+mmss(nx.t)+': '+txt(nx):'Last step',steps:tmSteps(TM.ev),plan:tmPlan()}).catch(()=>{})}catch(e){}}
 // A button on the notification or the widget changed the brew while the timer is open: the timer follows.
 function tmSync(n){if(!n||!TM||TM.closed||!$('timer').open||!TM.total)return;const el=clamp((+n.elapsed||0)/1000,0,TM.total);
   if(n.state==='done'){if(!TM.fin){TM.el=el;if(TM.run)TM.t0=performance.now()-el*1000;finishBrew()}return}
@@ -1251,11 +1253,12 @@ function lastBrewFor(id,brewer){if(!id)return null;const x=DIALNEXT[id],r=x&&x.r
   const l=LOG.find(l=>l&&l.snap&&l.snap.bean&&l.snap.bean.id===id&&l.snap.g&&l.snap.c!=null&&(+l.ts||0)>r&&(!cb||CANONB(l.snap.b)===cb));
   return l?{g:l.snap.g,set:l.snap.c,temp:l.snap.t,brewer:l.snap.b,at:l.ts}:null}
 // Picking a coffee on the Brew page sets what you saved for it after its last brew (from how it tasted), else what you
-// last brewed it at: the grinder and setting, the water and the brewer. Quietly: nothing is shown.
-function memApply(id){const y=dialNextFor(id)||lastBrewFor(id);if(!y||!y.g||!GRINDERS[y.g]||!MYG.includes(y.g)||y.set==null)return false;
-  if(y.brewer&&BREWERS[y.brewer])S.brewer=CANONB(y.brewer);S.grinder=y.g;S.setting=roundG(y.g,y.set);if(y.temp&&BREWERS[S.brewer]){const T=BREWERS[S.brewer].temp;S.temp=clamp(y.temp,T.min,T.max)}return true}
+// last brewed it at: the grinder and setting and the water, on the brewer you have chosen (a coffee never changes the
+// brewer: only its brews on that brewer count). Quietly: nothing is shown.
+function memApply(id){const y=dialNextFor(id,S.brewer)||lastBrewFor(id,S.brewer);if(!y||!y.g||!GRINDERS[y.g]||!MYG.includes(y.g)||y.set==null||!canGrind(y.g,S.brewer))return false;
+  S.grinder=y.g;S.setting=roundG(y.g,y.set);if(y.temp&&BREWERS[S.brewer]){const T=BREWERS[S.brewer].temp;S.temp=clamp(y.temp,T.min,T.max)}return true}
 function dialNextFor(id,brewer){const x=id&&DIALNEXT[id];if(!(x&&typeof x==='object'))return null;if(!brewer)return x.g?x:null;
-  const cb=CANONB(brewer),y=x.by&&x.by[cb];return y&&y.g?y:x.g&&CANONB(x.brewer)===cb?x:null}
+  const cb=CANONB(brewer),y=x.by&&x.by[cb];return y&&y.g?y:x.g&&(!x.brewer||CANONB(x.brewer)===cb)?x:null}
 // Changing the brewer with a coffee picked: what worked for this coffee on that brewer, if anything did. Quietly.
 function memApplyBrewer(id,b){const y=dialNextFor(id,b)||lastBrewFor(id,b);if(!y||!y.g||!GRINDERS[y.g]||!MYG.includes(y.g)||y.set==null||!canGrind(y.g,b))return false;
   S.grinder=y.g;S.setting=roundG(y.g,y.set);if(y.temp&&BREWERS[b]){const T=BREWERS[b].temp;S.temp=clamp(y.temp,T.min,T.max)}return true}
@@ -1597,7 +1600,10 @@ const gfmt=v=>(v=+(+v).toFixed(6),v>=10?String(Math.round(v)):String(Math.round(
    press, espresso and Kasuya's 4:6, whose timings are the method itself. */
 const doseScales=r=>{const B=BREWERS[r.b];return!!B&&['Cone dripper','Flat-bottom dripper'].includes(B.type)&&!['esp','aero','imm'].includes(r.kind)};
 const doseOff=(r,dose)=>!doseScales(r)||!(dose>0)||!(r.dose>0)||Math.abs(dose-r.dose)<0.25?0:Math.round(clamp(-Math.log2(dose/r.dose)*0.5,-0.6,0.6)*100)/100;
-const timeK=(r,water)=>!doseScales(r)||r.kind==='46'||!(water>0)||!(r.water>0)?1:clamp(Math.sqrt(water/r.water),0.75,1.3);
+// More water takes longer to drain through a pour-over, so its times stretch. A steep (the Switch, the Clever, the
+// AeroPress, the press, the siphon) lasts as long whatever the dose: its times stay as written.
+const STEEPT=['Valve and hybrid','Immersion and pressure'];
+const timeK=(r,water)=>!doseScales(r)||r.kind==='46'||STEEPT.includes((BREWERS[r.b]||{}).type)||!(water>0)||!(r.water>0)?1:clamp(Math.sqrt(water/r.water),0.75,1.3);
 function scaleTimes(steps,k){if(Math.abs(k-1)<0.01)return steps;const ts=steps.map(x=>{const m=/^\s*(\d+):(\d\d)/.exec(x);return m?+m[1]*60+ +m[2]:null}).filter(t=>t!=null);
   // The bloom ends at the second timed step; everything after it is measured from there.
   const t1=ts.length>1?ts[1]:Infinity,mm=t=>Math.floor(t/60)+':'+String(t%60).padStart(2,'0');
@@ -4458,7 +4464,10 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
    // there are no notifications, a word that they're in the app.
    '<h3 class="rh">Reminders</h3><div class="setgroup">'+(window.BEANS_OK&&LN()?
      inl('bell','#8A5A3B','Coffee of the day',REMIND.on?'<span class="st-at"><input type="time" id="st-rtime" class="st-time" value="'+REMIND.t+'" aria-label="Reminder time"></span>':'',tg('st-remind',REMIND.on,'Coffee of the day'))+
-     inl('bulb','#9A7390','Coffee fact of the day',LEARN.on?'<span class="st-at"><input type="time" id="st-ltime" class="st-time" value="'+LEARN.t+'" aria-label="Fact time"></span>':'',tg('st-learn',LEARN.on,'Coffee fact of the day'))
+     inl('bulb','#9A7390','Coffee fact of the day',LEARN.on?'<span class="st-at"><input type="time" id="st-ltime" class="st-time" value="'+LEARN.t+'" aria-label="Fact time"></span>':'',tg('st-learn',LEARN.on,'Coffee fact of the day'))+
+     // The brew timer's notification: the app's own design, or Android 16's Live Update (the Now Bar and status chip),
+     // which only takes Android's own layout.
+     (plugin('Widget')?inl('timer','#B5533C','Brew timer in the Now Bar','',tg('st-live',!!UI.live,'Brew timer in the Now Bar')):'')
      :inl('bell','#8A5A3B','Coffee of the day','','<span class="st-tag">In the app</span>')+inl('bulb','#9A7390','Coffee fact of the day','','<span class="st-tag">In the app</span>'))+'</div>'+
    '<h3 class="rh">Your data</h3><div class="setgroup">'+inl('download','#8A5A3B','Back up and restore','<span id="st-lastbak">'+lastBakText()+'</span>',
      '<span class="st-acts">'+ib('ul','id="st-import"','Restore from a file')+ib('dl','id="st-export"','Back up now','main')+'</span><input type="file" id="st-file" accept="application/json,.json" hidden>')+'</div>'+
@@ -4486,6 +4495,7 @@ const SET_SW={'st-resume':on=>{UI.resume=on?'keep':'fresh';saveUI();toast(on?'Th
   'st-views':on=>{UI.views=on?'keep':'reset';saveUI();toast(on?'Your sorts and filters will stay as you set them':'Lists will open in their default order next time')},
   'st-motion':on=>{UI.motion=on?'reduced':'full';saveUI()},
   'st-rep':on=>{UI.reports=on;if(!on){REPORTS=[];saveReports()}saveUI()},
+  'st-live':on=>{UI.live=on;saveUI();tmWidget()},
   'st-remind':on=>setReminder(on),'st-learn':on=>setLearn(on)};
 $('settings-in').addEventListener('click',e=>{if(e.target.closest('#st-tips')){openTips();return}if(e.target.closest('#st-me')){openMe();return}
   if(e.target.closest('#st-install')){askSheet({title:'Add to your home screen',text:'On iPhone, in Safari: tap Share, then Add to Home Screen. On Android, in Chrome: tap the ⋮ menu, then Add to Home screen.',ok:'Got it',solo:true});return}

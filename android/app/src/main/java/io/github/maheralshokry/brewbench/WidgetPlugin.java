@@ -78,6 +78,7 @@ public class WidgetPlugin extends Plugin {
         e.putString("t_key", trim(call.getString("key", "")));
         e.putString("t_step", trim(call.getString("step", "")));
         e.putString("t_next", trim(call.getString("next", "")));
+        e.putBoolean("t_live", Boolean.TRUE.equals(call.getBoolean("live", false)));
         JSArray st = call.getArray("steps");
         if (st != null) {
             JSONArray out = new JSONArray();

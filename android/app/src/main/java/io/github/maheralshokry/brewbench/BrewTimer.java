@@ -254,9 +254,13 @@ final class BrewTimer {
         }
         channel(ctx);
         long e = s.elapsed(now);
-        // Below Android 16 the clocks inside the notification tick by themselves; it is posted again only when what it
-        // shows changes (the step, the ring's arc, the bar, the state, light or dark), and at least every 30 seconds.
-        if (Build.VERSION.SDK_INT < 36) {
+        // The brew has the app's own layout. On Android 16 a notification can instead be a Live Update (the clock in a
+        // status-bar chip, on the lock screen, in Samsung's Now Bar), but only in Android's own layout: a notification
+        // with its own layout never becomes one. So that is a choice in the app's settings ("t_live"), off by default.
+        boolean custom = Build.VERSION.SDK_INT < 36 || !BrewWidget.prefs(ctx).getBoolean("t_live", false);
+        // In the app's layout the clocks tick by themselves; it is posted again only when what it shows changes (the
+        // step, the ring's arc, the bar, the state, light or dark), and at least every 30 seconds.
+        if (custom) {
             int c0 = s.cur(e);
             long na = -1; for (long x : s.t) if (x > e) { na = x; break; }
             if (na < 0) na = s.total;
@@ -275,10 +279,6 @@ final class BrewTimer {
             .setContentIntent(BrewWidget.open(ctx, "resume", 40))
             .setSubText(s.name.isEmpty() ? "Brew" : s.name);
         if (Build.VERSION.SDK_INT < 26) b.setPriority(Notification.PRIORITY_DEFAULT);
-        // Below Android 16 the brew has the app's own layout. On 16 the notification keeps Android's own layout, the
-        // one that may become a Live Update (the clock in a status-bar chip, on the lock screen, in Samsung's Now Bar):
-        // a notification with its own layout never does.
-        boolean custom = Build.VERSION.SDK_INT < 36;
         String recipe = s.name.isEmpty() ? "Brew" : s.name.replaceFirst("\\s+on (the |an? )?\\S.*$", "");
         if (done) {
             String line = (s.name.isEmpty() ? "Your brew" : recipe) + " in " + clock(e) + ". Enjoy it.";
@@ -317,9 +317,17 @@ final class BrewTimer {
             float frac = nextAt > stepAt ? (e - stepAt) / (float) (nextAt - stepAt) : 1f;
             String step = s.step.isEmpty() ? "Brewing" : s.step.replaceAll("\\.$", "");
             String nx = s.next.replaceFirst("^Next at (\\d+:\\d\\d): ", "Next at $1 · ").replaceAll("\\.$", "");
+            // Android's own layout cuts the title to one short line: it holds the step's action ("Pour 45g at 90°C"),
+            // and the rest of the step ("Valve closed", "Then cool the kettle") leads the line below.
+            String[] st = split(step);
+            int d = nx.indexOf(" · ");
+            String pre = nx.startsWith("Next at") && d > 0 ? nx.substring(0, d + 3) : "";
+            String[] sn = split(nx.substring(pre.length()));
+            String head = calm(st[0]), aside = st[1].isEmpty() ? "" : calm(st[1]) + " · ";
+            String nxs = pre + calm(sn[0]) + (sn[1].isEmpty() ? "" : ". " + calm(sn[1]));
             b.setOngoing(true)
-                .setContentTitle(pause ? "Paused at " + clock(e) : step)  // paused, no clock runs: the title holds the time
-                .setContentText(pause ? step : nx)
+                .setContentTitle(pause ? "Paused at " + clock(e) : head)  // paused, no clock runs: the title holds the time
+                .setContentText(pause ? step : aside + nxs)
                 .setSubText(recipe);
             android.graphics.Bitmap ring = n > 0 ? NotifViews.ring(ctx, Math.max(1, c + 1), n, Math.max(0, Math.min(1, frac)), ACCENT, pause) : null;
             if (custom) {
@@ -347,8 +355,32 @@ final class BrewTimer {
         nm.notify(NOTE_ID, b.build());
     }
 
+    /** "OPEN the valve" reads as "Open the valve": capitals that shout in the app read oddly in a notification. */
+    static String calm(String t) {
+        String x = t.replace("CLOSED", "closed").replace("CLOSE", "close").replace("OPEN", "open");
+        return x.isEmpty() ? x : Character.toUpperCase(x.charAt(0)) + x.substring(1);
+    }
+
     /**
-     * The brew in the app's own layout (below Android 16). Closed: the step ring, the step and what's next, and the
+     * A step split into its action (the sentence with an amount to pour, else the first) and the rest, for Android's
+     * own layout: "Valve CLOSED. Pour 45g at 90°C" gives "Pour 45g at 90°C" and "Valve closed".
+     */
+    static String[] split(String t) {
+        String[] p = t.split("(?<=\\.)\\s+(?=[A-Z])");
+        if (p.length < 2) return new String[] { t.replaceAll("\\.$", ""), "" };
+        int k = 0;
+        for (int i = 0; i < p.length; i++) if (p[i].matches(".*\\d+\\s?g\\b.*")) { k = i; break; }
+        StringBuilder rest = new StringBuilder();
+        for (int i = 0; i < p.length; i++) if (i != k) {
+            String x = p[i].replaceAll("\\.$", "").replace("CLOSED", "closed").replace("OPEN", "open");
+            rest.append(rest.length() > 0 ? ". " : "").append(x);
+        }
+        return new String[] { p[k].replaceAll("\\.$", ""), rest.toString() };
+    }
+
+    /**
+     * The brew in the app's own layout (unless a Live Update was chosen on Android 16). Closed: the step ring, the
+     * step and what's next, and the
      * countdown to the next step. Opened: the brew's clock large with its length, the countdown, the bar split into the
      * recipe's steps, the step now and the next one, and round buttons (pause or resume, next, stop). The clocks are
      * Android's own and tick by themselves; the rest is redrawn as the brew moves on.
