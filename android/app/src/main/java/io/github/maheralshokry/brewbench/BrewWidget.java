@@ -64,6 +64,28 @@ public class BrewWidget extends AppWidgetProvider {
         }
     }
 
+    interface Sized { RemoteViews make(Context ctx, int widthDp, int heightDp); }
+
+    /**
+     * For a widget drawn as a picture (Drinking now, Your shelf): one layout per size the launcher shows it at (Android
+     * 12+ lists them: the widget upright and on its side), each drawn at that width and height, so the picture is never
+     * stretched. Before Android 12, the size it was placed at.
+     */
+    static void pushSized(Context ctx, AppWidgetManager m, int id, Sized mk) {
+        Bundle o = m.getAppWidgetOptions(id);
+        int minW = o == null ? 0 : o.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 0), maxH = o == null ? 0 : o.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 0);
+        int w = minW > 0 ? minW : 250, h = maxH > 0 ? maxH : 130;
+        if (Build.VERSION.SDK_INT >= 31) {
+            java.util.ArrayList<SizeF> sizes = o == null ? null : o.getParcelableArrayList(AppWidgetManager.OPTION_APPWIDGET_SIZES);
+            if (sizes != null && !sizes.isEmpty()) {
+                Map<SizeF, RemoteViews> map = new HashMap<>();
+                for (SizeF z : sizes) if (map.size() < 4 && z.getWidth() > 0 && z.getHeight() > 0) map.put(z, mk.make(ctx, Math.round(z.getWidth()), Math.round(z.getHeight())));
+                if (!map.isEmpty()) { m.updateAppWidget(id, new RemoteViews(map)); return; }
+            }
+        }
+        m.updateAppWidget(id, mk.make(ctx, w, h));
+    }
+
     /** Redraws every Brew Bench widget on the home screen. */
     static void refresh(Context ctx) {
         AppWidgetManager m = AppWidgetManager.getInstance(ctx);
@@ -76,7 +98,7 @@ public class BrewWidget extends AppWidgetProvider {
 
     @Override
     public void onUpdate(Context ctx, AppWidgetManager m, int[] ids) {
-        for (int id : ids) push(ctx, m, id, BrewWidget::views);
+        for (int id : ids) pushSized(ctx, m, id, BrewWidget::views);
     }
 
     @Override
@@ -186,59 +208,42 @@ public class BrewWidget extends AppWidgetProvider {
         } catch (Exception e) { return null; }
     }
 
-    static RemoteViews views(Context ctx, int h) {
+    /** For a size given only by its height (a widget picture in a test): a typical width for it. */
+    static RemoteViews views(Context ctx, int h) { return views(ctx, 250, h); }
+
+    /**
+     * The coffee you're drinking, drawn like the shelf card (ShelfArt.drinking) at the widget's size. The picture opens
+     * the coffee; the round log button at its top right logs a brew with it. With nothing on the shelf, it opens Beans.
+     */
+    static RemoteViews views(Context ctx, int w, int h) {
         SharedPreferences p = prefs(ctx);
-        String id = p.getString("id", ""), title = p.getString("title", ""), sub = p.getString("sub", ""), left = p.getString("left", "");
+        String id = p.getString("id", "");
         RemoteViews v = new RemoteViews(ctx.getPackageName(), R.layout.widget_bean);
-        boolean small = h < 130;
-        v.setViewVisibility(R.id.w_kicker, small ? View.GONE : View.VISIBLE);
-        v.setViewVisibility(R.id.w_pic, h < 100 ? View.GONE : View.VISIBLE);
-        v.setViewVisibility(R.id.w_log, small ? View.GONE : View.VISIBLE);
-        int[] pbs = {R.id.w_pb0, R.id.w_pb1, R.id.w_pb2, R.id.w_pb3};
-        for (int pb : pbs) v.setViewVisibility(pb, View.GONE);
-        v.setViewVisibility(R.id.w_chip, View.GONE);
-        if (id.isEmpty()) {
-            v.setTextViewText(R.id.w_title, "Nothing in your cabinet");
-            v.setTextViewText(R.id.w_sub, "Add the bag you're drinking");
-            v.setTextViewText(R.id.w_flag, "☕");
-            v.setViewVisibility(R.id.w_photo, View.GONE);
-            v.setViewVisibility(R.id.w_flag, View.VISIBLE);
-            v.setTextViewText(R.id.w_fresh, "");
-            v.setTextViewText(R.id.w_log_tx, "Add a coffee");
+        ShelfArt.Bag b = null;
+        if (!id.isEmpty()) {
+            b = new ShelfArt.Bag();
+            b.id = id;
+            b.title = p.getString("title", "");
+            b.sub = p.getString("sub", "");
+            b.roastDate = p.getString("roastDate", "");
+            b.win = p.getString("win", "");
+            b.photo = p.getString("photo", "");
+            try { b.rating = Float.parseFloat(p.getString("rating", "0")); } catch (Exception ignored) { }
+            try { b.g = Integer.parseInt(p.getString("g", "-1")); } catch (Exception ignored) { }
+            try { b.bag = Integer.parseInt(p.getString("bag", "0")); } catch (Exception ignored) { }
+        }
+        ShelfArt.Theme t = ShelfArt.Theme.of(p.getString("theme", ""));
+        try { v.setImageViewBitmap(R.id.w_art, ShelfArt.drinking(ctx, t, b, Math.max(80, w), Math.max(48, h))); } catch (Exception ignored) { }
+        v.setContentDescription(R.id.w_art, b == null ? "Drinking now: nothing on your shelf" : "Drinking now: " + b.title);
+        boolean compact = h < 100;
+        v.setViewVisibility(R.id.w_log, compact ? View.GONE : View.VISIBLE);
+        if (b == null) {
             v.setOnClickPendingIntent(R.id.w_root, open(ctx, "beans", 1));
             v.setOnClickPendingIntent(R.id.w_log, open(ctx, "beans", 2));
-            return v;
+        } else {
+            v.setOnClickPendingIntent(R.id.w_root, open(ctx, "bean:" + id, 1));
+            v.setOnClickPendingIntent(R.id.w_log, open(ctx, "log:" + id, 2));
         }
-        int[] w = window(p.getString("win", ""));
-        int d = daysSince(p.getString("roastDate", "")), s = stage(d, w);
-        v.setTextViewText(R.id.w_title, title);
-        String fresh = s < 0 ? "Add its roast date for freshness" : countdown(d, w) + " · day " + d;
-        if (!left.isEmpty()) fresh = fresh + " · " + left;
-        v.setTextViewText(R.id.w_sub, small ? (s < 0 ? sub : countdown(d, w) + (left.isEmpty() ? "" : " · " + left)) : sub);
-        v.setTextViewText(R.id.w_fresh, fresh);
-        v.setViewVisibility(R.id.w_fresh, small ? View.GONE : View.VISIBLE);
-        if (s >= 0 && !small) {
-            v.setViewVisibility(R.id.w_chip, View.VISIBLE);
-            v.setTextViewText(R.id.w_chip, STAGES[s]);
-            v.setInt(R.id.w_chip, "setBackgroundResource", STAGE_CHIP[s]);
-            v.setTextColor(R.id.w_chip, ctx.getColor(STAGE_COL[s]));
-            v.setViewVisibility(pbs[s], View.VISIBLE);
-            v.setProgressBar(pbs[s], 100, Math.max(3, Math.min(100, Math.round(d * 100f / Math.max(1, w[2])))), false);
-        }
-        // A taller widget gives the coffee more room: a bigger picture and name, so it fills its space.
-        int pic = h >= 200 ? 92 : h >= 160 ? 76 : 64;
-        if (Build.VERSION.SDK_INT >= 31 && pic != 64) {
-            v.setViewLayoutWidth(R.id.w_pic, pic, TypedValue.COMPLEX_UNIT_DIP);
-            v.setViewLayoutHeight(R.id.w_pic, pic, TypedValue.COMPLEX_UNIT_DIP);
-            v.setTextViewTextSize(R.id.w_flag, TypedValue.COMPLEX_UNIT_SP, pic * 0.47f);
-            v.setTextViewTextSize(R.id.w_title, TypedValue.COMPLEX_UNIT_SP, h >= 200 ? 23 : 21);
-        } else pic = 64;
-        Bitmap ph = h < 100 ? null : photo(ctx, p.getString("photo", ""), pic, 16);
-        if (ph != null) { v.setImageViewBitmap(R.id.w_photo, ph); v.setViewVisibility(R.id.w_photo, View.VISIBLE); v.setViewVisibility(R.id.w_flag, View.GONE); }
-        else { v.setViewVisibility(R.id.w_photo, View.GONE); v.setViewVisibility(R.id.w_flag, View.VISIBLE); String f = p.getString("flag", ""); v.setTextViewText(R.id.w_flag, f.isEmpty() ? "☕" : f); }
-        v.setTextViewText(R.id.w_log_tx, "Log brew");
-        v.setOnClickPendingIntent(R.id.w_root, open(ctx, "bean:" + id, 1));
-        v.setOnClickPendingIntent(R.id.w_log, open(ctx, "log:" + id, 2));
         return v;
     }
 }

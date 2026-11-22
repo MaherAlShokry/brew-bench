@@ -3327,6 +3327,8 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <script>(function(){var h=document.documentElement,s=document.getElementById("splash");if(!h.classList.contains("splashing")){s.remove();return}
   // Whatever the scene does, it always leaves: on a timer, on a tap, and (in CSS) after 4 s even if this script fails.
   var done=false,end=function(){if(done)return;done=true;s.classList.add("out");setTimeout(function(){s.remove();h.classList.remove("splashing")},420)};
+  // Opened from a widget or a notification: the app goes to that place underneath, then the scene lifts onto it at once.
+  window.bbSplashEnd=end;
   s.addEventListener("pointerdown",function(e){e.preventDefault();end()});
   // The scene plays once the app has started underneath (its scripts run, the first page drawn), so nothing competes
   // with it; then 2.1 s to the end. (Never later than 1.2 s after the page began, so a slow start doesn't hold it.)

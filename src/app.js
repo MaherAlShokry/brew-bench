@@ -125,7 +125,7 @@ function tipsList(){const sync=typeof syncOn==='function'&&syncOn();return[
   ['pencil','#8A5A3B','Changed your mind? Tap Undo','Deleting a brew, a coffee, a diary entry or a recipe happens at once, with Undo on the message at the bottom for a few seconds.'],
   ['download','#4F8A74',sync?'Your coffees follow your account':'Keep a backup',sync?'Signed in, everything you save syncs to your account. A backup file (Settings, Your data) is still handy to keep.':'Everything stays on this phone. Save a backup file, photos included, from Settings, Your data; a reminder comes if it\u2019s been a month.'],
   ['share','#C9964A','Share as an image or a PDF','Every Share has a designed image in the look you pick, and a PDF in the app\u2019s own look.'],
-  NATIVE?['phone','#9A7390','Brew Bench on your home screen','Touch and hold your home screen, then Widgets, Brew Bench: Drinking now, Your cabinet, Quick brew and the coffee word of the day.']
+  NATIVE?['phone','#9A7390','Brew Bench on your home screen','Touch and hold your home screen, then Widgets, Brew Bench: Drinking now, Your shelf, Quick brew and the coffee word of the day.']
     :['phone','#9A7390','Works offline','Once opened, the app works without a connection. When a new version is ready, a Reload message appears.'],
   ['leaf','#6B8E4E','Freshness that fits the bag','Each coffee\u2019s freshness line follows its roast, where and how it was grown, how you brew it and when you opened the bag.']].filter(Boolean)}
 function openTips(){const d=$('vd');try{localStorage.setItem('bb-tips',String(TIPS_V))}catch(e){}

@@ -36,7 +36,7 @@ public class WidgetPlugin extends Plugin {
     public void update(PluginCall call) {
         Context ctx = getContext();
         SharedPreferences.Editor e = BrewWidget.prefs(ctx).edit();
-        for (String k : new String[] {"id", "title", "sub", "roastDate", "win", "left", "flag"}) {
+        for (String k : new String[] {"id", "title", "sub", "roastDate", "win", "left", "flag", "rating", "g", "bag", "roaster", "origin"}) {
             String v = call.getString(k, "");
             e.putString(k, v == null ? "" : v.length() > 120 ? v.substring(0, 120) : v);
         }
@@ -44,7 +44,7 @@ public class WidgetPlugin extends Plugin {
         String ph = call.getString("photo", "");
         e.putString("photo", ph != null && ph.length() < 250000 ? ph : "");
         // The other widgets' data, as JSON text: the cabinet's coffees, the go-to recipe and the coming words.
-        for (String k : new String[] {"cabinet", "brew", "words", "passport"}) {
+        for (String k : new String[] {"cabinet", "brew", "words", "passport", "theme", "shelfTheme", "shelfStats"}) {
             String v = call.getString(k, null);
             // The cabinet carries a small photo per coffee, so it may be longer.
             if (v != null && v.length() < (k.equals("cabinet") ? 400000 : 60000)) e.putString(k, v);

@@ -31,7 +31,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class WidgetShots {
 
-    interface Maker { RemoteViews make(Context ctx, int heightDp); }
+    interface Maker { RemoteViews make(Context ctx, int widthDp, int heightDp); }
 
     // Width × height in dp: 2×1, 2×2, 3×2, 4×1, 4×2, 4×3 and 5×4 cells on a typical phone.
     static final int[][] SIZES = {{110, 60}, {110, 130}, {180, 130}, {250, 60}, {250, 130}, {250, 220}, {320, 280}};
@@ -57,7 +57,12 @@ public class WidgetShots {
         SharedPreferences.Editor e = BrewWidget.prefs(ctx).edit().clear();
         if (full) {
             e.putString("id", "w1").putString("title", "Kenya Nyeri AA").putString("sub", "Archers Coffee · Kenya")
-                .putString("flag", "🇰🇪").putString("roastDate", daysAgo(14)).putString("win", "7,21,35").putString("left", "6 cups left");
+                .putString("flag", "🇰🇪").putString("roastDate", daysAgo(14)).putString("win", "7,21,35").putString("left", "6 cups left")
+                .putString("rating", "4.5").putString("g", "120").putString("bag", "250").putString("photo", fakePhoto(0xFF6B3A2A, 0xFFC9964A))
+                // Kenya's card colours, as the app works them out, and a light shelf (the share card style can be either).
+                .putString("theme", "{\"bg\":[\"#2A1512\",\"#170B09\",\"#0B0504\"],\"glow\":\"#C0503A\",\"acc\":\"#F0C46A\",\"ink\":\"#FFF8EE\",\"light\":false}")
+                .putString("shelfTheme", "{\"bg\":[\"#F3E8E4\",\"#F7F0ED\",\"#FBF7F5\"],\"glow\":\"#C0503A\",\"acc\":\"#8E3524\",\"ink\":\"#22160E\",\"light\":true}")
+                .putString("shelfStats", "{\"bags\":6,\"ros\":4,\"ors\":5}");
             JSONArray cab = new JSONArray();
             String[][] beans = {{"Kenya Nyeri AA", "14", "6 cups"}, {"Ethiopia Guji Natural", "5", "11 cups"}, {"House Blend", "30", "2 cups"},
                 {"Colombia Huila Pink Bourbon", "40", "Empty"}, {"Panama Geisha", "9", "4 cups"}, {"Yemen Haraz", "20", "8 cups"}};
@@ -65,7 +70,9 @@ public class WidgetShots {
             int[][] cols = {{0xFF6B3A2A, 0xFFC9964A}, {0xFF2E4A3A, 0xFFD9B26A}, {0xFF3A2F5A, 0xFFE0A0B0}};
             // Half the coffees have a photo, the rest show their flag.
             for (int i = 0; i < beans.length; i++) {
-                JSONObject o = new JSONObject().put("id", "c" + i).put("title", beans[i][0]).put("roastDate", daysAgo(Integer.parseInt(beans[i][1]))).put("win", "7,21,35").put("cups", beans[i][2]).put("flag", flags[i]);
+                JSONObject o = new JSONObject().put("id", "c" + i).put("title", beans[i][0]).put("roastDate", daysAgo(Integer.parseInt(beans[i][1]))).put("win", "7,21,35").put("cups", beans[i][2]).put("flag", flags[i])
+                    .put("sub", new String[] {"Archers Coffee · Kenya", "Spirit Hub · Ethiopia", "Local Roaster", "Spirit Hub · Colombia", "Onyx · Panama", "Mokha · Yemen"}[i])
+                    .put("rating", new double[] {4.5, 4, 3, 0, 5, 3.5}[i]).put("g", new int[] {120, 200, 40, 0, 90, -1}[i]).put("bag", new int[] {250, 250, 250, 250, 200, 0}[i]);
                 if (i % 2 == 0) o.put("ph", fakePhoto(cols[i / 2 % 3][0], cols[i / 2 % 3][1]));
                 cab.put(o);
             }
@@ -102,7 +109,7 @@ public class WidgetShots {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
             try {
                 FrameLayout host = new FrameLayout(tc);
-                View v = mk.make(ctx, hDp).apply(tc, host);
+                View v = mk.make(ctx, wDp, hDp).apply(tc, host);
                 host.addView(v, new FrameLayout.LayoutParams(w, h));
                 host.measure(View.MeasureSpec.makeMeasureSpec(w, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(h, View.MeasureSpec.EXACTLY));
                 host.layout(0, 0, w, h);
@@ -128,8 +135,9 @@ public class WidgetShots {
         dir.mkdirs();
         for (File f : dir.listFiles()) f.delete();
         Object[][] widgets = {
-            {"drinking-now", (Maker) BrewWidget::views}, {"cabinet", (Maker) CabinetWidget::views},
-            {"quick-brew", (Maker) QuickBrewWidget::views}, {"word", (Maker) WordWidget::views}, {"passport", (Maker) PassportWidget::views}};
+            {"drinking-now", (Maker) (c, w, h) -> BrewWidget.views(c, w, h)}, {"shelf", (Maker) (c, w, h) -> CabinetWidget.views(c, w, h)},
+            {"quick-brew", (Maker) (c, w, h) -> QuickBrewWidget.views(c, h)}, {"word", (Maker) (c, w, h) -> WordWidget.views(c, h)},
+            {"passport", (Maker) (c, w, h) -> PassportWidget.views(c, h)}};
         int n = 0;
         for (String state : new String[] {"full", "empty", "brewing"}) {
             seed(ctx, !state.equals("empty"), state.equals("brewing"));
