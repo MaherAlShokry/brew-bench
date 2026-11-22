@@ -115,6 +115,9 @@ public class TimerTest {
             StatusBarNotification cv = null;
             for (int i = 0; i < 14; i++) { cv = note(ctx); if (cv != null && Notification.DecoratedCustomViewStyle.class.getName().equals(cv.getNotification().extras.getString(Notification.EXTRA_TEMPLATE))) break; }
             assertEquals("back to the app's layout", Notification.DecoratedCustomViewStyle.class.getName(), cv.getNotification().extras.getString(Notification.EXTRA_TEMPLATE));
+            // Android drops an app's notification updates past about five a second: let the two extra posts above
+            // pass before the steps below post again (else the "Paused" update can be dropped).
+            Thread.sleep(1200);
         }
 
         BrewTimer.act(ctx, BrewTimer.NEXT);

@@ -3205,7 +3205,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="ada36e270dfa"</script>
+<script>const BUILD_ID="c2550ca4596e"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -3431,6 +3431,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
         <div class="field"><label for="i-ratio">Ratio <span class="num" id="v-ratio"></span></label><input type="range" id="i-ratio" min="13" max="18" step="0.5"></div>
       </div>
       <div class="field"><label for="i-bloom">Bloom <span class="num" id="v-bloom"></span></label><input type="range" id="i-bloom" min="20" max="180" step="5"></div>
+      <div class="field" hidden><label for="i-steep">Steep <span class="num" id="v-steep"></span></label><input type="range" id="i-steep" min="10" max="600" step="5"></div>
       <div class="field"><div class="lbl">Agitation</div><div class="seg" id="g-agit"></div></div>
       <p class="hint dcal-link"><button type="button" class="linkbtn" data-gearto="set"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9 M15 5v4 M9 15v4"/></svg>Grind settings</button></p>
       <div hidden>      <div class="cal">
@@ -4430,7 +4431,7 @@ const RECIPES=[
   steps:['0:00 pour 60g.','0:45 pour 60g (to 120g).','1:30 pour 60g (to 180g).','2:15 pour 60g (to 240g).','3:00 pour 60g (to 300g).','3:30 remove the dripper.'],
   tip:'Sweeter: pour 1 smaller than pour 2 (50/70). Brighter: pour 1 larger (70/50). Stronger: split the last 180g into four pours; lighter: two pours.'},
  {b:'v60',kind:'pulse',name:'Tetsu Kasuya 10-pour',by:'Tetsu Kasuya, 2016 World Brewers Cup champion',off:-1.8,temp:96,dose:20,water:300,why:'Ten small pours of 30g every 15 seconds, released for the tenth anniversary of his 2016 World Brewers Cup win. A medium-coarse grind, a touch coarser than his 4:6, and very hot water, with the bed draining almost dry before each pour: the many small pours extract fully without the bitterness of a fine grind.',
-  steps:['0:00 pour 30g at 96°C, bloom.','0:30 pour 30g (to 60g).','0:45 pour 30g (to 90g).','1:00 pour 30g (to 120g).','1:15 pour 30g (to 150g).','1:30 pour 30g (to 180g).','1:45 pour 30g (to 210g).','2:00 pour 30g (to 240g).','2:15 pour 30g (to 270g).','2:30 pour 30g (to 300g).','3:00 drawdown finishes, remove the dripper.'],
+  steps:['0:00 pour 30g at 96°C, bloom.','0:30 pour 30g (to 60g).','0:45 pour 30g (to 90g).','1:00 pour 30g (to 120g).','1:15 pour 30g (to 150g).','1:30 pour 30g (to 180g).','1:45 pour 30g (to 210g).','2:00 pour 30g (to 240g).','2:15 pour 30g (to 270g).','2:30 pour 30g (to 300g).','3:30 drawdown finishes, remove the dripper.'],
   tip:'Pour each 30g gently in the centre in about 5 seconds, then let it drain. Super coarse means it, well past your usual V60 setting. If it runs past 3:30, go coarser.'},
  {b:'v60',kind:'hoff',name:'The Ultimate V60',by:'James Hoffmann',off:0.5,temp:96,dose:30,water:500,why:'Built for consistency: agitation early, then left alone. Hoffmann uses water as hot as possible for light roasts.',
   steps:['Rinse the paper, add coffee, make a well in the middle.','0:00 pour 60g, swirl to saturate, bloom.','0:45 pour to 300g by about 1:15.','1:15 pour more gently to 500g by about 1:45.','1:45 stir once each way, then a gentle swirl.','3:30 drawdown should be finished.'],
@@ -4450,8 +4451,8 @@ const RECIPES=[
  {b:'v60',kind:'neo',name:'Split pour',by:'Built around the fast flow of the NEO add-on',off:0.71,temp:94,dose:15,water:240,why:'With the NEO add-on the V60 drains faster, so a single slow pour under-extracts. Split pours put contact time back.',
   steps:['0:00 pour 40g quickly, wetting every ground.','0:35 pour with a strong stream to 144g.','1:10 pour to 240g.','2:30 finished.'],
   tip:'The NEO handles a slightly finer grind than the V60 without stalling.'},
- {b:'v60',kind:'neo',name:'Yuma Kawano recipe',by:'Yuma Kawano',off:1.01,temp:95,dose:14,water:235,why:'A pouring-technique recipe aimed at texture, density and sweetness. Medium-fine grind.',
-  steps:['0:00 pour 35 to 40g, bloom.','0:30 pour to 120g while stirring the slurry with the stream.','1:05 pour to 180 to 185g.','1:35 pour to 235g.','2:30 let it drain.'],
+ {b:'v60',kind:'neo',name:'Yuma Kawano recipe',by:'Yuma Kawano, LIGHT UP COFFEE',off:1.01,temp:95,dose:14,water:230,why:'A pouring-technique recipe aimed at texture, density and sweetness. Medium-fine grind.',
+  steps:['0:00 pour 40g, bloom.','0:30 pour to 120g while stirring the slurry with the stream.','1:05 pour to 180g.','1:35 pour to 230g.','3:00 finished.'],
   tip:'The stirring pour in stage two builds the body the NEO\u2019s fast flow would otherwise lose.'},
  {b:'origami',kind:'pulse',name:'Carlos Medina\u2019s Origami',by:'Carlos Medina, 2023 World Brewers Cup champion (ZP6 Special at 5.2)',off:0.4,temp:91,dose:15.5,water:250,why:'Five equal pours every 30 seconds, aiming to finish around 2:40. His winning coffee was a natural Sidra from Granja La Esperanza in Colombia, ground on a ZP6 Special and brewed with soft water (about 65 ppm).',
   steps:['0:00 pour 50g.','0:30 pour to 100g.','1:00 pour to 150g.','1:30 pour to 200g.','2:00 pour to 250g.','2:40 drawdown should be finished.'],
@@ -4466,7 +4467,7 @@ const RECIPES=[
  {b:'melitta',kind:'single',name:'Melitta everyday',by:'Classic technique',off:0,temp:94,dose:20,water:320,why:'The small outlet does the work, so the pour can be simple.',
   steps:['0:00 pour 50g, bloom.','0:40 pour steadily to 320g.','3:30 finished.'],tip:'Great with medium roasts.'},
  {b:'orea',kind:'pulse',name:'Martin Wölfl\u2019s Orea',by:'Martin Wölfl, 2024 World Brewers Cup champion',off:0.3,temp:93,dose:17,water:270,why:'Orea v4 with the fast bottom and a fast flat filter. His winning coffee was an anaerobic natural Geisha from Finca Maya, Panama, processed by Lost Origin.',
-  steps:['0:00 pour 60g, bloom.','0:40 pour 60g (to 120g).','1:20 pour 50g (to 170g).','2:00 pour 100g (to 270g).','3:00 let it drain.'],tip:'The fast bottom lets you grind fine without stalling.'},
+  steps:['0:00 pour 60g, bloom.','0:40 pour 60g (to 120g).','1:20 pour 50g (to 170g).','2:00 pour 100g (to 270g).','2:25 finished.'],tip:'The fast bottom lets you grind fine without stalling.'},
  {b:'april',kind:'pulse',name:'Two-pour flat bottom',by:'Classic flat-bottom technique',off:0,temp:94,dose:15,water:250,why:'A short, even brew suited to the April Brewer\u2019s quick drawdown.',
   steps:['0:00 pour 100g, swirl.','0:45 pour to 250g in a steady centre pour.','2:30 finished.'],tip:'Big first pour, then one steady top-up.'},
  {b:'pulsar',kind:'pulsar',name:'Pulsar no-bypass',by:'Classic Pulsar technique',off:0,temp:95,dose:20,water:320,why:'All water goes through the bed, so a coarse grind still extracts fully.',
@@ -6669,8 +6670,8 @@ function renderFit(){const el=$('g-fit'),f=cupFit();
 function tune(msg){if(!dialRec())return;const p=plan(dialCtx());Object.assign(S,p.st);{const B=BREWERS[S.brewer];S.temp=clamp(S.temp,B.temp.min,B.temp.max);S.bloom=clamp(S.bloom,B.bloom.min,B.bloom.max)}S.tuned=Object.fromEntries(TUNED_KEYS.map(k=>[k,S[k]]));render();if(msg)toast(msg)}
 // Inputs that change the plan re-tune while you haven't moved the sliders yourself.
 function retuneIfAuto(msg){if(dialRec()&&(isTuned()||!S.tuned))tune(msg);else render()}
-function dialPlan(){const r=dialRec();if(!r)return null;const p=plan(dialCtx()),water=+gfmt(S.dose*S.ratio),ps=planSteps(r,S.dose,water,S.goal),bl=BREWERS[S.brewer].bloom.label==='Bloom'?bloomShift(ps.steps,S.bloom):{steps:ps.steps};
-  const st=stepsAtTemp(bl.steps,r.temp,S.temp);return{r,p,water,steps:st,changes:bl.note?[...ps.changes,bl.note]:ps.changes}}
+function dialPlan(){const r=dialRec();if(!r)return null;const p=plan(dialCtx()),water=+gfmt(S.dose*S.ratio),ps=planSteps(r,S.dose,water,S.goal),bl=BREWERS[S.brewer].bloom.label==='Bloom'?bloomShift(ps.steps,S.bloom):{steps:ps.steps},sp=steepShift(bl.steps,steepFor(r));
+  const st=stepsAtTemp(sp.steps,r.temp,S.temp);return{r,p,water,steps:st,changes:[...ps.changes,...(bl.note?[bl.note]:[]),...(sp.note?[sp.note]:[])]}}
 // The water temperature written into a recipe's steps ("pour 30 g at 96°C") follows the temperature you brew at, so the
 // steps, the timer and the brew card agree with the settings. A second temperature (a recipe that cools part way) stays.
 function stepsAtTemp(steps,rt,t){if(!rt||!t||rt===t)return steps;const re=new RegExp('\\b'+rt+'(\\s*°\\s*C)','g');return steps.map(x=>String(x).replace(re,t+'$1'))}
@@ -6692,6 +6693,18 @@ function bloomShift(steps,bloom){const at=bloomAt(steps),fmt=v=>Math.floor(v/60)
   const d=Math.max(Math.round(bloom),at.mid+10)-at.t;if(!d)return{steps};
   return{steps:steps.map((s,i)=>{const v=tOf(s);return i>=at.i&&v!=null?s.replace(/^(\s*)\d+:\d\d/,'$1'+fmt(Math.max(0,v+d))):s}),
     note:'Bloom '+(at.t+d)+' s (the recipe says '+at.t+' s): the next pours move '+Math.abs(d)+' s '+(d>0?'later':'earlier')+'.'}}
+// A steep: from a recipe's "let it steep" step to the next timed step, the one that ends it (open the valve, press,
+// stir the crust, set it on the cup). Your steep sets that step and moves every one after it by the difference, as the
+// bloom moves the pours; the recipe's own steep is the default. Waits that aren't the steep ("wait for the fines") don't
+// count. Null for a recipe without one.
+function steepAt(steps){steps=steps||[];for(let i=0;i<steps.length;i++){const a=tOf(steps[i]);if(a==null||stepKind(steps[i])!=='steep'||!/steep/i.test(steps[i]))continue;
+    for(let j=i+1;j<steps.length;j++){const b=tOf(steps[j]);if(b==null)return null;if(b>a)return{i:j,start:a,end:b}}return null}return null}
+// The steep you set, for the recipe it was set for (a new recipe starts from its own).
+const steepFor=r=>S.steep>0&&S.steepRec===S.rec?S.steep:0;
+function steepShift(steps,sec){const at=steepAt(steps),fmt=v=>Math.floor(v/60)+':'+String(v%60).padStart(2,'0');if(!(sec>0)||!at)return{steps};
+  const own=at.end-at.start,d=Math.max(Math.round(sec),10)-own;if(!d)return{steps};
+  return{steps:steps.map((s,i)=>{const v=tOf(s);return i>=at.i&&v!=null?s.replace(/^(\s*)\d+:\d\d/,'$1'+fmt(Math.max(0,v+d))):s}),
+    note:'Steep '+fmt(own+d)+' (the recipe says '+fmt(own)+'): the steps after it move '+Math.abs(d)+' s '+(d>0?'later':'earlier')+'.'}}
 function renderDialRecipe(){const tl=techList(S.brewer),r=dialRec();
   const opts='<option value="">No recipe: dial in freely</option>'+tl.map(([x,i])=>'<option value="'+i+'">'+esc(x.name)+(x.b!==S.brewer&&sameFam(x.b,S.brewer)&&!TWIN[x.b]&&!TWIN[S.brewer]?' (for the '+BSHORT[x.b]+')':'')+(x.champ?' (champion)':'')+'</option>').join('');
   if($('i-rec').dataset.k!==S.brewer+'|'+tl.length){$('i-rec').innerHTML=opts;$('i-rec').dataset.k=S.brewer+'|'+tl.length}
@@ -6801,7 +6814,11 @@ function render(){schedulePreCard();
   const r=compute(S);
   const ti=$('i-temp');ti.min=B.temp.min;ti.max=B.temp.max;ti.value=S.temp;$('v-temp').textContent=S.temp+'°C';
   const ri=$('i-ratio');ri.min=Math.min(B.ratio.min,S.ratio);ri.max=Math.max(B.ratio.max,S.ratio);ri.step=B.ratio.step;ri.value=S.ratio;$('v-ratio').textContent='1:'+rr1(S.ratio);
-  {const r=dialRec();$('i-bloom').closest('.field').hidden=!!(r&&B.bloom.label==='Bloom'&&recBloom(r)==null)}const bi=$('i-bloom');bi.min=B.bloom.min;bi.max=B.bloom.max;bi.step=B.bloom.max<=20?1:5;bi.value=S.bloom;$('v-bloom').textContent=S.bloom+'s';
+  {const r=dialRec();$('i-bloom').closest('.field').hidden=!!(r&&B.bloom.label==='Bloom'&&recBloom(r)==null)}{// The steep slider: for a recipe with a steep, from half its own to twice it (fifteen-second steps for long ones).
+    const r=dialRec(),at=r&&steepAt(planSteps(r,S.dose,+gfmt(S.dose*S.ratio),S.goal).steps),f=$('i-steep').closest('.field');f.hidden=!at;
+    if(at){const own=at.end-at.start,st=own>=180?15:5,si=$('i-steep'),v=steepFor(r)||own,mm=x=>Math.floor(x/60)+':'+String(x%60).padStart(2,'0');
+      si.min=Math.max(10,Math.round(own*.5/st)*st);si.max=Math.max(+si.min+st,Math.round(own*2/st)*st);si.step=st;si.value=v;$('v-steep').textContent=mm(Math.round(v))}}
+  const bi=$('i-bloom');bi.min=B.bloom.min;bi.max=B.bloom.max;bi.step=B.bloom.max<=20?1:5;bi.value=S.bloom;$('v-bloom').textContent=S.bloom+'s';
   document.querySelector('label[for="i-bloom"]').firstChild.textContent=B.bloom.label+' ';
   renderDialRecipe();renderDBean();
   $('i-brewer').value=S.brewer;$('i-process').value=S.process;$('i-variety').value=S.variety.split(':')[0];$('i-region').value=S.region;$('i-age').value=S.age;$('v-age').textContent=S.age+' days';
@@ -6874,6 +6891,7 @@ function initDial(){
   $('i-temp').oninput=e=>{S.temp=+e.target.value;soon(render)};
   $('i-ratio').oninput=e=>{S.ratio=+e.target.value;soon(render)};
   $('i-bloom').oninput=e=>{S.bloom=+e.target.value;soon(render)};
+  $('i-steep').oninput=e=>{S.steep=+e.target.value;S.steepRec=S.rec;soon(render)};
   $('i-brewer').onchange=e=>{const nb=e.target.value;let g=S.grinder;if(!canGrind(g,nb)){g=capable(nb);toast(gname(S.grinder)+' can\u2019t grind for this brewer, switched to '+gname(g))}
     S.setting=canGrind(S.grinder,S.brewer)&&canGrind(g,nb)?convertSetting(S,g,nb):base(g,nb);S.grinder=g;S.brewer=nb;S.rec=null;S.tuned=null;
     if(S.bean&&S.bean.id)memApplyBrewer(S.bean.id,nb);
@@ -7173,7 +7191,7 @@ function quickLog(stars,notes,more){const r=TM.r||RECIPES[TM.idx],p=TM.p,fromDia
   else{const dz=p?p.r.dose:r.dose,w=p?p.water:r.water,t=p?p.temp:r.temp;e.settings=r.name+', '+dz+'g : '+w+'g'+(t?', '+t+'°C':'');e.brewer=r.b}
   const fl=notes.map(w=>{const n=tnLeaf(w);return n&&[n.id,3]}).filter(Boolean);for(const [id,v] of more||[])if(!fl.some(x=>x[0]===id))fl.push([id,v]);if(fl.length)e.fl=fl;
   const cb=e.snap&&e.snap.bean&&e.snap.bean.id,cid=cb&&lastCupFor(cb);if(cid){e.cup=cid;LAST_CUP=null}
-  if(GROUP)e.by=ME;LOG.unshift(e);save('bb-log',LOG);if(window.BEANS_OK)try{reschedule()}catch(x){}okBuzz();planRated(stars);
+  if(GROUP)e.by=ME;LOG.unshift(e);save('bb-log',LOG);wRefresh();if(window.BEANS_OK)try{reschedule()}catch(x){}okBuzz();planRated(stars);
   if(window.BEANS_OK){const gb=cb&&beanById(cb);if(gb&&!gb.tried){gb.tried=todayISO();saveBeans()}checkTrophies()}queue('put',e.id,e);renderLog();return e}
 // A thank-you to end on: the brew time against the recipe's, and a line to go with the cup.
 const TM_THANKS=['Enjoy it while it’s warm.','Take the first sip slowly: it changes as it cools.','Smell it before you sip. That’s half the flavour.','Good coffee, made by you.','Sit down with it. You earned this one.'];
@@ -8871,12 +8889,12 @@ $('l-save').onclick=()=>{const k=LEDIT?LOG.findIndex(x=>x.id===LEDIT):-1;
   if(k>=0){const o=LOG[k],u=Object.assign({},o,{beanId:LBEAN&&!(o.snap&&o.snap.bean&&o.snap.bean.id===LBEAN)?LBEAN:o.beanId,coffee:$('l-coffee').value.trim(),settings:$('l-settings').value.trim(),stars:STAR,pred:$('l-pred').value.trim(),notes:$('l-notes').value.trim(),brewer:$('l-settings').dataset.brewer||o.brewer||'',edited:Date.now()});
     if(LFL.length)u.fl=LFL.slice();else delete u.fl;
     if(!u.coffee&&!u.settings&&!u.notes&&!LFL.length){toast('Add a coffee name or some notes first');return}
-    LOG[k]=u;save('bb-log',LOG);if(window.BEANS_OK)checkTrophies();queue('put',u.id,u);endEdit();renderLog();toast(GROUP?'Brew updated and shared':'Brew updated');return}
+    LOG[k]=u;save('bb-log',LOG);wRefresh();if(window.BEANS_OK)checkTrophies();queue('put',u.id,u);endEdit();renderLog();toast(GROUP?'Brew updated and shared':'Brew updated');return}
   if(LEDIT)endEdit();
   const e={id:uid(),ts:Date.now(),date:new Date().toLocaleDateString(),coffee:$('l-coffee').value.trim(),settings:$('l-settings').value.trim(),stars:STAR,pred:$('l-pred').value.trim(),notes:$('l-notes').value.trim(),brewer:$('l-settings').dataset.brewer||''};if(LFL.length)e.fl=LFL.slice();if(LSNAP)e.snap=LSNAP;LSNAP=null;{const cb=(e.snap&&e.snap.bean&&e.snap.bean.id)||LBEAN,cid=cb&&lastCupFor(cb);if(cid){e.cup=cid;LAST_CUP=null}}
   if(LBEAN&&!(e.snap&&e.snap.bean&&e.snap.bean.id===LBEAN))e.beanId=LBEAN;
   if(GROUP)e.by=ME;
-  if(!e.coffee&&!e.settings&&!e.notes&&!LFL.length){toast('Add a coffee name or some notes first');return}LOG.unshift(e);save('bb-log',LOG);if(window.BEANS_OK)try{reschedule()}catch(x){}okBuzz();planRated(e.stars);if(window.BEANS_OK){
+  if(!e.coffee&&!e.settings&&!e.notes&&!LFL.length){toast('Add a coffee name or some notes first');return}LOG.unshift(e);save('bb-log',LOG);wRefresh();if(window.BEANS_OK)try{reschedule()}catch(x){}okBuzz();planRated(e.stars);if(window.BEANS_OK){
     // The first brew with a bag you hadn't tried yet is the day you tried it.
     const gid=(e.snap&&e.snap.bean&&e.snap.bean.id)||e.beanId,gb=gid&&beanById(gid);if(gb&&!gb.tried){gb.tried=todayISO();saveBeans()}checkTrophies()}queue('put',e.id,e);['l-coffee','l-settings','l-pred','l-notes'].forEach(id=>$(id).value='');delete $('l-settings').dataset.brewer;STAR=0;LFL=[];LBEAN=null;renderFlForm();renderStars();renderLBean();renderPred();renderLog();toastAct(GROUP?'Brew saved and shared':'Brew saved','Share it',()=>openShare(logEntryDoc(e)));beans()};
 // A logged brew made again: the timer on the same recipe with the same coffee, dose, water, grind and temperature.
@@ -8900,7 +8918,7 @@ $('l-list').onclick=e=>{const ag=e.target.closest('[data-again]');if(ag){const l
   if(fe){const l=LOG[+fe.dataset.fledit];if(l)openNotesPicker(l);return}
   if(fv){const l=LOG[+fv.dataset.flview];if(l)openProfile(l.coffee||'Untitled',[fmtDate(l),l.stars?l.stars+' of 5 beans':'',l.settings].filter(Boolean).join(' \u00B7 '),flOf(l),l);return}
   const b=e.target.closest('[data-del]');if(!b)return;const l=LOG[+b.dataset.del];if(!l)return;
-  const del=()=>{const i=LOG.indexOf(l);if(i<0)return -1;if(LEDIT===l.id)endEdit();LOG.splice(i,1);save('bb-log',LOG);if(window.BEANS_OK)checkTrophies();renderLog();return i};
+  const del=()=>{const i=LOG.indexOf(l);if(i<0)return -1;if(LEDIT===l.id)endEdit();LOG.splice(i,1);save('bb-log',LOG);wRefresh();if(window.BEANS_OK)checkTrophies();renderLog();return i};
   // Your own brew goes at once, with Undo (the shared log hears of it once Undo has passed). Someone else's entry in a
   // shared log is removed for everyone, so that still asks first.
   if(!(GROUP&&l.by&&l.by!==ME)){const i=del();if(i<0)return;
@@ -10429,7 +10447,7 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
      inl('bulb','#9A7390','Coffee fact of the day',LEARN.on?'<span class="st-at"><input type="time" id="st-ltime" class="st-time" value="'+LEARN.t+'" aria-label="Fact time"></span>':'',tg('st-learn',LEARN.on,'Coffee fact of the day'))+
      // The brew timer's notification: the app's own design, or Android 16's Live Update (the Now Bar and status chip),
      // which only takes Android's own layout.
-     (plugin('Widget')?inl('timer','#B5533C','Brew timer in the Now Bar','',tg('st-live',!!UI.live,'Brew timer in the Now Bar')):'')
+     (plugin('Widget')&&androidSdk()>=36?inl('timer','#B5533C','Brew timer in the Now Bar','',tg('st-live',!!UI.live,'Brew timer in the Now Bar')):'')
      :inl('bell','#8A5A3B','Coffee of the day','','<span class="st-tag">In the app</span>')+inl('bulb','#9A7390','Coffee fact of the day','','<span class="st-tag">In the app</span>'))+'</div>'+
    '<h3 class="rh">Your data</h3><div class="setgroup">'+inl('download','#8A5A3B','Back up and restore','<span id="st-lastbak">'+lastBakText()+'</span>',
      '<span class="st-acts">'+ib('ul','id="st-import"','Restore from a file')+ib('dl','id="st-export"','Back up now','main')+'</span><input type="file" id="st-file" accept="application/json,.json" hidden>')+'</div>'+
@@ -10452,6 +10470,15 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
   $('st-ltime')&&($('st-ltime').onchange=async e=>{if(/^\d\d:\d\d$/.test(e.target.value)){LEARN.t=e.target.value;save('bb-learn',LEARN);await scheduleFacts();toast('Your coffee fact arrives at '+LEARN.t)}});
   seg('st-start',[['dial','Brew'],['recipes','Recipes'],['beans','Beans'],['explore','Explore']],()=>UI.start,v=>{UI.start=v;saveUI();renderSettings(1);toast('The app will open on '+TABNAMES[v])});
 }
+// The phone's Android version (the Now Bar switch is only for Android 16 and later). Kept from the last start, so
+// Settings is right at once; asked again each start, and Settings redrawn if it changed.
+// The home-screen widgets after a brew is logged, changed or deleted: what's left in the bag (its ring) and the
+// shelf order move at once, not only when you leave the app. Once, shortly after, however many changes come together.
+function wRefresh(){clearTimeout(wRefresh.t);wRefresh.t=setTimeout(()=>{try{if(plugin('Widget')&&typeof updWidget==='function')updWidget()}catch(e){}},600)}
+let ANDROID_SDK=(()=>{try{return +localStorage.getItem('bb-sdk')||0}catch(e){return 0}})();
+function androidSdk(){return ANDROID_SDK}
+(()=>{const w=plugin('Widget');if(!w||!w.sdk)return;w.sdk().then(r=>{const v=+(r&&r.sdk)||0;if(!v||v===ANDROID_SDK)return;ANDROID_SDK=v;try{localStorage.setItem('bb-sdk',String(v))}catch(e){}
+  if($('settings')&&$('settings').classList.contains('on')){SET_H='';renderSettings()}}).catch(()=>{})})();
 // The switches: each flips at once, then does its work.
 const SET_SW={'st-resume':on=>{UI.resume=on?'keep':'fresh';saveUI();toast(on?'The app will remember your last scan and dial-in':'Scan and Brew will start fresh next time')},
   'st-views':on=>{UI.views=on?'keep':'reset';saveUI();toast(on?'Your sorts and filters will stay as you set them':'Lists will open in their default order next time')},
@@ -11492,8 +11519,10 @@ async function setReminder(on,t){const ln=LN();if(t)REMIND.t=t;
   const run=()=>{if(!pend)return;if(!NAV_READY){setTimeout(run,60);return}const n=pend;pend=null;try{go(n)}catch(e){}liftSplash()};
   try{ln.addListener('localNotificationActionPerformed',a=>{pend=a&&a.notification;run()})}catch(e){}
   if(REMIND.on)setTimeout(scheduleReminders,3000)})();
-// The opening scene lifts at once (two frames after the app has moved, so the new place is drawn under it).
-function liftSplash(){if(!document.documentElement.classList.contains('splashing')||!window.bbSplashEnd)return;requestAnimationFrame(()=>requestAnimationFrame(()=>window.bbSplashEnd()))}
+// The opening scene lifts at once onto the place the app moved to.
+function liftSplash(){if(!document.documentElement.classList.contains('splashing')||!window.bbSplashEnd)return;let n=0;
+  // Only once the place it went to is showing (a page switch can take a few frames on a slow phone), and drawn.
+  const f=()=>{if(document.querySelector('main section.on')||++n>45)requestAnimationFrame(()=>requestAnimationFrame(()=>window.bbSplashEnd()));else requestAnimationFrame(f)};requestAnimationFrame(f)}
 // The home-screen widget (Android, see BrewWidget.java): the coffee you're drinking, meaning the cabinet coffee you
 // brewed most recently (or added most recently, before any brews), sent when the app starts and each time you leave
 // it. The widget works out the day's freshness itself from the roast date and window. Tapping it opens that coffee;
@@ -11502,6 +11531,9 @@ function liftSplash(){if(!document.documentElement.classList.contains('splashing
 const wPinned=()=>{try{return localStorage.getItem('bb-wbean')||''}catch(e){return''}};
 function widgetBean(){const sh=BEANS.filter(b=>b.shelf);if(!sh.length)return null;const pin=sh.find(b=>b.id===wPinned());if(pin)return pin;const last=b=>beanBrews(b).reduce((m,l)=>Math.max(m,+l.ts||0),0);
   return sh.map(b=>[b,last(b)]).sort((a,c)=>c[1]-a[1]||(+c[0].ts||0)-(+a[0].ts||0))[0][0]}
+// The roast date the widgets count from: a frozen bag's days in the freezer don't count (its freshness was on hold),
+// so the date moves on by them, and the widget's "Day 12 · At its peak" matches the app's.
+const wRoast=b=>{if(!b.roastDate)return'';const z=b.frz?frozenDays(b):0;return z?new Date(Date.parse(b.roastDate+'T12:00')+z*864e5).toISOString().slice(0,10):b.roastDate};
 const wLeft=b=>{const c=cupsLeft(b);return c==null?'':c?c+(c===1?' cup left':' cups left'):'Bag empty'};
 // The other widgets: Your cabinet (up to four shelf coffees, most recently brewed first), Quick brew (the recipe you've
 // brewed most in the last two months, else the last one opened) and Coffee word of the day (the coming six weeks'
@@ -11511,7 +11543,7 @@ const wCups=b=>{const c=cupsLeft(b);return c==null?'':c?c+(c===1?' cup':' cups')
 // In the shelf card's order (the bags you've started first, the most used at the top), each with what its row on the
 // card shows: roastery and origin, your rating, and what's left in the bag for its ring.
 function widgetCabinet(){return shelfOrder().slice(0,30).map(b=>{const g=gramsLeft(b);
-  return{id:b.id,title:beanTitle(b),sub:[b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '),roastDate:b.roastDate||'',win:freshWin(b).w.join(','),cups:wCups(b),
+  return{id:b.id,title:beanTitle(b),sub:[b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '),roastDate:wRoast(b),win:freshWin(b).w.join(','),cups:wCups(b),
     flag:isBlend(b)?BLEND_O.flag:b.origin?flagOf(b.origin):'',rating:+b.rating||0,g:g!=null?Math.round(g):-1,bag:+b.bag||0}})}
 // A widget's colours: the share cards' own, in the style you chose for them (dark or light, the origin's colours or one
 // of the app's), worked out as the card would be and handed to the widget, which draws itself in them.
@@ -11540,8 +11572,8 @@ function widgetWords(){const d0=Math.floor(Date.now()/864e5),out=[];for(let d=d0
 async function updWidget(){const w=plugin('Widget');if(!w)return;try{const b=widgetBean();let rc={},photo='';try{rc=widgetRecipe()}catch(e){}
   if(b&&b.img)try{const t=await BIMG.thumb(b.id);if(t)photo=await shrinkPhoto(t,192)}catch(e){}
   w.update(Object.assign(b?{id:b.id,title:beanTitle(b),sub:[b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '),flag:b.origin?flagOf(b.origin):'',photo,
-    roastDate:b.roastDate||'',win:freshWin(b).w.join(','),left:wLeft(b),rating:String(+b.rating||0),g:String((g=>g!=null?Math.round(g):-1)(gramsLeft(b))),bag:String(+b.bag||0),roaster:b.roaster||'',origin:b.origin?originName(b.origin):''}:{id:''},
-    {theme:JSON.stringify(widgetTheme(b&&b.origin)||{}),shelfTheme:JSON.stringify(widgetTheme((shelfOrder()[0]||{}).origin)||{}),shelfStats:JSON.stringify(widgetShelfStats())},{cabinet:JSON.stringify(await (async()=>{const l=widgetCabinet();for(const x of l.slice(0,6))x.ph=await widgetThumb(beanById(x.id));return l})()),brew:JSON.stringify(rc.key&&b?Object.assign({},rc,{bean:{id:b.id,title:beanTitle(b),flag:isBlend(b)?BLEND_O.flag:b.origin?flagOf(b.origin):'',ph:await widgetThumb(b)}}):rc),words:JSON.stringify(widgetWords()),passport:JSON.stringify(widgetPassport())})).catch(()=>{})}catch(e){}}
+    roastDate:wRoast(b),win:freshWin(b).w.join(','),left:wLeft(b),rating:String(+b.rating||0),g:String((g=>g!=null?Math.round(g):-1)(gramsLeft(b))),bag:String(+b.bag||0),roaster:b.roaster||'',origin:b.origin?originName(b.origin):''}:{id:''},
+    {theme:JSON.stringify(widgetTheme(b&&b.origin)||{}),shelfTheme:JSON.stringify(widgetTheme((shelfOrder()[0]||{}).origin)||{}),homeTheme:JSON.stringify(widgetTheme(null)||{}),shelfStats:JSON.stringify(widgetShelfStats())},{cabinet:JSON.stringify(await (async()=>{const l=widgetCabinet();for(const x of l.slice(0,6))x.ph=await widgetThumb(beanById(x.id));return l})()),brew:JSON.stringify(rc.key&&b?Object.assign({},rc,{bean:{id:b.id,title:beanTitle(b),flag:isBlend(b)?BLEND_O.flag:b.origin?flagOf(b.origin):'',ph:await widgetThumb(b)}}):rc),words:JSON.stringify(widgetWords()),passport:JSON.stringify(widgetPassport())})).catch(()=>{})}catch(e){}}
 (()=>{const W=!!plugin('Widget');if(W){setTimeout(updWidget,2500);document.addEventListener('visibilitychange',()=>{if(document.hidden)updWidget()})}
   const go=o=>{const [k,id]=String(o||'').split(':');
     // The brew timer's notification or widget: back to the timer as it is (reopened where the brew is if it was closed).
@@ -11563,6 +11595,8 @@ async function updWidget(){const w=plugin('Widget');if(!w)return;try{const b=wid
     // From the icon's long-press shortcuts: a brew (your go-to recipe's timer, else the dial-in), a scan, the log.
     if(k==='brew'){const rc=widgetRecipe(),i=rc&&rc.key?rByKey(rc.key):-1;if(i>=0){showTab('recipes');openTimer(i)}else showTab('dial');return}
     if(k==='scan'){showTab('scan');try{newScan()}catch(e){}scrollTo(0,0);return}
+    // The shelf widget's heading: your shelf, at the top of Coffees.
+    if(k==='shelf'){showTab('beans');if(BVIEW!=='coffees'){bvStep(BVIEW,'coffees');BVIEW='coffees';renderBeanViews()}scrollTo(0,0);return}
     if(k==='passport'){showTab('beans');bvStep(BVIEW,'passport');BVIEW='passport';BDIRTY.add('passport');renderBeanViews();setTimeout(()=>{const e=$('bv-passport');if(e)e.scrollIntoView({block:'start'})},80);return}
     if(k==='word'&&GBY[rest]){openWord(rest);return}
     if(k==='word'||k==='explore'){goTab('explore');return}

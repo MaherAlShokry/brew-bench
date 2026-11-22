@@ -714,8 +714,8 @@ function renderFit(){const el=$('g-fit'),f=cupFit();
 function tune(msg){if(!dialRec())return;const p=plan(dialCtx());Object.assign(S,p.st);{const B=BREWERS[S.brewer];S.temp=clamp(S.temp,B.temp.min,B.temp.max);S.bloom=clamp(S.bloom,B.bloom.min,B.bloom.max)}S.tuned=Object.fromEntries(TUNED_KEYS.map(k=>[k,S[k]]));render();if(msg)toast(msg)}
 // Inputs that change the plan re-tune while you haven't moved the sliders yourself.
 function retuneIfAuto(msg){if(dialRec()&&(isTuned()||!S.tuned))tune(msg);else render()}
-function dialPlan(){const r=dialRec();if(!r)return null;const p=plan(dialCtx()),water=+gfmt(S.dose*S.ratio),ps=planSteps(r,S.dose,water,S.goal),bl=BREWERS[S.brewer].bloom.label==='Bloom'?bloomShift(ps.steps,S.bloom):{steps:ps.steps};
-  const st=stepsAtTemp(bl.steps,r.temp,S.temp);return{r,p,water,steps:st,changes:bl.note?[...ps.changes,bl.note]:ps.changes}}
+function dialPlan(){const r=dialRec();if(!r)return null;const p=plan(dialCtx()),water=+gfmt(S.dose*S.ratio),ps=planSteps(r,S.dose,water,S.goal),bl=BREWERS[S.brewer].bloom.label==='Bloom'?bloomShift(ps.steps,S.bloom):{steps:ps.steps},sp=steepShift(bl.steps,steepFor(r));
+  const st=stepsAtTemp(sp.steps,r.temp,S.temp);return{r,p,water,steps:st,changes:[...ps.changes,...(bl.note?[bl.note]:[]),...(sp.note?[sp.note]:[])]}}
 // The water temperature written into a recipe's steps ("pour 30 g at 96°C") follows the temperature you brew at, so the
 // steps, the timer and the brew card agree with the settings. A second temperature (a recipe that cools part way) stays.
 function stepsAtTemp(steps,rt,t){if(!rt||!t||rt===t)return steps;const re=new RegExp('\\b'+rt+'(\\s*°\\s*C)','g');return steps.map(x=>String(x).replace(re,t+'$1'))}
@@ -737,6 +737,18 @@ function bloomShift(steps,bloom){const at=bloomAt(steps),fmt=v=>Math.floor(v/60)
   const d=Math.max(Math.round(bloom),at.mid+10)-at.t;if(!d)return{steps};
   return{steps:steps.map((s,i)=>{const v=tOf(s);return i>=at.i&&v!=null?s.replace(/^(\s*)\d+:\d\d/,'$1'+fmt(Math.max(0,v+d))):s}),
     note:'Bloom '+(at.t+d)+' s (the recipe says '+at.t+' s): the next pours move '+Math.abs(d)+' s '+(d>0?'later':'earlier')+'.'}}
+// A steep: from a recipe's "let it steep" step to the next timed step, the one that ends it (open the valve, press,
+// stir the crust, set it on the cup). Your steep sets that step and moves every one after it by the difference, as the
+// bloom moves the pours; the recipe's own steep is the default. Waits that aren't the steep ("wait for the fines") don't
+// count. Null for a recipe without one.
+function steepAt(steps){steps=steps||[];for(let i=0;i<steps.length;i++){const a=tOf(steps[i]);if(a==null||stepKind(steps[i])!=='steep'||!/steep/i.test(steps[i]))continue;
+    for(let j=i+1;j<steps.length;j++){const b=tOf(steps[j]);if(b==null)return null;if(b>a)return{i:j,start:a,end:b}}return null}return null}
+// The steep you set, for the recipe it was set for (a new recipe starts from its own).
+const steepFor=r=>S.steep>0&&S.steepRec===S.rec?S.steep:0;
+function steepShift(steps,sec){const at=steepAt(steps),fmt=v=>Math.floor(v/60)+':'+String(v%60).padStart(2,'0');if(!(sec>0)||!at)return{steps};
+  const own=at.end-at.start,d=Math.max(Math.round(sec),10)-own;if(!d)return{steps};
+  return{steps:steps.map((s,i)=>{const v=tOf(s);return i>=at.i&&v!=null?s.replace(/^(\s*)\d+:\d\d/,'$1'+fmt(Math.max(0,v+d))):s}),
+    note:'Steep '+fmt(own+d)+' (the recipe says '+fmt(own)+'): the steps after it move '+Math.abs(d)+' s '+(d>0?'later':'earlier')+'.'}}
 function renderDialRecipe(){const tl=techList(S.brewer),r=dialRec();
   const opts='<option value="">No recipe: dial in freely</option>'+tl.map(([x,i])=>'<option value="'+i+'">'+esc(x.name)+(x.b!==S.brewer&&sameFam(x.b,S.brewer)&&!TWIN[x.b]&&!TWIN[S.brewer]?' (for the '+BSHORT[x.b]+')':'')+(x.champ?' (champion)':'')+'</option>').join('');
   if($('i-rec').dataset.k!==S.brewer+'|'+tl.length){$('i-rec').innerHTML=opts;$('i-rec').dataset.k=S.brewer+'|'+tl.length}
@@ -846,7 +858,11 @@ function render(){schedulePreCard();
   const r=compute(S);
   const ti=$('i-temp');ti.min=B.temp.min;ti.max=B.temp.max;ti.value=S.temp;$('v-temp').textContent=S.temp+'°C';
   const ri=$('i-ratio');ri.min=Math.min(B.ratio.min,S.ratio);ri.max=Math.max(B.ratio.max,S.ratio);ri.step=B.ratio.step;ri.value=S.ratio;$('v-ratio').textContent='1:'+rr1(S.ratio);
-  {const r=dialRec();$('i-bloom').closest('.field').hidden=!!(r&&B.bloom.label==='Bloom'&&recBloom(r)==null)}const bi=$('i-bloom');bi.min=B.bloom.min;bi.max=B.bloom.max;bi.step=B.bloom.max<=20?1:5;bi.value=S.bloom;$('v-bloom').textContent=S.bloom+'s';
+  {const r=dialRec();$('i-bloom').closest('.field').hidden=!!(r&&B.bloom.label==='Bloom'&&recBloom(r)==null)}{// The steep slider: for a recipe with a steep, from half its own to twice it (fifteen-second steps for long ones).
+    const r=dialRec(),at=r&&steepAt(planSteps(r,S.dose,+gfmt(S.dose*S.ratio),S.goal).steps),f=$('i-steep').closest('.field');f.hidden=!at;
+    if(at){const own=at.end-at.start,st=own>=180?15:5,si=$('i-steep'),v=steepFor(r)||own,mm=x=>Math.floor(x/60)+':'+String(x%60).padStart(2,'0');
+      si.min=Math.max(10,Math.round(own*.5/st)*st);si.max=Math.max(+si.min+st,Math.round(own*2/st)*st);si.step=st;si.value=v;$('v-steep').textContent=mm(Math.round(v))}}
+  const bi=$('i-bloom');bi.min=B.bloom.min;bi.max=B.bloom.max;bi.step=B.bloom.max<=20?1:5;bi.value=S.bloom;$('v-bloom').textContent=S.bloom+'s';
   document.querySelector('label[for="i-bloom"]').firstChild.textContent=B.bloom.label+' ';
   renderDialRecipe();renderDBean();
   $('i-brewer').value=S.brewer;$('i-process').value=S.process;$('i-variety').value=S.variety.split(':')[0];$('i-region').value=S.region;$('i-age').value=S.age;$('v-age').textContent=S.age+' days';
@@ -919,6 +935,7 @@ function initDial(){
   $('i-temp').oninput=e=>{S.temp=+e.target.value;soon(render)};
   $('i-ratio').oninput=e=>{S.ratio=+e.target.value;soon(render)};
   $('i-bloom').oninput=e=>{S.bloom=+e.target.value;soon(render)};
+  $('i-steep').oninput=e=>{S.steep=+e.target.value;S.steepRec=S.rec;soon(render)};
   $('i-brewer').onchange=e=>{const nb=e.target.value;let g=S.grinder;if(!canGrind(g,nb)){g=capable(nb);toast(gname(S.grinder)+' can\u2019t grind for this brewer, switched to '+gname(g))}
     S.setting=canGrind(S.grinder,S.brewer)&&canGrind(g,nb)?convertSetting(S,g,nb):base(g,nb);S.grinder=g;S.brewer=nb;S.rec=null;S.tuned=null;
     if(S.bean&&S.bean.id)memApplyBrewer(S.bean.id,nb);
@@ -1218,7 +1235,7 @@ function quickLog(stars,notes,more){const r=TM.r||RECIPES[TM.idx],p=TM.p,fromDia
   else{const dz=p?p.r.dose:r.dose,w=p?p.water:r.water,t=p?p.temp:r.temp;e.settings=r.name+', '+dz+'g : '+w+'g'+(t?', '+t+'°C':'');e.brewer=r.b}
   const fl=notes.map(w=>{const n=tnLeaf(w);return n&&[n.id,3]}).filter(Boolean);for(const [id,v] of more||[])if(!fl.some(x=>x[0]===id))fl.push([id,v]);if(fl.length)e.fl=fl;
   const cb=e.snap&&e.snap.bean&&e.snap.bean.id,cid=cb&&lastCupFor(cb);if(cid){e.cup=cid;LAST_CUP=null}
-  if(GROUP)e.by=ME;LOG.unshift(e);save('bb-log',LOG);if(window.BEANS_OK)try{reschedule()}catch(x){}okBuzz();planRated(stars);
+  if(GROUP)e.by=ME;LOG.unshift(e);save('bb-log',LOG);wRefresh();if(window.BEANS_OK)try{reschedule()}catch(x){}okBuzz();planRated(stars);
   if(window.BEANS_OK){const gb=cb&&beanById(cb);if(gb&&!gb.tried){gb.tried=todayISO();saveBeans()}checkTrophies()}queue('put',e.id,e);renderLog();return e}
 // A thank-you to end on: the brew time against the recipe's, and a line to go with the cup.
 const TM_THANKS=['Enjoy it while it’s warm.','Take the first sip slowly: it changes as it cools.','Smell it before you sip. That’s half the flavour.','Good coffee, made by you.','Sit down with it. You earned this one.'];
@@ -2916,12 +2933,12 @@ $('l-save').onclick=()=>{const k=LEDIT?LOG.findIndex(x=>x.id===LEDIT):-1;
   if(k>=0){const o=LOG[k],u=Object.assign({},o,{beanId:LBEAN&&!(o.snap&&o.snap.bean&&o.snap.bean.id===LBEAN)?LBEAN:o.beanId,coffee:$('l-coffee').value.trim(),settings:$('l-settings').value.trim(),stars:STAR,pred:$('l-pred').value.trim(),notes:$('l-notes').value.trim(),brewer:$('l-settings').dataset.brewer||o.brewer||'',edited:Date.now()});
     if(LFL.length)u.fl=LFL.slice();else delete u.fl;
     if(!u.coffee&&!u.settings&&!u.notes&&!LFL.length){toast('Add a coffee name or some notes first');return}
-    LOG[k]=u;save('bb-log',LOG);if(window.BEANS_OK)checkTrophies();queue('put',u.id,u);endEdit();renderLog();toast(GROUP?'Brew updated and shared':'Brew updated');return}
+    LOG[k]=u;save('bb-log',LOG);wRefresh();if(window.BEANS_OK)checkTrophies();queue('put',u.id,u);endEdit();renderLog();toast(GROUP?'Brew updated and shared':'Brew updated');return}
   if(LEDIT)endEdit();
   const e={id:uid(),ts:Date.now(),date:new Date().toLocaleDateString(),coffee:$('l-coffee').value.trim(),settings:$('l-settings').value.trim(),stars:STAR,pred:$('l-pred').value.trim(),notes:$('l-notes').value.trim(),brewer:$('l-settings').dataset.brewer||''};if(LFL.length)e.fl=LFL.slice();if(LSNAP)e.snap=LSNAP;LSNAP=null;{const cb=(e.snap&&e.snap.bean&&e.snap.bean.id)||LBEAN,cid=cb&&lastCupFor(cb);if(cid){e.cup=cid;LAST_CUP=null}}
   if(LBEAN&&!(e.snap&&e.snap.bean&&e.snap.bean.id===LBEAN))e.beanId=LBEAN;
   if(GROUP)e.by=ME;
-  if(!e.coffee&&!e.settings&&!e.notes&&!LFL.length){toast('Add a coffee name or some notes first');return}LOG.unshift(e);save('bb-log',LOG);if(window.BEANS_OK)try{reschedule()}catch(x){}okBuzz();planRated(e.stars);if(window.BEANS_OK){
+  if(!e.coffee&&!e.settings&&!e.notes&&!LFL.length){toast('Add a coffee name or some notes first');return}LOG.unshift(e);save('bb-log',LOG);wRefresh();if(window.BEANS_OK)try{reschedule()}catch(x){}okBuzz();planRated(e.stars);if(window.BEANS_OK){
     // The first brew with a bag you hadn't tried yet is the day you tried it.
     const gid=(e.snap&&e.snap.bean&&e.snap.bean.id)||e.beanId,gb=gid&&beanById(gid);if(gb&&!gb.tried){gb.tried=todayISO();saveBeans()}checkTrophies()}queue('put',e.id,e);['l-coffee','l-settings','l-pred','l-notes'].forEach(id=>$(id).value='');delete $('l-settings').dataset.brewer;STAR=0;LFL=[];LBEAN=null;renderFlForm();renderStars();renderLBean();renderPred();renderLog();toastAct(GROUP?'Brew saved and shared':'Brew saved','Share it',()=>openShare(logEntryDoc(e)));beans()};
 // A logged brew made again: the timer on the same recipe with the same coffee, dose, water, grind and temperature.
@@ -2945,7 +2962,7 @@ $('l-list').onclick=e=>{const ag=e.target.closest('[data-again]');if(ag){const l
   if(fe){const l=LOG[+fe.dataset.fledit];if(l)openNotesPicker(l);return}
   if(fv){const l=LOG[+fv.dataset.flview];if(l)openProfile(l.coffee||'Untitled',[fmtDate(l),l.stars?l.stars+' of 5 beans':'',l.settings].filter(Boolean).join(' \u00B7 '),flOf(l),l);return}
   const b=e.target.closest('[data-del]');if(!b)return;const l=LOG[+b.dataset.del];if(!l)return;
-  const del=()=>{const i=LOG.indexOf(l);if(i<0)return -1;if(LEDIT===l.id)endEdit();LOG.splice(i,1);save('bb-log',LOG);if(window.BEANS_OK)checkTrophies();renderLog();return i};
+  const del=()=>{const i=LOG.indexOf(l);if(i<0)return -1;if(LEDIT===l.id)endEdit();LOG.splice(i,1);save('bb-log',LOG);wRefresh();if(window.BEANS_OK)checkTrophies();renderLog();return i};
   // Your own brew goes at once, with Undo (the shared log hears of it once Undo has passed). Someone else's entry in a
   // shared log is removed for everyone, so that still asks first.
   if(!(GROUP&&l.by&&l.by!==ME)){const i=del();if(i<0)return;
@@ -4474,7 +4491,7 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
      inl('bulb','#9A7390','Coffee fact of the day',LEARN.on?'<span class="st-at"><input type="time" id="st-ltime" class="st-time" value="'+LEARN.t+'" aria-label="Fact time"></span>':'',tg('st-learn',LEARN.on,'Coffee fact of the day'))+
      // The brew timer's notification: the app's own design, or Android 16's Live Update (the Now Bar and status chip),
      // which only takes Android's own layout.
-     (plugin('Widget')?inl('timer','#B5533C','Brew timer in the Now Bar','',tg('st-live',!!UI.live,'Brew timer in the Now Bar')):'')
+     (plugin('Widget')&&androidSdk()>=36?inl('timer','#B5533C','Brew timer in the Now Bar','',tg('st-live',!!UI.live,'Brew timer in the Now Bar')):'')
      :inl('bell','#8A5A3B','Coffee of the day','','<span class="st-tag">In the app</span>')+inl('bulb','#9A7390','Coffee fact of the day','','<span class="st-tag">In the app</span>'))+'</div>'+
    '<h3 class="rh">Your data</h3><div class="setgroup">'+inl('download','#8A5A3B','Back up and restore','<span id="st-lastbak">'+lastBakText()+'</span>',
      '<span class="st-acts">'+ib('ul','id="st-import"','Restore from a file')+ib('dl','id="st-export"','Back up now','main')+'</span><input type="file" id="st-file" accept="application/json,.json" hidden>')+'</div>'+
@@ -4497,6 +4514,15 @@ function renderSettings(soft){const t=document.documentElement.getAttribute('dat
   $('st-ltime')&&($('st-ltime').onchange=async e=>{if(/^\d\d:\d\d$/.test(e.target.value)){LEARN.t=e.target.value;save('bb-learn',LEARN);await scheduleFacts();toast('Your coffee fact arrives at '+LEARN.t)}});
   seg('st-start',[['dial','Brew'],['recipes','Recipes'],['beans','Beans'],['explore','Explore']],()=>UI.start,v=>{UI.start=v;saveUI();renderSettings(1);toast('The app will open on '+TABNAMES[v])});
 }
+// The phone's Android version (the Now Bar switch is only for Android 16 and later). Kept from the last start, so
+// Settings is right at once; asked again each start, and Settings redrawn if it changed.
+// The home-screen widgets after a brew is logged, changed or deleted: what's left in the bag (its ring) and the
+// shelf order move at once, not only when you leave the app. Once, shortly after, however many changes come together.
+function wRefresh(){clearTimeout(wRefresh.t);wRefresh.t=setTimeout(()=>{try{if(plugin('Widget')&&typeof updWidget==='function')updWidget()}catch(e){}},600)}
+let ANDROID_SDK=(()=>{try{return +localStorage.getItem('bb-sdk')||0}catch(e){return 0}})();
+function androidSdk(){return ANDROID_SDK}
+(()=>{const w=plugin('Widget');if(!w||!w.sdk)return;w.sdk().then(r=>{const v=+(r&&r.sdk)||0;if(!v||v===ANDROID_SDK)return;ANDROID_SDK=v;try{localStorage.setItem('bb-sdk',String(v))}catch(e){}
+  if($('settings')&&$('settings').classList.contains('on')){SET_H='';renderSettings()}}).catch(()=>{})})();
 // The switches: each flips at once, then does its work.
 const SET_SW={'st-resume':on=>{UI.resume=on?'keep':'fresh';saveUI();toast(on?'The app will remember your last scan and dial-in':'Scan and Brew will start fresh next time')},
   'st-views':on=>{UI.views=on?'keep':'reset';saveUI();toast(on?'Your sorts and filters will stay as you set them':'Lists will open in their default order next time')},

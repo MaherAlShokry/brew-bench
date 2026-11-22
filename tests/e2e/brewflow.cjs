@@ -42,4 +42,17 @@ const bl=await p.evaluate(()=>{const out={};for(const [k,name,b] of [['v60','The
 ok('the bloom moves the timer\'s steps (a recipe with setup steps, a closed-valve bloom, an AeroPress)',bl.v60.moved&&bl.kh2.moved&&bl.inv.moved,bl);
 ok('…and a wait inside the bloom stays put',bl.kh2.c.some(s=>/^0:10 let it bloom/.test(s))&&bl.kh2.c.some(s=>/^1:15 OPEN the valve/.test(s)),bl.kh2.c);
 ok('a recipe with no bloom hides the bloom slider',bl.fp.hidden&&!bl.v60.hidden,bl);
+const sp=await p.evaluate(async()=>{const out={};
+  // The Classic 4-minute press: its steep runs from 0:15 to the plunge at 4:00.
+  S.brewer='frenchpress';loadRecipe(RECIPES.findIndex(x=>x.name==='Classic 4-minute press'));S.steep=0;render();
+  const f=$('i-steep').closest('.field');out.shown=!f.hidden;out.own=$('v-steep').textContent;
+  const si=$('i-steep');si.value=300;si.dispatchEvent(new Event('input'));await new Promise(r=>setTimeout(r,250));
+  out.steps=dialPlan().steps;out.label=$('v-steep').textContent;dialTimer();out.timer=TM.ev.map(e=>e.t);$('timer').close&&$('timer').close();
+  // Another recipe starts from its own steep; a V60 has none.
+  S.brewer='sw';loadRecipe(RECIPES.findIndex(x=>x.kind==='kh2'));render();out.kh2=(a=>a?a.end-a.start:0)(steepAt(dialPlan().steps));
+  S.brewer='v60';loadRecipe(0);render();out.v60=$('i-steep').closest('.field').hidden;return out});
+ok('a steep recipe has a steep slider, at its own steep',sp.shown&&sp.own==='3:45',sp);
+ok('moving it moves the end of the steep and the steps after it',sp.steps.some(x=>/^5:15 plunge/.test(x))&&sp.steps.some(x=>/^5:30 pour/.test(x))&&sp.label==='5:00',sp.steps);
+ok('…in the timer too',sp.timer.includes(315),sp.timer);
+ok('another recipe keeps its own steep, and a V60 has no steep slider',sp.kh2===25&&sp.v60,sp);
 ok('no page errors',!errs.length,errs);await b.close()})();

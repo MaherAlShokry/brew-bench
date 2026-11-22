@@ -352,8 +352,25 @@ final class BrewTimer {
                 if (Build.VERSION.SDK_INT >= 36 && pause) b.setShortCriticalText("Paused");
             }
         }
+        // Android drops an app's notification updates that come too fast (past about five a second), so a quick Next,
+        // Pause or Stop could leave an old step showing. Updates closer than a quarter second apart wait for that
+        // quarter second instead, and then show the brew as it is by then: the last change always lands.
+        long t = android.os.SystemClock.uptimeMillis(), since = t - LAST_POST;
+        if (since < POST_GAP) {
+            LAST_SIG = null;
+            REPOST_CTX = ctx.getApplicationContext();
+            H.removeCallbacks(REPOST);
+            H.postDelayed(REPOST, POST_GAP - since + 20);
+            return;
+        }
+        LAST_POST = t;
         nm.notify(NOTE_ID, b.build());
     }
+
+    private static final long POST_GAP = 250;
+    private static long LAST_POST = 0;
+    private static Context REPOST_CTX = null;
+    private static final Runnable REPOST = () -> { if (REPOST_CTX != null) note(REPOST_CTX, read(REPOST_CTX), System.currentTimeMillis()); };
 
     /** "OPEN the valve" reads as "Open the valve": capitals that shout in the app read oddly in a notification. */
     static String calm(String t) {

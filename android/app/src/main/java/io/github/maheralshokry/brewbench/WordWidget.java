@@ -4,11 +4,7 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.RemoteViews;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 import org.json.JSONArray;
 
 /**
@@ -21,13 +17,17 @@ import org.json.JSONArray;
 public class WordWidget extends AppWidgetProvider {
     @Override
     public void onUpdate(Context ctx, AppWidgetManager m, int[] ids) {
-        for (int id : ids) BrewWidget.push(ctx, m, id, WordWidget::views);
+        for (int id : ids) BrewWidget.pushSized(ctx, m, id, WordWidget::views);
     }
 
     @Override
     public void onAppWidgetOptionsChanged(Context ctx, AppWidgetManager m, int id, Bundle o) { onUpdate(ctx, m, new int[] {id}); }
 
-    static RemoteViews views(Context ctx, int h) {
+    /** For a size given only by its height (a widget picture in a test): a typical width for it. */
+    static RemoteViews views(Context ctx, int h) { return views(ctx, 250, h); }
+
+    /** Today's word, drawn whole in the shelf card's look (the house colours) by WidgetArt.word. */
+    static RemoteViews views(Context ctx, int w, int h) {
         RemoteViews v = new RemoteViews(ctx.getPackageName(), R.layout.widget_word);
         String word = "", text = "", cat = "";
         try {
@@ -35,34 +35,14 @@ public class WordWidget extends AppWidgetProvider {
             // The day number as the app counts it: whole days since 1 January 1970 (UTC).
             long today = System.currentTimeMillis() / 86400000L;
             JSONArray pick = null;
-            for (int i = 0; i < list.length(); i++) { JSONArray w = list.optJSONArray(i); if (w != null && w.optLong(0) <= today) pick = w; }
+            for (int i = 0; i < list.length(); i++) { JSONArray e = list.optJSONArray(i); if (e != null && e.optLong(0) <= today) pick = e; }
             if (pick == null && list.length() > 0) pick = list.optJSONArray(0);
             if (pick != null) { word = pick.optString(1, ""); text = pick.optString(2, ""); cat = pick.optString(3, ""); }
         } catch (Exception ignored) { }
-        boolean small = h < 130;
-        v.setViewVisibility(R.id.wd_head, h < 100 ? View.GONE : View.VISIBLE);
-        v.setViewVisibility(R.id.wd_rule, small ? View.GONE : View.VISIBLE);
-        v.setViewVisibility(R.id.wd_foot, small || cat.isEmpty() && word.isEmpty() ? View.GONE : View.VISIBLE);
-        v.setTextViewText(R.id.wd_date, new SimpleDateFormat("EEE d MMM", Locale.getDefault()).format(new Date()));
-        int col = catColor(cat);
-        v.setInt(R.id.wd_dot, "setColorFilter", col);
-        v.setInt(R.id.wd_rule, "setColorFilter", col);
-        v.setTextViewText(R.id.wd_mark, word.isEmpty() ? "" : word.substring(0, 1).toUpperCase(Locale.ROOT));
-        v.setViewVisibility(R.id.wd_mark, h < 120 ? View.GONE : View.VISIBLE);
-        // As many lines of the meaning as the height holds, the rest ending in an ellipsis.
-        int lines = Math.max(1, (h - (small ? 64 : 136)) / 20);
-        v.setInt(R.id.wd_text, "setMaxLines", lines);
-        if (word.isEmpty()) {
-            v.setTextViewText(R.id.wd_word, "Open Brew Bench");
-            v.setTextViewText(R.id.wd_text, "Today's coffee word appears here.");
-            v.setViewVisibility(R.id.wd_foot, View.GONE);
-            v.setOnClickPendingIntent(R.id.wd_root, BrewWidget.open(ctx, "explore", 30));
-            return v;
-        }
-        v.setTextViewText(R.id.wd_word, word);
-        v.setTextViewText(R.id.wd_text, text);
-        v.setTextViewText(R.id.wd_cat, cat.isEmpty() ? "Coffee words" : cat);
-        v.setOnClickPendingIntent(R.id.wd_root, BrewWidget.open(ctx, "word:" + word, 30));
+        ShelfArt.Theme t = ShelfArt.Theme.of(BrewWidget.prefs(ctx).getString("homeTheme", ""));
+        try { v.setImageViewBitmap(R.id.wd_art, WidgetArt.word(ctx, t, word, text, cat, catColor(cat), Math.max(110, w), Math.max(48, h))); } catch (Exception ignored) { }
+        v.setContentDescription(R.id.wd_art, word.isEmpty() ? "Coffee word of the day" : "Word of the day: " + word + ". " + text);
+        v.setOnClickPendingIntent(R.id.wd_root, BrewWidget.open(ctx, word.isEmpty() ? "explore" : "word:" + word, 30));
         return v;
     }
 

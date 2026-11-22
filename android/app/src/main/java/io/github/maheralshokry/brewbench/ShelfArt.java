@@ -41,6 +41,7 @@ final class ShelfArt {
     static final float LOG_IN = 22, LOG_R = 14;
 
     static final int[] FRESH = {0xFF8FB3D6, 0xFF7CC48A, 0xFFE2B866, 0xFFD08A6A};
+    static final String[] SHORT = {"Resting", "Peak", "Lovely", "Fading"};
 
     /** The card's colours. */
     static final class Theme {
@@ -146,11 +147,14 @@ final class ShelfArt {
         bean(c, PAD + 6, PAD + 6, 13, t.acc, t.bg0);
         Paint p = text(t.acc, 10.5f, 800);
         p.setLetterSpacing(.14f);
-        c.drawText(label.toUpperCase(Locale.ROOT), PAD + 18, PAD + 10, p);
+        String lab = label.toUpperCase(Locale.ROOT);
+        c.drawText(lab, PAD + 18, PAD + 10, p);
         if (right != null && !right.isEmpty()) {
             Paint r = text(t.muted(), 11, 500);
             r.setTextAlign(Paint.Align.RIGHT);
-            c.drawText(right, w - PAD, PAD + 10, r);
+            // What's on the right gives way to the label: cut to the room left beside it.
+            float room = w - PAD - (PAD + 18 + p.measureText(lab) + 12);
+            if (room > 24) c.drawText(fit(r, right, room), w - PAD, PAD + 10, r);
         }
         rule(c, t, PAD, PAD + 19, w - PAD);
     }
@@ -291,6 +295,8 @@ final class ShelfArt {
         String s = f[0] < 0 ? "No roast date" : "Day " + f[1] + " · " + BrewWidget.STAGES[f[0]];
         int fc = f[0] < 0 ? a(t.ink, .4f) : FRESH[f[0]];
         Paint tx = text(t.ink, h * .48f, 700);
+        // Too long for the room: the stage's short word ("Day 14 · Peak") before cutting anything.
+        if (f[0] >= 0 && tx.measureText(s) + h * 1.35f > maxW) s = "Day " + f[1] + " · " + SHORT[f[0]];
         float dotX = h * .5f, w = Math.min(maxW, tx.measureText(s) + h * 1.35f);
         s = fit(tx, s, w - h * 1.35f);
         RectF r = new RectF(x, y, x + w, y + h);
@@ -374,6 +380,9 @@ final class ShelfArt {
         out[0] = c;
         return bm;
     }
+
+    /** The colour for text on a button in the accent: the card's deep tone on a light accent, white on a deep one. */
+    static int onAcc(Theme t) { return t.light ? 0xFFFFFFFF : t.bg0; }
 
     // ---------- Drinking now ----------
 
