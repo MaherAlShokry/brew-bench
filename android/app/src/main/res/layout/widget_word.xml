@@ -1,25 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Coffee word of the day, in the shelf card's look (the background and heading, with today's date, are drawn in
-     wd_art), laid out like a dictionary entry: the word large in a serif
-     face with a short rule in the colour of its part of coffee, the meaning, and the topic and a Read more button. The
-     word's first letter sits large and faint in the corner. -->
+<!-- Coffee word of the day, drawn whole in the shelf card's look (WidgetArt.word): the heading with today's date, the
+     word, a rule in its part of coffee's colour, the meaning, and its topic and Read more. Tapping opens the word. -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/wd_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <ImageView android:id="@+id/wd_art" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="fitXY" android:importantForAccessibility="no" />
-    <TextView android:id="@+id/wd_mark" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="end|bottom" android:layout_marginEnd="6dp" android:layout_marginBottom="-46dp" android:fontFamily="serif" android:includeFontPadding="false" android:importantForAccessibility="no" android:textColor="@color/widget_mark" android:textSize="170sp" android:textStyle="bold" />
-    <LinearLayout android:id="@+id/wd_in" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:paddingStart="18dp" android:paddingTop="16dp" android:paddingEnd="16dp" android:paddingBottom="14dp">
-        <TextView android:id="@+id/wd_word" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:ellipsize="end" android:fontFamily="serif" android:includeFontPadding="false" android:maxLines="2" android:textColor="@color/widget_ink" android:textSize="27sp" android:textStyle="bold" />
-        <ImageView android:id="@+id/wd_rule" android:layout_width="30dp" android:layout_height="3dp" android:layout_marginTop="8dp" android:importantForAccessibility="no" android:scaleType="fitXY" android:src="@drawable/widget_rule" />
-        <TextView android:id="@+id/wd_text" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_marginTop="8dp" android:ellipsize="end" android:lineSpacingExtra="2dp" android:textColor="@color/widget_muted" android:textSize="14sp" />
-        <LinearLayout android:id="@+id/wd_foot" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center_vertical" android:orientation="horizontal">
-            <LinearLayout android:id="@+id/wd_chip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/widget_chip" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="10dp" android:paddingTop="5dp" android:paddingEnd="12dp" android:paddingBottom="5dp">
-                <ImageView android:id="@+id/wd_dot" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="6dp" android:importantForAccessibility="no" android:src="@drawable/widget_dot" />
-                <TextView android:id="@+id/wd_cat" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:ellipsize="end" android:textColor="@color/widget_ink" android:textSize="11sp" android:textStyle="bold" />
-            </LinearLayout>
-            <FrameLayout android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
-            <TextView android:id="@+id/wd_more" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/widget_btn" android:paddingStart="14dp" android:paddingTop="6dp" android:paddingEnd="14dp" android:paddingBottom="6dp" android:text="Read more" android:textColor="@color/widget_btn_ink" android:textSize="12sp" android:textStyle="bold" />
-        </LinearLayout>
-    </LinearLayout>
+    <ImageView android:id="@+id/wd_art" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="fitXY" android:contentDescription="Coffee word of the day" />
 </FrameLayout>

@@ -1,62 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Quick brew, in the shelf card's look: the card's background and heading are drawn in q_art (ShelfArt.skin); the
-     recipe, its numbers, the live clock and the buttons sit over it, in the card's colours. -->
+<!-- Quick brew, drawn whole in the shelf card's look (WidgetArt.quick). Over the picture: the brew's clock (a live
+     view that ticks by itself, placed where the picture leaves room for it) and tap areas on the drawn buttons. -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/q_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <ImageView android:id="@+id/q_art" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="fitXY" android:importantForAccessibility="no" />
-<LinearLayout
-    android:id="@+id/q_in"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
-    <TextView android:id="@+id/q_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:maxLines="1" android:textColor="@color/widget_ink" android:textSize="19sp" android:textStyle="bold" />
-    <!-- The coffee you're drinking now, under the recipe: its photo (or flag) and name. Shown when there's room. -->
-    <LinearLayout android:id="@+id/q_bean" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:gravity="center_vertical" android:orientation="horizontal" android:visibility="gone">
-        <FrameLayout android:layout_width="26dp" android:layout_height="26dp" android:layout_marginEnd="8dp" android:background="@drawable/widget_pic">
-            <TextView android:id="@+id/q_bflag" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:textSize="13sp" />
-            <ImageView android:id="@+id/q_bph" android:layout_width="match_parent" android:layout_height="match_parent" android:importantForAccessibility="no" android:scaleType="centerCrop" android:visibility="gone" />
-        </FrameLayout>
-        <TextView android:id="@+id/q_btx" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:ellipsize="end" android:maxLines="1" android:textColor="@color/widget_muted" android:textSize="12sp" />
+    <ImageView android:id="@+id/q_art" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="fitXY" android:contentDescription="Quick brew" />
+    <FrameLayout android:id="@+id/q_clkbox" android:layout_width="match_parent" android:layout_height="match_parent">
+        <Chronometer android:id="@+id/q_chrono" android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:maxLines="1" android:textStyle="bold" android:fontFeatureSettings="tnum" android:visibility="gone" />
+    </FrameLayout>
+    <LinearLayout android:id="@+id/q_ctl" android:layout_width="match_parent" android:layout_height="40dp" android:layout_gravity="bottom" android:layout_margin="16dp" android:orientation="horizontal" android:visibility="gone">
+        <FrameLayout android:id="@+id/q_pp" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="8dp" android:contentDescription="Pause or resume" />
+        <FrameLayout android:id="@+id/q_nx" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:contentDescription="Next step" />
     </LinearLayout>
-    <LinearLayout android:id="@+id/q_stats" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:minHeight="56dp" android:layout_marginTop="8dp" android:layout_marginBottom="10dp" android:orientation="horizontal">
-        <LinearLayout android:id="@+id/q_t0" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="6dp" android:background="@drawable/widget_tile" android:gravity="center" android:orientation="vertical" android:paddingTop="6dp" android:paddingBottom="6dp">
-            <TextView android:id="@+id/q_v0" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:textColor="@color/widget_ink" android:textSize="20sp" android:textStyle="bold" />
-            <TextView android:id="@+id/q_l0" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:textAllCaps="true" android:letterSpacing="0.06" android:textColor="@color/widget_muted" android:textSize="10sp" android:textStyle="bold" />
-        </LinearLayout>
-        <LinearLayout android:id="@+id/q_t1" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="6dp" android:background="@drawable/widget_tile" android:gravity="center" android:orientation="vertical" android:paddingTop="6dp" android:paddingBottom="6dp">
-            <TextView android:id="@+id/q_v1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:textColor="@color/widget_ink" android:textSize="20sp" android:textStyle="bold" />
-            <TextView android:id="@+id/q_l1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:textAllCaps="true" android:letterSpacing="0.06" android:textColor="@color/widget_muted" android:textSize="10sp" android:textStyle="bold" />
-        </LinearLayout>
-        <LinearLayout android:id="@+id/q_t2" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="0dp" android:background="@drawable/widget_tile" android:gravity="center" android:orientation="vertical" android:paddingTop="6dp" android:paddingBottom="6dp">
-            <TextView android:id="@+id/q_v2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:textColor="@color/widget_ink" android:textSize="20sp" android:textStyle="bold" />
-            <TextView android:id="@+id/q_l2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:textAllCaps="true" android:letterSpacing="0.06" android:textColor="@color/widget_muted" android:textSize="10sp" android:textStyle="bold" />
-        </LinearLayout>
-    </LinearLayout>
-    <LinearLayout android:id="@+id/q_run" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:gravity="center_vertical" android:orientation="vertical" android:visibility="gone">
-        <Chronometer android:id="@+id/q_chrono" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/widget_ink" android:textSize="40sp" android:textStyle="bold" />
-        <TextView android:id="@+id/q_line" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:maxLines="2" android:textColor="@color/widget_accent" android:textSize="14sp" android:textStyle="bold" />
-        <TextView android:id="@+id/q_next" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:ellipsize="end" android:maxLines="1" android:textColor="@color/widget_muted" android:textSize="12sp" />
-        <!-- How far through the brew. -->
-        <ProgressBar android:id="@+id/q_prog" style="@android:style/Widget.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="6dp" android:layout_marginTop="8dp" android:max="100" android:progress="0" android:progressDrawable="@drawable/widget_prog" android:visibility="gone" />
-    </LinearLayout>
-    <!-- While a brew runs: pause or resume, and the next step, without opening the app. -->
-    <LinearLayout android:id="@+id/q_ctl" android:layout_width="match_parent" android:layout_height="42dp" android:orientation="horizontal" android:visibility="gone">
-        <LinearLayout android:id="@+id/q_pp" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="8dp" android:background="@drawable/widget_btn" android:gravity="center" android:orientation="horizontal" android:paddingStart="12dp" android:paddingEnd="14dp">
-            <ImageView android:id="@+id/q_pp_ic" android:layout_width="18dp" android:layout_height="18dp" android:layout_marginEnd="6dp" android:importantForAccessibility="no" />
-            <TextView android:id="@+id/q_pp_tx" android:layout_width="wrap_content" android:layout_height="wrap_content" android:ellipsize="end" android:maxLines="1" android:textColor="@color/widget_btn_ink" android:textSize="15sp" android:textStyle="bold" />
-        </LinearLayout>
-        <LinearLayout android:id="@+id/q_nx" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/widget_btn2" android:gravity="center" android:orientation="horizontal" android:paddingStart="12dp" android:paddingEnd="14dp">
-            <ImageView android:id="@+id/q_nx_ic" android:layout_width="18dp" android:layout_height="18dp" android:layout_marginEnd="6dp" android:importantForAccessibility="no" android:src="@drawable/wic_next" />
-            <TextView android:id="@+id/q_nx_tx" android:layout_width="wrap_content" android:layout_height="wrap_content" android:ellipsize="end" android:maxLines="1" android:text="Next" android:textColor="@color/widget_ink" android:textSize="15sp" android:textStyle="bold" />
-        </LinearLayout>
-    </LinearLayout>
-    <!-- Buttons are an icon and a label centred together (a TextView's own icon sits at its edge). -->
-    <LinearLayout android:id="@+id/q_go" android:layout_width="match_parent" android:layout_height="42dp" android:background="@drawable/widget_btn" android:gravity="center" android:orientation="horizontal" android:paddingStart="12dp" android:paddingEnd="14dp">
-        <ImageView android:id="@+id/q_go_ic" android:layout_width="18dp" android:layout_height="18dp" android:layout_marginEnd="6dp" android:importantForAccessibility="no" android:visibility="gone" />
-        <TextView android:id="@+id/q_go_tx" android:layout_width="wrap_content" android:layout_height="wrap_content" android:ellipsize="end" android:maxLines="1" android:textColor="@color/widget_btn_ink" android:textSize="15sp" android:textStyle="bold" />
-    </LinearLayout>
-</LinearLayout>
+    <FrameLayout android:id="@+id/q_go" android:layout_width="match_parent" android:layout_height="40dp" android:layout_gravity="bottom" android:layout_margin="16dp" android:visibility="gone" />
 </FrameLayout>

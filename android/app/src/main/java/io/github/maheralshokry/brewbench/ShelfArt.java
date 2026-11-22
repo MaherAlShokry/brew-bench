@@ -381,32 +381,8 @@ final class ShelfArt {
         return bm;
     }
 
-    // ---------- A skin for the widgets with live parts (Quick brew, Word of the day, Passport) ----------
-
-    /**
-     * The card's background, and (with a heading) the bean mark, the label in small capitals with something on the
-     * right, and the fading rule, drawn behind a widget's own views. Those views start under the heading (HEAD dp).
-     */
-    static Bitmap skin(Context ctx, Theme t, float w, float h, String label, String right) {
-        Canvas[] cc = new Canvas[1];
-        Bitmap bm = canvas(ctx, w, h, cc);
-        background(cc[0], t, w, h);
-        if (label != null) head(cc[0], t, w, label, right);
-        return bm;
-    }
-
     /** The colour for text on a button in the accent: the card's deep tone on a light accent, white on a deep one. */
     static int onAcc(Theme t) { return t.light ? 0xFFFFFFFF : t.bg0; }
-
-    /** A tile or chip in the card's chip colour (Android 12+; before that it keeps its own). */
-    static void tint(android.widget.RemoteViews v, int id, int color) {
-        if (Build.VERSION.SDK_INT >= 31) v.setColorStateList(id, "setBackgroundTintList", android.content.res.ColorStateList.valueOf(color));
-    }
-
-    /** Pads a widget's content to sit under the drawn heading (or near the top without one). */
-    static void underHead(Context ctx, android.widget.RemoteViews v, int id, boolean withHead, int sideDp, int bottomDp) {
-        v.setViewPadding(id, BrewWidget.dp(ctx, sideDp), BrewWidget.dp(ctx, withHead ? (int) HEAD : 14), BrewWidget.dp(ctx, sideDp), BrewWidget.dp(ctx, bottomDp));
-    }
 
     // ---------- Drinking now ----------
 

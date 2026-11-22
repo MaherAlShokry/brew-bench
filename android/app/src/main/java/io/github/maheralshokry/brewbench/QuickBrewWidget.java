@@ -3,7 +3,6 @@ package io.github.maheralshokry.brewbench;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.TypedValue;
@@ -13,13 +12,12 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
- * "Quick brew": your go-to recipe (the one you've brewed most lately), its dose, water and temperature in large type,
- * and Start brew, which starts the brew right on the home screen (with its notification). While a brew runs it follows the brew instead (see brewing).
+ * "Quick brew": your go-to recipe (the one you've brewed most lately), its dose, water and temperature, and Start brew,
+ * which starts the brew right on the home screen (with its notification). While a brew runs it follows the brew: the
+ * step now and next, how far through it is, and pause or resume and next. Drawn whole in the shelf card's look
+ * (WidgetArt.quick), in the colours of the coffee you're drinking; the running clock is a live view over the picture.
  */
 public class QuickBrewWidget extends AppWidgetProvider {
-    static final int[] VALS = {R.id.q_v0, R.id.q_v1, R.id.q_v2};
-    static final int[] LABS = {R.id.q_l0, R.id.q_l1, R.id.q_l2};
-
     @Override
     public void onUpdate(Context ctx, AppWidgetManager m, int[] ids) {
         for (int id : ids) BrewWidget.pushSized(ctx, m, id, QuickBrewWidget::views);
@@ -28,157 +26,80 @@ public class QuickBrewWidget extends AppWidgetProvider {
     @Override
     public void onAppWidgetOptionsChanged(Context ctx, AppWidgetManager m, int id, Bundle o) { onUpdate(ctx, m, new int[] {id}); }
 
-    /**
-     * While a brew runs (or is paused, or just finished): the recipe, a clock the launcher keeps itself (a Chronometer,
-     * so it ticks without the app), the step now and the next one, how far through it is, and buttons to pause or resume
-     * and to skip to the next step (BrewTimer runs them, app open or not). A brew left running is forgotten once it is
-     * well past its time.
-     */
-    static String[] brewing(Context ctx, RemoteViews v, int h) {
-        long now = System.currentTimeMillis();
-        BrewTimer.St s = BrewTimer.read(ctx);
-        boolean done = s.showDone(now);
-        if (!s.live(now) && !done) return null;
-        // Under the drawn heading a short widget has no room for the name's own line: it goes in the heading instead.
-        boolean tight = h < 190;
-        boolean run = "run".equals(s.state);
-        long el = s.elapsed(now);
-        v.setViewVisibility(R.id.q_stats, View.GONE);
-        v.setViewVisibility(R.id.q_bean, View.GONE);
-        v.setViewVisibility(R.id.q_run, View.VISIBLE);
-        v.setTextViewText(R.id.q_title, s.name);
-        v.setViewVisibility(R.id.q_title, tight ? View.GONE : View.VISIBLE);
-        v.setViewVisibility(R.id.q_chrono, done ? View.GONE : View.VISIBLE);
-        v.setChronometer(R.id.q_chrono, SystemClock.elapsedRealtime() - el, null, run);
-        v.setTextViewText(R.id.q_line, done ? "Enjoy it. How was it?" : s.step);
-        String next = done ? "" : s.next;
-        v.setTextViewText(R.id.q_next, next);
-        v.setViewVisibility(R.id.q_next, next.isEmpty() || h < 190 ? View.GONE : View.VISIBLE);
-        v.setTextViewTextSize(R.id.q_chrono, TypedValue.COMPLEX_UNIT_SP, h < 170 ? 30 : 40);
-        boolean room = h >= 130;
-        if (room && !done && s.total > 0) {
-            v.setViewVisibility(R.id.q_prog, View.VISIBLE);
-            v.setProgressBar(R.id.q_prog, 1000, (int) Math.min(1000, el * 1000 / s.total), false);
-        } else v.setViewVisibility(R.id.q_prog, View.GONE);
-        if (room && !done) {
-            v.setViewVisibility(R.id.q_go, View.GONE);
-            v.setViewVisibility(R.id.q_ctl, View.VISIBLE);
-            v.setTextViewText(R.id.q_pp_tx, run ? "Pause" : "Resume");
-            v.setImageViewResource(R.id.q_pp_ic, run ? R.drawable.wic_pause : R.drawable.wic_play);
-            v.setOnClickPendingIntent(R.id.q_pp, BrewTimer.action(ctx, BrewTimer.TOGGLE, 50));
-            v.setViewVisibility(R.id.q_nx, s.t.length > 0 ? View.VISIBLE : View.GONE);
-            v.setOnClickPendingIntent(R.id.q_nx, BrewTimer.action(ctx, BrewTimer.NEXT, 51));
-        } else {
-            v.setViewVisibility(R.id.q_ctl, View.GONE);
-            v.setViewVisibility(R.id.q_go, room ? View.VISIBLE : View.GONE);
-            go(v, "Log this brew", 0);
-            v.setOnClickPendingIntent(R.id.q_go, BrewWidget.open(ctx, "log", 23));
-        }
-        v.setOnClickPendingIntent(R.id.q_root, BrewWidget.open(ctx, "resume", 22));
-        return new String[] {run ? "Brewing now" : done ? "Brew complete" : "Paused", tight ? s.name : ""};
-    }
-
-    /** The big button: its label, and its icon beside it (none for 0). */
-    static void go(RemoteViews v, String label, int icon) {
-        v.setTextViewText(R.id.q_go_tx, label);
-        v.setViewVisibility(R.id.q_go_ic, icon == 0 ? View.GONE : View.VISIBLE);
-        if (icon != 0) v.setImageViewResource(R.id.q_go_ic, icon);
-    }
-
     /** For a size given only by its height (a widget picture in a test): a typical width for it. */
     static RemoteViews views(Context ctx, int h) { return views(ctx, 250, h); }
 
-    /**
-     * In the shelf card's look: the card's background and heading (the label, and the brewer on the right) drawn
-     * behind, in the colours of the coffee you're drinking (as on Drinking now), and the text, tiles and buttons in
-     * the card's colours. The heading is left out on a widget too short for it.
-     */
     static RemoteViews views(Context ctx, int w, int h) {
         RemoteViews v = new RemoteViews(ctx.getPackageName(), R.layout.widget_brew);
-        String[] head = fill(ctx, v, h);
-        ShelfArt.Theme t = ShelfArt.Theme.of(BrewWidget.prefs(ctx).getString("theme", ""));
-        boolean withHead = h >= 100;
-        try { v.setImageViewBitmap(R.id.q_art, ShelfArt.skin(ctx, t, Math.max(80, w), Math.max(48, h), withHead ? head[0] : null, head[1])); } catch (Exception ignored) { }
-        ShelfArt.underHead(ctx, v, R.id.q_in, withHead, 16, 16);
-        int ink = t.ink, muted = t.muted(), on = ShelfArt.onAcc(t);
-        for (int id : new int[] {R.id.q_title, R.id.q_v0, R.id.q_v1, R.id.q_v2, R.id.q_chrono, R.id.q_nx_tx}) v.setTextColor(id, ink);
-        for (int id : new int[] {R.id.q_btx, R.id.q_l0, R.id.q_l1, R.id.q_l2, R.id.q_next}) v.setTextColor(id, muted);
-        v.setTextColor(R.id.q_line, t.acc);
-        v.setTextColor(R.id.q_go_tx, on);
-        v.setTextColor(R.id.q_pp_tx, on);
-        v.setInt(R.id.q_go_ic, "setColorFilter", on);
-        v.setInt(R.id.q_pp_ic, "setColorFilter", on);
-        v.setInt(R.id.q_nx_ic, "setColorFilter", ink);
-        for (int id : new int[] {R.id.q_t0, R.id.q_t1, R.id.q_t2, R.id.q_nx}) ShelfArt.tint(v, id, t.chip());
-        ShelfArt.tint(v, R.id.q_go, t.acc);
-        ShelfArt.tint(v, R.id.q_pp, t.acc);
-        return v;
-    }
-
-    /** What the widget shows (the brew under way, else your go-to recipe); returns its heading's label and right side. */
-    static String[] fill(Context ctx, RemoteViews v, int h) {
-        // Short: one line of numbers, the whole widget starts it. Medium: the line and Start brew. Tall: the numbers as
-        // tiles. Taller: the coffee you're drinking too. (Each step is where everything it shows fits without clipping.)
-        boolean small = h < 140, tiles = h >= 200;
-        v.setViewVisibility(R.id.q_ctl, View.GONE);
-        v.setViewVisibility(R.id.q_prog, View.GONE);
-        String[] live = brewing(ctx, v, h);
-        if (live != null) return live;
-        v.setViewVisibility(R.id.q_title, View.VISIBLE);
-        v.setViewVisibility(R.id.q_run, View.GONE);
-        String label = ctx.getString(R.string.widget_brew_name);
-        JSONObject o;
-        try { o = new JSONObject(BrewWidget.prefs(ctx).getString("brew", "{}")); } catch (Exception e) { o = new JSONObject(); }
-        String key = o.optString("key", "");
-        if (key.isEmpty()) {
-            v.setViewVisibility(R.id.q_stats, View.GONE);
-            v.setViewVisibility(R.id.q_run, View.VISIBLE);
-            v.setViewVisibility(R.id.q_chrono, View.GONE);
-            v.setViewVisibility(R.id.q_next, View.GONE);
-            v.setTextViewText(R.id.q_title, "Pick a recipe");
-            v.setTextViewText(R.id.q_line, "Your go-to recipe shows here once you've brewed one.");
-            go(v, "Recipes", 0);
-            v.setViewVisibility(R.id.q_go, small ? View.GONE : View.VISIBLE);
-            v.setOnClickPendingIntent(R.id.q_root, BrewWidget.open(ctx, "recipes", 20));
-            v.setOnClickPendingIntent(R.id.q_go, BrewWidget.open(ctx, "recipes", 21));
-            return new String[] {label, ""};
-        }
-        v.setTextViewText(R.id.q_title, o.optString("name", ""));
-        String right = o.optString("brewer", "");
-        String[] vals = {o.optString("dose", ""), o.optString("water", ""), o.optString("temp", "")};
-        String[] labs = {"Coffee", "Water", "Water temp"};
-        for (int i = 0; i < 3; i++) { v.setTextViewText(VALS[i], vals[i].isEmpty() ? "–" : vals[i]); v.setTextViewText(LABS[i], labs[i]); }
-        if (!tiles) {
-            // The numbers on one line under the name.
-            v.setViewVisibility(R.id.q_stats, View.GONE);
-            v.setViewVisibility(R.id.q_bean, View.GONE);
-            v.setViewVisibility(R.id.q_run, View.VISIBLE);
-            v.setViewVisibility(R.id.q_chrono, View.GONE);
-            v.setViewVisibility(R.id.q_next, View.GONE);
-            v.setTextViewText(R.id.q_line, o.optString("line", ""));
-            if (small) {
-                v.setViewVisibility(R.id.q_go, View.GONE);
-                v.setOnClickPendingIntent(R.id.q_root, BrewWidget.open(ctx, "timer:" + key, 20));
-                return new String[] {label, right};
+        WidgetArt.Quick q = new WidgetArt.Quick();
+        long now = System.currentTimeMillis();
+        BrewTimer.St s = BrewTimer.read(ctx);
+        boolean done = s.showDone(now);
+        long el = 0;
+        String goTo = "recipes", key = "";
+        boolean startHere = false;
+        if (s.live(now) || done) {
+            // A brew under way (or just finished): its recipe's name in the heading, the step now and next.
+            q.brewing = true;
+            q.done = done;
+            q.run = "run".equals(s.state);
+            el = s.elapsed(now);
+            q.label = q.run ? "Brewing now" : done ? "Brew complete" : "Paused";
+            q.right = s.name;
+            q.name = s.name;
+            q.step = s.step;
+            q.next = done ? "" : s.next;
+            q.hasNext = s.t.length > 0;
+            q.frac = s.total > 0 ? Math.min(1f, el / (float) s.total) : 0;
+        } else {
+            JSONObject o;
+            try { o = new JSONObject(BrewWidget.prefs(ctx).getString("brew", "{}")); } catch (Exception e) { o = new JSONObject(); }
+            key = o.optString("key", "");
+            if (key.isEmpty()) {
+                q.empty = true;
+                q.name = "Pick a recipe";
+                q.line = "Your go-to recipe shows here once you've brewed one.";
+            } else {
+                q.name = o.optString("name", "");
+                q.right = o.optString("brewer", "");
+                q.line = o.optString("line", "");
+                q.vals = new String[] {o.optString("dose", ""), o.optString("water", ""), o.optString("temp", "")};
+                JSONObject bean = o.optJSONObject("bean");
+                if (bean != null) { q.beanTitle = bean.optString("title", ""); q.beanPhoto = bean.optString("ph", ""); }
+                JSONArray steps = o.optJSONArray("steps");
+                startHere = steps != null && steps.length() > 0 && o.optLong("total", 0L) > 0;
             }
         }
-        // With room, the coffee you're drinking now sits under the recipe.
-        JSONObject bean = o.optJSONObject("bean");
-        if (bean != null && h >= 250 && !bean.optString("title", "").isEmpty()) {
-            v.setViewVisibility(R.id.q_bean, View.VISIBLE);
-            v.setTextViewText(R.id.q_btx, "With " + bean.optString("title", ""));
-            android.graphics.Bitmap ph = BrewWidget.thumb(ctx, bean.optString("id", ""), bean.optString("ph", ""), 60, 16);
-            if (ph != null) { v.setImageViewBitmap(R.id.q_bph, ph); v.setViewVisibility(R.id.q_bph, View.VISIBLE); v.setTextViewText(R.id.q_bflag, ""); }
-            else { v.setViewVisibility(R.id.q_bph, View.GONE); String f = bean.optString("flag", ""); v.setTextViewText(R.id.q_bflag, f.isEmpty() ? "☕" : f); }
-        } else v.setViewVisibility(R.id.q_bean, View.GONE);
-        v.setViewVisibility(R.id.q_stats, tiles ? View.VISIBLE : View.GONE);
-        v.setViewVisibility(R.id.q_go, View.VISIBLE);
-        go(v, "Start brew", R.drawable.wic_play);
-        v.setOnClickPendingIntent(R.id.q_root, BrewWidget.open(ctx, "recipe:" + key, 20));
-        // Starts the brew from here: the clock, the notification and the buttons run without opening the app (which
-        // opens on the timer instead if it hasn't sent this recipe's steps yet).
-        JSONArray steps = o.optJSONArray("steps");
-        v.setOnClickPendingIntent(R.id.q_go, steps != null && steps.length() > 0 && o.optLong("total", 0L) > 0 ? BrewTimer.action(ctx, BrewTimer.START, 21) : BrewWidget.open(ctx, "timer:" + key, 21));
-        return new String[] {label, right};
+        ShelfArt.Theme t = ShelfArt.Theme.of(BrewWidget.prefs(ctx).getString("theme", ""));
+        WidgetArt.Places at = new WidgetArt.Places();
+        float fw = Math.max(110, w), fh = Math.max(48, h);
+        try { v.setImageViewBitmap(R.id.q_art, WidgetArt.quick(ctx, t, q, fw, fh, at)); } catch (Exception ignored) { }
+        v.setContentDescription(R.id.q_art, q.brewing ? q.label + ": " + q.name + ". " + q.step : "Quick brew: " + q.name);
+        // The clock, where the picture left room for it.
+        v.setViewVisibility(R.id.q_chrono, at.clock ? View.VISIBLE : View.GONE);
+        if (at.clock) {
+            v.setViewPadding(R.id.q_clkbox, BrewWidget.dp(ctx, Math.round(at.clockLeft)), BrewWidget.dp(ctx, Math.round(at.clockTop)), 0, 0);
+            v.setTextViewTextSize(R.id.q_chrono, TypedValue.COMPLEX_UNIT_DIP, at.clockSize);
+            v.setTextColor(R.id.q_chrono, t.ink);
+            v.setChronometer(R.id.q_chrono, SystemClock.elapsedRealtime() - el, null, q.run);
+        }
+        // The tap areas on the drawn buttons.
+        v.setViewVisibility(R.id.q_ctl, at.twoButtons ? View.VISIBLE : View.GONE);
+        v.setViewVisibility(R.id.q_go, at.button ? View.VISIBLE : View.GONE);
+        if (q.brewing) {
+            v.setOnClickPendingIntent(R.id.q_root, BrewWidget.open(ctx, "resume", 22));
+            v.setOnClickPendingIntent(R.id.q_pp, BrewTimer.action(ctx, BrewTimer.TOGGLE, 50));
+            v.setOnClickPendingIntent(R.id.q_nx, q.hasNext ? BrewTimer.action(ctx, BrewTimer.NEXT, 51) : BrewWidget.open(ctx, "resume", 22));
+            v.setOnClickPendingIntent(R.id.q_go, BrewWidget.open(ctx, "log", 23));
+        } else if (q.empty) {
+            v.setOnClickPendingIntent(R.id.q_root, BrewWidget.open(ctx, goTo, 20));
+            v.setOnClickPendingIntent(R.id.q_go, BrewWidget.open(ctx, goTo, 21));
+        } else {
+            v.setOnClickPendingIntent(R.id.q_root, BrewWidget.open(ctx, at.button ? "recipe:" + key : "timer:" + key, 20));
+            // Starts the brew from here: the clock, the notification and the buttons run without opening the app (which
+            // opens on the timer instead if it hasn't sent this recipe's steps yet).
+            v.setOnClickPendingIntent(R.id.q_go, startHere ? BrewTimer.action(ctx, BrewTimer.START, 21) : BrewWidget.open(ctx, "timer:" + key, 21));
+        }
+        return v;
     }
 }
