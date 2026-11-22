@@ -1,5 +1,5 @@
 // Grind memory: picking a coffee on the Brew page sets what it was last brewed at (from its newest logged brew): the
-// grinder, setting, temperature and brewer, quietly, with nothing shown. A setting saved after its last brew comes first.
+// grinder, setting and temperature (never the brewer: that stays as chosen), quietly, with nothing shown. A setting saved after its last brew comes first.
 {const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();
 const ok=(n,v,x)=>console.log((v?'ok   ':'FAIL ')+n+(v||x===undefined?'':'  ('+JSON.stringify(x)+')'));
