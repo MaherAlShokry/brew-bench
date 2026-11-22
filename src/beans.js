@@ -995,13 +995,14 @@ function renderBeanViews(){const cy=new Date().getFullYear();
     if(on&&!RM()&&BVDIR&&p.animate)p.animate([{opacity:.4,transform:'translateX('+(BVDIR>0?10:-10)+'px)'},{opacity:1,transform:'none'}],{duration:200,easing:'cubic-bezier(.2,.8,.3,1)'})}BVDIR=0;
   // Switched while scrolled down: the new view starts just under the stuck tab strip, not partway down or with the page
   // jumping back up (each view is at least a screen tall, so a short one can't pull the page up).
-  // Only when the strip is stuck (scrolled past where it sits): at the top of the page there is nothing to measure.
+  // Only when the page is scrolled: at the top there is nothing to measure, so the switch lays nothing out early.
+  // (A remembered position for the strip went wrong when it was taken while the page was hidden, and measured every switch.)
   // At the larger text sizes the six views can be wider than the strip: the picked one is scrolled fully into view.
   // Measured just after the switch is drawn, when the layout is already done and reading it costs nothing (reading it
   // here would lay the whole page out early, in the middle of the switch).
   requestAnimationFrame(()=>setTimeout(()=>{const st=$('bg-views');if(!st||st.scrollWidth<=st.clientWidth+1)return;const b=st.querySelector(':scope>button[aria-pressed="true"]');
     if(b){const l=b.offsetLeft-8,r=b.offsetLeft+b.offsetWidth+8;if(l<st.scrollLeft||r>st.scrollLeft+st.clientWidth)st.scrollTo({left:l<st.scrollLeft?l:r-st.clientWidth,behavior:RM()?'auto':'smooth'})}},0));
-  {const st=$('bg-views'),p=$('bv-'+BVIEW);if(st&&p){if(st._y==null)st._y=st.getBoundingClientRect().top+scrollY;if(scrollY>st._y-120){const sb=st.getBoundingClientRect().bottom,pt=p.getBoundingClientRect().top;if(pt<sb)scrollBy(0,pt-sb-8)}}}}
+  {const st=$('bg-views'),p=$('bv-'+BVIEW);if(st&&p){if(SCROLL_Y>0){const sb=st.getBoundingClientRect().bottom,pt=p.getBoundingClientRect().top;if(pt<sb)scrollBy(0,pt-sb-8)}}}}
 function renderCoffees(){const p=$('bv-coffees'),years=beanYears();BYEAR=BYEAR.filter(y=>years.includes(+y));
   if(!BEANS.length){p.innerHTML='<div class="bg-empty il-on">'+EMPTY_IL.bags+'<b>Your coffee gallery</b><p>Every bag you try, with its photo, freshness, notes and the brews you made with it. Scan a bag to start, or add one by hand.</p><div class="empty-acts">'+pbtn('scan','data-empty="scan"','Scan a bag','main')+pbtn('plus','data-empty="bean"','Add by hand')+'</div></div>';return}
   const fs=BFILTERS.filter(([f])=>f==='all'||BEANS.some(b=>bfKeep(b,f)));BF=BF.filter(f=>fs.some(([x])=>x===f));

@@ -1354,7 +1354,8 @@ const ALWAYS={explore:()=>renderExplore(),settings:()=>renderSettings(),beans:()
 const SLIDE_MS=450,sliding=()=>performance.now()-NAV_AT<SLIDE_MS;
 function afterSlide(fn){const left=SLIDE_MS-(performance.now()-NAV_AT);if(left>0)setTimeout(()=>afterSlide(fn),left+30);else fn()}
 let USER_AT=0;for(const ev of ['pointerdown','keydown','wheel','touchmove'])addEventListener(ev,()=>{USER_AT=performance.now()},{capture:true,passive:true});
-addEventListener('scroll',()=>{USER_AT=performance.now()},{capture:true,passive:true});
+// The page's scroll as of the last scroll event: reading scrollY itself lays out the page if anything changed since.
+let SCROLL_Y=0;addEventListener('scroll',e=>{USER_AT=performance.now();if(e.target===document)SCROLL_Y=scrollY},{capture:true,passive:true});
 // The first coffee or recipe sheet of a visit took about twice as long to open as later ones: the browser laying its
 // parts out for the first time. Right after the Beans page is built, one of each is drawn off screen in a quiet moment
 // (never shown, nothing saved) and cleared, so the first real one opens like the rest.
@@ -1406,7 +1407,10 @@ function prebuildTabs(){const ids=['recipes','gear','variety','process','map','w
     const id=ids.find(k=>!BUILT[k]);if(!id){if(SHEETS_WARM<2){warmSheets();idle(next);return}const w=[...ids,'guide','scan'].find(k=>BUILT[k]&&!WARM.has(k)&&$(k)&&!$(k).classList.contains('on'));
       // The pages inside sections are warmed only after 3 s without a touch: each costs a phone a few dozen ms, which
       // landed on the next tap while you were using the app (opening a coffee measured slower for it).
-      if(w&&performance.now()-USER_AT<3000){setTimeout(()=>idle(next),600);return}if(w){warmPage(w);idle(next)}return}BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
+      if(w&&performance.now()-USER_AT<3000){setTimeout(()=>idle(next),600);return}if(w){warmPage(w);idle(next)}return}
+    // Building a page inside a section (Gear, Varieties…) waits for the same 3 s: some take a phone 50-100 ms, which
+    // landed on the next tap in Beans or Recipes while you were reading them.
+    if(performance.now()-USER_AT<3000){setTimeout(()=>idle(next),600);return}BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
   let againT=0;prebuildTabs.again=all=>{if(all)WARM.clear();clearTimeout(againT);againT=setTimeout(()=>idle(next),1500)};
   // A hidden page drawn again (a saved brew updates the log, a new coffee the gallery) is cold again: warm it later.
   try{new MutationObserver(l=>{let any=false;for(const m of l){const s=m.target.closest&&m.target.closest('main>section');if(s&&!s.classList.contains('on')&&WARM.delete(s.id))any=true}if(any)prebuildTabs.again()})
@@ -2555,7 +2559,9 @@ function buildTree(){
     const n=e.target.closest('.n');if(!n){svg.classList.remove('focus');return}focus(n.dataset.id);openVariety(n.dataset.id)};
   svg.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){const n=e.target.closest('.n');if(n){e.preventDefault();focus(n.dataset.id);openVariety(n.dataset.id)}}};
   $('treelegend').innerHTML=Object.values(FAM).map(f=>'<span class="pill tleg" style="--c:'+f.color+'"><i></i>'+f.name+'</span>').join('')+'<span class="pill tleg dna">Notes in italics: where DNA overturned the old story</span>';
-  const box=svg.parentElement,edge=()=>{box.classList.toggle('at-start',box.scrollLeft<8);box.classList.toggle('at-end',box.scrollLeft+box.clientWidth>=box.scrollWidth-8)};box.onscroll=edge;requestAnimationFrame(edge);
+  const box=svg.parentElement,edge=()=>{box.classList.toggle('at-start',box.scrollLeft<8);box.classList.toggle('at-end',box.scrollLeft+box.clientWidth>=box.scrollWidth-8)};box.onscroll=edge;box.classList.add('at-start');
+  // Its end is measured once it's on screen (where the layout is done anyway): measured when it was built in the background, it laid the whole page out.
+  if(window.IntersectionObserver){const io=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting)){io.disconnect();edge()}});io.observe(box)}else requestAnimationFrame(edge);
   $('species').innerHTML=['arabica','robusta','liberica','eugenioides','stenophylla'].map(id=>{const v=VBY[id];return'<button type="button" class="card vcard" data-v="'+id+'" style="--c:'+FAM.species.color+'"><span class="fam">'+esc(v.origin)+'</span><h3>'+esc(v.name)+'</h3><p>'+esc(v.cup)+'</p></button>'}).join('');
   $('species').onclick=e=>{const b=e.target.closest('[data-v]');if(b)openVariety(b.dataset.v)};
   $('timeline').innerHTML=TIMELINE.map(([w,t,d])=>'<li><span class="when">'+esc(w)+'</span><h3>'+esc(t)+'</h3><p>'+esc(d)+'</p></li>').join('');

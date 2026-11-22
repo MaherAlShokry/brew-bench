@@ -3286,7 +3286,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="2a75b22184d7"</script>
+<script>const BUILD_ID="b8772db7453d"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -7391,7 +7391,8 @@ const ALWAYS={explore:()=>renderExplore(),settings:()=>renderSettings(),beans:()
 const SLIDE_MS=450,sliding=()=>performance.now()-NAV_AT<SLIDE_MS;
 function afterSlide(fn){const left=SLIDE_MS-(performance.now()-NAV_AT);if(left>0)setTimeout(()=>afterSlide(fn),left+30);else fn()}
 let USER_AT=0;for(const ev of ['pointerdown','keydown','wheel','touchmove'])addEventListener(ev,()=>{USER_AT=performance.now()},{capture:true,passive:true});
-addEventListener('scroll',()=>{USER_AT=performance.now()},{capture:true,passive:true});
+// The page's scroll as of the last scroll event: reading scrollY itself lays out the page if anything changed since.
+let SCROLL_Y=0;addEventListener('scroll',e=>{USER_AT=performance.now();if(e.target===document)SCROLL_Y=scrollY},{capture:true,passive:true});
 // The first coffee or recipe sheet of a visit took about twice as long to open as later ones: the browser laying its
 // parts out for the first time. Right after the Beans page is built, one of each is drawn off screen in a quiet moment
 // (never shown, nothing saved) and cleared, so the first real one opens like the rest.
@@ -7443,7 +7444,10 @@ function prebuildTabs(){const ids=['recipes','gear','variety','process','map','w
     const id=ids.find(k=>!BUILT[k]);if(!id){if(SHEETS_WARM<2){warmSheets();idle(next);return}const w=[...ids,'guide','scan'].find(k=>BUILT[k]&&!WARM.has(k)&&$(k)&&!$(k).classList.contains('on'));
       // The pages inside sections are warmed only after 3 s without a touch: each costs a phone a few dozen ms, which
       // landed on the next tap while you were using the app (opening a coffee measured slower for it).
-      if(w&&performance.now()-USER_AT<3000){setTimeout(()=>idle(next),600);return}if(w){warmPage(w);idle(next)}return}BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
+      if(w&&performance.now()-USER_AT<3000){setTimeout(()=>idle(next),600);return}if(w){warmPage(w);idle(next)}return}
+    // Building a page inside a section (Gear, Varieties…) waits for the same 3 s: some take a phone 50-100 ms, which
+    // landed on the next tap in Beans or Recipes while you were reading them.
+    if(performance.now()-USER_AT<3000){setTimeout(()=>idle(next),600);return}BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
   let againT=0;prebuildTabs.again=all=>{if(all)WARM.clear();clearTimeout(againT);againT=setTimeout(()=>idle(next),1500)};
   // A hidden page drawn again (a saved brew updates the log, a new coffee the gallery) is cold again: warm it later.
   try{new MutationObserver(l=>{let any=false;for(const m of l){const s=m.target.closest&&m.target.closest('main>section');if(s&&!s.classList.contains('on')&&WARM.delete(s.id))any=true}if(any)prebuildTabs.again()})
@@ -8592,7 +8596,9 @@ function buildTree(){
     const n=e.target.closest('.n');if(!n){svg.classList.remove('focus');return}focus(n.dataset.id);openVariety(n.dataset.id)};
   svg.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){const n=e.target.closest('.n');if(n){e.preventDefault();focus(n.dataset.id);openVariety(n.dataset.id)}}};
   $('treelegend').innerHTML=Object.values(FAM).map(f=>'<span class="pill tleg" style="--c:'+f.color+'"><i></i>'+f.name+'</span>').join('')+'<span class="pill tleg dna">Notes in italics: where DNA overturned the old story</span>';
-  const box=svg.parentElement,edge=()=>{box.classList.toggle('at-start',box.scrollLeft<8);box.classList.toggle('at-end',box.scrollLeft+box.clientWidth>=box.scrollWidth-8)};box.onscroll=edge;requestAnimationFrame(edge);
+  const box=svg.parentElement,edge=()=>{box.classList.toggle('at-start',box.scrollLeft<8);box.classList.toggle('at-end',box.scrollLeft+box.clientWidth>=box.scrollWidth-8)};box.onscroll=edge;box.classList.add('at-start');
+  // Its end is measured once it's on screen (where the layout is done anyway): measured when it was built in the background, it laid the whole page out.
+  if(window.IntersectionObserver){const io=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting)){io.disconnect();edge()}});io.observe(box)}else requestAnimationFrame(edge);
   $('species').innerHTML=['arabica','robusta','liberica','eugenioides','stenophylla'].map(id=>{const v=VBY[id];return'<button type="button" class="card vcard" data-v="'+id+'" style="--c:'+FAM.species.color+'"><span class="fam">'+esc(v.origin)+'</span><h3>'+esc(v.name)+'</h3><p>'+esc(v.cup)+'</p></button>'}).join('');
   $('species').onclick=e=>{const b=e.target.closest('[data-v]');if(b)openVariety(b.dataset.v)};
   $('timeline').innerHTML=TIMELINE.map(([w,t,d])=>'<li><span class="when">'+esc(w)+'</span><h3>'+esc(t)+'</h3><p>'+esc(d)+'</p></li>').join('');
@@ -11911,13 +11917,14 @@ function renderBeanViews(){const cy=new Date().getFullYear();
     if(on&&!RM()&&BVDIR&&p.animate)p.animate([{opacity:.4,transform:'translateX('+(BVDIR>0?10:-10)+'px)'},{opacity:1,transform:'none'}],{duration:200,easing:'cubic-bezier(.2,.8,.3,1)'})}BVDIR=0;
   // Switched while scrolled down: the new view starts just under the stuck tab strip, not partway down or with the page
   // jumping back up (each view is at least a screen tall, so a short one can't pull the page up).
-  // Only when the strip is stuck (scrolled past where it sits): at the top of the page there is nothing to measure.
+  // Only when the page is scrolled: at the top there is nothing to measure, so the switch lays nothing out early.
+  // (A remembered position for the strip went wrong when it was taken while the page was hidden, and measured every switch.)
   // At the larger text sizes the six views can be wider than the strip: the picked one is scrolled fully into view.
   // Measured just after the switch is drawn, when the layout is already done and reading it costs nothing (reading it
   // here would lay the whole page out early, in the middle of the switch).
   requestAnimationFrame(()=>setTimeout(()=>{const st=$('bg-views');if(!st||st.scrollWidth<=st.clientWidth+1)return;const b=st.querySelector(':scope>button[aria-pressed="true"]');
     if(b){const l=b.offsetLeft-8,r=b.offsetLeft+b.offsetWidth+8;if(l<st.scrollLeft||r>st.scrollLeft+st.clientWidth)st.scrollTo({left:l<st.scrollLeft?l:r-st.clientWidth,behavior:RM()?'auto':'smooth'})}},0));
-  {const st=$('bg-views'),p=$('bv-'+BVIEW);if(st&&p){if(st._y==null)st._y=st.getBoundingClientRect().top+scrollY;if(scrollY>st._y-120){const sb=st.getBoundingClientRect().bottom,pt=p.getBoundingClientRect().top;if(pt<sb)scrollBy(0,pt-sb-8)}}}}
+  {const st=$('bg-views'),p=$('bv-'+BVIEW);if(st&&p){if(SCROLL_Y>0){const sb=st.getBoundingClientRect().bottom,pt=p.getBoundingClientRect().top;if(pt<sb)scrollBy(0,pt-sb-8)}}}}
 function renderCoffees(){const p=$('bv-coffees'),years=beanYears();BYEAR=BYEAR.filter(y=>years.includes(+y));
   if(!BEANS.length){p.innerHTML='<div class="bg-empty il-on">'+EMPTY_IL.bags+'<b>Your coffee gallery</b><p>Every bag you try, with its photo, freshness, notes and the brews you made with it. Scan a bag to start, or add one by hand.</p><div class="empty-acts">'+pbtn('scan','data-empty="scan"','Scan a bag','main')+pbtn('plus','data-empty="bean"','Add by hand')+'</div></div>';return}
   const fs=BFILTERS.filter(([f])=>f==='all'||BEANS.some(b=>bfKeep(b,f)));BF=BF.filter(f=>fs.some(([x])=>x===f));
