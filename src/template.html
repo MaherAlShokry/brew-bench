@@ -2757,6 +2757,14 @@ button[aria-pressed]:active{transform:scale(.95)}
 .mt-sb{display:flex;flex-direction:column-reverse;justify-self:center;width:100%;max-width:26px;border-radius:9px;overflow:hidden;gap:2px}
 .mt-sb i{display:block;min-height:3px}.mt-sb i.none{flex:1;background:var(--surface2)}
 .mt-panel .mt-line{margin:10px 0 0;font-size:.84rem;color:var(--ink);line-height:1.4}
+/* Fit and alignment on the profile: a flag sits inside its round tile like the other icons; the cup counts under the
+   rating bars stack (number over "cups") so they never touch; the flavour key lines up on the left; the cup graph
+   fills its card. */
+.me-pills .bf-flag{display:grid;place-items:center;width:100%;height:100%;font-size:15px;line-height:1;padding-top:1px}
+.mt-n{display:flex;flex-direction:column;align-items:center;line-height:1.15;font-size:.6rem}.mt-n b{font:700 .78rem var(--display);color:var(--ink)}
+.jr-g .fwbar-key{display:grid;justify-content:start;justify-items:start;gap:4px;width:100%;padding-left:6px}
+.jr-radar{max-width:100%;flex:1 1 auto;min-height:0}
+.jr-tl li{grid-template-columns:minmax(0,1fr) auto}
 /* Your coffee journey. */
 .jr-gs{display:grid;gap:10px}.jr-gs.two{grid-template-columns:repeat(2,minmax(0,1fr))}
 .jr-g{display:flex;flex-direction:column;align-items:center;gap:6px;margin:0;padding:14px 10px 12px;border-radius:20px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);min-width:0}
