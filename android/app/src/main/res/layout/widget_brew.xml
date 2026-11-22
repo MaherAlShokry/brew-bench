@@ -1,21 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Quick brew, in the shelf card's look: the card's background and heading are drawn in q_art (ShelfArt.skin); the
+     recipe, its numbers, the live clock and the buttons sit over it, in the card's colours. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/q_root"
     android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <ImageView android:id="@+id/q_art" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="fitXY" android:importantForAccessibility="no" />
+<LinearLayout
+    android:id="@+id/q_in"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/widget_bg"
     android:orientation="vertical"
     android:padding="16dp">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-        <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_marginEnd="6dp" android:importantForAccessibility="no" android:src="@drawable/widget_bean_ic" />
-        <TextView android:id="@+id/q_kicker" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:ellipsize="end" android:maxLines="1" android:text="Quick brew" android:textAllCaps="true" android:letterSpacing="0.08" android:textColor="@color/widget_muted" android:textSize="11sp" android:textStyle="bold" />
-        <TextView android:id="@+id/q_brewer" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:textColor="@color/widget_muted" android:textSize="11sp" />
-    </LinearLayout>
-    <TextView android:id="@+id/q_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:ellipsize="end" android:maxLines="1" android:textColor="@color/widget_ink" android:textSize="19sp" android:textStyle="bold" />
+    <TextView android:id="@+id/q_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:maxLines="1" android:textColor="@color/widget_ink" android:textSize="19sp" android:textStyle="bold" />
     <!-- The coffee you're drinking now, under the recipe: its photo (or flag) and name. Shown when there's room. -->
     <LinearLayout android:id="@+id/q_bean" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:gravity="center_vertical" android:orientation="horizontal" android:visibility="gone">
         <FrameLayout android:layout_width="26dp" android:layout_height="26dp" android:layout_marginEnd="8dp" android:background="@drawable/widget_pic">
@@ -25,15 +22,15 @@
         <TextView android:id="@+id/q_btx" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:ellipsize="end" android:maxLines="1" android:textColor="@color/widget_muted" android:textSize="12sp" />
     </LinearLayout>
     <LinearLayout android:id="@+id/q_stats" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:minHeight="56dp" android:layout_marginTop="8dp" android:layout_marginBottom="10dp" android:orientation="horizontal">
-        <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="6dp" android:background="@drawable/widget_tile" android:gravity="center" android:orientation="vertical" android:paddingTop="6dp" android:paddingBottom="6dp">
+        <LinearLayout android:id="@+id/q_t0" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="6dp" android:background="@drawable/widget_tile" android:gravity="center" android:orientation="vertical" android:paddingTop="6dp" android:paddingBottom="6dp">
             <TextView android:id="@+id/q_v0" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:textColor="@color/widget_ink" android:textSize="20sp" android:textStyle="bold" />
             <TextView android:id="@+id/q_l0" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:textAllCaps="true" android:letterSpacing="0.06" android:textColor="@color/widget_muted" android:textSize="10sp" android:textStyle="bold" />
         </LinearLayout>
-        <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="6dp" android:background="@drawable/widget_tile" android:gravity="center" android:orientation="vertical" android:paddingTop="6dp" android:paddingBottom="6dp">
+        <LinearLayout android:id="@+id/q_t1" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="6dp" android:background="@drawable/widget_tile" android:gravity="center" android:orientation="vertical" android:paddingTop="6dp" android:paddingBottom="6dp">
             <TextView android:id="@+id/q_v1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:textColor="@color/widget_ink" android:textSize="20sp" android:textStyle="bold" />
             <TextView android:id="@+id/q_l1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:textAllCaps="true" android:letterSpacing="0.06" android:textColor="@color/widget_muted" android:textSize="10sp" android:textStyle="bold" />
         </LinearLayout>
-        <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="0dp" android:background="@drawable/widget_tile" android:gravity="center" android:orientation="vertical" android:paddingTop="6dp" android:paddingBottom="6dp">
+        <LinearLayout android:id="@+id/q_t2" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="0dp" android:background="@drawable/widget_tile" android:gravity="center" android:orientation="vertical" android:paddingTop="6dp" android:paddingBottom="6dp">
             <TextView android:id="@+id/q_v2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:textColor="@color/widget_ink" android:textSize="20sp" android:textStyle="bold" />
             <TextView android:id="@+id/q_l2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:textAllCaps="true" android:letterSpacing="0.06" android:textColor="@color/widget_muted" android:textSize="10sp" android:textStyle="bold" />
         </LinearLayout>
@@ -62,3 +59,4 @@
         <TextView android:id="@+id/q_go_tx" android:layout_width="wrap_content" android:layout_height="wrap_content" android:ellipsize="end" android:maxLines="1" android:textColor="@color/widget_btn_ink" android:textSize="15sp" android:textStyle="bold" />
     </LinearLayout>
 </LinearLayout>
+</FrameLayout>

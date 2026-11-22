@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The Coffee passport widget: the passport's leather cover (see PassportWidget). -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- The Coffee passport widget, in the shelf card's look: the background and heading drawn in pp_art (see PassportWidget). -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/pp_root"
     android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <ImageView android:id="@+id/pp_art" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="fitXY" android:importantForAccessibility="no" />
+<LinearLayout
+    android:id="@+id/pp_in"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/widget_pp_bg"
     android:orientation="vertical"
     android:padding="16dp">
-    <TextView android:id="@+id/pp_kicker" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:maxLines="1" android:text="Coffee passport" android:textAllCaps="true" android:letterSpacing="0.14" android:textColor="#E2B866" android:textSize="11sp" android:textStyle="bold" />
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:gravity="center_vertical" android:orientation="horizontal">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="bottom" android:orientation="horizontal">
             <TextView android:id="@+id/pp_n" android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:textColor="#F2D59A" android:textSize="40sp" android:textStyle="bold" />
             <TextView android:id="@+id/pp_of" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:layout_marginBottom="4dp" android:ellipsize="end" android:maxLines="2" android:textColor="#BFFFF8EE" android:textSize="14sp" />
@@ -21,3 +24,4 @@
     <ImageView android:id="@+id/pp_bars" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_marginTop="10dp" android:adjustViewBounds="true" android:importantForAccessibility="no" android:scaleType="fitStart" />
     <TextView android:id="@+id/pp_next" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:ellipsize="end" android:maxLines="1" android:textColor="#E2B866" android:textSize="12sp" android:textStyle="bold" />
 </LinearLayout>
+</FrameLayout>

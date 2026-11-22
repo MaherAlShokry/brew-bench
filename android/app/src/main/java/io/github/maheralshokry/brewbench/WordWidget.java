@@ -21,36 +21,53 @@ import org.json.JSONArray;
 public class WordWidget extends AppWidgetProvider {
     @Override
     public void onUpdate(Context ctx, AppWidgetManager m, int[] ids) {
-        for (int id : ids) BrewWidget.push(ctx, m, id, WordWidget::views);
+        for (int id : ids) BrewWidget.pushSized(ctx, m, id, WordWidget::views);
     }
 
     @Override
     public void onAppWidgetOptionsChanged(Context ctx, AppWidgetManager m, int id, Bundle o) { onUpdate(ctx, m, new int[] {id}); }
 
-    static RemoteViews views(Context ctx, int h) {
+    /** For a size given only by its height (a widget picture in a test): a typical width for it. */
+    static RemoteViews views(Context ctx, int h) { return views(ctx, 250, h); }
+
+    /**
+     * In the shelf card's look (the house colours, in the style chosen for cards): its background and heading, "Word of
+     * the day" with today's date, drawn behind; the word, its meaning and its topic in the card's colours.
+     */
+    static RemoteViews views(Context ctx, int w, int h) {
         RemoteViews v = new RemoteViews(ctx.getPackageName(), R.layout.widget_word);
+        ShelfArt.Theme t = ShelfArt.Theme.of(BrewWidget.prefs(ctx).getString("homeTheme", ""));
+        boolean withHead = h >= 100;
+        try { v.setImageViewBitmap(R.id.wd_art, ShelfArt.skin(ctx, t, Math.max(80, w), Math.max(48, h), withHead ? "Word of the day" : null,
+            new SimpleDateFormat("EEE d MMM", Locale.getDefault()).format(new Date()))); } catch (Exception ignored) { }
+        ShelfArt.underHead(ctx, v, R.id.wd_in, withHead, 16, 14);
+        v.setTextColor(R.id.wd_word, t.ink);
+        v.setTextColor(R.id.wd_text, t.muted());
+        v.setTextColor(R.id.wd_cat, t.ink);
+        v.setTextColor(R.id.wd_more, ShelfArt.onAcc(t));
+        v.setTextColor(R.id.wd_mark, ShelfArt.a(t.ink, .07f));
+        ShelfArt.tint(v, R.id.wd_chip, t.chip());
+        ShelfArt.tint(v, R.id.wd_more, t.acc);
         String word = "", text = "", cat = "";
         try {
             JSONArray list = new JSONArray(BrewWidget.prefs(ctx).getString("words", "[]"));
             // The day number as the app counts it: whole days since 1 January 1970 (UTC).
             long today = System.currentTimeMillis() / 86400000L;
             JSONArray pick = null;
-            for (int i = 0; i < list.length(); i++) { JSONArray w = list.optJSONArray(i); if (w != null && w.optLong(0) <= today) pick = w; }
+            for (int i = 0; i < list.length(); i++) { JSONArray e = list.optJSONArray(i); if (e != null && e.optLong(0) <= today) pick = e; }
             if (pick == null && list.length() > 0) pick = list.optJSONArray(0);
             if (pick != null) { word = pick.optString(1, ""); text = pick.optString(2, ""); cat = pick.optString(3, ""); }
         } catch (Exception ignored) { }
         boolean small = h < 130;
-        v.setViewVisibility(R.id.wd_head, h < 100 ? View.GONE : View.VISIBLE);
         v.setViewVisibility(R.id.wd_rule, small ? View.GONE : View.VISIBLE);
         v.setViewVisibility(R.id.wd_foot, small || cat.isEmpty() && word.isEmpty() ? View.GONE : View.VISIBLE);
-        v.setTextViewText(R.id.wd_date, new SimpleDateFormat("EEE d MMM", Locale.getDefault()).format(new Date()));
         int col = catColor(cat);
         v.setInt(R.id.wd_dot, "setColorFilter", col);
         v.setInt(R.id.wd_rule, "setColorFilter", col);
         v.setTextViewText(R.id.wd_mark, word.isEmpty() ? "" : word.substring(0, 1).toUpperCase(Locale.ROOT));
         v.setViewVisibility(R.id.wd_mark, h < 120 ? View.GONE : View.VISIBLE);
         // As many lines of the meaning as the height holds, the rest ending in an ellipsis.
-        int lines = Math.max(1, (h - (small ? 64 : 136)) / 20);
+        int lines = Math.max(1, (h - (small ? 64 : 150)) / 20);
         v.setInt(R.id.wd_text, "setMaxLines", lines);
         if (word.isEmpty()) {
             v.setTextViewText(R.id.wd_word, "Open Brew Bench");

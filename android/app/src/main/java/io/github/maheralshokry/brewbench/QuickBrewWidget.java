@@ -22,7 +22,7 @@ public class QuickBrewWidget extends AppWidgetProvider {
 
     @Override
     public void onUpdate(Context ctx, AppWidgetManager m, int[] ids) {
-        for (int id : ids) BrewWidget.push(ctx, m, id, QuickBrewWidget::views);
+        for (int id : ids) BrewWidget.pushSized(ctx, m, id, QuickBrewWidget::views);
     }
 
     @Override
@@ -34,19 +34,20 @@ public class QuickBrewWidget extends AppWidgetProvider {
      * and to skip to the next step (BrewTimer runs them, app open or not). A brew left running is forgotten once it is
      * well past its time.
      */
-    static boolean brewing(Context ctx, RemoteViews v, int h) {
+    static String[] brewing(Context ctx, RemoteViews v, int h) {
         long now = System.currentTimeMillis();
         BrewTimer.St s = BrewTimer.read(ctx);
         boolean done = s.showDone(now);
-        if (!s.live(now) && !done) return false;
+        if (!s.live(now) && !done) return null;
+        // Under the drawn heading a short widget has no room for the name's own line: it goes in the heading instead.
+        boolean tight = h < 190;
         boolean run = "run".equals(s.state);
         long el = s.elapsed(now);
         v.setViewVisibility(R.id.q_stats, View.GONE);
         v.setViewVisibility(R.id.q_bean, View.GONE);
         v.setViewVisibility(R.id.q_run, View.VISIBLE);
-        v.setTextViewText(R.id.q_kicker, run ? "Brewing now" : done ? "Brew complete" : "Paused");
-        v.setTextViewText(R.id.q_brewer, "");
         v.setTextViewText(R.id.q_title, s.name);
+        v.setViewVisibility(R.id.q_title, tight ? View.GONE : View.VISIBLE);
         v.setViewVisibility(R.id.q_chrono, done ? View.GONE : View.VISIBLE);
         v.setChronometer(R.id.q_chrono, SystemClock.elapsedRealtime() - el, null, run);
         v.setTextViewText(R.id.q_line, done ? "Enjoy it. How was it?" : s.step);
@@ -74,7 +75,7 @@ public class QuickBrewWidget extends AppWidgetProvider {
             v.setOnClickPendingIntent(R.id.q_go, BrewWidget.open(ctx, "log", 23));
         }
         v.setOnClickPendingIntent(R.id.q_root, BrewWidget.open(ctx, "resume", 22));
-        return true;
+        return new String[] {run ? "Brewing now" : done ? "Brew complete" : "Paused", tight ? s.name : ""};
     }
 
     /** The big button: its label, and its icon beside it (none for 0). */
@@ -84,17 +85,48 @@ public class QuickBrewWidget extends AppWidgetProvider {
         if (icon != 0) v.setImageViewResource(R.id.q_go_ic, icon);
     }
 
-    static RemoteViews views(Context ctx, int h) {
+    /** For a size given only by its height (a widget picture in a test): a typical width for it. */
+    static RemoteViews views(Context ctx, int h) { return views(ctx, 250, h); }
+
+    /**
+     * In the shelf card's look: the card's background and heading (the label, and the brewer on the right) drawn
+     * behind, in the colours of the coffee you're drinking (as on Drinking now), and the text, tiles and buttons in
+     * the card's colours. The heading is left out on a widget too short for it.
+     */
+    static RemoteViews views(Context ctx, int w, int h) {
         RemoteViews v = new RemoteViews(ctx.getPackageName(), R.layout.widget_brew);
+        String[] head = fill(ctx, v, h);
+        ShelfArt.Theme t = ShelfArt.Theme.of(BrewWidget.prefs(ctx).getString("theme", ""));
+        boolean withHead = h >= 100;
+        try { v.setImageViewBitmap(R.id.q_art, ShelfArt.skin(ctx, t, Math.max(80, w), Math.max(48, h), withHead ? head[0] : null, head[1])); } catch (Exception ignored) { }
+        ShelfArt.underHead(ctx, v, R.id.q_in, withHead, 16, 16);
+        int ink = t.ink, muted = t.muted(), on = ShelfArt.onAcc(t);
+        for (int id : new int[] {R.id.q_title, R.id.q_v0, R.id.q_v1, R.id.q_v2, R.id.q_chrono, R.id.q_nx_tx}) v.setTextColor(id, ink);
+        for (int id : new int[] {R.id.q_btx, R.id.q_l0, R.id.q_l1, R.id.q_l2, R.id.q_next}) v.setTextColor(id, muted);
+        v.setTextColor(R.id.q_line, t.acc);
+        v.setTextColor(R.id.q_go_tx, on);
+        v.setTextColor(R.id.q_pp_tx, on);
+        v.setInt(R.id.q_go_ic, "setColorFilter", on);
+        v.setInt(R.id.q_pp_ic, "setColorFilter", on);
+        v.setInt(R.id.q_nx_ic, "setColorFilter", ink);
+        for (int id : new int[] {R.id.q_t0, R.id.q_t1, R.id.q_t2, R.id.q_nx}) ShelfArt.tint(v, id, t.chip());
+        ShelfArt.tint(v, R.id.q_go, t.acc);
+        ShelfArt.tint(v, R.id.q_pp, t.acc);
+        return v;
+    }
+
+    /** What the widget shows (the brew under way, else your go-to recipe); returns its heading's label and right side. */
+    static String[] fill(Context ctx, RemoteViews v, int h) {
         // Short: one line of numbers, the whole widget starts it. Medium: the line and Start brew. Tall: the numbers as
         // tiles. Taller: the coffee you're drinking too. (Each step is where everything it shows fits without clipping.)
         boolean small = h < 140, tiles = h >= 200;
-        v.setViewVisibility(R.id.q_kicker, View.VISIBLE);
         v.setViewVisibility(R.id.q_ctl, View.GONE);
         v.setViewVisibility(R.id.q_prog, View.GONE);
-        if (brewing(ctx, v, h)) return v;
+        String[] live = brewing(ctx, v, h);
+        if (live != null) return live;
+        v.setViewVisibility(R.id.q_title, View.VISIBLE);
         v.setViewVisibility(R.id.q_run, View.GONE);
-        v.setTextViewText(R.id.q_kicker, ctx.getString(R.string.widget_brew_name));
+        String label = ctx.getString(R.string.widget_brew_name);
         JSONObject o;
         try { o = new JSONObject(BrewWidget.prefs(ctx).getString("brew", "{}")); } catch (Exception e) { o = new JSONObject(); }
         String key = o.optString("key", "");
@@ -103,17 +135,16 @@ public class QuickBrewWidget extends AppWidgetProvider {
             v.setViewVisibility(R.id.q_run, View.VISIBLE);
             v.setViewVisibility(R.id.q_chrono, View.GONE);
             v.setViewVisibility(R.id.q_next, View.GONE);
-            v.setTextViewText(R.id.q_brewer, "");
             v.setTextViewText(R.id.q_title, "Pick a recipe");
             v.setTextViewText(R.id.q_line, "Your go-to recipe shows here once you've brewed one.");
             go(v, "Recipes", 0);
             v.setViewVisibility(R.id.q_go, small ? View.GONE : View.VISIBLE);
             v.setOnClickPendingIntent(R.id.q_root, BrewWidget.open(ctx, "recipes", 20));
             v.setOnClickPendingIntent(R.id.q_go, BrewWidget.open(ctx, "recipes", 21));
-            return v;
+            return new String[] {label, ""};
         }
         v.setTextViewText(R.id.q_title, o.optString("name", ""));
-        v.setTextViewText(R.id.q_brewer, o.optString("brewer", ""));
+        String right = o.optString("brewer", "");
         String[] vals = {o.optString("dose", ""), o.optString("water", ""), o.optString("temp", "")};
         String[] labs = {"Coffee", "Water", "Water temp"};
         for (int i = 0; i < 3; i++) { v.setTextViewText(VALS[i], vals[i].isEmpty() ? "–" : vals[i]); v.setTextViewText(LABS[i], labs[i]); }
@@ -128,7 +159,7 @@ public class QuickBrewWidget extends AppWidgetProvider {
             if (small) {
                 v.setViewVisibility(R.id.q_go, View.GONE);
                 v.setOnClickPendingIntent(R.id.q_root, BrewWidget.open(ctx, "timer:" + key, 20));
-                return v;
+                return new String[] {label, right};
             }
         }
         // With room, the coffee you're drinking now sits under the recipe.
@@ -148,6 +179,6 @@ public class QuickBrewWidget extends AppWidgetProvider {
         // opens on the timer instead if it hasn't sent this recipe's steps yet).
         JSONArray steps = o.optJSONArray("steps");
         v.setOnClickPendingIntent(R.id.q_go, steps != null && steps.length() > 0 && o.optLong("total", 0L) > 0 ? BrewTimer.action(ctx, BrewTimer.START, 21) : BrewWidget.open(ctx, "timer:" + key, 21));
-        return v;
+        return new String[] {label, right};
     }
 }

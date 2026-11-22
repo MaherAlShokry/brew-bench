@@ -14,7 +14,7 @@ import org.json.JSONObject;
 /**
  * "Your shelf": the bags on your shelf drawn like the shelf share card (ShelfArt.shelf), in its order, at the widget's
  * size: as many rows as its height holds, the rest counted in the heading. Each row opens its coffee; its round log
- * button logs a brew with it. The heading opens Beans.
+ * button logs a brew with it. The heading opens your shelf (the top of Beans).
  */
 public class CabinetWidget extends AppWidgetProvider {
     static final int[] ROWS = {R.id.c_row0, R.id.c_row1, R.id.c_row2, R.id.c_row3, R.id.c_row4, R.id.c_row5};
@@ -55,7 +55,7 @@ public class CabinetWidget extends AppWidgetProvider {
         int tier = ShelfArt.tier(fh);
         for (int i = 0; i < SPACERS.length; i++) v.setViewVisibility(SPACERS[i], i == tier ? View.VISIBLE : View.GONE);
         int shown = Math.min(n, ShelfArt.fits(fh - ShelfArt.PAD - ShelfArt.rowsTop(tier)));
-        v.setOnClickPendingIntent(R.id.c_root, BrewWidget.open(ctx, "beans", 10));
+        v.setOnClickPendingIntent(R.id.c_root, BrewWidget.open(ctx, "shelf", 10));
         for (int i = 0; i < ROWS.length; i++) {
             if (i >= shown) { v.setViewVisibility(ROWS[i], View.GONE); continue; }
             String id = bags[i].id;

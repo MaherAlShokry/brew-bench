@@ -22,18 +22,18 @@ import org.json.JSONObject;
 public class PassportWidget extends AppWidgetProvider {
     @Override
     public void onUpdate(Context ctx, AppWidgetManager m, int[] ids) {
-        for (int id : ids) BrewWidget.push(ctx, m, id, PassportWidget::views);
+        for (int id : ids) BrewWidget.pushSized(ctx, m, id, PassportWidget::views);
     }
 
     @Override
     public void onAppWidgetOptionsChanged(Context ctx, AppWidgetManager m, int id, Bundle o) { onUpdate(ctx, m, new int[] {id}); }
 
-    static final int GOLD = 0xFFE2B866, TRACK = 0x1FFFF8EE;
     private static String KEY = null;
     private static Bitmap RING = null, BARS = null;
 
     /** The ring: a faint full circle with the share collected in gold over it, drawn once at the widget's density. */
-    static Bitmap ring(Context ctx, int pct) {
+    static Bitmap ring(Context ctx, int pct, ShelfArt.Theme th) {
+        int GOLD = th.acc, TRACK = ShelfArt.a(th.ink, .12f);
         int s = BrewWidget.dp(ctx, 64);
         Bitmap b = Bitmap.createBitmap(s, s, Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(b);
@@ -47,12 +47,13 @@ public class PassportWidget extends AppWidgetProvider {
     }
 
     /** The regions as two columns of thin bars in their own colours, as wide as the widget is likely to be. */
-    static Bitmap bars(Context ctx, JSONArray regs) {
+    static Bitmap bars(Context ctx, JSONArray regs, ShelfArt.Theme th) {
+        int GOLD = th.acc, TRACK = ShelfArt.a(th.ink, .12f);
         int w = BrewWidget.dp(ctx, 300), rowH = BrewWidget.dp(ctx, 24), rows = (regs.length() + 1) / 2;
         Bitmap b = Bitmap.createBitmap(w, Math.max(1, rows * rowH), Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(b);
-        Paint t = new Paint(Paint.ANTI_ALIAS_FLAG); t.setColor(0xB8FFF8EE); t.setTextSize(BrewWidget.dp(ctx, 11));
-        Paint n = new Paint(t); n.setColor(0xFFFFF8EE); n.setFakeBoldText(true); n.setTextAlign(Paint.Align.RIGHT);
+        Paint t = new Paint(Paint.ANTI_ALIAS_FLAG); t.setColor(th.muted()); t.setTextSize(BrewWidget.dp(ctx, 11));
+        Paint n = new Paint(t); n.setColor(th.ink); n.setFakeBoldText(true); n.setTextAlign(Paint.Align.RIGHT);
         Paint bar = new Paint(Paint.ANTI_ALIAS_FLAG);
         int gap = BrewWidget.dp(ctx, 14), colW = (w - gap) / 2, bh = BrewWidget.dp(ctx, 4);
         for (int i = 0; i < regs.length(); i++) {
@@ -70,8 +71,20 @@ public class PassportWidget extends AppWidgetProvider {
         return b;
     }
 
-    static RemoteViews views(Context ctx, int h) {
+    /** For a size given only by its height (a widget picture in a test): a typical width for it. */
+    static RemoteViews views(Context ctx, int h) { return views(ctx, 250, h); }
+
+    /** In the shelf card's look (the house colours, in the style chosen for cards), its heading "Coffee passport". */
+    static RemoteViews views(Context ctx, int w, int h) {
         RemoteViews v = new RemoteViews(ctx.getPackageName(), R.layout.widget_passport);
+        ShelfArt.Theme th = ShelfArt.Theme.of(BrewWidget.prefs(ctx).getString("homeTheme", ""));
+        boolean withHead = h >= 80;
+        try { v.setImageViewBitmap(R.id.pp_art, ShelfArt.skin(ctx, th, Math.max(80, w), Math.max(48, h), withHead ? "Coffee passport" : null, null)); } catch (Exception ignored) { }
+        ShelfArt.underHead(ctx, v, R.id.pp_in, withHead, 16, 16);
+        v.setTextColor(R.id.pp_n, th.acc);
+        v.setTextColor(R.id.pp_of, th.muted());
+        v.setTextColor(R.id.pp_pct, th.ink);
+        v.setTextColor(R.id.pp_next, th.acc);
         JSONObject d = null;
         try { d = new JSONObject(BrewWidget.prefs(ctx).getString("passport", "{}")); } catch (Exception ignored) { }
         int n = d == null ? 0 : d.optInt("n"), total = d == null ? 0 : d.optInt("total"), pct = d == null ? 0 : d.optInt("pct");
@@ -79,8 +92,8 @@ public class PassportWidget extends AppWidgetProvider {
         v.setTextViewText(R.id.pp_of, total > 0 ? "of " + total + " origins" : "origins");
         v.setTextViewText(R.id.pp_pct, pct + "%");
         // The same two pictures for every size the launcher is given (16 layouts): one copy each, shared, not one per size.
-        String key = d == null ? "" : d.toString();
-        if (!key.equals(KEY)) { KEY = key; RING = ring(ctx, pct); JSONArray rg = d == null ? null : d.optJSONArray("regs"); BARS = rg != null && rg.length() > 0 ? bars(ctx, rg) : null; }
+        String key = (d == null ? "" : d.toString()) + "|" + th.acc + ":" + th.ink;
+        if (!key.equals(KEY)) { KEY = key; RING = ring(ctx, pct, th); JSONArray rg = d == null ? null : d.optJSONArray("regs"); BARS = rg != null && rg.length() > 0 ? bars(ctx, rg, th) : null; }
         v.setImageViewBitmap(R.id.pp_ring, RING);
         JSONArray regs = d == null ? null : d.optJSONArray("regs");
         boolean showBars = h >= 170 && regs != null && regs.length() > 0;
@@ -90,7 +103,6 @@ public class PassportWidget extends AppWidgetProvider {
         boolean showNext = h >= 115 && next != null && next.length() > 1;
         v.setViewVisibility(R.id.pp_next, showNext ? View.VISIBLE : View.GONE);
         if (showNext) v.setTextViewText(R.id.pp_next, "Next to discover: " + next.optString(0, "") + " " + next.optString(1, ""));
-        v.setViewVisibility(R.id.pp_kicker, h < 80 ? View.GONE : View.VISIBLE);
         if (d == null || total == 0) {
             v.setTextViewText(R.id.pp_of, "Open Brew Bench to start your passport");
             v.setViewVisibility(R.id.pp_next, View.GONE);

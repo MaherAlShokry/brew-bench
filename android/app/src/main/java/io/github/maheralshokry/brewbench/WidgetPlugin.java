@@ -44,7 +44,7 @@ public class WidgetPlugin extends Plugin {
         String ph = call.getString("photo", "");
         e.putString("photo", ph != null && ph.length() < 250000 ? ph : "");
         // The other widgets' data, as JSON text: the cabinet's coffees, the go-to recipe and the coming words.
-        for (String k : new String[] {"cabinet", "brew", "words", "passport", "theme", "shelfTheme", "shelfStats"}) {
+        for (String k : new String[] {"cabinet", "brew", "words", "passport", "theme", "shelfTheme", "shelfStats", "homeTheme"}) {
             String v = call.getString(k, null);
             // The cabinet carries a small photo per coffee, so it may be longer.
             if (v != null && v.length() < (k.equals("cabinet") ? 400000 : 60000)) e.putString(k, v);
@@ -158,6 +158,14 @@ public class WidgetPlugin extends Plugin {
             r.put("i", hex(ctx.getColor(android.R.color.system_accent1_700)));
             r.put("d", hex(ctx.getColor(android.R.color.system_accent1_200)));
         }
+        call.resolve(r);
+    }
+
+    /** The phone's Android version (API level), so the app shows only the settings this phone can use. */
+    @PluginMethod
+    public void sdk(PluginCall call) {
+        JSObject r = new JSObject();
+        r.put("sdk", android.os.Build.VERSION.SDK_INT);
         call.resolve(r);
     }
 

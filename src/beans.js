@@ -700,6 +700,9 @@ function liftSplash(){if(!document.documentElement.classList.contains('splashing
 const wPinned=()=>{try{return localStorage.getItem('bb-wbean')||''}catch(e){return''}};
 function widgetBean(){const sh=BEANS.filter(b=>b.shelf);if(!sh.length)return null;const pin=sh.find(b=>b.id===wPinned());if(pin)return pin;const last=b=>beanBrews(b).reduce((m,l)=>Math.max(m,+l.ts||0),0);
   return sh.map(b=>[b,last(b)]).sort((a,c)=>c[1]-a[1]||(+c[0].ts||0)-(+a[0].ts||0))[0][0]}
+// The roast date the widgets count from: a frozen bag's days in the freezer don't count (its freshness was on hold),
+// so the date moves on by them, and the widget's "Day 12 · At its peak" matches the app's.
+const wRoast=b=>{if(!b.roastDate)return'';const z=b.frz?frozenDays(b):0;return z?new Date(Date.parse(b.roastDate+'T12:00')+z*864e5).toISOString().slice(0,10):b.roastDate};
 const wLeft=b=>{const c=cupsLeft(b);return c==null?'':c?c+(c===1?' cup left':' cups left'):'Bag empty'};
 // The other widgets: Your cabinet (up to four shelf coffees, most recently brewed first), Quick brew (the recipe you've
 // brewed most in the last two months, else the last one opened) and Coffee word of the day (the coming six weeks'
@@ -709,7 +712,7 @@ const wCups=b=>{const c=cupsLeft(b);return c==null?'':c?c+(c===1?' cup':' cups')
 // In the shelf card's order (the bags you've started first, the most used at the top), each with what its row on the
 // card shows: roastery and origin, your rating, and what's left in the bag for its ring.
 function widgetCabinet(){return shelfOrder().slice(0,30).map(b=>{const g=gramsLeft(b);
-  return{id:b.id,title:beanTitle(b),sub:[b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '),roastDate:b.roastDate||'',win:freshWin(b).w.join(','),cups:wCups(b),
+  return{id:b.id,title:beanTitle(b),sub:[b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '),roastDate:wRoast(b),win:freshWin(b).w.join(','),cups:wCups(b),
     flag:isBlend(b)?BLEND_O.flag:b.origin?flagOf(b.origin):'',rating:+b.rating||0,g:g!=null?Math.round(g):-1,bag:+b.bag||0}})}
 // A widget's colours: the share cards' own, in the style you chose for them (dark or light, the origin's colours or one
 // of the app's), worked out as the card would be and handed to the widget, which draws itself in them.
@@ -738,8 +741,8 @@ function widgetWords(){const d0=Math.floor(Date.now()/864e5),out=[];for(let d=d0
 async function updWidget(){const w=plugin('Widget');if(!w)return;try{const b=widgetBean();let rc={},photo='';try{rc=widgetRecipe()}catch(e){}
   if(b&&b.img)try{const t=await BIMG.thumb(b.id);if(t)photo=await shrinkPhoto(t,192)}catch(e){}
   w.update(Object.assign(b?{id:b.id,title:beanTitle(b),sub:[b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '),flag:b.origin?flagOf(b.origin):'',photo,
-    roastDate:b.roastDate||'',win:freshWin(b).w.join(','),left:wLeft(b),rating:String(+b.rating||0),g:String((g=>g!=null?Math.round(g):-1)(gramsLeft(b))),bag:String(+b.bag||0),roaster:b.roaster||'',origin:b.origin?originName(b.origin):''}:{id:''},
-    {theme:JSON.stringify(widgetTheme(b&&b.origin)||{}),shelfTheme:JSON.stringify(widgetTheme((shelfOrder()[0]||{}).origin)||{}),shelfStats:JSON.stringify(widgetShelfStats())},{cabinet:JSON.stringify(await (async()=>{const l=widgetCabinet();for(const x of l.slice(0,6))x.ph=await widgetThumb(beanById(x.id));return l})()),brew:JSON.stringify(rc.key&&b?Object.assign({},rc,{bean:{id:b.id,title:beanTitle(b),flag:isBlend(b)?BLEND_O.flag:b.origin?flagOf(b.origin):'',ph:await widgetThumb(b)}}):rc),words:JSON.stringify(widgetWords()),passport:JSON.stringify(widgetPassport())})).catch(()=>{})}catch(e){}}
+    roastDate:wRoast(b),win:freshWin(b).w.join(','),left:wLeft(b),rating:String(+b.rating||0),g:String((g=>g!=null?Math.round(g):-1)(gramsLeft(b))),bag:String(+b.bag||0),roaster:b.roaster||'',origin:b.origin?originName(b.origin):''}:{id:''},
+    {theme:JSON.stringify(widgetTheme(b&&b.origin)||{}),shelfTheme:JSON.stringify(widgetTheme((shelfOrder()[0]||{}).origin)||{}),homeTheme:JSON.stringify(widgetTheme(null)||{}),shelfStats:JSON.stringify(widgetShelfStats())},{cabinet:JSON.stringify(await (async()=>{const l=widgetCabinet();for(const x of l.slice(0,6))x.ph=await widgetThumb(beanById(x.id));return l})()),brew:JSON.stringify(rc.key&&b?Object.assign({},rc,{bean:{id:b.id,title:beanTitle(b),flag:isBlend(b)?BLEND_O.flag:b.origin?flagOf(b.origin):'',ph:await widgetThumb(b)}}):rc),words:JSON.stringify(widgetWords()),passport:JSON.stringify(widgetPassport())})).catch(()=>{})}catch(e){}}
 (()=>{const W=!!plugin('Widget');if(W){setTimeout(updWidget,2500);document.addEventListener('visibilitychange',()=>{if(document.hidden)updWidget()})}
   const go=o=>{const [k,id]=String(o||'').split(':');
     // The brew timer's notification or widget: back to the timer as it is (reopened where the brew is if it was closed).
@@ -761,6 +764,8 @@ async function updWidget(){const w=plugin('Widget');if(!w)return;try{const b=wid
     // From the icon's long-press shortcuts: a brew (your go-to recipe's timer, else the dial-in), a scan, the log.
     if(k==='brew'){const rc=widgetRecipe(),i=rc&&rc.key?rByKey(rc.key):-1;if(i>=0){showTab('recipes');openTimer(i)}else showTab('dial');return}
     if(k==='scan'){showTab('scan');try{newScan()}catch(e){}scrollTo(0,0);return}
+    // The shelf widget's heading: your shelf, at the top of Coffees.
+    if(k==='shelf'){showTab('beans');if(BVIEW!=='coffees'){bvStep(BVIEW,'coffees');BVIEW='coffees';renderBeanViews()}scrollTo(0,0);return}
     if(k==='passport'){showTab('beans');bvStep(BVIEW,'passport');BVIEW='passport';BDIRTY.add('passport');renderBeanViews();setTimeout(()=>{const e=$('bv-passport');if(e)e.scrollIntoView({block:'start'})},80);return}
     if(k==='word'&&GBY[rest]){openWord(rest);return}
     if(k==='word'||k==='explore'){goTab('explore');return}
