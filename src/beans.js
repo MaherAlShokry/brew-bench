@@ -690,8 +690,10 @@ async function setReminder(on,t){const ln=LN();if(t)REMIND.t=t;
   const run=()=>{if(!pend)return;if(!NAV_READY){setTimeout(run,60);return}const n=pend;pend=null;try{go(n)}catch(e){}liftSplash()};
   try{ln.addListener('localNotificationActionPerformed',a=>{pend=a&&a.notification;run()})}catch(e){}
   if(REMIND.on)setTimeout(scheduleReminders,3000)})();
-// The opening scene lifts at once (two frames after the app has moved, so the new place is drawn under it).
-function liftSplash(){if(!document.documentElement.classList.contains('splashing')||!window.bbSplashEnd)return;requestAnimationFrame(()=>requestAnimationFrame(()=>window.bbSplashEnd()))}
+// The opening scene lifts at once onto the place the app moved to.
+function liftSplash(){if(!document.documentElement.classList.contains('splashing')||!window.bbSplashEnd)return;let n=0;
+  // Only once the place it went to is showing (a page switch can take a few frames on a slow phone), and drawn.
+  const f=()=>{if(document.querySelector('main section.on')||++n>45)requestAnimationFrame(()=>requestAnimationFrame(()=>window.bbSplashEnd()));else requestAnimationFrame(f)};requestAnimationFrame(f)}
 // The home-screen widget (Android, see BrewWidget.java): the coffee you're drinking, meaning the cabinet coffee you
 // brewed most recently (or added most recently, before any brews), sent when the app starts and each time you leave
 // it. The widget works out the day's freshness itself from the roast date and window. Tapping it opens that coffee;

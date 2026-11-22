@@ -10,15 +10,18 @@ for(const [want,tab] of [['passport','beans'],['log','log'],['scan','scan'],['wo
     window.Capacitor={isNativePlatform:()=>true,getPlatform:()=>'android',Plugins:{LocalNotifications:{checkPermissions:()=>Promise.resolve({display:'granted'}),requestPermissions:()=>Promise.resolve({display:'granted'}),schedule:ok,cancel:ok,getPending:()=>Promise.resolve({notifications:[]}),addListener:ok,createChannel:ok},App:{addListener:ok,getInfo:()=>Promise.resolve({version:'1.0'})},
       Widget:{pending:()=>{const r={open:left};left='';return Promise.resolve(r)},update:o=>{window.__wup=o;return Promise.resolve({})},timer:ok,timerState:()=>Promise.resolve({state:'stop'}),cabinet:ok,quick:ok,passport:ok,words:ok,schedule:ok,accent:ok}}};
     // What shows once the opening scene is gone: watched every frame from the start.
-    window.__seen=[];const look=()=>{const h=document.documentElement,s=document.getElementById('splash');
+    // (From when the page has been read: before that there is no page at all to see.)
+    window.__seen=[];const look=()=>{const h=document.documentElement,s=document.getElementById('splash');if(document.readyState==='loading'){requestAnimationFrame(look);return}
       if(s&&h.classList.contains('splashing')&&!s.classList.contains('out')){requestAnimationFrame(look);return}
       const on=document.querySelector('main section.on');window.__seen.push(on&&on.id);window.__lift=window.__lift||performance.now();if(window.__seen.length<30)requestAnimationFrame(look)};
     requestAnimationFrame(look)},want);
   const p=await c.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));await p.route(u=>!u.href.startsWith('http://localhost'),r=>r.abort());
-  await p.goto('http://localhost:8099/index.html');await p.waitForTimeout(2500);
+  // A slow phone (and a busy test machine): six times slower, so a page switch spans several frames.
+  const cdp=await c.newCDPSession(p);await cdp.send('Emulation.setCPUThrottlingRate',{rate:6});
+  await p.goto('http://localhost:8099/index.html');await p.waitForTimeout(4500);
   const r=await p.evaluate(()=>({seen:[...new Set(window.__seen)],lift:Math.round(window.__lift||0),on:(document.querySelector('main section.on')||{}).id}));
   ok(want+': opens straight on '+tab+' (never the start page first)',r.seen.length===1&&r.seen[0]===tab&&r.on===tab,r);
-  ok(want+': the opening scene lifts at once',r.lift>0&&r.lift<1500,r);
+  ok(want+': the opening scene lifts at once',r.lift>0&&r.lift<4000,r);
   ok(want+': no page errors',!errs.length,errs);await c.close()}
 // What the app sends the Drinking now and Your shelf widgets: the share card's colours, and each bag as its row shows it.
 {const c=await b.newContext({viewport:{width:390,height:844},serviceWorkers:'block'});
