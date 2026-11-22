@@ -112,7 +112,6 @@ function cupRadar(avg){const W=180,c=W/2,R=58,pt=(i,f)=>{const a=-Math.PI/2+i*2*
   return '<svg class="jr-radar" viewBox="0 0 '+W+' '+W+'" role="img" aria-label="'+JR_TR.map(([k,n])=>n+' '+avg[k].toFixed(1)+' of 10').join(', ')+'">'+g+'</svg>'}
 function journeyHTML(){const ml=LOG.filter(l=>l&&isMine(l)&&+l.ts>0).sort((a,b)=>a.ts-b.ts),bs=window.BEANS_OK?BEANS.slice().sort((a,b)=>beanDay(a)<beanDay(b)?-1:1):[];
   if(!ml.length&&bs.length<2)return '';
-  const md=t=>new Date(t).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'});
   // How your cups taste.
   const rs=ml.map(l=>l.snap&&l.snap.r).filter(Boolean),avg={};JR_TR.forEach(([k])=>{avg[k]=rs.length?rs.reduce((a,r)=>a+(+r[k]||0),0)/rs.length:0});
   const lead=rs.length?JR_TR.slice().sort((a,b)=>avg[b[0]]-avg[a[0]]).slice(0,2).map(x=>x[1].toLowerCase()):[];
@@ -124,18 +123,19 @@ function journeyHTML(){const ml=LOG.filter(l=>l&&isMine(l)&&+l.ts>0).sort((a,b)=
   const g=ml.reduce((a,l)=>a+(l.snap&&+l.snap.dose||0),0),st=ml.length?brewStreak(ml):0,rated=ml.filter(l=>+l.stars>0),avgR=rated.length?rated.reduce((a,l)=>a+ +l.stars,0)/rated.length:0;
   const rc=new Map();ml.forEach(l=>{const n=l.snap&&l.snap.rec;if(n)rc.set(n,(rc.get(n)||0)+1)});const fav=[...rc].sort((a,b)=>b[1]-a[1])[0];
   const best=bs.filter(b=>b.rating).sort((a,b)=>b.rating-a.rating)[0];
-  const hl=[g>0&&['#D2793A',g>=1000?(g/1000).toFixed(g>=10000?0:1)+' kg':Math.round(g)+' g','coffee brewed'],st>1&&['#F43F5E',st+' days','longest streak'],
-    avgR>0&&['#F59E0B',avgR.toFixed(1)+' / 5','average cup'],fav&&['#8B5CF6',fav[0],'go-to recipe · '+fav[1]+'×'],best&&['#14B8A6',beanTitle(best),'best rated · '+best.rating+' / 5']].filter(Boolean).slice(0,4);
+  const hl=[g>0&&['☕','Coffee brewed',g>=1000?(g/1000).toFixed(g>=10000?0:1)+' kg':Math.round(g)+' g','#D2793A'],st>1&&['🔥','Longest streak',st+' days','#F43F5E'],
+    avgR>0&&['✨','Average cup',avgR.toFixed(1)+' of 5','#F59E0B'],fav&&['🎯','Go-to recipe',fav[0],'#8B5CF6'],best&&['🏆','Best rated',beanTitle(best),'#14B8A6']].filter(Boolean).slice(0,4);
   // Milestones, oldest first.
-  const ms=[];if(bs.length)ms.push([Date.parse(beanDay(bs[0])),'First coffee',beanTitle(bs[0])]);
-  if(ml.length)ms.push([ml[0].ts,'First cup brewed',(ml[0].snap&&ml[0].snap.rec)||ml[0].coffee||'']);
-  for(const n of [10,25,50,100,250,500])if(ml.length>=n)ms.push([ml[n-1].ts,n+' cups',(ml[n-1].snap&&ml[n-1].snap.rec)||'']);
-  {const seen=new Set();for(const b of bs){const o=realO(b);if(!o||seen.has(o))continue;seen.add(o);if([5,10,15,20].includes(seen.size))ms.push([Date.parse(beanDay(b)),seen.size+' origins',originName(o)])}}
+  const ms=[];if(bs.length)ms.push([Date.parse(beanDay(bs[0])),'First coffee',beanTitle(bs[0]),'🛍','#D2793A']);
+  if(ml.length)ms.push([ml[0].ts,'First cup brewed',(ml[0].snap&&ml[0].snap.rec)||ml[0].coffee||'','☕','#B07A56']);
+  for(const n of [10,25,50,100,250,500])if(ml.length>=n)ms.push([ml[n-1].ts,n+' cups brewed',(ml[n-1].snap&&ml[n-1].snap.rec)||'','🏁','#8B5CF6']);
+  {const seen=new Set();for(const b of bs){const o=realO(b);if(!o||seen.has(o))continue;seen.add(o);if([5,10,15,20].includes(seen.size))ms.push([Date.parse(beanDay(b)),seen.size+' origins',originName(o),'🌍','#14B8A6'])}}
   const mss=ms.filter(m=>isFinite(m[0])).sort((a,b)=>a[0]-b[0]).slice(-6);
   return '<section class="me-sec me-jr" aria-label="Your coffee journey"><h3 class="me-sh">Your coffee journey</h3>'+
     (graphs?'<div class="jr-gs'+(rs.length&&fl.length?' two':'')+'">'+graphs+'</div>':'')+
-    (hl.length?'<div class="jr-hl">'+hl.map(([c,v,k])=>'<div style="--tc:'+c+'"><b>'+esc(v)+'</b><small>'+esc(k)+'</small></div>').join('')+'</div>':'')+
-    (mss.length?'<ol class="jr-tl">'+mss.map(([t,k,v])=>'<li><time>'+md(t)+'</time><b>'+esc(k)+'</b>'+(v?'<small>'+esc(v)+'</small>':'')+'</li>').join('')+'</ol>':'')+'</section>'}
+    (hl.length?factCard(hl.map(([i,k,v,c])=>[i,k,esc(v),c]),{cols:hl.length===1?1:2,cls:'jr-hl'}):'')+
+    (mss.length?'<ol class="jr-tl" aria-label="Milestones">'+mss.map(([t,k,v,ic,c])=>{const d=new Date(t);return '<li style="--tc:'+c+'"><i class="jr-ic" aria-hidden="true">'+emoIc(ic)+'</i><span class="jr-tx"><b>'+esc(k)+'</b>'+(v?'<small>'+esc(v)+'</small>':'')+'</span>'+
+      '<time datetime="'+d.toISOString().slice(0,10)+'"><b>'+d.toLocaleDateString(undefined,{day:'numeric',month:'short'})+'</b><small>'+d.getFullYear()+'</small></time></li>'}).join('')+'</ol>':'')+'</section>'}
 // Your picks stay on one line: when they don't fit, their text steps down a little at a time; only if they still
 // don't fit at the smallest size do they go onto a second line, so no name is ever cut.
 function fitPills(){const u=document.querySelector('#vd-in .me-pills');if(!u)return;u.classList.remove('wrap');u.style.fontSize='';let f=1;
