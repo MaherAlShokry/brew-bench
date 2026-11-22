@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Notification icon, drawn in the app's line style (24-grid, round strokes). Tinted where it is used. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+    <path android:pathData="M12 3.2c3.5 0 6 3.9 6 8.8s-2.5 8.8-6 8.8-6-3.9-6-8.8 2.5-8.8 6-8.8z M12.9 3.6C10.4 6.3 14.3 9 12 12s1.6 5.9-0.9 8.4" android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="1.9" android:strokeLineCap="round" android:strokeLineJoin="round"/>
+</vector>

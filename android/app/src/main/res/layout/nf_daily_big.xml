@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A daily note, opened: photo or icon tile with what it is, the title and a line of facts; your note in a soft panel
+     (a coffee) or the full text (a fact); the tasting notes; and up to two buttons, the first in your accent. Also the
+     finished brew. Parts that a note doesn't have are hidden. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingBottom="4dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+        <ImageView android:id="@+id/nf_tile" android:layout_width="56dp" android:layout_height="56dp" android:scaleType="fitCenter" android:importantForAccessibility="no"/>
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="14dp" android:orientation="vertical">
+            <TextView android:id="@+id/nf_eyebrow" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:textColor="@color/nf_label" android:textSize="11sp" android:textStyle="bold" android:letterSpacing="0.06" android:textAllCaps="true" android:maxLines="1" android:ellipsize="end"/>
+            <TextView android:id="@+id/nf_title" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:textColor="@color/nf_ink" android:textSize="17sp" android:textStyle="bold" android:maxLines="2" android:ellipsize="end"/>
+            <TextView android:id="@+id/nf_meta" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp"
+                android:textColor="@color/nf_muted" android:textSize="13sp" android:maxLines="1" android:ellipsize="end"/>
+        </LinearLayout>
+    </LinearLayout>
+    <LinearLayout android:id="@+id/nf_panel" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp"
+        android:orientation="vertical" android:background="@drawable/nf_panel" android:paddingStart="14dp" android:paddingEnd="14dp" android:paddingTop="10dp" android:paddingBottom="11dp">
+        <TextView android:id="@+id/nf_note_label" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textColor="@color/nf_label" android:textSize="11sp" android:textStyle="bold" android:letterSpacing="0.06" android:textAllCaps="true" android:maxLines="1"/>
+        <TextView android:id="@+id/nf_note" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="3dp"
+            android:textColor="@color/nf_ink" android:textSize="14sp" android:maxLines="3" android:ellipsize="end"/>
+    </LinearLayout>
+    <TextView android:id="@+id/nf_body" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp"
+        android:textColor="@color/nf_ink" android:textSize="14sp" android:lineSpacingMultiplier="1.12" android:maxLines="4" android:ellipsize="end"/>
+    <LinearLayout android:id="@+id/nf_chips" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:orientation="horizontal"/>
+    <LinearLayout android:id="@+id/nf_acts" android:layout_width="match_parent" android:layout_height="40dp" android:layout_marginTop="12dp" android:orientation="horizontal">
+        <FrameLayout android:id="@+id/nf_b1" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1">
+            <ImageView android:id="@+id/nf_b1_bg" android:layout_width="match_parent" android:layout_height="match_parent" android:src="@drawable/nf_pill" android:scaleType="fitXY" android:importantForAccessibility="no"/>
+            <TextView android:id="@+id/nf_b1_t" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center"
+                android:textColor="@color/nf_on" android:textSize="14sp" android:textStyle="bold" android:maxLines="1" android:ellipsize="end" android:paddingStart="12dp" android:paddingEnd="12dp"/>
+        </FrameLayout>
+        <TextView android:id="@+id/nf_b2" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginStart="8dp"
+            android:background="@drawable/nf_chip" android:gravity="center" android:textColor="@color/nf_ink" android:textSize="14sp" android:textStyle="bold"
+            android:maxLines="1" android:ellipsize="end" android:paddingStart="12dp" android:paddingEnd="12dp"/>
+    </LinearLayout>
+</LinearLayout>

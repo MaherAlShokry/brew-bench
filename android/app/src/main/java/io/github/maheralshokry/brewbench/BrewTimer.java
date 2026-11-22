@@ -235,6 +235,8 @@ final class BrewTimer {
     }
 
     static final int ACCENT = 0xFFB0703A;
+    /** What the brew's notification last showed (below Android 16), so a second that changes nothing isn't posted again. */
+    private static String LAST_SIG = null;
 
     @SuppressWarnings("deprecation")
     static void note(Context ctx, St s, long now) {
@@ -242,6 +244,7 @@ final class BrewTimer {
         if (nm == null) return;
         boolean run = "run".equals(s.state), pause = "pause".equals(s.state), done = s.showDone(now);
         if (!(s.live(now) || done) || !allowed(ctx)) {
+            LAST_SIG = null;
             nm.cancel(NOTE_ID);
             // Android queues posts and cancels; a cancel right after a post (Next on the last step, then Stop) can be lost
             // while that post is still queued. Once it has landed, take it away again if the brew is still over.
@@ -251,6 +254,18 @@ final class BrewTimer {
         }
         channel(ctx);
         long e = s.elapsed(now);
+        // Below Android 16 the clocks inside the notification tick by themselves; it is posted again only when what it
+        // shows changes (the step, the ring's arc, the bar, the state, light or dark), and at least every 30 seconds.
+        if (Build.VERSION.SDK_INT < 36) {
+            int c0 = s.cur(e);
+            long na = -1; for (long x : s.t) if (x > e) { na = x; break; }
+            if (na < 0) na = s.total;
+            long sa = c0 >= 0 ? s.t[c0] : 0;
+            String sig = s.state + "|" + done + "|" + c0 + "|" + s.name + "|" + s.step + "|" + (na > sa ? (e - sa) * 24 / (na - sa) : 24)
+                + "|" + (s.total > 0 ? e * 200 / s.total : 0) + "|" + NotifViews.night(ctx) + "|" + (now / 30000);
+            if (sig.equals(LAST_SIG)) return;
+            LAST_SIG = sig;
+        }
         Notification.Builder b = Build.VERSION.SDK_INT >= 26 ? new Notification.Builder(ctx, CHANNEL) : new Notification.Builder(ctx);
         b.setSmallIcon(R.drawable.ic_stat_bean)
             .setColor(ACCENT)
@@ -260,90 +275,130 @@ final class BrewTimer {
             .setContentIntent(BrewWidget.open(ctx, "resume", 40))
             .setSubText(s.name.isEmpty() ? "Brew" : s.name);
         if (Build.VERSION.SDK_INT < 26) b.setPriority(Notification.PRIORITY_DEFAULT);
+        // Below Android 16 the brew has the app's own layout. On 16 the notification keeps Android's own layout, the
+        // one that may become a Live Update (the clock in a status-bar chip, on the lock screen, in Samsung's Now Bar):
+        // a notification with its own layout never does.
+        boolean custom = Build.VERSION.SDK_INT < 36;
+        String recipe = s.name.isEmpty() ? "Brew" : s.name.replaceFirst("\\s+on (the |an? )?\\S.*$", "");
         if (done) {
+            String line = (s.name.isEmpty() ? "Your brew" : recipe) + " in " + clock(e) + ". Enjoy it.";
             b.setOngoing(false).setAutoCancel(true)
                 .setContentTitle("Brew complete")
-                .setContentText((s.name.isEmpty() ? "Your brew" : s.name) + " in " + clock(e) + ". Enjoy it.")
+                .setContentText(line)
                 .setShowWhen(false);
             if (Build.VERSION.SDK_INT >= 26) b.setTimeoutAfter(Math.max(1000, DONE_KEEP - (now - s.at)));
-            b.addAction(new Notification.Action.Builder(null, "Log this brew", BrewWidget.open(ctx, "log", 41)).build());
-            b.addAction(new Notification.Action.Builder(null, "Brew again", action(ctx, TOGGLE, 42)).build());
+            if (custom) {
+                try {
+                    JSONObject o = new JSONObject().put("title", "Brew complete · " + clock(e)).put("line", recipe).put("meta", recipe)
+                        .put("icon", "check").put("tile", "#4F8A3E").put("acts", new JSONArray()
+                            .put(new JSONArray().put("Log this brew").put("log")));
+                    b.setCustomContentView(DailyNotes.small(ctx, o, ACCENT));
+                    android.widget.RemoteViews big = DailyNotes.big(ctx, o, ACCENT, 41);
+                    // Brew again restarts here, without opening the app.
+                    big.setTextViewText(R.id.nf_b2, "Brew again");
+                    big.setViewVisibility(R.id.nf_b2, android.view.View.VISIBLE);
+                    big.setOnClickPendingIntent(R.id.nf_b2, action(ctx, TOGGLE, 42));
+                    big.setOnClickPendingIntent(R.id.nf_b1, BrewWidget.open(ctx, "log", 41));
+                    b.setCustomBigContentView(big);
+                    b.setStyle(new Notification.DecoratedCustomViewStyle());
+                } catch (Exception ignored) { custom = false; }
+            }
+            if (!custom) {
+                b.addAction(new Notification.Action.Builder(null, "Log this brew", BrewWidget.open(ctx, "log", 41)).build());
+                b.addAction(new Notification.Action.Builder(null, "Brew again", action(ctx, TOGGLE, 42)).build());
+            }
         } else {
             // The clock counts down to the next step (on the last, to the end), ticking by itself: it is also what the
             // status-bar chip and the Now Bar show.
             int c = s.cur(e), n = s.t.length;
-            long nextAt = -1;
+            long nextAt = -1, stepAt = c >= 0 ? s.t[c] : 0;
             for (long x : s.t) if (x > e) { nextAt = x; break; }
             if (nextAt < 0 && s.total > e) nextAt = s.total;
-            // One thing per line: the step as the title, what's next under it, the recipe beside the app's name, and
-            // the clock counting down to the next pour. The amount to pour and the step count sit in a round badge.
-            String nx = s.next.replaceFirst("^Next at \\d+:\\d\\d: ", "Next: ");
+            float frac = nextAt > stepAt ? (e - stepAt) / (float) (nextAt - stepAt) : 1f;
             String step = s.step.isEmpty() ? "Brewing" : s.step.replaceAll("\\.$", "");
+            String nx = s.next.replaceFirst("^Next at (\\d+:\\d\\d): ", "Next at $1 · ").replaceAll("\\.$", "");
             b.setOngoing(true)
                 .setContentTitle(pause ? "Paused at " + clock(e) : step)  // paused, no clock runs: the title holds the time
-                .setContentText(nx.replaceAll("\\.$", ""))
-                // The recipe's name without the brewer it's made on ("Tetsu Kasuya 10-pour", not "... on the NEO"), so the
-                // header stays one short line next to the countdown.
-                .setSubText(s.name.isEmpty() ? "Brew" : s.name.replaceFirst("\\s+on (the |an? )?\\S.*$", ""));
-            if (n > 0 && c >= 0) try { b.setLargeIcon(badge(s.step, c + 1, n)); } catch (Exception ignored) { }
-            if (run && nextAt > 0 && Build.VERSION.SDK_INT >= 24) b.setWhen(now + (nextAt - e)).setUsesChronometer(true).setChronometerCountDown(true).setShowWhen(true);
-            else if (run) b.setWhen(now - e).setUsesChronometer(true).setShowWhen(true);
-            else b.setShowWhen(false);
-            b.addAction(new Notification.Action.Builder(null, run ? "Pause" : "Resume", action(ctx, TOGGLE, 43)).build());
-            if (s.t.length > 0) b.addAction(new Notification.Action.Builder(null, "Next", action(ctx, NEXT, 44)).build());
-            b.addAction(new Notification.Action.Builder(null, "Stop", action(ctx, STOP, 45)).build());
-            progress(b, s, e);
-            // Android 16: ask to be a Live Update (the clock in a status-bar chip, on the lock screen and in Samsung's
-            // Now Bar). The chip shows the running clock; paused, it says so.
-            Bundle x = new Bundle();
-            x.putBoolean("android.requestPromotedOngoing", true);
-            b.addExtras(x);
-            if (Build.VERSION.SDK_INT >= 36 && pause) b.setShortCriticalText("Paused");
+                .setContentText(pause ? step : nx)
+                .setSubText(recipe);
+            android.graphics.Bitmap ring = n > 0 ? NotifViews.ring(ctx, Math.max(1, c + 1), n, Math.max(0, Math.min(1, frac)), ACCENT, pause) : null;
+            if (custom) {
+                b.setShowWhen(false);
+                try { custom(ctx, b, s, e, now, nextAt, c, n, ring, step, nx, run, pause); }
+                catch (Exception ex) { custom = false; }
+            }
+            if (!custom) {
+                if (ring != null) b.setLargeIcon(ring);
+                if (run && nextAt > 0 && Build.VERSION.SDK_INT >= 24) b.setWhen(now + (nextAt - e)).setUsesChronometer(true).setChronometerCountDown(true).setShowWhen(true);
+                else if (run) b.setWhen(now - e).setUsesChronometer(true).setShowWhen(true);
+                else b.setShowWhen(false);
+                b.addAction(new Notification.Action.Builder(android.graphics.drawable.Icon.createWithResource(ctx, run ? R.drawable.nfi_pause : R.drawable.nfi_play), run ? "Pause" : "Resume", action(ctx, TOGGLE, 43)).build());
+                if (s.t.length > 0) b.addAction(new Notification.Action.Builder(android.graphics.drawable.Icon.createWithResource(ctx, R.drawable.nfi_next), "Next", action(ctx, NEXT, 44)).build());
+                b.addAction(new Notification.Action.Builder(android.graphics.drawable.Icon.createWithResource(ctx, R.drawable.nfi_stop), "Stop", action(ctx, STOP, 45)).build());
+                progress(b, s, e);
+                // Android 16: ask to be a Live Update (the clock in a status-bar chip, on the lock screen and in Samsung's
+                // Now Bar). The chip shows the running clock; paused, it says so.
+                Bundle x = new Bundle();
+                x.putBoolean("android.requestPromotedOngoing", true);
+                b.addExtras(x);
+                if (Build.VERSION.SDK_INT >= 36 && pause) b.setShortCriticalText("Paused");
+            }
         }
         nm.notify(NOTE_ID, b.build());
     }
 
     /**
-     * The round badge on the right of the notification: the amount this step pours large ("+30g", or "150g" for a pour
-     * up to a total on the scale), and which step of how many under it ("1 of 10"), in the app's coffee colours.
+     * The brew in the app's own layout (below Android 16). Closed: the step ring, the step and what's next, and the
+     * countdown to the next step. Opened: the brew's clock large with its length, the countdown, the bar split into the
+     * recipe's steps, the step now and the next one, and round buttons (pause or resume, next, stop). The clocks are
+     * Android's own and tick by themselves; the rest is redrawn as the brew moves on.
      */
-    // The notification is redrawn every second; the badge only changes with the step, so it is drawn once per step.
-    private static String BADGE_KEY = null;
-    private static android.graphics.Bitmap BADGE = null;
-    static android.graphics.Bitmap badge(String step, int i, int n) {
-        String key = step + "|" + i + "|" + n;
-        if (key.equals(BADGE_KEY) && BADGE != null) return BADGE;
-        int z = 192;
-        android.graphics.Bitmap bm = android.graphics.Bitmap.createBitmap(z, z, android.graphics.Bitmap.Config.ARGB_8888);
-        android.graphics.Canvas cv = new android.graphics.Canvas(bm);
-        android.graphics.Paint bg = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
-        bg.setShader(new android.graphics.LinearGradient(0, 0, z, z, 0xFFC98A52, 0xFF8A5230, android.graphics.Shader.TileMode.CLAMP));
-        cv.drawCircle(z / 2f, z / 2f, z / 2f, bg);
-        java.util.regex.Matcher m = java.util.regex.Pattern.compile("(?i)(to\\s*)?(\\d+(?:\\.\\d+)?)\\s?(g|ml)\\b").matcher(step == null ? "" : step);
-        boolean f = m.find();
-        // The amount large and bold with its unit small beside it ("+30" "g"), the step under it ("1 of 10"); the pair is
-        // centred on the circle from the real text metrics and kept to 60% of its width, well clear of the edge.
-        String num = f ? (m.group(1) != null ? "" : "+") + m.group(2) : String.valueOf(i);
-        String unit = f ? m.group(3).toLowerCase(Locale.US) : "";
-        String small = f ? i + " of " + n : "of " + n;
-        android.graphics.Paint pn = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG), pu = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG), ps = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
-        pn.setColor(0xFFFFFFFF); pu.setColor(0xEBFFFFFF); ps.setColor(0xD1FFFFFF);
-        pn.setTypeface(android.graphics.Typeface.create(android.graphics.Typeface.DEFAULT, android.graphics.Typeface.BOLD));
-        float s1 = 58;
-        pn.setTextSize(s1); pu.setTextSize(s1 * .5f); ps.setTextSize(24);
-        float gapU = unit.isEmpty() ? 0 : 2, max = z * 0.6f;
-        while (s1 > 20 && pn.measureText(num) + gapU + pu.measureText(unit) > max) { s1 -= 2; pn.setTextSize(s1); pu.setTextSize(s1 * .5f); }
-        android.graphics.Rect rn = new android.graphics.Rect(), rs = new android.graphics.Rect();
-        pn.getTextBounds(num, 0, num.length(), rn);
-        ps.getTextBounds("0 of 10", 0, 7, rs);
-        float gap = 14, block = -rn.top + gap + rs.height(), top = (z - block) / 2f, base = top - rn.top;
-        float w = pn.measureText(num) + gapU + pu.measureText(unit), x0 = z / 2f - w / 2f;
-        cv.drawText(num, x0, base, pn);
-        if (!unit.isEmpty()) cv.drawText(unit, x0 + pn.measureText(num) + gapU, base, pu);
-        ps.setTextAlign(android.graphics.Paint.Align.CENTER);
-        cv.drawText(small, z / 2f, base + gap - rs.top, ps);
-        BADGE_KEY = key; BADGE = bm;
-        return bm;
+    static void custom(Context ctx, Notification.Builder b, St s, long e, long now, long nextAt, int c, int n,
+                       android.graphics.Bitmap ring, String step, String nx, boolean run, boolean pause) {
+        String pkg = ctx.getPackageName();
+        long rt = android.os.SystemClock.elapsedRealtime();
+        int tint = NotifViews.night(ctx) ? 0xFFE2A877 : ACCENT;
+        android.widget.RemoteViews sm = new android.widget.RemoteViews(pkg, R.layout.nf_timer);
+        if (ring != null) sm.setImageViewBitmap(R.id.nf_ring, ring); else sm.setViewVisibility(R.id.nf_ring, android.view.View.GONE);
+        sm.setTextViewText(R.id.nf_title, pause ? "Paused at " + clock(e) : step);
+        sm.setTextViewText(R.id.nf_line, pause ? step : nx);
+        boolean cd = run && nextAt > e;
+        if (cd) {
+            sm.setChronometer(R.id.nf_cd, rt + (nextAt - e), null, true);
+            sm.setChronometerCountDown(R.id.nf_cd, true);
+            sm.setTextColor(R.id.nf_cd, tint);
+        } else sm.setViewVisibility(R.id.nf_cd, android.view.View.GONE);
+
+        android.widget.RemoteViews bg = new android.widget.RemoteViews(pkg, R.layout.nf_timer_big);
+        bg.setChronometer(R.id.nf_clock, rt - e, null, run);
+        String of = (s.total > 0 ? "of " + clock(s.total) : "") + (n > 0 && c >= 0 ? (s.total > 0 ? " · " : "") + "step " + (c + 1) + " of " + n : "");
+        DailyNotes.text(bg, R.id.nf_of, pause ? "Paused" + (of.isEmpty() ? "" : " · " + of) : of);
+        if (cd) {
+            bg.setTextViewText(R.id.nf_nextlbl, nextAt >= s.total && s.total > 0 ? "Done in" : "Next in");
+            bg.setChronometer(R.id.nf_cd, rt + (nextAt - e), null, true);
+            bg.setChronometerCountDown(R.id.nf_cd, true);
+            bg.setTextColor(R.id.nf_cd, tint);
+        } else bg.setViewVisibility(R.id.nf_nextbox, android.view.View.GONE);
+        if (s.total > 0) bg.setImageViewBitmap(R.id.nf_bar, NotifViews.bar(ctx, s.t, s.total, e, tint));
+        else bg.setViewVisibility(R.id.nf_bar, android.view.View.GONE);
+        bg.setTextViewText(R.id.nf_nowtag, "Now");
+        bg.setTextViewText(R.id.nf_now, step);
+        // The next step: its time in a small pill, then what it is.
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("^Next at (\\d+:\\d\\d) · (.*)$").matcher(nx);
+        if (m.find()) { bg.setTextViewText(R.id.nf_nexttag, m.group(1)); bg.setTextViewText(R.id.nf_next, m.group(2)); }
+        else if (!nx.isEmpty()) { bg.setTextViewText(R.id.nf_nexttag, "Last"); bg.setTextViewText(R.id.nf_next, "Then it's done"); }
+        else bg.setViewVisibility(R.id.nf_nextrow, android.view.View.GONE);
+        bg.setInt(R.id.nf_toggle_bg, "setColorFilter", ACCENT);
+        bg.setImageViewResource(R.id.nf_toggle_ic, run ? R.drawable.nfi_pause : R.drawable.nfi_play);
+        bg.setContentDescription(R.id.nf_toggle, run ? "Pause" : "Resume");
+        bg.setOnClickPendingIntent(R.id.nf_toggle, action(ctx, TOGGLE, 43));
+        if (s.t.length > 0) { bg.setOnClickPendingIntent(R.id.nf_skip, action(ctx, NEXT, 44)); bg.setContentDescription(R.id.nf_skip, "Next step"); }
+        else bg.setViewVisibility(R.id.nf_skip, android.view.View.GONE);
+        bg.setOnClickPendingIntent(R.id.nf_stop, action(ctx, STOP, 45));
+        bg.setContentDescription(R.id.nf_stop, "Stop");
+        b.setCustomContentView(sm);
+        b.setCustomBigContentView(bg);
+        b.setStyle(new Notification.DecoratedCustomViewStyle());
     }
 
     /**

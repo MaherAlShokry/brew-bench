@@ -20,6 +20,12 @@ const items=[...(cab?cab.items:[]),...(fact?fact.items:[])],emoji=/[\u{1F300}-\u
 ok('two weeks of each',cab&&cab.items.length>=13&&fact&&fact.items.length>=13,[cab&&cab.items.length,fact&&fact.items.length]);
 ok('every note has a header, a title with no emoji, text and a time',items.every(x=>x.tag&&x.title&&!emoji.test(x.title)&&!emoji.test(x.tag)&&x.body&&x.at>Date.now()),items.find(x=>!(x.tag&&x.title&&!emoji.test(x.title)&&x.body)));
 ok('coffee notes open their coffee, fact notes their fact',cab.items.every(x=>/^(bean:|beans$)/.test(x.open))&&fact.items.every(x=>/^fact:/.test(x.open)),[cab.items[0].open,fact.items[0].open]);
+// Laid out for the phone's own design: a coffee carries its line (never the coffee's name again), facts, tasting notes
+// and Brew it / Open; a fact its topic icon, a short line, the full text and its label.
+const cb=cab.items.filter(x=>/^bean:/.test(x.open));
+ok('coffee notes carry their layout: a line, facts, Brew it and Open',cb.length>0&&cb.every(x=>x.line&&!x.line.includes(x.title)&&Array.isArray(x.chips)&&x.chips.length<=3&&x.acts&&x.acts[0][1]==='brewbean:'+x.open.slice(5)&&x.acts[1][1]===x.open),cb[0]);
+ok('a diary note puts your note in its panel',cb.filter(x=>x.tag==='From your diary').every(x=>x.note&&/^Your note · /.test(x.noteLabel)),cb.find(x=>x.tag==='From your diary'));
+ok('fact notes carry a topic icon, a label, a short line and the full text',fact.items.every(x=>['book','leaf','globe','flask','drop','hourglass','trophy'].includes(x.icon)&&/^#[0-9a-f]{6}$/i.test(x.tile)&&x.eyebrow&&x.line&&x.line.length<=120&&x.text&&x.tag==='Coffee fact'),fact.items.find(x=>!x.icon||!x.eyebrow));
 ok('the vibe\'s colour goes with them',/^#[0-9a-f]{6}$/i.test(cab.accent||''),cab.accent);
 await p.evaluate(()=>{window.__look=[];setAppIcon()});await p.waitForTimeout(200);
 ok('changing the look sends the colour',await p.evaluate(()=>window.__look.length>0&&/^#[0-9a-f]{6}$/i.test(window.__look[0].accent)));
@@ -33,4 +39,6 @@ await p.evaluate(()=>{document.querySelectorAll('dialog[open]').forEach(d=>d.clo
 ok('a fact note opens its word',await p.evaluate(()=>(document.querySelector('main section.on')||{}).id)==='words');
 await p.evaluate(()=>{window.__open='fact:null';window.bbWidget()});await p.waitForTimeout(900);
 ok('a fact with nothing to open lands on Explore',await p.evaluate(()=>(document.querySelector('main section.on')||{}).id)==='explore');
+await p.evaluate(id=>{window.__open='brewbean:'+id;window.bbWidget()},bean.id);await p.waitForTimeout(900);
+ok('Brew it sets up the Brew page for that coffee',await p.evaluate(id=>(document.querySelector('main section.on')||{}).id==='dial'&&S.bean&&S.bean.id===id,bean.id));
 ok('no page errors',!errs.length,errs);await b.close()})();

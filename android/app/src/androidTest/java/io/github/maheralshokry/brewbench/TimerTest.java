@@ -83,17 +83,23 @@ public class TimerTest {
         assertNotNull("a running brew shows a notification", n);
         assertTrue("it stays while brewing", (n.getNotification().flags & Notification.FLAG_ONGOING_EVENT) != 0);
         assertEquals(STEPS[0], title(n));
-        assertEquals("Pause, Next step and Stop", 3, n.getNotification().actions.length);
-        // What Android asks of a Live Update (all public): ongoing, a title, a progress style, not colourised, and the
-        // request to be promoted. Whether the phone then promoted it is logged (those calls aren't in the public SDK).
         Notification nn = n.getNotification();
-        // The clock counts down to the next step, live; the text says what's next; the badge, the amount and the step count.
-        assertTrue("the clock counts down to the next step", nn.extras.getBoolean(Notification.EXTRA_CHRONOMETER_COUNT_DOWN) && nn.extras.getBoolean(Notification.EXTRA_SHOW_CHRONOMETER));
-        assertTrue("what comes next under the step", String.valueOf(nn.extras.getCharSequence(Notification.EXTRA_TEXT)).startsWith("Next: "));
-        assertNotNull("the amount and step count in a round badge", nn.getLargeIcon());
-        assertTrue("asks to be a Live Update", nn.extras.getBoolean("android.requestPromotedOngoing"));
+        assertTrue("what comes next under the step", String.valueOf(nn.extras.getCharSequence(Notification.EXTRA_TEXT)).startsWith("Next at 0:45 · "));
         assertTrue("not colourised", !nn.extras.getBoolean(Notification.EXTRA_COLORIZED));
-        if (Build.VERSION.SDK_INT >= 36) {
+        if (Build.VERSION.SDK_INT < 36) {
+            // The app's own layout: closed and opened views, its round buttons inside (no system buttons).
+            assertEquals("the app's own layout", Notification.DecoratedCustomViewStyle.class.getName(), nn.extras.getString(Notification.EXTRA_TEMPLATE));
+            assertNotNull("a closed view", nn.contentView);
+            assertNotNull("an opened view", nn.bigContentView);
+            assertEquals("buttons live in the layout", 0, nn.actions == null ? 0 : nn.actions.length);
+            assertTrue("its views draw on this phone", DailyNotesTest.draws(ctx, nn));
+        } else {
+            // What Android asks of a Live Update (all public): ongoing, a title, a progress style, not colourised, and the
+            // request to be promoted. Whether the phone then promoted it is logged (those calls aren't in the public SDK).
+            assertEquals("Pause, Next step and Stop", 3, nn.actions.length);
+            assertTrue("the clock counts down to the next step", nn.extras.getBoolean(Notification.EXTRA_CHRONOMETER_COUNT_DOWN) && nn.extras.getBoolean(Notification.EXTRA_SHOW_CHRONOMETER));
+            assertNotNull("the step ring", nn.getLargeIcon());
+            assertTrue("asks to be a Live Update", nn.extras.getBoolean("android.requestPromotedOngoing"));
             assertEquals("a progress-style notification", Notification.ProgressStyle.class.getName(), nn.extras.getString(Notification.EXTRA_TEMPLATE));
             Log.i("TimerTest", "promotable=" + hidden(nn, "hasPromotableCharacteristics") + " promoted=" + hidden(nn, "isPromotedOngoing")
                 + " canPost=" + hidden(ctx.getSystemService(NotificationManager.class), "canPostPromotedNotifications"));
@@ -124,6 +130,7 @@ public class TimerTest {
         assertNotNull(n);
         assertEquals("Brew complete", title(n));
         assertEquals("it can be swiped away once done", 0, n.getNotification().flags & Notification.FLAG_ONGOING_EVENT);
+        if (Build.VERSION.SDK_INT < 36) assertTrue("the finished brew draws", DailyNotesTest.draws(ctx, n.getNotification()));
 
         BrewTimer.act(ctx, BrewTimer.STOP);
         // The notification service applies posts and cancels in its own time: wait up to 3 s for it to go.

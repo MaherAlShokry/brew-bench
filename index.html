@@ -3189,7 +3189,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="251f76a2747a"</script>
+<script>const BUILD_ID="cc5d3cac1036"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -10586,7 +10586,8 @@ async function scheduleFacts(){const ln=window.BEANS_OK&&LN();if(!ln)return fals
   try{await ln.cancel({notifications:FIDS.map(id=>({id}))})}catch(e){}
   if(!LEARN.on)return dailyNotes('fact',[]);const [h,m]=LEARN.t.split(':').map(Number),now=new Date(),list=[];
   for(let i=0;i<14;i++){const at=new Date(now.getFullYear(),now.getMonth(),now.getDate()+i,h,m);if(at<=now)continue;const day=Math.floor((at-at.getTimezoneOffset()*6e4)/864e5),f=factFor(day);
-    list.push({id:FIDS[i],at,tag:f.tag==='From history'?'From history':'Did you know · '+f.tag,title:f.title,body:f.text,open:'fact:'+JSON.stringify(f.go||null)})}
+    const t=FACT_TILE[f.k]||FACT_TILE.word,open='fact:'+JSON.stringify(f.go||null);
+    list.push({id:FIDS[i],at,tag:'Coffee fact',title:f.title,body:f.text,open,line:sentences(f.text,90),eyebrow:f.tag==='From history'?'From history':'Did you know · '+f.tag,text:sentences(f.text,260),icon:t[0],tile:t[1],acts:f.go?[['Read more',open]]:[]})}
   return dailyNotes('fact',list)}
 async function setLearn(on){const ln=window.BEANS_OK&&LN();
   if(on&&!LEARN.on){if(!ln){toast('Phone reminders work in the Android app');return false}
@@ -11400,7 +11401,7 @@ function cabinetDay(when){const day=when||new Date(),iso=day.getFullYear()+'-'+S
   if(ago.length){const b=pick(ago),y=+iso.slice(0,4)-+b.tried.slice(0,4);return{b,k:'ago',title:(y===1?'A year':y+' years')+' ago today',text:'You tried '+beanTitle(b)+(b.roaster?' from '+b.roaster:'')+(b.rating?' and gave it '+String(b.rating).replace('.5','½')+' beans.':'.')}}
   const mem=[];for(const b of BEANS)for(const e of b.diary)if(e.t&&at(e.d)>=14)mem.push({b,e});
   const fav=BEANS.filter(b=>b.rating>=3.5);
-  if(mem.length&&(seed%2||!fav.length)){const {b,e}=pick(mem);return{b,k:'mem',title:'From your diary',text:'“'+(e.t.length>140?e.t.slice(0,137).replace(/\s+\S*$/,'')+'…':e.t)+'”  '+beanTitle(b)+', '+dfmt(Date.parse(e.d+'T12:00'))}}
+  if(mem.length&&(seed%2||!fav.length)){const {b,e}=pick(mem);return{b,e,k:'mem',title:'From your diary',text:'“'+(e.t.length>140?e.t.slice(0,137).replace(/\s+\S*$/,'')+'…':e.t)+'”  '+beanTitle(b)+', '+dfmt(Date.parse(e.d+'T12:00'))}}
   const b=pick(fav.length?fav:BEANS);return{b,k:'fav',title:beanTitle(b),text:[b.roaster,b.origin?originName(b.origin):'',b.rating?String(b.rating).replace('.5','½')+' beans':''].filter(Boolean).join(' · ')+(b.flavours?'. You tasted '+b.flavours.split(/\s*[,;·]\s*/).slice(0,3).join(', ')+'.':'.')}}
 const DAYK={peak:'At its peak',low:'Running low',fade:'Brew it soon',ago:'On this day',mem:'A memory',fav:'From your cabinet'};
 /* ---------- The daily reminder on the phone ---------- */
@@ -11411,9 +11412,20 @@ const LN=()=>plugin('LocalNotifications'),RIDS=[...Array(14)].map((_,i)=>7101+i)
 async function scheduleReminders(){const ln=LN();if(!ln)return false;
   try{await ln.cancel({notifications:RIDS.map(id=>({id}))})}catch(e){}
   if(!REMIND.on)return dailyNotes('cabinet',[]);const [h,m]=REMIND.t.split(':').map(Number),now=new Date(),list=[];
-  for(let i=0;i<14;i++){const at=new Date(now.getFullYear(),now.getMonth(),now.getDate()+i,h,m);if(at<=now)continue;const c=cabinetDay(at);
-    list.push(c?{id:RIDS[i],at,tag:c.k==='mem'?'From your diary':DAYK[c.k],title:c.k==='mem'?beanTitle(c.b):c.title,body:c.text,open:'bean:'+c.b.id}:{id:RIDS[i],at,tag:'Coffee of the day',title:'Time for a good cup',body:'Add the bag you’re drinking to your cabinet and keep its story.',open:'beans'})}
+  const ph={};for(let i=0;i<14;i++){const at=new Date(now.getFullYear(),now.getMonth(),now.getDate()+i,h,m);if(at<=now)continue;const c=cabinetDay(at);
+    list.push(c?await cabinetNote(c,RIDS[i],at,ph):{id:RIDS[i],at,tag:'Coffee of the day',title:'Time for a good cup',body:'Add the bag you’re drinking to your cabinet and keep its story.',line:'Add the bag you’re drinking to your cabinet.',text:'Add the bag you’re drinking to your cabinet and keep its story.',icon:'bean',open:'beans'})}
   return dailyNotes('cabinet',list)}
+// One coffee-of-the-day note, laid out for the phone's own notification (DailyNotes.java): the photo (a small copy, made
+// once per coffee for the two weeks), the title and one line closed; opened, a line of facts, your diary note in its
+// panel or the nudge's text, three tasting notes with their colours, and Brew it (set up the Brew page for it) and Open.
+async function cabinetNote(c,id,at,ph){const b=c.b,mem=c.k==='mem'&&c.e,day=mem?new Date(Date.parse(c.e.d+'T12:00')).toLocaleDateString('en',{month:'short',day:'numeric'}):'';
+  if(!(b.id in ph))ph[b.id]=await widgetThumb(b).catch(()=>'')||'';
+  const P=b.process&&typeof PROCESSES!=='undefined'&&PROCESSES[b.process],meta=[b.roaster,b.origin?originName(b.origin):'',P?P.name.replace(/\s*\(.*\)$/,''):''].filter(Boolean).join(' · ');
+  const note=mem?(c.e.t.length>160?c.e.t.slice(0,157).replace(/\s+\S*$/,'')+'…':c.e.t):'';
+  const chips=b.flavours&&typeof tnSplit==='function'?tnSplit(b.flavours).slice(0,3).map(f=>[f,tnColor(f)]):[];
+  return {id,at,tag:mem?'From your diary':DAYK[c.k],title:mem?beanTitle(b):c.title,body:c.text,open:'bean:'+b.id,
+    line:mem?'“'+note+'” · '+day:meta||c.text,meta,note,noteLabel:mem?'Your note · '+day:'',text:mem?'':c.text,chips,icon:'bean',photo:ph[b.id],
+    acts:[['Brew it','brewbean:'+b.id],[mem?'Open diary':'Open','bean:'+b.id]]}}
 // The daily notes are drawn by the Android app itself (DailyNotes.java), in the app's look: a header saying what it is
 // ("From your cabinet"), the coffee or fact as the title, your chosen icon as the picture and your vibe's colour.
 // Elsewhere, and in an app from before that, they go through the notifications plugin as before.
@@ -11487,6 +11499,9 @@ async function updWidget(){const w=plugin('Widget');if(!w)return;try{const b=wid
   const go=o=>{const [k,id]=String(o||'').split(':');
     // The brew timer's notification or widget: back to the timer as it is (reopened where the brew is if it was closed).
     if(k==='resume'){if(!$('timer').open)tmResume(false);return}
+    // Brew it, on a coffee of the day: the Brew page set up for that coffee, as its own Brew button does.
+    if(k==='brewbean'){const b=beanById(id);if(b){document.querySelectorAll('dialog[open]').forEach(d=>d.close());useBean(b);showTab('dial');
+      if(!dialRec()){const t=techList(S.brewer)[0];if(t)S.rec=t[1]}if(dialRec())tune('Tuned for '+beanTitle(b));else{render();toast('Set up for '+beanTitle(b))}return}}
     // "Log this brew" on a finished brew's notification, with its timer still open: the timer's own log, with the brew.
     if(k==='log'&&!id&&$('timer').open&&TM&&TM.fin&&$('tm-log')){$('tm-log').click();return}
     document.querySelectorAll('dialog[open]').forEach(d=>d.close());

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The brew, opened: the brew's clock large with its length and the step count, the countdown to the next step, the bar
+     split into the recipe's steps, the step now and the next one, and round buttons: pause or resume, next, stop. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingBottom="4dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="bottom">
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+            <Chronometer android:id="@+id/nf_clock" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textColor="@color/nf_ink" android:textSize="40sp" android:textStyle="bold" android:fontFeatureSettings="tnum" android:includeFontPadding="false" android:maxLines="1"/>
+            <TextView android:id="@+id/nf_of" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp"
+                android:textColor="@color/nf_muted" android:textSize="13sp" android:maxLines="1"/>
+        </LinearLayout>
+        <LinearLayout android:id="@+id/nf_nextbox" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="end">
+            <TextView android:id="@+id/nf_nextlbl" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textColor="@color/nf_muted" android:textSize="11sp" android:textStyle="bold" android:letterSpacing="0.06" android:textAllCaps="true"/>
+            <Chronometer android:id="@+id/nf_cd" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textSize="24sp" android:textStyle="bold" android:fontFeatureSettings="tnum" android:maxLines="1"/>
+        </LinearLayout>
+    </LinearLayout>
+    <ImageView android:id="@+id/nf_bar" android:layout_width="match_parent" android:layout_height="8dp" android:layout_marginTop="14dp" android:scaleType="fitXY" android:importantForAccessibility="no"/>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="horizontal" android:gravity="center_vertical">
+        <TextView android:id="@+id/nf_nowtag" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/nf_tag" android:paddingStart="8dp" android:paddingEnd="8dp" android:paddingTop="2dp" android:paddingBottom="2dp"
+            android:textColor="@color/nf_on" android:textSize="11sp" android:textStyle="bold"/>
+        <TextView android:id="@+id/nf_now" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="10dp"
+            android:textColor="@color/nf_ink" android:textSize="15sp" android:textStyle="bold" android:maxLines="1" android:ellipsize="end"/>
+    </LinearLayout>
+    <LinearLayout android:id="@+id/nf_nextrow" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:orientation="horizontal" android:gravity="center_vertical">
+        <TextView android:id="@+id/nf_nexttag" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/nf_chip" android:paddingStart="8dp" android:paddingEnd="8dp" android:paddingTop="2dp" android:paddingBottom="2dp"
+            android:textColor="@color/nf_muted" android:textSize="11sp" android:textStyle="bold" android:fontFeatureSettings="tnum"/>
+        <TextView android:id="@+id/nf_next" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="10dp"
+            android:textColor="@color/nf_muted" android:textSize="14sp" android:maxLines="1" android:ellipsize="end"/>
+    </LinearLayout>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="44dp" android:layout_marginTop="14dp" android:orientation="horizontal" android:gravity="center_vertical">
+        <FrameLayout android:id="@+id/nf_toggle" android:layout_width="44dp" android:layout_height="44dp">
+            <ImageView android:id="@+id/nf_toggle_bg" android:layout_width="match_parent" android:layout_height="match_parent" android:src="@drawable/nf_disc" android:importantForAccessibility="no"/>
+            <ImageView android:id="@+id/nf_toggle_ic" android:layout_width="20dp" android:layout_height="20dp" android:layout_gravity="center" android:src="@drawable/nfi_pause"/>
+        </FrameLayout>
+        <FrameLayout android:id="@+id/nf_skip" android:layout_width="44dp" android:layout_height="44dp" android:layout_marginStart="10dp" android:background="@drawable/nf_disc2">
+            <ImageView android:id="@+id/nf_skip_ic" android:layout_width="20dp" android:layout_height="20dp" android:layout_gravity="center" android:src="@drawable/nfi_next" android:tint="@color/nf_ink"/>
+        </FrameLayout>
+        <FrameLayout android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1"/>
+        <FrameLayout android:id="@+id/nf_stop" android:layout_width="44dp" android:layout_height="44dp" android:background="@drawable/nf_disc2">
+            <ImageView android:id="@+id/nf_stop_ic" android:layout_width="18dp" android:layout_height="18dp" android:layout_gravity="center" android:src="@drawable/nfi_stop" android:tint="@color/nf_ink"/>
+        </FrameLayout>
+    </LinearLayout>
+</LinearLayout>

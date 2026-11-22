@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A daily note, closed: the coffee's photo (or the fact's icon tile), the title and one line under it. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:orientation="horizontal" android:gravity="center_vertical" android:paddingTop="2dp" android:paddingBottom="2dp">
+    <ImageView android:id="@+id/nf_tile" android:layout_width="44dp" android:layout_height="44dp" android:scaleType="fitCenter" android:importantForAccessibility="no"/>
+    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="12dp" android:orientation="vertical">
+        <TextView android:id="@+id/nf_title" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textColor="@color/nf_ink" android:textSize="16sp" android:textStyle="bold" android:maxLines="1" android:ellipsize="end"/>
+        <TextView android:id="@+id/nf_line" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
+            android:textColor="@color/nf_muted" android:textSize="13sp" android:maxLines="1" android:ellipsize="end"/>
+    </LinearLayout>
+</LinearLayout>

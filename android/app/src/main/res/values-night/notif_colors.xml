@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The notifications' own colours, light and dark (the shade follows the phone). -->
+<resources>
+    <color name="nf_ink">#F2EEE9</color>
+    <color name="nf_muted">#A9A49E</color>
+    <color name="nf_panel">#2F3034</color>
+    <color name="nf_chip">#34353A</color>
+    <color name="nf_label">#C9A27E</color>
+    <color name="nf_on">#FFF8F0</color>
+</resources>
