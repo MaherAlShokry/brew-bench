@@ -1,5 +1,5 @@
 // Opening the Android app from a widget (or a notification) goes straight to the place it asked for: the app moves
-// there under its opening scene, which then lifts at once onto it. The start page (Brew) never shows first, and the
+// there under its opening scene, which the app then lifts at once onto it (not the scene's own timer). The start page (Brew) never shows first, and the
 // scene doesn't play out its full length.
 {const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();
@@ -11,6 +11,8 @@ for(const [want,tab] of [['passport','beans'],['log','log'],['scan','scan'],['wo
       Widget:{pending:()=>{const r={open:left};left='';return Promise.resolve(r)},update:o=>{window.__wup=o;return Promise.resolve({})},timer:ok,timerState:()=>Promise.resolve({state:'stop'}),cabinet:ok,quick:ok,passport:ok,words:ok,schedule:ok,accent:ok}}};
     // What shows once the opening scene is gone: watched every frame from the start.
     // (From when the page has been read: before that there is no page at all to see.)
+    // Who ended the scene: the app lifting it (window.bbSplashEnd, called by liftSplash) or the scene's own timer.
+    {let e=null;Object.defineProperty(window,'bbSplashEnd',{configurable:true,set(f){e=f},get(){return e&&(()=>{window.__byLift=window.__byLift||performance.now();e()})}})}
     window.__seen=[];const look=()=>{const h=document.documentElement,s=document.getElementById('splash');if(document.readyState==='loading'){requestAnimationFrame(look);return}
       if(s&&h.classList.contains('splashing')&&!s.classList.contains('out')){requestAnimationFrame(look);return}
       const on=document.querySelector('main section.on');window.__seen.push(on&&on.id);window.__lift=window.__lift||performance.now();if(window.__seen.length<30)requestAnimationFrame(look)};
@@ -19,9 +21,10 @@ for(const [want,tab] of [['passport','beans'],['log','log'],['scan','scan'],['wo
   // A slow phone (and a busy test machine): six times slower, so a page switch spans several frames.
   const cdp=await c.newCDPSession(p);await cdp.send('Emulation.setCPUThrottlingRate',{rate:6});
   await p.goto('http://localhost:8099/index.html');await p.waitForTimeout(4500);
-  const r=await p.evaluate(()=>({seen:[...new Set(window.__seen)],lift:Math.round(window.__lift||0),on:(document.querySelector('main section.on')||{}).id}));
+  const r=await p.evaluate(()=>({seen:[...new Set(window.__seen)],lift:Math.round(window.__lift||0),byLift:!!window.__byLift,on:(document.querySelector('main section.on')||{}).id}));
   ok(want+': opens straight on '+tab+' (never the start page first)',r.seen.length===1&&r.seen[0]===tab&&r.on===tab,r);
-  ok(want+': the opening scene lifts at once',r.lift>0&&r.lift<4000,r);
+  // The app lifts it as soon as the place is showing, not the scene's own timer (whatever the machine's speed).
+  ok(want+': the opening scene lifts at once',r.lift>0&&r.byLift,r);
   ok(want+': no page errors',!errs.length,errs);await c.close()}
 // What the app sends the Drinking now and Your shelf widgets: the share card's colours, and each bag as its row shows it.
 {const c=await b.newContext({viewport:{width:390,height:844},serviceWorkers:'block'});

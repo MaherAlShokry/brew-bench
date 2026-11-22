@@ -948,7 +948,7 @@ svg .bo{fill:currentColor}svg .bc{fill:none;stroke:var(--surface);stroke-width:1
 .sh-ic{flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:var(--surface2);color:var(--cherry)}
 .sh-ic svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .sh-av{flex:none;display:grid}.sh-tx{flex:1;min-width:0}.sh-tx b{display:flex;align-items:center;gap:6px;font:700 .98rem var(--display)}
-.sh-tx small{display:block;margin-top:2px;font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sh-tx .code{font-weight:700;color:var(--ink);letter-spacing:.04em}
+.sh-tx small{display:block;margin-top:2px;font-size:.8rem;color:var(--muted);line-height:1.3}.sh-tx .code{font-weight:700;color:var(--ink);letter-spacing:.04em}
 .sh-row .pbtn.sm{flex:none;min-height:36px;padding:0 14px;font-size:.84rem}
 .sh-form{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
 .sharepanel h3{margin:0 0 .3rem}
@@ -1966,6 +1966,9 @@ button.pm.empty{cursor:pointer}button.pm.empty:active .pm-card{transform:scale(.
 .bd-done{width:100%;margin-top:14px}
 
 .vd-tools{position:absolute;right:62px;top:12px;display:flex;gap:8px}
+
+.vd-head.hd-below .pill,.vd-head.hd-below .vd-back{max-width:100%!important;margin-top:48px}
+.vd-head.hd-below .vd-back+.pill{margin-top:0}
 .vd-tool{width:40px;height:40px;border-radius:999px;border:0;background:var(--surface2);color:var(--ink);display:grid;place-items:center;cursor:pointer;padding:0}
 .vd-tool svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .vd-tool:active{transform:scale(.94)}
@@ -2198,7 +2201,7 @@ i.rl{font-style:inherit;font-variant-numeric:tabular-nums}
 .ro-key{display:flex;align-items:center;gap:8px;min-width:0;padding:8px 0;border-top:1px solid var(--hair,var(--line));font-size:.9rem;font-weight:600;color:var(--ink)}
 .ro-keys:not(.one) .ro-key:nth-child(-n+2),.ro-keys.one .ro-key:first-child{border-top:0}
 .ro-key>i{width:8px;height:8px;border-radius:50%;flex:none}
-.ro-key>span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ro-key>span{flex:1;min-width:0;overflow-wrap:break-word;line-height:1.3}
 .ro-key em{flex:none;font-style:normal;font-size:.84rem;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums;min-width:1.2em;text-align:right}
 .ro-roast{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;border-radius:14px;overflow:hidden}
 .ro-roast span{display:flex;flex-direction:column;align-items:center;gap:1px;padding:10px 4px;background:color-mix(in srgb,var(--rc) 12%,var(--surface2));color:var(--muted)}
@@ -2229,7 +2232,7 @@ i.rl{font-style:inherit;font-variant-numeric:tabular-nums}
 .pp-slot{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:0;border:0;background:none;padding:4px 2px;font:inherit;color:#2A1A10;cursor:pointer;text-align:center}
 .pp-sc{display:grid;place-items:center;width:64px;height:64px;margin-bottom:6px;border-radius:50%;border:2px dashed rgba(122,74,38,.3);background:rgba(255,255,255,.45);font-size:1.6rem;line-height:1;transition:transform .25s var(--ease-spring),border-color .2s}
 .pp-slot:hover .pp-sc,.pp-slot:focus-visible .pp-sc{transform:scale(1.06);border-color:rgba(122,74,38,.55)}.pp-slot:active .pp-sc{transform:scale(.95)}
-.pp-slot b{max-width:100%;font-size:.8rem;font-family:var(--display);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pp-slot small{max-width:100%;font-size:.7rem;color:#6B4A30;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pp-slot b{max-width:100%;font-size:.8rem;font-family:var(--display);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pp-slot small{max-width:100%;font-size:.7rem;color:#6B4A30;line-height:1.2;overflow-wrap:break-word;text-align:center}
 
 .trophies{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px}
 .tro{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--r-md);background:var(--surface);box-shadow:var(--shadow)}
@@ -2911,7 +2914,7 @@ html{-webkit-tap-highlight-color:transparent}.seg button:focus:not(:focus-visibl
 .rov-h-k{display:inline-flex;align-items:center;gap:6px;font-size:.7rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#F0C98A}
 .rov-h-k svg{width:14px;height:14px;fill:#F0C98A;stroke:none}
 .rov-h-tx b{font-family:var(--display);font-size:1.25rem;line-height:1.15;letter-spacing:-.01em;overflow-wrap:anywhere}
-.rov-h-tx small{font-size:.8rem;color:#D9C8B8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rov-h-tx small{font-size:.8rem;color:#D9C8B8;line-height:1.3;overflow-wrap:break-word}
 .rov-h-rate{flex:none;display:inline-flex;align-items:center;gap:4px;padding:6px 11px;border-radius:var(--r-pill);background:rgba(255,255,255,.12);font:800 .95rem var(--display);font-variant-numeric:tabular-nums}
 .rov-h-rate svg{width:15px;height:15px}
 
@@ -3286,7 +3289,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="2a75b22184d7"</script>
+<script>const BUILD_ID="2c6bdb17e2bc"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -7391,7 +7394,8 @@ const ALWAYS={explore:()=>renderExplore(),settings:()=>renderSettings(),beans:()
 const SLIDE_MS=450,sliding=()=>performance.now()-NAV_AT<SLIDE_MS;
 function afterSlide(fn){const left=SLIDE_MS-(performance.now()-NAV_AT);if(left>0)setTimeout(()=>afterSlide(fn),left+30);else fn()}
 let USER_AT=0;for(const ev of ['pointerdown','keydown','wheel','touchmove'])addEventListener(ev,()=>{USER_AT=performance.now()},{capture:true,passive:true});
-addEventListener('scroll',()=>{USER_AT=performance.now()},{capture:true,passive:true});
+// The page's scroll as of the last scroll event: reading scrollY itself lays out the page if anything changed since.
+let SCROLL_Y=0;addEventListener('scroll',e=>{USER_AT=performance.now();if(e.target===document)SCROLL_Y=scrollY},{capture:true,passive:true});
 // The first coffee or recipe sheet of a visit took about twice as long to open as later ones: the browser laying its
 // parts out for the first time. Right after the Beans page is built, one of each is drawn off screen in a quiet moment
 // (never shown, nothing saved) and cleared, so the first real one opens like the rest.
@@ -7443,7 +7447,10 @@ function prebuildTabs(){const ids=['recipes','gear','variety','process','map','w
     const id=ids.find(k=>!BUILT[k]);if(!id){if(SHEETS_WARM<2){warmSheets();idle(next);return}const w=[...ids,'guide','scan'].find(k=>BUILT[k]&&!WARM.has(k)&&$(k)&&!$(k).classList.contains('on'));
       // The pages inside sections are warmed only after 3 s without a touch: each costs a phone a few dozen ms, which
       // landed on the next tap while you were using the app (opening a coffee measured slower for it).
-      if(w&&performance.now()-USER_AT<3000){setTimeout(()=>idle(next),600);return}if(w){warmPage(w);idle(next)}return}BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
+      if(w&&performance.now()-USER_AT<3000){setTimeout(()=>idle(next),600);return}if(w){warmPage(w);idle(next)}return}
+    // Building a page inside a section (Gear, Varieties…) waits for the same 3 s: some take a phone 50-100 ms, which
+    // landed on the next tap in Beans or Recipes while you were reading them.
+    if(performance.now()-USER_AT<3000){setTimeout(()=>idle(next),600);return}BUILT[id]=1;try{LAZY[id]()}catch(e){BUILT[id]=0}idle(next)};
   let againT=0;prebuildTabs.again=all=>{if(all)WARM.clear();clearTimeout(againT);againT=setTimeout(()=>idle(next),1500)};
   // A hidden page drawn again (a saved brew updates the log, a new coffee the gallery) is cold again: warm it later.
   try{new MutationObserver(l=>{let any=false;for(const m of l){const s=m.target.closest&&m.target.closest('main>section');if(s&&!s.classList.contains('on')&&WARM.delete(s.id))any=true}if(any)prebuildTabs.again()})
@@ -7568,6 +7575,11 @@ function vdBack(fallback){if(VD_HIST.length)history.back();else fallback()}
 // returns from the left. Redrawing the page showing now (after an edit) doesn't move.
 let VD_TURN=null,VD_TURN_T=0;
 function vdTurn(dir){if(RM())return;VD_TURN=dir;clearTimeout(VD_TURN_T);VD_TURN_T=setTimeout(()=>{VD_TURN=null},1500)}
+// A sheet header's pill or back button that doesn't fit beside its round buttons moves under them (see .hd-below).
+// Read just after the page is put in, before it is drawn (the layout is needed for that frame anyway).
+function fitHead(){const h=document.querySelector('#vd-in .vd-head');if(!h||!h.querySelector('.vd-tools'))return;h.classList.remove('hd-below');
+  if([...h.querySelectorAll(':scope>.pill,:scope>.vd-back')].some(e=>e.scrollWidth>e.clientWidth+1))h.classList.add('hd-below')}
+new MutationObserver(()=>requestAnimationFrame(fitHead)).observe($('vd-in'),{childList:true});
 new MutationObserver(()=>{const dir=VD_TURN;if(!dir)return;VD_TURN=null;const el=$('vd-in');if(!el.animate)return;
   el.animate([{opacity:0,transform:'translateX('+(dir==='back'?'-':'')+'24px)'},{opacity:1,transform:'none'}],{duration:280,easing:'cubic-bezier(.32,.72,0,1)'})}).observe($('vd-in'),{childList:true});
 function vdRestore(e){const d=$('vd');vdTurn('back');VD_RESTORING=true;try{e.f()}finally{VD_RESTORING=false}VD_CUR=e.f;VD_KEY=e.k;
@@ -8592,7 +8604,9 @@ function buildTree(){
     const n=e.target.closest('.n');if(!n){svg.classList.remove('focus');return}focus(n.dataset.id);openVariety(n.dataset.id)};
   svg.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){const n=e.target.closest('.n');if(n){e.preventDefault();focus(n.dataset.id);openVariety(n.dataset.id)}}};
   $('treelegend').innerHTML=Object.values(FAM).map(f=>'<span class="pill tleg" style="--c:'+f.color+'"><i></i>'+f.name+'</span>').join('')+'<span class="pill tleg dna">Notes in italics: where DNA overturned the old story</span>';
-  const box=svg.parentElement,edge=()=>{box.classList.toggle('at-start',box.scrollLeft<8);box.classList.toggle('at-end',box.scrollLeft+box.clientWidth>=box.scrollWidth-8)};box.onscroll=edge;requestAnimationFrame(edge);
+  const box=svg.parentElement,edge=()=>{box.classList.toggle('at-start',box.scrollLeft<8);box.classList.toggle('at-end',box.scrollLeft+box.clientWidth>=box.scrollWidth-8)};box.onscroll=edge;box.classList.add('at-start');
+  // Its end is measured once it's on screen (where the layout is done anyway): measured when it was built in the background, it laid the whole page out.
+  if(window.IntersectionObserver){const io=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting)){io.disconnect();edge()}});io.observe(box)}else requestAnimationFrame(edge);
   $('species').innerHTML=['arabica','robusta','liberica','eugenioides','stenophylla'].map(id=>{const v=VBY[id];return'<button type="button" class="card vcard" data-v="'+id+'" style="--c:'+FAM.species.color+'"><span class="fam">'+esc(v.origin)+'</span><h3>'+esc(v.name)+'</h3><p>'+esc(v.cup)+'</p></button>'}).join('');
   $('species').onclick=e=>{const b=e.target.closest('[data-v]');if(b)openVariety(b.dataset.v)};
   $('timeline').innerHTML=TIMELINE.map(([w,t,d])=>'<li><span class="when">'+esc(w)+'</span><h3>'+esc(t)+'</h3><p>'+esc(d)+'</p></li>').join('');
@@ -10297,12 +10311,6 @@ function factCard(items,opt){opt=opt||{};const cols=opt.cols||2;
       (at&&cols<3?'<svg class="bf-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>':'')+'</'+tag+'>'}).join('')+'</div>'}
 // Counts (coffees, cups, origins…): the same card, the number first.
 function figsHTML(cls,items,label){const n=items.length;return factCard(items.map(([d,nn,l],i)=>[svgI(FIG[d]||ICO[d]||d),l,nn,FIG_C[i%4]]),{num:true,cols:n===3?3:2,cls,label})}
-const ICO_TONE=new Map();
-function icoTone(bg){if(ICO_TONE.has(bg))return ICO_TONE.get(bg);let t='c';const m=/^#([0-9a-f]{6})$/i.exec(bg||'');
-  if(/var\(--honey/.test(bg))t='h';else if(/var\(--leaf/.test(bg))t='l';else if(m){const n=parseInt(m[1],16),r=(n>>16)/255,g=(n>>8&255)/255,b=(n&255)/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn;
-    let h=0;if(d){h=mx===r?((g-b)/d)%6:mx===g?(b-r)/d+2:(r-g)/d+4;h=(h*60+360)%360}
-    t=d/(mx||1)<0.18?'cl':h<38||h>=340?'c':h<62?'h':h<170?'l':h<265?'cl':'ch'}
-  ICO_TONE.set(bg,t);return t}
 // Icon chips everywhere take the same look as the fact cards: a soft chip of a modern colour (blended with the theme's,
 // see --tk) with the icon drawn in a deeper shade. The house's older earthy colours map onto the modern palette.
 const ICO_MOD={'#5B5F66':'#64748B','#6B8E4E':'#22C55E','#C9964A':'#F59E0B','#D2A04A':'#F59E0B','#6E8FA8':'#3B82F6','#4F8A74':'#14B8A6','#8A5A3B':'#D2793A','#9A7390':'#8B5CF6','#B5533C':'#F43F5E','#C4473F':'#EC4899'};
@@ -10434,8 +10442,6 @@ function saveUI(){save('bb-ui',UI);applyUI()}
 // Sign-in tokens never go into a backup file.
 const DATA_SKIP=['bb-calreset1','bb-splash-test','bb-reset','bb-pending','bb-account','bb-fbcfg','bb-syncshadow','bb-syncat','bb-syncdb','bb-bio','bb-bio-no','bb-upd','bb-lastbak','bb-bakask','bb-tips','bb-visits','bb-wbean'];
 function dataKeys(){const k=[];try{for(let i=0;i<localStorage.length;i++){const n=localStorage.key(i);if(n&&n.startsWith('bb-')&&!DATA_SKIP.includes(n))k.push(n)}}catch(e){}return k.sort()}
-function dataSummary(){const n=k=>{let v=null;try{v=JSON.parse(localStorage.getItem(k)||'null')}catch(e){}return Array.isArray(v)?v.length:v&&typeof v==='object'?Object.keys(v).length:0};
-  return [[n('bb-myrecipes'),'recipe'],[n('bb-log'),'brew'],[n('bb-beans'),'gallery coffee'],[n('bb-scans'),'scan'],[n('bb-favs'),'favourite']].filter(x=>x[0]).map(([c,w])=>c+' '+w+(c===1?'':'s')).join(', ')||'Nothing saved yet besides your settings'}
 async function exportData(){const data={};for(const k of dataKeys()){try{data[k]=localStorage.getItem(k)}catch(e){}}
   const d=new Date(),day=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   // Gallery photos live outside localStorage, so they travel in the backup alongside it.
@@ -11911,13 +11917,14 @@ function renderBeanViews(){const cy=new Date().getFullYear();
     if(on&&!RM()&&BVDIR&&p.animate)p.animate([{opacity:.4,transform:'translateX('+(BVDIR>0?10:-10)+'px)'},{opacity:1,transform:'none'}],{duration:200,easing:'cubic-bezier(.2,.8,.3,1)'})}BVDIR=0;
   // Switched while scrolled down: the new view starts just under the stuck tab strip, not partway down or with the page
   // jumping back up (each view is at least a screen tall, so a short one can't pull the page up).
-  // Only when the strip is stuck (scrolled past where it sits): at the top of the page there is nothing to measure.
+  // Only when the page is scrolled: at the top there is nothing to measure, so the switch lays nothing out early.
+  // (A remembered position for the strip went wrong when it was taken while the page was hidden, and measured every switch.)
   // At the larger text sizes the six views can be wider than the strip: the picked one is scrolled fully into view.
   // Measured just after the switch is drawn, when the layout is already done and reading it costs nothing (reading it
   // here would lay the whole page out early, in the middle of the switch).
   requestAnimationFrame(()=>setTimeout(()=>{const st=$('bg-views');if(!st||st.scrollWidth<=st.clientWidth+1)return;const b=st.querySelector(':scope>button[aria-pressed="true"]');
     if(b){const l=b.offsetLeft-8,r=b.offsetLeft+b.offsetWidth+8;if(l<st.scrollLeft||r>st.scrollLeft+st.clientWidth)st.scrollTo({left:l<st.scrollLeft?l:r-st.clientWidth,behavior:RM()?'auto':'smooth'})}},0));
-  {const st=$('bg-views'),p=$('bv-'+BVIEW);if(st&&p){if(st._y==null)st._y=st.getBoundingClientRect().top+scrollY;if(scrollY>st._y-120){const sb=st.getBoundingClientRect().bottom,pt=p.getBoundingClientRect().top;if(pt<sb)scrollBy(0,pt-sb-8)}}}}
+  {const st=$('bg-views'),p=$('bv-'+BVIEW);if(st&&p){if(SCROLL_Y>0){const sb=st.getBoundingClientRect().bottom,pt=p.getBoundingClientRect().top;if(pt<sb)scrollBy(0,pt-sb-8)}}}}
 function renderCoffees(){const p=$('bv-coffees'),years=beanYears();BYEAR=BYEAR.filter(y=>years.includes(+y));
   if(!BEANS.length){p.innerHTML='<div class="bg-empty il-on">'+EMPTY_IL.bags+'<b>Your coffee gallery</b><p>Every bag you try, with its photo, freshness, notes and the brews you made with it. Scan a bag to start, or add one by hand.</p><div class="empty-acts">'+pbtn('scan','data-empty="scan"','Scan a bag','main')+pbtn('plus','data-empty="bean"','Add by hand')+'</div></div>';return}
   const fs=BFILTERS.filter(([f])=>f==='all'||BEANS.some(b=>bfKeep(b,f)));BF=BF.filter(f=>fs.some(([x])=>x===f));
