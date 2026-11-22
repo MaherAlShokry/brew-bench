@@ -1023,12 +1023,16 @@ function coffeeRow(b,now,i,opt){const rk=beanRank(b),f=now&&fresh(b),g=now?grams
   const meta=[opt&&opt.noRoaster?'':b.roaster,b.origin?beanFlags(b)+' '+beanOrigin(b):'',!now&&b.process?shortName(PROCESSES[b.process].name):''].filter(Boolean).join(' · ');
   // One clean row: name with its medal and rating on the right, roaster and origin below, then (for bags you're
   // drinking) a single line of freshness and what's left, with a thin bar for the bag.
-  const end=(rk?'<span class="cr-medal'+(rk>3?' r45':'')+'" style="--m:'+MEDAL[rk]+'" title="'+placeLine(rk,beanYear(b))+'">'+(rk>3?rk:CROWN)+'</span>':beanMention(b)?'<span class="cr-medal hm" title="Honourable mention, '+beanYear(b)+'">'+HM_SVG+'</span>':'')+
-    (buys(b)>1?'<span class="cr-buys" title="Bought '+buys(b)+' times">'+buys(b)+'×</span>':'')+(b.rating?'<span class="cr-rate">'+beanSVG+String(b.rating).replace('.5','½')+'</span>':'');
+  const badges=(rk?'<span class="cr-medal'+(rk>3?' r45':'')+'" style="--m:'+MEDAL[rk]+'" title="'+placeLine(rk,beanYear(b))+'">'+(rk>3?rk:CROWN)+'</span>':beanMention(b)?'<span class="cr-medal hm" title="Honourable mention, '+beanYear(b)+'">'+HM_SVG+'</span>':'')+
+    (buys(b)>1?'<span class="cr-buys" title="Bought '+buys(b)+' times">'+buys(b)+'×</span>':''),rate=b.rating?'<span class="cr-rate">'+beanSVG+String(b.rating).replace('.5','½')+'</span>':'';
+  // On a roastery's page the name gets the room: only the rating sits beside it, and the medal and times bought lead the
+  // tasting notes below.
+  const low=!!(opt&&opt.noRoaster),end=low?'':badges+rate;
   const bagPct=now&&g!=null&&b.bag>0?Math.max(0,Math.min(100,g/b.bag*100)):null;
   return '<button type="button" class="crow'+(now?' now':'')+(isNew?' enter':'')+'" data-bean="'+b.id+'" style="--i:'+Math.min(i||0,12)+'">'+beanPic(b,'rw')+
-    '<span class="cr-tx"><span class="cr-top"><b>'+esc(beanTitle(b))+'</b>'+(end?'<span class="cr-end">'+end+'</span>':'')+'</span>'+(meta?'<small>'+esc(meta)+'</small>':'')+
-      (!now&&b.flavours?'<span class="cr-notes">'+b.flavours.split(/\s*[,;·]\s*/).filter(Boolean).slice(0,3).map(w=>{const n=tnLeaf(w);return '<span class="cr-fl" style="--fc:'+tnColor(w)+'"><i aria-hidden="true"></i>'+esc(n?n.n:w)+'</span>'}).join('')+'</span>':'')+
+    '<span class="cr-tx"><span class="cr-top"><b>'+esc(beanTitle(b))+'</b>'+(end?'<span class="cr-end">'+end+'</span>':'')+'</span>'+(low&&(rate||meta)?'<small class="cr-meta">'+rate+(rate&&meta?'<span class="cr-sep" aria-hidden="true">·</span>':'')+esc(meta)+'</small>':meta?'<small>'+esc(meta)+'</small>':'')+
+      (low&&badges&&!b.flavours?'<span class="cr-notes">'+badges+'</span>':'')+
+      (!now&&b.flavours?'<span class="cr-notes">'+(low?badges:'')+b.flavours.split(/\s*[,;·]\s*/).filter(Boolean).slice(0,3).map(w=>{const n=tnLeaf(w);return '<span class="cr-fl" style="--fc:'+tnColor(w)+'"><i aria-hidden="true"></i>'+esc(n?n.n:w)+'</span>'}).join('')+'</span>':'')+
       (now?'<span class="cr-now">'+(f?'<span class="cr-fresh f-'+f.k+'"><i aria-hidden="true"></i>Day '+f.d+' · '+esc(f.label)+'</span>':'<span class="cr-fresh none"><i aria-hidden="true"></i>No roast date</span>')+(g!=null?'<span class="cr-left">'+(g?g+' g':'Bag empty')+'</span>':'')+'</span>'+
         (bagPct!=null?'<span class="cr-bar" aria-hidden="true"><i style="width:'+bagPct.toFixed(0)+'%"></i></span>':''):'')+'</span></button>'}
 // The bags you're drinking now, each with its freshness and what's left.
