@@ -1499,7 +1499,8 @@ let VD_BACK=null;
 let VD_CUR=null,VD_KEY='',VD_RESTORING=false;const VD_HIST=[];
 // In the sheet, its own Back button steps back the same way when there's a page to go back to.
 function vdBack(fallback){if(VD_HIST.length)history.back();else fallback()}
-function vdRestore(e){const d=$('vd');VD_RESTORING=true;try{e.f()}finally{VD_RESTORING=false}VD_KEY=e.k;
+// The page restored becomes the one showing, so the next page opened from it steps back to it (not to the one before).
+function vdRestore(e){const d=$('vd');VD_RESTORING=true;try{e.f()}finally{VD_RESTORING=false}VD_CUR=e.f;VD_KEY=e.k;
   const y=e.y;d.scrollTop=y;requestAnimationFrame(()=>{d.scrollTop=y})}
 {const names=['openTips','openComparePickNow','openCompareNow','openRecipe','flowSheet','openSpeed','openMakeRecipe','openDiaryPick','openTrophies',
   'openRoastersNow','openRoasterNow','openOrigin','openBean','openBeanPick','openCalEditor','openCal','cardViewer','openMe','openNotesPicker','openProfile'];

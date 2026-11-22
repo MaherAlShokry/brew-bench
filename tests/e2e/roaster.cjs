@@ -36,4 +36,12 @@ const all=await p.evaluate(async()=>{const O=['colombia','ethiopia','kenya','pan
   const m=[...document.querySelectorAll('dialog[open] .ro-mix')].map(x=>x.querySelectorAll('.ro-key').length);
   const segs=document.querySelector('dialog[open] .ro-stack').children.length;BEANS.splice(BEANS.length-8,8);return {m,segs}});
 ok('every origin and process shows, not just the top five',all.m[0]===8&&all.m[1]===6&&all.segs===8,all);
+// Back from a second coffee returns to the roastery, not to the first coffee opened (the page restored by back is the one
+// the next coffee steps back to).
+const bk=await p.evaluate(async()=>{const w=t=>new Promise(r=>setTimeout(r,t)),T=()=>$('vd').open?$('vd-title').textContent:'';
+  document.querySelectorAll('dialog[open]').forEach(d=>d.close());await w(400);openRoaster('Archers');await w(600);const ro=T();
+  const ids=[...document.querySelectorAll('#vd .ro-cl [data-bean]')].map(x=>x.dataset.bean);
+  document.querySelector('#vd .ro-cl [data-bean="'+ids[0]+'"]').click();await w(600);history.back();await w(600);
+  document.querySelector('#vd .ro-cl [data-bean="'+ids[1]+'"]').click();await w(600);const second=T();history.back();await w(600);return {ro,second,after:T(),want:beanTitle(beanById(ids[1]))}});
+ok('back from a second coffee goes to the roastery, not the first coffee',bk.after===bk.ro&&bk.second===bk.want,bk);
 ok('no errors',!errs.length,errs);await b.close()})();
