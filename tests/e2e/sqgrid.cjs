@@ -4,7 +4,10 @@ const {chromium}=require('playwright');(async()=>{const b=await chromium.launch(
 for(const w of [320,360,392,430])for(const t of ['m','l','xl']){const c=await b.newContext({viewport:{width:w,height:900},isMobile:true,hasTouch:true});const p=await c.newPage();
 await p.addInitScript(()=>{sessionStorage.setItem('bb-splashed','1')});await p.goto('http://localhost:8099/index.html');await p.evaluate(require('./seed2.cjs'));
 await p.evaluate(t=>{localStorage.setItem('bb-profile',JSON.stringify({nick:'The Coffee Custodian',name:'Sam Rivers',brief:'x',city:'OMAN',brewer:'sw',origin:'yemen',style:'sweet',since:Date.now(),updated:Date.now()}));const u=JSON.parse(localStorage.getItem('bb-ui')||'{}');u.text=t;localStorage.setItem('bb-ui',JSON.stringify(u))},t);await p.reload();await p.waitForTimeout(900);await p.evaluate(()=>openMe());await p.waitForTimeout(700);
-const r=await p.evaluate(()=>{const d=[...document.querySelectorAll('.me-picks>.bf')].map(x=>x.getBoundingClientRect()),g=document.querySelector('.me-picks').getBoundingClientRect();let overlap=false;for(let i=1;i<d.length;i++)if(d[i].left<d[i-1].right-0.5)overlap=true;
- const inside=d.every(x=>x.right<=g.right+0.5&&x.left>=g.left-0.5),clip=[...document.querySelectorAll('.me-picks small,.me-picks b')].some(e=>e.scrollWidth>e.clientWidth+1);return {overlap,inside,clip,h:d.map(x=>Math.round(x.height)),w:d.map(x=>Math.round(x.width)),t:document.documentElement.dataset.text}});
-ok(w+'px text '+t+': squares side by side, inside, same height, nothing cut',!r.overlap&&r.inside&&!r.clip&&r.h.every(h=>h===r.h[0]),r);
+const r=await p.evaluate(()=>{const d=[...document.querySelectorAll('.me-pills>li')].map(x=>x.getBoundingClientRect()),g=document.querySelector('.me-id').getBoundingClientRect();let overlap=false;
+ for(let i=0;i<d.length;i++)for(let k=i+1;k<d.length;k++)if(d[i].left<d[k].right-0.5&&d[k].left<d[i].right-0.5&&d[i].top<d[k].bottom-0.5&&d[k].top<d[i].bottom-0.5)overlap=true;
+ const inside=d.every(x=>x.right<=g.right+0.5&&x.left>=g.left-0.5),clip=[...document.querySelectorAll('.me-pills>li,.me-nums b,.me-nums small')].some(e=>e.scrollWidth>e.clientWidth+1);
+ return {line:d.every(x=>Math.abs(x.top-d[0].top)<1),jr:!!document.querySelector('.me-jr'),n:d.length,overlap,inside,clip,h:d.map(x=>Math.round(x.height)),w:d.map(x=>Math.round(x.width)),t:document.documentElement.dataset.text}});
+ok(w+'px text '+t+': picks as pills on one line, inside, same height, numbers not cut',r.n===3&&r.line&&!r.overlap&&r.inside&&!r.clip&&r.h.every(h=>h===r.h[0]),r);
+if(w===392&&t==='m')ok('coffee journey shown',r.jr);
 if(w===392&&t==='xl')await p.screenshot({path:'sq-xl.png'});await c.close()}await b.close()})()

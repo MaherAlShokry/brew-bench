@@ -72,6 +72,7 @@ function squarePhoto(src,n){return new Promise((ok,no)=>{const img=new Image();i
 const CUP_SVG='<svg class="me-cup" viewBox="0 0 120 92" aria-hidden="true"><g class="me-steam" fill="none" stroke="#F3E3C8" stroke-width="3.2" stroke-linecap="round"><path d="M47 30c-6-8 6-12 0-21"/><path d="M60 27c-6-8 6-12 0-21"/><path d="M73 30c-6-8 6-12 0-21"/></g>'+
   '<path d="M28 40h62v14a25 25 0 0 1-25 25h-12a25 25 0 0 1-25-25z" fill="#F3E3C8"/><path d="M89 46h6a9.5 9.5 0 0 1 0 19h-6" fill="none" stroke="#F3E3C8" stroke-width="5.5"/><ellipse cx="59" cy="41" rx="29" ry="4.2" fill="#5A3420"/><path d="M18 86h82" stroke="#F3E3C8" stroke-opacity=".45" stroke-width="3" stroke-linecap="round"/></svg>';
 const PEN_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4"/></svg>';
+const ACCT_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20a8 8 0 0 1 16 0"/></svg>';
 const FP_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10a5 5 0 0 1 10 0v2a9 9 0 0 1-1.5 5 M12 10v3a10 10 0 0 1-2.5 7 M9.5 10a2.5 2.5 0 0 1 5 0v2.5 M4.5 13.5V10a7.5 7.5 0 0 1 13-5.1 M20 10v1.5"/></svg>';
 const CAM_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l1.6-2.4h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.4" r="3.4"/></svg>';
 const SYNC_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 0 1-14 5.3 M4 12a8 8 0 0 1 14-5.3 M18 3v4h-4 M6 21v-4h4"/></svg>';
@@ -98,6 +99,45 @@ function tasteHTML(){if(!window.BEANS_OK||BEANS.length<2)return '';const t=taste
     (tasteLine(t)?'<p class="me-tl">'+esc(tasteLine(t))+'</p>':'')+
     (rows.length?factCard(rows.map(([i,k,vv])=>[i,k,esc(vv),TASTE_C[k]]),{cls:'me-tf'}):'')+
     (t.notes.length?'<div class="me-notes chips">'+t.notes.slice(0,5).map(n=>'<span class="chip"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'</span>').join('')+'</div>':'')+'</div>'}
+/* Your coffee journey: how your cups taste (a five-point graph of sweetness, acidity, body, clarity and bitterness,
+   averaged over your brews), the flavours you noted (the wheel and its families), four highlights and the milestones
+   along the way, in the order they happened. */
+const JR_TR=[['sweet','Sweet','#D9894A'],['acid','Bright','#D4A72C'],['body','Body','#B07A56'],['clarity','Clear','#4E9C97'],['bitter','Bitter','#B5533C']];
+function cupRadar(avg){const W=180,c=W/2,R=58,pt=(i,f)=>{const a=-Math.PI/2+i*2*Math.PI/5;return[c+Math.cos(a)*R*f,c+Math.sin(a)*R*f]},P=a=>a.map(x=>x.map(v=>v.toFixed(1)).join(',')).join(' ');
+  let g='';for(const f of [.33,.66,1])g+='<polygon points="'+P(JR_TR.map((_,i)=>pt(i,f)))+'" class="jr-grid"/>';
+  JR_TR.forEach((_,i)=>{const [x,y]=pt(i,1);g+='<line x1="'+c+'" y1="'+c+'" x2="'+x.toFixed(1)+'" y2="'+y.toFixed(1)+'" class="jr-grid"/>'});
+  const v=JR_TR.map(([k],i)=>pt(i,Math.max(.06,Math.min(1,avg[k]/10))));
+  g+='<polygon points="'+P(v)+'" class="jr-shape"/>'+v.map(([x,y],i)=>'<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3.2" fill="'+JR_TR[i][2]+'"/>').join('');
+  g+=JR_TR.map(([k,n],i)=>{const [x,y]=pt(i,1.32);return '<text x="'+x.toFixed(1)+'" y="'+(y+3.5).toFixed(1)+'" text-anchor="middle">'+n+'</text>'}).join('');
+  return '<svg class="jr-radar" viewBox="0 0 '+W+' '+W+'" role="img" aria-label="'+JR_TR.map(([k,n])=>n+' '+avg[k].toFixed(1)+' of 10').join(', ')+'">'+g+'</svg>'}
+function journeyHTML(){const ml=LOG.filter(l=>l&&isMine(l)&&+l.ts>0).sort((a,b)=>a.ts-b.ts),bs=window.BEANS_OK?BEANS.slice().sort((a,b)=>beanDay(a)<beanDay(b)?-1:1):[];
+  if(!ml.length&&bs.length<2)return '';
+  const md=t=>new Date(t).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'});
+  // How your cups taste.
+  const rs=ml.map(l=>l.snap&&l.snap.r).filter(Boolean),avg={};JR_TR.forEach(([k])=>{avg[k]=rs.length?rs.reduce((a,r)=>a+(+r[k]||0),0)/rs.length:0});
+  const lead=rs.length?JR_TR.slice().sort((a,b)=>avg[b[0]]-avg[a[0]]).slice(0,2).map(x=>x[1].toLowerCase()):[];
+  // The flavours you noted in your brews.
+  const sc=new Map();ml.forEach(l=>flOf(l).forEach(([id,v])=>sc.set(id,(sc.get(id)||0)+v)));const mx=sc.size?Math.max(...sc.values()):1,fl=[...sc].sort((a,b)=>b[1]-a[1]).map(([id,v])=>[id,Math.max(1,Math.ceil(3*v/mx))]);
+  const graphs=(rs.length?'<figure class="jr-g"><figcaption>Your cup</figcaption>'+cupRadar(avg)+'<small>Mostly '+lead.join(' and ')+'</small></figure>':'')+
+    (fl.length?'<figure class="jr-g"><figcaption>Your flavours</figcaption><button type="button" class="fl-mini jr-wheel" id="jr-wheel" aria-label="Open your flavours">'+fwStatic(fl)+'</button>'+flBar(fl)+'</figure>':'');
+  // Highlights.
+  const g=ml.reduce((a,l)=>a+(l.snap&&+l.snap.dose||0),0),st=ml.length?brewStreak(ml):0,rated=ml.filter(l=>+l.stars>0),avgR=rated.length?rated.reduce((a,l)=>a+ +l.stars,0)/rated.length:0;
+  const rc=new Map();ml.forEach(l=>{const n=l.snap&&l.snap.rec;if(n)rc.set(n,(rc.get(n)||0)+1)});const fav=[...rc].sort((a,b)=>b[1]-a[1])[0];
+  const best=bs.filter(b=>b.rating).sort((a,b)=>b.rating-a.rating)[0];
+  const hl=[g>0&&['#D2793A',g>=1000?(g/1000).toFixed(g>=10000?0:1)+' kg':Math.round(g)+' g','coffee brewed'],st>1&&['#F43F5E',st+' days','longest streak'],
+    avgR>0&&['#F59E0B',avgR.toFixed(1)+' / 5','average cup'],fav&&['#8B5CF6',fav[0],'go-to recipe · '+fav[1]+'×'],best&&['#14B8A6',beanTitle(best),'best rated · '+best.rating+' / 5']].filter(Boolean).slice(0,4);
+  // Milestones, oldest first.
+  const ms=[];if(bs.length)ms.push([Date.parse(beanDay(bs[0])),'First coffee',beanTitle(bs[0])]);
+  if(ml.length)ms.push([ml[0].ts,'First cup brewed',(ml[0].snap&&ml[0].snap.rec)||ml[0].coffee||'']);
+  for(const n of [10,25,50,100,250,500])if(ml.length>=n)ms.push([ml[n-1].ts,n+' cups',(ml[n-1].snap&&ml[n-1].snap.rec)||'']);
+  {const seen=new Set();for(const b of bs){const o=realO(b);if(!o||seen.has(o))continue;seen.add(o);if([5,10,15,20].includes(seen.size))ms.push([Date.parse(beanDay(b)),seen.size+' origins',originName(o)])}}
+  const mss=ms.filter(m=>isFinite(m[0])).sort((a,b)=>a[0]-b[0]).slice(-6);
+  return '<section class="me-sec me-jr" aria-label="Your coffee journey"><h3 class="me-sh">Your coffee journey</h3>'+
+    (graphs?'<div class="jr-gs'+(rs.length&&fl.length?' two':'')+'">'+graphs+'</div>':'')+
+    (hl.length?'<div class="jr-hl">'+hl.map(([c,v,k])=>'<div style="--tc:'+c+'"><b>'+esc(v)+'</b><small>'+esc(k)+'</small></div>').join('')+'</div>':'')+
+    (mss.length?'<ol class="jr-tl">'+mss.map(([t,k,v])=>'<li><time>'+md(t)+'</time><b>'+esc(k)+'</b>'+(v?'<small>'+esc(v)+'</small>':'')+'</li>').join('')+'</ol>':'')+'</section>'}
+$('vd').addEventListener('click',e=>{if(e.target.closest('#jr-wheel')){const ml=LOG.filter(isMine),sc=new Map();let n=0;ml.forEach(l=>{const f=flOf(l);if(f.length)n++;f.forEach(([id,v])=>sc.set(id,(sc.get(id)||0)+v))});
+  const mx=Math.max(...sc.values()),fl=[...sc].sort((a,b)=>b[1]-a[1]).map(([id,v])=>[id,Math.max(1,Math.ceil(3*v/mx))]);openProfile('Your flavours','From '+n+(n===1?' brew':' brews'),fl)}});
 /* Taste over time: the last six months you brewed in, a bar each for how you rated your cups (beans out of five), the
    flavour group you tasted most that month as its colour under the bar, and one line on how it's moving. */
 function trendsHTML(){if(typeof flOf!=='function')return '';const mine=LOG.filter(l=>l&&isMine(l)&&+l.ts>0),M=new Map();
@@ -116,9 +156,9 @@ const TASTE_C={Origin:'#14B8A6',Region:'#3B82F6',Variety:'#22C55E',Process:'#F59
 function shortBrewer(n){return n.replace(/^Hario\s+|^Kalita\s+|^Origami\s+/,'')}
 // Who you're signed in as, and the sync; or, signed out, what an account brings.
 function accountHTML(){
-  if(ACCT)return '<div class="me-acct"><div class="me-row"><span class="me-dot" aria-hidden="true"></span><span class="me-rt"><b>'+(ACCT.provider==='google.com'?'Signed in with Google':'Signed in')+'</b><small>'+esc(ACCT.email)+'</small>'+
+  if(ACCT)return '<div class="me-acct"><div class="me-row"><span class="me-ic me-tile g" aria-hidden="true">'+(ACCT.provider==='google.com'?G_SVG:ACCT_SVG)+'<i class="me-on"></i></span><span class="me-rt"><b>Signed in</b><small class="me-mail" title="'+esc(ACCT.email)+'">'+esc(ACCT.email)+'</small>'+
       (ACCT.provider==='password'&&!ACCT.verified?'<button type="button" class="linkbtn" id="pf-verify">Confirm your email</button>':'')+'</span><button type="button" class="linkbtn" id="pf-out">Sign out</button></div>'+
-      (BIOM?'<div class="me-row"><span class="me-ic" aria-hidden="true">'+FP_SVG+'</span><span class="me-rt"><b>Sign in with your '+bioWord()+'</b><small>'+(BIOM.saved&&BIOM.email===ACCT.email?'On for this phone':'Off')+'</small></span><button type="button" class="linkbtn" id="pf-bio">'+(BIOM.saved&&BIOM.email===ACCT.email?'Turn off':'Turn on')+'</button></div>':'')+syncLine()+'</div>';
+      (BIOM?'<div class="me-row"><span class="me-ic me-tile" aria-hidden="true">'+FP_SVG+'</span><span class="me-rt"><b>Quick sign-in</b><small>'+(bioWord()==='fingerprint or face'?'Fingerprint or face':bioWord()==='face'?'Face':'Fingerprint')+' · '+(BIOM.saved&&BIOM.email===ACCT.email?'On':'Off')+'</small></span><button type="button" class="linkbtn" id="pf-bio">'+(BIOM.saved&&BIOM.email===ACCT.email?'Turn off':'Turn on')+'</button></div>':'')+syncLine()+'</div>';
   if(!AUTH_ON)return '<p class="me-fine">Saved on this device.</p>';
   return '<div class="me-cta"><button type="button" class="btn" id="pf-signin">Sign in or create an account</button></div>'}
 // No profile yet: under the header, your coffee so far (the numbers and your taste) when there is any. With nothing
@@ -134,23 +174,21 @@ function meHTML(){const p=PROFILE,x='<button class="vd-close me-x" id="vd-x" ari
   // What you told us about yourself sits with who you are (under your words), as one line of plain facts. The numbers
   // and "Your coffee taste" below are what your coffees and cups show.
   // Your picks, in short names (one line at any text size) and the same colours as Your coffee taste.
-  const dna=[p.city&&['📍','Based in',p.city,'#0EA5E9'],p.brewer&&[tileIc('Brewer'),'Brewer',BREWERS[p.brewer].name,TASTE_C.Brewer],
+  const dna=[p.city&&['📍','Based in',p.city,'#0EA5E9'],p.brewer&&[tileIc('Brewer'),'Brewer',shortBrewer(BREWERS[p.brewer].name),TASTE_C.Brewer],
     p.origin&&[flagIc(p.origin),'Origin',originName(p.origin),TASTE_C.Origin]].filter(Boolean);
   const bg=bannerBg(p),since=new Date(p.since).toLocaleDateString(undefined,{month:'long',year:'numeric'});
   // A cover strip (your banner), your picture overlapping its edge, and who you are on the page under it.
   return '<div class="me-hero me-cover'+(bg?' banner':'')+'" style="--c:'+p.av.c+(bg?';background:'+bg:'')+'">'+x+'<button type="button" class="me-edit" id="pf-edit" aria-label="Edit your profile" title="Edit your profile">'+PEN_SVG+'</button></div>'+
-    '<div class="me-id" style="--c:'+p.av.c+'">'+avatarHTML(p,88)+'<h2 id="vd-title">'+esc(p.nick)+'</h2><span class="me-role">'+esc(ROLE[p.style]||'Home brewer')+'</span>'+
-      '<small class="me-name">'+(p.name?esc(p.name)+' · ':'')+'Brewing since '+since+'</small></div>'+
-    '<div class="me-body">'+
-      // The numbers first, as one bar.
-      // The numbers, as one strip: four counts side by side.
-      '<div class="me-nums" role="group" aria-label="Your numbers">'+profileStats().map(([n,l])=>'<span><b>'+n+'</b><small>'+esc(l.replace(' brewed',''))+'</small></span>').join('')+'</div>'+
-      // About you: your words, and what you told us as squares.
-      '<section class="me-sec" aria-label="About you"><h3 class="me-sh">About</h3>'+
-        (p.brief?'<p class="me-brief">'+esc(p.brief)+'</p>':'<button type="button" class="me-add" id="pf-edit2">Add a few words about how you take your coffee</button>')+
-        (dna.length?factCard(dna.map(([i,k,v,c])=>[i,k,esc(v),c]),{cols:dna.length===3?3:2,cls:'me-picks'})
-          :'<button type="button" class="me-add" id="pf-edit3">Add where you brew, your brewer and your favourite origin</button>')+'</section>'+
-      tasteHTML()+trendsHTML()+accountHTML()+'</div>'}
+    // Who you are, kept close together: the name, your role and since when, your words, and your picks as pills.
+    '<div class="me-id" style="--c:'+p.av.c+'">'+avatarHTML(p,88)+'<h2 id="vd-title">'+esc(p.nick)+'</h2>'+
+      '<div class="me-tags"><span class="me-role">'+esc(ROLE[p.style]||'Home brewer')+'</span><small class="me-name">'+(p.name?esc(p.name)+' · ':'')+'Since '+since+'</small></div>'+
+      (p.brief?'<p class="me-brief">'+esc(p.brief)+'</p>':'<button type="button" class="me-add" id="pf-edit2">Add a few words about how you take your coffee</button>')+
+      (dna.length?'<ul class="me-pills" aria-label="About you">'+dna.map(([i,k,v,c])=>'<li style="--tc:'+c+'"><i aria-hidden="true">'+emoIc(i)+'</i><span class="vh">'+k+': </span><span class="mp-v">'+esc(v)+'</span></li>').join('')+'</ul>'
+        :'<button type="button" class="me-add" id="pf-edit3">Add where you brew, your brewer and your favourite origin</button>')+'</div>'+
+    '<div class="me-body" style="--c:'+p.av.c+'">'+
+      // The numbers: four tiles, each in its own colour.
+      '<div class="me-nums" role="group" aria-label="Your numbers">'+profileStats().map(([n,l],i)=>'<span style="--tc:'+['#D2793A','#8B5CF6','#14B8A6','#F59E0B'][i]+'"><i aria-hidden="true">'+svgI([LI.bag,LI.cup,ICO.globe,ICO.trophy][i])+'</i><b>'+n+'</b><small>'+esc(l.replace(' brewed',''))+'</small></span>').join('')+'</div>'+
+      journeyHTML()+tasteHTML()+trendsHTML()+accountHTML()+'</div>'}
 $('vd').addEventListener('click',e=>{if(e.target.closest('#pf-new,#pf-edit,#pf-edit2,#pf-edit3')){delete $('vd').dataset.me;openProfileEditor();return}if(e.target.closest('#pf-signin')){delete $('vd').dataset.me;openSignIn();return}
   if(e.target.closest('#pf-out')){askConfirm('Your profile stays on this phone.','Sign out',false,'Sign out?').then(y=>{if(y)signOut()});return}
   if(e.target.closest('#pf-bio')){const on=BIOM&&BIOM.saved&&BIOM.email===(ACCT&&ACCT.email),w=bioWord();(on?bioOff():bioOn()).then(()=>toast(on?w[0].toUpperCase()+w.slice(1)+' sign-in is off':'Next time, sign in with your '+bioWord()),err=>{if(err&&err.message&&!/cancel/i.test(err.message))toast(err.message)});return}

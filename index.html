@@ -1611,7 +1611,12 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .me-rt{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start}.me-rt b{font-size:.92rem}.me-rt small{font-size:.8rem;color:var(--muted);overflow-wrap:anywhere}
 .me-dot{flex:none;width:10px;height:10px;margin:0 3px;border-radius:50%;background:#5E9A63;box-shadow:0 0 0 4px color-mix(in srgb,#5E9A63 22%,transparent)}
 .me-ic{flex:none;display:grid;place-items:center;width:16px;color:var(--muted)}.me-syncrow.off .me-ic{color:#A8432F}
-.me-row .linkbtn{flex:none;min-height:40px}
+.me-row .linkbtn{flex:none;min-height:36px;padding:0 14px;border-radius:999px;background:color-mix(in srgb,var(--cherry) 12%,var(--surface));font-size:.84rem;font-weight:600;text-decoration:none}
+.me-row{gap:14px;padding:14px 16px;min-height:72px}.me-rt{gap:2px}.me-rt b{line-height:1.25}
+.me-tile{position:relative;width:40px!important;height:40px;border-radius:50%;background:color-mix(in srgb,var(--ink) 8%,var(--surface));color:var(--ink)}.me-tile svg{width:19px;height:19px}
+.me-tile.g{background:#fff}.me-tile.g svg{width:18px;height:18px}.me-tile.g{color:#3a3a3a}.me-tile.g svg[viewBox="0 0 48 48"]{stroke:none}
+.me-rt .me-mail{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;overflow-wrap:normal}
+.me-on{position:absolute;right:-1px;bottom:-1px;width:12px;height:12px;border-radius:50%;background:#5E9A63;box-shadow:0 0 0 2.5px var(--surface2)}
 .me-cta{margin-top:2px}
 .me-cta b{font-family:var(--display);font-size:1.05rem}.me-cta ul{margin:8px 0 12px;padding:0;list-style:none;display:grid;gap:4px;font-size:.88rem;color:var(--muted)}
 .me-cta li::before{content:"";display:inline-block;width:6px;height:6px;margin-right:9px;border-radius:50%;background:var(--honey);vertical-align:middle}.me-cta .btn{width:100%}
@@ -2650,7 +2655,8 @@ button[aria-pressed]:active{transform:scale(.95)}
 .me-id h2{margin:2px 0 0;font:700 1.6rem/1.15 var(--display);color:var(--ink);overflow-wrap:anywhere}
 .me-id .me-name{font-size:.86rem;color:var(--muted);opacity:1}
 
-.me-edit{left:auto!important;right:60px;top:12px!important;width:38px;height:38px!important;padding:0!important;justify-content:center;border-radius:50%!important;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.me-x{width:40px!important;height:40px!important;right:14px!important;display:grid;place-items:center;padding:0;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.me-edit{left:auto!important;right:62px;top:12px!important;width:40px;height:40px!important;padding:0!important;justify-content:center;border-radius:50%!important;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .me-edit svg{width:17px!important;height:17px!important}
 .me-id h2{margin:4px 0 0!important}
 .me-role{display:inline-flex;align-items:center;margin:6px 0 4px;padding:4px 11px;border-radius:999px;background:color-mix(in srgb,var(--c,var(--cherry)) 14%,var(--surface2));color:var(--ink);font:700 .74rem var(--display);letter-spacing:.02em}
@@ -2670,6 +2676,54 @@ button[aria-pressed]:active{transform:scale(.95)}
 .me-sec{display:flex;flex-direction:column;gap:10px}
 .me-sh{margin:6px 0 0;font:700 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .me-body .me-brief{margin:0;padding:0;font:400 1rem/1.5 var(--body);color:var(--ink)}.me-body .me-brief::before{content:none}
+
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.me-id .pav{margin-bottom:8px}
+.me-tags{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-top:6px}
+.me-tags .me-role{margin:0;padding:5px 11px;background:color-mix(in srgb,var(--c,var(--cherry)) 26%,var(--surface2));color:color-mix(in srgb,var(--c,var(--cherry)) 30%,var(--ink))}
+.me-tags .me-name{font-size:.82rem}
+.me-id .me-brief{position:relative;margin:14px 0 0;padding:2px 0 2px 14px;font:500 .98rem/1.5 var(--body);color:var(--ink);overflow-wrap:anywhere}
+.me-id .me-brief::before{content:"";position:absolute;left:0;top:3px;bottom:3px;width:3px;border-radius:2px;background:var(--c,var(--cherry));font-size:0}
+.me-pills{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0;padding:0;list-style:none}
+.me-pills li{display:inline-flex;align-items:center;gap:7px;min-height:34px;padding:0 13px 0 5px;border-radius:999px;background:color-mix(in srgb,var(--tc) 14%,var(--surface));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tc) 22%,transparent);font:600 .86rem/1.2 var(--display);color:var(--ink)}
+.me-pills i{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:color-mix(in srgb,var(--tc) 26%,var(--surface));color:var(--tc);font-style:normal;font-size:.9rem}
+.me-pills i svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.me-id .me-add{margin-top:12px}
+.me-body{padding-top:18px}
+.me-nums{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0;padding:0;background:none;box-shadow:none;border-radius:0}
+.me-nums>span{gap:1px;padding:12px 2px 10px;border-radius:18px;background:color-mix(in srgb,var(--tc) 12%,var(--surface));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tc) 18%,transparent)}
+.me-nums>span+span::before{content:none}
+.me-nums i{display:grid;place-items:center;width:28px;height:28px;margin-bottom:4px;border-radius:50%;background:color-mix(in srgb,var(--tc) 24%,transparent);color:var(--tc)}
+.me-nums i svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.me-nums b{font-size:1.3rem}
+@media (max-width:359px){.me-nums{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.me-pills{flex-wrap:nowrap;gap:6px;max-width:100%}
+.me-pills li{flex:0 1 auto;min-width:0;padding-right:11px;gap:6px}
+.me-pills li .mp-v{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.me-pills i{flex:none}
+
+.jr-gs{display:grid;gap:10px}.jr-gs.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.jr-g{display:flex;flex-direction:column;align-items:center;gap:6px;margin:0;padding:14px 10px 12px;border-radius:20px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);min-width:0}
+.jr-g figcaption{align-self:flex-start;font:700 .8rem var(--display);color:var(--ink);padding-left:4px}
+.jr-g>small{font-size:.78rem;color:var(--muted);text-align:center}
+.jr-radar{width:100%;max-width:170px;height:auto;overflow:visible}
+.jr-radar .jr-grid{fill:none;stroke:var(--line);stroke-width:1}
+.jr-radar .jr-shape{fill:color-mix(in srgb,var(--c,var(--cherry)) 30%,transparent);stroke:var(--c,var(--cherry));stroke-width:2;stroke-linejoin:round}
+.jr-radar text{font:600 9.5px var(--body);fill:var(--muted)}
+.jr-g .jr-wheel{width:112px;height:112px;margin:4px 0 2px}
+.jr-g .fwbar{width:100%}.jr-g .fwbar-key{justify-content:center;font-size:.7rem}
+.jr-hl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.jr-hl>div{display:flex;flex-direction:column;gap:2px;min-width:0;padding:12px 14px;border-radius:18px;background:color-mix(in srgb,var(--tc) 12%,var(--surface));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tc) 18%,transparent)}
+.jr-hl b{font:700 1.05rem/1.2 var(--display);color:color-mix(in srgb,var(--tc) 45%,var(--ink));overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.jr-hl small{font-size:.74rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.jr-tl{position:relative;margin:2px 0 0;padding:4px 0 0 22px;list-style:none;display:flex;flex-direction:column;gap:14px}
+.jr-tl::before{content:"";position:absolute;left:6px;top:10px;bottom:8px;width:2px;border-radius:1px;background:linear-gradient(var(--c,var(--cherry)),color-mix(in srgb,var(--c,var(--cherry)) 20%,transparent))}
+.jr-tl li{position:relative;display:grid;grid-template-columns:1fr auto;column-gap:10px;align-items:baseline}
+.jr-tl li::before{content:"";position:absolute;left:-21px;top:5px;width:12px;height:12px;border-radius:50%;background:var(--bg,var(--surface));box-shadow:inset 0 0 0 3px var(--c,var(--cherry))}
+.jr-tl b{font:700 .92rem var(--display);color:var(--ink)}
+.jr-tl time{grid-column:2;grid-row:1;font-size:.74rem;color:var(--muted);white-space:nowrap}
+.jr-tl small{grid-column:1/-1;font-size:.8rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 
 
@@ -2719,6 +2773,7 @@ dialog.dlg-pre[open]::backdrop{animation:none!important;opacity:0}
   
   html dialog#vd:not(.camdlg) .vd-head{padding-top:calc(18px + var(--sa-top,0px));border-top:0}
   html dialog#vd:not(.camdlg) .vd-close{top:calc(12px + var(--sa-top,0px))}
+  html dialog#vd:not(.camdlg) .me-edit{top:calc(12px + var(--sa-top,0px))!important}
 }
 .ask{padding:2px 20px 6px}.ask-t{margin:0 0 14px;color:var(--muted);font-size:.95rem;line-height:1.45}
 .ask-in{display:grid;grid-template-columns:48px 1fr 48px;align-items:center;gap:10px;margin:4px 0 8px}
@@ -3205,7 +3260,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="c2550ca4596e"</script>
+<script>const BUILD_ID="cd29f368ea76"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -7483,14 +7538,20 @@ let VD_CUR=null,VD_KEY='',VD_RESTORING=false;const VD_HIST=[];
 // In the sheet, its own Back button steps back the same way when there's a page to go back to.
 function vdBack(fallback){if(VD_HIST.length)history.back();else fallback()}
 // The page restored becomes the one showing, so the next page opened from it steps back to it (not to the one before).
-function vdRestore(e){const d=$('vd');VD_RESTORING=true;try{e.f()}finally{VD_RESTORING=false}VD_CUR=e.f;VD_KEY=e.k;
+// A page opened inside the sheet slides in from the right, as the sheet itself does; stepping back, the page before
+// returns from the left. Redrawing the page showing now (after an edit) doesn't move.
+let VD_TURN=null,VD_TURN_T=0;
+function vdTurn(dir){if(RM())return;VD_TURN=dir;clearTimeout(VD_TURN_T);VD_TURN_T=setTimeout(()=>{VD_TURN=null},1500)}
+new MutationObserver(()=>{const dir=VD_TURN;if(!dir)return;VD_TURN=null;const el=$('vd-in');if(!el.animate)return;
+  el.animate([{opacity:0,transform:'translateX('+(dir==='back'?'-':'')+'24px)'},{opacity:1,transform:'none'}],{duration:280,easing:'cubic-bezier(.32,.72,0,1)'})}).observe($('vd-in'),{childList:true});
+function vdRestore(e){const d=$('vd');vdTurn('back');VD_RESTORING=true;try{e.f()}finally{VD_RESTORING=false}VD_CUR=e.f;VD_KEY=e.k;
   const y=e.y;d.scrollTop=y;requestAnimationFrame(()=>{d.scrollTop=y})}
 {const names=['openTips','openComparePickNow','openCompareNow','openRecipe','flowSheet','openSpeed','openMakeRecipe','openDiaryPick','openTrophies',
   'openRoastersNow','openRoasterNow','openOrigin','openBean','openBeanPick','openCalEditor','openCal','cardViewer','openMe','openNotesPicker','openProfile'];
   for(const n of names){let f;try{f=eval(n)}catch(e){continue}if(typeof f!=='function')continue;
     const w=function(...a){const d=$('vd'),k=n+'|'+(()=>{try{return JSON.stringify(a)}catch(e){return String(Math.random())}})();
       // Drawn again as it is (after an edit) or while stepping back: no new step.
-      if(!VD_RESTORING&&d.open&&!d.classList.contains('closing')&&VD_CUR&&k!==VD_KEY){VD_HIST.push({f:VD_CUR,k:VD_KEY,y:d.scrollTop});try{history.pushState({dlg:1,vd:1},'',location.hash||'#dial')}catch(e){}}
+      if(!VD_RESTORING&&d.open&&!d.classList.contains('closing')&&VD_CUR&&k!==VD_KEY){VD_HIST.push({f:VD_CUR,k:VD_KEY,y:d.scrollTop});vdTurn('fwd');try{history.pushState({dlg:1,vd:1},'',location.hash||'#dial')}catch(e){}}
       if(!VD_RESTORING){VD_CUR=()=>f.apply(this,a);VD_KEY=k}return f.apply(this,a)};
     eval(n+'=w')}}
 // Opening any sheet (as a modal or, see openTop, as a popover): a history step, the stack, and on close the way back.
@@ -7555,7 +7616,7 @@ function showDlg(d){NAV_AT=performance.now();if(d.classList.contains('closing'))
 addEventListener('popstate',()=>{if(FAB_POP())return;const open=[...document.querySelectorAll('dialog[open]:not(.closing)')];
   if(BACKING){BACKING=false;try{if(PEND_TAB&&location.hash!=='#'+PEND_TAB)history.pushState(null,'','#'+PEND_TAB);if(open.length)history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}PEND_TAB=null;return}
   if(open.length){const top=DSTACK.filter(d=>d.open&&!d.classList.contains('closing')).pop();
-    if(top&&top.id==='vd'&&VD_HIST.length){const e=VD_HIST.pop();if(VD_BACK){const f=VD_BACK;VD_BACK=null;VD_RESTORING=true;try{f()}finally{VD_RESTORING=false}VD_CUR=e.f;VD_KEY=e.k;const d=$('vd');d.scrollTop=e.y;requestAnimationFrame(()=>{d.scrollTop=e.y})}else vdRestore(e);return}
+    if(top&&top.id==='vd'&&VD_HIST.length){const e=VD_HIST.pop();if(VD_BACK){const f=VD_BACK;VD_BACK=null;vdTurn('back');VD_RESTORING=true;try{f()}finally{VD_RESTORING=false}VD_CUR=e.f;VD_KEY=e.k;const d=$('vd');d.scrollTop=e.y;requestAnimationFrame(()=>{d.scrollTop=e.y})}else vdRestore(e);return}
     if(top&&top.id==='vd'&&VD_BACK){const f=VD_BACK;VD_BACK=null;try{history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}VD_RESTORING=true;try{f()}finally{VD_RESTORING=false}return}
     if(top){top.dataset.popped=1;top.close()}else open.forEach(d=>d.close());return}
   // Inside Beans, back from another view returns to Coffees first.
@@ -14013,6 +14074,7 @@ function squarePhoto(src,n){return new Promise((ok,no)=>{const img=new Image();i
 const CUP_SVG='<svg class="me-cup" viewBox="0 0 120 92" aria-hidden="true"><g class="me-steam" fill="none" stroke="#F3E3C8" stroke-width="3.2" stroke-linecap="round"><path d="M47 30c-6-8 6-12 0-21"/><path d="M60 27c-6-8 6-12 0-21"/><path d="M73 30c-6-8 6-12 0-21"/></g>'+
   '<path d="M28 40h62v14a25 25 0 0 1-25 25h-12a25 25 0 0 1-25-25z" fill="#F3E3C8"/><path d="M89 46h6a9.5 9.5 0 0 1 0 19h-6" fill="none" stroke="#F3E3C8" stroke-width="5.5"/><ellipse cx="59" cy="41" rx="29" ry="4.2" fill="#5A3420"/><path d="M18 86h82" stroke="#F3E3C8" stroke-opacity=".45" stroke-width="3" stroke-linecap="round"/></svg>';
 const PEN_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4"/></svg>';
+const ACCT_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20a8 8 0 0 1 16 0"/></svg>';
 const FP_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10a5 5 0 0 1 10 0v2a9 9 0 0 1-1.5 5 M12 10v3a10 10 0 0 1-2.5 7 M9.5 10a2.5 2.5 0 0 1 5 0v2.5 M4.5 13.5V10a7.5 7.5 0 0 1 13-5.1 M20 10v1.5"/></svg>';
 const CAM_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l1.6-2.4h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.4" r="3.4"/></svg>';
 const SYNC_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 0 1-14 5.3 M4 12a8 8 0 0 1 14-5.3 M18 3v4h-4 M6 21v-4h4"/></svg>';
@@ -14039,6 +14101,45 @@ function tasteHTML(){if(!window.BEANS_OK||BEANS.length<2)return '';const t=taste
     (tasteLine(t)?'<p class="me-tl">'+esc(tasteLine(t))+'</p>':'')+
     (rows.length?factCard(rows.map(([i,k,vv])=>[i,k,esc(vv),TASTE_C[k]]),{cls:'me-tf'}):'')+
     (t.notes.length?'<div class="me-notes chips">'+t.notes.slice(0,5).map(n=>'<span class="chip"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'</span>').join('')+'</div>':'')+'</div>'}
+/* Your coffee journey: how your cups taste (a five-point graph of sweetness, acidity, body, clarity and bitterness,
+   averaged over your brews), the flavours you noted (the wheel and its families), four highlights and the milestones
+   along the way, in the order they happened. */
+const JR_TR=[['sweet','Sweet','#D9894A'],['acid','Bright','#D4A72C'],['body','Body','#B07A56'],['clarity','Clear','#4E9C97'],['bitter','Bitter','#B5533C']];
+function cupRadar(avg){const W=180,c=W/2,R=58,pt=(i,f)=>{const a=-Math.PI/2+i*2*Math.PI/5;return[c+Math.cos(a)*R*f,c+Math.sin(a)*R*f]},P=a=>a.map(x=>x.map(v=>v.toFixed(1)).join(',')).join(' ');
+  let g='';for(const f of [.33,.66,1])g+='<polygon points="'+P(JR_TR.map((_,i)=>pt(i,f)))+'" class="jr-grid"/>';
+  JR_TR.forEach((_,i)=>{const [x,y]=pt(i,1);g+='<line x1="'+c+'" y1="'+c+'" x2="'+x.toFixed(1)+'" y2="'+y.toFixed(1)+'" class="jr-grid"/>'});
+  const v=JR_TR.map(([k],i)=>pt(i,Math.max(.06,Math.min(1,avg[k]/10))));
+  g+='<polygon points="'+P(v)+'" class="jr-shape"/>'+v.map(([x,y],i)=>'<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3.2" fill="'+JR_TR[i][2]+'"/>').join('');
+  g+=JR_TR.map(([k,n],i)=>{const [x,y]=pt(i,1.32);return '<text x="'+x.toFixed(1)+'" y="'+(y+3.5).toFixed(1)+'" text-anchor="middle">'+n+'</text>'}).join('');
+  return '<svg class="jr-radar" viewBox="0 0 '+W+' '+W+'" role="img" aria-label="'+JR_TR.map(([k,n])=>n+' '+avg[k].toFixed(1)+' of 10').join(', ')+'">'+g+'</svg>'}
+function journeyHTML(){const ml=LOG.filter(l=>l&&isMine(l)&&+l.ts>0).sort((a,b)=>a.ts-b.ts),bs=window.BEANS_OK?BEANS.slice().sort((a,b)=>beanDay(a)<beanDay(b)?-1:1):[];
+  if(!ml.length&&bs.length<2)return '';
+  const md=t=>new Date(t).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'});
+  // How your cups taste.
+  const rs=ml.map(l=>l.snap&&l.snap.r).filter(Boolean),avg={};JR_TR.forEach(([k])=>{avg[k]=rs.length?rs.reduce((a,r)=>a+(+r[k]||0),0)/rs.length:0});
+  const lead=rs.length?JR_TR.slice().sort((a,b)=>avg[b[0]]-avg[a[0]]).slice(0,2).map(x=>x[1].toLowerCase()):[];
+  // The flavours you noted in your brews.
+  const sc=new Map();ml.forEach(l=>flOf(l).forEach(([id,v])=>sc.set(id,(sc.get(id)||0)+v)));const mx=sc.size?Math.max(...sc.values()):1,fl=[...sc].sort((a,b)=>b[1]-a[1]).map(([id,v])=>[id,Math.max(1,Math.ceil(3*v/mx))]);
+  const graphs=(rs.length?'<figure class="jr-g"><figcaption>Your cup</figcaption>'+cupRadar(avg)+'<small>Mostly '+lead.join(' and ')+'</small></figure>':'')+
+    (fl.length?'<figure class="jr-g"><figcaption>Your flavours</figcaption><button type="button" class="fl-mini jr-wheel" id="jr-wheel" aria-label="Open your flavours">'+fwStatic(fl)+'</button>'+flBar(fl)+'</figure>':'');
+  // Highlights.
+  const g=ml.reduce((a,l)=>a+(l.snap&&+l.snap.dose||0),0),st=ml.length?brewStreak(ml):0,rated=ml.filter(l=>+l.stars>0),avgR=rated.length?rated.reduce((a,l)=>a+ +l.stars,0)/rated.length:0;
+  const rc=new Map();ml.forEach(l=>{const n=l.snap&&l.snap.rec;if(n)rc.set(n,(rc.get(n)||0)+1)});const fav=[...rc].sort((a,b)=>b[1]-a[1])[0];
+  const best=bs.filter(b=>b.rating).sort((a,b)=>b.rating-a.rating)[0];
+  const hl=[g>0&&['#D2793A',g>=1000?(g/1000).toFixed(g>=10000?0:1)+' kg':Math.round(g)+' g','coffee brewed'],st>1&&['#F43F5E',st+' days','longest streak'],
+    avgR>0&&['#F59E0B',avgR.toFixed(1)+' / 5','average cup'],fav&&['#8B5CF6',fav[0],'go-to recipe · '+fav[1]+'×'],best&&['#14B8A6',beanTitle(best),'best rated · '+best.rating+' / 5']].filter(Boolean).slice(0,4);
+  // Milestones, oldest first.
+  const ms=[];if(bs.length)ms.push([Date.parse(beanDay(bs[0])),'First coffee',beanTitle(bs[0])]);
+  if(ml.length)ms.push([ml[0].ts,'First cup brewed',(ml[0].snap&&ml[0].snap.rec)||ml[0].coffee||'']);
+  for(const n of [10,25,50,100,250,500])if(ml.length>=n)ms.push([ml[n-1].ts,n+' cups',(ml[n-1].snap&&ml[n-1].snap.rec)||'']);
+  {const seen=new Set();for(const b of bs){const o=realO(b);if(!o||seen.has(o))continue;seen.add(o);if([5,10,15,20].includes(seen.size))ms.push([Date.parse(beanDay(b)),seen.size+' origins',originName(o)])}}
+  const mss=ms.filter(m=>isFinite(m[0])).sort((a,b)=>a[0]-b[0]).slice(-6);
+  return '<section class="me-sec me-jr" aria-label="Your coffee journey"><h3 class="me-sh">Your coffee journey</h3>'+
+    (graphs?'<div class="jr-gs'+(rs.length&&fl.length?' two':'')+'">'+graphs+'</div>':'')+
+    (hl.length?'<div class="jr-hl">'+hl.map(([c,v,k])=>'<div style="--tc:'+c+'"><b>'+esc(v)+'</b><small>'+esc(k)+'</small></div>').join('')+'</div>':'')+
+    (mss.length?'<ol class="jr-tl">'+mss.map(([t,k,v])=>'<li><time>'+md(t)+'</time><b>'+esc(k)+'</b>'+(v?'<small>'+esc(v)+'</small>':'')+'</li>').join('')+'</ol>':'')+'</section>'}
+$('vd').addEventListener('click',e=>{if(e.target.closest('#jr-wheel')){const ml=LOG.filter(isMine),sc=new Map();let n=0;ml.forEach(l=>{const f=flOf(l);if(f.length)n++;f.forEach(([id,v])=>sc.set(id,(sc.get(id)||0)+v))});
+  const mx=Math.max(...sc.values()),fl=[...sc].sort((a,b)=>b[1]-a[1]).map(([id,v])=>[id,Math.max(1,Math.ceil(3*v/mx))]);openProfile('Your flavours','From '+n+(n===1?' brew':' brews'),fl)}});
 /* Taste over time: the last six months you brewed in, a bar each for how you rated your cups (beans out of five), the
    flavour group you tasted most that month as its colour under the bar, and one line on how it's moving. */
 function trendsHTML(){if(typeof flOf!=='function')return '';const mine=LOG.filter(l=>l&&isMine(l)&&+l.ts>0),M=new Map();
@@ -14057,9 +14158,9 @@ const TASTE_C={Origin:'#14B8A6',Region:'#3B82F6',Variety:'#22C55E',Process:'#F59
 function shortBrewer(n){return n.replace(/^Hario\s+|^Kalita\s+|^Origami\s+/,'')}
 // Who you're signed in as, and the sync; or, signed out, what an account brings.
 function accountHTML(){
-  if(ACCT)return '<div class="me-acct"><div class="me-row"><span class="me-dot" aria-hidden="true"></span><span class="me-rt"><b>'+(ACCT.provider==='google.com'?'Signed in with Google':'Signed in')+'</b><small>'+esc(ACCT.email)+'</small>'+
+  if(ACCT)return '<div class="me-acct"><div class="me-row"><span class="me-ic me-tile g" aria-hidden="true">'+(ACCT.provider==='google.com'?G_SVG:ACCT_SVG)+'<i class="me-on"></i></span><span class="me-rt"><b>Signed in</b><small class="me-mail" title="'+esc(ACCT.email)+'">'+esc(ACCT.email)+'</small>'+
       (ACCT.provider==='password'&&!ACCT.verified?'<button type="button" class="linkbtn" id="pf-verify">Confirm your email</button>':'')+'</span><button type="button" class="linkbtn" id="pf-out">Sign out</button></div>'+
-      (BIOM?'<div class="me-row"><span class="me-ic" aria-hidden="true">'+FP_SVG+'</span><span class="me-rt"><b>Sign in with your '+bioWord()+'</b><small>'+(BIOM.saved&&BIOM.email===ACCT.email?'On for this phone':'Off')+'</small></span><button type="button" class="linkbtn" id="pf-bio">'+(BIOM.saved&&BIOM.email===ACCT.email?'Turn off':'Turn on')+'</button></div>':'')+syncLine()+'</div>';
+      (BIOM?'<div class="me-row"><span class="me-ic me-tile" aria-hidden="true">'+FP_SVG+'</span><span class="me-rt"><b>Quick sign-in</b><small>'+(bioWord()==='fingerprint or face'?'Fingerprint or face':bioWord()==='face'?'Face':'Fingerprint')+' · '+(BIOM.saved&&BIOM.email===ACCT.email?'On':'Off')+'</small></span><button type="button" class="linkbtn" id="pf-bio">'+(BIOM.saved&&BIOM.email===ACCT.email?'Turn off':'Turn on')+'</button></div>':'')+syncLine()+'</div>';
   if(!AUTH_ON)return '<p class="me-fine">Saved on this device.</p>';
   return '<div class="me-cta"><button type="button" class="btn" id="pf-signin">Sign in or create an account</button></div>'}
 // No profile yet: under the header, your coffee so far (the numbers and your taste) when there is any. With nothing
@@ -14075,23 +14176,21 @@ function meHTML(){const p=PROFILE,x='<button class="vd-close me-x" id="vd-x" ari
   // What you told us about yourself sits with who you are (under your words), as one line of plain facts. The numbers
   // and "Your coffee taste" below are what your coffees and cups show.
   // Your picks, in short names (one line at any text size) and the same colours as Your coffee taste.
-  const dna=[p.city&&['📍','Based in',p.city,'#0EA5E9'],p.brewer&&[tileIc('Brewer'),'Brewer',BREWERS[p.brewer].name,TASTE_C.Brewer],
+  const dna=[p.city&&['📍','Based in',p.city,'#0EA5E9'],p.brewer&&[tileIc('Brewer'),'Brewer',shortBrewer(BREWERS[p.brewer].name),TASTE_C.Brewer],
     p.origin&&[flagIc(p.origin),'Origin',originName(p.origin),TASTE_C.Origin]].filter(Boolean);
   const bg=bannerBg(p),since=new Date(p.since).toLocaleDateString(undefined,{month:'long',year:'numeric'});
   // A cover strip (your banner), your picture overlapping its edge, and who you are on the page under it.
   return '<div class="me-hero me-cover'+(bg?' banner':'')+'" style="--c:'+p.av.c+(bg?';background:'+bg:'')+'">'+x+'<button type="button" class="me-edit" id="pf-edit" aria-label="Edit your profile" title="Edit your profile">'+PEN_SVG+'</button></div>'+
-    '<div class="me-id" style="--c:'+p.av.c+'">'+avatarHTML(p,88)+'<h2 id="vd-title">'+esc(p.nick)+'</h2><span class="me-role">'+esc(ROLE[p.style]||'Home brewer')+'</span>'+
-      '<small class="me-name">'+(p.name?esc(p.name)+' · ':'')+'Brewing since '+since+'</small></div>'+
-    '<div class="me-body">'+
-      // The numbers first, as one bar.
-      // The numbers, as one strip: four counts side by side.
-      '<div class="me-nums" role="group" aria-label="Your numbers">'+profileStats().map(([n,l])=>'<span><b>'+n+'</b><small>'+esc(l.replace(' brewed',''))+'</small></span>').join('')+'</div>'+
-      // About you: your words, and what you told us as squares.
-      '<section class="me-sec" aria-label="About you"><h3 class="me-sh">About</h3>'+
-        (p.brief?'<p class="me-brief">'+esc(p.brief)+'</p>':'<button type="button" class="me-add" id="pf-edit2">Add a few words about how you take your coffee</button>')+
-        (dna.length?factCard(dna.map(([i,k,v,c])=>[i,k,esc(v),c]),{cols:dna.length===3?3:2,cls:'me-picks'})
-          :'<button type="button" class="me-add" id="pf-edit3">Add where you brew, your brewer and your favourite origin</button>')+'</section>'+
-      tasteHTML()+trendsHTML()+accountHTML()+'</div>'}
+    // Who you are, kept close together: the name, your role and since when, your words, and your picks as pills.
+    '<div class="me-id" style="--c:'+p.av.c+'">'+avatarHTML(p,88)+'<h2 id="vd-title">'+esc(p.nick)+'</h2>'+
+      '<div class="me-tags"><span class="me-role">'+esc(ROLE[p.style]||'Home brewer')+'</span><small class="me-name">'+(p.name?esc(p.name)+' · ':'')+'Since '+since+'</small></div>'+
+      (p.brief?'<p class="me-brief">'+esc(p.brief)+'</p>':'<button type="button" class="me-add" id="pf-edit2">Add a few words about how you take your coffee</button>')+
+      (dna.length?'<ul class="me-pills" aria-label="About you">'+dna.map(([i,k,v,c])=>'<li style="--tc:'+c+'"><i aria-hidden="true">'+emoIc(i)+'</i><span class="vh">'+k+': </span><span class="mp-v">'+esc(v)+'</span></li>').join('')+'</ul>'
+        :'<button type="button" class="me-add" id="pf-edit3">Add where you brew, your brewer and your favourite origin</button>')+'</div>'+
+    '<div class="me-body" style="--c:'+p.av.c+'">'+
+      // The numbers: four tiles, each in its own colour.
+      '<div class="me-nums" role="group" aria-label="Your numbers">'+profileStats().map(([n,l],i)=>'<span style="--tc:'+['#D2793A','#8B5CF6','#14B8A6','#F59E0B'][i]+'"><i aria-hidden="true">'+svgI([LI.bag,LI.cup,ICO.globe,ICO.trophy][i])+'</i><b>'+n+'</b><small>'+esc(l.replace(' brewed',''))+'</small></span>').join('')+'</div>'+
+      journeyHTML()+tasteHTML()+trendsHTML()+accountHTML()+'</div>'}
 $('vd').addEventListener('click',e=>{if(e.target.closest('#pf-new,#pf-edit,#pf-edit2,#pf-edit3')){delete $('vd').dataset.me;openProfileEditor();return}if(e.target.closest('#pf-signin')){delete $('vd').dataset.me;openSignIn();return}
   if(e.target.closest('#pf-out')){askConfirm('Your profile stays on this phone.','Sign out',false,'Sign out?').then(y=>{if(y)signOut()});return}
   if(e.target.closest('#pf-bio')){const on=BIOM&&BIOM.saved&&BIOM.email===(ACCT&&ACCT.email),w=bioWord();(on?bioOff():bioOn()).then(()=>toast(on?w[0].toUpperCase()+w.slice(1)+' sign-in is off':'Next time, sign in with your '+bioWord()),err=>{if(err&&err.message&&!/cancel/i.test(err.message))toast(err.message)});return}
@@ -14452,7 +14551,7 @@ document.addEventListener('close',()=>{if(SYNC_WAIT){SYNC_WAIT=false;setTimeout(
 // Shown only when something is wrong: working sync needs no mention.
 function syncLine(){if(!syncOn()||!SYNC_ERR)return '';const ago=SYNC_AT?Math.round((Date.now()-SYNC_AT)/60000):-1;
   const when=SYNC_ERR==='offline'?'Offline: changes go up when you’re back':SYNC_ERR==='rules'?'The database turned sync away':SYNC_ERR?'Couldn’t sync just now':ago<0?'Not synced yet':ago<1?'Synced just now':'Synced '+(ago<60?ago+' min ago':Math.round(ago/60)+' h ago');
-  return '<div class="me-row me-syncrow'+(SYNC_ERR?' off':'')+'"><span class="me-ic" aria-hidden="true">'+SYNC_SVG+'</span><span class="me-rt"><b>'+when+'</b>'+(SYNC_ERR==='rules'?'<small>Its rules don’t allow saving your data yet. Publish the rules from the README in the Firebase console.</small>':'')+'</span><button type="button" class="linkbtn" id="pf-sync">Sync now</button></div>'}
+  return '<div class="me-row me-syncrow'+(SYNC_ERR?' off':'')+'"><span class="me-ic me-tile" aria-hidden="true">'+SYNC_SVG+'</span><span class="me-rt"><b>'+when+'</b>'+(SYNC_ERR==='rules'?'<small>Its rules don’t allow saving your data yet. Publish the rules from the README in the Firebase console.</small>':'')+'</span><button type="button" class="linkbtn" id="pf-sync">Sync now</button></div>'}
 $('vd').addEventListener('click',e=>{const b=e.target.closest('#pf-sync');if(!b||b.disabled)return;b.disabled=true;b.textContent='Syncing…';
   syncNow(true).then(()=>toast(SYNC_ERR==='offline'?'You’re offline. Your changes go up when you’re back':SYNC_ERR==='rules'?'The database turned sync away: its rules need publishing':SYNC_ERR?'Couldn’t sync. Try again in a moment':'Everything’s in sync'))});
 

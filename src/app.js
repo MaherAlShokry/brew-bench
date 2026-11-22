@@ -1527,14 +1527,20 @@ let VD_CUR=null,VD_KEY='',VD_RESTORING=false;const VD_HIST=[];
 // In the sheet, its own Back button steps back the same way when there's a page to go back to.
 function vdBack(fallback){if(VD_HIST.length)history.back();else fallback()}
 // The page restored becomes the one showing, so the next page opened from it steps back to it (not to the one before).
-function vdRestore(e){const d=$('vd');VD_RESTORING=true;try{e.f()}finally{VD_RESTORING=false}VD_CUR=e.f;VD_KEY=e.k;
+// A page opened inside the sheet slides in from the right, as the sheet itself does; stepping back, the page before
+// returns from the left. Redrawing the page showing now (after an edit) doesn't move.
+let VD_TURN=null,VD_TURN_T=0;
+function vdTurn(dir){if(RM())return;VD_TURN=dir;clearTimeout(VD_TURN_T);VD_TURN_T=setTimeout(()=>{VD_TURN=null},1500)}
+new MutationObserver(()=>{const dir=VD_TURN;if(!dir)return;VD_TURN=null;const el=$('vd-in');if(!el.animate)return;
+  el.animate([{opacity:0,transform:'translateX('+(dir==='back'?'-':'')+'24px)'},{opacity:1,transform:'none'}],{duration:280,easing:'cubic-bezier(.32,.72,0,1)'})}).observe($('vd-in'),{childList:true});
+function vdRestore(e){const d=$('vd');vdTurn('back');VD_RESTORING=true;try{e.f()}finally{VD_RESTORING=false}VD_CUR=e.f;VD_KEY=e.k;
   const y=e.y;d.scrollTop=y;requestAnimationFrame(()=>{d.scrollTop=y})}
 {const names=['openTips','openComparePickNow','openCompareNow','openRecipe','flowSheet','openSpeed','openMakeRecipe','openDiaryPick','openTrophies',
   'openRoastersNow','openRoasterNow','openOrigin','openBean','openBeanPick','openCalEditor','openCal','cardViewer','openMe','openNotesPicker','openProfile'];
   for(const n of names){let f;try{f=eval(n)}catch(e){continue}if(typeof f!=='function')continue;
     const w=function(...a){const d=$('vd'),k=n+'|'+(()=>{try{return JSON.stringify(a)}catch(e){return String(Math.random())}})();
       // Drawn again as it is (after an edit) or while stepping back: no new step.
-      if(!VD_RESTORING&&d.open&&!d.classList.contains('closing')&&VD_CUR&&k!==VD_KEY){VD_HIST.push({f:VD_CUR,k:VD_KEY,y:d.scrollTop});try{history.pushState({dlg:1,vd:1},'',location.hash||'#dial')}catch(e){}}
+      if(!VD_RESTORING&&d.open&&!d.classList.contains('closing')&&VD_CUR&&k!==VD_KEY){VD_HIST.push({f:VD_CUR,k:VD_KEY,y:d.scrollTop});vdTurn('fwd');try{history.pushState({dlg:1,vd:1},'',location.hash||'#dial')}catch(e){}}
       if(!VD_RESTORING){VD_CUR=()=>f.apply(this,a);VD_KEY=k}return f.apply(this,a)};
     eval(n+'=w')}}
 // Opening any sheet (as a modal or, see openTop, as a popover): a history step, the stack, and on close the way back.
@@ -1599,7 +1605,7 @@ function showDlg(d){NAV_AT=performance.now();if(d.classList.contains('closing'))
 addEventListener('popstate',()=>{if(FAB_POP())return;const open=[...document.querySelectorAll('dialog[open]:not(.closing)')];
   if(BACKING){BACKING=false;try{if(PEND_TAB&&location.hash!=='#'+PEND_TAB)history.pushState(null,'','#'+PEND_TAB);if(open.length)history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}PEND_TAB=null;return}
   if(open.length){const top=DSTACK.filter(d=>d.open&&!d.classList.contains('closing')).pop();
-    if(top&&top.id==='vd'&&VD_HIST.length){const e=VD_HIST.pop();if(VD_BACK){const f=VD_BACK;VD_BACK=null;VD_RESTORING=true;try{f()}finally{VD_RESTORING=false}VD_CUR=e.f;VD_KEY=e.k;const d=$('vd');d.scrollTop=e.y;requestAnimationFrame(()=>{d.scrollTop=e.y})}else vdRestore(e);return}
+    if(top&&top.id==='vd'&&VD_HIST.length){const e=VD_HIST.pop();if(VD_BACK){const f=VD_BACK;VD_BACK=null;vdTurn('back');VD_RESTORING=true;try{f()}finally{VD_RESTORING=false}VD_CUR=e.f;VD_KEY=e.k;const d=$('vd');d.scrollTop=e.y;requestAnimationFrame(()=>{d.scrollTop=e.y})}else vdRestore(e);return}
     if(top&&top.id==='vd'&&VD_BACK){const f=VD_BACK;VD_BACK=null;try{history.pushState({dlg:1},'',location.hash||'#dial')}catch(e){}VD_RESTORING=true;try{f()}finally{VD_RESTORING=false}return}
     if(top){top.dataset.popped=1;top.close()}else open.forEach(d=>d.close());return}
   // Inside Beans, back from another view returns to Coffees first.
