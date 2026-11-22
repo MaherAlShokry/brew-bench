@@ -35,4 +35,11 @@ ok('a pour-over still stretches its times with more water',r.v60,r);
 ok('New Hybrid at 15g matches the PHILOCOFFEA recipe (34, 90, 150, 225g)',/Pour 34g/.test(r.g15)&&/to 90g/.test(r.g15)&&/to 150g/.test(r.g15)&&/to 225g/.test(r.g15),r.g15);
 ok('New Hybrid has its steep, and stays at 90°C on the Brew page',r.steep&&/90°C/.test(r.first),r);
 ok('every valve and immersion recipe has a steep step',!r.steepless.length,r.steepless);
+const bl=await p.evaluate(()=>{const out={};for(const [k,name,b] of [['v60','The Ultimate V60','v60'],['kh2','New Hybrid (2025)','sw'],['inv','Inverted AeroPress','aeropress'],['fp','Classic 4-minute press','frenchpress']]){
+    const i=RECIPES.findIndex(x=>x.name===name);S.brewer=b;loadRecipe(i);render();const B=BREWERS[S.brewer];
+    S.bloom=Math.max(B.bloom.min,30);const a=dialPlan().steps;S.bloom=Math.min(B.bloom.max,75);render();const c=dialPlan().steps;
+    out[k]={moved:JSON.stringify(a)!==JSON.stringify(c),hidden:$('i-bloom').closest('.field').hidden,a,c}}return out});
+ok('the bloom moves the timer\'s steps (a recipe with setup steps, a closed-valve bloom, an AeroPress)',bl.v60.moved&&bl.kh2.moved&&bl.inv.moved,bl);
+ok('…and a wait inside the bloom stays put',bl.kh2.c.some(s=>/^0:10 let it bloom/.test(s))&&bl.kh2.c.some(s=>/^1:15 OPEN the valve/.test(s)),bl.kh2.c);
+ok('a recipe with no bloom hides the bloom slider',bl.fp.hidden&&!bl.v60.hidden,bl);
 ok('no page errors',!errs.length,errs);await b.close()})();
