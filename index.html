@@ -1320,8 +1320,8 @@ dialog::backdrop{background:rgba(25,16,10,.5)}
 .fphase>.fph{color:color-mix(in srgb,var(--c) 45%,var(--ink))}
 .cdclock b{color:color-mix(in srgb,var(--c) 68%,var(--ink))}
 .gcard .mine-tag{color:var(--leaf-ink)}
-.stars button{color:color-mix(in srgb,var(--muted) 55%,var(--surface));min-width:40px;min-height:40px;padding:.09em 0 0;display:inline-grid;place-items:center}
-.l-rate .stars button{padding:.12em 4px 0}
+.stars button{color:color-mix(in srgb,var(--muted) 55%,var(--surface));min-width:40px;min-height:40px;padding:0;display:inline-grid;place-items:center}
+.l-rate .stars button{padding:0 4px}
 @media (hover:hover){.stars button:not(.on):hover{color:color-mix(in srgb,var(--honey) 55%,var(--surface))}}
 .linkbtn,button.hint,.legend button{position:relative}
 .linkbtn::after,button.hint::after{content:"";position:absolute;inset:-9px -4px}
@@ -3299,7 +3299,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="56362c2fa9ef"</script>
+<script>const BUILD_ID="5b66b1e1ae23"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
