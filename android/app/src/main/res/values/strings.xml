@@ -5,9 +5,9 @@
     <string name="package_name">io.github.maheralshokry.brewbench</string>
     <string name="custom_url_scheme">io.github.maheralshokry.brewbench</string>
     <string name="widget_name">Drinking now</string>
-    <string name="widget_desc">The coffee you\'re drinking, how fresh it is today, and a button to log a brew</string>
-    <string name="widget_cabinet_name">Your cabinet</string>
-    <string name="widget_cabinet_desc">The coffees on your shelf and how fresh each is today</string>
+    <string name="widget_desc">The coffee you\'re drinking like your shelf card: how fresh it is today, your rating, what\'s left, and a button to log a brew</string>
+    <string name="widget_cabinet_name">Your shelf</string>
+    <string name="widget_cabinet_desc">Every bag on your shelf like your shelf card: how fresh each is today, your rating and what\'s left</string>
     <string name="widget_cabinet_empty">Nothing in your cabinet yet. Add the bag you\'re drinking.</string>
     <string name="widget_brew_name">Quick brew</string>
     <string name="tile_brew">Start a brew</string>
