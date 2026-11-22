@@ -117,14 +117,22 @@ function journeyHTML(){const ml=LOG.filter(l=>l&&isMine(l)&&+l.ts>0).sort((a,b)=
   const lead=rs.length?JR_TR.slice().sort((a,b)=>avg[b[0]]-avg[a[0]]).slice(0,2).map(x=>x[1].toLowerCase()):[];
   // The flavours you noted in your brews.
   const sc=new Map();ml.forEach(l=>flOf(l).forEach(([id,v])=>sc.set(id,(sc.get(id)||0)+v)));const mx=sc.size?Math.max(...sc.values()):1,fl=[...sc].sort((a,b)=>b[1]-a[1]).map(([id,v])=>[id,Math.max(1,Math.ceil(3*v/mx))]);
-  const graphs=(rs.length?'<figure class="jr-g"><figcaption>Your cup</figcaption>'+cupRadar(avg)+'<small>Mostly '+lead.join(' and ')+'</small></figure>':'')+
-    (fl.length?'<figure class="jr-g"><figcaption>Your flavours</figcaption><button type="button" class="fl-mini jr-wheel" id="jr-wheel" aria-label="Open your flavours">'+fwStatic(fl)+'</button>'+flBar(fl)+'</figure>':'');
+  // Each graph has its numbers beside it: the five traits as bars out of ten, the flavour families as shares.
+  const bars=rows=>'<ul class="jr-bars">'+rows.map(([n,c,f,v])=>'<li style="--tc:'+c+'"><span>'+esc(n)+'</span><em>'+v+'</em><i><b style="width:'+Math.round(Math.max(.04,Math.min(1,f))*100)+'%"></b></i></li>').join('')+'</ul>';
+  const fams=fl.length?flFamilies(fl).slice(0,5):[];
+  const graphs=(rs.length?'<figure class="jr-g"><figcaption>Your cup<small>Mostly '+lead.join(' and ')+'</small></figcaption><div class="jr-row">'+cupRadar(avg)+bars(JR_TR.map(([k,n,c])=>[n,c,avg[k]/10,avg[k].toFixed(1)]))+'</div></figure>':'')+
+    (fl.length?'<figure class="jr-g"><figcaption>Your flavours<small>Mostly '+fams.slice(0,2).map(([c])=>c.n.toLowerCase()).join(' and ')+'</small></figcaption><div class="jr-row"><button type="button" class="fl-mini jr-wheel" id="jr-wheel" aria-label="Open your flavours">'+fwStatic(fl)+'</button>'+
+      bars(fams.map(([c,p])=>[c.n,c.c,p/fams[0][1],Math.round(p*100)+'%']))+'</div></figure>':'');
   // Highlights.
   const g=ml.reduce((a,l)=>a+(l.snap&&+l.snap.dose||0),0),st=ml.length?brewStreak(ml):0,rated=ml.filter(l=>+l.stars>0),avgR=rated.length?rated.reduce((a,l)=>a+ +l.stars,0)/rated.length:0;
   const rc=new Map();ml.forEach(l=>{const n=l.snap&&l.snap.rec;if(n)rc.set(n,(rc.get(n)||0)+1)});const fav=[...rc].sort((a,b)=>b[1]-a[1])[0];
   const best=bs.filter(b=>b.rating).sort((a,b)=>b.rating-a.rating)[0];
-  const hl=[g>0&&['☕','Coffee brewed',g>=1000?(g/1000).toFixed(g>=10000?0:1)+' kg':Math.round(g)+' g','#D2793A'],st>1&&['🔥','Longest streak',st+' days','#F43F5E'],
-    avgR>0&&['✨','Average cup',avgR.toFixed(1)+' of 5','#F59E0B'],fav&&['🎯','Go-to recipe',fav[0],'#8B5CF6'],best&&['🏆','Best rated',beanTitle(best),'#14B8A6']].filter(Boolean).slice(0,4);
+  const sub=t=>'<span class="jr-sub">'+esc(t)+'</span>',nC=n=>n+(n===1?' cup':' cups');
+  const hl=[g>0&&['☕','Coffee brewed',esc(g>=1000?(g/1000).toFixed(g>=10000?0:1)+' kg':Math.round(g)+' g')+sub('over '+nC(ml.length)),'#D2793A'],
+    st>1&&['🔥','Longest streak',esc(st+' days')+sub('in a row'),'#F43F5E'],
+    avgR>0&&['✨','Average cup',esc(avgR.toFixed(1)+' of 5')+sub('from '+nC(rated.length)+' rated'),'#F59E0B'],
+    fav&&['🎯','Go-to recipe',esc(fav[0])+sub(nC(fav[1])),'#8B5CF6'],
+    best&&['🏆','Best rated',esc(beanTitle(best))+sub([best.rating+' of 5',best.roaster].filter(Boolean).join(' · ')),'#14B8A6']].filter(Boolean).slice(0,4);
   // Milestones, oldest first.
   const ms=[];if(bs.length)ms.push([Date.parse(beanDay(bs[0])),'First coffee',beanTitle(bs[0]),'🛍','#D2793A']);
   if(ml.length)ms.push([ml[0].ts,'First cup brewed',(ml[0].snap&&ml[0].snap.rec)||ml[0].coffee||'','☕','#B07A56']);
@@ -132,8 +140,8 @@ function journeyHTML(){const ml=LOG.filter(l=>l&&isMine(l)&&+l.ts>0).sort((a,b)=
   {const seen=new Set();for(const b of bs){const o=realO(b);if(!o||seen.has(o))continue;seen.add(o);if([5,10,15,20].includes(seen.size))ms.push([Date.parse(beanDay(b)),seen.size+' origins',originName(o),'🌍','#14B8A6'])}}
   const mss=ms.filter(m=>isFinite(m[0])).sort((a,b)=>a[0]-b[0]).slice(-6);
   return '<section class="me-sec me-jr" aria-label="Your coffee journey"><h3 class="me-sh">Your coffee journey</h3>'+
-    (graphs?'<div class="jr-gs'+(rs.length&&fl.length?' two':'')+'">'+graphs+'</div>':'')+
-    (hl.length?factCard(hl.map(([i,k,v,c])=>[i,k,esc(v),c]),{cols:hl.length===1?1:2,cls:'jr-hl'}):'')+
+    (graphs?'<div class="jr-gs">'+graphs+'</div>':'')+
+    (hl.length?factCard(hl.map(([i,k,v,c])=>[i,k,v,c]),{cols:hl.length===1?1:2,cls:'jr-hl'}):'')+
     (mss.length?'<ol class="jr-tl" aria-label="Milestones">'+mss.map(([t,k,v,ic,c])=>{const d=new Date(t);return '<li style="--tc:'+c+'"><i class="jr-ic" aria-hidden="true">'+emoIc(ic)+'</i><span class="jr-tx"><b>'+esc(k)+'</b>'+(v?'<small>'+esc(v)+'</small>':'')+'</span>'+
       '<time datetime="'+d.toISOString().slice(0,10)+'"><b>'+d.toLocaleDateString(undefined,{day:'numeric',month:'short'})+'</b><small>'+d.getFullYear()+'</small></time></li>'}).join('')+'</ol>':'')+'</section>'}
 // Your picks stay on one line: when they don't fit, their text steps down a little at a time; only if they still

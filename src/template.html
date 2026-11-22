@@ -2762,19 +2762,22 @@ button[aria-pressed]:active{transform:scale(.95)}
    fills its card. */
 .me-pills .bf-flag{display:grid;place-items:center;width:100%;height:100%;font-size:15px;line-height:1;padding-top:1px}
 .mt-n{display:flex;flex-direction:column;align-items:center;line-height:1.15;font-size:.6rem}.mt-n b{font:700 .78rem var(--display);color:var(--ink)}
-.jr-g .fwbar-key{display:grid;justify-content:start;justify-items:start;gap:4px;width:100%;padding-left:6px}
-.jr-radar{max-width:100%;flex:1 1 auto;min-height:0}
 /* Your coffee journey. */
-.jr-gs{display:grid;gap:10px}.jr-gs.two{grid-template-columns:repeat(2,minmax(0,1fr))}
-.jr-g{display:flex;flex-direction:column;align-items:center;gap:6px;margin:0;padding:14px 10px 12px;border-radius:20px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);min-width:0}
-.jr-g figcaption{align-self:flex-start;font:700 .8rem var(--display);color:var(--ink);padding-left:4px}
-.jr-g>small{font-size:.78rem;color:var(--muted);text-align:center}
-.jr-radar{width:100%;max-width:170px;height:auto;overflow:visible}
+.jr-gs{display:grid;gap:10px}
+.jr-g{display:flex;flex-direction:column;gap:10px;margin:0;padding:14px 16px;border-radius:22px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);min-width:0}
+.jr-g figcaption{display:flex;flex-direction:column;gap:2px;font:700 .92rem var(--display);color:var(--ink)}
+.jr-g figcaption small{font:400 .8rem var(--body);color:var(--muted)}
+.jr-row{display:grid;grid-template-columns:minmax(0,44%) minmax(0,1fr);align-items:center;gap:16px}
+.jr-radar{width:100%;height:auto;overflow:visible}
 .jr-radar .jr-grid{fill:none;stroke:var(--line);stroke-width:1}
 .jr-radar .jr-shape{fill:color-mix(in srgb,var(--c,var(--cherry)) 30%,transparent);stroke:var(--c,var(--cherry));stroke-width:2;stroke-linejoin:round}
 .jr-radar text{font:600 9.5px var(--body);fill:var(--muted)}
-.jr-g .jr-wheel{width:112px;height:112px;margin:4px 0 2px}
-.jr-g .fwbar{width:100%}.jr-g .fwbar-key{justify-content:center;font-size:.7rem}
+.jr-g .jr-wheel{width:100%;max-width:130px;height:auto;aspect-ratio:1;justify-self:center}
+.jr-bars{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none;min-width:0}
+.jr-bars li{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:2px 8px;font-size:.78rem;color:var(--ink)}
+.jr-bars span{min-width:0;overflow-wrap:break-word}.jr-bars em{font:700 .76rem var(--display);font-style:normal;color:var(--ink);font-variant-numeric:tabular-nums}
+.jr-bars i{grid-column:1/-1;height:6px;border-radius:3px;background:var(--surface2);overflow:hidden}.jr-bars i b{display:block;height:100%;border-radius:3px;background:var(--tc)}
+.jr-sub{display:block;margin-top:2px;font:400 .76rem/1.3 var(--body);color:var(--muted)}
 .jr-hl.bfacts{margin:0}
 .jr-tl{margin:0;padding:6px 14px;list-style:none;border-radius:22px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
 .jr-tl li{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;padding:10px 0}
