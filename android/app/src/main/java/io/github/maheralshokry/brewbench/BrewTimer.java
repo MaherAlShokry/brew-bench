@@ -392,8 +392,12 @@ final class BrewTimer {
         int tint = NotifViews.night(ctx) ? 0xFFE2A877 : ACCENT;
         android.widget.RemoteViews sm = new android.widget.RemoteViews(pkg, R.layout.nf_timer);
         if (ring != null) sm.setImageViewBitmap(R.id.nf_ring, ring); else sm.setViewVisibility(R.id.nf_ring, android.view.View.GONE);
-        sm.setTextViewText(R.id.nf_title, pause ? "Paused at " + clock(e) : step);
-        sm.setTextViewText(R.id.nf_line, pause ? step : nx);
+        // One line each: the step's action as the title ("Pour 45g at 90°C"), the rest of it ("Valve closed") leading
+        // the line with what's next, as in Android's own layout.
+        String[] st = split(step);
+        String nxc = nx.startsWith("Next at") && nx.indexOf(" · ") > 0 ? nx.substring(0, nx.indexOf(" · ") + 3) + calm(nx.substring(nx.indexOf(" · ") + 3)) : nx;
+        sm.setTextViewText(R.id.nf_title, pause ? "Paused at " + clock(e) : calm(st[0]));
+        sm.setTextViewText(R.id.nf_line, pause ? calm(step) : (st[1].isEmpty() ? "" : calm(st[1]) + " · ") + nxc);
         boolean cd = run && nextAt > e;
         if (cd) {
             sm.setChronometer(R.id.nf_cd, rt + (nextAt - e), null, true);
@@ -414,10 +418,10 @@ final class BrewTimer {
         if (s.total > 0) bg.setImageViewBitmap(R.id.nf_bar, NotifViews.bar(ctx, s.t, s.total, e, tint));
         else bg.setViewVisibility(R.id.nf_bar, android.view.View.GONE);
         bg.setTextViewText(R.id.nf_nowtag, "Now");
-        bg.setTextViewText(R.id.nf_now, step);
+        bg.setTextViewText(R.id.nf_now, calm(step));
         // The next step: its time in a small pill, then what it is.
         java.util.regex.Matcher m = java.util.regex.Pattern.compile("^Next at (\\d+:\\d\\d) · (.*)$").matcher(nx);
-        if (m.find()) { bg.setTextViewText(R.id.nf_nexttag, m.group(1)); bg.setTextViewText(R.id.nf_next, m.group(2)); }
+        if (m.find()) { bg.setTextViewText(R.id.nf_nexttag, m.group(1)); bg.setTextViewText(R.id.nf_next, calm(m.group(2))); }
         else if (!nx.isEmpty()) { bg.setTextViewText(R.id.nf_nexttag, "Last"); bg.setTextViewText(R.id.nf_next, "Then it's done"); }
         else bg.setViewVisibility(R.id.nf_nextrow, android.view.View.GONE);
         bg.setInt(R.id.nf_toggle_bg, "setColorFilter", ACCENT);
