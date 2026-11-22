@@ -1471,6 +1471,9 @@ function showTab(id,fromHistory,pure){NAV_AT=performance.now();if(window.closeBe
     syncShell(id,backY==null?'done':false);if(backY!=null)window.scrollTo({top:backY});
     // The page's strip highlights are checked just before the next frame, after every other change of the tap, so the
     // page is laid out once (measured inside the tap, it was laid out there and again for the frame).
+    // Placed now as well: when the switch itself runs inside a frame (a page transition), the next frame is one later,
+    // and the page was drawn once with its highlights where they were last (off by up to the page's padding).
+    try{segShown($(id))}catch(e){}
     requestAnimationFrame(()=>{try{if($(id).classList.contains('on'))segShown($(id))}catch(e){}});
     if(kind&&NAV_READY)spSlide(id);
     // Opening a page inside a section slides it over the one you were on, which eases a little to the left; back is the
@@ -2566,7 +2569,7 @@ function buildTree(){
   $('treelegend').innerHTML=Object.values(FAM).map(f=>'<span class="pill tleg" style="--c:'+f.color+'"><i></i>'+f.name+'</span>').join('')+'<span class="pill tleg dna">Notes in italics: where DNA overturned the old story</span>';
   const box=svg.parentElement,edge=()=>{box.classList.toggle('at-start',box.scrollLeft<8);box.classList.toggle('at-end',box.scrollLeft+box.clientWidth>=box.scrollWidth-8)};box.onscroll=edge;box.classList.add('at-start');
   // Its end is measured once it's on screen (where the layout is done anyway): measured when it was built in the background, it laid the whole page out.
-  if(window.IntersectionObserver){const io=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting)){io.disconnect();edge()}});io.observe(box)}else requestAnimationFrame(edge);
+  requestAnimationFrame(edge);
   $('species').innerHTML=['arabica','robusta','liberica','eugenioides','stenophylla'].map(id=>{const v=VBY[id];return'<button type="button" class="card vcard" data-v="'+id+'" style="--c:'+FAM.species.color+'"><span class="fam">'+esc(v.origin)+'</span><h3>'+esc(v.name)+'</h3><p>'+esc(v.cup)+'</p></button>'}).join('');
   $('species').onclick=e=>{const b=e.target.closest('[data-v]');if(b)openVariety(b.dataset.v)};
   $('timeline').innerHTML=TIMELINE.map(([w,t,d])=>'<li><span class="when">'+esc(w)+'</span><h3>'+esc(t)+'</h3><p>'+esc(d)+'</p></li>').join('');
