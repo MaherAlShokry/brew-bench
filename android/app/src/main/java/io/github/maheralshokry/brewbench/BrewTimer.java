@@ -269,7 +269,7 @@ final class BrewTimer {
                 + "|" + (s.total > 0 ? e * 200 / s.total : 0) + "|" + NotifViews.night(ctx) + "|" + (now / 30000);
             if (sig.equals(LAST_SIG)) return;
             LAST_SIG = sig;
-        }
+        } else LAST_SIG = null;  // back in the app's layout (the Now Bar turned off), it is posted again at once
         Notification.Builder b = Build.VERSION.SDK_INT >= 26 ? new Notification.Builder(ctx, CHANNEL) : new Notification.Builder(ctx);
         b.setSmallIcon(R.drawable.ic_stat_bean)
             .setColor(ACCENT)
