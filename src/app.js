@@ -1535,6 +1535,11 @@ function vdBack(fallback){if(VD_HIST.length)history.back();else fallback()}
 // returns from the left. Redrawing the page showing now (after an edit) doesn't move.
 let VD_TURN=null,VD_TURN_T=0;
 function vdTurn(dir){if(RM())return;VD_TURN=dir;clearTimeout(VD_TURN_T);VD_TURN_T=setTimeout(()=>{VD_TURN=null},1500)}
+// A sheet header's pill or back button that doesn't fit beside its round buttons moves under them (see .hd-below).
+// Read just after the page is put in, before it is drawn (the layout is needed for that frame anyway).
+function fitHead(){const h=document.querySelector('#vd-in .vd-head');if(!h||!h.querySelector('.vd-tools'))return;h.classList.remove('hd-below');
+  if([...h.querySelectorAll(':scope>.pill,:scope>.vd-back')].some(e=>e.scrollWidth>e.clientWidth+1))h.classList.add('hd-below')}
+new MutationObserver(()=>requestAnimationFrame(fitHead)).observe($('vd-in'),{childList:true});
 new MutationObserver(()=>{const dir=VD_TURN;if(!dir)return;VD_TURN=null;const el=$('vd-in');if(!el.animate)return;
   el.animate([{opacity:0,transform:'translateX('+(dir==='back'?'-':'')+'24px)'},{opacity:1,transform:'none'}],{duration:280,easing:'cubic-bezier(.32,.72,0,1)'})}).observe($('vd-in'),{childList:true});
 function vdRestore(e){const d=$('vd');vdTurn('back');VD_RESTORING=true;try{e.f()}finally{VD_RESTORING=false}VD_CUR=e.f;VD_KEY=e.k;
@@ -4266,12 +4271,6 @@ function factCard(items,opt){opt=opt||{};const cols=opt.cols||2;
       (at&&cols<3?'<svg class="bf-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>':'')+'</'+tag+'>'}).join('')+'</div>'}
 // Counts (coffees, cups, origins…): the same card, the number first.
 function figsHTML(cls,items,label){const n=items.length;return factCard(items.map(([d,nn,l],i)=>[svgI(FIG[d]||ICO[d]||d),l,nn,FIG_C[i%4]]),{num:true,cols:n===3?3:2,cls,label})}
-const ICO_TONE=new Map();
-function icoTone(bg){if(ICO_TONE.has(bg))return ICO_TONE.get(bg);let t='c';const m=/^#([0-9a-f]{6})$/i.exec(bg||'');
-  if(/var\(--honey/.test(bg))t='h';else if(/var\(--leaf/.test(bg))t='l';else if(m){const n=parseInt(m[1],16),r=(n>>16)/255,g=(n>>8&255)/255,b=(n&255)/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn;
-    let h=0;if(d){h=mx===r?((g-b)/d)%6:mx===g?(b-r)/d+2:(r-g)/d+4;h=(h*60+360)%360}
-    t=d/(mx||1)<0.18?'cl':h<38||h>=340?'c':h<62?'h':h<170?'l':h<265?'cl':'ch'}
-  ICO_TONE.set(bg,t);return t}
 // Icon chips everywhere take the same look as the fact cards: a soft chip of a modern colour (blended with the theme's,
 // see --tk) with the icon drawn in a deeper shade. The house's older earthy colours map onto the modern palette.
 const ICO_MOD={'#5B5F66':'#64748B','#6B8E4E':'#22C55E','#C9964A':'#F59E0B','#D2A04A':'#F59E0B','#6E8FA8':'#3B82F6','#4F8A74':'#14B8A6','#8A5A3B':'#D2793A','#9A7390':'#8B5CF6','#B5533C':'#F43F5E','#C4473F':'#EC4899'};
@@ -4403,8 +4402,6 @@ function saveUI(){save('bb-ui',UI);applyUI()}
 // Sign-in tokens never go into a backup file.
 const DATA_SKIP=['bb-calreset1','bb-splash-test','bb-reset','bb-pending','bb-account','bb-fbcfg','bb-syncshadow','bb-syncat','bb-syncdb','bb-bio','bb-bio-no','bb-upd','bb-lastbak','bb-bakask','bb-tips','bb-visits','bb-wbean'];
 function dataKeys(){const k=[];try{for(let i=0;i<localStorage.length;i++){const n=localStorage.key(i);if(n&&n.startsWith('bb-')&&!DATA_SKIP.includes(n))k.push(n)}}catch(e){}return k.sort()}
-function dataSummary(){const n=k=>{let v=null;try{v=JSON.parse(localStorage.getItem(k)||'null')}catch(e){}return Array.isArray(v)?v.length:v&&typeof v==='object'?Object.keys(v).length:0};
-  return [[n('bb-myrecipes'),'recipe'],[n('bb-log'),'brew'],[n('bb-beans'),'gallery coffee'],[n('bb-scans'),'scan'],[n('bb-favs'),'favourite']].filter(x=>x[0]).map(([c,w])=>c+' '+w+(c===1?'':'s')).join(', ')||'Nothing saved yet besides your settings'}
 async function exportData(){const data={};for(const k of dataKeys()){try{data[k]=localStorage.getItem(k)}catch(e){}}
   const d=new Date(),day=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   // Gallery photos live outside localStorage, so they travel in the backup alongside it.
