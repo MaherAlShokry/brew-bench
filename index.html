@@ -2793,6 +2793,8 @@ html.sheeting :is(.seg.bviews,.gtabs,.appbar,.minires,.bottomnav){-webkit-backdr
 .t3hm-i{width:auto;flex-direction:row;align-items:center;gap:10px;text-align:left}
 .t3hm-i .bpic{flex:none;width:40px;height:40px}
 .t3hm-i small{max-width:none;text-align:left;font-size:.8rem;line-height:1.25}
+
+#vd.vd-lite :is(.vd-body,.me-body)>:nth-child(n+3){content-visibility:auto;contain-intrinsic-size:auto 300px}
 dialog.dlg-pre[open]{animation:none!important;opacity:0}
 dialog.dlg-pre[open]::backdrop{animation:none!important;opacity:0}
 
@@ -3299,7 +3301,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="073bb43a3edd"</script>
+<script>const BUILD_ID="15071adcc0af"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -7658,10 +7660,14 @@ function openTop(d){if(d.showPopover){try{if(!d.hasAttribute('popover'))d.setAtt
     else if(e.type==='pointerup'){const p=down;down=null;if(p&&p.d===d&&Math.abs(e.clientX-p.x)<12&&Math.abs(e.clientY-p.y)<12&&!d.classList.contains('closing')){const ev=new MouseEvent('click',{bubbles:true,cancelable:true});d.dispatchEvent(ev);if(!ev.defaultPrevented&&d.open&&!d.classList.contains('closing'))d.close()}}};
   for(const t of ['pointerdown','pointerup','mousedown','mouseup','touchstart','touchend','click','dblclick','contextmenu'])addEventListener(t,stop,{capture:true,passive:false})}
 addEventListener('keydown',e=>{if(e.key!=='Escape'||e.defaultPrevented)return;const top=DSTACK.filter(d=>d.open&&d.hasAttribute('popover')&&!d.classList.contains('closing')).pop();if(top){e.preventDefault();top.close()}});
+function vdLite(d){d.classList.add('vd-lite');clearTimeout(d._lite);const end=()=>{clearTimeout(d._lite);d.removeEventListener('animationend',on);d.removeEventListener('close',end);d.classList.remove('vd-lite');requestAnimationFrame(()=>{try{fitFacts()}catch(x){}})},
+  on=e=>{if(e.target===d)end()};d.addEventListener('animationend',on);d.addEventListener('close',end);d._lite=setTimeout(end,700)}
 function showDlg(d){NAV_AT=performance.now();if(d.classList.contains('closing')){d.classList.remove('closing');return}
   // A sheet opened afresh starts at its top (a closed sheet kept where it was last scrolled, so a coffee opened after
   // another came up halfway down). Redrawing one already open keeps its place, and back within a sheet restores it.
-  if(!d.open){d.classList.add('dlg-pre');openTop(d);d.scrollTop=0;if(KEYNAV){const f=d.querySelector('button,[href],input,select,textarea');if(f)f.focus()}
+  // A page sheet opened afresh lays out only what is on screen while it slides in (vd-lite: the sections further down
+  // wait, see the CSS); once it is in, everything is laid out as before, so a redraw or a step back keeps its place.
+  if(!d.open){d.classList.add('dlg-pre');if(d.id==='vd'&&!RM())vdLite(d);openTop(d);d.scrollTop=0;if(KEYNAV){const f=d.querySelector('button,[href],input,select,textarea');if(f)f.focus()}
     // Opening a sheet focuses its first button (Close), which drew its focus ring before anything was pressed.
     {const f=document.activeElement;if(f&&d.contains(f)&&f.matches('.vd-close,.vd-tool,button')&&!KEYNAV)f.blur()}requestAnimationFrame(()=>requestAnimationFrame(()=>d.classList.remove('dlg-pre')))}}
 addEventListener('popstate',()=>{if(FAB_POP())return;const open=[...document.querySelectorAll('dialog[open]:not(.closing)')];
@@ -10306,7 +10312,10 @@ const FIG_C=['#F97316','#14B8A6','#8B5CF6','#3B82F6'];
 const svgI=d=>'<svg viewBox="0 0 24 24"><path d="'+d+'"/></svg>';
 // Cards with a date: the values step down together until every date fits on its line (at most to 60%), checked when a
 // card appears or the screen changes width.
+// Tiles not drawn yet (further down a sheet still sliding in, see vdLite) are fitted once they are, not measured now:
+// measuring them would lay them out early.
 function fitFacts(){document.querySelectorAll('.bfacts').forEach(c=>{const d=c.querySelectorAll('b.nw');if(!d.length||!c.getClientRects().length)return;
+  if(c.checkVisibility&&c.closest('#vd.vd-lite')&&!c.checkVisibility({contentVisibilityAuto:true}))return;
   const w=c.clientWidth;if(c._fw===w)return;c._fw=w;let f=1;c.style.setProperty('--bfs','1');
   for(let i=0;i<8&&[...d].some(e=>e.scrollWidth>e.clientWidth+1);i++){f=+(f-0.05).toFixed(2);c.style.setProperty('--bfs',String(f))}})}
 {let q=0;const go=()=>{if(q)return;q=requestAnimationFrame(()=>{q=0;fitFacts()})};new MutationObserver(go).observe(document.documentElement,{childList:true,subtree:true});
@@ -11266,7 +11275,8 @@ function tasteInput(host,init,ctx){let L=tnSplit(init),fam=null,at=-1,opts=[];
 function beanTimeline(b){const fmt=s=>new Date(s+'T12:00');
   return [...b.diary.map(e=>({kind:'entry',d:e.d,t:fmt(e.d).getTime(),e})),
     ...beanBrews(b).map(l=>({kind:'brew',d:'',t:+l.ts||0,l}))].sort((x,y)=>y.t-x.t)}
-const dfmt=t=>new Date(t).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'});
+// One date formatter, made once (making one for every date was a good part of opening a coffee with a long diary).
+const DFMT_I=new Intl.DateTimeFormat(undefined,{day:'numeric',month:'short',year:'numeric'}),dfmt=t=>{const d=new Date(t);return isNaN(d)?d.toLocaleDateString():DFMT_I.format(d)};
 function timelineHTML(items,withBean){if(!items.length)return '';
   return '<ol class="tline">'+items.map(it=>{const b=it.bean,head=withBean&&b?'<button type="button" class="tl-bean" data-bean="'+b.id+'">'+beanPic(b,'xs')+'<b>'+esc(beanTitle(b))+'</b></button>':'';
     if(it.kind==='entry'){const [n,ic]=MOMENTS[it.e.k];return '<li class="tl-e k-'+it.e.k+'"><span class="tl-ic" aria-hidden="true">'+ic+'</span><div class="tl-b">'+head+'<div class="tl-h"><b>'+n+'</b><time>'+dfmt(it.t)+'</time>'+
@@ -13362,7 +13372,13 @@ function logModel(l){const s=okSnap(l.snap),fl=flOf(l).filter(([id])=>FW.byId[id
   return m}
 // The settings line, read back: the recipe, the brewer, the grinder, dose : water, temperature and ratio. What isn't
 // recognised is kept as text so nothing typed is lost.
-function parseSettings(t){const o={};let rest=t;const take=re=>{const m=re.exec(rest);if(m)rest=rest.replace(m[0],' ');return m};
+// A brew's settings line read once per text: the log is read for every list, stat and profile, and reading means
+// matching each recipe, grinder and brewer name (all the recipes, sorted, for every brew). The answer is kept until
+// the recipes, grinders or brewers change; each caller gets its own copy.
+var PS_MEMO=null,PS_SIG="";
+function parseSettings(t){t=t==null?'':String(t);const sig=RECIPES.length+'|'+(RECIPES.length?RECIPES[RECIPES.length-1].name:'')+'|'+Object.keys(GRINDERS).length+'|'+Object.keys(BREWERS).length;
+  if(!PS_MEMO||sig!==PS_SIG){PS_MEMO=new Map();PS_SIG=sig}let o=PS_MEMO.get(t);if(!o){o=parseSettings0(t);if(PS_MEMO.size>4000)PS_MEMO.clear();PS_MEMO.set(t,o)}return Object.assign({},o)}
+function parseSettings0(t){const o={};let rest=t;const take=re=>{const m=re.exec(rest);if(m)rest=rest.replace(m[0],' ');return m};
   const rec=[...RECIPES].sort((a,b)=>b.name.length-a.name.length).find(r=>r.name&&rest.toLowerCase().includes(r.name.toLowerCase()));
   if(rec){o.rec=rec;rest=rest.replace(new RegExp(rec.name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i'),' ');take(/\s*\([^)]*\)/)}
   let m=take(/(\d+(?:[.,]\d+)?)\s*g\s*[:/]\s*(\d+(?:[.,]\d+)?)\s*g/i);if(m){o.dose=+m[1].replace(',','.');o.water=+m[2].replace(',','.')}

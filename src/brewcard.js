@@ -609,7 +609,13 @@ function logModel(l){const s=okSnap(l.snap),fl=flOf(l).filter(([id])=>FW.byId[id
   return m}
 // The settings line, read back: the recipe, the brewer, the grinder, dose : water, temperature and ratio. What isn't
 // recognised is kept as text so nothing typed is lost.
-function parseSettings(t){const o={};let rest=t;const take=re=>{const m=re.exec(rest);if(m)rest=rest.replace(m[0],' ');return m};
+// A brew's settings line read once per text: the log is read for every list, stat and profile, and reading means
+// matching each recipe, grinder and brewer name (all the recipes, sorted, for every brew). The answer is kept until
+// the recipes, grinders or brewers change; each caller gets its own copy.
+var PS_MEMO=null,PS_SIG="";
+function parseSettings(t){t=t==null?'':String(t);const sig=RECIPES.length+'|'+(RECIPES.length?RECIPES[RECIPES.length-1].name:'')+'|'+Object.keys(GRINDERS).length+'|'+Object.keys(BREWERS).length;
+  if(!PS_MEMO||sig!==PS_SIG){PS_MEMO=new Map();PS_SIG=sig}let o=PS_MEMO.get(t);if(!o){o=parseSettings0(t);if(PS_MEMO.size>4000)PS_MEMO.clear();PS_MEMO.set(t,o)}return Object.assign({},o)}
+function parseSettings0(t){const o={};let rest=t;const take=re=>{const m=re.exec(rest);if(m)rest=rest.replace(m[0],' ');return m};
   const rec=[...RECIPES].sort((a,b)=>b.name.length-a.name.length).find(r=>r.name&&rest.toLowerCase().includes(r.name.toLowerCase()));
   if(rec){o.rec=rec;rest=rest.replace(new RegExp(rec.name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i'),' ');take(/\s*\([^)]*\)/)}
   let m=take(/(\d+(?:[.,]\d+)?)\s*g\s*[:/]\s*(\d+(?:[.,]\d+)?)\s*g/i);if(m){o.dose=+m[1].replace(',','.');o.water=+m[2].replace(',','.')}
