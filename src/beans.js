@@ -107,7 +107,7 @@ let BQ='',BSORT=vwGet('bsort','recent',v=>['recent','rated','roaster','origin'].
 const bfAny=b=>!BF.length||BF.some(f=>bfKeep(b,f));
 // Cards slide in the first time you see them, not every time the list is sorted or searched.
 const BSEEN=new Set();
-function saveBeans(){try{localStorage.setItem('bb-beans',JSON.stringify(BEANS));saveBlendsSide();BREV++;reschedule();if(typeof soonCabinet==='function')soonCabinet();return true}catch(e){toast('Couldn’t save: this device’s storage is full');return false}}
+function saveBeans(){try{localStorage.setItem('bb-beans',JSON.stringify(BEANS));saveBlendsSide();BREV++;if(typeof meSoon==='function')meSoon();reschedule();if(typeof soonCabinet==='function')soonCabinet();return true}catch(e){toast('Couldn’t save: this device’s storage is full');return false}}
 const saveTop3=()=>{BREV++;save('bb-top3',TOP3)};
 // Changes to the gallery, the log or the scans; opening the tab again with none of them redraws nothing.
 let BREV=0,BSIG='';
@@ -1684,4 +1684,6 @@ function openTop3(y,start){const d=$('vd'),pool=BEANS.filter(b=>beanYear(b)===y)
     saveTop3();d.close();BPOD=y;BVIEW='top3';checkTrophies();renderBeans();toast(any?'Favourites of '+y+' saved':'Favourites of '+y+' cleared')};
   draw();showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
 // The app may have opened on the Beans page before this part loaded.
-window.BEANS_OK=1;if(beanSync())retuneIfAuto();paintCup();if(GROUP)soonCabinet();checkTrophies();renderDBean();if($('beans').classList.contains('on'))renderBeans();if($('settings').classList.contains('on'))renderSettings();
+// Brews logged from the timer once kept the coffee only as a link to its bag, so they read "Untitled": give them its name.
+function nameLogBeans(){let n=0;for(const l of LOG){if(l.coffee||(l.by&&l.by!==ME))continue;const id=(l.snap&&l.snap.bean&&l.snap.bean.id)||l.beanId,b=id&&beanById(id);if(b){l.coffee=beanTitle(b);queue('put',l.id,l);n++}}if(n){save('bb-log',LOG);renderLog()}}
+window.BEANS_OK=1;nameLogBeans();if(beanSync())retuneIfAuto();paintCup();if(GROUP)soonCabinet();checkTrophies();renderDBean();if($('beans').classList.contains('on'))renderBeans();if($('settings').classList.contains('on'))renderSettings();

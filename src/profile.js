@@ -45,6 +45,9 @@ let ACCT=load('bb-account',null);if(!(ACCT&&typeof ACCT.uid==='string'&&typeof A
 if(PROFILE&&!ME)ME=PROFILE.nick;
 function saveProfile(p){p.updated=Date.now();PROFILE=p;save('bb-profile',p);if(!ME||ME===p.nick)ME=p.nick;pushProfile();profileChanged()}
 function profileChanged(){renderMe();if(typeof renderShare==='function')renderShare();if(typeof renderWelcome==='function')renderWelcome();const d=$('vd');if(d.open&&d.dataset.me&&!d.classList.contains('closing'))openMe(true);if(window.BEANS_OK&&$('bg-hero'))renderBeanHero();if($('settings').classList.contains('on'))renderSettings()}
+// The profile stays live: a brew logged or a coffee changed while it is open (here, on the timer over it, or synced
+// from another phone) redraws it in place, once per burst of saves, keeping where you had scrolled to.
+var ME_T=0;function meSoon(){clearTimeout(ME_T);ME_T=setTimeout(()=>{const d=$('vd');if(!d.open||!d.dataset.me||d.classList.contains('closing'))return;const y=d.scrollTop;openMe(true);d.scrollTop=y},120)}
 // Your face in the top bar (phones) and at the end of the tab bar (larger screens). It opens your profile.
 function renderMe(){for(const id of ['ab-me','tab-me']){const b=$(id);if(!b)continue;b.innerHTML=avatarHTML(PROFILE,id==='ab-me'?32:30);
   b.setAttribute('aria-label',PROFILE?'Your profile: '+PROFILE.nick:'Create your profile')}}
