@@ -1362,10 +1362,12 @@ let SCROLL_Y=0;addEventListener('scroll',e=>{USER_AT=performance.now();if(e.targ
 let SHEETS_WARM=0;
 // One sheet per idle moment (a coffee's page, then a recipe's): both at once was one long stretch a tap could land in.
 function warmSheets(){if(SHEETS_WARM>=2)return;const step=SHEETS_WARM++;const d=$('vd');if(!d||d.open)return;const keep=showDlg;
-  try{showDlg=()=>{};d.classList.add('warm');
+  // Warmed like a real open (vdLite): the first screen is laid out, the rest isn't, so this quiet-moment step stays
+  // short and a tap that lands during it isn't held up.
+  try{showDlg=()=>{};d.classList.add('warm','vd-lite');
     if(step===0&&window.BEANS_OK&&BEANS.length){openBean(BEANS[0].id);d.offsetHeight}
     if(step===1&&RECIPES.length){openRecipe(0);d.offsetHeight}}catch(e){}
-  finally{showDlg=keep;d.classList.remove('warm');if(!d.open){$('vd-in').innerHTML='';delete d.dataset.bean}}}
+  finally{showDlg=keep;d.classList.remove('warm');if(!d.open)d.classList.remove('vd-lite');if(!d.open){$('vd-in').innerHTML='';delete d.dataset.bean}}}
 let EXPLORE_PRE=0;
 // A page built while hidden was never styled or laid out (a hidden page skips both), so the first visit did all of it
 // on the tap: the stall on a section's first visit. Warming lays a hidden page out once in a quiet moment, still
