@@ -107,7 +107,7 @@ let BQ='',BSORT=vwGet('bsort','recent',v=>['recent','rated','roaster','origin'].
 const bfAny=b=>!BF.length||BF.some(f=>bfKeep(b,f));
 // Cards slide in the first time you see them, not every time the list is sorted or searched.
 const BSEEN=new Set();
-function saveBeans(){try{localStorage.setItem('bb-beans',JSON.stringify(BEANS));saveBlendsSide();BREV++;reschedule();if(typeof soonCabinet==='function')soonCabinet();return true}catch(e){toast('Couldn’t save: this device’s storage is full');return false}}
+function saveBeans(){try{localStorage.setItem('bb-beans',JSON.stringify(BEANS));saveBlendsSide();BREV++;if(typeof meSoon==='function')meSoon();reschedule();if(typeof soonCabinet==='function')soonCabinet();return true}catch(e){toast('Couldn’t save: this device’s storage is full');return false}}
 const saveTop3=()=>{BREV++;save('bb-top3',TOP3)};
 // Changes to the gallery, the log or the scans; opening the tab again with none of them redraws nothing.
 let BREV=0,BSIG='';

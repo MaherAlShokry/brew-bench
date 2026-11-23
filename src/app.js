@@ -13,7 +13,7 @@ function load(k,d){let v;try{const t=localStorage.getItem(k);v=t?JSON.parse(t):d
 const num=(v,d,a=-Infinity,b=Infinity)=>{v=+v;return Number.isFinite(v)?Math.min(b,Math.max(a,v)):d};
 const oneOf=(v,list,d)=>list.includes(v)?v:d;
 // LOGV counts changes to the brew log, so summaries built from it know when to work it out again.
-var LOGV=0;function save(k,v){if(k==='bb-log')LOGV++;try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+var LOGV=0;function save(k,v){if(k==='bb-log'){LOGV++;if(typeof meSoon==='function')meSoon()}try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 // Sorts and filters you pick are kept for next time (Settings: "Sorts and filters"), all in one saved object. Set to
 // reset, every list opens in its default order with nothing filtered; what you pick still applies while the app is open.
 const VW_KEEP=(()=>{try{return (JSON.parse(localStorage.getItem('bb-ui')||'{}')||{}).views!=='reset'}catch(e){return true}})();

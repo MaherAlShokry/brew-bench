@@ -3299,7 +3299,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="b45c9d1b214a"</script>
+<script>const BUILD_ID="073bb43a3edd"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -6063,7 +6063,7 @@ function load(k,d){let v;try{const t=localStorage.getItem(k);v=t?JSON.parse(t):d
 const num=(v,d,a=-Infinity,b=Infinity)=>{v=+v;return Number.isFinite(v)?Math.min(b,Math.max(a,v)):d};
 const oneOf=(v,list,d)=>list.includes(v)?v:d;
 // LOGV counts changes to the brew log, so summaries built from it know when to work it out again.
-var LOGV=0;function save(k,v){if(k==='bb-log')LOGV++;try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+var LOGV=0;function save(k,v){if(k==='bb-log'){LOGV++;if(typeof meSoon==='function')meSoon()}try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 // Sorts and filters you pick are kept for next time (Settings: "Sorts and filters"), all in one saved object. Set to
 // reset, every list opens in its default order with nothing filtered; what you pick still applies while the app is open.
 const VW_KEEP=(()=>{try{return (JSON.parse(localStorage.getItem('bb-ui')||'{}')||{}).views!=='reset'}catch(e){return true}})();
@@ -11042,7 +11042,7 @@ let BQ='',BSORT=vwGet('bsort','recent',v=>['recent','rated','roaster','origin'].
 const bfAny=b=>!BF.length||BF.some(f=>bfKeep(b,f));
 // Cards slide in the first time you see them, not every time the list is sorted or searched.
 const BSEEN=new Set();
-function saveBeans(){try{localStorage.setItem('bb-beans',JSON.stringify(BEANS));saveBlendsSide();BREV++;reschedule();if(typeof soonCabinet==='function')soonCabinet();return true}catch(e){toast('Couldn’t save: this device’s storage is full');return false}}
+function saveBeans(){try{localStorage.setItem('bb-beans',JSON.stringify(BEANS));saveBlendsSide();BREV++;if(typeof meSoon==='function')meSoon();reschedule();if(typeof soonCabinet==='function')soonCabinet();return true}catch(e){toast('Couldn’t save: this device’s storage is full');return false}}
 const saveTop3=()=>{BREV++;save('bb-top3',TOP3)};
 // Changes to the gallery, the log or the scans; opening the tab again with none of them redraws nothing.
 let BREV=0,BSIG='';
@@ -14095,6 +14095,9 @@ let ACCT=load('bb-account',null);if(!(ACCT&&typeof ACCT.uid==='string'&&typeof A
 if(PROFILE&&!ME)ME=PROFILE.nick;
 function saveProfile(p){p.updated=Date.now();PROFILE=p;save('bb-profile',p);if(!ME||ME===p.nick)ME=p.nick;pushProfile();profileChanged()}
 function profileChanged(){renderMe();if(typeof renderShare==='function')renderShare();if(typeof renderWelcome==='function')renderWelcome();const d=$('vd');if(d.open&&d.dataset.me&&!d.classList.contains('closing'))openMe(true);if(window.BEANS_OK&&$('bg-hero'))renderBeanHero();if($('settings').classList.contains('on'))renderSettings()}
+// The profile stays live: a brew logged or a coffee changed while it is open (here, on the timer over it, or synced
+// from another phone) redraws it in place, once per burst of saves, keeping where you had scrolled to.
+var ME_T=0;function meSoon(){clearTimeout(ME_T);ME_T=setTimeout(()=>{const d=$('vd');if(!d.open||!d.dataset.me||d.classList.contains('closing'))return;const y=d.scrollTop;openMe(true);d.scrollTop=y},120)}
 // Your face in the top bar (phones) and at the end of the tab bar (larger screens). It opens your profile.
 function renderMe(){for(const id of ['ab-me','tab-me']){const b=$(id);if(!b)continue;b.innerHTML=avatarHTML(PROFILE,id==='ab-me'?32:30);
   b.setAttribute('aria-label',PROFILE?'Your profile: '+PROFILE.nick:'Create your profile')}}
