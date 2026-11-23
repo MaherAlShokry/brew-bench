@@ -3299,7 +3299,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="5b66b1e1ae23"</script>
+<script>const BUILD_ID="b45c9d1b214a"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -7281,7 +7281,7 @@ function quickLogBox(){const box=document.createElement('div');box.className='tm
   $('tm-next').appendChild(box)}
 function quickLog(stars,notes,more){const r=TM.r||RECIPES[TM.idx],p=TM.p,fromDial=p&&'bean' in p;if(!r)return null;
   const e={id:uid(),ts:Date.now(),date:new Date().toLocaleDateString(),coffee:'',settings:'',stars,pred:'',notes:'',brewer:''};
-  if(fromDial){const dp=dialPlan();e.settings=dialLine(dp);e.brewer=S.brewer;e.pred=verdict(compute(S).D)[0];e.snap=brewSnap();if(S.bean&&!(S.bean.id&&window.BEANS_OK&&beanById(S.bean.id)))e.coffee=S.bean.name||''}
+  if(fromDial){const dp=dialPlan();e.settings=dialLine(dp);e.brewer=S.brewer;e.pred=verdict(compute(S).D)[0];e.snap=brewSnap();if(S.bean){const cb0=S.bean.id&&window.BEANS_OK&&beanById(S.bean.id);e.coffee=cb0?beanTitle(cb0):S.bean.name||''}}
   else{const dz=p?p.r.dose:r.dose,w=p?p.water:r.water,t=p?p.temp:r.temp;e.settings=r.name+', '+dz+'g : '+w+'g'+(t?', '+t+'°C':'');e.brewer=r.b}
   const fl=notes.map(w=>{const n=tnLeaf(w);return n&&[n.id,3]}).filter(Boolean);for(const [id,v] of more||[])if(!fl.some(x=>x[0]===id))fl.push([id,v]);if(fl.length)e.fl=fl;
   const cb=e.snap&&e.snap.bean&&e.snap.bean.id,cid=cb&&lastCupFor(cb);if(cid){e.cup=cid;LAST_CUP=null}
@@ -12619,7 +12619,9 @@ function openTop3(y,start){const d=$('vd'),pool=BEANS.filter(b=>beanYear(b)===y)
     saveTop3();d.close();BPOD=y;BVIEW='top3';checkTrophies();renderBeans();toast(any?'Favourites of '+y+' saved':'Favourites of '+y+' cleared')};
   draw();showDlg(d);d.scrollTop=0;$('vd-x').onclick=()=>d.close()}
 // The app may have opened on the Beans page before this part loaded.
-window.BEANS_OK=1;if(beanSync())retuneIfAuto();paintCup();if(GROUP)soonCabinet();checkTrophies();renderDBean();if($('beans').classList.contains('on'))renderBeans();if($('settings').classList.contains('on'))renderSettings();
+// Brews logged from the timer once kept the coffee only as a link to its bag, so they read "Untitled": give them its name.
+function nameLogBeans(){let n=0;for(const l of LOG){if(l.coffee||(l.by&&l.by!==ME))continue;const id=(l.snap&&l.snap.bean&&l.snap.bean.id)||l.beanId,b=id&&beanById(id);if(b){l.coffee=beanTitle(b);queue('put',l.id,l);n++}}if(n){save('bb-log',LOG);renderLog()}}
+window.BEANS_OK=1;nameLogBeans();if(beanSync())retuneIfAuto();paintCup();if(GROUP)soonCabinet();checkTrophies();renderDBean();if($('beans').classList.contains('on'))renderBeans();if($('settings').classList.contains('on'))renderSettings();
 
 /* ---------- Advent calendars: a box of numbered coffees, one door a day ---------- */
 // A calendar is the box: its name, roaster, year, how many doors and how much coffee is behind each, and your review of

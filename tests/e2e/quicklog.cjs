@@ -19,6 +19,10 @@ ok('More opens the flavour wheel and brings the note back as a chip',wheel&&back
 await p.click('#tm-qsave');await p.waitForTimeout(300);
 const e=await p.evaluate(n=>{const e=LOG[0];return{added:LOG.length===n+1,stars:e.stars,fl:e.fl,snap:!!(e.snap&&e.snap.bean&&e.snap.bean.id===BEANS[0].id),settings:e.settings,saved:!!document.querySelector('.tm-quick.saved')}},a.n);
 ok('one tap saves the brew with its rating, flavours (and the wheel\'s) and dial-in',e.added&&e.stars===4&&e.fl&&e.fl.length===2&&e.snap&&/g :/.test(e.settings)&&e.saved,e);
+// It carries the coffee's name too, so the log card is not "Untitled"; brews saved before that get the name back.
+const nm=await p.evaluate(()=>{const e=LOG[0],t=beanTitle(BEANS[0]);renderLogList(true);const card=document.querySelector('#l-list .logentry b');
+  const had=e.coffee===t,shown=card&&card.textContent;e.coffee='';nameLogBeans();return{had,shown,t,fixed:LOG[0].coffee===t}});
+ok('the quick-logged brew is named after its coffee, and an unnamed one is repaired',nm.had&&nm.shown===nm.t&&nm.fixed,nm);
 await p.click('#tm-log');await p.waitForTimeout(900);
 const f=await p.evaluate(n=>({same:LOG.length===n+1,editing:LEDIT===LOG[0].id,tab:document.querySelector('main section.on').id}),a.n);
 ok('Log this brew then opens that entry, not a second one',f.same&&f.editing&&f.tab==='log',f);
