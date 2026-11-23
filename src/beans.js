@@ -331,7 +331,8 @@ function tasteInput(host,init,ctx){let L=tnSplit(init),fam=null,at=-1,opts=[];
 function beanTimeline(b){const fmt=s=>new Date(s+'T12:00');
   return [...b.diary.map(e=>({kind:'entry',d:e.d,t:fmt(e.d).getTime(),e})),
     ...beanBrews(b).map(l=>({kind:'brew',d:'',t:+l.ts||0,l}))].sort((x,y)=>y.t-x.t)}
-const dfmt=t=>new Date(t).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'});
+// One date formatter, made once (making one for every date was a good part of opening a coffee with a long diary).
+const DFMT_I=new Intl.DateTimeFormat(undefined,{day:'numeric',month:'short',year:'numeric'}),dfmt=t=>{const d=new Date(t);return isNaN(d)?d.toLocaleDateString():DFMT_I.format(d)};
 function timelineHTML(items,withBean){if(!items.length)return '';
   return '<ol class="tline">'+items.map(it=>{const b=it.bean,head=withBean&&b?'<button type="button" class="tl-bean" data-bean="'+b.id+'">'+beanPic(b,'xs')+'<b>'+esc(beanTitle(b))+'</b></button>':'';
     if(it.kind==='entry'){const [n,ic]=MOMENTS[it.e.k];return '<li class="tl-e k-'+it.e.k+'"><span class="tl-ic" aria-hidden="true">'+ic+'</span><div class="tl-b">'+head+'<div class="tl-h"><b>'+n+'</b><time>'+dfmt(it.t)+'</time>'+

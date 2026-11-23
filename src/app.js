@@ -1362,10 +1362,12 @@ let SCROLL_Y=0;addEventListener('scroll',e=>{USER_AT=performance.now();if(e.targ
 let SHEETS_WARM=0;
 // One sheet per idle moment (a coffee's page, then a recipe's): both at once was one long stretch a tap could land in.
 function warmSheets(){if(SHEETS_WARM>=2)return;const step=SHEETS_WARM++;const d=$('vd');if(!d||d.open)return;const keep=showDlg;
-  try{showDlg=()=>{};d.classList.add('warm');
+  // Warmed like a real open (vdLite): the first screen is laid out, the rest isn't, so this quiet-moment step stays
+  // short and a tap that lands during it isn't held up.
+  try{showDlg=()=>{};d.classList.add('warm','vd-lite');
     if(step===0&&window.BEANS_OK&&BEANS.length){openBean(BEANS[0].id);d.offsetHeight}
     if(step===1&&RECIPES.length){openRecipe(0);d.offsetHeight}}catch(e){}
-  finally{showDlg=keep;d.classList.remove('warm');if(!d.open){$('vd-in').innerHTML='';delete d.dataset.bean}}}
+  finally{showDlg=keep;d.classList.remove('warm');if(!d.open)d.classList.remove('vd-lite');if(!d.open){$('vd-in').innerHTML='';delete d.dataset.bean}}}
 let EXPLORE_PRE=0;
 // A page built while hidden was never styled or laid out (a hidden page skips both), so the first visit did all of it
 // on the tap: the stall on a section's first visit. Warming lays a hidden page out once in a quiet moment, still
@@ -1608,10 +1610,14 @@ function openTop(d){if(d.showPopover){try{if(!d.hasAttribute('popover'))d.setAtt
     else if(e.type==='pointerup'){const p=down;down=null;if(p&&p.d===d&&Math.abs(e.clientX-p.x)<12&&Math.abs(e.clientY-p.y)<12&&!d.classList.contains('closing')){const ev=new MouseEvent('click',{bubbles:true,cancelable:true});d.dispatchEvent(ev);if(!ev.defaultPrevented&&d.open&&!d.classList.contains('closing'))d.close()}}};
   for(const t of ['pointerdown','pointerup','mousedown','mouseup','touchstart','touchend','click','dblclick','contextmenu'])addEventListener(t,stop,{capture:true,passive:false})}
 addEventListener('keydown',e=>{if(e.key!=='Escape'||e.defaultPrevented)return;const top=DSTACK.filter(d=>d.open&&d.hasAttribute('popover')&&!d.classList.contains('closing')).pop();if(top){e.preventDefault();top.close()}});
+function vdLite(d){d.classList.add('vd-lite');clearTimeout(d._lite);const end=()=>{clearTimeout(d._lite);d.removeEventListener('animationend',on);d.removeEventListener('close',end);d.classList.remove('vd-lite');requestAnimationFrame(()=>{try{fitFacts()}catch(x){}})},
+  on=e=>{if(e.target===d)end()};d.addEventListener('animationend',on);d.addEventListener('close',end);d._lite=setTimeout(end,700)}
 function showDlg(d){NAV_AT=performance.now();if(d.classList.contains('closing')){d.classList.remove('closing');return}
   // A sheet opened afresh starts at its top (a closed sheet kept where it was last scrolled, so a coffee opened after
   // another came up halfway down). Redrawing one already open keeps its place, and back within a sheet restores it.
-  if(!d.open){d.classList.add('dlg-pre');openTop(d);d.scrollTop=0;if(KEYNAV){const f=d.querySelector('button,[href],input,select,textarea');if(f)f.focus()}
+  // A page sheet opened afresh lays out only what is on screen while it slides in (vd-lite: the sections further down
+  // wait, see the CSS); once it is in, everything is laid out as before, so a redraw or a step back keeps its place.
+  if(!d.open){d.classList.add('dlg-pre');if(d.id==='vd'&&!RM())vdLite(d);openTop(d);d.scrollTop=0;if(KEYNAV){const f=d.querySelector('button,[href],input,select,textarea');if(f)f.focus()}
     // Opening a sheet focuses its first button (Close), which drew its focus ring before anything was pressed.
     {const f=document.activeElement;if(f&&d.contains(f)&&f.matches('.vd-close,.vd-tool,button')&&!KEYNAV)f.blur()}requestAnimationFrame(()=>requestAnimationFrame(()=>d.classList.remove('dlg-pre')))}}
 addEventListener('popstate',()=>{if(FAB_POP())return;const open=[...document.querySelectorAll('dialog[open]:not(.closing)')];
@@ -4256,7 +4262,10 @@ const FIG_C=['#F97316','#14B8A6','#8B5CF6','#3B82F6'];
 const svgI=d=>'<svg viewBox="0 0 24 24"><path d="'+d+'"/></svg>';
 // Cards with a date: the values step down together until every date fits on its line (at most to 60%), checked when a
 // card appears or the screen changes width.
+// Tiles not drawn yet (further down a sheet still sliding in, see vdLite) are fitted once they are, not measured now:
+// measuring them would lay them out early.
 function fitFacts(){document.querySelectorAll('.bfacts').forEach(c=>{const d=c.querySelectorAll('b.nw');if(!d.length||!c.getClientRects().length)return;
+  if(c.checkVisibility&&c.closest('#vd.vd-lite')&&!c.checkVisibility({contentVisibilityAuto:true}))return;
   const w=c.clientWidth;if(c._fw===w)return;c._fw=w;let f=1;c.style.setProperty('--bfs','1');
   for(let i=0;i<8&&[...d].some(e=>e.scrollWidth>e.clientWidth+1);i++){f=+(f-0.05).toFixed(2);c.style.setProperty('--bfs',String(f))}})}
 {let q=0;const go=()=>{if(q)return;q=requestAnimationFrame(()=>{q=0;fitFacts()})};new MutationObserver(go).observe(document.documentElement,{childList:true,subtree:true});
