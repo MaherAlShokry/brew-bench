@@ -469,6 +469,13 @@ const KG=0.45,KT=0.35/3;
 function rBias(r){const B=BREWERS[r.b];return -(KG*r.off+(clamp(r.temp||B.temp.def,B.temp.min,B.temp.max)-B.temp.def)*KT+(r.water/r.dose-B.ratio.ref)*B.ratio.k)}
 // A longer bloom extracts a little more, with diminishing returns past 75 s (a 3-minute bloom is not four times a 45 s one).
 const bloomE=(b,B)=>(b-B.bloom.def)/15*0.12;
+// A steep longer than the recipe's extracts more, shorter less. Immersion slows as it goes, so it counts on a log
+// scale: twice the recipe's steep moves the cup about one grind step finer (+0.42), half of it one step coarser. The
+// recipe's own steep (or no steep set) counts nothing, so a recipe reads as before until you move the slider.
+const KS=0.6;var STEEP_OWN=null;
+function steepE(st,rec){if(!rec||!(st.steep>0)||st.steepRec!==st.rec)return 0;const w=+gfmt(st.dose*st.ratio),k=rec.name+'|'+st.dose+'|'+w+'|'+st.goal;
+  if(!STEEP_OWN||STEEP_OWN.k!==k){let own=0;try{const at=steepAt(planSteps(rec,st.dose,w,st.goal).steps);own=at?at.end-at.start:0}catch(e){}STEEP_OWN={k,own}}
+  const own=STEEP_OWN.own;return own>0?clamp(KS*Math.log(Math.max(10,st.steep)/own),-1.2,1.2):0}
 function compute(st){
   const G=GRINDERS[st.grinder],B=BREWERS[st.brewer],P=PROCESSES[st.process],Vp=vParams(st.variety);
   const step=stepsBetween(st.grinder,baseX(st.grinder,st.brewer),st.setting);
@@ -476,7 +483,7 @@ function compute(st){
   const rec=st.rec!=null&&RECIPES[st.rec]&&sameFam(RECIPES[st.rec].b,st.brewer)?RECIPES[st.rec]:null;
   // A smaller dose than the recipe's drains faster through a dripper, so the same grind extracts a little less.
   const dadj=0;
-  const E=KG*(step-dadj)+(st.temp-B.temp.def)*KT+bloomE(st.bloom,B)+agit+(st.ratio-B.ratio.ref)*B.ratio.k+roastE+(rec?rBias(rec):0);
+  const E=KG*(step-dadj)+(st.temp-B.temp.def)*KT+bloomE(st.bloom,B)+agit+(st.ratio-B.ratio.ref)*B.ratio.k+roastE+(rec?rBias(rec):0)+steepE(st,rec);
   const D=E-(P.t+Vp.t);
   const roastAcid={light:1,medium:0,dark:-2}[st.roast], roastBit={light:0,medium:0.6,dark:2}[st.roast];
   const strengthTerm=B.ratio.ref>10?(B.ratio.ref-st.ratio)*0.5:(B.ratio.ref-st.ratio)*1.2;
@@ -741,12 +748,18 @@ function bloomShift(steps,bloom){const at=bloomAt(steps),fmt=v=>Math.floor(v/60)
 // stir the crust, set it on the cup). Your steep sets that step and moves every one after it by the difference, as the
 // bloom moves the pours; the recipe's own steep is the default. Waits that aren't the steep ("wait for the fines") don't
 // count. Null for a recipe without one.
+// On a dripper with a valve, the steep is the whole time the valve is shut: from the step that closes it (just before
+// "let it steep") to the step that opens it, a pour while it's shut included. cue is when "let it steep" itself comes,
+// so a short steep never opens the valve before it.
+const VALVE_SHUT=/\bclose\b[^.]*\bvalve\b|\bvalve\s+closed\b/i,VALVE_OPEN=/\bopen\b[^.]*\bvalve\b|\bvalve\s+open/i;
 function steepAt(steps){steps=steps||[];for(let i=0;i<steps.length;i++){const a=tOf(steps[i]);if(a==null||stepKind(steps[i])!=='steep'||!/steep/i.test(steps[i]))continue;
-    for(let j=i+1;j<steps.length;j++){const b=tOf(steps[j]);if(b==null)return null;if(b>a)return{i:j,start:a,end:b}}return null}return null}
+    const pa=i>0?tOf(steps[i-1]):null;if(pa!=null&&pa<=a&&VALVE_SHUT.test(steps[i-1])){
+      for(let j=i+1;j<steps.length;j++){const b=tOf(steps[j]);if(b!=null&&b>a&&VALVE_OPEN.test(steps[j]))return{i:j,start:pa,end:b,cue:a}}}
+    for(let j=i+1;j<steps.length;j++){const b=tOf(steps[j]);if(b==null)return null;if(b>a)return{i:j,start:a,end:b,cue:a}}return null}return null}
 // The steep you set, for the recipe it was set for (a new recipe starts from its own).
 const steepFor=r=>S.steep>0&&S.steepRec===S.rec?S.steep:0;
 function steepShift(steps,sec){const at=steepAt(steps),fmt=v=>Math.floor(v/60)+':'+String(v%60).padStart(2,'0');if(!(sec>0)||!at)return{steps};
-  const own=at.end-at.start,d=Math.max(Math.round(sec),10)-own;if(!d)return{steps};
+  const own=at.end-at.start,d=Math.max(Math.round(sec),10,at.cue-at.start+5)-own;if(!d)return{steps};
   return{steps:steps.map((s,i)=>{const v=tOf(s);return i>=at.i&&v!=null?s.replace(/^(\s*)\d+:\d\d/,'$1'+fmt(Math.max(0,v+d))):s}),
     note:'Steep '+fmt(own+d)+' (the recipe says '+fmt(own)+'): the steps after it move '+Math.abs(d)+' s '+(d>0?'later':'earlier')+'.'}}
 function renderDialRecipe(){const tl=techList(S.brewer),r=dialRec();
@@ -861,7 +874,7 @@ function render(){schedulePreCard();
   {const r=dialRec();$('i-bloom').closest('.field').hidden=!!(r&&B.bloom.label==='Bloom'&&recBloom(r)==null)}{// The steep slider: for a recipe with a steep, from half its own to twice it (fifteen-second steps for long ones).
     const r=dialRec(),at=r&&steepAt(planSteps(r,S.dose,+gfmt(S.dose*S.ratio),S.goal).steps),f=$('i-steep').closest('.field');f.hidden=!at;
     if(at){const own=at.end-at.start,st=own>=180?15:5,si=$('i-steep'),v=steepFor(r)||own,mm=x=>Math.floor(x/60)+':'+String(x%60).padStart(2,'0');
-      si.min=Math.max(10,Math.round(own*.5/st)*st);si.max=Math.max(+si.min+st,Math.round(own*2/st)*st);si.step=st;si.value=v;$('v-steep').textContent=mm(Math.round(v))}}
+      si.min=Math.max(10,Math.ceil((at.cue-at.start+5)/st)*st,Math.round(own*.5/st)*st);si.max=Math.max(+si.min+st,Math.round(own*2/st)*st);si.step=st;si.value=v;$('v-steep').textContent=mm(Math.round(v))}}
   const bi=$('i-bloom');bi.min=B.bloom.min;bi.max=B.bloom.max;bi.step=B.bloom.max<=20?1:5;bi.value=S.bloom;$('v-bloom').textContent=S.bloom+'s';
   document.querySelector('label[for="i-bloom"]').firstChild.textContent=B.bloom.label+' ';
   renderDialRecipe();renderDBean();
@@ -1138,8 +1151,8 @@ function openTimerNow(idx,p){noteRecent(RECIPES[idx]);
       if(TM.run){TM.t0=performance.now()-TM.el*1000;TM.iv=setInterval(tick,200);tick()}else clearInterval(TM.iv);tmWidget()};
     $('tm-reset').onclick=()=>{clearInterval(TM.iv);TM.run=false;wake(false);if(TM.fin)tmUnfinish();TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;setPlay();paint();tmWidget()};
     // Skip jumps to the next step's time (handy when you pour faster than the recipe).
-    // Once the brew is finished the tick is Done: it closes the timer (it used to do nothing).
-    $('tm-skip').onclick=()=>{if(TM.fin){$('timer').close();return}const n=TM.ev.find(e=>e.t>TM.el+0.5);if(!n){if(TM.el>0||TM.run)finishBrew();return}TM.el=n.t;if(TM.run)TM.t0=performance.now()-TM.el*1000;paint()};
+    // Once the brew is finished the tick logs it (and closes the timer).
+    $('tm-skip').onclick=()=>{if(TM.fin){if(TM.log)TM.log();else $('timer').close();return}const n=TM.ev.find(e=>e.t>TM.el+0.5);if(!n){if(TM.el>0||TM.run)finishBrew();return}TM.el=n.t;if(TM.run)TM.t0=performance.now()-TM.el*1000;paint()};
     // A step in the list jumps the clock to it (running or not), like Next step does for the next one.
     $('tm-list').onclick=e=>{const li=e.target.closest('li[data-i]');if(!li||TM.fin)return;const ev=TM.ev[+li.dataset.i];if(!ev||ev.t<0)return;
       TM.el=ev.t;TM.lastIdx=-1;TM.lastWarn=-1;if(TM.run)TM.t0=performance.now()-TM.el*1000;paint();tmWidget()};paint()}
@@ -1195,8 +1208,8 @@ function tmWidget(){const w=plugin('Widget');if(!w||!w.timer||!TM||TM_QUIET)retu
 // A button on the notification or the widget changed the brew while the timer is open: the timer follows.
 function tmSync(n){if(!n||!TM||TM.closed||!$('timer').open||!TM.total)return;const el=clamp((+n.elapsed||0)/1000,0,TM.total);
   if(n.state==='done'){if(!TM.fin){TM.el=el;if(TM.run)TM.t0=performance.now()-el*1000;finishBrew()}return}
-  if(n.state==='stop'){clearInterval(TM.iv);TM.run=false;wake(false);if(TM.fin&&$('tm-again')){TM.cup=null;$('tm-card').classList.remove('fin')}TM.fin=false;TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;setPlay();paint();return}
-  if(n.state==='run'&&TM.fin&&$('tm-again')){$('tm-again').click();return}
+  if(n.state==='stop'){clearInterval(TM.iv);TM.run=false;wake(false);if(TM.fin&&TM.again){TM.cup=null;$('tm-card').classList.remove('fin')}TM.fin=false;TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;setPlay();paint();return}
+  if(n.state==='run'&&TM.fin&&TM.again){TM.again();return}
   TM.fin=false;TM.el=el;
   if(n.state==='run'){TM.t0=performance.now()-el*1000;if(!TM.run){TM.run=true;clearInterval(TM.iv);TM.iv=setInterval(tick,200);wake(true)}setPlay();tick();return}
   if(n.state==='pause'){if(TM.run){clearInterval(TM.iv);TM.run=false;wake(false)}setPlay();paint()}}
@@ -1246,7 +1259,9 @@ function done(){const r=TM.r||RECIPES[TM.idx],d=Math.floor(TM.el)-Math.floor(TM.
     '<span class="tm-thsub">'+(/^(a|an|the|my|your)\s/i.test(r.name||'')?'':'Your ')+esc(r.name)+(bean?' with '+esc(bean):'')+' is ready. '+TM_THANKS[Math.floor(Math.random()*TM_THANKS.length)]+'</span>'+
     '<span class="tm-time">Brewed in <b>'+mmss(TM.el)+'</b>'+(when?' · '+when:'')+'</span>';
   $('tm-barfill').style.transform='none';
-  $('tm-next').innerHTML='<div class="tm-done ib-row">'+ib('log','id="tm-log"','Log this brew','main')+ib('again','id="tm-again"','Brew again')+'</div>';TM.qlog=null;quickLogBox();
+  // No buttons of its own: the tick under it logs the brew and the play button brews again (two more round buttons here
+  // said the same thing twice).
+  $('tm-next').innerHTML='';TM.qlog=null;quickLogBox();
   // Brewed from the dial-in with a coffee from the gallery: this cup comes off its bag (once, however the brew ends).
   const gb=TM.p&&TM.p.bean&&window.BEANS_OK?beanById(TM.p.bean):null,dz=TM.p&&TM.p.r&&+TM.p.r.dose;
   // A brew ended in its first 20 seconds was most likely started by mistake, so it isn't counted.
@@ -1254,10 +1269,10 @@ function done(){const r=TM.r||RECIPES[TM.idx],d=Math.floor(TM.el)-Math.floor(TM.
   if(gb&&TM.cup){const bag=document.createElement('div');bag.className='tm-bag';const draw=()=>{const g=gramsLeft(gb);bag.innerHTML=TM.cup?'<span>'+gfmt(dz)+' g off your <b>'+esc(beanTitle(gb))+'</b> bag · '+(g?g+' g left':'bag empty')+'</span><button type="button" class="linkbtn" id="tm-bagundo">Undo</button>':'<span>Not taken off the bag.</span>';
       const u=bag.querySelector('#tm-bagundo');if(u)u.onclick=()=>{untakeCup(gb,TM.cup.id);if(LAST_CUP&&LAST_CUP.id===TM.cup.id)LAST_CUP=null;TM.cup=null;draw();if(window.BEANS_OK)renderBeans()}};draw();$('tm-next').prepend(bag);if(window.BEANS_OK)renderBeans()}
   // From the dial-in, the log is filled in from the dial-in itself: the coffee, the full settings and the cup.
-  $('tm-log').onclick=()=>{const p=TM.p,B=BREWERS[r.b];$('timer').close();
+  TM.log=()=>{const p=TM.p,B=BREWERS[r.b];$('timer').close();
     // Already kept with the quick rating: the log opens on that entry, to add the rest.
     if(TM.qlog){const q=TM.qlog;setTimeout(()=>{NAV_FORCE='push';showTab('log');editBrew(q)},250);return}if(p&&'bean' in p){setTimeout(()=>$('tolog').click(),250);return}setTimeout(()=>{NAV_FORCE='push';showTab('log');$('l-settings').value=r.name+', '+(p?p.r.dose:r.dose)+'g : '+(p?p.water:r.water)+'g'+((p?p.temp:r.temp)?', '+(p?p.temp:r.temp)+'°C':'');$('l-settings').dataset.brewer=r.b;renderLSet();if(!MQ('(pointer: coarse)'))setTimeout(()=>$('l-coffee').focus({preventScroll:true}),480)},250)};
-  $('tm-again').onclick=()=>{TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;tmUnfinish();paint();$('tm-go').click()};TM.dd=null;TM.tasteDraw=null;drawCheck();tasteCheck();
+  TM.again=()=>{TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;tmUnfinish();paint();$('tm-go').click()};TM.dd=null;TM.tasteDraw=null;drawCheck();tasteCheck();
   // Finished early by a tap: that tap is when the drawdown ended, so the nearest answer is already picked.
   if(d<=-8){const opt=[-30,-15].reduce((a,b)=>Math.abs(b-d)<Math.abs(a-d)?b:a),bt=document.querySelector('.tm-dseg [data-dd="'+opt+'"]');if(bt)bt.click()}}
 // How long the drawdown took is the most reliable grind signal there is: a dripper that finishes early wants a finer
@@ -1322,7 +1337,7 @@ function paint(){const el=TM.el,C=2*Math.PI*96;$('tm-big').textContent=mmss(el);
   // Three soft beeps before the next step, so you can get the kettle ready.
   if(TM.run&&next&&left<=3&&left>0){const w=Math.ceil(left);if(TM.lastWarn!==ni*10+w){TM.lastWarn=ni*10+w;beep(true);cueBuzz([35])}}
   $('tm-list').querySelectorAll('li').forEach((li,i)=>{li.className=i<cur?'done':i===cur?'cur':''});
-  const sk=$('tm-skip'),last=el>0&&!TM.ev.some(e=>e.t>el+0.5);if(sk&&sk.dataset.last!==String(last)){sk.dataset.last=last;sk.innerHTML=TMI(last?'M5 12.5l4.5 4.5L19 7':'M6 5l9 7-9 7z M18 5v14');sk.setAttribute('aria-label',last?'Finish brew':'Next step')}if(sk)sk.setAttribute('aria-label',TM.fin?'Done':last?'Finish brew':'Next step');
+  const sk=$('tm-skip'),last=el>0&&!TM.ev.some(e=>e.t>el+0.5);if(sk&&sk.dataset.last!==String(last)){sk.dataset.last=last;sk.innerHTML=TMI(last?'M5 12.5l4.5 4.5L19 7':'M6 5l9 7-9 7z M18 5v14');sk.setAttribute('aria-label',TM.fin?'Log this brew':last?'Finish brew':'Next step')}if(sk)sk.setAttribute('aria-label',TM.fin?'Log this brew':last?'Finish brew':'Next step');
   const nTimed=TM.ev.filter(e=>e.t>=0).length,stepNo=cur>=0?TM.ev.slice(0,cur+1).filter(e=>e.t>=0).length:0;
   if(el>0&&el<TM.total||TM.run){const txt=cur>=0?TM.ev[cur].s.replace(/^\s*\d+:\d\d\s*/,''):'Get ready.';let pr=cur>=0?pourOf(TM.ev[cur].s):null;
     // A pour that gives only its amount (the first one) still shows what the scale should read.

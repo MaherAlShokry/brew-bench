@@ -23,7 +23,7 @@ ok('one tap saves the brew with its rating, flavours (and the wheel\'s) and dial
 const nm=await p.evaluate(()=>{const e=LOG[0],t=beanTitle(BEANS[0]);renderLogList(true);const card=document.querySelector('#l-list .logentry b');
   const had=e.coffee===t,shown=card&&card.textContent;e.coffee='';nameLogBeans();return{had,shown,t,fixed:LOG[0].coffee===t}});
 ok('the quick-logged brew is named after its coffee, and an unnamed one is repaired',nm.had&&nm.shown===nm.t&&nm.fixed,nm);
-await p.click('#tm-log');await p.waitForTimeout(900);
+await p.click('#tm-skip');await p.waitForTimeout(900);
 const f=await p.evaluate(n=>({same:LOG.length===n+1,editing:LEDIT===LOG[0].id,tab:document.querySelector('main section.on').id}),a.n);
 ok('Log this brew then opens that entry, not a second one',f.same&&f.editing&&f.tab==='log',f);
 ok('no page errors',!errs.length,errs);await b.close()})();

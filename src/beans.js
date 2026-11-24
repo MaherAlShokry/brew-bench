@@ -754,7 +754,7 @@ async function updWidget(){const w=plugin('Widget');if(!w)return;try{const b=wid
     if(k==='brewbean'){const b=beanById(id);if(b){document.querySelectorAll('dialog[open]').forEach(d=>d.close());useBean(b);showTab('dial');
       if(!dialRec()){const t=techList(S.brewer)[0];if(t)S.rec=t[1]}if(dialRec())tune('Tuned for '+beanTitle(b));else{render();toast('Set up for '+beanTitle(b))}return}}
     // "Log this brew" on a finished brew's notification, with its timer still open: the timer's own log, with the brew.
-    if(k==='log'&&!id&&$('timer').open&&TM&&TM.fin&&$('tm-log')){$('tm-log').click();return}
+    if(k==='log'&&!id&&$('timer').open&&TM&&TM.fin&&TM.log){TM.log();return}
     document.querySelectorAll('dialog[open]').forEach(d=>d.close());
     if(k==='bean'&&beanById(id)){showTab('beans');openBean(id);return}
     // A coffee fact's note: what it is about, or Today in coffee on Explore.

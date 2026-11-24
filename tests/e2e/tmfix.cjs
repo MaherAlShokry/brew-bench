@@ -16,12 +16,13 @@ await p.click('#tm-go');await p.waitForTimeout(300);await toEnd();
 s=await S();ok('finished: the play button offers to start again',s.fin&&s.go==='Start again'&&/fin/.test(s.card),s);
 await p.click('#tm-go');await p.waitForTimeout(500);s=await S();
 ok('Start again goes back to the steps, running',s.run&&!s.fin&&!/fin/.test(s.card)&&/Step 1/.test(s.step),s);
-await toEnd();ok('finished: the tick reads Done',await p.evaluate(()=>$('tm-skip').getAttribute('aria-label')==='Done'));
-await p.click('#tm-skip');await p.waitForTimeout(400);ok('finished: the tick closes the timer',await p.evaluate(()=>!$('timer').open));
+await toEnd();ok('finished: the tick reads Log this brew, and the card has no buttons of its own',await p.evaluate(()=>$('tm-skip').getAttribute('aria-label')==='Log this brew'&&!$('tm-next').querySelector('#tm-log,#tm-again,.tm-done')));
+await p.click('#tm-skip');await p.waitForTimeout(600);ok('finished: the tick logs the brew (the timer closes, the log opens)',await p.evaluate(()=>!$('timer').open&&$('log').classList.contains('on')));
+await p.evaluate(()=>goTab('dial'));await p.waitForTimeout(500);
 await p.evaluate(()=>openTimer(RECIPES.findIndex(r=>/4:6/.test(r.name))));await p.waitForTimeout(600);
 await toEnd();await p.click('#tm-reset');await p.waitForTimeout(300);s=await S();
 ok('Reset after a finish goes back to the start',!s.run&&!s.fin&&s.el===0&&!/fin/.test(s.card)&&s.go==='Start',s);
-await toEnd();await p.evaluate(()=>{document.documentElement.dataset.nav=''});await p.click('#tm-log');await p.waitForTimeout(900);
+await toEnd();await p.evaluate(()=>{document.documentElement.dataset.nav=''});await p.click('#tm-skip');await p.waitForTimeout(900);
 ok('Log this brew from the timer rises in as a page',await p.evaluate(()=>$('log').classList.contains('on')&&document.documentElement.dataset.nav==='push'&&!$('timer').open));
 // The Brew page's card, drawn ahead.
 await p.evaluate(()=>{showTab('dial');render()});await p.waitForTimeout(7000);
