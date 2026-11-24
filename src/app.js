@@ -469,6 +469,13 @@ const KG=0.45,KT=0.35/3;
 function rBias(r){const B=BREWERS[r.b];return -(KG*r.off+(clamp(r.temp||B.temp.def,B.temp.min,B.temp.max)-B.temp.def)*KT+(r.water/r.dose-B.ratio.ref)*B.ratio.k)}
 // A longer bloom extracts a little more, with diminishing returns past 75 s (a 3-minute bloom is not four times a 45 s one).
 const bloomE=(b,B)=>(b-B.bloom.def)/15*0.12;
+// A steep longer than the recipe's extracts more, shorter less. Immersion slows as it goes, so it counts on a log
+// scale: twice the recipe's steep moves the cup about one grind step finer (+0.42), half of it one step coarser. The
+// recipe's own steep (or no steep set) counts nothing, so a recipe reads as before until you move the slider.
+const KS=0.6;var STEEP_OWN=null;
+function steepE(st,rec){if(!rec||!(st.steep>0)||st.steepRec!==st.rec)return 0;const w=+gfmt(st.dose*st.ratio),k=rec.name+'|'+st.dose+'|'+w+'|'+st.goal;
+  if(!STEEP_OWN||STEEP_OWN.k!==k){let own=0;try{const at=steepAt(planSteps(rec,st.dose,w,st.goal).steps);own=at?at.end-at.start:0}catch(e){}STEEP_OWN={k,own}}
+  const own=STEEP_OWN.own;return own>0?clamp(KS*Math.log(Math.max(10,st.steep)/own),-1.2,1.2):0}
 function compute(st){
   const G=GRINDERS[st.grinder],B=BREWERS[st.brewer],P=PROCESSES[st.process],Vp=vParams(st.variety);
   const step=stepsBetween(st.grinder,baseX(st.grinder,st.brewer),st.setting);
@@ -476,7 +483,7 @@ function compute(st){
   const rec=st.rec!=null&&RECIPES[st.rec]&&sameFam(RECIPES[st.rec].b,st.brewer)?RECIPES[st.rec]:null;
   // A smaller dose than the recipe's drains faster through a dripper, so the same grind extracts a little less.
   const dadj=0;
-  const E=KG*(step-dadj)+(st.temp-B.temp.def)*KT+bloomE(st.bloom,B)+agit+(st.ratio-B.ratio.ref)*B.ratio.k+roastE+(rec?rBias(rec):0);
+  const E=KG*(step-dadj)+(st.temp-B.temp.def)*KT+bloomE(st.bloom,B)+agit+(st.ratio-B.ratio.ref)*B.ratio.k+roastE+(rec?rBias(rec):0)+steepE(st,rec);
   const D=E-(P.t+Vp.t);
   const roastAcid={light:1,medium:0,dark:-2}[st.roast], roastBit={light:0,medium:0.6,dark:2}[st.roast];
   const strengthTerm=B.ratio.ref>10?(B.ratio.ref-st.ratio)*0.5:(B.ratio.ref-st.ratio)*1.2;

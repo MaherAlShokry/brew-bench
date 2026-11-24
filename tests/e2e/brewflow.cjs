@@ -55,4 +55,11 @@ ok('a steep recipe has a steep slider, at its own steep',sp.shown&&sp.own==='3:4
 ok('moving it moves the end of the steep and the steps after it',sp.steps.some(x=>/^5:15 plunge/.test(x))&&sp.steps.some(x=>/^5:30 pour/.test(x))&&sp.label==='5:00',sp.steps);
 ok('…in the timer too',sp.timer.includes(315),sp.timer);
 ok('another recipe keeps its own steep, and a V60 has no steep slider',sp.kh2===25&&sp.v60,sp);
+// The steep counts in the cup: longer extracts more, shorter less, so the strip's marker and verdict follow it; the
+// recipe's own steep reads as before.
+const se=await p.evaluate(async()=>{const i=RECIPES.findIndex(r=>{try{return steepAt(planSteps(r,r.dose,r.water,'balanced').steps)}catch(e){return false}});const r=RECIPES[i];
+  S.brewer=r.b;loadRecipe(i);goTab('dial');render();await new Promise(x=>setTimeout(x,300));const si=$('i-steep'),own=+si.value;
+  const D0=compute(S).D;S.steep=0;const Dnone=compute(S).D;const at=v=>{si.value=v;si.dispatchEvent(new Event('input'));return new Promise(x=>setTimeout(()=>x({D:compute(S).D,m:parseFloat($('mr-m').style.left)}),250))};
+  const lo=await at(+si.min),mid=await at(own),hi=await at(+si.max);return{own,same:Math.abs(D0-Dnone)<1e-9&&Math.abs(mid.D-Dnone)<1e-9,lo,mid,hi}});
+ok('a longer steep extracts more and a shorter one less: the strip moves; the recipe\'s own steep changes nothing',se.same&&se.lo.D<se.mid.D&&se.mid.D<se.hi.D&&se.lo.m<se.mid.m&&se.mid.m<se.hi.m,se);
 ok('no page errors',!errs.length,errs);await b.close()})();
