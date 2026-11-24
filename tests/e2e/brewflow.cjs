@@ -54,7 +54,7 @@ const sp=await p.evaluate(async()=>{const out={};
 ok('a steep recipe has a steep slider, at its own steep',sp.shown&&sp.own==='3:45',sp);
 ok('moving it moves the end of the steep and the steps after it',sp.steps.some(x=>/^5:15 plunge/.test(x))&&sp.steps.some(x=>/^5:30 pour/.test(x))&&sp.label==='5:00',sp.steps);
 ok('…in the timer too',sp.timer.includes(315),sp.timer);
-ok('another recipe keeps its own steep, and a V60 has no steep slider',sp.kh2===25&&sp.v60,sp);
+ok('another recipe keeps its own steep, and a V60 has no steep slider',sp.kh2===35&&sp.v60,sp);
 // The steep counts in the cup: longer extracts more, shorter less, so the strip's marker and verdict follow it; the
 // recipe's own steep reads as before.
 const se=await p.evaluate(async()=>{const i=RECIPES.findIndex(r=>{try{return steepAt(planSteps(r,r.dose,r.water,'balanced').steps)}catch(e){return false}});const r=RECIPES[i];
@@ -62,4 +62,11 @@ const se=await p.evaluate(async()=>{const i=RECIPES.findIndex(r=>{try{return ste
   const D0=compute(S).D;S.steep=0;const Dnone=compute(S).D;const at=v=>{si.value=v;si.dispatchEvent(new Event('input'));return new Promise(x=>setTimeout(()=>x({D:compute(S).D,m:parseFloat($('mr-m').style.left)}),250))};
   const lo=await at(+si.min),mid=await at(own),hi=await at(+si.max);return{own,same:Math.abs(D0-Dnone)<1e-9&&Math.abs(mid.D-Dnone)<1e-9,lo,mid,hi}});
 ok('a longer steep extracts more and a shorter one less: the strip moves; the recipe\'s own steep changes nothing',se.same&&se.lo.D<se.mid.D&&se.mid.D<se.hi.D&&se.lo.m<se.mid.m&&se.mid.m<se.hi.m,se);
+// On the Switch the steep is the whole time the valve is shut: from CLOSE to OPEN. Its default is the recipe's own,
+// and a longer one opens the valve that much after it was closed; a short one never opens it before "let it steep".
+const vs=await p.evaluate(()=>{const i=RECIPES.findIndex(r=>r.name==='New Hybrid (2025)');const r=RECIPES[i];S.brewer=r.b;loadRecipe(i);render();
+  const own=+$('i-steep').value,min=+$('i-steep').min,at=v=>{S.steep=v;S.steepRec=S.rec;return dialPlan().steps};
+  const s60=at(60),sMin=at(min),t=(st,re)=>{const x=st.find(y=>re.test(y));return x?tOf(x):null};S.steep=0;
+  return{own,min,close:t(s60,/CLOSE the valve/),open60:t(s60,/OPEN the valve and let it drain/),openMin:t(sMin,/OPEN the valve and let it drain/),cue:t(sMin,/let it steep/)}});
+ok('on the Switch the steep runs from closing the valve to opening it (New Hybrid: 0:35 by default; 1:00 opens it a minute after it closed)',vs.own===35&&vs.open60-vs.close===60&&vs.openMin>vs.cue,vs);
 ok('no page errors',!errs.length,errs);await b.close()})();

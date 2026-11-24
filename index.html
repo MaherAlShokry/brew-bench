@@ -3310,7 +3310,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="2f4a071e7604"</script>
+<script>const BUILD_ID="490deeed175e"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -6809,12 +6809,18 @@ function bloomShift(steps,bloom){const at=bloomAt(steps),fmt=v=>Math.floor(v/60)
 // stir the crust, set it on the cup). Your steep sets that step and moves every one after it by the difference, as the
 // bloom moves the pours; the recipe's own steep is the default. Waits that aren't the steep ("wait for the fines") don't
 // count. Null for a recipe without one.
+// On a dripper with a valve, the steep is the whole time the valve is shut: from the step that closes it (just before
+// "let it steep") to the step that opens it, a pour while it's shut included. cue is when "let it steep" itself comes,
+// so a short steep never opens the valve before it.
+const VALVE_SHUT=/\bclose\b[^.]*\bvalve\b|\bvalve\s+closed\b/i,VALVE_OPEN=/\bopen\b[^.]*\bvalve\b|\bvalve\s+open/i;
 function steepAt(steps){steps=steps||[];for(let i=0;i<steps.length;i++){const a=tOf(steps[i]);if(a==null||stepKind(steps[i])!=='steep'||!/steep/i.test(steps[i]))continue;
-    for(let j=i+1;j<steps.length;j++){const b=tOf(steps[j]);if(b==null)return null;if(b>a)return{i:j,start:a,end:b}}return null}return null}
+    const pa=i>0?tOf(steps[i-1]):null;if(pa!=null&&pa<=a&&VALVE_SHUT.test(steps[i-1])){
+      for(let j=i+1;j<steps.length;j++){const b=tOf(steps[j]);if(b!=null&&b>a&&VALVE_OPEN.test(steps[j]))return{i:j,start:pa,end:b,cue:a}}}
+    for(let j=i+1;j<steps.length;j++){const b=tOf(steps[j]);if(b==null)return null;if(b>a)return{i:j,start:a,end:b,cue:a}}return null}return null}
 // The steep you set, for the recipe it was set for (a new recipe starts from its own).
 const steepFor=r=>S.steep>0&&S.steepRec===S.rec?S.steep:0;
 function steepShift(steps,sec){const at=steepAt(steps),fmt=v=>Math.floor(v/60)+':'+String(v%60).padStart(2,'0');if(!(sec>0)||!at)return{steps};
-  const own=at.end-at.start,d=Math.max(Math.round(sec),10)-own;if(!d)return{steps};
+  const own=at.end-at.start,d=Math.max(Math.round(sec),10,at.cue-at.start+5)-own;if(!d)return{steps};
   return{steps:steps.map((s,i)=>{const v=tOf(s);return i>=at.i&&v!=null?s.replace(/^(\s*)\d+:\d\d/,'$1'+fmt(Math.max(0,v+d))):s}),
     note:'Steep '+fmt(own+d)+' (the recipe says '+fmt(own)+'): the steps after it move '+Math.abs(d)+' s '+(d>0?'later':'earlier')+'.'}}
 function renderDialRecipe(){const tl=techList(S.brewer),r=dialRec();
@@ -6929,7 +6935,7 @@ function render(){schedulePreCard();
   {const r=dialRec();$('i-bloom').closest('.field').hidden=!!(r&&B.bloom.label==='Bloom'&&recBloom(r)==null)}{// The steep slider: for a recipe with a steep, from half its own to twice it (fifteen-second steps for long ones).
     const r=dialRec(),at=r&&steepAt(planSteps(r,S.dose,+gfmt(S.dose*S.ratio),S.goal).steps),f=$('i-steep').closest('.field');f.hidden=!at;
     if(at){const own=at.end-at.start,st=own>=180?15:5,si=$('i-steep'),v=steepFor(r)||own,mm=x=>Math.floor(x/60)+':'+String(x%60).padStart(2,'0');
-      si.min=Math.max(10,Math.round(own*.5/st)*st);si.max=Math.max(+si.min+st,Math.round(own*2/st)*st);si.step=st;si.value=v;$('v-steep').textContent=mm(Math.round(v))}}
+      si.min=Math.max(10,Math.ceil((at.cue-at.start+5)/st)*st,Math.round(own*.5/st)*st);si.max=Math.max(+si.min+st,Math.round(own*2/st)*st);si.step=st;si.value=v;$('v-steep').textContent=mm(Math.round(v))}}
   const bi=$('i-bloom');bi.min=B.bloom.min;bi.max=B.bloom.max;bi.step=B.bloom.max<=20?1:5;bi.value=S.bloom;$('v-bloom').textContent=S.bloom+'s';
   document.querySelector('label[for="i-bloom"]').firstChild.textContent=B.bloom.label+' ';
   renderDialRecipe();renderDBean();
