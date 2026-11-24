@@ -403,8 +403,10 @@ button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.a
 .tm-draw,.tm-taste{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);color:var(--ink)}
 .tm-quick{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);color:var(--ink);display:flex;flex-direction:column;align-items:center;gap:10px}
 .tm-quick .tm-dq{margin:0}
-.tm-qstars{display:flex;gap:6px}.tm-qstars button{width:42px;height:42px;padding:0;border:0;border-radius:50%;background:var(--surface2);display:grid;place-items:center;cursor:pointer;color:var(--muted);transition:transform .15s,background-color .15s,color .15s}
-.tm-qstars button svg{width:22px;height:22px;fill:currentColor}.tm-qstars button.lit{background:color-mix(in srgb,var(--cherry) 16%,var(--surface2));color:var(--cherry)}.tm-qstars button:active{transform:scale(.9)}
+/* The rating on the finish card: an unrated bean is an empty ring, a rated one is filled in the accent, so the
+   rating reads at a glance on any card colour. */
+.tm-qstars{display:flex;gap:6px}.tm-qstars button{width:42px;height:42px;padding:0;border:0;border-radius:50%;background:transparent;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--muted) 45%,transparent);display:grid;place-items:center;cursor:pointer;color:color-mix(in srgb,var(--muted) 70%,transparent);transition:transform .15s,background-color .15s,color .15s,box-shadow .15s}
+.tm-qstars button svg{width:22px;height:22px;fill:currentColor}.tm-qstars button.lit{background:var(--cherry);box-shadow:none;color:var(--surface)}.tm-qstars button.lit svg .bc{fill:none;stroke:var(--cherry);stroke-width:1.6;stroke-linecap:round}.tm-qstars button:active{transform:scale(.9)}
 .tm-qfl{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}.tm-qfl .chip{cursor:pointer}.tm-qfl .chip[aria-pressed="true"]{background:color-mix(in srgb,var(--cherry) 14%,var(--surface2));box-shadow:inset 0 0 0 1.5px var(--cherry)}
 .tm-qmore{display:contents}.tm-qfl .chip.on{background:color-mix(in srgb,var(--cherry) 14%,var(--surface2));box-shadow:inset 0 0 0 1.5px var(--cherry)}
 .tm-qadd{display:inline-flex;align-items:center;gap:4px;color:var(--cherry);font-weight:600}.tm-qadd svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
