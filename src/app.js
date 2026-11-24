@@ -116,7 +116,9 @@ function replay(el,cls){if(!el)return;if(!el.classList.contains(cls)){el.classLi
 const RB_G='<g transform="rotate(30 12 12)"><path class="bo" d="M12 2.6c4.1 0 6.6 4.3 6.6 9.4s-2.5 9.4-6.6 9.4-6.6-4.3-6.6-9.4 2.5-9.4 6.6-9.4z"/><path class="bc" d="M12.7 3.2c-2.4 2.6-.4 5.6-1.3 8.8s1.3 5.9-.6 8.8"/></g>';
 const RB_SVG='<svg viewBox="0 0 24 24" aria-hidden="true">'+RB_G+'</svg>';
 const beanRate=(r,cls)=>{let h='';for(let i=1;i<=5;i++){const f=r>=i?100:r>=i-0.5?50:0;h+='<span class="rb">'+RB_SVG+'<span class="rbf" style="width:'+f+'%">'+RB_SVG+'</span></span>'}return '<span class="brate'+(cls?' '+cls:'')+'" aria-hidden="true">'+h+'</span>'};
-let toastT;function toast(m){const t=$('toast');t.classList.remove('act');t.innerHTML=emoIc(esc(m));t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600)}
+// A note with a button (Undo, Open) isn't covered by a plain one that comes while it's up (a trophy unlocked by the
+// same save took Open away): the plain one waits and shows once the other has gone.
+let toastT,toastQ=null;function toast(m){const t=$('toast');if(t.classList.contains('act')&&t.classList.contains('show')){toastQ=m;return}t.classList.remove('act');t.innerHTML=emoIc(esc(m));t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600)}
 // Good to know: a short sheet on what's easy to miss (Undo, backups, sharing, the widgets, offline use), shown once,
 // a few minutes into a later visit (never on the very first one, and never over an open sheet), and again from
 // Settings. TIPS_V goes up when there's something new to tell.
@@ -149,7 +151,8 @@ try{if(navigator.serviceWorker&&typeof BUILD_ID!=='undefined'){navigator.service
 function icoBtn(kind,attrs,label){return ib(kind==='edit'?'edit':'share',attrs,label)}
 // A toast with a button, kept up a little longer so there is time to tap it.
 function toastAct(m,label,fn){const t=$('toast');t.textContent='';t.classList.add('act');const sp=document.createElement('span');sp.textContent=m;const b=document.createElement('button');b.type='button';b.className='tact';b.textContent=label;
-  b.onclick=()=>{t.classList.remove('show');fn()};t.append(sp,b);t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),6000)}
+  const hide=()=>{t.classList.remove('show');if(toastQ){const q=toastQ;toastQ=null;setTimeout(()=>toast(q),300)}};
+  b.onclick=()=>{hide();fn()};t.append(sp,b);t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(hide,6000)}
 // Deleting doesn't ask first; it offers Undo instead. What can't be taken back (photos removed from storage, a delete
 // sent to a shared log) waits until the chance to undo has passed, or the page is closed.
 const UNDO_PEND=new Set();
@@ -1152,14 +1155,14 @@ function openTimerNow(idx,p){noteRecent(RECIPES[idx]);
     $('tm-reset').onclick=()=>{clearInterval(TM.iv);TM.run=false;wake(false);if(TM.fin)tmUnfinish();TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;setPlay();paint();tmWidget()};
     // Skip jumps to the next step's time (handy when you pour faster than the recipe).
     // Once the brew is finished the tick logs it (and closes the timer).
-    $('tm-skip').onclick=()=>{if(TM.fin){if(TM.log)TM.log();else $('timer').close();return}const n=TM.ev.find(e=>e.t>TM.el+0.5);if(!n){if(TM.el>0||TM.run)finishBrew();return}TM.el=n.t;if(TM.run)TM.t0=performance.now()-TM.el*1000;paint()};
+    $('tm-skip').onclick=()=>{if(TM.fin){if(tmQuickSave())return;if(TM.log)TM.log();else $('timer').close();return}const n=TM.ev.find(e=>e.t>TM.el+0.5);if(!n){if(TM.el>0||TM.run)finishBrew();return}TM.el=n.t;if(TM.run)TM.t0=performance.now()-TM.el*1000;paint()};
     // A step in the list jumps the clock to it (running or not), like Next step does for the next one.
     $('tm-list').onclick=e=>{const li=e.target.closest('li[data-i]');if(!li||TM.fin)return;const ev=TM.ev[+li.dataset.i];if(!ev||ev.t<0)return;
       TM.el=ev.t;TM.lastIdx=-1;TM.lastWarn=-1;if(TM.run)TM.t0=performance.now()-TM.el*1000;paint();tmWidget()};paint()}
 }
 // Out of the finished screen (Start again, Reset or Brew again): the card goes back to the steps. The cup taken off the
 // bag stays taken (that brew happened); the next finish takes the next one.
-function tmUnfinish(){TM.fin=false;TM.cup=null;TM.dd=null;TM.tasteDraw=null;const c=$('tm-card');if(c)c.classList.remove('fin');const nx=$('tm-next');if(nx)nx.innerHTML='';
+function tmUnfinish(){TM.fin=false;TM.cup=null;TM.qget=null;TM.dd=null;TM.tasteDraw=null;const c=$('tm-card');if(c)c.classList.remove('fin');const nx=$('tm-next');if(nx)nx.innerHTML='';
   const l=$('tm-list');if(l)l.querySelectorAll('li').forEach(li=>li.className='')}
 function setPlay(){const b=$('tm-go');b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+(TM.run?'M7 5h4v14H7z M13 5h4v14h-4z':'M8 5v14l11-7z')+'"/></svg>';b.setAttribute('aria-label',TM.run?'Pause':TM.fin?'Start again':TM.el>0?'Resume':'Start');b.classList.toggle('on',TM.run)}
 // Keep the screen on while a brew timer runs (where the browser supports it).
@@ -1234,14 +1237,19 @@ function quickLogBox(){const box=document.createElement('div');box.className='tm
   box.innerHTML='<p class="tm-dq">Rate this cup</p><div class="tm-qstars" role="radiogroup" aria-label="Rating">'+[1,2,3,4,5].map(n=>'<button type="button" data-qs="'+n+'" role="radio" aria-checked="false" aria-label="'+n+' bean'+(n>1?'s':'')+', '+STARW[n]+'">'+RB_SVG+'</button>').join('')+'</div>'+
     // The coffee's likely notes to tap, and More for anything else, from the flavour wheel.
     '<div class="tm-qfl" role="group" aria-label="What you taste">'+notes.map(w=>'<button type="button" class="chip" data-qf="'+esc(w)+'" aria-pressed="false"><i class="dot" style="background:'+tnColor(w)+'"></i>'+esc(w)+'</button>').join('')+
-      '<span class="tm-qmore"></span><button type="button" class="chip tm-qadd" id="tm-qadd">'+lIc('plus')+'More</button></div>'+
-    '<button type="button" class="pbtn main tm-qsave" id="tm-qsave" disabled>'+lIc('ok')+'<span>Save to the log</span></button>';
-  box.onclick=e=>{const q=e.target.closest('[data-qs]');if(q){st=+q.dataset.qs;box.querySelectorAll('[data-qs]').forEach(b=>{b.classList.toggle('lit',+b.dataset.qs<=st);b.setAttribute('aria-checked',b===q)});$('tm-qsave').disabled=false;tapBuzz();return}
+      '<span class="tm-qmore"></span><button type="button" class="chip tm-qadd" id="tm-qadd">'+lIc('plus')+'More</button></div>';
+  // No save button of its own: the tick under the card saves what's picked here (see tmQuickSave).
+  TM.qget=()=>({st,fl:[...fl],more});
+  box.onclick=e=>{const q=e.target.closest('[data-qs]');if(q){st=+q.dataset.qs;box.querySelectorAll('[data-qs]').forEach(b=>{b.classList.toggle('lit',+b.dataset.qs<=st);b.setAttribute('aria-checked',b===q)});tapBuzz();return}
     if(e.target.closest('#tm-qadd')){openNotesPicker(null,{pre:more,done:fl2=>{more=fl2;box.querySelector('.tm-qmore').innerHTML=more.map(([id])=>{const n=FW.byId[id];return n?'<span class="chip on"><i class="dot" style="background:'+n.c+'"></i>'+esc(n.n)+'</span>':''}).join('')}});return}
     const f=e.target.closest('[data-qf]');if(f){const w=f.dataset.qf;fl.has(w)?fl.delete(w):fl.add(w);f.setAttribute('aria-pressed',fl.has(w));tapBuzz();return}
-    if(e.target.closest('#tm-qsave')&&st){const en=quickLog(st,[...fl],more);if(!en)return;TM.qlog=en;box.classList.add('saved');
-      box.innerHTML='<span class="tm-qdone">'+lIc('ok')+'<span>Saved to your brew log · '+beanRate(st)+'</span></span>'}};
+  };
   $('tm-next').appendChild(box)}
+// The tick after a brew: a rating or flavours picked on the card are saved to the log straight away (the timer closes,
+// and Open shows the entry to add more). With nothing picked it opens the log form instead (false).
+function tmQuickSave(){const q=TM.qget&&TM.qget();if(!q||TM.qlog||(!q.st&&!q.fl.length&&!q.more.length))return false;
+  const en=quickLog(q.st,q.fl,q.more);if(!en)return false;TM.qlog=en;$('timer').close();
+  toastAct('Saved to your brew log','Open',()=>{NAV_FORCE='push';showTab('log');editBrew(en)});return true}
 function quickLog(stars,notes,more){const r=TM.r||RECIPES[TM.idx],p=TM.p,fromDial=p&&'bean' in p;if(!r)return null;
   const e={id:uid(),ts:Date.now(),date:new Date().toLocaleDateString(),coffee:'',settings:'',stars,pred:'',notes:'',brewer:''};
   if(fromDial){const dp=dialPlan();e.settings=dialLine(dp);e.brewer=S.brewer;e.pred=verdict(compute(S).D)[0];e.snap=brewSnap();if(S.bean){const cb0=S.bean.id&&window.BEANS_OK&&beanById(S.bean.id);e.coffee=cb0?beanTitle(cb0):S.bean.name||''}}
