@@ -3311,7 +3311,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="1c459da94e76"</script>
+<script>const BUILD_ID="60ec3636e11c"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -7293,12 +7293,18 @@ function finishBrew(){if(TM.fin)return;if(TM.run){cueSay('Brew complete. Enjoy y
   $('tm-list').querySelectorAll('li').forEach(li=>li.className='done');done();beep();beans(26)}
 /* Quick log, at the end of a brew: how many beans and a flavour or two, saved in one tap. The full form (Log this
    brew) stays for everything else, and opens on this entry once it's kept. */
-function quickNotes(){const p=TM.p;let n=[];try{if(p&&'bean' in p)n=cupNotes(S,compute(S));else{const gb=S.bean&&S.bean.id&&window.BEANS_OK?beanById(S.bean.id):null;if(gb&&gb.flavours&&typeof tnSplit==='function')n=tnSplit(gb.flavours)}}catch(e){}
-  return n.filter(w=>typeof tnLeaf==='function'&&tnLeaf(w)).slice(0,5)}
+// The notes to tap after a brew are the coffee's own, as on its bag and in that order; only when the bag names fewer
+// than three are they topped up with what the cup is likely to taste of (variety, process, roast, past brews).
+function quickNotes(){const p=TM.p;let own=[],more=[];try{
+    const id=(p&&p.bean)||(S.bean&&S.bean.id),gb=id&&window.BEANS_OK?beanById(id):null,ok=w=>typeof tnLeaf==='function'&&tnLeaf(w);
+    if(gb&&gb.flavours&&typeof tnSplit==='function')own=tnSplit(gb.flavours).map(w=>CUP_ALIAS[fold(w)]||w).filter(ok);
+    if(own.length<3&&p&&'bean' in p)more=cupNotes(S,compute(S)).filter(ok)}catch(e){}
+  const seen=new Set(),out=[];for(const w of [...own,...more]){const k=fold(w);if(!seen.has(k)){seen.add(k);out.push(w)}}return out.slice(0,6)}
+const capW=w=>w?w.charAt(0).toUpperCase()+w.slice(1):w;
 function quickLogBox(){const box=document.createElement('div');box.className='tm-quick';let st=0;const fl=new Set(),notes=quickNotes();let more=[];
   box.innerHTML='<p class="tm-dq">Rate this cup</p><div class="tm-qstars" role="radiogroup" aria-label="Rating">'+[1,2,3,4,5].map(n=>'<button type="button" data-qs="'+n+'" role="radio" aria-checked="false" aria-label="'+n+' bean'+(n>1?'s':'')+', '+STARW[n]+'">'+RB_SVG+'</button>').join('')+'</div>'+
     // The coffee's likely notes to tap, and More for anything else, from the flavour wheel.
-    '<div class="tm-qfl" role="group" aria-label="What you taste">'+notes.map(w=>'<button type="button" class="chip" data-qf="'+esc(w)+'" aria-pressed="false"><i class="dot" style="background:'+tnColor(w)+'"></i>'+esc(w)+'</button>').join('')+
+    '<div class="tm-qfl" role="group" aria-label="What you taste">'+notes.map(w=>'<button type="button" class="chip" data-qf="'+esc(w)+'" aria-pressed="false"><i class="dot" style="background:'+tnColor(w)+'"></i>'+esc(capW(w))+'</button>').join('')+
       '<span class="tm-qmore"></span><button type="button" class="chip tm-qadd" id="tm-qadd">'+lIc('plus')+'More</button></div>';
   // No save button of its own: the tick under the card saves what's picked here (see tmQuickSave).
   TM.qget=()=>({st,fl:[...fl],more});
