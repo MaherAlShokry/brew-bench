@@ -10,6 +10,7 @@ await p.evaluate(()=>{const bn=BEANS[0];bn.flavours='Peach, jasmine, honey';useB
 await p.click('#tm-go');await p.evaluate(()=>{TM.t0=performance.now()-90000;finishBrew()});await p.waitForTimeout(400);
 const a=await p.evaluate(()=>({box:!!document.querySelector('.tm-quick'),stars:document.querySelectorAll('.tm-qstars [data-qs]').length,fl:[...document.querySelectorAll('.tm-qfl [data-qf]')].map(x=>x.dataset.qf),save:!!$('tm-qsave'),n:LOG.length}));
 ok('the finish shows a quick rating and flavours, and no save button of its own (the tick saves)',a.box&&a.stars===5&&a.fl.length>0&&!a.save,a);
+ok('the flavours to tap are the coffee\'s own, in the bag\'s order (Peach, jasmine, honey)',JSON.stringify(a.fl)==='["Peach","jasmine","honey"]',a.fl);
 await p.click('.tm-qstars [data-qs="4"]');await p.click('.tm-qfl [data-qf]');
 // More: the flavour wheel over the timer, for a note the coffee isn't known for; it comes back as a chip.
 await p.click('#tm-qadd');await p.waitForTimeout(600);const wheel=await p.evaluate(()=>!!document.querySelector('dialog#vd[open] #fl-box'));
