@@ -2845,6 +2845,9 @@ html.sheeting :is(.seg.bviews,.gtabs,.appbar,.minires,.bottomnav){-webkit-backdr
    of a scroll or a slide, which Android phones' GPUs do slowly (the rating pills on photos alone are one per coffee in
    a list). The bars were already 90-97% opaque, so they are made just a little more so and look the same. */
 html.droid *{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+/* A tap on the bottom bar: the highlight glides to the new tab and the icon colours change at once. Fading the
+   colours repainted the whole bar on every frame of the page sliding in. */
+.bottomnav button{transition:transform .16s var(--ease-out)}
 html.droid{--nav-bg:color-mix(in srgb,var(--surface) 98%,transparent)}
 html.droid nav.tabs,html.droid .gtabs{background:color-mix(in srgb,var(--paper) 97%,transparent)}
 html.droid .seg.bviews{background:color-mix(in srgb,var(--surface2) 97%,transparent)!important}
