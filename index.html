@@ -2795,9 +2795,13 @@ html.sheeting :is(.seg.bviews,.gtabs,.appbar,.minires,.bottomnav){-webkit-backdr
 .t3hm-i .bpic{flex:none;width:40px;height:40px}
 .t3hm-i small{max-width:none;text-align:left;font-size:.8rem;line-height:1.25}
 
+#l-list>.le-track{content-visibility:auto;contain-intrinsic-size:auto 420px}
+
 #vd.vd-lite :is(.vd-body,.me-body)>:nth-child(n+3){content-visibility:auto;contain-intrinsic-size:auto 300px}
 
 html.droid *{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+
+.bottomnav button{transition:transform .16s var(--ease-out)}
 html.droid{--nav-bg:color-mix(in srgb,var(--surface) 98%,transparent)}
 html.droid nav.tabs,html.droid .gtabs{background:color-mix(in srgb,var(--paper) 97%,transparent)}
 html.droid .seg.bviews{background:color-mix(in srgb,var(--surface2) 97%,transparent)!important}
@@ -3311,7 +3315,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="60ec3636e11c"</script>
+<script>const BUILD_ID="aa00a0f21a9a"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -7470,10 +7474,36 @@ function warmPage(id){const s=$(id);if(!s||s.classList.contains('on')||WARM.has(
   if(typeof loadImg==='function'&&window.BIMG)[...s.querySelectorAll('[data-bimg]')].slice(0,10).forEach(el=>{if((SMALLPIC(el)?BIMG.peekSmall:BIMG.peekThumb)(el.dataset.bimg)&&!el.closest('dialog'))loadImg(el)});
   // The strips' highlights are placed while it's laid out, so showing the page later moves none of them.
   s.classList.add('warm');try{s.getBoundingClientRect();const l=s.lastElementChild;if(l)l.getBoundingClientRect();if(typeof segBatch==='function'){const g=[...s.querySelectorAll(SEG_SEL)];if(g.length)segBatch(g,true)}}finally{s.classList.remove('warm')}return true}
+// An intro animation that finished on a hidden page (the flavour wheel's spin-in, built in the background) kept the
+// browser drawing 60 frames a second with nothing moving, for as long as the page stayed hidden: on a phone, every
+// tap, scroll and slide in the first minute after opening the app competed with it. Animations on hidden pages are
+// put at their end and let go, but only where that changes nothing on screen: one whose end look isn't the element's
+// own look is kept as it ended.
+var SETTLE_T=0;
+// One look is pending at a time and asking again doesn't put it off (the background building asks after every step).
+function settleSoon(ms){if(SETTLE_T)return;SETTLE_T=setTimeout(()=>{SETTLE_T=0;if(sliding()||performance.now()-USER_AT<600){settleSoon(400);return}settleHidden()},ms||1500)}
+// A looping one (an empty page's floating picture) is paused while its page is hidden and goes on when it's shown.
+var SETTLE_PAUSED=new Set();
+function settleWake(){for(const a of SETTLE_PAUSED){const el=a.effect&&a.effect.target,s=el&&el.closest&&el.closest('main>section');if(!el||!el.isConnected){SETTLE_PAUSED.delete(a);continue}
+  if(s&&s.classList.contains('on')){SETTLE_PAUSED.delete(a);try{a.play()}catch(e){}}}}
+function settleHidden(){let l;try{l=document.getAnimations()}catch(e){return}const keep=[];let more=false,did=0;
+  for(const a of l){if(!a.effect)continue;const el=a.effect.target,s=el&&el.closest&&el.closest('main>section');
+    if(!s||s.classList.contains('on')||s.classList.contains('nav-out'))continue;
+    // One still playing (an intro on a page built out of sight) is put at its end: it's over before you could open the page.
+    if(a.playState==='running'){if(a.effect.getComputedTiming().iterations===Infinity){try{a.pause();SETTLE_PAUSED.add(a);did++}catch(e){}continue}try{a.finish()}catch(e){more=true;continue}}
+    if(a.playState!=='finished')continue;const t=a.effect.getComputedTiming().fill;
+    if(t==='forwards'||t==='both'){const kf=a.effect.getKeyframes(),f=kf[kf.length-1]||{};keep.push([a,el,a.effect.pseudoElement||null,Object.entries(f).filter(([k])=>!['offset','easing','composite','computedOffset'].includes(k))])}
+    a.cancel();did++}
+  const same=(k,v,c)=>c===v||(k==='transform'&&v==='none'&&c==='matrix(1, 0, 0, 1, 0, 0)')||(k==='opacity'&&parseFloat(c)===parseFloat(v));
+  for(const [a,el,pe,props] of keep){const cs=getComputedStyle(el,pe);if(!props.every(([k,v])=>same(k,v,cs[k])))a.finish()}
+  // A pass that found something looks again a little later (a page built out of sight can start a transition after its
+  // intro, and a hidden page doesn't say when one ends), until a pass finds nothing. (Listening for every animation and
+  // transition event instead made the browser send one for each element when the look changed: light/dark twice as slow.)
+  if(more||did)settleSoon(2500)}
 function prebuildTabs(){const ids=['recipes','gear','variety','process','map','words','history','flow','wheel','champs','tech'].filter(k=>LAZY[k]);
   // A step only starts in a real idle moment (not one the timeout forced). (The wait has an end: after 6 s a step goes
   // ahead in whatever idle time there is, or the rest would never be built.)
-  const idle=window.requestIdleCallback?(f,t0=performance.now())=>requestIdleCallback(d=>{if(!d.didTimeout&&d.timeRemaining()<25&&performance.now()-t0<6000)idle(f,t0);else f()},{timeout:6000}):f=>setTimeout(f,200);
+  const idle=window.requestIdleCallback?(f,t0=performance.now())=>requestIdleCallback(d=>{if(!d.didTimeout&&d.timeRemaining()<25&&performance.now()-t0<6000)setTimeout(()=>idle(f,t0),60);else{f();settleSoon()}},{timeout:6000}):f=>setTimeout(f,200);
   // Beans comes first (it's opened most and has the most to draw). Each step waits while you're moving between tabs,
   // so building ahead never competes with the page you just opened.
   let beans=false;
@@ -7530,7 +7560,7 @@ function navOut(L,kind,y){const el=L.el;if(el._out)clearTimeout(el._out);el.styl
   el.style.setProperty('padding-top',L.pt,'important');el.dataset.out=kind;el.classList.add('nav-out');
   const end=()=>{clearTimeout(el._out);el._out=0;el.removeEventListener('animationend',onEnd);el.classList.remove('nav-out');delete el.dataset.out;for(const k of ['top','left','width','padding-top'])el.style.removeProperty(k)},
     onEnd=e=>{if(e.target===el)end()};el.addEventListener('animationend',onEnd);el._out=setTimeout(end,400)}
-function showTab(id,fromHistory,pure){NAV_AT=performance.now();if(window.closeBeansFab)closeBeansFab();
+function showTab(id,fromHistory,pure){NAV_AT=performance.now();settleSoon();if(window.closeBeansFab)closeBeansFab();
   // The page you leave animates out as the new one comes in (the opposite way), held where it was on the screen: its
   // place is read here, before anything changes, while it is still laid out (no extra layout).
   let LV=null;if(NAV_READY&&!RM()){const lv=document.querySelector('main section.on');if(lv&&lv.id!==id){const r=lv.getBoundingClientRect(),cs=getComputedStyle(lv);LV={el:lv,top:r.top,left:r.left+scrollX,w:r.width,pt:cs.paddingTop}}}
@@ -7566,7 +7596,7 @@ function showTab(id,fromHistory,pure){NAV_AT=performance.now();if(window.closeBe
     // page is laid out once (measured inside the tap, it was laid out there and again for the frame).
     // Placed now as well: when the switch itself runs inside a frame (a page transition), the next frame is one later,
     // and the page was drawn once with its highlights where they were last (off by up to the page's padding).
-    try{segShown($(id))}catch(e){}
+    try{segShown($(id))}catch(e){}if(SETTLE_PAUSED.size)settleWake();
     requestAnimationFrame(()=>{try{if($(id).classList.contains('on'))segShown($(id))}catch(e){}});
     if(kind&&NAV_READY)spSlide(id);
     // Opening a page inside a section slides it over the one you were on, which eases a little to the left; back is the
@@ -8665,8 +8695,10 @@ function buildTree(){
   svg.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){const n=e.target.closest('.n');if(n){e.preventDefault();focus(n.dataset.id);openVariety(n.dataset.id)}}};
   $('treelegend').innerHTML=Object.values(FAM).map(f=>'<span class="pill tleg" style="--c:'+f.color+'"><i></i>'+f.name+'</span>').join('')+'<span class="pill tleg dna">Notes in italics: where DNA overturned the old story</span>';
   const box=svg.parentElement,edge=()=>{box.classList.toggle('at-start',box.scrollLeft<8);box.classList.toggle('at-end',box.scrollLeft+box.clientWidth>=box.scrollWidth-8)};box.onscroll=edge;box.classList.add('at-start');
-  // Its end is measured once it's on screen (where the layout is done anyway): measured when it was built in the background, it laid the whole page out.
-  requestAnimationFrame(edge);
+  // Its end is measured once it's on screen (where the layout is done anyway). A frame after building wasn't enough:
+  // built in the background, that frame still laid the whole hidden page out (60 ms on a phone, in a quiet moment you
+  // could tap in).
+  if(window.IntersectionObserver){const io=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting)){io.disconnect();edge()}});io.observe(box)}else requestAnimationFrame(edge);
   $('species').innerHTML=['arabica','robusta','liberica','eugenioides','stenophylla'].map(id=>{const v=VBY[id];return'<button type="button" class="card vcard" data-v="'+id+'" style="--c:'+FAM.species.color+'"><span class="fam">'+esc(v.origin)+'</span><h3>'+esc(v.name)+'</h3><p>'+esc(v.cup)+'</p></button>'}).join('');
   $('species').onclick=e=>{const b=e.target.closest('[data-v]');if(b)openVariety(b.dataset.v)};
   $('timeline').innerHTML=TIMELINE.map(([w,t,d])=>'<li><span class="when">'+esc(w)+'</span><h3>'+esc(t)+'</h3><p>'+esc(d)+'</p></li>').join('');
