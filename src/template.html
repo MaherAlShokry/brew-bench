@@ -2839,6 +2839,11 @@ html.sheeting :is(.seg.bviews,.gtabs,.appbar,.minires,.bottomnav){-webkit-backdr
 .t3hm-i{width:auto;flex-direction:row;align-items:center;gap:10px;text-align:left}
 .t3hm-i .bpic{flex:none;width:40px;height:40px}
 .t3hm-i small{max-width:none;text-align:left;font-size:.8rem;line-height:1.25}
+/* The brew log: the parts below its form (your stats, palate and the list of brews) and every brew card in the
+   sideways list that isn't on screen are skipped until they are, so opening the log (from Settings, say) draws one
+   screen, not every brew you've logged. */
+#log>:is(#l-stats,#l-palate,#l-list){content-visibility:auto;contain-intrinsic-size:auto 400px}
+.le-slide{content-visibility:auto;contain-intrinsic-size:auto 340px auto 130px}
 /* While a page sheet slides in, its sections past the first screen aren't laid out or drawn (vdLite). */
 #vd.vd-lite :is(.vd-body,.me-body)>:nth-child(n+3){content-visibility:auto;contain-intrinsic-size:auto 300px}
 /* Android (the app and Chrome): no frosted blur. Every blurred bar or badge re-blurs what is behind it on every frame
