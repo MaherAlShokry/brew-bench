@@ -1414,27 +1414,26 @@ function warmPage(id){const s=$(id);if(!s||s.classList.contains('on')||WARM.has(
 // put at their end and let go, but only where that changes nothing on screen: one whose end look isn't the element's
 // own look is kept as it ended.
 var SETTLE_T=0;
-// An animation or transition starting or ending on a hidden page asks for a look soon after (one that's still playing
-// then is looked at again until it's done; a hidden page doesn't always say when one ends).
-for(const ev of ['animationstart','animationend','transitionrun','transitionend'])addEventListener(ev,e=>{const s=e.target&&e.target.closest&&e.target.closest('main>section');if(s&&!s.classList.contains('on'))settleSoon(300)},{capture:true,passive:true});
 // One look is pending at a time and asking again doesn't put it off (the background building asks after every step).
 function settleSoon(ms){if(SETTLE_T)return;SETTLE_T=setTimeout(()=>{SETTLE_T=0;if(sliding()||performance.now()-USER_AT<600){settleSoon(400);return}settleHidden()},ms||1500)}
 // A looping one (an empty page's floating picture) is paused while its page is hidden and goes on when it's shown.
 var SETTLE_PAUSED=new Set();
 function settleWake(){for(const a of SETTLE_PAUSED){const el=a.effect&&a.effect.target,s=el&&el.closest&&el.closest('main>section');if(!el||!el.isConnected){SETTLE_PAUSED.delete(a);continue}
   if(s&&s.classList.contains('on')){SETTLE_PAUSED.delete(a);try{a.play()}catch(e){}}}}
-function settleHidden(){let l;try{l=document.getAnimations()}catch(e){return}const keep=[];let more=false;
+function settleHidden(){let l;try{l=document.getAnimations()}catch(e){return}const keep=[];let more=false,did=0;
   for(const a of l){if(!a.effect)continue;const el=a.effect.target,s=el&&el.closest&&el.closest('main>section');
     if(!s||s.classList.contains('on')||s.classList.contains('nav-out'))continue;
     // One still playing (an intro on a page built out of sight) is put at its end: it's over before you could open the page.
-    if(a.playState==='running'){if(a.effect.getComputedTiming().iterations===Infinity){try{a.pause();SETTLE_PAUSED.add(a)}catch(e){}continue}try{a.finish()}catch(e){more=true;continue}}
+    if(a.playState==='running'){if(a.effect.getComputedTiming().iterations===Infinity){try{a.pause();SETTLE_PAUSED.add(a);did++}catch(e){}continue}try{a.finish()}catch(e){more=true;continue}}
     if(a.playState!=='finished')continue;const t=a.effect.getComputedTiming().fill;
     if(t==='forwards'||t==='both'){const kf=a.effect.getKeyframes(),f=kf[kf.length-1]||{};keep.push([a,el,a.effect.pseudoElement||null,Object.entries(f).filter(([k])=>!['offset','easing','composite','computedOffset'].includes(k))])}
-    a.cancel()}
+    a.cancel();did++}
   const same=(k,v,c)=>c===v||(k==='transform'&&v==='none'&&c==='matrix(1, 0, 0, 1, 0, 0)')||(k==='opacity'&&parseFloat(c)===parseFloat(v));
   for(const [a,el,pe,props] of keep){const cs=getComputedStyle(el,pe);if(!props.every(([k,v])=>same(k,v,cs[k])))a.finish()}
-  // One that couldn't be ended is looked at again in a moment.
-  if(more)settleSoon(1500)}
+  // A pass that found something looks again a little later (a page built out of sight can start a transition after its
+  // intro, and a hidden page doesn't say when one ends), until a pass finds nothing. (Listening for every animation and
+  // transition event instead made the browser send one for each element when the look changed: light/dark twice as slow.)
+  if(more||did)settleSoon(2500)}
 function prebuildTabs(){const ids=['recipes','gear','variety','process','map','words','history','flow','wheel','champs','tech'].filter(k=>LAZY[k]);
   // A step only starts in a real idle moment (not one the timeout forced). (The wait has an end: after 6 s a step goes
   // ahead in whatever idle time there is, or the rest would never be built.)
