@@ -8,7 +8,7 @@ const ok=(n,v,x)=>console.log((v?'ok   ':'FAIL ')+n+(v||x===undefined?'':'  ('+J
 const c=await b.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});const p=await c.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
 await p.route(u=>!u.href.startsWith('http://localhost'),r=>r.abort());await p.addInitScript(()=>{sessionStorage.setItem('bb-splashed','1');localStorage.setItem('bb-onboarded','1')});
 await p.goto('http://localhost:8099/index.html');await p.evaluate(require('./seed2.cjs'));await p.reload();await p.waitForTimeout(1500);
-await p.evaluate(()=>goTab('log'));await p.waitForTimeout(800);
+await p.evaluate(()=>{goTab('log');openLogForm(false)});await p.waitForTimeout(800);
 // Count clicks that reach the page behind, and put "Pick from your beans" well above where the sheet will be.
 const at=await p.evaluate(()=>{window.__hits=0;document.querySelector('main').addEventListener('click',()=>window.__hits++);
   const e=[...document.querySelectorAll('[data-dbpick]')].find(e=>e.getClientRects().length);scrollBy(0,e.getBoundingClientRect().top-160);

@@ -19,7 +19,7 @@ ok('going back never zooms the app out',z.h.length===1,z);ok('…and the page st
 await p.evaluate(()=>{showTab('recipes')});await p.waitForTimeout(600);await p.evaluate(()=>document.querySelector('#rhome [data-q="surprise"]').click());await p.waitForTimeout(700);
 await p.evaluate(()=>{const c=document.querySelector('#vd-in [data-mk="b"][data-v="sw"]');if(c)c.click();const l=document.querySelector('#vd-in [data-lock="b"]');if(l)l.click()});await p.waitForTimeout(200);
 const sw=await p.evaluate(async()=>{const n=RECIPES.filter(r=>RFAM(r.b)==='sw'&&!ICED(r)).length,seen=[];for(let i=0;i<n;i++){seen.push($('vd-in').querySelector('.mk-ht b').textContent);$('mk-again').click();await new Promise(r=>setTimeout(r,60))}
-  return{n,distinct:new Set(seen).size,lib:seen.every(t=>RECIPES.some(r=>r.name===t)),btn:$('mk-save').textContent}});
+  return{n,distinct:new Set(seen).size,lib:seen.every(t=>RECIPES.some(r=>rTitle(r)===t)),btn:$('mk-save').textContent}});
 ok('Surprise me goes through every Switch recipe before repeating',sw.n>=4&&sw.distinct===sw.n&&sw.lib,sw);ok('…and its button brews that recipe',/Brew it/.test(sw.btn),sw.btn);
 await p.evaluate(()=>$('vd').close());
 // 3. The bag's notes, as written, each matched to a wheel note.

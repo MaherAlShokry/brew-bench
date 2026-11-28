@@ -10,12 +10,12 @@ await p.goto('http://localhost:8099/index.html');await p.evaluate(require('./see
 // 1 and 2.
 const ch=await p.evaluate(async()=>{const w=t=>new Promise(r=>setTimeout(r,t));const i=RECIPES.findIndex(r=>r.champ&&/^Chad Wang/.test(r.name));const r=RECIPES[i];
   showTab('recipes');await w(500);RF=['champ'];renderRecipes();await w(300);const row=[...document.querySelectorAll('#recipes .rrow')].find(a=>a.querySelector('[data-open="'+i+'"]'));
-  const o={full:r.name,key:rkey(r),list:row&&row.querySelector('.rr-t b').textContent,tag:row&&row.querySelector('.rr-tag.champ').textContent};
+  const o={full:r.name,key:rkey(r),list:row&&row.querySelector('.rr-t b').textContent,tag:row&&row.querySelector('.rr-badge.champ').getAttribute('aria-label')};
   openRecipe(i);await w(500);o.title=$('vd-title').textContent;o.pill=document.querySelector('#vd .vd-head .pill').textContent;o.by=document.querySelector('#vd .vd-by').textContent;
   const u=RECIPES.findIndex(x=>x.name==='The Ultimate V60');openRecipe(u);await w(500);o.uby=document.querySelector('#vd .vd-by').textContent;o.loose=[...document.querySelectorAll('#rs-body p.hint')].some(x=>/Cone dripper/.test(x.textContent));
   const k=RECIPES.findIndex(x=>x.name==='Tetsu Kasuya 4:6');o.own=RECIPES[k].champ?rTitle(RECIPES[k]):'not a champion';openRecipe(k);await w(400);o.ownBy=document.querySelector('#vd .vd-by').textContent;
   openTimerNow(i);await w(400);o.timer=$('tm-title').textContent;$('timer').close();$('vd').close();RF=[];renderRecipes();return o});
-ok('a champion\'s recipe: just the name in the list, the competition in its tag',ch.list==='Chad Wang'&&ch.tag==='Brewers Cup 2017',ch);
+ok('a champion\'s recipe: just the name in the list, a trophy badge beside it',ch.list==='Chad Wang'&&ch.tag==='Brewers Cup 2017 champion',ch);
 ok('…and on its page and in the timer, its full name kept as its identity',ch.title==='Chad Wang'&&/Brewers Cup 2017/.test(ch.pill)&&ch.timer==='Chad Wang'&&ch.full==='Chad Wang (Brewers Cup 2017)'&&ch.key==='r:chad-wang-brewers-cup-2017',ch);
 ok('a champion\'s own named method keeps its name and author',ch.own==='Tetsu Kasuya 4:6'&&/^Tetsu Kasuya, 2016 World Brewers Cup champion · Hario V60$/.test(ch.ownBy),ch);
 ok('the header says who and which brewer; no loose brewer line',/^2017 World Brewers Cup champion · Hario V60$/.test(ch.by)&&/^James Hoffmann · Hario V60$/.test(ch.uby)&&!ch.loose,ch);

@@ -188,7 +188,7 @@ function segBatch(list,instant){const items=[];
 // 30 ms and more on a phone with a big gallery, on every tab switch. A strip never placed shows its own pressed look.
 function segShown(sec){const all=[...sec.querySelectorAll(SEG_SEL)];if(!all.length)return;all.forEach(x=>x._stale=0);
   const near=[],far=all.filter(x=>x.classList.contains('has-ind')||(near.push(x),false));
-  if(near.length)setTimeout(()=>requestAnimationFrame(()=>{if(sec.classList.contains('on'))segBatch(near.filter(x=>x.isConnected),true)}),420);if(far.length){const go=()=>{if(sec.classList.contains('on'))segBatch(far.filter(x=>x.isConnected),true)};
+  if(near.length)segBatch(near,true);if(far.length){const go=()=>{if(sec.classList.contains('on'))segBatch(far.filter(x=>x.isConnected),true)};
     // Strips below the screen are placed after the page has finished sliding in, not during it.
     setTimeout(()=>window.requestIdleCallback?requestIdleCallback(go,{timeout:600}):go(),650)}}
 // One watcher for every control's size (a tab coming into view, the phone turning); controls that have left the page are dropped.

@@ -535,7 +535,7 @@ function openMakeRecipe(bid,surprise){const d=$('vd'),beans=[...BEANS.filter(b=>
   // stats, grind settings, pour graph and steps as every recipe page. While AI writes one, a quiet placeholder.
   const resHTML=()=>{const r=st.rec,bean=beanById(st.bean);if(st.busy||!r)return '<div class="mk-card mk-wait" aria-busy="true"><span class="mk-sk"></span><span class="mk-sk s"></span><span class="mk-sk t"></span><p>Writing your recipe…</p></div>';
     const cup=(MK_GOALS.find(g=>g[0]===st.goal)||[0,''])[1];
-    return '<div class="mk-card"><div class="mk-hero">'+(bean?beanPic(bean,'sm'):'')+'<div class="mk-ht"><b>'+esc(r.name)+'</b><span>'+esc((st.lib>=0?[beanTitle(bean),BREWERS[r.b].name,r.by]:[beanTitle(bean),BREWERS[st.b].name,cup]).filter(Boolean).join(' · '))+'</span></div></div>'+
+    return '<div class="mk-card"><div class="mk-hero">'+(bean?beanPic(bean,'sm'):'')+'<div class="mk-ht"><b>'+esc(rTitle(r))+(r.champ?rBadge('champ',ICO.trophy,champTag(r)+' champion'):'')+'</b><span>'+esc((st.lib>=0?[beanTitle(bean),BREWERS[r.b].name,r.by]:[beanTitle(bean),BREWERS[st.b].name,cup]).filter(Boolean).join(' · '))+'</span></div></div>'+
       recipeBody(r,-1).replace(/<div class="actions[^"]*">[\s\S]*$/,'').replace(/^<p class="hint"[^>]*>[^<]*<\/p>/,'')+'</div>'};
   const actsHTML=()=>'<div class="actions ib-row sheet-acts mk-acts">'+pbtn('timer','id="mk-save"'+(st.rec&&!st.busy?'':' disabled'),st.lib>=0?'Brew it':'Save and brew it','main')+(surprise?ib('dice','id="mk-again"','Shuffle'):ib('reset','id="mk-again"','Another version'))+'</div>';
   const draw=()=>{$('vd-in').innerHTML='<div class="vd-head" style="--c:#8A5A3B"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:#C9964A"></i>'+(SAMPLE?'Made with AI':surprise?'Surprise me':'Made for you')+'</span><h2 id="vd-title">'+(surprise?'A surprise recipe':'A recipe for your coffee')+'</h2></div>'+
@@ -777,7 +777,7 @@ async function updWidget(){const w=plugin('Widget');if(!w)return;try{const b=wid
     if(k==='bean'&&beanById(id)){showTab('beans');openBean(id);return}
     // A coffee fact's note: what it is about, or Today in coffee on Explore.
     if(k==='fact'){let g=null;try{g=JSON.parse(String(o).slice(5))}catch(e){}if(goFact(g))return;goTab('explore');setTimeout(()=>{const t=document.querySelector('#explore .today');if(t)t.scrollIntoView({block:'start',behavior:'smooth'})},400);return}
-    if(k==='log'){if(LEDIT)endEdit();LBEAN=id&&beanById(id)?id:null;renderLBean();renderFlForm();showTab('log');setTimeout(()=>$('l-form').scrollIntoView({block:'start'}),60);return}
+    if(k==='log'){if(LEDIT)endEdit();LBEAN=id&&beanById(id)?id:null;renderLBean();renderFlForm();showTab('log');openLogForm(false);return}
     // Recipe keys hold a colon themselves ("r:kasuya-4-6"), so the rest of the request is the key.
     const rest=String(o).slice(k.length+1);
     if(k==='recipe'||k==='timer'){const i=rByKey(rest);if(i>=0){showTab('recipes');if(k==='timer')openTimer(i);else openRecipe(i);return}showTab('recipes');return}

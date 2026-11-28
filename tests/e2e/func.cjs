@@ -26,7 +26,7 @@ const tm=await p.evaluate(async()=>{const i=RECIPES.findIndex(r=>r.name==='The U
 ok('timer runs and resets',tm.el>0.8&&tm.after<0.2,JSON.stringify(tm));ok('timer length covers the recipe',tm.tot>=(tm.want||0),tm.tot+' vs last step '+tm.want);
 await p.evaluate(()=>document.querySelectorAll('dialog[open]').forEach(d=>d.close()));await p.waitForTimeout(400);
 // Log: add, edit, delete
-await p.evaluate(()=>showTab('log'));await p.waitForTimeout(300);const n0=await p.evaluate(()=>LOG.length);
+await p.evaluate(()=>{showTab('log');openLogForm(false)});await p.waitForTimeout(300);const n0=await p.evaluate(()=>LOG.length);
 await p.fill('#l-coffee','Audit Kenya');await p.click('#l-stars [data-s="4"]');await p.fill('#l-notes','Juicy');await p.click('#l-save');await p.waitForTimeout(300);
 ok('log entry saved',await p.evaluate(n=>LOG.length===n+1&&LOG.some(l=>l.coffee==='Audit Kenya'&&l.stars===4),n0));
 const ei=await p.evaluate(()=>LOG.findIndex(l=>l.coffee==='Audit Kenya'));await p.click('[data-edit="'+ei+'"]');await p.waitForTimeout(200);await p.fill('#l-notes','Juicy, edited');await p.click('#l-save');await p.waitForTimeout(300);
