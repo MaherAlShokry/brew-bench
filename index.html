@@ -2797,14 +2797,33 @@ html.sheeting :is(.seg.bviews,.gtabs,.appbar,.minires,.bottomnav){-webkit-backdr
 .t3hm-i .bpic{flex:none;width:40px;height:40px}
 .t3hm-i small{max-width:none;text-align:left;font-size:.8rem;line-height:1.25}
 
+.le2 .le-pills{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.le2 .le-pill{justify-content:flex-start;padding:6px 10px 6px 9px;border-radius:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.le2 .le-pill svg+*{overflow:hidden;text-overflow:ellipsis}
+.le2 .fl-entry{align-items:center;gap:14px}.le2 .fl-mini{width:76px;height:76px}
+.le2 .fl-chips{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0}
+.le2 .fl-chips .icobtn,.le2 .fl-chips button:last-child{width:34px;height:34px;min-height:34px;padding:0}
 #l-list>.le-track{content-visibility:auto;contain-intrinsic-size:auto 420px}
 
-.tm-valve{display:inline-flex;align-items:center;gap:5px;margin:8px auto 0;padding:3px 10px 3px 6px;border-radius:999px;font-size:.78rem;font-weight:700;background:color-mix(in srgb,var(--cherry) 14%,var(--surface));color:var(--cherry)}
-.tm-valve[hidden]{display:none}
-.tm-valve svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
-.tm-valve.open{background:color-mix(in srgb,var(--leaf) 18%,var(--surface));color:var(--leaf-ink)}
-.tm-valve.flip{animation:tmHoldP 1.4s ease-in-out infinite}
-@media (prefers-reduced-motion:reduce){.tm-valve.flip{animation:none}}
+dialog.covered{visibility:hidden}
+
+.tm-top{align-items:center!important}.tm-head h2{margin:0!important}
+.tm-meta{flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;margin:12px 0 0;gap:6px!important}.tm-meta::-webkit-scrollbar{display:none}
+.tm-meta span{flex:none;display:inline-flex;align-items:center;gap:6px;padding:6px 12px 6px 10px!important;font-size:.82rem!important;white-space:nowrap;font-variant-numeric:tabular-nums}
+.tm-meta span svg{width:15px;height:15px;fill:none;stroke:var(--muted);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+
+.tm-cardtop{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:22px}
+.tm-vchip{flex:none;display:inline-flex;align-items:center;gap:5px;padding:3px 10px 3px 7px;border-radius:999px;font-size:.74rem;font-weight:700;letter-spacing:.02em;
+  color:var(--cherry);background:color-mix(in srgb,var(--cherry) 12%,var(--surface))}.tm-vchip[hidden]{display:none!important}
+.tm-vchip.open{color:var(--leaf-ink);background:color-mix(in srgb,var(--leaf) 16%,var(--surface))}
+.tm-vchip svg,.tm-vflip svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.tm-vchip svg{width:14px;height:14px}
+.tm-vflip{float:left;display:grid;place-items:center;width:44px;height:44px;margin:-4px 12px 0 0;border-radius:50%;background:var(--surface);color:var(--cherry);box-shadow:var(--e1)}
+.tm-vflip svg{width:30px;height:30px;stroke-width:1.8}
+.tm-vflip .lv{stroke-width:2.6;transform-box:view-box;transform-origin:12px 12px}
+.tm-vflip.open .lv{animation:tmLvOpen .7s .2s var(--ease-out) both}.tm-vflip.closed .lv{animation:tmLvClose .7s .2s var(--ease-out) both}
+@keyframes tmLvOpen{from{transform:rotate(90deg)}to{transform:rotate(0deg)}}@keyframes tmLvClose{from{transform:rotate(0deg)}to{transform:rotate(90deg)}}
+@media (prefers-reduced-motion:reduce){.tm-vflip .lv{animation-duration:1ms!important;animation-delay:0s!important}}
 
 .tm-now.hold .tm-step{color:var(--cherry);font-weight:700}
 .tm-now.hold~.tm-ctl #tm-skip{background:var(--cherry);color:var(--surface);animation:tmHoldP 1.4s ease-in-out infinite}
@@ -3081,7 +3100,8 @@ main section.on.fabbed{padding-bottom:160px!important}
 @keyframes fabScrim{from{opacity:0}to{opacity:1}}
 html.fab-lock #toast{opacity:0!important;pointer-events:none}
 
-html.fab-lock,html.fab-lock body{overflow:hidden!important;overscroll-behavior:none}
+
+html.fab-lock{overflow:hidden!important;overscroll-behavior:none}
 .fab-scrim{touch-action:none}
 @media (prefers-reduced-motion:reduce){.fab.fab-in .ib,.fab-mi,.fab-menu,.fab-scrim{animation:none}.fab-main svg{transition:none}}
 
@@ -3330,7 +3350,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="50572f6e2415"</script>
+<script>const BUILD_ID="3a3045e545ce"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -7239,14 +7259,15 @@ function openTimerNow(idx,p){noteRecent(RECIPES[idx]);
   if(TM&&TM.iv)clearInterval(TM.iv);
   TM={idx,r,p,ev,total,el:0,run:false,iv:null,lastIdx:-1,lastWarn:-1,ctx:null,cup:null,hold:null,held:new Set()};
   const g=p?p.grinder:(MYG.find(x=>settingFor(x,r.b,r.off)!=null)),gv=p?p.set[p.grinder]:g?settingFor(g,r.b,r.off):null;
-  const meta=[(p?p.r.dose:r.dose)+'g : '+(p?p.water:r.water)+'g',(p?p.temp:r.temp)?(p?p.temp:r.temp)+'°C':'',gv!=null?gLabel(g,gv):''].filter(Boolean);
+  // The brew's details as pills in one straight row under the name and buttons, each with its icon.
+  const meta=[['dose',(p?p.r.dose:r.dose)+'g : '+(p?p.water:r.water)+'g'],['temp',(p?p.temp:r.temp)?(p?p.temp:r.temp)+'°C':''],['grind',gv!=null?gLabel(g,gv):'']].filter(m=>m[1]);
   // Tick marks on the ring where each timed step starts.
   const C=2*Math.PI*96,ticks=total?timed.filter(e=>e.t>0&&e.t<total).map(e=>{const a=e.t/total*2*Math.PI-Math.PI/2;return '<line x1="'+(110+86*Math.cos(a)).toFixed(1)+'" y1="'+(110+86*Math.sin(a)).toFixed(1)+'" x2="'+(110+106*Math.cos(a)).toFixed(1)+'" y2="'+(110+106*Math.sin(a)).toFixed(1)+'" class="tm-tick"/>'}).join(''):'';
   const I=d=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+d+'"/></svg>';
-  $('tm-in').innerHTML='<div class="tm2"><div class="tm-top"><button class="tm-ic" id="tm-x" aria-label="Close timer">'+I('M6 6l12 12M18 6L6 18')+'</button><div class="tm-head"><h2 id="tm-title">'+esc(r.name)+'</h2><div class="tm-meta">'+meta.map(m=>'<span>'+esc(m)+'</span>').join('')+'</div></div>'+cueBtns()+'</div>'+
+  $('tm-in').innerHTML='<div class="tm2"><div class="tm-top"><button class="tm-ic" id="tm-x" aria-label="Close timer">'+I('M6 6l12 12M18 6L6 18')+'</button><div class="tm-head"><h2 id="tm-title">'+esc(r.name)+'</h2></div>'+cueBtns()+'</div><div class="tm-meta">'+meta.map(([k,m])=>'<span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+LSI[k]+'"/></svg>'+esc(m)+'</span>').join('')+'</div>'+
    (total?'<div class="tm-ringwrap"><svg class="tm-ring" viewBox="0 0 220 220"><defs><linearGradient id="tmg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--honey)"/><stop offset="1" stop-color="var(--cherry)"/></linearGradient></defs><circle cx="110" cy="110" r="96" class="tm-track"/><circle id="tm-arc" cx="110" cy="110" r="96" class="tm-arc" transform="rotate(-90 110 110)" stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+C.toFixed(1)+'"/>'+ticks+'</svg>'+
-      '<div class="tm-center"><div id="tm-big">0:00</div><div class="tm-of">of '+mmss(total)+'</div>'+(ev.some(e=>e.v)?'<div class="tm-valve" id="tm-valve" aria-live="polite"></div>':'')+'</div></div>'+
-      '<div class="tm-now" id="tm-card"><div class="tm-step" id="tm-step">Ready when you are</div><div class="tm-target" id="tm-target"></div><div class="tm-text" id="tm-now">Get your gear ready, then press start.</div><div class="tm-bar"><i id="tm-barfill"></i></div><div class="tm-next" id="tm-next"></div></div>'+
+      '<div class="tm-center"><div id="tm-big">0:00</div><div class="tm-of">of '+mmss(total)+'</div></div></div>'+
+      '<div class="tm-now" id="tm-card"><div class="tm-cardtop"><div class="tm-step" id="tm-step">Ready when you are</div>'+(ev.some(e=>e.v)?'<span class="tm-vchip" id="tm-valve" aria-live="polite"></span>':'')+'</div><div class="tm-target" id="tm-target"></div><div class="tm-text" id="tm-now">Get your gear ready, then press start.</div><div class="tm-bar"><i id="tm-barfill"></i></div><div class="tm-next" id="tm-next"></div></div>'+
       '<div class="tm-ctl"><button class="tm-ic big" id="tm-reset" aria-label="Reset">'+I('M4 12a8 8 0 1 0 2.3-5.6M4 4v5h5')+'</button><button class="tm-play" id="tm-go" aria-label="Start">'+I('M8 5v14l11-7z')+'</button><button class="tm-ic big" id="tm-skip" aria-label="Next step">'+I('M6 5l9 7-9 7z M18 5v14')+'</button></div>'
     :'<p class="tm-text" style="text-align:center">This one is by eye rather than the clock.</p>')+
    '<details class="tm-all"'+(total?'':' open')+'><summary>All steps ('+ev.length+')</summary><ol id="tm-list">'+ev.map((e,i)=>'<li data-i="'+i+'"'+(e.h?' data-h="1"':'')+'>'+(e.t>=0?'<b'+(e.e?' class="est" title="Estimated from the recipe\'s pace"':'')+'>'+(e.e?'~':'')+mmss(e.t)+'</b>':'')+'<span>'+esc(stepTxt(e.s))+'</span></li>').join('')+'</ol></details></div>';
@@ -7491,12 +7512,15 @@ function paint(){const el=TM.el,C=2*Math.PI*96;$('tm-big').textContent=mmss(el);
     $('tm-card').classList.toggle('warn',!!(TM.run&&next&&left<=3))}
   else if(el===0){$('tm-step').textContent='Ready when you are';$('tm-target').innerHTML='';$('tm-now').textContent='Get your gear ready, then press start.';$('tm-barfill').style.transform='';$('tm-next').innerHTML=TM.ev[0]?'<span class="tm-nx">First: '+esc(stepTxt(TM.ev[0].s))+'</span>':''}}
 
-// The valve badge in the ring: Valve closed / Valve open, and at a hold that flips it, what to do now (pulsing).
-// Before the start it shows how to set the valve for the first step.
-function paintValve(el){const b=$('tm-valve');if(!b)return;let i=-1;TM.ev.forEach((e,k)=>{if(e.t>=0&&e.t<=el&&!(e.h&&!TM.held.has(k)&&k!==TM.hold))i=k});
-  let st,flip=false;if(TM.hold!=null&&valveOf(TM.ev[TM.hold].s)){st=valveOf(TM.ev[TM.hold].s);flip=true}else st=i>=0?TM.ev[i].v:(TM.ev.find(e=>e.v)||{}).v;
-  const key=(st||'')+flip;if(b.dataset.k===key)return;b.dataset.k=key;b.hidden=!st;if(!st)return;
-  b.className='tm-valve '+st+(flip?' flip':'');b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="'+(st==='open'?'M12 6v12':'M6 12h12')+'"/></svg>'+(flip?(st==='open'?'Open':'Close')+' the valve now':'Valve '+st)}
+// The valve, for brewers that have one: in the step card, opposite the step count, Valve closed / Valve open as the
+// brew goes. At the moment to flip it, the card shows the valve with its lever turning to where it should go.
+// The lever along the pipe is open, across it closed (in the card, CSS turns it there: see .tm-vflip).
+const VALVE_SVG=(open,flip)=>'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.5"/><path class="lv" d="M12 6.5v11"'+(open||flip?'':' transform="rotate(90 12 12)"')+'/></svg>';
+function paintValve(el){const b=$('tm-valve');if(!b)return;let i=-1;TM.ev.forEach((e,k)=>{if(e.t>=0&&e.t<=el&&!(e.h&&!TM.held.has(k))&&(TM.hold==null||k<TM.hold))i=k});
+  const st=i>=0?TM.ev[i].v:(TM.ev.find(e=>e.v)||{}).v;if(b.dataset.k!==(st||'')){b.dataset.k=st||'';b.hidden=!st;if(st)b.innerHTML=VALVE_SVG(st==='open')+'Valve '+st;b.className='tm-vchip '+st}
+  const fl=TM.hold!=null&&valveOf(TM.ev[TM.hold].s),now=$('tm-card');let v=now.querySelector('.tm-vflip');
+  if(!fl){if(v)v.remove();return}if(v&&v.dataset.to===fl)return;if(v)v.remove();
+  v=document.createElement('span');v.className='tm-vflip '+fl;v.dataset.to=fl;v.innerHTML=VALVE_SVG(fl==='open',true);now.prepend(v)}
 /* ================= TABS ================= */
 // Heavy tabs are built the first time they are opened, which keeps startup quick.
 const LAZY={champs:renderChamps,words:renderWords,wheel:renderWheelTab,flow:renderFlow,gear:buildGear,recipes:renderRecipes,tech:renderTech,process:renderProcesses,variety:renderVarieties,map:buildMap,history:()=>{buildTree();startQuiz()}},BUILT={};
@@ -7756,6 +7780,7 @@ function dlgOpened(d){if(!d.open)(function(){if(!BACKING)try{history.pushState({
   const shut=()=>{cl.call(this,v);if(this.hasAttribute('popover'))try{this.hidePopover()}catch(e){}};
   // A sheet already swiped away (see the sheet gestures) is shut at once, with no second slide.
   if(this._swiped){this._swiped=false;shut();this.style.transform='';this.style.transition='';return}
+  clearTimeout(this._cov);uncover();
   if(RM()||document.hidden)return shut();this.classList.add('closing');
   const done=()=>{clearTimeout(t);this.removeEventListener('animationend',end);if(!this.classList.contains('closing'))return;this.classList.remove('closing');shut()},
     end=e=>{if(e.target===this)done()},t=setTimeout(done,380);this.addEventListener('animationend',end)}}
@@ -7800,7 +7825,15 @@ function openTop(d){if(d.showPopover){try{if(!d.hasAttribute('popover'))d.setAtt
 addEventListener('keydown',e=>{if(e.key!=='Escape'||e.defaultPrevented)return;const top=DSTACK.filter(d=>d.open&&d.hasAttribute('popover')&&!d.classList.contains('closing')).pop();if(top){e.preventDefault();top.close()}});
 function vdLite(d){d.classList.add('vd-lite');clearTimeout(d._lite);const end=()=>{clearTimeout(d._lite);d.removeEventListener('animationend',on);d.removeEventListener('close',end);d.classList.remove('vd-lite');requestAnimationFrame(()=>{try{fitFacts()}catch(x){}})},
   on=e=>{if(e.target===d)end()};d.addEventListener('animationend',on);d.addEventListener('close',end);d._lite=setTimeout(end,700)}
-function showDlg(d){NAV_AT=performance.now();if(d.classList.contains('closing')){d.classList.remove('closing');return}
+// A full-page sheet (a coffee or recipe page, the timer) opened over another covers it entirely; once it has slid in,
+// the sheet beneath is hidden (.covered). On a phone the one beneath's header, drawn on its own layer, could show
+// through over the new sheet (the recipe's buttons over the timer). It's shown again as soon as the top sheet starts to
+// close or you start a back swipe, so it's there as the top one slides away.
+const FULLSHEET=d=>d&&(d.id==='vd'||d.id==='timer');
+function coverUnder(d){if(!FULLSHEET(d))return;clearTimeout(d._cov);d._cov=setTimeout(()=>{if(!d.open||d.classList.contains('closing'))return;
+  for(const x of document.querySelectorAll('dialog[open]'))if(x!==d&&FULLSHEET(x)&&DSTACK.indexOf(x)<DSTACK.indexOf(d))x.classList.add('covered')},450)}
+function uncover(){document.querySelectorAll('dialog.covered').forEach(x=>x.classList.remove('covered'))}
+function showDlg(d){NAV_AT=performance.now();setTimeout(()=>coverUnder(d),0);if(d.classList.contains('closing')){d.classList.remove('closing');return}
   // A sheet opened afresh starts at its top (a closed sheet kept where it was last scrolled, so a coffee opened after
   // another came up halfway down). Redrawing one already open keeps its place, and back within a sheet restores it.
   // A page sheet opened afresh lays out only what is on screen while it slides in (vd-lite: the sections further down
@@ -9029,6 +9062,8 @@ function renderLastBrew(){const el=$('lastbrew');if(!el)return;const l=LOG.find(
   $('lb-open').onclick=$('lb-all').onclick=()=>goTab('log');$('lb-share').onclick=()=>openShare(logEntryDoc(l))}
 /* ---------- The list of brews: search, filters, sort, and each brew as a card ---------- */
 let LF=Object.assign({q:'',who:[],min:0,sort:'new'},VW_KEEP?load('bb-logfilter',{}):{});LF.q='';if(!Array.isArray(LF.who))LF.who=LF.who&&LF.who!=='all'?[LF.who]:[];
+// The log's other filters: coffee, origin, region, brewer, recipe, how it tasted (any picked), and a period.
+for(const k of ['coffee','origin','region','brewer','recipe','taste'])if(!Array.isArray(LF[k]))LF[k]=[];if(typeof LF.period!=='string')LF.period='';
 const LOG_SORTS=[['new','Newest'],['old','Oldest'],['top','Highest rated'],['az','Coffee A–Z']];
 const LI={lock:'M7.5 11V8a4.5 4.5 0 0 1 9 0v3 M5.5 11h13v9.5h-13z M12 15v2',unlock:'M7.5 11V8a4.5 4.5 0 0 1 8.7-1.6 M5.5 11h13v9.5h-13z M12 15v2',dice:'M5.5 4h13a1.5 1.5 0 0 1 1.5 1.5v13a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5v-13A1.5 1.5 0 0 1 5.5 4z M8.6 8.6h.01 M15.4 8.6h.01 M12 12h.01 M8.6 15.4h.01 M15.4 15.4h.01',phone:'M8 3h8a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z M11 18h2',again:'M8 5v14l11-7z',share:'M12 4v11 M7.5 8.5L12 4l4.5 4.5 M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5',edit:'M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4',del:'M5 7h14 M10 7V4.8h4V7 M7 7l.8 12.2a1.6 1.6 0 0 0 1.6 1.5h5.2a1.6 1.6 0 0 0 1.6-1.5L17 7',search:'M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4',plus:'M12 5v14 M5 12h14',dl:'M12 4v11 M7.5 10.5L12 15l4.5-4.5 M5 19.5h14',ul:'M12 15V4 M7.5 8.5L12 4l4.5 4.5 M5 19.5h14',mark:'M7 4h10a1 1 0 0 1 1 1v15l-6-4-6 4V5a1 1 0 0 1 1-1z',log:'M6 4h11a1 1 0 0 1 1 1v15H8a2 2 0 0 1-2-2z M12 8v6 M9 11h6',cam:'M4 8h3l2-2.5h6L17 8h3v11H4z M12 10.5a3 3 0 1 0 0 6a3 3 0 1 0 0-6z',reset:'M4 12a8 8 0 1 0 2.3-5.6 M4 4v5h5',swap:'M7 7h13 M16 3l4 4-4 4 M17 17H4 M8 13l-4 4 4 4',cmp:'M9 4H5v16h4 M15 4h4v16h-4 M12 2v20',bulb:'M9 18h6 M10 21h4 M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z',open:'M14 4h6v6 M20 4l-9 9 M18 14v6H4V6h6',x:'M6 6l12 12 M18 6L6 18',minus:'M5 12h14',chev:'M9 6l6 6-6 6',bag:'M6 8h12l-1.2 12H7.2z M9 8V6.5a3 3 0 0 1 6 0V8',gift:'M4 11h16v9H4z M3 7.5h18V11H3z M12 7.5V20 M12 7.5C10.5 4 7 4 7 6s3 1.5 5 1.5 M12 7.5C13.5 4 17 4 17 6s-3 1.5-5 1.5',store:'M4 10l1.5-5h13L20 10 M5 10v9h14v-9 M4 10a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0 M10 19v-4h4v4',wheel:'M12 3.5a8.5 8.5 0 1 0 0 17a8.5 8.5 0 1 0 0-17z M12 3.5v8.5l7.4 4.2M12 12l-7.4 4.2',sweep:'M20 4l-8.5 8.5 M13.5 14.5l-4-4-2.5 1.5c-1.5 1-3 3.5-3.5 8.5 5-.5 7.5-2 8.5-3.5z M7 17l2-2',ice:'M12 3v18 M4.2 7.5l15.6 9 M4.2 16.5l15.6-9 M9.5 4.5L12 7l2.5-2.5 M9.5 19.5L12 17l2.5 2.5',info:'M21 12a9 9 0 1 1-18 0a9 9 0 1 1 18 0z M12 11v5 M12 8h.01',ok:'M5 12.5l4.5 4.5L19 7.5',flag:'M5 21V4 M5 4h12l-2.5 4 2.5 4H5',timer:'M12 9v4l2.5 1.5 M9.5 2.5h5 M12 21a8 8 0 1 0 0-16a8 8 0 1 0 0 16z',scan:'M4 8V6a2 2 0 0 1 2-2h2 M16 4h2a2 2 0 0 1 2 2v2 M20 16v2a2 2 0 0 1-2 2h-2 M8 20H6a2 2 0 0 1-2-2v-2 M12 8.5c2 0 3.5 1.6 3.5 3.5S14 15.5 12 15.5 8.5 14 8.5 12 10 8.5 12 8.5z',cup:'M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z M16 10h2a2 2 0 0 1 0 4h-2 M9 3v3 M12 3v3'};
 // Every action is a round icon (adding, filtering, sharing, deleting…): what it does is its label, read out and shown on
@@ -9060,15 +9095,32 @@ function logEntryHTML(l,i){const ag=againPlan(l),st=clamp(Math.round(+l.stars||0
     (rest?'<p class="le-rest">'+esc(rest)+'</p>':'')+(l.pred||TASTEW[l.taste]?'<p class="le-pred">'+[l.pred?'Expected <b>'+esc(l.pred)+'</b>':'',TASTEW[l.taste]?'Tasted <b class="t-'+l.taste+'">'+TASTEW[l.taste]+'</b>':''].filter(Boolean).join(' · ')+'</p>':'')+(l.notes?'<blockquote class="le-notes">'+esc(l.notes)+'</blockquote>':'')+flEntry(l,i)+
     '<div class="le-act">'+(ag?ib('again','data-again="'+i+'"','Brew this again','main sm le-again'):'')+'<span class="le-acts">'+(flOf(l).length?'':ib('wheel','data-fledit="'+i+'"','Add flavour notes','sm'))+ib('share','data-lshare="'+i+'"','Share this brew','sm')+(canEdit(l)?ib('edit','data-edit="'+i+'"','Edit this brew','sm'):'')+ib('del','data-del="'+i+'"','Delete this brew','sm')+'</span></div></article>'}
 // Search, then a filter and a sort button, as on Recipes: each opens a sheet. A dot on the filter says one is on.
-let LLN=0;const saveLF=()=>save('bb-logfilter',{min:LF.min,who:LF.who,sort:LF.sort});
-const lfName=()=>[LF.min?(LF.min===5?'5 beans':LF.min+' beans and up'):'',LF.who.length?selName(LF.who,w=>w==='me'?'Me':w,''):''].filter(Boolean).join(', ')||'All brews';
+let LLN=0;const saveLF=()=>save('bb-logfilter',{min:LF.min,who:LF.who,sort:LF.sort,coffee:LF.coffee,origin:LF.origin,region:LF.region,brewer:LF.brewer,recipe:LF.recipe,taste:LF.taste,period:LF.period});
+// What each brew is, for the filters and the groups: its coffee, that coffee's origin and region, the brewer, the recipe.
+const lCoffee=l=>String(l.coffee||'').trim()||'Untitled';
+const lOrigin=l=>{const b=logBean(l);return b&&b.origin&&b.origin!=='blend'?b.origin:''};
+const lRegion=l=>{const o=lOrigin(l),a=o&&ALLO()[o];return a&&REG[a.reg]?a.reg:''};
+const lBrewer=l=>{const k=l.brewer||l.snap&&l.snap.b||'';return k&&BREWERS[CANONB(k)]?CANONB(k):''};
+const lRecipe=l=>String(l.snap&&l.snap.rec||String(l.settings||'').split(',')[0]||'').trim();
+const LF_PER=[['','All time'],['30','Last 30 days'],['90','Last 3 months'],['365','Last year']];
+const lfOn=()=>[LF.coffee,LF.origin,LF.region,LF.brewer,LF.recipe,LF.taste,LF.who].reduce((n,a)=>n+(a.length?1:0),0)+(LF.min?1:0)+(LF.period?1:0);
+const lfName=()=>{const n=lfOn();return !n?'All brews':n===1?[LF.min?(LF.min===5?'5 beans':LF.min+' beans and up'):'',LF.who.length?selName(LF.who,w=>w==='me'?'Me':w,''):'',selName(LF.coffee,x=>x,''),selName(LF.origin,originName,''),selName(LF.region,r=>(REG[r]||{}).name||r,''),selName(LF.brewer,b=>(BREWERS[b]||{}).name||b,''),selName(LF.recipe,x=>x,''),selName(LF.taste,t=>TASTEW[t]||t,''),LF.period?(LF_PER.find(p=>p[0]===LF.period)||['',''])[1]:''].find(Boolean):n+' filters'};
 // A brew shows when it has the rating, is by one of the picked people (none picked: anyone) and matches the search.
-const lfKeep=l=>{const q=LF.q.trim().toLowerCase();return (+l.stars||0)>=LF.min&&inSel(LF.who,lWho(l))&&(!q||[l.coffee,l.settings,l.notes,l.by,flText(flOf(l))].join(' ').toLowerCase().includes(q))};
+const lfKeep=l=>{const q=LF.q.trim().toLowerCase();return (+l.stars||0)>=LF.min&&inSel(LF.who,lWho(l))&&inSel(LF.coffee,lCoffee(l))&&inSel(LF.brewer,lBrewer(l))&&inSel(LF.recipe,lRecipe(l))&&inSel(LF.taste,l.taste||'')&&
+  (!LF.period||(l.ts||Date.parse(l.date)||0)>=Date.now()-(+LF.period)*864e5)&&inSel(LF.origin,lOrigin(l))&&inSel(LF.region,lRegion(l))&&
+  (!q||[l.coffee,l.settings,l.notes,l.by,flText(flOf(l)),lOrigin(l)&&originName(lOrigin(l)),lBrewer(l)&&BREWERS[lBrewer(l)].name].join(' ').toLowerCase().includes(q))};
 function renderLogFilter(){const el=$('l-filter');if(!el)return;el.hidden=LOG.length<2;if(el.hidden)return;
   if(!$('lf-q'))el.innerHTML=ltHTML('lf',{q:{id:'lf-q',ph:'Search your brews',label:'Search your brews: coffee, recipe or notes',value:LF.q},filter:true,sort:true});
-  ltSync('lf',{on:!!LF.min||LF.who.length>0,filter:lfName(),sort:LOG_SORTS.find(x=>x[0]===LF.sort)[1]})}
-function openLogFilter(){openChoices({title:'Filter brews',one:'brew',get:k=>LF[k],set:(k,v)=>{LF[k]=k==='min'?+v:v},render:()=>{saveLF();renderLogList()},count:()=>LOG.filter(lfKeep).length,
-  secs:()=>{const people=GROUP?[...new Set(LOG.map(lWho))]:[];return [{h:'Rating',key:'min',opts:[[0,'All brews'],[4,'4 beans and up'],[5,'5 beans']]},
+  ltSync('lf',{on:lfOn()>0,filter:lfName(),sort:LOG_SORTS.find(x=>x[0]===LF.sort)[1]})}
+// The filter sheet: rating and period, then what you brewed (coffee, its origin and region), how (brewer, recipe), how
+// it tasted, and who (a shared log). A section shows only when there's a choice to make; the most brewed come first.
+function openLogFilter(){const tally=f=>{const m=new Map();for(const l of LOG){const v=f(l);if(v)m.set(v,(m.get(v)||0)+1)}return[...m].sort((a,b)=>b[1]-a[1]||String(a[0]).localeCompare(String(b[0])))};
+  const multi=(h,key,f,name,max)=>{const t=tally(f);return t.length>1?{h,key,multi:true,chips:1,opts:t.slice(0,max||40).map(([v,n])=>[v,name(v)+' · '+n])}:null};
+  openChoices({title:'Filter brews',one:'brew',get:k=>LF[k],set:(k,v)=>{LF[k]=k==='min'?+v:v},render:()=>{saveLF();renderLogList()},count:()=>LOG.filter(lfKeep).length,
+  secs:()=>{const people=GROUP?[...new Set(LOG.map(lWho))]:[];return [{h:'Rating',key:'min',chips:1,opts:[[0,'All brews'],[4,'4 beans and up'],[5,'5 beans']]},
+    {h:'When',key:'period',chips:1,opts:LF_PER},
+    multi('Coffee','coffee',lCoffee,x=>x,60),multi('Origin','origin',lOrigin,originName),multi('Region','region',lRegion,r=>(REG[r]||{}).name||r),
+    multi('Brewer','brewer',lBrewer,b=>BREWERS[b].name),multi('Recipe','recipe',lRecipe,x=>x,30),multi('How it tasted','taste',l=>l.taste||'',t=>TASTEW[t]||t),
     people.length>1?{h:'Brewed by',key:'who',multi:true,chips:1,opts:[['all','Everyone'],...people.map(p=>[p,p==='me'?'Me':p])]}:null]}})}
 function openLogSort(){openChoices({title:'Sort brews',one:'brew',get:()=>LF.sort,set:(k,v)=>{LF.sort=v},render:()=>{saveLF();renderLogList()},count:()=>LOG.filter(lfKeep).length,secs:()=>[{key:'sort',opts:LOG_SORTS}]})}
 // The brew slider is only drawn while the Log page is open (or ahead of time, when the app is idle). A redraw asked
@@ -9079,6 +9131,8 @@ function renderLogList(force){const sec=$('log');if(!force&&sec&&!sec.classList.
   let rows=LOG.map((l,i)=>[l,i]).filter(([l])=>lfKeep(l));
   LLN=rows.length;const ts=l=>l.ts||Date.parse(l.date)||0;
   rows.sort(LF.sort==='old'?(a,b)=>ts(a[0])-ts(b[0]):LF.sort==='top'?(a,b)=>(+b[0].stars||0)-(+a[0].stars||0)||ts(b[0])-ts(a[0]):LF.sort==='az'?(a,b)=>(a[0].coffee||'').localeCompare(b[0].coffee||'')||ts(b[0])-ts(a[0]):(a,b)=>ts(b[0])-ts(a[0]));
+  // Each slide's heading follows the order: when (newest, oldest), its rating (highest rated) or its coffee (A–Z).
+  const grp=l=>LF.sort==='top'?((+l.stars||0)?Math.round(+l.stars)+' bean'+(Math.round(+l.stars)===1?'':'s'):'Not rated'):LF.sort==='az'?lCoffee(l):logGroup(l);
   // One brew per slide, swiped sideways in the chosen order; each slide says when it was brewed.
   let h='<div class="le-nav"><span class="le-pos" id="l-pos" aria-live="polite">'+(rows.length>1?'1 of '+rows.length:'')+'</span>'+(rows.length>1?'<button type="button" class="le-arr" data-lgo="-1" aria-label="Previous brew" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><button type="button" class="le-arr" data-lgo="1" aria-label="Next brew"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>':'')+'</div><div class="le-track'+(rows.length===1?' one':'')+'" id="l-track">';
   // Only the slides near the one on screen are filled (more as you swipe): with thousands of brews, building every
@@ -9088,10 +9142,10 @@ function renderLogList(force){const sec=$('log');if(!force&&sec&&!sec.classList.
   const keepX=$('l-track')?$('l-track').scrollLeft:0;
   $('l-list').innerHTML=!LOG.length?'<div class="bg-empty ic">'+lIc('cup')+'<b>No brews yet</b><p>Dial one in and brew it, then tap “Log this brew”. Or fill in the form above.</p>'+pbtn('again','data-empty="dial"','Dial in a brew','main empty-go')+'</div>':
     rows.length?(rows.length<LOG.length?'<p class="le-count">Showing '+rows.length+' of '+LOG.length+' brews</p>':'')+h:'<div class="bg-empty ic">'+lIc('search')+'<b>No brews match</b><p>Nothing in your log fits these filters.</p><button type="button" class="pbtn empty-go" id="lf-clear">Clear the filters</button></div>';
-  const c=$('lf-clear');if(c)c.onclick=()=>{LF.q='';const qi=$('lf-q');if(qi)qi.value='';LF.min=0;LF.who=[];saveLF();renderLogList()};
+  const c=$('lf-clear');if(c)c.onclick=()=>{LF.q='';const qi=$('lf-q');if(qi)qi.value='';LF.min=0;LF.period='';for(const k of ['who','coffee','origin','region','brewer','recipe','taste'])LF[k]=[];saveLF();renderLogList()};
   const tr=$('l-track');
   const fill=k=>{if(!tr)return;for(let j=Math.max(0,k-2);j<=Math.min(rows.length-1,k+3);j++){const sl=tr.children[j];if(!sl||sl.dataset.f)continue;const [l,i]=rows[j];sl.dataset.f=1;
-    sl.innerHTML='<h3 class="le-day">'+esc(logGroup(l))+'</h3>'+logEntryHTML(l,i);if(typeof hydrateImgs==='function')hydrateImgs(sl)}};
+    sl.innerHTML='<h3 class="le-day">'+esc(grp(l))+'</h3>'+logEntryHTML(l,i);if(typeof hydrateImgs==='function')hydrateImgs(sl)}};
   const slideAt=()=>tr&&tr.firstElementChild?Math.round(tr.scrollLeft/(tr.firstElementChild.offsetWidth+12)):0;
   if(tr&&keepX)tr.scrollLeft=keepX;fill(slideAt());
   if(tr&&rows.length>1){const pos=$('l-pos'),[pv,nx]=$('l-list').querySelectorAll('[data-lgo]');let raf=0;
@@ -9114,7 +9168,8 @@ function renderLog(){renderShare();renderLastBrew();
 // Flavour notes: a little profile wheel on each brew, and the notes as chips.
 // With none yet, the add button sits in the brew's row of pills (see logEntryHTML).
 function flEntry(l,i){const fl=flOf(l);if(!fl.length)return '';
-  return'<div class="fl-entry"><button type="button" class="fl-mini" data-flview="'+i+'" aria-label="Open the flavour profile">'+fwStatic(fl)+'</button><div><div class="chips" style="margin:0 0 4px">'+flChips(fl)+'</div>'+icoBtn('edit','data-fledit="'+i+'"','Edit the flavour notes')+'</div></div>'}
+  // The wheel, then the notes as a row of chips that wraps, the edit button at its end (not on a line of its own).
+  return'<div class="fl-entry"><button type="button" class="fl-mini" data-flview="'+i+'" aria-label="Open the flavour profile">'+fwStatic(fl)+'</button><div class="chips fl-chips">'+flChips(fl)+icoBtn('edit','data-fledit="'+i+'"','Edit the flavour notes')+'</div></div>'}
 function renderFlForm(){$('l-flchips').innerHTML=flChips(LFL);$('l-fl').querySelector('span').textContent=LFL.length?'Add more from the flavour wheel':'Find it on the flavour wheel';
   // What the bag promised: tap a note you tasted to add it to your cup. Words that aren't on the wheel are shown, not added.
   const bag=$('l-bag'),b=lBean(),words=b&&b.flavours&&typeof tnSplit==='function'?tnSplit(b.flavours):[];bag.hidden=!words.length;if(!words.length){bag.innerHTML='';return}
@@ -9172,7 +9227,8 @@ function againPlan(l){const s=l&&window.CARD_OK?okSnap(l.snap):null;if(!s)return
   const dose=s.dose||r.dose,water=s.water||r.water,steps=s.steps.length&&s.steps.length<14?s.steps:scaleSteps(r,dose,water);
   return{idx,why,p:{r:{dose},water,steps,grinder:g||undefined,set:g?{[g]:set}:{},temp,brewer:b,bean:beanId}}}
 function brewAgain(l){const a=againPlan(l);if(!a)return;openTimer(a.idx,a.p);if(a.why)setTimeout(()=>toast(a.why),350)}
-$('l-list').onclick=e=>{const ag=e.target.closest('[data-again]');if(ag){const l=LOG[+ag.dataset.again];if(l)brewAgain(l);return}
+$('l-list').onclick=e=>{
+  const ag=e.target.closest('[data-again]');if(ag){const l=LOG[+ag.dataset.again];if(l)brewAgain(l);return}
   const ls=e.target.closest('[data-lshare]');if(ls){const l=LOG[+ls.dataset.lshare];if(l)openShare(logEntryDoc(l));return}
   const fe=e.target.closest('[data-fledit]'),fv=e.target.closest('[data-flview]'),ed=e.target.closest('[data-edit]');
   if(ed){const l=LOG[+ed.dataset.edit];if(l&&canEdit(l))editBrew(l);return}
@@ -10819,11 +10875,11 @@ function bkTarget(){if(FAB_OPEN)return null;const d=[...document.querySelectorAl
   const s=document.querySelector('main section.on');if(!s||NAVD<=0||BNGROUP[s.id]===s.id)return null;
   // A page is taller than the screen: it shrinks around the middle of what you see.
   return{el:s,o:'50% '+Math.round(scrollY+innerHeight/2-s.getBoundingClientRect().top-scrollY)+'px'}}
-window.bbBackStart=edge=>{if(RM())return;bkEnd(true);const t=bkTarget();if(!t)return;BK={el:t.el,dir:edge==='right'?-1:1};
+window.bbBackStart=edge=>{uncover();if(RM())return;bkEnd(true);const t=bkTarget();if(!t)return;BK={el:t.el,dir:edge==='right'?-1:1};
   const st=t.el.style;st.transformOrigin=t.o;st.transition='none';t.el.classList.add('bk-drag');bkSet(0)};
 function bkSet(p){if(!BK)return;const st=BK.el.style;st.setProperty('--bk-x',(BK.dir*p*28).toFixed(1)+'px');st.setProperty('--bk-s',(1-p*.08).toFixed(3))}
 window.bbBackMove=p=>{if(BK)bkSet(clamp(+p||0,0,1))};
-window.bbBackCancel=()=>{if(!BK)return;const el=BK.el;el.style.transition='transform .2s var(--ease-out)';bkSet(0);const b=BK;BK=null;setTimeout(()=>{if(!BK||BK!==b)bkClear(el)},230)};
+window.bbBackCancel=()=>{const top=[...document.querySelectorAll('dialog[open]:not(.closing)')].pop();if(top)coverUnder(top);if(!BK)return;const el=BK.el;el.style.transition='transform .2s var(--ease-out)';bkSet(0);const b=BK;BK=null;setTimeout(()=>{if(!BK||BK!==b)bkClear(el)},230)};
 // Back went ahead: the drag's look stays for the slide-out to start from, and is cleared once that's over.
 function bkEnd(now){if(!BK)return;const el=BK.el;BK=null;if(now)bkClear(el);else setTimeout(()=>bkClear(el),450)}
 function bkClear(el){el.classList.remove('bk-drag');for(const k of ['--bk-x','--bk-s','transform-origin','transition'])el.style.removeProperty(k)}

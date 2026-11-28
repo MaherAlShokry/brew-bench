@@ -11,7 +11,9 @@ await p.goto('http://localhost:8099/index.html');await p.evaluate(require('./see
 // 1. Back from a page inside Settings: the viewport never changes size and the scroll stays put.
 await p.evaluate(()=>showTab('settings'));await p.waitForTimeout(700);await p.evaluate(()=>scrollTo(0,200));await p.waitForTimeout(300);
 await p.evaluate(()=>document.querySelector('#settings [data-go="log"]').click());await p.waitForTimeout(900);
-const z=await p.evaluate(()=>new Promise(r=>{const h=[],y=[];const t0=performance.now();const f=()=>{h.push(innerHeight);y.push(Math.round(scrollY));if(performance.now()-t0<900)requestAnimationFrame(f);else r({h:[...new Set(h)],y:[...new Set(y)]})};history.back();requestAnimationFrame(f)}));
+const z=await p.evaluate(()=>new Promise(r=>{const h=[],y=[];let t0;const f=()=>{h.push(innerHeight);y.push(Math.round(scrollY));if(performance.now()-t0<900)requestAnimationFrame(f);else r({h:[...new Set(h)],y:[...new Set(y)]})};
+  // Sampled from the moment back has happened (before that the log is still showing, at its top).
+  addEventListener('popstate',()=>{t0=performance.now();requestAnimationFrame(f)},{once:true});history.back()}));
 ok('going back never zooms the app out',z.h.length===1,z);ok('…and the page stays where you were',z.y.length===1&&Math.abs(z.y[0]-200)<=2,z);
 // 2. Surprise me with the Switch: the real Switch recipes, all of them before any repeats.
 await p.evaluate(()=>{showTab('recipes')});await p.waitForTimeout(600);await p.evaluate(()=>document.querySelector('#rhome [data-q="surprise"]').click());await p.waitForTimeout(700);
@@ -33,5 +35,13 @@ ok('the clock stops at a hold and waits',h1.el===45&&!h1.run&&h1.step==='Your mo
 await p.evaluate(()=>$('tm-skip').click());await p.waitForTimeout(500);
 const h2=await p.evaluate(()=>({el:TM.el,run:TM.run,now:$('tm-now').textContent}));
 ok('Next carries on from there, into the pour',h2.run&&h2.el>=45&&h2.el<46.5&&/Pour to 120g/.test(h2.now),h2);
+// The valve: a chip with the brew's details (closed until you've opened it), and the valve turning in the card at a hold.
+const v=await p.evaluate(()=>{TM.held.clear();$('tm-skip').click;TM.hold=null;TM.el=0;TM.t0=performance.now();TM.run=true;TM.t0-=46000;tick();return{chip:$('tm-valve').textContent,flip:(document.querySelector('#tm-card .tm-vflip')||{}).className,pill:!!document.querySelector('.tm-center .tm-valve'),inCard:!!document.querySelector('#tm-card .tm-cardtop #tm-valve')}});
+ok('the valve: in the step card it says closed, the card shows it turning open, no pill in the ring',v.chip==='Valve closed'&&v.inCard&&/tm-vflip open/.test(v.flip||'')&&!v.pill,v);
 await p.evaluate(()=>$('timer').close());
+// The + menu on Beans: the top bar stays where it is while the menu is open.
+await p.evaluate(()=>showTab('beans'));await p.waitForTimeout(700);await p.evaluate(()=>scrollTo(0,150));await p.waitForTimeout(300);
+const ab0=await p.evaluate(()=>Math.round($('appbar').getBoundingClientRect().top));await p.evaluate(()=>$('b-fab-add').click());await p.waitForTimeout(500);
+const ab1=await p.evaluate(()=>({top:Math.round($('appbar').getBoundingClientRect().top),lock:document.documentElement.classList.contains('fab-lock')}));
+ok('the + menu keeps the top bar in place',ab1.lock&&ab1.top===ab0,{ab0,ab1});await p.evaluate(()=>FAB_OPEN&&FAB_OPEN());
 ok('no page errors',!errs.length,errs);await b.close()})();

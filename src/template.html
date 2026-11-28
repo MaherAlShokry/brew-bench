@@ -2841,17 +2841,37 @@ html.sheeting :is(.seg.bviews,.gtabs,.appbar,.minires,.bottomnav){-webkit-backdr
 .t3hm-i{width:auto;flex-direction:row;align-items:center;gap:10px;text-align:left}
 .t3hm-i .bpic{flex:none;width:40px;height:40px}
 .t3hm-i small{max-width:none;text-align:left;font-size:.8rem;line-height:1.25}
-/* The brew log: the list of brews (the last thing on the page, below the first screen) is skipped until you scroll
-   to it, so opening the log (from Settings, say) draws one screen, not every brew you've logged. Nothing above the
-   list is skipped, so nothing you scroll to moves. */
+/* The brew card, tidied: its details in an even two-column grid (each pill the column's width, long names cut with
+   an ellipsis), and the flavour notes as one wrapping row beside the wheel, ending with a small edit button. */
+.le2 .le-pills{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.le2 .le-pill{justify-content:flex-start;padding:6px 10px 6px 9px;border-radius:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.le2 .le-pill svg+*{overflow:hidden;text-overflow:ellipsis}
+.le2 .fl-entry{align-items:center;gap:14px}.le2 .fl-mini{width:76px;height:76px}
+.le2 .fl-chips{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0}
+.le2 .fl-chips .icobtn,.le2 .fl-chips button:last-child{width:34px;height:34px;min-height:34px;padding:0}
 #l-list>.le-track{content-visibility:auto;contain-intrinsic-size:auto 420px}
-/* Timer: the valve badge in the ring (closed: accent; open: green) and, at the moment to flip it, a gentle pulse. */
-.tm-valve{display:inline-flex;align-items:center;gap:5px;margin:8px auto 0;padding:3px 10px 3px 6px;border-radius:999px;font-size:.78rem;font-weight:700;background:color-mix(in srgb,var(--cherry) 14%,var(--surface));color:var(--cherry)}
-.tm-valve[hidden]{display:none}
-.tm-valve svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
-.tm-valve.open{background:color-mix(in srgb,var(--leaf) 18%,var(--surface));color:var(--leaf-ink)}
-.tm-valve.flip{animation:tmHoldP 1.4s ease-in-out infinite}
-@media (prefers-reduced-motion:reduce){.tm-valve.flip{animation:none}}
+/* A full-page sheet fully covered by another (see coverUnder): not drawn until the one on top starts to leave. */
+dialog.covered{visibility:hidden}
+/* Timer header: the name between the close and cue buttons (centred on them), then the brew's details as pills in
+   one straight row of their own, from the same left edge as the close button; a long grinder name scrolls sideways. */
+.tm-top{align-items:center!important}.tm-head h2{margin:0!important}
+.tm-meta{flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;margin:12px 0 0;gap:6px!important}.tm-meta::-webkit-scrollbar{display:none}
+.tm-meta span{flex:none;display:inline-flex;align-items:center;gap:6px;padding:6px 12px 6px 10px!important;font-size:.82rem!important;white-space:nowrap;font-variant-numeric:tabular-nums}
+.tm-meta span svg{width:15px;height:15px;fill:none;stroke:var(--muted);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+/* The step card's top row: the step count, and opposite it the valve, coloured by where it is (closed: the accent;
+   open: green). At a flip, the valve in the card with its lever turning. */
+.tm-cardtop{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:22px}
+.tm-vchip{flex:none;display:inline-flex;align-items:center;gap:5px;padding:3px 10px 3px 7px;border-radius:999px;font-size:.74rem;font-weight:700;letter-spacing:.02em;
+  color:var(--cherry);background:color-mix(in srgb,var(--cherry) 12%,var(--surface))}.tm-vchip[hidden]{display:none!important}
+.tm-vchip.open{color:var(--leaf-ink);background:color-mix(in srgb,var(--leaf) 16%,var(--surface))}
+.tm-vchip svg,.tm-vflip svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.tm-vchip svg{width:14px;height:14px}
+.tm-vflip{float:left;display:grid;place-items:center;width:44px;height:44px;margin:-4px 12px 0 0;border-radius:50%;background:var(--surface);color:var(--cherry);box-shadow:var(--e1)}
+.tm-vflip svg{width:30px;height:30px;stroke-width:1.8}
+.tm-vflip .lv{stroke-width:2.6;transform-box:view-box;transform-origin:12px 12px}
+.tm-vflip.open .lv{animation:tmLvOpen .7s .2s var(--ease-out) both}.tm-vflip.closed .lv{animation:tmLvClose .7s .2s var(--ease-out) both}
+@keyframes tmLvOpen{from{transform:rotate(90deg)}to{transform:rotate(0deg)}}@keyframes tmLvClose{from{transform:rotate(0deg)}to{transform:rotate(90deg)}}
+@media (prefers-reduced-motion:reduce){.tm-vflip .lv{animation-duration:1ms!important;animation-delay:0s!important}}
 /* Timer: a step that waits for you (close the valve, flip, kettle to a new temperature). The card says so and the
    tick under it, which carries on, gently pulses (a transform: drawn by the GPU, not repainted). */
 .tm-now.hold .tm-step{color:var(--cherry);font-weight:700}
@@ -3148,7 +3168,9 @@ main section.on.fabbed{padding-bottom:160px!important}
 @keyframes fabScrim{from{opacity:0}to{opacity:1}}
 html.fab-lock #toast{opacity:0!important;pointer-events:none}
 /* An open + menu holds the page still. */
-html.fab-lock,html.fab-lock body{overflow:hidden!important;overscroll-behavior:none}
+/* The page stays put under the + menu. Only <html> is locked: locking <body> too made it a scroll box of its own,
+   and the top bar (sticky to whatever scrolls) jumped out of sight while the menu was open. */
+html.fab-lock{overflow:hidden!important;overscroll-behavior:none}
 .fab-scrim{touch-action:none}
 @media (prefers-reduced-motion:reduce){.fab.fab-in .ib,.fab-mi,.fab-menu,.fab-scrim{animation:none}.fab-main svg{transition:none}}
 /* Text boxes keep their size: no resize handle. */
