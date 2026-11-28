@@ -2884,6 +2884,39 @@ html.sheeting :is(.seg.bviews,.gtabs,.appbar,.minires,.bottomnav){-webkit-backdr
    screen. Opening either drew all of it at once (a Diary of 2,700 elements, 4,000 px tall),
    which stalled the first frame of the switch on a phone. Each keeps its last size, so the page doesn't jump. */
 #dy-list>.dy-grp{content-visibility:auto;contain-intrinsic-size:auto 900px}
+.lst-list{display:flex;flex-direction:column;gap:18px;padding:4px 0 8px}
+.lst{position:relative;display:block;width:100%;padding:0;border:0;background:none;text-align:left;color:inherit;font:inherit;cursor:pointer}
+/* The stack: two cards peeking out under the top one, as many as there are brews (up to two). */
+.lst.many::before,.lst.many::after{content:"";position:absolute;left:14px;right:14px;bottom:-6px;height:20px;border-radius:0 0 18px 18px;background:var(--surface);border:1px solid var(--line);border-top:0;opacity:.75}
+.lst.many::after{left:26px;right:26px;bottom:-11px;opacity:.45}
+.lst-card{position:relative;z-index:1;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:20px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--e1)}
+.lst:active .lst-card{transform:scale(.985)}
+.lst-card .bpic,.lst-card .le-init{width:48px;height:56px;border-radius:12px;flex:none}.lst-card .le-init{height:48px}
+.lst-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.lst-tx b{font:700 1rem/1.25 var(--display);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.lst-tx small{color:var(--muted);font-size:.8rem}
+.lst-rec{align-self:flex-start;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:3px;padding:3px 10px;border-radius:99px;background:var(--surface2);font-size:.76rem;font-weight:600}
+.lst-rate{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:4px}.lst-rate b{font:800 1.05rem var(--display)}.lst-rate .brate,.lst-rate .rb{font-size:10px}
+.lst-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 0 10px}.lst-bar>span{color:var(--muted);font-size:.86rem;font-weight:600}.lst-back{margin:0}.lst-back svg{width:16px;height:16px}
+#sel-in .rs-chips{gap:7px}#sel-in .rs-chip{min-height:34px;padding:6px 13px;font-size:.84rem;line-height:1.2}
+#sel-in .rs-sec+.rs-sec{border-top:1px solid var(--line);margin-top:6px;padding-top:10px}
+.rs-groups{display:flex;flex-direction:column;gap:12px}.rs-sub{display:block;margin:0 4px 6px;font-size:.76rem;font-weight:600;color:var(--muted)}
+/* Badges beside a recipe's name: round, the size of the title's capitals, sitting on its line. */
+.rr-badge{flex:none;display:grid;place-items:center;width:20px;height:20px;margin-left:-1px;border-radius:50%;font-style:normal}
+.mk-ht .rr-badge{display:inline-grid;vertical-align:-4px;margin-left:7px}
+.rr-t{flex-wrap:nowrap!important;column-gap:8px!important}.rr-t b{min-width:0}
+.rr-badge svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
+.rr-badge.champ{background:color-mix(in srgb,var(--honey) 26%,var(--surface));color:color-mix(in srgb,var(--honey) 60%,var(--ink))}
+.rr-badge.ours{background:color-mix(in srgb,var(--leaf) 22%,var(--surface));color:color-mix(in srgb,var(--leaf) 60%,var(--ink))}
+.rr-by .rr-who{white-space:nowrap}
+.pill.pill-champ{background:color-mix(in srgb,var(--honey) 22%,var(--surface));color:color-mix(in srgb,var(--honey) 45%,var(--ink))}.pill.pill-champ svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round;margin-right:5px;vertical-align:-2px}
+.vd-by-p{white-space:nowrap}
+.le2 .le-pill.wide{grid-column:1/-1}.le2 .le-pills{grid-auto-flow:row dense}
+.l-top{display:flex;gap:10px;align-items:center;margin:0 0 14px}
+.l-new{flex:1;justify-content:center;min-height:52px;font-size:1rem}.l-new svg{width:20px;height:20px;transition:transform .25s var(--ease,ease)}
+.l-new.on svg{transform:rotate(45deg)}
+.l-sharebtn{position:relative;flex:none;width:52px;height:52px}.l-sharebtn svg{width:22px;height:22px}
+.l-sharebtn .l-live{position:absolute;top:9px;right:9px;width:9px;height:9px;border-radius:50%;background:var(--leaf);box-shadow:0 0 0 2px var(--paper);display:none}.l-sharebtn.live .l-live{display:block}
+.l-fold{margin:0 0 16px}
+@keyframes l-unfold{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}.l-unfold{animation:l-unfold .28s var(--ease,ease) both}
 #l-palate{content-visibility:auto;contain-intrinsic-size:auto 320px}
 #l-list>.le-track{content-visibility:auto;contain-intrinsic-size:auto 420px}
 /* A full-page sheet fully covered by another (see coverUnder): not drawn until the one on top starts to leave. */
@@ -3974,8 +4007,11 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <!-- LOG -->
 <section id="log">
   <h2>Brew log</h2>
-  <div class="panel sharepanel" id="l-share" style="margin-bottom:14px"></div>
-  <div class="panel" id="l-form" style="margin-bottom:18px">
+  <!-- Like the other sections: what you do here first (log a brew), then your numbers, then the history. The form opens
+       in place under its button; the shared log is a small button beside it, its panel opening under it the same way. -->
+  <div class="l-top"><button type="button" class="pbtn main l-new" id="l-new" aria-expanded="false" aria-controls="l-form"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14 M5 12h14"/></svg><span>Log a brew</span></button><button type="button" class="ib l-sharebtn" id="l-sharebtn" aria-expanded="false" aria-controls="l-share" aria-label="Shared log" title="Shared log" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z M3 20c.6-3.4 3-5.5 6-5.5s5.4 2.1 6 5.5 M16 11a3 3 0 1 0 0-6 M17.5 14.6c1.9.6 3.2 2.5 3.5 5.4"/></svg><i class="l-live" aria-hidden="true"></i></button></div>
+  <div class="panel sharepanel l-fold" id="l-share" hidden></div>
+  <div class="panel l-fold" id="l-form" hidden>
     <p class="hint l-editing" id="l-editing" hidden></p>
     <div class="logform re2">
       <div class="re-card"><h3 class="re-h"><i>1</i>The brew</h3>
@@ -3995,7 +4031,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
   </div>
   <div id="l-stats"></div>
   <div class="panel palate" id="l-palate" hidden></div>
-  <div class="shelf-h l-head"><b>Your brews</b><span class="rov-acts"><button type="button" class="sh-mini ic" id="l-csv" aria-label="Download the log as CSV" title="Download the log as CSV" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11 M7.5 10.5L12 15l4.5-4.5 M5 19.5h14"/></svg></button></span></div>
+  <div class="shelf-h l-head"><b>History</b><span class="rov-acts"><button type="button" class="sh-mini ic" id="l-csv" aria-label="Download the log as CSV" title="Download the log as CSV" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11 M7.5 10.5L12 15l4.5-4.5 M5 19.5h14"/></svg></button></span></div>
   <div class="lf" id="l-filter" hidden></div>
   <div id="l-list"></div>
 <div class="fab" role="group" aria-label="Log actions"><button type="button" class="ib main" id="l-fab-new" aria-label="Log a brew" title="Log a brew"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14 M5 12h14"/></svg></button></div>

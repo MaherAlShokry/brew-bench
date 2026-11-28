@@ -24,6 +24,8 @@ await p.evaluate(()=>$('l-save').click());await p.waitForTimeout(500);
 const e=await p.evaluate(()=>({coffee:LOG[0].coffee,fl:LOG[0].fl,bean:(LOG[0].snap&&LOG[0].snap.bean&&LOG[0].snap.bean.id)||LOG[0].beanId,first:BEANS[0].id,stars:LOG[0].stars}));ok(e.bean===e.first&&e.fl.length===2&&e.stars===4,'saved with bean, notes and stars',e);
 ok(await p.evaluate(()=>!document.querySelector('#l-bean .l-beancard')&&!$('l-coffee-f').hidden),'form resets');
 // pick a bean manually
+ok(await p.evaluate(()=>$('l-form').hidden&&$('l-new').getAttribute('aria-expanded')==='false'),'saving folds the form away');
+await p.click('#l-new');await p.waitForTimeout(400);ok(await p.evaluate(()=>!$('l-form').hidden),'Log a brew opens it again');
 await p.click('#l-beanchg');await p.waitForTimeout(500);ok(/did you brew/.test(await p.textContent('#vd-title')),'picker asks which you brewed');
 await p.click('#bp-body [data-usebean]');await p.waitForTimeout(400);ok(await p.evaluate(()=>!!document.querySelector('#l-bean .l-beancard')),'picked bean shows as card');
 // edit an entry restores the bean

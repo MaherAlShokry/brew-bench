@@ -183,8 +183,11 @@ function segBatch(list,instant){const items=[];
 // for a frame where it was last (off by however much the layout moved since).
 // Strips further down the page are placed a moment later, when the phone is idle (still straight at their option), so
 // opening a long page like Settings doesn't lay out its far end first.
+// Nothing is measured in the tap: a strip already placed keeps its highlight where it was (the layout rarely moves), and
+// every strip is checked once the page has slid in. Measuring each one here laid the whole app out inside the tap,
+// 30 ms and more on a phone with a big gallery, on every tab switch. A strip never placed shows its own pressed look.
 function segShown(sec){const all=[...sec.querySelectorAll(SEG_SEL)];if(!all.length)return;all.forEach(x=>x._stale=0);
-  const H=innerHeight+120,near=[],far=[];for(const x of all){const t=x.offsetParent?x.getBoundingClientRect().top:H+1;(t<H?near:far).push(x)}
+  const near=[],far=all.filter(x=>x.classList.contains('has-ind')||(near.push(x),false));
   if(near.length)segBatch(near,true);if(far.length){const go=()=>{if(sec.classList.contains('on'))segBatch(far.filter(x=>x.isConnected),true)};
     // Strips below the screen are placed after the page has finished sliding in, not during it.
     setTimeout(()=>window.requestIdleCallback?requestIdleCallback(go,{timeout:600}):go(),650)}}

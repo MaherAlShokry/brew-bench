@@ -3,7 +3,7 @@
 const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const errs=[];const p=await b.newPage({viewport:{width:390,height:844},deviceScaleFactor:2});p.on('pageerror',e=>errs.push(e.message));
 await p.addInitScript(()=>{sessionStorage.setItem('bb-splashed','1');localStorage.setItem('bb-profile',JSON.stringify({nick:'Sam',name:'Sam',since:Date.now(),updated:Date.now()}))});await p.goto('http://localhost:8099/index.html');await p.evaluate(require('./seed2.cjs'));await p.reload();await p.waitForTimeout(900);
 const ok=(n,c,x)=>console.log((c?'ok  ':'FAIL')+' '+n+(x!==undefined?'  ('+JSON.stringify(x)+')':''));
-await p.evaluate(()=>{goTab('log')});await p.waitForTimeout(400);
+await p.evaluate(()=>{goTab('log');openLogForm(false)});await p.waitForTimeout(400);
 await p.click('#l-stars [data-s="4"]');await p.waitForTimeout(120);
 ok('bean rating picks 4',await p.evaluate(()=>STAR===4&&document.querySelectorAll('#l-stars button.lit').length===4&&!!document.querySelector('#l-stars button svg .bo')));
 await p.evaluate(()=>{document.querySelector('.l-rate').scrollIntoView({block:'center'})});await p.screenshot({path:'br-form.png',clip:{x:0,y:250,width:390,height:330}});

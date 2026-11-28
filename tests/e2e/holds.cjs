@@ -19,7 +19,7 @@ ok('going back never zooms the app out',z.h.length===1,z);ok('…and the page st
 await p.evaluate(()=>{showTab('recipes')});await p.waitForTimeout(600);await p.evaluate(()=>document.querySelector('#rhome [data-q="surprise"]').click());await p.waitForTimeout(700);
 await p.evaluate(()=>{const c=document.querySelector('#vd-in [data-mk="b"][data-v="sw"]');if(c)c.click();const l=document.querySelector('#vd-in [data-lock="b"]');if(l)l.click()});await p.waitForTimeout(200);
 const sw=await p.evaluate(async()=>{const n=RECIPES.filter(r=>RFAM(r.b)==='sw'&&!ICED(r)).length,seen=[];for(let i=0;i<n;i++){seen.push($('vd-in').querySelector('.mk-ht b').textContent);$('mk-again').click();await new Promise(r=>setTimeout(r,60))}
-  return{n,distinct:new Set(seen).size,lib:seen.every(t=>RECIPES.some(r=>r.name===t)),btn:$('mk-save').textContent}});
+  return{n,distinct:new Set(seen).size,lib:seen.every(t=>RECIPES.some(r=>rTitle(r)===t)),btn:$('mk-save').textContent}});
 ok('Surprise me goes through every Switch recipe before repeating',sw.n>=4&&sw.distinct===sw.n&&sw.lib,sw);ok('…and its button brews that recipe',/Brew it/.test(sw.btn),sw.btn);
 await p.evaluate(()=>$('vd').close());
 // 3. The bag's notes, as written, each matched to a wheel note.
@@ -28,7 +28,7 @@ ok('bag notes split on , & / and, kept as written, matched to the wheel',JSON.st
 // 4. The timer holds at the valve and the kettle, and carries on with Next.
 const i=await p.evaluate(()=>RECIPES.findIndex(r=>r.name==='New Hybrid (2025)'));await p.evaluate(i=>openTimerNow(i),i);await p.waitForTimeout(400);
 const hs=await p.evaluate(()=>TM.ev.filter(e=>e.h).map(e=>mmss(e.t)+' '+stepTxt(e.s)));
-ok('valve and kettle steps are holds',JSON.stringify(hs)===JSON.stringify(['0:45 Open the valve.','2:10 Close the valve, water at 70°C.','2:45 Open the valve.']),hs);
+ok('valve and kettle steps are holds',JSON.stringify(hs)===JSON.stringify(['0:45 Open the valve.','1:30 Pour to 200g.','1:30 Cool the kettle to about 70°C.','2:10 Close the valve, water at 70°C.','2:10 Pour to 300g with the 70°C water.','2:45 Open the valve.']),hs);
 await p.evaluate(()=>$('tm-go').click());await p.evaluate(()=>{TM.t0-=46000});await p.waitForTimeout(900);
 const h1=await p.evaluate(()=>({el:Math.round(TM.el),run:TM.run,step:$('tm-step').textContent}));
 ok('the clock stops at a hold and waits',h1.el===45&&!h1.run&&h1.step==='Your move',h1);
@@ -52,4 +52,8 @@ const ho=await p.evaluate(()=>{const H=n=>{const r=RECIPES.find(x=>x.name===n),h
 ok('a stir, a swirl and the plunger wait for Next',ho.v60.some(s=>/^1:45 Stir once each way/.test(s))&&ho.clever.length===2&&ho.siphon.some(s=>/^1:00 Take off the heat\.$/.test(s)),ho);
 ok('…a pour with a swirl, "stir for 10 seconds" and the last step keep the clock',!ho.onecup.length&&!ho.orig.length&&!ho.single.length,ho);
 ok('the recipe page marks the same steps',ho.page.length===1&&/1:45/.test(ho.page[0]),ho.page);
+// 6. A pour that a steep follows waits for you, and cooling the kettle is its own step that waits too.
+const pk=await p.evaluate(()=>{const H=n=>{const r=RECIPES.find(x=>x.name===n),h=holdSteps(r.steps,r.temp);return h.steps.map((s,i)=>(h.holds.has(i)?'W ':'  ')+s)};return{nh:H('New Hybrid (2025)'),sh:H('Standard hybrid')}});
+ok('the kettle is its own waiting step, after the pour, which waits too',pk.nh.includes('W 1:30 Pour to 200g.')&&pk.nh.includes('W 1:30 Cool the kettle to about 70°C.'),pk.nh);
+ok('…a pour before a steep waits, so the steep is timed from when you tap Next',pk.nh.includes('W 2:10 Pour to 300g with the 70°C water.')&&pk.nh.some(s=>/^  2:20 let it steep/.test(s))&&pk.sh.some(s=>/^W 0:45 pour to 300g/.test(s)),{nh:pk.nh,sh:pk.sh});
 ok('no page errors',!errs.length,errs);await b.close()})();

@@ -10,8 +10,15 @@ await p.evaluate(()=>goTab('log'));await p.waitForTimeout(800);
 const n=await p.evaluate(()=>$('l-track').children.length);
 await p.evaluate(()=>document.querySelector('[data-lgo="1"]').click());await p.waitForTimeout(700);
 const s1=await p.evaluate(()=>[$('l-pos').textContent,document.querySelector('[data-lgo="-1"]').disabled]);ok('the next arrow moves one brew',s1[0]==='2 of '+n&&!s1[1],s1);
-const g=await p.evaluate(()=>{const h=()=>(document.querySelector('#l-track .le-day')||{}).textContent;LF.sort='az';renderLogList(true);const az=h();LF.sort='top';renderLogList(true);const top=h();LF.sort='new';renderLogList(true);return{az,top,first:LOG.map(lCoffee).sort((a,b)=>a.localeCompare(b))[0]}});
-ok('the heading follows the order: the coffee (A–Z), the rating (highest rated)',g.az===g.first&&/beans?$/.test(g.top),g);
+// By coffee (A–Z) the brews stack, one stack per coffee in order; a stack opens that coffee's brews, headed by when.
+const g=await p.evaluate(()=>{const h=()=>(document.querySelector('#l-track .le-day')||{}).textContent;LF.sort='az';renderLogList(true);const st=[...document.querySelectorAll('[data-lstack]')].map(x=>x.dataset.lstack);
+  document.querySelector('[data-lstack]').click();const inside={coffee:LF.coffee.slice(),n:$('l-track')?$('l-track').children.length:0,want:LOG.filter(l=>lCoffee(l)===st[0]).length,day:h(),back:!!$('lst-back')};
+  $('lst-back').click();const after=document.querySelectorAll('[data-lstack]').length;
+  LF.sort='top';renderLogList(true);const top=h();LF.sort='new';renderLogList(true);
+  const names=[...new Set(LOG.map(lCoffee))].sort((a,b)=>a.localeCompare(b));return{st,names,inside,after,top}});
+ok('by coffee the brews stack, one stack per coffee, A–Z',JSON.stringify(g.st)===JSON.stringify(g.names),g);
+ok('…a stack opens all of that coffee\'s brews, and All coffees goes back',g.inside.coffee[0]===g.st[0]&&g.inside.n===g.inside.want&&g.inside.back&&g.after===g.st.length,g.inside);
+ok('highest rated: the heading is the rating',/beans?$/.test(g.top),g.top);
 // The card: its details in an even two-column grid, the flavour edit button with the chips.
 const cd=await p.evaluate(()=>{const c=document.querySelector('#l-track .le2'),ps=[...c.querySelectorAll('.le-pill')].map(x=>Math.round(x.getBoundingClientRect().width));return{cols:getComputedStyle(c.querySelector('.le-pills')).gridTemplateColumns.split(' ').length,w:[...new Set(ps)].length}});
 ok('the card\'s details sit in an even two-column grid',cd.cols===2&&cd.w===1,cd);
