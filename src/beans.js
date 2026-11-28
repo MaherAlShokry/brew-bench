@@ -243,7 +243,12 @@ const tnNotes=()=>TN_ALL||(TN_ALL=(()=>{const base=FW.leaves.filter(n=>n.cat.n!=
 // A note's identity keeps its accents (Rosé the wine and Rose the flower are two notes); typing without accents
 // still finds the accented one when nothing matches exactly.
 const tnKey=t=>String(t).trim().normalize('NFC').toLowerCase().replace(/[’']/g,"'");
-const tnLeaf=w=>{const k=tnKey(w),f=fold(String(w).trim());if(!f)return null;const ns=tnNotes();return ns.find(n=>tnKey(n.n)===k)||ns.find(n=>fold(n.n)===f)||null};
+// Looked up in two indexes made once (exact, then without accents), not by going through every note each time: the
+// Beans page asks for each coffee's notes, which took a phone about 50 ms on its first visit.
+let TN_IX=null;
+const tnLeaf=w=>{const k=tnKey(w),f=fold(String(w).trim());if(!f)return null;const ns=tnNotes();
+  if(!TN_IX||TN_IX.ns!==ns){const ex=new Map(),fo=new Map();for(const n of ns){const a=tnKey(n.n),b=fold(n.n);if(!ex.has(a))ex.set(a,n);if(!fo.has(b))fo.set(b,n)}TN_IX={ns,ex,fo}}
+  return TN_IX.ex.get(k)||TN_IX.fo.get(f)||null};
 // Every note gets a colour: its own on the wheel, or, for one the wheel doesn't name ("candy", "cherry blossom"), the
 // colour of the family its words point to (sweet, fruity, floral…), and a quiet grey only when nothing fits.
 const TN_FAM=[[/candy|gumm|lolli|bubblegum|sherbet|jelly bean|sweets/i,'Candy'],[/tropical|exotic|passion|maracuy|pineapple|mango|lychee|guava|papaya|coconut|banana/i,'Tropical fruit'],
@@ -1565,7 +1570,11 @@ function galleryDoc(){const all=galleryOrder();
     blocks:[{h:'My coffees',list:all.map(b=>beanTitle(b)+([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).length?' ('+[b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(', ')+')':'')+(b.rating?' · '+b.rating+' of 5':''))}]}}
 
 // Brewing a gallery coffee: the dial-in takes its process, variety, roast and age, and remembers which coffee it is.
-function useBean(b){S.bean=okSBean({name:beanTitle(b),roaster:b.roaster,origin:b.origin,id:b.id});S.bsig='';S.bday='';beanSync();if(memApply(b.id))fitRanges()}
+// Picking a coffee whose last cup tasted sour or bitter: its grind and water were moved for that (memApply), and a
+// short note says so, once for each answer.
+function useBean(b){S.bean=okSBean({name:beanTitle(b),roaster:b.roaster,origin:b.origin,id:b.id});S.bsig='';S.bday='';beanSync();if(memApply(b.id)){fitRanges();
+  const y=dialNextFor(b.id,S.brewer);if(y&&(y.taste==='sour'||y.taste==='bitter')&&!y.told){y.told=1;save('bb-dialnext',DIALNEXT);
+    toast(y.taste==='sour'?'Last cup tasted sour: a little finer and hotter this time':'Last cup tasted bitter: a little coarser and cooler this time')}}}
 // Pick the beans for the dial-in from the gallery: the bags you're drinking now first, then the rest, most recent first.
 // pick: what to do with the chosen coffee (the brew log uses it); without it, the dial-in brews it.
 function openBeanPick(pick){const d=$('vd'),list=[...BEANS].sort((a,c)=>beanDay(c).localeCompare(beanDay(a))||c.ts-a.ts);

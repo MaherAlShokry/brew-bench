@@ -397,7 +397,7 @@ button.chip:active,.seg button:active,.fstep:active,.fbr:active,.wcard:active,.a
 .tm-time{font-size:.85rem;color:var(--muted)}.tm-time b{color:var(--ink);font-variant-numeric:tabular-nums}
 .tm-now.fin .tm-done{justify-content:center}
 /* The finish tick is a line, not a filled shape. */
-#tm-skip[data-last="true"] svg{fill:none;stroke-width:2.6}
+#tm-skip:is([data-last="true"],[data-last="hold"]) svg{fill:none;stroke-width:2.6}
 /* The drawdown answers wrap to two rows on a phone rather than cutting their words. */
 #tm-in .tm-dseg{flex-wrap:wrap}#tm-in .tm-dseg button{flex:1 1 28%;white-space:nowrap;text-overflow:clip;overflow:visible}
 .tm-draw,.tm-taste{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);color:var(--ink)}
@@ -1105,7 +1105,9 @@ dialog#selsheet.pop .selopt{min-height:40px;padding:8px 12px;font-size:.95rem}
 @keyframes dlg-out{to{opacity:0;transform:translateY(10px) scale(.97)}}
 @keyframes sheet-up{from{transform:translateY(100%)}to{transform:none}}
 @keyframes page-in{from{transform:translateX(100%)}to{transform:none}}
-@keyframes page-out{from{transform:none}to{transform:translateX(100%)}}
+@keyframes page-out{from{transform:translateX(var(--bk-x,0px)) scale(var(--bk-s,1))}to{transform:translateX(100%)}}
+/* Android's back gesture in progress: what back will close follows the finger (see bbBackStart). */
+.bk-drag{transform:translateX(var(--bk-x,0px)) scale(var(--bk-s,1))}dialog.bk-drag{border-radius:22px}
 @keyframes sheet-down{from{transform:none}to{transform:translateY(100%)}}
 @keyframes bd-in{from{opacity:0}to{opacity:1}}
 @keyframes bd-out{from{opacity:1}to{opacity:0}}
@@ -2843,6 +2845,13 @@ html.sheeting :is(.seg.bviews,.gtabs,.appbar,.minires,.bottomnav){-webkit-backdr
    to it, so opening the log (from Settings, say) draws one screen, not every brew you've logged. Nothing above the
    list is skipped, so nothing you scroll to moves. */
 #l-list>.le-track{content-visibility:auto;contain-intrinsic-size:auto 420px}
+/* Timer: the valve badge in the ring (closed: accent; open: green) and, at the moment to flip it, a gentle pulse. */
+.tm-valve{display:inline-flex;align-items:center;gap:5px;margin:8px auto 0;padding:3px 10px 3px 6px;border-radius:999px;font-size:.78rem;font-weight:700;background:color-mix(in srgb,var(--cherry) 14%,var(--surface));color:var(--cherry)}
+.tm-valve[hidden]{display:none}
+.tm-valve svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+.tm-valve.open{background:color-mix(in srgb,var(--leaf) 18%,var(--surface));color:var(--leaf-ink)}
+.tm-valve.flip{animation:tmHoldP 1.4s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.tm-valve.flip{animation:none}}
 /* Timer: a step that waits for you (close the valve, flip, kettle to a new temperature). The card says so and the
    tick under it, which carries on, gently pulses (a transform: drawn by the GPU, not repainted). */
 .tm-now.hold .tm-step{color:var(--cherry);font-weight:700}

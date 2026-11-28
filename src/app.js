@@ -755,6 +755,8 @@ function bloomShift(steps,bloom){const at=bloomAt(steps),fmt=v=>Math.floor(v/60)
 // "let it steep") to the step that opens it, a pour while it's shut included. cue is when "let it steep" itself comes,
 // so a short steep never opens the valve before it.
 const VALVE_SHUT=/\bclose\b[^.]*\bvalve\b|\bvalve\s+closed\b/i,VALVE_OPEN=/\bopen\b[^.]*\bvalve\b|\bvalve\s+open/i;
+// Where a step leaves the valve: the last thing it says about it ("bloom with the valve closed", "OPEN the valve"), or null.
+function valveOf(s){const re=/\bclose\b[^.]*?\bvalve\b|\bvalve\s+closed\b|\bopen\b[^.]*?\bvalve\b|\bvalve\s+open/gi;let m,st=null;while((m=re.exec(String(s))))st=/\bclose|closed\b/i.test(m[0])?'closed':'open';return st}
 function steepAt(steps){steps=steps||[];for(let i=0;i<steps.length;i++){const a=tOf(steps[i]);if(a==null||stepKind(steps[i])!=='steep'||!/steep/i.test(steps[i]))continue;
     const pa=i>0?tOf(steps[i-1]):null;if(pa!=null&&pa<=a&&VALVE_SHUT.test(steps[i-1])){
       for(let j=i+1;j<steps.length;j++){const b=tOf(steps[j]);if(b!=null&&b>a&&VALVE_OPEN.test(steps[j]))return{i:j,start:pa,end:b,cue:a}}}
@@ -1149,7 +1151,9 @@ function openTimerNow(idx,p){noteRecent(RECIPES[idx]);
   // The steps follow the dose and water being brewed (the dial-in and Scan pass their own).
   const r0=RECIPES[idx],sc=scaled(r0),dose=p&&p.r&&p.r.dose||sc.dose,water=p&&p.water||sc.water;
   const hs=holdSteps(withTotals(p&&p.steps||(p?scaleSteps(r0,dose,water):sc.steps)),p&&p.temp||r0.temp);
-  const r=Object.assign({},r0,{dose,water,steps:hs.steps,off:sc.off});const ev=parseSteps(r.steps);ev.forEach((e,i)=>{if(hs.holds.has(i)&&e.t>0)e.h=true});const timed=ev.filter(e=>e.t>=0);
+  const r=Object.assign({},r0,{dose,water,steps:hs.steps,off:sc.off});const ev=parseSteps(r.steps);ev.forEach((e,i)=>{if(hs.holds.has(i)&&e.t>0)e.h=true});
+  // The valve's state through the brew (Switch, Pulsar, Clever): each step carries where the last one left it.
+  {let v=null;ev.forEach(e=>{const x=valveOf(e.s);if(x)v=x;e.v=v})}const timed=ev.filter(e=>e.t>=0);
   const total=clockTotal(r.steps,ev);
   if(TM&&TM.iv)clearInterval(TM.iv);
   TM={idx,r,p,ev,total,el:0,run:false,iv:null,lastIdx:-1,lastWarn:-1,ctx:null,cup:null,hold:null,held:new Set()};
@@ -1160,7 +1164,7 @@ function openTimerNow(idx,p){noteRecent(RECIPES[idx]);
   const I=d=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+d+'"/></svg>';
   $('tm-in').innerHTML='<div class="tm2"><div class="tm-top"><button class="tm-ic" id="tm-x" aria-label="Close timer">'+I('M6 6l12 12M18 6L6 18')+'</button><div class="tm-head"><h2 id="tm-title">'+esc(r.name)+'</h2><div class="tm-meta">'+meta.map(m=>'<span>'+esc(m)+'</span>').join('')+'</div></div>'+cueBtns()+'</div>'+
    (total?'<div class="tm-ringwrap"><svg class="tm-ring" viewBox="0 0 220 220"><defs><linearGradient id="tmg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--honey)"/><stop offset="1" stop-color="var(--cherry)"/></linearGradient></defs><circle cx="110" cy="110" r="96" class="tm-track"/><circle id="tm-arc" cx="110" cy="110" r="96" class="tm-arc" transform="rotate(-90 110 110)" stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+C.toFixed(1)+'"/>'+ticks+'</svg>'+
-      '<div class="tm-center"><div id="tm-big">0:00</div><div class="tm-of">of '+mmss(total)+'</div></div></div>'+
+      '<div class="tm-center"><div id="tm-big">0:00</div><div class="tm-of">of '+mmss(total)+'</div>'+(ev.some(e=>e.v)?'<div class="tm-valve" id="tm-valve" aria-live="polite"></div>':'')+'</div></div>'+
       '<div class="tm-now" id="tm-card"><div class="tm-step" id="tm-step">Ready when you are</div><div class="tm-target" id="tm-target"></div><div class="tm-text" id="tm-now">Get your gear ready, then press start.</div><div class="tm-bar"><i id="tm-barfill"></i></div><div class="tm-next" id="tm-next"></div></div>'+
       '<div class="tm-ctl"><button class="tm-ic big" id="tm-reset" aria-label="Reset">'+I('M4 12a8 8 0 1 0 2.3-5.6M4 4v5h5')+'</button><button class="tm-play" id="tm-go" aria-label="Start">'+I('M8 5v14l11-7z')+'</button><button class="tm-ic big" id="tm-skip" aria-label="Next step">'+I('M6 5l9 7-9 7z M18 5v14')+'</button></div>'
     :'<p class="tm-text" style="text-align:center">This one is by eye rather than the clock.</p>')+
@@ -1212,7 +1216,7 @@ function cueStep(e,next){if(!e)return;cueBuzz([120,70,120]);cueSay(cueText(e.s))
 function beep(soft){if(!TM.ctx)return;try{const o=TM.ctx.createOscillator(),g=TM.ctx.createGain();o.frequency.value=soft?660:880;g.gain.setValueAtTime(.001,TM.ctx.currentTime);g.gain.exponentialRampToValueAtTime(.25,TM.ctx.currentTime+.02);g.gain.exponentialRampToValueAtTime(.001,TM.ctx.currentTime+.35);o.connect(g).connect(TM.ctx.destination);o.start();o.stop(TM.ctx.currentTime+.4)}catch(e){}if(navigator.vibrate)navigator.vibrate(120)}
 // Holds the clock has moved past (Next, a tap in the list) count as done; one exactly where it stops still holds.
 function tmPassed(){TM.ev.forEach((e,i)=>{if(e.h&&e.t<TM.el-0.01)TM.held.add(i);else if(e.h&&e.t>TM.el)TM.held.delete(i)})}
-function tmHold(i){const e=TM.ev[i];clearInterval(TM.iv);TM.iv=null;TM.run=false;TM.hold=i;TM.el=e.t;TM.lastIdx=i;$('tm-card').classList.add('hold');setPlay();
+function tmHold(i){const e=TM.ev[i];if(valveOf(e.s))okBuzz([70,60,70,60,70]);clearInterval(TM.iv);TM.iv=null;TM.run=false;TM.hold=i;TM.el=e.t;TM.lastIdx=i;$('tm-card').classList.add('hold');setPlay();
   replay(document.querySelector('#timer .tm-ringwrap'),'tm-pulse');beep();cueBuzz([120,70,120]);cueSay(cueText(e.s)+' Tap next when it\u2019s done.');paint();tmWidget()}
 function tmGoOn(){if(TM.hold==null)return;TM.held.add(TM.hold);TM.hold=null;$('tm-card').classList.remove('hold');TM.run=true;TM.t0=performance.now()-TM.el*1000;clearInterval(TM.iv);TM.iv=setInterval(tick,200);setPlay();wake(true);tick();tmWidget()}
 function tick(){TM.el=(performance.now()-TM.t0)/1000;{const hi=TM.ev.findIndex((e,i)=>e.h&&!TM.held.has(i)&&e.t<=TM.el);if(hi>=0){tmHold(hi);return}}if(TM.el>=TM.total){TM.el=TM.total;finishBrew();return}paint()}
@@ -1294,6 +1298,8 @@ function quickLog(stars,notes,more){const r=TM.r||RECIPES[TM.idx],p=TM.p,fromDia
   const e={id:uid(),ts:Date.now(),date:new Date().toLocaleDateString(),coffee:'',settings:'',stars,pred:'',notes:'',brewer:''};
   if(fromDial){const dp=dialPlan();e.settings=dialLine(dp);e.brewer=S.brewer;e.pred=verdict(compute(S).D)[0];e.snap=brewSnap();if(S.bean){const cb0=S.bean.id&&window.BEANS_OK&&beanById(S.bean.id);e.coffee=cb0?beanTitle(cb0):S.bean.name||''}}
   else{const dz=p?p.r.dose:r.dose,w=p?p.water:r.water,t=p?p.temp:r.temp;e.settings=r.name+', '+dz+'g : '+w+'g'+(t?', '+t+'°C':'');e.brewer=r.b}
+  // How it tasted (Sour, Balanced, Bitter), answered on the finish card, stays with the brew.
+  if(TM.tasteRec&&TM.tasteRec.taste)e.taste=TM.tasteRec.taste;
   const fl=notes.map(w=>{const n=noteLeaf(w);return n&&[n.id,3]}).filter(Boolean);for(const [id,v] of more||[])if(!fl.some(x=>x[0]===id))fl.push([id,v]);if(fl.length)e.fl=fl;
   const cb=e.snap&&e.snap.bean&&e.snap.bean.id,cid=cb&&lastCupFor(cb);if(cid){e.cup=cid;LAST_CUP=null}
   if(GROUP)e.by=ME;LOG.unshift(e);save('bb-log',LOG);wRefresh();if(window.BEANS_OK)try{reschedule()}catch(x){}okBuzz();planRated(stars);
@@ -1317,7 +1323,7 @@ function done(){const r=TM.r||RECIPES[TM.idx],d=Math.floor(TM.el)-Math.floor(TM.
   if(gb&&TM.cup){const bag=document.createElement('div');bag.className='tm-bag';const draw=()=>{const g=gramsLeft(gb);bag.innerHTML=TM.cup?'<span>'+gfmt(dz)+' g off your <b>'+esc(beanTitle(gb))+'</b> bag · '+(g?g+' g left':'bag empty')+'</span><button type="button" class="linkbtn" id="tm-bagundo">Undo</button>':'<span>Not taken off the bag.</span>';
       const u=bag.querySelector('#tm-bagundo');if(u)u.onclick=()=>{untakeCup(gb,TM.cup.id);if(LAST_CUP&&LAST_CUP.id===TM.cup.id)LAST_CUP=null;TM.cup=null;draw();if(window.BEANS_OK)renderBeans()}};draw();$('tm-next').prepend(bag);if(window.BEANS_OK)renderBeans()}
   // From the dial-in, the log is filled in from the dial-in itself: the coffee, the full settings and the cup.
-  TM.log=()=>{const p=TM.p,B=BREWERS[r.b];$('timer').close();
+  TM.log=()=>{const p=TM.p,B=BREWERS[r.b];LTASTE=TM.tasteRec&&TM.tasteRec.taste||null;$('timer').close();
     // Already kept with the quick rating: the log opens on that entry, to add the rest.
     if(TM.qlog){const q=TM.qlog;setTimeout(()=>{NAV_FORCE='push';showTab('log');editBrew(q)},250);return}if(p&&'bean' in p){setTimeout(()=>$('tolog').click(),250);return}setTimeout(()=>{NAV_FORCE='push';showTab('log');$('l-settings').value=r.name+', '+(p?p.r.dose:r.dose)+'g : '+(p?p.water:r.water)+'g'+((p?p.temp:r.temp)?', '+(p?p.temp:r.temp)+'°C':'');$('l-settings').dataset.brewer=r.b;renderLSet();if(!MQ('(pointer: coarse)'))setTimeout(()=>$('l-coffee').focus({preventScroll:true}),480)},250)};
   TM.again=()=>{TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;tmUnfinish();paint();$('tm-go').click()};TM.dd=null;TM.tasteDraw=null;drawCheck();tasteCheck();
@@ -1332,6 +1338,9 @@ const DRAW_S=35;
    and the taste sets the water. The suggestion is an exact setting on your grinder, and it can be kept with the coffee:
    its page and the dial-in show it the next time you brew it. Balanced keeps what you did as what worked. */
 const TASTE_DS=40;
+// The timer's answer on its way to the log form (Log this brew), saved with the entry.
+var LTASTE=null;
+const TASTEW={sour:'Sour',good:'Balanced',bitter:'Bitter'};
 let DIALNEXT=(()=>{const o=load('bb-dialnext',{});return o&&typeof o==='object'&&!Array.isArray(o)?o:{}})();
 // Grind memory: what a coffee was last brewed at (its newest logged brew with a grind), so the Brew page can offer it.
 // A reset on the coffee's page ({reset:time} in its place) forgets the brews before it.
@@ -1376,7 +1385,7 @@ function drawCheck(){const p=TM.p,r=TM.r||RECIPES[TM.idx],b=(p&&(p.brewer||p.st&
   $('tm-next').appendChild(box);
   box.querySelector('.tm-dseg').onclick=e=>{const bt=e.target.closest('[data-dd]');if(!bt)return;TM.dd=+bt.dataset.dd;if(TM.tasteDraw)TM.tasteDraw();
     box.querySelectorAll('[data-dd]').forEach(x=>x.setAttribute('aria-pressed',x===bt))}}
-function paint(){const el=TM.el,C=2*Math.PI*96;$('tm-big').textContent=mmss(el);
+function paint(){const el=TM.el,C=2*Math.PI*96;$('tm-big').textContent=mmss(el);paintValve(el);
   $('tm-arc').setAttribute('stroke-dashoffset',(C*(1-el/TM.total)).toFixed(1));
   let cur=-1;TM.ev.forEach((e,i)=>{if(e.t>=0&&e.t<=el&&!(e.h&&!TM.held.has(i)&&i!==TM.hold))cur=i});if(TM.hold!=null)cur=TM.hold;
   if(cur!==TM.lastIdx&&TM.run&&cur>=0){replay(document.querySelector('#timer .tm-ringwrap'),'tm-pulse');beep();cueStep(TM.ev[cur],TM.ev[TM.ev.findIndex(e=>e.t>TM.ev[cur].t)]);TM.lastIdx=cur}
@@ -1401,6 +1410,12 @@ function paint(){const el=TM.el,C=2*Math.PI*96;$('tm-big').textContent=mmss(el);
     $('tm-card').classList.toggle('warn',!!(TM.run&&next&&left<=3))}
   else if(el===0){$('tm-step').textContent='Ready when you are';$('tm-target').innerHTML='';$('tm-now').textContent='Get your gear ready, then press start.';$('tm-barfill').style.transform='';$('tm-next').innerHTML=TM.ev[0]?'<span class="tm-nx">First: '+esc(stepTxt(TM.ev[0].s))+'</span>':''}}
 
+// The valve badge in the ring: Valve closed / Valve open, and at a hold that flips it, what to do now (pulsing).
+// Before the start it shows how to set the valve for the first step.
+function paintValve(el){const b=$('tm-valve');if(!b)return;let i=-1;TM.ev.forEach((e,k)=>{if(e.t>=0&&e.t<=el&&!(e.h&&!TM.held.has(k)&&k!==TM.hold))i=k});
+  let st,flip=false;if(TM.hold!=null&&valveOf(TM.ev[TM.hold].s)){st=valveOf(TM.ev[TM.hold].s);flip=true}else st=i>=0?TM.ev[i].v:(TM.ev.find(e=>e.v)||{}).v;
+  const key=(st||'')+flip;if(b.dataset.k===key)return;b.dataset.k=key;b.hidden=!st;if(!st)return;
+  b.className='tm-valve '+st+(flip?' flip':'');b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="'+(st==='open'?'M12 6v12':'M6 12h12')+'"/></svg>'+(flip?(st==='open'?'Open':'Close')+' the valve now':'Valve '+st)}
 /* ================= TABS ================= */
 // Heavy tabs are built the first time they are opened, which keeps startup quick.
 const LAZY={champs:renderChamps,words:renderWords,wheel:renderWheelTab,flow:renderFlow,gear:buildGear,recipes:renderRecipes,tech:renderTech,process:renderProcesses,variety:renderVarieties,map:buildMap,history:()=>{buildTree();startQuiz()}},BUILT={};
@@ -1534,7 +1549,7 @@ function navOut(L,kind,y){const el=L.el;if(el._out)clearTimeout(el._out);el.styl
 function showTab(id,fromHistory,pure){NAV_AT=performance.now();settleSoon();if(window.closeBeansFab)closeBeansFab();
   // The page you leave animates out as the new one comes in (the opposite way), held where it was on the screen: its
   // place is read here, before anything changes, while it is still laid out (no extra layout).
-  let LV=null;if(NAV_READY&&!RM()){const lv=document.querySelector('main section.on');if(lv&&lv.id!==id){const r=lv.getBoundingClientRect(),cs=getComputedStyle(lv);LV={el:lv,top:r.top,left:r.left+scrollX,w:r.width,pt:cs.paddingTop}}}
+  let LV=null;if(NAV_READY&&!RM()){const lv=document.querySelector('main section.on');if(lv&&lv.id!==id){const dr=lv.classList.contains('bk-drag');if(dr)lv.classList.remove('bk-drag');const r=lv.getBoundingClientRect(),cs=getComputedStyle(lv);if(dr)lv.classList.add('bk-drag');LV={el:lv,top:r.top,left:r.left+scrollX,w:r.width,pt:cs.paddingTop}}}
   // Each page keeps where you were in it: going back returns to that spot, not the top (a new visit starts at the top).
   // The scroll to the top happens first, while the page you're leaving is still the one laid out: done after the new
   // page was shown, it made the browser lay that page out on the spot, inside the tap (about a third of its cost).
@@ -2148,7 +2163,8 @@ $('tosave').onclick=()=>{const dp=dialPlan();
 const b64u={enc:o=>btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''),dec:s=>JSON.parse(decodeURIComponent(escape(atob(s.replace(/-/g,'+').replace(/_/g,'/')))))};
 function recipeLink(r){const {id,custom,ts,...rest}=r;return SITE_URL+'#recipe='+b64u.enc(rest)}
 /* Every share carries a link that opens the same thing in the app on the other phone. */
-const slug=s=>String(s).toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+// Kept once worked out (the same names are slugged again and again as lists are drawn).
+const SLUGS=new Map(),slug=s=>{s=String(s);let v=SLUGS.get(s);if(v==null){v=s.toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');if(SLUGS.size>5000)SLUGS.clear();SLUGS.set(s,v)}return v};
 const chKey=ch=>ch.c+'-'+ch.y;
 // The recipes in view (a brewer, a collection or a search) as one shareable list: the essentials of each, with a link.
 const rListed=()=>(RF.length>0||RQ.trim())&&RLIST.length>0;
@@ -2960,7 +2976,7 @@ function logEntryHTML(l,i){const ag=againPlan(l),st=clamp(Math.round(+l.stars||0
   const rate=st?'<span class="le-stars" role="img" aria-label="'+st+' of 5 beans, '+STARW[st]+'">'+beanRate(st)+'<b>'+st+'</b></span>':'<span class="le-stars none">Not rated</span>';
   return '<article class="logentry le2"><div class="le-top">'+logThumb(l)+'<div class="le-tt"><b>'+esc(l.coffee||'Untitled')+'</b><div class="le-sub"><span class="le-meta">'+(who?'<span class="le-who">'+esc(who)+'</span><span aria-hidden="true">·</span>':'')+esc(fmtDate(l))+(l.edited?' · edited':'')+'</span>'+rate+'</div></div></div>'+
     (pills.length?'<div class="le-pills">'+pills.map(([k,t])=>'<span class="le-pill k-'+k+'">'+(LSI[k==='ratio'?'water':k]?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+LSI[k==='ratio'?'water':k]+'"/></svg>':'')+esc(t)+'</span>').join('')+'</div>':'')+
-    (rest?'<p class="le-rest">'+esc(rest)+'</p>':'')+(l.pred?'<p class="le-pred">Expected <b>'+esc(l.pred)+'</b></p>':'')+(l.notes?'<blockquote class="le-notes">'+esc(l.notes)+'</blockquote>':'')+flEntry(l,i)+
+    (rest?'<p class="le-rest">'+esc(rest)+'</p>':'')+(l.pred||TASTEW[l.taste]?'<p class="le-pred">'+[l.pred?'Expected <b>'+esc(l.pred)+'</b>':'',TASTEW[l.taste]?'Tasted <b class="t-'+l.taste+'">'+TASTEW[l.taste]+'</b>':''].filter(Boolean).join(' · ')+'</p>':'')+(l.notes?'<blockquote class="le-notes">'+esc(l.notes)+'</blockquote>':'')+flEntry(l,i)+
     '<div class="le-act">'+(ag?ib('again','data-again="'+i+'"','Brew this again','main sm le-again'):'')+'<span class="le-acts">'+(flOf(l).length?'':ib('wheel','data-fledit="'+i+'"','Add flavour notes','sm'))+ib('share','data-lshare="'+i+'"','Share this brew','sm')+(canEdit(l)?ib('edit','data-edit="'+i+'"','Edit this brew','sm'):'')+ib('del','data-del="'+i+'"','Delete this brew','sm')+'</span></div></article>'}
 // Search, then a filter and a sort button, as on Recipes: each opens a sheet. A dot on the filter says one is on.
 let LLN=0;const saveLF=()=>save('bb-logfilter',{min:LF.min,who:LF.who,sort:LF.sort});
@@ -3058,7 +3074,7 @@ $('l-save').onclick=()=>{const k=LEDIT?LOG.findIndex(x=>x.id===LEDIT):-1;
   const e={id:uid(),ts:Date.now(),date:new Date().toLocaleDateString(),coffee:$('l-coffee').value.trim(),settings:$('l-settings').value.trim(),stars:STAR,pred:$('l-pred').value.trim(),notes:$('l-notes').value.trim(),brewer:$('l-settings').dataset.brewer||''};if(LFL.length)e.fl=LFL.slice();if(LSNAP)e.snap=LSNAP;LSNAP=null;{const cb=(e.snap&&e.snap.bean&&e.snap.bean.id)||LBEAN,cid=cb&&lastCupFor(cb);if(cid){e.cup=cid;LAST_CUP=null}}
   if(LBEAN&&!(e.snap&&e.snap.bean&&e.snap.bean.id===LBEAN))e.beanId=LBEAN;
   if(GROUP)e.by=ME;
-  if(!e.coffee&&!e.settings&&!e.notes&&!LFL.length){toast('Add a coffee name or some notes first');return}LOG.unshift(e);save('bb-log',LOG);wRefresh();if(window.BEANS_OK)try{reschedule()}catch(x){}okBuzz();planRated(e.stars);if(window.BEANS_OK){
+  if(!e.coffee&&!e.settings&&!e.notes&&!LFL.length){toast('Add a coffee name or some notes first');return}if(LTASTE)e.taste=LTASTE;LTASTE=null;LOG.unshift(e);save('bb-log',LOG);wRefresh();if(window.BEANS_OK)try{reschedule()}catch(x){}okBuzz();planRated(e.stars);if(window.BEANS_OK){
     // The first brew with a bag you hadn't tried yet is the day you tried it.
     const gid=(e.snap&&e.snap.bean&&e.snap.bean.id)||e.beanId,gb=gid&&beanById(gid);if(gb&&!gb.tried){gb.tried=todayISO();saveBeans()}checkTrophies()}queue('put',e.id,e);['l-coffee','l-settings','l-pred','l-notes'].forEach(id=>$(id).value='');delete $('l-settings').dataset.brewer;STAR=0;LFL=[];LBEAN=null;renderFlForm();renderStars();renderLBean();renderPred();renderLog();toastAct(GROUP?'Brew saved and shared':'Brew saved','Share it',()=>openShare(logEntryDoc(e)));beans()};
 // A logged brew made again: the timer on the same recipe with the same coffee, dose, water, grind and temperature.
@@ -4712,7 +4728,25 @@ $('dial-share').onclick=()=>openShare(dialDoc());
 $('ab-back').onclick=()=>history.back();
 // The Android back gesture asks here first: close the top sheet, step back a screen, or scroll the first screen to its top. False means there is nothing
 // left to go back to, so the app goes to the background like any other.
-window.bbBack=()=>{
+// Android's predictive back (Android 14 and later): while you drag back from the screen's edge, what back will close
+// (a full-page sheet, or a page inside a section) shrinks a little and follows your finger. Let go and it closes from
+// there (its slide-out starts where the drag left it: --bk-x, --bk-s); change your mind and it springs back. The phone
+// sends the drag (MainActivity: bbBackStart, bbBackMove, bbBackCancel); back itself is bbBack below.
+let BK=null;
+function bkTarget(){if(FAB_OPEN)return null;const d=[...document.querySelectorAll('dialog[open]:not(.closing)')].pop();
+  if(d)return d.id==='vd'||d.id==='timer'?{el:d,o:'50% 50%'}:null;
+  const s=document.querySelector('main section.on');if(!s||NAVD<=0||BNGROUP[s.id]===s.id)return null;
+  // A page is taller than the screen: it shrinks around the middle of what you see.
+  return{el:s,o:'50% '+Math.round(scrollY+innerHeight/2-s.getBoundingClientRect().top-scrollY)+'px'}}
+window.bbBackStart=edge=>{if(RM())return;bkEnd(true);const t=bkTarget();if(!t)return;BK={el:t.el,dir:edge==='right'?-1:1};
+  const st=t.el.style;st.transformOrigin=t.o;st.transition='none';t.el.classList.add('bk-drag');bkSet(0)};
+function bkSet(p){if(!BK)return;const st=BK.el.style;st.setProperty('--bk-x',(BK.dir*p*28).toFixed(1)+'px');st.setProperty('--bk-s',(1-p*.08).toFixed(3))}
+window.bbBackMove=p=>{if(BK)bkSet(clamp(+p||0,0,1))};
+window.bbBackCancel=()=>{if(!BK)return;const el=BK.el;el.style.transition='transform .2s var(--ease-out)';bkSet(0);const b=BK;BK=null;setTimeout(()=>{if(!BK||BK!==b)bkClear(el)},230)};
+// Back went ahead: the drag's look stays for the slide-out to start from, and is cleared once that's over.
+function bkEnd(now){if(!BK)return;const el=BK.el;BK=null;if(now)bkClear(el);else setTimeout(()=>bkClear(el),450)}
+function bkClear(el){el.classList.remove('bk-drag');for(const k of ['--bk-x','--bk-s','transform-origin','transition'])el.style.removeProperty(k)}
+window.bbBack=()=>{bkEnd(false);
   // An open + menu: back closes only it (before, back here found nothing to go back to and left the app).
   if(FAB_OPEN){history.state&&history.state.fab?history.back():FAB_OPEN();return true}
   const d=[...document.querySelectorAll('dialog[open]:not(.closing)')].pop();
@@ -4912,12 +4946,14 @@ requestAnimationFrame(()=>{NAV_READY=true});
   // The class goes on the bar itself, not the page: on <html> it made the browser restyle every element of a long list
   // each time the bar came or went while you scrolled.
   const H=document.querySelector('.bottomnav')||document.documentElement,setNav=away=>{if(H.classList.contains('nav-away')!==away)H.classList.toggle('nav-away',away)};
-  addEventListener('scroll',()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;const y=scrollY,d=y-lastY;lastY=y;const f=fabOf();if(FAB_OPEN)return;
+  addEventListener('scroll',()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;const y=scrollY,d=lastY==null?0:y-lastY;lastY=y;const f=fabOf();if(FAB_OPEN)return;
     if(performance.now()-gest>700){acc=0;return}
     acc=Math.sign(d)===Math.sign(acc)?acc+d:d;
     const end=y+innerHeight>=document.documentElement.scrollHeight-80;
     if(y<80||end||acc<-12){set(f,false);setNav(false)}else if(acc>24){set(f,true);setNav(true)}})},{passive:true});
-  FAB_SHOW=()=>{lastY=scrollY;acc=0;document.querySelectorAll('.fab.away').forEach(f=>f.classList.remove('away'));setNav(false)}}
+  // (Where the page is isn't read here: reading it in the middle of a tab change laid the new page out on the spot,
+  // inside the tap; the next scroll starts counting from wherever that is.)
+  FAB_SHOW=()=>{lastY=null;acc=0;document.querySelectorAll('.fab.away').forEach(f=>f.classList.remove('away'));setNav(false)}}
 // Pages with a + are marked once here (and again by showTab), so the first page has its room too.
 document.querySelectorAll('main>section').forEach(s=>{if(s.querySelector(':scope>.fab'))s.classList.add('fabbed')});
 {const s=document.querySelector('main>section.on');$('toast').classList.toggle('lift',!!(s&&s.classList.contains('fabbed')))}
