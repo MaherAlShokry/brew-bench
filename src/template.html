@@ -2347,7 +2347,7 @@ i.rl{font-style:inherit;font-variant-numeric:tabular-nums}
 .shsw[aria-pressed="true"]{color:var(--sa);font-weight:700}.shsw[aria-pressed="true"] i{box-shadow:0 0 0 2.5px var(--surface2),0 0 0 4.5px var(--sa)}
 .shsw:focus-visible i,.shmode button:focus-visible{outline:2px solid var(--sa);outline-offset:2px}
 .shcard-pv.busy{position:relative}.shcard-pv.busy::after{content:'';position:absolute;inset:0;background:color-mix(in srgb,var(--paper) 45%,transparent);animation:bfade .2s ease}
-.steps.tl li.hold .t{background:var(--cherry);color:var(--on-accent,#fff)}
+.steps.tl li.hold .t{background:var(--cherry);color:var(--paper)}
 .steps.tl .t.prep{font-size:.7rem;letter-spacing:.02em;text-transform:uppercase;color:var(--muted);background:color-mix(in srgb,var(--ink) 7%,var(--surface))}
 .rr-by .rr-tag{display:inline-block;margin-right:8px;vertical-align:1px}
 .rtip{display:flex;gap:12px;align-items:flex-start;margin:14px 0 4px;padding:12px 14px;border-radius:16px;background:color-mix(in srgb,var(--honey) 14%,var(--surface));border:1px solid color-mix(in srgb,var(--honey) 28%,transparent)}
@@ -2880,6 +2880,11 @@ html.sheeting :is(.seg.bviews,.gtabs,.appbar,.minires,.bottomnav){-webkit-backdr
 .le2 .fl-entry{align-items:center;gap:14px}.le2 .fl-mini{width:76px;height:76px}
 .le2 .fl-chips{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0}
 .le2 .fl-chips .icobtn,.le2 .fl-chips button:last-child{width:34px;height:34px;min-height:34px;padding:0}
+/* Drawn only once scrolled near: the Diary's month groups and the Brew log's flavour profile, below its first
+   screen. Opening either drew all of it at once (a Diary of 2,700 elements, 4,000 px tall),
+   which stalled the first frame of the switch on a phone. Each keeps its last size, so the page doesn't jump. */
+#dy-list>.dy-grp{content-visibility:auto;contain-intrinsic-size:auto 900px}
+#l-palate{content-visibility:auto;contain-intrinsic-size:auto 320px}
 #l-list>.le-track{content-visibility:auto;contain-intrinsic-size:auto 420px}
 /* A full-page sheet fully covered by another (see coverUnder): not drawn until the one on top starts to leave. */
 dialog.covered{visibility:hidden}
@@ -2908,7 +2913,9 @@ dialog.covered{visibility:hidden}
 .tm-now.hold .tm-step{color:var(--cherry);font-weight:700}
 .tm-now.hold~.tm-ctl #tm-skip{background:var(--cherry);color:var(--surface);animation:tmHoldP 1.4s ease-in-out infinite}
 @keyframes tmHoldP{50%{transform:scale(1.08)}}
-#tm-list li[data-h] b::after{content:" \23F8";font-weight:400;opacity:.7}
+/* A step that waits for you (tap Next): its time in a filled pill, the same mark as on the recipe page. */
+#tm-list li{align-items:center}#tm-list li b{width:52px;min-width:0;text-align:center;padding:2px 0;border-radius:99px;font-size:.92rem}
+#tm-list li[data-h] b{background:var(--cherry);color:var(--paper)}
 @media (prefers-reduced-motion:reduce){.tm-now.hold~.tm-ctl #tm-skip{animation:none}}
 /* While a page sheet slides in, its sections past the first screen aren't laid out or drawn (vdLite). */
 #vd.vd-lite :is(.vd-body,.me-body)>:nth-child(n+3){content-visibility:auto;contain-intrinsic-size:auto 300px}
