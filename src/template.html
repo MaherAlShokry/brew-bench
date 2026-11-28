@@ -2880,6 +2880,11 @@ html.sheeting :is(.seg.bviews,.gtabs,.appbar,.minires,.bottomnav){-webkit-backdr
 .le2 .fl-entry{align-items:center;gap:14px}.le2 .fl-mini{width:76px;height:76px}
 .le2 .fl-chips{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0}
 .le2 .fl-chips .icobtn,.le2 .fl-chips button:last-child{width:34px;height:34px;min-height:34px;padding:0}
+/* Drawn only once scrolled near: the Diary's month groups and the Brew log's flavour profile, below its first
+   screen. Opening either drew all of it at once (a Diary of 2,700 elements, 4,000 px tall),
+   which stalled the first frame of the switch on a phone. Each keeps its last size, so the page doesn't jump. */
+#dy-list>.dy-grp{content-visibility:auto;contain-intrinsic-size:auto 900px}
+#l-palate{content-visibility:auto;contain-intrinsic-size:auto 320px}
 #l-list>.le-track{content-visibility:auto;contain-intrinsic-size:auto 420px}
 /* A full-page sheet fully covered by another (see coverUnder): not drawn until the one on top starts to leave. */
 dialog.covered{visibility:hidden}
