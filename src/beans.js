@@ -828,7 +828,17 @@ function beanRateInput(id,get,set){const el=$(id);
 /* Photos are shrunk to fit 900px and saved as JPEG: sharp on a phone, small enough to keep hundreds. */
 // Photos are kept as WebP where the phone can make it (about a third smaller than JPEG at the same look), JPEG elsewhere.
 const WEBP=(()=>{try{const c=document.createElement('canvas');c.width=c.height=1;return c.toDataURL('image/webp',.8).startsWith('data:image/webp')}catch(e){return false}})();
-function shrinkPhoto(src,max){return new Promise((ok,no)=>{const img=new Image();img.onload=()=>{const s=Math.min(1,(max||900)/Math.max(img.width,img.height)),c=document.createElement('canvas');
+// Made off the main thread where the phone can: the photo is decoded and scaled by createImageBitmap and compressed by
+// toBlob, both in the background. Compressing on the page (toDataURL) took a phone close to half a second for each
+// copy, and opening Roastery or a long list made a dozen of them at once, freezing every tap meanwhile.
+async function shrinkPhoto(src,max){max=max||900;
+  if(window.createImageBitmap&&HTMLCanvasElement.prototype.toBlob)try{const blob=await (await fetch(src)).blob(),probe=await createImageBitmap(blob);
+    const s=Math.min(1,max/Math.max(probe.width,probe.height)),w=Math.max(1,Math.round(probe.width*s)),h=Math.max(1,Math.round(probe.height*s));
+    const bm=s<1?await createImageBitmap(blob,{resizeWidth:w,resizeHeight:h,resizeQuality:'high'}):probe;if(bm!==probe&&probe.close)probe.close();
+    const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(bm,0,0);if(bm.close)bm.close();
+    const out=await new Promise(r=>c.toBlob(r,WEBP?'image/webp':'image/jpeg',0.8));if(out)return await fileURL(out)}catch(e){}
+  return shrinkPhotoMain(src,max)}
+function shrinkPhotoMain(src,max){return new Promise((ok,no)=>{const img=new Image();img.onload=()=>{const s=Math.min(1,(max||900)/Math.max(img.width,img.height)),c=document.createElement('canvas');
   c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);c.getContext('2d').drawImage(img,0,0,c.width,c.height);try{ok(WEBP?c.toDataURL('image/webp',0.8):c.toDataURL('image/jpeg',0.8))}catch(e){no(e)}};
   img.onerror=()=>no(new Error('image'));img.src=src})}
 const fileURL=f=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=()=>no(r.error);r.readAsDataURL(f)});

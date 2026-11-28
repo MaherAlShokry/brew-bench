@@ -843,6 +843,7 @@ const tileKey=(label,val)=>TILE_K.find(([re])=>re.test(String(label||'')))||(/li
 // Sets a block's HTML only when it differs from what it last set: drawing the same thing again on each visit made the
 // browser restyle and lay it out again, part of what a tab change cost.
 function setHTML(el,h){if(el._h===h)return false;el._h=h;el.innerHTML=h;return true}
+const setTxt=(el,t)=>{if(el&&el.textContent!==t)el.textContent=t};
 function renderDBean(){const el=$('d-bean');if(!el||!window.BEANS_OK)return;const b=S.bean,gb=b&&b.id&&beanById(b.id);
   if(b){setHTML(el,'<div class="dbean">'+(gb?beanPic(gb,'xs'):'<span class="bpic xs" style="--rc:'+regCol(b.origin)+'"><span class="bph">'+beanSVG+'</span></span>')+
       '<button type="button" class="dbean-tx" data-dbpick><b>'+esc(b.name)+'</b><small>'+esc([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · ')||'Tap to change')+'</small></button>'+
@@ -1147,7 +1148,10 @@ function holdSteps(steps,temp0){let tc=+temp0||0;const out=[],holds=new Set(),ca
   // The temperature the water goes in at ("at 90°C", "with the 70°C water", "of 85°C water"), not one to get the kettle to.
   for(const raw of steps){si++;const m=/^(\s*(\d+):(\d\d)\s+)(.*)$/.exec(raw);const tm=raw.match(/(?:\b(?:with|at)\s+(?:the\s+)?|\bof\s+)(\d{2,3})\s?°C|(\d{2,3})\s?°C\s+water/i);const t=+(tm&&(tm[1]||tm[2]))||0;
     if(!m||(+m[2]*60+ +m[3])===0){if(t)tc=t;out.push(raw);continue}
-    let body=m[4].trim(),acts=[],rest=body,x;
+    let body=m[4].trim(),acts=[],rest=body,x,kettle='';
+    // "Pour to 160g. Then cool the kettle to about 70°C.": the kettle is its own step, one that waits for you.
+    {const k=body.search(/(?:\.\s+|,\s*|;\s*)(?:then\s+)?(?:cool|lower|reduce|drop|heat|raise|bring)\s+the\s+(?:kettle|water)\b/i);
+      if(k>0&&POURS.test(body.slice(0,k))){kettle=body.slice(k).replace(/^[.,;]\s*/,'').replace(/^then\s+/i,'').replace(/\.$/,'');body=rest=body.slice(0,k)+'.'}}
     if((x=/^(?:then\s+)?(open|close)\s+the\s+valve\b[\s,.:;]*(?:and\s+|then\s+)?(.*)$/i.exec(body))){acts.push(x[1].toLowerCase()+' the valve');rest=x[2]}
     else if(/\b(?:open|close)\s+the\s+valve\b/i.test(body)){acts.push(body.replace(/\.$/,''));rest=''}
     else if(/\b(?:flip|fit the cap|attach the cap|switch to the)\b/i.test(body)){const k=body.search(/(?:,\s*|\s+and\s+(?:gently\s+)?|\s+then\s+)(?:gently\s+)?press\b/i);
@@ -1155,8 +1159,16 @@ function holdSteps(steps,temp0){let tc=+temp0||0;const out=[],holds=new Set(),ca
     // A new water temperature mid-brew means a second kettle, or waiting for this one to cool or heat.
     else if(si!==lastT&&handsOn(body)){const k=body.search(/(?:,\s*|\s+)(?:and|then)\s+let it\b/i);if(k>0){acts.push(body.slice(0,k));rest=body.slice(k).replace(/^(?:,\s*|\s+)(?:and|then)\s+/i,'')}else{acts.push(body.replace(/\.$/,''));rest=''}}
     if(t&&tc&&t!==tc)acts.push('water at '+t+'°C');if(t)tc=t;
-    if(!acts.length){out.push(raw);continue}
-    holds.add(out.length);out.push(m[1]+cap(acts.map(x=>x.replace(/[\s,.;:]+$/,'')).join(', '))+'.');if(rest.trim())out.push(m[1]+cap(rest.trim()))}
+    if(!acts.length)out.push(kettle?m[1]+cap(body):raw);
+    else{holds.add(out.length);out.push(m[1]+cap(acts.map(x=>x.replace(/[\s,.;:]+$/,'')).join(', '))+'.');if(rest.trim())out.push(m[1]+cap(rest.trim()))}
+    if(kettle){holds.add(out.length);out.push(m[1]+cap(kettle)+'.')}}
+  // A pour that a steep follows waits for you too: the clock stops while you pour and the steep is timed from when you
+  // tap Next, so a slow pour never eats into it. And a step at the same moment as a hold right after it holds as well
+  // (else it would show for no time at all: the pour before "cool the kettle").
+  const tOf=x=>{const q=/^\s*(\d+):(\d\d)/.exec(x);return q?+q[1]*60+ +q[2]:null};
+  for(let i=out.length-2;i>=0;i--){if(holds.has(i))continue;const ti=tOf(out[i]);if(!ti)continue;
+    let j=i+1;while(j<out.length&&tOf(out[j])==null)j++;if(j>=out.length)continue;
+    if((holds.has(j)&&tOf(out[j])===ti)||((stepKind(out[i])==='pour'||POURS.test(out[i].replace(/^\s*\d+:\d\d\s*/,'')))&&stepKind(out[i])!=='bloom'&&stepKind(out[j])==='steep'))holds.add(i)}
   return{steps:out,holds}}
 function openTimer(idx,p){if(fromTap(()=>openTimerNow(idx,p)))return;openTimerNow(idx,p)}
 function openTimerNow(idx,p){noteRecent(RECIPES[idx]);
@@ -2891,14 +2903,15 @@ let LBEAN=null;
 const lBean=()=>LBEAN&&window.BEANS_OK?beanById(LBEAN):null;
 const STARW=['Tap a bean to rate','Not for me','Just okay','A good cup','Lovely','Outstanding'];
 function renderLBean(){renderLSet();const el=$('l-bean'),b=lBean();
-  if(b){$('l-coffee').value=beanTitle(b);el.innerHTML='<div class="l-beancard">'+beanPic(b,'xs')+'<span class="lb-tx"><b>'+esc(beanTitle(b))+'</b><small>'+esc([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '))+'</small></span>'+ib('edit','id="l-beanchg"','Change the coffee','sm')+'</div>';
-    hydrateImgs(el);$('l-coffee-f').hidden=true}
+  // Each part is written only when it changed (setHTML, setTxt): the log redraws these on every visit, and writing the
+  // same thing again made the browser restyle the page you were opening.
+  if(b){if($('l-coffee').value!==beanTitle(b))$('l-coffee').value=beanTitle(b);if(setHTML(el,'<div class="l-beancard">'+beanPic(b,'xs')+'<span class="lb-tx"><b>'+esc(beanTitle(b))+'</b><small>'+esc([b.roaster,b.origin?originName(b.origin):''].filter(Boolean).join(' · '))+'</small></span>'+ib('edit','id="l-beanchg"','Change the coffee','sm')+'</div>'))hydrateImgs(el);$('l-coffee-f').hidden=true}
   else{const n=window.BEANS_OK?BEANS.length:0;
     // No bean picked: one tile, shaped like the bean card it turns into, and the name box below as the other way in.
-    el.innerHTML=n?'<button type="button" class="l-pickbean" id="l-beanchg"><span class="lp-ic">'+beanSVG+'</span><span class="lb-tx"><b>Pick from your beans</b><small>'+n+' coffee'+(n===1?'':'s')+' in your gallery</small></span><svg class="lp-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>':'';
-    $('l-coffee-lab').textContent=n?'Or type its name':'Coffee';$('l-coffee-f').hidden=false}
+    setHTML(el,n?'<button type="button" class="l-pickbean" id="l-beanchg"><span class="lp-ic">'+beanSVG+'</span><span class="lb-tx"><b>Pick from your beans</b><small>'+n+' coffee'+(n===1?'':'s')+' in your gallery</small></span><svg class="lp-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>':'');
+    setTxt($('l-coffee-lab'),n?'Or type its name':'Coffee');$('l-coffee-f').hidden=false}
   const ch=$('l-beanchg');if(ch)ch.onclick=()=>openBeanPick(b=>{LBEAN=b.id;renderLBean();renderFlForm()});
-  const nm=b?beanTitle(b):$('l-coffee').value.trim();$('l-howq').textContent=nm?'How was your '+nm+'?':'How was it?'}
+  const nm=b?beanTitle(b):$('l-coffee').value.trim();setTxt($('l-howq'),nm?'How was your '+nm+'?':'How was it?')}
 /* ---------- The brew's settings, as controls ----------
    Recipe and brewer as pickers, the numbers as tiles you step up and down, the grind on your grinder's own dial and the
    ratio worked out as you go. Everything is written back to the settings line (#l-settings, hidden), which is what the
@@ -2958,7 +2971,7 @@ $('lset').addEventListener('change',e=>{const t=e.target,o=LS;
   else if(t.id==='ls-g'){o.g=t.value;o.c=null}
   else if(t.id==='ls-x')o.extra=t.value.trim().replace(/\s*,\s*$/,'');else return;
   lsWrite();drawLSet()});
-function renderPred(){const v=$('l-pred').value.trim(),el=$('l-predshow');el.hidden=!v;el.innerHTML=v?'The dial-in expected <b>'+esc(v)+'</b>':''}
+function renderPred(){const v=$('l-pred').value.trim(),el=$('l-predshow');el.hidden=!v;setHTML(el,v?'The dial-in expected <b>'+esc(v)+'</b>':'')}
 $('l-coffee').addEventListener('input',()=>{const nm=$('l-coffee').value.trim();$('l-howq').textContent=nm?'How was your '+nm+'?':'How was it?'});
 function editBrew(l){LEDIT=l.id;LBEAN=(l.snap&&l.snap.bean&&l.snap.bean.id)||l.beanId||null;$('l-coffee').value=l.coffee||'';$('l-settings').value=l.settings||'';$('l-pred').value=l.pred||'';$('l-notes').value=l.notes||'';
   $('l-settings').dataset.brewer=l.brewer||'';STAR=+l.stars||0;LFL=flOf(l).map(x=>Array.isArray(x)?x.slice():x);renderStars();renderFlForm();renderLBean();renderPred();
@@ -3132,13 +3145,13 @@ function renderLog(){renderShare();renderLastBrew();
 function flEntry(l,i){const fl=flOf(l);if(!fl.length)return '';
   // The wheel, then the notes as a row of chips that wraps, the edit button at its end (not on a line of its own).
   return'<div class="fl-entry"><button type="button" class="fl-mini" data-flview="'+i+'" aria-label="Open the flavour profile">'+fwStatic(fl)+'</button><div class="chips fl-chips">'+flChips(fl)+icoBtn('edit','data-fledit="'+i+'"','Edit the flavour notes')+'</div></div>'}
-function renderFlForm(){$('l-flchips').innerHTML=flChips(LFL);$('l-fl').querySelector('span').textContent=LFL.length?'Add more from the flavour wheel':'Find it on the flavour wheel';
+function renderFlForm(){setHTML($('l-flchips'),flChips(LFL));setTxt($('l-fl').querySelector('span'),LFL.length?'Add more from the flavour wheel':'Find it on the flavour wheel');
   // What the bag promised: tap a note you tasted to add it to your cup. Words that aren't on the wheel are shown, not added.
-  const bag=$('l-bag'),b=lBean(),words=b&&b.flavours&&typeof tnSplit==='function'?tnSplit(b.flavours):[];bag.hidden=!words.length;if(!words.length){bag.innerHTML='';return}
+  const bag=$('l-bag'),b=lBean(),words=b&&b.flavours&&typeof tnSplit==='function'?tnSplit(b.flavours):[];bag.hidden=!words.length;if(!words.length){setHTML(bag,'');return}
   const has=id=>LFL.some(x=>x[0]===id),notes=words.map(w=>{const n=tnLeaf(w),leaf=n&&FW.byId[n.id];return{w:n?n.n:w,n,id:leaf&&leaf.leaf?leaf.id:null}});
   const found=notes.filter(x=>x.id&&has(x.id)).length,can=notes.filter(x=>x.id).length;
-  bag.innerHTML='<div class="l-sub">The bag says</div><div class="tn-cs">'+notes.map(x=>x.id?'<button type="button" class="tn-c'+(has(x.id)?' on':'')+'" data-bagfl="'+x.id+'" aria-pressed="'+has(x.id)+'" style="--fc:'+x.n.c+'"><i></i>'+esc(x.w)+'</button>':'<span class="tn-c off" title="Not on the flavour wheel" style="--fc:var(--muted)"><i></i>'+esc(x.w)+'</span>').join('')+'</div>'+
-    '<p class="l-match">'+(can?found?'You found <b>'+found+' of '+can+'</b> '+(can===1?'note':'notes')+' on the bag'+(found===can?'. Spot on.':'.'):'Tap the ones you tasted.':'These notes aren’t on the flavour wheel; add yours below.')+'</p>'}
+  setHTML(bag,'<div class="l-sub">The bag says</div><div class="tn-cs">'+notes.map(x=>x.id?'<button type="button" class="tn-c'+(has(x.id)?' on':'')+'" data-bagfl="'+x.id+'" aria-pressed="'+has(x.id)+'" style="--fc:'+x.n.c+'"><i></i>'+esc(x.w)+'</button>':'<span class="tn-c off" title="Not on the flavour wheel" style="--fc:var(--muted)"><i></i>'+esc(x.w)+'</span>').join('')+'</div>'+
+    '<p class="l-match">'+(can?found?'You found <b>'+found+' of '+can+'</b> '+(can===1?'note':'notes')+' on the bag'+(found===can?'. Spot on.':'.'):'Tap the ones you tasted.':'These notes aren’t on the flavour wheel; add yours below.')+'</p>')}
 $('l-bag').onclick=e=>{const t=e.target.closest('[data-bagfl]');if(!t)return;const id=t.dataset.bagfl,k=LFL.findIndex(x=>x[0]===id);if(k>=0)LFL.splice(k,1);else LFL.push([id,2]);renderFlForm()};
 function renderPalate(){const el=$('l-palate'),P=palate();el.hidden=!P;if(!P)return;
   el.innerHTML='<button type="button" class="fl-mini" id="pal-open" aria-label="Open your palate">'+fwStatic(P.fl)+'</button><div class="pal-h"><h3>Your palate</h3><p class="hint">From '+P.n+(P.n===1?' brew':' brews')+'. You lean '+P.groups.map(g=>'<b class="pal-g" style="--gc:'+g.c+'"><i></i>'+esc(g.n)+'</b>').join(' and ')+'.</p></div>'+
@@ -4474,11 +4487,17 @@ const svgI=d=>'<svg viewBox="0 0 24 24"><path d="'+d+'"/></svg>';
 // card appears or the screen changes width.
 // Tiles not drawn yet (further down a sheet still sliding in, see vdLite) are fitted once they are, not measured now:
 // measuring them would lay them out early.
-function fitFacts(){document.querySelectorAll('.bfacts').forEach(c=>{const d=c.querySelectorAll('b.nw');if(!d.length||!c.getClientRects().length)return;
+function fitCard(c){const d=c.querySelectorAll('b.nw');if(!d.length||!c.getClientRects().length)return;
   if(c.checkVisibility&&c.closest('#vd.vd-lite')&&!c.checkVisibility({contentVisibilityAuto:true}))return;
   const w=c.clientWidth;if(c._fw===w)return;c._fw=w;let f=1;c.style.setProperty('--bfs','1');
-  for(let i=0;i<8&&[...d].some(e=>e.scrollWidth>e.clientWidth+1);i++){f=+(f-0.05).toFixed(2);c.style.setProperty('--bfs',String(f))}})}
-{let q=0;const go=()=>{if(q)return;q=requestAnimationFrame(()=>{q=0;fitFacts()})};new MutationObserver(go).observe(document.documentElement,{childList:true,subtree:true});
+  for(let i=0;i<8&&[...d].some(e=>e.scrollWidth>e.clientWidth+1);i++){f=+(f-0.05).toFixed(2);c.style.setProperty('--bfs',String(f))}}
+function fitFacts(root){(root||document).querySelectorAll('.bfacts').forEach(fitCard)}
+// Each card is watched for its own size: it's fitted when it first gets one and again when it changes (the phone
+// turning, a text size), after the browser has laid it out. Watching the whole page for any change instead ran this
+// over every card, measuring each, whenever anything changed (every photo loading in), forcing a layout each time.
+const FF_RO=window.ResizeObserver?new ResizeObserver(es=>es.forEach(e=>{const c=e.target;if(!c.isConnected){FF_RO.unobserve(c);return}fitCard(c)})):null;
+const ffWatch=n=>{if(!FF_RO||n.nodeType!==1)return;if(n.classList&&n.classList.contains('bfacts'))FF_RO.observe(n);if(n.firstElementChild)n.querySelectorAll('.bfacts').forEach(c=>FF_RO.observe(c))};
+{let q=0;const go=()=>{if(q)return;q=requestAnimationFrame(()=>{q=0;fitFacts()})};if(FF_RO){new MutationObserver(ms=>{for(const m of ms)m.addedNodes.forEach(ffWatch)}).observe(document.documentElement,{childList:true,subtree:true});document.querySelectorAll('.bfacts').forEach(c=>FF_RO.observe(c))}else new MutationObserver(go).observe(document.documentElement,{childList:true,subtree:true});
   addEventListener('resize',()=>{document.querySelectorAll('.bfacts').forEach(c=>{c._fw=0});go()})}
 const FACT_DATE=/^(\d{1,2} )?[A-Z][a-z]{2,8}\.? (\d{1,2}, )?\d{4}$|^[A-Z][a-z]{2} \d{1,2}$/;
 // A country's flag as a fact tile's icon, the same size everywhere.
@@ -4508,28 +4527,34 @@ const TABSHORT={flow:'Seed to cup',champs:'Championships',wheel:'Flavours',words
 let TITLE_ID='';
 // Fitting the title means measuring it, which makes the browser lay the new page out early. The fit only depends on
 // the page, the screen width, the text size and the back button, so each one is measured once and then reused.
-const TFIT=new Map();
-function fitTitle(){const el=$('ab-title');if(!el)return;const bk=$('ab-back'),key=TITLE_ID+'|'+innerWidth+'|'+document.documentElement.dataset.text+'|'+document.documentElement.dataset.vibe+'|'+!!(bk&&!bk.hidden);
+// The screen width is read once and again only when it changes: reading innerWidth while a page is changing makes the
+// browser lay the whole page out on the spot (it can depend on a scrollbar), which made every tab switch pay for it.
+const TFIT=new Map();let TFIT_W=innerWidth;
+function fitTitle(){const el=$('ab-title');if(!el)return;const bk=$('ab-back'),key=TITLE_ID+'|'+TFIT_W+'|'+document.documentElement.dataset.text+'|'+document.documentElement.dataset.vibe+'|'+!!(bk&&!bk.hidden);
   const hit=TFIT.get(key);if(hit){el.textContent=hit[0];el.style.fontSize=hit[1];return}
+  // A new fit is measured after the slide (measuring lays out the page that's opening: about 100 ms inside the tap).
+  if(performance.now()-(fitTitle._at||0)<450&&!fitTitle._w){fitTitle._w=1;el.textContent=TABNAMES[TITLE_ID]||el.textContent;setTimeout(()=>{fitTitle._w=0;requestAnimationFrame(fitTitle)},480);return}
   el.style.fontSize='';el.textContent=TABNAMES[TITLE_ID]||el.textContent;const room=()=>el.scrollWidth<=el.clientWidth+1;let f=parseFloat(getComputedStyle(el).fontSize);
   for(let i=0;i<8&&!room()&&f>14;i++){f=Math.max(14,f-1);el.style.fontSize=f+'px'}
   if(!room()&&TABSHORT[TITLE_ID]){el.textContent=TABSHORT[TITLE_ID];el.style.fontSize='';f=parseFloat(getComputedStyle(el).fontSize);for(let i=0;i<8&&!room()&&f>14;i++){f=Math.max(14,f-1);el.style.fontSize=f+'px'}}
   // Only keep a fit made with the real fonts in, and only for a known page title.
   if(TABNAMES[TITLE_ID]&&el.clientWidth&&(!document.fonts||document.fonts.status==='loaded'))TFIT.set(key,[el.textContent,el.style.fontSize])}
-addEventListener('resize',()=>{TFIT.clear();requestAnimationFrame(fitTitle)});
+addEventListener('resize',()=>{TFIT.clear();TFIT_W=innerWidth;requestAnimationFrame(fitTitle)});
 // The page's own heading says where you are, so the top bar's title waits until that heading scrolls up under the bar,
 // then takes over (and hands back on the way down). Pages without a heading keep the bar's title.
 let TIO_T=null;const TIO='IntersectionObserver' in window?new IntersectionObserver(es=>{for(const e of es)if(e.target===TIO_T)$('appbar').classList.toggle('title-off',e.isIntersecting)},{rootMargin:'-84px 0px 0px 0px'}):null;
 // atTop: the page was just scrolled to its top, where its heading shows below the bar; no need to measure (measuring
 // there laid the new page out inside the tap). The observer corrects it once the page is drawn if that's wrong.
 function watchTitle(id,atTop){const ab=$('appbar');if(!ab)return;if(TIO&&TIO_T)TIO.unobserve(TIO_T);const s=$(id);TIO_T=s&&s.querySelector(':scope > h2');
-  if(!TIO||!TIO_T){ab.classList.remove('title-off');return}if(atTop)ab.classList.add('title-off');else{const r=TIO_T.getBoundingClientRect();ab.classList.toggle('title-off',r.bottom>84&&r.top<innerHeight)}TIO.observe(TIO_T)}
+  // Back to a page scrolled down: the observer reports where its heading is once the page is drawn (measuring it here
+  // laid out the whole app inside the tap: about 90 ms on a phone with a big gallery).
+  if(!TIO||!TIO_T){ab.classList.remove('title-off');return}if(atTop)ab.classList.add('title-off');TIO.observe(TIO_T)}
 // The shell's writes come first and its one measurement (where the page title sits) last, so a tab switch lays the
 // page out once. top: scroll to the top first (a tab switch), so the title is measured where it will be.
 // The back button pops in when there's somewhere to go back to and shrinks away when there isn't (it used to vanish).
 function setBack(on){const b=$('ab-back');if(!b)return;clearTimeout(b._t);if(on){b.classList.remove('out');b.hidden=false;return}if(b.hidden)return;
   if(RM()){b.hidden=true;return}b.classList.add('out');b._t=setTimeout(()=>{b.hidden=true;b.classList.remove('out')},160)}
-function syncShell(id,top){TITLE_ID=id;$('ab-title').textContent=TABNAMES[id]||'Brew Bench';requestAnimationFrame(fitTitle);setBack(NAVD>=1);{const hw=document.querySelector('.herowrap');if(hw&&hw.classList.contains('on')!==(id==='dial'))hw.classList.toggle('on',id==='dial')}
+function syncShell(id,top){TITLE_ID=id;fitTitle._at=performance.now();$('ab-title').textContent=TABNAMES[id]||'Brew Bench';requestAnimationFrame(fitTitle);setBack(NAVD>=1);{const hw=document.querySelector('.herowrap');if(hw&&hw.classList.contains('on')!==(id==='dial'))hw.classList.toggle('on',id==='dial')}
   document.querySelectorAll('.bottomnav [data-bn]').forEach(b=>b.setAttribute('aria-current',BNGROUP[id]===b.dataset.bn));requestAnimationFrame(movePill);
   if(top===true&&scrollY)window.scrollTo({top:0});watchTitle(id,top==='done');
   updShare(id)}
