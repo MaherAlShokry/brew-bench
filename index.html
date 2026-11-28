@@ -2293,6 +2293,7 @@ i.rl{font-style:inherit;font-variant-numeric:tabular-nums}
 .shsw[aria-pressed="true"]{color:var(--sa);font-weight:700}.shsw[aria-pressed="true"] i{box-shadow:0 0 0 2.5px var(--surface2),0 0 0 4.5px var(--sa)}
 .shsw:focus-visible i,.shmode button:focus-visible{outline:2px solid var(--sa);outline-offset:2px}
 .shcard-pv.busy{position:relative}.shcard-pv.busy::after{content:'';position:absolute;inset:0;background:color-mix(in srgb,var(--paper) 45%,transparent);animation:bfade .2s ease}
+.steps.tl li.hold .t{background:var(--cherry);color:var(--on-accent,#fff)}
 .steps.tl .t.prep{font-size:.7rem;letter-spacing:.02em;text-transform:uppercase;color:var(--muted);background:color-mix(in srgb,var(--ink) 7%,var(--surface))}
 .rr-by .rr-tag{display:inline-block;margin-right:8px;vertical-align:1px}
 .rtip{display:flex;gap:12px;align-items:flex-start;margin:14px 0 4px;padding:12px 14px;border-radius:16px;background:color-mix(in srgb,var(--honey) 14%,var(--surface));border:1px solid color-mix(in srgb,var(--honey) 28%,transparent)}
@@ -3356,7 +3357,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="fb093ed3ab73"</script>
+<script>const BUILD_ID="b7fd3a728f63"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -4622,7 +4623,7 @@ const RECIPES=[
  {b:'april',kind:'pulse',name:'Two-pour flat bottom',by:'Classic flat-bottom technique',off:0,temp:94,dose:15,water:250,why:'A short, even brew suited to the April Brewer\u2019s quick drawdown.',
   steps:['0:00 pour 100g, swirl.','0:45 pour to 250g in a steady centre pour.','2:30 finished.'],tip:'Big first pour, then one steady top-up.'},
  {b:'pulsar',kind:'pulsar',name:'Pulsar no-bypass',by:'Classic Pulsar technique',off:0,temp:95,dose:20,water:320,why:'All water goes through the bed, so a coarse grind still extracts fully.',
-  steps:['0:00 valve CLOSED. Pour 60g, stir.','0:45 OPEN the valve.','0:50 pour through the dispersion cap to 200g.','1:30 pour to 320g.','3:30 finished.'],tip:'Coarser than you would think. If it stalls, open up the grind.'},
+  steps:['0:00 valve closed. Pour 60g, stir.','0:45 open the valve.','0:50 pour through the dispersion cap to 200g.','1:30 pour to 320g.','3:30 finished.'],tip:'Coarser than you would think. If it stalls, open up the grind.'},
  {b:'tricolate',kind:'single',name:'Tricolate single pour',by:'Classic Tricolate technique',off:0,temp:96,dose:15,water:250,why:'Fine grind, one pour, no bypass: high, even extraction.',
   steps:['0:00 pour all 250g in about 20 seconds.','Put the lid on to hold heat.','3:00 finished.'],tip:'Give it a gentle swirl after pouring to level the bed.'},
  {b:'deep27',kind:'pulse',name:'Deep 27 one-cup',by:'Paradise Roasters brew guide',off:0,temp:93,dose:10,water:160,why:'A small dose in four even pours. The deep cone keeps the bed tall enough to extract well even at 10g.',
@@ -4642,17 +4643,17 @@ const RECIPES=[
  {b:'kalita',kind:'pulse',name:'Two-pour Kalita',by:'Classic Kalita technique',off:-0.3,temp:93,dose:22,water:350,why:'Simpler, slightly more body.',
   steps:['0:00 pour 60g, bloom.','0:45 pour steadily to 200g.','1:45 when the level drops to a third, pour to 350g.','3:45 finished.'],tip:'A good daily recipe when you want no fuss.'},
  {b:'sw',kind:'kh1',name:'Hybrid method ("Devil" recipe)',by:'Tetsu Kasuya',off:-0.5,temp:90,temp2:70,dose:20,water:280,why:'Pour-over first at 90°C for acidity and fruit, then a closed-valve immersion at 70°C for sweetness without bitterness. Coarse grind.',
-  steps:['0:00 valve OPEN. Pour 60g at 90°C.','0:30 pour to 120g. Then cool the kettle to about 70°C.','1:15 CLOSE the valve and pour to 280g with the 70°C water.','1:25 let it steep.','1:45 OPEN the valve and let it drain.','3:00 finished.'],
+  steps:['0:00 valve open. Pour 60g at 90°C.','0:30 pour to 120g. Then cool the kettle to about 70°C.','1:15 close the valve and pour to 280g with the 70°C water.','1:25 let it steep.','1:45 open the valve and let it drain.','3:00 finished.'],
   tip:'Keep a small bottle of room-temperature water ready to drop the kettle temperature quickly. On a NEO Switch cone, start 2 to 3 clicks finer.'},
  {b:'sw',kind:'kh2',name:'New Hybrid (2025)',by:'Tetsu Kasuya',off:-0.7,temp:90,temp2:70,dose:20,water:300,why:'Three stages: a closed-valve bloom, an open pour-over at 90°C for clarity, then a closed immersion at about 70°C for sweetness. More body than the original hybrid.',
-  steps:['0:00 valve CLOSED. Pour 45g at 90°C.','0:10 let it bloom with the valve closed.','0:45 OPEN the valve and pour to 120g.','1:30 pour to 200g. Then cool the kettle to about 70°C.','2:10 CLOSE the valve and pour to 300g with the 70°C water.','2:20 let it steep.','2:45 OPEN the valve and let it drain.','3:30 finished.'],
+  steps:['0:00 valve closed. Pour 45g at 90°C.','0:10 let it bloom with the valve closed.','0:45 open the valve and pour to 120g.','1:30 pour to 200g. Then cool the kettle to about 70°C.','2:10 close the valve and pour to 300g with the 70°C water.','2:20 let it steep.','2:45 open the valve and let it drain.','3:30 finished.'],
   tip:'Cool the kettle while the second pour drains, so the 70°C water is ready at 2:10. If it runs long, go coarser rather than hotter.'},
  {b:'sw',kind:'hybrid',name:'Standard hybrid',by:'Classic Switch technique',off:0,temp:94,dose:20,water:300,why:'Immersion for extraction, then open for clarity.',
-  steps:['0:00 valve CLOSED. Pour 100g, swirl.','0:15 let it steep.','0:45 pour to 300g, one gentle swirl.','1:00 let it steep.','1:45 OPEN the valve.','3:00 finished.'],tip:'Open earlier for more clarity, later for more body.'},
+  steps:['0:00 valve closed. Pour 100g, swirl.','0:15 let it steep.','0:45 pour to 300g, one gentle swirl.','1:00 let it steep.','1:45 open the valve.','3:00 finished.'],tip:'Open earlier for more clarity, later for more body.'},
  {b:'swi',kind:'imm',name:'Full immersion',by:'Classic Switch technique',off:0,temp:95,dose:18,water:300,why:'Valve closed for the whole steep, then open it to drain: a clean French press, with or without the NEO add-on.',
-  steps:['0:00 valve CLOSED. Add all the water, stir.','0:15 let it steep.','3:30 stir once and OPEN the valve.','4:30 finished.'],tip:'Great for naturals and anaerobics.'},
+  steps:['0:00 valve closed. Add all the water, stir.','0:15 let it steep.','3:30 stir once and open the valve.','4:30 finished.'],tip:'Great for naturals and anaerobics.'},
  {b:'sw',kind:'hybrid',name:'Percolate, then immerse',by:'Classic Switch technique',off:0,temp:93,dose:20,water:300,why:'Pour-over first for clarity, then a closed-valve finish for body.',
-  steps:['0:00 valve OPEN. Pour 50g, bloom.','0:35 pour to 150g.','1:10 CLOSE the valve and pour to 300g.','1:25 let it steep.','2:00 OPEN the valve.','2:45 finished.'],tip:'On a NEO Switch cone, grind a few clicks finer: it drains faster.'},
+  steps:['0:00 valve open. Pour 50g, bloom.','0:35 pour to 150g.','1:10 close the valve and pour to 300g.','1:25 let it steep.','2:00 open the valve.','2:45 finished.'],tip:'On a NEO Switch cone, grind a few clicks finer: it drains faster.'},
  {b:'clever',kind:'imm',name:'Clever steep',by:'Classic Clever technique',off:0,temp:95,dose:20,water:320,why:'Water first, then coffee, reduces clogging and gives an even steep.',
   steps:['0:00 pour all 320g of water, then add the coffee.','0:15 stir gently to wet everything.','0:25 let it steep.','2:00 stir once, then set on the cup to drain.','3:00 finished.'],tip:'A longer steep adds body; shorten it for clarity.'},
  {b:'aeropress',kind:'aero',name:'The Ultimate AeroPress',by:'James Hoffmann',off:1.2,temp:99,dose:11,water:200,why:'Low dose, fine grind, long steep, gentle press. Remarkably clean.',
@@ -4786,7 +4787,7 @@ const RECIPES=[
   steps:['Put 110g of ice in the server.','0:00 pour 50g, bloom.','0:30 pour to 160g.','2:00 finished; swirl to melt the ice.'],
   tip:'Grind finer than for a hot cup.'},
  {b:'pulsar',kind:'pulsar',name:'Pulsar one cup',by:'Classic technique',off:0.2,temp:95,dose:15,water:240,why:'A smaller dose with the same no-bypass idea: every drop goes through the bed, so a short brew still extracts fully.',
-  steps:['0:00 valve CLOSED. Pour 45g, swirl.','0:40 OPEN the valve.','0:45 pour through the dispersion cap to 240g.','2:45 finished.'],
+  steps:['0:00 valve closed. Pour 45g, swirl.','0:40 open the valve.','0:45 pour through the dispersion cap to 240g.','2:45 finished.'],
   tip:'Still coarser than a V60, but a touch finer than for 20g.'},
  {b:'clever',kind:'imm',name:'Clever with a bloom',by:'Classic technique',off:-0.2,temp:96,dose:18,water:290,why:'A short bloom before the steep lets fresh coffee release its gas, so the grounds soak evenly instead of floating.',
   steps:['0:00 pour 50g, stir gently, bloom.','0:30 pour to 290g.','0:45 let it steep.','2:00 stir once.','2:30 set it on the cup to drain.','3:30 finished.'],
@@ -6929,7 +6930,7 @@ function renderDialRecipe(){const tl=techList(S.brewer),r=dialRec();
   $('d-recipe').hidden=false;
   $('d-recipe').innerHTML='<span class="pill"><i style="background:var(--cherry)"></i>Your recipe</span><h2>'+esc(r.name)+'</h2>'+(r.by?'<p class="hint" style="margin:0">'+esc(r.by)+'</p>':'')+
     '<div class="dr-meta"><span class="gl">'+esc(goalLabel(S.goal,S.amt))+'</span><span>'+S.dose+'g : '+dp.water+'g · 1:'+rr1(S.ratio)+'</span><span>'+S.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span><span>'+esc(gLabel(S.grinder,S.setting))+'</span><span>'+BREWERS[S.brewer].bloom.label+' '+S.bloom+'s</span></div>'+
-    '<div class="dr-cols"><div><h3 style="margin-top:0">Steps</h3>'+pourGraph(dp.steps,dp.water)+stepList(dp.steps)+(r.kind!=='46'?tipBox(r.tip):'')+'</div>'+
+    '<div class="dr-cols"><div><h3 style="margin-top:0">Steps</h3>'+pourGraph(dp.steps,dp.water)+stepList(dp.steps,dp.temp)+(r.kind!=='46'?tipBox(r.tip):'')+'</div>'+
     '<div><h3 style="margin-top:0">What changed and why</h3><ul class="why">'+(notes.length?notes.map(w=>'<li>'+w+'</li>').join(''):'<li>The recipe as written suits this coffee.</li>')+'</ul></div></div>'+
     '<div class="actions"><button type="button" class="btn" data-dtimer>Start brew timer</button><button type="button" class="btn ghost" data-dfull>Original recipe</button></div>'}
 function dialTimer(){const dp=dialPlan();if(!dp)return;openTimer(S.rec,{brewer:S.brewer,grinder:S.grinder,set:{[S.grinder]:S.setting},r:{dose:S.dose},water:dp.water,temp:S.temp,steps:dp.steps,bean:S.bean&&S.bean.id||null})}
@@ -7277,9 +7278,18 @@ function pourOf(txt){const to=/(?<!\d\s?)\b(?:to|until)\s+(\d{2,4})\s?g\b/i.exec
 // the water to a new temperature) take as long as they take: a recipe giving 10 seconds to close the valve and cool
 // the kettle to 70°C left no time to do it. In the timer such a step is split off as a hold: the clock stops there and
 // goes on when you tap Next, so the pour that follows still gets its full time. Steps at 0:00 are done before Start.
+// A hands-on move with no set length: stirring, swirling, the plunger, taking the heat off, breaking the crust, the
+// kettle. It holds like the valve unless the step gives its own length ("stir for 10 seconds", "until 0:35") or is a pour
+// (a swirl straight after a pour is part of the pour), and never on the brew's last step.
+const ACT=/^(?:then\s+)?(?:(?:very\s+)?gently\s+|give\s+(?:the\s+\w+\s+|it\s+)?(?:a\s+|one\s+)?(?:gentle\s+|quick\s+|good\s+)?|one\s+|a\s+)?(?:gentle\s+)?(?:stir|swirl|spin|agitate|break the crust|skim|scoop|insert the plunger|put the plunger|remove the plunger|take (?:it\s+)?off the heat|remove (?:it\s+)?from the heat|remove the heat|(?:cool|lower|reduce|drop|heat|raise)\s+the\s+(?:kettle|water|temperature))\b/i;
+const OWN_TIME=/\bfor (?:about )?\d+\s*(?:to \d+\s*)?(?:s|secs?|seconds)\b|\buntil \d+:\d\d|\bin \d+ seconds/i;
+const POURS=/\b(?:pour|add|fill)\b[^;.]*\d+\s?g\b|\bpour (?:to|through|slowly|the rest|in)\b/i;
+function handsOn(body){const cl=body.split(/;\s*|\.\s+/).map(x=>x.trim()).filter(Boolean);
+  return cl.some(x=>ACT.test(x))&&!POURS.test(body)&&!OWN_TIME.test(body)&&!/\b(?:finish|serve|decant)/i.test(body)}
 function holdSteps(steps,temp0){let tc=+temp0||0;const out=[],holds=new Set(),cap=t=>t.charAt(0).toUpperCase()+t.slice(1);
+  const lastT=steps.reduce((a,x,i)=>/^\s*\d+:\d\d/.test(x)?i:a,-1);let si=-1;
   // The temperature the water goes in at ("at 90°C", "with the 70°C water", "of 85°C water"), not one to get the kettle to.
-  for(const raw of steps){const m=/^(\s*(\d+):(\d\d)\s+)(.*)$/.exec(raw);const tm=raw.match(/(?:\b(?:with|at)\s+(?:the\s+)?|\bof\s+)(\d{2,3})\s?°C|(\d{2,3})\s?°C\s+water/i);const t=+(tm&&(tm[1]||tm[2]))||0;
+  for(const raw of steps){si++;const m=/^(\s*(\d+):(\d\d)\s+)(.*)$/.exec(raw);const tm=raw.match(/(?:\b(?:with|at)\s+(?:the\s+)?|\bof\s+)(\d{2,3})\s?°C|(\d{2,3})\s?°C\s+water/i);const t=+(tm&&(tm[1]||tm[2]))||0;
     if(!m||(+m[2]*60+ +m[3])===0){if(t)tc=t;out.push(raw);continue}
     let body=m[4].trim(),acts=[],rest=body,x;
     if((x=/^(?:then\s+)?(open|close)\s+the\s+valve\b[\s,.:;]*(?:and\s+|then\s+)?(.*)$/i.exec(body))){acts.push(x[1].toLowerCase()+' the valve');rest=x[2]}
@@ -7287,6 +7297,7 @@ function holdSteps(steps,temp0){let tc=+temp0||0;const out=[],holds=new Set(),ca
     else if(/\b(?:flip|fit the cap|attach the cap|switch to the)\b/i.test(body)){const k=body.search(/(?:,\s*|\s+and\s+(?:gently\s+)?|\s+then\s+)(?:gently\s+)?press\b/i);
       if(k>0&&/\b(?:flip|fit the cap|attach the cap|switch to the)\b/i.test(body.slice(0,k))){acts.push(body.slice(0,k));rest=body.slice(k).replace(/^(?:,\s*|\s+and\s+|\s+then\s+)/i,'')}else{acts.push(body.replace(/\.$/,''));rest=''}}
     // A new water temperature mid-brew means a second kettle, or waiting for this one to cool or heat.
+    else if(si!==lastT&&handsOn(body)){const k=body.search(/(?:,\s*|\s+)(?:and|then)\s+let it\b/i);if(k>0){acts.push(body.slice(0,k));rest=body.slice(k).replace(/^(?:,\s*|\s+)(?:and|then)\s+/i,'')}else{acts.push(body.replace(/\.$/,''));rest=''}}
     if(t&&tc&&t!==tc)acts.push('water at '+t+'°C');if(t)tc=t;
     if(!acts.length){out.push(raw);continue}
     holds.add(out.length);out.push(m[1]+cap(acts.map(x=>x.replace(/[\s,.;:]+$/,'')).join(', '))+'.');if(rest.trim())out.push(m[1]+cap(rest.trim()))}
@@ -7940,14 +7951,14 @@ const rr1=v=>Math.round(v*10)/10;
 // Each step also shows what kind of move it is (pour, swirl, valve…) as a small coloured icon; see steps.js.
 // An untimed pour shows the time the chart estimated for it ("~1:00"), so the list and the chart agree.
 const tipBox=t=>t?'<div class="rtip"><i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg></i><p><b>Tip</b>'+esc(t)+'</p></div>':'';
-const stepList=steps=>{steps=withTotals(steps);const c=pourCurve(steps),t1=steps.findIndex(x=>/^\s*\d+:\d\d/.test(x));return '<ol class="steps tl">'+steps.map((x,i)=>{const m=/^\s*(\d+:\d\d)\s*/.exec(x),k=stepKind(x),d=!m&&c&&c.dots[i];return '<li class="k-'+k+'">'+(m?'<span class="t">'+m[1]+'</span>':d&&d.e?'<span class="t est" title="Estimated from the recipe\'s pace">~'+mmss(d.t)+'</span>':i<t1?'<span class="t prep">Prep</span>':'<span class="t dot"></span>')+'<i class="tk" title="'+SKNAME(k)+'">'+SKICO(k)+'</i><span class="sx">'+esc(capS(m?x.slice(m[0].length):x))+'</span></li>'}).join('')+'</ol>'};
+const stepList=(steps,temp)=>{const hs=holdSteps(withTotals(steps),temp);steps=hs.steps;const c=pourCurve(steps),t1=steps.findIndex(x=>/^\s*\d+:\d\d/.test(x));return '<ol class="steps tl">'+steps.map((x,i)=>{const m=/^\s*(\d+:\d\d)\s*/.exec(x),k=stepKind(x),d=!m&&c&&c.dots[i];return '<li class="k-'+k+(hs.holds.has(i)&&m&&m[1]!=='0:00'?' hold':'')+'"'+(hs.holds.has(i)&&m&&m[1]!=='0:00'?' title="Waits until you tap Next"':'')+'>'+(m?'<span class="t">'+m[1]+'</span>':d&&d.e?'<span class="t est" title="Estimated from the recipe\'s pace">~'+mmss(d.t)+'</span>':i<t1?'<span class="t prep">Prep</span>':'<span class="t dot"></span>')+'<i class="tk" title="'+SKNAME(k)+'">'+SKICO(k)+'</i><span class="sx">'+esc(capS(m?x.slice(m[0].length):x))+'</span></li>'}).join('')+'</ol>'};
 function recipeBody(r,i,compact,inSheet){const B=BREWERS[r.b],sc=compact?{dose:r.dose,water:r.water,steps:r.steps,off:r.off,ratio:r.water/r.dose}:scaled(r);const gs=MYG.map(g=>[g,settingFor(g,r.b,sc.off)]);
   const m=rmeta(r);
   return (compact?'<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span>':'')+'</div>'
      :'<p class="hint" style="margin:0 0 .2rem">'+esc(B.name)+' · '+esc(B.type)+'</p>'+factCard([[r.dose+'g','Coffee'],[r.water+'g',r.iced?'Hot water':'Water'],[r.iced?'1:'+Math.round(r.total/r.dose*10)/10:m.ratio||'–','Ratio'+(r.iced?' with ice':'')],
        [r.temp?r.temp+'°C':'–','Temperature',r.temp2?'Then '+r.temp2+'°C':''],[m.time!=null?mmss(m.time):'By eye','Total time'],[m.level,'Level',m.pours?m.pours+' pour'+(m.pours===1?'':'s'):'']].map(([v,l,sub])=>{const t=tileKey(l,v);return [svgI(t?t[2]:'M12 7v6 M12 16.5v.5'),l,esc(String(v))+(sub?'<em class="bf-sub">'+esc(sub)+'</em>':''),t&&t[1]]}),{cls:'rfacts'}))+
    '<div class="meta">'+gs.map(([g,v])=>'<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>').join('')+'</div>'+
-   (r.why?'<p>'+esc(r.why)+'</p>':'')+(compact?'<details class="rsteps"><summary>Steps ('+r.steps.length+')</summary>':'')+(compact?'':pourGraph(sc.steps,sc.water))+stepList(sc.steps)+tipBox(r.tip)+(compact?'</details>':'')+
+   (r.why?'<p>'+esc(r.why)+'</p>':'')+(compact?'<details class="rsteps"><summary>Steps ('+r.steps.length+')</summary>':'')+(compact?'':pourGraph(sc.steps,sc.water))+stepList(sc.steps,r.temp)+tipBox(r.tip)+(compact?'</details>':'')+
    // In the recipe sheet the actions ride along at the bottom, always in reach however far down you are.
    '<div class="actions ib-row'+(inSheet?' sheet-acts':'')+'">'+(inSheet?pbtn('timer','data-timer="'+i+'"','Start timer','main'):ib('timer','data-timer="'+i+'"','Start the timer','main'))+(B.model?ib('cup','data-load="'+i+'"','Brew in the dial-in'):'')+(inSheet?'':icoBtn('share','data-rshare="'+i+'"','Share this recipe')+(r.custom?icoBtn('edit','data-redit="'+esc(r.id)+'"','Edit this recipe'):''))+'</div>'}
 let RF=vwGet('rf',[],vwStrs).map(String),RQ='',RLIST=[];

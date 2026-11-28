@@ -784,7 +784,7 @@ function renderDialRecipe(){const tl=techList(S.brewer),r=dialRec();
   $('d-recipe').hidden=false;
   $('d-recipe').innerHTML='<span class="pill"><i style="background:var(--cherry)"></i>Your recipe</span><h2>'+esc(r.name)+'</h2>'+(r.by?'<p class="hint" style="margin:0">'+esc(r.by)+'</p>':'')+
     '<div class="dr-meta"><span class="gl">'+esc(goalLabel(S.goal,S.amt))+'</span><span>'+S.dose+'g : '+dp.water+'g · 1:'+rr1(S.ratio)+'</span><span>'+S.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span><span>'+esc(gLabel(S.grinder,S.setting))+'</span><span>'+BREWERS[S.brewer].bloom.label+' '+S.bloom+'s</span></div>'+
-    '<div class="dr-cols"><div><h3 style="margin-top:0">Steps</h3>'+pourGraph(dp.steps,dp.water)+stepList(dp.steps)+(r.kind!=='46'?tipBox(r.tip):'')+'</div>'+
+    '<div class="dr-cols"><div><h3 style="margin-top:0">Steps</h3>'+pourGraph(dp.steps,dp.water)+stepList(dp.steps,dp.temp)+(r.kind!=='46'?tipBox(r.tip):'')+'</div>'+
     '<div><h3 style="margin-top:0">What changed and why</h3><ul class="why">'+(notes.length?notes.map(w=>'<li>'+w+'</li>').join(''):'<li>The recipe as written suits this coffee.</li>')+'</ul></div></div>'+
     '<div class="actions"><button type="button" class="btn" data-dtimer>Start brew timer</button><button type="button" class="btn ghost" data-dfull>Original recipe</button></div>'}
 function dialTimer(){const dp=dialPlan();if(!dp)return;openTimer(S.rec,{brewer:S.brewer,grinder:S.grinder,set:{[S.grinder]:S.setting},r:{dose:S.dose},water:dp.water,temp:S.temp,steps:dp.steps,bean:S.bean&&S.bean.id||null})}
@@ -1132,9 +1132,18 @@ function pourOf(txt){const to=/(?<!\d\s?)\b(?:to|until)\s+(\d{2,4})\s?g\b/i.exec
 // the water to a new temperature) take as long as they take: a recipe giving 10 seconds to close the valve and cool
 // the kettle to 70°C left no time to do it. In the timer such a step is split off as a hold: the clock stops there and
 // goes on when you tap Next, so the pour that follows still gets its full time. Steps at 0:00 are done before Start.
+// A hands-on move with no set length: stirring, swirling, the plunger, taking the heat off, breaking the crust, the
+// kettle. It holds like the valve unless the step gives its own length ("stir for 10 seconds", "until 0:35") or is a pour
+// (a swirl straight after a pour is part of the pour), and never on the brew's last step.
+const ACT=/^(?:then\s+)?(?:(?:very\s+)?gently\s+|give\s+(?:the\s+\w+\s+|it\s+)?(?:a\s+|one\s+)?(?:gentle\s+|quick\s+|good\s+)?|one\s+|a\s+)?(?:gentle\s+)?(?:stir|swirl|spin|agitate|break the crust|skim|scoop|insert the plunger|put the plunger|remove the plunger|take (?:it\s+)?off the heat|remove (?:it\s+)?from the heat|remove the heat|(?:cool|lower|reduce|drop|heat|raise)\s+the\s+(?:kettle|water|temperature))\b/i;
+const OWN_TIME=/\bfor (?:about )?\d+\s*(?:to \d+\s*)?(?:s|secs?|seconds)\b|\buntil \d+:\d\d|\bin \d+ seconds/i;
+const POURS=/\b(?:pour|add|fill)\b[^;.]*\d+\s?g\b|\bpour (?:to|through|slowly|the rest|in)\b/i;
+function handsOn(body){const cl=body.split(/;\s*|\.\s+/).map(x=>x.trim()).filter(Boolean);
+  return cl.some(x=>ACT.test(x))&&!POURS.test(body)&&!OWN_TIME.test(body)&&!/\b(?:finish|serve|decant)/i.test(body)}
 function holdSteps(steps,temp0){let tc=+temp0||0;const out=[],holds=new Set(),cap=t=>t.charAt(0).toUpperCase()+t.slice(1);
+  const lastT=steps.reduce((a,x,i)=>/^\s*\d+:\d\d/.test(x)?i:a,-1);let si=-1;
   // The temperature the water goes in at ("at 90°C", "with the 70°C water", "of 85°C water"), not one to get the kettle to.
-  for(const raw of steps){const m=/^(\s*(\d+):(\d\d)\s+)(.*)$/.exec(raw);const tm=raw.match(/(?:\b(?:with|at)\s+(?:the\s+)?|\bof\s+)(\d{2,3})\s?°C|(\d{2,3})\s?°C\s+water/i);const t=+(tm&&(tm[1]||tm[2]))||0;
+  for(const raw of steps){si++;const m=/^(\s*(\d+):(\d\d)\s+)(.*)$/.exec(raw);const tm=raw.match(/(?:\b(?:with|at)\s+(?:the\s+)?|\bof\s+)(\d{2,3})\s?°C|(\d{2,3})\s?°C\s+water/i);const t=+(tm&&(tm[1]||tm[2]))||0;
     if(!m||(+m[2]*60+ +m[3])===0){if(t)tc=t;out.push(raw);continue}
     let body=m[4].trim(),acts=[],rest=body,x;
     if((x=/^(?:then\s+)?(open|close)\s+the\s+valve\b[\s,.:;]*(?:and\s+|then\s+)?(.*)$/i.exec(body))){acts.push(x[1].toLowerCase()+' the valve');rest=x[2]}
@@ -1142,6 +1151,7 @@ function holdSteps(steps,temp0){let tc=+temp0||0;const out=[],holds=new Set(),ca
     else if(/\b(?:flip|fit the cap|attach the cap|switch to the)\b/i.test(body)){const k=body.search(/(?:,\s*|\s+and\s+(?:gently\s+)?|\s+then\s+)(?:gently\s+)?press\b/i);
       if(k>0&&/\b(?:flip|fit the cap|attach the cap|switch to the)\b/i.test(body.slice(0,k))){acts.push(body.slice(0,k));rest=body.slice(k).replace(/^(?:,\s*|\s+and\s+|\s+then\s+)/i,'')}else{acts.push(body.replace(/\.$/,''));rest=''}}
     // A new water temperature mid-brew means a second kettle, or waiting for this one to cool or heat.
+    else if(si!==lastT&&handsOn(body)){const k=body.search(/(?:,\s*|\s+)(?:and|then)\s+let it\b/i);if(k>0){acts.push(body.slice(0,k));rest=body.slice(k).replace(/^(?:,\s*|\s+)(?:and|then)\s+/i,'')}else{acts.push(body.replace(/\.$/,''));rest=''}}
     if(t&&tc&&t!==tc)acts.push('water at '+t+'°C');if(t)tc=t;
     if(!acts.length){out.push(raw);continue}
     holds.add(out.length);out.push(m[1]+cap(acts.map(x=>x.replace(/[\s,.;:]+$/,'')).join(', '))+'.');if(rest.trim())out.push(m[1]+cap(rest.trim()))}
@@ -1795,14 +1805,14 @@ const rr1=v=>Math.round(v*10)/10;
 // Each step also shows what kind of move it is (pour, swirl, valve…) as a small coloured icon; see steps.js.
 // An untimed pour shows the time the chart estimated for it ("~1:00"), so the list and the chart agree.
 const tipBox=t=>t?'<div class="rtip"><i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg></i><p><b>Tip</b>'+esc(t)+'</p></div>':'';
-const stepList=steps=>{steps=withTotals(steps);const c=pourCurve(steps),t1=steps.findIndex(x=>/^\s*\d+:\d\d/.test(x));return '<ol class="steps tl">'+steps.map((x,i)=>{const m=/^\s*(\d+:\d\d)\s*/.exec(x),k=stepKind(x),d=!m&&c&&c.dots[i];return '<li class="k-'+k+'">'+(m?'<span class="t">'+m[1]+'</span>':d&&d.e?'<span class="t est" title="Estimated from the recipe\'s pace">~'+mmss(d.t)+'</span>':i<t1?'<span class="t prep">Prep</span>':'<span class="t dot"></span>')+'<i class="tk" title="'+SKNAME(k)+'">'+SKICO(k)+'</i><span class="sx">'+esc(capS(m?x.slice(m[0].length):x))+'</span></li>'}).join('')+'</ol>'};
+const stepList=(steps,temp)=>{const hs=holdSteps(withTotals(steps),temp);steps=hs.steps;const c=pourCurve(steps),t1=steps.findIndex(x=>/^\s*\d+:\d\d/.test(x));return '<ol class="steps tl">'+steps.map((x,i)=>{const m=/^\s*(\d+:\d\d)\s*/.exec(x),k=stepKind(x),d=!m&&c&&c.dots[i];return '<li class="k-'+k+(hs.holds.has(i)&&m&&m[1]!=='0:00'?' hold':'')+'"'+(hs.holds.has(i)&&m&&m[1]!=='0:00'?' title="Waits until you tap Next"':'')+'>'+(m?'<span class="t">'+m[1]+'</span>':d&&d.e?'<span class="t est" title="Estimated from the recipe\'s pace">~'+mmss(d.t)+'</span>':i<t1?'<span class="t prep">Prep</span>':'<span class="t dot"></span>')+'<i class="tk" title="'+SKNAME(k)+'">'+SKICO(k)+'</i><span class="sx">'+esc(capS(m?x.slice(m[0].length):x))+'</span></li>'}).join('')+'</ol>'};
 function recipeBody(r,i,compact,inSheet){const B=BREWERS[r.b],sc=compact?{dose:r.dose,water:r.water,steps:r.steps,off:r.off,ratio:r.water/r.dose}:scaled(r);const gs=MYG.map(g=>[g,settingFor(g,r.b,sc.off)]);
   const m=rmeta(r);
   return (compact?'<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span>':'')+'</div>'
      :'<p class="hint" style="margin:0 0 .2rem">'+esc(B.name)+' · '+esc(B.type)+'</p>'+factCard([[r.dose+'g','Coffee'],[r.water+'g',r.iced?'Hot water':'Water'],[r.iced?'1:'+Math.round(r.total/r.dose*10)/10:m.ratio||'–','Ratio'+(r.iced?' with ice':'')],
        [r.temp?r.temp+'°C':'–','Temperature',r.temp2?'Then '+r.temp2+'°C':''],[m.time!=null?mmss(m.time):'By eye','Total time'],[m.level,'Level',m.pours?m.pours+' pour'+(m.pours===1?'':'s'):'']].map(([v,l,sub])=>{const t=tileKey(l,v);return [svgI(t?t[2]:'M12 7v6 M12 16.5v.5'),l,esc(String(v))+(sub?'<em class="bf-sub">'+esc(sub)+'</em>':''),t&&t[1]]}),{cls:'rfacts'}))+
    '<div class="meta">'+gs.map(([g,v])=>'<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>').join('')+'</div>'+
-   (r.why?'<p>'+esc(r.why)+'</p>':'')+(compact?'<details class="rsteps"><summary>Steps ('+r.steps.length+')</summary>':'')+(compact?'':pourGraph(sc.steps,sc.water))+stepList(sc.steps)+tipBox(r.tip)+(compact?'</details>':'')+
+   (r.why?'<p>'+esc(r.why)+'</p>':'')+(compact?'<details class="rsteps"><summary>Steps ('+r.steps.length+')</summary>':'')+(compact?'':pourGraph(sc.steps,sc.water))+stepList(sc.steps,r.temp)+tipBox(r.tip)+(compact?'</details>':'')+
    // In the recipe sheet the actions ride along at the bottom, always in reach however far down you are.
    '<div class="actions ib-row'+(inSheet?' sheet-acts':'')+'">'+(inSheet?pbtn('timer','data-timer="'+i+'"','Start timer','main'):ib('timer','data-timer="'+i+'"','Start the timer','main'))+(B.model?ib('cup','data-load="'+i+'"','Brew in the dial-in'):'')+(inSheet?'':icoBtn('share','data-rshare="'+i+'"','Share this recipe')+(r.custom?icoBtn('edit','data-redit="'+esc(r.id)+'"','Edit this recipe'):''))+'</div>'}
 let RF=vwGet('rf',[],vwStrs).map(String),RQ='',RLIST=[];

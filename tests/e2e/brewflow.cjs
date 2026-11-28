@@ -40,7 +40,7 @@ const bl=await p.evaluate(()=>{const out={};for(const [k,name,b] of [['v60','The
     S.bloom=Math.max(B.bloom.min,30);const a=dialPlan().steps;S.bloom=Math.min(B.bloom.max,75);render();const c=dialPlan().steps;
     out[k]={moved:JSON.stringify(a)!==JSON.stringify(c),hidden:$('i-bloom').closest('.field').hidden,a,c}}return out});
 ok('the bloom moves the timer\'s steps (a recipe with setup steps, a closed-valve bloom, an AeroPress)',bl.v60.moved&&bl.kh2.moved&&bl.inv.moved,bl);
-ok('…and a wait inside the bloom stays put',bl.kh2.c.some(s=>/^0:10 let it bloom/.test(s))&&bl.kh2.c.some(s=>/^1:15 OPEN the valve/.test(s)),bl.kh2.c);
+ok('…and a wait inside the bloom stays put',bl.kh2.c.some(s=>/^0:10 let it bloom/.test(s))&&bl.kh2.c.some(s=>/^1:15 open the valve/i.test(s)),bl.kh2.c);
 ok('a recipe with no bloom hides the bloom slider',bl.fp.hidden&&!bl.v60.hidden,bl);
 const sp=await p.evaluate(async()=>{const out={};
   // The Classic 4-minute press: its steep runs from 0:15 to the plunge at 4:00.
@@ -67,6 +67,6 @@ ok('a longer steep extracts more and a shorter one less: the strip moves; the re
 const vs=await p.evaluate(()=>{const i=RECIPES.findIndex(r=>r.name==='New Hybrid (2025)');const r=RECIPES[i];S.brewer=r.b;loadRecipe(i);render();
   const own=+$('i-steep').value,min=+$('i-steep').min,at=v=>{S.steep=v;S.steepRec=S.rec;return dialPlan().steps};
   const s60=at(60),sMin=at(min),t=(st,re)=>{const x=st.find(y=>re.test(y));return x?tOf(x):null};S.steep=0;
-  return{own,min,close:t(s60,/CLOSE the valve/),open60:t(s60,/OPEN the valve and let it drain/),openMin:t(sMin,/OPEN the valve and let it drain/),cue:t(sMin,/let it steep/)}});
+  return{own,min,close:t(s60,/close the valve/i),open60:t(s60,/open the valve and let it drain/i),openMin:t(sMin,/open the valve and let it drain/i),cue:t(sMin,/let it steep/)}});
 ok('on the Switch the steep runs from closing the valve to opening it (New Hybrid: 0:35 by default; 1:00 opens it a minute after it closed)',vs.own===35&&vs.open60-vs.close===60&&vs.openMin>vs.cue,vs);
 ok('no page errors',!errs.length,errs);await b.close()})();

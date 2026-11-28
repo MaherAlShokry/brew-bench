@@ -44,4 +44,12 @@ await p.evaluate(()=>showTab('beans'));await p.waitForTimeout(700);await p.evalu
 const ab0=await p.evaluate(()=>Math.round($('appbar').getBoundingClientRect().top));await p.evaluate(()=>$('b-fab-add').click());await p.waitForTimeout(500);
 const ab1=await p.evaluate(()=>({top:Math.round($('appbar').getBoundingClientRect().top),lock:document.documentElement.classList.contains('fab-lock')}));
 ok('the + menu keeps the top bar in place',ab1.lock&&ab1.top===ab0,{ab0,ab1});await p.evaluate(()=>FAB_OPEN&&FAB_OPEN());
+// 5. Every hands-on step waits, in the timer and on the recipe page alike: a stir, a swirl, the plunger, the heat off.
+// A pour with a swirl, a step that gives its own length and the last step keep the clock.
+const ho=await p.evaluate(()=>{const H=n=>{const r=RECIPES.find(x=>x.name===n),h=holdSteps(r.steps,r.temp);return h.steps.filter((s,i)=>h.holds.has(i))};
+  const i=RECIPES.findIndex(x=>x.name==='The Ultimate V60');openRecipe(i);const page=[...document.querySelectorAll('#vd .steps.tl li.hold')].map(l=>l.textContent);
+  return{v60:H('The Ultimate V60'),clever:H('Clever steep'),siphon:H('Siphon with a double stir'),orig:H('Original AeroPress'),onecup:H('A Better 1-Cup V60'),single:H('Single continuous pour'),page}});
+ok('a stir, a swirl and the plunger wait for Next',ho.v60.some(s=>/^1:45 Stir once each way/.test(s))&&ho.clever.length===2&&ho.siphon.some(s=>/^1:00 Take off the heat\.$/.test(s)),ho);
+ok('…a pour with a swirl, "stir for 10 seconds" and the last step keep the clock',!ho.onecup.length&&!ho.orig.length&&!ho.single.length,ho);
+ok('the recipe page marks the same steps',ho.page.length===1&&/1:45/.test(ho.page[0]),ho.page);
 ok('no page errors',!errs.length,errs);await b.close()})();
