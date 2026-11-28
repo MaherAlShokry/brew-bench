@@ -27,7 +27,7 @@ const au=await p.evaluate(async()=>{const r={id:'rauthor1',custom:true,author:'A
   saveRecipe(r);const i=RECIPES.findIndex(x=>x.id==='rauthor1');openRecipe(i);await new Promise(r=>setTimeout(r,600));
   const by=document.querySelector('dialog[open] .vd-by'),pill=document.querySelector('dialog[open] .vd-head .pill');
   const o={by:by&&by.textContent,full:by&&by.scrollWidth<=by.clientWidth+1,pill:pill&&pill.textContent};document.querySelectorAll('dialog[open]').forEach(d=>d.close());return o});
-ok('a shared recipe shows its author in full under the title',au.by==='From Alexandria Montgomery-Featherstonehaugh'&&au.full&&au.pill==='Shared recipe',au);
+ok('a shared recipe shows its author in full under the title',/^From Alexandria Montgomery-Featherstonehaugh( · |$)/.test(au.by)&&au.full&&au.pill==='Shared recipe',au);
 // 4. Clearer
 const cl=await p.evaluate(()=>{const bn=Object.assign({},BEANS[0],{roast:'medium',process:'washed'}),a=makeRecipe(bn,'v60','clear',3),c=makeRecipe(bn,'v60','balanced',3);
   return{a:[a.off,a.temp,a.water/a.dose],c:[c.off,c.temp,c.water/c.dose]}});

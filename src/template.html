@@ -2191,6 +2191,30 @@ i.rl{font-style:inherit;font-variant-numeric:tabular-nums}
 .gx-ic svg{width:18px;height:18px;fill:none;stroke:var(--cherry);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .gx-row{text-align:left}.gx-row>span:last-child{flex:1;display:flex;flex-direction:column;align-items:flex-start;min-width:0}.gx-row b,.gx-row small{max-width:100%}.gx-row b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.gx-row small{color:var(--muted);font-size:.82rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .gx-row mark{background:color-mix(in srgb,var(--honey) 35%,transparent);color:inherit;border-radius:3px}
+.bc{--ca:var(--cherry);--cb:var(--leaf)}
+.bc-pair{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:8px;margin:2px 0 6px}
+.bc-card{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding:16px 10px 14px;border-radius:20px;background:var(--surface2);border:1.5px solid color-mix(in srgb,var(--c) 35%,transparent);min-width:0}
+.bc-card.a{--c:var(--ca)}.bc-card.b{--c:var(--cb)}
+.bc-card .bpic,.bc-card .le-init{width:48px;height:56px;border-radius:12px;margin-bottom:4px}.bc-card .le-init{height:48px}
+.bc-card b{font:700 .95rem/1.25 var(--display);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bc-card small{color:var(--muted);font-size:.78rem}
+.bc-card .le-stars{margin-top:2px}.bc-card .le-stars .brate,.bc-card .le-stars .rb{font-size:12px}
+.bc-mark{position:absolute;top:10px;left:10px;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;font:800 .7rem var(--body);color:#fff;background:var(--c)}
+.bc-mark.sm{position:static;flex:none;width:20px;height:20px;font-size:.66rem}.bc-mark.a{--c:var(--ca)}.bc-mark.b{--c:var(--cb)}
+.bc-vs{font:800 .72rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.bc-h{margin:22px 0 10px;font:800 .74rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.bc-list{display:flex;flex-direction:column;border-radius:18px;border:1px solid var(--line);overflow:hidden}
+.bc-row{display:flex;flex-direction:column;gap:7px;padding:11px 12px}.bc-row+.bc-row{border-top:1px solid var(--line)}
+.bc-k{display:flex;align-items:center;gap:8px;font-size:.8rem;font-weight:600;color:var(--muted)}
+.bc-k svg,.bc-same svg{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.bc-two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.bc-val{display:flex;align-items:center;min-height:34px;padding:6px 11px;border-radius:11px;font-weight:700;font-size:.9rem;line-height:1.3;overflow-wrap:anywhere;color:var(--ink);background:color-mix(in srgb,var(--c) 13%,var(--surface));border-left:3px solid var(--c)}
+.bc-val.a{--c:var(--ca)}.bc-val.b{--c:var(--cb)}.bc-val.none{font-weight:500;color:var(--muted);background:var(--surface2);border-left-color:var(--line)}
+.bc-same{display:flex;flex-wrap:wrap;gap:8px}.bc-same span{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:99px;background:var(--surface2);font-size:.86rem;font-weight:600}
+.bc-same svg{color:var(--muted)}.bc-same b{font-weight:700}.bc-same em{font-style:normal;font-weight:500;color:var(--muted)}.bc-same .bc-mark{font-style:normal;width:18px;height:18px;font-size:.62rem}
+.bc-sides{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.bc-side{display:flex;align-items:flex-start;gap:10px;padding:12px;border-radius:16px;background:var(--surface2)}.bc-side .bc-none{line-height:20px}.bc-side:has(.bc-chips){align-items:center}.bc-side p{margin:0;font-size:.88rem;line-height:1.45}
+.bc-chips{display:flex;flex-wrap:wrap;gap:6px}.bc-chips span{padding:4px 10px;border-radius:99px;font-size:.8rem;font-weight:600;background:var(--surface)}
+.bc-none{color:var(--muted);font-size:.85rem}
 .rc-tab{width:100%;border-collapse:collapse;margin:14px 0 4px;font-variant-numeric:tabular-nums;table-layout:fixed}.rc-tab th,.rc-tab td{padding:9px 6px;text-align:left;border-bottom:1px solid var(--hair);font-size:.9rem;vertical-align:top}
 .rc-tab thead th{border-bottom:2px solid var(--line)}.rc-tab tbody th{color:var(--muted);font-weight:500;width:30%}.rc-tab tr.diff td{font-weight:700;color:var(--ink)}.rc-tab tr.diff th{color:var(--cherry-ink)}
 .rc-open{all:unset;cursor:pointer;font-weight:700;color:var(--cherry-ink);overflow-wrap:anywhere}.rc-open:focus-visible{outline:2px solid var(--cherry);outline-offset:2px;border-radius:4px}

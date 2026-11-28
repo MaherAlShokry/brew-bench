@@ -2161,6 +2161,30 @@ i.rl{font-style:inherit;font-variant-numeric:tabular-nums}
 .gx-ic svg{width:18px;height:18px;fill:none;stroke:var(--cherry);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .gx-row{text-align:left}.gx-row>span:last-child{flex:1;display:flex;flex-direction:column;align-items:flex-start;min-width:0}.gx-row b,.gx-row small{max-width:100%}.gx-row b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.gx-row small{color:var(--muted);font-size:.82rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .gx-row mark{background:color-mix(in srgb,var(--honey) 35%,transparent);color:inherit;border-radius:3px}
+.bc{--ca:var(--cherry);--cb:var(--leaf)}
+.bc-pair{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:8px;margin:2px 0 6px}
+.bc-card{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding:16px 10px 14px;border-radius:20px;background:var(--surface2);border:1.5px solid color-mix(in srgb,var(--c) 35%,transparent);min-width:0}
+.bc-card.a{--c:var(--ca)}.bc-card.b{--c:var(--cb)}
+.bc-card .bpic,.bc-card .le-init{width:48px;height:56px;border-radius:12px;margin-bottom:4px}.bc-card .le-init{height:48px}
+.bc-card b{font:700 .95rem/1.25 var(--display);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bc-card small{color:var(--muted);font-size:.78rem}
+.bc-card .le-stars{margin-top:2px}.bc-card .le-stars .brate,.bc-card .le-stars .rb{font-size:12px}
+.bc-mark{position:absolute;top:10px;left:10px;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;font:800 .7rem var(--body);color:#fff;background:var(--c)}
+.bc-mark.sm{position:static;flex:none;width:20px;height:20px;font-size:.66rem}.bc-mark.a{--c:var(--ca)}.bc-mark.b{--c:var(--cb)}
+.bc-vs{font:800 .72rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.bc-h{margin:22px 0 10px;font:800 .74rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.bc-list{display:flex;flex-direction:column;border-radius:18px;border:1px solid var(--line);overflow:hidden}
+.bc-row{display:flex;flex-direction:column;gap:7px;padding:11px 12px}.bc-row+.bc-row{border-top:1px solid var(--line)}
+.bc-k{display:flex;align-items:center;gap:8px;font-size:.8rem;font-weight:600;color:var(--muted)}
+.bc-k svg,.bc-same svg{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.bc-two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.bc-val{display:flex;align-items:center;min-height:34px;padding:6px 11px;border-radius:11px;font-weight:700;font-size:.9rem;line-height:1.3;overflow-wrap:anywhere;color:var(--ink);background:color-mix(in srgb,var(--c) 13%,var(--surface));border-left:3px solid var(--c)}
+.bc-val.a{--c:var(--ca)}.bc-val.b{--c:var(--cb)}.bc-val.none{font-weight:500;color:var(--muted);background:var(--surface2);border-left-color:var(--line)}
+.bc-same{display:flex;flex-wrap:wrap;gap:8px}.bc-same span{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:99px;background:var(--surface2);font-size:.86rem;font-weight:600}
+.bc-same svg{color:var(--muted)}.bc-same b{font-weight:700}.bc-same em{font-style:normal;font-weight:500;color:var(--muted)}.bc-same .bc-mark{font-style:normal;width:18px;height:18px;font-size:.62rem}
+.bc-sides{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.bc-side{display:flex;align-items:flex-start;gap:10px;padding:12px;border-radius:16px;background:var(--surface2)}.bc-side .bc-none{line-height:20px}.bc-side:has(.bc-chips){align-items:center}.bc-side p{margin:0;font-size:.88rem;line-height:1.45}
+.bc-chips{display:flex;flex-wrap:wrap;gap:6px}.bc-chips span{padding:4px 10px;border-radius:99px;font-size:.8rem;font-weight:600;background:var(--surface)}
+.bc-none{color:var(--muted);font-size:.85rem}
 .rc-tab{width:100%;border-collapse:collapse;margin:14px 0 4px;font-variant-numeric:tabular-nums;table-layout:fixed}.rc-tab th,.rc-tab td{padding:9px 6px;text-align:left;border-bottom:1px solid var(--hair);font-size:.9rem;vertical-align:top}
 .rc-tab thead th{border-bottom:2px solid var(--line)}.rc-tab tbody th{color:var(--muted);font-weight:500;width:30%}.rc-tab tr.diff td{font-weight:700;color:var(--ink)}.rc-tab tr.diff th{color:var(--cherry-ink)}
 .rc-open{all:unset;cursor:pointer;font-weight:700;color:var(--cherry-ink);overflow-wrap:anywhere}.rc-open:focus-visible{outline:2px solid var(--cherry);outline-offset:2px;border-radius:4px}
@@ -3357,7 +3381,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="b7fd3a728f63"</script>
+<script>const BUILD_ID="50e81b248027"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -6981,7 +7005,9 @@ const TILE_K=[[/^(coffee|dose|shot weight|bag)/i,'#D2793A','M12 3.2c3.5 0 6 3.9 
   [/brewed|brews|cup/i,'#D2793A','M5 9h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z M16 10h1.5a2.5 2.5 0 0 1 0 5H16'],
   [/rating|rated|average/i,'#F59E0B','M12 3.2c3.5 0 6 3.9 6 8.8s-2.5 8.8-6 8.8-6-3.9-6-8.8 2.5-8.8 6-8.8z M12.9 3.6C10.4 6.3 14.3 9 12 12s1.6 5.9-.9 8.4'],
   [/brewer/i,'#6366F1','M5 6h14l-5 8h-4z M10 14v3h4v-3 M7.5 20h9'],
-  [/top coffee|favourite/i,'#F43F5E','M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z']];
+  [/top coffee|favourite/i,'#F43F5E','M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z'],
+  // A recipe's level (Easy, Medium, Advanced): one gauge whatever the level.
+  [/^level$/i,'#8B5CF6','M4.5 17a7.5 7.5 0 1 1 15 0 M12 17l3.5-4.5 M7 17h.01 M17 17h.01']];
 // The attributes and icon for a tile from its label (and, for the strength row, its value).
 const tileKey=(label,val)=>TILE_K.find(([re])=>re.test(String(label||'')))||(/light|medium|strong|gentle|vigorous/i.test(String(val||''))?TILE_K[5]:null);
 // Sets a block's HTML only when it differs from what it last set: drawing the same thing again on each visit made the
@@ -7319,7 +7345,7 @@ function openTimerNow(idx,p){noteRecent(RECIPES[idx]);
   // Tick marks on the ring where each timed step starts.
   const C=2*Math.PI*96,ticks=total?timed.filter(e=>e.t>0&&e.t<total).map(e=>{const a=e.t/total*2*Math.PI-Math.PI/2;return '<line x1="'+(110+86*Math.cos(a)).toFixed(1)+'" y1="'+(110+86*Math.sin(a)).toFixed(1)+'" x2="'+(110+106*Math.cos(a)).toFixed(1)+'" y2="'+(110+106*Math.sin(a)).toFixed(1)+'" class="tm-tick"/>'}).join(''):'';
   const I=d=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+d+'"/></svg>';
-  $('tm-in').innerHTML='<div class="tm2"><div class="tm-top"><button class="tm-ic" id="tm-x" aria-label="Close timer">'+I('M6 6l12 12M18 6L6 18')+'</button><div class="tm-head"><h2 id="tm-title">'+esc(r.name)+'</h2></div>'+cueBtns()+'</div><div class="tm-meta">'+meta.map(([k,m])=>'<span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+LSI[k]+'"/></svg>'+esc(m)+'</span>').join('')+'</div>'+
+  $('tm-in').innerHTML='<div class="tm2"><div class="tm-top"><button class="tm-ic" id="tm-x" aria-label="Close timer">'+I('M6 6l12 12M18 6L6 18')+'</button><div class="tm-head"><h2 id="tm-title">'+esc(rTitle(r))+'</h2></div>'+cueBtns()+'</div><div class="tm-meta">'+meta.map(([k,m])=>'<span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+LSI[k]+'"/></svg>'+esc(m)+'</span>').join('')+'</div>'+
    (total?'<div class="tm-ringwrap"><svg class="tm-ring" viewBox="0 0 220 220"><defs><linearGradient id="tmg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--honey)"/><stop offset="1" stop-color="var(--cherry)"/></linearGradient></defs><circle cx="110" cy="110" r="96" class="tm-track"/><circle id="tm-arc" cx="110" cy="110" r="96" class="tm-arc" transform="rotate(-90 110 110)" stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+C.toFixed(1)+'"/>'+ticks+'</svg>'+
       '<div class="tm-center"><div id="tm-big">0:00</div><div class="tm-of">of '+mmss(total)+'</div></div></div>'+
       '<div class="tm-now" id="tm-card"><div class="tm-cardtop"><div class="tm-step" id="tm-step">Ready when you are</div>'+(ev.some(e=>e.v)?'<span class="tm-vchip" id="tm-valve" aria-live="polite"></span>':'')+'</div><div class="tm-target" id="tm-target"></div><div class="tm-text" id="tm-now">Get your gear ready, then press start.</div><div class="tm-bar"><i id="tm-barfill"></i></div><div class="tm-next" id="tm-next"></div></div>'+
@@ -7955,7 +7981,7 @@ const stepList=(steps,temp)=>{const hs=holdSteps(withTotals(steps),temp);steps=h
 function recipeBody(r,i,compact,inSheet){const B=BREWERS[r.b],sc=compact?{dose:r.dose,water:r.water,steps:r.steps,off:r.off,ratio:r.water/r.dose}:scaled(r);const gs=MYG.map(g=>[g,settingFor(g,r.b,sc.off)]);
   const m=rmeta(r);
   return (compact?'<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span>':'')+'</div>'
-     :'<p class="hint" style="margin:0 0 .2rem">'+esc(B.name)+' · '+esc(B.type)+'</p>'+factCard([[r.dose+'g','Coffee'],[r.water+'g',r.iced?'Hot water':'Water'],[r.iced?'1:'+Math.round(r.total/r.dose*10)/10:m.ratio||'–','Ratio'+(r.iced?' with ice':'')],
+     :(inSheet?'':'<p class="hint" style="margin:0 0 .2rem">'+esc(B.name)+' · '+esc(B.type)+'</p>')+factCard([[r.dose+'g','Coffee'],[r.water+'g',r.iced?'Hot water':'Water'],[r.iced?'1:'+Math.round(r.total/r.dose*10)/10:m.ratio||'–','Ratio'+(r.iced?' with ice':'')],
        [r.temp?r.temp+'°C':'–','Temperature',r.temp2?'Then '+r.temp2+'°C':''],[m.time!=null?mmss(m.time):'By eye','Total time'],[m.level,'Level',m.pours?m.pours+' pour'+(m.pours===1?'':'s'):'']].map(([v,l,sub])=>{const t=tileKey(l,v);return [svgI(t?t[2]:'M12 7v6 M12 16.5v.5'),l,esc(String(v))+(sub?'<em class="bf-sub">'+esc(sub)+'</em>':''),t&&t[1]]}),{cls:'rfacts'}))+
    '<div class="meta">'+gs.map(([g,v])=>'<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>').join('')+'</div>'+
    (r.why?'<p>'+esc(r.why)+'</p>':'')+(compact?'<details class="rsteps"><summary>Steps ('+r.steps.length+')</summary>':'')+(compact?'':pourGraph(sc.steps,sc.water))+stepList(sc.steps,r.temp)+tipBox(r.tip)+(compact?'</details>':'')+
@@ -7973,6 +7999,12 @@ const TEAM=()=>{try{return !!SYNC_DB}catch(e){return false}};
 /* Favorites and recent brews, kept on this phone. A recipe's key survives app updates: its name for built-in
    recipes, its id for yours. */
 const rkey=r=>r.custom?'c:'+r.id:'r:'+slug(r.name);
+// A champion's recipe keeps its full name ("Chad Wang (Brewers Cup 2017)") as its identity, in saved brews and links; where
+// the competition shows as a tag beside it (the list, the recipe page, the timer) the name is just the champion's.
+// Only a recipe named for its win ("Chad Wang (Brewers Cup 2017)"); one that is a champion's own named method ("Tetsu Kasuya
+// 4:6") keeps its name.
+const champNamed=r=>!!(r&&r.champ&&COMPS[r.champ.c]&&r.name===r.champ.who+' ('+COMPS[r.champ.c].short+' '+r.champ.y+')');
+const rTitle=r=>champNamed(r)?r.champ.who:r?r.name:'',champTag=r=>r&&r.champ&&COMPS[r.champ.c]?COMPS[r.champ.c].short+' '+r.champ.y:'';
 // Lists of recipe keys (plain strings), which load() would drop as it only keeps saved objects.
 // Recipes that were the same method in another profile, dose or ratio were folded into one (the dial-in sets those);
 // their old keys lead to the recipe they joined.
@@ -8093,12 +8125,12 @@ const RF_NAME=()=>selName(RF,rfName,'All recipes');
 const RR_IC={time:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="7.5"/><path d="M12 9.5V13l2.5 1.6M10 3h4"/></svg>',
   temp:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13.6V5a2 2 0 0 1 4 0v8.6a4 4 0 1 1-4 0z"/><path d="M12 17v-5"/></svg>'};
 // o.lv false: the level is already the heading. o.brewer: say which brewer (when the list isn't grouped by brewer).
-function rrow(r,i,o={}){const m=rmeta(r),lv={Easy:'e',Medium:'i',Advanced:'a'}[m.level],who=r.by?r.by.split(/,\s*/)[0].replace(/\s*\([^)]*\)\s*$/,''):'';
-  const tags=(BTAG[r.b]?'<span class="rr-tag neo">'+BTAG[r.b]+'</span>':'')+(r.champ?'<span class="rr-tag champ">Champion</span>':'')+(r.custom?'<span class="rr-tag ours">'+esc(r.author&&r.author!==ME?'From '+r.author:'Yours')+'</span>':'');
+function rrow(r,i,o={}){const m=rmeta(r),lv={Easy:'e',Medium:'i',Advanced:'a'}[m.level],who=champNamed(r)?'':r.by?r.by.split(/,\s*/)[0].replace(/\s*\([^)]*\)\s*$/,''):'';
+  const tags=(BTAG[r.b]?'<span class="rr-tag neo">'+BTAG[r.b]+'</span>':'')+(r.champ?'<span class="rr-tag champ">'+esc(champTag(r))+'</span>':'')+(r.custom?'<span class="rr-tag ours">'+esc(r.author&&r.author!==ME?'From '+r.author:'Yours')+'</span>':'');
   const st=['<span class="rr-dose">'+r.dose+'<i aria-hidden="true">→</i>'+r.water+'<em>g</em></span>',m.ratio?'<span>'+m.ratio+'</span>':'',
     m.time!=null?'<span>'+RR_IC.time+mmss(m.time)+'</span>':'',r.temp?'<span>'+RR_IC.temp+r.temp+'°</span>':''].filter(Boolean).join('');
   return '<article class="rrow'+(r.custom?' mine':'')+'"><button type="button" class="rr-open" data-open="'+i+'">'+
-    '<span class="rr-t"><b>'+esc(r.name)+'</b></span>'+
+    '<span class="rr-t"><b>'+esc(rTitle(r))+'</b></span>'+
     '<span class="rr-by">'+tags+[o.lv===false?'':'<span class="lv lv-'+lv+'"><i aria-hidden="true"></i>'+m.level+'</span>',o.brewer?'<span class="rr-bw">'+esc(famName(r.b))+'</span>':'',who?'<span class="rr-who">'+esc(who)+'</span>':''].filter(Boolean).join('<span class="rr-sep" aria-hidden="true">·</span>')+'</span>'+
     '<span class="rr-m" aria-label="'+esc([r.dose+' g coffee, '+r.water+' g water',m.ratio,m.time!=null?mmss(m.time):'',r.temp?r.temp+'°C':''].filter(Boolean).join(', '))+'">'+st+'</span></button>'+
     '<div class="rr-side">'+favBtn(r)+'<button type="button" class="rr-play" data-timer="'+i+'" aria-label="Start the timer for '+esc(r.name)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button></div></article>'}
@@ -8196,7 +8228,8 @@ function openRecipe(i){const r=RECIPES[i],B=BREWERS[r.b],d=$('vd'),shared=!!(r.c
   // Share and Edit sit in the sheet's header with Save, as on a coffee's page.
   const tools='<span class="vd-tools">'+favBtn(r)+'<button type="button" class="vd-tool" data-rshare="'+i+'" aria-label="Share this recipe" title="Share">'+lIc('share')+'</button>'+
     (r.custom?'<button type="button" class="vd-tool" data-redit="'+esc(r.id)+'" aria-label="Edit this recipe" title="Edit">'+lIc('edit')+'</button>':'')+'</span>';
-  d.querySelector('#vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">\u2715</button>'+tools+'<span class="pill"><i style="background:var(--cherry)"></i>'+(r.custom?(shared?'Shared recipe':'Your recipe'):'Recipe')+'</span><h2 id="vd-title">'+esc(r.name)+'</h2>'+(shared||r.by?'<p class="hint vd-by">'+esc(shared?'From '+r.author:r.by)+'</p>':'')+'</div>'+
+  d.querySelector('#vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">\u2715</button>'+tools+'<span class="pill"'+(r.champ?' style="--c:var(--honey)"':'')+'><i style="background:'+(r.champ?'var(--honey)':'var(--cherry)')+'"></i>'+(r.custom?(shared?'Shared recipe':'Your recipe'):r.champ?esc(champTag(r)):'Recipe')+'</span><h2 id="vd-title">'+esc(rTitle(r))+'</h2>'+
+     '<p class="hint vd-by">'+[shared?'From '+r.author:champNamed(r)?(r.by||'').replace(/^[^,]*,\s*/,'').replace(/^./,c=>c.toUpperCase()):r.by,B&&B.name].filter(Boolean).map(esc).join('<span aria-hidden="true"> · </span>')+'</p></div>'+
    '<div class="vd-body"><div class="rscale" role="group" aria-label="Scale this recipe">'+ib('minus','data-rsd="-1"','Less coffee','sm')+'<span class="rs-v"><b id="rs-d"></b><small id="rs-w"></small></span>'+ib('plus','data-rsd="1"','More coffee','sm')+
      '<button type="button" class="ib rs-ice" id="rs-ice" aria-pressed="false" aria-label="Iced: brew over ice" title="Iced: brew over ice">'+lIc('ice')+'</button></div><div id="rs-body"></div>'+'</div>';
   // Scale it: the coffee in 1 g steps (the water, pours and pour chart follow at the recipe's ratio; in a dripper the
@@ -9149,7 +9182,50 @@ function logEntryHTML(l,i){const ag=againPlan(l),st=clamp(Math.round(+l.stars||0
   return '<article class="logentry le2"><div class="le-top">'+logThumb(l)+'<div class="le-tt"><b>'+esc(l.coffee||'Untitled')+'</b><div class="le-sub"><span class="le-meta">'+(who?'<span class="le-who">'+esc(who)+'</span><span aria-hidden="true">·</span>':'')+esc(fmtDate(l))+(l.edited?' · edited':'')+'</span>'+rate+'</div></div></div>'+
     (pills.length?'<div class="le-pills">'+pills.map(([k,t])=>'<span class="le-pill k-'+k+'">'+(LSI[k==='ratio'?'water':k]?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+LSI[k==='ratio'?'water':k]+'"/></svg>':'')+esc(t)+'</span>').join('')+'</div>':'')+
     (rest?'<p class="le-rest">'+esc(rest)+'</p>':'')+(l.pred||TASTEW[l.taste]?'<p class="le-pred">'+[l.pred?'Expected <b>'+esc(l.pred)+'</b>':'',TASTEW[l.taste]?'Tasted <b class="t-'+l.taste+'">'+TASTEW[l.taste]+'</b>':''].filter(Boolean).join(' · ')+'</p>':'')+(l.notes?'<blockquote class="le-notes">'+esc(l.notes)+'</blockquote>':'')+flEntry(l,i)+
-    '<div class="le-act">'+(ag?ib('again','data-again="'+i+'"','Brew this again','main sm le-again'):'')+'<span class="le-acts">'+(flOf(l).length?'':ib('wheel','data-fledit="'+i+'"','Add flavour notes','sm'))+ib('share','data-lshare="'+i+'"','Share this brew','sm')+(canEdit(l)?ib('edit','data-edit="'+i+'"','Edit this brew','sm'):'')+ib('del','data-del="'+i+'"','Delete this brew','sm')+'</span></div></article>'}
+    '<div class="le-act">'+(ag?ib('again','data-again="'+i+'"','Brew this again','main sm le-again'):'')+'<span class="le-acts">'+(flOf(l).length?'':ib('wheel','data-fledit="'+i+'"','Add flavour notes','sm'))+(LOG.length>1?ib('cmp','data-lcmp="'+i+'"','Compare with another brew','sm'):'')+ib('share','data-lshare="'+i+'"','Share this brew','sm')+(canEdit(l)?ib('edit','data-edit="'+i+'"','Edit this brew','sm'):'')+ib('del','data-del="'+i+'"','Delete this brew','sm')+'</span></div></article>'}
+/* Two brews side by side, as two recipes are compared: pick one brew, then another (the same coffee first), and every
+   setting, the taste and the rating line up, with what changed between them at the top. */
+function brewFacts(l){const s=window.CARD_OK?okSnap(l.snap):null,f={};
+  if(s){const rr=s.rec?snapRecipe(s):null;f.rec=rr?rr.name:s.rec||'';f.brewer=s.b&&BREWERS[s.b]?BREWERS[s.b].name:'';f.dose=s.dose;f.water=s.water;f.temp=s.t;f.grind=s.g&&s.c!=null?gname(s.g)+' '+dial(s.g,s.c):'';f.ratio=s.ra||(s.dose&&s.water?s.water/s.dose:null)}
+  else{const q=parseSettings(l.settings||''),B=BREWERS[l.brewer]||q.brewer;f.rec=q.rec?q.rec.name:'';f.brewer=B?B.name:'';f.dose=q.dose;f.water=q.water;f.temp=q.temp;f.grind=q.grind?q.grind.replace(' · ',' '):'';f.ratio=q.ratio||(q.dose&&q.water?q.water/q.dose:null)}
+  f.stars=clamp(Math.round(+l.stars||0),0,5);f.taste=TASTEW[l.taste]||'';f.fl=flOf(l).map(([id])=>(FW.byId[id]||{}).n).filter(Boolean);return f}
+function openBrewPick(i){if(fromTap(()=>openBrewPickNow(i)))return;openBrewPickNow(i)}
+function openBrewPickNow(i){const d=$('vd'),a=LOG[i];if(!a)return;let q='';const co=lCoffee(a).toLowerCase();
+  // Under "Same coffee" the date leads (the name would repeat on every row); elsewhere the coffee does.
+  const row=(k,same)=>{const l=LOG[k],f=brewFacts(l);return'<button type="button" class="rcp-row" data-bcp="'+k+'"><b>'+esc(same?fmtDate(l):lCoffee(l))+'</b><small>'+esc([same?'':fmtDate(l),f.rec,f.stars?f.stars+' of 5 beans':''].filter(Boolean).join(' · '))+'</small></button>'};
+  const rows=()=>{const ks=LOG.map((l,k)=>k).filter(k=>k!==i&&(!q||(lCoffee(LOG[k])+' '+brewFacts(LOG[k]).rec+' '+fmtDate(LOG[k])).toLowerCase().includes(q)));
+    const same=ks.filter(k=>lCoffee(LOG[k]).toLowerCase()===co),rest=ks.filter(k=>lCoffee(LOG[k]).toLowerCase()!==co).slice(0,q?200:40);
+    return(same.length?'<h3 class="rcp-h">Same coffee</h3>'+same.map(k=>row(k,true)).join(''):'')+(rest.length?'<h3 class="rcp-h">Other brews</h3>'+rest.map(k=>row(k,false)).join(''):'')+(!ks.length?'<p class="hint">No brew matches.</p>':'')};
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Compare</span><h2 id="vd-title">Compare with…</h2>'+
+    '<input type="search" id="bcp-q" class="rcp-q" placeholder="Search your brews" aria-label="Search your brews" autocomplete="off"></div><div class="vd-body"><div class="rcp-list" id="bcp-list">'+rows()+'</div></div>';
+  $('bcp-q').oninput=e=>{q=e.target.value.trim().toLowerCase();$('bcp-list').innerHTML=rows()};
+  $('bcp-list').onclick=e=>{const b=e.target.closest('[data-bcp]');if(b)openBrewCompare(i,+b.dataset.bcp)};
+  $('vd-x').onclick=()=>d.close();showDlg(d);d.scrollTop=0}
+function openBrewCompare(i,j){const d=$('vd'),a=LOG[i],b=LOG[j];if(!a||!b)return;const A=brewFacts(a),B=brewFacts(b),g=v=>v!=null&&v!==''?gfmt(v)+' g':'';
+  const ic=p=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+p+'"/></svg>',CUP='M5 9h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z M16 10h1.5a2.5 2.5 0 0 1 0 5H16',
+    STAR='M12 4l2.4 5 5.4.6-4 3.7 1.1 5.3L12 16l-4.9 2.6 1.1-5.3-4-3.7 5.4-.6z';
+  // Settings first (what you'd change next time), then how it came out.
+  const rows=[['Recipe',LSI.rec,A.rec,B.rec],['Brewer',LSI.brew,A.brewer,B.brewer],['Grind',LSI.grind,A.grind,B.grind],['Coffee',LSI.dose,g(A.dose),g(B.dose)],['Water',LSI.water,g(A.water),g(B.water)],
+    ['Ratio','M12 4v16 M8 20h8 M5 7h14 M5 7l-2.5 6a2.5 2.5 0 0 0 5 0z M19 7l-2.5 6a2.5 2.5 0 0 0 5 0z',A.ratio?'1:'+rr1(A.ratio):'',B.ratio?'1:'+rr1(B.ratio):''],['Water temp',LSI.temp,A.temp?A.temp+'°C':'',B.temp?B.temp+'°C':''],
+    ['Tasted',CUP,A.taste,B.taste],['Rating',STAR,A.stars?A.stars+' of 5':'',B.stars?B.stars+' of 5':'']].filter(([,,x,y])=>x||y);
+  // Changed: both brews say, differently. Noted on one only: the other brew didn't record it. Same: both say the same.
+  const diff=rows.filter(([,,x,y])=>x&&y&&x!==y),one=rows.filter(([,,x,y])=>!x!==!y),same=rows.filter(([,,x,y])=>x===y);
+  const val=(v,k)=>'<span class="bc-val '+k+(v?'':' none')+'">'+(v?esc(v):'Not noted')+'</span>';
+  const card=(l,f,k)=>'<div class="bc-card '+k+'"><span class="bc-mark">'+k.toUpperCase()+'</span>'+logThumb(l)+'<b>'+esc(lCoffee(l))+'</b><small>'+esc(fmtDate(l))+'</small>'+
+    (f.stars?'<span class="le-stars">'+beanRate(f.stars)+'</span>':'<span class="le-stars none">Not rated</span>')+'</div>';
+  const fl=(f,k)=>'<div class="bc-side"><span class="bc-mark sm '+k+'">'+k.toUpperCase()+'</span>'+(f.length?'<span class="bc-chips">'+f.map(x=>'<span>'+esc(x)+'</span>').join('')+'</span>':'<span class="bc-none">None noted</span>')+'</div>';
+  const note=(l,k)=>'<div class="bc-side"><span class="bc-mark sm '+k+'">'+k.toUpperCase()+'</span>'+(l.notes?'<p>'+esc(l.notes)+'</p>':'<span class="bc-none">No notes</span>')+'</div>';
+  $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><button type="button" class="vd-back" id="bc-back">‹ Pick another</button><span class="pill"><i style="background:var(--cherry)"></i>Compare</span><h2 id="vd-title">Two brews</h2></div>'+
+    '<div class="vd-body bc">'+
+      '<div class="bc-pair">'+card(a,A,'a')+'<span class="bc-vs" aria-hidden="true">vs</span>'+card(b,B,'b')+'</div>'+
+      '<h3 class="bc-h">'+(diff.length?'What changed':'Nothing changed')+'</h3>'+
+      (diff.length?'<div class="bc-list">'+diff.map(([k,p,x,y])=>'<div class="bc-row"><span class="bc-k">'+ic(p)+esc(k)+'</span><span class="bc-two">'+val(x,'a')+val(y,'b')+'</span></div>').join('')+'</div>'
+        :'<p class="bc-none">'+(one.length?'Nothing both brews noted differs.':'The same settings: any difference came from the coffee or the day.')+'</p>')+
+      (one.length?'<h3 class="bc-h">Noted on one only</h3><div class="bc-same">'+one.map(([k,p,x,y])=>'<span><i class="bc-mark sm '+(x?'a':'b')+'">'+(x?'A':'B')+'</i><em>'+esc(k)+'</em><b>'+esc(x||y)+'</b></span>').join('')+'</div>':'')+
+      (same.length?'<h3 class="bc-h">Same in both</h3><div class="bc-same">'+same.map(([k,p,x])=>'<span>'+ic(p)+'<em>'+esc(k)+'</em><b>'+esc(x)+'</b></span>').join('')+'</div>':'')+
+      (A.fl.length||B.fl.length?'<h3 class="bc-h">Flavours</h3><div class="bc-sides">'+fl(A.fl,'a')+fl(B.fl,'b')+'</div>':'')+
+      (a.notes||b.notes?'<h3 class="bc-h">Notes</h3><div class="bc-sides">'+note(a,'a')+note(b,'b')+'</div>':'')+'</div>';
+  $('bc-back').onclick=()=>openBrewPickNow(i);$('vd-x').onclick=()=>d.close();if(!d.open)showDlg(d);d.scrollTop=0}
 // Search, then a filter and a sort button, as on Recipes: each opens a sheet. A dot on the filter says one is on.
 let LLN=0;const saveLF=()=>save('bb-logfilter',{min:LF.min,who:LF.who,sort:LF.sort,coffee:LF.coffee,origin:LF.origin,region:LF.region,brewer:LF.brewer,recipe:LF.recipe,taste:LF.taste,period:LF.period});
 // What each brew is, for the filters and the groups: its coffee, that coffee's origin and region, the brewer, the recipe.
@@ -9285,6 +9361,7 @@ function againPlan(l){const s=l&&window.CARD_OK?okSnap(l.snap):null;if(!s)return
 function brewAgain(l){const a=againPlan(l);if(!a)return;openTimer(a.idx,a.p);if(a.why)setTimeout(()=>toast(a.why),350)}
 $('l-list').onclick=e=>{
   const ag=e.target.closest('[data-again]');if(ag){const l=LOG[+ag.dataset.again];if(l)brewAgain(l);return}
+  const lc=e.target.closest('[data-lcmp]');if(lc){const k=+lc.dataset.lcmp;if(LOG[k])openBrewPick(k);return}
   const ls=e.target.closest('[data-lshare]');if(ls){const l=LOG[+ls.dataset.lshare];if(l)openShare(logEntryDoc(l));return}
   const fe=e.target.closest('[data-fledit]'),fv=e.target.closest('[data-flview]'),ed=e.target.closest('[data-edit]');
   if(ed){const l=LOG[+ed.dataset.edit];if(l&&canEdit(l))editBrew(l);return}
