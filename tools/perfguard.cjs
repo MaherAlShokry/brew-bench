@@ -5,9 +5,10 @@
 // again, and only a slowdown that holds fails the check. Writes perfguard.json and perfguard.md (a table for the PR).
 // Usage: node tools/perfguard.cjs [rounds]   (needs Playwright; serve both builds first)
 const {chromium}=require('playwright');const path=require('path'),fs=require('fs');
-const seed=require(path.join(__dirname,'..','tests','e2e','seed2.cjs'));
+// A bench lived in for a year (24 extra coffees, 150 brews with flavours and notes): some slowdowns only show with a real log.
+const seed=require(path.join(__dirname,'..','tests','e2e','seedbig.cjs'));
 const BASE=+(process.env.BASE||8098),PR=+(process.env.PR||8099),ROUNDS=+(process.argv[2]||3);
-const ACTIONS=['tap a rating','roast choice','light/dark','bottom tabs','open a coffee','passport view','open the timer','first tab visits'];
+const ACTIONS=['tap a rating','roast choice','light/dark','bottom tabs','open a coffee','passport view','diary view','brew log and back','open the timer','first tab visits'];
 async function run(port){const b=await chromium.launch();const c=await b.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,serviceWorkers:'block'});
   await c.route(/.*/,r=>r.request().url().startsWith('http://localhost')?r.continue():r.abort());const p=await c.newPage();
   await p.addInitScript(s=>{sessionStorage.setItem('bb-splashed','1');if(!localStorage.getItem('bb-seeded')){eval('('+s+')()');localStorage.setItem('bb-seeded','1')}window.Capacitor={isNativePlatform:()=>true,getPlatform:()=>'android',Plugins:{}}},seed.toString());
@@ -32,6 +33,10 @@ async function run(port){const b=await chromium.launch();const c=await b.newCont
   await p.evaluate(()=>showTab('beans'));await p.waitForTimeout(900);
   await meas('open a coffee',async i=>{await p.tap('#beans .crow >> nth='+(i%3));await p.waitForTimeout(700);await p.evaluate(()=>$('vd').close())},5,700);
   await meas('passport view',async i=>{await p.tap('#bg-views [data-v="'+(i%2?'coffees':'passport')+'"]')},6,900);
+  await meas('diary view',async i=>{await p.tap('#bg-views [data-v="'+(i%2?'coffees':'diary')+'"]')},6,900);
+  // Settings, then the Brew log over it and back: the page you reported, with the year of brews in it.
+  await p.evaluate(()=>showTab('settings'));await p.waitForTimeout(900);
+  await meas('brew log and back',async i=>{await p.tap('#settings [data-go="log"]');await p.waitForTimeout(800);await p.evaluate(()=>history.back())},4,900);
   await meas('open the timer',async i=>{await p.evaluate(()=>showTab('recipes'));await p.waitForTimeout(300);await p.evaluate(()=>openTimer(2));await p.waitForTimeout(700);await p.evaluate(()=>$('timer').close())},4,700);
   await b.close();return out}
 (async()=>{const S={base:{},pr:{}};const add=(k,o)=>{for(const [a,v] of Object.entries(o))(S[k][a]=S[k][a]||[]).push(v)};

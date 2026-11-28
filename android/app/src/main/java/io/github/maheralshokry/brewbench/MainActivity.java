@@ -57,6 +57,28 @@ public class MainActivity extends BridgeActivity {
         // The back gesture (or button) steps back inside the app: it closes the open sheet or returns to the previous
         // screen. Only when there is nowhere left to go does the app go to the background.
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            // Android 14 and later report the back swipe as it happens (predictive back): the page shows what back
+            // will close following your finger, springs back if you change your mind, and closes from there if not.
+            private void js(String code) {
+                WebView w = getBridge() == null ? null : getBridge().getWebView();
+                if (w != null) w.evaluateJavascript(code, null);
+            }
+
+            @Override
+            public void handleOnBackStarted(@androidx.annotation.NonNull androidx.activity.BackEventCompat e) {
+                js("window.bbBackStart&&window.bbBackStart('" + (e.getSwipeEdge() == androidx.activity.BackEventCompat.EDGE_RIGHT ? "right" : "left") + "')");
+            }
+
+            @Override
+            public void handleOnBackProgressed(@androidx.annotation.NonNull androidx.activity.BackEventCompat e) {
+                js("window.bbBackMove&&window.bbBackMove(" + e.getProgress() + ")");
+            }
+
+            @Override
+            public void handleOnBackCancelled() {
+                js("window.bbBackCancel&&window.bbBackCancel()");
+            }
+
             @Override
             public void handleOnBackPressed() {
                 WebView web = getBridge() == null ? null : getBridge().getWebView();
