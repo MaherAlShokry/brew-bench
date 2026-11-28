@@ -1,6 +1,6 @@
 // Surprise me / Make a recipe: the recipe is there at once and is made again the moment a pick changes (no "create"
 // step, no stray link); each row (coffee, brewer, cup) has a lock and Shuffle redraws only the unlocked rows; the
-// actions are Save and brew it and Shuffle (Another version when you picked yourself), and saving opens the recipe.
+// actions are Brew it / Save and brew it and Shuffle (Another version when you picked yourself), and either opens the recipe.
 {const o=require('path').join(__dirname,'out');for(const d of ['','bt','ed','nav','shots'])require('fs').mkdirSync(require('path').join(o,d),{recursive:true});process.chdir(o)}
 const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();
 const ok=(n,v,x)=>console.log((v?'ok   ':'FAIL ')+n+(v||x===undefined?'':'  ('+JSON.stringify(x)+')'));
@@ -21,7 +21,9 @@ const r=await p.evaluate(async()=>{const w=t=>new Promise(r=>setTimeout(r,t)),Q=
   for(let i=0;i<6;i++){$('mk-again').click();await w(120);beans.add(pick('bean'));if(pick('b')!==b0||pick('goal')!==g0){o.brokeLock=true;break}}
   o.shuffle={beans:beans.size,lockedPressed:Q('[data-lock="b"]').getAttribute('aria-pressed')};
   // Save opens the saved recipe.
-  const n=RECIPES.length;$('mk-save').click();await w(500);o.saved=RECIPES.length===n+1&&!!document.querySelector('dialog[open] #vd-title')&&document.querySelector('dialog[open] #vd-title').textContent===RECIPES[RECIPES.length-1].name;
+  // One of the brewer's own recipes (Brew it) opens that recipe and adds nothing; a recipe made here (Save and brew it) is saved and opened.
+  const n=RECIPES.length,shown=name(),lib=/^Brew it$/.test($('mk-save').textContent.trim());$('mk-save').click();await w(500);const tt=(document.querySelector('dialog[open] #vd-title')||{}).textContent;
+  o.saved=lib?RECIPES.length===n&&tt===shown:RECIPES.length===n+1&&tt===RECIPES[RECIPES.length-1].name;o.lib=lib;
   document.querySelectorAll('dialog[open]').forEach(x=>x.close());
   // Make a recipe for a coffee: no locks, "Another version", instant too.
   openMakeRecipe(BEANS[1].id);await w(400);o.make={atOnce:!!name(),locks:QA('[data-lock]').length,again:$('mk-again').getAttribute('aria-label'),bean:pick('bean')===BEANS[1].id};
@@ -32,6 +34,6 @@ ok('the actions are Save and brew it and Shuffle, in the floating bar',JSON.stri
 ok('the summary names the coffee, brewer and cup',/·.*·/.test(r.line||''),r.line);
 ok('a chip makes the recipe again at once, keeping the sheet\'s place',r.chip.goal&&r.chip.keptScroll,r.chip);
 ok('Shuffle with brewer and cup locked changes only the coffee',!r.brokeLock&&r.shuffle.beans>1&&r.shuffle.lockedPressed==='true',r.shuffle);
-ok('Save and brew it saves the recipe and opens it',r.saved);
+ok('Brew it opens the recipe shown (Save and brew it saves a made one first)',r.saved,{lib:r.lib});
 ok('Make a recipe for a coffee: instant, no locks, Another version',r.make.atOnce&&r.make.locks===0&&r.make.again==='Another version'&&r.make.bean,r.make);
 ok('no page errors',!errs.length,errs);await b.close()})();

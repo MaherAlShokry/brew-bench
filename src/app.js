@@ -1126,14 +1126,33 @@ const mmss=t=>Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0');
 // The pour in a step, for the big target: "pour 60g (to 120g)" → to 120 g, +60 g; "pour to 250g" → to 250 g.
 // Also "until 374g", "add 210g", "pour the last 70g", "pour all 250g", "bloom with 50g"; a range ("dilute with 100 to 150g") isn't a pour to its end.
 function pourOf(txt){const to=/(?<!\d\s?)\b(?:to|until)\s+(\d{2,4})\s?g\b/i.exec(txt),add=/\b(?:pour(?:ing)?|add|bloom with)\s+(?:(?:the|another|all)\s+)?(?:(?:last|remaining|rest of the|final|first)\s+)?(\d{2,4})\s?g\b/i.exec(txt);return to?{to:+to[1],add:add?+add[1]:null}:add?{to:null,add:+add[1]}:null}
+// Steps that ask you to do something with the brewer or the kettle (close or open the valve, flip, fit the cap, get
+// the water to a new temperature) take as long as they take: a recipe giving 10 seconds to close the valve and cool
+// the kettle to 70°C left no time to do it. In the timer such a step is split off as a hold: the clock stops there and
+// goes on when you tap Next, so the pour that follows still gets its full time. Steps at 0:00 are done before Start.
+function holdSteps(steps,temp0){let tc=+temp0||0;const out=[],holds=new Set(),cap=t=>t.charAt(0).toUpperCase()+t.slice(1);
+  // The temperature the water goes in at ("at 90°C", "with the 70°C water", "of 85°C water"), not one to get the kettle to.
+  for(const raw of steps){const m=/^(\s*(\d+):(\d\d)\s+)(.*)$/.exec(raw);const tm=raw.match(/(?:\b(?:with|at)\s+(?:the\s+)?|\bof\s+)(\d{2,3})\s?°C|(\d{2,3})\s?°C\s+water/i);const t=+(tm&&(tm[1]||tm[2]))||0;
+    if(!m||(+m[2]*60+ +m[3])===0){if(t)tc=t;out.push(raw);continue}
+    let body=m[4].trim(),acts=[],rest=body,x;
+    if((x=/^(?:then\s+)?(open|close)\s+the\s+valve\b[\s,.:;]*(?:and\s+|then\s+)?(.*)$/i.exec(body))){acts.push(x[1].toLowerCase()+' the valve');rest=x[2]}
+    else if(/\b(?:open|close)\s+the\s+valve\.?$/i.test(body)){acts.push(body.replace(/\.$/,''));rest=''}
+    else if(/\b(?:flip|fit the cap|attach the cap|switch to the)\b/i.test(body)){const k=body.search(/(?:,\s*|\s+and\s+(?:gently\s+)?|\s+then\s+)(?:gently\s+)?press\b/i);
+      if(k>0&&/\b(?:flip|fit the cap|attach the cap|switch to the)\b/i.test(body.slice(0,k))){acts.push(body.slice(0,k));rest=body.slice(k).replace(/^(?:,\s*|\s+and\s+|\s+then\s+)/i,'')}else{acts.push(body.replace(/\.$/,''));rest=''}}
+    // A new water temperature mid-brew means a second kettle, or waiting for this one to cool or heat.
+    if(t&&tc&&t!==tc)acts.push('water at '+t+'°C');if(t)tc=t;
+    if(!acts.length){out.push(raw);continue}
+    holds.add(out.length);out.push(m[1]+cap(acts.map(x=>x.replace(/[\s,.;:]+$/,'')).join(', '))+'.');if(rest.trim())out.push(m[1]+cap(rest.trim()))}
+  return{steps:out,holds}}
 function openTimer(idx,p){if(fromTap(()=>openTimerNow(idx,p)))return;openTimerNow(idx,p)}
 function openTimerNow(idx,p){noteRecent(RECIPES[idx]);
   // The steps follow the dose and water being brewed (the dial-in and Scan pass their own).
   const r0=RECIPES[idx],sc=scaled(r0),dose=p&&p.r&&p.r.dose||sc.dose,water=p&&p.water||sc.water;
-  const r=Object.assign({},r0,{dose,water,steps:withTotals(p&&p.steps||(p?scaleSteps(r0,dose,water):sc.steps)),off:sc.off});const ev=parseSteps(r.steps);const timed=ev.filter(e=>e.t>=0);
+  const hs=holdSteps(withTotals(p&&p.steps||(p?scaleSteps(r0,dose,water):sc.steps)),p&&p.temp||r0.temp);
+  const r=Object.assign({},r0,{dose,water,steps:hs.steps,off:sc.off});const ev=parseSteps(r.steps);ev.forEach((e,i)=>{if(hs.holds.has(i)&&e.t>0)e.h=true});const timed=ev.filter(e=>e.t>=0);
   const total=clockTotal(r.steps,ev);
   if(TM&&TM.iv)clearInterval(TM.iv);
-  TM={idx,r,p,ev,total,el:0,run:false,iv:null,lastIdx:-1,lastWarn:-1,ctx:null,cup:null};
+  TM={idx,r,p,ev,total,el:0,run:false,iv:null,lastIdx:-1,lastWarn:-1,ctx:null,cup:null,hold:null,held:new Set()};
   const g=p?p.grinder:(MYG.find(x=>settingFor(x,r.b,r.off)!=null)),gv=p?p.set[p.grinder]:g?settingFor(g,r.b,r.off):null;
   const meta=[(p?p.r.dose:r.dose)+'g : '+(p?p.water:r.water)+'g',(p?p.temp:r.temp)?(p?p.temp:r.temp)+'°C':'',gv!=null?gLabel(g,gv):''].filter(Boolean);
   // Tick marks on the ring where each timed step starts.
@@ -1145,20 +1164,20 @@ function openTimerNow(idx,p){noteRecent(RECIPES[idx]);
       '<div class="tm-now" id="tm-card"><div class="tm-step" id="tm-step">Ready when you are</div><div class="tm-target" id="tm-target"></div><div class="tm-text" id="tm-now">Get your gear ready, then press start.</div><div class="tm-bar"><i id="tm-barfill"></i></div><div class="tm-next" id="tm-next"></div></div>'+
       '<div class="tm-ctl"><button class="tm-ic big" id="tm-reset" aria-label="Reset">'+I('M4 12a8 8 0 1 0 2.3-5.6M4 4v5h5')+'</button><button class="tm-play" id="tm-go" aria-label="Start">'+I('M8 5v14l11-7z')+'</button><button class="tm-ic big" id="tm-skip" aria-label="Next step">'+I('M6 5l9 7-9 7z M18 5v14')+'</button></div>'
     :'<p class="tm-text" style="text-align:center">This one is by eye rather than the clock.</p>')+
-   '<details class="tm-all"'+(total?'':' open')+'><summary>All steps ('+ev.length+')</summary><ol id="tm-list">'+ev.map((e,i)=>'<li data-i="'+i+'">'+(e.t>=0?'<b'+(e.e?' class="est" title="Estimated from the recipe\'s pace"':'')+'>'+(e.e?'~':'')+mmss(e.t)+'</b>':'')+'<span>'+esc(stepTxt(e.s))+'</span></li>').join('')+'</ol></details></div>';
+   '<details class="tm-all"'+(total?'':' open')+'><summary>All steps ('+ev.length+')</summary><ol id="tm-list">'+ev.map((e,i)=>'<li data-i="'+i+'"'+(e.h?' data-h="1"':'')+'>'+(e.t>=0?'<b'+(e.e?' class="est" title="Estimated from the recipe\'s pace"':'')+'>'+(e.e?'~':'')+mmss(e.t)+'</b>':'')+'<span>'+esc(stepTxt(e.s))+'</span></li>').join('')+'</ol></details></div>';
   const d=$('timer');showDlg(d);d.scrollTop=0;
   $('tm-x').onclick=()=>d.close();
   // However the timer is closed (X, back, Escape, backdrop), stop it and let the screen sleep again.
   d.onclose=()=>{if(TM&&TM.iv)clearInterval(TM.iv);if(TM){TM.run=false;TM.closed=true;tmWidget()}wake(false)};
-  if(total){$('tm-go').onclick=()=>{if(TM.el>=TM.total||TM.fin){TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;tmUnfinish()}if(!TM.ctx){try{TM.ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}TM.run=!TM.run;setPlay();wake(TM.run);if(TM.run)tmNotePerm();
+  if(total){$('tm-go').onclick=()=>{if(TM.hold!=null){tmGoOn();return}if(TM.el>=TM.total||TM.fin){TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;tmUnfinish()}if(!TM.ctx){try{TM.ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}TM.run=!TM.run;setPlay();wake(TM.run);if(TM.run)tmNotePerm();
       if(TM.run){TM.t0=performance.now()-TM.el*1000;TM.iv=setInterval(tick,200);tick()}else clearInterval(TM.iv);tmWidget()};
-    $('tm-reset').onclick=()=>{clearInterval(TM.iv);TM.run=false;wake(false);if(TM.fin)tmUnfinish();TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;setPlay();paint();tmWidget()};
+    $('tm-reset').onclick=()=>{clearInterval(TM.iv);TM.run=false;wake(false);if(TM.fin)tmUnfinish();TM.el=0;TM.hold=null;TM.held=new Set();$('tm-card').classList.remove('hold');TM.lastIdx=-1;TM.lastWarn=-1;setPlay();paint();tmWidget()};
     // Skip jumps to the next step's time (handy when you pour faster than the recipe).
     // Once the brew is finished the tick logs it (and closes the timer).
-    $('tm-skip').onclick=()=>{if(TM.fin){if(tmQuickSave())return;if(TM.log)TM.log();else $('timer').close();return}const n=TM.ev.find(e=>e.t>TM.el+0.5);if(!n){if(TM.el>0||TM.run)finishBrew();return}TM.el=n.t;if(TM.run)TM.t0=performance.now()-TM.el*1000;paint()};
+    $('tm-skip').onclick=()=>{if(TM.hold!=null){tmGoOn();return}if(TM.fin){if(tmQuickSave())return;if(TM.log)TM.log();else $('timer').close();return}const n=TM.ev.find(e=>e.t>TM.el+0.5);if(!n){if(TM.el>0||TM.run)finishBrew();return}TM.el=n.t;tmPassed();if(TM.run){TM.t0=performance.now()-TM.el*1000;tick()}else paint()};
     // A step in the list jumps the clock to it (running or not), like Next step does for the next one.
     $('tm-list').onclick=e=>{const li=e.target.closest('li[data-i]');if(!li||TM.fin)return;const ev=TM.ev[+li.dataset.i];if(!ev||ev.t<0)return;
-      TM.el=ev.t;TM.lastIdx=-1;TM.lastWarn=-1;if(TM.run)TM.t0=performance.now()-TM.el*1000;paint();tmWidget()};paint()}
+      if(TM.hold!=null){TM.hold=null;$('tm-card').classList.remove('hold')}TM.el=ev.t;tmPassed();TM.lastIdx=-1;TM.lastWarn=-1;if(TM.run){TM.t0=performance.now()-TM.el*1000;TM.iv=TM.iv||setInterval(tick,200);tick()}else paint();tmWidget()};paint()}
 }
 // Out of the finished screen (Start again, Reset or Brew again): the card goes back to the steps. The cup taken off the
 // bag stays taken (that brew happened); the next finish takes the next one.
@@ -1191,7 +1210,12 @@ function cueText(s){let t=String(s||'').replace(/^\s*\d+:\d\d\s*/,'').replace(/\
   return t?t.charAt(0).toUpperCase()+t.slice(1).replace(/[.;]?$/,'.'):''}
 function cueStep(e,next){if(!e)return;cueBuzz([120,70,120]);cueSay(cueText(e.s))}
 function beep(soft){if(!TM.ctx)return;try{const o=TM.ctx.createOscillator(),g=TM.ctx.createGain();o.frequency.value=soft?660:880;g.gain.setValueAtTime(.001,TM.ctx.currentTime);g.gain.exponentialRampToValueAtTime(.25,TM.ctx.currentTime+.02);g.gain.exponentialRampToValueAtTime(.001,TM.ctx.currentTime+.35);o.connect(g).connect(TM.ctx.destination);o.start();o.stop(TM.ctx.currentTime+.4)}catch(e){}if(navigator.vibrate)navigator.vibrate(120)}
-function tick(){TM.el=(performance.now()-TM.t0)/1000;if(TM.el>=TM.total){TM.el=TM.total;finishBrew();return}paint()}
+// Holds the clock has moved past (Next, a tap in the list) count as done; one exactly where it stops still holds.
+function tmPassed(){TM.ev.forEach((e,i)=>{if(e.h&&e.t<TM.el-0.01)TM.held.add(i);else if(e.h&&e.t>TM.el)TM.held.delete(i)})}
+function tmHold(i){const e=TM.ev[i];clearInterval(TM.iv);TM.iv=null;TM.run=false;TM.hold=i;TM.el=e.t;TM.lastIdx=i;$('tm-card').classList.add('hold');setPlay();
+  replay(document.querySelector('#timer .tm-ringwrap'),'tm-pulse');beep();cueBuzz([120,70,120]);cueSay(cueText(e.s)+' Tap next when it\u2019s done.');paint();tmWidget()}
+function tmGoOn(){if(TM.hold==null)return;TM.held.add(TM.hold);TM.hold=null;$('tm-card').classList.remove('hold');TM.run=true;TM.t0=performance.now()-TM.el*1000;clearInterval(TM.iv);TM.iv=setInterval(tick,200);setPlay();wake(true);tick();tmWidget()}
+function tick(){TM.el=(performance.now()-TM.t0)/1000;{const hi=TM.ev.findIndex((e,i)=>e.h&&!TM.held.has(i)&&e.t<=TM.el);if(hi>=0){tmHold(hi);return}}if(TM.el>=TM.total){TM.el=TM.total;finishBrew();return}paint()}
 // The end of a brew, on time or early: the clock stops where you are and the cup is yours.
 const TMI=d=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+d+'"/></svg>';
 // The Quick brew widget, the lock-screen notification and the status-bar chip follow a running brew (Android; see
@@ -1211,9 +1235,11 @@ function tmWidget(){const w=plugin('Widget');if(!w||!w.timer||!TM||TM_QUIET)retu
 // A button on the notification or the widget changed the brew while the timer is open: the timer follows.
 function tmSync(n){if(!n||!TM||TM.closed||!$('timer').open||!TM.total)return;const el=clamp((+n.elapsed||0)/1000,0,TM.total);
   if(n.state==='done'){if(!TM.fin){TM.el=el;if(TM.run)TM.t0=performance.now()-el*1000;finishBrew()}return}
-  if(n.state==='stop'){clearInterval(TM.iv);TM.run=false;wake(false);if(TM.fin&&TM.again){TM.cup=null;$('tm-card').classList.remove('fin')}TM.fin=false;TM.el=0;TM.lastIdx=-1;TM.lastWarn=-1;setPlay();paint();return}
+  if(n.state==='stop'){clearInterval(TM.iv);TM.run=false;wake(false);if(TM.fin&&TM.again){TM.cup=null;$('tm-card').classList.remove('fin')}TM.fin=false;TM.el=0;TM.hold=null;TM.held=new Set();$('tm-card').classList.remove('hold');TM.lastIdx=-1;TM.lastWarn=-1;setPlay();paint();return}
   if(n.state==='run'&&TM.fin&&TM.again){TM.again();return}
   TM.fin=false;TM.el=el;
+  // The phone's own clock doesn't stop at a hold: play there carries on, and holds it ran past count as done.
+  if(TM.hold!=null&&n.state==='run'){TM.held.add(TM.hold);TM.hold=null;$('tm-card').classList.remove('hold')}tmPassed();
   if(n.state==='run'){TM.t0=performance.now()-el*1000;if(!TM.run){TM.run=true;clearInterval(TM.iv);TM.iv=setInterval(tick,200);wake(true)}setPlay();tick();return}
   if(n.state==='pause'){if(TM.run){clearInterval(TM.iv);TM.run=false;wake(false)}setPlay();paint()}}
 // A brew running on the phone with no timer open (the app was closed, or it was started from the widget): the timer
@@ -1233,16 +1259,24 @@ function finishBrew(){if(TM.fin)return;if(TM.run){cueSay('Brew complete. Enjoy y
    brew) stays for everything else, and opens on this entry once it's kept. */
 // The notes to tap after a brew are the coffee's own, as on its bag and in that order; only when the bag names fewer
 // than three are they topped up with what the cup is likely to taste of (variety, process, roast, past brews).
-function quickNotes(){const p=TM.p;let own=[],more=[];try{
-    const id=(p&&p.bean)||(S.bean&&S.bean.id),gb=id&&window.BEANS_OK?beanById(id):null,ok=w=>typeof tnLeaf==='function'&&tnLeaf(w);
-    if(gb&&gb.flavours&&typeof tnSplit==='function')own=tnSplit(gb.flavours).map(w=>CUP_ALIAS[fold(w)]||w).filter(ok);
-    if(own.length<3&&p&&'bean' in p)more=cupNotes(S,compute(S)).filter(ok)}catch(e){}
-  const seen=new Set(),out=[];for(const w of [...own,...more]){const k=fold(w);if(!seen.has(k)){seen.add(k);out.push(w)}}return out.slice(0,6)}
+// The flavours on the finish card are the coffee's own, as the bag puts them ("Plum jam", "Dark chocolate"), not
+// guesses: the app's likely notes for the origin and process only show when the bag has none. Each is saved as its
+// nearest note on the flavour wheel (noteLeaf).
+function bagNotes(s){const seen=new Set();return String(s||'').split(/\s*(?:[,;·\/&+|]|\band\b|\bwith\b)\s*/i).map(x=>x.replace(/^[\s.\-–]+|[\s.\-–]+$/g,'')).filter(x=>x&&x.length<40&&!seen.has(fold(x))&&seen.add(fold(x)))}
+// A bag's note on the wheel: the whole phrase, else its longest part that is one (the first word winning a tie, so
+// "Plum jam" is plum and "Strawberry jam" strawberry), trying plurals and the usual stand-ins (berries, cacao…).
+function noteLeaf(w){if(typeof tnLeaf!=='function')return null;const one=x=>{const k=fold(x);const a=CUP_ALIAS[k];return tnLeaf(a||x)||(/ies$/.test(k)?tnLeaf(x.slice(0,-3)+'y'):/s$/.test(k)?tnLeaf(x.slice(0,-1)):null)||(/y$/.test(k)&&k.length>4?tnLeaf(x.slice(0,-1)):null)};
+  const ws=String(w).trim().split(/\s+/);for(let n=ws.length;n>=1;n--)for(let i=0;i+n<=ws.length;i++){const l=one(ws.slice(i,i+n).join(' '));if(l)return l}return null}
+function quickNotes(){const p=TM.p;let own=[];try{
+    const id=(p&&p.bean)||(S.bean&&S.bean.id),gb=id&&window.BEANS_OK?beanById(id):null;
+    if(gb&&gb.flavours)own=bagNotes(gb.flavours).filter(w=>noteLeaf(w));
+    if(!own.length&&p&&'bean' in p)own=cupNotes(S,compute(S)).filter(w=>noteLeaf(w))}catch(e){}
+  const seen=new Set(),out=[];for(const w of own){const l=noteLeaf(w),k=l?l.id:fold(w);if(!seen.has(k)){seen.add(k);out.push(w)}}return out.slice(0,6)}
 const capW=w=>w?w.charAt(0).toUpperCase()+w.slice(1):w;
 function quickLogBox(){const box=document.createElement('div');box.className='tm-quick';let st=0;const fl=new Set(),notes=quickNotes();let more=[];
   box.innerHTML='<p class="tm-dq">Rate this cup</p><div class="tm-qstars" role="radiogroup" aria-label="Rating">'+[1,2,3,4,5].map(n=>'<button type="button" data-qs="'+n+'" role="radio" aria-checked="false" aria-label="'+n+' bean'+(n>1?'s':'')+', '+STARW[n]+'">'+RB_SVG+'</button>').join('')+'</div>'+
     // The coffee's likely notes to tap, and More for anything else, from the flavour wheel.
-    '<div class="tm-qfl" role="group" aria-label="What you taste">'+notes.map(w=>'<button type="button" class="chip" data-qf="'+esc(w)+'" aria-pressed="false"><i class="dot" style="background:'+tnColor(w)+'"></i>'+esc(capW(w))+'</button>').join('')+
+    '<div class="tm-qfl" role="group" aria-label="What you taste">'+notes.map(w=>{const l=noteLeaf(w);return '<button type="button" class="chip" data-qf="'+esc(w)+'" aria-pressed="false"><i class="dot" style="background:'+(l&&l.c||tnColor(w))+'"></i>'+esc(capW(w))+'</button>'}).join('')+
       '<span class="tm-qmore"></span><button type="button" class="chip tm-qadd" id="tm-qadd">'+lIc('plus')+'More</button></div>';
   // No save button of its own: the tick under the card saves what's picked here (see tmQuickSave).
   TM.qget=()=>({st,fl:[...fl],more});
@@ -1260,7 +1294,7 @@ function quickLog(stars,notes,more){const r=TM.r||RECIPES[TM.idx],p=TM.p,fromDia
   const e={id:uid(),ts:Date.now(),date:new Date().toLocaleDateString(),coffee:'',settings:'',stars,pred:'',notes:'',brewer:''};
   if(fromDial){const dp=dialPlan();e.settings=dialLine(dp);e.brewer=S.brewer;e.pred=verdict(compute(S).D)[0];e.snap=brewSnap();if(S.bean){const cb0=S.bean.id&&window.BEANS_OK&&beanById(S.bean.id);e.coffee=cb0?beanTitle(cb0):S.bean.name||''}}
   else{const dz=p?p.r.dose:r.dose,w=p?p.water:r.water,t=p?p.temp:r.temp;e.settings=r.name+', '+dz+'g : '+w+'g'+(t?', '+t+'°C':'');e.brewer=r.b}
-  const fl=notes.map(w=>{const n=tnLeaf(w);return n&&[n.id,3]}).filter(Boolean);for(const [id,v] of more||[])if(!fl.some(x=>x[0]===id))fl.push([id,v]);if(fl.length)e.fl=fl;
+  const fl=notes.map(w=>{const n=noteLeaf(w);return n&&[n.id,3]}).filter(Boolean);for(const [id,v] of more||[])if(!fl.some(x=>x[0]===id))fl.push([id,v]);if(fl.length)e.fl=fl;
   const cb=e.snap&&e.snap.bean&&e.snap.bean.id,cid=cb&&lastCupFor(cb);if(cid){e.cup=cid;LAST_CUP=null}
   if(GROUP)e.by=ME;LOG.unshift(e);save('bb-log',LOG);wRefresh();if(window.BEANS_OK)try{reschedule()}catch(x){}okBuzz();planRated(stars);
   if(window.BEANS_OK){const gb=cb&&beanById(cb);if(gb&&!gb.tried){gb.tried=todayISO();saveBeans()}checkTrophies()}queue('put',e.id,e);renderLog();return e}
@@ -1344,15 +1378,18 @@ function drawCheck(){const p=TM.p,r=TM.r||RECIPES[TM.idx],b=(p&&(p.brewer||p.st&
     box.querySelectorAll('[data-dd]').forEach(x=>x.setAttribute('aria-pressed',x===bt))}}
 function paint(){const el=TM.el,C=2*Math.PI*96;$('tm-big').textContent=mmss(el);
   $('tm-arc').setAttribute('stroke-dashoffset',(C*(1-el/TM.total)).toFixed(1));
-  let cur=-1;TM.ev.forEach((e,i)=>{if(e.t>=0&&e.t<=el)cur=i});
+  let cur=-1;TM.ev.forEach((e,i)=>{if(e.t>=0&&e.t<=el&&!(e.h&&!TM.held.has(i)&&i!==TM.hold))cur=i});if(TM.hold!=null)cur=TM.hold;
   if(cur!==TM.lastIdx&&TM.run&&cur>=0){replay(document.querySelector('#timer .tm-ringwrap'),'tm-pulse');beep();cueStep(TM.ev[cur],TM.ev[TM.ev.findIndex(e=>e.t>TM.ev[cur].t)]);TM.lastIdx=cur}
   if(TM.wIdx!==cur+':'+TM.run){TM.wIdx=cur+':'+TM.run;tmWidget()}
-  const ni=TM.ev.findIndex(e=>e.t>el),next=ni>=0?TM.ev[ni]:null,left=next?next.t-el:TM.total-el;
+  const ni=TM.hold!=null?TM.hold+1:TM.ev.findIndex((e,i)=>e.t>el||e.t===el&&i>cur&&e.t>0),next=ni>=0&&ni<TM.ev.length?TM.ev[ni]:null,left=next?next.t-el:TM.total-el;
   // Three soft beeps before the next step, so you can get the kettle ready.
   if(TM.run&&next&&left<=3&&left>0){const w=Math.ceil(left);if(TM.lastWarn!==ni*10+w){TM.lastWarn=ni*10+w;beep(true);cueBuzz([35])}}
   $('tm-list').querySelectorAll('li').forEach((li,i)=>{li.className=i<cur?'done':i===cur?'cur':''});
   const sk=$('tm-skip'),last=el>0&&!TM.ev.some(e=>e.t>el+0.5);if(sk&&sk.dataset.last!==String(last)){sk.dataset.last=last;sk.innerHTML=TMI(last?'M5 12.5l4.5 4.5L19 7':'M6 5l9 7-9 7z M18 5v14');sk.setAttribute('aria-label',TM.fin?'Log this brew':last?'Finish brew':'Next step')}if(sk)sk.setAttribute('aria-label',TM.fin?'Log this brew':last?'Finish brew':'Next step');
   const nTimed=TM.ev.filter(e=>e.t>=0).length,stepNo=cur>=0?TM.ev.slice(0,cur+1).filter(e=>e.t>=0).length:0;
+  if(TM.hold!=null){const e=TM.ev[TM.hold];$('tm-step').textContent='Your move';$('tm-now').textContent=stepTxt(e.s);$('tm-target').innerHTML='';$('tm-barfill').style.transform='translateX(-100%)';
+    $('tm-next').innerHTML='<span>Tap <b>Next</b> when it\u2019s done</span>'+(next?'<span class="tm-nx">Then: '+esc(stepTxt(next.s))+'</span>':'');$('tm-card').classList.remove('warn');
+    $('tm-list').querySelectorAll('li').forEach((li,i)=>{li.className=i<cur?'done':i===cur?'cur':''});const sk=$('tm-skip');if(sk){sk.dataset.last='hold';sk.innerHTML=TMI('M5 12.5l4.5 4.5L19 7');sk.setAttribute('aria-label','Done, carry on')}return}
   if(el>0&&el<TM.total||TM.run){const txt=cur>=0?TM.ev[cur].s.replace(/^\s*\d+:\d\d\s*/,''):'Get ready.';let pr=cur>=0?pourOf(TM.ev[cur].s):null;
     // A pour that gives only its amount (the first one) still shows what the scale should read.
     if(pr&&!pr.to&&pr.add&&(TM.ev[cur].s.match(/\d\s?g\b/gi)||[]).length===1){TM.lv=TM.lv||pourLevels(TM.ev.map(e=>e.s));const v=TM.lv[cur];if(v&&v.to)pr={to:v.to,add:v.to===pr.add?null:pr.add}}

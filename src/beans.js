@@ -501,10 +501,20 @@ async function aiRecipe(bean,bk,goal){const B=BREWERS[bk],t=tasteOf(BEANS,LOG.fi
 // and the recipe under them, made again at once whenever a pick changes (no "create" step). Surprise me starts from a
 // random coffee, brewer and cup; each row has a lock, and Shuffle draws again only the rows that aren't locked. The
 // actions sit in the sheet's floating bar: Save and brew it, and Shuffle (or Another version when you picked).
+// Surprise me with a brewer that has recipes of its own (the Switch has many) picks one of them, not the same made-up
+// shape each time: every one of that brewer's recipes comes up before any comes back, and the cup you pick narrows it
+// by ratio (brighter and clearer: longer; more body and sweeter: shorter) when some match.
+const SURP_SEEN={};
+function surpLib(b,goal,not){const all=RECIPES.map((r,i)=>i).filter(i=>RFAM(RECIPES[i].b)===RFAM(b)&&!ICED(RECIPES[i]));if(all.length<2)return -1;
+  const q=i=>{const r=RECIPES[i];return r.dose&&r.water?r.water/r.dose:16};
+  const fit={clear:i=>q(i)>=16.5,bright:i=>q(i)>=16,body:i=>q(i)<=15.2,sweet:i=>q(i)<=16,balanced:i=>q(i)>=15&&q(i)<=17}[goal]||(()=>true);
+  let pool=all.filter(fit);if(pool.length<2)pool=all;const seen=SURP_SEEN[b]||(SURP_SEEN[b]=new Set());
+  let fresh=pool.filter(i=>!seen.has(i)&&i!==not);if(!fresh.length)fresh=all.filter(i=>!seen.has(i)&&i!==not);if(!fresh.length){all.forEach(i=>seen.delete(i));fresh=pool.filter(i=>i!==not)}
+  const i=fresh[Math.floor(Math.random()*fresh.length)];seen.add(i);return i}
 function openMakeRecipe(bid,surprise){const d=$('vd'),beans=[...BEANS.filter(b=>b.shelf),...BEANS.filter(b=>!b.shelf)];if(!beans.length){toast('Add a coffee to your gallery first');return}
   const brewers=[...new Set([...MYB,'v60','origami','sw','frenchpress'].map(CANONB))].filter(k=>BREWERS[k]&&MK_TYPES.includes(BREWERS[k].type)&&!BREWERS[k].of).slice(0,8);
   const t=tasteOf(BEANS,LOG.filter(isMine)),lean=FY_LEAN(t),leanGoal=t.families.length?(lean==='bright'?'bright':lean==='round'?'sweet':'balanced'):null;
-  const st={bean:bid&&beanById(bid)?bid:beans[0].id,b:MYB.find(k=>brewers.includes(k))||brewers[0],goal:leanGoal||'balanced',seed:1,rec:null,busy:false,lock:{bean:false,b:false,goal:false},job:0};
+  const st={bean:bid&&beanById(bid)?bid:beans[0].id,b:MYB.find(k=>brewers.includes(k))||brewers[0],goal:leanGoal||'balanced',seed:1,rec:null,lib:-1,busy:false,lock:{bean:false,b:false,goal:false},job:0};
   const mine=brewers.filter(k=>MYB.includes(k)),shelf=beans.filter(b=>b.shelf);
   // A new pick for each unlocked row, a different one where there is a choice, so Shuffle always shows something new.
   const pickNew=(list,cur)=>{const o=list.filter(v=>v!==cur);return(o.length?o:list)[Math.floor(Math.random()*(o.length?o:list).length)]};
@@ -520,9 +530,9 @@ function openMakeRecipe(bid,surprise){const d=$('vd'),beans=[...BEANS.filter(b=>
   // stats, grind settings, pour graph and steps as every recipe page. While AI writes one, a quiet placeholder.
   const resHTML=()=>{const r=st.rec,bean=beanById(st.bean);if(st.busy||!r)return '<div class="mk-card mk-wait" aria-busy="true"><span class="mk-sk"></span><span class="mk-sk s"></span><span class="mk-sk t"></span><p>Writing your recipe…</p></div>';
     const cup=(MK_GOALS.find(g=>g[0]===st.goal)||[0,''])[1];
-    return '<div class="mk-card"><div class="mk-hero">'+(bean?beanPic(bean,'sm'):'')+'<div class="mk-ht"><b>'+esc(r.name)+'</b><span>'+esc([beanTitle(bean),BREWERS[st.b].name,cup].filter(Boolean).join(' · '))+'</span></div></div>'+
+    return '<div class="mk-card"><div class="mk-hero">'+(bean?beanPic(bean,'sm'):'')+'<div class="mk-ht"><b>'+esc(r.name)+'</b><span>'+esc((st.lib>=0?[beanTitle(bean),BREWERS[r.b].name,r.by]:[beanTitle(bean),BREWERS[st.b].name,cup]).filter(Boolean).join(' · '))+'</span></div></div>'+
       recipeBody(r,-1).replace(/<div class="actions[^"]*">[\s\S]*$/,'').replace(/^<p class="hint"[^>]*>[^<]*<\/p>/,'')+'</div>'};
-  const actsHTML=()=>'<div class="actions ib-row sheet-acts mk-acts">'+pbtn('timer','id="mk-save"'+(st.rec&&!st.busy?'':' disabled'),'Save and brew it','main')+(surprise?ib('dice','id="mk-again"','Shuffle'):ib('reset','id="mk-again"','Another version'))+'</div>';
+  const actsHTML=()=>'<div class="actions ib-row sheet-acts mk-acts">'+pbtn('timer','id="mk-save"'+(st.rec&&!st.busy?'':' disabled'),st.lib>=0?'Brew it':'Save and brew it','main')+(surprise?ib('dice','id="mk-again"','Shuffle'):ib('reset','id="mk-again"','Another version'))+'</div>';
   const draw=()=>{$('vd-in').innerHTML='<div class="vd-head" style="--c:#8A5A3B"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:#C9964A"></i>'+(SAMPLE?'Made with AI':surprise?'Surprise me':'Made for you')+'</span><h2 id="vd-title">'+(surprise?'A surprise recipe':'A recipe for your coffee')+'</h2></div>'+
       '<div class="vd-body mk"><div class="mk-picks">'+row('bean','Coffee',beanList())+row('b','Brewer',brewers.map(k=>[k,BREWERS[k].name]))+row('goal','Cup',MK_GOALS.map(([v,n])=>[v,n,'',v===leanGoal]))+'</div>'+
       '<div id="mk-res">'+resHTML()+'</div>'+actsHTML()+'</div>';
@@ -534,17 +544,20 @@ function openMakeRecipe(bid,surprise){const d=$('vd'),beans=[...BEANS.filter(b=>
     box.querySelectorAll('[data-mk]').forEach(c=>c.setAttribute('aria-pressed',String(c.dataset.v===st[c.dataset.mk])));
     if(!box.querySelector('[data-mk="bean"][aria-pressed="true"]')){box.querySelector('.mk-row').outerHTML=row('bean','Coffee',beanList());hydrateImgs(box)}
     box.querySelectorAll('[data-lock]').forEach(l=>{const k=l.dataset.lock;l.setAttribute('aria-pressed',String(st.lock[k]));l.innerHTML=lIc(st.lock[k]?'lock':'unlock')});
-    $('mk-res').innerHTML=resHTML();hydrateImgs($('mk-res'));const s=$('mk-save');if(s)s.disabled=!(st.rec&&!st.busy);centerPicks()};
+    $('mk-res').innerHTML=resHTML();hydrateImgs($('mk-res'));const s=$('mk-save');if(s){s.disabled=!(st.rec&&!st.busy);const sp=s.querySelector('span');if(sp)sp.textContent=st.lib>=0?'Brew it':'Save and brew it'}centerPicks()};
   const go=async()=>{const bean=beanById(st.bean);if(!bean)return;const job=++st.job;
+    if(surprise){const i=surpLib(st.b,st.goal,st.lib);st.lib=i;if(i>=0){st.rec=RECIPES[i];st.busy=false;paint();return}}
     if(!SAMPLE){st.rec=makeRecipe(bean,st.b,st.goal,st.seed);st.busy=false;paint();return}
     st.busy=true;paint();let r=null;try{r=await aiRecipe(bean,st.b,st.goal)}catch(e){r=null}if(job!==st.job)return;
     st.rec=r||makeRecipe(bean,st.b,st.goal,st.seed);st.busy=false;paint()};
   $('vd-in').onclick=e=>{const c=e.target.closest('[data-mk]');if(c){if(st[c.dataset.mk]===c.dataset.v)return;st[c.dataset.mk]=c.dataset.v;go();return}
     const l=e.target.closest('[data-lock]');if(l){const k=l.dataset.lock;st.lock[k]=!st.lock[k];paint();tapBuzz();return}
     if(e.target.closest('#mk-again')){if(surprise){if(st.lock.bean&&st.lock.b&&st.lock.goal)st.seed=1+Math.floor(Math.random()*999);else roll()}else st.seed++;go();return}
+    if(e.target.closest('#mk-save')&&st.rec&&!st.busy&&st.lib>=0){const i=st.lib;d.close();setTimeout(()=>openRecipe(i),250);return}
     if(e.target.closest('#mk-save')&&st.rec&&!st.busy){const r=Object.assign({},st.rec,{id:'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),author:ME||'',ts:Date.now()});saveRecipe(r);
       const i=RECIPES.findIndex(x=>x.id===r.id);d.close();okBuzz();toast('Saved to your recipes');if(i>=0)setTimeout(()=>openRecipe(i),250)}};
-  st.rec=SAMPLE?null:makeRecipe(beanById(st.bean),st.b,st.goal,st.seed);draw();showDlg(d);d.scrollTop=0;if(SAMPLE)go()}
+  if(surprise)st.lib=surpLib(st.b,st.goal,-1);
+  st.rec=st.lib>=0?RECIPES[st.lib]:SAMPLE?null:makeRecipe(beanById(st.bean),st.b,st.goal,st.seed);draw();showDlg(d);d.scrollTop=0;if(SAMPLE&&st.lib<0)go()}
 
 /* ---------- Trophies ---------- */
 // Earned from the cabinet as it is: each has a goal and counts towards it. The day one is first earned is kept.
