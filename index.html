@@ -2293,6 +2293,12 @@ i.rl{font-style:inherit;font-variant-numeric:tabular-nums}
 .shsw[aria-pressed="true"]{color:var(--sa);font-weight:700}.shsw[aria-pressed="true"] i{box-shadow:0 0 0 2.5px var(--surface2),0 0 0 4.5px var(--sa)}
 .shsw:focus-visible i,.shmode button:focus-visible{outline:2px solid var(--sa);outline-offset:2px}
 .shcard-pv.busy{position:relative}.shcard-pv.busy::after{content:'';position:absolute;inset:0;background:color-mix(in srgb,var(--paper) 45%,transparent);animation:bfade .2s ease}
+.steps.tl .t.prep{font-size:.7rem;letter-spacing:.02em;text-transform:uppercase;color:var(--muted);background:color-mix(in srgb,var(--ink) 7%,var(--surface))}
+.rr-by .rr-tag{display:inline-block;margin-right:8px;vertical-align:1px}
+.rtip{display:flex;gap:12px;align-items:flex-start;margin:14px 0 4px;padding:12px 14px;border-radius:16px;background:color-mix(in srgb,var(--honey) 14%,var(--surface));border:1px solid color-mix(in srgb,var(--honey) 28%,transparent)}
+.rtip i{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:color-mix(in srgb,var(--honey) 30%,var(--surface));color:color-mix(in srgb,var(--honey) 55%,var(--ink))}
+.rtip svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.rtip p{margin:0;font-size:.9rem;line-height:1.45;color:var(--ink)}.rtip b{display:block;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:color-mix(in srgb,var(--honey) 55%,var(--ink));margin-bottom:2px}
 .steps.tl .t.est{background:transparent;border:1px dashed color-mix(in srgb,var(--ink) 30%,transparent);color:var(--cherry-ink,var(--cherry))}
 
 .av-note{grid-column:1/-1;margin:0;font-size:.8rem}.getapp a.btn{text-decoration:none;display:flex;justify-content:center;align-items:center;text-align:center}
@@ -3350,7 +3356,7 @@ button.bf{width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;bord
 <link rel="manifest" href="manifest.webmanifest">
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>const BUILD_ID="3a3045e545ce"</script>
+<script>const BUILD_ID="fb093ed3ab73"</script>
 </head>
 <body>
 <!-- The opening scene, in the app every time it opens and on the website once per visit: a V60 settles over a cup, the
@@ -4784,7 +4790,45 @@ const RECIPES=[
   tip:'Still coarser than a V60, but a touch finer than for 20g.'},
  {b:'clever',kind:'imm',name:'Clever with a bloom',by:'Classic technique',off:-0.2,temp:96,dose:18,water:290,why:'A short bloom before the steep lets fresh coffee release its gas, so the grounds soak evenly instead of floating.',
   steps:['0:00 pour 50g, stir gently, bloom.','0:30 pour to 290g.','0:45 let it steep.','2:00 stir once.','2:30 set it on the cup to drain.','3:30 finished.'],
-  tip:'Best with very fresh coffee, within a few weeks of roasting.'}
+  tip:'Best with very fresh coffee, within a few weeks of roasting.'},
+ // Brewers that had only one or two recipes: everyday ways to use them, from long-standing technique and tradition.
+ {b:'espresso',kind:'esp',name:'Ristretto',by:'Classic technique',off:-0.6,temp:93,dose:18,water:27,why:'A short shot: the same dose stopped at about 1:1.5. Thick, sweet and intense, with less of the bitterness that comes late in a shot.',
+  steps:['0:00 start the shot.','0:20 stop at about 27g.'],tip:'Grind a little finer than for your usual shot so it still takes about 20 seconds.'},
+ {b:'espresso',kind:'esp',name:'Lungo',by:'Classic technique',off:0.5,temp:93,dose:18,water:72,why:'A long shot at about 1:4, run through a coarser grind: lighter and longer, more like a small filter coffee.',
+  steps:['0:00 start the shot.','0:35 stop at about 72g.'],tip:'If it turns harsh at the end, go coarser rather than shorter.'},
+ {b:'moka',kind:'other',name:'Moka pot with a paper filter',by:'Classic technique',off:0,temp:100,dose:18,water:180,why:'A round paper filter on top of the basket holds back the fines: a cleaner, less muddy moka cup with the same body.',
+  steps:['Fill the base with just-boiled water to below the valve.','Fill the basket level without tamping.','Lay a wet round paper filter (an AeroPress filter fits most 3 and 6-cup pots) on top of the coffee.','Assemble with a towel and put on medium-low heat, lid open.','When the flow turns pale and starts to sputter, take it off the heat and cool the base under the tap.'],
+  tip:'The paper also slows the flow a little, so the brew comes up gently.'},
+ {b:'moka',kind:'other',name:'Moka shakerato',by:'Italian café tradition',off:0,temp:100,dose:18,water:180,why:'Strong moka coffee shaken hard with ice until it foams: a cold, silky drink with a thick head.',
+  steps:['Brew the moka pot as usual and take it off the heat as soon as it sputters.','Fill a shaker or jar halfway with ice and add sugar syrup to taste.','Pour in the hot coffee and shake hard for about 15 seconds.','Strain into a chilled glass.'],
+  tip:'Shake longer for more foam. A small glass shows it off.'},
+ {b:'phin',kind:'other',name:'Cà phê đen đá',by:'Vietnamese tradition',off:0,temp:96,dose:20,water:120,why:'Black phin coffee over ice: strong, dark and refreshing, with sugar to taste instead of condensed milk.',
+  steps:['Fill a glass with ice.','0:00 pour 20g of water to bloom.','0:30 fill the phin with hot water to 120g and cover.','5:00 dripping should finish in about 4 to 5 minutes.','Sweeten if you like, stir and pour over the ice.'],
+  tip:'If it drips too fast, press the insert down a little more firmly.'},
+ {b:'cezve',kind:'other',name:'Turkish coffee with cardamom',by:'Levantine tradition',off:0,temp:0,dose:7,water:70,why:'The cezve brew with a pinch of ground cardamom, the way it is often made across the Levant.',
+  steps:['Add 70ml of cold water, 7g of powder-fine coffee, a pinch of ground cardamom and sugar to taste; stir.','Heat slowly on low without stirring again.','When the foam rises, take it off the heat and spoon some foam into the cup.','Return it briefly to rise once more, then pour the rest slowly.'],
+  tip:'Let the cup rest a minute so the grounds settle before you drink.'},
+ {b:'dallah',kind:'other',name:'Saudi qahwa with saffron',by:'Najdi tradition',off:0,temp:100,dose:15,water:500,why:'Very lightly roasted coffee boiled gently, then finished with cardamom and saffron: golden, fragrant and light.',
+  steps:['Bring the water to a boil.','Add the coffee and simmer gently for about 10 minutes.','Take it off the heat and add plenty of crushed cardamom and a pinch of saffron.','Rest about 5 minutes so the grounds settle.','Pour through a fibre or mesh into the dallah and serve in small cups.'],
+  tip:'The lighter the roast, the more golden the cup. A few rose water drops are a common addition.'},
+ {b:'siphon',kind:'imm',name:'Siphon for light roasts',by:'Classic technique',off:0.4,temp:94,dose:20,water:300,why:'A finer grind, more stirring and a longer steep than usual: light roasts need the extra extraction.',
+  steps:['Heat the water until it rises into the top chamber.','0:00 add the coffee and stir until no dry clumps remain.','0:30 stir gently, then let it steep.','1:15 stir once more, then remove the heat.','2:00 the brew draws down. Serve.'],
+  tip:'Lower the heat once the water has risen so it holds steady near 94°C.'},
+ {b:'cold',kind:'other',name:'Ready-to-drink cold brew',by:'Classic technique',off:0,temp:0,dose:80,water:1000,why:'Steeped at drinking strength (about 1:12), so it needs no dilution: pour straight over ice.',
+  steps:['Stir 80g of coarse coffee into 1000g of cold filtered water.','Steep 14 to 18 hours in the fridge.','Filter through paper.','Serve over ice.'],
+  tip:'Keeps about a week in the fridge. A medium roast gives the classic chocolatey cold brew.'},
+ {b:'batch',kind:'other',name:'Half batch',by:'SCA-style guideline',off:-0.3,temp:94,dose:32,water:500,why:'Half a pot from a full-size machine. A smaller bed drains faster, so grind a little finer than for a full batch.',
+  steps:['Rinse the filter paper.','Add the coffee and level the bed.','Start the machine on its half or small-batch setting if it has one.','Stir the carafe before serving.'],
+  tip:'Some machines have a small-batch switch that slows the flow; use it.'},
+ {b:'clever',kind:'imm',name:'Iced Clever',by:'Classic technique',off:0.2,temp:96,dose:20,water:200,why:'A concentrated steep drained onto ice for a full-bodied iced coffee with no bitterness.',
+  steps:['Put 120g of ice in the server.','0:00 pour 200g of water, add the coffee and stir.','0:15 let it steep.','2:30 stir once, then set it on the server to drain.','3:30 finished; swirl to melt the ice.'],
+  tip:'The ice and the brew make about 320g of coffee.'},
+ {b:'aeropress',kind:'aero',name:'AeroPress with a bloom',by:'Classic technique',off:0.4,temp:93,dose:15,water:230,why:'A short bloom before the full pour, then a steady steep: rounder and sweeter with very fresh coffee.',
+  steps:['Rinse the paper, set the AeroPress on the cup.','0:00 pour 40g and stir, bloom.','0:30 pour to 230g.','0:40 insert the plunger a little to stop dripping.','1:45 swirl gently.','2:00 press slowly for about 30 seconds.'],
+  tip:'Stop pressing at the first hiss.'},
+ {b:'frenchpress',kind:'imm',name:'Iced French press',by:'Classic technique',off:0.3,temp:96,dose:30,water:300,why:'A strong steep poured straight over ice: all the press body, chilled.',
+  steps:['Fill a jug with 200g of ice.','0:00 pour 300g of water over the coffee and let it steep.','4:00 break the crust, skim the foam and let it settle.','5:00 press gently and pour over the ice.'],
+  tip:'Grind a little finer than for a hot press.'}
 ];
 
 /* ================= PROCESSES ================= */
@@ -6885,7 +6929,7 @@ function renderDialRecipe(){const tl=techList(S.brewer),r=dialRec();
   $('d-recipe').hidden=false;
   $('d-recipe').innerHTML='<span class="pill"><i style="background:var(--cherry)"></i>Your recipe</span><h2>'+esc(r.name)+'</h2>'+(r.by?'<p class="hint" style="margin:0">'+esc(r.by)+'</p>':'')+
     '<div class="dr-meta"><span class="gl">'+esc(goalLabel(S.goal,S.amt))+'</span><span>'+S.dose+'g : '+dp.water+'g · 1:'+rr1(S.ratio)+'</span><span>'+S.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span><span>'+esc(gLabel(S.grinder,S.setting))+'</span><span>'+BREWERS[S.brewer].bloom.label+' '+S.bloom+'s</span></div>'+
-    '<div class="dr-cols"><div><h3 style="margin-top:0">Steps</h3>'+pourGraph(dp.steps,dp.water)+stepList(dp.steps)+(r.tip&&r.kind!=='46'?'<p class="hint">'+esc(r.tip)+'</p>':'')+'</div>'+
+    '<div class="dr-cols"><div><h3 style="margin-top:0">Steps</h3>'+pourGraph(dp.steps,dp.water)+stepList(dp.steps)+(r.kind!=='46'?tipBox(r.tip):'')+'</div>'+
     '<div><h3 style="margin-top:0">What changed and why</h3><ul class="why">'+(notes.length?notes.map(w=>'<li>'+w+'</li>').join(''):'<li>The recipe as written suits this coffee.</li>')+'</ul></div></div>'+
     '<div class="actions"><button type="button" class="btn" data-dtimer>Start brew timer</button><button type="button" class="btn ghost" data-dfull>Original recipe</button></div>'}
 function dialTimer(){const dp=dialPlan();if(!dp)return;openTimer(S.rec,{brewer:S.brewer,grinder:S.grinder,set:{[S.grinder]:S.setting},r:{dose:S.dose},water:dp.water,temp:S.temp,steps:dp.steps,bean:S.bean&&S.bean.id||null})}
@@ -7239,7 +7283,7 @@ function holdSteps(steps,temp0){let tc=+temp0||0;const out=[],holds=new Set(),ca
     if(!m||(+m[2]*60+ +m[3])===0){if(t)tc=t;out.push(raw);continue}
     let body=m[4].trim(),acts=[],rest=body,x;
     if((x=/^(?:then\s+)?(open|close)\s+the\s+valve\b[\s,.:;]*(?:and\s+|then\s+)?(.*)$/i.exec(body))){acts.push(x[1].toLowerCase()+' the valve');rest=x[2]}
-    else if(/\b(?:open|close)\s+the\s+valve\.?$/i.test(body)){acts.push(body.replace(/\.$/,''));rest=''}
+    else if(/\b(?:open|close)\s+the\s+valve\b/i.test(body)){acts.push(body.replace(/\.$/,''));rest=''}
     else if(/\b(?:flip|fit the cap|attach the cap|switch to the)\b/i.test(body)){const k=body.search(/(?:,\s*|\s+and\s+(?:gently\s+)?|\s+then\s+)(?:gently\s+)?press\b/i);
       if(k>0&&/\b(?:flip|fit the cap|attach the cap|switch to the)\b/i.test(body.slice(0,k))){acts.push(body.slice(0,k));rest=body.slice(k).replace(/^(?:,\s*|\s+and\s+|\s+then\s+)/i,'')}else{acts.push(body.replace(/\.$/,''));rest=''}}
     // A new water temperature mid-brew means a second kettle, or waiting for this one to cool or heat.
@@ -7270,7 +7314,7 @@ function openTimerNow(idx,p){noteRecent(RECIPES[idx]);
       '<div class="tm-now" id="tm-card"><div class="tm-cardtop"><div class="tm-step" id="tm-step">Ready when you are</div>'+(ev.some(e=>e.v)?'<span class="tm-vchip" id="tm-valve" aria-live="polite"></span>':'')+'</div><div class="tm-target" id="tm-target"></div><div class="tm-text" id="tm-now">Get your gear ready, then press start.</div><div class="tm-bar"><i id="tm-barfill"></i></div><div class="tm-next" id="tm-next"></div></div>'+
       '<div class="tm-ctl"><button class="tm-ic big" id="tm-reset" aria-label="Reset">'+I('M4 12a8 8 0 1 0 2.3-5.6M4 4v5h5')+'</button><button class="tm-play" id="tm-go" aria-label="Start">'+I('M8 5v14l11-7z')+'</button><button class="tm-ic big" id="tm-skip" aria-label="Next step">'+I('M6 5l9 7-9 7z M18 5v14')+'</button></div>'
     :'<p class="tm-text" style="text-align:center">This one is by eye rather than the clock.</p>')+
-   '<details class="tm-all"'+(total?'':' open')+'><summary>All steps ('+ev.length+')</summary><ol id="tm-list">'+ev.map((e,i)=>'<li data-i="'+i+'"'+(e.h?' data-h="1"':'')+'>'+(e.t>=0?'<b'+(e.e?' class="est" title="Estimated from the recipe\'s pace"':'')+'>'+(e.e?'~':'')+mmss(e.t)+'</b>':'')+'<span>'+esc(stepTxt(e.s))+'</span></li>').join('')+'</ol></details></div>';
+   '<details class="tm-all"'+(total?'':' open')+'><summary>All steps</summary><ol id="tm-list">'+ev.map((e,i)=>'<li data-i="'+i+'"'+(e.h?' data-h="1"':'')+'>'+(e.t>=0?'<b'+(e.e?' class="est" title="Estimated from the recipe\'s pace"':'')+'>'+(e.e?'~':'')+mmss(e.t)+'</b>':'')+'<span>'+esc(stepTxt(e.s))+'</span></li>').join('')+'</ol></details></div>';
   const d=$('timer');showDlg(d);d.scrollTop=0;
   $('tm-x').onclick=()=>d.close();
   // However the timer is closed (X, back, Escape, backdrop), stop it and let the screen sleep again.
@@ -7895,14 +7939,15 @@ const rr1=v=>Math.round(v*10)/10;
 // Steps as a timeline: the time each one starts in a badge, the instruction beside it.
 // Each step also shows what kind of move it is (pour, swirl, valve…) as a small coloured icon; see steps.js.
 // An untimed pour shows the time the chart estimated for it ("~1:00"), so the list and the chart agree.
-const stepList=steps=>{steps=withTotals(steps);const c=pourCurve(steps);return '<ol class="steps tl">'+steps.map((x,i)=>{const m=/^\s*(\d+:\d\d)\s*/.exec(x),k=stepKind(x),d=!m&&c&&c.dots[i];return '<li class="k-'+k+'">'+(m?'<span class="t">'+m[1]+'</span>':d&&d.e?'<span class="t est" title="Estimated from the recipe\'s pace">~'+mmss(d.t)+'</span>':'<span class="t dot"></span>')+'<i class="tk" title="'+SKNAME(k)+'">'+SKICO(k)+'</i><span class="sx">'+esc(capS(m?x.slice(m[0].length):x))+'</span></li>'}).join('')+'</ol>'};
+const tipBox=t=>t?'<div class="rtip"><i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg></i><p><b>Tip</b>'+esc(t)+'</p></div>':'';
+const stepList=steps=>{steps=withTotals(steps);const c=pourCurve(steps),t1=steps.findIndex(x=>/^\s*\d+:\d\d/.test(x));return '<ol class="steps tl">'+steps.map((x,i)=>{const m=/^\s*(\d+:\d\d)\s*/.exec(x),k=stepKind(x),d=!m&&c&&c.dots[i];return '<li class="k-'+k+'">'+(m?'<span class="t">'+m[1]+'</span>':d&&d.e?'<span class="t est" title="Estimated from the recipe\'s pace">~'+mmss(d.t)+'</span>':i<t1?'<span class="t prep">Prep</span>':'<span class="t dot"></span>')+'<i class="tk" title="'+SKNAME(k)+'">'+SKICO(k)+'</i><span class="sx">'+esc(capS(m?x.slice(m[0].length):x))+'</span></li>'}).join('')+'</ol>'};
 function recipeBody(r,i,compact,inSheet){const B=BREWERS[r.b],sc=compact?{dose:r.dose,water:r.water,steps:r.steps,off:r.off,ratio:r.water/r.dose}:scaled(r);const gs=MYG.map(g=>[g,settingFor(g,r.b,sc.off)]);
   const m=rmeta(r);
   return (compact?'<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span>':'')+'</div>'
      :'<p class="hint" style="margin:0 0 .2rem">'+esc(B.name)+' · '+esc(B.type)+'</p>'+factCard([[r.dose+'g','Coffee'],[r.water+'g',r.iced?'Hot water':'Water'],[r.iced?'1:'+Math.round(r.total/r.dose*10)/10:m.ratio||'–','Ratio'+(r.iced?' with ice':'')],
        [r.temp?r.temp+'°C':'–','Temperature',r.temp2?'Then '+r.temp2+'°C':''],[m.time!=null?mmss(m.time):'By eye','Total time'],[m.level,'Level',m.pours?m.pours+' pour'+(m.pours===1?'':'s'):'']].map(([v,l,sub])=>{const t=tileKey(l,v);return [svgI(t?t[2]:'M12 7v6 M12 16.5v.5'),l,esc(String(v))+(sub?'<em class="bf-sub">'+esc(sub)+'</em>':''),t&&t[1]]}),{cls:'rfacts'}))+
    '<div class="meta">'+gs.map(([g,v])=>'<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>').join('')+'</div>'+
-   (r.why?'<p>'+esc(r.why)+'</p>':'')+(compact?'<details class="rsteps"><summary>Steps ('+r.steps.length+')</summary>':'')+(compact?'':pourGraph(sc.steps,sc.water))+stepList(sc.steps)+(r.tip?'<p class="hint">'+esc(r.tip)+'</p>':'')+(compact?'</details>':'')+
+   (r.why?'<p>'+esc(r.why)+'</p>':'')+(compact?'<details class="rsteps"><summary>Steps ('+r.steps.length+')</summary>':'')+(compact?'':pourGraph(sc.steps,sc.water))+stepList(sc.steps)+tipBox(r.tip)+(compact?'</details>':'')+
    // In the recipe sheet the actions ride along at the bottom, always in reach however far down you are.
    '<div class="actions ib-row'+(inSheet?' sheet-acts':'')+'">'+(inSheet?pbtn('timer','data-timer="'+i+'"','Start timer','main'):ib('timer','data-timer="'+i+'"','Start the timer','main'))+(B.model?ib('cup','data-load="'+i+'"','Brew in the dial-in'):'')+(inSheet?'':icoBtn('share','data-rshare="'+i+'"','Share this recipe')+(r.custom?icoBtn('edit','data-redit="'+esc(r.id)+'"','Edit this recipe'):''))+'</div>'}
 let RF=vwGet('rf',[],vwStrs).map(String),RQ='',RLIST=[];
@@ -7921,8 +7966,8 @@ const rkey=r=>r.custom?'c:'+r.id:'r:'+slug(r.name);
 // Recipes that were the same method in another profile, dose or ratio were folded into one (the dial-in sets those);
 // their old keys lead to the recipe they joined.
 const RALIAS={'r:switch-neo-percolate-then-immerse':'r:percolate-then-immerse','r:neo-split-pour':'r:split-pour','r:yuma-kawano-neo-recipe':'r:yuma-kawano-recipe','r:tetsu-kasuya-10-pour-on-the-neo':'r:tetsu-kasuya-10-pour','r:4-6-sweeter':'r:tetsu-kasuya-4-6','r:4-6-lighter-and-cleaner':'r:tetsu-kasuya-4-6','r:4-6-fuller-body':'r:tetsu-kasuya-4-6','r:mugen-small-cup':'r:mugen-one-pour',
-  'r:kalita-for-darker-roasts':'r:kalita-pulse-pour','r:kalita-big-batch':'r:kalita-pulse-pour','r:ristretto':'r:classic-espresso-1-2','r:long-shot-allonge':'r:classic-espresso-1-2',
-  'r:two-cup-v60':'r:the-ultimate-v60','r:neo-switch-percolate-then-immerse':'r:percolate-then-immerse','r:kasuya-hybrid-on-the-neo':'r:hybrid-method-devil-recipe','r:neo-switch-immersion':'r:full-immersion','r:chemex-for-one':'r:classic-chemex','r:ready-to-drink-cold-brew':'r:cold-brew-concentrate'};
+  'r:kalita-for-darker-roasts':'r:kalita-pulse-pour','r:kalita-big-batch':'r:kalita-pulse-pour','r:long-shot-allonge':'r:classic-espresso-1-2',
+  'r:two-cup-v60':'r:the-ultimate-v60','r:neo-switch-percolate-then-immerse':'r:percolate-then-immerse','r:kasuya-hybrid-on-the-neo':'r:hybrid-method-devil-recipe','r:neo-switch-immersion':'r:full-immersion','r:chemex-for-one':'r:classic-chemex'};
 const loadKeys=k=>{try{const v=JSON.parse(localStorage.getItem(k)||'[]');return Array.isArray(v)?[...new Set(v.filter(x=>typeof x==='string'&&x.length<120).map(x=>RALIAS[x]||x))]:[]}catch(e){return[]}};
 let FAVS=new Set(loadKeys('bb-favs'));
 let RECENT=loadKeys('bb-recent').slice(0,8);
@@ -8037,13 +8082,13 @@ const RF_NAME=()=>selName(RF,rfName,'All recipes');
 const RR_IC={time:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="7.5"/><path d="M12 9.5V13l2.5 1.6M10 3h4"/></svg>',
   temp:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13.6V5a2 2 0 0 1 4 0v8.6a4 4 0 1 1-4 0z"/><path d="M12 17v-5"/></svg>'};
 // o.lv false: the level is already the heading. o.brewer: say which brewer (when the list isn't grouped by brewer).
-function rrow(r,i,o={}){const m=rmeta(r),lv={Easy:'e',Medium:'i',Advanced:'a'}[m.level],who=r.by?r.by.split(/,\s*/)[0]:'';
+function rrow(r,i,o={}){const m=rmeta(r),lv={Easy:'e',Medium:'i',Advanced:'a'}[m.level],who=r.by?r.by.split(/,\s*/)[0].replace(/\s*\([^)]*\)\s*$/,''):'';
   const tags=(BTAG[r.b]?'<span class="rr-tag neo">'+BTAG[r.b]+'</span>':'')+(r.champ?'<span class="rr-tag champ">Champion</span>':'')+(r.custom?'<span class="rr-tag ours">'+esc(r.author&&r.author!==ME?'From '+r.author:'Yours')+'</span>':'');
   const st=['<span class="rr-dose">'+r.dose+'<i aria-hidden="true">→</i>'+r.water+'<em>g</em></span>',m.ratio?'<span>'+m.ratio+'</span>':'',
     m.time!=null?'<span>'+RR_IC.time+mmss(m.time)+'</span>':'',r.temp?'<span>'+RR_IC.temp+r.temp+'°</span>':''].filter(Boolean).join('');
   return '<article class="rrow'+(r.custom?' mine':'')+'"><button type="button" class="rr-open" data-open="'+i+'">'+
-    '<span class="rr-t"><b>'+esc(r.name)+'</b>'+tags+'</span>'+
-    '<span class="rr-by">'+[o.lv===false?'':'<span class="lv lv-'+lv+'"><i aria-hidden="true"></i>'+m.level+'</span>',o.brewer?'<span class="rr-bw">'+esc(famName(r.b))+'</span>':'',who?'<span class="rr-who">'+esc(who)+'</span>':''].filter(Boolean).join('<span class="rr-sep" aria-hidden="true">·</span>')+'</span>'+
+    '<span class="rr-t"><b>'+esc(r.name)+'</b></span>'+
+    '<span class="rr-by">'+tags+[o.lv===false?'':'<span class="lv lv-'+lv+'"><i aria-hidden="true"></i>'+m.level+'</span>',o.brewer?'<span class="rr-bw">'+esc(famName(r.b))+'</span>':'',who?'<span class="rr-who">'+esc(who)+'</span>':''].filter(Boolean).join('<span class="rr-sep" aria-hidden="true">·</span>')+'</span>'+
     '<span class="rr-m" aria-label="'+esc([r.dose+' g coffee, '+r.water+' g water',m.ratio,m.time!=null?mmss(m.time):'',r.temp?r.temp+'°C':''].filter(Boolean).join(', '))+'">'+st+'</span></button>'+
     '<div class="rr-side">'+favBtn(r)+'<button type="button" class="rr-play" data-timer="'+i+'" aria-label="Start the timer for '+esc(r.name)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button></div></article>'}
 // The recipe list is long (about 3,000 elements for every recipe): the first dozen rows are drawn at once and the
@@ -8332,7 +8377,7 @@ function openRoute(h){let m;try{h=decodeURIComponent(h)}catch(e){}
 function importRecipe(code){let r;try{r=sanRec(b64u.dec(code))}catch(e){r=null}if(!r){toast('That recipe link looks broken');return}
   r.id='r'+Date.now().toString(36);r.ts=Date.now();const B=BREWERS[r.b];
   $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Shared recipe</span><h2 id="vd-title">'+esc(r.name)+'</h2>'+(r.author?'<p class="hint vd-by">From '+esc(r.author)+'</p>':'')+
-   '<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C</span>':'')+'</div></div><div class="vd-body">'+(r.why?'<p>'+esc(r.why)+'</p>':'')+stepList(r.steps)+(r.tip?'<p class="hint">'+esc(r.tip)+'</p>':'')+
+   '<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C</span>':'')+'</div></div><div class="vd-body">'+(r.why?'<p>'+esc(r.why)+'</p>':'')+stepList(r.steps)+tipBox(r.tip)+
    '<div class="meta">'+MYG.map(g=>{const v=settingFor(g,r.b,r.off);return '<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>'}).join('')+'</div>'+
    '<div class="actions ib-row">'+ib('plus','id="imp-add"','Add to my recipes','main')+ib('x','id="imp-no"','Not now')+'</div></div>';
   const d=$('vd');showDlg(d);d.scrollTop=0;$('vd-x').onclick=$('imp-no').onclick=()=>d.close();

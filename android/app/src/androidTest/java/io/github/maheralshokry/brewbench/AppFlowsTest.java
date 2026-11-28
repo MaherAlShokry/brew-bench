@@ -71,8 +71,22 @@ public class AppFlowsTest {
         + "notes:i%4?'':'Sweet and clean.',fl:[['fruity.stone-fruit.peach',3],['floral.floral.jasmine',2]],snap:{b:'v60',dose:15,water:250,rec:'Tetsu Kasuya 4:6',g:'zp6',c:44,t:93,bean:{id:b.id}}})}"
         + "localStorage.setItem('bb-log',JSON.stringify(L));sessionStorage.setItem('bb-splashed','1');return 'ok'})()";
 
+    /** CI's emulator runs with system animations off, which the WebView reports as "reduce motion", and then the app
+     *  rightly shows no drag preview. Animations go back on for this test (before the app starts, so the page sees it)
+     *  and off again after. */
+    private static void animScale(String v) {
+        for (String k : new String[]{"window_animation_scale", "transition_animation_scale", "animator_duration_scale"}) {
+            try { InstrumentationRegistry.getInstrumentation().getUiAutomation().executeShellCommand("settings put global " + k + " " + v).close(); } catch (Exception e) { Log.w(TAG, "no " + k + ": " + e); }
+        }
+    }
+
     @Test
     public void everydayFlows() throws Exception {
+        animScale("1");
+        try { flows(); } finally { animScale("0"); }
+    }
+
+    private void flows() throws Exception {
         try (ActivityScenario<MainActivity> sc = ActivityScenario.launch(MainActivity.class)) {
             sc.onActivity(a -> act = a);
             waitFor("window.BEANS_OK", 60000);
@@ -129,8 +143,14 @@ public class AppFlowsTest {
                     act.getOnBackPressedDispatcher().dispatchOnBackProgressed(new BackEventCompat(200f, 900f, 0.6f, BackEventCompat.EDGE_LEFT));
                 });
                 Thread.sleep(600);
-                assertEquals("the page follows the drag", "true", js("$('log').classList.contains('bk-drag')&&parseFloat($('log').style.getPropertyValue('--bk-s'))<1"));
-                shot("back-drag");
+                if ("true".equals(js("RM()"))) {
+                    // Reduce motion on (the scale didn't take): no preview, the page stays put.
+                    Log.i(TAG, "reduce motion is on: checking that the page stays put");
+                    assertEquals("no drag preview with reduce motion", "false", js("$('log').classList.contains('bk-drag')"));
+                } else {
+                    assertEquals("the page follows the drag", "true", js("$('log').classList.contains('bk-drag')&&parseFloat($('log').style.getPropertyValue('--bk-s'))<1"));
+                    shot("back-drag");
+                }
                 act.runOnUiThread(() -> act.getOnBackPressedDispatcher().dispatchOnBackCancelled());
                 Thread.sleep(700);
                 assertEquals("…and springs back when you let it go", "false", js("$('log').classList.contains('bk-drag')"));

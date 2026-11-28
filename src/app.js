@@ -784,7 +784,7 @@ function renderDialRecipe(){const tl=techList(S.brewer),r=dialRec();
   $('d-recipe').hidden=false;
   $('d-recipe').innerHTML='<span class="pill"><i style="background:var(--cherry)"></i>Your recipe</span><h2>'+esc(r.name)+'</h2>'+(r.by?'<p class="hint" style="margin:0">'+esc(r.by)+'</p>':'')+
     '<div class="dr-meta"><span class="gl">'+esc(goalLabel(S.goal,S.amt))+'</span><span>'+S.dose+'g : '+dp.water+'g · 1:'+rr1(S.ratio)+'</span><span>'+S.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span><span>'+esc(gLabel(S.grinder,S.setting))+'</span><span>'+BREWERS[S.brewer].bloom.label+' '+S.bloom+'s</span></div>'+
-    '<div class="dr-cols"><div><h3 style="margin-top:0">Steps</h3>'+pourGraph(dp.steps,dp.water)+stepList(dp.steps)+(r.tip&&r.kind!=='46'?'<p class="hint">'+esc(r.tip)+'</p>':'')+'</div>'+
+    '<div class="dr-cols"><div><h3 style="margin-top:0">Steps</h3>'+pourGraph(dp.steps,dp.water)+stepList(dp.steps)+(r.kind!=='46'?tipBox(r.tip):'')+'</div>'+
     '<div><h3 style="margin-top:0">What changed and why</h3><ul class="why">'+(notes.length?notes.map(w=>'<li>'+w+'</li>').join(''):'<li>The recipe as written suits this coffee.</li>')+'</ul></div></div>'+
     '<div class="actions"><button type="button" class="btn" data-dtimer>Start brew timer</button><button type="button" class="btn ghost" data-dfull>Original recipe</button></div>'}
 function dialTimer(){const dp=dialPlan();if(!dp)return;openTimer(S.rec,{brewer:S.brewer,grinder:S.grinder,set:{[S.grinder]:S.setting},r:{dose:S.dose},water:dp.water,temp:S.temp,steps:dp.steps,bean:S.bean&&S.bean.id||null})}
@@ -1138,7 +1138,7 @@ function holdSteps(steps,temp0){let tc=+temp0||0;const out=[],holds=new Set(),ca
     if(!m||(+m[2]*60+ +m[3])===0){if(t)tc=t;out.push(raw);continue}
     let body=m[4].trim(),acts=[],rest=body,x;
     if((x=/^(?:then\s+)?(open|close)\s+the\s+valve\b[\s,.:;]*(?:and\s+|then\s+)?(.*)$/i.exec(body))){acts.push(x[1].toLowerCase()+' the valve');rest=x[2]}
-    else if(/\b(?:open|close)\s+the\s+valve\.?$/i.test(body)){acts.push(body.replace(/\.$/,''));rest=''}
+    else if(/\b(?:open|close)\s+the\s+valve\b/i.test(body)){acts.push(body.replace(/\.$/,''));rest=''}
     else if(/\b(?:flip|fit the cap|attach the cap|switch to the)\b/i.test(body)){const k=body.search(/(?:,\s*|\s+and\s+(?:gently\s+)?|\s+then\s+)(?:gently\s+)?press\b/i);
       if(k>0&&/\b(?:flip|fit the cap|attach the cap|switch to the)\b/i.test(body.slice(0,k))){acts.push(body.slice(0,k));rest=body.slice(k).replace(/^(?:,\s*|\s+and\s+|\s+then\s+)/i,'')}else{acts.push(body.replace(/\.$/,''));rest=''}}
     // A new water temperature mid-brew means a second kettle, or waiting for this one to cool or heat.
@@ -1169,7 +1169,7 @@ function openTimerNow(idx,p){noteRecent(RECIPES[idx]);
       '<div class="tm-now" id="tm-card"><div class="tm-cardtop"><div class="tm-step" id="tm-step">Ready when you are</div>'+(ev.some(e=>e.v)?'<span class="tm-vchip" id="tm-valve" aria-live="polite"></span>':'')+'</div><div class="tm-target" id="tm-target"></div><div class="tm-text" id="tm-now">Get your gear ready, then press start.</div><div class="tm-bar"><i id="tm-barfill"></i></div><div class="tm-next" id="tm-next"></div></div>'+
       '<div class="tm-ctl"><button class="tm-ic big" id="tm-reset" aria-label="Reset">'+I('M4 12a8 8 0 1 0 2.3-5.6M4 4v5h5')+'</button><button class="tm-play" id="tm-go" aria-label="Start">'+I('M8 5v14l11-7z')+'</button><button class="tm-ic big" id="tm-skip" aria-label="Next step">'+I('M6 5l9 7-9 7z M18 5v14')+'</button></div>'
     :'<p class="tm-text" style="text-align:center">This one is by eye rather than the clock.</p>')+
-   '<details class="tm-all"'+(total?'':' open')+'><summary>All steps ('+ev.length+')</summary><ol id="tm-list">'+ev.map((e,i)=>'<li data-i="'+i+'"'+(e.h?' data-h="1"':'')+'>'+(e.t>=0?'<b'+(e.e?' class="est" title="Estimated from the recipe\'s pace"':'')+'>'+(e.e?'~':'')+mmss(e.t)+'</b>':'')+'<span>'+esc(stepTxt(e.s))+'</span></li>').join('')+'</ol></details></div>';
+   '<details class="tm-all"'+(total?'':' open')+'><summary>All steps</summary><ol id="tm-list">'+ev.map((e,i)=>'<li data-i="'+i+'"'+(e.h?' data-h="1"':'')+'>'+(e.t>=0?'<b'+(e.e?' class="est" title="Estimated from the recipe\'s pace"':'')+'>'+(e.e?'~':'')+mmss(e.t)+'</b>':'')+'<span>'+esc(stepTxt(e.s))+'</span></li>').join('')+'</ol></details></div>';
   const d=$('timer');showDlg(d);d.scrollTop=0;
   $('tm-x').onclick=()=>d.close();
   // However the timer is closed (X, back, Escape, backdrop), stop it and let the screen sleep again.
@@ -1794,14 +1794,15 @@ const rr1=v=>Math.round(v*10)/10;
 // Steps as a timeline: the time each one starts in a badge, the instruction beside it.
 // Each step also shows what kind of move it is (pour, swirl, valve…) as a small coloured icon; see steps.js.
 // An untimed pour shows the time the chart estimated for it ("~1:00"), so the list and the chart agree.
-const stepList=steps=>{steps=withTotals(steps);const c=pourCurve(steps);return '<ol class="steps tl">'+steps.map((x,i)=>{const m=/^\s*(\d+:\d\d)\s*/.exec(x),k=stepKind(x),d=!m&&c&&c.dots[i];return '<li class="k-'+k+'">'+(m?'<span class="t">'+m[1]+'</span>':d&&d.e?'<span class="t est" title="Estimated from the recipe\'s pace">~'+mmss(d.t)+'</span>':'<span class="t dot"></span>')+'<i class="tk" title="'+SKNAME(k)+'">'+SKICO(k)+'</i><span class="sx">'+esc(capS(m?x.slice(m[0].length):x))+'</span></li>'}).join('')+'</ol>'};
+const tipBox=t=>t?'<div class="rtip"><i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg></i><p><b>Tip</b>'+esc(t)+'</p></div>':'';
+const stepList=steps=>{steps=withTotals(steps);const c=pourCurve(steps),t1=steps.findIndex(x=>/^\s*\d+:\d\d/.test(x));return '<ol class="steps tl">'+steps.map((x,i)=>{const m=/^\s*(\d+:\d\d)\s*/.exec(x),k=stepKind(x),d=!m&&c&&c.dots[i];return '<li class="k-'+k+'">'+(m?'<span class="t">'+m[1]+'</span>':d&&d.e?'<span class="t est" title="Estimated from the recipe\'s pace">~'+mmss(d.t)+'</span>':i<t1?'<span class="t prep">Prep</span>':'<span class="t dot"></span>')+'<i class="tk" title="'+SKNAME(k)+'">'+SKICO(k)+'</i><span class="sx">'+esc(capS(m?x.slice(m[0].length):x))+'</span></li>'}).join('')+'</ol>'};
 function recipeBody(r,i,compact,inSheet){const B=BREWERS[r.b],sc=compact?{dose:r.dose,water:r.water,steps:r.steps,off:r.off,ratio:r.water/r.dose}:scaled(r);const gs=MYG.map(g=>[g,settingFor(g,r.b,sc.off)]);
   const m=rmeta(r);
   return (compact?'<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C'+(r.temp2?' then '+r.temp2+'°C':'')+'</span>':'')+'</div>'
      :'<p class="hint" style="margin:0 0 .2rem">'+esc(B.name)+' · '+esc(B.type)+'</p>'+factCard([[r.dose+'g','Coffee'],[r.water+'g',r.iced?'Hot water':'Water'],[r.iced?'1:'+Math.round(r.total/r.dose*10)/10:m.ratio||'–','Ratio'+(r.iced?' with ice':'')],
        [r.temp?r.temp+'°C':'–','Temperature',r.temp2?'Then '+r.temp2+'°C':''],[m.time!=null?mmss(m.time):'By eye','Total time'],[m.level,'Level',m.pours?m.pours+' pour'+(m.pours===1?'':'s'):'']].map(([v,l,sub])=>{const t=tileKey(l,v);return [svgI(t?t[2]:'M12 7v6 M12 16.5v.5'),l,esc(String(v))+(sub?'<em class="bf-sub">'+esc(sub)+'</em>':''),t&&t[1]]}),{cls:'rfacts'}))+
    '<div class="meta">'+gs.map(([g,v])=>'<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>').join('')+'</div>'+
-   (r.why?'<p>'+esc(r.why)+'</p>':'')+(compact?'<details class="rsteps"><summary>Steps ('+r.steps.length+')</summary>':'')+(compact?'':pourGraph(sc.steps,sc.water))+stepList(sc.steps)+(r.tip?'<p class="hint">'+esc(r.tip)+'</p>':'')+(compact?'</details>':'')+
+   (r.why?'<p>'+esc(r.why)+'</p>':'')+(compact?'<details class="rsteps"><summary>Steps ('+r.steps.length+')</summary>':'')+(compact?'':pourGraph(sc.steps,sc.water))+stepList(sc.steps)+tipBox(r.tip)+(compact?'</details>':'')+
    // In the recipe sheet the actions ride along at the bottom, always in reach however far down you are.
    '<div class="actions ib-row'+(inSheet?' sheet-acts':'')+'">'+(inSheet?pbtn('timer','data-timer="'+i+'"','Start timer','main'):ib('timer','data-timer="'+i+'"','Start the timer','main'))+(B.model?ib('cup','data-load="'+i+'"','Brew in the dial-in'):'')+(inSheet?'':icoBtn('share','data-rshare="'+i+'"','Share this recipe')+(r.custom?icoBtn('edit','data-redit="'+esc(r.id)+'"','Edit this recipe'):''))+'</div>'}
 let RF=vwGet('rf',[],vwStrs).map(String),RQ='',RLIST=[];
@@ -1820,8 +1821,8 @@ const rkey=r=>r.custom?'c:'+r.id:'r:'+slug(r.name);
 // Recipes that were the same method in another profile, dose or ratio were folded into one (the dial-in sets those);
 // their old keys lead to the recipe they joined.
 const RALIAS={'r:switch-neo-percolate-then-immerse':'r:percolate-then-immerse','r:neo-split-pour':'r:split-pour','r:yuma-kawano-neo-recipe':'r:yuma-kawano-recipe','r:tetsu-kasuya-10-pour-on-the-neo':'r:tetsu-kasuya-10-pour','r:4-6-sweeter':'r:tetsu-kasuya-4-6','r:4-6-lighter-and-cleaner':'r:tetsu-kasuya-4-6','r:4-6-fuller-body':'r:tetsu-kasuya-4-6','r:mugen-small-cup':'r:mugen-one-pour',
-  'r:kalita-for-darker-roasts':'r:kalita-pulse-pour','r:kalita-big-batch':'r:kalita-pulse-pour','r:ristretto':'r:classic-espresso-1-2','r:long-shot-allonge':'r:classic-espresso-1-2',
-  'r:two-cup-v60':'r:the-ultimate-v60','r:neo-switch-percolate-then-immerse':'r:percolate-then-immerse','r:kasuya-hybrid-on-the-neo':'r:hybrid-method-devil-recipe','r:neo-switch-immersion':'r:full-immersion','r:chemex-for-one':'r:classic-chemex','r:ready-to-drink-cold-brew':'r:cold-brew-concentrate'};
+  'r:kalita-for-darker-roasts':'r:kalita-pulse-pour','r:kalita-big-batch':'r:kalita-pulse-pour','r:long-shot-allonge':'r:classic-espresso-1-2',
+  'r:two-cup-v60':'r:the-ultimate-v60','r:neo-switch-percolate-then-immerse':'r:percolate-then-immerse','r:kasuya-hybrid-on-the-neo':'r:hybrid-method-devil-recipe','r:neo-switch-immersion':'r:full-immersion','r:chemex-for-one':'r:classic-chemex'};
 const loadKeys=k=>{try{const v=JSON.parse(localStorage.getItem(k)||'[]');return Array.isArray(v)?[...new Set(v.filter(x=>typeof x==='string'&&x.length<120).map(x=>RALIAS[x]||x))]:[]}catch(e){return[]}};
 let FAVS=new Set(loadKeys('bb-favs'));
 let RECENT=loadKeys('bb-recent').slice(0,8);
@@ -1936,13 +1937,13 @@ const RF_NAME=()=>selName(RF,rfName,'All recipes');
 const RR_IC={time:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="7.5"/><path d="M12 9.5V13l2.5 1.6M10 3h4"/></svg>',
   temp:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13.6V5a2 2 0 0 1 4 0v8.6a4 4 0 1 1-4 0z"/><path d="M12 17v-5"/></svg>'};
 // o.lv false: the level is already the heading. o.brewer: say which brewer (when the list isn't grouped by brewer).
-function rrow(r,i,o={}){const m=rmeta(r),lv={Easy:'e',Medium:'i',Advanced:'a'}[m.level],who=r.by?r.by.split(/,\s*/)[0]:'';
+function rrow(r,i,o={}){const m=rmeta(r),lv={Easy:'e',Medium:'i',Advanced:'a'}[m.level],who=r.by?r.by.split(/,\s*/)[0].replace(/\s*\([^)]*\)\s*$/,''):'';
   const tags=(BTAG[r.b]?'<span class="rr-tag neo">'+BTAG[r.b]+'</span>':'')+(r.champ?'<span class="rr-tag champ">Champion</span>':'')+(r.custom?'<span class="rr-tag ours">'+esc(r.author&&r.author!==ME?'From '+r.author:'Yours')+'</span>':'');
   const st=['<span class="rr-dose">'+r.dose+'<i aria-hidden="true">→</i>'+r.water+'<em>g</em></span>',m.ratio?'<span>'+m.ratio+'</span>':'',
     m.time!=null?'<span>'+RR_IC.time+mmss(m.time)+'</span>':'',r.temp?'<span>'+RR_IC.temp+r.temp+'°</span>':''].filter(Boolean).join('');
   return '<article class="rrow'+(r.custom?' mine':'')+'"><button type="button" class="rr-open" data-open="'+i+'">'+
-    '<span class="rr-t"><b>'+esc(r.name)+'</b>'+tags+'</span>'+
-    '<span class="rr-by">'+[o.lv===false?'':'<span class="lv lv-'+lv+'"><i aria-hidden="true"></i>'+m.level+'</span>',o.brewer?'<span class="rr-bw">'+esc(famName(r.b))+'</span>':'',who?'<span class="rr-who">'+esc(who)+'</span>':''].filter(Boolean).join('<span class="rr-sep" aria-hidden="true">·</span>')+'</span>'+
+    '<span class="rr-t"><b>'+esc(r.name)+'</b></span>'+
+    '<span class="rr-by">'+tags+[o.lv===false?'':'<span class="lv lv-'+lv+'"><i aria-hidden="true"></i>'+m.level+'</span>',o.brewer?'<span class="rr-bw">'+esc(famName(r.b))+'</span>':'',who?'<span class="rr-who">'+esc(who)+'</span>':''].filter(Boolean).join('<span class="rr-sep" aria-hidden="true">·</span>')+'</span>'+
     '<span class="rr-m" aria-label="'+esc([r.dose+' g coffee, '+r.water+' g water',m.ratio,m.time!=null?mmss(m.time):'',r.temp?r.temp+'°C':''].filter(Boolean).join(', '))+'">'+st+'</span></button>'+
     '<div class="rr-side">'+favBtn(r)+'<button type="button" class="rr-play" data-timer="'+i+'" aria-label="Start the timer for '+esc(r.name)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button></div></article>'}
 // The recipe list is long (about 3,000 elements for every recipe): the first dozen rows are drawn at once and the
@@ -2231,7 +2232,7 @@ function openRoute(h){let m;try{h=decodeURIComponent(h)}catch(e){}
 function importRecipe(code){let r;try{r=sanRec(b64u.dec(code))}catch(e){r=null}if(!r){toast('That recipe link looks broken');return}
   r.id='r'+Date.now().toString(36);r.ts=Date.now();const B=BREWERS[r.b];
   $('vd-in').innerHTML='<div class="vd-head" style="--c:var(--cherry)"><button class="vd-close" id="vd-x" aria-label="Close">✕</button><span class="pill"><i style="background:var(--cherry)"></i>Shared recipe</span><h2 id="vd-title">'+esc(r.name)+'</h2>'+(r.author?'<p class="hint vd-by">From '+esc(r.author)+'</p>':'')+
-   '<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C</span>':'')+'</div></div><div class="vd-body">'+(r.why?'<p>'+esc(r.why)+'</p>':'')+stepList(r.steps)+(r.tip?'<p class="hint">'+esc(r.tip)+'</p>':'')+
+   '<div class="meta"><span>'+esc(B.name)+'</span><span>'+r.dose+'g : '+r.water+'g</span>'+(r.temp?'<span>'+r.temp+'°C</span>':'')+'</div></div><div class="vd-body">'+(r.why?'<p>'+esc(r.why)+'</p>':'')+stepList(r.steps)+tipBox(r.tip)+
    '<div class="meta">'+MYG.map(g=>{const v=settingFor(g,r.b,r.off);return '<span>'+esc(v!=null?gLabel(g,v):gname(g)+': n/a')+'</span>'}).join('')+'</div>'+
    '<div class="actions ib-row">'+ib('plus','id="imp-add"','Add to my recipes','main')+ib('x','id="imp-no"','Not now')+'</div></div>';
   const d=$('vd');showDlg(d);d.scrollTop=0;$('vd-x').onclick=$('imp-no').onclick=()=>d.close();
